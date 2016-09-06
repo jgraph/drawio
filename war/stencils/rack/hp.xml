@@ -1,0 +1,525 @@
+<shapes name="mxGraph.rack.HP">
+    <shape name="HP 6125G Ethernet Blade Switch" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18" y="0"/>
+                <line x="18" y="120"/>
+                <line x="4" y="120"/>
+                <line x="4" y="116"/>
+                <line x="0" y="116"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="5" y="13" w="8" h="40"/>
+            <stroke/>
+            <rect x="5" y="62" w="8" h="8"/>
+            <stroke/>
+            <rect x="8" y="74" w="5" h="15"/>
+            <stroke/>
+            <rect x="8" y="92" w="5" h="15"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP BladeSystem c3000 Enclosure" h="88.89" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="88.89"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="20.5" y="4" w="120" h="72"/>
+            <fillstroke/>
+            <path>
+                <move x="80.5" y="4"/>
+                <line x="80.5" y="76"/>
+                <move x="20.5" y="22"/>
+                <line x="140.5" y="22"/>
+                <move x="20.5" y="40"/>
+                <line x="140.5" y="40"/>
+                <move x="20.5" y="58"/>
+                <line x="140.5" y="58"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP BladeSystem c7000 Enclosure" h="140.81" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="140.81"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="8" y="3" w="144" h="120"/>
+            <fillstroke/>
+            <path>
+                <move x="80" y="3"/>
+                <line x="80" y="123"/>
+                <move x="44" y="3"/>
+                <line x="44" y="123"/>
+                <move x="116" y="3"/>
+                <line x="116" y="123"/>
+                <move x="26" y="3"/>
+                <line x="26" y="123"/>
+                <move x="62" y="3"/>
+                <line x="62" y="123"/>
+                <move x="98" y="3"/>
+                <line x="98" y="123"/>
+                <move x="134" y="3"/>
+                <line x="134" y="123"/>
+                <move x="8" y="63"/>
+                <line x="152" y="63"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP BladeSystem s6500 Enclosure" h="59.2" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="59.2"/>
+            <fillstroke/>
+            <path>
+                <move x="80.5" y="0"/>
+                <line x="80.5" y="59.2"/>
+                <move x="0" y="14.8"/>
+                <line x="160.9" y="14.8"/>
+                <move x="0" y="29.6"/>
+                <line x="160.9" y="29.6"/>
+                <move x="0" y="44.4"/>
+                <line x="160.9" y="44.4"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP InfiniBand FDR Switch" h="240" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <rect x="8" y="4" w="5" h="112"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="18" y="240"/>
+                <line x="4" y="240"/>
+                <line x="4" y="236"/>
+                <line x="0" y="236"/>
+                <line x="0" y="124"/>
+                <line x="4" y="124"/>
+                <line x="4" y="116"/>
+                <line x="0" y="116"/>
+                <line x="0" y="4"/>
+                <line x="4" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="8" y="124" w="5" h="112"/>
+            <stroke/>
+            <rect x="8" y="4" w="5" h="112"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant BL620c Server Blade" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="18" h="120"/>
+            <fillstroke/>
+            <rect x="12" y="36.49" w="4" h="20.27"/>
+            <stroke/>
+            <rect x="12" y="63.24" w="4" h="20.27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant BL660c Server Blade" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="18" h="120"/>
+            <fillstroke/>
+            <rect x="12" y="9.73" w="4" h="20.27"/>
+            <stroke/>
+            <path>
+                <move x="0" y="108.65"/>
+                <line x="18" y="108.65"/>
+            </path>
+            <stroke/>
+            <rect x="12" y="85.14" w="4" h="20.27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant BL685c Server Blade" h="120" w="36">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="36" h="120"/>
+            <fillstroke/>
+            <rect x="2" y="36.5" w="4" h="20.28"/>
+            <stroke/>
+            <rect x="2" y="63.27" w="4" h="20.28"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="18" y="0"/>
+                <line x="18" y="120"/>
+            </path>
+            <stroke/>
+            <rect x="30" y="36.5" w="4" h="20.28"/>
+            <stroke/>
+            <rect x="30" y="63.27" w="4" h="20.28"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL160 G8" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#888888"/>
+            <rect x="7" y="0" w="147" h="14.8"/>
+            <fillstroke/>
+            <rect x="9" y="5" w="35" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL320e G8" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="7" y="0" w="147" h="14.8"/>
+            <stroke/>
+            <fillcolor color="#888888"/>
+            <path>
+                <move x="11" y="4"/>
+                <line x="15" y="4"/>
+                <line x="20" y="6"/>
+                <line x="20" y="9"/>
+                <line x="15" y="11"/>
+                <line x="11" y="11"/>
+                <close/>
+                <move x="150.6" y="4"/>
+                <line x="146.78" y="4"/>
+                <line x="142" y="6"/>
+                <line x="142" y="9"/>
+                <line x="146.78" y="11"/>
+                <line x="150.6" y="11"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <path>
+                <move x="20" y="14.8"/>
+                <line x="28" y="11"/>
+                <line x="135" y="11"/>
+                <line x="143" y="14.8"/>
+                <close/>
+                <move x="20" y="0"/>
+                <line x="28" y="3.8"/>
+                <line x="135" y="3.8"/>
+                <line x="143" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL360e G8" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="7" y="0" w="147" h="14.8"/>
+            <stroke/>
+            <fillcolor color="#888888"/>
+            <path>
+                <move x="11" y="4"/>
+                <line x="15" y="4"/>
+                <line x="20" y="6"/>
+                <line x="20" y="9"/>
+                <line x="15" y="11"/>
+                <line x="11" y="11"/>
+                <close/>
+                <move x="150.6" y="4"/>
+                <line x="146.78" y="4"/>
+                <line x="142" y="6"/>
+                <line x="142" y="9"/>
+                <line x="146.78" y="11"/>
+                <line x="150.6" y="11"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <path>
+                <move x="20" y="14.8"/>
+                <line x="28" y="11"/>
+                <line x="135" y="11"/>
+                <line x="143" y="14.8"/>
+                <close/>
+                <move x="20" y="0"/>
+                <line x="28" y="3.8"/>
+                <line x="135" y="3.8"/>
+                <line x="143" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL360p G8" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#888888"/>
+            <rect x="7" y="0" w="147" h="14.8"/>
+            <fillstroke/>
+            <rect x="9" y="7" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="7" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="7" w="27" h="6"/>
+            <stroke/>
+            <rect x="90" y="7" w="27" h="6"/>
+            <stroke/>
+            <rect x="117" y="7" w="27" h="6"/>
+            <stroke/>
+            <rect x="9" y="1" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="1" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="1" w="27" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL380e G8" h="29.63" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="7" y="0" w="147" h="29.6"/>
+            <stroke/>
+            <fillcolor color="#888888"/>
+            <path>
+                <move x="11" y="3"/>
+                <line x="15" y="3"/>
+                <line x="20" y="7"/>
+                <line x="20" y="22.6"/>
+                <line x="15" y="26.6"/>
+                <line x="11" y="26.6"/>
+                <close/>
+                <move x="151" y="3"/>
+                <line x="147" y="3"/>
+                <line x="142" y="7"/>
+                <line x="142" y="22.6"/>
+                <line x="147" y="26.6"/>
+                <line x="151" y="26.6"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <path>
+                <move x="20" y="29.6"/>
+                <line x="28" y="24.6"/>
+                <line x="135" y="24.6"/>
+                <line x="143" y="29.6"/>
+                <close/>
+                <move x="20" y="0"/>
+                <line x="28" y="5"/>
+                <line x="135" y="5"/>
+                <line x="143" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL380p G8" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#888888"/>
+            <rect x="7" y="0" w="147" h="29.6"/>
+            <fillstroke/>
+            <rect x="9" y="8" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="8" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="8" w="27" h="6"/>
+            <stroke/>
+            <rect x="90" y="8" w="27" h="6"/>
+            <stroke/>
+            <rect x="9" y="2" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="2" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="2" w="27" h="6"/>
+            <stroke/>
+            <rect x="90" y="2" w="27" h="6"/>
+            <stroke/>
+            <rect x="9" y="14" w="27" h="6"/>
+            <stroke/>
+            <rect x="9" y="20" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="14" w="27" h="6"/>
+            <stroke/>
+            <rect x="36" y="20" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="14" w="27" h="6"/>
+            <stroke/>
+            <rect x="63" y="20" w="27" h="6"/>
+            <stroke/>
+            <rect x="90" y="14" w="27" h="6"/>
+            <stroke/>
+            <rect x="90" y="20" w="27" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL385p G8" h="29.63" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="7" y="0" w="147" h="29.6"/>
+            <stroke/>
+            <fillcolor color="#888888"/>
+            <path>
+                <move x="11" y="3"/>
+                <line x="15" y="3"/>
+                <line x="20" y="7"/>
+                <line x="20" y="22.6"/>
+                <line x="15" y="26.6"/>
+                <line x="11" y="26.6"/>
+                <close/>
+                <move x="151" y="3"/>
+                <line x="147" y="3"/>
+                <line x="142" y="7"/>
+                <line x="142" y="22.6"/>
+                <line x="147" y="26.6"/>
+                <line x="151" y="26.6"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <path>
+                <move x="20" y="29.6"/>
+                <line x="28" y="24.6"/>
+                <line x="135" y="24.6"/>
+                <line x="143" y="29.6"/>
+                <close/>
+                <move x="20" y="0"/>
+                <line x="28" y="5"/>
+                <line x="135" y="5"/>
+                <line x="143" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant DL560 G8" h="29.63" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="7" y="0" w="147" h="29.6"/>
+            <stroke/>
+            <fillcolor color="#888888"/>
+            <path>
+                <move x="11" y="3"/>
+                <line x="15" y="3"/>
+                <line x="20" y="7"/>
+                <line x="20" y="22.6"/>
+                <line x="15" y="26.6"/>
+                <line x="11" y="26.6"/>
+                <close/>
+                <move x="151" y="3"/>
+                <line x="147" y="3"/>
+                <line x="142" y="7"/>
+                <line x="142" y="22.6"/>
+                <line x="147" y="26.6"/>
+                <line x="151" y="26.6"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <path>
+                <move x="20" y="29.6"/>
+                <line x="28" y="24.6"/>
+                <line x="135" y="24.6"/>
+                <line x="143" y="29.6"/>
+                <close/>
+                <move x="20" y="0"/>
+                <line x="28" y="5"/>
+                <line x="135" y="5"/>
+                <line x="143" y="0"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant SL230s G8" h="14.8" w="80.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dddddd"/>
+            <rect x="0" y="0" w="80.5" h="14.8"/>
+            <fillstroke/>
+            <rect x="2.5" y="1.5" w="25" h="5"/>
+            <stroke/>
+            <rect x="40" y="1.5" w="30" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP ProLiant SL250s G8" h="29.6" w="80.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dddddd"/>
+            <rect x="0" y="0" w="80.5" h="29.6"/>
+            <fillstroke/>
+            <rect x="2.5" y="16.3" w="25" h="5"/>
+            <stroke/>
+            <rect x="40" y="16.3" w="30" h="8"/>
+            <stroke/>
+            <rect x="8" y="1.5" w="30" h="4"/>
+            <stroke/>
+            <rect x="8" y="7" w="30" h="4"/>
+            <stroke/>
+            <rect x="41" y="1.5" w="30" h="4"/>
+            <stroke/>
+            <rect x="41" y="7" w="30" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="HP Virtual Connect Flex-10-10D" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18" y="0"/>
+                <line x="18" y="120"/>
+                <line x="4" y="120"/>
+                <line x="4" y="116"/>
+                <line x="0" y="116"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="8" y="4" w="5" h="35"/>
+            <stroke/>
+            <rect x="8" y="55" w="5" h="50"/>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>

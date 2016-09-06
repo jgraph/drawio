@@ -1,0 +1,4287 @@
+06-SEP-2016: 5.6.0.0
+
+- Fixes cursor scrolling for empty selection
+- Adds Alt+Shift+Cursor to connect and clone
+- Adds placeholders for custom shape text
+- Ctrl+A selects all cells recursively
+- Uses new (de)compression algorithm
+- Adds language option in Chrome App
+- Enables relative links in labels
+- Shift+Escape cancels editing
+- Uses mxGraph 3.5.1.6 beta 5
+- Pre-loads custom libraries
+- Fixes object error in IE6
+
+01-SEP-2016: 5.5.6.2
+
+- Adds new predefined color schemes
+
+30-AUG-2016: 5.5.6.1
+
+- Uses mxGraph 3.5.1.6 beta 4
+- Escape while editing applies new text value
+- Fixes bounds for zoomed markup in-place editor
+- Fixes JIRA cloud integration for Safari 
+
+25-AUG-2016: 5.5.6.0
+
+- Uses mxGraph 3.5.1.6 beta 3
+- Ignores scale for guides 
+- Fixes ignored background image in realtime
+- Removes clipping for general text in grapheditor example
+- Adds workaround for image printing in Chrome
+- Fixes cropped labels in sidebar tooltips
+- Adds entries argument in MoreShapes dialog
+- Removes unused code and resources
+- Simplified licensing check
+- Adds new office, archimate3 shapes
+- Finnish translation improvements
+- Persian translation improvements
+
+12-AUG-2016: 5.5.5.8
+
+- i18n updates
+
+10-AUG-2016: 5.5.5.7
+
+- Minor changes
+
+08-AUG-2016: 5.5.5.6
+
+- Fixes malformed XHTML meta element used in HTML save
+
+07-AUG-2016: 5.5.5.5
+
+- Adds encoding for new HTML file format
+
+04-AUG-2016: 5.5.5.4
+
+- Marketing text changes
+
+02-AUG-2016: 5.5.5.3
+
+- Fixes export via Advanced dialog
+
+29-JUL-2016: 5.5.5.2
+
+- Fixes cloud export for UTF characters
+
+29-JUL-2016: 5.5.5.1
+
+- Mousewheel zoom centered around mouse cursor
+
+28-JUL-2016: 5.5.5.0
+
+- Adds embedded image support for .vsdx import
+- Adds File, Publish submenu, GitHub option
+- Fixes capitalized keys in tooltips
+- Uses mxGraph 3.5.1.6 beta 2
+
+26-JUL-2016: 5.5.4.0
+
+- Adds placeholder metadata variable
+
+25-JUL-2016: 5.5.3.8
+
+- Fixes templates for new HTML file format
+- Fixes image export for new HTML file format
+- Uses mxGraph 3.5.1.6 beta 1
+
+23-JUL-2016: 5.5.3.7
+
+- Uses Ctrl+Shift+Z for redo on Linux
+- Adds Ctrl+,/. for subscript/superscript
+- Uses new embed code for HTML files and export
+- Fixes embed iframe dialog
+
+21-JUL-2016: 5.5.3.6
+
+- Fixes lazy loading of shapes in Chrome App
+
+21-JUL-2016: 5.5.3.5
+
+- Simplifies footer
+
+20-JUL-2016: 5.5.3.4
+
+- Adds Contact Us link in footer
+
+20-JUL-2016: 5.5.3.3
+
+- Uses mxGraph 3.5.1.5
+- Adds browser in splash for offline mode
+- Fixes splash screen in offline mode
+- Adds padding for pages in print preview
+- Removes voice assistant in Extras menu
+
+15-JUL-2016: 5.5.3.2
+
+- Uses mxGraph 3.5.1.5 beta 2
+- Fixes waiting for clients in Create dialog
+
+11-JUL-2016: 5.5.3.1
+
+- Adds tag for RSS feed
+- Adds page scale to realtime model
+- Page scale change triggers autosave
+
+09-JUL-2016: 5.5.3.0
+
+- Adds elbow and isometric edge styles
+- Uses single redirect for non-SSL apex domain
+- Adds View, Page scale option
+- Uses letter paper size in US, Canada and Mexico
+
+08-JUL-2016: 5.5.2.8
+
+- Adds timeout for clients in splash screen
+- Fixes loading of JS shapes in new embed mode
+- Fixes loading of unused clients in chromeless mode
+- Adds embed link dialog, simplifies embed html dialog
+- Renames responsive to fit in embed dialogs
+- Removes image, adds retina option in embed image dialog
+- Updates French, Taiwanese translations
+- Fixes enterGroup action for normal groups
+
+06-JUL-2016: 5.5.2.7
+
+- Fixes selection of child cells in groups
+
+06-JUL-2016: 5.5.2.6
+
+- Adds navigation for all groups
+- Fixes spinner for unsupported clients
+- Adds redirect for cdn.draw.io in splash screen
+
+06-JUL-2016: 5.5.2.5
+
+- Adds lazy loading for clients with splash screen
+
+04-JUL-2016: 5.5.2.4
+
+- Fixes to .vsdx import
+
+23-JUN-2016: 5.5.2.3
+
+- Fixes loading of Drive files with disabled splash screen
+
+23-JUN-2016: 5.5.2.2
+
+- Improves startup time for Chrome App
+
+23-JUN-2016: 5.5.2.1
+
+- Adds Citrix networking shapes
+- Fixes possible loop for autosize in graph viewer
+- Removes zoom buttons in viewer for JIRA Cloud add-on
+- Fixes inline hover state, position for toolbar in graph viewer
+- Removes open image button in Confluence Cloud add-on toolbar
+
+19-JUN-2016: 5.5.2.0
+
+- Adds open image button in Confluence Cloud add-on toolbar
+- Adds links for selected label text in P2 add-on
+- Adds fullscreen toggle in P2 add-on
+- Fixes default storage for make copy in Google Drive
+- Adds template json message, dialogs in connect plugins
+- Fixes ignored grid for image drop location
+- Adds new templates dialog for creating diagrams
+- Fixes image export if math enabled in Chrome App
+- Fixes drag preview in library dialog for Google Chrome
+- Fixes paste for images from Lucidchart
+- Adds Ctrl+N, Ctrl+O in Chrome App
+- Adds new print dialog with custom zoom
+
+08-JUN-2016: 5.5.1.6
+
+- Fixes horizontal/vertical flip in mxText
+- Fixes handling of fill/stroke with no shape
+- Fixes version string in about dialog
+- Uses mxGraph 3.5.1.5 beta 1
+
+07-JUN-2016: 5.5.1.5
+
+- Moves grid color from Extras menu to format panel
+- Fixes gradients for print/PDF output in Chrome App
+
+06-JUN-2016: 5.5.1.4
+
+- Fixes loading of client libraries in atlas.min.js
+- Simplifies build for Chrome App, app.min.js
+
+05-JUN-2016: 5.5.1.3
+
+- Fixes insert of diagram via {drawio} macro name
+- Fixes utf8 characters in Confluence cloud add-on
+
+02-JUN-2016: 5.5.1.2
+
+- Disables revision parsing in Confluence Cloud
+- Uses mxGraph 3.5.1.4
+
+01-JUN-2016: 5.5.1.1
+
+- Fixes Confluence cloud expand macro integration
+
+01-JUN-2016: 5.5.1.0
+
+- Adds fullscreen button, persistent libraries in embed mode
+- Adds new viewer for JIRA cloud integration
+- Removes collapse/expand option in HTML embed dialog
+- Adds filename in toolbar for Confluence cloud viewer
+- Enables folding in Confluence cloud integration
+
+31-MAY-2016: 5.5.0.2
+
+- Fixes layers button in Confluence cloud lightbox toolbar
+- Fixes custom protocol absolute links in embedded HTML
+- Lightbox no longer shows layers button for single layer
+- Fixes click handling for embedded HTML on touch devices
+
+13-MAY-2016: 5.5.0.1
+
+- Fixes dynamic shape loading in Confluence Cloud viewer
+- Enables Extras, Edit Diagram in embed mode
+- Add shift-hover in chromeless mode to hide toolbar
+- Adds highlight, target URL params for chromeless mode
+- Adds link handling in chromeless mode
+
+12-MAY-2016: 5.5.0.0
+
+- Uses new HTML embed code and dialog
+- Adds viewer for Confluence cloud
+- Adds fullscreen and format switch in Atlas theme
+- Adds transparency for layers dialog in embedded and lightbox mode
+- Uses mxfile in PNG/SVG+XML file formats
+- Adds parsing for new embedded HTML files
+- Fixes lightbox click for links in embedded SVG
+- Fixes relative images in new HTML embed
+- Uses mxGraph 3.5.1.4 beta 1
+
+09-MAY-2016: 5.4.4.5
+
+- Adds fullscreen button
+- Blocks possible javascript: shape links
+- Fixes handling of edit URL parameter
+- Uses mxGraph 3.5.1.3
+
+06-MAY-2016: 5.4.4.4
+
+- Fixes UI language in Chrome App
+- Fixes File, Make Copy in IE9-
+- Allows non-integer font sizes
+- Uses mxGraph 3.5.1.3 beta 6
+
+04-MAY-2016: 5.4.4.3
+
+- Fixes persistence of current libraries
+
+04-MAY-2016: 5.4.4.2
+
+- Removes debug output
+
+04-MAY-2016: 5.4.4.1
+
+- Fixes binary file export in Chrome App
+- Fixes SVG namespace for groups in svgdata plugin
+
+02-MAY-2016: 5.4.4.0
+
+- Writing files in Chrome app replaces existing content
+- Adds layers option in iframe/SVG/image embed dialogs
+- Adds layers URL parameter in chromeless mode
+- Adds ctrl+shift+connect to disable connections
+- Uses mxGraph 3.5.1.3 beta 5
+
+30-APR-2016: 5.4.3.9
+
+- Moves application code to JS files
+- Adds icon for help link in menus
+
+29-APR-2016: 5.4.3.8
+
+- Removes gridcolor attribute in file, URL parameter
+- Adds peristent grid color option in Extras menu
+- Fixes resize of background page in outline dialog
+- Disables context menu on touch devices on folding icon
+- Fixes hover icons for overlapping cell in all directions
+- Adds logging for file loading errors
+- Uses mxGraph 3.5.1.3 beta 4
+
+27-APR-2016: 5.4.3.7
+
+- Switches JIRA Cloud to attachment writes via client
+- Fixes ignored config in embed script
+- Renames File to DrawioFile
+- Uses mxGraph 3.5.1.3 beta 3
+
+26-APR-2016: 5.4.3.6
+
+- Fixes version in about dialog
+
+26-APR-2016: 5.4.3.5
+
+- Fixes possible bug with cached JS and uncached HTML
+
+25-APR-2016: 5.4.3.4
+
+- Removes old stylesheet
+- Fixes bug for edges between layers
+- Fixes embedding with custom shapes
+- Fixes logging of domains with database entry
+- Moves createSpinner, setFileData to EditorUi
+- Adds lightbox parameter for chromeless mode
+- Uses single click for lightbox in embed
+
+22-APR-2016: 5.4.3.3
+
+- Fixes naming issues in PlantUML render mode
+
+22-APR-2016: 5.4.3.2
+
+- Adds render mode to PlantUML
+
+18-APR-2016: 5.4.3.1
+
+- Fixes Confluence Cloud new page diagram insertion
+- Uses mxGraph 3.5.1.3 beta 2
+
+17-APR-2016: 5.4.3.0
+
+- Removes macro parameter from plantUML
+
+17-APR-2016: 5.4.2.5
+
+- Adds previous UML shapes
+
+15-APR-2016: 5.4.2.4
+
+- Fixes double click on layer to rename
+- Uses mxGraph 3.5.1.2
+
+13-APR-2016: 5.4.2.3
+
+- Changes plant export URL to https
+
+13-APR-2016: 5.4.2.2
+
+- Changes baseURL of plantUML to plant.draw.io
+
+13-APR-2016: 5.4.2.1
+
+- Changes baseURL of plantUML to https
+
+13-APR-2016: 5.4.2.0
+
+- Adds tooltips, svgdata plugin (p=tips;svgdata)
+- Uses standard print dialog in Chrome App
+- No longer repaints label while editing
+- Uses mxGraph 3.5.1.1
+
+11-APR-2016: 5.4.1.8
+
+- Adds line height in text format panel
+- Fixes possible NPE when updating shapes
+- Uses mxGraph 3.5.1.1 beta 4
+
+11-APR-2016: 5.4.1.7
+
+- Fixes font size change with no text selection
+- Fixes isConsumed not defined in MS Edge
+- Fixes change of text opacity
+- Uses mxGraph 3.5.1.1 beta 3
+
+09-APR-2016: 5.4.1.6
+
+- Changes default edge length to 80
+- Fixes anchor links for embedded HTML and SVG
+- Adds expiry to license logging
+- Adds Alt+/Shift+/Ctrl+Click in sidebar
+
+08-APR-2016: 5.4.1.5
+
+- Adds imgur redirect servlet
+- Fixes offline mode
+- Fixes reset of comic style in connect preview
+
+08-APR-2016: 5.4.1.4
+
+- Fixes global spacing ignored if overridden
+- Adds logging in JIRA servlet to avoid data loss
+- Fixes click on unselected edge label moves label
+- Fixes thumbnail for disabled autosave in Drive
+- Adds recovery from backup in revision history
+- Uses mxGraph 3.5.1.1 beta 2
+
+06-APR-2016: 5.4.1.3
+
+- Uses mxGraph 3.5.1.1 beta 1
+- Fixes File, Publish menu item
+- Fixes iOS app icons
+
+06-APR-2016: 5.4.1.2
+
+- Uses mxGraph 3.5.1.0
+- Uses new logo with no black bar
+- Fixes export for certain AWS 3D shapes
+- Fixes action states for read-only and restricted files
+
+05-APR-2016: 5.4.1.1
+
+- Adds comic, text background color to default style
+- Adds outline keyboard shortcut in chromeless mode
+- Adds labelMovable style for vertex labels
+- Uses mxGraph 3.5.1.0 beta 6
+- Adds selection only option for XML export
+- Adds persistent settings for Chrome App
+
+03-APR-2016: 5.4.1.0
+
+- Removes certain AWS 3D shapes
+
+01-APR-2016: 5.4.0.9
+
+- Adds isometric AWS shapes
+
+01-APR-2016: 5.4.0.8
+
+- Adds more dotted line styles
+- Adds isometric shapes and connectors (beta)
+- Updates handler after style change of cell
+- Uses mxGraph 3.5.1.0 beta 5
+
+31-MAR-2016: 5.4.0.7
+
+- Hides toolbar after mouse move in chromeless mode
+- Adds keyboard shortcuts in read-only and chromeless mode
+- Fixes highlight in realtime for large strokewidths
+- Fixes update of text shape after change of overflow style
+- Uses mxGraph 3.5.1.0 beta 5
+- Fixes vertical alignment for Component shape
+- Enables comic style for various shapes
+- Uses filename for dropped files in libraries
+
+26-MAR-2016: 5.4.0.6
+
+- Removes shadow URL parameter
+- Smaller jiggle effect for diamond shapes
+- Adds global shadow option in View menu (beta)
+- Removes bug tracking code for MS Edge
+
+25-MAR-2016: 5.4.0.5
+
+- Adds image option in embed SVG dialog
+- Fixes embedded images in HTML labels
+
+24-MAR-2016: 5.4.0.4
+
+- Restores bug tracking code for Edge
+- Adds app icons for various devices
+
+24-MAR-2016: 5.4.0.3
+
+- Uses mxGraph 3.5.1.0 beta 4
+- Fixes word wrap change for existing text
+- Removes bug tracking code for MS Edge
+
+23-MAR-2016: 5.4.0.2
+
+- Fixes possible NPE for import
+- Removes crc32 for email logging
+- Adds bug tracking code for MS Edge
+
+23-MAR-2016: 5.4.0.1
+
+- Adds Extras, Show Start Screen option
+- Uses mxGraph 3.5.1.0 beta 3
+- Resets text shape state before using new style
+- Removes extension from published diagram title
+- Fixes rendering of comic rectangles in VML
+- Fixes expand of Misc sidebar in IE6/8
+
+22-MAR-2016: 5.4.0.0
+
+- Uses XML to convert from old realtime
+- Fixes gradients for certain URLs in IE11/Edge
+- Adds comic style and shapes
+- Fixes move preview offset
+- Uses mxGraph 3.5.1.0 beta 2
+- Fixes library title editing on iOS
+- Makes autosave optional in Chrome App
+
+18-MAR-2016: 5.3.5.2
+
+- Adds delete URL to publish confirmation
+- Adds warning dialog before Publish
+- Adds File, Embed, Image menu option
+- Adds Email address to Drive user info
+- Click on app icon opens Drive folder
+
+17-MAR-2016: 5.3.5.1
+
+- Simplifies status messages for saving
+- Adds UI for editing sidebar titles
+- Disables publish action in IE9-
+- Fixes possible infinite loop in Drive client
+
+17-MAR-2016: 5.3.5.0
+
+- Adds File, Publish for uploading to Imgur
+- Moves moreShapes from File to View menu
+- Moves createShape from File to Extras menu
+- Removes create shape option from sidebar
+- Adds confirmation after copy in SVG embed
+- Adds copy button in embed iframe dialog
+
+16-MAR-2016: 5.3.4.3
+
+- Enables licensing for Confluence Cloud
+- Removes second macro for GDrive Connector
+- Fixes custom shapes for embedded diagrams
+- Updates MS Azure, Cloud + Enterprise icons
+
+15-MAR-2016: 5.3.4.2
+
+- Adds File, Embed, SVG menu option
+- Uses client mode for making a copy
+- Hash has precedence over client parameter
+
+14-MAR-2016: 5.3.4.1
+
+- Adds support for embedded PNG data URI in client mode
+- Fixes ignored grid for XML drag and drop
+- Fixes decoding of base64 encoded embedded SVG
+- Fixes embedded PNG character encoding in Safari
+
+10-MAR-2016: 5.3.4.0
+
+- Uses mxGraph 3.5.1.0 beta 1
+
+09-MAR-2016: 5.3.3.9
+
+- Uses mxGraph 3.5.0.1 beta 3
+
+09-MAR-2016: 5.3.3.8
+
+- Fixes double encoding for PNG+XML in embed mode
+
+08-MAR-2016: 5.3.3.7
+
+- Uses mxGraph 3.5.0.1 beta 2
+
+04-MAR-2016: 5.3.3.6
+
+- Fixes insertTextAt call in importFile()
+
+04-MAR-2016: 5.3.3.5
+
+- Uses mxGraph 3.5.0.1 beta 1
+- Redirects apex domain to www.draw.io
+- Fixes loading spinner for converted Dropbox files
+
+03-MAR-2016: 5.3.3.4
+
+- Fixes offset of imports with no mouse event
+- Adds configurable edit button in chromeless mode
+- Ignores public URL for Drive files in public folders
+- Adds upload tab in Google picker dialog
+- Makes hierarchical folder picker default
+- Puts new Google files into root folder
+- Adds folder picker for new libraries
+
+03-MAR-2016: 5.3.3.3
+
+- Changes BaseURL for Google Drive Connector
+
+02-MAR-2016: 5.3.3.2
+
+- Adds responsive UI for small screens
+- Adds voice assistance for text input
+
+01-MAR-2016: 5.3.3.1
+
+- Fixes grid rounding errors for common cases
+
+01-MAR-2016: 5.3.3.0
+
+- Uses mxGraph 3.5.0.0
+- Adds voice assistant in Extras menu
+- Adds experimental shadow URL parameter
+- Ignores transparent stroke color for default style
+
+29-FEB-2016: 5.3.2.3
+
+- Adds Ctrl+Shift+Drag to create/remove space
+- Fixes licensing in chromeless mode
+- Fixes bug in reset graph
+
+28-FEB-2016: 5.3.2.2
+
+- Uses mxGraph 3.4.1.3 beta 9
+- Removes Export PNG+XML menu item
+- Uses MathJax from CDN, lighter config
+- Adds selection option for remote export
+- Fixes timing problem for printing with math
+- Adds text fallback for SVG export (experimental)
+- Improved text rendering for image and SVG export
+- Fixes artifacts for embedded math diagrams in Chrome
+- Fixes Open in new window for IE10/11, MS Edge, Safari
+
+26-FEB-2016: 5.3.2.1
+
+- Uses MathJax 2.6 to fix artifacts in Chrome
+- Fixes import of edges in separate layers
+- Import of file appends multiple layers
+- Changes logging for Google accounts
+- Fixes drop of file URL into editor
+- Uses mxGraph 3.4.1.3 beta 8
+
+25-FEB-2016: 5.3.2.0
+
+- Adds licensing server and client
+
+25-FEB-2016: 5.3.1.0
+
+- Uses mxGraph 3.4.1.3 beta 7
+- Adds gridcolor URL parameter
+- Adds scaled grid, replaces grid dots with grid lines
+- Fixes anchors open in same page for embedded diagrams
+- Moves Search, Scratchpad from Extras menu to View menu
+
+22-FEB-2016: 5.3.0.6
+
+- Updates Confluence Connect to use new page context mechanism
+- Uses mxGraph 3.4.1.3 beta 6
+- Adds rt, grid parameters for chromeless mode
+- Fixes export dialog width, adds help button
+- Detects data URI with XML in drag source
+- Enables embed image menu in test mode
+
+07-FEB-2016: 5.3.0.5
+
+- Fixes direction, align, distribute menu states
+- Adds tap and hold to add to selection
+
+06-FEB-2016: 5.3.0.4
+
+- Fixes possible NPE in plugins warning dialog
+
+06-FEB-2016: 5.3.0.3
+
+- Adds delayed quick start footer ad
+- Removes voice assistant from help menu
+- Moves ctrl+shift+j shortcut to two pages
+- Disables hover icons while space is pressed
+- Adds tooltips for buttons in format panel
+- Fixes button label overflow in sidebar
+
+05-FEB-2016: 5.3.0.2
+
+- Replaces numeric keyboard shortcuts
+
+05-FEB-2016: 5.3.0.1
+
+- Fixes asynchronous loading of plugins
+
+05-FEB-2016: 5.3.0.0
+
+- Adds optional converter argument for canvas export
+- Adds asynchronous loading for resources
+- Uses mxGraph 3.4.1.3 beta 5
+
+03-FEB-2016: 5.2.9.1
+
+- Changes Confluence Cloud footer
+
+03-FEB-2016: 5.2.9.0
+
+- Ignores panning trigger to change edges
+- Fixes sidebar rendering in math mode
+- Uses mxGraph 3.4.1.3 beta 4
+
+01-FEB-2016: 5.2.8.9
+
+- Updates AWS icons
+
+01-FEB-2016: 5.2.8.8
+
+- Fixes offset for drag and drop of diagram data
+- Fixes drop of SVG data URI with embedded XML
+- Fixes download and export SVG to new window in Safari
+- Fixes SVG export in older versions of IE
+- Fixes drop shadow in SVG export for Safari
+- Adds control-resize for centered resize of vertices
+- Fixes import of SVG with embedded XML graph model
+- Adds selection, transparent background for SVG export
+- Adds include diagram option for image and SVG export
+- Fixes open library file as diagram in Google Drive
+- Adds pseudo-hierarchical view in Google library picker
+
+29-JAN-2016: 5.2.8.7
+
+- Fixes ignored background color for image export
+- Fixes update of outline after changing page format
+- Fixes edit shape button after insert of new shape
+
+27-JAN-2016: 5.2.8.6
+
+- Adds shadow option for image and SVG export
+
+26-JAN-2016: 5.2.8.5
+
+- Adds pseudo-hierarchical view in Google file picker
+- Adds fallback for failed local image export
+- Fixes lost connect preview after remote change
+- Uses mxGraph 3.4.1.3 beta 3
+
+25-JAN-2016: 5.2.8.4
+
+- Fixes disabled transparent background export option
+- Adds touch support for Microsoft Edge
+- Adds pseudo-hierarchical view in Google folder picker
+- Clean up for templates and more shapes dialog
+- Adds selection only option in image export dialog
+- Ungroup no longer deletes non-transparent groups
+- Fixes paste via menu after ctrl/cmd+c
+- Fixes hiding of all sidebar entries
+- Uses mxGraph 3.4.1.3 beta 2
+
+19-JAN-2016: 5.2.8.3
+
+- Fixes collapse/expand for sidebars
+
+19-JAN-2016: 5.2.8.2
+
+- Fixes concurrent loading of custom libraries
+- Improves initial sidebar rendering speed
+
+18-JAN-2016: 5.2.8.1
+
+- Uses mxGraph 3.4.1.4 beta 1
+- Adds File, Move to Folder for OneDrive files
+- Adds File, Rename menu item for all files
+- Fixes spinner status for create revision
+- Fixes edit as new for remote embedded diagrams
+- Fixes minor bugs in search sidebar
+- Fixes open in new window for save dialog
+- Fixes edit diagram, search in Chrome app menubar
+- Adds support for HTML tooltips in embedded diagrams
+- Adds transparent background option for image export
+
+15-JAN-2016: 5.2.8.0
+
+- Uses mxGraph 3.4.1.3 beta 1
+- Adds timeout for save revision in Drive
+- Fixes spinner for retry after error
+- Fixes handling of leading # in color dialog
+- Increases size limit for background image
+- Fixes minor bugs in library dialog
+- Fixes image size for scratchpad
+
+14-JAN-2016: 5.2.7.9
+
+- Changes Connect footer text for Conf/JIRA
+
+14-JAN-2016: 5.2.7.8
+
+- Removes remote condition check in JIRA cloud
+- Fixes outline connect for backbone, lifeline shapes
+
+12-JAN-2016: 5.2.7.7
+
+- Updates Polish translation
+- Removes incorrect header from Confluence Connect [DS-249]
+- Fixes encoding of filename in JIRA Connect [DFJC-3]
+
+08-JAN-2016: 5.2.7.6
+
+- Uses mxGraph 3.4.1.2
+- Fixes inconsistent loop routing
+- Fixes possible page scroll for embedded iframe
+- Restores spacer in UML sidebar
+- Uses UML 2.5 interface notation
+
+06-JAN-2016: 5.2.7.5
+
+- Uses mxGraph 3.4.1.1
+- Adds interface in UML sidebar
+- Adds fit page in print dialog
+- Adds crop option for PDF export
+- Merges image export menu items
+
+02-JAN-2016: 5.2.7.4
+
+- Adds support for title attribute in library files
+- Adds optional sidebar search in Extras, Search
+- Adds custom client-side image export option
+
+31-DEC-2015: 5.2.7.3
+
+- Adds new spinner while autosaving files
+- Uses simplified UI for search sidebar
+- Adds library file menu items on iOS
+
+28-DEC-2015: 5.2.7.2
+
+- Inserts new auto-layouted diagrams into current page
+- Disables pinch to zoom, ctrl+wheel for Chrome on Mac
+- Uses shorter delay for showing hover icons
+- Shows hover icons after drop from sidebar
+- Adds status after save from draft state
+- Fixes default extension in create dialog
+- Fixes save after change of storage file extension
+- Fixes menubar height in atlas UI
+- Uses parser for checking XML strings
+- Shows spinner while sending feedback
+
+22-DEC-2015: 5.2.7.1
+
+- Adds automatic jetty size for orthogonal edges
+- Fixes loop routing for fixed connection points
+- Labels for locked cells are no longer editable
+- Fixes auto-delete for empty non-deletable text
+- Handles oversize labels on buttons in sidebars
+- Fixes clipping in dropdown menu with scrollbars
+- Uses mxGraph 3.4.1.1 beta 1
+
+11-DEC-2015: 5.2.7.0
+
+- Fixes encoding for JIRA Connect
+- Ignores ancestor collisions for connection arrows
+- Uses mxGraph 3.4.1.0
+
+09-DEC-2015: 5.2.6.9
+
+- Opens PNG+XML data uri via drag and drop
+- Adds thin open, async open markers
+- Updates UML sidebar, adds cross marker
+- Fixes markers in connect preview
+- Uses smaller hover icons
+- Uses mxGraph 3.4.0.4 beta 10
+
+08-DEC-2015: 5.2.6.8
+
+- Adds all markers to edge format panel
+- Adds thin block and thin classic markers
+- Adds async, circle, circlePlus markers
+- Hides overlapping connection arrows
+
+07-DEC-2015: 5.2.6.7
+
+- Uses mxGraph 3.4.0.4 beta 9
+- Adds vsdx support for unconnected edges
+- Adds entity relation shapes and connectors
+- Adds default styles in connect preview
+- Fixes dynamic loading for registered default shapes
+- Hides disabled connection points while connecting
+- Uses dotted highlight border for active drop targets
+- Adds dropzone with description in editable sidebars
+- Adds app identifier and current version in mxfile
+- Fixes sidebar button event handling for IE8/quirks
+- Fixes library dialog for quirks mode
+
+03-DEC-2015: 5.2.6.6
+
+- Fixes possible scroll to origin after paste in FF
+- Fixes copy/paste in older versions of IE
+- Adds export image to new window in IE
+- Adds storage dialog for export in IE
+- Uses mxGraph 3.4.0.4 beta 8
+
+02-DEC-2015: 5.2.6.5
+
+- Updates AWS icons to latest set
+- Adds delay for connection arrows
+
+02-DEC-2015: 5.2.6.4
+
+- Fixes select all after paste of large amounts of text
+- Fixes update of label preview during vertical resize
+- Fixes click on resize handles while editing label
+- Fixes certain label positions and sizes
+- Fixes menubar style in atlas UI
+- Uses mxGraph 3.4.0.4 beta 7
+
+27-NOV-2015: 5.2.6.3
+
+- Fixes IME input for i18n in FF
+- Uses mxGraph 3.4.0.4 beta 6
+- Adds experimental doors plugin
+
+25-NOV-2015: 5.2.6.2
+
+- Fixes edge move preview for scaled tolerance
+- Fixes new waypoint for drag of edges with bends
+- Fixes ignored folder for new OneDrive files
+- Fixes download, adds options in Save dialog
+- Adds padding to handles while editing
+- Adds spacing to copied styles
+- Enables glass effect switch for process shape
+- Migrates Docs add-on to new API
+- Adds dblclick in more shapes dialog
+- Fixes color dialog for font (background) color
+- Uses mxGraph 3.4.0.4 beta 5
+
+20-NOV-2015: 5.2.6.1
+
+- Adds link to scratchpad FAQ entry
+- Handles possible missing root cell in realtime
+
+20-NOV-2015: 5.2.6.0
+
+- Removes local storage option from splash screen
+- Adds browser=1 URL parameter for local storage
+- Adds double click to keyboard shortcuts
+
+19-NOV-2015: 5.2.5.8
+
+- Adds US-Legal paper size
+- Handles file not found for local storage
+- Handles domain policy errors in Drive client
+- Restores timer for fixed connection points with mouse
+
+17-NOV-2015: 5.2.5.7
+
+- Removes page reload after create from Drive
+- Hash has precedence over state URL parameter
+- Handles removed App folder in Dropbox
+- Fixes handling of existing mxfile node
+- Redirects 5% of reviews to Docs Add-on
+- Adds support for extracting diagram nodes
+- Adds spinner action in JSON protocol
+- Fixes click and drag on edges in groups
+- Fixes ignored scale for connect live preview
+- Removes unused image files from Chrome App
+- Resets constraint focus after root change
+- Adds repaint of hover icons after root change
+- Fixes offset for terminal point in VML
+- Uses mxGraph 3.4.0.4 beta 4
+
+17-NOV-2015: 5.2.5.6
+
+- Uses mxGraph 3.4.0.4 beta 2
+- Uses new draw.io logo and colors
+- Fixes hit detection for outline connect and grid
+- Removes timer for fixed points with non-touch devices
+- Adds live preview for new connections
+- Fixes replacement of PNG extension in IE
+- Adds autosave if gridsize is changed
+- Removes Draw.io for Work action and menu item
+- Fixes loading of plugins from mxSettings
+
+13-NOV-2015: 5.2.5.5
+
+- Fixes new diagram creation in Chrome Packaged App
+- Fixes delete operation (DELETE verb changed to POST)
+
+12-NOV-2015: 5.2.5.4
+
+- Fixes context path for JIRA Connect
+
+11-NOV-2015: 5.2.5.3
+
+- Fixes mxUtils.getFunctionName()
+
+11-NOV-2015: 5.2.5.2
+
+- Fixes creating blank diagram files in createFile
+
+11-NOV-2015: 5.2.5.1
+
+- Adds error handling for invalid diagram files
+
+10-NOV-2015: 5.2.5.0
+
+- Fixes embed preview in Microsoft Edge
+- Adds default connections for backbone shape
+- Adds number checks for custom zoom dialog
+
+05-NOV-2015: 5.2.4.4
+
+- Reverts Connect viewer
+
+05-NOV-2015: 5.2.4.3
+
+- Improvements for JIRA Connect
+
+05-NOV-2015: 5.2.4.2
+
+- Improvements for JIRA Connect
+
+04-NOV-2015: 5.2.4.1
+
+- Adds workaround for NS_ERROR_FAILURE in FF
+- Adds network shapes library
+- Fixes editorUi is not defined for help link
+- Uses mxGraph 3.4.0.4 beta 1
+
+04-NOV-2015: 5.2.4.0
+
+- Changes items in format panel and menubar
+- Renames editFile, editMetadata, connect actions
+- Handles invalid image bounds in Graph.getSvg
+
+03-NOV-2015: 5.2.3.9
+
+- Fixes possible NPE
+
+03-NOV-2015: 5.2.3.8
+
+- Adds separate switch to disable connection points
+- Uses mxGraph 3.4.0.2
+
+02-NOV-2015: 5.2.3.7
+
+- Corrects JIRA connect plugin key in descriptor
+
+02-NOV-2015: 5.2.3.6
+
+- Fixes ads in footer after Google login
+
+02-NOV-2015: 5.2.3.5
+
+- Fixes possible NPE
+
+02-NOV-2015: 5.2.3.4
+
+- Splits edges for drop from sidebar (shift to disable)
+- Uses mxGraph 3.4.0.2 beta 13
+
+28-OCT-2015: 5.2.3.3
+
+- Adds missing function for Confluence OnDemand
+- Adds refresh in format panel after root change
+- Changes page size units from px to pt
+
+28-OCT-2015: 5.2.3.2
+
+- Fixes shape search for non-existing tags
+- Removes GMDL library from default sidebars
+- Adds link to user manual in help menu
+- Removes click to speak button in header
+
+25-OCT-2015: 5.2.3.1
+
+- Adds separate files for GMDL, SysML sidebars
+- Creates Drive revisions with autosave disabled
+- Fixes scrollbar for fit page (width) actions
+- Fixes delayed reset of scrollbar positions
+- Fixes background page shadow color in VML
+- Fixes terminal handle transparency in VML
+- Uses Metarial Design for GMDL library title
+- Uses mxGraph 3.4.0.2 beta 12
+
+23-OCT-2015: 5.2.3.0
+
+- Adds GMDL (Google Media Design Library) sidebar
+- Fixes offset for repeated copy paste in Safari
+- Fixes download after creating new device file
+- Fixes keyboard shortcut ctrl+0 for reset view
+- Fixes div has no click in more shapes dialog
+- Adds horizontal/vertical page center guides
+- Hides word wrap option for autosize labels
+- Fixes initial size of new text labels
+- Uses mxGraph 3.4.0.2 beta 11
+
+21-OCT-2015: 5.2.2.2
+
+- Fixes flow in voice plugin
+- Fixes title collapse/expand icon color
+- Fixes sidebar title font size
+
+20-OCT-2015: 5.2.2.1
+
+- Fixes dialog for read-only realtime files
+
+19-OCT-2015: 5.2.2.0
+
+- Improves voice recognition in plugin
+- Fixes print output in Microsoft Edge
+- Uses mxGraph 3.4.0.2 beta 10
+
+18-OCT-2015: 5.2.1.9
+
+- Fixes unlink in label with edit dialog
+- Fixes html and svg URLs for embedding
+- Intercepts links that change page URL
+- Fixes remote selection highlight color
+- Uses mxGraph 3.4.0.2 beta 9
+
+18-OCT-2015: 5.2.1.8
+
+- Adds dynamic loading for lucid chart import
+- Adds voice label for missing speech input
+
+17-OCT-2015: 5.2.1.7
+
+- Fixes dynamic loading of voice plugin
+- Fixes overflow for voice button
+
+17-OCT-2015: 5.2.1.6
+
+- Prepares Extensions.js for refactoring into dynamic plugins
+- Adds share button for drive files, voice assistant button
+- Adds transaction for connecting dangling edge in voice plugin
+
+17-OCT-2015: 5.2.1.5
+
+- Adds select, select source/target in voice plugin
+- Insert shape connects connecting dangling edge
+- Adds connect vs clone command in voice plugin
+
+16-OCT-2015: 5.2.1.4
+
+- Adds persistent current voice setting for plugin
+- Adds autostart option item in voice menu for plugin
+- Adds voice assistant item in main help menu
+- Hides voice assistant footer if not supported
+- Fixes edge clipping in print and PDF export 
+- Uses mxGraph 3.4.0.2 beta 8
+
+15-OCT-2015: 5.2.1.3
+
+- Fixes possible NPE in graph.connectVertex
+- Uses levenshtein distance in voice plugin
+- Next/previous moved to select prefix in voice
+
+15-OCT-2015: 5.2.1.2
+
+- Adds variable and timestamp in Misc sidebar
+- Adds voice commands in voice plugin
+- Fixes segment offsets after change of parent
+- Uses mxGraph 3.4.0.2 beta 7
+
+14-OCT-2015: 5.2.1.1
+
+- Fixes bugs, adds commands, uses footer in voice plugin
+- Adds promo link to voice assistant (beta) in Chrome
+
+14-OCT-2015: 5.2.1.0
+
+- Removes enable/disable command in voice plugin
+- Fixes possible duplicate connection inserted
+- Fixes lifeline perimeter for undefined strokewidths
+- Improved tags for standard shapes
+
+13-OCT-2015: 5.2.0.9
+
+- Adds continuous speech input in voice plugin
+- Adds scrollbars in voice type menu
+- Fixes duplicate insert of same plugin
+- Fixes drop for PNG+XML data URIs
+- Adds help link in voice plugin menu
+
+13-OCT-2015: 5.2.0.8
+
+- Adds menu for voice plugin
+- Fixes keyboard shortcuts for voice plugin on Windows
+- Adds hello, help and quick start for voice plugin
+- Fixes hover icon focus for touch devices
+
+12-OCT-2015: 5.2.0.7
+
+- Adds experimental voice plugin (id voice)
+- Fixes hover icon click for relative cells
+- Fixes local save of large client-side export
+- Adds recently used colors in color dialogs
+- Fixes dragging labels for unselected edges
+- Fixes pending timer after drop from sidebar
+- Adds insert for new edges before source cell
+- Changes label position and background for images
+- Fixes drop of images with invalid file extension
+- Uses mxGraph 3.4.0.2 beta 6
+
+10-OCT-2015: 5.2.0.6
+
+- Fixes sidebar tooltip after drop cells to library
+- Allows 1px move of start segment in edge style
+- Restores moving of selected container via child
+- Fixes padding for new rows in UML table shape
+- Clones west hover icon in stack before source cell
+- Fixes click on hover icon in stack with near cell
+- Allows group/ungroup to (de)containerize vertices
+- Fixes 1px handle offset, adds terminal handle with dot
+- Adds backbone shape, fixes lifeline perimeter
+- Fixes drop resize if source smaller than 45px
+- Adds Draw.io for Work link in Help menu
+- Adds modified, saveAndExit in load JSON message
+- Avoids unnecessary image resampling
+- Uses mxGraph 3.4.0.2 beta 5
+
+09-OCT-2015: 5.2.0.5
+
+- Changes image resize condition to over 100K
+- Fixes font size stepper for multiple values
+- Adds edit metadata to context menu
+- Adds date{format} placeholder option
+- Adds link to file extensions FAQ entry
+
+08-OCT-2015: 5.2.0.4
+
+- Fixes vertical alignment for footer
+
+08-OCT-2015: 5.2.0.3
+
+- Adds Draw.io for Work link in footer
+- Fixes update of child placeholders after undo
+- Replaces PNG extension for url parameter with XML
+- Adds shift for keeping original image size
+- Adds edit metadata option in format panel
+
+08-OCT-2015: 5.2.0.2
+
+- Fixes change of font size on multiple cells
+- Fixes Ctrl+B/U/I while editing in FF/Safari
+- Ignores default style for copy via hover icon
+- Applies only basic text styles for new labels
+- Ignores default style for custom library entries
+- Fixes repaint performance after metadata change
+- Improves speed for deleting large number of cells
+- Removes page unload warning for url parameter
+- Uses mxGraph 3.4.0.2 beta 4
+
+08-OCT-2015: 5.2.0.1
+
+- Fixes copy-paste in non-Chrome browsers
+
+07-OCT-2015: 5.2.0.0
+
+- Adds link from Chrome App to online app
+- Fixes inconsistent child selection for selected swimlanes
+- Fixes PDF export for math without page view
+- Increases size of metadata dialog
+- Adds placeholders for labels and tooltips
+- Fixes encoding for cross-platform clipboard
+- Improves repaint performance for text labels
+- Improves drag and drop for links and images
+- Uses mxGraph 3.4.0.2 beta 3
+
+06-OCT-2015: 5.1.1.1
+
+- Fixes math PDF export
+
+06-OCT-2015: 5.1.1.0
+
+- Fixes filename, advanced export to new window
+- Renames main macro for Confluence Connect
+- Adds error handling for invalid PDF export
+- Adds timer for grouping cursor operations
+- Hover icon click ignores locked layers
+- Locked cells are no longer connectable
+- Fixes change of fontSize for certain nodes
+- Fixes paste for large diagrams
+- Shows link tooltip only for single selection
+- Fixes print offset for negative origins
+- Fixes remote parsing for paste of ASCII 160
+- Adds GraphML import (beta)
+- Adds Cmd+Drag on Mac for cloning
+- Improves client-side print performance
+- Uses mxGraph 3.4.0.2 beta 2
+
+05-OCT-2015: 5.1.0.3
+
+- Enables drag and drop and open for library files
+- Constrains proportions for images in libraries
+- Adds drop of library files to sidebar, dialog
+- Fixes template not found error message
+- Fixes mouse cursor for entity relation
+- Uses custom handles only for single selection
+- Adds notitle URL parameter
+- Removes extension for url parameter filename
+- Adds logging for help search via menu
+- Uses mxGraph 3.4.0.2 beta 1
+
+02-OCT-2015: 5.1.0.2
+
+- Checks leading dots for storage files
+- Maintains sidebar order after save of library
+- Removes remoteAlert, uses version for scratchpad
+- Adds drag and drop of files to custom libraries
+- Fixes preview and drag to library in IE11/10
+- Adds folder picker for new files
+
+01-OCT-2015: 5.1.0.1
+
+- Fixes possible NPE for chromeless mode
+- Fixes restore of scratchpad if empty
+
+01-OCT-2015: 5.1.0.0
+
+- Adds scratchpad option in Extras menu
+- Adds tooltip, dblclick for custom libraries
+- Adds drag and drop to custom libraries
+- Edge drag uses handles if edge selected
+- Uses mxGraph 3.4.0.1
+
+30-SEP-2015: 5.0.6.4
+
+- Adds small, closable footer in Chrome App
+- Adds client status message in File menu
+- Adds previously selected in Google picker
+- Click on background closes Google picker
+- Fixes possible 401 in Google picker
+- Adds improved error logging
+
+29-SEP-2015: 5.0.6.3
+
+- Fixes connecting edges with elbow edge style
+
+29-SEP-2015: 5.0.6.2
+
+- Persists page format as default for new diagrams
+- Fixes connecting edges with entity edge style
+- Adds ctrl+drag to move and clone edges
+- Uses mxGraph 3.4.0.1 beta 13
+
+29-SEP-2015: 5.0.6.1
+
+- Fixes cursor for edges with entity edge style
+- Adds link, link color and tooltip option in embed dialog
+- Adds mxClientOnCreate callback for embedded diagrams
+- Fixes atomic undo for new waypoints when dragging edge
+- Adds labels for cloud option buttons in save dialog
+- Removes open in new window for edit file in Chrome App
+- Adds help menu items, FAQ search in Chrome App
+- Redirect exportPdf to print action in Chrome App
+
+27-SEP-2015: 5.0.6.0
+
+- Fixes hover icon focus for mouse and touch events
+- Fixes move of edge label with selected parent edge
+- Drag connected edge adds waypoint (shift+drag moves)
+- Disables loading of draft files from local storage
+
+26-SEP-2015: 5.0.5.8
+
+- Uses mxGraph 3.4.0.1 beta 12
+
+26-SEP-2015: 5.0.5.7
+
+- Fixes ensureDataSaved in chromeless mode
+- Adds experimental connect edge mode
+
+26-SEP-2015: 5.0.5.6
+
+- Adds save dialog for Google Drive and OneDrive
+- Adds storage buttons in Save dialogs
+- Adds Open in new window option for PDF export
+- Changes default background to white
+- Fixes attempt to load realtime after export
+
+26-SEP-2015: 5.0.5.5
+
+- Adds print support in Chrome App (beta)
+- Fixes PROXY_URL not defined in Chrome App
+- Fixes click on links after panning
+- Uses mxGraph 3.4.0.1 beta 11
+
+25-SEP-2015: 5.0.5.4
+
+- Adds export for selection cells
+- Fixes possible 404 for default-style2 when switching files
+- Fixes reset of background image when switching files
+- Adds pagination in PDF export
+- Updates zoom in toolbar after edit file dialog
+- Fixes background color in print output
+- Uses mxGraph 3.4.0.1 beta 10
+- Waits for images in HTML labels in export
+- Fixes background image for PDF export
+- Connectable style overrides connectable property
+- Adds nowarn URL parameter for local files
+- Fixes possible NPE In HoverIcons.drag
+- Added support for links in Gliffy diagrams
+
+23-SEP-2015: 5.0.5.3
+
+- Removes preferred mode based on domain
+
+23-SEP-2015: 5.0.5.2
+
+- Uses www for new, legacy for old Google Drive app
+- Ignores quota exceeded errors in mxSettings
+- Uses mxGraph 3.4.0.1 beta 9
+
+23-SEP-2015: 5.0.5.1
+
+- Adds connectable style
+- Persists current edge and vertex style, copy on connect
+- Fixes partial rectangle in VML
+- Adds review link in Chrome App splash screen
+- Fixes import of VDX files from Google Drive
+- Adds File, Close menu item
+- Fixes member not found in IE8- after paste
+- Disables move, resize and delete of locked cells
+- Adds delete protection for locked cells
+- Removes preview for embed iframe in IE8-
+- Fixes possible NPE in HoverIcons.drag
+
+22-SEP-2015: 5.0.5.0
+
+- Adds paste for images from clipboard in Chrome
+- Fixes paste from Word, Excel while editing labels
+- Fixes VDX/Gliffy conversion for read-only folders in Drive
+- Fixes paste from Lucidchart in modern browsers
+- Uses mxGraph 3.4.0.1 beta 8
+
+21-SEP-2015: 5.0.4.6
+
+- Replaces connectionPoints with global connect switch
+- Deletes empty text cells with no fill/stroke color
+- Adds select none menu item and keyboard shortcut
+- Increases/checks max size for imported images
+- Fixes background image aspect for SVG export
+- Fixes mouse event handling errors
+- Removes rounded toolbar button
+- Uses mxGraph 3.4.0.1 beta 7
+
+20-SEP-2015: 5.0.4.5
+
+- Changes autosave delay for local storage files to 2s
+- Restores hover icons after cancel drag from sidebar
+- Adds hover icons after panning, drop from sidebar
+- Fixes hover icons for overlapping cells, adds timer
+- Selects edge under hover icon only if connected to vertex
+- Scrolls to new vertex after click on hover icon
+- Uses mxGraph 3.4.0.1 beta 6
+
+19-SEP-2015: 5.0.4.4
+
+- Exports files to same folder in Google Drive
+- Adds format panel toggle button in toolbar
+- Cursor keys move child cells in stack layouts
+- Selects edges under hover icon on single click
+- Scrolls cells to visible after shift+click in sidebar
+- Hover icon click no longer connects in stack layouts
+- Hides hover icons with shift/meta, keeps with ctrl
+- Hides hover icons after shift/meta/ctrl+click
+- Selects new target vertex after hover icon click
+
+18-SEP-2015: 5.0.4.3
+
+- Uses transparent shadows
+- Hides hover icons during drag from sidebar
+- Fixes connect to ancestors for hover icon click
+- Adds shift+click in sidebar to change selection
+- Hover icons ignore popup menu trigger events
+- Uses ctrl+click for clone, shift+click for connect
+- Adds lazy loading for state URL parameter
+
+18-SEP-2015: 5.0.4.2
+
+- Fixes dialog for automatic layout
+- Fixes hover icons not reachable with nearby cells
+- Adds hover icons for dangling edges
+- Fixes possible NPE for dragging hover icons
+
+18-SEP-2015: 5.0.4.1
+
+- Fixes possible NS_ERROR_FAILURE in Firefox
+- Fixes shadow color for embedded diagrams
+- Fixes selection of images after drop
+- Adds more aggressive image resizing
+- Uses mxGraph 3.4.0.1 beta 5
+
+18-SEP-2015: 5.0.4.0
+
+- Fixes deleting cells with loops, terminals in groups
+- Increases size for local storage open dialog
+- Fixes mouse event on scrollbar after rubberband in IE 11
+- Fixes image dialog size for older browsers
+- Fixes possible parseRequestText is not a function in OneDrive
+- Fixes handling of linefeeds in non-formatted labels
+- Makes import and replace faster in Edit file dialog
+- Autosize sets height for cells with word wrapping
+- Adds link to open via Drive UI if file not found
+- Uses label background while editing edge labels
+- Fixes right/bottom padding for scaled page view
+- Adds Ctrl+Shift-Mouse wheel for zoom on Mac
+- Adds fallback to server for image export
+- Parser errors are now handled separately
+- Adds Ctrl+Shift+Click on connect handles
+- Replaces connect icon with arrow icons
+- Disables word wrap option for edges
+- Fixes spelling of English resources
+- Improves error handling for export
+- Renames actual size to reset view
+- Uses mxGraph 3.4.0.1 beta 4
+
+12-SEP-2015: 5.0.3.7
+
+- Handles permission change during collaboration
+- Adds toggle selection in shortcuts.svg
+- Adds Shift+Click to toggle selection state
+
+11-SEP-2015: 5.0.3.6
+
+- Fixes language in Confluence Connect
+- Removes shadow and glass in quick styles
+- Fixes possible URL undefined error
+- Fixes possible DocumentClosedErrors
+- Fixes foreignObjects in shortcuts.svg
+
+11-SEP-2015: 5.0.3.5
+
+- Improves error handling for realtime collaboration
+- Fixes switch to custom from landscape in format panel
+- Fixes paper size for print output
+- Removes shapeeditor.html
+- Fixes update of page size after edit file
+- Fixes drop of XML into empty diagram creates new file
+- Restores xml default extension for files in Chrome App
+- Fixes spinner after cancel of library save in Chrome App
+- Fixes extension for libraries in Chrome App
+- Fixes status after autosave in Chrome App
+- Removes foreignObjects in shortcuts.svg
+
+10-SEP-2015: 5.0.3.4
+
+- Fixes translations in Connect
+- Adds mxReader.js to atlas.min.js
+- Adds dropbox client to app.min.js
+- Adds error message for busy state
+- Fixes cursor in viewer for Connnect
+- Handles modifications while saving
+- Uses common mxProperties in Connect
+- Fixes modified check for local files
+
+09-SEP-2015: 5.0.3.3
+
+- Fixes label for recent OneDrive files
+- Adds common resources from Confluence
+- Fixes toolbar for viewer in Connect
+- Adds support for expand macro in Connect
+- Fixes Google Drive client API in Opera
+- Adds lazy loading for OneDrive client API
+- Fixes startup in quirks and IE8 standards
+
+07-SEP-2015: 5.0.3.2
+
+- Makes autosave optional in Google Drive
+- Adds adaptive autosave delay in Google Drive
+- Fixes relative URLs in Confluence connect
+- Moves atlas.min.js to war/js, uses in connect
+- Adds lazy loading for sidebar search index
+
+05-SEP-2015: 5.0.3.1
+
+- Fixes single click on connector handle
+
+05-SEP-2015: 5.0.3.0
+
+- Fixes import from Dropbox, import for images
+- Adds backlink to keyboard-shortcuts file
+- Adds error handling for invalid URL parameter
+
+05-SEP-2015: 5.0.2.11
+
+- Updates atlas.min to 5.0.2.11 in Confluence connect
+- Fixes handling of utf8 chars in Confluence connect
+- Updates search index to include new built-in shapes
+- Save dialog no longer overrides existing extension
+- Use URL for filename with url and no title parameter
+- Adds diagram data to shortcuts.svg, moves to root
+- Uses mxGraph 3.4.0.1 beta 3
+
+04-SEP-2015: 5.0.2.10
+
+- Adds SVG version for keyboard shortcuts
+- Adds ctrl+(shift+)cursor keys for resize
+- Uses oauth2 token in sharing dialog
+- Removes sharing error handling
+- Uses mxGraph 3.4.0.1 beta 2
+
+04-SEP-2015: 5.0.2.9
+
+- Uses capability check for client-side export
+
+03-SEP-2015: 5.0.2.8
+
+- Fixes sharing timeout error handling
+
+03-SEP-2015: 5.0.2.7
+
+- Fix save diagram for new page in Confluence connect
+- Shows error message if sharing dialog times out
+
+03-SEP-2015: 5.0.2.6
+
+- Adds clearWaypoints for multiple selection cells
+- Removes wire-compression in proxy servlet
+- Uses mxGraph 3.4.0.1 beta 1
+
+31-AUG-2015: 5.0.2.5
+
+- Fixes directory name for keybase.io auth
+
+31-AUG-2015: 5.0.2.4
+
+- Uses PNG+XML as default for Chrome App
+- Adds PNG+XML export in Chrome App
+- Uses client-side PNG+XML export in embed mode
+- Fixes ctrl+drag on connector handle in FF
+- Adds client-side PNG+XML file format
+- Fixes possible NPE in Sidebar
+
+28-AUG-2015: 5.0.2.3
+
+- Increases max zoom to 160x
+- Fixes possible overwrite for storage file after DnD
+- Uses base64 encoding for SVG data URIs
+- URI encoded content attribute for SVG+XML files
+- Adds faster startup for loading with url parameter
+- Fixes App.loadUrl for binary files in IE9/10
+
+27-AUG-2015: 5.0.2.2
+
+- Restores format for export JSON protocol event
+
+27-AUG-2015: 5.0.2.1
+
+- Fixes possible NPE in App.saveLibrary, createFile
+- Uses utf8 for imported SVG files
+- Moves canvas export to EditorUi
+- Fixes click method missing on div
+- Uses mxGraph 3.4 beta 12
+
+27-AUG-2015: 5.0.2.0
+
+- Fixes possible graph.createCurrentEdgeStyle undefined
+- Fixes possible gapi.load is undefined error
+- Changes color of normal unsaved status message
+- Fixes possible NPE in OneDrive error handling
+- Uses Youtube icon for quick start video link
+- Uses numeric width and height for inserted text
+- Fixes possible NPE in App.convertImages
+- Fixes possible unsanitized HTML output
+- Uses mxGraph 3.4 beta 11
+
+26-AUG-2015: 5.0.1.5
+
+- Uses client-side export for PNG in embed mode
+- Fixes character encoding for PNG export in embed mode
+- Adds error handling in App.saveRequest, saveLocalFile
+- Adds open in new window button in export dialog
+- Fixes initialization for Dropbox client
+- Updates keyboard shortcuts
+- Uses mxGraph 3.4 beta 10
+
+25-AUG-2015: 5.0.1.4
+
+- Uses mxGraph 3.4 beta 9
+
+25-AUG-2015: 5.0.1.3
+
+- Fix ctrl+drag of container with selected children
+- Fix move of edge label with selected terminals
+- Adds tooltip for sidebar sections
+- Uses mxGraph 3.4 beta 8
+
+24-AUG-2015: 5.0.1.2
+
+- Fixes label for recent Google Drive files
+- Uses mxGraph 3.4 beta 7
+
+24-AUG-2015: 5.0.1.1
+
+- Adds open recent menu
+- Removes debugging output in open.html
+- Adds lazy loading for Dropbox client API
+
+23-AUG-2015: 5.0.1.0
+
+- Keeps state URL parameter after open from Google Drive
+- Fixes default window bounds for new files in Chrome App
+
+23-AUG-2015: 5.0.0.9
+
+- Adds lazy loading for Google Drive client API
+- Adds open in new window option for local export
+
+23-AUG-2015: 5.0.0.8
+
+- Disables paste of empty string via keyboard shortcut
+- Fixes slow ctrl-key handling with large clipboard data
+- Sets default for adding plugins to p URL parameter
+- Adds short key, handles escape in explore plugin
+
+21-AUG-2015: 5.0.0.7
+
+- Ignores shape for default vertex styles
+- Hides background image option in Chrome App
+- Removes background image option in Chrome App
+- Minor fix for logo in Chrome App
+
+21-AUG-2015: 5.0.0.6
+
+- Fixes possible flickering for connector target drop
+- Fixes logo position in Chrome App
+- Fixes initial Chrome App window position
+- Uses mxGraph 3.4 beta 6
+
+21-AUG-2015: 5.0.0.5
+
+- Uses case insensitive sorting for browser file list
+- Shows drop targets for drag on connector handle
+- Fixes timer for shape drop target updates
+- Fixes default window size and position for Chrome App
+- Uses mxGraph 3.4 beta 6
+
+20-AUG-2015: 5.0.0.4
+
+- Adds timer for update of shape drop targets
+- Adds tooltips for shape drop targets
+- Uses mxGraph 3.4 beta 5
+
+19-AUG-2015: 5.0.0.3
+
+- Opens dropped XML in same window for empty diagram
+- Fixes import of non-PNG images in Chrome App
+- Improves error messages for OneDrive
+- Merges view and options section in format panel
+- Removes copy on connect option in format panel
+- Fixes menus and action states in Chrome App
+
+19-AUG-2015: 5.0.0.2
+
+- Fixes XML via drag and drop overwrites local storage file
+- Fixes client-side export in Firefox, disables in Edge
+- Fixes SVG for embed mode in Safari and Firefox
+- Uses mxGraph 3.4 beta 4
+
+18-AUG-2015: 5.0.0.1
+
+- Disables client-side image export in Firefox
+- Fixes invalid characters for image export in Chrome
+
+18-AUG-2015: 5.0.0.0
+
+- Uses mxGraph 3.4 beta 3
+- Adds embedImages switch (default true) for SVG and SVG+XML in JSON protocol
+- Changes autosave interval in Drive to 6 seconds
+- Adds text labels for Google Drive previews in Firefox and Chrome
+- Disables Google Drive in Opera
+- Fixes export of binary files to cloud in IE 10
+- Adds download button in revision history dialog
+- Uses client-side PNG export in Firefox, Chrome and Opera
+- Adds PNG image export in Chrome App
+- Removes JPG export option
+- Adds handling for invalid characters in Dropbox
+- Fixes encoding of XML files in IE 9
+- Adds error handling for large image export
+- Cuts shapes and connections separately
+- Deletes layers and connections separately
+- Enables connections for text labels
+- Fixes restore button state in revision dialog
+- Uses untitled layer as name for new layers
+- Adds rename layer button in layers window toolbar
+
+06-AUG-2015: 4.9.0.9
+
+- Moves copy on connect option to after background
+- Fixes initial value of foldingEnabled in realtime
+- No longer hides handles while editing label
+
+06-AUG-2015: 4.9.0.8
+
+- Improvements to Confluence connect functionality
+
+06-AUG-2015: 4.9.0.7
+
+- Improvements to Confluence connect functionality
+
+06-AUG-2015: 4.9.0.6
+
+- Improves error handling in Chrome App
+- Adds top/bottom+left/right label position
+- Adds import for local images in Chrome App
+- More image resizing to reduce file size
+- Chrome app no longer enforces file extension
+- Adds handling for storage quota exceeded error
+
+05-AUG-2015: 4.9.0.5
+
+- Fixes binary base64 data in JSON protocol for IE10
+- Fixes handling of 403 error in Google client
+- Adds legacy.draw.io for old drive app
+- Ignores errors for native undo/redo
+
+05-AUG-2015: 4.9.0.4
+
+- Improvements to Confluence connect functionality
+
+04-AUG-2015: 4.9.0.3
+
+- Adds connect plugin
+- Improvements to Confluence connect functionality
+- Fixes possible NPE, handles table action errors
+
+04-AUG-2015: 4.9.0.2
+
+- Uses mxGraph 3.4 beta 2
+- Adds p URL parameter for app customization plugin IDs
+- Fixes unexpected end of input, CSS in save status message
+- Adds ctrl+backspace to delete shape with connections
+
+03-AUG-2015: 4.9.0.1
+
+- Fixes initial char for immediate editing
+- Fixes text size drop down in toolbar
+
+03-AUG-2015: 4.9.0.0
+
+- Uses mxGraph 3.4 beta 1
+- Adds xml to export event in JSON protocol
+- Fixes rendering of trailing newlines in HTML labels
+- Fixes repaint for in-place editor while zooming
+- Fixes font size in format panel for zoomed text
+- Adds rounded to copy style and default style
+- Fixes paste into active layer and locked layers
+- Adds ctrl+connect to copy source terminal
+- Adds ctrl+mouse wheel to zoom on Windows and Linux
+- Adds ctrl+delete to delete shape with connections
+- Deletes shapes and connections separately
+- Changes connect (plus) icon to arrow icon
+- Copy on connect is now disabled by default
+- Adds cross-browser Ctrl-/Cmd+B/I/U for bold, italic, underline 
+- Adds shift in keyboard shortcut for ungroup, toBack
+- Fixes update of page view option in format panel
+- Adds message with save link for new unsaved files
+- Fixes math rendering while editing and zooming
+- Adds splash=0 URL parameter to bypass splash screen
+- Fixes reset while entering URL in background image dialog
+- Adds link to unsaved data status message for saving
+
+27-JUL-2015: 4.8.5.14
+
+- Improvements to Confluence connect functionality
+
+24-JUL-2015: 4.8.5.13
+
+- Improvements to Confluence connect functionality
+
+24-JUL-2015: 4.8.5.12
+
+- Adds autosave option to load message in JSON protocol
+- Adds randomized Chrome App and Docs Add-on link in footer
+- Removes link to WordPress plugin in footer
+
+23-JUL-2015: 4.8.5.11
+
+- Removes development code for in-place editing
+
+23-JUL-2015: 4.8.5.10
+
+- Corrects Hebrew and Arabic resources base directions
+
+22-JUL-2015: 4.8.5.9
+
+- Replaces technology with wordpress plugin in footer
+- Fixes saving of local library files to device
+- Changes alignment of social icons in footer
+- Removes debugging output in More Shapes dialog
+
+21-JUL-2015: 4.8.5.8
+
+- Adds html export format option in JSON protocol
+- Fixes exporting in embed mode
+- Fixes splash screen after cancel import from browser in embed mode
+- Restores social icons in footer
+- Disables import menu for read-only files
+- Fixes enabled state of grid menu item
+- Fixes enabled state of view toolbar items in embed mode
+
+20-JUL-2015: 4.8.5.7
+
+- Uses new more shapes dialog in quirks mode
+- Fixes special characters for filename in OpenServlet
+- Adds error message for invalid file encoding in OpenServlet
+- Fixes enabled state of Extras menu if no file open
+- Adds fileId for redirect to realtime if no file open
+- Removes Google file menu items if no file is open
+
+18-JUL-2015: 4.8.5.6
+
+- Adds filter for license checks
+
+18-JUL-2015: 4.8.5.5
+
+- Fixes initial state for toolbar items, share action
+- Adds local URL parameter for device app mode
+- Remember me in auth dialog is now checked by default
+
+18-JUL-2015: 4.8.5.4
+
+- Fixes lost Google authentication cookie
+- Adds error handler in JS response from OpenServlet
+
+17-JUL-2015: 4.8.5.3
+
+- Restores i18n resources in Chrome App
+
+16-JUL-2015: 4.8.5.2
+
+- Restores lost arrange menus
+
+16-JUL-2015: 4.8.5.1
+
+- Adds error message for import of local images in Chrome App
+- Fixes width of filename element in header
+- Adds xmlsvg format, xml for all formats in export message
+- Adds support for disabled export options in Google Drive
+- Improves error handling in DropboxClient and DriveClient
+- Fixes various actions and menus for read-only files
+- Uses new more shapes dialog in Chrome App
+- Removes unused files from Chrome App package
+
+15-JUL-2015: 4.8.5.0
+
+- Fixes timing issue in revision dialog after restore
+- Reduces size of keyboard-shortcuts.png
+- Adds new more shapes dialog with preview in online mode
+- Moves actual size action from toolbar to zoom dropdown
+- Uses mxGraph 3.3.1.2 beta 5
+
+13-JUL-2015: 4.8.4.2
+
+- Removes gradient, adds connection type in toolbar
+
+13-JUL-2015: 4.8.4.1
+
+- Adds PNG export for offline mode in Google Chrome
+- Fixes creating files via create button in Drive
+- Changes footer, moves social links to help menu
+
+11-JUL-2015: 4.8.4.0
+
+- Avoids closing closed document in DriveRealtime
+- Uses mxGraph 3.3.1.2 beta 4
+- Fixes possible NPE in mxEdgeStyle.SegmentConnector
+- Moves handling of decideLater to callback
+
+11-JUL-2015: 4.8.3.9
+
+- Fixes handling of decide later in create dialog
+- Click on collaborator in realtime shows last selection
+- Ignores empty selection to reduce history size in realtime
+- Ignores possible quota exceeded in DriveClient.setUserId
+- Fixes possible NPE in StorageDialog, local file save
+
+10-JUL-2015: 4.8.3.8
+
+- Updates keyboard shortcuts for touch devices
+- Fixes translation for copyOf in RTL languages
+- Fixes DIV for embedded diagrams in quirks, IE8 standards mode
+- Ignores User cancelled errors in Chrome App
+- Uses mxGraph 3.3.1.2 beta 3
+- Fixes accidental inserts of labels with double click
+- Fixes initial value, clear icon in shape search for IE8
+- Removes Azure from default sidebars
+- Adds networkshapes URL parameter for testing
+- Fixes insert location for created shapes
+- Adds styled table, title in misc section
+- Replaces circles with ellipses in general section
+
+08-JUL-2015: 4.8.3.7
+
+- Fixes file extensions for saving via servlet
+- Fixes save of browser file as device file
+- Disables local save in FF11, IE6, IE7, IE8
+- Fixes handling of invalid state args
+- Fixes encoding for cross-browser use of OpenServlet
+- Fixes navigate dialog for click on filename in IE8
+- Fixes ignored bottom and right border for export
+- Disables vertical scroll for fit page width
+- Disables insert, layout menu for locked layers
+- Disables insert, paste for locked layers
+- Adds keyboard shortcuts in help menu
+
+06-JUL-2015: 4.8.3.6
+
+- Updates French and Arabic i18n
+
+02-JUL-2015: 4.8.3.5
+
+- Fixes NPE in insert menu
+
+02-JUL-2015: 4.8.3.4
+
+- Fixes possible NPE for insert dropdown in toolbar
+
+02-JUL-2015: 4.8.3.3
+
+- Uses simple menu, toolbar and sidebar
+- Rearranges various menus
+
+30-JUN-2015: 4.8.3.2
+
+- Disables cleanup of selection state in realtime
+- Allows decimal values for size and position in arrange panel
+- Changes search label in Help menu to English
+- Fixes swimlane selection on mouse up
+- Adds tooltip for small spinner in Google Drive
+- Fixes double click text insert in locked layers
+- Fixes position for user element
+- Adds fallback for moving layers on touch devices
+
+30-JUN-2015: 4.8.3.1
+
+- Removes Computer Networks from More shapes dialog
+
+30-JUN-2015: 4.8.3.0
+
+- Fixes save action in non-embedded mode
+- Adds locking for layers, updates dialog
+- Enables edit metadata for diagram
+- Moves small file spinner to menubar
+- Improves various labels in the UI
+- Adds view menu in simple mode
+- Improves German translation
+
+29-JUN-2015: 4.8.2.5
+
+- Aligns language menu with UI elements
+- Moves formatPanel in normal view menu
+- Adds toBack/toFront in simple toolbar
+- Fixes anti aliasing for rounded icon
+
+27-JUN-2015: 4.8.2.4
+
+- Fixes embed buttons in text toolbar mode
+- Fixes dropdown location for toolbar in normal mode
+- Fixes update of font and size after toolbar switch
+
+27-JUN-2015: 4.8.2.3
+
+- Fixes font name and size in toolbar
+- Adds text format toolbar in simple mode
+- Adds gradient, toggle rounded for toolbar in simple mode
+- Adds special i18n language bundle
+- Removes GIF image export option
+
+26-JUN-2015: 4.8.2.2
+
+- Add embedded image support for .vsdx import
+- Rearranges help menu, changes 10 tips video
+
+25-JUN-2015: 4.8.2.1
+
+- Fixes cursor for menubar, toolbar, sidebar items
+- Uses current mouse location for Ctrl(+Shift)+K
+- Adds shift+tab to select previous cell
+- Adds zoom, format toolbar buttons in simple mode
+- Moves layout from advanced to main menubar in simple mode
+- Uses Atlas 5.7 CSS style for toolbar items
+- Uses mxGraph 3.3.1.2 beta 2
+
+24-JUN-2015: 4.8.2.0
+
+- Moves language menu to top, right corner
+- Adds insert text, rectangle, ellipse
+- Fixes location for single click inserts
+- Adds simple=1 URL parameter (experimental)
+- Fixes numeric key shortcuts for numeric keypad
+- Fixes minimum height for exported images
+- Fixes zoom button mouse clicks in embedded diagrams on touchscreens
+- Adds space+drag for panning, handles tab while editing
+- Uses mxGraph 3.3.1.2 beta 1
+
+23-JUN-2015: 4.8.1.4
+
+- Adds saveAndExit, modified URL parameters for embed mode
+- Adds status messages, modified flags, resource keys
+- Fixes SVG export via messages
+- Uses mxGraph 3.3.1.1
+
+19-JUN-2015: 4.8.1.3
+
+- Improves Atlassian Connect integration
+
+18-JUN-2015: 4.8.1.2
+
+- Improves Atlassian Connect integration
+
+18-JUN-2015: 4.8.1.1
+
+- Shows embed buttons after loading diagram
+- Adds xmlpng format for export and load message
+- Adds modified parameter in exit event message
+
+18-JUN-2015: 4.8.1.0
+
+- Adds export messages in JSON protocol, png export
+- Fixes loading HTML files with ampersand in title
+- Uses mxGraph 3.3.1.0
+
+18-JUN-2015: 4.8.0.6
+
+- Adds proto, spin URL parameters for embed mode
+- Fixes import of Gliffy files
+
+17-JUN-2015: 4.8.0.5
+
+- Renames image export servlet
+
+16-JUN-2015: 4.8.0.4
+
+- Click on plus icon in stack does no longer connect to clone
+- Fixes import of VSDX files via drag and drop
+- Fixes broken images, hardcoded delay for image export
+- Fixes child order for moving selected cells in stacks
+- Fixes demo mode, decide later option for iOS devices
+- Uses mxGraph 3.3.1.0 beta 6
+
+15-JUN-2015: 4.8.0.3
+
+- Uses (shift) click on plus icon to (connect and) clone
+- Click on selected child in swimlane selects swimlane
+- Uses chooser for exporting files in Chrome App
+- Fixes demo mode for persistent backend choice
+- Fixes size of replace shape for touch devices
+- Removes decide later option in Splash screen
+- Reduces file size for dummy PNG images
+- Fixes Google Drive, OneDrive in IE11
+- Enter key starts editing like F2 key
+- Uses move cursor for sidebar items
+- Click on sidebar stops editing
+- Adds logging for shape search
+- Uses mxGraph 3.3.1.0 beta 5
+
+08-JUN-2015: 4.8.0.2
+
+- Uses new export servlet URL
+- Fixes font for math export
+- Updates Hungarian and Russian translation
+- Limits zoom to 20x
+- Sets initial state of general sidebar to expanded
+- Fixes delete action during interactive operation
+- Remember in splash defaults to true
+- Fixes scaled drop connect to edge
+
+05-JUN-2015: 4.8.0.1
+
+- Improves mousewheel zoom performance
+- Fixes orthogonal edge router
+- Uses mxGraph 3.3.1.0 beta 4
+
+03-JUN-2015: 4.8.0.0
+
+- Adds caching for formatted text labels and math
+- Fixes initial svg/html save in undefined mode 
+- Uses mxGraph 3.3.1.0 beta 3
+- Fixes printing with math
+
+02-JUN-2015: 4.7.0.4
+
+- No longer sends local save to server if supported
+- Adds status pass-through for proxied requests
+- Fixes ignored filenames for bitmap export
+- Adds export for SVG with embedded XML
+- Fixes import of files in Chrome App
+- Adds support for embedded SVG files
+
+01-JUN-2015: 4.7.0.3
+
+- Adds cloud support in advanced export dialog
+- Hides toolbar for print in chromeless mode
+- Fixes modified state in embed mode
+- Fixes row drop location on lists
+- Adds returnbounds URL parameter
+- Adds ER schema row shapes
+
+30-MAY-2015: 4.7.0.2
+
+- Fixes click required for connect on iOS
+- Fixes replace shape delay for images
+- Fixes i18n Dropbox app folder check
+
+29-MAY-2015: 4.7.0.1
+
+- Adds export to Google Drive, Dropbox and OneDrive
+- Fixes paste of Gliffy data into diagram
+- Fixes lost connections for duplicate cells
+- Fixes changing points in unconnectable groups
+- Runs layouts for groups and finds tree roots
+- Adds edit link in arrange format panel
+- Adds Dropbox and OneDrive options in Link Dialog
+- Fixes moved edge labels when zoom is changed
+- Changes initial mode to undefined in client mode
+- Updates format panel state in embed mode
+- Tidies up format panel in Atlas theme
+- Adds tooltip for rightclick pan
+- Uses mxGraph 3.3.1.0 beta 2
+
+28-MAY-2015: 4.7.0.0
+
+- Uses mxGraph 3.3.1.0 beta 1
+- Adds list, dimension, collate and sort in advanced sidebar
+- Moves text shapes from Advanced to General sidebar
+- Shift-click on plus icon creates new connection
+- Adds 'clear waypoints' in arrange format panel
+- Fixes incremental selection of cell hierarchies
+- Fixes NS_ERROR_NOT_IMPLEMENTED in Firefox 3.6
+- Sets orthogonal direction for fields and rows
+- Drop on lifelines replaces participant shape
+- Direct child selection for UML and ER shapes
+- Fixes text rendering with overflow=fill
+- Adds delay for replace shape icon
+- Adds schema row in ER sidebar
+
+22-MAY-2015: 4.6.1.2
+
+- Improves local shape search, adds tags
+
+22-MAY-2015: 4.6.1.1
+
+- Fixes name encoding when moving files to Dropbox apps folder
+
+21-MAY-2015: 4.6.1.0
+
+- Fixes loading files from non-app folder in Dropbox
+- Handles 404 status codes when loading Dropbox files
+- Fixes loading of libraries files as diagrams
+- Fixes ignored background in advanced image export
+- Fixes paste here menu for chromeless mode
+- Makes toolbar for chromeless mode transparent
+
+20-MAY-2015: 4.6.0.11
+
+- Fixes possible NPE in searchEntries
+
+20-MAY-2015: 4.6.0.10
+
+- Fixes move of parent after click on child connect icon on touch devices
+- Fixes last result page in search
+- Fixes possible NPE in Revision dialog
+- Fixes detection of file types in URLs with parameters
+- Catches decoding errors in extractGraphModelFromPng
+- Fixes appIcon link for current file
+- Fixes possible NPE in New dialog
+
+19-MAY-2015: 4.6.0.9
+
+- Uses mxGraph 3.3.0.1
+- Fixes second click on 1:1 for chromeless mode with no page view
+- Fixes flow for picking Dropbox files
+- Adds paste here action in context menu
+- Enables math typesetting in demo mode
+- No longer sets initial mode for demo=1
+
+18-MAY-2015: 4.6.0.8
+
+- Uses mxGraph 3.3.0.1 beta 3
+- Fixes forward references in FF ESR
+- Fixes moving and selection for parts and groups
+
+18-MAY-2015: 4.6.0.7
+
+- Disables Dropbox in IE9
+- Uses mxGraph 3.3.0.1 beta 2
+- Keeps page title before loading file
+- Fixes possible NPE in mxShape.destroyCanvas
+- Fixes loading from URL in old versions of IE
+
+16-MAY-2015: 4.6.0.6
+
+- Opens and imports all .vsdx, Gliffy and PNG+XML files
+- Adds Ctrl+connect to disable copy of source
+- Fixes composite drop connect offset
+
+14-MAY-2015: 4.6.0.5
+
+- Adds timer for drop connect target switching
+- Fixes handling of "new" action in draft mode
+- Adds storage option in save and copy dialog
+- Adds support for libraries in Chrome App
+- Replaces "Ask later" with "Decide later"
+- Fixes composite drop connect location
+- Removes UML shapes with HTML labels
+- Allows for compressed XML templates
+
+11-MAY-2015: 4.6.0.4
+
+- Fixes offset for drop connect edge on stack child
+- Adds support for undefined mode in save action
+- Adds ask later option in splash screen
+- Changes initial mode to undefined for url parameter
+- Adds ask later option in create dialog
+- Allows PNGs for create and url URL parameters
+- Fixes handling of extra spaces in search box
+- Fixes double click on disabled graphs
+
+08-MAY-2015: 4.6.0.3
+
+- Uses mxGraph 3.3.0.1 beta 1
+- Improves Japanese and Danish translations
+- Fixes DOM error when opening files in IE9
+- Fixes handling of libs parameter
+- Improves metadata and image dialog
+- Fixes accidental loss of meta data
+- Fixes handling of clicks in layers dialog for Chrome dev channel
+
+05-MAY-2015: 4.6.0.2
+
+- Fix for IE echo open
+
+04-MAY-2015: 4.6.0.1
+
+- NPE fix for Gliffy import
+
+03-MAY-2015: 4.6.0.0
+
+- First iteration of new .vsdx importer
+
+23-APR-2015: 4.5.0.5
+
+- Uses mxGraph 3.3.0.0
+- Improves Japanese translations
+- Adds rounded and glass format options for UML lifelines
+- Fixes replace shape icon in older IE versions
+
+23-APR-2015: 4.5.0.4
+
+- Adds global mxLoadSettings switch, Sidebar.prototype.searchFileUrl
+- Fixes folding icons for embedded diagrams
+- Adds orthogonalPerimeter for UML activation
+- Adds UML sequence diagram building blocks
+- Adds timer for replace shape and connect
+
+22-APR-2015: 4.5.0.3
+
+- Limits revision history preview default scale
+- Limits drive thumbnail sizes
+- Adds timer-based outline connect
+- Fixes accidental loss of modified shape data
+- Fixes horizontal tree layout
+- Fixes scaled rendering of UML frames
+- Fixes shadow for UML destroy shape
+
+21-APR-2015: 4.5.0.2
+
+- Fixes search UI for atlas theme
+- Uses mxGraph 3.2.0.1 beta 7
+- Fixes search button state in offline mode
+
+21-APR-2015: 4.5.0.1
+
+- Maps iconfinder search to global search
+
+21-APR-2015: 4.5.0.0
+
+- Adds shape search
+- Uses mxGraph 3.2.0.1 beta 6
+- Fixes click on paper size radio button labels
+- Improves Japanese and Danish translations
+- Fixes image action if no cells are selected
+- Adds UML boundary, entity and control shapes and lifelines
+- Uses data URIs for various images
+
+15-APR-2015: 4.4.1.5
+
+- Adds plus click handling for child cells
+- Fixes Russian, Danish and Spanish translations
+
+13-APR-2015: 4.4.1.4
+
+- Fixes CORS for MathJax in embedded diagrams
+
+13-APR-2015: 4.4.1.3
+
+- Uses mxGraph 3.2.0.1 beta 5
+- Fixes possible invisible buttons in more shapes dialog
+- Enables local file saving for non-Safari browsers
+- Scales data URIs above 1M (hold Ctrl to bypass)
+- Uses local copy of MathJax
+- Uses static JS for embedding with no custom shapes
+- Fixes edges in revision dialog preview
+- Adds support for composite cells
+- Fixes conversion of some numeric text labels
+- Fixes shadow for transparent ellipses in Firefox
+- Adds handle for hexagon shape
+- Fixes duplicate extension in create dialog
+- Fixes make copy of HTML files for Dropbox and OneDrive
+
+10-APR-2015: 4.4.1.2
+
+- Fixes NPE in OpenServlet
+
+09-APR-2015: 4.4.1.1
+
+- Fixes caching of images for Google Drive thumbnails
+
+09-APR-2015: 4.4.1.0
+
+- Uses mxGraph 3.2.0.1 beta 4
+- Fixes undo for text editing and insert labels
+- Uses Ctrl+Shift+Z for redo on Mac
+- Changes keyboard shortcut for autosize to Ctrl+Shift+Y
+- Inserts new cell after editing shape in createShape
+- Uses orthogonal edge style in activity and sequence diagrams
+- Uses grid for lifline and UML frame handle
+- Fixes roundtrip for numeric labels with 0 prefix
+- Adds UML frame shape and handle, participant style for lifeline
+- Disables recursive resize for UML lifelines
+- Pre-selects first entry in revision dialog, shows full timestamp
+- Ignores pointer events for transparent groups
+- Fixes removing cells from selected parents
+- Adds arc handle for rounded hexagon shape
+
+25-MAR-2015: 4.4.0.9
+
+- Uses mxGraph 3.2.0.1 beta 3
+- Fixes selection state after enter and exit group
+- Fixes update of unchanged geometries in stack layouts
+- Renames navigation switch, moves to advanced menu
+
+18-MAR-2015: 4.4.0.8
+
+- Uses mxGraph 3.2.0.1 beta 2
+- Fixes possible NPE in restore
+
+18-MAR-2015: 4.4.0.7
+
+- Fixes format sidebar, buttons in embed mode
+- Fixes canvas state for certain shapes
+
+17-MAR-2015: 4.4.0.6
+
+- Fixes missing restore in mxgraph.aws2.sdks.nodejs
+
+14-MAR-2015: 4.4.0.5
+
+- Uses mxGraph 3.2.0.1 beta 1
+- Hides inactive custom handles for edges if custom handle is active
+- Adds header for SVG, declaration for XML exports
+
+13-MAR-2015: 4.4.0.4
+
+- Uses mxGraph 3.2.0.0
+- Fixes HTML embed dialog size and preview in IE
+- Adds arcSize handle
+- Adds tooltips for plus and rotate handle
+- Hides tooltip when editing starts
+
+12-MAR-2015: 4.4.0.3
+
+- Uses mxGraph 3.2.0.0 beta 4
+- Fixes autosave, makes files read-only in chromeless mode
+- Fixes embedded iframe height, timing problems in embed preview
+- Fixes fit, resize and autosize for chromeless and embed mode
+- Fixes error handling, adds console output for errors in embed
+- Trims data for embedded diagrams to fix inflate in IE
+
+11-MAR-2015: 4.4.0.2
+
+- Uses mxGraph 3.2.0.0 beta 3
+- Adds keyboard shortcuts for zoom actions
+- Adds Or-, Sum- and LineEllipse in Advanced sidebar
+- Fixes escape for all custom handles
+- Fixes rounding for edge arrow sizes
+- Makes flow layout settings available via cell style
+- Sets interRankCellSpacing to 50 in flow layouts
+- Shows/hides link hint if link changes
+- Removes text format change for edit link action
+- Fixes renaming of storage files and libraries
+- Fixes conversion of newlines for formattedText action
+- Fixes rounding for drop connect of groups with edges
+- Fixes drop connect location for child cell in container
+- Adds rounding in mxConnectionHandler.createTargetVertex
+- Add rounding for offset after Shift+collapse/expand
+- Fix duplicate action for cells and descendants
+
+10-MAR-2015: 4.4.0.1
+
+- Uses mxGraph 3.2.0.0 beta 2
+- Selects parents after deleting cells
+- Fixes delayed selection after folding
+- Enables navigation in chromeless mode
+- Uses Graph subclass in embedded diagrams
+- Adds nav parameter for embedded diagrams
+- Adds Ctrl+Enter for cloning cells "in-place"
+- Adds autosave for change of navigation switch
+- Fixes focus after stop editing with Ctrl+Enter
+- Disables extending parents with stack layouts on add
+- Shift+expand/collapse moves siblings cells (experimental)
+- Expand/collapse resizes parent stack (press alt to disable)
+- Collapsed swimlane in horizontal stack has vertical label
+- Ignores previous width/height for collapse/expand in stack
+- Fixes position of close icon in format panel for quirks, FF
+- Changes key shortcuts for expand and collapse (Ctrl+Home/End)
+- Changes key shortcuts for edit and enter group (Ctrl+Shift+Home/End)
+- Adds key shortcuts for select next/previous/parent/child (Ctrl+Tab/Ctrl+Shift+Tab)
+
+07-MAR-2015: 4.4.0.0
+
+- Uses mxGraph 3.2.0.0 beta 1
+- Fixes size handles for locked shape
+- Collapsed swimlane in vertical stack has horizontal label
+- Fixes nested container layout
+- Adds swimlaneFillColor to copied styles
+- Changes UML lifeline container state
+- Adds new UML and ER elements in UML sidebar
+- Fixes replace shape applies marker styles for edges
+- Fixes drop on container from sidebar, stops editing
+- Adds table elements in entity relation sidebar
+- Adds alt-shift to only highlight drop target
+
+06-MAR-2015: 4.3.0.2
+
+- Changes default edge style to entity relation in ER sidebar
+- Adds table, row and 1 mandatory to 1 optional relation in ER sidebar
+- Adds edit shape option in format menu and style panel
+- Changes title and size of edit style dialog
+- Adds create shape option in sidebar footer
+
+05-MAR-2015: 4.3.0.1
+
+- Adds Options, Advanced, Custom shapes menu
+- Adds control key to apply arrow handle to opposite side
+- Fixes arrow handles to appear on same side
+- Fixes custom shapes in embedded diagrams
+- Uses mxGraph 3.1.3.1 beta 2
+
+05-MAR-2015: 4.3.0.0
+
+- Adds shapeeditor.html for implementing custom shapes
+- Invokes turn (rotate 90 degrees) for click on rotate handle
+- Adds experimental support for custom stencils via shape=stencil(value)
+- Uses mxGraph 3.1.3.1 beta 1
+
+04-MAR-2015: 4.2.3.2
+
+- Fixes zoom buttons for chromeless mode
+- Adds link to 10 tips video in help menu
+- Adds and removes a number of styles in copy/paste style
+- Fixes undefined not a function in autosave on error
+- Shows 100 revisions in Dropbox revision history dialog
+- Fixes handling of rev URL parameter in Dropbox client
+
+03-MAR-2015: 4.2.3.1
+
+- Fixes modified flag update after save response
+- Adds revision history dialog for Dropbox files
+- Shows timestamp for same day, current revision in revision history
+- Does no longer show layers/restore libraries in chromeless mode
+- Adds hover style for images in sidebar titles
+- Fixes wrapping in sidebar titles with icons
+- Fixes copy paste of orphaned relative child cells
+- Shows small spinner while updating Drive thumbnails
+- Shows small spinner for autosave of libraries and files
+
+02-MAR-2015: 4.2.3.0
+
+- Adds cells in libraries
+
+01-MAR-2015: 4.2.2.0
+
+- Makes html extension default for cloud files
+- Adds xhtml namespace in html files
+- Fixes autosize icon in Arrange panel
+
+01-MAR-2015: 4.2.1.5
+
+- Disabes OneDrive in demo and stealth mode
+- Changes html files to redirect to edit URL
+
+28-FEB-2015: 4.2.1.2
+
+- Fixes refresh of outline window after hiding
+- Disables OneDrive on iOS
+- Keeps html extension for open via drag and drop
+- Fixes file extensions for download of html files
+- Centers buttons in confirm dialog
+- Adds immediate save for change from html to other extension
+
+27-FEB-2015: 4.2.1.1
+
+- Fixes download as XML, embedded PNG with XML for html files
+- Rename file to html creates revision and saves
+- Edit in local HTML files creates copy
+- Fixes possible NPE
+
+27-FEB-2015: 4.2.1.0
+
+- Saves html files as embedded HTML with edit link
+
+27-FEB-2015: 4.2.0.1
+
+- Fixes URL for windows live API
+
+27-FEB-2015: 4.2.0.0
+
+- Adds snapping for custom arrow handles
+- Fixes background image in image and PDF export
+- Adds support for OneDrive
+- Fixes extensions for library files
+- Adds xml extension for files in Google Drive
+- Adds snapping for new vertical/horizontal connections
+- Adds shift to disable adding waypoints, custom handles
+- Adds orange color style, uses in format panel
+- Adds clibs URL parameter for custom libraries
+- Fixes URL decoding for libs URL parameter
+- Resets revision timer after create revision
+- Simplified edge entries for general sidebar
+- Fixes russian translations
+- Uses mxGraph 3.1.2.3 beta 8
+
+21-FEB-2015: 4.1.0.5
+
+- Adds edge shape/style toolbar items
+- Adds vertical text option
+- Adds simple arrow shape
+- Uses mxGraph 3.1.2.3 beta 7
+
+20-FEB-2015: 4.1.0.4
+
+- Changes thumbnail size in Google Drive to 480px
+- Disables zoom with mousewheel if dialogs are open
+- Adds zoom controls for chromeless mode
+- Adds version in about dialog
+- Adds preview in revision history dialog
+- Uses mxGraph 3.1.2.3 beta 6
+
+19-FEB-2015: 4.1.0.3
+
+- Uses mxGraph 3.1.2.3 beta 5
+- Fixes possible NPE in arrow shape
+- Adds preview dialog for revision history
+- Adds preview in iframe embed dialog
+
+19-FEB-2015: 4.1.0.2
+
+- Adds preview in embed dialog
+- Fixes possible NPE in arrow shape
+- Fixes invalid argument error for drag and drop of text in IE10
+- Uses mxGraph 3.1.2.3 beta 4
+
+19-FEB-2015: 4.1.0.1
+
+- Fixes NPE in embed dialog
+
+19-FEB-2015: 4.1.0.0
+
+- Adds waypoints for arrows and links
+- Adds glass effect to current style
+- Fixes gradient color action state
+- Adds arrows to advanced sidebar
+- Adds connections to general sidebar
+- Removes edge styles from toolbar
+- Separates waypoints and connection in style panel
+- Adds edge width option in arrange panel
+- Changes replace existing diagram to open in this window
+- Fixes connection points for tee and corner shape
+- Fixes iconfinder search client for github domain
+- Adds thumb=0 URL parameter to disable thumbnails in Drive
+- Adds autosize option in embed dialog for responsive pages
+- Adds rounded support for single- and doubleArrow vertices
+- Disables splitting edges with edges
+- Removes waypoints for straight segments
+- Inverts order of lineend/-start options in format panel
+- Removes dos.xml
+- Uses mxGraph 3.1.2.3 beta 3
+
+13-FEB-2015: 4.0.1.2
+
+- Safeguards Dropbox client
+- Changes error reporting to 2x2.png
+
+13-FEB-2015: 4.0.1.1
+
+- Fixes sidebar entry for device libraries after save
+- Fixes object is not a function in File.autosave
+- Makes creation of thumbnails safer
+- Disables writingDirection for no selection
+
+13-FEB-2015: 4.0.1.0
+
+- Fixes vertical center for default text size
+- Fixes update of XML in Drive before unload
+- Allows negative spacing values in format panel
+- Uses webViewLink metadata in getPublicUrl
+- Disables Google Drive for IE9
+- Adds thumbnails for Google Drive files
+- Fixes possible localStorage undefined error
+- Adds writing direction in menu and format panel
+- Changes labels in feedback dialog and emails
+- Fixes clipboard for selected cells and descendants
+- Uses mxGraph 3.1.2.3 beta 2
+
+10-FEB-2015: 4.0.0.1
+
+- Fixes broken arrow shape
+
+10-FEB-2015: 4.0.0.0
+
+- Adds library files for device, local storage and dropbox
+- Fixes change of open libraries from different tabs
+- Fixes summing junction and or shape in Flowcharts
+- Adds drag and drop in URL and filename dialogs
+- Adds drag and drop for opening files from URL
+- Adds download option in library dialog
+- Fixes ctrl/cmd removes focus for input
+- Adds recursive rubberband selection
+- Adds decimal values for angles
+- Fixes z-index for subdialogs
+- Adds open library from URL
+- Fixes possible NPEs
+- Uses mxGraph 3.1.2.3 beta 1
+
+09-FEB-2015: 3.8.0.5
+
+- Fixes drag and drop for Gliffy data and HTML markup
+- Fixes possible arguments error in FF 13
+- Fixes possible value outside range error
+- Fixes no click on DIV in KHTML
+- Fixes possible NPEs
+- Uses mxGraph 3.1.2.2
+
+07-FEB-2015: 3.8.0.4
+
+- Fixes gradient option with no fill color
+- Adds rotation for edge labels
+- Fixes default size for double click on background
+- Uses mxGraph 3.1.2.2 beta 6
+
+07-FEB-2015: 3.8.0.3
+
+- Chrome App reads PNG+XML files
+- Adds drag and drop for text editor
+- Adds drag and drop for image and link dialogs
+- Fixes NPE in older versions of Chrome
+- Uses mxGraph 3.1.2.2 beta 5
+
+05-FEB-2015: 3.8.0.2
+
+- Fixes parsing of PNG+XML files in non-IE browsers
+- Double click on background adds autosize textbox
+- Fixes possible NPE for autosize
+- Fixes possible NaN for stepper with empty input
+
+04-FEB-2015: 3.8.0.1
+
+- Adds keyboard shortcut, buffer for autosize
+- Fixes SVG export for some HTML entities in IE8 and IE11
+- Adds close button in format panel
+- Moves dialogs on top of footer
+- Uses mxGraph 3.1.2.2 beta 4
+
+31-JAN-2015: 3.8.0.0
+
+- Adds revision history dialog in Drive mode
+- Fixes renaming of libraries
+- Allows XML files to be loaded as libraries
+- Fixes overridden mime type of libraries
+- Fixes import of Google Drive files
+- Improves open and import of .vsdx and Gliffy files
+- Fixes possible document closed errors
+- Uses mxGraph 3.1.2.2 beta 3
+
+09-JAN-2015: 3.7.7.8
+
+- Adds Rack/F5 stencils
+- Adds photos=1 URL parameter
+- Removes photos scopes in Drive
+- Enlarges Text item in sidebar
+
+08-JAN-2015: 3.7.7.7
+
+- Handles paste for Gliffy data
+- Fixes size of pasted data URI images
+- Fixes copy from Lucidchart in Firefox
+- Fixes extensions for VDX and Gliffy files
+- Shows spinner for asynchronous datatransfer
+
+08-JAN-2015: 3.7.7.6
+
+- Fixes images in PDF export with math
+- Handles VDX/Gliffy files via DnD
+- Adds import for Gliffy files
+- Handles paste from Lucidchart
+- Adds edit style in format panel
+- Uses mxGraph 3.1.2.2 beta 2
+
+06-JAN-2015: 3.7.7.5
+
+- Adds page scale in print dialog
+- Fixes enter in dialogs for IE8-10
+- Fixes CSS for IE8 standards mode
+- Fixes help menu for quirks, IE8, iOS
+- Fixes font size control for IE8/11
+- Fixes public URL filename encoding
+- Uses mxGraph 3.1.2.2 beta 1
+
+04-JAN-2015: 3.7.7.4
+
+- Fixes typo in splash screen
+
+04-JAN-2015: 3.7.7.3
+
+- Normalizes page layout, adds rounding in PDF export
+- Adds search box in help menu
+- Adds support for data URI in image dialog and clipboard
+
+31-DEC-2014: 3.7.7.2
+
+- Fixes toolbar button for format panel
+
+31-DEC-2014: 3.7.7.0
+
+- Adds format panel
+- Fixes scrollbars in IE8 standards
+- Uses mxGraph 3.1.2.1 beta 13
+
+22-DEC-2014: 3.7.6.2
+
+- Removes dashed line style for guides
+- Improves Russian translation
+- Fixes use of iOS devices in Android sidebar
+- Adds public Drive file URL in embed dialogs
+- Uses mxGraph 3.1.2.1 beta 12
+
+19-DEC-2014: 3.7.6.1
+
+- Adds Enterprise Integration Patterns (EIP) shapes
+- Adds stealth=1 URL parameter for offline mode
+- Removes downloadify, adds save=local URL parameter
+- Fixes text opacity in quirks, HTML with NO_FO
+- EditorUi.showImageDialog invokes callback with null
+- Uses mxGraph 3.1.2.1 beta 11
+
+16-DEC-2014: 3.7.6.0
+
+- Fixes possible artifacts for selection boxes
+- Makes connection icons smaller
+- Fixes drag and drop for image links
+- Uses mxGraph 3.1.2.1 beta 10
+
+12-DEC-2014: 3.7.5.10
+
+- Fixes menu states in embed mode
+
+12-DEC-2014: 3.7.5.9
+
+- Unifies code for copy/paste and drag and drop
+- Removes mxClipboard.stringToCells
+- Enables drag and drop of XML text for open and import
+- Applies pending edits in save and apply action
+- Assigns Ctrl+Shift+R to clearDefaultStyle
+- Renames reset- to clearDefaultStyle, reset- to clearWaypoints
+- Hides ungroup for containers and edges with labels
+- Fixes size in background image dialog
+- Removes menubar padding in compact, embed view
+- Adds highlights for drop targets
+- Removes page and local storage clipboard
+- Fixes errors for strong security settings in FF
+- Uses mxGraph 3.1.2.1 beta 9
+
+09-DEC-2014: 3.7.5.8
+
+- Fixes file extensions for PNG and HTML files
+- Open XML, PNG and HTML files by dropping anywhere
+- Removes iframe for opening local files (except IE)
+- Adds alt key to import dropped files at origin
+- Adds switch shape in Advanced sidebar
+- Uses mxGraph 3.1.2.1 beta 8
+
+09-DEC-2014: 3.7.5.7
+
+- Fixes update of parent highlight if parent changes
+- Fixes fuzzy images in image export, Docs add-on
+- Uses mxGraph 3.1.2.1 beta 7
+
+09-DEC-2014: 3.7.5.6
+
+- Removes debugging output in image and PDF export
+- Fixes timeout for chromeless mode with non public URLs
+- Fixes error handling if realtime client API does not load
+- Adds alt key to disable drop into groups for existing cells
+- Uses mxGraph 3.1.2.1 beta 6
+
+08-DEC-2014: 3.7.5.5
+
+- Shows error if realtime API cannot be loaded
+- Fixes segment edge handler
+- Limits size for diagrams in feedback
+- Fixes dragging existing cells into containers
+- Adds disabled button states in CSS
+- Fixes black JPG background for older diagrams
+- Uses mxGraph 3.1.2.1 beta 5
+
+05-DEC-2014: 3.7.5.4
+
+- Fixes possible NPEs in SegmentConnector
+- Fixes background color in cropped PDF exports
+- Fixes PDF export size via export dialog
+- Uses mxGraph 3.1.2.1 beta 4
+
+04-DEC-2014: 3.7.5.3
+
+- Fixes possible NPEs
+- Uses mxGraph 3.1.2.1 beta 3
+
+04-DEC-2014: 3.7.5.2
+
+- Fixes possible text clipping in image and PDF export
+- Replaces labels with previews in Format, Style menu
+- Changes shortcuts for zoomin, zoomout to ctrl+plus/minus
+- Fixes arrow directions in SegmentConnector
+- Improves Chinese, Spanish translations
+- Adds rounding in OrthConnector
+- Uses mxGraph 3.1.2.1 beta 2
+
+01-DEC-2014: 3.7.5.1
+
+- Shows connect icon with control instead of shift, for selected cells
+- Renames switchDirection action to turn
+- Inverts constraints when turning edges
+- Selects cells in groups when editing starts
+- Fixes select all edges for edges with labels
+- Fixes moving of edge labels in groups
+- Adds shift key to keep connection points visible
+- Keeps connection points visible while over cell
+- Improves Chinese translation
+- Uses mxGraph 3.1.2.1 beta 1
+
+25-NOV-2014: 3.7.5.0
+
+- Changes background color of sidebar to white
+- Undo in text editor stops editing after last change
+- Fixes focus rectangle for edge label editing in IE
+- Fixes gradients with no fill color in VML
+- Fixes autoscroll after click on scrollbar in IE11
+- Uses Helvetica Neue as default font in CSS
+- Fixes ignored styles after style classnames
+- Uses 240px sidebar, 46x46px for entries in atlas
+- Adds nl2Br style to disable conversion of linefeeds
+- Fixes HTML source mode editor size for edges
+- Hides handles while editing cell labels
+- Automatically removes empty edge labels
+- Double click on edge adds new label
+- Uses TLS for image and PDF export
+- Uses mxGraph 3.1.2.0 beta 4
+
+25-NOV-2014: 3.7.4.5
+
+- Fixes italic rich text editing
+- Fixes HTML source mode editor size
+- Fixes possible NPE in mxEdgeSegmentHandler.start
+- Fixes bug in mxCellEditor.resize for edge labels
+
+24-NOV-2014: 3.7.4.4
+
+- Fixes typo in offline cache file
+
+24-NOV-2014: 3.7.4.3
+
+- Adds word wrapping, formatted labels to various shapes
+- Adds larger buttons, CSS styles for all buttons
+- Click on background closes modal dialogs
+- Makes color dialogs closable, checkbox labels clickable
+- Adds special handle for fixed connection points
+- Adds Vertical/Horizontal Flow Layout in advanced sidebar
+- Fixes chromeless autoscale for multiple pages
+- Fixes page count for cells at page borders
+- Improves bounding box for in-place editor
+- Improves hit detection on fixed connection points
+- Fixes handling of special cases in segment edges
+- Uses mxGraph 3.1.2.0 beta 3
+
+17-NOV-2014: 3.7.4.2
+
+- Adds word wrapping, formatted labels in various sidebar shapes
+- Handles conversion to draw.io pro while file is open
+
+14-NOV-2014: 3.7.4.1
+
+- Stored mode wins over preferred mode in draw.io pro
+- Adds data store, activity markers and task types for BPMN
+- Fixes loading for mxgraph.mockup.anchor shape
+- Uses realtime for all Google Drive files
+- Fixes center for custom handles with zoom
+- Adds remote alerts for important notifications
+- Keeps footer visible when modal dialogs are shown
+- Clears points for drop and connect from sidebar
+- Fixes PID valve shapes in offline + Chrome app
+- Adds update style for edges from sidebar
+- Adds shift to update style for containers
+- Fixes offset after tree layout in container
+- Fixes edge styles in tree layout shapes
+- Adds elbow direction to current edge style
+- Uses mxGraph 3.1.2.0 beta 2
+
+10-NOV-2014: 3.7.4.0
+
+- Fixes merging of 2 segments in mxEdgeSegmentHandler
+- Fixes rendering, glass effect for ext shape
+- Uses mxGraph 3.1.2.0 beta 1
+
+07-NOV-2014: 3.7.3.6
+
+- Fixes perimeter of (Call) Conversation shape in BPMN sidebar
+- Fixes edge style toolbar always updates current style
+- Fixes current text style, colors for text shape
+- Fixes vertical offset for empty initial label
+- Fixes current edge style for shape/edgeStyle
+- Uses mxGraph 3.1.1.1 beta 3
+
+06-NOV-2014: 3.7.3.5
+
+- Uses mxGraph 3.1.1.1 beta 2
+- Adds Curly Bracket in General, Parallel Marker in BPMN sidebar
+- Adds Corner, Tee, Vertical/Horizontal Tree in Advanced sidebar
+- Merges tilt and reverseEdge into switchDirection
+- Fixes ID attributes in SVG for URLs with brackets
+- Replaces alt-drag from sidebar with refresh icon
+- Alt-/shift-drag from sidebar disables actions
+- Adds formatted text state for new connections
+- Moves collapsible item to Navigation submenu
+- Shows focus rectangle for edge label editing
+- Makes formatted text default for all cells
+- Rearranges general shapes based on usage
+- Hides custom handles for locked cells
+- Adds resizing for rich text editing
+- Adds reset default style menu item
+- Removes Text & Images sidebar
+
+01-NOV-2014: 3.7.3.4
+
+- Fixes image and PDF export for math typesetting (beta)
+- Fixes tolerance check in mxPopupMenuHandler for touch events
+- Uses mxGraph 3.1.1.1 beta 1
+- Disables MathJax context menu
+
+29-OCT-2014: 3.7.3.3
+
+- Fixes dblclick on edge handles in quirks mode
+- Merges intersecting waypoints into single waypoint
+- Adds virtual waypoints in straight edges
+- Single click on plus button duplicates cell
+- Double click on waypoint removes it
+- Uses mxGraph 3.1.0.2 beta 3
+
+28-OCT-2014: 3.7.3.2
+
+- Uses mxGraph 3.1.0.2 beta 3
+- Fixes offset for drop targets in containers
+- Fixes relative geometries for edges in sidebar
+- Highlights parent group for selected child vertex
+- Centers handle shape in custom handles
+- Fixes vertical offset for text editing on edges
+
+27-OCT-2014: 3.7.3.1
+
+- Uses mxGraph 3.1.0.2 beta 2
+- Adds curved, straight format menu item
+- Sets current edge style, markers regardless of selection
+- Adds support for margin style in ext shape
+- Fixes label bounds for shapes with double borders
+- Replaces some shapes in ER with standard shapes
+- Adds %today%, %filename% variables in p1 plugin
+- Fixes rhombus perimeter for "has" shapes in ER
+- Fixes outline connect, edge handles in IE8 standards
+- Fixes focus handling, size for dropdown menus in IE
+- Adds alt-shift to disable connect to outline
+- Fixes connections sidebar for libs URL param
+
+22-OCT-2014: 3.7.3.0
+
+- Adds bootstrap sidebar
+- Uses mxGraph 3.1.0.2 beta 1
+- Improves error handling and authorization flow
+- Handles escape in color dialogs
+- Change to edge style no longer resets label positions
+- Improves drop handling for edges, groups from sidebar
+- Removes deprecation warnings for use of nodeValue
+- Adds support for rounded style in various shapes
+- Adds Required Interface shape in UML sidebar
+
+09-OCT-2014: 3.7.2.6
+
+- Fixes link to Docs add-on
+- Uses mxGraph 3.1.0.1
+
+09-OCT-2014: 3.7.2.5
+
+- Fixes grid size handling after document properties dialog
+- Adds spacing for drop target arrows
+- Removes rounded from initial edge style
+- Adds setAsDefaultStyle action
+
+08-OCT-2014: 3.7.2.4
+
+- Fixes NPE in chromeless mode
+
+08-OCT-2014: 3.7.2.3
+
+- Fixes copy-/pasteStyle for value none
+- Adds reverse edge action
+- Adds title in feedback form
+- Fixes gradient toolbar item
+
+08-OCT-2014: 3.7.2.2
+
+- Fixes link shape for different stroke widths
+- Adds text toolbar state for current selection
+- Adds Youtube videos via insert link
+- Fixes z-index for Google picker
+- Adds Format, Dotted and Plain menu items
+- Improves email check, status message for feedback form
+- Removes scrollbar position, scale from files
+- Adds rounded to current edge style
+- Restores connection sidebar
+- Uses mxGraph 3.1.0.1 beta 3
+
+07-OCT-2014: 3.7.2.1
+
+- Removes connection palette
+- Uses groups for compound shapes
+- Fixes possible undefined label in edges after edit link
+- Resets waypoints, label if edge style is changed
+- Cleanup edge style options from menu, toolbar
+- Fixes copyStyle, global style, alt-click in sidebar
+- Fixes arrow drop geometries for relative targets
+- Maintains parent for duplicated cells
+- Uses mxGraph 3.1.0.1 beta 2
+
+06-OCT-2014: 3.7.2.0
+
+- Adds drop target arrows for drag from sidebar
+- Stores current scale and scrollbar positions
+- Remove setDefaultEdge function
+- Adds current style for edges
+- Uses mxGraph 3.1.0.1 beta 1
+- Adds Feedback in Help menu
+- Fixes Text, Position menu
+
+01-OCT-2014: 3.7.1.4
+
+- Uses mxGraph 3.1.0.0 beta 5
+
+29-SEP-2014: 3.7.1.3
+
+- Uses mxGraph 3.1.0.0 beta 4
+
+24-SEP-2014: 3.7.1.2
+
+- Enables target="_blank" in sanitized HTML
+- Uses mxGraph 3.1.0.0 beta 3
+
+22-SEP-2014: 3.7.1.1
+
+- Uses mxGraph 3.1.0.0 beta 2
+
+22-SEP-2014: 3.7.1.0
+
+- Uses mxGraph 3.1.0.0 beta 1
+
+21-SEP-2014: 3.7.0.9
+
+- Improves sanitization for HTML labels
+- Uses mxGraph 3.0.1.2 beta 5
+
+20-SEP-2014: 3.7.0.8
+
+- Adds sanitization for HTML labels
+- Uses mxGraph 3.0.1.2 beta 4
+
+20-SEP-2014: 3.7.0.7
+
+- Uses mxGraph 3.0.1.2 beta 3
+
+19-SEP-2014: 3.7.0.6
+
+- Uses mxGraph 3.0.1.2 beta 2
+
+12-SEP-2014: 3.7.0.5
+
+- Uses mxGraph 3.0.1.2 beta 1
+- Uses GAE SDK 1.9.11
+- Fixes s param for embedded markers
+- Adds dynamic loading for markers
+
+11-SEP-2014: 3.7.0.4
+
+- Removes Ports and Flows from sidebar
+- Uses mxGraph 3.0.1.1
+
+10-SEP-2014: 3.7.0.3
+
+- Uses mxGraph 3.0.1.0
+- Fixes image size in advanced export dialog if page not visible
+
+08-SEP-2014: 3.7.0.2
+
+- Adds workaround for invalid file descriptors in Dropbox
+
+27-AUG-2014: 3.7.0.1
+
+- Fixes bugs in realtime diagrams
+- Fixes recursive resize of relative child cells
+- Uses mxGraph 3.0.0.0 beta 2
+
+26-AUG-2014: 3.7.0.0
+
+- Uses mxGraph 3.0.0.0 beta 1
+
+05-AUG-2014: 3.6.1.5.2
+
+- Another footer change
+
+05-AUG-2014: 3.6.1.5.1
+
+- Footer change
+
+04-AUG-2014: 3.6.1.5
+
+- Fixes SVG export in IE
+- Uses mxGraph 2.9.0.2 beta 1
+
+31-JUL-2014: 3.6.1.4
+
+- Fixes transparent gradients in FF
+- Fixes redirect to HTTPS in Firefox
+- Uses document size for PDF export in page view
+
+31-JUL-2014: 3.6.1.3
+
+- Uses mxGraph 2.9.0.1
+- Adds ff=1 URL parameter for bug hunting
+- Removes empty hash tag for local files
+- Removes empty hash tag in initial state
+
+29-JUL-2014: 3.6.1.2
+
+- Makes refresh of new local file with template blank
+- Fixes handling of blocked popups in Chrome
+- Uses Universal Analytics
+- Adds blogger icon in footer
+- Fixes possible NPE in mxEdgeHandler.mouseMove
+- Uses mxGraph 2.9.0.1 beta 1
+
+28-JUL-2014: 3.6.1.1
+
+- Fixes arrange, distribute
+- Fixes embedded diagrams in all IE versions
+- Enables paste, drop for graph model snippets
+- Fixes edit geometry to work with multiple vertices
+
+25-JUL-2014: 3.6.1.0
+
+- Uses mxGraph 2.9
+- Adds collapsible action
+
+23-JUL-2014: 3.6.0.8
+
+- Uses mxGraph 2.9 beta 5
+- Resets mode after Google sign out
+
+20-JUL-2014: 3.6.0.7
+
+- Replaces connect with connection points option
+- Fixes resize for current root
+
+19-JUL-2014: 3.6.0.6
+
+- Fixes overlapping wrapped labels in IE8, quirks
+- Fixes rotated resize
+
+19-JUL-2014: 3.6.0.5
+
+- Fixes automatic layouts in sidebar previews
+- Adds part style for moving cells as parts of groups
+- Improves Entity shape in Entity Relation sidebar
+- Imports diagram files with no extensions via drag and drop
+- Adds part style for moving cells as parts of other cells
+- Adds waypoints to automatic line in sidebar
+- Fixes resize preview for changed parents
+- Shows connector handles on containers
+- Uses mxGraph 2.9 beta 4
+
+16-JUL-2014: 3.6.0.4
+
+- Fixes resize preview inside groups
+- Adds radial tree layout
+
+16-JUL-2014: 3.6.0.3
+
+- Fixes scaled resize rounding errors
+- Fixes creation of scaled connections
+- Fixes ui parameter in redirected URLs
+- Uses mxGraph 2.9 beta 3
+
+14-JUL-2014: 3.6.0.2
+
+- Removes ui=null in redirected URLs
+- Shift cursor moves by gridSize
+- Uses white preview for black background
+- Fixes distribute action
+- Fixes initial undo in embed mode
+- Resizes pool in stack layouts
+
+11-JUL-2014: 3.6.0.1
+
+- Fixes toggle selection on touch devices with mouse
+- Empty postMessage creates new file in embed mode
+- Disables custom dashed edges in outline shapes
+- Uses Ctrl-Click for context menu only on Macs
+- Makes hit detection for new edges consistent
+- Fixes alignment of cloned source terminals
+- Uses mxGraph 2.9 beta 2
+
+11-JUL-2014: 3.6.0.0
+
+- Adds Azure shapes
+- Uses mxGraph 2.9 beta 1
+- Fixes edge preview to use actual shape
+- Uses image for edge label handles
+- Avoids overlap of label and edge handles
+- Adds snap to waypoints for edges handles
+- Adds connect to outline for all shapes
+- Adds alt for connecting to anywhere in a shape
+- Adds shift for horizontal/vertical edge segments
+- Adds Options, Advanced, Theme menu
+- Uses Ctrl-Click for context menu in all browsers
+- Remove fixedPoints style, adds points style
+- Fixes special handle for new arrow shapes
+
+26-JUN-2014: 3.5.3.5
+
+- Uses mxGraph 2.8.2.1 beta 3
+- Fixes minor bugs
+
+24-JUN-2014: 3.5.3.4
+
+- Hides special handles for disabled graphs
+- Fixes minor bugs for realtime collaboration
+- Fixes cell order for native copy paste
+- Truncates existing files in Chrome App
+- Fixes clipboard state after ctrl+x (cut)
+- Adds import all file types for Google Drive
+- Fixes move cursor for entries in library dialog
+
+21-JUN-2014: 3.5.3.3
+
+- Adds shortcut for edit geometry, initial focus
+- Fixes grid size for moving cells in scaled graphs
+- Adds grid size in document properties dialog
+- Does no longer scroll to cells after move
+- Fixes minor bug in a floorplan shape
+
+18-JUN-2014: 3.5.3.2
+
+- Adds new shapes in general, advanced
+- Shift-cursor key moves by 10 pixels
+- Uses mxGraph 2.8.2.1 beta 2
+- Fixes initial scroll position on iOS
+- Fixes font family, size combo width in quirks mode
+- Fixes document properties in standalone mode for iOS
+
+16-JUN-2014: 3.5.3.1
+
+- Adds explore plugin
+- Add social icons in footer
+- Adds Embed, Google Docs menu item
+- Adds ready, ui=atlas URL parameters
+- Adds alt-drop from sidebar to override shape
+- Uses automatic force constant for organic layout
+- Uses mxGraph 2.8.2.1 beta 1
+
+11-JUN-2014: 3.5.3.0
+
+- Uses OS clipboard for cut, copy and paste shortcuts
+- Adds shortcuts for edit-, copy- and paste style
+- Makes layer visible after insert of new cell
+- Uses mxGraph 2.8.2.0
+
+09-JUN-2014: 3.5.2.0
+
+- Style changes trigger layout
+- Control enter stops editing
+- Uses mxGraph 2.8.1.1 beta 1
+- Uses last font, alignment for new cells
+- Adds validation for filenames
+
+02-JUN-2014: 3.5.1.2
+
+- Adds SVG transformation to image export via XML
+
+02-JUN-2014: 3.5.1.1
+
+- Uses mxGraph 2.8.1.0
+- Shows layers dialog for files with layers
+- Fixes links for transparent shapes in SVG export
+- Adds import from URL option
+
+27-MAY-2014: 3.5.1.0
+
+- Adds remove attribute option in metadata dialog
+- Adds larger open dialog
+- Fixes grid clipping bug in webkit
+- Fixes handle states after model change
+- Fixes hyperlinks in SVG export
+- Adds hexagon perimeter for hexagon shape
+- Uses mxGraph 2.8.0.0 beta 2
+
+14-MAY-2014: 3.5.0.0
+
+- Adds tooltips for links
+- Adds rotation in edit geometry dialog
+- Unifies mobile and desktop UI
+- Adds reset waypoints
+- Uses mxGraph 2.7.0.1 beta 2
+
+12-MAY-2014: 3.4.0.8
+
+- Adds client app mode
+- Adds edit as new embed option
+- Adds support for compressed data in embed, client mode
+
+12-MAY-2014: 3.4.0.7
+
+- Adds immediate editing
+- Uses mxGraph 2.7.0.1 beta
+
+11-MAY-2014: 3.4.0.6
+
+- Calls resetGraphView after loading realtime model
+- Adds placeholder in link dialog
+- Reads HTML embedded files
+- Uses mxGraph 2.6.0.1 beta 5
+
+10-MAY-2014: 3.4.0.5
+
+- Adds rounding to move, resize, rotate
+- Compacts About dialog
+- Adds offline menu item
+- Adds open from template URL
+- Adds open from URL option
+- Shows connect icon if shift is pressed
+- Adds tooltips for rotate, resize and move
+- Adds edit tooltip action
+- Improves metadata dialog
+- Uses mxGraph 2.6.0.1 beta 4
+
+08-MAY-2014: 3.4.0.4
+
+- Fixes zoom, footer in chromeless mode
+- Adds image item in toolbar
+- Uses mxGraph 2.6.0.1 beta 3
+
+07-MAY-2014: 3.4.0.3
+
+- Fixes pinch to zoom on iOS
+- Uses mxGraph 2.6.0.1 beta 2
+
+06-MAY-2014: 3.4.0.2
+
+- Uses mxGraph 2.6.0.1 beta
+- Fixes handling of empty files
+- Fixes new library function
+
+06-MAY-2014: 3.4.0.1
+
+- Adds custom font sizes in toolbar
+- Fixes pinch gesture in iOS
+- Fixes offline mode in Firefox
+
+05-MAY-2014: 3.4.0.0
+
+- Uses mxGraph 2.6.0.0
+- Moves outline into separate dialog
+- Adds document properties dialog
+- Uses alt-wheel for zoom (shift for horizontal scroll)
+- Uses right mouse button for panning
+- Adds scaled page buffer with scrollbars
+- Adds initial centering of diagram
+- Adds local storage in IE8 quirks mode
+- Enables drag and drop in library dialog
+- Uses touch UI in Firefox only on Windows
+- Adds toggle state for grid/guides buttons
+- Adds license option in images sidebar
+
+17-APR-2014: 3.3.0.0
+
+- Adds custom libraries for Drive files
+- Adds persistence for visible libraries
+- Hides labels in sidebar
+
+15-APR-2014: 3.2.1.5
+
+- Fixes autosave for grid and page view changes
+- Uses mxGraph 2.5.1.2 beta
+
+13-APR-2014: 3.2.1.4
+
+- Uses mxGraph 2.5.1.1
+- Fixes import offset for new layers
+
+11-APR-2014: 3.2.1.3
+
+- Adds pools with lanes and stack child layouts
+- Splits general to text, connection and advanced sidebars
+- Fixes import for local and storage files
+- Adds stackLayout childLayout, stackHorizontal style
+- Fixes import XML for multiple layers
+- Adds grid/guides toolbar button
+- Fixes dialog event handling on iPad
+
+11-APR-2014: 3.2.1.2
+
+- Adds mime type filter in Google picker
+- Removes extension for Google Chrome
+
+10-APR-2014: 3.2.1.1
+
+- Adds recursive resize for groups
+- Uses mxGraph 2.5.1.1 beta
+
+10-APR-2014: 3.2.1.0
+
+- Replaces Open with Open from in file menu
+- Adds click handling for split bars
+- Removes folding icon in XML image export
+- Adds file extensions for Google Drive files
+- Adds embed iframe option
+- Adds import from menu
+
+07-APR-2014: 3.2.0.5
+
+- Adds Options, Advanced, Open from menu
+- Removes old storage item after rename
+- Disables user scaling on mobile devices
+
+02-APR-2014: 3.2.0.4
+
+- Adds viewbox to imported SVG files for FF, IE
+
+02-APR-2014: 3.2.0.3
+
+- Handles s=* parameter in embed servlet
+- Fixes Edit Image, Insert Image dialogs
+- Fixes Edit Link, Insert Link dialogs
+- Uses mxGraph 2.5.1.0
+
+29-MAR-2014: 3.2.0.2
+
+- Handles enter key in text input dialog
+- Uses "diagram name" for Google files
+- Transparent use of zlib compression
+
+28-MAR-2014: 3.2.0.1
+
+- Adds Options, Advanced, Export option
+
+27-MAR-2014: 3.2.0.0
+
+- Uses viewer in Google gadget for embedding
+- Adds chrome-less read-only viewer mode
+
+26-MAR-2014: 3.1.0.2
+
+- Adds storage logo in storage dialog
+- Adds help link in splash dialog
+- Adds distribute menu from core example
+
+24-MAR-2014: 3.1.0.1
+
+- Uses layers dialog from core example
+
+21-MAR-2014: 3.1.0.0
+
+- Removes profile.email scope in Google Drive
+- Shows local storage option on desktop
+- Adds XML+PNG file format (open and save)
+- Changes order of cancel, approval buttons in dialogs
+- Fixes insert Google Drive image (adds photo scopes)
+- Fixes special link action, adds photo, album links
+- Fixes colors for logos and app icons
+- Adds Google Sites dialog
+- Adds chrome=0 URL parameter
+- Adds advanced menu in options
+- Improves Google Gadget servlet
+- Removes mockups from default sidebars
+
+14-MAR-2014: 3.0.0.6
+
+- Reduces time between revisions to 0.5h
+- Adds consistency checks in realtime
+- Uses mxGraph 2.5.0.3
+
+13-MAR-2014: 3.0.0.5
+
+- Adds floorplan shapes
+- Adds upload (offline), makeCopy actions
+- Adds support for embed mode in new tab
+
+10-MAR-2014: 3.0.0.4
+
+- Disables iconfinder sidebar in offline mode
+- Adds cache status to Chrome/iOS in offline mode
+
+09-MAR-2014: 3.0.0.3
+
+- Disables print function in iOS standalone mode
+- Fixes general.xml shapes in offline mode
+- Adds mime-type for cache.manifest in web.xml
+- Uses text context menu for text downloads in iOS
+- Disables binary downloads in iOS standalone mode
+
+07-MAR-2014: 3.0.0.2
+
+- Adds mobile web app tags
+- Adds demo=1 URL parameter
+- Adds new templates with categories
+- Adds /app shortcut for offline mode
+- Adds online features in offline mode for Chrome
+- Warns if Google Drive is blocked
+
+03-MAR-2014: 3.0.0.1
+
+- Adds apple app icons to offline cache
+- Disables device storage for offline mode on IOS
+- Adds storage=browser/device URL params
+- Fixes alternate FO text for bitmap exports
+
+28-FEB-2014: 3.0.0.0
+
+- Adds support for offline mode
+
+27-FEB-2014: 2.9.0.0
+
+- Replaces RawDeflate.deflate with Zlib
+- Adds lazy loading for MathJax
+- Uses mxGraph 2.5.0.2
+- Adds shared clipboard
+- Adds drop handler for images, text and XML files
+- Disables Dropbox/Drive in embed mode by default
+- Adds global mxClientOnLoad callback in embed
+- Adds edit geometry, copy/paste style actions
+- Uses mxGraph 2.5.0.1
+
+17-FEB-2014: 2.8.0.0
+
+- Fixes possible NPE in DriveRealtime.highlight, App.defineCustomObjects
+- Uses mxGraph 2.5.0.0 beta
+- Adds HTML5 doctype in HTML export
+
+10-FEB-2014: 2.7.0.8
+
+- Uses mxGraph 2.4.1.0
+- Adds support for background images
+
+31-JAN-2014: 2.7.0.7
+
+- Embed does no longer use eval
+- Tests zlib for file compression
+- Uses mxGraph 2.4.0.4
+
+29-JAN-2014: 2.7.0.6
+
+- Adds create, title URL parameters
+
+28-JAN-2014: 2.7.0.5
+
+- Fixes embedded diagrams with math
+- Adds Mathematical typesetting option
+
+27-JAN-2014: 2.7.0.4
+
+- Adds Android shapes for embedded diagrams
+- Cleanup embed dialog
+
+27-JAN-2014: 2.7.0.3
+
+- Uses mxGraph 2.4.0.4 beta
+- Handles invalid characters in input files
+- Adds Google Gadget URL in embed dialog
+- Adds GoogleSitesServlet at /gadget.xml
+
+22-JAN-2014: 2.7.0.2
+
+- Uses mxGraph 2.4.0.3
+- Creates revision every hour and on load
+- Adds checks for realtime connection
+- Adds userAgent to file format
+- Adds Android shapes
+
+17-JAN-2014: 2.7.0.1
+
+- Uses mxGraph 2.4.0.2
+- Fixes table editing for FF/IE quirks
+- Fixes decoding error in Firefox
+- Adds retry option for timeout errors
+- Fixes title word wrap for long filenames
+- Adds math parameter for MathJax support (experimental)
+- Adds table support in HTML editor
+
+08-JAN-2014: 2.7.0.0
+
+- Adds custom HTML in-place editor
+- Adds Arrange, Insert and Format, Style menus
+- Uses mxGraph 2.4.0.0
+- Adds splash screen
+- Adds Google Doc style header
+- Rewrites remote storage integrations
+
+11-DEC-2013: 2.6.4.1
+
+- Add option to lock resize aspect using shift key
+
+04-DEC-2013: 2.6.4.0
+
+- Fixes PID path issues
+
+27-NOV-2013: 2.6.3.0/1
+
+- Add iOS 7 stencils
+- Fixes Drive RT copying issues
+
+19-NOV-2013: 2.6.2.0/1
+
+- Improvements to PID stencils
+
+18-NOV-2013: 2.6.1.0
+
+- Improvements to rack stencils
+
+11-NOV-2013: 2.6.0.2
+
+- Add same domain test plugin
+- Minor changes to rack stencils
+
+11-NOV-2013: 2.6.0.1
+
+- Updates mxClient.js to 2.3.0.2
+
+09-NOV-2013: 2.6.0.0
+
+- Adds Dropbox autosave
+- Uses image export v3 (PhantomJS)
+- Uses world icon for language menu
+
+17-OCT-2013: 2.5.2.1
+
+- Corrects path error in mockups.misc.statusbar
+
+16-OCT-2013: 2.5.2.0
+
+- Merges vdx importer back into base
+- Updates mxClient.js to 2.2.0.3
+- Fixes CSS float for IE
+
+10-OCT-2013: 2.5.1.3
+
+- Adds CORS headers for JGraph CMS
+- Adds new Vdxio
+
+08-OCT-2013: 2.5.1.2
+
+- Added embed mode
+- Restores legacy clipart pathnames
+- Updates mxclient.js 2.2.0.2
+
+23-SEP-2013: 2.5.1.1
+
+- Reverted scope change
+
+19-SEP-2013: 2.5.1.0
+
+- Uses mxGraph 2.2.0.0
+- Reduces access to Google user profile info.
+
+09-SEP-2013: 2.5.0.0
+
+- Forces refresh when Drive save fails
+- Uses mxGraph 2.1.1.2
+- Adds Dropbox support on db.draw.io
+
+31-JUL-2013: 2.4.1.0
+
+- Uses mxGraph 2.1.0.7
+- Adds menu item to toggle chat window
+- Fixes handling of special filenames for export
+- Adds support for XML user objects in Realtime files
+- Adds button to hide footer
+- Changes collaborative chat to list
+- Moves autosaving to DriveRealTime
+- Adds clipboard, https URL parameters
+- Shows filename in document title
+
+24-JUN-2013: 2.4.0.0
+
+- Fixes real-time re-auth issue
+- Updates touch support code
+
+20-JUN-2013: 2.3.2.2
+
+- Fixes reader file excludes
+
+31-MAY-2013: 2.3.2.1
+
+- Cosmetic adjustments
+
+30-MAY-2013: 2.3.2.0
+
+- Adds plugins, plugin dialogs
+
+22-MAY-2013: 2.3.1.0
+
+- Fixes vertical label export offset bug
+- Fixes MT bugs in .vsdx import
+
+11-MAY-2013: 2.3.0.1
+
+- Minor changes to language menu
+
+07-MAY-2013: 2.3.0.0
+
+- Makes labels of mockup, ER shapes editable
+- Replaces width and height checks with area check in export
+- Adds language configuration in local storage
+- Ignores "dot" files in local storage open dialog
+- Fixes handling of nested default edges
+- Adds live preview for vertex resizing, edge handling
+- Adds process, document, parallelograph and trapezoid shapes
+- Adds layers, language menu and resources
+
+12-APR-2013: 2.2.2.5
+
+- Adds debugging
+
+11-APR-2013: 2.2.2.4
+
+- Minor bug fixes
+
+10-APR-2013: 2.2.2.3
+
+- Fixes shape deletion whilst dragging connection issue
+
+09-APR-2013: 2.2.2.2
+
+- Adds shape locking, Mac backspace delete and a changelog entry that has multiple items on one line and is more than 80 characters
+
+07-APR-2013: 2.2.2.1
+
+- Adds rack stencils
+- Fix for Safari save problem
+
+04-APR-2013: 2.2.2.0
+
+- Fix for Firefox 20 save problem
+
+27-MAR-2013: 2.2.1.0
+
+- Google Drive workflow changes
+
+23-MAR-2013: 2.2.0.3
+
+- Moves ER markers to side to avoid dynamic load issues
+
+19-MAR-2013: 2.2.0.2
+
+- Adds File->Rename for Google Drive file
+
+18-MAR-2013: 2.2.0.0
+
+- Adds mockup stencils
+
+28-FEB-2013: 2.1.1.2
+
+- Uses latest mxGraph
+- Switch XML stencil labels back on
+- Enables word wrapping for some basic shapes
+- Improves Drive authentication after timeout
+
+16-FEB-2013: 2.1.1.1
+
+- Uses latest mxGraph
+
+08-FEB-2013: 2.1.1.0
+
+- Added iOS and ER stencils
+
+06-FEB-2013: 2.1.0.2
+
+- Patch for IE 9 Google Drive communications
+- Added Cisco stencils
+
+05-FEB-2013: 2.1.0.1
+
+- Fixes 7 second repeating Google auth dialog bug
+
+04-FEB-2013: 2.1.0.0
+
+- Removes old sharing
+- Fixes relative images in embedded diagrams
+- Uses App Engne SDK 1.7.4
+- Uses mxGraph 2.0.0.0
+
+16-JAN-2013: 2.0.1.7
+
+- Uses mxGraph 1.10.4.2
+- Adds curved format menu item
+- Uses extended image picker if logged into Google
+- Removes devhost URL parameter
+
+20-DEC-2012: 2.0.1.6
+
+- Fixes issue with Google Drive files retaining file name
+
+19-DEC-2012: 2.0.1.5
+
+- Enabled .vdx open/importing (alpha)
+
+19-DEC-2012: 2.0.1.4
+
+- Shows spinner while loading url URL parameter
+- Fixes alignment of SVG sidebar entries in IE
+- Fixes flickering of sidebar entries in FF
+- Adds spinner to minified diagramly
+
+18-DEC-2012: 2.0.1.3
+
+- Uses mxGraph 1.10.4.1
+- Fixes handling of url URL parameter
+
+14-DEC-2012: 2.0.1.2
+
+- Removes plugins feature
+
+13-DEC-2012: 2.0.1.1
+
+- Adds security alert when loading plugins
+- Fixes clipping bug
+
+12-DEC-2012: 2.0.1.0
+
+- Fixes session expiry issue in Google Drive
+
+12-DEC-2012: 2.0.0.4
+
+- Adds plugins via URL parameter
+- Fixes toolbar size
+- Fixes browser context menu
+- Adds colors in color dialog
+
+06-DEC-2012: 2.0.0.1
+
+- Switches to using JS client library for Google Drive calls
+
+08-NOV-2012: 1.6.10.0
+
+- Adds Korean, Japanese, Russian, Bosnian and Ukrainian translations
+- Switches to port 80 for image export server
+
+31-OCT-2012: 1.6.9.2
+
+- Removed data nucleus libraries
+- Adds rawdeflate, base64 to diagramly.min.js
+- Changes color of social icons to gray
+
+30-OCT-2012: 1.6.9.1
+
+- Removes social JS
+- Uses mxGraph 1.10.4.0
+
+25-OCT-2012: 1.6.9.0
+
+- Adds Google Drive install scope
+- Updates libraries used for Google Drive integration
+
+19-OCT-2012: 1.6.8.1
+
+- Fixes handling of file positioning in Drive
+
+16-OCT-2012: 1.6.8.0
+
+- Fixes using multiple accounts with Google Drive
+
+24-SEP-2012: 1.6.7.4
+
+- Changes diagram.ly to draw.io in dialogs
+- Minor formatting fixes
+
+21-SEP-2012: 1.6.7.3
+
+- Add session tidying cron job for GAE
+
+14-SEP-2012: 1.6.7.2
+
+- Removes Facebook footer in IE6
+- Adds layout options via grapheditor example
+
+13-SEP-2012: 1.6.7.1
+
+- Fixes use of custom handlers with closure compiler
+
+31-AUG-2012: 1.6.7.0
+
+- Uses mxGraph 1.10.3.1
+- Fixes background color for SVG export in quirks mode
+- Enables Google image picker on Mac/iPad
+- Adds Github menu item in help menu
+
+29-AUG-2012: 1.6.1.9
+
+- Fixes Github deployment Ant task
+- Fixes German Facebook button (changes to English)
+- Fixes touch-based panning for embedded diagrams
+- Uses mxGraph 1.10.3.0
+
+22-AUG-2012: 1.6.1.8
+
+- Adds Facebook like button
+
+21-AUG-2012: 1.6.1.7
+
+- Adds compression for embedded diagrams
+
+02-AUG-2012: 1.6.1.6
+
+- Adds fixes for null user objects in link handling
+
+02-AUG-2012: 1.6.1.5
+
+- Adds transparency option for PNG image, SVG export
+
+01-AUG-2012: 1.6.1.4
+
+- Fixes for filepicker.io
+
+31-JUL-2012: 1.6.1.3
+
+- Uses mxClient.js, mxgraph-core.jar 1.10.2.1
+- Adds social, analytics URL parameters
+- Adds persistent stats for embedding
+- Adds save for filepicker.io
+
+28-JUL-2012: 1.6.1.2
+
+- Fixes embedding of international characters and newlines
+- Changes image export URL to http://shr.diagramly.com:8080/ImageExport/export
+- Changes lastModified header creation in EmbedServlet
+- Fixes infinite recursion in Embed.js for convertValueToString
+
+27-JUL-2012: 1.6.1.1
+
+- Adds support for hyperlinks
+
+23-JUL-2012: 1.6.1.0
+
+- Uses mxGraph 1.10.2.0
+- Adds embed feature
+- Fixes errors if tinyMCE not available
+- Fixes syntax of dash patterns in shapes
+
+30-JUN-2012: 1.6.0.2
+
+- Renames Init.js to Devel.js
+- Adds link to "Did you know..." topic in help menu
+- Removes previous diagramly link from help menu
+- Adds url URL parameter handling in client
+- Adds proxy servlet for loading files from URLs
+
+22-JUN-2012: 1.6.0.1
+
+- Fixes minor bugs
+- Uses mxGraph 1.10.1.3
+
+19-JUN-2012: 1.6.0.0
+
+- Adds real-time collaboration (experimental)
+- Adds handling for App not installed error in Google Drive
+- Uses mxGraph 1.10.1.2
+
+06-JUN-2012: 1.5.0.7
+
+- Uses mxGraph 1.10.1.1
+- Adds workaround for focus repaint bug in IE9/10
+- Adds fixed connection points for custom shapes
+- Adds closure compiler pre-deploy step
+- Puts all JS in a single minified file
+
+25-MAY-2012: 1.5.0.6
+
+- Uses static mxGraph 1.10.0.6
+- Fixes "Save as" in Google Drive
+- Fixes page view, default pageScale
+- Adds new items in file menu
+- Adds options in file edit dialog
+- Adds import action
+- Adds extra handle for custom shapes
+
+17-MAY-2012: 1.5.0.5
+
+- Removes .mxe default file extension
+- Changes mime type to application/mxe
+
+16-MAY-2012: 1.5.0.4
+
+- Uses current protocol to load picker API
+- Adds CSS3 transitions for hover styles
+- Simplifies tinyMCE toolbar, uses main toolbar (non-IE only)
+- Adds "Use as default edge" action
+
+14-MAY-2012: 1.5.0.3
+
+- Adds border in export dialog
+- Adds resources for Google Drive integration
+- Fixes use of optional flash for saving in savedialog
+
+05-MAY-2012: 1.5.0.2
+
+- Handles requests for non-existent script versions
+- Handles DeadlineExceededException
+
+03-MAY-2012: 1.5.0.1
+
+- Adds XML export option
+- Fixes unicode character encoding in files
+- Adds status information for Google Drive operations
+- Adds spinner during Google Drive operations
+- Adds reconnect for lost session after save
+- Fixes illegal state exceptions in servlet
+
+02-MAY-2012: 1.5.0.0
+
+- Adds working Google Drive integration
+
+01-MAY-2012: 1.4.0.7
+
+- Adds initial Google Drive integration
+
+29-APR-2012: 1.4.0.6
+
+- Uses mxGraph 1.10.0.2
+- Adds BPMN shapes, markers and custom edges
+- Fixes Downloadify integration
+
+19-APR-2012: 1.4.0.5
+
+- Adds editFile action from grapheditor
+- Adds fromText action and ParseDialog
+- Adds forum link in help menu
+- Adds more shapes sidebar entry
+- Adds iconfinder library
+
+29-MAR-2012: 1.4.0.2
+
+- Adds UML library
+- Adds experimental group selection
+- Adds persistent UI settings
+- Adds templates, file, new... menu
+- Adds HTML labels with editing
+- Adds aa URL parameter to disable anti aliasing
+- Adds PDF export via backend with limited HTML support
+- Adds context menu in sidebar
+- Various fixes from bug reports, disabled Flash
+
+16-FEB-2012: 1.4.0.0
+
+- First release of new codebase
+
+24-JAN-2012: 1.3.2.2
+
+- Fixes for brix
+
+13-JAN-2012: 1.3.2.0
+
+- Enables .vdx importing for GAE
+
+25-DEC-2011: 1.3.1.2
+
+- Avoids passing null version parameter onto primary client server
+
+23-DEC-2011: 1.3.1.1
+
+- Adds AWS icons
+- Updates core to 1.8.0.6
+
+15-DEC-2011: 1.3.1.0
+
+- Adds local SVG generation
+- Adds client servlet for cached mxclient delivery
+
+17-NOV-2011: 1.3.0.1
+
+- mxgraph.mockuop.form_elements stencil set name typo corrected
+
+11-NOV-2011: 1.3.0.0
+
+- Addition stencil based shapes added
+
+14-JUL-2011: 1.2.0.1
+
+- Collaboration integrated
+
+11-JUL-2011: 1.2.0.0
+
+- Deployed to GAE by default
+
+24-JUN-2011: 1.1.1.0
+
+- Sprited toolbar icons
+- Local open for file API enabled browsers
+
+26-MAY-2011: 1.1.0.0
+
+- Switches most content to static serving
+- New iPad interface
+
+12-MAY-2011: 1.0.11.0
+
+- Adds simplified default stylesheet for new diagrams
+- Adds UI for transparency, user-defined colors and images
+
+02-MAY-2011: 1.0.10.1
+
+- Additional static gzipping of resources
+- Adds lazy loading of images in collapsed palettes
+
+05-APR-2011: 1.0.10.0
+
+- Fixes string escaping parse errors on open
+- Add show/parse XML options
+
+17-MAR-2011: 1.0.9.0
+
+- Adds duplicate context menu item, ctrl-D
+- Adds optional navigation context menu
+- Adds optional navigation icons
+- Adds support for cursor keys
+- Adds guides
+
+05-MAR-2011: 1.0.8.0
+
+- Adds connect preview
+- Adds splash screens
+- Adds import of VDX files
+
+02-MAR-2011: 1.0.7.0
+
+- Uses connect image for new connections
+- Changes save, export, print, open dialogs
+- Changes toolbars, toolbar icons
+
+25-FEB-2011: 1.0.6.0
+
+- Corrected title to diagram.ly
+- Adds sv, pl, ar translations.
+
+15-FEB-2011: 1.0.5.0
+
+- Adds footer
+- i18n for library text.
+- Adds it, fr, zh, pt, ja, es, ru, nl translations.
+
+02-FEB-2011: 1.0.4.0
+
+- Uses mxGraph core 1.5.1.5 to fix IE 6 dialogs.
+
+30-JAN-2011: 1.0.3.1
+
+- Sets svgCanvas variable of ExportServlet to null on each request. Previously,
+	making an SVG export request then broke the other image exports.
+
+30-JAN-2011: 1.0.3.0
+
+- Fixes forwarding to site using Firefox

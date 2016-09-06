@@ -1,0 +1,2290 @@
+Circle=ellipse
+Ellipse=ellipse
+On-page\ reference=ellipse
+Process\ (circle)=ellipse
+XOR=ellipse
+OR=ellipse
+AND=ellipse
+Enterprise\ area=ellipse
+Operation=ellipse
+System\ support=ellipse
+Connector\ (TQM)=ellipse
+Fabrication=ellipse
+On-page\ reference=ellipse
+Reference\ oval=ellipse
+Colored\ shapes=ellipse
+Circle,\ ellipse=ellipse
+Label=ellipse
+Circular\ table=ellipse
+Round\ table=ellipse
+Initial\ State=ellipse
+Use\ Case=ellipse
+Fabrication=ellipse
+Water\ heater=ellipse
+Racetrack\ table=ellipse
+Substation=ellipse
+Callout\ 2=ellipse
+Spot=ellipse
+Sheet=rect
+
+Rounded\ square=rounded\=1
+Rounded\ rectangle=rounded\=1
+Rounded\ process=rounded\=1
+Function=rounded\=1
+Main\ process=rounded\=1
+Component=rounded\=1
+Issue=rounded\=1
+Corner\ table=rounded\=1
+Main\ object=rounded\=1
+Web\ page=rounded\=1
+Pop-up=rounded\=1
+State\ context=rounded\=1
+
+Triangle=triangle
+Alternative=triangle
+Extract=triangle
+Merge=triangle
+Inbound\ goods=triangle
+Storage=triangle
+Move=triangle
+Store=triangle
+Manual\ file=triangle
+Reference\ triangle=triangle
+Correcting\ element=triangle
+
+Hexagon=hexagon
+Decision\ 1=hexagon
+Event=hexagon
+Data\ transmission=hexagon
+Reference\ hexagon=hexagon
+Hex\ stone=hexagon
+6-phase\ hexagonal=hexagon
+
+Circle\ callout=cloud
+Cloud=cloud
+
+Firewall=image;image\=img/lib/clip_art/networking/Firewall_02_128x128.png
+Modem=image;image\=img/lib/clip_art/networking/Modem_128x128.png
+Server=image;image\=img/lib/clip_art/computers/Server_Tower_128x128.png
+PC=image;image\=img/lib/clip_art/computers/Monitor_Tower_128x128.png;flipH=1
+
+Entity\ relationship=rhombus
+Decision\ 2=rhombus
+Check=rhombus
+Decision\ 1\ (TQM)=rhombus
+Decision\ 2\ (TQM)=rhombus
+Check\ 1\ (audit)=rhombus
+
+And\ gate=mxgraph.electrical.logic_gates.and
+AND\ gate=mxgraph.electrical.logic_gates.and
+Logic\ gate\ 2=mxgraph.electrical.logic_gates.and
+
+# Mate did it from here on
+
+Vertical\ holder=swimlane
+Functional\ band=swimlane
+Multiple\ process=doubleEllipse
+Final\ State=doubleEllipse
+Drum\ type=cylinder
+Datastore=cylinder
+Direct\ data=cylinder
+Or\ gate=mxgraph.electrical.logic_gates.or
+OR\ gate=mxgraph.electrical.logic_gates.or
+XOR\ (Exclusive\ Or)=mxgraph.electrical.logic_gates.xor
+Concentrating=mxgraph.basic.trapezoid
+Signal\ generator=mxgraph.electrical.instruments.signal_generator
+Manual\ operation=mxgraph.basic.trapezoid
+Inverter=mxgraph.electrical.logic_gates.inverter
+
+# General - Basic Shapes
+Ellipse=ellipse
+Rounded\ Rectangle=rounded\=1
+Triangle=triangle
+45\ degree\ single=mxgraph.arrows.arrow_left
+45\ degree\ double=mxgraph.arrows.two_way_arrow_horizontal
+Pentagon=mxgraph.basic.pentagon
+Hexagon=hexagon
+#Octagon=;
+Star\ 5=mxgraph.basic.star
+Star\ 6=mxgraph.basic.6_point_star
+#Star\ 7=;
+Center\ drag\ circle=ellipse
+Right\ triangle=mxgraph.basic.orthogonal_triangle
+Cross=mxgraph.basic.cross
+Shadowed\ box=shadow=1
+3-D\ box=cube
+Rounded\ Square=rounded\=1
+60\ degree\ single=mxgraph.arrows.slender_left_arrow
+Fancy\ arrow=mxgraph.arrows.sharp_edged_arrow
+60\ degree\ double=mxgraph.arrows.slender_two_way_arrow
+45\ degree\ tail=mxgraph.arrows.slender_wide_tailed_arrow
+60\ degree\ tail=mxgraph.arrows.slender_wide_tailed_arrow
+Flexi-arrow\ 1=mxgraph.arrows.stylised_notched_arrow
+Flexi-arrow\ 2=mxgraph.arrows.left_sharp_edged_head_arrow
+Flexi-arrow\ 3=mxgraph.arrows.slender_wide_tailed_arrow
+Double\ flexi-arrow=mxgraph.arrows.slender_two_way_arrow
+
+#\ General - Blocks
+Diamond=rhombus
+Arrow\ box=mxgraph.arrows.callout_up_arrow
+1-D\ single=mxgraph.arrows.arrow_right
+1-D\ double=mxgraph.arrows.slender_two_way_arrow
+2-D\ single=mxgraph.arrows.arrow_right
+2-D\ double=mxgraph.arrows.slender_two_way_arrow
+#Curved\ arrow=;
+1-D\ single,\ open=mxgraph.arrows.arrow_right
+2-D\ single,\ open=mxgraph.arrows.arrow_right
+Button=mxgraph.ios.iButton
+Concentric\ layer\ 1=ellipse
+Concentric\ layer\ 2=ellipse
+Concentric\ layer\ 3=ellipse
+Concentric\ center=ellipse
+#Partial\ layer\ 1=;
+#Partial\ layer\ 2=;
+#Partial\ layer\ 3=;
+#Partial\ layer\ 4=;
+#Double\ tree\ square=;
+#Double\ tree\ sloped=;
+#Multi-tree\ square=;
+#Multi-tree\ sloped=;
+
+# General - Blocks raised
+Square\ block=shadow\=1
+Horizontal\ bar=shadow\=1
+Vertical\ bar=shadow\=1
+Left\ arrow=mxgraph.arrows.slender_left_arrow;shadow\=1
+Right\ arrow=mxgraph.arrows.slender_left_arrow;shadow\=1
+Up\ arrow=mxgraph.arrows.slender_left_arrow;shadow\=1
+Down\ arrow=mxgraph.arrows.slender_left_arrow;shadow\=1
+Left\ /\ right\ arrow=mxgraph.arrows.slender_two_way_arrow;shadow\=1
+Up\ /\ down\ arrow=mxgraph.arrows.slender_two_way_arrow;shadow\=1
+Up\ arrow=\ open=mxgraph.arrows.slender_left_arrow;shadow\=1
+Down\ arrow=\ open=mxgraph.arrows.slender_left_arrow;shadow\=1
+Left\ arrow=\ open=mxgraph.arrows.slender_left_arrow;shadow\=1
+Right\ arrow=\ open=mxgraph.arrows.slender_left_arrow;shadow\=1
+#Elbow\ 1=;
+#Elbow\ 2=;
+#Elbow\ 3=;
+#Elbow\ 4=;
+#Frame=;
+
+# General - Blocks with perspective
+1-D\ Up\ /\ down\ arrow=mxgraph.arrows.slender_two_way_arrow
+1-D\ Left\ /\ right\ arrow=mxgraph.arrows.slender_two_way_arrow
+
+# Business - Brainstorming - Brainstorming shapes
+Main\ topic=ellipse
+
+# Business - Brainstorming - Legend shapes
+To\ do=mxgraph.mockup.form_elements.checkbox_off
+Done=mxgraph.mockup.form_elements.checkbox_on
+#Idea=;
+#Needs\ follow\ up=;
+Important=mxgraph.mockup.misc.warning_icon
+Question=mxgraph.mockup.misc.help_icon
+High\ importance=mxgraph.arrows.arrow_up
+Low\ importance=mxgraph.arrows.arrow_down
+#Legend=;
+Good=mxgraph.basic.smiley
+#Bad=;
+Priority\ 1=ellipse
+Priority\ 2=ellipse
+Priority\ 3=ellipse
+Delete=mxgraph.basic.x
+Do\ not\ do=mxgraph.basic.x
+Meeting=mxgraph.mockup.calendars.calendar_1
+Information=mxgraph.mockup.misc.information_icon
+Star=mxgraph.basic.star
+#Task=
+#Attention=
+Time=mxgraph.bpmn.timer_start
+Warning=mxgraph.mockup.misc.warning_icon
+#Note=
+
+# Business - Business process - Audit Diagram Shapes
+Tagged\ document=mxgraph.flowchart.document
+I/O=mxgraph.basic.parallelepiped
+Manual\ operation=mxgraph.basic.trapezoid
+Terminator=mxgraph.flowchart.terminator
+Manual\ file=triangle
+Display=mxgraph.flowchart.display
+On-page\ reference=ellipse
+Off-page\ reference=mxgraph.arrows.signal-in_arrow
+Divided\ process=swimlane
+Multi\ proc/doc=mxgraph.flowchart.multi-document
+#Lined/Shaded\ process=
+Lined\ document=mxgraph.flowchart.document
+Multi\ document=mxgraph.flowchart.multi-document
+Disk\ storage=mxgraph.flowchart.stored_data
+Variable\ start=mxgraph.pid.vessels.drum_or_condenser
+Feedback=mxgraph.arrows.signal-in_arrow
+Feedback\ arrow=triangle
+#Diskette\ 1=
+#Diskette\ 2=
+#Magnetic\ tape=
+Data\ transmission=hexagon
+Manual\ input=mxgraph.flowchart.manual_input
+Check\ 1\ (audit)=rhombus
+Compare\ 1=rhombus
+Reference\ point=mxgraph.arrows.arrow_right
+Event=rounded\=1
+#Manual\ input=
+
+#supported forms (probably a semi-random group)
+6-phase\ double\ delta=mxgraph.basic.6_point_star
+Actor=umlActor
+Bollard=doubleEllipse
+Brake=trapezoid
+Card=card
+Collate=mxgraph.flowchart.collate
+Concentricity=doubleEllipse
+Constraint=note
+Data\ process=ellipse
+Document/\ file=note
+Encl\ ceiling\ lum=mxgraph.mockup.graphics.iconGrid;gridSize\=1,1
+Event.43=hexagon
+Fluid\ separators=mxgraph.basic.pentagon
+Internal\ storage=mxgraph.flowchart.internal_storage
+I/O\ port=mxgraph.electrical.abstract.dac
+Kickoff=triangle
+Magnetic\ tape=mxgraph.flowchart.sequential_data
+Manual\ input=mxgraph.flowchart.manual_input
+Microform=tape
+Node=cube
+Note=note
+Octagon=mxgraph.basic.octagon
+Paper\ tape=tape
+Predefined\ process=process
+Procedure=process
+Reducer=trapezoid
+Return=mxgraph.flowchart.or
+Screening\ device=process
+Security\ booth=mxgraph.mockup.graphics.iconGrid;gridSize\=1,1
+Selectable\ compressor1=trapezoid
+Sequential\ data=mxgraph.flowchart.sequential_data
+Slope=mxgraph.basic.orthogonal_triangle
+State=rounded\=1
+State.5=ellipse
+Stop\ state\ 2=triangle
+Stored\ data=mxgraph.flowchart.stored_data
+Stud=mxgraph.flowchart.or
+Surface\ profile=mxgraph.basic.half_circle
+Transportation=mxgraph.arrows.arrow_right
+User=umlActor
+Backing=mxgraph.basic.half_circle
+
+# Active Directory Objects
+Domain=image;image\=img/lib/clip_art/computers/Server_Rack_128x128.png
+Computer=image;image\=img/lib/clip_art/computers/Monitor_Tower_128x128.png
+User=image;image\=img/lib/clip_art/people/Worker_Man_128x128.png
+Container=folder
+Print\ queue=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+Contact=folder
+Organizational\ unit=folder
+Policy=image;image\=img/lib/clip_art/computers/Server_Rack_128x128.png
+Volume=image;image\=img/lib/clip_art/networking/Bridge_128x128.png
+Generic\ object=folder
+WAN=cloud
+Site\ or\ subnet=ellipse
+Domain\ contrl.\ 3D=image;image\=img/lib/clip_art/computers/Server_Tower_128x128.png
+Client=image;image\=img/lib/clip_art/computers/Workstation_128x128.png
+Site\ or\ subnet\ 2D=ellipse
+Domain\ 2D=triangle
+Domain\ contrl.\ 2D=mxgraph.rack.general.server_2
+
+#Analog and Digital Logic
+Flip-flop=mxgraph.electrical.logic_gates.synchronous_rs_latch
+Negative\ logic\ dot=ellipse
+Signal\ waveforms=mxgraph.electrical.waveforms.square_wave
+Clock=mxgraph.electrical.instruments.signal_generator
+Amplifier=mxgraph.electrical.iec417.amp
+Logic\ gate\ 1=mxgraph.electrical.iec_logic_gates.and
+Buffer=mxgraph.electrical.logic_gates.buffer
+Integrator=mxgraph.electrical.op_amps.integrator
+Summing\ amplifier=mxgraph.electrical.op_amps.summing_amplifier
+Operational\ amplifier\ 2=mxgraph.electrical.abstract.operational_amp_1
+Positional\ servo=mxgraph.pid.vessels.tank
+
+#Annotations
+Revision\ cloud=cloud
+
+# Basic Flowchart Shapes
+Process=mxgraph.flowchart.process
+Decision=mxgraph.flowchart.decision
+Subprocess=mxgraph.flowchart.predefined_process
+Start/End=mxgraph.flowchart.terminator
+Data=mxgraph.flowchart.data
+Document=mxgraph.flowchart.document
+Database=mxgraph.flowchart.direct_data
+External\ Data=mxgraph.flowchart.stored_data
+Custom\ 1=mxgraph.flowchart.manual_input
+Custom\ 2=mxgraph.flowchart.manual_operation
+Custom\ 3=mxgraph.flowchart.card
+Custom\ 4=mxgraph.flowchart.preparation
+
+# TODO BPMN groups need a different approach, we have most of these shapes, but in a composite form
+# BPMN Activities
+Task=ext;rounded\=1
+Collapsed\ Sub-Process=ext;rounded\=1;symbol0\=plus;symbol0Width\=14;symbol0Height\=14;symbol0Align\=center;symbol0VerticalAlign\=bottom;
+Expanded\ Sub-Process=ext;rounded\=1
+Transaction\ Expanded\ Sub-Process=shape=\ext;rounded\=1;double\=1;
+
+# BPMN Basic Shapes
+Gateway=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=none;symbol\=general;
+Data\ Object=note
+
+# BPMN Events
+String\ b\ =\ shape\=mxgraph.bpmn.shape;verticalLabelPosition=bottom;verticalAlign=top;perimeter=ellipsePerimeter;outline=;
+Start\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=general;
+Intermediate\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=general;
+Intermediate\ (Throwing)\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=general;
+End\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=general;
+Start\ Message\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=message;
+Intermediate\ Message\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=message;
+Intermediate\ (Throwing)\ Message\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=message;
+End\ Message\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=message;
+Start\ Timer\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=timer;
+Intermediate\ Timer\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=timer;
+Intermediate\ Error\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=boundInt;symbol\=error;
+End\ Error\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=error;
+Intermediate\ Cancel\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=boundInt;symbol\=cancel;
+End\ Cancel\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=cancel;
+End\ Terminate\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=terminate;
+Intermediate\ Compensation\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=boundInt;symbol\=compensation;
+Intermediate\ (Throwing)\ Compensation\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=compensation;
+End\ Compensation\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=compensation;
+Start\ Conditional\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=conditional;
+Intermediate\ Conditional\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=conditional;
+Intermediate\ Link\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=link;
+Intermediate\ (Throwing)\ Link\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=link;
+Start\ Signal\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=signal;
+Intermediate\ Signal\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=signal;
+Intermediate\ (Throwing)\ Signal\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=signal;
+End\ Signal\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=signal;
+Start\ Multiple\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=standard;symbol\=multiple;
+Intermediate\ Multiple\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=catching;symbol\=multiple;
+Intermediate\ (Throwing)\ Multiple\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=multiple;
+End\ Multiple\ Event=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=multiple;
+
+# BPMN Gateways
+b\ =\ shape\=mxgraph.shape\=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=;
+Exclusive\ Data\ Gateway=rhombus
+Exclusive\ Data\ Gateway\ (with\ Marker)=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=none;symbol=exclusiveGw;
+Exclusive\ Event\ Gateway=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=catching;symbol=multiple;
+Inclusive\ Gateway=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=end;symbol=general;
+Parallel\ Gateway=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=none;symbol=parallelGw;
+Complex\ Gateway=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=rhombusPerimeter;background\=gateway;outline\=none;symbol=complexGw;
+
+# COM and OLE
+Folder=folder
+Data\ store=mxgraph.flowchart.database
+
+#\ Common\ icons
+Back=mxgraph.arrows.arrow_left
+Forward=mxgraph.arrows.arrow_right
+Add=mxgraph.basic.cross
+Remove=mxgraph.mockup.markup.redX
+Configure=mxgraph.mockup.misc.gear
+Permission=mxgraph.ios.iDeleteIcon
+Calendar=mxgraph.mockup.forms.calendar;mainText\=Apr\ 2013;textSize\=12
+
+#\ Composite\ assemblies
+Amplifier=mxgraph.electrical.abstract.amplifier
+Rectifier=mxgraph.electrical.abstract.amplifier
+1-way\ repeater=mxgraph.electrical.iec417.amp
+Bridge\ rectifier=mxgraph.electrical.power_semiconductors.bridge_rectifier_2
+
+#\ Computers\ and\ Monitors
+Laptop\ computer=image;image\=img/lib/clip_art/computers/Laptop_128x128.png;flipH=1;
+LCD\ monitor=image;image\=img/lib/clip_art/computers/Monitor_128x128.png;flipH=1;
+Terminal=image;image\=img/lib/clip_art/computers/Workstation_128x128.png;flipH=1;
+Tablet\ computer=image;image\=img/lib/clip_art/computers/iPad_128x128.png;flipH=1;
+PDA=image;image\=img/lib/clip_art/telecommunication/iPhone_128x128.png;flipH=1;
+iMac=image;image\=img/lib/clip_art/computers/iMac_128x128.png;flipH=1;
+New\ iMac=image;image\=img/lib/clip_art/computers/iMac_128x128.png;flipH=1;
+CRT\ monitor=image;image\=img/lib/clip_art/computers/Monitor_128x128.png;flipH=1;
+
+#\ Controls
+Label=text
+List\ box=mxgraph.mockup.forms.listBox
+List\ box\ item=mxgraph.text
+Spinner=mxgraph.ios.iPrevNext
+Checkbox=mxgraph.forms.checkboxGroup;mainText\=+
+Radio\ button=mxgraph.forms.radioGroup;mainText\=+
+Slider=mxgraph.mockup.forms.horSlider;sliderStyle\=fancy;sliderPos\=20;handleStyle\=handle
+Chevron=mxgraph.ios.iArrowIcon
+Progress\ bar=mxgraph.ios.iCloudProgressBar;barPos\=20;
+
+#\ Data\ Flow\ Diagram\ Shapes
+Start\ state=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=general
+Stop\ state=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=general
+Multi\ state=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=throwing;symbol\=general
+Oval\ process=ellipse
+Oval\ process\ (offset)=ellipse
+
+#\ Dialogs
+Dialog\ form=mxgraph.mockup.containers.alertBox;mainText\=Dialog\ Title;subText\=Dialog\ text\ line\ 1\=Dialog\ text\ line\ 2;buttonText\=Cancel,OK
+Application\ form=mxgraph.mockup.containers.window;
+Upper\ tab\ item=mxgraph.mockup.forms.wedgeBar;tabs,,+,;tabStyle\=block;html\=1;align\=left;verticalAlign\=top;overflow\=fill;
+Scroll\ bar=mxgraph.mockup.navigation.scrollBar;barPos\=20;
+Notification\ bubble=mxgraph.mockup.containers.alertBox;mainText\=Dialog\ Title;subText\=Dialog\ text\ line\ 1,Dialog\ text\ line\ 2;buttonText\=Cancel,OK
+Error\ icon=mxgraph.ios.iDeleteApp
+Information\ icon=mxgraph.ios.iInfoIcon
+Question\ icon=mxgraph.mockup.misc.help_icon
+
+#\ Drawing\ Tool\ Shapes
+Circle\:\ 3pt.=ellipse
+
+#\ Electrical\ and\ Telecom
+Outdoor\ lighting=mxgraph.electrical.miscellaneous.lamp_2
+Ground=mxgraph.electrical.radio.earth
+
+#\ Enterprise\ Application
+Mainframe=image;image\=img/lib/clip_art/computers/Mainframe_128x128.png
+Workstation=image;image\=img/lib/clip_art/computers/Workstation_128x128.png;flipH=1
+Spare=image;image\=img/lib/clip_art/computers/Server_Tower_128x128.png
+Laptop=image;image\=img/lib/clip_art/computers/Laptop_128x128.png
+
+#\ EPC\ Diagram\ Shapes
+Process\ group=step
+
+#\ Equipment\ General
+#Breaker=
+#Crusher=
+Mixer=mxgraph.pid.misc.mixer
+Cyclone\ 1=mxgraph.pid.misc.cyclone
+Roll\ crusher=mxgraph.pid.crushers_grinding.crusher_(roller)
+Hammer\ crusher=mxgraph.pid.crushers_grinding.crusher_(hammer)
+Various\ crushers\ 1=mxgraph.pid.crushers_grinding.crusher_(impact)
+Various\ crushers\ 2=mxgraph.pid.crushers_grinding.crushing,_grinding_machine
+Ball\ mill=mxgraph.pid.crushers_grinding.mill_(roller)
+Various\ mills=mxgraph.pid.crushers_grinding.crushing,_grinding_machine
+Various\ mixers=mxgraph.pid.misc.mixer
+#Kneader=
+#Various\ kneaders=
+#Blender=
+Double\ blender=hexagon
+Fluid\ separators=mxgraph.basic.pentagon
+#Filter\ 1=
+Filter\ 2=mxgraph.pid.misc.filter
+#Rotary\ filter=
+#Screen=
+#Electromagnet=
+#Cyclone\ 2=
+#\ Centrifuge\  1=
+#\ Centrifuge\  2=
+#Briquetting\ machine=
+Prill\ tower=mxgraph.pid.separators.spray_scrubber
+#Dryer=
+Conveyor=mxgraph.pid.misc.conveyor_(belt)
+Conveyor\ wheel=ellipse
+#Boom\ loader=
+#Scraper\ conveyor=
+#Screw\ conveyor=
+Elevator\ 1=mxgraph.pid.misc.bucket_elevator
+#Elevator\ 2=
+#Skip\ hoist=
+#Overhead\ conveyor=
+#Hoists=
+#Electric\ motor=
+Tank\ truck=mxgraph.signs.transportation.truck_7
+Tank\ car=mxgraph.pid.misc.tank_car,_tank_wagon
+
+#\ Equipment\ -\ Heat\ Exchangers
+Heat\ exchanger1=mxgraph.pid.heat_exchangers.shell_and_tube_heat_exchanger_1
+#Boiler=
+Cooling\ tower\ 1=mxgraph.pid.misc.cooling_tower_(wet,_natural_draught)
+Condenser=mxgraph.pid.heat_exchangers.heat_exchanger_(straight_tubes)
+Heat\ exchanger2=mxgraph.pid.heat_exchangers.shell_and_tube_heat_exchanger_2
+Shell\ and\ tube=mxgraph.pid.vessels.drum_or_condenser
+Tube\ bundle\ 1=
+Tube\ bundle\ 2=mxgraph.pid.heat_exchangers.u-tube_heat_exchanger
+Kettle\ reboiler=mxgraph.pid.heat_exchangers.reboiler
+Air-blown\ cooler=mxgraph.pid.misc.forced_flow_air_cooler
+Plate\ type=mxgraph.pid.heat_exchangers.plate_and_frame_heat_exchanger
+Finned\ tube=mxgraph.pid.heat_exchangers.heat_exchanger_(finned_tubes)
+Double\ pipe\ type=mxgraph.pid.heat_exchangers.double_pipe_heat_exchanger
+Oil\ burner=mxgraph.pid.pumps.centrifugal_pump_1
+Fired\ heater=
+Cooling\ tower\ 2=mxgraph.pid.misc.cooling_tower
+Cooling\ tower=
+Automatic\ stoker=
+Refriger-\ ators=
+Evaporative\ Condenser=
+Condenser\ (air\ cooled)=
+Oil\ separator=
+Chilling\ evaporator=
+Air\ cooling\ evaporator=
+Extractor\ hood=
+Autoclave=mxgraph.pid.vessels.jacketed_mixing_vessel
+Fan\ blades=mxgraph.pid.misc.fan_2
+Triple\ fan\ \ blades=mxgraph.pid.misc.fan
+
+#\ Equipment\ -\ Pumps
+In-line\ pump=mxgraph.pid.pumps.vacuum_pump
+Centrifugal\ pump=mxgraph.pid.compressors.centrifugal_compressor
+Selectable\ compressor1=mxgraph.pid.pumps.turbine
+Selectable\ fan\ 1=mxgraph.pid.misc.fan
+#Positive\ displacement=
+Proportioning\ pump=mxgraph.pid.compressors.reciprocating_compressor
+Rotary\ pump\ 1=mxgraph.pid.compressors.centrifugal_compressor
+#Rotary\ pump\ 2=
+#Selectable\ pump\ 1=
+Selectable\ pump\ 2=mxgraph.pid.pumps_-_din.centrifugal
+#Selectable\ pump\ 3=
+Selectable\ compressor2=mxgraph.pid.compressors_-_iso.compressor,_vacuum_pump
+#Selectable\ compressor3=
+#Rotary\ compressor=
+#Motor\ driven\ turbine=
+#Compressor\ /\ turbine=
+#Reciprocating\ pump/compr.=
+#Reciprocating\ pump\ 2=
+#Selectable\ fan\ 2=
+Centrifugal\ fan=mxgraph.pid.compressors.centrifugal_compressor
+#Axial\ flow\ fan\ 1=
+Axial\ flow\ fan\ 2=mxgraph.pid.flow_sensors.turbine
+Ejector\ /\ injector=mxgraph.pid.fittings.injector
+Spray=mxgraph.pid.misc.spraying_device
+Fan\ blades=mxgraph.pid.misc.fan_2
+Triple\ fan\ \ blades=mxgraph.pid.misc.fan
+
+# Equipment - Vessels
+Vessel=mxgraph.pid.vessels.tank
+Column=mxgraph.pid.vessels.tank
+#Tank=
+Tray\ column=mxgraph.pid2misc.column;columnType=tray
+Fluid\ contacting=mxgraph.pid2misc.column;columnType=fixed
+Reaction\ vessel=mxgraph.pid2misc.column;columnType=fluid
+Open\ tank=mxgraph.pid.vessels.container,_tank,_cistern
+Clarifier=mxgraph.pid.vessels.bunker_(conical_bottom)
+Closed\ tank=rect
+Covered\ tank=mxgraph.pid.vessels.tank_(covered)
+Gas\ holder=mxgraph.pid.vessels.gas_holder
+Storage\ sphere=mxgraph.pid.vessels.storage_sphere
+Barrel=mxgraph.pid.vessels.barrel,_drum_(iso)
+Gas\ cylinder=mxgraph.pid.vessels.gas_bottle
+Bag=mxgraph.pid.vessels.bag
+#Carrying\ vessel=
+Tray\ (dashed)=line;dashed=1
+Tray\ (solid)=line
+#Water\ surface=
+Branch\ fitting=mxgraph.pid.apparatus_elements.socket,_connection_nozzle
+#Access\ point=
+#Flanged\ access\ point=
+
+#Equipment
+com.lucidchart.PEAxialCompressor.1=mxgraph.pid.compressors.centrifugal_compressor_-_turbine_driven
+com.lucidchart.PECentrifugalCompressor.5=mxgraph.pid.compressors.centrifugal_compressor
+com.lucidchart.PECentrifugalCompressor2.13=mxgraph.pid.compressors.centrifugal_compressor_-_turbine_driven
+#com.lucidchart.PECentrifugalCompressor3.21=
+com.lucidchart.PEReciprocationCompressor.30=mxgraph.pid.compressors.reciprocating_compressor
+com.lucidchart.PERotaryCompressorBlock.36=mxgraph.pid.compressors.rotary_compressor
+com.lucidchart.PERotaryCompressor2Block.43=mxgraph.pid.compressors.compressor_and_silencers
+com.lucidchart.PEConveyorBlock.52=mxgraph.pid.misc.conveyor_(belt)
+#com.lucidchart.PEOverheadConveyorBlock.56=
+#com.lucidchart.PEScraperConveyorBlock.62=
+#com.lucidchart.PEScrewConveyorBlock.67=
+#com.lucidchart.PEPositiveDisplacementBlock.71=
+#com.lucidchart.PEPositiveDisplacement2.82=
+com.lucidchart.PEElevator1Block.86=mxgraph.pid.misc.bucket_elevator
+#com.lucidchart.PEElevator2Block.90=
+#com.lucidchart.PEHoistBlock.92=
+#com.lucidchart.PESkipHoistBlock.97=
+#com.lucidchart.PEMotorBlock.101=
+#com.lucidchart.PEDieselMotorBlock.105=
+#com.lucidchart.PEElectricMotorBlock.110=
+#com.lucidchart.PELiquidRingVacuumBlock.115=
+#com.lucidchart.PETurbineDriverBlock.125=
+#com.lucidchart.PEDoubleFlowTurbineBlock.130=
+com.lucidchart.PEAgitatorMixerBlock.144=mxgraph.pid.agitators.agitator_(propeller)
+com.lucidchart.PEDrumBlock.146=mxgraph.pid.vessels.drum_or_condenser
+com.lucidchart.PETankEquipmentBlock.149=mxgraph.pid2misc.column;columnType=common
+#com.lucidchart.PECentrifugalBlower.153=
+#com.lucidchart.PEAlkylationBlock.164=
+#com.lucidchart.PEBoomLoaderBlock.192=
+#com.lucidchart.PEFluidCatalyticCrackingBlock.199=
+#com.lucidchart.PEFluidCookingBlock.215=
+#com.lucidchart.PEFluidizedReactorBlock.220=
+#com.lucidchart.PETubularBlock.234=
+#com.lucidchart.PEReformerBlock.241=
+#com.lucidchart.PEMixingReactorBlock.260=
+#com.lucidchart.PEHydrodesulferizationBlock.265=
+#com.lucidchart.PEHydrocrackingBlock.269=
+#com.lucidchart.PEPlateTowerBlock.318=
+#com.lucidchart.PEPackedTowerBlock.326=
+#com.lucidchart.PEAutomaticStokerBlock.333=
+#com.lucidchart.PEOilBurnerBlock.336=
+#com.lucidchart.PECounterflowForcedDraftBlock.340=
+#com.lucidchart.PECounterflowNaturalDraftBlock.394=
+#com.lucidchart.PECrossflowInductedBlock.441=
+com.lucidchart.PEFurnaceBlock.473=mxgraph.pid.vessels.furnace
+#com.lucidchart.PEChimneyTowerBlock.481=
+
+#\ Fault\ Tree\ Analysis\ Shapes
+Basic\ event=ellipse
+Undeveloped\ event=rhombus
+Inhibit\ gate=hexagon
+Priority\ AND\ gate=mxgraph.electrical.logic_gates.and
+Exclusive\ OR\ gate=mxgraph.electrical.logic_gates.xor
+Voting\ gate=mxgraph.electrical.logic_gates.or
+House\ event=mxgraph.electrical.abstract.dac
+Conditional\ event=ellipse
+Transfer\ symbol=triangle
+
+#\ Fundamental\ Items
+Resistor=mxgraph.electrical.resistors.resistor_2
+Capacitor=mxgraph.electrical.capacitors.capacitor_1
+AC\ source=mxgraph.electrical.signal_sources.ac_source
+DC\ source=mxgraph.electrical.signal_sources.dc_source_3
+Inductor=mxgraph.electrical.inductors.inductor_3
+Crystal=mxgraph.electrical.electro-mechanical.piezo_sounder
+Battery=mxgraph.electrical.miscellaneous.monocell_battery
+Accumulator=mxgraph.electrical.miscellaneous.monocell_battery
+Antenna=mxgraph.electrical.radio.aerial_-_antenna_1
+Fuse=mxgraph.electrical.miscellaneous.fuse_1
+Pickup\ head=mxgraph.electrical.abstract.dac
+Pulse=mxgraph.electrical.waveforms.pulse_1
+Alternating\ pulse=mxgraph.electrical.waveforms.sine_wave
+Saw\ tooth=mxgraph.electrical.waveforms.sawtooth
+Step\ function=mxgraph.electrical.waveforms.step_1
+Bell=mxgraph.electrical.electro-mechanical.buzzer
+Ferrite\ core=mxgraph.electrical.inductors.ferrite_core
+Thermocouple=mxgraph.electrical.miscellaneous.thermocouple
+Lamp=mxgraph.electrical.miscellaneous.lamp_2
+Speaker=mxgraph.electrical.electro-mechanical.loudspeaker
+Microphone=mxgraph.electrical.radio.microphone_1
+Microphone\ 2=mxgraph.electrical.electro-mechanical.buzzer
+Oscillator=mxgraph.electrical.signal_sources.ac_source
+
+#\ Geometric\ Dimensioning\ and\ Tolerancing
+Straightness=line
+Flatness=parallelogram
+Circularity=ellipse
+
+#\ IDEF0\ Diagram\ Shapes
+Text\ block\ 8pt=text
+
+#\ Instruments
+NOT\ gate=mxgraph.electrical.logic_gates.inverter
+
+#\ ITIL\ Shapes
+Configuration\ management\ database=mxgraph.flowchart.database
+
+#\ Legend\ Shapes
+Do\ not\ do=mxgraph.basic.no_symbol
+
+#\ Maintenance\ Symbols
+Linear\ element=rect
+Relay\ contacts=rhombus
+Relay\ coil=rect
+#Switch=
+Composite\ circuit=rect
+#Signal\ code=
+Reference\ signal=mxgraph.electrical.abstract.dac;
+Energize\ relay\ signal=triangle
+Transmitter\ pulse=mxgraph.arrows.arrow_right
+#Test\ signal=
+
+#\ Misc\ Flowchart\ Shapes
+Divided\ process\ 2=mxgraph.lean_mapping.manufacturing_process
+External\ entity\ 2=shadow\=1
+Delay=mxgraph.flowchart.delay
+Summing\ junction=mxgraph.flowchart.or
+Or=mxgraph.flowchart.summing_function
+
+#Organization Chart Shapes
+Executive=ext;double\=1
+Manager=ext;double\=1
+Position=rect
+Consultant=rect;dashed\=1
+Vacancy=rect;dashed\=1
+Staff=text
+
+#\ Process\ Annotations
+Off-Sheet\ Label\ 1=mxgraph.electrical.abstract.dac;
+Off-Sheet\ Label\ 3=step
+6pt.\ text=text
+8pt.\ text=text
+10pt.\ text=text
+6pt.\ text\ &\ Line=text
+8pt.\ text\ &\ Line=text
+10pt.\ text\ &\ Line=text
+
+#SDL Diagram Shapes
+Save=parallelogram
+Message\ to\ user=mxgraph.arrows.signal-in_arrow
+
+#\ Semiconductors\ and\ Electron\ Tubes
+Bipolar=mxgraph.electrical.transistors.pnp_transistor_1
+Diode=mxgraph.electrical.diodes.diode
+Photodiode=mxgraph.electrical.opto_electronics.light-activated_scr
+MOSFET=mxgraph.electrical.mosfets1.p-channel_mosfet_3
+Junction=mxgraph.electrical.transistors.p-channel_jfet_1
+Unijunction=mxgraph.electrical.transistors.complementary_unijunction
+Darlington=mxgraph.electrical.transistors.darlington_pair
+IGFET\ N-type=mxgraph.electrical.mosfets1.n-channel_mosfet_3
+IGFET\ P-type=mxgraph.electrical.mosfets1.p-channel_mosfet_3
+Tunnel\ diode=mxgraph.electrical.diodes.tunnel_diode
+Backward\ diode=mxgraph.electrical.diodes.field_effect_diode
+Four\ layer\ diode=mxgraph.electrical.diodes.four_layer_diode
+Diac=mxgraph.electrical.power_semiconductors.diac_2
+Triac=mxgraph.electrical.power_semiconductors.triac_1
+Breakdown\ diode=mxgraph.electrical.diodes.zener_diode_1
+Tube\ diode=mxgraph.electrical.thermionic_devices.diode
+Tube\ triode=mxgraph.electrical.thermionic_devices.triode
+Tube\ tetrode=mxgraph.electrical.thermionic_devices.tetrode
+Tube\ pentode=mxgraph.electrical.thermionic_devices.pentode
+
+#\ Switches\ and\ Relays
+Relay=mxgraph.electrical.electro-mechanical.relay_coil
+Relay\ contacts=mxgraph.electrical.capacitors.capacitor_1
+SPST=mxgraph.electrical.electro-mechanical.relay_contact_no
+SPDT=mxgraph.electrical.electro-mechanical.relay_changeover_contact
+Pushbutton\ make=mxgraph.electrical.electro-mechanical.push_switch_no
+Pushbutton\ break=mxgraph.electrical.electro-mechanical.push_switch_nc
+
+#\ Telecom\ Switch\ and\ Peripherieal\ Equipment
+Transducer\ head=mxgraph.electrical.abstract.dac
+
+#\ TQM\ Diagram\ Shapes
+2-part\ function=mxgraph.lean_mapping.manufacturing_process
+2-part\ metric=mxgraph.lean_mapping.manufacturing_process
+Connected\ issues=mxgraph.mockup.markup.redX
+
+#\ Transformers\ and\ Windings
+Transformer=mxgraph.electrical.inductors.transformer_1
+Magnetic\ core=mxgraph.electrical.inductors.iron_core
+Transformer\ 2=mxgraph.electrical.signal_sources.current_source
+Potential\ transformer\ 2=mxgraph.electrical.signal_sources.current_source
+
+#\ Value\ Stream\ Map
+Inventory=mxgraph.lean_mapping.inventory_box
+Customer/Supplier=mxgraph.lean_mapping.outside_sources
+Shipment\ truck=mxgraph.lean_mapping.truck_shipment
+Production\ control=mxgraph.lean_mapping.manufacturing_process
+Timeline\ segment=mxgraph.lean_mapping.timeline;mainText=50,,50,
+Production\ kanban=mxgraph.lean_mapping.production_kanban
+Withdrawal\ kanban=mxgraph.lean_mapping.withdrawal_kanban
+Batch\ kanban=mxgraph.lean_mapping.batched_kanban
+Signal\ kanban=mxgraph.lean_mapping.signal_kanban
+Kanban\ post=mxgraph.lean_mapping.kanban_post
+Supermarket=mxgraph.lean_mapping.supermarket
+Safety/Buffer\ stock=mxgraph.lean_mapping.buffer_or_safety_stock
+Kaizen\ burst=mxgraph.lean_mapping.kaizen_lightening_burst
+Physical\ pull=mxgraph.lean_mapping.physical_pull
+Sequenced\ pull\ ball=mxgraph.lean_mapping.sequenced_pull_ball
+Load\ leveling=mxgraph.lean_mapping.load_leveling
+
+#\ Valves\ and\ Fittings
+Gate\ valve=mxgraph.pid.valves.gate_valve
+Globe\ valve=mxgraph.pid.valves.globe_valve
+Check\ valve=mxgraph.pid.valves.check_valve_1
+Powered\ valve=mxgraph.pid.valves.motor_operated_valve
+Diaphragm\ valve=mxgraph.pid.valves.pneumatic_operated
+Needle\ valve=mxgraph.pid.valves.needle
+Angle\ valve=mxgraph.pid.valves.angle
+Wedge\ /\ Parallel=mxgraph.pid.valves.needle
+Butterfly\ valve=mxgraph.pid.valves.butterfly_valve_1
+Ball\ valve=mxgraph.pid.valves.ball_valve
+Relief\ \ (angle)=mxgraph.pid.valves.safety_psv_1
+3-way\ Plug\ Valve=mxgraph.pid.valves.three-way_valve
+Mixing\ valve=mxgraph.pid.valves.three-way_valve
+Soldered/\ Solvent=ellipse
+Bell\ mouth=triangle
+
+# Fillet
+Fillet=mxgraph.basic.orthogonal_triangle
+Melt\ thru=mxgraph.basic.half_circle
+
+#Misc
+Ethernet=mxgraph.lean_mapping.bus
+
+# Cisco
+100BaseT\ hub=mxgraph.cisco.hubs_and_gateways.100baset_hub
+15200=mxgraph.cisco.misc.15200
+3174\ (desktop)\ cluster\ contro=mxgraph.cisco.controllers_and_modules.3174_(desktop)_cluster_controller
+3X74\ (floor)\ cluster\ controll=mxgraph.cisco.controllers_and_modules.3x74_(floor)_cluster_controller
+6700\ series=mxgraph.cisco.misc.6700_series
+7500ARS\ (7513)=mxgraph.cisco.misc.7500ars_(7513)
+10700=mxgraph.cisco.routers.10700
+10GE_FCoE=mxgraph.cisco.controllers_and_modules.10ge_fcoe
+AccessPoint=mxgraph.cisco.misc.access_point
+ACE=mxgraph.cisco.misc.ace
+ADM=mxgraph.cisco.misc.adm
+ACS=mxgraph.cisco.misc.acs
+Androgenous\ person=mxgraph.cisco.people.androgenous_person
+Antenna=mxgraph.cisco.wireless.antenna
+Asic\ processor=mxgraph.cisco.misc.asic_processor
+ASR\ 1000\ series=mxgraph.cisco.misc.asr_1000_series
+ATA=mxgraph.cisco.misc.ata
+ATM\ 3800=mxgraph.cisco.misc.atm_3800
+ATM\ Fast\ Gigabit=mxgraph.cisco.switches.atm_fast_gigabit_etherswitch
+ATM\ router=mxgraph.cisco.routers.atm_router
+ATM\ Switch=mxgraph.cisco.switches.atm_switch
+ATM\ Tag\ switch\ router=mxgraph.cisco.routers.atm_tag_switch_router
+AVS=mxgraph.cisco.misc.avs
+AXP=mxgraph.cisco.misc.axp
+BBSM=mxgraph.cisco.misc.bbsm
+Branch\ office=mxgraph.cisco.buildings.branch_office
+Breakout\ box=mxgraph.cisco.misc.breakout_box
+Breakout=mxgraph.cisco.misc.breakout_box
+Bridge=mxgraph.cisco.misc.bridge
+Broadcast\ router=mxgraph.cisco.routers.broadcast_router
+BTS\ 10200=mxgraph.cisco.misc.bts_10200
+Cable\ modem=mxgraph.cisco.modems_and_phones.cable_modem
+CallManager=mxgraph.cisco.misc.call_manager
+Car=mxgraph.cisco.misc.car
+CDDI\ FDDI=mxgraph.cisco.misc.cddi_fddi
+Carrier\ routing\ system=mxgraph.cisco.misc.carrier_routing_system
+CDM=mxgraph.cisco.misc.cdm
+Cell\ P{hone=mxgraph.cisco.modems_and_phones.cell_phone
+Centri\ Firewall=mxgraph.cisco.security.centri_firewall
+Cisco\ 1000=mxgraph.cisco.misc.cisco_1000
+ASA\ 5500=mxgraph.cisco.misc.asa_5500
+Cisco\ CA=mxgraph.cisco.misc.cisco_ca
+Cisco\ file\ engine=mxgraph.cisco.storage.cisco_file_engine
+Cisco\ hub=mxgraph.cisco.hubs_and_gateways.cisco_hub
+Cisco\ unified\ presence\ server=mxgraph.cisco.servers.cisco_unified_presence_server
+Cisco\ unity\ express=mxgraph.cisco.misc.cisco_unity_express
+Cisco\ security=mxgraph.cisco.security.cisco_security
+Cisco\ works=mxgraph.cisco.misc.cisco_works
+Class\ 4_5\ switch=mxgraph.cisco.switches.class_4_5_switch
+Communications\ server=mxgraph.cisco.servers.communications_server
+Contact\ center=mxgraph.cisco.misc.contact_center
+Content\ acquirer=mxgraph.cisco.misc.contact_acquirer
+Content\ engine\ (cache\ director=mxgraph.cisco.directors.content_engine_(cache_director)
+Content\ service\ router=mxgraph.cisco.routers.content_service_router
+Content\ service\ switch\ 1100=mxgraph.cisco.switches.content_service_switch_1100
+Congtent\ switch\ module=mxgraph.cisco.controllers_and_modules.content_switch_module
+Content\ switch=mxgraph.cisco.switches.content_switch
+Content\ transformation\ engine\ (c=mxgraph.cisco.misc.content_transformation_engine_(cte)
+CS-MARS=mxgraph.cisco.misc.cs-mars
+CSM-S=mxgraph.cisco.misc.csm-s
+CSU_DSU=mxgraph.cisco.misc.csu_dsu
+CUBE=mxgraph.cisco.misc.cube
+Detector=mxgraph.cisco.misc.detector
+Director-class\ fibre\ channel\ di=mxgraph.cisco.directors.director-class_fibre_channel_director
+Directory\ server=mxgraph.cisco.servers.directory_server
+Diskette=mxgraph.cisco.storage.diskette
+Distributed\ director=mxgraph.cisco.directors.distributed_director
+Dot-dot=mxgraph.cisco.misc.dot-dot
+DPT=mxgraph.cisco.misc.dpt
+DSLAM=mxgraph.cisco.misc.dslam
+Dual\ mode=mxgraph.cisco.misc.dual_mode
+DWDM\ filter=mxgraph.cisco.misc.dwdm_filter
+End\ office=mxgraph.cisco.buildings.end_office
+Fax=mxgraph.cisco.modems_and_phones.fax
+FC\ storage=mxgraph.cisco.storage.fc_storage
+FDDI\ ring=mxgraph.cisco.misc.fddi_ring
+Fibre\ channel\ disk\ subsystem=mxgraph.cisco.storage.fibre_channel_disk_subsystem
+Fibre\ channel\ fabric\ switch=mxgraph.cisco.switches.fibre_channel_fabric_switch
+File\ cabinet=mxgraph.cisco.storage.file_cabinet
+File\ server=mxgraph.cisco.servers.file_server
+Fileserver=mxgraph.cisco.servers.fileserver
+Firewall\ service\ module\ (FWSM)=mxgraph.cisco.controllers_and_modules.firewall_service_module_(fwsm)
+Firewall=mxgraph.cisco.security.firewall
+Front\ end\ processor=mxgraph.cisco.misc.front_end_processor
+Gatekeeper=mxgraph.cisco.security.gatekeeper
+General\ appliance=mxgraph.cisco.misc.general_appliance
+Generic\ building=mxgraph.cisco.buildings.generic_building
+Generic\ gateway=mxgraph.cisco.hubs_and_gateways.generic_gateway
+Generic\ processor=mxgraph.cisco.misc.generic_processor
+Generic\ softswitch=mxgraph.cisco.switches.generic_softswitch
+Gigabit\ switch\ ATM\ tag\ router=mxgraph.cisco.routers.gigabit_switch_atm_tag_router
+Government\ building=mxgraph.cisco.buildings.government_building
+Ground\ terminal=mxgraph.cisco.wireless.ground_terminal
+Guard=mxgraph.cisco.security.guard
+H.323=mxgraph.cisco.misc.h_323
+Handheld=mxgraph.cisco.misc.handheld
+Hootphone=mxgraph.cisco.modems_and_phones.hootphone
+Host=mxgraph.cisco.servers.host
+HP\ mini=mxgraph.cisco.misc.hp_mini
+Hub=mxgraph.cisco.hubs_and_gateways.hub
+IAD\ router=mxgraph.cisco.routers.iad_router
+IBM\ mainframe=mxgraph.cisco.computers_and_peripherals.ibm_mainframe
+IBM\ mini=mxgraph.cisco.computers_and_peripherals.ibm_mini_as400
+IBM\ tower=mxgraph.cisco.computers_and_peripherals.ibm_tower
+ICM\ =mxgraph.cisco.misc.icm
+ICS=mxgraph.cisco.misc.ics
+Intelliswitch=mxgraph.cisco.switches.intelliswitch_stack
+Internet\ streamer=mxgraph.cisco.misc.internet_streamer
+IOS\ firewall=mxgraph.cisco.security.ios_firewall
+IOS\ SLB=mxgraph.cisco.misc.ios_slb
+IP\ communicator=mxgraph.cisco.misc.ip_communicator
+IP\ DSL=mxgraph.cisco.misc.ip_dsl
+IP\ phone=mxgraph.cisco.modems_and_phones.ip_phone
+IP\ telephony\ router=mxgraph.cisco.routers.ip_telephony_router
+IP\ =mxgraph.cisco.misc.ip
+IPTC=mxgraph.cisco.misc.iptc
+IPTV\ congtent\ manager=mxgraph.cisco.misc.iptv_content_manager
+IPTV\ server=mxgraph.cisco.servers.iptv_server
+ISCSI\ router=mxgraph.cisco.routers.isci_router
+ISDN\ switch=mxgraph.cisco.switches.isdn_switch
+ITP=mxgraph.cisco.misc.itp
+JBOD=mxgraph.cisco.misc.jbod
+Key=mxgraph.cisco.misc.key
+Keys=mxgraph.cisco.misc.keys
+LAN\ to\ LAN=mxgraph.cisco.misc.lan_to_lan
+Laptop=mxgraph.cisco.computers_and_peripherals.laptop
+Layer\ 2\ remote\ switch=mxgraph.cisco.switches.layer_2_remote_switch
+Layer\ 3\ switch=mxgraph.cisco.switches.layer_3_switch
+Lightweight\ AP=mxgraph.cisco.misc.lightweight_ap
+Localdirector=mxgraph.cisco.directors.localdirector
+Lock=mxgraph.cisco.security.lock
+Longreach\ CPE=mxgraph.cisco.misc.longreach_cpe
+Mac\ woman=mxgraph.cisco.people.mac_woman
+Macintosh=mxgraph.cisco.computers_and_peripherals.macintosh
+Man_woman=mxgraph.cisco.people.man_woman
+MAS\ gateway=mxgraph.cisco.hubs_and_gateways.mas_gateway
+MAU=mxgraph.cisco.misc.mau
+MCU=mxgraph.cisco.misc.mcu
+MDU=mxgraph.cisco.buildings.mdu
+ME=mxgraph.cisco.misc.me1100
+Mediator=mxgraph.cisco.misc.mediator
+Meetingplace=mxgraph.cisco.misc.meetingplace
+Mesh=mxgraph.cisco.misc.mesh_ap
+Metro\ 1500=mxgraph.cisco.misc.metro_1500
+MGX\ 8000\ multiservice\ switch=mxgraph.cisco.switches.mgx_8000_multiservice_switch
+Microphone=mxgraph.cisco.computers_and_peripherals.microphone
+Microwebserver=mxgraph.cisco.servers.microwebserver
+Mini\ VAX=mxgraph.cisco.misc.mini_vax
+Mobile\ access\ IP\ phone=mxgraph.cisco.modems_and_phones.mobile_access_ip_phone
+Mobile\ access\ router=mxgraph.cisco.routers.mobile_access_router
+Mobile\ streamer=mxgraph.cisco.misc.mobile_streamer
+Modem=mxgraph.cisco.modems_and_phones.modem
+MSE=mxgraph.cisco.misc.mse
+MOH\ server=mxgraph.cisco.servers.moh_server
+Multiswitch=mxgraph.cisco.switches.multiswitch_device
+Multi-fabric\ server\ switch=mxgraph.cisco.switches.multi-fabric_server_switch
+Multilayer\ remote\ switch=mxgraph.cisco.switches.multilayer_remote_switch
+MUX=mxgraph.cisco.misc.mux
+MXE=mxgraph.cisco.misc.mxe
+NAC\ appliance=mxgraph.cisco.misc.nac_appliance
+NCE=mxgraph.cisco.misc.nce
+NCE\ router=mxgraph.cisco.routers.nce_router
+Netflow\ router=mxgraph.cisco.routers.netflow_router
+Netranger=mxgraph.cisco.misc.netranger
+Netsonar=mxgraph.cisco.misc.netsonar
+Network\ management=mxgraph.cisco.misc.network_management
+Network\ security=mxgraph.cisco.security.network_security
+Nexus\ 1000=mxgraph.cisco.misc.nexus_1000
+Nexus\ 2000=mxgraph.cisco.misc.nexus_2000_fabric_extender
+Nexus\ 5000=mxgraph.cisco.misc.nexus_5000
+Nexus\ 7000=mxgraph.cisco.misc.nexus_7000
+Octel=mxgraph.cisco.misc.octel
+ONS15500=mxgraph.cisco.misc.ons15500
+Optical\ amplifier=mxgraph.cisco.misc.optical_amplifier
+Optical\ services\ router=mxgraph.cisco.routers.optical_services_router
+Optical\ transort=mxgraph.cisco.misc.optical_transport
+PAD\ x.28=mxgraph.cisco.misc.pad_1
+Pad=mxgraph.cisco.misc.pad_2
+Page\ icon=mxgraph.cisco.misc.page_icon
+PBX\ switch=mxgraph.cisco.switches.pbx_switch
+PBX=mxgraph.cisco.misc.pbx
+PC\ adapter\ card=mxgraph.cisco.computers_and_peripherals.pc_adapter_card
+PC\ man=mxgraph.cisco.people.pc_man
+PC\ routercard=mxgraph.cisco.computers_and_peripherals.pc_routercard
+PC\ sosftware=mxgraph.cisco.misc.pc_software
+PC\ video=mxgraph.cisco.misc.pc_video
+PC=mxgraph.cisco.computers_and_peripherals.pc
+PDA=mxgraph.cisco.misc.pda
+Phone=mxgraph.cisco.modems_and_phones.phone
+Phone-fax=mxgraph.cisco.modems_and_phones.phone-fax
+PIX\ firewall=mxgraph.cisco.security.pix_firewall
+PMC=mxgraph.cisco.misc.pmc
+Printer=mxgraph.cisco.computers_and_peripherals.printer
+Programmble\ switch=mxgraph.cisco.switches.programmable_switch
+Protocol\ translator=mxgraph.cisco.misc.protocol_translator
+PXF=mxgraph.cisco.misc.pxf
+Radio\ tower=mxgraph.cisco.wireless.radio_tower
+Ratemux=mxgraph.cisco.misc.ratemux
+Relational\ database=mxgraph.cisco.storage.relational_database
+Repeater=mxgraph.cisco.misc.repeater
+RF\ modem=mxgraph.cisco.modems_and_phones.rf_modem
+Route\ switch=mxgraph.cisco.misc.route_switch_processor
+Router\ with\ silicon\ switch=mxgraph.cisco.routers.router_with_silicon_switch
+Router=mxgraph.cisco.routers.router
+Router_firewall=mxgraph.cisco.security.router_firewall
+Router\ in\ building=mxgraph.cisco.routers.router_in_building
+RPSRPS=mxgraph.cisco.misc.rpsrps
+Running\ man=mxgraph.cisco.people.running_man
+Sattelite\ dish=mxgraph.cisco.wireless.satellite_dish
+Sattelite=mxgraph.cisco.wireless.satellite
+Scanner=mxgraph.cisco.computers_and_peripherals.scanner
+Server\ switch=mxgraph.cisco.switches.server_switch
+Server\ with\ router=mxgraph.cisco.servers.server_with_router
+Service\ control=mxgraph.cisco.misc.service_control
+Service\ Module=mxgraph.cisco.controllers_and_modules.service_module
+Service\ router=mxgraph.cisco.routers.service_router
+Services=mxgraph.cisco.misc.services
+Set\ top\ box=mxgraph.cisco.misc.set_top_box
+Simultlayer\ switch=mxgraph.cisco.switches.simultilayer_switch
+SIP\ proxy\ server=mxgraph.cisco.servers.sip_proxy_server
+Sitting\ woman=mxgraph.cisco.people.sitting_woman
+Amall\ business=mxgraph.cisco.buildings.small_business
+Small\ hub=mxgraph.cisco.hubs_and_gateways.small_hub
+Softphone=mxgraph.cisco.modems_and_phones.softphone
+Softswitch\ PGW\ MGC=mxgraph.cisco.switches.softswitch_pgw_mgc
+Software\ based\ server=mxgraph.cisco.servers.software_based_server
+Space\ router=mxgraph.cisco.routers.space_router
+Speaker=mxgraph.cisco.computers_and_peripherals.speaker
+SSC=mxgraph.cisco.misc.ssc
+SSL\ terminator=mxgraph.cisco.misc.ssl_terminator
+Standard\ host=mxgraph.cisco.servers.standard_host
+Standing\ man=mxgraph.cisco.people.standing_man
+Standing\ woman=mxgraph.cisco.people.standing_woman
+STB=mxgraph.cisco.misc.stb
+Storage\ router=mxgraph.cisco.routers.storage_router
+Storge\ server=mxgraph.cisco.servers.storage_server
+STP=mxgraph.cisco.misc.stp
+Streamer=mxgraph.cisco.misc.streamer
+Sun\ workstation=mxgraph.cisco.computers_and_peripherals.sun_workstation
+Supercomputer=mxgraph.cisco.computers_and_peripherals.supercomputer
+SVX=mxgraph.cisco.misc.svx
+System\ controller=mxgraph.cisco.controllers_and_modules.system_controller
+Tablet=mxgraph.cisco.computers_and_peripherals.tablet
+Tape\ array=mxgraph.cisco.storage.tape_array
+TDM\ router=mxgraph.cisco.routers.tdm_router
+Telecommuter\ house\ PC=mxgraph.cisco.buildings.telecommuter_house_pc
+Telecommuter\ house=mxgraph.cisco.buildings.telecommuter_house
+Telecommuter\ icon=mxgraph.cisco.misc.telecommuter_icon
+Terminal=mxgraph.cisco.computers_and_peripherals.terminal
+Token=mxgraph.cisco.misc.token
+TP\ MCU=mxgraph.cisco.misc.tp_mcu
+Transpath=mxgraph.cisco.misc.transpath
+Truck=mxgraph.cisco.misc.truck
+Turret=mxgraph.cisco.misc.turret
+TV=mxgraph.cisco.misc.tv
+UBR910=mxgraph.cisco.misc.ubr910
+UMG\ series=mxgraph.cisco.misc.umg_series
+Unity\ server=mxgraph.cisco.servers.unity_server
+Universal\ gateway=mxgraph.cisco.hubs_and_gateways.universal_gateway
+University=mxgraph.cisco.buildings.university
+UPC=mxgraph.cisco.computers_and_peripherals.upc
+UPS=mxgraph.cisco.misc.ups
+Vault=mxgraph.cisco.misc.vault
+Telepresence\ 3200=mxgraph.cisco.misc.telepresence
+Video\ camera=mxgraph.cisco.computers_and_peripherals.video_camera
+VIP=mxgraph.cisco.misc.vip
+Virtual\ layer\ switch=mxgraph.cisco.switches.virtual_layer_switch
+Virtual\ switch\ controller\ (vsc3=mxgraph.cisco.controllers_and_modules.virtual_switch_controller_(vsc3000)
+Voice\ ATM\ switch=mxgraph.cisco.switches.voice_atm_switch
+Voice\ commserver=mxgraph.cisco.servers.voice_commserver
+Voice\ router=mxgraph.cisco.routers.voice_router
+Voice\ switch=mxgraph.cisco.switches.voice_switch
+VPN\ concentrator=mxgraph.cisco.misc.vpn_concentrator
+VPN\ gateway=mxgraph.cisco.hubs_and_gateways.vpn_gateway
+VSS=mxgraph.cisco.misc.vss
+WAE=mxgraph.cisco.misc.wae
+Wavelength=mxgraph.cisco.routers.wavelength_router
+Web\ browser=mxgraph.cisco.computers_and_peripherals.web_browser
+Web\ cluster=mxgraph.cisco.storage.web_cluster
+Wi-fi\ tag=mxgraph.cisco.wireless.wi-fi_tag
+Wirelss\ bridge=mxgraph.cisco.wireless.wireless_bridge
+Wireless\ location\ appliance=mxgraph.cisco.wireless.wireless_location_appliance
+Wireless\ router=mxgraph.cisco.routers.wireless_router
+Wireless\ transport=mxgraph.cisco.wireless.wireless_transport
+Wireless=mxgraph.cisco.wireless.wireless
+WISM=mxgraph.cisco.misc.wism
+WLAN\ controller=mxgraph.cisco.wireless.wlan_controller
+Workgroup\ director=mxgraph.cisco.directors.workgroup_director
+Workgroup\ switch=mxgraph.cisco.switches.workgroup_switch
+Workstation=mxgraph.cisco.computers_and_peripherals.workstation
+WWW\ server=mxgraph.cisco.servers.www_server
+
+
+# misc shapes
+Off-line\ storage=triangle
+Swimlane=swimlane;horizontal\=0;
+CFF\ Container=swimlane;
+Swimlane\ List=swimlane
+Final\ State=mxgraph.bpmn.shape;verticalLabelPosition\=bottom;verticalAlign\=top;perimeter\=ellipsePerimeter;outline\=end;symbol\=terminate;
+System\ Boundary=swimlane
+Off-page\ reference=offPageConnector
+
+#Appliances
+#Refrg.\ 1=
+#Refrg.\ 3=
+#Stacked\ W/D=
+#Combo\ W/D=
+#Refrg.\ 2=
+#Built-in\ refrg.=
+#Chest\ freezer=
+Cooker\ 1=mxgraph.floorplan.range_1;
+Cooker\ 2=mxgraph.floorplan.range_1;
+Cooker\ 3=mxgraph.floorplan.range_1;
+Range=mxgraph.floorplan.range_2;
+#Wall\ oven=
+#Microwave=
+#Dishwasher=
+#Washing\ machine=
+#Tumble\ dryer=
+#Refuse\ compactor=
+Television=mxgraph.floorplan.crt_tv;
+#Video\ game=
+#Food\ cooler=
+#Vending\ machine=
+#Coffee\ maker=
+#Water\ cooler=
+#Water\ heater=
+
+#Bath and Kitchen Plan
+Sink\ 1=mxgraph.floorplan.sink_2;
+Sink\ 2=mxgraph.floorplan.sink_double;
+Shower=mxgraph.floorplan.shower;
+Bath\ 1=mxgraph.floorplan.bathtub;
+Sink\ 3=mxgraph.floorplan.sink_double;
+Corner\ shower=mxgraph.floorplan.shower;
+#Corner\ bath=
+Bath\ 2=mxgraph.floorplan.bathtub;
+Oval\ bath=mxgraph.floorplan.bathtub;
+Wall\ toilet=mxgraph.floorplan.toilet;
+Toilet=mxgraph.floorplan.toilet;
+#Squat\ wc=
+#Bidet=
+Pedestal\ sink\ 1=mxgraph.floorplan.sink_1;
+Pedestal\ sink\ 2=mxgraph.floorplan.sink_2;
+Countertop\ sink=mxgraph.floorplan.sink_1;
+Basin=mxgraph.floorplan.sink_2;
+Double\ basin=mxgraph.floorplan.sink_double;
+#Towel\ rack=
+#Medicine\ cabinet\ 1=
+#Medicine\ cabinet\ 2=
+#TP\ dispenser=
+
+
+
+
+#######################################
+#\ ***\ LUCIDCHART\ SHAPES\ ***
+#######################################
+
+
+
+#\ Flowchart
+com.lucidchart.DisplayBlock=mxgraph.flowchart.display
+com.lucidchart.DecisionBlock=mxgraph.flowchart.decision
+com.lucidchart.DirectAccessStorageBlock=mxgraph.flowchart.direct_data
+com.lucidchart.MergeBlock=mxgraph.flowchart.merge_or_storage
+com.lucidchart.ManualInputBlock=mxgraph.flowchart.manual_input
+com.lucidchart.DelayBlock=mxgraph.flowchart.delay
+com.lucidchart.SummingJunctionBlock=mxgraph.flowchart.or
+com.lucidchart.OrBlock=mxgraph.flowchart.summing_function
+com.lucidchart.ConnectorBlock=ellipse
+com.lucidchart.ConnectorBlock=ellipse
+com.lucidchart.ProcessBlock=mxgraph.flowchart.process
+com.lucidchart.PreparationBlock=mxgraph.flowchart.preparation
+com.lucidchart.OffPageLinkBlock=mxgraph.flowchart.off-page_reference
+com.lucidchart.ManualOperationBlock=mxgraph.flowchart.manual_operation
+com.lucidchart.PaperTapeBlock=mxgraph.flowchart.paper_tape
+com.lucidchart.DocumentBlock=mxgraph.flowchart.document
+com.lucidchart.PredefinedProcessBlock=mxgraph.flowchart.predefined_process
+com.lucidchart.DatabaseBlock=mxgraph.flowchart.database
+com.lucidchart.StoredDataBlock=mxgraph.flowchart.stored_data
+com.lucidchart.TerminatorBlock=mxgraph.flowchart.terminator
+#com.lucidchart.NoteBlock31=mxgraph.flowchart.
+com.lucidchart.DataBlock=mxgraph.flowchart.data
+com.lucidchart.InternalStorageBlock=mxgraph.flowchart.internal_storage
+com.lucidchart.MultiDocumentBlock=mxgraph.flowchart.multi-document
+com.lucidchart.DefaultTextBlockNew=text
+
+#\ Containers
+com.lucidchart.AdvancedSwimLaneBlock=swimlane
+com.lucidchart.AdvancedSwimLaneBlockRotated=swimlane
+com.lucidchart.RectangleContainerBlock=rounded\=1
+com.lucidchart.DiamondContainerBlock=mxgraph.flowchart.decision
+com.lucidchart.RoundedRectangleContainerBlock=rounded\=1
+com.lucidchart.CircleContainerBlock=ellipse
+com.lucidchart.PillContainerBlock=rounded\=1
+
+#\ Shapes
+com.lucidchart.IsoscelesTriangleBlock21=triangle
+com.lucidchart.RightTriangleBlock21=mxgraph.basic.orthogonal_triangle
+com.lucidchart.PentagonBlock21=mxgraph.basic.pentagon
+com.lucidchart.HexagonBlock21=hexagon
+com.lucidchart.OctagonBlock21=mxgraph.basic.octagon
+com.lucidchart.CrossBlock21=mxgraph.basic.cross
+com.lucidchart.CloudBlock21=cloud
+com.lucidchart.HeartBlock21=mxgraph.basic.heart
+com.lucidchart.RightArrowBlock21=mxgraph.arrows.arrow_right
+com.lucidchart.CalloutBlock21=mxgraph.basic.rectangular_callout
+
+# Entity Relationship
+com.lucidchart.ERDEntityBlock247=mxgraph.er.entityExt
+com.lucidchart.ERDEntityBlock347=mxgraph.er.entityExt
+com.lucidchart.ERDEntityBlock4510=mxgraph.er.entityExt
+com.lucidchart.ERDEntityBlock34=mxgraph.er.entityExt
+
+# iPad Elements
+com.lucidchart.Image_ipad_ipad8321510f=mxgraph.ios.iPad
+com.lucidchart.iPadGrayBackgroundBlock20=mxgraph.ios.iBgFlat
+com.lucidchart.Image_ipad_top_bar9b387f07818a3d5a9b8d0c0d=mxgraph.ios.iTopBar
+com.lucidchart.Image_ipad_bar_gray5b014114=mxgraph.ios.iScreenNameBar
+com.lucidchart.Image_ipad_bar_semi_trans_blackaf49c08=mxgraph.ios.iScreenNameBar
+com.lucidchart.Image_ipad_bar_black8e3cad84=mxgraph.ios.iScreenNameBar
+com.lucidchart.Image_ipad_safari_top5a8275884c31e01b5ad7028e=mxgraph.ios.iURLBar
+com.lucidchart.Image_ipad_search44efda9aaa7961ad454467a0=mxgraph.mockup.forms.searchBox
+com.lucidchart.Image_ipad_alert_dialog8d948490=mxgraph.ios.iDialogBox
+com.lucidchart.Image_ipad_dialog5597f6428244294d549a4f30=mxgraph.ios.iAlertBox
+com.lucidchart.Image_ipad_popover5b11928bd4da43d65a13eb79=mxgraph.ios.iOption;barPos\=50;pointerPos\=top
+com.lucidchart.Image_ipad_tablec991d5a1eb9c7274c9e662a7eb2bb66c6f3e09ffeb8043721161ab0fea9ecb6211b63815=mxgraph.ios.iButtonBar
+com.lucidchart.Image_ipad_vtab59b3205e2bc2218e2597d919d0d5664e2597d919d0d5664=mxgraph.ios.iButtonBar
+
+# iPad Controls
+com.lucidchart.Image_ipad_button_blackc07c92a48d089437c0d11faa=mxgraph.ios.iButton
+com.lucidchart.Image_ipad_button_blue8a3f7ca5aad00a788a9409ab=mxgraph.ios.iButton
+com.lucidchart.Image_ipad_button_grayblue84ca5dc8cbd6d85b851eeace=mxgraph.ios.iButton
+com.lucidchart.Image_ipad_button_red9214b0f6f4581f0992693dfc=mxgraph.ios.iButton
+com.lucidchart.Image_ipad_back_button_gray43bdb06a3f626b7d44123d70=mxgraph.ios.iButtonBack
+com.lucidchart.Image_ipad_back_button_blackc55dda83600d03bcaa6aae=mxgraph.ios.iButtonBack
+#com.lucidchart.Image_ipad_sort_handlec2af001a=mxgraph.
+com.lucidchart.Image_ipad_dropdown67531bc397dcd91667a7a8c9=mxgraph.ios.iComboBox
+com.lucidchart.Image_ipad_email_name800e34c041940d538062c1c6=mxgraph.ios.iTextInput
+com.lucidchart.Image_ipad_prev_next8a11ac30=mxgraph.ios.iPrevNext
+com.lucidchart.Image_ipad_keyboard_portrait1b265fa4=mxgraph.ios.iKeybLett
+com.lucidchart.Image_ipad_keyboard_landscape44a333e8=mxgraph.ios.iKeybLett
+com.lucidchart.Image_ipad_large_tabbed_button3b53d9dfa9ee6e323b29935ca9ee6e323b29935ca9ee6e323ba866e596fb2d33bb67e66bb86f860623dd8cb=mxgraph.ios.iHorButtonBar
+com.lucidchart.Image_ipad_sort_buttonaba6db5161972424ab7c94ce61972424ab7c94ce61972424abfb6857b1081fc5ac097fd86fc29ae9d645bd=mxgraph.ios.iHorButtonBar
+com.lucidchart.Image_ipad_tab_bar9c7fb9a9d744c3bb6251cedad9afc1=mxgraph.ios.iHorButtonBar
+com.lucidchart.Image_ipad_sliderbe7edf1316c13066bed36c19=mxgraph.ios.iSlider
+com.lucidchart.Image_ipad_switch_offf288e2e9=mxgraph.ios.iOnOffButton
+
+# iPad Icons
+com.lucidchart.Image_ipad_add_icon_blue4a498c73=mxgraph.ios.iAddIcon
+com.lucidchart.Image_ipad_add_icon_green8896ea0=mxgraph.ios.iAddIcon
+com.lucidchart.Image_ipad_remove_iconeb9a7a05=mxgraph.ios.iDeleteIcon
+com.lucidchart.Image_ipad_arrow_icon484b2a74=mxgraph.ios.iArrowIcon
+com.lucidchart.Image_ipad_arrowa89dacba=mxgraph.ios.iArrowIcon
+com.lucidchart.Image_ipad_checkmarkac05af86=mxgraph.ios.iCheckIcon
+com.lucidchart.Image_ipad_check_offcd8bdbe9=mxgraph.ios.iCheckIcon
+#com.lucidchart.Image_ipad_location_dot712c4ac4=mxgraph.
+com.lucidchart.Image_ipad_mark_as_reada01dc616=ellipse
+com.lucidchart.Image_ipad_pin_greenaf2b858a=mxgraph.ios.iPin;fillColor2\=#00dd00;fillColor3\=#004400;strokeColor\=#006600;
+com.lucidchart.Image_ipad_pin_reda027bb18=mxgraph.ios.iPin;fillColor2\=#dd0000;fillColor3\=#440000;strokeColor\=#660000;
+com.lucidchart.Image_ipad_radio_off74367dc=mxgraph.ios.iRadioGroup;buttonText\=+
+com.lucidchart.Image_ipad_checkbox_off57bd7df8=mxgraph.ios.iCheckboxGroup;buttonText\=+
+com.lucidchart.Image_ipad_indicatordbc398edfdbe98c0dc1825f3=ellipse
+
+# iPhone Elements
+com.lucidchart.Image_iphone_iphone_4fcb30924=mxgraph.ios.iPhone
+com.lucidchart.Image_iphone_bg_blackd33dc60f=mxgraph.ios.iBgFlat
+com.lucidchart.Image_iphone_bg_gray86856b29=mxgraph.ios.iBgFlat
+com.lucidchart.Image_iphone_bg_stripe_drkd9f1ef31=mxgraph.ios.iBgStriped
+com.lucidchart.Image_iphone_bg_stripe_lt35b840ca=mxgraph.ios.iBgStriped
+com.lucidchart.Image_iphone_bg_white2135dd39=mxgraph.ios.iBgFlat
+com.lucidchart.Image_iphone_top_bar_appc0cc097=mxgraph.ios.iAppBar
+com.lucidchart.Image_iphone_top_bar_home1597dc3f=mxgraph.ios.iTopBar
+com.lucidchart.Image_iphone_bar_top10091635=mxgraph.ios.iTopBar
+com.lucidchart.Image_iphone_bar_semi_trans_black8e48900d=mxgraph.ios.iScreenNameBar
+com.lucidchart.Image_iphone_bar_semi_trans_blue9a563be2=mxgraph.ios.iScreenNameBar
+com.lucidchart.Image_iphone_search1db5ee1f3a4892721e0a7b25=mxgraph.mockup.forms.searchBox
+com.lucidchart.Image_iphone_table98e32bc55b35a4f9e2bfc255429e473a132c9a55972b4d515e082a54b5b33d51b29530=mxgraph.ios.iButtonBar
+com.lucidchart.Image_iphone_table_w_buttons5588c8367869064955dd553c77f84a41dc578f14784cd7479d589da4776b5f379dad2aaa=mxgraph.ios.iButtonBar
+com.lucidchart.Image_iphone_table_w_icons40a608cf26df992240fa95d5266edd1aacd7042d26c36a208875de3d25e1f21088ca6b43=mxgraph.ios.iButtonBar
+com.lucidchart.Image_iphone_list8ecf8c5d6cbaa6503d108a288eb35d5b8dd1e54bb48a7bbe=mxgraph.ios.iButtonBar
+com.lucidchart.Image_iphone_safari_topbc12660=mxgraph.ios.iURLBar
+#com.lucidchart.Image_iphone_safari_bottomc9848996=mxgraph.
+com.lucidchart.Image_iphone_gray_grad_listd5cac55d=mxgraph.ios.iTextInput
+#com.lucidchart.Image_iphone_alert_bar1e6e25fc=mxgraph.
+com.lucidchart.Image_iphone_alert_dialoga66b4d95=mxgraph.ios.iDialogBox
+com.lucidchart.Image_iphone_dialog2e5e09c712135a122d6062b5=mxgraph.ios.iAlertBox
+#com.lucidchart.Image_iphone_scroll_panea4de27a6=mxgraph.
+com.lucidchart.Image_iphone_alpha_listcd053ca9=mxgraph.ios.iAlphaList
+
+# iPhone Controls
+com.lucidchart.Image_iphone_button_blackfec52e69a5df5d3cff19bb6f=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_blue8c41d440dd298cd38c966146=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_grayblue88516fe356a1b53688a5fce9=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_redaaeb79fbb3e7654eab400701=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_lg_lightaebed83860872ecbaf13653e=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_lg_dark60c53d6458fceef76119ca6a=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_xl_greenfe3f205ef7a74871fe93ad64=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_lg_greenbf4a8c65b2dc0a38bf9f196b=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_lg_red8c1e09f3fded93468c7296f9=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_button_lg_yellow2b5c22629d64fb752bb0af68=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_back_buttonc7c002433515f96c8148f49=mxgraph.ios.iButtonBack
+com.lucidchart.Image_iphone_prev_nextca0e094b=mxgraph.ios.iPrevNext
+#com.lucidchart.Image_iphone_sort_handlef5088275=mxgraph.
+com.lucidchart.Image_iphone_slider9744f298a690612b97997f9e=mxgraph.ios.iSlider
+com.lucidchart.Image_iphone_dropdown26e2620870a2ec9b2736ef0e=mxgraph.ios.iComboBox
+com.lucidchart.Image_iphone_email_name98e4fdc5123539899398acb=mxgraph.ios.iTextInput
+com.lucidchart.Image_iphone_switch_offb218292e=mxgraph.ios.iOnOffButton
+com.lucidchart.Image_iphone_keyboard_button_bluea05f6bf9=mxgraph.ios.iButton
+com.lucidchart.Image_iphone_keyboard_letters8f8a1c3f=mxgraph.ios.iKeybLett
+com.lucidchart.Image_iphone_keyboard_landscapeb1fe652d=mxgraph.ios.iKeybLett
+com.lucidchart.Image_iphone_large_tabbed_button227e667ae7f9658d22541ff7e7f9658d22541ff7e7f9658d22d2f380d02984ae22e10b01cc0761e528f7aaa6=mxgraph.ios.iHorButtonBar
+com.lucidchart.Image_iphone_sort_buttonada932ec93f0a67fad7eec6993f0a67fad7eec6993f0a67fadfdbff23bd2fca0ae0bd773d58ce83394a12298=mxgraph.ios.iHorButtonBar
+com.lucidchart.Image_iphone_tab_bar73dee375cfcdce964b5eaee9d33321c=mxgraph.ios.iHorButtonBar
+#com.lucidchart.Image_iphone_picker_multid28353d2=mxgraph.
+#com.lucidchart.Image_iphone_picker_webefa423ed=mxgraph.
+
+# iPhone Icons
+com.lucidchart.Image_iphone_add_icon_blue4c4be40e=mxgraph.ios.iAddIcon
+com.lucidchart.Image_iphone_add_icon_green46d20a65=mxgraph.ios.iAddIcon
+com.lucidchart.Image_iphone_remove_icon1df3fc60=mxgraph.ios.iDeleteIcon
+com.lucidchart.Image_iphone_arrow_icon7da70b9=mxgraph.ios.iArrowIcon
+com.lucidchart.Image_iphone_arrow7372cf55=mxgraph.ios.iArrowIcon
+com.lucidchart.Image_iphone_checkmarkec020ca1=mxgraph.ios.iCheckIcon
+com.lucidchart.Image_iphone_check_offd883904=mxgraph.ios.iCheckIcon
+#com.lucidchart.Image_iphone_location_dot8a0313c9=mxgraph.
+com.lucidchart.Image_iphone_mark_as_readb8f48f1b=ellipse
+com.lucidchart.Image_iphone_pin_greenef27e2a5=mxgraph.ios.iPin;fillColor2\=#00dd00;fillColor3\=#004400;strokeColor\=#006600;
+com.lucidchart.Image_iphone_pin_reda3ea2f3=mxgraph.ios.iPin;fillColor2\=#dd0000;fillColor3\=#440000;strokeColor\=#660000;
+com.lucidchart.Image_iphone_indicatore1d1b483dbaf5dbe71a84e=shape\ellipse
+com.lucidchart.Image_iphone_radio_off473fc4f7=mxgraph.ios.iRadioGroup;buttonText\=+
+com.lucidchart.Image_iphone_checkbox_off709446fd=mxgraph.ios.iCheckboxGroup;buttonText\=+
+com.lucidchart.Image_iphone_thread_countf9164f24=rounded\=1
+
+# UI Containers
+com.lucidchart.UI2BrowserBlock92=mxgraph.mockup.containers.browserWindow
+com.lucidchart.UI2WindowBlock91=mxgraph.mockup.containers.window
+com.lucidchart.UI2DialogBlock52=mxgraph.mockup.containers.alertBox
+com.lucidchart.UI2AccordionBlock54=mxgraph.mockup.containers.accordion
+com.lucidchart.UI2TabBar2ContainerBlock43=mxgraph.mockup.containers.horTabBar
+com.lucidchart.UI2TabBarContainerBlock43=mxgraph.mockup.containers.horTabBar
+com.lucidchart.UI2VTabBarContainerBlock43=mxgraph.mockup.containers.verTabBar
+com.lucidchart.UI2VScrollBlock80=mxgraph.mockup.navigation.scrollBar
+com.lucidchart.UI2HScrollBlock80=mxgraph.mockup.navigation.scrollBar
+com.lucidchart.UI2VerticalSplitterBlock40=mxgraph.mockup.forms.splitter
+com.lucidchart.UI2HorizontalSplitterBlock40=mxgraph.mockup.forms.splitter
+com.lucidchart.UI2ElementBlock21=rounded\=1
+com.lucidchart.UI2AreaBlock20=rounded\=1
+
+# UI Widgets
+com.lucidchart.UI2ImageBlock31=mxgraph.mockup.graphics.iconGrid;gridSize\=1,1;
+com.lucidchart.UI2VideoBlock91=mxgraph.mockup.containers.videoPlayer;barHeight\=30;barPos\=20;
+com.lucidchart.UI2AudioBlock71=mxgraph.mockup.misc.playbackControls
+com.lucidchart.UI2MapBlock41=mxgraph.mockup.misc.map
+com.lucidchart.UI2CalendarBlock68=mxgraph.mockup.forms.calendar;strokeColor2\=#008cff;mainText\=April\ 2013;textSize\=12;firstDay\=0;startOn\=0;days\=30;prevDays\=31;dayNames\=Mo,Tu,We,Th,Fr,Sa,Su;selDay\=24
+com.lucidchart.UI2BarChartBlock51=mxgraph.mockup.graphics.barChart
+com.lucidchart.UI2ColumnChartBlock51=mxgraph.mockup.graphics.columnChart
+com.lucidchart.UI2LineChartBlock51=mxgraph.mockup.graphics.lineChart
+com.lucidchart.UI2PieChartBlock41=mxgraph.mockup.graphics.pieChart;parts\=10,20,35
+com.lucidchart.UI2WebcamBlock30=mxgraph.mockup.containers.userMale
+com.lucidchart.UI2CaptchaBlock37=mxgraph.mockup.text.captcha
+com.lucidchart.Image_ui_formatting_toolbar21214016b=mxgraph.mockup.menus_and_buttons.font_style_selector_3
+
+# UI Input
+com.lucidchart.UI2ButtonBlock21=mxgraph.mockup.buttons.button
+com.lucidchart.UI2CheckBoxBlock63=mxgraph.mockup.forms.checkboxGroup
+#com.lucidchart.UI2HorizontalCheckBoxBlock63=mxgraph.
+com.lucidchart.UI2RadioBlock63=mxgraph.mockup.forms.radioGroup
+#com.lucidchart.UI2HorizontalRadioBlock63=mxgraph.
+com.lucidchart.UI2ColorPickerBlock40=mxgraph.mockup.forms.colorPicker;chosenColor\=#aaddff;
+com.lucidchart.UI2TextInputBlock21=mxgraph.mockup.text.textBox
+com.lucidchart.UI2SelectBlock41=mxgraph.mockup.forms.comboBox
+com.lucidchart.UI2VSliderBlock30=mxgraph.mockup.forms.horSlider
+com.lucidchart.UI2HSliderBlock30=mxgraph.mockup.forms.horSlider
+#com.lucidchart.UI2DatePickerBlock31=mxgraph.
+com.lucidchart.UI2SearchBlock41=mxgraph.mockup.forms.searchBox
+com.lucidchart.UI2NumericStepperBlock41=mxgraph.mockup.forms.spinner
+#com.lucidchart.UI2TableBlock1910=mxgraph.
+
+# UI Menus
+com.lucidchart.UI2ButtonBarBlock43=mxgraph.mockup.buttons.horButtonBar
+com.lucidchart.UI2VerticalButtonBarBlock43=mxgraph.mockup.buttons.verButtonBar
+com.lucidchart.UI2LinkBarBlock43=mxgraph.mockup.text.linkBar
+com.lucidchart.UI2BreadCrumbsBlock43=mxgraph.mockup.navigation.breadcrumb
+com.lucidchart.UI2MenuBarBlock34=mxgraph.mockup.forms.menuBar
+com.lucidchart.UI2AtoZBlock227=mxgraph.mockup.text.alphanumeric
+com.lucidchart.UI2PaginationBlock212=mxgraph.mockup.navigation.pagination;linkText=<< Prev 1 2 3 4 5 6 7 8 9 10 Next >>
+#com.lucidchart.UI2ContextMenuBlock614=mxgraph.
+#com.lucidchart.UI2TreePaneBlock2012=
+com.lucidchart.UI2PlaybackControlsBlock90=mxgraph.mockup.misc.playbackControls
+com.lucidchart.Image_ui_formatting_toolbar42a4f47d=mxgraph.mockup.menus_and_buttons.font_style_selector_3
+
+# UI Misc
+com.lucidchart.UI2ProgressBarBlock30=mxgraph.mockup.misc.progressBar
+com.lucidchart.UI2HelpIconBlock30=mxgraph.mockup.misc.help_icon
+#com.lucidchart.UI2BraceNoteBlock31=mxgraph.
+com.lucidchart.UI2TooltipBlock21=mxgraph.basic.rectangular_callout;flipV=1
+com.lucidchart.UI2CalloutBlock21=ellipse
+com.lucidchart.UI2AlertBlock74=mxgraph.mockup.containers.alertBox
+
+# UML Class DGM
+com.lucidchart.UMLActiveClassBlock31=mxgraph.flowchart.predefined_process
+#com.lucidchart.UMLMultiplicityBlock31=
+com.lucidchart.UMLPackageBlock22=folder;fontStyle\=1;spacingTop\=10;tabWidth\=40;tabHeight\=14;tabPosition\=left;
+#com.lucidchart.UMLConstraintBlock21=mxgraph.
+com.lucidchart.UMLNoteBlock31=note
+
+# UML Use Case
+com.lucidchart.UMLActorBlock41=umlActor
+com.lucidchart.UMLUseCaseBlock23=ellipse
+com.lucidchart.UMLCircleContainerBlock20=ellipse
+com.lucidchart.UMLNoteBlock31=note
+com.lucidchart.UMLUseCaseBlock21=ellipse
+
+# UML State/Activity
+#com.lucidchart.UMLOptionLoopBlock42=mxgraph.
+com.lucidchart.UMLStartBlock20=ellipse;shape\=startState
+com.lucidchart.UMLDecisionBlock20=rhombus
+com.lucidchart.UMLFlowFinalBlock30=mxgraph.flowchart.or
+com.lucidchart.UMLHistoryStateBlock30=ellipse
+com.lucidchart.UMLEndBlock30=endState
+com.lucidchart.UMLSendSignalBlock21=mxgraph.flowchart.off-page_reference
+#com.lucidchart.UMLReceiveSignalBlock21=
+com.lucidchart.UMLStateBlock21=rounded\=1
+
+# UML Sequence
+com.lucidchart.UMLDeletionBlock30=mxgraph.mockup.markup.redX
+com.lucidchart.UMLSeqEntityBlock31=mxgraph.electrical.radio.microphone_1
+
+# UML Component
+com.lucidchart.UMLComponentBlock41=component
+com.lucidchart.UMLNodeBlock41=cube
+com.lucidchart.UMLComponentInterfaceBlock20=ellipse
+
+# UML Deployment
+com.lucidchart.UMLObjectBlock21=rounded\=1
+com.lucidchart.UMLActivationBlock20=rounded\=1
+
+# UML Entity Relation
+com.lucidchart.UMLEntityBlock21=mxgraph.er.entity
+com.lucidchart.UMLWeakEntityBlock31=mxgraph.er.entity;buttonStyle=dblFrame
+com.lucidchart.UMLAttributeBlock21=ellipse
+com.lucidchart.UMLMultivaluedAttributeBlock31=mxgraph.er.attribute;buttonStyle=dblFrame
+com.lucidchart.UMLRelationshipBlock21=mxgraph.er.has;buttonStyle=rhombus
+com.lucidchart.UMLWeakRelationshipBlock31=mxgraph.er.has;buttonStyle=dblFrame;
+
+# BPMN 2.0 (this conversion should be much more than a simple lookup table)
+com.lucidchart.BPMNActivity31=mxgraph.ext;rounded\=1;
+com.lucidchart.BPMNActivity21=mxgraph.ext;rounded\=1;
+com.lucidchart.BPMNEvent21=mxgraph.bpmn.shape;perimeter\=ellipsePerimeter;outline\=standard;symbol\=general
+com.lucidchart.BPMNEvent31=mxgraph.bpmn.shape;perimeter\=ellipsePerimeter;outline\=standard;symbol\=general
+#com.lucidchart.BPMNChoreography63=
+com.lucidchart.BPMNConversation21=hexagon
+com.lucidchart.BPMNGateway21=mxgraph.bpmn.shape;perimeter\=rhombusPerimeter;background\=gateway;outline\=none;symbol\=none
+com.lucidchart.BPMNData32=note
+com.lucidchart.BPMNDataStore31=mxgraph.flowchart.database
+com.lucidchart.BPMNBlackPool21=swimlane
+com.lucidchart.BPMNAdvancedPoolBlock33=swimlane
+com.lucidchart.BPMNAdvancedPoolBlockRotated33=shape\swimlane
+
+# Org Chart
+com.lucidchart.OrgBlock21=rounded\=1
+
+#Data\ Flow
+com.lucidchart.DFDExternalEntityBlock=mxgraph.er.entity
+com.lucidchart.DFDExternalEntityBlock2=mxgraph.er.entity
+com.lucidchart.YDMDFDProcessBlock=ellipse
+#com.lucidchart.YDMDFDDataStoreBlock=
+com.lucidchart.GSDFDProcessBlock=mxgraph.er.entityExt
+com.lucidchart.GSDFDProcessBlock2=mxgraph.er.entity
+
+# Value Stream Mapping - Processes
+com.lucidchart.VSMCustomerSupplierBlock21=mxgraph.lean_mapping.outside_sources
+com.lucidchart.VSMDedicatedProcessBlock52=mxgraph.lean_mapping.manufacturing_process
+com.lucidchart.VSMSharedProcessBlock52=mxgraph.lean_mapping.manufacturing_process_shared
+com.lucidchart.VSMWorkcellBlock21=mxgraph.lean_mapping.work_cell
+com.lucidchart.VSMDatacellBlock53=mxgraph.lean_mapping.buffer_or_safety_stock
+
+# VSM - Materials
+com.lucidchart.VSMInventoryBlock31=mxgraph.lean_mapping.inventory_box
+com.lucidchart.VSMSupermarketBlock63=mxgraph.lean_mapping.supermarket
+com.lucidchart.VSMPhysicalPullBlock40=mxgraph.lean_mapping.physical_pull
+com.lucidchart.VSMFIFOLaneBlock100=mxgraph.lean_mapping.fifo_sequence_flow
+com.lucidchart.VSMSafetyBufferStockBlock43=mxgraph.lean_mapping.buffer_or_safety_stock
+
+# VSM - Shipments
+com.lucidchart.VSMExternalShipmentAirplaneBlock21=mxgraph.lean_mapping.airplane_7
+com.lucidchart.VSMExternalShipmentForkliftBlock71=mxgraph.lean_mapping.move_by_forklift
+com.lucidchart.VSMExternalShipmentTruckBlock61=mxgraph.lean_mapping.truck_shipment
+com.lucidchart.VSMExternalShipmentBoatBlock21=mxgraph.lean_mapping.boat_shipment
+
+# VSM - Information
+com.lucidchart.VSMProductionControlBlock32=mxgraph.lean_mapping.manufacturing_process
+com.lucidchart.VSMOtherInformationBlock21=mxgraph.lean_mapping.schedule
+#com.lucidchart.VSMHeijyunkaBoxBlock33=
+com.lucidchart.VSMSequencedPullBallBlock30=mxgraph.lean_mapping.sequenced_pull_ball
+com.lucidchart.VSMMRPERPBlock31=mxgraph.lean_mapping.mrp_erp
+com.lucidchart.VSMLoadLevelingBlock80=mxgraph.lean_mapping.load_leveling
+com.lucidchart.VSMGoSeeBlock60=mxgraph.lean_mapping.go_see_production_scheduling
+com.lucidchart.VSMGoSeeProductionBlock71=ellipse
+com.lucidchart.VSMVerbalInfoBlock60=mxgraph.lean_mapping.verbal
+
+# VSM
+com.lucidchart.VSMKaizenBurstBlock21=mxgraph.lean_mapping.kaizen_lightening_burst
+com.lucidchart.VSMOperatorBlock31=mxgraph.lean_mapping.operator
+com.lucidchart.VSMTimelineBlock44=mxgraph.lean_mapping.timeline;mainText\=20,N1,50,V1,30,N2,40,V2,30,N3,50,V3,20,N4;
+com.lucidchart.VSMQualityProblemBlock21=mxgraph.lean_mapping.quality_problem
+
+# VSM - Kanban
+com.lucidchart.VSMProductionKanbanSingleBlock21=mxgraph.lean_mapping.production_kanban
+com.lucidchart.VSMProductionKanbanBatchBlock41=mxgraph.lean_mapping.batched_kanban
+com.lucidchart.VSMWithdrawalKanbanBlock41=mxgraph.lean_mapping.withdrawal_kanban
+com.lucidchart.VSMWithdrawalKanbanBatchBlock61=mxgraph.lean_mapping.batched_kanban
+com.lucidchart.VSMSignalKanbanBlock21=mxgraph.lean_mapping.signal_kanban
+com.lucidchart.VSMKanbanPostBlock30=mxgraph.lean_mapping.kanban_post
+
+# AWS - EC2
+com.lucidchart.AWSElasticComputeCloudBlock291=mxgraph.aws2.compute_and_networking.ec2
+com.lucidchart.AWSInstanceBlock2122=mxgraph.aws2.compute_and_networking.ec2_instance
+com.lucidchart.AWSInstancesBlock2301=mxgraph.aws2.compute_and_networking.ec2_instances
+com.lucidchart.AWSAMIBlock2201=mxgraph.aws2.compute_and_networking.ec2_ami
+com.lucidchart.AWSDBonInstanceBlock2211=mxgraph.aws2.compute_and_networking.ec2_db_on_instance
+com.lucidchart.AWSInstanceCloudWatchBlock2141=mxgraph.aws2.compute_and_networking.ec2_cloudwatch
+com.lucidchart.AWSElasticIPBlock2101=mxgraph.aws2.compute_and_networking.ec2_elastic_ip
+com.lucidchart.AWSElasticMapReduceBlock2121=mxgraph.aws2.compute_and_networking.emr
+com.lucidchart.AWSClusterBlock2541=mxgraph.aws2.compute_and_networking.emr_cluster
+com.lucidchart.AWSHDFSClusterBlock2611=mxgraph.aws2.compute_and_networking.emr_hdfs_cluster
+com.lucidchart.AWSAutoScalingBlock2141=mxgraph.aws2.compute_and_networking.auto_scaling
+
+# AWS - S3
+com.lucidchart.AWSSimpleStorageBlock2141=mxgraph.aws2.storage_and_content_delivery.s3
+com.lucidchart.AWSBucketBlock2212=mxgraph.aws2.storage_and_content_delivery.s3_bucket
+com.lucidchart.AWSBuckethWithObjectsBlock2181=mxgraph.aws2.storage_and_content_delivery.s3_bucket_with_objects
+com.lucidchart.AWSObjectBlock282=mxgraph.aws2.storage_and_content_delivery.s3_objects
+com.lucidchart.AWSImportExportBlock2301=mxgraph.aws2.storage_and_content_delivery.aws_import_export
+com.lucidchart.AWSStorageGatewayBlock271=mxgraph.aws2.storage_and_content_delivery.aws_storage_gateway
+com.lucidchart.AWSElasticBlockStorageBlock252=mxgraph.aws2.storage_and_content_delivery.ebs
+com.lucidchart.AWSVolueBlock252=mxgraph.aws2.storage_and_content_delivery.ebs_volume
+com.lucidchart.AWSSnapshotBlock2312=mxgraph.aws2.storage_and_content_delivery.ebs_snapshot
+com.lucidchart.AWSGlacierBlock271=mxgraph.aws2.storage_and_content_delivery.glacier
+
+# AWS - Content Delivery
+com.lucidchart.AWSCloudFrontBlock2191=mxgraph.aws2.storage_and_content_delivery.cloudfront
+com.lucidchart.AWSDownloadDistBlock281=mxgraph.aws2.storage_and_content_delivery.cloudfront_download_distribution
+com.lucidchart.AWSStreamingBlock281=mxgraph.aws2.storage_and_content_delivery.cloudfront_streaming_distribution
+com.lucidchart.AWSEdgeLocationBlock291=mxgraph.aws2.storage_and_content_delivery.cloudfront_edge_location
+
+# AWS - CloudWatch
+com.lucidchart.AWSCloudWatchBlock2101=mxgraph.aws2.deployment_and_management.cloudwatch
+com.lucidchart.AWSCloudWatchAlarmBlock2111=mxgraph.aws2.deployment_and_management.cloudwatch_alarm
+
+# AWS - Networking
+com.lucidchart.AWSElasticLoadBlock281=mxgraph.aws2.compute_and_networking.elastic_load_balancing
+com.lucidchart.AWSDirectConnectBlock281=mxgraph.aws2.compute_and_networking.aws_direct_connect
+com.lucidchart.AWSElasticNetworkBlock2121=mxgraph.aws2.compute_and_networking.elastic_network_instance
+com.lucidchart.AWSRoute53Block291=mxgraph.aws2.compute_and_networking.route_53
+com.lucidchart.AWSHostedZoneBlock2162=mxgraph.aws2.compute_and_networking.route_53_hosted_zone
+com.lucidchart.AWSRouteTableBlock2144=mxgraph.aws2.compute_and_networking.route_53_route_table
+com.lucidchart.AWSVPCBlock2151=mxgraph.aws2.compute_and_networking.vpc
+com.lucidchart.AWSVPNConnectionBlock2161=mxgraph.aws2.compute_and_networking.vpc_vpn_connection
+com.lucidchart.AWSVPNGatewayBlock291=mxgraph.aws2.compute_and_networking.vpc_vpn_gateway
+com.lucidchart.AWSCustomerGatewayBlock2201=mxgraph.aws2.compute_and_networking.vpc_customer_gateway
+com.lucidchart.AWSInternetGatewayBlock291=mxgraph.aws2.compute_and_networking.vpc_internet_gateway
+com.lucidchart.AWSRouterBlock2191=mxgraph.aws2.compute_and_networking.vpc_router
+
+# AWS - Database
+com.lucidchart.AWSItemBlock2101=mxgraph.aws2.database.dynamodb_item
+com.lucidchart.AWSItemsBlock2161=mxgraph.aws2.database.dynamodb_items
+com.lucidchart.AWSAttributeBlock2101=mxgraph.aws2.database.dynamodb_attribute
+com.lucidchart.AWSAttributesBlock2161=mxgraph.aws2.database.dynamodb_attributes
+com.lucidchart.AWSRDBSBlock262=mxgraph.aws2.database.rds
+com.lucidchart.AWSRDSInstanceBlock2151=mxgraph.aws2.database.rds_db_instance
+com.lucidchart.AWSRDSStandbyBlock2151=mxgraph.aws2.database.rds_instance_standby
+com.lucidchart.AWSRDSInstanceReadBlock2151=mxgraph.aws2.database.rds_instance_read_replica
+com.lucidchart.AWSOracleDBBlock2291=mxgraph.aws2.database.rds_oracle_db_instance
+com.lucidchart.AWSMySQLDBBlock2251=mxgraph.aws2.database.rds_ms_sql_instance
+com.lucidchart.AWSDynamoDBBlock291=mxgraph.aws2.database.dynamodb
+com.lucidchart.AWSTableBlock2171=mxgraph.aws2.database.dynamodb_table
+com.lucidchart.AWSElastiCacheNodeBlock2131=mxgraph.aws2.database.elasticcache_node
+com.lucidchart.AWSElastiCacheBlock291=mxgraph.aws2.database.elasticcache
+
+# AWS - Messaging
+com.lucidchart.AWSSESBlock281=mxgraph.aws2.app_services.ses
+com.lucidchart.AWSEmailBlock2151=mxgraph.aws2.app_services.email
+com.lucidchart.AWSSNSBlock2131=mxgraph.aws2.app_services.sns
+com.lucidchart.AWSTopicBlock272=mxgraph.aws2.app_services.sns_topic
+com.lucidchart.AWSEmailNotificationBlock2191=mxgraph.aws2.app_services.sns_email_notification
+com.lucidchart.AWSHTTPNotificationBlock2181=mxgraph.aws2.app_services.sns_http_notification
+com.lucidchart.AWSSQSBlock271=mxgraph.aws2.app_services.sqs
+com.lucidchart.AWSQueueBlock241=mxgraph.aws2.app_services.sqs_queue
+com.lucidchart.AWSMessageBlock271=mxgraph.aws2.app_services.sqs_message
+com.lucidchart.AWSDeciderBlock2181=mxgraph.aws2.app_services.swf_decider
+com.lucidchart.AWSSWFBlock2101=mxgraph.aws2.app_services.swf
+com.lucidchart.AWSWorkerBlock251=mxgraph.aws2.app_services.swf_worker
+com.lucidchart.AWSCloudSearchBlock2151=mxgraph.aws2.app_services.cloudsearch
+
+# AWS - Deployment
+com.lucidchart.AWSCloudFormationBlock291=mxgraph.aws2.deployment_and_management.cloudformation
+com.lucidchart.AWSTemplageBlock231=mxgraph.aws2.deployment_and_management.cloudformation_template
+com.lucidchart.AWSStackBlock2131=mxgraph.aws2.deployment_and_management.cloudformation_stack
+com.lucidchart.AWSBeanStockBlock2111=mxgraph.aws2.deployment_and_management.elastic_beanstalk
+com.lucidchart.AWSApplicationBlock2131=mxgraph.aws2.deployment_and_management.elastic_beanstalk_application
+com.lucidchart.AWSDeploymentManagementBlock2111=mxgraph.aws2.deployment_and_management.iam
+
+# AWS - On-Demand
+com.lucidchart.AWSMechanicalTurkBlock231=mxgraph.aws2.on-demand_workforce.mechanical_turk
+com.lucidchart.AWSHumanITBlock221=mxgraph.aws2.on-demand_workforce.mechanical_turk_human_intelligence_tasks
+com.lucidchart.AWSAssignmentTaskBlock221=mxgraph.aws2.on-demand_workforce.mechanical_turk_requester
+com.lucidchart.AWSWorkersBlock271=mxgraph.aws2.on-demand_workforce.mechanical_turk_workers
+com.lucidchart.AWSRequesterBlock221=mxgraph.aws2.on-demand_workforce.mechanical_turk_assignment_task
+
+#\ AWS\ Other
+com.lucidchart.AWSCloudBlock2131=mxgraph.aws.misc.aws_cloud
+com.lucidchart.AWSUserBlock2131=mxgraph.aws.non_service_specific.user
+com.lucidchart.AWSUsersBlock2421=mxgraph.aws.non_service_specific.users
+com.lucidchart.AWSClientBlock2191=mxgraph.aws.non_service_specific.client
+com.lucidchart.AWSMobileClientBlock2111=mxgraph.aws.non_service_specific.mobile_client
+com.lucidchart.AWSMediaBlock2111=mxgraph.aws.non_service_specific.multimedia
+com.lucidchart.AWSDataCenterBlock2111=mxgraph.aws.non_service_specific.corporate_data_center
+com.lucidchart.AWSServerBlock2111=mxgraph.aws.non_service_specific.traditional_server
+com.lucidchart.AWSInternetBlock2101=mxgraph.aws.non_service_specific.internet
+com.lucidchart.AWSManagementBlock2191=mxgraph.aws.non_service_specific.aws_management_console
+com.lucidchart.AWSIAMAddonBlock2181=mxgraph.aws.non_service_specific.iam_add_on
+com.lucidchart.AWSExampleIAMBlock241=shape=mxgraph.aws2.deployment_and_management.iam_add-on
+com.lucidchart.AWSSubnetBlock251=mxgraph.aws.misc.vpc_subnet
+
+# AWS Containers
+# maybe need to dig deeper with this one
+#com.lucidchart.AWSRoundedRectangleContainerBlock2=mxgraph.aws.groups.auto_scaling_group\ 
+com.lucidchart.AWSRoundedRectangleContainerBlock231=rounded\=1
+com.lucidchart.AWSRoundedRectangleContainerBlock241=rounded\=1
+com.lucidchart.AWSRoundedRectangleContainerBlock261=mxgraph.aws.groups.vpc_subnet
+com.lucidchart.AWSRoundedRectangleContainerBlock271=mxgraph.aws.groups.aws_cloud
+
+# AWS Data Flow
+com.lucidchart.GSDFDProcessBlock221=rounded\=1
+com.lucidchart.DFDExternalEntityBlock31=rounded\=1
+com.lucidchart.DFDExternalEntityBlock221=rounded\=1
+com.lucidchart.YDMDFDProcessBlock21=ellipse
+
+# CISCO from Lucid
+# Cisco Basic
+com.lucidchart.Cisco_cisco_androgenous_persona00a748e=mxgraph.cisco.people.androgenous_person
+com.lucidchart.Cisco_cisco_atm_switchc33e5304=mxgraph.cisco.switches.atm_switch
+com.lucidchart.Cisco_cisco_cloud336de041=mxgraph.cisco.storage.cloud
+com.lucidchart.Cisco_cisco_fileserveraec25cc9=mxgraph.cisco.servers.fileserver
+com.lucidchart.Cisco_cisco_firewall8ec414a=mxgraph.cisco.security.firewall
+com.lucidchart.Cisco_cisco_generic_building7f3319a7=mxgraph.cisco.buildings.generic_building
+com.lucidchart.Cisco_cisco_laptopbb36b4e4=mxgraph.cisco.computers_and_peripherals.laptop
+com.lucidchart.Cisco_cisco_lockb6485b75=mxgraph.cisco.security.lock
+com.lucidchart.Cisco_cisco_microwebserver6e3764dd=mxgraph.cisco.servers.microwebserver
+com.lucidchart.Cisco_cisco_pc684ad7fd=mxgraph.cisco.computers_and_peripherals.pc
+com.lucidchart.Cisco_cisco_pdaa575b739=mxgraph.cisco.misc.pda
+com.lucidchart.Cisco_cisco_phonef7efafa=mxgraph.cisco.modems_and_phones.phone
+com.lucidchart.Cisco_cisco_printerb4473f66=mxgraph.cisco.computers_and_peripherals.printer
+com.lucidchart.Cisco_cisco_relational_database26294f20=mxgraph.cisco.storage.relational_database
+com.lucidchart.Cisco_cisco_router871f06d3=mxgraph.cisco.routers.router
+com.lucidchart.Cisco_cisco_standing_manb4275950=mxgraph.cisco.people.standing_man
+com.lucidchart.Cisco_cisco_standing_womane29ae4b8=mxgraph.cisco.people.standing_woman
+com.lucidchart.Cisco_cisco_upsc36cae04=mxgraph.cisco.misc.ups
+com.lucidchart.Cisco_cisco_wireless_router4989bfd7=mxgraph.cisco.routers.wireless_router
+
+# Cisco Extended
+com.lucidchart.Cisco_cisco_100baset_hub8636591=mxgraph.cisco.hubs_and_gateways.100baset_hub
+com.lucidchart.Cisco_cisco_10700da518e84=mxgraph.cisco.routers.10700
+com.lucidchart.Cisco_cisco_10GE_FCoE2390a081=mxgraph.cisco.controllers_and_modules.10ge_fcoe
+com.lucidchart.Cisco_cisco_15200d938469a=mxgraph.cisco.misc.15200
+com.lucidchart.Cisco_cisco_3174__desktop_6b9e49a=mxgraph.cisco.controllers_and_modules.3174_(desktop)_cluster_controller
+#com.lucidchart.Cisco_cisco_3200_mobile_access_router486f3974=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_3x74__floor_9a53ab31=mxgraph.cisco.controllers_and_modules.3x74_(floor)_cluster_controller
+com.lucidchart.Cisco_cisco_6700_series648f5bc2=mxgraph.cisco.misc.6700_series
+com.lucidchart.Cisco_cisco_7500ars__7513_ee840d67=mxgraph.cisco.misc.7500ars_(7513)
+#com.lucidchart.Cisco_cisco_access_gatewayd120ec92=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_accesspointe7474c78=mxgraph.cisco.misc.access_point
+com.lucidchart.Cisco_cisco_ace8a7bc3cf=mxgraph.cisco.misc.ace
+com.lucidchart.Cisco_cisco_ACSb61ba0bd=mxgraph.cisco.misc.acs
+com.lucidchart.Cisco_cisco_adm8ca15876=mxgraph.cisco.misc.adm
+com.lucidchart.Cisco_cisco_antennab2c7dd4f=mxgraph.cisco.wireless.antenna
+com.lucidchart.Cisco_cisco_asic_processorb3d76448=mxgraph.cisco.misc.asic_processor
+com.lucidchart.Cisco_cisco_ASR_1000_Series5c32eb04=mxgraph.cisco.misc.asr_1000_series
+com.lucidchart.Cisco_cisco_ataa745c85a=mxgraph.cisco.misc.ata
+com.lucidchart.Cisco_cisco_atm_38001206e3b5=mxgraph.cisco.misc.atm_3800
+com.lucidchart.Cisco_cisco_atm_fast_gigabit_etherswitcheacb90b7=mxgraph.cisco.switches.atm_fast_gigabit_etherswitch
+com.lucidchart.Cisco_cisco_atm_routerf562099=mxgraph.cisco.routers.atm_router
+com.lucidchart.Cisco_cisco_atm_tag_switch_router461095b5=mxgraph.cisco.routers.atm_tag_switch_router
+com.lucidchart.Cisco_cisco_avsabad20aa=mxgraph.cisco.misc.avs
+com.lucidchart.Cisco_cisco_AXPd9c71f45=mxgraph.cisco.misc.axp
+#com.lucidchart.Cisco_cisco_bbfw_media6138e61f=mxgraph.cisco.
+#com.lucidchart.Cisco_cisco_bbfwfd933c5b=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_bbsm13355164=mxgraph.cisco.misc.bbsm
+com.lucidchart.Cisco_cisco_branch_office4ba47d86=mxgraph.cisco.buildings.branch_office
+com.lucidchart.Cisco_cisco_breakout_box2bd043e4=mxgraph.cisco.misc.breakout_box
+com.lucidchart.Cisco_cisco_bridged515f313=mxgraph.cisco.misc.bridge
+com.lucidchart.Cisco_cisco_broadband_router19bfcc1c=mxgraph.cisco.routers.broadcast_router
+com.lucidchart.Cisco_cisco_bts_102009ced32c0=mxgraph.cisco.misc.bts_10200
+com.lucidchart.Cisco_cisco_cable_modemf13ee1d3=mxgraph.cisco.modems_and_phones.cable_modem
+com.lucidchart.Cisco_cisco_callmanager751593db=mxgraph.cisco.misc.call_manager
+com.lucidchart.Cisco_cisco_carf195baa0=mxgraph.cisco.misc.car
+com.lucidchart.Cisco_cisco_carrier_routing_system1bdfa67b=mxgraph.cisco.misc.carrier_routing_system
+com.lucidchart.Cisco_cisco_cddi_fddi49253596=mxgraph.cisco.misc.cddi_fddi
+com.lucidchart.Cisco_cisco_cdmf66dcef8=mxgraph.cisco.misc.cdm
+com.lucidchart.Cisco_cisco_cellular_phone449d9442=mxgraph.cisco.modems_and_phones.cell_phone
+com.lucidchart.Cisco_cisco_centri_firewall9dc634ed=mxgraph.cisco.security.centri_firewall
+com.lucidchart.Cisco_cisco_cisco_1000186fefb0=mxgraph.cisco.misc.cisco_1000
+com.lucidchart.Cisco_cisco_cisco_asa_55009addc302=mxgraph.cisco.misc.asa_5500
+com.lucidchart.Cisco_cisco_cisco_ca22d1af=mxgraph.cisco.misc.cisco_ca
+com.lucidchart.Cisco_cisco_cisco_file_engine33cf514b=mxgraph.cisco.storage.cisco_file_engine
+com.lucidchart.Cisco_cisco_cisco_hub3196475a=mxgraph.cisco.hubs_and_gateways.cisco_hub
+com.lucidchart.Cisco_cisco_ciscosecurity28b97b45=mxgraph.cisco.security.cisco_security
+#com.lucidchart.Cisco_cisco_Cisco_telepresence_managerfb3dbb23=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_cisco_unified_presence_serverac06025f=mxgraph.cisco.servers.cisco_unified_presence_server
+com.lucidchart.Cisco_cisco_cisco_unityexpresse77175ac=mxgraph.cisco.misc.cisco_unity_express
+com.lucidchart.Cisco_cisco_ciscoworksaff3e133=mxgraph.cisco.misc.cisco_works
+com.lucidchart.Cisco_cisco_class_4_5_switchc4f6351c=mxgraph.cisco.switches.class_4_5_switch
+com.lucidchart.Cisco_cisco_communications_serverec0398f2=mxgraph.cisco.servers.communications_server
+com.lucidchart.Cisco_cisco_contact_centercfa7f6df=mxgraph.cisco.misc.contact_center
+com.lucidchart.Cisco_cisco_content_engine__cache_director_8d2a439a=mxgraph.cisco.directors.content_engine_(cache_director)
+com.lucidchart.Cisco_cisco_content_service_router906d1e25=mxgraph.cisco.routers.content_service_router
+com.lucidchart.Cisco_cisco_content_service_switch_110012c746=mxgraph.cisco.switches.content_service_switch_1100
+com.lucidchart.Cisco_cisco_content_switch_moduledd22777d=mxgraph.cisco.controllers_and_modules.content_switch_module
+com.lucidchart.Cisco_cisco_content_switch3ccac845=mxgraph.cisco.switches.content_switch
+com.lucidchart.Cisco_cisco_content_transformation_engine__cte_5d94473b=mxgraph.cisco.misc.content_transformation_engine_(cte)
+com.lucidchart.Cisco_cisco_cs_mars1a2f1d5e=mxgraph.cisco.misc.cs-mars
+com.lucidchart.Cisco_cisco_csm_s26c017af=mxgraph.cisco.misc.csm-s
+com.lucidchart.Cisco_cisco_csu_dsubfa19ad8=mxgraph.cisco.misc.csu_dsu
+com.lucidchart.Cisco_cisco_CUBE796ebd7f=mxgraph.cisco.misc.cube
+com.lucidchart.Cisco_cisco_detector637b0910=mxgraph.cisco.misc.detector
+com.lucidchart.Cisco_cisco_director_class_fibre_channel_director49beb0cc=mxgraph.cisco.directors.director-class_fibre_channel_director
+com.lucidchart.Cisco_cisco_directory_serverbfc47ea0=mxgraph.cisco.servers.directory_server
+com.lucidchart.Cisco_cisco_diskette13f26047=mxgraph.cisco.storage.diskette
+com.lucidchart.Cisco_cisco_distributed_directorb3e42db3=mxgraph.cisco.directors.distributed_director
+com.lucidchart.Cisco_cisco_dot_dot9e3fdc91=mxgraph.cisco.misc.dot-dot
+com.lucidchart.Cisco_cisco_dpt4030d634=mxgraph.cisco.misc.dpt
+com.lucidchart.Cisco_cisco_dslamde85beb5=mxgraph.cisco.misc.dslam
+com.lucidchart.Cisco_cisco_dual_mode_ap8fdd2cf2=mxgraph.cisco.misc.dual_mode
+com.lucidchart.Cisco_cisco_dwdm_filter946f988=mxgraph.cisco.misc.dwdm_filter
+com.lucidchart.Cisco_cisco_end_office470105ab=mxgraph.cisco.buildings.end_office
+com.lucidchart.Cisco_cisco_fax909cf969=mxgraph.cisco.modems_and_phones.fax
+com.lucidchart.Cisco_cisco_fc_storage5e3a4ea2=mxgraph.cisco.storage.fc_storage
+com.lucidchart.Cisco_cisco_fddi_ring85362ff9=mxgraph.cisco.misc.fddi_ring
+com.lucidchart.Cisco_cisco_fibre_channel_disk_subsystem6d3ab21=mxgraph.cisco.storage.fibre_channel_disk_subsystem
+com.lucidchart.Cisco_cisco_fibre_channel_fabric_switch61776750=mxgraph.cisco.switches.fibre_channel_fabric_switch
+com.lucidchart.Cisco_cisco_file_cabinetbae4e27e=mxgraph.cisco.storage.file_cabinet
+com.lucidchart.Cisco_cisco_file_server892456b3=mxgraph.cisco.servers.file_server
+com.lucidchart.Cisco_cisco_firewall_service_module__fwsm_5f20dde9=mxgraph.cisco.controllers_and_modules.firewall_service_module_(fwsm)
+com.lucidchart.Cisco_cisco_front_end_processorfe85a1a2=mxgraph.cisco.misc.front_end_processor
+com.lucidchart.Cisco_cisco_gatekeeper33f4e987=mxgraph.cisco.security.gatekeeper
+com.lucidchart.Cisco_cisco_general_applicance647da556=mxgraph.cisco.misc.general_appliance
+com.lucidchart.Cisco_cisco_generic_gateway67d9a2c7=mxgraph.cisco.hubs_and_gateways.generic_gateway
+com.lucidchart.Cisco_cisco_generic_processorfee32015=mxgraph.cisco.misc.generic_processor
+com.lucidchart.Cisco_cisco_generic_softswitche5c637d1=mxgraph.cisco.switches.generic_softswitch
+com.lucidchart.Cisco_cisco_gigabit_switch_atm_tag_router58259e3e=mxgraph.cisco.routers.gigabit_switch_atm_tag_router
+com.lucidchart.Cisco_cisco_government_building7fb0814f=mxgraph.cisco.buildings.government_building
+com.lucidchart.Cisco_cisco_Ground_terminal24e819a1=mxgraph.cisco.wireless.ground_terminal
+com.lucidchart.Cisco_cisco_guard41b468b1=mxgraph.cisco.security.guard
+com.lucidchart.Cisco_cisco_handheldc8b6526e=mxgraph.cisco.misc.handheld
+com.lucidchart.Cisco_cisco_hootphone1fba06ce=mxgraph.cisco.modems_and_phones.hootphone
+com.lucidchart.Cisco_cisco_host32900572=mxgraph.cisco.servers.host
+com.lucidchart.Cisco_cisco_hp_mini3e22313b=mxgraph.cisco.misc.hp_mini
+com.lucidchart.Cisco_cisco_hd1490174=mxgraph.cisco.misc.h_323
+com.lucidchart.Cisco_cisco_hub1b545741=mxgraph.cisco.hubs_and_gateways.hub
+com.lucidchart.Cisco_cisco_iad_router254c21a7=mxgraph.cisco.routers.iad_router
+com.lucidchart.Cisco_cisco_ibm_mainframeb07e3834=mxgraph.cisco.computers_and_peripherals.ibm_mainframe
+com.lucidchart.Cisco_cisco_ibm_mini_as40098e0c66f=mxgraph.cisco.computers_and_peripherals.ibm_mini_as400
+com.lucidchart.Cisco_cisco_ibm_tower191c87e9=mxgraph.cisco.computers_and_peripherals.ibm_tower
+com.lucidchart.Cisco_cisco_icm321e59df=mxgraph.cisco.misc.icm
+com.lucidchart.Cisco_cisco_ics3272e6e5=mxgraph.cisco.misc.ics
+com.lucidchart.Cisco_cisco_intelliswitch_stack85103a3b=mxgraph.cisco.switches.intelliswitch_stack
+com.lucidchart.Cisco_cisco_ios_firewallf63c96fd=mxgraph.cisco.security.ios_firewall
+com.lucidchart.Cisco_cisco_ios_slbbf64ebe2=mxgraph.cisco.misc.ios_slb
+com.lucidchart.Cisco_cisco_ip_communicator2cd7aafa=mxgraph.cisco.misc.ip_communicator
+com.lucidchart.Cisco_cisco_ip_dsld0362d4e=mxgraph.cisco.misc.ip_dsl
+com.lucidchart.Cisco_cisco_ip_phone231946ff=mxgraph.cisco.modems_and_phones.ip_phone
+com.lucidchart.Cisco_cisco_ip5d101d31=mxgraph.cisco.misc.ip
+com.lucidchart.Cisco_cisco_iptcd01cb6a0=mxgraph.cisco.misc.iptc
+com.lucidchart.Cisco_cisco_ip_telephony_routerfbd0a3f6=mxgraph.cisco.routers.ip_telephony_router
+com.lucidchart.Cisco_cisco_iptv_content_managerd4fbb519=mxgraph.cisco.misc.iptv_content_manager
+com.lucidchart.Cisco_cisco_iptv_serverbaab4826=mxgraph.cisco.servers.iptv_server
+com.lucidchart.Cisco_cisco_iscsi_router1289bbc4=mxgraph.cisco.routers.isci_router
+com.lucidchart.Cisco_cisco_isdn_switch92a9396c=mxgraph.cisco.switches.isdn_switch
+com.lucidchart.Cisco_cisco_itp4f4b02f1=mxgraph.cisco.misc.itp
+com.lucidchart.Cisco_cisco_jbod4aec8257=mxgraph.cisco.misc.jbod
+com.lucidchart.Cisco_cisco_key9ffd9bab=mxgraph.cisco.misc.key
+com.lucidchart.Cisco_cisco_keys636437be=mxgraph.cisco.misc.keys
+com.lucidchart.Cisco_cisco_lan_to_land46755e5=mxgraph.cisco.misc.lan_to_lan
+com.lucidchart.Cisco_cisco_layer_2_remote_switchc389221d=mxgraph.cisco.switches.layer_2_remote_switch
+com.lucidchart.Cisco_cisco_layer_3_switch2472aba=mxgraph.cisco.switches.layer_3_switch
+com.lucidchart.Cisco_cisco_lightweight_ap75c7870b=mxgraph.cisco.misc.lightweight_ap
+com.lucidchart.Cisco_cisco_localdirector2e1b0803=mxgraph.cisco.directors.localdirector
+com.lucidchart.Cisco_cisco_longreach_cpe79e2e7b=mxgraph.cisco.misc.longreach_cpe
+com.lucidchart.Cisco_cisco_macintosha1699cd0=mxgraph.cisco.computers_and_peripherals.macintosh
+com.lucidchart.Cisco_cisco_mac_woman9f4b3cfd=mxgraph.cisco.people.mac_woman
+com.lucidchart.Cisco_cisco_man_woman2331c1e9=mxgraph.cisco.people.man_woman
+com.lucidchart.Cisco_cisco_mas_gateway1835e2cf=mxgraph.cisco.hubs_and_gateways.mas_gateway
+com.lucidchart.Cisco_cisco_mau2be51ad=mxgraph.cisco.misc.mau
+com.lucidchart.Cisco_cisco_mcu62802eb=mxgraph.cisco.misc.mcu
+com.lucidchart.Cisco_cisco_mdu7dcdb8a=mxgraph.cisco.buildings.mdu
+com.lucidchart.Cisco_cisco_me_11004f5ea5f4=mxgraph.cisco.misc.me1100
+com.lucidchart.Cisco_cisco_Mediatoref3d7ddd=mxgraph.cisco.misc.mediator
+com.lucidchart.Cisco_cisco_meetingplace3bb92a76=mxgraph.cisco.misc.meetingplace
+com.lucidchart.Cisco_cisco_mesh_ap86c8ae8e=mxgraph.cisco.misc.mesh_ap
+com.lucidchart.Cisco_cisco_metro_1500faa4fcd5=mxgraph.cisco.misc.metro_1500
+com.lucidchart.Cisco_cisco_mgx_8000_multiservice_switcha6a7a4dc=mxgraph.cisco.switches.mgx_8000_multiservice_switch
+com.lucidchart.Cisco_cisco_microphone418930b4=mxgraph.cisco.computers_and_peripherals.microphone
+com.lucidchart.Cisco_cisco_mini_vaxb5f4262e=mxgraph.cisco.misc.mini_vax
+com.lucidchart.Cisco_cisco_mobile_access_ip_phonecacb757d=mxgraph.cisco.modems_and_phones.mobile_access_ip_phone
+com.lucidchart.Cisco_cisco_mobile_access_routerc1e6bcd1=mxgraph.cisco.routers.mobile_access_router
+com.lucidchart.Cisco_cisco_modemd50a7ab6=mxgraph.cisco.modems_and_phones.modem
+com.lucidchart.Cisco_cisco_moh_server327a43a7=mxgraph.cisco.servers.moh_server
+com.lucidchart.Cisco_cisco_MSE4b6ea8ab=mxgraph.cisco.misc.mse
+com.lucidchart.Cisco_cisco_mulitswitch_device57f0013d=mxgraph.cisco.switches.multiswitch_device
+com.lucidchart.Cisco_cisco_multi_fabric_server_switch26a26414=mxgraph.cisco.switches.multi-fabric_server_switch
+com.lucidchart.Cisco_cisco_multilayer_remote_switch2713fd30=mxgraph.cisco.switches.multilayer_remote_switch
+com.lucidchart.Cisco_cisco_mux2509849c=mxgraph.cisco.misc.mux
+com.lucidchart.Cisco_cisco_MXE53f6e3c6=mxgraph.cisco.misc.mxe
+com.lucidchart.Cisco_cisco_nac_appliancec417cba9=mxgraph.cisco.misc.nac_appliance
+com.lucidchart.Cisco_cisco_NCE650759fc=mxgraph.cisco.misc.nce
+com.lucidchart.Cisco_cisco_NCE_router710a1443=mxgraph.cisco.routers.nce_router
+com.lucidchart.Cisco_cisco_netflow_router66987ec8=mxgraph.cisco.routers.netflow_router
+com.lucidchart.Cisco_cisco_netranger732e99be=mxgraph.cisco.misc.netranger
+com.lucidchart.Cisco_cisco_netsonar556e6f10=mxgraph.cisco.misc.netsonar
+com.lucidchart.Cisco_cisco_network_management9f71a87f=mxgraph.cisco.misc.network_management
+com.lucidchart.Cisco_cisco_Nexus_100046e4dc8a=mxgraph.cisco.misc.nexus_1000
+com.lucidchart.Cisco_cisco_Nexus_2000aec60969=mxgraph.cisco.misc.nexus_2000_fabric_extender
+com.lucidchart.Cisco_cisco_Nexus_5000e6699006=mxgraph.cisco.misc.nexus_5000
+com.lucidchart.Cisco_cisco_Nexus_7000b62be9c4=mxgraph.cisco.misc.nexus_7000
+com.lucidchart.Cisco_cisco_octel6d5adad3=mxgraph.cisco.misc.octel
+com.lucidchart.Cisco_cisco_ons15500c3b56c27=mxgraph.cisco.misc.ons15500
+com.lucidchart.Cisco_cisco_optical_amplifier92005ed5=mxgraph.cisco.misc.optical_amplifier
+com.lucidchart.Cisco_cisco_optical_services_router456115ef=mxgraph.cisco.routers.optical_services_router
+com.lucidchart.Cisco_cisco_optical_transportc887278d=mxgraph.cisco.misc.optical_transport
+com.lucidchart.Cisco_cisco_pada08173df=mxgraph.cisco.misc.pad_2
+com.lucidchart.Cisco_cisco_pad_x6e63f337=mxgraph.cisco.misc.pad_1
+com.lucidchart.Cisco_cisco_page_iconca8f5a76=mxgraph.cisco.misc.page_icon
+com.lucidchart.Cisco_cisco_pbxa3502292=mxgraph.cisco.misc.pbx
+com.lucidchart.Cisco_cisco_pbx_switch8ea8c958=mxgraph.cisco.switches.pbx_switch
+com.lucidchart.Cisco_cisco_pc_adapter_cardd29f629a=mxgraph.cisco.computers_and_peripherals.pc_adapter_card
+com.lucidchart.Cisco_cisco_pc_manb43bab37=mxgraph.cisco.people.pc_man
+com.lucidchart.Cisco_cisco_pc_routercard44642ab2=mxgraph.cisco.computers_and_peripherals.pc_routercard
+com.lucidchart.Cisco_cisco_pc_software5e2a9f00=mxgraph.cisco.misc.pc_software
+com.lucidchart.Cisco_cisco_pc_video56204158=mxgraph.cisco.misc.pc_video
+com.lucidchart.Cisco_cisco_phone_faxad275ed8=mxgraph.cisco.modems_and_phones.phone-fax
+com.lucidchart.Cisco_cisco_pix_firewall6f6a1aab=mxgraph.cisco.security.pix_firewall
+com.lucidchart.Cisco_cisco_pmcb4ed83d2=mxgraph.cisco.misc.pmc
+com.lucidchart.Cisco_cisco_programmable_switch5fecd4fd=mxgraph.cisco.switches.programmable_switch
+com.lucidchart.Cisco_cisco_protocol_translator60f4566e=mxgraph.cisco.misc.protocol_translator
+com.lucidchart.Cisco_cisco_pxfc7dd192a=mxgraph.cisco.misc.pxf
+com.lucidchart.Cisco_cisco_radio_towerc7361870=mxgraph.cisco.wireless.radio_tower
+com.lucidchart.Cisco_cisco_ratemux68ccb3c=mxgraph.cisco.misc.ratemux
+com.lucidchart.Cisco_cisco_repeater1d397fd2=mxgraph.cisco.misc.repeater
+com.lucidchart.Cisco_cisco_RF_modemca299788=mxgraph.cisco.modems_and_phones.rf_modem
+com.lucidchart.Cisco_cisco_router_firewalla0002182=mxgraph.cisco.security.router_firewall
+com.lucidchart.Cisco_cisco_routerin_building939d2072=mxgraph.cisco.routers.router_in_building
+com.lucidchart.Cisco_cisco_router_with_silicon_switchcc637bf2=mxgraph.cisco.routers.router_with_silicon_switch
+com.lucidchart.Cisco_cisco_route_switch_processor9e032727=mxgraph.cisco.misc.route_switch_processor
+com.lucidchart.Cisco_cisco_rpsrpsf4a80bea=mxgraph.cisco.misc.rpsrps
+com.lucidchart.Cisco_cisco_running_man27240ec5=mxgraph.cisco.people.running_man
+com.lucidchart.Cisco_cisco_sattelite_dish1e29ad5f=mxgraph.cisco.wireless.satellite_dish
+com.lucidchart.Cisco_cisco_sattelitee9875f91=mxgraph.cisco.wireless.satellite
+com.lucidchart.Cisco_cisco_scanner431edb4a=mxgraph.cisco.computers_and_peripherals.scanner
+com.lucidchart.Cisco_cisco_server_switch8a5e51bd=mxgraph.cisco.switches.server_switch
+com.lucidchart.Cisco_cisco_server_with_router2c2cdd10=mxgraph.cisco.servers.server_with_router
+com.lucidchart.Cisco_cisco_service_control65ffed3e=mxgraph.cisco.misc.service_control
+com.lucidchart.Cisco_cisco_Service_Module331ce401=mxgraph.cisco.controllers_and_modules.service_module
+com.lucidchart.Cisco_cisco_Service_router278d423e=mxgraph.cisco.routers.service_router
+com.lucidchart.Cisco_cisco_Servicesaba249c8=mxgraph.cisco.misc.services
+com.lucidchart.Cisco_cisco_Set_top_boxc9b8996e=mxgraph.cisco.misc.set_top_box
+com.lucidchart.Cisco_cisco_simulitlayer_switche4772f88=mxgraph.cisco.switches.simultilayer_switch
+com.lucidchart.Cisco_cisco_sip_proxy_werver343ccf01=mxgraph.cisco.servers.sip_proxy_server
+com.lucidchart.Cisco_cisco_sitting_womanad6abfba=mxgraph.cisco.people.sitting_woman
+com.lucidchart.Cisco_cisco_small_businessf5fabb43=mxgraph.cisco.buildings.small_business
+com.lucidchart.Cisco_cisco_small_hub9a406068=mxgraph.cisco.hubs_and_gateways.small_hub
+com.lucidchart.Cisco_cisco_softphone23510590=mxgraph.cisco.modems_and_phones.softphone
+com.lucidchart.Cisco_cisco_softswitch_pgw_mgce53a1711=mxgraph.cisco.switches.softswitch_pgw_mgc
+com.lucidchart.Cisco_cisco_software_based_server7aa58035=mxgraph.cisco.servers.software_based_server
+com.lucidchart.Cisco_cisco_Space_routerd7bbdb0d=mxgraph.cisco.routers.space_router
+com.lucidchart.Cisco_cisco_speaker16c95ccb=mxgraph.cisco.computers_and_peripherals.speaker
+com.lucidchart.Cisco_cisco_ssc5ddd494f=mxgraph.cisco.misc.ssc
+com.lucidchart.Cisco_cisco_ssl_terminator30ef3185=mxgraph.cisco.misc.ssl_terminator
+com.lucidchart.Cisco_cisco_standard_hostf3632b37=mxgraph.cisco.servers.standard_host
+com.lucidchart.Cisco_cisco_stb5f840a6d=mxgraph.cisco.misc.stb
+com.lucidchart.Cisco_cisco_storage_router12b81298=mxgraph.cisco.routers.storage_router
+com.lucidchart.Cisco_cisco_storage_server6e7e1d92=mxgraph.cisco.servers.storage_server
+com.lucidchart.Cisco_cisco_stp6049537b=mxgraph.cisco.misc.stp
+com.lucidchart.Cisco_cisco_streamer5498e1f7=mxgraph.cisco.misc.streamer
+com.lucidchart.Cisco_cisco_sun_workstation33d2f0fb=mxgraph.cisco.computers_and_peripherals.sun_workstation
+com.lucidchart.Cisco_cisco_supercomputera6c9cc22=mxgraph.cisco.computers_and_peripherals.supercomputer
+com.lucidchart.Cisco_cisco_svx6423c0c1=mxgraph.cisco.misc.svx
+com.lucidchart.Cisco_cisco_system_controllerd97d3ab9=mxgraph.cisco.controllers_and_modules.system_controller
+com.lucidchart.Cisco_cisco_tabletf727d770=mxgraph.cisco.computers_and_peripherals.tablet
+com.lucidchart.Cisco_cisco_tape_array54a6b0e5=mxgraph.cisco.storage.tape_array
+com.lucidchart.Cisco_cisco_tdm_routerea9baf56=mxgraph.cisco.routers.tdm_router
+com.lucidchart.Cisco_cisco_telecommuter_house_pccdf8751d=mxgraph.cisco.buildings.telecommuter_house_pc
+com.lucidchart.Cisco_cisco_telecommuter_house37bba04c=mxgraph.cisco.buildings.telecommuter_house
+com.lucidchart.Cisco_cisco_telecommuter_iconec892323=mxgraph.cisco.misc.telecommuter_icon
+#com.lucidchart.Cisco_cisco_Telepresence_1000392eaee6=mxgraph.cisco.
+#com.lucidchart.Cisco_cisco_Telepresence_30008f108a4=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_Telepresence_320072bd7f26=mxgraph.cisco.misc.telepresence
+#com.lucidchart.Cisco_cisco_Telepresence_500bcab0164=mxgraph.cisco.
+com.lucidchart.Cisco_cisco_terminalb1cf38c6=mxgraph.cisco.computers_and_peripherals.terminal
+com.lucidchart.Cisco_cisco_token55433a05=mxgraph.cisco.misc.token
+com.lucidchart.Cisco_cisco_TP_MCU29c5f865=mxgraph.cisco.misc.tp_mcu
+com.lucidchart.Cisco_cisco_transpatha85fa859=mxgraph.cisco.misc.transpath
+com.lucidchart.Cisco_cisco_truck9a51196b=mxgraph.cisco.misc.truck
+com.lucidchart.Cisco_cisco_turret47f8b4fa=mxgraph.cisco.misc.turret
+com.lucidchart.Cisco_cisco_tv7029f90c=mxgraph.cisco.misc.tv
+com.lucidchart.Cisco_cisco_ubr910177078fd=mxgraph.cisco.misc.ubr910
+com.lucidchart.Cisco_cisco_umg_seriesad0df372=mxgraph.cisco.misc.umg_series
+com.lucidchart.Cisco_cisco_unity_serverf4ad3018=mxgraph.cisco.servers.unity_server
+com.lucidchart.Cisco_cisco_universal_gatewaya6f2c8fb=mxgraph.cisco.hubs_and_gateways.universal_gateway
+com.lucidchart.Cisco_cisco_university5d0c3018=mxgraph.cisco.buildings.university
+com.lucidchart.Cisco_cisco_upcc28b35f4=mxgraph.cisco.computers_and_peripherals.upc
+com.lucidchart.Cisco_cisco_vaultecc06dbe=mxgraph.cisco.misc.vault
+com.lucidchart.Cisco_cisco_video_camera59ea0634=mxgraph.cisco.computers_and_peripherals.video_camera
+com.lucidchart.Cisco_cisco_vipec36b669=mxgraph.cisco.misc.vip
+com.lucidchart.Cisco_cisco_virtual_layer_switch22b811a2=mxgraph.cisco.switches.virtual_layer_switch
+com.lucidchart.Cisco_cisco_virtual_switch_controller__vsc3000_3297ffed=mxgraph.cisco.controllers_and_modules.virtual_switch_controller_(vsc3000)
+com.lucidchart.Cisco_cisco_voice_atm_switch16877872=mxgraph.cisco.switches.voice_atm_switch
+com.lucidchart.Cisco_cisco_voice_commservera25b87c7=mxgraph.cisco.servers.voice_commserver
+com.lucidchart.Cisco_cisco_voice_router63c01341=mxgraph.cisco.routers.voice_router
+com.lucidchart.Cisco_cisco_voice_switch17a845ac=mxgraph.cisco.switches.voice_switch
+com.lucidchart.Cisco_cisco_vpn_concentrator3cca44d4=mxgraph.cisco.misc.vpn_concentrator
+com.lucidchart.Cisco_cisco_vpn_gatewayd45c4ee4=mxgraph.cisco.hubs_and_gateways.vpn_gateway
+com.lucidchart.Cisco_cisco_VSS284c0702=mxgraph.cisco.misc.vss
+com.lucidchart.Cisco_cisco_wae12db2a27=mxgraph.cisco.misc.wae
+com.lucidchart.Cisco_cisco_wavelength_router37068d76=mxgraph.cisco.routers.wavelength_router
+com.lucidchart.Cisco_cisco_web_browser374b9428=mxgraph.cisco.computers_and_peripherals.web_browser
+com.lucidchart.Cisco_cisco_web_cluster2173c1fa=mxgraph.cisco.storage.web_cluster
+com.lucidchart.Cisco_cisco_wi_fi_tagd97bf224=mxgraph.cisco.wireless.wi-fi_tag
+com.lucidchart.Cisco_cisco_wireless_bridge9780ac17=mxgraph.cisco.wireless.wireless_bridge
+com.lucidchart.Cisco_cisco_wireless_location_appliancea0ae4a90=mxgraph.cisco.wireless.wireless_location_appliance
+com.lucidchart.Cisco_cisco_wirelessf4f8cce8=mxgraph.cisco.wireless.wireless
+com.lucidchart.Cisco_cisco_wireless_transportba6c731=mxgraph.cisco.wireless.wireless_transport
+com.lucidchart.Cisco_cisco_wismaf99e76=mxgraph.cisco.misc.wism
+com.lucidchart.Cisco_cisco_wlan_controller65a33b06=mxgraph.cisco.wireless.wlan_controller
+com.lucidchart.Cisco_cisco_workgroup_director986d4fe8=mxgraph.cisco.directors.workgroup_director
+com.lucidchart.Cisco_cisco_workgroup_switch57bdf3d0=mxgraph.cisco.switches.workgroup_switch
+com.lucidchart.Cisco_cisco_workstationab6c3f4f=mxgraph.cisco.computers_and_peripherals.workstation
+com.lucidchart.Cisco_cisco_www_servereca50876=mxgraph.cisco.servers.www_server
+
+# Network - Computers and Monitors
+com.lucidchart.NET_PC461=image;image\=img/lib/clip_art/computers/Monitor_Tower_128x128.png
+com.lucidchart.NET_Virtual-PC661=image;image\=img/lib/clip_art/computers/Virtual_Machine_128x128.png
+com.lucidchart.NET_Terminal381=image;image\=img/lib/clip_art/computers/Workstation_128x128.png
+#com.lucidchart.NET_DataPipe21=
+com.lucidchart.NET_SlateDevice161=image;image\=img/lib/clip_art/telecommunication/HTC_smartphone_128x128.png
+com.lucidchart.NET_TabletDevice221=image;image\=img/lib/clip_art/computers/iPad_128x128.png
+com.lucidchart.NET_Laptop91=image;image\=img/lib/clip_art/computers/Laptop_128x128.png
+com.lucidchart.NET_PDA161=image;image\=img/lib/clip_art/telecommunication/iPhone_128x128.png
+com.lucidchart.NET_CRTMonitor81=image;image\=img/lib/clip_art/computers/Monitor_128x128.png
+com.lucidchart.NET_LCDMonitor71=image;image\=img/lib/clip_art/computers/Monitor_128x128.png
+
+# Network - Detailed Network Diagram
+#com.lucidchart.NET_ABSwitch=
+com.lucidchart.NET_Repeater=image;image\=img/lib/clip_art/networking/Repeater_128x128.png
+#com.lucidchart.NET_DiagnosticDevice=
+com.lucidchart.NET_CardReader=image;image\=img/lib/clip_art/finance/Credit_Card_128x128.png
+#com.lucidchart.NET_PatchPanel=
+com.lucidchart.NET_RadioTower=image;image\=img/lib/clip_art/telecommunication/Signal_tower_on_128x128.png
+#com.lucidchart.NET_BiometricReader=
+com.lucidchart.NET_ExternalHardDrive=image;image\=img/lib/clip_art/computers/Harddrive_128x128.png
+com.lucidchart.NET_WebService=image;image\=img/lib/clip_art/computers/Virtual_Application_128x128.png
+#com.lucidchart.NET_FiberOptic=
+#com.lucidchart.NET_SatelliteDish=
+#com.lucidchart.NET_Satellite=
+#com.lucidchart.NET_VoIPPhone=
+#com.lucidchart.NET_PBX=
+#com.lucidchart.NET_MLPS=
+
+# Network - Basic Network Shapes
+com.lucidchart.NET_WirelessAccessPoint101=image;image\=img/lib/clip_art/networking/Wireless_Router_N_128x128.png
+#com.lucidchart.NET_RingNetwork191=
+#com.lucidchart.NET_Ethernet121=
+com.lucidchart.NET_Server71=image;image\=img/lib/clip_art/computers/Server_Tower_128x128.png
+com.lucidchart.NET_ExternalMediaDrive131=image;image\=img/lib/clip_art/computers/Harddrive_128x128.png
+com.lucidchart.NET_Mainframe271=image;image\=img/lib/clip_art/computers/Mainframe_128x128.png
+com.lucidchart.NET_Router211=image;image\=img/lib/clip_art/networking/Router_128x128.png
+com.lucidchart.NET_Switch331=image;image\=img/lib/clip_art/networking/Switch_128x128.png
+com.lucidchart.NET_Firewall321=image;image\=img/lib/clip_art/networking/Firewall_02_128x128.png
+com.lucidchart.NET_User81=image;image\=img/lib/clip_art/people/Worker_Black_128x128.png
+#com.lucidchart.NET_CommLink41=
+com.lucidchart.NET_SuperComputer101=image;image\=img/lib/clip_art/computers/Server_Rack_128x128.png
+com.lucidchart.NET_VirtualServer231=image;image\=img/lib/clip_art/computers/Virtual_Machine_128x128.png
+com.lucidchart.NET_Printer131=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+com.lucidchart.NET_Plotter211=image;image\=img/lib/clip_art/computers/Printer_Commercial_128x128.png
+com.lucidchart.NET_Scanner131=image;image\=img/lib/clip_art/networking/Print_Server_128x128.png
+com.lucidchart.NET_Copier161=image;image\=img/lib/clip_art/computers/Printer_Commercial_128x128.png
+com.lucidchart.NET_FaxMachine211=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+com.lucidchart.NET_MultiFunctionMachine261=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+#com.lucidchart.NET_Projector121=
+#com.lucidchart.NET_ProjectorScreen81=
+com.lucidchart.NET_Bridge171=image;image\=img/lib/clip_art/networking/Bridge_128x128.png
+com.lucidchart.NET_Hub181=image;image\=img/lib/clip_art/networking/Repeater_128x128.png
+com.lucidchart.NET_Modem171=image;image\=img/lib/clip_art/networking/Modem_128x128.png
+com.lucidchart.NET_Telephone41=image;image\=img/lib/clip_art/telecommunication/Cellphone_128x128.png
+com.lucidchart.NET_CellPhone271=image;image\=img/lib/clip_art/telecommunication/Cellphone_128x128.png
+com.lucidchart.NET_SmartPhone81=image;image\=img/lib/clip_art/telecommunication/iPhone_128x128.png
+com.lucidchart.NET_VideoPhone191=image;image\=img/lib/clip_art/telecommunication/Palm_Treo_128x128.png
+com.lucidchart.NET_Camera61=image;image\=img/lib/clip_art/networking/Ip_Camera_128x128.png
+com.lucidchart.NET_VideoCamera151=image;image\=img/lib/clip_art/networking/Ip_Camera_128x128.png
+
+#\ Server\ Racks\ 
+com.lucidchart.RackServerRack81=mxgraph.rack.general.36u_rack_19_standard
+com.lucidchart.RackBlank81=mxgraph.rack.general.1u
+com.lucidchart.RackRaidArray481=mxgraph.rack.cisco.cisco_nexus_2248tp_ge_fabric_extender
+com.lucidchart.RackServer121=mxgraph.rack.cisco.cisco_ucs_c22_m3_server
+com.lucidchart.RackEthernetSwitch1111=mxgraph.rack.cisco.cisco_nexus_3016_switch
+com.lucidchart.RackPatchPanel1681=mxgraph.rack.general.cat5e_rack_mount_patch_panel_24_ports
+com.lucidchart.RackRouter231=mxgraph.rack.cisco.cisco_2901_integrated_services_router
+com.lucidchart.RackMonitor91=mxgraph.rack.oracle.sunfire_t1000
+com.lucidchart.RackKeyboard191=mxgraph.rack.oracle.sunfire_t1000
+com.lucidchart.RackPowerStrip361=mxgraph.rack.dell.power_strip
+com.lucidchart.RackPowerSupply401=mxgraph.rack.apc.apc_smart_ups_750_va_1u
+com.lucidchart.RackBridge171=mxgraph.rack.hp.hp_proliant_dl160_g8
+com.lucidchart.RackTapeDrive101=mxgraph.rack.cisco.cisco_nexus_2232pp_10ge_fabric_extender
+
+# Tech Clipart - Network
+com.lucidchart.Image_network_serverbba7f90c=image;image\=img/lib/clip_art/computers/Server_Tower_128x128.png
+com.lucidchart.Image_network_server_filec7e240e5=image;image\=img/lib/clip_art/computers/Server_Rack_Partial_128x128.png
+com.lucidchart.Image_network_server_netaf6be26a=image;image\=img/lib/clip_art/networking/Print_Server_128x128.png
+com.lucidchart.Image_network_server_net_large80aa2366=image;image\=img/lib/clip_art/computers/Server_128x128.png
+com.lucidchart.Image_network_raidbd544553=image;image\=img/lib/clip_art/computers/Server_128x128.png
+com.lucidchart.Image_network_raid_largec8ccf38f=image;image\=img/lib/clip_art/computers/Server_128x128.png
+com.lucidchart.Image_network_rack_serverbcc7018=image;image\=img/lib/clip_art/computers/Server_Rack_128x128.png
+com.lucidchart.Image_network_rack_tape59c56cf7=image;image\=img/lib/clip_art/computers/Server_Rack_128x128.png
+com.lucidchart.Image_network_printer_small60262b0f=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+com.lucidchart.Image_network_printer_largeee181743=image;image\=img/lib/clip_art/computers/Printer_Commercial_128x128.png
+com.lucidchart.Image_network_printer_multipurposea2e89f93=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+com.lucidchart.Image_network_copier_smalladcead23=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+com.lucidchart.Image_network_copier_large3bc09957=image;image\=img/lib/clip_art/computers/Printer_Commercial_128x128.png
+com.lucidchart.Image_network_printer_largeformate86215ba=image;image\=img/lib/clip_art/computers/Printer_Commercial_128x128.png
+com.lucidchart.Image_network_router5fe1ee12=image;image\=img/lib/clip_art/networking/Router_128x128.png
+com.lucidchart.Image_network_router_wirelessd0b07cc1=image;image\=img/lib/clip_art/networking/Wireless_Router_128x128.png
+com.lucidchart.Image_network_upsb69a2725=image;image\=img/lib/clip_art/networking/UPS_128x128.png
+
+#\ Tech\ Clipart\ -\ Electronics
+#com.lucidchart.Image_electronics_speakers_236da77d0=
+#com.lucidchart.Image_electronics_scanner_slidee5f18f9d=
+#com.lucidchart.Image_electronics_speakers_2_1e4d23a34=
+#com.lucidchart.Image_electronics_speakers_5_18384ebf7=
+com.lucidchart.Image_electronics_lcdc37fb13a=image;image\=img/lib/clip_art/computers/Monitor_128x128.png
+com.lucidchart.Image_electronics_pda98a3305a=image;image\=img/lib/clip_art/computers/iPad_128x128.png
+#com.lucidchart.Image_electronics_drive_cardreader78405f71=\ 
+#com.lucidchart.Image_electronics_camcorder8fe4a8c7=
+#com.lucidchart.Image_electronics_headsetff47a66f=
+#com.lucidchart.Image_electronics_calculator_simplef93b7c7c=\ 
+#com.lucidchart.Image_electronics_scanner_flatbed3a803494=\ 
+com.lucidchart.Image_electronics_scanner_photoe2df679e=image;image\=img/lib/clip_art/computers/Printer_128x128.png
+#com.lucidchart.Image_electronics_projector85b9a929=
+com.lucidchart.Image_electronics_drive_firewirea38e9c19=image;image\=img/lib/clip_art/computers/Harddrive_128x128.png
+com.lucidchart.Image_electronics_drive_usbe8fdea3c=image;image\=img/lib/clip_art/computers/Harddrive_128x128.png
+#com.lucidchart.Image_electronics_tv_tuner_external3f175a3a=\ 
+com.lucidchart.Image_electronics_mp3be26cdd=image;image\=img/lib/clip_art/computers/iPad_128x128.png
+#com.lucidchart.Image_electronics_sound_box9d0b0188=
+com.lucidchart.Image_electronics_lcd_wide30e9ab4e=image;image\=img/lib/clip_art/computers/Monitor_128x128.png
+#com.lucidchart.Image_electronics_modem_externalc8f61e89=
+#Image_electronics_printer_photo8e5b46ba=
+
+#\ Tech\ Clipart\ -\ Audio\ Equipment
+#com.lucidchart.Image_audio_speakers_2=
+#com.lucidchart.Image_audio_speakers_2_1=
+#com.lucidchart.Image_audio_speakers_5_1=
+#com.lucidchart.Image_audio_record_player=
+#com.lucidchart.Image_audio_headset=
+
+# Circuit Diagrams - Electrical
+com.lucidchart.EE_Amplifier51=mxgraph.electrical.abstract.amplifier
+com.lucidchart.EE_OpAmp91=mxgraph.electrical.abstract.operational_amp_1
+com.lucidchart.EE_ControlledAmp61=mxgraph.electrical.abstract.controlled_amplifier
+com.lucidchart.EE_Multiplexer90=mxgraph.electrical.abstract.mux-demux
+com.lucidchart.EE_Demultiplexer90=mxgraph.electrical.abstract.mux-demux
+com.lucidchart.EE_Capacitor131=mxgraph.electrical.capacitors.capacitor_1
+com.lucidchart.EE_Capacitor241=mxgraph.electrical.capacitors.capacitor_3
+com.lucidchart.EE_Diode30=mxgraph.electrical.diodes.diode
+com.lucidchart.EE_Resistor31=mxgraph.electrical.resistors.resistor_2
+com.lucidchart.EE_VarResistor41=mxgraph.electrical.resistors.variable_resistor_2
+com.lucidchart.EE_Potentiometer41=mxgraph.electrical.resistors.potentiometer_2
+com.lucidchart.EE_ProtGround30=mxgraph.electrical.radio.earth
+com.lucidchart.EE_SignalGround20=mxgraph.electrical.radio.earth
+com.lucidchart.EE_Transformer30=mxgraph.electrical.inductors.transformer_1
+com.lucidchart.EE_Inductor31=mxgraph.electrical.inductors.inductor_3
+com.lucidchart.EE_Variable\ Inductor31=mxgraph.electrical.inductors.variable_inductor
+com.lucidchart.2-Way\ Switch30=mxgraph.electrical.electro-mechanical.2-way_switch
+com.lucidchart.On/Off\ Switch30=mxgraph.electrical.electro-mechanical.simple_switch
+com.lucidchart.Loudspeaker30=mxgraph.electrical.electro-mechanical.loudspeaker
+com.lucidchart.EE_Motor40=mxgraph.electrical.electro-mechanical.motor_1
+com.lucidchart.LED140=mxgraph.electrical.opto_electronics.led_2
+com.lucidchart.EE_Lightbulb30=mxgraph.electrical.miscellaneous.lamp_2
+#com.lucidchart.EE_IntegratedCircuit49=
+
+# Circuit Diagrams - Power Sources
+com.lucidchart.EE_AcSource21=mxgraph.electrical.signal_sources.ac_source
+com.lucidchart.EE_VoltageSource21=mxgraph.electrical.signal_sources.dc_source_3
+com.lucidchart.EE_CurrentSource21=mxgraph.electrical.signal_sources.dc_source_2
+com.lucidchart.EE_ControlledVoltageSource21=mxgraph.electrical.signal_sources.dependent_source_3
+com.lucidchart.EE_ControlledCurrentSource21=mxgraph.electrical.signal_sources.dependent_source_2
+com.lucidchart.EE_DcSource131=mxgraph.electrical.miscellaneous.monocell_battery
+com.lucidchart.EE_DcSource231=mxgraph.electrical.miscellaneous.multicell_battery
+com.lucidchart.EE_Vss40=mxgraph.electrical.signal_sources.vss
+com.lucidchart.EE_Vdd40=mxgraph.electrical.signal_sources.vdd
+
+# Circuit Diagrams - Transistors
+com.lucidchart.EE_BJT_NPN140=mxgraph.electrical.transistors.pnp_transistor_1
+com.lucidchart.EE_BJT_PNP140=mxgraph.electrical.transistors.npn_transistor_1
+com.lucidchart.EE_JFET_P40=mxgraph.electrical.transistors.p-channel_jfet_2
+com.lucidchart.EE_JFET_N40=mxgraph.electrical.transistors.n-channel_jfet_2
+com.lucidchart.EE_MOSFET_P140=mxgraph.electrical.mosfets1.p-channel_mosfet_1
+com.lucidchart.EE_MOSFET_P230=mxgraph.electrical.mosfets1.p-channel_mosfet_1
+com.lucidchart.EE_MOSFET_P340=mxgraph.electrical.mosfets1.p-channel_mosfet_1
+com.lucidchart.EE_MOSFET_N140=mxgraph.electrical.mosfets1.n-channel_mosfet_1
+com.lucidchart.EE_MOSFET_N230=mxgraph.electrical.mosfets1.n-channel_mosfet_1
+com.lucidchart.EE_MOSFET_N340=mxgraph.electrical.mosfets1.n-channel_mosfet_1
+
+#\ Circuit\ Diagram\ -\ Relays
+#com.lucidchart.EE_SPST=
+#com.lucidchart.EE_SPDT=
+#com.lucidchart.EE_DPST=
+#com.lucidchart.EE_DPDT=
+
+#\ Circuit\ Diagram\ -\ Logic\ Gates
+com.lucidchart.AND40=mxgraph.electrical.logic_gates.and
+com.lucidchart.OR40=mxgraph.electrical.logic_gates.or
+com.lucidchart.Inverter40=mxgraph.electrical.logic_gates.inverter
+com.lucidchart.NAND40=mxgraph.electrical.logic_gates.nand
+com.lucidchart.NOR40=mxgraph.electrical.logic_gates.nor
+com.lucidchart.XOR50=mxgraph.electrical.logic_gates.xor
+com.lucidchart.NXOR50=mxgraph.electrical.logic_gates.xnor
+com.lucidchart.D\ Type\ RS\ Flip\ Flop20=mxgraph.electrical.logic_gates.d_type_rs_flip-flop
+com.lucidchart.D\ Type\ Flip\ Flop20=mxgraph.electrical.logic_gates.d_type_flip-flop
+com.lucidchart.D\ Type\ Flip\ Flop\ With\ Clear20=mxgraph.electrical.logic_gates.d_type_flip-flop_with_clear
+com.lucidchart.RS\ Latch20=mxgraph.electrical.logic_gates.rs_latch
+com.lucidchart.Synchronous\ RS\ Latch20=mxgraph.electrical.logic_gates.synchronous_rs_latch
+com.lucidchart.T\ Type\ Flip\ Flop20=mxgraph.electrical.logic_gates.t_type_flip-flop
+
+# Circuit Diagram - Misc
+com.lucidchart.Voltmeter40=mxgraph.electrical.instruments.voltmeter
+com.lucidchart.Ammeter40=mxgraph.electrical.instruments.ampermeter
+com.lucidchart.Square\ Wave30=mxgraph.electrical.waveforms.square_wave
+com.lucidchart.EE_InverterContact30=ellipse
+com.lucidchart.EE_Negative30=line
+com.lucidchart.Sine\ Wave30=mxgraph.electrical.waveforms.sine_wave
+com.lucidchart.Sawtooth30=mxgraph.electrical.waveforms.sawtooth
+
+# Mind Map
+com.lucidchart.MindMapBlock21=rounded\=1
+
+# Process Eng. - Equipment
+com.lucidchart.PECentrifugalCompressor81=mxgraph.pid.compressors.centrifugal_compressor
+com.lucidchart.PECentrifugalCompressor262=mxgraph.pid.compressors.centrifugal_compressor_-_turbine_driven
+com.lucidchart.PEReciprocationCompressor61=mxgraph.pid.compressors.reciprocating_compressor
+com.lucidchart.PERotaryCompressorBlock71=mxgraph.pid.compressors.rotary_compressor
+com.lucidchart.PERotaryCompressor2Block91=mxgraph.pid.compressors.compressor_and_silencers
+com.lucidchart.PEDrumBlock31=mxgraph.pid.vessels.drum_or_condenser
+com.lucidchart.PETankEquipmentBlock41=mxgraph.pid.vessels.tank
+com.lucidchart.PEIndicator4Block21=ellipse
+
+# Process Eng. - Vessels
+com.lucidchart.PEColumnBlock21=rounded\=1
+
+# Process Eng. - Heat Exchangers
+com.lucidchart.PEHeatExchangerBlock31=mxgraph.pid.heat_exchangers.shell_and_tube_heat_exchanger_1
+
+# Process Eng. - Pumps
+com.lucidchart.PECompressorTurbineBlock31=mxgraph.pid.pumps.turbine
+com.lucidchart.PECentrifugalPumpBlock21=mxgraph.pid.pumps.centrifugal_pump_1
+com.lucidchart.PECentrifugalPump41=mxgraph.pid.pumps.centrifugal_pump_1
+com.lucidchart.PECentrifugalPump241=mxgraph.pid.pumps.centrifugal_pump_2
+com.lucidchart.PECentrifugalPump341=mxgraph.pid.pumps.centrifugal_pump_3
+com.lucidchart.PEGearPumpBlock61=mxgraph.pid.pumps.gear_pump
+com.lucidchart.PEVacuumPump61=mxgraph.pid.pumps.vacuum_pump
+
+# Process Eng. - Instruments
+com.lucidchart.PEIndicatorBlock=ellipse
+com.lucidchart.PEIndicator3Block=shape\ellipse
+
+# Process Eng. - Valves
+com.lucidchart.PEGateValveBlock31=mxgraph.pid.valves.gate_valve
+com.lucidchart.PEGateValveBlock21=mxgraph.pid.valves.gate_valve
+com.lucidchart.PEAngleGlobeValveBlock51=mxgraph.pid.valves.angle
+com.lucidchart.PEAngleGlobeValveBlock61=mxgraph.pid.valves.angle
+com.lucidchart.PEControlValveBlock31=mxgraph.pid.valves.pneumatic_operated
+com.lucidchart.PEControlValveBlock41=mxgraph.pid.valves.back_pressure_regulator_2
+com.lucidchart.PENeedleValveBlock31=mxgraph.pid.valves.needle
+com.lucidchart.PEButterflyValveBlock31=mxgraph.pid.valves.butterfly_valve_2
+com.lucidchart.PEButterflyValve2Block51=mxgraph.pid.valves.butterfly_valve_1
+com.lucidchart.PEBallValveBlock31=mxgraph.pid.valves.ball_valve
+com.lucidchart.PEPlugValveBlock31=mxgraph.pid.valves.manual_operated_valve
+com.lucidchart.PEGateValveBlock31=mxgraph.pid.valves.gate_valve
+com.lucidchart.PEGlobeValveBlock31=mxgraph.pid.valves.globe_valve
+com.lucidchart.PEGlobeValveBlock41=mxgraph.pid.valves.globe_valve
+com.lucidchart.PECheckValveBlock41=mxgraph.pid.valves.check_valve_1
+com.lucidchart.PECheckValve2Block41=mxgraph.pid.valves.check_valve_1
+com.lucidchart.PEAngleValveBlock31=mxgraph.pid.valves.angle
+com.lucidchart.PEPoweredValveBlock30=mxgraph.pid.valves.motor_operated_valve
+com.lucidchart.PEPoweredValveBlock31=mxgraph.pid.valves.motor_operated_valve
+com.lucidchart.PEThreeWayValveBlock41=mxgraph.pid.valves.three-way_valve
+com.lucidchart.PEFourWayValveBlock41=mxgraph.pid.valves.four_way_valve
+com.lucidchart.PEGaugeBlock21=mxgraph.pid.valves.gauge
+com.lucidchart.PEBleederValveBlock31=mxgraph.pid.valves.bleeder_valve_1
+com.lucidchart.PEOrificeBlock31=mxgraph.pid.valves.orifice
+com.lucidchart.PERotameterBlock31=mxgraph.pid.valves.rotameter
+
+# Venn Diagrams
+com.lucidchart.VennPlainColor120=ellipse
+com.lucidchart.VennPlainColor220=ellipse
+com.lucidchart.VennPlainColor320=ellipse
+com.lucidchart.VennPlainColor420=ellipse
+com.lucidchart.VennPlainColor520=ellipse
+com.lucidchart.VennPlainColor620=ellipse
+com.lucidchart.VennPlainColor720=ellipse
+com.lucidchart.VennPlainColor820=ellipse
+com.lucidchart.VennGradientColor120=ellipse
+com.lucidchart.VennGradientColor220=ellipse
+com.lucidchart.VennGradientColor320=ellipse
+com.lucidchart.VennGradientColor420=ellipse
+com.lucidchart.VennGradientColor520=ellipse
+com.lucidchart.VennGradientColor620=ellipse
+com.lucidchart.VennGradientColor720=ellipse
+com.lucidchart.VennGradientColor820=ellipse
+
+# Standard
+com.lucidchart.DefaultSquareBlock21=rounded\=1
+com.lucidchart.DefaultNoteBlock31=note
+
+# angle offsets (1 = 90 degrees) (original to target)
+mxOffsetTriangle=3
+mxOffset6-phase\ double\ delta=1
+mxOffsetAlternative=3
+mxOffsetBacking=2
+mxOffsetConcentrating=1
+mxOffsetCorrecting\ element=1
+mxOffsetDirect\ data=1
+mxOffsetExtract=3
+mxOffsetFluid\ separators=2
+#mxOffsetOR\ gate=3
+mxOffsetAND\ gate.79=3
+mxOffsetInbound\ goods=1
+mxOffsetKickoff=1
+mxOffsetManual\ file=1
+mxOffsetMove=1
+mxOffsetOff-line\ storage=1
+mxOffsetOr\ gate.126=0
+mxOffsetReducer=1
+mxOffsetReference\ triangle=3
+mxOffsetSelectable\ compressor1=1
+mxOffset{3FB1356C-0000-0000-8E40-00608CF305B2}=1
+mxOffsetStar\ 6=1
+mxOffsetStop\ state\ 2=1
+mxOffsetStorage=3
+mxOffsetStore=3
+mxOffsetSurface\ profile=2
+mxOffsetTransportation=2
+mxOffsetDomain\ 3D=3
+#mxOffsetDatabase=3
+mxOffsetDomain\ 2D=3
+mxOffsetPositional\ servo=1
+mxOffsetManual\ operation=2
+mxOffsetInhibit\ gate=1
+#mxOffsetAND\ gate=3
+mxOffsetHouse\ event=3
+mxOffset{7313FF80-0002-0000-8E40-00608CF305B2}=3
+mxOffset{7314000C-0004-0000-8E40-00608CF305B2}=3
+mxOffsetPriority\ AND\ gate=3
+mxOffsetExclusive\ OR\ gate=3
+mxOffsetVoting\ gate=3
+mxOffsetTransfer\ symbol=3
+mxOffset{3FC37F8D-0002-0000-8E40-00608CF305B2}=3
+mxOffset{72EBC952-000A-0000-8E40-00608CF305B2}=3
+mxOffset{735CDDDE-0015-0000-8E40-00608CF305B2}=3
+mxOffsetHeat\ exchanger2=2
+mxOffsetGround=1
+mxOffsetBattery=2
+mxOffset{73092C3A-000F-0000-8E40-00608CF305B2}=1
+mxOffsetStep\ function=1
+mxOffsetFerrite\ core=1
+mxOffsetBell=3
+mxOffset{73094E3B-0032-0000-8E40-00608CF305B2}=2
+mxOffset{7309C76F-0002-0000-8E40-00608CF305B2}=1
+mxOffsetMerge=1
+mxOffsetMessage\ to\ user=2
+mxOffsetIGFET\ N-type=3
+mxOffsetIGFET\ P-type=3
+mxOffsetMOSFET=1
+mxOffsetTransducer\ head=2
+mxOffsetFeedback\ arrow=3
+mxOffsetTransformer=1
+mxOffsetMagnetic\ core=1
