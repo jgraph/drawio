@@ -2,7 +2,7 @@
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
 	<application>drawdotio</application>
 	<!-- IMPORTANT! DO NOT CHANGE THIS VALUE IN SOURCE CONTROL! -->
-	<version>test</version>
+	<version>5-6-0-2</version>
 	
 	<!-- Configure java.util.logging -->
 	<system-properties>
