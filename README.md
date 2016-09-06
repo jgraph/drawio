@@ -10,7 +10,7 @@ draw.io is dual licensed under either the GPL v3 or the [mxGraph Commerical Lice
 
 Running
 -------
-The simplest way to run draw.io initially is to fork this project, [publish the master branch to Github pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites]https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
+The simplest way to run draw.io initially is to fork this project, [publish the master branch to Github pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
 
 Supported Browsers
 ------------------
