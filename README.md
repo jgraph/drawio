@@ -1,7 +1,7 @@
 About
 -----
 
-draw.io is an online diagramming web site that delivers the source in this project.
+[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project.
 
 License
 -------
