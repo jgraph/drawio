@@ -15,4 +15,3 @@ The simplest way to run draw.io initially is to fork this project, [publish the 
 Supported Browsers
 ------------------
 draw.io supports IE 9+, Chrome 30+, Firefox 31+, Safari versions actively patched by Apple (6.2.x, 7.1.x, 8.0.x and 9.x at time of writing), Opera 20+, Native Android browser 5.x+, the default browser in the current and previous major iOS versions (e.g. 9.x and 8.x) and Edge 20+.
-
