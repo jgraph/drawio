@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<script src="//js.live.net/v5.0/wl.js"></script>
+	</head>
+	<body>
+		<script>
+			// Extract authentication info from redirect URL in popup window
+			function getAuthInfoFromUrl()
+			{
+				if (window.location.hash != null)
+				{
+					try
+					{
+						var result = new Object();
+						var authResponse = window.location.hash.substring(1);
+						var params = authResponse.split('&');
+						
+						for (var i = 0; i < params.length; i++)
+						{
+							idx = params[i].indexOf('=');
+							
+							if (idx > 0)
+							{
+								result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
+							}
+						}
+						
+						return result;
+					}
+					catch (e)
+					{
+						// ignores parsing errors
+					}
+				}
+
+				return null;
+			};
+
+			// Puts the current token into a cookie
+			function setCookie(token, expiresInSeconds)
+			{
+				var expiration = new Date();
+				
+				if (token != null)
+				{
+					expiration.setTime(expiration.getTime() + expiresInSeconds * 1000);
+					var cookie = 'odauth=' + token +'; path=/; expires=' + expiration.toUTCString();
+	
+					if (document.location.protocol.toLowerCase() == 'https')
+					{
+						cookie = cookie + ';secure';
+					}
+	
+					document.cookie = cookie;
+				}
+				else
+				{
+					expiration.setYear(expiration.getFullYear() - 1);
+					document.cookie = 'odauth=; expires=' + expiration.toUTCString();
+				}
+			};
+	        
+			// Main flow after authentication popup redirects to callback URI
+			var authInfo = getAuthInfoFromUrl();
+			var token = null;
+			
+			if (authInfo != null)
+			{
+				token = authInfo['access_token'];
+				var expiry = parseInt(authInfo['expires_in']);
+				setCookie(token, expiry);
+			}
+
+			// Continues execution of main program flow
+			try
+			{
+				if (window.opener != null)
+				{
+					window.opener.onAuthenticated(token, window);
+				}
+			}
+			catch (e)
+			{
+				// ignores no opener
+			}
+		</script>
+	</body>
+</html>

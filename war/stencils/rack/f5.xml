@@ -1,0 +1,2386 @@
+<shapes name="mxgraph.rack.f5">
+<shape aspect="variable" h="29.9" name="ARX 1000" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#545454"/>
+        <rect h="8" w="70" x="20" y="21.9"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <ellipse h="10" w="30" x="125" y="5"/>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="35" y="24.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="42" y="24.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="20" x="65" y="24.5"/>
+        <fillstroke/>
+        <path>
+            <move x="70" y="24.5"/>
+            <line x="70" y="28"/>
+            <move x="75" y="24.5"/>
+            <line x="75" y="28"/>
+            <move x="80" y="24.5"/>
+            <line x="80" y="28"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="ARX 1500" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="2"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="10" w="10" x="147" y="2.5"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="20" x="37" y="8.5"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4.5" w="6" x="25" y="2"/>
+        <fill/>
+        <rect h="4.5" w="6" x="25" y="8.5"/>
+        <fill/>
+        <fillcolor color="#bb0000"/>
+        <ellipse h="5" w="22" x="39.25" y="1.75"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="138" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="9.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="5.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="1.88"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="20" x="88" y="8.5"/>
+        <fillstroke/>
+        <path>
+            <move x="42" y="8.5"/>
+            <line x="42" y="12"/>
+            <move x="47" y="8.5"/>
+            <line x="47" y="12"/>
+            <move x="52" y="8.5"/>
+            <line x="52" y="12"/>
+            <move x="93" y="8.5"/>
+            <line x="93" y="12"/>
+            <move x="98" y="8.5"/>
+            <line x="98" y="12"/>
+            <move x="103" y="8.5"/>
+            <line x="103" y="12"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="103" y="2"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="95" y="4"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="88" y="4"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="ARX 2000" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#bb0000"/>
+        <ellipse h="5" w="22" x="15.12" y="15.12"/>
+        <fill/>
+        <fillcolor color="#ff9933"/>
+        <rect h="2" w="3" x="131" y="26.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="30" x="105" y="18"/>
+        <fillstroke/>
+        <strokecolor color="#000000"/>
+        <path>
+            <move x="14" y="29.9"/>
+            <line x="14" y="22"/>
+            <line x="100" y="22"/>
+            <line x="100" y="16"/>
+            <line x="139" y="16"/>
+            <line x="139" y="29.9"/>
+            <close/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="30" x="105" y="21.5"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="20" w="20" x="138" y="3"/>
+        <fillstroke/>
+        <fillcolor color="#ff9933"/>
+        <rect h="2" w="3" x="126" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="121" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="116" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="108" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="103" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="98" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="93" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="85" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="80" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="75" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="70" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="62" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="57" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="52" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="47" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="42" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="37" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="32" y="26.5"/>
+        <fill/>
+        <rect h="2" w="3" x="27" y="26.5"/>
+        <fill/>
+        <fillcolor color="#ffff00"/>
+        <ellipse h="2" w="2" x="22" y="23.5"/>
+        <fill/>
+        <ellipse h="2" w="2" x="19" y="23.5"/>
+        <fill/>
+        <ellipse h="2" w="2" x="16" y="23.5"/>
+        <fill/>
+        <ellipse h="2" w="2" x="16" y="26.5"/>
+        <fill/>
+        <ellipse h="2" w="2" x="19" y="26.5"/>
+        <fill/>
+        <ellipse h="2" w="2" x="22" y="26.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <path>
+            <move x="110" y="18"/>
+            <line x="110" y="25"/>
+            <move x="115" y="18"/>
+            <line x="115" y="25"/>
+            <move x="120" y="18"/>
+            <line x="120" y="25"/>
+            <move x="125" y="18"/>
+            <line x="125" y="25"/>
+            <move x="130" y="18"/>
+            <line x="130" y="25"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="ARX 2500" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="2"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="10" w="10" x="147" y="2.5"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="20" x="37" y="8.5"/>
+        <fillstroke/>
+        <path>
+            <move x="42" y="8.5"/>
+            <line x="42" y="12"/>
+            <move x="47" y="8.5"/>
+            <line x="47" y="12"/>
+            <move x="52" y="8.5"/>
+            <line x="52" y="12"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4.5" w="6" x="25" y="2"/>
+        <fill/>
+        <rect h="4.5" w="6" x="25" y="8.5"/>
+        <fill/>
+        <fillcolor color="#bb0000"/>
+        <ellipse h="5" w="22" x="39.25" y="1.75"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="138" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="9.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="5.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="1.88"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="103" y="2"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="87" y="3.5"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="75" y="3.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="90" y="8.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="72" y="8.5"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="49.85" name="ARX 4000" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="49.85" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#bb0000"/>
+        <ellipse h="10" w="50" x="7" y="27"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="2.5" w="2" x="132" y="44.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="30" x="105" y="35.5"/>
+        <fillstroke/>
+        <strokecolor color="#000000"/>
+        <path>
+            <move x="14.4" y="47.7"/>
+            <line x="14.4" y="39.8"/>
+            <line x="100.4" y="39.8"/>
+            <line x="100.4" y="33.8"/>
+            <line x="139.4" y="33.8"/>
+            <line x="139.4" y="47.7"/>
+            <close/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="30" x="105" y="39"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="20" w="20" x="138" y="20"/>
+        <fillstroke/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="2.5" w="2" x="128" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="124" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="120" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="114" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="110" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="106" y="44.5"/>
+        <fill/>
+        <rect h="2.5" w="2" x="102" y="44.5"/>
+        <fill/>
+        <fillcolor color="#ffff00"/>
+        <ellipse h="2" w="2" x="22" y="41"/>
+        <fill/>
+        <ellipse h="2" w="2" x="19" y="41"/>
+        <fill/>
+        <ellipse h="2" w="2" x="16" y="41"/>
+        <fill/>
+        <ellipse h="2" w="2" x="16" y="44"/>
+        <fill/>
+        <ellipse h="2" w="2" x="19" y="44"/>
+        <fill/>
+        <ellipse h="2" w="2" x="22" y="44"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <path>
+            <move x="110" y="35.5"/>
+            <line x="110" y="42.5"/>
+            <move x="115" y="35.5"/>
+            <line x="115" y="42.5"/>
+            <move x="120" y="35.5"/>
+            <line x="120" y="42.5"/>
+            <move x="125" y="35.5"/>
+            <line x="125" y="42.5"/>
+            <move x="130" y="35.5"/>
+            <line x="130" y="42.5"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="5" w="14" x="42" y="41"/>
+        <fillstroke/>
+        <rect h="5" w="14" x="60" y="41"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="ARX 500" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#666666"/>
+        <rect h="10.5" w="19.83" x="71" y="2.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="12" w="65" x="5" y="1.5"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="8" w="8" x="96" y="4"/>
+        <fillstroke/>
+        <fillcolor color="#444444"/>
+        <ellipse h="2" w="2" x="139" y="3"/>
+        <fill/>
+        <ellipse h="2" w="2" x="143" y="3"/>
+        <fill/>
+        <ellipse h="2" w="2" x="147" y="3"/>
+        <fill/>
+        <ellipse h="2" w="2" x="139" y="7"/>
+        <fill/>
+        <ellipse h="2" w="2" x="147" y="7"/>
+        <fill/>
+        <ellipse h="2" w="2" x="155" y="3"/>
+        <fill/>
+        <strokecolor color="#cccccc"/>
+        <path>
+            <move x="5" y="4"/>
+            <line x="70" y="4"/>
+            <move x="5" y="7"/>
+            <line x="70" y="7"/>
+            <move x="5" y="11"/>
+            <line x="70" y="11"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#444444"/>
+        <fillcolor color="#cccccc"/>
+        <ellipse h="9" w="9" x="67.5" y="3.5"/>
+        <fillstroke/>
+        <fillcolor color="#999999"/>
+        <ellipse h="5" w="5" x="69.5" y="5.5"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="ARX 5000" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="2"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="10" w="10" x="147" y="2.5"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="20" x="37" y="8.5"/>
+        <fillstroke/>
+        <path>
+            <move x="42" y="8.5"/>
+            <line x="42" y="12"/>
+            <move x="47" y="8.5"/>
+            <line x="47" y="12"/>
+            <move x="52" y="8.5"/>
+            <line x="52" y="12"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#333333"/>
+        <rect h="4.5" w="20" x="5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4.5" w="6" x="25" y="2"/>
+        <fill/>
+        <rect h="4.5" w="6" x="25" y="8.5"/>
+        <fill/>
+        <fillcolor color="#bb0000"/>
+        <ellipse h="5" w="22" x="39.25" y="1.75"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="2.5" w="6" x="138" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="138" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="130" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="10"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="6"/>
+        <fill/>
+        <rect h="2.5" w="6" x="122.25" y="2"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="9.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="5.88"/>
+        <fill/>
+        <rect h="2.5" w="6" x="114.75" y="1.88"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="20" x="88" y="8.5"/>
+        <fillstroke/>
+        <path>
+            <move x="93" y="8.5"/>
+            <line x="93" y="12"/>
+            <move x="98" y="8.5"/>
+            <line x="98" y="12"/>
+            <move x="103" y="8.5"/>
+            <line x="103" y="12"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="103" y="2"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="95" y="4"/>
+        <fillstroke/>
+        <rect h="2.5" w="5" x="88" y="4"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="179.4" name="ARX 6000" strokewidth="inherit" w="161">
+    <connections/>
+    <background>
+        <rect h="179.4" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#848484"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="40" w="55" x="0" y="0"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="3" y="14"/>
+        <fillstroke/>
+        <strokecolor color="#666666"/>
+        <path>
+            <move x="0" y="40"/>
+            <line x="161" y="40"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#666666"/>
+        <ellipse h="11.83" w="48.83" x="99.83" y="10.17"/>
+        <fillstroke/>
+        <fillcolor color="#ffffff"/>
+        <rect h="127" w="2" x="62" y="41"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4.5" w="160.85" x="0" y="168"/>
+        <fill/>
+        <fillcolor color="#ffffff"/>
+        <rect h="127" w="2" x="78" y="41"/>
+        <fillstroke/>
+        <rect h="127" w="2" x="94" y="41"/>
+        <fillstroke/>
+        <rect h="127" w="2" x="110" y="41"/>
+        <fillstroke/>
+        <rect h="127" w="2" x="126" y="41"/>
+        <fillstroke/>
+        <rect h="127" w="2" x="142" y="41"/>
+        <fillstroke/>
+        <rect h="127" w="2" x="158" y="41"/>
+        <fillstroke/>
+        <strokecolor color="#666666"/>
+        <fillcolor color="#999999"/>
+        <ellipse h="7" w="7" x="67.5" y="42.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="83.5" y="42.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="99.5" y="42.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="115.5" y="42.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="131.5" y="42.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="147.5" y="42.5"/>
+        <fillstroke/>
+        <strokecolor color="#999999"/>
+        <fillcolor color="#dddddd"/>
+        <path>
+            <move x="66" y="56"/>
+            <arc large-arc-flag="0" rx="20" ry="4.6" sweep-flag="1" x="66" x-axis-rotation="0" y="64"/>
+            <close/>
+            <move x="82" y="56"/>
+            <arc large-arc-flag="0" rx="20" ry="4.6" sweep-flag="1" x="82" x-axis-rotation="0" y="64"/>
+            <close/>
+            <move x="98" y="56"/>
+            <arc large-arc-flag="0" rx="20" ry="4.6" sweep-flag="1" x="98" x-axis-rotation="0" y="64"/>
+            <close/>
+            <move x="114" y="56"/>
+            <arc large-arc-flag="0" rx="20" ry="4.6" sweep-flag="1" x="114" x-axis-rotation="0" y="64"/>
+            <close/>
+            <move x="130" y="56"/>
+            <arc large-arc-flag="0" rx="20" ry="4.6" sweep-flag="1" x="130" x-axis-rotation="0" y="64"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="130" y="74"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="130" y="88"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="130" y="102"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="130" y="116"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="130" y="130"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="130" y="144"/>
+        <fillstroke/>
+        <strokecolor color="#666666"/>
+        <fillcolor color="#999999"/>
+        <ellipse h="7" w="7" x="67.5" y="157.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="83.5" y="157.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="99.5" y="157.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="115.5" y="157.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="131.5" y="157.5"/>
+        <fillstroke/>
+        <ellipse h="7" w="7" x="147.5" y="157.5"/>
+        <fillstroke/>
+        <strokecolor color="#cccccc"/>
+        <rect h="6" w="3.5" x="114" y="69"/>
+        <stroke/>
+        <rect h="6" w="3.5" x="114" y="83"/>
+        <stroke/>
+        <rect h="6" w="3.5" x="114" y="97"/>
+        <stroke/>
+        <rect h="6" w="3.5" x="114" y="111"/>
+        <stroke/>
+        <rect h="6" w="3.5" x="114" y="125"/>
+        <stroke/>
+        <rect h="6" w="3.5" x="114" y="139"/>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="66.5" y="79.5"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="66.5" y="93.5"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="65.75" y="108.75"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="BIG IP 10x00" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="16.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="4" y="18.5"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="22"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="21.5"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="18.5"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="20.5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="18" y="19"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="11" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="11" y="23"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#dddddd"/>
+        <rect h="15" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="3" y="2.5"/>
+            <line x="158" y="2.5"/>
+            <move x="3" y="5"/>
+            <line x="158" y="5"/>
+            <move x="3" y="7.5"/>
+            <line x="158" y="7.5"/>
+            <move x="3" y="10"/>
+            <line x="158" y="10"/>
+            <move x="3" y="12.5"/>
+            <line x="158" y="12.5"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="46.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="52" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="57.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="41" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="46.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="52" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="57.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="23.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="29" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="34.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="41" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="18" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="23.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="29" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="34.5" y="24"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <path>
+            <move x="64" y="16.5"/>
+            <line x="90" y="16.5"/>
+            <line x="90" y="20"/>
+            <line x="84" y="20"/>
+            <line x="84" y="23"/>
+            <line x="70" y="23"/>
+            <line x="70" y="20"/>
+            <line x="64" y="20"/>
+            <close/>
+        </path>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="6" x="70" y="24"/>
+        <fill/>
+        <rect h="3.5" w="6" x="78" y="24"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="44.85" name="BIG IP 110x0" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="44.85" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="4" y="33.5"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="37"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="126" y="36"/>
+        <fill/>
+        <rect h="9" w="3" x="129.33" y="32.83"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="128" y="19"/>
+        <fill/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#dddddd"/>
+        <rect h="15" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="3" y="2.5"/>
+            <line x="158" y="2.5"/>
+            <move x="3" y="5"/>
+            <line x="158" y="5"/>
+            <move x="3" y="7.5"/>
+            <line x="158" y="7.5"/>
+            <move x="3" y="10"/>
+            <line x="158" y="10"/>
+            <move x="3" y="12.5"/>
+            <line x="158" y="12.5"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="57.5" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="33" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="90" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="95.5" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="52" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="109" y="38"/>
+        <fill/>
+        <rect h="3.5" w="5" x="114.5" y="38"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#999999"/>
+        <rect h="4" w="9" x="14" y="39"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="14" y="33"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#333333"/>
+        <path>
+            <move x="4" y="15"/>
+            <line x="123" y="15"/>
+            <line x="123" y="35"/>
+            <line x="30" y="35"/>
+            <line x="30" y="28"/>
+            <line x="4" y="28"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 1600" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="5" w="38" x="46" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="14" y="9"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="14" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="55" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="49.5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="4" w="20" x="64" y="8"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="8"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 2x00" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="12" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="12" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="22" y="4"/>
+        <fill/>
+        <rect h="3.5" w="6" x="50" y="9"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="27.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="33" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="27.5" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="33" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="9"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <path>
+            <move x="47" y="2"/>
+            <line x="85" y="2"/>
+            <line x="85" y="13"/>
+            <line x="65" y="13"/>
+            <line x="65" y="8"/>
+            <line x="47" y="8"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 3600" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="5" w="38" x="53" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="14" y="9"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="14" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="62" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="56.5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="4" w="20" x="71" y="8"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="46" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="46" y="8"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 3900" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="5" w="38" x="53" y="2"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="29" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="14" y="9"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="14" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="62" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="56.5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="4" w="20" x="71" y="8"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="34" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="46" y="4.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="46" y="8"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 4x00" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="12" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="12" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="22" y="4"/>
+        <fill/>
+        <rect h="3.5" w="10" x="49" y="9"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="27.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="33" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="27.5" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="33" y="9"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="9"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <path>
+            <move x="47" y="2"/>
+            <line x="85" y="2"/>
+            <line x="85" y="13"/>
+            <line x="65" y="13"/>
+            <line x="65" y="8"/>
+            <line x="47" y="8"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="BIG IP 5x00" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="12" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="12" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="38.5" y="4"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="44" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="49.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="55" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="38.5" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="44" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="49.5" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="55" y="8.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="13" w="6" x="31.5" y="1"/>
+        <fill/>
+        <rect h="12" w="26" x="62" y="1.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="20" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="20" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="7.5"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="BIG IP 6900" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="16.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="4" y="18.5"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="22"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="21.5"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="18.5"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="20.5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="67" y="19"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="25" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="23"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="13" y="24.5"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="13" y="17.5"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#dddddd"/>
+        <rect h="15" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="3" y="2.5"/>
+            <line x="158" y="2.5"/>
+            <move x="3" y="5"/>
+            <line x="158" y="5"/>
+            <move x="3" y="7.5"/>
+            <line x="158" y="7.5"/>
+            <move x="3" y="10"/>
+            <line x="158" y="10"/>
+            <move x="3" y="12.5"/>
+            <line x="158" y="12.5"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="30" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="35" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="40" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="45" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="50" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="55" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="60" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="30" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="35" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="40" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="45" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="50" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="55" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="60" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="72.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="78" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="83.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="67" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="72.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="78" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="83.5" y="24"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="BIG IP 7x00" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="16.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="4" y="18.5"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="22"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="21.5"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="18.5"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="20.5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="39" y="19"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="11" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="11" y="23"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#dddddd"/>
+        <rect h="15" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="3" y="2.5"/>
+            <line x="158" y="2.5"/>
+            <move x="3" y="5"/>
+            <line x="158" y="5"/>
+            <move x="3" y="7.5"/>
+            <line x="158" y="7.5"/>
+            <move x="3" y="10"/>
+            <line x="158" y="10"/>
+            <move x="3" y="12.5"/>
+            <line x="158" y="12.5"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="19" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="24" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="19" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="24" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="44.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="50" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="55.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="39" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="44.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="50" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="55.5" y="24"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="13" w="6" x="31.5" y="16"/>
+        <fill/>
+        <rect h="12" w="26" x="62" y="16.5"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="BIG IP 89x0" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="16.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="4" y="18.5"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="22"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="21.5"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="18.5"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="20.5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="67" y="19"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="25" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="23"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="13" y="24.5"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="13" y="17.5"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#dddddd"/>
+        <rect h="15" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="3" y="2.5"/>
+            <line x="158" y="2.5"/>
+            <move x="3" y="5"/>
+            <line x="158" y="5"/>
+            <move x="3" y="7.5"/>
+            <line x="158" y="7.5"/>
+            <move x="3" y="10"/>
+            <line x="158" y="10"/>
+            <move x="3" y="12.5"/>
+            <line x="158" y="12.5"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="30" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="35" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="40" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="45" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="50" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="55" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="60" y="19.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="30" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="35" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="40" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="45" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="50" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="55" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="60" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="72.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="78" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="83.5" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="67" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="72.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="78" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="83.5" y="24"/>
+        <fill/>
+        <rect h="3.5" w="5" x="91" y="19"/>
+        <fill/>
+        <rect h="3.5" w="5" x="91" y="24"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="EM 4000" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#666666"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="144" y="1.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="38" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="38" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="4" y="3"/>
+        <fillstroke/>
+        <rect h="5" w="5" x="4" y="6.5"/>
+        <fillstroke/>
+        <fillcolor color="#333333"/>
+        <rect h="3" w="9" x="130" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="133" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="7" w="26" x="101" y="5"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="52" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="57.5" y="4"/>
+        <fill/>
+        <rect h="3.5" w="5" x="52" y="8.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="57.5" y="8.5"/>
+        <fill/>
+        <fillcolor color="#333333"/>
+        <rect h="12" w="22" x="64" y="1.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="30" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="30" y="7.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="25" y="7.5"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="13" y="9"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="13" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="43" y="4"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="43" y="7.5"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="14.95" name="FirePass 1200" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="14.95" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#cccccc"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="58" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="63" y="8"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="10" w="10" x="148" y="2.5"/>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="70" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="75" y="8"/>
+        <fillstroke/>
+        <fillcolor color="#999999"/>
+        <rect h="4" w="9" x="92" y="7.5"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="29.9" name="FirePass 4100" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#eeeeee"/>
+        <fillstroke/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="12" w="12" x="146.5" y="9"/>
+        <fillstroke/>
+        <fillcolor color="#999999"/>
+        <rect h="26" w="140" x="4" y="2"/>
+        <fill/>
+        <strokecolor color="#000000"/>
+        <fillcolor color="none"/>
+        <path>
+            <move x="4" y="2"/>
+            <line x="4" y="28"/>
+            <move x="4" y="15"/>
+            <line x="144" y="15"/>
+            <move x="144" y="2"/>
+            <line x="144" y="28"/>
+            <move x="90" y="15"/>
+            <line x="90" y="28"/>
+        </path>
+        <stroke/>
+        <fillcolor color="#000000"/>
+        <roundrect arcsize="28.57" h="10.5" w="50" x="92" y="16.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#99ccff"/>
+        <roundrect arcsize="20" h="7.5" w="20" x="102" y="18"/>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="52" y="9.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="57" y="9.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="65" y="9.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="70" y="9.5"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="4" w="9" x="15" y="3"/>
+        <fillstroke/>
+        <rect h="4" w="9" x="15" y="9.5"/>
+        <fillstroke/>
+        <strokecolor color="#000000"/>
+        <path>
+            <move x="6" y="17"/>
+            <line x="88" y="17"/>
+            <move x="6" y="19"/>
+            <line x="88" y="19"/>
+            <move x="6" y="21"/>
+            <line x="88" y="21"/>
+            <move x="6" y="23"/>
+            <line x="88" y="23"/>
+            <move x="6" y="25"/>
+            <line x="88" y="25"/>
+            <move x="6" y="27"/>
+            <line x="88" y="27"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="6" x="6" y="8"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="79" y="9.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="85" y="9.5"/>
+        <fill/>
+        <strokecolor color="#000000"/>
+        <fillcolor color="#ffffff"/>
+        <rect h="1.5" w="5.5" x="84" y="5"/>
+        <fillstroke/>
+        <fillcolor color="#ffffff"/>
+        <rect h="3" w="9" x="130.5" y="20.25"/>
+        <fill/>
+        <rect h="9" w="3" x="133.5" y="17.25"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="1" w="1" x="94" y="17.5"/>
+        <fill/>
+        <rect h="1" w="1" x="94" y="19.4"/>
+        <fill/>
+        <rect h="1" w="1" x="94" y="21.3"/>
+        <fill/>
+        <rect h="1" w="1" x="94" y="23.2"/>
+        <fill/>
+        <rect h="1" w="1" x="94" y="25.1"/>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="44.85" name="VIPRION 2400" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="44.85" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#444444"/>
+        <fillstroke/>
+        <strokecolor color="#000000"/>
+        <fillcolor color="#666666"/>
+        <path>
+            <move x="5" y="37"/>
+            <line x="5" y="30.5"/>
+            <line x="78.5" y="30.5"/>
+            <line x="80.5" y="33"/>
+            <line x="80.5" y="36"/>
+            <line x="78.5" y="38.5"/>
+            <line x="78.5" y="44"/>
+            <line x="5" y="44"/>
+            <line x="3" y="41.5"/>
+            <line x="3" y="38.5"/>
+            <close/>
+            <move x="5" y="22"/>
+            <line x="5" y="15.5"/>
+            <line x="78.5" y="15.5"/>
+            <line x="80.5" y="18"/>
+            <line x="80.5" y="21"/>
+            <line x="78.5" y="23.5"/>
+            <line x="78.5" y="29"/>
+            <line x="5" y="29"/>
+            <line x="3" y="26.5"/>
+            <line x="3" y="23.5"/>
+            <close/>
+            <move x="82.5" y="21"/>
+            <line x="82.5" y="15.5"/>
+            <line x="156" y="15.5"/>
+            <line x="158" y="18"/>
+            <line x="158" y="21"/>
+            <line x="156" y="23.5"/>
+            <line x="156" y="29"/>
+            <line x="82.5" y="29"/>
+            <line x="80.5" y="26.5"/>
+            <line x="80.5" y="23.5"/>
+            <close/>
+            <move x="82.5" y="36.17"/>
+            <line x="82.5" y="30.67"/>
+            <line x="156" y="30.67"/>
+            <line x="158" y="33.17"/>
+            <line x="158" y="36.17"/>
+            <line x="156" y="38.67"/>
+            <line x="156" y="44.17"/>
+            <line x="82.5" y="44.17"/>
+            <line x="80.5" y="41.67"/>
+            <line x="80.5" y="38.67"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="11" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="16.5" y="17"/>
+        <fill/>
+        <strokecolor color="#000000"/>
+        <rect h="13" w="13" x="2" y="1"/>
+        <stroke/>
+        <strokecolor color="#cccccc"/>
+        <rect h="13" w="58" x="17" y="1"/>
+        <stroke/>
+        <rect h="13" w="58" x="81" y="1"/>
+        <stroke/>
+        <strokecolor color="#000000"/>
+        <rect h="13" w="17" x="142" y="1"/>
+        <stroke/>
+        <fillcolor color="#999999"/>
+        <rect h="9" w="40" x="30" y="2.5"/>
+        <fill/>
+        <rect h="9" w="40" x="94" y="2.5"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="9" w="6" x="82" y="3"/>
+        <fill/>
+        <rect h="9" w="6" x="18" y="3"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="27.5" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="11" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="16.5" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="27.5" y="21.5"/>
+        <fill/>
+        <strokecolor color="#333333"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="10" w="10" x="145" y="2.5"/>
+        <fillstroke/>
+        <strokecolor color="#000000"/>
+        <fillcolor color="#666666"/>
+        <path>
+        </path>
+        <fillstroke/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="41" y="24"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="20.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="48" y="19.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="48" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="88.5" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="94" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="105" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="99.5" y="17"/>
+        <fill/>
+        <rect h="3.5" w="5" x="88.5" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="94" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="99.5" y="21.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="105" y="21.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="118.5" y="24"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="118.5" y="20.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="125.5" y="19.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="125.5" y="23"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="11" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="16.5" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="27.5" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="11" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="16.5" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="22" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="27.5" y="36.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="41" y="39"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="35.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="48" y="34.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="48" y="38"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="88.5" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="94" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="105" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="99.5" y="32"/>
+        <fill/>
+        <rect h="3.5" w="5" x="88.5" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="94" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="99.5" y="36.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="105" y="36.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <rect h="3.5" w="5" x="118.5" y="39"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="118.5" y="35.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="125.5" y="34.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="125.5" y="38"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="89.7" name="VIPRION 4400" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="89.7" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#222222"/>
+        <fillstroke/>
+        <fillcolor color="#555555"/>
+        <rect h="26" w="8" x="7" y="47"/>
+        <fill/>
+        <rect h="14" w="137" x="23" y="31"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="8" w="6" x="26" y="34"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="3.5" w="5" x="41" y="35.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="41" y="39"/>
+        <fillstroke/>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#eeeeee"/>
+        <rect h="29.9" w="160.85" x="0" y="0"/>
+        <fillstroke/>
+        <fillcolor color="#999999"/>
+        <rect h="8" w="155" x="3" y="20"/>
+        <fill/>
+        <strokecolor color="#999999"/>
+        <path>
+            <move x="3" y="18"/>
+            <line x="158" y="18"/>
+            <move x="3" y="16"/>
+            <line x="158" y="16"/>
+            <move x="3" y="14"/>
+            <line x="158" y="14"/>
+        </path>
+        <stroke/>
+        <strokecolor color="#666666"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="14" w="14" x="138" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="3" w="9" x="124" y="5.7"/>
+        <fill/>
+        <rect h="9" w="3" x="127" y="2.7"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="8" w="29" x="92" y="3"/>
+        <fill/>
+        <fillcolor color="#555555"/>
+        <rect h="14" w="137" x="23" y="45.5"/>
+        <fill/>
+        <rect h="14" w="137" x="23" y="60"/>
+        <fill/>
+        <rect h="14" w="137" x="23" y="74.5"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="8" w="6" x="26" y="48.5"/>
+        <fill/>
+        <rect h="8" w="6" x="26" y="63"/>
+        <fill/>
+        <rect h="8" w="6" x="26" y="77.5"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="4.5" w="5" x="41" y="53"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="49.5"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="41" y="67.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="64"/>
+        <fillstroke/>
+        <rect h="4.5" w="5" x="41" y="82"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="41" y="78.5"/>
+        <fillstroke/>
+        <rect h="3.5" w="5" x="60" y="35"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="35"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="35"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="35"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="39.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="39.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="39.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="39.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="49"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="49"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="49"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="49"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="64"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="64"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="64"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="64"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="68.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="68.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="68.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="68.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="78.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="78.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="78.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="78.5"/>
+        <fill/>
+        <rect h="3.5" w="5" x="60" y="83"/>
+        <fill/>
+        <rect h="3.5" w="5" x="65.5" y="83"/>
+        <fill/>
+        <rect h="3.5" w="5" x="71" y="83"/>
+        <fill/>
+        <rect h="3.5" w="5" x="76.5" y="83"/>
+        <fill/>
+        <rect h="3.5" w="7" x="90" y="39"/>
+        <fill/>
+        <rect h="3.5" w="7" x="101" y="39"/>
+        <fill/>
+        <rect h="3.5" w="7" x="90" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="7" x="101" y="53.5"/>
+        <fill/>
+        <rect h="3.5" w="7" x="90" y="68"/>
+        <fill/>
+        <rect h="3.5" w="7" x="101" y="68"/>
+        <fill/>
+        <rect h="3.5" w="7" x="90" y="82.5"/>
+        <fill/>
+        <rect h="3.5" w="7" x="101" y="82.5"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="8" w="6" x="150" y="77.5"/>
+        <fill/>
+        <rect h="8" w="6" x="150" y="63"/>
+        <fill/>
+        <rect h="8" w="6" x="150" y="48.5"/>
+        <fill/>
+        <rect h="8" w="6" x="150" y="34"/>
+        <fill/>
+        <strokecolor color="#000000"/>
+        <rect h="18" w="3" x="9.5" y="51"/>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="240" name="VIPRION 4800" strokewidth="inherit" w="160.85">
+    <connections/>
+    <background>
+        <rect h="240" w="160.85" x="0" y="0"/>
+    </background>
+    <foreground>
+        <strokecolor color="#545454"/>
+        <fillcolor color="#ada699"/>
+        <fillstroke/>
+        <strokecolor color="#666666"/>
+        <fillcolor color="#ff0000"/>
+        <ellipse h="14" w="14" x="141" y="2"/>
+        <fillstroke/>
+        <fillcolor color="#cccccc"/>
+        <rect h="3" w="9" x="126" y="6"/>
+        <fill/>
+        <rect h="9" w="3" x="129" y="3"/>
+        <fill/>
+        <fillcolor color="#ccffcc"/>
+        <rect h="9" w="29" x="90" y="3"/>
+        <fill/>
+        <fillcolor color="#555555"/>
+        <rect h="137" w="16" x="6" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="25" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="44" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="63" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="82" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="101" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="120" y="45"/>
+        <fill/>
+        <rect h="137" w="16" x="139" y="45"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="45.5" w="146.5" x="8.5" y="190"/>
+        <fill/>
+        <fillcolor color="#666666"/>
+        <path>
+            <move x="7" y="44"/>
+            <line x="17" y="23"/>
+            <arc large-arc-flag="0" rx="8" ry="8" sweep-flag="1" x="24" x-axis-rotation="0" y="18"/>
+            <line x="137" y="18"/>
+            <arc large-arc-flag="0" rx="8" ry="8" sweep-flag="1" x="144" x-axis-rotation="0" y="23"/>
+            <line x="154" y="44"/>
+            <close/>
+        </path>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="10" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="13.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="9" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="9" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="9" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="10" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="13.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="9" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="13.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="9" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="13.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="9" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="13.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="9" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="29" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="32.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="28" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="28" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="28" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="29" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="32.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="28" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="32.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="28" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="32.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="28" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="32.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="28" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="48" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="51.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="47" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="47" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="47" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="48" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="51.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="47" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="51.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="47" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="51.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="47" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="51.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="47" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="67" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="70.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="66" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="66" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="66" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="67" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="70.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="66" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="70.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="66" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="70.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="66" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="70.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="66" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="86" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="89.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="85" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="85" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="85" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="86" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="89.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="85" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="89.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="85" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="89.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="85" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="89.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="85" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="105" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="108.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="104" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="104" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="104" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="105" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="108.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="104" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="108.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="104" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="108.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="104" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="108.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="104" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="124" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="127.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="123" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="123" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="123" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="124" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="127.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="123" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="127.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="123" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="127.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="123" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="127.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="123" y="124"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="143" y="48"/>
+        <fill/>
+        <strokecolor color="#ffffff"/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="146.5" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="4.5" x="142" y="64"/>
+        <fillstroke/>
+        <rect h="5" w="3.5" x="142" y="83"/>
+        <fill/>
+        <rect h="7" w="3.5" x="142" y="113"/>
+        <fill/>
+        <fillcolor color="#222222"/>
+        <rect h="6" w="8" x="143" y="173"/>
+        <fill/>
+        <fillcolor color="#000000"/>
+        <rect h="5" w="3.5" x="146.5" y="83"/>
+        <fill/>
+        <rect h="5" w="3.5" x="142" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="146.5" y="88.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="142" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="146.5" y="94"/>
+        <fill/>
+        <rect h="5" w="3.5" x="142" y="99.5"/>
+        <fill/>
+        <rect h="5" w="3.5" x="146.5" y="99.5"/>
+        <fill/>
+        <rect h="7" w="3.5" x="142" y="124"/>
+        <fill/>
+    </foreground>
+</shape>
+</shapes>

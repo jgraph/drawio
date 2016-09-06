@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+	<application>drawdotio</application>
+	<!-- IMPORTANT! DO NOT CHANGE THIS VALUE IN SOURCE CONTROL! -->
+	<version>test</version>
+	
+	<!-- Configure java.util.logging -->
+	<system-properties>
+		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+	</system-properties>
+
+	<sessions-enabled>false</sessions-enabled>
+	<threadsafe>false</threadsafe>
+
+	<!-- FOR LOCAL TESTING OF EMBED2 WITH DYNAMIC LOADING -->
+	<static-files>
+		<include path="/styles/**" >
+			<http-header name="Access-Control-Allow-Origin" value="*" />
+    	</include>
+    	<include path="/stencils/**" >
+			<http-header name="Access-Control-Allow-Origin" value="*" />
+    	</include>
+    	<include path="/shapes/**" >
+			<http-header name="Access-Control-Allow-Origin" value="*" />
+    	</include>
+    	<include path="/**" />
+	</static-files>
+
+</appengine-web-app>
