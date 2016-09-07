@@ -8,6 +8,13 @@ License
 -------
 draw.io is dual licensed under either the GPL v3 or the [mxGraph Commerical License](https://www.jgraph.com/Licenses/JGraph_Software_Licence.pdf). To use the commercial license, you must license from [JGraph](https://www.jgraph.com/purchase-mxgraph.html) for payment.
 
+Development
+-----------
+
+A development guide is being started on the Github project wiki. There is no ["draw.io"](http://stackoverflow.com/questions/tagged/draw.io) tag on Stack Overflow currently, but will be when someone adds it to a good question... 
+
+The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an ["mxgraph" tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
+
 Running
 -------
 The simplest way to run draw.io initially is to fork this project, [publish the master branch to Github pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
