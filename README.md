@@ -11,7 +11,7 @@ draw.io is dual licensed under either the GPL v3 or the [mxGraph Commerical Lice
 Development
 -----------
 
-A development guide is being started on the Github project wiki.
+A development guide is being started on the Github project wiki. There is no [draw.io](http://stackoverflow.com/questions/tagged/draw.io) tag on Stack Overflow currently, but will be when someone adds it to a good question... 
 
 The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
 

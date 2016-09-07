@@ -1,3 +1,9 @@
+07-SEP-2016: 5.6.0.3
+
+- Uses mxGraph 3.6
+- Fixes authentication error in Dropbox
+- Adds workaround for Confluence cloud expand macro in Chrome
+
 06-SEP-2016: 5.6.0.2
 
 - Fixes Confluence Cloud plugin
