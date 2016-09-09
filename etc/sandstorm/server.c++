@@ -190,6 +190,13 @@ public:
       // Sandstorm in general, and if they attacker already has write access to upload the
       // malicious content, they have little to gain from hijacking another session.)
       return readFile(path, context, "application/octet-stream");
+    } else if (path == ".can-write") {
+      // Fetch "/.can-write" to determine if the user has write permission, so you can show them
+      // a different UI if not.
+      auto response = context.getResults().initContent();
+      response.setMimeType("text/plain");
+      response.getBody().setBytes(kj::str(canWrite).asBytes());
+      return kj::READY_NOW;
     } else if (path == "" || path.endsWith("/")) {
       // A directory. Serve "index.html".
       return readFile(kj::str("client/", path, "ssindex.html"), context, "text/html; charset=UTF-8");
@@ -232,9 +239,8 @@ public:
           .write(data.begin(), data.size());
 
       KJ_SYSCALL(rename(tempPath.cStr(), path.cStr()));
+      context.getResults().initNoContent();
     }
-
-    context.getResults().initNoContent();
 
     return kj::READY_NOW;
   }
@@ -334,19 +340,23 @@ public:
   kj::Promise<void> getViewInfo(GetViewInfoContext context) override {
     auto viewInfo = context.initResults();
 
-    // Define a "write" permission. People who don't have this will get read-only access.
-    //
-    // Currently, Sandstorm does not support assigning permissions to individuals. There are only
-    // three distinguishable permission levels:
-    // - The owner has all permissions.
-    // - People who know the grain's secret URL (e.g. because the owner shared it with them) can
-    //   open the grain but have no permissions.
-    // - Everyone else cannot even open the grain.
-    //
-    // Thus, only the grain owner will get our "write" permission, but someday it may be possible
-    // for the owner to assign varying permissions to individual people.
+    // Define a "write" permission, and then define roles "editor" and "viewer" where only "editor"
+	// has the "write" permission. This will allow people to share read-only.
     auto perms = viewInfo.initPermissions(1);
     perms[0].setName("write");
+    auto write = perms[0];
+    write.setName("write");
+    write.initTitle().setDefaultText("write");
+
+    auto roles = viewInfo.initRoles(2);
+    auto editor = roles[0];
+    editor.initTitle().setDefaultText("editor");
+    editor.initVerbPhrase().setDefaultText("can edit");
+    editor.initPermissions(1).set(0, true);   // has "write" permission
+    auto viewer = roles[1];
+    viewer.initTitle().setDefaultText("viewer");
+    viewer.initVerbPhrase().setDefaultText("can view");
+	viewer.initPermissions(1).set(0, false); // does not have "write" permission
 
     return kj::READY_NOW;
   }
