@@ -3,6 +3,8 @@
 # one generated using the `capnp id` command.
 
 using Spk = import "/sandstorm/package.capnp";
+using Grain = import "/sandstorm/grain.capnp";
+
 # This imports:
 #   $SANDSTORM_HOME/latest/usr/include/sandstorm/package.capnp
 # Check out that file to see the full, documented package definition format.
@@ -11,7 +13,7 @@ const pkgdef :Spk.PackageDefinition = (
   # The package definition. Note that the spk tool looks specifically for the
   # "pkgdef" constant.
 
-  id = "nfqhx83vvzm80edpgkpax8mhqp176qj2vwg67rgq5e3kjc5r4cyh",
+  id = "a3w50h1435gsxczugm16q0amwkqm9f4crykzea53sv61pt7phk8h",
   # The app ID is actually the public key used to sign the app package.
   # All packages with the same ID are versions of the same app.
   #
@@ -23,11 +25,11 @@ const pkgdef :Spk.PackageDefinition = (
     # This manifest is included in your app package to tell Sandstorm
     # about your app.
 
-    appVersion = 1,  # Increment this for every release.
+    appVersion = 2,  # Increment this for every release.
     
     appTitle = (defaultText = "draw.io"),
     
-    appMarketingVersion = (defaultText = "5.0.2.3"),
+    appMarketingVersion = (defaultText = "5.6.0.3"),
 
     actions = [
       # Define your "new document" handlers here.
@@ -53,23 +55,26 @@ const pkgdef :Spk.PackageDefinition = (
       ),
 
       website = "https://www.draw.io/",
+      codeUrl = "https://github.com/jgraph/draw.io",
+      license = (openSource = gpl3),
       categories = [office, productivity],
 
       author = (
+        upstreamAuthor = "JGraph",
         contactEmail = "support@draw.io",
-        pgpSignature = embed "client/pgp-signature",
+        pgpSignature = embed "pgp-signature",
       ),
-      pgpKeyring = embed "client/pgp-keyring",
+      pgpKeyring = embed "pgp-keyring",
 
-      description = (defaultText = embed "client/description.md"),
+      description = (defaultText = embed "description.md"),
       
-      shortDescription = (defaultText = embed "client/shortDesc.txt"),
+      shortDescription = (defaultText = embed "shortDesc.txt"),
 
       screenshots = [
         (width = 448, height = 243, png = embed "client/images/drawio448.png")
       ],
 
-      changeLog = (defaultText = embed "client/ChangeLog"),
+      changeLog = (defaultText = embed "ChangeLog"),
     )
   ),
 
@@ -82,14 +87,27 @@ const pkgdef :Spk.PackageDefinition = (
       ( packagePath = "client", sourcePath = "client" ),
       # Map client directory at "/client".
 
-      ( sourcePath = "empty" )
-      # Make sure / is mapped to work around Sandstorm bug (temporary).
+      ( sourcePath = "." )
     ]
   ),
 
   alwaysInclude = [ "." ]
   # Always include all mapped files, whether or not they are opened during
   # "spk dev".
+);
+
+const appIndexViewInfo :Grain.UiView.ViewInfo = (
+  permissions = [(name = "write", title = (defaultText = "write"),
+                  description = (defaultText = "allows editing diagrams")),
+                 (name = "read", title = (defaultText = "read"),
+                  description = (defaultText = "allows viewing diagrams"))],
+  roles = [(title = (defaultText = "editor"),
+            permissions = [true, true],
+            verbPhrase = (defaultText = "can edit"),
+            default = true),
+           (title = (defaultText = "viewer"),
+            permissions = [false, true],
+            verbPhrase = (defaultText = "can view"))]
 );
 
 const myCommand :Spk.Manifest.Command = (

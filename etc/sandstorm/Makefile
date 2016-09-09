@@ -6,7 +6,7 @@ SANDSTORM_CAPNP_DIR=/opt/sandstorm/latest/usr/include
 .PHONEY: all clean dev
 
 package.spk: server sandstorm-pkgdef.capnp empty
-	spk pack --keyring="../drawio.key" package.spk
+	spk pack --keyring="drawio.key" package.spk
 
 dev: server sandstorm-pkgdef.capnp empty
 	spk dev
