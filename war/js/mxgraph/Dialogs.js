@@ -687,6 +687,12 @@ var PageSetupDialog = function(editorUi)
 	gridSizeInput.value = graph.getGridSize();
 	td.appendChild(gridSizeInput);
 	
+	mxEvent.addListener(gridSizeInput, 'change', function()
+	{
+		var value = parseInt(gridSizeInput.value);
+		gridSizeInput.value = Math.max(1, (isNaN(value)) ? graph.getGridSize() : value);
+	});
+	
 	row.appendChild(td);
 	tbody.appendChild(row);
 	
@@ -787,7 +793,7 @@ var PageSetupDialog = function(editorUi)
 		
 		if (graph.gridSize !== gridSizeInput.value)
 		{
-			graph.setGridSize(parseFloat(gridSizeInput.value));
+			graph.setGridSize(parseInt(gridSizeInput.value));
 		}
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';

@@ -3399,69 +3399,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		return mxEvent.isControlDown(evt) || (mxClient.IS_MAC && evt.metaKey);
 	};
 
-	// Overridden to handle special alt+shift+cursor keyboard shortcuts
-	var directions = {37: mxConstants.DIRECTION_WEST, 38: mxConstants.DIRECTION_NORTH,
-			39: mxConstants.DIRECTION_EAST, 40: mxConstants.DIRECTION_SOUTH};
-	
-	var keyHandlerGetFunction = keyHandler.getFunction;
-
-	mxKeyHandler.prototype.getFunction = function(evt)
-	{
-		if (directions[evt.keyCode] != null)
-		{
-			var cell = graph.getSelectionCell();
-			
-			if (graph.model.isVertex(cell))
-			{
-				if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
-				{
-					return function()
-					{
-						var cells = graph.connectVertex(cell, directions[evt.keyCode], graph.defaultEdgeLength, evt, true);
-		
-						if (cells != null && cells.length > 0)
-						{
-							if (cells.length == 1 && graph.model.isEdge(cells[0]))
-							{
-								graph.setSelectionCell(graph.model.getTerminal(cells[0], false));
-							}
-							else
-							{
-								graph.setSelectionCell(cells[cells.length - 1]);
-							}
-							
-							if (editorUi.hoverIcons != null)
-							{
-								editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
-							}
-						}
-					};
-				}
-				else
-				{
-					// Avoids consuming event if no vertex is selected by returning null below
-					// Cursor keys move and resize (ctrl) cells
-					if (this.isControlDown(evt))
-					{
-						return function()
-						{
-							nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null, true);
-						};
-					}
-					else
-					{
-						return function()
-						{
-							nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null);
-						};
-					}
-				}
-			}
-		}
-
-		return keyHandlerGetFunction.apply(this, arguments);
-	};
-
 	var queue = [];
 	var thread = null;
 	
@@ -3601,6 +3538,68 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		}, 200);
 	};
 	
+	// Overridden to handle special alt+shift+cursor keyboard shortcuts
+	var directions = {37: mxConstants.DIRECTION_WEST, 38: mxConstants.DIRECTION_NORTH,
+			39: mxConstants.DIRECTION_EAST, 40: mxConstants.DIRECTION_SOUTH};
+	
+	var keyHandlerGetFunction = keyHandler.getFunction;
+
+	mxKeyHandler.prototype.getFunction = function(evt)
+	{
+		if (directions[evt.keyCode] != null && !graph.isSelectionEmpty())
+		{
+			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
+			{
+				if (graph.model.isVertex(graph.getSelectionCell()))
+				{
+					return function()
+					{
+						var cells = graph.connectVertex(graph.getSelectionCell(), directions[evt.keyCode],
+							graph.defaultEdgeLength, evt, true);
+		
+						if (cells != null && cells.length > 0)
+						{
+							if (cells.length == 1 && graph.model.isEdge(cells[0]))
+							{
+								graph.setSelectionCell(graph.model.getTerminal(cells[0], false));
+							}
+							else
+							{
+								graph.setSelectionCell(cells[cells.length - 1]);
+							}
+							
+							if (editorUi.hoverIcons != null)
+							{
+								editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
+							}
+						}
+					};
+				}
+			}
+			else
+			{
+				// Avoids consuming event if no vertex is selected by returning null below
+				// Cursor keys move and resize (ctrl) cells
+				if (this.isControlDown(evt))
+				{
+					return function()
+					{
+						nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null, true);
+					};
+				}
+				else
+				{
+					return function()
+					{
+						nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null);
+					};
+				}
+			}
+		}
+
+		return keyHandlerGetFunction.apply(this, arguments);
+	};
+
 	// Binds keystrokes to actions
 	keyHandler.bindAction = mxUtils.bind(this, function(code, control, key, shift)
 	{

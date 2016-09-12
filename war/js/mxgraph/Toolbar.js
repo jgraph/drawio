@@ -723,7 +723,14 @@ Toolbar.prototype.addItem = function(sprite, key, c, ignoreDisabled)
 	
 	if (action != null)
 	{
-		elt = this.addButton(sprite, action.label, action.funct, c);
+		var tooltip = action.label;
+		
+		if (action.shortcut != null)
+		{
+			tooltip += ' (' + action.shortcut + ')';
+		}
+		
+		elt = this.addButton(sprite, tooltip, action.funct, c);
 
 		if (!ignoreDisabled)
 		{

@@ -5195,7 +5195,7 @@
 			
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);
-			div.style.right = '42px';
+			div.style.right = (uiTheme != 'atlas') ? '52px' : '42px';
 		}
 	};
 

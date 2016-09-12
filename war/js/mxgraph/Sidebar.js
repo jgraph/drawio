@@ -1731,24 +1731,13 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	this.graph.labelsVisible = (showLabel == null || showLabel);
 	var fo = mxClient.NO_FO;
 	mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-	
-	// Paints faster by using the known width and height
-	if (false && realWidth != null && realHeight != null)
-	{
-		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / realWidth, (height - 2 * this.thumbBorder) / realHeight) * 100) / 100;
-		this.graph.view.scaleAndTranslate(s, Math.floor((width - realWidth * s) / 2 / s), Math.floor((height - realHeight * s) / 2 / s));
-		this.graph.addCells(cells);
-	}
-	else
-	{
-		this.graph.view.scaleAndTranslate(1, 0, 0);
-		this.graph.addCells(cells);
-		var bounds = this.graph.getGraphBounds();
-		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width, (height - 2 * this.thumbBorder)
-			/ bounds.height) * 100) / 100;
-		this.graph.view.scaleAndTranslate(s, Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
-				Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
-	}
+	this.graph.view.scaleAndTranslate(1, 0, 0);
+	this.graph.addCells(cells);
+	var bounds = this.graph.getGraphBounds();
+	var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width, (height - 2 * this.thumbBorder)
+		/ bounds.height) * 100) / 100;
+	this.graph.view.scaleAndTranslate(s, Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
+			Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
 	
 	var node = null;
 	

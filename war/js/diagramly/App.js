@@ -353,8 +353,10 @@ App.getStoredMode = function()
 
 /**
  * Program flow starts here.
+ * 
+ * Optional callback is called with the app instance.
  */
-App.main = function()
+App.main = function(callback)
 {
 	var lastErrorMessage = null;
 	
@@ -537,6 +539,11 @@ App.main = function()
 			{
 				mxscript('https://js.live.net/v5.0/wl.js', window.DrawOneDriveClientCallback);
 			}
+		}
+		
+		if (callback != null)
+		{
+			callback(ui);
 		}
 		
 		/**
@@ -777,18 +784,18 @@ App.prototype.init = function()
 					this.drive.addListener('userChanged', mxUtils.bind(this, function()
 					{
 						// Changes the footer ads for Google Accounts
-//						if (this.updateAd != null)
-//						{
-//							this.adsHtml = ['<a title="Quick start video" href="https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1" target="_blank">' +
-//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>',
-//											'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
-//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
-//											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
-//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
-//											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
-//							this.updateAd(this.adsHtml.length - 1);
-//						}
+						if (this.updateAd != null)
+						{
+							this.adsHtml = ['<a title="Quick start video" href="https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>',
+											'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
+											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
+											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
+							this.updateAd(this.adsHtml.length - 1);
+						}
 						
 						this.updateUserElement();
 						this.restoreLibraries();
@@ -1596,11 +1603,7 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 		redirect = editLink;
 	}
 		
-	if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
-	{
-		return this.getHtml2(node, graph, file.getTitle(), editLink, redirect, ignoreSelection);
-	}
-	else if (node == null)
+	if (node == null)
 	{
 		return '';
 	}
@@ -1608,7 +1611,7 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 	{
 		var fileNode = node;
 
-		// Ignores case for for possible HTML or XML nodes
+		// Ignores case for possible HTML or XML nodes
 		if (fileNode.nodeName.toLowerCase() != 'mxfile')
 		{
 			// Removes control chars in input for correct roundtrip check
@@ -1643,9 +1646,14 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 		}
 				
 		var xml = mxUtils.getXml(fileNode);
-
+		
+		// Writes the file as an embedded HTML file
+		if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
+		{
+			xml = this.getHtml2(fileNode, graph, file.getTitle(), editLink, redirect, ignoreSelection);
+		}
 		// Maps the XML data to the content attribute in the SVG node 
-		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
+		else if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
 			if (file != null && (file.getMode() == App.MODE_DEVICE || file.getMode() == App.MODE_BROWSER))
 			{
@@ -1665,9 +1673,11 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection)
+App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage)
 {
 	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+	currentPage = (currentPage != null) ? currentPage : false;
+	
 	var node = this.editor.getGraphXml(ignoreSelection);
 		
 	if (ignoreSelection && this.fileNode != null && this.currentPage != null)
@@ -1676,28 +1686,35 @@ App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCall
 		mxUtils.setTextContent(this.currentPage.node, data);
 		node = this.fileNode.cloneNode(false);
 		
-		// Restores order of pages
-		for (var i = 0; i < this.pages.length; i++)
+		if (currentPage)
 		{
-			var mapping = this.pages[i].mapping;
-			
-			// Updates XML of all pages for realtime
-			if (this.currentPage != this.pages[i] && mapping != null && mapping.needsUpdate)
+			node.appendChild(this.currentPage.node);
+		}
+		else
+		{
+			// Restores order of pages
+			for (var i = 0; i < this.pages.length; i++)
 			{
-				var enc = new mxCodec(mxUtils.createXmlDocument());
-				var temp = enc.encode(mapping.graphModel);
-			
-				// Uses the graph state from the realtime model
-				mapping.writeRealtimeToNode(temp);					
-
-				var data = this.editor.graph.compress(this.editor.graph.zapGremlins(mxUtils.getXml(temp)));
-				mxUtils.setTextContent(this.pages[i].node, data);
+				var mapping = this.pages[i].mapping;
 				
-				// Marks the page as up-to-date
-				mapping.needsUpdate = false;
+				// Updates XML of all pages for realtime
+				if (this.currentPage != this.pages[i] && mapping != null && mapping.needsUpdate)
+				{
+					var enc = new mxCodec(mxUtils.createXmlDocument());
+					var temp = enc.encode(mapping.graphModel);
+				
+					// Uses the graph state from the realtime model
+					mapping.writeRealtimeToNode(temp);					
+	
+					var data = this.editor.graph.compress(this.editor.graph.zapGremlins(mxUtils.getXml(temp)));
+					mxUtils.setTextContent(this.pages[i].node, data);
+					
+					// Marks the page as up-to-date
+					mapping.needsUpdate = false;
+				}
+				
+				node.appendChild(this.pages[i].node);
 			}
-			
-			node.appendChild(this.pages[i].node);
 		}
 	}
 	
@@ -1858,10 +1875,7 @@ App.prototype.getDiagramId = function()
 };
 
 /**
- * Main function. Program starts here.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Opens any file specified in the URL parameters.
  */
 App.prototype.open = function()
 {
@@ -2123,7 +2137,24 @@ App.prototype.start = function()
 		}), onerror, /(\.png)($|\?)/i.test(url));
 	});
 	
-	if (urlParams['url'] != null && this.spinner.spin(document.body, mxResources.get('loading')))
+	// Listens to changes of the hash if not in embed or client mode
+	if (urlParams['client'] != '1' && urlParams['embed'] != '1')
+	{
+		// KNOWN: Does not work in quirks mode
+		mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
+		{
+			var id = this.getDiagramId();
+			var file = this.getCurrentFile();
+			
+			if (file == null || file.getHash() != id)
+			{
+				this.loadFile(id, true);
+			}
+		}));
+	}
+	
+	if ((window.location.hash == null || window.location.hash.length <= 1) &&
+		urlParams['url'] != null && this.spinner.spin(document.body, mxResources.get('loading')))
 	{
 		try
 		{
@@ -2308,7 +2339,8 @@ App.prototype.start = function()
 		
 		var value = decodeURIComponent(urlParams['create'] || '');
 		
-		if (value != null && value.length > 0 && this.spinner.spin(document.body, mxResources.get('loading')))
+		if ((window.location.hash == null || window.location.hash.length <= 1) &&
+			value != null && value.length > 0 && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var reconnect = mxUtils.bind(this, function()
 			{
@@ -2422,19 +2454,6 @@ App.prototype.start = function()
 			}
 			else
 			{
-				// Listens to changes of the hash
-				// Known: Does not work in quirks mode
-				mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
-				{
-					var id = this.getDiagramId();
-					var file = this.getCurrentFile();
-					
-					if (file == null || file.getHash() != id)
-					{
-						this.loadFile(id, true);
-					}
-				}));
-				
 				done();
 			}
 		}
@@ -3141,79 +3160,47 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		{
 			this.spinner.stop();
 			
-			if (this.mode == null && (urlParams['create'] != null || urlParams['url'] != null))
+			var fn2 = mxUtils.bind(this, function()
 			{
+				window.openFile = null;
+				this.fileLoaded(file);
+				
+				if (libs != null)
+				{
+					this.sidebar.showEntries(libs);
+				}
+
+				if (done != null)
+				{
+					done();
+				}
+			});
+	
+			// Updates the file if it has been overwritten
+			if (!replace && this.getCurrentFile() != null && this.mode != null)
+			{
+				// Opens local file in a new window
 				if (file.constructor == LocalFile)
 				{
-					// LATER: Remove create, title and mode URL params
-					this.fileLoaded(file);
+					window.openFile = new OpenFile(function()
+					{
+						window.openFile = null;
+					});
+						
+					window.openFile.setData(file.getData(), file.getTitle());
 				}
-				else if (this.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					// Makes sure the file is not loaded when the hash changes
-					this.setCurrentFile(file);
-					window.location.hash = file.getHash();
-					
-					// Removes create URL parameter and reloads page
-					window.location.search = this.getSearch(['create', 'title', 'notitle', 'mode', 'url']);
-				}
+
+				window.openWindow(url, null, fn2);
 			}
 			else
 			{
-				var fn2 = mxUtils.bind(this, function()
-				{
-					// Replaces current URL for non-local files if user wants to open in same window
-					if (file.constructor != LocalFile && (urlParams['create'] != null || urlParams['url'] != null))
-					{
-						this.setCurrentFile(file);
-						window.location.hash = file.getHash();
-						
-						// Removes URL parameters and reloads page
-						window.location.search = this.getSearch(['create', 'title', 'notitle', 'mode', 'url']);
-					}
-					else
-					{
-						window.openFile = null;
-						this.fileLoaded(file);
-						
-						if (libs != null)
-						{
-							this.sidebar.showEntries(libs);
-						}
-					}
-
-					if (done != null)
-					{
-						done();
-					}
-				});
-		
-				// Updates the file if it has been overwritten
-				if (!replace && (this.getCurrentFile() != null && (decodeURIComponent(this.getDiagramId()) !=
-					decodeURIComponent(file.getHash()) || file.constructor == LocalFile)))
-				{
-					// Opens local file in a new window
-					if (file.constructor == LocalFile)
-					{
-						window.openFile = new OpenFile(function()
-						{
-							window.openFile = null;
-						});
-							
-						window.openFile.setData(file.getData(), file.getTitle());
-					}
-
-					window.openWindow(url, null, fn2);
-				}
-				else
-				{
-					fn2();
-				}
+				fn2();
 			}
 		});
 		
-		// Updates data in memory for local files
-		if (file.constructor == LocalFile)
+		// Updates data in memory for local files and save is implicit
+		// via start of realtime for DriveFiles
+		if (file.constructor == LocalFile || file.constructor == DriveFile)
 		{
 			fn();
 		}
@@ -4087,8 +4074,10 @@ App.prototype.fileLoaded = function(file)
 	{
 		try
 		{
-			file.open();
+			// Order is significant, current file needed for correct
+			// file format for initial save after starting realtime
 			this.setCurrentFile(file);
+			file.open();
 			this.diagramContainer.style.visibility = '';
 			this.formatContainer.style.visibility = '';
 			
@@ -4558,44 +4547,6 @@ EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSele
 			}
 		}));
 	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.getOrCreateVoiceButton = function()
-{
-	if (this.voiceButton == null)
-	{
-		this.voiceButton = document.createElement('div');
-		this.voiceButton.className = 'geBtn';
-		this.voiceButton.style.width = '140px';
-		this.voiceButton.style.minWidth = '140px';
-		this.voiceButton.style.textOverflow = 'ellipsis';
-		this.voiceButton.style.overflowX = 'hidden';
-		this.voiceButton.style.fontWeight = 'bold';
-		this.voiceButton.style.textAlign = 'center';
-		this.voiceButton.style.display = 'inline-block';
-		this.voiceButton.style.padding = '0 10px 0 10px';
-		this.voiceButton.style.marginTop = '-4px';
-		this.voiceButton.style.height = '28px';
-		this.voiceButton.style.lineHeight = '28px';
-		this.voiceButton.style.color = '#235695';
-		
-		if (this.buttonContainer.firstChild != null)
-		{
-			this.buttonContainer.insertBefore(this.voiceButton, this.buttonContainer.firstChild);
-		}
-		else
-		{
-			this.buttonContainer.appendChild(this.voiceButton);
-		}
-	}
-	
-	return this.voiceButton;
 };
 
 /**
@@ -5420,7 +5371,12 @@ App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSe
 		else
 		{
 			var bounds = this.editor.graph.getGraphBounds();
-			var data = this.getFileData(true, null, null, null, ignoreSelection);
+			
+			// Exports only current page for PDF since it does not contain file data, but for
+			// the other formats with XML included we need to send the complete data and use
+			// the from/to URL parameters to specify the page to be exported.
+			var data = this.getFileData(true, null, null, null, ignoreSelection, format != 'xmlpng');
+			var range = '';
 			
 			if (bounds.width * bounds.height <= MAX_AREA && data.length <= MAX_REQUEST_SIZE)
 			{
@@ -5431,11 +5387,24 @@ App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSe
 		       		embed = '1';
 		       		format = 'png';
 		       		filename = basename + '.' + format;
+		       		
+		       		// Finds the current page number
+		       		if (this.pages != null && this.currentPage != null)
+		       		{
+		       			for (var i = 0; i < this.pages.length; i++)
+		       			{
+		       				if (this.pages[i] == this.currentPage)
+		       				{
+		       					range = '&from=' + i;
+		       					break;
+		       				}
+		       			}
+		       		}
 		       	}
 		       	
 				this.saveRequest(data, filename, format, function(newTitle, base64)
 				{
-					return new mxXmlRequest(EXPORT_URL, 'format=' + format +
+					return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
 						'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 						encodeURIComponent(data) + ((newTitle != null) ?
 						'&filename=' + encodeURIComponent(newTitle) : ''));
@@ -5902,7 +5871,7 @@ App.prototype.updateHeader = function()
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
 		this.toggleFormatElement.style.top = '5px';
-		this.toggleFormatElement.style.right = '26px';
+		this.toggleFormatElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '26px' : '10px';
 		this.toggleFormatElement.style.padding = '2px';
 		this.toggleFormatElement.style.fontSize = '14px';
 		this.toggleFormatElement.className = (uiTheme != 'atlas') ? 'geButton' : '';
@@ -5935,7 +5904,7 @@ App.prototype.updateHeader = function()
 		this.fullscreenElement.style.position = 'absolute';
 		this.fullscreenElement.style.display = 'inline-block';
 		this.fullscreenElement.style.top = '5px';
-		this.fullscreenElement.style.right = '42px';
+		this.fullscreenElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '42px' : '26px';
 		this.fullscreenElement.style.padding = '2px';
 		this.fullscreenElement.style.fontSize = '14px';
 		this.fullscreenElement.className = (uiTheme != 'atlas') ? 'geButton' : '';
@@ -5951,7 +5920,7 @@ App.prototype.updateHeader = function()
 
 		mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
 		{
-			if (uiTheme != 'atlas')
+			if (uiTheme != 'atlas' && urlParams['embed'] != '1')
 			{
 				this.toggleCompactMode(!collapsed);
 			}

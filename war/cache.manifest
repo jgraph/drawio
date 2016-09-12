@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 09/07/2016 03:32 PM
+# 09/12/2016 12:53 PM
 
 /app.html
 /index.html?offline=1
@@ -49,6 +49,7 @@ CACHE MANIFEST
 /images/glyphicons_google.png
 /images/glyphicons_facebook.png
 /images/glyphicons_twitter.png
+/images/glyphicons_github.png
 /js/jscolor/arrow.gif
 /js/jscolor/hs.png
 /js/jscolor/cross.gif

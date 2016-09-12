@@ -90,7 +90,39 @@ Draw.loadPlugin(function(ui) {
 	mxResources.parse('speechQuit=Quit');
 	
 	// Installs footer click handler
-	var td = ui.getOrCreateVoiceButton();
+	function getOrCreateVoiceButton(ui)
+	{
+		if (ui.voiceButton == null)
+		{
+			ui.voiceButton = document.createElement('div');
+			ui.voiceButton.className = 'geBtn';
+			ui.voiceButton.style.width = '140px';
+			ui.voiceButton.style.minWidth = '140px';
+			ui.voiceButton.style.textOverflow = 'ellipsis';
+			ui.voiceButton.style.overflowX = 'hidden';
+			ui.voiceButton.style.fontWeight = 'bold';
+			ui.voiceButton.style.textAlign = 'center';
+			ui.voiceButton.style.display = 'inline-block';
+			ui.voiceButton.style.padding = '0 10px 0 10px';
+			ui.voiceButton.style.marginTop = '-4px';
+			ui.voiceButton.style.height = '28px';
+			ui.voiceButton.style.lineHeight = '28px';
+			ui.voiceButton.style.color = '#235695';
+			
+			if (ui.buttonContainer.firstChild != null)
+			{
+				ui.buttonContainer.insertBefore(ui.voiceButton, ui.buttonContainer.firstChild);
+			}
+			else
+			{
+				ui.buttonContainer.appendChild(ui.voiceButton);
+			}
+		}
+		
+		return ui.voiceButton;
+	};
+
+	var td = getOrCreateVoiceButton(ui);
 	
 	if (td != null)
 	{
@@ -232,7 +264,7 @@ Draw.loadPlugin(function(ui) {
 					
 					if (index == currentVoice)
 					{
-						ui.menus.addCheckmark(item);
+						menu.addCheckmark(item, Editor.checkmarkImage);
 					}
 				})(i);
 			}

@@ -488,6 +488,7 @@
 				<exclude name="glyphicons_blogger.png"/>
 				<exclude name="glyphicons_google.png"/>
 				<exclude name="glyphicons_twitter.png"/>
+				<exclude name="glyphicons_github.png"/>
 				<exclude name="stop-flat-icon-80.png"/>
 				<exclude name="1x1.png"/>
 				<exclude name="2x2.png"/>
