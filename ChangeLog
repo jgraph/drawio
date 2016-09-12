@@ -1,3 +1,17 @@
+12-SEP-2016: 5.6.0.4
+
+- Uses mxGraph 3.6.0.1
+- Adds reset for undo history of in-place editor
+- Fixes inconsistent selection check for cursor keys
+- Adds hash listener for pages with url parameters
+- Fixes PDF, image with XML export for multiple pages
+- File ID has precedence over create, url parameters
+- Adds validation for grid size in page setup dialog
+- Fixes fullscreen toggle in embed mode for Kennedy
+- Adds keyboard shortcuts in toolbar tooltips
+- Uses mxfile wrapper for embedded HTML files
+- Adds optional callback argument in App.main
+
 07-SEP-2016: 5.6.0.3
 
 - Uses mxGraph 3.6

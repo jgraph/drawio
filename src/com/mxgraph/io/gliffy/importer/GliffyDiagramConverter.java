@@ -331,7 +331,7 @@ public class GliffyDiagramConverter {
 				GliffyImage image = graphic.getImage();
 				cell.setVertex(true);
 				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
-				style.append("image=" + image.getUrl());
+				style.append("image=" + image.getUrl()).append(";");
 
 				text = gliffyObject.getText();
 			}
