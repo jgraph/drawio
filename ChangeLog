@@ -1,3 +1,8 @@
+13-SEP-2016: 5.0.6.5
+
+- Adds multiple (previous) predefined color sets
+- Adds Alt+(Shift+)Tab for select parent/child
+
 12-SEP-2016: 5.6.0.4
 
 - Uses mxGraph 3.6.0.1

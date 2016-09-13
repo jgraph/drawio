@@ -1,0 +1,1312 @@
+<shapes name="mxGraph.rack.Oracle">
+    <shape name="Netra Blade X3-2B Server" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="32" w="14.5" h="27" arcsize="15.9"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="61" w="14.5" h="27" arcsize="15.9"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="3" y="91" w="5" h="27"/>
+            <stroke/>
+            <rect x="11" y="91" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra CP3260 ATCA Blade Server" h="113" w="10.15">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="10.15" h="113"/>
+            <fillstroke/>
+            <rect x="2.5" y="65" w="5" h="5"/>
+            <stroke/>
+            <rect x="2.5" y="75" w="5" h="5"/>
+            <stroke/>
+            <rect x="2.5" y="85" w="5" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra CP3270 ATCA Blade Server" h="113" w="10.15">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="10.15" h="113"/>
+            <fillstroke/>
+            <fillcolor color="#f8f8f8"/>
+            <rect x="0" y="4" w="7" h="25"/>
+            <fillstroke/>
+            <rect x="2.5" y="35" w="5" h="5"/>
+            <stroke/>
+            <rect x="2.5" y="45" w="5" h="5"/>
+            <stroke/>
+            <rect x="2.5" y="55" w="5" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra CT900 ATCA Blade Server" h="177.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="177.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="177.6"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="7" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="46.6" y="12"/>
+                <line x="46.6" y="125"/>
+                <move x="6" y="12"/>
+                <line x="155" y="12"/>
+                <move x="16.15" y="12"/>
+                <line x="16.15" y="125"/>
+                <move x="26.3" y="12"/>
+                <line x="26.3" y="125"/>
+                <move x="36.45" y="12"/>
+                <line x="36.45" y="125"/>
+                <move x="56.75" y="12"/>
+                <line x="56.75" y="125"/>
+                <move x="66.9" y="12"/>
+                <line x="66.9" y="125"/>
+                <move x="148" y="12"/>
+                <line x="148" y="125"/>
+                <move x="77.05" y="12"/>
+                <line x="77.05" y="125"/>
+                <move x="87.2" y="12"/>
+                <line x="87.2" y="125"/>
+                <move x="97.35" y="12"/>
+                <line x="97.35" y="125"/>
+                <move x="107.5" y="12"/>
+                <line x="107.5" y="125"/>
+                <move x="117.65" y="12"/>
+                <line x="117.65" y="125"/>
+                <move x="127.8" y="12"/>
+                <line x="127.8" y="125"/>
+                <move x="137.95" y="12"/>
+                <line x="137.95" y="125"/>
+            </path>
+            <stroke/>
+            <rect x="84" y="0" w="65" h="8"/>
+            <stroke/>
+            <path>
+                <move x="6" y="125"/>
+                <line x="155" y="125"/>
+                <move x="6" y="140"/>
+                <line x="155" y="140"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="56.5" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+            <roundrect x="106" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Netra CT9000 Server" h="177.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="177.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="177.6"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="7" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="46.6" y="12"/>
+                <line x="46.6" y="125"/>
+                <move x="6" y="12"/>
+                <line x="155" y="12"/>
+                <move x="16.15" y="12"/>
+                <line x="16.15" y="125"/>
+                <move x="26.3" y="12"/>
+                <line x="26.3" y="125"/>
+                <move x="36.45" y="12"/>
+                <line x="36.45" y="125"/>
+                <move x="56.75" y="12"/>
+                <line x="56.75" y="125"/>
+                <move x="66.9" y="12"/>
+                <line x="66.9" y="125"/>
+                <move x="148" y="12"/>
+                <line x="148" y="125"/>
+                <move x="77.05" y="12"/>
+                <line x="77.05" y="125"/>
+                <move x="87.2" y="12"/>
+                <line x="87.2" y="125"/>
+                <move x="97.35" y="12"/>
+                <line x="97.35" y="125"/>
+                <move x="107.5" y="12"/>
+                <line x="107.5" y="125"/>
+                <move x="117.65" y="12"/>
+                <line x="117.65" y="125"/>
+                <move x="127.8" y="12"/>
+                <line x="127.8" y="125"/>
+                <move x="137.95" y="12"/>
+                <line x="137.95" y="125"/>
+            </path>
+            <stroke/>
+            <rect x="84" y="0" w="65" h="8"/>
+            <stroke/>
+            <path>
+                <move x="6" y="125"/>
+                <line x="155" y="125"/>
+                <move x="6" y="140"/>
+                <line x="155" y="140"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="56.5" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+            <roundrect x="106" y="141.25" w="48" h="35" arcsize="7.41"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Netra Server X3-2" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="95" y="2" w="41" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="2"/>
+                <line x="89" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="92" y="5"/>
+                <line x="92" y="6"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="95" y="9"/>
+                <line x="150" y="9"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="153" y="12"/>
+                <line x="153" y="25"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="150" y="28"/>
+                <line x="11" y="28"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="8" y="25"/>
+                <close/>
+            </path>
+            <fill/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="30" y="18" w="27" h="6"/>
+            <fillstroke/>
+            <rect x="109" y="18" w="27" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra Sparc T4-1 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="148" y="1.5" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="7" y="6" w="23" h="23" arcsize="13.04"/>
+            <fill/>
+            <roundrect x="31" y="6" w="23" h="23" arcsize="13.04"/>
+            <fill/>
+            <roundrect x="55" y="6" w="23" h="23" arcsize="13.04"/>
+            <fill/>
+            <roundrect x="79" y="6" w="23" h="23" arcsize="13.04"/>
+            <fill/>
+            <roundrect x="103" y="6" w="23" h="23" arcsize="13.04"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="141" y="1.5" w="5" h="27"/>
+            <stroke/>
+            <rect x="134" y="1.5" w="5" h="27"/>
+            <stroke/>
+            <rect x="127" y="1.5" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra Sparc T4-1B Server Module" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="36" w="14.5" h="82" arcsize="12.17"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Netra Sparc T4-2 Server" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <stroke/>
+            <rect x="9" y="44" w="56" h="5"/>
+            <stroke/>
+            <rect x="39" y="5" w="6" h="7"/>
+            <stroke/>
+            <rect x="113" y="5" w="6" h="7"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="11" y="57"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="51"/>
+                <line x="65" y="51"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="68" y="48"/>
+                <line x="68" y="45"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="65" y="42"/>
+                <line x="11" y="42"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="8" y="39"/>
+                <line x="8" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="2"/>
+                <line x="33" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="36" y="5"/>
+                <line x="36" y="13"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="39" y="16"/>
+                <line x="45" y="16"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="48" y="13"/>
+                <line x="48" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="51" y="2"/>
+                <line x="107" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="110" y="5"/>
+                <line x="110" y="13"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="113" y="16"/>
+                <line x="119" y="16"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="122" y="13"/>
+                <line x="122" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="125" y="2"/>
+                <line x="150" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="153" y="5"/>
+                <line x="153" y="54"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="150" y="57"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Netra X4270 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="111" y="2" w="41" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="8"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="5"/>
+                <line x="102" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="105" y="8"/>
+                <line x="105" y="8"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="108" y="11"/>
+                <line x="150" y="11"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="153" y="14"/>
+                <line x="153" y="25"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="150" y="28"/>
+                <line x="11" y="28"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="8" y="25"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Netra X6270 Server Module" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="32" w="14.5" h="56" arcsize="13.02"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+            <rect x="3" y="91" w="5" h="27"/>
+            <stroke/>
+            <rect x="11" y="91" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sparc Enterprise M4000 Server" h="88.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="88.8"/>
+            <fillstroke/>
+            <rect x="10" y="12" w="27" h="5"/>
+            <stroke/>
+            <rect x="10" y="3" w="56" h="5"/>
+            <stroke/>
+            <rect x="15" y="28" w="30" h="57"/>
+            <stroke/>
+            <rect x="49" y="28" w="30" h="57"/>
+            <stroke/>
+            <rect x="44" y="12" w="35" h="13"/>
+            <stroke/>
+            <rect x="10" y="19" w="27" h="5"/>
+            <stroke/>
+            <roundrect x="1.5" y="22" w="3" h="44.8" arcsize="26.67"/>
+            <stroke/>
+            <roundrect x="156.4" y="22" w="3" h="44.8" arcsize="26.67"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="83" y="6"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="86" y="3"/>
+                <line x="137" y="3"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="140" y="6"/>
+                <line x="140" y="35"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="143" y="38"/>
+                <line x="150" y="38"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="153" y="41"/>
+                <line x="153" y="81"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="150" y="84"/>
+                <line x="86" y="84"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="83" y="81"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sparc Enterprise M5000 Server" h="148" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="148"/>
+            <fillstroke/>
+            <rect x="10" y="68" w="27" h="5"/>
+            <stroke/>
+            <rect x="107" y="68" w="45" h="5"/>
+            <stroke/>
+            <rect x="15" y="88" w="30" h="57"/>
+            <stroke/>
+            <rect x="49" y="88" w="30" h="57"/>
+            <stroke/>
+            <rect x="69" y="67.5" w="35" h="13"/>
+            <stroke/>
+            <rect x="10" y="75" w="27" h="5"/>
+            <stroke/>
+            <roundrect x="1.5" y="52" w="3" h="44.8" arcsize="26.67"/>
+            <stroke/>
+            <roundrect x="156.4" y="52" w="3" h="44.8" arcsize="26.67"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="6"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="3"/>
+                <line x="137" y="3"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="140" y="6"/>
+                <line x="140" y="35"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="143" y="38"/>
+                <line x="150" y="38"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="153" y="41"/>
+                <line x="153" y="60"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="150" y="63"/>
+                <line x="11" y="63"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="8" y="60"/>
+                <close/>
+            </path>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="83" y="88" w="30" h="57"/>
+            <stroke/>
+            <rect x="117" y="88" w="30" h="57"/>
+            <stroke/>
+            <rect x="39" y="68" w="27" h="5"/>
+            <stroke/>
+            <rect x="39" y="75" w="27" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sparc T4-1 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="8" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="37" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="66" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="95" y="17" w="56" h="5"/>
+            <stroke/>
+            <rect x="8" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="37" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="66" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="95" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="9" y="2" w="143" h="12" arcsize="13.55"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sparc T4-1B Server Module" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <strokecolor color="none"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="36" w="14.5" h="82" arcsize="12.17"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sparc T4-2 Server" h="44.5" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="0" y="10"/>
+                <line x="0" y="0"/>
+                <line x="160.9" y="0"/>
+                <line x="160.9" y="10"/>
+                <line x="152.9" y="10"/>
+                <line x="152.9" y="34.4"/>
+                <line x="160.9" y="34.4"/>
+                <line x="160.9" y="44.4"/>
+                <line x="0" y="44.4"/>
+                <line x="0" y="34.4"/>
+                <line x="8" y="34.4"/>
+                <line x="8" y="10"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="124" y="9" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="15" w="27" h="5"/>
+            <stroke/>
+            <rect x="100" y="39.5" w="56" h="5"/>
+            <stroke/>
+            <rect x="124" y="3" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="21" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="27" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="33" w="27" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="10" y="4" w="103" h="34" arcsize="5.87"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sparc T4-4 Server" h="74" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="1" y="1" w="31" h="28" arcsize="10.2"/>
+            <fill/>
+            <roundrect x="33" y="1" w="31" h="28" arcsize="10.2"/>
+            <fill/>
+            <roundrect x="65" y="1" w="31" h="28" arcsize="10.2"/>
+            <fill/>
+            <roundrect x="97" y="1" w="31" h="28" arcsize="10.2"/>
+            <fill/>
+            <roundrect x="129" y="1" w="31" h="28" arcsize="10.2"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="0" y="33"/>
+                <line x="160.9" y="33"/>
+                <move x="25" y="33"/>
+                <line x="25" y="74"/>
+                <move x="33.5" y="33"/>
+                <line x="33.5" y="74"/>
+                <move x="42" y="33"/>
+                <line x="42" y="74"/>
+                <move x="50.5" y="33"/>
+                <line x="50.5" y="74"/>
+                <move x="59" y="33"/>
+                <line x="59" y="74"/>
+                <move x="67.5" y="33"/>
+                <line x="67.5" y="74"/>
+                <move x="76" y="33"/>
+                <line x="76" y="74"/>
+                <move x="84.5" y="33"/>
+                <line x="84.5" y="74"/>
+                <move x="93" y="33"/>
+                <line x="93" y="74"/>
+                <move x="101.5" y="33"/>
+                <line x="101.5" y="74"/>
+                <move x="110" y="33"/>
+                <line x="110" y="74"/>
+                <move x="118.5" y="33"/>
+                <line x="118.5" y="74"/>
+                <move x="127" y="33"/>
+                <line x="127" y="74"/>
+                <move x="135.5" y="33"/>
+                <line x="135.5" y="74"/>
+                <move x="144" y="33"/>
+                <line x="144" y="74"/>
+                <move x="152.5" y="33"/>
+                <line x="152.5" y="74"/>
+                <move x="12.5" y="33"/>
+                <line x="12.5" y="74"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Blade 6000 Enclosure" h="148" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="148"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="148"/>
+            <stroke/>
+            <rect x="10.5" y="0" w="70" h="28"/>
+            <stroke/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="80.5" y="28"/>
+                <line x="80.5" y="148"/>
+                <move x="6" y="28"/>
+                <line x="155" y="28"/>
+                <move x="24.62" y="28"/>
+                <line x="24.62" y="148"/>
+                <move x="43.25" y="28"/>
+                <line x="43.25" y="148"/>
+                <move x="61.88" y="28"/>
+                <line x="61.88" y="148"/>
+                <move x="99.12" y="28"/>
+                <line x="99.12" y="148"/>
+                <move x="117.75" y="28"/>
+                <line x="117.75" y="148"/>
+                <move x="136.38" y="28"/>
+                <line x="136.38" y="148"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="15" y="4" w="61" h="20" arcsize="9.96"/>
+            <fill/>
+            <rect x="80.5" y="0" w="70" h="28"/>
+            <stroke/>
+            <roundrect x="85" y="4" w="61" h="20" arcsize="9.96"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Blade 6000 Ethernet Network Express Module 24p 10 GbE" h="120" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.62" h="120"/>
+            <fillstroke/>
+            <rect x="13" y="112" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="108" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="92" w="3" h="6"/>
+            <stroke/>
+            <rect x="13" y="84" w="3" h="6"/>
+            <stroke/>
+            <rect x="13" y="76" w="3" h="6"/>
+            <stroke/>
+            <rect x="14" y="44" w="2" h="20"/>
+            <stroke/>
+            <path>
+                <move x="14" y="59"/>
+                <line x="16" y="59"/>
+                <move x="14" y="49"/>
+                <line x="16" y="49"/>
+                <move x="14" y="54"/>
+                <line x="16" y="54"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="1" y="1" w="16" h="42" arcsize="12.95"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Blade 6000 Virtualized 40 GbE Network Express Module" h="120" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.62" h="120"/>
+            <fillstroke/>
+            <rect x="13" y="112" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="108" w="3" h="4"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="1" y="36" w="16" h="42" arcsize="12.95"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="13" y="104" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="100" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="92" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="88" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="84" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="80" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="6" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="10" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="14" w="3" h="4"/>
+            <stroke/>
+            <rect x="13" y="18" w="3" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Blade X3-2B Server" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="32" w="14.5" h="27" arcsize="15.9"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="61" w="14.5" h="27" arcsize="15.9"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="3" y="91" w="5" h="27"/>
+            <stroke/>
+            <rect x="11" y="91" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Blade X6270 M2 Server Module" h="120" w="18.5">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="18.5" h="120"/>
+            <fillstroke/>
+            <rect x="3" y="2" w="5" h="27"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="2" y="32" w="14.5" h="56" arcsize="13.02"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="2" w="5" h="27"/>
+            <stroke/>
+            <rect x="3" y="91" w="5" h="27"/>
+            <stroke/>
+            <rect x="11" y="91" w="5" h="27"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun DataCenter Infiniband Switch 36" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <stroke/>
+            <rect x="10" y="9" w="21" h="4"/>
+            <stroke/>
+            <rect x="10" y="3" w="21" h="4"/>
+            <stroke/>
+            <rect x="33" y="3" w="21" h="4"/>
+            <stroke/>
+            <rect x="56" y="3" w="22" h="4"/>
+            <stroke/>
+            <rect x="80" y="3" w="21" h="4"/>
+            <stroke/>
+            <rect x="103" y="3" w="21" h="4"/>
+            <stroke/>
+            <rect x="126" y="3" w="21" h="4"/>
+            <stroke/>
+            <rect x="33" y="9" w="21" h="4"/>
+            <stroke/>
+            <rect x="56" y="9" w="22" h="4"/>
+            <stroke/>
+            <rect x="80" y="9" w="21" h="4"/>
+            <stroke/>
+            <rect x="103" y="9" w="21" h="4"/>
+            <stroke/>
+            <rect x="126" y="9" w="21" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Network 10GbE Switch 72p" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="153" y="4" w="4" h="3"/>
+            <stroke/>
+            <rect x="17" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="153" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="146" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="139" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="132" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="132" y="4" w="4" h="3"/>
+            <stroke/>
+            <rect x="139" y="4" w="4" h="3"/>
+            <stroke/>
+            <rect x="146" y="4" w="4" h="3"/>
+            <stroke/>
+            <rect x="125" y="4" w="4" h="3"/>
+            <stroke/>
+            <rect x="3" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="10" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="31" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="45" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="59" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="73" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="87" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="101" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="115" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="17" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="31" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="45" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="59" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="73" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="87" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="101" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="115" y="4" w="6" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Network QDR InfiniBand Gateway Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="17" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="24" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="30" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="36" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="46" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="52" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="58" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="68" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="74" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="80" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="90" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="96" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="102" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="112" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="118" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="124" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="134" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="140" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="146" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="24" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="30" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="36" y="4" w="6" h="3"/>
+            <stroke/>
+            <rect x="46" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="52" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="58" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="68" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="74" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="80" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="90" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="96" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="102" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="112" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="118" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="124" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="134" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="140" y="10" w="6" h="3"/>
+            <stroke/>
+            <rect x="146" y="10" w="6" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun Server X2-4" h="44.5" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="0" y="10"/>
+                <line x="0" y="0"/>
+                <line x="160.9" y="0"/>
+                <line x="160.9" y="10"/>
+                <line x="152.9" y="9.8"/>
+                <line x="152.9" y="34.4"/>
+                <line x="160.9" y="34.4"/>
+                <line x="160.9" y="44.4"/>
+                <line x="0" y="44.4"/>
+                <line x="0" y="34.4"/>
+                <line x="8" y="34.4"/>
+                <line x="8" y="10"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="124" y="9" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="15" w="27" h="5"/>
+            <stroke/>
+            <rect x="100" y="39.5" w="56" h="5"/>
+            <stroke/>
+            <rect x="124" y="3" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="21" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="27" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="33" w="27" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="10" y="4" w="103" h="34" arcsize="5.87"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Server X2-8" h="74" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="74"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="74"/>
+            <stroke/>
+            <rect x="39" y="61.4" w="27" h="5"/>
+            <stroke/>
+            <rect x="68" y="61.4" w="27" h="5"/>
+            <stroke/>
+            <rect x="39" y="67.9" w="27" h="5"/>
+            <stroke/>
+            <rect x="68" y="67.9" w="27" h="5"/>
+            <stroke/>
+            <rect x="97" y="67.9" w="27" h="5"/>
+            <stroke/>
+            <rect x="126" y="67.9" w="27" h="5"/>
+            <stroke/>
+            <rect x="97" y="61.4" w="27" h="5"/>
+            <stroke/>
+            <rect x="126" y="61.4" w="27" h="5"/>
+            <stroke/>
+            <path>
+                <move x="37" y="0"/>
+                <line x="37" y="74"/>
+                <move x="37" y="14.8"/>
+                <line x="155" y="14.8"/>
+                <move x="37" y="29.6"/>
+                <line x="155" y="29.6"/>
+                <move x="37" y="44.4"/>
+                <line x="155" y="44.4"/>
+                <move x="37" y="59.2"/>
+                <line x="155" y="59.2"/>
+                <move x="6" y="4"/>
+                <line x="37" y="4"/>
+                <move x="6" y="20"/>
+                <line x="37" y="20"/>
+                <move x="6" y="36"/>
+                <line x="37" y="36"/>
+                <move x="6" y="52"/>
+                <line x="37" y="52"/>
+                <move x="6" y="68"/>
+                <line x="37" y="68"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="10" y="6" w="26" h="12" arcsize="18.27"/>
+            <fill/>
+            <roundrect x="10" y="22" w="26" h="12" arcsize="18.27"/>
+            <fill/>
+            <roundrect x="10" y="38" w="26" h="12" arcsize="18.27"/>
+            <fill/>
+            <roundrect x="10" y="54" w="26" h="12" arcsize="18.27"/>
+            <fill/>
+            <roundrect x="39" y="1.5" w="114" h="12" arcsize="13.82"/>
+            <fill/>
+            <roundrect x="39" y="16.3" w="114" h="12" arcsize="13.82"/>
+            <fill/>
+            <roundrect x="39" y="31.1" w="114" h="12" arcsize="13.82"/>
+            <fill/>
+            <roundrect x="39" y="45.9" w="114" h="12" arcsize="13.82"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Server X3-2" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <stroke/>
+            <rect x="108" y="2" w="45" h="5"/>
+            <stroke/>
+            <rect x="10" y="8.7" w="27" h="5"/>
+            <stroke/>
+            <rect x="39" y="8.7" w="27" h="5"/>
+            <stroke/>
+            <rect x="68" y="8.7" w="27" h="5"/>
+            <stroke/>
+            <rect x="97" y="8.7" w="27" h="5"/>
+            <stroke/>
+            <rect x="126" y="8.7" w="27" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="11" y="2" w="95" h="5" arcsize="26.58"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Server X3-2L" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="8" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="37" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="66" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="95" y="9.6" w="56" h="5"/>
+            <stroke/>
+            <rect x="8" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="37" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="66" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="95" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="23.5" w="27" h="5"/>
+            <stroke/>
+            <rect x="95" y="17" w="27" h="5"/>
+            <stroke/>
+            <rect x="124" y="17" w="27" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="9" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="12" y="2"/>
+                <line x="149" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="152" y="5"/>
+                <line x="152" y="5"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="149" y="8"/>
+                <line x="96" y="8"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="93" y="11"/>
+                <line x="93" y="12"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="90" y="15"/>
+                <line x="12" y="15"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="9" y="12"/>
+                <close/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Sun Storage 2500-M2 Array" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="8" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="8" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="2" w="34" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun ZFS Storage 7120" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <stroke/>
+            <rect x="8" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="8" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="20" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="11" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="2" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="2" w="34" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Sun ZFS Storage 7320" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <stroke/>
+            <rect x="8" y="12" w="35" h="7"/>
+            <stroke/>
+            <rect x="8" y="21" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="21" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="21" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="21" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="3" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="12" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="12" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="12" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="3" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="3" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="3" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="31" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="31" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="31" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="31" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="40" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="40" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="40" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="40" w="34" h="7"/>
+            <stroke/>
+            <rect x="8" y="49" w="35" h="7"/>
+            <stroke/>
+            <rect x="45" y="49" w="35" h="7"/>
+            <stroke/>
+            <rect x="82" y="49" w="35" h="7"/>
+            <stroke/>
+            <rect x="119" y="49" w="34" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="SunFire T1000" h="14.85" w="160.8">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.8" h="14.85"/>
+            <fill/>
+            <fillcolor color="#545454"/>
+            <ellipse x="2" y="2" w="3.34" h="3.34"/>
+            <fill/>
+            <ellipse x="2" y="9.35" w="3.34" h="3.34"/>
+            <fill/>
+            <ellipse x="154.93" y="2" w="3.34" h="3.34"/>
+            <fill/>
+            <ellipse x="154.93" y="9.35" w="3.34" h="3.34"/>
+            <fill/>
+            <fillcolor color="#bfbfbf"/>
+            <roundrect x="8.66" y="2.34" w="143.27" h="10.02" arcsize="8.914"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="SunFire X2100" h="14.85" w="161">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="161" h="14.85"/>
+            <fillstroke/>
+            <rect x="3.34" y="8.69" w="72.39" h="3.67"/>
+            <stroke/>
+            <rect x="80.07" y="6.35" w="37.7" h="6.35"/>
+            <stroke/>
+            <rect x="121.1" y="6.35" w="37.7" h="6.35"/>
+            <stroke/>
+            <fillcolor color="#bfbfbf"/>
+            <roundrect x="3.34" y="2.67" w="72.39" h="5.01" arcsize="10.67"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="SunFire X4100" h="14.95" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.9" h="14.95"/>
+            <fillstroke/>
+            <fillcolor color="#bfbfbf"/>
+            <roundrect x="8.67" y="2.69" w="85.35" h="9.75" arcsize="9.54"/>
+            <fill/>
+            <roundrect x="98.69" y="2.35" w="53.01" h="10.43" arcsize="13.37"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="SunFire X4500" h="59.2" w="160.8">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.8" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#bfbfbf"/>
+            <roundrect x="9.66" y="5.33" w="141.94" h="22.97" arcsize="5.89"/>
+            <fill/>
+            <roundrect x="9.66" y="31.3" w="141.94" h="22.97" arcsize="5.89"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="SunFire X4600" h="59.2" w="160.8">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.8" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#bfbfbf"/>
+            <roundrect x="9.33" y="4.99" w="96.29" h="49.28" arcsize="7.69"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <roundrect x="116.62" y="5.66" w="9" h="48.28" arcsize="11.01"/>
+            <stroke/>
+            <roundrect x="130.61" y="5.66" w="9" h="48.28" arcsize="11.01"/>
+            <stroke/>
+            <roundrect x="144.61" y="5.66" w="9" h="48.28" arcsize="11.01"/>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>
