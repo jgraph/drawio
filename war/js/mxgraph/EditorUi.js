@@ -981,14 +981,17 @@ EditorUi.prototype.init = function()
 	mxEvent.addListener(graph.container, 'keydown', mxUtils.bind(this, function(evt)
 	{
 		// Tab selects next cell
-		if (evt.which == 9 && graph.isEnabled())
+		if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
 		{
 			if (graph.isEditing())
 			{
 				graph.stopEditing(false);
 			}
+			else
+			{
+				graph.selectCell(!mxEvent.isShiftDown(evt));
+			}
 			
-			graph.selectCell(!mxEvent.isShiftDown(evt));
 			mxEvent.consume(evt);
 		}
 	}));
@@ -3030,7 +3033,7 @@ EditorUi.prototype.extractGraphModelFromHtml = function(data)
     		if (idx2 > idx)
     		{
     			result = data.substring(idx, idx2 + 21).replace(/&gt;/g, '>').
-    				replace(/&lt;/g, '<').replace(/\n/g, '');
+    				replace(/&lt;/g, '<').replace(/\\&quot;/g, '"').replace(/\n/g, '');
     		}
     	}
 	}
@@ -3040,26 +3043,6 @@ EditorUi.prototype.extractGraphModelFromHtml = function(data)
 	}
 	
 	return result;
-};
-
-/**
- * Returns true if the given string contains a compatible graph model.
- */
-EditorUi.prototype.isCompatibleString = function(data)
-{
-	try
-	{
-		var doc = mxUtils.parseXml(data);
-		var node = this.editor.extractGraphModel(doc.documentElement);
-		
-		return node != null && node.getElementsByTagName('parsererror').length == 0;
-	}
-	catch (e)
-	{
-		// ignore
-	}
-	
-	return false;
 };
 
 /**
@@ -3111,6 +3094,15 @@ EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 	}
 	
 	return result;
+};
+
+/**
+ * Hook for subclassers to return true if event data is a supported format.
+ * This implementation always returns false.
+ */
+EditorUi.prototype.isCompatibleString = function(data)
+{
+	return false;
 };
 
 /**
@@ -3546,53 +3538,75 @@ EditorUi.prototype.createKeyHandler = function(editor)
 
 	mxKeyHandler.prototype.getFunction = function(evt)
 	{
-		if (directions[evt.keyCode] != null && !graph.isSelectionEmpty())
+		if (graph.isEnabled())
 		{
-			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
+			if (evt.keyCode == 9 && mxEvent.isAltDown(evt))
 			{
-				if (graph.model.isVertex(graph.getSelectionCell()))
+				if (mxEvent.isShiftDown(evt))
 				{
+					// Alt+Shift+Tab
 					return function()
 					{
-						var cells = graph.connectVertex(graph.getSelectionCell(), directions[evt.keyCode],
-							graph.defaultEdgeLength, evt, true);
-		
-						if (cells != null && cells.length > 0)
-						{
-							if (cells.length == 1 && graph.model.isEdge(cells[0]))
-							{
-								graph.setSelectionCell(graph.model.getTerminal(cells[0], false));
-							}
-							else
-							{
-								graph.setSelectionCell(cells[cells.length - 1]);
-							}
-							
-							if (editorUi.hoverIcons != null)
-							{
-								editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
-							}
-						}
-					};
-				}
-			}
-			else
-			{
-				// Avoids consuming event if no vertex is selected by returning null below
-				// Cursor keys move and resize (ctrl) cells
-				if (this.isControlDown(evt))
-				{
-					return function()
-					{
-						nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null, true);
+						graph.selectParentCell();
 					};
 				}
 				else
 				{
+					// Alt+Tab
 					return function()
 					{
-						nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null);
+						graph.selectChildCell();
 					};
+				}
+			}
+			else if (directions[evt.keyCode] != null && !graph.isSelectionEmpty())
+			{
+				if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
+				{
+					if (graph.model.isVertex(graph.getSelectionCell()))
+					{
+						return function()
+						{
+							var cells = graph.connectVertex(graph.getSelectionCell(), directions[evt.keyCode],
+								graph.defaultEdgeLength, evt, true);
+			
+							if (cells != null && cells.length > 0)
+							{
+								if (cells.length == 1 && graph.model.isEdge(cells[0]))
+								{
+									graph.setSelectionCell(graph.model.getTerminal(cells[0], false));
+								}
+								else
+								{
+									graph.setSelectionCell(cells[cells.length - 1]);
+								}
+								
+								if (editorUi.hoverIcons != null)
+								{
+									editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
+								}
+							}
+						};
+					}
+				}
+				else
+				{
+					// Avoids consuming event if no vertex is selected by returning null below
+					// Cursor keys move and resize (ctrl) cells
+					if (this.isControlDown(evt))
+					{
+						return function()
+						{
+							nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null, true);
+						};
+					}
+					else
+					{
+						return function()
+						{
+							nudge(evt.keyCode, (mxEvent.isShiftDown(evt)) ? graph.gridSize : null);
+						};
+					}
 				}
 			}
 		}
@@ -3666,9 +3680,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindControlKey(36, function() { if (graph.isEnabled()) { graph.foldCells(true); }}); // Ctrl+Home
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
 		keyHandler.bindControlKey(13, function() { if (graph.isEnabled()) { graph.setSelectionCells(graph.duplicateCells(graph.getSelectionCells(), false)); }}); // Ctrl+Enter
-		keyHandler.bindShiftKey(9, function() { if (graph.isEnabled()) { graph.selectPreviousCell(); }}); // Shift+Tab
-		keyHandler.bindControlKey(9, function() { if (graph.isEnabled()) { graph.selectParentCell(); }}); // Ctrl+Tab
-		keyHandler.bindControlShiftKey(9, function() { if (graph.isEnabled()) { graph.selectChildCell(); }}); // Ctrl+Shift+Tab
 		keyHandler.bindAction(8, false, 'delete'); // Backspace
 		keyHandler.bindAction(8, true, 'deleteAll'); // Backspace
 		keyHandler.bindAction(46, false, 'delete'); // Delete

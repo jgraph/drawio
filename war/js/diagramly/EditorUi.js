@@ -683,6 +683,26 @@
 		
 		return node;
 	};
+	
+	/**
+	 * Returns true if the given string contains a compatible graph model.
+	 */
+	EditorUi.prototype.isCompatibleString = function(data)
+	{
+		try
+		{
+			var doc = mxUtils.parseXml(data);
+			var node = this.editor.extractGraphModel(doc.documentElement);
+			
+			return node != null && node.getElementsByTagName('parsererror').length == 0;
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
+		return false;
+	};
 
 	/**
 	 * Extracts the mxfile from the given HTML data from a data transfer event.
@@ -705,7 +725,7 @@
 		    		if (idx2 > idx)
 		    		{
 		    			result = data.substring(idx, idx2 + 15).replace(/&gt;/g, '>').
-		    				replace(/&lt;/g, '<').replace(/\n/g, '');
+		    				replace(/&lt;/g, '<').replace(/\\&quot;/g, '"').replace(/\n/g, '');
 		    		}
 		    	}
 		    	else
@@ -4179,82 +4199,165 @@
 		StyleFormatPanel.prototype.addStyles = function(div)
 		{
 			var graph = this.editorUi.editor.graph;
+			var picker = document.createElement('div');
+			picker.style.whiteSpace = 'normal';
+			picker.style.paddingLeft = '24px';
+			picker.style.paddingRight = '20px';
+			div.style.paddingBottom = '6px';
+			div.style.position = 'relative';
 
-			div.style.paddingBottom = '4px';
 			var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-orange',
 			                  'plain-yellow', 'plain-red', 'plain-purple', null];
-			var colorsets = [null, {fill: '#f5f5f5', stroke: '#666666'},
-				{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
-				{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
-				{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}];
-			
-			function addButton(colorset)
+
+			function updateScheme(colorsets)
 			{
-				var btn = mxUtils.button('', function(evt)
+				function addButton(colorset)
 				{
-					graph.getModel().beginUpdate();
-					try
+					var btn = mxUtils.button('', function(evt)
 					{
-						var cells = graph.getSelectionCells();
-						
-						for (var i = 0; i < cells.length; i++)
+						graph.getModel().beginUpdate();
+						try
 						{
-							var style = graph.getModel().getStyle(cells[i]);
-			
-							for (var j = 0; j < stylenames.length; j++)
-							{
-								style = mxUtils.removeStylename(style, stylenames[j]);
-							}
+							var cells = graph.getSelectionCells();
 							
-							if (colorset != null)
+							for (var i = 0; i < cells.length; i++)
 							{
-								style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill']);
-								style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke']);
-								style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient']);
+								var style = graph.getModel().getStyle(cells[i]);
+				
+								for (var j = 0; j < stylenames.length; j++)
+								{
+									style = mxUtils.removeStylename(style, stylenames[j]);
+								}
+								
+								if (colorset != null)
+								{
+									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill']);
+									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke']);
+									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient']);
+								}
+								else
+								{
+									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, '#ffffff');
+									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, '#000000');
+									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
+								}
+								
+								graph.getModel().setStyle(cells[i], style);
+							}
+						}
+						finally
+						{
+							graph.getModel().endUpdate();
+						}
+					})
+	
+					btn.style.width = '36px';
+					btn.style.height = '30px';
+					btn.style.margin = '0px 6px 6px 0px';
+					
+					if (colorset != null)
+					{
+						if (colorset['gradient'] != null)
+						{
+							if (mxClient.IS_IE && (mxClient.IS_QUIRKS || document.documentMode < 10))
+							{
+						    	btn.style.filter = 'progid:DXImageTransform.Microsoft.Gradient('+
+				                	'StartColorStr=\'' + colorset['fill'] +
+				                	'\', EndColorStr=\'' + colorset['gradient'] + '\', GradientType=0)';
 							}
 							else
 							{
-								style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, '#ffffff');
-								style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, '#000000');
-								style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
+								btn.style.backgroundImage = 'linear-gradient(' + colorset['fill'] + ' 0px,' +
+									colorset['gradient'] + ' 100%)';
 							}
-							
-							graph.getModel().setStyle(cells[i], style);
 						}
+						else
+						{					
+							btn.style.backgroundColor = colorset['fill'];
+						}
+						
+						btn.style.border = '1px solid ' + colorset['stroke'];
 					}
-					finally
+					else
 					{
-						graph.getModel().endUpdate();
+						btn.style.backgroundColor = '#ffffff';
+						btn.style.border = '1px solid #000000';
 					}
-				})
+					
+					picker.appendChild(btn);
+				};
+				
+				picker.innerHTML = '';
+				
+				for (var i = 0; i < colorsets.length; i++)
+				{
+					if (i > 0 && mxUtils.mod(i, 4) == 0)
+					{
+						mxUtils.br(picker);
+					}
+					
+					addButton(colorsets[i]);
+				}
+			};
 
-				btn.style.width = '44px';
-				btn.style.height = '30px';
-				btn.style.margin = '1px 8px 6px 0px';
-				
-				if (colorset != null)
+			if (this.editorUi.currentScheme == null)
+			{
+				this.editorUi.currentScheme = 0;
+			}
+
+			var schemes = [[null, {fill: '#f5f5f5', stroke: '#666666'},
+				{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
+				{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
+				{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
+			    [null,
+				{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
+				{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
+				{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
+				{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
+				{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
+				{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
+				{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}]];
+			
+			var left = document.createElement('div');
+			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
+				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
+			div.appendChild(left);
+			
+			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
+			{
+				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme - 1, schemes.length);
+				updateScheme(schemes[this.editorUi.currentScheme]);
+			}));
+			
+			var right = document.createElement('div');
+			right.style.cssText = 'position:absolute;left:204px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
+				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
+			div.appendChild(right);
+			
+			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
+			{
+				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme + 1, schemes.length);
+				updateScheme(schemes[this.editorUi.currentScheme]);
+			}));
+			
+			// Hover state
+			function addHoverState(elt)
+			{
+				mxEvent.addListener(elt, 'mouseenter', function()
 				{
-					btn.style.backgroundColor = colorset['fill'];
-					btn.style.border = '1px solid ' + colorset['stroke'];
-				}
-				else
+					elt.style.opacity = '1';
+				});
+				mxEvent.addListener(elt, 'mouseleave', function()
 				{
-					btn.style.backgroundColor = '#ffffff';
-					btn.style.border = '1px solid #000000';
-				}
-				
-				div.appendChild(btn);
+					elt.style.opacity = '0.5';
+				});
 			};
 			
-			for (var i = 0; i < colorsets.length; i++)
-			{
-				if (i > 0 && mxUtils.mod(i, 4) == 0)
-				{
-					mxUtils.br(div);
-				}
-				
-				addButton(colorsets[i]);
-			}
+			addHoverState(left);
+			addHoverState(right);
+			
+			updateScheme(schemes[this.editorUi.currentScheme]);
+			div.appendChild(picker);
 			
 			return div;
 		};
