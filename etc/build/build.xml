@@ -1,191 +1,391 @@
 <?xml version="1.0"?>
 <project basedir="." default="all">
-	<import file="${basedir}/build-github.xml"/>
-
+	
 	<property file="build.properties.local" />
 	<property file="build.properties" />
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
 
-	<target name="reader" depends="atlas">
+	<target name="merge">
+    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
+    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
+    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
+    	</concat>
+    	
+		<echo file="${war.dir}/stencils.xml" append="false"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>]]>${line.separator}</echo>
+		<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[<stencils>]]>${line.separator}</echo>
+    	<concat destfile="${war.dir}/stencils.xml" fixlastline="yes" append="yes">
+    		<fileset dir="${war.dir}/shapes" includes="**/*.xml"/>
+    		<fileset dir="${war.dir}/stencils" includes="**/*.xml"/>
+    	</concat>
+    	<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[</stencils>]]></echo>
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes.min.js">
+			<sources dir="${basedir}/../../build">
+				<file name="shapes.js" />
+			</sources>
+		</jscomp>
+		
+		<tstamp>
+      		<format property="time.stamp" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+  		</tstamp>
+		
+		<echo file="${war.dir}/cache.manifest" append="false">CACHE MANIFEST${line.separator}${line.separator}</echo>
+		<echo file="${war.dir}/cache.manifest" append="true"># THIS FILE WAS GENERATED. DO NOT MODIFY!${line.separator}</echo>
+		<echo file="${war.dir}/cache.manifest" append="true"># ${time.stamp}${line.separator}${line.separator}</echo>
+    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="yes">
+    		<fileset dir="${basedir}" includes="cache.txt"/>
+    	</concat>
+    	
+		<delete dir="${basedir}/../../build"/>
+	</target>
+
+	<target name="app" depends="merge">
 		<delete file=".tmp0.js"/>
 		<echo file=".tmp0.js">
 			var mxBasePath = 'https://www.draw.io/mxgraph/';
-			var mxLoadStylesheets = mxLoadResources = false;
-			var mxLanguage = 'en';
+			var mxLoadStylesheets = false;
 		</echo>
-			
-		<delete file=".tmp1.js"/>
-		<java fork="false" classname="Preprocessor" classpath="${mxgraph2.dir}/etc/build">
-		<arg value="${mxgraph2.dir}/javascript/src/js/mxClient.js"/>
-		<arg value=".tmp1.js"/>
-		<arg value="reader_excludes"/>
-		</java>
-		
-		<loadfile property="version" srcFile="${mxgraph2.dir}/VERSION"/>
-		<replace file=".tmp1.js" token="@MXGRAPH-VERSION@" value="${version}"/>
 
-		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/reader.min.js">
-			<sources dir="${war.dir}/js/sanitizer">
-				<file name="sanitizer.min.js" />
+		<delete file=".tmp1.js"/>
+		<copy file="${war.dir}/styles/default.xml" tofile=".tmp1.xml" overwrite="true"/>
+		<replaceregexp file=".tmp1.xml" match="\n" flags="g" replace=""/>
+		<replaceregexp file=".tmp1.xml" match="\t" flags="g" replace=""/>
+		<replaceregexp file=".tmp1.xml" match="'" replace="\\\\'" byline="true"/>
+		
+		<delete file="Graph-Stylesheet.js"/>
+		<echo file="Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
+		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="yes">
+			<file name=".tmp1.xml" />
+    	</concat>
+		<echo file="Graph-Stylesheet.js" append="true">').documentElement;</echo>
+
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="grapheditor.min.js">
+			<sources dir="${grapheditor.dir}">
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="Sidebar.js" />
+				<file name="Graph.js" />
+				<file name="Shapes.js" />
+				<file name="Actions.js" />
+				<file name="Menus.js" />
+				<file name="Format.js" />
+				<file name="Toolbar.js" />
+				<file name="Dialogs.js" />
+			</sources>
+		</jscomp>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="sidebar.min.js">
+			<sources dir="${war.dir}/js/diagramly/sidebar">
+				<file name="Sidebar.js" />
+				<file name="Sidebar-Advanced.js" />
+				<file name="Sidebar-Android.js" />
+				<file name="Sidebar-ArchiMate.js" />
+				<file name="Sidebar-ArchiMate3.js" />
+				<file name="Sidebar-Arrows2.js" />
+				<file name="Sidebar-AWS.js" />
+				<file name="Sidebar-AWS3D.js" />
+				<file name="Sidebar-Azure.js" />
+				<file name="Sidebar-Basic.js" />
+				<file name="Sidebar-Bootstrap.js" />
+				<file name="Sidebar-BPMN.js" />
+				<file name="Sidebar-Cabinet.js" />
+				<file name="Sidebar-Citrix.js" />
+				<file name="Sidebar-EIP.js" />
+				<file name="Sidebar-Electrical.js" />
+				<file name="Sidebar-ER.js" />
+				<file name="Sidebar-Floorplan.js" />
+				<file name="Sidebar-Flowchart.js" />
+				<file name="Sidebar-Gmdl.js" />
+				<file name="Sidebar-Ios.js" />
+				<file name="Sidebar-Ios7.js" />
+				<file name="Sidebar-LeanMapping.js" />
+				<file name="Sidebar-Mockup.js" />
+				<file name="Sidebar-MSCAE.js" />
+				<file name="Sidebar-Network.js" />
+				<file name="Sidebar-Office.js" />
+				<file name="Sidebar-PID.js" />
+				<file name="Sidebar-Rack.js" />
+				<file name="Sidebar-Sysml.js" />
+			</sources>
+		</jscomp>
+
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/atlas-viewer.min.js">
+			<sources dir=".">
+				<file name=".tmp0.js"/>
 			</sources>
 			
+			<sources dir="${war.dir}/js/spin">
+				<file name="spin.min.js" />
+			</sources>
+				
+			<sources dir="${war.dir}/js/sanitizer">
+				<file name="sanitizer.min.js"/>
+			</sources>
+
 			<sources dir="${war.dir}/js/deflate">
-				<file name="base64.js"/>
-				<file name="pako.min.js"/>
+				<file name="base64.js" />
+				<file name="pako.min.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/json">
-				<file name="json2.min.js"/>
+				<file name="json2.min.js" />
 			</sources>
-					
-			<sources dir=".">
-				<file name=".tmp0.js"/>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Init.js" />
 			</sources>
 
 			<sources dir="${grapheditor.dir}">
 				<file name="Init.js" />
 			</sources>
 
-			<sources dir=".">
-				<file name=".tmp1.js"/>
+			<sources dir="${basedir}/../mxgraph">
+				<file name="mxClient.js" />
 			</sources>
 
 			<sources dir="${grapheditor.dir}">
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
 				<file name="Graph.js" />
-				<file name="Shapes.js"/>
+				<file name="Shapes.js" />
+				<file name="Actions.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="EditorUi.js" />
+				<file name="Pages.js" />
+			</sources>
+					
+			<sources dir=".">
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="GraphViewer.js" />
+			</sources>
+		</jscomp>
+		
+		<delete file=".tmp1.xml"/>
+
+		<echo file=".tmp1.js">
+			(function()
+			{
+				Editor.initMath();
+				GraphViewer.initCss();
+				mxStencilRegistry.dynamicLoading = false;
+				
+				if (window.onDrawioViewerLoad != null)
+				{
+					window.onDrawioViewerLoad();
+				}
+				else
+				{
+					GraphViewer.processElements();
+				}
+			})();
+		</echo>
+		
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/viewer.min.js">
+			<sources dir="${war.dir}/js">
+				<file name="atlas-viewer.min.js"/>
+			</sources>
+
+			<sources dir=".">
+				<file name=".tmp1.js"/>
 			</sources>
 		</jscomp>
 		
 		<delete file=".tmp0.js"/>
 		<delete file=".tmp1.js"/>
-	
-		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/embed.min.js">
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/atlas.min.js">
+			<sources dir="${war.dir}/js/spin">
+				<file name="spin.min.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/sanitizer">
+				<file name="sanitizer.min.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/deflate">
+				<file name="pako.min.js" />
+				<file name="base64.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/json">
+				<file name="json2.min.js"/>
+			</sources>
+
 			<sources dir="${war.dir}/js/diagramly">
-				<file name="Embed.js"/>
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${grapheditor.dir}">
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${basedir}/../mxgraph">
+				<file name="mxClient.js" />
+			</sources>
+			
+			<sources dir=".">
+				<file name="grapheditor.min.js"/>
+				<file name="sidebar.min.js"/>
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="LocalLibrary.js" />
+				<file name="StorageFile.js" />
+				<file name="StorageLibrary.js" />
+				<file name="Dialogs.js" />
+				<file name="EditorUi.js" />
+				<file name="Settings.js" />
+				<file name="App.js" />
+				<file name="Menus.js" />
+				<file name="Pages.js" />
+			</sources>
+				
+			<sources dir=".">
+				<file name="Graph-Stylesheet.js" />
 			</sources>
 		</jscomp>
 
-	    <concat destfile="${war.dir}/js/embed-static.min.js" fixlastline="yes" append="no">
-			<file name="${war.dir}/js/reader.min.js" />
-			<file name="${war.dir}/js/embed.min.js" />
-    	</concat>
-		<replaceregexp file="${war.dir}/js/embed-static.min.js" match="}\)\(\);$" replace=""/>
-		<echo file="${war.dir}/js/embed-static.min.js" append="true">})('</echo>
-		<copy file="${war.dir}/styles/default.xml" tofile=".tmp0.xml" overwrite="true"/>
-		<replaceregexp file=".tmp0.xml" match="\n" flags="g" replace=""/>
-		<replaceregexp file=".tmp0.xml" match="\t" flags="g" replace=""/>
-		<replaceregexp file=".tmp0.xml" match="'" replace="\\\\'" byline="true"/>
-		<concat destfile="${war.dir}/js/embed-static.min.js" fixlastline="no" append="yes">
-			<file name=".tmp0.xml" />
-    	</concat>
-		<delete file=".tmp0.xml"/>
-		<echo file="${war.dir}/js/embed-static.min.js" append="true">');</echo>
+		<loadfile property="version" srcFile="../../VERSION"/>
+		<replace file="${war.dir}/js/atlas.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 		
-		<copy file="${war.dir}/js/diagramly/Embed.js" tofile="${war.dir}/js/embed.dev.js" overwrite="true"/>
-		<replaceregexp file="${war.dir}/js/embed.dev.js" match="}\)\(\);$" replace=""/>
-		<replaceregexp file="${war.dir}/js/embed.min.js" match="}\)\(\);$" replace=""/>
-	</target>
-	
-	<target name="clean-desktop" depends="atlas">
-		<delete dir="${desktop.dir}/js" />
-		<delete dir="${desktop.dir}/images" />
-		<delete dir="${desktop.dir}/img" />
-		<delete dir="${desktop.dir}/mxgraph" />
-		<delete dir="${desktop.dir}/resources" />
-		<delete dir="${desktop.dir}/styles" />
-	</target>
-	
-	<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="desktop-init.min.js">
-		<sources dir="${desktop.dir}">
-		    <file name="Desktop-Init.js" />
-		</sources>
-	</jscomp>
-	
-	<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="desktop-start.min.js">
-		<sources dir="${desktop.dir}">
-		    <file name="Desktop-Start.js" />
-		</sources>
-	</jscomp>
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Extensions.js" />
+			</sources>
+		</jscomp>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/app.min.js">
+			<sources dir="${war.dir}/js/spin">
+				<file name="spin.min.js" />
+			</sources>
 
-	<target name="build-desktop" depends="clean-desktop">
-	    <concat destfile="${desktop.dir}/js/desktop.min.js" fixlastline="yes" append="no">
-	    	<file name="desktop-init.min.js" />
-	    	<file name="${war.dir}/js/app.min.js" />
-	    	<file name="${war.dir}/js/extensions.min.js" />
-			<file name="${war.dir}/js/shapes.min.js" />
-		    <file name="desktop-start.min.js" />
-	    </concat>
-		<delete file="desktop-init.min.js"/>
-		<delete file="desktop-start.min.js"/>
-		<copy todir="${desktop.dir}/js">
-			<fileset file="${war.dir}/stencils.xml"></fileset>
-		</copy>
-		<copy todir="${desktop.dir}/js/jscolor">
-			<fileset dir="${war.dir}/js/jscolor"></fileset>
-		</copy>
-		<copy todir="${desktop.dir}/images">
-			<fileset dir="${war.dir}/images">
-				<exclude name="ajax-loader.gif"/>
-				<exclude name="drawlogo*.png"/>
-				<exclude name="apple-*"/>
-				<exclude name="android-*"/>
-				<exclude name="favicon*"/>
-				<exclude name="mstile-*"/>
-				<exclude name="glyphicons_facebook.png"/>
-				<exclude name="glyphicons_blogger.png"/>
-				<exclude name="glyphicons_google.png"/>
-				<exclude name="glyphicons_twitter.png"/>
-				<exclude name="glyphicons_github.png"/>
-				<exclude name="stop-flat-icon-80.png"/>
-				<exclude name="1x1.png"/>
-				<exclude name="2x2.png"/>
-				<exclude name="3x3.png"/>
-				<exclude name="images/log.png"/>
-				<exclude name="logo-confluence.png"/>
-				<exclude name="logo-jira.png"/>
-				<exclude name="dropbox-logo-*"/>
-				<exclude name="google-drive-logo-*"/>
-				<exclude name="onedrive-logo-*"/>
-				<exclude name="safari-pinned-tab.svg"/>
-				<exclude name="manifest.json"/>
-				<exclude name="browserconfig.xml"/>
+			<sources dir="${war.dir}/js/sanitizer">
+				<file name="sanitizer.min.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/deflate">
+				<file name="pako.min.js" />
+				<file name="base64.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${grapheditor.dir}">
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${basedir}/../mxgraph">
+				<file name="mxClient.js" />
+			</sources>
+
+			<sources dir=".">
+				<file name="grapheditor.min.js"/>
+				<file name="sidebar.min.js"/>
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="LocalLibrary.js" />
+				<file name="StorageFile.js" />
+				<file name="StorageLibrary.js" />
+				<file name="Dialogs.js" />
+				<file name="EditorUi.js" />
+				<file name="Settings.js" />
+			</sources>
+				
+			<sources dir=".">
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/dropbox">
+				<file name="dropbox.min.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly/util">
+				<file name="mxAsyncCanvas.js" />
+				<file name="mxJsCanvas.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioUser.js" />
+				<file name="UrlLibrary.js" />
+				<file name="DriveRealtime.js" />
+				<file name="RealtimeMapping.js" />
+				<file name="DriveFile.js" />
+				<file name="DriveLibrary.js" />
+				<file name="DriveClient.js" />
+				<file name="DropboxClient.js" />
+				<file name="DropboxFile.js" />
+				<file name="DropboxLibrary.js" />
+				<file name="OneDriveFile.js" />
+				<file name="OneDriveLibrary.js" />
+				<file name="OneDriveClient.js" />
+				<file name="ChatWindow.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="App.js" />
+				<file name="Menus.js" />
+				<file name="Pages.js" />
+			</sources>
+		</jscomp>
+		
+		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+
+		<delete file="Graph-Stylesheet.js"/>
+		<delete file="grapheditor.min.js"/>
+		<delete file="sidebar.min.js"/>
+	</target>
+
+	<target name="all" depends="app">
+	</target>
+
+	<!-- ================== Stand-alone war creation ============================= -->
+
+	<path id="javac.class.path">
+		<fileset dir="${war.dir}/WEB-INF/lib" includes="mxgraph-core.jar" />
+		<fileset dir="${basedir}/jars" includes="servlet-api.jar" />
+		<fileset dir="${basedir}/jars" includes="commons-codec-1.10.jar" />
+		<fileset dir="${basedir}/jars" includes="commons-fileupload-1.3.2.jar" />
+		<fileset dir="${basedir}/jars" includes="gson-2.7.jar" />
+	</path>
+
+	<target name="javac">
+		<mkdir dir="${javac.dir}"/>
+		<javac srcdir="${src.dir}" excludes="**/EmbedServlet2.java" encoding="utf-8" destdir="${javac.dir}" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="javac.class.path" />
+		</javac>
+		<copy todir="${javac.dir}/META-INF">
+			<fileset dir="${src.dir}/META-INF">
 			</fileset>
 		</copy>
-		<copy todir="${desktop.dir}/img">
-			<fileset dir="${war.dir}/img"></fileset>
-		</copy>
-		<copy todir="${desktop.dir}/mxgraph">
-			<fileset dir="${war.dir}/mxgraph"></fileset>
-		</copy>
-		<copy todir="${desktop.dir}/resources">
-			<fileset dir="${war.dir}/resources"></fileset>
-		</copy>
-		<copy todir="${desktop.dir}/styles">
-			<fileset dir="${war.dir}/styles"></fileset>
-		</copy>
-		<copy file="${basedir}/desktop-manifest.json" tofile="${desktop.dir}/manifest.json" overwrite="true"/>
-		<loadfile property="version2" srcFile="${basedir}/../../VERSION"/>
-		<replace file="${desktop.dir}/manifest.json" token="@DRAWIO-VERSION@" value="${version2}"/>
-		<zip destfile="${desktop.dir}/../drawio-desktop-${version2}.zip">
-    		<zipfileset dir="${desktop.dir}">
-    			<exclude name="Desktop-Init.js"/>
-    			<exclude name="Desktop-Start.js"/>
-			</zipfileset>
-  		</zip>
+		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
 	</target>
 
-	<target name="atlas" depends="app">
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/atlas.min.js">
-			<sources dir="${war.dir}/js">
-				<file name="atlas.min.js" />
-			</sources>
-	
-			<sources dir="${war.dir}/connect/common/js">
-				<file name="mxReader.js" />
-			</sources>
-		</jscomp>
+	<target name="clean-war" depends="javac" description="Create the stand-alone war file">
+		<delete failonerror="false">
+			<fileset dir="${javac.dir}">
+			</fileset>
+			<fileset dir="${build.dir}">
+			</fileset>
+		</delete>
 	</target>
 	
-	<target name="all" depends="build-desktop,reader">
+	<target name="war" depends="javac" description="Create the stand-alone war file">
+		<zip excludes="**/appengine*.jar,**/jsr*.jar,**/junit*.jar"  destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
+		</zip>
 	</target>
+
 </project>
