@@ -872,8 +872,8 @@ OpenFile.prototype.cancel = function(cancel)
 		// Does not show page breaks if the scale is too small
 		visible = visible && Math.min(bounds.width, bounds.height) > this.minPageBreakDist;
 
-		var horizontalCount = (visible) ? Math.ceil(width / bounds.width) - 1 : 0;
-		var verticalCount = (visible) ? Math.ceil(height / bounds.height) - 1 : 0;
+		var horizontalCount = (visible) ? Math.ceil(height / bounds.height) - 1 : 0;
+		var verticalCount = (visible) ? Math.ceil(width / bounds.width) - 1 : 0;
 		var right = bounds2.x + width;
 		var bottom = bounds2.y + height;
 
@@ -881,77 +881,55 @@ OpenFile.prototype.cancel = function(cancel)
 		{
 			this.horizontalPageBreaks = [];
 		}
-
-		if (this.horizontalPageBreaks != null)
-		{
-			for (var i = 0; i <= horizontalCount; i++)
-			{
-				var pts = [new mxPoint(bounds2.x + (i + 1) * bounds.width, bounds2.y),
-				           new mxPoint(bounds2.x + (i + 1) * bounds.width, bottom)];
-				
-				if (this.horizontalPageBreaks[i] != null)
-				{
-					this.horizontalPageBreaks[i].points = pts;
-					this.horizontalPageBreaks[i].redraw();
-				}
-				else
-				{
-					var pageBreak = new mxPolyline(pts, this.pageBreakColor);
-					pageBreak.dialect = this.dialect;
-					pageBreak.isDashed = this.pageBreakDashed;
-					pageBreak.pointerEvents = false;
-					pageBreak.init(this.view.backgroundPane);
-					pageBreak.redraw();
-					
-					this.horizontalPageBreaks[i] = pageBreak;
-				}
-			}
-			
-			for (var i = horizontalCount; i < this.horizontalPageBreaks.length; i++)
-			{
-				this.horizontalPageBreaks[i].destroy();
-			}
-			
-			this.horizontalPageBreaks.splice(horizontalCount, this.horizontalPageBreaks.length - horizontalCount);
-		}
 		
 		if (this.verticalPageBreaks == null && verticalCount > 0)
 		{
 			this.verticalPageBreaks = [];
 		}
-		
-		if (this.verticalPageBreaks != null)
+			
+		var drawPageBreaks = mxUtils.bind(this, function(breaks)
 		{
-			for (var i = 0; i <= verticalCount; i++)
+			if (breaks != null)
 			{
-				var pts = [new mxPoint(bounds2.x, bounds2.y + (i + 1) * bounds.height),
-				           new mxPoint(right, bounds2.y + (i + 1) * bounds.height)];
+				var count = (breaks == this.horizontalPageBreaks) ? horizontalCount : verticalCount; 
 				
-				if (this.verticalPageBreaks[i] != null)
+				for (var i = 0; i <= count; i++)
 				{
-					this.verticalPageBreaks[i].points = pts;
-					this.verticalPageBreaks[i].redraw();
+					var pts = (breaks == this.horizontalPageBreaks) ?
+						[new mxPoint(Math.round(bounds2.x), Math.round(bounds2.y + (i + 1) * bounds.height)),
+						 new mxPoint(Math.round(right), Math.round(bounds2.y + (i + 1) * bounds.height))] :
+						[new mxPoint(Math.round(bounds2.x + (i + 1) * bounds.width), Math.round(bounds2.y)),
+						 new mxPoint(Math.round(bounds2.x + (i + 1) * bounds.width), Math.round(bottom))];
+					
+					if (breaks[i] != null)
+					{
+						breaks[i].points = pts;
+						breaks[i].redraw();
+					}
+					else
+					{
+						var pageBreak = new mxPolyline(pts, this.pageBreakColor);
+						pageBreak.dialect = this.dialect;
+						pageBreak.isDashed = this.pageBreakDashed;
+						pageBreak.pointerEvents = false;
+						pageBreak.init(this.view.backgroundPane);
+						pageBreak.redraw();
+						
+						breaks[i] = pageBreak;
+					}
 				}
-				else
+				
+				for (var i = count; i < breaks.length; i++)
 				{
-					var pageBreak = new mxPolyline(pts, this.pageBreakColor);
-					pageBreak.dialect = this.dialect;
-					pageBreak.isDashed = this.pageBreakDashed;
-					pageBreak.pointerEvents = false;
-					pageBreak.init(this.view.backgroundPane);
-					pageBreak.redraw();
-		
-					this.verticalPageBreaks[i] = pageBreak;
+					breaks[i].destroy();
 				}
+				
+				breaks.splice(count, breaks.length - count);
 			}
+		});
 			
-			for (var i = verticalCount; i < this.verticalPageBreaks.length; i++)
-			{
-				this.verticalPageBreaks[i].destroy();
-			}
-			
-			this.verticalPageBreaks.splice(verticalCount, this.verticalPageBreaks.length - verticalCount);
-		}
+		drawPageBreaks(this.horizontalPageBreaks);
+		drawPageBreaks(this.verticalPageBreaks);
 	};
 	
 	// Disables removing relative children from parents

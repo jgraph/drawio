@@ -61,7 +61,7 @@
 			this.createVertexTemplateEntry(s + 'tailedArrow;dy1=10;dx1=20;notch=0;arrowHead=20;dx2=25;dy2=30;', 
 					100, 60, '', 'Tailed Arrow', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'tailed').join(' ')),
 			this.createVertexTemplateEntry(s + 'tailedNotchedArrow;dy1=10;dx1=20;notch=20;arrowHead=20;dx2=25;dy2=30;', 
-					100, 60, '', 'Tailed Arrow witch Notch', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'tailed notch notched').join(' ')),
+					100, 60, '', 'Tailed Arrow with Notch', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'tailed notch notched').join(' ')),
 			this.createVertexTemplateEntry(s + 'stripedArrow;dy=0.6;dx=40;notch=25;', 
 					100, 70, '', 'Striped Arrow', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'striped').join(' ')),
 			this.createVertexTemplateEntry(s + 'jumpInArrow;dy=15;dx=38;arrowHead=55;', 

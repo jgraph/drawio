@@ -119,7 +119,11 @@ function SelectPage(ui, page)
 	this.ui = ui;
 	this.page = page;
 	this.previousPage = page;
-	this.ui.updatePageRoot(page);
+	
+	if (page != null)
+	{
+		this.ui.updatePageRoot(page);
+	}
 };
 
 /**
@@ -127,44 +131,47 @@ function SelectPage(ui, page)
  */
 SelectPage.prototype.execute = function()
 {
-	var page = this.ui.currentPage;
-	var editor = this.ui.editor;
-	var graph = editor.graph;
-	
-	// Stores current diagram state in the page
-	var data = editor.graph.compress(graph.zapGremlins(mxUtils.getXml(editor.getGraphXml(true))));
-	mxUtils.setTextContent(page.node, data);
-	page.viewState = graph.getViewState();
-	page.root = graph.model.root;
-	
-	// Removes the previous cells and clears selection
-	graph.view.clear(page.root, true);
-	graph.clearSelection();
+	if (this.page != null && mxUtils.indexOf(this.ui.pages, this.previousPage) >= 0)
+	{
+		var page = this.ui.currentPage;
+		var editor = this.ui.editor;
+		var graph = editor.graph;
 		
-	// Switches the current page
-	this.ui.currentPage = this.previousPage;
-	this.previousPage = page;
-	page = this.ui.currentPage;
+		// Stores current diagram state in the page
+		var data = editor.graph.compress(graph.zapGremlins(mxUtils.getXml(editor.getGraphXml(true))));
+		mxUtils.setTextContent(page.node, data);
+		page.viewState = graph.getViewState();
+		page.root = graph.model.root;
+		
+		// Removes the previous cells and clears selection
+		graph.view.clear(page.root, true);
+		graph.clearSelection();
+			
+		// Switches the current page
+		this.ui.currentPage = this.previousPage;
+		this.previousPage = page;
+		page = this.ui.currentPage;
+	
+		// Switches the root cell and sets the view state
+		graph.model.rootChanged(page.root);
+		graph.setViewState(page.viewState);
+				
+		// Fires event to setting view state from realtime
+		editor.fireEvent(new mxEventObject('setViewState', 'change', this));
+		
+		// Handles grid state in chromeless mode which is stored in Editor instance
+		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.chromeless ||
+			urlParams['grid'] == '1');
 
-	// Switches the root cell and sets the view state
-	graph.model.rootChanged(page.root);
-	graph.setViewState(page.viewState);
-	
-	// Handles grid state in chromeless mode which is stored in Editor instance
-	graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.chromeless ||
-		urlParams['grid'] == '1');
-	
-	// Fires event to setting view state from realtime
-	editor.fireEvent(new mxEventObject('setViewState', 'change', this));
-	
-	// Updates the display
-	editor.updateGraphComponents();
-	graph.view.validate();
-	graph.sizeDidChange();
-	
-	// Fires events
-	editor.graph.fireEvent(new mxEventObject(mxEvent.ROOT));
-	editor.fireEvent(new mxEventObject('pageSelected', 'change', this));
+		// Updates the display
+		editor.updateGraphComponents();
+		graph.view.validate();
+		graph.sizeDidChange();
+		
+		// Fires events
+		editor.graph.fireEvent(new mxEventObject(mxEvent.ROOT));
+		editor.fireEvent(new mxEventObject('pageSelected', 'change', this));
+	}
 };
 
 /**
@@ -187,6 +194,8 @@ mxUtils.extend(ChangePage, SelectPage);
  */
 ChangePage.prototype.execute = function()
 {
+	// Fires event to setting view state from realtime
+	this.ui.editor.fireEvent(new mxEventObject('beforePageChange', 'change', this));
 	this.previousIndex = this.index;
 	
 	if (this.index == null)
@@ -209,8 +218,6 @@ ChangePage.prototype.execute = function()
  */
 EditorUi.prototype.initPages = function()
 {
-	var lastPage = null;
-
 	this.actions.addAction('previousPage', mxUtils.bind(this, function()
 	{
 		this.selectNextPage(false);
@@ -252,16 +259,12 @@ EditorUi.prototype.initPages = function()
 		
 		graphViewValidateBackground.apply(graph.view, arguments);
 	});
-	
-	this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
-	{
-		this.updateTabContainer();
-	}));
 
 	// Math workaround is only needed for initial rendering
 	var ignorePendingMath = false;
+	var lastPage = null;
 	
-	this.editor.addListener('pageSelected',  mxUtils.bind(this, function(sender, evt)
+	var updateTabs = mxUtils.bind(this, function()
 	{
 		this.updateTabContainer();
 		
@@ -333,16 +336,25 @@ EditorUi.prototype.initPages = function()
 			ignorePendingMath = true;
 			Editor.MathJaxClear();
 		}
-	}));
+	});
 	
-	this.editor.addListener('pageMoved',  mxUtils.bind(this, function(sender, evt)
+	// Adds a graph model listener to update the view
+	this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 	{
-		this.updateTabContainer();
-	}));
-	
-	this.editor.addListener('pageRenamed',  mxUtils.bind(this, function(sender, evt)
-	{
-		this.updateTabContainer();
+		var edit = evt.getProperty('edit');
+		var changes = edit.changes;
+		
+		for (var i = 0; i < changes.length; i++)
+		{
+			if (changes[i] instanceof SelectPage ||
+				changes[i] instanceof RenamePage ||
+				changes[i] instanceof MovePage ||
+				changes[i] instanceof mxRootChange)
+			{
+				updateTabs();
+				break;	
+			}
+		}
 	}));
 };
 
@@ -484,6 +496,8 @@ EditorUi.prototype.updatePageRoot = function(page)
 			page.root = this.editor.graph.model.createRoot();
 		}
 	}
+	
+	return page;
 };
 
 /**
@@ -493,14 +507,17 @@ EditorUi.prototype.selectPage = function(page)
 {
 	this.editor.graph.stopEditing();
 	
+	var edit = this.editor.graph.model.createUndoableEdit();
+	
+	// Special flag to bypass autosave for this edit
+	edit.ignoreEdit = true;
+	
 	var change = new SelectPage(this, page);
 	change.execute();
-	
-	var edit = new mxUndoableEdit(this, true);
 	edit.add(change);
+	edit.notify();
 	
-	// Uses view to fire event to bypass autosave
-	this.editor.graph.view.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+	this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
 };
 
 /**
@@ -713,7 +730,9 @@ EditorUi.prototype.updateTabContainer = function()
 	{
 		var graph = this.editor.graph;
 		var wrapper = document.createElement('div');
+		wrapper.style.position = 'relative';
 		wrapper.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+		wrapper.style.verticalAlign = 'top';
 		wrapper.style.height = this.tabContainer.style.height;
 		wrapper.style.whiteSpace = 'nowrap';
 		wrapper.style.overflow = 'hidden';
@@ -868,7 +887,7 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 	tab.style.overflow = 'hidden';
 	tab.style.marginLeft = '-1px';
 	tab.style.height = this.tabContainer.clientHeight + 'px';
-	tab.style.padding = '8px';
+	tab.style.padding = '8px 4px 8px 4px';
 	tab.style.border = '1px solid #c0c0c0';
 	tab.style.borderBottomStyle = 'solid';
 	tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
@@ -904,8 +923,8 @@ EditorUi.prototype.createControlTab = function(paddingTop, html)
 	var tab = this.createTab(true);
 	tab.style.paddingTop = paddingTop + 'px';
 	tab.style.cursor = 'pointer';
-	tab.style.padding = '4px';
 	tab.style.width = '30px';
+	tab.style.lineHeight = '30px';
 	tab.innerHTML = html;
 
 	if (tab.firstChild != null && tab.firstChild.style != null)
@@ -1101,25 +1120,25 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		var model = graph.model;
 
 		menu.addItem(mxResources.get('insert'), null, mxUtils.bind(this, function()
-	{
-		this.insertPage(null, mxUtils.indexOf(this.pages, page) + 1);
-	}), parent);
-
-	menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
-	{
-		this.removePage(page);
-	}), parent);
-	
-	menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
-	{
-		this.renamePage(page, label);
-	}), parent);
-	
-	menu.addSeparator(parent);
-	
-	menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
-	{
-		this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
+		{
+			this.insertPage(null, mxUtils.indexOf(this.pages, page) + 1);
 		}), parent);
-	})
+	
+		menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
+		{
+			this.removePage(page);
+		}), parent);
+		
+		menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
+		{
+			this.renamePage(page, label);
+		}), parent);
+		
+		menu.addSeparator(parent);
+		
+		menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
+		{
+			this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
+		}), parent);
+	});
 };

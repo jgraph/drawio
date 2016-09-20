@@ -186,11 +186,14 @@
 							{
 								item.getXml = function(success, error)
 								{
-									editorUi.drive.executeRequest(gapi.client.drive.revisions.get({'fileId': file.getId(), 'revisionId': item.id}), function(resp)
+									// Workaround for vanished head revision is to use current head revision from descriptor
+									editorUi.drive.executeRequest(gapi.client.drive.revisions.get({'fileId': file.getId(),
+										'revisionId': (resp.items[resp.items.length - 1] === item) ?
+										file.desc.headRevisionId : item.id}), function(resp)
 									{
-										editorUi.drive.getXmlFile(resp, null, function(file)
+										editorUi.drive.getXmlFile(resp, null, function(file2)
 							   			{
-											success(file.getData());
+											success(file2.getData());
 							   			}, function(resp)
 							   			{
 							   				error(resp);
@@ -852,7 +855,7 @@
 
 		// Adds plugins menu item in file menu only if localStorage is available for
 		// storing the plugins.
-		if (isLocalStorage)
+		if (isLocalStorage || mxClient.IS_CHROMEAPP)
 		{
 			var action = editorUi.actions.addAction('scratchpad', function()
 			{
@@ -1016,11 +1019,6 @@
 					{
 						cb2.setAttribute('disabled', 'disabled');
 					}
-					else
-					{
-						cb2.setAttribute('checked', 'checked');
-						cb2.defaultChecked = true;
-					}
 					
 					content.appendChild(cb2);
 					mxUtils.write(content, mxResources.get('selectionOnly'));
@@ -1065,11 +1063,6 @@
 				if (graph.isSelectionEmpty())
 				{
 					cb2.setAttribute('disabled', 'disabled');
-				}
-				else
-				{
-					cb2.setAttribute('checked', 'checked');
-					cb2.defaultChecked = true;
 				}
 				
 				content.appendChild(cb2);
@@ -1969,11 +1962,11 @@
 				concat(['outline', 'layers', '-']));
 			this.addMenuItems(menu, ['-', 'search'], parent);
 			
-			if (isLocalStorage)
+			if (isLocalStorage || mxClient.IS_CHROMEAPP)
 			{
 				var item = this.addMenuItem(menu, 'scratchpad', parent);
 				
-				if (!editorUi.isOffline())
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 				{
 					this.addLinkToItem(item, 'https://support.draw.io/questions/10420280');
 				}

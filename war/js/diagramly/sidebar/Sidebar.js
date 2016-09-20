@@ -112,6 +112,56 @@
            	                           {id: 'archimate3', prefix: 'archimate3', libs: Sidebar.prototype.archimate3},
            	                           {id: 'archimate', libs: ['archimate']},
            	                           {id: 'sysml', prefix: 'sysml', libs: Sidebar.prototype.sysml}];
+	
+	/**
+	 * Adds hint for quick tutorial video for certain search terms.
+	 */
+	var siderbarInsertSearchHint = Sidebar.prototype.insertSearchHint;
+	
+	Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, results, len, more, terms)
+	{
+		if (terms != null && page == 1)
+		{
+			var hintText = null;
+			
+			// Adds hint for text inserts
+			if (mxUtils.indexOf(terms, 'text') >= 0)
+			{
+				hintText = 'Double click anywhere in the diagram to insert text.';
+			}
+			else
+			{
+				// Checks if any of the following keywords are in the search terms
+				var words = ['line', 'lines', 'arrow', 'arrows', 'connect', 'connection', 'connections',
+				             'connector', 'connectors', 'curve', 'curves', 'link', 'links'];
+				
+				for (var i = 0; i < words.length; i++)
+				{
+					if (mxUtils.indexOf(terms, words[i]) >= 0)
+					{
+						hintText = 'Need help with connections?';
+						break;
+					}
+				}
+			}
+			
+			if (hintText != null)
+			{
+				var link = document.createElement('a');
+				link.setAttribute('href', 'https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
+				link.setAttribute('target', '_blank');
+				link.className = 'geTitle';
+				link.style.cssText = 'background-color:#ffd350;border-radius:6px;color:black;' +
+					'border:1px solid black !important;text-align:center;white-space:normal;' +
+					'padding:6px 0px 6px 0px !important;margin:4px 4px 8px 2px;';
+				
+				mxUtils.write(link, hintText);
+				div.appendChild(link);
+			}
+		}
+		
+		siderbarInsertSearchHint.apply(this, arguments);
+	};
 
 	/**
 	 * Toggle palette.
@@ -927,7 +977,7 @@
 			img.src = 'images/log.png?search=' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 		}
 		
-		success = mxUtils.bind(this, function(results, len, more)
+		success = mxUtils.bind(this, function(results, len, more, terms)
 		{
 			if (!this.editorUi.isOffline() && results.length <= count / 4)
 			{
@@ -956,16 +1006,16 @@
 						}
 					}
 
-					succ(results, (page - 1) * count + results.length, icons.length == count);
+					succ(results, (page - 1) * count + results.length, icons.length == count, terms);
 				},
 				function()
 				{
-					succ(results, len, false);
+					succ(results, len, false, terms);
 				}));
 			}
 			else
 			{
-				succ(results, len, more || !this.editorUi.isOffline());
+				succ(results, len, more || !this.editorUi.isOffline(), terms);
 			}
 		});
 		

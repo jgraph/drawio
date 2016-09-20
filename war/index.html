@@ -59,43 +59,46 @@
 		})();
 
 		// Redirects page if required
-		(function()
+		if (urlParams['dev'] != '1')
 		{
-			var proto = window.location.protocol;
-			var host = window.location.host;
-
-			// Redirects apex and rt to www
-			if (host === 'draw.io' || host === 'rt.draw.io')
+			(function()
 			{
-				host = 'www.draw.io';
-			}
-			
-			// Redirects to SSL/non-SSL
-			if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
-			{
-				var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
-					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
+				var proto = window.location.protocol;
+				var host = window.location.host;
+	
+				// Redirects apex and rt to www
+				if (host === 'draw.io' || host === 'rt.draw.io')
+				{
+					host = 'www.draw.io';
+				}
 				
-				if (ssl && proto != 'https:')
+				// Redirects to SSL/non-SSL
+				if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
 				{
-					proto = 'https:';
+					var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
+						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
+					
+					if (ssl && proto != 'https:')
+					{
+						proto = 'https:';
+					}
+					else if (!ssl && proto != 'http:')
+					{
+						proto = 'http:';
+					}
 				}
-				else if (!ssl && proto != 'http:')
+				
+				var href = proto + '//' + host + window.location.href.substring(
+						window.location.protocol.length +
+						window.location.host.length + 2);
+	
+				// Redirects if href changes
+				if (href != window.location.href)
 				{
-					proto = 'http:';
+					window.location.href = href;
 				}
-			}
-			
-			var href = proto + '//' + host + window.location.href.substring(
-					window.location.protocol.length +
-					window.location.host.length + 2);
-
-			// Redirects if href changes
-			if (href != window.location.href)
-			{
-				window.location.href = href;
-			}
-		})();
+			})();
+		}
 	</script>
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for draw.io" href="http://blog.draw.io/feed/">
     <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
@@ -198,12 +201,6 @@
 		}
 		.geFooterContainer>div>img:hover {
 			opacity: 1;
-		}
-		.geBlink {
-		  animation: geBlinker 1s linear infinite;
-		}
-		@keyframes geBlinker {  
-		  50% { opacity: 0.0; }
 		}
 	</style>
 	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
@@ -377,6 +374,14 @@
 	</table>
 </div>
 <script type="text/javascript">
+/**
+ * Main
+ */
+App.main();
+
+/**
+ * Analytics
+ */
 if (urlParams['analytics'] != '0' && urlParams['dev'] != '1' && urlParams['chrome'] != '0')
 {
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -387,10 +392,6 @@ if (urlParams['analytics'] != '0' && urlParams['dev'] != '1' && urlParams['chrom
 		ga('create', 'UA-78007-10', 'auto');
 		ga('send', 'pageview');
 }
-/**
- * Main
- */
-App.main();
 </script>
 </body>
 </html>
