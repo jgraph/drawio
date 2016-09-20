@@ -1,11 +1,25 @@
-13-SEP-2016: 5.0.6.5
+20-SEP-2016: 5.7.0.0
+
+- Sets initial state of sidebar to invisible
+- Adds support for scratchpad in Chrome App
+- Disables default value for exporting selection only
+- Adds square and circle shapes, hints for special searches
+- Uses mxGraph 3.7.0.0 beta 1
+- Creates temporary blank diagram if splash dialog is closed
+- Removes "all changes saved" message for device files
+- Adds snapToPoint custom attribute
+- Fixes enabled state of publish menu and link item
+- Adds scope to set and get placeholder variable
+- Fixes current revision in dialog during autosave
+
+13-SEP-2016: 5.6.0.5
 
 - Adds multiple (previous) predefined color sets
 - Adds Alt+(Shift+)Tab for select parent/child
 
 12-SEP-2016: 5.6.0.4
 
-- Uses mxGraph 3.6.0.1
+- Uses mxGraph 3.6.0.1 beta 1
 - Adds reset for undo history of in-place editor
 - Fixes inconsistent selection check for cursor keys
 - Adds hash listener for pages with url parameters

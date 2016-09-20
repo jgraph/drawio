@@ -1345,7 +1345,8 @@ Graph.prototype.replacePlaceholders = function(cell, str)
 					{
 						if (current.value != null && typeof(current.value) == 'object')
 						{
-							tmp = current.value.getAttribute(name);
+							tmp = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
+									current.getAttribute(name) : '') : null;
 						}
 						
 						current = this.model.getParent(current);
@@ -1358,7 +1359,7 @@ Graph.prototype.replacePlaceholders = function(cell, str)
 				}
 			}
 
-			result.push(str.substring(last, match.index) + (tmp || val));
+			result.push(str.substring(last, match.index) + ((tmp != null) ? tmp : val));
 			last = match.index + val.length;
 		}
 	}
@@ -1639,7 +1640,22 @@ Graph.prototype.convertValueToString = function(cell)
 	{
 		if (this.isReplacePlaceholders(cell) && cell.getAttribute('placeholder') != null)
 		{
-			return this.getModel().getRoot().getAttribute(cell.getAttribute('placeholder')) || '';
+			var name = cell.getAttribute('placeholder');
+			var current = cell;
+			var result = null;
+					
+			while (result == null && current != null)
+			{
+				if (current.value != null && typeof(current.value) == 'object')
+				{
+					result = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
+							current.getAttribute(name) : '') : null;
+				}
+				
+				current = this.model.getParent(current);
+			}
+			
+			return result || '';
 		}
 		else
 		{	
@@ -3013,11 +3029,86 @@ HoverIcons.prototype.setCurrentState = function(state)
 	this.currentState = state;
 };
 
-/**
- * Adds support for placeholders in text elements of shapes.
- */
 (function()
 {
+	/**
+	 * Adds support for snapToPoint style.
+	 */
+	var mxGraphViewUpdateFloatingTerminalPoint = mxGraphView.prototype.updateFloatingTerminalPoint;
+	
+	mxGraphView.prototype.updateFloatingTerminalPoint = function(edge, start, end, source)
+	{
+		if (start != null && edge != null &&
+			(start.style['snapToPoint'] == '1' ||
+			edge.style['snapToPoint'] == '1'))
+		{
+		    start = this.getTerminalPort(edge, start, source);
+		    var next = this.getNextPoint(edge, end, source);
+		    
+		    var orth = this.graph.isOrthogonal(edge);
+		    var alpha = mxUtils.toRadians(Number(start.style[mxConstants.STYLE_ROTATION] || '0'));
+		    var center = new mxPoint(start.getCenterX(), start.getCenterY());
+		    
+		    if (alpha != 0)
+		    {
+		        var cos = Math.cos(-alpha);
+		        var sin = Math.sin(-alpha);
+		        next = mxUtils.getRotatedPoint(next, cos, sin, center);
+		    }
+		    
+		    var border = parseFloat(edge.style[mxConstants.STYLE_PERIMETER_SPACING] || 0);
+		    border += parseFloat(edge.style[(source) ?
+		        mxConstants.STYLE_SOURCE_PERIMETER_SPACING :
+		        mxConstants.STYLE_TARGET_PERIMETER_SPACING] || 0);
+		    var pt = this.getPerimeterPoint(start, next, alpha == 0 && orth, border);
+		
+		    if (alpha != 0)
+		    {
+		        var cos = Math.cos(alpha);
+		        var sin = Math.sin(alpha);
+		        pt = mxUtils.getRotatedPoint(pt, cos, sin, center);
+		    }
+		    
+		    // Finds closest connection point
+		    if (start != null)
+		    {
+		        var constraints = this.graph.getAllConnectionConstraints(start)
+		        var nearest = null;
+		        var dist = null;
+		    
+		        for (var i = 0; i < constraints.length; i++)
+		        {
+		            var cp = this.graph.getConnectionPoint(start, constraints[i]);
+		            
+		            if (cp != null)
+		            {
+		                var tmp = (cp.x - pt.x) * (cp.x - pt.x) + (cp.y - pt.y) * (cp.y - pt.y);
+		            
+		                if (dist == null || tmp < dist)
+		                {
+		                    nearest = cp;
+		                    dist = tmp;
+		                }
+		            }
+		        }
+		        
+		        if (nearest != null)
+		        {
+		            pt = nearest;
+		        }
+		    }
+		    
+		    edge.setAbsoluteTerminalPoint(pt, source);
+		}
+		else
+		{
+			mxGraphViewUpdateFloatingTerminalPoint.apply(this, arguments);
+		}
+	};
+		
+	/**
+	 * Adds support for placeholders in text elements of shapes.
+	 */
 	var mxStencilEvaluateTextAttribute = mxStencil.prototype.evaluateTextAttribute;
 	
 	mxStencil.prototype.evaluateTextAttribute = function(node, attribute, shape)
@@ -3838,17 +3929,29 @@ if (typeof mxVertexHandler != 'undefined')
 			{			
 				if (cell.value != null && typeof cell.value == 'object')
 				{
-					var tmp = cell.value.cloneNode(true);
-					tmp.setAttribute('label', value);
-					
 					if (this.isReplacePlaceholders(cell) &&
-						tmp.getAttribute('placeholder') != null)
+						cell.getAttribute('placeholder') != null)
 					{
 						// LATER: Handle delete, name change
-						this.setAttributeForCell(this.getModel().getRoot(),
-							tmp.getAttribute('placeholder'), value);
+						var name = cell.getAttribute('placeholder');
+						var current = cell;
+								
+						while (current != null)
+						{
+							if (current == this.model.getRoot() || (current.value != null &&
+								typeof(current.value) == 'object' && current.hasAttribute(name)))
+							{
+								this.setAttributeForCell(current, name, value);
+								
+								break;
+							}
+							
+							current = this.model.getParent(current);
+						}
 					}
 					
+					var tmp = cell.value.cloneNode(true);
+					tmp.setAttribute('label', value);
 					value = tmp;
 				}
 

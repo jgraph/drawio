@@ -483,7 +483,7 @@ var SplashDialog = function(editorUi)
 		
 		mxEvent.addListener(link, 'click', function()
 		{
-			editorUi.hideDialog();
+			editorUi.hideDialog(false);
 			editorUi.clearMode();
 			editorUi.showSplash(true);
 		});
@@ -5240,6 +5240,7 @@ var RevisionDialog = function(editorUi, revs)
 	var currentRow = null;
 	var currentRev = null;
 	var currentDoc = null;
+	var currentXml = null;
 	
 	var zoomInBtn = mxUtils.button('', function()
 	{
@@ -5276,7 +5277,7 @@ var RevisionDialog = function(editorUi, revs)
 		if (currentDoc != null)
 		{
 			graph.maxFitScale = 8;
-			graph.fit(8, false);
+			graph.fit(8);
 			graph.center();
 		}
 	});
@@ -5341,7 +5342,7 @@ var RevisionDialog = function(editorUi, revs)
 
 	var restoreBtn = mxUtils.button(mxResources.get('restore'), function()
 	{
-		if (currentDoc != null)
+		if (currentDoc != null && currentXml != null)
 		{
 			editorUi.confirm(mxResources.get('areYouSure'), function()
 			{
@@ -5350,7 +5351,7 @@ var RevisionDialog = function(editorUi, revs)
 					file.save(true, function(resp)
 					{
 						editorUi.spinner.stop();
-						editorUi.editor.setGraphXml(currentDoc.documentElement);
+						editorUi.replaceFileData(currentXml);
 						editorUi.hideDialog();
 					}, function(resp)
 					{
@@ -5369,7 +5370,8 @@ var RevisionDialog = function(editorUi, revs)
 	pageSelect.setAttribute('disabled', 'disabled');
 	pageSelect.style.maxWidth = '80px';
 	pageSelect.style.position = 'relative';
-	pageSelect.style.top = '-3px';
+	pageSelect.style.top = '-2px';
+	pageSelect.style.verticalAlign = 'bottom';
 	pageSelect.style.marginRight = '6px';
 	pageSelect.style.display = 'none';
 	
@@ -5380,6 +5382,7 @@ var RevisionDialog = function(editorUi, revs)
 		if (pageSelectFunction != null)
 		{
 			pageSelectFunction(evt);
+			mxEvent.consume(evt);
 		}
 	});
 	
@@ -5509,11 +5512,12 @@ var RevisionDialog = function(editorUi, revs)
 								pageSelect.style.display = 'none';
 								pageSelect.innerHTML = '';
 								currentDoc = doc;
+								currentXml = xml;
 								parseSelectFunction = null;
 								
-								function parseGraphModel(node)
+								function parseGraphModel(dataNode)
 								{
-									var bg = node.getAttribute('background');
+									var bg = dataNode.getAttribute('background');
 									
 									if (bg == null || bg == '' || bg == mxConstants.NONE)
 									{
@@ -5522,33 +5526,34 @@ var RevisionDialog = function(editorUi, revs)
 									
 									container.style.backgroundColor = bg;
 									
-									var codec = new mxCodec(node.ownerDocument);
-									codec.decode(node, graph.getModel());
+									var codec = new mxCodec(dataNode.ownerDocument);
+									codec.decode(dataNode, graph.getModel());
 									graph.maxFitScale = 1;
-									graph.fit(8, false);
+									graph.fit(8);
 									graph.center();
 									
-									return node;
+									return dataNode;
 								}
 								
-								function parseDiagram(node)
+								function parseDiagram(diagramNode)
 								{
-									if (node != null)
+									if (diagramNode != null)
 									{
-										node = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
-									        	mxUtils.getTextContent(node))).documentElement);
+										diagramNode = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
+									        	mxUtils.getTextContent(diagramNode))).documentElement);
 									}
 									
-									return node;
+									return diagramNode;
 								}
 								
 								if (node.nodeName == 'mxfile')
 								{
 									var diagrams = node.getElementsByTagName('diagram');
+									var realPage = Math.min(currentPage, diagrams.length - 1); 
 									
 									if (diagrams.length > 0)
 									{
-										parseDiagram(diagrams[Math.min(currentPage, diagrams.length - 1)]);
+										parseDiagram(diagrams[realPage]);
 									}
 									
 									if (diagrams.length > 1)
@@ -5563,7 +5568,7 @@ var RevisionDialog = function(editorUi, revs)
 												mxResources.get('pageWithNumber', [i + 1]));
 											pageOption.setAttribute('value', i);
 											
-											if (i == currentPage)
+											if (i == realPage)
 											{
 												pageOption.setAttribute('selected', 'selected');
 											}
@@ -5633,6 +5638,7 @@ var RevisionDialog = function(editorUi, revs)
 								currentRow = row;
 								currentRow.style.backgroundColor = '#ebf2f9';
 								currentDoc = null;
+								currentXml = null;
 
 								fileInfo.removeAttribute('title');
 								fileInfo.innerHTML = mxResources.get('loading') + '...';
@@ -6059,7 +6065,7 @@ var AnimationWindow = function(editorUi, x, y, w, h)
 			graph.getModel().clear();
 			graph.getModel().setRoot(graph.cloneCells([editorUi.editor.graph.getModel().getRoot()])[0]);
 			graph.maxFitScale = 1;
-			graph.fit(8, false);
+			graph.fit(8);
 			graph.center();
 	
 			graph.getModel().beginUpdate();

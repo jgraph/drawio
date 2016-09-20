@@ -782,9 +782,9 @@ DriveRealtime.prototype.getPageIndexForMap = function(map)
 DriveRealtime.prototype.installPageSelectListener = function()
 {
 	// Adds a graph model listener to update the view
-	this.viewStateListener = mxUtils.bind(this, function(sender, evt)
+	this.pageChangeListener = mxUtils.bind(this, function(sender, evt)
 	{
-		var page = this.getCurrentPage();
+		var page = evt.getProperty('change').relatedPage;
 		
 		if (page.mapping == null)
 		{
@@ -796,7 +796,15 @@ DriveRealtime.prototype.installPageSelectListener = function()
 				page.mapping.diagramMap.set('name', page.getName());
 			}
 		}
-		
+	});
+	
+	this.ui.editor.addListener('beforePageChange', this.pageChangeListener);
+
+	// Adds a graph model listener to update the view
+	this.viewStateListener = mxUtils.bind(this, function(sender, evt)
+	{
+		var page = this.getCurrentPage();
+
 		// Applies view state from realtime model without firing events
 		if (page.viewState == null)
 		{
@@ -1023,7 +1031,9 @@ DriveRealtime.prototype.installGraphModelListener = function()
 	// Adds a graph model listener to update the view
 	this.graphModelChangeListener = mxUtils.bind(this, function(sender, evt)
 	{
-		if (!this.ignoreChange && this.file.isEditable())
+		var edit = evt.getProperty('edit');
+		
+		if (!this.ignoreChange && this.file.isEditable() && !edit.ignoreEdit)
 		{
 			//console.log('startEdit');
 
@@ -1035,7 +1045,6 @@ DriveRealtime.prototype.installGraphModelListener = function()
 				
 				try
 				{
-					var edit = evt.getProperty('edit');
 					var changes = edit.changes;
 					
 					if (edit.undone)

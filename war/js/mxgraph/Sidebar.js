@@ -511,7 +511,7 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 							
 							if (i == tmp.length - 1 && results.length == max)
 							{
-								success(results.slice(page * count, max), max, true);
+								success(results.slice(page * count, max), max, true, tmp);
 								
 								return;
 							}
@@ -529,11 +529,11 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		}
 		
 		var len = results.length;
-		success(results.slice(page * count, (page + 1) * count), len, false);
+		success(results.slice(page * count, (page + 1) * count), len, false, tmp);
 	}
 	else
 	{
-		success([]);
+		success([], null, null, tmp);
 	}
 };
 
@@ -722,7 +722,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 					var current = new Object();
 					this.currentSearch = current;
 					
-					this.searchEntries(searchTerm, count, page, mxUtils.bind(this, function(results, len, more)
+					this.searchEntries(searchTerm, count, page, mxUtils.bind(this, function(results, len, more, terms)
 					{
 						if (this.currentSearch == current)
 						{
@@ -730,7 +730,8 @@ Sidebar.prototype.addSearchPalette = function(expand)
 							active = false;
 							page++;
 							center.parentNode.removeChild(center);
-							
+							this.insertSearchHint(div, searchTerm, count, page, results, len, more, terms);
+
 							for (var i = 0; i < results.length; i++)
 							{
 								var elt = results[i]();
@@ -756,24 +757,6 @@ Sidebar.prototype.addSearchPalette = function(expand)
 							}
 							
 							button.style.cursor = '';
-							
-							if (results.length == 0 && page == 1)
-							{
-								var err = document.createElement('div');
-								err.className = 'geTitle';
-								err.style.backgroundColor = 'transparent';
-								err.style.borderColor = 'transparent';
-								err.style.color = 'gray';
-								err.style.padding = '0px';
-								err.style.margin = '0px 8px 0px 8px';
-								err.style.paddingTop = '6px';
-								err.style.textAlign = 'center';
-								err.style.cursor = 'default';
-								
-								mxUtils.write(err, mxResources.get('noResultsFor', [searchTerm]));
-								div.appendChild(err);
-							}
-							
 							div.appendChild(center);
 						}
 					}), mxUtils.bind(this, function()
@@ -876,18 +859,36 @@ Sidebar.prototype.addSearchPalette = function(expand)
 /**
  * Adds the general palette to the sidebar.
  */
+Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, results, len, more, terms)
+{
+	if (results.length == 0 && page == 1)
+	{
+		var err = document.createElement('div');
+		err.className = 'geTitle';
+		err.style.cssText = 'background-color:transparent;border-color:transparent;' +
+			'color:gray;padding:6px 0px 0px 0px !important;margin:4px 8px 4px 8px;' +
+			'text-align:center;cursor:default !important';
+		
+		mxUtils.write(err, mxResources.get('noResultsFor', [searchTerm]));
+		div.appendChild(err);
+	}
+};
+
+/**
+ * Adds the general palette to the sidebar.
+ */
 Sidebar.prototype.addGeneralPalette = function(expand)
 {
 	var fns = [
 	 	this.createVertexTemplateEntry('whiteSpace=wrap;html=1;', 120, 60, '', 'Rectangle', null, null, 'rect rectangle box'),
 	 	this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Rounded Rectangle', null, null, 'rounded rect rectangle box'),
- 		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Ellipse', null, null, 'circle oval ellipse state'),
+ 		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Ellipse', null, null, 'oval ellipse state'),
 	 	// Explicit strokecolor/fillcolor=none is a workaround to maintain transparent background regardless of current style
  		this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;',
  			40, 20, 'Text', 'Text', null, null, 'text textbox textarea label'),
  		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Double Rectangle', null, null, 'rect rectangle box double'),
 	 	this.createVertexTemplateEntry('shape=ext;double=1;rounded=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Double Rounded Rectangle', null, null, 'rounded rect rectangle box double'),
-	 	this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Double Ellipse', null, null, 'circle oval ellipse start end state double'),
+	 	this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Double Ellipse', null, null, 'oval ellipse start end state double'),
 	 	this.createVertexTemplateEntry('rhombus;whiteSpace=wrap;html=1;', 80, 80, '', 'Diamond', null, null, 'diamond rhombus if condition decision conditional question test'),
 	 	this.createVertexTemplateEntry('shape=parallelogram;whiteSpace=wrap;html=1;', 120, 60, '', 'Parallelogram'),
 	 	this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;', 60, 80, '', 'Triangle', null, null, 'triangle logic inverter buffer'),
@@ -905,8 +906,8 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	    this.createVertexTemplateEntry('shape=card;whiteSpace=wrap;html=1;', 80, 100, '', 'Card'),
 	 	this.createEdgeTemplateEntry('endArrow=classic;html=1;', 50, 50, '', 'Connection'),
 	 	this.createEdgeTemplateEntry('endArrow=classic;startArrow=classic;html=1;', 50, 50, '', 'Connection')
-	 ];
-
+	];
+	
 	this.addPaletteFunctions('general', mxResources.get('general'), (expand != null) ? expand : true, fns);
 };
 
@@ -972,6 +973,12 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Variable');
 	 	})),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
+		// Entries for top searches
+		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;', 80, 80, '', 'Square', null, null, 'square'),
+		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Circle', null, null, 'circle'),
+		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Square', null, null, 'double square'),
+		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Circle', null, null, 'double circle'),
+		// End of entries for top searches
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 120, 60, 'RECTANGLE', 'Comic Rectangle', true, null, 'comic rectangle rect box text retro'),
 	 	this.createVertexTemplateEntry('rhombus;html=1;align=center;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 100, 100, 'DIAMOND', 'Comic Diamond', true, null, 'comic diamond rhombus if condition decision conditional question test retro'),
 	 	this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;rounded=0;comic=1;strokeWidth=2;endArrow=blockThin;html=1;fontFamily=Comic Sans MS;fontStyle=1;', 50, 50, '', 'Comic Arrow 1'),
@@ -1010,7 +1017,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 		    return this.createEdgeTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Curve');
 	 	})),
 	 	this.createEdgeTemplateEntry('shape=link;html=1;', 50, 50, '', 'Link')
-	 ];
+	];
 
 	this.addPaletteFunctions('misc', mxResources.get('misc'), (expand != null) ? expand : true, fns);
 };

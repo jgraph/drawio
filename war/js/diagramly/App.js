@@ -712,6 +712,9 @@ App.prototype.init = function()
 		document.body.appendChild(this.bg);
 		this.diagramContainer.style.visibility = 'hidden';
 		this.formatContainer.style.visibility = 'hidden';
+		this.hsplit.style.display = 'none';
+		this.sidebarContainer.style.display = 'none';
+		this.sidebarFooterContainer.style.display = 'none';
 
 		/**
 		 * Creates onedrive client if all required libraries are available.
@@ -2468,6 +2471,24 @@ App.prototype.start = function()
  */
 App.prototype.showSplash = function(force)
 {
+	var showSecondDialog = mxUtils.bind(this, function()
+	{
+		var dlg = new SplashDialog(this);
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP) ? 180 : 260, true, true,
+			mxUtils.bind(this, function(cancel)
+			{
+				// Creates a blank diagram if the dialog is closed
+				if (cancel && !mxClient.IS_CHROMEAPP)
+				{
+					var prev = Editor.useLocalStorage;
+					this.createFile(this.defaultFilename, null, null, App.MODE_DEVICE);
+					this.setMode(null);
+					Editor.useLocalStorage = prev;
+				}
+			}));
+		dlg.init();
+	});
+	
 	if (this.editor.chromeless)
 	{
 		this.handleError({message: mxResources.get('noFileSelected')},
@@ -2481,9 +2502,7 @@ App.prototype.showSplash = function(force)
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-			var dlg2 = new SplashDialog(this);
-			this.showDialog(dlg2.container, 340, 260, true, true);
-			dlg2.init();
+			showSecondDialog();
 		}));
 		
 		this.showDialog(dlg.container, (isLocalStorage && urlParams['browser'] == '1') ? 480 : 380, 300, true, false);
@@ -2491,9 +2510,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (urlParams['create'] == null)
 	{
-		var dlg = new SplashDialog(this);
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP) ? 180 : 260, true, true);
-		dlg.init();
+		showSecondDialog();
 	}
 };
 
@@ -2968,7 +2985,17 @@ App.prototype.saveFile = function(forceDialog)
 		var done = mxUtils.bind(this, function()
 		{
 			this.removeDraft();
-			this.editor.setStatus(mxResources.get('allChangesSaved'));
+			
+			// Workaround for possible status update while save as dialog is showing
+			// is to show no saved status for device files
+			if (file.getMode() != App.MODE_DEVICE)
+			{
+				this.editor.setStatus(mxResources.get('allChangesSaved'));
+			}
+			else
+			{
+				this.editor.setStatus('');
+			}
 		});
 		
 		if (!forceDialog && file.getTitle() != null && this.mode != null)
@@ -3482,18 +3509,20 @@ App.prototype.repositionLibrary = function(nextChild)
  */
 App.prototype.toggleScratchpad = function()
 {
-	if (isLocalStorage)
+	if (isLocalStorage || mxClient.IS_CHROMEAPP)
 	{
 		if (this.scratchpad == null)
 		{
-			var xml = localStorage.getItem('.scratchpad');
-			
-			if (xml == null)
+			this.getLocalData('.scratchpad', mxUtils.bind(this, function(xml)
 			{
-				xml = this.emptyLibraryXml;
-			}
-			
-			this.loadLibrary(new StorageLibrary(this, xml, '.scratchpad'));
+				if (xml == null)
+				{
+					xml = this.emptyLibraryXml;
+				}
+				
+				this.loadLibrary(new StorageLibrary(this, xml, '.scratchpad'));
+				
+			}));
 		}
 		else
 		{
@@ -4041,6 +4070,9 @@ App.prototype.fileLoaded = function(file)
 	{
 		this.diagramContainer.style.visibility = 'hidden';
 		this.formatContainer.style.visibility = 'hidden';
+		this.hsplit.style.display = 'none';
+		this.sidebarContainer.style.display = 'none';
+		this.sidebarFooterContainer.style.display = 'none';
 		this.editor.graph.setEnabled(false);
 		
 		// Keeps initial title if no file existed before
@@ -4077,16 +4109,18 @@ App.prototype.fileLoaded = function(file)
 			// Order is significant, current file needed for correct
 			// file format for initial save after starting realtime
 			this.setCurrentFile(file);
-			file.open();
-			this.diagramContainer.style.visibility = '';
-			this.formatContainer.style.visibility = '';
-			
 			file.addListener('descriptorChanged', this.descriptorChangedListener);
 			file.addListener('contentChanged', this.descriptorChangedListener);
-			this.descriptorChanged();
-			
-			this.editor.undoManager.clear();
 			this.setMode(file.getMode());
+			this.descriptorChanged();
+			file.open();
+
+			this.diagramContainer.style.visibility = '';
+			this.formatContainer.style.visibility = '';
+			this.hsplit.style.display = '';
+			this.sidebarContainer.style.display = '';
+			this.sidebarFooterContainer.style.display = '';
+			this.editor.undoManager.clear();
 			this.updateUi();
 			
 			// Realtime files have a valid status message
@@ -4217,26 +4251,27 @@ App.prototype.restoreLibraries = function()
 							
 							if (service == 'L')
 							{
-								if (isLocalStorage)
+								if (isLocalStorage || mxClient.IS_CHROMEAPP)
 								{
 									try
 									{
 										var name = decodeURIComponent(id.substring(1));
-										var xml = localStorage.getItem(name);
-										
-										if (name == '.scratchpad' && xml == null)
+										var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
 										{
-											xml = this.emptyLibraryXml;
-										}
-										
-										if (xml != null)
-										{
-											this.loadLibrary(new StorageLibrary(this, xml, name));
-										}
-										else
-										{
-											ignore(id);
-										}
+											if (name == '.scratchpad' && xml == null)
+											{
+												xml = this.emptyLibraryXml;
+											}
+											
+											if (xml != null)
+											{
+												this.loadLibrary(new StorageLibrary(this, xml, name));
+											}
+											else
+											{
+												ignore(id);
+											}
+										}));
 									}
 									catch (e)
 									{
@@ -5881,7 +5916,11 @@ App.prototype.updateHeader = function()
 		this.toggleFormatElement.style.backgroundRepeat = 'no-repeat';
 		this.toolbarContainer.appendChild(this.toggleFormatElement);
 
-		mxEvent.addListener(this.toggleFormatElement, 'click', this.actions.get('formatPanel').funct);
+		mxEvent.addListener(this.toggleFormatElement, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('formatPanel').funct();
+			mxEvent.consume(evt);
+		}));
 
 		var toggleFormatPanel = mxUtils.bind(this, function()
 		{
@@ -6144,6 +6183,9 @@ App.prototype.updateUserElement = function()
 									{
 										this.diagramContainer.style.visibility = 'hidden';
 										this.formatContainer.style.visibility = 'hidden';
+										this.hsplit.style.display = 'none';
+										this.sidebarContainer.style.display = 'none';
+										this.sidebarFooterContainer.style.display = 'none';
 											
 										file.close();
 	

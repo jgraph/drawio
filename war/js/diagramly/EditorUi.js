@@ -260,6 +260,32 @@
 		editorUpdateGraphComponents.apply(this, arguments);
 		mxClient.NO_FO = (this.graph.mathEnabled && Editor.MathJaxRender != null) ? true : this.originalNoForeignObject;
 	};
+	
+	/**
+	 * Abstraction for local storage access.
+	 */
+	EditorUi.prototype.getLocalData = function(key, fn)
+	{
+		fn(localStorage.getItem(key));
+	};
+	
+	/**
+	 * Abstraction for local storage access.
+	 */
+	EditorUi.prototype.setLocalData = function(key, data, fn)
+	{
+		localStorage.setItem(key, data);
+		fn();
+	};
+	
+	/**
+	 * Abstraction for local storage access.
+	 */
+	EditorUi.prototype.removeLocalData = function(key, fn)
+	{
+		localStorage.removeItem(key)
+		fn();
+	};
 
 	EditorUi.prototype.setMathEnabled = function(value)
 	{
@@ -744,18 +770,13 @@
 		
 		return result;
 	};
-
-	/**
-	 * 
-	 */
-	EditorUi.prototype.setFileData = function(data)
-	{
-		this.currentPage = null;
-		this.fileNode = null;
-		this.pages = null;
 		
-		// Workaround for malformed xhtml meta element bug 07.08.16. The trailing slash was missing causing
-		// reopen to fail trying to parse. Same fix in importFile() for import case.
+	/**
+	 * Workaround for malformed xhtml meta element bug 07.08.16. The trailing slash was missing causing
+	 * reopen to fail trying to parse. Used in replaceFileData, setFileData and importFile.
+	 */
+	EditorUi.prototype.validateFileData = function(data)
+	{
 		if (data != null && data.length > 0)
 		{
 			var index = data.indexOf('<meta charset="utf-8">');
@@ -767,6 +788,101 @@
 				data = data.slice(0, index) + replaceString + data.slice(index + replaceStrLen - 1, data.length);
 			}
 		}
+		
+		return data;
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.replaceFileData = function(data)
+	{
+		data = this.validateFileData(data);
+		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
+
+		// Some nodes must be extracted here to find the mxfile node
+		// LATER: Remove duplicate call to extractGraphModel in overridden setGraphXml
+		var tmp = (node != null) ? this.editor.extractGraphModel(node, true) : null;
+		
+		if (tmp != null)
+		{
+			node = tmp;
+		}
+
+		if (node != null)
+		{
+			var graph = this.editor.graph;
+			
+			graph.model.beginUpdate();
+			try
+			{
+				var oldPages = (this.pages != null) ? this.pages.slice() : null;
+				var nodes = node.getElementsByTagName('diagram');
+		
+				if (nodes.length > 1 || urlParams['pages'] == '1')
+				{
+					this.fileNode = node;
+					this.pages = (this.pages != null) ? this.pages : [];
+					
+					// Wraps page nodes
+					for (var i = nodes.length - 1; i >= 0; i--)
+					{
+						var page = this.updatePageRoot(new DiagramPage(nodes[i]));
+						
+						// Checks for invalid page names
+						if (page.getName() == null)
+						{
+							page.setName(mxResources.get('pageWithNumber', [i + 1]));
+						}
+
+						graph.model.execute(new ChangePage(this, page, (i == 0) ? page : null, 0));
+					}
+				}
+				else
+				{
+					// Creates tabbed file structure if enforced by URL
+					if (urlParams['pages'] == '1' && this.fileNode == null)
+					{
+						this.fileNode = node.ownerDocument.createElement('mxfile');
+						this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
+						this.currentPage.setName(mxResources.get('pageWithNumber', [1]));
+						graph.model.execute(new ChangePage(this, this.currentPage, this.currentPage, 0));
+					}
+					
+					// Avoids scroll offset when switching page
+					this.editor.setGraphXml(node);
+					
+					// Avoids duplicate parsing of the XML stored in the node
+					if (this.currentPage != null)
+					{
+						this.currentPage.root = this.editor.graph.model.root;
+					}
+				}
+				
+				if (oldPages != null)
+				{
+					for (var i = 0; i < oldPages.length; i++)
+					{
+						graph.model.execute(new ChangePage(this, oldPages[i], null));
+					}
+				}
+			}
+			finally
+			{
+				graph.model.endUpdate();
+			}
+		}
+	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.setFileData = function(data)
+	{
+		data = this.validateFileData(data);
+		this.currentPage = null;
+		this.fileNode = null;
+		this.pages = null;
 
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
 
@@ -793,7 +909,7 @@
 				{
 					var page = new DiagramPage(nodes[i]);
 					
-					// Checks for invalid filenames
+					// Checks for invalid page names
 					if (page.getName() == null)
 					{
 						page.setName(mxResources.get('pageWithNumber', [i + 1]));
@@ -812,13 +928,8 @@
 		{
 			this.fileNode = node.ownerDocument.createElement('mxfile');
 			this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
+			this.currentPage.setName(mxResources.get('pageWithNumber', [1]));
 	 	 	this.pages = [this.currentPage];
-			
-			// Checks for invalid filenames
-			if (this.currentPage.getName() == null)
-			{
-				this.currentPage.setName(mxResources.get('pageWithNumber', [1]));
-			}
 		}
 		
 		// Avoids scroll offset when switching page
@@ -1277,11 +1388,6 @@
 		{
 			cb2.setAttribute('disabled', 'disabled');
 		}
-		else
-		{
-			cb2.setAttribute('checked', 'checked');
-			cb2.defaultChecked = true;
-		}
 		
 		content.appendChild(cb2);
 		mxUtils.write(content, mxResources.get('selectionOnly'));
@@ -1336,11 +1442,6 @@
 		if (graph.isSelectionEmpty())
 		{
 			cb2.setAttribute('disabled', 'disabled');
-		}
-		else
-		{
-			cb2.setAttribute('checked', 'checked');
-			cb2.defaultChecked = true;
 		}
 		
 		content.appendChild(cb2);
@@ -2624,21 +2725,7 @@
 			}
 			else
 			{
-				// Workaround for malformed xhtml meta element bug 07.08.16. The trailing slash was missing causing
-				// reopen to fail trying to parse. Same fix in setFileData() for open case.
-				if (data != null && data.length > 0)
-				{
-					var index = data.indexOf('<meta charset="utf-8">');
-					
-					if (index >= 0)
-					{
-						var replaceString = '<meta charset="utf-8"/>';
-						var replaceStrLen = replaceString.length;
-						data = data.slice(0, index) + replaceString + data.slice(index + replaceStrLen - 1, data.length);
-					}
-				}
-				
-				cells = this.insertTextAt(data, dx, dy, true);
+				cells = this.insertTextAt(this.validateFileData(data), dx, dy, true);
 			}
 //			else if (String.prototype.trim)
 //			{
@@ -4203,8 +4290,10 @@
 			picker.style.whiteSpace = 'normal';
 			picker.style.paddingLeft = '24px';
 			picker.style.paddingRight = '20px';
+			div.style.paddingLeft = '16px';
 			div.style.paddingBottom = '6px';
 			div.style.position = 'relative';
+			div.appendChild(picker);
 
 			var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-orange',
 			                  'plain-yellow', 'plain-red', 'plain-purple', null];
@@ -4330,7 +4419,7 @@
 			}));
 			
 			var right = document.createElement('div');
-			right.style.cssText = 'position:absolute;left:204px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
+			right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
 				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
 			div.appendChild(right);
 			
@@ -4357,7 +4446,6 @@
 			addHoverState(right);
 			
 			updateScheme(schemes[this.editorUi.currentScheme]);
-			div.appendChild(picker);
 			
 			return div;
 		};
@@ -5511,6 +5599,8 @@
 				(file != null && !file.isRestricted()));
 		this.actions.get('imgur').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('github').setEnabled(file != null && !file.isRestricted());
+		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
+		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
 		var state = graph.view.getState(graph.getSelectionCell());
 		this.actions.get('editShape').setEnabled(active && state != null && state.shape != null && state.shape.stencil != null);

@@ -129,14 +129,16 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 			
 			try
 			{
-				localStorage.setItem(this.title, this.getData());
-				this.setModified(false);
-				this.contentChanged();
-				
-				if (success != null)
+				this.ui.setLocalData(this.title, this.getData(), mxUtils.bind(this, function()
 				{
-					success();
-				}
+					this.setModified(false);
+					this.contentChanged();
+					
+					if (success != null)
+					{
+						success();
+					}
+		        }));
 			}
 			catch (e)
 			{
@@ -154,14 +156,17 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 		}
 		else
 		{
-			if (!this.isRenamable() || this.getTitle() == title || localStorage.getItem(title) == null)
+			this.ui.getLocalData(title, mxUtils.bind(this, function(data)
 			{
-				fn();
-			}
-			else
-			{
-				this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
-			}
+				if (!this.isRenamable() || this.getTitle() == title || data == null)
+				{
+					fn();
+				}
+				else
+				{
+					this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+				}
+			}));
 		}
 	}
 };
@@ -183,15 +188,13 @@ StorageFile.prototype.rename = function(title, success, error)
 		this.setData(this.ui.getFileData());
 	}
 	
-	this.saveFile(title, false, function()
+	this.saveFile(title, false, mxUtils.bind(this, function()
 	{
 		if (oldTitle != title)
 		{
-			localStorage.removeItem(oldTitle);
+			this.ui.removeLocalData(oldTitle, success);
 		}
-		
-		success();
-	}, error);
+	}), error);
 };
 
 /**

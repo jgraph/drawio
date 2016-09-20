@@ -39,6 +39,16 @@
   </servlet-mapping>
   <servlet>
     <description/>
+    <display-name>EmbedServlet</display-name>
+    <servlet-name>EmbedServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.EmbedServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EmbedServlet</servlet-name>
+    <url-pattern>/embed.js</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
     <display-name>EmbedServlet2</display-name>
     <servlet-name>EmbedServlet2</servlet-name>
     <servlet-class>com.mxgraph.online.EmbedServlet2</servlet-class>
@@ -59,12 +69,16 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>IconFinder</display-name>
-    <servlet-name>IconFinder</servlet-name>
-    <servlet-class>com.mxgraph.online.IconFinderServlet</servlet-class>
+    <display-name>IconSearch</display-name>
+    <servlet-name>IconSearch</servlet-name>
+    <servlet-class>com.mxgraph.online.IconSearchServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>IconFinder</servlet-name>
+    <servlet-name>IconSearch</servlet-name>
+    <url-pattern>/iconSearch</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>IconSearch</servlet-name>
     <url-pattern>/iconfinder</url-pattern>
   </servlet-mapping>
   <servlet>
@@ -89,6 +103,40 @@
   </servlet-mapping>
   <servlet>
     <description/>
+    <display-name>EmailServlet</display-name>
+    <servlet-name>EmailServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.EmailServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EmailServlet</servlet-name>
+    <url-pattern>/email</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EmailServlet</servlet-name>
+    <url-pattern>/error</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>LicenseServlet</display-name>
+    <servlet-name>LicenseServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.LicenseServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LicenseServlet</servlet-name>
+    <url-pattern>/license</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>LicenseInitServlet</display-name>
+    <servlet-name>LicenseInitServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.LicenseInitServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LicenseInitServlet</servlet-name>
+    <url-pattern>/license-init</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
     <display-name>AppShortcutServlet</display-name>
     <servlet-name>AppShortcutServlet</servlet-name>
     <servlet-class>com.mxgraph.online.AppShortcutServlet</servlet-class>
@@ -96,6 +144,25 @@
   <servlet-mapping>
     <servlet-name>AppShortcutServlet</servlet-name>
     <url-pattern>/app</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>ConnectImageServlet</display-name>
+    <servlet-name>ConnectImageServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ConnectImageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConnectImageServlet</servlet-name>
+    <url-pattern>/connectImage</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <display-name>ConnectRenderServlet</display-name>
+    <servlet-name>ConnectRenderServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ConnectRenderServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConnectRenderServlet</servlet-name>
+    <url-pattern>/connectRender</url-pattern>
   </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
