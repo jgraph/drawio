@@ -299,7 +299,10 @@ DrawioFile.prototype.open = function()
 	
 	this.changeListener = mxUtils.bind(this, function(sender, eventObject)
 	{
-		if (this.changeListenerEnabled && this.isEditable() && !eventObject.getProperty('edit').ignoreEdit)
+		var edit = (eventObject != null) ? eventObject.getProperty('edit') : null;
+		
+		if (this.changeListenerEnabled && this.isEditable() &&
+			(edit == null || !edit.ignoreEdit))
 		{
 			this.setModified(true);
 			
