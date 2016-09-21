@@ -1,3 +1,8 @@
+21-SEP-2016: 5.7.0.2
+
+- Uses mxGraph 3.7.0.0 beta 3
+- Fixes possible NPE for markup editor
+
 20-SEP-2016: 5.7.0.1
 
 - Fixes minor bug with autosave
