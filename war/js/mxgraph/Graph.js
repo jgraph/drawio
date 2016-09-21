@@ -5567,66 +5567,69 @@ if (typeof mxVertexHandler != 'undefined')
 		var mxCellEditorResize = mxCellEditor.prototype.resize;
 		mxCellEditor.prototype.resize = function(state, trigger)
 		{
-			var state = this.graph.getView().getState(this.editingCell);
-			
-			if (this.codeViewMode && state != null)
+			if (this.textarea != null)
 			{
-				var scale = state.view.scale;
-				this.bounds = mxRectangle.fromRectangle(state);
+				var state = this.graph.getView().getState(this.editingCell);
 				
-				// General placement of code editor if cell has no size
-				// LATER: Fix HTML editor bounds for edge labels
-				if (this.bounds.width == 0 && this.bounds.height == 0)
+				if (this.codeViewMode && state != null)
 				{
-					this.bounds.width = 160 * scale;
-					this.bounds.height = 60 * scale;
+					var scale = state.view.scale;
+					this.bounds = mxRectangle.fromRectangle(state);
 					
-					var m = (state.text != null) ? state.text.margin : null;
-					
-					if (m == null)
+					// General placement of code editor if cell has no size
+					// LATER: Fix HTML editor bounds for edge labels
+					if (this.bounds.width == 0 && this.bounds.height == 0)
 					{
-						m = mxUtils.getAlignmentAsPoint(mxUtils.getValue(state.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER),
-								mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE));
+						this.bounds.width = 160 * scale;
+						this.bounds.height = 60 * scale;
+						
+						var m = (state.text != null) ? state.text.margin : null;
+						
+						if (m == null)
+						{
+							m = mxUtils.getAlignmentAsPoint(mxUtils.getValue(state.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER),
+									mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE));
+						}
+						
+						this.bounds.x += m.x * this.bounds.width;
+						this.bounds.y += m.y * this.bounds.height;
+					}
+		
+					this.textarea.style.width = Math.round((this.bounds.width - 4) / scale) + 'px';
+					this.textarea.style.height = Math.round((this.bounds.height - 4) / scale) + 'px';
+					this.textarea.style.overflow = 'auto';
+		
+					// Adds scrollbar offset if visible
+					if (this.textarea.clientHeight < this.textarea.offsetHeight)
+					{
+						this.textarea.style.height = Math.round((this.bounds.height / scale)) + (this.textarea.offsetHeight - this.textarea.clientHeight) + 'px';
+						this.bounds.height = parseInt(this.textarea.style.height) * scale;
 					}
 					
-					this.bounds.x += m.x * this.bounds.width;
-					this.bounds.y += m.y * this.bounds.height;
-				}
-	
-				this.textarea.style.width = Math.round((this.bounds.width - 4) / scale) + 'px';
-				this.textarea.style.height = Math.round((this.bounds.height - 4) / scale) + 'px';
-				this.textarea.style.overflow = 'auto';
-	
-				// Adds scrollbar offset if visible
-				if (this.textarea.clientHeight < this.textarea.offsetHeight)
-				{
-					this.textarea.style.height = Math.round((this.bounds.height / scale)) + (this.textarea.offsetHeight - this.textarea.clientHeight) + 'px';
-					this.bounds.height = parseInt(this.textarea.style.height) * scale;
-				}
-				
-				if (this.textarea.clientWidth < this.textarea.offsetWidth)
-				{
-					this.textarea.style.width = Math.round((this.bounds.width / scale)) + (this.textarea.offsetWidth - this.textarea.clientWidth) + 'px';
-					this.bounds.width = parseInt(this.textarea.style.width) * scale;
-				}
-								
-				this.textarea.style.left = Math.round(this.bounds.x) + 'px';
-				this.textarea.style.top = Math.round(this.bounds.y) + 'px';
-	
-				if (mxClient.IS_VML)
-				{
-					this.textarea.style.zoom = scale;
+					if (this.textarea.clientWidth < this.textarea.offsetWidth)
+					{
+						this.textarea.style.width = Math.round((this.bounds.width / scale)) + (this.textarea.offsetWidth - this.textarea.clientWidth) + 'px';
+						this.bounds.width = parseInt(this.textarea.style.width) * scale;
+					}
+									
+					this.textarea.style.left = Math.round(this.bounds.x) + 'px';
+					this.textarea.style.top = Math.round(this.bounds.y) + 'px';
+		
+					if (mxClient.IS_VML)
+					{
+						this.textarea.style.zoom = scale;
+					}
+					else
+					{
+						mxUtils.setPrefixedStyle(this.textarea.style, 'transform', 'scale(' + scale + ',' + scale + ')');	
+					}
 				}
 				else
 				{
-					mxUtils.setPrefixedStyle(this.textarea.style, 'transform', 'scale(' + scale + ',' + scale + ')');	
+					this.textarea.style.height = '';
+					this.textarea.style.overflow = '';
+					mxCellEditorResize.apply(this, arguments);
 				}
-			}
-			else
-			{
-				this.textarea.style.height = '';
-				this.textarea.style.overflow = '';
-				mxCellEditorResize.apply(this, arguments);
 			}
 		};
 		
