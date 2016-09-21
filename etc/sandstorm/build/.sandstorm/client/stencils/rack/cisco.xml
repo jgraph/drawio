@@ -1,0 +1,4128 @@
+<shapes name="mxGraph.rack.cisco">
+    <shape name="Cisco 1905 Serial Integrated Services Router" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="5" w="149" h="9.8"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="6" y="0" w="22" h="8"/>
+            <fillstroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 1921 Integrated Services Router" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="4" w="149" h="25.6"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="6" y="0" w="22" h="8"/>
+            <fillstroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="4"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 1941 Series Integrated Services Router" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="6" y="29.6"/>
+                <line x="6" y="5"/>
+                <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="11" y="0"/>
+                <line x="149.9" y="0"/>
+                <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="154.9" y="5"/>
+                <line x="154.9" y="29.6"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="8" y="16.8" w="116" h="6"/>
+            <stroke/>
+            <rect x="11" y="22.8" w="23" h="4"/>
+            <stroke/>
+            <rect x="40" y="22.8" w="23" h="4"/>
+            <stroke/>
+            <path>
+                <move x="46.67" y="16.8"/>
+                <line x="46.67" y="22.8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="85.34" y="16.8"/>
+                <line x="85.34" y="22.8"/>
+            </path>
+            <stroke/>
+            <rect x="128" y="16.8" w="5" h="4"/>
+            <stroke/>
+            <rect x="128" y="22.8" w="5" h="4"/>
+            <stroke/>
+            <rect x="135" y="22.8" w="5" h="4"/>
+            <stroke/>
+            <rect x="143" y="16.8" w="5" h="10"/>
+            <stroke/>
+            <rect x="38" y="3" w="40" h="11"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 2901 Integrated Services Router" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="8" y="2" w="116" h="6"/>
+            <stroke/>
+            <rect x="11" y="8" w="23" h="4"/>
+            <stroke/>
+            <rect x="40" y="8" w="23" h="4"/>
+            <stroke/>
+            <path>
+                <move x="37" y="2"/>
+                <line x="37" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="66" y="2"/>
+                <line x="66" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="95" y="2"/>
+                <line x="95" y="8"/>
+            </path>
+            <stroke/>
+            <rect x="128" y="2" w="5" h="4"/>
+            <stroke/>
+            <rect x="128" y="8" w="5" h="4"/>
+            <stroke/>
+            <rect x="135" y="8" w="5" h="4"/>
+            <stroke/>
+            <rect x="143" y="2" w="5" h="10"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 2911 Integrated Services Router" h="44.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="8" w="149" h="36.4"/>
+            <fillstroke/>
+            <rect x="35" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <path>
+                <move x="6" y="0"/>
+                <line x="6" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="10"/>
+                <line x="153" y="10"/>
+                <line x="153" y="40"/>
+                <line x="55" y="40"/>
+                <line x="55" y="32"/>
+                <line x="33" y="32"/>
+                <line x="33" y="40"/>
+                <line x="8" y="40"/>
+                <close/>
+            </path>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="80" y="34.2" w="18" h="10"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 2921 Integrated Services Router" h="44.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="8" w="149" h="36.4"/>
+            <fillstroke/>
+            <rect x="35" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <path>
+                <move x="6" y="0"/>
+                <line x="6" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="10"/>
+                <line x="153" y="10"/>
+                <line x="153" y="43"/>
+                <line x="55" y="43"/>
+                <line x="55" y="32"/>
+                <line x="33" y="32"/>
+                <line x="33" y="43"/>
+                <line x="8" y="43"/>
+                <close/>
+            </path>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="105" y="30.2" w="22" h="14"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 2951 Integrated Services Router" h="44.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="8" w="149" h="36.4"/>
+            <fillstroke/>
+            <rect x="35" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <path>
+                <move x="6" y="0"/>
+                <line x="6" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="10"/>
+                <line x="153" y="10"/>
+                <line x="153" y="43"/>
+                <line x="55" y="43"/>
+                <line x="55" y="32"/>
+                <line x="33" y="32"/>
+                <line x="33" y="43"/>
+                <line x="8" y="43"/>
+                <close/>
+            </path>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="105" y="30.2" w="22" h="14"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 3925 Integrated Services Router" h="44.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="8" w="149" h="36.4"/>
+            <fillstroke/>
+            <rect x="35" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <rect x="108" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <path>
+                <move x="6" y="0"/>
+                <line x="6" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="10"/>
+                <line x="153" y="10"/>
+                <line x="153" y="40"/>
+                <line x="128" y="40"/>
+                <line x="128" y="32"/>
+                <line x="106" y="32"/>
+                <line x="106" y="40"/>
+                <line x="55" y="40"/>
+                <line x="55" y="32"/>
+                <line x="33" y="32"/>
+                <line x="33" y="40"/>
+                <line x="8" y="40"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 3945 Integrated Servies Router" h="44.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="8" w="149" h="36.4"/>
+            <fillstroke/>
+            <rect x="35" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <rect x="108" y="34.2" w="18" h="10"/>
+            <stroke/>
+            <path>
+                <move x="6" y="0"/>
+                <line x="6" y="8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="155" y="0"/>
+                <line x="155" y="8"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="10"/>
+                <line x="153" y="10"/>
+                <line x="153" y="40"/>
+                <line x="128" y="40"/>
+                <line x="128" y="32"/>
+                <line x="106" y="32"/>
+                <line x="106" y="40"/>
+                <line x="55" y="40"/>
+                <line x="55" y="32"/>
+                <line x="33" y="32"/>
+                <line x="33" y="40"/>
+                <line x="8" y="40"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 7603 Router" h="59.3" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="59.3"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="59.3"/>
+            <fillstroke/>
+            <path>
+                <move x="18" y="0"/>
+                <line x="18" y="59.2"/>
+                <move x="18" y="12"/>
+                <line x="155" y="12"/>
+                <move x="18" y="24"/>
+                <line x="155" y="24"/>
+                <move x="18" y="50"/>
+                <line x="155" y="50"/>
+                <move x="18" y="36"/>
+                <line x="155" y="36"/>
+                <move x="80.5" y="24"/>
+                <line x="80.5" y="36"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 7604 Router" h="74" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="74"/>
+            <fillstroke/>
+            <path>
+                <move x="18" y="0"/>
+                <line x="18" y="74"/>
+                <move x="18" y="10"/>
+                <line x="155" y="10"/>
+                <move x="18" y="26"/>
+                <line x="155" y="26"/>
+                <move x="18" y="58"/>
+                <line x="155" y="58"/>
+                <move x="18" y="42"/>
+                <line x="155" y="42"/>
+            </path>
+            <stroke/>
+            <roundrect x="10" y="23" w="3" h="32" arcsize="27.34375"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 7606 Router" h="103.6" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="103.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="103.6"/>
+            <fillstroke/>
+            <path>
+                <move x="18" y="0"/>
+                <line x="18" y="103.6"/>
+                <move x="18" y="10"/>
+                <line x="155" y="10"/>
+                <move x="18" y="25"/>
+                <line x="155" y="25"/>
+                <move x="18" y="55"/>
+                <line x="155" y="55"/>
+                <move x="18" y="40"/>
+                <line x="155" y="40"/>
+            </path>
+            <stroke/>
+            <roundrect x="10" y="37" w="3" h="32" arcsize="50"/>
+            <stroke/>
+            <path>
+                <move x="18" y="72"/>
+                <line x="155" y="72"/>
+                <move x="18" y="89"/>
+                <line x="155" y="89"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 7609 Router" h="310.8" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="310.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="310.8"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="45"/>
+                <line x="155" y="45"/>
+                <move x="6" y="65"/>
+                <line x="155" y="65"/>
+                <move x="6" y="180"/>
+                <line x="155" y="180"/>
+                <move x="6" y="230"/>
+                <line x="155" y="230"/>
+                <move x="12" y="65"/>
+                <line x="12" y="180"/>
+                <move x="149" y="65"/>
+                <line x="149" y="180"/>
+                <move x="27.22" y="65"/>
+                <line x="27.22" y="180"/>
+                <move x="42.44" y="65"/>
+                <line x="42.44" y="180"/>
+                <move x="57.66" y="65"/>
+                <line x="57.66" y="180"/>
+                <move x="72.88" y="65"/>
+                <line x="72.88" y="180"/>
+                <move x="88.1" y="65"/>
+                <line x="88.1" y="180"/>
+                <move x="103.22" y="65"/>
+                <line x="103.22" y="180"/>
+                <move x="118.54" y="65"/>
+                <line x="118.54" y="180"/>
+                <move x="133.76" y="65"/>
+                <line x="133.76" y="180"/>
+                <move x="80.5" y="180.75"/>
+                <line x="80.5" y="229.75"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="8" y="182" w="70.5" h="46" arcsize="3.5923527597903173"/>
+            <fill/>
+            <roundrect x="82.5" y="182" w="70.5" h="46" arcsize="3.5923527597903173"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="17.5" y="232.5" w="126" h="75"/>
+            <stroke/>
+            <path>
+                <move x="80.5" y="232.5"/>
+                <line x="80.5" y="307.5"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#999999"/>
+            <ellipse x="34.5" y="236.5" w="42" h="42"/>
+            <fill/>
+            <ellipse x="97.5" y="236.5" w="42" h="42"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="31.5" y="256" w="45" h="3" arcsize="26.666666666666668"/>
+            <fillstroke/>
+            <roundrect x="94.5" y="256" w="45" h="3" arcsize="26.666666666666668"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 7613 Router" h="266.4" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="266.4"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="266.4"/>
+            <fillstroke/>
+            <path>
+                <move x="15" y="12.5"/>
+                <line x="155" y="12.5"/>
+                <move x="15" y="25"/>
+                <line x="155" y="25"/>
+                <move x="6" y="180"/>
+                <line x="155" y="180"/>
+            </path>
+            <stroke/>
+            <rect x="17.5" y="191.4" w="126" h="75"/>
+            <stroke/>
+            <path>
+                <move x="80.5" y="191.4"/>
+                <line x="80.5" y="266.4"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#999999"/>
+            <ellipse x="34.5" y="195.4" w="42" h="42"/>
+            <fillstroke/>
+            <ellipse x="97.5" y="195.4" w="42" h="42"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="31.5" y="214.9" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <roundrect x="94.5" y="214.9" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <rect x="15" y="0" w="140" h="175"/>
+            <stroke/>
+            <path>
+                <move x="15" y="37.5"/>
+                <line x="155" y="37.5"/>
+                <move x="15" y="50"/>
+                <line x="155" y="50"/>
+                <move x="15" y="62.5"/>
+                <line x="155" y="62.5"/>
+                <move x="15" y="75"/>
+                <line x="155" y="75"/>
+                <move x="15" y="87.5"/>
+                <line x="155" y="87.5"/>
+                <move x="15" y="100"/>
+                <line x="155" y="100"/>
+                <move x="15" y="112.5"/>
+                <line x="155" y="112.5"/>
+                <move x="15" y="125"/>
+                <line x="155" y="125"/>
+                <move x="15" y="137.5"/>
+                <line x="155" y="137.5"/>
+                <move x="15" y="150"/>
+                <line x="155" y="150"/>
+                <move x="15" y="162.5"/>
+                <line x="155" y="162.5"/>
+            </path>
+            <stroke/>
+            <roundrect x="9.5" y="62" w="3" h="37.5" arcsize="50"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco 8340 Application-Oriented Networking Appliance" h="44.4" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="44.4"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="44.4"/>
+            <fillstroke/>
+            <rect x="9" y="2" w="26" h="6"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="58" y="18" w="45" h="22.5"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="37" y="2" w="26" h="6"/>
+            <stroke/>
+            <rect x="65" y="2" w="26" h="6"/>
+            <stroke/>
+            <rect x="94" y="2" w="26" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="9" y="18"/>
+                <line x="56" y="18"/>
+                <line x="56" y="40"/>
+                <line x="20" y="40"/>
+                <line x="20" y="36"/>
+                <line x="9" y="36"/>
+                <close/>
+            </path>
+            <fill/>
+            <path>
+                <move x="105" y="18"/>
+                <line x="152" y="18"/>
+                <line x="152" y="36"/>
+                <line x="141" y="36"/>
+                <line x="141" y="40"/>
+                <line x="105" y="40"/>
+                <close/>
+            </path>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="9" y="9" w="26" h="6"/>
+            <stroke/>
+            <rect x="37" y="9" w="26" h="6"/>
+            <stroke/>
+            <rect x="65" y="9" w="26" h="6"/>
+            <stroke/>
+            <path>
+                <move x="94" y="10"/>
+                <line x="142" y="10"/>
+                <line x="142" y="13"/>
+                <line x="132" y="13"/>
+                <line x="132" y="15"/>
+                <line x="94" y="15"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASA 5585-X Adaptive Security Appliance" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <path>
+                <move x="80.5" y="0"/>
+                <line x="80.5" y="29.6"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <path>
+                <move x="8" y="7"/>
+                <line x="16" y="7"/>
+                <line x="20" y="2"/>
+                <line x="67" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="70" y="5"/>
+                <line x="70" y="25"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="67" y="28"/>
+                <line x="11" y="28"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="8" y="25"/>
+                <close/>
+                <move x="153" y="7"/>
+                <line x="145" y="7"/>
+                <line x="141" y="2"/>
+                <line x="94" y="2"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="91" y="5"/>
+                <line x="91" y="25"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="94" y="28"/>
+                <line x="150" y="28"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="153" y="25"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#ffffff"/>
+            <path>
+                <move x="21" y="14"/>
+                <arc rx="1.5" ry="1.5" x-axis-rotation="0" large-arc-flag="1" sweep-flag="1" x="23" y="14"/>
+                <line x="23" y="20"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="25" y="22"/>
+                <line x="50" y="22"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="52" y="20"/>
+                <line x="52" y="14"/>
+                <arc rx="1.5" ry="1.5" x-axis-rotation="0" large-arc-flag="1" sweep-flag="1" x="54" y="14"/>
+                <line x="54" y="20"/>
+                <arc rx="4" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="50" y="24"/>
+                <line x="25" y="24"/>
+                <arc rx="4" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="21" y="20"/>
+                <close/>
+                <move x="107" y="14"/>
+                <arc rx="1.5" ry="1.5" x-axis-rotation="0" large-arc-flag="1" sweep-flag="1" x="109" y="14"/>
+                <line x="109" y="20"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="111" y="22"/>
+                <line x="136" y="22"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="138" y="20"/>
+                <line x="138" y="14"/>
+                <arc rx="1.5" ry="1.5" x-axis-rotation="0" large-arc-flag="1" sweep-flag="1" x="140" y="14"/>
+                <line x="140" y="20"/>
+                <arc rx="4" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="136" y="24"/>
+                <line x="111" y="24"/>
+                <arc rx="4" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="107" y="20"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1001 Router" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="37" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="45" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="53" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="75" y="10" w="5" h="3"/>
+            <stroke/>
+            <rect x="83" y="10" w="5" h="3"/>
+            <stroke/>
+            <rect x="91" y="10" w="5" h="3"/>
+            <stroke/>
+            <rect x="99" y="10" w="5" h="3"/>
+            <stroke/>
+            <rect x="112" y="1" w="40" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1002 Router" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="25" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="30" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="70" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="75" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="18" y="23" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="23" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="17" w="60" h="5"/>
+            <stroke/>
+            <rect x="35" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="20" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="51" y="16" w="5" h="3"/>
+            <stroke/>
+            <rect x="62" y="16" w="5" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1002-X Router" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="30" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="30" y="13" w="6" h="4"/>
+            <stroke/>
+            <rect x="15" y="7" w="6" h="10"/>
+            <stroke/>
+            <rect x="42" y="9" w="5" h="3"/>
+            <stroke/>
+            <rect x="50" y="9" w="5" h="3"/>
+            <stroke/>
+            <rect x="75" y="9" w="5" h="3"/>
+            <stroke/>
+            <rect x="75" y="14" w="5" h="3"/>
+            <stroke/>
+            <rect x="18" y="23" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="23" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="17" w="60" h="5"/>
+            <stroke/>
+            <rect x="58" y="9" w="5" h="3"/>
+            <stroke/>
+            <rect x="42" y="14" w="5" h="3"/>
+            <stroke/>
+            <rect x="50" y="14" w="5" h="3"/>
+            <stroke/>
+            <rect x="58" y="14" w="5" h="3"/>
+            <stroke/>
+            <rect x="110" y="7" w="35" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1004 Router" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="59.2"/>
+            <fillstroke/>
+            <rect x="99" y="52" w="5" h="4"/>
+            <stroke/>
+            <rect x="104" y="52" w="5" h="4"/>
+            <stroke/>
+            <rect x="18" y="11" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="11" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="5" w="60" h="5"/>
+            <stroke/>
+            <rect x="80" y="52" w="5" h="4"/>
+            <stroke/>
+            <rect x="91" y="52" w="5" h="4"/>
+            <stroke/>
+            <path>
+                <move x="6" y="3.2"/>
+                <line x="155" y="3.2"/>
+                <move x="6" y="17.2"/>
+                <line x="155" y="17.2"/>
+                <move x="6" y="31.2"/>
+                <line x="155" y="31.2"/>
+                <move x="6" y="45.2"/>
+                <line x="155" y="45.2"/>
+            </path>
+            <stroke/>
+            <rect x="18" y="5" w="60" h="5"/>
+            <stroke/>
+            <rect x="18" y="19" w="60" h="5"/>
+            <stroke/>
+            <rect x="18" y="25" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="19" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="25" w="60" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1006 Router" h="88.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="88.8"/>
+            <fillstroke/>
+            <rect x="99" y="66" w="5" h="4"/>
+            <stroke/>
+            <rect x="104" y="66" w="5" h="4"/>
+            <stroke/>
+            <rect x="18" y="11" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="11" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="5" w="60" h="5"/>
+            <stroke/>
+            <rect x="80" y="66" w="5" h="4"/>
+            <stroke/>
+            <rect x="91" y="66" w="5" h="4"/>
+            <stroke/>
+            <path>
+                <move x="6" y="3.2"/>
+                <line x="155" y="3.2"/>
+                <move x="6" y="17.2"/>
+                <line x="155" y="17.2"/>
+                <move x="6" y="31.2"/>
+                <line x="155" y="31.2"/>
+                <move x="6" y="45.2"/>
+                <line x="155" y="45.2"/>
+            </path>
+            <stroke/>
+            <rect x="18" y="5" w="60" h="5"/>
+            <stroke/>
+            <rect x="18" y="19" w="60" h="5"/>
+            <stroke/>
+            <rect x="18" y="25" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="19" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="25" w="60" h="5"/>
+            <stroke/>
+            <path>
+                <move x="6" y="59.2"/>
+                <line x="155" y="59.2"/>
+                <move x="6" y="73.2"/>
+                <line x="155" y="73.2"/>
+            </path>
+            <stroke/>
+            <rect x="18" y="33" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="33" w="60" h="5"/>
+            <stroke/>
+            <rect x="18" y="39" w="60" h="5"/>
+            <stroke/>
+            <rect x="90" y="39" w="60" h="5"/>
+            <stroke/>
+            <rect x="104" y="80" w="5" h="4"/>
+            <stroke/>
+            <rect x="99" y="80" w="5" h="4"/>
+            <stroke/>
+            <rect x="91" y="80" w="5" h="4"/>
+            <stroke/>
+            <rect x="80" y="80" w="5" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 1013 Router" h="192.4" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="192.4"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="192.4"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="10"/>
+                <line x="155" y="10"/>
+                <move x="12" y="24"/>
+                <line x="149" y="24"/>
+                <move x="12" y="38"/>
+                <line x="149" y="38"/>
+                <move x="6" y="52"/>
+                <line x="155" y="52"/>
+                <move x="6" y="58"/>
+                <line x="155" y="58"/>
+                <move x="6" y="68"/>
+                <line x="155" y="68"/>
+                <move x="6" y="78"/>
+                <line x="155" y="78"/>
+                <move x="6" y="88"/>
+                <line x="155" y="88"/>
+                <move x="6" y="98"/>
+                <line x="155" y="98"/>
+                <move x="6" y="108"/>
+                <line x="155" y="108"/>
+                <move x="6" y="118"/>
+                <line x="155" y="118"/>
+                <move x="6" y="128"/>
+                <line x="155" y="128"/>
+                <move x="6" y="132"/>
+                <line x="155" y="132"/>
+                <move x="6" y="142"/>
+                <line x="155" y="142"/>
+                <move x="6" y="156"/>
+                <line x="155" y="156"/>
+                <move x="6" y="170"/>
+                <line x="155" y="170"/>
+                <move x="6" y="184"/>
+                <line x="155" y="184"/>
+                <move x="12" y="10"/>
+                <line x="12" y="52"/>
+                <move x="149" y="10"/>
+                <line x="149" y="52"/>
+                <move x="12" y="58"/>
+                <line x="12" y="68"/>
+                <move x="149" y="58"/>
+                <line x="149" y="68"/>
+                <move x="149" y="88"/>
+                <line x="149" y="98"/>
+                <move x="12" y="88"/>
+                <line x="12" y="98"/>
+                <move x="12" y="118"/>
+                <line x="12" y="128"/>
+                <move x="12" y="132"/>
+                <line x="12" y="184"/>
+                <move x="149" y="118"/>
+                <line x="149" y="128"/>
+                <move x="149" y="132"/>
+                <line x="149" y="184"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 9001" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="9" y="3" w="28" h="8"/>
+            <stroke/>
+            <rect x="40" y="3" w="28" h="8"/>
+            <stroke/>
+            <rect x="80" y="0" w="50" h="11"/>
+            <stroke/>
+            <rect x="60" y="14" w="5" h="4"/>
+            <stroke/>
+            <rect x="60" y="20" w="5" h="4"/>
+            <stroke/>
+            <rect x="79" y="14" w="5" h="4"/>
+            <stroke/>
+            <rect x="79" y="20" w="5" h="4"/>
+            <stroke/>
+            <rect x="87" y="14" w="5" h="4"/>
+            <stroke/>
+            <rect x="87" y="20" w="5" h="4"/>
+            <stroke/>
+            <rect x="115" y="15" w="6" h="10"/>
+            <stroke/>
+            <rect x="124" y="15" w="6" h="10"/>
+            <stroke/>
+            <rect x="133" y="15" w="6" h="10"/>
+            <stroke/>
+            <roundrect x="145" y="8" w="3" h="13.6" arcsize="50"/>
+            <stroke/>
+            <rect x="8" y="15" w="17" h="14.6"/>
+            <stroke/>
+            <rect x="27" y="15" w="17" h="14.6"/>
+            <stroke/>
+            <rect x="95" y="14" w="5" h="4"/>
+            <stroke/>
+            <rect x="95" y="20" w="5" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 9006" h="148" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="148"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="10" y="8" w="140" h="132"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="25"/>
+                <line x="155" y="25"/>
+                <move x="6" y="41"/>
+                <line x="155" y="41"/>
+                <move x="6" y="57"/>
+                <line x="155" y="57"/>
+                <move x="6" y="73"/>
+                <line x="155" y="73"/>
+                <move x="6" y="89"/>
+                <line x="155" y="89"/>
+                <move x="6" y="105"/>
+                <line x="155" y="105"/>
+                <move x="55.66" y="121"/>
+                <line x="55.66" y="148"/>
+                <move x="105.33" y="121"/>
+                <line x="105.33" y="148"/>
+                <move x="6" y="121"/>
+                <line x="155" y="121"/>
+                <move x="26" y="7"/>
+                <line x="26" y="25"/>
+                <move x="80.5" y="7"/>
+                <line x="80.5" y="25"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="6" y="12"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="18" y="0"/>
+                <line x="143" y="0"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="155" y="12"/>
+                <line x="155" y="136"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="143" y="148"/>
+                <line x="18" y="148"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="6" y="136"/>
+                <close/>
+                <move x="16" y="130"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="24" y="138"/>
+                <line x="137" y="138"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="145" y="130"/>
+                <line x="145" y="18"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="137" y="10"/>
+                <line x="24" y="10"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="16" y="18"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 9010" h="239" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="239"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="239"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="10" y="8" w="140" h="132"/>
+            <fillstroke/>
+            <path>
+                <move x="24" y="8"/>
+                <line x="24" y="140"/>
+                <move x="38" y="8"/>
+                <line x="38" y="140"/>
+                <move x="52" y="8"/>
+                <line x="52" y="140"/>
+                <move x="66" y="8"/>
+                <line x="66" y="140"/>
+                <move x="80" y="8"/>
+                <line x="80" y="140"/>
+                <move x="94" y="8"/>
+                <line x="94" y="140"/>
+                <move x="108" y="8"/>
+                <line x="108" y="140"/>
+                <move x="122" y="8"/>
+                <line x="122" y="140"/>
+                <move x="136" y="8"/>
+                <line x="136" y="140"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="6" y="12"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="18" y="0"/>
+                <line x="143" y="0"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="155" y="12"/>
+                <line x="155" y="136"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="143" y="148"/>
+                <line x="18" y="148"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="6" y="136"/>
+                <close/>
+                <move x="16" y="130"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="24" y="138"/>
+                <line x="137" y="138"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="145" y="130"/>
+                <line x="145" y="18"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="137" y="10"/>
+                <line x="24" y="10"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="16" y="18"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <path>
+                <move x="6" y="239"/>
+                <line x="6" y="177"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="18" y="165"/>
+                <line x="143" y="165"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="155" y="177"/>
+                <line x="155" y="239"/>
+                <line x="150" y="239"/>
+                <line x="150" y="180"/>
+                <arc rx="10" ry="10" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="140" y="170"/>
+                <line x="21" y="170"/>
+                <arc rx="10" ry="10" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="11" y="180"/>
+                <line x="11" y="239"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="11" y="209" w="139" h="30"/>
+            <stroke/>
+            <path>
+                <move x="57.33" y="209"/>
+                <line x="57.33" y="239"/>
+                <move x="103.67" y="209"/>
+                <line x="103.67" y="239"/>
+                <move x="11" y="224"/>
+                <line x="150" y="224"/>
+                <move x="6" y="148"/>
+                <line x="155" y="148"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ASR 9922" h="651.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="651.2"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="651.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="11" y="471" w="140" h="132"/>
+            <fillstroke/>
+            <rect x="10" y="76" w="140" h="132"/>
+            <fillstroke/>
+            <path>
+                <move x="24" y="76"/>
+                <line x="24" y="208"/>
+                <move x="38" y="76"/>
+                <line x="38" y="208"/>
+                <move x="52" y="76"/>
+                <line x="52" y="208"/>
+                <move x="66" y="76"/>
+                <line x="66" y="208"/>
+                <move x="80" y="76"/>
+                <line x="80" y="208"/>
+                <move x="94" y="76"/>
+                <line x="94" y="208"/>
+                <move x="108" y="76"/>
+                <line x="108" y="208"/>
+                <move x="122" y="76"/>
+                <line x="122" y="208"/>
+                <move x="136" y="76"/>
+                <line x="136" y="208"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="6" y="80"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="18" y="68"/>
+                <line x="143" y="68"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="155" y="80"/>
+                <line x="155" y="204"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="143" y="216"/>
+                <line x="18" y="216"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="6" y="204"/>
+                <close/>
+                <move x="16" y="198"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="24" y="206"/>
+                <line x="137" y="206"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="145" y="198"/>
+                <line x="145" y="86"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="137" y="78"/>
+                <line x="24" y="78"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="16" y="86"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <path>
+                <move x="136" y="471"/>
+                <line x="136" y="603"/>
+                <move x="122" y="471"/>
+                <line x="122" y="603"/>
+                <move x="108" y="471"/>
+                <line x="108" y="603"/>
+                <move x="94" y="471"/>
+                <line x="94" y="603"/>
+                <move x="80" y="471"/>
+                <line x="80" y="603"/>
+                <move x="66" y="471"/>
+                <line x="66" y="603"/>
+                <move x="52" y="471"/>
+                <line x="52" y="603"/>
+                <move x="38" y="471"/>
+                <line x="38" y="603"/>
+                <move x="24" y="471"/>
+                <line x="24" y="603"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#e8e8e8"/>
+            <path>
+                <move x="6" y="475"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="18" y="463"/>
+                <line x="143" y="463"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="155" y="475"/>
+                <line x="155" y="599"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="143" y="611"/>
+                <line x="18" y="611"/>
+                <arc rx="12" ry="12" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="6" y="599"/>
+                <close/>
+                <move x="16" y="593"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="24" y="601"/>
+                <line x="137" y="601"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="145" y="593"/>
+                <line x="145" y="481"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="137" y="473"/>
+                <line x="24" y="473"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="16" y="481"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="6" y="5" w="149" h="60"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="20"/>
+                <line x="155" y="20"/>
+                <move x="6" y="35"/>
+                <line x="155" y="35"/>
+                <move x="6" y="50"/>
+                <line x="155" y="50"/>
+                <move x="80.5" y="5"/>
+                <line x="80.5" y="65"/>
+                <move x="43.25" y="5"/>
+                <line x="43.25" y="65"/>
+                <move x="117.75" y="5"/>
+                <line x="117.75" y="65"/>
+            </path>
+            <stroke/>
+            <rect x="6" y="255" w="149" h="160"/>
+            <stroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="255" w="18" h="160"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="335"/>
+                <line x="24" y="335"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Blade Switch 3030" h="71" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="71"/>
+            <fillstroke/>
+            <rect x="2" y="49" w="7" h="8"/>
+            <stroke/>
+            <rect x="3" y="28" w="6" h="7"/>
+            <stroke/>
+            <rect x="2" y="59" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="41" w="7" h="8"/>
+            <stroke/>
+            <rect x="3" y="21" w="6" h="7"/>
+            <stroke/>
+            <rect x="3" y="14" w="6" h="7"/>
+            <stroke/>
+            <rect x="3" y="7" w="6" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Carrier Packet Transport 200" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <path>
+                <move x="20" y="0"/>
+                <line x="20" y="29.6"/>
+                <move x="20" y="9"/>
+                <line x="155" y="9"/>
+                <move x="20" y="18"/>
+                <line x="155" y="18"/>
+                <move x="20" y="27"/>
+                <line x="155" y="27"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Carrier Packet Transport 50" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="107" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="3" w="5" h="6"/>
+            <stroke/>
+            <rect x="107" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="75" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="11" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="75" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="28" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Carrier Packet Transport 600" h="88.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="88.8"/>
+            <fillstroke/>
+            <path>
+                <move x="20" y="13"/>
+                <line x="20" y="88.8"/>
+                <move x="20" y="67"/>
+                <line x="155" y="67"/>
+                <move x="20" y="76"/>
+                <line x="155" y="76"/>
+                <move x="20" y="85"/>
+                <line x="155" y="85"/>
+                <move x="20" y="58"/>
+                <line x="155" y="58"/>
+                <move x="20" y="49"/>
+                <line x="155" y="49"/>
+                <move x="20" y="40"/>
+                <line x="155" y="40"/>
+                <move x="20" y="31"/>
+                <line x="155" y="31"/>
+                <move x="20" y="22"/>
+                <line x="155" y="22"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="6" y="13"/>
+                <line x="155" y="13"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 4900M Switch" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="22" y="2" w="62" h="16"/>
+            <stroke/>
+            <rect x="22" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="90" y="2" w="62" h="16"/>
+            <stroke/>
+            <rect x="38" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="54" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="70" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="90" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="106" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="122" y="20" w="14" h="6"/>
+            <stroke/>
+            <rect x="138" y="20" w="14" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 4928 10 Gigabit Ethernet Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="20" h="4"/>
+            <stroke/>
+            <rect x="59" y="8" w="20" h="4"/>
+            <stroke/>
+            <rect x="115" y="8" w="15" h="6"/>
+            <stroke/>
+            <rect x="59" y="2" w="20" h="4"/>
+            <stroke/>
+            <rect x="35" y="2" w="20" h="4"/>
+            <stroke/>
+            <rect x="35" y="8" w="20" h="4"/>
+            <stroke/>
+            <rect x="11" y="8" w="20" h="4"/>
+            <stroke/>
+            <rect x="84" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="84" y="8" w="6" h="4"/>
+            <stroke/>
+            <rect x="136" y="8" w="15" h="6"/>
+            <stroke/>
+            <rect x="97" y="3" w="6" h="4"/>
+            <stroke/>
+            <rect x="105" y="3" w="6" h="4"/>
+            <stroke/>
+            <rect x="105" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="97" y="9" w="6" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 4948 10 Gigabit Ethernet Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="89" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="136" y="1" w="15" h="6"/>
+            <stroke/>
+            <rect x="89" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="50" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="50" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="11" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="129" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="129" y="8" w="6" h="4"/>
+            <stroke/>
+            <rect x="136" y="8" w="15" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 4948 Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="89" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="138" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="89" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="50" y="2" w="37" h="4"/>
+            <stroke/>
+            <rect x="50" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="11" y="8" w="37" h="4"/>
+            <stroke/>
+            <rect x="138" y="8" w="6" h="4"/>
+            <stroke/>
+            <rect x="145" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="145" y="8" w="6" h="4"/>
+            <stroke/>
+            <rect x="129" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="129" y="8" w="6" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 6503-E Switch" h="59.2" w="147">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="147" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="14" y="13" w="126.33" h="40"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="26.33"/>
+                <line x="140.5" y="26.33"/>
+                <move x="14" y="39.67"/>
+                <line x="140.5" y="39.67"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 6504-E Switch" h="74" w="147">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="147" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="14" y="13" w="126.33" h="53.33"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="26.33"/>
+                <line x="140.5" y="26.33"/>
+                <move x="14" y="39.67"/>
+                <line x="140.5" y="39.67"/>
+                <move x="14" y="53"/>
+                <line x="140.5" y="53"/>
+            </path>
+            <stroke/>
+            <roundrect x="5" y="24" w="3" h="30" arcsize="50"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 6506-E Switch" h="177.6" w="147">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="147" h="177.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="14" y="13" w="126.33" h="79.98"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="26.33"/>
+                <line x="140.5" y="26.33"/>
+                <move x="14" y="39.67"/>
+                <line x="140.5" y="39.67"/>
+                <move x="14" y="53"/>
+                <line x="140.5" y="53"/>
+            </path>
+            <stroke/>
+            <roundrect x="5" y="24" w="3" h="30" arcsize="50"/>
+            <stroke/>
+            <path>
+                <move x="14" y="66.33"/>
+                <line x="140.5" y="66.33"/>
+                <move x="14" y="79.67"/>
+                <line x="140.5" y="79.67"/>
+            </path>
+            <stroke/>
+            <rect x="14" y="98" w="126" h="75"/>
+            <stroke/>
+            <path>
+                <move x="77" y="98"/>
+                <line x="77" y="173"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#999999"/>
+            <ellipse x="31" y="102" w="42" h="42"/>
+            <fill/>
+            <ellipse x="94" y="102" w="42" h="42"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="28" y="121.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <roundrect x="91" y="121.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 6509 Switch" h="222" w="147">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="147" h="222"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="14" y="13" w="126.33" h="119.97"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="26.33"/>
+                <line x="140.5" y="26.33"/>
+                <move x="14" y="39.67"/>
+                <line x="140.5" y="39.67"/>
+                <move x="14" y="53"/>
+                <line x="140.5" y="53"/>
+            </path>
+            <stroke/>
+            <roundrect x="5" y="57" w="3" h="35" arcsize="50"/>
+            <stroke/>
+            <path>
+                <move x="14" y="66.33"/>
+                <line x="140.5" y="66.33"/>
+                <move x="14" y="79.67"/>
+                <line x="140.5" y="79.67"/>
+            </path>
+            <stroke/>
+            <rect x="14" y="145" w="126" h="75"/>
+            <stroke/>
+            <path>
+                <move x="77" y="145"/>
+                <line x="77" y="220"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#999999"/>
+            <ellipse x="31" y="149" w="42" h="42"/>
+            <fill/>
+            <ellipse x="94" y="149" w="42" h="42"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="28" y="168.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <roundrect x="91" y="168.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="93"/>
+                <line x="140.5" y="93"/>
+                <move x="14" y="106.33"/>
+                <line x="140.5" y="106.33"/>
+                <move x="14" y="119.67"/>
+                <line x="140.5" y="119.67"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst 6513-E" h="296" w="147">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="147" h="296"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="14" y="13" w="126.33" h="173.33"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="14" y="26.33"/>
+                <line x="140.5" y="26.33"/>
+                <move x="14" y="39.67"/>
+                <line x="140.5" y="39.67"/>
+                <move x="14" y="53"/>
+                <line x="140.5" y="53"/>
+                <move x="14" y="66.33"/>
+                <line x="140.5" y="66.33"/>
+                <move x="14" y="79.67"/>
+                <line x="140.5" y="79.67"/>
+            </path>
+            <stroke/>
+            <rect x="14" y="221" w="126" h="75"/>
+            <stroke/>
+            <path>
+                <move x="77" y="221"/>
+                <line x="77" y="296"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#999999"/>
+            <ellipse x="31" y="225" w="42" h="42"/>
+            <fillstroke/>
+            <ellipse x="94" y="225" w="42" h="42"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="28" y="244.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <roundrect x="91" y="244.5" w="45" h="3" arcsize="50"/>
+            <fillstroke/>
+            <path>
+                <move x="14" y="93"/>
+                <line x="140.5" y="93"/>
+                <move x="14" y="106.33"/>
+                <line x="140.5" y="106.33"/>
+                <move x="14" y="119.67"/>
+                <line x="140.5" y="119.67"/>
+                <move x="14" y="133"/>
+                <line x="140.5" y="133"/>
+                <move x="14" y="146.33"/>
+                <line x="140.5" y="146.33"/>
+                <move x="14" y="159.67"/>
+                <line x="140.5" y="159.67"/>
+                <move x="14" y="173"/>
+                <line x="140.5" y="173"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3020 for HP" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18" h="120"/>
+            <fillstroke/>
+            <rect x="2" y="21" w="7" h="8"/>
+            <stroke/>
+            <rect x="4" y="95" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="13" w="7" h="8"/>
+            <stroke/>
+            <rect x="9" y="21" w="7" h="8"/>
+            <stroke/>
+            <rect x="9" y="13" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="5" w="7" h="8"/>
+            <stroke/>
+            <rect x="9" y="5" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="29" w="7" h="8"/>
+            <stroke/>
+            <rect x="9" y="29" w="7" h="8"/>
+            <stroke/>
+            <rect x="7" y="50" w="7" h="8"/>
+            <stroke/>
+            <rect x="7" y="58" w="7" h="8"/>
+            <stroke/>
+            <rect x="7" y="66" w="7" h="8"/>
+            <stroke/>
+            <rect x="7" y="74" w="7" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3032 for Dell" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="5" y="37" w="11" h="32"/>
+            <stroke/>
+            <rect x="5" y="73" w="11" h="32"/>
+            <stroke/>
+            <rect x="7" y="3" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="5" y="130" w="4" h="10"/>
+            <stroke/>
+            <rect x="10" y="130" w="4" h="10"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3040 for Dell" h="71" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="71"/>
+            <fillstroke/>
+            <rect x="2" y="49" w="7" h="8"/>
+            <stroke/>
+            <rect x="3" y="28" w="6" h="7"/>
+            <stroke/>
+            <rect x="2" y="59" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="41" w="7" h="8"/>
+            <stroke/>
+            <rect x="3" y="21" w="6" h="7"/>
+            <stroke/>
+            <rect x="3" y="14" w="6" h="7"/>
+            <stroke/>
+            <rect x="3" y="7" w="6" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3100 for Dell" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="5" y="37" w="11" h="32"/>
+            <stroke/>
+            <rect x="5" y="73" w="11" h="32"/>
+            <stroke/>
+            <rect x="7" y="3" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="5" y="130" w="4" h="10"/>
+            <stroke/>
+            <rect x="10" y="130" w="4" h="10"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3120 for HP" h="120" w="18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18" h="120"/>
+            <fillstroke/>
+            <rect x="2" y="21" w="7" h="8"/>
+            <stroke/>
+            <rect x="4" y="100" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="13" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="2" w="4" h="10"/>
+            <stroke/>
+            <rect x="5" y="2" w="4" h="10"/>
+            <stroke/>
+            <rect x="9" y="21" w="7" h="8"/>
+            <stroke/>
+            <rect x="9" y="13" w="7" h="8"/>
+            <stroke/>
+            <rect x="3" y="31" w="13" h="30"/>
+            <stroke/>
+            <rect x="3" y="68" w="13" h="30"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Catalyst Blade Switch 3130 for Dell" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="5" y="37" w="11" h="32"/>
+            <stroke/>
+            <rect x="5" y="73" w="11" h="32"/>
+            <stroke/>
+            <rect x="7" y="3" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="112" w="7" h="8"/>
+            <stroke/>
+            <rect x="2" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="10" y="120" w="7" h="8"/>
+            <stroke/>
+            <rect x="5" y="130" w="4" h="10"/>
+            <stroke/>
+            <rect x="10" y="130" w="4" h="10"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Identity Services Engine" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.8"/>
+            <fillstroke/>
+            <path>
+                <move x="70" y="0"/>
+                <line x="70" y="14.8"/>
+            </path>
+            <stroke/>
+            <rect x="10" y="7" w="50" h="5"/>
+            <stroke/>
+            <rect x="72" y="4" w="38" h="8"/>
+            <stroke/>
+            <rect x="113" y="4" w="38" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco IPS 4500 Sensor" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="7.4"/>
+                <line x="155" y="7"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="6" y="14.8"/>
+                <line x="155" y="14.8"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="6" y="22.2"/>
+                <line x="155" y="22.2"/>
+            </path>
+            <stroke/>
+            <strokecolor color="none"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="10" y="3" w="142" h="2"/>
+            <fillstroke/>
+            <rect x="10" y="17.8" w="142" h="2"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <rect x="11" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="15" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="23" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="27" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="40" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="44" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="48" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="52" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="56" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="60" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="68" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="72" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="78" y="9" w="4" h="4"/>
+            <stroke/>
+            <rect x="140" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="136" y="10" w="4" h="3"/>
+            <stroke/>
+            <rect x="11" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="15" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="23" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="27" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="40" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="44" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="48" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="52" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="56" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="60" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="68" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="72" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="78" y="23.5" w="4" h="4"/>
+            <stroke/>
+            <rect x="136" y="24.5" w="4" h="3"/>
+            <stroke/>
+            <rect x="140" y="24.5" w="4" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Network Access Control" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="88" y="7" w="50" h="5"/>
+            <stroke/>
+            <rect x="8" y="2" w="38" h="10"/>
+            <stroke/>
+            <rect x="48" y="2" w="38" h="10"/>
+            <stroke/>
+            <rect x="142" y="7" w="4" h="2"/>
+            <stroke/>
+            <rect x="142" y="9" w="4" h="2"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 1010 Virtual Services Appliance" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#000000"/>
+            <rect x="38" y="6.5" w="6" h="5"/>
+            <fillstroke/>
+            <rect x="7" y="5" w="148" h="8"/>
+            <stroke/>
+            <fillcolor color="#000000"/>
+            <rect x="75" y="6.5" w="6" h="5"/>
+            <fillstroke/>
+            <rect x="112" y="6.5" w="6" h="5"/>
+            <fillstroke/>
+            <rect x="149" y="6.5" w="6" h="5"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="60" y="1" w="48" h="3"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2148T Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="107" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="107" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="75" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="11" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="75" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="28" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2224TP GE Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="138" y="8" w="12" h="4"/>
+            <stroke/>
+            <rect x="45" y="8" w="30" h="5"/>
+            <stroke/>
+            <rect x="45" y="2" w="30" h="5"/>
+            <stroke/>
+            <rect x="85" y="2" w="30" h="5"/>
+            <stroke/>
+            <rect x="85" y="8" w="30" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2232PP 10GE Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="15" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="129" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="129" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="71" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="15" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="71" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="100" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="100" y="8" w="21" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="37" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="65" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="93.5" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="122.5" y="2" w="5" h="11"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2232TM 10GE Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="15" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="129" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="129" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="71" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="15" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="71" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="21" h="5"/>
+            <stroke/>
+            <rect x="100" y="2" w="21" h="5"/>
+            <stroke/>
+            <rect x="100" y="8" w="21" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="37" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="65" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="93.5" y="2" w="5" h="11"/>
+            <fill/>
+            <rect x="122.5" y="2" w="5" h="11"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2248PQ 10GE Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="89" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="131" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="89" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="50" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="50" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="11" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="131" y="9" w="6" h="3"/>
+            <stroke/>
+            <rect x="140" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="140" y="9" w="6" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 2248TP GE Fabric Extender" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="107" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="107" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="75" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="11" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="75" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="28" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 3016 Switch" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="140" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="20" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="125" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="110" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="95" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="20" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="35" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="50" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="65" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="35" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="50" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="65" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="95" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="110" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="125" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="140" y="8" w="6" h="3"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="12.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="27.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="42.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="57.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="102.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="117.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="132.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="147.5" y="2" w="6" h="10" arcsize="26.68"/>
+            <fill/>
+            <roundrect x="72.5" y="2" w="21" h="10" arcsize="14.76"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 3048 Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="107" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="107" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="75" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="11" y="8" w="28" h="5"/>
+            <stroke/>
+            <rect x="139" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="145" y="8" w="6" h="5"/>
+            <stroke/>
+            <rect x="75" y="2" w="28" h="5"/>
+            <stroke/>
+            <rect x="43" y="8" w="28" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 3064 Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="11" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="89" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="131" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="89" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="50" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="50" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="11" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="131" y="9" w="6" h="4"/>
+            <stroke/>
+            <rect x="140" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="140" y="9" w="6" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 3548 Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="113" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="113" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="25" y="2" w="6" h="4"/>
+            <stroke/>
+            <rect x="74" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="35" y="2" w="37" h="3"/>
+            <stroke/>
+            <rect x="74" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="35" y="8" w="37" h="3"/>
+            <stroke/>
+            <rect x="25" y="7" w="6" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 5548P Switch" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="48" h="3"/>
+            <stroke/>
+            <rect x="10" y="8" w="48" h="3"/>
+            <stroke/>
+            <rect x="61" y="2" w="48" h="3"/>
+            <stroke/>
+            <rect x="61" y="8" w="48" h="3"/>
+            <stroke/>
+            <rect x="111" y="2" w="42" h="11"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 5596T" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="10" y="16" w="43" h="12"/>
+            <stroke/>
+            <rect x="59" y="16" w="43" h="12"/>
+            <stroke/>
+            <rect x="108" y="16" w="43" h="12"/>
+            <stroke/>
+            <rect x="10" y="2" w="43" h="12"/>
+            <stroke/>
+            <rect x="59" y="2" w="43" h="12"/>
+            <stroke/>
+            <rect x="108" y="2" w="43" h="12"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 5596UP Switch" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="12" y="2" w="44" h="3"/>
+            <stroke/>
+            <rect x="12" y="8" w="44" h="3"/>
+            <stroke/>
+            <rect x="63" y="2" w="44" h="3"/>
+            <stroke/>
+            <rect x="63" y="8" w="44" h="3"/>
+            <stroke/>
+            <rect x="111" y="2" w="42" h="11"/>
+            <stroke/>
+            <rect x="13" y="16" w="43" h="12"/>
+            <stroke/>
+            <rect x="64" y="16" w="43" h="12"/>
+            <stroke/>
+            <rect x="110" y="16" w="43" h="12"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 6001 Switch" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="60" h="3"/>
+            <stroke/>
+            <rect x="10" y="8" w="60" h="3"/>
+            <stroke/>
+            <rect x="73" y="2" w="60" h="3"/>
+            <stroke/>
+            <rect x="73" y="8" w="60" h="3"/>
+            <stroke/>
+            <rect x="136" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="145" y="2" w="6" h="3"/>
+            <stroke/>
+            <rect x="145" y="8" w="6" h="3"/>
+            <stroke/>
+            <rect x="136" y="8" w="6" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 6004 Switch" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="5" w="149" h="49.2"/>
+            <fillstroke/>
+            <rect x="10" y="10" w="3" h="39"/>
+            <stroke/>
+            <path>
+                <move x="24.62" y="5"/>
+                <line x="24.62" y="54.2"/>
+                <move x="43.25" y="5"/>
+                <line x="43.25" y="54.2"/>
+                <move x="61.88" y="5"/>
+                <line x="61.88" y="54.2"/>
+                <move x="80.5" y="5"/>
+                <line x="80.5" y="54.2"/>
+                <move x="99.12" y="5"/>
+                <line x="99.12" y="54.2"/>
+                <move x="117.38" y="5"/>
+                <line x="117.38" y="54.2"/>
+                <move x="136" y="5"/>
+                <line x="136" y="54.2"/>
+            </path>
+            <stroke/>
+            <rect x="17" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="28.62" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="35.62" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="47.25" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="54.25" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="65.88" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="72.88" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="84.5" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="91.5" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="103.12" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="110.12" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="121.38" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="128.38" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="140" y="10" w="3" h="39"/>
+            <stroke/>
+            <rect x="147" y="10" w="3" h="39"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 7000 10-Slot Switch Chassis" h="310.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="0" y="0" w="160.9" h="310.8" arcsize="3.77"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="10" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="24.8" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="39.6" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="54.4" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="69.2" y="90" w="12" h="149"/>
+            <fillstroke/>
+            <rect x="81.2" y="90" w="12" h="149"/>
+            <fillstroke/>
+            <rect x="93.2" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="108" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="122.8" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <rect x="137.6" y="90" w="14.8" h="149"/>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <roundrect x="6" y="6" w="148" h="65" arcsize="5.54"/>
+            <fill/>
+            <rect x="10" y="239" w="142.4" h="60"/>
+            <stroke/>
+            <rect x="16" y="245" w="130" h="48"/>
+            <stroke/>
+            <path>
+                <move x="10" y="239"/>
+                <line x="16" y="245"/>
+                <move x="10" y="299"/>
+                <line x="16" y="293"/>
+                <move x="146" y="245"/>
+                <line x="152.4" y="239"/>
+                <move x="146" y="293"/>
+                <line x="152.4" y="299"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#666666"/>
+            <roundrect x="21" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="21" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="31" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="41" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="51" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="61" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="71" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="81" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="91" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="101" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="111" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="121" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="131" y="247" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="31" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="41" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="51" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="61" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="71" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="81" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="91" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="101" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="111" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="121" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <roundrect x="131" y="270" w="8" h="21" arcsize="17.26"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <alpha alpha="0.3"/>
+            <rect x="0" y="78" w="160.9" h="161"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 7000 18-Slot Switch Chassis" h="370" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="370"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="123.4" w="149" h="19"/>
+            <fillstroke/>
+            <rect x="6" y="5" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="19.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="34.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <rect x="0" y="0" w="160.9" h="5"/>
+            <fillstroke/>
+            <strokecolor color="#66ccff"/>
+            <rect x="9" y="290" w="145" h="10"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="49.4" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="142.4" w="149" h="19"/>
+            <fillstroke/>
+            <rect x="6" y="64.2" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="79" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="93.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="108.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <path>
+                <move x="0" y="370"/>
+                <line x="0" y="290"/>
+                <line x="10" y="290"/>
+                <line x="10" y="357"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="13" y="360"/>
+                <line x="147.9" y="360"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="150.9" y="357"/>
+                <line x="150.9" y="290"/>
+                <line x="160.9" y="290"/>
+                <line x="160.9" y="370"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="161" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="175.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="190.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="205.4" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="220.2" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="235" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="249.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="264.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <alpha alpha="0.3"/>
+            <rect x="0" y="5" w="160.9" h="285"/>
+            <fillstroke/>
+            <strokecolor color="#cccccc"/>
+            <fillcolor color="#e8e8e8"/>
+            <alpha alpha="1"/>
+            <path>
+                <move x="0" y="127"/>
+                <line x="8" y="127"/>
+                <line x="20" y="134"/>
+                <line x="140.9" y="134"/>
+                <line x="152.9" y="127"/>
+                <line x="160.9" y="127"/>
+                <line x="160.9" y="159"/>
+                <line x="152.9" y="159"/>
+                <line x="140.9" y="152"/>
+                <line x="20" y="152"/>
+                <line x="8" y="159"/>
+                <line x="0" y="159"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#666666"/>
+            <path>
+                <move x="155.9" y="130"/>
+                <line x="145.9" y="136"/>
+                <line x="145.9" y="150"/>
+                <line x="155.9" y="156"/>
+                <line x="151.9" y="152"/>
+                <line x="151.9" y="134"/>
+                <close/>
+                <move x="5" y="130"/>
+                <line x="15" y="136"/>
+                <line x="15" y="150"/>
+                <line x="5" y="156"/>
+                <line x="10" y="152"/>
+                <line x="10" y="134"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 7000 4-Slot Switch Chassis" h="104" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="103.6"/>
+            <fillstroke/>
+            <fillcolor color="#cccccc"/>
+            <rect x="6" y="0" w="149" h="35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="35" w="149" h="19"/>
+            <fillstroke/>
+            <rect x="6" y="54" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="68.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="83.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <strokecolor color="#66ccff"/>
+            <fillcolor color="#66ccff"/>
+            <rect x="0" y="0" w="160.9" h="8"/>
+            <fillstroke/>
+            <rect x="0" y="83" w="160.9" h="3"/>
+            <fillstroke/>
+            <rect x="0" y="89" w="160.9" h="3"/>
+            <fillstroke/>
+            <rect x="0" y="95" w="160.9" h="3"/>
+            <fillstroke/>
+            <rect x="0" y="101" w="160.9" h="3"/>
+            <fillstroke/>
+            <path>
+                <move x="0" y="30"/>
+                <line x="4" y="30"/>
+                <line x="12" y="39"/>
+                <line x="12" y="66"/>
+                <line x="4" y="75"/>
+                <line x="0" y="75"/>
+                <close/>
+                <move x="160.9" y="30"/>
+                <line x="156.9" y="30"/>
+                <line x="148.9" y="39"/>
+                <line x="148.9" y="66"/>
+                <line x="156.9" y="75"/>
+                <line x="160.9" y="75"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="3" y="34"/>
+                <line x="6" y="39"/>
+                <line x="6" y="67"/>
+                <line x="3" y="72"/>
+                <move x="157.9" y="34"/>
+                <line x="154.9" y="39"/>
+                <line x="154.9" y="67"/>
+                <line x="157.9" y="72"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Nexus 7000 9-Slot Switch Chassis" h="207.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="207.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="64.2" w="149" h="19"/>
+            <fillstroke/>
+            <rect x="6" y="5" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="19.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="34.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <rect x="0" y="0" w="160.9" h="5"/>
+            <fillstroke/>
+            <strokecolor color="#66ccff"/>
+            <rect x="8" y="170" w="145" h="8"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="49.4" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="83.2" w="149" h="19"/>
+            <fillstroke/>
+            <rect x="6" y="102.2" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="117" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="131.8" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="146.6" w="149" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#66ccff"/>
+            <path>
+                <move x="0" y="207.2"/>
+                <line x="0" y="170"/>
+                <line x="8" y="170"/>
+                <line x="8" y="195"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="11" y="198"/>
+                <line x="149.9" y="198"/>
+                <arc rx="3" ry="3" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.9" y="195"/>
+                <line x="152.9" y="170"/>
+                <line x="160.9" y="170"/>
+                <line x="160.9" y="207.2"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#66ccff"/>
+            <path>
+                <move x="0.33" y="66.33"/>
+                <line x="4.33" y="66.33"/>
+                <line x="12.33" y="72.38"/>
+                <line x="12.33" y="90.53"/>
+                <line x="4.33" y="96.58"/>
+                <line x="0.33" y="96.58"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <alpha alpha="0.3"/>
+            <rect x="0" y="5" w="160.9" h="165"/>
+            <fillstroke/>
+            <strokecolor color="#cccccc"/>
+            <fillcolor color="#e8e8e8"/>
+            <alpha alpha="1"/>
+            <path>
+                <move x="0" y="66"/>
+                <line x="8" y="66"/>
+                <line x="20" y="73"/>
+                <line x="140.9" y="73"/>
+                <line x="152.9" y="66"/>
+                <line x="160.9" y="66"/>
+                <line x="160.9" y="98"/>
+                <line x="152.9" y="98"/>
+                <line x="140.9" y="91"/>
+                <line x="20" y="91"/>
+                <line x="8" y="98"/>
+                <line x="0" y="98"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#666666"/>
+            <path>
+                <move x="5" y="69"/>
+                <line x="15" y="75"/>
+                <line x="15" y="89"/>
+                <line x="5" y="95"/>
+                <line x="9" y="91"/>
+                <line x="9" y="73"/>
+                <close/>
+                <move x="155.9" y="69"/>
+                <line x="145.9" y="75"/>
+                <line x="145.9" y="89"/>
+                <line x="155.9" y="95"/>
+                <line x="151.9" y="91"/>
+                <line x="151.9" y="73"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ONS 15305 Multiservice Customer Access Platform" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="139" y="2" w="6" h="5"/>
+            <stroke/>
+            <rect x="47" y="4" w="24" h="4"/>
+            <stroke/>
+            <rect x="80" y="8" w="24" h="4"/>
+            <stroke/>
+            <rect x="11" y="8" w="30" h="4"/>
+            <stroke/>
+            <rect x="80" y="4" w="24" h="4"/>
+            <stroke/>
+            <rect x="47" y="8" w="24" h="4"/>
+            <stroke/>
+            <rect x="139" y="7" w="6" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ONS 15310-CL SONET Multiservice Platform" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="107" y="7" w="6" h="4"/>
+            <stroke/>
+            <rect x="115" y="7" w="20" h="4"/>
+            <stroke/>
+            <rect x="46" y="7" w="20" h="4"/>
+            <stroke/>
+            <rect x="77" y="7" w="24" h="4"/>
+            <stroke/>
+            <rect x="24" y="7" w="20" h="4"/>
+            <stroke/>
+            <rect x="12" y="8" w="5" h="4"/>
+            <stroke/>
+            <path>
+                <move x="72" y="0"/>
+                <line x="72" y="14.8"/>
+                <move x="6" y="2"/>
+                <line x="72" y="2"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ONS 15310-MA SDH Multiservice Platform" h="88.8" w="85.75">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="85.75" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="4" y="17" w="77" h="60"/>
+            <fillstroke/>
+            <rect x="60" y="8" w="5" h="4"/>
+            <stroke/>
+            <path>
+                <move x="15" y="17"/>
+                <line x="15" y="77"/>
+                <move x="26" y="17"/>
+                <line x="26" y="77"/>
+                <move x="37" y="17"/>
+                <line x="37" y="77"/>
+                <move x="48" y="17"/>
+                <line x="48" y="77"/>
+                <move x="59" y="17"/>
+                <line x="59" y="77"/>
+                <move x="70" y="17"/>
+                <line x="70" y="77"/>
+                <move x="0" y="17"/>
+                <line x="85.75" y="17"/>
+                <move x="0" y="6"/>
+                <line x="85.75" y="6"/>
+                <move x="43" y="0"/>
+                <line x="43" y="6"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ONS 15454 SONET-SDH Multiservice Provisioning Platform" h="156.67" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="156.67"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="156.67"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="127"/>
+                <line x="155" y="127"/>
+                <move x="6" y="142"/>
+                <line x="155" y="142"/>
+                <move x="14.76" y="0"/>
+                <line x="14.76" y="127"/>
+                <move x="23.52" y="0"/>
+                <line x="23.52" y="127"/>
+                <move x="32.28" y="0"/>
+                <line x="32.28" y="127"/>
+                <move x="41.04" y="0"/>
+                <line x="41.04" y="127"/>
+                <move x="49.8" y="0"/>
+                <line x="49.8" y="127"/>
+                <move x="49.8" y="0"/>
+                <line x="49.8" y="127"/>
+                <move x="58.56" y="0"/>
+                <line x="58.56" y="127"/>
+                <move x="67.32" y="0"/>
+                <line x="67.32" y="127"/>
+                <move x="76.08" y="0"/>
+                <line x="76.08" y="127"/>
+                <move x="84.84" y="0"/>
+                <line x="84.84" y="127"/>
+                <move x="93.6" y="0"/>
+                <line x="93.6" y="127"/>
+                <move x="102.36" y="0"/>
+                <line x="102.36" y="127"/>
+                <move x="102.36" y="0"/>
+                <line x="102.36" y="127"/>
+                <move x="111.12" y="0"/>
+                <line x="111.12" y="127"/>
+                <move x="111.12" y="0"/>
+                <line x="111.12" y="127"/>
+                <move x="119.88" y="0"/>
+                <line x="119.88" y="127"/>
+                <move x="128.64" y="0"/>
+                <line x="128.64" y="127"/>
+                <move x="137.4" y="0"/>
+                <line x="137.4" y="127"/>
+                <move x="146.16" y="0"/>
+                <line x="146.16" y="127"/>
+            </path>
+            <stroke/>
+            <rect x="10" y="146" w="13" h="7"/>
+            <stroke/>
+            <rect x="138" y="146" w="13" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco ONS 15600 Multiservice Switching Platform" h="211.67" w="200">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="200" h="211.67"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="12" y="15" w="176" h="196.67"/>
+            <fillstroke/>
+            <path>
+                <move x="12" y="0"/>
+                <line x="12" y="15"/>
+                <move x="188" y="0"/>
+                <line x="188" y="15"/>
+                <move x="12" y="45"/>
+                <line x="188" y="45"/>
+                <move x="12" y="190"/>
+                <line x="188" y="190"/>
+                <move x="26" y="45"/>
+                <line x="26" y="190"/>
+                <move x="40" y="45"/>
+                <line x="40" y="190"/>
+                <move x="54" y="45"/>
+                <line x="54" y="190"/>
+                <move x="68" y="45"/>
+                <line x="68" y="190"/>
+                <move x="79" y="45"/>
+                <line x="79" y="190"/>
+                <move x="100" y="45"/>
+                <line x="100" y="190"/>
+                <move x="121" y="45"/>
+                <line x="121" y="190"/>
+                <move x="132" y="45"/>
+                <line x="132" y="190"/>
+                <move x="146" y="45"/>
+                <line x="146" y="190"/>
+                <move x="160" y="45"/>
+                <line x="160" y="190"/>
+                <move x="174" y="45"/>
+                <line x="174" y="190"/>
+                <move x="70.67" y="15"/>
+                <line x="70.67" y="45"/>
+                <move x="129.33" y="15"/>
+                <line x="129.33" y="45"/>
+            </path>
+            <stroke/>
+            <rect x="36.84" y="22" w="10" h="15"/>
+            <stroke/>
+            <rect x="95" y="22" w="10" h="15"/>
+            <stroke/>
+            <rect x="154.25" y="22" w="10" h="15"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Physical Security 4U Storage" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="59.2"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <stroke/>
+            <path>
+                <move x="55.63" y="0"/>
+                <line x="55.63" y="59.2"/>
+                <move x="105.27" y="0"/>
+                <line x="105.27" y="59.2"/>
+                <move x="0" y="17"/>
+                <line x="160.9" y="17"/>
+                <move x="0" y="42"/>
+                <line x="160.9" y="42"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="27" w="160.9" h="4"/>
+            <fillstroke/>
+            <ellipse x="27.82" y="51.5" w="6" h="6"/>
+            <stroke/>
+            <ellipse x="77.45" y="51.5" w="6" h="6"/>
+            <stroke/>
+            <ellipse x="127.14" y="51.5" w="6" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Physical Security Multiservice Platform 1U" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="8" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="3" w="34" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Physical Security Multiservice Platform 2U" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="8" y="2" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="2" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="2" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="2" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="11" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="20" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="11" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="20" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="11" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="20" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="11" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="20" w="34" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Physical Security Multiservice Platform 4U" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <fillstroke/>
+            <rect x="8" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="3" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="12" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="21" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="12" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="21" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="12" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="21" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="12" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="21" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="30" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="39" w="34" h="8"/>
+            <stroke/>
+            <rect x="8" y="48" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="30" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="30" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="30" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="39" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="39" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="39" w="34" h="8"/>
+            <stroke/>
+            <rect x="44" y="48" w="34" h="8"/>
+            <stroke/>
+            <rect x="80" y="48" w="34" h="8"/>
+            <stroke/>
+            <rect x="116" y="48" w="34" h="8"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS 5100 Chassis" h="88.8" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="65"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.4" h="88.8"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="17"/>
+                <line x="155" y="17"/>
+                <move x="6" y="34"/>
+                <line x="155" y="34"/>
+                <move x="6" y="51"/>
+                <line x="155" y="51"/>
+                <move x="6" y="68"/>
+                <line x="155" y="68"/>
+                <move x="80.5" y="0"/>
+                <line x="80.5" y="68"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS 6248UP Fabric Interconnect" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="14.8"/>
+                <line x="155" y="14.8"/>
+            </path>
+            <stroke/>
+            <rect x="9" y="3" w="45" h="9"/>
+            <stroke/>
+            <rect x="58" y="3" w="45" h="9"/>
+            <stroke/>
+            <rect x="107" y="3" w="45" h="9"/>
+            <stroke/>
+            <path>
+                <move x="9" y="6"/>
+                <line x="54" y="6"/>
+                <move x="9" y="9"/>
+                <line x="54" y="9"/>
+                <move x="58" y="6"/>
+                <line x="103" y="6"/>
+                <move x="58" y="9"/>
+                <line x="103" y="9"/>
+                <move x="107" y="6"/>
+                <line x="152" y="6"/>
+                <move x="107" y="9"/>
+                <line x="152" y="9"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS 6296UP Fabric Interconnect" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="14.8"/>
+                <line x="155" y="14.8"/>
+            </path>
+            <stroke/>
+            <rect x="9" y="3" w="45" h="9"/>
+            <stroke/>
+            <rect x="58" y="3" w="45" h="9"/>
+            <stroke/>
+            <rect x="107" y="3" w="45" h="9"/>
+            <stroke/>
+            <path>
+                <move x="9" y="6"/>
+                <line x="54" y="6"/>
+                <move x="9" y="9"/>
+                <line x="54" y="9"/>
+                <move x="58" y="6"/>
+                <line x="103" y="6"/>
+                <move x="58" y="9"/>
+                <line x="103" y="9"/>
+                <move x="107" y="6"/>
+                <line x="152" y="6"/>
+                <move x="107" y="9"/>
+                <line x="152" y="9"/>
+            </path>
+            <stroke/>
+            <rect x="9" y="17" w="45" h="9"/>
+            <stroke/>
+            <rect x="58" y="17" w="45" h="9"/>
+            <stroke/>
+            <rect x="107" y="17" w="45" h="9"/>
+            <stroke/>
+            <path>
+                <move x="9" y="20"/>
+                <line x="54" y="20"/>
+                <move x="58" y="20"/>
+                <line x="103" y="20"/>
+                <move x="107" y="20"/>
+                <line x="152" y="20"/>
+                <move x="9" y="23"/>
+                <line x="54" y="23"/>
+                <move x="58" y="23"/>
+                <line x="103" y="23"/>
+                <move x="107" y="23"/>
+                <line x="152" y="23"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C22 M3 Server" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="8" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="37" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="95" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="124" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="95" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="124" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="8" y="2" w="55" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C220 M3 Server" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="8" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="37" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="95" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="124" y="9" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="95" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="124" y="2" w="26" h="4"/>
+            <stroke/>
+            <rect x="8" y="2" w="55" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C24 M3 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="16" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="22" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="28" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="34" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="40" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="46" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="52" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="58" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="64" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="70" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="76" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="82" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="88" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="94" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="100" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="106" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="112" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="118" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="124" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="130" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="136" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="142" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="148" y="2" w="4" h="26"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C240 M3 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="16" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="22" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="28" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="34" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="40" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="46" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="52" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="58" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="64" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="70" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="76" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="82" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="88" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="94" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="100" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="106" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="112" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="118" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="124" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="130" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="136" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="142" y="2" w="4" h="26"/>
+            <stroke/>
+            <rect x="148" y="2" w="4" h="26"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C260 M3 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="17" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="24" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="31" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="69" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="48" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="55" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="62" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="100" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="107" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="86" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="93" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="131" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="138" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="145" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="124" y="2" w="5" h="26"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="38" y="2" w="8" h="12"/>
+            <fill/>
+            <rect x="38" y="15" w="8" h="12"/>
+            <fill/>
+            <rect x="114" y="2" w="8" h="12"/>
+            <fill/>
+            <rect x="114" y="15" w="8" h="12"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="76" y="0"/>
+                <line x="76" y="29.6"/>
+            </path>
+            <stroke/>
+            <path>
+                <move x="84" y="0"/>
+                <line x="84" y="29.6"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C420 M3 Server" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="17" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="24" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="31" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="69" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="48" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="55" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="62" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="100" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="107" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="86" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="93" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="131" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="138" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="145" y="2" w="5" h="26"/>
+            <stroke/>
+            <rect x="124" y="2" w="5" h="26"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="38" y="2" w="8" h="12"/>
+            <fill/>
+            <rect x="38" y="15" w="8" h="12"/>
+            <fill/>
+            <rect x="114" y="2" w="8" h="12"/>
+            <fill/>
+            <rect x="114" y="15" w="8" h="12"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="76" y="0"/>
+                <line x="76" y="29.6"/>
+                <move x="84" y="0"/>
+                <line x="84" y="29.6"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco UCS C460 M2 Server" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="12" y="4" w="65" h="30"/>
+            <fill/>
+            <strokecolor color="#66ccff"/>
+            <fillcolor color="#66ccff"/>
+            <rect x="0" y="10" w="6" h="49.2"/>
+            <fillstroke/>
+            <rect x="154.9" y="10" w="6" h="49.2"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <rect x="10" y="54" w="26" h="4"/>
+            <stroke/>
+            <rect x="8" y="42" w="45" h="4"/>
+            <stroke/>
+            <rect x="10" y="48" w="26" h="4"/>
+            <stroke/>
+            <rect x="38" y="48" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="48" w="26" h="4"/>
+            <stroke/>
+            <rect x="94" y="48" w="26" h="4"/>
+            <stroke/>
+            <rect x="122" y="48" w="26" h="4"/>
+            <stroke/>
+            <rect x="38" y="54" w="26" h="4"/>
+            <stroke/>
+            <rect x="66" y="54" w="26" h="4"/>
+            <stroke/>
+            <rect x="94" y="54" w="26" h="4"/>
+            <stroke/>
+            <rect x="122" y="54" w="26" h="4"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="85" y="4" w="65" h="30"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="94" y="42" w="26" h="4"/>
+            <stroke/>
+            <rect x="122" y="42" w="26" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAE-512" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="62" y="4" w="38" h="8"/>
+            <stroke/>
+            <rect x="104" y="4" w="38" h="8"/>
+            <stroke/>
+            <path>
+                <move x="10" y="8"/>
+                <line x="50" y="8"/>
+                <line x="50" y="10"/>
+                <line x="42" y="10"/>
+                <line x="42" y="13"/>
+                <line x="10" y="13"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAE-612" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="62" y="4" w="38" h="8"/>
+            <stroke/>
+            <rect x="104" y="4" w="38" h="8"/>
+            <stroke/>
+            <path>
+                <move x="10" y="8"/>
+                <line x="50" y="8"/>
+                <line x="50" y="10"/>
+                <line x="42" y="10"/>
+                <line x="42" y="13"/>
+                <line x="10" y="13"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAE-674" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="75" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <path>
+                <move x="10" y="23"/>
+                <line x="50" y="23"/>
+                <line x="50" y="25"/>
+                <line x="42" y="25"/>
+                <line x="42" y="28"/>
+                <line x="10" y="28"/>
+                <close/>
+            </path>
+            <stroke/>
+            <rect x="115" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="20" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="20" w="38" h="8"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="7" y="1" w="67" h="15"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAE-7341" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="75" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <path>
+                <move x="10" y="23"/>
+                <line x="50" y="23"/>
+                <line x="50" y="25"/>
+                <line x="42" y="25"/>
+                <line x="42" y="28"/>
+                <line x="10" y="28"/>
+                <close/>
+            </path>
+            <stroke/>
+            <rect x="115" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="20" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="20" w="38" h="8"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="7" y="1" w="67" h="15"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAE-7371" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="75" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="1.5" w="38" h="8"/>
+            <stroke/>
+            <path>
+                <move x="10" y="23"/>
+                <line x="50" y="23"/>
+                <line x="50" y="25"/>
+                <line x="42" y="25"/>
+                <line x="42" y="28"/>
+                <line x="10" y="28"/>
+                <close/>
+            </path>
+            <stroke/>
+            <rect x="115" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="115" y="20" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="10.75" w="38" h="8"/>
+            <stroke/>
+            <rect x="75" y="20" w="38" h="8"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="7" y="1" w="67" h="15"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 294" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="42" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="81.25" y="2" w="37" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 594" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="42" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="81.25" y="2" w="37" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 694" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="42" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="81.25" y="2" w="37" h="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 7541" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="8" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="84" y="2" w="34" h="12"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 7571" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="8" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="84" y="2" w="34" h="12"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco WAVE 8541" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="29.6"/>
+            <fillstroke/>
+            <rect x="132" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="126" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="120" y="2" w="4" h="3"/>
+            <stroke/>
+            <rect x="8" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="2" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="8" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="9" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="16" w="37" h="5"/>
+            <stroke/>
+            <rect x="45" y="23" w="37" h="5"/>
+            <stroke/>
+            <rect x="84" y="2" w="34" h="12"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Web Security Appliance S170" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="18" y="1.5" w="85" h="12"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="114.2" y="1.8" w="33.4" h="11.6"/>
+            <stroke/>
+            <rect x="116" y="3.5" w="20" h="3"/>
+            <stroke/>
+            <rect x="116" y="8.5" w="20" h="3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Web Security Appliance S370" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="10" y="2.5" w="141" h="25" arcsize="4.71"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Cisco Web Security Appliance S670" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <roundrect x="10" y="2.5" w="141" h="25" arcsize="4.71"/>
+            <fill/>
+        </foreground>
+    </shape>
+</shapes>

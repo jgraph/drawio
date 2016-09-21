@@ -5311,14 +5311,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			// Selects editing cell
 			this.graph.setSelectionCell(cell);
-	
-			// First run cannot set display before supercall because textarea is lazy created
-			// Lazy instantiates textarea to save memory in IE
-			if (this.textarea == null)
-			{
-				this.init();
-			}
-	
+
 			// Enables focus outline for edges and edge labels
 			var parent = this.graph.getModel().getParent(cell);
 			var geo = this.graph.getCellGeometry(cell);
@@ -5381,7 +5374,7 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					cleanNode(node);
 				}
-				else
+				else if (node != null)
 				{
 					node = node.firstChild;
 					clone = clone.firstChild;

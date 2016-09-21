@@ -164,6 +164,15 @@
     <servlet-name>ConnectRenderServlet</servlet-name>
     <url-pattern>/connectRender</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <display-name>LogServlet</display-name>
+    <servlet-name>LogServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.LogServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LogServlet</servlet-name>
+    <url-pattern>/log</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>

@@ -6,6 +6,8 @@ package com.mxgraph.online;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,9 @@ public class IconSearchServlet extends HttpServlet
 	 * API key for iconfinder.
 	 */
 	public static String API_KEY = null;
+
+	private static final Logger log = Logger.getLogger(IconSearchServlet.class
+			.getName());
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -57,6 +62,11 @@ public class IconSearchServlet extends HttpServlet
 				throw new RuntimeException("API key file path invalid.");
 			}
 		}
+		
+		if (API_KEY.equals("Replace_with_your_own_iconfinder_key"))
+		{
+			throw new RuntimeException("Iconfinder API key template used, replace it with your own.");
+		}
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -70,13 +80,16 @@ public class IconSearchServlet extends HttpServlet
 
 		try
 		{
+			String query = request.getParameter("q");
 			URL url = new URL("https://www.iconfinder.com/xml/search/?q="
-					+ Utils.encodeURIComponent(request.getParameter("q"),
+					+ Utils.encodeURIComponent(query,
 							Utils.CHARSET_FOR_URL_ENCODING) + "&p="
 					+ request.getParameter("p") + "&c="
 					+ request.getParameter("c") + "&l="
 					+ request.getParameter("l")
 					+ "&price=nonpremium&min=4&max=130&api_key=" + API_KEY);
+
+			log.log(Level.CONFIG, "iconsearch=" + query);
 
 			response.addHeader("Access-Control-Allow-Origin", "*");
 			response.addHeader("Access-Control-Allow-Methods",

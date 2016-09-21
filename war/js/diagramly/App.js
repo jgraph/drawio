@@ -377,12 +377,13 @@ App.main = function(callback)
 			{
 				lastErrorMessage = message;
 				var img = new Image();
-				var url = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
+				var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
 					message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-					'images/3x3.png' : 'images/2x2.png';
-	    		img.src = url + '?msg=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location.href) +
-	    			'&lnum=' + encodeURIComponent(linenumber) + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-	    			((colno != null) ? '&colno=' + encodeURIComponent(colno) : '') +
+					'CONFIG' : 'WARNING';
+	    		img.src = 'log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+	    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+	    			':lnum:' + encodeURIComponent(linenumber) + 
+	    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
 	    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
 			}
 		}
@@ -2216,10 +2217,10 @@ App.prototype.start = function()
 			try
 			{
 				var img = new Image();
-	    		img.src = 'images/2x2.png?msg=errorLoadingFile&url=' + encodeURIComponent(window.location.href) +
-	    			'&v=' + encodeURIComponent(EditorUi.VERSION) +
-	    			((e != null && e.message != null) ? '&err=' + encodeURIComponent(e.message) : '') +
-	    			((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+	    		img.src = 'log?v=' + encodeURIComponent(EditorUi.VERSION) +
+	    			'&msg=errorLoadingFile:url:' + encodeURIComponent(window.location.href) +
+    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
+    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
 			}
 			catch (err)
 			{
@@ -4160,8 +4161,8 @@ App.prototype.fileLoaded = function(file)
 		        	if (!this.isOffline())
 		        	{
 	        			var img = new Image();
-	        			img.src = 'images/log.png?mode=' + encodeURIComponent(file.getMode()) +
-	        				'&v=' + encodeURIComponent(EditorUi.VERSION);
+	        			img.src = 'log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+        				'&v=' + encodeURIComponent(EditorUi.VERSION);
 		        	}
 	        	}
 	        	catch (e)
@@ -5985,7 +5986,7 @@ App.prototype.updateHeader = function()
 		/**
 		 * Adds compact UI toggle.
 		 */
-		if (urlParams['embed'] != '1' && urlParams['url'] != '')
+		if (urlParams['embed'] != '1')
 		{
 			this.toggleElement = document.createElement('a');
 			this.toggleElement.setAttribute('href', 'javascript:void(0);');
@@ -6017,15 +6018,15 @@ App.prototype.updateHeader = function()
 			{
 				this.toolbarContainer.appendChild(this.toggleElement);
 			}
-		}
-		
-		// Enable compact mode for small screens
-		if (screen.height <= 740 && typeof(this.toggleElement.click) !== 'undefined')
-		{
-			window.setTimeout(mxUtils.bind(this, function()
+			
+			// Enable compact mode for small screens
+			if (screen.height <= 740 && typeof this.toggleElement.click !== 'undefined')
 			{
-				this.toggleElement.click();
-			}), 0);
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					this.toggleElement.click();
+				}), 0);
+			}
 		}
 	}
 };

@@ -560,7 +560,7 @@
 						if (editorUi.enableLogging)
 						{
 							var img = new Image();
-							img.src = 'images/log.png?help=' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+							img.src = 'log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 						}
 						
 						// Workaround for blocked submit on iOS/IE11
