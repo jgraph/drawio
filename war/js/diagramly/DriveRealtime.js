@@ -205,7 +205,7 @@ DriveRealtime.prototype.start = function()
 				var img = new Image();
 				
 				// Timestamp is added to bypass client-side cache
-				img.src = 'images/log.png?converted=oldrt&v=' +
+				img.src = 'log?severity=CONFIG&msg=converted-oldrt&v=' +
 					encodeURIComponent(EditorUi.VERSION) + '&ts=' + new Date().getTime();
 	    	}
 	    	catch (e)

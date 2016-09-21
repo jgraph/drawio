@@ -1761,7 +1761,7 @@
 								var img = new Image();
 								
 								// Timestamp is added to bypass client-side cache
-								img.src = 'images/log.png?published=' + res.data.id + '&v=' +
+								img.src = 'log?severity=CONFIG&msg=imgur-published:' + res.data.id + '&v=' +
 									encodeURIComponent(EditorUi.VERSION) + '&ts=' + new Date().getTime();
 					    	}
 					    	catch (e)

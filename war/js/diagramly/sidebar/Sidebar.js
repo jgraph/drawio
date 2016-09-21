@@ -962,7 +962,7 @@
 	}
 	
 	/**
-	 * Adds iconfinder results to local search results
+	 * Adds server icon results to local search results
 	 */
 	var sidebarSearchEntries = Sidebar.prototype.searchEntries;
 	
@@ -974,7 +974,7 @@
 		if (this.editorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
 		{
 			var img = new Image();
-			img.src = 'images/log.png?search=' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+			img.src = 'log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 		}
 		
 		success = mxUtils.bind(this, function(results, len, more, terms)
@@ -983,7 +983,7 @@
 			{
 				var pg = page - Math.ceil((len - count / 4) / count);
 
-				mxUtils.get(ICONFINDER_PATH + '?q=' + encodeURIComponent(searchTerms) +
+				mxUtils.get(ICONSEARCH_PATH + '?q=' + encodeURIComponent(searchTerms) +
 					'&l=1&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
 				{
 					var icons = req.getXml().getElementsByTagName('icon');

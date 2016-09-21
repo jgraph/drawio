@@ -1,3 +1,8 @@
+21-SEP-2016: 5.7.0.3
+
+- Uses mxGraph 3.7.0.0 beta 4
+- Logging changes to use standard Java logging
+
 21-SEP-2016: 5.7.0.2
 
 - Uses mxGraph 3.7.0.0 beta 3
