@@ -1,3 +1,11 @@
+26-SEP-2016: 5.7.0.5
+
+- Adds publish to Facebook, Twitter
+
+21-SEP-2016: 5.7.0.4
+
+- Minor logging changes
+
 21-SEP-2016: 5.7.0.3
 
 - Uses mxGraph 3.7.0.0 beta 4

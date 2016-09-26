@@ -1,6 +1,7 @@
 package com.mxgraph.online;
 
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,7 @@ public class LogServlet extends HttpServlet {
 			
 			if (stack != null)
 			{
-				message += stack;
+				message += "\n" + stack;
 			}
 
 			if (message != null)
@@ -54,6 +55,12 @@ public class LogServlet extends HttpServlet {
 				if (severity != null)
 				{
 					severityLevel = Level.parse(severity);
+				}
+				
+				if (severityLevel.intValue() >= 900)
+				{
+					// Tidy up warnings and severes
+					message = message == null ? message : URLDecoder.decode(message, "UTF-8");
 				}
 
 				log.log(severityLevel, "CLIENT-LOG:" + message);

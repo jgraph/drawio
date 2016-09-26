@@ -131,13 +131,13 @@ App.MODE_BROWSER = 'browser';
 App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 
 /**
- * Defines plugin keys for loadnig via p URL parameter.
+ * Defines plugin keys for loading via p URL parameter.
  */
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js', 'ac': '/plugins/connect.js',
 	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
-	'doors': '/plugins/doors.js'};
+	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js'};
 
 /**
  * Function: authorize
@@ -1116,10 +1116,12 @@ App.prototype.checkLicense = function()
 		if (at >= 0)
 		{
 			domain = email.substring(at + 1);
+			email = this.crc32(email.substring(0, at)) + '@' + domain;
 		}
 		
 		// Timestamp is workaround for cached response in certain environments
-		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&ts=' + new Date().getTime(),
+		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' +
+			encodeURIComponent(email) + '&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
 				var registered = false;

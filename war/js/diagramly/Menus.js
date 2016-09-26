@@ -1275,10 +1275,13 @@
 			
 			menu.addSeparator(parent);
 
-			menu.addItem(mxResources.get('browser') + '...', null, function()
+			if (isLocalStorage && urlParams['browser'] != '0')
 			{
-				importFile(false);
-			}, parent);
+				menu.addItem(mxResources.get('browser') + '...', null, function()
+				{
+					importFile(false);
+				}, parent);
+			}
 
 			if (!mxClient.IS_IOS)
 			{
@@ -1487,7 +1490,30 @@
 		
 		editorUi.actions.addAction('imgur...', mxUtils.bind(this, function()
 		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur));
+			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
+			{
+				window.open('https://imgur.com/' + imgurId);
+			});
+		}));
+				
+		editorUi.actions.addAction('facebook...', mxUtils.bind(this, function()
+		{
+			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
+			{
+				window.open('https://www.facebook.com/sharer.php?p[url]=' + encodeURIComponent('https://imgur.com/' + imgurId) +
+						'&p[images][0]=' + encodeURIComponent(imgurId + '.png'));
+			});
+		}));
+
+		editorUi.actions.addAction('twitter...', mxUtils.bind(this, function()
+		{
+			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
+			{
+				window.open('https://twitter.com/intent/tweet?text=' + 
+						encodeURIComponent('Check out the diagram I made with draw.io') +
+						'&via=drawio&hashtags=madewithdrawio&url=' +
+						encodeURIComponent('https://imgur.com/' + imgurId));
+			});
 		}));
 
 		editorUi.actions.addAction('github...', mxUtils.bind(this, function()
@@ -1507,6 +1533,8 @@
 					this.addMenuItems(menu, ['github'], parent);
 				}
 				
+				this.addMenuItems(menu, ['twitter'], parent);
+				this.addMenuItems(menu, ['facebook'], parent);
 				this.addMenuItems(menu, ['imgur'], parent);
 			}
 			
@@ -1736,7 +1764,7 @@
 			
 			menu.addSeparator(parent);
 
-			if (isLocalStorage)
+			if (isLocalStorage && urlParams['browser'] != '0')
 			{
 				menu.addItem(mxResources.get('browser') + '...', null, function()
 				{
@@ -1829,7 +1857,7 @@
 			
 			menu.addSeparator(parent);
 
-			if (isLocalStorage)
+			if (isLocalStorage && urlParams['browser'] != '0')
 			{
 				menu.addItem(mxResources.get('browser') + '...', null, function()
 				{
@@ -1895,7 +1923,7 @@
 			
 			menu.addSeparator(parent);
 
-			if (isLocalStorage)
+			if (isLocalStorage && urlParams['browser'] != '0')
 			{
 				menu.addItem(mxResources.get('browser') + '...', null, function()
 				{

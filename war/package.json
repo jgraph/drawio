@@ -1,0 +1,32 @@
+{
+	"name": "drawio-desktop",
+	"version": "1.0.0",
+	"description": "draw.io desktop app",
+	"main": "electron.js",
+	"scripts":
+	{
+		"start": "electron ."
+	},
+	"repository":
+	{
+		"type": "git",
+		"url": "git+https://github.com/jgraph/draw.io.git"
+	},
+	"keywords": [
+		"draw.io",
+		"diagram",
+		"flowchart",
+		"UML"
+	],
+	"author": "JGraph",
+	"license": "GPL-3.0",
+	"bugs":
+	{
+		"url": "https://github.com/jgraph/draw.io/issues"
+	},
+	"homepage": "https://github.com/jgraph/draw.io",
+	"devDependencies":
+	{
+    	"electron": "^1.3.4"
+	}
+}
