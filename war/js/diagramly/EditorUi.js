@@ -1696,7 +1696,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.uploadToImgur = function(file, base64Data, editable)
+	EditorUi.prototype.uploadToImgur = function(file, base64Data, editable, socialHandler)
 	{
 		var resume = this.spinner.pause();
 		
@@ -1781,11 +1781,10 @@
 									mxResources.get('close'), mxUtils.bind(this, function()
 									{
 										this.hideDialog();
-									}), null,
-									mxResources.get('openInNewWindow'), mxUtils.bind(this, function()
+									}), null, mxResources.get('share'), function()
 									{
-										window.open('http://imgur.com/' + res.data.id);
-									}), false);
+										socialHandler(res.data.id);
+									}, false);
 								this.showDialog(dlg.container, 340, 170, true, false);
 								dlg.init();
 							});
@@ -1840,7 +1839,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.publishImage = function(handler)
+	EditorUi.prototype.publishImage = function(handler, socialHandler)
 	{
 	   	var file = this.getCurrentFile();
 	   	
@@ -1868,7 +1867,7 @@
 							   		{
 							   			var xml = (editable) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) : null;
 							   			var data = this.createPngDataUri(canvas, xml);
-							   	   	    handler(file, data.substring(data.lastIndexOf(',') + 1), editable);
+							   	   	    handler(file, data.substring(data.lastIndexOf(',') + 1), editable, socialHandler);
 							   		}
 							   		catch (e)
 							   		{
@@ -1910,7 +1909,7 @@
 								{
 									if (req.getStatus() == 200)
 									{
-										handler(file, req.getText(), editable);
+										handler(file, req.getText(), editable, socialHandler);
 									}
 									else
 									{
@@ -5598,6 +5597,8 @@
 		this.actions.get('editDiagram').setEnabled(urlParams['embed'] == '1' ||
 				(file != null && !file.isRestricted()));
 		this.actions.get('imgur').setEnabled(file != null && !file.isRestricted());
+		this.actions.get('twitter').setEnabled(file != null && !file.isRestricted());
+		this.actions.get('facebook').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('github').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());

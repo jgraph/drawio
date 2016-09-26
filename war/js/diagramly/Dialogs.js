@@ -3695,7 +3695,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		}
 	}
 	
-	if (allowBrowser && isLocalStorage)
+	if (allowBrowser && isLocalStorage && urlParams['browser'] != '0')
 	{
 		var browserOption = document.createElement('option');
 		browserOption.setAttribute('value', App.MODE_BROWSER);

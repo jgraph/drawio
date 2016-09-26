@@ -32,7 +32,7 @@
 		 * - pages=1: For developers only
 		 * - page=n: For developers only
 		 * - ignoremime=1: For developers only (see DriveClient.js). Use Cmd-S to override mime.
-		 * - createindex=1: For depelopers only (see etc/build/README)
+		 * - createindex=1: For developers only (see etc/build/README)
 		 * - filesupport=0: For developers only (see Editor.js in core)
 		 * - savesidebar=1: For developers only (see Sidebar.js)
 		 * - pages=1: For developers only (see Pages.js)
@@ -64,38 +64,43 @@
 			(function()
 			{
 				var proto = window.location.protocol;
-				var host = window.location.host;
-	
-				// Redirects apex and rt to www
-				if (host === 'draw.io' || host === 'rt.draw.io')
-				{
-					host = 'www.draw.io';
-				}
 				
-				// Redirects to SSL/non-SSL
-				if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
+				// Electron protocol is file:
+				if (!proto.startsWith('file:'))
 				{
-					var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
-						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
+					var host = window.location.host;
+		
+					// Redirects apex and rt to www
+					if (host === 'draw.io' || host === 'rt.draw.io')
+					{
+						host = 'www.draw.io';
+					}
 					
-					if (ssl && proto != 'https:')
+					// Redirects to SSL/non-SSL
+					if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
 					{
-						proto = 'https:';
+						var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
+							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
+						
+						if (ssl && proto != 'https:')
+						{
+							proto = 'https:';
+						}
+						else if (!ssl && proto != 'http:')
+						{
+							proto = 'http:';
+						}
 					}
-					else if (!ssl && proto != 'http:')
+					
+					var href = proto + '//' + host + window.location.href.substring(
+							window.location.protocol.length +
+							window.location.host.length + 2);
+		
+					// Redirects if href changes
+					if (href != window.location.href)
 					{
-						proto = 'http:';
+						window.location.href = href;
 					}
-				}
-				
-				var href = proto + '//' + host + window.location.href.substring(
-						window.location.protocol.length +
-						window.location.host.length + 2);
-	
-				// Redirects if href changes
-				if (href != window.location.href)
-				{
-					window.location.href = href;
 				}
 			})();
 		}
@@ -286,6 +291,12 @@
 		{
 			// Used to request grapheditor/mxgraph sources in dev mode
 			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
+			
+			if (document.location.protocol == 'file:')
+			{
+				mxDevUrl = '../../mxgraph2';
+			}
+
 			var geBasePath = mxDevUrl + '/javascript/examples/grapheditor/www/js';
 			var mxBasePath = mxDevUrl + '/javascript/src';
 			
