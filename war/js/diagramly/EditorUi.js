@@ -2413,7 +2413,11 @@
 							}
 							
 							var bounds = graph.getBoundingBoxFromGeometry(cells, true);
-							graph.moveCells(cells, dx - bounds.x, dy - bounds.y);
+							
+							if (bounds != null)
+							{
+								graph.moveCells(cells, dx - bounds.x, dy - bounds.y);
+							}
 						}
 					}
 					finally
@@ -2445,157 +2449,162 @@
 		crop = (crop != null) ? crop : true;
 		
 		// Handles special case for Gliffy data which requires async server-side for parsing
-		if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
+		if (text != null)
 		{
-			// Fixes possible parsing problems with ASCII 160 (non-breaking space)
-			this.parseFile(new Blob([text.replace(/\s+/g,' ')], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+			if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
 			{
-				if (xhr.readyState == 4 && xhr.status == 200)
+				// Fixes possible parsing problems with ASCII 160 (non-breaking space)
+				this.parseFile(new Blob([text.replace(/\s+/g,' ')], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
 				{
-					this.editor.graph.setSelectionCells(this.insertTextAt(xhr.responseText, dx, dy, true));
-				}
-			}));
-			
-			// Returns empty cells array as it is aysynchronous
-			return [];
-		}
-		// Handles special case of data URI which requires async loading for finding size
-		else if (!this.isOffline() && (asImage || text.substring(0, 5) == 'data:' || (/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(text)))
-		{
-			var graph = this.editor.graph;
-			
-			// Checks for embedded XML in PNG
-			if (text.substring(0, 22) == 'data:image/png;base64,')
-			{
-				var xml = this.extractGraphModelFromPng(text);
-				var result = this.importXml(xml, dx, dy, crop, true); 
+					if (xhr.readyState == 4 && xhr.status == 200)
+					{
+						this.editor.graph.setSelectionCells(this.insertTextAt(xhr.responseText, dx, dy, true));
+					}
+				}));
 				
-				if (result.length > 0)
-				{
-					return result;
-				}
+				// Returns empty cells array as it is aysynchronous
+				return [];
 			}
-			
-			// Tries to extract embedded XML from SVG data URI
-			if (text.substring(0, 19) == 'data:image/svg+xml;')
+			// Handles special case of data URI which requires async loading for finding size
+			else if (!this.isOffline() && (asImage || text.substring(0, 5) == 'data:' || (/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(text)))
 			{
-				try
+				var graph = this.editor.graph;
+				
+				// Checks for embedded XML in PNG
+				if (text.substring(0, 22) == 'data:image/png;base64,')
 				{
-					var xml = null;
-					
-					if (text.substring(0, 26) == 'data:image/svg+xml;base64,')
-					{
-						xml = text.substring(text.indexOf(',') + 1);
-						xml = (window.atob && !mxClient.IS_SF) ? atob(xml) : Base64.decode(xml, true);
-					}
-					else
-					{
-						xml = decodeURIComponent(text.substring(text.indexOf(',') + 1));
-					}
-					
+					var xml = this.extractGraphModelFromPng(text);
 					var result = this.importXml(xml, dx, dy, crop, true); 
-
+					
 					if (result.length > 0)
 					{
 						return result;
 					}
 				}
-				catch (e)
-				{
-					// Ignore
-				}
-			}
-			
-			this.loadImage(text, mxUtils.bind(this, function(img)
-			{
-				if (text.substring(0, 5) == 'data:')
-				{
-					this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
-    				{
-						graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-								w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-								'verticalAlign=top;aspect=fixed;image=' + this.convertDataUri(data2) + ';'));
-    				}), true, this.maxImageSize);
-				}
-				else
-				{
-					var s = Math.min(1, Math.min(this.maxImageSize / img.width, this.maxImageSize / img.height));
-					var w = Math.round(img.width * s);
-					var h = Math.round(img.height * s);
-					
-					graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-							w, h, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-							'verticalAlign=top;aspect=fixed;image=' + text + ';'));
-				}
-			}), mxUtils.bind(this, function()
-			{
-				var cell = null;
 				
-				// Inserts invalid data URIs as text
-		    	graph.getModel().beginUpdate();
-		    	try
-		    	{
-					cell = graph.insertVertex(graph.getDefaultParent(), null, text,
-							graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
-					graph.updateCellSize(cell);
-					graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
-		    	}
-		    	finally
-		    	{
-		    		graph.getModel().endUpdate();
-		    	}
-
-				graph.setSelectionCell(cell);
-			}));
-			
-			return [];
-		}
-		else
-		{
-			text = this.editor.graph.zapGremlins(mxUtils.trim(text));
-		
-			if (this.isCompatibleString(text))
-			{
-				return this.importXml(text, dx, dy, crop);
-			}
-			else if (text.length > 0)
-			{
-				var graph = this.editor.graph;
-				var cell = null;
-				
-		    	graph.getModel().beginUpdate();
-		    	try
-		    	{
-		    		// Fires cellsInserted to apply the current style to the inserted text.
-		    		// This requires the value to be empty when the event is fired.
-					cell = graph.insertVertex(graph.getDefaultParent(), null, '',
-							graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
-					graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
-					
-					// Apply value and updates the cell size to fit the text block
-					cell.value = text;
-					graph.updateCellSize(cell);
-					
-					// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
-					var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
-					
-					if (regexp.test(cell.value))
+				// Tries to extract embedded XML from SVG data URI
+				if (text.substring(0, 19) == 'data:image/svg+xml;')
+				{
+					try
 					{
-						graph.setLinkForCell(cell, cell.value);
+						var xml = null;
+						
+						if (text.substring(0, 26) == 'data:image/svg+xml;base64,')
+						{
+							xml = text.substring(text.indexOf(',') + 1);
+							xml = (window.atob && !mxClient.IS_SF) ? atob(xml) : Base64.decode(xml, true);
+						}
+						else
+						{
+							xml = decodeURIComponent(text.substring(text.indexOf(',') + 1));
+						}
+						
+						var result = this.importXml(xml, dx, dy, crop, true); 
+	
+						if (result.length > 0)
+						{
+							return result;
+						}
 					}
-					
-					// Adds spacing
-					cell.geometry.width += graph.gridSize;
-					cell.geometry.height += graph.gridSize;
-		    	}
-		    	finally
-		    	{
-		    		graph.getModel().endUpdate();
-		    	}
+					catch (e)
+					{
+						// Ignore
+					}
+				}
 				
-				return [cell];
+				this.loadImage(text, mxUtils.bind(this, function(img)
+				{
+					if (text.substring(0, 5) == 'data:')
+					{
+						this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
+	    				{
+							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
+									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+									'verticalAlign=top;aspect=fixed;image=' + this.convertDataUri(data2) + ';'));
+	    				}), true, this.maxImageSize);
+					}
+					else
+					{
+						var s = Math.min(1, Math.min(this.maxImageSize / img.width, this.maxImageSize / img.height));
+						var w = Math.round(img.width * s);
+						var h = Math.round(img.height * s);
+						
+						graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
+								w, h, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+								'verticalAlign=top;aspect=fixed;image=' + text + ';'));
+					}
+				}), mxUtils.bind(this, function()
+				{
+					var cell = null;
+					
+					// Inserts invalid data URIs as text
+			    	graph.getModel().beginUpdate();
+			    	try
+			    	{
+						cell = graph.insertVertex(graph.getDefaultParent(), null, text,
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
+						graph.updateCellSize(cell);
+						graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
+			    	}
+			    	finally
+			    	{
+			    		graph.getModel().endUpdate();
+			    	}
+	
+					graph.setSelectionCell(cell);
+				}));
+				
+				return [];
+			}
+			else
+			{
+				text = this.editor.graph.zapGremlins(mxUtils.trim(text));
+			
+				if (this.isCompatibleString(text))
+				{
+					return this.importXml(text, dx, dy, crop);
+				}
+				else if (text.length > 0)
+				{
+					var graph = this.editor.graph;
+					var cell = null;
+					
+			    	graph.getModel().beginUpdate();
+			    	try
+			    	{
+			    		// Fires cellsInserted to apply the current style to the inserted text.
+			    		// This requires the value to be empty when the event is fired.
+						cell = graph.insertVertex(graph.getDefaultParent(), null, '',
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
+						graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
+						
+						// Apply value and updates the cell size to fit the text block
+						cell.value = text;
+						graph.updateCellSize(cell);
+						
+						// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
+						var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
+						
+						if (regexp.test(cell.value))
+						{
+							graph.setLinkForCell(cell, cell.value);
+						}
+						
+						// Adds spacing
+						cell.geometry.width += graph.gridSize;
+						cell.geometry.height += graph.gridSize;
+			    	}
+			    	finally
+			    	{
+			    		graph.getModel().endUpdate();
+			    	}
+					
+					return [cell];
+				}
 			}
 		}
+		
+		return [];
 	};
 
 	/**
@@ -5227,6 +5236,25 @@
 					if (data.saveAndExit != null && urlParams['saveAndExit'] == null)
 					{
 						urlParams['saveAndExit'] = data.saveAndExit;
+					}
+					
+					if (data.title != null && this.buttonContainer != null)
+					{
+						var tmp = document.createElement('span');
+						mxUtils.write(tmp, data.title);
+						
+						if (uiTheme == 'atlas')
+						{
+							this.buttonContainer.style.paddingRight = '12px';
+							this.buttonContainer.style.paddingTop = '12px';
+						}
+						else
+						{
+							this.buttonContainer.style.paddingRight = '38px';
+							this.buttonContainer.style.paddingTop = '6px';
+						}
+						
+						this.buttonContainer.appendChild(tmp);
 					}
 					
 					if (data.xmlpng != null)

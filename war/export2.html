@@ -285,55 +285,34 @@
 			if (graph.pdfPageVisible)
 			{
 				// Workaround to match available paper size
-				var printScale = 0.72;
-	
+				var printScale = 0.72
 				var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 				var scale = 1 / graph.pageScale;
-	
+				var autoOrigin = false;
+				var border = 0;
+
 				// Negative coordinates are cropped or shifted if page visible
 				var gb = graph.getGraphBounds();
-				var autoOrigin = false;
 				var border = 0;
 				var x0 = 0;
 				var y0 = 0;
-				
-				// Computes unscaled, untranslated graph bounds
-				var x = (gb.width > 0) ? Math.ceil(gb.x / graph.view.scale - graph.view.translate.x) : 0;
-				var y = (gb.height > 0) ? Math.ceil(gb.y / graph.view.scale - graph.view.translate.y) : 0;
-	
-				if (x < 0 || y < 0)
-				{
-					autoOrigin = true;
-					
-					var ps = graph.pageScale;
-					var pw = pf.width * ps;
-					var ph = pf.height * ps;
-	
-					// FIXME: Offset for page layout with x/y != 0
-					x0 = (x > 0) ? x : pf.width * -Math.floor(Math.min(0, x) / pw) + Math.min(0, x) / graph.pageScale;
-					y0 = (y > 0) ? y : pf.height * -Math.floor(Math.min(0, y) / ph) + Math.min(0, y) / graph.pageScale;
-				}
-	
+		
 				// Applies print scale
 				pf = mxRectangle.fromRectangle(pf);
-				pf.width = Math.round(pf.width * printScale);
-				pf.height = Math.round(pf.height * printScale);
+				pf.width = Math.ceil(pf.width * printScale);
+				pf.height = Math.ceil(pf.height * printScale);
 				scale *= printScale;
 				
 				// Starts at first visible page
-				if (graph.pageVisible)
-				{
-					var layout = graph.getPageLayout();
-					
-					x0 -= Math.max(layout.x, 0) * pf.width;
-					y0 -= Math.max(layout.y, 0) * pf.height;
-				}
-	
+				var layout = graph.getPageLayout();
+				x0 -= layout.x * pf.width;
+				y0 -= layout.y * pf.height;
+				
 				var preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 				preview.printBackgroundImage = true;
 				preview.autoOrigin = autoOrigin;
 				preview.backgroundColor = bg;
-				
+
 				// Renders print output into this document and removes the graph container
 				preview.open(null, window);
 				graph.container.parentNode.removeChild(graph.container);

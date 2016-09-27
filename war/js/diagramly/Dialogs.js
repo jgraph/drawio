@@ -5195,6 +5195,27 @@ var RevisionDialog = function(editorUi, revs)
 	graph.maxFitScale = null;
 	graph.centerZoom = true;
 	
+	// Handles placeholders for pages
+	var currentPage = 0;
+	var diagrams = null;
+	var realPage = 0;
+	
+	var graphGetGlobalVariable = graph.getGlobalVariable;
+	
+	graph.getGlobalVariable = function(name)
+	{
+		if (name == 'page' && diagrams != null && diagrams[realPage] != null)
+		{
+			return diagrams[currentPage].getAttribute('name');
+		}
+		else if (name == 'pagenumber')
+		{
+			return realPage + 1;
+		}
+		
+		return graphGetGlobalVariable.apply(this, arguments);
+	};
+	
 	// Disables hyperlinks
 	graph.getLinkForCell = function()
 	{
@@ -5447,10 +5468,8 @@ var RevisionDialog = function(editorUi, revs)
 			table.style.borderSpacing = '0px';
 			table.style.width = '100%';
 			var tbody = document.createElement('tbody');
-			
 			var today = new Date().toDateString();
-			var currentPage = 0;
-			
+
 			if (editorUi.currentPage != null && editorUi.pages != null)
 			{
 				currentPage = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
@@ -5514,6 +5533,8 @@ var RevisionDialog = function(editorUi, revs)
 								currentDoc = doc;
 								currentXml = xml;
 								parseSelectFunction = null;
+								diagrams = null;
+								realPage = 0;
 								
 								function parseGraphModel(dataNode)
 								{
@@ -5545,11 +5566,19 @@ var RevisionDialog = function(editorUi, revs)
 									
 									return diagramNode;
 								}
-								
+
 								if (node.nodeName == 'mxfile')
 								{
-									var diagrams = node.getElementsByTagName('diagram');
-									var realPage = Math.min(currentPage, diagrams.length - 1); 
+									// Workaround for "invalid calling object" error in IE
+									var tmp = node.getElementsByTagName('diagram');
+									diagrams = [];
+									
+									for (var i = 0; i < tmp.length; i++)
+									{
+										diagrams.push(tmp[i]);	
+									}
+									
+									realPage = Math.min(currentPage, diagrams.length - 1);
 									
 									if (diagrams.length > 0)
 									{
@@ -5579,7 +5608,8 @@ var RevisionDialog = function(editorUi, revs)
 									
 									pageSelectFunction = function()
 									{
-										currentPage = pageSelect.value;
+										currentPage = parseInt(pageSelect.value);
+										realPage = currentPage;
 										parseDiagram(diagrams[currentPage]);
 									}
 								}

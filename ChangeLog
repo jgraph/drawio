@@ -1,3 +1,15 @@
+27-SEP-2016: 5.7.0.7
+
+- Adds filename for editors in Atlassian cloud plugins
+- Fixes encoding of filenames in Atlassian cloud plugins
+- Adds optional title parameter to load message
+- Uses mxGraph 3.7.0.0 beta 5
+- Fixes possible empty pages in PDF export
+
+27-SEP-2016: 5.7.0.6
+
+- Fixes redirect error in IE
+
 26-SEP-2016: 5.7.0.5
 
 - Adds publish to Facebook, Twitter
