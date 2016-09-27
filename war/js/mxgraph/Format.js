@@ -2658,7 +2658,7 @@ TextFormatPanel.prototype.addFont = function(container)
 				node = node.parentNode;
 			}
 			
-			if (node == graph.cellEditor.textarea && graph.cellEditor.textarea.firstChild != null)
+			if (node != null && node == graph.cellEditor.textarea && graph.cellEditor.textarea.firstChild != null)
 			{
 				if (graph.cellEditor.textarea.firstChild.nodeName != 'FONT')
 				{

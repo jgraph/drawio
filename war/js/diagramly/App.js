@@ -379,7 +379,7 @@ App.main = function(callback)
 				var img = new Image();
 				var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
 					message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-					'CONFIG' : 'WARNING';
+					'CONFIG' : 'SEVERE';
 	    		img.src = 'log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
 	    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
 	    			':lnum:' + encodeURIComponent(linenumber) + 
@@ -4156,22 +4156,22 @@ App.prototype.fileLoaded = function(file)
 			
 			this.editor.fireEvent(new mxEventObject('fileLoaded'));
 			
-			if (this.enableLogging)
-			{
-	        	try
-	        	{
-		        	if (!this.isOffline())
-		        	{
-	        			var img = new Image();
-	        			img.src = 'log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
-        				'&v=' + encodeURIComponent(EditorUi.VERSION);
-		        	}
-	        	}
-	        	catch (e)
-	        	{
-	        		// ignore
-	        	}
-			}
+//			if (this.enableLogging)
+//			{
+//	        	try
+//	        	{
+//		        	if (!this.isOffline())
+//		        	{
+//	        			var img = new Image();
+//	        			img.src = 'log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+//        				'&v=' + encodeURIComponent(EditorUi.VERSION);
+//		        	}
+//	        	}
+//	        	catch (e)
+//	        	{
+//	        		// ignore
+//	        	}
+//			}
 			
 			if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE)
 			{

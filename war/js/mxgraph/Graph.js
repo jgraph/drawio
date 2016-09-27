@@ -1406,8 +1406,9 @@ Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
  */
 Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone)
 {
-	var pt = (source.geometry.relative) ? new mxPoint(source.parent.geometry.width * source.geometry.x,
-			source.parent.geometry.height * source.geometry.y) : new mxPoint(source.geometry.x, source.geometry.y);
+	var pt = (source.geometry.relative && source.parent.geometry != null) ?
+			new mxPoint(source.parent.geometry.width * source.geometry.x, source.parent.geometry.height * source.geometry.y) :
+			new mxPoint(source.geometry.x, source.geometry.y);
 		
 	if (direction == mxConstants.DIRECTION_NORTH)
 	{

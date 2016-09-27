@@ -212,8 +212,16 @@ RealtimeMapping.prototype.initGraph = function()
 	}
 	
 	var rtRoot = this.diagramMap.get(this.driveRealtime.rootKey);
-	this.createCell(rtRoot);
-	this.restoreCell(rtRoot);
+	
+	if (rtRoot.cell == null)
+	{
+		this.createCell(rtRoot);
+		this.restoreCell(rtRoot);
+	}
+	else
+	{
+		this.installAllRealtimeCellListeners(rtRoot);	
+	}
 	
 	// Stores root in current model and local model
 	var gm = this.getGraphModel();
@@ -597,6 +605,22 @@ RealtimeMapping.prototype.beginUpdate = function()
 };
 
 /**
+ * Syncs initial state from collab model to graph model.
+ */
+RealtimeMapping.prototype.installAllRealtimeCellListeners = function(rtCell)
+{
+	if (rtCell != null)
+	{
+		this.installRealtimeCellListeners(rtCell);
+		
+		for (var i = 0; i < rtCell.children.length; i++)
+		{
+			this.installAllRealtimeCellListeners(rtCell.children.get(i));
+		}
+	}
+};
+
+/**
  * Adds the listener for added and removed cells in the collab model and maps
  * them to the graph model.
  */
@@ -961,4 +985,31 @@ RealtimeMapping.prototype.realtimeMathEnabledChanged = function(value, quiet)
 		this.ui.setMathEnabled(urlParams['math'] == '1' || value == '1');
 		this.driveRealtime.ignoreMathEnabledChanged = false;
 	}
+};
+
+/**
+ * Syncs initial state from collab model to graph model.
+ */
+RealtimeMapping.prototype.removeAllRealtimeCellListeners = function(rtCell)
+{
+	if (rtCell != null)
+	{
+		rtCell.removeAllEventListeners();
+		rtCell.children.removeAllEventListeners();
+		
+		for (var i = 0; i < rtCell.children.length; i++)
+		{
+			this.removeAllRealtimeCellListeners(rtCell.children.get(i));
+		}
+	}
+};
+
+/**
+ * Syncs initial state from collab model to graph model.
+ */
+RealtimeMapping.prototype.destroy = function()
+{
+	this.diagramMap.removeAllEventListeners();
+	this.selectionMap.removeAllEventListeners();
+	this.removeAllRealtimeCellListeners(this.diagramMap.get(this.driveRealtime.rootKey));
 };

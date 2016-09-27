@@ -886,7 +886,13 @@ DriveRealtime.prototype.installPageSelectListener = function()
 					
 					if (index != null)
 					{
-						this.ui.removePage(this.ui.pages[index]);
+						var page = this.ui.pages[index];
+						
+						if (page != null)
+						{
+							this.ui.removePage(page);
+							page.mapping.destroy();
+						}
 					}
 				}
 				
