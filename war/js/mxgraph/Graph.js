@@ -5371,30 +5371,33 @@ if (typeof mxVertexHandler != 'undefined')
 			// Checks the given node for new nodes, recursively
 			function checkNode(node, clone)
 			{
-				if (clone.originalNode != node)
+				if (node != null)
 				{
-					cleanNode(node);
-				}
-				else if (node != null)
-				{
-					node = node.firstChild;
-					clone = clone.firstChild;
-					
-					while (node != null)
+					if (clone.originalNode != node)
 					{
-						var nextNode = node.nextSibling;
+						cleanNode(node);
+					}
+					else
+					{
+						node = node.firstChild;
+						clone = clone.firstChild;
 						
-						if (clone == null)
+						while (node != null)
 						{
-							cleanNode(node);
+							var nextNode = node.nextSibling;
+							
+							if (clone == null)
+							{
+								cleanNode(node);
+							}
+							else
+							{
+								checkNode(node, clone);
+								clone = clone.nextSibling;
+							}
+	
+							node = nextNode;
 						}
-						else
-						{
-							checkNode(node, clone);
-							clone = clone.nextSibling;
-						}
-
-						node = nextNode;
 					}
 				}
 			};
@@ -6085,7 +6088,7 @@ if (typeof mxVertexHandler != 'undefined')
 			};
 		}
 
-		// Overrides/extends rubberband for space handling with Ctrl+Shift(+Alt) drag
+		// Overrides/extends rubberband for space handling with Ctrl+Shift(+Alt) drag ("scissors tool")
 		mxRubberband.prototype.isSpaceEvent = function(me)
 		{
 			return this.graph.isEnabled() && !this.graph.isCellLocked(this.graph.getDefaultParent()) &&
@@ -6125,47 +6128,23 @@ if (typeof mxVertexHandler != 'undefined')
 					this.graph.model.beginUpdate();
 					try
 					{
-						var right = this.graph.getCellsBeyond(x0, y0, this.graph.getDefaultParent(), true, false);
-						var bottom = this.graph.getCellsBeyond(x0, y0, this.graph.getDefaultParent(), false, true);
-						
-						for (var i = 0; i < right.length; i++)
+						var cells = this.graph.getCellsBeyond(x0, y0, this.graph.getDefaultParent(), true, true);
+
+						for (var i = 0; i < cells.length; i++)
 						{
-							if (this.graph.isCellMovable(right[i]))
+							if (this.graph.isCellMovable(cells[i]))
 							{
-								var tmp = this.graph.view.getState(right[i]);
-								var geo = this.graph.getCellGeometry(right[i]);
+								var tmp = this.graph.view.getState(cells[i]);
+								var geo = this.graph.getCellGeometry(cells[i]);
 								
 								if (tmp != null && geo != null)
 								{
 									geo = geo.clone();
-									geo.translate(dx, 0);
-									this.graph.model.setGeometry(right[i], geo);
+									geo.translate(dx, dy);
+									this.graph.model.setGeometry(cells[i], geo);
 								}
 							}
 						}
-						
-						for (var i = 0; i < bottom.length; i++)
-						{
-							if (this.graph.isCellMovable(bottom[i]))
-							{
-								var tmp = this.graph.view.getState(bottom[i]);
-								var geo = this.graph.getCellGeometry(bottom[i]);
-								
-								if (tmp != null && geo != null)
-								{
-									geo = geo.clone();
-									geo.translate(0, dy);
-									this.graph.model.setGeometry(bottom[i], geo);
-								}
-							}
-						}
-					}
-					catch (e)
-					{
-		    			if (window.console != null)
-		    			{
-		    				console.log('Error in rubberband: ' + e);
-		    			}
 					}
 					finally
 					{
@@ -6211,7 +6190,6 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					if (this.isSpaceEvent(me))
 					{
-						// TODO: Check locked state
 						var right = this.x + this.width;
 						var bottom = this.y + this.height;
 						var scale = this.graph.view.scale;
@@ -6220,6 +6198,19 @@ if (typeof mxVertexHandler != 'undefined')
 						{
 							this.width = this.graph.snap(this.width / scale) * scale;
 							this.height = this.graph.snap(this.height / scale) * scale;
+							
+							if (!this.graph.isGridEnabled())
+							{
+								if (this.width < this.graph.tolerance)
+								{
+									this.width = 0;
+								}
+								
+								if (this.height < this.graph.tolerance)
+								{
+									this.height = 0;
+								}
+							}
 							
 							if (this.x < this.first.x)
 							{
@@ -6232,13 +6223,13 @@ if (typeof mxVertexHandler != 'undefined')
 							}
 						}
 						
-						this.div.style.left = this.x + 'px';
-						this.div.style.top = (origin.y + offset.y) + 'px';
-						this.div.style.width = Math.max(0, this.width) + 'px';
-						this.div.style.height = Math.max(0, this.graph.container.clientHeight) + 'px';
-						this.div.style.backgroundColor = 'white';
-						this.div.style.borderWidth = '0px 1px 0px 1px';
 						this.div.style.borderStyle = 'dashed';
+						this.div.style.backgroundColor = 'white';
+						this.div.style.left = this.x + 'px';
+						this.div.style.top = this.y + 'px';
+						this.div.style.width = Math.max(0, this.width) + 'px';
+						this.div.style.height = this.graph.container.clientHeight + 'px';
+						this.div.style.borderWidth = (this.width <= 0) ? '0px 1px 0px 0px' : '0px 1px 0px 1px';
 						
 						if (this.secondDiv == null)
 						{
@@ -6246,11 +6237,11 @@ if (typeof mxVertexHandler != 'undefined')
 							this.div.parentNode.appendChild(this.secondDiv);
 						}
 						
-						this.secondDiv.style.left = (origin.x + offset.x) + 'px';
+						this.secondDiv.style.left = this.x + 'px';
 						this.secondDiv.style.top = this.y + 'px';
-						this.secondDiv.style.width = Math.max(0, this.graph.container.clientWidth) + 'px';
+						this.secondDiv.style.width = this.graph.container.clientWidth + 'px';
 						this.secondDiv.style.height = Math.max(0, this.height) + 'px';
-						this.secondDiv.style.borderWidth = '1px 0px 1px 0px';
+						this.secondDiv.style.borderWidth = (this.height <= 0) ? '1px 0px 0px 0px' : '1px 0px 1px 0px';
 					}
 					else
 					{

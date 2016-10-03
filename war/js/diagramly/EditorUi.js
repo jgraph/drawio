@@ -15,6 +15,11 @@
 	EditorUi.compactUi = uiTheme != 'atlas';
 
 	/**
+	 * Overrides compact UI setting.
+	 */
+	EditorUi.isElectronApp = window && window.process && window.process.type; // https://github.com/electron/electron/issues/2288
+
+	/**
 	 * 
 	 */
 	if (urlParams['dev'] == '1')

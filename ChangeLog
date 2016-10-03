@@ -1,3 +1,7 @@
+03-SEP-2016: 5.7.0.8.2
+
+- Adds tolerance, uses fewer cells in scissors tool
+
 27-SEP-2016: 5.7.0.7
 
 - Adds filename for editors in Atlassian cloud plugins
