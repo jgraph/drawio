@@ -29,7 +29,6 @@
 		 * - test=1: For developers only
 		 * - drawdev=1: For developers only
 		 * - export=URL for export: For developers only
-		 * - pages=1: For developers only
 		 * - page=n: For developers only
 		 * - ignoremime=1: For developers only (see DriveClient.js). Use Cmd-S to override mime.
 		 * - createindex=1: For developers only (see etc/build/README)
@@ -322,6 +321,12 @@
 			mxscript('js/app.min.js');
 		}
 
+		if (window && window.process && window.process.type)
+		{
+			// Electron
+			mxscript('js/diagramly/ElectronApp.js');
+		}
+		
 		// Adds basic error handling
 		window.onerror = function()
 		{
@@ -332,6 +337,7 @@
 				status.innerHTML = 'Page could not be loaded. Please try refreshing.';
 			}
 		};
+
 	</script>
 </head>
 <body class="geEditor">
@@ -370,12 +376,12 @@
 		<tr>
 			<td id="geFooterItem2">
 				<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">
-					<img border="0" align="absmiddle" style="margin-top:-4px;padding-right:10px;"
-						src="images/glyphicons_star.png"/>Source code now on Github
+					<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:14px;"
+						src="images/glyphicons_github.png"/>Fork us on Github
 				</a>
 			</td>
 			<td id="geFooterItem1">
-				<a title="#1 Rated Confluence Add-on" target="_blank"
+				<a id="geFooterLink1" title="#1 Rated Confluence Add-on" target="_blank"
 					href="https://marketplace.atlassian.com/plugins/com.mxgraph.confluence.plugins.diagramly/server/overview">
 					<img border="0" width="27" height="24" align="absmiddle" style="padding-right:16px;"
 						src="images/logo-confluence.png"/>#1 Rated Confluence Add-on
@@ -389,6 +395,13 @@
  * Main
  */
 App.main();
+
+// Logs footer1 clicks
+document.getElementById("geFooterLink1").onclick = function()
+{
+	var img = new Image();
+	img.src = 'log?msg=geFooterLink1:' + '&v=' + encodeURIComponent(EditorUi.VERSION);
+}
 
 /**
  * Analytics

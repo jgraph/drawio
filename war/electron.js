@@ -1,4 +1,9 @@
-const electron = require('electron')
+const electron = require('electron');
+const remote = electron.remote;
+const dialog = electron.dialog;
+var fs = require('fs');
+var path = require('path');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.

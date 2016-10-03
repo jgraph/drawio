@@ -77,6 +77,11 @@
 	/**
 	 * 
 	 */
+	Sidebar.prototype.veeam = ['2D', '3D'];
+
+	/**
+	 * 
+	 */
 	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Composite', 'Implementation and Migration', 'Motivation', 'Physical', 'Relationships', 'Strategy', 'Technology'];
 
 	/**
@@ -105,6 +110,7 @@
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'office', prefix: 'office', libs: Sidebar.prototype.office},
+           	                           {id: 'veeam', prefix: 'veeam', libs: Sidebar.prototype.veeam},
            	                           {id: 'cabinets', libs: ['cabinets']},
            	                           {id: 'floorplan', libs: ['floorplan']},
            	                           {id: 'bootstrap', libs: ['bootstrap']},
@@ -286,7 +292,8 @@
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
             			          {title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
-            			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'}]},
+            			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'},
+            			          {title: 'Veeam', id: 'veeam', image: IMAGE_PATH + '/sidebar-veeam.png'}]},
             			{title: mxResources.get('business'),
             			entries: [{title: 'ArchiMate 3.0', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
             			          {title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
@@ -437,8 +444,8 @@
 					var h = clone.clientHeight + 18;
 					clone.parentNode.removeChild(clone);
 					
-		    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' +
-		    				encodeURIComponent(this.editorUi.editor.compress(html))).simulate(document, '_blank');
+		    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
+		    			this.editorUi.editor.graph.compress(html))).simulate(document, '_blank');
 	
 					return;
 				}
@@ -564,6 +571,7 @@
 		var eip = this.eip;
 		var gmdl = this.gmdl;
 		var office = this.office;
+		var veeam = this.veeam;
 		var archimate3 = this.archimate3;
 		
 		if (urlParams['createindex'] == '1')
@@ -593,6 +601,7 @@
 		this.addMockupPalette();
 		this.addElectricalPalette();
 		this.addOfficePalette();
+		this.addVeeamPalette();
 
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;');

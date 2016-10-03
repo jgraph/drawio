@@ -168,7 +168,7 @@ public class OpenServlet extends HttpServlet
 				{
 					// Creates a graph that contains a model but does not validate
 					// since that is not needed for the model and not allowed on GAE
-					mxGraph graph = new mxGraph()
+					mxGraph graph = new mxGraphHeadless()
 					{
 						public mxRectangle graphModelChanged(mxIGraphModel sender,
 								List<mxUndoableChange> changes)
@@ -176,12 +176,21 @@ public class OpenServlet extends HttpServlet
 							return null;
 						}
 					};
+
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
 					xml = mxXmlUtils.getXml(new mxCodec().encode(graph.getModel()));
 				}
 				else if (ENABLE_VDX_SUPPORT && (vdx || vsdx))
 				{
-					mxGraph graph = new mxGraphHeadless();
+					mxGraph graph = new mxGraphHeadless()
+					{
+						public mxRectangle graphModelChanged(mxIGraphModel sender,
+								List<mxUndoableChange> changes)
+						{
+							return null;
+						}
+					};
+
 					graph.setConstrainChildren(false);
 					mxVsdxCodec vdxCodec = new mxVsdxCodec();
 

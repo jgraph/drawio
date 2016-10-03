@@ -180,48 +180,9 @@ public class Object
 		return null;
 	}
 
-	public String getTextRecursively()
-	{
-		StringBuilder sb = new StringBuilder();
-
-		List<Object> textObjs = new ArrayList<Object>();
-		getTextObjects(this, textObjs);
-
-		Iterator<Object> it = textObjs.iterator();
-
-		while (it.hasNext())
-		{
-			Object to = it.next();
-			sb.append(to.graphic.getText().getHtml());
-			if (it.hasNext())
-				sb.append("<hr>");
-		}
-
-		return sb.toString();
-	}
-
 	public String getText()
 	{
-		if (isText())
-			return graphic.getText().getHtml();
-
-		Object to = getTextObject();
-
-		return to != null ? to.graphic.getText().getHtml() : null;
-
-	}
-
-	private void getTextObjects(Object obj, List<Object> objects)
-	{
-		if (obj.isText())
-			objects.add(obj);
-		else if (obj.children != null)
-		{
-			for (Object ob : obj.children)
-			{
-				getTextObjects(ob, objects);
-			}
-		}
+		return graphic.getText().getHtml();
 	}
 	
 	public String getLink() 

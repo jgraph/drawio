@@ -9,6 +9,9 @@ public class GliffyText
 	private String html;
 
 	private String valign;
+	
+	//extracted from html
+	private String halign;
 
 	private String vposition;
 
@@ -28,8 +31,7 @@ public class GliffyText
 
 	private static Pattern pattern = Pattern.compile("<p(.*?)<\\/p>");
 
-	private static Pattern textAlignPattern = Pattern.compile(
-			".*text-align: ?(left|center|right).*", Pattern.DOTALL);
+	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
 
 	public GliffyText()
 	{
@@ -37,50 +39,40 @@ public class GliffyText
 
 	public String getHtml()
 	{
+		halign = halign == null ? getHorizontalTextAlignment() : halign;
 		return replaceParagraphWithDiv(html);
 	}
 
+	//this is never invoked by Gson builder
 	public void setHtml(String html)
 	{
-		this.html = html;
 	}
 
 	public String getStyle()
 	{
 		StringBuilder sb = new StringBuilder();
 
+		//vertical label position
 		if (vposition.equals("above"))
-		{
-			sb.append("verticalLabelPosition=top;").append(
-					"verticalAlign=bottom;");
-		}
+			sb.append("verticalLabelPosition=top;");
 		else if (vposition.equals("below"))
-		{
-			sb.append("verticalLabelPosition=bottom;").append(
-					"verticalAlign=top;");
-		}
+			sb.append("verticalLabelPosition=bottom;");
 		else if (vposition.equals("none"))
-		{
-			sb.append("verticalAlign=").append(valign).append(";");
-		}
-
-		if (hposition.equals("left"))
-		{
-			sb.append("labelPosition=left;").append("align=right;");
-		}
-		else if (hposition.equals("right"))
-		{
-			sb.append("labelPosition=right;").append("align=left;");
-		}
-		else if (hposition.equals("none"))
-		{
-			String hAlign = getHorizontalTextAlignment();
-			if (hAlign != null)
-			{
-				sb.append("align=").append(hAlign).append(";");
-			}
-		}
-
+			sb.append("verticalLabelPosition=middle;");
+		
+		//vertical label align
+		sb.append("verticalAlign=").append(valign).append(";");
+		
+		//horizontal label position
+		if (hposition.equals("none"))
+			sb.append("labelPosition=center;");
+		else 
+			sb.append("labelPosition=").append(hposition).append(";");
+		
+		//horizontal label align
+		if (halign != null)
+			sb.append("align=").append(halign).append(";");
+		
 		sb.append("spacingLeft=").append(paddingLeft).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
 		sb.append("spacingTop=").append(paddingTop).append(";");
@@ -101,13 +93,19 @@ public class GliffyText
 		return sb.length() > 0 ? sb.toString() : html;
 	}
 
+	/**
+	 * Extracts horizontal text alignment from html and removes it
+	 * so it does not interfere with alignment set in mxCell style
+	 * @return horizontal text alignment or null if there is none
+	 */
 	private String getHorizontalTextAlignment()
 	{
-		Matcher m = textAlignPattern.matcher(html);
+		Matcher m = textAlign.matcher(html);
 
 		if (m.matches())
 		{
-			return m.group(1);
+			html = html.replaceAll("text-align: ?\\w*;", "");
+			return m.group(2);
 		}
 
 		return null;
