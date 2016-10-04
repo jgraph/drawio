@@ -77,7 +77,7 @@ RealtimeMapping.prototype.init = function()
 				this.graph.model.execute(new RenamePage(this.ui, this.page, evt.newValue));
 				this.driveRealtime.ignoreChange = false;
 			}
-			else if (this.isActive() && evt.newValue != null)
+			else if (evt.newValue != null)
 			{
 				if (evt.property == 'pageFormat')
 				{
@@ -872,7 +872,14 @@ RealtimeMapping.prototype.realtimePageFormatChanged = function(value, quiet)
 		
 		if (values.length > 1)
 		{
-			if (quiet)
+			if (!this.isActive())
+			{
+				if (this.page.viewState != null)
+				{
+					this.page.viewState.pageFormat = new mxRectangle(0, 0, parseInt(values[0]), parseInt(values[1]));
+				}
+			}
+			else if (quiet)
 			{
 				this.graph.pageFormat = new mxRectangle(0, 0, parseInt(values[0]), parseInt(values[1]));
 			}
@@ -893,7 +900,14 @@ RealtimeMapping.prototype.realtimePageScaleChanged = function(value, quiet)
 {
 	if (value != null)
 	{
-		if (quiet)
+		if (!this.isActive())
+		{
+			if (this.page.viewState != null)
+			{
+				this.page.viewState.pageScale = parseFloat(value);
+			}
+		}
+		else if (quiet)
 		{
 			this.graph.pageScale = parseFloat(value);
 		}
@@ -911,7 +925,14 @@ RealtimeMapping.prototype.realtimePageScaleChanged = function(value, quiet)
  */
 RealtimeMapping.prototype.realtimeBackgroundColorChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.background = (value == '') ? null : value;
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.background = (value == '') ? null : value;
 	}
@@ -928,7 +949,14 @@ RealtimeMapping.prototype.realtimeBackgroundColorChanged = function(value, quiet
  */
 RealtimeMapping.prototype.realtimeFoldingEnabledChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.foldingEnabled = value == '1';
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.foldingEnabled = value == '1';
 	}
@@ -946,9 +974,19 @@ RealtimeMapping.prototype.realtimeFoldingEnabledChanged = function(value, quiet)
 RealtimeMapping.prototype.realtimeShadowVisibleChanged = function(value, quiet)
 {
 	// Does not need quiet mode as it's handled independently of refresh
-	this.driveRealtime.ignoreShadowVisibleChanged = true;
-	this.ui.editor.graph.setShadowVisible(value == '1');
-	this.driveRealtime.ignoreShadowVisibleChanged = false;
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.shadowVisible = value == '1';
+		}
+	}
+	else
+	{
+		this.driveRealtime.ignoreShadowVisibleChanged = true;
+		this.ui.editor.graph.setShadowVisible(value == '1');
+		this.driveRealtime.ignoreShadowVisibleChanged = false;
+	}
 };
 
 /**
@@ -958,7 +996,14 @@ RealtimeMapping.prototype.realtimeBackgroundImageChanged = function(value, quiet
 {
 	var data = (value != null && value.length > 0) ? JSON.parse(value) : null;
 	
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.backgroundImage = (data != null) ? new mxImage(data.src, data.width, data.height) : null;
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.setBackgroundImage((data != null) ? new mxImage(data.src, data.width, data.height) : null);
 	}
@@ -975,7 +1020,14 @@ RealtimeMapping.prototype.realtimeBackgroundImageChanged = function(value, quiet
  */
 RealtimeMapping.prototype.realtimeMathEnabledChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.mathEnabled = urlParams['math'] == '1' || value == '1';
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.mathEnabled = urlParams['math'] == '1' || value == '1';
 	}

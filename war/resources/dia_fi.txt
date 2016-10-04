@@ -15,6 +15,7 @@ advanced=Edistynyt
 align=Kohdista
 alignment=Kohdistus
 allChangesLost=Kaikki muutokset menetään!
+allPages=All Pages
 android=Android
 angle=Kulma
 areYouSure=Oletko varma?

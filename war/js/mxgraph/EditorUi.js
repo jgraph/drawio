@@ -208,13 +208,13 @@ EditorUi = function(editor, container, lightbox)
 			mxEvent.isMiddleMouseButton(me.getEvent())));
 	};
 
-	// Control-enter applies editing value
-	// FIXME: Fix for HTML editing
+	// Ctrl/Cmd+Enter applies editing value
 	var cellEditorIsStopEditingEvent = graph.cellEditor.isStopEditingEvent;
 	graph.cellEditor.isStopEditingEvent = function(evt)
 	{
 		return cellEditorIsStopEditingEvent.apply(this, arguments) ||
-			(evt.keyCode == 13 && mxEvent.isControlDown(evt));
+			(evt.keyCode == 13 && (mxEvent.isControlDown(evt) ||
+			(mxClient.IS_MAC && mxEvent.isMetaDown(evt))));
 	};
 	
 	// Switches toolbar for text editing
@@ -1474,6 +1474,62 @@ EditorUi.prototype.initCanvas = function()
 			
 			return a;
 		});
+		
+		var prevButton = addButton(mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('previousPage').funct();
+			mxEvent.consume(evt);
+		}), Editor.previousLargeImage, mxResources.get('previousPage') || 'Previous Page');
+		
+		
+		var pageInfo = document.createElement('div');
+		pageInfo.style.display = 'inline-block';
+		pageInfo.style.verticalAlign = 'top';
+		pageInfo.style.fontFamily = 'Helvetica,Arial';
+		pageInfo.style.marginTop = '8px';
+		pageInfo.style.color = '#ffffff';
+		this.chromelessToolbar.appendChild(pageInfo);
+		
+		var nextButton = addButton(mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('nextPage').funct();
+			mxEvent.consume(evt);
+		}), Editor.nextLargeImage, mxResources.get('nextPage') || 'Next Page');
+		
+		var updatePageInfo = mxUtils.bind(this, function()
+		{
+			if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+			{
+				pageInfo.innerHTML = '';
+				mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
+			}
+		});
+		
+		prevButton.style.paddingLeft = '0px';
+		prevButton.style.paddingRight = '4px';
+		nextButton.style.paddingLeft = '4px';
+		nextButton.style.paddingRight = '0px';
+		
+		var updatePageButtons = mxUtils.bind(this, function()
+		{
+			if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+			{
+				nextButton.style.display = '';
+				prevButton.style.display = '';
+				pageInfo.style.display = 'inline-block';
+			}
+			else
+			{
+				nextButton.style.display = 'none';
+				prevButton.style.display = 'none';
+				pageInfo.style.display = 'none';
+			}
+			
+			updatePageInfo();
+		});
+		
+		this.editor.addListener('resetGraphView', updatePageButtons);
+		this.editor.addListener('pageSelected', updatePageInfo);
 
 		addButton(mxUtils.bind(this, function(evt)
 		{
@@ -1584,6 +1640,7 @@ EditorUi.prototype.initCanvas = function()
 					
 					mxUtils.setPrefixedStyle(this.layersDialog.style, 'borderRadius', '5px');
 					this.layersDialog.style.position = 'fixed';
+					this.layersDialog.style.fontFamily = 'Helvetica,Arial';
 					this.layersDialog.style.backgroundColor = '#000000';
 					this.layersDialog.style.width = '160px';
 					this.layersDialog.style.padding = '4px 2px 4px 2px';
@@ -1920,6 +1977,29 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}
 	}));
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.createTemporaryGraph = function(stylesheet)
+{
+	var graph = new Graph(document.createElement('div'), null, null, stylesheet);
+	graph.resetViewOnRootChange = false;
+	graph.setConnectable(false);
+	graph.gridEnabled = false;
+	graph.autoScroll = false;
+	graph.setTooltips(false);
+	graph.setEnabled(false);
+
+	// Container must be in the DOM for correct HTML rendering
+	graph.container.style.visibility = 'hidden';
+	graph.container.style.position = 'absolute';
+	graph.container.style.overflow = 'hidden';
+	graph.container.style.height = '1px';
+	graph.container.style.width = '1px';
+	
+	return graph;
 };
 
 /**

@@ -1,4 +1,10 @@
-03-SEP-2016: 5.7.0.8.2
+04-OCT-2016: 5.7.0.9
+
+- Adds experimental tags plugin
+- Fixes page scale in print preview
+- Adds new colorset
+
+03-OCT-2016: 5.7.0.8.2
 
 - Adds tolerance, uses fewer cells in scissors tool
 

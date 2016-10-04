@@ -623,7 +623,7 @@ Actions.prototype.init = function()
 		this.editorUi.showDialog(dlg.container, 300, 80, true, true);
 		dlg.init();
 	}), null, null, 'Ctrl+0'));
-	this.addAction('pageScale', mxUtils.bind(this, function()
+	this.addAction('pageScale...', mxUtils.bind(this, function()
 	{
 		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.pageScale * 100), mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 		{

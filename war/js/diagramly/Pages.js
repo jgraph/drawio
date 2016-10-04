@@ -531,13 +531,13 @@ EditorUi.prototype.selectNextPage = function(forward)
 	{
 		var tmp = mxUtils.indexOf(this.pages, next);
 		
-		if (forward && tmp < this.pages.length - 1)
+		if (forward)
 		{
-			this.selectPage(this.pages[tmp + 1]);
+			this.selectPage(this.pages[mxUtils.mod(tmp + 1, this.pages.length)]);
 		}
-		else if (!forward && tmp > 0)
+		else if (!forward)
 		{
-			this.selectPage(this.pages[tmp - 1]);
+			this.selectPage(this.pages[mxUtils.mod(tmp - 1, this.pages.length)]);
 		}
 	}
 };
@@ -1065,6 +1065,7 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 	
 	mxEvent.addGestureListeners(tab, mxUtils.bind(this, function(evt)
 	{
+		// Do not consume event here to allow for drag and drop of tabs
 		menuWasVisible = this.currentMenu != null;
 		pageWasActive = page == this.currentPage;
 		

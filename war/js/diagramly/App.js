@@ -73,7 +73,17 @@ App = function(editor, container, lightbox)
 	{
 		for (var i = 0; i < App.DrawPlugins.length; i++)
 		{
-			App.DrawPlugins[i](this);
+			try
+			{
+				App.DrawPlugins[i](this);
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Plugin Error:', e, App.DrawPlugins[i]);
+				}
+			}
 		}
 		
 		window.Draw.loadPlugin = function(callback)
@@ -137,7 +147,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js', 'ac': '/plugins/connect.js',
 	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
-	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js'};
+	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
+	'tags': '/plugins/tags.js'};
 
 /**
  * Function: authorize
@@ -380,7 +391,7 @@ App.main = function(callback)
 				var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
 					message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
 					'CONFIG' : 'SEVERE';
-	    		img.src = 'log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+	    		img.src = 'https://log.draw.io/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
 	    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
 	    			':lnum:' + encodeURIComponent(linenumber) + 
 	    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
@@ -610,7 +621,7 @@ App.prototype.formatHideImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/format-hide.
 /**
  *
  */
-App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMAQMAAABsu86kAAAABlBMVEUAAABEREQ3UJNbAAAAAXRSTlMAQObYZgAAABxJREFUCNdj+PkBhA4YgNB5AwZ+BiACMiAiEFkA9QQNgW8IGoYAAAAASUVORK5CYII=';
+App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAABpJREFUCNdjgAAbGxAy4AEh5gNwBBGByoIBAIueBd12TUjqAAAAAElFTkSuQmCC';
 
 /**
  * 
@@ -1593,6 +1604,7 @@ App.prototype.getPublicUrl = function(file, fn)
  */
 App.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection)
 {
+	graph = (graph != null) ? graph : this.editor.graph;
 	forceXml = (forceXml != null) ? forceXml : false;
 	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 	
@@ -1621,12 +1633,12 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 		if (fileNode.nodeName.toLowerCase() != 'mxfile')
 		{
 			// Removes control chars in input for correct roundtrip check
-			var text = this.editor.graph.zapGremlins(mxUtils.getXml(node));
-			var data = this.editor.graph.compress(text);
+			var text = graph.zapGremlins(mxUtils.getXml(node));
+			var data = graph.compress(text);
 			
 			// Fallback to plain XML for invalid compression
 			// TODO: Remove this fallback with active pages
-			if (this.editor.graph.decompress(data) != text)
+			if (graph.decompress(data) != text)
 			{
 				return text;
 			}
@@ -1656,7 +1668,7 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 		// Writes the file as an embedded HTML file
 		if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
 		{
-			xml = this.getHtml2(fileNode, graph, file.getTitle(), editLink, redirect, ignoreSelection);
+			xml = this.getHtml2(fileNode, graph, (file != null) ? file.getTitle() : null, editLink, redirect, ignoreSelection);
 		}
 		// Maps the XML data to the content attribute in the SVG node 
 		else if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
@@ -1724,8 +1736,46 @@ App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCall
 		}
 	}
 	
-	return this.createFileData(node, this.editor.graph, this.getCurrentFile(), window.location.href,
+	var graph = this.editor.graph;
+	var file = this.getCurrentFile();
+	
+	// Exports SVG for first page while other page is visible by creating a graph
+	// LATER: Add caching for the graph or SVG while not on first page
+	if (this.pages != null && this.currentPage != this.pages[0] && (forceSvg ||
+		(!forceXml && file != null && /(\.svg)$/i.test(file.getTitle()))))
+	{
+		graph = this.createTemporaryGraph(graph.getStylesheet());
+		var graphGetGlobalVariable = graph.getGlobalVariable;
+		var page = this.pages[0];
+
+		graph.getGlobalVariable = function(name)
+		{
+			if (name == 'page')
+			{
+				return page.getName();
+			}
+			else if (name == 'pagenumber')
+			{
+				return 1;
+			}
+			
+			return graphGetGlobalVariable.apply(this, arguments);
+		};
+
+		document.body.appendChild(graph.container);
+		graph.model.setRoot(page.root);
+	}
+	
+	var result = this.createFileData(node, graph, file, window.location.href,
 		forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection);
+	
+	// Removes temporary graph from DOM
+	if (graph != this.editor.graph)
+	{
+		graph.container.parentNode.removeChild(graph.container);
+	}
+	
+	return result;
 };
 
 /**
@@ -2219,7 +2269,7 @@ App.prototype.start = function()
 			try
 			{
 				var img = new Image();
-	    		img.src = 'log?v=' + encodeURIComponent(EditorUi.VERSION) +
+	    		img.src = 'https://log.draw.io/log?v=' + encodeURIComponent(EditorUi.VERSION) +
 	    			'&msg=errorLoadingFile:url:' + encodeURIComponent(window.location.href) +
     				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
     				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
@@ -4163,7 +4213,7 @@ App.prototype.fileLoaded = function(file)
 //		        	if (!this.isOffline())
 //		        	{
 //	        			var img = new Image();
-//	        			img.src = 'log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+//	        			img.src = 'https://log.draw.io/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
 //        				'&v=' + encodeURIComponent(EditorUi.VERSION);
 //		        	}
 //	        	}
@@ -5319,7 +5369,7 @@ App.prototype.saveData = function(filename, format, data, mime)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection)
+App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage)
 {
 	try
 	{
@@ -5339,7 +5389,7 @@ App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSe
 		{
 	    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 	    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
-	    			this.getFileData(true, null, null, null, ignoreSelection));
+	    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
 	    	
 	    	this.saveData(filename, format, data, 'text/xml');
 		}

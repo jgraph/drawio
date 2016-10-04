@@ -400,7 +400,7 @@ App.main();
 document.getElementById("geFooterLink1").onclick = function()
 {
 	var img = new Image();
-	img.src = 'log?msg=geFooterLink1:' + '&v=' + encodeURIComponent(EditorUi.VERSION);
+	img.src = 'https://log.draw.io/log?msg=geFooterLink1: location=' + encodeURIComponent(window.location) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 }
 
 /**

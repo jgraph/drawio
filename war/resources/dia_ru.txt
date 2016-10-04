@@ -15,6 +15,7 @@ advanced=Расширенные
 align=Выровнять
 alignment=Выравнивание
 allChangesLost=Все изменения будут потеряны!
+allPages=All Pages
 android=Android
 angle=Угол
 areYouSure=Вы уверены?

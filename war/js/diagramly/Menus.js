@@ -560,7 +560,7 @@
 						if (editorUi.enableLogging)
 						{
 							var img = new Image();
-							img.src = 'log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+							img.src = 'https://log.draw.io/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 						}
 						
 						// Workaround for blocked submit on iOS/IE11
@@ -1074,19 +1074,24 @@
 				cb.defaultChecked = true;
 				cb.style.marginRight = '8px';
 				cb.style.marginTop = '16px';
+				mxUtils.br(content);
+				content.appendChild(cb);
 				
 				if (noPages)
 				{
-					mxUtils.br(content);
-					content.appendChild(cb);
 					mxUtils.write(content, mxResources.get('compressed'));
+				}
+				else
+				{
+					mxUtils.write(content, mxResources.get('allPages'));
 				}
 					
 				var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('xml', !cb.checked, null, !cb2.checked);
+					editorUi.downloadFile('xml', (noPages) ? !cb.checked : null, null, !cb2.checked,
+						(!noPages) ? !cb.checked : null);
 				}), null, mxResources.get('export'));
-				editorUi.showDialog(dlg.container, 300, (noPages) ? 120 : 80, true, true);
+				editorUi.showDialog(dlg.container, 300, 120, true, true);
 			}), parent);
 			
 			if (!editorUi.isOffline())

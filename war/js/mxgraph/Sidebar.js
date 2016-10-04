@@ -11,23 +11,10 @@ function Sidebar(editorUi, container)
 	this.palettes = new Object();
 	this.taglist = new Object();
 	this.showTooltips = true;
-	this.graph = new Graph(document.createElement('div'), null, null, this.editorUi.editor.graph.getStylesheet());
+	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
 	this.graph.cellRenderer.antiAlias = false;
-	this.graph.resetViewOnRootChange = false;
 	this.graph.foldingEnabled = false;
-	this.graph.setConnectable(false);
-	this.graph.gridEnabled = false;
-	this.graph.autoScroll = false;
-	this.graph.setTooltips(false);
-	this.graph.setEnabled(false);
 
-	// Container must be in the DOM for correct HTML rendering
-	this.graph.container.style.visibility = 'hidden';
-	this.graph.container.style.position = 'absolute';
-	this.graph.container.style.overflow = 'hidden';
-	this.graph.container.style.height = '1px';
-	this.graph.container.style.width = '1px';
-	
 	// Workaround for blank output in IE11-
 	if (!mxClient.IS_IE && !mxClient.IS_IE11)
 	{
@@ -974,10 +961,10 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	})),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
 		// Entries for top searches
-		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;', 80, 80, '', 'Square', null, null, 'square'),
-		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Circle', null, null, 'circle'),
-		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Square', null, null, 'double square'),
-		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Circle', null, null, 'double circle'),
+		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
+		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
+		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Square', null, null, 'double square'),
+		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Circle', null, null, 'double circle'),
 		// End of entries for top searches
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 120, 60, 'RECTANGLE', 'Comic Rectangle', true, null, 'comic rectangle rect box text retro'),
 	 	this.createVertexTemplateEntry('rhombus;html=1;align=center;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 100, 100, 'DIAMOND', 'Comic Diamond', true, null, 'comic diamond rhombus if condition decision conditional question test retro'),
@@ -987,10 +974,10 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;aspect=fixed;shape=isoCube;', 90, 100, '', 'Isometric Cube', true, null, 'cube box iso isometric'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, '', 'Isometric Edge 1'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, '', 'Isometric Edge 2'),
-	 	this.createVertexTemplateEntry('line;html=1;', 160, 10, '', 'Horizontal Line'),
-	 	this.createVertexTemplateEntry('line;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
-	 	this.createVertexTemplateEntry('line;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'network'),
-	 	this.createVertexTemplateEntry('line;direction=south;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 10, 160, '', 'Vertical Backbone', false, null, 'network'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=2;html=1;', 160, 10, '', 'Horizontal Line'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=2;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=4;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'network'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=4;direction=south;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 10, 160, '', 'Vertical Backbone', false, null, 'network'),
 	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;', 20, 120, '', 'Curly Bracket'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=' + this.gearImage, 52, 61, '', 'Image (Fixed Aspect)', false, null, 'fixed image icon symbol'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=0;image=' + this.gearImage, 50, 60, '', 'Image (Variable Aspect)', false, null, 'strechted image icon symbol'),
