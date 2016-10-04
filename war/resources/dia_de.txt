@@ -15,6 +15,7 @@ advanced=Erweitert
 align=Ausrichten
 alignment=Ausrichtung
 allChangesLost=Alle Änderungen gehen verloren!
+allPages=Alle Seiten
 android=Android
 angle=Winkel
 areYouSure=Sind Sie sicher?

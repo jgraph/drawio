@@ -71,7 +71,7 @@ GraphViewer = function(container, xmlNode, graphConfig)
 			}
 			
 			// Adds page placeholders
-			var pagenumber = this.graphConfig.page || 0;
+			this.currentPage = parseInt(this.graphConfig.page) || 0;
 			
 			if (xmlNode.nodeName == 'mxfile')
 			{
@@ -79,18 +79,20 @@ GraphViewer = function(container, xmlNode, graphConfig)
 				
 				if (diagrams.length > 0)
 				{
-					var diagram = diagrams[pagenumber];
 					var graphGetGlobalVariable = this.graph.getGlobalVariable;
+					var self = this;
 					
 					this.graph.getGlobalVariable = function(name)
 					{
+						var diagram = diagrams[self.currentPage];
+						
 						if (name == 'page')
 						{
-							return diagram.getAttribute('name') || 'Page-' + (pagenumber + 1);
+							return diagram.getAttribute('name') || 'Page-' + (self.currentPage + 1);
 						}
 						else if (name == 'pagenumber')
 						{
-							return pagenumber + 1;
+							return self.currentPage + 1;
 						}
 						
 						return graphGetGlobalVariable.apply(this, arguments);
@@ -100,7 +102,7 @@ GraphViewer = function(container, xmlNode, graphConfig)
 	
 			// Passes current page via urlParams global variable
 			// to let the parser know which page we're using
-			urlParams['page'] = pagenumber;
+			urlParams['page'] = self.currentPage;
 			
 			var render = mxUtils.bind(this, function()
 			{
@@ -262,9 +264,12 @@ GraphViewer.prototype.getImageUrl = function(url)
  */
 GraphViewer.prototype.updateGraphXml = function(xmlNode)
 {
-	this.xmlDocument = xmlNode.ownerDocument;
-	this.xml = mxUtils.getXml(xmlNode);
-	this.xmlNode = xmlNode;
+	if (this.xmlNode == null)
+	{
+		this.xmlDocument = xmlNode.ownerDocument;
+		this.xml = mxUtils.getXml(xmlNode);
+		this.xmlNode = xmlNode;
+	}
 	
 	if (this.graph != null)
 	{
@@ -278,8 +283,8 @@ GraphViewer.prototype.updateGraphXml = function(xmlNode)
 			this.graph.container.style.width = '';
 			this.graph.container.style.height = '';
 		}
-		
-		this.editor.setGraphXml(this.xmlNode);
+
+		this.editor.setGraphXml(xmlNode);
 		this.positionGraph();
 		
 		this.graph.initialViewState = {
@@ -763,15 +768,58 @@ GraphViewer.prototype.addToolbar = function()
 
 	var buttonCount = 0;
 	var tokens = this.toolbarItems;
-
+	var diagrams = [];
+	
+	// Adds page placeholders
+	if (this.xmlNode.nodeName == 'mxfile')
+	{
+		diagrams = this.xmlNode.getElementsByTagName('diagram');
+	}
+	
 	var layersDialog = null;
 	var layersDialogEntered = false;
-
+	var pageInfo = null;
+	
 	for (var i = 0; i < tokens.length; i++)
 	{
 		var token = tokens[i];
 		
-		if (token == 'zoom')
+		if (token == 'pages' && diagrams.length > 1)
+		{
+			pageInfo = container.ownerDocument.createElement('div');
+			pageInfo.style.cssText = 'display:inline-block;position:relative;padding:3px 4px 0 4px;' +
+				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;'
+			mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
+			mxUtils.setOpacity(pageInfo, 70);
+			
+			var prevButton = addButton(mxUtils.bind(this, function()
+			{
+				this.currentPage = mxUtils.mod(this.currentPage - 1, diagrams.length);
+				pageInfo.innerHTML = '';
+				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
+				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
+					diagrams[this.currentPage]))).documentElement);
+			}), Editor.previousImage, mxResources.get('previousPage') || 'Previous Page');
+
+			prevButton.style.borderRightStyle = 'none';
+			prevButton.style.paddingLeft = '0px';
+			prevButton.style.paddingRight = '0px';
+			
+			toolbar.appendChild(pageInfo);
+
+			var nextButton = addButton(mxUtils.bind(this, function()
+			{
+				this.currentPage = mxUtils.mod(this.currentPage + 1, diagrams.length);
+				pageInfo.innerHTML = '';
+				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
+				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
+					diagrams[this.currentPage]))).documentElement);
+			}), Editor.nextImage, mxResources.get('nextPage') || 'Next Page');
+			
+			nextButton.style.paddingLeft = '0px';
+			nextButton.style.paddingRight = '0px';
+		}
+		else if (token == 'zoom')
 		{
 			if (this.zoomEnabled)
 			{
@@ -785,7 +833,7 @@ GraphViewer.prototype.addToolbar = function()
 					this.graph.zoomIn();
 				}), Editor.zoomInImage, mxResources.get('zoomIn') || 'Zoom In');
 
-				var a = addButton(mxUtils.bind(this, function()
+				addButton(mxUtils.bind(this, function()
 				{
 					this.graph.view.scaleAndTranslate(this.graph.initialViewState.scale,
 						this.graph.initialViewState.translate.x,
@@ -798,44 +846,47 @@ GraphViewer.prototype.addToolbar = function()
 			if (this.layersEnabled)
 			{
 				var model = this.graph.getModel();
-				var childCount = model.getChildCount(model.root);
-				
-				if (childCount > 1)
+
+				var layersButton = addButton(mxUtils.bind(this, function(evt)
 				{
-					var layersButton = addButton(mxUtils.bind(this, function(evt)
+					if (layersDialog != null)
 					{
-						if (layersDialog != null)
+						layersDialog.parentNode.removeChild(layersDialog);
+						layersDialog = null;
+					}
+					else
+					{
+						layersDialog = this.graph.createLayersDialog();
+						
+						mxEvent.addListener(layersDialog, 'mouseleave', function()
 						{
 							layersDialog.parentNode.removeChild(layersDialog);
 							layersDialog = null;
-						}
-						else
-						{
-							layersDialog = this.graph.createLayersDialog();
-							
-							mxEvent.addListener(layersDialog, 'mouseleave', function()
-							{
-								layersDialog.parentNode.removeChild(layersDialog);
-								layersDialog = null;
-							});
-							
-							var r = layersButton.getBoundingClientRect();
+						});
+						
+						var r = layersButton.getBoundingClientRect();
 
-							layersDialog.style.width = '140px';
-							layersDialog.style.padding = '2px 0px 2px 0px';
-							layersDialog.style.border = '1px solid #d0d0d0';
-							layersDialog.style.backgroundColor = '#eee';
-							layersDialog.style.fontFamily = 'Helvetica Neue,Helvetica,Arial Unicode MS,Arial';
-							layersDialog.style.fontSize = '11px';
-							mxUtils.setOpacity(layersDialog, 80);
-							var origin = mxUtils.getDocumentScrollOrigin(document);
-							layersDialog.style.left = origin.x + r.left + 'px';
-							layersDialog.style.top = origin.y + r.bottom + 'px';
-							
-							document.body.appendChild(layersDialog);
-						}
-					}), Editor.layersImage, mxResources.get('layers') || 'Layers');
-				}
+						layersDialog.style.width = '140px';
+						layersDialog.style.padding = '2px 0px 2px 0px';
+						layersDialog.style.border = '1px solid #d0d0d0';
+						layersDialog.style.backgroundColor = '#eee';
+						layersDialog.style.fontFamily = 'Helvetica Neue,Helvetica,Arial Unicode MS,Arial';
+						layersDialog.style.fontSize = '11px';
+						mxUtils.setOpacity(layersDialog, 80);
+						var origin = mxUtils.getDocumentScrollOrigin(document);
+						layersDialog.style.left = origin.x + r.left + 'px';
+						layersDialog.style.top = origin.y + r.bottom + 'px';
+						
+						document.body.appendChild(layersDialog);
+					}
+				}), Editor.layersImage, mxResources.get('layers') || 'Layers');
+				
+				model.addListener(mxEvent.CHANGE, function()
+				{
+					layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-block' : 'none';
+				});
+				
+				layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-block' : 'none';
 			}
 		}
 		else if (token == 'lightbox')
@@ -845,7 +896,7 @@ GraphViewer.prototype.addToolbar = function()
 				addButton(mxUtils.bind(this, function()
 				{
 					this.showLightbox();
-				}), Editor.maximizeImage, mxResources.get('show') || 'Show');
+				}), Editor.maximizeImage, (mxResources.get('show') || 'Show'));
 			}
 		}
 		else if (this.graphConfig['toolbar-buttons'] != null)
@@ -1083,7 +1134,8 @@ GraphViewer.prototype.showLocalLightbox = function()
 	});
 	
 	// LATER: Make possible to assign after instance was created
-	urlParams['page'] = this.graphConfig.page || 0;
+	urlParams['pages'] = '1';
+	urlParams['page'] = this.currentPage;
 	urlParams['nav'] = (this.graphConfig.nav != false) ? '1' : '0';
 	urlParams['layers'] = (this.layersEnabled) ? '1' : '0';
 	
@@ -1097,20 +1149,40 @@ GraphViewer.prototype.showLocalLightbox = function()
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 	EditorUi.prototype.addChromelessClickHandler = function() {};
 	
+	// Workaround for lost reference with same ID (cannot override after instance is created)
+	Graph.prototype.shadowId = 'lightboxDropShadow';
+	
 	var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
+	
+	// Workaround for lost reference with same ID
+	Graph.prototype.shadowId = 'dropShadow';
 	
 	// Disables refresh
 	ui.refresh = function() {};
 	
-	var param = (this.graphConfig.page != null) ? '&page=' + this.graphConfig.page : '';
-	ui.editor.editBlankUrl = this.editBlankUrl + param;
-	ui.editor.editBlankFallbackUrl = this.editBlankFallbackUrl + param;
-
+	// Click on backdrop closes lightbox
 	mxEvent.addListener(backdrop, 'click', function()
 	{
 		ui.destroy();
 	});
 	
+	// Passes current page and local URLs to open in new window action
+	ui.editor.editBlankUrl = this.editBlankUrl;
+	ui.editor.editBlankFallbackUrl = this.editBlankFallbackUrl;
+	var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
+	
+	ui.editor.getEditBlankUrl = function(params, fallback)
+	{
+		var param = '';
+		
+		if (ui.pages != null && ui.currentPage != null)
+		{
+			param = '&page=' + mxUtils.indexOf(ui.pages, ui.currentPage);
+		}
+		
+		return editorGetEditBlankUrl.apply(this, arguments) + param;
+	}
+
 	// Handles escape keystroke
 	var keydownHandler = mxUtils.bind(this, function(evt)
 	{
@@ -1126,12 +1198,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 		mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
 		document.body.removeChild(backdrop);
 		document.body.removeChild(closeImg);
-		
-		if (tabContainer != null)
-		{
-			document.body.removeChild(tabContainer);
-		}
-		
 		document.body.style.overflow = 'auto';
 		GraphViewer.resizeSensorEnabled = true;
 		
@@ -1200,36 +1266,11 @@ GraphViewer.prototype.showLocalLightbox = function()
 		document.body.appendChild(lightbox);
 		document.body.appendChild(closeImg);
 		
+		console.log('xml', this.xml);
 		ui.setFileData(this.xml);
-		tabContainer = (ui.pages != null && ui.pages.length > 1) ? ui.tabContainer : null;
 
-		if (tabContainer != null)
-		{
-			if (mxClient.IS_QUIRKS)
-			{
-				tabContainer.style.position = 'absolute';
-				tabContainer.style.right = 32 + 'px';
-				tabContainer.style.top = origin.y + 32 + 'px';
-			}
-			else
-			{
-				// FIXME: Fix page menu CSS with sprite
-				// TODO: Update layers button after page change
-				tabContainer.style.fontFamily = 'Helvetica Neue,Helvetica,Arial Unicode MS,Arial';
-				tabContainer.style.position = 'fixed';
-				tabContainer.style.marginLeft = '40px';
-				tabContainer.style.marginRight = '40px';
-				tabContainer.style.bottom = '30px';
-				mxUtils.setPrefixedStyle(tabContainer.style, 'border-radius', '4px');
-			}
-			
-			tabContainer.style.zIndex = this.lightboxZIndex;
-			document.body.appendChild(tabContainer);
-			ui.updateTabContainer();
-		}
-		
 		mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');
-		ui.chromelessToolbar.style.bottom = ((tabContainer != null) ? 80 : 60) + 'px';
+		ui.chromelessToolbar.style.bottom = 60 + 'px';
 		ui.chromelessToolbar.style.zIndex = this.lightboxZIndex;
 		
 		// Workaround for clipping in IE11-
@@ -1247,8 +1288,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 			lightbox.style.left = origin.x + 'px';
 			lightbox.style.top = origin.y + 'px';
 			lightbox.style.width = document.body.clientWidth - 80 + 'px';
-			lightbox.style.height = document.body.clientHeight -
-				((tabContainer != null) ? 20 : 80) + 'px';
+			lightbox.style.height = document.body.clientHeight - 80 + 'px';
 			lightbox.style.backgroundColor = 'white';
 			
 			ui.chromelessToolbar.style.display = 'block';
@@ -1256,10 +1296,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 			ui.chromelessToolbar.style.bottom = '';
 			ui.chromelessToolbar.style.top = origin.y +
 				document.body.clientHeight - 100 + 'px';
-		}
-		else if (tabContainer != null)
-		{
-			lightbox.style.marginBottom = '60px';
 		}
 		
 		ui.lightboxFit();

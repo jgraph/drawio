@@ -857,15 +857,16 @@ var EmbedHtmlDialog = function(editorUi)
 	layersCheckBox.style.marginLeft = '10px';
 	
 	var model = editorUi.editor.graph.getModel();
-	
-	if (model.getChildCount(model.getRoot()) > 1)
+
+	if (editorUi.pages == null || editorUi.pages.length == 0 &&
+		(model.getChildCount(model.getRoot()) <= 1))
 	{
-		layersCheckBox.setAttribute('checked', 'checked');
-		layersCheckBox.defaultChecked = true;
+		layersCheckBox.setAttribute('disabled', 'disabled');
 	}
 	else
 	{
-		layersCheckBox.setAttribute('disabled', 'disabled');
+		layersCheckBox.setAttribute('checked', 'checked');
+		layersCheckBox.defaultChecked = true;
 	}
 	
 	options.appendChild(layersCheckBox);
@@ -876,7 +877,22 @@ var EmbedHtmlDialog = function(editorUi)
 	zoomCheckBox.style.marginLeft = '10px';
 	options.appendChild(zoomCheckBox);
 	mxUtils.write(options, mxResources.get('zoom'));
+	
+	zoomCheckBox.setAttribute('checked', 'checked');
+	zoomCheckBox.defaultChecked = true;
+	
+	var pagesCheckBox = document.createElement('input');
+	pagesCheckBox.setAttribute('type', 'checkbox');
+	pagesCheckBox.style.marginLeft = '10px';
 
+	if (editorUi.pages != null && editorUi.pages.length > 1)
+	{
+		pagesCheckBox.setAttribute('checked', 'checked');
+		pagesCheckBox.defaultChecked = true;
+		options.appendChild(pagesCheckBox);		
+	}
+
+	mxUtils.write(options, mxResources.get('allPages'));
 	div.appendChild(options);
 
 	function update(force)
@@ -942,6 +958,17 @@ var EmbedHtmlDialog = function(editorUi)
 		
 		var tb = [];
 		
+		if (pagesCheckBox.checked)
+		{
+			tb.push('pages');
+			data.resize = true;
+			
+			if (editorUi.pages != null && editorUi.currentPage != null)
+			{
+				data.page = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
+			}
+		}
+		
 		if (zoomCheckBox.checked)
 		{
 			tb.push('zoom');
@@ -962,7 +989,7 @@ var EmbedHtmlDialog = function(editorUi)
 			
 			data.toolbar = tb.join(' ');
 		}
-		
+
 		if (editCheckBox.checked)
 		{
 			if (urlInput.value != '')
@@ -981,7 +1008,7 @@ var EmbedHtmlDialog = function(editorUi)
 		}
 		else
 		{
-			data.xml = editorUi.getFileData(true);
+			data.xml = editorUi.getFileData(true, null, null, null, null, !pagesCheckBox.checked);
 		}
 	
 		textarea.value = '<div class="mxgraph" style="' +
@@ -1022,6 +1049,7 @@ var EmbedHtmlDialog = function(editorUi)
 	mxEvent.addListener(fitCheckBox, 'change', update);
 	mxEvent.addListener(lightboxCheckBox, 'change', update);
 	mxEvent.addListener(zoomCheckBox, 'change', update);
+	mxEvent.addListener(pagesCheckBox, 'change', update);
 	
 	var buttons = document.createElement('div');
 	buttons.style.paddingTop = '20px';
@@ -4571,7 +4599,7 @@ PrintDialog.prototype.create = function(editorUi)
 		}
 		else
 		{
-			scale = parseInt(zoomInput.value) / 100 * graph.pageScale;
+			scale = parseInt(zoomInput.value) / (100 * graph.pageScale);
 			
 			if (isNaN(scale))
 			{

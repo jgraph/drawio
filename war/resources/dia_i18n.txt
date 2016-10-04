@@ -15,6 +15,7 @@ advanced=advanced
 align=align
 alignment=alignment
 allChangesLost=allChangesLost
+allPages=allPages
 android=android
 angle=angle
 areYouSure=areYouSure

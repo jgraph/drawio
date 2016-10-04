@@ -177,7 +177,7 @@
 		
 		var filter = (svgDoc.createElementNS != null) ?
 			svgDoc.createElementNS(mxConstants.NS_SVG, 'filter') : svgDoc.createElement('filter');
-		filter.setAttribute('id', 'dropShadow');
+		filter.setAttribute('id', this.graph.shadowId);
 
 		var blur = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'feGaussianBlur') : svgDoc.createElement('feGaussianBlur');
@@ -242,7 +242,7 @@
 		
 		if (!createOnly)
 		{
-			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#dropShadow)');
+			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.graph.shadowId + ')');
 			
 			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
 			{
@@ -1766,7 +1766,7 @@
 								var img = new Image();
 								
 								// Timestamp is added to bypass client-side cache
-								img.src = 'log?severity=CONFIG&msg=imgur-published:' + res.data.id + '&v=' +
+								img.src = 'https://log.draw.io/log?severity=CONFIG&msg=imgur-published:' + res.data.id + '&v=' +
 									encodeURIComponent(EditorUi.VERSION) + '&ts=' + new Date().getTime();
 					    	}
 					    	catch (e)
@@ -2078,8 +2078,12 @@
 
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
-		var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);	
-		svgRoot.setAttribute('content', encodeURIComponent(xml));
+		var svgRoot = graph.getSvg(bg, null, null, null, null, ignoreSelection);
+
+		if (xml != null)
+		{
+			svgRoot.setAttribute('content', encodeURIComponent(xml));
+		}
 		
 		if (url != null)
 		{
@@ -2115,11 +2119,13 @@
 	 *
 	 */
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph)
 	{
 		limitHeight = (limitHeight != null) ? limitHeight : true;
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
-		var bg = (transparentBackground) ? null : this.editor.graph.background;
+		graph = (graph != null) ? graph : this.editor.graph;
+		
+		var bg = (transparentBackground) ? null : graph.background;
 		
 		if (bg == mxConstants.NONE)
 		{
@@ -2137,7 +2143,7 @@
 			bg = '#ffffff';
 		}
 		
-		this.convertImages(this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)
+		this.convertImages(graph.getSvg(bg, null, null, null, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)
 		{
 			var img = new Image();
 			
@@ -2178,7 +2184,7 @@
 					this.editor.addSvgShadow(svgRoot);
 				}
 				
-				this.convertMath(this.editor.graph, svgRoot, true, mxUtils.bind(this, function()
+				this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
 				{
 					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 				}));
@@ -4418,7 +4424,11 @@
 				{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
 				{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
 				{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
-				{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}]];
+				{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
+				[null, {fill: '#eeeeee', stroke: '#36393d'},
+				{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
+				{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
+				{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
 			
 			var left = document.createElement('div');
 			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
@@ -5680,6 +5690,11 @@
 	Graph.prototype.defaultPageVisible = urlParams['pv'] != '0';
 
 	/**
+	 * Specifies if the page should be visible for new files. Default is true.
+	 */
+	Graph.prototype.shadowId = 'dropShadow';
+
+	/**
 	 * Loads the stylesheet for this graph.
 	 */
 	Graph.prototype.setShadowVisible = function(value, fireEvent)
@@ -5691,7 +5706,7 @@
 			
 			if (this.shadowVisible)
 			{
-				this.view.getDrawPane().setAttribute('filter', 'url(#dropShadow)');
+				this.view.getDrawPane().setAttribute('filter', 'url(#' + this.shadowId + ')');
 			}
 			else
 			{
