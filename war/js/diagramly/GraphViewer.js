@@ -713,6 +713,10 @@ GraphViewer.prototype.addToolbar = function()
 		});
 	}
 	
+	var tokens = this.toolbarItems;
+	var buttonCount = 0;
+	var diagrams = [];
+	
 	function addButton(fn, imgSrc, tip, enabled)
 	{
 		var a = document.createElement('div');
@@ -766,10 +770,6 @@ GraphViewer.prototype.addToolbar = function()
 		return a;
 	};
 
-	var buttonCount = 0;
-	var tokens = this.toolbarItems;
-	var diagrams = [];
-	
 	// Adds page placeholders
 	if (this.xmlNode.nodeName == 'mxfile')
 	{
@@ -804,7 +804,6 @@ GraphViewer.prototype.addToolbar = function()
 			prevButton.style.borderRightStyle = 'none';
 			prevButton.style.paddingLeft = '0px';
 			prevButton.style.paddingRight = '0px';
-			
 			toolbar.appendChild(pageInfo);
 
 			var nextButton = addButton(mxUtils.bind(this, function()

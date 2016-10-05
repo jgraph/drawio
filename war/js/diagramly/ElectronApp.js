@@ -36,15 +36,10 @@ window.TEMPLATE_PATH = 'templates';
 
 		var editorUi = this.editorUi;
 		
-		editorUi.actions.addAction('online...', function()
-		{
-			window.open('https://www.draw.io/');
-		});
-
 		// Replaces file menu to replace openFrom menu with open and rename downloadAs to export
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import'], parent);
+			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
 			this.addSubmenu('exportAs', menu, parent);
 			this.addSubmenu('embed', menu, parent);
 			this.addMenuItems(menu, ['-', 'newLibrary', 'openLibrary', '-', 'documentProperties', 'print'], parent);
@@ -52,11 +47,162 @@ window.TEMPLATE_PATH = 'templates';
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'gridColor', 'autosave', '-',
+			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting', 'autosave', '-',
 			                         'createShape', 'editDiagram', '-', 'online'], parent);
 		})));
 	};
 	
+	// Initializes the user interface
+	var editorUiInit = EditorUi.prototype.init;
+	EditorUi.prototype.init = function()
+	{
+		editorUiInit.apply(this, arguments);
+
+		var editorUi = this;
+		var graph = this.editor.graph;
+
+		// Adds support for libraries
+		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()
+		{
+			editorUi.showLibraryDialog(null, null, null, null, App.MODE_DEVICE);
+		}));
+		
+		this.actions.addAction('openLibrary...', mxUtils.bind(this, function()
+		{
+			editorUi.pickLibrary(App.MODE_DEVICE);
+		}));
+
+//		// Replaces import action
+//		this.actions.addAction('import...', mxUtils.bind(this, function()
+//		{
+//			if (this.getCurrentFile() != null)
+//			{
+//				chrome.fileSystem.chooseEntry({type: 'openFile', acceptsAllTypes: true}, mxUtils.bind(this, function(fileEntry)
+//				{
+//					if (!chrome.runtime.lastError)
+//					{
+//						fileEntry.file(mxUtils.bind(this, function(fileObject)
+//						{
+//							if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+//							{
+//								var reader = new FileReader();
+//								
+//								reader.onload = function(evt)
+//								{
+//									editorUi.spinner.stop();
+//									
+//									try
+//									{
+//										var data = reader.result;
+//										
+//										if (fileObject.type.substring(0, 9) == 'image/png')
+//										{
+//											data = editorUi.extractGraphModelFromPng(data);
+//										}
+//										else if (fileObject.type.substring(0, 6) == 'image/')
+//										{
+//											data = null;
+//										}
+//										
+//										if (data != null)
+//										{
+//											graph.setSelectionCells(editorUi.importXml(data));
+//										}
+//										else
+//										{
+//											var img = new Image();
+//											img.onload = function()
+//											{
+//												editorUi.resizeImage(img, reader.result, function(data2, w, h)
+//												{
+//													var pt = graph.getInsertPoint();
+//													graph.setSelectionCell(graph.insertVertex(null, null, '', pt.x, pt.y, w, h,
+//														'shape=image;aspect=fixed;image=' + editorUi.convertDataUri(data2) + ';'));
+//												}, true);
+//											};
+//											img.src = reader.result;
+//										}
+//									}
+//									catch(e)
+//									{
+//										console.log(e);
+//										editorUi.handleError(e);
+//									}
+//								};
+//								
+//								reader.onerror = function(ev)
+//								{
+//									editorUi.spinner.stop();
+//									editorUi.handleError(ev);
+//								};
+//							
+//								if (fileObject.type.substring(0, 6) == 'image/')
+//								{
+//									reader.readAsDataURL(fileObject);
+//								}
+//								else
+//								{
+//									reader.readAsText(fileObject);
+//								}
+//							}
+//						}));
+//					}
+//					else if (chrome.runtime.lastError.message != 'User cancelled')
+//					{
+//						editorUi.handleError(chrome.runtime.lastError);
+//					}
+//				}));
+//			}
+//		}));
+		
+//		// Replaces new action
+//		this.actions.addAction('new...', mxUtils.bind(this, function()
+//		{
+//			if (this.getCurrentFile() == null)
+//			{
+//				// LATER: In Chrome OS the extension is not enforced resulting
+//				// in possible files with no extension. Extensions such as XML,
+//				// SVG and HTML are and should be allowed. How can we fix this?
+//				chrome.fileSystem.chooseEntry({type: 'saveFile',
+//					accepts: [{description: 'Draw.io Diagram (.xml)',
+//					extensions: ['xml']}]}, mxUtils.bind(this, function(f)
+//				{
+//					if (!chrome.runtime.lastError)
+//					{
+//						var file = new LocalFile(editorUi, this.emptyDiagramXml, '');
+//						file.fileObject = f;
+//						
+//						editorUi.fileLoaded(file);
+//					}
+//					else if (chrome.runtime.lastError.message != 'User cancelled')
+//					{
+//						editorUi.handleError(chrome.runtime.lastError);
+//					}
+//				}));
+//			}
+//			else
+//			{
+//				// Could use URL parameter to call new action but conflicts with splash screen
+//				chrome.app.window.create('index.html',
+//				{
+//					bounds :
+//					{
+//						width: Math.floor(Math.min(screen.availWidth * 3 / 4, 1024)),
+//						height: Math.floor(Math.min(screen.availHeight * 3 / 4, 768)),
+//						left: Math.floor((screen.availWidth - Math.min(screen.availWidth * 3 / 4, 1024)) / 2),
+//						top: Math.floor((screen.availHeight - Math.min(screen.availHeight * 3 / 4, 768)) / 3)
+//					}
+//				});
+//			}
+//		}), null, null, 'Ctrl+N');
+		
+		this.actions.get('open').shortcut = 'Ctrl+O';
+		
+		// Adds shortcut keys for file operations
+		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
+		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
+	}
+
 	// Uses local picker
 	App.prototype.pickFile = function()
 	{

@@ -823,8 +823,9 @@
 			{
 				var oldPages = (this.pages != null) ? this.pages.slice() : null;
 				var nodes = node.getElementsByTagName('diagram');
-		
-				if (nodes.length > 1 || urlParams['pages'] == '1')
+
+				if (urlParams['pages'] == '1' || nodes.length > 1 ||
+					(nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
 					this.fileNode = node;
 					this.pages = (this.pages != null) ? this.pages : [];
@@ -903,8 +904,9 @@
 		if (node != null && node.nodeName == 'mxfile')
 		{
 			var nodes = node.getElementsByTagName('diagram');
-			
-			if (nodes.length > 1 || urlParams['pages'] == '1')
+
+			if (urlParams['pages'] == '1' || nodes.length > 1 ||
+				(nodes.length == 1 && nodes[0].hasAttribute('name')))
 			{
 				this.fileNode = node;
 				this.pages = [];
@@ -3447,9 +3449,16 @@
 			{
 				return ui.currentPage.getName();
 			}
-			else if (name == 'pagenumber' && ui.currentPage != null && ui.pages != null)
+			else if (name == 'pagenumber')
 			{
-				return mxUtils.indexOf(ui.pages, ui.currentPage) + 1;
+				if (ui.currentPage != null && ui.pages != null)
+				{
+					return mxUtils.indexOf(ui.pages, ui.currentPage) + 1;
+				}
+				else
+				{
+					return 1;
+				}
 			}
 			
 			return graphGetGlobalVariable.apply(this, arguments);
@@ -4947,8 +4956,7 @@
 					
 					if (xml != null && xml.length > 0)
 					{
-						var doc = mxUtils.parseXml(xml);
-						this.editor.setGraphXml(doc.documentElement);
+						this.setFileData(xml);
 						this.showLayersDialog();
 					}
 					else
@@ -5122,6 +5130,34 @@
 							
 							if (this.isExportToCanvas())
 							{
+								var graph = this.editor.graph;
+								
+								// Exports PNG for first page while other page is visible by creating a graph
+								// LATER: Add caching for the graph or SVG while not on first page
+								if (this.pages != null && this.currentPage != this.pages[0])
+								{
+									graph = this.createTemporaryGraph(graph.getStylesheet());
+									var graphGetGlobalVariable = graph.getGlobalVariable;
+									var page = this.pages[0];
+							
+									graph.getGlobalVariable = function(name)
+									{
+										if (name == 'page')
+										{
+											return page.getName();
+										}
+										else if (name == 'pagenumber')
+										{
+											return 1;
+										}
+										
+										return graphGetGlobalVariable.apply(this, arguments);
+									};
+							
+									document.body.appendChild(graph.container);
+									graph.model.setRoot(page.root);
+								}
+						
 								this.exportToCanvas(mxUtils.bind(this, function(canvas)
 							   	{
 							   	    var uri = canvas.toDataURL('image/png');
@@ -5131,9 +5167,15 @@
 							   	    	uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
 							   	    		atob(this.editor.graph.compress(xml)));	
 							   	    }
-							   	    
+							   	    	
+									// Removes temporary graph from DOM
+					   	   	    	if (graph != this.editor.graph)
+									{
+										graph.container.parentNode.removeChild(graph.container);
+									}
+					   	   	    	
 							   	    postDataBack(uri.substring(uri.lastIndexOf(',') + 1));
-							   	}));
+							   	}), null, null, null, null, null, null, null, null, null, null, graph);
 							}
 							else
 							{
@@ -5164,17 +5206,24 @@
 						// SVG is generated from graph so parse optional XML
 						if (data.xml != null && data.xml.length > 0)
 						{
-							var doc = mxUtils.parseXml(data.xml);
-							this.editor.setGraphXml(doc.documentElement);
+							this.setFileData(data.xml);
 						}
 						
 						var msg = this.createLoadMessage('export');
 						
-						if (data.format == 'html' || data.format == 'html2')
+						// Forces new HTML format if pages exists
+						if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] == '1' ||
+							(this.pages != null && this.pages.length > 1))))
+						{
+							var node = this.getXmlFileData();
+							msg.xml = mxUtils.getXml(node);
+							msg.data = this.getFileData(null, null, true, null, null, null, node);
+							msg.format = data.format;
+						}
+						else if (data.format == 'html')
 						{
 							var xml = this.editor.getGraphXml();
-							msg.data = (data.format == 'html2') ? this.getHtml2(xml, this.editor.graph) :
-								this.getHtml(xml, this.editor.graph);
+							msg.data = this.getHtml(xml, this.editor.graph);
 							msg.xml = mxUtils.getXml(xml);
 							msg.format = data.format;
 						}
@@ -5190,7 +5239,7 @@
 				        		bg = null;
 				        	}
 				        	
-							msg.xml = mxUtils.getXml(this.editor.getGraphXml());
+							msg.xml = this.getFileData(true);
 							msg.format = 'svg';
 				        	
 				        	if (data.embedImages || data.embedImages == null)
@@ -5228,7 +5277,7 @@
 				        	}
 				        	else
 				        	{
-				        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(mxUtils.getXml(this.editor.getGraphXml()),
+				        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
 				        			this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
 								msg.data = this.createSvgDataUri(svg);
 				        	}
@@ -5287,8 +5336,8 @@
 					data  = null;
 				}
 			}
-
-			if (data != null && data.charAt(0) != '<')
+			
+			if (data != null && typeof data.charAt === 'function' && data.charAt(0) != '<')
 			{
 				try
 				{	
@@ -5330,7 +5379,8 @@
 			{
 				var changeListener = mxUtils.bind(this, function(sender, eventObject)
 				{
-					var data = mxUtils.getXml(this.editor.getGraphXml());
+					var data = (urlParams['pages'] == '1' || (this.pages != null && this.pages.length > 1)) ?
+						this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
 					var msg = this.createLoadMessage('autosave');
 					msg.xml = data;
 					data = JSON.stringify(msg);

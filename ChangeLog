@@ -1,3 +1,8 @@
+05-OCT-2016: 5.7.1.0
+
+- Adds support for pages in embed mode
+- Embed save uses mxFile rather than GraphModel in pages mode
+
 04-OCT-2016: 5.7.0.9
 
 - Adds experimental tags plugin
