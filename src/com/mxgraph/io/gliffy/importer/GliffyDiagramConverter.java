@@ -367,8 +367,6 @@ public class GliffyDiagramConverter {
 			Object header = gliffyObject.children.get(0);// first child is the header of the swimlane
 			Object headerText = header.children.get(0);
 			
-			gliffyObject.children.remove(header);
-
 			GliffyShape shape = header.graphic.getShape();
 			style.append("strokeWidth=" + shape.strokeWidth).append(";");
 			style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
@@ -378,7 +376,7 @@ public class GliffyDiagramConverter {
 
 			text = headerText.getText();
 
-			for (int i = 0; i < gliffyObject.children.size(); i++) // rest of the children are lanes
+			for (int i = 1; i < gliffyObject.children.size(); i++) // rest of the children are lanes
 			{
 				Object gLane = gliffyObject.children.get(i);
 				gLane.parent = gliffyObject;
@@ -458,8 +456,8 @@ public class GliffyDiagramConverter {
 			uo.setAttribute("link", link);
 			drawioDiagram.getModel().setValue(cell, uo);
 			
-			if(text != null && !text.equals(""))
-				uo.setAttribute("label", text);
+			if(textObject != null)
+				uo.setAttribute("label", textObject.getText());
 		}
 
 		cell.setStyle(style.toString());

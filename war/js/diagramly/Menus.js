@@ -816,14 +816,14 @@
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
 		{
 			var dlg = new IframeDialog(editorUi);
-			editorUi.showDialog(dlg.container, 420, 210, true, true);
+			editorUi.showDialog(dlg.container, 420, 220, true, true);
 			dlg.init();
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
 			var dlg = new IframeDialog(editorUi, false, true);
-			editorUi.showDialog(dlg.container, 420, 210, true, true);
+			editorUi.showDialog(dlg.container, 420, 200, true, true);
 			dlg.init();
 		}));
 		
@@ -895,7 +895,8 @@
 					graph.stopEditing();
 				}
 				
-				var data = mxUtils.getXml(editorUi.editor.getGraphXml());
+				var data = (urlParams['pages'] == '1' || (editorUi.pages != null && editorUi.pages.length > 1)) ?
+					editorUi.getFileData(true) : mxUtils.getXml(editorUi.editor.getGraphXml());
 				
 				if (urlParams['proto'] == 'json')
 				{
@@ -1084,6 +1085,18 @@
 				else
 				{
 					mxUtils.write(content, mxResources.get('allPages'));
+					
+					mxEvent.addListener(cb2, 'change', function()
+					{
+						if (cb2.checked)
+						{
+							cb.setAttribute('disabled', 'disabled');
+						}
+						else
+						{
+							cb.removeAttribute('disabled');
+						}
+					});
 				}
 					
 				var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()

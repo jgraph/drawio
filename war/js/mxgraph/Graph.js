@@ -1558,8 +1558,12 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 			realTarget = this.duplicateCells([cellToClone], false)[0];
 			
 			var geo = this.getCellGeometry(realTarget);
-			geo.x = pt.x - geo.width / 2;
-			geo.y = pt.y - geo.height / 2;
+			
+			if (geo != null)
+			{
+				geo.x = pt.x - geo.width / 2;
+				geo.y = pt.y - geo.height / 2;
+			}
 		}
 		
 		// Never connects children in stack layouts
@@ -5223,22 +5227,29 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxCellEditor.prototype.restoreSelection = function(savedSel)
 		{
-			if (savedSel)
+			try
 			{
-				if (window.getSelection)
+				if (savedSel)
 				{
-					sel = window.getSelection();
-					sel.removeAllRanges();
-	
-					for (var i = 0, len = savedSel.length; i < len; ++i)
+					if (window.getSelection)
 					{
-						sel.addRange(savedSel[i]);
+						sel = window.getSelection();
+						sel.removeAllRanges();
+		
+						for (var i = 0, len = savedSel.length; i < len; ++i)
+						{
+							sel.addRange(savedSel[i]);
+						}
+					}
+					else if (document.selection && savedSel.select)
+					{
+						savedSel.select();
 					}
 				}
-				else if (document.selection && savedSel.select)
-				{
-					savedSel.select();
-				}
+			}
+			catch (e)
+			{
+				// ignore
 			}
 		};
 	

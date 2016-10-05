@@ -3452,9 +3452,9 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	var isEventIgnored = keyHandler.isEventIgnored;
 	keyHandler.isEventIgnored = function(evt)
 	{
-		// Handles undo/redo/ctrl+./, via action and allows ctrl+b/u/i only if editing value is HTML (except for FF and Safari)
+		// Handles undo/redo/ctrl+./,/u via action and allows ctrl+b/i only if editing value is HTML (except for FF and Safari)
 		return (!this.isControlDown(evt) || mxEvent.isShiftDown(evt) || (evt.keyCode != 90 && evt.keyCode != 89 &&
-			evt.keyCode != 188 && evt.keyCode != 190)) && ((evt.keyCode != 66 && evt.keyCode != 73 && evt.keyCode != 85) ||
+			evt.keyCode != 188 && evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
 			!this.isControlDown(evt) || (this.graph.cellEditor.isContentEditing() && !mxClient.IS_FF && !mxClient.IS_SF)) &&
 			isEventIgnored.apply(this, arguments);
 	};

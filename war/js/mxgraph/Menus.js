@@ -1051,9 +1051,13 @@ Menus.prototype.createMenubar = function(container)
 	
 	for (var i = 0; i < menus.length; i++)
 	{
-		(function(menu)
+		(mxUtils.bind(this, function(menu)
 		{
-			var elt = menubar.addMenu(mxResources.get(menus[i]), menu.funct);
+			var elt = menubar.addMenu(mxResources.get(menus[i]), mxUtils.bind(this, function()
+			{
+				// Allows extensions of menu.funct
+				menu.funct.apply(this, arguments);
+			}));
 			
 			if (elt != null)
 			{
@@ -1081,7 +1085,7 @@ Menus.prototype.createMenubar = function(container)
 					}
 				});
 			}
-		})(this.get(menus[i]));
+		}))(this.get(menus[i]));
 	}
 
 	return menubar;

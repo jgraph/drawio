@@ -1691,7 +1691,7 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage)
+App.prototype.getXmlFileData = function(ignoreSelection, currentPage)
 {
 	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 	currentPage = (currentPage != null) ? currentPage : false;
@@ -1736,6 +1736,21 @@ App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCall
 		}
 	}
 	
+	return node;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+App.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node)
+{
+	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+	currentPage = (currentPage != null) ? currentPage : false;
+	
+	node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage);
 	var graph = this.editor.graph;
 	var file = this.getCurrentFile();
 	

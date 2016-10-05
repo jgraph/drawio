@@ -5,12 +5,9 @@ Draw.loadPlugin(function(ui)
 {
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
-	div.style.background = 'whiteSmoke';
-	div.style.border = '1px solid whiteSmoke';
+	div.style.overflow = 'hidden';
 	div.style.padding = '10px';
 	div.style.height = '100%';
-	div.style.marginBottom = '10px';
-	div.style.overflow = 'auto';
 
 	var graph = ui.editor.graph;
 
@@ -37,39 +34,50 @@ Draw.loadPlugin(function(ui)
 	mxUtils.br(div);
 	div.appendChild(tagInput);
 
-	var tagList = [];
-	var graphIsCellVisible = graph.isCellVisible;
-	
-	graph.isCellVisible = function(cell)
+	function isCellVisible(cell, tagList)
 	{
-		if (graphIsCellVisible.apply(this, arguments))
+		if (cell.value != null && typeof(cell.value) == 'object')
 		{
-			if (!this.model.isVertex(cell) && !this.model.isEdge(cell))
+			var tags = cell.value.getAttribute('tags');
+			
+			if (tags != null && tags.length > 0)
 			{
-				return true;
-			}
-			else if (cell.value != null && typeof(cell.value) == 'object')
-			{
-				var tags = cell.value.getAttribute('tags');
+				var tmp = tags.split(' ');
 				
-				if (tags != null)
+				for (var i = 0; i < tagList.length; i++)
 				{
-					var tmp = tags.split(' ');
-					
-					for (var i = 0; i < tagList.length; i++)
+					if (mxUtils.indexOf(tmp, tagList[i]) >= 0)
 					{
-						if (mxUtils.indexOf(tmp, tagList[i]) >= 0)
-						{
-							return verbSelect.value != 'show';
-						}
+						return verbSelect.value != 'show';
 					}
 				}
 			}
-			
-			return verbSelect.value == 'show'
 		}
 		
-		return false;
+		return verbSelect.value == 'show'
+	};
+
+	function updateVisibleStates()
+	{	
+		var tagList = tagInput.value.split(' ');
+		
+		graph.model.beginUpdate();
+		try
+		{
+			for (var key in graph.model.cells)
+			{
+				var cell = graph.model.cells[key];
+				
+				if (graph.model.isVertex(cell) || graph.model.isEdge(cell))
+				{
+					graph.model.setVisible(cell, isCellVisible(cell, tagList));
+				}
+			}
+		}
+		finally
+		{
+			graph.model.endUpdate();
+		}
 	};
 
 	mxUtils.br(div);
@@ -77,27 +85,47 @@ Draw.loadPlugin(function(ui)
 	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
 	{
 		tagInput.value = '';
-		tagList = [];
 		verbSelect.value = 'show';
-		graph.refresh();	
+		updateVisibleStates();
 	});
+	
 	resetBtn.style.marginTop = '4px';
 	resetBtn.style.padding = '4px';
 	div.appendChild(resetBtn);
 
 	var btn = mxUtils.button(mxResources.get('apply'), function()
 	{
-		tagList = tagInput.value.split(' ');
-		graph.refresh();	
+		updateVisibleStates();
 	});
+	
 	btn.style.marginTop = '4px';
 	btn.style.padding = '4px';
 	div.appendChild(btn);
 	
-	var wnd = new mxWindow('Tags', div, 0, 0, 200, 120, true, true);
+	
+	var wnd = new mxWindow('Tags', div, document.body.offsetWidth - 300, 140, 200, 120, true, true);
 	wnd.destroyOnClose = false;
 	wnd.setMaximizable(false);
-	wnd.setResizable(true);
-	wnd.setClosable(false);
-	wnd.setVisible(true);
+	wnd.setResizable(false);
+	wnd.setClosable(true);
+	
+	// Extends Extras menu
+	mxResources.parse('tags=Tags');
+
+    // Adds action
+    ui.actions.addAction('tags', function()
+    {
+		wnd.setVisible(!wnd.isVisible());	
+    });
+	
+	var extrasMenu = ui.menus.get('extras');
+	var oldExtrasMenu = extrasMenu.funct;
+	
+	extrasMenu.funct = function(menu, parent)
+	{
+		oldExtrasMenu.apply(this, arguments);
+		
+		menu.addSeparator(parent);
+		ui.menus.addMenuItems(menu, ['tags'], parent);
+	};
 });
