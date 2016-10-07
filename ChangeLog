@@ -1,3 +1,12 @@
+07-OCT-2016: 5.7.1.2
+
+- Adds import for multiple pages
+- Fixes german spelling errors
+
+06-OCT-2016: 5.7.1.1
+
+- Adds warning for model size limit exceeded error
+
 05-OCT-2016: 5.7.1.0
 
 - Adds support for pages in embed mode

@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=fitxer
 filename=Nom del fitxer
 fileExists=Aquest fitxer ja existeix
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=No s'ha trobat el fitxer
 fileNotFoundOrDenied=No s'ha trobat el fitxer. No existeix o no teniu permís de lectura.
 fileNotLoaded=No s'ha carregat el fitxer 

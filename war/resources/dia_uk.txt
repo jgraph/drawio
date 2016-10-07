@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Файл
 filename=Назва файлу
 fileExists=Файл вже існує
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Файл не знайдено
 fileNotFoundOrDenied=Файл не знайдено. Він не існує або у вас немає прав доступу для читання.
 fileNotLoaded=Файл не завантажено

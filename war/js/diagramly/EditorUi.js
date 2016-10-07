@@ -2375,18 +2375,56 @@
 		
 		try
 		{
+			var graph = this.editor.graph;
+	
 			if (xml != null && xml.length > 0)
 			{
 				var doc = mxUtils.parseXml(xml);
-				var node = this.editor.extractGraphModel(doc.documentElement);
 				
-				if (node != null)
+				// Checks for mxfile with multiple pages
+				var node = this.editor.extractGraphModel(doc.documentElement, true);
+				
+				if (node != null && node.nodeName == 'mxfile' && this.pages != null)
+				{
+					var diagrams = node.getElementsByTagName('diagram');
+
+					if (diagrams.length == 1)
+					{
+						node = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
+					}
+					else if (diagrams.length > 1)
+					{
+						// Adds pages
+						graph.model.beginUpdate();
+						try
+						{
+							for (var i = 0; i < diagrams.length; i++)
+							{
+								var page = this.updatePageRoot(new DiagramPage(diagrams[i]));
+								var index = this.pages.length;
+								
+								// Checks for invalid page names
+								if (page.getName() == null)
+								{
+									page.setName(mxResources.get('pageWithNumber', [index + 1]));
+								}
+								
+								graph.model.execute(new ChangePage(this, page, page, index));
+							}
+						}
+						finally
+						{
+							graph.model.endUpdate();
+						}
+					}
+				}
+				
+				if (node != null && node.nodeName === 'mxGraphModel')
 				{
 					var model = new mxGraphModel();
 					var codec = new mxCodec(node.ownerDocument);
 					codec.decode(node, model);
 					
-					var graph = this.editor.graph;
 					var childCount = model.getChildCount(model.getRoot());
 					var targetChildCount = graph.model.getChildCount(graph.model.getRoot());
 					

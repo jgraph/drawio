@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Fail
 filename=Nama fail
 fileExists=Fail telah wujud
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fail tidak dapat dicari
 fileNotFoundOrDenied=Fail ini tidak dapat dicari. Ia tidak wujud atau anda tiada akses pembacaan.
 fileNotLoaded=Fail tidak dimuatkan

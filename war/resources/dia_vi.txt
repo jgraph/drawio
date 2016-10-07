@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Tập tin
 filename=Tên tập tin
 fileExists=Tập tin đã tồn tại
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Không tìm thấy tập tin
 fileNotFoundOrDenied=Không tìm thấy tập tin. Tập tin không tồn tại hoặc bạn không có quyền đọc.
 fileNotLoaded=Tập tin chưa tải

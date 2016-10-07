@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=‫קובץ‬
 filename=‫שם קובץ‬
 fileExists=‫הקובץ כבר קיים‬
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=‫הקובץ לא נמצא‬
 fileNotFoundOrDenied=‫הקובץ לא נמצא. ייתכן שהוא לא קיים או שאין לך הרשאת קריאה.‬
 fileNotLoaded=‫הקובץ לא נטען‬

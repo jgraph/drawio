@@ -223,6 +223,7 @@ floorplans=Pohjapiirrokset
 file=Tiedosto
 filename=Tiedostonimi
 fileExists=Tiedosto on jo olemassa
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Tiedostoa ei löydy
 fileNotFoundOrDenied=Tiedostoa ei löydy. Sitä ei ole olemassa tai sinulla ei ole tarpeeksi lukuoikeuksia.
 fileNotLoaded=Tiedostoa ei ladattu

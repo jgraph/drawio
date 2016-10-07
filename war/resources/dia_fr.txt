@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Fichier
 filename=Nom de fichier
 fileExists=Le fichier existe déjà
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fichier non trouvé
 fileNotFoundOrDenied=Le fichier est introuvable. Le fichier n'existe pas ou vous n'avez pas le droit d'accès en lecture.
 fileNotLoaded=Fichier non chargé

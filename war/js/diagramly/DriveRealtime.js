@@ -385,6 +385,28 @@ DriveRealtime.prototype.start = function()
 				this.isAliveThread = null;
 			}
 		}
+		
+		if (this.file.isEditable())
+		{
+			var avail = 10485760 - this.rtModel.bytesUsed;
+			
+			if (avail > 0 && avail < 500000 && !this.sizeLimitWarningShown)
+			{
+				// Shows warning just once
+				this.sizeLimitWarningShown = true;
+				
+				this.ui.showError(mxResources.get('warning'), mxResources.get('fileNearlyFullSeeFaq'),
+					mxResources.get('close'), mxUtils.bind(this, function()
+					{
+						// Hides the dialog
+					}), null, mxResources.get('show'), mxUtils.bind(this, function()
+					{
+						// Show FAQ entry
+						window.open('https://desk.draw.io/solution/articles/16000041695-what-does-the-error-message-file-nearly-full-please-see-faq-mean');
+					})
+				);
+			}
+		}
 	}));
 	
 	var initialized = mxUtils.bind(this, function()

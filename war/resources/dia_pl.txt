@@ -223,6 +223,7 @@ floorplans=Rzuty pomieszczeń
 file=Plik
 filename=Nazwa pliku
 fileExists=Plik już istnieje
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Plik nie został odnaleziony
 fileNotFoundOrDenied=Plik nie został odnaleziony. Plik nie istnieje lub nie posiadasz prawa dostępu do jego odczytu.
 fileNotLoaded=Plik nie załadowany

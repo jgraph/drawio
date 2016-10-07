@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=파일
 filename=파일 이름
 fileExists=파일이 이미 존재합니다
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=파일을 찾을 수 없습니다
 fileNotFoundOrDenied=파일을 찾지 못했습니다. 파일이 존재하지 않거나 읽기 권한이 없습니다.
 fileNotLoaded=파일 불러오기 안됨

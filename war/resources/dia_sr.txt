@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Datoteka
 filename=Ime datoteke
 fileExists=Već postojeći fajl
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fajl nije pronađen
 fileNotFoundOrDenied=Fajl nije pronađen. Nepostojeći dokument ili nemate pravo čitanja.
 fileNotLoaded=Datoteka nije učitana

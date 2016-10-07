@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Αρχείο
 filename=Όνομα αρχείου
 fileExists=Το αρχείο υπάρχει ήδη
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Το αρχείο δεν βρέθηκε
 fileNotFoundOrDenied=Το αρχείο δεν βρέθηκε. Είτε δεν υπάρχει, είτε δεν έχετε πρόσβαση ανάγνωσης.
 fileNotLoaded=Δεν έγινε φόρτωση αρχείου

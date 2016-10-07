@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Fájl
 filename=Fájlnév
 fileExists=Létező fájl
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fájl nem található
 fileNotFoundOrDenied=A fájl nem található. Nem létezik, vagy nincs olvasási hozzáférése.
 fileNotLoaded=Fájl nincs betöltve

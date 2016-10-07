@@ -223,6 +223,7 @@ floorplans=Планы помещений
 file=Файл
 filename=Имя файла
 fileExists=Файл уже существует
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Файл не найден
 fileNotFoundOrDenied=Файл не найден. Он не существует или у вас нет прав на доступ для чтения
 fileNotLoaded=Файл не загружен

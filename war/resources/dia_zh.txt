@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=文件
 filename=文件名
 fileExists=文件已存在
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=没有此文件
 fileNotFoundOrDenied=文件未找到。不存在或者你没有读权限。
 fileNotLoaded=文件无法加载

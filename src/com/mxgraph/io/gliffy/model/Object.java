@@ -262,6 +262,11 @@ public class Object
 	{
 		return uid != null && uid.contains("com.gliffy.shape.venn");
 	}
+	
+	public boolean isUnrecognizedGraphicType() 
+	{
+		return graphic != null && graphic.type == null;
+	}
 
 	public Constraints getConstraints()
 	{
