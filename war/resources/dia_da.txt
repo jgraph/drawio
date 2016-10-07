@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Fil
 filename=Filnavn
 fileExists=Filen findes allerede
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fil ikke fundet
 fileNotFoundOrDenied=Filen blev ikke fundet. Den findes ikke eller du har ikke læserettigheder.
 fileNotLoaded=Fil ikke indlæst

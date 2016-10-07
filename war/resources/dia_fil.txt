@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Payl
 filename=Pangalan ng Payl
 fileExists=Payl ay mayroon na
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Payl ay hindi makita
 fileNotFoundOrDenied=Ang payl ay hindi nakita.  Ito ay wala o kaya ay wala kang akses sa pagbasa.
 fileNotLoaded=Payl ay hindi nailowd

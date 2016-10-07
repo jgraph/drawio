@@ -399,10 +399,15 @@ App.main();
 // Logs footer1 clicks
 if (document != null)
 {
-	document.getElementById("geFooterLink1").onclick = function()
+	var footerElem = document.getElementById('geFooterLink1');
+	
+	if (footerElem != null)
 	{
-		var img = new Image();
-		img.src = 'https://log.draw.io/log?msg=geFooterLink1: location=' + encodeURIComponent(window.location) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+		footerElem.onclick = function()
+		{
+			var img = new Image();
+			img.src = 'https://log.draw.io/log?msg=geFooterLink1:%20location=' + encodeURIComponent(window.location) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+		}
 	}
 }
 

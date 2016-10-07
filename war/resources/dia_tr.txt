@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Dosya
 filename=Dosya adı
 fileExists=Dosya zaten mevcut
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Dosya bulunamadı
 fileNotFoundOrDenied=Dosya bulunamadı. Ya mevcut değil, ya da erişim hakkınız yok
 fileNotLoaded=Dosya yüklenemedi

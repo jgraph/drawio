@@ -159,7 +159,7 @@ public class GliffyDiagramConverter {
 					o2o = Integer.parseInt(o2.order);
 					return o1o.compareTo(o2o);
 				} catch (NumberFormatException e) {
-					return o1.order.compareTo(o2.order);
+					return 0;
 				}
 
 			}
@@ -181,6 +181,11 @@ public class GliffyDiagramConverter {
 		ConstraintData cst = start ? con.getStartPositionConstraint() : con.getEndPositionConstraint();
 		int nodeId = cst.getNodeId();
 		Object gliffyEdgeTerminal = vertices.get(nodeId);
+		
+		//edge could be terminated with another edge, so import it as a dangling edge
+		if(gliffyEdgeTerminal == null)
+			return null;
+		
 		mxCell mxEdgeTerminal = gliffyEdgeTerminal.getMxObject();
 		
 		return mxEdgeTerminal;
@@ -265,6 +270,12 @@ public class GliffyDiagramConverter {
 	private mxCell convertGliffyObject(Object gliffyObject, Object parent) {
 		mxCell cell = new mxCell();
 		
+		if(gliffyObject.isUnrecognizedGraphicType()) 
+		{
+			logger.warning("Unrecognized graphic type for object with ID : " + gliffyObject.id);
+			return cell;
+		}
+		
 		StringBuilder style = new StringBuilder();
 
 		mxGeometry geometry = new mxGeometry((int) gliffyObject.x, (int) gliffyObject.y, (int) gliffyObject.width, (int) gliffyObject.height);
@@ -279,13 +290,15 @@ public class GliffyDiagramConverter {
 			graphic = gliffyObject.getGraphic();
 		}
 
-		String text = null;
+		String text;
 		Object textObject = gliffyObject.getTextObject();
 		
 		String link = null;
 
 		if (graphic != null) {
 			link = gliffyObject.getLink();
+			
+			
 
 			if (gliffyObject.isShape()) {
 				GliffyShape shape = graphic.Shape;

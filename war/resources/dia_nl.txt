@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Bestand
 filename=Bestandsnaam
 fileExists=Bestand bestaat al
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Bestand niet gevonden
 fileNotFoundOrDenied=Bestand niet gevonden. Het bestaat niet, of u hebt geen toestemming om het te lezen
 fileNotLoaded=Bestand niet geladen

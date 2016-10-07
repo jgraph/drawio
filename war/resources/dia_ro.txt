@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Fișier
 filename=Nume fișier
 fileExists=Fișierul există deja
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Fișierul nu a fost găsit
 fileNotFoundOrDenied=Fișierul nu a fost găsit. Nu există sau nu ai permisiunea de a-l accesa.
 fileNotLoaded=Fișierul nu s-a încărcat

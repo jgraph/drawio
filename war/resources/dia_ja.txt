@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=ファイル
 filename=ファイル名
 fileExists=ファイルはすでに存在します。
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=ファイルが見つかりません
 fileNotFoundOrDenied=ファイルが見つかりません。存在しないかアクセス権限がありません。
 fileNotLoaded=ファイルが読み込まれません

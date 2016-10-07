@@ -36,9 +36,13 @@ Draw.loadPlugin(function(ui)
 
 	function isCellVisible(cell, tagList)
 	{
-		if (cell.value != null && typeof(cell.value) == 'object')
+		var visible = verbSelect.value == 'show';
+
+		if (tagList.length > 0 && cell.value != null && typeof(cell.value) == 'object')
 		{
 			var tags = cell.value.getAttribute('tags');
+			visible = verbSelect.value != 'show';
+			var allTags = true;
 			
 			if (tags != null && tags.length > 0)
 			{
@@ -46,20 +50,25 @@ Draw.loadPlugin(function(ui)
 				
 				for (var i = 0; i < tagList.length; i++)
 				{
-					if (mxUtils.indexOf(tmp, tagList[i]) >= 0)
+					if (tagList[i].length > 0)
 					{
-						return verbSelect.value != 'show';
+						allTags = allTags && mxUtils.indexOf(tmp, tagList[i]) >= 0;
 					}
 				}
 			}
+			
+			if (!allTags)
+			{
+				visible = !visible;
+			}			
 		}
 		
-		return verbSelect.value == 'show'
+		return visible;
 	};
 
 	function updateVisibleStates()
 	{	
-		var tagList = tagInput.value.split(' ');
+		var tagList = (mxUtils.trim(tagInput.value) == '') ? [] : tagInput.value.split(' ');
 		
 		graph.model.beginUpdate();
 		try
@@ -89,7 +98,8 @@ Draw.loadPlugin(function(ui)
 		updateVisibleStates();
 	});
 	
-	resetBtn.style.marginTop = '4px';
+	resetBtn.style.marginTop = '8px';
+	resetBtn.style.marginRight = '4px';
 	resetBtn.style.padding = '4px';
 	div.appendChild(resetBtn);
 
@@ -98,11 +108,24 @@ Draw.loadPlugin(function(ui)
 		updateVisibleStates();
 	});
 	
-	btn.style.marginTop = '4px';
+	btn.style.marginTop = '8px';
 	btn.style.padding = '4px';
 	div.appendChild(btn);
 	
+	mxEvent.addListener(verbSelect, 'change', function(e)
+	{
+		updateVisibleStates();
+		tagInput.focus();
+	});
 	
+	mxEvent.addListener(tagInput, 'keypress', function(e)
+	{
+		if (e.keyCode == 13 || e.keyCode == 32)
+		{
+			btn.click();
+		}
+	});
+
 	var wnd = new mxWindow('Tags', div, document.body.offsetWidth - 300, 140, 200, 120, true, true);
 	wnd.destroyOnClose = false;
 	wnd.setMaximizable(false);
@@ -113,9 +136,14 @@ Draw.loadPlugin(function(ui)
 	mxResources.parse('tags=Tags');
 
     // Adds action
-    ui.actions.addAction('tags', function()
+    ui.actions.addAction('tags...', function()
     {
-		wnd.setVisible(!wnd.isVisible());	
+		wnd.setVisible(!wnd.isVisible());
+		
+		if (wnd.isVisible())
+		{
+			tagInput.focus();	
+		}
     });
 	
 	var extrasMenu = ui.menus.get('extras');

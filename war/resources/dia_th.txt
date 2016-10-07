@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=ไฟล์
 filename=ชื่อไฟล์
 fileExists=ไฟล์นี้มีอยู่แล้ว
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=ไม่พบไฟล์
 fileNotFoundOrDenied=ไม่พบไฟล์นี้ ไฟล์นี้อาจจะไม่มีในระบบ หรือคุณไม่มิสิทธ์ในการเข้าอ่าน
 fileNotLoaded=ไฟล์ไม่ถูกโหลด

@@ -223,6 +223,7 @@ floorplans=Floorplans
 file=Soubor
 filename=Název souboru
 fileExists=Soubor již existuje
+fileNearlyFullSeeFaq=File nearly full, please see FAQ
 fileNotFound=Soubor nebyl nalezen
 fileNotFoundOrDenied=Soubor nebyl nalezen. Buď neexistuje a nebo nemáte k jeho čtení přístup.
 fileNotLoaded=Soubor nebyl nahrán
