@@ -152,15 +152,19 @@ public class GliffyDiagramConverter {
 	private void sortObjectsByOrder(Collection<Object> values) {
 		Collections.sort((List<Object>) values, new Comparator<Object>() {
 			public int compare(Object o1, Object o2) {
-				Integer o1o;
-				Integer o2o;
+				Float o1o;
+				Float o2o;
 				try {
-					o1o = Integer.parseInt(o1.order);
-					o2o = Integer.parseInt(o2.order);
+					if(o1.order == null || o2.order == null)
+						return 0;
+					
+					o1o = Float.parseFloat(o1.order);
+					o2o = Float.parseFloat(o2.order);
+					
 					return o1o.compareTo(o2o);
 				} catch (NumberFormatException e) {
-					return 0;
-				}
+					return o1.order.compareTo(o2.order);
+				} 
 
 			}
 		});

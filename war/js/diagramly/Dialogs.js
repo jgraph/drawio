@@ -4862,7 +4862,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 					if (editorUi.linkPicker == null)
 					{
 				    	var token = gapi.auth.getToken().access_token;
-						var view = new google.picker.DocsView()
+						var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+			        		.setParent('root')
+			        		.setIncludeFolders(true)
+			        		.setSelectFolderEnabled(true);
+				    	var view2 = new google.picker.DocsView()
 							.setIncludeFolders(true)
 				            .setSelectFolderEnabled(true);
 						var picker = new google.picker.PickerBuilder()
@@ -4870,6 +4874,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 							.setLocale(mxLanguage)
 							.setOAuthToken(token)
 						    .addView(view)
+							.addView(view2)
+							.addView(google.picker.ViewId.RECENTLY_PICKED)
 				            .addView(google.picker.ViewId.IMAGE_SEARCH)
 				            .addView(google.picker.ViewId.VIDEO_SEARCH)
 				            .addView(google.picker.ViewId.MAPS);

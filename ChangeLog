@@ -1,3 +1,7 @@
+13-OCT-2016: 5.7.1.3
+
+- Fixes mxFile import with page disabled
+
 07-OCT-2016: 5.7.1.2
 
 - Adds import for multiple pages

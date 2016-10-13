@@ -1,0 +1,422 @@
+<shapes name="mxGraph.rack.Dell">
+    <shape name="Dell PowerEdge 1U" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#888888"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#dddddd"/>
+            <path>
+                <move x="7" y="14.8"/>
+                <line x="7" y="0"/>
+                <line x="15" y="0"/>
+                <line x="15" y="3"/>
+                <line x="28" y="7"/>
+                <line x="34.4" y="7"/>
+                <line x="34.4" y="0"/>
+                <line x="38.4" y="0"/>
+                <line x="38.4" y="7"/>
+                <line x="63.8" y="7"/>
+                <line x="63.8" y="0"/>
+                <line x="67.8" y="0"/>
+                <line x="67.8" y="7"/>
+                <line x="93.2" y="7"/>
+                <line x="93.2" y="0"/>
+                <line x="97.2" y="0"/>
+                <line x="97.2" y="7"/>
+                <line x="122.6" y="7"/>
+                <line x="122.6" y="0"/>
+                <line x="126.6" y="0"/>
+                <line x="126.6" y="7"/>
+                <line x="133" y="7"/>
+                <line x="151" y="3"/>
+                <line x="151" y="0"/>
+                <line x="154" y="0"/>
+                <line x="154" y="14.8"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#ffffff"/>
+            <fillcolor color="#555555"/>
+            <ellipse x="75.68" y="2.69" w="9.34" h="9.42"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Dell PowerEdge 2U" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#888888"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#dddddd"/>
+            <path>
+                <move x="7" y="29.6"/>
+                <line x="7" y="0"/>
+                <line x="15" y="0"/>
+                <line x="15" y="3"/>
+                <line x="28" y="7"/>
+                <line x="34.4" y="7"/>
+                <line x="34.4" y="0"/>
+                <line x="38.4" y="0"/>
+                <line x="38.4" y="7"/>
+                <line x="63.8" y="7"/>
+                <line x="63.8" y="0"/>
+                <line x="67.8" y="0"/>
+                <line x="67.8" y="7"/>
+                <line x="93.2" y="7"/>
+                <line x="93.2" y="0"/>
+                <line x="97.2" y="0"/>
+                <line x="97.2" y="7"/>
+                <line x="122.6" y="7"/>
+                <line x="122.6" y="0"/>
+                <line x="126.6" y="0"/>
+                <line x="126.6" y="7"/>
+                <line x="133" y="7"/>
+                <line x="146" y="3"/>
+                <line x="146" y="0"/>
+                <line x="154" y="0"/>
+                <line x="154" y="29.6"/>
+                <line x="146" y="29.6"/>
+                <line x="146" y="26.6"/>
+                <line x="133" y="22.6"/>
+                <line x="126.6" y="22.6"/>
+                <line x="126.6" y="29.6"/>
+                <line x="122.6" y="29.6"/>
+                <line x="122.6" y="22.6"/>
+                <line x="97.2" y="22.6"/>
+                <line x="97.2" y="29.6"/>
+                <line x="93.2" y="29.6"/>
+                <line x="93.2" y="22.6"/>
+                <line x="67.8" y="22.6"/>
+                <line x="67.8" y="29.6"/>
+                <line x="63.8" y="29.6"/>
+                <line x="63.8" y="22.6"/>
+                <line x="38.4" y="22.6"/>
+                <line x="38.4" y="29.6"/>
+                <line x="34.4" y="29.6"/>
+                <line x="34.4" y="22.6"/>
+                <line x="28" y="22.6"/>
+                <line x="15" y="26.6"/>
+                <line x="15" y="29.6"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#ffffff"/>
+            <fillcolor color="#555555"/>
+            <ellipse x="75.68" y="10.09" w="9.34" h="9.42"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Dell PowerEdge 4U" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#888888"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#dddddd"/>
+            <path>
+                <move x="7" y="59.2"/>
+                <line x="7" y="0"/>
+                <line x="15" y="0"/>
+                <line x="15" y="3"/>
+                <line x="28" y="7"/>
+                <line x="34.4" y="7"/>
+                <line x="34.4" y="0"/>
+                <line x="38.4" y="0"/>
+                <line x="38.4" y="7"/>
+                <line x="63.8" y="7"/>
+                <line x="63.8" y="0"/>
+                <line x="67.8" y="0"/>
+                <line x="67.8" y="7"/>
+                <line x="93.2" y="7"/>
+                <line x="93.2" y="0"/>
+                <line x="97.2" y="0"/>
+                <line x="97.2" y="7"/>
+                <line x="122.6" y="7"/>
+                <line x="122.6" y="0"/>
+                <line x="126.6" y="0"/>
+                <line x="126.6" y="7"/>
+                <line x="133" y="7"/>
+                <line x="146" y="3"/>
+                <line x="146" y="0"/>
+                <line x="154" y="0"/>
+                <line x="154" y="59.2"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#ffffff"/>
+            <fillcolor color="#555555"/>
+            <ellipse x="75.68" y="13.79" w="9.34" h="9.42"/>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#888888"/>
+            <rect x="38.4" y="30" w="25.4" h="22"/>
+            <fillstroke/>
+            <path>
+                <move x="15" y="46"/>
+                <line x="15" y="36"/>
+                <line x="28" y="30"/>
+                <line x="34.4" y="30"/>
+                <line x="34.4" y="52"/>
+                <line x="28" y="52"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <rect x="67.8" y="30" w="25.4" h="22"/>
+            <fillstroke/>
+            <rect x="97.2" y="30" w="25.4" h="22"/>
+            <fillstroke/>
+            <path>
+                <move x="146" y="46"/>
+                <line x="146" y="36"/>
+                <line x="133" y="30"/>
+                <line x="126.6" y="30"/>
+                <line x="126.6" y="52"/>
+                <line x="133" y="52"/>
+                <close/>
+            </path>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Power Strip" h="14.85" w="160.8">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#d8d8d8"/>
+            <rect x="0" y="0" w="160.8" h="14.85"/>
+            <fillstroke/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="0.67" y="1.34" w="5" h="2" arcsize="34.95"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="11.36" w="5" h="2" arcsize="34.95"/>
+            <fillstroke/>
+            <roundrect x="154.6" y="1.34" w="5" h="2" arcsize="34.95"/>
+            <fillstroke/>
+            <roundrect x="154.6" y="11.36" w="5" h="2" arcsize="34.95"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <ellipse x="9.66" y="6.01" w="3.34" h="3.34"/>
+            <fill/>
+            <ellipse x="145.6" y="6.01" w="3.34" h="3.34"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#aaaaaa"/>
+            <rect x="36.32" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <rect x="52.2" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <rect x="68.08" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <rect x="84.08" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <rect x="99.96" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <rect x="116.51" y="3.01" w="12.99" h="9.02"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="42.32" y="5.01" w="5" h="1.67"/>
+            <fill/>
+            <rect x="42.98" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="38.32" y="7.02" w="2" h="1.67"/>
+            <fill/>
+            <rect x="54.2" y="7.13" w="2" h="1.67"/>
+            <fill/>
+            <rect x="58.86" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="58.2" y="5.01" w="5" h="1.67"/>
+            <fill/>
+            <rect x="70.08" y="7.02" w="2" h="1.67"/>
+            <fill/>
+            <rect x="74.75" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="74.08" y="5.01" w="5" h="1.67"/>
+            <fill/>
+            <rect x="86.08" y="7.02" w="2" h="1.67"/>
+            <fill/>
+            <rect x="90.74" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="90.07" y="5.01" w="5" h="1.67"/>
+            <fill/>
+            <rect x="101.96" y="7.02" w="2" h="1.67"/>
+            <fill/>
+            <rect x="106.62" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="105.96" y="5.01" w="5" h="1.67"/>
+            <fill/>
+            <rect x="118.51" y="7.02" w="2" h="1.67"/>
+            <fill/>
+            <rect x="123.17" y="8.69" w="3.33" h="1.67"/>
+            <fill/>
+            <rect x="122.5" y="5.01" w="5" h="1.67"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M1000e Enclosure" h="148.17" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="148.17"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="5.67" y="5" w="149.06" h="138.17"/>
+            <fillstroke/>
+            <path>
+                <move x="24.31" y="5"/>
+                <line x="24.31" y="143.17"/>
+                <move x="42.93" y="5"/>
+                <line x="42.93" y="143.17"/>
+                <move x="61.57" y="5"/>
+                <line x="61.57" y="143.17"/>
+                <move x="80.2" y="5"/>
+                <line x="80.2" y="143.17"/>
+                <move x="98.83" y="5"/>
+                <line x="98.83" y="143.17"/>
+                <move x="117.47" y="5"/>
+                <line x="117.47" y="143.17"/>
+                <move x="136.1" y="5"/>
+                <line x="136.1" y="143.17"/>
+                <move x="5.67" y="39.54"/>
+                <line x="154.73" y="39.54"/>
+                <move x="5.67" y="74.08"/>
+                <line x="154.73" y="74.08"/>
+                <move x="5.67" y="108.62"/>
+                <line x="154.73" y="108.62"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M420" h="35.54" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="35.54"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="8" w="4" h="4"/>
+            <stroke/>
+            <path>
+                <move x="13.5" y="2"/>
+                <line x="13.5" y="32"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M520" h="71.08" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="71.08"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="8" w="4" h="4"/>
+            <stroke/>
+            <rect x="10" y="36" w="7" h="30"/>
+            <stroke/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18.62" y="0"/>
+                <line x="18.62" y="71.08"/>
+                <line x="4" y="71.08"/>
+                <line x="0" y="67.08"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M610x" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="8" w="4" h="4"/>
+            <stroke/>
+            <rect x="10" y="36" w="7" h="30"/>
+            <stroke/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18.62" y="0"/>
+                <line x="18.62" y="142.16"/>
+                <line x="0" y="142.16"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M620" h="71.08" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="71.08"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="8" w="4" h="4"/>
+            <stroke/>
+            <rect x="10" y="36" w="7" h="30"/>
+            <stroke/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18.62" y="0"/>
+                <line x="18.62" y="71.08"/>
+                <line x="4" y="71.08"/>
+                <line x="0" y="67.08"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M820" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="8" w="4" h="4"/>
+            <stroke/>
+            <rect x="10" y="36" w="7" h="30"/>
+            <stroke/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18.62" y="0"/>
+                <line x="18.62" y="142.16"/>
+                <line x="0" y="142.16"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="PowerEdge M915" h="142.16" w="18.62">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="18.62" h="142.16"/>
+            <fillstroke/>
+            <rect x="10" y="2" w="7" h="30"/>
+            <stroke/>
+            <ellipse x="1" y="98" w="4" h="4"/>
+            <stroke/>
+            <rect x="10" y="110" w="7" h="30"/>
+            <stroke/>
+            <path>
+                <move x="0" y="4"/>
+                <line x="4" y="0"/>
+                <line x="18.62" y="0"/>
+                <line x="18.62" y="142.16"/>
+                <line x="0" y="142.16"/>
+                <close/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>
