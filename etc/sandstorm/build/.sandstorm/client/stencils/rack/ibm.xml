@@ -1,0 +1,605 @@
+<shapes name="mxGraph.rack.IBM">
+    <shape name="IBM 11000VA UPS" h="74" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="4" w="35" h="69"/>
+            <fill/>
+            <rect x="65" y="4" w="88" h="69"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="0" y="29.6"/>
+                <line x="160.9" y="29.6"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM 1500-2200VA UPS" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="4" w="35" h="25"/>
+            <fill/>
+            <rect x="65" y="4" w="88" h="25"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM 1754 Local Console Manager" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="15" y="2" w="40" h="11"/>
+            <fill/>
+            <rect x="106" y="2" w="40" h="11"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM 1U Flat Panel Console Kit" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+            <roundrect x="45" y="2.5" w="71" h="10" arcsize="28.52112676056338"/>
+            <stroke/>
+            <fillcolor color="#000000"/>
+            <roundrect x="58" y="5" w="45" h="5" arcsize="26.111111111111114"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM 3000VA UPS" h="44.4" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="44.4"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="44.4"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="4" w="35" h="39"/>
+            <fill/>
+            <rect x="65" y="4" w="88" h="39"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM 6000VA UPS" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="4" w="35" h="54"/>
+            <fill/>
+            <rect x="65" y="4" w="88" h="54"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="0" y="29.6"/>
+                <line x="160.9" y="29.6"/>
+            </path>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM dx360" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <path>
+                <move x="6" y="14.8"/>
+                <line x="155" y="14.8"/>
+                <move x="35" y="0"/>
+                <line x="35" y="29.6"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="1.5" w="9" h="12"/>
+            <fill/>
+            <rect x="24.5" y="1.5" w="9" h="12"/>
+            <fill/>
+            <rect x="8" y="16" w="9" h="12"/>
+            <fill/>
+            <rect x="24.5" y="16" w="9" h="12"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM UPS10000" h="88.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="17" w="120" h="26"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="6" y="8"/>
+                <line x="155" y="8"/>
+                <move x="130" y="0"/>
+                <line x="130" y="88.8"/>
+            </path>
+            <stroke/>
+            <rect x="7" y="9" w="122" h="6"/>
+            <stroke/>
+            <path>
+                <move x="6" y="44.4"/>
+                <line x="155" y="44.4"/>
+                <move x="6" y="52.4"/>
+                <line x="155" y="52.4"/>
+            </path>
+            <stroke/>
+            <rect x="7" y="53" w="122" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM UPS5000 HV" h="44.4" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="44.4"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="44.4"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="17" w="120" h="26"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="6" y="8"/>
+                <line x="155" y="8"/>
+                <move x="130" y="0"/>
+                <line x="130" y="44.4"/>
+            </path>
+            <stroke/>
+            <rect x="7" y="9" w="122" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM UPS7500" h="88.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="88.8"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="17" w="120" h="26"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <path>
+                <move x="6" y="8"/>
+                <line x="155" y="8"/>
+                <move x="130" y="0"/>
+                <line x="130" y="88.8"/>
+                <move x="6" y="44.4"/>
+                <line x="155" y="44.4"/>
+                <move x="6" y="52.4"/>
+                <line x="155" y="52.4"/>
+            </path>
+            <stroke/>
+            <rect x="7" y="9" w="122" h="6"/>
+            <stroke/>
+            <rect x="7" y="53" w="122" h="6"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3250 M4" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="72" y="5" w="35" h="7"/>
+            <stroke/>
+            <rect x="110" y="5" w="35" h="7"/>
+            <stroke/>
+            <rect x="17.75" y="9.12" w="44" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3530 M4" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="8" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="32" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="56" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="80" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="8" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="32" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="56" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="80" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="109" y="9" w="44" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3550 M4" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="14.8"/>
+            <fillstroke/>
+            <rect x="8" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="32" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="56" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="80" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="8" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="32" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="56" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="80" y="8.5" w="22" h="5"/>
+            <stroke/>
+            <rect x="109" y="9" w="44" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3630 M3" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="9" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="9" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="81" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="117" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="81" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="117" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="9" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="81" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="117" y="20" w="34" h="7"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3630 M4" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="9" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="81" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="117" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="9" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="9" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="11" w="34" h="7"/>
+            <stroke/>
+            <rect x="45" y="20" w="34" h="7"/>
+            <stroke/>
+            <rect x="109" y="24" w="44" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3650 M4" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="58" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="64" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="40" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="70" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="76" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="82" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="88" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="94" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="34" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="100" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="52" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="46" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="10" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="16" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="22" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="28" y="3" w="5" h="24"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3690" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="58" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="64" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="40" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="70" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="76" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="82" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="88" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="94" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="34" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="100" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="52" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="46" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="10" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="16" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="22" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="28" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="110" y="23" w="40" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3750" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="9" y="23" w="35" h="4"/>
+            <stroke/>
+            <rect x="60" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="66" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="120" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="72" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="78" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="84" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="90" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="96" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="126" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="102" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="108" y="3" w="5" h="24"/>
+            <stroke/>
+            <rect x="114" y="3" w="5" h="24"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="1" w="45" h="10"/>
+            <fill/>
+            <rect x="133" y="1.62" w="20.12" h="24.38"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3755 M3" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+            <rect x="15" y="21" w="34" h="7"/>
+            <stroke/>
+            <rect x="59" y="21" w="34" h="7"/>
+            <stroke/>
+            <rect x="103" y="21" w="34" h="7"/>
+            <stroke/>
+            <rect x="15" y="11.5" w="34" h="7"/>
+            <stroke/>
+            <rect x="15" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="59" y="11.5" w="34" h="7"/>
+            <stroke/>
+            <rect x="59" y="2" w="34" h="7"/>
+            <stroke/>
+            <rect x="103" y="11.5" w="34" h="7"/>
+            <stroke/>
+            <rect x="103" y="5" w="40" h="4"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="8" y="1.5" w="5" h="27"/>
+            <fill/>
+            <rect x="51.5" y="1.5" w="5" h="27"/>
+            <fill/>
+            <rect x="95.5" y="1.5" w="5" h="27"/>
+            <fill/>
+            <path>
+                <move x="145" y="4"/>
+                <line x="153" y="4"/>
+                <line x="153" y="28"/>
+                <line x="139" y="28"/>
+                <line x="139" y="13"/>
+                <line x="145" y="13"/>
+                <close/>
+            </path>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3850 X5" h="59.3" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="59.3"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="59.3"/>
+            <fillstroke/>
+            <rect x="115" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="9" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="16" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="23" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="30" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="37" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="44" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="51" w="22" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="7.8" y="1.6" w="102.2" h="49.6"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="8" y="53" w="40" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="IBM x3950 X5" h="59.3" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.85" h="59.3"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="59.3"/>
+            <fillstroke/>
+            <rect x="115" y="2" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="9" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="16" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="23" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="30" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="37" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="44" w="22" h="5"/>
+            <stroke/>
+            <rect x="115" y="51" w="22" h="5"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="7.8" y="1.6" w="102.2" h="49.6"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="8" y="53" w="40" h="4"/>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>

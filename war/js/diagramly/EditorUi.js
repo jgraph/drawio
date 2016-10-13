@@ -2382,7 +2382,7 @@
 				var doc = mxUtils.parseXml(xml);
 				
 				// Checks for mxfile with multiple pages
-				var node = this.editor.extractGraphModel(doc.documentElement, true);
+				var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
 				
 				if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 				{
