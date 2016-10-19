@@ -1637,6 +1637,43 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 };
 
 /**
+ * Returns all labels in the diagram as a string.
+ */
+Graph.prototype.getIndexableText = function()
+{
+	var tmp = document.createElement('div');
+	var labels = [];
+	var label = '';
+	
+	for (var key in this.model.cells)
+	{
+		var cell = this.model.cells[key];
+		
+		if (this.model.isVertex(cell) || this.model.isEdge(cell))
+		{
+			if (this.isHtmlLabel(cell))
+			{
+				tmp.innerHTML = this.getLabel(cell);
+				label = mxUtils.extractTextWithWhitespace([tmp]);
+			}
+			else
+			{					
+				label = this.getLabel(cell);
+			}
+
+			label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' '));
+			
+			if (label.length > 0)
+			{
+				labels.push(label);
+			}
+		}
+	}
+	
+	return labels.join(' ');
+};
+
+/**
  * Returns the label for the given cell.
  */
 Graph.prototype.convertValueToString = function(cell)

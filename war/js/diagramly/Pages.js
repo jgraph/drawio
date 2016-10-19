@@ -356,6 +356,12 @@ EditorUi.prototype.initPages = function()
 			}
 		}
 	}));
+	
+	// Updates zoom in toolbar
+	if (this.toolbar != null)
+	{
+		this.editor.addListener('pageSelected', this.toolbar.updateZoom);
+	}
 };
 
 /**
@@ -386,6 +392,7 @@ Graph.prototype.createViewState = function(node)
 				parseFloat(pw), parseFloat(ph)) : this.pageFormat,
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
+		arrows: node.getAttribute('arrows') != '0',
 		mathEnabled: node.getAttribute('math') != '0',
 		selectionCells: null,
 		defaultParent: null,
@@ -414,8 +421,9 @@ Graph.prototype.getViewState = function()
 		backgroundImage: this.backgroundImage,
 		pageScale: this.pageScale,
 		pageFormat: this.pageFormat,
-		tooltips: this.tooltipHandler.isEnabled() ? '1' : '0',
-		connect: this.connectionHandler.isEnabled() ? '1' : '0',	
+		tooltips: this.tooltipHandler.isEnabled(),
+		connect: this.connectionHandler.isEnabled(),
+		arrows: this.connectionArrowsEnabled,
 		scale: this.view.scale,
 		scrollLeft: this.container.scrollLeft,
 		scrollTop: this.container.scrollTop,
@@ -451,6 +459,7 @@ Graph.prototype.setViewState = function(state)
 		this.view.scale = state.scale;
 		this.view.currentRoot = state.currentRoot;
 		this.defaultParent = state.defaultParent;
+		this.connectionArrowsEnabled = state.arrows;
 		this.setTooltips(state.tooltips);
 		this.setConnectable(state.connect);
 		
@@ -458,18 +467,33 @@ Graph.prototype.setViewState = function(state)
 		{
 			this.view.translate = state.translate;
 		}
-
-		// Implicit settings
-		this.pageBreaksVisible = this.pageVisible; 
-		this.preferPageSize = this.pageVisible;
 	}
 	else
 	{
 		this.view.currentRoot = null;
+		this.view.scale = 1;
+		this.gridEnabled = true;
+		this.gridSize = mxGraph.prototype.gridSize;
+		this.pageScale = mxGraph.prototype.pageScale;
+		this.pageFormat = mxSettings.getPageFormat();
+		this.pageVisible = this.defaultPageVisible;
+		this.background = this.defaultGraphBackground;
+		this.backgroundImage = null;
+		this.scrollbars = this.defaultScrollbars;
+		this.graphHandler.guidesEnabled = true;
+		this.foldingEnabled = true;
+		this.defaultParent = null;
+		this.setTooltips(true);
+		this.setConnectable(true);
 		this.lastPasteXml = null;
 		this.pasteCounter = 0;
 		this.mathEnabled = false;
+		this.connectionArrowsEnabled = true;
 	}
+	
+	// Implicit settings
+	this.pageBreaksVisible = this.pageVisible; 
+	this.preferPageSize = this.pageVisible;
 };
 
 /**
