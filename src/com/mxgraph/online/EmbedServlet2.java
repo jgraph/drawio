@@ -81,7 +81,56 @@ public class EmbedServlet2 extends HttpServlet
 			lastModified = httpDateFormat.format(uploadDate);
 		}
 
-		EmbedServlet.initLibraries(libraries);
+		initLibraries(libraries);
+	}
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public static void initLibraries(HashMap<String, String[]> libraries)
+	{
+		libraries.put("bpmn", new String[] { "/shapes/bpmn/mxBpmnShape2.js",
+				"/stencils/bpmn.xml" });
+		libraries.put("er", new String[] { "/shapes/er/mxER.js" });
+		libraries.put("ios", new String[] { "/shapes/mockup/mxMockupiOS.js" });
+		libraries.put("ios7", new String[] { "/stencils/ios7.xml" });
+		libraries.put("android", new String[] { "/shapes/mxAndroid.js",
+				"/stencils/android/android.xml" });
+		libraries.put("lean_mapping", new String[] { "/shapes/mxLeanMap.js",
+				"/stencils/lean_mapping.xml" });
+		// Required for anchor shape which follows non-standard naming scheme (see Sidebar.js)
+		libraries.put("mockup",
+				new String[] { "/shapes/mockup/mxMockupButtons.js" });
+		libraries.put("mockup/buttons",
+				new String[] { "/shapes/mockup/mxMockupButtons.js" });
+		libraries.put("mockup/containers",
+				new String[] { "/shapes/mockup/mxMockupContainers.js" });
+		libraries.put("mockup/forms",
+				new String[] { "/shapes/mockup/mxMockupForms.js" });
+		libraries.put("mockup/graphics", new String[] {
+				"/shapes/mockup/mxMockupGraphics.js",
+				"/stencils/mockup/misc.xml" });
+		libraries.put("mockup/markup",
+				new String[] { "/shapes/mockup/mxMockupMarkup.js" });
+		libraries
+				.put("mockup/misc", new String[] {
+						"/shapes/mockup/mxMockupMisc.js",
+						"/stencils/mockup/misc.xml" });
+		libraries.put("mockup/navigation", new String[] {
+				"/shapes/mockup/mxMockupNavigation.js",
+				"/stencils/mockup/misc.xml" });
+		libraries.put("mockup/text",
+				new String[] { "/shapes/mockup/mxMockupText.js" });
+		libraries.put("pid2inst",
+				new String[] { "/shapes/pid2/mxPidInstruments.js" });
+		libraries.put("pid2misc", new String[] { "/shapes/pid2/mxPidMisc.js",
+				"/stencils/pid/misc.xml" });
+		libraries.put("pid2valves",
+				new String[] { "/shapes/pid2/mxPidValves.js" });
+		libraries.put("floorplan", new String[] { "/shapes/mxFloorplan.js",
+				"/stencils/floorplan.xml" });
+		libraries.put("archimate", new String[] { "/shapes/mxArchiMate.js" });
+		libraries.put("azure", new String[] { "/stencils/azure.xml" });
 	}
 
 	/**
