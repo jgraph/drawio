@@ -2953,10 +2953,11 @@ var ParseDialog = function(editorUi, title)
 			var bds = editorUi.editor.graph.getGraphBounds();
 			
 			// Computes unscaled, untranslated graph bounds
-			var x = Math.max(0, bds.x / view.scale - view.translate.x) + graph.gridSize;
-			var y = Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize;
+			var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + graph.gridSize);
+			var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
 			editorUi.editor.graph.setSelectionCells(editorUi.editor.graph.importCells(
 					graph.getModel().getChildren(graph.getDefaultParent()), x, y));
+			editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
 			
 			graph.destroy();
 			container.parentNode.removeChild(container);

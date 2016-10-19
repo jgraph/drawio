@@ -1057,21 +1057,26 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 	mxEvent.addListener(div, 'click', function(evt)
 	{
-		// Toggles checkbox state for click on label
-		if (mxEvent.getSource(evt) != cb)
-		{
-			cb.checked = !cb.checked;
-		}
-
-		// Overrides default value with current value to make it easier
-		// to restore previous value if the checkbox is clicked twice
-		if (!cb.checked && value != null && value != mxConstants.NONE &&
-			defaultColor != mxConstants.NONE)
-		{
-			defaultColor = value;
-		}
+		var source = mxEvent.getSource(evt);
 		
-		apply((cb.checked) ? defaultColor : mxConstants.NONE);
+		if (source == cb || source.nodeName != 'INPUT')
+		{		
+			// Toggles checkbox state for click on label
+			if (source != cb)
+			{
+				cb.checked = !cb.checked;
+			}
+	
+			// Overrides default value with current value to make it easier
+			// to restore previous value if the checkbox is clicked twice
+			if (!cb.checked && value != null && value != mxConstants.NONE &&
+				defaultColor != mxConstants.NONE)
+			{
+				defaultColor = value;
+			}
+			
+			apply((cb.checked) ? defaultColor : mxConstants.NONE);
+		}
 	});
 	
 	apply(value, true);

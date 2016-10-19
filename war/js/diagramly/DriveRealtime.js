@@ -830,24 +830,8 @@ DriveRealtime.prototype.installPageSelectListener = function()
 		// Applies view state from realtime model without firing events
 		if (page.viewState == null)
 		{
-			// Resets part of the view that is in view state but not in realtime model
-			// via activate and not in setViewState (if state is null)
-			var graph = this.ui.editor.graph;
-			graph.view.scale = 1;
-			graph.gridEnabled = !this.ui.editor.chromeless || urlParams['grid'] == '1';
-			graph.gridSize = mxGraph.prototype.gridSize;
-			graph.pageScale = mxGraph.prototype.pageScale;
-			graph.pageVisible = this.ui.editor.graph.defaultPageVisible;
-			graph.scrollbars = this.ui.editor.graph.defaultScrollbars;
-			graph.graphHandler.guidesEnabled = true;
-			graph.defaultParent = null;
-			graph.setTooltips(true);
-			graph.setConnectable(true);
-			graph.setTooltips(true);
-			
-			// Actives from realtime without calling event listeners
+			// Activates from realtime without calling event listeners
 			page.mapping.activate(true);
-			this.ui.resetScrollbars();
 		}
 	});
 	

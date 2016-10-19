@@ -148,7 +148,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
-	'tags': '/plugins/tags.js'};
+	'tags': '/plugins/tags.js', 'sql': '/plugins/sql.js'};
 
 /**
  * Function: authorize
