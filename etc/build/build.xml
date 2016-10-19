@@ -363,7 +363,7 @@
 		<fileset dir="${basedir}/jars" includes="gson-2.7.jar" />
 	</path>
 
-	<target name="javac">
+	<target name="javac" depends="app" description="Java compilation">
 		<mkdir dir="${javac.dir}"/>
 		<javac srcdir="${src.dir}" excludes="**/EmbedServlet2.java" encoding="utf-8" destdir="${javac.dir}" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source">
 			<classpath refid="javac.class.path" />
@@ -375,7 +375,7 @@
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
 	</target>
 
-	<target name="clean-war" depends="javac" description="Create the stand-alone war file">
+	<target name="clean" description="Cleans build directories">
 		<delete failonerror="false">
 			<fileset dir="${javac.dir}">
 			</fileset>
