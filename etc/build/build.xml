@@ -54,8 +54,8 @@
 		
 		<delete file="Graph-Stylesheet.js"/>
 		<echo file="Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
-		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="yes">
-			<file name=".tmp1.xml" />
+		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="true">
+			<file name="${basedir}/.tmp1.xml" />
     	</concat>
 		<echo file="Graph-Stylesheet.js" append="true">').documentElement;</echo>
 
