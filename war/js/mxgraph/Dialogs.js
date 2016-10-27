@@ -475,156 +475,20 @@ var PageSetupDialog = function(editorUi)
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
+	td.style.verticalAlign = 'top';
 	td.style.fontSize = '10pt';
 	mxUtils.write(td, mxResources.get('paperSize') + ':');
 	
 	row.appendChild(td);
-
-	var portraitCheckBox = document.createElement('input');
-	portraitCheckBox.setAttribute('name', 'format');
-	portraitCheckBox.setAttribute('type', 'radio');
-	portraitCheckBox.setAttribute('value', 'portrait');
-	
-	var landscapeCheckBox = document.createElement('input');
-	landscapeCheckBox.setAttribute('name', 'format');
-	landscapeCheckBox.setAttribute('type', 'radio');
-	landscapeCheckBox.setAttribute('value', 'landscape');
-	
-	var formatRow = document.createElement('tr');
-	formatRow.style.display = 'none';
-	
-	var customRow = document.createElement('tr');
-	customRow.style.display = 'none';
-	
-	// Adds all papersize options
-	var paperSizeSelect = document.createElement('select');
-	var detected = false;
-	var pf = new Object();
-	var formats = PageSetupDialog.getFormats();
-
-	for (var i = 0; i < formats.length; i++)
-	{
-		var f = formats[i];
-		pf[f.key] = f;
-
-		var paperSizeOption = document.createElement('option');
-		paperSizeOption.setAttribute('value', f.key);
-		mxUtils.write(paperSizeOption, f.title);
-		paperSizeSelect.appendChild(paperSizeOption);
-		
-		if (f.format != null)
-		{
-			if (graph.pageFormat.width == f.format.width && graph.pageFormat.height == f.format.height)
-			{
-				paperSizeOption.setAttribute('selected', 'selected');
-				portraitCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
-				formatRow.style.display = '';
-				detected = true;
-			}
-			else if (graph.pageFormat.width == f.format.height && graph.pageFormat.height == f.format.width)
-			{
-				paperSizeOption.setAttribute('selected', 'selected');
-				landscapeCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
-				formatRow.style.display = '';
-				detected = true;
-			}
-		}
-		// Selects custom format which is last in list
-		else if (!detected)
-		{
-			paperSizeOption.setAttribute('selected', 'selected');
-			customRow.style.display = '';
-		}
-	}
 	
 	td = document.createElement('td');
+	td.style.verticalAlign = 'top';
 	td.style.fontSize = '10pt';
-	td.appendChild(paperSizeSelect);
+	
+	var accessor = PageSetupDialog.addPageFormatPanel(td, 'pagesetupdialog', graph.pageFormat);
+
 	row.appendChild(td);
-	
 	tbody.appendChild(row);
-	
-	formatRow = document.createElement('tr');
-	formatRow.style.height = '40px';
-	td = document.createElement('td');
-	formatRow.appendChild(td);
-
-	td = document.createElement('td');
-	td.style.fontSize = '10pt';
-	
-	td.appendChild(portraitCheckBox);
-	var span = document.createElement('span');
-	mxUtils.write(span, ' ' + mxResources.get('portrait'));
-	td.appendChild(span);
-	
-	mxEvent.addListener(span, 'click', function(evt)
-	{
-		portraitCheckBox.checked = true;
-		mxEvent.consume(evt);
-	});
-	
-	landscapeCheckBox.style.marginLeft = '10px';
-	td.appendChild(landscapeCheckBox);
-	
-	var span = document.createElement('span');
-	mxUtils.write(span, ' ' + mxResources.get('landscape'));
-	td.appendChild(span);
-	
-	mxEvent.addListener(span, 'click', function(evt)
-	{
-		landscapeCheckBox.checked = true;
-		mxEvent.consume(evt);
-	});
-
-	formatRow.appendChild(td);
-	
-	tbody.appendChild(formatRow);
-	row = document.createElement('tr');
-	
-	td = document.createElement('td');
-	customRow.appendChild(td);
-
-	td = document.createElement('td');
-	td.style.fontSize = '10pt';
-	
-	var widthInput = document.createElement('input');
-	widthInput.setAttribute('size', '6');
-	widthInput.setAttribute('value', graph.pageFormat.width);
-	td.appendChild(widthInput);
-	mxUtils.write(td, ' x ');
-	
-	var heightInput = document.createElement('input');
-	heightInput.setAttribute('size', '6');
-	heightInput.setAttribute('value', graph.pageFormat.height);
-	td.appendChild(heightInput);
-	mxUtils.write(td, ' pt');
-	
-	customRow.appendChild(td);
-	customRow.style.height = formatRow.style.height;
-	tbody.appendChild(customRow);
-	
-	var updateInputs = function()
-	{
-		var f = pf[paperSizeSelect.value];
-		
-		if (f.format != null)
-		{
-			widthInput.value = f.format.width;
-			heightInput.value = f.format.height;
-			customRow.style.display = 'none';
-			formatRow.style.display = '';
-		}
-		else
-		{
-			formatRow.style.display = 'none';
-			customRow.style.display = '';
-		}
-	};
-	
-	mxEvent.addListener(paperSizeSelect, 'change', updateInputs);
-	updateInputs();
 	
 	row = document.createElement('tr');
 	
@@ -765,21 +629,7 @@ var PageSetupDialog = function(editorUi)
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
-		var ls = landscapeCheckBox.checked;
-		var f = pf[paperSizeSelect.value];
-		var size = f.format;
-		
-		if (size == null)
-		{
-			size = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
-		}
-		
-		if (ls)
-		{
-			size = new mxRectangle(0, 0, size.height, size.width);
-		}
-
-		editorUi.setPageFormat(size);
+		editorUi.setPageFormat(accessor.get());
 		
 		if (graph.background != newBackgroundColor)
 		{
@@ -809,6 +659,234 @@ var PageSetupDialog = function(editorUi)
 	
 	table.appendChild(tbody);
 	this.container = table;
+};
+
+/**
+ * 
+ */
+PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, pageFormatListener)
+{
+	var formatName = 'format-' + namePostfix;
+	
+	var portraitCheckBox = document.createElement('input');
+	portraitCheckBox.setAttribute('name', formatName);
+	portraitCheckBox.setAttribute('type', 'radio');
+	portraitCheckBox.setAttribute('value', 'portrait');
+	
+	var landscapeCheckBox = document.createElement('input');
+	landscapeCheckBox.setAttribute('name', formatName);
+	landscapeCheckBox.setAttribute('type', 'radio');
+	landscapeCheckBox.setAttribute('value', 'landscape');
+	
+	var paperSizeSelect = document.createElement('select');
+	paperSizeSelect.style.marginBottom = '8px';
+	paperSizeSelect.style.width = '202px';
+
+	var formatDiv = document.createElement('div');
+	formatDiv.style.marginLeft = '4px';
+	formatDiv.style.width = '210px';
+	formatDiv.style.height = '24px';
+
+	portraitCheckBox.style.marginRight = '6px';
+	formatDiv.appendChild(portraitCheckBox);
+	
+	var portraitSpan = document.createElement('span');
+	portraitSpan.style.maxWidth = '100px';
+	mxUtils.write(portraitSpan, mxResources.get('portrait'));
+	formatDiv.appendChild(portraitSpan);
+
+	landscapeCheckBox.style.marginLeft = '10px';
+	landscapeCheckBox.style.marginRight = '6px';
+	formatDiv.appendChild(landscapeCheckBox);
+	
+	var landscapeSpan = document.createElement('span');
+	landscapeSpan.style.width = '100px';
+	mxUtils.write(landscapeSpan, mxResources.get('landscape'));
+	formatDiv.appendChild(landscapeSpan)
+
+	var customDiv = document.createElement('div');
+	customDiv.style.marginLeft = '4px';
+	customDiv.style.width = '210px';
+	customDiv.style.height = '24px';
+	
+	var widthInput = document.createElement('input');
+	widthInput.setAttribute('size', '6');
+	widthInput.setAttribute('value', pageFormat.width);
+	customDiv.appendChild(widthInput);
+	mxUtils.write(customDiv, ' x ');
+	
+	var heightInput = document.createElement('input');
+	heightInput.setAttribute('size', '6');
+	heightInput.setAttribute('value', pageFormat.height);
+	customDiv.appendChild(heightInput);
+	mxUtils.write(customDiv, ' pt');
+
+	formatDiv.style.display = 'none';
+	customDiv.style.display = 'none';
+	
+	var pf = new Object();
+	var formats = PageSetupDialog.getFormats();
+	
+	for (var i = 0; i < formats.length; i++)
+	{
+		var f = formats[i];
+		pf[f.key] = f;
+
+		var paperSizeOption = document.createElement('option');
+		paperSizeOption.setAttribute('value', f.key);
+		mxUtils.write(paperSizeOption, f.title);
+		paperSizeSelect.appendChild(paperSizeOption);
+	}
+	
+	var customSize = false;
+	
+	function listener(sender, evt, force)
+	{
+		if (force || (widthInput != document.activeElement && heightInput != document.activeElement))
+		{
+			var detected = false;
+			
+			for (var i = 0; i < formats.length; i++)
+			{
+				var f = formats[i];
+	
+				// Special case where custom was chosen
+				if (customSize)
+				{
+					if (f.key == 'custom')
+					{
+						paperSizeSelect.value = f.key;
+						customSize = false;
+					}
+				}
+				else if (f.format != null)
+				{
+					if (pageFormat.width == f.format.width && pageFormat.height == f.format.height)
+					{
+						paperSizeSelect.value = f.key;
+						portraitCheckBox.setAttribute('checked', 'checked');
+						portraitCheckBox.defaultChecked = true;
+						portraitCheckBox.checked = true;
+						landscapeCheckBox.removeAttribute('checked');
+						landscapeCheckBox.defaultChecked = false;
+						landscapeCheckBox.checked = false;
+						detected = true;
+					}
+					else if (pageFormat.width == f.format.height && pageFormat.height == f.format.width)
+					{
+						paperSizeSelect.value = f.key;
+						portraitCheckBox.removeAttribute('checked');
+						portraitCheckBox.defaultChecked = false;
+						portraitCheckBox.checked = false;
+						landscapeCheckBox.setAttribute('checked', 'checked');
+						landscapeCheckBox.defaultChecked = true;
+						landscapeCheckBox.checked = true;
+						detected = true;
+					}
+				}
+			}
+			
+			// Selects custom format which is last in list
+			if (!detected)
+			{
+				widthInput.value = pageFormat.width;
+				heightInput.value = pageFormat.height;
+				paperSizeOption.setAttribute('selected', 'selected');
+				portraitCheckBox.setAttribute('checked', 'checked');
+				portraitCheckBox.defaultChecked = true;
+				formatDiv.style.display = 'none';
+				customDiv.style.display = '';
+			}
+			else
+			{
+				formatDiv.style.display = '';
+				customDiv.style.display = 'none';
+			}
+		}
+	};
+	listener();
+
+	div.appendChild(paperSizeSelect);
+	mxUtils.br(div);
+
+	div.appendChild(formatDiv);
+	div.appendChild(customDiv);
+	
+	var currentPageFormat = pageFormat;
+	
+	var update = function()
+	{
+		var f = pf[paperSizeSelect.value];
+		
+		if (f.format != null)
+		{
+			widthInput.value = f.format.width;
+			heightInput.value = f.format.height;
+			customDiv.style.display = 'none';
+			formatDiv.style.display = '';
+		}
+		else
+		{
+			formatDiv.style.display = 'none';
+			customDiv.style.display = '';
+		}
+		
+		var newPageFormat = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
+		
+		if (paperSizeSelect.value != 'custom' && landscapeCheckBox.checked)
+		{
+			newPageFormat = new mxRectangle(0, 0, newPageFormat.height, newPageFormat.width);
+		}
+		
+		if (newPageFormat.width != currentPageFormat.width || newPageFormat.height != currentPageFormat.height)
+		{
+			currentPageFormat = newPageFormat;
+			
+			if (pageFormatListener != null)
+			{
+				pageFormatListener(currentPageFormat);
+			}
+		}
+	};
+
+	mxEvent.addListener(portraitSpan, 'click', function(evt)
+	{
+		portraitCheckBox.checked = true;
+		update();
+		mxEvent.consume(evt);
+	});
+	
+	mxEvent.addListener(landscapeSpan, 'click', function(evt)
+	{
+		landscapeCheckBox.checked = true;
+		update();
+		mxEvent.consume(evt);
+	});
+	
+	mxEvent.addListener(widthInput, 'blur', update);
+	mxEvent.addListener(widthInput, 'click', update);
+	mxEvent.addListener(heightInput, 'blur', update);
+	mxEvent.addListener(heightInput, 'click', update);
+	mxEvent.addListener(landscapeCheckBox, 'change', update);
+	mxEvent.addListener(portraitCheckBox, 'change', update);
+	mxEvent.addListener(paperSizeSelect, 'change', function()
+	{
+		// Handles special case where custom was chosen
+		customSize = paperSizeSelect.value == 'custom';
+		update();
+	});
+	
+	update();
+	
+	return {set: function(value)
+	{
+		pageFormat = value;
+		listener(null, null, true);
+	},get: function()
+	{
+		return currentPageFormat;
+	}, widthInput: widthInput,
+	heightInput: heightInput};
 };
 
 /**
@@ -998,7 +1076,13 @@ PrintDialog.prototype.create = function(editorUi)
 			autoOrigin = true;
 		}
 		
-		return PrintDialog.showPreview(PrintDialog.createPrintPreview(graph, scale, pf, border, x0, y0, autoOrigin, print), print);
+		var preview = PrintDialog.createPrintPreview(graph, scale, pf, border, x0, y0, autoOrigin);
+		preview.open();
+	
+		if (print)
+		{
+			PrintDialog.printPreview(preview);
+		}
 	};
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -1046,17 +1130,15 @@ PrintDialog.prototype.create = function(editorUi)
 /**
  * Constructs a new print dialog.
  */
-PrintDialog.showPreview = function(preview, print)
+PrintDialog.printPreview = function(preview)
 {
-	var result = preview.open();
-	
-	if (print && result != null)
+	if (preview.wnd != null)
 	{
-		var print = function()
+		var printFn = function()
 		{
-			result.focus();
-			result.print();
-			result.close();
+			preview.wnd.focus();
+			preview.wnd.print();
+			preview.wnd.close();
 		};
 		
 		// Workaround for Google Chrome which needs a bit of a
@@ -1064,15 +1146,13 @@ PrintDialog.showPreview = function(preview, print)
 		// Needs testing in production
 		if (mxClient.IS_GC)
 		{
-			window.setTimeout(print, 500);
+			window.setTimeout(printFn, 500);
 		}
 		else
 		{
-			print();
+			printFn();
 		}
 	}
-	
-	return result;
 };
 
 /**

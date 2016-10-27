@@ -99,6 +99,10 @@ RealtimeMapping.prototype.init = function()
 				{
 					this.realtimeFoldingEnabledChanged(evt.newValue);
 				}
+				else if (evt.property == 'pageVisible')
+				{
+					this.realtimePageVisibleChanged(evt.newValue);
+				}
 				else if (evt.property == 'backgroundImage')
 				{
 					this.realtimeBackgroundImageChanged(evt.newValue);
@@ -113,7 +117,8 @@ RealtimeMapping.prototype.init = function()
 			if (evt.newValue != null && (evt.property == 'pageFormat' ||
 				evt.property == 'pageScale' || evt.property == 'shadowVisible' ||
 				evt.property == 'backgroundColor' || evt.property == 'foldingEnabled' ||
-				evt.property == 'backgroundImage' || evt.property == 'mathEnabled'))
+				evt.property == 'backgroundImage' || evt.property == 'mathEnabled' ||
+				evt.property == 'pageVisible'))
 			{
 				this.needsUpdate = true;
 			}
@@ -280,6 +285,7 @@ RealtimeMapping.prototype.writeNodeToRealtime = function(node)
 	this.diagramMap.set('foldingEnabled', node.getAttribute('fold'));
 	this.diagramMap.set('mathEnabled', node.getAttribute('math'));
 	this.diagramMap.set('pageScale', node.getAttribute('pageScale'));
+	this.diagramMap.set('pageVisible', node.getAttribute('pageVisible'));
 	
 	var img = node.getAttribute('backgroundImage');
 	
@@ -310,6 +316,7 @@ RealtimeMapping.prototype.activate = function(quiet)
 	this.realtimeBackgroundColorChanged(this.diagramMap.get('backgroundColor'), quiet);
 	this.realtimeShadowVisibleChanged(this.diagramMap.get('shadowVisible'), quiet);
 	this.realtimeFoldingEnabledChanged(this.diagramMap.get('foldingEnabled'), quiet);
+	this.realtimePageVisibleChanged(this.diagramMap.get('pageVisible'), quiet);
 	this.realtimeBackgroundImageChanged(this.diagramMap.get('backgroundImage'), quiet);
 };
 
@@ -332,13 +339,19 @@ RealtimeMapping.prototype.initRealtime = function()
 		}
 		else
 		{
-			this.diagramMap.set('shadowVisible', (this.graph.shadowVisible) ? '1' : '0');
-			this.diagramMap.set('foldingEnabled', (this.graph.foldingEnabled) ? '1' : '0');
-			this.diagramMap.set('mathEnabled', (this.graph.mathEnabled) ? '1' : '0');			
+			var vs = this.page.viewState;
+			var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
+			
+			this.diagramMap.set('shadowVisible', (vs != null && vs.shadowVisible) ? '1' : '0');
+			this.diagramMap.set('foldingEnabled', (vs != null && !vs.foldingEnabled) ? '0' : '1');
+			this.diagramMap.set('mathEnabled', (vs != null && vs.mathEnabled) ? '1' : '0');
 			this.diagramMap.set('pageScale', this.graph.pageScale);
-			this.diagramMap.set('backgroundImage', (this.graph.backgroundImage != null) ? JSON.stringify(this.graph.backgroundImage) : '');
-			this.diagramMap.set('backgroundColor', (this.graph.background != null) ? this.graph.background : '');
-			this.diagramMap.set('pageFormat', this.graph.pageFormat.width + ',' + this.graph.pageFormat.height);
+			this.diagramMap.set('pageVisible', (vs != null && !vs.pageVisible) ? '0' : '1');
+			this.diagramMap.set('pageFormat', pf.width + ',' + pf.height);
+			this.diagramMap.set('backgroundImage', (vs != null && vs.backgroundImage != null) ?
+				JSON.stringify(vs.backgroundImage) : '');
+			this.diagramMap.set('backgroundColor', (vs != null && vs.background != null) ?
+				this.graph.background : '');
 		}
 		
 		this.root.set('modifiedDate', new Date().getTime());
@@ -965,6 +978,32 @@ RealtimeMapping.prototype.realtimeFoldingEnabledChanged = function(value, quiet)
 		this.driveRealtime.ignoreFoldingEnabledChanged = true;
 		this.ui.setFoldingEnabled(value == '1');
 		this.driveRealtime.ignoreFoldingEnabledChanged = false;
+	}
+};
+
+/**
+ * Syncs initial state from collab model to graph model.
+ */
+RealtimeMapping.prototype.realtimePageVisibleChanged = function(value, quiet)
+{
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.pageVisible = value != '0';
+		}
+	}
+	else if (quiet)
+	{
+		this.graph.pageVisible = value != '0';
+		this.graph.pageBreaksVisible = this.graph.pageVisible; 
+		this.graph.preferPageSize = this.graph.pageVisible;
+	}
+	else
+	{
+		this.driveRealtime.ignorePageVisibleChanged = true;
+		this.ui.setPageVisible(value != '0');
+		this.driveRealtime.ignorePageVisibleChanged = false;
 	}
 };
 

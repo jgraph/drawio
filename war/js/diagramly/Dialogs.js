@@ -2873,94 +2873,156 @@ var BackgroundImageDialog = function(editorUi, applyFn)
  */
 var ParseDialog = function(editorUi, title)
 {
-	function parse(text)
+	function parse(text, asList)
 	{
 		var lines = text.split('\n');
-		var vertices = new Object();
-		var cells = [];
 		
-		function getOrCreateVertex(id)
+		if (asList)
 		{
-			var vertex = vertices[id];
-
-			if (vertex == null)
+			if (lines.length > 0)
 			{
-				vertex = new mxCell(id, new mxGeometry(0, 0, 80, 30));
-				vertex.vertex = true;
-				vertices[id] = vertex;
-				cells.push(vertex);
-			}
-			
-			return vertex;
-		};
-		
-		for (var i = 0; i < lines.length; i++)
-		{
-			if (lines[i].charAt(0) != ';')
-			{
-				var values = lines[i].split('->');
+				var graph = editorUi.editor.graph;
 				
-				if (values.length == 2)
-				{
-					var source = getOrCreateVertex(values[0]);
-					var target = getOrCreateVertex(values[1]);
-					
-					var edge = new mxCell('', new mxGeometry());
-					edge.edge = true;
-					source.insertEdge(edge, true);
-					target.insertEdge(edge, false);
-					cells.push(edge);
-				}
-			}
-		}
-		
-		if (cells.length > 0)
-		{
-			var container = document.createElement('div');
-			container.style.visibility = 'hidden';
-			document.body.appendChild(container);
-			var graph = new Graph(container);
-			
-			graph.getModel().beginUpdate();
-			try
-			{
-				cells = graph.importCells(cells);
+				var listCell = new mxCell(lines[0], new mxGeometry(0, 0, 160, 26 + 4),
+				    'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+				listCell.vertex = true;
 				
-				for (var i = 0; i < cells.length; i++)
+				var size = graph.getPreferredSizeForCell(listCell);
+		
+	   			if (size != null && listCell.geometry.width < size.width + 10)
+	   			{
+	   				listCell.geometry.width = size.width + 10;
+	   			}
+				
+				if (lines.length > 1)
 				{
-					if (graph.getModel().isVertex(cells[i]))
+					for (var i = 1; i < lines.length; i++)
 					{
-						var size = graph.getPreferredSizeForCell(cells[i]);
-						cells[i].geometry.width = Math.max(cells[i].geometry.width, size.width);
-						cells[i].geometry.height = Math.max(cells[i].geometry.height, size.height);
+						if (lines[i] == '--')
+						{
+							var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+							divider.vertex = true;
+							listCell.geometry.height += divider.geometry.height;
+							listCell.insert(divider);
+						}
+						else if (lines[i].length > 0 && lines[i].charAt(0) != ';')
+						{
+							var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+							field.vertex = true;
+							
+							var size = graph.getPreferredSizeForCell(field);
+		   			
+				   			if (size != null && field.geometry.width < size.width)
+				   			{
+				   				field.geometry.width = size.width;
+				   			}
+							
+				   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
+							listCell.geometry.height += field.geometry.height;
+							listCell.insert(field);
+						}
 					}
 				}
-
-				var layout = new mxFastOrganicLayout(graph);
-				layout.disableEdgeStyle = false;
-				layout.forceConstant = 120;
-				layout.execute(graph.getDefaultParent());
 				
-				graph.moveCells(cells, 20, 20);
+				var view = graph.view;
+				var bds = graph.getGraphBounds();
+				
+				// Computes unscaled, untranslated graph bounds
+				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
+				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
+	
+				graph.setSelectionCells(graph.importCells([listCell], x, y));
+				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
-			finally
+		}
+		else
+		{		
+			var vertices = new Object();
+			var cells = [];
+			
+			function getOrCreateVertex(id)
 			{
-				graph.getModel().endUpdate();
+				var vertex = vertices[id];
+	
+				if (vertex == null)
+				{
+					vertex = new mxCell(id, new mxGeometry(0, 0, 80, 30));
+					vertex.vertex = true;
+					vertices[id] = vertex;
+					cells.push(vertex);
+				}
+				
+				return vertex;
+			};
+			
+			for (var i = 0; i < lines.length; i++)
+			{
+				if (lines[i].charAt(0) != ';')
+				{
+					var values = lines[i].split('->');
+					
+					if (values.length == 2)
+					{
+						var source = getOrCreateVertex(values[0]);
+						var target = getOrCreateVertex(values[1]);
+						
+						var edge = new mxCell('', new mxGeometry());
+						edge.edge = true;
+						source.insertEdge(edge, true);
+						target.insertEdge(edge, false);
+						cells.push(edge);
+					}
+				}
 			}
 			
-			graph.clearCellOverlays();
-			var view = editorUi.editor.graph.view;
-			var bds = editorUi.editor.graph.getGraphBounds();
-			
-			// Computes unscaled, untranslated graph bounds
-			var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + graph.gridSize);
-			var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
-			editorUi.editor.graph.setSelectionCells(editorUi.editor.graph.importCells(
-					graph.getModel().getChildren(graph.getDefaultParent()), x, y));
-			editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
-			
-			graph.destroy();
-			container.parentNode.removeChild(container);
+			if (cells.length > 0)
+			{
+				var container = document.createElement('div');
+				container.style.visibility = 'hidden';
+				document.body.appendChild(container);
+				var graph = new Graph(container);
+				
+				graph.getModel().beginUpdate();
+				try
+				{
+					cells = graph.importCells(cells);
+					
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.getModel().isVertex(cells[i]))
+						{
+							var size = graph.getPreferredSizeForCell(cells[i]);
+							cells[i].geometry.width = Math.max(cells[i].geometry.width, size.width);
+							cells[i].geometry.height = Math.max(cells[i].geometry.height, size.height);
+						}
+					}
+	
+					var layout = new mxFastOrganicLayout(graph);
+					layout.disableEdgeStyle = false;
+					layout.forceConstant = 120;
+					layout.execute(graph.getDefaultParent());
+					
+					graph.moveCells(cells, 20, 20);
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
+				
+				graph.clearCellOverlays();
+				var view = editorUi.editor.graph.view;
+				var bds = editorUi.editor.graph.getGraphBounds();
+				
+				// Computes unscaled, untranslated graph bounds
+				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + graph.gridSize);
+				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
+				editorUi.editor.graph.setSelectionCells(editorUi.editor.graph.importCells(
+						graph.getModel().getChildren(graph.getDefaultParent()), x, y));
+				editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
+				
+				graph.destroy();
+				container.parentNode.removeChild(container);
+			}
 		}
 	};
 	
@@ -2972,8 +3034,20 @@ var ParseDialog = function(editorUi, title)
 	textarea.style.width = '100%';
 	textarea.style.height = '354px';
 	textarea.style.marginBottom = '16px';
+		
+	var diagramCheckBox = document.createElement('input');
+	diagramCheckBox.setAttribute('type', 'checkbox');
 	
-	textarea.value = ';example\na->b\nb->c\nc->a\n';
+	function getDefaultValue()
+	{
+		return  (!diagramCheckBox.checked) ?
+			'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean' :
+			';Example:\na->b\nb->c\nc->a\n';
+	};
+	
+	var defaultValue = getDefaultValue();
+
+	textarea.value = defaultValue;
 	div.appendChild(textarea);
 	
 	this.init = function()
@@ -3009,13 +3083,38 @@ var ParseDialog = function(editorUi, title)
 		textarea.addEventListener('dragover', handleDragOver, false);
 		textarea.addEventListener('drop', handleDrop, false);
 	}
+
+	div.appendChild(diagramCheckBox);
+	
+	mxEvent.addListener(diagramCheckBox, 'change', function()
+	{
+		var newDefaultValue = getDefaultValue();
+		
+		if (textarea.value.length == 0 || textarea.value == defaultValue)
+		{
+			defaultValue = newDefaultValue;
+			textarea.value = defaultValue;
+		}
+	});
+	
+	var span = document.createElement('span');
+	mxUtils.write(span, ' ' + mxResources.get('diagram'));
+	span.style.marginRight = '10px';
+	div.appendChild(span);
 	
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
-		editorUi.confirm(mxResources.get('areYouSure'), function()
+		if (textarea.value == defaultValue)
 		{
 			editorUi.hideDialog();
-		});
+		}
+		else
+		{
+			editorUi.confirm(mxResources.get('areYouSure'), function()
+			{
+				editorUi.hideDialog();
+			});
+		}
 	});
 	
 	cancelBtn.className = 'geBtn';
@@ -3028,7 +3127,7 @@ var ParseDialog = function(editorUi, title)
 	var okBtn = mxUtils.button(mxResources.get('insert'), function()
 	{
 		editorUi.hideDialog();
-		parse(textarea.value);
+		parse(textarea.value, !diagramCheckBox.checked);
 	});
 	div.appendChild(okBtn);
 	
@@ -4358,22 +4457,23 @@ PrintDialog.prototype.create = function(editorUi)
 	
 	var allPagesRadio = document.createElement('input');
 	allPagesRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
-	
 	allPagesRadio.setAttribute('value', 'all');
 	allPagesRadio.setAttribute('type', 'radio');
-	allPagesRadio.setAttribute('name', 'pages');
+	allPagesRadio.setAttribute('name', 'pages-printdialog');
+	
 	pagesSection.appendChild(allPagesRadio);
 
 	var span = document.createElement('span');
 	mxUtils.write(span, mxResources.get('printAllPages'));
 	pagesSection.appendChild(span);
-	
+
 	mxUtils.br(pagesSection);
 
 	// Pages ... to ...
 	var pagesRadio = allPagesRadio.cloneNode(true);
-	pagesRadio.setAttribute('value', 'range');pagesSection.appendChild(pagesRadio);
 	allPagesRadio.setAttribute('checked', 'checked');
+	pagesRadio.setAttribute('value', 'range');
+	pagesSection.appendChild(pagesRadio);
 	
 	var span = document.createElement('span');
 	mxUtils.write(span, mxResources.get('pages') + ':');
@@ -4393,7 +4493,7 @@ PrintDialog.prototype.create = function(editorUi)
 	
 	var pagesToInput = pagesFromInput.cloneNode(true);
 	pagesSection.appendChild(pagesToInput);
-	
+
 	mxEvent.addListener(pagesFromInput, 'focus', function()
 	{
 		pagesRadio.checked = true;
@@ -4406,14 +4506,14 @@ PrintDialog.prototype.create = function(editorUi)
 	
 	function validatePageRange()
 	{
-		pagesToInput.value = Math.min(pageCount, Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value)));
-		pagesFromInput.value = Math.min(pageCount, Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value)));
+		pagesToInput.value = Math.max(1, Math.min(pageCount, Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
+		pagesFromInput.value = Math.max(1, Math.min(pageCount, Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
 	};
 	
 	mxEvent.addListener(pagesFromInput, 'change', validatePageRange);
 	mxEvent.addListener(pagesToInput, 'change', validatePageRange);
 	
-	if (false && editorUi.pages != null)
+	if (editorUi.pages != null)
 	{
 		pageCount = editorUi.pages.length;
 
@@ -4550,8 +4650,21 @@ PrintDialog.prototype.create = function(editorUi)
 	// Page scale ...
 	var pageScaleSection = document.createElement('div');
 
-	var span = document.createElement('span');
+	var span = document.createElement('div');
+	span.style.fontWeight = 'bold';
+	span.style.marginBottom = '12px';
 	mxUtils.write(span, mxResources.get('paperSize'));
+	pageScaleSection.appendChild(span);
+	
+	var span = document.createElement('div');
+	span.style.marginBottom = '12px';
+
+	var accessor = PageSetupDialog.addPageFormatPanel(span, 'printdialog',
+		editorUi.editor.graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT);
+	pageScaleSection.appendChild(span);
+	
+	var span = document.createElement('span');
+	mxUtils.write(span, mxResources.get('pageScale'));
 	pageScaleSection.appendChild(span);
 	
 	var pageScaleInput = document.createElement('input');
@@ -4564,7 +4677,7 @@ PrintDialog.prototype.create = function(editorUi)
 	
 	// Buttons
 	var buttons = document.createElement('div');
-	buttons.style.cssText = 'text-align:right;margin:36px 0 0 0;';
+	buttons.style.cssText = 'text-align:right;margin:42px 0 0 0;';
 	
 	// Overall scale for print-out to account for print borders in dialogs etc
 	function preview(print)
@@ -4579,55 +4692,246 @@ PrintDialog.prototype.create = function(editorUi)
 		
 		// Workaround to match available paper size in actual print output
 		printScale *= 0.75;
-
-		// Negative coordinates are cropped or shifted if page visible
-		var gb = graph.getGraphBounds();
-		var border = 0;
-		var x0 = 0;
-		var y0 = 0;
-
-		var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
-		var scale = 1 / graph.pageScale;
-		var autoOrigin = fitRadio.checked;
-
-		if (autoOrigin)
+		
+		function printGraph(thisGraph, pv, forcePageBreaks)
 		{
-			var h = parseInt(sheetsAcrossInput.value);
-			var v = parseInt(sheetsDownInput.value);
-			
-			scale = Math.min((pf.height * v) / (gb.height / graph.view.scale),
-				(pf.width * h) / (gb.width / graph.view.scale));
-		}
-		else
-		{
-			scale = parseInt(zoomInput.value) / (100 * graph.pageScale);
-			
-			if (isNaN(scale))
+			// Negative coordinates are cropped or shifted if page visible
+			var gb = thisGraph.getGraphBounds();
+			var border = 0;
+			var x0 = 0;
+			var y0 = 0;
+	
+			var pf = accessor.get();
+			var scale = 1 / thisGraph.pageScale;
+			var autoOrigin = fitRadio.checked;
+	
+			if (autoOrigin)
 			{
-				printScale = 1 / graph.pageScale;
-				zoomInput.value = '100 %';
+				var h = parseInt(sheetsAcrossInput.value);
+				var v = parseInt(sheetsDownInput.value);
+				
+				scale = Math.min((pf.height * v) / (gb.height / thisGraph.view.scale),
+					(pf.width * h) / (gb.width / thisGraph.view.scale));
+			}
+			else
+			{
+				scale = parseInt(zoomInput.value) / (100 * thisGraph.pageScale);
+				
+				if (isNaN(scale))
+				{
+					printScale = 1 / thisGraph.pageScale;
+					zoomInput.value = '100 %';
+				}
+			}
+	
+			// Applies print scale
+			pf = mxRectangle.fromRectangle(pf);
+			pf.width = Math.ceil(pf.width * printScale);
+			pf.height = Math.ceil(pf.height * printScale);
+			scale *= printScale;
+			
+			// Starts at first visible page
+			if (!autoOrigin && thisGraph.pageVisible)
+			{
+				var layout = thisGraph.getPageLayout();
+				x0 -= layout.x * pf.width;
+				y0 -= layout.y * pf.height;
+			}
+			else
+			{
+				autoOrigin = true;
+			}
+
+			if (pv == null)
+			{
+				pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
+				pv.pageSelector = false;
+				pv.mathEnabled = false;
+				
+				if (typeof(MathJax) !== 'undefined')
+				{
+					// Adds class to ignore if math is disabled
+					var printPreviewRenderPage = pv.renderPage;
+					
+					pv.renderPage = function(w, h, dx, dy, content, pageNumber)
+					{
+						var result = printPreviewRenderPage.apply(this, arguments);
+						
+						if (this.graph.mathEnabled)
+						{
+							this.mathEnabled = true;
+						}
+						else
+						{
+							result.className = 'geDisableMathJax';
+						}
+						
+						return result;
+					};
+				}
+				
+				pv.open(null, null, forcePageBreaks, true);
+			}
+			else
+			{				
+				var bg = thisGraph.background;
+				
+				if (bg == null || bg == '' || bg == mxConstants.NONE)
+				{
+					bg = '#ffffff';
+				}
+				
+				pv.backgroundColor = bg;
+				pv.autoOrigin = autoOrigin;
+				pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
+			}
+			
+			return pv;
+		};
+		
+		var pagesFrom = pagesFromInput.value;
+		var pagesTo = pagesToInput.value;
+		var ignorePages = !allPagesRadio.checked;
+		var pv = null;
+					
+		if (ignorePages)
+		{
+			ignorePages = pagesFrom == currentPage && pagesTo == currentPage;
+		}
+		
+		if (!ignorePages && editorUi.pages != null && editorUi.pages.length)
+		{
+			var i0 = 0;
+			var imax = editorUi.pages.length - 1;
+			
+			if (!allPagesRadio.checked)
+			{
+				i0 = parseInt(pagesFrom) - 1;
+				imax = parseInt(pagesTo) - 1;
+			}
+			
+			for (var i = i0; i <= imax; i++)
+			{
+				var page = editorUi.pages[i];
+				var tempGraph = (page == editorUi.currentPage) ? graph : null;
+				
+				if (tempGraph == null)
+				{
+					tempGraph = editorUi.createTemporaryGraph(graph.getStylesheet());
+
+					// Restores graph settings that are relevant for printing
+					var pageVisible = true;
+					var mathEnabled = false;
+					var bg = null;
+					var bgImage = null;
+					
+					if (page.viewState == null && page.mapping == null)
+					{
+						// Workaround to extract view state from XML node
+						// This changes the state of the page and parses
+						// the XML for the graph model even if not needed.
+						if (page.root == null)
+						{
+							editorUi.updatePageRoot(page);
+						}
+					}
+					
+					if (page.viewState != null)
+					{
+						pageVisible = page.viewState.pageVisible;
+						mathEnabled = page.viewState.mathEnabled;
+						bg = page.viewState.background;
+						bgImage = page.viewState.backgroundImage;
+					}
+					else if (page.mapping != null && page.mapping.diagramMap != null)
+					{
+						// Default pageVisible in realtime is true
+						mathEnabled = page.mapping.diagramMap.get('mathEnabled') != '0';
+						bg = page.mapping.diagramMap.get('background');
+						
+						var temp = page.mapping.diagramMap.get('backgroundImage');
+						bgImage = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
+					}
+				
+					tempGraph.background = bg;
+					tempGraph.backgroundImage = (bgImage != null) ? new mxImage(bgImage.src, bgImage.width, bgImage.height) : null;
+					tempGraph.pageVisible = pageVisible;
+					tempGraph.mathEnabled = mathEnabled;
+					
+					// Redirects placeholders to current page
+					var graphGetGlobalVariable = tempGraph.getGlobalVariable;
+	
+					tempGraph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return page.getName();
+						}
+						else if (name == 'pagenumber')
+						{
+							return i + 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
+					
+					document.body.appendChild(tempGraph.container);
+					editorUi.updatePageRoot(page);
+					tempGraph.model.setRoot(page.root);
+				}
+
+				pv = printGraph(tempGraph, pv, i != imax);
+
+				if (tempGraph != graph)
+				{
+					tempGraph.container.parentNode.removeChild(tempGraph.container);
+				}
 			}
 		}
-
-		// Applies print scale
-		pf = mxRectangle.fromRectangle(pf);
-		pf.width = Math.ceil(pf.width * printScale);
-		pf.height = Math.ceil(pf.height * printScale);
-		scale *= printScale;
-		
-		// Starts at first visible page
-		if (!autoOrigin && graph.pageVisible)
-		{
-			var layout = graph.getPageLayout();
-			x0 -= layout.x * pf.width;
-			y0 -= layout.y * pf.height;
-		}
 		else
 		{
-			autoOrigin = true;
+			pv = printGraph(graph);
 		}
 		
-		return PrintDialog.showPreview(PrintDialog.createPrintPreview(graph, scale, pf, border, x0, y0, autoOrigin, print), print);
+		if (pv.mathEnabled)
+		{
+			var doc = pv.wnd.document;
+	
+			doc.writeln('<script type="text/x-mathjax-config">');
+			doc.writeln('MathJax.Hub.Config({');
+			doc.writeln('messageStyle: "none",');
+			doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
+			doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
+			doc.writeln('TeX: {');
+			doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
+			doc.writeln('},');
+						// Ignores math in in-place editor
+			doc.writeln('tex2jax: {');
+			doc.writeln('	ignoreClass: "geDisableMathJax"');
+		  	doc.writeln('},');
+		  	doc.writeln('asciimath2jax: {');
+			doc.writeln('	ignoreClass: "geDisableMathJax"');
+		  	doc.writeln('}');
+			doc.writeln('});');
+			
+			// Adds asynchronous printing when MathJax finished rendering
+			if (print)
+			{
+				doc.writeln('MathJax.Hub.Queue(function () {');
+				doc.writeln('window.print();');
+				doc.writeln('});');
+			}
+			
+			doc.writeln('</script>');
+			doc.writeln('<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js"></script>');
+		}
+		
+		pv.closeDocument();
+		
+		if (!pv.mathEnabled && print)
+		{
+			PrintDialog.printPreview(pv);
+		}
 	};
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()

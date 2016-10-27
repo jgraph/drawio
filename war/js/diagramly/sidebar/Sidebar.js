@@ -983,7 +983,8 @@
 		if (this.editorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
 		{
 			var img = new Image();
-			img.src = 'https://log.draw.io/log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+			var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+			img.src = logDomain + '/log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 		}
 		
 		success = mxUtils.bind(this, function(results, len, more, terms)

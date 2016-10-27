@@ -22,7 +22,10 @@ Draw.loadPlugin(function(ui)
 	
 	var graph = ui.editor.graph;
 	
-	var wnd = new mxWindow(mxResources.get('insertTable'), div, document.body.offsetWidth - 480, 140,
+	// Extends Extras menu
+	mxResources.parse('fromSql=From SQL');
+
+	var wnd = new mxWindow(mxResources.get('fromSql'), div, document.body.offsetWidth - 480, 140,
 		320, 300, true, true);
 	wnd.destroyOnClose = false;
 	wnd.setMaximizable(false);
@@ -131,7 +134,7 @@ Draw.loadPlugin(function(ui)
 	resetBtn.style.padding = '4px';
 	div.appendChild(resetBtn);
 
-	var btn = mxUtils.button(mxResources.get('close'), function()
+	var btn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		wnd.setVisible(false);
 	});
@@ -149,9 +152,6 @@ Draw.loadPlugin(function(ui)
 	btn.style.marginTop = '8px';
 	btn.style.padding = '4px';
 	div.appendChild(btn);
-
-	// Extends Extras menu
-	mxResources.parse('fromSql=From SQL');
 
     // Adds action
     ui.actions.addAction('fromSql', function()

@@ -85,7 +85,7 @@ public class EmbedServlet2 extends HttpServlet
 	}
 
 	/**
-	 * @see HttpServlet#HttpServlet()
+	 * Sets up collection of stencils
 	 */
 	public static void initLibraries(HashMap<String, String[]> libraries)
 	{

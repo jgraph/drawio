@@ -1,6 +1,19 @@
-18-OCT-2016: 5.7.2-0
+27-OCT-2016: 5.7.2.2
 
-- Switches to semantic versioning
+- Adds page view state to realtime
+- Uses mxGraph 3.7.0.0 beta 8
+- Adds diagram option in From Text dialog
+- Adds incremental find plugin
+
+26-OCT-2016: 5.7.2.1
+
+- Uses mxGraph 3.7.0.0 beta 7
+- Adds page format option in print dialog
+- Shift+alt+rubberband removes selection cells
+- Shift+click adds edges for delete in toolbar
+
+18-OCT-2016: 5.7.2.0
+
 - Uses mxGraph 3.7.0.0 beta 6
 - Adds experimental sql plugin
 

@@ -94,8 +94,7 @@ Sidebar.prototype.init = function()
 	this.addGeneralPalette(true);
 	this.addMiscPalette(false);
 	this.addAdvancedPalette(false);
-	this.addStencilPalette('basic', mxResources.get('basic'), dir + '/basic.xml',
-		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
+	this.addBasicPalette(dir);
 	this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
 	this.addUmlPalette(false);
@@ -358,7 +357,7 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				
 				var b = document.body;
 				var d = document.documentElement;
-				var bottom = b.clientHeight || d.clientHeight;
+				var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
 
 				var left = this.container.clientWidth + this.editorUi.splitSize + 3 + this.editorUi.container.offsetLeft;
 				var top = Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
@@ -380,7 +379,7 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 					this.graph2.view.drawPane.style.left = x0 + 'px';
 					this.graph2.view.drawPane.style.top = y0 + 'px';
 				}
-		
+				
 				// Workaround for ignored position CSS style in IE9
 				// (changes to relative without the following line)
 				this.tooltip.style.position = 'absolute';
@@ -901,6 +900,21 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 /**
  * Adds the general palette to the sidebar.
  */
+Sidebar.prototype.addBasicPalette = function(dir)
+{
+	this.addStencilPalette('basic', mxResources.get('basic'), dir + '/basic.xml',
+		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2',
+		null, null, null, null, [
+		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
+		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
+		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Square', null, null, 'double square'),
+		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Circle', null, null, 'double circle')
+	]);
+};
+
+/**
+ * Adds the general palette to the sidebar.
+ */
 Sidebar.prototype.addMiscPalette = function(expand)
 {
 	var fns = [
@@ -960,12 +974,6 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Variable');
 	 	})),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
-		// Entries for top searches
-		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
-		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
-		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Square', null, null, 'double square'),
-		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Circle', null, null, 'double circle'),
-		// End of entries for top searches
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 120, 60, 'RECTANGLE', 'Comic Rectangle', true, null, 'comic rectangle rect box text retro'),
 	 	this.createVertexTemplateEntry('rhombus;html=1;align=center;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 100, 100, 'DIAMOND', 'Comic Diamond', true, null, 'comic diamond rhombus if condition decision conditional question test retro'),
 	 	this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;rounded=0;comic=1;strokeWidth=2;endArrow=blockThin;html=1;fontFamily=Comic Sans MS;fontStyle=1;', 50, 50, '', 'Comic Arrow 1'),
@@ -3347,14 +3355,22 @@ Sidebar.prototype.getTagsForStencil = function(packageName, stencilName, moreTag
 /**
  * Adds the given stencil palette.
  */
-Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ignore, onInit, scale, tags)
+Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ignore, onInit, scale, tags, customFns)
 {
 	scale = (scale != null) ? scale : 1;
-
+	
 	if (this.addStencilsToIndex)
 	{
 		// LATER: Handle asynchronous loading dependency
 		var fns = [];
+		
+		if (customFns != null)
+		{
+			for (var i = 0; i < customFns.length; i++)
+			{
+				fns.push(customFns[i]);
+			}
+		}
 
 		mxStencilRegistry.loadStencilSet(stencilFile, mxUtils.bind(this, function(packageName, stencilName, displayName, w, h)
 		{
@@ -3389,7 +3405,15 @@ Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ig
 			{
 				onInit.call(this, content);
 			}
-	
+			
+			if (customFns != null)
+			{
+				for (var i = 0; i < customFns.length; i++)
+				{
+					customFns[i](content);
+				}
+			}
+
 			mxStencilRegistry.loadStencilSet(stencilFile, mxUtils.bind(this, function(packageName, stencilName, displayName, w, h)
 			{
 				if (ignore == null || mxUtils.indexOf(ignore, stencilName) < 0)
