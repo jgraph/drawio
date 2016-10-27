@@ -21,6 +21,9 @@ window.TEMPLATE_PATH = window.TEMPLATE_PATH || '/templates';
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';
 
+// URL for logging
+window.DRAWIO_LOG_URL = window.DRAWIO_LOG_URL || '';
+
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language
 // resources is disabled as all required resources are in grapheditor.
@@ -230,4 +233,16 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 {
 	urlParams['math'] = '0';
+}
+
+// Adds hard-coded logging domain for draw.io domains
+var host = window.location.host;
+var searchString = 'draw.io';
+var position = host.length - searchString.length;
+var lastIndex = host.lastIndexOf(searchString, position);
+
+if (lastIndex !== -1 && lastIndex === position && host != 'test.draw.io')
+{
+	// endsWith polyfill
+	window.DRAWIO_LOG_URL = 'https://log.draw.io';
 }

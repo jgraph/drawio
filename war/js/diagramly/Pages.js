@@ -228,8 +228,8 @@ EditorUi.prototype.initPages = function()
 		this.selectNextPage(true);
 	}));
 	
-	this.keyHandler.bindAction(33, true, 'previousPage'); // Ctrl+PageUp
-	this.keyHandler.bindAction(34, true, 'nextPage'); // Ctrl+PageDown
+	this.keyHandler.bindAction(33, true, 'previousPage', true); // Ctrl+Shift+PageUp
+	this.keyHandler.bindAction(34, true, 'nextPage', true); // Ctrl+Shift+PageDown
 	
 	// Updates the tabs after loading the diagram
 	var graph = this.editor.graph;
@@ -276,8 +276,8 @@ EditorUi.prototype.initPages = function()
 			if (p.viewState == null || p.viewState.scrollLeft == null)
 			{
 				this.resetScrollbars();
-				
-				if (this.editor.graph.lightbox)
+
+				if (graph.lightbox)
 				{
 					this.lightboxFit();
 				}
@@ -291,12 +291,8 @@ EditorUi.prototype.initPages = function()
 			}
 			else
 			{
-				// Takes into account resized window
-				var dx = (p.viewState.translate != null) ? p.viewState.translate.x - graph.view.translate.x : 0;
-				var dy = (p.viewState.translate != null) ? p.viewState.translate.y - graph.view.translate.y : 0;
-				
-				graph.container.scrollLeft = p.viewState.scrollLeft - dx * graph.view.scale;
-				graph.container.scrollTop = p.viewState.scrollTop - dy * graph.view.scale;
+				graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + p.viewState.scrollLeft;
+				graph.container.scrollTop = graph.view.translate.y * graph.view.scale + p.viewState.scrollTop;
 			}
 			
 			lastPage = p;
@@ -425,8 +421,8 @@ Graph.prototype.getViewState = function()
 		connect: this.connectionHandler.isEnabled(),
 		arrows: this.connectionArrowsEnabled,
 		scale: this.view.scale,
-		scrollLeft: this.container.scrollLeft,
-		scrollTop: this.container.scrollTop,
+		scrollLeft: this.container.scrollLeft - this.view.translate.x * this.view.scale,
+		scrollTop: this.container.scrollTop - this.view.translate.y * this.view.scale,
 		translate: this.view.translate.clone(),
 		lastPasteXml: this.lastPasteXml,
 		pasteCounter: this.pasteCounter,
@@ -688,9 +684,15 @@ EditorUi.prototype.duplicatePage = function(page, name)
 	
 	if (graph.isEnabled())
 	{
-		// Clones the current page and takes a snapshot of the graph model
+		// Clones the current page and takes a snapshot of the graph model and view state
 		var newPage = new DiagramPage(page.node.cloneNode(false));
 		newPage.root = graph.cloneCells([graph.model.root])[0];
+		newPage.viewState = graph.getViewState();
+		
+		// Resets zoom and scrollbar positions
+		newPage.viewState.scale = 1;
+		newPage.viewState.scrollLeft = null;
+		newPage.viewState.scrollRight = null;
 		newPage.setName(name);
 		
 		newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);

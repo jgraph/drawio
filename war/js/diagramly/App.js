@@ -148,7 +148,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
-	'tags': '/plugins/tags.js', 'sql': '/plugins/sql.js'};
+	'tags': '/plugins/tags.js', 'sql': '/plugins/sql.js', 'find': '/plugins/find.js'};
 
 /**
  * Function: authorize
@@ -391,7 +391,8 @@ App.main = function(callback)
 				var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
 					message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
 					'CONFIG' : 'SEVERE';
-	    		img.src = 'https://log.draw.io/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+	    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
 	    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
 	    			':lnum:' + encodeURIComponent(linenumber) + 
 	    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
@@ -679,6 +680,9 @@ Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURICompone
 App.prototype.init = function()
 {
 	EditorUi.prototype.init.apply(this, arguments);
+	
+	var host = window.location.host;
+	
 	
 	/**
 	 * Overrides export dialog for using cloud storage save.
@@ -2284,7 +2288,8 @@ App.prototype.start = function()
 			try
 			{
 				var img = new Image();
-	    		img.src = 'https://log.draw.io/log?v=' + encodeURIComponent(EditorUi.VERSION) +
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+	    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
 	    			'&msg=errorLoadingFile:url:' + encodeURIComponent(window.location.href) +
     				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
     				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
@@ -3858,6 +3863,10 @@ App.prototype.libraryLoaded = function(file, images)
 				
 				addCells(cells, bounds);
 			}
+			else if (graph.getRubberband().isActive())
+			{
+				graph.getRubberband().execute(evt);
+			}
 			else
 			{
 				this.showError(mxResources.get('error'), mxResources.get('nothingIsSelected'), mxResources.get('ok'));
@@ -4228,7 +4237,8 @@ App.prototype.fileLoaded = function(file)
 //		        	if (!this.isOffline())
 //		        	{
 //	        			var img = new Image();
-//	        			img.src = 'https://log.draw.io/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+//	        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
 //        				'&v=' + encodeURIComponent(EditorUi.VERSION);
 //		        	}
 //	        	}

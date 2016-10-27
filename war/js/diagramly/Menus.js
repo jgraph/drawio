@@ -84,8 +84,8 @@
 		editorUi.actions.get('print').funct = function()
 		{
 			editorUi.showDialog(new PrintDialog(editorUi).container, 320,
-				(false && editorUi.pages != null && editorUi.pages.length > 1) ?
-				300 : 220, true, true);
+				(editorUi.pages != null && editorUi.pages.length > 1) ?
+				400 : 340, true, true);
 		};
 		
 		editorUi.actions.addAction('open...', function()
@@ -560,7 +560,8 @@
 						if (editorUi.enableLogging)
 						{
 							var img = new Image();
-							img.src = 'https://log.draw.io/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+							img.src = logDomain + '/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 						}
 						
 						// Workaround for blocked submit on iOS/IE11

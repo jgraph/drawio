@@ -636,6 +636,26 @@ DriveRealtime.prototype.installUiChangeListeners = function()
 	});
 	
 	this.ui.addListener('foldingEnabledChanged', this.foldingEnabledListener);
+		
+	this.graph.addListener('shadowVisibleChanged', this.shadowVisibleListener);
+	
+	this.pageVisibleListener = mxUtils.bind(this, function(sender, evt)
+	{
+		if (!this.ignorePageVisibleChanged)
+		{
+			try
+			{
+				this.setFileModified();
+				this.getDiagramMap().set('pageVisible', (this.graph.pageVisible) ? '1' : '0');
+			}
+			catch (e)
+			{
+				this.ui.handleError(e);
+			}
+		}
+	});
+	
+	this.ui.addListener('pageViewChanged', this.pageVisibleListener);
 	
 	this.backgroundImageListener = mxUtils.bind(this, function(sender, evt)
 	{
@@ -1676,6 +1696,12 @@ DriveRealtime.prototype.destroy = function(unloading)
 		this.foldingEnabledListener = null;
 	}
 
+	if (this.pageVisibleListener != null)
+	{
+		this.ui.removeListener(this.pageVisibleListener);
+		this.pageVisibleListener = null;
+	}
+
 	if (this.backgroundImageListener != null)
 	{
 		this.ui.removeListener(this.backgroundImageListener);
@@ -1716,6 +1742,12 @@ DriveRealtime.prototype.destroy = function(unloading)
 	{
 		this.model.removeListener(this.graphModelChangeListener);
 		this.graphModelChangeListener = null;
+	}
+	
+	if (this.pageChangeListener != null)
+	{
+		this.ui.editor.removeListener(this.pageChangeListener);
+		this.pageChangeListener = null;
 	}
 
 	if (this.viewStateListener != null)

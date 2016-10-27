@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,6 +25,8 @@ public class mxVsdxUtils
 	private static final double CENTIMETERS_PER_INCHES = 2.54;
 	
 	public static final double conversionFactor = screenCoordinatesPerCm * CENTIMETERS_PER_INCHES;
+	
+	private static final Logger log = Logger.getLogger(mxVsdxUtils.class.getName());
 
 	/**
 	 * Checks if the NodeList has a Node with name = tag.
@@ -163,7 +167,15 @@ public class mxVsdxUtils
 
 			if(!key.equals(mxConstants.STYLE_SHAPE) || (!styleMap.get(key).startsWith("image") && !styleMap.get(key).startsWith("rounded=")))
 			{
-				style = style + key + asig;
+				try
+				{
+					style = style + key + asig;
+				}
+				catch (Exception e)
+				{
+					log.log(Level.SEVERE, "mxVsdxUtils.getStyleString," + e.toString() + ",style.length=" + style.length() +
+							",key.length=" + key.length() + ",asig.length=" + asig.length());
+				}
 			}
 
 			style = style + value + ";";

@@ -133,9 +133,7 @@ public class GliffyDiagramConverter {
 					sortObjectsByOrder(obj.children);
 
 				for (Object child : obj.children) {
-					//do not import text as a child object, use inline text
-					if(!child.isText())
-						importObject(child, obj);
+					importObject(child, obj);
 				}
 			}
 		} else {
@@ -244,7 +242,7 @@ public class GliffyDiagramConverter {
 				vertices.put(object.id, object);
 			
 			// don't collect for swimlanes and mindmaps, their children are treated differently
-			if (object.hasChildren() && !object.isSwimlane() && !object.isMindmap())
+			if (object.isGroup())
 				collectVerticesAndConvert(vertices, object.children, object);
 		}
 	}
@@ -284,6 +282,10 @@ public class GliffyDiagramConverter {
 
 		mxGeometry geometry = new mxGeometry((int) gliffyObject.x, (int) gliffyObject.y, (int) gliffyObject.width, (int) gliffyObject.height);
 		cell.setGeometry(geometry);
+		
+		String text;
+		Object textObject = null;
+		String link = null;
 
 		Graphic graphic = null;
 		if (gliffyObject.isGroup()) {
@@ -292,17 +294,11 @@ public class GliffyDiagramConverter {
 		} else {
 			// groups don't have graphic
 			graphic = gliffyObject.getGraphic();
+			textObject = gliffyObject.getTextObject();
 		}
-
-		String text;
-		Object textObject = gliffyObject.getTextObject();
-		
-		String link = null;
 
 		if (graphic != null) {
 			link = gliffyObject.getLink();
-			
-			
 
 			if (gliffyObject.isShape()) {
 				GliffyShape shape = graphic.Shape;

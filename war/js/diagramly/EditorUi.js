@@ -79,7 +79,7 @@
 		Editor.doMathJaxRender = function(container)
 		{
 			MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
-		}
+		};
 
 		// Disables global typesetting and messages on startup, adds queue for
 		// asynchronous rendering while MathJax is loading
@@ -319,63 +319,6 @@
 			}
 		}
 	};
-	
-	// Overrides to call print asynchronously after (disables immediate print here)
-	if (window.PrintDialog)
-	{
-		var printDialogShowPrintPreview = PrintDialog.showPreview;
-		PrintDialog.showPreview = function(preview, print)
-		{
-			if (typeof(MathJax) !== 'undefined' && preview.graph.mathEnabled)
-			{
-				print = false;
-			}
-			
-			return printDialogShowPrintPreview.apply(this, arguments);
-		};
-	
-		// Adds MathJax to print preview
-		var printDialogCreatePrintPreview = PrintDialog.createPrintPreview;
-		PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, autoOrigin, print)
-		{
-			var preview = printDialogCreatePrintPreview.apply(this, arguments);
-			
-			if (typeof(MathJax) !== 'undefined' && graph.mathEnabled)
-			{
-				// Using writePostfix is workaround for blocking of DOM processing
-				// in Chrome if using writeHead for injecting async script tag
-				var writePostfix = preview.writePostfix;
-				preview.writePostfix = function(doc, css)
-				{
-					writePostfix.apply(this, arguments);
-					
-					// Disables status message in print output
-					doc.writeln('<script type="text/x-mathjax-config">');
-					doc.writeln('MathJax.Hub.Config({');
-					doc.writeln('messageStyle: "none",');
-					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
-					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-					doc.writeln('TeX: {');
-					doc.writeln('	extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
-					doc.writeln('}');
-					doc.writeln('});');
-					
-					// Adds asynchronous printing when MathJax finished rendering
-					if (print)
-					{
-						doc.writeln('MathJax.Hub.Queue(function () {');
-						doc.writeln('window.print();');
-						doc.writeln('});');
-					}
-					
-					doc.writeln('</script>');
-					doc.writeln('<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js"></script>');
-				};
-			}
-	
-			return preview;
-		};
-	}
 
 	/**
 	 * Global switches for the export dialog.
@@ -1768,7 +1711,8 @@
 								var img = new Image();
 								
 								// Timestamp is added to bypass client-side cache
-								img.src = 'https://log.draw.io/log?severity=CONFIG&msg=imgur-published:' + res.data.id + '&v=' +
+								var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+								img.src = logDomain + '/log?severity=CONFIG&msg=imgur-published:' + res.data.id + '&v=' +
 									encodeURIComponent(EditorUi.VERSION) + '&ts=' + new Date().getTime();
 					    	}
 					    	catch (e)

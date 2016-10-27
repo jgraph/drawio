@@ -86,8 +86,6 @@ const pkgdef :Spk.PackageDefinition = (
       
       ( packagePath = "client", sourcePath = "client" ),
       # Map client directory at "/client".
-
-      ( sourcePath = "." )
     ]
   ),
 

@@ -4623,218 +4623,35 @@ DiagramFormatPanel.prototype.addPaperSize = function(div)
 	var graph = editor.graph;
 	
 	div.appendChild(this.createTitle(mxResources.get('paperSize')));
-	
-	var portraitCheckBox = document.createElement('input');
-	portraitCheckBox.setAttribute('name', 'format');
-	portraitCheckBox.setAttribute('type', 'radio');
-	portraitCheckBox.setAttribute('value', 'portrait');
-	
-	var landscapeCheckBox = document.createElement('input');
-	landscapeCheckBox.setAttribute('name', 'format');
-	landscapeCheckBox.setAttribute('type', 'radio');
-	landscapeCheckBox.setAttribute('value', 'landscape');
-	
-	var paperSizeSelect = document.createElement('select');
-	paperSizeSelect.style.marginBottom = '8px';
-	paperSizeSelect.style.width = '202px';
 
-	var formatDiv = document.createElement('div');
-	formatDiv.style.marginLeft = '4px';
-	formatDiv.style.width = '210px';
-	formatDiv.style.height = '24px';
-
-	portraitCheckBox.style.marginRight = '6px';
-	formatDiv.appendChild(portraitCheckBox);
-	
-	var portraitSpan = document.createElement('span');
-	portraitSpan.style.maxWidth = '100px';
-	mxUtils.write(portraitSpan, mxResources.get('portrait'));
-	formatDiv.appendChild(portraitSpan);
-
-	landscapeCheckBox.style.marginLeft = '10px';
-	landscapeCheckBox.style.marginRight = '6px';
-	formatDiv.appendChild(landscapeCheckBox);
-	
-	var landscapeSpan = document.createElement('span');
-	landscapeSpan.style.width = '100px';
-	mxUtils.write(landscapeSpan, mxResources.get('landscape'));
-	formatDiv.appendChild(landscapeSpan)
-
-	var customDiv = document.createElement('div');
-	customDiv.style.marginLeft = '4px';
-	customDiv.style.width = '210px';
-	customDiv.style.height = '24px';
-	
-	var widthInput = document.createElement('input');
-	widthInput.setAttribute('size', '6');
-	widthInput.setAttribute('value', graph.pageFormat.width);
-	customDiv.appendChild(widthInput);
-	mxUtils.write(customDiv, ' x ');
-	
-	var heightInput = document.createElement('input');
-	heightInput.setAttribute('size', '6');
-	heightInput.setAttribute('value', graph.pageFormat.height);
-	customDiv.appendChild(heightInput);
-	mxUtils.write(customDiv, ' pt');
-
-	formatDiv.style.display = 'none';
-	customDiv.style.display = 'none';
-	
-	var pf = new Object();
-	var formats = PageSetupDialog.getFormats();
-	
-	for (var i = 0; i < formats.length; i++)
+	var accessor = PageSetupDialog.addPageFormatPanel(div, 'formatpanel', graph.pageFormat, function(pageFormat)
 	{
-		var f = formats[i];
-		pf[f.key] = f;
-
-		var paperSizeOption = document.createElement('option');
-		paperSizeOption.setAttribute('value', f.key);
-		mxUtils.write(paperSizeOption, f.title);
-		paperSizeSelect.appendChild(paperSizeOption);
-	}
-	
-	var customSize = false;
-	
-	function listener(sender, evt, force)
-	{
-		if (force || (widthInput != document.activeElement && heightInput != document.activeElement))
+		if (graph.pageFormat == null || graph.pageFormat.width != pageFormat.width || graph.pageFormat.height != pageFormat.height)
 		{
-			var detected = false;
-			
-			for (var i = 0; i < formats.length; i++)
-			{
-				var f = formats[i];
-	
-				// Special case where custom was chosen
-				if (customSize)
-				{
-					if (f.key == 'custom')
-					{
-						paperSizeSelect.value = f.key;
-						customSize = false;
-					}
-				}
-				else if (f.format != null)
-				{
-					if (graph.pageFormat.width == f.format.width && graph.pageFormat.height == f.format.height)
-					{
-						paperSizeSelect.value = f.key;
-						portraitCheckBox.setAttribute('checked', 'checked');
-						portraitCheckBox.defaultChecked = true;
-						portraitCheckBox.checked = true;
-						landscapeCheckBox.removeAttribute('checked');
-						landscapeCheckBox.defaultChecked = false;
-						landscapeCheckBox.checked = false;
-						detected = true;
-					}
-					else if (graph.pageFormat.width == f.format.height && graph.pageFormat.height == f.format.width)
-					{
-						paperSizeSelect.value = f.key;
-						portraitCheckBox.removeAttribute('checked');
-						portraitCheckBox.defaultChecked = false;
-						portraitCheckBox.checked = false;
-						landscapeCheckBox.setAttribute('checked', 'checked');
-						landscapeCheckBox.defaultChecked = true;
-						landscapeCheckBox.checked = true;
-						detected = true;
-					}
-				}
-			}
-			
-			// Selects custom format which is last in list
-			if (!detected)
-			{
-				widthInput.value = graph.pageFormat.width;
-				heightInput.value = graph.pageFormat.height;
-				paperSizeOption.setAttribute('selected', 'selected');
-				portraitCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
-				formatDiv.style.display = 'none';
-				customDiv.style.display = '';
-			}
-			else
-			{
-				formatDiv.style.display = '';
-				customDiv.style.display = 'none';
-			}
+			ui.setPageFormat(pageFormat);
 		}
+	});
+	
+	this.addKeyHandler(accessor.widthInput, function()
+	{
+		console.log('here', graph.pageFormat);
+		accessor.set(graph.pageFormat);
+	});
+-	this.addKeyHandler(accessor.heightInput, function()
+	{
+		accessor.set(graph.pageFormat);	
+	});
+	
+	var listener = function()
+	{
+		accessor.set(graph.pageFormat);
 	};
-	listener();
-
-	div.appendChild(paperSizeSelect);
-	mxUtils.br(div);
-
-	div.appendChild(formatDiv);
-	div.appendChild(customDiv);
-	
-	var update = function()
-	{
-		var f = pf[paperSizeSelect.value];
-		
-		if (f.format != null)
-		{
-			widthInput.value = f.format.width;
-			heightInput.value = f.format.height;
-			customDiv.style.display = 'none';
-			formatDiv.style.display = '';
-		}
-		else
-		{
-			formatDiv.style.display = 'none';
-			customDiv.style.display = '';
-		}
-		
-		var size = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
-		
-		if (paperSizeSelect.value != 'custom' && landscapeCheckBox.checked)
-		{
-			size = new mxRectangle(0, 0, size.height, size.width);
-		}
-		
-		if (graph.pageFormat == null || graph.pageFormat.width != size.width || graph.pageFormat.height != size.height)
-		{
-			ui.setPageFormat(size);
-		}
-	};
-
-	this.addKeyHandler(widthInput, listener);
-	this.addKeyHandler(heightInput, listener);
-	
-	mxEvent.addListener(portraitSpan, 'click', function(evt)
-	{
-		portraitCheckBox.checked = true;
-		update();
-		mxEvent.consume(evt);
-	});
-	
-	mxEvent.addListener(landscapeSpan, 'click', function(evt)
-	{
-		landscapeCheckBox.checked = true;
-		update();
-		mxEvent.consume(evt);
-	});
-	
-	mxEvent.addListener(widthInput, 'blur', update);
-	mxEvent.addListener(widthInput, 'click', update);
-	mxEvent.addListener(heightInput, 'blur', update);
-	mxEvent.addListener(heightInput, 'click', update);
-	mxEvent.addListener(landscapeCheckBox, 'change', update);
-	mxEvent.addListener(portraitCheckBox, 'change', update);
-	mxEvent.addListener(paperSizeSelect, 'change', function()
-	{
-		// Handles special case where custom was chosen
-		customSize = paperSizeSelect.value == 'custom';
-		update();
-	});
 	
 	ui.addListener('pageFormatChanged', listener);
 	this.listeners.push({destroy: function() { ui.removeListener(listener); }});
 	
 	graph.getModel().addListener(mxEvent.CHANGE, listener);
 	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
-	
-	update();
 	
 	return div;
 };
