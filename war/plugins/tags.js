@@ -3,84 +3,88 @@
  */
 Draw.loadPlugin(function(ui)
 {
+	var graph = ui.editor.graph;
+	var propertyName = 'tags';
+
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
 	div.style.padding = '10px';
 	div.style.height = '100%';
-
-	var graph = ui.editor.graph;
-
-	var verbSelect = document.createElement('select');
-	verbSelect.style.width = '170px';
 	
-	var showOption = document.createElement('option');
-	mxUtils.write(showOption, 'Show all but...');
-	showOption.setAttribute('value', 'show');
-	showOption.setAttribute('selected', 'selected');
-	verbSelect.appendChild(showOption);
+	var searchInput = document.createElement('input');
+	searchInput.setAttribute('placeholder', 'All Tags');
+	searchInput.setAttribute('type', 'text');
+	searchInput.style.marginTop = '4px';
+	searchInput.style.width = '170px';
+	searchInput.style.fontSize = '12px';
+	searchInput.style.borderRadius = '4px';
+	searchInput.style.padding = '6px';
+	div.appendChild(searchInput);
 	
-	var hideOption = document.createElement('option');
-	mxUtils.write(hideOption, 'Hide all but...');
-	hideOption.setAttribute('value', 'hide');
-	verbSelect.appendChild(hideOption);
-	
-	div.appendChild(verbSelect);
-
-	var tagInput = document.createElement('input');
-	tagInput.setAttribute('type', 'text');
-	tagInput.style.marginTop = '4px';
-	tagInput.style.width = '170px';
-	mxUtils.br(div);
-	div.appendChild(tagInput);
-
-	function isCellVisible(cell, tagList)
+	mxEvent.addListener(searchInput, 'dblclick', function()
 	{
-		var visible = verbSelect.value == 'show';
-
-		if (tagList.length > 0 && cell.value != null && typeof(cell.value) == 'object')
+		var dlg = new FilenameDialog(ui, propertyName, mxResources.get('ok'), mxUtils.bind(this, function(name)
 		{
-			var tags = cell.value.getAttribute('tags');
-			visible = verbSelect.value != 'show';
-			var allTags = true;
-			
-			if (tags != null && tags.length > 0)
+			if (name != null && name.length > 0)
 			{
-				var tmp = tags.split(' ');
-				
-				for (var i = 0; i < tagList.length; i++)
+				propertyName = name;
+			}
+		}), mxResources.get('enterPropertyName'));
+		ui.showDialog(dlg.container, 300, 80, true, true);
+		dlg.init();
+	});
+	
+	searchInput.setAttribute('title', 'Doubleclick to set property name');
+
+	function searchCells(cells)
+	{
+		cells = (cells != null) ? cells : graph.model.getDescendants(graph.model.getRoot());
+		var tagList = searchInput.value.split(' ');
+		var result = [];
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (graph.model.isVertex(cells[i]) || graph.model.isEdge(cells[i]))
+			{
+				var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
+					mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
+				var match = true;
+
+				if (tags.length > 0)
 				{
-					if (tagList[i].length > 0)
+					var tmp = tags.toLowerCase().split(' ');
+					
+					for (var j = 0; j < tagList.length && match; j++)
 					{
-						allTags = allTags && mxUtils.indexOf(tmp, tagList[i]) >= 0;
+						var tag = mxUtils.trim(tagList[j]).toLowerCase();
+						
+						match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
 					}
 				}
+				else
+				{
+					match = mxUtils.trim(searchInput.value).length == 0;
+				}
+				
+				if (match)
+				{
+					result.push(cells[i]);
+				}
 			}
-			
-			if (!allTags)
-			{
-				visible = !visible;
-			}			
 		}
 		
-		return visible;
+		return result;
 	};
 
-	function updateVisibleStates()
+	function setCellsVisible(cells, visible)
 	{	
-		var tagList = (mxUtils.trim(tagInput.value) == '') ? [] : tagInput.value.split(' ');
-		
 		graph.model.beginUpdate();
 		try
 		{
-			for (var key in graph.model.cells)
+			for (var i = 0; i < cells.length; i++)
 			{
-				var cell = graph.model.cells[key];
-				
-				if (graph.model.isVertex(cell) || graph.model.isEdge(cell))
-				{
-					graph.model.setVisible(cell, isCellVisible(cell, tagList));
-				}
+				graph.model.setVisible(cells[i], visible);
 			}
 		}
 		finally
@@ -88,52 +92,60 @@ Draw.loadPlugin(function(ui)
 			graph.model.endUpdate();
 		}
 	};
-
+	
 	mxUtils.br(div);
 
-	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
+	var hideBtn = mxUtils.button(mxResources.get('hide'), function()
 	{
-		tagInput.value = '';
-		verbSelect.value = 'show';
-		updateVisibleStates();
+		setCellsVisible(searchCells(), false);
 	});
 	
-	resetBtn.style.marginTop = '8px';
-	resetBtn.style.marginRight = '4px';
-	resetBtn.style.padding = '4px';
-	div.appendChild(resetBtn);
+	hideBtn.setAttribute('title', mxResources.get('hide'));
+	hideBtn.style.marginTop = '8px';
+	hideBtn.style.marginRight = '4px';
+	hideBtn.style.backgroundColor = '#f5f5f5';
+	hideBtn.style.backgroundImage = 'none';
+	hideBtn.className = 'geBtn';
+	
+	div.appendChild(hideBtn);
 
-	var btn = mxUtils.button(mxResources.get('apply'), function()
+	var btn = mxUtils.button(mxResources.get('show'), function()
 	{
-		updateVisibleStates();
+		var cells = searchCells();
+		setCellsVisible(cells, true);
+		graph.setSelectionCells(cells);
 	});
 	
+	btn.setAttribute('title', mxResources.get('show') + ' (Enter)');
 	btn.style.marginTop = '8px';
-	btn.style.padding = '4px';
+	btn.style.backgroundColor = '#4d90fe';
+	btn.style.backgroundImage = 'none';
+	btn.className = 'geBtn gePrimaryBtn';
+	
 	div.appendChild(btn);
 	
-	mxEvent.addListener(verbSelect, 'change', function(e)
+	mxEvent.addListener(searchInput, 'keyup', function(evt)
 	{
-		updateVisibleStates();
-		tagInput.focus();
-	});
-	
-	mxEvent.addListener(tagInput, 'keypress', function(e)
-	{
-		if (e.keyCode == 13 || e.keyCode == 32)
+		// Ctrl or Cmd keys
+		if (evt.keyCode == 91 || evt.keyCode == 17)
+		{
+			// Workaround for lost focus on show
+			mxEvent.consume(evt);
+		}
+		else if (evt.keyCode == 13)
 		{
 			btn.click();
 		}
 	});
+	
+	// Extends Extras menu
+	mxResources.parse('tags=Tags');
 
-	var wnd = new mxWindow('Tags', div, document.body.offsetWidth - 300, 140, 200, 120, true, true);
+	var wnd = new mxWindow(mxResources.get('tags'), div, document.body.offsetWidth - 300, 230, 204, 116, true, true);
 	wnd.destroyOnClose = false;
 	wnd.setMaximizable(false);
 	wnd.setResizable(false);
 	wnd.setClosable(true);
-	
-	// Extends Extras menu
-	mxResources.parse('tags=Tags');
 
     // Adds action
     ui.actions.addAction('tags...', function()
@@ -142,18 +154,36 @@ Draw.loadPlugin(function(ui)
 		
 		if (wnd.isVisible())
 		{
-			tagInput.focus();	
+			searchInput.focus();
+			
+			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			{
+				searchInput.select();
+			}
+			else
+			{
+				document.execCommand('selectAll', false, null);
+			}
+		}
+		else
+		{
+			graph.container.focus();
 		}
     });
 	
-	var extrasMenu = ui.menus.get('extras');
-	var oldExtrasMenu = extrasMenu.funct;
+    
+	var action = ui.actions.get('tags');
 	
-	extrasMenu.funct = function(menu, parent)
+    action.setToggleAction(true);
+	action.setSelectedCallback(function() { return wnd.isVisible(); });
+    
+	var menu = ui.menus.get('extras');
+	var oldFunct = menu.funct;
+	
+	menu.funct = function(menu, parent)
 	{
-		oldExtrasMenu.apply(this, arguments);
+		oldFunct.apply(this, arguments);
 		
-		menu.addSeparator(parent);
-		ui.menus.addMenuItems(menu, ['tags'], parent);
+		ui.menus.addMenuItems(menu, ['-', 'tags'], parent);
 	};
 });

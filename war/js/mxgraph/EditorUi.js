@@ -2784,7 +2784,10 @@ EditorUi.prototype.createDivs = function()
 		this.sidebarFooterContainer.style.left = '0px';
 	}
 	
-	this.tabContainer = this.createTabContainer();
+	if (!this.editor.chromeless)
+	{
+		this.tabContainer = this.createTabContainer();
+	}
 };
 
 /**

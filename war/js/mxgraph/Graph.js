@@ -2949,6 +2949,21 @@ HoverIcons.prototype.repaint = function()
 				this.arrowUp.style.visibility = 'visible';
 				this.arrowDown.style.visibility = 'visible';
 			}
+			
+			if (this.graph.tooltipHandler.isEnabled())
+			{
+				this.arrowLeft.setAttribute('title', mxResources.get('plusTooltip'));
+				this.arrowRight.setAttribute('title', mxResources.get('plusTooltip'));
+				this.arrowUp.setAttribute('title', mxResources.get('plusTooltip'));
+				this.arrowDown.setAttribute('title', mxResources.get('plusTooltip'));
+			}
+			else
+			{
+				this.arrowLeft.removeAttribute('title');
+				this.arrowRight.removeAttribute('title');
+				this.arrowUp.removeAttribute('title');
+				this.arrowDown.removeAttribute('title');
+			}
 		}
 		else
 		{
