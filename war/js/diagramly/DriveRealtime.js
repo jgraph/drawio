@@ -251,6 +251,8 @@ DriveRealtime.prototype.start = function()
 			// Dummy node, should be XML node if used
 			this.page = new DiagramPage(document.createElement('diagram'));
 			this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
+			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+			this.page.setName(this.diagramMap.get('name'));
 			this.page.mapping.init();
 		}
 		else
@@ -295,6 +297,13 @@ DriveRealtime.prototype.start = function()
 		// Dummy node, should be XML node if used
 		this.page = new DiagramPage(document.createElement('diagram'));
 		this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
+		
+		if (!this.diagramMap.has('name'))
+		{
+			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+		}
+		
+		this.page.setName(this.page.mapping.diagramMap.get('name'));
 		
 		// Avoids scroll offset when switching page
 		this.page.mapping.init();
@@ -865,6 +874,21 @@ DriveRealtime.prototype.installPageSelectListener = function()
 			{
 				this.ignoreChange = true;
 				
+				// Switches to pages datastructure
+				if (this.ui.pages == null)
+				{
+					this.ui.fileNode = mxUtils.createXmlDocument().createElement('mxfile');
+					this.ui.pages = [];
+					
+					if (this.page != null)
+					{
+						this.ui.currentPage = this.page;
+						this.ui.pages.push(this.ui.currentPage);
+						this.diagramMap = null;
+						this.page = null;
+					}
+				}
+				
 				for (var i = 0; i < evt.values.length; i++)
 				{
 					var page = new DiagramPage(document.createElement('diagram'));
@@ -874,9 +898,17 @@ DriveRealtime.prototype.installPageSelectListener = function()
 					this.ui.pages.splice(evt.index + i, 0, page);
 					page.mapping.init();
 				}
-
-				this.ignoreChange = false;
+				
+				// Shows tab container if pages are added with pages disabled
+				if (this.ui.pages != null && this.ui.pages.length > 1 &&
+					this.ui.tabContainer != null &&
+					this.ui.tabContainer.style.height == '0px')
+				{
+					this.ui.editor.graph.view.validateBackground();
+				}
+					
 				this.ui.updateTabContainer();
+				this.ignoreChange = false;
 			}
 			else if (evt.movedFromList == this.diagrams && evt.movedFromIndex != null)
 			{

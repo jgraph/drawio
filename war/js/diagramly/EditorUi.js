@@ -4082,7 +4082,7 @@
 			{
 				var idx = xml.lastIndexOf('%3E');
 				
-				if (idx < xml.length - 3)
+				if (idx >= 0 && idx < xml.length - 3)
 				{
 					xml = xml.substring(0, idx + 3);
 				}
