@@ -4368,7 +4368,8 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					for (var i = 0; i < links.length; i++)
 					{
-						var href = links[i].getAttribute('href');
+						var href = this.getLinkUrl(links[i].getAttribute('href'));
+						links[i].setAttribute('href', href);
 						
 						if (href != null && !this.isBlankLink(href))
 						{
