@@ -65,6 +65,9 @@ App = function(editor, container, lightbox)
 		EditDataDialog.placeholderHelpLink = 'https://support.draw.io/questions/9338941';
 	}
 
+	// Gets recent colors from settings
+	ColorDialog.recentColors = mxSettings.getRecentColors(ColorDialog.recentColors);
+
 	// Handles opening files via drag and drop
 	this.addFileDropHandler([document]);
 	
@@ -186,6 +189,29 @@ App.getStoredMode = function()
 {
 	// Checks for local storage and SVG support
 	window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9);
+		
+	/**
+	 * Adds persistence for recent colors
+	 */
+	var colorDialogAddRecentColor = ColorDialog.addRecentColor;
+	
+	ColorDialog.addRecentColor = function(color, max)
+	{
+		colorDialogAddRecentColor.apply(this, arguments);
+		
+		mxSettings.setRecentColors(ColorDialog.recentColors);
+		mxSettings.save();
+	};
+	
+	var colorDialogResetRecentColors = ColorDialog.resetRecentColors;
+	
+	ColorDialog.resetRecentColors = function()
+	{
+		colorDialogResetRecentColors.apply(this, arguments);
+		
+		mxSettings.setRecentColors(ColorDialog.recentColors);
+		mxSettings.save();
+	};
 
 	if (!mxClient.IS_CHROMEAPP)
 	{
@@ -680,9 +706,6 @@ Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURICompone
 App.prototype.init = function()
 {
 	EditorUi.prototype.init.apply(this, arguments);
-	
-	var host = window.location.host;
-	
 	
 	/**
 	 * Overrides export dialog for using cloud storage save.
@@ -4237,7 +4260,7 @@ App.prototype.fileLoaded = function(file)
 //		        	if (!this.isOffline())
 //		        	{
 //	        			var img = new Image();
-						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+//						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
 //	        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
 //        				'&v=' + encodeURIComponent(EditorUi.VERSION);
 //		        	}

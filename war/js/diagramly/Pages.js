@@ -485,6 +485,21 @@ Graph.prototype.setViewState = function(state)
 		this.pasteCounter = 0;
 		this.mathEnabled = false;
 		this.connectionArrowsEnabled = true;
+		
+		// Selects first unlocked layer if one exists
+		var cell = this.getDefaultParent();
+		var style = this.getCellStyle(cell);
+		var index = 0;
+		
+		while (cell != null && mxUtils.getValue(this.getCellStyle(cell), 'locked', '0') == '1')
+		{
+			cell = this.model.getChildAt(this.model.root, index++);
+		}
+		
+		if (cell != null)
+		{
+			this.setDefaultParent(cell);
+		}
 	}
 	
 	// Implicit settings

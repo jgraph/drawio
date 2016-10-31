@@ -291,37 +291,60 @@ private:
     }
   }
 
-  kj::StringPtr inferContentType(kj::StringPtr filename) {
-    if (filename.endsWith(".html")) {
-      return "text/html; charset=UTF-8";
-    } else if (filename.endsWith(".js")) {
-      return "text/javascript; charset=UTF-8";
-    } else if (filename.endsWith(".css")) {
-      return "text/css; charset=UTF-8";
-    } else if (filename.endsWith(".png")) {
-      return "image/png";
-    } else if (filename.endsWith(".gif")) {
-      return "image/gif";
-    } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-      return "image/jpeg";
-    } else if (filename.endsWith(".svg")) {
-      return "image/svg+xml; charset=UTF-8";
-    } else if (filename.endsWith(".txt")) {
-      return "text/plain; charset=UTF-8";
-    } else {
-      return "application/octet-stream";
+  struct ContentType {
+    kj::StringPtr type;
+    kj::StringPtr encoding;
+
+    ContentType(kj::StringPtr type): type(type), encoding(nullptr) {}
+    ContentType(const char* type): type(type), encoding(nullptr) {}
+    ContentType() = default;
+  };
+
+  ContentType inferContentType(kj::StringPtr filename) {
+    ContentType result;
+    kj::String scratch;
+
+    if (filename.endsWith(".gz")) {
+      result.encoding = "gzip";
+      scratch = kj::str(filename.slice(0, filename.size() - 3));
+      filename = scratch;
     }
+
+    if (filename.endsWith(".html")) {
+      result.type = "text/html; charset=UTF-8";
+    } else if (filename.endsWith(".js")) {
+      result.type = "text/javascript; charset=UTF-8";
+    } else if (filename.endsWith(".css")) {
+      result.type = "text/css; charset=UTF-8";
+    } else if (filename.endsWith(".png")) {
+      result.type = "image/png";
+    } else if (filename.endsWith(".gif")) {
+      result.type = "image/gif";
+    } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+      result.type = "image/jpeg";
+    } else if (filename.endsWith(".svg")) {
+      result.type = "image/svg+xml; charset=UTF-8";
+    } else if (filename.endsWith(".txt")) {
+      result.type = "text/plain; charset=UTF-8";
+    } else {
+      result.type = "application/octet-stream";
+    }
+
+    return result;
   }
 
   kj::Promise<void> readFile(
-      kj::StringPtr filename, GetContext context, kj::StringPtr contentType) {
+      kj::StringPtr filename, GetContext context, ContentType contentType) {
     KJ_IF_MAYBE(fd, tryOpen(filename, O_RDONLY)) {
       auto size = getFileSize(*fd, filename);
       kj::FdInputStream stream(kj::mv(*fd));
       auto response = context.getResults(capnp::MessageSize { size / sizeof(capnp::word) + 32, 0 });
       auto content = response.initContent();
       content.setStatusCode(sandstorm::WebSession::Response::SuccessCode::OK);
-      content.setMimeType(contentType);
+      content.setMimeType(contentType.type);
+      if (contentType.encoding != nullptr) {
+        content.setEncoding(contentType.encoding);
+      }
       stream.read(content.getBody().initBytes(size).begin(), size);
       return kj::READY_NOW;
     } else {
@@ -417,4 +440,3 @@ private:
 }  // anonymous namespace
 
 KJ_MAIN(ServerMain)
-

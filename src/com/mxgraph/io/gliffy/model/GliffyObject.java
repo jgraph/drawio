@@ -1,8 +1,6 @@
 package com.mxgraph.io.gliffy.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +10,7 @@ import com.mxgraph.model.mxCell;
  * Class representing Gliffy diagram object
  * 
  */
-public class Object
+public class GliffyObject
 {
 	public static String SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default";
 
@@ -52,7 +50,7 @@ public class Object
 
 	public Graphic graphic;
 
-	public List<Object> children;
+	public List<GliffyObject> children;
 
 	public Constraints constraints;
 	
@@ -60,7 +58,7 @@ public class Object
 
 	public mxCell mxObject;// the mxCell this gliffy object got converted into
 
-	public Object parent = null;
+	public GliffyObject parent = null;
 
 	static
 	{
@@ -130,7 +128,7 @@ public class Object
 		
 	}
 
-	public Object()
+	public GliffyObject()
 	{
 	}
 
@@ -153,7 +151,7 @@ public class Object
 	 * 
 	 * @return
 	 */
-	public Object getTextObject()
+	public GliffyObject getTextObject()
 	{
 
 		if (isText())
@@ -165,7 +163,7 @@ public class Object
 			return null;
 		}
 
-		for (Object child : children)
+		for (GliffyObject child : children)
 		{
 			if (child.getGraphic() != null && child.getGraphic().getType().equals(Graphic.Type.TEXT))
 			{

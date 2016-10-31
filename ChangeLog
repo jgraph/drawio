@@ -1,3 +1,12 @@
+31-OCT-2016: 5.7.2.5
+
+- Makes recent colors persistent
+- Uses first unlocked layer for multiple pages
+
+28-OCT-2016: 5.7.2.4
+
+- Fixes Gliffy line imports with less than 2 waypoints
+
 28-OCT-2016: 5.7.2.3
 
 - Prepares multiple pages per file

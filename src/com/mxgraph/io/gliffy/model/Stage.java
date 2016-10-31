@@ -17,7 +17,7 @@ public class Stage
 
 	private boolean drawingGuidesOn;
 
-	private List<Object> objects;
+	private List<GliffyObject> objects;
 
 	public Stage()
 	{
@@ -83,12 +83,12 @@ public class Stage
 		this.drawingGuidesOn = drawingGuidesOn;
 	}
 
-	public List<Object> getObjects()
+	public List<GliffyObject> getObjects()
 	{
 		return objects;
 	}
 
-	public void setObjects(List<Object> objects)
+	public void setObjects(List<GliffyObject> objects)
 	{
 		this.objects = objects;
 	}
