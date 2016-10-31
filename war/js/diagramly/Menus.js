@@ -896,7 +896,7 @@
 					graph.stopEditing();
 				}
 				
-				var data = (urlParams['pages'] == '1' || (editorUi.pages != null && editorUi.pages.length > 1)) ?
+				var data = (urlParams['pages'] != '0' || (editorUi.pages != null && editorUi.pages.length > 1)) ?
 					editorUi.getFileData(true) : mxUtils.getXml(editorUi.editor.getGraphXml());
 				
 				if (urlParams['proto'] == 'json')

@@ -242,7 +242,7 @@ EditorUi.prototype.initPages = function()
 			var prevHeight = this.tabContainer.style.height;
 			
 			if (this.fileNode == null || this.pages == null ||
-				(this.pages.length == 1 && urlParams['pages'] != '1'))
+				(this.pages.length == 1 && urlParams['pages'] == '0'))
 			{
 				this.tabContainer.style.height = '0px';
 			}

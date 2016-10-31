@@ -244,7 +244,7 @@ DriveRealtime.prototype.start = function()
 				page.mapping.init();
 			}
 		}
-		else if (urlParams['pages'] != '1')
+		else if (urlParams['pages'] == '0')
 		{
 			this.diagramMap = this.rtModel.createMap();
 			this.diagrams.push(this.diagramMap);
@@ -279,7 +279,7 @@ DriveRealtime.prototype.start = function()
 		
 		forceSave = true;
 	}
-	else if (this.diagrams.length < 2 && urlParams['pages'] != '1')
+	else if (this.diagrams.length < 2 && urlParams['pages'] == '0')
 	{
 		this.ui.fileNode = null;
 		this.ui.pages = null;

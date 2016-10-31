@@ -767,7 +767,7 @@
 				var oldPages = (this.pages != null) ? this.pages.slice() : null;
 				var nodes = node.getElementsByTagName('diagram');
 
-				if (urlParams['pages'] == '1' || nodes.length > 1 ||
+				if (urlParams['pages'] != '0' || nodes.length > 1 ||
 					(nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
 					this.fileNode = node;
@@ -790,7 +790,7 @@
 				else
 				{
 					// Creates tabbed file structure if enforced by URL
-					if (urlParams['pages'] == '1' && this.fileNode == null)
+					if (urlParams['pages'] != '0' && this.fileNode == null)
 					{
 						this.fileNode = node.ownerDocument.createElement('mxfile');
 						this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
@@ -848,7 +848,7 @@
 		{
 			var nodes = node.getElementsByTagName('diagram');
 
-			if (urlParams['pages'] == '1' || nodes.length > 1 ||
+			if (urlParams['pages'] != '0' || nodes.length > 1 ||
 				(nodes.length == 1 && nodes[0].hasAttribute('name')))
 			{
 				this.fileNode = node;
@@ -874,7 +874,7 @@
 		}
 		
 		// Creates tabbed file structure if enforced by URL
-		if (urlParams['pages'] == '1' && this.fileNode == null)
+		if (urlParams['pages'] != '0' && this.fileNode == null)
 		{
 			this.fileNode = node.ownerDocument.createElement('mxfile');
 			this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
@@ -4591,7 +4591,17 @@
 					if (evt.dataTransfer.files.length > 0)
 					{
 						this.hideDialog();
-						this.openFiles(evt.dataTransfer.files);
+						
+						// Never open files in embed mode
+						if (urlParams['embed'] == '1')
+						{
+							this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, null, null,
+								null, null, !mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt));
+						}
+						else
+						{
+							this.openFiles(evt.dataTransfer.files);
+						}
 					}
 					else
 					{
@@ -5194,7 +5204,7 @@
 						var msg = this.createLoadMessage('export');
 						
 						// Forces new HTML format if pages exists
-						if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] == '1' ||
+						if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
 							(this.pages != null && this.pages.length > 1))))
 						{
 							var node = this.getXmlFileData();
@@ -5361,7 +5371,7 @@
 			{
 				var changeListener = mxUtils.bind(this, function(sender, eventObject)
 				{
-					var data = (urlParams['pages'] == '1' || (this.pages != null && this.pages.length > 1)) ?
+					var data = (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
 						this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
 					var msg = this.createLoadMessage('autosave');
 					msg.xml = data;
