@@ -32,7 +32,7 @@
 		<echo file="${war.dir}/cache.manifest" append="false">CACHE MANIFEST${line.separator}${line.separator}</echo>
 		<echo file="${war.dir}/cache.manifest" append="true"># THIS FILE WAS GENERATED. DO NOT MODIFY!${line.separator}</echo>
 		<echo file="${war.dir}/cache.manifest" append="true"># ${time.stamp}${line.separator}${line.separator}</echo>
-    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="yes">
+    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="true">
     		<fileset dir="${basedir}" includes="cache.txt"/>
     	</concat>
     	
@@ -48,13 +48,13 @@
 
 		<delete file=".tmp1.js"/>
 		<copy file="${war.dir}/styles/default.xml" tofile=".tmp1.xml" overwrite="true"/>
-		<replaceregexp file=".tmp1.xml" match="\n" flags="g" replace=""/>
+		<replaceregexp file=".tmp1.xml" match="${line.separator}" flags="g" replace=""/>
 		<replaceregexp file=".tmp1.xml" match="\t" flags="g" replace=""/>
 		<replaceregexp file=".tmp1.xml" match="'" replace="\\\\'" byline="true"/>
 		
 		<delete file="Graph-Stylesheet.js"/>
 		<echo file="Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
-		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="yes">
+		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="true">
 			<file name=".tmp1.xml" />
     	</concat>
 		<echo file="Graph-Stylesheet.js" append="true">').documentElement;</echo>

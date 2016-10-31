@@ -214,7 +214,16 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 
 	var center = document.createElement('center');
 	
-	function addPresets(presets, rowLength, defaultColor)
+	function createRecentColorTable()
+	{
+		var table = addPresets((ColorDialog.recentColors.length == 0) ? ['FFFFFF'] :
+					ColorDialog.recentColors, 11, 'FFFFFF', true);
+		table.style.marginBottom = '8px';
+		
+		return table;
+	};
+	
+	function addPresets(presets, rowLength, defaultColor, addResetOption)
 	{
 		rowLength = (rowLength != null) ? rowLength : 12;
 		var table = document.createElement('table');
@@ -280,6 +289,28 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 			tbody.appendChild(tr);
 		}
 		
+		if (addResetOption)
+		{
+			var td = document.createElement('td');
+			td.setAttribute('title', mxResources.get('reset'));
+			td.style.border = '1px solid black';
+			td.style.padding = '0px';
+			td.style.width = '16px';
+			td.style.height = '16px';
+			td.style.backgroundImage = 'url(\'' + Dialog.prototype.closeImage + '\')';
+			td.style.backgroundPosition = 'center center';
+			td.style.backgroundRepeat = 'no-repeat';
+			td.style.cursor = 'pointer';
+			
+			tr.appendChild(td);
+
+			mxEvent.addListener(td, 'click', function()
+			{
+				ColorDialog.resetRecentColors();
+				table.parentNode.replaceChild(createRecentColorTable(), table);
+			});
+		}
+		
 		center.appendChild(table);
 		
 		return table;
@@ -289,8 +320,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	mxUtils.br(div);
 	
 	// Adds recent colors
-	var table = addPresets((ColorDialog.recentColors.length == 0) ? ['FFFFFF'] : ColorDialog.recentColors, 12, 'FFFFFF');
-	table.style.marginBottom = '8px';
+	createRecentColorTable();
 		
 	// Adds presets
 	var table = addPresets(['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5', 'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC', 'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66'], 12);
@@ -421,6 +451,14 @@ ColorDialog.addRecentColor = function(color, max)
 			ColorDialog.recentColors.pop();
 		}
 	}
+};
+
+/**
+ * Adds recent color for later use.
+ */
+ColorDialog.resetRecentColors = function()
+{
+	ColorDialog.recentColors = [];
 };
 
 /**
