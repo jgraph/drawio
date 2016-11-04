@@ -1695,7 +1695,7 @@ App.prototype.createFileData = function(node, graph, file, url, forceXml, forceS
 		// Writes the file as an embedded HTML file
 		if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
 		{
-			xml = this.getHtml2(fileNode, graph, (file != null) ? file.getTitle() : null, editLink, redirect, ignoreSelection);
+			xml = this.getHtml2(mxUtils.getXml(fileNode), graph, (file != null) ? file.getTitle() : null, editLink, redirect);
 		}
 		// Maps the XML data to the content attribute in the SVG node 
 		else if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
@@ -3167,10 +3167,16 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 
 	if (title != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
+		var bg = this.createBackground();
+		bg.style.zIndex = mxPopupMenu.prototype.zIndex;
+		mxUtils.setOpacity(bg, 50);
+		document.body.appendChild(bg);
+		
 		data = (data != null) ? data : this.emptyDiagramXml;
 		
 		var error = mxUtils.bind(this, function(resp)
 		{
+			bg.parentNode.removeChild(bg);
 			this.spinner.stop();
 			
 			if (resp == null && this.getCurrentFile() == null && this.dialog == null)
@@ -3189,6 +3195,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 
 			this.drive.insertFile(title, data, folderId, mxUtils.bind(this, function(file)
 			{
+				bg.parentNode.removeChild(bg);
 				this.spinner.stop();
 				this.fileCreated(file, libs, replace, done);
 			}), error);
@@ -3197,6 +3204,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		{
 			this.dropbox.insertFile(title, data, mxUtils.bind(this, function(file)
 			{
+				bg.parentNode.removeChild(bg);
 				this.spinner.stop();
 				this.fileCreated(file, libs, replace, done);
 			}), error);
@@ -3205,12 +3213,14 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		{
 			this.oneDrive.insertFile(title, data, mxUtils.bind(this, function(file)
 			{
+				bg.parentNode.removeChild(bg);
 				this.spinner.stop();
 				this.fileCreated(file, libs, replace, done);
 			}), error, false, folderId);
 		}
 		else if (mode == App.MODE_BROWSER)
 		{
+			bg.parentNode.removeChild(bg);
 			this.spinner.stop();
 			
 			var fn = mxUtils.bind(this, function()
@@ -3241,6 +3251,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		}
 		else
 		{
+			bg.parentNode.removeChild(bg);
 			this.spinner.stop();
 			this.fileCreated(new LocalFile(this, data, title), libs, replace, done);
 		}
@@ -3274,6 +3285,11 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 	// to save the file again since it needs the newly created file ID for redirecting in HTML
 	if (this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
+		var bg = this.createBackground();
+		bg.style.zIndex = mxPopupMenu.prototype.zIndex;
+		mxUtils.setOpacity(bg, 50);
+		document.body.appendChild(bg);
+		
 		var data = file.getData();
 		file.setData(this.createFileData((data.length > 0) ?
 			this.editor.extractGraphModel(mxUtils.parseXml(data).documentElement, true) : null,
@@ -3281,6 +3297,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 
 		var fn = mxUtils.bind(this, function()
 		{
+			bg.parentNode.removeChild(bg);
 			this.spinner.stop();
 			
 			var fn2 = mxUtils.bind(this, function()
@@ -3334,6 +3351,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				fn();
 			}), mxUtils.bind(this, function(resp)
 			{
+				bg.parentNode.removeChild(bg);
 				this.spinner.stop();
 				this.handleError(resp);
 			}));
@@ -3889,6 +3907,7 @@ App.prototype.libraryLoaded = function(file, images)
 			else if (graph.getRubberband().isActive())
 			{
 				graph.getRubberband().execute(evt);
+				graph.getRubberband().reset();
 			}
 			else
 			{
@@ -4238,6 +4257,7 @@ App.prototype.fileLoaded = function(file)
 
 			if (!this.editor.chromeless)
 			{
+				this.editor.graph.selectUnlockedLayer();
 				this.showLayersDialog();
 				this.restoreLibraries();
 			}
@@ -5200,7 +5220,6 @@ App.prototype.getHtml = function(node, graph, title, editLink, redirect, ignoreS
 	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 	var bg = null;
 	var js = 'https://www.draw.io/js/embed-static.min.js';
-	var s = '';
 
 	// LATER: Merge common code with EmbedDialog
 	if (graph != null)
@@ -5214,29 +5233,11 @@ App.prototype.getHtml = function(node, graph, title, editLink, redirect, ignoreS
 		// Embed script only used if no redirect
 		if (redirect == null)
 		{
-			var stencilNames = new Object();
-			var states = this.editor.graph.view.states.getValues();
-			
-			// Scans shapes for stencils
-			for (var i = 0; i < states.length; i++)
-			{
-				var state = states[i];
-				var shape = state.style[mxConstants.STYLE_SHAPE];
-				var base = mxStencilRegistry.getBasenameForStencil(shape);
-				
-				if (base != null)
-				{
-					if (stencilNames[base] == null)
-					{
-						stencilNames[base] = true;
-						s += base + ';';
-					}
-				}
-			}
-			
+			var s = this.getBasenames().join(';');
+
 			if (s.length > 0)
 			{
-				js = 'https://www.draw.io/embed.js?s=' + s.substring(0, s.length - 1);
+				js = 'https://www.draw.io/embed.js?s=' + s;
 			}
 		}
 		
@@ -5302,9 +5303,8 @@ App.prototype.getHtml = function(node, graph, title, editLink, redirect, ignoreS
 /**
  * Same as above but using the new embed code.
  */
-App.prototype.getHtml2 = function(node, graph, title, editLink, redirect, ignoreSelection)
+App.prototype.getHtml2 = function(xml, graph, title, editLink, redirect)
 {
-	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 	var bg = null;
 	var js = 'https://www.draw.io/js/viewer.min.js';
 	var s = '';
@@ -5315,48 +5315,11 @@ App.prototype.getHtml2 = function(node, graph, title, editLink, redirect, ignore
 		// Embed script only used if no redirect
 		if (redirect == null)
 		{
-			var s = [];
-			
-			// Scans shapes for stencils
-			var stencilNames = new Object();
-			var states = graph.view.states.getValues();
-			
-			function addName(name)
-			{
-				if (name != null)
-				{
-					var dot = name.lastIndexOf('.');
-					
-					if (dot > 0)
-					{
-						name = name.substring(dot + 1, name.length);
-					}
-					
-					if (stencilNames[name] == null)
-					{
-						stencilNames[name] = true;
-						s.push(name);
-					}
-				}
-			}
-			
-			for (var i = 0; i < states.length; i++)
-			{
-				var state = states[i];
-				var shape = state.style[mxConstants.STYLE_SHAPE];
-				addName(mxStencilRegistry.getBasenameForStencil(shape));
-				
-				// Adds package names for markers in edges
-				if (state.view.graph.model.isEdge(state.cell))
-				{
-					addName(mxMarker.getPackageForType(state.style[mxConstants.STYLE_STARTARROW]));
-					addName(mxMarker.getPackageForType(state.style[mxConstants.STYLE_ENDARROW]));
-				}
-			}
+			var s = this.getBasenames().join(';');
 			
 			if (s.length > 0)
 			{
-				js = 'https://www.draw.io/embed2.js?s=' + s.join(';');
+				js = 'https://www.draw.io/embed2.js?s=' + s;
 			}
 		}
 	}
@@ -5368,7 +5331,12 @@ App.prototype.getHtml2 = function(node, graph, title, editLink, redirect, ignore
 	}
 	
 	var data = {highlight: '#0000ff', nav: this.editor.graph.foldingEnabled, resize: true,
-		xml: this.editor.graph.zapGremlins(mxUtils.getXml(node)), toolbar: 'zoom layers lightbox'};
+		xml: this.editor.graph.zapGremlins(xml), toolbar: 'pages zoom layers lightbox'};
+	
+	if (this.pages != null && this.currentPage != null)
+	{
+		data.page = mxUtils.indexOf(this.pages, this.currentPage);
+	}
 
 	var style = 'max-width:100%;border:1px solid transparent;';
 
@@ -5443,8 +5411,7 @@ App.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSe
 		}
 	    else if (format == 'html')
 	    {
-	    	var data = this.getHtml2(this.editor.getGraphXml(ignoreSelection),
-	    		this.editor.graph, basename, null, null, ignoreSelection);
+	    	var data = this.getHtml2(this.getFileData(true), this.editor.graph, basename);
 	    	this.saveData(filename, format, data, 'text/html');
 	    }
 	    else if ((format == 'svg' || format == 'xmlsvg') && this.spinner.spin(document.body, mxResources.get('export')))
@@ -6282,11 +6249,18 @@ App.prototype.updateUserElement = function()
 								{
 									this.confirm(mxResources.get('areYouSure'), mxUtils.bind(this, function()
 									{
-										this.diagramContainer.style.visibility = 'hidden';
-										this.formatContainer.style.visibility = 'hidden';
+										this.spinner.spin(document.body, mxResources.get('signOut'));
+										
+										this.diagramContainer.style.display = 'none';
+										this.formatContainer.style.display = 'none';
 										this.hsplit.style.display = 'none';
 										this.sidebarContainer.style.display = 'none';
 										this.sidebarFooterContainer.style.display = 'none';
+										
+										if (this.tabContainer != null)
+										{
+											this.tabContainer.style.display = 'none';
+										}
 											
 										file.close();
 	

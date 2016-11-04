@@ -1,0 +1,481 @@
+<shapes name="mxGraph.electrical.diodes">
+	<shape aspect="variable" h="60" name="Diode" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="in" perimeter="0" x="0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="30" y="0"/>
+				<line x="70" y="30"/>
+				<line x="30" y="60"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0" y="30"/>
+				<line x="30" y="30"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70" y="0"/>
+				<line x="70" y="60"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70" y="30"/>
+				<line x="100" y="30"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Field Effect Diode" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="30.0" y="0.0"/>
+				<line x="70.0" y="30.0"/>
+				<line x="30.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="30.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="0.0"/>
+				<line x="70.0" y="60.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="65.0" y="0.0"/>
+				<line x="75.0" y="0.0"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="65.0" y="60.0"/>
+				<line x="75.0" y="60.0"/>
+			</path>
+			<stroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="80.0" name="Four Layer Diode" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="30.0" y="10.0"/>
+				<line x="70.0" y="40.0"/>
+				<line x="30.0" y="40.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="40.0"/>
+				<line x="30.0" y="40.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="30.0" y="40.0"/>
+				<line x="30.0" y="70.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="40.0"/>
+				<line x="100.0" y="40.0"/>
+			</path>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<ellipse h="80.0" w="80.0" x="10.0" y="0.0"/>
+			<stroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Gunn Diode" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="10.0" y="0.0"/>
+				<line x="90.0" y="60.0"/>
+				<line x="90.0" y="0.0"/>
+				<line x="10.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="10.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="90.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Schottky Diode" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="30.0" y="0.0"/>
+				<line x="70.0" y="30.0"/>
+				<line x="30.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="30.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="60.0" y="5.0"/>
+				<line x="60.0" y="0.0"/>
+				<line x="70.0" y="0.0"/>
+				<line x="70.0" y="60.0"/>
+				<line x="80.0" y="60.0"/>
+				<line x="80.0" y="55.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="70.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Transorb 1" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="10.0" y="0.0"/>
+				<line x="90.0" y="60.0"/>
+				<line x="90.0" y="0.0"/>
+				<line x="10.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="50.0" y="0.0"/>
+				<line x="50.0" y="60.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="10.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="90.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Transorb 2" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="10.0" y="0.0"/>
+				<line x="90.0" y="60.0"/>
+				<line x="90.0" y="0.0"/>
+				<line x="10.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="40.0" y="0.0"/>
+				<line x="50.0" y="10.0"/>
+				<line x="50.0" y="50.0"/>
+				<line x="60.0" y="60.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="10.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="90.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Tunnel Diode" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="30.0" y="0.0"/>
+				<line x="70.0" y="30.0"/>
+				<line x="30.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="60.0" y="0.0"/>
+				<line x="70.0" y="0.0"/>
+				<line x="70.0" y="60.0"/>
+				<line x="60.0" y="60.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="70.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="30.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="80.0" name="Tunnel Diode 2" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="30.0" y="10.0"/>
+				<line x="70.0" y="40.0"/>
+				<line x="30.0" y="70.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="40.0"/>
+				<line x="30.0" y="40.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="10.0"/>
+				<line x="70.0" y="70.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="40.0"/>
+				<line x="100.0" y="40.0"/>
+			</path>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<ellipse h="80.0" w="80.0" x="10.0" y="0.0"/>
+			<stroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60.0" name="Varactor - Varicap" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="30.0" y="0.0"/>
+				<line x="70.0" y="30.0"/>
+				<line x="30.0" y="60.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="75.0" y="0.0"/>
+				<line x="75.0" y="60.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="60.0"/>
+				<line x="70.0" y="0.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="70.0" y="30.0"/>
+				<line x="100.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="0.0" y="30.0"/>
+				<line x="30.0" y="30.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="50.0" name="Zener Diode 1" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="25.0" y="0.0"/>
+				<line x="75.0" y="25.0"/>
+				<line x="25.0" y="50.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="65.0" y="0.0"/>
+				<line x="75.0" y="0.0"/>
+				<line x="75.0" y="50.0"/>
+				<line x="85.0" y="50.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="0.0" y="25.0"/>
+				<line x="25.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="75.0" y="25.0"/>
+				<line x="100.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="50.0" name="Zener Diode 2" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="25.0" y="0.0"/>
+				<line x="75.0" y="25.0"/>
+				<line x="25.0" y="50.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="65.0" y="0.0"/>
+				<line x="75.0" y="0.0"/>
+				<line x="75.0" y="50.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="0.0" y="25.0"/>
+				<line x="25.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="75.0" y="25.0"/>
+				<line x="100.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="50.0" name="Zener Diode 3" strokewidth="inherit" w="100.0">
+		<connections>
+			<constraint name="in" perimeter="0" x="0.0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1.0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="25.0" y="0.0"/>
+				<line x="75.0" y="25.0"/>
+				<line x="25.0" y="50.0"/>
+				<close/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<fillcolor color="none"/>
+			<path>
+				<move x="65.0" y="0.0"/>
+				<line x="75.0" y="10.0"/>
+				<line x="75.0" y="40.0"/>
+				<line x="85.0" y="50.0"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="0.0" y="25.0"/>
+				<line x="25.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="75.0" y="25.0"/>
+				<line x="100.0" y="25.0"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+</shapes>

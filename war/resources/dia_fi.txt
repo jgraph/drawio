@@ -612,6 +612,7 @@ vertical=Pystysuunta
 verticalFlow=Pystysuuntainen vuo
 verticalTree=Pystysuuntainen puu
 view=Katso
+viewUrl=Link to view: {1}
 voiceAssistant=Ääniavustaja (beta)
 warning=Varoitus
 waypoints=Reittipisteet

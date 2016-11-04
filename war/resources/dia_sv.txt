@@ -612,6 +612,7 @@ vertical=Vertikal
 verticalFlow=Vertikalt flöde
 verticalTree=Vertikalt träd
 view=Vy
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Vägpunkter

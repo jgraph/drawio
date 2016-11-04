@@ -897,45 +897,7 @@ var EmbedHtmlDialog = function(editorUi)
 
 	function update(force)
 	{
-		var s = [];
-		
-		// Scans shapes for stencils
-		var stencilNames = new Object();
-		var states = graph.view.states.getValues();
-		
-		function addName(name)
-		{
-			if (name != null)
-			{
-				var dot = name.lastIndexOf('.');
-				
-				if (dot > 0)
-				{
-					name = name.substring(dot + 1, name.length);
-				}
-				
-				if (stencilNames[name] == null)
-				{
-					stencilNames[name] = true;
-					s.push(name);
-				}
-			}
-		}
-		
-		for (var i = 0; i < states.length; i++)
-		{
-			var state = states[i];
-			var shape = state.style[mxConstants.STYLE_SHAPE];
-			addName(mxStencilRegistry.getBasenameForStencil(shape));
-			
-			// Adds package names for markers in edges
-			if (state.view.graph.model.isEdge(state.cell))
-			{
-				addName(mxMarker.getPackageForType(state.style[mxConstants.STYLE_STARTARROW]));
-				addName(mxMarker.getPackageForType(state.style[mxConstants.STYLE_ENDARROW]));
-			}
-		}
-		
+		var s = editorUi.getBasenames();
 		var data = {};
 		
 		if (borderColorInput.value != '' && borderColorInput.value != mxConstants.NONE)
@@ -1714,30 +1676,9 @@ var GoogleSitesDialog = function(editorUi)
 	mxUtils.write(div, mxResources.get('embed') + ' ');
 
 	var node = null;
-	var s = '';
-	
-	// Scans shapes for stencils
-	var stencilNames = new Object();
-	var states = graph.view.states.getValues();
-	
-	for (var i = 0; i < states.length; i++)
-	{
-		var state = states[i];
-		var shape = state.style[mxConstants.STYLE_SHAPE];
-		var basename = mxStencilRegistry.getBasenameForStencil(shape);
-		
-		if (basename != null)
-		{
-			if (stencilNames[basename] == null)
-			{
-				stencilNames[basename] = true;
-				s += basename + ';';
-			}
-		}
-	}
-	
+	var s = editorUi.getBasenames().join(';');
 	var file = editorUi.getCurrentFile();
-	
+
 	function update()
 	{
 		var title = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
@@ -2013,27 +1954,6 @@ var IframeDialog = function(editorUi, image, link)
 	mxUtils.br(div);
 
 	var node = null;
-	var s = '';
-	
-	// Scans shapes for stencils
-	var stencilNames = new Object();
-	var states = graph.view.states.getValues();
-	
-	for (var i = 0; i < states.length; i++)
-	{
-		var state = states[i];
-		var shape = state.style[mxConstants.STYLE_SHAPE];
-		var basename = mxStencilRegistry.getBasenameForStencil(shape);
-		
-		if (basename != null)
-		{
-			if (stencilNames[basename] == null)
-			{
-				stencilNames[basename] = true;
-				s += basename + ';';
-			}
-		}
-	}
 
 	var previewBtn = mxUtils.button(mxResources.get('preview'), function()
 	{
@@ -2525,15 +2445,11 @@ var CreateGraphDialog = function(editorUi, title, type)
 		var okBtn = mxUtils.button(mxResources.get('insert'), function()
 		{
 			graph.clearCellOverlays();
-			var view = editorUi.editor.graph.view;
-			var bds = editorUi.editor.graph.getGraphBounds();
 			
 			// Computes unscaled, untranslated graph bounds
-			var pt = editorUi.editor.graph.getInsertPoint();
-			var x = Math.max(pt.x, bds.x / view.scale - view.translate.x);
-			var y = Math.max(pt.y, editorUi.editor.graph.snap((bds.y + bds.height) /
-				view.scale - view.translate.y + 4 * graph.gridSize));
-			var cells = editorUi.editor.graph.importCells(graph.getModel().getChildren(graph.getDefaultParent()), x, y);
+			var pt = editorUi.editor.graph.getFreeInsertPoint();
+			var cells = editorUi.editor.graph.importCells(
+				graph.getModel().getChildren(graph.getDefaultParent()), pt.x, pt.y);
 			var temp = view.getBounds(cells);
 			temp.x -= view.translate.x;
 			temp.y -= view.translate.y;

@@ -320,7 +320,7 @@ Actions.prototype.init = function()
 						}
 					}
 					
-					var pt = graph.getInsertPoint();
+					var pt = graph.getFreeInsertPoint();
             		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
             	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
             	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
@@ -330,6 +330,7 @@ Actions.prototype.init = function()
             	    graph.setLinkForCell(linkCell, link);
             	    graph.cellSizeUpdated(linkCell, true);
             	    graph.setSelectionCell(graph.addCell(linkCell));
+            	    graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			});
 			
@@ -1060,7 +1061,7 @@ Actions.prototype.init = function()
 			        		// Inserts new cell if no cell is selected
 			    			if (cells.length == 0)
 			    			{
-			    				var pt = graph.getInsertPoint();
+			    				var pt = graph.getFreeInsertPoint();
 			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
 			    						'shape=image;verticalLabelPosition=bottom;verticalAlign=top;')];
 			    				select = cells;

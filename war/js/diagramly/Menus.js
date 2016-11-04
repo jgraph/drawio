@@ -1509,10 +1509,10 @@
 		
 		editorUi.actions.addAction('imgur...', mxUtils.bind(this, function()
 		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
+			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId, editable)
 			{
 				window.open('https://imgur.com/' + imgurId);
-			});
+			}, mxResources.get('open'));
 		}));
 				
 		editorUi.actions.addAction('facebook...', mxUtils.bind(this, function()
@@ -1547,14 +1547,14 @@
 			// to set content type to form-encoded-data which is needed for the export.
 			if (document.documentMode == null || document.documentMode >= 10)
 			{
+				this.addMenuItems(menu, ['imgur'], parent);
+				this.addMenuItems(menu, ['twitter'], parent);
+				this.addMenuItems(menu, ['facebook'], parent);
+
 				if (typeof XMLHttpRequest !== 'undefined')
 				{
 					this.addMenuItems(menu, ['github'], parent);
 				}
-				
-				this.addMenuItems(menu, ['twitter'], parent);
-				this.addMenuItems(menu, ['facebook'], parent);
-				this.addMenuItems(menu, ['imgur'], parent);
 			}
 			
 			if (!navigator.standalone && !editorUi.isOffline())
@@ -1645,7 +1645,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('Text', new mxGeometry(pt.x, pt.y, 40, 20),
 			    	'text;html=1;resizable=0;autosize=1;align=left;verticalAlign=top;spacingTop=-4;points=[];');
 				cell.vertex = true;
@@ -1657,10 +1657,11 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 120, 60), 'whiteSpace=wrap;html=1;');
 				cell.vertex = true;
 	    	    graph.setSelectionCell(graph.addCell(cell));
+	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, null, null, 'Ctrl+K').isEnabled = isGraphEnabled;
 		
@@ -1668,10 +1669,11 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 80, 80), 'ellipse;whiteSpace=wrap;html=1;');
 				cell.vertex = true;
 	    	    graph.setSelectionCell(graph.addCell(cell));
+	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, null, null, 'Ctrl+Shift+K').isEnabled = isGraphEnabled;
 		

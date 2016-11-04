@@ -612,6 +612,7 @@ vertical=Κάθετο
 verticalFlow=Κάθετη Ροή
 verticalTree=Κάθετο δέντρο
 view=Προβολή
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Σημεία αναφοράς

@@ -916,7 +916,7 @@ Graph.prototype.transparentBackground = true;
 Graph.prototype.defaultEdgeLength = 80;
 
 /**
- * Allows all values in fit.
+ * Disables move of bends/segments without selecting.
  */
 Graph.prototype.edgeMode = false;
 
@@ -4242,6 +4242,33 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			return new mxPoint(this.snap(dx + gs), this.snap(dy + gs));
+		};
+		
+		/**
+		 * 
+		 */
+		Graph.prototype.getFreeInsertPoint = function()
+		{
+			var view = this.view;
+			var bds = this.getGraphBounds();
+			var pt = this.getInsertPoint();
+			
+			// Places at same x-coord and 2 grid sizes below existing graph
+			var x = this.snap(Math.max(pt.x, bds.x / view.scale - view.translate.x +
+				((bds.width == 0) ? this.gridSize : 0)));
+			var y = this.snap(Math.max(pt.y, (bds.y + bds.height) / view.scale - view.translate.y +
+				((bds.height == 0) ? 1 : 2) * this.gridSize));
+			
+			return new mxPoint(x, y);
+		};
+		
+		/**
+		 * Hook for subclassers to return true if the current insert point was defined
+		 * using a mouse hover event.
+		 */
+		Graph.prototype.isMouseInsertPoint = function()
+		{			
+			return false;
 		};
 		
 		/**

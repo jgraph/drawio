@@ -612,6 +612,7 @@ vertical=Vertical
 verticalFlow=Curgere Verticală
 verticalTree=Arbore Vertical
 view=Vizualizare
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Repere

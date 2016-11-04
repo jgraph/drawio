@@ -1,0 +1,1002 @@
+<shapes name="mxGraph.rack.General">
+    <shape name="12U Rack 19 Standard" h="219.54" w="179.75">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="179.75" h="219.54"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="179.75" h="20.96"/>
+            <fillstroke/>
+            <rect x="0" y="198.59" w="179.75" h="20.96"/>
+            <fillstroke/>
+            <rect x="0" y="20.96" w="8.99" h="177.63"/>
+            <fillstroke/>
+            <rect x="170.76" y="20.96" w="8.99" h="177.63"/>
+            <fillstroke/>
+            <ellipse x="2.66" y="7.65" w="6" h="5.98"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.43" y="7.65" w="6" h="5.98"/>
+            <fillstroke/>
+            <ellipse x="2.33" y="206.57" w="6" h="5.98"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.43" y="206.57" w="6" h="5.98"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="26U Rack 19 Standard" h="427" w="180">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180" h="427"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180" h="20.98"/>
+            <fillstroke/>
+            <rect x="0" y="406.02" w="180" h="20.98"/>
+            <fillstroke/>
+            <rect x="0" y="20.98" w="9" h="385.03"/>
+            <fillstroke/>
+            <rect x="171" y="20.98" w="9" h="385.03"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.66" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.67" y="7.66" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="413.67" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.67" y="413.67" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="36U Rack 19 Standard" h="575.56" w="180.02">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180.02" h="575.56"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180.02" h="21"/>
+            <fillstroke/>
+            <rect x="0" y="554.55" w="180.02" h="21"/>
+            <fillstroke/>
+            <rect x="0" y="21" w="9" h="533.55"/>
+            <fillstroke/>
+            <rect x="171.02" y="21" w="9" h="533.55"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.67" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.68" y="7.67" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.68" y="561.89" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="561.89" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="40U Rack 19 Standard" h="634.5" w="180">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180" h="634.5"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180" h="20.99"/>
+            <fillstroke/>
+            <rect x="0" y="613.51" w="180" h="20.99"/>
+            <fillstroke/>
+            <rect x="0" y="20.99" w="9" h="592.51"/>
+            <fillstroke/>
+            <rect x="171" y="20.99" w="9" h="592.51"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.66" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.67" y="7.66" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.67" y="621.17" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="621.17" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="42U Rack 19 Standard" h="664.1" w="180">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180" h="650"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180" h="20.99"/>
+            <fillstroke/>
+            <rect x="0" y="20.99" w="9" h="623"/>
+            <fillstroke/>
+            <rect x="171" y="20.99" w="9" h="623"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.66" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.67" y="7.66" w="6" h="6"/>
+            <fillstroke/>
+            <rect x="0" y="643.1" w="180" h="21"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="650.77" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.67" y="650.77" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="44U Rack 19 Standard" h="693.74" w="180">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180" h="693.74"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180" h="21"/>
+            <fillstroke/>
+            <rect x="0" y="672.75" w="180" h="21"/>
+            <fillstroke/>
+            <rect x="0" y="21" w="9" h="651.75"/>
+            <fillstroke/>
+            <rect x="171" y="21" w="9" h="651.75"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.66" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.67" y="7.66" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.67" y="680.51" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="680.51" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="47U Rack 19 IBM" h="753.24" w="180.18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180.18" h="753.24"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180.18" h="21.01"/>
+            <fillstroke/>
+            <rect x="0" y="732.23" w="180.18" h="21.01"/>
+            <fillstroke/>
+            <rect x="0" y="21.01" w="9.01" h="711.23"/>
+            <fillstroke/>
+            <rect x="171.17" y="21.01" w="9.01" h="711.23"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.67" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.84" y="7.67" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.84" y="739.9" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="739.9" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="48U Rack 19 Standard" h="753.24" w="180.18">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#ffffff"/>
+            <rect x="0" y="0" w="180.18" h="753.24"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <rect x="0" y="0" w="180.18" h="21.01"/>
+            <fillstroke/>
+            <rect x="0" y="732.23" w="180.18" h="21.01"/>
+            <fillstroke/>
+            <rect x="0" y="21.01" w="9.01" h="711.23"/>
+            <fillstroke/>
+            <rect x="171.17" y="21.01" w="9.01" h="711.23"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="7.67" w="6" h="6"/>
+            <stroke/>
+            <fillcolor color="#f4f4f4"/>
+            <ellipse x="170.84" y="7.67" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="170.84" y="739.9" w="6" h="6"/>
+            <fillstroke/>
+            <ellipse x="2.67" y="739.9" w="6" h="6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="1U" h="14.7" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="14.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="5.99" y="0" w="149.09" h="14.7"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="2U" h="29.6" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149" h="29.6"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="3U" h="44.35" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="44.35"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="4U" h="59.2" w="160.85">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.32" h="59.2"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="5U" h="74" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.9" h="74"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.24" h="74"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="6U" h="88.7" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="0" y="0" w="160.93" h="88.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="6" y="0" w="149.4" h="88.7"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="1U Rack Server" h="14.78" w="160.93">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.93" h="14.78"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.84" y="0"/>
+                <line x="152.73" y="0"/>
+                <line x="152.73" y="2.99"/>
+                <arc rx="4.33" ry="4.33" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.73" y="11.64"/>
+                <line x="152.73" y="14.78"/>
+                <line x="7.84" y="14.78"/>
+                <line x="7.84" y="11.64"/>
+                <arc rx="4.34" ry="4.32" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.84" y="2.99"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="17.34" y="2" w="56.02" h="10.64"/>
+            <fill/>
+            <rect x="88.37" y="2" w="56.02" h="10.64"/>
+            <fill/>
+            <strokecolor color="#545454"/>
+            <ellipse x="75.7" y="2.66" w="9.34" h="9.32"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="2U Rack Server" h="29.6" w="160.85">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.85" h="29.6"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.83" y="0"/>
+                <line x="152.65" y="0"/>
+                <line x="152.65" y="10.49"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.65" y="19.15"/>
+                <line x="152.65" y="29.6"/>
+                <line x="7.83" y="29.6"/>
+                <line x="7.83" y="19.15"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.83" y="10.49"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="17.33" y="2" w="55.99" h="10.65"/>
+            <fill/>
+            <rect x="88.32" y="2" w="55.99" h="10.65"/>
+            <fill/>
+            <strokecolor color="#545454"/>
+            <ellipse x="75.66" y="10.14" w="9.34" h="9.32"/>
+            <stroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="17.33" y="16.8" w="55.99" h="10.65"/>
+            <fill/>
+            <rect x="88.32" y="16.8" w="55.99" h="10.65"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="3U Rack Server" h="44.35" w="160.85">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.85" h="44.35"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.83" y="0"/>
+                <line x="152.65" y="0"/>
+                <line x="152.65" y="17.85"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.65" y="26.5"/>
+                <line x="152.65" y="44.35"/>
+                <line x="7.83" y="44.35"/>
+                <line x="7.83" y="26.5"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.83" y="17.85"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="17.33" y="2" w="55.99" h="19.12"/>
+            <fill/>
+            <rect x="88.32" y="2" w="55.99" h="19.12"/>
+            <fill/>
+            <strokecolor color="#545454"/>
+            <ellipse x="75.66" y="17.52" w="9.34" h="9.32"/>
+            <stroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="17.33" y="23.11" w="55.99" h="19.12"/>
+            <fill/>
+            <rect x="88.32" y="23.11" w="55.99" h="19.12"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="CAT5e Enhanced Patch Panel 48 ports" h="29.65" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.93" h="29.65"/>
+            <fillstroke/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="7.34" y="1.33" w="145.06" h="2.33" arcsize="14.580009258607646"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="1.33" w="5" h="2" arcsize="34.98"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="26.18" w="5" h="2" arcsize="34.98"/>
+            <fillstroke/>
+            <roundrect x="154.73" y="1.33" w="5" h="2" arcsize="34.981823356665984"/>
+            <fillstroke/>
+            <roundrect x="154.73" y="26.18" w="5" h="2" arcsize="34.98184707998517"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="5.34" w="144.06" h="3"/>
+            <fill/>
+            <rect x="7.67" y="20.18" w="144.06" h="3"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="30.68" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="36.68" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="48.69" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="55.02" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="61.03" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="66.69" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="73.03" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="79.03" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="85.04" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="91.37" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="97.37" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="103.38" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="109.38" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="115.71" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="121.72" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="127.39" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="133.72" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="139.72" y="5.34" w="1" h="3"/>
+            <fill/>
+            <rect x="145.73" y="5.34" w="1" h="3"/>
+            <fill/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="7.34" y="16.18" w="145.06" h="2.33" arcsize="14.580019707060035"/>
+            <fillstroke/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="30.68" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="36.68" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="48.69" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="55.02" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="61.03" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="66.69" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="73.03" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="79.03" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="85.04" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="91.37" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="97.37" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="103.38" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="109.38" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="115.71" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="121.72" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="127.39" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="133.72" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="139.72" y="20.18" w="1" h="3"/>
+            <fill/>
+            <rect x="145.73" y="20.18" w="1" h="3"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="CAT5e Rack Mount Patch Panel 24 ports" h="14.95" w="160.93">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.93" h="14.95"/>
+            <fillstroke/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="7.34" y="1.35" w="145.06" h="2.35" arcsize="14.46"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="1.35" w="5" h="2.02" arcsize="34.77"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="11.44" w="5" h="2.02" arcsize="34.77"/>
+            <fillstroke/>
+            <roundrect x="154.73" y="1.35" w="5" h="2.02" arcsize="34.77"/>
+            <fillstroke/>
+            <roundrect x="154.73" y="11.44" w="5" h="2.02" arcsize="34.77"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="5.38" w="144.06" h="3.03"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="18.34" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="24.34" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="30.68" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="36.68" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="42.68" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="48.69" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="55.02" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="61.03" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="66.69" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="73.03" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="79.03" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="85.04" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="91.37" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="97.37" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="103.38" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="109.38" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="115.71" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="121.72" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="127.39" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="133.72" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="139.72" y="5.38" w="1" h="3.03"/>
+            <fill/>
+            <rect x="145.73" y="5.38" w="1" h="3.03"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="CAT5e Rack Mount Patch Panel 96 ports" h="59.2" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="0" y="0" w="160.9" h="59.2"/>
+            <fillstroke/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="7.33" y="1.33" w="145.03" h="2.33" arcsize="14.6"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="1.33" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="26.14" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="154.7" y="1.33" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="154.7" y="26.14" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="5.33" w="144.03" h="3"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="30.67" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="36.67" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="48.68" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="55.01" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="61.01" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="66.68" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="73.02" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="79.02" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="85.02" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="91.35" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="97.35" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="103.35" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="109.36" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="115.69" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="121.69" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="127.36" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="133.69" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="139.7" y="5.33" w="1" h="3"/>
+            <fill/>
+            <rect x="145.7" y="5.33" w="1" h="3"/>
+            <fill/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="7.33" y="16.15" w="145.03" h="2.33" arcsize="14.604292268035488"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="20.14" w="144.03" h="3"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="30.67" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="36.67" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="48.68" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="55.01" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="61.01" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="66.68" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="73.02" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="79.02" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="85.02" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="91.35" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="97.35" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="103.35" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="109.36" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="115.69" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="121.69" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="127.36" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="133.69" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="139.7" y="20.14" w="1" h="3"/>
+            <fill/>
+            <rect x="145.7" y="20.14" w="1" h="3"/>
+            <fill/>
+            <fillcolor color="#ffffff"/>
+            <roundrect x="0.67" y="30.93" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="0.67" y="55.74" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="154.7" y="55.74" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="154.7" y="30.93" w="5" h="2" arcsize="35"/>
+            <fillstroke/>
+            <roundrect x="7.33" y="30.93" w="145.03" h="2.33" arcsize="14.6"/>
+            <fillstroke/>
+            <roundrect x="7.33" y="45.75" w="145.03" h="2.33" arcsize="14.6"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="34.93" w="144.03" h="3"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="30.67" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="36.67" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="48.68" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="55.01" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="61.01" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="66.68" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="73.02" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="79.02" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="85.02" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="91.35" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="97.35" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="103.35" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="109.36" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="115.69" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="121.69" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="127.36" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="133.69" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="139.7" y="34.93" w="1" h="3"/>
+            <fill/>
+            <rect x="145.7" y="34.93" w="1" h="3"/>
+            <fill/>
+            <fillcolor color="#545454"/>
+            <rect x="7.67" y="49.74" w="144.03" h="3"/>
+            <fill/>
+            <fillcolor color="#000000"/>
+            <rect x="12.34" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="18.34" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="24.34" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="30.67" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="36.67" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="42.68" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="48.68" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="55.01" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="61.01" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="66.68" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="73.02" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="79.02" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="85.02" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="91.35" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="97.35" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="103.35" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="109.36" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="115.69" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="121.69" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="127.36" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="133.69" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="139.7" y="49.74" w="1" h="3"/>
+            <fill/>
+            <rect x="145.7" y="49.74" w="1" h="3"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Hub" h="29.7" w="160.8">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#d8d8d8"/>
+            <rect x="0" y="0" w="160.8" h="29.7"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="7.33" y="2.67" w="146.61" h="26.89"/>
+            <fillstroke/>
+            <fillcolor color="#dbdbdb"/>
+            <rect x="47.98" y="12.36" w="105.29" h="17.21"/>
+            <fillstroke/>
+            <fillcolor color="#545454"/>
+            <rect x="12.66" y="7.02" w="12" h="8.35"/>
+            <fill/>
+            <fillcolor color="#a5a5a5"/>
+            <roundrect x="66.64" y="15.7" w="10" h="5.35" arcsize="50.0"/>
+            <fill/>
+            <roundrect x="86.96" y="15.7" w="10" h="5.35" arcsize="50.0"/>
+            <fill/>
+            <roundrect x="107.29" y="15.7" w="10" h="5.35" arcsize="50.0"/>
+            <fill/>
+            <roundrect x="127.61" y="15.7" w="10" h="5.35" arcsize="50.0"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Server 1" h="153.25" w="73.25">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#cccccc"/>
+            <rect x="0" y="0" w="73.25" h="149.92"/>
+            <fillstroke/>
+            <rect x="3.33" y="149.92" w="66.59" h="3.33"/>
+            <fillstroke/>
+            <fillcolor color="#eeeeee"/>
+            <rect x="4.33" y="1.5" w="63.26" h="146.25"/>
+            <fill/>
+            <strokecolor color="#666666"/>
+            <fillcolor color="#cccccc"/>
+            <rect x="23.64" y="3.33" w="24.31" h="1"/>
+            <fillstroke/>
+            <rect x="5.83" y="6.66" w="59.93" h="11.66"/>
+            <fillstroke/>
+            <rect x="3.33" y="19.99" w="66.59" h="5"/>
+            <fill/>
+            <rect x="2" y="59.97" w="67.92" h="5"/>
+            <fill/>
+            <rect x="8.32" y="29.98" w="54.94" h="5"/>
+            <fill/>
+            <rect x="8.32" y="39.98" w="54.94" h="5"/>
+            <fill/>
+            <strokecolor color="#666666"/>
+            <rect x="6.66" y="68.3" w="58.27" h="76.63"/>
+            <fillstroke/>
+            <rect x="8.32" y="49.97" w="54.94" h="5"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Server 2" h="153.25" w="73.33">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#cccccc"/>
+            <rect x="0" y="0" w="73.33" h="153.25"/>
+            <fillstroke/>
+            <rect x="5" y="8" w="51" h="51.64"/>
+            <stroke/>
+            <rect x="59" y="8" w="10.33" h="141.59"/>
+            <stroke/>
+            <path>
+                <move x="59" y="59.63"/>
+                <line x="69.33" y="59.63"/>
+            </path>
+            <stroke/>
+            <ellipse x="60" y="12.32" w="8" h="8"/>
+            <stroke/>
+            <ellipse x="61.33" y="26.65" w="5.34" h="5.34"/>
+            <stroke/>
+            <rect x="8.33" y="13.66" w="44" h="28.32"/>
+            <stroke/>
+            <path>
+                <move x="8.33" y="27.98"/>
+                <line x="52.33" y="27.98"/>
+            </path>
+            <stroke/>
+            <fillcolor color="#7f7f7f"/>
+            <rect x="5" y="67.3" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="75.63" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="84.29" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="92.95" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="101.28" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="109.94" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="118.6" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="126.93" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="135.59" w="50.67" h="3.33"/>
+            <fill/>
+            <rect x="5" y="144.25" w="50.67" h="3.33"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="Server 3" h="153" w="73">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e0e0e0"/>
+            <rect x="0" y="0" w="73" h="153"/>
+            <fillstroke/>
+            <rect x="10.29" y="14.63" w="52.76" h="124.06"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <linejoin join="round"/>
+            <path>
+                <move x="0" y="0"/>
+                <line x="10.29" y="14.63"/>
+                <line x="10.29" y="138.7"/>
+                <line x="0" y="153"/>
+                <close/>
+                <move x="73" y="0"/>
+                <line x="73" y="153"/>
+                <line x="63.05" y="138.37"/>
+                <line x="63.05" y="14.63"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <roundrect x="19.58" y="5.99" w="34.18" h="20.62" arcsize="16.83"/>
+            <stroke/>
+            <fillcolor color="#000000"/>
+            <rect x="25.55" y="8.32" w="22.23" h="6.32"/>
+            <fill/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="16.26" y="31.93" w="40.81" h="99.78"/>
+            <fillstroke/>
+            <ellipse x="31.19" y="76.17" w="11.28" h="11.3"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="Switches 1" h="29.69" w="160.98">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#d8d8d8"/>
+            <rect x="0" y="0" w="160.98" h="29.69"/>
+            <fillstroke/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="2" y="3.01" w="49.03" h="10.02"/>
+            <fillstroke/>
+            <rect x="53.04" y="3.01" w="62.04" h="10.02"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="68.05" y="6.01" w="13.68" h="4.68"/>
+            <fillstroke/>
+            <rect x="85.72" y="6.01" w="13.68" h="4.68"/>
+            <fillstroke/>
+            <fillcolor color="#bfbfbf"/>
+            <rect x="7" y="6.01" w="40.03" h="4.01"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#e8e8e8"/>
+            <rect x="2" y="14.7" w="156.77" h="13.36"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="6.34" y="19.37" w="40.69" h="4.68"/>
+            <fillstroke/>
+            <rect x="52.37" y="19.37" w="40.69" h="4.68"/>
+            <fillstroke/>
+            <rect x="98.4" y="19.37" w="40.69" h="4.68"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="Switches 2" h="29.57" w="161.1">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#d8d8d8"/>
+            <rect x="0" y="0" w="161.1" h="29.57"/>
+            <fillstroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="16.36" y="6.65" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="16.36" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="40.39" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="64.76" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="85.12" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="105.49" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="129.85" y="18.96" w="13.35" h="4.66"/>
+            <fillstroke/>
+            <rect x="76.11" y="2.66" w="82.45" h="9.31"/>
+            <stroke/>
+            <fillcolor color="#b4b4b4"/>
+            <rect x="130.19" y="4.99" w="13.35" h="4.66"/>
+            <fillstroke/>
+        </foreground>
+    </shape>
+</shapes>

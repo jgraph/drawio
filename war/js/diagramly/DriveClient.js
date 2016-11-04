@@ -270,7 +270,8 @@ DriveClient.prototype.execute = function(fn)
 				
 				// Handles special domain policy errors
 				if (resp != null && resp.error != null && resp.error.code == 403 &&
-					resp.error.data != null && resp.error.data[0].reason == 'domainPolicy')
+					resp.error.data != null && resp.error.data.length > 0 &&
+					resp.error.data[0].reason == 'domainPolicy')
 				{
 					msg = resp.error.message;
 				}
@@ -346,7 +347,7 @@ DriveClient.prototype.executeRequest = function(req, success, error)
 					// case where the old app mime type was overridden by the new app
 					if (error != null && resp != null && resp.error != null && resp.error.code == 403 &&
 						(resp.error.message == 'The requested mime type change is forbidden.' ||
-						resp.error.errors != null && resp.error.errors[0].reason == 'domainPolicy'))
+						resp.error.data != null && resp.error.data[0].reason == 'domainPolicy'))
 					{
 						error(resp);
 					}

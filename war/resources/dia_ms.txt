@@ -612,6 +612,7 @@ vertical=Tegak
 verticalFlow=Aliran menegak
 verticalTree=Pohon menegak
 view=Pandangan
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Titik-titik arah

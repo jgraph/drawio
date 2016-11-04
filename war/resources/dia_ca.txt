@@ -612,6 +612,7 @@ vertical=Vertical
 verticalFlow=Flux vertical
 verticalTree=Arbre vertical
 view=Vista
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Waypoints

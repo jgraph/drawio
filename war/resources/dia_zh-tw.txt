@@ -612,6 +612,7 @@ vertical=垂直
 verticalFlow=垂直流線
 verticalTree=垂直樹狀
 view=檢視
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Waypoints

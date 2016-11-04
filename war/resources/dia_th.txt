@@ -612,6 +612,7 @@ vertical=แนวตั้ง
 verticalFlow=ผังในแนวตั้ง
 verticalTree=แผนผังต้นไม้ในแนวตั้ง
 view=มุมมอง
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=การวางตำแหน่ง
