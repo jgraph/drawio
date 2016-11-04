@@ -612,6 +612,7 @@ vertical=수직
 verticalFlow=수직 흐름도
 verticalTree=수직 트리 그림
 view=보기
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=중간점

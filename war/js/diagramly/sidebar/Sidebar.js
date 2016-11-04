@@ -993,30 +993,55 @@
 			{
 				var pg = page - Math.ceil((len - count / 4) / count);
 
-				mxUtils.get(ICONSEARCH_PATH + '?q=' + encodeURIComponent(searchTerms) +
-					'&l=1&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
+				mxUtils.get(ICONSEARCH_PATH + '?v=2&q=' + encodeURIComponent(searchTerms) +
+					'&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
 				{
-					var icons = req.getXml().getElementsByTagName('icon');
-					
-					for (var i = 0; i < icons.length; i++)
+					try
 					{
-						var size = parseInt(mxUtils.getTextContent(icons[i].getElementsByTagName('size')[0]));
-						var url = mxUtils.getTextContent(icons[i].getElementsByTagName('image')[0]);
-
-						if (size != null && url != null)
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
-							(mxUtils.bind(this, function(s, u)
+							var res = JSON.parse(req.getText());
+							
+							for (var i = 0; i < res.icons.length; i++)
 							{
-								results.push(mxUtils.bind(this, function()
+								var sizes = res.icons[i].raster_sizes;
+								var index = sizes.length - 1;
+								
+								while (index > 0 && sizes[index].size > 128)
 								{
-									return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
-										'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=' + u, s, s, '');
-								}));
-							}))(size, url);
+									index--;
+								}
+		
+								var size = sizes[index].size;
+								var url = sizes[index].formats[0].preview_url;
+		
+								if (size != null && url != null)
+								{
+									(mxUtils.bind(this, function(s, u)
+									{
+										results.push(mxUtils.bind(this, function()
+										{
+											return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
+												'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
+												'aspect=fixed;image=' + u, s, s, '');
+										}));
+									}))(size, url);
+								}
+							}
+		
+							succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
+						}
+						else
+						{
+							succ(results, len, false, terms);
+							this.editorUi.handleError({message: mxResources.get('unknownError')});
 						}
 					}
-
-					succ(results, (page - 1) * count + results.length, icons.length == count, terms);
+					catch (e)
+					{
+						succ(results, len, false, terms);
+						this.editorUi.handleError(e);
+					}
 				},
 				function()
 				{

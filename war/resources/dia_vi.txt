@@ -612,6 +612,7 @@ vertical=Dọc
 verticalFlow=Luồng dọc
 verticalTree=Cây dọc
 view=Xem
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Điểm tham chiếu

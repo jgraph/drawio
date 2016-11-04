@@ -40,26 +40,26 @@
 	</target>
 
 	<target name="app" depends="merge">
-		<delete file=".tmp0.js"/>
-		<echo file=".tmp0.js">
+		<delete file="${basedir}/.tmp0.js"/>
+		<echo file="${basedir}/.tmp0.js">
 			var mxBasePath = 'https://www.draw.io/mxgraph/';
 			var mxLoadStylesheets = false;
 		</echo>
 
-		<delete file=".tmp1.js"/>
-		<copy file="${war.dir}/styles/default.xml" tofile=".tmp1.xml" overwrite="true"/>
-		<replaceregexp file=".tmp1.xml" match="${line.separator}" flags="g" replace=""/>
-		<replaceregexp file=".tmp1.xml" match="\t" flags="g" replace=""/>
-		<replaceregexp file=".tmp1.xml" match="'" replace="\\\\'" byline="true"/>
+		<delete file="${basedir}/.tmp1.js"/>
+		<copy file="${war.dir}/styles/default.xml" tofile="${basedir}/.tmp1.xml" overwrite="true"/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="${line.separator}" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="\t" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="'" replace="\\\\'" byline="true"/>
 		
-		<delete file="Graph-Stylesheet.js"/>
-		<echo file="Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
-		<concat destfile="Graph-Stylesheet.js" fixlastline="no" append="true">
-			<file name=".tmp1.xml" />
+		<delete file="${basedir}/Graph-Stylesheet.js"/>
+		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
+		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
+			<file name="${basedir}/.tmp1.xml" />
     	</concat>
-		<echo file="Graph-Stylesheet.js" append="true">').documentElement;</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
 
-		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="grapheditor.min.js">
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/grapheditor.min.js">
 			<sources dir="${grapheditor.dir}">
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
@@ -74,7 +74,7 @@
 			</sources>
 		</jscomp>
 		
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="sidebar.min.js">
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
 				<file name="Sidebar-Advanced.js" />
@@ -111,7 +111,7 @@
 		</jscomp>
 
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/atlas-viewer.min.js">
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name=".tmp0.js"/>
 			</sources>
 			
@@ -159,7 +159,7 @@
 				<file name="Pages.js" />
 			</sources>
 					
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name="Graph-Stylesheet.js" />
 			</sources>
 
@@ -168,9 +168,9 @@
 			</sources>
 		</jscomp>
 		
-		<delete file=".tmp1.xml"/>
+		<delete file="${basedir}/.tmp1.xml"/>
 
-		<echo file=".tmp1.js">
+		<echo file="${basedir}/.tmp1.js">
 			(function()
 			{
 				Editor.initMath();
@@ -193,13 +193,13 @@
 				<file name="atlas-viewer.min.js"/>
 			</sources>
 
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name=".tmp1.js"/>
 			</sources>
 		</jscomp>
 		
-		<delete file=".tmp0.js"/>
-		<delete file=".tmp1.js"/>
+		<delete file="${basedir}/.tmp0.js"/>
+		<delete file="${basedir}/.tmp1.js"/>
 
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/atlas.min.js">
 			<sources dir="${war.dir}/js/spin">
@@ -231,7 +231,7 @@
 				<file name="mxClient.js" />
 			</sources>
 			
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name="grapheditor.min.js"/>
 				<file name="sidebar.min.js"/>
 			</sources>
@@ -250,7 +250,7 @@
 				<file name="Pages.js" />
 			</sources>
 				
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name="Graph-Stylesheet.js" />
 			</sources>
 		</jscomp>
@@ -290,7 +290,7 @@
 				<file name="mxClient.js" />
 			</sources>
 
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name="grapheditor.min.js"/>
 				<file name="sidebar.min.js"/>
 			</sources>
@@ -306,7 +306,7 @@
 				<file name="Settings.js" />
 			</sources>
 				
-			<sources dir=".">
+			<sources dir="${basedir}">
 				<file name="Graph-Stylesheet.js" />
 			</sources>
 
@@ -345,9 +345,9 @@
 		
 		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 
-		<delete file="Graph-Stylesheet.js"/>
-		<delete file="grapheditor.min.js"/>
-		<delete file="sidebar.min.js"/>
+		<delete file="${basedir}/Graph-Stylesheet.js"/>
+		<delete file="${basedir}/grapheditor.min.js"/>
+		<delete file="${basedir}/sidebar.min.js"/>
 	</target>
 
 	<target name="all" depends="app">

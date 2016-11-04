@@ -50,6 +50,16 @@ public class EmbedServlet2 extends HttpServlet
 	/**
 	 * 
 	 */
+	protected static String SHAPES_PATH = "/shapes";
+
+	/**
+	 * 
+	 */
+	protected static String STENCIL_PATH = "/stencils";
+
+	/**
+	 * 
+	 */
 	protected static String lastModified = null;
 
 	/**
@@ -89,48 +99,118 @@ public class EmbedServlet2 extends HttpServlet
 	 */
 	public static void initLibraries(HashMap<String, String[]> libraries)
 	{
-		libraries.put("bpmn", new String[] { "/shapes/bpmn/mxBpmnShape2.js",
-				"/stencils/bpmn.xml" });
-		libraries.put("er", new String[] { "/shapes/er/mxER.js" });
-		libraries.put("ios", new String[] { "/shapes/mockup/mxMockupiOS.js" });
-		libraries.put("ios7", new String[] { "/stencils/ios7.xml" });
-		libraries.put("android", new String[] { "/shapes/mxAndroid.js",
-				"/stencils/android/android.xml" });
-		libraries.put("lean_mapping", new String[] { "/shapes/mxLeanMap.js",
-				"/stencils/lean_mapping.xml" });
-		// Required for anchor shape which follows non-standard naming scheme (see Sidebar.js)
 		libraries.put("mockup",
-				new String[] { "/shapes/mockup/mxMockupButtons.js" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupButtons.js" });
+		libraries.put("arrows2", new String[] { SHAPES_PATH + "/mxArrows.js" });
+		libraries.put("bpmn",
+				new String[] { SHAPES_PATH + "/bpmn/mxBpmnShape2.js",
+						STENCIL_PATH + "/bpmn.xml" });
+		libraries.put("er", new String[] { SHAPES_PATH + "/er/mxER.js" });
+		libraries.put("ios",
+				new String[] { SHAPES_PATH + "/mockup/mxMockupiOS.js" });
+		libraries.put("rackGeneral",
+				new String[] { SHAPES_PATH + "/rack/mxRack.js",
+						STENCIL_PATH + "/rack/general.xml" });
+		libraries.put("rackF5", new String[] { STENCIL_PATH + "/rack/f5.xml" });
+		libraries.put("lean_mapping",
+				new String[] { SHAPES_PATH + "/mxLeanMap.js",
+						STENCIL_PATH + "/lean_mapping.xml" });
+		libraries.put("basic", new String[] { SHAPES_PATH + "/mxBasic.js",
+				STENCIL_PATH + "/basic.xml" });
+		libraries.put("ios7icons",
+				new String[] { STENCIL_PATH + "/ios7/icons.xml" });
+		libraries.put("ios7ui",
+				new String[] { SHAPES_PATH + "/ios7/mxIOS7Ui.js",
+						STENCIL_PATH + "/ios7/misc.xml" });
+		libraries.put("android", new String[] { SHAPES_PATH + "/mxAndroid.js",
+				STENCIL_PATH + "/android/android.xml" });
+		libraries.put("eeLogicGates",
+				new String[] { STENCIL_PATH + "/electrical/logic_gates.xml" });
+		libraries.put("eeResistors",
+				new String[] { STENCIL_PATH + "/electrical/resistors.xml" });
+		libraries.put("eeCapacitors",
+				new String[] { STENCIL_PATH + "/electrical/capacitors.xml" });
+		libraries.put("eeInductors",
+				new String[] { STENCIL_PATH + "/electrical/inductors.xml" });
+		libraries.put("eeSwitchesRelays",
+				new String[] { STENCIL_PATH + "/electrical/switchesRelays.xml",
+						STENCIL_PATH + "/electrical/electro-mechanical.xml" });
+		libraries.put("eeDiodes",
+				new String[] { STENCIL_PATH + "/electrical/diodes.xml" });
+		libraries.put("eeSources", new String[] {
+				STENCIL_PATH + "/electrical/signal_sources.xml" });
+		libraries.put("eeTransistors",
+				new String[] { STENCIL_PATH + "/electrical/mosfets1.xml",
+						STENCIL_PATH + "/electrical/mosfets2.xml",
+						STENCIL_PATH + "/electrical/transistors.xml" });
+		libraries.put("eeMisc",
+				new String[] {
+						STENCIL_PATH + "/electrical/electro-mechanical.xml",
+						STENCIL_PATH + "/electrical/miscellaneous.xml" });
+		libraries.put("eeAudio",
+				new String[] { STENCIL_PATH + "/electrical/radio.xml" });
+		libraries.put("eePlcLadder",
+				new String[] { STENCIL_PATH + "/electrical/plc_ladder.xml" });
+		libraries.put("eeAbstract",
+				new String[] { STENCIL_PATH + "/electrical/abstract.xml",
+						STENCIL_PATH + "/electrical/logic_gates.xml" });
+		libraries.put("eeOptical", new String[] {
+				STENCIL_PATH + "/electrical/opto_electronics.xml" });
+		libraries.put("eeVacuumTubes",
+				new String[] { STENCIL_PATH + "/electrical/vacuum_tubes.xml" });
+		libraries.put("eeWaveforms",
+				new String[] { STENCIL_PATH + "/electrical/waveforms.xml" });
+		libraries.put("eeInstruments",
+				new String[] { STENCIL_PATH + "/electrical/instruments.xml" });
 		libraries.put("mockup/buttons",
-				new String[] { "/shapes/mockup/mxMockupButtons.js" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupButtons.js" });
 		libraries.put("mockup/containers",
-				new String[] { "/shapes/mockup/mxMockupContainers.js" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupContainers.js" });
 		libraries.put("mockup/forms",
-				new String[] { "/shapes/mockup/mxMockupForms.js" });
-		libraries.put("mockup/graphics", new String[] {
-				"/shapes/mockup/mxMockupGraphics.js",
-				"/stencils/mockup/misc.xml" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupForms.js" });
+		libraries.put("mockup/graphics",
+				new String[] { SHAPES_PATH + "/mockup/mxMockupGraphics.js",
+						STENCIL_PATH + "/mockup/misc.xml" });
 		libraries.put("mockup/markup",
-				new String[] { "/shapes/mockup/mxMockupMarkup.js" });
-		libraries
-				.put("mockup/misc", new String[] {
-						"/shapes/mockup/mxMockupMisc.js",
-						"/stencils/mockup/misc.xml" });
-		libraries.put("mockup/navigation", new String[] {
-				"/shapes/mockup/mxMockupNavigation.js",
-				"/stencils/mockup/misc.xml" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupMarkup.js" });
+		libraries.put("mockup/misc",
+				new String[] { SHAPES_PATH + "/mockup/mxMockupMisc.js",
+						STENCIL_PATH + "/mockup/misc.xml" });
+		libraries.put("mockup/navigation",
+				new String[] { SHAPES_PATH + "/mockup/mxMockupNavigation.js",
+						STENCIL_PATH + "/mockup/misc.xml" });
 		libraries.put("mockup/text",
-				new String[] { "/shapes/mockup/mxMockupText.js" });
+				new String[] { SHAPES_PATH + "/mockup/mxMockupText.js" });
+		libraries.put("floorplan",
+				new String[] { SHAPES_PATH + "/mxFloorplan.js",
+						STENCIL_PATH + "/floorplan.xml" });
+		libraries.put("bootstrap",
+				new String[] { SHAPES_PATH + "/mxBootstrap.js",
+						STENCIL_PATH + "/bootstrap.xml" });
+		libraries.put("gmdl", new String[] { SHAPES_PATH + "/mxGmdl.js",
+				STENCIL_PATH + "/gmdl.xml" });
+		libraries.put("cabinets", new String[] { SHAPES_PATH + "/mxCabinets.js",
+				STENCIL_PATH + "/cabinets.xml" });
+		libraries.put("archimate",
+				new String[] { SHAPES_PATH + "/mxArchiMate.js" });
+		libraries.put("archimate3",
+				new String[] { SHAPES_PATH + "/mxArchiMate3.js" });
+		libraries.put("sysml", new String[] { SHAPES_PATH + "/mxSysML.js" });
+		libraries.put("eip", new String[] { SHAPES_PATH + "/mxEip.js",
+				STENCIL_PATH + "/eip.xml" });
+		libraries.put("networks", new String[] { SHAPES_PATH + "/mxNetworks.js",
+				STENCIL_PATH + "/networks.xml" });
+		libraries.put("aws3d", new String[] { SHAPES_PATH + "/mxAWS3D.js",
+				STENCIL_PATH + "/aws3d.xml" });
 		libraries.put("pid2inst",
-				new String[] { "/shapes/pid2/mxPidInstruments.js" });
-		libraries.put("pid2misc", new String[] { "/shapes/pid2/mxPidMisc.js",
-				"/stencils/pid/misc.xml" });
+				new String[] { SHAPES_PATH + "/pid2/mxPidInstruments.js" });
+		libraries.put("pid2misc",
+				new String[] { SHAPES_PATH + "/pid2/mxPidMisc.js",
+						STENCIL_PATH + "/pid/misc.xml" });
 		libraries.put("pid2valves",
-				new String[] { "/shapes/pid2/mxPidValves.js" });
-		libraries.put("floorplan", new String[] { "/shapes/mxFloorplan.js",
-				"/stencils/floorplan.xml" });
-		libraries.put("archimate", new String[] { "/shapes/mxArchiMate.js" });
-		libraries.put("azure", new String[] { "/stencils/azure.xml" });
+				new String[] { SHAPES_PATH + "/pid2/mxPidValves.js" });
+		libraries.put("pidFlowSensors",
+				new String[] { STENCIL_PATH + "/pid/flow_sensors.xml" });
 	}
 
 	/**
@@ -320,16 +400,15 @@ public class EmbedServlet2 extends HttpServlet
 		}
 
 		result.append("]");
-		
+
 		// LATER: Detect protocol of request in dev
 		// mode to avoid security errors
 		String proto = "https://";
 
 		// Installs a callback to load the stencils after the viewer was injected
 		return "window.onDrawioViewerLoad = function() {"
-				+ "mxStencilRegistry.parseStencilSets(" + result.toString() + ");"
-				+ js
-				+ "GraphViewer.processElements(); };"
+				+ "mxStencilRegistry.parseStencilSets(" + result.toString()
+				+ ");" + js + "GraphViewer.processElements(); };"
 				+ "var t = document.getElementsByTagName('script');"
 				+ "if (t != null && t.length > 0) {"
 				+ "var script = document.createElement('script');"

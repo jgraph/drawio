@@ -612,6 +612,7 @@ vertical=Dikey
 verticalFlow=Dikey akış
 verticalTree=Dikey ağaç
 view=Görüntüle
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Ara noktalar 

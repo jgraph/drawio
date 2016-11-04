@@ -612,6 +612,7 @@ vertical=Patayo
 verticalFlow=Patayong daloy
 verticalTree=Patayong istraktura
 view=Tingin
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Mga panturo

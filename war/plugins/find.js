@@ -24,6 +24,24 @@ Draw.loadPlugin(function(ui)
 
 	var tmp = document.createElement('div');
 	
+	function testMeta(re, cell)
+	{
+		if (typeof cell.value === 'object' && cell.value.attributes != null)
+		{
+			var attrs = cell.value.attributes;
+			
+			for (var i = 0; i < attrs.length; i++)
+			{
+				if (re.test(attrs[i].nodeValue))
+				{
+					return true;
+				}	
+			}
+		}
+		
+		return false;
+	};
+	
 	function search(next)
 	{
 		var cells = graph.model.getDescendants(graph.model.getRoot());
@@ -38,8 +56,8 @@ Draw.loadPlugin(function(ui)
 			{
 				var state = graph.view.getState(cells[i]);
 				
-				if (state != null && (active || firstMatch == null) &&
-					graph.model.isVertex(state.cell) || graph.model.isEdge(state.cell))
+				if (state != null && state.cell.value != null && (active || firstMatch == null) &&
+					(graph.model.isVertex(state.cell) || graph.model.isEdge(state.cell)))
 				{
 					if (graph.isHtmlLabel(state.cell))
 					{
@@ -53,7 +71,7 @@ Draw.loadPlugin(function(ui)
 		
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if (re.test(label))
+					if (re.test(label) || testMeta(re, state.cell))
 					{
 						if (active)
 						{

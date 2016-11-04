@@ -1,3 +1,19 @@
+04-NOV-2016: 6.0.1.1
+
+- Adds consistent location for insert and sidebar
+- Adds support for pages in publish actions
+- Adds search for metadata in find plugin
+- Uses lightbox for Imgur redirects
+- Fixes HTML export for multiple pages
+- Fixes shape detection for multiple pages
+
+02-NOV-2016: 6.0.1.0
+
+- Updates shapes in embed servlet
+- Uses new Iconfinder API
+- Uses mxGraph 3.7.0.0 beta 9
+- Uses first unlocked layer for all diagrams
+
 31-OCT-2016: 6.0.0.0
 
 - Adds multiple pages per file

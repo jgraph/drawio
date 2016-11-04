@@ -612,6 +612,7 @@ vertical=Vertikal
 verticalFlow=Arus Vertikal
 verticalTree=Pohon Vertikal
 view=Tampilan
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Arah poin

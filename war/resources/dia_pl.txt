@@ -612,6 +612,7 @@ vertical=Pionowy
 verticalFlow=Pionowy przepływ
 verticalTree=Pionowe drzewo
 view=Widok
+viewUrl=Link to view: {1}
 voiceAssistant=Asystent głosowy (beta)
 warning=Warning
 waypoints=Punkty trasy

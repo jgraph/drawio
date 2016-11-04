@@ -1704,7 +1704,8 @@
 						try
 						{
 							var res = JSON.parse(req.getText());
-
+					    	var viewUrl = 'https://www.draw.io/i/' + res.data.id;
+					    	
 					    	// Logs publishing of diagrams
 					    	try
 					    	{
@@ -1723,10 +1724,12 @@
 							var showResult = mxUtils.bind(this, function()
 							{
 								this.spinner.stop();
-								var url = 'http://i.imgur.com/' + res.data.id + '.png';
+								var url = 'https://imgur.com/' + res.data.id;
 								var deleteUrl = 'https://www.draw.io/imgur?delete=' + res.data.deletehash;
 								
 								var dlg = new ErrorDialog(this, mxResources.get('published'),
+									((editable) ? mxResources.get('viewUrl', ['<a href="' + viewUrl +
+										'" target="_blank">' + viewUrl + '</a>']) + '<br>' : '') +
 									mxResources.get('publishedAt', ['<a href="' + url + '" target="_blank">' + url + '</a>']) +
 									'<br>' + mxResources.get('deleteUrl', [deleteUrl]),
 									mxResources.get('close'), mxUtils.bind(this, function()
@@ -1734,9 +1737,9 @@
 										this.hideDialog();
 									}), null, mxResources.get('share'), function()
 									{
-										socialHandler(res.data.id);
+										socialHandler(res.data.id, editable);
 									}, false);
-								this.showDialog(dlg.container, 340, 170, true, false);
+								this.showDialog(dlg.container, 340, 180, true, false);
 								dlg.init();
 							});
 							
@@ -1750,8 +1753,8 @@
 								// Replacing the .png is workaround for Imgur to handle it as an image
 								// Avoiding URL parameter avoids call to getParameter in the servlet
 								var url2 = '/imgur?' + res.data.deletehash;
-								var req2 = new mxXmlRequest(url2, JSON.stringify({
-									title: title, description: 'Edit a copy of this diagram at https://www.draw.io/i/' + res.data.id}), 'POST');
+								var req2 = new mxXmlRequest(url2, JSON.stringify({title: title,
+									description: mxResources.get('viewUrl', [viewUrl])}), 'POST');
 				
 								req2.send(mxUtils.bind(this, function()
 								{
@@ -1816,7 +1819,7 @@
 							   	{
 							   		try
 							   		{
-							   			var xml = (editable) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) : null;
+							   			var xml = (editable) ? this.getFileData(true, null, null, null, ignoreSelection) : null;
 							   			var data = this.createPngDataUri(canvas, xml);
 							   	   	    handler(file, data.substring(data.lastIndexOf(',') + 1), editable, socialHandler);
 							   		}
@@ -4132,6 +4135,18 @@
 				else
 				{
 					var pt = graph.getInsertPoint();
+					
+					if (graph.isMouseInsertPoint())
+					{
+						dx = 0;
+						
+						// No offset for insert at mouse position
+						if (graph.lastPasteXml == xml && graph.pasteCounter > 0)
+						{
+							graph.pasteCounter--;
+						}
+					}
+					
 					graph.setSelectionCells(this.insertTextAt(xml, pt.x + dx, pt.y + dx, true));
 				}
 				
@@ -4921,6 +4936,80 @@
 			{
 				fn();
 			}
+		}
+	};
+	
+	/**
+	 * Returns a list of all shapes used in the current file.
+	 */
+	EditorUi.prototype.getBasenames = function()
+	{
+		var basenames = {};
+
+		if (this.pages != null)
+		{
+			for (var i = 0; i < this.pages.length; i++)
+			{
+				this.updatePageRoot(this.pages[i]);
+				this.addBasenamesForCell(this.pages[i].root, basenames);
+			}
+		}
+		else
+		{
+			this.addBasenamesForCell(this.editor.graph.model.getRoot(), basenames);
+		}
+		
+		var result = [];
+		
+		for (var key in basenames)
+		{
+			result.push(key);
+		}
+		
+		return result;
+	};
+		
+	/**
+	 * Returns a list of all shapes used in the current file.
+	 */
+	EditorUi.prototype.addBasenamesForCell = function(cell, basenames)
+	{
+		function addName(name)
+		{
+			if (name != null)
+			{
+				// LATER: Check if this case exists
+				var dot = name.lastIndexOf('.');
+				
+				if (dot > 0)
+				{
+					name = name.substring(dot + 1, name.length);
+				}
+				
+				if (basenames[name] == null)
+				{
+					basenames[name] = true;
+				}
+			}
+		};
+		
+		var graph = this.editor.graph;
+		var style = graph.getCellStyle(cell);
+		var shape = style[mxConstants.STYLE_SHAPE];
+		addName(mxStencilRegistry.getBasenameForStencil(shape));
+		
+		// Adds package names for markers in edges
+		if (graph.model.isEdge(cell))
+		{
+			addName(mxMarker.getPackageForType(style[mxConstants.STYLE_STARTARROW]));
+			addName(mxMarker.getPackageForType(style[mxConstants.STYLE_ENDARROW]));
+		}
+
+		var childCount = graph.model.getChildCount(cell);
+		
+		for (var i = 0; i < childCount; i++)
+		{
+			this.addBasenamesForCell(graph.model.getChildAt(cell, i), basenames);
 		}
 	};
 	
@@ -5761,7 +5850,30 @@
 			}
 		}
 	};
-
+	
+	/**
+	 * Selects first unlocked layer if one exists
+	 */
+	Graph.prototype.selectUnlockedLayer = function()
+	{
+		if (this.defaultParent == null)
+		{
+			var childCount = this.model.getChildCount(this.model.root);
+			var cell = null;
+			var index = 0;
+			
+			do
+			{
+				cell = this.model.getChildAt(this.model.root, index);
+			} while (index++ < childCount && mxUtils.getValue(this.getCellStyle(cell), 'locked', '0') == '1')
+			
+			if (cell != null && index > 1)
+			{
+				this.setDefaultParent(cell);
+			}
+		}
+	};
+	
 	/**
 	 * Adds rack child layout style.
 	 */
@@ -5852,13 +5964,18 @@
 	};
 
 	/**
-	 * Specifies special libraries that are loaded via dynamic JS.
-	 * 
-	 *************************************************************
-	 * IMPORTANT: Add all special cases in EmbedServlet.java and *
-	 * jgraphcms/js/Graph.js lines 102 ff.                       *
-	 *************************************************************
+	 * Specifies special libraries that are loaded via dynamic JS. Add cases
+	 * where the filename cannot be worked out from the package name. The
+	 * standard scheme for this mapping is stencils/packagename.xml. If there
+	 * are multiple XML files, any JS files or any anomalies in the filename or
+	 * directory that contains the file, then an entry must be added here and
+	 * in EmbedServlet2 for the loading of the shapes to work.
 	 */
+	// Required to avoid 404 for mockup.xml since naming of mxgraph.mockup.anchor does not contain
+	// buttons even though it is defined in the mxMockupButtons.js file. This could only be fixed
+	// with aliases for existing shapes or aliases for basenames, but this is essentially the same.
+	mxStencilRegistry.libraries['mockup'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
+	
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
@@ -5867,12 +5984,9 @@
 	mxStencilRegistry.libraries['rackF5'] = [STENCIL_PATH + '/rack/f5.xml'];
 	mxStencilRegistry.libraries['lean_mapping'] = [SHAPES_PATH + '/mxLeanMap.js', STENCIL_PATH + '/lean_mapping.xml'];
 	mxStencilRegistry.libraries['basic'] = [SHAPES_PATH + '/mxBasic.js', STENCIL_PATH + '/basic.xml'];
-
 	mxStencilRegistry.libraries['ios7icons'] = [STENCIL_PATH + '/ios7/icons.xml'];
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
-
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
-
 	mxStencilRegistry.libraries['eeLogicGates'] = [STENCIL_PATH + '/electrical/logic_gates.xml'];
 	mxStencilRegistry.libraries['eeResistors'] = [STENCIL_PATH + '/electrical/resistors.xml'];
 	mxStencilRegistry.libraries['eeCapacitors'] = [STENCIL_PATH + '/electrical/capacitors.xml'];
@@ -5889,9 +6003,6 @@
 	mxStencilRegistry.libraries['eeVacuumTubes'] = [STENCIL_PATH + '/electrical/vacuum_tubes.xml'];
 	mxStencilRegistry.libraries['eeWaveforms'] = [STENCIL_PATH + '/electrical/waveforms.xml'];
 	mxStencilRegistry.libraries['eeInstruments'] = [STENCIL_PATH + '/electrical/instruments.xml'];
-
-	mxStencilRegistry.libraries['mscae/cloud'] = [STENCIL_PATH + '/mscae/cloud.xml'];
-
 	mxStencilRegistry.libraries['mockup/buttons'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
 	mxStencilRegistry.libraries['mockup/containers'] = [SHAPES_PATH + '/mockup/mxMockupContainers.js'];
 	mxStencilRegistry.libraries['mockup/forms'] = [SHAPES_PATH + '/mockup/mxMockupForms.js'];
@@ -5900,39 +6011,21 @@
 	mxStencilRegistry.libraries['mockup/misc'] = [SHAPES_PATH + '/mockup/mxMockupMisc.js', STENCIL_PATH + '/mockup/misc.xml'];
 	mxStencilRegistry.libraries['mockup/navigation'] = [SHAPES_PATH + '/mockup/mxMockupNavigation.js', STENCIL_PATH + '/mockup/misc.xml'];
 	mxStencilRegistry.libraries['mockup/text'] = [SHAPES_PATH + '/mockup/mxMockupText.js'];
-
-	// Required to avoid 404 for mockup.xml since naming of mxgraph.mockup.anchor does not contain
-	// buttons even though it is defined in the mxMockupButtons.js file. This could only be fixed
-	// with aliases for existing shapes or aliases for basenames, but this is essentially the same.
-	mxStencilRegistry.libraries['mockup'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
-	
+	mxStencilRegistry.libraries['floorplan'] = [SHAPES_PATH + '/mxFloorplan.js', STENCIL_PATH + '/floorplan.xml'];
+	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', STENCIL_PATH + '/bootstrap.xml'];
+	mxStencilRegistry.libraries['gmdl'] = [SHAPES_PATH + '/mxGmdl.js', STENCIL_PATH + '/gmdl.xml'];
+	mxStencilRegistry.libraries['cabinets'] = [SHAPES_PATH + '/mxCabinets.js', STENCIL_PATH + '/cabinets.xml'];
+	mxStencilRegistry.libraries['archimate'] = [SHAPES_PATH + '/mxArchiMate.js'];
+	mxStencilRegistry.libraries['archimate3'] = [SHAPES_PATH + '/mxArchiMate3.js'];
+	mxStencilRegistry.libraries['sysml'] = [SHAPES_PATH + '/mxSysML.js'];
+	mxStencilRegistry.libraries['eip'] = [SHAPES_PATH + '/mxEip.js', STENCIL_PATH + '/eip.xml'];
+	mxStencilRegistry.libraries['networks'] = [SHAPES_PATH + '/mxNetworks.js', STENCIL_PATH + '/networks.xml'];
+	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];
 	mxStencilRegistry.libraries['pid2misc'] = [SHAPES_PATH + '/pid2/mxPidMisc.js', STENCIL_PATH + '/pid/misc.xml'];
 	mxStencilRegistry.libraries['pid2valves'] = [SHAPES_PATH + '/pid2/mxPidValves.js'];
 	mxStencilRegistry.libraries['pidFlowSensors'] = [STENCIL_PATH + '/pid/flow_sensors.xml'];
-	
-	mxStencilRegistry.libraries['floorplan'] = [SHAPES_PATH + '/mxFloorplan.js', STENCIL_PATH + '/floorplan.xml'];
 
-	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', STENCIL_PATH + '/bootstrap.xml'];
-
-	mxStencilRegistry.libraries['gmdl'] = [SHAPES_PATH + '/mxGmdl.js', STENCIL_PATH + '/gmdl.xml'];
-
-	mxStencilRegistry.libraries['cabinets'] = [SHAPES_PATH + '/mxCabinets.js', STENCIL_PATH + '/cabinets.xml'];
-
-	mxStencilRegistry.libraries['citrix'] = [STENCIL_PATH + '/citrix.xml'];
-
-	mxStencilRegistry.libraries['archimate'] = [SHAPES_PATH + '/mxArchiMate.js'];
-	
-	mxStencilRegistry.libraries['archimate3'] = [SHAPES_PATH + '/mxArchiMate3.js'];
-	
-	mxStencilRegistry.libraries['sysml'] = [SHAPES_PATH + '/mxSysML.js'];
-	
-	mxStencilRegistry.libraries['eip'] = [SHAPES_PATH + '/mxEip.js', STENCIL_PATH + '/eip.xml'];
-	
-	mxStencilRegistry.libraries['networks'] = [SHAPES_PATH + '/mxNetworks.js', STENCIL_PATH + '/networks.xml'];
-
-	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
-	
 	// Triggers dynamic loading for markers
 	mxMarker.getPackageForType = function(type)
 	{

@@ -119,6 +119,7 @@ function SelectPage(ui, page)
 	this.ui = ui;
 	this.page = page;
 	this.previousPage = page;
+	this.neverShown = this.page.viewState == null;
 	
 	if (page != null)
 	{
@@ -167,6 +168,12 @@ SelectPage.prototype.execute = function()
 		editor.updateGraphComponents();
 		graph.view.validate();
 		graph.sizeDidChange();
+		
+		if (this.neverShown)
+		{
+			this.neverShown = false;
+			graph.selectUnlockedLayer();
+		}
 		
 		// Fires events
 		editor.graph.fireEvent(new mxEventObject(mxEvent.ROOT));
@@ -459,6 +466,18 @@ Graph.prototype.setViewState = function(state)
 		this.setTooltips(state.tooltips);
 		this.setConnectable(state.connect);
 		
+		// Checks if current root or default parent have been removed
+		if (!this.model.contains(this.view.currentRoot))
+		{
+			this.view.currentRoot = null;
+		}
+		
+		if (!this.model.contains(this.defaultParent))
+		{
+			this.setDefaultParent(null);
+			this.selectUnlockedLayer();
+		}
+		
 		if (state.translate != null)
 		{
 			this.view.translate = state.translate;
@@ -485,21 +504,6 @@ Graph.prototype.setViewState = function(state)
 		this.pasteCounter = 0;
 		this.mathEnabled = false;
 		this.connectionArrowsEnabled = true;
-		
-		// Selects first unlocked layer if one exists
-		var cell = this.getDefaultParent();
-		var style = this.getCellStyle(cell);
-		var index = 0;
-		
-		while (cell != null && mxUtils.getValue(this.getCellStyle(cell), 'locked', '0') == '1')
-		{
-			cell = this.model.getChildAt(this.model.root, index++);
-		}
-		
-		if (cell != null)
-		{
-			this.setDefaultParent(cell);
-		}
 	}
 	
 	// Implicit settings

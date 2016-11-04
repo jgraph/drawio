@@ -612,6 +612,7 @@ vertical=‫אנכי‬
 verticalFlow=‫זרימה אנכית‬
 verticalTree=‫עץ אנכי‬
 view=‫צפה‬
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=‫נקודות ציון ‬

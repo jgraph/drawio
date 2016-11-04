@@ -612,6 +612,7 @@ vertical=Verticaal
 verticalFlow=Verticale stroom
 verticalTree=Verticale boom
 view=Bekijken
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Waypoints

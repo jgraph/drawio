@@ -612,6 +612,7 @@ vertical=Вертикальний
 verticalFlow=По вертикалі
 verticalTree=Вертикальне дерево
 view=Вид
+viewUrl=Link to view: {1}
 voiceAssistant=Voice Assistant (beta)
 warning=Warning
 waypoints=Шляхові точки

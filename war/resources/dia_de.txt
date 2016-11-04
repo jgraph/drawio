@@ -612,6 +612,7 @@ vertical=Vertikal
 verticalFlow=Vertikaler Fluss
 verticalTree=Vertikaler Baum
 view=Ansicht
+viewUrl=Link zur Ansicht: {1}
 voiceAssistant=Sprachassistent (beta)
 warning=Warnung
 waypoints=Wegpunkte

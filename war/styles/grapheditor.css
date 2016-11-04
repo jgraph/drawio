@@ -4,6 +4,9 @@
 	border:none;
 	margin:0px;
 }
+.geEditor input[type=text]::-ms-clear {
+	display: none;
+}
 .geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
 	cursor:pointer !important;
 }
