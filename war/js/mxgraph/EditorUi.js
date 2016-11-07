@@ -2544,7 +2544,7 @@ EditorUi.prototype.updateActionStates = function()
 	// Updates action states
 	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
-	               'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed',
+	               'edit', 'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed',
 	               'dotted', 'fillColor', 'gradientColor', 'shadow', 'fontColor',
 	               'formattedText', 'rounded', 'toggleRounded', 'sharp', 'strokeColor'];
 	

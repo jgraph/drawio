@@ -4,6 +4,7 @@
 Draw.loadPlugin(function(ui)
 {
 	var graph = ui.editor.graph;
+	var lastSearch = null;
 	var lastFound = null;
 
 	var div = document.createElement('div');
@@ -32,7 +33,7 @@ Draw.loadPlugin(function(ui)
 			
 			for (var i = 0; i < attrs.length; i++)
 			{
-				if (re.test(attrs[i].nodeValue))
+				if (attrs[i].nodeName != 'label' && re.test(attrs[i].nodeValue.toLowerCase()))
 				{
 					return true;
 				}	
@@ -42,13 +43,20 @@ Draw.loadPlugin(function(ui)
 		return false;
 	};
 	
-	function search(next)
+	function search()
 	{
 		var cells = graph.model.getDescendants(graph.model.getRoot());
 		var search = searchInput.value.toLowerCase();
 		var re = new RegExp(search);
-		var active = !next || lastFound == null;
 		var firstMatch = null;
+		
+		if (lastSearch != search)
+		{
+			lastSearch = search;
+			lastFound = null;
+		}
+
+		var active = lastFound == null;
 		
 		if (graph.isEnabled() && search.length > 0)
 		{
@@ -111,6 +119,7 @@ Draw.loadPlugin(function(ui)
 		searchInput.value = '';
 		searchInput.style.backgroundColor = '';
 		lastFound = null;
+		lastSearch = null;
 		searchInput.focus();
 	});
 	
@@ -125,7 +134,7 @@ Draw.loadPlugin(function(ui)
 
 	var btn = mxUtils.button('Find Again', function()
 	{
-		searchInput.style.backgroundColor = search(true) ? '' : '#ffcfcf';
+		searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
 	});
 	
 	btn.setAttribute('title', 'Find Again (Enter)');
@@ -144,9 +153,13 @@ Draw.loadPlugin(function(ui)
 			// Workaround for lost focus on show
 			mxEvent.consume(evt);
 		}
-		else
+		else if (evt.keyCode == 27)
 		{
-			searchInput.style.backgroundColor = search(evt.keyCode == 13) ? '' : '#ffcfcf';
+			findAction.funct();
+		}
+		else if (lastSearch != searchInput.value.toLowerCase() || evt.keyCode == 13)
+		{
+			searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
 		}
 	});
 

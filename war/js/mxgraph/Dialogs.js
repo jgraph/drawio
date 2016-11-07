@@ -2261,47 +2261,44 @@ var EditDataDialog = function(ui, cell)
 	
 	var addBtn = mxUtils.button(mxResources.get('addProperty'), function()
 	{
-		if (nameInput.value.length > 0)
+		var name = nameInput.value;
+
+		if (name.length > 0 && name != 'label' && name != 'placeholders')
 		{
-			var name = nameInput.value;
-			
-			if (name != null && name.length > 0 && name != 'label' && name != 'placeholders')
+			try
 			{
-				try
+				var idx = mxUtils.indexOf(names, name);
+				
+				if (idx >= 0 && texts[idx] != null)
 				{
-					var idx = mxUtils.indexOf(names, name);
+					texts[idx].focus();
+				}
+				else
+				{
+					// Checks if the name is valid
+					var clone = value.cloneNode(false);
+					clone.setAttribute(name, '');
 					
-					if (idx >= 0 && texts[idx] != null)
+					if (idx >= 0)
 					{
-						texts[idx].focus();
-					}
-					else
-					{
-						// Checks if the name is valid
-						var clone = value.cloneNode(false);
-						clone.setAttribute(name, '');
-						
-						if (idx >= 0)
-						{
-							names.splice(idx, 1);
-							texts.splice(idx, 1);
-						}
-
-						names.push(name);
-						var text = form.addTextarea(name + ':', '', 2);
-						text.style.width = '100%';
-						texts.push(text);
-						addRemoveButton(text, name);
-
-						text.focus();
+						names.splice(idx, 1);
+						texts.splice(idx, 1);
 					}
 
-					nameInput.value = '';
+					names.push(name);
+					var text = form.addTextarea(name + ':', '', 2);
+					text.style.width = '100%';
+					texts.push(text);
+					addRemoveButton(text, name);
+
+					text.focus();
 				}
-				catch (e)
-				{
-					mxUtils.alert(e);
-				}
+
+				nameInput.value = '';
+			}
+			catch (e)
+			{
+				mxUtils.alert(e);
 			}
 		}
 		else
@@ -2341,6 +2338,7 @@ var EditDataDialog = function(ui, cell)
 			
 			// Clones and updates the value
 			value = value.cloneNode(true);
+			var removeLabel = false;
 			
 			for (var i = 0; i < names.length; i++)
 			{
@@ -2351,7 +2349,15 @@ var EditDataDialog = function(ui, cell)
 				else
 				{
 					value.setAttribute(names[i], texts[i].value);
+					removeLabel = removeLabel || (names[i] == 'placeholder' &&
+						value.getAttribute('placeholders') == '1');
 				}
+			}
+			
+			// Removes label if placeholder is assigned
+			if (removeLabel)
+			{
+				value.removeAttribute('label');
 			}
 			
 			// Updates the value of the cell (undoable)
@@ -2770,6 +2776,13 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	{
 		evt.dataTransfer.dropEffect = 'move';
 		dropIndex = null;
+		evt.stopPropagation();
+		evt.preventDefault();
+	});
+	
+	// Workaround for "element not found" error in FF
+	mxEvent.addListener(div, 'drop', function(evt)
+	{
 		evt.stopPropagation();
 		evt.preventDefault();
 	});

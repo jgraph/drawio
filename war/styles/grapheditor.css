@@ -115,7 +115,7 @@
 	padding: 0 8px;
 	cursor: pointer;
 }
-.geBtn:hover {
+.geBtn:hover, .geBtn:focus {
 	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
 	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
@@ -180,7 +180,7 @@
 	border: 1px solid #3079ed;
 	color: #fff;
 }
-.gePrimaryBtn:hover {
+.gePrimaryBtn:hover, .gePrimaryBtn:focus {
 	background-color: #357ae8;
 	background-image: linear-gradient(#4d90fe 0px,#357ae8 100%);
 	border: 1px solid #2f5bb7;

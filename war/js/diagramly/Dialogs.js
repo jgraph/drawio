@@ -2450,6 +2450,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 			var pt = editorUi.editor.graph.getFreeInsertPoint();
 			var cells = editorUi.editor.graph.importCells(
 				graph.getModel().getChildren(graph.getDefaultParent()), pt.x, pt.y);
+			var view = editorUi.editor.graph.view;
 			var temp = view.getBounds(cells);
 			temp.x -= view.translate.x;
 			temp.y -= view.translate.y;

@@ -4254,10 +4254,10 @@ if (typeof mxVertexHandler != 'undefined')
 			var pt = this.getInsertPoint();
 			
 			// Places at same x-coord and 2 grid sizes below existing graph
-			var x = this.snap(Math.max(pt.x, bds.x / view.scale - view.translate.x +
-				((bds.width == 0) ? this.gridSize : 0)));
-			var y = this.snap(Math.max(pt.y, (bds.y + bds.height) / view.scale - view.translate.y +
-				((bds.height == 0) ? 1 : 2) * this.gridSize));
+			var x = this.snap(Math.round(Math.max(pt.x, bds.x / view.scale - view.translate.x +
+				((bds.width == 0) ? this.gridSize : 0))));
+			var y = this.snap(Math.round(Math.max(pt.y, (bds.y + bds.height) / view.scale - view.translate.y +
+				((bds.height == 0) ? 1 : 2) * this.gridSize)));
 			
 			return new mxPoint(x, y);
 		};
