@@ -4,6 +4,9 @@ window.urlParams = window.urlParams || {};
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
 
+// Checks for SVG support
+window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9);
+
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.SAVE_URL = window.SAVE_URL || 'save';

@@ -132,7 +132,9 @@ function SelectPage(ui, page)
  */
 SelectPage.prototype.execute = function()
 {
-	if (this.page != null && mxUtils.indexOf(this.ui.pages, this.previousPage) >= 0)
+	var prevIndex = mxUtils.indexOf(this.ui.pages, this.previousPage);
+	
+	if (this.page != null && prevIndex >= 0)
 	{
 		var page = this.ui.currentPage;
 		var editor = this.ui.editor;
@@ -143,6 +145,12 @@ SelectPage.prototype.execute = function()
 		mxUtils.setTextContent(page.node, data);
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;
+		
+		// Transitions for switching pages
+//		var curIndex = mxUtils.indexOf(this.ui.pages, page);
+//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', null);
+//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform',
+//			(curIndex > prevIndex) ? 'translate(-50%,0)' : 'translate(50%,0)');
 		
 		// Removes the previous cells and clears selection
 		graph.view.clear(page.root, true);
@@ -168,6 +176,9 @@ SelectPage.prototype.execute = function()
 		editor.updateGraphComponents();
 		graph.view.validate();
 		graph.sizeDidChange();
+		
+//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', 'transform 0.2s');
+//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform', 'translate(0,0)');
 		
 		if (this.neverShown)
 		{

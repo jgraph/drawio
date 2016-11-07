@@ -123,45 +123,10 @@ public class EmbedServlet2 extends HttpServlet
 				new String[] { SHAPES_PATH + "/ios7/mxIOS7Ui.js",
 						STENCIL_PATH + "/ios7/misc.xml" });
 		libraries.put("android", new String[] { SHAPES_PATH + "/mxAndroid.js",
-				STENCIL_PATH + "/android/android.xml" });
-		libraries.put("eeLogicGates",
-				new String[] { STENCIL_PATH + "/electrical/logic_gates.xml" });
-		libraries.put("eeResistors",
-				new String[] { STENCIL_PATH + "/electrical/resistors.xml" });
-		libraries.put("eeCapacitors",
-				new String[] { STENCIL_PATH + "/electrical/capacitors.xml" });
-		libraries.put("eeInductors",
-				new String[] { STENCIL_PATH + "/electrical/inductors.xml" });
-		libraries.put("eeSwitchesRelays",
-				new String[] { STENCIL_PATH + "/electrical/switchesRelays.xml",
-						STENCIL_PATH + "/electrical/electro-mechanical.xml" });
-		libraries.put("eeDiodes",
-				new String[] { STENCIL_PATH + "/electrical/diodes.xml" });
-		libraries.put("eeSources", new String[] {
-				STENCIL_PATH + "/electrical/signal_sources.xml" });
-		libraries.put("eeTransistors",
-				new String[] { STENCIL_PATH + "/electrical/mosfets1.xml",
-						STENCIL_PATH + "/electrical/mosfets2.xml",
-						STENCIL_PATH + "/electrical/transistors.xml" });
-		libraries.put("eeMisc",
-				new String[] {
-						STENCIL_PATH + "/electrical/electro-mechanical.xml",
-						STENCIL_PATH + "/electrical/miscellaneous.xml" });
-		libraries.put("eeAudio",
-				new String[] { STENCIL_PATH + "/electrical/radio.xml" });
-		libraries.put("eePlcLadder",
-				new String[] { STENCIL_PATH + "/electrical/plc_ladder.xml" });
-		libraries.put("eeAbstract",
-				new String[] { STENCIL_PATH + "/electrical/abstract.xml",
-						STENCIL_PATH + "/electrical/logic_gates.xml" });
-		libraries.put("eeOptical", new String[] {
-				STENCIL_PATH + "/electrical/opto_electronics.xml" });
-		libraries.put("eeVacuumTubes",
-				new String[] { STENCIL_PATH + "/electrical/vacuum_tubes.xml" });
-		libraries.put("eeWaveforms",
-				new String[] { STENCIL_PATH + "/electrical/waveforms.xml" });
-		libraries.put("eeInstruments",
-				new String[] { STENCIL_PATH + "/electrical/instruments.xml" });
+				STENCIL_PATH + "electrical/transmission" });
+		libraries.put("electrical/transmission",
+				new String[] { SHAPES_PATH + "/mxElectrical.js",
+						STENCIL_PATH + "/electrical/transmission.xml" });
 		libraries.put("mockup/buttons",
 				new String[] { SHAPES_PATH + "/mockup/mxMockupButtons.js" });
 		libraries.put("mockup/containers",

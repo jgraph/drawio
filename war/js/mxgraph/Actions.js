@@ -232,6 +232,13 @@ Actions.prototype.init = function()
 	}, null, null, 'Ctrl+Shift+U');
 	this.addAction('removeFromGroup', function() { graph.removeCellsFromParent(); });
 	// Adds action
+	this.addAction('edit', function()
+	{
+		if (graph.isEnabled())
+		{
+			graph.startEditingAtCell();
+		}
+	}, null, null, 'F2/Enter');
 	this.addAction('editData...', function()
 	{
 		var cell = graph.getSelectionCell() || graph.getModel().getRoot();
