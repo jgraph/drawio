@@ -3214,6 +3214,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			if (graph.getDefaultParent() == child)
 			{
 				ldiv.style.background = '#e6eff8';
+				ldiv.style.fontWeight = 'bold';
 				selectionLayer = child;
 			}
 			else

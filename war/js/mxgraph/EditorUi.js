@@ -2010,7 +2010,10 @@ EditorUi.prototype.addBeforeUnloadListener = function()
 	// This must be disabled during save and image export
 	window.onbeforeunload = mxUtils.bind(this, function()
 	{
-		return this.onBeforeUnload();
+		if (!this.editor.chromeless)
+		{
+			return this.onBeforeUnload();
+		}
 	});
 };
 

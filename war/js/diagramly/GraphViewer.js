@@ -7,6 +7,68 @@
  */
 GraphViewer = function(container, xmlNode, graphConfig)
 {
+	this.init(container, xmlNode, graphConfig);
+};
+
+// Editor inherits from mxEventSource
+mxUtils.extend(GraphViewer, mxEventSource);
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.editBlankUrl = 'https://www.draw.io/?client=1';
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.editBlankFallbackUrl = 'https://www.draw.io/?create=drawdata&splash=0';
+
+/**
+ * Base URL for relative images.
+ */
+GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.toolbarHeight = (document.compatMode == 'BackCompat') ? 28 : 30;
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.lightboxChrome = true;
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.lightboxZIndex = 999;
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.prototype.toolbarZIndex = 999;
+
+/**
+ * Base URL for relative images.
+ */
+GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
+
+/**
+ * If automatic fit should be enabled if zoom is disabled. Default is true.
+ */
+GraphViewer.prototype.autoFit = true;
+
+/**
+ * Specifies if the constructur should delay the rendering if the container
+ * is not visible by default.
+ */
+GraphViewer.prototype.checkVisibleState = true;
+
+/**
+ * Initializes the viewer.
+ */
+GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
+{
 	this.graphConfig = (graphConfig != null) ? graphConfig : {};
 	this.autoFit = (graphConfig['auto-fit'] != null) ?
 		graphConfig['auto-fit'] : this.autoFit;
@@ -175,57 +237,6 @@ GraphViewer = function(container, xmlNode, graphConfig)
 };
 
 /**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.editBlankUrl = 'https://www.draw.io/?client=1';
-
-/**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.editBlankFallbackUrl = 'https://www.draw.io/?create=drawdata&splash=0';
-
-/**
- * Base URL for relative images.
- */
-GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
-
-/**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.toolbarHeight = (document.compatMode == 'BackCompat') ? 28 : 30;
-
-/**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.lightboxChrome = true;
-
-/**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.lightboxZIndex = 999;
-
-/**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.toolbarZIndex = 999;
-
-/**
- * Base URL for relative images.
- */
-GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
-
-/**
- * If automatic fit should be enabled if zoom is disabled. Default is true.
- */
-GraphViewer.prototype.autoFit = true;
-
-/**
- * Specifies if the constructur should delay the rendering if the container
- * is not visible by default.
- */
-GraphViewer.prototype.checkVisibleState = true;
-
-/**
  * 
  */
 GraphViewer.prototype.getVisibleParent = function(container)
@@ -262,7 +273,7 @@ GraphViewer.prototype.getImageUrl = function(url)
 /**
  * 
  */
-GraphViewer.prototype.updateGraphXml = function(xmlNode)
+GraphViewer.prototype.setFileNode = function(xmlNode)
 {
 	if (this.xmlNode == null)
 	{
@@ -292,6 +303,50 @@ GraphViewer.prototype.updateGraphXml = function(xmlNode)
 			scale: this.graph.view.scale
 		};
 	}
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.setXmlNode = function(xmlNode)
+{
+	this.xmlDocument = xmlNode.ownerDocument;
+	this.xml = mxUtils.getXml(xmlNode);
+	this.xmlNode = xmlNode;
+	
+	this.updateGraphXml(xmlNode);
+	
+	this.fireEvent(new mxEventObject('xmlNodeChanged'));
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.updateGraphXml = function(xmlNode)
+{
+	if (this.graph != null)
+	{
+		this.graph.view.translate = new mxPoint();
+		this.graph.view.scale = 1;
+		this.graph.getModel().clear();
+		
+		// Restores initial CSS state
+		if (this.widthIsEmpty)
+		{
+			this.graph.container.style.width = '';
+			this.graph.container.style.height = '';
+		}
+
+		this.editor.setGraphXml(xmlNode);
+		this.positionGraph();
+		
+		this.graph.initialViewState = {
+			translate: this.graph.view.translate.clone(),
+			scale: this.graph.view.scale
+		};
+	}
+	
+	this.fireEvent(new mxEventObject('graphChanged'));
 };
 
 /**
@@ -715,7 +770,6 @@ GraphViewer.prototype.addToolbar = function()
 	
 	var tokens = this.toolbarItems;
 	var buttonCount = 0;
-	var diagrams = [];
 	
 	function addButton(fn, imgSrc, tip, enabled)
 	{
@@ -770,12 +824,6 @@ GraphViewer.prototype.addToolbar = function()
 		return a;
 	};
 
-	// Adds page placeholders
-	if (this.xmlNode.nodeName == 'mxfile')
-	{
-		diagrams = this.xmlNode.getElementsByTagName('diagram');
-	}
-	
 	var layersDialog = null;
 	var layersDialogEntered = false;
 	var pageInfo = null;
@@ -784,12 +832,13 @@ GraphViewer.prototype.addToolbar = function()
 	{
 		var token = tokens[i];
 		
-		if (token == 'pages' && diagrams.length > 1)
+		if (token == 'pages')
 		{
+			var diagrams = [];
+
 			pageInfo = container.ownerDocument.createElement('div');
 			pageInfo.style.cssText = 'display:inline-block;position:relative;padding:3px 4px 0 4px;' +
 				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;'
-			mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
 			mxUtils.setOpacity(pageInfo, 70);
 			
 			var prevButton = addButton(mxUtils.bind(this, function()
@@ -817,6 +866,34 @@ GraphViewer.prototype.addToolbar = function()
 			
 			nextButton.style.paddingLeft = '0px';
 			nextButton.style.paddingRight = '0px';
+			
+			var lastXmlNode = null;
+			
+			var update = mxUtils.bind(this, function()
+			{
+				if (this.xmlNode == null || this.xmlNode.nodeName != 'mxfile')
+				{
+					diagrams = [];
+				}
+				if (this.xmlNode != lastXmlNode)
+				{
+					diagrams = this.xmlNode.getElementsByTagName('diagram');
+					this.currentPage = 0;
+					pageInfo.innerHTML = '';
+					mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
+					lastXmlNode = this.xmlNode;
+				}
+				
+				pageInfo.style.display = (diagrams.length > 1) ? 'inline-block' : 'none';
+				prevButton.style.display = pageInfo.style.display;
+				nextButton.style.display = pageInfo.style.display;
+			});
+			
+			var model = this.graph.getModel();
+
+			// LATER: Add event for setGraphXml
+			this.addListener('xmlNodeChanged', update);
+			update();
 		}
 		else if (token == 'zoom')
 		{
@@ -1265,7 +1342,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 		document.body.appendChild(lightbox);
 		document.body.appendChild(closeImg);
 		
-		console.log('xml', this.xml);
 		ui.setFileData(this.xml);
 
 		mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');

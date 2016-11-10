@@ -28,6 +28,11 @@
 	 * 
 	 */
 	EditorUi.spinImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/spin.gif' : 'data:image/gif;base64,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';
+	
+	/**
+	 * Contains the default XML for an empty diagram.
+	 */
+	EditorUi.prototype.emptyDiagramXml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel>';
 
 	/**
 	 * 
@@ -38,6 +43,46 @@
 	 * Sets the delay for autosave in milliseconds. Default is 2000.
 	 */
 	EditorUi.prototype.mode = null;
+
+	/**
+	 * Allows for two buttons in the sidebar footer.
+	 */
+	EditorUi.prototype.sidebarFooterHeight = (uiTheme == 'atlas') ? 36 : 36;
+
+	/**
+	 * Specifies the default custom shape style.
+	 */
+	EditorUi.prototype.defaultCustomShapeStyle = 'shape=stencil(tZRtTsQgEEBPw1+DJR7AoN6DbWftpAgE0Ortd/jYRGq72R+YNE2YgTePloEJGWblgA18ZuKFDcMj5/Sm8boZq+BgjCX4pTyqk6ZlKROitwusOMXKQDODx5iy4pXxZ5qTHiFHawxB0JrQZH7lCabQ0Fr+XWC1/E8zcsT/gAi+Subo2/3Mh6d/oJb5nU1b5tW7r2knautaa3T+U32o7f7vZwpJkaNDLORJjcu7t59m2jXxqX9un+tt022acsfmoKaQZ+vhhswZtS6Ne/ThQGt0IV0N3Yyv6P3CeT9/tHO0XFI5cAE=);whiteSpace=wrap;html=1;';
+
+	/**
+	 * Defines the maximum size for images.
+	 */
+	EditorUi.prototype.maxBackgroundSize = 1600;
+
+	/**
+	 * Defines the maximum size for images.
+	 */
+	EditorUi.prototype.maxImageSize = 520;
+
+	/**
+	 * Images above 100K should be resampled.
+	 */
+	EditorUi.prototype.resampleThreshold = 100000;
+
+	/**
+	 * Maximum allowed size for images is 1 MB.
+	 */
+	EditorUi.prototype.maxImageBytes = 1000000;
+
+	/**
+	 * Maximum size for background images is 2.5 MB.
+	 */
+	EditorUi.prototype.maxBackgroundBytes = 2500000;
+
+	/**
+	 * Holds the current file.
+	 */
+	EditorUi.prototype.currentFile = null;
 
 	/**
 	 * Capability check for canvas export
@@ -132,46 +177,6 @@
 			}
 		}
 	};
-
-	/**
-	 * Allows for two buttons in the sidebar footer.
-	 */
-	EditorUi.prototype.sidebarFooterHeight = (uiTheme == 'atlas') ? 36 : 36;
-
-	/**
-	 * Specifies the default custom shape style.
-	 */
-	EditorUi.prototype.defaultCustomShapeStyle = 'shape=stencil(tZRtTsQgEEBPw1+DJR7AoN6DbWftpAgE0Ortd/jYRGq72R+YNE2YgTePloEJGWblgA18ZuKFDcMj5/Sm8boZq+BgjCX4pTyqk6ZlKROitwusOMXKQDODx5iy4pXxZ5qTHiFHawxB0JrQZH7lCabQ0Fr+XWC1/E8zcsT/gAi+Subo2/3Mh6d/oJb5nU1b5tW7r2knautaa3T+U32o7f7vZwpJkaNDLORJjcu7t59m2jXxqX9un+tt022acsfmoKaQZ+vhhswZtS6Ne/ThQGt0IV0N3Yyv6P3CeT9/tHO0XFI5cAE=);whiteSpace=wrap;html=1;';
-
-	/**
-	 * Defines the maximum size for images.
-	 */
-	EditorUi.prototype.maxBackgroundSize = 1600;
-
-	/**
-	 * Defines the maximum size for images.
-	 */
-	EditorUi.prototype.maxImageSize = 520;
-
-	/**
-	 * Images above 100K should be resampled.
-	 */
-	EditorUi.prototype.resampleThreshold = 100000;
-
-	/**
-	 * Maximum allowed size for images is 1 MB.
-	 */
-	EditorUi.prototype.maxImageBytes = 1000000;
-
-	/**
-	 * Maximum size for background images is 2.5 MB.
-	 */
-	EditorUi.prototype.maxBackgroundBytes = 2500000;
-
-	/**
-	 * Holds the current file.
-	 */
-	EditorUi.prototype.currentFile = null;
 
 	/**
 	 * Translates this point by the given vector.
@@ -1566,15 +1571,11 @@
 					if (data != null)
 					{
 						data = this.convertDataUri(data);
-						var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;';
+						var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
 						
 						if (img.aspect == 'fixed')
 						{
 							s += 'aspect=fixed;'
-						}
-						else
-						{
-							s += 'imageAspect=0;'
 						}
 						
 						content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
@@ -2203,7 +2204,7 @@
 	 */
 	EditorUi.prototype.handleError = function(resp, title, fn)
 	{
-		var resume = this.spinner.pause();
+		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
 	
 		if (e != null || title != null)
@@ -2303,7 +2304,7 @@
 	 */
 	EditorUi.prototype.confirm = function(msg, okFn, cancelFn)
 	{
-		var resume = (this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		
 		this.showDialog(new ConfirmDialog(this, msg, function()
 		{
@@ -3621,7 +3622,7 @@
 	    				{
 							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
 									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-									'verticalAlign=top;aspect=fixed;image=' + this.convertDataUri(data2) + ';'));
+									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
 	    				}), true, this.maxImageSize);
 					}
 					else
@@ -3632,7 +3633,7 @@
 						
 						graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
 								w, h, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-								'verticalAlign=top;aspect=fixed;image=' + text + ';'));
+								'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + text + ';'));
 					}
 				}), mxUtils.bind(this, function()
 				{
@@ -3757,7 +3758,7 @@
 	/**
 	 * Imports the given XML into the existing diagram.
 	 */
-	EditorUi.prototype.importFile = function(data, mimeType, dx, dy, w, h, filename, done, file, crop)
+	EditorUi.prototype.importFile = function(data, mimeType, dx, dy, w, h, filename, done, file, crop, ignoreEmbeddedXml)
 	{
 		crop = (crop != null) ? crop : true;
 		var async = false;
@@ -3769,7 +3770,7 @@
 
 			if (mimeType.substring(0, 9) == 'image/png')
 			{
-				var xml = this.extractGraphModelFromPng(data);
+				var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(data);
 				
 				if (xml != null && xml.length > 0)
 				{
@@ -3798,7 +3799,7 @@
 
 				cells = [graph.insertVertex(null, null, '', dx, dy, w, h,
 					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-					'verticalAlign=top;aspect=fixed;image=' + data + ';')];
+					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
 		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filename))
@@ -3901,7 +3902,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn, resizeImages, maxBytes, resampleThreshold)
+	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn, resizeImages, maxBytes, resampleThreshold, ignoreEmbeddedXml)
 	{
 		var crop = x != null && y != null;
 		
@@ -3925,7 +3926,7 @@
 			}
 			else
 			{
-				return this.importFile(data, mimeType, x, y, w, h, filename, done, file, crop);
+				return this.importFile(data, mimeType, x, y, w, h, filename, done, file, crop, ignoreEmbeddedXml);
 			}
 		});
 		
@@ -4005,7 +4006,7 @@
 		    						if (svgs.length > 0)
 			    					{
 		    							var svgRoot = svgs[0];
-				    					var cont = svgRoot.getAttribute('content');
+				    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
 
 				    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
 				    					{
@@ -4092,7 +4093,7 @@
 				    				
 				    				if (file.type == 'image/png')
 				    				{
-				    					var xml = this.extractGraphModelFromPng(e.target.result);
+				    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
 				    					
 				    					if (xml != null && xml.length > 0)
 				    					{
@@ -5043,8 +5044,8 @@
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {
-						this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null,
-							null, null, !mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt));
+						this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null, null,
+							!mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
 		    		}
 				    else
 				    {
@@ -5104,7 +5105,7 @@
 
 			    				graph.setSelectionCell(graph.insertVertex(null, null, '', x, y, w * s, h * s,
 			    					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-			    					'verticalAlign=top;aspect=fixed;image=' + uri + ';'));
+			    					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + uri + ';'));
 			    			}), mxUtils.bind(this, function(img)
 			    			{
 			    				graph.setSelectionCells(this.insertTextAt(uri, x, y, true));

@@ -24,16 +24,16 @@ import com.mxgraph.io.gliffy.model.Constraint.ConstraintData;
 import com.mxgraph.io.gliffy.model.Constraints;
 import com.mxgraph.io.gliffy.model.Diagram;
 import com.mxgraph.io.gliffy.model.EmbeddedResources.Resource;
+import com.mxgraph.io.gliffy.model.GliffyObject;
+import com.mxgraph.io.gliffy.model.GliffyText;
 import com.mxgraph.io.gliffy.model.Graphic;
 import com.mxgraph.io.gliffy.model.Graphic.GliffyImage;
 import com.mxgraph.io.gliffy.model.Graphic.GliffyLine;
 import com.mxgraph.io.gliffy.model.Graphic.GliffyMindmap;
 import com.mxgraph.io.gliffy.model.Graphic.GliffyShape;
 import com.mxgraph.io.gliffy.model.Graphic.GliffySvg;
-import com.mxgraph.io.gliffy.model.GliffyObject;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxXmlUtils;
@@ -103,31 +103,6 @@ public class GliffyDiagramConverter
 
 	}
 
-	@SuppressWarnings("unused")
-	private void correctLineEndings()
-	{
-		java.lang.Object[] edges = drawioDiagram.getAllEdges(new java.lang.Object[] { drawioDiagram.getDefaultParent() });
-
-		for (int i = 0; i < edges.length; i++)
-		{
-			mxCell edge = (mxCell) edges[i];
-
-			mxICell source = edge.getTerminal(true);
-			mxICell target = edge.getTerminal(false);
-			mxPoint srcP = edge.getGeometry().getSourcePoint();
-			mxPoint trgtP = edge.getGeometry().getTargetPoint();
-
-			// TODO should this be logging instead?
-//			if (target != null)
-//			{
-//				if (trgtP != null)
-//					System.out.println(target.getGeometry().contains(trgtP.getX(), trgtP.getY()));
-//				if (srcP != null)
-//					System.out.println(source.getGeometry().contains(srcP.getX(), srcP.getY()));
-//			}
-		}
-	}
-
 	/**
 	 * Imports the objects into the draw.io diagram. Recursively adds the children 
 	 */
@@ -135,7 +110,7 @@ public class GliffyDiagramConverter
 	{
 		mxCell parent = gliffyParent != null ? gliffyParent.mxObject : null;
 		
-		if (!obj.isLine())
+		//if (!obj.isLine())
 		{
 			drawioDiagram.addCell(obj.mxObject, parent);
 
@@ -153,7 +128,7 @@ public class GliffyDiagramConverter
 				}
 			}
 		}
-		else
+		if (obj.isLine())
 		{
 			// gets the terminal cells for the edge
 			mxCell startTerminal = getTerminalCell(obj, true);
@@ -161,7 +136,7 @@ public class GliffyDiagramConverter
 
 			drawioDiagram.addCell(obj.getMxObject(), parent, null, startTerminal, endTerminal);
 
-			applyControlPoints(obj, startTerminal, endTerminal);
+			setWaypoints(obj, startTerminal, endTerminal);
 		}
 	}
 
@@ -226,9 +201,13 @@ public class GliffyDiagramConverter
 	}
 
 	/**
+	 * Sets the waypoints
 	 * 
+	 * @param object Gliffy line
+	 * @param startTerminal starting point
+	 * @param endTerminal ending point
 	 */
-	private void applyControlPoints(GliffyObject object, mxCell startTerminal, mxCell endTerminal)
+	private void setWaypoints(GliffyObject object, mxCell startTerminal, mxCell endTerminal)
 	{
 		mxCell cell = object.getMxObject();
 		mxGeometry geo = drawioDiagram.getModel().getGeometry(cell);
@@ -268,6 +247,7 @@ public class GliffyDiagramConverter
 		}
 
 		drawioDiagram.getModel().setGeometry(cell, geo);
+		
 	}
 
 	/**
@@ -288,7 +268,7 @@ public class GliffyDiagramConverter
 			}
 			
 			// don't collect for swimlanes and mindmaps, their children are treated differently
-			if (object.isGroup())
+			if (object.isGroup() || (object.isLine() && object.hasChildren()))
 			{
 				collectVerticesAndConvert(vertices, object.children, object);
 			}
@@ -363,8 +343,11 @@ public class GliffyDiagramConverter
 				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
 				style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
 				style.append("strokeWidth=" + shape.strokeWidth).append(";");
-				style.append("fillColor=" + shape.fillColor).append(";");
-				style.append("strokeColor=" + shape.strokeColor).append(";");
+				
+				if(style.lastIndexOf("fillColor") == -1)
+					style.append("fillColor=" + shape.fillColor).append(";");
+				if(style.lastIndexOf("strokeColor") == -1)
+					style.append("strokeColor=" + shape.strokeColor).append(";");
 
 				if (shape.gradient)
 				{
@@ -404,7 +387,27 @@ public class GliffyDiagramConverter
 				if (gliffyObject.parent != null && !gliffyObject.parent.isGroup()) 
 				{
 					mxGeometry parentGeometry = gliffyObject.parent.mxObject.getGeometry();
-					cell.setGeometry(new mxGeometry(0, 0, parentGeometry.getWidth(), parentGeometry.getHeight()));
+					
+					//if text is a child of a line, special positioning is in place
+					if(gliffyObject.parent.isLine()) 
+					{
+						/* Gliffy's text offset is a float in the range of [0,1]
+						 * draw.io's text offset is a float in the range of [-1,-1] (while still keeping the text within the line)
+						 * The equation that translates Gliffy offset to draw.io offset is : G*2 - 1 = D 
+						 */
+						mxGeometry mxGeo = new mxGeometry(graphic.Text.lineTValue != null ? graphic.Text.lineTValue * 2 -1 : GliffyText.DEFAULT_LINE_T_VALUE, 0, 0, 0);
+						mxGeo.setOffset(new mxPoint());
+						cell.setGeometry(mxGeo);
+						
+						style.append("labelBackgroundColor=" + gliffyDiagram.stage.getBackgroundColor()).append(";");
+						//should we force horizontal align for text on lines?
+						style.append("align=center;");
+					}
+					else 
+					{
+						cell.setGeometry(new mxGeometry(0, 0, parentGeometry.getWidth(), parentGeometry.getHeight()));
+					}
+					
 					cell.getGeometry().setRelative(true);
 				}
 			}
@@ -523,11 +526,11 @@ public class GliffyDiagramConverter
 		if (!gliffyObject.isLine() && textObject != null)
 		{
 			style.append(textObject.graphic.getText().getStyle());
+			cell.setValue(textObject.getText());
 		}
 		
 		if (textObject != null) 
 		{
-			cell.setValue(textObject.getText());
 			style.append("html=1;nl2Br=0;whiteSpace=wrap");
 		}
 		

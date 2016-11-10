@@ -5,7 +5,9 @@ import java.util.regex.Pattern;
 
 public class GliffyText
 {
-
+	//places the text in the middle of the line
+	public static Double DEFAULT_LINE_T_VALUE = 0.5; 
+	
 	private String html;
 
 	private String valign;
@@ -24,8 +26,8 @@ public class GliffyText
 	private Integer paddingBottom;
 
 	private Integer paddingTop;
-
-	public double lineTValue;
+	
+	public Double lineTValue = DEFAULT_LINE_T_VALUE;
 
 	public Integer linePerpValue;
 
@@ -54,25 +56,37 @@ public class GliffyText
 
 		//vertical label position
 		if (vposition.equals("above"))
-			sb.append("verticalLabelPosition=top;");
+		{
+			sb.append("verticalLabelPosition=top;").append(
+					"verticalAlign=bottom;");
+		}
 		else if (vposition.equals("below"))
-			sb.append("verticalLabelPosition=bottom;");
+		{
+			sb.append("verticalLabelPosition=bottom;").append(
+					"verticalAlign=top;");
+		}
 		else if (vposition.equals("none"))
-			sb.append("verticalLabelPosition=middle;");
-		
-		//vertical label align
-		sb.append("verticalAlign=").append(valign).append(";");
-		
-		//horizontal label position
-		if (hposition.equals("none"))
-			sb.append("labelPosition=center;");
-		else 
-			sb.append("labelPosition=").append(hposition).append(";");
-		
-		//horizontal label align
-		if (halign != null)
-			sb.append("align=").append(halign).append(";");
-		
+		{
+			sb.append("verticalAlign=").append(valign).append(";");
+		}
+
+		if (hposition.equals("left"))
+		{
+			sb.append("labelPosition=left;").append("align=right;");
+		}
+		else if (hposition.equals("right"))
+		{
+			sb.append("labelPosition=right;").append("align=left;");
+		}
+		else if (hposition.equals("none"))
+		{
+			String hAlign = getHorizontalTextAlignment();
+			if (hAlign != null)
+			{
+				sb.append("align=").append(hAlign).append(";");
+			}
+		}
+
 		sb.append("spacingLeft=").append(paddingLeft).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
 		sb.append("spacingTop=").append(paddingTop).append(";");

@@ -369,40 +369,7 @@ Actions.prototype.init = function()
 
 		    		if (value != null)
 		    		{
-		    			if (value.length == 0)
-		    			{
-		    				document.execCommand('unlink', false);
-		    			}
-		    			else
-		    			{
-							// To find the new link, we create a list of all existing links first
-							var tmp = graph.cellEditor.textarea.getElementsByTagName('a');
-							var oldLinks = [];
-							
-							for (var i = 0; i < tmp.length; i++)
-							{
-								oldLinks.push(tmp[i]);
-							}
-	
-							// LATER: Fix inserting link/image in IE8/quirks after focus lost
-							document.execCommand('createlink', false, mxUtils.trim(value));
-	
-							// Adds target="_blank" for the new link
-							var newLinks = graph.cellEditor.textarea.getElementsByTagName('a');
-							
-							if (newLinks.length == oldLinks.length + 1)
-							{
-								// Inverse order in favor of appended links
-								for (var i = newLinks.length - 1; i >= 0; i--)
-								{
-									if (i == 0 || newLinks[i] != oldLinks[i - 1])
-									{
-										newLinks[i].setAttribute('target', '_blank');
-										break;
-									}
-								}
-							}
-		    			}
+		    			graph.insertLink(value);
 					}
 				}));
 			}
@@ -1070,7 +1037,7 @@ Actions.prototype.init = function()
 			    			{
 			    				var pt = graph.getFreeInsertPoint();
 			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
-			    						'shape=image;verticalLabelPosition=bottom;verticalAlign=top;')];
+			    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
 			    				select = cells;
 			    			}
 			    			
