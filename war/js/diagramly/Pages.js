@@ -119,10 +119,11 @@ function SelectPage(ui, page)
 	this.ui = ui;
 	this.page = page;
 	this.previousPage = page;
-	this.neverShown = this.page.viewState == null;
+	this.neverShown = true;
 	
 	if (page != null)
 	{
+		this.neverShown = page.viewState == null;
 		this.ui.updatePageRoot(page);
 	}
 };
@@ -821,6 +822,13 @@ EditorUi.prototype.updateTabContainer = function()
 				{
 					if (graph.isEnabled())
 					{
+						// Workaround for no DnD on DIV in FF
+						if (mxClient.IS_FF)
+						{
+							// LATER: Check what triggers a parse as XML on this in FF after drop
+							evt.dataTransfer.setData('Text', '<diagram/>');
+						}
+						
 						startIndex = index;
 					}
 					else

@@ -51,11 +51,6 @@ public class OpenServlet extends HttpServlet
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Global switch to enabled VDX support.
-	 */
-	public static boolean ENABLE_VDX_SUPPORT = true;
-
-	/**
 	 * Global switch to enabled VSDX support.
 	 */
 	public static boolean ENABLE_VSDX_SUPPORT = true;
@@ -113,7 +108,6 @@ public class OpenServlet extends HttpServlet
 				String filename = "";
 				String format = null;
 				String upfile = null;
-				boolean vdx = false;
 				boolean vsdx = false;
 
 				ServletFileUpload upload = new ServletFileUpload();
@@ -132,7 +126,6 @@ public class OpenServlet extends HttpServlet
 					else if (name.equals("upfile"))
 					{
 						filename = item.getName();
-						vdx = filename.toLowerCase().endsWith(".vdx");
 						vsdx = filename.toLowerCase().endsWith(".vsdx");
 						
 						if (vsdx)
@@ -168,51 +161,17 @@ public class OpenServlet extends HttpServlet
 				{
 					// Creates a graph that contains a model but does not validate
 					// since that is not needed for the model and not allowed on GAE
-					mxGraph graph = new mxGraphHeadless()
-					{
-						public mxRectangle graphModelChanged(mxIGraphModel sender,
-								List<mxUndoableChange> changes)
-						{
-							return null;
-						}
-					};
+					mxGraph graph = new mxGraphHeadless();
 
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
 					xml = mxXmlUtils.getXml(new mxCodec().encode(graph.getModel()));
 				}
-				else if (ENABLE_VDX_SUPPORT && (vdx || vsdx))
+				else if (ENABLE_VSDX_SUPPORT && vsdx)
 				{
-					mxGraph graph = new mxGraphHeadless()
-					{
-						public mxRectangle graphModelChanged(mxIGraphModel sender,
-								List<mxUndoableChange> changes)
-						{
-							return null;
-						}
-					};
-
-					graph.setConstrainChildren(false);
 					mxVsdxCodec vdxCodec = new mxVsdxCodec();
+					xml = vdxCodec.decodeVsdx(upfile.getBytes("ISO-8859-1"), Utils.CHARSET_FOR_URL_ENCODING);
 
-					if (vdx)
-					{
-						Document doc = mxXmlUtils.parseXml(upfile);
-						//vdxCodec.decode(doc, graph);
-					}
-					else if (vsdx)
-					{
-						vdxCodec.decodeVsdx(
-								upfile.getBytes("ISO-8859-1"),
-								graph, Utils.CHARSET_FOR_URL_ENCODING);
-					}
-
-					mxCodec codec = new mxCodec();
-					Node node = codec.encode(graph.getModel());
-					// Specifies new stylesheet to be used
-					((Element) node).setAttribute("style", "default-style2");
-					xml = mxXmlUtils.getXml(node);
-
-					// Replaces VDX extension
+					// Replaces VSDX extension
 					int dot = filename.lastIndexOf('.');
 					filename = filename.substring(0, dot + 1) + "xml";
 				}

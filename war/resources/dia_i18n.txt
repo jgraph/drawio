@@ -140,6 +140,7 @@ diamond=diamond
 diamondThin=diamondThin
 didYouKnow=didYouKnow
 direction=direction
+discard=discard
 discardChangesAndReconnect=discardChangesAndReconnect
 googleDriveMissing=googleDriveMissing
 disconnected=disconnected

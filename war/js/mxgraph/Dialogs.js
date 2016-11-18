@@ -2780,7 +2780,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		evt.preventDefault();
 	});
 	
-	// Workaround for "element not found" error in FF
+	// Workaround for "no element found" error in FF
 	mxEvent.addListener(div, 'drop', function(evt)
 	{
 		evt.stopPropagation();
@@ -3234,7 +3234,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		};
 		
 		// Cannot be moved or deleted
-		for (var i = 0; i < layerCount; i++)
+		for (var i = layerCount - 1; i >= 0; i--)
 		{
 			(mxUtils.bind(this, function(child)
 			{

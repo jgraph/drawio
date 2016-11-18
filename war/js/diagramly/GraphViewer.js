@@ -175,7 +175,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					urlParams['nav'] = (this.graphConfig.nav != false) ? '1' : '0';
 					
 					this.editor.setGraphXml(this.xmlNode);
-					this.graph.border = this.graphConfig.border || 8;
+					this.graph.border = (this.graphConfig.border != null) ? this.graphConfig.border : 8;
 					this.graph.view.scale = this.graphConfig.zoom || 1;
 				}
 				finally
@@ -468,7 +468,7 @@ GraphViewer.prototype.addSizeHandler = function()
 		// Sets initial size for responsive diagram to stop at actual size
 		if (this.widthIsEmpty)
 		{
-			container.style.width = bounds.width + 2 * this.graph.border + 'px';
+			this.updateContainerWidth(container, bounds.width + 2 * this.graph.border);
 		}
 		
 		this.updateContainerHeight(container, bounds.height + 2 * this.graph.border + 1);
@@ -553,6 +553,14 @@ GraphViewer.prototype.addSizeHandler = function()
 		lastOffsetWidth = null;
 		positionGraph();
 	};
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.updateContainerWidth = function(container, width)
+{
+	container.style.width = width + 'px';
 };
 
 /**

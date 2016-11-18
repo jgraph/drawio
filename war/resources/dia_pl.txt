@@ -140,6 +140,7 @@ diamond=Diament
 diamondThin=Diament (cienki)
 didYouKnow=Czy wiesz...
 direction=Kierunek
+discard=Discard
 discardChangesAndReconnect=Odrzuć zmiany i połącz ponownie
 googleDriveMissing=Brak Dysku Google?
 disconnected=Rozłączony

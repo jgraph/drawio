@@ -110,24 +110,22 @@ public class GliffyDiagramConverter
 	{
 		mxCell parent = gliffyParent != null ? gliffyParent.mxObject : null;
 		
-		//if (!obj.isLine())
-		{
-			drawioDiagram.addCell(obj.mxObject, parent);
+		drawioDiagram.addCell(obj.mxObject, parent);
 
-			if (obj.hasChildren())
+		if (obj.hasChildren())
+		{
+			if (!obj.isSwimlane())
 			{
-				if (!obj.isSwimlane())
-				{
-					// sort the children except for swimlanes
-					// their order value is "auto"
-					sortObjectsByOrder(obj.children);
-				}
-				
-				for (GliffyObject child : obj.children) {
-					importObject(child, obj);
-				}
+				// sort the children except for swimlanes
+				// their order value is "auto"
+				sortObjectsByOrder(obj.children);
+			}
+			
+			for (GliffyObject child : obj.children) {
+				importObject(child, obj);
 			}
 		}
+		
 		if (obj.isLine())
 		{
 			// gets the terminal cells for the edge
@@ -480,19 +478,9 @@ public class GliffyDiagramConverter
 				gLane.mxObject = mxLane;
 			}
 		}
-		/* Gliffy mindmap objects have a 3 level hierarchy
-		 * 
-		 * 	mindmap
-		 * 	rectangle
-		 * 	text
-		 * 
-		 * 	Since mindmap object already converts to rectangle, rectangle object is removed and text object is put in it's place 
-		 * 
-		 */	
 		else if (gliffyObject.isMindmap())
 		{
 			GliffyObject rectangle = gliffyObject.children.get(0);
-			GliffyObject textObj = rectangle.children.get(0);
 			
 			GliffyMindmap mindmap = rectangle.graphic.Mindmap;
 			
@@ -509,13 +497,6 @@ public class GliffyDiagramConverter
 			}
 
 			cell.setVertex(true);
-			
-			mxCell textObjMx = convertGliffyObject(textObj, gliffyObject);
-			textObjMx.setGeometry(new mxGeometry(0, 0, gliffyObject.width, gliffyObject.height));
-			textObjMx.getGeometry().setRelative(true);
-			
-			//sets the grandchild as a child 
-			gliffyObject.children.set(0, textObj);
 		}
 
 		if (gliffyObject.rotation != 0)

@@ -160,7 +160,7 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	margin-top: 4px !important;
 	padding: 7px !important;
 }
-.geMenubarContainer .geItem:hover, .geToolbarContainer .geItem:hover {
+.geMenubarContainer .geItem:hover {
 	background-color: rgb(59, 115, 175);
 }
 .geToolbarContainer .geLabel {

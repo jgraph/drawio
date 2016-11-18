@@ -205,7 +205,7 @@
 	padding:6px 8px 6px 8px;
 	cursor:default;
 }
-.geMenubarContainer .geItem:hover, .geToolbarContainer .geItem:hover {
+.geMenubarContainer .geItem:hover {
 	background:#eeeeee;
 }
 .mxDisabled:hover {

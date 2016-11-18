@@ -140,6 +140,7 @@ diamond=Timantti
 diamondThin=Timantti (ohut)
 didYouKnow=Tiesitkö, että...
 direction=Suunta
+discard=Discard
 discardChangesAndReconnect=Hylkää muutokset ja yhdistä uudelleen
 googleDriveMissing=Google Drive puuttuu?
 disconnected=Yhteys katkennut
