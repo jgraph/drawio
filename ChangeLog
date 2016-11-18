@@ -1,3 +1,16 @@
+18-NOV-2016: 6.0.1.5
+
+- Replaces prompts in Atlassian cloud plugins
+- Fixes save of scratchpad in embed mode
+- Enables paste of images while editing labels
+- Adds support for title attribute in mxlibrary
+
+16-NOV-2016: 6.0.1.4
+
+- Defaults to using F2 GAE instances
+- Fixes no element error for selecting page in Firefox
+- Fixes drag and drop for pages in Firefox
+
 09-NOV-2016: 6.0.1.3
 
 - Shift+Drop ignores embedded XML in images

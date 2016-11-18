@@ -140,6 +140,7 @@ diamond=Losange
 diamondThin=Losange fin
 didYouKnow=Le saviez-vous...
 direction=Orientation
+discard=Discard
 discardChangesAndReconnect=Annuler les modifications et se reconnecter
 googleDriveMissing=Google Drive manquant?
 disconnected=Déconnecté

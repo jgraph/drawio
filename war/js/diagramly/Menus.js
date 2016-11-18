@@ -915,9 +915,10 @@
 				var parent = window.opener || window.parent;
 				parent.postMessage(data, '*');
 				
-				if (urlParams['modified'] != '0')
+				if (urlParams['modified'] != '0' && urlParams['keepmodified'] != '1')
 				{
 					editorUi.editor.modified = false;
+					editorUi.editor.setStatus('');
 				}
 			};
 	

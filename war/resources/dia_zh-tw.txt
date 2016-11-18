@@ -140,6 +140,7 @@ diamond=菱形
 diamondThin=菱形(細)
 didYouKnow=您可知道...
 direction=方向
+discard=Discard
 discardChangesAndReconnect=取消修改並重新連線
 googleDriveMissing=找不到 Google Drive
 disconnected=連線中斷

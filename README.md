@@ -6,7 +6,7 @@ draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the bas
 
 License
 -------
-draw.io is licensed under the GPL v3.
+draw.io is dual licensed under either the GPL v3 or the [mxGraph Commerical License](https://www.jgraph.com/Licenses/JGraph_Software_Licence.pdf). To use the commercial license, you must license from [JGraph](https://www.jgraph.com/purchase-mxgraph.html) for payment.
 
 Development
 -----------

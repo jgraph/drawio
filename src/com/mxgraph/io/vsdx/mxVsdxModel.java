@@ -204,13 +204,10 @@ public class mxVsdxModel {
 								this.pages.put(page.getId(), page);
 							}
 		
-							Collection<mxVsdxPage> pagesCollection = this.pages.values();
-							Iterator<mxVsdxPage> iter = pagesCollection.iterator();
-		
 							// Iterate again, assigning background pages
-							while (iter.hasNext())
+							for (Map.Entry<Integer, mxVsdxPage> entry : this.pages.entrySet())
 							{
-								mxVsdxPage page = iter.next();
+								mxVsdxPage page = entry.getValue();
 		
 								if (!page.isBackground())
 								{

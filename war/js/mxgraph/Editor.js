@@ -37,9 +37,14 @@ Editor = function(chromeless, themes, model, graph)
 	};
 
 	// Updates modified state if graph changes
-	this.graphChangeListener = function() 
+	this.graphChangeListener = function(sender, eventObject) 
 	{
-		this.setModified(true);
+		var edit = (eventObject != null) ? eventObject.getProperty('edit') : null;
+				
+		if (edit == null || !edit.ignoreEdit)
+		{
+			this.setModified(true);
+		}
 	};
 	
 	this.graph.getModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
