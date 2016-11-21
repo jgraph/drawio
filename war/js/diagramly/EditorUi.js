@@ -6133,8 +6133,10 @@
 				}
 				else
 				{
-					// Unknown message
-					data  = null;
+					// Unknown message must stop execution
+					parent.postMessage(JSON.stringify({error: 'unknownMessage'}), '*');
+					
+					return;
 				}
 			}
 			

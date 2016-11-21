@@ -1,3 +1,7 @@
+21-NOV-2016: 6.0.1.6
+
+- Fixes missing auth header in Google client API
+
 18-NOV-2016: 6.0.1.5
 
 - Replaces prompts in Atlassian cloud plugins

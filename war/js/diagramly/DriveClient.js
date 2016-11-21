@@ -385,7 +385,15 @@ DriveClient.prototype.executeRequest = function(req, success, error)
 		}));
 	});
 	
-	fn();
+	// Must get token before first request in this case
+	if (gapi.auth.getToken() == null)
+	{
+		this.execute(fn);
+	}
+	else
+	{
+		fn();
+	}
 },
 
 /**
