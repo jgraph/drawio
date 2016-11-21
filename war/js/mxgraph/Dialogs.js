@@ -2766,7 +2766,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	listDiv.style.left = '0px';
 	listDiv.style.right = '0px';
 	listDiv.style.top = '0px';
-	listDiv.style.bottom = tbarHeight;
+	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
 	div.appendChild(listDiv);
 	
 	var dragSource = null;

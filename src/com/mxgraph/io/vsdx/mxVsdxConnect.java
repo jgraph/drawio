@@ -1,5 +1,6 @@
 /**
- * Copyright (c) 2015, JGraph Ltd
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
  */
 package com.mxgraph.io.vsdx;
 

@@ -4,11 +4,9 @@
  */
 package com.mxgraph.io;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -95,7 +93,7 @@ public class mxVsdxCodec
 	 * @param point Point to which coordinates are calculated.
 	 * @return The point in absolute coordinates.
 	 */
-	private static mxPoint calculateAbsolutePoint(mxCell cellParent,
+	private static mxPoint calculateAbsolutePoint(Object cellParent,
 			mxGraph graph, mxPoint point)
 	{
 		if (cellParent != null)
@@ -685,161 +683,152 @@ public class mxVsdxCodec
 		ShapePageId edgeId = new ShapePageId(pageId, fromSheet);
 		VsdxShape edgeShape = edgeShapeMap.get(edgeId);
 
-		if (edgeShape != null)
+		if (edgeShape == null)
 		{
-			Object parent = parentsMap.get(new ShapePageId(pageId,
-					edgeShape.getId()));
+			return null;
+		}
 
-			double parentHeight = pageHeight;
+		Object parent = parentsMap.get(new ShapePageId(pageId,
+				edgeShape.getId()));
+		double parentHeight = pageHeight;
 
-			mxCell parentCell = (mxCell) parent;
+		if (parent != null)
+		{
+			mxGeometry parentGeo = graph.getModel().getGeometry(parent);
 
-			if (parentCell != null)
+			if (parentGeo != null)
 			{
-				mxGeometry parentGeometry = parentCell.getGeometry();
+				parentHeight = parentGeo.getHeight();
+			}
+		}
 
-				if (parentGeometry != null)
-				{
-					parentHeight = parentGeometry.getHeight();
-				}
+		//Get beginXY and endXY coordinates.
+		mxPoint beginXY = edgeShape.getStartXY(parentHeight);
+		beginXY = calculateAbsolutePoint(parent, graph, beginXY);
+
+		mxPoint fromConstraint = null;
+		Integer sourceSheet = connect.getSourceToSheet();
+
+		VsdxShape fromShape = sourceSheet != null ? vertexShapeMap
+				.get(new ShapePageId(pageId, sourceSheet)) : null;
+
+		mxCell source = sourceSheet != null ? vertexMap
+				.get(new ShapePageId(pageId, sourceSheet)) : null;
+
+		if (fromShape == null || source == null)
+		{
+			// Source is dangling
+			source = (mxCell) graph.insertVertex(parent, null, null,
+					beginXY.getX(), beginXY.getY(), 0, 0);
+			fromConstraint = new mxPoint(0, 0);
+		}
+		else
+		{
+			mxPoint dimensionFrom = fromShape.getDimensions();
+
+			//Get From shape origin and begin/end of edge in absolutes values.
+			double height = pageHeight;
+
+			if ((source.getParent() != null)
+					&& (source.getParent().getGeometry() != null))
+			{
+				height = source.getParent().getGeometry().getHeight();
 			}
 
-			//Get beginXY and endXY coordinates.
-			mxPoint beginXY = edgeShape.getStartXY(parentHeight);
-			beginXY = calculateAbsolutePoint((mxCell) parent, graph, beginXY);
+			mxPoint originFrom = fromShape.getOriginPoint(height, false);
+			Integer sourceToPart = connect.getSourceToPart();
 
-			mxPoint endXY = edgeShape.getEndXY(parentHeight);
-			endXY = calculateAbsolutePoint((mxCell) parent, graph, endXY);
-
-			mxPoint fromConstraint = null;
-			mxPoint toConstraint = null;
-
-			//Defines text label
-			String textLabel = edgeShape.getTextLabel();
-
-			Integer sourceSheet = connect.getSourceToSheet();
-			Integer toSheet = connect.getTargetToSheet();
-
-			VsdxShape fromShape = sourceSheet != null ? vertexShapeMap
-					.get(new ShapePageId(pageId, sourceSheet)) : null;
-			VsdxShape toShape = toSheet != null ? vertexShapeMap
-					.get(new ShapePageId(pageId, toSheet)) : null;
-
-			mxCell source = sourceSheet != null ? vertexMap
-					.get(new ShapePageId(pageId, sourceSheet)) : null;
-			mxCell target = toSheet != null ? vertexMap.get(new ShapePageId(
-					pageId, toSheet)) : null;
-
-			if (fromShape == null || source == null)
+			if (sourceToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
 			{
-				// Source is dangling
-				source = (mxCell) graph.insertVertex(parent, null, null,
-						beginXY.getX(), beginXY.getY(), 0, 0);
-				fromConstraint = new mxPoint(0, 0);
+				mxPoint absOriginFrom = calculateAbsolutePoint(source.getParent(), graph, originFrom);
+				fromConstraint = new mxPoint(
+						(beginXY.getX() - absOriginFrom.getX())
+								/ dimensionFrom.getX(),
+						(beginXY.getY() - absOriginFrom.getY())
+								/ dimensionFrom.getY());
 			}
-			else
+		}
+
+		mxPoint endXY = edgeShape.getEndXY(parentHeight);
+		endXY = calculateAbsolutePoint(parent, graph, endXY);
+		
+		mxPoint toConstraint = null;
+		Integer toSheet = connect.getTargetToSheet();
+
+		VsdxShape toShape = toSheet != null ? vertexShapeMap
+				.get(new ShapePageId(pageId, toSheet)) : null;
+
+		mxCell target = toSheet != null ? vertexMap.get(new ShapePageId(
+				pageId, toSheet)) : null;
+
+		if (toShape == null || target == null)
+		{
+			// Target is dangling
+			target = (mxCell) graph.insertVertex(parent, null, null,
+					endXY.getX(), endXY.getY(), 0, 0);
+			toConstraint = new mxPoint(0, 0);
+		}
+		else
+		{
+			target = vertexMap.get(new ShapePageId(pageId, toSheet));
+
+			mxPoint dimentionTo = toShape.getDimensions();
+
+			//Get To shape origin.
+			double height = pageHeight;
+
+			if ((target.getParent() != null)
+					&& (target.getParent().getGeometry() != null))
 			{
-				mxPoint dimensionFrom = fromShape.getDimensions();
-
-				//Get From shape origin and begin/end of edge in absolutes values.
-				double height = pageHeight;
-
-				if ((source.getParent() != null)
-						&& (source.getParent().getGeometry() != null))
-				{
-					height = source.getParent().getGeometry().getHeight();
-				}
-
-				mxPoint originFrom = fromShape.getOriginPoint(height, false);
-				mxPoint absOriginFrom = calculateAbsolutePoint(
-						(mxCell) source.getParent(), graph, originFrom);
-
-				Integer sourceToPart = connect.getSourceToPart();
-
-				if (sourceToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
-				{
-					fromConstraint = new mxPoint(
-							(beginXY.getX() - absOriginFrom.getX())
-									/ dimensionFrom.getX(),
-							(beginXY.getY() - absOriginFrom.getY())
-									/ dimensionFrom.getY());
-				}
-
+				height = target.getParent().getGeometry().getHeight();
 			}
 
-			if (toShape == null || target == null)
+			mxPoint originTo = toShape.getOriginPoint(height, false);
+			Integer targetToPart = connect.getTargetToPart();
+
+			if (targetToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
 			{
-				// Target is dangling
-				target = (mxCell) graph.insertVertex(parent, null, null,
-						endXY.getX(), endXY.getY(), 0, 0);
-				toConstraint = new mxPoint(0, 0);
+				mxPoint absOriginTo = calculateAbsolutePoint( target.getParent(), graph, originTo);
+				toConstraint = new mxPoint(
+						(endXY.getX() - absOriginTo.getX())
+								/ dimentionTo.getX(),
+						(endXY.getY() - absOriginTo.getY())
+								/ dimentionTo.getY());
 			}
-			else
-			{
-				target = vertexMap.get(new ShapePageId(pageId, toSheet));
+		}
 
-				mxPoint dimentionTo = toShape.getDimensions();
+		//Defines the style of the edge.
+		Map<String, String> styleMap = edgeShape
+				.getStyleFromEdgeShape(parentHeight);
+		//Insert new edge and set constraints.
+		Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source,
+				target, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
 
-				//Get To shape origin.
-				double height = pageHeight;
+		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
+		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
 
-				if ((target.getParent() != null)
-						&& (target.getParent().getGeometry() != null))
-				{
-					height = target.getParent().getGeometry().getHeight();
-				}
+		if (fromConstraint != null)
+		{
+			graph.setConnectionConstraint(edge, source, true,
+					new mxConnectionConstraint(fromConstraint, false));
+		}
+		if (toConstraint != null)
+		{
+			graph.setConnectionConstraint(edge, target, false,
+					new mxConnectionConstraint(toConstraint, false));
+		}
 
-				mxPoint originTo = toShape.getOriginPoint(height, false);
-				mxPoint absOriginTo = calculateAbsolutePoint(
-						(mxCell) target.getParent(), graph, originTo);
-
-				Integer targetToPart = connect.getTargetToPart();
-
-				if (targetToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
-				{
-					toConstraint = new mxPoint(
-							(endXY.getX() - absOriginTo.getX())
-									/ dimentionTo.getX(),
-							(endXY.getY() - absOriginTo.getY())
-									/ dimentionTo.getY());
-				}
-			}
-
-			//Defines the style of the edge.
-			Map<String, String> styleMap = edgeShape
-					.getStyleFromEdgeShape(parentHeight);
-			//Insert new edge and set constraints.
-			Object edge = graph.insertEdge(parent, null, textLabel, source,
-					target, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
-
-			mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
-			edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight));
-
-			if (fromConstraint != null)
-			{
-				graph.setConnectionConstraint(edge, source, true,
-						new mxConnectionConstraint(fromConstraint, false));
-			}
-			if (toConstraint != null)
-			{
-				graph.setConnectionConstraint(edge, target, false,
-						new mxConnectionConstraint(toConstraint, false));
-			}
-
-			//Gets and sets routing points of the edge.
-			if (styleMap.containsKey("curved")
-					&& styleMap.get("curved").equals("1"))
-			{
-				edgeGeometry = graph.getModel().getGeometry(edge);
-				List<mxPoint> pointList = edgeShape
-						.getControlPoints(parentHeight);
-				edgeGeometry.setPoints(pointList);
-			}
-			
-			return edgeId;
+		//Gets and sets routing points of the edge.
+		if (styleMap.containsKey("curved")
+				&& styleMap.get("curved").equals("1"))
+		{
+			edgeGeometry = graph.getModel().getGeometry(edge);
+			List<mxPoint> pointList = edgeShape
+					.getControlPoints(parentHeight);
+			edgeGeometry.setPoints(pointList);
 		}
 		
-		return null;
+		return edgeId;
 	}
 
 		/**
@@ -851,16 +840,11 @@ public class mxVsdxCodec
 		 */
 		protected Object addUnconnectedEdge(mxGraph graph, Object parent, VsdxShape edgeShape, double pageHeight)
 		{
-			//Defines the label of the edge.
-			String textLabel = edgeShape.getTextLabel();
-	
 			double parentHeight = pageHeight;
 
-			mxCell parentCell = (mxCell) parent;
-
-			if (parentCell != null)
+			if (parent != null)
 			{
-				mxGeometry parentGeometry = parentCell.getGeometry();
+				mxGeometry parentGeometry = graph.getModel().getGeometry(parent);
 
 				if (parentGeometry != null)
 				{
@@ -877,9 +861,9 @@ public class mxVsdxCodec
 			//TODO add style numeric entries rounding option
 			
 			//Insert new edge and set constraints.
-			Object edge = graph.insertEdge(parent, null, textLabel, null, null, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
+			Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
 			mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
-			edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight));
+			edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
 			
 			edgeGeometry.setTerminalPoint(beginXY, true);
 			edgeGeometry.setTerminalPoint(endXY, false);

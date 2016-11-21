@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
+ */
 package com.mxgraph.io.vsdx;
 
 import java.util.ArrayList;
@@ -26,6 +30,8 @@ public abstract class Style
 	
 	// .vsdx cells elements that contain one style each
 	protected Map<String, Element> cellElements = new HashMap<String, Element>();
+	
+	protected Map<String, Section> sections = new HashMap<String, Section>();
 
 	protected mxPropertiesManager pm;
 	
@@ -152,8 +158,7 @@ public abstract class Style
 
 		if (childName.equals("Cell"))
 		{
-			String n = elem.getAttribute("N");
-			this.cellElements.put(n, elem);
+			this.cellElements.put(elem.getAttribute("N"), elem);
 		}
 		else if (childName.equals("Section"))
 		{
@@ -171,7 +176,8 @@ public abstract class Style
 	 */
 	protected void parseSection(Element elem)
 	{
-		
+		Section sect = new Section(elem);
+		this.sections.put(elem.getAttribute("N"), sect);
 	}
 
 	/**
@@ -444,14 +450,34 @@ public abstract class Style
 	}
 
 	/**
+	 * Finds a cell key in a Section hierarchy
+	 * @param keys the Section/Row/Cell keys
+	 * @return the Cell Element
+	 */
+	protected Element getSectionCell(String[] keys)
+	{
+		Section section = this.sections.get(keys[0]);
+		
+		return section.getCell(keys);
+	}
+	
+	/**
 	 * Locates the first entry for the specified style string in the style hierarchy.
 	 * The order is to look locally, then delegate the request to the relevant parent style
 	 * if it doesn't exist locally
-	 * @param key The key of the style to find
+	 * @param key The key of the cell to find
 	 * @return the Element that first resolves to that style key or null or none is found
 	 */
-	protected Element getStyleNode(String key)
+	protected Element getCellElement(String key)
 	{
+		String[] keys = key.split(".");
+		
+		if (keys.length > 1)
+		{
+			// Section being referenced
+			return getSectionCell(keys);
+		}
+
 		Element elem = this.cellElements.get(key);
 		boolean inherit = false;
 		
@@ -469,7 +495,7 @@ public abstract class Style
 				else if (form.equals("THEMEVAL()") && value.equals("Themed") && theme != null)
 				{
 					// Use "no style" style
-					Element themeElem = theme.getStyleNode(key);
+					Element themeElem = theme.getCellElement(key);
 					
 					if (themeElem != null)
 					{
@@ -486,7 +512,7 @@ public abstract class Style
 			
 			if (parentStyle != null)
 			{
-				Element parentElem = parentStyle.getStyleNode(key);
+				Element parentElem = parentStyle.getCellElement(key);
 				
 				if (parentElem != null)
 				{
@@ -509,13 +535,13 @@ public abstract class Style
 	{
 		String color = "";
 
-		if (this.getText(this.getStyleNode(mxVsdxConstants.LINE_PATTERN), "1").equals("0"))
+		if (this.getText(this.getCellElement(mxVsdxConstants.LINE_PATTERN), "1").equals("0"))
 		{
 			color = "none";
 		}
 		else
 		{
-			color = this.getColor(this.getStyleNode(mxVsdxConstants.LINE_COLOR));
+			color = this.getColor(this.getCellElement(mxVsdxConstants.LINE_COLOR));
 		}
 
 		return color;
@@ -531,8 +557,8 @@ public abstract class Style
 	 */
 	protected String getFillColor()
 	{
-		String fillForeColor = this.getColor(this.getStyleNode(mxVsdxConstants.FILL_FOREGND));
-		String fillPattern = this.getText(this.getStyleNode(mxVsdxConstants.FILL_PATTERN), "0");
+		String fillForeColor = this.getColor(this.getCellElement(mxVsdxConstants.FILL_FOREGND));
+		String fillPattern = this.getText(this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");
 		
 		if (fillPattern != null && fillPattern.equals("0"))
 		{
@@ -594,7 +620,7 @@ public abstract class Style
 	 */
 	public double getLineWeight()
 	{
-		return getNumericalValue(this.getStyleNode(mxVsdxConstants.LINE_WEIGHT), 0);
+		return getNumericalValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), 0);
 	}
 
 	/**
@@ -603,7 +629,7 @@ public abstract class Style
 	 */
 	public double getStrokeTransparency()
 	{
-			return getNumericalValue(this.getStyleNode(mxVsdxConstants.LINE_COLOR_TRANS), 0);
+			return getNumericalValue(this.getCellElement(mxVsdxConstants.LINE_COLOR_TRANS), 0);
 	}
 
 	/**
@@ -720,7 +746,7 @@ public abstract class Style
 	 */
 	public double getTextTopMargin()
 	{
-		return getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.TOP_MARGIN), 0);
+		return getScreenNumericalValue(this.getCellElement(mxVsdxConstants.TOP_MARGIN), 0);
 	}
 
 	/**
@@ -729,7 +755,7 @@ public abstract class Style
 	 */
 	public double getTextBottomMargin()
 	{
-		return getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.BOTTOM_MARGIN), 0);
+		return getScreenNumericalValue(this.getCellElement(mxVsdxConstants.BOTTOM_MARGIN), 0);
 	}
 
 	/**
@@ -738,7 +764,7 @@ public abstract class Style
 	 */
 	public double getTextLeftMargin()
 	{
-		return getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.LEFT_MARGIN), 0);
+		return getScreenNumericalValue(this.getCellElement(mxVsdxConstants.LEFT_MARGIN), 0);
 	}
 
 	/**
@@ -747,7 +773,7 @@ public abstract class Style
 	 */
 	public double getTextRightMargin()
 	{
-		return getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.RIGHT_MARGIN), 0);
+		return getScreenNumericalValue(this.getCellElement(mxVsdxConstants.RIGHT_MARGIN), 0);
 	}
 
 	/**

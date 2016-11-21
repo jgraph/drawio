@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
+ */
 package com.mxgraph.io.vsdx;
 
 import com.mxgraph.util.mxConstants;
@@ -147,6 +151,27 @@ public class mxVsdxUtils
 		}
 
 		return copy;
+	}
+
+	/**
+	 * Returns a collection of direct child Elements that match the specified tag name
+	 * @param parent the parent whose direct children will be processed
+	 * @param name the child tag name to match
+	 * @return a collection of matching Elements
+	 */
+	public static ArrayList<Element> getDirectChildNamedElements(Element parent, String name)
+	{
+		ArrayList<Element> result = new ArrayList<Element>();
+
+		for (Node child = parent.getFirstChild(); child != null; child = child.getNextSibling())
+		{
+			if (child instanceof Element && name.equals(child.getNodeName())) 
+			{
+				result.add((Element)child);
+			}
+	    }
+
+	    return result;
 	}
 
 	/**
