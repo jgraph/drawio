@@ -42,4 +42,5 @@ mkdir -p build/.sandstorm/client/templates
 cp -rf ../../war/templates/* build/.sandstorm/client/templates/
 echo "Creating file list"
 cd build/.sandstorm
-gfind . -type f -printf "%p\n" | cut -c 3- >  sandstorm-files.list
+gfind ./client -type f -printf "%p\n" | cut -c 3- >  sandstorm-files.list
+cat ../../rootFiles >> sandstorm-files.list

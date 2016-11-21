@@ -1,0 +1,6 @@
+description.md
+Makefile
+pgp-signature
+sandstorm-pkgdef.capnp
+server.c++
+shortDesc.txt
