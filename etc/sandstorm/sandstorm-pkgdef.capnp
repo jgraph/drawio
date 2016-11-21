@@ -29,7 +29,7 @@ const pkgdef :Spk.PackageDefinition = (
     
     appTitle = (defaultText = "draw.io"),
     
-    appMarketingVersion = (defaultText = "5.6.0.3"),
+    appMarketingVersion = (defaultText = "6.0.1.5"),
 
     actions = [
       # Define your "new document" handlers here.
