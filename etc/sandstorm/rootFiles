@@ -1,5 +1,6 @@
 description.md
 Makefile
+pgp-keyring
 pgp-signature
 sandstorm-pkgdef.capnp
 server.c++

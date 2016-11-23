@@ -3249,11 +3249,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
  */
 App.prototype.getLibraryStorageHint = function(file)
 {
-	var tip = '';
+	var tip = file.getTitle();
 	
 	if (file.constructor != LocalLibrary)
 	{
-		tip += file.getHash();
+		tip += '\n' + file.getHash();
 	}
 	
 	if (file.constructor == DriveLibrary)
@@ -3309,7 +3309,8 @@ App.prototype.restoreLibraries = function()
 					
 					(mxUtils.bind(this, function(id)
 					{
-						if (this.pendingLibraries[id] == null && this.sidebar.palettes[id] == null)
+						if (id != null && id.length > 0 && this.pendingLibraries[id] == null &&
+							this.sidebar.palettes[id] == null)
 						{
 							this.pendingLibraries[id] = true;
 							var service = id.substring(0, 1);
@@ -3418,6 +3419,10 @@ App.prototype.restoreLibraries = function()
 									{
 										ignore(id);
 									});
+								}
+								else
+								{
+									delete this.pendingLibraries[id];
 								}
 							}
 						}

@@ -292,6 +292,14 @@ public class GliffyDiagramConverter
 	}
 
 	/**
+	 * Returns true if the gradient is ignored for this shape.
+	 */
+	private boolean isGradientIgnored(GliffyObject gliffyObject, GliffyObject parent)
+	{
+		return false; //gliffyObject.tid == null || gliffyObject.tid.startsWith("com.gliffy.shape.venn.outline.default");
+	}
+	
+	/**
 	 * Performs the object conversion
 	 * 
 	 * 
@@ -347,7 +355,7 @@ public class GliffyDiagramConverter
 				if(style.lastIndexOf("strokeColor") == -1)
 					style.append("strokeColor=" + shape.strokeColor).append(";");
 
-				if (shape.gradient)
+				if (shape.gradient && !isGradientIgnored(gliffyObject, parent))
 				{
 					style.append("gradientColor=#FFFFFF;gradientDirection=north;");
 				}

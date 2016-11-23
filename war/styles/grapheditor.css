@@ -351,7 +351,15 @@ div.mxWindow .geButton {
 }
 .geTitle img:hover {
 	opacity:1;
-	_filter:alpha(opacity=100);	
+	_filter:alpha(opacity=100);
+}
+.geTitle .geButton {
+	border:1px solid transparent;
+	padding:3px;
+	border-radius:2px;
+}
+.geTitle .geButton:hover {
+	border:1px solid gray;
 }
 .geSidebar .geItem {
 	display:inline-block;

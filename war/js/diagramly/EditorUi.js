@@ -1414,6 +1414,17 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
+	EditorUi.prototype.getLibraryStorageHint = function(file)
+	{
+		return '';
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
 	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle)
 	{
 		if (file.constructor != LocalLibrary)
@@ -1506,16 +1517,18 @@
 	    buttons.style.position = 'absolute';
 	    buttons.style.right = '0px';
 	    buttons.style.top = '5px';
+	    buttons.style.backgroundColor = 'inherit';
 	    title.style.position = 'relative';
 	    
+	    var btnWidth = 18;
 		var btn = document.createElement('img');
 		btn.setAttribute('src', Dialog.prototype.closeImage);
 		btn.setAttribute('title', mxResources.get('close'));
 		btn.setAttribute('align', 'top');
 		btn.setAttribute('border', '0');
-		btn.style.cursor = 'pointer';
-		btn.style.marginRight = '8px';
-		btn.style.marginTop = '3px';
+		btn.className = 'geButton';
+		btn.style.marginRight = '1px';
+		btn.style.marginTop = '-1px';
 		buttons.appendChild(btn);
 		
 		var saveBtn = null;
@@ -1579,15 +1592,17 @@
 					spinBtn.setAttribute('src', EditorUi.spinImage);
 					spinBtn.setAttribute('title', mxResources.get('saving'));
 					spinBtn.style.cursor = 'default';
-					spinBtn.style.marginRight = '6px';
-					spinBtn.style.marginTop = '2px';
+					spinBtn.style.marginRight = '2px';
+					spinBtn.style.marginTop = '-2px';
 					buttons.insertBefore(spinBtn, buttons.firstChild);
+					title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 					
 					this.saveLibrary(file.getTitle(), images, file, file.getMode(), true, true, function()
 					{
 						if (spinBtn != null && spinBtn.parentNode != null)
 						{
 							spinBtn.parentNode.removeChild(spinBtn);
+							title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 						}
 					});
 				}
@@ -1603,9 +1618,12 @@
 						this.saveLibrary(file.getTitle(), images, file, file.getMode(), true, true);
 						saveBtn.parentNode.removeChild(saveBtn);
 						saveBtn = null;
+						title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 						
 						mxEvent.consume(evt);
 					}));
+					
+					title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 				}
 			});
 			
@@ -1900,11 +1918,12 @@
 			btn.setAttribute('title', mxResources.get('add'));
 			buttons.insertBefore(btn, buttons.firstChild);
 			
-			if (!this.isOffline())
+			if (!this.isOffline() && file.title == '.scratchpad')
 			{
 				var link = document.createElement('span');
 				link.setAttribute('title', mxResources.get('help'));
-				link.style.cssText = 'color:gray;text-decoration:none;margin-right:8px;';
+				link.style.cssText = 'color:gray;text-decoration:none;';
+				link.className = 'geButton';
 				mxUtils.write(link, '?');
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
@@ -1922,6 +1941,7 @@
 		}
 		
 		title.appendChild(buttons);
+		title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 	};
 
 	/**
