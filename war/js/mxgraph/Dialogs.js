@@ -3144,7 +3144,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 						
 						img2.className = 'geButton';
 						img2.style.cssFloat = 'none';
-						img2.innerHTML = '&#9650;';
+						img2.innerHTML = '&#9660;';
 						img2.style.width = '14px';
 						img2.style.height = '14px';
 						img2.style.fontSize = '14px';
@@ -3171,7 +3171,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 						
 						img1.className = 'geButton';
 						img1.style.cssFloat = 'none';
-						img1.innerHTML = '&#9660;';
+						img1.innerHTML = '&#9650;';
 						img1.style.width = '14px';
 						img1.style.height = '14px';
 						img1.style.fontSize = '14px';

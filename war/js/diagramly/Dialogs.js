@@ -7743,6 +7743,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 
 	// For converting image URLs
 	var converter = new mxUrlConverter();
+	var errorShowed = false;
 	
 	function addButton(data, mimeType, x, y, w, h, img, aspect, title)
 	{
@@ -7833,16 +7834,16 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						rem.style.position = 'relative';
 					}
 					
-					(function(wrapperDiv, dataParam)
+					(function(wrapperDiv, dataParam, imgParam)
 					{
 						mxEvent.addListener(rem, 'click', function(evt)
 						{
-							entries[data] = null;
+							entries[dataParam] = null;
 							
 							for (var i = 0; i < images.length; i++)
 							{
-								if ((data != null && images[i].data == dataParam) ||
-									(img != null && images[i].xml == img.xml))
+								if ((images[i].data != null && images[i].data == dataParam) ||
+									(images[i].xml != null && images[i].xml == imgParam.xml))
 								{
 									images.splice(i, 1);
 									break;
@@ -8046,9 +8047,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						mxUtils.setPrefixedStyle(wrapper.style, 'transform', null);
 					});
 				}
-				else
+				else if (!errorShowed)
 				{
-					//editorUi.spinner.stop();
+					errorShowed = true;
 					editorUi.handleError({message: mxResources.get('fileExists')})
 				}
 			}
@@ -8108,7 +8109,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		for (var i = 0; i < initialImages.length; i++)
 		{
 			var img = initialImages[i];
-			addButton(img.data, null, 0, 0, img.w, img.h, img);
+			addButton(img.data, null, 0, 0, img.w, img.h, img, img.aspect, img.title);
 		}
 	}
 	
@@ -8142,6 +8143,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		evt.stopPropagation();
 	    evt.preventDefault();
+    	errorShowed = false;
 	    
 	    dropTargetIndex = getIndexForEvent(evt);
 		
@@ -8163,7 +8165,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    {
 	    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img)
 	    	{
-	    		addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ? null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+	    		addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+		    		null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 	    	});
 		}
 	    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
@@ -8247,6 +8250,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		mxEvent.addListener(fileInput, 'change', function(evt)
 		{
+	    	errorShowed = false;
+				
 	    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img)
 	    	{
 	    		addButton(data, mimeType, x, y, w, h, img, 'fixed');
@@ -8282,6 +8287,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		
 		editorUi.showImageDialog(mxResources.get('addImageUrl'), '', function(url, w, h)
 		{
+	    	errorShowed = false;
+			
 			if (url != null)
 			{
 				// Image dialog returns modified data URLs which

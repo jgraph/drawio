@@ -1,3 +1,10 @@
+23-NOV-2016: 6.0.1.7
+
+- Fixes links to same domain for viewer in iframes
+- Fixes automatic loading of libraries
+- Fixes sidebar title overlap with buttons
+- Fixes lost names, delete order in library dialog
+
 21-NOV-2016: 6.0.1.6
 
 - Fixes missing auth header in Google client API

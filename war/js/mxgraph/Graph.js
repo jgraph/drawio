@@ -4405,7 +4405,7 @@ if (typeof mxVertexHandler != 'undefined')
 							{
 								links[i].setAttribute('target', '_top');
 								
-								if (href.charAt('#'))
+								if (href.charAt(0) === '#')
 								{
 									links[i].setAttribute('href', this.baseUrl + href);
 								}
