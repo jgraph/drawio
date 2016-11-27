@@ -291,59 +291,62 @@ private:
     }
   }
 
-  struct ContentType {
-    kj::StringPtr type;
-    kj::StringPtr encoding;
-
-    ContentType(kj::StringPtr type): type(type), encoding(nullptr) {}
-    ContentType(const char* type): type(type), encoding(nullptr) {}
-    ContentType() = default;
-  };
-
-  ContentType inferContentType(kj::StringPtr filename) {
-    ContentType result;
-    kj::String scratch;
-
-    if (filename.endsWith(".gz")) {
-      result.encoding = "gzip";
-      scratch = kj::str(filename.slice(0, filename.size() - 3));
-      filename = scratch;
-    }
-
+  kj::StringPtr inferContentType(kj::StringPtr filename) {
     if (filename.endsWith(".html")) {
-      result.type = "text/html; charset=UTF-8";
+      return "text/html; charset=UTF-8";
     } else if (filename.endsWith(".js")) {
-      result.type = "text/javascript; charset=UTF-8";
+      return "text/javascript; charset=UTF-8";
     } else if (filename.endsWith(".css")) {
-      result.type = "text/css; charset=UTF-8";
+      return "text/css; charset=UTF-8";
     } else if (filename.endsWith(".png")) {
-      result.type = "image/png";
+      return "image/png";
     } else if (filename.endsWith(".gif")) {
-      result.type = "image/gif";
+      return "image/gif";
     } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-      result.type = "image/jpeg";
+      return "image/jpeg";
     } else if (filename.endsWith(".svg")) {
-      result.type = "image/svg+xml; charset=UTF-8";
+      return "image/svg+xml; charset=UTF-8";
     } else if (filename.endsWith(".txt")) {
-      result.type = "text/plain; charset=UTF-8";
+      return "text/plain; charset=UTF-8";
     } else {
-      result.type = "application/octet-stream";
+      return "application/octet-stream";
     }
-
-    return result;
   }
 
   kj::Promise<void> readFile(
-      kj::StringPtr filename, GetContext context, ContentType contentType) {
-    KJ_IF_MAYBE(fd, tryOpen(filename, O_RDONLY)) {
+      kj::StringPtr filename, GetContext context, kj::StringPtr contentType) {
+    // Do we support compression?
+    bool canGzip = false;
+    for (auto accept: context.getParams().getContext().getAcceptEncoding()) {
+      if (accept.getContentCoding() == "gzip") {
+        canGzip = true;
+        break;
+      }
+    }
+
+    // If compression is supported, look for file with .gz extension.
+    kj::Maybe<kj::AutoCloseFd> maybeFd;
+    bool isGzipped = false;
+    if (canGzip) {
+      maybeFd = tryOpen(kj::str(filename, ".gz"), O_RDONLY);
+      isGzipped = maybeFd != nullptr;
+    }
+
+    // If we haven't found a suitable file yet, look for the uncompressed version.
+    if (maybeFd == nullptr) {
+      maybeFd = tryOpen(filename, O_RDONLY);
+    }
+
+    // Serve it.
+    KJ_IF_MAYBE(fd, kj::mv(maybeFd)) {
       auto size = getFileSize(*fd, filename);
       kj::FdInputStream stream(kj::mv(*fd));
       auto response = context.getResults(capnp::MessageSize { size / sizeof(capnp::word) + 32, 0 });
       auto content = response.initContent();
       content.setStatusCode(sandstorm::WebSession::Response::SuccessCode::OK);
-      content.setMimeType(contentType.type);
-      if (contentType.encoding != nullptr) {
-        content.setEncoding(contentType.encoding);
+      content.setMimeType(contentType);
+      if (isGzipped) {
+        content.setEncoding("gzip");
       }
       stream.read(content.getBody().initBytes(size).begin(), size);
       return kj::READY_NOW;
