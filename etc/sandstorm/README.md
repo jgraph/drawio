@@ -7,6 +7,11 @@
 - `vagrant-spk vm up`
 - Invoke `../stage.sh` to stage the build files. gfind is gnu find on OS X.
 - Log into the vagrant box `vagrant-spk vm ssh`
+- `sudo apt-get update`
+- `sudo apt-get install build-essential`
+- `sudo apt-get install autoconf`
+- `sudo apt-get install libtool-bin`
 - `sudo apt-get install g++`
+- `sudo apt-get install git`
 - [Install latest capnp](https://capnproto.org/install.html)
 - In the build directory `vagrant-spk dev`
