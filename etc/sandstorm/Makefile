@@ -5,14 +5,14 @@ SANDSTORM_CAPNP_DIR=/opt/sandstorm/latest/usr/include
 
 .PHONEY: all clean dev
 
-package.spk: server sandstorm-pkgdef.capnp empty
+package.spk: server sandstorm-pkgdef.capnp
 	spk pack --keyring="drawio.key" package.spk
 
-dev: server sandstorm-pkgdef.capnp empty
+dev: server sandstorm-pkgdef.capnp
 	spk dev
 
 clean:
-	rm -rf tmp server package.spk empty
+	rm -rf tmp server package.spk
 
 tmp/genfiles:
 	@mkdir -p tmp
@@ -21,6 +21,3 @@ tmp/genfiles:
 
 server: tmp/genfiles server.c++
 	$(CXX) -static server.c++ tmp/sandstorm/*.capnp.c++ -o server $(CXXFLAGS2) `pkg-config capnp-rpc --cflags --libs`
-
-empty:
-	mkdir -p empty

@@ -16,7 +16,9 @@ public class Graphic
 		@SerializedName("Text") TEXT,
 		@SerializedName("Image") IMAGE,
 		@SerializedName("Link") LINK,
-		@SerializedName("Mindmap") MINDMAP;
+		@SerializedName("Mindmap") MINDMAP,
+		@SerializedName("PopupNote") POPUPNOTE,
+		@SerializedName("Unwknown") UNKNOWN;
 		
 
 		public String toString()
@@ -82,7 +84,11 @@ public class Graphic
 	
 	public static class GliffyMindmap extends GliffyShape
 	{
-		
+	}
+	
+	public static class GliffyPopupNote extends GliffyShape 
+	{
+		public String text;
 	}
 
 	public Type type;
@@ -98,7 +104,9 @@ public class Graphic
 	public GliffySvg Svg;
 	
 	public GliffyMindmap Mindmap;
-
+	
+	public GliffyPopupNote gliffyPopupNote;
+	
 	public Graphic()
 	{
 		super();
@@ -106,7 +114,7 @@ public class Graphic
 
 	public Type getType()
 	{
-		return type;
+		return type != null ? type : Type.UNKNOWN;
 	}
 
 	public GliffyText getText()
@@ -133,5 +141,6 @@ public class Graphic
 	{
 		return Mindmap;
 	}
+
 
 }

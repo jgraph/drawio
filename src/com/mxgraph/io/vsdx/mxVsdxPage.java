@@ -19,6 +19,11 @@ public class mxVsdxPage {
 	 */
 	protected Integer Id = null;
 	
+	/**
+	 * Name of the page taken from the "name" attribute of the page element
+	 */
+	protected String pageName = null;
+	
 	protected boolean isBackground = false;
 	
 	protected Integer backPageId = null;
@@ -52,6 +57,7 @@ public class mxVsdxPage {
 		}
 
 		this.Id = Integer.valueOf(pageElem.getAttribute(mxVsdxConstants.ID));
+		this.pageName = pageElem.getAttribute(mxVsdxConstants.NAME);
 		
 		parseNodes(pageElem, model, "pages");
 		
@@ -314,9 +320,17 @@ public class mxVsdxPage {
 		return new mxPoint(pageW, pageH);
 	}
 	
+	/**
+	 * Returns the ID of the page
+	 * @return the ID of the page
+	 */
 	public Integer getId()
 	{
 		return this.Id;
+	}
+	public String getPageName()
+	{
+		return this.pageName;
 	}
 	
 	public Map<Integer, VsdxShape> getShapes()
@@ -334,6 +348,10 @@ public class mxVsdxPage {
 		return this.isBackground;
 	}
 	
+	/**
+	 * Returns the background page ID, if any
+	 * @return the ID of any background page or null for no background page
+	 */
 	public Integer getBackPageId()
 	{
 		return this.backPageId;
@@ -342,5 +360,10 @@ public class mxVsdxPage {
 	public void setBackPage(mxVsdxPage page)
 	{
 		this.backPage = page;
+	}
+	
+	public mxVsdxPage getBackPage()
+	{
+		return this.backPage;
 	}
 }

@@ -156,9 +156,9 @@ Actions.prototype.init = function()
 		}
 	};
 	
-	this.addAction('delete', function()
+	this.addAction('delete', function(evt)
 	{
-		deleteCells(false);
+		deleteCells(evt != null && mxEvent.isShiftDown(evt));
 	}, null, null, 'Delete');
 	this.addAction('deleteAll', function()
 	{
@@ -232,6 +232,13 @@ Actions.prototype.init = function()
 	}, null, null, 'Ctrl+Shift+U');
 	this.addAction('removeFromGroup', function() { graph.removeCellsFromParent(); });
 	// Adds action
+	this.addAction('edit', function()
+	{
+		if (graph.isEnabled())
+		{
+			graph.startEditingAtCell();
+		}
+	}, null, null, 'F2/Enter');
 	this.addAction('editData...', function()
 	{
 		var cell = graph.getSelectionCell() || graph.getModel().getRoot();
@@ -320,7 +327,7 @@ Actions.prototype.init = function()
 						}
 					}
 					
-					var pt = graph.getInsertPoint();
+					var pt = graph.getFreeInsertPoint();
             		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
             	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
             	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
@@ -330,6 +337,7 @@ Actions.prototype.init = function()
             	    graph.setLinkForCell(linkCell, link);
             	    graph.cellSizeUpdated(linkCell, true);
             	    graph.setSelectionCell(graph.addCell(linkCell));
+            	    graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			});
 			
@@ -361,40 +369,7 @@ Actions.prototype.init = function()
 
 		    		if (value != null)
 		    		{
-		    			if (value.length == 0)
-		    			{
-		    				document.execCommand('unlink', false);
-		    			}
-		    			else
-		    			{
-							// To find the new link, we create a list of all existing links first
-							var tmp = graph.cellEditor.textarea.getElementsByTagName('a');
-							var oldLinks = [];
-							
-							for (var i = 0; i < tmp.length; i++)
-							{
-								oldLinks.push(tmp[i]);
-							}
-	
-							// LATER: Fix inserting link/image in IE8/quirks after focus lost
-							document.execCommand('createlink', false, mxUtils.trim(value));
-	
-							// Adds target="_blank" for the new link
-							var newLinks = graph.cellEditor.textarea.getElementsByTagName('a');
-							
-							if (newLinks.length == oldLinks.length + 1)
-							{
-								// Inverse order in favor of appended links
-								for (var i = newLinks.length - 1; i >= 0; i--)
-								{
-									if (i == 0 || newLinks[i] != oldLinks[i - 1])
-									{
-										newLinks[i].setAttribute('target', '_blank');
-										break;
-									}
-								}
-							}
-		    			}
+		    			graph.insertLink(value);
 					}
 				}));
 			}
@@ -623,7 +598,7 @@ Actions.prototype.init = function()
 		this.editorUi.showDialog(dlg.container, 300, 80, true, true);
 		dlg.init();
 	}), null, null, 'Ctrl+0'));
-	this.addAction('pageScale', mxUtils.bind(this, function()
+	this.addAction('pageScale...', mxUtils.bind(this, function()
 	{
 		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.pageScale * 100), mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 		{
@@ -680,39 +655,7 @@ Actions.prototype.init = function()
 	action.setSelectedCallback(function() { return graph.scrollbars; });
 	action = this.addAction('pageView', mxUtils.bind(this, function()
 	{
-		var hasScrollbars = mxUtils.hasScrollbars(graph.container);
-		var tx = 0;
-		var ty = 0;
-		
-		if (hasScrollbars)
-		{
-			tx = graph.view.translate.x * graph.view.scale - graph.container.scrollLeft;
-			ty = graph.view.translate.y * graph.view.scale - graph.container.scrollTop;
-		}
-		
-		graph.pageVisible = !graph.pageVisible;
-		graph.pageBreaksVisible = graph.pageVisible; 
-		graph.preferPageSize = graph.pageBreaksVisible;
-		graph.view.validateBackground();
-
-		// Workaround for possible handle offset
-		if (hasScrollbars)
-		{
-			var cells = graph.getSelectionCells();
-			graph.clearSelection();
-			graph.setSelectionCells(cells);
-		}
-		
-		// Calls updatePageBreaks
-		graph.sizeDidChange();
-		
-		if (hasScrollbars)
-		{
-			graph.container.scrollLeft = graph.view.translate.x * graph.view.scale - tx;
-			graph.container.scrollTop = graph.view.translate.y * graph.view.scale - ty;
-		}
-		
-		ui.fireEvent(new mxEventObject('pageViewChanged'));
+		ui.setPageVisible(!graph.pageVisible);
 	}));
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.pageVisible; });
@@ -1092,9 +1035,9 @@ Actions.prototype.init = function()
 			        		// Inserts new cell if no cell is selected
 			    			if (cells.length == 0)
 			    			{
-			    				var pt = graph.getInsertPoint();
+			    				var pt = graph.getFreeInsertPoint();
 			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
-			    						'shape=image;verticalLabelPosition=bottom;verticalAlign=top;')];
+			    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
 			    				select = cells;
 			    			}
 			    			

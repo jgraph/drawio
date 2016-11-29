@@ -77,7 +77,17 @@
 	/**
 	 * 
 	 */
+	Sidebar.prototype.veeam = ['2D', '3D'];
+
+	/**
+	 * 
+	 */
 	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Composite', 'Implementation and Migration', 'Motivation', 'Physical', 'Relationships', 'Strategy', 'Technology'];
+
+	/**
+	 * 
+	 */
+	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
 	 *
@@ -98,13 +108,12 @@
 	                                        	                          'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels']},
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
            	                           {id: 'rack', prefix: 'rack', libs: Sidebar.prototype.rack},
-           	                           {id: 'electrical', prefix: 'ee', libs: ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 
-           	                                                                    'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical',
-           	                                                                    'VacuumTubes', 'Waveforms', 'Instruments']},
+           	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'office', prefix: 'office', libs: Sidebar.prototype.office},
+           	                           {id: 'veeam', prefix: 'veeam', libs: Sidebar.prototype.veeam},
            	                           {id: 'cabinets', libs: ['cabinets']},
            	                           {id: 'floorplan', libs: ['floorplan']},
            	                           {id: 'bootstrap', libs: ['bootstrap']},
@@ -286,7 +295,8 @@
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
             			          {title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
-            			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'}]},
+            			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'},
+            			          {title: 'Veeam', id: 'veeam', image: IMAGE_PATH + '/sidebar-veeam.png'}]},
             			{title: mxResources.get('business'),
             			entries: [{title: 'ArchiMate 3.0', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
             			          {title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
@@ -437,8 +447,8 @@
 					var h = clone.clientHeight + 18;
 					clone.parentNode.removeChild(clone);
 					
-		    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' +
-		    				encodeURIComponent(this.editorUi.editor.compress(html))).simulate(document, '_blank');
+		    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
+		    			this.editorUi.editor.graph.compress(html))).simulate(document, '_blank');
 	
 					return;
 				}
@@ -564,7 +574,9 @@
 		var eip = this.eip;
 		var gmdl = this.gmdl;
 		var office = this.office;
+		var veeam = this.veeam;
 		var archimate3 = this.archimate3;
+		var electrical = this.electrical;
 		
 		if (urlParams['createindex'] == '1')
 		{
@@ -593,6 +605,7 @@
 		this.addMockupPalette();
 		this.addElectricalPalette();
 		this.addOfficePalette();
+		this.addVeeamPalette();
 
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;');
@@ -974,7 +987,8 @@
 		if (this.editorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
 		{
 			var img = new Image();
-			img.src = 'log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+			var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+			img.src = logDomain + '/log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 		}
 		
 		success = mxUtils.bind(this, function(results, len, more, terms)
@@ -983,30 +997,55 @@
 			{
 				var pg = page - Math.ceil((len - count / 4) / count);
 
-				mxUtils.get(ICONSEARCH_PATH + '?q=' + encodeURIComponent(searchTerms) +
-					'&l=1&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
+				mxUtils.get(ICONSEARCH_PATH + '?v=2&q=' + encodeURIComponent(searchTerms) +
+					'&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
 				{
-					var icons = req.getXml().getElementsByTagName('icon');
-					
-					for (var i = 0; i < icons.length; i++)
+					try
 					{
-						var size = parseInt(mxUtils.getTextContent(icons[i].getElementsByTagName('size')[0]));
-						var url = mxUtils.getTextContent(icons[i].getElementsByTagName('image')[0]);
-
-						if (size != null && url != null)
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
-							(mxUtils.bind(this, function(s, u)
+							var res = JSON.parse(req.getText());
+							
+							for (var i = 0; i < res.icons.length; i++)
 							{
-								results.push(mxUtils.bind(this, function()
+								var sizes = res.icons[i].raster_sizes;
+								var index = sizes.length - 1;
+								
+								while (index > 0 && sizes[index].size > 128)
 								{
-									return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
-										'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=' + u, s, s, '');
-								}));
-							}))(size, url);
+									index--;
+								}
+		
+								var size = sizes[index].size;
+								var url = sizes[index].formats[0].preview_url;
+		
+								if (size != null && url != null)
+								{
+									(mxUtils.bind(this, function(s, u)
+									{
+										results.push(mxUtils.bind(this, function()
+										{
+											return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
+												'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
+												'aspect=fixed;image=' + u, s, s, '');
+										}));
+									}))(size, url);
+								}
+							}
+		
+							succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
+						}
+						else
+						{
+							succ(results, len, false, terms);
+							this.editorUi.handleError({message: mxResources.get('unknownError')});
 						}
 					}
-
-					succ(results, (page - 1) * count + results.length, icons.length == count, terms);
+					catch (e)
+					{
+						succ(results, len, false, terms);
+						this.editorUi.handleError(e);
+					}
 				},
 				function()
 				{

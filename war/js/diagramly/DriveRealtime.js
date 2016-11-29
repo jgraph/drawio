@@ -205,7 +205,7 @@ DriveRealtime.prototype.start = function()
 				var img = new Image();
 				
 				// Timestamp is added to bypass client-side cache
-				img.src = 'log?severity=CONFIG&msg=converted-oldrt&v=' +
+				img.src = 'https://log.draw.io/log?severity=CONFIG&msg=converted-oldrt&v=' +
 					encodeURIComponent(EditorUi.VERSION) + '&ts=' + new Date().getTime();
 	    	}
 	    	catch (e)
@@ -244,13 +244,15 @@ DriveRealtime.prototype.start = function()
 				page.mapping.init();
 			}
 		}
-		else if (urlParams['pages'] != '1')
+		else if (urlParams['pages'] == '0')
 		{
 			this.diagramMap = this.rtModel.createMap();
 			this.diagrams.push(this.diagramMap);
 			// Dummy node, should be XML node if used
 			this.page = new DiagramPage(document.createElement('diagram'));
 			this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
+			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+			this.page.setName(this.diagramMap.get('name'));
 			this.page.mapping.init();
 		}
 		else
@@ -277,7 +279,7 @@ DriveRealtime.prototype.start = function()
 		
 		forceSave = true;
 	}
-	else if (this.diagrams.length < 2 && urlParams['pages'] != '1')
+	else if (this.diagrams.length < 2 && urlParams['pages'] == '0')
 	{
 		this.ui.fileNode = null;
 		this.ui.pages = null;
@@ -295,6 +297,13 @@ DriveRealtime.prototype.start = function()
 		// Dummy node, should be XML node if used
 		this.page = new DiagramPage(document.createElement('diagram'));
 		this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
+		
+		if (!this.diagramMap.has('name'))
+		{
+			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+		}
+		
+		this.page.setName(this.page.mapping.diagramMap.get('name'));
 		
 		// Avoids scroll offset when switching page
 		this.page.mapping.init();
@@ -383,6 +392,28 @@ DriveRealtime.prototype.start = function()
 			{
 				window.clearTimeout(this.isAliveThread);
 				this.isAliveThread = null;
+			}
+		}
+		
+		if (this.file.isEditable())
+		{
+			var avail = 10485760 - this.rtModel.bytesUsed;
+			
+			if (avail > 0 && avail < 500000 && !this.sizeLimitWarningShown)
+			{
+				// Shows warning just once
+				this.sizeLimitWarningShown = true;
+				
+				this.ui.showError(mxResources.get('warning'), mxResources.get('fileNearlyFullSeeFaq'),
+					mxResources.get('close'), mxUtils.bind(this, function()
+					{
+						// Hides the dialog
+					}), null, mxResources.get('show'), mxUtils.bind(this, function()
+					{
+						// Show FAQ entry
+						window.open('https://desk.draw.io/solution/articles/16000041695-what-does-the-error-message-file-nearly-full-please-see-faq-mean');
+					})
+				);
 			}
 		}
 	}));
@@ -614,6 +645,26 @@ DriveRealtime.prototype.installUiChangeListeners = function()
 	});
 	
 	this.ui.addListener('foldingEnabledChanged', this.foldingEnabledListener);
+		
+	this.graph.addListener('shadowVisibleChanged', this.shadowVisibleListener);
+	
+	this.pageVisibleListener = mxUtils.bind(this, function(sender, evt)
+	{
+		if (!this.ignorePageVisibleChanged)
+		{
+			try
+			{
+				this.setFileModified();
+				this.getDiagramMap().set('pageVisible', (this.graph.pageVisible) ? '1' : '0');
+			}
+			catch (e)
+			{
+				this.ui.handleError(e);
+			}
+		}
+	});
+	
+	this.ui.addListener('pageViewChanged', this.pageVisibleListener);
 	
 	this.backgroundImageListener = mxUtils.bind(this, function(sender, evt)
 	{
@@ -808,24 +859,8 @@ DriveRealtime.prototype.installPageSelectListener = function()
 		// Applies view state from realtime model without firing events
 		if (page.viewState == null)
 		{
-			// Resets part of the view that is in view state but not in realtime model
-			// via activate and not in setViewState (if state is null)
-			var graph = this.ui.editor.graph;
-			graph.view.scale = 1;
-			graph.gridEnabled = !this.ui.editor.chromeless || urlParams['grid'] == '1';
-			graph.gridSize = mxGraph.prototype.gridSize;
-			graph.pageScale = mxGraph.prototype.pageScale;
-			graph.pageVisible = this.ui.editor.graph.defaultPageVisible;
-			graph.scrollbars = this.ui.editor.graph.defaultScrollbars;
-			graph.graphHandler.guidesEnabled = true;
-			graph.defaultParent = null;
-			graph.setTooltips(true);
-			graph.setConnectable(true);
-			graph.setTooltips(true);
-			
-			// Actives from realtime without calling event listeners
+			// Activates from realtime without calling event listeners
 			page.mapping.activate(true);
-			this.ui.resetScrollbars();
 		}
 	});
 	
@@ -839,6 +874,21 @@ DriveRealtime.prototype.installPageSelectListener = function()
 			{
 				this.ignoreChange = true;
 				
+				// Switches to pages datastructure
+				if (this.ui.pages == null)
+				{
+					this.ui.fileNode = mxUtils.createXmlDocument().createElement('mxfile');
+					this.ui.pages = [];
+					
+					if (this.page != null)
+					{
+						this.ui.currentPage = this.page;
+						this.ui.pages.push(this.ui.currentPage);
+						this.diagramMap = null;
+						this.page = null;
+					}
+				}
+				
 				for (var i = 0; i < evt.values.length; i++)
 				{
 					var page = new DiagramPage(document.createElement('diagram'));
@@ -848,9 +898,17 @@ DriveRealtime.prototype.installPageSelectListener = function()
 					this.ui.pages.splice(evt.index + i, 0, page);
 					page.mapping.init();
 				}
-
-				this.ignoreChange = false;
+				
+				// Shows tab container if pages are added with pages disabled
+				if (this.ui.pages != null && this.ui.pages.length > 1 &&
+					this.ui.tabContainer != null &&
+					this.ui.tabContainer.style.height == '0px')
+				{
+					this.ui.editor.graph.view.validateBackground();
+				}
+					
 				this.ui.updateTabContainer();
+				this.ignoreChange = false;
 			}
 			else if (evt.movedFromList == this.diagrams && evt.movedFromIndex != null)
 			{
@@ -1670,6 +1728,12 @@ DriveRealtime.prototype.destroy = function(unloading)
 		this.foldingEnabledListener = null;
 	}
 
+	if (this.pageVisibleListener != null)
+	{
+		this.ui.removeListener(this.pageVisibleListener);
+		this.pageVisibleListener = null;
+	}
+
 	if (this.backgroundImageListener != null)
 	{
 		this.ui.removeListener(this.backgroundImageListener);
@@ -1710,6 +1774,12 @@ DriveRealtime.prototype.destroy = function(unloading)
 	{
 		this.model.removeListener(this.graphModelChangeListener);
 		this.graphModelChangeListener = null;
+	}
+	
+	if (this.pageChangeListener != null)
+	{
+		this.ui.editor.removeListener(this.pageChangeListener);
+		this.pageChangeListener = null;
 	}
 
 	if (this.viewStateListener != null)

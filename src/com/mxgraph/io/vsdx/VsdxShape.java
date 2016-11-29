@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
+ */
 package com.mxgraph.io.vsdx;
 
 import com.mxgraph.model.mxCell;
@@ -211,7 +215,7 @@ public class VsdxShape extends Shape
 		
 		if (elem == null && this.masterShape != null)
 		{
-			return this.masterShape.getStyleNode(key);
+			return this.masterShape.getCellElement(key);
 		}
 		
 		return elem;
@@ -331,7 +335,7 @@ public class VsdxShape extends Shape
 		// need to translate the origin
 		if (rotation && (lpy != h/2 || lpx != w/2))
 		{
-			double angle = Double.valueOf(this.getText(this.getStyleNode(mxVsdxConstants.ANGLE), "0"));
+			double angle = Double.valueOf(this.getText(this.getCellElement(mxVsdxConstants.ANGLE), "0"));
 			
 			if (angle != 0)
 			{
@@ -433,7 +437,7 @@ public class VsdxShape extends Shape
 			opacity = 0;
 		}
 
-		opacity = getNumericalValue(this.getStyleNode(key), 0);
+		opacity = getNumericalValue(this.getCellElement(key), 0);
 
 		opacity = 100 - opacity * 100;
 		opacity = Math.max(opacity, 0);
@@ -450,11 +454,11 @@ public class VsdxShape extends Shape
 	private String getGradient()
 	{
 		String gradient = "";
-		String fillPattern = this.getText(this.getStyleNode(mxVsdxConstants.FILL_PATTERN), "0");
+		String fillPattern = this.getText(this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");
 
 		if (fillPattern.equals("25") || fillPattern.equals("27") || fillPattern.equals("28") || fillPattern.equals("30"))
 		{
-			gradient = this.getColor(this.getStyleNode(mxVsdxConstants.FILL_BKGND));
+			gradient = this.getColor(this.getCellElement(mxVsdxConstants.FILL_BKGND));
 		}
 
 		return gradient;
@@ -468,7 +472,7 @@ public class VsdxShape extends Shape
 	private String getGradientDirection()
 	{
 		String direction = "";
-		String fillPattern = this.getText(this.getStyleNode(mxVsdxConstants.FILL_PATTERN), "0");
+		String fillPattern = this.getText(this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");
 
 		if (fillPattern.equals("25"))
 		{
@@ -496,7 +500,7 @@ public class VsdxShape extends Shape
 	 */
 	public double getRotation()
 	{
-		double rotation = Double.valueOf(this.getText(this.getStyleNode(mxVsdxConstants.ANGLE), "0"));
+		double rotation = Double.valueOf(this.getText(this.getCellElement(mxVsdxConstants.ANGLE), "0"));
 
 		rotation = Math.toDegrees(rotation);
 		rotation = rotation % 360;
@@ -562,7 +566,7 @@ public class VsdxShape extends Shape
 	{
 		String vertical = mxConstants.ALIGN_MIDDLE;
 
-		int align = Integer.parseInt(getText(this.getStyleNode(mxVsdxConstants.VERTICAL_ALIGN), "1"));
+		int align = Integer.parseInt(getText(this.getCellElement(mxVsdxConstants.VERTICAL_ALIGN), "1"));
 
 		if (align == 0)
 		{
@@ -587,7 +591,7 @@ public class VsdxShape extends Shape
 		boolean hor = true;
 		//Defines rotation.
 		double rotation = this.getRotation();
-		double angle = Double.valueOf(this.getText(this.getStyleNode(mxVsdxConstants.TXT_ANGLE), "0"));
+		double angle = Double.valueOf(this.getText(this.getCellElement(mxVsdxConstants.TXT_ANGLE), "0"));
 		
 		angle = Math.toDegrees(angle);
 		angle = angle - rotation;
@@ -874,7 +878,7 @@ public class VsdxShape extends Shape
 	 */
 	public boolean isDashed()
 	{
-		String linePattern = this.getText(this.getStyleNode(mxVsdxConstants.LINE_PATTERN), "0");
+		String linePattern = this.getText(this.getCellElement(mxVsdxConstants.LINE_PATTERN), "0");
 
 		if (linePattern.equals("Themed"))
 		{
@@ -929,7 +933,7 @@ public class VsdxShape extends Shape
 	 */
 	public float getStartArrowSize()
 	{
-		String baSize = getText(this.getStyleNode(mxVsdxConstants.BEGIN_ARROW_SIZE), "4");
+		String baSize = getText(this.getCellElement(mxVsdxConstants.BEGIN_ARROW_SIZE), "4");
 		
 		try
 		{
@@ -951,7 +955,7 @@ public class VsdxShape extends Shape
 	 */
 	public float getFinalArrowSize()
 	{
-		String eaSize = getText(this.getStyleNode(mxVsdxConstants.END_ARROW_SIZE), "4");
+		String eaSize = getText(this.getCellElement(mxVsdxConstants.END_ARROW_SIZE), "4");
 
 		try
 		{
@@ -972,7 +976,7 @@ public class VsdxShape extends Shape
 	 */
 	public boolean isRounded()
 	{
-		String val = getText(this.getStyleNode(mxVsdxConstants.ROUNDING), "0");
+		String val = getText(this.getCellElement(mxVsdxConstants.ROUNDING), "0");
 		return Double.valueOf(val) > 0;
 	}
 
@@ -986,7 +990,7 @@ public class VsdxShape extends Shape
 		// https://msdn.microsoft.com/en-us/library/office/jj230454.aspx TODO
 		// double shdwShow = this.getNumericalValue(this.getStyleNode(mxVdxConstants.SHDW_PATTERN), 0);
 
-		String shdw = this.getText(this.getStyleNode(mxVsdxConstants.SHDW_PATTERN), "0");
+		String shdw = this.getText(this.getCellElement(mxVsdxConstants.SHDW_PATTERN), "0");
 		
 		if (shdw.equals("Themed"))
 		{
@@ -1668,8 +1672,8 @@ public class VsdxShape extends Shape
 	 */
 	public mxPoint getStartXY(double parentHeight)
 	{
-		double startX = getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.BEGIN_X), 0);
-		double startY = parentHeight - getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.BEGIN_Y), 0);
+		double startX = getScreenNumericalValue(this.getCellElement(mxVsdxConstants.BEGIN_X), 0);
+		double startY = parentHeight - getScreenNumericalValue(this.getCellElement(mxVsdxConstants.BEGIN_Y), 0);
 
 		return new mxPoint(startX, startY);
 	}
@@ -1681,8 +1685,8 @@ public class VsdxShape extends Shape
 	 */
 	public mxPoint getEndXY(double parentHeight)
 	{
-		double endX = getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.END_X), 0);
-		double endY = parentHeight- getScreenNumericalValue(this.getStyleNode(mxVsdxConstants.END_Y), 0);
+		double endX = getScreenNumericalValue(this.getCellElement(mxVsdxConstants.END_X), 0);
+		double endY = parentHeight- getScreenNumericalValue(this.getCellElement(mxVsdxConstants.END_Y), 0);
 
 		return new mxPoint(endX, endY);
 	}
@@ -1692,9 +1696,8 @@ public class VsdxShape extends Shape
 	 * @param parentHeight Height of the parent of the shape.
 	 * @return List of mxPoint that represents the routing points.
 	 */
-	public List<mxPoint> getRoutingPoints(double parentHeight)
+	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint)
 	{
-		mxPoint startXY = getStartXY(parentHeight);
 		List<mxPoint> points = new ArrayList<mxPoint>();
 		
 		if (!(this.hasGeom()))
@@ -1704,6 +1707,8 @@ public class VsdxShape extends Shape
 		
 		int controlPointCount = 0;
 		int currentPointCount = 0;
+		double lastX = startPoint.getX();
+		double lastY = startPoint.getY();
 		
 		for (int i = 0; i < 2; i++)
 		{
@@ -1744,15 +1749,28 @@ public class VsdxShape extends Shape
 										String yValue = children.get("Y");
 										double x = 0, y = 0;
 											
-										if (xValue != null && yValue != null)
+										if (xValue != null)
 										{
 											x = Double.parseDouble(xValue) * mxVsdxUtils.conversionFactor;
-											y = (Double.parseDouble(yValue) * mxVsdxUtils.conversionFactor) * -1;
+											lastX = x;
+											x += startPoint.getX();
+										}
+										else
+										{
+											x = lastX;
 										}
 										
-										x += startXY.getX();
-										y += startXY.getY();
-			
+										if (yValue != null)
+										{
+											y = (Double.parseDouble(yValue) * mxVsdxUtils.conversionFactor) * -1;
+											lastY = y;
+											y += startPoint.getY();
+										}
+										else
+										{
+											y = lastY;
+										}
+										
 										x = Math.round(x * 100.0) / 100.0;
 										y = Math.round(y * 100.0) / 100.0;
 			
@@ -1846,6 +1864,7 @@ public class VsdxShape extends Shape
 	public Map<String, String> getStyleFromEdgeShape(double parentHeight)
 	{
 		Map<String, String> styleMap = new Hashtable<String, String>();
+		styleMap.put("vsdxID", this.getId().toString());
 
 		//Defines Edge Shape
 		Map<String, String> edgeShape = getForm();
@@ -1964,7 +1983,7 @@ public class VsdxShape extends Shape
 	public Map<String, String> resolveCommonStyles(Map<String, String> styleMap)
 	{
 		/** LABEL BACKGROUND COLOR **/
-		String lbkgnd = this.getTextBkgndColor(this.getStyleNode(mxVsdxConstants.TEXT_BKGND));
+		String lbkgnd = this.getTextBkgndColor(this.getCellElement(mxVsdxConstants.TEXT_BKGND));
 
 		if (!lbkgnd.equals(""))
 		{
@@ -1980,7 +1999,7 @@ public class VsdxShape extends Shape
 	 */
 	public String getEdgeMarker(boolean start)
 	{
-		String marker = this.getText(this.getStyleNode(start ? mxVsdxConstants.BEGIN_ARROW : mxVsdxConstants.END_ARROW), "0");
+		String marker = this.getText(this.getCellElement(start ? mxVsdxConstants.BEGIN_ARROW : mxVsdxConstants.END_ARROW), "0");
 		return VsdxShape.arrowTypes.get(marker);
 	}
 	
@@ -1991,13 +2010,13 @@ public class VsdxShape extends Shape
 	 * @param key The key of the style to find
 	 * @return the Element that first resolves to that style key or null or none is found
 	 */
-	protected Element getStyleNode(String key)
+	protected Element getCellElement(String key)
 	{
-		Element elem = super.getStyleNode(key);
+		Element elem = super.getCellElement(key);
 		
 		if (elem == null && this.masterShape != null)
 		{
-			return this.masterShape.getStyleNode(key);
+			return this.masterShape.getCellElement(key);
 		}
 		
 		return elem;

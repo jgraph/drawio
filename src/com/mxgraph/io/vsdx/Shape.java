@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
+ */
 package com.mxgraph.io.vsdx;
 
 import java.util.ArrayList;
@@ -152,17 +156,20 @@ public class Shape extends Style {
 	 */
 	protected void parseSection(Element elem)
 	{
-		super.parseSection(elem);
 		String n = elem.getAttribute("N");
 		
-		if (geom == null)
-		{
-			geom = new ArrayList<Element>();
-		}
-
 		if (n.equals("Geometry"))
 		{
+			if (geom == null)
+			{
+				geom = new ArrayList<Element>();
+			}
+
 			this.geom.add(elem);
+		}
+		else
+		{
+			super.parseSection(elem);
 		}
 	}
 

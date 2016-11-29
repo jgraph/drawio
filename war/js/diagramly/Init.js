@@ -4,6 +4,9 @@ window.urlParams = window.urlParams || {};
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
 
+// Checks for SVG support
+window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9);
+
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.SAVE_URL = window.SAVE_URL || 'save';
@@ -14,12 +17,16 @@ window.PROXY_URL = window.PROXY_URL || 'proxy';
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
 // Path for images inside the diagram
 window.GRAPH_IMAGE_PATH = window.GRAPH_IMAGE_PATH || 'img';
-window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || (navigator.userAgent.indexOf('MSIE') >= 0) ? 'iconSearch' : 'https://www.draw.io/iconSearch';
+window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || (navigator.userAgent.indexOf('MSIE') >= 0 ||
+	urlParams['dev']) ? 'iconSearch' : 'https://www.draw.io/iconSearch';
 window.TEMPLATE_PATH = window.TEMPLATE_PATH || '/templates';
 
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';
+
+// URL for logging
+window.DRAWIO_LOG_URL = window.DRAWIO_LOG_URL || '';
 
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language
@@ -230,4 +237,16 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 {
 	urlParams['math'] = '0';
+}
+
+// Adds hard-coded logging domain for draw.io domains
+var host = window.location.host;
+var searchString = 'draw.io';
+var position = host.length - searchString.length;
+var lastIndex = host.lastIndexOf(searchString, position);
+
+if (lastIndex !== -1 && lastIndex === position && host != 'test.draw.io')
+{
+	// endsWith polyfill
+	window.DRAWIO_LOG_URL = 'https://log.draw.io';
 }

@@ -11,23 +11,10 @@ function Sidebar(editorUi, container)
 	this.palettes = new Object();
 	this.taglist = new Object();
 	this.showTooltips = true;
-	this.graph = new Graph(document.createElement('div'), null, null, this.editorUi.editor.graph.getStylesheet());
+	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
 	this.graph.cellRenderer.antiAlias = false;
-	this.graph.resetViewOnRootChange = false;
 	this.graph.foldingEnabled = false;
-	this.graph.setConnectable(false);
-	this.graph.gridEnabled = false;
-	this.graph.autoScroll = false;
-	this.graph.setTooltips(false);
-	this.graph.setEnabled(false);
 
-	// Container must be in the DOM for correct HTML rendering
-	this.graph.container.style.visibility = 'hidden';
-	this.graph.container.style.position = 'absolute';
-	this.graph.container.style.overflow = 'hidden';
-	this.graph.container.style.height = '1px';
-	this.graph.container.style.width = '1px';
-	
 	// Workaround for blank output in IE11-
 	if (!mxClient.IS_IE && !mxClient.IS_IE11)
 	{
@@ -107,8 +94,7 @@ Sidebar.prototype.init = function()
 	this.addGeneralPalette(true);
 	this.addMiscPalette(false);
 	this.addAdvancedPalette(false);
-	this.addStencilPalette('basic', mxResources.get('basic'), dir + '/basic.xml',
-		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
+	this.addBasicPalette(dir);
 	this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
 	this.addUmlPalette(false);
@@ -371,7 +357,7 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				
 				var b = document.body;
 				var d = document.documentElement;
-				var bottom = b.clientHeight || d.clientHeight;
+				var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
 
 				var left = this.container.clientWidth + this.editorUi.splitSize + 3 + this.editorUi.container.offsetLeft;
 				var top = Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
@@ -393,7 +379,7 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 					this.graph2.view.drawPane.style.left = x0 + 'px';
 					this.graph2.view.drawPane.style.top = y0 + 'px';
 				}
-		
+				
 				// Workaround for ignored position CSS style in IE9
 				// (changes to relative without the following line)
 				this.tooltip.style.position = 'absolute';
@@ -635,7 +621,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	}
 	else
 	{
-		cross.style.top = '2px';
+		cross.style.top = '1px';
 	}
 
 	// Needed to block event transparency in IE
@@ -690,7 +676,22 @@ Sidebar.prototype.addSearchPalette = function(expand)
 			child = next;
 		}
 	});
-	
+		
+	mxEvent.addListener(cross, 'click', function()
+	{
+		if (cross.getAttribute('src') == Dialog.prototype.closeImage)
+		{
+			cross.setAttribute('src', Sidebar.prototype.searchImage);
+			cross.setAttribute('title', mxResources.get('search'));
+			button.style.display = 'none';
+			input.value = '';
+			searchTerm = '';
+			clearDiv();
+		}
+
+		input.focus();
+	});
+
 	find = mxUtils.bind(this, function()
 	{
 		// Shows 4 rows (minimum 4 results)
@@ -790,19 +791,28 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	mxEvent.addListener(input, 'focus', function()
 	{
 		input.style.paddingRight = '';
-		cross.style.display = 'none';
 	});
 	
 	mxEvent.addListener(input, 'blur', function()
 	{
 		input.style.paddingRight = '20px';
-		cross.style.display = '';
 	});
 
 	input.style.paddingRight = '20px';
 	
 	mxEvent.addListener(input, 'keyup', mxUtils.bind(this, function(evt)
 	{
+		if (input.value == '')
+		{
+			cross.setAttribute('src', Sidebar.prototype.searchImage);
+			cross.setAttribute('title', mxResources.get('search'));
+		}
+		else
+		{
+			cross.setAttribute('src', Dialog.prototype.closeImage);
+			cross.setAttribute('title', mxResources.get('reset'));
+		}
+		
 		if (input.value == '')
 		{
 			complete = true;
@@ -914,6 +924,21 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 /**
  * Adds the general palette to the sidebar.
  */
+Sidebar.prototype.addBasicPalette = function(dir)
+{
+	this.addStencilPalette('basic', mxResources.get('basic'), dir + '/basic.xml',
+		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2',
+		null, null, null, null, [
+		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
+		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
+		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Square', null, null, 'double square'),
+		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Double Circle', null, null, 'double circle')
+	]);
+};
+
+/**
+ * Adds the general palette to the sidebar.
+ */
 Sidebar.prototype.addMiscPalette = function(expand)
 {
 	var fns = [
@@ -973,12 +998,6 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Variable');
 	 	})),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
-		// Entries for top searches
-		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;', 80, 80, '', 'Square', null, null, 'square'),
-		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Circle', null, null, 'circle'),
-		this.createVertexTemplateEntry('shape=ext;double=1;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Square', null, null, 'double square'),
-		this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;', 80, 80, '', 'Double Circle', null, null, 'double circle'),
-		// End of entries for top searches
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 120, 60, 'RECTANGLE', 'Comic Rectangle', true, null, 'comic rectangle rect box text retro'),
 	 	this.createVertexTemplateEntry('rhombus;html=1;align=center;whiteSpace=wrap;comic=1;strokeWidth=2;fontFamily=Comic Sans MS;fontStyle=1;', 100, 100, 'DIAMOND', 'Comic Diamond', true, null, 'comic diamond rhombus if condition decision conditional question test retro'),
 	 	this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;rounded=0;comic=1;strokeWidth=2;endArrow=blockThin;html=1;fontFamily=Comic Sans MS;fontStyle=1;', 50, 50, '', 'Comic Arrow 1'),
@@ -987,10 +1006,10 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;aspect=fixed;shape=isoCube;', 90, 100, '', 'Isometric Cube', true, null, 'cube box iso isometric'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, '', 'Isometric Edge 1'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, '', 'Isometric Edge 2'),
-	 	this.createVertexTemplateEntry('line;html=1;', 160, 10, '', 'Horizontal Line'),
-	 	this.createVertexTemplateEntry('line;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
-	 	this.createVertexTemplateEntry('line;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'network'),
-	 	this.createVertexTemplateEntry('line;direction=south;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 10, 160, '', 'Vertical Backbone', false, null, 'network'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=2;html=1;', 160, 10, '', 'Horizontal Line'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=2;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=4;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'backbone bus network'),
+	 	this.createVertexTemplateEntry('line;strokeWidth=4;direction=south;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 10, 160, '', 'Vertical Backbone', false, null, 'backbone bus network'),
 	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;', 20, 120, '', 'Curly Bracket'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=' + this.gearImage, 52, 61, '', 'Image (Fixed Aspect)', false, null, 'fixed image icon symbol'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=0;image=' + this.gearImage, 50, 60, '', 'Image (Variable Aspect)', false, null, 'strechted image icon symbol'),
@@ -1042,10 +1061,6 @@ Sidebar.prototype.createAdvancedShapes = function()
 	field.vertex = true;
 
 	return [
-	    this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=0;image=' + this.gearImage, 50, 60, '', 'Stretched Image', false, null, 'strechted image icon symbol'),
-	 	this.createVertexTemplateEntry('icon;html=1;image=' + this.gearImage, 60, 60, 'Icon', 'Icon', false, null, 'icon image symbol'),
-	 	this.createVertexTemplateEntry('label;whiteSpace=wrap;html=1;image=' + this.gearImage, 140, 60, 'Label', 'Label 1', null, null, 'label image icon symbol'),
-	 	this.createVertexTemplateEntry('label;whiteSpace=wrap;html=1;align=center;verticalAlign=bottom;spacingLeft=0;spacingBottom=4;imageAlign=center;imageVerticalAlign=top;image=' + this.gearImage, 120, 80, 'Label', 'Label 2', null, null, 'label image icon symbol'),
 	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
 	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
 	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;', 100, 80, '', 'Data Storage'),    
@@ -1955,7 +1970,9 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 			{
 				graph.stopEditing();
 				
-				var validDropTarget = (target != null) ? graph.isValidDropTarget(target, cells, evt) : false;
+				// Holding alt while mouse is released ignores drop target
+				var validDropTarget = (target != null && !mxEvent.isAltDown(evt)) ?
+					graph.isValidDropTarget(target, cells, evt) : false;
 				var select = null;
 
 				if (target != null && !validDropTarget)
@@ -3040,7 +3057,7 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 	}
 	else
 	{
-		var pt = graph.getInsertPoint();
+		var pt = graph.getFreeInsertPoint();
 		ds.drop(graph, evt, null, pt.x, pt.y);
 		
 		if (this.editorUi.hoverIcons != null && mxEvent.isTouchEvent(evt))
@@ -3360,14 +3377,22 @@ Sidebar.prototype.getTagsForStencil = function(packageName, stencilName, moreTag
 /**
  * Adds the given stencil palette.
  */
-Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ignore, onInit, scale, tags)
+Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ignore, onInit, scale, tags, customFns)
 {
 	scale = (scale != null) ? scale : 1;
-
+	
 	if (this.addStencilsToIndex)
 	{
 		// LATER: Handle asynchronous loading dependency
 		var fns = [];
+		
+		if (customFns != null)
+		{
+			for (var i = 0; i < customFns.length; i++)
+			{
+				fns.push(customFns[i]);
+			}
+		}
 
 		mxStencilRegistry.loadStencilSet(stencilFile, mxUtils.bind(this, function(packageName, stencilName, displayName, w, h)
 		{
@@ -3402,7 +3427,15 @@ Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ig
 			{
 				onInit.call(this, content);
 			}
-	
+			
+			if (customFns != null)
+			{
+				for (var i = 0; i < customFns.length; i++)
+				{
+					customFns[i](content);
+				}
+			}
+
 			mxStencilRegistry.loadStencilSet(stencilFile, mxUtils.bind(this, function(packageName, stencilName, displayName, w, h)
 			{
 				if (ignore == null || mxUtils.indexOf(ignore, stencilName) < 0)

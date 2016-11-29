@@ -1,0 +1,16 @@
+- Get the draw.io project from github
+- Navigate to `drawio/etc/sandstorm`
+- Create a directory named `build`
+- [Install vagrant-spk](https://docs.sandstorm.io/en/latest/vagrant-spk/installation/)
+- `cd build`
+- `vagrant-spk setupvm diy`
+- `vagrant-spk vm up`
+- `cd ..` `./stage.sh` to stage the build files. gfind is gnu find on OS X.
+- Log into the vagrant box `cd build` `vagrant-spk vm ssh`
+- `sudo apt-get update`
+- `sudo apt-get install build-essential`
+- `sudo apt-get install autoconf`
+- `sudo apt-get install libtool-bin`
+- `sudo apt-get install git`
+- [Install latest capnp](https://capnproto.org/install.html)
+- In the build directory `vagrant-spk dev`

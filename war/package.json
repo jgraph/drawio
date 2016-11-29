@@ -1,7 +1,7 @@
 {
-	"name": "drawio-desktop",
+	"name": "draw.io",
 	"version": "1.0.0",
-	"description": "draw.io desktop app",
+	"description": "draw.io desktop",
 	"main": "electron.js",
 	"scripts":
 	{

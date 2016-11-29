@@ -208,13 +208,13 @@ EditorUi = function(editor, container, lightbox)
 			mxEvent.isMiddleMouseButton(me.getEvent())));
 	};
 
-	// Control-enter applies editing value
-	// FIXME: Fix for HTML editing
+	// Ctrl/Cmd+Enter applies editing value
 	var cellEditorIsStopEditingEvent = graph.cellEditor.isStopEditingEvent;
 	graph.cellEditor.isStopEditingEvent = function(evt)
 	{
 		return cellEditorIsStopEditingEvent.apply(this, arguments) ||
-			(evt.keyCode == 13 && mxEvent.isControlDown(evt));
+			(evt.keyCode == 13 && (mxEvent.isControlDown(evt) ||
+			(mxClient.IS_MAC && mxEvent.isMetaDown(evt))));
 	};
 	
 	// Switches toolbar for text editing
@@ -1278,16 +1278,7 @@ EditorUi.prototype.initCanvas = function()
 	// Initial page layout view, scrollBuffer and timer-based scrolling
 	var graph = this.editor.graph;
 	graph.timerAutoScroll = true;
-	
-	/**
-	 * Specifies the size of the size for "tiles" to be used for a graph with
-	 * scrollbars but no visible background page. A good value is large
-	 * enough to reduce the number of repaints that is caused for auto-
-	 * translation, which depends on this value, and small enough to give
-	 * a small empty buffer around the graph. Default is 400x400.
-	 */
-	graph.scrollTileSize = new mxRectangle(0, 0, 400, 400);
-	
+
 	/**
 	 * Returns the padding for pages in page view with scrollbars.
 	 */
@@ -1295,47 +1286,6 @@ EditorUi.prototype.initCanvas = function()
 	{
 		return new mxPoint(Math.max(0, Math.round((graph.container.offsetWidth - 34) / graph.view.scale)),
 				Math.max(0, Math.round((graph.container.offsetHeight - 34) / graph.view.scale)));
-	};
-	
-	/**
-	 * Returns the size of the page format scaled with the page size.
-	 */
-	graph.getPageSize = function()
-	{
-		return (this.pageVisible) ? new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
-				this.pageFormat.height * this.pageScale) : this.scrollTileSize;
-	};
-	
-	/**
-	 * Returns a rectangle describing the position and count of the
-	 * background pages, where x and y are the position of the top,
-	 * left page and width and height are the vertical and horizontal
-	 * page count.
-	 */
-	graph.getPageLayout = function()
-	{
-		var size = (this.pageVisible) ? this.getPageSize() : this.scrollTileSize;
-		var bounds = this.getGraphBounds();
-
-		if (bounds.width == 0 || bounds.height == 0)
-		{
-			return new mxRectangle(0, 0, 1, 1);
-		}
-		else
-		{
-			// Computes untransformed graph bounds
-			var x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
-			var y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
-			var w = Math.floor(bounds.width / this.view.scale);
-			var h = Math.floor(bounds.height / this.view.scale);
-			
-			var x0 = Math.floor(x / size.width);
-			var y0 = Math.floor(y / size.height);
-			var w0 = Math.ceil((x + w) / size.width) - x0;
-			var h0 = Math.ceil((y + h) / size.height) - y0;
-			
-			return new mxRectangle(x0, y0, w0, h0);
-		}
 	};
 
 	// Fits the number of background pages to the graph
@@ -1474,6 +1424,62 @@ EditorUi.prototype.initCanvas = function()
 			
 			return a;
 		});
+		
+		var prevButton = addButton(mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('previousPage').funct();
+			mxEvent.consume(evt);
+		}), Editor.previousLargeImage, mxResources.get('previousPage') || 'Previous Page');
+		
+		
+		var pageInfo = document.createElement('div');
+		pageInfo.style.display = 'inline-block';
+		pageInfo.style.verticalAlign = 'top';
+		pageInfo.style.fontFamily = 'Helvetica,Arial';
+		pageInfo.style.marginTop = '8px';
+		pageInfo.style.color = '#ffffff';
+		this.chromelessToolbar.appendChild(pageInfo);
+		
+		var nextButton = addButton(mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('nextPage').funct();
+			mxEvent.consume(evt);
+		}), Editor.nextLargeImage, mxResources.get('nextPage') || 'Next Page');
+		
+		var updatePageInfo = mxUtils.bind(this, function()
+		{
+			if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+			{
+				pageInfo.innerHTML = '';
+				mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
+			}
+		});
+		
+		prevButton.style.paddingLeft = '0px';
+		prevButton.style.paddingRight = '4px';
+		nextButton.style.paddingLeft = '4px';
+		nextButton.style.paddingRight = '0px';
+		
+		var updatePageButtons = mxUtils.bind(this, function()
+		{
+			if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+			{
+				nextButton.style.display = '';
+				prevButton.style.display = '';
+				pageInfo.style.display = 'inline-block';
+			}
+			else
+			{
+				nextButton.style.display = 'none';
+				prevButton.style.display = 'none';
+				pageInfo.style.display = 'none';
+			}
+			
+			updatePageInfo();
+		});
+		
+		this.editor.addListener('resetGraphView', updatePageButtons);
+		this.editor.addListener('pageSelected', updatePageInfo);
 
 		addButton(mxUtils.bind(this, function(evt)
 		{
@@ -1584,6 +1590,7 @@ EditorUi.prototype.initCanvas = function()
 					
 					mxUtils.setPrefixedStyle(this.layersDialog.style, 'borderRadius', '5px');
 					this.layersDialog.style.position = 'fixed';
+					this.layersDialog.style.fontFamily = 'Helvetica,Arial';
 					this.layersDialog.style.backgroundColor = '#000000';
 					this.layersDialog.style.width = '160px';
 					this.layersDialog.style.padding = '4px 2px 4px 2px';
@@ -1923,6 +1930,29 @@ EditorUi.prototype.initCanvas = function()
 };
 
 /**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.createTemporaryGraph = function(stylesheet)
+{
+	var graph = new Graph(document.createElement('div'), null, null, stylesheet);
+	graph.resetViewOnRootChange = false;
+	graph.setConnectable(false);
+	graph.gridEnabled = false;
+	graph.autoScroll = false;
+	graph.setTooltips(false);
+	graph.setEnabled(false);
+
+	// Container must be in the DOM for correct HTML rendering
+	graph.container.style.visibility = 'hidden';
+	graph.container.style.position = 'absolute';
+	graph.container.style.overflow = 'hidden';
+	graph.container.style.height = '1px';
+	graph.container.style.width = '1px';
+	
+	return graph;
+};
+
+/**
  * 
  */
 EditorUi.prototype.addChromelessClickHandler = function()
@@ -1980,7 +2010,10 @@ EditorUi.prototype.addBeforeUnloadListener = function()
 	// This must be disabled during save and image export
 	window.onbeforeunload = mxUtils.bind(this, function()
 	{
-		return this.onBeforeUnload();
+		if (!this.editor.chromeless)
+		{
+			return this.onBeforeUnload();
+		}
 	});
 };
 
@@ -2276,6 +2309,22 @@ EditorUi.prototype.resetScrollbars = function()
 				var pad = graph.getPagePadding();
 				graph.container.scrollTop = Math.floor(pad.y - this.editor.initialTopSpacing);
 				graph.container.scrollLeft = Math.floor(Math.min(pad.x, (graph.container.scrollWidth - graph.container.clientWidth) / 2));
+
+				// Scrolls graph to visible area
+				var bounds = graph.getGraphBounds();
+				
+				if (bounds.width > 0 && bounds.height > 0)
+				{
+					if (bounds.x > graph.container.scrollLeft + graph.container.clientWidth * 0.9)
+					{
+						graph.container.scrollLeft = Math.min(bounds.x + bounds.width - graph.container.clientWidth, bounds.x - 10);
+					}
+					
+					if (bounds.y > graph.container.scrollTop + graph.container.clientHeight * 0.9)
+					{
+						graph.container.scrollTop = Math.min(bounds.y + bounds.height - graph.container.clientHeight, bounds.y - 10);
+					}
+				}
 			}
 			else
 			{
@@ -2303,6 +2352,47 @@ EditorUi.prototype.resetScrollbars = function()
 			}
 		}
 	}
+};
+
+/**
+ * Loads the stylesheet for this graph.
+ */
+EditorUi.prototype.setPageVisible = function(value)
+{
+	var graph = this.editor.graph;
+	var hasScrollbars = mxUtils.hasScrollbars(graph.container);
+	var tx = 0;
+	var ty = 0;
+	
+	if (hasScrollbars)
+	{
+		tx = graph.view.translate.x * graph.view.scale - graph.container.scrollLeft;
+		ty = graph.view.translate.y * graph.view.scale - graph.container.scrollTop;
+	}
+	
+	graph.pageVisible = value;
+	graph.pageBreaksVisible = value; 
+	graph.preferPageSize = value;
+	graph.view.validateBackground();
+
+	// Workaround for possible handle offset
+	if (hasScrollbars)
+	{
+		var cells = graph.getSelectionCells();
+		graph.clearSelection();
+		graph.setSelectionCells(cells);
+	}
+	
+	// Calls updatePageBreaks
+	graph.sizeDidChange();
+	
+	if (hasScrollbars)
+	{
+		graph.container.scrollLeft = graph.view.translate.x * graph.view.scale - tx;
+		graph.container.scrollTop = graph.view.translate.y * graph.view.scale - ty;
+	}
+	
+	this.fireEvent(new mxEventObject('pageViewChanged'));
 };
 
 /**
@@ -2457,7 +2547,7 @@ EditorUi.prototype.updateActionStates = function()
 	// Updates action states
 	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
-	               'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed',
+	               'edit', 'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed',
 	               'dotted', 'fillColor', 'gradientColor', 'shadow', 'fontColor',
 	               'formattedText', 'rounded', 'toggleRounded', 'sharp', 'strokeColor'];
 	
@@ -2697,7 +2787,10 @@ EditorUi.prototype.createDivs = function()
 		this.sidebarFooterContainer.style.left = '0px';
 	}
 	
-	this.tabContainer = this.createTabContainer();
+	if (!this.editor.chromeless)
+	{
+		this.tabContainer = this.createTabContainer();
+	}
 };
 
 /**
@@ -3372,9 +3465,9 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	var isEventIgnored = keyHandler.isEventIgnored;
 	keyHandler.isEventIgnored = function(evt)
 	{
-		// Handles undo/redo/ctrl+./, via action and allows ctrl+b/u/i only if editing value is HTML (except for FF and Safari)
+		// Handles undo/redo/ctrl+./,/u via action and allows ctrl+b/i only if editing value is HTML (except for FF and Safari)
 		return (!this.isControlDown(evt) || mxEvent.isShiftDown(evt) || (evt.keyCode != 90 && evt.keyCode != 89 &&
-			evt.keyCode != 188 && evt.keyCode != 190)) && ((evt.keyCode != 66 && evt.keyCode != 73 && evt.keyCode != 85) ||
+			evt.keyCode != 188 && evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
 			!this.isControlDown(evt) || (this.graph.cellEditor.isContentEditing() && !mxClient.IS_FF && !mxClient.IS_SF)) &&
 			isEventIgnored.apply(this, arguments);
 	};

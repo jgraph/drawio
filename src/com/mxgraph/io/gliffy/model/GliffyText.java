@@ -5,10 +5,15 @@ import java.util.regex.Pattern;
 
 public class GliffyText
 {
-
+	//places the text in the middle of the line
+	public static Double DEFAULT_LINE_T_VALUE = 0.5; 
+	
 	private String html;
 
 	private String valign;
+	
+	//extracted from html
+	private String halign;
 
 	private String vposition;
 
@@ -21,15 +26,14 @@ public class GliffyText
 	private Integer paddingBottom;
 
 	private Integer paddingTop;
-
-	public double lineTValue;
+	
+	public Double lineTValue = DEFAULT_LINE_T_VALUE;
 
 	public Integer linePerpValue;
 
 	private static Pattern pattern = Pattern.compile("<p(.*?)<\\/p>");
 
-	private static Pattern textAlignPattern = Pattern.compile(
-			".*text-align: ?(left|center|right).*", Pattern.DOTALL);
+	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
 
 	public GliffyText()
 	{
@@ -37,18 +41,20 @@ public class GliffyText
 
 	public String getHtml()
 	{
+		halign = halign == null ? getHorizontalTextAlignment() : halign;
 		return replaceParagraphWithDiv(html);
 	}
 
+	//this is never invoked by Gson builder
 	public void setHtml(String html)
 	{
-		this.html = html;
 	}
 
 	public String getStyle()
 	{
 		StringBuilder sb = new StringBuilder();
 
+		//vertical label position
 		if (vposition.equals("above"))
 		{
 			sb.append("verticalLabelPosition=top;").append(
@@ -101,13 +107,19 @@ public class GliffyText
 		return sb.length() > 0 ? sb.toString() : html;
 	}
 
+	/**
+	 * Extracts horizontal text alignment from html and removes it
+	 * so it does not interfere with alignment set in mxCell style
+	 * @return horizontal text alignment or null if there is none
+	 */
 	private String getHorizontalTextAlignment()
 	{
-		Matcher m = textAlignPattern.matcher(html);
+		Matcher m = textAlign.matcher(html);
 
 		if (m.matches())
 		{
-			return m.group(1);
+			html = html.replaceAll("text-align: ?\\w*;", "");
+			return m.group(2);
 		}
 
 		return null;

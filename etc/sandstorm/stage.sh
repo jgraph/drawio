@@ -25,6 +25,7 @@ mkdir -p build/.sandstorm/client/img
 cp -rf ../../war/img/* build/.sandstorm/client/img/
 mkdir -p build/.sandstorm/client/js
 cp -rf ../../war/js/* build/.sandstorm/client/js/
+gzip -c build/.sandstorm/client/js/app.min.js > build/.sandstorm/client/js/app.min.js.gz
 mkdir -p build/.sandstorm/client/mxgraph
 cp -rf ../../war/mxgraph/* build/.sandstorm/client/mxgraph/
 mkdir -p build/.sandstorm/client/plugins
@@ -39,6 +40,11 @@ mkdir -p build/.sandstorm/client/styles
 cp -rf ../../war/styles/* build/.sandstorm/client/styles/
 mkdir -p build/.sandstorm/client/templates
 cp -rf ../../war/templates/* build/.sandstorm/client/templates/
+
+echo "Compressing assets"
+gfind build/.sandstorm/client -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.txt' -o -name '*.xml' | xargs gzip -k
+
 echo "Creating file list"
 cd build/.sandstorm
-gfind . -type f -printf "%p\n" | cut -c 3- >  sandstorm-files.list
+gfind ./client -type f -printf "%p\n" | cut -c 3- >  sandstorm-files.list
+cat ../../rootFiles >> sandstorm-files.list

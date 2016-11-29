@@ -84,8 +84,8 @@
 		editorUi.actions.get('print').funct = function()
 		{
 			editorUi.showDialog(new PrintDialog(editorUi).container, 320,
-				(false && editorUi.pages != null && editorUi.pages.length > 1) ?
-				300 : 220, true, true);
+				(editorUi.pages != null && editorUi.pages.length > 1) ?
+				400 : 340, true, true);
 		};
 		
 		editorUi.actions.addAction('open...', function()
@@ -560,7 +560,8 @@
 						if (editorUi.enableLogging)
 						{
 							var img = new Image();
-							img.src = 'log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+							img.src = logDomain + '/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
 						}
 						
 						// Workaround for blocked submit on iOS/IE11
@@ -816,14 +817,14 @@
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
 		{
 			var dlg = new IframeDialog(editorUi);
-			editorUi.showDialog(dlg.container, 420, 210, true, true);
+			editorUi.showDialog(dlg.container, 420, 220, true, true);
 			dlg.init();
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
 			var dlg = new IframeDialog(editorUi, false, true);
-			editorUi.showDialog(dlg.container, 420, 210, true, true);
+			editorUi.showDialog(dlg.container, 420, 200, true, true);
 			dlg.init();
 		}));
 		
@@ -895,7 +896,8 @@
 					graph.stopEditing();
 				}
 				
-				var data = mxUtils.getXml(editorUi.editor.getGraphXml());
+				var data = (urlParams['pages'] != '0' || (editorUi.pages != null && editorUi.pages.length > 1)) ?
+					editorUi.getFileData(true) : mxUtils.getXml(editorUi.editor.getGraphXml());
 				
 				if (urlParams['proto'] == 'json')
 				{
@@ -913,9 +915,10 @@
 				var parent = window.opener || window.parent;
 				parent.postMessage(data, '*');
 				
-				if (urlParams['modified'] != '0')
+				if (urlParams['modified'] != '0' && urlParams['keepmodified'] != '1')
 				{
 					editorUi.editor.modified = false;
+					editorUi.editor.setStatus('');
 				}
 			};
 	
@@ -1074,19 +1077,36 @@
 				cb.defaultChecked = true;
 				cb.style.marginRight = '8px';
 				cb.style.marginTop = '16px';
+				mxUtils.br(content);
+				content.appendChild(cb);
 				
 				if (noPages)
 				{
-					mxUtils.br(content);
-					content.appendChild(cb);
 					mxUtils.write(content, mxResources.get('compressed'));
+				}
+				else
+				{
+					mxUtils.write(content, mxResources.get('allPages'));
+					
+					mxEvent.addListener(cb2, 'change', function()
+					{
+						if (cb2.checked)
+						{
+							cb.setAttribute('disabled', 'disabled');
+						}
+						else
+						{
+							cb.removeAttribute('disabled');
+						}
+					});
 				}
 					
 				var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('xml', !cb.checked, null, !cb2.checked);
+					editorUi.downloadFile('xml', (noPages) ? !cb.checked : null, null, !cb2.checked,
+						(!noPages) ? !cb.checked : null);
 				}), null, mxResources.get('export'));
-				editorUi.showDialog(dlg.container, 300, (noPages) ? 120 : 80, true, true);
+				editorUi.showDialog(dlg.container, 300, 120, true, true);
 			}), parent);
 			
 			if (!editorUi.isOffline())
@@ -1490,10 +1510,10 @@
 		
 		editorUi.actions.addAction('imgur...', mxUtils.bind(this, function()
 		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
+			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId, editable)
 			{
 				window.open('https://imgur.com/' + imgurId);
-			});
+			}, mxResources.get('open'));
 		}));
 				
 		editorUi.actions.addAction('facebook...', mxUtils.bind(this, function()
@@ -1528,14 +1548,14 @@
 			// to set content type to form-encoded-data which is needed for the export.
 			if (document.documentMode == null || document.documentMode >= 10)
 			{
+				this.addMenuItems(menu, ['imgur'], parent);
+				this.addMenuItems(menu, ['twitter'], parent);
+				this.addMenuItems(menu, ['facebook'], parent);
+
 				if (typeof XMLHttpRequest !== 'undefined')
 				{
 					this.addMenuItems(menu, ['github'], parent);
 				}
-				
-				this.addMenuItems(menu, ['twitter'], parent);
-				this.addMenuItems(menu, ['facebook'], parent);
-				this.addMenuItems(menu, ['imgur'], parent);
 			}
 			
 			if (!navigator.standalone && !editorUi.isOffline())
@@ -1626,7 +1646,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('Text', new mxGeometry(pt.x, pt.y, 40, 20),
 			    	'text;html=1;resizable=0;autosize=1;align=left;verticalAlign=top;spacingTop=-4;points=[];');
 				cell.vertex = true;
@@ -1638,10 +1658,11 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 120, 60), 'whiteSpace=wrap;html=1;');
 				cell.vertex = true;
 	    	    graph.setSelectionCell(graph.addCell(cell));
+	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, null, null, 'Ctrl+K').isEnabled = isGraphEnabled;
 		
@@ -1649,10 +1670,11 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = graph.getInsertPoint();
+				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 80, 80), 'ellipse;whiteSpace=wrap;html=1;');
 				cell.vertex = true;
 	    	    graph.setSelectionCell(graph.addCell(cell));
+	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, null, null, 'Ctrl+Shift+K').isEnabled = isGraphEnabled;
 		

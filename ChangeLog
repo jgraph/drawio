@@ -1,3 +1,118 @@
+23-NOV-2016: 6.0.1.7
+
+- Fixes links to same domain for viewer in iframes
+- Fixes automatic loading of libraries
+- Fixes sidebar title overlap with buttons
+- Fixes lost names, delete order in library dialog
+
+21-NOV-2016: 6.0.1.6
+
+- Fixes missing auth header in Google client API
+
+18-NOV-2016: 6.0.1.5
+
+- Replaces prompts in Atlassian cloud plugins
+- Fixes save of scratchpad in embed mode
+- Enables paste of images while editing labels
+- Adds support for title attribute in mxlibrary
+
+16-NOV-2016: 6.0.1.4
+
+- Defaults to using F2 GAE instances
+- Fixes no element error for selecting page in Firefox
+- Fixes drag and drop for pages in Firefox
+
+09-NOV-2016: 6.0.1.3
+
+- Shift+Drop ignores embedded XML in images
+- Alt+Drop ignores highlighted drop target
+
+07-NOV-2016: 6.0.1.2
+
+- Adds new electrical shapes
+- Minor improvements for find plugin
+
+04-NOV-2016: 6.0.1.1
+
+- Adds consistent location for insert and sidebar
+- Adds support for pages in publish actions
+- Adds search for metadata in find plugin
+- Uses lightbox for Imgur redirects
+- Fixes HTML export for multiple pages
+- Fixes shape detection for multiple pages
+
+02-NOV-2016: 6.0.1.0
+
+- Updates shapes in embed servlet
+- Uses new Iconfinder API
+- Uses mxGraph 3.7.0.0 beta 9
+- Uses first unlocked layer for all diagrams
+
+31-OCT-2016: 6.0.0.0
+
+- Adds multiple pages per file
+
+31-OCT-2016: 5.7.2.5
+
+- Makes recent colors persistent
+- Uses first unlocked layer for multiple pages
+
+28-OCT-2016: 5.7.2.4
+
+- Fixes Gliffy line imports with less than 2 waypoints
+
+28-OCT-2016: 5.7.2.3
+
+- Prepares multiple pages per file
+- Simplifies UX for tags plugin
+
+27-OCT-2016: 5.7.2.2
+
+- Adds page view state to realtime
+- Uses mxGraph 3.7.0.0 beta 8
+- Adds diagram option in From Text dialog
+- Adds incremental find plugin
+
+26-OCT-2016: 5.7.2.1
+
+- Uses mxGraph 3.7.0.0 beta 7
+- Adds page format option in print dialog
+- Shift+alt+rubberband removes selection cells
+- Shift+click adds edges for delete in toolbar
+
+18-OCT-2016: 5.7.2.0
+
+- Uses mxGraph 3.7.0.0 beta 6
+- Adds experimental sql plugin
+
+13-OCT-2016: 5.7.1.3
+
+- Fixes mxFile import with page disabled
+
+07-OCT-2016: 5.7.1.2
+
+- Adds import for multiple pages
+- Fixes german spelling errors
+
+06-OCT-2016: 5.7.1.1
+
+- Adds warning for model size limit exceeded error
+
+05-OCT-2016: 5.7.1.0
+
+- Adds support for pages in embed mode
+- Embed save uses mxFile rather than GraphModel in pages mode
+
+04-OCT-2016: 5.7.0.9
+
+- Adds experimental tags plugin
+- Fixes page scale in print preview
+- Adds new colorset
+
+03-OCT-2016: 5.7.0.8.2
+
+- Adds tolerance, uses fewer cells in scissors tool
+
 27-SEP-2016: 5.7.0.7
 
 - Adds filename for editors in Atlassian cloud plugins

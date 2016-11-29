@@ -432,8 +432,8 @@ Menus.prototype.init = function()
 	this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
-		                         'editData', 'editTooltip', 'editStyle', '-', 'editLink', 'openLink', '-', 'selectVertices',
-		                         'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
+		                         'editData', 'editTooltip', 'editStyle', '-', 'edit', '-', 'editLink', 'openLink', '-',
+		                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 	})));
 	this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -1024,7 +1024,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 			if (graph.getSelectionCount() == 1)
 			{
 				menu.addSeparator();
-				this.addMenuItems(menu, ['editData', 'editLink'], null, evt);
+				this.addMenuItems(menu, ['edit', '-', 'editData', 'editLink'], null, evt);
 
 				// Shows edit image action if there is an image in the style
 				if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
@@ -1051,9 +1051,13 @@ Menus.prototype.createMenubar = function(container)
 	
 	for (var i = 0; i < menus.length; i++)
 	{
-		(function(menu)
+		(mxUtils.bind(this, function(menu)
 		{
-			var elt = menubar.addMenu(mxResources.get(menus[i]), menu.funct);
+			var elt = menubar.addMenu(mxResources.get(menus[i]), mxUtils.bind(this, function()
+			{
+				// Allows extensions of menu.funct
+				menu.funct.apply(this, arguments);
+			}));
 			
 			if (elt != null)
 			{
@@ -1081,7 +1085,7 @@ Menus.prototype.createMenubar = function(container)
 					}
 				});
 			}
-		})(this.get(menus[i]));
+		}))(this.get(menus[i]));
 	}
 
 	return menubar;

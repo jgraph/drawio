@@ -4,6 +4,9 @@
 	border:none;
 	margin:0px;
 }
+.geEditor input[type=text]::-ms-clear {
+	display: none;
+}
 .geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
 	cursor:pointer !important;
 }
@@ -112,7 +115,7 @@
 	padding: 0 8px;
 	cursor: pointer;
 }
-.geBtn:hover {
+.geBtn:hover, .geBtn:focus {
 	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
 	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
@@ -177,7 +180,7 @@
 	border: 1px solid #3079ed;
 	color: #fff;
 }
-.gePrimaryBtn:hover {
+.gePrimaryBtn:hover, .gePrimaryBtn:focus {
 	background-color: #357ae8;
 	background-image: linear-gradient(#4d90fe 0px,#357ae8 100%);
 	border: 1px solid #2f5bb7;
@@ -202,7 +205,7 @@
 	padding:6px 8px 6px 8px;
 	cursor:default;
 }
-.geMenubarContainer .geItem:hover, .geToolbarContainer .geItem:hover {
+.geMenubarContainer .geItem:hover {
 	background:#eeeeee;
 }
 .mxDisabled:hover {
@@ -348,7 +351,15 @@ div.mxWindow .geButton {
 }
 .geTitle img:hover {
 	opacity:1;
-	_filter:alpha(opacity=100);	
+	_filter:alpha(opacity=100);
+}
+.geTitle .geButton {
+	border:1px solid transparent;
+	padding:3px;
+	border-radius:2px;
+}
+.geTitle .geButton:hover {
+	border:1px solid gray;
 }
 .geSidebar .geItem {
 	display:inline-block;

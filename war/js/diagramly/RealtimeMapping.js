@@ -77,7 +77,7 @@ RealtimeMapping.prototype.init = function()
 				this.graph.model.execute(new RenamePage(this.ui, this.page, evt.newValue));
 				this.driveRealtime.ignoreChange = false;
 			}
-			else if (this.isActive() && evt.newValue != null)
+			else if (evt.newValue != null)
 			{
 				if (evt.property == 'pageFormat')
 				{
@@ -99,6 +99,10 @@ RealtimeMapping.prototype.init = function()
 				{
 					this.realtimeFoldingEnabledChanged(evt.newValue);
 				}
+				else if (evt.property == 'pageVisible')
+				{
+					this.realtimePageVisibleChanged(evt.newValue);
+				}
 				else if (evt.property == 'backgroundImage')
 				{
 					this.realtimeBackgroundImageChanged(evt.newValue);
@@ -113,7 +117,8 @@ RealtimeMapping.prototype.init = function()
 			if (evt.newValue != null && (evt.property == 'pageFormat' ||
 				evt.property == 'pageScale' || evt.property == 'shadowVisible' ||
 				evt.property == 'backgroundColor' || evt.property == 'foldingEnabled' ||
-				evt.property == 'backgroundImage' || evt.property == 'mathEnabled'))
+				evt.property == 'backgroundImage' || evt.property == 'mathEnabled' ||
+				evt.property == 'pageVisible'))
 			{
 				this.needsUpdate = true;
 			}
@@ -280,6 +285,7 @@ RealtimeMapping.prototype.writeNodeToRealtime = function(node)
 	this.diagramMap.set('foldingEnabled', node.getAttribute('fold'));
 	this.diagramMap.set('mathEnabled', node.getAttribute('math'));
 	this.diagramMap.set('pageScale', node.getAttribute('pageScale'));
+	this.diagramMap.set('pageVisible', node.getAttribute('pageVisible'));
 	
 	var img = node.getAttribute('backgroundImage');
 	
@@ -310,6 +316,7 @@ RealtimeMapping.prototype.activate = function(quiet)
 	this.realtimeBackgroundColorChanged(this.diagramMap.get('backgroundColor'), quiet);
 	this.realtimeShadowVisibleChanged(this.diagramMap.get('shadowVisible'), quiet);
 	this.realtimeFoldingEnabledChanged(this.diagramMap.get('foldingEnabled'), quiet);
+	this.realtimePageVisibleChanged(this.diagramMap.get('pageVisible'), quiet);
 	this.realtimeBackgroundImageChanged(this.diagramMap.get('backgroundImage'), quiet);
 };
 
@@ -332,13 +339,19 @@ RealtimeMapping.prototype.initRealtime = function()
 		}
 		else
 		{
-			this.diagramMap.set('shadowVisible', (this.graph.shadowVisible) ? '1' : '0');
-			this.diagramMap.set('foldingEnabled', (this.graph.foldingEnabled) ? '1' : '0');
-			this.diagramMap.set('mathEnabled', (this.graph.mathEnabled) ? '1' : '0');			
+			var vs = this.page.viewState;
+			var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
+			
+			this.diagramMap.set('shadowVisible', (vs != null && vs.shadowVisible) ? '1' : '0');
+			this.diagramMap.set('foldingEnabled', (vs != null && !vs.foldingEnabled) ? '0' : '1');
+			this.diagramMap.set('mathEnabled', (vs != null && vs.mathEnabled) ? '1' : '0');
 			this.diagramMap.set('pageScale', this.graph.pageScale);
-			this.diagramMap.set('backgroundImage', (this.graph.backgroundImage != null) ? JSON.stringify(this.graph.backgroundImage) : '');
-			this.diagramMap.set('backgroundColor', (this.graph.background != null) ? this.graph.background : '');
-			this.diagramMap.set('pageFormat', this.graph.pageFormat.width + ',' + this.graph.pageFormat.height);
+			this.diagramMap.set('pageVisible', (vs != null && !vs.pageVisible) ? '0' : '1');
+			this.diagramMap.set('pageFormat', pf.width + ',' + pf.height);
+			this.diagramMap.set('backgroundImage', (vs != null && vs.backgroundImage != null) ?
+				JSON.stringify(vs.backgroundImage) : '');
+			this.diagramMap.set('backgroundColor', (vs != null && vs.background != null) ?
+				this.graph.background : '');
 		}
 		
 		this.root.set('modifiedDate', new Date().getTime());
@@ -872,7 +885,14 @@ RealtimeMapping.prototype.realtimePageFormatChanged = function(value, quiet)
 		
 		if (values.length > 1)
 		{
-			if (quiet)
+			if (!this.isActive())
+			{
+				if (this.page.viewState != null)
+				{
+					this.page.viewState.pageFormat = new mxRectangle(0, 0, parseInt(values[0]), parseInt(values[1]));
+				}
+			}
+			else if (quiet)
 			{
 				this.graph.pageFormat = new mxRectangle(0, 0, parseInt(values[0]), parseInt(values[1]));
 			}
@@ -893,7 +913,14 @@ RealtimeMapping.prototype.realtimePageScaleChanged = function(value, quiet)
 {
 	if (value != null)
 	{
-		if (quiet)
+		if (!this.isActive())
+		{
+			if (this.page.viewState != null)
+			{
+				this.page.viewState.pageScale = parseFloat(value);
+			}
+		}
+		else if (quiet)
 		{
 			this.graph.pageScale = parseFloat(value);
 		}
@@ -911,7 +938,14 @@ RealtimeMapping.prototype.realtimePageScaleChanged = function(value, quiet)
  */
 RealtimeMapping.prototype.realtimeBackgroundColorChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.background = (value == '') ? null : value;
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.background = (value == '') ? null : value;
 	}
@@ -928,7 +962,14 @@ RealtimeMapping.prototype.realtimeBackgroundColorChanged = function(value, quiet
  */
 RealtimeMapping.prototype.realtimeFoldingEnabledChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.foldingEnabled = value == '1';
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.foldingEnabled = value == '1';
 	}
@@ -943,12 +984,48 @@ RealtimeMapping.prototype.realtimeFoldingEnabledChanged = function(value, quiet)
 /**
  * Syncs initial state from collab model to graph model.
  */
+RealtimeMapping.prototype.realtimePageVisibleChanged = function(value, quiet)
+{
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.pageVisible = value != '0';
+		}
+	}
+	else if (quiet)
+	{
+		this.graph.pageVisible = value != '0';
+		this.graph.pageBreaksVisible = this.graph.pageVisible; 
+		this.graph.preferPageSize = this.graph.pageVisible;
+	}
+	else
+	{
+		this.driveRealtime.ignorePageVisibleChanged = true;
+		this.ui.setPageVisible(value != '0');
+		this.driveRealtime.ignorePageVisibleChanged = false;
+	}
+};
+
+/**
+ * Syncs initial state from collab model to graph model.
+ */
 RealtimeMapping.prototype.realtimeShadowVisibleChanged = function(value, quiet)
 {
 	// Does not need quiet mode as it's handled independently of refresh
-	this.driveRealtime.ignoreShadowVisibleChanged = true;
-	this.ui.editor.graph.setShadowVisible(value == '1');
-	this.driveRealtime.ignoreShadowVisibleChanged = false;
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.shadowVisible = value == '1';
+		}
+	}
+	else
+	{
+		this.driveRealtime.ignoreShadowVisibleChanged = true;
+		this.ui.editor.graph.setShadowVisible(value == '1');
+		this.driveRealtime.ignoreShadowVisibleChanged = false;
+	}
 };
 
 /**
@@ -958,7 +1035,14 @@ RealtimeMapping.prototype.realtimeBackgroundImageChanged = function(value, quiet
 {
 	var data = (value != null && value.length > 0) ? JSON.parse(value) : null;
 	
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.backgroundImage = (data != null) ? new mxImage(data.src, data.width, data.height) : null;
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.setBackgroundImage((data != null) ? new mxImage(data.src, data.width, data.height) : null);
 	}
@@ -975,7 +1059,14 @@ RealtimeMapping.prototype.realtimeBackgroundImageChanged = function(value, quiet
  */
 RealtimeMapping.prototype.realtimeMathEnabledChanged = function(value, quiet)
 {
-	if (quiet)
+	if (!this.isActive())
+	{
+		if (this.page.viewState != null)
+		{
+			this.page.viewState.mathEnabled = urlParams['math'] == '1' || value == '1';
+		}
+	}
+	else if (quiet)
 	{
 		this.graph.mathEnabled = urlParams['math'] == '1' || value == '1';
 	}

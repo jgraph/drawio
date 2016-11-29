@@ -96,7 +96,7 @@ public class mxGraphHeadless extends mxGraph
 	public mxRectangle graphModelChanged(mxIGraphModel sender,
 			List<mxUndoableChange> changes)
 	{
-		return processChanges(changes, true, true);
+		return null;
 	}
 	
 	/**

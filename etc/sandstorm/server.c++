@@ -315,13 +315,39 @@ private:
 
   kj::Promise<void> readFile(
       kj::StringPtr filename, GetContext context, kj::StringPtr contentType) {
-    KJ_IF_MAYBE(fd, tryOpen(filename, O_RDONLY)) {
+    // Do we support compression?
+    bool canGzip = false;
+    for (auto accept: context.getParams().getContext().getAcceptEncoding()) {
+      if (accept.getContentCoding() == "gzip") {
+        canGzip = true;
+        break;
+      }
+    }
+
+    // If compression is supported, look for file with .gz extension.
+    kj::Maybe<kj::AutoCloseFd> maybeFd;
+    bool isGzipped = false;
+    if (canGzip) {
+      maybeFd = tryOpen(kj::str(filename, ".gz"), O_RDONLY);
+      isGzipped = maybeFd != nullptr;
+    }
+
+    // If we haven't found a suitable file yet, look for the uncompressed version.
+    if (maybeFd == nullptr) {
+      maybeFd = tryOpen(filename, O_RDONLY);
+    }
+
+    // Serve it.
+    KJ_IF_MAYBE(fd, kj::mv(maybeFd)) {
       auto size = getFileSize(*fd, filename);
       kj::FdInputStream stream(kj::mv(*fd));
       auto response = context.getResults(capnp::MessageSize { size / sizeof(capnp::word) + 32, 0 });
       auto content = response.initContent();
       content.setStatusCode(sandstorm::WebSession::Response::SuccessCode::OK);
       content.setMimeType(contentType);
+      if (isGzipped) {
+        content.setEncoding("gzip");
+      }
       stream.read(content.getBody().initBytes(size).begin(), size);
       return kj::READY_NOW;
     } else {
@@ -417,4 +443,3 @@ private:
 }  // anonymous namespace
 
 KJ_MAIN(ServerMain)
-

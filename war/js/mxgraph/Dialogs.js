@@ -214,7 +214,16 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 
 	var center = document.createElement('center');
 	
-	function addPresets(presets, rowLength, defaultColor)
+	function createRecentColorTable()
+	{
+		var table = addPresets((ColorDialog.recentColors.length == 0) ? ['FFFFFF'] :
+					ColorDialog.recentColors, 11, 'FFFFFF', true);
+		table.style.marginBottom = '8px';
+		
+		return table;
+	};
+	
+	function addPresets(presets, rowLength, defaultColor, addResetOption)
 	{
 		rowLength = (rowLength != null) ? rowLength : 12;
 		var table = document.createElement('table');
@@ -280,6 +289,28 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 			tbody.appendChild(tr);
 		}
 		
+		if (addResetOption)
+		{
+			var td = document.createElement('td');
+			td.setAttribute('title', mxResources.get('reset'));
+			td.style.border = '1px solid black';
+			td.style.padding = '0px';
+			td.style.width = '16px';
+			td.style.height = '16px';
+			td.style.backgroundImage = 'url(\'' + Dialog.prototype.closeImage + '\')';
+			td.style.backgroundPosition = 'center center';
+			td.style.backgroundRepeat = 'no-repeat';
+			td.style.cursor = 'pointer';
+			
+			tr.appendChild(td);
+
+			mxEvent.addListener(td, 'click', function()
+			{
+				ColorDialog.resetRecentColors();
+				table.parentNode.replaceChild(createRecentColorTable(), table);
+			});
+		}
+		
 		center.appendChild(table);
 		
 		return table;
@@ -289,8 +320,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	mxUtils.br(div);
 	
 	// Adds recent colors
-	var table = addPresets((ColorDialog.recentColors.length == 0) ? ['FFFFFF'] : ColorDialog.recentColors, 12, 'FFFFFF');
-	table.style.marginBottom = '8px';
+	createRecentColorTable();
 		
 	// Adds presets
 	var table = addPresets(['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5', 'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC', 'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66'], 12);
@@ -424,6 +454,14 @@ ColorDialog.addRecentColor = function(color, max)
 };
 
 /**
+ * Adds recent color for later use.
+ */
+ColorDialog.resetRecentColors = function()
+{
+	ColorDialog.recentColors = [];
+};
+
+/**
  * Constructs a new about dialog.
  */
 var AboutDialog = function(editorUi)
@@ -475,156 +513,20 @@ var PageSetupDialog = function(editorUi)
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
+	td.style.verticalAlign = 'top';
 	td.style.fontSize = '10pt';
 	mxUtils.write(td, mxResources.get('paperSize') + ':');
 	
 	row.appendChild(td);
-
-	var portraitCheckBox = document.createElement('input');
-	portraitCheckBox.setAttribute('name', 'format');
-	portraitCheckBox.setAttribute('type', 'radio');
-	portraitCheckBox.setAttribute('value', 'portrait');
-	
-	var landscapeCheckBox = document.createElement('input');
-	landscapeCheckBox.setAttribute('name', 'format');
-	landscapeCheckBox.setAttribute('type', 'radio');
-	landscapeCheckBox.setAttribute('value', 'landscape');
-	
-	var formatRow = document.createElement('tr');
-	formatRow.style.display = 'none';
-	
-	var customRow = document.createElement('tr');
-	customRow.style.display = 'none';
-	
-	// Adds all papersize options
-	var paperSizeSelect = document.createElement('select');
-	var detected = false;
-	var pf = new Object();
-	var formats = PageSetupDialog.getFormats();
-
-	for (var i = 0; i < formats.length; i++)
-	{
-		var f = formats[i];
-		pf[f.key] = f;
-
-		var paperSizeOption = document.createElement('option');
-		paperSizeOption.setAttribute('value', f.key);
-		mxUtils.write(paperSizeOption, f.title);
-		paperSizeSelect.appendChild(paperSizeOption);
-		
-		if (f.format != null)
-		{
-			if (graph.pageFormat.width == f.format.width && graph.pageFormat.height == f.format.height)
-			{
-				paperSizeOption.setAttribute('selected', 'selected');
-				portraitCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
-				formatRow.style.display = '';
-				detected = true;
-			}
-			else if (graph.pageFormat.width == f.format.height && graph.pageFormat.height == f.format.width)
-			{
-				paperSizeOption.setAttribute('selected', 'selected');
-				landscapeCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
-				formatRow.style.display = '';
-				detected = true;
-			}
-		}
-		// Selects custom format which is last in list
-		else if (!detected)
-		{
-			paperSizeOption.setAttribute('selected', 'selected');
-			customRow.style.display = '';
-		}
-	}
 	
 	td = document.createElement('td');
+	td.style.verticalAlign = 'top';
 	td.style.fontSize = '10pt';
-	td.appendChild(paperSizeSelect);
+	
+	var accessor = PageSetupDialog.addPageFormatPanel(td, 'pagesetupdialog', graph.pageFormat);
+
 	row.appendChild(td);
-	
 	tbody.appendChild(row);
-	
-	formatRow = document.createElement('tr');
-	formatRow.style.height = '40px';
-	td = document.createElement('td');
-	formatRow.appendChild(td);
-
-	td = document.createElement('td');
-	td.style.fontSize = '10pt';
-	
-	td.appendChild(portraitCheckBox);
-	var span = document.createElement('span');
-	mxUtils.write(span, ' ' + mxResources.get('portrait'));
-	td.appendChild(span);
-	
-	mxEvent.addListener(span, 'click', function(evt)
-	{
-		portraitCheckBox.checked = true;
-		mxEvent.consume(evt);
-	});
-	
-	landscapeCheckBox.style.marginLeft = '10px';
-	td.appendChild(landscapeCheckBox);
-	
-	var span = document.createElement('span');
-	mxUtils.write(span, ' ' + mxResources.get('landscape'));
-	td.appendChild(span);
-	
-	mxEvent.addListener(span, 'click', function(evt)
-	{
-		landscapeCheckBox.checked = true;
-		mxEvent.consume(evt);
-	});
-
-	formatRow.appendChild(td);
-	
-	tbody.appendChild(formatRow);
-	row = document.createElement('tr');
-	
-	td = document.createElement('td');
-	customRow.appendChild(td);
-
-	td = document.createElement('td');
-	td.style.fontSize = '10pt';
-	
-	var widthInput = document.createElement('input');
-	widthInput.setAttribute('size', '6');
-	widthInput.setAttribute('value', graph.pageFormat.width);
-	td.appendChild(widthInput);
-	mxUtils.write(td, ' x ');
-	
-	var heightInput = document.createElement('input');
-	heightInput.setAttribute('size', '6');
-	heightInput.setAttribute('value', graph.pageFormat.height);
-	td.appendChild(heightInput);
-	mxUtils.write(td, ' pt');
-	
-	customRow.appendChild(td);
-	customRow.style.height = formatRow.style.height;
-	tbody.appendChild(customRow);
-	
-	var updateInputs = function()
-	{
-		var f = pf[paperSizeSelect.value];
-		
-		if (f.format != null)
-		{
-			widthInput.value = f.format.width;
-			heightInput.value = f.format.height;
-			customRow.style.display = 'none';
-			formatRow.style.display = '';
-		}
-		else
-		{
-			formatRow.style.display = 'none';
-			customRow.style.display = '';
-		}
-	};
-	
-	mxEvent.addListener(paperSizeSelect, 'change', updateInputs);
-	updateInputs();
 	
 	row = document.createElement('tr');
 	
@@ -765,21 +667,7 @@ var PageSetupDialog = function(editorUi)
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
-		var ls = landscapeCheckBox.checked;
-		var f = pf[paperSizeSelect.value];
-		var size = f.format;
-		
-		if (size == null)
-		{
-			size = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
-		}
-		
-		if (ls)
-		{
-			size = new mxRectangle(0, 0, size.height, size.width);
-		}
-
-		editorUi.setPageFormat(size);
+		editorUi.setPageFormat(accessor.get());
 		
 		if (graph.background != newBackgroundColor)
 		{
@@ -809,6 +697,234 @@ var PageSetupDialog = function(editorUi)
 	
 	table.appendChild(tbody);
 	this.container = table;
+};
+
+/**
+ * 
+ */
+PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, pageFormatListener)
+{
+	var formatName = 'format-' + namePostfix;
+	
+	var portraitCheckBox = document.createElement('input');
+	portraitCheckBox.setAttribute('name', formatName);
+	portraitCheckBox.setAttribute('type', 'radio');
+	portraitCheckBox.setAttribute('value', 'portrait');
+	
+	var landscapeCheckBox = document.createElement('input');
+	landscapeCheckBox.setAttribute('name', formatName);
+	landscapeCheckBox.setAttribute('type', 'radio');
+	landscapeCheckBox.setAttribute('value', 'landscape');
+	
+	var paperSizeSelect = document.createElement('select');
+	paperSizeSelect.style.marginBottom = '8px';
+	paperSizeSelect.style.width = '202px';
+
+	var formatDiv = document.createElement('div');
+	formatDiv.style.marginLeft = '4px';
+	formatDiv.style.width = '210px';
+	formatDiv.style.height = '24px';
+
+	portraitCheckBox.style.marginRight = '6px';
+	formatDiv.appendChild(portraitCheckBox);
+	
+	var portraitSpan = document.createElement('span');
+	portraitSpan.style.maxWidth = '100px';
+	mxUtils.write(portraitSpan, mxResources.get('portrait'));
+	formatDiv.appendChild(portraitSpan);
+
+	landscapeCheckBox.style.marginLeft = '10px';
+	landscapeCheckBox.style.marginRight = '6px';
+	formatDiv.appendChild(landscapeCheckBox);
+	
+	var landscapeSpan = document.createElement('span');
+	landscapeSpan.style.width = '100px';
+	mxUtils.write(landscapeSpan, mxResources.get('landscape'));
+	formatDiv.appendChild(landscapeSpan)
+
+	var customDiv = document.createElement('div');
+	customDiv.style.marginLeft = '4px';
+	customDiv.style.width = '210px';
+	customDiv.style.height = '24px';
+	
+	var widthInput = document.createElement('input');
+	widthInput.setAttribute('size', '6');
+	widthInput.setAttribute('value', pageFormat.width);
+	customDiv.appendChild(widthInput);
+	mxUtils.write(customDiv, ' x ');
+	
+	var heightInput = document.createElement('input');
+	heightInput.setAttribute('size', '6');
+	heightInput.setAttribute('value', pageFormat.height);
+	customDiv.appendChild(heightInput);
+	mxUtils.write(customDiv, ' pt');
+
+	formatDiv.style.display = 'none';
+	customDiv.style.display = 'none';
+	
+	var pf = new Object();
+	var formats = PageSetupDialog.getFormats();
+	
+	for (var i = 0; i < formats.length; i++)
+	{
+		var f = formats[i];
+		pf[f.key] = f;
+
+		var paperSizeOption = document.createElement('option');
+		paperSizeOption.setAttribute('value', f.key);
+		mxUtils.write(paperSizeOption, f.title);
+		paperSizeSelect.appendChild(paperSizeOption);
+	}
+	
+	var customSize = false;
+	
+	function listener(sender, evt, force)
+	{
+		if (force || (widthInput != document.activeElement && heightInput != document.activeElement))
+		{
+			var detected = false;
+			
+			for (var i = 0; i < formats.length; i++)
+			{
+				var f = formats[i];
+	
+				// Special case where custom was chosen
+				if (customSize)
+				{
+					if (f.key == 'custom')
+					{
+						paperSizeSelect.value = f.key;
+						customSize = false;
+					}
+				}
+				else if (f.format != null)
+				{
+					if (pageFormat.width == f.format.width && pageFormat.height == f.format.height)
+					{
+						paperSizeSelect.value = f.key;
+						portraitCheckBox.setAttribute('checked', 'checked');
+						portraitCheckBox.defaultChecked = true;
+						portraitCheckBox.checked = true;
+						landscapeCheckBox.removeAttribute('checked');
+						landscapeCheckBox.defaultChecked = false;
+						landscapeCheckBox.checked = false;
+						detected = true;
+					}
+					else if (pageFormat.width == f.format.height && pageFormat.height == f.format.width)
+					{
+						paperSizeSelect.value = f.key;
+						portraitCheckBox.removeAttribute('checked');
+						portraitCheckBox.defaultChecked = false;
+						portraitCheckBox.checked = false;
+						landscapeCheckBox.setAttribute('checked', 'checked');
+						landscapeCheckBox.defaultChecked = true;
+						landscapeCheckBox.checked = true;
+						detected = true;
+					}
+				}
+			}
+			
+			// Selects custom format which is last in list
+			if (!detected)
+			{
+				widthInput.value = pageFormat.width;
+				heightInput.value = pageFormat.height;
+				paperSizeOption.setAttribute('selected', 'selected');
+				portraitCheckBox.setAttribute('checked', 'checked');
+				portraitCheckBox.defaultChecked = true;
+				formatDiv.style.display = 'none';
+				customDiv.style.display = '';
+			}
+			else
+			{
+				formatDiv.style.display = '';
+				customDiv.style.display = 'none';
+			}
+		}
+	};
+	listener();
+
+	div.appendChild(paperSizeSelect);
+	mxUtils.br(div);
+
+	div.appendChild(formatDiv);
+	div.appendChild(customDiv);
+	
+	var currentPageFormat = pageFormat;
+	
+	var update = function()
+	{
+		var f = pf[paperSizeSelect.value];
+		
+		if (f.format != null)
+		{
+			widthInput.value = f.format.width;
+			heightInput.value = f.format.height;
+			customDiv.style.display = 'none';
+			formatDiv.style.display = '';
+		}
+		else
+		{
+			formatDiv.style.display = 'none';
+			customDiv.style.display = '';
+		}
+		
+		var newPageFormat = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
+		
+		if (paperSizeSelect.value != 'custom' && landscapeCheckBox.checked)
+		{
+			newPageFormat = new mxRectangle(0, 0, newPageFormat.height, newPageFormat.width);
+		}
+		
+		if (newPageFormat.width != currentPageFormat.width || newPageFormat.height != currentPageFormat.height)
+		{
+			currentPageFormat = newPageFormat;
+			
+			if (pageFormatListener != null)
+			{
+				pageFormatListener(currentPageFormat);
+			}
+		}
+	};
+
+	mxEvent.addListener(portraitSpan, 'click', function(evt)
+	{
+		portraitCheckBox.checked = true;
+		update();
+		mxEvent.consume(evt);
+	});
+	
+	mxEvent.addListener(landscapeSpan, 'click', function(evt)
+	{
+		landscapeCheckBox.checked = true;
+		update();
+		mxEvent.consume(evt);
+	});
+	
+	mxEvent.addListener(widthInput, 'blur', update);
+	mxEvent.addListener(widthInput, 'click', update);
+	mxEvent.addListener(heightInput, 'blur', update);
+	mxEvent.addListener(heightInput, 'click', update);
+	mxEvent.addListener(landscapeCheckBox, 'change', update);
+	mxEvent.addListener(portraitCheckBox, 'change', update);
+	mxEvent.addListener(paperSizeSelect, 'change', function()
+	{
+		// Handles special case where custom was chosen
+		customSize = paperSizeSelect.value == 'custom';
+		update();
+	});
+	
+	update();
+	
+	return {set: function(value)
+	{
+		pageFormat = value;
+		listener(null, null, true);
+	},get: function()
+	{
+		return currentPageFormat;
+	}, widthInput: widthInput,
+	heightInput: heightInput};
 };
 
 /**
@@ -998,7 +1114,13 @@ PrintDialog.prototype.create = function(editorUi)
 			autoOrigin = true;
 		}
 		
-		return PrintDialog.showPreview(PrintDialog.createPrintPreview(graph, scale, pf, border, x0, y0, autoOrigin, print), print);
+		var preview = PrintDialog.createPrintPreview(graph, scale, pf, border, x0, y0, autoOrigin);
+		preview.open();
+	
+		if (print)
+		{
+			PrintDialog.printPreview(preview);
+		}
 	};
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -1046,17 +1168,15 @@ PrintDialog.prototype.create = function(editorUi)
 /**
  * Constructs a new print dialog.
  */
-PrintDialog.showPreview = function(preview, print)
+PrintDialog.printPreview = function(preview)
 {
-	var result = preview.open();
-	
-	if (print && result != null)
+	if (preview.wnd != null)
 	{
-		var print = function()
+		var printFn = function()
 		{
-			result.focus();
-			result.print();
-			result.close();
+			preview.wnd.focus();
+			preview.wnd.print();
+			preview.wnd.close();
 		};
 		
 		// Workaround for Google Chrome which needs a bit of a
@@ -1064,15 +1184,13 @@ PrintDialog.showPreview = function(preview, print)
 		// Needs testing in production
 		if (mxClient.IS_GC)
 		{
-			window.setTimeout(print, 500);
+			window.setTimeout(printFn, 500);
 		}
 		else
 		{
-			print();
+			printFn();
 		}
 	}
-	
-	return result;
 };
 
 /**
@@ -2143,47 +2261,44 @@ var EditDataDialog = function(ui, cell)
 	
 	var addBtn = mxUtils.button(mxResources.get('addProperty'), function()
 	{
-		if (nameInput.value.length > 0)
+		var name = nameInput.value;
+
+		if (name.length > 0 && name != 'label' && name != 'placeholders')
 		{
-			var name = nameInput.value;
-			
-			if (name != null && name.length > 0 && name != 'label' && name != 'placeholders')
+			try
 			{
-				try
+				var idx = mxUtils.indexOf(names, name);
+				
+				if (idx >= 0 && texts[idx] != null)
 				{
-					var idx = mxUtils.indexOf(names, name);
+					texts[idx].focus();
+				}
+				else
+				{
+					// Checks if the name is valid
+					var clone = value.cloneNode(false);
+					clone.setAttribute(name, '');
 					
-					if (idx >= 0 && texts[idx] != null)
+					if (idx >= 0)
 					{
-						texts[idx].focus();
-					}
-					else
-					{
-						// Checks if the name is valid
-						var clone = value.cloneNode(false);
-						clone.setAttribute(name, '');
-						
-						if (idx >= 0)
-						{
-							names.splice(idx, 1);
-							texts.splice(idx, 1);
-						}
-
-						names.push(name);
-						var text = form.addTextarea(name + ':', '', 2);
-						text.style.width = '100%';
-						texts.push(text);
-						addRemoveButton(text, name);
-
-						text.focus();
+						names.splice(idx, 1);
+						texts.splice(idx, 1);
 					}
 
-					nameInput.value = '';
+					names.push(name);
+					var text = form.addTextarea(name + ':', '', 2);
+					text.style.width = '100%';
+					texts.push(text);
+					addRemoveButton(text, name);
+
+					text.focus();
 				}
-				catch (e)
-				{
-					mxUtils.alert(e);
-				}
+
+				nameInput.value = '';
+			}
+			catch (e)
+			{
+				mxUtils.alert(e);
 			}
 		}
 		else
@@ -2223,6 +2338,7 @@ var EditDataDialog = function(ui, cell)
 			
 			// Clones and updates the value
 			value = value.cloneNode(true);
+			var removeLabel = false;
 			
 			for (var i = 0; i < names.length; i++)
 			{
@@ -2233,7 +2349,15 @@ var EditDataDialog = function(ui, cell)
 				else
 				{
 					value.setAttribute(names[i], texts[i].value);
+					removeLabel = removeLabel || (names[i] == 'placeholder' &&
+						value.getAttribute('placeholders') == '1');
 				}
+			}
+			
+			// Removes label if placeholder is assigned
+			if (removeLabel)
+			{
+				value.removeAttribute('label');
 			}
 			
 			// Updates the value of the cell (undoable)
@@ -2642,7 +2766,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	listDiv.style.left = '0px';
 	listDiv.style.right = '0px';
 	listDiv.style.top = '0px';
-	listDiv.style.bottom = tbarHeight;
+	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
 	div.appendChild(listDiv);
 	
 	var dragSource = null;
@@ -2652,6 +2776,13 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	{
 		evt.dataTransfer.dropEffect = 'move';
 		dropIndex = null;
+		evt.stopPropagation();
+		evt.preventDefault();
+	});
+	
+	// Workaround for "no element found" error in FF
+	mxEvent.addListener(div, 'drop', function(evt)
+	{
 		evt.stopPropagation();
 		evt.preventDefault();
 	});
@@ -3013,7 +3144,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 						
 						img2.className = 'geButton';
 						img2.style.cssFloat = 'none';
-						img2.innerHTML = '&#9650;';
+						img2.innerHTML = '&#9660;';
 						img2.style.width = '14px';
 						img2.style.height = '14px';
 						img2.style.fontSize = '14px';
@@ -3040,7 +3171,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 						
 						img1.className = 'geButton';
 						img1.style.cssFloat = 'none';
-						img1.innerHTML = '&#9660;';
+						img1.innerHTML = '&#9650;';
 						img1.style.width = '14px';
 						img1.style.height = '14px';
 						img1.style.fontSize = '14px';
@@ -3083,6 +3214,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			if (graph.getDefaultParent() == child)
 			{
 				ldiv.style.background = '#e6eff8';
+				ldiv.style.fontWeight = 'bold';
 				selectionLayer = child;
 			}
 			else
@@ -3102,7 +3234,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		};
 		
 		// Cannot be moved or deleted
-		for (var i = 0; i < layerCount; i++)
+		for (var i = layerCount - 1; i >= 0; i--)
 		{
 			(mxUtils.bind(this, function(child)
 			{

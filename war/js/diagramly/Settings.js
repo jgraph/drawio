@@ -12,6 +12,7 @@ var mxSettings =
 		libraries: Sidebar.prototype.defaultEntries,
 		customLibraries: [],
 		plugins: [],
+		recentColors: [],
 		formatWidth: '240',
 		currentEdgeStyle: Graph.prototype.defaultEdgeStyle,
 		currentVertexStyle: {},
@@ -21,7 +22,7 @@ var mxSettings =
 		showStartScreen: true,
 		gridColor: mxGraphView.prototype.gridColor,
 		autosave: true,
-		version: 12,
+		version: 13,
 		// Only defined and true for new settings which haven't been saved
 		isNew: true
 	},
@@ -104,6 +105,14 @@ var mxSettings =
 	{
 		this.settings.plugins = plugins;
 	},
+	getRecentColors: function()
+	{
+		return this.settings.recentColors;
+	},
+	setRecentColors: function(recentColors)
+	{
+		this.settings.recentColors = recentColors;
+	},
 	getFormatWidth: function()
 	{
 		return parseInt(this.settings.formatWidth);
@@ -176,6 +185,11 @@ var mxSettings =
 			if (this.settings.plugins == null)
 			{
 				this.settings.plugins = [];
+			}
+			
+			if (this.settings.recentColors == null)
+			{
+				this.settings.recentColors = [];
 			}
 			
 			if (this.settings.libraries == null)
