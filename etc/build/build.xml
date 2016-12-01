@@ -110,7 +110,7 @@
 			</sources>
 		</jscomp>
 
-		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/atlas-viewer.min.js">
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/base-viewer.min.js">
 			<sources dir="${basedir}">
 				<file name=".tmp0.js"/>
 			</sources>
@@ -126,10 +126,6 @@
 			<sources dir="${war.dir}/js/deflate">
 				<file name="base64.js" />
 				<file name="pako.min.js" />
-			</sources>
-			
-			<sources dir="${war.dir}/js/json">
-				<file name="json2.min.js" />
 			</sources>
 
 			<sources dir="${war.dir}/js/diagramly">
@@ -190,8 +186,8 @@
 		</echo>
 		
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${war.dir}/js/viewer.min.js">
-			<sources dir="${war.dir}/js">
-				<file name="atlas-viewer.min.js"/>
+			<sources dir="${basedir}">
+				<file name="base-viewer.min.js"/>
 			</sources>
 
 			<sources dir="${basedir}">
@@ -202,7 +198,7 @@
 		<delete file="${basedir}/.tmp0.js"/>
 		<delete file="${basedir}/.tmp1.js"/>
 
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/atlas.min.js">
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/base.min.js">
 			<sources dir="${war.dir}/js/spin">
 				<file name="spin.min.js" />
 			</sources>
@@ -214,10 +210,6 @@
 			<sources dir="${war.dir}/js/deflate">
 				<file name="pako.min.js" />
 				<file name="base64.js" />
-			</sources>
-			
-			<sources dir="${war.dir}/js/json">
-				<file name="json2.min.js"/>
 			</sources>
 
 			<sources dir="${war.dir}/js/diagramly">
@@ -258,7 +250,7 @@
 		</jscomp>
 
 		<loadfile property="version" srcFile="../../VERSION"/>
-		<replace file="${war.dir}/js/atlas.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+		<replace file="${basedir}/base.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 		
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
 			<sources dir="${war.dir}/js/diagramly">
@@ -330,9 +322,9 @@
 				<file name="DriveFile.js" />
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
-				<file name="DropboxClient.js" />
 				<file name="DropboxFile.js" />
 				<file name="DropboxLibrary.js" />
+				<file name="DropboxClient.js" />
 				<file name="OneDriveFile.js" />
 				<file name="OneDriveLibrary.js" />
 				<file name="OneDriveClient.js" />

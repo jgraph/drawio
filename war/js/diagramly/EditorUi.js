@@ -2336,6 +2336,352 @@
 	};
 	
 	/**
+	 * Returns true if files should be saved using <saveLocalFile>.
+	 */
+	EditorUi.prototype.isLocalFileSave = function()
+	{
+		return (urlParams['save'] != 'remote' && (mxClient.IS_IE ||
+			(typeof window.Blob !== 'undefined' && typeof window.URL !== 'undefined')) &&
+			document.documentMode != 9 && document.documentMode != 8 &&
+			document.documentMode != 7 && !mxClient.IS_QUIRKS) ||
+			this.isOfflineApp() || mxClient.IS_IOS;
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded)
+	{
+		// Newer versions of IE
+		if (window.MSBlobBuilder && navigator.msSaveOrOpenBlob)
+		{
+			var builder = new MSBlobBuilder();
+			builder.append(data);
+			var blob = builder.getBlob(mimeType);
+			navigator.msSaveOrOpenBlob(blob, filename);
+		}
+		// Older versions of IE (binary not supported)
+		else if (mxClient.IS_IE)
+		{
+			var win = window.open('about:blank', '_blank');
+			
+			if (win == null)
+			{
+				mxUtils.popup(data, true);
+			}
+			else
+			{
+				win.document.write(data);
+				win.document.close();
+				win.document.execCommand('SaveAs', true, filename);
+				win.close();
+			}
+		}
+		else if (mxClient.IS_IOS)
+		{
+			// Poor man's saveAs in iOS via context menu of selected output
+	    	var dlg = new TextareaDialog(this, filename + ':', data, null, null, mxResources.get('close'));
+	    	dlg.textarea.style.width = '600px';
+	    	dlg.textarea.style.height = '380px';
+			this.showDialog(dlg.container, 620, 460, true, true);
+			dlg.init();
+			document.execCommand('selectall', false, null);
+		}
+		else if (!this.isOffline() && mxClient.IS_SF)
+		{
+			var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
+				'&data=' + encodeURIComponent(this.editor.graph.compress(data));
+			
+			new mxXmlRequest(SAVE_URL, 'mime=' + mimeType + '&filename=' +
+				encodeURIComponent(filename) +
+				param).simulate(document, '_blank');
+		}
+		else
+		{
+			var a = document.createElement('a');
+			a.href = URL.createObjectURL((base64Encoded) ?
+				this.base64ToBlob(data, mimeType) :
+				new Blob([data], {type: mimeType}));
+			a.download = filename;
+			document.body.appendChild(a);
+			
+			// Workaround for link opens in same window in Safari
+			if (mxClient.IS_SF)
+			{
+				a.setAttribute('target', '_blank');
+			}
+			
+			try
+			{
+				a.click();
+				
+				window.setTimeout(function()
+				{
+					URL.revokeObjectURL(a.href);
+				}, 0);
+				a.parentNode.removeChild(a);
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded)
+	{
+		if (this.isOfflineApp() || this.isOffline())
+		{
+			this.doSaveLocalFile(data, filename, mimeType, base64Encoded);
+		}
+		else
+		{
+			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+			var backends = typeof window.DriveClient === 'function' ||
+						typeof window.DropboxClient === 'function' ||
+						typeof window.OneDriveClient === 'function';
+			
+			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
+			{
+				try
+				{
+					// Opens a new window
+					if (mode == '_blank')
+					{
+						// Workaround for "Access denied" after URL.createObjectURL
+						// and blank window for window.open with data URI in MS Edge
+						// and empty window for IE 11 and 10
+						if (mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+						{
+				    		var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
+				    			'&data=' + encodeURIComponent(this.editor.graph.compress(data));
+				    		
+				    		new mxXmlRequest(SAVE_URL, 'mime=' + mimeType + param).simulate(document, '_blank');
+						}
+						else
+						{
+							// Cannot use URL.createObjectURL since it kills gradients in FF
+							window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
+								data : ';charset=utf8,' + encodeURIComponent(data)));
+						}
+					}
+					else if (mode == App.MODE_DEVICE)
+					{
+						this.doSaveLocalFile(data, newTitle, mimeType, base64Encoded);
+					} 
+					else if (newTitle != null && newTitle.length > 0)
+					{
+						this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+						{
+							this.exportFile(data, newTitle, mimeType, base64Encoded, mode, folderId);
+						}));
+					}
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+			}), mxUtils.bind(this, function()
+			{
+				this.hideDialog();
+			}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
+			this.showDialog(dlg.container, 380, (backends) ? 280 : 160, true, true);
+			dlg.init();
+		}
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.saveData = function(filename, format, data, mime)
+	{
+		if (this.isLocalFileSave())
+		{
+			this.saveLocalFile(data, filename, mime);
+		}
+		else
+		{
+			this.saveRequest(data, filename, format, mxUtils.bind(this, function(newTitle, base64)
+			{
+	    		var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
+	    			'&data=' + encodeURIComponent(this.editor.graph.compress(data));
+	    		
+	    		return new mxXmlRequest(SAVE_URL, 'format=' + format + ((newTitle != null) ?
+					'&filename=' + encodeURIComponent(newTitle) : '') + param);
+			}));
+		}
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.saveRequest = function(data, filename, format, fn)
+	{
+		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		
+		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
+		{
+			if (mode == '_blank' || newTitle != null && newTitle.length > 0)
+			{
+				var base64 = (mode == App.MODE_DEVICE || mode == null || mode == '_blank') ? '0' : '1';
+				var xhr = fn((mode == '_blank') ? null : newTitle, base64);
+				
+				if (mode == App.MODE_DEVICE || mode == '_blank')
+				{
+					xhr.simulate(document, '_blank');
+				}
+				else
+				{
+					// TODO: Move to App
+					this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+					{
+						if (this.spinner.spin(document.body, mxResources.get('saving')))
+						{
+							// LATER: Catch possible mixed content error
+							// see http://stackoverflow.com/questions/30646417/catching-mixed-content-error
+							xhr.send(mxUtils.bind(this, function()
+							{
+								this.spinner.stop();
+								
+								if (xhr.getStatus() < 200 || xhr.getStatus() > 299)
+								{
+									this.handleError({message: mxResources.get('errorSavingFile')});
+								}
+								else
+								{
+									try
+									{
+										var mimeType = (format == 'pdf') ? 'application/pdf' : 'image/' + format;
+										this.exportFile(xhr.getText(), newTitle, mimeType, true, mode, folderId);
+									}
+									catch (e)
+									{
+										this.handleError(e);
+									}
+								}
+							}), function(resp)
+							{
+								this.spinner.stop();
+								this.handleError(resp);
+							});
+						}
+					}));
+				}
+			}
+		}), mxUtils.bind(this, function()
+		{
+			this.hideDialog();
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
+		this.showDialog(dlg.container, 380, 270, true, true);
+		dlg.init();
+	};
+	
+	/**
+	 * Hook for subclassers.
+	 */
+	EditorUi.prototype.pickFolder = function(mode, fn, enabled)
+	{
+		fn(null);
+	};
+
+	/**
+	 *
+	 */
+	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages)
+	{
+		var selectionEmpty = this.editor.graph.isSelectionEmpty();
+		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
+		var bg = (transparentBackground) ? null : this.editor.graph.background;
+		
+		if (bg == mxConstants.NONE)
+		{
+			bg = null;
+		}
+		
+		// Handles special case where background is null but transparent is false
+		if (bg == null && transparentBackground == false)
+		{
+			bg = '#ffffff';
+		}
+		
+		// Sets or disables alternate text for foreignObjects. Disabling is needed
+		// because PhantomJS seems to ignore switch statements and paint all text.
+		var svgRoot = this.editor.graph.getSvg(bg, scale, null, null, null, ignoreSelection);
+		
+		if (addShadow)
+		{
+			this.editor.addSvgShadow(svgRoot);
+		}
+	
+		var file = this.getCurrentFile();
+		var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+		
+		var dot = filename.lastIndexOf('.');
+		
+		if (dot > 0)
+		{
+			filename = filename.substring(0, dot);
+		}
+		
+		filename += '.svg';
+		
+		if (this.spinner.spin(document.body, mxResources.get('export')))
+		{
+			var doSave = mxUtils.bind(this, function(svgRoot)
+			{
+				this.spinner.stop();
+				
+				if (editable)
+				{
+					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection));
+				}
+				
+				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+					mxUtils.getXml(svgRoot);
+				
+	    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
+	    		{
+	    	    	this.saveData(filename, 'svg', svg, 'image/svg+xml');
+	    		}
+	    		else
+	    		{
+	    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+	    			{
+	    				mxUtils.popup(svg);
+	    			}));
+	    		}
+			});
+			
+			this.convertMath(this.editor.graph, svgRoot, false, mxUtils.bind(this, function()
+			{
+				if (embedImages)
+				{
+					this.convertImages(svgRoot, doSave);
+				}
+				else
+				{
+					doSave(svgRoot);
+				}
+			}));
+		}
+	};
+
+	/**
 	 * 
 	 */
 	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback)
@@ -3075,6 +3421,52 @@
 			return ((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
 				'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
 				mxUtils.getXml(svgRoot);
+		}
+	};
+	
+	/**
+	 *
+	 */
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable)
+	{
+		if (this.spinner.spin(document.body, mxResources.get('exporting')))
+		{
+			var selectionEmpty = this.editor.graph.isSelectionEmpty();
+			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
+			
+			try
+			{
+			   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
+			   	{
+			   		this.spinner.stop();
+			   		
+			   		try
+			   		{
+			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null, null, null, ignoreSelection) : null);
+			   		}
+			   		catch (e)
+			   		{
+			   			// Fallback to server-side image export
+			   			if (e.message == 'Invalid image')
+			   			{
+			   				this.downloadFile('png');
+			   			}
+			   			else
+			   			{
+				   			this.handleError(e);
+			   			}
+			   		}
+			   	}), null, null, null, mxUtils.bind(this, function(e)
+			   	{
+			   		this.spinner.stop();
+			   		this.handleError(e);
+			   	}), null, ignoreSelection, scale || 1, transparentBackground, addShadow);
+			}
+			catch (e)
+			{
+				this.spinner.stop();
+				this.handleError(e);
+			}
 		}
 	};
 
@@ -4432,7 +4824,32 @@
 			// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
 			this.editor.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
 		}
-		
+				
+		/**
+		 * Overrides export dialog for using ui functions for save.
+		 */
+		if (typeof ExportDialog !== 'undefined' && this.isLocalFileSave())
+		{
+			var ui = this;
+			
+			ExportDialog.saveLocalFile = function(data, filename, format)
+			{
+				var mime = 'text/xml';
+				
+				if (format === 'svg')
+				{
+					mime = 'image/svg+xml';
+				}
+				
+	    		ui.saveLocalFile(data, filename, mime);
+	    	};
+	
+	    	ExportDialog.saveRequest = function(data, filename, format, fn)
+	    	{
+	    		ui.saveRequest(data, filename, format, fn);
+	    	};
+		}
+
 		/**
 		 * Specifies the default filename.
 		 */

@@ -25,9 +25,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.mxgraph.io.vsdx.Shape;
 import com.mxgraph.io.vsdx.ShapePageId;
 import com.mxgraph.io.vsdx.VsdxShape;
-import com.mxgraph.io.vsdx.mxMasterShape;
 import com.mxgraph.io.vsdx.mxPathDebug;
 import com.mxgraph.io.vsdx.mxVsdxConnect;
 import com.mxgraph.io.vsdx.mxVsdxConstants;
@@ -907,7 +907,7 @@ public class mxVsdxCodec
 		String txtAngleV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
 				mxVsdxConstants.TXT_ANGLE, "V", "");
 
-		mxMasterShape masterShape = shape.getMaster() != null ? shape
+		Shape masterShape = shape.getMaster() != null ? shape
 				.getMaster().getMasterShape() : null;
 
 		if (masterShape != null)
@@ -1043,7 +1043,7 @@ public class mxVsdxCodec
 		String txtHV = rootShape.getAttribute(mxVsdxConstants.CONTROL,
 				mxVsdxConstants.TXT_HEIGHT, "V", "");
 
-		mxMasterShape masterShape = shape.getMaster() != null ? shape
+		Shape masterShape = shape.getMaster() != null ? shape
 				.getMaster().getMasterShape() : null;
 
 		if (masterShape != null)

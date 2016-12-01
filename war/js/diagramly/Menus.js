@@ -303,7 +303,8 @@
 		var copiedStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle', 'align',
 		                    'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
 		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
-		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight'];
+		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
+		                    'endSize', 'startStill', 'startArrow', 'startSize'];
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{
@@ -333,8 +334,6 @@
 			 			}
 			 		}
 				}
-				
-				editorUi.copiedEdgeStyle = null;
 			}
 		}, null, null, 'Ctrl+Shift+C');
 

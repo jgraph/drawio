@@ -233,7 +233,6 @@ public class GliffyObject
 			Graphic g = getFirstChildGraphic();
 			return  g != null && g.getType().equals(Graphic.Type.SHAPE);
 		}
-
 	}
 
 	public boolean isSvg()
@@ -243,7 +242,7 @@ public class GliffyObject
 
 	public boolean isSwimlane()
 	{
-		return uid != null && uid.contains(SWIMLANE);
+		return uid != null && uid.startsWith(SWIMLANE);
 	}
 
 	public boolean isText()
@@ -256,11 +255,47 @@ public class GliffyObject
 		return graphic != null && graphic.getType().equals(Graphic.Type.IMAGE);
 	}
 
-	public boolean isVennsCircle()
+	public boolean isVennCircle()
 	{
-		return uid != null && uid.contains("com.gliffy.shape.venn");
+		return uid != null && uid.startsWith("com.gliffy.shape.venn");
 	}
 	
+	public String getGradientColor()
+	{
+		String gradientColor = "#FFFFFF";
+		
+		// Gradient colors are lighter version of the fill color except for radial
+		// venn shapes, where white is used with a radial gradient (we use linear)
+		if (graphic != null && graphic.Shape != null && uid != null &&
+			!uid.startsWith("com.gliffy.shape.radial"))
+		{
+			String hex = graphic.Shape.fillColor;
+			
+			if (hex != null && hex.length() == 7 && hex.charAt(0) == '#')
+			{
+				long clr = Long.parseLong(hex.substring(1), 16);
+				
+				long r = Math.min(0xFF0000, ((clr & 0xFF0000) + 0xAA0000)) & 0xFF0000;
+				long g = Math.min(0x00FF00, ((clr & 0x00FF00) + 0x00AA00)) & 0x00FF00;
+				long b = Math.min(0x0000FF, ((clr & 0x0000FF) + 0x0000AA)) & 0x0000FF;
+
+				gradientColor = String.format("#%06X", 0xFFFFFF & (r + g + b));
+			}
+		}
+		
+		return gradientColor;
+	}
+
+	/**
+	 * LATER: Add more cases where gradient is ignored.
+	 */
+	public boolean isGradientIgnored()
+	{
+		return uid != null &&
+			(uid.startsWith("com.gliffy.shape.venn.outline") ||
+			uid.startsWith("com.gliffy.shape.venn.flat"));
+	}
+
 	public boolean isUnrecognizedGraphicType() 
 	{
 		return graphic != null && graphic.type == null;

@@ -58,33 +58,36 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Rack.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sysml.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam.js');
 
-mxscript(drawDevUrl + 'js/diagramly/DrawioUser.js');
+mxscript(drawDevUrl + 'js/diagramly/util/mxJsCanvas.js');
+mxscript(drawDevUrl + 'js/diagramly/util/mxAsyncCanvas.js');
+
 mxscript(drawDevUrl + 'js/diagramly/DrawioFile.js');
 mxscript(drawDevUrl + 'js/diagramly/LocalFile.js');
 mxscript(drawDevUrl + 'js/diagramly/LocalLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/StorageFile.js');
 mxscript(drawDevUrl + 'js/diagramly/StorageLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/Dialogs.js');
+mxscript(drawDevUrl + 'js/diagramly/Editor.js');
+mxscript(drawDevUrl + 'js/diagramly/EditorUi.js');
+mxscript(drawDevUrl + 'js/diagramly/Settings.js');
+
+// Excluded in base.min.js
+mxscript(drawDevUrl + 'js/diagramly/DrawioUser.js');
 mxscript(drawDevUrl + 'js/diagramly/UrlLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveRealtime.js');
 mxscript(drawDevUrl + 'js/diagramly/RealtimeMapping.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveFile.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveClient.js');
-mxscript(drawDevUrl + 'js/diagramly/DropboxClient.js');
 mxscript(drawDevUrl + 'js/diagramly/DropboxFile.js');
 mxscript(drawDevUrl + 'js/diagramly/DropboxLibrary.js');
-mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
+mxscript(drawDevUrl + 'js/diagramly/DropboxClient.js');
 mxscript(drawDevUrl + 'js/diagramly/OneDriveFile.js');
 mxscript(drawDevUrl + 'js/diagramly/OneDriveLibrary.js');
-mxscript(drawDevUrl + 'js/diagramly/Dialogs.js');
-mxscript(drawDevUrl + 'js/diagramly/Editor.js');
-mxscript(drawDevUrl + 'js/diagramly/EditorUi.js');
-mxscript(drawDevUrl + 'js/diagramly/Settings.js');
-mxscript(drawDevUrl + 'js/diagramly/App.js');
-mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
+mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
 mxscript(drawDevUrl + 'js/diagramly/ChatWindow.js');
+
+mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
-
-mxscript(drawDevUrl + 'js/diagramly/util/mxJsCanvas.js');
-mxscript(drawDevUrl + 'js/diagramly/util/mxAsyncCanvas.js');
+mxscript(drawDevUrl + 'js/diagramly/DevTools.js');

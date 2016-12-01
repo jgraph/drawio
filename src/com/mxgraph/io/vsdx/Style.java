@@ -26,8 +26,6 @@ public abstract class Style
 	
 	protected Integer Id;
 	
-	protected Element text = null;
-	
 	// .vsdx cells elements that contain one style each
 	protected Map<String, Element> cellElements = new HashMap<String, Element>();
 	
@@ -71,6 +69,8 @@ public abstract class Style
 		styleTypes.put(mxVsdxConstants.BOTTOM_MARGIN, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.LEFT_MARGIN, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.RIGHT_MARGIN, mxVsdxConstants.TEXT_STYLE);
+		styleTypes.put(mxVsdxConstants.TOP_MARGIN, mxVsdxConstants.TEXT_STYLE);
+		styleTypes.put(mxVsdxConstants.PARAGRAPH, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.TOP_MARGIN, mxVsdxConstants.TEXT_STYLE);
 	};
 	
@@ -163,10 +163,6 @@ public abstract class Style
 		else if (childName.equals("Section"))
 		{
 			this.parseSection(elem);
-		}
-		else if (childName.equals(mxVsdxConstants.TEXT))
-		{
-			this.text = elem;
 		}
 	}
 
@@ -449,18 +445,38 @@ public abstract class Style
 		return result;
 	}
 
-	/**
-	 * Finds a cell key in a Section hierarchy
-	 * @param keys the Section/Row/Cell keys
-	 * @return the Cell Element
-	 */
-	protected Element getSectionCell(String[] keys)
+	protected Element getCellElement(String cellKey, Integer index, String sectKey)
 	{
-		Section section = this.sections.get(keys[0]);
+		Section sect = this.sections.get(sectKey);
 		
-		return section.getCell(keys);
+		if (sect == null)
+		{
+			return null;
+		}
+		
+		Element elem = sect.getIndexedCell(index, cellKey);
+		
+		if (elem == null)
+		{
+			String styleType = Style.styleTypes.get(sectKey);
+			Style parentStyle = this.styleParents.get(styleType);
+			
+			if (parentStyle != null)
+			{
+				Element parentElem = parentStyle.getCellElement(cellKey, index, sectKey);
+				
+				if (parentElem != null)
+				{
+					// Only return if non-null. Just in case (and not sure if that's valid) there is an
+					// inherit formula that doesn't resolve to anything
+					return parentElem;
+				}
+			}
+		}
+		
+		return elem;
 	}
-	
+
 	/**
 	 * Locates the first entry for the specified style string in the style hierarchy.
 	 * The order is to look locally, then delegate the request to the relevant parent style
@@ -470,14 +486,6 @@ public abstract class Style
 	 */
 	protected Element getCellElement(String key)
 	{
-		String[] keys = key.split(".");
-		
-		if (keys.length > 1)
-		{
-			// Section being referenced
-			return getSectionCell(keys);
-		}
-
 		Element elem = this.cellElements.get(key);
 		boolean inherit = false;
 		
@@ -633,38 +641,6 @@ public abstract class Style
 	}
 
 	/**
-	 * Returns the value of the Text element.
-	 * @return Value of the Text element.
-	 */
-	public String getText()
-	{
-		if (this.text != null)
-		{
-			return text.getTextContent();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns the children Nodes of Text.
-	 * @return List with the children of the Text element.
-	 */
-	public List<Node> getTextChildren()
-	{
-		List<Node> list = null;
-		NodeList child = null;
-
-		if (this.text != null)
-		{
-			child = text.getChildNodes();
-			list = mxVsdxUtils.copyNodeList(child);
-		}
-
-		return list;
-	}
-
-	/**
 	 * Returns the NameU attribute.
 	 * @return Value of the NameU attribute.
 	 */
@@ -720,7 +696,7 @@ public abstract class Style
 	 */
 	public boolean hasTextColor(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.COLOR);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.COLOR);
 	}
 
 	/**
@@ -730,7 +706,7 @@ public abstract class Style
 	 */
 	public String getTextColor(String charIX)
 	{
-		String color = getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.COLOR, "#000000");
+		String color = getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.COLOR, "#000000");
 
 		if (!color.startsWith("#"))
 		{
@@ -783,7 +759,7 @@ public abstract class Style
 	 */
 	public boolean hasTextSize(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.SIZE);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.SIZE);
 	}
 
 	/**
@@ -793,7 +769,7 @@ public abstract class Style
 	 */
 	public String getTextSize(String charIX)
 	{
-		return String.valueOf(getChildNumericalValue(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.SIZE, 0));
+		return String.valueOf(getChildNumericalValue(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.SIZE, 0));
 	}
 
 	/**
@@ -803,7 +779,7 @@ public abstract class Style
 	 */
 	public boolean hasTextStyle(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.STYLE);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.STYLE);
 	}
 
 	/**
@@ -813,7 +789,7 @@ public abstract class Style
 	 */
 	public String getTextStyle(String charIX)
 	{
-		return getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.STYLE, "");
+		return getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.STYLE, "");
 	}
 
 	/**
@@ -823,7 +799,7 @@ public abstract class Style
 	 */
 	public boolean hasTextFont(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.FONT);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.FONT);
 	}
 
 	/**
@@ -833,7 +809,7 @@ public abstract class Style
 	 */
 	public String getTextFont(String charIX)
 	{
-		return pm.getFont(getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.FONT, ""));
+		return pm.getFont(getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.FONT, ""));
 	}
 
 	/**
@@ -843,7 +819,7 @@ public abstract class Style
 	 */
 	public boolean hasTextPos(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.POS);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.POS);
 	}
 
 	/**
@@ -853,7 +829,7 @@ public abstract class Style
 	 */
 	public int getTextPos(String charIX)
 	{
-		String val = getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.POS, "");
+		String val = getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.POS, "");
 
 		if (!val.equals(""))
 		{
@@ -870,7 +846,7 @@ public abstract class Style
 	 */
 	public boolean hasTextStrike(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.STRIKETHRU);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.STRIKETHRU);
 	}
 
 	/**
@@ -880,7 +856,7 @@ public abstract class Style
 	 */
 	public boolean getTextStrike(String charIX)
 	{
-		String val = getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.STRIKETHRU, "");
+		String val = getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.STRIKETHRU, "");
 		return val.equals("1");
 	}
 
@@ -891,7 +867,7 @@ public abstract class Style
 	 */
 	public boolean hasTextCase(String charIX)
 	{
-		return hasIndexedProperty(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.CASE);
+		return hasIndexedProperty(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.CASE);
 	}
 
 	/**
@@ -901,7 +877,7 @@ public abstract class Style
 	 */
 	public int getTextCase(String charIX)
 	{
-		String val = getChildText(mxVsdxConstants.CHAR, charIX, mxVsdxConstants.CASE, "");
+		String val = getChildText(mxVsdxConstants.CHARACTER, charIX, mxVsdxConstants.CASE, "");
 
 		if (!val.equals(""))
 		{

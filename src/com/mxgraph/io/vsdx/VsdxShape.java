@@ -59,7 +59,7 @@ public class VsdxShape extends Shape
 	/**
 	 * Master Shape referenced by the shape.
 	 */
-	protected mxMasterShape masterShape = null;
+	protected Shape masterShape = null;
 
 	/**
 	 * Master element referenced by the shape.
@@ -229,7 +229,7 @@ public class VsdxShape extends Shape
 	public String getTextLabel()
 	{
 		String masterId = this.getMasterId();
-		mxMasterShape masterShape = null;
+		Shape masterShape = null;
 
 		if (master != null)
 		{
@@ -822,7 +822,7 @@ public class VsdxShape extends Shape
 				}
 				
 				String masterId = this.getMasterId();
-				mxMasterShape masterShape = null;
+				Shape masterShape = null;
 	
 				if (this.master != null)
 				{
@@ -1514,7 +1514,7 @@ public class VsdxShape extends Shape
 		String txtPinXF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_X, "F", "");
 		String txtPinYF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_X, "F", "");
 
-		mxMasterShape masterShape = master != null ? master.getMasterShape() : null;
+		Shape masterShape = master != null ? master.getMasterShape() : null;
 
 		if (masterShape != null)
 		{
@@ -1547,7 +1547,7 @@ public class VsdxShape extends Shape
 		String xConF = this.getAttribute(mxVsdxConstants.CONTROL, mxVsdxConstants.X_CON, "F", "");
 		String yConF = this.getAttribute(mxVsdxConstants.CONTROL, mxVsdxConstants.Y_CON, "F", "");
 
-		mxMasterShape masterShape = master != null ? master.getMasterShape() : null;
+		Shape masterShape = master != null ? master.getMasterShape() : null;
 
 		if (masterShape != null)
 		{
@@ -1580,7 +1580,7 @@ public class VsdxShape extends Shape
 		String txtWidthF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_WIDTH, "F", "");
 		String txtHeightF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_HEIGHT, "F", "");
 
-		mxMasterShape masterShape = master != null ? master.getMasterShape() : null;
+		Shape masterShape = master != null ? master.getMasterShape() : null;
 
 		if (masterShape != null)
 		{
@@ -1634,7 +1634,7 @@ public class VsdxShape extends Shape
 	{
 		String txtAngleValue = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_ANGLE, "V", "");
 
-		mxMasterShape masterShape = master != null ? master.getMasterShape() : null;
+		Shape masterShape = master != null ? master.getMasterShape() : null;
 
 		if (masterShape != null)
 		{
@@ -2017,6 +2017,18 @@ public class VsdxShape extends Shape
 		if (elem == null && this.masterShape != null)
 		{
 			return this.masterShape.getCellElement(key);
+		}
+		
+		return elem;
+	}
+	
+	protected Element getCellElement(String cellKey, Integer index, String sectKey)
+	{
+		Element elem = super.getCellElement(cellKey, index, sectKey);
+		
+		if (elem == null && this.masterShape != null)
+		{
+			return this.masterShape.getCellElement(cellKey, index, sectKey);
 		}
 		
 		return elem;

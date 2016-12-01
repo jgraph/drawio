@@ -1,9 +1,13 @@
+/**
+ * Copyright (c) 2006-2016, JGraph Ltd
+ * Copyright (c) 2006-2016, Gaudenz Alder
+ */
 package com.mxgraph.io.vsdx;
 
 import java.util.HashMap;
-import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * This class allows get the text contained in a shape formated with tags HTML.<br/>
@@ -19,7 +23,7 @@ public class mxVsdxTextParser
 	/**
 	 * Master Shape of the shape.
 	 */
-	mxMasterShape masterShape;
+	Shape masterShape;
 
 	/**
 	 * Style-sheet with the Text Style.
@@ -57,7 +61,7 @@ public class mxVsdxTextParser
 	 * @param masterShape Master Shape of the shape.
 	 * @param styleSheet Style-sheet with the Text Style. 
 	 */
-	public mxVsdxTextParser(VsdxShape shape, mxMasterShape masterShape,	mxStyleSheet styleSheet, mxPropertiesManager pm)
+	public mxVsdxTextParser(VsdxShape shape, Shape masterShape,	mxStyleSheet styleSheet, mxPropertiesManager pm)
 	{
 		this.shape = shape;
 		this.masterShape = masterShape;
@@ -71,36 +75,37 @@ public class mxVsdxTextParser
 	 */
 	public String getHtmlTextContent()
 	{
-		List<Node> child = null;
 		boolean masterShapeOnly = false;
 		String ret = "";
-		child = shape.getTextChildren();
+		NodeList txtChildren = shape.getTextChildren();
 
-		if (child == null && masterShape != null)
+		if (txtChildren == null && masterShape != null)
 		{
-			child = masterShape.getTextChildren();
-			masterShapeOnly = (child != null);
+			txtChildren = masterShape.getTextChildren();
+			masterShapeOnly = (txtChildren != null);
 		}
 		
 		boolean first = true;
 		
-		if (child != null)
+		if (txtChildren != null && txtChildren.getLength() > 0)
 		{
-			for (Node e : child)
+			for (int index = 0; index < txtChildren.getLength(); index++)
 			{
-				if (e.getNodeName().equals("cp"))
+				Node node = txtChildren.item(index);
+	
+				if (node.getNodeName().equals("cp"))
 				{
-					Element elem = (Element) e;
+					Element elem = (Element)node;
 					cp = elem.getAttribute("IX");
 				}
-				else if (e.getNodeName().equals("tp"))
+				else if (node.getNodeName().equals("tp"))
 				{
-					Element elem = (Element) e;
+					Element elem = (Element)node;
 					tp = elem.getAttribute("IX");
 				}
-				else if (e.getNodeName().equals("pp"))
+				else if (node.getNodeName().equals("pp"))
 				{
-					Element elem = (Element) e;
+					Element elem = (Element)node;
 					pp = elem.getAttribute("IX");
 					
 					if (first)
@@ -115,18 +120,18 @@ public class mxVsdxTextParser
 					String para = "<p>";
 					ret += getTextParagraphFormated(para);
 				}
-				else if (e.getNodeName().equals("fld"))
+				else if (node.getNodeName().equals("fld"))
 				{
-					Element elem = (Element) e;
+					Element elem = (Element)node;
 					fld = elem.getAttribute("IX");
 					String text = elem.getTextContent();
 					text = textToList(text, pp);
 					text = text.replaceAll("\n", "<br/>");
 					ret += getTextCharFormated(text);
 				}
-				else if (e.getNodeName().equals("#text"))
+				else if (node.getNodeName().equals("#text"))
 				{
-					String text = e.getTextContent();
+					String text = node.getTextContent();
 					
 					// There's a case in master shapes where the text element has the raw value "N".
 					// The source tool doesn't render this. Example is ALM_Information_flow.vdx, the two label
@@ -149,17 +154,6 @@ public class mxVsdxTextParser
 		
 		String end = first ? "" : "</p>";
 		ret += end;
-		
-//		if (shape.isVertex())
-//		{
-//		ret = mxVdxUtils.surroundByTags(ret, "tr");
-//		ret = mxVdxUtils.surroundByTags(ret, "table");
-//			HashMap<String, String> styleMap = new HashMap<String, String>();
-//			styleMap.put("width", "100%");
-//			styleMap.put("height", "100%");
-//			styleMap.put("max-width", shape.getDimensions().getX() * 0.71 + "px");
-//			ret = insertAttributes(ret, styleMap);
-//		}
 		
 		return ret;
 	}
@@ -616,11 +610,6 @@ public class mxVsdxTextParser
 		String direction = "direction:" + this.getCharDirection(cp) + ";";
 		String space = "letter-spacing:" + (Double.parseDouble(this.getCharSpace(cp)) / 0.71) + "px;";
 		int pos = this.getPos(cp);
-		boolean bold = this.isBold(cp);
-		boolean italic = this.isItalic(cp);
-		boolean underline = this.isUnderline(cp);
-		boolean strike = this.isStrikeThru(cp);
-		boolean smallCap = this.isSmallCaps(cp);
 		int tCase = this.getCase(cp);
 
 		if (tCase == 1)
@@ -632,11 +621,6 @@ public class mxVsdxTextParser
 			text = mxVsdxUtils.toInitialCapital(text);
 		}
 		
-		if (smallCap)
-		{
-			text = mxVsdxUtils.toSmallCaps(text, this.getTextSize(cp));
-		}
-
 		if (pos == 1)
 		{
 			text = mxVsdxUtils.surroundByTags(text, "sup");
@@ -646,25 +630,11 @@ public class mxVsdxTextParser
 			text = mxVsdxUtils.surroundByTags(text, "sub");
 		}
 		
-		if (bold)
-		{
-			text = mxVsdxUtils.surroundByTags(text, "b");
-		}
-		
-		if (italic)
-		{
-			text = mxVsdxUtils.surroundByTags(text, "i");
-		}
-		
-		if (underline)
-		{
-			text = mxVsdxUtils.surroundByTags(text, "u");
-		}
-		
-		if (strike)
-		{
-			text = mxVsdxUtils.surroundByTags(text, "s");
-		}
+		text = this.isBold(cp) ? mxVsdxUtils.surroundByTags(text, "b") : text;
+		text = this.isItalic(cp) ? mxVsdxUtils.surroundByTags(text, "i") : text;
+		text = this.isUnderline(cp) ? mxVsdxUtils.surroundByTags(text, "u") : text;
+		text = this.isStrikeThru(cp) ? mxVsdxUtils.surroundByTags(text, "s") : text;
+		text = this.isSmallCaps(cp) ? mxVsdxUtils.toSmallCaps(text, this.getTextSize(cp)) : text;
 
 		ret += "<font style=\"" + size + font + color + direction + space + "\">" + text + "</font>";
 		return ret;
