@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -25,17 +24,11 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxGraphMlCodec;
 import com.mxgraph.io.mxVsdxCodec;
 import com.mxgraph.io.gliffy.importer.GliffyDiagramConverter;
-import com.mxgraph.model.mxIGraphModel;
-import com.mxgraph.util.mxRectangle;
-import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphHeadless;

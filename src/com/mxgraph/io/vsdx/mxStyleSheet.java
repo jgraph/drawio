@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
  * All  method that recieve a index like param ignores it. Stylesheets only have
  * one element of each class.
  */
-public class mxStyleSheet extends mxMasterShape
+public class mxStyleSheet extends Shape
 {
 	public mxStyleSheet(Element s, mxVsdxModel model)
 	{

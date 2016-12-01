@@ -80,10 +80,12 @@ public class GliffyDiagramConverter
 	private void start()
 	{
 		// creates a diagram object from the JSON string
-		this.gliffyDiagram = new GsonBuilder().create().fromJson(diagramString, Diagram.class);
+		this.gliffyDiagram = new GsonBuilder().create().fromJson(diagramString,
+				Diagram.class);
 
-		collectVerticesAndConvert(vertices, gliffyDiagram.stage.getObjects(), null);
-		
+		collectVerticesAndConvert(vertices, gliffyDiagram.stage.getObjects(),
+				null);
+
 		//sort objects by the order specified in the Gliffy diagram
 		sortObjectsByOrder(gliffyDiagram.stage.getObjects());
 
@@ -109,7 +111,7 @@ public class GliffyDiagramConverter
 	private void importObject(GliffyObject obj, GliffyObject gliffyParent)
 	{
 		mxCell parent = gliffyParent != null ? gliffyParent.mxObject : null;
-		
+
 		drawioDiagram.addCell(obj.mxObject, parent);
 
 		if (obj.hasChildren())
@@ -120,19 +122,21 @@ public class GliffyDiagramConverter
 				// their order value is "auto"
 				sortObjectsByOrder(obj.children);
 			}
-			
-			for (GliffyObject child : obj.children) {
+
+			for (GliffyObject child : obj.children)
+			{
 				importObject(child, obj);
 			}
 		}
-		
+
 		if (obj.isLine())
 		{
 			// gets the terminal cells for the edge
 			mxCell startTerminal = getTerminalCell(obj, true);
 			mxCell endTerminal = getTerminalCell(obj, false);
 
-			drawioDiagram.addCell(obj.getMxObject(), parent, null, startTerminal, endTerminal);
+			drawioDiagram.addCell(obj.getMxObject(), parent, null,
+					startTerminal, endTerminal);
 
 			setWaypoints(obj, startTerminal, endTerminal);
 		}
@@ -140,31 +144,32 @@ public class GliffyDiagramConverter
 
 	private void sortObjectsByOrder(Collection<GliffyObject> values)
 	{
-		Collections.sort((List<GliffyObject>) values, new Comparator<GliffyObject>()
-		{
-			public int compare(GliffyObject o1, GliffyObject o2)
-			{
-				Float o1o;
-				Float o2o;
-				try
+		Collections.sort((List<GliffyObject>) values,
+				new Comparator<GliffyObject>()
 				{
-					if (o1.order == null || o2.order == null)
+					public int compare(GliffyObject o1, GliffyObject o2)
 					{
-						return 0;
+						Float o1o;
+						Float o2o;
+						try
+						{
+							if (o1.order == null || o2.order == null)
+							{
+								return 0;
+							}
+
+							o1o = Float.parseFloat(o1.order);
+							o2o = Float.parseFloat(o2.order);
+
+							return o1o.compareTo(o2o);
+						}
+						catch (NumberFormatException e)
+						{
+							return o1.order.compareTo(o2.order);
+						}
+
 					}
-
-					o1o = Float.parseFloat(o1.order);
-					o2o = Float.parseFloat(o2.order);
-					
-					return o1o.compareTo(o2o);
-				}
-				catch (NumberFormatException e)
-				{
-					return o1.order.compareTo(o2.order);
-				} 
-
-			}
-		});
+				});
 	}
 
 	private mxCell getTerminalCell(GliffyObject gliffyEdge, boolean start)
@@ -176,25 +181,27 @@ public class GliffyDiagramConverter
 			return null;
 		}
 
-		Constraint con = start ? cons.getStartConstraint() : cons.getEndConstraint();
+		Constraint con = start ? cons.getStartConstraint()
+				: cons.getEndConstraint();
 
 		if (con == null)
 		{
 			return null;
 		}
 
-		ConstraintData cst = start ? con.getStartPositionConstraint() : con.getEndPositionConstraint();
+		ConstraintData cst = start ? con.getStartPositionConstraint()
+				: con.getEndPositionConstraint();
 		int nodeId = cst.getNodeId();
 		GliffyObject gliffyEdgeTerminal = vertices.get(nodeId);
-		
+
 		//edge could be terminated with another edge, so import it as a dangling edge
-		if(gliffyEdgeTerminal == null)
+		if (gliffyEdgeTerminal == null)
 		{
 			return null;
 		}
-		
+
 		mxCell mxEdgeTerminal = gliffyEdgeTerminal.getMxObject();
-		
+
 		return mxEdgeTerminal;
 	}
 
@@ -205,14 +212,15 @@ public class GliffyDiagramConverter
 	 * @param startTerminal starting point
 	 * @param endTerminal ending point
 	 */
-	private void setWaypoints(GliffyObject object, mxCell startTerminal, mxCell endTerminal)
+	private void setWaypoints(GliffyObject object, mxCell startTerminal,
+			mxCell endTerminal)
 	{
 		mxCell cell = object.getMxObject();
 		mxGeometry geo = drawioDiagram.getModel().getGeometry(cell);
 		geo.setRelative(true);
 
 		List<float[]> points = object.getGraphic().getLine().controlPath;
-		
+
 		if (points.size() < 2)
 		{
 			return;
@@ -222,7 +230,8 @@ public class GliffyDiagramConverter
 
 		for (float[] point : points)
 		{
-			mxPoints.add(new mxPoint((int) point[0] + (int) object.x, (int) point[1] + (int) object.y));
+			mxPoints.add(new mxPoint((int) point[0] + (int) object.x,
+					(int) point[1] + (int) object.y));
 		}
 
 		if (startTerminal == null)
@@ -245,26 +254,27 @@ public class GliffyDiagramConverter
 		}
 
 		drawioDiagram.getModel().setGeometry(cell, geo);
-		
+
 	}
 
 	/**
 	 * Creates a map of all vertices so they can be easily accessed when looking
 	 * up terminal cells for edges
 	 */
-	private void collectVerticesAndConvert(Map<Integer, GliffyObject> vertices, Collection<GliffyObject> objects, GliffyObject parent)
+	private void collectVerticesAndConvert(Map<Integer, GliffyObject> vertices,
+			Collection<GliffyObject> objects, GliffyObject parent)
 	{
 		for (GliffyObject object : objects)
 		{
 			object.parent = parent;
-			
+
 			convertGliffyObject(object, parent);
-			
-			if(!object.isLine())
+
+			if (!object.isLine())
 			{
 				vertices.put(object.id, object);
 			}
-			
+
 			// don't collect for swimlanes and mindmaps, their children are treated differently
 			if (object.isGroup() || (object.isLine() && object.hasChildren()))
 			{
@@ -284,21 +294,15 @@ public class GliffyDiagramConverter
 		mxCodec codec = new mxCodec();
 		Element node = (Element) codec.encode(drawioDiagram.getModel());
 		node.setAttribute("style", "default-style2");
-		node.setAttribute("background", gliffyDiagram.stage.getBackgroundColor());
+		node.setAttribute("background",
+				gliffyDiagram.stage.getBackgroundColor());
 		node.setAttribute("grid", gliffyDiagram.stage.isGridOn() ? "1" : "0");
-		node.setAttribute("guides", gliffyDiagram.stage.isDrawingGuidesOn() ? "1" : "0");
+		node.setAttribute("guides",
+				gliffyDiagram.stage.isDrawingGuidesOn() ? "1" : "0");
 		String xml = mxXmlUtils.getXml(node);
 		return xml;
 	}
 
-	/**
-	 * Returns true if the gradient is ignored for this shape.
-	 */
-	private boolean isGradientIgnored(GliffyObject gliffyObject, GliffyObject parent)
-	{
-		return false; //gliffyObject.tid == null || gliffyObject.tid.startsWith("com.gliffy.shape.venn.outline.default");
-	}
-	
 	/**
 	 * Performs the object conversion
 	 * 
@@ -355,13 +359,13 @@ public class GliffyDiagramConverter
 				if(style.lastIndexOf("strokeColor") == -1)
 					style.append("strokeColor=" + shape.strokeColor).append(";");
 
-				if (shape.gradient && !isGradientIgnored(gliffyObject, parent))
+				if (shape.gradient && !gliffyObject.isGradientIgnored())
 				{
-					style.append("gradientColor=#FFFFFF;gradientDirection=north;");
+					style.append("gradientColor=" + gliffyObject.getGradientColor() + ";gradientDirection=north;");
 				}
 
 				// opacity value is wrong for venn circles, so ignore it and use the one in the mapping
-				if (!gliffyObject.isVennsCircle())
+				if (!gliffyObject.isVennCircle())
 				{
 					style.append("opacity=" + shape.opacity * 100).append(";");
 					style.append(DashStyleMapping.get(shape.dashStyle));

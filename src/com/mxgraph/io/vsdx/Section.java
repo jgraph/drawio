@@ -17,21 +17,16 @@ public class Section
 		this.elem = elem;
 	}
 	
-	public Element getCell(String[] keys)
+	public Element getIndexedCell(Integer index, String cellKey)
 	{
-		if (keys == null || keys.length != 3)
-		{
-			return null;
-		}
-		
 		ArrayList<Element> rows = mxVsdxUtils.getDirectChildNamedElements(this.elem, "row");
 		
 		for (int i=0; i < rows.size(); i++)
 		{
 			Element row = rows.get(i);
-			String n = row.getAttribute("N");
+			String n = row.getAttribute("ix");
 			
-			if (n.equals(keys[1]))
+			if (n.equals(index))
 			{
 				ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(row, "cell");
 				
@@ -40,7 +35,7 @@ public class Section
 					Element cell = cells.get(j);
 					n = cell.getAttribute("N");
 
-					if (n.equals(keys[2]))
+					if (n.equals(cellKey))
 					{
 						return cell;
 					}

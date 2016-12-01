@@ -26,13 +26,13 @@ public class mxVsdxMaster
 	 */
 	protected String Id = null;
 	
-	protected mxMasterShape masterShape = null;
+	protected Shape masterShape = null;
 	
 	/*
 	 * Map that contains the shapes in Master element wrapped for instances of mxDelegateShape.
 	 * The key is the shape's ID.
 	 */
-	protected HashMap<String, mxMasterShape> childShapes = new HashMap<String, mxMasterShape>();
+	protected HashMap<String, Shape> childShapes = new HashMap<String, Shape>();
 
 	/**
 	 * Create a new instance of mxMasterElement and retrieves all the shapes contained
@@ -113,7 +113,7 @@ public class mxVsdxMaster
 					{
 						Element shape = (Element)shapesChild;
 						String shapeId = shape.getAttribute("ID");
-						mxMasterShape masterShape = new mxMasterShape(shape, model);
+						Shape masterShape = new Shape(shape, model);
 						this.masterShape = (this.masterShape == null) ? masterShape : this.masterShape;
 						childShapes.put(shapeId, masterShape);
 						processMasterShape(shape, model);
@@ -133,7 +133,7 @@ public class mxVsdxMaster
 	 * Returns the first shape in the Master
 	 * @return First shape in the Master wrapped in a instance of mxMasterShape
 	 */
-	public mxMasterShape getMasterShape()
+	public Shape getMasterShape()
 	{
 		return this.masterShape;
 	}
@@ -143,7 +143,7 @@ public class mxVsdxMaster
 	 * @param id Shape's ID
 	 * @return The shape in the master element with ID = 'id' wrapped in a instance of mxMasterShape
 	 */
-	public mxMasterShape getSubShape(String id)
+	public Shape getSubShape(String id)
 	{
 		return childShapes.get(id);
 	}

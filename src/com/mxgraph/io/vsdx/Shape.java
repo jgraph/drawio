@@ -13,11 +13,17 @@ import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.mxVsdxCodec;
 
-public class Shape extends Style {
-
+public class Shape extends Style
+{
+	/**
+	 * The text element of the shape, if any
+	 */
+	protected Element text;
+	
 	protected double width = 0;
 	
 	protected double height = 0;
@@ -147,6 +153,10 @@ public class Shape extends Style {
 				
 				fdChild = fdChild.getNextSibling();
 			}
+		}
+		else if (childName.equals(mxVsdxConstants.TEXT))
+		{
+			this.text = elem;
 		}
 	}
 
@@ -874,6 +884,24 @@ public class Shape extends Style {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Returns the value of the Text element.
+	 * @return Value of the Text element.
+	 */
+	public String getText()
+	{
+		return this.text != null ? text.getTextContent() : null;
+	}
+
+	/**
+	 * Returns the children Nodes of Text.
+	 * @return List with the children of the Text element.
+	 */
+	public NodeList getTextChildren()
+	{
+		return this.text != null ? text.getChildNodes() : null;
 	}
 
 	/**

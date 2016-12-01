@@ -20,7 +20,7 @@ public class mxVsdxConstants
 	public static String BOTTOM_MARGIN = "BottomMargin";
 	public static String BULLET = "Bullet";
 	public static String CASE = "Case";
-	public static String CHAR = "Char";
+	public static String CHARACTER = "Character";
 	public static String COLOR = "Color";
 	public static String COLOR_ENTRY = "ColorEntry";
 	public static String COLORS = "Colors";

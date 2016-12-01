@@ -136,24 +136,6 @@ public class mxVsdxUtils
 	}
 
 	/**
-	 * Map the child of parent using node name as key
-	 * @param parent parent whose children will be mapped
-	 * @return Map of (NodeName, child)
-	 */
-	public static List<Node> copyNodeList(NodeList nodeList)
-	{
-		ArrayList<Node> copy = new ArrayList<Node>();
-		int length = nodeList.getLength();
-
-		for (int i = 0; i < length; i++)
-		{
-			copy.add((Node) nodeList.item(i));
-		}
-
-		return copy;
-	}
-
-	/**
 	 * Returns a collection of direct child Elements that match the specified tag name
 	 * @param parent the parent whose direct children will be processed
 	 * @param name the child tag name to match
