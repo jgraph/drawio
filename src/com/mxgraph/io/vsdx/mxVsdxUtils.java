@@ -5,19 +5,16 @@
 package com.mxgraph.io.vsdx;
 
 import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * General utilities for .vdx format support
@@ -31,109 +28,6 @@ public class mxVsdxUtils
 	public static final double conversionFactor = screenCoordinatesPerCm * CENTIMETERS_PER_INCHES;
 	
 	private static final Logger log = Logger.getLogger(mxVsdxUtils.class.getName());
-
-	/**
-	 * Checks if the NodeList has a Node with name = tag.
-	 * @param nl NodeList
-	 * @param tag Name of the node.
-	 * @return Returns <code>true</code> if the Node List has a Node with name = tag.
-	 */
-	public static boolean nodeListHasTag(NodeList nl, String tag)
-	{
-		boolean has = false;
-
-		if (nl != null)
-		{
-			int length = nl.getLength();
-
-			for (int i = 0; (i < length) && !has; i++)
-			{
-				has = (nl.item(i)).getNodeName().equals(tag);
-			}
-		}
-
-		return has;
-	}
-
-	/**
-	 * Returns the first Element that has name = tag in Node List.
-	 * @param nl NodeList
-	 * @param tag Name of the Element
-	 * @return Element with name = 'tag'.
-	 */
-	public static Element nodeListTag(NodeList nl, String tag)
-	{
-		if (nl != null)
-		{
-			int length = nl.getLength();
-			boolean has = false;
-
-			for (int i = 0; (i < length) && !has; i++)
-			{
-				has = (nl.item(i)).getNodeName().equals(tag);
-
-				if (has)
-				{
-					return (Element) nl.item(i);
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns the  Element that has name = tag and Index = ix in Node List.
-	 * @param nl NodeList
-	 * @param tag name of the Element
-	 * @return Element that has name = tag and Index = ix in Node List..
-	 */
-	public static Element nodeListTagIndexed(NodeList nl, String tag, String ix)
-	{
-		if (nl != null)
-		{
-			int length = nl.getLength();
-			boolean has = false;
-
-			for (int i = 0; (i < length) && !has; i++)
-			{
-				has = (nl.item(i)).getNodeName().equals(tag) && ((Element) (nl.item(i))).getAttribute("IX").equals(ix);
-
-				if (has)
-				{
-					return (Element) nl.item(i);
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns a list with the elements included in the Node List that have name = tag.
-	 * @param nl NodeList
-	 * @param tag name of the Element.
-	 * @return List with the indicated elements.
-	 */
-	public static List<Element> nodeListTags(NodeList nl, String tag)
-	{
-		ArrayList<Element> ret = new ArrayList<Element>();
-
-		if (nl != null)
-		{
-			int length = nl.getLength();
-
-			for (int i = 0; i < length; i++)
-			{
-				if (tag.equals((nl.item(i)).getNodeName()))
-				{
-					ret.add((Element) nl.item(i));
-				}
-			}
-		}
-
-		return ret;
-	}
 
 	/**
 	 * Returns a collection of direct child Elements that match the specified tag name
@@ -284,43 +178,6 @@ public class mxVsdxUtils
 		return styleMap;
 	}
 
-	/**
-	 * Print a list of mxPoint in the standard output.
-	 * @param list Lis of mxPoint.
-	 */
-	public static void printPointList(List<mxPoint> list)
-	{
-		int i = 0;
-
-		for (mxPoint p : list)
-		{
-			i++;
-			System.out.println("Point " + i + " X=" + p.getX() + ", Y="	+ p.getY());
-		}
-	}
-
-	/**
-	 * Creates an array with the cells contained in the map, ordered according
-	 * the order of the keys in orderList.
-	 * @param orderList List of keys in the order desired.
-	 * @param map Map with the object to be put in the array.
-	 * @return Array with the cells.
-	 */
-	public static Object[] getOrderArray(List<ShapePageId> orderList, HashMap<ShapePageId, Object> map)
-	{
-		int length = orderList.size();
-		Object[] array = new Object[length];
-		int i = 0;
-
-		for (ShapePageId key : orderList)
-		{
-			array[i] = map.get(key);
-			i++;
-		}
-
-		return array;
-	}
-	
 	public static boolean isInsideTriangle(double x, double y, double ax, double ay, double bx, double by, double cx,  double cy)
 	{
 		bx = bx - ax;

@@ -44,8 +44,8 @@ public class Utils
 	public static String inflate(byte[] binary) throws IOException
 	{
 		StringBuffer result = new StringBuffer();
-		InputStream in = new InflaterInputStream(new ByteArrayInputStream(
-				binary), new Inflater(true));
+		InputStream in = new InflaterInputStream(
+				new ByteArrayInputStream(binary), new Inflater(true));
 
 		while (in.available() != 0)
 		{
@@ -76,18 +76,19 @@ public class Utils
 		Deflater deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
 		byte[] inBytes = inString.getBytes("UTF-8");
 		deflater.setInput(inBytes);
-		
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(inBytes.length);   	
-		deflater.finish();  
-		byte[] buffer = new byte[IO_BUFFER_SIZE];   
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(
+				inBytes.length);
+		deflater.finish();
+		byte[] buffer = new byte[IO_BUFFER_SIZE];
 
 		while (!deflater.finished())
-		{  
+		{
 			int count = deflater.deflate(buffer); // returns the generated code... index  
-			outputStream.write(buffer, 0, count);   
-		}  
+			outputStream.write(buffer, 0, count);
+		}
 
-		outputStream.close();  
+		outputStream.close();
 		byte[] output = outputStream.toByteArray();
 
 		return output;
@@ -99,8 +100,7 @@ public class Utils
 	 * @param out the output stream
 	 * @throws IOException
 	 */
-	public static void copy(InputStream in, OutputStream out)
-			throws IOException
+	public static void copy(InputStream in, OutputStream out) throws IOException
 	{
 		copy(in, out, IO_BUFFER_SIZE);
 	}
@@ -159,21 +159,89 @@ public class Utils
 	  */
 	public static String encodeURIComponent(String s, String charset)
 	{
-		String result = null;
-
-		try
+		if (s == null)
 		{
-			result = URLEncoder.encode(s, charset).replaceAll("\\+", "%20")
-					.replaceAll("\\%21", "!").replaceAll("\\%28", "(")
-					.replaceAll("\\%29", ")").replaceAll("\\%7E", "~");
+			return null;
 		}
-
-		// This exception should never occur.
-		catch (UnsupportedEncodingException e)
+		else
 		{
-			result = s;
-		}
+			String result;
 
-		return result;
+			try
+			{
+				result = URLEncoder.encode(s, charset).replaceAll("\\+", "%20")
+						.replaceAll("\\%21", "!").replaceAll("\\%28", "(")
+						.replaceAll("\\%29", ")").replaceAll("\\%7E", "~");
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// This exception should never occur
+				result = s;
+			}
+
+			return result;
+		}
 	}
+
+	/**
+	 * <p>Removes one newline from end of a String if it's there,
+	 * otherwise leave it alone.  A newline is &quot;{@code \n}&quot;,
+	 * &quot;{@code \r}&quot;, or &quot;{@code \r\n}&quot;.</p>
+	 *
+	 * <p>Borrowed from Apache Commons Lang 3.5</p>
+	 *
+	 * <pre>
+	 * StringUtils.chomp(null)          = null
+	 * StringUtils.chomp("")            = ""
+	 * StringUtils.chomp("abc \r")      = "abc "
+	 * StringUtils.chomp("abc\n")       = "abc"
+	 * StringUtils.chomp("abc\r\n")     = "abc"
+	 * StringUtils.chomp("abc\r\n\r\n") = "abc\r\n"
+	 * StringUtils.chomp("abc\n\r")     = "abc\n"
+	 * StringUtils.chomp("abc\n\rabc")  = "abc\n\rabc"
+	 * StringUtils.chomp("\r")          = ""
+	 * StringUtils.chomp("\n")          = ""
+	 * StringUtils.chomp("\r\n")        = ""
+	 * </pre>
+	 *
+	 * @param str  the String to chomp a newline from, may be null
+	 * @return String without newline, {@code null} if null String input
+	 */
+	public static String chomp(final String str)
+	{
+		if (str.isEmpty())
+		{
+			return str;
+		}
+
+		if (str.length() == 1)
+		{
+			final char ch = str.charAt(0);
+
+			if (ch == '\r' || ch == '\n')
+			{
+				return "";
+			}
+
+			return str;
+		}
+
+		int lastIdx = str.length() - 1;
+		final char last = str.charAt(lastIdx);
+
+		if (last == '\n')
+		{
+			if (str.charAt(lastIdx - 1) == '\r')
+			{
+				lastIdx--;
+			}
+		}
+		else if (last != '\r')
+		{
+			lastIdx++;
+		}
+
+		return str.substring(0, lastIdx);
+	}
+
 }

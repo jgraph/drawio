@@ -849,8 +849,8 @@ var EmbedHtmlDialog = function(editorUi)
 	editCheckBox.setAttribute('checked', 'checked');
 	editCheckBox.defaultChecked = true;
 	editCheckBox.style.marginLeft = '10px';
-	//options.appendChild(editCheckBox);
-	//mxUtils.write(options, mxResources.get('edit'));
+	options.appendChild(editCheckBox);
+	mxUtils.write(options, mxResources.get('edit'));
 
 	var layersCheckBox = document.createElement('input');
 	layersCheckBox.setAttribute('type', 'checkbox');
@@ -1021,7 +1021,7 @@ var EmbedHtmlDialog = function(editorUi)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://support.draw.io/pages/viewpage.action?pageId=12878123');
+			window.open('https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-');
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -1171,7 +1171,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 
 	var shadowCheckBox = document.createElement('input');
 	shadowCheckBox.setAttribute('type', 'checkbox');
-	shadowCheckBox.style.marginLeft = '30px';
+	shadowCheckBox.style.marginLeft = '10px';
 	
 	if (graph.shadowVisible)
 	{
@@ -1187,7 +1187,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	
 	var imageCheckBox = document.createElement('input');
 	imageCheckBox.setAttribute('type', 'checkbox');
-	imageCheckBox.style.marginLeft = '30px';
+	imageCheckBox.style.marginLeft = '10px';
 	
 	if (!isImage)
 	{
@@ -1197,7 +1197,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	
 	var retinaCheckBox = document.createElement('input');
 	retinaCheckBox.setAttribute('type', 'checkbox');
-	retinaCheckBox.style.marginLeft = '30px';
+	retinaCheckBox.style.marginLeft = '10px';
 	
 	if (isImage)
 	{
@@ -1209,13 +1209,21 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	lightboxCheckBox.setAttribute('type', 'checkbox');
 	lightboxCheckBox.setAttribute('checked', 'checked');
 	lightboxCheckBox.defaultChecked = true;
-	lightboxCheckBox.style.marginLeft = '30px';
+	lightboxCheckBox.style.marginLeft = '10px';
 	options.appendChild(lightboxCheckBox);
 	mxUtils.write(options, mxResources.get('lightbox'));
 	
+	var editCheckBox = document.createElement('input');
+	editCheckBox.setAttribute('type', 'checkbox');
+	editCheckBox.setAttribute('checked', 'checked');
+	editCheckBox.defaultChecked = true;
+	editCheckBox.style.marginLeft = '10px';
+	options.appendChild(editCheckBox);
+	mxUtils.write(options, mxResources.get('edit'));
+
 	var layersCheckBox = document.createElement('input');
 	layersCheckBox.setAttribute('type', 'checkbox');
-	layersCheckBox.style.marginLeft = '30px';
+	layersCheckBox.style.marginLeft = '10px';
 	
 	var model = editorUi.editor.graph.getModel();
 	
@@ -1250,7 +1258,8 @@ var EmbedSvgDialog = function(editorUi, isImage)
 				{
 					// KNOWN: Message passing does not seem to work in IE11
 					onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0&edit=_blank" +
+						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+						((editCheckBox.checked) ? "&edit=_blank" : "") +
 						((layersCheckBox.checked) ? '&layers=1' : '') + "');}})(this);\"";
 					css += 'cursor:pointer;';
 				}
@@ -1388,7 +1397,8 @@ var EmbedSvgDialog = function(editorUi, isImage)
 				{
 					// KNOWN: Message passing does not seem to work in IE11
 					onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0&edit=_blank" +
+						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+						((editCheckBox.checked) ? "&edit=_blank" : "") +
 						((layersCheckBox.checked) ? '&layers=1' : '') + "');}})(this);\"";
 					css += 'cursor:pointer;';
 				}
@@ -1423,7 +1433,8 @@ var EmbedSvgDialog = function(editorUi, isImage)
 						"svg.getAttribute('content')),'*');window.removeEventListener('message',r);}};" +
 						"window.addEventListener('message',r);" +
 						// Opens lightbox window
-						"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0&edit=_blank" +
+						"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+						((editCheckBox.checked) ? "&edit=_blank" : "") +
 						((layersCheckBox.checked) ? '&layers=1' : '') + "');}}})(this);";
 					svgRoot.setAttribute('onclick', js);
 					css += 'cursor:pointer;';
@@ -1470,6 +1481,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	mxEvent.addListener(shadowCheckBox, 'change', update);
 	mxEvent.addListener(fitCheckBox, 'change', update);
 	mxEvent.addListener(lightboxCheckBox, 'change', update);
+	mxEvent.addListener(editCheckBox, 'change', update);
 	mxEvent.addListener(layersCheckBox, 'change', update);
 	
 	var buttons = document.createElement('div');
@@ -1480,7 +1492,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://support.draw.io/pages/viewpage.action?pageId=12222606');
+			window.open('https://desk.draw.io/solution/articles/16000042548-how-to-embed-svg-');
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -6319,6 +6331,388 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	div.appendChild(tb);
 
 	this.container = div;
+};
+
+/**
+ * 
+ */
+var FindWindow = function(ui, x, y, w, h)
+{
+	var action = ui.actions.get('find');
+	var graph = ui.editor.graph;
+	var lastSearch = null;
+	var lastFound = null;
+
+	var div = document.createElement('div');
+	div.style.userSelect = 'none';
+	div.style.overflow = 'hidden';
+	div.style.padding = '10px';
+	div.style.height = '100%';
+
+	var searchInput = document.createElement('input');
+	searchInput.setAttribute('placeholder', mxResources.get('find'));
+	searchInput.setAttribute('type', 'text');
+	searchInput.style.marginTop = '4px';
+	searchInput.style.width = '170px';
+	searchInput.style.fontSize = '12px';
+	searchInput.style.borderRadius = '4px';
+	searchInput.style.padding = '6px';
+	div.appendChild(searchInput);
+
+	var tmp = document.createElement('div');
+	
+	function testMeta(re, cell)
+	{
+		if (typeof cell.value === 'object' && cell.value.attributes != null)
+		{
+			var attrs = cell.value.attributes;
+			
+			for (var i = 0; i < attrs.length; i++)
+			{
+				if (attrs[i].nodeName != 'label' && re.test(attrs[i].nodeValue.toLowerCase()))
+				{
+					return true;
+				}	
+			}
+		}
+		
+		return false;
+	};
+	
+	function search()
+	{
+		var cells = graph.model.getDescendants(graph.model.getRoot());
+		var search = searchInput.value.toLowerCase();
+		var re = new RegExp(search);
+		var firstMatch = null;
+		
+		if (lastSearch != search)
+		{
+			lastSearch = search;
+			lastFound = null;
+		}
+
+		var active = lastFound == null;
+		
+		if (graph.isEnabled() && search.length > 0)
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				var state = graph.view.getState(cells[i]);
+				
+				if (state != null && state.cell.value != null && (active || firstMatch == null) &&
+					(graph.model.isVertex(state.cell) || graph.model.isEdge(state.cell)))
+				{
+					if (graph.isHtmlLabel(state.cell))
+					{
+						tmp.innerHTML = graph.getLabel(state.cell);
+						label = mxUtils.extractTextWithWhitespace([tmp]);
+					}
+					else
+					{					
+						label = graph.getLabel(state.cell);
+					}
+		
+					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
+					
+					if (re.test(label) || testMeta(re, state.cell))
+					{
+						if (active)
+						{
+							firstMatch = state;
+						
+							break;
+						}
+						else if (firstMatch == null)
+						{
+							firstMatch = state;
+						}
+					}
+				}
+	
+				active = active || state == lastFound;
+			}
+		}
+					
+		if (firstMatch != null)
+		{
+			lastFound = firstMatch;
+			graph.setSelectionCell(lastFound.cell);
+			graph.scrollCellToVisible(lastFound.cell);
+		}
+		else
+		{
+			graph.clearSelection();
+		}
+		
+		return !graph.isEnabled() || search.length == 0 || firstMatch != null;
+	};
+
+	mxUtils.br(div);
+
+	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
+	{
+		searchInput.value = '';
+		searchInput.style.backgroundColor = '';
+		lastFound = null;
+		lastSearch = null;
+		searchInput.focus();
+	});
+	
+	resetBtn.setAttribute('title', mxResources.get('reset'));
+	resetBtn.style.marginTop = '8px';
+	resetBtn.style.marginRight = '4px';
+	resetBtn.style.backgroundColor = '#f5f5f5';
+	resetBtn.style.backgroundImage = 'none';
+	resetBtn.className = 'geBtn';
+	
+	div.appendChild(resetBtn);
+
+	var btn = mxUtils.button(mxResources.get('find'), function()
+	{
+		searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+	});
+	
+	btn.setAttribute('title', mxResources.get('find') + ' (Enter)');
+	btn.style.marginTop = '8px';
+	btn.style.backgroundColor = '#4d90fe';
+	btn.style.backgroundImage = 'none';
+	btn.className = 'geBtn gePrimaryBtn';
+	
+	div.appendChild(btn);
+	
+	mxEvent.addListener(searchInput, 'keyup', function(evt)
+	{
+		// Ctrl or Cmd keys
+		if (evt.keyCode == 91 || evt.keyCode == 17)
+		{
+			// Workaround for lost focus on show
+			mxEvent.consume(evt);
+		}
+		else if (evt.keyCode == 27)
+		{
+			action.funct();
+		}
+		else if (lastSearch != searchInput.value.toLowerCase() || evt.keyCode == 13)
+		{
+			searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+		}
+	});
+
+	mxEvent.addListener(div, 'keydown', function(evt)
+	{
+		if (evt.keyCode == 70 && ui.keyHandler.isControlDown(evt) && !mxEvent.isShiftDown(evt))
+		{
+			action.funct();
+			mxEvent.consume(evt);
+		}
+	});
+
+	this.window = new mxWindow(mxResources.get('find'), div, x, y, w, h, true, true);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(false);
+	this.window.setClosable(true);
+	
+	this.window.addListener('show', mxUtils.bind(this, function()
+	{
+		if (this.window.isVisible())
+		{
+			searchInput.focus();
+			
+			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			{
+				searchInput.select();
+			}
+			else
+			{
+				document.execCommand('selectAll', false, null);
+			}
+		}
+		else
+		{
+			graph.container.focus();
+		}
+	}));
+};
+
+/**
+ * 
+ */
+var TagsWindow = function(editorUi, x, y, w, h)
+{
+	var graph = editorUi.editor.graph;
+	var propertyName = 'tags';
+
+	var div = document.createElement('div');
+	div.style.userSelect = 'none';
+	div.style.overflow = 'hidden';
+	div.style.padding = '10px';
+	div.style.height = '100%';
+	
+	var searchInput = document.createElement('input');
+	searchInput.setAttribute('placeholder', mxResources.get('allTags'));
+	searchInput.setAttribute('type', 'text');
+	searchInput.style.marginTop = '4px';
+	searchInput.style.width = '240px';
+	searchInput.style.fontSize = '12px';
+	searchInput.style.borderRadius = '4px';
+	searchInput.style.padding = '6px';
+	div.appendChild(searchInput);
+	
+	mxEvent.addListener(searchInput, 'dblclick', function()
+	{
+		var dlg = new FilenameDialog(editorUi, propertyName, mxResources.get('ok'), mxUtils.bind(this, function(name)
+		{
+			if (name != null && name.length > 0)
+			{
+				propertyName = name;
+			}
+		}), mxResources.get('enterPropertyName'));
+		editorUi.showDialog(dlg.container, 300, 80, true, true);
+		dlg.init();
+	});
+	
+	searchInput.setAttribute('title', mxResources.get('doubleClickChangeProperty'));
+
+	function searchCells(cells)
+	{
+		cells = (cells != null) ? cells : graph.model.getDescendants(graph.model.getRoot());
+		var tagList = searchInput.value.split(' ');
+		var result = [];
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (graph.model.isVertex(cells[i]) || graph.model.isEdge(cells[i]))
+			{
+				var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
+					mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
+				var match = true;
+
+				if (tags.length > 0)
+				{
+					var tmp = tags.toLowerCase().split(' ');
+					
+					for (var j = 0; j < tagList.length && match; j++)
+					{
+						var tag = mxUtils.trim(tagList[j]).toLowerCase();
+						
+						match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
+					}
+				}
+				else
+				{
+					match = mxUtils.trim(searchInput.value).length == 0;
+				}
+				
+				if (match)
+				{
+					result.push(cells[i]);
+				}
+			}
+		}
+		
+		return result;
+	};
+
+	function setCellsVisible(cells, visible)
+	{	
+		graph.model.beginUpdate();
+		try
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				graph.model.setVisible(cells[i], visible);
+			}
+		}
+		finally
+		{
+			graph.model.endUpdate();
+		}
+	};
+	
+	mxUtils.br(div);
+
+	var hideBtn = mxUtils.button(mxResources.get('hide'), function()
+	{
+		setCellsVisible(searchCells(), false);
+	});
+	
+	hideBtn.setAttribute('title', mxResources.get('hide'));
+	hideBtn.style.marginTop = '8px';
+	hideBtn.style.marginRight = '4px';
+	hideBtn.style.backgroundColor = '#f5f5f5';
+	hideBtn.style.backgroundImage = 'none';
+	hideBtn.className = 'geBtn';
+	
+	div.appendChild(hideBtn);
+
+	var showBtn = mxUtils.button(mxResources.get('show'), function()
+	{
+		var cells = searchCells();
+		setCellsVisible(cells, true);
+		graph.setSelectionCells(cells);
+	});
+	
+	showBtn.setAttribute('title', mxResources.get('show'));
+	showBtn.style.marginTop = '8px';
+	showBtn.style.marginRight = '4px';
+	showBtn.style.backgroundColor = '#f5f5f5';
+	showBtn.style.backgroundImage = 'none';
+	showBtn.className = 'geBtn';
+	
+	div.appendChild(showBtn);
+	
+	var action = editorUi.actions.get('tags');
+
+	var btn = mxUtils.button(mxResources.get('close'), function()
+	{
+		action.funct();
+	});
+	
+	btn.setAttribute('title', mxResources.get('close') + ' (Enter/Esc)');
+	btn.style.marginTop = '8px';
+	btn.style.backgroundColor = '#4d90fe';
+	btn.style.backgroundImage = 'none';
+	btn.className = 'geBtn gePrimaryBtn';
+	
+	div.appendChild(btn);
+		
+	mxEvent.addListener(searchInput, 'keyup', function(evt)
+	{
+		// Ctrl or Cmd keys
+		if (evt.keyCode == 13 || evt.keyCode == 27)
+		{
+			action.funct();
+		}
+	});
+
+	this.window = new mxWindow(mxResources.get('tags'), div, x, y, w, h, true, true);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(false);
+	this.window.setClosable(true);
+	
+	this.window.addListener('show', mxUtils.bind(this, function()
+	{
+		if (this.window.isVisible())
+		{
+			searchInput.focus();
+			
+			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			{
+				searchInput.select();
+			}
+			else
+			{
+				document.execCommand('selectAll', false, null);
+			}
+		}
+		else
+		{
+			graph.container.focus();
+		}
+	}));
 };
 
 /**

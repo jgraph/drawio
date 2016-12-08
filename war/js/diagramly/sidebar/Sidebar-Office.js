@@ -975,7 +975,7 @@
 			this.createVertexTemplateEntry(s + 'domain_controller;',
 					w * 45, h * 55, '', 'Domain Controller', null, null, this.getTagsForStencil(gn, 'domain controller', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'excahnge_client_access_server_role;',
-					w * 52, h * 59, '', 'Excahnge Client Access Server Role', null, null, this.getTagsForStencil(gn, 'excahnge client access server role', dt).join(' ')),
+					w * 52, h * 59, '', 'Exchange Client Access Server Role', null, null, this.getTagsForStencil(gn, 'excahnge client access server role', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'exchange_edge_transport_server_role;',
 					w * 52, h * 55, '', 'Exchange Edge Transport Server Role', null, null, this.getTagsForStencil(gn, 'exchange edge transport server role', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'exchange_hub_transport_server_role;',

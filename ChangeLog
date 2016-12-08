@@ -1,3 +1,23 @@
+08-DEC-2016: 6.0.2.1
+
+- Adds edit option in HTML and SVG embed dialog
+- Moves tags, find plugins to editor
+- Uses mxGraph 3.7.0.0 beta 11
+- Fixes ignored width in viewer after page change
+- Adds number plugin for numbering shapes
+
+06-DEC-2016: 6.0.2.0
+
+- Stops allowing diagrams on new Conf Cloud pages
+- Fixes URL encoding for Conf Connect diagram names
+- Fixes page breaks, blank pages in PDF export
+- Fixes viewer in hidden containers for IE9-
+- Uses mxGraph 3.7.0.0 beta 10
+
+02-DEC-2016: 6.0.1.9
+
+- Adds context path to URL for Connect Rendermode
+
 01-DEC-2016: 6.0.1.8
 
 - Removes blocking DIV while inserting files

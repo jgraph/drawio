@@ -6,6 +6,19 @@
 		var isLocalStorage = false;
 		var mxLoadStylesheets = false;
 	</script>
+	<!-- CSS for print output is needed for using current window -->
+	<style type="text/css">
+		@media print {
+		  table.mxPageSelector { display: none; }
+		  hr.mxPageBreak { display: none; }
+		}
+		@media screen {
+		  table.mxPageSelector { position: fixed; right: 10px; top: 10px;font-family: Arial; font-size:10pt; border: solid 1px darkgray;background: white; border-collapse:collapse; }
+		  table.mxPageSelector td { border: solid 1px gray; padding:4px; }
+		  body.mxPage { background: gray; }
+		}
+	</style>
+	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
 	<script>
 		// NOTE: SVG Output fixes missing symbols in AsciiMath
