@@ -42,21 +42,6 @@ public class mxPropertiesManager
 	private HashMap<String, String> fontElementMap = new HashMap<String, String>();
 
 	/**
-	 * Stylesheet with the default text style.
-	 */
-	private mxStyleSheet textStyle;
-
-	/**
-	 * Stylesheet with the default line style.
-	 */
-	private mxStyleSheet lineStyle;
-
-	/**
-	 * Stylesheet with the default fill style.
-	 */
-	private mxStyleSheet fillStyle;
-
-	/**
 	 * Best guess at default colors if 0-23 are missing in the document (seems to always be the case for vsdx)
 	 */
 	private static final Map<String, String> defaultColors = new HashMap<String, String>();
@@ -132,20 +117,6 @@ public class mxPropertiesManager
 					fontElementMap.put(fontId, fontValue);
 				}
 			}
-	
-			//Loads the defaults documents styles.
-			NodeList vdxDocumentStyle = elem.getElementsByTagName(mxVsdxConstants.DOCUMENT_SHEET);
-			
-			if (vdxDocumentStyle.getLength() > 0)
-			{
-				Element defaultStyle = (Element) vdxDocumentStyle.item(0);
-				String lineId = defaultStyle.getAttribute(mxVsdxConstants.LINE_STYLE);
-				String fillId = defaultStyle.getAttribute(mxVsdxConstants.FILL_STYLE);
-				String textId = defaultStyle.getAttribute(mxVsdxConstants.TEXT_STYLE);
-				lineStyle = model.getStylesheet(lineId);
-				fillStyle = model.getStylesheet(fillId);
-				textStyle = model.getStylesheet(textId);
-			}
 		}
 	}
 
@@ -188,32 +159,5 @@ public class mxPropertiesManager
 		{
 			return font;
 		}
-	}
-
-	/**
-	 * Returns the default fill style.
-	 * @return Stylesheet with the default fill style wrapped in an instance of mxStyleSheet.
-	 */
-	public mxStyleSheet getFillStyle()
-	{
-		return fillStyle;
-	}
-
-	/**
-	 * Returns the default line style.
-	 * @return Stylesheet with the default line style wrapped in an instance of mxStyleSheet.
-	 */
-	public mxStyleSheet getLineStyle()
-	{
-		return lineStyle;
-	}
-
-	/**
-	 * Returns the default text style.
-	 * @return Stylesheet with the default text style wrapped in an instance of mxStyleSheet.
-	 */
-	public mxStyleSheet getTextStyle()
-	{
-		return textStyle;
 	}
 }

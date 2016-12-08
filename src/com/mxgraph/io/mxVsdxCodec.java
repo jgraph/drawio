@@ -481,7 +481,7 @@ public class mxVsdxCodec
 
 		//styleMap.put(mxConstants.STYLE_FILLCOLOR, subShape2.getColor());
 		//TODO need to check if "shape=" should be added before the shape name (for "image", it should be skipped for example)
-		String style = ";" + mxVsdxUtils.getStyleString(styleMap, "=");
+		String style = mxVsdxUtils.getStyleString(styleMap, "=");
 
 		mxCell group = null;
 
@@ -640,7 +640,7 @@ public class mxVsdxCodec
 		if (geomExists || !textLabel.isEmpty() || shape.hasScratchControl()
 				|| shape.isDisplacedLabel())
 		{
-			String style = ";vsdx16Vertex;" + mxVsdxUtils.getStyleString(styleMap, "=");
+			String style = mxVsdxUtils.getStyleString(styleMap, "=");
 
 			mxCell v1 = null;
 
@@ -802,7 +802,7 @@ public class mxVsdxCodec
 				.getStyleFromEdgeShape(parentHeight);
 		//Insert new edge and set constraints.
 		Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source,
-				target, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
+				target, mxVsdxUtils.getStyleString(styleMap, "="));
 
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
@@ -861,7 +861,7 @@ public class mxVsdxCodec
 			//TODO add style numeric entries rounding option
 			
 			//Insert new edge and set constraints.
-			Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, ";" + mxVsdxUtils.getStyleString(styleMap, "="));
+			Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
 			mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 			edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
 			

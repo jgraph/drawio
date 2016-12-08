@@ -2184,6 +2184,12 @@ TextFormatPanel.prototype.addFont = function(container)
 	fontMenu.style.width = '192px';
 	fontMenu.style.height = '15px';
 	
+	// Workaround for offset in FF
+	if (mxClient.IS_FF)
+	{
+		fontMenu.getElementsByTagName('div')[0].style.marginTop = '-18px';
+	}
+	
 	var stylePanel2 = stylePanel.cloneNode(false);
 	stylePanel2.style.marginLeft = '-3px';
 	var fontStyleItems = this.editorUi.toolbar.addItems(['bold', 'italic', 'underline'], stylePanel2, true);

@@ -85,7 +85,7 @@ public class mxVsdxConstants
 	public static String PAGE_HEIGHT = "PageHeight";
 	public static String PAGE_WIDTH = "PageWidth";
 	public static String PAGES = "Pages";
-	public static String PARAGRAPH = "Para";
+	public static String PARAGRAPH = "Paragraph";
 	public static String PIN_X = "PinX";
 	public static String PIN_Y = "PinY";
 	public static String POS = "Pos";

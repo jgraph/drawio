@@ -151,7 +151,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
-	'tags': '/plugins/tags.js', 'sql': '/plugins/sql.js', 'find': '/plugins/find.js'};
+	'number': '/plugins/number.js', 'sql': '/plugins/sql.js'};
 
 /**
  * Function: authorize
@@ -3516,105 +3516,6 @@ App.prototype.save = function(name, done)
 			file.saveAs(name, success, error)
 		}
 	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.base64ToBlob = function(base64Data, contentType)
-{
-    contentType = contentType || '';
-    var sliceSize = 1024;
-    var byteCharacters = atob(base64Data);
-    var bytesLength = byteCharacters.length;
-    var slicesCount = Math.ceil(bytesLength / sliceSize);
-    var byteArrays = new Array(slicesCount);
-
-    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex)
-    {
-        var begin = sliceIndex * sliceSize;
-        var end = Math.min(begin + sliceSize, bytesLength);
-
-        var bytes = new Array(end - begin);
-        
-        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset)
-        {
-            bytes[i] = byteCharacters[offset].charCodeAt(0);
-        }
-        
-        byteArrays[sliceIndex] = new Uint8Array(bytes);
-    }
-
-    return new Blob(byteArrays, {type: contentType});
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.saveRequest = function(data, filename, format, fn)
-{
-	var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-	
-	var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
-	{
-		if (mode == '_blank' || newTitle != null && newTitle.length > 0)
-		{
-			var base64 = (mode == App.MODE_DEVICE || mode == null || mode == '_blank') ? '0' : '1';
-			var xhr = fn((mode == '_blank') ? null : newTitle, base64);
-			
-			if (mode == App.MODE_DEVICE || mode == '_blank')
-			{
-				xhr.simulate(document, '_blank');
-			}
-			else
-			{
-				this.pickFolder(mode, mxUtils.bind(this, function(folderId)
-				{
-					if (this.spinner.spin(document.body, mxResources.get('saving')))
-					{
-						// LATER: Catch possible mixed content error
-						// see http://stackoverflow.com/questions/30646417/catching-mixed-content-error
-						xhr.send(mxUtils.bind(this, function()
-						{
-							this.spinner.stop();
-							
-							if (xhr.getStatus() < 200 || xhr.getStatus() > 299)
-							{
-								this.handleError({message: mxResources.get('errorSavingFile')});
-							}
-							else
-							{
-								try
-								{
-									var mimeType = (format == 'pdf') ? 'application/pdf' : 'image/' + format;
-									this.exportFile(xhr.getText(), newTitle, mimeType, true, mode, folderId);
-								}
-								catch (e)
-								{
-									this.handleError(e);
-								}
-							}
-						}), function(resp)
-						{
-							this.spinner.stop();
-							this.handleError(resp);
-						});
-					}
-				}));
-			}
-		}
-	}), mxUtils.bind(this, function()
-	{
-		this.hideDialog();
-	}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
-	this.showDialog(dlg.container, 380, 270, true, true);
-	dlg.init();
 };
 
 /**
