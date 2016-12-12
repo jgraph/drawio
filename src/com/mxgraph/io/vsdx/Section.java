@@ -43,7 +43,9 @@ public class Section
 			Element row = rows.get(i);
 			String n = row.getAttribute("IX");
 			
-			if (n.equals(index))
+			// If index is null always match. For example, you can have a shape text with no paragraph index.
+			// When it checks the master shape the first paragraph should be used (or maybe the lowest index?)
+			if (n.equals(index) || index == null)
 			{
 				ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(row, "Cell");
 				

@@ -36,9 +36,21 @@ public class Shape extends Style
 	 */
 	Map<String, String> styleMap = new HashMap<String, String>();
 	
+	/**
+	 * Width of shape
+	 */
 	protected double width = 0;
 	
+	/**
+	 * Height of shape
+	 */
 	protected double height = 0;
+	
+	/**
+	 * Cumulative rotation of shape, including parents
+	 */
+	protected double rotation = 0;
+
 	protected double lastX = 0;
 	
 	protected double lastY = 0;
@@ -917,30 +929,12 @@ public class Shape extends Style
 	}
 
 	/**
-	 * Checks if the shape has defined a width element.
-	 * @return Returns <code>true</code> if the shape has defined a width element.
-	 */
-	public boolean hasWidth()
-	{
-		return hasProperty(mxVsdxConstants.X_FORM, mxVsdxConstants.WIDTH);
-	}
-
-	/**
 	 * Returns the value of the width element in pixels.
 	 * @return Numerical value of the width element.
 	 */
 	public double getWidth()
 	{
 		return this.width;
-	}
-
-	/**
-	 * Checks if the shape has defined a height element.
-	 * @return Returns <code>true</code> if the shape has defined a height element.
-	 */
-	public boolean hasHeight()
-	{
-		return hasProperty(mxVsdxConstants.X_FORM, mxVsdxConstants.HEIGHT);
 	}
 
 	/**
@@ -952,6 +946,15 @@ public class Shape extends Style
 		return this.height;
 	}
 	
+	/**
+	 * Returns the value of the rotation.
+	 * @return Numerical value of the rotation
+	 */
+	public double getRotation()
+	{
+		return this.rotation;
+	}
+
 	/**
 	 * Returns whether or not this shape has a geometry defined, locally
 	 * or inherited
@@ -1166,7 +1169,7 @@ public class Shape extends Style
 	{
 		String ret = "";
 		String color = "color:" + getTextColor(cp) + ";";
-		String size = "font-size:" + (Double.parseDouble(this.getTextSize(cp)) / 0.71) + "px;";
+		String size = "font-size:" + (Double.parseDouble(this.getTextSize(cp))) + "px;";
 		String font = "font-family:" + this.getTextFont(cp) + ";";
 		String direction = "direction:" + this.getRtlText(cp) + ";";
 		String space = "letter-spacing:" + (Double.parseDouble(this.getLetterSpace(cp)) / 0.71) + "px;";
@@ -1419,7 +1422,7 @@ public class Shape extends Style
 	public String getTextSize(String index)
 	{
 		Element sizeElem = getCellElement(mxVsdxConstants.SIZE, index, mxVsdxConstants.CHARACTER);
-		double size = getValueAsDouble(sizeElem, 12) * 0.71;
+		double size = getValueAsDouble(sizeElem, 12);
 		
 		return String.valueOf(size);
 	}

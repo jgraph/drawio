@@ -1,0 +1,117 @@
+<shapes name="mxGraph.rack.APC">
+    <shape name="APC Smart UPS 1000-3000 VA 2U" h="29.75" w="160.85">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.85" h="29.75"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.83" y="0"/>
+                <line x="152.65" y="0"/>
+                <line x="152.65" y="11.97"/>
+                <arc rx="2.8" ry="2.8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.65" y="17.78"/>
+                <line x="152.65" y="29.75"/>
+                <line x="7.83" y="29.75"/>
+                <line x="7.83" y="17.78"/>
+                <arc rx="2.8" ry="2.8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.83" y="11.97"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <rect x="91.32" y="2.45" w="53.99" h="25.21"/>
+            <stroke/>
+            <fillcolor color="#bfbfbf"/>
+            <rect x="16.33" y="2.45" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="5.8" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="8.92" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="12.27" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="15.62" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="18.74" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="22.09" w="72.33" h="2.23"/>
+            <fill/>
+            <rect x="16.33" y="25.43" w="72.33" h="2.23"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="APC Smart UPS 5000 VA 5U" h="73.75" w="160.85">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.85" h="73.75"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.83" y="0"/>
+                <line x="152.65" y="0"/>
+                <line x="152.65" y="29.69"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.65" y="44.06"/>
+                <line x="152.65" y="73.75"/>
+                <line x="7.83" y="73.75"/>
+                <line x="7.83" y="44.06"/>
+                <arc rx="8" ry="8" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.83" y="29.69"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <strokecolor color="#000000"/>
+            <rect x="100" y="18" w="43" h="38"/>
+            <stroke/>
+            <fillcolor color="#bfbfbf"/>
+            <rect x="16.33" y="6.08" w="127" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="14.38" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="22.12" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="30.42" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="38.71" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="46.46" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="54.75" w="72.33" h="5.53"/>
+            <fill/>
+            <rect x="16.33" y="63.05" w="127" h="5.53"/>
+            <fill/>
+        </foreground>
+    </shape>
+    <shape name="APC Smart UPS 750 VA 1U" h="14.95" w="160.85">
+        <foreground>
+            <strokecolor color="#545454"/>
+            <fillcolor color="#545454"/>
+            <rect x="0" y="0" w="160.85" h="14.95"/>
+            <fillstroke/>
+            <fillcolor color="#f4f4f4"/>
+            <path>
+                <move x="7.83" y="0"/>
+                <line x="152.65" y="0"/>
+                <line x="152.65" y="3.03"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="152.65" y="11.77"/>
+                <line x="152.65" y="14.95"/>
+                <line x="7.83" y="14.95"/>
+                <line x="7.83" y="11.77"/>
+                <arc rx="4.2" ry="4.2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="7.83" y="3.03"/>
+                <close/>
+            </path>
+            <fillstroke/>
+            <fillcolor color="#bfbfbf"/>
+            <rect x="16" y="3.03" w="72.33" h="3.03"/>
+            <fill/>
+            <rect x="16" y="8.74" w="72.33" h="3.03"/>
+            <fill/>
+            <rect x="116.32" y="3.03" w="27.66" h="3.03"/>
+            <fill/>
+            <rect x="116.32" y="8.74" w="27.66" h="3.03"/>
+            <fill/>
+            <strokecolor color="#000000"/>
+            <rect x="91.32" y="3.36" w="23" h="8.41"/>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>
