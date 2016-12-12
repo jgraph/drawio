@@ -38,8 +38,6 @@ public class Style
 	 */
 	protected Map<String, Style> styleParents = new HashMap<String, Style>();
 	
-	protected Style textParent;
-	
 	protected Style theme;
 
 	private final static Logger LOGGER = Logger.getLogger(Style.class.getName());
@@ -64,6 +62,7 @@ public class Style
 		styleTypes.put(mxVsdxConstants.LINE_PATTERN, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_COLOR, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_COLOR_TRANS, mxVsdxConstants.LINE_STYLE);
+		styleTypes.put(mxVsdxConstants.LINE_WEIGHT, mxVsdxConstants.LINE_STYLE);
 		
 		styleTypes.put(mxVsdxConstants.TEXT_BKGND, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.BOTTOM_MARGIN, mxVsdxConstants.TEXT_STYLE);
@@ -110,11 +109,7 @@ public class Style
 	{
 		styleParents.put(mxVsdxConstants.FILL_STYLE, model.getStylesheet(shape.getAttribute(mxVsdxConstants.FILL_STYLE)));
 		styleParents.put(mxVsdxConstants.LINE_STYLE, model.getStylesheet(shape.getAttribute(mxVsdxConstants.LINE_STYLE)));
-		
-		Style textStyle = model.getStylesheet(shape.getAttribute(mxVsdxConstants.TEXT_STYLE));
 		styleParents.put(mxVsdxConstants.TEXT_STYLE, model.getStylesheet(shape.getAttribute(mxVsdxConstants.TEXT_STYLE)));
-		
-		this.textParent = textStyle;
 		
 		Style theme = model.getStylesheet("0");
 		this.theme = theme;
@@ -554,21 +549,12 @@ public class Style
 	}
 	
 	/**
-	 * Checks if the line weight is defined.
-	 * @return Returns <code>true</code> if the line weight is defined.
-	 */
-	public boolean hasLineWeight()
-	{
-		return hasProperty(mxVsdxConstants.LINE, mxVsdxConstants.LINE_WEIGHT);
-	}
-
-	/**
 	 * Returns the line weight of the shape in pixels
 	 * @return Numerical value of the LineWeight element.
 	 */
 	public double getLineWeight()
 	{
-		return getValueAsDouble(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), 0);
+		return getScreenNumericalValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), 0);
 	}
 
 	/**
@@ -577,7 +563,7 @@ public class Style
 	 */
 	public double getStrokeTransparency()
 	{
-			return getValueAsDouble(this.getCellElement(mxVsdxConstants.LINE_COLOR_TRANS), 0);
+		return getValueAsDouble(this.getCellElement(mxVsdxConstants.LINE_COLOR_TRANS), 0);
 	}
 
 	/**
