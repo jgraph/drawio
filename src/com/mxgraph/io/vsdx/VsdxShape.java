@@ -306,11 +306,11 @@ public class VsdxShape extends Shape
 	{
 		// Lazy init
 		paragraphs = new LinkedHashMap<String,Paragraph>();
+		String ch = null;
+		String pg = null;
 
 		for (int index = 0; index < children.getLength(); index++)
 		{
-			String ch = null;
-			String pg = null;
 			String value = null;
 			Node node = children.item(index);
 			
@@ -344,6 +344,7 @@ public class VsdxShape extends Shape
 		
 			if (value != null && value.length() > 0)
 			{
+				// Assumes text is always last
 				// null key is allowed
 				Paragraph para = paragraphs.get(pg);
 				
@@ -356,6 +357,9 @@ public class VsdxShape extends Shape
 				{
 					para.addValue(value, ch);
 				}
+				
+				ch = null;
+				pg = null;
 			}
 		}
 	}
@@ -373,8 +377,13 @@ public class VsdxShape extends Shape
 		this.styleMap.put(mxConstants.STYLE_VERTICAL_ALIGN, getAlignVertical());
 		
 		this.styleMap.put("fontColor", getTextColor(index));
-		this.styleMap.put("fontSize", String.valueOf(Double.parseDouble(this.getTextSize(cp))));
+		this.styleMap.put("fontSize", String.valueOf(Double.parseDouble(this.getTextSize(index))));
 		this.styleMap.put("fontFamily", getTextFont(index));
+		
+		int fontStyle = isBold(index) ? mxConstants.FONT_BOLD : 0;
+		fontStyle |= isItalic(index) ? mxConstants.FONT_ITALIC : 0;
+		fontStyle |= isUnderline(index) ? mxConstants.FONT_UNDERLINE : 0;
+		this.styleMap.put("fontStyle", String.valueOf(fontStyle));
 
 		return para.getValue(0);
 	}

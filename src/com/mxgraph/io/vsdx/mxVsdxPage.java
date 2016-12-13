@@ -1,5 +1,6 @@
 package com.mxgraph.io.vsdx;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -61,30 +62,18 @@ public class mxVsdxPage {
 		
 		parseNodes(pageElem, model, "pages");
 		
-		Node child = pageElem.getFirstChild();
+		ArrayList<Element> pageSheets = mxVsdxUtils.getDirectChildNamedElements(pageElem, "PageSheet");
 		
-		while (child != null)
+		if (pageSheets.size() > 0)
 		{
-			if (child instanceof Element && ((Element)child).getTagName().equals("PageSheet"))
-			{
-				Node childNode = child.getFirstChild();
-				
-				while (childNode != null)
-				{
-					if (childNode instanceof Element && ((Element)childNode).getTagName().equals("Cell"))
-					{
-						Element childElem = (Element) childNode;
-						String n = childElem.getAttribute("N");
-						cellElements.put(n, childElem);
-					}
-					
-					childNode = childNode.getNextSibling();
-				}
-				
-				break;
-			}
+			Element pageSheet = pageSheets.get(0);
+			ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(pageSheet, "Cell");
 			
-			child = child.getNextSibling();
+			for (Element cellElem : cells)
+			{
+				String n = cellElem.getAttribute("N");
+				this.cellElements.put(n, cellElem);		
+			}
 		}
 	}
 
@@ -295,15 +284,15 @@ public class mxVsdxPage {
 
 	/**
 	 * Returns the width and height of a Page expressed as an mxPoint.
-	 * @return mxPoint that represents the dimensions of the shape
+	 * @return mxPoint that represents the dimensions of the page
 	 */
 	public mxPoint getPageDimensions()
 	{
 		double pageH = 0;
 		double pageW = 0;
 
-		Element height = cellElements.get("PageHeight");
-		Element width = cellElements.get("PageWidth");
+		Element height = this.cellElements.get("PageHeight");
+		Element width = this.cellElements.get("PageWidth");
 		
 		if (height != null)
 		{
@@ -320,6 +309,22 @@ public class mxVsdxPage {
 		return new mxPoint(pageW, pageH);
 	}
 	
+	/**
+	 * Returns the drawing scale attribute of this page
+	 * @return the DrawingScale
+	 */
+	public double getDrawingScale()
+	{
+		Element scale = this.cellElements.get("DrawingScale");
+		
+		if (scale != null)
+		{
+			return Double.valueOf(scale.getAttribute("V")) * mxVsdxUtils.conversionFactor;
+		}
+		
+		return 1;
+	}
+
 	/**
 	 * Returns the ID of the page
 	 * @return the ID of the page
