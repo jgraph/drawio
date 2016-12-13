@@ -1422,7 +1422,7 @@ public class Shape extends Style
 	public String getTextSize(String index)
 	{
 		Element sizeElem = getCellElement(mxVsdxConstants.SIZE, index, mxVsdxConstants.CHARACTER);
-		double size = getValueAsDouble(sizeElem, 12);
+		double size = getScreenNumericalValue(sizeElem, 12);
 		
 		return String.valueOf(size);
 	}

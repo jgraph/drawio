@@ -478,9 +478,11 @@ public class mxVsdxCodec
 		String style = mxVsdxUtils.getStyleString(styleMap, "=");
 
 		mxCell group = null;
+		Map<Integer, VsdxShape> children = shape.getChildShapes();
+		boolean hasChildren = false;//children != null && children.size() > 0;
+		boolean subLabel = shape.isDisplacedLabel() || shape.isRotatedLabel() || hasChildren;
 
-
-		if (shape.isDisplacedLabel() || shape.isRotatedLabel())
+		if (subLabel)
 		{
 			group = (mxCell) graph.insertVertex(parent, null, null,
 					o.getX(), o.getY(), d.getX(), d.getY(), style);
@@ -491,8 +493,6 @@ public class mxVsdxCodec
 					o.getX(), o.getY(), d.getX(), d.getY(), style);
 		}
 
-		// Add children
-		Map<Integer, VsdxShape> children = shape.getChildShapes();
 		Iterator<Map.Entry<Integer, VsdxShape>> entries = children.entrySet()
 				.iterator();
 		
@@ -552,7 +552,7 @@ public class mxVsdxCodec
 			}
 		}
 		
-		if (shape.isDisplacedLabel() || shape.isRotatedLabel())
+		if (subLabel)
 		{
 			createLabelSubShape(graph, shape, group);
 		}
@@ -945,6 +945,7 @@ public class mxVsdxCodec
 				styleMap.put("align", "center");
 				styleMap.put("verticalAlign", "middle");
 				styleMap.put("whiteSpace", "wrap");
+				//styleMap.put("html", "1");
 
 				if (!txtAngleV.equals(""))
 				{
