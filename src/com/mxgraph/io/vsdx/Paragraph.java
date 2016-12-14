@@ -14,23 +14,28 @@ public class Paragraph
 {
 	protected ArrayList<String> values;
 	
-	protected ArrayList<String> charIndex;
+	protected ArrayList<String> charIndices;
+	
+	protected ArrayList<String> fields;
 	
 	protected String paraIndex;
 	
-	public Paragraph(String val, String ch, String pg)
+	public Paragraph(String val, String ch, String pg, String field)
 	{
 		this.values = new ArrayList<String>();
 		this.values.add(val);
-		this.charIndex = new ArrayList<String>();
-		this.charIndex.add(ch);
+		this.charIndices = new ArrayList<String>();
+		this.charIndices.add(ch);
+		this.fields = new ArrayList<String>();
+		this.fields.add(field);
 		this.paraIndex = pg;
 	}
 	
-	public void addValue(String val, String ch)
+	public void addText(String val, String ch, String field)
 	{
 		this.values.add(val);
-		this.charIndex.add(ch);
+		this.charIndices.add(ch);
+		this.fields.add(field);
 	}
 	
 	public String getParagraphIndex()
@@ -45,6 +50,11 @@ public class Paragraph
 	
 	public String getChar(int index)
 	{
-		return charIndex.get(index);
+		return charIndices.get(index);
+	}
+	
+	public String getField(int index)
+	{
+		return fields.get(index);
 	}
 }

@@ -50,7 +50,7 @@ public class mxPropertiesManager
 	{
 		defaultColors.put("0", "#000000");
 		defaultColors.put("1", "#FFFFFF");
-		defaultColors.put("2", "#FF0000");
+		defaultColors.put("2", "#FFFFFF"); // Multiple label background test cases suggest white, flow3.vsdx for example
 		defaultColors.put("3", "#00FF00");
 		defaultColors.put("4", "#0000FF");
 		defaultColors.put("5", "#FFFF00");

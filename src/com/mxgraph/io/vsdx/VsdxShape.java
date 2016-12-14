@@ -239,13 +239,12 @@ public class VsdxShape extends Shape
 	 */
 	public String getTextLabel()
 	{
-		String masterId = this.getMasterId();
 		Shape masterShape = null;
 		NodeList txtChildren = getTextChildren();
 
 		if ((txtChildren == null || txtChildren.getLength() == 0) && master != null)
 		{
-			if (masterId != null)
+			if (this.getMasterId() != null)
 			{
 				masterShape = master.getMasterShape();
 			}
@@ -308,58 +307,62 @@ public class VsdxShape extends Shape
 		paragraphs = new LinkedHashMap<String,Paragraph>();
 		String ch = null;
 		String pg = null;
+		String fld = null;
 
 		for (int index = 0; index < children.getLength(); index++)
 		{
 			String value = null;
 			Node node = children.item(index);
+			String nodeName = node.getNodeName();
 			
-			if (node.getNodeName().equals("cp"))
+			switch (nodeName)
 			{
-				Element elem = (Element)node;
-				ch = elem.getAttribute("IX");
-			}
-			else if (node.getNodeName().equals("tp"))
-			{
-				// TODO
-				Element elem = (Element)node;
-				elem.getAttribute("IX");
-			}
-			else if (node.getNodeName().equals("pp"))
-			{
-				Element elem = (Element)node;
-				pg = elem.getAttribute("IX");
-
-			}
-			else if (node.getNodeName().equals("fld"))
-			{
-				// TODO
-				Element elem = (Element)node;
-				elem.getAttribute("IX");
-			}
-			else if (node.getNodeName().equals("#text"))
-			{
-				value = StringUtils.chomp(node.getTextContent());
-			}
-		
-			if (value != null && value.length() > 0)
-			{
-				// Assumes text is always last
-				// null key is allowed
-				Paragraph para = paragraphs.get(pg);
-				
-				if (para == null)
+				case "cp":
 				{
-					para = new Paragraph(value, ch, pg);
-					paragraphs.put(pg, para);
+					Element elem = (Element)node;
+					ch = elem.getAttribute("IX");
 				}
-				else
+					break;
+				case "tp":
 				{
-					para.addValue(value, ch);
+					// TODO
+					Element elem = (Element)node;
+					elem.getAttribute("IX");
 				}
-				
-				ch = null;
-				pg = null;
+					break;
+				case "pp":
+				{
+					Element elem = (Element)node;
+					pg = elem.getAttribute("IX");
+				}
+					break;
+				case "fld":
+				{
+					Element elem = (Element)node;
+					fld = elem.getAttribute("IX");
+					break;
+				}
+				case "#text":
+				{
+					value = StringUtils.chomp(node.getTextContent());
+					
+					// Assumes text is always last
+					// null key is allowed
+					Paragraph para = paragraphs.get(pg);
+					
+					if (para == null)
+					{
+						para = new Paragraph(value, ch, pg, fld);
+						paragraphs.put(pg, para);
+					}
+					else
+					{
+						para.addText(value, ch, fld);
+					}
+					
+					ch = null;
+					pg = null;
+				}
 			}
 		}
 	}
@@ -385,7 +388,38 @@ public class VsdxShape extends Shape
 		fontStyle |= isUnderline(index) ? mxConstants.FONT_UNDERLINE : 0;
 		this.styleMap.put("fontStyle", String.valueOf(fontStyle));
 
-		return para.getValue(0);
+		String value = para.getValue(0);
+		
+		if (value.isEmpty() && this.fields != null)
+		{
+			String fieldIx = para.getField(0);
+			
+			if (fieldIx != null)
+			{
+				value = this.fields.get(fieldIx);
+				
+				if (value == null)
+				{
+					Shape masterShape = null;
+
+					if (this.getMasterId() != null)
+					{
+						masterShape = master.getMasterShape();
+					}
+					else 
+					{
+						masterShape = master.getSubShape(this.getShapeMasterId());
+					}
+					
+					if (masterShape != null && masterShape.fields != null)
+					{
+						value = masterShape.fields.get(fieldIx);
+					}
+				}
+			}
+		}
+		
+		return value == null ? "" : value;
 	}
 	
 	/**
@@ -1616,6 +1650,8 @@ public class VsdxShape extends Shape
 		int currentPointCount = 0;
 		double lastX = startPoint.getX();
 		double lastY = startPoint.getY();
+		double offsetX = 0;
+		double offsetY = 0;
 		
 		for (int i = 0; i < 2; i++)
 		{
@@ -1644,45 +1680,58 @@ public class VsdxShape extends Shape
 						{
 							switch (childName)
 							{
-								case "LineTo":
-									if (i == 0)
+								case "MoveTo":
 									{
-										controlPointCount++;
-									}
-									else if (currentPointCount < controlPointCount - 1)
-									{
+										// Initial moveto behaves as a offset to the whole connector
 										Map <String, String> children = getChildValues(childElem, null);
 										String xValue = children.get("X");
 										String yValue = children.get("Y");
-										double x = 0, y = 0;
+										
+										offsetX = xValue != null ? Double.parseDouble(xValue) : 0;
+										offsetY = yValue != null ? Double.parseDouble(yValue) : 0;
+									}
+									break;
+								case "LineTo":
+									{
+										if (i == 0)
+										{
+											controlPointCount++;
+										}
+										else if (currentPointCount < controlPointCount - 1)
+										{
+											Map <String, String> children = getChildValues(childElem, null);
+											String xValue = children.get("X");
+											String yValue = children.get("Y");
+											double x = 0, y = 0;
+												
+											if (xValue != null)
+											{
+												x = (Double.parseDouble(xValue) - offsetX) * mxVsdxUtils.conversionFactor;
+												lastX = x;
+												x += startPoint.getX();
+											}
+											else
+											{
+												x = lastX;
+											}
 											
-										if (xValue != null)
-										{
-											x = Double.parseDouble(xValue) * mxVsdxUtils.conversionFactor;
-											lastX = x;
-											x += startPoint.getX();
+											if (yValue != null)
+											{
+												y = ((Double.parseDouble(yValue) - offsetY) * mxVsdxUtils.conversionFactor) * -1;
+												lastY = y;
+												y += startPoint.getY();
+											}
+											else
+											{
+												y = lastY;
+											}
+											
+											x = Math.round(x * 100.0) / 100.0;
+											y = Math.round(y * 100.0) / 100.0;
+				
+											points.add(new mxPoint(x, y));
+											currentPointCount++;
 										}
-										else
-										{
-											x = lastX;
-										}
-										
-										if (yValue != null)
-										{
-											y = (Double.parseDouble(yValue) * mxVsdxUtils.conversionFactor) * -1;
-											lastY = y;
-											y += startPoint.getY();
-										}
-										else
-										{
-											y = lastY;
-										}
-										
-										x = Math.round(x * 100.0) / 100.0;
-										y = Math.round(y * 100.0) / 100.0;
-			
-										points.add(new mxPoint(x, y));
-										currentPointCount++;
 									}
 									break;
 								default:
