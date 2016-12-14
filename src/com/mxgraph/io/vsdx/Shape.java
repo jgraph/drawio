@@ -27,6 +27,11 @@ public class Shape extends Style
 	protected Element text;
 	
 	/**
+	 * The text fields of the shape, if any
+	 */
+	protected LinkedHashMap<String, String> fields;
+	
+	/**
 	 * List of paragraphs in this shape
 	 */
 	protected LinkedHashMap<String,Paragraph> paragraphs = null;
@@ -200,6 +205,36 @@ public class Shape extends Style
 			}
 
 			this.geom.add(elem);
+		}
+		if (n.equals("Field"))
+		{
+			ArrayList<Element> rows = mxVsdxUtils.getDirectChildNamedElements(elem, "Row");
+			
+			for (Element row : rows)
+			{
+				String ix = row.getAttribute("IX");
+				ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(row, "Cell");
+				
+				for (Element cell : cells)
+				{
+					n = cell.getAttribute("N");
+					
+					if (n.equals("Value"))
+					{
+						String v = cell.getAttribute("V");
+						
+						if (!ix.isEmpty() && !v.isEmpty())
+						{
+							if (this.fields == null)
+							{
+								fields = new LinkedHashMap<String, String>();
+							}
+
+							this.fields.put(ix, v);
+						}
+					}
+				}
+			}
 		}
 		else
 		{
