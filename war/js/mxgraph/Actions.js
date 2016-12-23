@@ -302,7 +302,7 @@ Actions.prototype.init = function()
 			});
 		}
 	});
-	this.addAction('insertLink', function()
+	this.addAction('insertLink...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{

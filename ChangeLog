@@ -1,3 +1,8 @@
+23-DEC-2016: 6.0.2.5
+
+- Adds PlantUML option in text dialog
+- Uses mxGraph 3.7.0.0 beta 11
+
 14-DEC-2016: 6.0.2.4
 
 - Adds text field support for .vsdx import

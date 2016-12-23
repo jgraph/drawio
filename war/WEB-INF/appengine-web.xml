@@ -2,7 +2,7 @@
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
 	<application>drawdotio</application>
 	<!-- IMPORTANT! DO NOT CHANGE THIS VALUE IN SOURCE CONTROL! -->
-	<version>6-0-2-4</version>
+	<version>test</version>
 	
 	<!-- Configure java.util.logging -->
 	<system-properties>
@@ -27,5 +27,8 @@
 	</static-files>
 	
 	<instance-class>F2</instance-class>
-
+	<automatic-scaling>
+    	<min-idle-instances>1</min-idle-instances>
+    	<max-idle-instances>1</max-idle-instances>
+	</automatic-scaling>
 </appengine-web-app>

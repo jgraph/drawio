@@ -580,7 +580,6 @@ public class mxVsdxCodec
 		mxPoint coordinates = shape.getOriginPoint(parentHeight, true);
 		mxPoint dimensions = shape.getDimensions();
 
-		//Defines style
 		Map<String, String> styleMap = shape.getStyleFromShape(parentRotation);
 
 		if (textLabel.startsWith("<p>") || textLabel.startsWith("<p ")
@@ -939,12 +938,15 @@ public class mxVsdxCodec
 
 			if (!textLabel.equals(""))
 			{
-				Map<String, String> styleMap = new HashMap<String, String>();
+				Map<String, String> styleMap = new HashMap<String, String>(shape.getStyleMap());
 				styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
 				styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
 				styleMap.put("align", "center");
 				styleMap.put("verticalAlign", "middle");
 				styleMap.put("whiteSpace", "wrap");
+				
+				// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
+				styleMap.remove("shape");
 				//styleMap.put("html", "1");
 
 				if (!txtAngleV.equals(""))
