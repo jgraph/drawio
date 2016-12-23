@@ -1208,6 +1208,12 @@
 					this.editor.graph.selectUnlockedLayer();
 					this.showLayersDialog();
 					this.restoreLibraries();
+					
+					// Workaround for no initial focus in FF
+					if (window.self !== window.top)
+					{
+						window.focus();
+					}
 				}
 				else if (this.editor.graph.lightbox)
 				{
@@ -6136,6 +6142,13 @@
 					this.editor.modified = (modified != null) ? modified : false;
 					this.updateUi();
 					
+					// Workaround for no initial focus in FF
+					// (does not work in Conf Cloud with FF)
+					if (window.self !== window.top)
+					{
+						window.focus();
+					}
+					
 					if (this.format != null)
 					{
 						this.format.refresh();
@@ -6241,9 +6254,21 @@
 			
 			if (urlParams['proto'] == 'json')
 			{
-				data = JSON.parse(data);
+				try
+				{
+					data = JSON.parse(data);
+				}
+				catch (e)
+				{
+					data = null;
+				}
 				
-				if (data.action == 'dialog')
+				if (data == null)
+				{
+					// Ignore
+					return;
+				}
+				else if (data.action == 'dialog')
 				{
 					this.showError((data.titleKey != null) ? mxResources.get(data.titleKey) : data.title,
 						(data.messageKey != null) ? mxResources.get(data.messageKey) : data.message,
@@ -6612,7 +6637,7 @@
 				else
 				{
 					// Unknown message must stop execution
-					parent.postMessage(JSON.stringify({error: 'unknownMessage'}), '*');
+					parent.postMessage(JSON.stringify({error: 'unknownMessage', data: JSON.stringify(data)}), '*');
 					
 					return;
 				}

@@ -212,79 +212,68 @@ App.getStoredMode = function()
 		if (window.mxscript != null)
 		{
 			// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
-			if (typeof window.DriveClient === 'function')
+			if (urlParams['embed'] != '1')
 			{
-				if (urlParams['gapi'] != '0' && isSvgBrowser &&
-					(document.documentMode == null || document.documentMode >= 10))
+				if (typeof window.DriveClient === 'function')
 				{
-					// Immediately loads client
-					if (App.mode == App.MODE_GOOGLE || (urlParams['state'] != null &&
-						window.location.hash == '') || (window.location.hash != null &&
-						window.location.hash.substring(0, 2) == '#G'))
+					if (urlParams['gapi'] != '0' && isSvgBrowser && urlParams['chrome'] != '0' &&
+						(document.documentMode == null || document.documentMode >= 10))
 					{
-						mxscript('https://apis.google.com/js/api.js');
+						// Immediately loads client
+						if (App.mode == App.MODE_GOOGLE || (urlParams['state'] != null &&
+							window.location.hash == '') || (window.location.hash != null &&
+							window.location.hash.substring(0, 2) == '#G'))
+						{
+							mxscript('https://apis.google.com/js/api.js');
+						}
 					}
-					else if (urlParams['chrome'] == '0')
+					else
 					{
 						// Disables loading of client
 						window.DriveClient = null;
 					}
 				}
-				else
+	
+				// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
+				if (typeof window.DropboxClient === 'function')
 				{
-					// Disables loading of client
-					window.DriveClient = null;
-				}
-			}
-
-			// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
-			// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-			if (typeof window.DropboxClient === 'function')
-			{
-				if (urlParams['db'] != '0' && isSvgBrowser &&
-					(document.documentMode == null || document.documentMode > 9))
-				{
-					// Immediately loads client
-					if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
-						window.location.hash.substring(0, 2) == '#D'))
+					if (urlParams['db'] != '0' && isSvgBrowser && urlParams['chrome'] != '0' &&
+						(document.documentMode == null || document.documentMode > 9))
 					{
-						mxscript('https://www.dropbox.com/static/api/1/dropins.js', null, 'dropboxjs', App.DROPBOX_APPKEY);
+						// Immediately loads client
+						if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
+							window.location.hash.substring(0, 2) == '#D'))
+						{
+							mxscript('https://www.dropbox.com/static/api/1/dropins.js', null, 'dropboxjs', App.DROPBOX_APPKEY);
+						}
 					}
-					else if (urlParams['chrome'] == '0')
+					else
 					{
 						// Disables loading of client
 						window.DropboxClient = null;
 					}
 				}
-				else
+				
+				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
+				if (typeof window.OneDriveClient === 'function')
 				{
-					// Disables loading of client
-					window.DropboxClient = null;
-				}
-			}
-			
-			// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-			if (typeof window.OneDriveClient === 'function')
-			{
-				if (urlParams['od'] != '0' && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
-					(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
-				{
-					// Immediately loads client
-					if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
-						window.location.hash.substring(0, 2) == '#W'))
+					if (urlParams['od'] != '0' && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
+						urlParams['chrome'] != '0' &&
+						(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
-						mxscript('https://js.live.net/v5.0/wl.js');
+						// Immediately loads client
+						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
+							window.location.hash.substring(0, 2) == '#W'))
+						{
+							mxscript('https://js.live.net/v5.0/wl.js');
+						}
 					}
-					else if (urlParams['chrome'] == '0')
+					else
 					{
 						// Disables loading of client
 						window.OneDriveClient = null;
 					}
-				}
-				else
-				{
-					// Disables loading of client
-					window.OneDriveClient = null;
 				}
 			}
 			
@@ -486,13 +475,13 @@ App.main = function(callback)
 		}
 		
 		/**
-		 * Loads Google Image Picker API
+		 * Loads Google Image Picker API (not allowed inside iframes)
 		 */
 		if (urlParams['picker'] != '0' && !mxClient.IS_QUIRKS && document.documentMode != 8)
 		{
 			mxscript(document.location.protocol + '//www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22picker%22%2C%22version%22%3A%221%22%2C%22language%22%3A%22' + mxClient.language + '%22%7D%5D%7D');
 		}
-
+		
 		// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
 		// Special case: Cannot load in asynchronous code below
 		if (typeof window.DriveClient === 'function' &&
@@ -501,6 +490,11 @@ App.main = function(callback)
 			isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
 		{
 			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback');
+		}
+		// Disables client
+		else if (typeof window.gapi === 'undefined')
+		{
+			window.DriveClient = null;
 		}
 	}
 	
@@ -548,7 +542,12 @@ App.main = function(callback)
 			{
 				mxscript('https://www.dropbox.com/static/api/1/dropins.js', window.DrawDropboxClientCallback, 'dropboxjs', App.DROPBOX_APPKEY);
 			}
-			
+			// Disables client
+			else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
+			{
+				window.DropboxClient = null;
+			}
+				
 			// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
 			if (typeof window.OneDriveClient === 'function' &&
 				(typeof WL === 'undefined' && window.DrawOneDriveClientCallback != null &&
@@ -557,6 +556,11 @@ App.main = function(callback)
 				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 			{
 				mxscript('https://js.live.net/v5.0/wl.js', window.DrawOneDriveClientCallback);
+			}
+			// Disables client
+			else if (typeof window.WL === 'undefined')
+			{
+				window.OneDriveClient = null;
 			}
 		}
 		
@@ -667,19 +671,11 @@ App.prototype.init = function()
 	 */	
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
 
-	if (urlParams['embed'] != '1')
+	/**
+	 * Lazy-loading for individual backends
+	 */
+	if (urlParams['embed'] != '1' || urlParams['od'] == '1')
 	{
-		/**
-		 * Holds the background element.
-		 */
-		this.bg = this.createBackground();
-		document.body.appendChild(this.bg);
-		this.diagramContainer.style.visibility = 'hidden';
-		this.formatContainer.style.visibility = 'hidden';
-		this.hsplit.style.display = 'none';
-		this.sidebarContainer.style.display = 'none';
-		this.sidebarFooterContainer.style.display = 'none';
-
 		/**
 		 * Creates onedrive client if all required libraries are available.
 		 */
@@ -708,10 +704,13 @@ App.prototype.init = function()
 		});
 
 		initOneDriveClient();
+	}
 
-		/**
-		 * Creates drive client with all required libraries are available.
-		 */
+	/**
+	 * Creates drive client with all required libraries are available.
+	 */
+	if (urlParams['embed'] != '1' || urlParams['gapi'] == '1')
+	{
 		var initDriveClient = mxUtils.bind(this, function()
 		{
 			/**
@@ -813,7 +812,10 @@ App.prototype.init = function()
 		});
 		
 		initDriveClient();
+	}
 
+	if (urlParams['embed'] != '1' || urlParams['db'] == '1')
+	{
 		/**
 		 * Creates dropbox client if all required libraries are available.
 		 */
@@ -847,6 +849,20 @@ App.prototype.init = function()
 		});
 
 		initDropboxClient();
+	}
+
+	if (urlParams['embed'] != '1')
+	{
+		/**
+		 * Holds the background element.
+		 */
+		this.bg = this.createBackground();
+		document.body.appendChild(this.bg);
+		this.diagramContainer.style.visibility = 'hidden';
+		this.formatContainer.style.visibility = 'hidden';
+		this.hsplit.style.display = 'none';
+		this.sidebarContainer.style.display = 'none';
+		this.sidebarFooterContainer.style.display = 'none';
 
 		// Sets the initial mode
 		if (urlParams['local'] == '1')

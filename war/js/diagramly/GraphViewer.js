@@ -952,6 +952,7 @@ GraphViewer.prototype.addToolbar = function()
 						layersDialog.style.backgroundColor = '#eee';
 						layersDialog.style.fontFamily = 'Helvetica Neue,Helvetica,Arial Unicode MS,Arial';
 						layersDialog.style.fontSize = '11px';
+						layersDialog.style.zIndex = this.toolbarZIndex + 1;
 						mxUtils.setOpacity(layersDialog, 80);
 						var origin = mxUtils.getDocumentScrollOrigin(document);
 						layersDialog.style.left = origin.x + r.left + 'px';

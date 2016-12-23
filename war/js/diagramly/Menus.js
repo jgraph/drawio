@@ -1740,7 +1740,7 @@
 				}
 				else
 				{
-					addInsertItem(menu, parent, mxResources.get(methods[i]), methods[i]);
+					addInsertItem(menu, parent, mxResources.get(methods[i]) + '...', methods[i]);
 				}
 			}
 		})));

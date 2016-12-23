@@ -39,7 +39,7 @@ public class Shape extends Style
 	/**
 	 * mxGraph cell style map
 	 */
-	Map<String, String> styleMap = new HashMap<String, String>();
+	protected Map<String, String> styleMap = new HashMap<String, String>();
 	
 	/**
 	 * Width of shape
@@ -260,10 +260,10 @@ public class Shape extends Style
 		
 		for (int i = 0; i < geom.size(); i++)
 		{
-			boolean noFill = false;
-			boolean noLine = false;
-			boolean noShow = false;
-			boolean noSnap = false;
+			boolean isFill = true;
+			boolean isLine = true;
+			boolean isShow = true;
+			boolean isSnap = true;
 			String geomElemParsed = "";
 
 			Node child = geom.get(i).getFirstChild();
@@ -295,25 +295,25 @@ public class Shape extends Style
 						case "NoFill":
 							if (value != null && value.equals("1"))
 							{
-								noFill = true;
+								isFill = false;
 							}
 							break;
 						case "NoLine":
 							if (value != null && value.equals("1"))
 							{
-								noLine = true;
+								isLine = false;
 							}
 							break;
 						case "NoShow":
 							if (value != null && value.equals("1"))
 							{
-								noShow = true;
+								isShow = false;
 							}
 							break;
 						case "NoSnap":
 							if (value != null && value.equals("1"))
 							{
-								noSnap = true;
+								isSnap = false;
 							}
 							break;
 						case "MoveTo":
@@ -438,15 +438,21 @@ public class Shape extends Style
 				child = child.getNextSibling();
 			}
 			
-			if (!noShow && !geomElemParsed.equals(""))
+			if (isShow && !geomElemParsed.equals(""))
 			{
-				if (noFill)
+				geomElemParsed += "</path>";
+				
+				if (isLine && isFill)
 				{
-					geomElemParsed += "</path><stroke/>";
+					geomElemParsed += "<fillstroke/>";
 				}
-				else
+				else if (isFill)
 				{
-					geomElemParsed += "</path><fillstroke/>";
+					geomElemParsed += "<fill/>";
+				}
+				else if (isLine)
+				{
+					geomElemParsed += "<stroke/>";
 				}
 				
 				parsedGeom += "<path>" + geomElemParsed;
@@ -989,6 +995,15 @@ public class Shape extends Style
 	{
 		return this.rotation;
 	}
+	
+	/**
+	 * Returns the style map of this shape
+	 * @return the style map
+	 */
+	public Map<String, String> getStyleMap()
+	{
+		return this.styleMap;
+	}
 
 	/**
 	 * Returns whether or not this shape has a geometry defined, locally
@@ -1445,6 +1460,21 @@ public class Shape extends Style
 		}
 		
 		return isSmallCaps;
+	}
+
+	public String getTextOpacity(String index)
+	{
+		Element colorTrans = getCellElement(mxVsdxConstants.COLOR_TRANS, index, mxVsdxConstants.CHARACTER);
+		String trans = getValue(colorTrans, "0");
+		String result = "100";
+		
+		if (trans != null && !trans.isEmpty())
+		{
+			double tmp = 100 - (Double.valueOf(trans) * 100.0);
+			result = String.valueOf(tmp);
+		}
+		
+		return result;
 	}
 
 	/**

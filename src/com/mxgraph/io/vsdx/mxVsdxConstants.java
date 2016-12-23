@@ -24,6 +24,14 @@ public class mxVsdxConstants
 	public static String COLOR = "Color";
 	public static String COLOR_ENTRY = "ColorEntry";
 	public static String COLORS = "Colors";
+	
+	/**
+	 * Specifies the color transparency used for characters in a text run.
+	 * The value is normalized such that a value of 1 corresponds to 100 percent.
+	 * A value of zero specifies that the color is completely opaque;
+	 * a value of one specifies that the color is completely transparent.
+	 */
+	public static String COLOR_TRANS = "ColorTrans";
 	public static String CONNECT = "Connect";
 	public static String CONNECTS = "Connects";
 	public static String CONNECTION = "Connection";

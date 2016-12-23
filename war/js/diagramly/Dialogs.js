@@ -2719,7 +2719,8 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 	
 	if (!editorUi.isOffline())
 	{
-		if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+		// Dialogs not allowed inside iframes
+		if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && window.self === window.top)
 		{
 			var searchBtn = mxUtils.button(mxResources.get('search'), function()
 			{
@@ -2807,11 +2808,139 @@ var BackgroundImageDialog = function(editorUi, applyFn)
  */
 var ParseDialog = function(editorUi, title)
 {
-	function parse(text, asList)
+	function parse(text, type)
 	{
 		var lines = text.split('\n');
 		
-		if (asList)
+		if (type == 'plantUmlPng' || type == 'plantUmlSvg')
+		{
+			var plantUmlServerUrl = (type == 'plantUmlPng') ? 'https://exp.draw.io/plantuml2/png/' :
+				'https://exp.draw.io/plantuml2/svg/';
+	    	var graph = editorUi.editor.graph;
+	    	
+	    	// TODO: Change server to return base64 & accept POST request
+	    	// TODO: Add transparent background, SVG output option
+	    	if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+	    	{
+		    	function encode64(data) {
+					r = "";
+					for (i=0; i<data.length; i+=3) {
+				 		if (i+2==data.length) {
+							r +=append3bytes(data.charCodeAt(i), data.charCodeAt(i+1), 0);
+						} else if (i+1==data.length) {
+							r += append3bytes(data.charCodeAt(i), 0, 0);
+						} else {
+							r += append3bytes(data.charCodeAt(i), data.charCodeAt(i+1),
+								data.charCodeAt(i+2));
+						}
+					}
+					return r;
+				}
+				
+				function append3bytes(b1, b2, b3) {
+					c1 = b1 >> 2;
+					c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+					c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+					c4 = b3 & 0x3F;
+					r = "";
+					r += encode6bit(c1 & 0x3F);
+					r += encode6bit(c2 & 0x3F);
+					r += encode6bit(c3 & 0x3F);
+					r += encode6bit(c4 & 0x3F);
+					return r;
+				}
+				
+				function encode6bit(b) {
+					if (b < 10) {
+				 		return String.fromCharCode(48 + b);
+					}
+					b -= 10;
+					if (b < 26) {
+				 		return String.fromCharCode(65 + b);
+					}
+					b -= 26;
+					if (b < 26) {
+				 		return String.fromCharCode(97 + b);
+					}
+					b -= 26;
+					if (b == 0) {
+				 		return '-';
+					}
+					if (b == 1) {
+				 		return '_';
+					}
+					return '?';
+				}
+			
+				// TODO: Remove unescape, use btoa for compatibility with graph.compress
+				function compress(s) 
+				{
+				  return encode64(graph.bytesToString(pako.deflateRaw(unescape(encodeURIComponent(s)))));
+				}
+			
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', plantUmlServerUrl + compress(text), true);
+				xhr.responseType = 'blob';
+				
+				xhr.onload = function(e) 
+				{
+				  if (this.status >= 200 && this.status < 300)
+				  {
+				    var reader = new FileReader();
+				    reader.readAsDataURL(this.response); 
+				    reader.onload = function(e) 
+				    {
+				    	var img = new Image();
+				    	img.onload = function()
+				    	{
+				    		editorUi.spinner.stop();
+				    		
+				    		graph.getModel().beginUpdate();
+							try
+							{
+								var view = graph.view;
+								var bds = graph.getGraphBounds();
+								
+								// Computes unscaled, untranslated graph bounds
+								var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
+								var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
+
+					    		cell = graph.insertVertex(null, null, '', graph.snap(x), graph.snap(y),
+									img.width, img.height, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + editorUi.convertDataUri(e.target.result) + ';');
+		    					graph.setAttributeForCell(cell, 'plantUml', text);
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
+							
+							graph.setSelectionCell(cell);
+				           	graph.scrollCellToVisible(graph.getSelectionCell());
+				    	};
+				    	img.src = e.target.result;
+				    };
+				    reader.onerror = function(e)
+				    {
+				    	editorUi.handleError(e);
+				    };
+				  }
+				  else 
+				  {
+					  editorUi.spinner.stop();
+					  error(e);
+				  }
+				};
+				
+				xhr.onerror = function(e)
+				{
+					editorUi.handleError(e);
+				};
+				 
+				xhr.send();
+	    	}
+		}
+		else if (type == 'list')
 		{
 			if (lines.length > 0)
 			{
@@ -2968,19 +3097,44 @@ var ParseDialog = function(editorUi, title)
 	textarea.style.width = '100%';
 	textarea.style.height = '354px';
 	textarea.style.marginBottom = '16px';
-		
-	var diagramCheckBox = document.createElement('input');
-	diagramCheckBox.setAttribute('type', 'checkbox');
 	
+	var typeSelect = document.createElement('select');
+
+	var listOption = document.createElement('option');
+	listOption.setAttribute('value', 'list');
+	listOption.setAttribute('selected', 'selected');
+	mxUtils.write(listOption, mxResources.get('list'));
+	typeSelect.appendChild(listOption);
+	
+	var diagramOption = document.createElement('option');
+	diagramOption.setAttribute('value', 'diagram');
+	mxUtils.write(diagramOption, mxResources.get('diagram'));
+	typeSelect.appendChild(diagramOption);
+		
+	var plantUmlSvgOption = document.createElement('option');
+	plantUmlSvgOption.setAttribute('value', 'plantUmlSvg');
+	mxUtils.write(plantUmlSvgOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatSvg') + ')');
+	
+	var plantUmlPngOption = document.createElement('option');
+	plantUmlPngOption.setAttribute('value', 'plantUmlPng');
+	mxUtils.write(plantUmlPngOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatPng') + ')');
+	
+	if (Graph.fileSupport && !editorUi.isOffline())
+	{
+		typeSelect.appendChild(plantUmlSvgOption);
+		typeSelect.appendChild(plantUmlPngOption);
+	}
+
 	function getDefaultValue()
 	{
-		return  (!diagramCheckBox.checked) ?
+		return  (typeSelect.value == 'list') ?
 			'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean' :
-			';Example:\na->b\nb->c\nc->a\n';
+			((typeSelect.value == 'plantUmlPng') ? '@startuml\nskinparam backgroundcolor transparent\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml' :
+			((typeSelect.value == 'plantUmlSvg') ? '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml' :
+			';Example:\na->b\nb->c\nc->a\n'));
 	};
 	
 	var defaultValue = getDefaultValue();
-
 	textarea.value = defaultValue;
 	div.appendChild(textarea);
 	
@@ -3018,9 +3172,9 @@ var ParseDialog = function(editorUi, title)
 		textarea.addEventListener('drop', handleDrop, false);
 	}
 
-	div.appendChild(diagramCheckBox);
+	div.appendChild(typeSelect);
 	
-	mxEvent.addListener(diagramCheckBox, 'change', function()
+	mxEvent.addListener(typeSelect, 'change', function()
 	{
 		var newDefaultValue = getDefaultValue();
 		
@@ -3030,11 +3184,6 @@ var ParseDialog = function(editorUi, title)
 			textarea.value = defaultValue;
 		}
 	});
-	
-	var span = document.createElement('span');
-	mxUtils.write(span, ' ' + mxResources.get('diagram'));
-	span.style.marginRight = '10px';
-	div.appendChild(span);
 	
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
@@ -3061,7 +3210,7 @@ var ParseDialog = function(editorUi, title)
 	var okBtn = mxUtils.button(mxResources.get('insert'), function()
 	{
 		editorUi.hideDialog();
-		parse(textarea.value, !diagramCheckBox.checked);
+		parse(textarea.value, typeSelect.value);
 	});
 	div.appendChild(okBtn);
 	
@@ -4226,48 +4375,48 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
         linkInput.focus();
 	};
 
-	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+	if (Graph.fileSupport)
 	{
-		if (Graph.fileSupport)
-		{
-			var fileInput = document.createElement('input');
-			fileInput.setAttribute('multiple', 'multiple');
-			fileInput.setAttribute('type', 'file');
-			
-			if (document.documentMode == null)
-			{
-				mxEvent.addListener(fileInput, 'change', function(evt)
-				{
-			    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
-			    	{
-			    		apply(data);
-			    	}, function()
-			    	{
-			    		// No post processing
-			    	}, function(file)
-			    	{
-			    		// Handles only images
-			    		return file.type.substring(0, 6) == 'image/';
-			    	}, function(queue)
-			    	{
-			    		// Invokes elements of queue in order
-			    		for (var i = 0; i < queue.length; i++)
-			    		{
-			    			queue[i]();
-			    		}
-			    	}, true);
-				});
-				
-				var btn = mxUtils.button(mxResources.get('open'), function()
-				{
-					fileInput.click();
-				});
-				btn.className = 'geBtn';
-				
-				btns.appendChild(btn);
-			}
-		}
+		var fileInput = document.createElement('input');
+		fileInput.setAttribute('multiple', 'multiple');
+		fileInput.setAttribute('type', 'file');
 		
+		if (document.documentMode == null)
+		{
+			mxEvent.addListener(fileInput, 'change', function(evt)
+			{
+		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
+		    	{
+		    		apply(data);
+		    	}, function()
+		    	{
+		    		// No post processing
+		    	}, function(file)
+		    	{
+		    		// Handles only images
+		    		return file.type.substring(0, 6) == 'image/';
+		    	}, function(queue)
+		    	{
+		    		// Invokes elements of queue in order
+		    		for (var i = 0; i < queue.length; i++)
+		    		{
+		    			queue[i]();
+		    		}
+		    	}, true);
+			});
+			
+			var btn = mxUtils.button(mxResources.get('open'), function()
+			{
+				fileInput.click();
+			});
+			btn.className = 'geBtn';
+			
+			btns.appendChild(btn);
+		}
+	}
+
+	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && window.self === window.top)
+	{
 		var searchBtn = mxUtils.button(mxResources.get('search'), function()
 		{
 			// Creates one picker and reuses it to avoid polluting the DOM
@@ -5090,7 +5239,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		linkInput.focus();
 	};
 
-	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && editorUi.drive != null)
 	{
 		var gpBtn = mxUtils.button(mxResources.get('googlePlus'), function()
 		{
@@ -5725,8 +5874,8 @@ var RevisionDialog = function(editorUi, revs)
 	
 	var currentElt = null;
 	
-	if (file == null || (editorUi.drive == null && file.constructor == DriveFile) ||
-		(editorUi.dropbox == null && file.constructor == DropboxFile))
+	if (file == null || (editorUi.drive == null && file.constructor == window.DriveFile) ||
+		(editorUi.dropbox == null && file.constructor == window.DropboxFile))
 	{
 		container.style.display = 'none';
 		tb.style.display = 'none';

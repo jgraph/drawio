@@ -6,6 +6,7 @@ package com.mxgraph.io.vsdx;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxResources;
@@ -359,9 +360,6 @@ public class VsdxShape extends Shape
 					{
 						para.addText(value, ch, fld);
 					}
-					
-					ch = null;
-					pg = null;
 				}
 			}
 		}
@@ -371,6 +369,7 @@ public class VsdxShape extends Shape
 	{
 		Paragraph para = this.paragraphs.get(index);
 		
+		// Paragraph
 		this.styleMap.put(mxConstants.STYLE_ALIGN, getHorizontalAlign(index, false));
 		this.styleMap.put(mxConstants.STYLE_SPACING_LEFT, getIndentLeft(index));
 		this.styleMap.put(mxConstants.STYLE_SPACING_RIGHT, getIndentRight(index));
@@ -383,43 +382,57 @@ public class VsdxShape extends Shape
 		this.styleMap.put("fontSize", String.valueOf(Double.parseDouble(this.getTextSize(index))));
 		this.styleMap.put("fontFamily", getTextFont(index));
 		
+		// Character
 		int fontStyle = isBold(index) ? mxConstants.FONT_BOLD : 0;
 		fontStyle |= isItalic(index) ? mxConstants.FONT_ITALIC : 0;
 		fontStyle |= isUnderline(index) ? mxConstants.FONT_UNDERLINE : 0;
 		this.styleMap.put("fontStyle", String.valueOf(fontStyle));
-
-		String value = para.getValue(0);
 		
-		if (value.isEmpty() && this.fields != null)
-		{
-			String fieldIx = para.getField(0);
-			
-			if (fieldIx != null)
-			{
-				value = this.fields.get(fieldIx);
-				
-				if (value == null)
-				{
-					Shape masterShape = null;
+		this.styleMap.put(mxConstants.STYLE_TEXT_OPACITY, getTextOpacity(index));
 
-					if (this.getMasterId() != null)
-					{
-						masterShape = master.getMasterShape();
-					}
-					else 
-					{
-						masterShape = master.getSubShape(this.getShapeMasterId());
-					}
+		int numValues = para.numValues();
+		String result = "";
+		
+		for (int i = 0; i < numValues; i++)
+		{
+			String value = para.getValue(i);
+			
+			if (value.isEmpty() && this.fields != null)
+			{
+				String fieldIx = para.getField(i);
+				
+				if (fieldIx != null)
+				{
+					value = this.fields.get(fieldIx);
 					
-					if (masterShape != null && masterShape.fields != null)
+					if (value == null)
 					{
-						value = masterShape.fields.get(fieldIx);
+						Shape masterShape = null;
+	
+						if (this.getMasterId() != null)
+						{
+							masterShape = master.getMasterShape();
+						}
+						else 
+						{
+							masterShape = master.getSubShape(this.getShapeMasterId());
+						}
+						
+						if (masterShape != null && masterShape.fields != null)
+						{
+							value = masterShape.fields.get(fieldIx);
+						}
 					}
 				}
 			}
+			
+			if (value != null)
+			{
+				result += value;
+			}
 		}
 		
-		return value == null ? "" : value;
+		return result;
 	}
 	
 	/**
@@ -787,17 +800,6 @@ public class VsdxShape extends Shape
 
 		styleMap.putAll(form);
 
-		//Defines if line is rounding
-		if(form.containsKey(mxConstants.STYLE_ROUNDED) && !form.get(mxConstants.STYLE_ROUNDED).equals("0"))
-		{
-			boolean isRounded = isRounded();
-
-			if (isRounded)
-			{
-				styleMap.put(mxConstants.STYLE_ROUNDED, mxVsdxConstants.TRUE);
-			}
-		}
-
 		//Defines line Pattern
 		if (isDashed())
 		{
@@ -978,9 +980,9 @@ public class VsdxShape extends Shape
 	}
 
 	/**
-	 * Returns if the line is Rounded.<br/>
+	 * Returns whether the cell is Rounded.<br/>
 	 * The property may to be defined in master shape or line stylesheet.<br/>
-	 * @return Returns <code>mxVdxConstants.TRUE</code> if the line is Rounded.
+	 * @return Returns <code>true</code> if the cell is Rounded.
 	 */
 	public boolean isRounded()
 	{
@@ -1302,7 +1304,7 @@ public class VsdxShape extends Shape
 			try
 			{
 				String type = VsdxShape.getType(this.getShape());
-				String foreignType = "";
+				// String foreignType = "";
 				this.styleDebug("shape type = " + type);
 
 				if (this.imageData != null)
@@ -1339,13 +1341,7 @@ public class VsdxShape extends Shape
 					return result;
 				}
 	
-				String stencil = URLEncoder.encode(parsedGeom, "UTF-8")
-				        .replaceAll("\\+", "%20")
-				        .replaceAll("\\%21", "!")
-				        .replaceAll("\\%27", "'")
-				        .replaceAll("\\%28", "(")
-				        .replaceAll("\\%29", ")")
-				        .replaceAll("\\%7E", "~");
+				String stencil = Utils.encodeURIComponent(parsedGeom, "UTF-8");
 				
 				byte[] bytes = stencil.getBytes("UTF-8");
 				Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
@@ -1470,7 +1466,6 @@ public class VsdxShape extends Shape
 		return result;
 
 		//result.put("edgeStyle", "orthogonalEdgeStyle");
-		//result.put("rounded", isEdgeRounded());
 		//return result;
 
 		//result.put("curved", "1");
@@ -1479,31 +1474,6 @@ public class VsdxShape extends Shape
 		//return null;
 	}
 	
-	/**
-	 * @return 1 if Visio edge is rounded, 0 if square
-	 */
-	private String isEdgeRounded()
-	{
-		if (shape != null)
-		{
-			NodeList lineList = shape.getElementsByTagName(mxVsdxConstants.LINE);
-			Element firstLine = (Element) lineList.item(0);
-			
-			if (firstLine != null)
-			{
-				Element firstRounding = (Element) firstLine.getElementsByTagName(mxVsdxConstants.ROUNDING).item(0);
-				String rounding = firstRounding.getTextContent();
-				
-				if (rounding != null && !rounding.equals("") && !rounding.equals("0") && !rounding.equals("0.0"))
-				{
-					return "1";
-				}
-			}
-		}
-		
-		return "0";
-	}
-
 	public Map<Integer, VsdxShape> getChildShapes()
 	{
 		return childShapes;
@@ -1963,8 +1933,11 @@ public class VsdxShape extends Shape
 
 		if (!lbkgnd.equals(""))
 		{
-			styleMap.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, lbkgnd);
+			this.styleMap.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, lbkgnd);
 		}
+		
+		/** ROUNDING **/
+		this.styleMap.put(mxConstants.STYLE_ROUNDED, isRounded() ? mxVsdxConstants.TRUE : mxVsdxConstants.FALSE);
 		
 		return styleMap;
 	}

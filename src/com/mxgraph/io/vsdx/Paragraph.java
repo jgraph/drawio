@@ -48,6 +48,11 @@ public class Paragraph
 		return values.get(index);
 	}
 	
+	public int numValues()
+	{
+		return this.values.size();
+	}
+	
 	public String getChar(int index)
 	{
 		return charIndices.get(index);
