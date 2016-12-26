@@ -226,7 +226,7 @@ App.getStoredMode = function()
 						{
 							mxscript('https://apis.google.com/js/api.js');
 						}
-						else
+						else if (urlParams['chrome'] == '0')
 						{
 							// Disables loading of client
 							window.DriveClient = null;
