@@ -502,7 +502,7 @@
 			return function()
 			{
 				// LATER Fix decoding of HTML file in backend (remove argument in getFileData)
-				return 'xml=' + encodeURIComponent(ui.getFileData(true));
+				return 'xml=' + encodeURIComponent(ui.getFileData(true, null, null, null, null, true));
 			};
 		};
 	}

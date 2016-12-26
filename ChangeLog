@@ -1,3 +1,8 @@
+26-DEC-2016: 6.0.2.6
+
+- Fixes lazy loading of clients in chromeless mode
+- Fixes export of arbitrary pages with advanced dialog
+
 23-DEC-2016: 6.0.2.5
 
 - Adds PlantUML option in text dialog

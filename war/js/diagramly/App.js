@@ -216,7 +216,7 @@ App.getStoredMode = function()
 			{
 				if (typeof window.DriveClient === 'function')
 				{
-					if (urlParams['gapi'] != '0' && isSvgBrowser && urlParams['chrome'] != '0' &&
+					if (urlParams['gapi'] != '0' && isSvgBrowser &&
 						(document.documentMode == null || document.documentMode >= 10))
 					{
 						// Immediately loads client
@@ -225,6 +225,11 @@ App.getStoredMode = function()
 							window.location.hash.substring(0, 2) == '#G'))
 						{
 							mxscript('https://apis.google.com/js/api.js');
+						}
+						else
+						{
+							// Disables loading of client
+							window.DriveClient = null;
 						}
 					}
 					else
@@ -238,7 +243,7 @@ App.getStoredMode = function()
 				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
 				if (typeof window.DropboxClient === 'function')
 				{
-					if (urlParams['db'] != '0' && isSvgBrowser && urlParams['chrome'] != '0' &&
+					if (urlParams['db'] != '0' && isSvgBrowser &&
 						(document.documentMode == null || document.documentMode > 9))
 					{
 						// Immediately loads client
@@ -246,6 +251,10 @@ App.getStoredMode = function()
 							window.location.hash.substring(0, 2) == '#D'))
 						{
 							mxscript('https://www.dropbox.com/static/api/1/dropins.js', null, 'dropboxjs', App.DROPBOX_APPKEY);
+						}
+						else if (urlParams['chrome'] == '0')
+						{
+							window.DropboxClient = null;
 						}
 					}
 					else
@@ -259,7 +268,6 @@ App.getStoredMode = function()
 				if (typeof window.OneDriveClient === 'function')
 				{
 					if (urlParams['od'] != '0' && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
-						urlParams['chrome'] != '0' &&
 						(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
 						// Immediately loads client
@@ -267,6 +275,10 @@ App.getStoredMode = function()
 							window.location.hash.substring(0, 2) == '#W'))
 						{
 							mxscript('https://js.live.net/v5.0/wl.js');
+						}
+						else if (urlParams['chrome'] == '0')
+						{
+							window.OneDriveClient = null;
 						}
 					}
 					else
