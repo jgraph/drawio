@@ -4262,11 +4262,11 @@
 - Uses mxGraph 1.10.3.1
 - Fixes background color for SVG export in quirks mode
 - Enables Google image picker on Mac/iPad
-- Adds Github menu item in help menu
+- Adds GitHub menu item in help menu
 
 29-AUG-2012: 1.6.1.9
 
-- Fixes Github deployment Ant task
+- Fixes GitHub deployment Ant task
 - Fixes German Facebook button (changes to English)
 - Fixes touch-based panning for embedded diagrams
 - Uses mxGraph 1.10.3.0
