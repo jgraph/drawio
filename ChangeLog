@@ -1,3 +1,10 @@
+28-DEC-2016: 6.0.2.7
+
+- Adds dialog for selecting pages in docs add-on
+- Fixes update all for generic links in docs add-on
+- Adds open in new window, data URI import while offline
+- Adds import for Lucidchart files
+
 26-DEC-2016: 6.0.2.6
 
 - Fixes lazy loading of clients in chromeless mode
@@ -2913,7 +2920,7 @@
 - Adds edge width option in arrange panel
 - Changes replace existing diagram to open in this window
 - Fixes connection points for tee and corner shape
-- Fixes iconfinder search client for github domain
+- Fixes iconfinder search client for GitHub domain
 - Adds thumb=0 URL parameter to disable thumbnails in Drive
 - Adds autosize option in embed dialog for responsive pages
 - Adds rounded support for single- and doubleArrow vertices
@@ -4262,11 +4269,11 @@
 - Uses mxGraph 1.10.3.1
 - Fixes background color for SVG export in quirks mode
 - Enables Google image picker on Mac/iPad
-- Adds Github menu item in help menu
+- Adds GitHub menu item in help menu
 
 29-AUG-2012: 1.6.1.9
 
-- Fixes Github deployment Ant task
+- Fixes GitHub deployment Ant task
 - Fixes German Facebook button (changes to English)
 - Fixes touch-based panning for embedded diagrams
 - Uses mxGraph 1.10.3.0
