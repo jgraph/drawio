@@ -580,6 +580,7 @@
 		
 		if (urlParams['createindex'] == '1')
 		{
+			mxLog.show();
 			mxLog.textarea.value = '';
 		}
 

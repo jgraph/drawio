@@ -1613,12 +1613,23 @@
 		// TODO: Convert text object to HTML
 		return (text != null && text.t != null) ? text.t : '';
 	};
-
-	function updateCell(cell, obj)
+		
+	function getAction(obj)
 	{
 		if (obj.Action != null)
 		{
-			var a = obj.Action;
+			return obj.Action;
+		}
+		
+		return obj;
+	};
+		
+	function updateCell(cell, obj)
+	{
+		var a = getAction(obj);
+		
+		if (a != null)
+		{
 			var s = styleMap[a.Class];
 			
 			if (s != null)
@@ -1630,9 +1641,10 @@
 				//console.log('no mapping', a.Class);
 			}
 			
-			if (a.Properties != null)
+			var p = (a.Properties != null) ? a.Properties : a;
+			
+			if (p != null)
 			{
-				var p = obj.Action.Properties;
 				cell.value = convertText(p);
 				
 				// Converts images
@@ -1758,7 +1770,7 @@
 	
 	function createVertex(obj)
 	{
-		var p = obj.Action.Properties;
+		var p = getAction(obj).Properties;
 		var b = p.BoundingBox;
 		
 		var v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round(b.y * scale + dy),
@@ -1777,15 +1789,17 @@
 		updateCell(e, obj);
 		
 		// Adds text labels
-		var p = obj.Action.Properties;
+		var a = getAction(obj);
+		var p = a.Properties;
+		var ta = (p != null) ? p.TextAreas : obj.TextAreas;
 		
-		if (p.TextAreas != null)
+		if (ta != null)
 		{
 			var count = 0;
 			
-			while (p.TextAreas['t' + count] != null)
+			while (ta['t' + count] != null)
 			{
-				var ta = p.TextAreas['t' + count];
+				var ta = ta['t' + count];
 				
 				var x = (parseFloat(ta.Location) - 0.5) * 2;
 				var lab = new mxCell(convertText(ta), new mxGeometry(x, 0, 0, 0), labelStyle);
@@ -1843,7 +1857,7 @@
 		}
 	};
 
-	EditorUi.prototype.pasteLucidChart = function(g)
+	EditorUi.prototype.pasteLucidChart = function(g, dx, dy, crop)
 	{
 		// Creates a new graph, inserts cells and returns XML for insert
 		var graph = this.editor.graph;
@@ -1856,31 +1870,68 @@
 			var queue = [];
 
 			// Vertices first (populates lookup table for connecting edges)
-			for (var i = 0; i < g.Objects.length; i++)
+			if (g.Blocks != null)
 			{
-				var obj = g.Objects[i];
-				
-				if (obj.IsBlock && obj.Action != null && obj.Action.Properties != null)
+				for (var key in g.Blocks)
 				{
+					var obj = g.Blocks[key];
+					obj.id = key;
 				    lookup[obj.id] = createVertex(obj);
+					queue.push(obj);
 				}
-				
-				queue.push(obj);
 			}
-			
+			else
+			{
+				for (var i = 0; i < g.Objects.length; i++)
+				{
+					var obj = g.Objects[i];
+					
+					if (obj.IsBlock && obj.Action != null && obj.Action.Properties != null)
+					{
+					    lookup[obj.id] = createVertex(obj);
+					}
+					
+					queue.push(obj);
+				}
+			}
+				
 			// Sorts all cells by ZOrder
 			queue.sort(function(a, b)
 			{
-				if (a.Action != null && a.Action.Properties != null)
+				a = getAction(a);
+				b = getAction(b);
+				
+				if (a.Properties != null)
 				{
-					if (b.Action != null && b.Action.Properties != null)
+					if (b.Properties != null)
 					{
-						return a.Action.Properties.ZOrder - b.Action.Properties.ZOrder;
+						return a.Properties.ZOrder - b.Properties.ZOrder;
 					}
 				}
 				
 				return 0;
 			});
+			
+			function addLine(obj, p)
+			{
+				var src = (p.Endpoint1.Block != null) ? lookup[p.Endpoint1.Block] : null;
+				var trg = (p.Endpoint2.Block != null) ? lookup[p.Endpoint2.Block] : null;
+				var e = createEdge(obj);
+				
+				if (src == null && p.Endpoint1 != null)
+				{
+					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint1.x * scale + dx),
+						Math.round(p.Endpoint1.y * scale + dy)), true);
+				}
+				
+				if (trg == null && p.Endpoint2 != null)
+				{
+					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint2.x * scale + dx),
+						Math.round(p.Endpoint2.y * scale + dy)), false);
+				}
+				
+				select.push(graph.addCell(e, null, null, src, trg));
+			};
 			
 			// Inserts cells in ZOrder and connects edges via lookup
 			for (var i = 0; i < queue.length; i++)
@@ -1895,23 +1946,32 @@
 				else if (obj.IsLine && obj.Action != null && obj.Action.Properties != null)
 				{
 					var p = obj.Action.Properties;
-					var src = (p.Endpoint1.Block != null) ? lookup[p.Endpoint1.Block] : null;
-					var trg = (p.Endpoint2.Block != null) ? lookup[p.Endpoint2.Block] : null;
-					var e = createEdge(obj);
-					
-					if (src == null && p.Endpoint1 != null)
-					{
-						e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint1.x * scale + dx),
-							Math.round(p.Endpoint1.y * scale + dy)), true);
-					}
-					
-					if (trg == null && p.Endpoint2 != null)
-					{
-						e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint2.x * scale + dx),
-							Math.round(p.Endpoint2.y * scale + dy)), false);
-					}
-					
-					select.push(graph.addCell(e, null, null, src, trg));
+					addLine(obj, p);
+				}
+			}
+			
+			if (g.Lines != null)
+			{
+				for (var key in g.Lines)
+				{
+					var obj = g.Lines[key];
+				    addLine(obj, obj);
+				}
+			}
+			
+			if (crop && dx != null && dy != null)
+			{
+				if (graph.isGridEnabled())
+				{
+					dx = graph.snap(dx);
+					dy = graph.snap(dy);
+				}
+				
+				var bounds = graph.getBoundingBoxFromGeometry(select, true);
+				
+				if (bounds != null)
+				{
+					graph.moveCells(select, dx - bounds.x, dy - bounds.y);
 				}
 			}
 
