@@ -7,6 +7,7 @@ package com.mxgraph.io;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.mxgraph.io.vsdx.mxVsdxModel;
 import com.mxgraph.io.vsdx.mxVsdxPage;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.online.Utils;
 import com.mxgraph.online.mxBase64;
 import com.mxgraph.util.mxConstants;
@@ -374,6 +376,8 @@ public class mxVsdxCodec
 			addUnconnectedEdge(graph, parentsMap.get(new ShapePageId(pageId, edgeShape.getId())), edgeShape, pageHeight);
 		}
 
+		sanitiseGraph(graph);
+
 		return pageHeight;
 	}
 
@@ -405,11 +409,11 @@ public class mxVsdxCodec
 
 				if (shape.isGroup())
 				{
-					v1 = addGroup(graph, shape, parent, pageId, parentHeight, 0);
+					v1 = addGroup(graph, shape, parent, pageId, parentHeight);
 				}
 				else
 				{
-					v1 = addVertex(graph, shape, parent, pageId, parentHeight, 0);
+					v1 = addVertex(graph, shape, parent, pageId, parentHeight);
 				}
 
 				vertexShapeMap.put(new ShapePageId(pageId, id), shape);
@@ -433,7 +437,7 @@ public class mxVsdxCodec
 	 * @param parentHeight Height of the parent cell of the shape.
 	 * @return Cell added to the graph.
 	 */
-	public mxCell addGroup(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight, double parentRotation)
+	public mxCell addGroup(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight)
 	{
 		//Set title
 		//		String t = "";
@@ -450,7 +454,6 @@ public class mxVsdxCodec
 		{
 			textLabel = shape.getTextLabel();
 		}
-
 		
 		//Define dimensions
 		mxPoint d = shape.getDimensions();
@@ -459,11 +462,8 @@ public class mxVsdxCodec
 		boolean masterHasGeom = masterShape == null ? false : masterShape.hasGeom();
 		boolean hasGeom = shape.hasGeom() || masterHasGeom;
 
-		//Define origin
-		mxPoint o = shape.getOriginPoint(parentHeight, true);
-
 		//Define style
-		Map<String, String> styleMap = shape.getStyleFromShape(parentRotation);
+		Map<String, String> styleMap = shape.getStyleFromShape();
 		
 		if (!hasGeom)
 		{
@@ -481,6 +481,7 @@ public class mxVsdxCodec
 		Map<Integer, VsdxShape> children = shape.getChildShapes();
 		boolean hasChildren = false;//children != null && children.size() > 0;
 		boolean subLabel = shape.isDisplacedLabel() || shape.isRotatedLabel() || hasChildren;
+		mxPoint o = shape.getOriginPoint(parentHeight, true);
 
 		if (subLabel)
 		{
@@ -521,13 +522,15 @@ public class mxVsdxCodec
 				{
 					if (subShape.isVertex())
 					{
+						subShape.propagateRotation(shape.getRotation());
+
 						if (subShape.isGroup())
 						{
-							addGroup(graph, subShape, group, pageId, d.getY(), shape.getRotation());
+							addGroup(graph, subShape, group, pageId, d.getY());
 						}
 						else
 						{
-							addVertex(graph, subShape, group, pageId, d.getY(), shape.getRotation());
+							addVertex(graph, subShape, group, pageId, d.getY());
 
 						}
 					}
@@ -567,7 +570,7 @@ public class mxVsdxCodec
 	 * @param parentHeight Height of the parent cell of the shape.
 	 * @return Cell added to the graph.
 	 */
-	public mxCell addVertex(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight, double parentRotation)
+	public mxCell addVertex(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight)
 	{
 		//Defines Text Label.
 		String textLabel = "";
@@ -577,16 +580,15 @@ public class mxVsdxCodec
 			textLabel = shape.getTextLabel();
 		}
 
-		mxPoint coordinates = shape.getOriginPoint(parentHeight, true);
 		mxPoint dimensions = shape.getDimensions();
 
-		Map<String, String> styleMap = shape.getStyleFromShape(parentRotation);
+		Map<String, String> styleMap = shape.getStyleFromShape();
 
-		if (textLabel.startsWith("<p>") || textLabel.startsWith("<p ")
-				|| textLabel.startsWith("<font"))
-		{
+		//if (textLabel != null && (textLabel.startsWith("<p>") || textLabel.startsWith("<p ")
+		//		|| textLabel.startsWith("<font")))
+		//{
 			styleMap.put("html", "1");
-		}
+		//}
 
 		boolean geomExists = styleMap.containsKey(mxConstants.STYLE_SHAPE)
 				|| styleMap.containsKey("stencil");
@@ -609,31 +611,32 @@ public class mxVsdxCodec
 
 		styleMap.put(mxConstants.STYLE_WHITE_SPACE, "wrap");
 
-		double y = coordinates.getY();
+		mxPoint coordinates = shape.getOriginPoint(parentHeight, true);
 
-		if (geomExists || !textLabel.isEmpty() || shape.isDisplacedLabel() || shape.isRotatedLabel())
+		if (geomExists || textLabel != null)
 		{
 			String style = mxVsdxUtils.getStyleString(styleMap, "=");
 
 			mxCell v1 = null;
+			boolean hasSubLabel = shape.isDisplacedLabel() || shape.isRotatedLabel();// || shape.getRotation() != 0;
 
-			if (shape.isDisplacedLabel() || shape.isRotatedLabel())
+			if (hasSubLabel)
 			{
 				v1 = (mxCell) graph.insertVertex(parent, null, null,
-						coordinates.getX(), y, dimensions.getX(),
+						coordinates.getX(), coordinates.getY(), dimensions.getX(),
 						dimensions.getY(), style);
 			}
 			else
 			{
 				v1 = (mxCell) graph.insertVertex(parent, null, textLabel,
-						coordinates.getX(), y, dimensions.getX(),
+						coordinates.getX(), coordinates.getY(), dimensions.getX(),
 						dimensions.getY(), style);
 			}
 
 			vertexMap.put(new ShapePageId(pageId, shape.getId()), v1);
 			shape.setLabelOffset(v1, style);
 
-			if (shape.isDisplacedLabel() || shape.isRotatedLabel())
+			if (hasSubLabel)
 			{
 				createLabelSubShape(graph, shape, v1);
 			}
@@ -804,56 +807,116 @@ public class mxVsdxCodec
 		return edgeId;
 	}
 
-		/**
-		 * Adds a new edge not connected to any vertex to the graph.
-		 * @param graph Graph where the parsed graph is included.
-		 * @param parent Parent cell of the edge to be imported.
-		 * @param edgeShape Shape Element that represents an edge.
-		 * @return The new edge added.
-		 */
-		protected Object addUnconnectedEdge(mxGraph graph, Object parent, VsdxShape edgeShape, double pageHeight)
+	/**
+	 * Adds a new edge not connected to any vertex to the graph.
+	 * @param graph Graph where the parsed graph is included.
+	 * @param parent Parent cell of the edge to be imported.
+	 * @param edgeShape Shape Element that represents an edge.
+	 * @return The new edge added.
+	 */
+	protected Object addUnconnectedEdge(mxGraph graph, Object parent, VsdxShape edgeShape, double pageHeight)
+	{
+		double parentHeight = pageHeight;
+
+		if (parent != null)
 		{
-			double parentHeight = pageHeight;
+			mxGeometry parentGeometry = graph.getModel().getGeometry(parent);
 
-			if (parent != null)
+			if (parentGeometry != null)
 			{
-				mxGeometry parentGeometry = graph.getModel().getGeometry(parent);
-
-				if (parentGeometry != null)
-				{
-					parentHeight = parentGeometry.getHeight();
-				}
+				parentHeight = parentGeometry.getHeight();
 			}
-	
-			mxPoint beginXY = edgeShape.getStartXY(parentHeight);
-			mxPoint endXY = edgeShape.getEndXY(parentHeight);
-
-			//Define style of the edge
-			Map<String, String> styleMap = edgeShape.getStyleFromEdgeShape(parentHeight);
-	
-			//TODO add style numeric entries rounding option
-			
-			//Insert new edge and set constraints.
-			Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
-			mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
-			edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
-			
-			edgeGeometry.setTerminalPoint(beginXY, true);
-			edgeGeometry.setTerminalPoint(endXY, false);
-
-			//Gets and sets routing points of the edge.
-			if (styleMap.containsKey("curved")
-					&& styleMap.get("curved").equals("1"))
-			{
-				edgeGeometry = graph.getModel().getGeometry(edge);
-				List<mxPoint> pointList = edgeShape
-						.getControlPoints(parentHeight);
-				edgeGeometry.setPoints(pointList);
-			}
-			
-			return edge;
 		}
 
+		mxPoint beginXY = edgeShape.getStartXY(parentHeight);
+		mxPoint endXY = edgeShape.getEndXY(parentHeight);
+
+		//Define style of the edge
+		Map<String, String> styleMap = edgeShape.getStyleFromEdgeShape(parentHeight);
+
+		//TODO add style numeric entries rounding option
+		
+		//Insert new edge and set constraints.
+		Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
+		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
+		
+		edgeGeometry.setTerminalPoint(beginXY, true);
+		edgeGeometry.setTerminalPoint(endXY, false);
+
+		//Gets and sets routing points of the edge.
+		if (styleMap.containsKey("curved")
+				&& styleMap.get("curved").equals("1"))
+		{
+			edgeGeometry = graph.getModel().getGeometry(edge);
+			List<mxPoint> pointList = edgeShape
+					.getControlPoints(parentHeight);
+			edgeGeometry.setPoints(pointList);
+		}
+		
+		return edge;
+	}
+
+	/**
+	 * Post processes groups to remove leaf vertices that render nothing
+	 * @param group
+	 */
+	private void sanitiseGraph(mxGraph graph)
+	{
+		Object root = graph.getModel().getRoot();
+		sanitiseCell(graph, root);
+	}
+	
+	private boolean sanitiseCell(mxGraph graph, Object cell)
+	{
+		mxIGraphModel model = graph.getModel();
+		int childCount = model.getChildCount(cell);
+		ArrayList<Object> removeList = new ArrayList<Object>();
+
+		for (int i = 0; i < childCount; i++)
+		{
+			Object child = model.getChildAt(cell, i);
+			boolean remove = sanitiseCell(graph, child);
+			
+			// Can't remove during loop or indexing is messed up
+			if (remove)
+			{
+				removeList.add(child);
+			}
+		}
+		
+		for (Object removeChild : removeList)
+		{
+			model.remove(removeChild);
+		}
+		
+		if (childCount > 0)
+		{
+			// children may have been removed above
+			childCount = model.getChildCount(cell);
+		}
+		
+		String value = String.valueOf(model.getValue(cell));
+		String style = model.getStyle(cell);
+
+		if (childCount == 0 && model.isVertex(cell))
+		{
+			if ((model.getValue(cell) == null || value.isEmpty()) &&
+					(style != null) &&
+					(style.contains(mxConstants.STYLE_FILLCOLOR + "=none")) &&
+					(style.contains(mxConstants.STYLE_STROKECOLOR + "=none")) &&
+					(style.contains(mxConstants.STYLE_GRADIENTCOLOR + "=none")) &&
+					(!style.contains("image=")))
+			{
+				// Leaf vertex, nothing rendered, no label, remove it
+
+				return true;
+			}
+		}
+		
+		return false;
+	}
+		
 	/**
 	 * Creates a sub shape for <b>shape</b> that contains the label. Used internally, when the label is positioned by an anchor.
 	 * @param graph
@@ -864,128 +927,50 @@ public class mxVsdxCodec
 	 */
 	private mxCell createLabelSubShape(mxGraph graph, VsdxShape shape, mxCell parent)
 	{
-		String txtPinXV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_PIN_X, "V", "");
-		String txtPinYV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_PIN_Y, "V", "");
-		String txtWV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_WIDTH, "V", "");
-		String txtHV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_HEIGHT, "V", "");
-		String txtLocPinXV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_LOC_PIN_X, "V", "");
-		String txtLocPinYV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_LOC_PIN_Y, "V", "");
-		String txtAngleV = shape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-				mxVsdxConstants.TXT_ANGLE, "V", "");
+		double txtWV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_WIDTH), shape.getWidth());
+		double txtHV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_HEIGHT), shape.getHeight());
+		double txtLocPinXV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), txtWV / 2.0);
+		double txtLocPinYV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), txtHV / 2.0);
+		double txtPinXV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
+		double txtPinYV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_PIN_Y), txtHV);
+		double txtAngleV = shape.getValueAsDouble(shape.getShapeNode(mxVsdxConstants.TXT_ANGLE), 0);
 
-		Shape masterShape = shape.getMaster() != null ? shape
-				.getMaster().getMasterShape() : null;
+		String textLabel = shape.getTextLabel();
 
-		if (masterShape != null)
+		if (textLabel != null && !textLabel.isEmpty())
 		{
-			if (txtPinXV.equals(""))
+			Map<String, String> styleMap = new HashMap<String, String>(shape.getStyleMap());
+			styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
+			styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
+			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE);
+			styleMap.put("align", "center");
+			styleMap.put("verticalAlign", "middle");
+			styleMap.put("whiteSpace", "wrap");
+			
+			// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
+			styleMap.remove("shape");
+			//styleMap.put("html", "1");
+
+			if (txtAngleV != 0)
 			{
-				txtPinXV = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_PIN_X, "V", "");
-			}
+				double labRot = txtAngleV * 180 / Math.PI;
+				labRot = Math.round((labRot + shape.getRotation()) * 100.0) / 100.0;
 
-			if (txtPinYV.equals(""))
-			{
-				txtPinYV = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_PIN_Y, "V", "");
-			}
-
-			if (txtWV.equals(""))
-			{
-				txtWV = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_WIDTH, "V", "");
-			}
-
-			if (txtHV.equals(""))
-			{
-				txtHV = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_HEIGHT, "V", "");
-			}
-
-			if (txtLocPinXV.equals(""))
-			{
-				txtLocPinXV = masterShape.getAttribute(
-						mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_LOC_PIN_X, "V", "");
-			}
-
-			if (txtLocPinYV.equals(""))
-			{
-				txtLocPinYV = masterShape.getAttribute(
-						mxVsdxConstants.TEXT_X_FORM,
-						mxVsdxConstants.TXT_LOC_PIN_Y, "V", "");
-			}
-
-			if (txtAngleV.equals(""))
-			{
-				txtAngleV = masterShape.getAttribute(
-						mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_ANGLE,
-						"V", "");
-			}
-		}
-
-		if (!txtPinXV.equals("") && !txtPinYV.equals("") && !txtWV.equals("")
-				&& !txtHV.equals("") && !txtLocPinXV.equals("")
-				&& !txtLocPinYV.equals(""))
-		{
-			String textLabel = shape.getTextLabel();
-
-			if (!textLabel.equals(""))
-			{
-				Map<String, String> styleMap = new HashMap<String, String>(shape.getStyleMap());
-				styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
-				styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
-				styleMap.put("align", "center");
-				styleMap.put("verticalAlign", "middle");
-				styleMap.put("whiteSpace", "wrap");
-				
-				// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
-				styleMap.remove("shape");
-				//styleMap.put("html", "1");
-
-				if (!txtAngleV.equals(""))
+				if (labRot != 0.0)
 				{
-					String oldRotS = styleMap.get("rotation");
-					double oldRot = 0;
-
-					if (oldRotS != null)
-					{
-						oldRot = Double.parseDouble(oldRotS);
-					}
-
-					double labRot = Double.parseDouble(txtAngleV) * 180
-							/ Math.PI;
-
-					labRot = Math.round((labRot + oldRot) * 100.0) / 100.0;
-
-					if (labRot != 0.0)
-					{
-						styleMap.put("rotation", Double.toString(labRot));
-					}
+					styleMap.put("rotation", Double.toString(labRot));
 				}
-
-				String style = "text;"
-						+ mxVsdxUtils.getStyleString(styleMap, "=");
-
-				double y = parent.getGeometry().getHeight() - ((Double.parseDouble(txtPinYV)) + (Double.parseDouble(txtHV) - Double.parseDouble(txtLocPinYV))) * mxVsdxUtils.conversionFactor;
-				double x = (Double.parseDouble(txtPinXV) - Double.parseDouble(txtLocPinXV)) * mxVsdxUtils.conversionFactor;
-
-				double txtW = Double.parseDouble(txtWV)
-						* mxVsdxUtils.conversionFactor;
-				double txtH = Double.parseDouble(txtHV)
-						* mxVsdxUtils.conversionFactor;
-
-				mxCell v1 = (mxCell) graph.insertVertex(
-						parent, null, textLabel, x, y, txtW, txtH, style + ";html=1;");
-
-				return v1;
 			}
+
+			String style = "text;"
+					+ mxVsdxUtils.getStyleString(styleMap, "=");
+
+			double y = parent.getGeometry().getHeight() - (txtPinYV + txtHV - txtLocPinYV);
+			double x = txtPinXV - txtLocPinXV;
+
+			mxCell v1 = (mxCell) graph.insertVertex(parent, null, textLabel, x, y, txtWV, txtHV, style + ";html=1;");
+
+			return v1;
 		}
 
 		return null;

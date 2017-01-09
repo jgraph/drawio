@@ -1148,13 +1148,13 @@ GraphViewer.prototype.showLightbox = function()
 			});
 			
 			mxEvent.addListener(window, 'message', receive);
-			wnd = window.open('https://test.draw.io/?dev=1&client=1&chrome=0&lightbox=1&close=1&edit=_blank' + p);
+			wnd = window.open('https://www.draw.io/?client=1&chrome=0&lightbox=1&close=1&edit=_blank' + p);
 		}
 		else
 		{
 			// Data is pulled from global variable after tab loads
 			window.drawdata = this.xml;
-			window.open('https://test.draw.io/?dev=1&client=1&chrome=0&lightbox=1&edit=_blank' + p);
+			window.open('https://www.draw.io/?client=1&chrome=0&lightbox=1&edit=_blank' + p);
 		}
 	}
 	else

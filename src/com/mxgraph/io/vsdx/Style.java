@@ -203,7 +203,7 @@ public class Style
 	 * @param defaultValue the value to return if there is no value attribute
 	 * @return double value of the element, or the default value if no value found
 	 */
-	protected double getValueAsDouble(Element cell, double defaultValue)
+	public double getValueAsDouble(Element cell, double defaultValue)
 	{
 		if (cell != null)
 		{
@@ -248,7 +248,7 @@ public class Style
 	 * @param defaultValue the value to return if there is no value attribute
 	 * @return double value of the element, or the default value if no value found
 	 */
-	protected double getScreenNumericalValue(Element cell, double defaultValue)
+	public double getScreenNumericalValue(Element cell, double defaultValue)
 	{
 		if (cell != null)
 		{
