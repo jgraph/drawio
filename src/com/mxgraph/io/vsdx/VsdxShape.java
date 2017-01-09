@@ -14,7 +14,6 @@ import com.mxgraph.util.mxResources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -74,21 +73,6 @@ public class VsdxShape extends Shape
 	protected VsdxShape rootShape = this;
 
 	public double parentHeight;
-	
-	/**
-	 * Stylesheet with the fill style referenced by the shape.
-	 */
-	protected Style fillStyle = null;
-
-	/**
-	 * Stylesheet with the line style referenced by the shape.
-	 */
-	protected Style lineStyle = null;
-
-	/**
-	 * Stylesheet with the text style referenced by the shape.
-	 */
-	protected Style textStyle = null;
 	
 	/**
 	 * The prefix of the shape name
@@ -184,9 +168,6 @@ public class VsdxShape extends Shape
 			this.masterShape.debug = this.debug;
 		}
 		
-		this.lineStyle = model.getStylesheet(shape.getAttribute(mxVsdxConstants.LINE_STYLE));
-		this.textStyle = model.getStylesheet(shape.getAttribute(mxVsdxConstants.TEXT_STYLE));
-		
 		String name = getNameU();
 		int index = name.lastIndexOf(".");
 		
@@ -211,6 +192,10 @@ public class VsdxShape extends Shape
 		    entry.getValue().setRootShape(this);
 		}
 		
+		double rotation = this.calcRotation();
+		this.rotation = rotation * 100/100;
+		this.rotation = this.rotation % 360.0;
+		
 		this.vertex = vertex;
 	}
 	
@@ -221,7 +206,7 @@ public class VsdxShape extends Shape
 	 * @param key The key of the shape to find
 	 * @return the Element that first resolves to that shape key or null or none is found
 	 */
-	protected Element getShapeNode(String key)
+	public Element getShapeNode(String key)
 	{
 		Element elem = this.cellElements.get(key);
 		
@@ -243,7 +228,7 @@ public class VsdxShape extends Shape
 		Shape masterShape = null;
 		NodeList txtChildren = getTextChildren();
 
-		if ((txtChildren == null || txtChildren.getLength() == 0) && master != null)
+		if (txtChildren == null && master != null)
 		{
 			if (this.getMasterId() != null)
 			{
@@ -262,7 +247,7 @@ public class VsdxShape extends Shape
 
 		if (this.htmlLabels)
 		{
-			if (txtChildren != null && txtChildren.getLength() > 0)
+			if (txtChildren != null)
 			{
 				// Collect text into same formatting paragraphs. If there's one paragraph, use the new system, otherwise
 				// leave it to the old one.
@@ -271,7 +256,12 @@ public class VsdxShape extends Shape
 					initLabels(txtChildren);
 				}
 				
-				if (this.paragraphs.size() == 1)
+				if (this.paragraphs.size() == 0)
+				{
+					// valid way to have an empty label override a master value "<text />"
+					return "";
+				}
+				else if (this.paragraphs.size() == 1)
 				{
 					return createHybridLabel(this.paragraphs.keySet().iterator().next());
 				}
@@ -295,7 +285,7 @@ public class VsdxShape extends Shape
 			}
 		}
 		
-		return "";
+		return null;
 	}
 
 	/**
@@ -365,6 +355,11 @@ public class VsdxShape extends Shape
 		}
 	}
 
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
 	protected String createHybridLabel(String index)
 	{
 		Paragraph para = this.paragraphs.get(index);
@@ -391,7 +386,7 @@ public class VsdxShape extends Shape
 		this.styleMap.put(mxConstants.STYLE_TEXT_OPACITY, getTextOpacity(index));
 
 		int numValues = para.numValues();
-		String result = "";
+		String result = null;
 		
 		for (int i = 0; i < numValues; i++)
 		{
@@ -428,7 +423,7 @@ public class VsdxShape extends Shape
 			
 			if (value != null)
 			{
-				result += value;
+				result = result == null ? value : result + value;
 			}
 		}
 		
@@ -490,15 +485,13 @@ public class VsdxShape extends Shape
 		// need to translate the origin
 		if (rotation && (lpy != h/2 || lpx != w/2))
 		{
-			double angle = Double.valueOf(this.getValue(this.getCellElement(mxVsdxConstants.ANGLE), "0"));
-			
-			if (angle != 0)
+			if (this.rotation != 0)
 			{
 				double vecX = w/2 - lpx;
 				double vecY = lpy - h/2;
 				
-			    double cos = Math.cos(angle);
-			    double sin = Math.sin(angle);
+			    double cos = Math.cos(Math.toRadians(360 - this.rotation));
+			    double sin = Math.sin(Math.toRadians(360 - this.rotation));
 				
 				return new mxPoint(x + vecX - (vecX * cos - vecY * sin), (vecX * sin + vecY * cos) + y -vecY);
 			}
@@ -645,6 +638,17 @@ public class VsdxShape extends Shape
 	}
 
 	/**
+	 * Used to pass in a parents rotation to the child
+	 * @param parentRotation the rotation of the parent
+	 */
+	public void propagateRotation(double parentRotation)
+	{
+		this.rotation += parentRotation;
+		this.rotation %= 360;
+		this.rotation = this.rotation * 100/100;
+	}
+
+	/**
 	 * Returns the top spacing of the label in pixels.<br/>
 	 * The property may to be defined in master shape or text stylesheet.<br/>
 	 * @return Top spacing in double precision.
@@ -696,7 +700,7 @@ public class VsdxShape extends Shape
 	/**
 	 * Checks if the label must be rotated.<br/>
 	 * The property may to be defined in master shape or text stylesheet.<br/>
-	 * @return Returns <code>true<code/> if the label must remains horizontal.
+	 * @return Returns <code>true<code/> if the label should remain horizontal.
 	 */
 	public boolean getLabelRotation()
 	{
@@ -720,25 +724,21 @@ public class VsdxShape extends Shape
 	 * Analyzes the shape and returns a string with the style.
 	 * @return style read from the shape.
 	 */
-	public Map<String, String> getStyleFromShape(double parentRotation)
+	public Map<String, String> getStyleFromShape()
 	{
 		styleMap.put("vsdxID", this.getId().toString());
 		
-		// Rotation.
-		double rotation = this.calcRotation();
-		rotation = Math.round(rotation);
-		
-		String rotationString = getLabelRotation() ? "1" : "0";
+		// Rotation.		
+		String labelRotation = getLabelRotation() ? "1" : "0";
+		this.rotation = Math.round(this.rotation);
 
-		if (!rotationString.equals("1") && rotation != 90 && rotation != 270)
+		if (!labelRotation.equals("1") && this.rotation != 90 && this.rotation != 270)
 		{
-			styleMap.put(mxConstants.STYLE_HORIZONTAL, rotationString);
+			styleMap.put(mxConstants.STYLE_HORIZONTAL, labelRotation);
 		}
 
-		if (rotation != 0 && rotation != 360)
+		if (this.rotation != 0)
 		{
-			this.rotation = rotation * 100/100 + parentRotation;
-
 			styleMap.put(mxConstants.STYLE_ROTATION, Double.toString(this.rotation));
 		}
 

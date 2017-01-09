@@ -2819,7 +2819,6 @@ var ParseDialog = function(editorUi, title)
 	    	var graph = editorUi.editor.graph;
 	    	
 	    	// TODO: Change server to return base64 & accept POST request
-	    	// TODO: Add transparent background, SVG output option
 	    	if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
 	    	{
 		    	function encode64(data) {
@@ -2905,10 +2904,9 @@ var ParseDialog = function(editorUi, title)
 								var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
 								var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
 
-					    		cell = graph.insertVertex(null, null, '', graph.snap(x), graph.snap(y),
-									img.width, img.height, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + editorUi.convertDataUri(e.target.result) + ';');
-		    					graph.setAttributeForCell(cell, 'plantUml', text);
+					    		cell = graph.insertVertex(null, null, text, graph.snap(x), graph.snap(y),
+									img.width, img.height, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
+									'image=' + editorUi.convertDataUri(e.target.result) + ';');
 							}
 							finally
 							{
@@ -2928,7 +2926,7 @@ var ParseDialog = function(editorUi, title)
 				  else 
 				  {
 					  editorUi.spinner.stop();
-					  error(e);
+					  editorUi.handleError(e);
 				  }
 				};
 				
@@ -4766,7 +4764,7 @@ PrintDialog.prototype.create = function(editorUi)
 	
 	// Buttons
 	var buttons = document.createElement('div');
-	buttons.style.cssText = 'text-align:right;margin:42px 0 0 0;';
+	buttons.style.cssText = 'text-align:right;margin:62px 0 0 0;';
 	
 	// Overall scale for print-out to account for print borders in dialogs etc
 	function preview(print)
@@ -5032,6 +5030,17 @@ PrintDialog.prototype.create = function(editorUi)
 	if (editorUi.editor.cancelFirst)
 	{
 		buttons.appendChild(cancelBtn);
+	}
+	
+	if (!editorUi.isOffline())
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			window.open('https://desk.draw.io/solution/articles/16000048947-how-to-print-');
+		});
+		
+		helpBtn.className = 'geBtn';
+		buttons.appendChild(helpBtn);
 	}
 	
 	if (!mxClient.IS_CHROMEAPP)
@@ -8990,7 +8999,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 			window.open('https://support.draw.io/display/DO/Editing+Shapes');
 		});
 		
-		helpBtn.className = 'geBtn';	
+		helpBtn.className = 'geBtn';
 		td.appendChild(helpBtn);
 	}
 	

@@ -83,9 +83,9 @@
 		
 		editorUi.actions.get('print').funct = function()
 		{
-			editorUi.showDialog(new PrintDialog(editorUi).container, 320,
+			editorUi.showDialog(new PrintDialog(editorUi).container, 360,
 				(editorUi.pages != null && editorUi.pages.length > 1) ?
-				400 : 340, true, true);
+				420 : 360, true, true);
 		};
 		
 		editorUi.actions.addAction('open...', function()

@@ -1,3 +1,9 @@
+09-JAN-2017: 6.0.2.8
+
+- Adds props plugin
+- Uses mxGraph 3.7.0.0 beta 12
+- Adds help button in print dialog
+
 28-DEC-2016: 6.0.2.7
 
 - Adds dialog for selecting pages in docs add-on

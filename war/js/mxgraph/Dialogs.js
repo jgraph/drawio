@@ -2775,7 +2775,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	mxEvent.addListener(div, 'dragover', function(evt)
 	{
 		evt.dataTransfer.dropEffect = 'move';
-		dropIndex = null;
+		dropIndex = 0;
 		evt.stopPropagation();
 		evt.preventDefault();
 	});

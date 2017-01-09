@@ -1,0 +1,1 @@
+{"virtualbox":{"/opt/app":{"guestpath":"/opt/app","hostpath":"/Users/david/dev/drawio/etc/sandstorm/build","disabled":false,"__vagrantfile":true},"/host-dot-sandstorm":{"guestpath":"/host-dot-sandstorm","hostpath":"/Users/david/.sandstorm","disabled":false,"__vagrantfile":true}}}

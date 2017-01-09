@@ -63,7 +63,7 @@ public class mxPropertiesManager
 		defaultColors.put("12", "#800080");
 		defaultColors.put("13", "#008080");
 		defaultColors.put("14", "#C0C0C0");
-		defaultColors.put("15", "#FFFFFF");
+		defaultColors.put("15", "#E6E6E6");
 		defaultColors.put("16", "#CDCDCD");
 		defaultColors.put("17", "#B3B3B3");
 		defaultColors.put("18", "#9A9A9A");
