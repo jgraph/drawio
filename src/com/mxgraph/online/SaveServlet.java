@@ -58,7 +58,7 @@ public class SaveServlet extends HttpServlet
 		{
 			long t0 = System.currentTimeMillis();
 			String mime = request.getParameter("mime");
-			String filename = null;
+			String filename = request.getParameter("filename");
 			byte[] data = null;
 
 			// Data in data param is base64 encoded and deflated
@@ -85,15 +85,39 @@ public class SaveServlet extends HttpServlet
 							.decode(xml, Utils.CHARSET_FOR_URL_ENCODING);
 				}
 
-				String format = request.getParameter("format");
-
-				if (format == null)
+				String binary = request.getParameter("binary");
+				
+				if (binary != null && binary.equals("1") && xml != null && mime != null)
 				{
-					format = "xml";
+					response.setStatus(HttpServletResponse.SC_OK);
+					
+					if (filename != null)
+					{
+						response.setContentType("application/x-unknown");
+						response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"; filename*=UTF-8''" + filename);
+					}
+					else if (mime != null)
+					{
+						response.setContentType(mime);
+					}
+
+					response.getOutputStream().write(mxBase64.decodeFast(URLDecoder
+							.decode(xml, Utils.CHARSET_FOR_URL_ENCODING)));
 				}
-
-				if (xml != null)
+				else if (mime != null && xml != null)
 				{
+					if (xml != null)
+					{
+						data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
+					}
+					
+					String format = request.getParameter("format");
+
+					if (format == null)
+					{
+						format = "xml";
+					}
+
 					if (mime == null)
 					{
 						if (format.equals("xml"))
@@ -110,8 +134,6 @@ public class SaveServlet extends HttpServlet
 						}
 					}
 
-					filename = request.getParameter("filename");
-
 					if (filename != null
 							&& filename.length() > 0
 							&& !(format.equals("xml")
@@ -122,11 +144,6 @@ public class SaveServlet extends HttpServlet
 						filename += "." + format;
 					}
 
-					data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
-				}
-
-				if (mime != null && data != null)
-				{
 					response.setStatus(HttpServletResponse.SC_OK);
 					
 					if (filename != null)

@@ -1,4 +1,5 @@
 window.TEMPLATE_PATH = 'templates';
+FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 (function()
 {
@@ -155,52 +156,81 @@ window.TEMPLATE_PATH = 'templates';
 //			}
 //		}));
 		
-//		// Replaces new action
-//		this.actions.addAction('new...', mxUtils.bind(this, function()
-//		{
-//			if (this.getCurrentFile() == null)
-//			{
-//				// LATER: In Chrome OS the extension is not enforced resulting
-//				// in possible files with no extension. Extensions such as XML,
-//				// SVG and HTML are and should be allowed. How can we fix this?
-//				chrome.fileSystem.chooseEntry({type: 'saveFile',
-//					accepts: [{description: 'Draw.io Diagram (.xml)',
-//					extensions: ['xml']}]}, mxUtils.bind(this, function(f)
-//				{
-//					if (!chrome.runtime.lastError)
-//					{
-//						var file = new LocalFile(editorUi, this.emptyDiagramXml, '');
-//						file.fileObject = f;
-//						
-//						editorUi.fileLoaded(file);
-//					}
-//					else if (chrome.runtime.lastError.message != 'User cancelled')
-//					{
-//						editorUi.handleError(chrome.runtime.lastError);
-//					}
-//				}));
-//			}
-//			else
-//			{
-//				// Could use URL parameter to call new action but conflicts with splash screen
-//				chrome.app.window.create('index.html',
-//				{
-//					bounds :
-//					{
-//						width: Math.floor(Math.min(screen.availWidth * 3 / 4, 1024)),
-//						height: Math.floor(Math.min(screen.availHeight * 3 / 4, 768)),
-//						left: Math.floor((screen.availWidth - Math.min(screen.availWidth * 3 / 4, 1024)) / 2),
-//						top: Math.floor((screen.availHeight - Math.min(screen.availHeight * 3 / 4, 768)) / 3)
-//					}
-//				});
-//			}
-//		}), null, null, 'Ctrl+N');
+		// Replaces new action
+		var oldNew = this.actions.get('new').funct;
+		
+		this.actions.addAction('new...', mxUtils.bind(this, function()
+		{
+			mxLog.debug(this.getCurrentFile());
+
+			if (this.getCurrentFile() == null)
+			{
+				oldNew();
+			}
+			else
+			{
+				const electron = require('electron');
+				const remote = electron.remote;
+				const BrowserWindow = remote.BrowserWindow;
+				mainWindow = new BrowserWindow({width: 1600, height: 1200, "web-security" : false});
+
+				// and load the index.html of the app.
+				mainWindow.loadURL(`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`);
+
+				// Emitted when the window is closed.
+				mainWindow.on('closed', function()
+				{
+				    // Dereference the window object, usually you would store windows
+				    // in an array if your app supports multi windows, this is the time
+				    // when you should delete the corresponding element.
+				    mainWindow = null;
+				});
+			}
+		}), null, null, 'Ctrl+N');
 		
 		this.actions.get('open').shortcut = 'Ctrl+O';
 		
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
+		
+		editorUi.actions.addAction('quickStart...', function()
+		{
+			const {shell} = require('electron');
+			shell.openExternal('https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
+		});
+
+		this.actions.addAction('support...', function()
+		{
+			const {shell} = require('electron');
+			shell.openExternal('https://support.draw.io/display/DFCC/draw.io+for+Confluence+Cloud');
+		});
+		
+		editorUi.actions.addAction('userManual...', function()
+		{
+			const {shell} = require('electron');
+			shell.openExternal('https://support.draw.io/display/DO/Draw.io+Online+User+Manual');
+		});
+		
+		editorUi.actions.addAction('keyboardShortcuts...', function()
+		{
+			const electron = require('electron');
+			const remote = electron.remote;
+			const BrowserWindow = remote.BrowserWindow;
+			keyboardWindow = new BrowserWindow({width: 1200, height: 1000});
+
+			// and load the index.html of the app.
+			keyboardWindow.loadURL(`file://${__dirname}/shortcuts.svg`);
+
+			// Emitted when the window is closed.
+			keyboardWindow.on('closed', function()
+			{
+			    // Dereference the window object, usually you would store windows
+			    // in an array if your app supports multi windows, this is the time
+			    // when you should delete the corresponding element.
+				keyboardWindow = null;
+			});
+		});
 	}
 
 	// Uses local picker
@@ -401,11 +431,6 @@ window.TEMPLATE_PATH = 'templates';
 
 	        var path = dialog.showSaveDialog();
 
-//			chrome.fileSystem.chooseEntry({type: 'saveFile',
-//				accepts: [(this.constructor == LocalFile) ? {description: 'Draw.io Diagram (.xml)',
-//				extensions: ['xml']} : {description: 'Draw.io Library (.xml)',
-//				extensions: ['xml']}]}, mxUtils.bind(this, function(xmlFile)
-
 	        if (path != null)
 	        {
 				this.fileObject = new Object();
@@ -429,11 +454,6 @@ window.TEMPLATE_PATH = 'templates';
 
         var path = dialog.showSaveDialog();
         
-//		chrome.fileSystem.chooseEntry({type: 'saveFile',
-//			accepts: [(this.constructor == LocalFile) ? {description: 'Draw.io Diagram (.xml)',
-//			extensions: ['xml']} : {description: 'Draw.io Library (.xml)',
-//			extensions: ['xml']}]}, mxUtils.bind(this, function(f)
-
         if (path != null)
         {
 			this.fileObject = new Object();
@@ -563,32 +583,31 @@ window.TEMPLATE_PATH = 'templates';
 		}
 	};
 	
-	App.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded)
+	EditorUi.prototype.saveData = function(filename, format, data, mimeType, base64Encoded)
 	{
-		chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: filename, acceptsAllTypes: true}, mxUtils.bind(this, function(fileEntry)
-		{
-			if (!chrome.runtime.lastError)
-			{
-				fileEntry.createWriter(mxUtils.bind(this, function(writer)
-				{
-					writer.onwriteend = mxUtils.bind(this, function()
-					{
-						writer.onwriteend = null;
-						writer.write((base64Encoded) ? this.base64ToBlob(data, mimeType) : new Blob([data], {type: mimeType}));
-					});
-					
-					writer.onerror = mxUtils.bind(this, function(e)
-					{
-						this.handleError(e);
-					});
-					
-					writer.truncate(0);
-				}));
-			}
-			else if (chrome.runtime.lastError.message != 'User cancelled')
-			{
-				this.handleError(chrome.runtime.lastError);
-			}
-		}));
+		const electron = require('electron');
+		var remote = electron.remote;
+		var dialog = remote.dialog;
+
+        var path = dialog.showSaveDialog();
+
+        if (path != null)
+        {
+			this.fileObject = new Object();
+			this.fileObject.path = path;
+			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
+			var isImage = mimeType != null && mimeType.startsWith('image');
+			this.fileObject.type = base64Encoded ? 'base64' : 'utf-8';
+			var fs = require('fs');
+			
+			fs.writeFile(this.fileObject.path, data, this.fileObject.type, mxUtils.bind(this, function (e)
+		    {
+        		if (e)
+        		{
+        			// TODO
+        		}
+
+        	}));
+		}
 	};
 })();

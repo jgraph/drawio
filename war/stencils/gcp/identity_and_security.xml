@@ -1,0 +1,69 @@
+<shapes name="mxgraph.gcp.identity_and_security">
+<shape aspect="variable" h="114" name="Cloud IAM" strokewidth="inherit" w="129.03">
+    <connections/>
+    <foreground>
+        <save/>
+        <path>
+            <move x="28.3" y="108.25"/>
+            <line x="2.05" y="62.75"/>
+            <arc large-arc-flag="0" rx="11.51" ry="11.51" sweep-flag="1" x="2.05" x-axis-rotation="0" y="51.25"/>
+            <line x="28.3" y="5.75"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="38.26" x-axis-rotation="0" y="0"/>
+            <line x="90.76" y="0"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="100.72" x-axis-rotation="0" y="5.75"/>
+            <line x="126.97" y="51.25"/>
+            <arc large-arc-flag="0" rx="11.51" ry="11.51" sweep-flag="1" x="126.97" x-axis-rotation="0" y="62.75"/>
+            <line x="100.72" y="108.25"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="90.76" x-axis-rotation="0" y="114"/>
+            <line x="38.26" y="114"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="28.3" x-axis-rotation="0" y="108.25"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <alpha alpha="0.07"/>
+        <path>
+            <move x="89.51" y="37.75"/>
+            <line x="50.55" y="36.98"/>
+            <line x="47.51" y="71.5"/>
+            <line x="50.19" y="79.83"/>
+            <line x="84.33" y="113.97"/>
+            <line x="90.76" y="113.97"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="0" x="100.72" x-axis-rotation="0" y="108.22"/>
+            <line x="122.41" y="70.65"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <restore/>
+        <rect/>
+        <stroke/>
+        <fillcolor color="#fff"/>
+        <path>
+            <move x="64.51" y="26.73"/>
+            <line x="39.51" y="37.84"/>
+            <line x="39.51" y="54.51"/>
+            <curve x1="39.51" x2="50.18" x3="64.51" y1="69.92" y2="84.34" y3="87.84"/>
+            <curve x1="78.85" x2="89.51" x3="89.51" y1="84.34" y2="69.92" y3="54.51"/>
+            <line x="89.51" y="37.84"/>
+            <close/>
+            <move x="64.51" y="38.5"/>
+            <arc large-arc-flag="1" rx="8" ry="8" sweep-flag="1" x="56.51" x-axis-rotation="0" y="46.5"/>
+            <arc large-arc-flag="0" rx="8" ry="8" sweep-flag="1" x="64.51" x-axis-rotation="0" y="38.5"/>
+            <close/>
+            <move x="79.51" y="71.58"/>
+            <arc large-arc-flag="0" rx="1" ry="1" sweep-flag="1" x="79.34" x-axis-rotation="0" y="72.14"/>
+            <curve x1="79.16" x2="78.98" x3="78.78" y1="72.41" y2="72.69" y3="72.95"/>
+            <arc large-arc-flag="0" rx="27.87" ry="27.87" sweep-flag="1" x="64.51" x-axis-rotation="0" y="83.18"/>
+            <arc large-arc-flag="0" rx="27.87" ry="27.87" sweep-flag="1" x="50.24" x-axis-rotation="0" y="72.95"/>
+            <curve x1="50.04" x2="49.86" x3="49.68" y1="72.69" y2="72.41" y3="72.14"/>
+            <arc large-arc-flag="0" rx="1" ry="1" sweep-flag="1" x="49.51" x-axis-rotation="0" y="71.58"/>
+            <line x="49.51" y="67.14"/>
+            <curve x1="49.51" x2="59.51" x3="64.51" y1="61.01" y2="57.92" y3="57.92"/>
+            <curve x1="69.52" x2="79.51" x3="79.51" y1="57.92" y2="61.01" y3="67.14"/>
+            <line x="79.51" y="71.58"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+</shapes>

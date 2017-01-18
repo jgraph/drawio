@@ -469,7 +469,7 @@
 		{
 			if (this.findWindow == null)
 			{
-				this.findWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 204, 116);
+				this.findWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 204, 140);
 				this.findWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('find'));
@@ -994,6 +994,7 @@
 				}
 			});
 		}
+		
 		this.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			if (editorUi.isExportToCanvas())
@@ -1002,15 +1003,17 @@
 				{
 					editorUi.showExportDialog(false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
-						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable)
+						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
+							embedImages, cropImage)
 						{
 							var val = parseInt(scale);
 							
 							if (!isNaN(val) && val > 0)
 							{
-							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection, addShadow, editable);
+							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection, addShadow,
+							   		editable, !cropImage);
 							}
-						}));
+						}), true);
 				}), parent);
 			}
 			
@@ -1030,15 +1033,17 @@
 			{
 				editorUi.showExportDialog(true, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages)
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
+						embedImages, cropImage)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow, editable, embedImages);
+						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+						   		editable, embedImages, !cropImage);
 						}
-					}));
+					}), true);
 			}), parent);
 
 			menu.addSeparator(parent);
@@ -1090,10 +1095,7 @@
 					
 					var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
 					{
-						var prev = graph.pageVisible;
-						graph.pageVisible = !cb.checked;
-						this.editorUi.downloadFile('pdf', null, null, !cb2.checked);
-						graph.pageVisible = prev;
+						this.editorUi.downloadFile('pdf', null, null, !cb2.checked, null, !cb.checked);
 					}), null, mxResources.get('export'));
 					this.editorUi.showDialog(dlg.container, 300, 120, true, true);
 				}), parent);

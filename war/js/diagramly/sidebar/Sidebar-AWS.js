@@ -457,7 +457,7 @@
 		 this.createVertexTemplateEntry(s + 'mobile_services.device_farm;strokeColor=none;',
 				 68, 82, '', 'Device Farm', null, null, this.getTagsForStencil(gn, 'device farm', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'mobile_services.mobile_analytics;strokeColor=none;',
-				 70, 72, '', 'Mobile Analitycs', null, null, this.getTagsForStencil(gn, 'mobile analytics', dt).join(' ')),
+				 70, 72, '', 'Mobile Analytics', null, null, this.getTagsForStencil(gn, 'mobile analytics', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'mobile_services.sns;strokeColor=none;',
 				 69, 69, '', 'SNS', null, null, this.getTagsForStencil(gn, 'sns', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'mobile_services.sns_email_notification;strokeColor=none;',

@@ -5,9 +5,9 @@ var fs = require('fs');
 var path = require('path');
 
 // Module to control application life.
-const app = electron.app
+const app = electron.app;
 // Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
+const BrowserWindow = electron.BrowserWindow;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -16,13 +16,13 @@ let mainWindow
 function createWindow()
 {
 	// Create the browser window.
-	mainWindow = new BrowserWindow({width: 1600, height: 1200})
+	mainWindow = new BrowserWindow({width: 1600, height: 1200, "web-security" : false});
 
 	// and load the index.html of the app.
-	mainWindow.loadURL(`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`)
+	mainWindow.loadURL(`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`);
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools()
+	mainWindow.webContents.openDevTools();
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function()
@@ -30,8 +30,8 @@ function createWindow()
 	    // Dereference the window object, usually you would store windows
 	    // in an array if your app supports multi windows, this is the time
 	    // when you should delete the corresponding element.
-	    mainWindow = null
-	})
+	    mainWindow = null;
+	});
 }
 
 // This method will be called when Electron has finished

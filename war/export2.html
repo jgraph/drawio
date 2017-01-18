@@ -194,12 +194,15 @@
 				// Floor is needed to keep rendering crisp
 				if (data.w > 0 && data.h > 0)
 				{
-					graph.view.scaleAndTranslate(Math.min(data.w / b.width, data.h / b.height),
-						Math.floor(-b.x + data.border), Math.floor(-b.y + data.border));
+					var s = Math.min(data.w / b.width, data.h / b.height);
+					graph.view.scaleAndTranslate(s,
+						Math.floor(data.border / s - b.x),
+						Math.floor(data.border / s - b.y));
 				}
 				else
 				{
-					graph.view.setTranslate(Math.floor(-b.x + data.border), Math.floor(-b.y + data.border));
+					graph.view.setTranslate(Math.floor(data.border - b.x),
+						Math.floor(data.border - b.y));
 				}
 			}
 			else
@@ -221,9 +224,9 @@
 			
 			// Gets the diagram bounds and sets the document size
 			var bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
-			bounds.width += data.border;
-			bounds.height += data.border;
-
+			bounds.width = Math.ceil(bounds.width + data.border);
+			bounds.height = Math.ceil(bounds.height + data.border);
+			
 			// Waits for all images to finish loading
 			var cache = new Object();
 			var waitCounter = 1;

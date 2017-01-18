@@ -961,7 +961,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage)
+	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible)
 	{
 		try
 		{
@@ -1020,7 +1020,7 @@
 		
 		        	// Sets or disables alternate text for foreignObjects. Disabling is needed
 		        	// because PhantomJS seems to ignore switch statements and paint all text.
-		        	var svgRoot = this.editor.graph.getSvg(bg, null, null, false, null, ignoreSelection);
+		        	var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);
 					
 					if (addShadow)
 					{
@@ -1040,6 +1040,7 @@
 		    	else
 		    	{
 		    		filename = basename + '.svg';
+		    		
 		    		svg = this.getFileData(false, true, null, mxUtils.bind(this, function(svg)
 		    		{
 		    			this.spinner.stop();
@@ -1049,56 +1050,86 @@
 		    }
 			else
 			{
-				var bounds = this.editor.graph.getGraphBounds();
-				
-				// Exports only current page for PDF since it does not contain file data, but for
-				// the other formats with XML included we need to send the complete data and use
-				// the from/to URL parameters to specify the page to be exported.
-				var data = this.getFileData(true, null, null, null, ignoreSelection, format != 'xmlpng');
-				var range = '';
-				
-				if (bounds.width * bounds.height <= MAX_AREA && data.length <= MAX_REQUEST_SIZE)
+				if (format == 'xmlpng')
 				{
-					var embed = '0';
-			       	
-			       	if (format == 'xmlpng')
-			       	{
-			       		embed = '1';
-			       		format = 'png';
-			       		filename = basename + '.' + format;
-			       		
-			       		// Finds the current page number
-			       		if (this.pages != null && this.currentPage != null)
-			       		{
-			       			for (var i = 0; i < this.pages.length; i++)
-			       			{
-			       				if (this.pages[i] == this.currentPage)
-			       				{
-			       					range = '&from=' + i;
-			       					break;
-			       				}
-			       			}
-			       		}
-			       	}
-			       	
-					this.saveRequest(data, filename, format, function(newTitle, base64)
+					filename = basename + '.png';
+				}
+				
+				this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
+				{
+					try
 					{
-						return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
-							'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
-							encodeURIComponent(data) + ((newTitle != null) ?
-							'&filename=' + encodeURIComponent(newTitle) : ''));
-					});
-				}
-				else
-				{
-					this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'));
-				}
+						var prev = this.editor.graph.pageVisible;
+						
+						if (pageVisible != null)
+						{
+							this.editor.graph.pageVisible = pageVisible;
+						}
+						
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64);
+						this.editor.graph.pageVisible = prev;
+						
+						return req;
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
+				}));
 			}
 		}
 		catch (e)
 		{
 			this.handleError(e);
 		}
+	};
+		
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64)
+	{
+		var bounds = this.editor.graph.getGraphBounds();
+		
+		// Exports only current page for PDF since it does not contain file data, but for
+		// the other formats with XML included we need to send the complete data and use
+		// the from/to URL parameters to specify the page to be exported.
+		var data = this.getFileData(true, null, null, null, ignoreSelection, format != 'xmlpng');
+		var range = '';
+		
+		if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
+		{
+			throw {message: mxResources.get('drawingTooLarge')};
+		}
+		
+		var embed = '0';
+       	
+       	if (format == 'xmlpng')
+       	{
+       		embed = '1';
+       		format = 'png';
+       		
+       		// Finds the current page number
+       		if (this.pages != null && this.currentPage != null)
+       		{
+       			for (var i = 0; i < this.pages.length; i++)
+       			{
+       				if (this.pages[i] == this.currentPage)
+       				{
+       					range = '&from=' + i;
+       					break;
+       				}
+       			}
+       		}
+       	}
+
+		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
+			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
+			encodeURIComponent(data) + ((filename != null) ?
+			'&filename=' + encodeURIComponent(filename) : ''));
 	};
 	
 	/**
@@ -1523,7 +1554,13 @@
 	    buttons.style.position = 'absolute';
 	    buttons.style.right = '0px';
 	    buttons.style.top = '5px';
-	    buttons.style.backgroundColor = 'inherit';
+	    
+	    // Workaround for CSS error in IE8 (standards and quirks)
+	    if (!mxClient.IS_QUIRKS && document.documentMode != 8)
+	    {
+	    	buttons.style.backgroundColor = 'inherit';
+	    }
+	    
 	    title.style.position = 'relative';
 	    
 	    var btnWidth = 18;
@@ -2337,8 +2374,7 @@
    	    
    	    filename += '.png';
    	    var data = this.createPngDataUri(canvas, xml);
-   	    
-   	    this.saveLocalFile(data.substring(data.lastIndexOf(',') + 1), filename, 'image/png', true);
+   	    this.saveData(filename, 'png', data.substring(data.lastIndexOf(',') + 1), 'image/png', true);
 	};
 	
 	/**
@@ -2398,12 +2434,9 @@
 		}
 		else if (!this.isOffline() && mxClient.IS_SF)
 		{
-			var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
-				'&data=' + encodeURIComponent(this.editor.graph.compress(data));
+			var req = this.createEchoRequest(data, filename, mimeType, base64Encoded);
 			
-			new mxXmlRequest(SAVE_URL, 'mime=' + mimeType + '&filename=' +
-				encodeURIComponent(filename) +
-				param).simulate(document, '_blank');
+			req.simulate(document, '_blank');
 		}
 		else
 		{
@@ -2435,6 +2468,25 @@
 				// ignore
 			}
 		}
+	};
+		
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.createEchoRequest = function(data, filename, mimeType, base64Encoded, format, base64Response)
+	{
+		var param = (typeof(pako) === 'undefined' || true) ? 'xml=' + encodeURIComponent(data) :
+			'data=' + encodeURIComponent(this.editor.graph.compress(data));
+		
+		return new mxXmlRequest(SAVE_URL, param +
+			((mimeType != null) ? '&mime=' + mimeType : '') +
+			((format != null) ? '&format=' + format : '') +
+			((base64Response != null) ? '&base64=' + base64Response : '') +
+			((filename != null) ? '&filename=' + encodeURIComponent(filename) : '') +
+			((base64Encoded) ? '&binary=1' : ''));
 	};
 	
 	/**
@@ -2494,18 +2546,34 @@
 					// Workaround for "Access denied" after URL.createObjectURL
 					// and blank window for window.open with data URI in MS Edge
 					// and empty window for IE 11 and 10
-					if (mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+					var win = window.open('about:blank');
+					
+					if (win == null)
 					{
-			    		var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
-			    			'&data=' + encodeURIComponent(this.editor.graph.compress(data));
-			    		
-			    		new mxXmlRequest(SAVE_URL, 'mime=' + mimeType + param).simulate(document, '_blank');
+						mxUtils.popup(data, true);
+					}
+					else if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
+							(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
+					{
+						// IMG performance is better for large SVG in Chrome
+						if (!base64Encoded || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+						{
+							win.document.write('<html><img src="data:' +
+								mimeType + ((base64Encoded) ? ';base64,' +
+								data : ';charset=utf8,' + encodeURIComponent(data)) +
+								'"/></html>');
+							win.document.close();
+						}
+						else
+						{
+							// Enables page refresh and drag and drop of URL
+							win.location.replace('data:' + mimeType + ';base64,' + data);	
+						}
 					}
 					else
 					{
-						// Cannot use URL.createObjectURL since it kills gradients in FF
-						window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
-							data : ';charset=utf8,' + encodeURIComponent(data)));
+						win.document.write(mxUtils.htmlEntities(data, false));
+						win.document.close();
 					}
 				}
 				else if (mode == App.MODE_DEVICE)
@@ -2538,21 +2606,17 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveData = function(filename, format, data, mime)
+	EditorUi.prototype.saveData = function(filename, format, data, mime, base64Encoded)
 	{
 		if (this.isLocalFileSave())
 		{
-			this.saveLocalFile(data, filename, mime);
+			this.saveLocalFile(data, filename, mime, base64Encoded);
 		}
 		else
 		{
-			this.saveRequest(data, filename, format, mxUtils.bind(this, function(newTitle, base64)
+			this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
 			{
-	    		var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
-	    			'&data=' + encodeURIComponent(this.editor.graph.compress(data));
-	    		
-	    		return new mxXmlRequest(SAVE_URL, 'format=' + format + ((newTitle != null) ?
-					'&filename=' + encodeURIComponent(newTitle) : '') + param);
+				return this.createEchoRequest(data, newTitle, mime, base64Encoded, format, base64);
 			}));
 		}
 	};
@@ -2563,9 +2627,13 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveRequest = function(data, filename, format, fn)
+	EditorUi.prototype.saveRequest = function(filename, format, fn)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		var backends = !this.isOfflineApp() && !this.isOffline() &&
+			(typeof window.DriveClient === 'function' ||
+			typeof window.DropboxClient === 'function' ||
+			typeof window.OneDriveClient === 'function');
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2574,52 +2642,55 @@
 				var base64 = (mode == App.MODE_DEVICE || mode == null || mode == '_blank') ? '0' : '1';
 				var xhr = fn((mode == '_blank') ? null : newTitle, base64);
 				
-				if (mode == App.MODE_DEVICE || mode == '_blank')
+				if (xhr != null)
 				{
-					xhr.simulate(document, '_blank');
-				}
-				else
-				{
-					this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+					if (mode == App.MODE_DEVICE || mode == '_blank')
 					{
-						if (this.spinner.spin(document.body, mxResources.get('saving')))
+						xhr.simulate(document, '_blank');
+					}
+					else
+					{
+						this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 						{
-							// LATER: Catch possible mixed content error
-							// see http://stackoverflow.com/questions/30646417/catching-mixed-content-error
-							xhr.send(mxUtils.bind(this, function()
+							if (this.spinner.spin(document.body, mxResources.get('saving')))
 							{
-								this.spinner.stop();
-								
-								if (xhr.getStatus() < 200 || xhr.getStatus() > 299)
+								// LATER: Catch possible mixed content error
+								// see http://stackoverflow.com/questions/30646417/catching-mixed-content-error
+								xhr.send(mxUtils.bind(this, function()
 								{
-									this.handleError({message: mxResources.get('errorSavingFile')});
-								}
-								else
+									this.spinner.stop();
+									
+									if (xhr.getStatus() < 200 || xhr.getStatus() > 299)
+									{
+										this.handleError({message: mxResources.get('errorSavingFile')});
+									}
+									else
+									{
+										try
+										{
+											var mimeType = (format == 'pdf') ? 'application/pdf' : 'image/' + format;
+											this.exportFile(xhr.getText(), newTitle, mimeType, true, mode, folderId);
+										}
+										catch (e)
+										{
+											this.handleError(e);
+										}
+									}
+								}), function(resp)
 								{
-									try
-									{
-										var mimeType = (format == 'pdf') ? 'application/pdf' : 'image/' + format;
-										this.exportFile(xhr.getText(), newTitle, mimeType, true, mode, folderId);
-									}
-									catch (e)
-									{
-										this.handleError(e);
-									}
-								}
-							}), function(resp)
-							{
-								this.spinner.stop();
-								this.handleError(resp);
-							});
-						}
-					}));
+									this.spinner.stop();
+									this.handleError(resp);
+								});
+							}
+						}));
+					}
 				}
 			}
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
-		this.showDialog(dlg.container, 380, 270, true, true);
+		this.showDialog(dlg.container, 380, (backends) ? 280 : 160, true, true);
 		dlg.init();
 	};
 		
@@ -2642,46 +2713,46 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages)
+	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, noCrop)
 	{
-		var selectionEmpty = this.editor.graph.isSelectionEmpty();
-		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
-		var bg = (transparentBackground) ? null : this.editor.graph.background;
-		
-		if (bg == mxConstants.NONE)
-		{
-			bg = null;
-		}
-		
-		// Handles special case where background is null but transparent is false
-		if (bg == null && transparentBackground == false)
-		{
-			bg = '#ffffff';
-		}
-		
-		// Sets or disables alternate text for foreignObjects. Disabling is needed
-		// because PhantomJS seems to ignore switch statements and paint all text.
-		var svgRoot = this.editor.graph.getSvg(bg, scale, null, null, null, ignoreSelection);
-		
-		if (addShadow)
-		{
-			this.editor.addSvgShadow(svgRoot);
-		}
-	
-		var file = this.getCurrentFile();
-		var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-		
-		var dot = filename.lastIndexOf('.');
-		
-		if (dot > 0)
-		{
-			filename = filename.substring(0, dot);
-		}
-		
-		filename += '.svg';
-		
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
+			var selectionEmpty = this.editor.graph.isSelectionEmpty();
+			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
+			var bg = (transparentBackground) ? null : this.editor.graph.background;
+			
+			if (bg == mxConstants.NONE)
+			{
+				bg = null;
+			}
+			
+			// Handles special case where background is null but transparent is false
+			if (bg == null && transparentBackground == false)
+			{
+				bg = '#ffffff';
+			}
+			
+			// Sets or disables alternate text for foreignObjects. Disabling is needed
+			// because PhantomJS seems to ignore switch statements and paint all text.
+			var svgRoot = this.editor.graph.getSvg(bg, scale, null, noCrop, null, ignoreSelection);
+			
+			if (addShadow)
+			{
+				this.editor.addSvgShadow(svgRoot);
+			}
+		
+			var file = this.getCurrentFile();
+			var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+			
+			var dot = filename.lastIndexOf('.');
+			
+			if (dot > 0)
+			{
+				filename = filename.substring(0, dot);
+			}
+			
+			filename += '.svg';
+
 			var doSave = mxUtils.bind(this, function(svgRoot)
 			{
 				this.spinner.stop();
@@ -2758,17 +2829,18 @@
 			callback(!cb2.checked, cb.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 300, 120, true, true);
-	}
+	};
 	
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showExportDialog = function(embedOption, btnLabel, helpLink, callback)
+	EditorUi.prototype.showExportDialog = function(embedOption, btnLabel, helpLink, callback, cropOption)
 	{
 		var graph = this.editor.graph;
 		var content = document.createElement('div');
 		content.style.paddingTop = '20px';
 		content.style.paddingRight = '8px';
+		var height = 240;
 		
 		var cb = document.createElement('input');
 		cb.style.marginRight = '8px';
@@ -2789,14 +2861,29 @@
 		cb2.style.marginRight = '8px';
 		cb2.setAttribute('type', 'checkbox');
 		
-		if (graph.isSelectionEmpty())
-		{
-			cb2.setAttribute('disabled', 'disabled');
-		}
-		
 		content.appendChild(cb2);
 		mxUtils.write(content, mxResources.get('selectionOnly'));
 		mxUtils.br(content);
+		
+		var cb6 = document.createElement('input');
+		cb6.style.marginTop = '16px';
+		cb6.style.marginRight = '8px';
+		cb6.setAttribute('type', 'checkbox');
+
+		if (cropOption)
+		{
+			content.appendChild(cb6);
+			mxUtils.write(content, mxResources.get('crop'));
+			mxUtils.br(content);
+			
+			height += 26;
+		}
+		
+		if (graph.isSelectionEmpty())
+		{
+			cb2.setAttribute('disabled', 'disabled');
+			cb6.setAttribute('disabled', 'disabled');
+		}
 		
 		var cb3 = document.createElement('input');
 		cb3.style.marginTop = '16px';
@@ -2828,6 +2915,8 @@
 			content.appendChild(cb5);
 			mxUtils.write(content, mxResources.get('embedImages'));
 			mxUtils.br(content);
+			
+			height += 26;
 		}
 		
 		var cb4 = document.createElement('input');
@@ -2843,12 +2932,13 @@
 		
 		var dlg = new FilenameDialog(this, 100, btnLabel, mxUtils.bind(this, function(newValue)
 		{
-		   	callback(newValue, cb.checked, !cb2.checked, cb3.checked, cb4.checked, cb5.checked);
+		   	callback(newValue, cb.checked, !cb2.checked, cb3.checked, cb4.checked, cb5.checked, cb6.checked);
 		}), mxResources.get('zoom') + ' (%)', null, content, (!this.isOffline()) ? helpLink : null);
 		
-		this.showDialog(dlg.container, 320, (embedOption) ? 266 : 240, true, true);
+		
+		this.showDialog(dlg.container, 320, height, true, true);
 		dlg.init();
-	}
+	};
 		
 	/**
 	 * 
@@ -3049,6 +3139,9 @@
 	EditorUi.prototype.uploadToImgur = function(file, base64Data, editable, socialHandler)
 	{
 		var resume = this.spinner.pause();
+		
+		// Editing is no longer possible as embedded XML is removed / 13-JAN-2017
+		editable = false;
 		
 		// Shows a warning dialog before uploading
 		var dlg = new ErrorDialog(this, mxResources.get('warning'),
@@ -3467,7 +3560,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('exporting')))
 		{
@@ -3482,7 +3575,8 @@
 			   		
 			   		try
 			   		{
-			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null, null, null, ignoreSelection) : null);
+			   			this.saveCanvas(canvas, (editable) ? this.getFileData(
+			   				true, null, null, null, ignoreSelection) : null);
 			   		}
 			   		catch (e)
 			   		{
@@ -3500,7 +3594,8 @@
 			   	{
 			   		this.spinner.stop();
 			   		this.handleError(e);
-			   	}), null, ignoreSelection, scale || 1, transparentBackground, addShadow);
+			   	}), null, ignoreSelection, scale || 1, transparentBackground,
+			   		addShadow, null, null, null, noCrop);
 			}
 			catch (e)
 			{
@@ -3514,11 +3609,12 @@
 	 *
 	 */
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
 	{
 		limitHeight = (limitHeight != null) ? limitHeight : true;
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		graph = (graph != null) ? graph : this.editor.graph;
+		border = (border != null) ? border : 0;
 		
 		var bg = (transparentBackground) ? null : graph.background;
 		
@@ -3538,7 +3634,7 @@
 			bg = '#ffffff';
 		}
 		
-		this.convertImages(graph.getSvg(bg, null, null, null, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)
+		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)
 		{
 			var img = new Image();
 			
@@ -3554,11 +3650,23 @@
 					scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
 				}
 				
-		   		canvas.setAttribute('width', Math.ceil(scale * w));
-		   		canvas.setAttribute('height', Math.ceil(scale * h));
+				w = Math.ceil(scale * w) + 2 * border;
+				h = Math.ceil(scale * h) + 2 * border;
+				
+				canvas.setAttribute('width', w);
+		   		canvas.setAttribute('height', h);
 		   		var ctx = canvas.getContext('2d');
+		   		
+		   		if (bg != null)
+		   		{
+		   			ctx.beginPath();
+					ctx.rect(0, 0, w, h);
+					ctx.fillStyle = bg;
+					ctx.fill();
+		   		}
+				
 		   		ctx.scale(scale, scale);
-				ctx.drawImage(img, 0, 0);
+				ctx.drawImage(img, border / scale, border / scale);
 				callback(canvas);
 			});
 			
@@ -4053,7 +4161,26 @@
 				{
 					if (text.substring(0, 26) == '{"state":"{\\"Properties\\":')
 					{
-						this.insertLucidChart(JSON.parse(JSON.parse(text).state)['Pages']['0_0'], dx, dy, crop);
+						// Finds and imports first page
+						var state = JSON.parse(JSON.parse(text).state);
+						var page = null;
+						
+						for (var id in state.Pages)
+						{
+							var tmp = state.Pages[id];
+							
+							if (tmp != null && tmp.Properties.Order == '0')
+							{
+								page = tmp;
+								
+								break;
+							}
+						}
+						
+						if (page != null)
+						{
+							this.insertLucidChart(page, dx, dy, crop);
+						}
 					}
 					else
 					{
@@ -4216,7 +4343,7 @@
 				}
 			}), filename);
 		}
-		else
+		else if (!/(\.vsd)($|\?)/i.test(filename))
 		{
 			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
 		}
@@ -4889,31 +5016,6 @@
 		{
 			// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
 			this.editor.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
-		}
-				
-		/**
-		 * Overrides export dialog for using ui functions for save.
-		 */
-		if (typeof ExportDialog !== 'undefined' && this.isLocalFileSave())
-		{
-			var ui = this;
-			
-			ExportDialog.saveLocalFile = function(data, filename, format)
-			{
-				var mime = 'text/xml';
-				
-				if (format === 'svg')
-				{
-					mime = 'image/svg+xml';
-				}
-				
-	    		ui.saveLocalFile(data, filename, mime);
-	    	};
-	
-	    	ExportDialog.saveRequest = function(data, filename, format, fn)
-	    	{
-	    		ui.saveRequest(data, filename, format, fn);
-	    	};
 		}
 
 		/**
@@ -7014,6 +7116,42 @@
 	};
 	
 	/**
+	 * Returns the number of storage options enabled
+	 */
+	EditorUi.prototype.getServiceCount = function()
+	{
+		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		var backends = !this.isOfflineApp() && !this.isOffline() &&
+			(typeof window.DriveClient === 'function' ||
+			typeof window.DropboxClient === 'function' ||
+			typeof window.OneDriveClient === 'function');
+		
+		var serviceCount = 0;
+		
+		if (this.drive != null)
+		{
+			serviceCount++
+		}
+		
+		if (this.dropbox != null)
+		{
+			serviceCount++
+		}
+		
+		if (isLocalStorage && urlParams['browser'] != '0')
+		{
+			serviceCount++
+		}
+		
+		if (!mxClient.IS_IOS)
+		{
+			serviceCount++
+		}
+		
+		return serviceCount;
+	}
+
+	/**
 	 * Updates action and menu states depending on the file.
 	 */
 	EditorUi.prototype.updateUi = function()
@@ -7153,4 +7291,54 @@
 		var state = graph.view.getState(graph.getSelectionCell());
 		this.actions.get('editShape').setEnabled(active && state != null && state.shape != null && state.shape.stencil != null);
 	};
+				
+	/**
+	 * Overrides export dialog for using ui functions for save and setting global switches.
+	 */
+	if (window.ExportDialog != null)
+	{
+		ExportDialog.showXmlOption = false;
+		ExportDialog.showGifOption = false;
+		
+    	ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
+		{
+			var graph = editorUi.editor.graph;
+			
+			if (format == 'xml')
+			{
+				editorUi.hideDialog();
+		    	editorUi.saveData(name, 'xml', mxUtils.getXml(editorUi.editor.getGraphXml()), 'text/xml');
+			}
+		    else if (format == 'svg')
+			{
+		    	editorUi.hideDialog();
+				editorUi.saveData(name, 'svg', mxUtils.getXml(graph.getSvg(bg, s, b)), 'image/svg+xml');
+			}
+		    else
+		    {
+		    	var data = editorUi.getFileData(true, null, null, null, null, true);
+		    	var bounds = graph.getGraphBounds();
+				var w = Math.ceil(bounds.width * s / graph.view.scale);
+				var h = Math.ceil(bounds.height * s / graph.view.scale);
+				
+				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
+				{
+					editorUi.hideDialog();
+					editorUi.saveRequest(name, format,
+						function(newTitle, base64)
+						{
+							return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
+								((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
+								'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
+								'&border=' + b + '&xml=' + encodeURIComponent(data));
+						});
+				}
+				else
+				{
+					mxUtils.alert(mxResources.get('drawingTooLarge'));
+				}
+			}
+		};
+	}
+
 })();

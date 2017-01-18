@@ -488,24 +488,6 @@
 			mxSettings.save();
 		};
 	}
-	
-	/**
-	 * Global switches for the export dialog.
-	 */
-	if (window.ExportDialog)
-	{
-		ExportDialog.showXmlOption = false;
-		ExportDialog.showGifOption = false;
-		
-		ExportDialog.getExportParameter = function(ui, format)
-		{
-			return function()
-			{
-				// LATER Fix decoding of HTML file in backend (remove argument in getFileData)
-				return 'xml=' + encodeURIComponent(ui.getFileData(true, null, null, null, null, true));
-			};
-		};
-	}
 
 	// Overridden to add edit shape option
 	if (window.StyleFormatPanel != null)

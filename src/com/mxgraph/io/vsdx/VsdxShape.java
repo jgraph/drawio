@@ -10,6 +10,7 @@ import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxResources;
+import com.mxgraph.view.mxGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1981,5 +1982,64 @@ public class VsdxShape extends Shape
 		}
 		
 		return elem;
+	}
+	
+	/**
+	 * Creates a sub shape for <b>shape</b> that contains the label. Used internally, when the label is positioned by an anchor.
+	 * @param graph
+	 * @param shape the shape we want to create the label for
+	 * @param parent
+	 * @param parentHeight
+	 * @return label sub-shape
+	 */
+	public mxCell createLabelSubShape(mxGraph graph, mxCell parent)
+	{
+		double txtWV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_WIDTH), getWidth());
+		double txtHV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_HEIGHT), getHeight());
+		double txtLocPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), txtWV / 2.0);
+		double txtLocPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), txtHV / 2.0);
+		double txtPinXV =getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
+		double txtPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_Y), txtHV);
+		double txtAngleV = getValueAsDouble(getShapeNode(mxVsdxConstants.TXT_ANGLE), 0);
+
+		String textLabel = getTextLabel();
+
+		if (textLabel != null && !textLabel.isEmpty())
+		{
+			Map<String, String> styleMap = new HashMap<String, String>(getStyleMap());
+			styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
+			styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
+			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE);
+			styleMap.put("align", "center");
+			styleMap.put("verticalAlign", "middle");
+			styleMap.put("whiteSpace", "wrap");
+			
+			// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
+			styleMap.remove("shape");
+			//styleMap.put("html", "1");
+
+			if (txtAngleV != 0)
+			{
+				double labRot = txtAngleV * 180 / Math.PI;
+				labRot = Math.round((labRot + getRotation()) * 100.0) / 100.0;
+
+				if (labRot != 0.0)
+				{
+					styleMap.put("rotation", Double.toString(labRot));
+				}
+			}
+
+			String style = "text;"
+					+ mxVsdxUtils.getStyleString(styleMap, "=");
+
+			double y = parent.getGeometry().getHeight() - (txtPinYV + txtHV - txtLocPinYV);
+			double x = txtPinXV - txtLocPinXV;
+
+			mxCell v1 = (mxCell) graph.insertVertex(parent, null, textLabel, x, y, txtWV, txtHV, style + ";html=1;");
+
+			return v1;
+		}
+
+		return null;
 	}
 }

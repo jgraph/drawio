@@ -47,16 +47,30 @@ Draw.loadPlugin(function(ui) {
 				else
 				{
 					var attrs = (cell.value != null) ? cell.value.attributes : null;
-					
+			
 					if (attrs != null)
 					{
+						var ignored = ['label', 'tooltip', 'placeholders'];
 						highlight.highlight(graph.view.getState(cell));
-						div.innerHTML = '<h1>' + graph.sanitizeHtml(graph.getLabel(cell)) + '</h1>';
+						var label = graph.sanitizeHtml(graph.getLabel(cell));
+						
+						if (label != null && label.length > 0)
+						{
+							div.innerHTML = '<h1>' + label + '</h1>';
+						}
+						else
+						{
+							div.innerHTML = '';
+						}
 						
 						for (var i = 0; i < attrs.length; i++)
 						{
-							div.innerHTML += '<h2>' + graph.sanitizeHtml(attrs[i].nodeName) + '</h2>' +
-								'<p>' + graph.sanitizeHtml(attrs[i].nodeValue) + '</p>';
+							if (mxUtils.indexOf(ignored, attrs[i].nodeName) < 0 &&
+								attrs[i].nodeValue.length > 0)
+							{
+								div.innerHTML += '<h2>' + graph.sanitizeHtml(attrs[i].nodeName) + '</h2>' +
+									'<p>' + graph.sanitizeHtml(attrs[i].nodeValue) + '</p>';
+							}
 						}
 					}
 				}

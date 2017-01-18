@@ -152,7 +152,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
-	'props': '/plugins/props.js'};
+	'props': '/plugins/props.js', 'text': '/plugins/text.js'};
 
 /**
  * Function: authorize
@@ -268,7 +268,7 @@ App.getStoredMode = function()
 				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
 				if (typeof window.OneDriveClient === 'function')
 				{
-					if (urlParams['od'] != '0' && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
+					if (urlParams['od'] != '0' && !/(iPad|iPhone|iPod)/.test(navigator.userAgent) &&
 						(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
 						// Immediately loads client
@@ -565,7 +565,7 @@ App.main = function(callback)
 			if (typeof window.OneDriveClient === 'function' &&
 				(typeof WL === 'undefined' && window.DrawOneDriveClientCallback != null &&
 				(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-				urlParams['od'] == '1')) && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
+				urlParams['od'] == '1')) && !/(iPad|iPhone|iPod)/.test(navigator.userAgent) &&
 				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 			{
 				mxscript('https://js.live.net/v5.0/wl.js', window.DrawOneDriveClientCallback);
@@ -2332,7 +2332,9 @@ App.prototype.showSplash = function(force)
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
 		var dlg = new SplashDialog(this);
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP) ? 180 : 260, true, true,
+		var serviceCount = this.getServiceCount();
+
+		this.showDialog(dlg.container, 340, (serviceCount < 2) ? 180 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed

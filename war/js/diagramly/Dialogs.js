@@ -16,7 +16,7 @@ var StorageDialog = function(editorUi, fn)
 		elt.style.bottom = bottom;
 	}
 	
-	if (!editorUi.isOffline())
+	if (!editorUi.isOffline() && editorUi.getServiceCount() > 1)
 	{
 		var help = document.createElement('a');
 		help.setAttribute('href', 'https://support.draw.io/display/DO/Selecting+Storage');
@@ -271,7 +271,7 @@ var StorageDialog = function(editorUi, fn)
 				p3.innerHTML = '<a style="background-color:#dcdcdc;padding:5px;color:black;text-decoration:none;" ' +
 					'href="https://plus.google.com/u/0/+DrawIo1/posts/1HTrfsb5wDN" target="_blank">' +
 					'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="top"> ' +
-					mxResources.get('googleDriveMissing') + '</a>';
+					mxResources.get('googleDriveMissingClickHere') + '</a>';
 				div.appendChild(p3);
 			}
 		}, 5000);
@@ -290,8 +290,9 @@ var SplashDialog = function(editorUi)
 	
 	editorUi.addLanguageMenu(div);
 	var help = null;
+	var serviceCount = editorUi.getServiceCount();
 	
-	if (!editorUi.isOffline())
+	if (!editorUi.isOffline() && serviceCount > 1)
 	{
 		help = document.createElement('a');
 		help.setAttribute('href', 'https://support.draw.io/display/DO/Selecting+Storage');
@@ -451,28 +452,6 @@ var SplashDialog = function(editorUi)
 		storage = mxResources.get('browser');
 	}
 	
-	var serviceCount = 0;
-	
-	if (editorUi.drive != null)
-	{
-		serviceCount++
-	}
-	
-	if (editorUi.dropbox != null)
-	{
-		serviceCount++
-	}
-	
-	if (isLocalStorage)
-	{
-		serviceCount++
-	}
-	
-	if (!mxClient.IS_IOS)
-	{
-		serviceCount++
-	}
-
 	if (serviceCount > 1)
 	{
 		var link = document.createElement('a');
@@ -540,7 +519,7 @@ var SplashDialog = function(editorUi)
 	div.appendChild(buttons);
 	
 	// Changes Chrome App dialog
-	if (mxClient.IS_CHROMEAPP)
+	if (serviceCount < 2)
 	{
 		hd.style.paddingTop = '12px';
 		hd.innerHTML = '';
@@ -3117,7 +3096,13 @@ var ParseDialog = function(editorUi, title)
 	plantUmlPngOption.setAttribute('value', 'plantUmlPng');
 	mxUtils.write(plantUmlPngOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatPng') + ')');
 	
-	if (Graph.fileSupport && !editorUi.isOffline())
+	console.log(/.*\.draw\.io$/.test("www.draw.io"));
+	console.log(/.*\.draw\.io$/.test("www2.draw.io"));
+	console.log(/.*\.draw\.io$/.test("www.draw2.io"));
+	console.log(/.*\.draw\.io$/.test("www.draw.io2"));
+	
+	// Disabled for invalid hosts via CORS headers
+	if (/.*\.draw\.io$/.test(window.location.hostname) && Graph.fileSupport && !editorUi.isOffline())
 	{
 		typeSelect.appendChild(plantUmlSvgOption);
 		typeSelect.appendChild(plantUmlPngOption);
@@ -5413,7 +5398,7 @@ var AboutDialog = function(editorUi)
 
 	var small = document.createElement('small');
 	small.style.color = '#505050';
-	small.innerHTML = '&copy; 2005-2016 <a href="https://www.jgraph.com/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
+	small.innerHTML = '&copy; 2005-2017 <a href="https://www.jgraph.com/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
 	div.appendChild(small);
 	
 	mxEvent.addListener(div, 'click', function(e)
@@ -5466,7 +5451,8 @@ var FeedbackDialog = function(editorUi)
 			
 			if (editorUi.spinner.spin(document.body))
 			{
-				mxUtils.post('/email', 'email=' + encodeURIComponent(email.value) +
+				var postUrl = FeedbackDialog.feedbackUrl ? FeedbackDialog.feedbackUrl : '/email';
+				mxUtils.post(postUrl, 'email=' + encodeURIComponent(email.value) +
 						'&version=' + encodeURIComponent(EditorUi.VERSION) +
 						'&url=' + encodeURIComponent(window.location.href) +
 						'&body=' + encodeURIComponent('Feedback:\n' + textarea.value + diagram),
@@ -6514,11 +6500,18 @@ var FindWindow = function(ui, x, y, w, h)
 	searchInput.setAttribute('placeholder', mxResources.get('find'));
 	searchInput.setAttribute('type', 'text');
 	searchInput.style.marginTop = '4px';
+	searchInput.style.marginBottom = '6px';
 	searchInput.style.width = '170px';
 	searchInput.style.fontSize = '12px';
 	searchInput.style.borderRadius = '4px';
 	searchInput.style.padding = '6px';
 	div.appendChild(searchInput);
+	
+	var regexInput = document.createElement('input');
+	regexInput.setAttribute('type', 'checkbox');
+	div.appendChild(regexInput);
+	
+	mxUtils.write(div, mxResources.get('regularExpression'));
 
 	var tmp = document.createElement('div');
 	
@@ -6544,7 +6537,7 @@ var FindWindow = function(ui, x, y, w, h)
 	{
 		var cells = graph.model.getDescendants(graph.model.getRoot());
 		var search = searchInput.value.toLowerCase();
-		var re = new RegExp(search);
+		var re = (regexInput.checked) ? new RegExp(search) : null;
 		var firstMatch = null;
 		
 		if (lastSearch != search)
@@ -6576,7 +6569,8 @@ var FindWindow = function(ui, x, y, w, h)
 		
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if (re.test(label) || testMeta(re, state.cell))
+					if ((re == null && label.substring(0, search.length) === search) ||
+						(re != null && (re.test(label) || testMeta(re, state.cell))))
 					{
 						if (active)
 						{
@@ -6621,7 +6615,7 @@ var FindWindow = function(ui, x, y, w, h)
 	});
 	
 	resetBtn.setAttribute('title', mxResources.get('reset'));
-	resetBtn.style.marginTop = '8px';
+	resetBtn.style.marginTop = '6px';
 	resetBtn.style.marginRight = '4px';
 	resetBtn.style.backgroundColor = '#f5f5f5';
 	resetBtn.style.backgroundImage = 'none';
@@ -6631,11 +6625,18 @@ var FindWindow = function(ui, x, y, w, h)
 
 	var btn = mxUtils.button(mxResources.get('find'), function()
 	{
-		searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+		try
+		{
+			searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+		}
+		catch (e)
+		{
+			ui.handleError(e);	
+		}
 	});
 	
 	btn.setAttribute('title', mxResources.get('find') + ' (Enter)');
-	btn.style.marginTop = '8px';
+	btn.style.marginTop = '6px';
 	btn.style.backgroundColor = '#4d90fe';
 	btn.style.backgroundImage = 'none';
 	btn.className = 'geBtn gePrimaryBtn';
@@ -6656,7 +6657,14 @@ var FindWindow = function(ui, x, y, w, h)
 		}
 		else if (lastSearch != searchInput.value.toLowerCase() || evt.keyCode == 13)
 		{
-			searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+			try
+			{
+				searchInput.style.backgroundColor = search() ? '' : '#ffcfcf';
+			}
+			catch (e)
+			{
+				searchInput.style.backgroundColor = '#ffcfcf';
+			}
 		}
 	});
 
