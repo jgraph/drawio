@@ -104,6 +104,7 @@
 			   		var ctx = canvas.getContext('2d');
 			   		ctx.drawImage(img, 0, 0);
 
+			   		// Works in Chrome, Firefox, Edge and Opera
 					// LATER: Fix security error caused by foreignObjects in Safari for toDataUri (tainted canvas)
 					var result = canvas.toDataURL('image/png');
 					EditorUi.prototype.useCanvasForExport = result != null && result.length > 6;
@@ -7318,8 +7319,8 @@
 		    {
 		    	var data = editorUi.getFileData(true, null, null, null, null, true);
 		    	var bounds = graph.getGraphBounds();
-				var w = Math.ceil(bounds.width * s / graph.view.scale);
-				var h = Math.ceil(bounds.height * s / graph.view.scale);
+				var w = Math.floor(bounds.width * s / graph.view.scale);
+				var h = Math.floor(bounds.height * s / graph.view.scale);
 				
 				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 				{

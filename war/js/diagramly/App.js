@@ -1469,7 +1469,7 @@ App.prototype.getThumbnail = function(width, success)
 			this.thumbImageCache = new Object();
 		}
 
-		// Uses new client-side canvas export for Chrome, Firefox and Opera
+		// Uses client-side canvas export
 		if (this.isExportToCanvas())
 		{
 		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
