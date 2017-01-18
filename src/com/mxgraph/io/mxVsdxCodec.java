@@ -557,7 +557,7 @@ public class mxVsdxCodec
 		
 		if (subLabel)
 		{
-			createLabelSubShape(graph, shape, group);
+			shape.createLabelSubShape(graph, group);
 		}
 
 		return group;
@@ -638,7 +638,7 @@ public class mxVsdxCodec
 
 			if (hasSubLabel)
 			{
-				createLabelSubShape(graph, shape, v1);
+				shape.createLabelSubShape(graph, v1);
 			}
 
 			return v1;
@@ -905,7 +905,6 @@ public class mxVsdxCodec
 					(style != null) &&
 					(style.contains(mxConstants.STYLE_FILLCOLOR + "=none")) &&
 					(style.contains(mxConstants.STYLE_STROKECOLOR + "=none")) &&
-					(style.contains(mxConstants.STYLE_GRADIENTCOLOR + "=none")) &&
 					(!style.contains("image=")))
 			{
 				// Leaf vertex, nothing rendered, no label, remove it
@@ -915,64 +914,5 @@ public class mxVsdxCodec
 		}
 		
 		return false;
-	}
-		
-	/**
-	 * Creates a sub shape for <b>shape</b> that contains the label. Used internally, when the label is positioned by an anchor.
-	 * @param graph
-	 * @param shape the shape we want to create the label for
-	 * @param parent
-	 * @param parentHeight
-	 * @return label sub-shape
-	 */
-	private mxCell createLabelSubShape(mxGraph graph, VsdxShape shape, mxCell parent)
-	{
-		double txtWV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_WIDTH), shape.getWidth());
-		double txtHV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_HEIGHT), shape.getHeight());
-		double txtLocPinXV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), txtWV / 2.0);
-		double txtLocPinYV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), txtHV / 2.0);
-		double txtPinXV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
-		double txtPinYV = shape.getScreenNumericalValue(shape.getShapeNode(mxVsdxConstants.TXT_PIN_Y), txtHV);
-		double txtAngleV = shape.getValueAsDouble(shape.getShapeNode(mxVsdxConstants.TXT_ANGLE), 0);
-
-		String textLabel = shape.getTextLabel();
-
-		if (textLabel != null && !textLabel.isEmpty())
-		{
-			Map<String, String> styleMap = new HashMap<String, String>(shape.getStyleMap());
-			styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
-			styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
-			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE);
-			styleMap.put("align", "center");
-			styleMap.put("verticalAlign", "middle");
-			styleMap.put("whiteSpace", "wrap");
-			
-			// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
-			styleMap.remove("shape");
-			//styleMap.put("html", "1");
-
-			if (txtAngleV != 0)
-			{
-				double labRot = txtAngleV * 180 / Math.PI;
-				labRot = Math.round((labRot + shape.getRotation()) * 100.0) / 100.0;
-
-				if (labRot != 0.0)
-				{
-					styleMap.put("rotation", Double.toString(labRot));
-				}
-			}
-
-			String style = "text;"
-					+ mxVsdxUtils.getStyleString(styleMap, "=");
-
-			double y = parent.getGeometry().getHeight() - (txtPinYV + txtHV - txtLocPinYV);
-			double x = txtPinXV - txtLocPinXV;
-
-			mxCell v1 = (mxCell) graph.insertVertex(parent, null, textLabel, x, y, txtWV, txtHV, style + ";html=1;");
-
-			return v1;
-		}
-
-		return null;
 	}
 }

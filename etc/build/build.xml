@@ -107,6 +107,7 @@
 				<file name="Sidebar-Rack.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-WebIcons.js" />
 			</sources>
 		</jscomp>
 

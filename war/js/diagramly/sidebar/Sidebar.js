@@ -28,6 +28,10 @@
 	Sidebar.prototype.signs = ['Animals', 'Food', 'Healthcare', 'Nature', 'People', 'Safety', 'Science', 'Sports', 'Tech', 'Transportation', 'Travel'];
 
 	/**
+	 * 
+	 */
+	Sidebar.prototype.gcp = ['Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
+	/**
 	 *
 	 */
 	Sidebar.prototype.rack = ['General', 'APC', 'Cisco', 'Dell', 'F5', 'HP', 'IBM', 'Oracle'];
@@ -107,6 +111,7 @@
 	                                          	                          'Driers', 'Engines', 'Feeders', 'Filters', 'Fittings', 'Flow Sensors', 'Heat Exchangers', 'Instruments', 'Misc',
 	                                        	                          'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels']},
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
+           	                           {id: 'gcp', prefix: 'gcp', libs: Sidebar.prototype.gcp},
            	                           {id: 'rack', prefix: 'rack', libs: Sidebar.prototype.rack},
            	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
@@ -120,6 +125,7 @@
 	                                   {id: 'gmdl', prefix: 'gmdl', libs: Sidebar.prototype.gmdl},
            	                           {id: 'archimate3', prefix: 'archimate3', libs: Sidebar.prototype.archimate3},
            	                           {id: 'archimate', libs: ['archimate']},
+           	                           {id: 'webicons', libs: ['webicons', 'weblogos']},
            	                           {id: 'sysml', prefix: 'sysml', libs: Sidebar.prototype.sysml}];
 	
 	/**
@@ -293,6 +299,7 @@
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
+            			          {title: 'Google Cloud Platform', id: 'gcp', image: IMAGE_PATH + '/sidebar-gcp.png'},
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
             			          {title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
             			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'},
@@ -310,6 +317,8 @@
             			          {title: mxResources.get('floorplans'), id: 'floorplan', image: IMAGE_PATH + '/sidebar-floorplans.png'},
             			          {title: mxResources.get('gmdl'), id: 'gmdl', image: IMAGE_PATH + '/sidebar-gmdl.png'},
             			          {title: mxResources.get('procEng'), id: 'pid', image: IMAGE_PATH + '/sidebar-pid.png'},
+            			          // TODO add to mxResources
+            			          {title: 'Web Icons', id: 'webicons', image: IMAGE_PATH + '/sidebar-webIcons.png'},
             			          {title: mxResources.get('signs'), id: 'signs', image: IMAGE_PATH + '/sidebar-signs.png'}]}];
 
 		// Uses server-side stencil search if online
@@ -567,6 +576,7 @@
 		var imgDir = GRAPH_IMAGE_PATH;
 		var dir = STENCIL_PATH;
 		var signs = this.signs;
+		var gcp = this.gcp;
 		var rack = this.rack;
 		var pids = this.pids;
 		var cisco = this.cisco;
@@ -707,6 +717,13 @@
 			this.addStencilPalette('signs' + signs[i], 'Signs / ' + signs[i],
 				dir + '/signs/' + signs[i].toLowerCase() + '.xml',
 				';html=1;fillColor=#000000;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
+		}
+		
+		for (var i = 0; i < gcp.length; i++)
+		{
+			this.addStencilPalette('gcp' + gcp[i], 'GCP / ' + gcp[i],
+				dir + '/gcp/' + gcp[i].toLowerCase().replace(/ /g, '_') + '.xml',
+				';html=1;fillColor=#4387FD;gradientColor=#4683EA;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
 		}
 		
 		for (var i = 0; i < rack.length; i++)
@@ -942,6 +959,8 @@
 		this.addCabinetsPalette();
 		this.addArchimate3Palette();
 		this.addArchiMatePalette();
+		this.addWebIconsPalette();
+		this.addWebLogosPalette();
 		
 		// LATER: Check if conflicts with restore libs after loading file
 		this.showEntries();

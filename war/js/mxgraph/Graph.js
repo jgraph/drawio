@@ -4932,12 +4932,12 @@ if (typeof mxVertexHandler != 'undefined')
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 			showText = (showText != null) ? showText : true;
 
-			var bounds = (nocrop) ? this.view.getBackgroundPageBounds() : (ignoreSelection) ?
+			var bounds = (ignoreSelection || nocrop) ?
 					this.getGraphBounds() : this.getBoundingBox(this.getSelectionCells());
 
 			if (bounds == null)
 			{
-				throw Error(mxResources.get('drawingEmpty'));	
+				throw Error(mxResources.get('drawingEmpty'));
 			}
 			
 			var imgExport = this.createSvgImageExport();

@@ -1116,5 +1116,5 @@
 <shape style="shape=mxgraph.cisco.wireless.Wireless_Bridge;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top" w="75" h="61"/>
 <shape style="shape=mxgraph.cisco.wireless.Wireless_Location_Appliance;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top" w="98" h="54"/>
 <shape style="shape=mxgraph.cisco.wireless.Wireless_Transport;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top" w="77" h="54"/>
-<shape style="shape=mxgraph.cisco.wireless.WLAN_Controller;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top" w="101" h="56"/></shapes>
+<shape style="shape=mxgraph.cisco.wireless.WLAN_Controller;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top" w="101" h="56"/>
 </shapes>

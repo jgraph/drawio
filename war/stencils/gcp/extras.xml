@@ -1,0 +1,196 @@
+<shapes name="mxgraph.gcp.extras">
+<shape aspect="variable" h="113.97" name="Blue Hexagon" strokewidth="inherit" w="129.07">
+    <connections/>
+    <foreground>
+        <path>
+            <move x="28.3" y="108.23"/>
+            <line x="2.05" y="62.76"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="2.05" x-axis-rotation="0" y="51.26"/>
+            <line x="28.3" y="5.79"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="38.26" x-axis-rotation="0" y="0.01"/>
+            <line x="90.76" y="0.01"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="100.76" x-axis-rotation="0" y="5.76"/>
+            <line x="127.01" y="51.23"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="127.01" x-axis-rotation="0" y="62.73"/>
+            <line x="100.76" y="108.2"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="90.76" x-axis-rotation="0" y="113.95"/>
+            <line x="38.26" y="113.95"/>
+            <arc large-arc-flag="0" rx="11.5" ry="11.5" sweep-flag="1" x="28.3" x-axis-rotation="0" y="108.23"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="114.38" name="Generic GCP" strokewidth="inherit" w="129.07">
+    <connections/>
+    <foreground>
+        <save/>
+        <path>
+            <move x="28.3" y="108.23"/>
+            <line x="2.05" y="62.76"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="2.05" x-axis-rotation="0.0" y="51.26"/>
+            <line x="28.3" y="5.79"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="38.26" x-axis-rotation="0.0" y="0.01"/>
+            <line x="90.76" y="0.01"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="100.76" x-axis-rotation="0.0" y="5.76"/>
+            <line x="127.01" y="51.23"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="127.01" x-axis-rotation="0.0" y="62.73"/>
+            <line x="100.76" y="108.2"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="90.76" x-axis-rotation="0.0" y="113.95"/>
+            <line x="38.26" y="113.95"/>
+            <arc large-arc-flag="0.0" rx="11.5" ry="11.5" sweep-flag="1.0" x="28.3" x-axis-rotation="0.0" y="108.23"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <alpha alpha="0.07000002"/>
+        <path>
+            <move x="81.26" y="32.26"/>
+            <line x="53.51" y="36.01"/>
+            <line x="48.28" y="52.44"/>
+            <line x="40.19" y="45.44"/>
+            <line x="48.7" y="82.02"/>
+            <line x="82.15" y="114.35"/>
+            <line x="91.15" y="114.38"/>
+            <curve x1="95.14" x2="98.69" x3="100.71" y1="114.38" y2="112.3" y3="109.2"/>
+            <line x="121.36" y="73.43"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <restore/>
+        <rect/>
+        <stroke/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="72.29" y="57.06"/>
+            <arc large-arc-flag="1.0" rx="7.93" ry="7.93" sweep-flag="1.0" x="64.36" x-axis-rotation="0.0" y="49.13"/>
+            <arc large-arc-flag="0.0" rx="7.93" ry="7.93" sweep-flag="1.0" x="72.29" x-axis-rotation="0.0" y="57.06"/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="93.73" y="55.01"/>
+            <line x="87.79" y="44.67"/>
+            <line x="75.67" y="44.67"/>
+            <line x="82.77" y="57.01"/>
+            <line x="80.86" y="60.34"/>
+            <line x="73.64" y="72.88"/>
+            <line x="71.41" y="76.75"/>
+            <line x="67.51" y="83.45"/>
+            <line x="77.35" y="83.45"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="80.79" x-axis-rotation="0.0" y="81.45"/>
+            <line x="93.73" y="59.01"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="93.73" x-axis-rotation="0.0" y="55.06"/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="55.38" y="72.88"/>
+            <line x="46.25" y="57.01"/>
+            <line x="40.19" y="46.49"/>
+            <line x="35.29" y="55.01"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="35.29" x-axis-rotation="0.0" y="58.96"/>
+            <line x="48.18" y="81.46"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="51.62" x-axis-rotation="0.0" y="83.46"/>
+            <line x="63.46" y="83.46"/>
+            <line x="69.57" y="72.88"/>
+            <line x="55.38" y="72.88"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="85.77" y="41.14"/>
+            <line x="80.85" y="32.56"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="77.41" x-axis-rotation="0.0" y="30.56"/>
+            <line x="51.62" y="30.56"/>
+            <arc large-arc-flag="0.0" rx="4.0" ry="4.0" sweep-flag="0.0" x="48.18" x-axis-rotation="0.0" y="32.56"/>
+            <line x="42.2" y="43.01"/>
+            <line x="48.27" y="53.52"/>
+            <line x="55.37" y="41.18"/>
+            <line x="85.77" y="41.18"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="116.59" name="Prediction API" strokewidth="inherit" w="129.03">
+    <connections/>
+    <foreground>
+        <save/>
+        <path>
+            <move x="28.3" y="108.18"/>
+            <line x="2.05" y="62.72"/>
+            <curve x1="0.0" x2="0.0" x3="2.05" y1="59.16" y2="54.77" y3="51.22"/>
+            <line x="28.3" y="5.75"/>
+            <curve x1="30.36" x2="34.16" x3="38.26" y1="2.19" y2="0.0" y3="0.0"/>
+            <line x="90.76" y="0.0"/>
+            <curve x1="94.87" x2="98.67" x3="100.72" y1="0.0" y2="2.19" y3="5.75"/>
+            <line x="126.97" y="51.22"/>
+            <curve x1="129.03" x2="129.03" x3="126.97" y1="54.77" y2="59.16" y3="62.72"/>
+            <line x="100.72" y="108.18"/>
+            <curve x1="98.67" x2="94.87" x3="90.76" y1="111.74" y2="113.93" y3="113.93"/>
+            <line x="38.26" y="113.93"/>
+            <curve x1="34.16" x2="30.36" x3="28.3" y1="113.93" y2="111.74" y3="108.18"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <fillcolor color="#000000"/>
+        <alpha alpha="0.07"/>
+        <path>
+            <move x="128.51" y="61.68"/>
+            <line x="95.13" y="28.29"/>
+            <line x="70.07" y="70.84"/>
+            <line x="56.64" y="46.81"/>
+            <line x="37.96" y="74.53"/>
+            <line x="79.89" y="116.46"/>
+            <line x="98.14" y="116.59"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <restore/>
+        <rect/>
+        <stroke/>
+        <fillcolor color="#FFFFFF"/>
+        <path>
+            <move x="44.16" y="71.32"/>
+            <line x="40.48" y="69.11"/>
+            <line x="56.6" y="42.24"/>
+            <line x="72.08" y="68.37"/>
+            <line x="68.39" y="70.56"/>
+            <line x="56.58" y="50.62"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <ellipse h="12.9" w="12.9" x="63.62" y="62.74"/>
+        <fillstroke/>
+        <ellipse h="12.9" w="12.9" x="36.04" y="63.49"/>
+        <fillstroke/>
+        <path>
+            <move x="77.99" y="61.68"/>
+            <line x="74.29" y="59.51"/>
+            <line x="77.15" y="54.64"/>
+            <line x="80.85" y="56.82"/>
+            <line x="77.99" y="61.68"/>
+            <close/>
+            <move x="83.19" y="52.84"/>
+            <line x="79.5" y="50.67"/>
+            <line x="82.36" y="45.8"/>
+            <line x="86.06" y="47.98"/>
+            <line x="83.19" y="52.84"/>
+            <close/>
+            <move x="88.4" y="44.0"/>
+            <line x="84.7" y="41.83"/>
+            <line x="87.56" y="36.96"/>
+            <line x="91.26" y="39.14"/>
+            <line x="88.4" y="44.0"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="95.08" y="41.5"/>
+            <line x="95.19" y="28.23"/>
+            <line x="83.65" y="34.77"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+</shapes>

@@ -1,3 +1,21 @@
+18-JAN-2017: 6.0.2.11
+
+- Adds crop option for SVG and image export
+- Fixes PDF crop export option
+- Adds text extraction plugin
+- Uses mxGraph 3.7.0.0
+
+13-JAN-2017: 6.0.2.10
+
+- Removes green background from server-side image export
+- Ignores convention of not using double digit release numbers
+
+13-JAN-2017: 6.0.2.9
+
+- Adds Google Cloud icons
+- Removes lightbox link for Imgur files
+- Uses mxGraph 3.7.0.0 beta 13
+
 09-JAN-2017: 6.0.2.8
 
 - Adds props plugin
