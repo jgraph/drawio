@@ -1694,6 +1694,12 @@ var EditDiagramDialog = function(editorUi)
 var ExportDialog = function(editorUi)
 {
 	var graph = editorUi.editor.graph;
+	var bounds = graph.getGraphBounds();
+	var scale = graph.view.scale;
+	
+	var width = Math.ceil(bounds.width / scale);
+	var height = Math.ceil(bounds.height / scale);
+
 	var row, td;
 	
 	var table = document.createElement('table');
@@ -1772,7 +1778,7 @@ var ExportDialog = function(editorUi)
 	row.appendChild(td);
 	
 	tbody.appendChild(row);
-
+	
 	row = document.createElement('tr');
 
 	td = document.createElement('td');
@@ -1788,6 +1794,42 @@ var ExportDialog = function(editorUi)
 
 	td = document.createElement('td');
 	td.appendChild(zoomInput);
+	row.appendChild(td);
+
+	tbody.appendChild(row);
+
+	row = document.createElement('tr');
+
+	td = document.createElement('td');
+	td.style.fontSize = '10pt';
+	mxUtils.write(td, mxResources.get('width') + ':');
+	
+	row.appendChild(td);
+	
+	var widthInput = document.createElement('input');
+	widthInput.setAttribute('value', width);
+	widthInput.style.width = '180px';
+
+	td = document.createElement('td');
+	td.appendChild(widthInput);
+	row.appendChild(td);
+
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.fontSize = '10pt';
+	mxUtils.write(td, mxResources.get('height') + ':');
+	
+	row.appendChild(td);
+	
+	var heightInput = document.createElement('input');
+	heightInput.setAttribute('value', height);
+	heightInput.style.width = '180px';
+
+	td = document.createElement('td');
+	td.appendChild(heightInput);
 	row.appendChild(td);
 
 	tbody.appendChild(row);
@@ -1850,11 +1892,15 @@ var ExportDialog = function(editorUi)
 		if (imageFormatSelect.value === 'xml')
 		{
 			zoomInput.setAttribute('disabled', 'true');
+			widthInput.setAttribute('disabled', 'true');
+			heightInput.setAttribute('disabled', 'true');
 			borderInput.setAttribute('disabled', 'true');
 		}
 		else
 		{
 			zoomInput.removeAttribute('disabled');
+			widthInput.removeAttribute('disabled');
+			heightInput.removeAttribute('disabled');
 			borderInput.removeAttribute('disabled');
 		}
 		
@@ -1871,11 +1917,85 @@ var ExportDialog = function(editorUi)
 	mxEvent.addListener(imageFormatSelect, 'change', formatChanged);
 	formatChanged();
 
+	function checkValues()
+	{
+		if (widthInput.value * heightInput.value > MAX_AREA || widthInput.value <= 0)
+		{
+			widthInput.style.backgroundColor = 'red';
+		}
+		else
+		{
+			widthInput.style.backgroundColor = '';
+		}
+		
+		if (widthInput.value * heightInput.value > MAX_AREA || heightInput.value <= 0)
+		{
+			heightInput.style.backgroundColor = 'red';
+		}
+		else
+		{
+			heightInput.style.backgroundColor = '';
+		}
+	};
+
 	mxEvent.addListener(zoomInput, 'change', function()
 	{
-		zoomInput.value = Math.max(0, parseInt(zoomInput.value) || 100);
+		var s = Math.max(0, parseFloat(zoomInput.value) || 100) / 100;
+		zoomInput.value = parseFloat((s * 100).toFixed(2));
+		
+		if (width > 0)
+		{
+			widthInput.value = Math.floor(width * s);
+			heightInput.value = Math.floor(height * s);
+		}
+		else
+		{
+			zoomInput.value = '100';
+			widthInput.value = width;
+			heightInput.value = height;
+		}
+		
+		checkValues();
 	});
 
+	mxEvent.addListener(widthInput, 'change', function()
+	{
+		var s = parseInt(widthInput.value) / width;
+		
+		if (s > 0)
+		{
+			zoomInput.value = parseFloat((s * 100).toFixed(2));
+			heightInput.value = Math.floor(height * s);
+		}
+		else
+		{
+			zoomInput.value = '100';
+			widthInput.value = width;
+			heightInput.value = height;
+		}
+		
+		checkValues();
+	});
+
+	mxEvent.addListener(heightInput, 'change', function()
+	{
+		var s = parseInt(heightInput.value) / height;
+		
+		if (s > 0)
+		{
+			zoomInput.value = parseFloat((s * 100).toFixed(2));
+			widthInput.value = Math.floor(width * s);
+		}
+		else
+		{
+			zoomInput.value = '100';
+			widthInput.value = width;
+			heightInput.value = height;
+		}
+		
+		checkValues();
+	});
+	
 	row = document.createElement('tr');
 	td = document.createElement('td');
 	td.setAttribute('align', 'right');
@@ -1892,7 +2012,7 @@ var ExportDialog = function(editorUi)
 		{
 	    	var name = nameInput.value;
 			var format = imageFormatSelect.value;
-	    	var s = Math.max(0, parseInt(zoomInput.value) || 100) / 100;
+	    	var s = Math.max(0, parseFloat(zoomInput.value) || 100) / 100;
 			var b = Math.max(0, parseInt(borderInput.value));
 			var bg = graph.background;
 			
