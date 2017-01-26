@@ -30,8 +30,8 @@ public class SaveServlet extends HttpServlet
 	/**
 	 * 
 	 */
-	private static final Logger log = Logger.getLogger(SaveServlet.class
-			.getName());
+	private static final Logger log = Logger
+			.getLogger(SaveServlet.class.getName());
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -70,8 +70,9 @@ public class SaveServlet extends HttpServlet
 				if (enc != null && enc.length() > 0)
 				{
 					// NOTE: Simulate is used on client-side so the value is double-encoded
-					xml = Utils.inflate(mxBase64.decode(URLDecoder.decode(enc,
-							Utils.CHARSET_FOR_URL_ENCODING).getBytes()));
+					xml = Utils.inflate(mxBase64.decode(URLDecoder
+							.decode(enc, Utils.CHARSET_FOR_URL_ENCODING)
+							.getBytes()));
 				}
 				else
 				{
@@ -81,28 +82,32 @@ public class SaveServlet extends HttpServlet
 				// Decoding is optional (no plain text values allowed here so %3C means encoded)
 				if (xml != null && xml.startsWith("%3C"))
 				{
-					xml = URLDecoder
-							.decode(xml, Utils.CHARSET_FOR_URL_ENCODING);
+					xml = URLDecoder.decode(xml,
+							Utils.CHARSET_FOR_URL_ENCODING);
 				}
 
 				String binary = request.getParameter("binary");
-				
-				if (binary != null && binary.equals("1") && xml != null && mime != null)
+
+				if (binary != null && binary.equals("1") && xml != null
+						&& mime != null)
 				{
 					response.setStatus(HttpServletResponse.SC_OK);
-					
+
 					if (filename != null)
 					{
 						response.setContentType("application/x-unknown");
-						response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"; filename*=UTF-8''" + filename);
+						response.setHeader("Content-Disposition",
+								"attachment; filename=\"" + filename
+										+ "\"; filename*=UTF-8''" + filename);
 					}
 					else if (mime != null)
 					{
 						response.setContentType(mime);
 					}
 
-					response.getOutputStream().write(mxBase64.decodeFast(URLDecoder
-							.decode(xml, Utils.CHARSET_FOR_URL_ENCODING)));
+					response.getOutputStream()
+							.write(mxBase64.decodeFast(URLDecoder.decode(xml,
+									Utils.CHARSET_FOR_URL_ENCODING)));
 				}
 				else if (mime != null && xml != null)
 				{
@@ -110,7 +115,7 @@ public class SaveServlet extends HttpServlet
 					{
 						data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
 					}
-					
+
 					String format = request.getParameter("format");
 
 					if (format == null)
@@ -134,18 +139,17 @@ public class SaveServlet extends HttpServlet
 						}
 					}
 
-					if (filename != null
-							&& filename.length() > 0
-							&& !(format.equals("xml")
-									&& filename.toLowerCase().endsWith(".html") && filename
-									.toLowerCase().endsWith(".svg"))
+					if (filename != null && filename.length() > 0
+							&& !filename.toLowerCase().endsWith(".svg")
+							&& !filename.toLowerCase().endsWith(".html")
+							&& !filename.toLowerCase().endsWith(".png")
 							&& !filename.toLowerCase().endsWith("." + format))
 					{
 						filename += "." + format;
 					}
 
 					response.setStatus(HttpServletResponse.SC_OK);
-					
+
 					if (filename != null)
 					{
 						response.setContentType(mime);

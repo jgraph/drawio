@@ -4927,7 +4927,7 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp, ignoreSelection, showText)
 		{
 			scale = (scale != null) ? scale : 1;
-			border = (border != null) ? border : 1;
+			border = (border != null) ? border : 0;
 			crisp = (crisp != null) ? crisp : true;
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 			showText = (showText != null) ? showText : true;

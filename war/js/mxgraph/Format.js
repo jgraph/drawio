@@ -35,10 +35,7 @@ Format.prototype.init = function()
 	graph.getSelectionModel().addListener(mxEvent.CHANGE, this.update);
 	graph.addListener(mxEvent.EDITING_STARTED, this.update);
 	graph.addListener(mxEvent.EDITING_STOPPED, this.update);
-	graph.getModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
-	{
-		this.clearSelectionState();
-	}));
+	graph.getModel().addListener(mxEvent.CHANGE, this.update);
 	graph.addListener(mxEvent.ROOT, mxUtils.bind(this, function()
 	{
 		this.refresh();
