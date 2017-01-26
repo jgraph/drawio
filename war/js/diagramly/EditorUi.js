@@ -2396,7 +2396,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded)
+	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
 		// Newer versions of IE
 		if (window.MSBlobBuilder && navigator.msSaveOrOpenBlob)
@@ -2433,40 +2433,48 @@
 			dlg.init();
 			document.execCommand('selectall', false, null);
 		}
-		else if (!this.isOffline() && mxClient.IS_SF)
-		{
-			var req = this.createEchoRequest(data, filename, mimeType, base64Encoded);
-			
-			req.simulate(document, '_blank');
-		}
 		else
 		{
 			var a = document.createElement('a');
-			a.href = URL.createObjectURL((base64Encoded) ?
-				this.base64ToBlob(data, mimeType) :
-				new Blob([data], {type: mimeType}));
-			a.download = filename;
-			document.body.appendChild(a);
 			
-			// Workaround for link opens in same window in Safari
-			if (mxClient.IS_SF)
+			if (typeof a.download !== 'undefined' || this.isOffline())
 			{
-				a.setAttribute('target', '_blank');
-			}
-			
-			try
-			{
-				a.click();
+				a.href = URL.createObjectURL((base64Encoded) ?
+					this.base64ToBlob(data, mimeType) :
+					new Blob([data], {type: mimeType}));
 				
-				window.setTimeout(function()
+				if (typeof a.download !== 'undefined')
 				{
-					URL.revokeObjectURL(a.href);
-				}, 0);
-				a.parentNode.removeChild(a);
+					a.download = filename;
+				}
+				else
+				{
+					// Workaround for same window in Safari
+					a.setAttribute('target', '_blank');
+				}
+
+				document.body.appendChild(a);
+				
+				try
+				{
+					a.click();
+					
+					window.setTimeout(function()
+					{
+						URL.revokeObjectURL(a.href);
+					}, 0);
+					a.parentNode.removeChild(a);
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
-			catch (e)
+			else
 			{
-				// ignore
+				var req = this.createEchoRequest(data, filename, mimeType, base64Encoded, format);
+				
+				req.simulate(document, '_blank');
 			}
 		}
 	};
@@ -2529,7 +2537,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded)
+	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 		var backends = !this.isOfflineApp() && !this.isOffline() &&
@@ -2556,8 +2564,7 @@
 					else if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
 							(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
 					{
-						// IMG performance is better for large SVG in Chrome
-						if (!base64Encoded || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+						if (mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
 						{
 							win.document.write('<html><img src="data:' +
 								mimeType + ((base64Encoded) ? ';base64,' +
@@ -2568,7 +2575,8 @@
 						else
 						{
 							// Enables page refresh and drag and drop of URL
-							win.location.replace('data:' + mimeType + ';base64,' + data);	
+							win.location.replace('data:' + mimeType + ((base64Encoded) ? ';base64,' +
+								data : ';charset=utf8,' + encodeURIComponent(data)));	
 						}
 					}
 					else
@@ -2611,7 +2619,7 @@
 	{
 		if (this.isLocalFileSave())
 		{
-			this.saveLocalFile(data, filename, mime, base64Encoded);
+			this.saveLocalFile(data, filename, mime, base64Encoded, format);
 		}
 		else
 		{
@@ -2783,7 +2791,13 @@
 			{
 				if (embedImages)
 				{
-					this.convertImages(svgRoot, doSave);
+					// Caches images
+					if (this.thumbImageCache == null)
+					{
+						this.thumbImageCache = new Object();
+					}
+					
+					this.convertImages(svgRoot, doSave, this.thumbImageCache);
 				}
 				else
 				{
@@ -3568,6 +3582,12 @@
 			var selectionEmpty = this.editor.graph.isSelectionEmpty();
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
 			
+			// Caches images
+			if (this.thumbImageCache == null)
+			{
+				this.thumbImageCache = new Object();
+			}
+			
 			try
 			{
 			   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
@@ -3591,7 +3611,7 @@
 				   			this.handleError(e);
 			   			}
 			   		}
-			   	}), null, null, null, mxUtils.bind(this, function(e)
+			   	}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
 			   	{
 			   		this.spinner.stop();
 			   		this.handleError(e);

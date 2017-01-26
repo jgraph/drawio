@@ -1,3 +1,9 @@
+26-JAN-2017: 6.0.2.13
+
+- Updates Arrange tab after remove from group
+- Faster image and SVG export
+- Uses mxGraph 3.7.0.1 beta 1
+
 18-JAN-2017: 6.0.2.12
 
 - Adds width, height in advanced export dialog

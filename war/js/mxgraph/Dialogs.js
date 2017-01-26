@@ -1704,7 +1704,7 @@ var ExportDialog = function(editorUi)
 	
 	var table = document.createElement('table');
 	var tbody = document.createElement('tbody');
-	table.setAttribute('cellpadding', '2');
+	table.setAttribute('cellpadding', (mxClient.IS_SF) ? '0' : '2');
 	
 	row = document.createElement('tr');
 	
