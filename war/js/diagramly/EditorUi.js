@@ -6943,15 +6943,6 @@
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);
 			div.style.right = (uiTheme != 'atlas') ? '52px' : '42px';
-			
-			// Moves status bar to toolbar with Atlas theme in embed mode
-			if (uiTheme == 'atlas')
-			{
-				this.statusContainer.style.color = '#707070';
-				this.statusContainer.style.paddingLeft = '26px';
-				this.toolbar.staticElements.push(this.statusContainer);
-				this.toolbar.container.appendChild(this.statusContainer);
-			}
 		}
 	};
 
