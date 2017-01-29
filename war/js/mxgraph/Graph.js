@@ -4939,18 +4939,6 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				throw Error(mxResources.get('drawingEmpty'));
 			}
-			
-			var imgExport = this.createSvgImageExport();
-			var imgExportDrawCellState = imgExport.drawCellState;
-			
-			// Implements ignoreSelection flag
-			imgExport.drawCellState = function(state, canvas)
-			{
-				if (ignoreSelection || state.view.graph.isCellSelected(state.cell))
-				{
-					imgExportDrawCellState.apply(this, arguments);
-				}
-			};
 
 			var vs = this.view.scale;
 			
@@ -5006,7 +4994,7 @@ if (typeof mxVertexHandler != 'undefined')
 		
 		    // Renders graph. Offset will be multiplied with state's scale when painting state.
 			// TextOffset only seems to affect FF output but used everywhere for consistency.
-			var svgCanvas = new mxSvgCanvas2D(node);
+			var svgCanvas = this.createSvgCanvas(node);
 			svgCanvas.foOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.textOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
@@ -5071,10 +5059,30 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			svgCanvas.scale(s);
 			svgCanvas.textEnabled = showText;
+			
+			var imgExport = this.createSvgImageExport();
+			var imgExportDrawCellState = imgExport.drawCellState;
+			
+			// Implements ignoreSelection flag
+			imgExport.drawCellState = function(state, canvas)
+			{
+				if (ignoreSelection || state.view.graph.isCellSelected(state.cell))
+				{
+					imgExportDrawCellState.apply(this, arguments);
+				}
+			};
 
 			imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
 		
 			return root;
+		};
+		
+		/**
+		 * Hook for creating the canvas used in getSvg.
+		 */
+		Graph.prototype.createSvgCanvas = function(node)
+		{
+			return new mxSvgCanvas2D(node);
 		};
 		
 		/**

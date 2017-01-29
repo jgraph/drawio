@@ -966,9 +966,10 @@
 	{
 		try
 		{
-			var file = this.getCurrentFile();
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : this.editor.graph.isSelectionEmpty();
+
 			// LATER: Double URI encoding for needed for newlines in simulate (truncates body otherwise).
+			var file = this.getCurrentFile();
 			var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 			
 			if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) || /(\.svg)$/i.test(basename))
