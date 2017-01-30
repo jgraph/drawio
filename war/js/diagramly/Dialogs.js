@@ -3096,11 +3096,6 @@ var ParseDialog = function(editorUi, title)
 	plantUmlPngOption.setAttribute('value', 'plantUmlPng');
 	mxUtils.write(plantUmlPngOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatPng') + ')');
 	
-	console.log(/.*\.draw\.io$/.test("www.draw.io"));
-	console.log(/.*\.draw\.io$/.test("www2.draw.io"));
-	console.log(/.*\.draw\.io$/.test("www.draw2.io"));
-	console.log(/.*\.draw\.io$/.test("www.draw.io2"));
-	
 	// Disabled for invalid hosts via CORS headers
 	if (/.*\.draw\.io$/.test(window.location.hostname) && Graph.fileSupport && !editorUi.isOffline())
 	{

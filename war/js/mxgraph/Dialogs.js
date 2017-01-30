@@ -1411,7 +1411,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 /**
  * Constructs a new textarea dialog.
  */
-var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h, addButtons, noHide)
+var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h, addButtons, noHide, noWrap)
 {
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
@@ -1435,6 +1435,12 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	td = document.createElement('td');
 
 	var nameInput = document.createElement('textarea');
+	
+	if (noWrap)
+	{
+		nameInput.setAttribute('wrap', 'off');
+	}
+	
 	mxUtils.write(nameInput, url || '');
 	nameInput.style.resize = 'none';
 	nameInput.style.width = w + 'px';
