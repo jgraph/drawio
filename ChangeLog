@@ -1,3 +1,10 @@
+31-JAN-2017: 6.0.3.0
+
+- Hides plugin warning for all local plugins
+- Adds prefetched URLs in embed to fix CORS issue
+- Fixes public URL for shared Google Drive files
+- Adds Export, URL and #R raw file types
+
 30-JAN-2017: 6.0.2.16
 
 - Adds CSV import plugin

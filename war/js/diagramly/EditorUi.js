@@ -6335,7 +6335,15 @@
 			}
 		}
 	};
-	
+
+	/**
+	 * Tries to find a public URL for the given file.
+	 */
+	EditorUi.prototype.getPublicUrl = function(file, fn)
+	{
+		fn(null);
+	};
+
 	/**
 	 * Adds the buttons for embedded mode.
 	 */
@@ -6993,7 +7001,7 @@
 		else
 		{
 			var ignored = ['tmp', 'libs', 'clibs', 'state', 'fileId', 'code', 'share', 'notitle',
-			               'url', 'embed', 'client', 'create', 'title', 'splash'];
+			               'data', 'url', 'embed', 'client', 'create', 'title', 'splash'];
 			
 			// Removes template URL parameter for new blank diagram
 			for (var key in urlParams)

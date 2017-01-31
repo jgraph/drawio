@@ -849,9 +849,16 @@
 		
 		editorUi.actions.put('embedHtml', new Action(mxResources.get('html') + '...', function()
 		{
-			var dlg = new EmbedHtmlDialog(editorUi);
-			editorUi.showDialog(dlg.container, 550, 400, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					var dlg = new EmbedHtmlDialog(editorUi, url);
+					editorUi.showDialog(dlg.container, 550, 400, true, true);
+					dlg.init();
+				});
+			}
 		}));
 		
 		editorUi.actions.put('embedSvg', new Action(mxResources.get('formatSvg') + '...', function()
@@ -863,16 +870,30 @@
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
 		{
-			var dlg = new IframeDialog(editorUi);
-			editorUi.showDialog(dlg.container, 420, 220, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					var dlg = new IframeDialog(editorUi, null, null, url);
+					editorUi.showDialog(dlg.container, 420, 220, true, true);
+					dlg.init();
+				});
+			}
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
-			var dlg = new IframeDialog(editorUi, false, true);
-			editorUi.showDialog(dlg.container, 420, 200, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					var dlg = new IframeDialog(editorUi, false, true, url);
+					editorUi.showDialog(dlg.container, 420, 200, true, true);
+					dlg.init();
+				});
+			}
 		}));
 		
 		editorUi.actions.put('embedImage', new Action(mxResources.get('image') + '...', function()
@@ -896,9 +917,16 @@
 
 		editorUi.actions.addAction('googleSites...', function()
 		{
-			var dlg = new GoogleSitesDialog(editorUi);
-			editorUi.showDialog(dlg.container, 420, 256, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					var dlg = new GoogleSitesDialog(editorUi, url);
+					editorUi.showDialog(dlg.container, 420, 256, true, true);
+					dlg.init();
+				});
+			}
 		});
 
 		// Adds plugins menu item in file menu only if localStorage is available for
@@ -1156,6 +1184,32 @@
 						(!noPages) ? !cb.checked : null);
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, 120, true, true);
+			}), parent);
+			
+			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					var file = editorUi.getCurrentFile();
+					var win = window.open(((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' :
+							'https://' + location.host + '/') +
+							'?chrome=0&lightbox=1&layers=1' +
+							((file != null && file.getTitle() != null) ?
+							'&title=' + encodeURIComponent(file.getTitle()) : '') +
+							'#R' + encodeURIComponent(editorUi.getFileData(true)));
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						if (win != null && win.location.href.substring(0, 6) != 'https:')
+						{
+							win.close();
+							editorUi.handleError({message: mxResources.get('unknownError')});
+						}
+					}), 500);
+				}
+				catch (e)
+				{
+					editorUi.handleError({message: e.message || mxResources.get('unknownError')});
+				}
 			}), parent);
 			
 			if (!editorUi.isOffline())
@@ -1592,6 +1646,11 @@
 
 		this.put('publish', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
+			if (!navigator.standalone && !editorUi.isOffline())
+			{
+				this.addMenuItems(menu, ['publishLink'], parent);
+			}
+			
 			// Disable publish in IE9- due to CORS problem when getting image from server
 			// which requires cross-domain XHR but XDomainRequest has no custom headers
 			// to set content type to form-encoded-data which is needed for the export.
@@ -1605,11 +1664,6 @@
 				{
 					this.addMenuItems(menu, ['github'], parent);
 				}
-			}
-			
-			if (!navigator.standalone && !editorUi.isOffline())
-			{
-				this.addMenuItems(menu, ['publishLink'], parent);
 			}
 		})));
 

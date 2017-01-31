@@ -732,7 +732,7 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 /**
  * Constructs a new embed dialog
  */
-var EmbedHtmlDialog = function(editorUi)
+var EmbedHtmlDialog = function(editorUi, publicUrl)
 {
 	var file = editorUi.getCurrentFile();
 	var div = document.createElement('div');
@@ -762,7 +762,7 @@ var EmbedHtmlDialog = function(editorUi)
 	var textarea2 = document.createElement('textarea');
 	textarea2.style.marginTop = '6px';
 	textarea2.style.width = '550px';
-	textarea2.style.height = '20px';
+	textarea2.style.height = '26px';
 	textarea2.style.resize = 'none';
 	textarea2.style.marginBottom = '10px';
 	div.appendChild(textarea2);
@@ -775,6 +775,7 @@ var EmbedHtmlDialog = function(editorUi)
 	urlInput.setAttribute('size', '28');
 	urlInput.style.width = '340px';
 	urlInput.style.marginBottom = '8px';
+	urlInput.value = publicUrl || '';
 	div.appendChild(urlInput);
 	mxUtils.br(div);
 	
@@ -869,9 +870,9 @@ var EmbedHtmlDialog = function(editorUi)
 		pagesCheckBox.setAttribute('checked', 'checked');
 		pagesCheckBox.defaultChecked = true;
 		options.appendChild(pagesCheckBox);		
+		mxUtils.write(options, mxResources.get('allPages'));
 	}
 
-	mxUtils.write(options, mxResources.get('allPages'));
 	div.appendChild(options);
 
 	function update(force)
@@ -956,10 +957,13 @@ var EmbedHtmlDialog = function(editorUi)
 			((fitCheckBox.checked) ? 'max-width:100%;' : '') +
 			((tb != '') ? 'border:1px solid transparent;' : '') +
 			'" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>';
-	
-		var s2 = (s.length > 0) ? (((urlParams['dev'] == '1') ?
-			'https://test.draw.io/embed2.js?dev=1&s=' :
-			'https://www.draw.io/embed2.js?s=') + s.join(';')) :
+		
+		var sParam = (s.length > 0) ? 's=' + s.join(';') : '';
+		var fetchParam = (urlInput.value.length > 0) ? 'fetch=' + encodeURIComponent(urlInput.value) : '';
+		var s2 = (sParam.length > 0 || fetchParam.length > 0) ?
+			(((urlParams['dev'] == '1') ?
+			'https://test.draw.io/embed2.js?dev=1&' + sParam :
+			'https://www.draw.io/embed2.js?' + sParam)) + '&' + fetchParam :
 			(((urlParams['dev'] == '1') ?
 			'https://test.draw.io/js/viewer.min.js' :
 			'https://www.draw.io/js/viewer.min.js'));
@@ -991,7 +995,7 @@ var EmbedHtmlDialog = function(editorUi)
 	mxEvent.addListener(lightboxCheckBox, 'change', update);
 	mxEvent.addListener(zoomCheckBox, 'change', update);
 	mxEvent.addListener(pagesCheckBox, 'change', update);
-	
+
 	var buttons = document.createElement('div');
 	buttons.style.paddingTop = '20px';
 	buttons.style.textAlign = 'right';
@@ -1540,7 +1544,7 @@ var EmbedSvgDialog = function(editorUi, isImage)
 /**
  * Constructs a dialog for embedding the diagram in Google Sites.
  */
-var GoogleSitesDialog = function(editorUi)
+var GoogleSitesDialog = function(editorUi, publicUrl)
 {
 	var div = document.createElement('div');
 
@@ -1608,6 +1612,7 @@ var GoogleSitesDialog = function(editorUi)
 	urlInput.style.marginBottom = '8px';
 	urlInput.style.marginTop = '2px';
 	urlInput.style.width = '410px';
+	urlInput.value = publicUrl || '';
 	div.appendChild(urlInput);
 	mxUtils.br(div);
 
@@ -1768,17 +1773,6 @@ var GoogleSitesDialog = function(editorUi)
 		}
 	};
 	
-	// Tries to generate public image URL (only for Drive files)
-	update();
-	urlInput.setAttribute('placeholder', mxResources.get('loading') + '...');
-	
-	editorUi.getPublicUrl(file, function(url)
-	{
-		urlInput.setAttribute('placeholder', '');
-		urlInput.value = (url != null) ? url : '';
-		update();
-	});
-	
 	mxEvent.addListener(panCheckBox, 'change', update);
 	mxEvent.addListener(zoomCheckBox, 'change', update);
 	mxEvent.addListener(resizeCheckBox, 'change', update);
@@ -1790,6 +1784,7 @@ var GoogleSitesDialog = function(editorUi)
 	mxEvent.addListener(topInput, 'change', update);
 	mxEvent.addListener(borderInput, 'change', update);
 	mxEvent.addListener(urlInput, 'change', update);
+	update();
 	
 	mxEvent.addListener(gadgetInput, 'click', function()
 	{
@@ -1824,7 +1819,7 @@ var GoogleSitesDialog = function(editorUi)
 /**
  * Constructs a dialog for embedding the diagram in Google Sites.
  */
-var IframeDialog = function(editorUi, image, link)
+var IframeDialog = function(editorUi, image, link, publicUrl)
 {
 	var div = document.createElement('div');
 
@@ -1946,6 +1941,7 @@ var IframeDialog = function(editorUi, image, link)
 	urlInput.style.marginBottom = '8px';
 	urlInput.style.marginTop = '2px';
 	urlInput.style.width = '410px';
+	urlInput.value = publicUrl || '';
 	div.appendChild(urlInput);
 	mxUtils.br(div);
 
@@ -2064,7 +2060,14 @@ var IframeDialog = function(editorUi, image, link)
 				
 				if (editCheckBox.checked)
 				{
-					gurl += '&edit=' + encUrl;
+					if (file.constructor == DriveFile)
+					{
+						gurl += '&edit=' + encodeURIComponent(mxUtils.htmlEntities('https://www.draw.io/#' + file.getHash()));
+					}
+					else
+					{
+						gurl += '&edit=' + encUrl;
+					}
 				}
 				
 				if (graph.foldingEnabled)
@@ -2127,23 +2130,13 @@ var IframeDialog = function(editorUi, image, link)
 		}
 	};
 	
-	// Tries to generate public image URL (only for Drive files)
-	update();
-	urlInput.setAttribute('placeholder', mxResources.get('loading') + '...');
-	
-	editorUi.getPublicUrl(file, function(url)
-	{
-		urlInput.setAttribute('placeholder', '');
-		urlInput.value = (url != null) ? url : '';
-		update();
-	});
-		
 	mxEvent.addListener(widthInput, 'change', update);
 	mxEvent.addListener(heightInput, 'change', update);
 	mxEvent.addListener(layersCheckBox, 'change', update);
 	mxEvent.addListener(lightboxCheckBox, 'change', update);
 	mxEvent.addListener(editCheckBox, 'change', update);
 	mxEvent.addListener(urlInput, 'change', update);
+	update();
 	
 	mxEvent.addListener(iframeInput, 'click', function()
 	{
