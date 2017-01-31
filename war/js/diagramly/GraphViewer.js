@@ -1560,20 +1560,32 @@ GraphViewer.initCss = function()
 };
 
 /**
+ * Lookup for URLs.
+ */
+GraphViewer.cachedUrls = {};
+
+/**
  * Workaround for unsupported CORS in IE9 XHR
  */
 GraphViewer.getUrl = function(url, onload, onerror)
 {
-	var xhr = (navigator.userAgent.indexOf('MSIE 9') > 0) ? new XDomainRequest() : new XMLHttpRequest();
-	xhr.open('GET', url);
-	
-    xhr.onload = function()
-    {
-    	onload((xhr.getText != null) ? xhr.getText() : xhr.responseText);
-	};
-	
-    xhr.onerror = onerror;
-    xhr.send();
+	if (GraphViewer.cachedUrls[url] != null)
+	{
+		onload(GraphViewer.cachedUrls[url]);
+	}
+	else
+	{
+		var xhr = (navigator.userAgent.indexOf('MSIE 9') > 0) ? new XDomainRequest() : new XMLHttpRequest();
+		xhr.open('GET', url);
+		
+	    xhr.onload = function()
+	    {
+	    	onload((xhr.getText != null) ? xhr.getText() : xhr.responseText);
+		};
+		
+	    xhr.onerror = onerror;
+	    xhr.send();
+	}
 };
 
 /**

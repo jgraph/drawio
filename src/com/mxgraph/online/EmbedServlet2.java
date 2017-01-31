@@ -19,10 +19,13 @@
  */
 package com.mxgraph.online;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +37,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.appengine.api.utils.SystemProperty;
 
@@ -199,7 +204,8 @@ public class EmbedServlet2 extends HttpServlet
 				// delivered by this servlet instance.
 				String modSince = request.getHeader("If-Modified-Since");
 
-				if (modSince != null && modSince.equals(lastModified))
+				if (modSince != null && modSince.equals(lastModified)
+						&& request.getParameter("fetch") == null)
 				{
 					response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 				}
@@ -370,8 +376,45 @@ public class EmbedServlet2 extends HttpServlet
 		// mode to avoid security errors
 		String proto = "https://";
 
+		String setCachedUrls = "";
+		String[] urls = request.getParameterValues("fetch");
+
+		if (urls != null)
+		{
+			HashSet<String> completed = new HashSet<String>();
+
+			for (int i = 0; i < urls.length; i++)
+			{
+				try
+				{
+					// Checks if URL already fetched to avoid duplicates
+					if (!completed.contains(urls[i]))
+					{
+
+						completed.add(urls[i]);
+						URL url = new URL(urls[i]);
+						URLConnection connection = url.openConnection();
+						ByteArrayOutputStream stream = new ByteArrayOutputStream();
+						Utils.copy(connection.getInputStream(), stream);
+						setCachedUrls += "GraphViewer.cachedUrls['"
+								+ StringEscapeUtils.escapeEcmaScript(urls[i])
+								+ "'] = decodeURIComponent('"
+								+ StringEscapeUtils.escapeEcmaScript(
+										Utils.encodeURIComponent(
+												stream.toString("UTF-8"),
+												Utils.CHARSET_FOR_URL_ENCODING))
+								+ "');";
+					}
+				}
+				catch (Exception e)
+				{
+					// ignore
+				}
+			}
+		}
+
 		// Installs a callback to load the stencils after the viewer was injected
-		return "window.onDrawioViewerLoad = function() {"
+		return "window.onDrawioViewerLoad = function() {" + setCachedUrls
 				+ "mxStencilRegistry.parseStencilSets(" + result.toString()
 				+ ");" + js + "GraphViewer.processElements(); };"
 				+ "var t = document.getElementsByTagName('script');"

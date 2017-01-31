@@ -345,14 +345,18 @@ App.getStoredMode = function()
 				// Loading plugins inside the asynchronous block below stops the page from loading so a 
 				// hardcoded message for the warning dialog is used since the resources are loadd below
 				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
+				var tmp = window.location.protocol + '//' + window.location.host;
+				var local = true;
 				
-				if (plugins.length == 1 && (plugins[0].charAt(0) == '/' ||
-					plugins[0].indexOf(window.location.protocol + '//' + window.location.host) == 0))
+				for (var i = 0; i < plugins.length && local; i++)
 				{
-					mxscript(plugins[0]);
+					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
+					{
+						local = false;
+					}
 				}
-				// Loads plugins asynchronously
-				else if (mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
+				
+				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
 				{
 					for (var i = 0; i < plugins.length; i++)
 					{
@@ -1373,8 +1377,9 @@ App.prototype.onBeforeUnload = function()
 	
 	if (file != null)
 	{
-		if (file.constructor == LocalFile && !file.isModified() && urlParams['nowarn'] != '1' &&
-			!this.isDiagramEmpty() && urlParams['url'] == null && !this.editor.chromeless)
+		if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
+			urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
+			!this.editor.chromeless)
 		{
 			return mxResources.get('ensureDataSaved');
 		}
@@ -1575,7 +1580,33 @@ App.prototype.getThumbnail = function(width, success)
  */
 App.prototype.getPublicUrl = function(file, fn)
 {
-	fn(null);
+	if (file != null && file.constructor == DriveFile)
+	{
+		gapi.client.drive.permissions.list(
+		{
+			'fileId': file.desc.id
+		}).execute(function(resp)
+		{
+			if (resp != null)
+			{
+				for (var i = 0; i < resp.items.length; i++)
+				{
+					if (resp.items[i].id === 'anyone')
+					{
+						fn(file.desc.webContentLink);
+						
+						return;
+					}
+				}
+			}
+			
+			fn(null);
+		  });
+	}
+	else
+	{
+		fn(null);
+	}
 };
 
 /**
@@ -3159,6 +3190,20 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				this.spinner.stop();
 				this.fileLoaded(file);
 			}
+			else if (id.charAt(0) == 'R')
+			{
+				// Raw file encoded into URL
+				this.spinner.stop();
+				var file = new LocalFile(this, decodeURIComponent(id.substring(1)),
+					(urlParams['title'] != null) ? decodeURIComponent(urlParams['title']) :
+					this.defaultFilename);
+				file.getHash = function()
+				{
+					return id;
+				};
+				this.fileLoaded(file);
+				this.setMode(null);
+			}
 			else
 			{
 				// Google Drive files are handled as default file types
@@ -3177,8 +3222,6 @@ App.prototype.loadFile = function(id, sameWindow, file)
 					peer = this.oneDrive;
 				}
 
-				id = decodeURIComponent(id.substring(1));
-				
 				if (peer == null)
 				{
 					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')}, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
@@ -3189,6 +3232,8 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				}
 				else
 				{
+					id = decodeURIComponent(id.substring(1));
+					
 					peer.getFile(id, mxUtils.bind(this, function(file)
 					{
 						this.spinner.stop();
