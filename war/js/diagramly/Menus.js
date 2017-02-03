@@ -861,11 +861,57 @@
 			}
 		}));
 		
+		editorUi.actions.put('liveImage', new Action('Live image...', function()
+		{
+			var dlg = new IframeDialog(editorUi, true);
+			editorUi.showDialog(dlg.container, 420, 200, true, true);
+			dlg.init();
+		}));
+		
+		editorUi.actions.put('embedImage', new Action(mxResources.get('image') + '...', function()
+		{
+			editorUi.showEmbedImageDialog(function(fit, shadow, retina, lightbox, edit, layers)
+			{
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					editorUi.createEmbedImage(fit, shadow, retina, lightbox, edit, layers, function(result)
+					{
+						editorUi.spinner.stop();
+						
+						var dlg = new EmbedDialog(editorUi, result);
+						editorUi.showDialog(dlg.container, 320, 320, true, true);
+						dlg.init();
+					}, function(err)
+					{
+						editorUi.spinner.stop();
+						editorUi.handleError(err);
+					});
+				}
+			}, mxResources.get('embed') + ' ' + mxResources.get('image'),
+				mxResources.get('retina'), editorUi.isExportToCanvas());
+		}));
+
 		editorUi.actions.put('embedSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
-			var dlg = new EmbedSvgDialog(editorUi);
-			editorUi.showDialog(dlg.container, 550, 400, true, true);
-			dlg.init();
+			editorUi.showEmbedImageDialog(function(fit, shadow, image, lightbox, edit, layers)
+			{
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					editorUi.createEmbedSvg(fit, shadow, image, lightbox, edit, layers, function(result)
+					{
+						editorUi.spinner.stop();
+						
+						var dlg = new EmbedDialog(editorUi, result);
+						editorUi.showDialog(dlg.container, 320, 320, true, true);
+						dlg.init();
+					}, function(err)
+					{
+						editorUi.spinner.stop();
+						editorUi.handleError(err);
+					});
+				}
+			}, mxResources.get('embed') + ' ' + mxResources.get('formatSvg'), mxResources.get('image'),
+				true, 'https://desk.draw.io/solution/articles/16000042548-how-to-embed-svg-');
 		}));
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
@@ -895,21 +941,7 @@
 				});
 			}
 		}));
-		
-		editorUi.actions.put('embedImage', new Action(mxResources.get('image') + '...', function()
-		{
-			var dlg = new EmbedSvgDialog(editorUi, true);
-			editorUi.showDialog(dlg.container, 550, 400, true, true);
-			dlg.init();
-		}));
-		
-		editorUi.actions.put('liveImage', new Action('Live image...', function()
-		{
-			var dlg = new IframeDialog(editorUi, true);
-			editorUi.showDialog(dlg.container, 420, 180, true, true);
-			dlg.init();
-		}));
-		
+
 		editorUi.actions.addAction('googleDocs...', function()
 		{
 			window.open('http://docsaddon.draw.io');
@@ -1075,11 +1107,6 @@
 			}), parent);
 
 			menu.addSeparator(parent);
-			
-			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
-			{
-				this.editorUi.downloadFile('html');
-			}), parent);
 
 			// Redirects export to PDF to print in Chrome App
 			if (mxClient.IS_CHROMEAPP)
@@ -1129,7 +1156,6 @@
 				}), parent);
 			}
 
-			menu.addSeparator(parent);
 			menu.addItem(mxResources.get('formatXml') + '...', null, mxUtils.bind(this, function()
 			{
 				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
@@ -1185,31 +1211,69 @@
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, 120, true, true);
 			}), parent);
+
+			menu.addSeparator(parent);
+
+			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
+			{
+				this.editorUi.downloadFile('html');
+			}), parent);
 			
 			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 			{
-				try
+				editorUi.showExportUrlDialog(function(allPages, lightbox, edit, layers)
 				{
-					var file = editorUi.getCurrentFile();
-					var win = window.open(((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' :
-							'https://' + location.host + '/') +
-							'?chrome=0&lightbox=1&layers=1' +
-							((file != null && file.getTitle() != null) ?
-							'&title=' + encodeURIComponent(file.getTitle()) : '') +
-							'#R' + encodeURIComponent(editorUi.getFileData(true)));
-					window.setTimeout(mxUtils.bind(this, function()
+					try
 					{
-						if (win != null && win.location.href.substring(0, 6) != 'https:')
+						var file = editorUi.getCurrentFile();
+						var params = [];
+						
+						if (lightbox)
 						{
-							win.close();
-							editorUi.handleError({message: mxResources.get('unknownError')});
+							params.push('chrome=0');
+							params.push('lightbox=1');
+							
+							if (edit)
+							{
+								params.push('edit=_blank');
+							}
+							
+							if (layers)
+							{
+								params.push('layers=1');
+							}
 						}
-					}), 500);
-				}
-				catch (e)
-				{
-					editorUi.handleError({message: e.message || mxResources.get('unknownError')});
-				}
+						
+						if (file != null && file.getTitle() != null)
+						{
+							params.push('title=' + encodeURIComponent(file.getTitle()));
+						}
+						
+						if (allPages && editorUi.pages != null && editorUi.currentPage != null)
+						{
+							for (var i = 0; i < editorUi.pages.length; i++)
+							{
+								if (editorUi.pages[i] == editorUi.currentPage)
+								{
+									params.push('page=' + i);
+									break;
+								}
+							}
+						}
+						
+						var data = (allPages) ? editorUi.getFileData(true, null, null, null, null, null, null, true) :
+							graph.compress(mxUtils.getXml(editorUi.editor.getGraphXml()));
+						var dlg = new EmbedDialog(editorUi, ((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' :
+							'https://' + location.host + '/') + '?' + params.join('&') +
+							'#R' + encodeURIComponent(data));
+						editorUi.showDialog(dlg.container, 320, 320, true, true);
+						dlg.init();
+					}
+					catch (e)
+					{
+						editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+					}
+				});
 			}), parent);
 			
 			if (!editorUi.isOffline())
@@ -1349,21 +1413,24 @@
 					}
 				}, true);
 			};
-			
-			if (editorUi.drive != null)
+		
+			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 			{
-				// Requires special arguments for libraries and realtime
-				menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+				if (editorUi.drive != null)
 				{
-					pickFileFromService(editorUi.drive);
-				}, parent);
-			}
-			else if (googleEnabled)
-			{
-				menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					// Requires special arguments for libraries and realtime
+					menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+					{
+						pickFileFromService(editorUi.drive);
+					}, parent);
+				}
+				else if (googleEnabled)
 				{
-					// do nothing
-				}, parent, null, false);
+					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
 			}
 
 			if (editorUi.dropbox != null)
@@ -1757,8 +1824,6 @@
 			}
 		}, null, null, 'Ctrl+Shift+X').isEnabled = isGraphEnabled;
 		
-		
-		
 		editorUi.actions.addAction('insertRectangle', function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
@@ -1937,19 +2002,22 @@
 		
 		this.put('newLibrary', new Menu(function(menu, parent)
 		{
-			if (editorUi.drive != null)
+			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 			{
-				menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+				if (editorUi.drive != null)
 				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_GOOGLE);
-				}, parent);
-			}
-			else if (googleEnabled)
-			{
-				menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GOOGLE);
+					}, parent);
+				}
+				else if (googleEnabled)
 				{
-					// do nothing
-				}, parent, null, false);
+					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
 			}
 			
 			if (editorUi.dropbox != null)
@@ -2003,19 +2071,22 @@
 		
 		this.put('openLibraryFrom', new Menu(function(menu, parent)
 		{
-			if (editorUi.drive != null)
+			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 			{
-				menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+				if (editorUi.drive != null)
 				{
-					editorUi.pickLibrary(App.MODE_GOOGLE);
-				}, parent);
-			}
-			else if (googleEnabled)
-			{
-				menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_GOOGLE);
+					}, parent);
+				}
+				else if (googleEnabled)
 				{
-					// do nothing
-				}, parent, null, false);
+					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
 			}
 			
 			if (editorUi.dropbox != null)

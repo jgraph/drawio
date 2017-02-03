@@ -212,7 +212,8 @@ public class mxVsdxCodec
 				mxCodec codec = new mxCodec();
 				Node node = codec.encode(graph.getModel());
 				((Element) node).setAttribute("style", "default-style2");
-				xmlBuilder.append("<diagram name=\"" + StringEscapeUtils.escapeHtml4(page.getPageName()) + "\">");
+				String pageName = StringEscapeUtils.escapeXml11(page.getPageName());
+				xmlBuilder.append("<diagram name=\"" + pageName + "\">");
 				String modelString = mxXmlUtils.getXml(node);
 				String modelAscii = Utils.encodeURIComponent(modelString, Utils.CHARSET_FOR_URL_ENCODING);
 				byte[] modelBytes= Utils.deflate(modelAscii);

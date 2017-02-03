@@ -715,6 +715,11 @@ EditorUi.prototype.duplicatePage = function(page, name)
 	
 	if (graph.isEnabled())
 	{
+		if (graph.isEditing())
+		{
+			graph.stopEditing();
+		}
+		
 		// Clones the current page and takes a snapshot of the graph model and view state
 		var newPage = new DiagramPage(page.node.cloneNode(false));
 		newPage.root = graph.cloneCells([graph.model.root])[0];

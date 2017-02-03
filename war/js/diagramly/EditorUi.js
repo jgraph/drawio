@@ -554,7 +554,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection)
+	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact)
 	{
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
@@ -603,18 +603,29 @@
 					fileNode.appendChild(diagramNode);
 				}
 			}
-	
-			fileNode.setAttribute('userAgent', navigator.userAgent);
-			fileNode.setAttribute('version', EditorUi.VERSION);
-			fileNode.setAttribute('editor', 'www.draw.io');
-	
-			var md = (file != null) ? file.getMode() : this.mode;
 			
-			if (md != null)
+			if (!compact)
 			{
-				fileNode.setAttribute('type', md);
+				fileNode.setAttribute('userAgent', navigator.userAgent);
+				fileNode.setAttribute('version', EditorUi.VERSION);
+				fileNode.setAttribute('editor', 'www.draw.io');
+		
+				var md = (file != null) ? file.getMode() : this.mode;
+				
+				if (md != null)
+				{
+					fileNode.setAttribute('type', md);
+				}
 			}
-					
+			else
+			{
+				fileNode = fileNode.cloneNode(true);
+				fileNode.removeAttribute('userAgent');
+				fileNode.removeAttribute('version');
+				fileNode.removeAttribute('editor');
+				fileNode.removeAttribute('type');
+			}
+
 			var xml = mxUtils.getXml(fileNode);
 			
 			// Writes the file as an embedded HTML file
@@ -697,7 +708,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node)
+	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node, compact)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
@@ -734,7 +745,7 @@
 		}
 		
 		var result = this.createFileData(node, graph, file, window.location.href,
-			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection);
+			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact);
 		
 		// Removes temporary graph from DOM
 		if (graph != this.editor.graph)
@@ -2807,6 +2818,34 @@
 			}));
 		}
 	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.addCheckbox = function(div, label, checked, disabled)
+	{
+		var cb = document.createElement('input');
+		cb.style.marginRight = '8px';
+		cb.style.marginTop = '16px';
+		cb.setAttribute('type', 'checkbox');
+		
+		if (checked)
+		{
+			cb.setAttribute('checked', 'checked');
+			cb.defaultChecked = true;
+		}
+		
+		if (disabled)
+		{
+			cb.setAttribute('disabled', 'disabled');
+		}
+		
+		div.appendChild(cb);
+		mxUtils.write(div, label);
+		mxUtils.br(div);
+		
+		return cb;
+	};
 
 	/**
 	 * 
@@ -2814,37 +2853,24 @@
 	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback)
 	{
 		var graph = this.editor.graph;
-		var content = document.createElement('div');
-		content.style.padding = '6px';
+		var div = document.createElement('div');
+		div.style.padding = '6px';
 		
-		var cb2 = document.createElement('input');
-		cb2.style.marginRight = '8px';
-		cb2.setAttribute('type', 'checkbox');
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxResources.get('export') + ' ' + mxResources.get('image'));
+		hd.style.marginTop = '0px';
+		hd.style.marginBottom = '8px';
+		div.appendChild(hd);
 		
-		if (graph.isSelectionEmpty())
+		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
+			this.editor.graph.isSelectionEmpty());
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
+
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			cb2.setAttribute('disabled', 'disabled');
-		}
-		
-		content.appendChild(cb2);
-		mxUtils.write(content, mxResources.get('selectionOnly'));
-		mxUtils.br(content);
-		
-		var cb = document.createElement('input');
-		cb.setAttribute('type', 'checkbox');
-		cb.setAttribute('checked', 'checked');
-		cb.defaultChecked = true;
-		cb.style.marginRight = '8px';
-		cb.style.marginTop = '16px';
-		
-		content.appendChild(cb);
-		mxUtils.write(content, mxResources.get('includeCopyOfMyDiagram'));
-		
-		var dlg = new CustomDialog(this, content, mxUtils.bind(this, function()
-		{
-			callback(!cb2.checked, cb.checked);
+			callback(!selection.checked, include.checked);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, 120, true, true);
+		this.showDialog(dlg.container, 300, 140, true, true);
 	};
 	
 	/**
@@ -2853,34 +2879,16 @@
 	EditorUi.prototype.showExportDialog = function(embedOption, btnLabel, helpLink, callback, cropOption)
 	{
 		var graph = this.editor.graph;
-		var content = document.createElement('div');
-		content.style.paddingTop = '20px';
-		content.style.paddingRight = '8px';
+		var div = document.createElement('div');
+		div.style.paddingTop = '10px';
+		div.style.paddingRight = '8px';
 		var height = 240;
 		
-		var cb = document.createElement('input');
-		cb.style.marginRight = '8px';
-		cb.setAttribute('type', 'checkbox');
-		
-		if (graph.background == mxConstants.NONE || graph.background == null)
-		{
-			cb.setAttribute('checked', 'checked');
-			cb.defaultChecked = true;
-		}
-		
-		content.appendChild(cb);
-		mxUtils.write(content, mxResources.get('transparentBackground'));
-		mxUtils.br(content);
-		
-		var cb2 = document.createElement('input');
-		cb2.style.marginTop = '16px';
-		cb2.style.marginRight = '8px';
-		cb2.setAttribute('type', 'checkbox');
-		
-		content.appendChild(cb2);
-		mxUtils.write(content, mxResources.get('selectionOnly'));
-		mxUtils.br(content);
-		
+		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
+			graph.background == mxConstants.NONE || graph.background == null);
+		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
+			false, graph.isSelectionEmpty());
+
 		var cb6 = document.createElement('input');
 		cb6.style.marginTop = '16px';
 		cb6.style.marginRight = '8px';
@@ -2888,33 +2896,19 @@
 
 		if (cropOption)
 		{
-			content.appendChild(cb6);
-			mxUtils.write(content, mxResources.get('crop'));
-			mxUtils.br(content);
+			div.appendChild(cb6);
+			mxUtils.write(div, mxResources.get('crop'));
+			mxUtils.br(div);
 			
 			height += 26;
 		}
 		
 		if (graph.isSelectionEmpty())
 		{
-			cb2.setAttribute('disabled', 'disabled');
 			cb6.setAttribute('disabled', 'disabled');
 		}
 		
-		var cb3 = document.createElement('input');
-		cb3.style.marginTop = '16px';
-		cb3.style.marginRight = '8px';
-		cb3.setAttribute('type', 'checkbox');
-		
-		content.appendChild(cb3);
-		mxUtils.write(content, mxResources.get('shadow'));
-		mxUtils.br(content);
-		
-		if (graph.shadowVisible)
-		{
-			cb3.setAttribute('checked', 'checked');
-			cb3.defaultChecked = true;
-		}
+		var shadow = this.addCheckbox(div, mxResources.get('shadow'), graph.shadowVisible);
 		
 		var cb5 = document.createElement('input');
 		cb5.style.marginTop = '16px';
@@ -2928,9 +2922,9 @@
 		
 		if (embedOption)
 		{
-			content.appendChild(cb5);
-			mxUtils.write(content, mxResources.get('embedImages'));
-			mxUtils.br(content);
+			div.appendChild(cb5);
+			mxUtils.write(div, mxResources.get('embedImages'));
+			mxUtils.br(div);
 			
 			height += 26;
 		}
@@ -2943,19 +2937,323 @@
 		cb4.setAttribute('checked', 'checked');
 		cb4.defaultChecked = true;
 		
-		content.appendChild(cb4);
-		mxUtils.write(content, mxResources.get('includeCopyOfMyDiagram'));
+		div.appendChild(cb4);
+		mxUtils.write(div, mxResources.get('includeCopyOfMyDiagram'));
 		
 		var dlg = new FilenameDialog(this, 100, btnLabel, mxUtils.bind(this, function(newValue)
 		{
-		   	callback(newValue, cb.checked, !cb2.checked, cb3.checked, cb4.checked, cb5.checked, cb6.checked);
-		}), mxResources.get('zoom') + ' (%)', null, content, (!this.isOffline()) ? helpLink : null);
-		
+		   	callback(newValue, transparent.checked, !selection.checked, shadow.checked, cb4.checked, cb5.checked, cb6.checked);
+		}), mxResources.get('zoom') + ' (%)', null, div, (!this.isOffline()) ? helpLink : null);
 		
 		this.showDialog(dlg.container, 320, height, true, true);
 		dlg.init();
 	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.showExportUrlDialog = function(fn)
+	{
+		var div = document.createElement('div');
+		div.style.padding = '6px';
+		var graph = this.editor.graph;
 		
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxResources.get('export') + ' ' + mxResources.get('url'));
+		hd.style.marginTop = '0px';
+		hd.style.marginBottom = '8px';
+		div.appendChild(hd);
+		
+		var hasPages = this.pages != null && this.pages.length > 1;
+		var allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
+		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
+		var edit = this.addCheckbox(div, mxResources.get('edit'), true);
+		edit.style.marginLeft = '24px';
+		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
+		layers.style.marginLeft = edit.style.marginLeft;
+		layers.style.marginBottom = '8px';
+		
+		mxEvent.addListener(lightbox, 'change', function()
+		{
+			if (lightbox.checked && hasLayers)
+			{
+				if (hasLayers)
+				{
+					layers.removeAttribute('disabled');
+				}
+				
+				edit.removeAttribute('disabled');
+			}
+			else
+			{
+				layers.setAttribute('disabled', 'disabled');
+				edit.setAttribute('disabled', 'disabled');
+			}
+		});
+		
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			fn(allPages.checked, lightbox.checked, edit.checked, layers.checked);
+		}));
+		this.showDialog(dlg.container, 280, 220, true, true);
+	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.showEmbedImageDialog = function(fn, title, imageLabel, shadowEnabled, helpLink)
+	{
+		var div = document.createElement('div');
+		div.style.padding = '6px';
+		var graph = this.editor.graph;
+		
+		if (title != null)
+		{
+			var hd = document.createElement('h3');
+			mxUtils.write(hd, title);
+			hd.style.marginTop = '0px';
+			hd.style.marginBottom = '8px';
+			div.appendChild(hd);
+		}
+		
+		var fit = this.addCheckbox(div, mxResources.get('fit'), true);
+		var shadow = this.addCheckbox(div, mxResources.get('shadow'),
+			graph.shadowVisible && shadowEnabled, !shadowEnabled);
+		var image = this.addCheckbox(div, imageLabel);
+		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
+		var edit = this.addCheckbox(div, mxResources.get('edit'), true);
+		edit.style.marginLeft = '24px';
+		
+		var hasLayers = graph.model.getChildCount(graph.model.getRoot()) > 1;
+		var layers = this.addCheckbox(div, mxResources.get('layers'), hasLayers, !hasLayers);
+		layers.style.marginLeft = edit.style.marginLeft;
+		layers.style.marginBottom = '8px';
+		
+		mxEvent.addListener(lightbox, 'change', function()
+		{
+			if (lightbox.checked && hasLayers)
+			{
+				if (hasLayers)
+				{
+					layers.removeAttribute('disabled');
+				}
+				
+				edit.removeAttribute('disabled');
+			}
+			else
+			{
+				layers.setAttribute('disabled', 'disabled');
+				edit.setAttribute('disabled', 'disabled');
+			}
+		});
+		
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			fn(fit.checked, shadow.checked, image.checked, lightbox.checked, edit.checked, layers.checked);
+		}), null, null, helpLink);
+		this.showDialog(dlg.container, 280, 280, true, true);
+	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.createEmbedImage = function(fit, shadow, retina, lightbox, edit, layers, fn, err)
+	{
+		var bounds = this.editor.graph.getGraphBounds();
+		
+		function doUpdate(dataUri)
+		{
+   			var onclick = ' ';
+   			var css = '';
+   			
+   			// Adds double click handling
+			if (lightbox)
+			{
+				// KNOWN: Message passing does not seem to work in IE11
+				onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					((edit) ? "&edit=_blank" : "") +
+					((layers) ? '&layers=1' : '') + "');}})(this);\"";
+				css += 'cursor:pointer;';
+			}
+   			
+			if (fit)
+			{
+				css += 'max-width:100%;';
+			}
+			
+			var atts = '';
+			
+			if (retina)
+			{
+				atts = ' width="' + Math.round(bounds.width) + '" height="' + Math.round(bounds.height) + '"';
+			}
+			
+			fn('<img src="' + dataUri + '"' + atts + ((css != '') ? ' style="' + css + '"' : '') + onclick + '/>');
+		};
+		
+		if (this.isExportToCanvas())
+		{
+			var scale = 1;
+			var ignoreSelection = true;
+
+			this.exportToCanvas(mxUtils.bind(this, function(canvas)
+		   	{
+	   			var xml = (lightbox) ? this.getFileData(true) : null;
+	   			var data = this.createPngDataUri(canvas, xml);
+	   			doUpdate(data);
+		   	}), null, null, null, mxUtils.bind(this, function(e)
+		   	{
+		   		err({message: mxResources.get('unknownError')});
+		   	}), null, true, (retina) ? 2 : 1, null, shadow);
+		}
+		else
+		{
+			var data = this.getFileData(true);
+			
+			if (bounds.width * bounds.height <= MAX_AREA && data.length <= MAX_REQUEST_SIZE)
+			{
+				var size = '';
+				
+				if (retina)
+				{
+					size = '&w=' + Math.round(2 * bounds.width) +
+						'&h=' + Math.round(2 * bounds.height);
+				}
+				
+				var embed = (lightbox) ? '1' : '0';
+				var req = new mxXmlRequest(EXPORT_URL, 'format=png' +
+					'&base64=1&embedXml=' + embed + size + '&xml=' +
+					encodeURIComponent(data));
+				
+				// LATER: Updates on each change, add a delay
+				req.send(mxUtils.bind(this, function()
+				{
+					if (req.getStatus() == 200)
+					{
+						// Fixes possible "incorrect function" for select() on
+						// DOM node which is no longer in document with IE11
+						doUpdate('data:image/png;base64,' + req.getText());
+					}
+					else
+					{
+						err({message: mxResources.get('unknownError')});
+					}
+				}));
+			}
+			else
+			{
+				err({message: mxResources.get('drawingTooLarge')});
+			}
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.createEmbedSvg = function(fit, shadow, image, lightbox, edit, layers, fn)
+	{
+		var svgRoot = this.editor.graph.getSvg();
+		
+		// Keeps hashtag links on same page
+		var links = svgRoot.getElementsByTagName('a');
+		
+		if (links != null)
+		{
+			for (var i = 0; i < links.length; i++)
+			{
+				var href = links[i].getAttribute('href');
+				
+				if (href != null && href.charAt(0) == '#' &&
+					links[i].getAttribute('target') == '_blank')
+				{
+					links[i].removeAttribute('target');
+				}
+			}
+		}
+		
+		if (lightbox)
+		{
+			svgRoot.setAttribute('content', this.getFileData(true));
+		}
+		
+		// Adds shadow filter
+		if (shadow)
+		{
+			this.editor.addSvgShadow(svgRoot);
+		}
+		
+		// SVG inside image tag
+		if (image)
+		{
+   			var onclick = ' ';
+   			var css = '';
+   			
+   			// Adds double click handling
+			if (lightbox)
+			{
+				// KNOWN: Message passing does not seem to work in IE11
+				onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}})(this);\"";
+				css += 'cursor:pointer;';
+			}
+   			
+			if (fit)
+			{
+				css += 'max-width:100%;';
+			}
+   			
+   			// Images inside IMG don't seem to work so embed them all
+			this.convertImages(svgRoot, function(svgRoot)
+			{
+				fn('<img src="' + this.createSvgDataUri(mxUtils.getXml(svgRoot)) + '"' +
+					((css != '') ? ' style="' + css + '"' : '') + onclick + '/>');
+			});
+		}
+		else
+		{
+			var css = '';
+			
+			// Adds double click handling
+			if (lightbox)
+			{
+				// KNOWN: Message passing does not seem to work in IE11
+				var js = "(function(svg){var src=window.event.target||window.event.srcElement;" +
+					// Ignores link events
+					"while (src!=null&&src.nodeName.toLowerCase()!='a'){src=src.parentNode;}if(src==null)" +
+					// Focus existing lightbox
+					"{if(svg.wnd!=null&&!svg.wnd.closed){svg.wnd.focus();}else{var r=function(evt){" +
+					// Message handling
+					"if(evt.data=='ready'&&evt.source==svg.wnd){svg.wnd.postMessage(decodeURIComponent(" +
+					"svg.getAttribute('content')),'*');window.removeEventListener('message',r);}};" +
+					"window.addEventListener('message',r);" +
+					// Opens lightbox window
+					"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}}})(this);";
+				svgRoot.setAttribute('onclick', js);
+				css += 'cursor:pointer;';
+			}
+			
+			// Adds responsive size
+			if (fit)
+			{
+				var w = parseInt(svgRoot.getAttribute('width'));
+				var h = parseInt(svgRoot.getAttribute('height'));
+				svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+				css += 'max-width:100%;max-height:' + h + 'px;';
+				svgRoot.removeAttribute('height');
+			}
+			
+			if (css != '')
+			{
+				svgRoot.setAttribute('style', css);
+			}
+			
+			fn(mxUtils.getXml(svgRoot));
+		}
+	};
+
 	/**
 	 * 
 	 */

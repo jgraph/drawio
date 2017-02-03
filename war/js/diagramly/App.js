@@ -3194,9 +3194,15 @@ App.prototype.loadFile = function(id, sameWindow, file)
 			{
 				// Raw file encoded into URL
 				this.spinner.stop();
-				var file = new LocalFile(this, decodeURIComponent(id.substring(1)),
-					(urlParams['title'] != null) ? decodeURIComponent(urlParams['title']) :
-					this.defaultFilename);
+				var data = decodeURIComponent(id.substring(1));
+				
+				if (data.charAt(0) != '<')
+				{
+					data = this.editor.graph.decompress(data);
+				}
+				
+				var file = new LocalFile(this, data, (urlParams['title'] != null) ?
+					decodeURIComponent(urlParams['title']) : this.defaultFilename);
 				file.getHash = function()
 				{
 					return id;
