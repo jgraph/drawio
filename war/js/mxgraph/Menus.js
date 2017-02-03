@@ -307,23 +307,31 @@ Menus.prototype.init = function()
 			if (tmp != null)
 			{
 				var layout = new mxRadialTreeLayout(graph, false);
-				layout.levelDistance = 60;
+				layout.levelDistance = 80;
 				layout.autoRadius = true;
 				
-	    		this.editorUi.executeLayout(function()
-	    		{
-	    			layout.execute(graph.getDefaultParent(), tmp);
-	    			
-	    			if (!graph.isSelectionEmpty())
-	    			{
-		    			tmp = graph.getModel().getParent(tmp);
+				var dlg = new FilenameDialog(this.editorUi, layout.levelDistance, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+				{
+					layout.levelDistance = parseInt(newValue);
+					
+					this.editorUi.executeLayout(function()
+		    		{
+		    			layout.execute(graph.getDefaultParent(), tmp);
 		    			
-		    			if (graph.getModel().isVertex(tmp))
+		    			if (!graph.isSelectionEmpty())
 		    			{
-		    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+			    			tmp = graph.getModel().getParent(tmp);
+			    			
+			    			if (graph.getModel().isVertex(tmp))
+			    			{
+			    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+			    			}
 		    			}
-	    			}
-	    		}, true);
+		    		}, true);
+					
+				}), mxResources.get('spacing'));
+				this.editorUi.showDialog(dlg.container, 300, 80, true, true);
+				dlg.init();
 			}
 		}), parent);
 		menu.addSeparator(parent);

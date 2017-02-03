@@ -83,16 +83,6 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>Imgur</display-name>
-    <servlet-name>Imgur</servlet-name>
-    <servlet-class>com.mxgraph.online.ImgurServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Imgur</servlet-name>
-    <url-pattern>/imgur</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>ImgurRedirect</display-name>
     <servlet-name>ImgurRedirect</servlet-name>
     <servlet-class>com.mxgraph.online.ImgurRedirectServlet</servlet-class>

@@ -854,18 +854,190 @@
 				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 				{
 					editorUi.spinner.stop();
-					var dlg = new EmbedHtmlDialog(editorUi, url);
-					editorUi.showDialog(dlg.container, 550, 400, true, true);
-					dlg.init();
+					
+					editorUi.showEmbedHtmlDialog(url, function(publicUrl, zoomEnabled, initialZoom, linkColor, fit, allPages, layers, lightbox, edit)
+					{
+						var s = editorUi.getBasenames();
+						var data = {};
+						
+						if (linkColor != '' && linkColor != mxConstants.NONE)
+						{
+							data.highlight = linkColor;
+						}
+						
+						if (!lightbox)
+						{
+							data.lightbox = false;
+						}
+						
+						data.nav = graph.foldingEnabled;
+						var zoom = parseInt(initialZoom);
+						
+						if (!isNaN(zoom) && zoom != 100)
+						{
+							data.zoom = zoom / 100;
+						}
+						
+						var tb = [];
+						
+						if (allPages)
+						{
+							tb.push('pages');
+							data.resize = true;
+							
+							if (editorUi.pages != null && editorUi.currentPage != null)
+							{
+								data.page = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
+							}
+						}
+						
+						if (zoomEnabled)
+						{
+							tb.push('zoom');
+							data.resize = true;
+						}
+						
+						if (layers)
+						{
+							tb.push('layers');
+						}
+						
+						if (tb.length > 0)
+						{
+							if (lightbox)
+							{
+								tb.push('lightbox');
+							}
+							
+							data.toolbar = tb.join(' ');
+						}
+
+						if (edit)
+						{
+							if (publicUrl != null)
+							{
+								data.edit = publicUrl;
+							}
+							else
+							{
+								data.edit = '_blank';
+							}
+						}
+						
+						if (publicUrl != null)
+						{
+							data.url = publicUrl;
+						}
+						else
+						{
+							data.xml = editorUi.getFileData(true, null, null, null, null, !allPages);
+						}
+					
+						var value = '<div class="mxgraph" style="' +
+							((fit) ? 'max-width:100%;' : '') +
+							((tb != '') ? 'border:1px solid transparent;' : '') +
+							'" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>';
+						
+						var sParam = (s.length > 0) ? 's=' + s.join(';') : '';
+						var fetchParam = (publicUrl != null) ? 'fetch=' + encodeURIComponent(publicUrl) : '';
+						var s2 = (sParam.length > 0 || fetchParam.length > 0) ?
+							(((urlParams['dev'] == '1') ?
+							'https://test.draw.io/embed2.js?dev=1&' + sParam :
+							'https://www.draw.io/embed2.js?' + sParam)) + '&' + fetchParam :
+							(((urlParams['dev'] == '1') ?
+							'https://test.draw.io/js/viewer.min.js' :
+							'https://www.draw.io/js/viewer.min.js'));
+					
+						var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
+						
+						var dlg = new EmbedDialog(editorUi, value + '\n' + scr, null, function()
+						{
+							var wnd = window.open();
+							var doc = wnd.document;
+					
+							if (document.compatMode === 'CSS1Compat')
+							{
+								doc.writeln('<!DOCTYPE html>');
+							}
+							
+							doc.writeln('<html>');
+							doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
+								'</title><meta charset="utf-8"></head>');
+							doc.writeln('<body>');
+							doc.writeln(value);
+							
+							var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
+							
+							if (direct)
+							{
+								doc.writeln(scr);
+							}
+							
+							doc.writeln('</body>');
+							doc.writeln('</html>');
+							doc.close();
+							
+							console.log('here');
+					
+							// Adds script tag after closing page and delay to fix timing issues
+							if (!direct)
+							{
+								var info = wnd.document.createElement('div');
+								info.marginLeft = '26px';
+								info.marginTop = '26px';
+								mxUtils.write(info, mxResources.get('updatingDocument'));
+
+								var img = wnd.document.createElement('img');
+								img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
+									'/' + IMAGE_PATH + '/spin.gif');
+								img.style.marginLeft = '6px';
+								info.appendChild(img);
+								
+								wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
+								
+								window.setTimeout(function()
+								{
+									var script = document.createElement('script');
+									script.type = 'text/javascript';
+									script.src = /<script.*?src="(.*?)"/.exec(scr)[1];
+									doc.body.appendChild(script);
+									
+									info.parentNode.removeChild(info);
+								}, 20);
+							}
+						});
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					});
+					
+//					var dlg = new EmbedHtmlDialog(editorUi, url);
+//					editorUi.showDialog(dlg.container, 550, 400, true, true);
+//					dlg.init();
 				});
 			}
 		}));
 		
 		editorUi.actions.put('liveImage', new Action('Live image...', function()
 		{
-			var dlg = new IframeDialog(editorUi, true);
-			editorUi.showDialog(dlg.container, 420, 200, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					
+					if (url != null)
+					{
+						var encUrl = encodeURIComponent(url);
+						var dlg = new EmbedDialog(editorUi, EXPORT_URL + '?format=png&url=' + encUrl, 0);
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					}
+					else
+					{
+						editorUi.handleError({message: mxResources.get('invalidPublicUrl')});
+					}
+				});
+			}
 		}));
 		
 		editorUi.actions.put('embedImage', new Action(mxResources.get('image') + '...', function()
@@ -879,7 +1051,7 @@
 						editorUi.spinner.stop();
 						
 						var dlg = new EmbedDialog(editorUi, result);
-						editorUi.showDialog(dlg.container, 320, 320, true, true);
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					}, function(err)
 					{
@@ -887,8 +1059,7 @@
 						editorUi.handleError(err);
 					});
 				}
-			}, mxResources.get('embed') + ' ' + mxResources.get('image'),
-				mxResources.get('retina'), editorUi.isExportToCanvas());
+			}, mxResources.get('image'), mxResources.get('retina'), editorUi.isExportToCanvas());
 		}));
 
 		editorUi.actions.put('embedSvg', new Action(mxResources.get('formatSvg') + '...', function()
@@ -902,7 +1073,7 @@
 						editorUi.spinner.stop();
 						
 						var dlg = new EmbedDialog(editorUi, result);
-						editorUi.showDialog(dlg.container, 320, 320, true, true);
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					}, function(err)
 					{
@@ -910,36 +1081,49 @@
 						editorUi.handleError(err);
 					});
 				}
-			}, mxResources.get('embed') + ' ' + mxResources.get('formatSvg'), mxResources.get('image'),
+			}, mxResources.get('formatSvg'), mxResources.get('image'),
 				true, 'https://desk.draw.io/solution/articles/16000042548-how-to-embed-svg-');
 		}));
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
 		{
-			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			var bounds = graph.getGraphBounds();
+			
+			editorUi.showPublishLinkDialog(mxResources.get('iframe'), null, '100%',
+				(Math.ceil((bounds.y + bounds.height - graph.view.translate.y) / graph.view.scale) + 2),
+				function(allPages, lightbox, edit, layers, width, height)
 			{
-				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					editorUi.spinner.stop();
-					var dlg = new IframeDialog(editorUi, null, null, url);
-					editorUi.showDialog(dlg.container, 420, 220, true, true);
-					dlg.init();
-				});
-			}
+					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+					{
+						editorUi.spinner.stop();
+						
+						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
+							';height:' + height + ';" src="' + editorUi.createLink(allPages, lightbox, edit,
+							layers, url) + '"></iframe>');
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					});
+				}
+			});
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
-			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			editorUi.showPublishLinkDialog(null, null, null, null, function(allPages, lightbox, edit, layers)
 			{
-				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					editorUi.spinner.stop();
-					var dlg = new IframeDialog(editorUi, false, true, url);
-					editorUi.showDialog(dlg.container, 420, 200, true, true);
-					dlg.init();
-				});
-			}
+					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+					{
+						editorUi.spinner.stop();
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(allPages, lightbox, edit, layers, url));
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					});
+				}
+			});
 		}));
 
 		editorUi.actions.addAction('googleDocs...', function()
@@ -1156,6 +1340,13 @@
 				}), parent);
 			}
 
+			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
+			{
+				this.editorUi.downloadFile('html');
+			}), parent);
+
+			menu.addSeparator(parent);
+
 			menu.addItem(mxResources.get('formatXml') + '...', null, mxUtils.bind(this, function()
 			{
 				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
@@ -1212,67 +1403,13 @@
 				editorUi.showDialog(dlg.container, 300, 120, true, true);
 			}), parent);
 
-			menu.addSeparator(parent);
-
-			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
-			{
-				this.editorUi.downloadFile('html');
-			}), parent);
-			
 			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 			{
-				editorUi.showExportUrlDialog(function(allPages, lightbox, edit, layers)
+				editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null, function(allPages, lightbox, edit, layers)
 				{
-					try
-					{
-						var file = editorUi.getCurrentFile();
-						var params = [];
-						
-						if (lightbox)
-						{
-							params.push('chrome=0');
-							params.push('lightbox=1');
-							
-							if (edit)
-							{
-								params.push('edit=_blank');
-							}
-							
-							if (layers)
-							{
-								params.push('layers=1');
-							}
-						}
-						
-						if (file != null && file.getTitle() != null)
-						{
-							params.push('title=' + encodeURIComponent(file.getTitle()));
-						}
-						
-						if (allPages && editorUi.pages != null && editorUi.currentPage != null)
-						{
-							for (var i = 0; i < editorUi.pages.length; i++)
-							{
-								if (editorUi.pages[i] == editorUi.currentPage)
-								{
-									params.push('page=' + i);
-									break;
-								}
-							}
-						}
-						
-						var data = (allPages) ? editorUi.getFileData(true, null, null, null, null, null, null, true) :
-							graph.compress(mxUtils.getXml(editorUi.editor.getGraphXml()));
-						var dlg = new EmbedDialog(editorUi, ((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' :
-							'https://' + location.host + '/') + '?' + params.join('&') +
-							'#R' + encodeURIComponent(data));
-						editorUi.showDialog(dlg.container, 320, 320, true, true);
-						dlg.init();
-					}
-					catch (e)
-					{
-						editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
-					}
+					var dlg = new EmbedDialog(editorUi, editorUi.createLink(allPages, lightbox, edit, layers, null, true));
+					editorUi.showDialog(dlg.container, 440, 240, true, true);
+					dlg.init();
 				});
 			}), parent);
 			
@@ -1509,6 +1646,11 @@
 					dlg.init();
 				}, parent);
 			}
+			
+			menu.addItem(mxResources.get('csv') + '...', null, function()
+			{
+				editorUi.showImportCsvDialog();
+			}, parent);
 		})).isEnabled = isGraphEnabled;
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1678,34 +1820,6 @@
 			}
 		}));
 		
-		editorUi.actions.addAction('imgur...', mxUtils.bind(this, function()
-		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId, editable)
-			{
-				window.open('https://imgur.com/' + imgurId);
-			}, mxResources.get('open'));
-		}));
-				
-		editorUi.actions.addAction('facebook...', mxUtils.bind(this, function()
-		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
-			{
-				window.open('https://www.facebook.com/sharer.php?p[url]=' + encodeURIComponent('https://imgur.com/' + imgurId) +
-						'&p[images][0]=' + encodeURIComponent(imgurId + '.png'));
-			});
-		}));
-
-		editorUi.actions.addAction('twitter...', mxUtils.bind(this, function()
-		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToImgur), function(imgurId)
-			{
-				window.open('https://twitter.com/intent/tweet?text=' + 
-						encodeURIComponent('Check out the diagram I made with draw.io') +
-						'&via=drawio&hashtags=madewithdrawio&url=' +
-						encodeURIComponent('https://imgur.com/' + imgurId));
-			});
-		}));
-
 		editorUi.actions.addAction('github...', mxUtils.bind(this, function()
 		{
 			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToGithub));
@@ -1713,25 +1827,16 @@
 
 		this.put('publish', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (!navigator.standalone && !editorUi.isOffline())
-			{
-				this.addMenuItems(menu, ['publishLink'], parent);
-			}
+			this.addMenuItems(menu, ['publishLink'], parent);
 			
 			// Disable publish in IE9- due to CORS problem when getting image from server
 			// which requires cross-domain XHR but XDomainRequest has no custom headers
 			// to set content type to form-encoded-data which is needed for the export.
-			if (document.documentMode == null || document.documentMode >= 10)
-			{
-				this.addMenuItems(menu, ['imgur'], parent);
-				this.addMenuItems(menu, ['twitter'], parent);
-				this.addMenuItems(menu, ['facebook'], parent);
-
-				if (typeof XMLHttpRequest !== 'undefined')
-				{
-					this.addMenuItems(menu, ['github'], parent);
-				}
-			}
+//			if ((document.documentMode == null || document.documentMode >= 10) &&
+//				typeof XMLHttpRequest !== 'undefined')
+//			{
+//				this.addMenuItems(menu, ['github'], parent);
+//			}
 		})));
 
 		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
@@ -1784,7 +1889,6 @@
 			this.addSubmenu('distribute', menu, parent);
 			menu.addSeparator(parent);
 			this.addSubmenu('navigation', menu, parent);
-			this.addSubmenu('insert', menu, parent);
 			this.addSubmenu('layout', menu, parent);
 			this.addMenuItems(menu, ['-', 'group', 'ungroup', 'removeFromGroup', '-', 'editGeometry', 'clearWaypoints', 'autosize'], parent);
 		})));
@@ -2227,7 +2331,9 @@
 				this.addSubmenu('theme', menu, parent);
 				menu.addSeparator(parent);
 			}
-
+			
+			this.addSubmenu('insert', menu, parent);
+			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
 
 			if (typeof(MathJax) !== 'undefined')

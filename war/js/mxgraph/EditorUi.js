@@ -1982,7 +1982,7 @@ EditorUi.prototype.lightboxFit = function()
 {
 	// LATER: Use initial graph bounds to avoid rounding errors
 	this.editor.graph.maxFitScale = 2;
-	this.editor.graph.fit(20);
+	this.editor.graph.fit(60);
 	this.editor.graph.maxFitScale = null;
 };
 

@@ -22,8 +22,10 @@ Draw.loadPlugin(function(ui)
 		}
 	};
 
-	// Adds action
-	ui.actions.addAction('exploreFromHere', function()
+	//
+	// Main function
+	//
+	function exploreFromHere(selectionCell)
 	{
 		var sourceGraph = ui.editor.graph;
 		
@@ -33,6 +35,8 @@ Draw.loadPlugin(function(ui)
 		container.style.background = '#ffffff';
 		container.style.width = '100%';
 		container.style.height = '100%';
+		container.style.left = '0px';
+		container.style.top = '0px';
 		container.style.zIndex = 2;
 
 		var deleteImage = document.createElement('img');
@@ -42,6 +46,16 @@ Draw.loadPlugin(function(ui)
 		deleteImage.style.right = '10px';
 		deleteImage.style.top = '10px';
 		container.appendChild(deleteImage);
+		
+		var closeLabel = document.createElement('div');
+		closeLabel.style.position = 'absolute';
+		closeLabel.style.cursor = 'pointer';
+		closeLabel.style.right = '38px';
+		closeLabel.style.top = '14px';
+		closeLabel.style.textAlign = 'right';
+		closeLabel.style.verticalAlign = 'top';
+		mxUtils.write(closeLabel, mxResources.get('close'));
+		container.appendChild(closeLabel);
 		document.body.appendChild(container);
 		
 		var keyHandler = function(evt)
@@ -101,16 +115,17 @@ Draw.loadPlugin(function(ui)
 					return null;
 				};
 				
-				mxEvent.addListener(deleteImage, 'click', function()
+				var closeHandler = function()
 				{
 					mxEvent.removeListener(document, 'keydown', keyHandler);
 					container.parentNode.removeChild(container);
-					sourceGraph.setSelectionCell(sourceGraph.model.getCell(graph.rootCell.sourceCellId));
 					
 					// FIXME: Does not work
-					sourceGraph.scrollCellToVisible(sourceGraph.getSelectionCell());
-				});
+					sourceGraph.scrollCellToVisible(selectionCell);
+				};
 				
+				mxEvent.addListener(deleteImage, 'click', closeHandler);
+				mxEvent.addListener(closeLabel, 'click', closeHandler);
 				
 				// Disables all built-in interactions
 				graph.setEnabled(false);
@@ -121,7 +136,7 @@ Draw.loadPlugin(function(ui)
 					var evt = me.getEvent();
 					var cell = me.getCell();
 					
-					if (cell != null)
+					if (cell != null && cell != graph.rootCell)
 					{
 						load(graph, cell);
 					}
@@ -134,10 +149,9 @@ Draw.loadPlugin(function(ui)
 				var cx = graph.container.scrollWidth / 2;
 				var cy = graph.container.scrollHeight / 3;
 
-				var sourceCell = sourceGraph.getSelectionCell();
 				graph.model.beginUpdate();
-				var cell = graph.importCells([sourceCell])[0];
-				cell.sourceCellId = sourceCell.id;
+				var cell = graph.importCells([selectionCell])[0];
+				cell.sourceCellId = selectionCell.id;
 				cell.geometry.x = cx - cell.geometry.width / 2;
 				cell.geometry.y = cy - cell.geometry.height / 2;
 				graph.model.endUpdate();
@@ -155,7 +169,6 @@ Draw.loadPlugin(function(ui)
 						mxText.prototype.prev = true;
 						graph.labelsVisible = true;
 						graph.refresh();
-						graph.setSelectionCell(graph.rootCell);
 						graph.tooltipHandler.hide();
 					});
 				});
@@ -331,5 +344,24 @@ Draw.loadPlugin(function(ui)
 		};
 		
 		main(container);
+	};
+	
+	// Adds action
+	ui.actions.addAction('exploreFromHere', function()
+	{
+		exploreFromHere(ui.editor.graph.getSelectionCell());
 	});
+	
+	// Click handler for chromeless mode
+	if (ui.editor.chromeless)
+	{
+		ui.editor.graph.click = function(me)
+		{
+			if (ui.editor.graph.model.isVertex(me.getCell()) &&
+				ui.editor.graph.model.getEdgeCount(me.getCell()) > 0)
+			{
+				exploreFromHere(me.getCell());
+			}
+		};
+	}
 });

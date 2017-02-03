@@ -1411,7 +1411,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 /**
  * Constructs a new textarea dialog.
  */
-var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h, addButtons, noHide, noWrap)
+var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h, addButtons, noHide, noWrap, applyTitle)
 {
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
@@ -1488,7 +1488,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	if (fn != null)
 	{
-		var genericBtn = mxUtils.button(mxResources.get('apply'), function()
+		var genericBtn = mxUtils.button(applyTitle || mxResources.get('apply'), function()
 		{
 			if (!noHide)
 			{
