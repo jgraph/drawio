@@ -1,3 +1,10 @@
+03-FEB-2017: 6.0.3.1
+
+- Updates Dutch translations
+- Fixes lost value when cloning page while editing
+- Fixes possible NPE when removing images from custom libraries
+- Fixes unicode page name character in vsdx import
+
 31-JAN-2017: 6.0.3.0
 
 - Hides plugin warning for all local plugins

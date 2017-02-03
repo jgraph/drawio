@@ -1118,382 +1118,78 @@ var EmbedHtmlDialog = function(editorUi, publicUrl)
 /**
  * Constructs a new embed dialog
  */
-var EmbedSvgDialog = function(editorUi, isImage)
+var EmbedDialog = function(editorUi, result)
 {
-	var file = editorUi.getCurrentFile();
 	var div = document.createElement('div');
 
-	var graph = editorUi.editor.graph;
-	var bounds = graph.getGraphBounds();
-	var scale = graph.view.scale;
-	var x0 = Math.floor(bounds.x / scale - graph.view.translate.x);
-	var y0 = Math.floor(bounds.y / scale - graph.view.translate.y);
+	// Checks if result is a link
+	var validUrl = /^https?:\/\//.test(result) || /^mailto:\/\//.test(result);
 
-	mxUtils.write(div, mxResources.get('mainEmbedNotice') + ': ');
+	mxUtils.write(div, mxResources.get((validUrl) ? 'link' : 'mainEmbedNotice') + ': ');
 	mxUtils.br(div);
 	
-	var textarea = document.createElement('textarea');
-	textarea.style.marginTop = '6px';
-	textarea.style.width = '550px';
-	textarea.style.height = '280px';
-	textarea.style.resize = 'none';
-
-	div.appendChild(textarea);
+	var text = document.createElement('textarea');
+	text.style.marginTop = '6px';
+	text.style.resize = 'none';
+	text.style.height = '240px';
+	text.style.width = '100%';
+	text.value = result;
+	div.appendChild(text);
 	mxUtils.br(div);
 
-	var options = document.createElement('div');
-	options.style.paddingTop = '16px';
-	options.style.textAlign = 'center';
-
-	var fitCheckBox = document.createElement('input');
-	fitCheckBox.setAttribute('type', 'checkbox');
-	fitCheckBox.setAttribute('checked', 'checked');
-	fitCheckBox.defaultChecked = true;
-	options.appendChild(fitCheckBox);
-	mxUtils.write(options, mxResources.get('fit'));
-
-	var shadowCheckBox = document.createElement('input');
-	shadowCheckBox.setAttribute('type', 'checkbox');
-	shadowCheckBox.style.marginLeft = '10px';
-	
-	if (graph.shadowVisible)
+	this.init = function()
 	{
-		shadowCheckBox.setAttribute('checked', 'checked');
-		shadowCheckBox.defaultChecked = true;
-	}
-	
-	if (!isImage || editorUi.isExportToCanvas())
-	{
-		options.appendChild(shadowCheckBox);
-		mxUtils.write(options, mxResources.get('shadow'));
-	}
-	
-	var imageCheckBox = document.createElement('input');
-	imageCheckBox.setAttribute('type', 'checkbox');
-	imageCheckBox.style.marginLeft = '10px';
-	
-	if (!isImage)
-	{
-		options.appendChild(imageCheckBox);
-		mxUtils.write(options, mxResources.get('image'));
-	}
-	
-	var retinaCheckBox = document.createElement('input');
-	retinaCheckBox.setAttribute('type', 'checkbox');
-	retinaCheckBox.style.marginLeft = '10px';
-	
-	if (isImage)
-	{
-		options.appendChild(retinaCheckBox);
-		mxUtils.write(options, mxResources.get('retina'));
-	}
-	
-	var lightboxCheckBox = document.createElement('input');
-	lightboxCheckBox.setAttribute('type', 'checkbox');
-	lightboxCheckBox.setAttribute('checked', 'checked');
-	lightboxCheckBox.defaultChecked = true;
-	lightboxCheckBox.style.marginLeft = '10px';
-	options.appendChild(lightboxCheckBox);
-	mxUtils.write(options, mxResources.get('lightbox'));
-	
-	var editCheckBox = document.createElement('input');
-	editCheckBox.setAttribute('type', 'checkbox');
-	editCheckBox.setAttribute('checked', 'checked');
-	editCheckBox.defaultChecked = true;
-	editCheckBox.style.marginLeft = '10px';
-	options.appendChild(editCheckBox);
-	mxUtils.write(options, mxResources.get('edit'));
-
-	var layersCheckBox = document.createElement('input');
-	layersCheckBox.setAttribute('type', 'checkbox');
-	layersCheckBox.style.marginLeft = '10px';
-	
-	var model = editorUi.editor.graph.getModel();
-	
-	if (model.getChildCount(model.getRoot()) > 1)
-	{
-		layersCheckBox.setAttribute('checked', 'checked');
-		layersCheckBox.defaultChecked = true;
-	}
-	else
-	{
-		layersCheckBox.setAttribute('disabled', 'disabled');
-	}
-
-	options.appendChild(layersCheckBox);
-	mxUtils.write(options, mxResources.get('layers'));
-	
-	div.appendChild(options);
-
-	function update(force)
-	{
-		if (isImage)
+		text.focus();
+			
+		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
-			var bounds = editorUi.editor.graph.getGraphBounds();
-			
-			function doUpdate(dataUri)
-			{
-	   			var onclick = ' ';
-	   			var css = '';
-	   			
-	   			// Adds double click handling
-				if (lightboxCheckBox.checked)
-				{
-					// KNOWN: Message passing does not seem to work in IE11
-					onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
-						((editCheckBox.checked) ? "&edit=_blank" : "") +
-						((layersCheckBox.checked) ? '&layers=1' : '') + "');}})(this);\"";
-					css += 'cursor:pointer;';
-				}
-	   			
-				if (fitCheckBox.checked)
-				{
-					css += 'max-width:100%;';
-				}
-				
-				var atts = '';
-				
-				if (retinaCheckBox.checked)
-				{
-					atts = ' width="' + Math.round(bounds.width) + '" height="' + Math.round(bounds.height) + '"';
-				}
-
-		   		textarea.value = '<img src="' + dataUri + '"' + atts +
-		   			((css != '') ? ' style="' + css + '"' : '') +
-		   			onclick + '/>';
-				textarea.focus();
-
-				if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-				{
-					textarea.select();
-				}
-				else
-				{
-					document.execCommand('selectAll', false, null);
-				}
-			};
-			
-			if (editorUi.isExportToCanvas())
-			{
-				var scale = 1;
-				var ignoreSelection = true;
-				textarea.value = mxResources.get('updatingDocument');
-
-				editorUi.exportToCanvas(mxUtils.bind(this, function(canvas)
-			   	{
-		   			var xml = (lightboxCheckBox.checked) ? editorUi.getFileData(true) : null;
-		   			var data = editorUi.createPngDataUri(canvas, xml);
-		   			doUpdate(data);
-			   	}), null, null, null, mxUtils.bind(this, function(e)
-			   	{
-					textarea.value = '';
-					editorUi.handleError({message: mxResources.get('unknownError')});
-			   	}), null, true, (retinaCheckBox.checked) ? 2 : 1, null, shadowCheckBox.checked);
-			}
-			else
-			{
-				var data = editorUi.getFileData(true);
-				
-				if (bounds.width * bounds.height <= MAX_AREA && data.length <= MAX_REQUEST_SIZE)
-				{
-					textarea.value = mxResources.get('updatingDocument');
-					var size = '';
-					
-					if (retinaCheckBox.checked)
-					{
-						size = '&w=' + Math.round(2 * bounds.width) +
-							'&h=' + Math.round(2 * bounds.height);
-					}
-					
-					var embed = (lightboxCheckBox.checked) ? '1' : '0';
-					var req = new mxXmlRequest(EXPORT_URL, 'format=png' +
-						'&base64=1&embedXml=' + embed + size + '&xml=' +
-						encodeURIComponent(data));
-					
-					// LATER: Updates on each change, add a delay
-					req.send(mxUtils.bind(this, function()
-					{
-						if (req.getStatus() == 200)
-						{
-							// Fixes possible "incorrect function" for select() on
-							// DOM node which is no longer in document with IE11
-							if (document.body.contains(div))
-							{
-								doUpdate('data:image/png;base64,' + req.getText());
-							}
-						}
-						else
-						{
-							textarea.value = '';
-							editorUi.handleError({message: mxResources.get('unknownError')});
-						}
-					}));
-				}
-				else
-				{
-					textarea.value = '';
-					editorUi.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'));
-				}
-			}
+			text.select();
 		}
 		else
 		{
-			var svgRoot = editorUi.editor.graph.getSvg();
-			
-			// Keeps hashtag links on same page
-			var links = svgRoot.getElementsByTagName('a');
-			
-			if (links != null)
-			{
-				for (var i = 0; i < links.length; i++)
-				{
-					var href = links[i].getAttribute('href');
-					
-					if (href != null && href.charAt(0) == '#' &&
-						links[i].getAttribute('target') == '_blank')
-					{
-						links[i].removeAttribute('target');
-					}
-				}
-			}
-			
-			if (lightboxCheckBox.checked)
-			{
-				svgRoot.setAttribute('content', editorUi.getFileData(true));
-			}
-			
-			// Adds shadow filter
-			if (shadowCheckBox.checked)
-			{
-				editorUi.editor.addSvgShadow(svgRoot);
-			}
-			
-			// SVG inside image tag
-			if (imageCheckBox.checked)
-			{
-	   			var onclick = ' ';
-	   			var css = '';
-	   			
-	   			// Adds double click handling
-				if (lightboxCheckBox.checked)
-				{
-					// KNOWN: Message passing does not seem to work in IE11
-					onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-						"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
-						((editCheckBox.checked) ? "&edit=_blank" : "") +
-						((layersCheckBox.checked) ? '&layers=1' : '') + "');}})(this);\"";
-					css += 'cursor:pointer;';
-				}
-	   			
-				if (fitCheckBox.checked)
-				{
-					css += 'max-width:100%;';
-				}
-	   			
-	   			// Images inside IMG don't seem to work so embed them all
-				editorUi.convertImages(svgRoot, function(svgRoot)
-				{
-					textarea.value = '<img src="' + editorUi.createSvgDataUri(mxUtils.getXml(svgRoot)) + '"' +
-						((css != '') ? ' style="' + css + '"' : '') + onclick + '/>';
-				});
-			}
-			else
-			{
-				var css = '';
-				
-				// Adds double click handling
-				if (lightboxCheckBox.checked)
-				{
-					// KNOWN: Message passing does not seem to work in IE11
-					var js = "(function(svg){var src=window.event.target||window.event.srcElement;" +
-						// Ignores link events
-						"while (src!=null&&src.nodeName.toLowerCase()!='a'){src=src.parentNode;}if(src==null)" +
-						// Focus existing lightbox
-						"{if(svg.wnd!=null&&!svg.wnd.closed){svg.wnd.focus();}else{var r=function(evt){" +
-						// Message handling
-						"if(evt.data=='ready'&&evt.source==svg.wnd){svg.wnd.postMessage(decodeURIComponent(" +
-						"svg.getAttribute('content')),'*');window.removeEventListener('message',r);}};" +
-						"window.addEventListener('message',r);" +
-						// Opens lightbox window
-						"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
-						((editCheckBox.checked) ? "&edit=_blank" : "") +
-						((layersCheckBox.checked) ? '&layers=1' : '') + "');}}})(this);";
-					svgRoot.setAttribute('onclick', js);
-					css += 'cursor:pointer;';
-				}
-				
-				// Adds responsive size
-				if (fitCheckBox.checked)
-				{
-					var w = parseInt(svgRoot.getAttribute('width'));
-					var h = parseInt(svgRoot.getAttribute('height'));
-					svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-					css += 'max-width:100%;max-height:' + h + 'px;';
-					svgRoot.removeAttribute('height');
-				}
-				
-				if (css != '')
-				{
-					svgRoot.setAttribute('style', css);
-				}
-
-				textarea.value = mxUtils.getXml(svgRoot);
-			}
-
-			textarea.focus();
-			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-			{
-				textarea.select();
-			}
-			else
-			{
-				document.execCommand('selectAll', false, null);
-			}
+			document.execCommand('selectAll', false, null);
 		}
 	};
-	
-	this.init = function()
-	{
-		update();
-	};
-	
-	mxEvent.addListener(imageCheckBox, 'change', update);
-	mxEvent.addListener(retinaCheckBox, 'change', update);
-	mxEvent.addListener(shadowCheckBox, 'change', update);
-	mxEvent.addListener(fitCheckBox, 'change', update);
-	mxEvent.addListener(lightboxCheckBox, 'change', update);
-	mxEvent.addListener(editCheckBox, 'change', update);
-	mxEvent.addListener(layersCheckBox, 'change', update);
 	
 	var buttons = document.createElement('div');
 	buttons.style.paddingTop = '18px';
 	buttons.style.textAlign = 'right';
 	
-	if (!editorUi.isOffline() && !isImage)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			window.open('https://desk.draw.io/solution/articles/16000042548-how-to-embed-svg-');
-		});
-		
-		helpBtn.className = 'geBtn';	
-		buttons.appendChild(helpBtn);
-	}
-
 	// Loads forever in IE9
-	if (!mxClient.IS_CHROMEAPP && !navigator.standalone && mxClient.IS_SVG &&
-		(document.documentMode == null || document.documentMode > 9))
+	if (!mxClient.IS_CHROMEAPP && !navigator.standalone && (validUrl ||
+		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
 	{
-		var previewBtn = mxUtils.button(mxResources.get('preview'), function()
+		var previewBtn = mxUtils.button(mxResources.get((validUrl) ? 'open' : 'preview'), function()
 		{
-			var wnd = window.open();
-			var doc = wnd.document;
-			doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
-					'</title><meta charset="utf-8"></head>' +
-					'<body>' + textarea.value + '</body></html>');
-			doc.close();
+			if (validUrl)
+			{
+				try
+				{
+					var win = window.open(result);
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						if (win != null && win.location.href != result)
+						{
+							win.close();
+							editorUi.handleError({message: mxResources.get('drawingTooLarge')});
+						}
+					}), 500);
+				}
+				catch (e)
+				{
+					editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+				}
+			}
+			else
+			{
+				var wnd = window.open();
+				var doc = wnd.document;
+				doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
+						'</title><meta charset="utf-8"></head>' +
+						'<body>' + text.value + '</body></html>');
+				doc.close();
+			}
 		});
 		
 		previewBtn.className = 'geBtn';
@@ -1507,11 +1203,11 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	
 	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
 	{
-		textarea.focus();
+		text.focus();
 		
 		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
-			textarea.select();
+			text.select();
 		}
 		else
 		{
@@ -1537,7 +1233,6 @@ var EmbedSvgDialog = function(editorUi, isImage)
 	}
 	
 	div.appendChild(buttons);
-	
 	this.container = div;
 };
 
@@ -8394,7 +8089,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 							for (var i = 0; i < images.length; i++)
 							{
 								if ((images[i].data != null && images[i].data == dataParam) ||
-									(images[i].xml != null && images[i].xml == imgParam.xml))
+									(images[i].xml != null && imgParam != null &&
+									images[i].xml == imgParam.xml))
 								{
 									images.splice(i, 1);
 									break;
@@ -8649,7 +8345,6 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		catch (e)
 		{
 			// ignore
-			console.log('e', e);
 		}
 		
 		return null;
@@ -8718,6 +8413,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    	{
 	    		addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
 		    		null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+				div.scrollTop = div.scrollHeight;
 	    	});
 		}
 	    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
@@ -8730,6 +8426,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				editorUi.loadImage(uri, function(img)
 				{
 					addButton(uri, null, 0, 0, img.width, img.height);
+					div.scrollTop = div.scrollHeight;
 				});
 			}
 	    }
@@ -8806,10 +8503,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img)
 	    	{
 	    		addButton(data, mimeType, x, y, w, h, img, 'fixed');
-	    		
+
 	    		// Resets input to force change event for same file
 	    		fileInput.value = '';
 	    	});
+
+			div.scrollTop = div.scrollHeight;
 		});
 		
 		var btn = mxUtils.button(mxResources.get('import'), function()
@@ -8855,6 +8554,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				}
 				
 				addButton(url, null, 0, 0, w, h);
+				div.scrollTop = div.scrollHeight;
 			}
 		});
 	});
@@ -9096,7 +8796,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	
 	var btns = document.createElement('div');
 	btns.style.marginTop = '16px';
-	btns.style.textAlign = 'center';
+	btns.style.textAlign = 'right';
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
