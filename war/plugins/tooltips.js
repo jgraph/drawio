@@ -7,7 +7,7 @@ Draw.loadPlugin(function(ui) {
 	
 	function updateOverlays(cell)
 	{
-		var tooltip = graph.getTooltipForCell(cell);
+		var tooltip = cell.getAttribute('tooltip');
 		
 		if (tooltip != null && tooltip.length > 0)
 		{

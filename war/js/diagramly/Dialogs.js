@@ -732,475 +732,212 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 /**
  * Constructs a new embed dialog
  */
-var EmbedHtmlDialog = function(editorUi, publicUrl)
-{
-	var file = editorUi.getCurrentFile();
-	var div = document.createElement('div');
-
-	var graph = editorUi.editor.graph;
-	var bounds = graph.getGraphBounds();
-	var scale = graph.view.scale;
-	var x0 = Math.floor(bounds.x / scale - graph.view.translate.x);
-	var y0 = Math.floor(bounds.y / scale - graph.view.translate.y);
-
-	mxUtils.write(div, mxResources.get('mainEmbedNotice') + ': ');
-	mxUtils.br(div);
-	
-	var textarea = document.createElement('textarea');
-	textarea.style.marginTop = '6px';
-	textarea.style.width = '550px';
-	textarea.style.height = '160px';
-	textarea.style.marginBottom = '10px';
-	textarea.style.resize = 'none';
-	
-	div.appendChild(textarea);
-	mxUtils.br(div);
-
-	mxUtils.write(div, mxResources.get('embedNotice') + ': ');
-	mxUtils.br(div);
-
-	var textarea2 = document.createElement('textarea');
-	textarea2.style.marginTop = '6px';
-	textarea2.style.width = '550px';
-	textarea2.style.height = '26px';
-	textarea2.style.resize = 'none';
-	textarea2.style.marginBottom = '10px';
-	div.appendChild(textarea2);
-
-	mxUtils.br(div);
-	mxUtils.write(div, mxResources.get('publicDiagramUrl') + ': ');
-	
-	var urlInput = document.createElement('input');
-	urlInput.setAttribute('type', 'text');
-	urlInput.setAttribute('size', '28');
-	urlInput.style.width = '340px';
-	urlInput.style.marginBottom = '8px';
-	urlInput.value = publicUrl || '';
-	div.appendChild(urlInput);
-	mxUtils.br(div);
-	
-	var options = document.createElement('div');
-	options.style.paddingTop = '10px';
-	options.style.textAlign = 'center';
-
-	var fitCheckBox = document.createElement('input');
-	fitCheckBox.setAttribute('type', 'checkbox');
-	fitCheckBox.setAttribute('checked', 'checked');
-	fitCheckBox.defaultChecked = true;
-	options.appendChild(fitCheckBox);
-	mxUtils.write(options, mxResources.get('fit'));
-
-	var label = document.createElement('span');
-	label.style.marginLeft = '10px';
-	mxUtils.write(label, mxResources.get('zoom') + ': ');
-	options.appendChild(label);
-	
-	var zoomInput = document.createElement('input');
-	zoomInput.setAttribute('type', 'text');
-	zoomInput.setAttribute('size', '4');
-	zoomInput.style.width = '40px';
-	zoomInput.value = '100%';
-	options.appendChild(zoomInput);
-
-	var label = document.createElement('span');
-	label.style.marginLeft = '10px';
-	mxUtils.write(label, mxResources.get('link') + ': ');
-	options.appendChild(label);
-	
-	var borderColorInput = document.createElement('input');
-	borderColorInput.setAttribute('type', 'text');
-	borderColorInput.setAttribute('size', '8');
-	borderColorInput.style.width = '50px';
-	borderColorInput.value = '#0000ff';
-	options.appendChild(borderColorInput);
-	
-	mxUtils.br(options);
-
-	var lightboxCheckBox = document.createElement('input');
-	lightboxCheckBox.setAttribute('type', 'checkbox');
-	lightboxCheckBox.setAttribute('checked', 'checked');
-	lightboxCheckBox.defaultChecked = true;
-	lightboxCheckBox.style.marginTop = '14px';
-	options.appendChild(lightboxCheckBox);
-	mxUtils.write(options, mxResources.get('lightbox'));
-
-	var editCheckBox = document.createElement('input');
-	editCheckBox.setAttribute('type', 'checkbox');
-	editCheckBox.setAttribute('checked', 'checked');
-	editCheckBox.defaultChecked = true;
-	editCheckBox.style.marginLeft = '10px';
-	options.appendChild(editCheckBox);
-	mxUtils.write(options, mxResources.get('edit'));
-
-	var layersCheckBox = document.createElement('input');
-	layersCheckBox.setAttribute('type', 'checkbox');
-	layersCheckBox.style.marginLeft = '10px';
-	
-	var model = editorUi.editor.graph.getModel();
-
-	if (editorUi.pages == null || editorUi.pages.length == 0 &&
-		(model.getChildCount(model.getRoot()) <= 1))
-	{
-		layersCheckBox.setAttribute('disabled', 'disabled');
-	}
-	else
-	{
-		layersCheckBox.setAttribute('checked', 'checked');
-		layersCheckBox.defaultChecked = true;
-	}
-	
-	options.appendChild(layersCheckBox);
-	mxUtils.write(options, mxResources.get('layers'));
-	
-	var zoomCheckBox = document.createElement('input');
-	zoomCheckBox.setAttribute('type', 'checkbox');
-	zoomCheckBox.style.marginLeft = '10px';
-	options.appendChild(zoomCheckBox);
-	mxUtils.write(options, mxResources.get('zoom'));
-	
-	zoomCheckBox.setAttribute('checked', 'checked');
-	zoomCheckBox.defaultChecked = true;
-	
-	var pagesCheckBox = document.createElement('input');
-	pagesCheckBox.setAttribute('type', 'checkbox');
-	pagesCheckBox.style.marginLeft = '10px';
-
-	if (editorUi.pages != null && editorUi.pages.length > 1)
-	{
-		pagesCheckBox.setAttribute('checked', 'checked');
-		pagesCheckBox.defaultChecked = true;
-		options.appendChild(pagesCheckBox);		
-		mxUtils.write(options, mxResources.get('allPages'));
-	}
-
-	div.appendChild(options);
-
-	function update(force)
-	{
-		var s = editorUi.getBasenames();
-		var data = {};
-		
-		if (borderColorInput.value != '' && borderColorInput.value != mxConstants.NONE)
-		{
-			data.highlight = borderColorInput.value;
-		}
-		
-		if (!lightboxCheckBox.checked)
-		{
-			data.lightbox = false;
-		}
-		
-		data.nav = graph.foldingEnabled;
-		var zoom = parseInt(zoomInput.value);
-		
-		if (!isNaN(zoom) && zoom != 100)
-		{
-			data.zoom = zoom / 100;
-		}
-		
-		var tb = [];
-		
-		if (pagesCheckBox.checked)
-		{
-			tb.push('pages');
-			data.resize = true;
-			
-			if (editorUi.pages != null && editorUi.currentPage != null)
-			{
-				data.page = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
-			}
-		}
-		
-		if (zoomCheckBox.checked)
-		{
-			tb.push('zoom');
-			data.resize = true;
-		}
-		
-		if (layersCheckBox.checked)
-		{
-			tb.push('layers');
-		}
-		
-		if (tb.length > 0)
-		{
-			if (lightboxCheckBox)
-			{
-				tb.push('lightbox');
-			}
-			
-			data.toolbar = tb.join(' ');
-		}
-
-		if (editCheckBox.checked)
-		{
-			if (urlInput.value != '')
-			{
-				data.edit = urlInput.value;
-			}
-			else
-			{
-				data.edit = '_blank';
-			}
-		}
-		
-		if (urlInput.value != '')
-		{
-			data.url = urlInput.value;
-		}
-		else
-		{
-			data.xml = editorUi.getFileData(true, null, null, null, null, !pagesCheckBox.checked);
-		}
-	
-		textarea.value = '<div class="mxgraph" style="' +
-			((fitCheckBox.checked) ? 'max-width:100%;' : '') +
-			((tb != '') ? 'border:1px solid transparent;' : '') +
-			'" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>';
-		
-		var sParam = (s.length > 0) ? 's=' + s.join(';') : '';
-		var fetchParam = (urlInput.value.length > 0) ? 'fetch=' + encodeURIComponent(urlInput.value) : '';
-		var s2 = (sParam.length > 0 || fetchParam.length > 0) ?
-			(((urlParams['dev'] == '1') ?
-			'https://test.draw.io/embed2.js?dev=1&' + sParam :
-			'https://www.draw.io/embed2.js?' + sParam)) + '&' + fetchParam :
-			(((urlParams['dev'] == '1') ?
-			'https://test.draw.io/js/viewer.min.js' :
-			'https://www.draw.io/js/viewer.min.js'));
-	
-		textarea2.value = '<script type="text/javascript" src="' + s2 + '"></script>';
-		textarea.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			textarea.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
-	};
-	
-	this.init = function()
-	{
-		update();
-	};
-
-	mxEvent.addListener(urlInput, 'change', update);
-	mxEvent.addListener(borderColorInput, 'change', update);
-	mxEvent.addListener(zoomInput, 'change', update);
-	mxEvent.addListener(layersCheckBox, 'change', update);
-	mxEvent.addListener(editCheckBox, 'change', update);
-	mxEvent.addListener(fitCheckBox, 'change', update);
-	mxEvent.addListener(lightboxCheckBox, 'change', update);
-	mxEvent.addListener(zoomCheckBox, 'change', update);
-	mxEvent.addListener(pagesCheckBox, 'change', update);
-
-	var buttons = document.createElement('div');
-	buttons.style.paddingTop = '20px';
-	buttons.style.textAlign = 'right';
-	
-	if (!editorUi.isOffline())
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			window.open('https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-');
-		});
-		
-		helpBtn.className = 'geBtn';	
-		buttons.appendChild(helpBtn);
-	}
-
-	// Loads forever in IE9
-	if (!mxClient.IS_CHROMEAPP && !navigator.standalone && mxClient.IS_SVG &&
-		(document.documentMode == null || document.documentMode > 9))
-	{
-		var previewBtn = mxUtils.button(mxResources.get('preview'), function()
-		{
-			var wnd = window.open();
-			var doc = wnd.document;
-	
-			if (document.compatMode === 'CSS1Compat')
-			{
-				doc.writeln('<!DOCTYPE html>');
-			}
-			
-			doc.writeln('<html>');
-			doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-				'</title><meta charset="utf-8"></head>');
-			doc.writeln('<body>');
-			doc.writeln(textarea.value);
-			
-			var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
-			
-			if (direct)
-			{
-				doc.writeln(textarea2.value);
-			}
-			
-			doc.writeln('</body>');
-			doc.writeln('</html>');
-			doc.close();
-	
-			// Adds script tag after closing page and delay to fix timing issues
-			if (!direct)
-			{
-				var info = wnd.document.createElement('div');
-				info.marginLeft = '26px';
-				info.marginTop = '26px';
-				mxUtils.write(info, mxResources.get('updatingDocument'));
-
-				var img = wnd.document.createElement('img');
-				img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
-					'/' + IMAGE_PATH + '/spin.gif');
-				img.style.marginLeft = '6px';
-				info.appendChild(img);
-				
-				wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
-				
-				window.setTimeout(function()
-				{
-					var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src = /<script.*?src="(.*?)"/.exec(textarea2.value)[1];
-					doc.body.appendChild(script);
-					
-					info.parentNode.removeChild(info);
-				}, 20);
-			}
-		});
-		
-		previewBtn.className = 'geBtn';
-		buttons.appendChild(previewBtn);
-	}
-
-	var closeBtn = mxUtils.button(mxResources.get('close'), function()
-	{
-		editorUi.hideDialog();
-	});
-	
-	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
-	{
-		textarea.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			textarea.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
-		
-		document.execCommand('copy');
-		editorUi.alert(mxResources.get('copiedToClipboard'));
-	});
-
-	buttons.appendChild(closeBtn);
-
-	// Does not work in Safari and shows annoying dialog for IE11-
-	if (!mxClient.IS_SF && document.documentMode == null)
-	{
-		buttons.appendChild(copyBtn);
-		copyBtn.className = 'geBtn gePrimaryBtn';
-		closeBtn.className = 'geBtn';
-	}
-	else
-	{
-		closeBtn.className = 'geBtn gePrimaryBtn';
-	}
-	
-	div.appendChild(buttons);
-	
-	this.container = div;
-};
-
-/**
- * Constructs a new embed dialog
- */
-var EmbedDialog = function(editorUi, result)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 {
 	var div = document.createElement('div');
+	var maxSize = 500000;
+	var maxFbSize = 51200;
+	var maxTwitterSize = 7168;
 
 	// Checks if result is a link
 	var validUrl = /^https?:\/\//.test(result) || /^mailto:\/\//.test(result);
 
-	mxUtils.write(div, mxResources.get((validUrl) ? 'link' : 'mainEmbedNotice') + ': ');
+	mxUtils.write(div, mxResources.get((result.length < maxSize) ?
+		((validUrl) ? 'link' : 'mainEmbedNotice') : 'preview') + ':');
 	mxUtils.br(div);
 	
+	var size = document.createElement('div');
+	size.style.position = 'absolute';
+	size.style.top = '30px';
+	size.style.right = '30px';
+	size.style.color = 'gray';
+	mxUtils.write(size, editorUi.formatFileSize(result.length));
+
+	div.appendChild(size);
+	
+	// Using DIV for faster rendering
 	var text = document.createElement('textarea');
-	text.style.marginTop = '6px';
+	text.setAttribute('autocomplete', 'off');
+	text.setAttribute('autocorrect', 'off');
+	text.setAttribute('autocapitalize', 'off');
+	text.setAttribute('spellcheck', 'false');
+	text.style.marginTop = '10px';
 	text.style.resize = 'none';
-	text.style.height = '240px';
-	text.style.width = '100%';
-	text.value = result;
+	text.style.height = '150px';
+	text.style.width = '440px';
+	text.style.border = '1px solid gray';
+	text.value = mxResources.get('updatingDocument');
 	div.appendChild(text);
 	mxUtils.br(div);
 
 	this.init = function()
 	{
-		text.focus();
-			
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		window.setTimeout(function()
 		{
-			text.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
+			if (result.length < maxSize)
+			{
+				text.value = result;
+				text.focus();
+					
+				if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+				{
+					text.select();
+				}
+				else
+				{
+					document.execCommand('selectAll', false, null);
+				}
+			}
+			else
+			{
+				text.setAttribute('readonly', 'true');
+				text.value = result.substring(0, 340) + '... (' + mxResources.get('drawingTooLarge') + ')';
+			}
+		}, 0);
 	};
 	
 	var buttons = document.createElement('div');
-	buttons.style.paddingTop = '18px';
-	buttons.style.textAlign = 'right';
+	buttons.style.position = 'absolute';
+	buttons.style.bottom = '36px';
+	buttons.style.right = '32px';
+	
+	var previewBtn = null;
 	
 	// Loads forever in IE9
 	if (!mxClient.IS_CHROMEAPP && !navigator.standalone && (validUrl ||
 		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
 	{
-		var previewBtn = mxUtils.button(mxResources.get((validUrl) ? 'open' : 'preview'), function()
+		previewBtn = mxUtils.button(mxResources.get((result.length < maxSize) ? 'preview' : 'openInNewWindow'), function()
 		{
-			if (validUrl)
+			var value = (result.length < maxSize) ? text.value : result;
+			
+			if (previewFn != null)
 			{
-				try
-				{
-					var win = window.open(result);
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						if (win != null && win.location.href != result)
-						{
-							win.close();
-							editorUi.handleError({message: mxResources.get('drawingTooLarge')});
-						}
-					}), 500);
-				}
-				catch (e)
-				{
-					editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
-				}
+				previewFn(value);
 			}
 			else
 			{
-				var wnd = window.open();
-				var doc = wnd.document;
-				doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
-						'</title><meta charset="utf-8"></head>' +
-						'<body>' + text.value + '</body></html>');
-				doc.close();
+				if (validUrl)
+				{
+					try
+					{
+						var win = window.open(value);
+						
+						if (timeout == null || timeout > 0)
+						{
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								if (win != null && win.location.href != value)
+								{
+									win.close();
+									editorUi.handleError({message: mxResources.get('drawingTooLarge')});
+								}
+							}), timeout || 500);
+						}
+					}
+					catch (e)
+					{
+						editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+					}
+				}
+				else
+				{
+					var wnd = window.open();
+					var doc = wnd.document;
+					doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
+							'</title><meta charset="utf-8"></head>' +
+							'<body>' + result + '</body></html>');
+					doc.close();
+				}
 			}
 		});
 		
 		previewBtn.className = 'geBtn';
 		buttons.appendChild(previewBtn);
 	}
+	
+	if (!validUrl || result.length > 7500)
+	{
+		var downloadBtn = mxUtils.button(mxResources.get('download'), function()
+		{
+			editorUi.saveData('embed.txt', 'txt', result, 'text/plain');
+		});
+		downloadBtn.className = 'geBtn';
+		buttons.appendChild(downloadBtn);
+	}
 
+	// Twitter-intent does not allow more characters, must be pasted manually
+	if (validUrl && !editorUi.isOffline())
+	{
+		if (result.length < maxFbSize)
+		{
+			var fbBtn = mxUtils.button('', function()
+			{
+				try
+				{
+					var url = 'https://www.facebook.com/sharer.php?p[url]=' +
+						encodeURIComponent(text.value);
+					window.open(url);
+				}
+				catch (e)
+				{
+					editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+				}
+			});
+			
+			var img = document.createElement('img');
+			img.setAttribute('src', Editor.facebookImage);
+			img.setAttribute('valign', 'bottom');
+			img.setAttribute('border', '0');
+			img.style.marginBottom = '5px'
+	
+			fbBtn.appendChild(img);
+			fbBtn.setAttribute('title', mxResources.get('facebook') + ' (' +
+					editorUi.formatFileSize(maxFbSize) + ' max)');
+			fbBtn.style.minWidth = '46px'
+			fbBtn.className = 'geBtn';
+			buttons.appendChild(fbBtn);
+		}
+		
+		if (result.length < maxTwitterSize)
+		{
+			var tweetBtn = mxUtils.button('', function()
+			{
+				try
+				{
+					var url = 'https://twitter.com/intent/tweet?text=' + 
+						encodeURIComponent('Check out the diagram I made using @drawio') +
+						'&url=' + encodeURIComponent(text.value);
+					window.open(url);
+				}
+				catch (e)
+				{
+					editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+				}
+			});
+			
+			var img = document.createElement('img');
+			img.setAttribute('src', Editor.tweetImage);
+			img.setAttribute('valign', 'bottom');
+			img.setAttribute('border', '0');
+			img.style.marginBottom = '5px'
+	
+			tweetBtn.appendChild(img);
+			tweetBtn.setAttribute('title', mxResources.get('twitter') + ' (' +
+					editorUi.formatFileSize(maxTwitterSize) + ' max)');
+			tweetBtn.style.minWidth = '46px'
+			tweetBtn.className = 'geBtn';
+			buttons.appendChild(tweetBtn);
+		}
+	}
+	
 	var closeBtn = mxUtils.button(mxResources.get('close'), function()
 	{
 		editorUi.hideDialog();
 	});
-	
+
+	buttons.appendChild(closeBtn);
+
 	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
 	{
 		text.focus();
@@ -1218,18 +955,25 @@ var EmbedDialog = function(editorUi, result)
 		editorUi.alert(mxResources.get('copiedToClipboard'));
 	});
 
-	buttons.appendChild(closeBtn);
-
-	// Does not work in Safari and shows annoying dialog for IE11-
-	if (!mxClient.IS_SF && document.documentMode == null)
+	if (result.length < maxSize)
 	{
-		buttons.appendChild(copyBtn);
-		copyBtn.className = 'geBtn gePrimaryBtn';
-		closeBtn.className = 'geBtn';
+		// Does not work in Safari and shows annoying dialog for IE11-
+		if (!mxClient.IS_SF && document.documentMode == null)
+		{
+			buttons.appendChild(copyBtn);
+			copyBtn.className = 'geBtn gePrimaryBtn';
+			closeBtn.className = 'geBtn';
+		}
+		else
+		{
+			closeBtn.className = 'geBtn gePrimaryBtn';
+		}
 	}
 	else
 	{
-		closeBtn.className = 'geBtn gePrimaryBtn';
+		buttons.appendChild(previewBtn);
+		closeBtn.className = 'geBtn';
+		previewBtn.className = 'geBtn gePrimaryBtn';
 	}
 	
 	div.appendChild(buttons);
@@ -1505,377 +1249,6 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	});
 	closeBtn.className = 'geBtn gePrimaryBtn';
 	buttons.appendChild(closeBtn);
-	
-	div.appendChild(buttons);
-	
-	this.container = div;
-};
-
-/**
- * Constructs a dialog for embedding the diagram in Google Sites.
- */
-var IframeDialog = function(editorUi, image, link, publicUrl)
-{
-	var div = document.createElement('div');
-
-	var graph = editorUi.editor.graph;
-	var bounds = graph.getGraphBounds();
-	var scale = graph.view.scale;
-	var x0 = Math.floor(bounds.x / scale - graph.view.translate.x);
-	var y0 = Math.floor(bounds.y / scale - graph.view.translate.y);
-
-	mxUtils.write(div, mxResources.get((link) ? 'link' : 'mainEmbedNotice') + ': ');
-	mxUtils.br(div);
-	
-	var iframeInput = document.createElement('input');
-	iframeInput.setAttribute('type', 'text');
-	iframeInput.style.marginBottom = '8px';
-	iframeInput.style.marginTop = '2px';
-	iframeInput.style.width = '410px';
-	div.appendChild(iframeInput);
-	mxUtils.br(div);
-	
-	this.init = function()
-	{
-		if (iframeInput.getAttribute('disabled') != 'disabled')
-		{
-			iframeInput.focus();
-			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-			{
-				iframeInput.select();
-			}
-			else
-			{
-				document.execCommand('selectAll', false, null);
-			}
-		}
-	};
-
-	var widthInput = document.createElement('input');
-	widthInput.setAttribute('type', 'text');
-	widthInput.style.marginRight = '16px';
-	widthInput.style.width = '60px';
-	widthInput.style.marginBottom = '8px';
-	widthInput.style.marginLeft = '4px';
-	widthInput.value = '100%';
-	
-	if (!image && !link)
-	{
-		mxUtils.write(div, mxResources.get('width') + ':');
-		div.appendChild(widthInput);
-	}
-	
-	var heightInput = document.createElement('input');
-	heightInput.setAttribute('type', 'text');
-	heightInput.style.width = '60px';
-	heightInput.style.marginLeft = '4px';
-	heightInput.value = (Math.ceil((bounds.y + bounds.height - graph.view.translate.y) / scale) + 2) + 'px';
-
-	var lightboxCheckBox = document.createElement('input');
-	lightboxCheckBox.setAttribute('type', 'checkbox');
-
-	var editCheckBox = document.createElement('input');
-	editCheckBox.setAttribute('type', 'checkbox');
-
-	var layersCheckBox = document.createElement('input');
-	layersCheckBox.setAttribute('type', 'checkbox');
-	
-	if (!image)
-	{
-		if (!link)
-		{
-			mxUtils.write(div, mxResources.get('height') + ':');
-			div.appendChild(heightInput);
-			
-			mxUtils.br(div);
-		}
-		
-		lightboxCheckBox.setAttribute('checked', 'checked');
-		lightboxCheckBox.defaultChecked = true;
-		div.appendChild(lightboxCheckBox);
-		mxUtils.write(div, mxResources.get('lightbox'));
-
-		layersCheckBox.style.marginLeft = '16px';
-		var model = editorUi.editor.graph.getModel();
-		
-		if (model.getChildCount(model.getRoot()) > 1)
-		{
-			layersCheckBox.setAttribute('checked', 'checked');
-			layersCheckBox.defaultChecked = true;
-		}
-		else
-		{
-			layersCheckBox.setAttribute('disabled', 'disabled');
-		}
-		
-		div.appendChild(layersCheckBox);
-		mxUtils.write(div, mxResources.get('layers'));
-
-		editCheckBox.style.marginLeft = '16px';
-		editCheckBox.setAttribute('checked', 'checked');
-		editCheckBox.defaultChecked = true;
-		div.appendChild(editCheckBox);
-		mxUtils.write(div, mxResources.get('edit'));
-		
-		mxUtils.br(div);
-	}
-	
-	var hr = document.createElement('hr');
-	hr.setAttribute('size', '1');
-	hr.style.marginBottom = '16px';
-	hr.style.marginTop = '16px';
-	div.appendChild(hr);
-
-	mxUtils.write(div, mxResources.get('publicDiagramUrl') + ':');
-	mxUtils.br(div);
-	
-	var urlInput = document.createElement('input');
-	urlInput.setAttribute('type', 'text');
-	urlInput.setAttribute('size', '28');
-	urlInput.style.marginBottom = '8px';
-	urlInput.style.marginTop = '2px';
-	urlInput.style.width = '410px';
-	urlInput.value = publicUrl || '';
-	div.appendChild(urlInput);
-	mxUtils.br(div);
-
-	var node = null;
-
-	var previewBtn = mxUtils.button(mxResources.get('preview'), function()
-	{
-		if (image || link)
-		{
-			window.open(iframeInput.value);
-		}
-		else
-		{
-			var wnd = window.open();
-			var doc = wnd.document;
-			
-			if (document.compatMode === 'CSS1Compat')
-			{
-				doc.writeln('<!DOCTYPE html>');
-			}
-			
-			doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-					'</title><meta charset="utf-8"></head>');
-			doc.writeln('<body>');
-			doc.writeln(iframeInput.value);
-			doc.writeln('</body>');
-			doc.writeln('</html>');
-			doc.close();
-		}
-	});
-	
-	previewBtn.className = 'geBtn';
-	
-	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
-	{
-		iframeInput.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			iframeInput.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
-		
-		document.execCommand('copy');
-		editorUi.alert(mxResources.get('copiedToClipboard'));
-	});
-
-	var file = editorUi.getCurrentFile();
-	
-	function update()
-	{
-		var title = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-		
-		if (link && file != null && (urlInput.value != '' || file.constructor == DriveFile ||
-			file.constructor == DropboxFile || file.constructor == OneDriveFile))
-		{
-			previewBtn.removeAttribute('disabled');
-			copyBtn.removeAttribute('disabled');
-			var gurl = 'https://www.draw.io/?chrome=0';
-			
-			if (lightboxCheckBox.checked)
-			{
-				gurl += '&lightbox=1';
-			}
-			
-			if (editCheckBox.checked)
-			{
-				gurl += '&edit=' + encodeURIComponent(mxUtils.htmlEntities('https://www.draw.io/#' + file.getHash()));
-			}
-			
-			if (graph.foldingEnabled)
-			{
-				gurl += '&nav=1';
-			}
-			
-			if (layersCheckBox.checked)
-			{
-				gurl += '&layers=1';
-			}
-
-			if (urlInput.value != '')
-			{
-				gurl += '&url=' + encodeURIComponent(mxUtils.htmlEntities(urlInput.value));
-			}
-			else
-			{
-				gurl += '#' + file.getHash();
-			}
-			
-			iframeInput.value = gurl;
-			iframeInput.removeAttribute('disabled');
-		}
-		else if (urlInput.value != '')
-		{
-			previewBtn.removeAttribute('disabled');
-			copyBtn.removeAttribute('disabled');
-			var encUrl = encodeURIComponent(mxUtils.htmlEntities(urlInput.value));
-			
-			if (image)
-			{
-				var gurl = EXPORT_URL + '?format=png&url=' + encUrl;
-
-				iframeInput.value = gurl;
-			}
-			else
-			{
-				var gurl = 'https://www.draw.io/?chrome=0';
-				
-				if (lightboxCheckBox.checked)
-				{
-					gurl += '&lightbox=1';
-				}
-				
-				if (editCheckBox.checked)
-				{
-					if (file.constructor == DriveFile)
-					{
-						gurl += '&edit=' + encodeURIComponent(mxUtils.htmlEntities('https://www.draw.io/#' + file.getHash()));
-					}
-					else
-					{
-						gurl += '&edit=' + encUrl;
-					}
-				}
-				
-				if (graph.foldingEnabled)
-				{
-					gurl += '&nav=1';
-				}
-				
-				if (layersCheckBox.checked)
-				{
-					gurl += '&layers=1';
-				}
-				
-				gurl += '&url=' + encUrl;
-
-				iframeInput.value = '<iframe frameborder="0" style="width:' + widthInput.value + ';height:' +
-					heightInput.value + '" src="' + gurl + '"></iframe>';
-			}
-
-			iframeInput.removeAttribute('disabled');
-		}
-		else if (!image && !link && file != null && (file.constructor == DriveFile ||
-			file.constructor == DropboxFile || file.constructor == OneDriveFile))
-		{
-			previewBtn.removeAttribute('disabled');
-			copyBtn.removeAttribute('disabled');
-			var gurl = 'https://www.draw.io/?chrome=0';
-			
-			if (lightboxCheckBox.checked)
-			{
-				gurl += '&lightbox=1';
-			}
-			
-			if (editCheckBox.checked)
-			{
-				gurl += '&edit=' + encodeURIComponent(mxUtils.htmlEntities('https://www.draw.io/#' + file.getHash()));
-			}
-			
-			if (graph.foldingEnabled)
-			{
-				gurl += '&nav=1';
-			}
-			
-			if (layersCheckBox.checked)
-			{
-				gurl += '&layers=1';
-			}
-
-			gurl += '#' + file.getHash();
-			
-			iframeInput.value = '<iframe frameborder="0" style="width:' + widthInput.value + ';height:' +
-				heightInput.value + '" src="' + gurl + '"></iframe>';
-			iframeInput.removeAttribute('disabled');
-		}
-		else
-		{
-			previewBtn.setAttribute('disabled', 'disabled');
-			copyBtn.setAttribute('disabled', 'disabled');
-			iframeInput.value = mxResources.get('invalidPublicUrl');
-			iframeInput.setAttribute('disabled', 'disabled');
-		}
-	};
-	
-	mxEvent.addListener(widthInput, 'change', update);
-	mxEvent.addListener(heightInput, 'change', update);
-	mxEvent.addListener(layersCheckBox, 'change', update);
-	mxEvent.addListener(lightboxCheckBox, 'change', update);
-	mxEvent.addListener(editCheckBox, 'change', update);
-	mxEvent.addListener(urlInput, 'change', update);
-	update();
-	
-	mxEvent.addListener(iframeInput, 'click', function()
-	{
-		iframeInput.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			iframeInput.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
-	});
-	
-	var buttons = document.createElement('div');
-	buttons.style.paddingTop = '12px';
-	buttons.style.textAlign = 'right';
-
-	var closeBtn = mxUtils.button(mxResources.get('close'), function()
-	{
-		editorUi.hideDialog();
-	});
-
-	if (image || (!mxClient.IS_QUIRKS && !navigator.standalone &&
-		(!window.chrome || !chrome.app || !chrome.app.runtime) &&
-		(document.documentMode == null || document.documentMode >= 9)))
-	{
-		buttons.appendChild(previewBtn);
-	}
-	
-	buttons.appendChild(closeBtn);
-
-	// Does not work in Safari and shows annoying dialog for IE11-
-	if (!mxClient.IS_SF && document.documentMode == null)
-	{
-		buttons.appendChild(copyBtn);
-		copyBtn.className = 'geBtn gePrimaryBtn';
-		closeBtn.className = 'geBtn';
-	}
-	else
-	{
-		closeBtn.className = 'geBtn gePrimaryBtn';
-	}
 	
 	div.appendChild(buttons);
 	

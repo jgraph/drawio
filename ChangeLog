@@ -1,3 +1,10 @@
+03-FEB-2017: 6.0.3.2
+
+- Fixes Embed dialogs
+- Moves Insert to Extras, CSV to File, Import
+- Adds fallback for Publish Link action
+- Removes Imgur and Github publish options
+
 03-FEB-2017: 6.0.3.1
 
 - Updates Dutch translations
