@@ -605,6 +605,7 @@ table=Tabel
 targetSpacing=Spațierea țintei
 template=Template
 templates=Template-uri
+test=Test
 text=Text
 textAlignment=Aliniere Text
 textOpacity=Opacitate Text

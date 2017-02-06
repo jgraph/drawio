@@ -1,3 +1,11 @@
+06-FEB-2017: 6.0.3.3
+
+- Uses mxGraph 3.7.0.2 beta 1
+- Fixes conversion for plain and formatted text
+- Adds Ctrl+Enter for newlines in Safari
+- Replaces ?url URL parameter with #U hash value
+- Uses public diagram URL in Google Drive Connector
+
 03-FEB-2017: 6.0.3.2
 
 - Fixes Embed dialogs

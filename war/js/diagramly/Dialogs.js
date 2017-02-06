@@ -887,13 +887,13 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 			
 			var img = document.createElement('img');
 			img.setAttribute('src', Editor.facebookImage);
-			img.setAttribute('valign', 'bottom');
 			img.setAttribute('border', '0');
-			img.style.marginBottom = '5px'
-	
+				
 			fbBtn.appendChild(img);
 			fbBtn.setAttribute('title', mxResources.get('facebook') + ' (' +
 					editorUi.formatFileSize(maxFbSize) + ' max)');
+			fbBtn.style.verticalAlign = 'bottom';
+			fbBtn.style.paddingTop = '4px';
 			fbBtn.style.minWidth = '46px'
 			fbBtn.className = 'geBtn';
 			buttons.appendChild(fbBtn);
@@ -918,13 +918,14 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 			
 			var img = document.createElement('img');
 			img.setAttribute('src', Editor.tweetImage);
-			img.setAttribute('valign', 'bottom');
 			img.setAttribute('border', '0');
 			img.style.marginBottom = '5px'
 	
 			tweetBtn.appendChild(img);
 			tweetBtn.setAttribute('title', mxResources.get('twitter') + ' (' +
 					editorUi.formatFileSize(maxTwitterSize) + ' max)');
+			tweetBtn.style.verticalAlign = 'bottom';
+			tweetBtn.style.paddingTop = '4px';
 			tweetBtn.style.minWidth = '46px'
 			tweetBtn.className = 'geBtn';
 			buttons.appendChild(tweetBtn);

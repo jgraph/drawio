@@ -605,6 +605,7 @@ table=Teybol
 targetSpacing=Target na pageespasyo
 template=Templeyt
 templates=Mga templeyt
+test=Test
 text=Teksto
 textAlignment=Paghahanay ng teksto
 textOpacity=Opasidad ng teksto

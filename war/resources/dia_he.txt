@@ -605,6 +605,7 @@ table=‫טבלה‬
 targetSpacing=‫מרווח יעד‬
 template=‫תבנית‬
 templates=‫תבניות‬
+test=Test
 text=‫טקסט‬
 textAlignment=‫יישור טקסט‬
 textOpacity=‫שקיפות טקסט‬

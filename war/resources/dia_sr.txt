@@ -605,6 +605,7 @@ table=Tabela
 targetSpacing=Proređivanje odredišta
 template=Šablon
 templates=Šabloni
+test=Test
 text=Tekst
 textAlignment=Poravnanje teksta
 textOpacity=Neprozirnost teksta

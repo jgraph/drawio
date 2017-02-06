@@ -605,6 +605,7 @@ table=ตาราง
 targetSpacing=การเว้นวรรคเป้าหมาย
 template=แบบร่าง
 templates=แบบร่าง
+test=Test
 text=ข้อความ
 textAlignment=การจัดเรียงของข้อความ
 textOpacity=ความทึบแสงของข้อความ

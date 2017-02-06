@@ -605,6 +605,7 @@ table=Tabel
 targetSpacing=Målafstand
 template=Skabelon
 templates=Skabeloner
+test=Test
 text=Tekst
 textAlignment=Tekstjustering
 textOpacity=Tekst-opacitet

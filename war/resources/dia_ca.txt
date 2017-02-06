@@ -605,6 +605,7 @@ table=Taula
 targetSpacing=Espaiat del objectiu
 template=Plantilla
 templates=Plantilles
+test=Test
 text=Text
 textAlignment=Alineació del text
 textOpacity=Opacitat del text

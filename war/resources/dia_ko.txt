@@ -605,6 +605,7 @@ table=표
 targetSpacing=객체 간격
 template=탬플릿
 templates=탬플릿
+test=Test
 text=텍스트
 textAlignment=텍스트 정렬
 textOpacity=텍스트 투명도

@@ -605,6 +605,7 @@ table=Jadual
 targetSpacing=Jarak antara sasaran
 template=Template
 templates=Template
+test=Test
 text=Teks
 textAlignment=Penjajaran teks
 textOpacity=Kelegapan teks

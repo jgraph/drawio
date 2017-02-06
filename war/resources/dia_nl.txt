@@ -605,6 +605,7 @@ table=Tabel
 targetSpacing=Doel ruimte
 template=Sjabloon
 templates=Sjablonen
+test=Test
 text=Tekst
 textAlignment=Tekstuitlijning
 textOpacity=Helderheid tekst

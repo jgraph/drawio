@@ -605,6 +605,7 @@ table=テーブル
 targetSpacing=終点の間隔
 template=テンプレート
 templates=テンプレート
+test=Test
 text=テキスト
 textAlignment=テキストの位置
 textOpacity=テキストの不透明度

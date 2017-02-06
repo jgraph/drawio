@@ -203,13 +203,15 @@ EditorUi = function(editor, container, lightbox)
 			mxEvent.isMiddleMouseButton(me.getEvent())));
 	};
 
-	// Ctrl/Cmd+Enter applies editing value
+	// Ctrl/Cmd+Enter applies editing value except in Safari where Ctrl+Enter creates
+	// a new line (while Enter creates a new paragraph and Shift+Enter stops)
 	var cellEditorIsStopEditingEvent = graph.cellEditor.isStopEditingEvent;
 	graph.cellEditor.isStopEditingEvent = function(evt)
 	{
 		return cellEditorIsStopEditingEvent.apply(this, arguments) ||
-			(evt.keyCode == 13 && (mxEvent.isControlDown(evt) ||
-			(mxClient.IS_MAC && mxEvent.isMetaDown(evt))));
+			(evt.keyCode == 13 && ((!mxClient.IS_SF && mxEvent.isControlDown(evt)) ||
+			(mxClient.IS_MAC && mxEvent.isMetaDown(evt)) ||
+			(mxClient.IS_SF && mxEvent.isShiftDown(evt))));
 	};
 	
 	// Switches toolbar for text editing

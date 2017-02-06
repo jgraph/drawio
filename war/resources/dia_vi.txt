@@ -605,6 +605,7 @@ table=Bảng
 targetSpacing=Khoảng cách mục tiêu
 template=Bản mẫu
 templates=Bản mẫu
+test=Test
 text=Văn bản
 textAlignment=Căn lề văn bản
 textOpacity=Độ mờ văn bản

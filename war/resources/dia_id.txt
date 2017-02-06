@@ -605,6 +605,7 @@ table=Tabel
 targetSpacing=Spasi Target
 template=Template
 templates=Template-template
+test=Test
 text=Teks
 textAlignment=Perataan Teks
 textOpacity=Opasitas Teks

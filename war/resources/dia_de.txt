@@ -605,6 +605,7 @@ table=Tabelle
 targetSpacing=Endabstand
 template=Vorlage
 templates=Vorlagen
+test=Prüfen
 text=Text
 textAlignment=Text Ausrichtung
 textOpacity=Text Deckkraft

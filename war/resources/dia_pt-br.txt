@@ -605,6 +605,7 @@ table=Tabela
 targetSpacing=Espaçamento Alvo
 template=Modelo
 templates=Modelos
+test=Test
 text=Texto
 textAlignment=Alinhamento de texto 
 textOpacity=Opacidade do Texto

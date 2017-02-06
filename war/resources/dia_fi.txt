@@ -605,6 +605,7 @@ table=Taulukko
 targetSpacing=Tavoiteriviväli
 template=Mallipohja
 templates=Mallipohjat
+test=Test
 text=Teksti
 textAlignment=Tekstin sovittaminen
 textOpacity=Tekstin peittävyys 
