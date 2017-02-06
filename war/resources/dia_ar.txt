@@ -605,6 +605,7 @@ table=‫جدول‬
 targetSpacing=‫تباعد الهدف‬
 template=‫قالب‬
 templates=‫قوالب‬
+test=Test
 text=‫النص‬
 textAlignment=‫محاذاة النص‬
 textOpacity=‫معدل شفافية النص‬

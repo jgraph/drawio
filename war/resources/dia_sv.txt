@@ -605,6 +605,7 @@ table=Tabell
 targetSpacing=Målavstånd
 template=Mall
 templates=Mallar
+test=Test
 text=Text
 textAlignment=Textjustering
 textOpacity=Textopacitet

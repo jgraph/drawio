@@ -605,6 +605,7 @@ table=Πίνακας
 targetSpacing=Απόσταση Στόχου
 template=Πρότυπο
 templates=Πρότυπα
+test=Test
 text=Κείμενο
 textAlignment=Στοίχιση Κειμένου
 textOpacity=Διαφάνεια Κειμένου

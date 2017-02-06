@@ -605,6 +605,7 @@ table=Table
 targetSpacing=Target Spacing
 template=Template
 templates=Templates
+test=Test
 text=Text
 textAlignment=Text Alignment
 textOpacity=Text Opacity

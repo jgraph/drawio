@@ -1154,6 +1154,7 @@
 	 */
 	EditorUi.prototype.fileLoaded = function(file)
 	{
+		var result = false;
 		this.hideDialog();
 		var oldFile = this.getCurrentFile();
 		this.setCurrentFile(null);
@@ -1260,6 +1261,7 @@
 				}
 				
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
+				result = true;
 				
 	//			if (this.enableLogging)
 	//			{
@@ -1299,6 +1301,23 @@
 					console.log('error in fileLoaded:', file, e);
 				}
 				
+				if (this.enableLogging && !this.isOffline())
+				{
+		        	try
+		        	{
+						var img = new Image();
+						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+			    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
+			    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
+		    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
+		    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+		        	}
+		        	catch (e)
+		        	{
+		        		// ignore
+		        	}
+				}
+				
 				// Asynchronous handling of errors
 				this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
 				{
@@ -1322,6 +1341,8 @@
 		{
 			noFile();
 		}
+		
+		return result;
 	};
 	
 	/**
@@ -2991,7 +3012,7 @@
 		
 		if (url != null)
 		{
-			params.push('url=' + encodeURIComponent(url))
+			data = '#U' + encodeURIComponent(url);
 		}
 		else
 		{
@@ -3000,7 +3021,7 @@
 			// Fallback to non-public URL for Drive files	
 			if (!ignoreFile && file != null && file.constructor == DriveFile)
 			{
-				data = '/#' + file.getHash();
+				data = '#' + file.getHash();
 			}
 			else
 			{
@@ -3010,8 +3031,8 @@
 			}
 		}
 		
-		return ((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' :
-			'https://' + location.host + '/') + '?' + params.join('&') + data;
+		return ((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' : 'https://' + location.host + '/') +
+			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
 	
 	/**
@@ -3176,25 +3197,41 @@
 				this.drive.showPermissions(file.getId());
 			}));
 			shareBtn.style.marginTop = '12px';
-			shareBtn.style.marginLeft = '25px';
-			shareBtn.style.marginRight = '25px';
 			shareBtn.className = 'geBtn';
 			hintSection.appendChild(shareBtn);
 			div.appendChild(hintSection);
-
-			this.getPublicUrl(this.getCurrentFile(), function(url)
+			
+			var testLink = document.createElement('a');
+			testLink.style.paddingLeft = '12px';
+			testLink.style.color = 'gray';
+			testLink.style.fontSize = '11px';
+			testLink.setAttribute('href', 'javascript:void(0);');
+			mxUtils.write(testLink, mxResources.get('test'));
+			hintSection.appendChild(testLink);
+			
+			mxEvent.addListener(testLink, 'click', mxUtils.bind(this, function()
 			{
-				if (url != null)
+				if (this.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					var check = document.createElement('img');
-					shareBtn.style.marginRight = '4px';
-					check.setAttribute('src', Editor.checkmarkImage);
-					check.setAttribute('title', mxResources.get('publicDiagramUrl') + ': ' + url);
-					check.setAttribute('border', '0');
-					check.setAttribute('valign', 'middle');
-					hintSection.appendChild(check);
+					this.getPublicUrl(this.getCurrentFile(), mxUtils.bind(this, function(url)
+					{
+						this.spinner.stop();
+						
+						if (url != null)
+						{
+							var dlg = new ErrorDialog(this, mxResources.get('publicDiagramUrl'), url, mxResources.get('ok'));
+							this.showDialog(dlg.container, 340, 140, true, false);
+							dlg.init();
+						}
+						else
+						{
+							var dlg = new ErrorDialog(this, null, mxResources.get('authorizationRequired'), mxResources.get('ok'));
+							this.showDialog(dlg.container, 340, 80, true, false);
+							dlg.init();
+						}
+					}));
 				}
-			});
+			}));
 		}
 		
 		var widthInput = null;
@@ -6374,15 +6411,15 @@
 									}
 									else if (/^https?:\/\//.test(data))
 									{
-										var url = this.getUrl(window.location.pathname + '?url=' + encodeURIComponent(data));
-										
 										if (this.getCurrentFile() == null)
 										{
-											window.location.href = url;
+											window.location.hash = '#U' + encodeURIComponent(data);
 										}
 										else
 										{
-											window.openWindow(url);
+											window.openWindow(((mxClient.IS_CHROMEAPP) ?
+												'https://www.draw.io/' : 'https://' + location.host + '/') +
+												window.location.search + '#U' + encodeURIComponent(data));
 										}
 									}
 								}

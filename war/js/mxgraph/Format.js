@@ -2386,7 +2386,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	dirSelect.style.marginTop = '-2px';
 
 	// NOTE: For automatic we use the value null since automatic
-	// requires the text to be non formatted and non-wrappedto
+	// requires the text to be non formatted and non-wrapped
 	var dirs = ['automatic', 'leftToRight', 'rightToLeft'];
 	var dirSet = {'automatic': null,
 			'leftToRight': mxConstants.TEXT_DIRECTION_LTR,

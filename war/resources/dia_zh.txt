@@ -605,6 +605,7 @@ table=表格
 targetSpacing=末端间距
 template=模板
 templates=模板
+test=Test
 text=文本
 textAlignment=文本对齐
 textOpacity=字体透明度

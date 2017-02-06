@@ -605,6 +605,7 @@ table=Tablo
 targetSpacing=Hedef boşluğu
 template=Şablon 
 templates=Şablonlar 
+test=Test
 text=Metin
 textAlignment=Metin hizalama
 textOpacity=Metin bulanıklığı

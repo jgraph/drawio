@@ -605,6 +605,7 @@ table=Tabell
 targetSpacing=Målavstand
 template=Mal
 templates=Maler
+test=Test
 text=Tekst
 textAlignment=Tekstjustering
 textOpacity=Tekstgjennomsiktighet

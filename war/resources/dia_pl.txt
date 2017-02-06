@@ -605,6 +605,7 @@ table=Tabela
 targetSpacing=Rozmieszczenie celu
 template=Szablon
 templates=Szablony
+test=Test
 text=Tekst
 textAlignment=Wyrównanie tekstu
 textOpacity=Przezroczystość tekstu

@@ -425,7 +425,7 @@
 			}
 			else
 			{
-				window.open('https://www.draw.io/?chrome=0&url=https%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
+				window.open('https://www.draw.io/?chrome=0&lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
 			}
 		});
 
@@ -2086,15 +2086,15 @@
 					{
 						if (fileUrl != null && fileUrl.length > 0)
 						{
-							var url = editorUi.getUrl(window.location.pathname + '?url=' + encodeURIComponent(fileUrl));
-							
 							if (editorUi.getCurrentFile() == null)
 							{
-								window.location.href = url;
+								window.location.hash = '#U' + encodeURIComponent(fileUrl);
 							}
 							else
 							{
-								window.openWindow(url);
+								window.openWindow(((mxClient.IS_CHROMEAPP) ?
+									'https://www.draw.io/' : 'https://' + location.host + '/') +
+									window.location.search + '#U' + encodeURIComponent(fileUrl));
 							}
 						}
 					}, mxResources.get('url'));

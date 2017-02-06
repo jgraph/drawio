@@ -605,6 +605,7 @@ table=Tabulka
 targetSpacing=Odsazení cíle
 template=Šablona
 templates=Šablony
+test=Test
 text=Text
 textAlignment=Zarovnání textu
 textOpacity=Průhlednost textu

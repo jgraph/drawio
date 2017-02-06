@@ -723,7 +723,7 @@
 							{
 								if (url != null)
 								{
-									window.open('https://www.draw.io/?url=' + encodeURIComponent(url));
+									window.open('https://www.draw.io/#U' + encodeURIComponent(url));
 								}
 								else
 								{

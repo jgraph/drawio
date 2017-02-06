@@ -651,11 +651,6 @@ App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.p
  */
 App.prototype.timeout = 25000;
 
-/**
- * Switch to disable logging for mode and search terms.
- */
-App.prototype.enableLogging = true;
-
 // Restores app defaults for UI
 App.prototype.formatEnabled = urlParams['format'] != '0';
 App.prototype.formatWidth = (screen.width < 600) ? 0 : mxSettings.getFormatWidth();
@@ -1376,6 +1371,7 @@ App.prototype.onBeforeUnload = function()
 	
 	if (file != null)
 	{
+		// KNOWN: Message is ignored by most browsers
 		if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
 			urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
 			!this.editor.chromeless)
@@ -1590,7 +1586,8 @@ App.prototype.getPublicUrl = function(file, fn)
 			{
 				for (var i = 0; i < resp.items.length; i++)
 				{
-					if (resp.items[i].id === 'anyone')
+					if (resp.items[i].id === 'anyoneWithLink' ||
+						resp.items[i].id === 'anyone')
 					{
 						fn(file.desc.webContentLink);
 						
@@ -2000,34 +1997,6 @@ App.prototype.start = function()
 	this.restoreLibraries();
 	this.spinner.stop();
 
-	// Uses proxy to avoid CORS issues
-	var loadTemplate = mxUtils.bind(this, function(url, onload, onerror)
-	{
-		this.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(url), mxUtils.bind(this, function(data)
-		{
-			if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
-			{
-				// Asynchronous parsing via server
-				this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
-				{
-					if (xhr.readyState == 4 && xhr.status == 200 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
-					{
-						onload(xhr.responseText);
-					}
-				}), url);
-			}
-			else
-			{
-				if (/(\.png)($|\?)/i.test(url))
-				{
-					data = this.extractGraphModelFromPng(data);
-				}
-				
-				onload(data);
-			}
-		}), onerror, /(\.png)($|\?)/i.test(url));
-	});
-	
 	// Listens to changes of the hash if not in embed or client mode
 	if (urlParams['client'] != '1' && urlParams['embed'] != '1')
 	{
@@ -2044,79 +2013,10 @@ App.prototype.start = function()
 		}));
 	}
 	
-	if ((window.location.hash == null || window.location.hash.length <= 1) &&
-		urlParams['url'] != null && this.spinner.spin(document.body, mxResources.get('loading')))
+	// Redirects old url URL parameter to new #U format
+	if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['url'] != null)
 	{
-		try
-		{
-			var reconnect = mxUtils.bind(this, function()
-			{
-				// Removes URL parameter and reloads the page
-				if (this.spinner.spin(document.body, mxResources.get('reconnecting')))
-				{
-					window.location.search = this.getSearch(['url']);
-				};
-			});
-			
-			loadTemplate(decodeURIComponent(urlParams['url']), mxUtils.bind(this, function(text)
-			{
-				this.spinner.stop();
-				
-				if (text != null && text.length > 0)
-				{
-					var filename = urlParams['title'];
-					
-					if (filename == null && urlParams['notitle'] != '1')
-					{
-						var tmp = decodeURIComponent(urlParams['url']);
-						var slash = tmp.lastIndexOf('/');
-						
-						if (slash >= 0)
-						{
-							tmp = tmp.substring(slash + 1);
-						}
-						
-						filename = tmp;
-						
-						// Replaces PNG with XML extension
-						var dot = filename.substring(filename.length - 4) == '.png';
-						
-						if (dot > 0)
-						{
-							filename = filename.substring(0, filename.length - 4) + '.xml';
-						}
-					}
-					
-					var file = new LocalFile(this, text, filename || this.defaultFilename);
-					this.fileLoaded(file);
-					this.setMode(null);
-				}
-			}), mxUtils.bind(this, function()
-			{
-				this.spinner.stop();
-				this.handleError({message: mxResources.get('fileNotFound')}, mxResources.get('errorLoadingFile'), reconnect);
-			}));
-		}
-		catch (e)
-		{
-			this.spinner.stop();
-			
-			try
-			{
-				var img = new Image();
-				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-	    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-	    			'&msg=errorLoadingFile:url:' + encodeURIComponent(window.location.href) +
-    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
-			}
-			catch (err)
-			{
-				// do nothing
-			}
-			
-			this.handleError(e, mxResources.get('errorLoadingFile'), reconnect);
-		}
+		this.loadFile('U' + urlParams['url'], true);
 	}
 	else if (this.getCurrentFile() == null)
 	{
@@ -2316,7 +2216,7 @@ App.prototype.start = function()
 			}
 			else
 			{
-				loadTemplate(value, function(text)
+				this.loadTemplate(value, function(text)
 				{
 					showCreateDialog(text);
 				}, mxUtils.bind(this, function()
@@ -2940,6 +2840,39 @@ App.prototype.saveFile = function(forceDialog)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+EditorUi.prototype.loadTemplate = function(url, onload, onerror)
+{
+	this.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(url), mxUtils.bind(this, function(data)
+	{
+		if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
+		{
+			// Asynchronous parsing via server
+			this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+			{
+				if (xhr.readyState == 4 && xhr.status == 200 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
+				{
+					onload(xhr.responseText);
+				}
+			}), url);
+		}
+		else
+		{
+			if (/(\.png)($|\?)/i.test(url))
+			{
+				data = this.extractGraphModelFromPng(data);
+			}
+			
+			onload(data);
+		}
+	}), onerror, /(\.png)($|\?)/i.test(url));
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId)
 {
 	mode = (mode != null) ? mode : this.mode;
@@ -3208,6 +3141,88 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				};
 				this.fileLoaded(file);
 				this.setMode(null);
+			}
+			else if (id.charAt(0) == 'U')
+			{
+				var url = decodeURIComponent(id.substring(1));
+				
+				this.loadTemplate(url, mxUtils.bind(this, function(text)
+				{
+					this.spinner.stop();
+					
+					if (text != null && text.length > 0)
+					{
+						var filename = this.defaultFilename;
+						
+						// Tries to find name from URL with valid extensions
+						if (urlParams['title'] == null && urlParams['notitle'] != '1')
+						{
+							var tmp = url;
+							var dot = url.lastIndexOf('.');
+							var slash = tmp.lastIndexOf('/');
+							
+							if (dot > slash && slash > 0)
+							{
+								tmp = tmp.substring(slash + 1, dot);
+								var ext = url.substring(dot);
+								
+								if (ext == '.png')
+								{
+									ext = '.xml';
+								}
+
+								if (ext === '.svg' || ext === '.xml' || ext === '.html')
+								{
+									filename = tmp + ext;
+								}
+							}
+						}
+						
+						var file = new LocalFile(this, text, (urlParams['title'] != null) ?
+							decodeURIComponent(urlParams['title']) : filename);
+						file.getHash = function()
+						{
+							return id;
+						};
+						
+						if (this.fileLoaded(file))
+						{
+							this.setMode(null);	
+						}
+						else
+						{
+							// Fallback for non-public Google Drive diagrams
+							if (url.substring(0, 31) == 'https://drive.google.com/uc?id=')
+							{
+								this.hideDialog();
+								
+								var fallback = mxUtils.bind(this, function()
+								{
+									if (this.drive != null)
+									{
+										this.spinner.stop();
+										this.loadFile('G' + url.substring(31, url.lastIndexOf('&')), sameWindow);
+										
+										return true;
+									}
+									else
+									{
+										return false;
+									}
+								});
+								
+								if (!fallback() && this.spinner.spin(document.body, mxResources.get('loading')))
+								{
+									this.addListener('clientLoaded', fallback);
+								}
+							}
+						}
+					}
+				}), mxUtils.bind(this, function()
+				{
+					this.spinner.stop();
+					this.handleError({message: mxResources.get('fileNotFound')}, mxResources.get('errorLoadingFile'));
+				}));
 			}
 			else
 			{

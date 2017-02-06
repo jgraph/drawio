@@ -605,6 +605,7 @@ table=Таблица
 targetSpacing=От конечного узла
 template=Шаблон
 templates=Шаблоны
+test=Test
 text=Текст
 textAlignment=Выравнивание текста
 textOpacity=Прозрачность текста

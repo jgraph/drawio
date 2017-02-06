@@ -605,6 +605,7 @@ table=Tábázat
 targetSpacing=Cél térköz
 template=Sablon
 templates=Sablonok
+test=Test
 text=Szöveg
 textAlignment=Szöveg igazítása
 textOpacity=Szöveg fedőképessége

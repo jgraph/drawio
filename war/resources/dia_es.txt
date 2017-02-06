@@ -605,6 +605,7 @@ table=Tabla
 targetSpacing=Espaciado del objetivo
 template=Plantilla
 templates=Plantillas
+test=Test
 text=Texto
 textAlignment=Alineación de texto
 textOpacity=Opacidad del texto

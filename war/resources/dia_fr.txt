@@ -605,6 +605,7 @@ table=Tableau
 targetSpacing=Espacement de la cible
 template=Modèle
 templates=Modèles
+test=Test
 text=Texte
 textAlignment=Justifier le texte
 textOpacity=Opacité du texte
