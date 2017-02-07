@@ -103,33 +103,6 @@ EditorUi = function(editor, container, lightbox)
 	// Contains the main graph instance inside the given panel
 	graph.init(this.diagramContainer);
 
-	// Intercepts links with no target attribute and opens in new window
-	graph.cellRenderer.initializeLabel = function(state, shape)
-	{
-		mxCellRenderer.prototype.initializeLabel.apply(this, arguments);
-		
-		mxEvent.addListener(shape.node, 'click', function(evt)
-		{
-			var elt = mxEvent.getSource(evt)
-			
-			while (elt != null && elt != shape.node)
-			{
-				if (elt.nodeName == 'A')
-				{
-					if (elt.getAttribute('target') == null && elt.getAttribute('href') != null)
-					{
-						window.open(elt.getAttribute('href'));
-						mxEvent.consume(evt);
-					}
-
-					break;
-				}
-				
-				elt = elt.parentNode;
-			}
-		});
-	};
-	
 	// Creates hover icons
 	this.hoverIcons = this.createHoverIcons();
 	

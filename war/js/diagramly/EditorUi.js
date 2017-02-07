@@ -2966,7 +2966,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createLink = function(allPages, lightbox, edit, layers, url, ignoreFile)
+	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, edit, layers, url, ignoreFile)
 	{
 		var file = this.getCurrentFile();
 		var params = [];
@@ -2975,6 +2975,16 @@
 		{
 			params.push('chrome=0');
 			params.push('lightbox=1');
+
+			if (linkTarget != 'auto')
+			{
+				params.push('target=' + linkTarget);
+			}
+			
+			if (linkColor != null)
+			{
+				params.push('highlight=' + ((linkColor.charAt(0) == '#') ? linkColor.substring(1) : linkColor));
+			}
 			
 			if (edit)
 			{
@@ -3051,7 +3061,7 @@
 		div.appendChild(hd);
 
 		var radioSection = document.createElement('div');
-		radioSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:6px;margin-bottom:4px;';
+		radioSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:6px;margin-bottom:8px;';
 
 		var publicUrlRadio = document.createElement('input');
 		publicUrlRadio.style.cssText = 'margin-right:8px;margin-top:8px;margin-bottom:8px;';
@@ -3098,7 +3108,73 @@
 		}
 
 		div.appendChild(radioSection);
+		
+		mxUtils.write(div, mxResources.get('link') + ':');
 
+		var linkSelect = document.createElement('select');
+		linkSelect.style.width = '100px';
+		linkSelect.style.marginLeft = '6px';
+		linkSelect.style.marginRight = '10px';
+		linkSelect.className = 'geBtn';
+
+		var autoOption = document.createElement('option');
+		autoOption.setAttribute('value', 'auto');
+		mxUtils.write(autoOption, mxResources.get('automatic'));
+		linkSelect.appendChild(autoOption);
+
+		var blankOption = document.createElement('option');
+		blankOption.setAttribute('value', 'blank');
+		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
+		linkSelect.appendChild(blankOption);
+
+		var selfOption = document.createElement('option');
+		selfOption.setAttribute('value', 'self');
+		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
+		linkSelect.appendChild(selfOption);
+
+		div.appendChild(linkSelect);
+		
+		mxUtils.write(div, mxResources.get('borderColor') + ':');
+		
+		var linkButton = document.createElement('button');
+		linkButton.style.width = '18px';
+		linkButton.style.height = '18px';
+		linkButton.style.marginLeft = '6px';
+		linkButton.style.backgroundPosition = 'center center';
+		linkButton.style.backgroundRepeat = 'no-repeat';
+		
+		var linkColor = '#0000ff';
+		
+		function updateLinkColor()
+		{
+			if (linkColor == null || linkColor == mxConstants.NONE)
+			{
+				linkButton.style.backgroundColor = '';
+				linkButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
+			}
+			else
+			{
+				linkButton.style.backgroundColor = linkColor;
+				linkButton.style.backgroundImage = '';
+			}
+		};
+		
+		updateLinkColor();
+
+		mxEvent.addListener(linkButton, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.pickColor(linkColor || 'none', function(color)
+			{
+				linkColor = color;
+				updateLinkColor();
+			});
+			
+			mxEvent.consume(evt);
+		}));
+		
+		div.appendChild(linkButton);
+		mxUtils.br(div);
+		
 		var zoom = this.addCheckbox(div, mxResources.get('zoom'), true, null, true);
 		mxUtils.write(div, ':');
 		
@@ -3106,26 +3182,11 @@
 		zoomInput.setAttribute('type', 'text');
 		zoomInput.style.marginRight = '16px';
 		zoomInput.style.width = '40px';
-		zoomInput.style.marginTop = '2px';
 		zoomInput.style.marginLeft = '6px';
 		zoomInput.style.marginRight = '12px';
 		zoomInput.value = '100%';
 		
 		div.appendChild(zoomInput);
-		
-		mxUtils.write(div, mxResources.get('link') + ':');
-
-		var linkInput = document.createElement('input');
-		linkInput.setAttribute('type', 'text');
-		linkInput.style.marginRight = '16px';
-		linkInput.style.width = '60px';
-		linkInput.style.marginTop = '12px';
-		linkInput.style.marginLeft = '6px';
-		linkInput.style.marginRight = '16px';
-		linkInput.value = '#0000ff';
-		
-		div.appendChild(linkInput);
-		mxUtils.br(div);
 				
 		var fit = this.addCheckbox(div, mxResources.get('fit'), true);
 		var hasPages = this.pages != null && this.pages.length > 1;
@@ -3150,21 +3211,11 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkInput.value,
-					fit.checked, allPages.checked, layers.checked, lightbox.checked, edit.checked);
-		}), null, mxResources.get('create'), 'https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-');
+			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSelect.value,
+				linkColor, fit.checked, allPages.checked, layers.checked, lightbox.checked, edit.checked);
+		}), null, mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542-how-to-embed-html-');
 		this.showDialog(dlg.container, 320, 360, true, true);
-		
-		zoomInput.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			zoomInput.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
+		linkSelect.focus();
 	};
 	
 	/**
@@ -3178,7 +3229,7 @@
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title || mxResources.get('link'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:6px';
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 		div.appendChild(hd);
 		
 		var file = this.getCurrentFile();
@@ -3188,7 +3239,7 @@
 		{
 			dy = 80;
 			var hintSection = document.createElement('div');
-			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:16px;padding-top:6px;margin-bottom:4px;text-align:center;';
+			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:12px;padding-top:6px;margin-bottom:12px;text-align:center;';
 			mxUtils.write(hintSection, mxResources.get('linkAccountRequired'));
 			mxUtils.br(hintSection);
 			
@@ -3206,7 +3257,7 @@
 			testLink.style.color = 'gray';
 			testLink.style.fontSize = '11px';
 			testLink.setAttribute('href', 'javascript:void(0);');
-			mxUtils.write(testLink, mxResources.get('test'));
+			mxUtils.write(testLink, mxResources.get('check'));
 			hintSection.appendChild(testLink);
 			
 			mxEvent.addListener(testLink, 'click', mxUtils.bind(this, function()
@@ -3217,18 +3268,10 @@
 					{
 						this.spinner.stop();
 						
-						if (url != null)
-						{
-							var dlg = new ErrorDialog(this, mxResources.get('publicDiagramUrl'), url, mxResources.get('ok'));
-							this.showDialog(dlg.container, 340, 140, true, false);
-							dlg.init();
-						}
-						else
-						{
-							var dlg = new ErrorDialog(this, null, mxResources.get('authorizationRequired'), mxResources.get('ok'));
-							this.showDialog(dlg.container, 340, 80, true, false);
-							dlg.init();
-						}
+						var dlg = new ErrorDialog(this, null, mxResources.get((url != null) ?
+							'diagramIsPublic' : 'diagramIsNotPublic'), mxResources.get('ok'));
+						this.showDialog(dlg.container, 340, 80, true, false);
+						dlg.init();
 					}));
 				}
 			}));
@@ -3267,6 +3310,72 @@
 			mxUtils.br(div);
 		}
 
+		mxUtils.write(div, mxResources.get('link') + ':');
+
+		var linkSelect = document.createElement('select');
+		linkSelect.style.width = '100px';
+		linkSelect.style.marginLeft = '6px';
+		linkSelect.style.marginRight = '10px';
+		linkSelect.className = 'geBtn';
+
+		var autoOption = document.createElement('option');
+		autoOption.setAttribute('value', 'auto');
+		mxUtils.write(autoOption, mxResources.get('automatic'));
+		linkSelect.appendChild(autoOption);
+
+		var blankOption = document.createElement('option');
+		blankOption.setAttribute('value', 'blank');
+		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
+		linkSelect.appendChild(blankOption);
+
+		var selfOption = document.createElement('option');
+		selfOption.setAttribute('value', 'self');
+		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
+		linkSelect.appendChild(selfOption);
+
+		div.appendChild(linkSelect);
+		
+		mxUtils.write(div, mxResources.get('borderColor') + ':');
+		
+		var linkButton = document.createElement('button');
+		linkButton.style.width = '18px';
+		linkButton.style.height = '18px';
+		linkButton.style.marginLeft = '6px';
+		linkButton.style.backgroundPosition = 'center center';
+		linkButton.style.backgroundRepeat = 'no-repeat';
+		
+		var linkColor = '#0000ff';
+		
+		function updateLinkColor()
+		{
+			if (linkColor == null || linkColor == mxConstants.NONE)
+			{
+				linkButton.style.backgroundColor = '';
+				linkButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
+			}
+			else
+			{
+				linkButton.style.backgroundColor = linkColor;
+				linkButton.style.backgroundImage = '';
+			}
+		};
+		
+		updateLinkColor();
+
+		mxEvent.addListener(linkButton, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.pickColor(linkColor || 'none', function(color)
+			{
+				linkColor = color;
+				updateLinkColor();
+			});
+			
+			mxEvent.consume(evt);
+		}));
+		
+		div.appendChild(linkButton);
+		mxUtils.br(div);
+
 		var hasPages = this.pages != null && this.pages.length > 1;
 		var allPages = null;
 		
@@ -3280,7 +3389,7 @@
 		edit.style.marginLeft = '24px';
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		layers.style.marginLeft = edit.style.marginLeft;
-		layers.style.marginBottom = '8px';
+		layers.style.marginBottom = '4px';
 		
 		mxEvent.addListener(lightbox, 'change', function()
 		{
@@ -3298,11 +3407,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			fn((allPages == null) ? true : allPages.checked, lightbox.checked, edit.checked, layers.checked,
+			fn(linkSelect.value, linkColor,
+				(allPages == null) ? true : allPages.checked,
+				lightbox.checked, edit.checked, layers.checked,
 				(widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null);
 		}), null, mxResources.get('create'));
-		this.showDialog(dlg.container, 280, 220 + dy, true, true);
+		this.showDialog(dlg.container, 280, 250 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -3316,6 +3427,10 @@
 			{
 				document.execCommand('selectAll', false, null);
 			}
+		}
+		else
+		{
+			linkSelect.focus();
 		}
 	};
 

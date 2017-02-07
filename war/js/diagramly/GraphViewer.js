@@ -1101,23 +1101,19 @@ GraphViewer.prototype.addToolbar = function()
  */
 GraphViewer.prototype.addClickHandler = function(graph, ui)
 {
-	var isBlankLink = graph.isBlankLink;
-	var config = this.graphConfig;
-	
-	graph.isBlankLink = function(href)
-	{
-		return config.target != 'self' && isBlankLink.apply(this, arguments);
-	};
+	graph.linkPolicy = this.graphConfig.target || graph.linkPolicy;
 	
 	graph.addClickHandler(this.graphConfig.highlight, function(evt)
 	{
+		// Hides lightbox if any links are clicked
 		if (ui != null)
 		{
 			ui.destroy();
 		}
 	}, mxUtils.bind(this, function(evt)
 	{
-		if (ui == null && this.lightboxClickEnabled && (!mxEvent.isTouchEvent(evt) ||
+		if (ui == null && this.lightboxClickEnabled &&
+			(!mxEvent.isTouchEvent(evt) ||
 			this.toolbarItems.length == 0))
 		{
 			this.showLightbox();

@@ -855,7 +855,8 @@
 				{
 					editorUi.spinner.stop();
 					
-					editorUi.showEmbedHtmlDialog(url, function(publicUrl, zoomEnabled, initialZoom, linkColor, fit, allPages, layers, lightbox, edit)
+					editorUi.showEmbedHtmlDialog(url,
+						function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
 					{
 						var s = editorUi.getBasenames();
 						var data = {};
@@ -863,6 +864,11 @@
 						if (linkColor != '' && linkColor != mxConstants.NONE)
 						{
 							data.highlight = linkColor;
+						}
+						
+						if (linkTarget !== 'auto')
+						{
+							data.target = linkTarget;
 						}
 						
 						if (!lightbox)
@@ -950,7 +956,7 @@
 					
 						var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
 						
-						var dlg = new EmbedDialog(editorUi, value + '\n' + scr, null, function()
+						var dlg = new EmbedDialog(editorUi, value + '\n' + scr, null, null, function()
 						{
 							var wnd = window.open();
 							var doc = wnd.document;
@@ -977,8 +983,6 @@
 							doc.writeln('</html>');
 							doc.close();
 							
-							console.log('here');
-					
 							// Adds script tag after closing page and delay to fix timing issues
 							if (!direct)
 							{
@@ -1082,7 +1086,7 @@
 					});
 				}
 			}, mxResources.get('formatSvg'), mxResources.get('image'),
-				true, 'https://desk.draw.io/solution/articles/16000042548-how-to-embed-svg-');
+				true, 'https://desk.draw.io/support/solutions/articles/16000042548-how-to-embed-svg-');
 		}));
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
@@ -1091,7 +1095,7 @@
 			
 			editorUi.showPublishLinkDialog(mxResources.get('iframe'), null, '100%',
 				(Math.ceil((bounds.y + bounds.height - graph.view.translate.y) / graph.view.scale) + 2),
-				function(allPages, lightbox, edit, layers, width, height)
+				function(linkTarget, linkColor, allPages, lightbox, edit, layers, width, height)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
@@ -1100,8 +1104,8 @@
 						editorUi.spinner.stop();
 						
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
-							';height:' + height + ';" src="' + editorUi.createLink(allPages, lightbox, edit,
-							layers, url) + '"></iframe>');
+							';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
+							allPages, lightbox, edit, layers, url) + '"></iframe>');
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -1111,14 +1115,16 @@
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
-			editorUi.showPublishLinkDialog(null, null, null, null, function(allPages, lightbox, edit, layers)
+			editorUi.showPublishLinkDialog(null, null, null, null,
+				function(linkTarget, linkColor, allPages, lightbox, edit, layers)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
 					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 					{
 						editorUi.spinner.stop();
-						var dlg = new EmbedDialog(editorUi, editorUi.createLink(allPages, lightbox, edit, layers, url));
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
+							linkColor, allPages, lightbox, edit, layers, url));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -1405,9 +1411,11 @@
 
 			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 			{
-				editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null, function(allPages, lightbox, edit, layers)
+				editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
+					function(linkTarget, linkColor, allPages, lightbox, edit, layers)
 				{
-					var dlg = new EmbedDialog(editorUi, editorUi.createLink(allPages, lightbox, edit, layers, null, true));
+					var dlg = new EmbedDialog(editorUi, editorUi.createLink(
+						linkTarget, linkColor, allPages, lightbox, edit, layers, null, true));
 					editorUi.showDialog(dlg.container, 440, 240, true, true);
 					dlg.init();
 				});
@@ -2307,7 +2315,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/solution/articles/16000042367-how-to-use-the-scratchpad-');
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367-how-to-use-the-scratchpad-');
 				}
 			}
 			
@@ -2339,7 +2347,7 @@
 			if (typeof(MathJax) !== 'undefined')
 			{
 				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				this.addLinkToItem(item, 'https://desk.draw.io/solution/articles/16000032875-how-to-use-mathematical-typesetting-');
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875-how-to-use-mathematical-typesetting-');
 			}
 
 			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram'], parent);
@@ -2359,7 +2367,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/solution/articles/16000046966-how-to-use-tags');
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966-how-to-use-tags');
 				}
 				
 				this.addMenuItems(menu, ['-', 'offline'], parent);

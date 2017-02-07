@@ -1997,258 +1997,276 @@ App.prototype.start = function()
 	this.restoreLibraries();
 	this.spinner.stop();
 
-	// Listens to changes of the hash if not in embed or client mode
-	if (urlParams['client'] != '1' && urlParams['embed'] != '1')
+	try
 	{
-		// KNOWN: Does not work in quirks mode
-		mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
+		// Listens to changes of the hash if not in embed or client mode
+		if (urlParams['client'] != '1' && urlParams['embed'] != '1')
 		{
-			var id = this.getDiagramId();
-			var file = this.getCurrentFile();
-			
-			if (file == null || file.getHash() != id)
+			// KNOWN: Does not work in quirks mode
+			mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
 			{
-				this.loadFile(id, true);
-			}
-		}));
-	}
-	
-	// Redirects old url URL parameter to new #U format
-	if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['url'] != null)
-	{
-		this.loadFile('U' + urlParams['url'], true);
-	}
-	else if (this.getCurrentFile() == null)
-	{
-		var done = mxUtils.bind(this, function()
-		{
-			// Starts in client mode and waits for data
-			if (urlParams['client'] == '1' && (window.location.hash == null ||
-				window.location.hash.length == 0))
-			{
-				var parent = window.opener || window.parent;
-				
-				if (parent != window)
-				{
-					this.installMessageHandler(mxUtils.bind(this, function(xml, evt)
-					{
-						// Ignores messages from other windows
-						if (evt.source == parent)
-						{
-							// Extracts graph model from PNG
-							if (xml.substring(0, 22) == 'data:image/png;base64,')
-							{
-								xml = this.extractGraphModelFromPng(xml);
-							}
-							
-							var title = urlParams['title'];
-							
-							if (title != null)
-							{
-								title = decodeURIComponent(title);
-							}
-							else
-							{
-								title = this.defaultFilename;
-							}
-							
-							this.fileLoaded(new LocalFile(this, xml, title));
-							this.getCurrentFile().setModified(!this.editor.chromeless);
-							this.setMode(null);
-						}
-					}));
-				}
-			}
-			// Checks if no earlier loading errors are showing
-			else if (this.dialog == null)
-			{
-				if (urlParams['demo'] == '1')
-				{
-					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename, null, null, App.MODE_DEVICE);
-					this.setMode(null);
-					Editor.useLocalStorage = prev;
-				}
-				else
-				{
-					var waiting = false;
-					
-					// Checks if we're waiting for some asynchronous file to be loaded
-					// Cross-domain window access is not allowed in FF, so if we
-					// were opened from another domain then this will fail.
-					try
-					{
-						waiting = window.opener != null && window.opener.openFile != null;
-					}
-					catch(e)
-					{
-						// ignore
-					}
-					
-					if (waiting)
-					{
-						// Spinner is stopped in App.open
-						this.spinner.spin(document.body, mxResources.get('loading'))
-					}
-					else
-					{
-						var id = this.getDiagramId();
-						
-						if (urlParams['splash'] == '0' && (id == null || id.length == 0))
-						{
-							var draft = this.getDraft();
-							var fileData = (draft != null) ? draft.data : this.getFileData();
-							var prev = Editor.useLocalStorage;
-							this.createFile(this.defaultFilename, fileData, null, App.MODE_DEVICE);
-							this.setMode(null);
-							Editor.useLocalStorage = prev;
-							
-							// Draft was used so the user should save the file
-							if (draft != null)
-							{
-								var file = this.getCurrentFile();
-								
-								if (file != null)
-								{
-									file.addUnsavedStatus();
-								}
-							}
-						}
-						else
-						{
-							this.loadFile(this.getDiagramId());
-						}
-					}
-				}
-			}
-		});
-
-		// Defines custom classes for realtime in Google Drive
-		if (this.drive != null)
-		{
-			this.defineCustomObjects();
-		}
-		
-		var value = decodeURIComponent(urlParams['create'] || '');
-		
-		if ((window.location.hash == null || window.location.hash.length <= 1) &&
-			value != null && value.length > 0 && this.spinner.spin(document.body, mxResources.get('loading')))
-		{
-			var reconnect = mxUtils.bind(this, function()
-			{
-				// Removes URL parameter and reloads the page
-				if (this.spinner.spin(document.body, mxResources.get('reconnecting')))
-				{
-					window.location.search = this.getSearch(['create', 'title']);
-				};
-			});
-
-			var showCreateDialog = mxUtils.bind(this, function(xml)
-			{
-				this.spinner.stop();
-
-				// Resets mode for dialog - local file is only for preview
-				if (urlParams['splash'] != '0')
-				{
-					this.fileLoaded(new LocalFile(this, xml, null));
-					
-					this.editor.graph.setEnabled(false);
-					this.mode = urlParams['mode'];
-					var title = urlParams['title'];
-	
-					if (title != null)
-					{
-						title = decodeURIComponent(title);
-					}
-					else
-					{
-						title = this.defaultFilename;
-					}
-					
-					var dlg = new CreateDialog(this, title, mxUtils.bind(this, function(filename, mode)
-					{
-						if (mode == null)
-						{
-							this.hideDialog();
-							var prev = Editor.useLocalStorage;
-							this.createFile((filename.length > 0) ? filename : this.defaultFilename,
-								this.getFileData(), null, App.MODE_DEVICE);
-							this.setMode(null);
-							Editor.useLocalStorage = prev;
-						}
-						else
-						{
-							this.createFile(filename, this.getFileData(true), null, mode);
-						}
-					}));
-					this.showDialog(dlg.container, 380, 270, true, false, mxUtils.bind(this, function(cancel)
-					{
-						if (cancel && this.getCurrentFile() == null)
-						{
-							this.showSplash();
-						}
-					}));
-					dlg.init();
-				}
-			});
-			
-			value = decodeURIComponent(value);
-			
-			if (value.substring(0, 7) != 'http://' && value.substring(0, 8) != 'https://')
-			{
-				// Cross-domain window access is not allowed in FF, so if we
-				// were opened from another domain then this will fail.
 				try
 				{
-					if (window.opener != null && window.opener[value] != null)
+					var id = this.getDiagramId();
+					var file = this.getCurrentFile();
+					
+					if (file == null || file.getHash() != id)
 					{
-						showCreateDialog(window.opener[value]);
-					}
-					else
-					{
-						this.handleError(null, mxResources.get('errorLoadingFile'));
+						this.loadFile(id, true);
 					}
 				}
 				catch (e)
 				{
-					this.handleError(e, mxResources.get('errorLoadingFile'));
+					this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+					{
+						var file = this.getCurrentFile();
+						window.location.hash = (file != null) ? file.getHash() : '';
+					}));
 				}
-			}
-			else
-			{
-				this.loadTemplate(value, function(text)
-				{
-					showCreateDialog(text);
-				}, mxUtils.bind(this, function()
-				{
-					this.handleError(null, mxResources.get('errorLoadingFile'), reconnect);
-				}));
-			}
+			}));
 		}
-		else
+		
+		// Redirects old url URL parameter to new #U format
+		if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['url'] != null)
 		{
-			// Passes the fileId from the state parameter to the hash tag and reloads
-			// the page without the state parameter
-			if ((window.location.hash == null || window.location.hash.length <= 1) &&
-				urlParams['state'] != null && this.stateArg != null && this.stateArg.action == 'open')
+			this.loadFile('U' + urlParams['url'], true);
+		}
+		else if (this.getCurrentFile() == null)
+		{
+			var done = mxUtils.bind(this, function()
 			{
-				if (this.stateArg.ids != null)
+				// Starts in client mode and waits for data
+				if (urlParams['client'] == '1' && (window.location.hash == null ||
+					window.location.hash.length == 0))
 				{
-					window.location.hash = 'G' + this.stateArg.ids[0];
+					var parent = window.opener || window.parent;
+					
+					if (parent != window)
+					{
+						this.installMessageHandler(mxUtils.bind(this, function(xml, evt)
+						{
+							// Ignores messages from other windows
+							if (evt.source == parent)
+							{
+								// Extracts graph model from PNG
+								if (xml.substring(0, 22) == 'data:image/png;base64,')
+								{
+									xml = this.extractGraphModelFromPng(xml);
+								}
+								
+								var title = urlParams['title'];
+								
+								if (title != null)
+								{
+									title = decodeURIComponent(title);
+								}
+								else
+								{
+									title = this.defaultFilename;
+								}
+								
+								this.fileLoaded(new LocalFile(this, xml, title));
+								this.getCurrentFile().setModified(!this.editor.chromeless);
+								this.setMode(null);
+							}
+						}));
+					}
 				}
-			}
+				// Checks if no earlier loading errors are showing
+				else if (this.dialog == null)
+				{
+					if (urlParams['demo'] == '1')
+					{
+						var prev = Editor.useLocalStorage;
+						this.createFile(this.defaultFilename, null, null, App.MODE_DEVICE);
+						this.setMode(null);
+						Editor.useLocalStorage = prev;
+					}
+					else
+					{
+						var waiting = false;
+						
+						// Checks if we're waiting for some asynchronous file to be loaded
+						// Cross-domain window access is not allowed in FF, so if we
+						// were opened from another domain then this will fail.
+						try
+						{
+							waiting = window.opener != null && window.opener.openFile != null;
+						}
+						catch(e)
+						{
+							// ignore
+						}
+						
+						if (waiting)
+						{
+							// Spinner is stopped in App.open
+							this.spinner.spin(document.body, mxResources.get('loading'))
+						}
+						else
+						{
+							var id = this.getDiagramId();
+							
+							if (urlParams['splash'] == '0' && (id == null || id.length == 0))
+							{
+								var draft = this.getDraft();
+								var fileData = (draft != null) ? draft.data : this.getFileData();
+								var prev = Editor.useLocalStorage;
+								this.createFile(this.defaultFilename, fileData, null, App.MODE_DEVICE);
+								this.setMode(null);
+								Editor.useLocalStorage = prev;
+								
+								// Draft was used so the user should save the file
+								if (draft != null)
+								{
+									var file = this.getCurrentFile();
+									
+									if (file != null)
+									{
+										file.addUnsavedStatus();
+									}
+								}
+							}
+							else
+							{
+								this.loadFile(this.getDiagramId());
+							}
+						}
+					}
+				}
+			});
 	
-			if ((window.location.hash == null || window.location.hash.length <= 1) &&
-				this.drive != null && this.stateArg != null && this.stateArg.action == 'create')
+			// Defines custom classes for realtime in Google Drive
+			if (this.drive != null)
 			{
-				this.setMode(App.MODE_GOOGLE);
-				this.actions.get('new').funct();
+				this.defineCustomObjects();
+			}
+			
+			var value = decodeURIComponent(urlParams['create'] || '');
+			
+			if ((window.location.hash == null || window.location.hash.length <= 1) &&
+				value != null && value.length > 0 && this.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				var reconnect = mxUtils.bind(this, function()
+				{
+					// Removes URL parameter and reloads the page
+					if (this.spinner.spin(document.body, mxResources.get('reconnecting')))
+					{
+						window.location.search = this.getSearch(['create', 'title']);
+					};
+				});
+	
+				var showCreateDialog = mxUtils.bind(this, function(xml)
+				{
+					this.spinner.stop();
+	
+					// Resets mode for dialog - local file is only for preview
+					if (urlParams['splash'] != '0')
+					{
+						this.fileLoaded(new LocalFile(this, xml, null));
+						
+						this.editor.graph.setEnabled(false);
+						this.mode = urlParams['mode'];
+						var title = urlParams['title'];
+		
+						if (title != null)
+						{
+							title = decodeURIComponent(title);
+						}
+						else
+						{
+							title = this.defaultFilename;
+						}
+						
+						var dlg = new CreateDialog(this, title, mxUtils.bind(this, function(filename, mode)
+						{
+							if (mode == null)
+							{
+								this.hideDialog();
+								var prev = Editor.useLocalStorage;
+								this.createFile((filename.length > 0) ? filename : this.defaultFilename,
+									this.getFileData(), null, App.MODE_DEVICE);
+								this.setMode(null);
+								Editor.useLocalStorage = prev;
+							}
+							else
+							{
+								this.createFile(filename, this.getFileData(true), null, mode);
+							}
+						}));
+						this.showDialog(dlg.container, 380, 270, true, false, mxUtils.bind(this, function(cancel)
+						{
+							if (cancel && this.getCurrentFile() == null)
+							{
+								this.showSplash();
+							}
+						}));
+						dlg.init();
+					}
+				});
+				
+				value = decodeURIComponent(value);
+				
+				if (value.substring(0, 7) != 'http://' && value.substring(0, 8) != 'https://')
+				{
+					// Cross-domain window access is not allowed in FF, so if we
+					// were opened from another domain then this will fail.
+					try
+					{
+						if (window.opener != null && window.opener[value] != null)
+						{
+							showCreateDialog(window.opener[value]);
+						}
+						else
+						{
+							this.handleError(null, mxResources.get('errorLoadingFile'));
+						}
+					}
+					catch (e)
+					{
+						this.handleError(e, mxResources.get('errorLoadingFile'));
+					}
+				}
+				else
+				{
+					this.loadTemplate(value, function(text)
+					{
+						showCreateDialog(text);
+					}, mxUtils.bind(this, function()
+					{
+						this.handleError(null, mxResources.get('errorLoadingFile'), reconnect);
+					}));
+				}
 			}
 			else
 			{
-				done();
+				// Passes the fileId from the state parameter to the hash tag and reloads
+				// the page without the state parameter
+				if ((window.location.hash == null || window.location.hash.length <= 1) &&
+					urlParams['state'] != null && this.stateArg != null && this.stateArg.action == 'open')
+				{
+					if (this.stateArg.ids != null)
+					{
+						window.location.hash = 'G' + this.stateArg.ids[0];
+					}
+				}
+		
+				if ((window.location.hash == null || window.location.hash.length <= 1) &&
+					this.drive != null && this.stateArg != null && this.stateArg.action == 'create')
+				{
+					this.setMode(App.MODE_GOOGLE);
+					this.actions.get('new').funct();
+				}
+				else
+				{
+					done();
+				}
 			}
 		}
+	}
+	catch (e)
+	{
+		this.handleError(e);
 	}
 };
 

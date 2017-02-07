@@ -870,7 +870,13 @@ Graph.prototype.minFitScale = null;
 Graph.prototype.maxFitScale = null;
 
 /**
- * Sets the default target for all links in cells.
+ * Sets the policy for links. Possible values are self to keep all links within
+ * the same window, blank to open all links in a new window and auto (default).
+ */
+Graph.prototype.linkPolicy = urlParams['target'] || 'auto';
+
+/**
+ * Target for links that open in a new window. Default is _blank.
  */
 Graph.prototype.linkTarget = '_blank';
 
@@ -931,6 +937,11 @@ Graph.prototype.connectionArrowsEnabled = true;
 Graph.prototype.placeholderPattern = new RegExp('%(date\{.*\}|[^%^\{^\}]+)%', 'g');
 
 /**
+ * Specifies the regular expression for matching placeholders.
+ */
+Graph.prototype.absoluteUrlPattern = new RegExp('^(?:[a-z]+:)?//', 'i');
+
+/**
  * Specifies the default name for the theme. Default is 'default'.
  */
 Graph.prototype.defaultThemeName = 'default';
@@ -943,7 +954,7 @@ Graph.prototype.defaultThemes = {};
 /**
  * Base URL for relative links.
  */
-Graph.prototype.baseUrl = (window.location != window.parent.location) ? document.referrer : document.location.toString();
+Graph.prototype.baseUrl = (window != window.top) ? document.referrer : document.location.toString();
 
 /**
  * Installs child layout styles.
@@ -952,6 +963,37 @@ Graph.prototype.init = function(container)
 {
 	mxGraph.prototype.init.apply(this, arguments);
 
+	// Intercepts links with no target attribute and opens in new window
+	this.cellRenderer.initializeLabel = function(state, shape)
+	{
+		mxCellRenderer.prototype.initializeLabel.apply(this, arguments);
+		
+		mxEvent.addListener(shape.node, 'click', mxUtils.bind(this, function(evt)
+		{
+			var elt = mxEvent.getSource(evt)
+			
+			while (elt != null && elt != shape.node)
+			{
+				if (elt.nodeName == 'A')
+				{
+					var href = elt.getAttribute('href');
+					
+					if (href != null)
+					{
+						window.open(state.view.graph.getAbsoluteUrl(href),
+							(state.view.graph.isBlankLink(href)) ?
+							state.view.graph.linkTarget : '_top');
+						mxEvent.consume(evt);
+					}
+	
+					break;
+				}
+				
+				elt = elt.parentNode;
+			}
+		}));
+	};
+	
 	this.initLayoutManager();
 };
 
@@ -2190,7 +2232,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 		}
 		else
 		{
-			var ignored = ['label', 'tooltip', 'placeholders'];
+			var ignored = ['label', 'tooltip', 'placeholders', 'placeholder'];
 			var attrs = cell.value.attributes;
 			
 			// Hides links in edit mode
@@ -2203,15 +2245,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 			{
 				if (mxUtils.indexOf(ignored, attrs[i].nodeName) < 0 && attrs[i].nodeValue.length > 0)
 				{
-					// Hides link key in read mode
-					if (attrs[i].nodeName == 'link')
-					{
-						tip += mxUtils.htmlEntities(this.getLinkUrl(attrs[i].nodeValue)) + '\n';
-					}
-					else
-					{
-						tip += attrs[i].nodeName + ': ' + mxUtils.htmlEntities(attrs[i].nodeValue) + '\n';
-					}
+					tip += attrs[i].nodeName + ': ' + mxUtils.htmlEntities(attrs[i].nodeValue) + '\n';
 				}
 			}
 			
@@ -4331,23 +4365,17 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 
 		/**
-		 * Returns the link to be used for the given URL when clicking on a cell
-		 * where the the link is not a blank link and the diagram is not inside
-		 * and iframe.
-		 */
-		Graph.prototype.getLinkUrl = function(url)
-		{
-			return url;
-		};
-
-		/**
 		 * 
 		 */
 		Graph.prototype.getAbsoluteUrl = function(url)
 		{
 			if (url != null && this.isRelativeUrl(url))
 			{
-				if (url.charAt(0) == '/')
+				if (url.charAt(0) == '#')
+				{
+					url = this.baseUrl + url;
+				}
+				else if (url.charAt(0) == '/')
 				{
 					url = this.domainUrl + url;
 				}
@@ -4361,15 +4389,25 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 
 		/**
+		 * Returns true if the fiven href references an external protocol that
+		 * should never open in a new window. Default returns true for mailto.
+		 */
+		Graph.prototype.isExternalProtocol = function(href)
+		{
+			return href.substring(0, 7) === 'mailto:';
+		};
+
+		/**
 		 * Hook for links to open in same window. Default returns true for anchors,
 		 * links to same domain or if target == 'self' in the config.
 		 */
 		Graph.prototype.isBlankLink = function(href)
 		{
-			var dom = this.domainUrl;
-			
-			return urlParams['target'] != 'self' && href != null && href.charAt(0) != '#' &&
-				href.substring(0, dom.length) != dom && !this.isRelativeUrl(href);
+			return !this.isExternalProtocol(href) &&
+				(this.linkPolicy === 'blank' ||
+				(this.linkPolicy !== 'self' &&
+				!this.isRelativeUrl(href) &&
+				href.substring(0, this.domainUrl.length) !== this.domainUrl));
 		};
 
 		/**
@@ -4377,17 +4415,17 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.isRelativeUrl = function(url)
 		{
-			return !(new RegExp('^(?:[a-z]+:)?//', 'i').test(url)) && url.substring(0, 10) != 'data:image' &&
-				url.substring(0, 7) != 'mailto:';
+			return url != null && !this.absoluteUrlPattern.test(url) &&
+				url.substring(0, 5) !== 'data:' &&
+				!this.isExternalProtocol(url);
 		};
 
 		/**
-		 * Adds a handler for clicking on shapes with links. This replaces all links in labels
-		 * as a side-effect and adds a target=_blank attribute if required.
+		 * Adds a handler for clicking on shapes with links. This replaces all links in labels.
 		 */
 		Graph.prototype.addClickHandler = function(highlight, beforeClick, onClick)
 		{
-			// Hides lightbox before executing links on same page
+			// Replaces links in labels for consistent right-clicks
 			var checkLinks = mxUtils.bind(this, function()
 			{
 				var links = this.container.getElementsByTagName('a');
@@ -4396,30 +4434,13 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					for (var i = 0; i < links.length; i++)
 					{
-						var href = this.getLinkUrl(links[i].getAttribute('href'));
-						links[i].setAttribute('href', href);
+						var href = this.getAbsoluteUrl(links[i].getAttribute('href'));
 						
-						if (href != null && !this.isBlankLink(href))
+						if (href != null)
 						{
-							if (window != window.top)
-							{
-								links[i].setAttribute('target', '_top');
-								
-								if (href.charAt(0) === '#')
-								{
-									links[i].setAttribute('href', this.baseUrl + href);
-								}
-								else
-								{
-									links[i].setAttribute('href', this.getAbsoluteUrl(href));
-								}
-							}
-							else if (links[i].getAttribute('target') == '_blank')
-							{
-								links[i].removeAttribute('target');
-							}
-
-			    			if (beforeClick != null)
+							links[i].setAttribute('href', href);
+							
+							if (beforeClick != null)
 			    			{
 			    				mxEvent.addListener(links[i], 'click', beforeClick);
 			    			}
@@ -4514,51 +4535,22 @@ if (typeof mxVertexHandler != 'undefined')
 			    mouseUp: function(sender, me)
 			    {
 			    	var source = me.getSource();
-			    	var tmp = this.currentLink;
-			    	this.clear();
 			    	
 			    	// Ignores clicks on links and collapse/expand icon
 			    	if (source.nodeName.toLowerCase() != 'a' && !me.isConsumed() &&
 			    		(me.getState() == null || !me.isSource(me.getState().control)) &&
 			    		(mxEvent.isLeftMouseButton(me.getEvent()) || mxEvent.isTouchEvent(me.getEvent())))
 			    	{
-				    	if (tmp != null) 
+				    	if (this.currentLink != null) 
 				    	{
-				    		if (!graph.isBlankLink(tmp))
+				    		var blank = graph.isBlankLink(this.currentLink);
+				    		
+				    		if (!blank && beforeClick != null)
 				    		{
-				    			if (beforeClick != null)
-				    			{
-				    				beforeClick(me.getEvent());
-				    			}
-				    			
-				    			if (tmp.charAt(0) == '#')
-				    			{
-				    				if (window != window.top)
-						    		{
-				    					window.open(graph.baseUrl + tmp, '_top');
-						    		}
-				    				else
-				    				{
-				    					window.location.hash = tmp;
-				    				}
-				    			}
-				    			else
-					    		{
-			    					if (window != window.top)
-						    		{
-				    					window.open(graph.getAbsoluteUrl(tmp), '_top');
-						    		}
-				    				else
-				    				{
-				    					window.location = tmp;
-				    				}
-				    			}
-				    		}
-				    		else
-				    		{
-				    			window.open(tmp);
+			    				beforeClick(me.getEvent());
 				    		}
 				    		
+				    		window.open(this.currentLink, (blank) ? graph.linkTarget : '_top');
 				    		me.consume();
 				    	}
 				    	else if (onClick != null && !me.isConsumed() &&
@@ -4570,12 +4562,13 @@ if (typeof mxVertexHandler != 'undefined')
 				    		onClick(me.getEvent());
 			    		}
 			    	}
+			    	
+			    	this.clear();
 			    },
 			    activate: function(state)
 			    {
-			    	var tmp = graph.getLinkForCell(state.cell);
-			    	this.currentLink = (tmp != null) ? graph.getLinkUrl(tmp) : null;
-			    	
+			    	this.currentLink = graph.getAbsoluteUrl(graph.getLinkForCell(state.cell));
+
 			    	if (this.currentLink != null)
 			    	{
 			    		graph.container.style.cursor = 'pointer';
@@ -4711,33 +4704,8 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			else
 			{
-				// To find the new link, we create a list of all existing links first
-				var tmp = this.cellEditor.textarea.getElementsByTagName('a');
-				var oldLinks = [];
-				
-				for (var i = 0; i < tmp.length; i++)
-				{
-					oldLinks.push(tmp[i]);
-				}
-
 				// LATER: Fix inserting link/image in IE8/quirks after focus lost
 				document.execCommand('createlink', false, mxUtils.trim(value));
-
-				// Adds target="_blank" for the new link
-				var newLinks = this.cellEditor.textarea.getElementsByTagName('a');
-				
-				if (newLinks.length == oldLinks.length + 1)
-				{
-					// Inverse order in favor of appended links
-					for (var i = newLinks.length - 1; i >= 0; i--)
-					{
-						if (i == 0 || newLinks[i] != oldLinks[i - 1])
-						{
-							newLinks[i].setAttribute('target', '_blank');
-							break;
-						}
-					}
-				}
 			}
 		};
 		
@@ -6772,7 +6740,7 @@ if (typeof mxVertexHandler != 'undefined')
 				}
 				
 				var a = document.createElement('a');
-				a.setAttribute('href', this.graph.getLinkUrl(link));
+				a.setAttribute('href', this.graph.getAbsoluteUrl(link));
 				a.setAttribute('title', link);
 				
 				if (this.graph.linkTarget != null)
