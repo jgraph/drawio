@@ -194,9 +194,20 @@ Menus.prototype.init = function()
 	})));
 	this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
+		var promptSpacing = mxUtils.bind(this, function(defaultValue, fn)
+		{
+			var dlg = new FilenameDialog(this.editorUi, defaultValue, mxResources.get('apply'), function(newValue)
+			{
+				fn(parseFloat(newValue));
+			}, mxResources.get('spacing'));
+			this.editorUi.showDialog(dlg.container, 300, 80, true, true);
+			dlg.init();
+		});
+		
 		menu.addItem(mxResources.get('horizontalFlow'), null, mxUtils.bind(this, function()
 		{
 			var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
+			
     		this.editorUi.executeLayout(function()
     		{
     			var selectionCells = graph.getSelectionCells();
@@ -206,6 +217,7 @@ Menus.prototype.init = function()
 		menu.addItem(mxResources.get('verticalFlow'), null, mxUtils.bind(this, function()
 		{
 			var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_NORTH);
+			
     		this.editorUi.executeLayout(function()
     		{
     			var selectionCells = graph.getSelectionCells();
@@ -240,11 +252,16 @@ Menus.prototype.init = function()
 				var layout = new mxCompactTreeLayout(graph, true);
 				layout.edgeRouting = false;
 				layout.levelDistance = 30;
-	
-				this.editorUi.executeLayout(function()
-	    		{
-					layout.execute(graph.getDefaultParent(), tmp);
-	    		}, true);
+				
+				promptSpacing(layout.levelDistance, mxUtils.bind(this, function(newValue)
+				{
+					layout.levelDistance = newValue;
+					
+					this.editorUi.executeLayout(function()
+		    		{
+						layout.execute(graph.getDefaultParent(), tmp);
+		    		}, true);
+				}));
 			}
 		}), parent);
 		menu.addItem(mxResources.get('verticalTree'), null, mxUtils.bind(this, function()
@@ -271,15 +288,19 @@ Menus.prototype.init = function()
 			
 			if (tmp != null)
 			{
-
 				var layout = new mxCompactTreeLayout(graph, false);
 				layout.edgeRouting = false;
 				layout.levelDistance = 30;
 				
-				this.editorUi.executeLayout(function()
-	    		{
-					layout.execute(graph.getDefaultParent(), tmp);
-	    		}, true);
+				promptSpacing(layout.levelDistance, mxUtils.bind(this, function(newValue)
+				{
+					layout.levelDistance = newValue;
+					
+					this.editorUi.executeLayout(function()
+		    		{
+						layout.execute(graph.getDefaultParent(), tmp);
+		    		}, true);
+				}));
 			}
 		}), parent);
 		menu.addItem(mxResources.get('radialTree'), null, mxUtils.bind(this, function()
@@ -310,9 +331,9 @@ Menus.prototype.init = function()
 				layout.levelDistance = 80;
 				layout.autoRadius = true;
 				
-				var dlg = new FilenameDialog(this.editorUi, layout.levelDistance, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+				promptSpacing(layout.levelDistance, mxUtils.bind(this, function(newValue)
 				{
-					layout.levelDistance = parseInt(newValue);
+					layout.levelDistance = newValue;
 					
 					this.editorUi.executeLayout(function()
 		    		{
@@ -328,37 +349,40 @@ Menus.prototype.init = function()
 			    			}
 		    			}
 		    		}, true);
-					
-				}), mxResources.get('spacing'));
-				this.editorUi.showDialog(dlg.container, 300, 80, true, true);
-				dlg.init();
+				}));
 			}
 		}), parent);
 		menu.addSeparator(parent);
 		menu.addItem(mxResources.get('organic'), null, mxUtils.bind(this, function()
 		{
 			var layout = new mxFastOrganicLayout(graph);
-
-    		this.editorUi.executeLayout(function()
-    		{
-    			var tmp = graph.getSelectionCell();
-    			
-    			if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
-    			{
-    				tmp = graph.getDefaultParent();
-    			}
-    			
-    			layout.execute(tmp);
-    			
-    			if (graph.getModel().isVertex(tmp))
-    			{
-    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
-    			}
-    		}, true);
+			
+			promptSpacing(layout.forceConstant, mxUtils.bind(this, function(newValue)
+			{
+				layout.forceConstant = newValue;
+				
+	    		this.editorUi.executeLayout(function()
+	    		{
+	    			var tmp = graph.getSelectionCell();
+	    			
+	    			if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
+	    			{
+	    				tmp = graph.getDefaultParent();
+	    			}
+	    			
+	    			layout.execute(tmp);
+	    			
+	    			if (graph.getModel().isVertex(tmp))
+	    			{
+	    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+	    			}
+	    		}, true);
+			}));
 		}), parent);
 		menu.addItem(mxResources.get('circle'), null, mxUtils.bind(this, function()
 		{
 			var layout = new mxCircleLayout(graph);
+			
     		this.editorUi.executeLayout(function()
     		{
     			var tmp = graph.getSelectionCell();

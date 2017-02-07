@@ -4078,7 +4078,7 @@ PrintDialog.prototype.create = function(editorUi)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://desk.draw.io/solution/articles/16000048947-how-to-print-');
+			window.open('https://desk.draw.io/support/solutions/articles/16000048947-how-to-print-');
 		});
 		
 		helpBtn.className = 'geBtn';

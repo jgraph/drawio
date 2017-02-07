@@ -1,3 +1,8 @@
+07-FEB-2017: 6.0.3.4
+
+- Shows related articles in help links
+- Adds link options in HTML and URL dialogs
+
 06-FEB-2017: 6.0.3.3
 
 - Uses mxGraph 3.7.0.2 beta 1

@@ -315,6 +315,15 @@ Editor.prototype.createGraph = function(themes, model)
 	var graph = new Graph(null, model, null, null, themes);
 	graph.transparentBackground = false;
 	
+	// Opens all links in a new window while editing
+	if (!this.chromeless)
+	{
+		graph.isBlankLink = function(href)
+		{
+			return !this.isExternalProtocol(href);
+		};
+	}
+	
 	return graph;
 };
 
