@@ -1,3 +1,10 @@
+07-FEB-2017: 6.0.3.5
+
+- Fixes hidden image in Chrome for image export to new window
+- Fixes fallback for non-public Google Drive files
+- Fixes blurred image for client-side image export in Chrome
+- Uses mxGraph 3.7.0.2 beta 2
+
 07-FEB-2017: 6.0.3.4
 
 - Shows related articles in help links

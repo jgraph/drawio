@@ -2575,37 +2575,52 @@
 				// Opens a new window
 				if (mode == '_blank')
 				{
-					// Workaround for "Access denied" after URL.createObjectURL
-					// and blank window for window.open with data URI in MS Edge
-					// and empty window for IE 11 and 10
-					var win = window.open('about:blank');
-					
-					if (win == null)
-					{
-						mxUtils.popup(data, true);
-					}
-					else if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
-							(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
+					if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
+						(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
 					{
 						if (mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
 						{
-							win.document.write('<html><img src="data:' +
-								mimeType + ((base64Encoded) ? ';base64,' +
-								data : ';charset=utf8,' + encodeURIComponent(data)) +
-								'"/></html>');
-							win.document.close();
+							var win = window.open('about:blank');
+							
+							if (win == null)
+							{
+								mxUtils.popup(data, true);
+							}
+							else
+							{
+								win.document.write('<html><img src="data:' +
+									mimeType + ((base64Encoded) ? ';base64,' +
+									data : ';charset=utf8,' + encodeURIComponent(data)) +
+									'"/></html>');
+								win.document.close();
+							}
 						}
 						else
 						{
-							// Enables page refresh and drag and drop of URL
-							win.location.replace('data:' + mimeType + ((base64Encoded) ? ';base64,' +
-								data : ';charset=utf8,' + encodeURIComponent(data)));	
+							// win.open is workaround for cleared contents in Chrome after delay
+							// when using location.replace
+							var win = window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
+									data : ';charset=utf8,' + encodeURIComponent(data)));
+							
+							if (win == null)
+							{
+								mxUtils.popup(data, true);
+							}
 						}
 					}
 					else
 					{
-						win.document.write(mxUtils.htmlEntities(data, false));
-						win.document.close();
+						var win = window.open('about:blank');
+						
+						if (win == null)
+						{
+							mxUtils.popup(data, true);
+						}
+						else
+						{
+							win.document.write(mxUtils.htmlEntities(data, false));
+							win.document.close();
+						}
 					}
 				}
 				else if (mode == App.MODE_DEVICE)
@@ -2861,6 +2876,93 @@
 		
 		return cb;
 	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.addLinkSection = function(div)
+	{
+		mxUtils.write(div, mxResources.get('link') + ':');
+
+		var linkSelect = document.createElement('select');
+		linkSelect.style.width = '100px';
+		linkSelect.style.marginLeft = '6px';
+		linkSelect.style.marginRight = '10px';
+		linkSelect.className = 'geBtn';
+
+		var autoOption = document.createElement('option');
+		autoOption.setAttribute('value', 'auto');
+		mxUtils.write(autoOption, mxResources.get('automatic'));
+		linkSelect.appendChild(autoOption);
+
+		var blankOption = document.createElement('option');
+		blankOption.setAttribute('value', 'blank');
+		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
+		linkSelect.appendChild(blankOption);
+
+		var selfOption = document.createElement('option');
+		selfOption.setAttribute('value', 'self');
+		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
+		linkSelect.appendChild(selfOption);
+
+		div.appendChild(linkSelect);
+		
+		mxUtils.write(div, mxResources.get('borderColor') + ':');
+		
+		var linkButton = document.createElement('button');
+		linkButton.style.width = '18px';
+		linkButton.style.height = '18px';
+		linkButton.style.marginLeft = '6px';
+		linkButton.style.backgroundPosition = 'center center';
+		linkButton.style.backgroundRepeat = 'no-repeat';
+		
+		var linkColor = '#0000ff';
+		
+		function updateLinkColor()
+		{
+			if (linkColor == null || linkColor == mxConstants.NONE)
+			{
+				linkButton.style.backgroundColor = '';
+				linkButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
+			}
+			else
+			{
+				linkButton.style.backgroundColor = linkColor;
+				linkButton.style.backgroundImage = '';
+			}
+		};
+		
+		updateLinkColor();
+
+		mxEvent.addListener(linkButton, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.pickColor(linkColor || 'none', function(color)
+			{
+				linkColor = color;
+				updateLinkColor();
+			});
+			
+			mxEvent.consume(evt);
+		}));
+		
+		div.appendChild(linkButton);
+		mxUtils.br(div);
+		
+		return {
+			getColor: function()
+			{
+				return linkColor;
+			},
+			getTarget: function()
+			{
+				return linkSelect.value;
+			},
+			focus: function()
+			{
+				linkSelect.focus();
+			}
+		};
+	}
 
 	/**
 	 * 
@@ -2981,7 +3083,7 @@
 				params.push('target=' + linkTarget);
 			}
 			
-			if (linkColor != null)
+			if (linkColor != null && linkColor != mxConstants.NONE)
 			{
 				params.push('highlight=' + ((linkColor.charAt(0) == '#') ? linkColor.substring(1) : linkColor));
 			}
@@ -3078,7 +3180,6 @@
 		radioSection.appendChild(span);
 		
 		mxUtils.br(radioSection);
-		
 		radioSection.appendChild(publicUrlRadio);
 
 		var span = document.createElement('span');
@@ -3089,15 +3190,18 @@
 		
 		if (publicUrl == null && file != null && file.constructor == DriveFile)
 		{
-			var shareBtn = mxUtils.button(mxResources.get('share'), mxUtils.bind(this, function()
+			var testLink = document.createElement('a');
+			testLink.style.paddingLeft = '12px';
+			testLink.style.color = 'gray';
+			testLink.setAttribute('href', 'javascript:void(0);');
+			mxUtils.write(testLink, mxResources.get('share'));
+			radioSection.appendChild(testLink);
+			
+			mxEvent.addListener(testLink, 'click', mxUtils.bind(this, function()
 			{
 				this.hideDialog();
 				this.drive.showPermissions(file.getId());
 			}));
-			shareBtn.style.marginTop = '12px';
-			shareBtn.style.marginLeft = '8px';
-			shareBtn.className = 'geBtn';
-			radioSection.appendChild(shareBtn);
 		}
 
 		copyRadio.setAttribute('checked', 'checked');
@@ -3108,73 +3212,8 @@
 		}
 
 		div.appendChild(radioSection);
-		
-		mxUtils.write(div, mxResources.get('link') + ':');
 
-		var linkSelect = document.createElement('select');
-		linkSelect.style.width = '100px';
-		linkSelect.style.marginLeft = '6px';
-		linkSelect.style.marginRight = '10px';
-		linkSelect.className = 'geBtn';
-
-		var autoOption = document.createElement('option');
-		autoOption.setAttribute('value', 'auto');
-		mxUtils.write(autoOption, mxResources.get('automatic'));
-		linkSelect.appendChild(autoOption);
-
-		var blankOption = document.createElement('option');
-		blankOption.setAttribute('value', 'blank');
-		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
-		linkSelect.appendChild(blankOption);
-
-		var selfOption = document.createElement('option');
-		selfOption.setAttribute('value', 'self');
-		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
-		linkSelect.appendChild(selfOption);
-
-		div.appendChild(linkSelect);
-		
-		mxUtils.write(div, mxResources.get('borderColor') + ':');
-		
-		var linkButton = document.createElement('button');
-		linkButton.style.width = '18px';
-		linkButton.style.height = '18px';
-		linkButton.style.marginLeft = '6px';
-		linkButton.style.backgroundPosition = 'center center';
-		linkButton.style.backgroundRepeat = 'no-repeat';
-		
-		var linkColor = '#0000ff';
-		
-		function updateLinkColor()
-		{
-			if (linkColor == null || linkColor == mxConstants.NONE)
-			{
-				linkButton.style.backgroundColor = '';
-				linkButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
-			}
-			else
-			{
-				linkButton.style.backgroundColor = linkColor;
-				linkButton.style.backgroundImage = '';
-			}
-		};
-		
-		updateLinkColor();
-
-		mxEvent.addListener(linkButton, 'click', mxUtils.bind(this, function(evt)
-		{
-			this.pickColor(linkColor || 'none', function(color)
-			{
-				linkColor = color;
-				updateLinkColor();
-			});
-			
-			mxEvent.consume(evt);
-		}));
-		
-		div.appendChild(linkButton);
-		mxUtils.br(div);
-		
+		var linkSection = this.addLinkSection(div);
 		var zoom = this.addCheckbox(div, mxResources.get('zoom'), true, null, true);
 		mxUtils.write(div, ':');
 		
@@ -3211,11 +3250,11 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSelect.value,
-				linkColor, fit.checked, allPages.checked, layers.checked, lightbox.checked, edit.checked);
+			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSection.getTarget(),
+				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, lightbox.checked, edit.checked);
 		}), null, mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542-how-to-embed-html-');
 		this.showDialog(dlg.container, 320, 360, true, true);
-		linkSelect.focus();
+		linkSection.focus();
 	};
 	
 	/**
@@ -3289,9 +3328,9 @@
 			widthInput.setAttribute('type', 'text');
 			widthInput.style.marginRight = '16px';
 			widthInput.style.width = '50px';
-			widthInput.style.marginTop = '16px';
 			widthInput.style.marginLeft = '6px';
 			widthInput.style.marginRight = '16px';
+			widthInput.style.marginBottom = '10px';
 			widthInput.value = '100%';
 			
 			div.appendChild(widthInput);
@@ -3301,81 +3340,15 @@
 			heightInput = document.createElement('input');
 			heightInput.setAttribute('type', 'text');
 			heightInput.style.width = '50px';
-			heightInput.style.marginTop = '16px';
 			heightInput.style.marginLeft = '6px';
-			heightInput.style.marginBottom = '6px';
+			heightInput.style.marginBottom = '10px';
 			heightInput.value = height + 'px';
 			
 			div.appendChild(heightInput);
 			mxUtils.br(div);
 		}
-
-		mxUtils.write(div, mxResources.get('link') + ':');
-
-		var linkSelect = document.createElement('select');
-		linkSelect.style.width = '100px';
-		linkSelect.style.marginLeft = '6px';
-		linkSelect.style.marginRight = '10px';
-		linkSelect.className = 'geBtn';
-
-		var autoOption = document.createElement('option');
-		autoOption.setAttribute('value', 'auto');
-		mxUtils.write(autoOption, mxResources.get('automatic'));
-		linkSelect.appendChild(autoOption);
-
-		var blankOption = document.createElement('option');
-		blankOption.setAttribute('value', 'blank');
-		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
-		linkSelect.appendChild(blankOption);
-
-		var selfOption = document.createElement('option');
-		selfOption.setAttribute('value', 'self');
-		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
-		linkSelect.appendChild(selfOption);
-
-		div.appendChild(linkSelect);
 		
-		mxUtils.write(div, mxResources.get('borderColor') + ':');
-		
-		var linkButton = document.createElement('button');
-		linkButton.style.width = '18px';
-		linkButton.style.height = '18px';
-		linkButton.style.marginLeft = '6px';
-		linkButton.style.backgroundPosition = 'center center';
-		linkButton.style.backgroundRepeat = 'no-repeat';
-		
-		var linkColor = '#0000ff';
-		
-		function updateLinkColor()
-		{
-			if (linkColor == null || linkColor == mxConstants.NONE)
-			{
-				linkButton.style.backgroundColor = '';
-				linkButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
-			}
-			else
-			{
-				linkButton.style.backgroundColor = linkColor;
-				linkButton.style.backgroundImage = '';
-			}
-		};
-		
-		updateLinkColor();
-
-		mxEvent.addListener(linkButton, 'click', mxUtils.bind(this, function(evt)
-		{
-			this.pickColor(linkColor || 'none', function(color)
-			{
-				linkColor = color;
-				updateLinkColor();
-			});
-			
-			mxEvent.consume(evt);
-		}));
-		
-		div.appendChild(linkButton);
-		mxUtils.br(div);
-
+		var linkSection = this.addLinkSection(div);
 		var hasPages = this.pages != null && this.pages.length > 1;
 		var allPages = null;
 		
@@ -3407,13 +3380,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			fn(linkSelect.value, linkColor,
+			fn(linkSection.getTarget(), linkSection.getColor(),
 				(allPages == null) ? true : allPages.checked,
 				lightbox.checked, edit.checked, layers.checked,
 				(widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null);
 		}), null, mxResources.get('create'));
-		this.showDialog(dlg.container, 280, 250 + dy, true, true);
+		this.showDialog(dlg.container, 280, 240 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -3430,7 +3403,7 @@
 		}
 		else
 		{
-			linkSelect.focus();
+			linkSection.focus();
 		}
 	};
 

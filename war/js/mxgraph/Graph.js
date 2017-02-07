@@ -4965,6 +4965,7 @@ if (typeof mxVertexHandler != 'undefined')
 			var svgCanvas = this.createSvgCanvas(node);
 			svgCanvas.foOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.textOffset = (crisp) ? -0.5 : 0;
+			svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
 
 			// Adds simple text fallback for viewers with no support for foreignObjects
