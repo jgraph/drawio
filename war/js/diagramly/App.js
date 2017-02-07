@@ -227,7 +227,9 @@ App.getStoredMode = function()
 						{
 							mxscript('https://apis.google.com/js/api.js');
 						}
-						else if (urlParams['chrome'] == '0')
+						// Keeps lazy loading for fallback to authenticated Google file if not public in loadFile
+						else if (urlParams['chrome'] == '0' && (window.location.hash == null ||
+							window.location.hash.substring(0, 45) !== '#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D'))
 						{
 							// Disables loading of client
 							window.DriveClient = null;
@@ -3229,7 +3231,8 @@ App.prototype.loadFile = function(id, sameWindow, file)
 									}
 								});
 								
-								if (!fallback() && this.spinner.spin(document.body, mxResources.get('loading')))
+								if (!fallback() && typeof window.DriveClient === 'function' &&
+									this.spinner.spin(document.body, mxResources.get('loading')))
 								{
 									this.addListener('clientLoaded', fallback);
 								}
