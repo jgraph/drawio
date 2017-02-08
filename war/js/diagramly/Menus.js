@@ -875,13 +875,13 @@
 									doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
 										'</title><meta charset="utf-8"></head>');
 									doc.writeln('<body>');
-									doc.writeln(value);
+									doc.writeln(html);
 									
 									var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
 									
 									if (direct)
 									{
-										doc.writeln(scr);
+										doc.writeln(scriptTag);
 									}
 									
 									doc.writeln('</body>');
@@ -908,7 +908,7 @@
 										{
 											var script = document.createElement('script');
 											script.type = 'text/javascript';
-											script.src = /<script.*?src="(.*?)"/.exec(scr)[1];
+											script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
 											doc.body.appendChild(script);
 											
 											info.parentNode.removeChild(info);
