@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=เริ่มต้นเส้น
 linewidth=ความกว้างของเส้น
 link=Link
+links=Links
 loading=กำหลังโหลด
 lockUnlock=ล็อก/เอาล็อกออก
 loggedOut=ออกจากระบบ

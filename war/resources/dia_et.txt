@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Line start
 linewidth=Linewidth
 link=Link
+links=Links
 loading=Loading
 lockUnlock=Lock/Unlock
 loggedOut=Logged Out

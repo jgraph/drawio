@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Vonalkezdet
 linewidth=Vonalvastagság
 link=Link
+links=Links
 loading=Betöltés
 lockUnlock=Bezár/Kizár
 loggedOut=Kijelentkezve

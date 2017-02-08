@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Αρχή Γραμμής
 linewidth=Μήκος Γραμμής
 link=Σύνδεσμος
+links=Links
 loading=Φόρτωση
 lockUnlock=Κλείδωμα/Ξεκλείδωμα
 loggedOut=Αποσυνδέθηκε

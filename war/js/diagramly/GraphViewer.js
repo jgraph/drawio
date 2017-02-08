@@ -1254,7 +1254,12 @@ GraphViewer.prototype.showLocalLightbox = function()
 		
 		if (ui.pages != null && ui.currentPage != null)
 		{
-			param = '&page=' + mxUtils.indexOf(ui.pages, ui.currentPage);
+			var pageIndex = mxUtils.indexOf(ui.pages, ui.currentPage);
+		
+			if (pageIndex > 0)
+			{
+				param = '&page=' + pageIndex;
+			}
 		}
 		
 		return editorGetEditBlankUrl.apply(this, arguments) + param;

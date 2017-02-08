@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=線の始点
 linewidth=線幅
 link=リンク
+links=Links
 loading=読み込み中
 lockUnlock=ロック / 解除
 loggedOut=ログアウトしました。

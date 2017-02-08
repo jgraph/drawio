@@ -383,6 +383,7 @@ lineheight=Rivin korkeus
 linestart=Rivin alku
 linewidth=Rivin leveys
 link=Linkki
+links=Links
 loading=Ladataan
 lockUnlock=Lukitse/Avaa
 loggedOut=Kirjautunut ulos

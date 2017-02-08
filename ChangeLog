@@ -1,3 +1,9 @@
+08-FEB-2017: 6.0.3.6
+
+- Adds help button in publish link dialog
+- Uses desk.draw.io for searching help
+- Adds export HTML dialog
+
 07-FEB-2017: 6.0.3.5
 
 - Fixes hidden image in Chrome for image export to new window

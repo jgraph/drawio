@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Začátek řádku
 linewidth=Šířka řádku
 link=Odkaz
+links=Links
 loading=Nahrávám
 lockUnlock=Zamknout/Odemknout
 loggedOut=Odpojeno

@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=线始端
 linewidth=线宽
 link=链接
+links=Links
 loading=加载中
 lockUnlock=加锁/解锁
 loggedOut=Logged Out

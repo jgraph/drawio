@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Çizgi başı
 linewidth=Çizgi genişliği
 link=Link 
+links=Links
 loading=Yüklüyor
 lockUnlock=Kilitle/Kilidini Aç
 loggedOut=Çıkış Yapıldı 

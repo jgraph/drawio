@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Inici de la línia
 linewidth=Amplada de la línia
 link=Enllaç
+links=Links
 loading=Carregant
 lockUnlock=Bloquejar/Desbloquejar
 loggedOut=Desconnectat

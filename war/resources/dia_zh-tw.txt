@@ -383,6 +383,7 @@ lineheight=邊線高度
 linestart=邊線起點
 linewidth=邊線寬度
 link=連結
+links=Links
 loading=載入中
 lockUnlock=鎖定/解鎖
 loggedOut=登出

@@ -383,6 +383,7 @@ lineheight=Lijnhoogte
 linestart=Start lijn
 linewidth=Lijnbreedte
 link=Link
+links=Links
 loading=Bezig met laden
 lockUnlock=Vergrendelen/ontgrendelen
 loggedOut=Uitgelogd

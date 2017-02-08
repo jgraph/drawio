@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Început de Linie
 linewidth=Grosime linie
 link=Link
+links=Links
 loading=În curs de încărcare
 lockUnlock=Blocare/Deblocare
 loggedOut=Deconectat

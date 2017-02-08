@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=‫התחלת קו‬
 linewidth=‫רוחב קו‬
 link=‫קישור‬
+links=Links
 loading=‫טוען‬
 lockUnlock=‫נעל/שחרר‬
 loggedOut=‫מנותק‬

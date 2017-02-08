@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Linjestart
 linewidth=Linjebredde
 link=Lenke
+links=Links
 loading=Laster inn
 lockUnlock=Lås/lås opp
 loggedOut=Utlogget

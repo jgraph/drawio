@@ -383,6 +383,7 @@ lineheight=‫ارتقاع خط‬
 linestart=‫شروع خط‬
 linewidth=‫عرض خظ‬
 link=‫پیوند‬
+links=Links
 loading=‫فراخوانی‬
 lockUnlock=Lock/Unlock
 loggedOut=Logged Out
