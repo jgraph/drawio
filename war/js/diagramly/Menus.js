@@ -589,9 +589,9 @@
 				
 				var form = document.createElement('div');
 				form.style.display = 'inline';
-				form.innerHTML = ':<form style="display:inline;margin-left:8px;" id="rw_search_form"' +
-					'target="_blank" method="get" action="https://support.draw.io/dosearchsite.action">' +
-					'<input id="rw_search_query" type="text" name="queryString" size="25"></form>';
+				form.innerHTML = ':<form style="display:inline;margin-left:8px;"' +
+					'target="_blank" method="get" action="https://desk.draw.io/support/search/solutions">' +
+					'<input type="text" name="term" size="25"></form>';
 				item.firstChild.nextSibling.appendChild(form);
 				item.style.backgroundColor = 'whiteSmoke';
 				item.style.cursor = 'default';
@@ -855,168 +855,70 @@
 				{
 					editorUi.spinner.stop();
 					
-					editorUi.showEmbedHtmlDialog(url,
-						function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
+					editorUi.showHtmlDialog(mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542-how-to-embed-html-',
+						url, function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
 					{
-						var s = editorUi.getBasenames();
-						var data = {};
-						
-						if (linkColor != '' && linkColor != mxConstants.NONE)
-						{
-							data.highlight = linkColor;
-						}
-						
-						if (linkTarget !== 'auto')
-						{
-							data.target = linkTarget;
-						}
-						
-						if (!lightbox)
-						{
-							data.lightbox = false;
-						}
-						
-						data.nav = graph.foldingEnabled;
-						var zoom = parseInt(initialZoom);
-						
-						if (!isNaN(zoom) && zoom != 100)
-						{
-							data.zoom = zoom / 100;
-						}
-						
-						var tb = [];
-						
-						if (allPages)
-						{
-							tb.push('pages');
-							data.resize = true;
-							
-							if (editorUi.pages != null && editorUi.currentPage != null)
+						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
+							fit, allPages, layers, lightbox, edit, mxUtils.bind(this, function(html, scriptTag)
 							{
-								data.page = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
-							}
-						}
-						
-						if (zoomEnabled)
-						{
-							tb.push('zoom');
-							data.resize = true;
-						}
-						
-						if (layers)
-						{
-							tb.push('layers');
-						}
-						
-						if (tb.length > 0)
-						{
-							if (lightbox)
-							{
-								tb.push('lightbox');
-							}
-							
-							data.toolbar = tb.join(' ');
-						}
-
-						if (edit)
-						{
-							if (publicUrl != null)
-							{
-								data.edit = publicUrl;
-							}
-							else
-							{
-								data.edit = '_blank';
-							}
-						}
-						
-						if (publicUrl != null)
-						{
-							data.url = publicUrl;
-						}
-						else
-						{
-							data.xml = editorUi.getFileData(true, null, null, null, null, !allPages);
-						}
-					
-						var value = '<div class="mxgraph" style="' +
-							((fit) ? 'max-width:100%;' : '') +
-							((tb != '') ? 'border:1px solid transparent;' : '') +
-							'" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>';
-						
-						var sParam = (s.length > 0) ? 's=' + s.join(';') : '';
-						var fetchParam = (publicUrl != null) ? 'fetch=' + encodeURIComponent(publicUrl) : '';
-						var s2 = (sParam.length > 0 || fetchParam.length > 0) ?
-							(((urlParams['dev'] == '1') ?
-							'https://test.draw.io/embed2.js?dev=1&' + sParam :
-							'https://www.draw.io/embed2.js?' + sParam)) + '&' + fetchParam :
-							(((urlParams['dev'] == '1') ?
-							'https://test.draw.io/js/viewer.min.js' :
-							'https://www.draw.io/js/viewer.min.js'));
-					
-						var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
-						
-						var dlg = new EmbedDialog(editorUi, value + '\n' + scr, null, null, function()
-						{
-							var wnd = window.open();
-							var doc = wnd.document;
-					
-							if (document.compatMode === 'CSS1Compat')
-							{
-								doc.writeln('<!DOCTYPE html>');
-							}
-							
-							doc.writeln('<html>');
-							doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-								'</title><meta charset="utf-8"></head>');
-							doc.writeln('<body>');
-							doc.writeln(value);
-							
-							var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
-							
-							if (direct)
-							{
-								doc.writeln(scr);
-							}
-							
-							doc.writeln('</body>');
-							doc.writeln('</html>');
-							doc.close();
-							
-							// Adds script tag after closing page and delay to fix timing issues
-							if (!direct)
-							{
-								var info = wnd.document.createElement('div');
-								info.marginLeft = '26px';
-								info.marginTop = '26px';
-								mxUtils.write(info, mxResources.get('updatingDocument'));
-
-								var img = wnd.document.createElement('img');
-								img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
-									'/' + IMAGE_PATH + '/spin.gif');
-								img.style.marginLeft = '6px';
-								info.appendChild(img);
-								
-								wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
-								
-								window.setTimeout(function()
+								var dlg = new EmbedDialog(editorUi, html + '\n' + scriptTag, null, null, function()
 								{
-									var script = document.createElement('script');
-									script.type = 'text/javascript';
-									script.src = /<script.*?src="(.*?)"/.exec(scr)[1];
-									doc.body.appendChild(script);
+									var wnd = window.open();
+									var doc = wnd.document;
+							
+									if (document.compatMode === 'CSS1Compat')
+									{
+										doc.writeln('<!DOCTYPE html>');
+									}
 									
-									info.parentNode.removeChild(info);
-								}, 20);
-							}
-						});
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
-						dlg.init();
+									doc.writeln('<html>');
+									doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
+										'</title><meta charset="utf-8"></head>');
+									doc.writeln('<body>');
+									doc.writeln(value);
+									
+									var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
+									
+									if (direct)
+									{
+										doc.writeln(scr);
+									}
+									
+									doc.writeln('</body>');
+									doc.writeln('</html>');
+									doc.close();
+									
+									// Adds script tag after closing page and delay to fix timing issues
+									if (!direct)
+									{
+										var info = wnd.document.createElement('div');
+										info.marginLeft = '26px';
+										info.marginTop = '26px';
+										mxUtils.write(info, mxResources.get('updatingDocument'));
+
+										var img = wnd.document.createElement('img');
+										img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
+											'/' + IMAGE_PATH + '/spin.gif');
+										img.style.marginLeft = '6px';
+										info.appendChild(img);
+										
+										wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
+										
+										window.setTimeout(function()
+										{
+											var script = document.createElement('script');
+											script.type = 'text/javascript';
+											script.src = /<script.*?src="(.*?)"/.exec(scr)[1];
+											doc.body.appendChild(script);
+											
+											info.parentNode.removeChild(info);
+										}, 20);
+									}
+								});
+								editorUi.showDialog(dlg.container, 440, 240, true, true);
+								dlg.init();
+							}));
 					});
-					
-//					var dlg = new EmbedHtmlDialog(editorUi, url);
-//					editorUi.showDialog(dlg.container, 550, 400, true, true);
-//					dlg.init();
 				});
 			}
 		}));
@@ -1251,17 +1153,17 @@
 			{
 				menu.addItem(mxResources.get('image') + '...', null, mxUtils.bind(this, function()
 				{
-					editorUi.showExportDialog(false, mxResources.get('export'),
+					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
-						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-							embedImages, cropImage)
+						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+							addShadow, editable, embedImages, cropImage)
 						{
 							var val = parseInt(scale);
 							
 							if (!isNaN(val) && val > 0)
 							{
-							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection, addShadow,
-							   		editable, !cropImage);
+							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
+							   		addShadow, editable, !cropImage);
 							}
 						}), true);
 				}), parent);
@@ -1281,17 +1183,17 @@
 			
 			menu.addItem(mxResources.get('formatSvg') + '...', null, mxUtils.bind(this, function()
 			{
-				editorUi.showExportDialog(true, mxResources.get('export'),
+				editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-						embedImages, cropImage)
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+						addShadow, editable, embedImages, cropImage)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-						   		editable, embedImages, !cropImage);
+						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
+						   		addShadow, editable, embedImages, !cropImage);
 						}
 					}), true);
 			}), parent);
@@ -1308,105 +1210,89 @@
 			{
 				menu.addItem(mxResources.get('formatPdf') + '...', null, mxUtils.bind(this, function()
 				{
-					var content = document.createElement('div');
-					content.style.padding = '6px';
+					var div = document.createElement('div');
+					div.style.whiteSpace = 'nowrap';
 					
-					var cb2 = document.createElement('input');
-					cb2.style.marginRight = '8px';
-					cb2.setAttribute('type', 'checkbox');
+					var hd = document.createElement('h3');
+					mxUtils.write(hd, mxResources.get('formatPdf'));
+					hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+					div.appendChild(hd);
 					
-					if (graph.isSelectionEmpty())
+					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
+						false, graph.isSelectionEmpty());
+					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
+						!graph.pageVisible);
+					crop.style.marginBottom = '16px';
+					
+					var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 					{
-						cb2.setAttribute('disabled', 'disabled');
-					}
-					
-					content.appendChild(cb2);
-					mxUtils.write(content, mxResources.get('selectionOnly'));
-					mxUtils.br(content);
-					
-					var cb = document.createElement('input');
-					cb.setAttribute('type', 'checkbox');
-					cb.style.marginTop = '16px';
-					cb.style.marginRight = '8px';
-					
-					if (!graph.pageVisible)
-					{
-						cb.setAttribute('checked', 'checked');
-						cb.defaultChecked = true;
-					}
-					
-					content.appendChild(cb);
-					mxUtils.write(content, mxResources.get('crop'));
-					
-					var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
-					{
-						this.editorUi.downloadFile('pdf', null, null, !cb2.checked, null, !cb.checked);
+						this.editorUi.downloadFile('pdf', null, null, !selection.checked, null, !crop.checked);
 					}), null, mxResources.get('export'));
-					this.editorUi.showDialog(dlg.container, 300, 120, true, true);
+					this.editorUi.showDialog(dlg.container, 300, 146, true, true);
 				}), parent);
 			}
 
 			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
 			{
-				this.editorUi.downloadFile('html');
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+					{
+						editorUi.spinner.stop();
+						
+						editorUi.showHtmlDialog(mxResources.get('export'), null, url, function(publicUrl, zoomEnabled,
+							initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
+						{
+							editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
+								fit, allPages, layers, lightbox, edit, mxUtils.bind(this, function(html, scriptTag)
+								{
+									editorUi.saveData(editorUi.getBaseFilename() + '.html',
+										'html', html + '\n' + scriptTag, 'text/html');
+								}));
+						});
+					});
+				}
+				
+				//this.editorUi.downloadFile('html');
 			}), parent);
 
 			menu.addSeparator(parent);
 
 			menu.addItem(mxResources.get('formatXml') + '...', null, mxUtils.bind(this, function()
 			{
+				
+				var div = document.createElement('div');
+				div.style.whiteSpace = 'nowrap';
 				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
-				var content = document.createElement('div');
-				content.style.padding = '6px';
 				
-				var cb2 = document.createElement('input');
-				cb2.style.marginRight = '8px';
-				cb2.setAttribute('type', 'checkbox');
+				var hd = document.createElement('h3');
+				mxUtils.write(hd, mxResources.get('formatXml'));
+				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+				div.appendChild(hd);
 				
-				if (graph.isSelectionEmpty())
+				var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
+					false, graph.isSelectionEmpty());
+				var pages = editorUi.addCheckbox(div, mxResources.get((noPages) ? 'compressed' : 'allPages'), true);
+				pages.style.marginBottom = '16px';
+				
+				mxEvent.addListener(selection, 'change', function()
 				{
-					cb2.setAttribute('disabled', 'disabled');
-				}
-				
-				content.appendChild(cb2);
-				mxUtils.write(content, mxResources.get('selectionOnly'));
-				
-				var cb = document.createElement('input');
-				cb.setAttribute('type', 'checkbox');
-				cb.setAttribute('checked', 'checked');
-				cb.defaultChecked = true;
-				cb.style.marginRight = '8px';
-				cb.style.marginTop = '16px';
-				mxUtils.br(content);
-				content.appendChild(cb);
-				
-				if (noPages)
-				{
-					mxUtils.write(content, mxResources.get('compressed'));
-				}
-				else
-				{
-					mxUtils.write(content, mxResources.get('allPages'));
-					
-					mxEvent.addListener(cb2, 'change', function()
+					if (selection.checked)
 					{
-						if (cb2.checked)
-						{
-							cb.setAttribute('disabled', 'disabled');
-						}
-						else
-						{
-							cb.removeAttribute('disabled');
-						}
-					});
-				}
-					
-				var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
+						pages.setAttribute('disabled', 'disabled');
+					}
+					else
+					{
+						pages.removeAttribute('disabled');
+					}
+				});
+				
+				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('xml', (noPages) ? !cb.checked : null, null, !cb2.checked,
-						(!noPages) ? !cb.checked : null);
+					editorUi.downloadFile('xml', (noPages) ? !pages.checked : null, null,
+						!selection.checked, (!noPages) ? !pages.checked : null);
 				}), null, mxResources.get('export'));
-				editorUi.showDialog(dlg.container, 300, 120, true, true);
+				this.editorUi.showDialog(dlg.container, 300, 146, true, true);
 			}), parent);
 
 			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
@@ -1828,23 +1714,9 @@
 			}
 		}));
 		
-		editorUi.actions.addAction('github...', mxUtils.bind(this, function()
-		{
-			editorUi.publishImage(mxUtils.bind(editorUi, editorUi.uploadToGithub));
-		}));
-
 		this.put('publish', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['publishLink'], parent);
-			
-			// Disable publish in IE9- due to CORS problem when getting image from server
-			// which requires cross-domain XHR but XDomainRequest has no custom headers
-			// to set content type to form-encoded-data which is needed for the export.
-//			if ((document.documentMode == null || document.documentMode >= 10) &&
-//				typeof XMLHttpRequest !== 'undefined')
-//			{
-//				this.addMenuItems(menu, ['github'], parent);
-//			}
 		})));
 
 		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()

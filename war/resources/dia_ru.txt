@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Начало линии
 linewidth=Толщина линии
 link=Ссылка
+links=Links
 loading=Загрузка
 lockUnlock=Блокировать/Разблокировать
 loggedOut=Вышел

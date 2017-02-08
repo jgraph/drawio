@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Umpisa ng linya
 linewidth=Lapad ng linya
 link=Ugnay
+links=Links
 loading=Naglolowd
 lockUnlock=Sarado/ Buksan
 loggedOut=Mag log paalis

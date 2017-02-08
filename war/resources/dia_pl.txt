@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Początek linii
 linewidth=Szerokość linii
 link=Hiperłącze
+links=Links
 loading=Ładuję
 lockUnlock=Zablokuj/odblokuj
 loggedOut=Wylogowany

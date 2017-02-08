@@ -2245,7 +2245,8 @@ Graph.prototype.getTooltipForCell = function(cell)
 			{
 				if (mxUtils.indexOf(ignored, attrs[i].nodeName) < 0 && attrs[i].nodeValue.length > 0)
 				{
-					tip += attrs[i].nodeName + ': ' + mxUtils.htmlEntities(attrs[i].nodeValue) + '\n';
+					tip += ((attrs[i].nodeName != 'link') ? attrs[i].nodeName + ':' : '') +
+						mxUtils.htmlEntities(attrs[i].nodeValue) + '\n';
 				}
 			}
 			

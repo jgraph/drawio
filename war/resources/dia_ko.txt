@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=선 시작
 linewidth=선 너비
 link=링크
+links=Links
 loading=불러오는중
 lockUnlock=잠금/잠금 해제
 loggedOut=로그아웃

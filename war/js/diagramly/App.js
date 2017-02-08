@@ -3212,7 +3212,8 @@ App.prototype.loadFile = function(id, sameWindow, file)
 						else
 						{
 							// Fallback for non-public Google Drive diagrams
-							if (url.substring(0, 31) == 'https://drive.google.com/uc?id=')
+							if (url.substring(0, 31) == 'https://drive.google.com/uc?id=' &&
+								(this.drive != null || typeof window.DriveClient === 'function'))
 							{
 								this.hideDialog();
 								
@@ -3231,8 +3232,7 @@ App.prototype.loadFile = function(id, sameWindow, file)
 									}
 								});
 								
-								if (!fallback() && typeof window.DriveClient === 'function' &&
-									this.spinner.spin(document.body, mxResources.get('loading')))
+								if (!fallback() && this.spinner.spin(document.body, mxResources.get('loading')))
 								{
 									this.addListener('clientLoaded', fallback);
 								}

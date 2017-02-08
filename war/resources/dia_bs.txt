@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Početak linije
 linewidth=Debljina linije
 link=Link
+links=Links
 loading=Učitavanje
 lockUnlock=Lock/Unlock
 loggedOut=Logged Out

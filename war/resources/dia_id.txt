@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Garis Akhir
 linewidth=Lebar garis
 link=link
+links=Links
 loading=Memuat
 lockUnlock=Mengunci/Membuka kunci
 loggedOut=Keluar

@@ -383,6 +383,7 @@ lineheight=Zeilenhöhe
 linestart=Linienanfang
 linewidth=Linienbreite
 link=Verknüpfung
+links=Verknüpfungen
 loading=Wird geladen
 lockUnlock=Sperren/Entsperren
 loggedOut=Nicht angemeldet

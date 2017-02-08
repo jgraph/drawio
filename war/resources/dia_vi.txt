@@ -383,6 +383,7 @@ lineheight=Line Height
 linestart=Đầu dòng
 linewidth=Chiều rộng dòng
 link=Đường dẫn
+links=Links
 loading=Đang tải
 lockUnlock=Khóa/Mở khóa
 loggedOut=Đã đăng xuất
