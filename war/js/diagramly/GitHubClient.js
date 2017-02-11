@@ -344,7 +344,8 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, req, asLibrar
 {
 	var data = JSON.parse(req.getText());
 	var meta = {'org': org, 'repo': repo, 'ref': ref, 'name': data.name,
-		'path': data.path, 'sha': data.sha, 'download_url': data.download_url};
+		'path': data.path, 'sha': data.sha, 'html_url': data.html_url,
+		'download_url': data.download_url};
 	var content = data.content;
 	
 	if (data.encoding === 'base64')
@@ -403,8 +404,8 @@ GitHubClient.prototype.insertFile = function(filename, data, success, error, asL
 			// Does not insert file here as there is another writeFile implicit via fileCreated
 			if (!asLibrary)
 			{
-				success(new GitHubFile(this.ui, data, {'org': org, 'repo': repo,
-					'ref': ref, 'name': filename, 'path': path}));
+				success(new GitHubFile(this.ui, data, {'org': org, 'repo': repo, 'ref': ref,
+					'name': filename, 'path': path, 'sha': sha, isNew: true}));
 			}
 			else
 			{
@@ -532,7 +533,7 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 	var ref = file.meta.ref;
 	var path = file.meta.path;
 	
-	this.showCommitDialog(file.meta.name, file.meta.sha == null, mxUtils.bind(this, function(message)
+	this.showCommitDialog(file.meta.name, file.meta.sha == null || file.meta.isNew, mxUtils.bind(this, function(message)
 	{
 		var data = (window.btoa) ? btoa(file.getData()) : Base64.encode(file.getData());
 		
@@ -540,8 +541,8 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 		{
 			this.writeFile(org, repo, ref, path, message, data, sha, mxUtils.bind(this, function(req)
 			{
-				var data = JSON.parse(req.getText());
-				success(data.content.sha);
+				delete file.meta.isNew;
+				success(JSON.parse(req.getText()));
 			}), mxUtils.bind(this, function(err)
 			{
 				// Handles special conflict case where overwrite needs an update of the sha

@@ -157,7 +157,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 			var modified = this.isModified();
 			this.setModified(false);
 			
-			this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(sha)
+			this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
 			{
 				this.savingFile = false;
 				this.isModified = prevModified;
@@ -167,8 +167,8 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 					success();
 				}
 				
-				// No sha means save was cancelled
-				if (sha == null)
+				// No commit means save was cancelled
+				if (commit == null)
 				{
 					this.setModified(modified || this.isModified());
 					
@@ -179,7 +179,10 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 				}
 				else
 				{
-					this.meta.sha = sha;
+					this.meta.sha = commit.content.sha;
+					this.meta.html_url = commit.content.html_url;
+					this.meta.download_url = commit.content.download_url;
+					
 					this.contentChanged();
 				}
 			}),
