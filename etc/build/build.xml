@@ -329,6 +329,9 @@
 				<file name="OneDriveFile.js" />
 				<file name="OneDriveLibrary.js" />
 				<file name="OneDriveClient.js" />
+				<file name="GitHubFile.js" />
+				<file name="GitHubLibrary.js" />
+				<file name="GitHubClient.js" />
 				<file name="ChatWindow.js" />
 			</sources>
 			

@@ -1,12 +1,6 @@
-// $Id = DriveFile.js,v 1.12 2010-01-02 09 =45 =14 gaudenz Exp $
-// Copyright (c) 2006-2014, JGraph Ltd
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 DriveFile = function(ui, data, desc, doc)
 {
@@ -46,6 +40,34 @@ DriveFile.prototype.saveDelay = 0;
 DriveFile.prototype.getMode = function()
 {
 	return App.MODE_GOOGLE;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+DriveFile.prototype.getPublicUrl = function(fn)
+{
+	gapi.client.drive.permissions.list(
+	{
+		'fileId': this.desc.id
+	}).execute(mxUtils.bind(this, function(resp)
+	{
+		if (resp != null)
+		{
+			for (var i = 0; i < resp.items.length; i++)
+			{
+				if (resp.items[i].id === 'anyoneWithLink' ||
+					resp.items[i].id === 'anyone')
+				{
+					fn(this.desc.webContentLink);
+					
+					return;
+				}
+			}
+		}
+		
+		fn(null);
+	}));
 };
 
 /**
@@ -186,8 +208,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					error();
 				}
 			}
-		}),
-		mxUtils.bind(this, function(resp)
+		}), mxUtils.bind(this, function(resp)
 		{
 			this.savingFile = false;
 			this.isModified = prevModified;

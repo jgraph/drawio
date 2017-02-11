@@ -1,6 +1,6 @@
-/*
- * $Id: Menus.js,v 1.29 2014/02/11 13:56:10 gaudenz Exp $
- * Copyright (c) 2006-2014, JGraph Ltd
+/**
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 (function()
 {
@@ -787,7 +787,7 @@
 						{
 							editorUi.spinner.stop();
 							
-							if (req.getStatus() == 200)
+							if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
 								editorUi.saveLocalFile(req.getText(), 'realtime.txt', 'text/plain');
 							}
@@ -1246,8 +1246,11 @@
 							editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
 								fit, allPages, layers, lightbox, edit, mxUtils.bind(this, function(html, scriptTag)
 								{
-									editorUi.saveData(editorUi.getBaseFilename() + '.html',
-										'html', html + '\n' + scriptTag, 'text/html');
+									var basename = editorUi.getBaseFilename();
+									var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
+										'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
+										'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
+									editorUi.saveData(basename + '.html', 'html', result, 'text/html');
 								}));
 						});
 					});
@@ -1394,6 +1397,9 @@
 								graph.setSelectionCells(cells);
 							});
 	    				}), true);
+	    			}), mxUtils.bind(this, function()
+	    			{
+	    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
 	    			}));
 				}
 				else
@@ -1462,6 +1468,14 @@
 						// do nothing
 					}, parent, null, false);
 				}
+			}
+			
+			if (editorUi.gitHub != null)
+			{
+				menu.addItem(mxResources.get('github') + '...', null, function()
+				{
+					pickFileFromService(editorUi.gitHub);
+				}, parent);
 			}
 
 			if (editorUi.dropbox != null)
@@ -1907,6 +1921,14 @@
 					// do nothing
 				}, parent, null, false);
 			}
+
+			if (editorUi.gitHub != null)
+			{
+				menu.addItem(mxResources.get('github') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_GITHUB);
+				}, parent);
+			}
 			
 			if (editorUi.dropbox != null)
 			{
@@ -2004,6 +2026,14 @@
 				}
 			}
 			
+			if (editorUi.gitHub != null)
+			{
+				menu.addItem(mxResources.get('github') + '...', null, function()
+				{
+					editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITHUB);
+				}, parent);
+			}
+			
 			if (editorUi.dropbox != null)
 			{
 				menu.addItem(mxResources.get('dropbox') + '...', null, function()
@@ -2073,6 +2103,14 @@
 				}
 			}
 			
+			if (editorUi.gitHub != null)
+			{
+				menu.addItem(mxResources.get('github') + '...', null, function()
+				{
+					editorUi.pickLibrary(App.MODE_GITHUB);
+				}, parent);
+			}
+			
 			if (editorUi.dropbox != null)
 			{
 				menu.addItem(mxResources.get('dropbox') + '...', null, function()
@@ -2131,10 +2169,17 @@
 					{
 						if (fileUrl != null && fileUrl.length > 0 && editorUi.spinner.spin(document.body, mxResources.get('loading')))
 						{
-							// Uses proxy to avoid CORS issues
-							mxUtils.get(PROXY_URL + '?url=' + encodeURIComponent(fileUrl), function(req)
+							var realUrl = fileUrl;
+							
+							if (!editorUi.isCorsEnabledForUrl(fileUrl))
 							{
-								if (req.getStatus() == 200)
+								realUrl = PROXY_URL + '?url=' + encodeURIComponent(fileUrl);
+							}
+							
+							// Uses proxy to avoid CORS issues
+							mxUtils.get(realUrl, function(req)
+							{
+								if (req.getStatus() >= 200 && req.getStatus() <= 299)
 								{
 									editorUi.spinner.stop();
 									

@@ -1,3 +1,10 @@
+11-FEB-2017: 6.1.0.0
+
+- Fixes HTML export
+- Adds GitHub support
+- Fixes processing order in CSV import
+- Fixes checks for valid HTTP responses
+
 08-FEB-2017: 6.0.3.7
 
 - Fixes preview for Embed HTML dialog

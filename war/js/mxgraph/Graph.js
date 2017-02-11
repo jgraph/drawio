@@ -3361,7 +3361,7 @@ mxStencilRegistry.getStencil = function(name)
 							{
 								var req = mxUtils.load(fname);
 								
-								if (req != null && req.getStatus() == 200)
+								if (req != null && req.getStatus() >= 200 && req.getStatus() <= 299)
 								{
 									eval.call(window, req.getText());
 								}
@@ -3442,7 +3442,7 @@ mxStencilRegistry.loadStencilSet = function(stencilFile, postStencilLoad, force,
 				{
 					var req = mxUtils.get(stencilFile, mxUtils.bind(this, function(req)
 					{
-						if (req.getStatus() == 200)
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
 							xmlDoc = req.getXml();
 							mxStencilRegistry.packages[stencilFile] = xmlDoc;

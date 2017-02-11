@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 (function()
 {
@@ -939,7 +939,7 @@
 		}
 		
 		// Creates tabbed file structure if enforced by URL
-		if (urlParams['pages'] != '0' && this.fileNode == null)
+		if (urlParams['pages'] != '0' && this.fileNode == null && node != null)
 		{
 			this.fileNode = node.ownerDocument.createElement('mxfile');
 			this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
@@ -1354,6 +1354,25 @@
 		
 		return result;
 	};
+
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.prototype.restoreLibraries = function()
+	{
+		// hook for subclassers
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
+	{
+		// hook for subclassers
+	};
 	
 	/**
 	 * Shows or hides the scratchpad library.
@@ -1658,7 +1677,7 @@
 			
 			var saveLibrary = mxUtils.bind(this, function(evt)
 			{
-				if (file.constructor != LocalLibrary || file.isAutosave())
+				if (file.constructor != LocalLibrary && file.isAutosave())
 				{
 					if (spinBtn != null && spinBtn.parentNode != null)
 					{
@@ -1692,7 +1711,8 @@
 					
 					mxEvent.addListener(saveBtn, 'click', mxUtils.bind(this, function(evt)
 					{
-						this.saveLibrary(file.getTitle(), images, file, file.getMode(), true, true);
+						this.saveLibrary(file.getTitle(), images, file, file.getMode(),
+							file.constructor == LocalLibrary, true);
 						saveBtn.parentNode.removeChild(saveBtn);
 						saveBtn = null;
 						title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
@@ -2573,10 +2593,6 @@
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-		var backends = !this.isOfflineApp() && !this.isOffline() &&
-			(typeof window.DriveClient === 'function' ||
-			typeof window.DropboxClient === 'function' ||
-			typeof window.OneDriveClient === 'function');
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2652,8 +2668,8 @@
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
-		this.showDialog(dlg.container, 380, (backends) ? 280 : 160, true, true);
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab, null, null, 4);
+		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 5) ? 270 : 390, true, true);
 		dlg.init();
 	};
 
@@ -2687,10 +2703,6 @@
 	EditorUi.prototype.saveRequest = function(filename, format, fn)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-		var backends = !this.isOfflineApp() && !this.isOffline() &&
-			(typeof window.DriveClient === 'function' ||
-			typeof window.DropboxClient === 'function' ||
-			typeof window.OneDriveClient === 'function');
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2717,11 +2729,7 @@
 								{
 									this.spinner.stop();
 									
-									if (xhr.getStatus() < 200 || xhr.getStatus() > 299)
-									{
-										this.handleError({message: mxResources.get('errorSavingFile')});
-									}
-									else
+									if (xhr.getStatus() >= 200 && xhr.getStatus() <= 299)
 									{
 										try
 										{
@@ -2732,6 +2740,10 @@
 										{
 											this.handleError(e);
 										}
+									}
+									else
+									{
+										this.handleError({message: mxResources.get('errorSavingFile')});
 									}
 								}), function(resp)
 								{
@@ -2747,7 +2759,7 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
-		this.showDialog(dlg.container, 380, (backends) ? 280 : 160, true, true);
+		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 4) ? 270 : 390, true, true);
 		dlg.init();
 	};
 		
@@ -3155,6 +3167,135 @@
 		var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
 		
 		fn(value, scr);
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.showGitHubDialog = function(filePath, fn, defaultPath)
+	{
+		if (this.gitHubDialog == null)
+		{
+			var div = document.createElement('div');
+			div.style.whiteSpace = 'nowrap';
+			var graph = this.editor.graph;
+			
+			var hd = document.createElement('h3');
+			mxUtils.write(hd, mxResources.get('github'));
+			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+			div.appendChild(hd);
+			
+			var table = document.createElement('table');
+			var tbody = document.createElement('tbody');
+			table.style.marginBottom = '16px';
+			
+			var addRow = mxUtils.bind(this, function(label, placeholder, value)
+			{
+				var row = document.createElement('tr');
+				var td1 = document.createElement('td');
+				td1.style.padding = '4px';
+				var td2 = td1.cloneNode(true);
+				
+				mxUtils.write(td1, label || '');
+				var input = document.createElement('input');
+				input.setAttribute('type', 'text');
+				input.style.width = '230px';
+				input.style.marginLeft = '4px';
+				input.value = value || '';
+				td2.appendChild(input);
+				
+				if (placeholder != null)
+				{
+					input.setAttribute('placeholder', placeholder);
+				}
+				
+				mxEvent.addListener(input, 'keypress', mxUtils.bind(this, function(evt)
+				{
+					if (evt.keyCode == 13 && !mxEvent.isConsumed(evt))
+					{
+						mxEvent.consume(evt);
+						this.hideDialog();
+						invokeFn();
+					}
+				}));
+				
+				row.appendChild(td1);
+				row.appendChild(td2);
+				tbody.appendChild(row);
+				
+				return input;
+			});
+			
+			var org = null;
+			var repo = null;
+			
+			var file = this.getCurrentFile();
+			
+			if (file != null && file.constructor == GitHubFile && file.meta.drawio != null)
+			{
+				org = file.meta.drawio.org;
+				repo = file.meta.drawio.repo;
+			}
+			
+			var orgInput = addRow(mxResources.get('organisation') + ':', 'org', org);
+			var repoInput = addRow(mxResources.get('repository') + ':', 'repo', repo);
+			var pathInput = addRow();
+			var refInput = addRow(mxResources.get('ref') + ':', 'master');
+			
+			table.appendChild(tbody);
+			div.appendChild(table);
+			
+			var invokeFn = mxUtils.bind(this, function()
+			{
+				// Checks path for leading/trailing slashes
+				var path = pathInput.value;
+				
+				if (path.charAt(0) == '/')
+				{
+					path = path.substring(1);
+				}
+				
+				if (!filePath && path.charAt(path.length) == '/')
+				{
+					path = path.substring(0, path.length - 1);
+				}
+				
+				var ref = refInput.value;
+				
+				if (ref == '')
+				{
+					ref = 'master';
+				}
+				
+				this.gitHubDialog.fn(orgInput.value, repoInput.value, ref, path);
+			});
+			
+			this.gitHubDialog = new CustomDialog(this, div, invokeFn);
+			
+			this.gitHubDialog.init = function(thisFn, fPath, dPath)
+			{
+				var td = pathInput.parentNode.previousSibling;
+				td.innerHTML = '';
+				mxUtils.write(td, mxResources.get((fPath) ? 'path' : 'folder'));
+				pathInput.setAttribute('placeholder', (fPath) ? 'folder/filename.ext' : 'root');
+				pathInput.value = dPath || '';
+				orgInput.focus();
+				
+				if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+				{
+					orgInput.select();
+				}
+				else
+				{
+					document.execCommand('selectAll', false, null);
+				}
+				
+				this.fn = thisFn;
+			};
+		}
+		
+		this.showDialog(this.gitHubDialog.container, 340, 200, true, true);
+		this.gitHubDialog.init(fn, filePath, defaultPath);
 	};
 	
 	/**
@@ -3675,7 +3816,7 @@
 				// LATER: Updates on each change, add a delay
 				req.send(mxUtils.bind(this, function()
 				{
-					if (req.getStatus() == 200)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
 						// Fixes possible "incorrect function" for select() on
 						// DOM node which is no longer in document with IE11
@@ -4245,7 +4386,16 @@
 			callback(svgRoot);
 		}
 	};
-	
+
+	/**
+	 * Returns true if the given URL is known to have CORS headers.
+	 */
+	EditorUi.prototype.isCorsEnabledForUrl = function(url)
+	{	
+		return url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
+			/^https:\/\/.*\.github\.io\//.test(url);
+	};
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -4476,7 +4626,7 @@
 				// Fixes possible parsing problems with ASCII 160 (non-breaking space)
 				this.parseFile(new Blob([text.replace(/\s+/g,' ')], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
 				{
-					if (xhr.readyState == 4 && xhr.status == 200)
+					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
 					{
 						this.editor.graph.setSelectionCells(this.insertTextAt(xhr.responseText, dx, dy, true));
 					}
@@ -4758,7 +4908,7 @@
 				{
 					var importedCells = null;
 					
-					if (xhr.status == 200)
+					if (xhr.status >= 200 && xhr.status <= 299)
 					{
 						importedCells = this.importXml(xhr.responseText, dx, dy, crop);
 					}
@@ -6339,7 +6489,7 @@
 									{
 							    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
 										{
-							    			if (req.getStatus() == 200)
+							    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							    			{
 							    				this.openLocalFile(req.getText());
 							    			}
@@ -6493,7 +6643,7 @@
 									{
 										this.spinner.stop();
 										
-										if (xhr.status == 200)
+										if (xhr.status >= 200 && xhr.status <= 299)
 										{
 											this.openLocalFile(xhr.responseText, name);
 										}
@@ -6746,7 +6896,14 @@
 	 */
 	EditorUi.prototype.getPublicUrl = function(file, fn)
 	{
-		fn(null);
+		if (file != null)
+		{
+			file.getPublicUrl(fn);
+		}
+		else
+		{
+			fn(null);
+		}
 	};
 
 	/**
@@ -7062,7 +7219,7 @@
 									this.editor.graph.setEnabled(true);
 									this.spinner.stop();
 									
-									if (req.getStatus() == 200)
+									if (req.getStatus() >= 200 && req.getStatus() <= 299)
 									{
 										postDataBack(req.getText());
 									}
@@ -7560,16 +7717,7 @@
 								// Removes attribute
 								graph.setAttributeForCell(cell, link, null);
 							}
-							
-							// Removes ignored attributes after processing above
-							if (ignore != null)
-							{
-								for (var j = 0; j < ignore.length; j++)
-					    		{
-									graph.setAttributeForCell(cell, mxUtils.trim(ignore[j]), null);
-					    		}
-							}
-							
+
 							// Sets the size
 							var size = this.editor.graph.getPreferredSizeForCell(cell);
 							
@@ -7620,6 +7768,20 @@
 	    					}
     					}
     				}
+					
+					// Removes ignored attributes after processing above
+					if (ignore != null)
+					{
+						for (var i = 0; i < cells.length; i++)
+	    				{
+							var cell = cells[i];
+							
+							for (var j = 0; j < ignore.length; j++)
+				    		{
+								graph.setAttributeForCell(cell, mxUtils.trim(ignore[j]), null);
+				    		}
+	    				}
+					}
 					
 					var edgeLayout = new mxParallelEdgeLayout(graph);
     				edgeLayout.spacing = edgespacing;
@@ -7940,27 +8102,31 @@
 	/**
 	 * Returns the number of storage options enabled
 	 */
-	EditorUi.prototype.getServiceCount = function()
+	EditorUi.prototype.getServiceCount = function(allowBrowser)
 	{
-		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-		var backends = !this.isOfflineApp() && !this.isOffline() &&
-			(typeof window.DriveClient === 'function' ||
-			typeof window.DropboxClient === 'function' ||
-			typeof window.OneDriveClient === 'function');
-		
 		var serviceCount = 0;
 		
-		if (this.drive != null)
+		if (this.drive != null || typeof window.DriveClient === 'function')
 		{
 			serviceCount++
 		}
 		
-		if (this.dropbox != null)
+		if (this.dropbox != null || typeof window.DropboxClient === 'function')
+		{
+			serviceCount++
+		}
+
+		if (this.oneDrive != null || typeof window.OneDriveClient === 'function')
 		{
 			serviceCount++
 		}
 		
-		if (isLocalStorage && urlParams['browser'] != '0')
+		if (this.gitHub != null)
+		{
+			serviceCount++
+		}
+		
+		if (allowBrowser && isLocalStorage && urlParams['browser'] == '1')
 		{
 			serviceCount++
 		}

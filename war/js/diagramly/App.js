@@ -62,7 +62,7 @@ App = function(editor, container, lightbox)
 	// Sets help link for placeholders
 	if (!this.isOffline())
 	{
-		EditDataDialog.placeholderHelpLink = 'https://support.draw.io/questions/9338941';
+		EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979-how-to-work-with-placeholders-';
 	}
 
 	// Gets recent colors from settings
@@ -127,6 +127,11 @@ App.MODE_DROPBOX = 'dropbox';
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.MODE_ONEDRIVE = 'onedrive';
+
+/**
+ * Sets the delay for autosave in milliseconds. Default is 2000.
+ */
+App.MODE_GITHUB = 'github';
 
 /**
  * Sets the delay for autosave in milliseconds. Default is 2000.
@@ -684,6 +689,21 @@ App.prototype.init = function()
 	 * Holds the listener for description changes.
 	 */	
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
+	
+	/**
+	 * Creates github client.
+	 */
+	this.gitHub = (urlParams['gh'] != '0' && (urlParams['embed'] != '1'
+		|| urlParams['gh'] == '1')) ? new GitHubClient(this) : null;
+	
+	if (this.gitHub != null)
+	{
+		this.gitHub.addListener('userChanged', mxUtils.bind(this, function()
+		{
+			this.updateUserElement();
+			this.restoreLibraries();
+		}))
+	}
 
 	/**
 	 * Lazy-loading for individual backends
@@ -1122,7 +1142,7 @@ App.prototype.checkLicense = function()
 				
 				try
 				{
-					if (req.getStatus() == 200)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
 						var value = req.getText();
 						registered = true;
@@ -1573,41 +1593,6 @@ App.prototype.getThumbnail = function(width, success)
 };
 
 /**
- * Tries to find a public URL for the given file.
- */
-App.prototype.getPublicUrl = function(file, fn)
-{
-	if (file != null && file.constructor == DriveFile)
-	{
-		gapi.client.drive.permissions.list(
-		{
-			'fileId': file.desc.id
-		}).execute(function(resp)
-		{
-			if (resp != null)
-			{
-				for (var i = 0; i < resp.items.length; i++)
-				{
-					if (resp.items[i].id === 'anyoneWithLink' ||
-						resp.items[i].id === 'anyone')
-					{
-						fn(file.desc.webContentLink);
-						
-						return;
-					}
-				}
-			}
-			
-			fn(null);
-		  });
-	}
-	else
-	{
-		fn(null);
-	}
-};
-
-/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -1724,6 +1709,17 @@ App.prototype.appIconClicked = function(evt)
 		else if (mode == App.MODE_ONEDRIVE)
 		{
 			window.open('https://onedrive.live.com/');
+		}
+		else if (mode == App.MODE_GITHUB)
+		{
+			if (file != null && file.constructor == GitHubFile)
+			{
+				window.open(file.meta.html_url);
+			}
+			else
+			{
+				window.open('https://github.com/');
+			}
 		}
 	}
 	
@@ -2195,8 +2191,9 @@ App.prototype.start = function()
 							{
 								this.createFile(filename, this.getFileData(true), null, mode);
 							}
-						}));
-						this.showDialog(dlg.container, 380, 270, true, false, mxUtils.bind(this, function(cancel)
+						}), null, null, null, null, urlParams['browser'] == '1', null, null, true);
+						this.showDialog(dlg.container, 380, (this.getServiceCount(true) < 4) ? 270 : 390,
+							true, false, mxUtils.bind(this, function(cancel)
 						{
 							if (cancel && this.getCurrentFile() == null)
 							{
@@ -2280,11 +2277,12 @@ App.prototype.start = function()
  */
 App.prototype.showSplash = function(force)
 {
+	var serviceCount = this.getServiceCount(false);
+	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
 		var dlg = new SplashDialog(this);
-		var serviceCount = this.getServiceCount();
-
+		
 		this.showDialog(dlg.container, 340, (serviceCount < 2) ? 180 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
@@ -2310,13 +2308,15 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
+		var rowLimit = (serviceCount <= 4) ? 4 : 3;
+		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
 			this.hideDialog();
 			showSecondDialog();
-		}));
+		}), rowLimit);
 		
-		this.showDialog(dlg.container, (isLocalStorage && urlParams['browser'] == '1') ? 480 : 380, 300, true, false);
+		this.showDialog(dlg.container, rowLimit * 100, (serviceCount > rowLimit) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
@@ -2430,6 +2430,13 @@ App.prototype.pickFile = function(mode)
 			this.dropbox.pickFile();
 		}
 	}
+	else if (mode == App.MODE_GITHUB)
+	{
+		if (this.gitHub != null)
+		{
+			this.gitHub.pickFile();
+		}
+	}
 	else if (mode == App.MODE_ONEDRIVE)
 	{
 		if (this.oneDrive != null)
@@ -2516,9 +2523,12 @@ App.prototype.pickLibrary = function(mode)
 {
 	mode = (mode != null) ? mode : this.mode;
 	
-	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE)
+	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB)
 	{
-		var peer = (mode == App.MODE_GOOGLE) ? this.drive : ((mode == App.MODE_ONEDRIVE) ? this.oneDrive : this.dropbox);
+		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
+			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
+			((mode == App.MODE_GITHUB) ? this.gitHub :
+			this.dropbox));
 		
 		if (peer != null)
 		{
@@ -2669,6 +2679,15 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 					this.libraryLoaded(newFile, images);
 				}), error, this.drive.libraryMimeType);
 			}
+			else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+			{
+				this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+				{
+					this.spinner.stop();
+					this.hideDialog(true);
+					this.libraryLoaded(newFile, images);
+				}), error, folderId);
+			}
 			else if (mode == App.MODE_DROPBOX && this.dropbox != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 			{
 				this.dropbox.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
@@ -2803,6 +2822,8 @@ App.prototype.saveFile = function(forceDialog)
 			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 			var prev = this.mode;
 			
+			var serviceCount = this.getServiceCount(true);
+			
 			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode)
 			{
 				if (name != null && name.length > 0)
@@ -2848,7 +2869,7 @@ App.prototype.saveFile = function(forceDialog)
 				this.hideDialog();
 			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
 				(this.isOffline()) ? null : 'https://support.draw.io/questions/9338901', true);
-			this.showDialog(dlg.container, 440, 380, true, true);
+			this.showDialog(dlg.container, 460, (serviceCount < 4) ? 270 : 390, true, true);
 			dlg.init();
 		}
 	}
@@ -2862,14 +2883,22 @@ App.prototype.saveFile = function(forceDialog)
  */
 EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 {
-	this.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(url), mxUtils.bind(this, function(data)
+	var realUrl = url;
+	
+	if (!this.isCorsEnabledForUrl(realUrl))
+	{
+		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+	}
+	
+	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
 	{
 		if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
 		{
 			// Asynchronous parsing via server
 			this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
 			{
-				if (xhr.readyState == 4 && xhr.status == 200 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
+				if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
+					xhr.responseText.substring(0, 13) == '<mxGraphModel')
 				{
 					onload(xhr.responseText);
 				}
@@ -2929,6 +2958,17 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				complete();
 				this.fileCreated(file, libs, replace, done);
 			}), error);
+		}
+		else if (mode == App.MODE_GITHUB && this.gitHub != null)
+		{
+			this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+			{
+				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
+				{
+					complete();
+					this.fileCreated(file, libs, replace, done);
+				}), error, false, folderId);
+			}));
 		}
 		else if (mode == App.MODE_DROPBOX && this.dropbox != null)
 		{
@@ -3262,7 +3302,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				{
 					peer = this.oneDrive;
 				}
-
+				else if (id.charAt(0) == 'H')
+				{
+					peer = this.gitHub;
+				}
+				
 				if (peer == null)
 				{
 					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')}, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
@@ -3432,10 +3476,17 @@ App.prototype.restoreLibraries = function()
 								
 								if (!this.isOffline())
 								{
-									// Uses proxy to avoid CORS issues
-									mxUtils.get(PROXY_URL + '?url=' + encodeURIComponent(url), mxUtils.bind(this, function(req)
+									var realUrl = url;
+									
+									if (!this.isCorsEnabledForUrl(realUrl))
 									{
-										if (req.getStatus() == 200)
+										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+									}
+									
+									// Uses proxy to avoid CORS issues
+									mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+									{
+										if (req.getStatus() >= 200 && req.getStatus() <= 299)
 										{
 											try
 											{
@@ -3468,6 +3519,14 @@ App.prototype.restoreLibraries = function()
 										peer = this.drive;
 									}
 								}
+								else if (service == 'H')
+								{
+									if (this.gitHub != null && this.gitHub.getUser() != null)
+									{
+										peer = this.gitHub;
+									}
+								}
+
 								else if (service == 'D')
 								{
 									if (this.dropbox != null && this.dropbox.getUser() != null)
@@ -3644,12 +3703,15 @@ App.prototype.save = function(name, done)
 App.prototype.pickFolder = function(mode, fn, enabled)
 {
 	enabled = (enabled != null) ? enabled : true;
+	var resume = this.spinner.pause();
 	
 	if (enabled && mode == App.MODE_GOOGLE && this.drive != null)
 	{
 		// Shows a save dialog
 		this.drive.pickFolder(mxUtils.bind(this, function(evt)
 		{
+			resume();
+			
 			if (evt.action == google.picker.Action.PICKED)
 			{
 				var folderId = null;
@@ -3668,6 +3730,7 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 		this.oneDrive.pickFolder(mxUtils.bind(this, function(evt)
 		{
 			var folderId = null;
+			resume();
 			
 			if (evt != null && evt.data != null && evt.data.folders != null &&
 				evt.data.folders.length > 0)
@@ -3676,6 +3739,14 @@ App.prototype.pickFolder = function(mode, fn, enabled)
         		folderId = folderId.substring(folderId.lastIndexOf('.') + 1);
         		fn(folderId);
 			}
+		}));
+	}
+	else if (enabled && mode == App.MODE_GITHUB && this.gitHub != null)
+	{
+		this.gitHub.pickFolder(mxUtils.bind(this, function(folderPath)
+		{
+			resume();
+			fn(folderPath);
 		}));
 	}
 	else
@@ -3760,6 +3831,20 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 				this.spinner.stop();
 				this.handleError(resp);
 			}), false, folderId);
+		}
+	}
+	else if (mode == App.MODE_GITHUB)
+	{
+		if (this.gitHub != null && this.spinner.spin(document.body, mxResources.get('saving')))
+		{
+			this.gitHub.insertFile(filename, data, mxUtils.bind(this, function()
+			{
+				this.spinner.stop();
+			}), mxUtils.bind(this, function(resp)
+			{
+				this.spinner.stop();
+				this.handleError(resp);
+			}), false, folderId, base64Encoded);
 		}
 	}
 };
@@ -3886,7 +3971,7 @@ App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 		{
 			mxUtils.get(url, mxUtils.bind(this, function(req)
 			{
-				if (req.getStatus() == 200)
+				if (req.getStatus() >= 200 && req.getStatus() <= 299)
 				{
 			    	if (success != null)
 			    	{
@@ -3997,6 +4082,10 @@ App.prototype.updateHeader = function()
 				else if (mode == App.MODE_ONEDRIVE)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/onedrive-logo-white.svg)';
+				}
+				else if (mode == App.MODE_GITHUB)
+				{
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/github-logo-white.svg)';
 				}
 			}
 		}));
@@ -4235,7 +4324,8 @@ App.prototype.updateUserElement = function()
 {
 	if ((this.drive == null || this.drive.getUser() == null) &&
 		(this.oneDrive == null || this.oneDrive.getUser() == null) &&
-		(this.dropbox == null || this.dropbox.getUser() == null))
+		(this.dropbox == null || this.dropbox.getUser() == null) &&
+		(this.gitHub == null || this.gitHub.getUser() == null))
 	{
 		if (this.userElement != null)
 		{
@@ -4471,6 +4561,36 @@ App.prototype.updateUserElement = function()
 							}
 						}));
 					}
+
+					if (this.gitHub != null)
+					{
+						addUser(this.gitHub.getUser(), IMAGE_PATH + '/github-logo.svg', mxUtils.bind(this, function()
+						{
+							var file = this.getCurrentFile();
+
+							if (file != null && file.constructor == GitHubFile)
+							{
+								var doLogout = mxUtils.bind(this, function()
+								{
+									this.gitHub.logout();
+									window.location.hash = '';
+								});
+								
+								if (!file.isModified())
+								{
+									doLogout();
+								}
+								else
+								{
+									this.confirm(mxResources.get('allChangesLost'), doLogout);
+								}
+							}
+							else
+							{
+								this.gitHub.logout();
+							}
+						}));
+					}
 					
 					if (!connected)
 					{
@@ -4510,6 +4630,10 @@ App.prototype.updateUserElement = function()
 		else if (this.dropbox != null && this.dropbox.getUser() != null)
 		{
 			user = this.dropbox.getUser();
+		}
+		else if (this.gitHub != null && this.gitHub.getUser() != null)
+		{
+			user = this.gitHub.getUser();
 		}
 		
 		if (user != null)
