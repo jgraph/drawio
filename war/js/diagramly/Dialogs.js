@@ -1,9 +1,11 @@
-/*
- * $Id: Dialogs.js,v 1.103 2014/02/11 14:08:15 gaudenz Exp $
- * Copyright (c) 2006-2010, JGraph Ltd
+/**
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
-var StorageDialog = function(editorUi, fn)
+var StorageDialog = function(editorUi, fn, rowLimit)
 {
+	rowLimit = (rowLimit != null) ? rowLimit : 3;
+	
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
 	div.style.whiteSpace = 'nowrap';
@@ -87,6 +89,7 @@ var StorageDialog = function(editorUi, fn)
 	cb.setAttribute('type', 'checkbox');
 	cb.setAttribute('checked', 'checked');
 	cb.defaultChecked = true;
+	var count = 0;
 	
 	function addLogo(img, title, mode, clientName)
 	{
@@ -198,6 +201,12 @@ var StorageDialog = function(editorUi, fn)
 		}
 
 		buttons.appendChild(button);
+		
+		if (++count >= rowLimit)
+		{
+			mxUtils.br(buttons);
+			count = 0;
+		}
 	};
 
 	var hd = document.createElement('p');
@@ -214,7 +223,12 @@ var StorageDialog = function(editorUi, fn)
 	{
 		addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
 	}
-
+	
+	if (editorUi.gitHub != null)
+	{
+		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
+	}
+	
 	if (typeof window.DropboxClient === 'function')
 	{
 		addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
@@ -224,7 +238,7 @@ var StorageDialog = function(editorUi, fn)
 	{
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 	}
-	
+
 	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
 	{
 		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
@@ -357,6 +371,11 @@ var SplashDialog = function(editorUi)
 			help.setAttribute('href', 'https://support.draw.io/display/DO/Using+draw.io+with+OneDrive');
 		}
 	}
+	else if (editorUi.mode == App.MODE_GITHUB)
+	{
+		logo.src = IMAGE_PATH + '/github-logo.svg';
+		service = mxResources.get('github');
+	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
 		logo.src = IMAGE_PATH + '/osa_database.png';
@@ -442,6 +461,10 @@ var SplashDialog = function(editorUi)
 	else if (editorUi.mode == App.MODE_ONEDRIVE)
 	{
 		storage = mxResources.get('oneDrive');
+	}
+	else if (editorUi.mode == App.MODE_GITHUB)
+	{
+		storage = mxResources.get('github');
 	}
 	else if (editorUi.mode == App.MODE_DEVICE)
 	{
@@ -2298,6 +2321,10 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	{
 		logo.src = IMAGE_PATH + '/onedrive-logo.svg';
 	}
+	else if (editorUi.mode == App.MODE_GITHUB)
+	{
+		logo.src = IMAGE_PATH + '/github-logo.svg';
+	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
 		logo.src = IMAGE_PATH + '/osa_database.png';
@@ -2331,6 +2358,10 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
 	{
 		ext = editorUi.oneDrive.extension;
+	}
+	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
+	{
+		ext = editorUi.gitHub.extension;
 	}
 	
 	var nameInput = document.createElement('input');
@@ -2471,7 +2502,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
 				
 				mxUtils.get(TEMPLATE_PATH + '/' + url, mxUtils.bind(this, function(req)
 				{
-					if (req.getStatus() == 200)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
 						createButton.removeAttribute('disabled');
 						selectElement(elt, req.getText(), libs);
@@ -2731,10 +2762,11 @@ var NewDialog = function(editorUi, compact, showName, callback)
  * Constructs a dialog for creating new files from a template URL.
  */
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-		allowBrowser, allowTab, helpLink, showDeviceButton)
+		allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
+	rowLimit = (rowLimit != null) ? rowLimit : 3;
 	var div = document.createElement('div');
 	var showButtons = true;
 	
@@ -2776,6 +2808,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	
 	var buttons = document.createElement('div');
 	buttons.style.textAlign = 'center';
+	var count = 0;
 
 	function addLogo(img, title, mode, clientName)
 	{
@@ -2873,6 +2906,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		}
 
 		buttons.appendChild(button);
+		
+		if (++count == rowLimit)
+		{
+			mxUtils.br(buttons);
+			count = 0;
+		}
 	};
 
 	if (!showButtons)
@@ -2899,6 +2938,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			serviceSelect.appendChild(googleOption);
 			
 			addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
+		}
+	
+		if (editorUi.gitHub != null)
+		{
+			var gitHubOption = document.createElement('option');
+			gitHubOption.setAttribute('value', App.MODE_GITHUB);
+			mxUtils.write(gitHubOption, mxResources.get('github'));
+			serviceSelect.appendChild(gitHubOption);
+			
+			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
 	
 		if (typeof window.DropboxClient === 'function')
@@ -2947,7 +2996,6 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		
 		if (showDeviceButton)
 		{
-			mxUtils.br(buttons);
 			addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
 		}
 	}
@@ -2982,6 +3030,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				if (newMode == App.MODE_GOOGLE)
 				{
 					ext = editorUi.drive.extension;
+				}
+				else if (newMode == App.MODE_GITHUB)
+				{
+					ext = editorUi.gitHub.extension;
 				}
 				else if (newMode == App.MODE_DROPBOX)
 				{
@@ -4517,7 +4569,7 @@ var FeedbackDialog = function(editorUi)
 					{
 						editorUi.spinner.stop();
 					
-						if (req.getStatus() == 200)
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
 							editorUi.alert(mxResources.get('feedbackSent'));
 						}
@@ -6456,6 +6508,11 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	{
 		service = mxResources.get('oneDrive');
 		img.src = IMAGE_PATH + '/onedrive-logo-white.svg';
+	}
+	else if (peer == editorUi.gitHub)
+	{
+		service = mxResources.get('github');
+		img.src = IMAGE_PATH + '/github-logo-white.svg';
 	}
 	
 	var p = document.createElement('p');

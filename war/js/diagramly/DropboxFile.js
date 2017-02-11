@@ -1,12 +1,6 @@
-// $Id = DropboxFile.js,v 1.12 2010-01-02 09 =45 =14 gaudenz Exp $
-// Copyright (c) 2006-2014, JGraph Ltd
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 DropboxFile = function(ui, data, stat)
 {
@@ -100,7 +94,11 @@ DropboxFile.prototype.saveAs = function(title, success, error)
  */
 DropboxFile.prototype.doSave = function(title, success, error)
 {
+	// Forces update of data for new extensions
+	var prev = this.stat.name;
+	this.stat.name = title;
 	DrawioFile.prototype.save.apply(this, arguments);
+	this.stat.name = prev;
 	
 	this.saveFile(title, false, success, error);
 };
@@ -149,8 +147,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 					{
 						success();
 					}
-				}),
-				mxUtils.bind(this, function(resp)
+				}), mxUtils.bind(this, function(resp)
 				{
 					this.savingFile = false;
 					this.isModified = prevModified;

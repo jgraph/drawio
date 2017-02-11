@@ -1231,7 +1231,7 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 /**
  * Constructs a new filename dialog.
  */
-var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn)
+var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn)
 {
 	closeOnBtn = (closeOnBtn != null) ? closeOnBtn : true;
 	var row, td;
@@ -1243,6 +1243,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
 	td.style.fontSize = '10pt';
 	td.style.width = '120px';
 	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
@@ -1251,6 +1252,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', filename || '');
+	nameInput.style.marginLeft = '4px';
 	nameInput.style.width = '180px';
 	
 	var genericBtn = mxUtils.button(buttonText, function()
@@ -1367,6 +1369,11 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
+		
+		if (cancelFn != null)
+		{
+			cancelFn();
+		}
 	});
 	cancelBtn.className = 'geBtn';
 	

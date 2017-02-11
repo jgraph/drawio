@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 (function()
 {
@@ -39,6 +39,8 @@
 	 */
 	Editor.defaultCsvValue = '##\n' +
 		'## Example CSV import. Use ## for comments and # for configuration. Paste CSV below.\n' +
+		'## The following names are reserved and should not be used (or ignored):\n' +
+		'## id, tooltip, placeholder(s), link and label (see below)\n' +
 		'##\n' +
 		'#\n' +
 		'## Node label with placeholders and HTML.\n' +
@@ -72,7 +74,8 @@
 		'#\n' +
 		'# padding: -26\n' +
 		'#\n' +
-		'## Comma-separated list of ignored columns for metadata.\n' +
+		'## Comma-separated list of ignored columns for metadata. (These can be\n' +
+		'## used for connections and styles but will not be added as metadata.)\n' +
 		'#\n' +
 		'# ignore: id,image,fill,stroke\n' +
 		'#\n' +
@@ -93,7 +96,7 @@
 		'#\n' +
 		'# layout: auto\n' +
 		'#\n' +
-		'## ---- CSV below this line ----\n' +
+		'## ---- CSV below this line. First line are column names. ----\n' +
 		'name,position,id,location,manager,email,fill,stroke,refs,url,image\n' +
 		'Evan Miller,CFO,emi,Office 1,,me@example.com,#dae8fc,#6c8ebf,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-9-2-128.png\n' +
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +

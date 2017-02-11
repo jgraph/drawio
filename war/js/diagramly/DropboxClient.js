@@ -1,14 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
- */
-/**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 DropboxClient = function(editorUi)
 {
@@ -713,7 +705,7 @@ DropboxClient.prototype.createFile = function(file, success, error)
 			{
 				if (xhr.readyState == 4)
 				{
-					if (xhr.status == 200 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					if (xhr.status >= 200 && xhr.status <= 299 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
 					{
 						doInsert(name, xhr.responseText);
 					}

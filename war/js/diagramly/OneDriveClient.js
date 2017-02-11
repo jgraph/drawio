@@ -1,14 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
- */
-/**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 OneDriveClient = function(editorUi)
 {
@@ -135,7 +127,7 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 					// Gets the user data to display a logout button in the UI
 					mxUtils.get(this.baseUrl + '/drive?access_token=' + newToken, mxUtils.bind(this, function(req)
 					{
-						if (req.getStatus() == 200)
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
 							var data = JSON.parse(req.getText());
 							this.setUser(new DrawioUser(data.owner.user.id, null, data.owner.user.displayName));
@@ -277,7 +269,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    	
 			    	if (acceptResponse)
 			    	{
-			    		if (req.getStatus() == 200)
+			    		if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			    		{
 							var meta = JSON.parse(req.getText());
 
@@ -354,7 +346,7 @@ OneDriveClient.prototype.convertFile = function(meta, success, error)
 			{
 				if (xhr.readyState == 4)
 				{
-					if (xhr.status == 200 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					if (xhr.status >= 200 && xhr.status <= 299 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
 					{
 						this.insertFile(name, xhr.responseText, success, error);
 					}
@@ -578,7 +570,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 						this.writingFile = false;
 						
 						// Returns 201 (created) for new resources
-			    		if (req.getStatus() == 200 || req.getStatus() == 201)
+			    		if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			    		{
 			    			if (success != null)
 			    			{
