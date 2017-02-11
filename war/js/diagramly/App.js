@@ -3051,10 +3051,16 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 	// to save the file again since it needs the newly created file ID for redirecting in HTML
 	if (this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
+		var redirect = window.location.protocol + '//' + window.location.hostname + url;
+		var prev = this.getFileData(true);
 		var data = file.getData();
-		file.setData(this.createFileData((data.length > 0) ?
-			this.editor.extractGraphModel(mxUtils.parseXml(data).documentElement, true) : null,
-			null, file, window.location.protocol + '//' + window.location.hostname + url));
+		
+		// Updates display to fetch graphical output for graphics file formats (eg. svg)
+		this.setFileData(data);
+		file.setData(this.createFileData(this.getXmlFileData(), null, file, redirect));
+
+		// Restores display for current diagram
+		this.setFileData(prev);
 		
 		var complete = mxUtils.bind(this, function()
 		{
@@ -3837,6 +3843,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 	{
 		if (this.gitHub != null && this.spinner.spin(document.body, mxResources.get('saving')))
 		{
+			// Must insert file as library to force the file to be written
 			this.gitHub.insertFile(filename, data, mxUtils.bind(this, function()
 			{
 				this.spinner.stop();
@@ -3844,7 +3851,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 			{
 				this.spinner.stop();
 				this.handleError(resp);
-			}), false, folderId, base64Encoded);
+			}), true, folderId, base64Encoded);
 		}
 	}
 };

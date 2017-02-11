@@ -1,3 +1,9 @@
+11-FEB-2017: 6.1.0.1
+
+- Fixes overwrite of GitHub files
+- Fixes default values in GitHub dialog
+- Fixes initial save for graphics formats
+
 11-FEB-2017: 6.1.0.0
 
 - Fixes HTML export

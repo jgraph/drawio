@@ -3225,20 +3225,9 @@
 				
 				return input;
 			});
-			
-			var org = null;
-			var repo = null;
-			
-			var file = this.getCurrentFile();
-			
-			if (file != null && file.constructor == GitHubFile && file.meta.drawio != null)
-			{
-				org = file.meta.drawio.org;
-				repo = file.meta.drawio.repo;
-			}
-			
-			var orgInput = addRow(mxResources.get('organisation') + ':', 'org', org);
-			var repoInput = addRow(mxResources.get('repository') + ':', 'repo', repo);
+
+			var orgInput = addRow(mxResources.get('organisation') + ':', 'org');
+			var repoInput = addRow(mxResources.get('repository') + ':', 'repo');
 			var pathInput = addRow();
 			var refInput = addRow(mxResources.get('ref') + ':', 'master');
 			
@@ -3271,9 +3260,25 @@
 			});
 			
 			this.gitHubDialog = new CustomDialog(this, div, invokeFn);
+			var ui = this;
 			
 			this.gitHubDialog.init = function(thisFn, fPath, dPath)
 			{
+				var file = ui.getCurrentFile();
+				
+				if (file != null && file.constructor == GitHubFile)
+				{
+					if (orgInput.value == '')
+					{
+						orgInput.value = file.meta.org || '';
+					}
+					
+					if (repoInput.value == '')
+					{
+						repoInput.value = file.meta.repo || '';
+					}
+				}
+								
 				var td = pathInput.parentNode.previousSibling;
 				td.innerHTML = '';
 				mxUtils.write(td, mxResources.get((fPath) ? 'path' : 'folder'));
