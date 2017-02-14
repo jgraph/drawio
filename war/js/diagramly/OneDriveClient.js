@@ -291,7 +291,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 									{
 										success(new OneDriveFile(this.ui, data, meta));
 									}
-					    		}), err, meta.file.mimeType == 'image/png');
+					    		}), err, meta.file.mimeType.substring(0, 6) == 'image/');
 							}
 			    		}
 			    		else if (error != null)

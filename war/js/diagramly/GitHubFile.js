@@ -161,29 +161,14 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 			{
 				this.savingFile = false;
 				this.isModified = prevModified;
+				this.meta.sha = commit.content.sha;
+				this.meta.html_url = commit.content.html_url;
+				this.meta.download_url = commit.content.download_url;
+				this.contentChanged();
 
 				if (success != null)
 				{
 					success();
-				}
-				
-				// No commit means save was cancelled
-				if (commit == null)
-				{
-					this.setModified(modified || this.isModified());
-					
-					if (this.isModified())
-					{
-						this.addUnsavedStatus();
-					}
-				}
-				else
-				{
-					this.meta.sha = commit.content.sha;
-					this.meta.html_url = commit.content.html_url;
-					this.meta.download_url = commit.content.download_url;
-					
-					this.contentChanged();
 				}
 			}),
 			mxUtils.bind(this, function(err)

@@ -452,14 +452,8 @@ Actions.prototype.init = function()
 		    		// Removes HTML tags
 	    			var temp = document.createElement('div');
 	    			temp.innerHTML = label;
-	    			label = mxUtils.extractTextWithWhitespace([temp]);
+	    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
 	    			
-					// Strips trailing line break
-				    if (label.length > 0 && label.charAt(label.length - 1) == '\n')
-				    {
-				    	label = label.substring(0, label.length - 1);
-				    }
-				    
 					graph.cellLabelChanged(state.cell, label);
 		    	}
 		    	else

@@ -87,6 +87,14 @@
 				(editorUi.pages != null && editorUi.pages.length > 1) ?
 				420 : 360, true, true);
 		};
+
+		// Export PDF action for chrome OS (same as print with different dialog title)
+		editorUi.actions.addAction('exportPdf', function()
+		{
+			editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
+				(editorUi.pages != null && editorUi.pages.length > 1) ?
+				420 : 360, true, true);
+		});
 		
 		editorUi.actions.addAction('open...', function()
 		{
@@ -1156,14 +1164,14 @@
 					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
 						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, cropImage)
+							addShadow, editable, embedImages, cropImage, currentPage)
 						{
 							var val = parseInt(scale);
 							
 							if (!isNaN(val) && val > 0)
 							{
 							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-							   		addShadow, editable, !cropImage);
+							   		addShadow, editable, !cropImage, currentPage);
 							}
 						}), true);
 				}), parent);
@@ -1186,14 +1194,14 @@
 				editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, cropImage)
+						addShadow, editable, embedImages, cropImage, currentPage)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
 						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-						   		addShadow, editable, embedImages, !cropImage);
+						   		addShadow, editable, embedImages, !cropImage, currentPage);
 						}
 					}), true);
 			}), parent);
@@ -1203,7 +1211,7 @@
 			// Redirects export to PDF to print in Chrome App
 			if (mxClient.IS_CHROMEAPP)
 			{
-				menu.addItem(mxResources.get('formatPdf') + '...', null, this.editorUi.actions.get('print').funct, parent);
+				menu.addItem(mxResources.get('formatPdf') + '...', null, this.editorUi.actions.get('exportPdf').funct, parent);
 			}
 			// Disabled for standalone mode in iOS because new tab cannot be closed
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
@@ -1263,7 +1271,6 @@
 
 			menu.addItem(mxResources.get('formatXml') + '...', null, mxUtils.bind(this, function()
 			{
-				
 				var div = document.createElement('div');
 				div.style.whiteSpace = 'nowrap';
 				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
@@ -1383,7 +1390,13 @@
 			
 			var doImportFile = mxUtils.bind(this, function(data, mime, filename)
 			{
-				if (mime == 'image/png')
+				// Gets insert location
+				var view = graph.view;
+				var bds = graph.getGraphBounds();
+				var x = graph.snap(Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize));
+				var y = graph.snap(Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize));
+				
+				if (mime.substring(0, 6) == 'image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
 	    			{
@@ -1391,7 +1404,7 @@
 	    				{
 		    				var s = Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2));
 
-							editorUi.importFile(data, mime, 0, 0, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
+							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
 							{
 								editorUi.spinner.stop();
 								graph.setSelectionCells(cells);
@@ -1404,12 +1417,28 @@
 				}
 				else
 				{
-					editorUi.importFile(data, mime, 0, 0, 0, 0, filename, function(cells)
+					editorUi.importFile(data, mime, x, y, 0, 0, filename, function(cells)
 					{
 						editorUi.spinner.stop();
 						graph.setSelectionCells(cells);
 					});
 				}
+			});
+			
+			var getMimeType = mxUtils.bind(this, function(filename)
+			{
+				var mime = 'text/xml';
+				
+				if (/(\.png)$/i.test(filename))
+				{
+					mime = 'image/png';
+				}
+				else if (/(\.jpe?g)$/i.test(filename))
+				{
+					mime = 'image/jpg';
+				}
+				
+				return mime;
 			});
 			
 			function pickFileFromService(service)
@@ -1421,7 +1450,7 @@
 					{
 						if (service == editorUi.dropbox)
 						{
-							var mime = (/(\.png)$/i.test(id)) ? 'image/png' : 'text/xml';
+							var mime = getMimeType(id);
 							
 							editorUi.loadUrl(id, function(data)
 							{
@@ -1430,7 +1459,7 @@
 							function(resp)
 							{
 								editorUi.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null);
-							}, mime == 'image/png');
+							}, mime.substring(0, 6) == 'image/');
 						}
 						else
 						{
@@ -1439,7 +1468,7 @@
 							// as slightly different semantic, but works the same way.
 							service.getFile(id, function(file)
 							{
-								var mime = (/(\.png)$/i.test(file.getTitle())) ? 'image/png' : 'text/xml';
+								var mime = getMimeType(file.getTitle());
 								doImportFile(file.getData(), mime, file.getTitle());
 							},
 							function(resp)

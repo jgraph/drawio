@@ -793,7 +793,7 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 				success(file);
 			}
 		}
-	}), error, resp.mimeType == 'image/png');
+	}), error, resp.mimeType.substring(0, 6) == 'image/');
 };
 
 /**
@@ -1177,6 +1177,12 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 				{
 					view.setMimeTypes(this.mimeTypes);
 					view2.setMimeTypes(this.mimeTypes);
+				}
+				else
+				{
+					// Workaround for no files shown
+					view.setMimeTypes(this.mimeTypes + ',image/png,image/jpg,image/svg+xml,' +
+						'application/xml,text/plain,text/html');
 				}
 				
 				this[name] = new google.picker.PickerBuilder()

@@ -1,3 +1,11 @@
+14-FEB-2017: 6.1.0.2
+
+- Adds picker for GitHub
+- Uses mxGraph 3.7.0.2 beta 3
+- Changes dialog title for PDF export in Chrome app
+- Adds pages option in image and SVG export dialog
+- Fixes cancel in message dialog for GitHub insert
+
 11-FEB-2017: 6.1.0.1
 
 - Fixes overwrite of GitHub files

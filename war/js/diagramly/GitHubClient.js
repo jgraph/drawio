@@ -356,7 +356,8 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, req, asLibrar
 		}
 		else
 		{
-			content = (window.atob) ? atob(content) : Base64.decode(content, true);
+			// Workaround for character encoding issues in IE10/11
+			content = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ? atob(content) : Base64.decode(content);
 		}
 	}
 	
@@ -422,7 +423,10 @@ GitHubClient.prototype.insertFile = function(filename, data, success, error, asL
 					}), error);
 				}), mxUtils.bind(this, function()
 				{
-					// do nothing
+					if (error != null)
+					{
+						error();
+					}
 				}));
 			}
 		}
@@ -446,7 +450,7 @@ GitHubClient.prototype.showCommitDialog = function(filename, isNew, success, can
 	{
 		resume();
 		success(message);
-	}), mxResources.get('changes'), null, null, null, null, mxUtils.bind(this, function()
+	}), mxResources.get('commitMessage'), null, null, null, null, mxUtils.bind(this, function()
 	{
 		cancel();
 	}));
@@ -553,7 +557,7 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 					var dlg = new ErrorDialog(this.ui, mxResources.get('errorSavingFile'),
 						mxResources.get('fileChangedOverwrite'), mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
-							success(null);
+							error();
 						}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
 						{
 							resume();
@@ -577,7 +581,7 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 		fn(file.meta.sha);
 	}), mxUtils.bind(this, function()
 	{
-		success(null);
+		error();
 	}));
 };
 
@@ -594,33 +598,7 @@ GitHubClient.prototype.pickLibrary = function(fn)
  */
 GitHubClient.prototype.pickFolder = function(fn)
 {
-	var ask = mxUtils.bind(this, function(defaultPath)
-	{
-		this.ui.showGitHubDialog(false, mxUtils.bind(this, function(org, repo, ref, path)
-		{
-			if (this.ui.spinner.spin(document.body, mxResources.get('loading')))
-			{
-				var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-					'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
-				
-				this.executeRequest(req, mxUtils.bind(this, function(req)
-				{
-					this.ui.spinner.stop();
-					fn(org + '/' + repo + '/' + ref + '/' + path);
-				}), mxUtils.bind(this, function(err)
-				{
-					this.ui.spinner.stop();
-					
-					this.ui.handleError({message: mxResources.get('folderNotFound')}, null, function()
-					{
-						ask(path);
-					});
-				}));
-			}
-		}), defaultPath);
-	});
-	
-	ask('');
+	this.showGitHubDialog(false, fn);
 };
 
 /**
@@ -633,10 +611,289 @@ GitHubClient.prototype.pickFile = function(fn)
 		this.ui.loadFile('H' + encodeURIComponent(path));
 	});
 	
-	this.ui.showGitHubDialog(true, mxUtils.bind(this, function(org, repo, ref, path)
+	this.showGitHubDialog(true, fn);
+};
+
+/**
+ * 
+ */
+GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
+{
+	var org = null;
+	var repo = null;
+	var ref = null;
+	var path = null;
+	
+	var content = document.createElement('div');
+	content.style.whiteSpace = 'nowrap';
+	content.style.overflow = 'hidden';
+	content.style.height = '224px';
+
+	var hd = document.createElement('h3');
+	mxUtils.write(hd, mxResources.get((showFiles) ? 'selectFile' : 'selectFolder'));
+	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+	content.appendChild(hd);
+
+	var div = document.createElement('div');
+	div.style.whiteSpace = 'nowrap';
+	div.style.overflow = 'auto';
+	div.style.height = '194px';
+	content.appendChild(div);
+
+	var dlg = new CustomDialog(this.ui, content, mxUtils.bind(this, function()
 	{
 		fn(org + '/' + repo + '/' + ref + '/' + path);
 	}));
+	this.ui.showDialog(dlg.container, 340, 270, true, true);
+	
+	if (showFiles)
+	{
+		dlg.okButton.parentNode.removeChild(dlg.okButton);
+	}
+	
+	var updatePathInfo = mxUtils.bind(this, function(hideRef)
+	{
+		var pathInfo = document.createElement('div');
+		pathInfo.style.marginBottom = '8px';
+		
+		var link = document.createElement('a');
+		link.setAttribute('href', 'javascript:void(0);');
+		mxUtils.write(link,  org + '/' + repo);
+		pathInfo.appendChild(link);
+		
+		mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+		{
+			path = null;
+			selectRepo();
+		}));
+		
+		if (!hideRef)
+		{
+			mxUtils.write(pathInfo, ' / ');
+			
+			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0);');
+			mxUtils.write(link,  ref);
+			pathInfo.appendChild(link);
+			
+			mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+			{
+				path = null;
+				selectRef();
+			}));
+		}
+		
+		if (path != null && path.length > 0)
+		{
+			var tokens = path.split('/');
+			
+			for (var i = 0; i < tokens.length; i++)
+			{
+				(function(index)
+				{
+					mxUtils.write(pathInfo, ' / ');
+	
+					var link = document.createElement('a');
+					link.setAttribute('href', 'javascript:void(0);');
+					mxUtils.write(link, tokens[index]);
+					pathInfo.appendChild(link);
+					
+					mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+					{
+						path = tokens.slice(0, index + 1).join('/');
+						selectFile();
+					}));
+				})(i);
+			}
+		}
+		
+		div.appendChild(pathInfo);
+	});
+	
+	var selectFile = mxUtils.bind(this, function()
+	{
+		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
+				'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
+		dlg.okButton.removeAttribute('disabled');
+		div.innerHTML = '';
+		this.ui.spinner.spin(div, mxResources.get('loading'));
+		
+		this.executeRequest(req, mxUtils.bind(this, function(req)
+		{
+			updatePathInfo();
+			this.ui.spinner.stop();
+			var files = JSON.parse(req.getText());
+			
+			if (path != null && path.length > 0)
+			{
+				var link = document.createElement('a');
+				link.setAttribute('href', 'javascript:void(0);');
+				mxUtils.write(link, '../ [Up]');
+				div.appendChild(link);
+				mxUtils.br(div);
+				
+				mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+				{
+					if (path == '')
+					{
+						path = null;
+						selectRepo();
+					}
+					else
+					{
+						var tokens = path.split('/');
+						path = tokens.slice(0, tokens.length - 1).join('/');
+						selectFile();
+					}
+				}));
+			}
+
+			if (files == null || files.length == 0)
+			{
+				mxUtils.write(div, mxResources.get('noFiles'));
+			}
+			else
+			{
+				var listFiles = mxUtils.bind(this, function(showFolders)
+				{
+					for (var i = 0; i < files.length; i++)
+					{
+						(function(file)
+						{
+							if (showFolders == (file.type == 'dir'))
+							{
+								var link = document.createElement('a');
+								link.setAttribute('href', 'javascript:void(0);');
+								mxUtils.write(link, file.name + ((file.type == 'dir') ? '/' : ''));
+								div.appendChild(link);
+								mxUtils.br(div);
+								
+								mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+								{
+									if (file.type == 'dir')
+									{
+										path = file.path;
+										selectFile();
+									}
+									else if (showFiles && file.type == 'file')
+									{
+										fn(org + '/' + repo + '/' + ref + '/' + file.path);
+									}
+								}));
+							}
+						})(files[i]);
+					}
+				});
+				
+				listFiles(true);
+				
+				if (showFiles)
+				{
+					listFiles(false);
+				}
+			}
+		}), mxUtils.bind(this, function(err)
+		{
+			this.ui.spinner.stop();
+			updatePathInfo(true);
+			this.ui.handleError(err);
+		}));
+	});
+	
+	var selectRef = mxUtils.bind(this, function()
+	{
+		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo + '/branches', null, 'GET');
+		dlg.okButton.setAttribute('disabled', 'disabled');
+		div.innerHTML = '';
+		this.ui.spinner.spin(div, mxResources.get('loading'));
+		
+		this.executeRequest(req, mxUtils.bind(this, function(req)
+		{
+			this.ui.spinner.stop();
+			updatePathInfo(true);
+			var branches = JSON.parse(req.getText());
+			
+			if (branches == null || branches.length == 0)
+			{
+				mxUtils.write(div, mxResources.get('noFiles'));
+			}
+			else
+			{
+				for (var i = 0; i < branches.length; i++)
+				{
+					(function(branch)
+					{
+						var link = document.createElement('a');
+						link.setAttribute('href', 'javascript:void(0);');
+						mxUtils.write(link, branch.name);
+						div.appendChild(link);
+						mxUtils.br(div);
+						
+						mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+						{
+							ref = branch.name;
+							path = '';
+							selectFile();
+						}));
+					})(branches[i]);
+				}
+			}
+		}), mxUtils.bind(this, function(err)
+		{
+			this.ui.spinner.stop();
+			updatePathInfo(true);
+			this.ui.handleError(err);
+		}));
+	});
+	
+	var selectRepo = mxUtils.bind(this, function()
+	{
+		var req = new mxXmlRequest(this.baseUrl + '/user/repos', null, 'GET');
+		dlg.okButton.setAttribute('disabled', 'disabled');
+		div.innerHTML = '';
+		this.ui.spinner.spin(div, mxResources.get('loading'));
+		
+		this.executeRequest(req, mxUtils.bind(this, function(req)
+		{
+			this.ui.spinner.stop();
+			var repos = JSON.parse(req.getText());
+			
+			if (repos == null || repos.length == 0)
+			{
+				mxUtils.write(div, mxResources.get('noFiles'));
+			}
+			else
+			{
+				for (var i = 0; i < repos.length; i++)
+				{
+					(function(repository)
+					{
+						var link = document.createElement('a');
+						link.setAttribute('href', 'javascript:void(0);');
+						mxUtils.write(link, repository.full_name);
+						div.appendChild(link);
+						mxUtils.br(div);
+						
+						mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+						{
+							org = repository.owner.login;
+							repo = repository.name;
+							ref = repository.default_branch;
+							path = '';
+	
+							selectFile();
+						}));
+					})(repos[i]);
+				}
+			}
+		}), mxUtils.bind(this, function(err)
+		{
+			this.ui.spinner.stop();
+			this.ui.handleError(err);
+		}));
+	});
+	
+	selectRepo();
 };
 
 /**

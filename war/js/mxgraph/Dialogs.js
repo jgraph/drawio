@@ -944,9 +944,9 @@ PageSetupDialog.getFormats = function()
 /**
  * Constructs a new print dialog.
  */
-var PrintDialog = function(editorUi)
+var PrintDialog = function(editorUi, title)
 {
-	this.create(editorUi);
+	this.create(editorUi, title);
 };
 
 /**
