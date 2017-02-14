@@ -475,7 +475,7 @@ var SplashDialog = function(editorUi)
 		storage = mxResources.get('browser');
 	}
 	
-	if (serviceCount > 1)
+	if (!mxClient.IS_CHROMEAPP && serviceCount > 1)
 	{
 		var link = document.createElement('a');
 		link.setAttribute('href', 'javascript:void(0)');
@@ -3619,14 +3619,16 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 /**
  * Constructs a new print dialog.
  */
-PrintDialog.prototype.create = function(editorUi)
+PrintDialog.prototype.create = function(editorUi, titleText)
 {
 	var graph = editorUi.editor.graph;
 	var div = document.createElement('div');
 	
 	var title = document.createElement('h3');
+	title.style.width = '100%';
+	title.style.textAlign = 'center';
 	title.style.marginTop = '0px';
-	mxUtils.write(title, mxResources.get('print'));
+	mxUtils.write(title, titleText || mxResources.get('print'));
 	div.appendChild(title);
 	
 	var pageCount = 1;
@@ -8276,5 +8278,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 
 	div.appendChild(btns);
 
+	this.cancelBtn = cancelBtn;
+	this.okButton = okBtn;
 	this.container = div;
 };

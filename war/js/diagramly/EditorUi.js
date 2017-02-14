@@ -2782,7 +2782,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, noCrop)
+	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, noCrop, currentPage)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -2828,7 +2828,7 @@
 				
 				if (editable)
 				{
-					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection));
+					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection, currentPage));
 				}
 				
 				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
@@ -3054,7 +3054,7 @@
 			}
 		}
 
-		if (addTitle && file != null && file.getTitle() != null)
+		if (addTitle && file != null && file.getTitle() != null && file.getTitle() != this.defaultFilename)
 		{
 			params.push('title=' + encodeURIComponent(file.getTitle()));
 		}
@@ -3168,141 +3168,7 @@
 		
 		fn(value, scr);
 	};
-	
-	/**
-	 * 
-	 */
-	EditorUi.prototype.showGitHubDialog = function(filePath, fn, defaultPath)
-	{
-		if (this.gitHubDialog == null)
-		{
-			var div = document.createElement('div');
-			div.style.whiteSpace = 'nowrap';
-			var graph = this.editor.graph;
-			
-			var hd = document.createElement('h3');
-			mxUtils.write(hd, mxResources.get('github'));
-			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
-			div.appendChild(hd);
-			
-			var table = document.createElement('table');
-			var tbody = document.createElement('tbody');
-			table.style.marginBottom = '16px';
-			
-			var addRow = mxUtils.bind(this, function(label, placeholder, value)
-			{
-				var row = document.createElement('tr');
-				var td1 = document.createElement('td');
-				td1.style.padding = '4px';
-				var td2 = td1.cloneNode(true);
-				
-				mxUtils.write(td1, label || '');
-				var input = document.createElement('input');
-				input.setAttribute('type', 'text');
-				input.style.width = '230px';
-				input.style.marginLeft = '4px';
-				input.value = value || '';
-				td2.appendChild(input);
-				
-				if (placeholder != null)
-				{
-					input.setAttribute('placeholder', placeholder);
-				}
-				
-				mxEvent.addListener(input, 'keypress', mxUtils.bind(this, function(evt)
-				{
-					if (evt.keyCode == 13 && !mxEvent.isConsumed(evt))
-					{
-						mxEvent.consume(evt);
-						this.hideDialog();
-						invokeFn();
-					}
-				}));
-				
-				row.appendChild(td1);
-				row.appendChild(td2);
-				tbody.appendChild(row);
-				
-				return input;
-			});
 
-			var orgInput = addRow(mxResources.get('organisation') + ':', 'org');
-			var repoInput = addRow(mxResources.get('repository') + ':', 'repo');
-			var pathInput = addRow();
-			var refInput = addRow(mxResources.get('ref') + ':', 'master');
-			
-			table.appendChild(tbody);
-			div.appendChild(table);
-			
-			var invokeFn = mxUtils.bind(this, function()
-			{
-				// Checks path for leading/trailing slashes
-				var path = pathInput.value;
-				
-				if (path.charAt(0) == '/')
-				{
-					path = path.substring(1);
-				}
-				
-				if (!filePath && path.charAt(path.length) == '/')
-				{
-					path = path.substring(0, path.length - 1);
-				}
-				
-				var ref = refInput.value;
-				
-				if (ref == '')
-				{
-					ref = 'master';
-				}
-				
-				this.gitHubDialog.fn(orgInput.value, repoInput.value, ref, path);
-			});
-			
-			this.gitHubDialog = new CustomDialog(this, div, invokeFn);
-			var ui = this;
-			
-			this.gitHubDialog.init = function(thisFn, fPath, dPath)
-			{
-				var file = ui.getCurrentFile();
-				
-				if (file != null && file.constructor == GitHubFile)
-				{
-					if (orgInput.value == '')
-					{
-						orgInput.value = file.meta.org || '';
-					}
-					
-					if (repoInput.value == '')
-					{
-						repoInput.value = file.meta.repo || '';
-					}
-				}
-								
-				var td = pathInput.parentNode.previousSibling;
-				td.innerHTML = '';
-				mxUtils.write(td, mxResources.get((fPath) ? 'path' : 'folder'));
-				pathInput.setAttribute('placeholder', (fPath) ? 'folder/filename.ext' : 'root');
-				pathInput.value = dPath || '';
-				orgInput.focus();
-				
-				if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-				{
-					orgInput.select();
-				}
-				else
-				{
-					document.execCommand('selectAll', false, null);
-				}
-				
-				this.fn = thisFn;
-			};
-		}
-		
-		this.showDialog(this.gitHubDialog.container, 340, 200, true, true);
-		this.gitHubDialog.init(fn, filePath, defaultPath);
-	};
-	
 	/**
 	 * 
 	 */
@@ -3600,7 +3466,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = 246;
+		var height = 280;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -3671,12 +3537,27 @@
 		}
 		
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
-		include.style.marginBottom = '16px';
+		var hasPages = this.pages != null && this.pages.length > 1;
+		var allPages = allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
+		allPages.style.marginLeft = '24px';
+		allPages.style.marginBottom = '16px';
 	
+		mxEvent.addListener(include, 'change', function()
+		{
+			if (include.checked)
+			{
+				allPages.removeAttribute('disabled');
+			}
+			else
+			{
+				allPages.setAttribute('disabled', 'disabled');
+			}
+		});
+		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			callback(zoomInput.value, transparent.checked, !selection.checked,
-				shadow.checked, include.checked, cb5.checked, cb6.checked);
+			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
+				include.checked, cb5.checked, cb6.checked, !allPages.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 320, height, true, true);
 		zoomInput.focus();
@@ -4127,7 +4008,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop, currentPage)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('exporting')))
 		{
@@ -4149,7 +4030,7 @@
 			   		try
 			   		{
 			   			this.saveCanvas(canvas, (editable) ? this.getFileData(
-			   				true, null, null, null, ignoreSelection) : null);
+			   				true, null, null, null, ignoreSelection, currentPage) : null);
 			   		}
 			   		catch (e)
 			   		{
@@ -4396,9 +4277,10 @@
 	 * Returns true if the given URL is known to have CORS headers.
 	 */
 	EditorUi.prototype.isCorsEnabledForUrl = function(url)
-	{	
-		return url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
-			/^https:\/\/.*\.github\.io\//.test(url);
+	{
+		return url.substring(0, 34) === 'https?://raw.githubusercontent.com/' ||
+			/^https?:\/\/.*\.github\.io\//.test(url) ||
+			/^https?:\/\/(.*\.)?rawgit\.com\//.test(url);
 	};
 
 	/**
