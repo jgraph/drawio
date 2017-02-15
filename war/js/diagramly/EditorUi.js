@@ -80,6 +80,7 @@
 	(function()
 	{
 		EditorUi.prototype.useCanvasForExport = false;
+		EditorUi.prototype.jpgSupported = false;
 		
 		try
 		{
@@ -108,6 +109,20 @@
 			// Checks if SVG with foreignObject can be exported
 			var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1px" height="1px" version="1.1"><foreignObject pointer-events="all" width="1" height="1"><div xmlns="http://www.w3.org/1999/xhtml"></div></foreignObject></svg>';
 			img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
+		// Checks for client-side JPG support
+		try
+		{
+		    var canvas = document.createElement('canvas');
+		    canvas.width = canvas.height = 1;
+		    var uri = canvas.toDataURL('image/jpeg');
+		    
+		    EditorUi.prototype.jpgSupported = (uri.match('image/jpeg') !== null);
 		}
 		catch (e)
 		{
@@ -2394,12 +2409,12 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createPngDataUri = function(canvas, xml)
+	EditorUi.prototype.createImageDataUri = function(canvas, xml, format)
 	{
-   	    var data = canvas.toDataURL('image/png');
+   	    var data = canvas.toDataURL('image/' + format);
    	    
    	    // Checks if output is invalid or empty
-   	    if (data.length <= 6 || data == canvas.cloneNode(false).toDataURL('image/png'))
+   	    if (data.length <= 6 || data == canvas.cloneNode(false).toDataURL('image/' + format))
    	    {
    	    	throw {message: 'Invalid image'};
    	    }
@@ -2415,7 +2430,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.saveCanvas = function(canvas, xml)
+	EditorUi.prototype.saveCanvas = function(canvas, xml, format)
 	{
    		var file = this.getCurrentFile();
    	    var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
@@ -2426,9 +2441,10 @@
    	    	filename = filename.substring(0, dot);
    	    }
    	    
-   	    filename += '.png';
-   	    var data = this.createPngDataUri(canvas, xml);
-   	    this.saveData(filename, 'png', data.substring(data.lastIndexOf(',') + 1), 'image/png', true);
+   	    var ext = (format == 'jpeg') ? 'jpg' : format;
+   	    filename += '.' + ext;
+   	    var data = this.createImageDataUri(canvas, xml, format);
+   	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
 	
 	/**
@@ -3575,6 +3591,84 @@
 	/**
 	 * 
 	 */
+	EditorUi.prototype.showExportJpgDialog = function(helpLink, callback)
+	{
+		var div = document.createElement('div');
+		div.style.whiteSpace = 'nowrap';
+		var graph = this.editor.graph;
+		
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxResources.get('formatJpg'));
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
+		div.appendChild(hd);
+		
+		mxUtils.write(div, mxResources.get('zoom') + ':');
+		
+		var zoomInput = document.createElement('input');
+		zoomInput.setAttribute('type', 'text');
+		zoomInput.style.marginRight = '16px';
+		zoomInput.style.width = '60px';
+		zoomInput.style.marginLeft = '4px';
+		zoomInput.style.marginBottom = '4px';
+		zoomInput.value = '100%';
+		
+		div.appendChild(zoomInput);
+		mxUtils.br(div);
+		
+		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
+			false, graph.isSelectionEmpty());
+
+		var cb6 = document.createElement('input');
+		cb6.style.marginTop = '16px';
+		cb6.style.marginRight = '8px';
+		cb6.setAttribute('type', 'checkbox');
+
+		div.appendChild(cb6);
+		mxUtils.write(div, mxResources.get('crop'));
+		mxUtils.br(div);
+		
+		if (graph.isSelectionEmpty())
+		{
+			cb6.setAttribute('disabled', 'disabled');
+		}
+		else
+		{
+			cb6.setAttribute('checked', 'checked');
+			cb6.defaultChecked = true;
+		}
+		
+		var shadow = this.addCheckbox(div, mxResources.get('shadow'), graph.shadowVisible);
+
+		var cb5 = document.createElement('input');
+		cb5.style.marginTop = '16px';
+		cb5.style.marginRight = '8px';
+		cb5.setAttribute('type', 'checkbox');
+		
+		if (this.isOffline() || !this.canvasSupported)
+		{
+			cb5.setAttribute('disabled', 'disabled');
+		}
+				
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			callback(zoomInput.value, !selection.checked, shadow.checked, cb5.checked, cb6.checked);
+		}), null, mxResources.get('export'), helpLink);
+		this.showDialog(dlg.container, 320, 190, true, true);
+		zoomInput.focus();
+		
+		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		{
+			zoomInput.select();
+		}
+		else
+		{
+			document.execCommand('selectAll', false, null);
+		}
+	};
+	
+	/**
+	 * 
+	 */
 	EditorUi.prototype.showEmbedImageDialog = function(fn, title, imageLabel, shadowEnabled, helpLink)
 	{
 		var div = document.createElement('div');
@@ -3673,7 +3767,7 @@
 			this.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{
 	   			var xml = (lightbox) ? this.getFileData(true) : null;
-	   			var data = this.createPngDataUri(canvas, xml);
+	   			var data = this.createImageDataUri(canvas, xml, 'png');
 	   			doUpdate(data);
 		   	}), null, null, null, mxUtils.bind(this, function(e)
 		   	{
@@ -3778,11 +3872,11 @@
 			}
    			
    			// Images inside IMG don't seem to work so embed them all
-			this.convertImages(svgRoot, function(svgRoot)
+			this.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
 			{
 				fn('<img src="' + this.createSvgDataUri(mxUtils.getXml(svgRoot)) + '"' +
 					((css != '') ? ' style="' + css + '"' : '') + onclick + '/>');
-			});
+			}));
 		}
 		else
 		{
@@ -4008,8 +4102,10 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop, currentPage)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop, currentPage, format)
 	{
+		format = (format != null) ? format : 'png';
+		
 		if (this.spinner.spin(document.body, mxResources.get('exporting')))
 		{
 			var selectionEmpty = this.editor.graph.isSelectionEmpty();
@@ -4029,15 +4125,15 @@
 			   		
 			   		try
 			   		{
-			   			this.saveCanvas(canvas, (editable) ? this.getFileData(
-			   				true, null, null, null, ignoreSelection, currentPage) : null);
+			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
+			   				null, null, ignoreSelection, currentPage) : null, format);
 			   		}
 			   		catch (e)
 			   		{
 			   			// Fallback to server-side image export
 			   			if (e.message == 'Invalid image')
 			   			{
-			   				this.downloadFile('png');
+			   				this.downloadFile(format);
 			   			}
 			   			else
 			   			{

@@ -272,7 +272,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    		if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			    		{
 							var meta = JSON.parse(req.getText());
-
+							
 							if (!denyConvert && Graph.fileSupport && new XMLHttpRequest().upload &&
 								(/(\.png)$/i.test(meta.name) || /(\.vs?dx)$/i.test(meta.name) ||
 								/(\.gliffy)$/i.test(meta.name)))
@@ -291,7 +291,8 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 									{
 										success(new OneDriveFile(this.ui, data, meta));
 									}
-					    		}), err, meta.file.mimeType.substring(0, 6) == 'image/');
+					    		}), err, meta != null && meta.file != null && meta.file.mimeType != null &&
+					    			meta.file.mimeType.substring(0, 6) == 'image/');
 							}
 			    		}
 			    		else if (error != null)

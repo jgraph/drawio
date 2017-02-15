@@ -1159,7 +1159,7 @@
 		{
 			if (editorUi.isExportToCanvas())
 			{
-				menu.addItem(mxResources.get('image') + '...', null, mxUtils.bind(this, function()
+				menu.addItem(mxResources.get('formatPng') + '...', null, mxUtils.bind(this, function()
 				{
 					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
@@ -1175,6 +1175,24 @@
 							}
 						}), true);
 				}), parent);
+				
+				if (editorUi.jpgSupported)
+				{
+					menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
+					{
+						editorUi.showExportJpgDialog('https://support.draw.io/display/DO/Exporting+Files',
+							mxUtils.bind(this, function(scale, ignoreSelection, addShadow, cropImage)
+							{
+								var val = parseInt(scale);
+								
+								if (!isNaN(val) && val > 0)
+								{
+								   	this.editorUi.exportImage(val / 100, false, ignoreSelection,
+								   		addShadow, false, !cropImage, false, 'jpeg');
+								}
+							}), true);
+					}), parent);
+				}
 			}
 			
 			// Disabled for standalone mode in iOS because new tab cannot be closed
@@ -1408,6 +1426,7 @@
 							{
 								editorUi.spinner.stop();
 								graph.setSelectionCells(cells);
+								graph.scrollCellToVisible(graph.getSelectionCell());
 							});
 	    				}), true);
 	    			}), mxUtils.bind(this, function()
@@ -1421,6 +1440,7 @@
 					{
 						editorUi.spinner.stop();
 						graph.setSelectionCells(cells);
+						graph.scrollCellToVisible(graph.getSelectionCell());
 					});
 				}
 			});
