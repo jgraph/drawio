@@ -1,3 +1,8 @@
+15-FEB-2017: 6.1.0.3
+
+- Fixes possible NPE in OneDriveClient
+- Adds client-side JPG export option
+
 14-FEB-2017: 6.1.0.2
 
 - Adds picker for GitHub

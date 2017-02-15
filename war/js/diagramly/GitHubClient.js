@@ -350,7 +350,11 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, req, asLibrar
 	
 	if (data.encoding === 'base64')
 	{
-		if ((/(\.png)$/i.test(data.name)))
+		if ((/(\.jpe?g)$/i.test(data.name)))
+		{
+			content = 'data:image/jpg;base64,' + content;
+		}
+		else if ((/(\.png)$/i.test(data.name)))
 		{
 			content = 'data:image/png;base64,' + content;
 		}
@@ -758,7 +762,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 				{
 					for (var i = 0; i < files.length; i++)
 					{
-						(function(file)
+						(mxUtils.bind(this, function(file)
 						{
 							if (showFolders == (file.type == 'dir'))
 							{
@@ -777,11 +781,12 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 									}
 									else if (showFiles && file.type == 'file')
 									{
+										this.ui.hideDialog();
 										fn(org + '/' + repo + '/' + ref + '/' + file.path);
 									}
 								}));
 							}
-						})(files[i]);
+						}))(files[i]);
 					}
 				});
 				
@@ -821,7 +826,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			{
 				for (var i = 0; i < branches.length; i++)
 				{
-					(function(branch)
+					(mxUtils.bind(this, function(branch)
 					{
 						var link = document.createElement('a');
 						link.setAttribute('href', 'javascript:void(0);');
@@ -835,7 +840,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 							path = '';
 							selectFile();
 						}));
-					})(branches[i]);
+					}))(branches[i]);
 				}
 			}
 		}), mxUtils.bind(this, function(err)
@@ -866,7 +871,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			{
 				for (var i = 0; i < repos.length; i++)
 				{
-					(function(repository)
+					(mxUtils.bind(this, function(repository)
 					{
 						var link = document.createElement('a');
 						link.setAttribute('href', 'javascript:void(0);');
@@ -883,7 +888,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	
 							selectFile();
 						}));
-					})(repos[i]);
+					}))(repos[i]);
 				}
 			}
 		}), mxUtils.bind(this, function(err)
