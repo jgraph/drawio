@@ -233,6 +233,45 @@
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
+	Editor.prototype.isDataSvg = function(svg)
+	{
+		try
+		{
+			var svgRoot = mxUtils.parseXml(svg).documentElement;
+			var tmp = svgRoot.getAttribute('content');
+			
+			if (tmp != null)
+			{
+				if (tmp != null && tmp.charAt(0) != '<' && tmp.charAt(0) != '%')
+				{
+					tmp = unescape((window.atob) ? atob(tmp) : Base64.decode(cont, tmp));
+				}
+				
+				if (tmp != null && tmp.charAt(0) == '%')
+				{
+					tmp = decodeURIComponent(tmp);
+				}
+				
+				if (tmp != null && tmp.length > 0)
+				{
+					var node = mxUtils.parseXml(tmp).documentElement;
+					
+					
+					return node.nodeName == 'mxfile' || node.nodeName == 'mxGraphModel';
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
+		return false;
+	};
+	
+	/**
+	 * Helper function to extract the graph model XML node.
+	 */
 	Editor.prototype.extractGraphModel = function(node, allowMxFile)
 	{
 		if (node != null && typeof(pako) !== 'undefined')

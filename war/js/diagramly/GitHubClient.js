@@ -318,20 +318,45 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 	var ref = tokens[2];
 	var path = tokens.slice(3, tokens.length).join('/');
 	
-	var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-		'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
-	
-	this.executeRequest(req, mxUtils.bind(this, function(req)
+	// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
+	if (/\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) || /\.png$/i.test(path))
 	{
-		try
+		// Should never be null
+		if (this.token != null)
 		{
-			success(this.createGitHubFile(org, repo, ref, req, asLibrary));
+			var url = this.baseUrl + '/repos/' + org + '/' + repo +
+				'/contents/' + path + '?ref=' + encodeURIComponent(ref) +
+				'&token=' + this.token;
+			var tokens = path.split('/');
+			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
+	
+			this.ui.convertFile(url, name, null, this.extension, success, error);
 		}
-		catch (e)
+		else if (error != null)
 		{
-			error(e);
+			error();
 		}
-	}), error);
+	}
+	else
+	{
+		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
+			'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
+		
+		this.executeRequest(req, mxUtils.bind(this, function(req)
+		{
+			try
+			{
+				success(this.createGitHubFile(org, repo, ref, req, asLibrary));
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), error);
+	}
 };
 
 /**
@@ -350,19 +375,8 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, req, asLibrar
 	
 	if (data.encoding === 'base64')
 	{
-		if ((/(\.jpe?g)$/i.test(data.name)))
-		{
-			content = 'data:image/jpg;base64,' + content;
-		}
-		else if ((/(\.png)$/i.test(data.name)))
-		{
-			content = 'data:image/png;base64,' + content;
-		}
-		else
-		{
-			// Workaround for character encoding issues in IE10/11
-			content = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ? atob(content) : Base64.decode(content);
-		}
+		// Workaround for character encoding issues in IE10/11
+		content = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ? atob(content) : Base64.decode(content);
 	}
 	
 	return (asLibrary) ? new GitHubLibrary(this.ui, content, meta) : new GitHubFile(this.ui, content, meta);
@@ -728,29 +742,26 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			this.ui.spinner.stop();
 			var files = JSON.parse(req.getText());
 			
-			if (path != null && path.length > 0)
+			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0);');
+			mxUtils.write(link, '../ [Up]');
+			div.appendChild(link);
+			mxUtils.br(div);
+			
+			mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
 			{
-				var link = document.createElement('a');
-				link.setAttribute('href', 'javascript:void(0);');
-				mxUtils.write(link, '../ [Up]');
-				div.appendChild(link);
-				mxUtils.br(div);
-				
-				mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+				if (path == '')
 				{
-					if (path == '')
-					{
-						path = null;
-						selectRepo();
-					}
-					else
-					{
-						var tokens = path.split('/');
-						path = tokens.slice(0, tokens.length - 1).join('/');
-						selectFile();
-					}
-				}));
-			}
+					path = null;
+					selectRepo();
+				}
+				else
+				{
+					var tokens = path.split('/');
+					path = tokens.slice(0, tokens.length - 1).join('/');
+					selectFile();
+				}
+			}));
 
 			if (files == null || files.length == 0)
 			{
@@ -817,6 +828,18 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			this.ui.spinner.stop();
 			updatePathInfo(true);
 			var branches = JSON.parse(req.getText());
+			
+			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0);');
+			mxUtils.write(link, '../ [Up]');
+			div.appendChild(link);
+			mxUtils.br(div);
+			
+			mxEvent.addListener(link, 'click', mxUtils.bind(this, function()
+			{
+				path = null;
+				selectRepo();
+			}));
 			
 			if (branches == null || branches.length == 0)
 			{

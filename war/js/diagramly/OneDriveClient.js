@@ -273,11 +273,12 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    		{
 							var meta = JSON.parse(req.getText());
 							
-							if (!denyConvert && Graph.fileSupport && new XMLHttpRequest().upload &&
-								(/(\.png)$/i.test(meta.name) || /(\.vs?dx)$/i.test(meta.name) ||
-								/(\.gliffy)$/i.test(meta.name)))
+							// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
+							if ((/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) || /\.png$/i.test(meta.name)))
 							{
-								this.convertFile(meta, success, error);
+								var mimeType = (meta.file != null) ? meta.file.mimeType : null;
+								this.ui.convertFile(meta['@content.downloadUrl'], meta.name, mimeType,
+									this.extension, success, error);
 							}
 							else
 							{
@@ -291,7 +292,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 									{
 										success(new OneDriveFile(this.ui, data, meta));
 									}
-					    		}), err, meta != null && meta.file != null && meta.file.mimeType != null &&
+					    		}), err, meta.file != null && meta.file.mimeType != null &&
 					    			meta.file.mimeType.substring(0, 6) == 'image/');
 							}
 			    		}

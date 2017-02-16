@@ -1804,8 +1804,7 @@ App.prototype.open = function()
 							title = this.defaultFilename;
 						}
 						
-						this.fileLoaded(new LocalFile(this, xml, title));
-						this.setMode(null);
+						this.fileLoaded(new LocalFile(this, xml, title, true));
 					}
 					else
 					{
@@ -2060,9 +2059,8 @@ App.prototype.start = function()
 									title = this.defaultFilename;
 								}
 								
-								this.fileLoaded(new LocalFile(this, xml, title));
+								this.fileLoaded(new LocalFile(this, xml, title, true));
 								this.getCurrentFile().setModified(!this.editor.chromeless);
-								this.setMode(null);
 							}
 						}));
 					}
@@ -2073,8 +2071,7 @@ App.prototype.start = function()
 					if (urlParams['demo'] == '1')
 					{
 						var prev = Editor.useLocalStorage;
-						this.createFile(this.defaultFilename, null, null, App.MODE_DEVICE);
-						this.setMode(null);
+						this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
 						Editor.useLocalStorage = prev;
 					}
 					else
@@ -2107,8 +2104,7 @@ App.prototype.start = function()
 								var draft = this.getDraft();
 								var fileData = (draft != null) ? draft.data : this.getFileData();
 								var prev = Editor.useLocalStorage;
-								this.createFile(this.defaultFilename, fileData, null, App.MODE_DEVICE);
-								this.setMode(null);
+								this.createFile(this.defaultFilename, fileData, null, null, null, null, null, true);
 								Editor.useLocalStorage = prev;
 								
 								// Draft was used so the user should save the file
@@ -2180,8 +2176,7 @@ App.prototype.start = function()
 								this.hideDialog();
 								var prev = Editor.useLocalStorage;
 								this.createFile((filename.length > 0) ? filename : this.defaultFilename,
-									this.getFileData(), null, App.MODE_DEVICE);
-								this.setMode(null);
+									this.getFileData(), null, null, null, null, null, true);
 								Editor.useLocalStorage = prev;
 							}
 							else
@@ -2287,8 +2282,7 @@ App.prototype.showSplash = function(force)
 				if (cancel && !mxClient.IS_CHROMEAPP)
 				{
 					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename, null, null, App.MODE_DEVICE);
-					this.setMode(null);
+					this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
 					Editor.useLocalStorage = prev;
 				}
 			}));
@@ -2420,28 +2414,7 @@ App.prototype.pickFile = function(mode)
 {
 	mode = (mode != null) ? mode : this.mode;
 	
-	if (mode == App.MODE_DROPBOX)
-	{
-		if (this.dropbox != null)
-		{
-			this.dropbox.pickFile();
-		}
-	}
-	else if (mode == App.MODE_GITHUB)
-	{
-		if (this.gitHub != null)
-		{
-			this.gitHub.pickFile();
-		}
-	}
-	else if (mode == App.MODE_ONEDRIVE)
-	{
-		if (this.oneDrive != null)
-		{
-			this.oneDrive.pickFile();
-		}
-	}
-	else if (mode == App.MODE_GOOGLE)
+	if (mode == App.MODE_GOOGLE)
 	{
 		if (this.drive != null && typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 		{
@@ -2452,61 +2425,70 @@ App.prototype.pickFile = function(mode)
 			window.open('https://drive.google.com');
 		}
 	}
-	else if (mode == App.MODE_DEVICE && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
-	{
-		var input = document.createElement('input');
-		input.setAttribute('type', 'file');
-		
-		mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
-		{
-			if (input.files != null)
-			{
-				this.openFiles(input.files);
-			}
-		}));
-
-		input.click();
-	}
 	else
 	{
-		this.hideDialog();
-		window.openNew = this.getCurrentFile() != null && !this.isDiagramEmpty();
-		window.baseUrl = this.getUrl();
-		window.openKey = 'open';
-		var prevValue = Editor.useLocalStorage;
-		Editor.useLocalStorage = (mode == App.MODE_BROWSER);
-		this.openFile();
+		var peer = this.getPeerForMode(mode);
 		
-		// Installs local handler for opened files in same window
-		window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+		if (peer != null)
 		{
-			// Replaces PNG with XML extension
-			var dot = filename.substring(filename.length - 4) == '.png';
-			
-			if (dot > 0)
-			{
-				filename = filename.substring(0, filename.length - 4) + '.xml';
-			}
-			
-			this.fileLoaded((mode == App.MODE_BROWSER) ?
-					new StorageFile(this, xml, filename) :
-					new LocalFile(this, xml, filename));
-		}));
-		
-		// Extends dialog close to show splash screen
-		var dlg = this.dialog;
-		var dlgClose = dlg.close;
-		
-		this.dialog.close = mxUtils.bind(this, function(cancel)
+			peer.pickFile();
+		}
+		else if (mode == App.MODE_DEVICE && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
 		{
-			Editor.useLocalStorage = prevValue;
-			dlgClose.apply(dlg, arguments);
-
-			if (this.getCurrentFile() == null)
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 			{
-				this.showSplash();
-			}
-		});
+				if (input.files != null)
+				{
+					this.openFiles(input.files);
+				}
+			}));
+	
+			input.click();
+		}
+		else
+		{
+			this.hideDialog();
+			window.openNew = this.getCurrentFile() != null && !this.isDiagramEmpty();
+			window.baseUrl = this.getUrl();
+			window.openKey = 'open';
+			var prevValue = Editor.useLocalStorage;
+			Editor.useLocalStorage = (mode == App.MODE_BROWSER);
+			this.openFile();
+			
+			// Installs local handler for opened files in same window
+			window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+			{
+				// Replaces PNG with XML extension
+				var dot = filename.substring(filename.length - 4) == '.png';
+				
+				if (dot > 0)
+				{
+					filename = filename.substring(0, filename.length - 4) + '.xml';
+				}
+				
+				this.fileLoaded((mode == App.MODE_BROWSER) ?
+						new StorageFile(this, xml, filename) :
+						new LocalFile(this, xml, filename));
+			}));
+			
+			// Extends dialog close to show splash screen
+			var dlg = this.dialog;
+			var dlgClose = dlg.close;
+			
+			this.dialog.close = mxUtils.bind(this, function(cancel)
+			{
+				Editor.useLocalStorage = prevValue;
+				dlgClose.apply(dlg, arguments);
+	
+				if (this.getCurrentFile() == null)
+				{
+					this.showSplash();
+				}
+			});
+		}
 	}
 };
 
@@ -2919,9 +2901,39 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId)
+App.prototype.getPeerForMode = function(mode)
 {
-	mode = (mode != null) ? mode : this.mode;
+	if (mode == App.MODE_GOOGLE)
+	{
+		return this.drive;
+	}
+	else if (mode == App.MODE_GITHUB)
+	{
+		return this.gitHub;
+	}
+	else if (mode == App.MODE_DROPBOX)
+	{
+		return this.dropbox;
+	}
+	else if (mode == App.MODE_ONEDRIVE)
+	{
+		return this.oneDrive;
+	}
+	else
+	{
+		return null;
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile)
+{
+	mode = (tempFile) ? null : ((mode != null) ? mode : this.mode);
 
 	if (title != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
@@ -3016,7 +3028,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		else
 		{
 			complete();
-			this.fileCreated(new LocalFile(this, data, title), libs, replace, done);
+			this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done);
 		}
 	}
 };
@@ -3197,13 +3209,12 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				}
 				
 				var file = new LocalFile(this, data, (urlParams['title'] != null) ?
-					decodeURIComponent(urlParams['title']) : this.defaultFilename);
+					decodeURIComponent(urlParams['title']) : this.defaultFilename, true);
 				file.getHash = function()
 				{
 					return id;
 				};
 				this.fileLoaded(file);
-				this.setMode(null);
 			}
 			else if (id.charAt(0) == 'U')
 			{
@@ -3242,17 +3253,13 @@ App.prototype.loadFile = function(id, sameWindow, file)
 						}
 						
 						var file = new LocalFile(this, text, (urlParams['title'] != null) ?
-							decodeURIComponent(urlParams['title']) : filename);
+							decodeURIComponent(urlParams['title']) : filename, true);
 						file.getHash = function()
 						{
 							return id;
 						};
 						
-						if (this.fileLoaded(file))
-						{
-							this.setMode(null);	
-						}
-						else
+						if (!this.fileLoaded(file))
 						{
 							// Fallback for non-public Google Drive diagrams
 							if (url.substring(0, 31) == 'https://drive.google.com/uc?id=' &&
@@ -3962,13 +3969,190 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn)
 };
 
 /**
+ * Checks if the client is authorized and calls the next step. The optional
+ * readXml argument is used for import. Default is false. The optional
+ * readLibrary argument is used for reading libraries. Default is false.
+ */
+App.prototype.convertFile = function(url, filename, mimeType, extension, success, error)
+{
+	var name = filename;
+	
+	// SVG file extensions are valid and needed for image import
+	if (!/\.svg$/i.test(name))
+	{
+		name = name.substring(0, filename.lastIndexOf('.')) + extension;
+	}
+	
+	var gitHubUrl = false;
+	
+	if (this.gitHub != null && url.substring(0, this.gitHub.baseUrl.length) == this.gitHub.baseUrl)
+	{
+		gitHubUrl = true;
+	}
+	
+	// Workaround for wrong binary response with VSDX files
+	if (/\.vsdx$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
+		typeof new XMLHttpRequest().responseType === 'string')
+	{
+		var req = new XMLHttpRequest();
+		req.open('GET', url, true);
+		
+		if (!gitHubUrl)
+		{
+			req.responseType = 'blob';
+		}
+
+		req.onload = mxUtils.bind(this, function()
+		{
+			var blob = null;
+			
+			if (gitHubUrl)
+			{
+				var file = JSON.parse(req.responseText);
+				blob = this.base64ToBlob(file.content, 'application/octet-stream');
+			}
+			else
+			{
+				blob = new Blob([req.response], {type: 'application/octet-stream'});
+			}
+
+			this.parseFile(blob, mxUtils.bind(this, function(xhr)
+			{
+				if (xhr.readyState == 4)
+				{
+					if (xhr.status >= 200 && xhr.status <= 299)
+					{
+						success(new LocalFile(this, xhr.responseText, name, true));
+					}
+					else if (error != null)
+					{
+						error({message: mxResources.get('errorLoadingFile')});
+					}
+				}
+			}), filename);
+		});
+
+		req.send();
+	}
+	else
+	{
+		var handleData = mxUtils.bind(this, function(data)
+		{
+			try
+			{
+				if (/\.png$/i.test(filename))
+				{
+					temp = this.extractGraphModelFromPng(data);
+					
+					if (temp != null)
+					{
+						success(new LocalFile(this, temp, name, true));
+					}
+					else
+					{
+						success(new LocalFile(this, data, filename, true));
+					}
+				}
+				else if (Graph.fileSupport && new XMLHttpRequest().upload)
+				{
+					this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+					{
+						if (xhr.readyState == 4)
+						{
+							if (xhr.status >= 200 && xhr.status <= 299)
+							{
+								success(new LocalFile(this, xhr.responseText, name, true));
+							}
+							else if (error != null)
+							{
+								error({message: mxResources.get('errorLoadingFile')});
+							}
+						}
+					}), filename);
+				}
+				else if (error != null)
+				{
+					error({message: mxResources.get('errorLoadingFile')});
+				}
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		});
+
+		var binary = /\.png$/i.test(filename) || /\.jpe?g$/i.test(filename) || (mimeType != null &&
+			mimeType.substring(0, 6) == 'image/');
+		
+		// NOTE: Cannot force non-binary request via loadUrl so needs separate
+		// code as decoding twice on content with binary data did not work
+		if (gitHubUrl)
+		{
+			mxUtils.get(url, mxUtils.bind(this, function(req)
+			{
+				if (req.getStatus() >= 200 && req.getStatus() <= 299)
+				{
+			    	if (success != null)
+			    	{
+				    	var file = JSON.parse(req.getText());
+				    	var data = file.content;
+				    	
+				    	if (file.encoding === 'base64')
+				    	{
+				    		if (/\.png$/i.test(filename))
+					    	{
+					    		data = 'data:image/png;base64,' + data;	
+					    	}
+					    	else if (/\.jpe?g$/i.test(filename))
+					    	{
+					    		data = 'data:image/jpeg;base64,' + data;	
+					    	}
+					    	else
+					    	{
+					    		// Workaround for character encoding issues in IE10/11
+					    		data = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ? atob(data) : Base64.decode(data);
+					    	}
+				    	}
+				    	
+				    	handleData(data);
+			    	}
+				}
+				else if (error != null)
+		    	{
+		    		error({code: App.ERROR_UNKNOWN});
+		    	}
+			}), function()
+			{
+		    	if (error != null)
+		    	{
+		    		error({code: App.ERROR_UNKNOWN});
+		    	}
+			}, false, this.timeout, function()
+		    {
+		    	if (error != null)
+				{
+					error({code: App.ERROR_TIMEOUT, retry: fn});
+				}
+		    });
+		}
+		else
+		{
+			this.loadUrl(url, handleData, error, binary);
+		}
+	}
+};
+
+/**
  * Checks if the client is authorized and calls the next step.
  */
 App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 {
 	try
 	{
-		var binary = (forceBinary || /(\.png)($|\?)/i.test(url));
+		var binary = (forceBinary || /(\.png)($|\?)/i.test(url) || /(\.jpe?g)($|\?)/i.test(url));
 		retry = (retry != null) ? retry : true;
 		
 		var fn = mxUtils.bind(this, function()
@@ -3999,6 +4183,7 @@ App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 								data = tmp.join('');
 							}
 							
+							// LATER: Could be JPG but modern browser ignore the mime type
 							data = 'data:image/png;base64,' + this.base64Encode(data);
 						}
 			    		

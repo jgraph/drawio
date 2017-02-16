@@ -1,3 +1,12 @@
+16-FEB-2017: 6.1.1.0
+
+- Uses mxGraph 3.7.0.2 beta 4
+- Adds import for SVG and JPG images from backends
+- Adds VSDX/Gliffy/PNG+XML import/open from backends
+- Adds border option for image export
+- Adds timeout handlers for Atlassian cloud
+- Fixes ignored crop in JPEG export
+
 15-FEB-2017: 6.1.0.3
 
 - Fixes possible NPE in OneDriveClient

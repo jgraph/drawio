@@ -602,40 +602,6 @@ DriveClient.prototype.getLibrary = function(id, success, error)
  * readXml argument is used for import. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
  */
-DriveClient.prototype.convertFile = function(resp, success, error)
-{
-	var name = resp.title;
-	name = name.substring(0, name.lastIndexOf('.')) + this.extension;
-	
-	// Gets file data
-	var token = gapi.auth.getToken().access_token;
-	var url = resp.downloadUrl + '&access_token=' + token;
-	
-	this.ui.loadUrl(url, mxUtils.bind(this, function(data)
-	{
-		this.ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
-		{
-			if (xhr.readyState == 4)
-			{
-				if (xhr.status >= 200 && xhr.status <= 299 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
-				{
-					this.insertFile(name, xhr.responseText, (resp.parents != null && resp.parents.length > 0) ?
-						resp.parents[0].id : null, success, error);
-				}
-				else if (error != null)
-				{
-					error({message: mxResources.get('errorLoadingFile')});
-				}
-			}
-		}), resp.title);
-	}));
-};
-
-/**
- * Checks if the client is authorized and calls the next step. The optional
- * readXml argument is used for import. Default is false. The optional
- * readLibrary argument is used for reading libraries. Default is false.
- */
 DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrary)
 {
 	readXml = (readXml != null) ? readXml : false;
@@ -654,11 +620,11 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 		{
 			if (this.user != null)
 			{
-				// Handles .vsdx and Gliffy files by creating a new file
-				if (!readLibrary && !readXml && Graph.fileSupport && new XMLHttpRequest().upload &&
-					(/(\.vsdx)$/i.test(resp.title) || /(\.gliffy)$/i.test(resp.title)))
+				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
+				if ((/\.vsdx$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) || /\.png$/i.test(resp.title)))
 				{
-					this.convertFile(resp, success, error);
+					var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;
+					this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
 				}
 				else
 				{
@@ -707,7 +673,9 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 DriveClient.prototype.loadRealtime = function(resp, success, error)
 {
 	// Redirects to new app because the realtime models of different apps are not visible
-	if (urlParams['ignoremime'] != '1' && this.appId == '420247213240' && (resp.mimeType == 'application/mxr' || resp.mimeType == 'application/vnd.jgraph.mxfile.realtime'))
+	if (urlParams['ignoremime'] != '1' && this.appId == '420247213240' &&
+		(resp.mimeType == 'application/vnd.jgraph.mxfile.realtime' ||
+		resp.mimeType == 'application/mxr'))
 	{
 		this.redirectToNewApp(error, resp.id);
 	}
@@ -793,7 +761,8 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 				success(file);
 			}
 		}
-	}), error, resp.mimeType.substring(0, 6) == 'image/');
+	}), error, (resp.mimeType.substring(0, 6) == 'image/' && resp.mimeType.substring(0, 9) != 'image/svg') ||
+		/\.png$/i.test(resp.title) || /\.jpe?g$/i.test(resp.title));
 };
 
 /**

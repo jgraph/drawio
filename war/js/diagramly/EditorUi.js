@@ -1238,15 +1238,15 @@
 				this.setCurrentFile(file);
 				file.addListener('descriptorChanged', this.descriptorChangedListener);
 				file.addListener('contentChanged', this.descriptorChangedListener);
-				this.setMode(file.getMode());
 				this.descriptorChanged();
 				file.open();
-	
+				
 				this.diagramContainer.style.visibility = '';
 				this.formatContainer.style.visibility = '';
 				this.hsplit.style.display = '';
 				this.sidebarContainer.style.display = '';
 				this.sidebarFooterContainer.style.display = '';
+				this.setMode(file.getMode());
 				this.editor.undoManager.clear();
 				this.updateUi();
 				
@@ -1306,7 +1306,7 @@
 	//	        	}
 	//			}
 				
-				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE)
+				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
 				{
 					try
 					{
@@ -2798,7 +2798,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, noCrop, currentPage)
+	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, border, noCrop, currentPage)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -2819,7 +2819,7 @@
 			
 			// Sets or disables alternate text for foreignObjects. Disabling is needed
 			// because PhantomJS seems to ignore switch statements and paint all text.
-			var svgRoot = this.editor.graph.getSvg(bg, scale, null, noCrop, null, ignoreSelection);
+			var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null, ignoreSelection);
 			
 			if (addShadow)
 			{
@@ -3490,7 +3490,6 @@
 		div.appendChild(hd);
 		
 		mxUtils.write(div, mxResources.get('zoom') + ':');
-		
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('type', 'text');
 		zoomInput.style.marginRight = '16px';
@@ -3498,8 +3497,16 @@
 		zoomInput.style.marginLeft = '4px';
 		zoomInput.style.marginRight = '12px';
 		zoomInput.value = '100%';
-		
 		div.appendChild(zoomInput);
+		
+		mxUtils.write(div, mxResources.get('borderWidth') + ':');
+		var borderInput = document.createElement('input');
+		borderInput.setAttribute('type', 'text');
+		borderInput.style.marginRight = '16px';
+		borderInput.style.width = '60px';
+		borderInput.style.marginLeft = '4px';
+		borderInput.value = '0';
+		div.appendChild(borderInput);
 		mxUtils.br(div);
 		
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
@@ -3573,7 +3580,7 @@
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked, cb6.checked, !allPages.checked);
+				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 320, height, true, true);
 		zoomInput.focus();
@@ -3603,7 +3610,6 @@
 		div.appendChild(hd);
 		
 		mxUtils.write(div, mxResources.get('zoom') + ':');
-		
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('type', 'text');
 		zoomInput.style.marginRight = '16px';
@@ -3611,8 +3617,16 @@
 		zoomInput.style.marginLeft = '4px';
 		zoomInput.style.marginBottom = '4px';
 		zoomInput.value = '100%';
-		
 		div.appendChild(zoomInput);
+		
+		mxUtils.write(div, mxResources.get('borderWidth') + ':');
+		var borderInput = document.createElement('input');
+		borderInput.setAttribute('type', 'text');
+		borderInput.style.marginRight = '16px';
+		borderInput.style.width = '60px';
+		borderInput.style.marginLeft = '4px';
+		borderInput.value = '0';
+		div.appendChild(borderInput);
 		mxUtils.br(div);
 		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
@@ -3651,7 +3665,7 @@
 				
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			callback(zoomInput.value, !selection.checked, shadow.checked, cb5.checked, cb6.checked);
+			callback(zoomInput.value, !selection.checked, shadow.checked, borderInput.value, cb6.checked);
 		}), null, mxResources.get('export'), helpLink);
 		this.showDialog(dlg.container, 320, 190, true, true);
 		zoomInput.focus();
@@ -4102,7 +4116,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, noCrop, currentPage, format)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -4145,7 +4159,7 @@
 			   		this.spinner.stop();
 			   		this.handleError(e);
 			   	}), null, ignoreSelection, scale || 1, transparentBackground,
-			   		addShadow, null, null, null, noCrop);
+			   		addShadow, null, null, border, noCrop);
 			}
 			catch (e)
 			{

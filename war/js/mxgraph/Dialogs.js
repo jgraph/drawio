@@ -1877,7 +1877,7 @@ var ExportDialog = function(editorUi)
 	
 	var borderInput = document.createElement('input');
 	borderInput.setAttribute('type', 'number');
-	borderInput.setAttribute('value', '0');
+	borderInput.setAttribute('value', ExportDialog.lastBorderValue);
 	borderInput.style.width = '180px';
 
 	td = document.createElement('td');
@@ -2038,6 +2038,7 @@ var ExportDialog = function(editorUi)
 				bg = '#ffffff';
 			}
 			
+			ExportDialog.lastBorderValue = b;
 			ExportDialog.exportFile(editorUi, name, format, bg, s, b);
 		}
 	}));
@@ -2065,6 +2066,11 @@ var ExportDialog = function(editorUi)
 	table.appendChild(tbody);
 	this.container = table;
 };
+
+/**
+ * Remembers last value for border.
+ */
+ExportDialog.lastBorderValue = 0;
 
 /**
  * Global switches for the export dialog.
