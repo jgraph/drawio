@@ -610,6 +610,4 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
         	}));
 		}
 	};
-	
-	EditorUi.prototype.addBeforeUnloadListener = function() {};
 })();

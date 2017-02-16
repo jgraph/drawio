@@ -231,6 +231,7 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 	urlParams['gapi'] = '0';
 	urlParams['db'] = '0';
 	urlParams['od'] = '0';
+	urlParams['gh'] = '0';
 }
 
 // Disables math in offline mode

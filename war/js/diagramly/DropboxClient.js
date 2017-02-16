@@ -190,13 +190,13 @@ DropboxClient.prototype.authorize = function(interactive, fn)
  */
 DropboxClient.prototype.getLibrary = function(path, success, error)
 {
-	this.getFile(path, success, error, false, true);
+	this.getFile(path, success, error, true);
 };
 
 /**
  * DenyConvert is ignored in this client, just added for API compatibility.
  */
-DropboxClient.prototype.getFile = function(path, success, error, denyConvert, asLibrary)
+DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	
@@ -204,51 +204,61 @@ DropboxClient.prototype.getFile = function(path, success, error, denyConvert, as
 	{
 		this.execute(mxUtils.bind(this, function()
 		{
-			var acceptResponse = true;
-			
-			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+			if (/^https:\/\//i.test(path) || /\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) || /\.png$/i.test(path))
 			{
-				acceptResponse = false;
-				error({code: App.ERROR_TIMEOUT, retry: fn});
-			}), this.ui.timeout);
-			
-			var options = null;
-			
-			if (urlParams['rev'] != null)
-			{
-				options = {versionTag: urlParams['rev']};
+				var tokens = path.split('/');
+				var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
+		
+				this.ui.convertFile(path, name, null, this.extension, success, error);
 			}
-			
-			this.client.readFile('/' + path, options, mxUtils.bind(this, function(err, data, stat)
+			else
 			{
-				try
+				var acceptResponse = true;
+				
+				var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 				{
-			    	window.clearTimeout(timeoutThread);
-			    	
-			    	if (acceptResponse)
-			    	{
-						if (err != null)
-						{
-							error(err)
-						}
-						else
-						{
-							if (asLibrary)
+					acceptResponse = false;
+					error({code: App.ERROR_TIMEOUT, retry: fn});
+				}), this.ui.timeout);
+				
+				var options = null;
+				
+				if (urlParams['rev'] != null)
+				{
+					options = {versionTag: urlParams['rev']};
+				}
+				
+				this.client.readFile('/' + path, options, mxUtils.bind(this, function(err, data, stat)
+				{
+					try
+					{
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+							if (err != null)
 							{
-								success(new DropboxLibrary(this.ui, data, stat));
+								error(err)
 							}
 							else
 							{
-								success(new DropboxFile(this.ui, data, stat));
+								if (asLibrary)
+								{
+									success(new DropboxLibrary(this.ui, data, stat));
+								}
+								else
+								{
+									success(new DropboxFile(this.ui, data, stat));
+								}
 							}
-						}
-			    	}
-				}
-				catch (e)
-				{
-					error(e);
-				}
-			}));
+				    	}
+					}
+					catch (e)
+					{
+						error(e);
+					}
+				}));
+			}
 		}));
 	});
 	
@@ -587,7 +597,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 	{
 		fn = (fn != null) ? fn : mxUtils.bind(this, function(path, file)
 		{
-			this.ui.loadFile('D' + encodeURIComponent(path), null, file);
+			this.ui.loadFile((path != null) ? 'D' + encodeURIComponent(path) : file.getHash(), null, file);
 		});
 		
 		// Authentication will be carried out on open to make sure the
@@ -623,39 +633,47 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 							this.ui.spinner.stop();
 							fn(path, file);
 						});
-				
-						var tmp = files[0].link.indexOf(this.appPath);
-	
-						if (tmp > 0 && !/(\.png)$/i.test(files[0].name) && !/(\.vs?dx)$/i.test(files[0].name) && !/(\.gliffy)$/i.test(files[0].name))
+						
+						if ((/\.vsdx$/i.test(files[0].name) || /\.gliffy$/i.test(files[0].name) ||
+							/\.png$/i.test(files[0].name)))
 						{
-							// Checks if file is in app folder by loading file from there and comparing relative path and size
-							// KNOWN: This check fails if a file is inside a drawio directory with same relative path and size
-							this.execute(mxUtils.bind(this, function()
-							{		
-								var rel = decodeURIComponent(files[0].link.substring(tmp + this.appPath.length - 1));
-								
-								this.client.readFile(rel, null, mxUtils.bind(this, function(err, data, stat)
-								{
-									if (stat != null && parseInt(files[0].bytes) === parseInt(stat.size) && rel === stat.path)
-									{
-										this.ui.spinner.stop();
-										
-										// No need to load file a second time
-										fn(rel.substring(1), new DropboxFile(this.ui, data, stat));
-									}
-									else
-									{
-										this.createFile(files[0], success, error);
-									}
-								}));
-							}));
+							success(files[0].link);
 						}
 						else
 						{
-							this.execute(mxUtils.bind(this, function()
+							var tmp = files[0].link.indexOf(this.appPath);
+							
+							if (tmp > 0)
 							{
-								this.createFile(files[0], success, error);
-							}));
+								// Checks if file is in app folder by loading file from there and comparing relative path and size
+								// KNOWN: This check fails if a file is inside a drawio directory with same relative path and size
+								this.execute(mxUtils.bind(this, function()
+								{		
+									var rel = decodeURIComponent(files[0].link.substring(tmp + this.appPath.length - 1));
+									
+									this.client.readFile(rel, null, mxUtils.bind(this, function(err, data, stat)
+									{
+										if (stat != null && parseInt(files[0].bytes) === parseInt(stat.size) && rel === stat.path)
+										{
+											this.ui.spinner.stop();
+											
+											// No need to load file a second time
+											fn(rel.substring(1), new DropboxFile(this.ui, data, stat));
+										}
+										else
+										{
+											this.createFile(files[0], success, error);
+										}
+									}));
+								}));
+							}
+							else
+							{
+								this.execute(mxUtils.bind(this, function()
+								{
+									this.createFile(files[0], success, error);
+								}));
+							}
 						}
 					}
 				}
@@ -676,70 +694,28 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
  */
 DropboxClient.prototype.createFile = function(file, success, error)
 {
-	var name = file.name;
-	
-	if (/(\.png)$/i.test(name) || /(\.vs?dx)$/i.test(name) || /(\.gliffy)$/i.test(name))
-	{
-		name = name.substring(0, name.lastIndexOf('.')) + this.extension;
-	}
-	
-	var doInsert = mxUtils.bind(this, function(filename, data)
-	{
-		this.ui.confirm(mxResources.get('note') + ': ' + mxResources.get('fileWillBeSavedInAppFolder', [filename]), mxUtils.bind(this, function()
-		{
-			this.insertFile(filename, data, mxUtils.bind(this, function(newFile)
-	    	{
-				success(filename, newFile);
-	    	}), error);
-		}), mxUtils.bind(this, function()
-		{
-    		this.ui.spinner.stop();
-		}));
-	});
-	
 	this.ui.loadUrl(file.link, mxUtils.bind(this, function(data)
     {
-		if (/(\.vs?dx)$/i.test(file.name) || /(\.gliffy)$/i.test(file.name))
+		if (data != null && data.length > 0)
 		{
-			this.ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+			this.ui.confirm(mxResources.get('note') + ': ' + mxResources.get('fileWillBeSavedInAppFolder', [file.name]), mxUtils.bind(this, function()
 			{
-				if (xhr.readyState == 4)
-				{
-					if (xhr.status >= 200 && xhr.status <= 299 && xhr.responseText.substring(0, 13) == '<mxGraphModel')
-					{
-						doInsert(name, xhr.responseText);
-					}
-					else
-					{
-			    		this.ui.spinner.stop();
-			    		
-			    		if (error != null)
-			    		{
-			    			error({message: mxResources.get('errorLoadingFile')});
-			    		}
-					}
-				}
-			}), file.name);
+				this.insertFile(file.name, data, mxUtils.bind(this, function(newFile)
+		    	{
+					success(file.name, newFile);
+		    	}), error);
+			}), mxUtils.bind(this, function()
+			{
+	    		this.ui.spinner.stop();
+			}));
 		}
 		else
 		{
-			if (/(\.png)$/i.test(file.name))
-			{
-				data = this.ui.extractGraphModelFromPng(data);
-			}
+			this.ui.spinner.stop();
 			
-			if (data != null && data.length > 0)
+			if (error != null)
 			{
-				doInsert(name, data);
-			}
-			else
-			{
-				this.ui.spinner.stop();
-				
-				if (error != null)
-				{
-					error({message: mxResources.get('errorLoadingFile')});
-				}
+				error({message: mxResources.get('errorLoadingFile')});
 			}
 		}
     }), error, /(\.png)$/i.test(file.name));

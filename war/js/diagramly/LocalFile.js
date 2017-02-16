@@ -8,11 +8,12 @@
  * @param {number} x X-coordinate of the point.
  * @param {number} y Y-coordinate of the point.
  */
-LocalFile = function(ui, data, title)
+LocalFile = function(ui, data, title, temp)
 {
 	DrawioFile.call(this, ui, data);
 	
 	this.title = title;
+	this.mode = (temp) ? null : App.MODE_DEVICE;
 };
 
 //Extends mxEventSource
@@ -37,7 +38,7 @@ LocalFile.prototype.isAutosave = function()
  */
 LocalFile.prototype.getMode = function()
 {
-	return App.MODE_DEVICE;
+	return this.mode;
 };
 
 /**

@@ -963,7 +963,6 @@
 					editorUi.createEmbedImage(fit, shadow, retina, lightbox, edit, layers, function(result)
 					{
 						editorUi.spinner.stop();
-						
 						var dlg = new EmbedDialog(editorUi, result);
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
@@ -1164,14 +1163,14 @@
 					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
 						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, cropImage, currentPage)
+							addShadow, editable, embedImages, border, cropImage, currentPage)
 						{
 							var val = parseInt(scale);
 							
 							if (!isNaN(val) && val > 0)
 							{
 							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-							   		addShadow, editable, !cropImage, currentPage);
+							   		addShadow, editable, border, !cropImage, currentPage);
 							}
 						}), true);
 				}), parent);
@@ -1181,14 +1180,14 @@
 					menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
 					{
 						editorUi.showExportJpgDialog('https://support.draw.io/display/DO/Exporting+Files',
-							mxUtils.bind(this, function(scale, ignoreSelection, addShadow, cropImage)
+							mxUtils.bind(this, function(scale, ignoreSelection, addShadow, border, cropImage)
 							{
 								var val = parseInt(scale);
 								
 								if (!isNaN(val) && val > 0)
 								{
 								   	this.editorUi.exportImage(val / 100, false, ignoreSelection,
-								   		addShadow, false, !cropImage, false, 'jpeg');
+								   		addShadow, false, border, !cropImage, false, 'jpeg');
 								}
 							}), true);
 					}), parent);
@@ -1212,14 +1211,14 @@
 				editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, cropImage, currentPage)
+						addShadow, editable, embedImages, border, cropImage, currentPage)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
 						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-						   		addShadow, editable, embedImages, !cropImage, currentPage);
+						   		addShadow, editable, embedImages, border, !cropImage, currentPage);
 						}
 					}), true);
 			}), parent);
@@ -1413,7 +1412,7 @@
 				var bds = graph.getGraphBounds();
 				var x = graph.snap(Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize));
 				var y = graph.snap(Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize));
-				
+
 				if (mime.substring(0, 6) == 'image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
@@ -1468,34 +1467,26 @@
 				{
 					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 					{
-						if (service == editorUi.dropbox)
+						// NOTE The third argument in getFile says denyConvert to match
+						// the existing signature in the original DriveClient which has
+						// as slightly different semantic, but works the same way.
+						service.getFile(id, function(file)
 						{
-							var mime = getMimeType(id);
+							var mime = getMimeType(file.getTitle());
 							
-							editorUi.loadUrl(id, function(data)
+							// Imports SVG as images
+							if (/\.svg$/i.test(file.getTitle()) && !editorUi.editor.isDataSvg(file.getData()))
 							{
-								doImportFile(data, mime, id);
-							},
-							function(resp)
-							{
-								editorUi.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null);
-							}, mime.substring(0, 6) == 'image/');
-						}
-						else
+								file.setData(editorUi.createSvgDataUri(file.getData()));
+								mime = 'image/svg+xml';
+							}
+							
+							doImportFile(file.getData(), mime, file.getTitle());
+						},
+						function(resp)
 						{
-							// NOTE The third argument in getFile says denyConvert to match
-							// the existing signature in the original DriveClient which has
-							// as slightly different semantic, but works the same way.
-							service.getFile(id, function(file)
-							{
-								var mime = getMimeType(file.getTitle());
-								doImportFile(file.getData(), mime, file.getTitle());
-							},
-							function(resp)
-							{
-								editorUi.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null);
-							}, true);
-						}
+							editorUi.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null);
+						}, service == editorUi.drive);
 					}
 				}, true);
 			};

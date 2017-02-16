@@ -1420,7 +1420,7 @@ ArrangePanel.prototype.init = function()
 	this.addEdgeGeometry(this.container);
 	this.container.appendChild(this.addAngle(this.createPanel()));
 
-	if (!ss.containsLabel)
+	if (!ss.containsLabel && ss.edges.length == 0)
 	{
 		this.container.appendChild(this.addFlip(this.createPanel()));
 	}
@@ -1717,14 +1717,20 @@ ArrangePanel.prototype.addAngle = function(div)
 	span.style.width = '70px';
 	span.style.marginTop = '0px';
 	span.style.fontWeight = 'bold';
-	mxUtils.write(span, mxResources.get('angle'));
-	div.appendChild(span);
 	
+	var input = null;
 	var update = null;
-	var input = this.addUnitInput(div, '°', 84, 44, function()
+	
+	if (ss.edges.length == 0)
 	{
-		update.apply(this, arguments);
-	});
+		mxUtils.write(span, mxResources.get('angle'));
+		div.appendChild(span);
+		
+		input = this.addUnitInput(div, '°', 84, 44, function()
+		{
+			update.apply(this, arguments);
+		});
+	}
 
 	if (!ss.containsLabel)
 	{
@@ -1740,23 +1746,31 @@ ArrangePanel.prototype.addAngle = function(div)
 		btn.style.width = '61px';
 		div.appendChild(btn);
 	}
-
-	var listener = mxUtils.bind(this, function(sender, evt, force)
+	
+	if (input == null)
 	{
-		if (force || document.activeElement != input)
+		btn.style.right = '';
+		btn.style.width = '202px';
+	}
+	else
+	{
+		var listener = mxUtils.bind(this, function(sender, evt, force)
 		{
-			ss = this.format.getSelectionState();
-			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_ROTATION, 0));
-			input.value = (isNaN(tmp)) ? '' : tmp  + '°';
-		}
-	});
-
-	update = this.installInputHandler(input, mxConstants.STYLE_ROTATION, 0, 0, 360, '°', null, true);
-	this.addKeyHandler(input, listener);
-
-	graph.getModel().addListener(mxEvent.CHANGE, listener);
-	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
-	listener();
+			if (force || document.activeElement != input)
+			{
+				ss = this.format.getSelectionState();
+				var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_ROTATION, 0));
+				input.value = (isNaN(tmp)) ? '' : tmp  + '°';
+			}
+		});
+	
+		update = this.installInputHandler(input, mxConstants.STYLE_ROTATION, 0, 0, 360, '°', null, true);
+		this.addKeyHandler(input, listener);
+	
+		graph.getModel().addListener(mxEvent.CHANGE, listener);
+		this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
+		listener();
+	}
 
 	return div;
 };

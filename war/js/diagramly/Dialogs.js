@@ -68,8 +68,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		editorUi.hideDialog();
 		var prev = Editor.useLocalStorage;
-		editorUi.createFile(editorUi.defaultFilename, null, null, App.MODE_DEVICE);
-		editorUi.setMode(null);
+		editorUi.createFile(editorUi.defaultFilename, null, null, null, null, null, null, true);
 		Editor.useLocalStorage = prev;
 	});
 	
@@ -486,6 +485,7 @@ var SplashDialog = function(editorUi)
 		mxEvent.addListener(link, 'click', function()
 		{
 			editorUi.hideDialog(false);
+			editorUi.setMode(null);
 			editorUi.clearMode();
 			editorUi.showSplash(true);
 		});
