@@ -1,3 +1,8 @@
+17-FEB-2017: 6.1.2
+
+- Uses semantic versioning
+- Fixes possible NPE in format panel
+
 16-FEB-2017: 6.1.1.0
 
 - Uses mxGraph 3.7.0.2 beta 4

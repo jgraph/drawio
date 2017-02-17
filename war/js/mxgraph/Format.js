@@ -1418,8 +1418,12 @@ ArrangePanel.prototype.init = function()
 	// Special case that adds two panels
 	this.addGeometry(this.container);
 	this.addEdgeGeometry(this.container);
-	this.container.appendChild(this.addAngle(this.createPanel()));
 
+	if (!ss.containsLabel || ss.edges.length == 0)
+	{
+		this.container.appendChild(this.addAngle(this.createPanel()));
+	}
+	
 	if (!ss.containsLabel && ss.edges.length == 0)
 	{
 		this.container.appendChild(this.addFlip(this.createPanel()));
@@ -1720,13 +1724,14 @@ ArrangePanel.prototype.addAngle = function(div)
 	
 	var input = null;
 	var update = null;
+	var btn = null;
 	
 	if (ss.edges.length == 0)
 	{
 		mxUtils.write(span, mxResources.get('angle'));
 		div.appendChild(span);
 		
-		input = this.addUnitInput(div, '°', 84, 44, function()
+		input = this.addUnitInput(div, '°', (!ss.containsLabel) ? 84 : 20, 44, function()
 		{
 			update.apply(this, arguments);
 		});
@@ -1734,7 +1739,7 @@ ArrangePanel.prototype.addAngle = function(div)
 
 	if (!ss.containsLabel)
 	{
-		var btn = mxUtils.button(mxResources.get('turn'), function(evt)
+		btn = mxUtils.button(mxResources.get('turn'), function(evt)
 		{
 			ui.actions.get('turn').funct();
 		})
@@ -1749,8 +1754,11 @@ ArrangePanel.prototype.addAngle = function(div)
 	
 	if (input == null)
 	{
-		btn.style.right = '';
-		btn.style.width = '202px';
+		if (btn != null)
+		{
+			btn.style.right = '';
+			btn.style.width = '202px';
+		}
 	}
 	else
 	{
