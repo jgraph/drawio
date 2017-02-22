@@ -236,65 +236,59 @@ DropboxClient.prototype.readFile = function(arg, success, error)
 		acceptResponse = false;
 		error({code: App.ERROR_TIMEOUT});
 	}), this.ui.timeout);
-
-	// TODO: Find catch for file does not exist in filesDownload below
-	// This will have significant impact on performance!
-	// LATER: Catch "file not found" error without metadata check?
+	
+	// Workaround for Uncaught DOMException in filesDownload is to
+	// execute a checkExists in parallel to "catch" the file not found case
 	this.checkExists(arg.path.substring(1), mxUtils.bind(this, function(checked, exists)
+	{
+    	window.clearTimeout(timeoutThread);
+	    
+    	if (acceptResponse && !exists)
+    	{
+    		acceptResponse = false;
+			error({message: mxResources.get('fileNotFound')});
+    	}
+	}), true);
+	
+	// Download file in parallel
+	// LATER: Report Uncaught DOMException with path/not_found in filesDownload
+	var promise = this.client.filesDownload(arg);
+	promise.then(mxUtils.bind(this, function(response)
 	{
     	window.clearTimeout(timeoutThread);
 	    
     	if (acceptResponse)
     	{
-			if (!exists)
+    		acceptResponse = false;
+    		
+			try
 			{
-				error({message: mxResources.get('fileNotFound')});
-			}
-			else
-			{
-	    		timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+				var reader = new FileReader();
+				
+				reader.onload = mxUtils.bind(this, function(event)
 				{
-					acceptResponse = false;
-					error({code: App.ERROR_TIMEOUT});
-				}), this.ui.timeout);
-	    		
-				var promise = this.client.filesDownload(arg);
-				promise.then(mxUtils.bind(this, function(response)
-				{
-			    	window.clearTimeout(timeoutThread);
-				    
-			    	if (acceptResponse)
-			    	{
-						try
-						{
-							var reader = new FileReader();
-							
-							reader.onload = mxUtils.bind(this, function(event)
-							{
-								success(reader.result, response);
-							});
-							
-							reader.readAsText(response.fileBlob);
-						}
-						catch (e)
-						{
-							error(e);
-						}
-			    	}
-				}));
-				// Workaround for IE8/9 support with catch function
-				promise['catch'](function(err)
-				{
-			    	window.clearTimeout(timeoutThread);
-				    
-			    	if (acceptResponse)
-			    	{
-			    		error(e);
-			    	}
+					success(reader.result, response);
 				});
+				
+				reader.readAsText(response.fileBlob);
+			}
+			catch (e)
+			{
+				error(e);
 			}
     	}
-	}), true);
+	}));
+	// Workaround for IE8/9 support with catch function
+	promise['catch'](function(err)
+	{
+    	window.clearTimeout(timeoutThread);
+	    
+    	if (acceptResponse)
+    	{
+    		acceptResponse = false;
+    		error(e);
+    	}
+	});
 };
 
 /**
@@ -770,7 +764,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 										{
 											this.createFile(files[0], success, error);
 										}
-									}));
+									}), error);
 								}));
 							}
 							else

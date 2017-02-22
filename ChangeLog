@@ -1,3 +1,7 @@
+22-FEB-2017: 6.2.1
+
+- Faster read, fixes possible NPE in Dropbox
+
 22-FEB-2017: 6.2.0
 
 - Fixes encoding errors in GitHub client
