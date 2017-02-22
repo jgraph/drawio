@@ -159,22 +159,24 @@ DriveClient.prototype.getUser = function()
  */
 DriveClient.prototype.setUserId = function(userId, remember)
 {
-	if (typeof(Storage) != 'undefined')
+	if (remember)
 	{
-		try
+		if (isLocalStorage)
 		{
-			sessionStorage.setItem('GUID', userId);
-			
-			if (remember)
+			localStorage.setItem('.guid', userId);
+		}
+		else if (typeof(Storage) != 'undefined')
+		{
+			try
 			{
 				var expiry = new Date();
 				expiry.setYear(expiry.getFullYear() + 1);
 				document.cookie = 'GUID=' + userId + '; expires=' + expiry.toUTCString();
 			}
-		}
-		catch (e)
-		{
-			// any errors for storing the user ID can be safely ignored
+			catch (e)
+			{
+				// any errors for storing the user ID can be safely ignored
+			}
 		}
 	}
 };
@@ -184,10 +186,12 @@ DriveClient.prototype.setUserId = function(userId, remember)
  */
 DriveClient.prototype.clearUserId = function()
 {
-	if (typeof(Storage) != 'undefined')
+	if (isLocalStorage)
 	{
-		sessionStorage.removeItem('GUID');
-
+		localStorage.removeItem('.guid');
+	}
+	else if (typeof(Storage) != 'undefined')
+	{
 		var expiry = new Date();
 		expiry.setYear(expiry.getFullYear() - 1);
 		document.cookie = 'GUID=; expires=' + expiry.toUTCString();
@@ -205,29 +209,35 @@ DriveClient.prototype.getUserId = function()
 	{
 		uid = this.user.id;
 	}
-
-	if (typeof(Storage) != 'undefined')
+	
+	if (uid == null && isLocalStorage)
 	{
-		if (uid == null)
+		uid = localStorage.getItem('.guid');
+	}
+	
+	if (uid == null	&& typeof(Storage) != 'undefined')
+	{
+		var cookies = document.cookie.split(";");
+		
+		for (var i = 0; i < cookies.length; i++)
 		{
-			uid = sessionStorage.getItem('GUID');
+			// Removes spaces around cookie
+			var cookie = mxUtils.trim(cookies[i]);
+			
+			if (cookie.substring(0, 5) == 'GUID=')
+			{
+				uid = cookie.substring(5);
+				break;
+			}
 		}
 		
-		if (uid == null)
+		if (uid != null && isLocalStorage)
 		{
-			var cookies = document.cookie.split(";");
-			
-			for (var i = 0; i < cookies.length; i++)
-			{
-				// Removes spaces around cookie
-				var cookie = mxUtils.trim(cookies[i]);
-				
-				if (cookie.substring(0, 5) == 'GUID=')
-				{
-					uid = cookie.substring(5);
-					break;
-				}
-			}
+			// Moves to local storage
+			var expiry = new Date();
+			expiry.setYear(expiry.getFullYear() - 1);
+			document.cookie = 'GUID=; expires=' + expiry.toUTCString();
+			localStorage.setItem('.guid', uid);
 		}
 	}
 	

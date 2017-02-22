@@ -870,15 +870,15 @@ Graph.prototype.minFitScale = null;
 Graph.prototype.maxFitScale = null;
 
 /**
- * Sets the policy for links. Possible values are self to keep all links within
- * the same window, blank to open all links in a new window and auto (default).
+ * Sets the policy for links. Possible values are "self" to replace any framesets,
+ * "blank" to load the URL in <linkTarget> and "auto" (default).
  */
-Graph.prototype.linkPolicy = urlParams['target'] || 'auto';
+Graph.prototype.linkPolicy = (urlParams['target'] == 'frame') ? 'blank' : (urlParams['target'] || 'auto');
 
 /**
  * Target for links that open in a new window. Default is _blank.
  */
-Graph.prototype.linkTarget = '_blank';
+Graph.prototype.linkTarget = (urlParams['target'] == 'frame') ? '_self' : '_blank';
 
 /**
  * Scrollbars are enabled on non-touch devices (not including Firefox because touch events
@@ -980,9 +980,20 @@ Graph.prototype.init = function(container)
 					
 					if (href != null)
 					{
-						window.open(state.view.graph.getAbsoluteUrl(href),
-							(state.view.graph.isBlankLink(href)) ?
-							state.view.graph.linkTarget : '_top');
+						var target = state.view.graph.isBlankLink(href) ?
+							state.view.graph.linkTarget : '_top';
+						href = state.view.graph.getAbsoluteUrl(href);
+
+						// Workaround for blocking in same iframe
+						if (target == '_self' && window != window.top)
+						{
+							window.location.href = href;
+						}
+						else
+						{
+							window.open(href, target);
+						}
+						
 						mxEvent.consume(evt);
 					}
 	
@@ -4551,7 +4562,18 @@ if (typeof mxVertexHandler != 'undefined')
 			    				beforeClick(me.getEvent());
 				    		}
 				    		
-				    		window.open(this.currentLink, (blank) ? graph.linkTarget : '_top');
+				    		var target = (blank) ? graph.linkTarget : '_top';
+				    		
+				    		// Workaround for blocking in same iframe
+							if (target == '_self' && window != window.top)
+							{
+								window.location.href = this.currentLink;
+							}
+							else
+							{
+								window.open(this.currentLink, target);
+							}
+				    		
 				    		me.consume();
 				    	}
 				    	else if (onClick != null && !me.isConsumed() &&

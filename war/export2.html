@@ -31,6 +31,7 @@
 			data.border = parseInt(data.border) || 0;
 			data.w = parseFloat(data.w) || 0;
 			data.h = parseFloat(data.h) || 0;
+			data.scale = parseFloat(data.scale) || 1;
 			
 			// Parses XML
 			var xmlDoc = mxUtils.parseXml(data.xml);
@@ -201,7 +202,7 @@
 				}
 				else
 				{
-					graph.view.setTranslate(Math.floor(data.border - b.x),
+					graph.view.scaleAndTranslate(data.scale, Math.floor(data.border - b.x),
 						Math.floor(data.border - b.y));
 				}
 			}

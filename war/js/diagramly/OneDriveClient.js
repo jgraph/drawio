@@ -115,7 +115,7 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 	}
 	else
 	{
-		var next = mxUtils.bind(this, function(newToken)
+		var next = mxUtils.bind(this, function(newToken, cb)
 		{
 			if (newToken != null && newToken.length > 0)
 			{
@@ -129,6 +129,11 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 					{
 						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
+							if (cb != null)
+							{
+								cb();
+							}
+							
 							var data = JSON.parse(req.getText());
 							this.setUser(new DrawioUser(data.owner.user.id, null, data.owner.user.displayName));
 							fn(newToken);
@@ -154,11 +159,11 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 		
 		if (token != null && token.length > 0)
 		{
-			next(token);
+			next(token, null);
 		}
 		else
 		{
-			var auth = mxUtils.bind(this, function()
+			var auth = mxUtils.bind(this, function(cb)
 			{
 				var url = 'https://login.live.com/oauth20_authorize.srf?client_id=' + this.clientId +
 					'&scope=' + encodeURIComponent(this.scopes) + '&response_type=token' +
@@ -193,7 +198,7 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 							authWindow.close();
 						}
 	
-						next(newToken);
+						next(newToken, cb);
 					});
 	
 					popup.focus();
@@ -209,12 +214,7 @@ OneDriveClient.prototype.execute = function(fn, userEvent)
 				// Requires a user event to about popups being blocked
 				this.ui.showAuthDialog(this, false, mxUtils.bind(this, function(remember, success)
 				{
-					if (success != null)
-					{
-						success();
-					}
-					
-					auth();
+					auth(success);
 				}));
 			}
 		}

@@ -20,7 +20,7 @@ mxUtils.extend(DropboxFile, DrawioFile);
  */
 DropboxFile.prototype.getHash = function()
 {
-	return 'D' + encodeURIComponent(this.stat.path.substring(1));
+	return 'D' + encodeURIComponent(this.stat.path_display.substring(1));
 };
 
 /**
