@@ -3293,6 +3293,11 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 			else
 			{
 				graph.getModel().endUpdate();
+				
+				if (post != null)
+				{
+					post();
+				}
 			}
 		}
 	}

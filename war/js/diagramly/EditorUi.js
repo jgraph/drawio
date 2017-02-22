@@ -73,7 +73,12 @@
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
-
+	
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.prototype.enableLogging = true;
+	
 	/**
 	 * Capability check for canvas export
 	 */
@@ -396,7 +401,7 @@
 		try
 		{
 			var doc = mxUtils.parseXml(data);
-			var node = this.editor.extractGraphModel(doc.documentElement);
+			var node = this.editor.extractGraphModel(doc.documentElement, true);
 			
 			return node != null && node.getElementsByTagName('parsererror').length == 0;
 		}
@@ -436,7 +441,7 @@
 		    	{
 		    		// Gets compressed data from mxgraph element in HTML document
 					var doc = mxUtils.parseXml(data);
-					var node = this.editor.extractGraphModel(doc.documentElement);
+					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
 					result = (node != null) ? mxUtils.getXml(node) : '';
 		    	}
 			}
@@ -1153,7 +1158,7 @@
        			}
        		}
        	}
-
+       	
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
@@ -1195,12 +1200,7 @@
 	
 		var noFile = mxUtils.bind(this, function()
 		{
-			this.diagramContainer.style.visibility = 'hidden';
-			this.formatContainer.style.visibility = 'hidden';
-			this.hsplit.style.display = 'none';
-			this.sidebarContainer.style.display = 'none';
-			this.sidebarFooterContainer.style.display = 'none';
-			this.editor.graph.setEnabled(false);
+			this.setGraphEnabled(false);
 			
 			// Keeps initial title if no file existed before
 			if (oldFile != null)
@@ -1241,11 +1241,7 @@
 				this.descriptorChanged();
 				file.open();
 				
-				this.diagramContainer.style.visibility = '';
-				this.formatContainer.style.visibility = '';
-				this.hsplit.style.display = '';
-				this.sidebarContainer.style.display = '';
-				this.sidebarFooterContainer.style.display = '';
+				this.setGraphEnabled(true);
 				this.setMode(file.getMode());
 				this.editor.undoManager.clear();
 				this.updateUi();
@@ -1288,23 +1284,20 @@
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
 				result = true;
 				
-	//			if (this.enableLogging)
-	//			{
-	//	        	try
-	//	        	{
-	//		        	if (!this.isOffline())
-	//		        	{
-	//	        			var img = new Image();
-	//						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-	//	        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
-	//        				'&v=' + encodeURIComponent(EditorUi.VERSION);
-	//		        	}
-	//	        	}
-	//	        	catch (e)
-	//	        	{
-	//	        		// ignore
-	//	        	}
-	//			}
+				if (this.enableLogging && !this.isOffline())
+				{
+		        	try
+		        	{
+	        			var img = new Image();
+						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+	        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+        				'&v=' + encodeURIComponent(EditorUi.VERSION);
+		        	}
+		        	catch (e)
+		        	{
+		        		// ignore
+		        	}
+				}
 				
 				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
 				{
@@ -2774,8 +2767,8 @@
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab);
-		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 4) ? 270 : 390, true, true);
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab, null, null, 4);
+		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 5) ? 270 : 390, true, true);
 		dlg.init();
 	};
 		
@@ -2918,7 +2911,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.addLinkSection = function(div)
+	EditorUi.prototype.addLinkSection = function(div, showFrameOption)
 	{
 		mxUtils.write(div, mxResources.get('links') + ':');
 
@@ -2942,6 +2935,16 @@
 		selfOption.setAttribute('value', 'self');
 		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
 		linkSelect.appendChild(selfOption);
+
+		if (showFrameOption)
+		{
+			var frameOption = document.createElement('option');
+			frameOption.setAttribute('value', 'frame');
+			mxUtils.write(frameOption, mxResources.get('openInThisWindow') +
+				' (' + mxResources.get('iframe') + ')');
+			linkSelect.appendChild(frameOption);
+		}
+		
 		div.appendChild(linkSelect);
 		
 		mxUtils.write(div, mxResources.get('borderColor') + ':');
@@ -3005,7 +3008,6 @@
 		
 		if (lightbox)
 		{
-			params.push('chrome=0');
 			params.push('lightbox=1');
 
 			if (linkTarget != 'auto')
@@ -3297,7 +3299,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn)
+	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
@@ -3390,7 +3392,7 @@
 			mxUtils.br(div);
 		}
 		
-		var linkSection = this.addLinkSection(div);
+		var linkSection = this.addLinkSection(div, showFrameOption);
 		var hasPages = this.pages != null && this.pages.length > 1;
 		var allPages = null;
 		
@@ -3752,7 +3754,7 @@
 			{
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") +
 					((layers) ? '&layers=1' : '') + "');}})(this);\"";
 				css += 'cursor:pointer;';
@@ -3875,7 +3877,7 @@
 			{
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}})(this);\"";
 				css += 'cursor:pointer;';
 			}
@@ -3910,7 +3912,7 @@
 					"svg.getAttribute('content')),'*');window.removeEventListener('message',r);}};" +
 					"window.addEventListener('message',r);" +
 					// Opens lightbox window
-					"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&chrome=0" +
+					"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}}})(this);";
 				svgRoot.setAttribute('onclick', js);
 				css += 'cursor:pointer;';
@@ -4080,7 +4082,7 @@
 
 		if (xml != null)
 		{
-			svgRoot.setAttribute('content', encodeURIComponent(xml));
+			svgRoot.setAttribute('content', xml);
 		}
 		
 		if (url != null)
@@ -6120,7 +6122,7 @@
 				    {
 				    	var uri = (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0) ?
 				    		evt.dataTransfer.getData('text/uri-list') : null;
-				    	var data = this.extractGraphModelFromEvent(evt);
+				    	var data = this.extractGraphModelFromEvent(evt, this.pages != null);
 				    	
 				    	if (data != null)
 				    	{
@@ -6820,11 +6822,22 @@
 	/**
 	 * Shows the layers dialog if the graph has more than one layer.
 	 */
+	EditorUi.prototype.setGraphEnabled = function(enabled)
+	{
+		this.diagramContainer.style.visibility = (enabled) ? '' : 'hidden';
+		this.formatContainer.style.visibility = (enabled) ? '' : 'hidden';
+		this.sidebarFooterContainer.style.display = (enabled) ? '' : 'none';
+		this.sidebarContainer.style.display = (enabled) ? '' : 'none';
+		this.hsplit.style.display = (enabled) ? '' : 'none';
+		this.editor.graph.setEnabled(enabled);
+	};
+	
+	/**
+	 * Shows the layers dialog if the graph has more than one layer.
+	 */
 	EditorUi.prototype.initializeEmbedMode = function()
 	{
-		this.diagramContainer.style.visibility = 'hidden';
-		this.formatContainer.style.visibility = 'hidden';
-		this.editor.graph.setEnabled(false);
+		this.setGraphEnabled(false);
 		var parent = window.opener || window.parent;
 
 		if (parent != window)
@@ -6835,9 +6848,7 @@
 				{
 					this.spinner.stop();
 					this.addEmbedButtons();
-					this.diagramContainer.style.visibility = '';
-					this.formatContainer.style.visibility = '';
-					this.editor.graph.setEnabled(true);
+					this.setGraphEnabled(true);
 					
 					if (xml != null && xml.length > 0)
 					{
@@ -8123,7 +8134,7 @@
 			serviceCount++
 		}
 		
-		if (allowBrowser && isLocalStorage && urlParams['browser'] == '1')
+		if (allowBrowser && isLocalStorage && (urlParams['browser'] == '1' || mxClient.IS_IOS))
 		{
 			serviceCount++
 		}
@@ -8146,18 +8157,31 @@
 		
 		// Action states that only need update for new files
 		var file = this.getCurrentFile();
-		var active = file != null || urlParams['embed'] == '1';
+		var active = file != null || (urlParams['embed'] == '1' &&
+			this.editor.graph.isEnabled());
 		this.menus.get('viewPanels').setEnabled(active);
 		this.menus.get('viewZoom').setEnabled(active);
 		
-		var restricted = urlParams['embed'] != '1' && (file == null || file.isRestricted());
+		var restricted = (urlParams['embed'] != '1' ||
+			!this.editor.graph.isEnabled()) &&
+			(file == null || file.isRestricted());
 		this.actions.get('makeCopy').setEnabled(!restricted);
 		this.actions.get('print').setEnabled(!restricted);
 		this.menus.get('exportAs').setEnabled(!restricted);
 		this.menus.get('embed').setEnabled(!restricted);
 		
+		// Disables libraries and extras menu in embed mode
+		// while waiting for file data
+		var libsEnabled = urlParams['embed'] != '1' ||
+				this.editor.graph.isEnabled();
+		this.menus.get('openLibraryFrom').setEnabled(libsEnabled);
+		this.menus.get('newLibrary').setEnabled(libsEnabled);
+		this.menus.get('extras').setEnabled(libsEnabled);
+		
 		// Disables actions in the toolbar
-		var editable = (urlParams['embed'] == '1') || (file != null && file.isEditable());
+		var editable = (urlParams['embed'] == '1' &&
+			this.editor.graph.isEnabled()) ||
+			(file != null && file.isEditable());
 		this.actions.get('image').setEnabled(active);
 		this.actions.get('zoomIn').setEnabled(active);
 		this.actions.get('zoomOut').setEnabled(active);
@@ -8250,7 +8274,8 @@
 
 		var graph = this.editor.graph;
 		var file = this.getCurrentFile();
-		var active = (file != null && file.isEditable()) || urlParams['embed'] == '1';
+		var active = (file != null && file.isEditable()) || 
+			(urlParams['embed'] == '1'  && this.editor.graph.isEnabled());
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -8264,8 +8289,8 @@
 		this.actions.get('createRevision').setEnabled(active);
 		this.actions.get('moveToFolder').setEnabled(file != null);
 		this.actions.get('makeCopy').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('editDiagram').setEnabled(urlParams['embed'] == '1' ||
-				(file != null && !file.isRestricted()));
+		this.actions.get('editDiagram').setEnabled((urlParams['embed'] == '1'  &&
+			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		

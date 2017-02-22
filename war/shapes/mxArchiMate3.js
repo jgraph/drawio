@@ -38,8 +38,6 @@ mxArchiMate3Application.prototype.cst = {
 		NODE : 'node',
 		NETWORK : 'netw',
 		COMM_PATH : 'commPath',
-		SYS_SW : 'sysSw',
-		ARTIFACT : 'artifact',
 		ACTOR : 'actor',
 		ASSESSMENT : 'assess',
 		GOAL : 'goal',

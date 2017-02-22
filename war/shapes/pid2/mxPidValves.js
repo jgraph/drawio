@@ -46,13 +46,11 @@ mxShapePidValve.prototype.cst = {
 		DIGITAL : 'digital',
 		WEIGHT : 'weight',
 		KEY : 'key',
-		ANGLE_BLOWDOWN : 'angleBlowdown', 
 		ELECTRO_HYDRAULIC : 'elHyd',
 		//types
 		VALVE_TYPE : 'valveType',
 		BUTTERFLY : 'butterfly',
 		CHECK : 'check',
-		PLUG : 'plug',
 		GATE : 'gate',
 		GLOBE : 'globe',
 		NEEDLE : 'needle',

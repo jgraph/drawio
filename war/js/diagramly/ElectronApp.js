@@ -62,15 +62,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		var editorUi = this;
 		var graph = this.editor.graph;
 
-		global.__emt_isModified = e => {
-			if (this.getCurrentFile())
-				return this.getCurrentFile().isModified()
-			return false
-		}
-		// global.__emt_getCurrentFile = e => {
-		// 	return this.getCurrentFile()
-		// }
-
 		// Adds support for libraries
 		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()
 		{
@@ -176,10 +167,24 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			{
 				oldNew();
 			}
-			else {
-				const ipc = require('electron').ipcRenderer
-				ipc.sendSync('winman', {action: 'newfile', opt: {width: 1600}})
+			else
+			{
+				const electron = require('electron');
+				const remote = electron.remote;
+				const BrowserWindow = remote.BrowserWindow;
+				mainWindow = new BrowserWindow({width: 1600, height: 1200, "web-security" : false});
 
+				// and load the index.html of the app.
+				mainWindow.loadURL(`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`);
+
+				// Emitted when the window is closed.
+				mainWindow.on('closed', function()
+				{
+				    // Dereference the window object, usually you would store windows
+				    // in an array if your app supports multi windows, this is the time
+				    // when you should delete the corresponding element.
+				    mainWindow = null;
+				});
 			}
 		}), null, null, 'Ctrl+N');
 		
@@ -605,4 +610,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
         	}));
 		}
 	};
+
+	EditorUi.prototype.addBeforeUnloadListener = function() {};
 })();

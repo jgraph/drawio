@@ -1006,9 +1006,16 @@
 		// Logs search terms for improving search results
 		if (this.editorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
 		{
-			var img = new Image();
-			var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-			img.src = logDomain + '/log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+			try
+			{
+				var img = new Image();
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+				img.src = logDomain + '/log?severity=CONFIG&msg=shapesearch:' + encodeURIComponent(searchTerms) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+		 	}
+	    	catch (e)
+	    	{
+	    		// ignore
+	    	}
 		}
 		
 		success = mxUtils.bind(this, function(results, len, more, terms)

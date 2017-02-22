@@ -9,6 +9,8 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
 	div.style.whiteSpace = 'nowrap';
+	div.style.paddingTop = '0px';
+	div.style.paddingBottom = '20px';
 	
 	var elt = editorUi.addLanguageMenu(div);
 	var bottom = '28px';
@@ -82,7 +84,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 
 	buttons.style.border = '1px solid #d3d3d3';
 	buttons.style.borderWidth = '1px 0px 1px 0px';
-	buttons.style.padding = '26px 0px 12px 0px';
+	buttons.style.padding = '18px 0px 18px 0px';
 
 	var cb = document.createElement('input');
 	cb.setAttribute('type', 'checkbox');
@@ -212,7 +214,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	hd.style.fontSize = '16pt';
 	hd.style.padding = '0px';
 	hd.style.paddingTop = '4px';
-	hd.style.paddingBottom = '20px';
+	hd.style.paddingBottom = '16px';
 	hd.style.margin = '0px';
 	hd.style.color = 'gray';
 	mxUtils.write(hd, mxResources.get('saveDiagramsTo') + ':');
@@ -251,7 +253,8 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	div.appendChild(buttons);
 
 	var p2 = document.createElement('p');
-	p2.style.paddingTop = '10px';
+	p2.style.marginTop = '12px';
+	p2.style.marginBottom = '10px';
 	p2.appendChild(cb);
 	
 	var span = document.createElement('span');
@@ -259,6 +262,62 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	span.style.fontSize = '12px';
 	mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
 	p2.appendChild(span);
+	mxUtils.br(p2);
+
+	var recent = editorUi.getRecent();
+
+	if (recent != null && recent.length > 0)
+	{
+		var recentSelect = document.createElement('select');
+		recentSelect.style.marginTop = '14px';
+		recentSelect.style.width = '140px';
+
+		var titleOption = document.createElement('option');
+		titleOption.setAttribute('value', '');
+		titleOption.setAttribute('selected', 'selected');
+		titleOption.style.textAlign = 'center';
+		mxUtils.write(titleOption, mxResources.get('openRecent') + '...');
+		recentSelect.appendChild(titleOption);
+		
+		for (var i = 0; i < recent.length; i++)
+		{
+			(function(entry)
+			{
+				var modeKey = entry.mode;
+				
+				// Google and oneDrive use different keys
+				if (modeKey == App.MODE_GOOGLE)
+				{
+					modeKey = 'googleDrive';
+				}
+				else if (modeKey == App.MODE_ONEDRIVE)
+				{
+					modeKey = 'oneDrive';
+				}
+				
+				var entryOption = document.createElement('option');
+				entryOption.setAttribute('value', entry.id);
+				mxUtils.write(entryOption, entry.title + ' (' + mxResources.get(modeKey) + ')');
+				recentSelect.appendChild(entryOption);
+			})(recent[i]);
+		}
+
+		p2.appendChild(recentSelect);
+		
+		mxEvent.addListener(recentSelect, 'change', function(evt)
+		{
+			if (recentSelect.value != '')
+			{
+				editorUi.loadFile(recentSelect.value);
+			}
+		});
+	}
+	else
+	{
+		p2.style.marginTop = '20px';
+		buttons.style.padding = '30px 0px 26px 0px';
+	}
+	
 	buttons.appendChild(p2);
 	
 	mxEvent.addListener(span, 'click', function(evt)
@@ -850,7 +909,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 						{
 							window.setTimeout(mxUtils.bind(this, function()
 							{
-								if (win != null && win.location.href != value)
+								if (win != null && win.location.href != null &&
+									win.location.href.substring(0, 8) != value.substring(0, 8))
 								{
 									win.close();
 									editorUi.handleError({message: mxResources.get('drawingTooLarge')});
@@ -1509,8 +1569,11 @@ var CreateGraphDialog = function(editorUi, title, type)
 		{
 			editorUi.confirm(mxResources.get('areYouSure'), function()
 			{
-				graph.destroy();
-				container.parentNode.removeChild(container);
+				if (container.parentNode != null)
+				{
+					graph.destroy();
+					container.parentNode.removeChild(container);
+				}
 		
 				editorUi.hideDialog();
 			});
@@ -1538,8 +1601,12 @@ var CreateGraphDialog = function(editorUi, title, type)
 			editorUi.editor.graph.scrollRectToVisible(temp);
 			editorUi.editor.graph.setSelectionCells(cells);
 			
-			graph.destroy();
-			container.parentNode.removeChild(container);
+			if (container.parentNode != null)
+			{
+				graph.destroy();
+				container.parentNode.removeChild(container);
+			}
+			
 			editorUi.hideDialog();
 		});
 		
@@ -6525,7 +6592,6 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	
 	var button = mxUtils.button(mxResources.get('authorize'), function()
 	{
-		editorUi.hideDialog(false);
 		fn(cb.checked);
 	});
 
@@ -8125,7 +8191,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://support.draw.io/display/DO/Editing+Shapes');
+			window.open('https://desk.draw.io/support/solutions/articles/16000052874-how-to-create-and-edit-shapes-');
 		});
 		
 		helpBtn.className = 'geBtn';

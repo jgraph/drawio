@@ -121,11 +121,6 @@ public class GitHubServlet extends HttpServlet
 			wr.flush();
 			wr.close();
 
-			int responseCode = con.getResponseCode();
-			System.out.println("\nSending 'POST' request to URL : " + url);
-			System.out.println("Post parameters : " + urlParameters);
-			System.out.println("Response Code : " + responseCode);
-
 			BufferedReader in = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -136,10 +131,9 @@ public class GitHubServlet extends HttpServlet
 				res.append(inputLine);
 			}
 			in.close();
-
-			//print result
-			System.out.println(res.toString());
-
+			
+			response.setStatus(con.getResponseCode());
+			
 			OutputStream out = response.getOutputStream();
 
 			// Creates XML for stencils
@@ -148,7 +142,6 @@ public class GitHubServlet extends HttpServlet
 			// Writes JavaScript and adds function call with
 			// stylesheet and stencils as arguments 
 			writer.println(res.toString());
-			response.setStatus(HttpServletResponse.SC_OK);
 
 			writer.flush();
 			writer.close();

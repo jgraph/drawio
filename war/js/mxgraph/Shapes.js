@@ -2677,7 +2677,6 @@
 			'rectangle': createArcHandleFunction(),
 			'triangle': createArcHandleFunction(),
 			'rhombus': createArcHandleFunction(),
-			'hexagon': createArcHandleFunction(),
 			'umlLifeline': function(state)
 			{
 				return [createHandle(state, ['size'], function(bounds)

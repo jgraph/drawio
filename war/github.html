@@ -7,10 +7,16 @@
 		<script>
 			try
 			{
-				if (window.opener != null)
+				if (window.opener != null && window.opener.onGitHubCallback != null)
 				{
 					var search = window.location.search;
-					var code = search.substring(search.indexOf('code=') + 5);
+					var idx1 = search.indexOf('code=');
+					var code = null;
+					
+					if (idx1 >= 0)
+					{
+						code = search.substring(idx1 + 5);
+					}
 
 					// Continues execution of main program flow
 					window.opener.onGitHubCallback(code, window);

@@ -76,7 +76,7 @@
 			// Continues execution of main program flow
 			try
 			{
-				if (window.opener != null)
+				if (window.opener != null && window.opener.onAuthenticated != null)
 				{
 					window.opener.onAuthenticated(token, window);
 				}

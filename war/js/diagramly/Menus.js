@@ -139,46 +139,43 @@
 				if (file.constructor == DropboxFile)
 				{
 					// Limit is maximum number of entries to return
-					editorUi.dropbox.client.revisions(file.stat.path, {limit: 100}, function(err, stats)
+					var promise = editorUi.dropbox.client.filesListRevisions({path: file.stat.path_lower, limit: 100});
+					promise.then(mxUtils.bind(this, function(response)
 					{
 						editorUi.spinner.stop();
 						
-						if (err == null)
+						try
 						{
 							var revs = [];
 							
-							for (var i = stats.length - 1; i >= 0; i--)
+							for (var i = response.entries.length - 1; i >= 0; i--)
 							{
 								(function(stat)
 								{
-									revs.push({modifiedDate: stat.clientModifiedAt, fileSize: stat.size, getXml: function(success, error)
+									revs.push({modifiedDate: stat.client_modified, fileSize: stat.size, getXml: function(success, error)
 									{
-										editorUi.dropbox.client.readFile('/' + file.stat.path, {versionTag: stat.versionTag}, mxUtils.bind(this, function(err2, data)
-										{
-											if (err2 == null)
-											{
-												success(data);
-											}
-											else
-											{
-												error(err2);
-											}
-										}));
+										editorUi.dropbox.readFile({path: file.stat.path_lower, rev: stat.rev}, success, error);
 									}, getUrl: function()
 									{
-										return editorUi.getUrl(window.location.pathname + '?rev=' + stat.versionTag + '&chrome=0&edit=_blank') + window.location.hash;
+										return editorUi.getUrl(window.location.pathname + '?rev=' + stat.rev + '&chrome=0&edit=_blank') + window.location.hash;
 									}});
-								})(stats[i]);
+								})(response.entries[i]);
 							}
 							
 							var dlg = new RevisionDialog(editorUi, revs);
 							editorUi.showDialog(dlg.container, 640, 480, true, true);
 							dlg.init();
 						}
-						else
+						catch (e)
 						{
-							editorUi.handleError(err);
+							editorUi.handleError(e);
 						}
+					}));
+					// Workaround for IE8/9 support with catch function
+					promise['catch'](function(err)
+					{
+						editorUi.spinner.stop();
+						editorUi.handleError(err);
 					});
 				}
 				// Google Drive File
@@ -433,7 +430,7 @@
 			}
 			else
 			{
-				window.open('https://www.draw.io/?chrome=0&lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
+				window.open('https://www.draw.io/?lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
 			}
 		});
 
@@ -614,9 +611,16 @@
 						// Logs search terms for improving search results
 						if (editorUi.enableLogging)
 						{
-							var img = new Image();
-							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-							img.src = logDomain + '/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+				        	try
+				        	{
+								var img = new Image();
+								var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+								img.src = logDomain + '/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
+				        	}
+				        	catch (e)
+				        	{
+				        		// ignore
+				        	}
 						}
 						
 						// Workaround for blocked submit on iOS/IE11
@@ -1019,7 +1023,7 @@
 						dlg.init();
 					});
 				}
-			});
+			}, true);
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
@@ -1907,16 +1911,13 @@
 		this.put('openRecent', new Menu(function(menu, parent)
 		{
 			var recent = editorUi.getRecent();
-			var count = 0;
-			
+
 			if (recent != null)
 			{
 				for (var i = 0; i < recent.length; i++)
 				{
 					(function(entry)
-					{	
-						count++;
-						
+					{
 						var modeKey = entry.mode;
 						
 						// Google and oneDrive use different keys

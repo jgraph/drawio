@@ -378,7 +378,6 @@ mxArchiMateApplication.prototype.cst = {
 		APPLICATION : 'mxgraph.archimate.application',
 		TYPE : 'appType',
 		COMPONENT : 'comp',
-		COLLABORATION : 'collab',
 		INTERFACE : 'interface',
 		INTERFACE2 : 'interface2',
 		FUNCTION : 'function',

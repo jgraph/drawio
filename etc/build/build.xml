@@ -306,16 +306,13 @@
 				<file name="Graph-Stylesheet.js" />
 			</sources>
 
-			<sources dir="${war.dir}/js/dropbox">
-				<file name="dropbox.min.js" />
-			</sources>
-
 			<sources dir="${war.dir}/js/diagramly/util">
 				<file name="mxAsyncCanvas.js" />
 				<file name="mxJsCanvas.js" />
 			</sources>
 
 			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioClient.js" />
 				<file name="DrawioUser.js" />
 				<file name="UrlLibrary.js" />
 				<file name="DriveRealtime.js" />

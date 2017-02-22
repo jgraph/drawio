@@ -1,3 +1,14 @@
+22-FEB-2017: 6.2.0
+
+- Fixes encoding errors in GitHub client
+- Checks size in GitHub and Dropbox
+- Fixes initial SVG file contents
+- Adds target=frame URL parameter
+- Moves cookies to local storage
+- Adds recent files in splash
+- Uses mxGraph 3.7.0.2 beta 5
+- Uses Dropbox API v2
+
 17-FEB-2017: 6.1.2
 
 - Uses semantic versioning

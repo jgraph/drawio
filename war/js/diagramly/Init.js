@@ -240,6 +240,12 @@ if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 	urlParams['math'] = '0';
 }
 
+// Lightbox enabled chromeless mode
+if (urlParams['lightbox'] == '1')
+{
+	urlParams['chrome'] = '0';
+}
+
 // Adds hard-coded logging domain for draw.io domains
 var host = window.location.host;
 var searchString = 'draw.io';
