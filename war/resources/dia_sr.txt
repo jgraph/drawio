@@ -544,6 +544,7 @@ restoring=Restoring
 retryingIn=Ponovni pokušaj za {1} sekundi
 retryingLoad=Učitavanje neuspešno. Ponovni pokušaj...
 retryingLogin=Vreme logovanja isteklo. Ponovni pokušaj...
+reverse=Reverse
 revision=Revision
 revisionHistory=Istorija revizije
 right=Desno

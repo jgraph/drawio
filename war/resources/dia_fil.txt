@@ -544,6 +544,7 @@ restoring=Ibinabalik
 retryingIn=Susubukang muli sa {1} segundo(s)
 retryingLoad=Hindi naglowd.  Sinusubukang muli...
 retryingLogin=Natapos na ang oras ng Login.  Sinusubukang muli...
+reverse=Reverse
 revision=Revision
 revisionHistory=Pagkasunod sunod ng pagbabago
 right=Kanan

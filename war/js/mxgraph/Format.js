@@ -1714,7 +1714,7 @@ ArrangePanel.prototype.addAngle = function(div)
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
 
-	div.style.paddingBottom = '28px';
+	div.style.paddingBottom = '8px';
 	
 	var span = document.createElement('div');
 	span.style.position = 'absolute';
@@ -1731,36 +1731,48 @@ ArrangePanel.prototype.addAngle = function(div)
 		mxUtils.write(span, mxResources.get('angle'));
 		div.appendChild(span);
 		
-		input = this.addUnitInput(div, '°', (!ss.containsLabel) ? 84 : 20, 44, function()
+		input = this.addUnitInput(div, '°', 20, 44, function()
 		{
 			update.apply(this, arguments);
 		});
+		
+		mxUtils.br(div);
+		div.style.paddingTop = '10px';
+	}
+	else
+	{
+		div.style.paddingTop = '8px';
 	}
 
 	if (!ss.containsLabel)
 	{
-		btn = mxUtils.button(mxResources.get('turn'), function(evt)
+		var label = mxResources.get('reverse');
+		
+		if (ss.vertices.length > 0 && ss.edges.length > 0)
+		{
+			label = mxResources.get('turn') + ' / ' + label;
+		}
+		else if (ss.vertices.length > 0)
+		{
+			label = mxResources.get('turn');
+		}
+
+		btn = mxUtils.button(label, function(evt)
 		{
 			ui.actions.get('turn').funct();
 		})
 		
-		btn.setAttribute('title', mxResources.get('turn') + ' (' + this.editorUi.actions.get('turn').shortcut + ')');
-		btn.style.position = 'absolute';
-		btn.style.marginTop = '-2px';
-		btn.style.right = '20px';
-		btn.style.width = '61px';
+		btn.setAttribute('title', label + ' (' + this.editorUi.actions.get('turn').shortcut + ')');
+		btn.style.width = '202px';
 		div.appendChild(btn);
-	}
-	
-	if (input == null)
-	{
-		if (btn != null)
+		
+		if (input != null)
 		{
-			btn.style.right = '';
-			btn.style.width = '202px';
+			btn.style.marginTop = '8px';
 		}
 	}
-	else
+	
+	if (input != null)
 	{
 		var listener = mxUtils.bind(this, function(sender, evt, force)
 		{

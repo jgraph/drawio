@@ -544,6 +544,7 @@ restoring=Visszaállítás
 retryingIn=Újrapróbálkozás {1} másodperc múlva
 retryingLoad=A betöltés sikertelen. Újrapróbálkozás...
 retryingLogin=A bejelentkezési idő lejárt. Újrapróbálkozás...
+reverse=Reverse
 revision=Revision
 revisionHistory=Revízió történelem
 right=Jobb

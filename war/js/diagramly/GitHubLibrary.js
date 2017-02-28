@@ -11,17 +11,6 @@ GitHubLibrary = function(ui, data, meta)
 mxUtils.extend(GitHubLibrary, GitHubFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-GitHubLibrary.prototype.isAutosave = function()
-{
-	return false;
-};
-
-/**
  * Overridden to avoid updating data with current file.
  */
 GitHubLibrary.prototype.doSave = function(title, success, error)

@@ -544,6 +544,7 @@ restoring=Επαναφέρεται
 retryingIn=Δοκιμή ξανά σε {1} δευτερόλεπτα
 retryingLoad=Η φόρτωση απέτυχε. Δοκιμή ξανά...
 retryingLogin=Η σύνδεση έληξε. Δοκιμή ξανά...
+reverse=Reverse
 revision=Revision
 revisionHistory=Ιστορικό αναθεώρησης
 right=Δεξιά

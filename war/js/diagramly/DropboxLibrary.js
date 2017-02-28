@@ -18,7 +18,7 @@ mxUtils.extend(DropboxLibrary, DropboxFile);
  */
 DropboxLibrary.prototype.isAutosave = function()
 {
-	return false;
+	return true;
 };
 
 /**

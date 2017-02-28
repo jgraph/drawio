@@ -544,6 +544,7 @@ restoring=Obnovuji
 retryingIn=Opětovný pokus za {1} vteřin
 retryingLoad=Načítání selhalo. Zkouším znovu...
 retryingLogin=Čas přihlášení vypršel. Zkouším znovu...
+reverse=Reverse
 revision=Revision
 revisionHistory=Historie prohlížení
 right=Vpravo

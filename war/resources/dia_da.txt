@@ -544,6 +544,7 @@ restoring=Genetablerer
 retryingIn=Forsøger igen om {1} sekund(er)
 retryingLoad=Indlæsning mislykkedes. Forsøger igen...
 retryingLogin=Login timeout. Forsøger igen...
+reverse=Reverse
 revision=Revision
 revisionHistory=Revisionsoversigt
 right=Højre

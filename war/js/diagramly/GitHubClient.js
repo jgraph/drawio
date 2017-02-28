@@ -40,117 +40,170 @@ GitHubClient.prototype.maxFileSize = 1000000 /*1MB*/;
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-GitHubClient.prototype.updateUser = function(success, error)
+GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 {
-	var fn = mxUtils.bind(this, function()
+	var acceptResponse = true;
+	
+	var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 	{
-		var acceptResponse = true;
+		acceptResponse = false;
+		error({code: App.ERROR_TIMEOUT});
+	}), this.ui.timeout);
+	
+	mxUtils.get(this.baseUrl + '/user?access_token=' + this.token, mxUtils.bind(this, function(userReq)
+	{
+		window.clearTimeout(timeoutThread);
 		
-		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		if (acceptResponse)
 		{
-			acceptResponse = false;
-			error({code: App.ERROR_TIMEOUT, retry: fn});
-		}), this.ui.timeout);
-		
-		mxUtils.get(this.baseUrl + '/user?access_token=' + this.token, mxUtils.bind(this, function(userReq)
-		{
-			window.clearTimeout(timeoutThread);
-			
-			if (acceptResponse)
+			if (userReq.getStatus() === 401)
 			{
-				if (userReq.getStatus() === 401)
+				if (!failOnAuth)
 				{
-					this.authorizeRequest(fn, error);
-				}
-				else if (userReq.getStatus() < 200 || userReq.getStatus() >= 300)
-				{
-					error({message: mxResources.get('accessDenied')});
+					this.logout();
+					
+					this.authenticate(mxUtils.bind(this, function()
+					{
+						this.updateUser(success, error, true);
+					}), error);
 				}
 				else
 				{
-					var userInfo = JSON.parse(userReq.getText());
-					this.setUser(new DrawioUser(userInfo.id, userInfo.email, userInfo.name));
-					success();
+					error({message: mxResources.get('accessDenied')});
 				}
 			}
-		}));
-	});
-	
-	fn();
+			else if (userReq.getStatus() < 200 || userReq.getStatus() >= 300)
+			{
+				error({message: mxResources.get('accessDenied')});
+			}
+			else
+			{
+				var userInfo = JSON.parse(userReq.getText());
+				this.setUser(new DrawioUser(userInfo.id, userInfo.email, userInfo.name));
+				success();
+			}
+		}
+	}));
 };
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-GitHubClient.prototype.authorizeRequest = function(success, error)
+GitHubClient.prototype.authenticate = function(success, error)
 {
-	this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
+	if (window.onGitHubCallback == null)
 	{
-		// Initializes oauth flow
-		window.open('https://github.com/login/oauth/authorize?client_id=' +
-			this.clientId + '&scope=' + this.scope, 'oauth');
-		
-		window.onGitHubCallback = mxUtils.bind(this, function(code, authWindow)
+		var auth = mxUtils.bind(this, function()
 		{
-			window.onGitHubCallback = null;
-
-			// Gets token for code via servlet
-			var fn = mxUtils.bind(this, function()
+			var acceptAuthResponse = true;
+			
+			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 			{
-				var acceptResponse = true;
+				var win = window.open('https://github.com/login/oauth/authorize?client_id=' +
+					this.clientId + '&scope=' + this.scope, 'ghauth');
 				
-				var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+				if (win != null)
 				{
-					acceptResponse = false;
-					error({code: App.ERROR_TIMEOUT, retry: fn});
-				}), this.ui.timeout);
-				
-				mxUtils.get('/github?client_id=' + this.clientId + '&code=' + code, mxUtils.bind(this, function(authReq)
-				{
-					window.clearTimeout(timeoutThread);
-					
-					if (acceptResponse)
+					window.onGitHubCallback = mxUtils.bind(this, function(code, authWindow)
 					{
-						try
+						if (acceptAuthResponse)
 						{
-							if (authWindow != null)
+							window.onGitHubCallback = null;
+							acceptAuthResponse = false;
+							
+							if (code == null)
 							{
-								authWindow.close();
-							}
-	
-							if (authReq.getStatus() < 200 || authReq.getStatus() >= 300)
-							{
-								error({message: mxResources.get('cannotLogin')});
+								error({message: mxResources.get('accessDenied'), retry: auth});
 							}
 							else
 							{
-								if (authSuccess != null)
+								// Gets token for code via servlet
+								var fn = mxUtils.bind(this, function()
 								{
-									authSuccess();
-								}
-								
-								var res = authReq.getText();
-								this.token = res.substring(res.indexOf('=') + 1, res.indexOf('&'));
-								
-								if (remember)
-								{
-									this.setPersistentToken(this.token);
-								}
-								
-								success();
+									var acceptResponse = true;
+									
+									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									{
+										acceptResponse = false;
+										error({code: App.ERROR_TIMEOUT, retry: fn});
+									}), this.ui.timeout);
+									
+									mxUtils.get('/github?client_id=' + this.clientId + '&code=' + code, mxUtils.bind(this, function(authReq)
+									{
+										window.clearTimeout(timeoutThread);
+										
+										if (acceptResponse)
+										{
+											try
+											{
+												if (authReq.getStatus() < 200 || authReq.getStatus() >= 300)
+												{
+													error({message: mxResources.get('cannotLogin')});
+												}
+												else
+												{
+													if (authSuccess != null)
+													{
+														authSuccess();
+													}
+													
+													var res = authReq.getText();
+													this.token = res.substring(res.indexOf('=') + 1, res.indexOf('&'));
+													this.setUser(null);
+													
+													if (remember)
+													{
+														this.setPersistentToken(this.token);
+													}
+													
+													success();
+												}
+											}
+											catch (e)
+											{
+												error(e);
+											}
+											finally
+											{
+												if (authWindow != null)
+												{
+													authWindow.close();
+												}
+											}
+										}
+									}));
+								});
+	
+								fn();
 							}
 						}
-						catch (e)
+						else if (authWindow != null)
 						{
-							error(e);
+							authWindow.close();
 						}
-					}
-				}));
-			});
-			
-			fn();
+					});
+				}
+				else
+				{
+					error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
+				}
+			}), mxUtils.bind(this, function()
+			{
+				if (acceptAuthResponse)
+				{
+					window.onGitHubCallback = null;
+					acceptAuthResponse = false;
+					error({message: mxResources.get('accessDenied'), retry: auth});
+				}
+			}));
 		});
-	}));
+		
+		auth();
+	}
+	else
+	{
+		error({code: App.ERROR_BUSY});
+	}
 };
 
 /**
@@ -158,7 +211,7 @@ GitHubClient.prototype.authorizeRequest = function(success, error)
  */
 GitHubClient.prototype.executeRequest = function(req, success, error)
 {
-	var doExecute = mxUtils.bind(this, function()
+	var doExecute = mxUtils.bind(this, function(failOnAuth)
 	{
 		var acceptResponse = true;
 		
@@ -187,7 +240,23 @@ GitHubClient.prototype.executeRequest = function(req, success, error)
 				}
 				else if (req.getStatus() === 401)
 				{
-					this.authorizeRequest(fn, error);
+					if (!failOnAuth)
+					{
+						this.authenticate(function()
+						{
+							doExecute(true);
+						}, error);
+					}
+					else
+					{
+						error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
+						{
+							this.authenticate(function()
+							{
+								fn(true);
+							}, error);
+						})});
+					}
 				}
 				else if (req.getStatus() === 403)
 				{
@@ -225,26 +294,32 @@ GitHubClient.prototype.executeRequest = function(req, success, error)
 			}
 		}), error);
 	});
-	
-	var fn = mxUtils.bind(this, function()
+
+	var fn = mxUtils.bind(this, function(failOnAuth)
 	{
 		if (this.user == null)
 		{
-			this.updateUser(doExecute, error);
+			this.updateUser(function()
+			{
+				fn(true);
+			}, error, failOnAuth);
 		}
 		else
 		{
-			doExecute();
+			doExecute(failOnAuth);
 		}
 	});
 
-	if (this.token === null)
+	if (this.token == null)
 	{
-		this.authorizeRequest(fn, error);
+		this.authenticate(function()
+		{
+			fn(true);
+		}, error);
 	}
 	else
 	{
-		fn();
+		fn(false);
 	}
 };
 
@@ -283,9 +358,9 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 	
 			this.ui.convertFile(url, name, null, this.extension, success, error);
 		}
-		else if (error != null)
+		else
 		{
-			error();
+			error({message: mxResources.get('accessDenied')});
 		}
 	}
 	else
@@ -301,10 +376,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 			}
 			catch (e)
 			{
-				if (error != null)
-				{
-					error(e);
-				}
+				error(e);
 			}
 		}), error);
 	}
@@ -393,22 +465,13 @@ GitHubClient.prototype.insertFile = function(filename, data, success, error, asL
 						}
 						catch (e)
 						{
-							if (error != null)
-							{
-								error(e);
-							}
+							error(e);
 						}
 					}), error);
-				}), mxUtils.bind(this, function()
-				{
-					if (error != null)
-					{
-						error();
-					}
-				}));
+				}), error);
 			}
 		}
-		else if (error != null)
+		else
 		{
 			error();
 		}
@@ -443,11 +506,8 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 {
 	if (data.length >= this.maxFileSize)
 	{
-		if (error != null)
-		{
-			error({message: mxResources.get('drawingTooLarge') + ' (' +
-				this.ui.formatFileSize(data.length) + ' / 1 MB)'});
-		}
+		error({message: mxResources.get('drawingTooLarge') + ' (' +
+			this.ui.formatFileSize(data.length) + ' / 1 MB)'});
 	}
 	else
 	{
@@ -692,6 +752,15 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		div.appendChild(pathInfo);
 	});
 	
+	var error = mxUtils.bind(this, function(err)
+	{
+		this.ui.handleError(err, null, mxUtils.bind(this, function()
+		{
+			this.ui.spinner.stop();
+			this.ui.hideDialog();
+		}));
+	});
+	
 	var selectFile = mxUtils.bind(this, function()
 	{
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
@@ -761,19 +830,23 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					listFiles(false);
 				}
 			}
-		}), mxUtils.bind(this, function(err)
-		{
-			this.ui.spinner.stop();
-			updatePathInfo(true);
-			this.ui.handleError(err);
-		}));
+		}), error);
 	});
 	
-	var selectRef = mxUtils.bind(this, function()
+	// Adds paging for repos and branches (files limited to 1000 by API)
+	var pageSize = 100;
+	
+	var selectRef = mxUtils.bind(this, function(page)
 	{
-		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo + '/branches', null, 'GET');
+		if (page == null)
+		{
+			div.innerHTML = '';
+			page = 1;
+		}
+		
+		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
+			'/branches?per_page=' + pageSize + '&page=' + page, null, 'GET');
 		dlg.okButton.setAttribute('disabled', 'disabled');
-		div.innerHTML = '';
 		this.ui.spinner.spin(div, mxResources.get('loading'));
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
@@ -808,20 +881,35 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 						mxUtils.br(div);
 					}))(branches[i]);
 				}
+				
+				if (branches.length == pageSize)
+				{
+					var nextPage = mxUtils.bind(this, function()
+					{
+						if (div.scrollTop == div.scrollHeight - div.offsetHeight)
+						{
+							mxEvent.removeListener(div, 'scroll', nextPage);
+							selectRef(page + 1);
+						}
+					});
+					
+					mxEvent.addListener(div, 'scroll', nextPage);
+				}
 			}
-		}), mxUtils.bind(this, function(err)
-		{
-			this.ui.spinner.stop();
-			updatePathInfo(true);
-			this.ui.handleError(err);
-		}));
+		}), error);
 	});
-	
-	var selectRepo = mxUtils.bind(this, function()
+
+	var selectRepo = mxUtils.bind(this, function(page)
 	{
-		var req = new mxXmlRequest(this.baseUrl + '/user/repos', null, 'GET');
+		if (page == null)
+		{
+			div.innerHTML = '';
+			page = 1;
+		}
+		
+		var req = new mxXmlRequest(this.baseUrl + '/user/repos?per_page=' +
+			pageSize + '&page=' + page, null, 'GET');
 		dlg.okButton.setAttribute('disabled', 'disabled');
-		div.innerHTML = '';
 		this.ui.spinner.spin(div, mxResources.get('loading'));
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
@@ -835,6 +923,44 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			}
 			else
 			{
+				div.appendChild(createLink(mxResources.get('enterValue') + '...', mxUtils.bind(this, function()
+				{
+					var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
+					{
+						if (value != null)
+						{
+							this.ui.spinner.spin(div, mxResources.get('loading'));
+							
+							this.getFile(value, mxUtils.bind(this, function(file)
+							{
+								this.ui.spinner.stop();
+								org = file.meta.org;
+								repo = file.meta.repo;
+								ref = file.meta.ref;
+
+								if (file.meta.path != null && showFiles)
+								{
+									this.ui.hideDialog();
+									fn(org + '/' + repo + '/' + ref + '/' + file.meta.path);
+								}
+								else
+								{
+									path = '';
+									selectFile();
+								}
+							}), mxUtils.bind(this, function(err)
+							{
+								this.ui.spinner.stop();
+								this.ui.handleError({message: mxResources.get('fileNotFound')});
+							}));
+						}
+					}), mxResources.get('enterValue'));
+					this.ui.showDialog(dlg.container, 300, 80, true, false);
+					dlg.init();
+				})));
+				mxUtils.br(div);
+				mxUtils.br(div);
+				
 				for (var i = 0; i < repos.length; i++)
 				{
 					(mxUtils.bind(this, function(repository)
@@ -852,11 +978,21 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					}))(repos[i]);
 				}
 			}
-		}), mxUtils.bind(this, function(err)
-		{
-			this.ui.spinner.stop();
-			this.ui.handleError(err);
-		}));
+
+			if (repos.length == pageSize)
+			{
+				var nextPage = mxUtils.bind(this, function()
+				{
+					if (div.scrollTop == div.scrollHeight - div.offsetHeight)
+					{
+						mxEvent.removeListener(div, 'scroll', nextPage);
+						selectRepo(page + 1);
+					}
+				});
+				
+				mxEvent.addListener(div, 'scroll', nextPage);
+			}
+		}), error);
 	});
 	
 	selectRepo();
@@ -867,7 +1003,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
  */
 GitHubClient.prototype.logout = function()
 {
-	this.setUser(null);
 	this.clearPersistentToken();
+	this.setUser(null);
 	this.token = null;
 };

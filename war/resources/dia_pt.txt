@@ -544,6 +544,7 @@ restoring=A restaurar
 retryingIn=A tentar novamente em {1} segundo(s)
 retryingLoad=Erro no carregamento. A tentar novamente...
 retryingLogin=Tempo de inicio da sessão esgotado. A tentar novamente...
+reverse=Reverse
 revision=Revision
 revisionHistory=Histórico de revisões
 right=Direita 

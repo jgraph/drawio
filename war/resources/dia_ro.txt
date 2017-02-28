@@ -544,6 +544,7 @@ restoring=Se recuperează
 retryingIn=Reincercare în {1} secunde
 retryingLoad=Încercarea a eşuat. Se încearcă din nou...
 retryingLogin=Timpul de logare a expirat. Se încearcă din nou...
+reverse=Reverse
 revision=Revision
 revisionHistory=Istoric revizii
 right=Dreapta

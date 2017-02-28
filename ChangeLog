@@ -1,3 +1,15 @@
+28-FEB-2017: 6.2.3
+
+- Fixes label for turn action
+- Fixes use of undefined function in Dropbox client
+
+28-FEB-2017: 6.2.2
+
+- Handles expired oauth tokens
+- Handles blocked Dropbox client API
+- Fixes autosave for libraries and scratchpad
+- Fixes spinner for template dialog in embed mode
+
 22-FEB-2017: 6.2.1
 
 - Faster read, fixes possible NPE in Dropbox

@@ -544,6 +544,7 @@ restoring=กำลังฟื้นฟู
 retryingIn=ลองใหม่อีกครั้งใน {1} วินาที
 retryingLoad=โหลดไม่สำเร็จ กำลังลองใหม่
 retryingLogin=เกินกำหนดเวลาการเข้าใช้งาน กำลังลองใหม่
+reverse=Reverse
 revision=Revision
 revisionHistory=ประวัติการปรับปรุง
 right=ขวา

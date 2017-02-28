@@ -544,6 +544,7 @@ restoring=復帰中
 retryingIn={1}秒後に再試行します
 retryingLoad=ロードが失敗しました。再試行中。
 retryingLogin=ログインがタイムアウトしました。再試行中。
+reverse=Reverse
 revision=Revision
 revisionHistory=改訂履歴
 right=右

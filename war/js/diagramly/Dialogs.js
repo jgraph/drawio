@@ -611,49 +611,6 @@ var SplashDialog = function(editorUi)
 		btn.style.marginBottom = '0px';
 	}
 	
-	this.init = function()
-	{
-		if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
-		{
-			var fn = function()
-			{
-				var oneDriveUser = editorUi.oneDrive.getUser();
-				
-				if (oneDriveUser != null)
-				{
-					btn.style.marginBottom = '24px';
-					
-					var link = document.createElement('a');
-					link.setAttribute('href', 'javascript:void(0)');
-					link.style.display = 'block';
-					link.style.marginTop = '2px';
-					mxUtils.write(link, mxResources.get('changeUser') + ' (' + oneDriveUser.displayName + ')');
-
-					// Makes room after last big buttons
-					btn.style.marginBottom = '16px';
-					buttons.style.paddingBottom = '18px';
-					
-					mxEvent.addListener(link, 'click', function()
-					{
-						editorUi.oneDrive.logout();
-						link.parentNode.removeChild(link);
-						
-						// NOTE: Could use userEvent=true here but it seems the logout
-						// call is asynchronous and the client isn't fully logged out
-						// when called immediately so we show the auth dialog to get
-						// a delay (sometimes event that is not enough so should use
-						// async callback on logout but that seems to be broken)
-						editorUi.oneDrive.execute(fn);
-					});
-					
-					buttons.appendChild(link);
-				}
-			};
-			
-			editorUi.oneDrive.execute(fn);
-		}
-	};
-	
 	this.container = div;
 };
 
@@ -1939,6 +1896,8 @@ var BackgroundImageDialog = function(editorUi, applyFn)
  */
 var ParseDialog = function(editorUi, title)
 {
+	var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
+
 	function parse(text, type)
 	{
 		var lines = text.split('\n');
@@ -2028,14 +1987,7 @@ var ParseDialog = function(editorUi, title)
 				    		graph.getModel().beginUpdate();
 							try
 							{
-								var view = graph.view;
-								var bds = graph.getGraphBounds();
-								
-								// Computes unscaled, untranslated graph bounds
-								var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
-								var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
-
-					    		cell = graph.insertVertex(null, null, text, graph.snap(x), graph.snap(y),
+					    		cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
 									img.width, img.height, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
 									'image=' + editorUi.convertDataUri(e.target.result) + ';');
 							}
@@ -2116,14 +2068,7 @@ var ParseDialog = function(editorUi, title)
 					}
 				}
 				
-				var view = graph.view;
-				var bds = graph.getGraphBounds();
-				
-				// Computes unscaled, untranslated graph bounds
-				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
-				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
-	
-				graph.setSelectionCells(graph.importCells([listCell], x, y));
+				graph.setSelectionCells(graph.importCells([listCell], insertPoint.x, insertPoint.y));
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}
@@ -2172,6 +2117,8 @@ var ParseDialog = function(editorUi, title)
 				var container = document.createElement('div');
 				container.style.visibility = 'hidden';
 				document.body.appendChild(container);
+				
+				// Temporary graph for running the layout
 				var graph = new Graph(container);
 				
 				graph.getModel().beginUpdate();
@@ -2193,8 +2140,6 @@ var ParseDialog = function(editorUi, title)
 					layout.disableEdgeStyle = false;
 					layout.forceConstant = 120;
 					layout.execute(graph.getDefaultParent());
-					
-					graph.moveCells(cells, 20, 20);
 				}
 				finally
 				{
@@ -2202,14 +2147,8 @@ var ParseDialog = function(editorUi, title)
 				}
 				
 				graph.clearCellOverlays();
-				var view = editorUi.editor.graph.view;
-				var bds = editorUi.editor.graph.getGraphBounds();
-				
-				// Computes unscaled, untranslated graph bounds
-				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + graph.gridSize);
-				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
 				editorUi.editor.graph.setSelectionCells(editorUi.editor.graph.importCells(
-						graph.getModel().getChildren(graph.getDefaultParent()), x, y));
+						graph.getModel().getChildren(graph.getDefaultParent()), insertPoint.x, insertPoint.y));
 				editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
 				
 				graph.destroy();

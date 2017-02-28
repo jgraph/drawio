@@ -5,9 +5,9 @@
 	</head>
 	<body>
 		<script>
-			try
+			if (window.opener != null && window.opener.onGitHubCallback != null)
 			{
-				if (window.opener != null && window.opener.onGitHubCallback != null)
+				try
 				{
 					var search = window.location.search;
 					var idx1 = search.indexOf('code=');
@@ -21,10 +21,11 @@
 					// Continues execution of main program flow
 					window.opener.onGitHubCallback(code, window);
 				}
-			}
-			catch (e)
-			{
-				// ignore
+				catch (e)
+				{
+					alert('GitHub: ' + e.toString());
+					window.close();
+				}
 			}
 		</script>
 	</body>

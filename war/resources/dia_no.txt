@@ -544,6 +544,7 @@ restoring=Gjenoppretter
 retryingIn=Prøver igjen om {1} sekund(er)
 retryingLoad=Lasting feilet. Prøver på nytt...
 retryingLogin=Innloggingen ble tidsavbrutt. Prøver på nytt...
+reverse=Reverse
 revision=Revision
 revisionHistory=Revideringshistorikk
 right=Høyre

@@ -544,6 +544,7 @@ restoring=Đang phục hồi
 retryingIn=Thử lại trong {1} giây
 retryingLoad=Tải thất bại. Đang thử lại...
 retryingLogin=Đăng nhập quá giờ. Đang thử lại...
+reverse=Reverse
 revision=Revision
 revisionHistory=Lịch sử sửa đổi
 right=Phải

@@ -129,12 +129,18 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 				// Makes sure no changes get lost while the file is saved
 				var prevModified = this.isModified;
 				var modified = this.isModified();
-				this.setModified(false);
-				
-				this.isModified = function()
+
+				var prepare = mxUtils.bind(this, function()
 				{
-					return modified;
-				};
+					this.setModified(false);
+					
+					this.isModified = function()
+					{
+						return modified;
+					};
+				});
+				
+				prepare();
 				
 				this.ui.dropbox.saveFile(title, this.getData(), mxUtils.bind(this, function(stat)
 				{
@@ -147,7 +153,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 					{
 						success();
 					}
-				}), mxUtils.bind(this, function(resp)
+				}), mxUtils.bind(this, function(err)
 				{
 					this.savingFile = false;
 					this.isModified = prevModified;
@@ -155,7 +161,19 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 					
 					if (error != null)
 					{
-						error(resp);
+						// Handles modified state for retries
+						if (err.retry != null)
+						{
+							var retry = err.retry;
+							
+							err.retry = function()
+							{
+								prepare();
+								retry();
+							};
+						}
+						
+						error(err);
 					}
 				}));
 			}

@@ -544,6 +544,7 @@ restoring=Récupération
 retryingIn=Nouvelle tentative dans {1} seconde(s)
 retryingLoad=Le chargement a échoué. Nouvel essai...
 retryingLogin=L'identification a échoué. Nouvel essai...
+reverse=Reverse
 revision=Revision
 revisionHistory=Historique des révisions
 right=Droit

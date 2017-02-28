@@ -168,10 +168,10 @@ Actions.prototype.init = function()
 	{
 		graph.setSelectionCells(graph.duplicateCells());
 	}, null, null, 'Ctrl+D');
-	this.addAction('turn', function()
+	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function()
 	{
-		graph.setSelectionCells(graph.turnShapes(graph.getSelectionCells()));
-	}, null, null, 'Ctrl+R');
+		graph.turnShapes(graph.getSelectionCells());
+	}, null, null, 'Ctrl+R'));
 	this.addAction('selectVertices', function() { graph.selectVertices(); }, null, null, 'Ctrl+Shift+I');
 	this.addAction('selectEdges', function() { graph.selectEdges(); }, null, null, 'Ctrl+Shift+E');
 	this.addAction('selectAll', function() { graph.selectAll(null, true); }, null, null, 'Ctrl+A');

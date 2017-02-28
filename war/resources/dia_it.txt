@@ -544,6 +544,7 @@ restoring=Recupero in corso
 retryingIn=Nuovo tentativo in {1} secondi
 retryingLoad=Caricamento non riuscito. Nuovo tentativo in corso...
 retryingLogin=Login time out. Nuovo tentativo in corso...
+reverse=Reverse
 revision=Revision
 revisionHistory=Vedi modifiche precedenti
 right=A destra

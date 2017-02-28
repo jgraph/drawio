@@ -155,7 +155,18 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 			// Makes sure no changes get lost while the file is saved
 			var prevModified = this.isModified;
 			var modified = this.isModified();
-			this.setModified(false);
+
+			var prepare = mxUtils.bind(this, function()
+			{
+				this.setModified(false);
+				
+				this.isModified = function()
+				{
+					return modified;
+				};
+			});
+			
+			prepare();
 			
 			this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
 			{
@@ -184,6 +195,18 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 				
 				if (error != null)
 				{
+					// Handles modified state for retries
+					if (err.retry != null)
+					{
+						var retry = err.retry;
+						
+						err.retry = function()
+						{
+							prepare();
+							retry();
+						};
+					}
+					
 					error(err);
 				}
 			}));

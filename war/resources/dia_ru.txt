@@ -544,6 +544,7 @@ restoring=Восстанавливается
 retryingIn=Повторная попытка через {1} с
 retryingLoad=Загрузка не удалась. Пробуем еще раз...
 retryingLogin=Время входа истекло. Пробуем еще раз...
+reverse=Reverse
 revision=Revision
 revisionHistory=История изменений
 right=Справа
