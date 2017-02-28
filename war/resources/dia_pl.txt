@@ -544,6 +544,7 @@ restoring=Przywracanie
 retryingIn=Ponawiam w ciągu {1} sekund/y
 retryingLoad=Błąd ładowania. Ponawiam...
 retryingLogin=Upłynął czas logowania. Ponawiam...
+reverse=Reverse
 revision=Revision
 revisionHistory=Historia zmian
 right=Do prawej

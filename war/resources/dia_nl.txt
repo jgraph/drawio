@@ -544,6 +544,7 @@ restoring=Bezig met herstellen
 retryingIn=Opnieuw proberen in {1} seconde(n)
 retryingLoad=Laden mislukt. Opnieuw proberen...
 retryingLogin=Login verlopen. Opnieuw proberen...
+reverse=Reverse
 revision=Revisie
 revisionHistory=Revisiegeschiedenis
 right=Rechts

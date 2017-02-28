@@ -544,6 +544,7 @@ restoring=Restoring
 retryingIn={1}秒后重试
 retryingLoad=载入失败，正在重试...
 retryingLogin=登录超时，正在重试...
+reverse=Reverse
 revision=Revision
 revisionHistory=Revision History
 right=右

@@ -544,6 +544,7 @@ restoring=Eski Haline Alınıyor
 retryingIn={1} saniye içinte tekrar denenecek
 retryingLoad=Yükleme başarısız. Tekrar deneniyor...
 retryingLogin=Giriş zaman-aşımı. Tekrar deneniyor...
+reverse=Reverse
 revision=Revision
 revisionHistory=Düzeltme geçmişi
 right=Sağ

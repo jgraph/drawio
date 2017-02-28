@@ -38,52 +38,20 @@
 				return null;
 			};
 
-			// Puts the current token into a cookie
-			function setCookie(token, expiresInSeconds)
+			// Main
+			if (window.opener != null && window.opener.onOneDriveCallback != null)
 			{
-				var expiration = new Date();
-				
-				if (token != null)
+				try
 				{
-					expiration.setTime(expiration.getTime() + expiresInSeconds * 1000);
-					var cookie = 'odauth=' + token +'; path=/; expires=' + expiration.toUTCString();
-	
-					if (document.location.protocol.toLowerCase() == 'https')
-					{
-						cookie = cookie + ';secure';
-					}
-	
-					document.cookie = cookie;
+					var authInfo = getAuthInfoFromUrl();
+					var token = authInfo['access_token'];		
+					window.opener.onOneDriveCallback(token, window);
 				}
-				else
+				catch (e)
 				{
-					expiration.setYear(expiration.getFullYear() - 1);
-					document.cookie = 'odauth=; expires=' + expiration.toUTCString();
+					alert('OneDrive: ' + e.toString());
+					window.close();
 				}
-			};
-	        
-			// Main flow after authentication popup redirects to callback URI
-			var authInfo = getAuthInfoFromUrl();
-			var token = null;
-			
-			if (authInfo != null)
-			{
-				token = authInfo['access_token'];
-				var expiry = parseInt(authInfo['expires_in']);
-				setCookie(token, expiry);
-			}
-
-			// Continues execution of main program flow
-			try
-			{
-				if (window.opener != null && window.opener.onAuthenticated != null)
-				{
-					window.opener.onAuthenticated(token, window);
-				}
-			}
-			catch (e)
-			{
-				// ignores no opener
 			}
 		</script>
 	</body>

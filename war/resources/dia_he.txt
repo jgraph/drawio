@@ -544,6 +544,7 @@ restoring=‫משחזר‬
 retryingIn=‫מנסה מחדש בעוד {1} שניות‬
 retryingLoad=‫הטעינה נכשלה. מנסה מחדש...‬
 retryingLogin=‫זמן ההתחברות פג. מנסה מחדש...‬
+reverse=Reverse
 revision=Revision
 revisionHistory=‫היסטוריית שינויים‬
 right=‫ימין‬

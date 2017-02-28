@@ -5,9 +5,9 @@
 	</head>
 	<body>
 		<script>
-			try
+			if (window.opener != null && window.opener.onDropboxCallback != null)
 			{
-				if (window.opener != null && window.opener.onDropboxCallback != null)
+				try
 				{
  					var hash = window.location.hash;
  					var i1 = hash.indexOf('access_token=');
@@ -26,10 +26,11 @@
 					// Continues execution of main program flow
 					window.opener.onDropboxCallback(token, window);
 				}
-			}
-			catch (e)
-			{
-				// ignore
+				catch (e)
+				{
+					alert('Dropbox: ' + e.toString());
+					window.close();
+				}
 			}
 		</script>
 	</body>

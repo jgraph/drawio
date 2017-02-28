@@ -544,6 +544,7 @@ restoring=Återställer
 retryingIn=Försöker igen om {1} sekunder
 retryingLoad=Kunde inte ladda, försöker igen…
 retryingLogin=Det tog för lång tid att logga in, försöker igen…
+reverse=Reverse
 revision=Revision
 revisionHistory=Revideringshistorik 
 right=Höger

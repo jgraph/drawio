@@ -885,7 +885,7 @@ App.prototype.init = function()
 		 */
 		var initDropboxClient = mxUtils.bind(this, function()
 		{
-			if (window.Dropbox != null && typeof Dropbox.choose !== 'undefined')
+			if (typeof Dropbox === 'function' && typeof Dropbox.choose !== 'undefined')
 			{
 				/**
 				 * Clears dropbox client callback.
@@ -2333,7 +2333,6 @@ App.prototype.showSplash = function(force)
 					Editor.useLocalStorage = prev;
 				}
 			}));
-		dlg.init();
 	});
 	
 	if (this.editor.chromeless)
@@ -4065,7 +4064,7 @@ App.prototype.status = function(html)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-App.prototype.showAuthDialog = function(peer, showRememberOption, fn)
+App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 {
 	var resume = this.spinner.pause();
 	
@@ -4088,6 +4087,11 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn)
 		}
 	})).container, 300, (showRememberOption) ? 180 : 140, true, true, mxUtils.bind(this, function(cancel)
 	{
+		if (closeFn != null)
+		{
+			closeFn();
+		}
+		
 		if (cancel && this.getCurrentFile() == null && this.dialog == null)
 		{
 			this.showSplash();

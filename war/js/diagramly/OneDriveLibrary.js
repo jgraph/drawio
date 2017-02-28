@@ -18,7 +18,7 @@ mxUtils.extend(OneDriveLibrary, OneDriveFile);
  */
 OneDriveLibrary.prototype.isAutosave = function()
 {
-	return false;
+	return true;
 };
 
 /**

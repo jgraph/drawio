@@ -24,7 +24,7 @@ mxUtils.extend(StorageLibrary, StorageFile);
  */
 StorageLibrary.prototype.isAutosave = function()
 {
-	return false;
+	return true;
 };
 
 /**

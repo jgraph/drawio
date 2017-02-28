@@ -544,6 +544,7 @@ restoring=Mengembalikan
 retryingIn=Mencoba lagi dalam () detik
 retryingLoad=Pemanggilan gagal. Mecoba lagi...
 retryingLogin=Waktu login habis. Mencoba lagi...
+reverse=Reverse
 revision=Revision
 revisionHistory=revisi yang lalu
 right=Kanan

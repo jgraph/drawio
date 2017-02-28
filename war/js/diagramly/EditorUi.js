@@ -2231,6 +2231,16 @@
 			
 			if (e != null)
 			{
+				if (e.retry != null)
+				{
+					btn = mxResources.get('cancel');
+					retry = function()
+					{
+						resume();
+						e.retry();
+					};
+				}
+				
 				if (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' && typeof(gapi.drive.realtime) != 'undefined' &&
 					e.type == gapi.drive.realtime.ErrorType.FORBIDDEN)
 				{
@@ -2252,16 +2262,6 @@
 				else if (e.code == App.ERROR_TIMEOUT)
 				{
 					msg = mxResources.get('timeout');
-					
-					if (e.retry != null)
-					{
-						btn = mxResources.get('cancel');
-						retry = function()
-						{
-							resume();
-							e.retry();
-						};
-					}
 				}
 				else if (e.code == App.ERROR_BUSY)
 				{
@@ -3029,6 +3029,11 @@
 			{
 				params.push('layers=1');
 			}
+			
+			if (this.editor.graph.foldingEnabled)
+			{
+				params.push('nav=1');
+			}
 		}
 		
 		if (allPages && this.pages != null && this.currentPage != null)
@@ -3059,7 +3064,7 @@
 			var file = this.getCurrentFile();
 
 			// Fallback to non-public URL for Drive files	
-			if (!ignoreFile && file != null && file.constructor == DriveFile)
+			if (!ignoreFile && file != null && file.constructor == window.DriveFile)
 			{
 				data = '#' + file.getHash();
 				addTitle = false;
@@ -3227,7 +3232,7 @@
 
 		var file = this.getCurrentFile();
 		
-		if (publicUrl == null && file != null && file.constructor == DriveFile)
+		if (publicUrl == null && file != null && file.constructor == window.DriveFile)
 		{
 			var testLink = document.createElement('a');
 			testLink.style.paddingLeft = '12px';
@@ -3314,7 +3319,7 @@
 		var helpLink = 'https://desk.draw.io/support/solutions/articles/16000051941-how-to-publicly-publish-a-copy-of-your-draw-io-diagram';
 		var dy = 0;
 		
-		if (file != null && file.constructor == DriveFile && !hideShare)
+		if (file != null && file.constructor == window.DriveFile && !hideShare)
 		{
 			dy = 80;
 			helpLink = 'https://desk.draw.io/support/solutions/articles/16000039384-how-to-publicly-publish-a-copy-of-your-draw-io-diagram-stored-in-google-drive';
@@ -3396,7 +3401,7 @@
 		var hasPages = this.pages != null && this.pages.length > 1;
 		var allPages = null;
 		
-		if (file == null || file.constructor != DriveFile || hideShare)
+		if (file == null || file.constructor != window.DriveFile || hideShare)
 		{
 			allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
 		}
@@ -7021,6 +7026,8 @@
 				}
 				else if (data.action == 'prompt')
 				{
+					this.spinner.stop();
+					
 					var dlg = new FilenameDialog(this, data.defaultValue || '',
 						(data.okKey != null) ? mxResources.get(data.okKey) : null, function(value)
 					{
@@ -7046,6 +7053,8 @@
 					{
 						tmp = extractDiagramXml(data.xml);
 					}
+					
+					this.spinner.stop();
 					
 					var dlg = new DraftDialog(this, mxResources.get('draftFound', [data.name || this.defaultFilename]),
 						tmp, mxUtils.bind(this, function()
@@ -7079,6 +7088,8 @@
 				}
 				else if (data.action == 'template')
 				{
+					this.spinner.stop();
+					
 					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
 					{
 						xml = xml || this.emptyDiagramXml;

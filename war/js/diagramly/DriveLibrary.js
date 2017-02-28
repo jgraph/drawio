@@ -20,7 +20,7 @@ mxUtils.extend(DriveLibrary, DriveFile);
  */
 DriveLibrary.prototype.isAutosave = function()
 {
-	return false;
+	return true;
 };
 
 /**

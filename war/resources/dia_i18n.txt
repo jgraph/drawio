@@ -544,6 +544,7 @@ restoring=restoring
 retryingIn=retryingIn
 retryingLoad=retryingLoad
 retryingLogin=retryingLogin
+reverse=reverse
 revision=revision
 revisionHistory=revisionHistory
 right=right

@@ -544,6 +544,7 @@ restoring=Palautetaan
 retryingIn=Yritetään uudelleen {1} sekunnin kuluttua
 retryingLoad=Lataus epäonnistui. Yritetään uudelleen...
 retryingLogin=Sisäänkirjautuminen epäonnistui. Yritetään uudelleen...
+reverse=Reverse
 revision=Revision
 revisionHistory=Muutoshistoria
 right=Oikea

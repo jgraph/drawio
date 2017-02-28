@@ -544,6 +544,7 @@ restoring=Mengembalikan
 retryingIn=Cuba lagi dalam {1} saat
 retryingLoad=Gagal untuk memuatkan, Sedang mencuba lagi...
 retryingLogin=Masa daftar masuk tamat. Mencuba lagi...
+reverse=Reverse
 revision=Revision
 revisionHistory=Sejarah semakan
 right=kanan

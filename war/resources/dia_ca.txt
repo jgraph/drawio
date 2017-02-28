@@ -544,6 +544,7 @@ restoring=Recuperant
 retryingIn=Reintentant en {1} segon/s
 retryingLoad=Càrrega fallida. Reintentant...
 retryingLogin=Temps d'accés esgotat. Reintentant...
+reverse=Reverse
 revision=Revision
 revisionHistory=Historial de revisions
 right=Dreta

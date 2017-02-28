@@ -544,6 +544,7 @@ restoring=‫يتم الاسترداد‬
 retryingIn=‫تتم إعادة المحاولة خلال {1} من الثواني‬
 retryingLoad=‫فشل التحميل. إعادة المحاولة...‬
 retryingLogin=‫انتهت صلاحية التسجيل. تتم إعادة المحاولة...‬
+reverse=Reverse
 revision=Revision
 revisionHistory=‫سجل المراجعات‬
 right=‫يمين‬

@@ -1326,17 +1326,21 @@
 				this.editorUi.showDialog(dlg.container, 300, 146, true, true);
 			}), parent);
 
-			menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
+			// Disables menu item for all external hosted integrations
+			if (/.*\.draw\.io$/.test(window.location.hostname))
 			{
-				editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-					function(linkTarget, linkColor, allPages, lightbox, edit, layers)
+				menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 				{
-					var dlg = new EmbedDialog(editorUi, editorUi.createLink(
-						linkTarget, linkColor, allPages, lightbox, edit, layers, null, true));
-					editorUi.showDialog(dlg.container, 440, 240, true, true);
-					dlg.init();
-				});
-			}), parent);
+					editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
+						function(linkTarget, linkColor, allPages, lightbox, edit, layers)
+					{
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(
+							linkTarget, linkColor, allPages, lightbox, edit, layers, null, true));
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					});
+				}), parent);
+			}
 			
 			if (!editorUi.isOffline())
 			{

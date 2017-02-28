@@ -127,7 +127,18 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error)
 			// Makes sure no changes get lost while the file is saved
 			var prevModified = this.isModified;
 			var modified = this.isModified();
-			this.setModified(false);
+
+			var prepare = mxUtils.bind(this, function()
+			{
+				this.setModified(false);
+				
+				this.isModified = function()
+				{
+					return modified;
+				};
+			});
+			
+			prepare();
 			
 			this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta)
 			{
@@ -141,7 +152,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error)
 					success();
 				}
 			}),
-			mxUtils.bind(this, function(resp)
+			mxUtils.bind(this, function(err)
 			{
 				this.savingFile = false;
 				this.isModified = prevModified;
@@ -149,7 +160,19 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error)
 				
 				if (error != null)
 				{
-					error(resp);
+					// Handles modified state for retries
+					if (err.retry != null)
+					{
+						var retry = err.retry;
+						
+						err.retry = function()
+						{
+							prepare();
+							retry();
+						};
+					}
+					
+					error(err);
 				}
 			}));
 		}

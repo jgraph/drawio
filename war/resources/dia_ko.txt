@@ -544,6 +544,7 @@ restoring=복구중
 retryingIn={1)초 후 재시도 예정
 retryingLoad=불러오기 실패. 재시도중…
 retryingLogin=로그인 시간 초과. 재시도중…
+reverse=Reverse
 revision=Revision
 revisionHistory=수정 내역
 right=오른쪽
