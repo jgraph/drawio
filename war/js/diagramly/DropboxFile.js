@@ -162,7 +162,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 					if (error != null)
 					{
 						// Handles modified state for retries
-						if (err.retry != null)
+						if (err != null && err.retry != null)
 						{
 							var retry = err.retry;
 							

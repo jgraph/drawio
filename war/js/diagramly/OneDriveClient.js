@@ -213,7 +213,8 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 			
 			if (acceptResponse)
 			{
-				if (req.getStatus() >= 200 && req.getStatus() <= 299)
+				// 404 (file not found) is a valid response for checkExists
+				if ((req.getStatus() >= 200 && req.getStatus() <= 299) || req.getStatus() == 404)
 				{
 					success(req);
 				}
