@@ -1208,74 +1208,97 @@ DriveClient.prototype.pickFolder = function(fn)
 	
 	if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
 	{
-		this.execute(mxUtils.bind(this, function()
+		var showPicker = mxUtils.bind(this, function()
 		{
-			this.ui.spinner.stop();
-	
-			// Reuses picker as long as token doesn't change.
-			var token = gapi.auth.getToken().access_token;
-			var name = 'folderPicker';
-			
-			// Click on background closes dialog as workaround for blocking dialog
-			// states such as 401 where the dialog cannot be closed and blocks UI
-			var exit = mxUtils.bind(this, function(evt)
+			this.execute(mxUtils.bind(this, function()
 			{
-				// Workaround for click from appIcon on second call
-				if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+				this.ui.spinner.stop();
+
+				// Reuses picker as long as token doesn't change.
+				var token = gapi.auth.getToken().access_token;
+				var name = 'folderPicker';
+				
+				// Click on background closes dialog as workaround for blocking dialog
+				// states such as 401 where the dialog cannot be closed and blocks UI
+				var exit = mxUtils.bind(this, function(evt)
 				{
-					mxEvent.removeListener(document, 'click', exit);
-					this[name].setVisible(false);
+					// Workaround for click from appIcon on second call
+					if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+					{
+						mxEvent.removeListener(document, 'click', exit);
+						this[name].setVisible(false);
+					}
+				});
+				
+				if (this[name] == null || this[name + 'Token'] != token)
+				{
+					// FIXME: Dispose not working
+	//				if (this[name] != null)
+	//				{
+	//					console.log(name, this[name]);
+	//					this[name].dispose();
+	//				}
+					
+					this[name + 'Token'] = token;
+	
+					// Pseudo-hierarchical directory view, see
+					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
+					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+			        	.setParent('root')
+			        	.setIncludeFolders(true)
+						.setSelectFolderEnabled(true)
+			        	.setMimeTypes('application/vnd.google-apps.folder');
+					
+					var view2 = new google.picker.DocsView()
+						.setIncludeFolders(true) 
+						.setSelectFolderEnabled(true)
+						.setMimeTypes('application/vnd.google-apps.folder');
+				
+					this[name] = new google.picker.PickerBuilder()
+						.setSelectableMimeTypes('application/vnd.google-apps.folder')
+				        .setOAuthToken(this[name + 'Token'])
+				        .setLocale(mxLanguage)
+				        .setAppId(this.appId)
+				        .addView(view)
+				        .addView(view2)
+				        .addView(google.picker.ViewId.RECENTLY_PICKED)
+				        .setTitle(mxResources.get('pickFolder'))
+				        .setCallback(mxUtils.bind(this, function(data)
+				        {
+				        	if (data.action == google.picker.Action.PICKED ||
+				        		data.action == google.picker.Action.CANCEL)
+				        	{
+				        		mxEvent.removeListener(document, 'click', exit);
+				        	}
+				        	
+				        	this.folderPickerCallback(data);
+				        })).build();
 				}
-			});
-			
-			if (this[name] == null || this[name + 'Token'] != token)
+	
+				mxEvent.addListener(document, 'click', exit);
+				this[name].setVisible(true);
+				this.ui.movePickersToTop();
+			}));
+		});
+		
+		// Does not show picker if there are no folders in the root
+		this.executeRequest(gapi.client.drive.children.list({'folderId': 'root', 'maxResults': 1,
+			'q': 'trashed=false and mimeType=\'application/vnd.google-apps.folder\''}),
+			mxUtils.bind(this, function(res)
+		{
+			if (res == null || res.items == null || res.items.length == 0)
 			{
-				// FIXME: Dispose not working
-//				if (this[name] != null)
-//				{
-//					console.log(name, this[name]);
-//					this[name].dispose();
-//				}
-				
-				this[name + 'Token'] = token;
-
-				// Pseudo-hierarchical directory view, see
-				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-		        	.setParent('root')
-		        	.setIncludeFolders(true)
-					.setSelectFolderEnabled(true)
-		        	.setMimeTypes('application/vnd.google-apps.folder');
-				
-				var view2 = new google.picker.DocsView()
-					.setIncludeFolders(true) 
-					.setSelectFolderEnabled(true)
-					.setMimeTypes('application/vnd.google-apps.folder');
-			
-				this[name] = new google.picker.PickerBuilder()
-					.setSelectableMimeTypes('application/vnd.google-apps.folder')
-			        .setOAuthToken(this[name + 'Token'])
-			        .setLocale(mxLanguage)
-			        .setAppId(this.appId)
-			        .addView(view)
-			        .addView(view2)
-			        .addView(google.picker.ViewId.RECENTLY_PICKED)
-			        .setTitle(mxResources.get('pickFolder'))
-			        .setCallback(mxUtils.bind(this, function(data)
-			        {
-			        	if (data.action == google.picker.Action.PICKED ||
-			        		data.action == google.picker.Action.CANCEL)
-			        	{
-			        		mxEvent.removeListener(document, 'click', exit);
-			        	}
-			        	
-			        	this.folderPickerCallback(data);
-			        })).build();
+				// Simulates a pick event
+				this.ui.spinner.stop();
+				fn({'action': google.picker.Action.PICKED, 'docs': [{'type': 'folder', 'id': 'root'}]});
 			}
-
-			mxEvent.addListener(document, 'click', exit);
-			this[name].setVisible(true);
-			this.ui.movePickersToTop();
+			else
+			{
+				showPicker();
+			}
+		}), mxUtils.bind(this, function(err)
+		{
+			showPicker();
 		}));
 	}
 };

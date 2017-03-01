@@ -39,7 +39,7 @@ GitHubFile.prototype.getPublicUrl = function(fn)
 	{
 		mxUtils.get(this.meta.download_url, mxUtils.bind(this, function(req)
 		{
-			fn((req.getStatus() >= 200 && req.getStatus() <= 299) ? this.meta.download_url : null);	
+			fn((req.getStatus() >= 200 && req.getStatus() <= 299) ? this.meta.download_url : null);
 		}), mxUtils.bind(this, function()
 		{
 			fn(null);
@@ -196,7 +196,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 				if (error != null)
 				{
 					// Handles modified state for retries
-					if (err.retry != null)
+					if (err != null && err.retry != null)
 					{
 						var retry = err.retry;
 						

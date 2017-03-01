@@ -1,3 +1,10 @@
+01-MAR-2017: 6.2.4
+
+- Uses mxGraph 3.7.1
+- Fixes inserting files in OneDrive
+- Hides folder picker if no folders in Drive
+- Fixes possible NPE in retry error handling
+
 28-FEB-2017: 6.2.3
 
 - Fixes label for turn action
