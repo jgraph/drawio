@@ -8,9 +8,11 @@ const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
 const autoUpdater = require('electron-updater').autoUpdater
-autoUpdater.logger = require('electron-log')
+const log = require('electron-log')
+autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
-autoUpdater.autoDownload = false
+// autoUpdater.autoDownload = false
+autoUpdater.autoDownload = true
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 
@@ -36,14 +38,14 @@ function createWindow (opt = {}) {
 		protocol: 'file:',
 		query: {
 			'dev': __DEV__ ? 1 : 0,
-			'test': '1',
-			'db': '0',
-			'gapi': '0',
-			'od': '0',
-			'analytics': '0',
-			'picker': '0',
+			'test': 1,
+			'db': 0,
+			'gapi': 0,
+			'od': 0,
+			'analytics': 0,
+			'picker': 0,
 			'mode': 'device',
-			'browser': '0',
+			'browser': 0,
 			'p': 'electron',
 		},
 		slashes: true,
@@ -114,7 +116,8 @@ app.on('ready', e => {
 		event.returnValue = 'pong'
 	})
 	createWindow()
-	checkUpdate()
+	// checkUpdate()
+	autoUpdater.checkForUpdates()
 })
 
 // Quit when all windows are closed.
@@ -148,5 +151,32 @@ function checkUpdate () {
 			})
 			if (idx === 0) return autoUpdater.downloadUpdate()
 		}
+	}).then((a, b) => {
+		log.info('@cfu update-downloaded@\n', a, b)
+	}).catch(e => {
+		log.error('@cfu then error@\n', e)
 	})
 }
+
+autoUpdater.on('error', e => log.error('@error@\n', e))
+
+autoUpdater.on('update-available',
+	(a, b) => log.info('@update-available@\n', a, b))
+
+/**/
+autoUpdater.on('update-downloaded', (event, info) => {
+	log.info('@update-downloaded@\n', info, event)
+	// Ask user to update the app
+	dialog.showMessageBox({
+		type: 'question',
+		buttons: ['Install and Relaunch', 'Later'],
+		defaultId: 0,
+		message: 'A new version of ' + app.getName() + ' has been downloaded',
+		detail: 'It will be installed the next time you restart the application',
+	}, response => {
+		if (response === 0) {
+			setTimeout(() => autoUpdater.quitAndInstall(), 1)
+		}
+	})
+})
+/**/
