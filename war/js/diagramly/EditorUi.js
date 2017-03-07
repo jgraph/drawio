@@ -80,6 +80,11 @@
 	EditorUi.prototype.enableLogging = true;
 	
 	/**
+	 * Specifies if PDF export with pages is enabled.
+	 */
+	EditorUi.prototype.pdfPageExport = true;
+	
+	/**
 	 * Capability check for canvas export
 	 */
 	(function()
@@ -1087,6 +1092,10 @@
 				{
 					filename = basename + '.png';
 				}
+				else if (format == 'jpeg')
+				{
+					filename = basename + '.jpg';
+				}
 				
 				this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
 				{
@@ -1284,7 +1293,7 @@
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
 				result = true;
 				
-				if (this.enableLogging && !this.isOffline())
+				if (this.enableLogging && !this.isOffline() && file.getMode() != null)
 				{
 		        	try
 		        	{
@@ -3459,7 +3468,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback)
+	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
@@ -3471,14 +3480,18 @@
 
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
 			this.editor.graph.isSelectionEmpty());
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
-		include.style.marginBottom = '16px';
-
+		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
+		
+		if (include != null)
+		{
+			include.style.marginBottom = '16px';
+		}
+		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			callback(!selection.checked, include.checked);
+			callback(!selection.checked, (include != null) ? include.checked : false);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, 146, true, true);
+		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 146, true, true);
 	};
 	
 	/**

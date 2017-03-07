@@ -4237,10 +4237,6 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 					    	{
 					    		data = 'data:image/png;base64,' + data;	
 					    	}
-					    	else if (/\.jpe?g$/i.test(filename))
-					    	{
-					    		data = 'data:image/jpeg;base64,' + data;	
-					    	}
 					    	else
 					    	{
 					    		// Workaround for character encoding issues in IE10/11
@@ -4283,7 +4279,8 @@ App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 {
 	try
 	{
-		var binary = (forceBinary || /(\.png)($|\?)/i.test(url) || /(\.jpe?g)($|\?)/i.test(url));
+		var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
+			/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
 		retry = (retry != null) ? retry : true;
 		
 		var fn = mxUtils.bind(this, function()
@@ -4314,7 +4311,8 @@ App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 								data = tmp.join('');
 							}
 							
-							// LATER: Could be JPG but modern browser ignore the mime type
+							// LATER: Could be JPG but modern browsers
+							// ignore the mime type in the data URI
 							data = 'data:image/png;base64,' + this.base64Encode(data);
 						}
 			    		

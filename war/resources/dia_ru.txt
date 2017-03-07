@@ -466,6 +466,7 @@ otherViewers=другие просматривающие
 outline=Контур
 oval=Овал
 page=Страница
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Страница {1}
 pages=Страницы
 pageView=Отображать страницы

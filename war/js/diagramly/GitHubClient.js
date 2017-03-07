@@ -397,7 +397,18 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibra
 	
 	if (data.encoding === 'base64')
 	{
-		content = Base64.decode(content);
+		if (/\.jpe?g$/i.test(data.name))
+		{
+			content = 'data:image/jpeg;base64,' + content;
+		}
+		else if (/\.gif$/i.test(data.name))
+		{
+			content = 'data:image/gif;base64,' + content;	
+		}
+		else
+		{
+			content = Base64.decode(content);
+		}
 	}
 	
 	return (asLibrary) ? new GitHubLibrary(this.ui, content, meta) : new GitHubFile(this.ui, content, meta);
@@ -615,6 +626,9 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 							this.getFile(org + '/' + repo + '/' + ref + '/' + path, mxUtils.bind(this, function(tempFile)
 							{
 								fn(tempFile.meta.sha);
+							}), mxUtils.bind(this, function()
+							{
+								fn(null);
 							}));
 						}));
 					this.ui.showDialog(dlg.container, 340, 150, true, false);

@@ -466,6 +466,7 @@ otherViewers=Người xem khác
 outline=Phác thảo
 oval=Hình bầu dục
 page=Page
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Page-{1}
 pages=Trang
 pageView=Xem trang

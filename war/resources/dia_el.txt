@@ -466,6 +466,7 @@ otherViewers=άλλοι θεατές
 outline=Περίγραμμα
 oval=Οβάλ
 page=Page
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Page-{1}
 pages=Σελίδες
 pageView=Προβολή Σελίδας

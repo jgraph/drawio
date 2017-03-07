@@ -1,20 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-const url = require('url')
 const electron = require('electron')
 const ipcMain = electron.ipcMain
 const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-
-const autoUpdater = require('electron-updater').autoUpdater
-const log = require('electron-log')
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = 'info'
-// autoUpdater.autoDownload = false
-autoUpdater.autoDownload = true
-
-const __DEV__ = process.env.NODE_ENV === 'development'
 
 let windowsRegistry = []
 
@@ -23,9 +13,6 @@ function createWindow (opt = {}) {
 		width: 1600,
 		height: 1200,
 		'web-security': false,
-		webPreferences: {
-			// preload: path.resolve('./preload.js'),
-		},
 	}, opt)
 
 	let mainWindow = new BrowserWindow(options)
@@ -33,27 +20,9 @@ function createWindow (opt = {}) {
 
 	console.log('createWindow', opt)
 
-	let wurl = url.format({
-		pathname: `${__dirname}/index.html`,
-		protocol: 'file:',
-		query: {
-			'dev': __DEV__ ? 1 : 0,
-			'test': 1,
-			'db': 0,
-			'gapi': 0,
-			'od': 0,
-			'analytics': 0,
-			'picker': 0,
-			'mode': 'device',
-			'browser': 0,
-			'p': 'electron',
-		},
-		slashes: true,
-	})
-
-//`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`
 	// and load the index.html of the app.
-	mainWindow.loadURL(wurl)
+	mainWindow.loadURL(
+		`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`)
 
 	// Open the DevTools.
 	mainWindow.webContents.openDevTools()
@@ -116,8 +85,6 @@ app.on('ready', e => {
 		event.returnValue = 'pong'
 	})
 	createWindow()
-	// checkUpdate()
-	autoUpdater.checkForUpdates()
 })
 
 // Quit when all windows are closed.
@@ -139,44 +106,5 @@ app.on('activate', function () {
 	}
 })
 
-function checkUpdate () {
-	autoUpdater.checkForUpdates().then(UpdateCheckResult => {
-		if (UpdateCheckResult) {
-			let idx = dialog.showMessageBox({
-				type: 'question',
-				buttons: ['Ok', 'Cancel'],
-				title: 'Confirm Update',
-				message: 'Update available.\n\nWould you like to download and install new version?',
-				detail: 'Application will automatically restart to apply update after download',
-			})
-			if (idx === 0) return autoUpdater.downloadUpdate()
-		}
-	}).then((a, b) => {
-		log.info('@cfu update-downloaded@\n', a, b)
-	}).catch(e => {
-		log.error('@cfu then error@\n', e)
-	})
-}
-
-autoUpdater.on('error', e => log.error('@error@\n', e))
-
-autoUpdater.on('update-available',
-	(a, b) => log.info('@update-available@\n', a, b))
-
-/**/
-autoUpdater.on('update-downloaded', (event, info) => {
-	log.info('@update-downloaded@\n', info, event)
-	// Ask user to update the app
-	dialog.showMessageBox({
-		type: 'question',
-		buttons: ['Install and Relaunch', 'Later'],
-		defaultId: 0,
-		message: 'A new version of ' + app.getName() + ' has been downloaded',
-		detail: 'It will be installed the next time you restart the application',
-	}, response => {
-		if (response === 0) {
-			setTimeout(() => autoUpdater.quitAndInstall(), 1)
-		}
-	})
-})
-/**/
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and require them here.

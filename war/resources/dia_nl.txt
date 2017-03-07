@@ -466,6 +466,7 @@ otherViewers=andere bekijkers
 outline=Overzicht
 oval=Ovaal
 page=Pagina
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Pagina-{1}
 pages=Pagina's
 pageView=Weergave pagina
