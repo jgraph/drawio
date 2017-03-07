@@ -466,6 +466,7 @@ otherViewers=toiset katselijat
 outline=Ääriviiva
 oval=Ovaali
 page=Sivu
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Sivu-{1}
 pages=Sivut
 pageView=Sivun katselu

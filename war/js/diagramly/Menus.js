@@ -1201,12 +1201,20 @@
 			// Disabled for standalone mode in iOS because new tab cannot be closed
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				menu.addItem(mxResources.get('image') + '...', null, mxUtils.bind(this, function()
+				menu.addItem(mxResources.get('formatPng') + '...', null, mxUtils.bind(this, function()
 				{
 					editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
 					{
 						this.editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection);
 					}));
+				}), parent);
+				
+				menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
+				{
+					editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
+					{
+						this.editorUi.downloadFile('jpeg', null, null, ignoreSelection);
+					}), true);
 				}), parent);
 			}
 			
@@ -1250,8 +1258,25 @@
 					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
 						false, graph.isSelectionEmpty());
 					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
-						!graph.pageVisible);
+						!graph.pageVisible || !editorUi.pdfPageExport,
+						!editorUi.pdfPageExport);
 					crop.style.marginBottom = '16px';
+					
+					// Crop is only enabled if selection only is selected
+					if (!editorUi.pdfPageExport)
+					{
+						mxEvent.addListener(selection, 'change', function()
+						{
+							if (selection.checked)
+							{
+								crop.removeAttribute('disabled');
+							}
+							else
+							{
+								crop.setAttribute('disabled', 'disabled');
+							}
+						});	
+					}
 					
 					var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 					{
@@ -1421,7 +1446,7 @@
 				var x = graph.snap(Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize));
 				var y = graph.snap(Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize));
 
-				if (mime.substring(0, 6) == 'image/')
+				if (data.substring(0, 11) == 'data:image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
 	    			{
@@ -1456,13 +1481,17 @@
 			{
 				var mime = 'text/xml';
 				
-				if (/(\.png)$/i.test(filename))
+				if (/\.png$/i.test(filename))
 				{
 					mime = 'image/png';
 				}
-				else if (/(\.jpe?g)$/i.test(filename))
+				else if (/\.jpe?g$/i.test(filename))
 				{
 					mime = 'image/jpg';
+				}
+				else if (/\.gif$/i.test(filename))
+				{
+					mime = 'image/gif';
 				}
 				
 				return mime;

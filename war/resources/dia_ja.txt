@@ -466,6 +466,7 @@ otherViewers=他の閲覧者
 outline=アウトライン
 oval=丸
 page=ページ
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=ページ{1}
 pages=ページ
 pageView=ページのレイアウト

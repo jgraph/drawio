@@ -466,6 +466,7 @@ otherViewers=outros usuários
 outline=Contorno
 oval=Oval 
 page=Página
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Página-{1}
 pages=Páginas
 pageView=Layout da Página 

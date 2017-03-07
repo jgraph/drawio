@@ -4304,7 +4304,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	};
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '14px';
+	btns.style.marginTop = '20px';
 	btns.style.textAlign = 'right';
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -4352,10 +4352,25 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		
 		linkInput.focus();
 	};
+	
+	function addButton(src, tooltip, fn)
+	{
+		var gpBtn = mxUtils.button('', fn);
+		gpBtn.className = 'geBtn';
+		gpBtn.setAttribute('title', tooltip);
+		var img = document.createElement('img');
+		img.style.height = '26px';
+		img.style.width = '26px';
+		img.setAttribute('src', src);
+		img.setAttribute('valign', 'bottom');
+		gpBtn.style.minWidth = '42px';
+		gpBtn.appendChild(img);
+		btns.appendChild(gpBtn);
+	};
 
 	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && editorUi.drive != null)
 	{
-		var gpBtn = mxUtils.button(mxResources.get('googlePlus'), function()
+		addButton(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googlePlus'), function()
 		{
 			if (editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
 			{
@@ -4403,13 +4418,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 				}));
 			}
 		});
-		gpBtn.className = 'geBtn';
-		btns.appendChild(gpBtn);
 	}
 	
 	if (typeof(Dropbox) != 'undefined' && typeof(Dropbox.choose) != 'undefined')
 	{
-		var dbBtn = mxUtils.button(mxResources.get('dropbox'), function()
+		addButton(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), function()
 		{
 			// Authentication will be carried out on open to make sure the
 			// autosave does not show an auth dialog. Showing it here will
@@ -4427,42 +4440,48 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 				}
 			});
 		});
-		dbBtn.className = 'geBtn';
-		btns.appendChild(dbBtn);
 	}
 	
 	if (typeof(WL) != 'undefined' && typeof(WL.fileDialog) != 'undefined' && editorUi.oneDrive != null)
 	{
-		var dbBtn = mxUtils.button(mxResources.get('oneDrive'), function()
+		addButton(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), function()
 		{
-			if (editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
-			{
-				editorUi.oneDrive.execute(mxUtils.bind(this, function(token)
-				{
-					if (token != null)
-					{
-						editorUi.spinner.stop();
-						
-					    WL.fileDialog(
-				        {
-				            mode: 'open',
-				            select: 'single'
-				        }).then(
-				            function (resp)
-				            {
-				            	if (resp != null && resp.data != null && resp.data.files != null && resp.data.files.length > 0)
-				            	{
-			            			linkInput.value = resp.data.files[0].link;
-				            	}
-				            },
-				            function (responseFailed) {}
-				        );
-					}
-				}));
-			}
+		    WL.fileDialog(
+	        {
+	            mode: 'open',
+	            select: 'single'
+	        }).then(
+	            function (resp)
+	            {
+	            	if (resp != null && resp.data != null && resp.data.files != null && resp.data.files.length > 0)
+	            	{
+            			linkInput.value = resp.data.files[0].link;
+	            	}
+	            },
+	            function (responseFailed) {}
+	        );
 		});
-		dbBtn.className = 'geBtn';
-		btns.appendChild(dbBtn);
+	}
+	
+	if (editorUi.gitHub != null)
+	{
+		addButton(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), function()
+		{
+			editorUi.gitHub.pickFile(function(path)
+			{
+				if (path != null)
+				{
+					var tokens = path.split('/');
+					var org = tokens[0];
+					var repo = tokens[1];
+					var ref = tokens[2];
+					var path = tokens.slice(3, tokens.length).join('/');
+					
+					linkInput.value = 'https://github.com/' + org + '/' +
+						repo + '/blob/' + ref + '/' + path;
+				}
+			});
+		});
 	}
 
 	mxEvent.addListener(linkInput, 'keypress', function(e)

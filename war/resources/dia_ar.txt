@@ -466,6 +466,7 @@ otherViewers=‫مشاهدون آخرون‬
 outline=‫حد‬
 oval=‫بيضاوي‬
 page=Page
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Page-{1}
 pages=‫صفحات‬
 pageView=‫مشاهدة الصفحة‬

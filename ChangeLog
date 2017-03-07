@@ -1,3 +1,9 @@
+07-MAR-2017: 6.2.5
+
+- Adds remote JPEG export option
+- Fixes OneDrive, adds GitHub in Edit Link dialog
+- Fixes import of JPG and GIF from GitHub and URL
+
 01-MAR-2017: 6.2.4
 
 - Uses mxGraph 3.7.1

@@ -466,6 +466,7 @@ otherViewers=其他檢視之使用者
 outline=Outline
 oval=Oval
 page=Page
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=第 {1} 頁
 pages=頁面
 pageView=頁面檢視

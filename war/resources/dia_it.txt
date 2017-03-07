@@ -466,6 +466,7 @@ otherViewers=altri visitatori
 outline=Contorno
 oval=Ovale
 page=Page
+pageContentLinkDescription=To link to an anchor or title on this page, type #anchorname or #titlename. For other pages, type in spacename:pagename#anchorname
 pageWithNumber=Page-{1}
 pages=Pagine
 pageView=Vista pagina
