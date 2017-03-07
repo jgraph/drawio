@@ -626,7 +626,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 	}
 	else
 	{
-		this.executeRequest(gapi.client.drive.files.get({'fileId': id}), mxUtils.bind(this, function(resp)
+		this.executeRequest(gapi.client.drive.files.get({'fileId': id, 'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
 		{
 			if (this.user != null)
 			{

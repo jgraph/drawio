@@ -1,32 +1,32 @@
 {
-	"name": "draw.io",
-	"version": "1.0.0",
-	"description": "draw.io desktop",
-	"main": "electron.js",
-	"scripts":
-	{
-		"start": "electron ."
-	},
-	"repository":
-	{
-		"type": "git",
-		"url": "git+https://github.com/jgraph/draw.io.git"
-	},
-	"keywords": [
-		"draw.io",
-		"diagram",
-		"flowchart",
-		"UML"
-	],
-	"author": "JGraph",
-	"license": "GPL-3.0",
-	"bugs":
-	{
-		"url": "https://github.com/jgraph/draw.io/issues"
-	},
-	"homepage": "https://github.com/jgraph/draw.io",
-	"devDependencies":
-	{
-    	"electron": "^1.4.13"
-	}
+  "name": "draw.io",
+  "version": "6.2.4",
+  "description": "draw.io desktop",
+  "main": "electron.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgraph/draw.io.git"
+  },
+  "keywords": [
+    "draw.io",
+    "diagram",
+    "flowchart",
+    "UML"
+  ],
+  "author": "JGraph",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/jgraph/draw.io/issues"
+  },
+  "homepage": "https://github.com/jgraph/draw.io",
+  "dependencies": {
+    "electron-log": "^1.3.0",
+    "electron-updater": "^1.8.2"
+  },
+  "devDependencies": {
+    "electron": "^1.6.2"
+  }
 }
