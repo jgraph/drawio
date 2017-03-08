@@ -169,7 +169,7 @@
 			   	var button1 = new mxCell('Page 1', new mxGeometry(60, 12, 110, 26), s2 + 'containers.anchor;fontSize=17;fontColor=#666666;align=left;');
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('https:\\\\draw.io', new mxGeometry(130, 60, 250, 26), s2 + 'containers.anchor;rSize=0;fontSize=17;fontColor=#666666;align=left;');
+			   	var button2 = new mxCell('https://www.draw.io', new mxGeometry(130, 60, 250, 26), s2 + 'containers.anchor;rSize=0;fontSize=17;fontColor=#666666;align=left;');
 			   	button2.vertex = true;
 			   	bg.insert(button2);
 

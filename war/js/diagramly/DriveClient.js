@@ -550,7 +550,8 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 {
 	if (id != null && title != null)
 	{
-		this.executeRequest(gapi.client.drive.files.copy({'fileId': id, 'resource': {'title' : title}}), success, error);
+		this.executeRequest(gapi.client.drive.files.copy({'fileId': id, 'resource':
+			{'title' : title}, 'supportsTeamDrives': true}), success, error);
 	}
 };
 
@@ -578,7 +579,8 @@ DriveClient.prototype.moveFile = function(id, folderId, success, error)
 {
 	if (id != null && folderId != null)
 	{
-		this.executeRequest(this.createDriveRequest(id, {'parents': [{'kind': 'drive#fileLink', 'id': folderId}]}), success, error);
+		this.executeRequest(this.createDriveRequest(id, {'parents': [{'kind':
+			'drive#fileLink', 'id': folderId}]}), success, error);
 	}
 };
 
@@ -593,7 +595,7 @@ DriveClient.prototype.createDriveRequest = function(id, body)
 	return gapi.client.request({
 		'path': '/drive/v2/files/' + id,
 		'method': 'PUT',
-		'params': {'uploadType' : 'multipart'},
+		'params': {'uploadType' : 'multipart', 'supportsTeamDrives': true},
 		'headers': {'Content-Type': 'application/json; charset=UTF-8'},
 		'body': JSON.stringify(body)
 	});
@@ -934,7 +936,7 @@ DriveClient.prototype.verifyMimeType = function(fileId, fn, force, error)
 		{
 			this.checkingMimeType = true;
 			
-			this.executeRequest(gapi.client.drive.files.get({'fileId': fileId, 'fields': 'mimeType'}), mxUtils.bind(this, function(resp)
+			this.executeRequest(gapi.client.drive.files.get({'fileId': fileId, 'fields': 'mimeType', 'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
 			{
 				this.checkingMimeType = false;
 				
@@ -1083,6 +1085,8 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	{
 		reqObj.params['newRevision'] = false;
 	}
+	
+	reqObj.params['supportsTeamDrives'] = true;
 	
 	return gapi.client.request(reqObj);
 };
