@@ -158,7 +158,8 @@ App.MODE_BROWSER = 'browser';
 App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 
 /**
- * Defines plugin keys for loading via p URL parameter.
+ * Defines plugin IDs for loading via p URL parameter. Update the table at
+ * https://desk.draw.io/solution/articles/16000042546
  */
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js', 'ac': '/plugins/connect.js',
