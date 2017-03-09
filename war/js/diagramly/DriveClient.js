@@ -405,6 +405,12 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember)
 {
 	var userId = this.getUserId();
 	
+	// Takes userId from state URL parameter
+	if (this.ui.stateArg != null && this.ui.stateArg.userId != null)
+	{
+		userId = this.ui.stateArg.userId;
+	}
+	
 	// Immediate only possible with userId
 	if (immediate && userId == null)
 	{
