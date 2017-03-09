@@ -1,3 +1,7 @@
+09-MAR-2017: 6.2.8
+
+- Fixes ignored user ID in state URL parameter
+
 08-MAR-2017: 6.2.7
 
 - Fixes insert, copy, rename and move for Google Team Drives

@@ -1105,10 +1105,16 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 	
 	graph.addClickHandler(this.graphConfig.highlight, function(evt)
 	{
-		// Hides lightbox if any links are clicked
 		if (ui != null)
 		{
-			ui.destroy();
+			var elt = mxEvent.getSource(evt)
+			var href = elt.getAttribute('href');
+			
+			if (href != null && !(graph.isExternalProtocol(href) || graph.isBlankLink(href)))
+			{
+				// Hides lightbox if any links are clicked
+				ui.destroy();
+			}
 		}
 	}, mxUtils.bind(this, function(evt)
 	{
