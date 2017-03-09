@@ -4860,6 +4860,14 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			var clones = this.cloneCells(cells);
 			
+			// Creates a dictionary for fast lookups
+			var dict = new mxDictionary();
+			
+			for (var i = 0; i < cells.length; i++)
+			{
+				dict.put(cells[i], true);
+			}
+			
 			// Checks for orphaned relative children and makes absolute
 			for (var i = 0; i < clones.length; i++)
 			{
@@ -4869,7 +4877,8 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var geo = this.getCellGeometry(clones[i]);
 					
-					if (geo != null && geo.relative)
+					if (geo != null && geo.relative && !this.model.isEdge(cells[i]) &&
+						!dict.get(this.model.getParent(cells[i])))
 					{
 						geo.relative = false;
 						geo.x = state.x / state.view.scale - state.view.translate.x;
@@ -4884,7 +4893,11 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				model.add(parent, clones[i]);
+				// Avoids duplicate output of children for included parents
+				if (!dict.get(this.model.getParent(cells[i])))
+				{
+					model.add(parent, clones[i]);
+				}
 			}
 
 			return codec.encode(model);

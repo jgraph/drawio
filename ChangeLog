@@ -1,3 +1,9 @@
+09-MAR-2017: 6.2.9
+
+- Fixes label offset for export of selected edges
+- Uses temporary file for drag and drop data
+- Uses mxGraph 3.7.2 beta 1
+
 09-MAR-2017: 6.2.8
 
 - Fixes ignored user ID in state URL parameter

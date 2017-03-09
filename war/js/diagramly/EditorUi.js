@@ -6499,7 +6499,7 @@
 										
 										if (xml != null && xml.length > 0)
 										{
-											this.openLocalFile(xml);
+											this.openLocalFile(xml, null, true);
 										}
 									}
 									if (!this.isOffline() && this.isRemoteFileFormat(data))
@@ -6508,7 +6508,7 @@
 										{
 							    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							    			{
-							    				this.openLocalFile(req.getText());
+							    				this.openLocalFile(req.getText(), null, true);
 							    			}
 										}));
 									}
@@ -6530,7 +6530,7 @@
 						}
 						else
 						{
-							this.openLocalFile(data);
+							this.openLocalFile(data, null, true);
 						}
 					}
 					
@@ -6722,7 +6722,7 @@
 	/**
 	 * Shows the layers dialog if the graph has more than one layer.
 	 */
-	EditorUi.prototype.openLocalFile = function(data, name)
+	EditorUi.prototype.openLocalFile = function(data, name, temp)
 	{
 		var fn = mxUtils.bind(this, function()
 		{
@@ -6740,7 +6740,7 @@
 			}
 			else
 			{
-				this.fileLoaded(new LocalFile(this, data, name || this.defaultFilename));
+				this.fileLoaded(new LocalFile(this, data, name || this.defaultFilename, temp));
 			}
 		});
 		
