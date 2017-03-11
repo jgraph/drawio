@@ -492,7 +492,8 @@ Editor.prototype.getGraphXml = function(ignoreSelection)
 	}
 	else
 	{
-		node = this.graph.encodeCells(this.graph.getSelectionCells());
+		node = this.graph.encodeCells(mxUtils.sortCells(this.graph.model.getTopmostCells(
+			this.graph.getSelectionCells())));
 	}
 
 	if (this.graph.view.translate.x != 0 || this.graph.view.translate.y != 0)

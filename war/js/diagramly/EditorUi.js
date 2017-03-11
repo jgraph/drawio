@@ -1743,7 +1743,7 @@
 			
 			var addCells = mxUtils.bind(this, function(cells, bounds, evt, title)
 			{
-				cells = graph.cloneCells(graph.model.getTopmostCells(cells));
+				cells = graph.cloneCells(mxUtils.sortCells(graph.model.getTopmostCells(cells)));
 	
 				// Translates cells to origin
 				for (var i = 0; i < cells.length; i++)

@@ -24,9 +24,8 @@ GitHubFile.prototype.getHash = function()
 		((this.meta.repo != null) ?
 			encodeURIComponent(this.meta.repo) + '/' +
 			((this.meta.ref != null) ?
-				encodeURIComponent(this.meta.ref) +
-				((this.meta.path != null) ? '/' + this.meta.path
-				: '') : '') : ''));
+				this.meta.ref + ((this.meta.path != null) ?
+					'/' + this.meta.path : '') : '') : ''));
 };
 
 /**

@@ -1,3 +1,9 @@
+11-MAR-2017: 6.3.0
+
+- Fixes slashes in branch names for GitHub client
+- Fixes order for add selected cells to library
+- Fixes order, missing shapes for export selected cells
+
 09-MAR-2017: 6.2.9
 
 - Fixes label offset for export of selected edges
