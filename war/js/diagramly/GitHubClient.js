@@ -350,9 +350,8 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 		// Should never be null
 		if (this.token != null)
 		{
-			var url = this.baseUrl + '/repos/' + org + '/' + repo +
-				'/contents/' + path + '?ref=' + encodeURIComponent(ref) +
-				'&token=' + this.token;
+			var url = this.baseUrl + '/repos/' + org + '/' + repo + '/contents/' +
+				path + '?ref=' + decodeURIComponent(ref) + '&token=' + this.token;
 			var tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
 	
@@ -366,7 +365,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 	else
 	{
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-			'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
+			'/contents/' + path + '?ref=' + decodeURIComponent(ref), null, 'GET');
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
@@ -525,6 +524,7 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 		var entity =
 		{
 			path: path,
+			branch: decodeURIComponent(ref),
 			message: message,
 			content: data
 		};
@@ -535,8 +535,7 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 		}
 		
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-			'/contents/' + path + '?ref=' + encodeURIComponent(ref),
-			JSON.stringify(entity), 'PUT');
+			'/contents/' + path, JSON.stringify(entity), 'PUT');
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
@@ -705,7 +704,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 
 	var dlg = new CustomDialog(this.ui, content, mxUtils.bind(this, function()
 	{
-		fn(org + '/' + repo + '/' + ref + '/' + path);
+		fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
 	}));
 	this.ui.showDialog(dlg.container, 340, 270, true, true);
 	
@@ -738,7 +737,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		if (!hideRef)
 		{
 			mxUtils.write(pathInfo, ' / ');
-			pathInfo.appendChild(createLink(ref, mxUtils.bind(this, function()
+			pathInfo.appendChild(createLink(decodeURIComponent(ref), mxUtils.bind(this, function()
 			{
 				path = null;
 				selectRef();
@@ -778,7 +777,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	var selectFile = mxUtils.bind(this, function()
 	{
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-				'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
+				'/contents/' + path + '?ref=' + ref, null, 'GET');
 		dlg.okButton.removeAttribute('disabled');
 		div.innerHTML = '';
 		this.ui.spinner.spin(div, mxResources.get('loading'));
@@ -828,7 +827,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 									else if (showFiles && file.type == 'file')
 									{
 										this.ui.hideDialog();
-										fn(org + '/' + repo + '/' + ref + '/' + file.path);
+										fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + file.path);
 									}
 								})));
 								mxUtils.br(div);
@@ -943,30 +942,29 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					{
 						if (value != null)
 						{
-							this.ui.spinner.spin(div, mxResources.get('loading'));
+							var tokens = value.split('/');
 							
-							this.getFile(value, mxUtils.bind(this, function(file)
+							if (tokens.length > 1 && this.ui.spinner.spin(div, mxResources.get('loading')))
 							{
-								this.ui.spinner.stop();
-								org = file.meta.org;
-								repo = file.meta.repo;
-								ref = file.meta.ref;
-
-								if (file.meta.path != null && showFiles)
+								var tmpOrg = tokens[0];
+								var tmpRepo = tokens[1];
+								var tmpRef = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+								
+								this.getFile(tmpOrg + '/' + tmpRepo + '/' + tmpRef, mxUtils.bind(this, function(file)
 								{
-									this.ui.hideDialog();
-									fn(org + '/' + repo + '/' + ref + '/' + file.meta.path);
-								}
-								else
-								{
+									this.ui.spinner.stop();
+									org = file.meta.org;
+									repo = file.meta.repo;
+									ref = decodeURIComponent(file.meta.ref);
 									path = '';
+									
 									selectFile();
-								}
-							}), mxUtils.bind(this, function(err)
-							{
-								this.ui.spinner.stop();
-								this.ui.handleError({message: mxResources.get('fileNotFound')});
-							}));
+								}), mxUtils.bind(this, function(err)
+								{
+									this.ui.spinner.stop();
+									this.ui.handleError({message: mxResources.get('fileNotFound')});
+								}));
+							}
 						}
 					}), mxResources.get('enterValue'));
 					this.ui.showDialog(dlg.container, 300, 80, true, false);

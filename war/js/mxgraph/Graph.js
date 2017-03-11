@@ -4749,10 +4749,10 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
-		 * Function: alignCells
+		 * Function: distributeCells
 		 * 
-		 * Aligns the given cells vertically or horizontally according to the given
-		 * alignment using the optional parameter as the coordinate.
+		 * Distribuets the centers of the given cells equally along the available
+		 * horizontal or vertical space.
 		 * 
 		 * Parameters:
 		 * 
@@ -4810,20 +4810,21 @@ if (typeof mxVertexHandler != 'undefined')
 						
 						for (var i = 1; i < vertices.length - 1; i++)
 						{
+							var pstate = this.view.getState(this.model.getParent(vertices[i].cell));
 							var geo = this.getCellGeometry(vertices[i].cell);
 							t0 += dt;
 							
-							if (geo != null)
+							if (geo != null && pstate != null)
 							{
 								geo = geo.clone();
 								
 								if (horizontal)
 								{
-									geo.x = Math.round(t0 - geo.width / 2);
+									geo.x = Math.round(t0 - geo.width / 2) - pstate.origin.x;
 								}
 								else
 								{
-									geo.y = Math.round(t0 - geo.height / 2);
+									geo.y = Math.round(t0 - geo.height / 2) - pstate.origin.y;
 								}
 								
 								this.getModel().setGeometry(vertices[i].cell, geo);
@@ -4893,11 +4894,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				// Avoids duplicate output of children for included parents
-				if (!dict.get(this.model.getParent(cells[i])))
-				{
-					model.add(parent, clones[i]);
-				}
+				model.add(parent, clones[i]);
 			}
 
 			return codec.encode(model);
