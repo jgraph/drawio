@@ -2253,14 +2253,27 @@ var EditDataDialog = function(ui, cell)
 		
 		addRemoveButton(texts[index], name);
 	};
+	
+	var temp = [];
 
 	for (var i = 0; i < attrs.length; i++)
 	{
 		if (attrs[i].nodeName != 'label' && attrs[i].nodeName != 'placeholders')
 		{
-			addTextArea(count, attrs[i].nodeName, attrs[i].nodeValue);
-			count++;
+			temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
 		}
+	}
+	
+	// Sorts by name
+	temp.sort(function(a, b)
+	{
+		return ~~(a.name > b.name);
+	});
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		addTextArea(count, temp[i].name, temp[i].value);
+		count++;
 	}
 	
 	div.appendChild(form.table);

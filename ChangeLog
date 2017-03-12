@@ -1,3 +1,8 @@
+12-MAR-2017: 6.3.1
+
+- Sorts properties in metadata dialog
+- Adds animation plugin
+
 11-MAR-2017: 6.3.0
 
 - Fixes slashes in branch names for GitHub client
