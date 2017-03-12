@@ -1173,7 +1173,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 {
 	var origin = mxUtils.getDocumentScrollOrigin(document);
 	var backdrop = document.createElement('div');
-	var tabContainer = null;
 
 	if (mxClient.IS_QUIRKS)
 	{

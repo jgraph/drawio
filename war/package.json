@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "6.3.0",
+  "version": "6.2.4",
   "description": "draw.io desktop",
   "main": "electron.js",
   "scripts": {
@@ -27,6 +27,6 @@
     "electron-updater": "^1.8.2"
   },
   "devDependencies": {
-    "electron": "^1.6.3"
+    "electron": "^1.6.2"
   }
 }

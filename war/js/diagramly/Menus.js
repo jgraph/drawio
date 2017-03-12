@@ -737,25 +737,6 @@
 				}));
 					
 				this.addMenuItems(menu, ['testXmlImageExport'], parent);
-				
-				mxResources.parse('animation=Animation');
-				
-				this.editorUi.actions.addAction('animation', mxUtils.bind(this, function()
-				{
-					if (this.animationWindow == null)
-					{
-						// LATER: Check outline window for initial placement
-						this.animationWindow = new AnimationWindow(this.editorUi, (document.body.offsetWidth - 480) / 2,
-							120, 640, 480);
-						this.animationWindow.window.setVisible(true);
-					}
-					else
-					{
-						this.animationWindow.window.setVisible(!this.animationWindow.window.isVisible());
-					}
-				}));
-
-				this.addMenuItems(menu, ['animation'], parent);
 
 				mxResources.parse('testShowRtModel=Show RT model');
 				mxResources.parse('testDebugRtModel=Debug RT model');
