@@ -1,3 +1,9 @@
+14-MAR-2017: 6.3.2
+
+- Updates AWS icons
+- Added update plugin
+- Fixes update of thumbnail if page not visible
+
 12-MAR-2017: 6.3.1
 
 - Sorts properties in metadata dialog

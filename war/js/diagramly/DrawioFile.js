@@ -310,14 +310,14 @@ DrawioFile.prototype.open = function()
 			
 			if (this.isAutosave())
 			{
-				this.ui.editor.setStatus(mxResources.get('saving') + '...');
+				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 				
 				this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
 				{
 					// Does not update status if another autosave was scheduled
 					if (this.autosaveThread == null && this.ui.getCurrentFile() == this && !this.isModified())
 					{
-						this.ui.editor.setStatus(mxResources.get('allChangesSaved'));
+						this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 					}
 				}), mxUtils.bind(this, function(resp)
 				{
@@ -358,7 +358,8 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 	if (err instanceof Error && err.message != null)
 	{
 		this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;">' +
-				mxResources.get('unsavedChanges') + ' (' + err.message + ')</div>');
+				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
+				' (' + mxUtils.htmlEntities(err.message) + ')</div>');
 	}
 	else
 	{
@@ -377,7 +378,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 //		}
 		
 		this.ui.editor.setStatus('<div class="geStatusMessage" style="cursor:pointer;">' +
-			mxResources.get('unsavedChangesClickHereToSave') + '</div>');
+			mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) + '</div>');
 		
 		// Installs click handler for saving
 		if (this.ui.statusContainer != null)

@@ -168,7 +168,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
-	'anim': '/plugins/animation.js'};
+	'anim': '/plugins/animation.js', 'update': '/plugins/update.js'};
 
 /**
  * Function: authorize
@@ -1523,24 +1523,57 @@ App.prototype.getThumbnail = function(width, success)
 		{
 			this.thumbImageCache = new Object();
 		}
-
+		
+		var graph = this.editor.graph;
+		
+		// Exports PNG for first page while other page is visible by creating a graph
+		// LATER: Add caching for the graph or SVG while not on first page
+		if (this.pages != null && this.currentPage != this.pages[0])
+		{
+			graph = this.createTemporaryGraph(graph.getStylesheet());
+			var graphGetGlobalVariable = graph.getGlobalVariable;
+			var page = this.pages[0];
+	
+			graph.getGlobalVariable = function(name)
+			{
+				if (name == 'page')
+				{
+					return page.getName();
+				}
+				else if (name == 'pagenumber')
+				{
+					return 1;
+				}
+				
+				return graphGetGlobalVariable.apply(this, arguments);
+			};
+	
+			document.body.appendChild(graph.container);
+			graph.model.setRoot(page.root);
+		}
+		
 		// Uses client-side canvas export
-		if (this.isExportToCanvas())
+		if (mxClient.IS_CHROMEAPP || (!graph.mathEnabled && this.useCanvasForExport))
 		{
 		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{
+		   		// Removes temporary graph from DOM
+   	   	    	if (graph != this.editor.graph)
+				{
+					graph.container.parentNode.removeChild(graph.container);
+				}
+		   		
 		   		success(canvas);
 		   	}), width, this.thumbImageCache, '#ffffff', function()
 		   	{
 		   		// Continues with null in error case
 		   		success();
-		   	});
+		   	}, null, null, null, null, null, null, graph);
 		   	
 		   	result = true;
 		}
 		else if (this.canvasSupported && this.getCurrentFile() != null)
 		{
-			var graph = this.editor.graph;
 			var canvas = document.createElement('canvas');
 			var bounds = graph.getGraphBounds();
 			var scale = width / bounds.width;
@@ -1607,11 +1640,18 @@ App.prototype.getThumbnail = function(width, success)
 	
 			imgExport.drawState(graph.getView().getState(graph.model.root), asynCanvas);
 	
-			asynCanvas.finish(function()
+			asynCanvas.finish(mxUtils.bind(this, function()
 			{
 				imgExport.drawState(graph.getView().getState(graph.model.root), htmlCanvas);
+				
+		   		// Removes temporary graph from DOM
+   	   	    	if (graph != this.editor.graph)
+				{
+					graph.container.parentNode.removeChild(graph.container);
+				}
+				
 				success(canvas);
-			});
+			}));
 			
 			result = true;
 		}
@@ -1619,6 +1659,11 @@ App.prototype.getThumbnail = function(width, success)
 	catch (e)
 	{
 		// ignore and use placeholder
+		// Removes temporary graph from DOM
+  	    if (graph != this.editor.graph)
+		{
+			graph.container.parentNode.removeChild(graph.container);
+		}
 	}
 	
 	return result;
@@ -2831,7 +2876,7 @@ App.prototype.saveFile = function(forceDialog)
 			// is to show no saved status for device files
 			if (file.getMode() != App.MODE_DEVICE)
 			{
-				this.editor.setStatus(mxResources.get('allChangesSaved'));
+				this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 			}
 			else
 			{
@@ -3805,7 +3850,7 @@ App.prototype.save = function(name, done)
 				}
 				else
 				{
-					this.editor.setStatus(mxResources.get('allChangesSaved'));
+					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 				}
 			}
 			
@@ -4053,17 +4098,6 @@ App.prototype.toggleChat = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.status = function(html)
-{
-	this.editor.setStatus(html);
-};
-
-/**
  * Adds the listener for automatically saving the diagram for local changes.
  */
 App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
@@ -4085,7 +4119,7 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 		}
 		catch (e)
 		{
-			this.editor.setStatus(e.message);
+			this.editor.setStatus(mxUtils.htmlEntities(e.message));
 		}
 	})).container, 300, (showRememberOption) ? 180 : 140, true, true, mxUtils.bind(this, function(cancel)
 	{

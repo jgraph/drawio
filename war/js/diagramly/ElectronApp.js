@@ -470,7 +470,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				file.save(true, mxUtils.bind(this, function(resp)
 				{
 					this.spinner.stop();
-					this.editor.setStatus(mxResources.get('allChangesSaved'));
+					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
@@ -482,7 +482,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				file.saveAs(null, mxUtils.bind(this, function(resp)
 				{
 					this.spinner.stop();
-					this.editor.setStatus(mxResources.get('allChangesSaved'));
+					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
