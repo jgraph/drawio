@@ -855,11 +855,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		// (required because generation of thumbnails is asynchronous)
 		var fn = mxUtils.bind(this, function()
 		{
-			var keepExistingThumb = this.ui.currentPage != null && this.ui.currentPage != this.ui.pages[0];
-
 			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-				keepExistingThumb || !this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
+				!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 			{
 				// Callback for getThumbnail
 				var thumb = null;

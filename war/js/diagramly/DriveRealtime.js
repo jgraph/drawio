@@ -38,11 +38,11 @@ function DriveRealtime(file, doc)
 	{
 		var prevValue = this.ui.drive.enableThumbnails;
 		this.ui.drive.enableThumbnails = this.ui.editor.autosave;
-		this.ui.editor.setStatus(mxResources.get('saving') + '...');
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 		
 		this.file.save(true, mxUtils.bind(this, function()
 		{
-			this.ui.editor.setStatus(mxResources.get('allChangesSaved'));
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 		}));
 		
 		this.ui.drive.enableThumbnails = prevValue;
@@ -381,7 +381,7 @@ DriveRealtime.prototype.start = function()
 			}
 			else
 			{
-				this.ui.editor.setStatus(mxResources.get('allChangesSaved'));
+				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 			}
 			
 			this.saving = false;
@@ -429,7 +429,7 @@ DriveRealtime.prototype.start = function()
 	// Updates backup and preview
 	if (forceSave)
 	{
-		this.ui.editor.setStatus(mxResources.get('saving') + '...');
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 		this.file.save(false, initialized, initialized);
 	}
 	else
@@ -456,7 +456,7 @@ DriveRealtime.prototype.start = function()
  */
 DriveRealtime.prototype.triggerAutosave = function()
 {
-	this.ui.editor.setStatus(mxResources.get('updatingPreview'));
+	this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('updatingPreview')));
 	
 	this.file.autosave(this.realtimeAutosaveDelay, this.realtimeMaxAutosaveDelay, mxUtils.bind(this, function(resp)
 	{					
@@ -466,12 +466,12 @@ DriveRealtime.prototype.triggerAutosave = function()
 		// Does not update status if another autosave was scheduled
 		if (this.ui.getCurrentFile() == this.file && !this.saving)
 		{
-			this.ui.editor.setStatus(mxResources.get('allChangesSaved'));
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 		}
 	}),
 	mxUtils.bind(this, function(resp)
 	{
-		this.ui.editor.setStatus(mxResources.get('errorUpdatingPreview'));
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('errorUpdatingPreview')));
 		
 		// Handles error where mime type cannot be overridden because it has been changed by another app and no
 		// new revision was created. This happens eg. if draw.io pro overwrites the mime type and adds a new realtime
@@ -491,7 +491,7 @@ DriveRealtime.prototype.triggerAutosave = function()
  */
 DriveRealtime.prototype.triggerAutosave = function()
 {
-	this.ui.editor.setStatus(mxResources.get('updatingPreview'));
+	this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('updatingPreview')));
 	
 	this.file.autosave(this.realtimeAutosaveDelay, this.realtimeMaxAutosaveDelay, mxUtils.bind(this, function(resp)
 	{
@@ -501,12 +501,12 @@ DriveRealtime.prototype.triggerAutosave = function()
 		// Does not update status if another autosave was scheduled
 		if (this.ui.getCurrentFile() == this.file && !this.saving)
 		{
-			this.ui.editor.setStatus(mxResources.get('allChangesSaved'));
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 		}
 	}),
 	mxUtils.bind(this, function(resp)
 	{
-		this.ui.editor.setStatus(mxResources.get('errorUpdatingPreview'));
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('errorUpdatingPreview')));
 		
 		// Handles error where mime type cannot be overridden because it has been changed by another app and no
 		// new revision was created. This happens eg. if draw.io pro overwrites the mime type and adds a new realtime
@@ -536,7 +536,7 @@ DriveRealtime.prototype.installReadOnlyListener = function()
 			if (!this.file.isEditable())
 			{
 				this.ui.editor.graph.reset();
-				this.ui.editor.setStatus(mxResources.get('readOnly'));
+				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('readOnly')));
 			}
 			else
 			{
@@ -804,8 +804,8 @@ DriveRealtime.prototype.updateStatus = function()
 				str = mxResources.get('lessThanAMinute');
 			}
 			
-			this.ui.editor.setStatus(mxResources.get('lastChange', [str]) +
-				(this.file.isEditable() ? '' : ' (' + mxResources.get('readOnly') + ')'));
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('lastChange', [str])) +
+				(this.file.isEditable() ? '' : ' (' + mxUtils.htmlEntities(mxResources.get('readOnly')) + ')'));
 		}
 	}
 };
@@ -1081,7 +1081,7 @@ DriveRealtime.prototype.setFileModified = function()
 	
 	if (!this.saving)
 	{
-		this.ui.editor.setStatus(mxResources.get('saving') + '...');
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 		this.saving = true;
 	}
 };
@@ -1139,7 +1139,7 @@ DriveRealtime.prototype.installGraphModelListener = function()
 					this.isAliveThread = window.setTimeout(mxUtils.bind(this, function()
 					{
 						this.ui.editor.setStatus('<div class="geStatusAlert geBlink" style="cursor:pointer;">' +
-								mxResources.get('noResponse') + '</div>');
+							mxUtils.htmlEntities(mxResources.get('noResponse')) + '</div>');
 						
 						this.isAliveThread = window.setTimeout(mxUtils.bind(this, function()
 						{
@@ -1185,7 +1185,7 @@ DriveRealtime.prototype.timeoutError = function()
 	}), null, mxResources.get('ignore'), mxUtils.bind(this, function()
 	{
 		this.ui.editor.setStatus('<div class="geStatusAlert geBlink" style="cursor:pointer;">' +
-				mxResources.get('disconnected') + '</div>');	
+			mxUtils.htmlEntities(mxResources.get('disconnected')) + '</div>');	
 		this.realtimeHeartbeat *= 2;
 	}));
 };

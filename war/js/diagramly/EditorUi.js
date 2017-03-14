@@ -1260,7 +1260,7 @@
 				{
 					if (!file.isEditable())
 					{
-						this.editor.setStatus(mxResources.get('readOnly'));
+						this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('readOnly')));
 					}
 					else
 					{
@@ -2233,7 +2233,7 @@
 	
 		if (e != null || title != null)
 		{
-			var msg = mxResources.get('unknownError');
+			var msg = mxUtils.htmlEntities(mxResources.get('unknownError'));
 			var btn = mxResources.get('ok');
 			var retry = null;
 			title = (title != null) ? title : mxResources.get('error');
@@ -2253,36 +2253,36 @@
 				if (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' && typeof(gapi.drive.realtime) != 'undefined' &&
 					e.type == gapi.drive.realtime.ErrorType.FORBIDDEN)
 				{
-					msg = mxResources.get('forbidden');
+					msg = mxUtils.htmlEntities(mxResources.get('forbidden'));
 				}
 				else if (e.code == 404 || e.status == 404 || (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' &&
 						typeof(gapi.drive.realtime) != 'undefined' && e.type == gapi.drive.realtime.ErrorType.NOT_FOUND))
 				{
-					msg = mxResources.get('fileNotFoundOrDenied');
+					msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
 					var id = window.location.hash;
 					
 					if (id != null && id.substring(0, 2) == '#G')
 					{
 						id = id.substring(2);
 						msg += ' <a href="https://drive.google.com/open?id=' + id + '" target="_blank">' +
-							mxResources.get('tryOpeningViaThisPage') + '</a>';
+							mxUtils.htmlEntities(mxResources.get('tryOpeningViaThisPage')) + '</a>';
 					}
 				}
 				else if (e.code == App.ERROR_TIMEOUT)
 				{
-					msg = mxResources.get('timeout');
+					msg = mxUtils.htmlEntities(mxResources.get('timeout'));
 				}
 				else if (e.code == App.ERROR_BUSY)
 				{
-					msg = mxResources.get('busy');
+					msg = mxUtils.htmlEntities(mxResources.get('busy'));
 				}
 				else if (e.message != null)
 				{
-					msg = e.message;
+					msg = mxUtils.htmlEntities(e.message);
 				}
 				else if (e.response != null && e.response.error != null)
 				{
-					msg = e.response.error;
+					msg = mxUtils.htmlEntities(e.response.error);
 				}
 			}
 	
@@ -6961,7 +6961,7 @@
 			}
 			else if (urlParams['modified'] != null)
 			{
-				this.editor.setStatus(mxResources.get(urlParams['modified']));
+				this.editor.setStatus(mxUtils.htmlEntities(mxResources.get(urlParams['modified'])));
 			}
 		});
 		
@@ -7140,11 +7140,11 @@
 				{
 					if (data.messageKey != null)
 					{
-						this.editor.setStatus(mxResources.get(data.messageKey));
+						this.editor.setStatus(mxUtils.htmlEntities(mxResources.get(data.messageKey)));
 					}
 					else if (data.message != null)
 					{
-						this.editor.setStatus(data.message);
+						this.editor.setStatus(mxUtils.htmlEntities(data.message));
 					}
 					
 					if (data.modified != null)
@@ -7189,6 +7189,7 @@
 								this.editor.graph.setEnabled(true);
 							});
 							
+							// LATER: Uses external export if current page (not first page) has mathEnabled
 							if (this.isExportToCanvas())
 							{
 								var graph = this.editor.graph;

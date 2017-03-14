@@ -3223,7 +3223,7 @@ EditorUi.prototype.save = function(name)
 				}
 
 				localStorage.setItem(name, xml);
-				this.editor.setStatus(mxResources.get('saved') + ' ' + new Date());
+				this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saved')) + ' ' + new Date());
 			}
 			else
 			{
@@ -3247,7 +3247,7 @@ EditorUi.prototype.save = function(name)
 		}
 		catch (e)
 		{
-			this.editor.setStatus('Error saving file');
+			this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('errorSavingFile')));
 		}
 	}
 };

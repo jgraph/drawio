@@ -4236,6 +4236,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		editorUi.hideDialog();
 		fn(linkInput.value, LinkDialog.selectedDocs);
 	});
+	mainBtn.style.verticalAlign = 'middle';
 	mainBtn.className = 'geBtn gePrimaryBtn';
 	
 	this.init = function()
@@ -4311,6 +4312,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	{
 		editorUi.hideDialog();
 	});
+	cancelBtn.style.verticalAlign = 'middle';
 	cancelBtn.className = 'geBtn';
 	
 	if (editorUi.editor.cancelFirst)
@@ -4355,17 +4357,17 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	
 	function addButton(src, tooltip, fn)
 	{
-		var gpBtn = mxUtils.button('', fn);
-		gpBtn.className = 'geBtn';
-		gpBtn.setAttribute('title', tooltip);
+		var btn = mxUtils.button('', fn);
+		btn.className = 'geBtn';
+		btn.setAttribute('title', tooltip);
 		var img = document.createElement('img');
 		img.style.height = '26px';
 		img.style.width = '26px';
 		img.setAttribute('src', src);
-		img.setAttribute('valign', 'bottom');
-		gpBtn.style.minWidth = '42px';
-		gpBtn.appendChild(img);
-		btns.appendChild(gpBtn);
+		btn.style.minWidth = '42px';
+		btn.style.verticalAlign = 'middle';
+		btn.appendChild(img);
+		btns.appendChild(btn);
 	};
 
 	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && editorUi.drive != null)
