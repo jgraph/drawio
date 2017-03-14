@@ -890,7 +890,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			})))
 			{
 				// If-branch
-				doSave(null, null, file.constructor != DriveLibrary && keepExistingThumb);
+				doSave(null, null, file.constructor != DriveLibrary);
 			}
 		});
 		

@@ -1,3 +1,7 @@
+14-MAR-2017: 6.3.3
+
+- Fixes use of undefined variable in DriveClient
+
 14-MAR-2017: 6.3.2
 
 - Updates AWS icons
