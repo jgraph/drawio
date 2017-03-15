@@ -438,12 +438,12 @@ Sidebar.prototype.addEntry = function(tags, fn)
 			{
 				var entry = this.taglist[tag];
 				
-				if (entry == null)
+				if (typeof entry !== 'object')
 				{
 					entry = {entries: [], dict: new mxDictionary()};
 					this.taglist[tag] = entry;
 				}
-				
+
 				// Ignores duplicates
 				if (entry.dict.get(fn) == null)
 				{

@@ -1,3 +1,7 @@
+15-MAR-2017: 6.3.4
+
+- Fixes NPE in FF
+
 14-MAR-2017: 6.3.3
 
 - Fixes use of undefined variable in DriveClient
