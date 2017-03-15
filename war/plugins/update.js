@@ -20,7 +20,7 @@
  * value specified above to the existing value of the cell. (Attributes with
  * an empty string value are removed.)
  * 
- * - An optional style attribute that contains the cell style is be used to replace
+ * - An optional style attribute that contains the cell style is used to replace
  * the existing cell style.
  * 
  * - An optional icon attribute that contains JSON is used to add an icon to the

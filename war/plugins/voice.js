@@ -41,7 +41,7 @@ Draw.loadPlugin(function(ui) {
 	var chromeOs = /\bCrOS\b/.test(navigator.userAgent);
 	
 	// Maximum length of message to speak
-	var maxMessageLength = 50;
+	var maxMessageLength = 1000;
 
 	// Maximum length of the label before the cell
 	// is called by its shapename
@@ -131,6 +131,11 @@ Draw.loadPlugin(function(ui) {
 		// Installs listener for start/stop listen
 		mxEvent.addListener(td, 'click', function(evt)
 		{
+			if (speechSynthesis.speaking)
+			{
+				speechSynthesis.cancel();
+			}
+			
 			App.listen(true);
 		});
 	}
