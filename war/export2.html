@@ -263,7 +263,7 @@
 						console.log((cache[src] == null) ? 'loading' : 'cached', src);
 					}
 					
-					if (cache[src] == null)
+					if (src != null && src.length > 0 && cache[src] == null)
 					{
 						cache[src] = new Image();
 						cache[src].onload = decrementWaitCounter;

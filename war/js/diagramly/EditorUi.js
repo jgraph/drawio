@@ -5375,10 +5375,7 @@
 
 		fn(data, w, h);
 	};
-
-	/**
-	 * Initializes CRC table.
-	 */
+	
 	EditorUi.prototype.crcTable = [];
 	
 	for (var n = 0; n < 256; n++)
@@ -5480,15 +5477,16 @@
 			{
 				result = f.substring(0, pos - 8);
 				
+				var chunkData = key + String.fromCharCode(0) +
+					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+					value;
+				
+				// FIXME: Wrong crc
 				var crc = 0xffffffff;
 				crc = this.updateCRC(crc, type, 0, 4);
-				crc = this.updateCRC(crc, value, 0, value.length);
+				crc = this.updateCRC(crc, chunkData, 0, chunkData.length);
 				
-				result += writeInt(key.length + value.length + 1 + ((type == 'zTXt') ? 1 : 0)) +
-					type + key + String.fromCharCode(0) +
-					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
-					value + writeInt(crc ^ 0xffffffff);
-
+				result += writeInt(chunkData.length) + type + chunkData + writeInt(crc ^ 0xffffffff);
 				result += f.substring(pos - 8, f.length);
 				
 				break;
@@ -7178,8 +7176,9 @@
 						{
 							var xml = (data.xml != null) ? data.xml : this.getFileData(true);
 							this.editor.graph.setEnabled(false);
+							var graph = this.editor.graph;
 							
-							var postDataBack = mxUtils.bind(this, function(bin)
+							var postDataBack = mxUtils.bind(this, function(uri)
 							{
 								this.editor.graph.setEnabled(true);
 								this.spinner.stop();
@@ -7187,15 +7186,35 @@
 								var msg = this.createLoadMessage('export');
 								msg.format = data.format;
 								msg.xml = encodeURIComponent(xml);
-								msg.data = 'data:image/png;base64,' + bin;
+								msg.data = uri;
 								parent.postMessage(JSON.stringify(msg), '*');
 							});
 							
+							var processUri = mxUtils.bind(this, function(uri)
+							{
+								if (uri == null)
+								{
+									uri = Editor.blankImage;
+								}
+								
+						   	    if (data.format == 'xmlpng')
+						   	    {
+						   	    	uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
+						   	    		atob(this.editor.graph.compress(xml)));	
+						   	    }
+						   	    	
+								// Removes temporary graph from DOM
+				   	   	    	if (graph != this.editor.graph)
+								{
+									graph.container.parentNode.removeChild(graph.container);
+								}
+				   	   	    	
+						   	    postDataBack(uri);
+							});
+					
 							// LATER: Uses external export if current page (not first page) has mathEnabled
 							if (this.isExportToCanvas())
 							{
-								var graph = this.editor.graph;
-								
 								// Exports PNG for first page while other page is visible by creating a graph
 								// LATER: Add caching for the graph or SVG while not on first page
 								if (this.pages != null && this.currentPage != this.pages[0])
@@ -7221,27 +7240,13 @@
 									document.body.appendChild(graph.container);
 									graph.model.setRoot(page.root);
 								}
-						
+
 								this.exportToCanvas(mxUtils.bind(this, function(canvas)
 							   	{
-							   	    var uri = canvas.toDataURL('image/png');
-							   	    
-							   	    if (data.format == 'xmlpng')
-							   	    {
-							   	    	uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
-							   	    		atob(this.editor.graph.compress(xml)));	
-							   	    }
-							   	    	
-									// Removes temporary graph from DOM
-					   	   	    	if (graph != this.editor.graph)
-									{
-										graph.container.parentNode.removeChild(graph.container);
-									}
-					   	   	    	
-							   	    postDataBack(uri.substring(uri.lastIndexOf(',') + 1));
+									processUri(canvas.toDataURL('image/png'));
 							   	}), null, null, null, mxUtils.bind(this, function()
 								{
-									postDataBack(Editor.emptyBase64Image);
+							   		processUri(null);
 								}), null, null, null, null, null, null, graph);
 							}
 							else
@@ -7251,20 +7256,22 @@
 						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
 						       		((data.format == 'xmlpng') ? '1' : '0') + '&base64=1&xml=' +
 						       		encodeURIComponent(encodeURIComponent(xml)));
-						       	
+
 								req.send(mxUtils.bind(this, function(req)
 								{
+									// Temp graph was never created at this point so we can
+									// skip processUri since it already contains the XML
 									if (req.getStatus() >= 200 && req.getStatus() <= 299)
 									{
-										postDataBack(req.getText());
+										postDataBack('data:image/png;base64,' + req.getText());
 									}
 									else
 									{
-										postDataBack(Editor.emptyBase64Image);		
+										processUri(null);
 									}
 								}), mxUtils.bind(this, function()
 								{
-									postDataBack(Editor.emptyBase64Image);
+									processUri(null);
 								}));
 							}
 						}
