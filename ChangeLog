@@ -1,3 +1,9 @@
+16-MAR-2017: 6.3.5
+
+- Disables tooltip in GraphViewer via showTitleAsTooltip
+- Fixes error handling for export message in embed mode
+- Fixes export of empty diagram in Graph.getSvg
+
 15-MAR-2017: 6.3.4
 
 - Fixes NPE in FF

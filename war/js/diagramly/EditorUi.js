@@ -7181,12 +7181,14 @@
 							
 							var postDataBack = mxUtils.bind(this, function(bin)
 							{
+								this.editor.graph.setEnabled(true);
+								this.spinner.stop();
+								
 								var msg = this.createLoadMessage('export');
 								msg.format = data.format;
 								msg.xml = encodeURIComponent(xml);
 								msg.data = 'data:image/png;base64,' + bin;
 								parent.postMessage(JSON.stringify(msg), '*');
-								this.editor.graph.setEnabled(true);
 							});
 							
 							// LATER: Uses external export if current page (not first page) has mathEnabled
@@ -7237,7 +7239,10 @@
 									}
 					   	   	    	
 							   	    postDataBack(uri.substring(uri.lastIndexOf(',') + 1));
-							   	}), null, null, null, null, null, null, null, null, null, null, graph);
+							   	}), null, null, null, mxUtils.bind(this, function()
+								{
+									postDataBack(Editor.emptyBase64Image);
+								}), null, null, null, null, null, null, graph);
 							}
 							else
 							{
@@ -7249,16 +7254,17 @@
 						       	
 								req.send(mxUtils.bind(this, function(req)
 								{
-									this.editor.graph.setEnabled(true);
-									this.spinner.stop();
-									
 									if (req.getStatus() >= 200 && req.getStatus() <= 299)
 									{
 										postDataBack(req.getText());
 									}
+									else
+									{
+										postDataBack(Editor.emptyBase64Image);		
+									}
 								}), mxUtils.bind(this, function()
 								{
-									this.spinner.stop();
+									postDataBack(Editor.emptyBase64Image);
 								}));
 							}
 						}

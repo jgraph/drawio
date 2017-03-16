@@ -59,6 +59,12 @@ GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
 GraphViewer.prototype.autoFit = true;
 
 /**
+ * Whether the title should be shown as a tooltip if the toolbar is disabled.
+ * Default is false.
+ */
+GraphViewer.prototype.showTitleAsTooltip = false;
+
+/**
  * Specifies if the constructur should delay the rendering if the container
  * is not visible by default.
  */
@@ -209,7 +215,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				{
 					this.addToolbar();
 				}
-				else if (this.graphConfig.title != null)
+				else if (this.graphConfig.title != null && this.showTitleAsTooltip)
 				{
 					container.setAttribute('title', this.graphConfig.title);
 				}
