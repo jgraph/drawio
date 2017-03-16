@@ -145,7 +145,9 @@ Actions.prototype.init = function()
 				
 				for (var i = 0; i < parents.length; i++)
 				{
-					if (graph.model.isVertex(parents[i]) || graph.model.isEdge(parents[i]))
+					if (graph.model.contains(parents[i]) &&
+						(graph.model.isVertex(parents[i]) ||
+						graph.model.isEdge(parents[i])))
 					{
 						select.push(parents[i]);
 					}

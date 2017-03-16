@@ -1,3 +1,9 @@
+16-MAR-2017: 6.3.6
+
+- Fixes selection of deleted parents after delete actions
+- Fixes missing XML for PNG export event in error case
+- Fixes timeout for PDF export with invalid images
+
 16-MAR-2017: 6.3.5
 
 - Disables tooltip in GraphViewer via showTitleAsTooltip
