@@ -4972,8 +4972,8 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			var s = scale / vs;
-			root.setAttribute('width', (Math.ceil(bounds.width * s) + 2 * border) + 'px');
-			root.setAttribute('height', (Math.ceil(bounds.height * s) + 2 * border) + 'px');
+			root.setAttribute('width', Math.max(1, Math.ceil(bounds.width * s) + 2 * border) + 'px');
+			root.setAttribute('height', Math.max(1, Math.ceil(bounds.height * s) + 2 * border) + 'px');
 			root.setAttribute('version', '1.1');
 			
 		    // Adds group for anti-aliasing via transform
