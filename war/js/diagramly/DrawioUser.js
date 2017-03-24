@@ -2,33 +2,20 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-DrawioUser = function(id, email, displayName, pictureUrl)
+DrawioUser = function(id, email, displayName, pictureUrl, locale)
 {
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
+	// Unique ID of the user for the current storage system
 	this.id = id;
 	
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
+	// Email address of the user
 	this.email = email;
 	
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
+	// Display name of the user
 	this.displayName = displayName;
 	
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
+	// URL to an image of the user
 	this.pictureUrl = pictureUrl;
+	
+	// country code locale of the user
+	this.locale = locale;
 };

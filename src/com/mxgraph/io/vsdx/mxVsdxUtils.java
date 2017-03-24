@@ -51,6 +51,79 @@ public class mxVsdxUtils
 	}
 
 	/**
+	 * Returns a collection of direct child Elements
+	 * @param parent the parent whose direct children will be processed
+	 * @return a collection of all child Elements
+	 */
+	public static ArrayList<Element> getDirectChildElements(Element parent)
+	{
+		ArrayList<Element> result = new ArrayList<Element>();
+
+		for (Node child = parent.getFirstChild(); child != null; child = child.getNextSibling())
+		{
+			if (child instanceof Element) 
+			{
+				result.add((Element)child);
+			}
+	    }
+
+	    return result;
+	}
+
+	/**
+	 * Returns the first direct child Element
+	 * @param parent the parent whose direct first child will be processed
+	 * @return the first child Element
+	 */
+	public static Element getDirectFirstChildElement(Element parent)
+	{
+		for (Node child = parent.getFirstChild(); child != null; child = child.getNextSibling())
+		{
+			if (child instanceof Element) 
+			{
+				return (Element)child;
+			}
+	    }
+
+	    return null;
+	}
+
+	/**
+	 * Return the value of an integer attribute or the default value
+	 * @param elem Element
+	 * @param attName Attribute name
+	 * @param defVal default value
+	 * @return the parsed attribute value or the default value
+	 */
+	public static int getIntAttr(Element elem, String attName, int defVal)
+	{
+		try 
+		{
+			String val = elem.getAttribute(attName);
+			if (val != null)
+			{
+				return Integer.parseInt(val);
+			}
+		}
+		catch (NumberFormatException e) 
+		{
+			//nothing, just return the default value
+		}
+		return defVal;
+	}
+	
+	/**
+	 * Return the value of an integer attribute or zero
+	 * @param elem Element
+	 * @param attName Attribute name
+	 * @return the parsed attribute value or zero
+	 */
+	public static int getIntAttr(Element elem, String attName)
+	{
+		return getIntAttr(elem, attName, 0);
+	}
+	
+	/**
 	 * Returns the string that represents the content of a given style map.
 	 * @param styleMap Map with the styles values
 	 * @return string that represents the style.

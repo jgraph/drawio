@@ -30,7 +30,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.gcp = ['Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
+	Sidebar.prototype.gcp = ['Cards', 'Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
 	/**
 	 *
 	 */
@@ -729,11 +729,18 @@
 		
 		for (var i = 0; i < gcp.length; i++)
 		{
-			this.addStencilPalette('gcp' + gcp[i], 'GCP / ' + gcp[i],
-				dir + '/gcp/' + gcp[i].toLowerCase().replace(/ /g, '_') + '.xml',
-				';html=1;fillColor=#4387FD;gradientColor=#4683EA;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
+			if (gcp[i].toLowerCase() === 'cards')
+			{
+				this.addGoogleCloudPlatformCardsPalette();
+			}
+			else
+			{
+				this.addStencilPalette('gcp' + gcp[i], 'GCP / ' + gcp[i],
+						dir + '/gcp/' + gcp[i].toLowerCase().replace(/ /g, '_') + '.xml',
+						';html=1;fillColor=#4387FD;gradientColor=#4683EA;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
+			}
 		}
-		
+
 		for (var i = 0; i < rack.length; i++)
 		{
 			if (rack[i].toLowerCase() === 'general')

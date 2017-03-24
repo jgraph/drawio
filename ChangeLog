@@ -1,3 +1,20 @@
+24-MAR-2017: 6.4.1
+
+- Initial .vsdx theming support
+
+21-MAR-2017: 6.4.0
+
+- Fixes scaling on .vsdx import
+- Adds Google Cloud Platform cards
+
+18-MAR-2017: 6.3.8
+
+- Changes display on marker pull-down for no marker in use
+
+17-MAR-2017: 6.3.7
+
+- Adds locale information to drive user
+
 16-MAR-2017: 6.3.6
 
 - Fixes selection of deleted parents after delete actions

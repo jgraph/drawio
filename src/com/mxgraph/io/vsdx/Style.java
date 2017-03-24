@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.util.mxConstants;
 
 /**
@@ -38,8 +39,8 @@ public class Style
 	 */
 	protected Map<String, Style> styleParents = new HashMap<String, Style>();
 	
-	protected Style theme;
-
+	protected Style style;
+	
 	private final static Logger LOGGER = Logger.getLogger(Style.class.getName());
 	
 	public static boolean vsdxStyleDebug = false;
@@ -56,7 +57,9 @@ public class Style
 		styleTypes.put(mxVsdxConstants.FILL_PATTERN , mxVsdxConstants.FILL_STYLE);
 		styleTypes.put(mxVsdxConstants.SHDW_PATTERN, mxVsdxConstants.FILL_STYLE);
 		styleTypes.put(mxVsdxConstants.FILL_STYLE, mxVsdxConstants.FILL_STYLE);
-		
+		styleTypes.put("QuickStyleFillColor", mxVsdxConstants.FILL_STYLE);
+		styleTypes.put("QuickStyleFillMatrix", mxVsdxConstants.FILL_STYLE);
+			
 		styleTypes.put(mxVsdxConstants.BEGIN_ARROW, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.END_ARROW, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_PATTERN, mxVsdxConstants.LINE_STYLE);
@@ -97,6 +100,11 @@ public class Style
 		stylesheetRefs(model);
 	}
 
+	public mxVsdxTheme getTheme()
+	{
+		return null;
+	}
+	
 	public void styleDebug(String debug)
 	{
 		if (vsdxStyleDebug)
@@ -111,8 +119,8 @@ public class Style
 		styleParents.put(mxVsdxConstants.LINE_STYLE, model.getStylesheet(shape.getAttribute(mxVsdxConstants.LINE_STYLE)));
 		styleParents.put(mxVsdxConstants.TEXT_STYLE, model.getStylesheet(shape.getAttribute(mxVsdxConstants.TEXT_STYLE)));
 		
-		Style theme = model.getStylesheet("0");
-		this.theme = theme;
+		Style style = model.getStylesheet("0");
+		this.style = style;
 	}
 
 	/**
@@ -378,10 +386,10 @@ public class Style
 				{
 					inherit = true;
 				}
-				else if (form.equals("THEMEVAL()") && value.equals("Themed") && theme != null)
+				else if (form.equals("THEMEVAL()") && value.equals("Themed") && style != null)
 				{
 					// Use "no style" style
-					Element themeElem = theme.getCellElement(cellKey, index, sectKey);
+					Element themeElem = style.getCellElement(cellKey, index, sectKey);
 					
 					if (themeElem != null)
 					{
@@ -435,10 +443,14 @@ public class Style
 				{
 					inherit = true;
 				}
-				else if (form.equals("THEMEVAL()") && value.equals("Themed") && theme != null)
+				else if (form.equals("THEMEVAL()") && value.equals("Themed") && style != null)
 				{
+					//Handle theme here
+					//FIXME this is a very hacky way to test themes until fully integrating themes
+					if ("FillForegnd".equals(key)) return elem;
+					
 					// Use "no style" style
-					Element themeElem = theme.getCellElement(key);
+					Element themeElem = style.getCellElement(key);
 					
 					if (themeElem != null)
 					{
@@ -501,6 +513,24 @@ public class Style
 	protected String getFillColor()
 	{
 		String fillForeColor = this.getColor(this.getCellElement(mxVsdxConstants.FILL_FOREGND));
+		
+		if ("Themed".equals(fillForeColor))
+		{
+			mxVsdxTheme theme = getTheme();
+			
+			if (theme != null)
+			{
+				int styleFillClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1"));
+				int styleFillMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillMatrix"), "0"));
+				Color color = theme.getFillColor(styleFillClr, styleFillMtx);
+				fillForeColor = color.toHexStr();
+			}
+			else
+			{
+				fillForeColor = "";
+			}
+		}
+
 		String fillPattern = this.getValue(this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");
 		
 		if (fillPattern != null && fillPattern.equals("0"))
@@ -517,7 +547,7 @@ public class Style
 	{
 		String color = this.getValue(elem, "");
 
-		if (!color.startsWith("#"))
+		if (!"Themed".equals(color) && !color.startsWith("#"))
 		{
 			color = pm.getColor(color);
 		}
