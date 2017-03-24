@@ -535,7 +535,7 @@ DriveClient.prototype.updateUser = function(success, error, remember)
     	this.executeRequest(gapi.client.drive.about.get(), mxUtils.bind(this, function(resp)
     	{
     		this.setUser(new DrawioUser(info.id, resp.user.emailAddress, resp.user.displayName,
-    				(resp.user.picture != null) ? resp.user.picture.url : null));
+    				(resp.user.picture != null) ? resp.user.picture.url : null, info.locale));
         	this.setUserId(info.id, remember);
 
     		if (success != null)

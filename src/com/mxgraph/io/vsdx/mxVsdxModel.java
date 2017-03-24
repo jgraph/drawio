@@ -56,6 +56,11 @@ public class mxVsdxModel {
 	 */
 	protected Map<String, Style> stylesheets = new HashMap<String, Style>();
 	
+	/**
+	 * Map themes indexed by their index
+	 */
+	protected Map<Integer, mxVsdxTheme> themes = new HashMap<>();	
+	
 	mxPropertiesManager pm;
 
 	public mxVsdxModel(Document doc, Map<String, Document> docData, Map<String, String> mediaData)
@@ -79,8 +84,60 @@ public class mxVsdxModel {
 		this.pm = new mxPropertiesManager();
 		this.pm.initialise(rootElement, this);
 		initStylesheets();
+		initThemes();
 		initMasters();
 		initPages();
+	}
+
+	/**
+	 * Initialize theme objects from the XML files
+	 */
+	private void initThemes() 
+	{
+		// Lazy build up the master structure
+		if (this.xmlDocs != null)
+		{
+			boolean more = true;
+			int index = 1;
+			
+			while (more)
+			{
+				String path = mxVsdxCodec.vsdxPlaceholder + "/theme/theme"+ index +".xml";
+				Document themeDoc = this.xmlDocs.get(path);
+	
+				if (themeDoc != null)
+				{
+					Node child = themeDoc.getFirstChild();
+					
+					while (child != null)
+					{
+						if (child instanceof Element && ((Element)child).getTagName().equals("a:theme"))
+						{
+							mxVsdxTheme theme = new mxVsdxTheme((Element) child);
+							
+							if (theme.getThemeIndex() > -1)
+							{
+								themes.put(theme.getThemeIndex(), theme);
+							}
+							else
+							{
+								//theme index cannot be determined unless the theme is parsed
+								theme.processTheme();
+								themes.put(theme.getThemeIndex(), theme);
+							}
+							break;
+						}
+						
+						child = child.getNextSibling();
+					}
+					index++;
+				}
+				else
+				{
+					more = false;
+				}
+			}
+		}
 	}
 
 	/**
@@ -235,6 +292,11 @@ public class mxVsdxModel {
 	public Map<Integer, mxVsdxPage> getPages()
 	{
 		return this.pages;
+	}
+
+	public Map<Integer, mxVsdxTheme> getThemes()
+	{
+		return this.themes;
 	}
 
 	protected Element getRelationship(String rid, String path)

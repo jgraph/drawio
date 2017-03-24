@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 package com.mxgraph.io;
 
@@ -27,6 +27,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
+import com.google.appengine.api.images.ImagesService.OutputEncoding;
 import com.mxgraph.io.vsdx.Shape;
 import com.mxgraph.io.vsdx.ShapePageId;
 import com.mxgraph.io.vsdx.VsdxShape;
@@ -39,13 +44,14 @@ import com.mxgraph.io.vsdx.mxVsdxModel;
 import com.mxgraph.io.vsdx.mxVsdxPage;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.online.Utils;
 import com.mxgraph.online.mxBase64;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
-import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxConnectionConstraint;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphHeadless;
@@ -101,12 +107,12 @@ public class mxVsdxCodec
 	{
 		if (cellParent != null)
 		{
-			mxCellState state = graph.getView().getState(cellParent);
+			mxGeometry geo = graph.getModel().getGeometry(cellParent);
 
-			if (state != null)
+			if (geo != null) 
 			{
-				point.setX(point.getX() + state.getX());
-				point.setY(point.getY() + state.getY());
+				point.setX(point.getX() + geo.getX());
+				point.setY(point.getY() + geo.getY());				
 			}
 		}
 
@@ -151,7 +157,36 @@ public class mxVsdxCodec
 				}
 				else if (filename.toLowerCase().startsWith(mxVsdxCodec.vsdxPlaceholder + "/media"))
 				{
-					mediaData.put(filename, StringUtils.newStringUtf8(Base64.encodeBase64(out.toByteArray(), false)));
+					String base64Str;
+					//Bmp images are huge and doesn't show up in the browser, so, it is better to compress it as jpeg 
+					if (filename.toLowerCase().endsWith(".bmp")) 
+					{
+						try 
+						{
+							ImagesService imagesService = ImagesServiceFactory.getImagesService();
+
+							Image image = ImagesServiceFactory.makeImage(out.toByteArray());
+
+							//dummy transform
+							Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+
+							//Use PNG format as it is lossless similar to bmp but compressed
+							Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
+
+							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+						}
+						catch (Exception e) 
+						{
+							//conversion failed, nothing we can do!
+							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(out.toByteArray(), false));
+						}
+					}
+					else
+					{
+						base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(out.toByteArray(), false));
+					}
+
+					mediaData.put(filename, base64Str);
 				}
 			}
 		}
@@ -207,6 +242,42 @@ public class mxVsdxCodec
 					importPage(backPage, graph, graph.getDefaultParent());
 				}
 				
+				//scale page 
+				double scale = page.getPageScale() / page.getDrawingScale();
+				
+				if (scale != 1)
+				{
+					mxGraphModel model = (mxGraphModel)graph.getModel();
+	
+					for (Object c : model.getCells().values()) 
+					{
+						mxGeometry geo = model.getGeometry(c);
+						
+						if (geo != null) 
+						{
+							scaleRect(geo, scale);
+							scaleRect(geo.getAlternateBounds(), scale);
+							
+							if (model.isEdge(c)) 
+							{
+								//scale edge waypoints, offset, ...
+								scalePoint(geo.getSourcePoint(), scale);
+								scalePoint(geo.getTargetPoint(), scale);
+								scalePoint(geo.getOffset(), scale);
+								List<mxPoint> points = geo.getPoints();
+								
+								if (points != null) 
+								{
+									for (mxPoint p : points) 
+									{
+										scalePoint(p, scale);
+									}
+								}
+							}
+						}
+					}
+				}
+				
 				graph.getModel().endUpdate();
 
 				mxCodec codec = new mxCodec();
@@ -229,6 +300,44 @@ public class mxVsdxCodec
 		return xmlBuilder.toString();
 	}
 
+	/**
+	 * Scale a point in place
+	 * 
+	 * @param p point to scale in place 
+	 * @param scale scale
+	 * @return scaled point
+	 */
+	private mxPoint scalePoint(mxPoint p, double scale) 
+	{
+		if (p != null)
+		{
+			p.setX(p.getX() * scale);
+			p.setY(p.getY() * scale);
+		}
+
+		return p;
+	}
+	
+	/**
+	 * Scale a rectangle in place
+	 * 
+	 * @param rect rectangle to scale in place
+	 * @param scale scale
+	 * @return scaled rectangle
+	 */
+	private mxRectangle scaleRect(mxRectangle rect, double scale) 
+	{
+		if (rect != null) 
+		{
+			rect.setX(rect.getX() * scale);
+			rect.setY(rect.getY() * scale);
+			rect.setHeight(rect.getHeight() * scale);
+			rect.setWidth(rect.getWidth() * scale);
+		}
+
+		return rect;
+	}
+	
 	/**
 	 * 
 	 * @param rootDoc
@@ -701,15 +810,17 @@ public class mxVsdxCodec
 		}
 		else
 		{
+			mxCell srcTopParent = findTopParent(source, (mxCell) graph.getDefaultParent());
+
 			mxPoint dimensionFrom = fromShape.getDimensions();
 
 			//Get From shape origin and begin/end of edge in absolutes values.
 			double height = pageHeight;
 
-			if ((source.getParent() != null)
-					&& (source.getParent().getGeometry() != null))
+			if ((srcTopParent != null)
+					&& (srcTopParent.getGeometry() != null))
 			{
-				height = source.getParent().getGeometry().getHeight();
+				height = srcTopParent.getGeometry().getHeight();
 			}
 
 			mxPoint originFrom = fromShape.getOriginPoint(height, false);
@@ -717,7 +828,7 @@ public class mxVsdxCodec
 
 			if (sourceToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
 			{
-				mxPoint absOriginFrom = calculateAbsolutePoint(source.getParent(), graph, originFrom);
+				mxPoint absOriginFrom = calculateAbsolutePoint(srcTopParent, graph, originFrom);
 				fromConstraint = new mxPoint(
 						(beginXY.getX() - absOriginFrom.getX())
 								/ dimensionFrom.getX(),
@@ -748,16 +859,16 @@ public class mxVsdxCodec
 		else
 		{
 			target = vertexMap.get(new ShapePageId(pageId, toSheet));
-
+			mxCell trgTopParent = findTopParent(target, (mxCell) graph.getDefaultParent());
 			mxPoint dimentionTo = toShape.getDimensions();
 
 			//Get To shape origin.
 			double height = pageHeight;
 
-			if ((target.getParent() != null)
-					&& (target.getParent().getGeometry() != null))
+			if ((trgTopParent != null)
+					&& (trgTopParent.getGeometry() != null))
 			{
-				height = target.getParent().getGeometry().getHeight();
+				height = trgTopParent.getGeometry().getHeight();
 			}
 
 			mxPoint originTo = toShape.getOriginPoint(height, false);
@@ -765,7 +876,7 @@ public class mxVsdxCodec
 
 			if (targetToPart != mxVsdxConstants.CONNECT_TO_PART_WHOLE_SHAPE)
 			{
-				mxPoint absOriginTo = calculateAbsolutePoint( target.getParent(), graph, originTo);
+				mxPoint absOriginTo = calculateAbsolutePoint( trgTopParent, graph, originTo);
 				toConstraint = new mxPoint(
 						(endXY.getX() - absOriginTo.getX())
 								/ dimentionTo.getX(),
@@ -806,6 +917,24 @@ public class mxVsdxCodec
 		}
 		
 		return edgeId;
+	}
+
+	/**
+	 * Find the top parent in a group
+	 * 
+	 * @param cell
+	 * @return the top most parent (which has the defaultParent as its parent)
+	 */
+	private mxCell findTopParent(mxCell cell, mxCell defaultParent)
+	{
+		mxCell parent = (mxCell) cell.getParent();
+		
+		while (parent.getParent() != null && parent.getParent() != defaultParent)
+		{
+			parent = (mxCell) parent.getParent();
+		}
+
+		return parent;
 	}
 
 	/**

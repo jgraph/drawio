@@ -70,6 +70,10 @@ public class Shape extends Style
 	
 	protected Map<String, String> imageData;
 
+	protected mxVsdxTheme theme;
+	
+	protected int themeVariant = 0;
+	
 	public mxPathDebug debug = null;
 
 	public Shape(Element shape, mxVsdxModel model)
@@ -79,6 +83,21 @@ public class Shape extends Style
 		this.height = getScreenNumericalValue(this.cellElements.get(mxVsdxConstants.HEIGHT), 0);
 	}
 
+	public void setThemeAndVariant(mxVsdxTheme theme, int themeVariant)
+	{
+		this.theme = theme; 
+		this.themeVariant = themeVariant;
+	}
+	
+	public mxVsdxTheme getTheme()
+	{
+		if (theme != null)
+		{
+			theme.setVariant(themeVariant);
+		}
+		return theme;
+	}
+	
 	/**
 	 * Caches the specified element
 	 * @param elem the element to cache
@@ -164,6 +183,13 @@ public class Shape extends Style
 								{
 									this.imageData = new HashMap<String, String>();
 									this.imageData.put("iData", model.getMedia(mxVsdxCodec.vsdxPlaceholder + "/media/" + target));
+									
+									//since we convert BMP files to PNG, we set the compression to PNG
+									if (target.toLowerCase().endsWith(".bmp"))
+									{
+										compression = "png";
+									}
+
 									this.imageData.put("iType", compression);
 								}
 							}
@@ -1386,8 +1412,15 @@ public class Shape extends Style
 		
 		if (!style.equals(""))
 		{
-			int value = Integer.parseInt(style);
-			isBold = ((value & 1) == 1);
+			if (style.toLowerCase().equals("themed"))
+			{
+				// TODO theme support
+			}
+			else
+			{
+				int value = Integer.parseInt(style);
+				isBold = ((value & 1) == 1);
+			}
 		}
 		
 		return isBold;
@@ -1409,8 +1442,15 @@ public class Shape extends Style
 		
 		if (!style.equals(""))
 		{
-			int value = Integer.parseInt(style);
-			isItalic = ((value & 2) == 2);
+			if (style.toLowerCase().equals("themed"))
+			{
+				// TODO theme support
+			}
+			else
+			{
+				int value = Integer.parseInt(style);
+				isItalic = ((value & 2) == 2);
+			}
 		}
 		
 		return isItalic;
@@ -1432,8 +1472,15 @@ public class Shape extends Style
 		
 		if (!style.equals(""))
 		{
-			int value = Integer.parseInt(style);
-			isUnderline = ((value & 4) == 4);
+			if (style.toLowerCase().equals("themed"))
+			{
+				// TODO theme support
+			}
+			else
+			{
+				int value = Integer.parseInt(style);
+				isUnderline = ((value & 4) == 4);
+			}
 		}
 	
 		return isUnderline;
@@ -1455,8 +1502,15 @@ public class Shape extends Style
 		
 		if (!style.equals(""))
 		{
-			int value = Integer.parseInt(style);
-			isSmallCaps = ((value & 8) == 8);
+			if (style.toLowerCase().equals("themed"))
+			{
+				// TODO theme support
+			}
+			else
+			{
+				int value = Integer.parseInt(style);
+				isSmallCaps = ((value & 8) == 8);
+			}
 		}
 		
 		return isSmallCaps;

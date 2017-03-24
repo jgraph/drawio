@@ -59,9 +59,7 @@ public class mxVsdxPage {
 
 		this.Id = Integer.valueOf(pageElem.getAttribute(mxVsdxConstants.ID));
 		this.pageName = pageElem.getAttribute(mxVsdxConstants.NAME);
-		
-		parseNodes(pageElem, model, "pages");
-		
+				
 		ArrayList<Element> pageSheets = mxVsdxUtils.getDirectChildNamedElements(pageElem, "PageSheet");
 		
 		if (pageSheets.size() > 0)
@@ -75,6 +73,8 @@ public class mxVsdxPage {
 				this.cellElements.put(n, cellElem);		
 			}
 		}
+		
+		parseNodes(pageElem, model, "pages");
 	}
 
 	/**
@@ -324,7 +324,48 @@ public class mxVsdxPage {
 		
 		return 1;
 	}
+	
 
+	/**
+	 * Returns the page scale attribute of this page
+	 * @return the PageScale
+	 */
+	public double getPageScale()
+	{
+		Element scale = this.cellElements.get("PageScale");
+		
+		if (scale != null)
+		{
+			return Double.valueOf(scale.getAttribute("V")) * mxVsdxUtils.conversionFactor;
+		}
+		
+		return 1;
+	}
+
+	public String getCellValue(String cellName)
+	{
+		Element cell = this.cellElements.get(cellName);
+		
+		if (cell != null)
+		{
+			return cell.getAttribute("V");
+		}
+		
+		return null;		
+	}
+	
+	public int getCellIntValue(String cellName, int defVal)
+	{
+		String val = getCellValue(cellName);
+		
+		if (val != null)
+		{
+			return Integer.parseInt(val);
+		}
+		
+		return defVal;
+	}
+	
 	/**
 	 * Returns the ID of the page
 	 * @return the ID of the page

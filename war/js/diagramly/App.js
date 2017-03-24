@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 /**
  * Constructs a new point for the optional x and y coordinates. If no
@@ -1161,12 +1161,13 @@ App.prototype.checkLicense = function()
 		if (at >= 0)
 		{
 			domain = email.substring(at + 1);
-			email = this.crc32(email.substring(0, at)) + '@' + domain;
+			//email = this.crc32(email.substring(0, at)) + '@' + domain;
 		}
 		
 		// Timestamp is workaround for cached response in certain environments
-		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' +
-			encodeURIComponent(email) + '&ts=' + new Date().getTime(),
+		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) + 
+				'&ds=' + encodeURIComponent(driveUser.displayName) + '&lc=' + encodeURIComponent(driveUser.locale) + 
+				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
 				var registered = false;

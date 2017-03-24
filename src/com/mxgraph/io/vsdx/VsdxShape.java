@@ -4,25 +4,17 @@
  */
 package com.mxgraph.io.vsdx;
 
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
-import com.mxgraph.online.Utils;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxPoint;
-import com.mxgraph.util.mxResources;
-import com.mxgraph.view.mxGraph;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
 
@@ -34,6 +26,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.online.Utils;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxResources;
+import com.mxgraph.view.mxGraph;
 
 /**
  * This class is a wrapper for one Shape Element.<br/>
@@ -198,6 +198,11 @@ public class VsdxShape extends Shape
 		this.rotation = this.rotation % 360.0;
 		
 		this.vertex = vertex;
+		
+		mxVsdxTheme	theme = model.getThemes().get(page.getCellIntValue("ThemeIndex", 33));
+		int variant = page.getCellIntValue("VariationColorIndex", 0);
+		
+		setThemeAndVariant(theme, variant);
 	}
 	
 	/**
@@ -1314,6 +1319,7 @@ public class VsdxShape extends Shape
 					result.put("aspect", "fixed");
 					String iType = this.imageData.get("iType");
 					String iData = this.imageData.get("iData");
+					
 					result.put("image", "data:image/" + iType + "," + iData);
 					return result;
 				}
