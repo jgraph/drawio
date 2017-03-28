@@ -4,6 +4,7 @@
  */
 package com.mxgraph.io;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,9 +13,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -158,22 +161,47 @@ public class mxVsdxCodec
 				else if (filename.toLowerCase().startsWith(mxVsdxCodec.vsdxPlaceholder + "/media"))
 				{
 					String base64Str;
-					//Bmp images are huge and doesn't show up in the browser, so, it is better to compress it as jpeg 
+					//Some BMP images are huge and doesn't show up in the browser, so, it is better to compress it as PNG 
 					if (filename.toLowerCase().endsWith(".bmp")) 
 					{
+						boolean isRunningGAE; //if running under Google App Engine, ImageIO is not available 
+						try
+						{
+							Class.forName("com.google.appengine.api.images.ImagesServiceFactory");
+							isRunningGAE = true;
+						}
+						catch (Throwable t) 
+						{
+							isRunningGAE = false;
+						}
+						
 						try 
 						{
-							ImagesService imagesService = ImagesServiceFactory.getImagesService();
-
-							Image image = ImagesServiceFactory.makeImage(out.toByteArray());
-
-							//dummy transform
-							Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
-
-							//Use PNG format as it is lossless similar to bmp but compressed
-							Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
-
-							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+							if (isRunningGAE)
+							{
+								ImagesService imagesService = ImagesServiceFactory.getImagesService();
+	
+								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
+	
+								//dummy transform
+								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+	
+								//Use PNG format as it is lossless similar to BMP but compressed
+								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
+	
+								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+							}
+							else
+							{
+								//Use ImageIO as it is normally available in other servlet containers (e.g.; Tomcat)
+								ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
+								ByteArrayOutputStream bos = new ByteArrayOutputStream();
+								
+								BufferedImage image = ImageIO.read(bis);
+								ImageIO.write(image, "PNG", bos);
+								
+								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(bos.toByteArray(), false));
+							}
 						}
 						catch (Exception e) 
 						{
@@ -478,12 +506,17 @@ public class mxVsdxCodec
 		}
 
 		//Process unconnected edges.
-		Iterator<VsdxShape> it = edgeShapeMap.values().iterator();
-
+		Iterator<Entry<ShapePageId, VsdxShape>> it = edgeShapeMap.entrySet().iterator();
+		
 		while (it.hasNext())
 		{
-			VsdxShape edgeShape = it.next();
-			addUnconnectedEdge(graph, parentsMap.get(new ShapePageId(pageId, edgeShape.getId())), edgeShape, pageHeight);
+			Entry<ShapePageId, VsdxShape> edgeShapeEntry = it.next();
+			
+			//Only this page unconnected edges
+			if (edgeShapeEntry.getKey().getPageNumber() == pageId)
+			{
+				addUnconnectedEdge(graph, parentsMap.get(edgeShapeEntry.getKey()), edgeShapeEntry.getValue(), pageHeight);
+			}
 		}
 
 		sanitiseGraph(graph);
@@ -568,8 +601,8 @@ public class mxVsdxCodec
 		//Define dimensions
 		mxPoint d = shape.getDimensions();
 		mxVsdxMaster master = shape.getMaster();
-		Shape masterShape = master == null ? null : master.getMasterShape();
-		boolean masterHasGeom = masterShape == null ? false : masterShape.hasGeom();
+		Shape masterSubShape = master == null ? null : master.getSubShape(shape.getShapeMasterId());
+		boolean masterHasGeom = masterSubShape == null ? false : masterSubShape.hasGeom();
 		boolean hasGeom = shape.hasGeom() || masterHasGeom;
 
 		//Define style

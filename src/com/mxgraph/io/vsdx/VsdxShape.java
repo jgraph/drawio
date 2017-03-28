@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.online.Utils;
@@ -594,6 +595,18 @@ public class VsdxShape extends Shape
 		{
 			gradient = this.getColor(this.getCellElement(mxVsdxConstants.FILL_BKGND));
 		}
+		else
+		{
+			mxVsdxTheme theme = getTheme();
+			
+			if (theme != null)
+			{
+				int styleFillClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1"));
+				int styleFillMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillMatrix"), "0"));
+				Color gradColor = theme.getFillGraientColor(styleFillClr, styleFillMtx);
+				if (gradColor != null) gradient = gradColor.toHexStr();
+			}
+		}
 
 		return gradient;
 	}
@@ -810,6 +823,13 @@ public class VsdxShape extends Shape
 		if (isDashed())
 		{
 			styleMap.put(mxConstants.STYLE_DASHED, "1");
+			
+			String dashPattern = getDashPattern();
+			
+			if (dashPattern != null)
+			{
+				styleMap.put(mxConstants.STYLE_DASH_PATTERN, dashPattern);
+			}
 		}
 		
 		String color = getStrokeColor();
@@ -902,6 +922,28 @@ public class VsdxShape extends Shape
 		return this.styleMap;
 	}
 
+	private String getDashPattern() {
+		mxVsdxTheme theme = getTheme();
+		
+		if (theme != null)
+		{
+			int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+			ArrayList<Double> pattern = theme.getLineDashPattern(styleLineMtx);
+			
+			if (pattern != null && !pattern.isEmpty())
+			{
+				StringBuilder str = new StringBuilder();
+				
+				for (Double len : pattern)
+				{
+					str.append(String.format("%.2f ", 1.0));
+				}
+				return str.toString();
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Checks if the lines of the shape are dashed.<br/>
 	 * The property may to be defined in master shape or line stylesheet.<br/>
@@ -913,7 +955,13 @@ public class VsdxShape extends Shape
 
 		if (linePattern.equals("Themed"))
 		{
-			// TODO find the theme
+			mxVsdxTheme theme = getTheme();
+			
+			if (theme != null)
+			{
+				int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+				return theme.isLineDashed(styleLineMtx);
+			}
 		}
 		else if (!(linePattern.equals("0") || linePattern.equals("1")))
 		{

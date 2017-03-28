@@ -10,6 +10,8 @@ import org.w3c.dom.Node;
 import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.FillStyle;
 import com.mxgraph.io.vsdx.theme.FillStyleFactory;
+import com.mxgraph.io.vsdx.theme.GradFill;
+import com.mxgraph.io.vsdx.theme.LineStyle;
 import com.mxgraph.io.vsdx.theme.OoxmlColor;
 import com.mxgraph.io.vsdx.theme.OoxmlColorFactory;
 
@@ -85,10 +87,21 @@ public class mxVsdxTheme
 	private boolean[] isMonotoneVariant = new boolean[4];
 	
 	private Color defaultClr = new Color(255, 255, 255);
+	private Color defaultLineClr = new Color(0, 0, 0);
 	
-	//fill style
+	//fill styles
 	private ArrayList<FillStyle> fillStyles = new ArrayList<>(6);
-
+	//line styles
+	private ArrayList<LineStyle> lineStyles = new ArrayList<>(6);
+	
+	//connector font color & styles
+	private ArrayList<OoxmlColor> connectorFontColors = new ArrayList<>(3);
+	private ArrayList<Integer> connectorFontStyles = new ArrayList<>(6);
+	
+	//font color & styles
+	private ArrayList<OoxmlColor> fontColors = new ArrayList<>(6);
+	private ArrayList<Integer> fontStyles = new ArrayList<>(6);
+	
 	private int[] variantEmbellishment = new int[4];
 	private int[][] variantFillIdx = new int[4][4];
 	private int[][] variantLineIdx = new int[4][4];
@@ -189,7 +202,22 @@ public class mxVsdxTheme
 					//TODO implement line styles
 				break;
 				case "vt:fontStylesGroup":
-					//TODO implement font styles
+					ArrayList<Element> fontStyleElems = mxVsdxUtils.getDirectChildElements(vt);
+					
+					for (Element fontStyle : fontStyleElems)
+					{
+						String name = fontStyle.getNodeName();
+						
+						switch (name)
+						{
+							case "vt:connectorFontStyles":
+								fillFontStyles(fontStyle, connectorFontColors, connectorFontStyles);
+							break;
+							case "vt:fontStyles":
+								fillFontStyles(fontStyle, fontColors, fontStyles);
+							break;
+						}
+					}
 				break;
 				case "vt:variationStyleSchemeLst":
 					ArrayList<Element> varStyleSchemes = mxVsdxUtils.getDirectChildElements(vt);
@@ -216,18 +244,47 @@ public class mxVsdxTheme
 		}
 	}
 
+	private void fillFontStyles(Element fontStyle, ArrayList<OoxmlColor> fontColors, ArrayList<Integer> fontStyles) {
+		ArrayList<Element> fontProps = mxVsdxUtils.getDirectChildElements(fontStyle);
+		
+		for (Element fontProp : fontProps)
+		{
+			fontStyles.add(mxVsdxUtils.getIntAttr(fontProp, "style"));
+			
+			Element color = mxVsdxUtils.getDirectFirstChildElement(fontProp);
+			if (color != null)
+				fontColors.add(
+						OoxmlColorFactory.getOoxmlColor(
+								mxVsdxUtils.getDirectFirstChildElement(color)));
+		}
+	}
+
 	private void processFormats(Element element) 
 	{
 		ArrayList<Element> styles = mxVsdxUtils.getDirectChildElements(element);
 		for (Element style : styles)
 		{
-			if (style.getNodeName().equals("a:fillStyleLst"))
+			String name = style.getNodeName();
+			switch (name)
 			{
-				ArrayList<Element> fillStyleElems = mxVsdxUtils.getDirectChildElements(style);
-				for (Element fillStyle : fillStyleElems)
-				{
-					fillStyles.add(FillStyleFactory.getFillStyle(fillStyle));
-				}
+				case "a:fillStyleLst":
+					ArrayList<Element> fillStyleElems = mxVsdxUtils.getDirectChildElements(style);
+					for (Element fillStyle : fillStyleElems)
+					{
+						fillStyles.add(FillStyleFactory.getFillStyle(fillStyle));
+					}
+				break;
+				case "a:lnStyleLst":
+					ArrayList<Element> lineStyleElems = mxVsdxUtils.getDirectChildElements(style);
+					for (Element lineStyle : lineStyleElems)
+					{
+						lineStyles.add(new LineStyle(lineStyle));
+					}					
+				break;
+				case "a:effectStyleLst":
+				break;
+				case "a:bgFillStyleLst":
+				break;
 			}
 		}
 	}
@@ -411,9 +468,20 @@ public class mxVsdxTheme
 		}
 		return defaultClr;
 	}
+
 	
-	//Get fill color based on QuickStyleFillColor & QuickStyleFillMatrix
+	public Color getFillGraientColor(int quickStyleFillColor, int quickStyleFillMatrix)
+	{
+		return getFillColor(quickStyleFillColor, quickStyleFillMatrix, true);
+	}
+	
 	public Color getFillColor(int quickStyleFillColor, int quickStyleFillMatrix)
+	{
+		return getFillColor(quickStyleFillColor, quickStyleFillMatrix, false);
+	}
+
+	//Get fill color based on QuickStyleFillColor & QuickStyleFillMatrix
+	private Color getFillColor(int quickStyleFillColor, int quickStyleFillMatrix, boolean getGradient)
 	{
 		processTheme();
 		
@@ -443,11 +511,137 @@ public class mxVsdxTheme
 		
 		if (fillStyle != null)
 		{
-			return fillStyle.applyStyle(fillColorStyle, this);
+			if (getGradient)
+			{
+				return (fillStyle instanceof GradFill)? fillStyle.applyStyle(fillColorStyle, this).getGradientClr() : null;
+			}
+			else
+			{
+				return fillStyle.applyStyle(fillColorStyle, this);
+			}
 		}
 		else
 		{
-			return getStyleColor(fillColorStyle);
+			if (getGradient)
+			{
+				return null;
+			}
+			else
+			{
+				return getStyleColor(fillColorStyle);
+			}
 		}
 	}
+	
+	public LineStyle getLineStyle(int quickStyleLineMatrix)
+	{
+		processTheme();
+		
+		LineStyle lineStyle = null;
+		switch (quickStyleLineMatrix)
+		{
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				lineStyle = lineStyles.get(quickStyleLineMatrix - 1);
+			break;
+			case 100:
+			case 101:
+			case 102:
+			case 103:
+				int index = quickStyleLineMatrix - 100;
+				//get style index of variants
+				lineStyle = lineStyles.get(variantLineIdx[themeVariant][index] - 1);
+			break;
+		}
+			
+		return lineStyle;
+	}
+	
+	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
+	public Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	{
+		processTheme();
+		
+		int lineColorStyle = quickStyleLineColor;
+		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
+		switch (quickStyleLineMatrix)
+		{
+			case 100:
+			case 101:
+			case 102:
+			case 103:
+				if (isMonotoneVariant[themeVariant]) lineColorStyle = 100;
+			break;
+		}
+		
+		if (lineStyle != null)
+		{
+			return lineStyle.getLineColor(lineColorStyle, this);
+		}
+		else
+		{
+			return getStyleColor(lineColorStyle);
+		}		
+	}
+
+	public Color getDefaultLineClr() 
+	{
+		return defaultLineClr;
+	}
+
+	public boolean isLineDashed(int quickStyleLineMatrix) 
+	{
+		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
+		return lineStyle != null? lineStyle.isDashed() : false;
+	}
+
+	public ArrayList<Double> getLineDashPattern(int quickStyleLineMatrix) 
+	{
+		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
+		return lineStyle != null? lineStyle.getLineDashPattern() : null;
+	}
+	
+	//Get font color based on QuickStyleFontColor & QuickStyleFontMatrix
+	public Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	{
+		processTheme();
+		
+		int fontColorStyle = quickStyleFontColor;
+		OoxmlColor fontColor = null;
+		switch (quickStyleFontMatrix)
+		{
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				fontColor = fontColors.get(quickStyleFontMatrix - 1);
+			break;
+			case 100:
+			case 101:
+			case 102:
+			case 103:
+				if (isMonotoneVariant[themeVariant]) fontColorStyle = 100;
+				
+				int index = quickStyleFontMatrix - 100;
+				//get style index of variants
+				fontColor = fontColors.get(variantFontIdx[themeVariant][index] - 1);
+			break;
+		}
+		
+		if (fontColor != null)
+		{
+			return fontColor.getColor(fontColorStyle, this);
+		}
+		else
+		{
+			return getStyleColor(fontColorStyle);
+		}
+	}
+
 }
