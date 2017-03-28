@@ -1,2 +1,6 @@
 language: java
+
+before_install:
+  - cd etc/build
+  
 script: ant all
