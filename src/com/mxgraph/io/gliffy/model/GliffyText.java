@@ -85,6 +85,8 @@ public class GliffyText
 			{
 				sb.append("align=").append(hAlign).append(";");
 			}
+			else 
+				sb.append("align=center;");
 		}
 
 		sb.append("spacingLeft=").append(paddingLeft).append(";");

@@ -71,6 +71,39 @@ public class Color {
         return new HSLColor(h, s, l);
     }
 	
+	public HSVColor toHsv()
+	{
+		double r = this.getRed()/255.0, g = this.getGreen()/255.0, b = this.getBlue()/255.0;
+	    double max = Math.max(r, Math.max(g, b));
+	    double min = Math.min(r, Math.min(g, b));
+	    double h, s, v = max;
+
+	    double d = max - min;
+	    s = max == 0 ? 0 : d / max;
+
+	    if(max == min) 
+	    {
+	        h = 0; // achromatic
+	    }
+	    else 
+	    {
+	        if (max == r) 
+	        {
+	        	h = (g - b) / d + (g < b ? 6 : 0); 
+	        }
+	        else if (max == g) 
+	        {
+	        	h = (b - r) / d + 2;
+	        }
+	        else 
+	        {
+	        	h = (r - g) / d + 4;
+	        }
+	        h /= 6;
+		}
+	    return new HSVColor(h, s, v);
+	}
+	
 	public static Color decodeColorHex(String hex) 
 	{
 		int color = Integer.parseInt(hex, 16);
@@ -78,8 +111,7 @@ public class Color {
 	}
 
 	public String toHexStr() {
-		int clr = (red << 16) | (green << 8) | blue;
-		return "#" + Integer.toHexString(clr);
+		return String.format("#%02x%02x%02x", red, green, blue);
 	}
 
 	public Color getGradientClr() {

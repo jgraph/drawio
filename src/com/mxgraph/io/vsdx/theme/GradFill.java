@@ -20,12 +20,13 @@ public class GradFill  implements FillStyle
 		{
 			ArrayList<Element> gs = mxVsdxUtils.getDirectChildElements(gsLst.get(0));
 			
+			//approximate gradient by first and last color in the list
 			if (gs.size() >= 2)
 			{
-				color1 = OoxmlColorFactory.getOoxmlColor(
-						mxVsdxUtils.getDirectFirstChildElement(gs.get(0)));
 				color2 = OoxmlColorFactory.getOoxmlColor(
-						mxVsdxUtils.getDirectFirstChildElement(gs.get(1)));
+						mxVsdxUtils.getDirectFirstChildElement(gs.get(0)));
+				color1 = OoxmlColorFactory.getOoxmlColor(
+						mxVsdxUtils.getDirectFirstChildElement(gs.get(gs.size()-1)));
 			}
 		}
 		

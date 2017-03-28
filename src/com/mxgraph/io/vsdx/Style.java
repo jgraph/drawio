@@ -59,13 +59,15 @@ public class Style
 		styleTypes.put(mxVsdxConstants.FILL_STYLE, mxVsdxConstants.FILL_STYLE);
 		styleTypes.put("QuickStyleFillColor", mxVsdxConstants.FILL_STYLE);
 		styleTypes.put("QuickStyleFillMatrix", mxVsdxConstants.FILL_STYLE);
-			
+		
 		styleTypes.put(mxVsdxConstants.BEGIN_ARROW, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.END_ARROW, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_PATTERN, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_COLOR, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_COLOR_TRANS, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put(mxVsdxConstants.LINE_WEIGHT, mxVsdxConstants.LINE_STYLE);
+		styleTypes.put("QuickStyleLineColor", mxVsdxConstants.LINE_STYLE);
+		styleTypes.put("QuickStyleLineMatrix", mxVsdxConstants.LINE_STYLE);
 		
 		styleTypes.put(mxVsdxConstants.TEXT_BKGND, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.BOTTOM_MARGIN, mxVsdxConstants.TEXT_STYLE);
@@ -74,6 +76,8 @@ public class Style
 		styleTypes.put(mxVsdxConstants.TOP_MARGIN, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.PARAGRAPH, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.CHARACTER, mxVsdxConstants.TEXT_STYLE);
+		styleTypes.put("QuickStyleFontColor", mxVsdxConstants.TEXT_STYLE);
+		styleTypes.put("QuickStyleFontMatrix", mxVsdxConstants.TEXT_STYLE);		
 	};
 	
 	/**
@@ -388,6 +392,10 @@ public class Style
 				}
 				else if (form.equals("THEMEVAL()") && value.equals("Themed") && style != null)
 				{
+					//Handle theme here
+					//FIXME this is a very hacky way to test themes until fully integrating themes
+					if (mxVsdxConstants.COLOR.equals(cellKey)) return elem;
+
 					// Use "no style" style
 					Element themeElem = style.getCellElement(cellKey, index, sectKey);
 					
@@ -447,7 +455,7 @@ public class Style
 				{
 					//Handle theme here
 					//FIXME this is a very hacky way to test themes until fully integrating themes
-					if ("FillForegnd".equals(key)) return elem;
+					if ("FillForegnd".equals(key) || mxVsdxConstants.LINE_COLOR.equals(key) || mxVsdxConstants.LINE_PATTERN.equals(key)) return elem;
 					
 					// Use "no style" style
 					Element themeElem = style.getCellElement(key);
@@ -497,6 +505,23 @@ public class Style
 		else
 		{
 			color = this.getColor(this.getCellElement(mxVsdxConstants.LINE_COLOR));
+			
+			if ("Themed".equals(color))
+			{
+				mxVsdxTheme theme = getTheme();
+				
+				if (theme != null)
+				{
+					int styleLineClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineColor"), "1"));
+					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+					Color colorObj = theme.getLineColor(styleLineClr, styleLineMtx);
+					color = colorObj.toHexStr();
+				}
+				else
+				{
+					color = "";
+				}				
+			}
 		}
 
 		return color;
@@ -633,7 +658,23 @@ public class Style
 		Element colorElem = getCellElement(mxVsdxConstants.COLOR, index, mxVsdxConstants.CHARACTER);
 		String color = getValue(colorElem, "#000000");
 
-		if (!color.startsWith("#"))
+		if ("Themed".equals(color))
+		{
+			mxVsdxTheme theme = getTheme();
+			
+			if (theme != null)
+			{
+				int styleFontClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontColor"), "1"));
+				int styleFontMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontMatrix"), "0"));
+				Color colorObj = theme.getFontColor(styleFontClr, styleFontMtx);
+				color = colorObj.toHexStr();
+			}
+			else
+			{
+				color = "#000000";
+			}				
+		}
+		else if (!color.startsWith("#"))
 		{
 			color = pm.getColor(color);
 		}

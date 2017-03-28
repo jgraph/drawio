@@ -75,24 +75,45 @@ abstract public class OoxmlColor
 		{
 			//TODO complete the list of effects
 			//currently we support tint, shade, satMod, lumMod 
-			HSLColor hslColor = color.toHsl();
+//			HSLColor hslColor = color.toHsl();
+//			if (tint != 0)
+//			{
+//				hslColor.tint(tint);
+//			}
+//			if (shade != 0)
+//			{
+//				hslColor.shade(shade);
+//			}
+//			if (satMod != 0)
+//			{
+//				hslColor.satMod(satMod);
+//			}
+//			if (lumMod != 0)
+//			{
+//				hslColor.lumMod(lumMod);
+//			}
+//			color = hslColor.toRgb();
+
+		
+			HSVColor hsvColor = color.toHsv();
 			if (tint != 0)
 			{
-				hslColor.tint(tint);
+				hsvColor.tint(tint);
 			}
 			if (shade != 0)
 			{
-				hslColor.shade(shade);
+				hsvColor.shade(shade);
 			}
 			if (satMod != 0)
 			{
-				hslColor.satMod(satMod);
+				hsvColor.satMod(satMod);
 			}
 			if (lumMod != 0)
 			{
-				hslColor.lumMod(lumMod);
+				//TODO this may be better done in HSL color format
+				hsvColor.lumMod(lumMod);
 			}
-			color = hslColor.toRgb();
+			color = hsvColor.toRgb();
 		}
 	}
 	
