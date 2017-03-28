@@ -9,3 +9,4 @@ deploy:
   file: draw.war
   on:
     repo: jgraph/draw.io
+    tags: true
