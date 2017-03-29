@@ -2,7 +2,7 @@ language: java
 sudo: false
 before_install:
 - cd etc/build
-script: ant all
+script: ant war
 deploy:
   provider: releases
   api_key:
