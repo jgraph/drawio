@@ -30,11 +30,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.appengine.api.images.Image;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.api.images.Transform;
-import com.google.appengine.api.images.ImagesService.OutputEncoding;
 import com.mxgraph.io.vsdx.Shape;
 import com.mxgraph.io.vsdx.ShapePageId;
 import com.mxgraph.io.vsdx.VsdxShape;
@@ -49,6 +44,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.online.GaeUtils;
 import com.mxgraph.online.Utils;
 import com.mxgraph.online.mxBase64;
 import com.mxgraph.util.mxConstants;
@@ -164,32 +160,11 @@ public class mxVsdxCodec
 					//Some BMP images are huge and doesn't show up in the browser, so, it is better to compress it as PNG 
 					if (filename.toLowerCase().endsWith(".bmp")) 
 					{
-						boolean isRunningGAE; //if running under Google App Engine, ImageIO is not available 
-						try
-						{
-							Class.forName("com.google.appengine.api.images.ImagesServiceFactory");
-							isRunningGAE = true;
-						}
-						catch (Throwable t) 
-						{
-							isRunningGAE = false;
-						}
-						
 						try 
 						{
-							if (isRunningGAE)
+							if (GaeUtils.isGae())
 							{
-								ImagesService imagesService = ImagesServiceFactory.getImagesService();
-	
-								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
-	
-								//dummy transform
-								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
-	
-								//Use PNG format as it is lossless similar to BMP but compressed
-								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
-	
-								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+								base64Str = GaeUtils.convertBmp(out.toByteArray());
 							}
 							else
 							{
