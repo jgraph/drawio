@@ -295,6 +295,15 @@ public class GliffyObject
 			(uid.startsWith("com.gliffy.shape.venn.outline") ||
 			uid.startsWith("com.gliffy.shape.venn.flat"));
 	}
+	
+	/**
+	 * Returns a boolean indicating if this object is a subroutine 
+	 * @return true if subroutine, false otherwise
+	 */
+	public boolean isSubRoutine() 
+	{
+		return uid.equals("com.gliffy.shape.flowchart.flowchart_v1.default.subroutine");
+	}
 
 	public boolean isUnrecognizedGraphicType() 
 	{

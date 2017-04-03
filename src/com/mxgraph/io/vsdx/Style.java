@@ -4,6 +4,7 @@
  */
 package com.mxgraph.io.vsdx;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -68,6 +69,8 @@ public class Style
 		styleTypes.put(mxVsdxConstants.LINE_WEIGHT, mxVsdxConstants.LINE_STYLE);
 		styleTypes.put("QuickStyleLineColor", mxVsdxConstants.LINE_STYLE);
 		styleTypes.put("QuickStyleLineMatrix", mxVsdxConstants.LINE_STYLE);
+		styleTypes.put(mxVsdxConstants.BEGIN_ARROW_SIZE, mxVsdxConstants.LINE_STYLE);
+		styleTypes.put(mxVsdxConstants.END_ARROW_SIZE, mxVsdxConstants.LINE_STYLE);
 		
 		styleTypes.put(mxVsdxConstants.TEXT_BKGND, mxVsdxConstants.TEXT_STYLE);
 		styleTypes.put(mxVsdxConstants.BOTTOM_MARGIN, mxVsdxConstants.TEXT_STYLE);
@@ -107,6 +110,11 @@ public class Style
 	public mxVsdxTheme getTheme()
 	{
 		return null;
+	}
+	
+	public boolean isVertex()
+	{
+		return false;
 	}
 	
 	public void styleDebug(String debug)
@@ -271,9 +279,8 @@ public class Style
 				try
 				{
 					double parsedValue = Double.parseDouble(value);
-					parsedValue = parsedValue * mxVsdxUtils.conversionFactor;
 					
-					return Math.round(parsedValue * 100.0) / 100.0;
+					return getScreenNumericalValue(parsedValue);
 				}
 				catch (NumberFormatException e)
 				{
@@ -284,7 +291,13 @@ public class Style
 
 		return defaultValue;
 	}
-	
+
+	protected double getScreenNumericalValue(double val)
+	{
+		double conVal = val * mxVsdxUtils.conversionFactor;
+		return Math.round(conVal * 100.0) / 100.0;
+	}
+
 	/**
 	 * Returns the value of the element with tag name = 'tag' in the children
 	 * of 'primary' in his double representation.<br/>
@@ -455,7 +468,10 @@ public class Style
 				{
 					//Handle theme here
 					//FIXME this is a very hacky way to test themes until fully integrating themes
-					if ("FillForegnd".equals(key) || mxVsdxConstants.LINE_COLOR.equals(key) || mxVsdxConstants.LINE_PATTERN.equals(key)) return elem;
+					if ("FillForegnd".equals(key) || mxVsdxConstants.LINE_COLOR.equals(key) || mxVsdxConstants.LINE_PATTERN.equals(key) 
+							|| mxVsdxConstants.BEGIN_ARROW_SIZE.equals(key) || mxVsdxConstants.END_ARROW_SIZE.equals(key)
+							|| mxVsdxConstants.BEGIN_ARROW.equals(key) || mxVsdxConstants.END_ARROW.equals(key)
+							|| mxVsdxConstants.LINE_WEIGHT.equals(key)) return elem;
 					
 					// Use "no style" style
 					Element themeElem = style.getCellElement(key);
@@ -514,7 +530,7 @@ public class Style
 				{
 					int styleLineClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineColor"), "1"));
 					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					Color colorObj = theme.getLineColor(styleLineClr, styleLineMtx);
+					Color colorObj = isVertex()? theme.getLineColor(styleLineClr, styleLineMtx) : theme.getConnLineColor(styleLineClr, styleLineMtx);
 					color = colorObj.toHexStr();
 				}
 				else
@@ -666,7 +682,7 @@ public class Style
 			{
 				int styleFontClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontColor"), "1"));
 				int styleFontMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontMatrix"), "0"));
-				Color colorObj = theme.getFontColor(styleFontClr, styleFontMtx);
+				Color colorObj = isVertex()? theme.getFontColor(styleFontClr, styleFontMtx) : theme.getConnFontColor(styleFontClr, styleFontMtx);
 				color = colorObj.toHexStr();
 			}
 			else
@@ -916,5 +932,176 @@ public class Style
 
 	public void setShape(Element shape) {
 		this.shape = shape;
+	}
+	
+	private final static double SPACE = 4.0, SHORT_SPACE = 2.0, LONG_SPACE = 6.0, DOT = 1.0, DASH = 8.0, LONG_DASH = 12.0, SHORT_DASH = 4.0, XLONG_DASH = 20.0, XSHORT_DASH = 2.0;
+	private final static ArrayList<ArrayList<Double>> lineDashPatterns = new ArrayList<>();   
+	
+	static
+	{
+		//0 no pattern, 1 solid, 2 similar to mxGraph default dash 
+		lineDashPatterns.add(new ArrayList<Double>());
+		lineDashPatterns.add(new ArrayList<Double>());
+		lineDashPatterns.add(new ArrayList<Double>());
+		//3
+		ArrayList<Double> lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//4
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//5
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//6
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//7
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//8
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//9
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//10
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//11
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//12
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//13
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//14
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//15
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPattern.add(SHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//16
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//17
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//18
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//19
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//20
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(LONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DOT);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//21
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(XLONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//22
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(XLONG_DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPattern.add(DASH);
+		lineDashPattern.add(LONG_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+		//23
+		lineDashPattern = new ArrayList<>();
+		lineDashPattern.add(XSHORT_DASH);
+		lineDashPattern.add(SHORT_SPACE);
+		lineDashPatterns.add(lineDashPattern);
+	}
+	public static ArrayList<Double> getLineDashPattern(int pattern)
+	{
+		if (pattern >= 0 && pattern <= 23)
+			return lineDashPatterns.get(pattern);
+		else
+			return lineDashPatterns.get(0);
 	}
 }

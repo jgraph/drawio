@@ -19,8 +19,6 @@ Running
 -------
 The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
 
-The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
-
 Supported Browsers
 ------------------
 draw.io supports IE 9+, Chrome 30+, Firefox 31+, Safari versions actively patched by Apple (6.2.x, 7.1.x, 8.0.x and 9.x at time of writing), Opera 20+, Native Android browser 5.x+, the default browser in the current and previous major iOS versions (e.g. 9.x and 8.x) and Edge 20+.

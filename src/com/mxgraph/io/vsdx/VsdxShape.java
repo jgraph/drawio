@@ -99,7 +99,7 @@ public class VsdxShape extends Shape
 	
 	public static final float[] arrowSizes = {2, 3, 5, 7, 9, 22, 45};
 	
-	public static final Map<String, String> arrowTypes;
+	public static final Map<Integer, String> arrowTypes;
 	
 	static
 	{
@@ -116,13 +116,13 @@ public class VsdxShape extends Shape
 			// todo
 		}
 		
-		arrowTypes = new HashMap<String, String>();
-		arrowTypes.put("0", mxConstants.NONE);
-		arrowTypes.put("1", mxConstants.ARROW_OPEN);
-		arrowTypes.put("4", mxConstants.ARROW_BLOCK);
-		arrowTypes.put("5", mxConstants.ARROW_CLASSIC);
-		arrowTypes.put("10", mxConstants.ARROW_OVAL);
-		arrowTypes.put("13", mxConstants.ARROW_BLOCK);
+		arrowTypes = new HashMap<Integer, String>();
+		arrowTypes.put(0, mxConstants.NONE);
+		arrowTypes.put(1, mxConstants.ARROW_OPEN);
+		arrowTypes.put(4, mxConstants.ARROW_BLOCK);
+		arrowTypes.put(5, mxConstants.ARROW_CLASSIC);
+		arrowTypes.put(10, mxConstants.ARROW_OVAL);
+		arrowTypes.put(13, mxConstants.ARROW_BLOCK);
 
 	}
 
@@ -923,23 +923,34 @@ public class VsdxShape extends Shape
 	}
 
 	private String getDashPattern() {
-		mxVsdxTheme theme = getTheme();
+		ArrayList<Double> pattern = null;
 		
-		if (theme != null)
+		String linePattern = this.getValue(this.getCellElement(mxVsdxConstants.LINE_PATTERN), "0");
+
+		if (linePattern.equals("Themed"))
 		{
-			int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-			ArrayList<Double> pattern = theme.getLineDashPattern(styleLineMtx);
+			mxVsdxTheme theme = getTheme();
 			
-			if (pattern != null && !pattern.isEmpty())
+			if (theme != null)
 			{
-				StringBuilder str = new StringBuilder();
-				
-				for (Double len : pattern)
-				{
-					str.append(String.format("%.2f ", 1.0));
-				}
-				return str.toString();
+				int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+				pattern = isVertex()? theme.getLineDashPattern(styleLineMtx) : theme.getConnLineDashPattern(styleLineMtx);
+			}				
+		}
+		else 
+		{
+			pattern = getLineDashPattern(Integer.parseInt(linePattern));
+		}
+		
+		if (pattern != null && !pattern.isEmpty())
+		{
+			StringBuilder str = new StringBuilder();
+			
+			for (Double len : pattern)
+			{
+				str.append(String.format("%.2f ", len));
 			}
+			return str.toString().trim();
 		}
 		return null;
 	}
@@ -960,7 +971,7 @@ public class VsdxShape extends Shape
 			if (theme != null)
 			{
 				int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-				return theme.isLineDashed(styleLineMtx);
+				return isVertex()? theme.isLineDashed(styleLineMtx) : theme.isConnLineDashed(styleLineMtx);
 			}
 		}
 		else if (!(linePattern.equals("0") || linePattern.equals("1")))
@@ -978,8 +989,32 @@ public class VsdxShape extends Shape
 	 */
 	public double getLineWidth()
 	{
-		double lWeight = this.getLineWeight();
-
+		String lineWeight = getValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), "0");
+		
+		double lWeight = 0;
+		try
+		{
+			if (lineWeight.equals("Themed"))
+			{
+				mxVsdxTheme theme = getTheme();
+				
+				if (theme != null)
+				{
+					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+					lWeight = (isVertex()? theme.getLineWidth(styleLineMtx) : theme.getConnLineWidth(styleLineMtx)) / 10000.0;
+				}
+			}
+			else
+			{
+				lWeight = Double.parseDouble(lineWeight);
+				lWeight = getScreenNumericalValue(lWeight);
+			}
+		}
+		catch (Exception e)
+		{
+			// ignore
+		}
+		
 		//Value is fixed for weight < 1
 		if (lWeight < 1)
 		{
@@ -1001,7 +1036,24 @@ public class VsdxShape extends Shape
 		
 		try
 		{
-			return VsdxShape.arrowSizes[Integer.valueOf(baSize).intValue()];
+			int size = 4;
+			
+			if (baSize.equals("Themed"))
+			{
+				mxVsdxTheme theme = getTheme();
+				
+				if (theme != null)
+				{
+					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+					size = isVertex()? theme.getStartSize(styleLineMtx) : theme.getConnStartSize(styleLineMtx);
+				}
+			}
+			else
+			{
+				size = Integer.valueOf(baSize);
+			}
+	
+			return VsdxShape.arrowSizes[size];
 		}
 		catch (Exception e)
 		{
@@ -1023,7 +1075,24 @@ public class VsdxShape extends Shape
 
 		try
 		{
-			return VsdxShape.arrowSizes[Integer.valueOf(eaSize).intValue()];
+			int size = 4;
+			
+			if (eaSize.equals("Themed"))
+			{
+				mxVsdxTheme theme = getTheme();
+				
+				if (theme != null)
+				{
+					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+					size = isVertex()? theme.getEndSize(styleLineMtx) : theme.getConnEndSize(styleLineMtx);
+				}
+			}
+			else
+			{
+				size = Integer.valueOf(eaSize);
+			}
+	
+			return VsdxShape.arrowSizes[size];
 		}
 		catch (Exception e)
 		{
@@ -1873,11 +1942,16 @@ public class VsdxShape extends Shape
 		}
 
 		//Defines Pattern
-		String dashed = isDashed() ? "1" : "0";
-
-		if (dashed.equals("1"))
+		if (isDashed())
 		{
-			styleMap.put(mxConstants.STYLE_DASHED, dashed);
+			styleMap.put(mxConstants.STYLE_DASHED, "1");
+			
+			String dashPattern = getDashPattern();
+			
+			if (dashPattern != null)
+			{
+				styleMap.put(mxConstants.STYLE_DASH_PATTERN, dashPattern);
+			}
 		}
 
 		//Defines Begin Arrow
@@ -2004,7 +2078,39 @@ public class VsdxShape extends Shape
 	public String getEdgeMarker(boolean start)
 	{
 		String marker = this.getValue(this.getCellElement(start ? mxVsdxConstants.BEGIN_ARROW : mxVsdxConstants.END_ARROW), "0");
-		return VsdxShape.arrowTypes.get(marker);
+
+		int val = 0;
+		try
+		{
+			if (marker.equals("Themed"))
+			{
+				mxVsdxTheme theme = getTheme();
+				
+				if (theme != null)
+				{
+					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
+					val = isVertex()? theme.getEdgeMarker(start, styleLineMtx) : theme.getConnEdgeMarker(start, styleLineMtx);
+					
+				}
+			}
+			else
+			{
+				val = Integer.parseInt(marker);
+			}
+		}
+		catch (Exception e)
+		{
+			// ignore
+		}
+
+		String type = VsdxShape.arrowTypes.get(val);
+		
+		if (val > 0 && type == null)
+		{
+			//if arrow  head type is not supported, use the open arrow instead
+			type = VsdxShape.arrowTypes.get(1);
+		}
+		return type;
 	}
 	
 	/**

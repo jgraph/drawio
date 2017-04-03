@@ -12,6 +12,7 @@ import com.mxgraph.io.vsdx.theme.FillStyle;
 import com.mxgraph.io.vsdx.theme.FillStyleFactory;
 import com.mxgraph.io.vsdx.theme.GradFill;
 import com.mxgraph.io.vsdx.theme.LineStyle;
+import com.mxgraph.io.vsdx.theme.LineStyleExt;
 import com.mxgraph.io.vsdx.theme.OoxmlColor;
 import com.mxgraph.io.vsdx.theme.OoxmlColorFactory;
 
@@ -91,12 +92,26 @@ public class mxVsdxTheme
 	
 	//fill styles
 	private ArrayList<FillStyle> fillStyles = new ArrayList<>(6);
+
+	//connector fill styles
+	//TODO what is the use of it?
+	private ArrayList<FillStyle> connFillStyles = new ArrayList<>(6);
+
 	//line styles
 	private ArrayList<LineStyle> lineStyles = new ArrayList<>(6);
 	
+	//cpnector line styles
+	private ArrayList<LineStyle> connLineStyles = new ArrayList<>(6);
+
+	//line styles extensions
+	private ArrayList<LineStyleExt> lineStylesExt = new ArrayList<>(7);
+	
+	//connector line styles extensions
+	private ArrayList<LineStyleExt> connLineStylesExt = new ArrayList<>(7);
+	
 	//connector font color & styles
-	private ArrayList<OoxmlColor> connectorFontColors = new ArrayList<>(3);
-	private ArrayList<Integer> connectorFontStyles = new ArrayList<>(6);
+	private ArrayList<OoxmlColor> connFontColors = new ArrayList<>(6);
+	private ArrayList<Integer> connFontStyles = new ArrayList<>(6);
 	
 	//font color & styles
 	private ArrayList<OoxmlColor> fontColors = new ArrayList<>(6);
@@ -196,10 +211,56 @@ public class mxVsdxTheme
 			switch (vt.getNodeName())
 			{
 				case "vt:fmtConnectorScheme":
-					//TODO implement connector format scheme
+					ArrayList<Element> connSchemes = mxVsdxUtils.getDirectChildElements(vt);
+					
+					for (Element scheme : connSchemes)
+					{
+						String name = scheme.getNodeName();
+						
+						switch (name)
+						{
+							case "a:fillStyleLst":
+								ArrayList<Element> fillStyleElems = mxVsdxUtils.getDirectChildElements(scheme);
+								for (Element fillStyle : fillStyleElems)
+								{
+									connFillStyles.add(FillStyleFactory.getFillStyle(fillStyle));
+								}
+							break;
+							case "a:lnStyleLst":
+								ArrayList<Element> lineStyleElems = mxVsdxUtils.getDirectChildElements(scheme);
+								for (Element lineStyle : lineStyleElems)
+								{
+									connLineStyles.add(new LineStyle(lineStyle));
+								}
+							break;
+						}
+					}
 				break;
 				case "vt:lineStyles":
-					//TODO implement line styles
+					ArrayList<Element> styles = mxVsdxUtils.getDirectChildElements(vt);
+					
+					for (Element style : styles)
+					{
+						String name = style.getNodeName();
+						
+						switch (name)
+						{
+							case "vt:fmtConnectorSchemeLineStyles":
+								ArrayList<Element> connStylesElems = mxVsdxUtils.getDirectChildElements(style);
+								for (Element connStyle : connStylesElems)
+								{
+									connLineStylesExt.add(new LineStyleExt(connStyle));
+								}
+							break;
+							case "vt:fmtSchemeLineStyles":
+								ArrayList<Element> schemeStyleElems = mxVsdxUtils.getDirectChildElements(style);
+								for (Element schemeStyle : schemeStyleElems)
+								{
+									lineStylesExt.add(new LineStyleExt(schemeStyle));
+								}
+							break;
+						}
+					}
 				break;
 				case "vt:fontStylesGroup":
 					ArrayList<Element> fontStyleElems = mxVsdxUtils.getDirectChildElements(vt);
@@ -211,7 +272,7 @@ public class mxVsdxTheme
 						switch (name)
 						{
 							case "vt:connectorFontStyles":
-								fillFontStyles(fontStyle, connectorFontColors, connectorFontStyles);
+								fillFontStyles(fontStyle, connFontColors, connFontStyles);
 							break;
 							case "vt:fontStyles":
 								fillFontStyles(fontStyle, fontColors, fontStyles);
@@ -282,16 +343,17 @@ public class mxVsdxTheme
 					}					
 				break;
 				case "a:effectStyleLst":
+					//TODO effects most probably are not used by vsdx
 				break;
 				case "a:bgFillStyleLst":
+					//TODO background effects most probably are not used by vsdx
 				break;
 			}
 		}
 	}
 
 	private void processFonts(Element element) {
-		// TODO Auto-generated method stub
-		
+		// TODO Fonts has only the name of the font for each language. It looks not important
 	}
 
 	private void processColors(Element element) 
@@ -533,7 +595,8 @@ public class mxVsdxTheme
 		}
 	}
 	
-	public LineStyle getLineStyle(int quickStyleLineMatrix)
+	//Get line style based on QuickStyleLineMatrix
+	private LineStyle getLineStyle(int quickStyleLineMatrix, ArrayList<LineStyle> lineStyles)
 	{
 		processTheme();
 		
@@ -560,14 +623,35 @@ public class mxVsdxTheme
 			
 		return lineStyle;
 	}
+
+	private LineStyleExt getLineStyleExt(int quickStyleLineMatrix, ArrayList<LineStyleExt> lineStylesExt) 
+	{
+		processTheme();
+		
+		LineStyleExt lineStyleExt = null;
+		switch (quickStyleLineMatrix)
+		{
+			case 0:	
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				lineStyleExt = lineStylesExt.get(quickStyleLineMatrix);
+			break;
+		}
+			
+		return lineStyleExt;
+	}
 	
 	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
-	public Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	private Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix, ArrayList<LineStyle> lineStyles)
 	{
 		processTheme();
 		
 		int lineColorStyle = quickStyleLineColor;
-		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
+		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
 		switch (quickStyleLineMatrix)
 		{
 			case 100:
@@ -588,25 +672,111 @@ public class mxVsdxTheme
 		}		
 	}
 
+	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
+	public Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	{
+		return getLineColor(quickStyleLineColor, quickStyleLineMatrix, lineStyles);
+	}
+	
+	//Get connection line color based on QuickStyleLineColor & QuickStyleLineMatrix
+	public Color getConnLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	{
+		return getLineColor(quickStyleLineColor, quickStyleLineMatrix, connLineStyles);
+	}
+
+	
 	public Color getDefaultLineClr() 
 	{
 		return defaultLineClr;
 	}
 
-	public boolean isLineDashed(int quickStyleLineMatrix) 
+	private boolean isLineDashed(int quickStyleLineMatrix, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
-		return lineStyle != null? lineStyle.isDashed() : false;
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		
+		if (lineStyleExt != null)
+		{
+			return lineStyleExt.isDashed();
+		}
+		else
+		{
+			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			return lineStyle != null? lineStyle.isDashed() : false;			
+		}
+	}
+
+	public boolean isLineDashed(int quickStyleLineMatrix)
+	{
+		return isLineDashed(quickStyleLineMatrix, lineStylesExt, lineStyles);
+	}
+	
+	public boolean isConnLineDashed(int quickStyleLineMatrix) 
+	{
+		return isLineDashed(quickStyleLineMatrix, connLineStylesExt, connLineStyles);
+	}
+
+	private ArrayList<Double> getLineDashPattern(int quickStyleLineMatrix, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	{
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		
+		if (lineStyleExt != null)
+		{
+			return lineStyleExt.getLineDashPattern();
+		}
+		else
+		{
+			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			return lineStyle != null? lineStyle.getLineDashPattern() : null;
+		}
 	}
 
 	public ArrayList<Double> getLineDashPattern(int quickStyleLineMatrix) 
 	{
-		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix);
-		return lineStyle != null? lineStyle.getLineDashPattern() : null;
+		return getLineDashPattern(quickStyleLineMatrix, lineStylesExt, lineStyles);
+	}
+	
+	public ArrayList<Double> getConnLineDashPattern(int quickStyleLineMatrix) 
+	{
+		return getLineDashPattern(quickStyleLineMatrix, connLineStylesExt, connLineStyles);
+	}
+
+	private int getArrowSize(int quickStyleLineMatrix, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	{
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		
+		if (lineStyleExt != null)
+		{
+			return isStart? lineStyleExt.getStartSize() : lineStyleExt.getEndSize();
+		}
+		else
+		{
+			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			return lineStyle != null? (isStart? lineStyle.getStartSize() : lineStyle.getEndSize()) : 4;
+		}
+	}
+
+	public int getStartSize(int quickStyleLineMatrix) 
+	{
+		return getArrowSize(quickStyleLineMatrix, true, lineStylesExt, lineStyles);
+	}
+	
+	public int getConnStartSize(int quickStyleLineMatrix) 
+	{
+		return getArrowSize(quickStyleLineMatrix, true, connLineStylesExt, connLineStyles);
+	}
+	
+	public int getEndSize(int quickStyleLineMatrix) 
+	{
+		return getArrowSize(quickStyleLineMatrix, false, lineStylesExt, lineStyles);
+	}
+	
+	public int getConnEndSize(int quickStyleLineMatrix) 
+	{
+		return getArrowSize(quickStyleLineMatrix, false, connLineStylesExt, connLineStyles);
 	}
 	
 	//Get font color based on QuickStyleFontColor & QuickStyleFontMatrix
-	public Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	private Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix, ArrayList<OoxmlColor> fontColors)
 	{
 		processTheme();
 		
@@ -644,4 +814,57 @@ public class mxVsdxTheme
 		}
 	}
 
+	//Get font color based on QuickStyleFontColor & QuickStyleFontMatrix
+	public Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	{
+		return getFontColor(quickStyleFontColor, quickStyleFontMatrix, fontColors);
+	}
+	
+	//Get connection font color based on QuickStyleFontColor & QuickStyleFontMatrix
+	public Color getConnFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	{
+		return getFontColor(quickStyleFontColor, quickStyleFontMatrix, connFontColors);
+	}
+
+	private int getArrowType(int quickStyleLineMatrix, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	{
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		
+		if (lineStyleExt != null)
+		{
+			return isStart? lineStyleExt.getStart() : lineStyleExt.getEnd();
+		}
+		else
+		{
+			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			return lineStyle != null? (isStart? lineStyle.getStart() : lineStyle.getEnd()) : 0;
+		}
+	}
+
+	public int getEdgeMarker(boolean isStart, int quickStyleLineMatrix) 
+	{
+		return getArrowType(quickStyleLineMatrix, isStart, lineStylesExt, lineStyles);
+	}
+
+	public int getConnEdgeMarker(boolean isStart, int quickStyleLineMatrix) 
+	{
+		return getArrowType(quickStyleLineMatrix, isStart, connLineStylesExt, connLineStyles);
+	}
+
+	
+	private int getLineWidth(int quickStyleLineMatrix, ArrayList<LineStyle> lineStyles) 
+	{
+		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+		return lineStyle != null? lineStyle.getLineWidth() : 0;			
+	}
+
+	public int getLineWidth(int quickStyleLineMatrix) 
+	{
+		return getLineWidth(quickStyleLineMatrix, lineStyles);
+	}
+	
+	public int getConnLineWidth(int quickStyleLineMatrix) 
+	{
+		return getLineWidth(quickStyleLineMatrix, connLineStyles);
+	}
 }
