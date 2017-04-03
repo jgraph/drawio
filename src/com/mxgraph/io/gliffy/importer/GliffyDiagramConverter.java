@@ -370,6 +370,14 @@ public class GliffyDiagramConverter
 					style.append("opacity=" + shape.opacity * 100).append(";");
 					style.append(DashStyleMapping.get(shape.dashStyle));
 				}
+				
+				style.append(DashStyleMapping.get(shape.dashStyle));
+				
+				if(gliffyObject.isSubRoutine()) 
+				{
+					//Gliffy's subroutine maps to drawio process, whose inner boundary, unlike subroutine's, is relative to it's width so here we set it to 10px
+					style.append("size=" +  10 / gliffyObject.width).append(";");
+				}
 			}
 			else if (gliffyObject.isLine())
 			{

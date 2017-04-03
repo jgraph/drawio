@@ -43,7 +43,7 @@ public class LineStyle {
 	public LineStyle(Element elem)
 	{
 		//parse the line style xml
-		lineWidth = mxVsdxUtils.getIntAttr(elem, "w", 9525);
+		lineWidth = mxVsdxUtils.getIntAttr(elem, "w");
 		
 		String lineCapAtt = elem.getAttribute("cap");
 		
@@ -230,5 +230,29 @@ public class LineStyle {
 	public ArrayList<Double> getLineDashPattern()
 	{
 		return lineDashPattern;
+	}
+
+	public int getStartSize() {
+		// TODO Implement this if it is needed
+		return 4;
+	}
+
+	public int getEndSize() {
+		// TODO Implement this if it is needed
+		return 4;
+	}
+
+	public int getStart() {
+		// TODO Implement this if it is needed
+		return 0;
+	}
+	
+	public int getEnd() {
+		// TODO Implement this if it is needed
+		return 0;
+	}
+
+	public int getLineWidth() {
+		return lineWidth;
 	}
 }

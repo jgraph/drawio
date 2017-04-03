@@ -427,7 +427,7 @@
 
 			this.addEntry(dt + 'list box', function()
 			{
-			   	var bg2 = new mxCell('', new mxGeometry(0, 00, 150, 200), s2 + 'forms.rrect;rSize=0;strokeColor=#999999;fillColor=#ffffff;');
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 150, 200), s2 + 'forms.rrect;rSize=0;strokeColor=#999999;fillColor=#ffffff;');
 			   	bg2.vertex = true;
 			   	var bg = new mxCell('Title', new mxGeometry(0, 0, 150, 30), s2 + 'forms.rrect;rSize=0;strokeColor=#999999;fontColor=#008cff;fontSize=17;fillColor=#ffffff;resizeWidth=1;');
 			   	bg.geometry.relative = true;

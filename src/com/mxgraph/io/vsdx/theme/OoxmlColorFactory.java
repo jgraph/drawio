@@ -65,6 +65,9 @@ public class OoxmlColorFactory {
 				case "a:lumMod":
 					color.setLumMod(effVal);
 				break;
+				case "a:hueMod":
+					color.setHueMod(effVal);
+				break;
 				//TODO complete the list when supported
 //				a:comp    Complement
 //				a:inv    Inverse
@@ -74,7 +77,6 @@ public class OoxmlColorFactory {
 //				a:alphaMod    Alpha Modulation
 //				a:hue    Hue
 //				a:hueOff    Hue Offset
-//				a:hueMod    Hue Modulate
 //				a:sat    Saturation
 //				a:satOff    Saturation Offset
 //				a:lum    Luminance

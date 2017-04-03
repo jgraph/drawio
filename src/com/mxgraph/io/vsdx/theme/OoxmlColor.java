@@ -113,6 +113,10 @@ abstract public class OoxmlColor
 				//TODO this may be better done in HSL color format
 				hsvColor.lumMod(lumMod);
 			}
+			if (hueMod != 0)
+			{
+				hsvColor.hueMod(hueMod);
+			}
 			color = hsvColor.toRgb();
 		}
 	}

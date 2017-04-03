@@ -64,4 +64,10 @@ public class HSVColor {
 	    return this;
 	}
 
+	public HSVColor hueMod(int amount) 
+	{
+		this.h *= amount / 100.0;
+		this.h = clamp01(this.h);
+	    return this;
+	}
 }
