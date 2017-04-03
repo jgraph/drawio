@@ -37,14 +37,14 @@ import com.mxgraph.io.vsdx.mxPathDebug;
 import com.mxgraph.io.vsdx.mxVsdxConnect;
 import com.mxgraph.io.vsdx.mxVsdxConstants;
 import com.mxgraph.io.vsdx.mxVsdxMaster;
-import com.mxgraph.io.vsdx.mxVsdxUtils;
 import com.mxgraph.io.vsdx.mxVsdxModel;
 import com.mxgraph.io.vsdx.mxVsdxPage;
+import com.mxgraph.io.vsdx.mxVsdxUtils;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
-import com.mxgraph.online.GaeUtils;
 import com.mxgraph.online.Utils;
 import com.mxgraph.online.mxBase64;
 import com.mxgraph.util.mxConstants;
@@ -162,11 +162,21 @@ public class mxVsdxCodec
 					{
 						try 
 						{
-							if (GaeUtils.isGae())
-							{
-								base64Str = GaeUtils.convertBmp(out.toByteArray());
-							}
-							else
+//							if (GaeUtils.isGae())
+//							{
+//								ImagesService imagesService = ImagesServiceFactory.getImagesService();
+//								
+//								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
+//
+//								//dummy transform
+//								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+//
+//								//Use PNG format as it is lossless similar to BMP but compressed
+//								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
+//
+//								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+//							}
+//							else
 							{
 								//Use ImageIO as it is normally available in other servlet containers (e.g.; Tomcat)
 								ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
@@ -229,6 +239,10 @@ public class mxVsdxCodec
 			if (!page.isBackground())
 			{
 				mxGraph graph = new mxGraphHeadless();
+				//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
+				graph.setExtendParents(false);
+				graph.setExtendParentsOnAdd(false);
+				
 				graph.setConstrainChildren(false);
 				graph.setHtmlLabels(true);
 	
@@ -649,7 +663,6 @@ public class mxVsdxCodec
 						else
 						{
 							addVertex(graph, subShape, group, pageId, d.getY());
-
 						}
 					}
 				}
@@ -678,7 +691,35 @@ public class mxVsdxCodec
 			shape.createLabelSubShape(graph, group);
 		}
 
+		//rotate sub vertices coordinates based on parent rotation. It should be done here after the group size if determined
+		double rotation = shape.getRotation();
+		if (rotation != 0)
+		{
+			mxGeometry pgeo = group.getGeometry();
+			double hw = pgeo.getWidth() / 2, hh = pgeo.getHeight() / 2;
+			for (int i = 0; i < group.getChildCount(); i++)
+			{
+				mxICell child = group.getChildAt(i);
+				rotatedPoint(child.getGeometry(), rotation, hw, hh);				
+			}
+		}
 		return group;
+	}
+
+	public static void rotatedPoint(mxGeometry geo, double rotation,
+			double cx, double cy)
+	{
+		rotation = Math.toRadians(rotation);
+		double cos = Math.cos(rotation), sin = Math.sin(rotation);
+
+		double x = geo.getCenterX() - cx;
+		double y = geo.getCenterY() - cy;
+
+		double x1 = x * cos - y * sin;
+		double y1 = y * cos + x * sin;
+
+		geo.setX(Math.round(x1 + cx - geo.getWidth() / 2));
+		geo.setY(Math.round(y1 + cy - geo.getHeight() / 2));
 	}
 
 	/**
@@ -897,9 +938,31 @@ public class mxVsdxCodec
 		Map<String, String> styleMap = edgeShape
 				.getStyleFromEdgeShape(parentHeight);
 		//Insert new edge and set constraints.
-		Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source,
-				target, mxVsdxUtils.getStyleString(styleMap, "="));
-
+		Object edge;
+		double rotation = edgeShape.getRotation();
+		if (rotation != 0)
+		{
+			edge = graph.insertEdge(parent, null, null, source,
+					target, mxVsdxUtils.getStyleString(styleMap, "="));
+			
+			mxCell label = edgeShape.createLabelSubShape(graph, (mxCell) edge);
+			if (label != null)
+			{
+				label.setStyle(label.getStyle() + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
+				
+				mxGeometry geo = label.getGeometry();
+				geo.setX(0);
+				geo.setY(0);
+				geo.setRelative(true);
+				geo.setOffset(new mxPoint(-geo.getWidth() / 2, -geo.getHeight() / 2));
+			}
+		}
+		else
+		{
+			edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source,
+					target, mxVsdxUtils.getStyleString(styleMap, "="));
+		}
+		
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
 
@@ -975,7 +1038,28 @@ public class mxVsdxCodec
 		//TODO add style numeric entries rounding option
 		
 		//Insert new edge and set constraints.
-		Object edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+		Object edge;
+		double rotation = edgeShape.getRotation();
+		if (rotation != 0)
+		{
+			edge = graph.insertEdge(parent, null, null, null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+			
+			mxCell label = edgeShape.createLabelSubShape(graph, (mxCell) edge);
+			if (label != null)
+			{
+				label.setStyle(label.getStyle() + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
+				
+				mxGeometry geo = label.getGeometry();
+				geo.setX(0);
+				geo.setY(0);
+				geo.setRelative(true);
+				geo.setOffset(new mxPoint(-geo.getWidth() / 2, -geo.getHeight() / 2));
+			}
+		}
+		else
+		{
+			edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+		}
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
 		
