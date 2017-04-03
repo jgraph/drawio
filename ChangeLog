@@ -1,3 +1,8 @@
+03-APR-2017: 6.4.3
+
+- Improvements to theming support for vsdx import
+- Fixes for grouped rotations in vsdx import
+
 28-MAR-2017: 6.4.2
 
 - Fixes embedded sheets in Google Drive Connector
