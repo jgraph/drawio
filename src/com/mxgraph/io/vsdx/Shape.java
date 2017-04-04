@@ -68,6 +68,9 @@ public class Shape extends Style
 	
 	protected List<Element> geom;
 	
+	protected List<mxVsdxGeometry> geomList = null;
+	protected boolean geomListProcessed = false;
+	
 	protected Map<String, String> imageData;
 
 	protected mxVsdxTheme theme;
@@ -96,6 +99,45 @@ public class Shape extends Style
 			theme.setVariant(themeVariant);
 		}
 		return theme;
+	}
+	
+	public List<mxVsdxGeometry> getGeomList()
+	{
+		return geomList;
+	}
+	
+	protected void processGeomList(List<mxVsdxGeometry> parentGeo)
+	{
+		if (!geomListProcessed)
+		{
+			if (geom != null)
+			{
+				geomList = new ArrayList<>(geom.size());
+				
+				for (int i = 0; i < geom.size(); i++)
+				{
+					if (parentGeo != null && i < parentGeo.size())
+					{
+						geomList.add(parentGeo.get(i));
+					}
+					else
+					{
+						geomList.add(null);
+					}
+				}
+				
+				for (Element geoElem : geom)
+				{
+					mxVsdxGeometry geo = new mxVsdxGeometry(geoElem, parentGeo);
+					geomList.set(geo.getIndex(), geo);
+				}
+			}
+			else
+			{
+				geomList = parentGeo;
+			}
+			geomListProcessed = true;
+		}
 	}
 	
 	/**
@@ -232,7 +274,7 @@ public class Shape extends Style
 
 			this.geom.add(elem);
 		}
-		if (n.equals("Field"))
+		else if (n.equals("Field"))
 		{
 			ArrayList<Element> rows = mxVsdxUtils.getDirectChildNamedElements(elem, "Row");
 			
@@ -1041,14 +1083,14 @@ public class Shape extends Style
 		return !(this.geom == null || this.geom.isEmpty());
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Returns whether or not this shape or its master has a geometry defined
+	 * @return whether the shape has a geometry
+	 */
+	public boolean hasGeomList()
+	{
+		return !(this.geomList == null || this.geomList.isEmpty());
+	}
 	
 	/**
 	 * Last cp IX referenced in the Text Element.

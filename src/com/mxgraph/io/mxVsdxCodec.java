@@ -30,12 +30,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.mxgraph.io.vsdx.Shape;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesService.OutputEncoding;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
+import com.google.appengine.api.utils.SystemProperty;
 import com.mxgraph.io.vsdx.ShapePageId;
 import com.mxgraph.io.vsdx.VsdxShape;
 import com.mxgraph.io.vsdx.mxPathDebug;
 import com.mxgraph.io.vsdx.mxVsdxConnect;
 import com.mxgraph.io.vsdx.mxVsdxConstants;
+import com.mxgraph.io.vsdx.mxVsdxGeometry;
 import com.mxgraph.io.vsdx.mxVsdxMaster;
 import com.mxgraph.io.vsdx.mxVsdxModel;
 import com.mxgraph.io.vsdx.mxVsdxPage;
@@ -162,21 +168,23 @@ public class mxVsdxCodec
 					{
 						try 
 						{
-//							if (GaeUtils.isGae())
-//							{
-//								ImagesService imagesService = ImagesServiceFactory.getImagesService();
-//								
-//								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
-//
-//								//dummy transform
-//								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
-//
-//								//Use PNG format as it is lossless similar to BMP but compressed
-//								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
-//
-//								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
-//							}
-//							else
+							String environ = SystemProperty.environment.get();
+
+							if (environ.equals("Production") || environ.equals("Development"))
+							{
+								ImagesService imagesService = ImagesServiceFactory.getImagesService();
+								
+								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
+
+								//dummy transform
+								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+
+								//Use PNG format as it is lossless similar to BMP but compressed
+								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
+
+								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
+							}
+							else
 							{
 								//Use ImageIO as it is normally available in other servlet containers (e.g.; Tomcat)
 								ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
@@ -590,18 +598,31 @@ public class mxVsdxCodec
 		//Define dimensions
 		mxPoint d = shape.getDimensions();
 		mxVsdxMaster master = shape.getMaster();
-		Shape masterSubShape = master == null ? null : master.getSubShape(shape.getShapeMasterId());
-		boolean masterHasGeom = masterSubShape == null ? false : masterSubShape.hasGeom();
-		boolean hasGeom = shape.hasGeom() || masterHasGeom;
+		//Shape inherit its master geometry, so we don't need to check its master
+		boolean hasGeom = shape.hasGeomList();
 
 		//Define style
 		Map<String, String> styleMap = shape.getStyleFromShape();
 		
-		if (!hasGeom)
+		boolean noFill = true, noLine = true;
+		if (hasGeom)
+		{
+			for (mxVsdxGeometry geo : shape.getGeomList())
+			{
+				noFill &= (geo.isNoFill() || geo.isNoShow());
+				noLine &= (geo.isNoLine() || geo.isNoShow());
+			}
+		}
+		
+		if (noFill)
 		{
 			styleMap.put(mxConstants.STYLE_FILLCOLOR, "none");
-			styleMap.put(mxConstants.STYLE_STROKECOLOR, "none");
 			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, "none");
+		}
+		
+		if (noLine)
+		{
+			styleMap.put(mxConstants.STYLE_STROKECOLOR, "none");
 		}
 
 		styleMap.put("html", "1");
@@ -611,7 +632,7 @@ public class mxVsdxCodec
 
 		mxCell group = null;
 		Map<Integer, VsdxShape> children = shape.getChildShapes();
-		boolean hasChildren = false;//children != null && children.size() > 0;
+		boolean hasChildren = children != null && children.size() > 0;
 		boolean subLabel = shape.isDisplacedLabel() || shape.isRotatedLabel() || hasChildren;
 		mxPoint o = shape.getOriginPoint(parentHeight, true);
 
@@ -682,6 +703,10 @@ public class mxVsdxCodec
 					edgeShapeMap.put(new ShapePageId(pageId, Id),
 							subShape);
 					parentsMap.put(new ShapePageId(pageId, Id), group);
+				}
+				else
+				{
+					addUnconnectedEdge(graph, group, subShape, parentHeight);
 				}
 			}
 		}
@@ -964,7 +989,7 @@ public class mxVsdxCodec
 		}
 		
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
-		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
+		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation()));
 
 		if (fromConstraint != null)
 		{
@@ -1061,7 +1086,7 @@ public class mxVsdxCodec
 			edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
 		}
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
-		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY));
+		edgeGeometry.setPoints(edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation()));
 		
 		edgeGeometry.setTerminalPoint(beginXY, true);
 		edgeGeometry.setTerminalPoint(endXY, false);

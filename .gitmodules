@@ -1,0 +1,3 @@
+[submodule "gae-stub"]
+	path = gae-stub
+	url = https://github.com/jgraph/gae-stub.git

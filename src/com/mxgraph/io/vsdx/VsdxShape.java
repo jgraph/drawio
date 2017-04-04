@@ -27,6 +27,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.mxgraph.io.vsdx.geometry.LineTo;
+import com.mxgraph.io.vsdx.geometry.MoveTo;
+import com.mxgraph.io.vsdx.geometry.Row;
 import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -204,6 +207,17 @@ public class VsdxShape extends Shape
 		int variant = page.getCellIntValue("VariationColorIndex", 0);
 		
 		setThemeAndVariant(theme, variant);
+		
+		//process shape geometry
+		if (masterShape != null)
+		{
+			masterShape.processGeomList(null);
+			processGeomList(masterShape.getGeomList());
+		}
+		else
+		{
+			processGeomList(null);
+		}
 	}
 	
 	/**
@@ -1430,15 +1444,18 @@ public class VsdxShape extends Shape
 				// String foreignType = "";
 				this.styleDebug("shape type = " + type);
 
-				if (this.imageData != null)
+				//The master may contain the foreign object data
+				if (this.imageData != null || (mxVsdxConstants.FOREIGN.equals(type) && masterShape.imageData != null))
 				{
+					Map<String, String> imageData = this.imageData != null? this.imageData : masterShape.imageData;
+					
 					result.put("shape", "image");
 					result.put("aspect", "fixed");
-					String iType = this.imageData.get("iType");
-					String iData = this.imageData.get("iData");
+					String iType = imageData.get("iType");
+					String iData = imageData.get("iData");
 					
 					result.put("image", "data:image/" + iType + "," + iData);
-					return result;
+					return result;					
 				}
 						
 				String parsedGeom = "";
@@ -1726,116 +1743,70 @@ public class VsdxShape extends Shape
 		return new mxPoint(endX, endY);
 	}
 	
+	private void rotatedPoint(mxPoint pt, double cos, double sin)
+	{
+		double x1 = pt.getX() * cos - pt.getY() * sin;
+		double y1 = pt.getY() * cos + pt.getX() * sin;
+
+		pt.setX(x1);
+		pt.setY(y1);
+	}
+	
 	/**
 	 * Returns the list of routing points of a edge shape.
 	 * @param parentHeight Height of the parent of the shape.
 	 * @return List of mxPoint that represents the routing points.
 	 */
-	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint)
+	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation/*, boolean flibX, boolean flibY*/)
 	{
 		List<mxPoint> points = new ArrayList<mxPoint>();
 		
-		if (!(this.hasGeom()))
+		if (!(this.hasGeomList()))
 		{
 			return points;
 		}
 		
-		int controlPointCount = 0;
-		int currentPointCount = 0;
-		double lastX = startPoint.getX();
-		double lastY = startPoint.getY();
 		double offsetX = 0;
 		double offsetY = 0;
 		
-		for (int i = 0; i < 2; i++)
+		for (mxVsdxGeometry geo : geomList)
 		{
-			for (int j = 0; j < geom.size(); j++)
+			if (!geo.isNoShow())
 			{
-				Node child = geom.get(j).getFirstChild();
+				ArrayList<Row> rows = geo.getRows();
 				
-				while (child != null)
+				for (Row row : rows)
 				{
-					if (child instanceof Element)
+					if (row instanceof MoveTo)
 					{
-						Element childElem = (Element) child;
-						String childName = childElem.getNodeName();
-						String del = childElem.getAttribute("Del");
-						
-						if (childName.equals("Cell"))
-						{
-							childName = childElem.getAttribute("N");
-						}
-						else if (childName.equals("Row"))
-						{
-							childName = childElem.getAttribute("T");
-						}
-						
-						if (!del.equals("1"))
-						{
-							switch (childName)
-							{
-								case "MoveTo":
-									{
-										// Initial moveto behaves as a offset to the whole connector
-										Map <String, String> children = getChildValues(childElem, null);
-										String xValue = children.get("X");
-										String yValue = children.get("Y");
-										
-										offsetX = xValue != null ? Double.parseDouble(xValue) : 0;
-										offsetY = yValue != null ? Double.parseDouble(yValue) : 0;
-									}
-									break;
-								case "LineTo":
-									{
-										if (i == 0)
-										{
-											controlPointCount++;
-										}
-										else if (currentPointCount < controlPointCount - 1)
-										{
-											Map <String, String> children = getChildValues(childElem, null);
-											String xValue = children.get("X");
-											String yValue = children.get("Y");
-											double x = 0, y = 0;
-												
-											if (xValue != null)
-											{
-												x = (Double.parseDouble(xValue) - offsetX) * mxVsdxUtils.conversionFactor;
-												lastX = x;
-												x += startPoint.getX();
-											}
-											else
-											{
-												x = lastX;
-											}
-											
-											if (yValue != null)
-											{
-												y = ((Double.parseDouble(yValue) - offsetY) * mxVsdxUtils.conversionFactor) * -1;
-												lastY = y;
-												y += startPoint.getY();
-											}
-											else
-											{
-												y = lastY;
-											}
-											
-											x = Math.round(x * 100.0) / 100.0;
-											y = Math.round(y * 100.0) / 100.0;
-				
-											points.add(new mxPoint(x, y));
-											currentPointCount++;
-										}
-									}
-									break;
-								default:
-									break;
-									
-							}
-						}
+						offsetX = row.getX() != null? row.getX() : 0;
+						offsetY = row.getY() != null? row.getY() : 0;
 					}
-	
-					child = child.getNextSibling();
+					else if (row instanceof LineTo)
+					{
+						
+						double x = row.getX() != null? row.getX() : 0, y = row.getY() != null? row.getY() : 0;
+
+						mxPoint p = new mxPoint(x, y);
+						if (rotation != 0)
+						{
+							rotation = Math.toRadians(360 - rotation);
+							rotatedPoint(p, Math.cos(rotation), Math.sin(rotation));
+						}
+
+						x = (p.getX() - offsetX) * mxVsdxUtils.conversionFactor;
+						x += startPoint.getX();
+
+						y = ((p.getY() - offsetY) * mxVsdxUtils.conversionFactor) * -1;
+						y += startPoint.getY();
+
+						x = Math.round(x * 100.0) / 100.0;
+						y = Math.round(y * 100.0) / 100.0;
+						
+						p.setX(x);
+						p.setY(y);
+						points.add(p);						
+					}
 				}
 			}
 		}
