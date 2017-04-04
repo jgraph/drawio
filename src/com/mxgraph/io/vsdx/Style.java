@@ -464,7 +464,7 @@ public class Style
 				{
 					inherit = true;
 				}
-				else if (form.equals("THEMEVAL()") && value.equals("Themed") && style != null)
+				else if (form.contains("THEMEVAL()") && value.equals("Themed") && style != null)
 				{
 					//Handle theme here
 					//FIXME this is a very hacky way to test themes until fully integrating themes
