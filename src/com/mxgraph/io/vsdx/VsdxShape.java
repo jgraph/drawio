@@ -1743,15 +1743,6 @@ public class VsdxShape extends Shape
 		return new mxPoint(endX, endY);
 	}
 	
-	private void rotatedPoint(mxPoint pt, double cos, double sin)
-	{
-		double x1 = pt.getX() * cos - pt.getY() * sin;
-		double y1 = pt.getY() * cos + pt.getX() * sin;
-
-		pt.setX(x1);
-		pt.setY(y1);
-	}
-	
 	/**
 	 * Returns the list of routing points of a edge shape.
 	 * @param parentHeight Height of the parent of the shape.
@@ -1759,59 +1750,11 @@ public class VsdxShape extends Shape
 	 */
 	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation/*, boolean flibX, boolean flibY*/)
 	{
-		List<mxPoint> points = new ArrayList<mxPoint>();
-		
-		if (!(this.hasGeomList()))
+		if (geomList != null)
 		{
-			return points;
+			return geomList.getRoutingPoints(parentHeight, startPoint, rotation); 
 		}
-		
-		double offsetX = 0;
-		double offsetY = 0;
-		
-		for (mxVsdxGeometry geo : geomList)
-		{
-			if (!geo.isNoShow())
-			{
-				ArrayList<Row> rows = geo.getRows();
-				
-				for (Row row : rows)
-				{
-					if (row instanceof MoveTo)
-					{
-						offsetX = row.getX() != null? row.getX() : 0;
-						offsetY = row.getY() != null? row.getY() : 0;
-					}
-					else if (row instanceof LineTo)
-					{
-						
-						double x = row.getX() != null? row.getX() : 0, y = row.getY() != null? row.getY() : 0;
-
-						mxPoint p = new mxPoint(x, y);
-						if (rotation != 0)
-						{
-							rotation = Math.toRadians(360 - rotation);
-							rotatedPoint(p, Math.cos(rotation), Math.sin(rotation));
-						}
-
-						x = (p.getX() - offsetX) * mxVsdxUtils.conversionFactor;
-						x += startPoint.getX();
-
-						y = ((p.getY() - offsetY) * mxVsdxUtils.conversionFactor) * -1;
-						y += startPoint.getY();
-
-						x = Math.round(x * 100.0) / 100.0;
-						y = Math.round(y * 100.0) / 100.0;
-						
-						p.setX(x);
-						p.setY(y);
-						points.add(p);						
-					}
-				}
-			}
-		}
-
-		return points;
+		return null;
 	}
 
 	/**

@@ -1,3 +1,11 @@
+05-APR_2017: 6.4.5
+
+- .vsdx import improvements
+
+03-APR_2017: 6.4.4
+
+- Increases black header title in Conf Cloud to push tick and cross out of visible area
+
 03-APR-2017: 6.4.3
 
 - Improvements to theming support for vsdx import

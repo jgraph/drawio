@@ -66,26 +66,29 @@ Editor.pageCounter = 0;
 // were opened from another domain then this will fail.
 (function()
 {
-	try
+	if (mxClient.IS_FF) // https://drawio.atlassian.net/browse/DS-795
 	{
-		var op = window;
-		
-		while (op.opener != null && typeof op.opener.Editor !== 'undefined' &&
-			!isNaN(op.opener.Editor.pageCounter))
+		try
 		{
-			op = op.opener;
+			var op = window;
+			
+			while (op.opener != null && typeof op.opener.Editor !== 'undefined' &&
+				!isNaN(op.opener.Editor.pageCounter))
+			{
+				op = op.opener;
+			}
+			
+			// Increments the counter in the first opener in the chain
+			if (op != null)
+			{
+				op.Editor.pageCounter++;
+				Editor.pageCounter = op.Editor.pageCounter;
+			}
 		}
-		
-		// Increments the counter in the first opener in the chain
-		if (op != null)
+		catch (e)
 		{
-			op.Editor.pageCounter++;
-			Editor.pageCounter = op.Editor.pageCounter;
+			// ignore
 		}
-	}
-	catch (e)
-	{
-		// ignore
 	}
 })();
 

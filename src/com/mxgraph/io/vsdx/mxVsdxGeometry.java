@@ -1,6 +1,7 @@
 package com.mxgraph.io.vsdx;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class mxVsdxGeometry {
 		
 		if (sortNeeded)
 		{
-			rows.sort(new Comparator<Row>() 
+			Collections.sort(rows, new Comparator<Row>() 
 			{
 				@Override
 				public int compare(Row r1, Row r2) 
