@@ -362,6 +362,7 @@
 		<fileset dir="${basedir}/jars" includes="commons-fileupload-1.3.2.jar" />
 		<fileset dir="${basedir}/jars" includes="gson-2.7.jar" />
 		<fileset dir="${basedir}/jars" includes="commons-lang3-3.5.jar" />
+		<fileset dir="${basedir}/jars" includes="gae-stub-1.0.1.jar" />
 	</path>
 
 	<target name="javac" depends="app" description="Java compilation">
