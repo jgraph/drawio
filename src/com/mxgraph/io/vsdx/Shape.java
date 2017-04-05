@@ -68,7 +68,7 @@ public class Shape extends Style
 	
 	protected List<Element> geom;
 	
-	protected List<mxVsdxGeometry> geomList = null;
+	protected mxVsdxGeometryList geomList = null;
 	protected boolean geomListProcessed = false;
 	
 	protected Map<String, String> imageData;
@@ -101,41 +101,20 @@ public class Shape extends Style
 		return theme;
 	}
 	
-	public List<mxVsdxGeometry> getGeomList()
-	{
-		return geomList;
-	}
-	
-	protected void processGeomList(List<mxVsdxGeometry> parentGeo)
+	protected void processGeomList(mxVsdxGeometryList parentGeoList)
 	{
 		if (!geomListProcessed)
 		{
+			geomList = new mxVsdxGeometryList(parentGeoList);
+
 			if (geom != null)
 			{
-				geomList = new ArrayList<>(geom.size());
-				
-				for (int i = 0; i < geom.size(); i++)
-				{
-					if (parentGeo != null && i < parentGeo.size())
-					{
-						geomList.add(parentGeo.get(i));
-					}
-					else
-					{
-						geomList.add(null);
-					}
-				}
-				
 				for (Element geoElem : geom)
 				{
-					mxVsdxGeometry geo = new mxVsdxGeometry(geoElem, parentGeo);
-					geomList.set(geo.getIndex(), geo);
+					geomList.addGeometry(geoElem);
 				}
 			}
-			else
-			{
-				geomList = parentGeo;
-			}
+
 			geomListProcessed = true;
 		}
 	}
@@ -1089,7 +1068,7 @@ public class Shape extends Style
 	 */
 	public boolean hasGeomList()
 	{
-		return !(this.geomList == null || this.geomList.isEmpty());
+		return this.geomList != null && this.geomList.hasGeom();
 	}
 	
 	/**
@@ -1609,5 +1588,10 @@ public class Shape extends Style
 		}
 
 		return vertical;
+	}
+
+	public mxVsdxGeometryList getGeomList() 
+	{
+		return geomList;
 	}
 }

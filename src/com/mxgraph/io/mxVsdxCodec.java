@@ -42,6 +42,7 @@ import com.mxgraph.io.vsdx.mxPathDebug;
 import com.mxgraph.io.vsdx.mxVsdxConnect;
 import com.mxgraph.io.vsdx.mxVsdxConstants;
 import com.mxgraph.io.vsdx.mxVsdxGeometry;
+import com.mxgraph.io.vsdx.mxVsdxGeometryList;
 import com.mxgraph.io.vsdx.mxVsdxMaster;
 import com.mxgraph.io.vsdx.mxVsdxModel;
 import com.mxgraph.io.vsdx.mxVsdxPage;
@@ -598,29 +599,19 @@ public class mxVsdxCodec
 		//Define dimensions
 		mxPoint d = shape.getDimensions();
 		mxVsdxMaster master = shape.getMaster();
-		//Shape inherit its master geometry, so we don't need to check its master
-		boolean hasGeom = shape.hasGeomList();
-
 		//Define style
 		Map<String, String> styleMap = shape.getStyleFromShape();
 		
-		boolean noFill = true, noLine = true;
-		if (hasGeom)
-		{
-			for (mxVsdxGeometry geo : shape.getGeomList())
-			{
-				noFill &= (geo.isNoFill() || geo.isNoShow());
-				noLine &= (geo.isNoLine() || geo.isNoShow());
-			}
-		}
+		//Shape inherit its master geometry, so we don't need to check its master
+		mxVsdxGeometryList geomList = shape.getGeomList();
 		
-		if (noFill)
+		if (geomList.isNoFill())
 		{
 			styleMap.put(mxConstants.STYLE_FILLCOLOR, "none");
 			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, "none");
 		}
 		
-		if (noLine)
+		if (geomList.isNoLine())
 		{
 			styleMap.put(mxConstants.STYLE_STROKECOLOR, "none");
 		}
