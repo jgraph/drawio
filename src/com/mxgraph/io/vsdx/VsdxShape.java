@@ -27,9 +27,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.mxgraph.io.vsdx.geometry.LineTo;
-import com.mxgraph.io.vsdx.geometry.MoveTo;
-import com.mxgraph.io.vsdx.geometry.Row;
 import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -213,6 +210,11 @@ public class VsdxShape extends Shape
 		{
 			masterShape.processGeomList(null);
 			processGeomList(masterShape.getGeomList());
+
+			//recalculate width and height using master data
+			if (this.width == 0) this.width = getScreenNumericalValue(getCellElement(mxVsdxConstants.WIDTH), 0);
+			
+			if (this.height == 0) this.height = getScreenNumericalValue(getCellElement(mxVsdxConstants.HEIGHT), 0);
 		}
 		else
 		{
@@ -1003,6 +1005,12 @@ public class VsdxShape extends Shape
 	 */
 	public double getLineWidth()
 	{
+		//if an edge has a fill geometry, then the line width matches the min of the shape width & height 
+		if (!isVertex() && geomList != null && !geomList.isNoFill())
+		{
+			return Math.min(height, width);
+		}
+
 		String lineWeight = getValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), "0");
 		
 		double lWeight = 0;
@@ -1445,7 +1453,7 @@ public class VsdxShape extends Shape
 				this.styleDebug("shape type = " + type);
 
 				//The master may contain the foreign object data
-				if (this.imageData != null || (mxVsdxConstants.FOREIGN.equals(type) && masterShape.imageData != null))
+				if (this.imageData != null || (mxVsdxConstants.FOREIGN.equals(type) && masterShape != null && masterShape.imageData != null))
 				{
 					Map<String, String> imageData = this.imageData != null? this.imageData : masterShape.imageData;
 					
@@ -2072,8 +2080,8 @@ public class VsdxShape extends Shape
 		double txtHV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_HEIGHT), getHeight());
 		double txtLocPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), txtWV / 2.0);
 		double txtLocPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), txtHV / 2.0);
-		double txtPinXV =getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
-		double txtPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_Y), txtHV);
+		double txtPinXV =getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_X), txtLocPinXV);
+		double txtPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_Y), txtLocPinYV);
 		double txtAngleV = getValueAsDouble(getShapeNode(mxVsdxConstants.TXT_ANGLE), 0);
 
 		String textLabel = getTextLabel();
@@ -2084,9 +2092,11 @@ public class VsdxShape extends Shape
 			styleMap.put(mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
 			styleMap.put(mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
 			styleMap.put(mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE);
-			styleMap.put("align", "center");
-			styleMap.put("verticalAlign", "middle");
-			styleMap.put("whiteSpace", "wrap");
+			
+			//We don't need to override these attributes in order to properly align the text
+			if (!styleMap.containsKey("align")) styleMap.put("align", "center");
+			if (!styleMap.containsKey("verticalAlign")) styleMap.put("verticalAlign", "middle");
+			if (!styleMap.containsKey("whiteSpace")) styleMap.put("whiteSpace", "wrap");
 			
 			// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
 			styleMap.remove("shape");

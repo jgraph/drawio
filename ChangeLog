@@ -1,8 +1,12 @@
-05-APR_2017: 6.4.5
+06-APR-2017: 6.4.6
+
+- Works around page counter loop condition in FF
+
+05-APR-2017: 6.4.5
 
 - .vsdx import improvements
 
-03-APR_2017: 6.4.4
+03-APR-2017: 6.4.4
 
 - Increases black header title in Conf Cloud to push tick and cross out of visible area
 
