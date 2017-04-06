@@ -66,7 +66,7 @@ Editor.pageCounter = 0;
 // were opened from another domain then this will fail.
 (function()
 {
-	if (mxClient.IS_FF) // https://drawio.atlassian.net/browse/DS-795
+	if (!mxClient.IS_FF) // https://drawio.atlassian.net/browse/DS-795
 	{
 		try
 		{
