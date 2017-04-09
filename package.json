@@ -1,0 +1,13 @@
+{
+  "name": "draw.io",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "http-server docs",
+    "build:app": "shrinkray -i docs -o output/drawio.app"
+  },
+  "devDependences": {},
+  "devDependencies": {
+    "http-server": "^0.9.0",
+    "shrinkray": "^1.0.7"
+  }
+}

@@ -57,6 +57,11 @@
 			return result;
 		})();
 
+        // Make it demo by default so that urls are cleaner when hosting as github pages
+        // and such
+        urlParams['demo'] = "1";
+        urlParams['dev'] == '0'
+
 		// Redirects page if required
 		if (urlParams['dev'] != '1')
 		{
@@ -76,7 +81,7 @@
 					}
 
 					// Redirects to SSL/non-SSL
-					/*if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
+					if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
 					{
 						var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
 							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
@@ -89,7 +94,7 @@
 						{
 							proto = 'http:';
 						}
-					}*/
+					}
 
 					var href = proto + '//' + host + window.location.href.substring(
 							window.location.protocol.length +
@@ -324,7 +329,7 @@
 		if (window && window.process && window.process.type)
 		{
 			// Electron
-			mxscript('js/diagramly/ElectronApp.js');
+			//mxscript('js/diagramly/ElectronApp.js');
 		}
 
 		// Adds basic error handling
@@ -342,7 +347,7 @@
 </head>
 <body class="geEditor">
 <div id="geInfo">
-	<div class="geBlock" style="text-align:center;min-width:50%;">
+	<div class="geBlock" style="text-align:center;min-width:50%; display:none;">
 		<h1>Flowchart Maker and Online Diagram Software</h1>
 		<p>
 			draw.io (formerly Diagramly) is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool,
@@ -354,7 +359,7 @@
 		</p>
 	</div>
 </div>
-<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:170px;">
+<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:170px; display:none">
 	<div class="geSocialFooter" style="position:absolute;right:32px;white-space:nowrap;">
     	<a href="https://plus.google.com/u/0/+DrawIo1/posts" title="draw.io on Google+" target="_blank">
     		<img border="0" width="24" height="24" src="images/glyphicons_google.png" alt="draw.io on Google+"/>

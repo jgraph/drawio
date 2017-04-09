@@ -1,28 +1,29 @@
-[![Build Status](https://travis-ci.org/jgraph/draw.io.png?branch=master)](https://travis-ci.org/jgraph/draw.io)
+### draw.io
+Uses shrinkray to turn the original [draw.io](https://github.com/jgraph/draw.io) webapp (GPL) into a macOS app.
 
-About
------
-[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project.
+### Contributing
 
-draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
+ 1. Get the source and install it's dependencies
+        git clone git@github.com:francoislaberge/draw.io.git
+        cd draw.io
+        npm install
+        npm run build
+ 2. The `drawio.app` will now exist in the `output` folder.
 
-License
--------
-draw.io is licensed under the GPL v3.
 
-Development
------------
+### License
 
-A development guide is being started on the GitHub project wiki. There is a [draw.io](http://stackoverflow.com/questions/tagged/draw.io) tag on Stack Overflow currently, please make sure any questions adhere to their guidelines for question.
+    Copyright (C) 2013-2016 ViliusL
 
-The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
+    miniPaint is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-Running
--------
-The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
+    miniPaint is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
-
-Supported Browsers
-------------------
-draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 7.1.x, 8.0.x, 9.1.x and 10.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 10.x and 9.x) and Edge 23+.
+    You should have received a copy of the GNU General Public License
+    along with miniPaint.  If not, see <http://www.gnu.org/licenses/>.
