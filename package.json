@@ -6,7 +6,7 @@
     "build:app": "shrinkray -i docs -o output/drawio.app",
     "publish:patch": "build:app; npm version patch; git push; git push --tags",
     "publish:minor": "build:app; npm version minor; git push; git push --tags",
-    "publish:major": "build:app; npm version major; git push; git push --tags",
+    "publish:major": "build:app; npm version major; git push; git push --tags"
   },
   "devDependences": {},
   "devDependencies": {
