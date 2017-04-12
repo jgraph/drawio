@@ -370,10 +370,6 @@
 		<javac srcdir="${src.dir}" excludes="**/EmbedServlet2.java" encoding="utf-8" destdir="${javac.dir}" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source">
 			<classpath refid="javac.class.path" />
 		</javac>
-		<copy todir="${javac.dir}/META-INF">
-			<fileset dir="${src.dir}/META-INF">
-			</fileset>
-		</copy>
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
 	</target>
 
