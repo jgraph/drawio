@@ -46,6 +46,8 @@ import com.mxgraph.view.mxGraph;
  */
 public class VsdxShape extends Shape
 {
+	private static final String ARROW_NO_FILL_MARKER = "0";
+
 	/**
 	 * Number of d.p. to round non-integers to
 	 */
@@ -119,11 +121,62 @@ public class VsdxShape extends Shape
 		arrowTypes = new HashMap<Integer, String>();
 		arrowTypes.put(0, mxConstants.NONE);
 		arrowTypes.put(1, mxConstants.ARROW_OPEN);
+		arrowTypes.put(2, "blockThin");
+		arrowTypes.put(3, mxConstants.ARROW_OPEN);
 		arrowTypes.put(4, mxConstants.ARROW_BLOCK);
 		arrowTypes.put(5, mxConstants.ARROW_CLASSIC);
 		arrowTypes.put(10, mxConstants.ARROW_OVAL);
 		arrowTypes.put(13, mxConstants.ARROW_BLOCK);
+		
+		arrowTypes.put(14, ARROW_NO_FILL_MARKER + mxConstants.ARROW_BLOCK);
+		arrowTypes.put(17, ARROW_NO_FILL_MARKER + mxConstants.ARROW_CLASSIC);
+		arrowTypes.put(20, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
+		arrowTypes.put(22, ARROW_NO_FILL_MARKER + "diamond");
+		
+		arrowTypes.put(23, "dash");
+		arrowTypes.put(24, "ERone");
+		arrowTypes.put(25, "ERmandOne");
+		arrowTypes.put(27, "ERmany");
+		arrowTypes.put(28, "ERoneToMany");
+		arrowTypes.put(29, "ERzeroToMany");
+		arrowTypes.put(30, "ERzeroToOne");
+		
+		//approximations
+		arrowTypes.put(6, mxConstants.ARROW_BLOCK);
+		arrowTypes.put(7, mxConstants.ARROW_OPEN);
+		arrowTypes.put(8, mxConstants.ARROW_CLASSIC);
+		
+		arrowTypes.put(9, "openAsync");
+		arrowTypes.put(11, "diamond");
+		
+		arrowTypes.put(12, mxConstants.ARROW_OPEN);
+		
+		arrowTypes.put(15, ARROW_NO_FILL_MARKER + mxConstants.ARROW_BLOCK);
+		arrowTypes.put(16, ARROW_NO_FILL_MARKER + mxConstants.ARROW_BLOCK);
+		arrowTypes.put(18, ARROW_NO_FILL_MARKER + mxConstants.ARROW_BLOCK);
+		arrowTypes.put(19, ARROW_NO_FILL_MARKER + mxConstants.ARROW_CLASSIC);
+		arrowTypes.put(21, ARROW_NO_FILL_MARKER + "diamond");
+		arrowTypes.put(26, "ERmandOne");
+		
+		arrowTypes.put(31, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
+		arrowTypes.put(32, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
+		arrowTypes.put(33, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
+		arrowTypes.put(34, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
 
+		arrowTypes.put(35, mxConstants.ARROW_OVAL);
+		arrowTypes.put(36, mxConstants.ARROW_OVAL);
+		arrowTypes.put(37, mxConstants.ARROW_OVAL);
+		arrowTypes.put(38, mxConstants.ARROW_OVAL);
+		
+		arrowTypes.put(39, mxConstants.ARROW_BLOCK);
+		arrowTypes.put(40, ARROW_NO_FILL_MARKER + mxConstants.ARROW_BLOCK);
+		
+		arrowTypes.put(41, ARROW_NO_FILL_MARKER + mxConstants.ARROW_OVAL);
+		arrowTypes.put(42, mxConstants.ARROW_OVAL);
+		
+		arrowTypes.put(43, mxConstants.ARROW_OPEN);
+		arrowTypes.put(44, mxConstants.ARROW_OPEN);
+		arrowTypes.put(45, mxConstants.ARROW_OPEN);
 	}
 
 	private final static Logger LOGGER = Logger.getLogger(VsdxShape.class.getName());
@@ -248,24 +301,11 @@ public class VsdxShape extends Shape
 	 */
 	public String getTextLabel()
 	{
-		Shape masterShape = null;
 		NodeList txtChildren = getTextChildren();
 
-		if (txtChildren == null && master != null)
+		if (txtChildren == null && masterShape != null)
 		{
-			if (this.getMasterId() != null)
-			{
-				masterShape = master.getMasterShape();
-			}
-			else 
-			{
-				masterShape = master.getSubShape(this.getShapeMasterId());
-			}
-			
-			if (masterShape != null)
-			{
-				txtChildren = masterShape.getTextChildren();
-			}
+			txtChildren = masterShape.getTextChildren();
 		}
 
 		if (this.htmlLabels)
@@ -423,23 +463,9 @@ public class VsdxShape extends Shape
 				{
 					value = this.fields.get(fieldIx);
 					
-					if (value == null)
+					if (value == null && masterShape != null && masterShape.fields != null)
 					{
-						Shape masterShape = null;
-	
-						if (this.getMasterId() != null)
-						{
-							masterShape = master.getMasterShape();
-						}
-						else 
-						{
-							masterShape = master.getSubShape(this.getShapeMasterId());
-						}
-						
-						if (masterShape != null && masterShape.fields != null)
-						{
-							value = masterShape.fields.get(fieldIx);
-						}
+						value = masterShape.fields.get(fieldIx);
 					}
 				}
 			}
@@ -1466,24 +1492,9 @@ public class VsdxShape extends Shape
 					return result;					
 				}
 						
-				String parsedGeom = "";
+				//Shape inherit master geometry and can change some of it or override it completely. So, no need to parse the master instead of the shape itself
+				String parsedGeom = this.parseGeom();
 
-				if (this.masterShape != null)
-				{
-					this.masterShape.debug = this.debug;
-					parsedGeom = this.masterShape.parseGeom();
-				}
-				else
-				{
-					this.styleDebug("No master shape found when looking for geom");
-				}
-				
-				if (parsedGeom.equals(""))
-				{
-					parsedGeom = this.parseGeom();
-					this.styleDebug("No master shape geom found");
-				}
-				
 				if (parsedGeom.equals(""))
 				{
 					this.styleDebug("No geom found");
@@ -1640,8 +1651,6 @@ public class VsdxShape extends Shape
 		String txtWidthF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_WIDTH, "F", "");
 		String txtHeightF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_HEIGHT, "F", "");
 
-		Shape masterShape = master != null ? master.getMasterShape() : null;
-
 		if (masterShape != null)
 		{
 			if (txtPinXF == "" || txtPinXF.toLowerCase().equals("inh"))
@@ -1693,8 +1702,6 @@ public class VsdxShape extends Shape
 	public boolean isRotatedLabel()
 	{
 		String txtAngleValue = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_ANGLE, "V", "");
-
-		Shape masterShape = master != null ? master.getMasterShape() : null;
 
 		if (masterShape != null)
 		{
@@ -1881,6 +1888,11 @@ public class VsdxShape extends Shape
 
 		if(startArrow != null)
 		{
+			if (startArrow.startsWith(ARROW_NO_FILL_MARKER))
+			{
+				startArrow = startArrow.substring(ARROW_NO_FILL_MARKER.length());
+				styleMap.put(mxConstants.STYLE_STARTFILL, "0");
+			}
 			styleMap.put(mxConstants.STYLE_STARTARROW, startArrow);
 		}
 
@@ -1889,6 +1901,11 @@ public class VsdxShape extends Shape
 
 		if(endArrow != null)
 		{
+			if (endArrow.startsWith(ARROW_NO_FILL_MARKER))
+			{
+				endArrow = endArrow.substring(ARROW_NO_FILL_MARKER.length());
+				styleMap.put(mxConstants.STYLE_ENDFILL, "0");
+			}
 			styleMap.put(mxConstants.STYLE_ENDARROW, endArrow);
 		}
 
@@ -2032,6 +2049,7 @@ public class VsdxShape extends Shape
 			//if arrow  head type is not supported, use the open arrow instead
 			type = VsdxShape.arrowTypes.get(1);
 		}
+		
 		return type;
 	}
 	
@@ -2125,5 +2143,30 @@ public class VsdxShape extends Shape
 		}
 
 		return null;
+	}
+
+	public mxPoint getLblEdgeOffset(mxPoint beginXY, mxPoint endXY, List<mxPoint> points) 
+	{
+		//currently, edges with multiple segments are not supported
+		//TODO use the code from https://github.com/jgraph/mxgraph/blob/master/javascript/src/js/view/mxGraphView.js#L1953 to calculate mxGraph label offset instead of the default mid point (width/2, height/2)
+		if (points == null || points.isEmpty() || (points.size() == 1 && points.get(0).equals(endXY)))
+		{
+	        //Calculate the text offset
+	        double txtWV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_WIDTH), getWidth());
+	        double txtHV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_HEIGHT), getHeight());
+	        double txtLocPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), 0);
+	        double txtLocPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), 0);
+	        double txtPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
+	        double txtPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_Y), 0);
+	
+			double y = getHeight()/2 - (txtPinYV - txtLocPinYV + txtHV/2);
+			double x = txtPinXV - txtLocPinXV + txtWV/2 - getWidth()/2;
+	
+	        return new mxPoint(x, y);
+		}
+		else
+		{
+			return null;
+		}
 	}
 }

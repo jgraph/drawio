@@ -1,5 +1,8 @@
 package com.mxgraph.io.vsdx.geometry;
 
+import com.mxgraph.io.vsdx.Shape;
+import com.mxgraph.util.mxPoint;
+
 public class DelRow extends Row{
 
 	public DelRow(int index) {
@@ -7,8 +10,10 @@ public class DelRow extends Row{
 	}
 
 	@Override
-	public void handle() {
+	public String handle(mxPoint p, Shape shape)
+	{
 		//Nothing
+		return "";
 	}
 
 }

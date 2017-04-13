@@ -66,29 +66,28 @@ Editor.pageCounter = 0;
 // were opened from another domain then this will fail.
 (function()
 {
-	if (!mxClient.IS_FF) // https://drawio.atlassian.net/browse/DS-795
+	try
 	{
-		try
+		var op = window;
+
+		while (op.opener != null && typeof op.opener.Editor !== 'undefined' &&
+			!isNaN(op.opener.Editor.pageCounter) &&	
+			// Workaround for possible infinite loop in FF https://drawio.atlassian.net/browse/DS-795
+			op.opener != op)
 		{
-			var op = window;
-			
-			while (op.opener != null && typeof op.opener.Editor !== 'undefined' &&
-				!isNaN(op.opener.Editor.pageCounter))
-			{
-				op = op.opener;
-			}
-			
-			// Increments the counter in the first opener in the chain
-			if (op != null)
-			{
-				op.Editor.pageCounter++;
-				Editor.pageCounter = op.Editor.pageCounter;
-			}
+			op = op.opener;
 		}
-		catch (e)
+		
+		// Increments the counter in the first opener in the chain
+		if (op != null)
 		{
-			// ignore
+			op.Editor.pageCounter++;
+			Editor.pageCounter = op.Editor.pageCounter;
 		}
+	}
+	catch (e)
+	{
+		// ignore
 	}
 })();
 
@@ -629,6 +628,7 @@ OpenFile = function(done)
 	this.producer = null;
 	this.consumer = null;
 	this.done = done;
+	this.args = null;
 };
 
 /**
@@ -643,10 +643,9 @@ OpenFile.prototype.setConsumer = function(value)
 /**
  * Sets the data from the loaded file.
  */
-OpenFile.prototype.setData = function(value, filename)
+OpenFile.prototype.setData = function()
 {
-	this.data = value;
-	this.filename = filename;
+	this.args = arguments;
 	this.execute();
 };
 
@@ -664,10 +663,10 @@ OpenFile.prototype.error = function(msg)
  */
 OpenFile.prototype.execute = function()
 {
-	if (this.consumer != null && this.data != null)
+	if (this.consumer != null && this.args != null)
 	{
 		this.cancel(false);
-		this.consumer(this.data, this.filename);
+		this.consumer.apply(this, this.args);
 	}
 };
 

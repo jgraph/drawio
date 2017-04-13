@@ -1,5 +1,9 @@
 package com.mxgraph.io.vsdx.geometry;
 
+import com.mxgraph.io.vsdx.Shape;
+import com.mxgraph.io.vsdx.mxVsdxUtils;
+import com.mxgraph.util.mxPoint;
+
 public class SplineStart extends Row 
 {
 	public SplineStart(int index, Double x, Double y, Double a, Double b, Double c, Double d) 
@@ -11,10 +15,53 @@ public class SplineStart extends Row
 		this.d = d;
 	}
 
+	//TODO Is this complete?
 	@Override
-	public void handle() 
+	public String handle(mxPoint p, Shape shape)
 	{
+		if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null)
+		{
+			double h = shape.getHeight();
+			double w = shape.getWidth();
+
+			double x = this.x * mxVsdxUtils.conversionFactor;
+			double y = this.y * mxVsdxUtils.conversionFactor;
+			//double a = Double.parseDouble(aValue);
+			//double b = Double.parseDouble(bValue);
+			double c = this.c;
+			int d = this.d.intValue();
+
+			//double firstKnot = b;
+			//double secondKnot = a;
+			double lastKnot = c;
+			
+			shape.setLastKnot(lastKnot);
+			
+			int degree = d;
+//				x = x * 100.0 / w;
+//				y = y * 100.0 / h;
+			y = 100 - y;
+			x = Math.round(x * 100.0) / 100.0;
+			y = Math.round(y * 100.0) / 100.0;
+			lastKnot = Math.round(lastKnot * 100.0) / 100.0;
+			double x0 = shape.getLastX() * w / 100.0;
+			double y0 = shape.getLastY() * h / 100.0;
+			
+			if (debug != null)
+			{
+				debug.drawRect(x0, y0 , "0, " + Integer.toString(degree));
+				debug.drawRect(x, y , Double.toString(lastKnot));
+				debug.drawLine(x0, y0, x, y, "");
+			}
+
+			shape.setLastX(x);
+			shape.setLastY(y);
+
+			return "<curve ";
+		}
 		
+		return "";
+
 	}
 
 }

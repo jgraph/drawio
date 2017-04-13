@@ -136,7 +136,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			if (mxClient.IS_SVG)
 			{
 				// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
-				this.editor.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
+				this.editor.graph.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
 			}
 			
 			// Adds page placeholders

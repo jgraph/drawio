@@ -109,6 +109,9 @@ public class mxVsdxGeometryList
 		
 		List<mxPoint> points = new ArrayList<mxPoint>();
 		
+		//Adding the starting point as a routing point instead of setting the entryX/Y
+		points.add(startPoint);
+		
 		double offsetX = 0;
 		double offsetY = 0;
 		
@@ -157,4 +160,27 @@ public class mxVsdxGeometryList
 		return points;
 	}
 
+	public String getShapeXML(Shape shape)
+	{
+		mxPoint p = new mxPoint(0, 0);
+
+		StringBuilder parsedGeom = new StringBuilder("<shape strokewidth=\"inherit\"><foreground>");
+		int initSize = parsedGeom.length();
+		
+		for (mxVsdxGeometry geo : geomList)
+		{
+			parsedGeom.append(geo.getPathXML(p, shape));
+		}
+
+		if (parsedGeom.length() == initSize)
+		{
+			return "";
+		}
+		
+		//System.out.println(parsedGeom);
+		
+		parsedGeom.append("</foreground></shape>");
+		return parsedGeom.toString();
+	}
+	
 }

@@ -1062,7 +1062,7 @@
 					
 					if (addShadow)
 					{
-						this.editor.addSvgShadow(svgRoot);
+						this.editor.graph.addSvgShadow(svgRoot);
 					}
 					
 					// Embeds the images in the SVG output (async)
@@ -2434,17 +2434,8 @@
 	 */
 	EditorUi.prototype.saveCanvas = function(canvas, xml, format)
 	{
-   		var file = this.getCurrentFile();
-   	    var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-   	    var dot = filename.lastIndexOf('.');
-   	    
-   	    if (dot > 0)
-   	    {
-   	    	filename = filename.substring(0, dot);
-   	    }
-   	    
-   	    var ext = (format == 'jpeg') ? 'jpg' : format;
-   	    filename += '.' + ext;
+		var ext = ((format == 'jpeg') ? 'jpg' : format);
+		var filename = this.getBaseFilename() + '.' + ext;
    	    var data = this.createImageDataUri(canvas, xml, format);
    	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
@@ -2825,20 +2816,10 @@
 			
 			if (addShadow)
 			{
-				this.editor.addSvgShadow(svgRoot);
-			}
-		
-			var file = this.getCurrentFile();
-			var filename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-			
-			var dot = filename.lastIndexOf('.');
-			
-			if (dot > 0)
-			{
-				filename = filename.substring(0, dot);
+				this.editor.graph.addSvgShadow(svgRoot);
 			}
 			
-			filename += '.svg';
+			var filename = this.getBaseFilename() + '.svg';
 
 			var doSave = mxUtils.bind(this, function(svgRoot)
 			{
@@ -3881,7 +3862,7 @@
 		// Adds shadow filter
 		if (shadow)
 		{
-			this.editor.addSvgShadow(svgRoot);
+			this.editor.graph.addSvgShadow(svgRoot);
 		}
 		
 		// SVG inside image tag
@@ -4082,16 +4063,11 @@
 	 */
 	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection, redirect)
 	{
-		var bg = null;
+		var bg = graph.background;
 		
-		if (graph != null)
+		if (bg == mxConstants.NONE)
 		{
-			bg = graph.background;
-			
-			if (bg == mxConstants.NONE)
-			{
-				bg = null;
-			}
+			bg = null;
 		}
 
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
@@ -4268,7 +4244,7 @@
 			{
 				if (addShadow)
 				{
-					this.editor.addSvgShadow(svgRoot);
+					this.editor.graph.addSvgShadow(svgRoot);
 				}
 				
 				this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
@@ -5607,7 +5583,7 @@
 		if (mxClient.IS_SVG)
 		{
 			// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
-			this.editor.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
+			this.editor.graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
 		}
 
 		/**

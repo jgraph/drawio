@@ -40,7 +40,20 @@ public class RowFactory
 			}
 			
 			Double x = null, y = null, a = null, b = null, c = null, d = null;
-			String formulaE = null, formulaA = null;;
+			String formulaE = null, formulaA = null;
+			
+			if (parentObj != null)
+			{
+				x = parentObj.getX();
+				y = parentObj.getY();
+				a = parentObj.getA();
+				b = parentObj.getB();
+				c = parentObj.getC();
+				d = parentObj.getD();
+				formulaA = parentObj.getFormulaA();
+				formulaE = parentObj.getFormulaE();
+			}
+			
 			ArrayList<Element> cells = mxVsdxUtils.getDirectChildElements(elem);
 			
 			for (Element cell : cells)
@@ -52,64 +65,26 @@ public class RowFactory
 				{
 					case "X":
 						x = getDoubleVal(val);
-						
-						if (x == null && parentObj != null) 
-						{
-							x = parentObj.getX();
-						}
 					break;
 					case "Y":
 						y = getDoubleVal(val);
-
-						if (y == null && parentObj != null) 
-						{
-							y = parentObj.getY();
-						}
 					break;
 					case "A":
 						a = getDoubleVal(val);
-						formulaA = val;
-
-						if (a == null && parentObj != null) 
-						{
-							a = parentObj.getA();
-						}
-						if (formulaA == null && parentObj != null) 
-						{
-							formulaA = parentObj.getFormulaA();
-						}
+						//Special case for PolylineTo where we need the F attribute instead of V
+						formulaA = cell.getAttribute("F");
 					break;
 					case "B":
 						b = getDoubleVal(val);
-						
-						if (b == null && parentObj != null) 
-						{
-							b = parentObj.getB();
-						}
 					break;
 					case "C":
 						c = getDoubleVal(val);
-
-						if (c == null && parentObj != null) 
-						{
-							c = parentObj.getC();
-						}
 					break;
 					case "D":
 						d = getDoubleVal(val);
-						
-						if (d == null && parentObj != null) 
-						{
-							d = parentObj.getD();
-						}
 					break;
 					case "E":
 						formulaE = val;
-						
-						if (formulaE == null && parentObj != null) 
-						{
-							formulaE = parentObj.getFormulaE();
-						}
 					break;
 				}
 			}

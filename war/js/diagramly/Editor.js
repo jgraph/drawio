@@ -401,6 +401,9 @@
 		this.graph.view.y0 = null;
 		mxClient.NO_FO = (this.graph.mathEnabled) ? true : this.originalNoForeignObject;
 		editorResetGraph.apply(this, arguments);
+		
+		// Overrides default with persisted value
+		this.graph.pageFormat = mxSettings.getPageFormat();
 	};
 
 	/**
@@ -420,7 +423,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : 'https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+		src = (src != null) ? src : 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 		Editor.mathJaxQueue = [];
 		
 		Editor.doMathJaxRender = function(container)
@@ -508,94 +511,6 @@
 		}
 	};
 
-	/**
-	 * Adds a shadow filter to the given svg root.
-	 */
-	Editor.prototype.addSvgShadow = function(svgRoot, group, createOnly)
-	{
-		createOnly = (createOnly != null) ? createOnly : false;
-		
-		var svgDoc = svgRoot.ownerDocument;
-		
-		var filter = (svgDoc.createElementNS != null) ?
-			svgDoc.createElementNS(mxConstants.NS_SVG, 'filter') : svgDoc.createElement('filter');
-		filter.setAttribute('id', this.graph.shadowId);
-
-		var blur = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'feGaussianBlur') : svgDoc.createElement('feGaussianBlur');
-		blur.setAttribute('in', 'SourceAlpha');
-		blur.setAttribute('stdDeviation', '1.7');
-		blur.setAttribute('result', 'blur');
-		filter.appendChild(blur);
-		
-		var offset = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'feOffset') : svgDoc.createElement('feOffset');
-		offset.setAttribute('in', 'blur');
-		offset.setAttribute('dx', '3');
-		offset.setAttribute('dy', '3');
-		offset.setAttribute('result', 'offsetBlur');
-		filter.appendChild(offset);
-		
-		var flood = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'feFlood') : svgDoc.createElement('feFlood');
-		flood.setAttribute('flood-color', '#3D4574');
-		flood.setAttribute('flood-opacity', '0.4');
-		flood.setAttribute('result', 'offsetColor');
-		filter.appendChild(flood);
-		
-		var composite = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'feComposite') : svgDoc.createElement('feComposite');
-		composite.setAttribute('in', 'offsetColor');
-		composite.setAttribute('in2', 'offsetBlur');
-		composite.setAttribute('operator', 'in');
-		composite.setAttribute('result', 'offsetBlur');
-		filter.appendChild(composite);
-
-		var feBlend = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'feBlend') : svgDoc.createElement('feBlend');
-		feBlend.setAttribute('in', 'SourceGraphic');
-		feBlend.setAttribute('in2', 'offsetBlur');
-		filter.appendChild(feBlend);
-		
-		// Creates defs element if not available
-		var defs = svgRoot.getElementsByTagName('defs');
-		var defsElt = null;
-		
-		if (defs.length == 0)
-		{
-			defsElt = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
-			
-			if (svgRoot.firstChild != null)
-			{
-				svgRoot.insertBefore(defsElt, svgRoot.firstChild);
-			}
-			else
-			{
-				svgRoot.appendChild(defsElt);
-			}
-		}
-		else
-		{
-			defsElt = defs[0];
-		}
-		
-		defsElt.appendChild(filter);
-		
-		if (!createOnly)
-		{
-			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.graph.shadowId + ')');
-			
-			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
-			{
-				svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
-				svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
-			}
-		}
-		
-		return filter;
-	};
-	
 	/**
 	 * Return array of string values, or NULL if CSV string not well formed.
 	 */
@@ -1156,6 +1071,94 @@
 		this.currentStyle = 'default-style2';
 	};
 
+	/**
+	 * Adds a shadow filter to the given svg root.
+	 */
+	Graph.prototype.addSvgShadow = function(svgRoot, group, createOnly)
+	{
+		createOnly = (createOnly != null) ? createOnly : false;
+		
+		var svgDoc = svgRoot.ownerDocument;
+		
+		var filter = (svgDoc.createElementNS != null) ?
+			svgDoc.createElementNS(mxConstants.NS_SVG, 'filter') : svgDoc.createElement('filter');
+		filter.setAttribute('id', this.shadowId);
+
+		var blur = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'feGaussianBlur') : svgDoc.createElement('feGaussianBlur');
+		blur.setAttribute('in', 'SourceAlpha');
+		blur.setAttribute('stdDeviation', '1.7');
+		blur.setAttribute('result', 'blur');
+		filter.appendChild(blur);
+		
+		var offset = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'feOffset') : svgDoc.createElement('feOffset');
+		offset.setAttribute('in', 'blur');
+		offset.setAttribute('dx', '3');
+		offset.setAttribute('dy', '3');
+		offset.setAttribute('result', 'offsetBlur');
+		filter.appendChild(offset);
+		
+		var flood = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'feFlood') : svgDoc.createElement('feFlood');
+		flood.setAttribute('flood-color', '#3D4574');
+		flood.setAttribute('flood-opacity', '0.4');
+		flood.setAttribute('result', 'offsetColor');
+		filter.appendChild(flood);
+		
+		var composite = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'feComposite') : svgDoc.createElement('feComposite');
+		composite.setAttribute('in', 'offsetColor');
+		composite.setAttribute('in2', 'offsetBlur');
+		composite.setAttribute('operator', 'in');
+		composite.setAttribute('result', 'offsetBlur');
+		filter.appendChild(composite);
+
+		var feBlend = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'feBlend') : svgDoc.createElement('feBlend');
+		feBlend.setAttribute('in', 'SourceGraphic');
+		feBlend.setAttribute('in2', 'offsetBlur');
+		filter.appendChild(feBlend);
+		
+		// Creates defs element if not available
+		var defs = svgRoot.getElementsByTagName('defs');
+		var defsElt = null;
+		
+		if (defs.length == 0)
+		{
+			defsElt = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+			
+			if (svgRoot.firstChild != null)
+			{
+				svgRoot.insertBefore(defsElt, svgRoot.firstChild);
+			}
+			else
+			{
+				svgRoot.appendChild(defsElt);
+			}
+		}
+		else
+		{
+			defsElt = defs[0];
+		}
+		
+		defsElt.appendChild(filter);
+		
+		if (!createOnly)
+		{
+			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.shadowId + ')');
+			
+			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+			{
+				svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
+				svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
+			}
+		}
+		
+		return filter;
+	};
+	
 	/**
 	 * Loads the stylesheet for this graph.
 	 */

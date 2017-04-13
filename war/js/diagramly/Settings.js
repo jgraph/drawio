@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
+ */
+/**
  * Utility class for working with persisted application settings
  */
 var mxSettings =

@@ -351,7 +351,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 		if (this.token != null)
 		{
 			var url = this.baseUrl + '/repos/' + org + '/' + repo + '/contents/' +
-				path + '?ref=' + decodeURIComponent(ref) + '&token=' + this.token;
+				path + '?ref=' + ref + '&token=' + this.token;
 			var tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
 	
@@ -365,7 +365,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 	else
 	{
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-			'/contents/' + path + '?ref=' + decodeURIComponent(ref), null, 'GET');
+			'/contents/' + path + '?ref=' + ref, null, 'GET');
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
@@ -770,14 +770,20 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		this.ui.handleError(err, null, mxUtils.bind(this, function()
 		{
 			this.ui.spinner.stop();
-			this.ui.hideDialog();
+			
+			org = null;
+			repo = null;
+			ref = null;
+			path = null;
+			
+			selectRepo();
 		}));
 	});
 	
 	var selectFile = mxUtils.bind(this, function()
 	{
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-				'/contents/' + path + '?ref=' + ref, null, 'GET');
+				'/contents/' + path + '?ref=' + encodeURIComponent(ref), null, 'GET');
 		dlg.okButton.removeAttribute('disabled');
 		div.innerHTML = '';
 		this.ui.spinner.spin(div, mxResources.get('loading'));
