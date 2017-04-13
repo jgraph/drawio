@@ -992,7 +992,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 
 	}
 
-	if (graph.getSelectionCount() > 0)
+	if (!graph.isSelectionEmpty())
 	{
 		if (graph.getSelectionCount() == 1)
 		{
@@ -1003,13 +1003,11 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 		
 		cell = graph.getSelectionCell();
 		var state = graph.view.getState(cell);
-		
+
 		if (state != null)
 		{
-			if (graph.getSelectionCount() == 1)
-			{
-				this.addMenuItems(menu, ['toFront', 'toBack', '-'], null, evt);
-			}
+			var hasWaypoints = false;
+			this.addMenuItems(menu, ['toFront', 'toBack', '-'], null, evt);
 
 			if (graph.getModel().isEdge(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) != 'entityRelationEdgeStyle' &&
 				mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) != 'arrow')
@@ -1034,13 +1032,15 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	
 				// Adds reset waypoints option if waypoints exist
 				var geo = graph.getModel().getGeometry(cell);
-				
-				if (geo != null && geo.points != null && geo.points.length > 0)
-				{
-					this.addMenuItems(menu, ['clearWaypoints'], null, evt);	
-				}
+				hasWaypoints = geo != null && geo.points != null && geo.points.length > 0;
 			}
 
+			if (graph.getSelectionCount() == 1 && (hasWaypoints || (graph.getModel().isVertex(cell) &&
+				graph.getModel().getEdgeCount(cell) > 0)))
+			{
+				this.addMenuItems(menu, ['clearWaypoints'], null, evt);
+			}
+			
 			if (graph.getSelectionCount() > 1)	
 			{
 				menu.addSeparator();

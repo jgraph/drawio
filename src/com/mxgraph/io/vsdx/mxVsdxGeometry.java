@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 
 import com.mxgraph.io.vsdx.geometry.Row;
 import com.mxgraph.io.vsdx.geometry.RowFactory;
+import com.mxgraph.util.mxPoint;
 
 public class mxVsdxGeometry {
 	private int index;
@@ -152,4 +153,38 @@ public class mxVsdxGeometry {
 		return rows;
 	}
 
+	public String getPathXML(mxPoint p, Shape shape)
+	{
+		if (noShow) return "";
+		
+		StringBuilder geomElemParsed = new StringBuilder("<path>");
+		int initSize = geomElemParsed.length();
+		
+		for (Row row : rows)
+		{
+			geomElemParsed.append(row.handle(p, shape));
+		}
+
+		if (geomElemParsed.length() > initSize)
+		{
+			geomElemParsed.append("</path>");
+			
+			if (!noLine && !noFill)
+			{
+				geomElemParsed.append("<fillstroke/>");
+			}
+			else if (!noFill)
+			{
+				geomElemParsed.append("<fill/>");
+			}
+			else if (!noLine)
+			{
+				geomElemParsed.append("<stroke/>");
+			}
+			
+			return geomElemParsed.toString();
+		}
+		
+		return "";
+	}
 }

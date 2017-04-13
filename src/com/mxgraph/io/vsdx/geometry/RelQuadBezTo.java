@@ -1,5 +1,8 @@
 package com.mxgraph.io.vsdx.geometry;
 
+import com.mxgraph.io.vsdx.Shape;
+import com.mxgraph.util.mxPoint;
+
 public class RelQuadBezTo extends Row 
 {
 	public RelQuadBezTo(int index, Double x, Double y, Double a, Double b)
@@ -10,9 +13,10 @@ public class RelQuadBezTo extends Row
 	}
 
 	@Override
-	public void handle() 
+	public String handle(mxPoint p, Shape shape)
 	{
-		
+		//TODO implement this!
+		return "";
 	}
 
 }

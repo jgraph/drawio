@@ -1,3 +1,22 @@
+13-APR-2017: 6.5.0
+
+- Fixes extension for exported files with dots
+- Fixes lost changes after create or open file in same window
+- Fixes ignored default page size for Google Drive files
+- Adds Alt+Shift+C for clear waypoints
+- Adds toFront/Back context menu for multiple cells
+- Adds arc size for copy/paste style
+- Fixes rounded swimlane boundary cases
+- Uses Cloudflare CDN for loading MathJax
+- Adds clear waypoints for vertices with connections
+- Adds error handling for saving macro in Confluence Cloud
+- Fixes cloned start/end arrow when splitting edge
+- Adds support for global shadow in PDF export
+- Fixes special characters in branch names for GitHub client
+- Fixes missing arc handle for unknown shapes
+- Fixes hightlight size for arrows
+- Uses mxGraph 3.7.2
+
 06-APR-2017: 6.4.6
 
 - Works around page counter loop condition in FF

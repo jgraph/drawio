@@ -2420,13 +2420,13 @@ var NewDialog = function(editorUi, compact, showName, callback)
 			if (title != null && title.length > 0)
 			{
 				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || (editorUi.mode == App.MODE_GOOGLE &&
-					(editorUi.stateArg == null || editorUi.stateArg.folderId == null))) ?  editorUi.mode : null;
+					(editorUi.stateArg == null || editorUi.stateArg.folderId == null))) ? editorUi.mode : null;
 				
 				editorUi.pickFolder(tempMode, function(folderId)
 				{
 					editorUi.createFile(title, templateXml, (templateLibs != null && templateLibs.length > 0) ? templateLibs : null, null, function()
 					{
-						editorUi.hideDialog();				
+						editorUi.hideDialog();
 					}, null, folderId);
 				}, tempMode != App.MODE_GOOGLE);
 			}
@@ -4112,7 +4112,7 @@ PrintDialog.prototype.create = function(editorUi, titleText)
 			}
 			
 			doc.writeln('</script>');
-			doc.writeln('<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js"></script>');
+			doc.writeln('<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js"></script>');
 		}
 		
 		pv.closeDocument();

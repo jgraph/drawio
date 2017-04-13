@@ -1,5 +1,7 @@
-// $Id = StorageFile.js,v 1.12 2010-01-02 09 =45 =14 gaudenz Exp $
-// Copyright (c) 2006-2014, JGraph Ltd
+/**
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
+ */
 /**
  * Constructs a new point for the optional x and y coordinates. If no
  * coordinates are given, then the default values for <x> and <y> are used.

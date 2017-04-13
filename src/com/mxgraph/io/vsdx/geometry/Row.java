@@ -1,10 +1,16 @@
 package com.mxgraph.io.vsdx.geometry;
 
+import com.mxgraph.io.vsdx.Shape;
+import com.mxgraph.io.vsdx.mxPathDebug;
+import com.mxgraph.util.mxPoint;
+
 public abstract class Row 
 {
 	protected Double x, y, a, b, c, d;
 	protected String formulaA, formulaE; 
 	protected int index;
+	
+	public mxPathDebug debug = null;
 	
 	public Row(int index, Double x, Double y) 
 	{
@@ -13,7 +19,8 @@ public abstract class Row
 		this.y = y;
 	}
 
-	public abstract void handle();
+	//TODO probably point p is not needed as the point from previous step is stored in lastP?
+	public abstract String handle(mxPoint p, Shape shape);
 
 	public Double getX() 
 	{

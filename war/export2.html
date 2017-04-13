@@ -32,7 +32,7 @@
 			data.w = parseFloat(data.w) || 0;
 			data.h = parseFloat(data.h) || 0;
 			data.scale = parseFloat(data.scale) || 1;
-			
+
 			// Parses XML
 			var xmlDoc = mxUtils.parseXml(data.xml);
 			var diagrams = null;
@@ -309,7 +309,6 @@
 
 				// Negative coordinates are cropped or shifted if page visible
 				var gb = graph.getGraphBounds();
-				var border = 0;
 				var x0 = 0;
 				var y0 = 0;
 		
@@ -332,12 +331,39 @@
 				// Renders print output into this document and removes the graph container
 				preview.open(null, window);
 				graph.container.parentNode.removeChild(graph.container);
+
+				// Adds shadow
+				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				{
+					var svgs = document.getElementsByTagName('svg');
+					
+					for (var i = 0; i < svgs.length; i++)
+					{
+						var svg = svgs[i];
+
+						var filter = graph.addSvgShadow(svg, null, true);
+						filter.setAttribute('id', 'shadow-' + i);
+						svg.appendChild(filter);
+						svg.setAttribute('filter', 'url(#' + 'shadow-' + i + ')');
+					}
+					
+					border = 7;
+				}
 				
 				bounds = new mxRectangle(0, 0, pf.width, pf.height);
 				renderMath(graph.container.parentNode);
 			}
 			else
 			{
+				// Adds shadow
+				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				{
+					graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
+					graph.setShadowVisible(true);
+					bounds.width += 7;
+					bounds.height += 7;
+				}
+				
 				renderMath(graph.container);
 				
 				if (data.format != 'pdf')

@@ -305,11 +305,11 @@
 			}
 		}, null, null, 'Ctrl+Shift+M');
 
-		var copiedStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle', 'align',
-		                    'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
+		var copiedStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle',
+			 				'align', 'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
 		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
 		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
-		                    'endSize', 'startStill', 'startArrow', 'startSize'];
+		                    'endSize', 'startStill', 'startArrow', 'startSize', 'arcSize'];
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{

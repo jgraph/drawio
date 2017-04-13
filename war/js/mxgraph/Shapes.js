@@ -2926,7 +2926,14 @@
 				// LATER: Make locked state independent of rotatable flag, fix toggle if default is false
 				//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
 				{
-					var fn = handleFactory[this.state.style['shape']];
+					var name = this.state.style['shape'];
+					
+					if (this.state.view.graph.cellRenderer.defaultShapes[name] == null)
+					{
+						name = mxConstants.SHAPE_RECTANGLE;
+					}
+					
+					var fn = handleFactory[name];
 				
 					if (fn != null)
 					{
@@ -2942,7 +2949,14 @@
 		{
 			if (this.state.view.graph.getSelectionCount() == 1)
 			{
-				var fn = handleFactory[this.state.style['shape']];
+				var name = this.state.style['shape'];
+				
+				if (this.state.view.graph.cellRenderer.defaultShapes[name] == null)
+				{
+					name = mxConstants.SHAPE_CONNECTOR;
+				}
+				
+				var fn = handleFactory[name];
 				
 				if (fn != null)
 				{

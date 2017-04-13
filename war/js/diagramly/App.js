@@ -1879,39 +1879,36 @@ App.prototype.open = function()
 			}
 			else if (window.opener.openFile != null)
 			{
-				window.opener.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+				window.opener.openFile.setConsumer(mxUtils.bind(this, function(xml, filename, temp)
 				{
 					this.spinner.stop();
 					
 					if (filename == null)
 					{
 						var title = urlParams['title'];
+						temp = true;
 						
 						if (title != null)
 						{
-							title = decodeURIComponent(title);
+							filename = decodeURIComponent(title);
 						}
 						else
 						{
-							title = this.defaultFilename;
+							filename = this.defaultFilename;
 						}
-						
-						this.fileLoaded(new LocalFile(this, xml, title, true));
 					}
-					else
+					
+					// Replaces PNG with XML extension
+					var dot = filename.substring(filename.length - 4) == '.png';
+					
+					if (dot > 0)
 					{
-						// Replaces PNG with XML extension
-						var dot = filename.substring(filename.length - 4) == '.png';
-						
-						if (dot > 0)
-						{
-							filename = filename.substring(0, filename.length - 4) + '.xml';
-						}
-						
-						this.fileLoaded((mxClient.IS_IOS) ?
-							new StorageFile(this, xml, filename) :
-							new LocalFile(this, xml, filename));
+						filename = filename.substring(0, filename.length - 4) + '.xml';
 					}
+					
+					this.fileLoaded((mxClient.IS_IOS) ?
+						new StorageFile(this, xml, filename) :
+						new LocalFile(this, xml, filename, temp));
 				}));
 			}
 		}
@@ -3163,75 +3160,76 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		var redirect = window.location.protocol + '//' + window.location.hostname + url;
 		var graph = null;
 		
+		// TODO: This code and comment needs checking (name is undefined and condition is inversed)
 		// Handles special case where SVG files need a rendered graph to be saved
-		if (!/\.svg$/i.test(name) && dataNode != null)
-		{
-			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-
-			document.body.appendChild(graph.container);
-			node = dataNode;
-			
-			if (node != null)
-			{
-				var diagramNode = null;
-				
-				if (node.nodeName == 'diagram')
-				{
-					diagramNode = node;
-				}
-				else if (node.nodeName == 'mxfile')
-				{
-					var diagrams = node.getElementsByTagName('diagram');
-
-					if (diagrams.length > 0)
-					{
-						diagramNode = diagrams[0];
-						var graphGetGlobalVariable = graph.getGlobalVariable;
-						
-						graph.getGlobalVariable = function(name)
-						{
-							if (name == 'page')
-							{
-								return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
-							}
-							else if (name == 'pagenumber')
-							{
-								return 1;
-							}
-							
-							return graphGetGlobalVariable.apply(this, arguments);
-						};
-					}
-				}
-				
-				if (diagramNode != null)
-				{
-					var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
-					
-					if (tmp != null && tmp.length > 0)
-					{
-						node = mxUtils.parseXml(tmp).documentElement;
-					}
-				}
-			}
-			
-			// Hack to decode XML into temp graph via editor
-			var prev = this.editor.graph;
-			
-			try
-			{
-				this.editor.graph = graph;
-				this.editor.setGraphXml(node);	
-			}
-			catch (e)
-			{
-				// ignore
-			}
-			finally
-			{
-				this.editor.graph = prev;
-			}
-		}
+//		if (!/\.svg$/i.test(name) && dataNode != null)
+//		{
+//			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+//
+//			document.body.appendChild(graph.container);
+//			node = dataNode;
+//			
+//			if (node != null)
+//			{
+//				var diagramNode = null;
+//				
+//				if (node.nodeName == 'diagram')
+//				{
+//					diagramNode = node;
+//				}
+//				else if (node.nodeName == 'mxfile')
+//				{
+//					var diagrams = node.getElementsByTagName('diagram');
+//
+//					if (diagrams.length > 0)
+//					{
+//						diagramNode = diagrams[0];
+//						var graphGetGlobalVariable = graph.getGlobalVariable;
+//						
+//						graph.getGlobalVariable = function(name)
+//						{
+//							if (name == 'page')
+//							{
+//								return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
+//							}
+//							else if (name == 'pagenumber')
+//							{
+//								return 1;
+//							}
+//							
+//							return graphGetGlobalVariable.apply(this, arguments);
+//						};
+//					}
+//				}
+//				
+//				if (diagramNode != null)
+//				{
+//					var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
+//					
+//					if (tmp != null && tmp.length > 0)
+//					{
+//						node = mxUtils.parseXml(tmp).documentElement;
+//					}
+//				}
+//			}
+//			
+//			// Hack to decode XML into temp graph via editor
+//			var prev = this.editor.graph;
+//			
+//			try
+//			{
+//				this.editor.graph = graph;
+//				this.editor.setGraphXml(node);	
+//			}
+//			catch (e)
+//			{
+//				// ignore
+//			}
+//			finally
+//			{
+//				this.editor.graph = prev;
+//			}
+//		}
 		
 		file.setData(this.createFileData(dataNode, graph, file, redirect));
 
@@ -3249,7 +3247,14 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		{
 			complete();
 			
-			var fn2 = mxUtils.bind(this, function()
+			var currentFile = this.getCurrentFile();
+			
+			if (replace == null && currentFile != null)
+			{
+				replace = !currentFile.isModified() && currentFile.getMode() == null;
+			}
+			
+			var fn3 = mxUtils.bind(this, function()
 			{
 				window.openFile = null;
 				this.fileLoaded(file);
@@ -3258,15 +3263,27 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				{
 					this.sidebar.showEntries(libs);
 				}
+			});
 
-				if (done != null)
+			var fn2 = mxUtils.bind(this, function()
+			{
+				if (currentFile == null || !currentFile.isModified())
 				{
-					done();
+					fn3();
+				}
+				else
+				{
+					this.confirm(mxResources.get('allChangesLost'), fn3);
 				}
 			});
-	
-			// Updates the file if it has been overwritten
-			if (!replace && this.getCurrentFile() != null && this.mode != null)
+
+			if (done != null)
+			{
+				done();
+			}
+
+			// Opens the file in a new window
+			if (replace != null && !replace)
 			{
 				// Opens local file in a new window
 				if (file.constructor == LocalFile)
@@ -3276,9 +3293,14 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 						window.openFile = null;
 					});
 						
-					window.openFile.setData(file.getData(), file.getTitle());
+					window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
 				}
 
+				if (done != null)
+				{
+					done();
+				}
+				
 				window.openWindow(url, null, fn2);
 			}
 			else
@@ -3317,7 +3339,7 @@ App.prototype.loadFile = function(id, sameWindow, file)
 {
 	this.hideDialog();
 	
-	var fn = mxUtils.bind(this, function()
+	var fn2 = mxUtils.bind(this, function()
 	{
 		if (this.spinner.spin(document.body, mxResources.get('loading')))
 		{
@@ -3530,12 +3552,26 @@ App.prototype.loadFile = function(id, sameWindow, file)
 		}
 	});
 	
+	var currentFile = this.getCurrentFile();
+	
+	var fn = mxUtils.bind(this, function()
+	{
+		if (currentFile == null || !currentFile.isModified())
+		{
+			fn2();
+		}
+		else
+		{
+			this.confirm(mxResources.get('allChangesLost'), fn2);
+		}
+	});
+	
 	if (id == null || id.length == 0)
 	{
 		this.editor.setStatus('');
 		this.fileLoaded(null);
 	}
-	else if (this.getCurrentFile() != null && !this.isDiagramEmpty() && !sameWindow)
+	else if (currentFile != null && currentFile.isModified() && !sameWindow)
 	{
 		window.openWindow(this.getUrl() + '#' + id, null, fn);
 	}
