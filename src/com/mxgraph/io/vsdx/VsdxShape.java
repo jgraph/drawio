@@ -314,24 +314,28 @@ public class VsdxShape extends Shape
 			{
 				// Collect text into same formatting paragraphs. If there's one paragraph, use the new system, otherwise
 				// leave it to the old one.
-				if (this.paragraphs == null)
-				{
-					initLabels(txtChildren);
-				}
-				
-				if (this.paragraphs.size() == 0)
-				{
-					// valid way to have an empty label override a master value "<text />"
-					return "";
-				}
-				else if (this.paragraphs.size() == 1)
-				{
-					return createHybridLabel(this.paragraphs.keySet().iterator().next());
-				}
-				else
-				{
+//				if (this.paragraphs == null)
+//				{
+//					initLabels(txtChildren);
+//				}
+//				
+//				if (this.paragraphs.size() == 0)
+//				{
+//					// valid way to have an empty label override a master value "<text />"
+//					return "";
+//				}
+//				else if (this.paragraphs.size() == 1)
+//				{
+//					return createHybridLabel(this.paragraphs.keySet().iterator().next());
+//				}
+//				else
+//				{
+					//Sometimes one paragraph also contains mix of styles which are not supported by hybrid labels, so, use the old style for all html labels
+					this.styleMap.put(mxConstants.STYLE_VERTICAL_ALIGN, getAlignVertical());
+					this.styleMap.put(mxConstants.STYLE_ALIGN, getHorizontalAlign("0", false));
+
 					return getHtmlTextContent(txtChildren);
-				}
+//				}
 			}
 		}
 		else
@@ -2149,7 +2153,7 @@ public class VsdxShape extends Shape
 	{
 		//currently, edges with multiple segments are not supported
 		//TODO use the code from https://github.com/jgraph/mxgraph/blob/master/javascript/src/js/view/mxGraphView.js#L1953 to calculate mxGraph label offset instead of the default mid point (width/2, height/2)
-		if (points == null || points.isEmpty() || (points.size() == 1 && points.get(0).equals(endXY)))
+		if (points == null || points.isEmpty() || points.size() == 2) //points can hold two points representing begin and end point
 		{
 	        //Calculate the text offset
 	        double txtWV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_WIDTH), getWidth());

@@ -75,6 +75,8 @@ public class Shape extends Style
 	
 	protected int themeVariant = 0;
 	
+	private final static String UNICODE_LINE_SEP = new String(new char[]{(char)226, (char)128, (char)168});
+	
 	public mxPathDebug debug = null;
 
 	public Shape(Element shape, mxVsdxModel model)
@@ -377,22 +379,22 @@ public class Shape extends Style
 	/**
 	 * Last cp IX referenced in the Text Element.
 	 */
-	String cp = "";
+	String cp = "0";
 
 	/**
 	 * Last pp IX referenced in the Text Element.
 	 */
-	String pp = "";
+	String pp = "0";
 
 	/**
 	 * Last tp IX referenced in the Text Element.
 	 */
-	String tp = "";
+	String tp = "0";
 
 	/**
 	 * Last fld IX referenced in the Text Element.
 	 */
-	String fld = "";
+	String fld = "0";
 	
 	
 	
@@ -465,10 +467,10 @@ public class Shape extends Style
 								.replaceAll("'", "&prime;")
 								.replaceAll("<", "&lt;")
 								.replaceAll(">", "&gt;");
-	
+
 						text = textToList(text, pp);
-						
-						text = text.replaceAll("\n", "<br/>");
+
+						text = text.replaceAll("\n", "<br/>").replaceAll(UNICODE_LINE_SEP, "<br/>");
 						
 						ret += getTextCharFormated(text);
 //					}

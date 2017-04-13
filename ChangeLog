@@ -1,3 +1,7 @@
+13-APR-2017: 6.5.2
+
+- Adds missing supercall in Editor.resetGraph override
+
 13-APR-2017: 6.5.1
 
 - Fixes dependency on mxSettings in viewer.min.js
