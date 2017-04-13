@@ -401,9 +401,6 @@
 		this.graph.view.y0 = null;
 		mxClient.NO_FO = (this.graph.mathEnabled) ? true : this.originalNoForeignObject;
 		editorResetGraph.apply(this, arguments);
-		
-		// Overrides default with persisted value
-		this.graph.pageFormat = mxSettings.getPageFormat();
 	};
 
 	/**
