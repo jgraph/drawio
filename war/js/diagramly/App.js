@@ -5039,3 +5039,13 @@ App.prototype.updateUserElement = function()
 		}
 	}
 };
+
+/**
+ * Override depends on mxSettings which is not defined in the minified viewer.
+ */
+var editorResetGraph = Editor.prototype.resetGraph;	
+Editor.prototype.resetGraph = function()
+{
+	// Overrides default with persisted value
+	this.graph.pageFormat = mxSettings.getPageFormat();
+};
