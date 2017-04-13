@@ -5046,6 +5046,8 @@ App.prototype.updateUserElement = function()
 var editorResetGraph = Editor.prototype.resetGraph;	
 Editor.prototype.resetGraph = function()
 {
+	editorResetGraph.apply(this, arguments);
+	
 	// Overrides default with persisted value
 	this.graph.pageFormat = mxSettings.getPageFormat();
 };
