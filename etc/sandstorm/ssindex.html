@@ -285,18 +285,23 @@
 		// Changes paths for local development environment
 		if (urlParams['dev'] == '1')
 		{
+			// Used to request draw.io sources in dev mode
+			var drawDevUrl = '';
+
+			if (urlParams['drawdev'] == '1')
+			{
+				drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
+			}
+			
+			mxscript(drawDevUrl + 'js/diagramly/Init.js');
+			mxscript(geBasePath + '/Init.js');
+
 			// Used to request grapheditor/mxgraph sources in dev mode
 			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
 			geBasePath = mxDevUrl + '/javascript/examples/grapheditor/www/js';
 			mxBasePath = mxDevUrl + '/javascript/src';
 			mxscript(mxBasePath + '/js/mxClient.js');
 
-			// Adds external dependencies
-			mxscript(drawDevUrl + 'js/spin/spin.min.js');
-			mxscript(drawDevUrl + 'js/deflate/pako.min.js');
-			mxscript(drawDevUrl + 'js/deflate/base64.js');
-			mxscript(drawDevUrl + 'js/sanitizer/sanitizer.min.js');
-			
 			// Adds all JS code that depends on mxClient. This indirection via Devel.js is
 			// required in some browsers to make sure mxClient.js (and the files that it
 			// loads asynchronously) are available when the code loaded in Devel.js runs.
@@ -305,7 +310,7 @@
 		}
 		else
 		{
-			mxscript('js/app.min.js.gz');
+			mxscript('js/app.min.js');
 			//mxscript('js/sandstorm/SandstormFile.js');
 		}
 		

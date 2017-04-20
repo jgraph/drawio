@@ -218,6 +218,7 @@ errorSavingFileUnknown=Googlen palvelimien valtuuttamisessa tapahtui virhe. Päi
 errorSavingFileForbidden=Tiedoston tallentamisessa tapahtui virhe. Ei tarpeeksi käyttöoikeuksia.
 errorSavingFileNameConflict=Kaaviota ei voitu tallentaa. Nykyisellä sivulla on jo tiedosto nimeltä '{1}'.
 errorSavingFileNotFound=Tiedoston tallentamisessa tapahtui virhe. Tiedostoa ei löytynyt.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Palautteen lähettäminen epäonnistui.
 errorUpdatingPreview=Virhe esikatselua päivitettäessä.
 exit=Poistu

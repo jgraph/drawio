@@ -218,6 +218,7 @@ errorSavingFileUnknown=Fejl under forsøg på at tilgå Google's servere. Genind
 errorSavingFileForbidden=Fejl ved lagring af fil. Utilstrækkelige adgangsrettigheder.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Fejl ved lagring af fil. Filen blev ikke fundet.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Fejl ved afsendelse af feedback.
 errorUpdatingPreview=Error updating preview.
 exit=Afslut

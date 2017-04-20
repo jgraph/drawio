@@ -218,6 +218,7 @@ errorSavingFileUnknown=Error otorisasi dengan server Google. Silahkan refresh ha
 errorSavingFileForbidden=Error pada penyimpanan file.  Tidak memiliki akses
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Error pada penyimpanan file. File tidak diketemukan
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Error pada pengiriman feedback
 errorUpdatingPreview=Error updating preview.
 exit=Keluar

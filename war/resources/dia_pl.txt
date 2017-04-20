@@ -218,6 +218,7 @@ errorSavingFileUnknown=Błąd podczas autoryzacji z serwerami Google. Proszę od
 errorSavingFileForbidden=Błąd podczas zapisywania pliku. Brak wystarczających praw dostępu.
 errorSavingFileNameConflict=Nie można zapisać diagramu. Aktualna strona zawiera już plik '{1}'
 errorSavingFileNotFound=Błąd podczas zapisywania pliku. Plik nie został odnaleziony.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Błąd podczas przesyłania opinii zwrotnej.
 errorUpdatingPreview=Error updating preview.
 exit=Wyjdź

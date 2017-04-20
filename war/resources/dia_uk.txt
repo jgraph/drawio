@@ -218,6 +218,7 @@ errorSavingFileUnknown=Помилка при авторизації на сер�
 errorSavingFileForbidden=Помилка при збереженні файла. Недостатні права доступу.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Помилка при збереженні файла. Файл не знайдено.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Помилка при відправці форми зворотнього зв'язку.
 errorUpdatingPreview=Error updating preview.
 exit=Вихід

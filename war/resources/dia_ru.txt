@@ -218,6 +218,7 @@ errorSavingFileUnknown=Ошибка авторизации на сервере G
 errorSavingFileForbidden=Ошибка сохранения файла. Не хватает прав доступа.
 errorSavingFileNameConflict=Невозможно сохранить диаграмму. Страница уже содержит файл с именем '{1}'.
 errorSavingFileNotFound=Ошибка при сохранении файла. Файл не найден.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Ошибка при отправке сообщения обратной связи
 errorUpdatingPreview=Ошибка при обновлении изображения
 exit=Выход

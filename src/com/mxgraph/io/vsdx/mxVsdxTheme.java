@@ -11,10 +11,12 @@ import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.FillStyle;
 import com.mxgraph.io.vsdx.theme.FillStyleFactory;
 import com.mxgraph.io.vsdx.theme.GradFill;
+import com.mxgraph.io.vsdx.theme.HSLColor;
 import com.mxgraph.io.vsdx.theme.LineStyle;
 import com.mxgraph.io.vsdx.theme.LineStyleExt;
 import com.mxgraph.io.vsdx.theme.OoxmlColor;
 import com.mxgraph.io.vsdx.theme.OoxmlColorFactory;
+import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 
 //Holds office 2013 theme data which applies to all office file formats
 public class mxVsdxTheme 
@@ -90,6 +92,8 @@ public class mxVsdxTheme
 	private Color defaultClr = new Color(255, 255, 255);
 	private Color defaultLineClr = new Color(0, 0, 0);
 	
+	private LineStyle defaultLineStyle = new LineStyle();
+	
 	//fill styles
 	private ArrayList<FillStyle> fillStyles = new ArrayList<>(6);
 
@@ -125,11 +129,16 @@ public class mxVsdxTheme
 	
 	private boolean isProcessed = false;
 	
+	//flag to indicate that some parts of the theme has different name
+	private boolean isPure = true;
+	private String name;
+	
 	public mxVsdxTheme(Element theme) 
 	{
 		this.theme = theme;
+		this.name = theme.getAttribute("name");
 		
-		Integer themeId = themesIds.get(theme.getAttribute("name"));
+		Integer themeId = themesIds.get(this.name);
 		
 		if (themeId != null) 
 		{
@@ -145,6 +154,11 @@ public class mxVsdxTheme
 	public void setVariant(int variant) 
 	{
 		themeVariant = variant;
+	}
+	
+	public boolean isPure()
+	{
+		return isPure;
 	}
 	
 	public void processTheme() 
@@ -168,16 +182,28 @@ public class mxVsdxTheme
 							String nodeName = elem.getNodeName();
 							if (nodeName.equals("a:clrScheme")) 
 							{
+								if (!this.name.equals(elem.getAttribute("name")))
+								{
+									isPure = false;
+								}
 								//Process the color scheme
 								processColors(elem);
 							}
 							else if (nodeName.equals("a:fontScheme")) 
 							{
+								if (!this.name.equals(elem.getAttribute("name")))
+								{
+									isPure = false;
+								}
 								//Process the font scheme
 								processFonts(elem);
 							}
 							else if (nodeName.equals("a:fmtScheme")) 
 							{
+								if (!this.name.equals(elem.getAttribute("name")))
+								{
+									isPure = false;
+								}
 								//Process the format scheme
 								processFormats(elem);
 							}
@@ -211,6 +237,10 @@ public class mxVsdxTheme
 			switch (vt.getNodeName())
 			{
 				case "vt:fmtConnectorScheme":
+					if (!this.name.equals(vt.getAttribute("name")))
+					{
+						isPure = false;
+					}
 					ArrayList<Element> connSchemes = mxVsdxUtils.getDirectChildElements(vt);
 					
 					for (Element scheme : connSchemes)
@@ -532,24 +562,24 @@ public class mxVsdxTheme
 	}
 
 	
-	public Color getFillGraientColor(int quickStyleFillColor, int quickStyleFillMatrix)
+	public Color getFillGraientColor(QuickStyleVals quickStyleVals)
 	{
-		return getFillColor(quickStyleFillColor, quickStyleFillMatrix, true);
+		return getFillColor(quickStyleVals, true);
 	}
 	
-	public Color getFillColor(int quickStyleFillColor, int quickStyleFillMatrix)
+	public Color getFillColor(QuickStyleVals quickStyleVals)
 	{
-		return getFillColor(quickStyleFillColor, quickStyleFillMatrix, false);
+		return getFillColor(quickStyleVals, false);
 	}
 
 	//Get fill color based on QuickStyleFillColor & QuickStyleFillMatrix
-	private Color getFillColor(int quickStyleFillColor, int quickStyleFillMatrix, boolean getGradient)
+	private Color getFillColor(QuickStyleVals quickStyleVals, boolean getGradient)
 	{
 		processTheme();
 		
-		int fillColorStyle = quickStyleFillColor;
+		int fillColorStyle = quickStyleVals.getQuickStyleFillColor();
 		FillStyle fillStyle = null;
-		switch (quickStyleFillMatrix)
+		switch (quickStyleVals.getQuickStyleFillMatrix())
 		{
 			case 1:
 			case 2:
@@ -557,7 +587,7 @@ public class mxVsdxTheme
 			case 4:
 			case 5:
 			case 6:
-				fillStyle = fillStyles.get(quickStyleFillMatrix - 1);
+				fillStyle = fillStyles.get(quickStyleVals.getQuickStyleFillMatrix() - 1);
 			break;
 			case 100:
 			case 101:
@@ -565,7 +595,7 @@ public class mxVsdxTheme
 			case 103:
 				if (isMonotoneVariant[themeVariant]) fillColorStyle = 100;
 				
-				int index = quickStyleFillMatrix - 100;
+				int index = quickStyleVals.getQuickStyleFillMatrix() - 100;
 				//get style index of variants
 				fillStyle = fillStyles.get(variantFillIdx[themeVariant][index] - 1);
 			break;
@@ -617,7 +647,15 @@ public class mxVsdxTheme
 			case 103:
 				int index = quickStyleLineMatrix - 100;
 				//get style index of variants
-				lineStyle = lineStyles.get(variantLineIdx[themeVariant][index] - 1);
+				//Edges should not has these values
+				if (lineStyles == this.lineStyles)
+				{
+					lineStyle = this.lineStyles.get(variantLineIdx[themeVariant][index] - 1);
+				}
+				else
+				{
+					lineStyle = defaultLineStyle;
+				}
 			break;
 		}
 			
@@ -646,13 +684,13 @@ public class mxVsdxTheme
 	}
 	
 	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
-	private Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix, ArrayList<LineStyle> lineStyles)
+	private Color getLineColor(QuickStyleVals quickStyleVals, ArrayList<LineStyle> lineStyles)
 	{
 		processTheme();
 		
-		int lineColorStyle = quickStyleLineColor;
-		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
-		switch (quickStyleLineMatrix)
+		int lineColorStyle = quickStyleVals.getQuickStyleLineColor();
+		LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
+		switch (quickStyleVals.getQuickStyleLineMatrix())
 		{
 			case 100:
 			case 101:
@@ -673,15 +711,15 @@ public class mxVsdxTheme
 	}
 
 	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
-	public Color getLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	public Color getLineColor(QuickStyleVals quickStyleVals)
 	{
-		return getLineColor(quickStyleLineColor, quickStyleLineMatrix, lineStyles);
+		return getLineColor(quickStyleVals, lineStyles);
 	}
 	
 	//Get connection line color based on QuickStyleLineColor & QuickStyleLineMatrix
-	public Color getConnLineColor(int quickStyleLineColor, int quickStyleLineMatrix)
+	public Color getConnLineColor(QuickStyleVals quickStyleVals)
 	{
-		return getLineColor(quickStyleLineColor, quickStyleLineMatrix, connLineStyles);
+		return getLineColor(quickStyleVals, connLineStyles);
 	}
 
 	
@@ -690,9 +728,9 @@ public class mxVsdxTheme
 		return defaultLineClr;
 	}
 
-	private boolean isLineDashed(int quickStyleLineMatrix, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	private boolean isLineDashed(QuickStyleVals quickStyleVals, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleVals.getQuickStyleLineMatrix(), lineStylesExt);
 		
 		if (lineStyleExt != null)
 		{
@@ -700,24 +738,24 @@ public class mxVsdxTheme
 		}
 		else
 		{
-			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
 			return lineStyle != null? lineStyle.isDashed() : false;			
 		}
 	}
 
-	public boolean isLineDashed(int quickStyleLineMatrix)
+	public boolean isLineDashed(QuickStyleVals quickStyleVals)
 	{
-		return isLineDashed(quickStyleLineMatrix, lineStylesExt, lineStyles);
+		return isLineDashed(quickStyleVals, lineStylesExt, lineStyles);
 	}
 	
-	public boolean isConnLineDashed(int quickStyleLineMatrix) 
+	public boolean isConnLineDashed(QuickStyleVals quickStyleVals) 
 	{
-		return isLineDashed(quickStyleLineMatrix, connLineStylesExt, connLineStyles);
+		return isLineDashed(quickStyleVals, connLineStylesExt, connLineStyles);
 	}
 
-	private ArrayList<Double> getLineDashPattern(int quickStyleLineMatrix, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	private ArrayList<Double> getLineDashPattern(QuickStyleVals quickStyleVals, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleVals.getQuickStyleLineMatrix(), lineStylesExt);
 		
 		if (lineStyleExt != null)
 		{
@@ -725,24 +763,24 @@ public class mxVsdxTheme
 		}
 		else
 		{
-			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
 			return lineStyle != null? lineStyle.getLineDashPattern() : null;
 		}
 	}
 
-	public ArrayList<Double> getLineDashPattern(int quickStyleLineMatrix) 
+	public ArrayList<Double> getLineDashPattern(QuickStyleVals quickStyleVals) 
 	{
-		return getLineDashPattern(quickStyleLineMatrix, lineStylesExt, lineStyles);
+		return getLineDashPattern(quickStyleVals, lineStylesExt, lineStyles);
 	}
 	
-	public ArrayList<Double> getConnLineDashPattern(int quickStyleLineMatrix) 
+	public ArrayList<Double> getConnLineDashPattern(QuickStyleVals quickStyleVals) 
 	{
-		return getLineDashPattern(quickStyleLineMatrix, connLineStylesExt, connLineStyles);
+		return getLineDashPattern(quickStyleVals, connLineStylesExt, connLineStyles);
 	}
 
-	private int getArrowSize(int quickStyleLineMatrix, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	private int getArrowSize(QuickStyleVals quickStyleVals, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleVals.getQuickStyleLineMatrix(), lineStylesExt);
 		
 		if (lineStyleExt != null)
 		{
@@ -750,39 +788,39 @@ public class mxVsdxTheme
 		}
 		else
 		{
-			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
 			return lineStyle != null? (isStart? lineStyle.getStartSize() : lineStyle.getEndSize()) : 4;
 		}
 	}
 
-	public int getStartSize(int quickStyleLineMatrix) 
+	public int getStartSize(QuickStyleVals quickStyleVals) 
 	{
-		return getArrowSize(quickStyleLineMatrix, true, lineStylesExt, lineStyles);
+		return getArrowSize(quickStyleVals, true, lineStylesExt, lineStyles);
 	}
 	
-	public int getConnStartSize(int quickStyleLineMatrix) 
+	public int getConnStartSize(QuickStyleVals quickStyleVals) 
 	{
-		return getArrowSize(quickStyleLineMatrix, true, connLineStylesExt, connLineStyles);
+		return getArrowSize(quickStyleVals, true, connLineStylesExt, connLineStyles);
 	}
 	
-	public int getEndSize(int quickStyleLineMatrix) 
+	public int getEndSize(QuickStyleVals quickStyleVals) 
 	{
-		return getArrowSize(quickStyleLineMatrix, false, lineStylesExt, lineStyles);
+		return getArrowSize(quickStyleVals, false, lineStylesExt, lineStyles);
 	}
 	
-	public int getConnEndSize(int quickStyleLineMatrix) 
+	public int getConnEndSize(QuickStyleVals quickStyleVals) 
 	{
-		return getArrowSize(quickStyleLineMatrix, false, connLineStylesExt, connLineStyles);
+		return getArrowSize(quickStyleVals, false, connLineStylesExt, connLineStyles);
 	}
 	
 	//Get font color based on QuickStyleFontColor & QuickStyleFontMatrix
-	private Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix, ArrayList<OoxmlColor> fontColors)
+	private Color getFontColor(QuickStyleVals quickStyleVals, ArrayList<OoxmlColor> fontColors)
 	{
 		processTheme();
 		
-		int fontColorStyle = quickStyleFontColor;
+		int fontColorStyle = quickStyleVals.getQuickStyleFontColor();
 		OoxmlColor fontColor = null;
-		switch (quickStyleFontMatrix)
+		switch (quickStyleVals.getQuickStyleFontMatrix())
 		{
 			case 1:
 			case 2:
@@ -790,7 +828,7 @@ public class mxVsdxTheme
 			case 4:
 			case 5:
 			case 6:
-				fontColor = fontColors.get(quickStyleFontMatrix - 1);
+				fontColor = fontColors.get(quickStyleVals.getQuickStyleFontMatrix() - 1);
 			break;
 			case 100:
 			case 101:
@@ -798,37 +836,78 @@ public class mxVsdxTheme
 			case 103:
 				if (isMonotoneVariant[themeVariant]) fontColorStyle = 100;
 				
-				int index = quickStyleFontMatrix - 100;
+				int index = quickStyleVals.getQuickStyleFontMatrix() - 100;
 				//get style index of variants
-				fontColor = fontColors.get(variantFontIdx[themeVariant][index] - 1);
+				//If an edge has a non-standard value, use the dark color
+				if (fontColors != this.fontColors)
+				{
+					fontColor = this.baseColors.get("dk1");
+				}
+				else
+				{
+					fontColor = fontColors.get(variantFontIdx[themeVariant][index] - 1);
+				}
 			break;
 		}
 		
+		Color txtColor;
+		
 		if (fontColor != null)
 		{
-			return fontColor.getColor(fontColorStyle, this);
+			txtColor = fontColor.getColor(fontColorStyle, this);
 		}
 		else
 		{
-			return getStyleColor(fontColorStyle);
+			txtColor = getStyleColor(fontColorStyle);
 		}
+		
+//		int styleVariation = quickStyleVals.getQuickStyleVariation();
+//		
+//		if ((styleVariation & 2) > 0)
+//		{
+//			Color fillColor = getFillColor(quickStyleVals);
+//			HSLColor fillHSLClr = fillColor.toHsl();
+//			HSLColor txtColorHSL = txtColor.toHsl();
+//			if (Math.abs(fillHSLClr.getLum() - txtColorHSL.getLum()) < 0.1616)
+//			{
+//				if (fillHSLClr.getLum() < 0.7292)
+//				{
+//					txtColor = new Color(255, 255, 255);
+//				}
+//				else
+//				{
+//					Color lineClr = getLineColor(quickStyleVals);
+//					HSLColor lineHSLClr = lineClr.toHsl();
+//					if (fillHSLClr.getLum() < lineHSLClr.getLum())
+//					{
+//						txtColor = fillColor;
+//					}
+//					else
+//					{
+//						txtColor = lineClr;
+//					}
+//				}
+//			}
+//		}
+//		
+		return txtColor;
 	}
 
 	//Get font color based on QuickStyleFontColor & QuickStyleFontMatrix
-	public Color getFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	public Color getFontColor(QuickStyleVals quickStyleVals)
 	{
-		return getFontColor(quickStyleFontColor, quickStyleFontMatrix, fontColors);
+		return getFontColor(quickStyleVals, fontColors);
 	}
 	
 	//Get connection font color based on QuickStyleFontColor & QuickStyleFontMatrix
-	public Color getConnFontColor(int quickStyleFontColor, int quickStyleFontMatrix)
+	public Color getConnFontColor(QuickStyleVals quickStyleVals)
 	{
-		return getFontColor(quickStyleFontColor, quickStyleFontMatrix, connFontColors);
+		return getFontColor(quickStyleVals, connFontColors);
 	}
 
-	private int getArrowType(int quickStyleLineMatrix, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
+	private int getArrowType(QuickStyleVals quickStyleVals, boolean isStart, ArrayList<LineStyleExt> lineStylesExt, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleLineMatrix, lineStylesExt);
+		LineStyleExt lineStyleExt = getLineStyleExt(quickStyleVals.getQuickStyleLineMatrix(), lineStylesExt);
 		
 		if (lineStyleExt != null)
 		{
@@ -836,35 +915,35 @@ public class mxVsdxTheme
 		}
 		else
 		{
-			LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+			LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
 			return lineStyle != null? (isStart? lineStyle.getStart() : lineStyle.getEnd()) : 0;
 		}
 	}
 
-	public int getEdgeMarker(boolean isStart, int quickStyleLineMatrix) 
+	public int getEdgeMarker(boolean isStart, QuickStyleVals quickStyleVals) 
 	{
-		return getArrowType(quickStyleLineMatrix, isStart, lineStylesExt, lineStyles);
+		return getArrowType(quickStyleVals, isStart, lineStylesExt, lineStyles);
 	}
 
-	public int getConnEdgeMarker(boolean isStart, int quickStyleLineMatrix) 
+	public int getConnEdgeMarker(boolean isStart, QuickStyleVals quickStyleVals) 
 	{
-		return getArrowType(quickStyleLineMatrix, isStart, connLineStylesExt, connLineStyles);
+		return getArrowType(quickStyleVals, isStart, connLineStylesExt, connLineStyles);
 	}
 
 	
-	private int getLineWidth(int quickStyleLineMatrix, ArrayList<LineStyle> lineStyles) 
+	private int getLineWidth(QuickStyleVals quickStyleVals, ArrayList<LineStyle> lineStyles) 
 	{
-		LineStyle lineStyle = getLineStyle(quickStyleLineMatrix, lineStyles);
+		LineStyle lineStyle = getLineStyle(quickStyleVals.getQuickStyleLineMatrix(), lineStyles);
 		return lineStyle != null? lineStyle.getLineWidth() : 0;			
 	}
 
-	public int getLineWidth(int quickStyleLineMatrix) 
+	public int getLineWidth(QuickStyleVals quickStyleVals) 
 	{
-		return getLineWidth(quickStyleLineMatrix, lineStyles);
+		return getLineWidth(quickStyleVals, lineStyles);
 	}
 	
-	public int getConnLineWidth(int quickStyleLineMatrix) 
+	public int getConnLineWidth(QuickStyleVals quickStyleVals) 
 	{
-		return getLineWidth(quickStyleLineMatrix, connLineStyles);
+		return getLineWidth(quickStyleVals, connLineStyles);
 	}
 }

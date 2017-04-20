@@ -218,6 +218,7 @@ errorSavingFileUnknown=Googleサーバーの認証エラーです。再トライ
 errorSavingFileForbidden=ファイル保存エラー。アクセス権が不十分。
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=ファイル保存エラー。ファイルが見つかりません。
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=エラー。フィードバックを送ります。
 errorUpdatingPreview=Error updating preview.
 exit=終了

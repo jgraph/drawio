@@ -321,6 +321,11 @@
 			}
 		};
 		
+		spinner.pause = function()
+		{
+			return function() {};
+		};
+		
 		return spinner;
 	};
 
@@ -2460,8 +2465,8 @@
 	 */
 	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
-		// Newer versions of IE
-		if (window.MSBlobBuilder && navigator.msSaveOrOpenBlob)
+		// Newer versions of IE (except Edge which uses the standard API below)
+		if (!mxClient.IS_EDGE && window.MSBlobBuilder && navigator.msSaveOrOpenBlob)
 		{
 			var builder = new MSBlobBuilder();
 			builder.append(data);
@@ -3478,8 +3483,10 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback, cropOption)
+	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback, cropOption, defaultInclude)
 	{
+		defaultInclude = (defaultInclude != null) ? defaultInclude : true;
+		
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
@@ -3560,15 +3567,20 @@
 			height += 26;
 		}
 		
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude);
 		var hasPages = this.pages != null && this.pages.length > 1;
-		var allPages = allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
+		var allPages = allPages = this.addCheckbox(div, (hasPages) ? mxResources.get('allPages') : '', hasPages, !hasPages);
 		allPages.style.marginLeft = '24px';
 		allPages.style.marginBottom = '16px';
+		
+		if (!hasPages)
+		{
+			allPages.style.visibility = 'hidden';
+		}
 	
 		mxEvent.addListener(include, 'change', function()
 		{
-			if (include.checked)
+			if (include.checked && hasPages)
 			{
 				allPages.removeAttribute('disabled');
 			}
@@ -3577,6 +3589,11 @@
 				allPages.setAttribute('disabled', 'disabled');
 			}
 		});
+		
+		if (!defaultInclude || !hasPages)
+		{
+			allPages.setAttribute('disabled', 'disabled');
+		}
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{

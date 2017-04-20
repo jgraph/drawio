@@ -218,6 +218,7 @@ errorSavingFileUnknown=‫שגיאה באימות מול שרתי גוגל. אנ
 errorSavingFileForbidden=‫שגיאה בשמירת הקובץ. זכויות גישה לא מתאימות.‬
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=‫שגיאה בשמירת הקובץ. קובץ לא נמצא.‬
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=‫שגיאה בשליחת המשוב.‬
 errorUpdatingPreview=Error updating preview.
 exit=‫יציאה‬

@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.mxVsdxCodec;
+import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 import com.mxgraph.util.mxConstants;
 
 public class Shape extends Style
@@ -75,7 +76,9 @@ public class Shape extends Style
 	
 	protected int themeVariant = 0;
 	
-	private final static String UNICODE_LINE_SEP = new String(new char[]{(char)226, (char)128, (char)168});
+	protected QuickStyleVals quickStyleVals;
+	
+	protected final static String UNICODE_LINE_SEP = new String(new char[]{(char)226, (char)128, (char)168});
 	
 	public mxPathDebug debug = null;
 
@@ -99,6 +102,11 @@ public class Shape extends Style
 			theme.setVariant(themeVariant);
 		}
 		return theme;
+	}
+	
+	public QuickStyleVals getQuickStyleVals()
+	{
+		return quickStyleVals;
 	}
 	
 	protected void processGeomList(mxVsdxGeometryList parentGeoList)
@@ -143,7 +151,7 @@ public class Shape extends Style
 			{
 				compression = "x-wmf";
 			}
-			else if (iType.equals("Enhanced Metafile"))
+			else if (iType.equals("Enhanced Metafile") || iType.equals("EnhMetaFile"))
 			{
 				compression = "x-emf";
 			}
@@ -401,89 +409,6 @@ public class Shape extends Style
 	
 	
 	
-	/**
-	 * Returns the text contained in the shape formated with tags html.<br/>
-	 * @return Text content in html.
-	 */
-	public String getHtmlTextContent(NodeList txtChildren)
-	{
-		String ret = "";
-		boolean first = true;
-		
-		if (txtChildren != null && txtChildren.getLength() > 0)
-		{
-			for (int index = 0; index < txtChildren.getLength(); index++)
-			{
-				Node node = txtChildren.item(index);
-	
-				if (node.getNodeName().equals("cp"))
-				{
-					Element elem = (Element)node;
-					cp = elem.getAttribute("IX");
-				}
-				else if (node.getNodeName().equals("tp"))
-				{
-					Element elem = (Element)node;
-					tp = elem.getAttribute("IX");
-				}
-				else if (node.getNodeName().equals("pp"))
-				{
-					Element elem = (Element)node;
-					pp = elem.getAttribute("IX");
-					
-					if (first)
-					{
-						first = false;
-					}
-					else
-					{
-						ret += "</p>";
-					}
-					
-					String para = "<p>";
-					ret += getTextParagraphFormated(para);
-				}
-				else if (node.getNodeName().equals("fld"))
-				{
-					Element elem = (Element)node;
-					fld = elem.getAttribute("IX");
-					String text = elem.getTextContent();
-					text = textToList(text, pp);
-					text = text.replaceAll("\n", "<br/>");
-					ret += getTextCharFormated(text);
-				}
-				else if (node.getNodeName().equals("#text"))
-				{
-					String text = node.getTextContent();
-					
-					// There's a case in master shapes where the text element has the raw value "N".
-					// The source tool doesn't render this. Example is ALM_Information_flow.vdx, the two label
-					// edges in the center
-//					if (!masterShapeOnly || !text.equals("N"))
-//					{
-						// It's HTML text, so escape it.
-						text = text.replaceAll("&", "&amp;")
-								.replaceAll("\"", "&quot;")
-								.replaceAll("'", "&prime;")
-								.replaceAll("<", "&lt;")
-								.replaceAll(">", "&gt;");
-
-						text = textToList(text, pp);
-
-						text = text.replaceAll("\n", "<br/>").replaceAll(UNICODE_LINE_SEP, "<br/>");
-						
-						ret += getTextCharFormated(text);
-//					}
-				}
-			}
-		}
-		
-		String end = first ? "" : "</p>";
-		ret += end;
-		mxVsdxUtils.surroundByTags(ret, "div");
-		
-		return ret;
-	}
 	
 	/**
 	 * Transform plain text into a HTML list if the Para element referenced by
@@ -546,19 +471,20 @@ public class Shape extends Style
 		styleMap.put("margin-bottom", getSpAfter(pp) + "px");
 		styleMap.put("text-indent", getIndentFirst(pp));
 		styleMap.put("valign", getAlignVertical());
-		String spc = getSpcLine(pp);
-		String spcNum = spc.replaceAll("[^\\d.]", "");
-		String postFix = spc.substring(spcNum.length(),spc.length());
-		double lineH = (Double.parseDouble(spcNum) / 0.71);
-		spc = Double.toString(lineH);
-		
-		if (spc.contains("."))
-		{
-			spc = spc.substring(0, spc.lastIndexOf(".") + 3);
-		}
-		
-		spc = spc + postFix;
-		styleMap.put("line-height", spc);
+//		String spc = getSpcLine(pp);
+		//TODO dividing by 0.71 gives very large line height in most of the cases. Probably we don't need it?
+//		String spcNum = spc.replaceAll("[^\\d.]", "");
+//		String postFix = spc.substring(spcNum.length(),spc.length());
+		//double lineH = (Double.parseDouble(spcNum) / 0.71);
+//		spc = Double.toString(lineH);
+//		
+//		if (spc.contains("."))
+//		{
+//			spc = spc.substring(0, spc.lastIndexOf(".") + 3);
+//		}
+//		
+//		spc = spc + postFix;
+//		styleMap.put("line-height", spc);
 		styleMap.put("direction", getTextDirection(pp));
 		ret += insertAttributes(para, styleMap);
 		return ret;
@@ -578,9 +504,10 @@ public class Shape extends Style
 		String font = "font-family:" + this.getTextFont(cp) + ";";
 		String direction = "direction:" + this.getRtlText(cp) + ";";
 		String space = "letter-spacing:" + (Double.parseDouble(this.getLetterSpace(cp)) / 0.71) + "px;";
+		String lineHeight = "line-height:" + getSpcLine(pp);
 		String pos = this.getTextPos(cp);
 		String tCase = getTextCase(cp);
-
+		
 		if (tCase.equals("1"))
 		{
 			text = text.toUpperCase();
@@ -605,7 +532,7 @@ public class Shape extends Style
 		text = this.getTextStrike(cp) ? mxVsdxUtils.surroundByTags(text, "s") : text;
 		text = this.isSmallCaps(cp) ? mxVsdxUtils.toSmallCaps(text, this.getTextSize(cp)) : text;
 
-		ret += "<font style=\"" + size + font + color + direction + space + "\">" + text + "</font>";
+		ret += "<font style=\"" + size + font + color + direction + space + lineHeight + "\">" + text + "</font>";
 		return ret;
 	}
 	

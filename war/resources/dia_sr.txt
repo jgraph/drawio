@@ -218,6 +218,7 @@ errorSavingFileUnknown=Greška pri autorizaciji sa Google serverom. Molimo vas, 
 errorSavingFileForbidden=Greška pri snimanju. Nedovoljna prava pristupa.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Greška pri snimanju. Datoteka nije pronađena.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Greška pri slanju povratne informacije.
 errorUpdatingPreview=Error updating preview.
 exit=Izlaz

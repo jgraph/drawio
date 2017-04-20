@@ -218,6 +218,7 @@ errorSavingFileUnknown=Ralat mendapatkan kebenaran daripada pelayan Google. Sila
 errorSavingFileForbidden=Ralat menyimpan fail. Hak akses tidak mencukupi.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Ralat menyimpan fail. Fail tidak dapat dicari
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Ralat menghantar maklum balas
 errorUpdatingPreview=Error updating preview.
 exit=Keluar  

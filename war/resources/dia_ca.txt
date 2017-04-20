@@ -218,6 +218,7 @@ errorSavingFileUnknown=Error a l'autoritzar els servidors de Google. Si-us-plau,
 errorSavingFileForbidden=Error al desar el fitxer. No disposeu dels drets d'accés suficients.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Error al desar. No s'ha trobat el fitxer.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Error a l'enviar la opinió.
 errorUpdatingPreview=Error updating preview.
 exit=Surt

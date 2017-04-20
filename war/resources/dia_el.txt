@@ -218,6 +218,7 @@ errorSavingFileUnknown=Σφάλμα κατά την εξουσιοδότηση �
 errorSavingFileForbidden=Σφάλμα κατά την αποθήκευση του αρχείου. Ανεπαρκή δικαιώματα πρόσβασης.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Σφάλμα κατά την αποθήκευση του αρχείου. Το αρχείο δεν βρέθηκε.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Σφάλμα κατά την αποστολή κριτικής.
 errorUpdatingPreview=Error updating preview.
 exit=Έξοδος

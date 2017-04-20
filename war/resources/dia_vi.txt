@@ -218,6 +218,7 @@ errorSavingFileUnknown=Lỗi khi cấp phép với máy chủ Google. Xin vui l�
 errorSavingFileForbidden=Lỗi khi lưu tập tin. Không đủ quyền truy xuất.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Lỗi khi lưu tập tin. Không tìm thấy tập tin.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Lỗi khi gửi phản hồi.
 errorUpdatingPreview=Error updating preview.
 exit=Thoát

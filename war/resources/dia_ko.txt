@@ -218,6 +218,7 @@ errorSavingFileUnknown=구글 서버 승인 오류. 페이지 새로 고침 후 
 errorSavingFileForbidden=파일 저장 오류. 접근 권한이 부족합니다.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=파일 저장 오류. 파일을 찾지 못했습니다.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=의견 보내기 오류.
 errorUpdatingPreview=Error updating preview.
 exit=나가기

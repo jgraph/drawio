@@ -218,6 +218,7 @@ errorSavingFileUnknown=Eroare la autorizarea cu serverele Google. Te rugăm să 
 errorSavingFileForbidden=Eroare salvare fișier.  Drepturi de acces insuficiente.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Eroare salvare fișier. Fişierul nu a fost găsit.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Eroare la trimitere feedback.
 errorUpdatingPreview=Error updating preview.
 exit=Ieşire

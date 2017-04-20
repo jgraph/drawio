@@ -1,3 +1,14 @@
+20-APR-2017: 6.5.4
+
+- Updates Sandstorm build
+- Fixes download for exported PNG in Microsoft Edge
+- Fixes possible NPE in embed mode
+- Disables "Include a copy of my diagram" for PNG export by default
+
+14-APR-2017: 6.5.3
+
+- Disables hacked Dropbox client JS
+
 13-APR-2017: 6.5.2
 
 - Adds missing supercall in Editor.resetGraph override

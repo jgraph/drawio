@@ -218,6 +218,7 @@ errorSavingFileUnknown=Pagkakamali sa paghihintulot sa mga serber ng Google.  Pa
 errorSavingFileForbidden=Pagkakamali sa pagseseyb ng payl.  Hindi sapat ang karapatan sa pag akses.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Pagkakamali sa parseseyb ng payl.  Ang payl ay hindi nakita.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Pagkakamali sa paghatid ng kumento.
 errorUpdatingPreview=Error updating preview.
 exit=Lumabas
