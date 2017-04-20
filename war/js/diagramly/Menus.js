@@ -1145,6 +1145,7 @@
 			{
 				menu.addItem(mxResources.get('formatPng') + '...', null, mxUtils.bind(this, function()
 				{
+					// TODO: Enable include option if CRC is fixed
 					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 						'https://support.draw.io/display/DO/Exporting+Files',
 						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
@@ -1157,7 +1158,7 @@
 							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
 							   		addShadow, editable, border, !cropImage, currentPage);
 							}
-						}), true);
+						}), true, false);
 				}), parent);
 				
 				if (editorUi.jpgSupported)

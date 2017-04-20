@@ -218,6 +218,7 @@ errorSavingFileUnknown=Hiba a Google szerver engedélyezésekor. Kérjük friss�
 errorSavingFileForbidden=Hiba a fájl mentésekor. Elégtelen hozzáférési jog.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Hiba a fájl mentésekor. A fájl nem található
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Hiba a visszajelzés küldésekor.
 errorUpdatingPreview=Error updating preview.
 exit=Kilép

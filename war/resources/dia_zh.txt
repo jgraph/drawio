@@ -218,6 +218,7 @@ errorSavingFileUnknown=授权谷歌服务时发生错误，请刷新页面后重
 errorSavingFileForbidden=保存文件错误，没有足够的访问权限。
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=保存文件错误，文件未找到。
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=发送反馈错误。
 errorUpdatingPreview=Error updating preview.
 exit=退出

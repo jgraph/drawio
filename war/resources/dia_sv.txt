@@ -218,6 +218,7 @@ errorSavingFileUnknown=Fel vid autentisering med Googles servrar. Vänligen ladd
 errorSavingFileForbidden=Kunde inte spara filen. Otillräckliga behörighetsrättigheter.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Kunde inte spara filen. Filen kunde inte hittas.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Fel vid sändning av feedback.
 errorUpdatingPreview=Error updating preview.
 exit=Avsluta

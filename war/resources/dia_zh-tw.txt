@@ -218,6 +218,7 @@ errorSavingFileUnknown=Google 服務授權錯誤，請重新載入頁面後重�
 errorSavingFileForbidden=檔案儲存錯誤，沒有存取權限
 errorSavingFileNameConflict=無法儲存此圖表. 檔案已存在 '{1}'
 errorSavingFileNotFound=檔案儲存錯誤，找不到該檔案
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=回饋傳送錯誤
 errorUpdatingPreview=預覽畫面更新錯誤
 exit=退出

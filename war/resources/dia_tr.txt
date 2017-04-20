@@ -218,6 +218,7 @@ errorSavingFileUnknown=Google'ın sunucuları ile yetkilendirmede hata. Lütfen 
 errorSavingFileForbidden=Dosya kaydetme hatası. Yetersiz erişim hakları.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Dosya kaydetme hatası. Dosya bulunamadı.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Geri-bildirim göndermede hata.
 errorUpdatingPreview=Error updating preview.
 exit=Çıkış 

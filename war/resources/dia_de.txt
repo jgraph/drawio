@@ -218,6 +218,7 @@ errorSavingFileUnknown=Error authorizing with Google's servers. Please refresh t
 errorSavingFileForbidden=Fehler beim Speichern der Datei. Ungenügende Zugriffsrechte.
 errorSavingFileNameConflict=Diagramm wurde nicht gespeichert. Die Seite enthält bereits eine Datei mit Namen '{1}'.
 errorSavingFileNotFound=Fehler beim Speichern der Datei. Datei wurde nicht gefunden.
+errorSavingFileSessionTimeout=Ihre Sitzung wurde beendet. Bitte <a target='_blank' href='{1}'>{2}</a> und erneut speichern.
 errorSendingFeedback=Fehler beim versenden des Feedback.
 errorUpdatingPreview=Fehler beim aktualisieren der Vorschau.
 exit=Beenden

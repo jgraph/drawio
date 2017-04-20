@@ -2948,45 +2948,29 @@ HoverIcons.prototype.repaint = function()
 					bottom = null;
 				}
 				
-				// Checks right arrow
-				if (right != null && !this.graph.model.isAncestor(right, this.currentState.cell))
+				var currentGeo = this.graph.getCellGeometry(this.currentState.cell);
+				
+				var checkCollision = mxUtils.bind(this, function(cell, arrow)
 				{
-					this.arrowRight.style.visibility = 'hidden';
-				}
-				else
-				{
-					this.arrowRight.style.visibility = 'visible';
-				}
-
-				// Checks left arrow
-				if (left != null && !this.graph.model.isAncestor(left, this.currentState.cell))
-				{
-					this.arrowLeft.style.visibility = 'hidden';
-				}
-				else
-				{
-					this.arrowLeft.style.visibility = 'visible';
-				}
-
-				// Checks top arrow
-				if (top != null && !this.graph.model.isAncestor(top, this.currentState.cell))
-				{
-					this.arrowUp.style.visibility = 'hidden';
-				}
-				else
-				{
-					this.arrowUp.style.visibility = 'visible';
-				}
-
-				// Checks bottom arrow
-				if (bottom != null && !this.graph.model.isAncestor(bottom, this.currentState.cell))
-				{
-					this.arrowDown.style.visibility = 'hidden';
-				}
-				else
-				{
-					this.arrowDown.style.visibility = 'visible';
-				}
+					var geo = this.graph.model.isVertex(cell) && this.graph.getCellGeometry(cell);
+					
+					// Ignores collision if vertex is more than 3 times the size of this vertex
+					if (cell != null && !this.graph.model.isAncestor(cell, this.currentState.cell) &&
+						(geo == null || currentGeo == null || (geo.height < 6 * currentGeo.height &&
+						geo.width < 6 * currentGeo.width)))
+					{
+						arrow.style.visibility = 'hidden';
+					}
+					else
+					{
+						arrow.style.visibility = 'visible';
+					}
+				});
+				
+				checkCollision(right, this.arrowRight);
+				checkCollision(left, this.arrowLeft);
+				checkCollision(top, this.arrowUp);
+				checkCollision(bottom, this.arrowDown);
 			}
 			else
 			{

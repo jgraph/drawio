@@ -40,6 +40,11 @@ public class LineStyle {
 	private LineEndType tailEndType;
 	private int tailEndWidth, tailEndLen;
 	
+	public LineStyle()
+	{
+		
+	}
+	
 	public LineStyle(Element elem)
 	{
 		//parse the line style xml

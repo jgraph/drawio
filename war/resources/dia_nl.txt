@@ -218,6 +218,7 @@ errorSavingFileUnknown=Fout bij autoriseren met Google's servers. Herlaad de pag
 errorSavingFileForbidden=Fout bij opslaan bestand. Onvoldoende toegangsrechten.
 errorSavingFileNameConflict=Kon diagram niet opslaan. Huidige pagina bevat al bestand genaamd '{1}'.
 errorSavingFileNotFound=Fout bij opslaan bestand. Bestand niet gevonden.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Fout bij versturen feedback.
 errorUpdatingPreview=Fout bij bijwerken voorbeeld.
 exit=Afsluiten

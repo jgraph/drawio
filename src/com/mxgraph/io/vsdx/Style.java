@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.vsdx.theme.Color;
+import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 import com.mxgraph.util.mxConstants;
 
 /**
@@ -108,6 +109,11 @@ public class Style
 	}
 
 	public mxVsdxTheme getTheme()
+	{
+		return null;
+	}
+	
+	public QuickStyleVals getQuickStyleVals()
 	{
 		return null;
 	}
@@ -528,9 +534,7 @@ public class Style
 				
 				if (theme != null)
 				{
-					int styleLineClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineColor"), "1"));
-					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					Color colorObj = isVertex()? theme.getLineColor(styleLineClr, styleLineMtx) : theme.getConnLineColor(styleLineClr, styleLineMtx);
+					Color colorObj = isVertex()? theme.getLineColor(getQuickStyleVals()) : theme.getConnLineColor(getQuickStyleVals());
 					color = colorObj.toHexStr();
 				}
 				else
@@ -561,9 +565,7 @@ public class Style
 			
 			if (theme != null)
 			{
-				int styleFillClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1"));
-				int styleFillMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillMatrix"), "0"));
-				Color color = theme.getFillColor(styleFillClr, styleFillMtx);
+				Color color = theme.getFillColor(getQuickStyleVals());
 				fillForeColor = color.toHexStr();
 			}
 			else
@@ -680,9 +682,7 @@ public class Style
 			
 			if (theme != null)
 			{
-				int styleFontClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontColor"), "1"));
-				int styleFontMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontMatrix"), "0"));
-				Color colorObj = isVertex()? theme.getFontColor(styleFontClr, styleFontMtx) : theme.getConnFontColor(styleFontClr, styleFontMtx);
+				Color colorObj = isVertex()? theme.getFontColor(getQuickStyleVals()) : theme.getConnFontColor(getQuickStyleVals());
 				color = colorObj.toHexStr();
 			}
 			else

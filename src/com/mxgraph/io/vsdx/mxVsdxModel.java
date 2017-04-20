@@ -117,7 +117,11 @@ public class mxVsdxModel {
 							
 							if (theme.getThemeIndex() > -1)
 							{
-								themes.put(theme.getThemeIndex(), theme);
+								mxVsdxTheme existingTheme = themes.get(theme.getThemeIndex());
+								if (existingTheme == null || !existingTheme.isPure())
+								{
+									themes.put(theme.getThemeIndex(), theme);
+								}
 							}
 							else
 							{

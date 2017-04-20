@@ -25,7 +25,6 @@ mkdir -p build/.sandstorm/client/img
 cp -rf ../../war/img/* build/.sandstorm/client/img/
 mkdir -p build/.sandstorm/client/js
 cp -rf ../../war/js/* build/.sandstorm/client/js/
-gzip -c build/.sandstorm/client/js/app.min.js > build/.sandstorm/client/js/app.min.js.gz
 mkdir -p build/.sandstorm/client/mxgraph
 cp -rf ../../war/mxgraph/* build/.sandstorm/client/mxgraph/
 mkdir -p build/.sandstorm/client/plugins

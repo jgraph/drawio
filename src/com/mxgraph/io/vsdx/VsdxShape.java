@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.vsdx.theme.Color;
+import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.online.Utils;
@@ -258,6 +259,18 @@ public class VsdxShape extends Shape
 		
 		setThemeAndVariant(theme, variant);
 		
+		quickStyleVals = new QuickStyleVals(
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleEffectsMatrix"), "0")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillMatrix"), "0")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontColor"), "1")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFontMatrix"), "0")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineColor"), "1")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleShadowColor"), "1")),
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleType"), "0")), 
+				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleVariation"), "0")));
+		
 		//process shape geometry
 		if (masterShape != null)
 		{
@@ -483,6 +496,106 @@ public class VsdxShape extends Shape
 		return result;
 	}
 	
+	
+	/**
+	 * Returns the text contained in the shape formated with tags html.<br/>
+	 * @return Text content in html.
+	 */
+	public String getHtmlTextContent(NodeList txtChildren)
+	{
+		String ret = "";
+		boolean first = true;
+		
+		if (txtChildren != null && txtChildren.getLength() > 0)
+		{
+			for (int index = 0; index < txtChildren.getLength(); index++)
+			{
+				Node node = txtChildren.item(index);
+	
+				if (node.getNodeName().equals("cp"))
+				{
+					Element elem = (Element)node;
+					cp = elem.getAttribute("IX");
+				}
+				else if (node.getNodeName().equals("tp"))
+				{
+					Element elem = (Element)node;
+					tp = elem.getAttribute("IX");
+				}
+				else if (node.getNodeName().equals("pp"))
+				{
+					Element elem = (Element)node;
+					pp = elem.getAttribute("IX");
+					
+					if (first)
+					{
+						first = false;
+					}
+					else
+					{
+						ret += "</p>";
+					}
+					
+					String para = "<p>";
+					ret += getTextParagraphFormated(para);
+				}
+				else if (node.getNodeName().equals("fld"))
+				{
+					Element elem = (Element)node;
+					fld = elem.getAttribute("IX");
+					
+					String text = null;
+					
+					if (this.fields != null)
+					{
+						text = this.fields.get(fld);						
+					}
+
+					if (text == null && masterShape != null && masterShape.fields != null)
+					{
+						text = masterShape.fields.get(fld);
+					}
+
+					if (text != null)
+						ret += processLblTxt(text);
+				}
+				else if (node.getNodeName().equals("#text"))
+				{
+					String text = node.getTextContent();
+					
+					// There's a case in master shapes where the text element has the raw value "N".
+					// The source tool doesn't render this. Example is ALM_Information_flow.vdx, the two label
+					// edges in the center
+//					if (!masterShapeOnly || !text.equals("N"))
+//					{
+						ret += processLblTxt(text);
+//					}
+				}
+			}
+		}
+		
+		String end = first ? "" : "</p>";
+		ret += end;
+		mxVsdxUtils.surroundByTags(ret, "div");
+		
+		return ret;
+	}
+
+	private String processLblTxt(String text) {
+		// It's HTML text, so escape it.
+		text = text.replaceAll("&", "&amp;")
+				.replaceAll("\"", "&quot;")
+				.replaceAll("'", "&prime;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;");
+
+		text = textToList(text, pp);
+
+		text = text.replaceAll("\n", "<br/>").replaceAll(UNICODE_LINE_SEP, "<br/>");
+		
+		return getTextCharFormated(text);
+	}
+
 	/**
 	 * Checks if a nameU is for big connectors.
 	 * @param nameU NameU attribute.
@@ -647,9 +760,7 @@ public class VsdxShape extends Shape
 			
 			if (theme != null)
 			{
-				int styleFillClr = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1"));
-				int styleFillMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillMatrix"), "0"));
-				Color gradColor = theme.getFillGraientColor(styleFillClr, styleFillMtx);
+				Color gradColor = theme.getFillGraientColor(getQuickStyleVals());
 				if (gradColor != null) gradient = gradColor.toHexStr();
 			}
 		}
@@ -979,8 +1090,7 @@ public class VsdxShape extends Shape
 			
 			if (theme != null)
 			{
-				int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-				pattern = isVertex()? theme.getLineDashPattern(styleLineMtx) : theme.getConnLineDashPattern(styleLineMtx);
+				pattern = isVertex()? theme.getLineDashPattern(getQuickStyleVals()) : theme.getConnLineDashPattern(getQuickStyleVals());
 			}				
 		}
 		else 
@@ -1016,8 +1126,7 @@ public class VsdxShape extends Shape
 			
 			if (theme != null)
 			{
-				int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-				return isVertex()? theme.isLineDashed(styleLineMtx) : theme.isConnLineDashed(styleLineMtx);
+				return isVertex()? theme.isLineDashed(getQuickStyleVals()) : theme.isConnLineDashed(getQuickStyleVals());
 			}
 		}
 		else if (!(linePattern.equals("0") || linePattern.equals("1")))
@@ -1052,8 +1161,7 @@ public class VsdxShape extends Shape
 				
 				if (theme != null)
 				{
-					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					lWeight = (isVertex()? theme.getLineWidth(styleLineMtx) : theme.getConnLineWidth(styleLineMtx)) / 10000.0;
+					lWeight = (isVertex()? theme.getLineWidth(getQuickStyleVals()) : theme.getConnLineWidth(getQuickStyleVals())) / 10000.0;
 				}
 			}
 			else
@@ -1096,8 +1204,7 @@ public class VsdxShape extends Shape
 				
 				if (theme != null)
 				{
-					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					size = isVertex()? theme.getStartSize(styleLineMtx) : theme.getConnStartSize(styleLineMtx);
+					size = isVertex()? theme.getStartSize(getQuickStyleVals()) : theme.getConnStartSize(getQuickStyleVals());
 				}
 			}
 			else
@@ -1135,8 +1242,7 @@ public class VsdxShape extends Shape
 				
 				if (theme != null)
 				{
-					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					size = isVertex()? theme.getEndSize(styleLineMtx) : theme.getConnEndSize(styleLineMtx);
+					size = isVertex()? theme.getEndSize(getQuickStyleVals()) : theme.getConnEndSize(getQuickStyleVals());
 				}
 			}
 			else
@@ -2031,8 +2137,7 @@ public class VsdxShape extends Shape
 				
 				if (theme != null)
 				{
-					int styleLineMtx = Integer.parseInt(this.getValue(this.getCellElement("QuickStyleLineMatrix"), "0"));
-					val = isVertex()? theme.getEdgeMarker(start, styleLineMtx) : theme.getConnEdgeMarker(start, styleLineMtx);
+					val = isVertex()? theme.getEdgeMarker(start, getQuickStyleVals()) : theme.getConnEdgeMarker(start, getQuickStyleVals());
 					
 				}
 			}

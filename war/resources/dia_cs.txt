@@ -218,6 +218,7 @@ errorSavingFileUnknown=Chyba autorizace s Google servery. Prosím obnovte strán
 errorSavingFileForbidden=Chyba ukládání souboru. Nedostačující přístupová práva.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Chyba ukládání souboru. Soubor nebyl nalezen.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Chyba odesílání zpětné vazby.
 errorUpdatingPreview=Error updating preview.
 exit=Odejít  

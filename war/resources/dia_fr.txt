@@ -218,6 +218,7 @@ errorSavingFileUnknown=Erreur d'autorisation avec les serveurs de Google. Veuill
 errorSavingFileForbidden=Erreur lors de l'enregistrement du fichier. Droits d'accès insuffisants.
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=Erreur lors de l'enregistrement du fichier. Le fichier est introuvable.
+errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=Erreur d'envoi de commentaire.
 errorUpdatingPreview=Error updating preview.
 exit=Quitter
