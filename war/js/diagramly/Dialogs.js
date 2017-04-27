@@ -533,25 +533,34 @@ var SplashDialog = function(editorUi)
 		storage = mxResources.get('browser');
 	}
 	
-	if (!mxClient.IS_CHROMEAPP && serviceCount > 1)
+	if (!mxClient.IS_CHROMEAPP)
 	{
-		var link = document.createElement('a');
-		link.setAttribute('href', 'javascript:void(0)');
-		link.style.display = 'block';
-		link.style.marginTop = '6px';
-		mxUtils.write(link, mxResources.get('notUsingService', [storage]));
-		
-		mxEvent.addListener(link, 'click', function()
-		{
-			editorUi.hideDialog(false);
-			editorUi.setMode(null);
-			editorUi.clearMode();
-			editorUi.showSplash(true);
-		});
-		
-		buttons.appendChild(link);
-
 		var driveUser = (editorUi.drive != null) ? editorUi.drive.getUser() : null;
+		
+		function addLogout(logout)
+		{
+			btn.style.marginBottom = '24px';
+			
+			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0)');
+			link.style.display = 'block';
+			link.style.marginTop = '6px';
+			mxUtils.write(link, mxResources.get('signOut'));
+
+			// Makes room after last big buttons
+			btn.style.marginBottom = '16px';
+			buttons.style.paddingBottom = '18px';
+			
+			mxEvent.addListener(link, 'click', function()
+			{
+				editorUi.confirm(mxResources.get('areYouSure'), function()
+				{
+					logout();
+				});
+			});
+			
+			buttons.appendChild(link);
+		};
 		
 		if (editorUi.mode == App.MODE_GOOGLE && driveUser != null)
 		{
@@ -560,7 +569,7 @@ var SplashDialog = function(editorUi)
 			var link = document.createElement('a');
 			link.setAttribute('href', 'javascript:void(0)');
 			link.style.display = 'block';
-			link.style.marginTop = '2px';
+			link.style.marginTop = '6px';
 			mxUtils.write(link, mxResources.get('changeUser') + ' (' + driveUser.displayName + ')');
 
 			// Makes room after last big buttons
@@ -594,6 +603,49 @@ var SplashDialog = function(editorUi)
 				}));
 			});
 
+			buttons.appendChild(link);
+		}
+		else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
+		{
+			addLogout(function()
+			{
+				editorUi.oneDrive.logout();
+			});
+		}
+		else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
+		{
+			addLogout(function()
+			{
+				editorUi.gitHub.logout();
+				window.open('https://www.github.com/logout');
+			});
+		}
+		else if (editorUi.mode == App.MODE_DROPBOX && editorUi.dropbox != null)
+		{
+			// NOTE: Dropbox has a logout option in the picker
+			addLogout(function()
+			{
+				editorUi.dropbox.logout();
+				window.open('https://www.dropbox.com/logout');
+			});
+		}
+		
+		if (serviceCount > 1)
+		{
+			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0)');
+			link.style.display = 'block';
+			link.style.marginTop = '8px';
+			mxUtils.write(link, mxResources.get('notUsingService', [storage]));
+			
+			mxEvent.addListener(link, 'click', function()
+			{
+				editorUi.hideDialog(false);
+				editorUi.setMode(null);
+				editorUi.clearMode();
+				editorUi.showSplash(true);
+			});
+			
 			buttons.appendChild(link);
 		}
 	}
@@ -4589,7 +4641,7 @@ var FeedbackDialog = function(editorUi)
 			
 			if (editorUi.spinner.spin(document.body))
 			{
-				var postUrl = FeedbackDialog.feedbackUrl ? FeedbackDialog.feedbackUrl : '/email';
+				var postUrl = (FeedbackDialog.feedbackUrl != null) ? FeedbackDialog.feedbackUrl : '/email';
 				mxUtils.post(postUrl, 'email=' + encodeURIComponent(email.value) +
 						'&version=' + encodeURIComponent(EditorUi.VERSION) +
 						'&url=' + encodeURIComponent(window.location.href) +

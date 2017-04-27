@@ -123,22 +123,6 @@ public class SaveServlet extends HttpServlet
 						format = "xml";
 					}
 
-					if (mime == null)
-					{
-						if (format.equals("xml"))
-						{
-							mime = "application/xml";
-						}
-						else if (format.equals("svg"))
-						{
-							mime = "image/svg+xml";
-						}
-						else
-						{
-							mime = "text/plain";
-						}
-					}
-
 					if (filename != null && filename.length() > 0
 							&& !filename.toLowerCase().endsWith(".svg")
 							&& !filename.toLowerCase().endsWith(".html")

@@ -80,7 +80,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 		document.body.appendChild(img);
 		this.dialogImg = img;
 		
-		mxEvent.addListener(this.bg, 'click', mxUtils.bind(this, function()
+		mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
 		{
 			editorUi.hideDialog(true);
 		}));

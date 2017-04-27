@@ -211,12 +211,19 @@ public class Shape extends Style
 								if (type != null && type.endsWith("image"))
 								{
 									this.imageData = new HashMap<String, String>();
-									this.imageData.put("iData", model.getMedia(mxVsdxCodec.vsdxPlaceholder + "/media/" + target));
+									String iData = model.getMedia(mxVsdxCodec.vsdxPlaceholder + "/media/" + target);
+									this.imageData.put("iData", iData);
 									
 									//since we convert BMP files to PNG, we set the compression to PNG
 									if (target.toLowerCase().endsWith(".bmp"))
 									{
 										compression = "png";
+									}
+									else if (target.toLowerCase().endsWith(".emf"))
+									{
+										//emf can be a png or jpg or vector (which is not supported yet)
+										//We use a number of bytes equal to file header length (which is safe as header in base64 requires 4n/3 bytes
+										compression = iData.startsWith("iVBORw0K") ? "png" : (iData.startsWith("/9j/") ? "jpg" : compression);
 									}
 
 									this.imageData.put("iType", compression);
@@ -505,6 +512,7 @@ public class Shape extends Style
 		String direction = "direction:" + this.getRtlText(cp) + ";";
 		String space = "letter-spacing:" + (Double.parseDouble(this.getLetterSpace(cp)) / 0.71) + "px;";
 		String lineHeight = "line-height:" + getSpcLine(pp);
+		String opacity = ";opacity:" + getTextOpacity(cp);
 		String pos = this.getTextPos(cp);
 		String tCase = getTextCase(cp);
 		
@@ -532,7 +540,7 @@ public class Shape extends Style
 		text = this.getTextStrike(cp) ? mxVsdxUtils.surroundByTags(text, "s") : text;
 		text = this.isSmallCaps(cp) ? mxVsdxUtils.toSmallCaps(text, this.getTextSize(cp)) : text;
 
-		ret += "<font style=\"" + size + font + color + direction + space + lineHeight + "\">" + text + "</font>";
+		ret += "<font style=\"" + size + font + color + direction + space + lineHeight + opacity + "\">" + text + "</font>";
 		return ret;
 	}
 	
@@ -775,12 +783,12 @@ public class Shape extends Style
 	public String getTextOpacity(String index)
 	{
 		Element colorTrans = getCellElement(mxVsdxConstants.COLOR_TRANS, index, mxVsdxConstants.CHARACTER);
-		String trans = getValue(colorTrans, "0");
-		String result = "100";
+		String trans = getValue(colorTrans, "1");
+		String result = "1";
 		
 		if (trans != null && !trans.isEmpty())
 		{
-			double tmp = 100 - (Double.valueOf(trans) * 100.0);
+			double tmp = 1.0 - Double.valueOf(trans);
 			result = String.valueOf(tmp);
 		}
 		

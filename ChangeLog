@@ -1,3 +1,24 @@
+27-APR-2017: 6.5.6
+
+- Adds arrows and textbox to general sidebar
+- Fixes possible data loss when opening local files
+- Removes minimum of 120% for line height in format panel
+- Fixes highlight for scaled, selected arrows in realtime
+- Removes fix for cloned start/end arrow when splitting edge
+- Fixes touch events in Chrome for hiding modal dialogs
+- Uses mxGraph 3.7.3 beta 2
+
+24-APR-2017: 6.5.5
+
+- Fixes OneDrive file picker
+- Uses mxGraph 3.7.3 beta 1
+- Adds error handling in Google Docs add-on auth callback
+- Fixes cancel for access denied dialog in GitHub client
+- Adds sign out option for backends in splash screen
+- Fixes changes lost warning when saving draft
+- Removes clipart icons due to complaints
+- Fixes close icon in Chrome app footer
+
 20-APR-2017: 6.5.4
 
 - Updates Sandstorm build

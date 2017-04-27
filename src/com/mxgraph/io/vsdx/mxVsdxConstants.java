@@ -117,7 +117,6 @@ public class mxVsdxConstants
 	public static String TEXT_BKGND = "TextBkgnd";
 	public static String TEXT_BLOCK = "TextBlock";
 	public static String TEXT_STYLE = "TextStyle";
-	public static String TEXT_X_FORM = "TextXForm";
 	public static String TO_PART = "ToPart";
 	public static String TO_SHEET = "ToSheet";
 	public static String TOP_MARGIN = "TopMargin";
@@ -137,8 +136,6 @@ public class mxVsdxConstants
 	public static String WIDTH = "Width";
 	public static String X_CON = "XCon";
 	public static String X_DYN = "XDyn";
-	public static String X_FORM = "XForm";
-	public static String X_FORM_1D = "XForm1D";
 	public static String X = "X";
 	public static String Y_CON = "YCon";
 	public static String Y_DYN = "YDyn";

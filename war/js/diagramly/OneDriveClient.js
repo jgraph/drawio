@@ -7,7 +7,6 @@ OneDriveClient = function(editorUi)
 	DrawioClient.call(this, editorUi, 'odauth');
 	
 	this.token = this.token;
-	WL.init({client_id: this.clientId, redirect_uri: this.redirectUri});
 };
 
 // Extends DrawioClient
@@ -22,6 +21,14 @@ OneDriveClient.prototype.clientId = (window.location.hostname == 'test.draw.io')
 	((window.location.hostname == 'drive.draw.io') ? '000000004413EC37' : '0000000040145A19');
 
 /**
+ * Specifies if thumbnails should be enabled. Default is true.
+ * LATER: If thumbnails are disabled, make sure to replace the
+ * existing thumbnail with the placeholder only once.
+ */
+OneDriveClient.prototype.clientId2 = (window.location.hostname == 'test.draw.io') ?
+	'2e598409-107f-4b59-89ca-d7723c8e00a4' : '45c10911-200f-4e27-a666-9e9fca147395';
+
+/**
  * OAuth 2.0 scopes for installing Drive Apps.
  */
 OneDriveClient.prototype.scopes = 'wl.skydrive_update wl.signin';
@@ -30,6 +37,11 @@ OneDriveClient.prototype.scopes = 'wl.skydrive_update wl.signin';
  * OAuth 2.0 scopes for installing Drive Apps.
  */
 OneDriveClient.prototype.redirectUri = 'https://' + window.location.hostname + '/onedrive.html';
+
+/**
+ * OAuth 2.0 scopes for installing Drive Apps.
+ */
+OneDriveClient.prototype.redirectUri2 = 'https://' + window.location.hostname + '/onedrive2.html';
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -637,19 +649,28 @@ OneDriveClient.prototype.pickLibrary = function(fn)
  */
 OneDriveClient.prototype.pickFolder = function(fn)
 {
-    WL.fileDialog(
-    {
-        mode: 'save'
-    }).then(
-        function (resp)
-        {
-    		fn(resp);
-        },
-        function (responseFailed)
-        {
-        	fn(null);
-        }
-    );
+	OneDrive.save(
+	{
+		clientId: this.clientId2,
+		action: 'query',
+		openInNewWindow: true,
+		advanced:
+		{
+			'redirectUri': this.redirectUri2
+		},
+		success: function(files)
+		{
+			fn(files);
+		},
+		cancel: function()
+		{
+			// do nothing
+		},
+		error: mxUtils.bind(this, function(e)
+		{
+			this.ui.showError(mxResources.get('error'), e);
+		})
+	});
 };
 
 /**
@@ -662,26 +683,31 @@ OneDriveClient.prototype.pickFile = function(fn)
 		this.ui.loadFile('W' + encodeURIComponent(id));
 	});
 	
-    WL.fileDialog(
-    {
-        mode: 'open',
-        select: 'multi'
-    }).then(
-        function (resp)
-        {
-        	if (resp != null && resp.data != null && resp.data.files != null)
-        	{
-            	for (var i = 0; i < resp.data.files.length; i++)
-            	{
-            		var id = resp.data.files[i].id;
-            		id = id.substring(id.lastIndexOf('.') + 1);
-            		
-            		fn(id);
-            	}
-        	}
-        },
-        function (responseFailed) {}
-    );
+	OneDrive.open(
+	{
+		clientId: this.clientId2,
+		action: 'query',
+		multiSelect: false,
+		advanced:
+		{
+			'redirectUri': this.redirectUri2
+		},
+		success: function(files)
+		{
+			if (files != null && files.value != null && files.value.length > 0)
+			{
+				fn(files.value[0].id);
+			}
+		},
+		cancel: function()
+		{
+			// do nothing
+		},
+		error: mxUtils.bind(this, function(e)
+		{
+			this.ui.showError(mxResources.get('error'), e);
+		})
+	});
 };
 
 /**
@@ -692,7 +718,4 @@ OneDriveClient.prototype.logout = function()
 	this.clearPersistentToken();
 	this.setUser(null);
 	this.token = null;
-	
-	// LATER: Check why async callback does not work
-	WL.logout();
 };

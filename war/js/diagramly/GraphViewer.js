@@ -3,7 +3,7 @@
  */
 /**
  * No CSS and resources available in embed mode. Parameters and docs:
- * https://support.draw.io/pages/viewpage.action?pageId=12878123
+ * https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-
  */
 GraphViewer = function(container, xmlNode, graphConfig)
 {
@@ -59,6 +59,11 @@ GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
 GraphViewer.prototype.autoFit = true;
 
 /**
+ * Specifies if zooming in for auto fir is allowed. Default is false.
+ */
+GraphViewer.prototype.allowZoomIn = false;
+
+/**
  * Whether the title should be shown as a tooltip if the toolbar is disabled.
  * Default is false.
  */
@@ -78,6 +83,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.graphConfig = (graphConfig != null) ? graphConfig : {};
 	this.autoFit = (graphConfig['auto-fit'] != null) ?
 		graphConfig['auto-fit'] : this.autoFit;
+	this.allowZoomIn = (graphConfig['allow-zoom-in'] != null) ?
+		graphConfig['allow-zoom-in'] : this.allowZoomIn;
 	this.checkVisibleState = (graphConfig['check-visible-state'] != null) ?
 		graphConfig['check-visible-state'] : this.checkVisibleState;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
@@ -428,7 +435,8 @@ GraphViewer.prototype.addSizeHandler = function()
 			{
 				handlingResize = true;
 
-				this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom || 1);
+				this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
+					((this.allowZoomIn) ? null : 1));
 				this.graph.fit(null, null, null, null, false, true);
 				this.graph.maxFitScale = null;
 				
@@ -519,9 +527,9 @@ GraphViewer.prototype.addSizeHandler = function()
 			container.style.minWidth = '100%';
 		}
 		
-		if (container.offsetWidth > 0 &&
+		if (container.offsetWidth > 0 && (this.allowZoomIn ||
 			(bounds.width + 2 * this.graph.border > container.offsetWidth ||
-			bounds.height + 2 * this.graph.border > this.graphConfig['max-height']))
+			bounds.height + 2 * this.graph.border > this.graphConfig['max-height'])))
 		{
 			var maxScale = null;
 			
