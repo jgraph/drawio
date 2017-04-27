@@ -103,7 +103,7 @@ public class mxVsdxGeometryList
 	 * @param parentHeight Height of the parent of the shape.
 	 * @return List of mxPoint that represents the routing points.
 	 */
-	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation/*, boolean flibX, boolean flibY*/)
+	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation)
 	{
 		sort();
 		
@@ -167,20 +167,95 @@ public class mxVsdxGeometryList
 		StringBuilder parsedGeom = new StringBuilder("<shape strokewidth=\"inherit\"><foreground>");
 		int initSize = parsedGeom.length();
 		
-		for (mxVsdxGeometry geo : geomList)
-		{
-			parsedGeom.append(geo.getPathXML(p, shape));
-		}
+		int lastGeoStyle = -1;
+
+		//first all geo with fill then without
+		lastGeoStyle = processGeo(shape, p, parsedGeom, lastGeoStyle, true);
+
+		lastGeoStyle = processGeo(shape, p, parsedGeom, lastGeoStyle, false);
 
 		if (parsedGeom.length() == initSize)
 		{
 			return "";
+		}
+		else
+		{
+			closePath(parsedGeom, lastGeoStyle);
 		}
 		
 		//System.out.println(parsedGeom);
 		
 		parsedGeom.append("</foreground></shape>");
 		return parsedGeom.toString();
+	}
+
+	private int processGeo(Shape shape, mxPoint p, StringBuilder parsedGeom, int lastGeoStyle, boolean withFill) {
+		for (mxVsdxGeometry geo : geomList)
+		{
+			
+			if (withFill == geo.isNoFill()) continue;
+			
+			String str = geo.getPathXML(p, shape);
+			
+			if (!str.isEmpty())
+			{
+				int geoStyle = getGeoStyle(geo);
+				 
+				if (lastGeoStyle == -1) //first one
+				{
+					parsedGeom.append("<path>");
+					parsedGeom.append(str);
+				}
+				else if (lastGeoStyle != geoStyle) 
+				{
+					closePath(parsedGeom, lastGeoStyle);
+					parsedGeom.append("<path>");
+					parsedGeom.append(str);
+				}
+				else
+				{
+					//parsedGeom.append("<close/>");
+					parsedGeom.append(str);
+				}
+				lastGeoStyle = geoStyle;
+			}
+		}
+		return lastGeoStyle;
+	}
+
+	private int getGeoStyle(mxVsdxGeometry geo) 
+	{
+		int geoStyle = 0;
+		if (!geo.isNoLine() && !geo.isNoFill())
+		{
+			geoStyle = 1;
+		}
+		else if (!geo.isNoFill())
+		{
+			geoStyle = 2;
+		}
+		else if (!geo.isNoLine())
+		{
+			geoStyle = 3;
+		}
+		return geoStyle;
+	}
+
+	private void closePath(StringBuilder parsedGeom, int geoStyle) 
+	{
+		parsedGeom.append("</path>");
+		if (geoStyle == 1)
+		{
+			parsedGeom.append("<fillstroke/>");
+		}
+		else if (geoStyle == 2)
+		{
+			parsedGeom.append("<fill/>");
+		}
+		else if (geoStyle == 3)
+		{
+			parsedGeom.append("<stroke/>");
+		}
 	}
 	
 }

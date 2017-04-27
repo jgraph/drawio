@@ -771,12 +771,19 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		{
 			this.ui.spinner.stop();
 			
-			org = null;
-			repo = null;
-			ref = null;
-			path = null;
-			
-			selectRepo();
+			if (this.getUser() != null)
+			{
+				org = null;
+				repo = null;
+				ref = null;
+				path = null;
+				
+				selectRepo();
+			}
+			else
+			{
+				this.ui.hideDialog();
+			}
 		}));
 	});
 	
@@ -970,6 +977,11 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 									this.ui.spinner.stop();
 									this.ui.handleError({message: mxResources.get('fileNotFound')});
 								}));
+							}
+							else
+							{
+								this.ui.spinner.stop();
+								this.ui.handleError({message: mxResources.get('invalidName')});
 							}
 						}
 					}), mxResources.get('enterValue'));

@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -156,14 +157,18 @@ public class mxVsdxCodec
 				if (filename.toLowerCase().endsWith(".xml") | filename
 							.toLowerCase().endsWith(".xml.rels"))
 				{
-					Document doc = mxXmlUtils.parseXml(out.toString(charset));
-					// Hack to be able to find the filename from an element in the XML
-					doc.setDocumentURI(filename);
-					docData.put(filename, doc);
+					String str = out.toString(charset);
+					if (!str.isEmpty())
+					{
+						Document doc = mxXmlUtils.parseXml(str);
+						// Hack to be able to find the filename from an element in the XML
+						doc.setDocumentURI(filename);
+						docData.put(filename, doc);
+					}
 				}
 				else if (filename.toLowerCase().startsWith(mxVsdxCodec.vsdxPlaceholder + "/media"))
 				{
-					String base64Str;
+					String base64Str = "";
 					//Some BMP images are huge and doesn't show up in the browser, so, it is better to compress it as PNG 
 					if (filename.toLowerCase().endsWith(".bmp")) 
 					{
@@ -200,6 +205,27 @@ public class mxVsdxCodec
 						catch (Exception e) 
 						{
 							//conversion failed, nothing we can do!
+							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(out.toByteArray(), false));
+						}
+					}
+					else if (filename.toLowerCase().endsWith(".emf")) //extract jpg or png images from emf file 
+					{
+						byte[] emfData = out.toByteArray();
+						boolean imageFound = false;
+						//search for jpg or png header
+						for (int i = 0; i < emfData.length - 8; i++) //we subtract 8 from the length to be safe when testing image headers
+						{
+							if (isPng(emfData, i) || isJpg(emfData, i)) //png or jpg?
+							{
+								//although the resulting file is larger than the actual image but any extra bytes after the image are ignored
+								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(Arrays.copyOfRange(emfData, i, emfData.length), false));
+								imageFound = true;
+								break;
+							}
+							
+						}
+						if (!imageFound)
+						{
 							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(out.toByteArray(), false));
 						}
 					}
@@ -326,6 +352,22 @@ public class mxVsdxCodec
 		xmlBuilder.append("</mxfile>");
 		
 		return xmlBuilder.toString();
+	}
+
+	private boolean isJpg(byte[] emfData, int i) 
+	{
+		//the loop calling this function make sure that we still have 3 bytes in the buffer
+		return emfData[i  ] == (byte) 0xFF && emfData[i+1] == (byte) 0xD8 &&
+			   emfData[i+2] == (byte) 0xFF;
+	}
+
+	private boolean isPng(byte[] emfData, int i) 
+	{
+		//the loop calling this function make sure that we still have 8 bytes in the buffer
+		return emfData[i  ] == (byte) 0x89 && emfData[i+1] == (byte) 0x50 &&
+			   emfData[i+2] == (byte) 0x4E && emfData[i+3] == (byte) 0x47 &&
+			   emfData[i+4] == (byte) 0x0D && emfData[i+5] == (byte) 0x0A &&
+			   emfData[i+6] == (byte) 0x1A && emfData[i+7] == (byte) 0x0A;
 	}
 
 	/**
@@ -564,6 +606,8 @@ public class mxVsdxCodec
 			}
 			else
 			{
+				//remember the edge order to maintain the shapes order (back to front)
+				shape.setShapeIndex(graph.getModel().getChildCount(parent));
 				edgeShapeMap.put(new ShapePageId(pageId, id), shape);
 				parentsMap.put(new ShapePageId(pageId, id), parent);
 			}
@@ -591,12 +635,6 @@ public class mxVsdxCodec
 		//		{
 		//			t = (text.getTextContent());
 		//		}
-		String textLabel = "";
-		
-		if (!shape.isDisplacedLabel() && !shape.isRotatedLabel())
-		{
-			textLabel = shape.getTextLabel();
-		}
 		
 		//Define dimensions
 		mxPoint d = shape.getDimensions();
@@ -636,6 +674,7 @@ public class mxVsdxCodec
 		}
 		else
 		{
+			String textLabel = shape.getTextLabel();
 			group = (mxCell) graph.insertVertex(parent, null, textLabel,
 					o.getX(), o.getY(), d.getX(), d.getY(), style);
 		}
@@ -752,7 +791,9 @@ public class mxVsdxCodec
 		//Defines Text Label.
 		String textLabel = "";
 
-		if (!shape.isRotatedLabel())
+		boolean hasSubLabel = shape.isDisplacedLabel() || shape.isRotatedLabel();// || shape.getRotation() != 0;
+
+		if (!hasSubLabel)
 		{
 			textLabel = shape.getTextLabel();
 		}
@@ -795,7 +836,6 @@ public class mxVsdxCodec
 			String style = mxVsdxUtils.getStyleString(styleMap, "=");
 
 			mxCell v1 = null;
-			boolean hasSubLabel = shape.isDisplacedLabel() || shape.isRotatedLabel();// || shape.getRotation() != 0;
 
 			if (hasSubLabel)
 			{
@@ -923,7 +963,7 @@ public class mxVsdxCodec
 			edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source,
 					target, mxVsdxUtils.getStyleString(styleMap, "="));
 			
-			mxPoint lblOffset = edgeShape.getLblEdgeOffset(beginXY, endXY, points);
+			mxPoint lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
 			((mxCell)edge).getGeometry().setOffset(lblOffset);
 		}
 		
@@ -994,7 +1034,6 @@ public class mxVsdxCodec
 		}
 
 		mxPoint beginXY = edgeShape.getStartXY(parentHeight);
-		mxPoint origBeginXY = new mxPoint(beginXY);
 		mxPoint endXY = edgeShape.getEndXY(parentHeight);
 
 		//Define style of the edge
@@ -1004,12 +1043,19 @@ public class mxVsdxCodec
 		
 		//Insert new edge and set constraints.
 		Object edge;
-		List<mxPoint> points = edgeShape.getRoutingPoints(parentHeight, origBeginXY, edgeShape.getRotation());
+		List<mxPoint> points = edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation());
 		double rotation = edgeShape.getRotation();
 		if (rotation != 0)
 		{
-			edge = graph.insertEdge(parent, null, null, null, null, mxVsdxUtils.getStyleString(styleMap, "="));
-			
+			if (edgeShape.getShapeIndex() == 0)
+			{
+				edge = graph.insertEdge(parent, null, null, null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+			}
+			else
+			{
+				edge = graph.createEdge(parent, null, null, null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+				edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex());
+			}
 			mxCell label = edgeShape.createLabelSubShape(graph, (mxCell) edge);
 			if (label != null)
 			{
@@ -1024,9 +1070,17 @@ public class mxVsdxCodec
 		}
 		else
 		{
-			edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+			if (edgeShape.getShapeIndex() == 0)
+			{
+				edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+			}
+			else
+			{
+				edge = graph.createEdge(parent, null, edgeShape.getTextLabel(), null, null, mxVsdxUtils.getStyleString(styleMap, "="));
+				edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex());
+			}
 			
-			mxPoint lblOffset = edgeShape.getLblEdgeOffset(beginXY, endXY, points);
+			mxPoint lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
 			((mxCell)edge).getGeometry().setOffset(lblOffset);
 		}
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);

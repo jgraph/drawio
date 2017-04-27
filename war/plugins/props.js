@@ -28,7 +28,7 @@ Draw.loadPlugin(function(ui) {
 	document.body.appendChild(div);
 	
 	// Highlights current cell
-	var highlight = new mxCellHighlight(graph, '#00ff00', 12);
+	var highlight = new mxCellHighlight(graph, '#00ff00', 8);
 
 	/**
 	 * Updates the properties panel

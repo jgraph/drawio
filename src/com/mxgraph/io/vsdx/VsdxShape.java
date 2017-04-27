@@ -35,7 +35,9 @@ import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxResources;
+import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphView;
 
 /**
  * This class is a wrapper for one Shape Element.<br/>
@@ -83,6 +85,11 @@ public class VsdxShape extends Shape
 	 * The prefix of the shape name
 	 */
 	protected String shapeName = null;
+	
+	/**
+	 * Shape index
+	 */
+	protected int shapeIndex = 0;
 	
 	/**
 	 * Whether this cell is a vertex
@@ -252,8 +259,6 @@ public class VsdxShape extends Shape
 		this.rotation = rotation * 100/100;
 		this.rotation = this.rotation % 360.0;
 		
-		this.vertex = vertex;
-		
 		mxVsdxTheme	theme = model.getThemes().get(page.getCellIntValue("ThemeIndex", 33));
 		int variant = page.getCellIntValue("VariationColorIndex", 0);
 		
@@ -286,6 +291,9 @@ public class VsdxShape extends Shape
 		{
 			processGeomList(null);
 		}
+		//several shapes have beginX/Y and also has a fill color, thus it is better to render it as a vertex
+		//vsdx can have an edge as a group!
+		this.vertex = vertex || isGroup() || (geomList != null && !geomList.isNoFill());
 	}
 	
 	/**
@@ -463,7 +471,8 @@ public class VsdxShape extends Shape
 		fontStyle |= isUnderline(index) ? mxConstants.FONT_UNDERLINE : 0;
 		this.styleMap.put("fontStyle", String.valueOf(fontStyle));
 		
-		this.styleMap.put(mxConstants.STYLE_TEXT_OPACITY, getTextOpacity(index));
+		//Commented out as the method getTextOpacity returns value between 0 and 1 instead of 0 - 100
+//		this.styleMap.put(mxConstants.STYLE_TEXT_OPACITY, getTextOpacity(index));
 
 		int numValues = para.numValues();
 		String result = null;
@@ -750,7 +759,9 @@ public class VsdxShape extends Shape
 		String gradient = "";
 		String fillPattern = this.getValue(this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");
 
-		if (fillPattern.equals("25") || fillPattern.equals("27") || fillPattern.equals("28") || fillPattern.equals("30"))
+//		if (fillPattern.equals("25") || fillPattern.equals("27") || fillPattern.equals("28") || fillPattern.equals("30"))
+		//approximate all gradients of vsdx with mxGraph one
+		if (Integer.parseInt(fillPattern) >= 25)
 		{
 			gradient = this.getColor(this.getCellElement(mxVsdxConstants.FILL_BKGND));
 		}
@@ -905,13 +916,14 @@ public class VsdxShape extends Shape
 		styleMap.put("vsdxID", this.getId().toString());
 		
 		// Rotation.		
-		String labelRotation = getLabelRotation() ? "1" : "0";
+//		String labelRotation = getLabelRotation() ? "1" : "0";
 		this.rotation = Math.round(this.rotation);
 
-		if (!labelRotation.equals("1") && this.rotation != 90 && this.rotation != 270)
-		{
-			styleMap.put(mxConstants.STYLE_HORIZONTAL, labelRotation);
-		}
+		//It gives wrong results, may be it is needed in other scenarios
+//		if (!labelRotation.equals("1") && this.rotation != 90 && this.rotation != 270)
+//		{
+//			styleMap.put(mxConstants.STYLE_HORIZONTAL, labelRotation);
+//		}
 
 		if (this.rotation != 0)
 		{
@@ -1056,24 +1068,19 @@ public class VsdxShape extends Shape
 			styleMap.put(mxConstants.STYLE_DIRECTION, direction);
 		}
 		
-		Element xForm = (Element) shape.getElementsByTagName(mxVsdxConstants.X_FORM).item(0);
+		String flibX = getValue(this.getCellElement(mxVsdxConstants.FLIP_X), "0");
+		String flibY = getValue(this.getCellElement(mxVsdxConstants.FLIP_X), "0");
 		
-		if (xForm != null)
+		if ("1".equals(flibX))
 		{
-			Node flipX = xForm.getElementsByTagName(mxVsdxConstants.FLIP_X).item(0); 
-			Node flipY = xForm.getElementsByTagName(mxVsdxConstants.FLIP_Y).item(0); 
-			
-			if (flipX != null && flipX.getTextContent().equals("1"))
-			{
-				styleMap.put(mxConstants.STYLE_FLIPH, "1");
-			}
-			
-			if (flipY != null && flipY.getTextContent().equals("1"))
-			{
-				styleMap.put(mxConstants.STYLE_FLIPV, "1");
-			}
+			styleMap.put(mxConstants.STYLE_FLIPH, "1");
 		}
 		
+		if ("1".equals(flibY))
+		{
+			styleMap.put(mxConstants.STYLE_FLIPV, "1");
+		}
+
 		resolveCommonStyles();
 
 		return this.styleMap;
@@ -1144,15 +1151,9 @@ public class VsdxShape extends Shape
 	 */
 	public double getLineWidth()
 	{
-		//if an edge has a fill geometry, then the line width matches the min of the shape width & height 
-		if (!isVertex() && geomList != null && !geomList.isNoFill())
-		{
-			return Math.min(height, width);
-		}
-
-		String lineWeight = getValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), "0");
+		String lineWeight = getValue(this.getCellElement(mxVsdxConstants.LINE_WEIGHT), "1");
 		
-		double lWeight = 0;
+		double lWeight = 1;
 		try
 		{
 			if (lineWeight.equals("Themed"))
@@ -1756,31 +1757,31 @@ public class VsdxShape extends Shape
 	
 	public boolean isDisplacedLabel()
 	{
-		String txtPinXF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_X, "F", "");
-		String txtPinYF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_Y, "F", "");
-		String txtWidthF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_WIDTH, "F", "");
-		String txtHeightF = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_HEIGHT, "F", "");
+		String txtPinXF = this.getAttribute(mxVsdxConstants.TXT_PIN_X, "F", "");
+		String txtPinYF = this.getAttribute(mxVsdxConstants.TXT_PIN_Y, "F", "");
+		String txtWidthF = this.getAttribute(mxVsdxConstants.TXT_WIDTH, "F", "");
+		String txtHeightF = this.getAttribute(mxVsdxConstants.TXT_HEIGHT, "F", "");
 
 		if (masterShape != null)
 		{
 			if (txtPinXF == "" || txtPinXF.toLowerCase().equals("inh"))
 			{
-				txtPinXF = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_X, "F", "");
+				txtPinXF = masterShape.getAttribute(mxVsdxConstants.TXT_PIN_X, "F", "");
 			}
 
 			if (txtPinYF == "" || txtPinYF.toLowerCase().equals("inh"))
 			{
-				txtPinYF = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_PIN_Y, "F", "");
+				txtPinYF = masterShape.getAttribute(mxVsdxConstants.TXT_PIN_Y, "F", "");
 			}
 
 			if (txtWidthF == "" || txtWidthF.toLowerCase().equals("inh"))
 			{
-				txtWidthF = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_WIDTH, "F", "");
+				txtWidthF = masterShape.getAttribute(mxVsdxConstants.TXT_WIDTH, "F", "");
 			}
 
 			if (txtHeightF == "" || txtHeightF.toLowerCase().equals("inh"))
 			{
-				txtHeightF = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_HEIGHT, "F", "");
+				txtHeightF = masterShape.getAttribute(mxVsdxConstants.TXT_HEIGHT, "F", "");
 			}
 		}
 
@@ -1811,13 +1812,13 @@ public class VsdxShape extends Shape
 	
 	public boolean isRotatedLabel()
 	{
-		String txtAngleValue = this.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_ANGLE, "V", "");
+		String txtAngleValue = this.getAttribute(mxVsdxConstants.TXT_ANGLE, "V", "");
 
 		if (masterShape != null)
 		{
 			if (txtAngleValue.equals(""))
 			{
-				txtAngleValue = masterShape.getAttribute(mxVsdxConstants.TEXT_X_FORM, mxVsdxConstants.TXT_ANGLE, "V", "");
+				txtAngleValue = masterShape.getAttribute(mxVsdxConstants.TXT_ANGLE, "V", "");
 			}
 
 		}
@@ -1873,7 +1874,7 @@ public class VsdxShape extends Shape
 	 * @param parentHeight Height of the parent of the shape.
 	 * @return List of mxPoint that represents the routing points.
 	 */
-	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation/*, boolean flibX, boolean flibY*/)
+	public List<mxPoint> getRoutingPoints(double parentHeight, mxPoint startPoint, double rotation/*, boolean flipX, boolean flipY*/)
 	{
 		if (geomList != null)
 		{
@@ -2227,6 +2228,8 @@ public class VsdxShape extends Shape
 			
 			// Doesn't make sense to set a shape, it's not rendered and doesn't affect the text perimeter
 			styleMap.remove("shape");
+			//image should be set for the parent shape only
+			styleMap.remove("image");
 			//styleMap.put("html", "1");
 
 			if (txtAngleV != 0)
@@ -2254,28 +2257,48 @@ public class VsdxShape extends Shape
 		return null;
 	}
 
-	public mxPoint getLblEdgeOffset(mxPoint beginXY, mxPoint endXY, List<mxPoint> points) 
+	public mxPoint getLblEdgeOffset(mxGraphView view, List<mxPoint> points) 
 	{
-		//currently, edges with multiple segments are not supported
-		//TODO use the code from https://github.com/jgraph/mxgraph/blob/master/javascript/src/js/view/mxGraphView.js#L1953 to calculate mxGraph label offset instead of the default mid point (width/2, height/2)
-		if (points == null || points.isEmpty() || points.size() == 2) //points can hold two points representing begin and end point
+		if (points != null && points.size() > 1)
 		{
-	        //Calculate the text offset
+			//find mxGraph label offset
+			mxCellState state = new mxCellState();
+			state.setAbsolutePoints(points);
+			view.updateEdgeBounds(state);
+			mxPoint mxOffset = view.getPoint(state);
+			mxPoint p0 = points.get(0);
+			mxPoint pe = points.get(points.size()-1);
+
+			//Calculate the text offset
 	        double txtWV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_WIDTH), getWidth());
 	        double txtHV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_HEIGHT), getHeight());
 	        double txtLocPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_X), 0);
 	        double txtLocPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_LOC_PIN_Y), 0);
 	        double txtPinXV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_X), 0);
 	        double txtPinYV = getScreenNumericalValue(getShapeNode(mxVsdxConstants.TXT_PIN_Y), 0);
-	
-			double y = getHeight()/2 - (txtPinYV - txtLocPinYV + txtHV/2);
-			double x = txtPinXV - txtLocPinXV + txtWV/2 - getWidth()/2;
-	
-	        return new mxPoint(x, y);
+
+	        double y = (getHeight() - (p0.getY() - pe.getY()))/2 + p0.getY() - mxOffset.getY() - (txtPinYV - txtLocPinYV + txtHV/2);
+			double x = txtPinXV - txtLocPinXV + txtWV/2 + (p0.getX() - mxOffset.getX());
+
+			//FIXME one file has txtPinX/Y values extremely high which cause draw.io to hang
+//			<Cell N='TxtPinX' V='-1.651384506429589E199' F='SETATREF(Controls.TextPosition)'/>
+//			<Cell N='TxtPinY' V='1.183491078740126E185' F='SETATREF(Controls.TextPosition.Y)'/>
+			if (Math.abs(x) > 10e10) return null;
+			
+			return new mxPoint(x, y);
 		}
 		else
 		{
 			return null;
 		}
 	}
+
+	public int getShapeIndex() {
+		return shapeIndex;
+	}
+
+	public void setShapeIndex(int shapeIndex) {
+		this.shapeIndex = shapeIndex;
+	}
+	
 }

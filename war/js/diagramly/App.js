@@ -158,6 +158,21 @@ App.MODE_BROWSER = 'browser';
 App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 
 /**
+ * Sets the delay for autosave in milliseconds. Default is 2000.
+ */
+App.DROPBOX_URL = 'https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js';
+
+/**
+ * Sets the delay for autosave in milliseconds. Default is 2000.
+ */
+App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
+
+/**
+ * Sets the delay for autosave in milliseconds. Default is 2000.
+ */
+App.ONEDRIVE_URL = 'https://js.live.net/v7.0/OneDrive.js';
+
+/**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://desk.draw.io/solution/articles/16000042546
  */
@@ -283,11 +298,10 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#D'))
 						{
-							mxscript('https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js');
+							mxscript(App.DROPBOX_URL);
 							
 							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript('https://www.dropbox.com/static/api/2/dropins.js',
-									null, 'dropboxjs', App.DROPBOX_APPKEY);
+							mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -311,7 +325,7 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							mxscript('https://js.live.net/v5.0/wl.js');
+							mxscript(App.ONEDRIVE_URL);
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -592,10 +606,10 @@ App.main = function(callback)
 				(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
 				isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
 			{
-				mxscript('https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js', function()
+				mxscript(App.DROPBOX_URL, function()
 				{
 					// Must load this after the dropbox SDK since they use the same namespace
-					mxscript('https://www.dropbox.com/static/api/2/dropins.js', function()
+					mxscript(App.DROPINS_URL, function()
 					{
 						DrawDropboxClientCallback();
 					}, 'dropboxjs', App.DROPBOX_APPKEY);
@@ -609,15 +623,15 @@ App.main = function(callback)
 				
 			// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
 			if (typeof window.OneDriveClient === 'function' &&
-				(typeof WL === 'undefined' && window.DrawOneDriveClientCallback != null &&
+				(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
 				(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
 				urlParams['od'] == '1')) && !/(iPad|iPhone|iPod)/.test(navigator.userAgent) &&
 				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 			{
-				mxscript('https://js.live.net/v5.0/wl.js', window.DrawOneDriveClientCallback);
+				mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
 			}
 			// Disables client
-			else if (typeof window.WL === 'undefined')
+			else if (typeof window.OneDrive === 'undefined')
 			{
 				window.OneDriveClient = null;
 			}
@@ -747,7 +761,7 @@ App.prototype.init = function()
 		 */
 		var initOneDriveClient = mxUtils.bind(this, function()
 		{
-			if (typeof WL !== 'undefined')
+			if (typeof OneDrive !== 'undefined')
 			{
 				/**
 				 * Holds the x-coordinate of the point.
@@ -2079,7 +2093,7 @@ App.prototype.start = function()
 	this.bg.parentNode.removeChild(this.bg);
 	this.restoreLibraries();
 	this.spinner.stop();
-
+	
 	try
 	{
 		// Listens to changes of the hash if not in embed or client mode
@@ -2100,11 +2114,15 @@ App.prototype.start = function()
 				}
 				catch (e)
 				{
-					this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+					// Workaround for possible scrollWidth of null in Dialog ctor
+					if (document.body != null)
 					{
-						var file = this.getCurrentFile();
-						window.location.hash = (file != null) ? file.getHash() : '';
-					}));
+						this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+						{
+							var file = this.getCurrentFile();
+							window.location.hash = (file != null) ? file.getHash() : '';
+						}));
+					}
 				}
 			}));
 		}
@@ -3259,6 +3277,11 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				window.openFile = null;
 				this.fileLoaded(file);
 				
+				if (replace)
+				{
+					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+				}
+				
 				if (libs != null)
 				{
 					this.sidebar.showEntries(libs);
@@ -3267,7 +3290,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 
 			var fn2 = mxUtils.bind(this, function()
 			{
-				if (currentFile == null || !currentFile.isModified())
+				if (replace || currentFile == null || !currentFile.isModified())
 				{
 					fn3();
 				}
@@ -3281,7 +3304,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 			{
 				done();
 			}
-
+			
 			// Opens the file in a new window
 			if (replace != null && !replace)
 			{
@@ -3946,16 +3969,14 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 	}
 	else if (enabled && mode == App.MODE_ONEDRIVE && this.oneDrive != null)
 	{
-		this.oneDrive.pickFolder(mxUtils.bind(this, function(evt)
+		this.oneDrive.pickFolder(mxUtils.bind(this, function(files)
 		{
 			var folderId = null;
 			resume();
 			
-			if (evt != null && evt.data != null && evt.data.folders != null &&
-				evt.data.folders.length > 0)
+			if (files != null && files.value != null && files.value.length > 0)
 			{
-				folderId = evt.data.folders[0].id;
-        		folderId = folderId.substring(folderId.lastIndexOf('.') + 1);
+				folderId = files.value[0].id;
         		fn(folderId);
 			}
 		}));

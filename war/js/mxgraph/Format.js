@@ -2684,7 +2684,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		container.appendChild(this.createRelativeOption(mxResources.get('lineheight'), null, null, function(input)
 		{
 			var value = (input.value == '') ? 120 : parseInt(input.value);
-			value = Math.max(120, (isNaN(value)) ? 120 : value);
+			value = Math.max(0, (isNaN(value)) ? 120 : value);
 
 			if (selState != null)
 			{
@@ -2702,9 +2702,9 @@ TextFormatPanel.prototype.addFont = function(container)
 			
 			if (node != null && node == graph.cellEditor.textarea && graph.cellEditor.textarea.firstChild != null)
 			{
-				if (graph.cellEditor.textarea.firstChild.nodeName != 'FONT')
+				if (graph.cellEditor.textarea.firstChild.nodeName != 'P')
 				{
-					graph.cellEditor.textarea.innerHTML = '<font>' + graph.cellEditor.textarea.innerHTML + '</font>';
+					graph.cellEditor.textarea.innerHTML = '<p>' + graph.cellEditor.textarea.innerHTML + '</p>';
 				}
 				
 				node = graph.cellEditor.textarea.firstChild;

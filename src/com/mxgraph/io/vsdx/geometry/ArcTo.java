@@ -20,7 +20,7 @@ public class ArcTo extends Row
 			double h = shape.getHeight();
 			double w = shape.getWidth();
 			double x0 = Math.round(shape.getLastX() * w) / 100;
-			double y0 = Math.round(shape.getLastX() * h) / 100;
+			double y0 = Math.round(shape.getLastY() * h) / 100;
 			double x = this.x * mxVsdxUtils.conversionFactor;
 			
 			double y = this.y * mxVsdxUtils.conversionFactor;

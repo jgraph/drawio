@@ -157,34 +157,13 @@ public class mxVsdxGeometry {
 	{
 		if (noShow) return "";
 		
-		StringBuilder geomElemParsed = new StringBuilder("<path>");
-		int initSize = geomElemParsed.length();
+		StringBuilder geomElemParsed = new StringBuilder();
 		
 		for (Row row : rows)
 		{
 			geomElemParsed.append(row.handle(p, shape));
 		}
-
-		if (geomElemParsed.length() > initSize)
-		{
-			geomElemParsed.append("</path>");
-			
-			if (!noLine && !noFill)
-			{
-				geomElemParsed.append("<fillstroke/>");
-			}
-			else if (!noFill)
-			{
-				geomElemParsed.append("<fill/>");
-			}
-			else if (!noLine)
-			{
-				geomElemParsed.append("<stroke/>");
-			}
-			
-			return geomElemParsed.toString();
-		}
 		
-		return "";
+		return geomElemParsed.toString();
 	}
 }

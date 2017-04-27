@@ -15,9 +15,10 @@
 	EditorUi.compactUi = uiTheme != 'atlas';
 
 	/**
-	 * Overrides compact UI setting.
+	 * https://github.com/electron/electron/issues/2288
 	 */
-	EditorUi.isElectronApp = window && window.process && window.process.type; // https://github.com/electron/electron/issues/2288
+	EditorUi.isElectronApp = window != null && window.process != null &&
+		window.process.versions != null && window.process.versions['electron'] != null;
 
 	/**
 	 * Contains the default XML for an empty diagram.
@@ -6715,6 +6716,8 @@
 	 */
 	EditorUi.prototype.openLocalFile = function(data, name, temp)
 	{
+		var currentFile = this.getCurrentFile();
+		
 		var fn = mxUtils.bind(this, function()
 		{
 			window.openFile = null;
@@ -6734,10 +6737,14 @@
 				this.fileLoaded(new LocalFile(this, data, name || this.defaultFilename, temp));
 			}
 		});
-		
+
 		if (data != null && data.length > 0)
 		{
-			if (this.getCurrentFile() != null && !this.isDiagramEmpty())
+			if (currentFile == null || !currentFile.isModified())
+			{
+				fn();
+			}
+			else
 			{
 				window.openFile = new OpenFile(function()
 				{
@@ -6745,11 +6752,10 @@
 				});
 				
 				window.openFile.setData(data, name);
-				window.openWindow(this.getUrl(), null, fn);
-			}
-			else
-			{
-				fn();
+				window.openWindow(this.getUrl(), null, mxUtils.bind(this, function()
+				{
+					this.confirm(mxResources.get('allChangesLost'), fn);
+				}));
 			}
 		}
 	};

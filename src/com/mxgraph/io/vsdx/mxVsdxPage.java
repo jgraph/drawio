@@ -211,25 +211,24 @@ public class mxVsdxPage {
 					{
 						masterTmp = model.getMaster(masterId);
 					}
-					else
-					{
-						masterId = shapeElem.getAttribute(mxVsdxConstants.MASTER_SHAPE);
-	
-						if (masterId != null && !masterId.equals(""))
-						{
-							masterTmp = model.getMaster(masterId);
-						}					
-					}
 				}
 				
 				boolean isEdge = isEdge(shapeElem);
-				//String type = mxVdxShape.getType(shapeElem);
 				
 				// If the master of the shape has an xform1D, it's an edge
 				if (!isEdge && masterTmp != null)
 				{
-					isEdge = isEdge(masterTmp.getMasterElement());
+					String masterId = shapeElem.getAttribute(mxVsdxConstants.MASTER_SHAPE);
+
+					Element elem = masterTmp.getMasterElement();
+					if (masterId != null && !masterId.equals(""))
+					{
+						elem = masterTmp.getSubShape(masterId).getShape();
+					}
+					isEdge = isEdge(elem);
 				}
+				
+				//String type = mxVdxShape.getType(shapeElem);
 				
 				VsdxShape shape = this.createCell(shapeElem, !isEdge, masterTmp);
 				

@@ -305,25 +305,6 @@ public class Style
 	}
 
 	/**
-	 * Returns the value of the element with tag name = 'tag' in the children
-	 * of 'primary' in his double representation.<br/>
-	 * @param tag Name of the Element to be found.
-	 * @return Numerical value of the element.
-	 */
-	public String getAttribute(String parentTag, String tag, String attribute, String defaultValue)
-	{
-		String result = defaultValue;
-		Element cell = this.cellElements.get(tag);
-		
-		if (cell != null)
-		{
-			result = cell.getAttribute(attribute);
-		}
-
-		return result;
-	}
-	
-	/**
 	 * Returns the value of the attribute of the element with tag name = 'tag' in the children
 	 * of the shape element<br/>
 	 * @param tag Name of the Element to be found.
@@ -570,7 +551,8 @@ public class Style
 			}
 			else
 			{
-				fillForeColor = "";
+				//One sample file has fill color as white when no theme is used and value is Themed!
+				fillForeColor = "#FFFFFF";
 			}
 		}
 
@@ -615,7 +597,7 @@ public class Style
 				return "none";
 			}
 
-			return pm.getColor(color);
+			return pm.getColor(String.valueOf(Integer.parseInt(color) - 1));
 		}
 		
 		return color;

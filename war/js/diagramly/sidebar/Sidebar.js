@@ -156,7 +156,8 @@
 			{
 				// Checks if any of the following keywords are in the search terms
 				var words = ['line', 'lines', 'arrow', 'arrows', 'connect', 'connection', 'connections',
-				             'connector', 'connectors', 'curve', 'curves', 'link', 'links'];
+				             'connector', 'connectors', 'curve', 'curves', 'link', 'links', 'directed',
+				             'directional', 'bidirectional'];
 				
 				for (var i = 0; i < words.length; i++)
 				{
@@ -168,7 +169,7 @@
 				}
 			}
 			
-			if (hintText != null)
+			if (hintText != null && !this.hideSearchHint)
 			{
 				var link = document.createElement('a');
 				link.setAttribute('href', 'https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
@@ -177,9 +178,30 @@
 				link.style.cssText = 'background-color:#ffd350;border-radius:6px;color:black;' +
 					'border:1px solid black !important;text-align:center;white-space:normal;' +
 					'padding:6px 0px 6px 0px !important;margin:4px 4px 8px 2px;';
-				
 				mxUtils.write(link, hintText);
+				
+				// Adds close button
+				var img = document.createElement('img');
+				img.setAttribute('src', Dialog.prototype.closeImage);
+				img.setAttribute('title', mxResources.get('hide'));
+				img.className = 'geDialogClose';
+				img.style.position = 'relative';
+				img.style.cursor = 'default';
+				img.style.top = '1px';
+				img.style.right = '0px';
+				
+				mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
+				{
+					link.parentNode.removeChild(link);
+					this.hideSearchHint = true;
+					mxEvent.consume(evt);
+				}));
+				
+				link.appendChild(img);
 				div.appendChild(link);
+				
+				// Shows hint only once
+				this.hideSearchHint = true;
 			}
 		}
 		
@@ -290,7 +312,7 @@
             			entries: [{title: mxResources.get('general'), id: 'general', image: IMAGE_PATH + '/sidebar-general.png'},
             			          {title: mxResources.get('arrows'), id: 'arrows2', image: IMAGE_PATH + '/sidebar-arrows2.png'},
             			          {title: mxResources.get('basic'), id: 'basic', image: IMAGE_PATH + '/sidebar-basic.png'},
-            			          {title: mxResources.get('clipart'), id: 'clipart', image: IMAGE_PATH + '/sidebar-clipart.jpg'},
+            			          {title: mxResources.get('clipart'), id: 'clipart', image: IMAGE_PATH + '/sidebar-clipart.png'},
             			          {title: mxResources.get('flowchart'), id: 'flowchart', image: IMAGE_PATH + '/sidebar-flowchart.png'}]},
             			{title: mxResources.get('software'),
             			entries: [{title: mxResources.get('android'), id: 'android', image: IMAGE_PATH + '/sidebar-android.png'},
@@ -700,15 +722,15 @@
 				'Doctor_Man_Black', 'Doctor_Woman', 'Doctor_Woman_Black',
 				'Farmer_Man', 'Farmer_Man_Black', 'Farmer_Woman',
 				'Farmer_Woman_Black', 'Nurse_Man', 'Nurse_Man_Black',
-				'Nurse_Man_Green', 'Nurse_Man_Red', 'Nurse_Woman',
-				'Nurse_Woman_Black', 'Nurse_Woman_Green', 'Nurse_Woman_Red',
+				'Nurse_Woman',
+				'Nurse_Woman_Black',
 				'Military_Officer', 'Military_Officer_Black',
 				'Military_Officer_Woman', 'Military_Officer_Woman_Black',
 				'Pilot_Man', 'Pilot_Man_Black', 'Pilot_Woman',
 				'Pilot_Woman_Black', 'Scientist_Man', 'Scientist_Man_Black',
 				'Scientist_Woman', 'Scientist_Woman_Black', 'Security_Man',
 				'Security_Man_Black', 'Security_Woman', 'Security_Woman_Black',
-				'Soldier', 'Soldier_Black', 'Tech_Man', 'Tech_Man_Black',
+				'Tech_Man', 'Tech_Man_Black',
 				'Telesales_Man', 'Telesales_Man_Black', 'Telesales_Woman',
 				'Telesales_Woman_Black', 'Waiter', 'Waiter_Black',
 				'Waiter_Woman', 'Waiter_Woman_Black', 'Worker_Black',

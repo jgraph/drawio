@@ -11,7 +11,6 @@ import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.FillStyle;
 import com.mxgraph.io.vsdx.theme.FillStyleFactory;
 import com.mxgraph.io.vsdx.theme.GradFill;
-import com.mxgraph.io.vsdx.theme.HSLColor;
 import com.mxgraph.io.vsdx.theme.LineStyle;
 import com.mxgraph.io.vsdx.theme.LineStyleExt;
 import com.mxgraph.io.vsdx.theme.OoxmlColor;

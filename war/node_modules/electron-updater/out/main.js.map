@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "main.js",
+  "sourceRoot": "",
+  "sources": [
+    "../src/main.ts"
+  ],
+  "names": [],
+  "mappings": ";;;;;AAGA,IAAI,AAAI;AACR,AAAE,AAAC,IAAC,AAAO,QAAC,AAAQ,aAAK,AAAO,AAAC,SAAC,AAAC;AACjC,AAAI,WAAG,AAAI,KAAC,AAAO,QAAC,AAAe,AAAC,iBAAC,AAAW,AAAC,AAAE,AACrD;AAAC,AACD,AAAI,WAAK,AAAO,QAAC,AAAQ,aAAK,AAAQ,AAAC,UAAC,AAAC;AACvC,AAAI,WAAG,AAAI,KAAC,AAAO,QAAC,AAAc,AAAC,gBAAC,AAAU,AAAC,AAAE,AACnD;AAAC,AACD,AAAI,CAHC,AAAE,AAAC,MAGH,AAAC;AACJ,AAAI,WAAG,AAAO,QAAC,AAAU,AAAC,YAAC,AAAW,AACxC;AAAC,AACD,AAAM;AAAC,MAAM,AAAW,oCAAe,AAAI",
+  "sourcesContent": [
+    "// autoUpdater to mimic electron bundled autoUpdater\nimport { AppUpdater } from \"./AppUpdater\"\n\nlet impl\nif (process.platform === \"win32\") {\n  impl = new (require(\"./NsisUpdater\").NsisUpdater)()\n}\nelse if (process.platform === \"darwin\") {\n  impl = new (require(\"./MacUpdater\").MacUpdater)()\n}\nelse {\n  impl = require(\"electron\").autoUpdater\n}\nexport const autoUpdater: AppUpdater = impl"
+  ]
+}
