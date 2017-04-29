@@ -42,6 +42,7 @@ function createWindow (opt = {}) {
 			'db': 0,
 			'gapi': 0,
 			'od': 0,
+			'gh': 0,
 			'analytics': 0,
 			'picker': 0,
 			'mode': 'device',
@@ -72,11 +73,11 @@ function createWindow (opt = {}) {
 							win,
 							{
 								type: 'question',
-								buttons: ['Yes', 'No'],
+								buttons: ['Cancel', 'Discard Changes'],
 								title: 'Confirm',
-								message: 'All Changes will be lost' //mxResources.get('allChangesLost')
+								message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
 							})
-						if (choice === 0) {
+						if (choice === 1) {
 							win.destroy()
 						}
 					} else {

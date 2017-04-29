@@ -4190,14 +4190,14 @@ PrintDialog.prototype.create = function(editorUi, titleText)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://desk.draw.io/support/solutions/articles/16000048947-how-to-print-');
+			window.open('https://desk.draw.io/support/solutions/articles/16000048947');
 		});
 		
 		helpBtn.className = 'geBtn';
 		buttons.appendChild(helpBtn);
 	}
 	
-	if (!mxClient.IS_CHROMEAPP)
+	if (PrintDialog.previewEnabled)
 	{
 		var previewBtn = mxUtils.button(mxResources.get('preview'), function()
 		{
@@ -4208,7 +4208,7 @@ PrintDialog.prototype.create = function(editorUi, titleText)
 		buttons.appendChild(previewBtn);
 	}
 	
-	var printBtn = mxUtils.button(mxResources.get((mxClient.IS_CHROMEAPP) ? 'ok' : 'print'), function()
+	var printBtn = mxUtils.button(mxResources.get((!PrintDialog.previewEnabled) ? 'ok' : 'print'), function()
 	{
 		editorUi.hideDialog();
 		preview(true);
@@ -7506,7 +7506,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    	
 	    	if (editorUi.isLocalFileSave())
 	    	{
-	    		editorUi.saveLocalFile(data, filename, 'text/xml');
+	    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true);
 	    	}
 	    	else
 	    	{
@@ -7725,7 +7725,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://desk.draw.io/support/solutions/articles/16000052874-how-to-create-and-edit-shapes-');
+			window.open('https://desk.draw.io/support/solutions/articles/16000052874');
 		});
 		
 		helpBtn.className = 'geBtn';

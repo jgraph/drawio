@@ -71,7 +71,7 @@ App = function(editor, container, lightbox)
 	// Sets help link for placeholders
 	if (!this.isOffline())
 	{
-		EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979-how-to-work-with-placeholders-';
+		EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
 	}
 
 	// Gets recent colors from settings
@@ -183,7 +183,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
-	'anim': '/plugins/animation.js', 'update': '/plugins/update.js'};
+	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
+	'mind': '/plugins/mind/mind.js'};
 
 /**
  * Function: authorize
@@ -2958,7 +2959,7 @@ App.prototype.saveFile = function(forceDialog)
 				this.hideDialog();
 			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
 				(this.isOffline()) ? null :
-				'https://desk.draw.io/support/solutions/articles/16000042485-what-file-extensions-are-supported-',
+				'https://desk.draw.io/support/solutions/articles/16000042485',
 				true, rowLimit);
 			this.showDialog(dlg.container, 460, (serviceCount > rowLimit) ? 390 : 270, true, true);
 			dlg.init();
@@ -3296,7 +3297,8 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				}
 				else
 				{
-					this.confirm(mxResources.get('allChangesLost'), fn3);
+					this.confirm(mxResources.get('allChangesLost'), null, fn3,
+						mxResources.get('cancel'), mxResources.get('discardChanges'));
 				}
 			});
 
@@ -3585,7 +3587,8 @@ App.prototype.loadFile = function(id, sameWindow, file)
 		}
 		else
 		{
-			this.confirm(mxResources.get('allChangesLost'), fn2);
+			this.confirm(mxResources.get('allChangesLost'), null, fn2,
+				mxResources.get('cancel'), mxResources.get('discardChanges'));
 		}
 	});
 	
@@ -4086,6 +4089,22 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 				this.spinner.stop();
 				this.handleError(resp);
 			}), true, folderId, base64Encoded);
+		}
+	}
+	else if (mode == App.MODE_BROWSER)
+	{
+		var fn = mxUtils.bind(this, function()
+		{
+			localStorage.setItem(filename, data);
+		});
+		
+		if (localStorage.getItem(filename) == null)
+		{
+			fn();
+		}
+		else
+		{
+			this.confirm(mxResources.get('replaceIt', [filename]), fn);
 		}
 	}
 };
@@ -4934,7 +4953,8 @@ App.prototype.updateUserElement = function()
 								}
 								else
 								{
-									this.confirm(mxResources.get('allChangesLost'), doLogout);
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
 								}
 							}
 							else
@@ -4964,7 +4984,8 @@ App.prototype.updateUserElement = function()
 								}
 								else
 								{
-									this.confirm(mxResources.get('allChangesLost'), doLogout);
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
 								}
 							}
 							else
@@ -4994,7 +5015,8 @@ App.prototype.updateUserElement = function()
 								}
 								else
 								{
-									this.confirm(mxResources.get('allChangesLost'), doLogout);
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
 								}
 							}
 							else

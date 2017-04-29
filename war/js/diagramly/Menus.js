@@ -848,7 +848,7 @@
 				{
 					editorUi.spinner.stop();
 					
-					editorUi.showHtmlDialog(mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542-how-to-embed-html-',
+					editorUi.showHtmlDialog(mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542',
 						url, function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
 					{
 						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
@@ -980,7 +980,7 @@
 					});
 				}
 			}, mxResources.get('formatSvg'), mxResources.get('image'),
-				true, 'https://desk.draw.io/support/solutions/articles/16000042548-how-to-embed-svg-');
+				true, 'https://desk.draw.io/support/solutions/articles/16000042548');
 		}));
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
@@ -1134,7 +1134,8 @@
 				}
 				else
 				{
-					editorUi.confirm(mxResources.get('allChangesLost'), fn);
+					editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
+						mxResources.get('cancel'), mxResources.get('discardChanges'));
 				}
 			});
 		}
@@ -1220,7 +1221,7 @@
 			menu.addSeparator(parent);
 
 			// Redirects export to PDF to print in Chrome App
-			if (mxClient.IS_CHROMEAPP)
+			if (editorUi.printPdfExport)
 			{
 				menu.addItem(mxResources.get('formatPdf') + '...', null, this.editorUi.actions.get('exportPdf').funct, parent);
 			}
@@ -2288,7 +2289,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367-how-to-use-the-scratchpad-');
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367');
 				}
 			}
 			
@@ -2320,7 +2321,7 @@
 			if (typeof(MathJax) !== 'undefined')
 			{
 				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875-how-to-use-mathematical-typesetting-');
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
 			}
 
 			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram'], parent);
@@ -2340,7 +2341,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966-how-to-use-tags');
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
 				}
 				
 				this.addMenuItems(menu, ['-', 'offline'], parent);

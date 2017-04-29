@@ -25,11 +25,7 @@
     	</include>
     	<include path="/**" />
 	</static-files>
-	
-	<resource-files>
-        <exclude path="/node_modules/**" />
-    </resource-files>
-	
+
 	<instance-class>F2</instance-class>
 	<automatic-scaling>
     	<min-idle-instances>1</min-idle-instances>
