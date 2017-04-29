@@ -294,6 +294,9 @@
 			if (document.location.protocol == 'file:')
 			{
 				mxDevUrl = '../../mxgraph2';
+				
+				// Forces includes for dev environment in node.js
+				mxForceIncludes = true;
 			}
 
 			var geBasePath = mxDevUrl + '/javascript/examples/grapheditor/www/js';

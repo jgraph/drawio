@@ -411,7 +411,7 @@ DriveRealtime.prototype.start = function()
 					}), null, mxResources.get('show'), mxUtils.bind(this, function()
 					{
 						// Show FAQ entry
-						window.open('https://desk.draw.io/support/solutions/articles/16000041695-what-does-the-error-message-file-nearly-full-please-see-faq-mean');
+						window.open('https://desk.draw.io/support/solutions/articles/16000041695');
 					})
 				);
 			}

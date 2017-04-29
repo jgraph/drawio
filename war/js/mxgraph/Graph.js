@@ -164,6 +164,17 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 			mouseDown: function(sender, me) {},
 		    mouseMove: mxUtils.bind(this, function(sender, me)
 		    {
+		    	// Checks if any other handler is active
+		    	var handlerMap = this.selectionCellsHandler.handlers.map;
+		    	
+		    	for (var key in handlerMap)
+		    	{
+		    		if (handlerMap[key].index != null)
+		    		{
+		    			return;
+		    		}
+		    	}
+		    	
 		    	if (this.isEnabled() && !this.panningHandler.isActive() && !mxEvent.isControlDown(me.getEvent()) &&
 		    		!mxEvent.isShiftDown(me.getEvent()) && !mxEvent.isAltDown(me.getEvent()))
 		    	{
@@ -2803,13 +2814,21 @@ HoverIcons.prototype.drag = function(evt, x, y)
 /**
  *
  */
+HoverIcons.prototype.getStateAt = function(state, x, y)
+{
+	return this.graph.view.getState(this.graph.getCellAt(x, y));
+};
+
+/**
+ *
+ */
 HoverIcons.prototype.click = function(state, dir, me)
 {
 	var evt = me.getEvent();
 	var x = me.getGraphX();
 	var y = me.getGraphY();
 	
-	var tmp = this.graph.view.getState(this.graph.getCellAt(x, y));
+	var tmp = this.getStateAt(state, x, y);
 	
 	if (tmp != null && this.graph.model.isEdge(tmp.cell) && !mxEvent.isControlDown(evt) &&
 		(tmp.getVisibleTerminalState(true) == state || tmp.getVisibleTerminalState(false) == state))

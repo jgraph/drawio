@@ -446,7 +446,7 @@ ColorDialog.addRecentColor = function(color, max)
 		mxUtils.remove(color, ColorDialog.recentColors);
 		ColorDialog.recentColors.splice(0, 0, color);
 		
-		if (ColorDialog.recentColors.length > max)
+		if (ColorDialog.recentColors.length >= max)
 		{
 			ColorDialog.recentColors.pop();
 		}
@@ -1133,8 +1133,8 @@ PrintDialog.prototype.create = function(editorUi)
 	{
 		td.appendChild(cancelBtn);
 	}
-	
-	if (!mxClient.IS_CHROMEAPP)
+
+	if (PrintDialog.previewEnabled)
 	{
 		var previewBtn = mxUtils.button(mxResources.get('preview'), function()
 		{
@@ -1145,7 +1145,7 @@ PrintDialog.prototype.create = function(editorUi)
 		td.appendChild(previewBtn);
 	}
 	
-	var printBtn = mxUtils.button(mxResources.get((mxClient.IS_CHROMEAPP) ? 'ok' : 'print'), function()
+	var printBtn = mxUtils.button(mxResources.get((!PrintDialog.previewEnabled) ? 'ok' : 'print'), function()
 	{
 		editorUi.hideDialog();
 		preview(true);
@@ -1227,6 +1227,11 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 	
 	return preview;
 };
+
+/**
+ * Specifies if the preview button should be enabled. Default is true.
+ */
+PrintDialog.previewEnabled = true;
 
 /**
  * Constructs a new filename dialog.

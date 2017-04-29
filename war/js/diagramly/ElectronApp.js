@@ -5,30 +5,73 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 {
 	// Overrides default mode
 	App.mode = App.MODE_DEVICE;
-	
+
 	// Redirects printing to iframe to avoid document.write
-	PrintDialog.showPreview = function(preview, print)
+	var printDialogCreatePrintPreview = PrintDialog.createPrintPreview; 
+	
+	PrintDialog.createPrintPreview = function()
 	{
 		var iframe = document.createElement('iframe');
 		document.body.appendChild(iframe);
-		
+
+		var result = printDialogCreatePrintPreview.apply(this, arguments);
+		result.wnd = iframe.contentWindow;
+		result.iframe = iframe;
+				
 		// Workaround for lost gradients in print output
-		var getBaseUrl = mxSvgCanvas2D.prototype.getBaseUrl;
+		result.previousGetBaseUrl = mxSvgCanvas2D.prototype.getBaseUrl;
 		
 		mxSvgCanvas2D.prototype.getBaseUrl = function()
 		{
 			return '';
 		};
-
-		// Renders print output into iframe and prints
-		var result = preview.open(null, iframe.contentWindow);
-		iframe.contentWindow.print();
-		iframe.parentNode.removeChild(iframe);
-		
-		mxSvgCanvas2D.prototype.getBaseUrl = getBaseUrl;
 		
 		return result;
 	};
+	
+	var oldWindowOpen = window.open;
+	window.open = function(url)
+	{
+		if (url != null && url.startsWith('http'))
+		{
+			const {shell} = require('electron');
+			shell.openExternal(url);
+		}
+		else
+		{
+			return oldWindowOpen(url);
+		}
+	}
+
+	mxPrintPreview.prototype.addPageBreak = function(doc)
+	{
+		// Do nothing
+	};
+
+	mxPrintPreview.prototype.closeDocument = function()
+	{
+		var doc = this.wnd.document;
+		
+		// Removes all event handlers in the print output
+		mxEvent.release(doc.body);
+	};
+	
+	PrintDialog.printPreview = function(preview)
+	{
+		if (preview.iframe != null)
+		{
+			preview.iframe.contentWindow.print();
+			preview.iframe.parentNode.removeChild(preview.iframe);
+		
+			mxSvgCanvas2D.prototype.getBaseUrl = preview.previousGetBaseUrl;
+			preview.iframe = null;
+		}
+	};
+	
+	PrintDialog.previewEnabled = false;
+	
+	// Enables PDF export via print
+	EditorUi.prototype.printPdfExport = true;
 	
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()
@@ -61,7 +104,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 		var editorUi = this;
 		var graph = this.editor.graph;
-
+		this.editor.autosave = false;
+		
 		global.__emt_isModified = e => {
 			if (this.getCurrentFile())
 				return this.getCurrentFile().isModified()
@@ -188,24 +232,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
-		
-		editorUi.actions.addAction('quickStart...', function()
-		{
-			const {shell} = require('electron');
-			shell.openExternal('https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
-		});
-
-		this.actions.addAction('support...', function()
-		{
-			const {shell} = require('electron');
-			shell.openExternal('https://support.draw.io/display/DFCC/draw.io+for+Confluence+Cloud');
-		});
-		
-		editorUi.actions.addAction('userManual...', function()
-		{
-			const {shell} = require('electron');
-			shell.openExternal('https://support.draw.io/display/DO/Draw.io+Online+User+Manual');
-		});
 		
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{

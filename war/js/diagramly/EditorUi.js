@@ -78,7 +78,13 @@
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
-	EditorUi.prototype.enableLogging = true;
+	EditorUi.prototype.enableLogging = /.*\.draw\.io$/.test(window.location.hostname);
+
+	/**
+	 * Specifies if PDF export should be done via print dialog. Default is
+	 * false which uses the PhantomJS backend to create the PDF.
+	 */
+	EditorUi.prototype.printPdfExport = false;
 	
 	/**
 	 * Specifies if PDF export with pages is enabled.
@@ -1664,7 +1670,8 @@
 				
 				if (saveBtn != null)
 				{
-					this.confirm(mxResources.get('allChangesLost'), fn);
+					this.confirm(mxResources.get('allChangesLost'), null, fn,
+						mxResources.get('cancel'), mxResources.get('discardChanges'));
 				}
 				else
 				{
@@ -2605,8 +2612,9 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format)
+	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)
 	{
+		allowBrowser = (allowBrowser != null) ? allowBrowser : false;
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
@@ -2683,8 +2691,9 @@
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab, null, null, 4);
-		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 5) ? 270 : 390, true, true);
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab, null, null, (allowBrowser) ? 3 : 4);
+		this.showDialog(dlg.container, 380, (this.getServiceCount(allowBrowser) - 1 <
+			((allowBrowser) ? 4 : 5)) ? 270 : 390, true, true);
 		dlg.init();
 	};
 
@@ -3312,13 +3321,13 @@
 		div.appendChild(hd);
 		
 		var file = this.getCurrentFile();
-		var helpLink = 'https://desk.draw.io/support/solutions/articles/16000051941-how-to-publicly-publish-a-copy-of-your-draw-io-diagram';
+		var helpLink = 'https://desk.draw.io/support/solutions/articles/16000051941';
 		var dy = 0;
 		
 		if (file != null && file.constructor == window.DriveFile && !hideShare)
 		{
 			dy = 80;
-			helpLink = 'https://desk.draw.io/support/solutions/articles/16000039384-how-to-publicly-publish-a-copy-of-your-draw-io-diagram-stored-in-google-drive';
+			helpLink = 'https://desk.draw.io/support/solutions/articles/16000039384';
 			var hintSection = document.createElement('div');
 			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:14px;padding-top:6px;margin-bottom:14px;text-align:center;';
 			
@@ -6754,7 +6763,8 @@
 				window.openFile.setData(data, name);
 				window.openWindow(this.getUrl(), null, mxUtils.bind(this, function()
 				{
-					this.confirm(mxResources.get('allChangesLost'), fn);
+					this.confirm(mxResources.get('allChangesLost'), null, fn,
+						mxResources.get('cancel'), mxResources.get('discardChanges'));
 				}));
 			}
 		}

@@ -82,6 +82,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'et' : 'Eesti',
 	'en' : 'English',
 	'es' : 'Español',
+	'eo' : 'Esperanto',
 	'fil' : 'Filipino',
 	'fr' : 'Français',
 	'it' : 'Italiano',

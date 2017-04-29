@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.mxgraph.io.mxVsdxCodec;
 import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 import com.mxgraph.model.mxCell;
@@ -2231,11 +2232,14 @@ public class VsdxShape extends Shape
 			//image should be set for the parent shape only
 			styleMap.remove("image");
 			//styleMap.put("html", "1");
-
+			
+			double rotation = getRotation();
+			
 			if (txtAngleV != 0)
 			{
-				double labRot = txtAngleV * 180 / Math.PI;
-				labRot = Math.round((labRot + getRotation()) * 100.0) / 100.0;
+				double labRot = 360 - Math.toDegrees(txtAngleV);
+				
+				labRot = Math.round(((labRot + rotation) % 360.0) * 100.0) / 100.0;
 
 				if (labRot != 0.0)
 				{
@@ -2249,6 +2253,18 @@ public class VsdxShape extends Shape
 			double y = parent.getGeometry().getHeight() - (txtPinYV + txtHV - txtLocPinYV);
 			double x = txtPinXV - txtLocPinXV;
 
+			
+			
+			if (rotation > 0)
+			{
+				mxGeometry tmpGeo = new mxGeometry(x, y, txtWV, txtHV);
+				mxGeometry pgeo = parent.getGeometry();
+				double hw = pgeo.getWidth() / 2, hh = pgeo.getHeight() / 2;
+				mxVsdxCodec.rotatedPoint(tmpGeo, rotation, hw, hh);
+				x = tmpGeo.getX();
+				y = tmpGeo.getY();
+			}
+			
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, textLabel, x, y, txtWV, txtHV, style + ";html=1;");
 
 			return v1;

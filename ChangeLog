@@ -1,3 +1,11 @@
+29-APR-2017: 6.5.7
+
+- Fixes default and button labels for lost changes dialog
+- Fixes event handling for overlapping edge handles
+- Adds library export to local storage
+- Ignores auth files in local storage picker
+- Uses mxGraph 3.7.3 beta 3
+
 27-APR-2017: 6.5.6
 
 - Adds arrows and textbox to general sidebar
