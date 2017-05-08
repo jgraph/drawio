@@ -251,20 +251,35 @@ public class VsdxShape extends Shape
 			this.childShapes = page.parseShapes(shapesElement, this.master, false);
 		}
 		
-		for (Map.Entry<Integer, VsdxShape> entry : childShapes.entrySet())
-		{
-		    entry.getValue().setRootShape(this);
-		}
 		
 		double rotation = this.calcRotation();
 		this.rotation = rotation * 100/100;
 		this.rotation = this.rotation % 360.0;
 		
-		mxVsdxTheme	theme = model.getThemes().get(page.getCellIntValue("ThemeIndex", 33));
+		int themeIndex = page.getCellIntValue("ThemeIndex", -100);
+		
+		//sometimes theme information are at the shape level!
+		if (themeIndex == -100)
+		{
+			themeIndex = Integer.parseInt(this.getValue(this.getCellElement("ThemeIndex"), "0"));
+		}
+		
+		mxVsdxTheme	theme = model.getThemes().get(themeIndex);
 		int variant = page.getCellIntValue("VariationColorIndex", 0);
 		
 		setThemeAndVariant(theme, variant);
 		
+		for (Map.Entry<Integer, VsdxShape> entry : childShapes.entrySet())
+		{
+			VsdxShape childShape = entry.getValue();
+		    childShape.setRootShape(this);
+		    
+		    if (childShape.theme == null)
+		    {
+		    	childShape.setThemeAndVariant(theme, variant);
+		    }
+		}
+
 		quickStyleVals = new QuickStyleVals(
 				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleEffectsMatrix"), "0")), 
 				Integer.parseInt(this.getValue(this.getCellElement("QuickStyleFillColor"), "1")), 
@@ -294,7 +309,7 @@ public class VsdxShape extends Shape
 		}
 		//several shapes have beginX/Y and also has a fill color, thus it is better to render it as a vertex
 		//vsdx can have an edge as a group!
-		this.vertex = vertex || isGroup() || (geomList != null && !geomList.isNoFill());
+		this.vertex = vertex || (childShapes != null && !childShapes.isEmpty()) || (geomList != null && !geomList.isNoFill());
 	}
 	
 	/**
@@ -323,6 +338,13 @@ public class VsdxShape extends Shape
 	 */
 	public String getTextLabel()
 	{
+		String hideText = this.getValue(this.getCellElement(mxVsdxConstants.HIDE_TEXT), "0");
+		
+		if ("1".equals(hideText))
+		{
+			return null;
+		}
+		
 		NodeList txtChildren = getTextChildren();
 
 		if (txtChildren == null && masterShape != null)
@@ -593,11 +615,7 @@ public class VsdxShape extends Shape
 
 	private String processLblTxt(String text) {
 		// It's HTML text, so escape it.
-		text = text.replaceAll("&", "&amp;")
-				.replaceAll("\"", "&quot;")
-				.replaceAll("'", "&prime;")
-				.replaceAll("<", "&lt;")
-				.replaceAll(">", "&gt;");
+		text = mxVsdxUtils.htmlEntities(text);
 
 		text = textToList(text, pp);
 
@@ -914,7 +932,7 @@ public class VsdxShape extends Shape
 	 */
 	public Map<String, String> getStyleFromShape()
 	{
-		styleMap.put("vsdxID", this.getId().toString());
+		styleMap.put(mxVsdxConstants.VSDX_ID, this.getId().toString());
 		
 		// Rotation.		
 //		String labelRotation = getLabelRotation() ? "1" : "0";
@@ -1070,7 +1088,7 @@ public class VsdxShape extends Shape
 		}
 		
 		String flibX = getValue(this.getCellElement(mxVsdxConstants.FLIP_X), "0");
-		String flibY = getValue(this.getCellElement(mxVsdxConstants.FLIP_X), "0");
+		String flibY = getValue(this.getCellElement(mxVsdxConstants.FLIP_Y), "0");
 		
 		if ("1".equals(flibX))
 		{
@@ -1270,6 +1288,12 @@ public class VsdxShape extends Shape
 	public boolean isRounded()
 	{
 		String val = getValue(this.getCellElement(mxVsdxConstants.ROUNDING), "0");
+		
+		if ("Themed".equals(val))
+		{
+			//TODO add theme support 
+			val = "0";
+		}
 		return Double.valueOf(val) > 0;
 	}
 
@@ -1393,7 +1417,23 @@ public class VsdxShape extends Shape
 		
 		return result;
 	}
-	
+
+	/**
+	 * Returns the Name attribute.
+	 * @return Value of the Name attribute (Human readable name).
+	 */
+	public String getName()
+	{
+		String result = shape.getAttribute(mxVsdxConstants.NAME);
+		
+		if ((result == null || result.equals("")) && masterShape != null)
+		{
+			result = masterShape.getName();
+		}
+		
+		return result;
+	}
+
 	/**
 	 * Returns the master name of the shape
 	 * @return Master name of the shape
@@ -1954,7 +1994,7 @@ public class VsdxShape extends Shape
 	 */
 	public Map<String, String> getStyleFromEdgeShape(double parentHeight)
 	{
-		styleMap.put("vsdxID", this.getId().toString());
+		styleMap.put(mxVsdxConstants.VSDX_ID, this.getId().toString());
 
 		// Rotation.
 //		double rotation = this.getRotation();

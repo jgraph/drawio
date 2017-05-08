@@ -115,20 +115,21 @@ public class mxVsdxModel {
 						{
 							mxVsdxTheme theme = new mxVsdxTheme((Element) child);
 							
-							if (theme.getThemeIndex() > -1)
-							{
-								mxVsdxTheme existingTheme = themes.get(theme.getThemeIndex());
-								if (existingTheme == null || !existingTheme.isPure())
-								{
-									themes.put(theme.getThemeIndex(), theme);
-								}
-							}
-							else
+							
+							if (theme.getThemeIndex() < 0)
 							{
 								//theme index cannot be determined unless the theme is parsed
 								theme.processTheme();
+							}
+							
+							//TODO having two theme files with the same id still requires more handling
+							//		probably we need to merge the similar parts (has same theme name)
+							mxVsdxTheme existingTheme = themes.get(theme.getThemeIndex());
+							if (existingTheme == null || !existingTheme.isPure())
+							{
 								themes.put(theme.getThemeIndex(), theme);
 							}
+							
 							break;
 						}
 						

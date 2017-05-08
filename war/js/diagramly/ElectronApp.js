@@ -366,7 +366,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		var fn = mxUtils.bind(this, function()
 		{
-			var doSave = mxUtils.bind(this, function(data)
+			// Disables temporary file state
+			this.mode = App.MODE_DEVICE;
+			this.ui.mode = this.mode;
+			
+			var doSave = mxUtils.bind(this, function(data, enc)
 			{
 				if (!this.savingFile)
 				{
@@ -378,7 +382,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					this.setModified(false);
 					var fs = require('fs');
 					
-					fs.writeFile(this.fileObject.path, data, this.fileObject.encoding, mxUtils.bind(this, function (e)
+					fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding, mxUtils.bind(this, function (e)
 				    {
 		        		if (e)
 		        		{
@@ -418,14 +422,48 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			}
 			else
 			{
+				var graph = this.ui.editor.graph;
+				
+				// Exports PNG for first page while other page is visible by creating a graph
+				// LATER: Add caching for the graph or SVG while not on first page
+				if (this.ui.pages != null && this.ui.currentPage != this.ui.pages[0])
+				{
+					graph = this.ui.createTemporaryGraph(graph.getStylesheet());
+					var graphGetGlobalVariable = graph.getGlobalVariable;
+					var page = this.ui.pages[0];
+			
+					graph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return page.getName();
+						}
+						else if (name == 'pagenumber')
+						{
+							return 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
+			
+					document.body.appendChild(graph.container);
+					graph.model.setRoot(page.root);
+				}
+				
 			   	this.ui.exportToCanvas(mxUtils.bind(this, function(canvas)
 			   	{
 			   		try
 			   		{
 			   	   	    var data = canvas.toDataURL('image/png');
 		   	   	   		data = this.ui.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
-		   	   	   			atob(this.ui.editor.graph.compress(mxUtils.getXml(this.ui.editor.getGraphXml()))));
-			   	   	    doSave(data, 'base64');
+		   	   	   			atob(this.ui.editor.graph.compress(this.ui.getFileData(true))));
+		   	   	   		doSave(atob(data.substring(data.lastIndexOf(',') + 1)), 'binary');
+
+						// Removes temporary graph from DOM
+		   	   	    	if (graph != this.ui.editor.graph)
+						{
+							graph.container.parentNode.removeChild(graph.container);
+						}
 			   		}
 			   		catch (e)
 			   		{
@@ -440,7 +478,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		   			{
 		   				error(e);
 		   			}
-			   	}));
+			   	}), null, null, null, null, null, null, graph);
 			}
 		});
 		
@@ -449,8 +487,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			const electron = require('electron');
 			var remote = electron.remote;
 			var dialog = remote.dialog;
-
-	        var path = dialog.showSaveDialog();
+			
+	        var path = dialog.showSaveDialog({defaultPath: this.title});
 
 	        if (path != null)
 	        {
@@ -472,8 +510,16 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		const electron = require('electron');
 		var remote = electron.remote;
 		var dialog = remote.dialog;
-
-        var path = dialog.showSaveDialog();
+		var filename = this.title;
+		
+		// Adds default extension
+		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
+			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename)))
+		{
+			filename += '.xml';
+		}
+		
+        var path = dialog.showSaveDialog({defaultPath: filename});
         
         if (path != null)
         {
@@ -610,7 +656,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 
-        var path = dialog.showSaveDialog();
+        var path = dialog.showSaveDialog({defaultPath: filename});
 
         if (path != null)
         {

@@ -1,3 +1,10 @@
+08-MAY-2017: 6.5.8
+
+- Adds .vssx stencil import
+- Adds square, circle, partial rectangles in sidebar
+- Adds identity configuration for CSV import
+- Uses mxGraph 3.7.3 beta 4
+
 29-APR-2017: 6.5.7
 
 - Fixes default and button labels for lost changes dialog

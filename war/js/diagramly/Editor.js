@@ -58,6 +58,11 @@
 		'#\n' +
 		'# style: label;image=%image%;whiteSpace=wrap;html=1;rounded=1;fillColor=%fill%;strokeColor=%stroke%;\n' +
 		'#\n' +
+		'## Uses the given column name as the identity for cells (updates existing cells).\n' +
+		'## Default is no identity (empty value or -).\n' +
+		'#\n' +
+		'# identity: -\n' +
+		'#\n' +
 		'## Connections between rows ("from": source colum, "to": target column).\n' +
 		'## Label, style and invert are optional. Defaults are \'\', current style and false.\n' +
 		'## The target column may contain a comma-separated list of values.\n' +

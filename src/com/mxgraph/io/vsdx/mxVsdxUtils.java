@@ -169,6 +169,20 @@ public class mxVsdxUtils
 		return "<" + tag + ">" + text + "</" + tag + ">";
 	}
 
+	
+	/**
+	 * Converts the ampersand, quote, prime, less-than and greater-than
+	 * characters to their corresponding HTML entities in the given string.
+	 * 
+	 * Note: this is the same method of mxUtils but we cannot use it as it is not compatible with google app engine
+	 */
+	public static String htmlEntities(String text)
+	{
+		return text.replaceAll("&", "&amp;").replaceAll("\"", "&quot;")
+				.replaceAll("'", "&prime;").replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;");
+	}
+	
 	/**
 	 * Converts the initial letter  of each word in text to uppercase
 	 * @param text Text to be transformed.
