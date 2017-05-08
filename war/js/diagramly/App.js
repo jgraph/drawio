@@ -50,6 +50,7 @@ App = function(editor, container, lightbox)
 	});
 	
 	// Initial state for toolbar items is disabled
+	this.updateDocumentTitle();
 	this.updateUi();
 	
 	// Checks if canvas is supported
@@ -839,8 +840,10 @@ App.prototype.init = function()
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
-											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
+//											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
+//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
+											'<a title="Please star this issue" href="https://issuetracker.google.com/issues/36761624" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please star this issue</a>'];
 							this.updateAd(this.adsHtml.length - 1);
 						}
 						
@@ -1470,17 +1473,20 @@ App.prototype.updateDocumentTitle = function()
 	if (!this.editor.graph.lightbox)
 	{
 		var title = this.editor.appName;
-		var file = this.getCurrentFile();
-		
-		if (file != null)
-		{
-			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-			title = filename + ' - ' + title;
-		}
-		
+
 		if (this.isOfflineApp())
 		{
-			title += ' [' + mxResources.get('offline') + ']';
+			title += ' ' + mxResources.get('offline');
+		}
+		else
+		{
+			var file = this.getCurrentFile();
+			
+			if (file != null)
+			{
+				var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+				title = filename + ' - ' + title;
+			}
 		}
 		
 		document.title = title;

@@ -140,6 +140,9 @@ public class mxVsdxConstants
 	public static String Y_CON = "YCon";
 	public static String Y_DYN = "YDyn";
 	public static String Y = "Y";
+	public static String HIDE_TEXT = "HideText";
+	
+	public static String VSDX_ID = "vsdxID";
 	
 	public static int CONNECT_TO_PART_WHOLE_SHAPE = 3;
 	

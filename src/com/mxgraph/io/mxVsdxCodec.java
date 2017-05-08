@@ -42,7 +42,6 @@ import com.mxgraph.io.vsdx.VsdxShape;
 import com.mxgraph.io.vsdx.mxPathDebug;
 import com.mxgraph.io.vsdx.mxVsdxConnect;
 import com.mxgraph.io.vsdx.mxVsdxConstants;
-import com.mxgraph.io.vsdx.mxVsdxGeometry;
 import com.mxgraph.io.vsdx.mxVsdxGeometryList;
 import com.mxgraph.io.vsdx.mxVsdxMaster;
 import com.mxgraph.io.vsdx.mxVsdxModel;
@@ -68,6 +67,13 @@ import com.mxgraph.view.mxGraphHeadless;
  */
 public class mxVsdxCodec
 {
+	protected String RESPONSE_END = "</mxfile>";
+
+	protected String RESPONSE_DIAGRAM_START = "";
+	protected String RESPONSE_DIAGRAM_END = "</diagram>";
+
+	protected String RESPONSE_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
+
 	/**
 	 * Stores the vertexes imported.
 	 */
@@ -97,6 +103,8 @@ public class mxVsdxCodec
 	 * Do not remove, ask David
 	 */
 	public static String vsdxPlaceholder = new String(Base64.decodeBase64("dmlzaW8="));
+
+	protected mxVsdxModel vsdxModel;
 	
 	public mxVsdxCodec()
 	{
@@ -260,12 +268,12 @@ public class mxVsdxCodec
 			return null;
 		}
 
-		mxVsdxModel vsdxModel = new mxVsdxModel(rootDoc, docData, mediaData);
+		vsdxModel = new mxVsdxModel(rootDoc, docData, mediaData);
 
 		//Imports each page of the document.
 		Map<Integer, mxVsdxPage> pages = vsdxModel.getPages();
 
-		StringBuilder xmlBuilder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>");
+		StringBuilder xmlBuilder = new StringBuilder(RESPONSE_HEADER);
 
 		for (Map.Entry<Integer, mxVsdxPage> entry : pages.entrySet())
 		{
@@ -273,15 +281,7 @@ public class mxVsdxCodec
 			
 			if (!page.isBackground())
 			{
-				mxGraph graph = new mxGraphHeadless();
-				//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
-				graph.setExtendParents(false);
-				graph.setExtendParentsOnAdd(false);
-				
-				graph.setConstrainChildren(false);
-				graph.setHtmlLabels(true);
-				//Prevent change of edge parent as it misses with the routing points
-				((mxGraphModel)graph.getModel()).setMaintainEdgeParent(false);
+				mxGraph graph = createMxGraph();
 				
 				graph.getModel().beginUpdate();
 				importPage(page, graph, graph.getDefaultParent());
@@ -333,27 +333,54 @@ public class mxVsdxCodec
 				}
 				
 				graph.getModel().endUpdate();
-
-				mxCodec codec = new mxCodec();
-				Node node = codec.encode(graph.getModel());
-				((Element) node).setAttribute("style", "default-style2");
-				String pageName = StringEscapeUtils.escapeXml11(page.getPageName());
-				xmlBuilder.append("<diagram name=\"" + pageName + "\">");
-				String modelString = mxXmlUtils.getXml(node);
-				String modelAscii = Utils.encodeURIComponent(modelString, Utils.CHARSET_FOR_URL_ENCODING);
-				byte[] modelBytes= Utils.deflate(modelAscii);
-				String output = mxBase64.encodeToString(modelBytes, false);
 				
-				xmlBuilder.append(output);
-				xmlBuilder.append("</diagram>");
+				xmlBuilder.append(RESPONSE_DIAGRAM_START);
+				xmlBuilder.append(processPage(graph, page));
+				xmlBuilder.append(RESPONSE_DIAGRAM_END);
 			}
 		}
 
-		xmlBuilder.append("</mxfile>");
+		xmlBuilder.append(RESPONSE_END);
 		
 		return xmlBuilder.toString();
 	}
 
+	protected mxGraph createMxGraph() {
+		mxGraph graph = new mxGraphHeadless();
+		//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
+		graph.setExtendParents(false);
+		graph.setExtendParentsOnAdd(false);
+		
+		graph.setConstrainChildren(false);
+		graph.setHtmlLabels(true);
+		//Prevent change of edge parent as it misses with the routing points
+		((mxGraphModel)graph.getModel()).setMaintainEdgeParent(false);
+		return graph;
+	}
+
+	protected String processPage(mxGraph graph, mxVsdxPage page) throws IOException
+	{
+		mxCodec codec = new mxCodec();
+		Node node = codec.encode(graph.getModel());
+		((Element) node).setAttribute("style", "default-style2");
+		String modelString = mxXmlUtils.getXml(node);
+		String modelAscii = Utils.encodeURIComponent(modelString, Utils.CHARSET_FOR_URL_ENCODING);
+		byte[] modelBytes= Utils.deflate(modelAscii);
+		
+		StringBuilder output = new StringBuilder();
+		
+		if (page != null)
+		{
+			String pageName = StringEscapeUtils.escapeXml11(page.getPageName());
+			output.append("<diagram name=\""); 
+			output.append(pageName);
+			output.append("\">");
+		}
+		output.append(mxBase64.encodeToString(modelBytes, false));
+		
+		return  output.toString();
+	}
+	
 	private boolean isJpg(byte[] emfData, int i) 
 	{
 		//the loop calling this function make sure that we still have 3 bytes in the buffer
@@ -574,7 +601,7 @@ public class mxVsdxCodec
 	 * @param parentHeight Height of the parent cell.
 	 * @return the new vertex added. null if 'shape' is not a vertex.
 	 */
-	private mxCell addShape(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight)
+	protected mxCell addShape(mxGraph graph, VsdxShape shape, Object parent, Integer pageId, double parentHeight)
 	{
 		shape.parentHeight = parentHeight;
 
@@ -911,12 +938,13 @@ public class mxVsdxCodec
 		{
 			// Source is dangling
 			source = (mxCell) graph.insertVertex(parent, null, null,
-					beginXY.getX(), beginXY.getY(), 0, 0);
+					origBeginXY.getX(), origBeginXY.getY(), 0, 0);
 			fromConstraint = new mxPoint(0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
 
 		mxPoint endXY = edgeShape.getEndXY(parentHeight);
+		mxPoint originEndXY = new mxPoint(endXY);
 		endXY = calculateAbsolutePoint(parent, graph, endXY);
 		
 		mxPoint toConstraint = null;
@@ -929,7 +957,7 @@ public class mxVsdxCodec
 		{
 			// Target is dangling
 			target = (mxCell) graph.insertVertex(parent, null, null,
-					endXY.getX(), endXY.getY(), 0, 0);
+					originEndXY.getX(), originEndXY.getY(), 0, 0);
 			toConstraint = new mxPoint(0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
@@ -1106,7 +1134,7 @@ public class mxVsdxCodec
 	 * Post processes groups to remove leaf vertices that render nothing
 	 * @param group
 	 */
-	private void sanitiseGraph(mxGraph graph)
+	protected void sanitiseGraph(mxGraph graph)
 	{
 		Object root = graph.getModel().getRoot();
 		sanitiseCell(graph, root);

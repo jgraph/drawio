@@ -11,6 +11,7 @@ import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.FillStyle;
 import com.mxgraph.io.vsdx.theme.FillStyleFactory;
 import com.mxgraph.io.vsdx.theme.GradFill;
+import com.mxgraph.io.vsdx.theme.HSLColor;
 import com.mxgraph.io.vsdx.theme.LineStyle;
 import com.mxgraph.io.vsdx.theme.LineStyleExt;
 import com.mxgraph.io.vsdx.theme.OoxmlColor;
@@ -600,28 +601,39 @@ public class mxVsdxTheme
 			break;
 		}
 		
+		Color retColor;
 		if (fillStyle != null)
 		{
 			if (getGradient)
 			{
-				return (fillStyle instanceof GradFill)? fillStyle.applyStyle(fillColorStyle, this).getGradientClr() : null;
+				retColor = (fillStyle instanceof GradFill)? fillStyle.applyStyle(fillColorStyle, this).getGradientClr() : null;
 			}
 			else
 			{
-				return fillStyle.applyStyle(fillColorStyle, this);
+				retColor = fillStyle.applyStyle(fillColorStyle, this);
 			}
 		}
 		else
 		{
 			if (getGradient)
 			{
-				return null;
+				retColor = null;
 			}
 			else
 			{
-				return getStyleColor(fillColorStyle);
+				retColor = getStyleColor(fillColorStyle);
 			}
 		}
+		
+		int styleVariation = quickStyleVals.getQuickStyleVariation();
+		
+		//TODO using the line color does not cover all the cases but works with most of the sample files
+		if (retColor != null && (styleVariation & 8) > 0)
+		{
+			retColor = getLineColor(quickStyleVals);
+		}
+		
+		return retColor;
 	}
 	
 	//Get line style based on QuickStyleLineMatrix
@@ -699,14 +711,25 @@ public class mxVsdxTheme
 			break;
 		}
 		
+		Color lineClr;
+		
 		if (lineStyle != null)
 		{
-			return lineStyle.getLineColor(lineColorStyle, this);
+			lineClr = lineStyle.getLineColor(lineColorStyle, this);
 		}
 		else
 		{
-			return getStyleColor(lineColorStyle);
-		}		
+			lineClr = getStyleColor(lineColorStyle);
+		}
+		
+		int styleVariation = quickStyleVals.getQuickStyleVariation();
+		
+		//TODO using the fill color does not cover all the cases but works with most of the sample files
+		if ((styleVariation & 4) > 0)
+		{
+			lineClr = getFillColor(quickStyleVals);
+		}
+		return lineClr;
 	}
 
 	//Get line color based on QuickStyleLineColor & QuickStyleLineMatrix
@@ -860,12 +883,14 @@ public class mxVsdxTheme
 			txtColor = getStyleColor(fontColorStyle);
 		}
 		
-//		int styleVariation = quickStyleVals.getQuickStyleVariation();
-//		
-//		if ((styleVariation & 2) > 0)
-//		{
-//			Color fillColor = getFillColor(quickStyleVals);
-//			HSLColor fillHSLClr = fillColor.toHsl();
+		int styleVariation = quickStyleVals.getQuickStyleVariation();
+		
+		//TODO The formula in the documentation doesn't match how vsdx viewer works. Simply using the fill/line color works!
+		//		Note: Using the fill/line color does not cover all the cases but works with most of the sample files
+		if ((styleVariation & 2) > 0)
+		{
+			Color fillColor = getFillColor(quickStyleVals);
+			HSLColor fillHSLClr = fillColor.toHsl();
 //			HSLColor txtColorHSL = txtColor.toHsl();
 //			if (Math.abs(fillHSLClr.getLum() - txtColorHSL.getLum()) < 0.1616)
 //			{
@@ -875,20 +900,20 @@ public class mxVsdxTheme
 //				}
 //				else
 //				{
-//					Color lineClr = getLineColor(quickStyleVals);
-//					HSLColor lineHSLClr = lineClr.toHsl();
-//					if (fillHSLClr.getLum() < lineHSLClr.getLum())
-//					{
-//						txtColor = fillColor;
-//					}
-//					else
-//					{
-//						txtColor = lineClr;
-//					}
+					Color lineClr = getLineColor(quickStyleVals);
+					HSLColor lineHSLClr = lineClr.toHsl();
+					if (fillHSLClr.getLum() < lineHSLClr.getLum())
+					{
+						txtColor = fillColor;
+					}
+					else
+					{
+						txtColor = lineClr;
+					}
 //				}
 //			}
-//		}
-//		
+		}
+		
 		return txtColor;
 	}
 

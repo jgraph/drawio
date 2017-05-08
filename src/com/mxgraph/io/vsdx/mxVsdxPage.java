@@ -246,7 +246,7 @@ public class mxVsdxPage {
 		return new VsdxShape(this, shapeElem, vertex, this.model.getMasterShapes(), masterTmp, this.model);
 	}
 
-	protected boolean isEdge(Element shape)
+	public boolean isEdge(Element shape)
 	{
 		if (shape != null)
 		{

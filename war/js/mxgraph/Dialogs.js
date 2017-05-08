@@ -1534,6 +1534,10 @@ var EditDiagramDialog = function(editorUi)
 	div.style.textAlign = 'right';
 	var textarea = document.createElement('textarea');
 	textarea.setAttribute('wrap', 'off');
+	textarea.setAttribute('spellcheck', 'false');
+	textarea.setAttribute('autocorrect', 'off');
+	textarea.setAttribute('autocomplete', 'off');
+	textarea.setAttribute('autocapitalize', 'off');
 	textarea.style.overflow = 'auto';
 	textarea.style.resize = 'none';
 	textarea.style.width = '600px';

@@ -4,7 +4,9 @@
  */
 package com.mxgraph.io.vsdx;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import com.mxgraph.util.mxConstants;
 
 public class Shape extends Style
 {
+	public final static long VSDX_START_TIME = -2209168800000L;//new Date("12/30/1899").getTime(); 
 	/**
 	 * The text element of the shape, if any
 	 */
@@ -275,25 +278,67 @@ public class Shape extends Style
 			for (Element row : rows)
 			{
 				String ix = row.getAttribute("IX");
-				ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(row, "Cell");
-				
-				for (Element cell : cells)
+
+				if (!ix.isEmpty())
 				{
-					n = cell.getAttribute("N");
-					
-					if (n.equals("Value"))
+					if (this.fields == null)
 					{
+						fields = new LinkedHashMap<String, String>();
+					}
+	
+					String del = row.getAttribute("Del");
+					
+					//supporting deletion of a field by adding an empty string such that master field is not used
+					if ("1".equals(del))
+					{
+						this.fields.put(ix, "");
+						continue;
+					}
+					
+					ArrayList<Element> cells = mxVsdxUtils.getDirectChildNamedElements(row, "Cell");
+	
+					String value = "", format = "", calendar = "", type = "";
+					for (Element cell : cells)
+					{
+						n = cell.getAttribute("N");
 						String v = cell.getAttribute("V");
 						
-						if (!ix.isEmpty() && !v.isEmpty())
+						switch (n)
 						{
-							if (this.fields == null)
-							{
-								fields = new LinkedHashMap<String, String>();
-							}
-
-							this.fields.put(ix, v);
+							case "Value":
+								value = v;
+							break;
+							case "Format":
+								format = v;
+							break;
+							case "Calendar":
+								calendar = v;
+							break;
+							case "Type":
+								type = v;
+							break;
 						}
+					}
+					
+					if (!value.isEmpty())
+					{
+						
+						try
+						{
+							//TODO support other formats and calendars
+							if (format.startsWith("{{"))
+							{
+								value = new SimpleDateFormat(
+										format.replaceAll("\\{|\\}", ""))
+										//the value is the number of days after 30/12/1899 (VSDX_START_TIME)
+										.format(new Date(VSDX_START_TIME + (long)(Double.parseDouble(value) * 24 * 60 * 60 * 1000)));
+							}
+						}
+						catch (Exception e)
+						{
+	//						System.out.println("Vsdx import: Unkown text format " + format + ". Error: " + e.getMessage());
+						}
+						this.fields.put(ix, value);
 					}
 				}
 			}

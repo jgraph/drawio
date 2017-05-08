@@ -110,7 +110,7 @@ public class mxVsdxGeometryList
 		List<mxPoint> points = new ArrayList<mxPoint>();
 		
 		//Adding the starting point as a routing point instead of setting the entryX/Y
-		points.add(startPoint);
+		points.add(new mxPoint(startPoint));
 		
 		double offsetX = 0;
 		double offsetY = 0;

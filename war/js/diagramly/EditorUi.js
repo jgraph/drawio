@@ -4866,7 +4866,8 @@
 	{
 		return /(\.*<graphml xmlns=\".*)/.test(data) ||
 			/(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data) ||
-			(filename != null && /(\.vsdx)($|\?)/i.test(filename));
+			(filename != null && /(\.vsdx)($|\?)/i.test(filename)) ||
+			(filename != null && /(\.vssx)($|\?)/i.test(filename));
 	};
 	
 	/**
@@ -4930,7 +4931,16 @@
 					
 					if (xhr.status >= 200 && xhr.status <= 299)
 					{
-						importedCells = this.importXml(xhr.responseText, dx, dy, crop);
+						var xml = xhr.responseText;
+						
+						if (xml != null && xml.substring(0, 10) == '<mxlibrary')
+						{
+							this.loadLibrary(new LocalLibrary(this, xml, filename));
+						}
+						else
+						{
+							importedCells = this.importXml(xml, dx, dy, crop);
+						}
 					}
 					
 					if (done != null)
@@ -5266,7 +5276,7 @@
 					});
 					
 					// Handles special case of binary file where the reader should not be used
-					if (/(\.vsdx)($|\?)/i.test(file.name))
+					if (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name))
 					{
 						fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 						{
@@ -7607,6 +7617,7 @@
         		
         		// Default values
         		var style = null;
+        		var identity = null;
         		var width = 'auto';
         		var height = 'auto';
         		var edgespacing = 40;
@@ -7681,6 +7692,10 @@
 		    				{
 		    					style = value;
 		    				}
+		    				else if (key == 'identity' && value.length > 0 && value != '-')
+		    				{
+		    					identity = value;
+		    				}
 		    				else if (key == 'width')
 		    				{
 		    					width = value;
@@ -7723,6 +7738,21 @@
         		
     			var keys = this.editor.csvToArray(lines[index]);
     			
+    			// Converts name of identity to index of column
+    			var identityIndex = null;
+    			
+    			if (identity != null)
+    			{
+    				for (var i = 0; i < keys.length; i++)
+		    		{
+    					if (identity == keys[i])
+    					{
+    						identityIndex = i;
+    						break;
+    					}
+		    		}
+    			}
+    			
     			if (label == null)
     			{
     				label = '%' + keys[0] + '%';
@@ -7748,9 +7778,21 @@
     	    			
 	    				if (values.length == keys.length)
 		    			{
-			    			var cell = new mxCell(label, new mxGeometry(x0, y,
-			    				0, 0), style || 'whiteSpace=wrap;html=1;');
-							cell.vertex = true;
+	    					var cell = null;
+	    					var id = (identityIndex != null) ? values[identityIndex] : null;
+	    					
+	    					if (id != null)
+	    					{
+	    						cell = graph.model.getCell(id);
+	    					}
+
+	    					if (cell == null)
+	    					{
+				    			var cell = new mxCell(label, new mxGeometry(x0, y,
+				    				0, 0), style || 'whiteSpace=wrap;html=1;');
+								cell.vertex = true;
+								cell.id = id;
+	    					}
 							
 							for (var j = 0; j < values.length; j++)
 				    		{

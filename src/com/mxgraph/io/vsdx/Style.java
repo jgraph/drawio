@@ -631,6 +631,15 @@ public class Style
 	}
 
 	/**
+	 * Returns the Name attribute.
+	 * @return Value of the Name attribute (Human readable name).
+	 */
+	public String getName()
+	{
+		return shape.getAttribute(mxVsdxConstants.NAME);
+	}
+
+	/**
 	 * Returns the UniqueID attribute.
 	 * @return Value of the UniqueID attribute.
 	 */
