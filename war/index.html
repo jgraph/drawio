@@ -14,7 +14,6 @@
 	<meta itemprop="image" content="https://lh4.googleusercontent.com/-cLKEldMbT_E/Tx8qXDuw6eI/AAAAAAAAAAs/Ke0pnlk8Gpg/w500-h344-k/BPMN%2Bdiagram%2Brc2f.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="canonical" href="https://www.draw.io">
     <script type="text/javascript">
 		/**
@@ -75,7 +74,7 @@
 					}
 					
 					// Redirects to SSL/non-SSL
-					if (urlParams['demo'] != '1' && urlParams['offline'] != '1')
+					if (urlParams['demo'] != '1')
 					{
 						var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
 							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
@@ -326,7 +325,7 @@
 		if (window && window.process && window.process.type)
 		{
 			// Electron
-			mxscript('js/diagramly/ElectronApp.js');
+			mxscript('../etc/electron/ElectronApp.js');
 		}
 		
 		// Adds basic error handling
@@ -393,24 +392,6 @@
 	</table>
 </div>
 <script type="text/javascript">
-// Testing new icons
-(function()
-{
-	if (urlParams['icons'] == 'test')
-	{
-		HoverIcons.prototype.triangleUp = new mxImage(IMAGE_PATH + '/connect-up-new.png', 20, 20);
-		HoverIcons.prototype.triangleRight = new mxImage(IMAGE_PATH + '/connect-right-new.png', 20, 20);
-		HoverIcons.prototype.triangleDown = new mxImage(IMAGE_PATH + '/connect-down-new.png', 20, 20);
-		HoverIcons.prototype.triangleLeft = new mxImage(IMAGE_PATH + '/connect-left-new.png', 20, 20);
-		HoverIcons.prototype.rotationHandle = new mxImage(IMAGE_PATH + '/handle-rotate-new.png', 18, 18);
-		Sidebar.prototype.triangleUp = HoverIcons.prototype.triangleUp;
-		Sidebar.prototype.triangleRight = HoverIcons.prototype.triangleRight;
-		Sidebar.prototype.triangleDown = HoverIcons.prototype.triangleDown;
-		Sidebar.prototype.triangleLeft = HoverIcons.prototype.triangleLeft;
-		mxVertexHandler.prototype.rotationHandleVSpacing = -18;
-		HoverIcons.prototype.inactiveOpacity = 30;
-	}
-})();
 /**
  * Main
  */

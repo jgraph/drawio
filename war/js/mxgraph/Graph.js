@@ -69,7 +69,9 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	mxGraph.call(this, container, model, renderHint, stylesheet);
 	
 	this.themes = themes || this.defaultThemes;
-	
+	this.currentEdgeStyle = this.defaultEdgeStyle;
+	this.currentVertexStyle = this.defaultVertexStyle;
+
 	// Sets the base domain URL and domain path URL for relative links.
 	var b = this.baseUrl;
 	var p = b.indexOf('//');
@@ -422,7 +424,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		{
 			this.loadStylesheet();
 		}
-		
+
 		// Adds page centers to the guides for moving cells
 		var graphHandlerGetGuideStates = this.graphHandler.getGuideStates;
 		this.graphHandler.getGuideStates = function()
@@ -3225,41 +3227,45 @@ HoverIcons.prototype.setCurrentState = function(state)
 		        pt = mxUtils.getRotatedPoint(pt, cos, sin, center);
 		    }
 		    
-		    // Finds closest connection point
-		    if (start != null)
-		    {
-		        var constraints = this.graph.getAllConnectionConstraints(start)
-		        var nearest = null;
-		        var dist = null;
-		    
-		        for (var i = 0; i < constraints.length; i++)
-		        {
-		            var cp = this.graph.getConnectionPoint(start, constraints[i]);
-		            
-		            if (cp != null)
-		            {
-		                var tmp = (cp.x - pt.x) * (cp.x - pt.x) + (cp.y - pt.y) * (cp.y - pt.y);
-		            
-		                if (dist == null || tmp < dist)
-		                {
-		                    nearest = cp;
-		                    dist = tmp;
-		                }
-		            }
-		        }
-		        
-		        if (nearest != null)
-		        {
-		            pt = nearest;
-		        }
-		    }
-		    
-		    edge.setAbsoluteTerminalPoint(pt, source);
+		    edge.setAbsoluteTerminalPoint(this.snapToAnchorPoint(edge, start, end, source, pt), source);
 		}
 		else
 		{
 			mxGraphViewUpdateFloatingTerminalPoint.apply(this, arguments);
 		}
+	};
+
+	mxGraphView.prototype.snapToAnchorPoint = function(edge, start, end, source, pt)
+	{
+		if (start != null && edge != null)
+		{
+	        var constraints = this.graph.getAllConnectionConstraints(start)
+	        var nearest = null;
+	        var dist = null;
+	    
+	        for (var i = 0; i < constraints.length; i++)
+	        {
+	            var cp = this.graph.getConnectionPoint(start, constraints[i]);
+	            
+	            if (cp != null)
+	            {
+	                var tmp = (cp.x - pt.x) * (cp.x - pt.x) + (cp.y - pt.y) * (cp.y - pt.y);
+	            
+	                if (dist == null || tmp < dist)
+	                {
+	                    nearest = cp;
+	                    dist = tmp;
+	                }
+	            }
+	        }
+	        
+	        if (nearest != null)
+	        {
+	            pt = nearest;
+	        }
+		}
+		
+		return pt;
 	};
 		
 	/**
@@ -3674,20 +3680,15 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * 
+		 */
+		Graph.prototype.defaultVertexStyle = {};
+
+		/**
 		 * Contains the default style for edges.
 		 */
 		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0', 'html': '1',
 			'jettySize': 'auto', 'orthogonalLoop': '1'};
-		
-		/**
-		 * Contains the current style for edges.
-		 */
-		Graph.prototype.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
-		
-		/**
-		 * Contains the current style for vertices.
-		 */
-		Graph.prototype.currentVertexStyle = {};
 
 		/**
 		 * Returns the current edge style as a string.
@@ -6327,6 +6328,19 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					dx = this.graph.snap(dx);
 					dy = this.graph.snap(dy);
+					
+					if (!this.graph.isGridEnabled())
+					{
+						if (dx < this.graph.tolerance)
+						{
+							dx = 0;
+						}
+						
+						if (dy < this.graph.tolerance)
+						{
+							dy = 0;
+						}
+					}
 				}
 			}
 			

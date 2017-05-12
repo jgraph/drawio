@@ -357,7 +357,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 {
 	if (err instanceof Error && err.message != null)
 	{
-		this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;">' +
+		this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
 				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
 				' (' + mxUtils.htmlEntities(err.message) + ')</div>');
 	}
@@ -377,7 +377,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 //			}
 //		}
 		
-		this.ui.editor.setStatus('<div class="geStatusMessage" style="cursor:pointer;">' +
+		this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
 			mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) + '</div>');
 		
 		// Installs click handler for saving

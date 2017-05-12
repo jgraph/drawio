@@ -14,12 +14,23 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 		// This needs to match the total padding of geDialog in CSS
 		dx = 80;
 	}
-
+	
 	w += dx;
 	h += dx;
 	
+	var dh = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+	
 	var left = Math.max(0, Math.round((document.body.scrollWidth - w) / 2));
-	var top = Math.max(0, Math.round((Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - h - editorUi.footerHeight) / 3));
+	var top = Math.max(0, Math.round((dh - h - editorUi.footerHeight) / 3));
+
+	// Keeps window size inside available space
+	if (!mxClient.IS_QUIRKS)
+	{
+		elt.style.maxHeight = '100%';
+	}
+	
+	w = Math.min(w, document.body.scrollWidth - 64);
+	h = Math.min(h, dh - 64);
 	
 	// Increments zIndex to put subdialogs and background over existing dialogs and background
 	if (editorUi.dialogs.length > 0)
@@ -323,9 +334,9 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	createRecentColorTable();
 		
 	// Adds presets
-	var table = addPresets(['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5', 'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC', 'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66'], 12);
+	var table = addPresets(this.presetColors);
 	table.style.marginBottom = '8px';
-	table = addPresets(['none', 'FFFFFF', 'E6E6E6', 'CCCCCC', 'B3B3B3', '999999', '808080', '666666', '4D4D4D', '333333', '1A1A1A', '000000', 'FFCCCC', 'FFE6CC', 'FFFFCC', 'E6FFCC', 'CCFFCC', 'CCFFE6', 'CCFFFF', 'CCE5FF', 'CCCCFF', 'E5CCFF', 'FFCCFF', 'FFCCE6', 'FF9999', 'FFCC99', 'FFFF99', 'CCFF99', '99FF99', '99FFCC', '99FFFF', '99CCFF', '9999FF', 'CC99FF', 'FF99FF', 'FF99CC', 'FF6666', 'FFB366', 'FFFF66', 'B3FF66', '66FF66', '66FFB3', '66FFFF', '66B2FF', '6666FF', 'B266FF', 'FF66FF', 'FF66B3', 'FF3333', 'FF9933', 'FFFF33', '99FF33', '33FF33', '33FF99', '33FFFF', '3399FF', '3333FF', '9933FF', 'FF33FF', 'FF3399', 'FF0000', 'FF8000', 'FFFF00', '80FF00', '00FF00', '00FF80', '00FFFF', '007FFF', '0000FF', '7F00FF', 'FF00FF', 'FF0080', 'CC0000', 'CC6600', 'CCCC00', '66CC00', '00CC00', '00CC66', '00CCCC', '0066CC', '0000CC', '6600CC', 'CC00CC', 'CC0066', '990000', '994C00', '999900', '4D9900', '009900', '00994D', '009999', '004C99', '000099', '4C0099', '990099', '99004D', '660000', '663300', '666600', '336600', '006600', '006633', '006666', '003366', '000066', '330066', '660066', '660033', '330000', '331A00', '333300', '1A3300', '003300', '00331A', '003333', '001933', '000033', '190033', '330033', '33001A']);
+	table = addPresets(this.defaultColors);
 	table.style.marginBottom = '16px';
 
 	div.appendChild(center);
@@ -410,7 +421,23 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	this.container = div;
 };
 
-/* Creates function to apply value */
+/**
+ * Creates function to apply value
+ */
+ColorDialog.prototype.presetColors = ['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5', 'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC', 'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66']; 
+
+/**
+ * Creates function to apply value
+ */
+ColorDialog.prototype.defaultColors = ['none', 'FFFFFF', 'E6E6E6', 'CCCCCC', 'B3B3B3', '999999', '808080', '666666', '4D4D4D', '333333', '1A1A1A', '000000', 'FFCCCC', 'FFE6CC', 'FFFFCC', 'E6FFCC', 'CCFFCC', 'CCFFE6', 'CCFFFF', 'CCE5FF', 'CCCCFF', 'E5CCFF', 'FFCCFF', 'FFCCE6',
+		'FF9999', 'FFCC99', 'FFFF99', 'CCFF99', '99FF99', '99FFCC', '99FFFF', '99CCFF', '9999FF', 'CC99FF', 'FF99FF', 'FF99CC', 'FF6666', 'FFB366', 'FFFF66', 'B3FF66', '66FF66', '66FFB3', '66FFFF', '66B2FF', '6666FF', 'B266FF', 'FF66FF', 'FF66B3', 'FF3333', 'FF9933', 'FFFF33',
+		'99FF33', '33FF33', '33FF99', '33FFFF', '3399FF', '3333FF', '9933FF', 'FF33FF', 'FF3399', 'FF0000', 'FF8000', 'FFFF00', '80FF00', '00FF00', '00FF80', '00FFFF', '007FFF', '0000FF', '7F00FF', 'FF00FF', 'FF0080', 'CC0000', 'CC6600', 'CCCC00', '66CC00', '00CC00', '00CC66',
+		'00CCCC', '0066CC', '0000CC', '6600CC', 'CC00CC', 'CC0066', '990000', '994C00', '999900', '4D9900', '009900', '00994D', '009999', '004C99', '000099', '4C0099', '990099', '99004D', '660000', '663300', '666600', '336600', '006600', '006633', '006666', '003366', '000066',
+		'330066', '660066', '660033', '330000', '331A00', '333300', '1A3300', '003300', '00331A', '003333', '001933', '000033', '190033', '330033', '33001A'];
+
+/**
+ * Creates function to apply value
+ */
 ColorDialog.prototype.createApplyFunction = function()
 {
 	return mxUtils.bind(this, function(color)
@@ -1616,9 +1643,7 @@ var EditDiagramDialog = function(editorUi)
 	newOption.setAttribute('value', 'new');
 	mxUtils.write(newOption, mxResources.get('openInNewWindow'));
 	
-	var chromeApp = window.chrome != null && chrome.app != null && chrome.app.runtime != null;
-	
-	if (!chromeApp)
+	if (EditDiagramDialog.showNewWindowOption)
 	{
 		select.appendChild(newOption);
 	}
@@ -1709,6 +1734,11 @@ var EditDiagramDialog = function(editorUi)
 
 	this.container = div;
 };
+
+/**
+ * 
+ */
+EditDiagramDialog.showNewWindowOption = true;
 
 /**
  * Constructs a new export dialog.
@@ -2639,35 +2669,26 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	
 	this.window.setLocation = function(x, y)
 	{
-		x = Math.max(0, x);
-		y = Math.max(0, y);
-		mxWindow.prototype.setLocation.apply(this, arguments);
+		var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+		var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
 	};
 	
 	mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
 	{
-		var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-		var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		
 		var x = this.window.getX();
 		var y = this.window.getY();
 		
-		if (x + this.window.table.clientWidth > iw)
-		{
-			x = Math.max(0, iw - this.window.table.clientWidth);
-		}
-		
-		if (y + this.window.table.clientHeight > ih)
-		{
-			y = Math.max(0, ih - this.window.table.clientHeight);
-		}
-		
-		if (this.window.getX() != x || this.window.getY() != y)
-		{
-			this.window.setLocation(x, y);
-		}
+		this.window.setLocation(x, y);
 	}));
-	
+
 	var outline = editorUi.createOutline(this.window);
 
 	this.window.addListener(mxEvent.RESIZE, mxUtils.bind(this, function()
@@ -3324,32 +3345,23 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	this.window.setLocation = function(x, y)
 	{
-		x = Math.max(0, x);
-		y = Math.max(0, y);
-		mxWindow.prototype.setLocation.apply(this, arguments);
+		var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+		var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
 	};
 	
 	mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
 	{
-		var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-		var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		
 		var x = this.window.getX();
 		var y = this.window.getY();
 		
-		if (x + this.window.table.clientWidth > iw)
-		{
-			x = Math.max(0, iw - this.window.table.clientWidth);
-		}
-		
-		if (y + this.window.table.clientHeight > ih)
-		{
-			y = Math.max(0, ih - this.window.table.clientHeight);
-		}
-		
-		if (this.window.getX() != x || this.window.getY() != y)
-		{
-			this.window.setLocation(x, y);
-		}
+		this.window.setLocation(x, y);
 	}));
 };

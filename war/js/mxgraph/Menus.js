@@ -30,7 +30,9 @@ Menus.prototype.defaultFontSize = '12';
 /**
  * Sets the default font size.
  */
-Menus.prototype.defaultMenuItems = ['file', 'edit', 'view', 'arrange', 'extras', 'help'];
+Menus.prototype.defaultMenuItems = (screen.width > 480) ?
+	['file', 'edit', 'view', 'arrange', 'extras', 'help'] :
+	['file', 'edit', 'view', 'arrange', 'extras'];
 
 /**
  * Adds the label menu items to the given menu and parent.

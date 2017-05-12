@@ -112,6 +112,48 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
+	
+	/**
+	 * Global configuration of the Editor. Possible configuration values are:
+	 * 
+	 * - presetColors: array of color codes for upper palette, default is ColorDialog.prototype.presetColors (no leading #)
+	 * - defaultColors: array of color codes for the lower palette, default is ColorDialog.prototype.defaultColors (no leading #)
+	 * - defaultFonts: array of available font family names, default is Menus.prototype.defaultFonts
+	 * - defaultColorSchemes: array of array of available color schemes, default is StyleFormatPanel.prototype.defaultColorSchemes
+	 * 
+	 * (code)
+	 * Editor.configure({defaultFonts: ['Helvetica', 'Verdana', 'Times New Roman', 'Garamond',
+	 * 		'Comic Sans MS', 'Courier New', 'Georgia', 'Lucida Console', 'Tahoma'],
+	 *   presetColors: ['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5',
+	 *   	'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC',
+	 *   	'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66'],
+	 * 	 defaultColorSchemes: [[null, {fill: '#f5f5f5', stroke: '#666666'},
+	 * 		{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
+	 * 		{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
+	 * 		{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
+	 * 	    [null,
+	 * 		{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
+	 * 		{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
+	 * 		{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
+	 * 		{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
+	 * 		{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
+	 * 		{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
+	 * 		{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
+	 * 		[null, {fill: '#eeeeee', stroke: '#36393d'},
+	 * 		{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
+	 * 		{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
+	 * 		{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]]});
+	 * (end)
+	 */
+	Editor.configure = function(config)
+	{
+		// LATER: DefaultFont and DefaultFontSize should override Graph's stylesheet,
+		// default edge and vertex styles would have to be set before loading mxSettings
+		ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
+		ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
+		Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
+		StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
+	};
 
 	/**
 	 * Executes the first step for connecting to Google Drive.
@@ -639,6 +681,26 @@
 
 			return div;
 		};
+		
+		/**
+		 * Configures global color schemes.
+		 */
+		StyleFormatPanel.prototype.defaultColorSchemes = [[null, {fill: '#f5f5f5', stroke: '#666666'},
+			{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
+			{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
+			{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
+		    [null,
+			{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
+			{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
+			{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
+			{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
+			{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
+			{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
+			{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
+			[null, {fill: '#eeeeee', stroke: '#36393d'},
+			{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
+			{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
+			{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
 
 		/**
 		 * Adds predefiend styles.
@@ -805,43 +867,30 @@
 				this.editorUi.currentScheme = 0;
 			}
 
-			var schemes = [[null, {fill: '#f5f5f5', stroke: '#666666'},
-				{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
-				{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
-				{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
-			    [null,
-				{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
-				{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
-				{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
-				{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
-				{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
-				{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
-				{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
-				[null, {fill: '#eeeeee', stroke: '#36393d'},
-				{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
-				{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
-				{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
-			
 			var left = document.createElement('div');
 			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
 				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
-			div.appendChild(left);
 			
 			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
 			{
-				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme - 1, schemes.length);
-				updateScheme(schemes[this.editorUi.currentScheme]);
+				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme - 1, this.defaultColorSchemes.length);
+				updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
 			}));
 			
 			var right = document.createElement('div');
 			right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
 				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
-			div.appendChild(right);
+
+			if (this.defaultColorSchemes.length > 1)
+			{
+				div.appendChild(left);
+				div.appendChild(right);
+			}
 			
 			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
 			{
-				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme + 1, schemes.length);
-				updateScheme(schemes[this.editorUi.currentScheme]);
+				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme + 1, this.defaultColorSchemes.length);
+				updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
 			}));
 			
 			// Hover state
@@ -860,7 +909,7 @@
 			addHoverState(left);
 			addHoverState(right);
 			
-			updateScheme(schemes[this.editorUi.currentScheme]);
+			updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
 			
 			return div;
 		};
