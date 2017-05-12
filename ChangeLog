@@ -1,3 +1,21 @@
+13-MAY-2017: 6.5.10
+
+- Fixes case sensitivity issue for template names and folders
+
+12-MAY-2017: 6.5.9
+
+- Adds export as URL in Chrome App
+- Adds drag and drop for all file formats in Sidebar and Library dialog
+- Fixes handling of invalid files after close with realtime
+- Adds offline app status icon for cached state
+- Removes standalone mode to fix offline iOS home screen apps
+- Redirects PDF export to print action when offline
+- Fixes text preview for resize with custom handles
+- Improvements for small mobile screens
+- Forces HTTPS for offline app
+- Fixes partial rectangles in Basic palette
+- Uses mxGraph 3.7.3 beta 5
+
 08-MAY-2017: 6.5.8
 
 - Adds .vssx stencil import

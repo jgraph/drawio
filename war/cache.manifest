@@ -1,10 +1,11 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 05/08/2017 10:18 PM
+# 05/13/2017 12:10 AM
 
 app.html
 index.html?offline=1
+index.html?offline=1&https=0
 offline.html
 open.html
 js/app.min.js
@@ -33,6 +34,7 @@ img/clipart/Gear_128x128.png
 images/delete.png
 images/droptarget.png
 images/edit.gif
+images/help.png
 images/download.png
 images/logo-flat.png
 images/osa_drive-harddisk.png
@@ -40,6 +42,8 @@ images/osa_database.png
 images/glyphicons_star.png
 images/logo-confluence.png
 images/logo-jira.png
+images/clear.gif
+images/spin.gif
 images/checkmark.gif
 images/favicon-32x32.png
 images/favicon-194x194.png

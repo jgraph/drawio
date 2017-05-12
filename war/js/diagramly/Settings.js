@@ -19,7 +19,7 @@ var mxSettings =
 		recentColors: [],
 		formatWidth: '240',
 		currentEdgeStyle: Graph.prototype.defaultEdgeStyle,
-		currentVertexStyle: {},
+		currentVertexStyle: Graph.prototype.defaultVertexStyle,
 		createTarget: false,
 		pageFormat: mxGraph.prototype.pageFormat,
 		search: true,
@@ -234,7 +234,7 @@ var mxSettings =
 			
 			if (this.settings.currentVertexStyle == null)
 			{
-				this.settings.currentVertexStyle = {};
+				this.settings.currentVertexStyle = Graph.prototype.defaultEdgeStyle;
 			}
 			
 			if (this.settings.createTarget == null)

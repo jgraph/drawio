@@ -7339,9 +7339,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				
 				try
 				{
-					if (data != null && data.substring(0, 10) == '<mxlibrary')
+					editorUi.spinner.stop();
+					var doc = mxUtils.parseXml(data);
+					
+					if (doc.documentElement.nodeName == 'mxlibrary')
 					{
-						var doc = mxUtils.parseXml(data);
 						var temp = JSON.parse(mxUtils.getTextContent(doc.documentElement));
 							
 						if (temp != null && temp.length > 0)
@@ -7359,7 +7361,20 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 							}
 						}
 						
-						editorUi.spinner.stop();
+						done = true;
+					}
+					else if (doc.documentElement.nodeName == 'mxfile')
+					{
+						var pages = doc.documentElement.getElementsByTagName('diagram');
+						
+						for (var i = 0; i < pages.length; i++)
+						{
+							var temp = mxUtils.getTextContent(pages[i]);
+							var cells = editorUi.stringToCells(editorUi.editor.graph.decompress(temp));
+							var size = editorUi.editor.graph.getBoundingBoxFromGeometry(cells);
+							addButton(null, null, 0, 0, 0, 0, {xml: temp, w: size.width, h: size.height});
+						}
+						
 						done = true;
 					}
 				}
@@ -7418,6 +7433,38 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		evt.preventDefault();
 	};
 	
+	var createImportHandler = function(evt)
+	{
+		return function(data, mimeType, x, y, w, h, img, doneFn, file)
+		{
+			if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
+			{
+				editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
+				{
+					if (xhr.readyState == 4)
+					{
+						editorUi.spinner.stop();
+	    				
+	    				if (xhr.status >= 200 && xhr.status <= 299)
+						{
+							var xml = xhr.responseText;
+							
+			    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+			    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+			    			div.scrollTop = div.scrollHeight;
+						}
+					}
+				}));
+			}
+			else
+			{
+				addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+						null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+				div.scrollTop = div.scrollHeight;
+			}
+		};
+	};
+	
 	function dropHandler(evt)
 	{
 		evt.stopPropagation();
@@ -7442,12 +7489,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		}
 	    else if (evt.dataTransfer.files.length > 0)
 	    {
-	    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img)
-	    	{
-	    		addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-		    		null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-				div.scrollTop = div.scrollHeight;
-	    	});
+	    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
 		}
 	    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 	    {
@@ -7533,9 +7575,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		{
 	    	errorShowed = false;
 				
-	    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img)
+	    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
 	    	{
-	    		addButton(data, mimeType, x, y, w, h, img, 'fixed');
+	    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
 
 	    		// Resets input to force change event for same file
 	    		fileInput.value = '';

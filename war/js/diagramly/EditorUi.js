@@ -1222,6 +1222,7 @@
 		var noFile = mxUtils.bind(this, function()
 		{
 			this.setGraphEnabled(false);
+			this.setCurrentFile(null);
 			
 			// Keeps initial title if no file existed before
 			if (oldFile != null)
@@ -1367,7 +1368,15 @@
 					}
 					else if (oldFile != null)
 					{
-						this.fileLoaded(oldFile);
+						// Workaround for close realtime model is to reload the file from scratch
+						if (oldFile.constructor == DriveFile)
+						{
+							this.loadFile(oldFile.getHash());
+						}
+						else
+						{
+							this.fileLoaded(oldFile);
+						}
 					}
 					else
 					{
@@ -1939,7 +1948,7 @@
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {	
-				    	this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, mxUtils.bind(this, function(data, mimeType, x, y, w, h, img)
+				    	this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, mxUtils.bind(this, function(data, mimeType, x, y, w, h, img, doneFn, file)
 				    	{
 							if (data != null && mimeType.substring(0, 6) == 'image/')
 							{
@@ -1949,58 +1958,103 @@
 								cells[0].vertex = true;
 	
 								addCells(cells, new mxRectangle(0, 0, w, h), evt, (mxEvent.isAltDown(evt)) ? null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+
+								if (dropTarget != null && dropTarget.parentNode != null && images.length > 0)
+								{
+									dropTarget.parentNode.removeChild(dropTarget);
+									dropTarget = null;
+								}
 							}
 							else
 							{
 								var done = false;
 								
-								if (data != null && mimeType == 'text/xml')
+								var doImport = mxUtils.bind(this, function(theData, theMimeType)
 								{
-									var doc = mxUtils.parseXml(data);
+									if (theData != null && theMimeType == 'text/xml')
+									{
+										var doc = mxUtils.parseXml(theData);
+										
+										if (doc.documentElement.nodeName == 'mxlibrary')
+										{
+											try
+											{
+												var temp = JSON.parse(mxUtils.getTextContent(doc.documentElement));
+												addImages(temp, contentDiv);
+												images = images.concat(temp);
+												saveLibrary(evt);
+												this.spinner.stop();
+												done = true;
+											}
+											catch (e)
+											{
+												// ignore
+											}
+										}
+										else if (doc.documentElement.nodeName == 'mxfile')
+										{
+											try
+											{
+												var pages = doc.documentElement.getElementsByTagName('diagram');
+												
+												for (var i = 0; i < pages.length; i++)
+												{
+													var temp = mxUtils.getTextContent(pages[i]);
+													var cells = this.stringToCells(this.editor.graph.decompress(temp));
+													var size = this.editor.graph.getBoundingBoxFromGeometry(cells);
+													addCells(cells, new mxRectangle(0, 0, size.width, size.height), evt);
+												}
+												
+												done = true;
+											}
+											catch (e)
+											{
+												if (window.console != null)
+												{
+													console.log('error in drop handler:', e);
+												}
+											}
+										}
+									}
 									
-									if (doc.documentElement.nodeName == 'mxlibrary')
+									if (!done)
 									{
-										try
-										{
-											var temp = JSON.parse(mxUtils.getTextContent(doc.documentElement));
-											addImages(temp, contentDiv);
-											images = images.concat(temp);
-											saveLibrary(evt);
-											this.spinner.stop();
-											done = true;
-										}
-										catch (e)
-										{
-											// ignore
-										}
+										this.spinner.stop();
+										this.handleError({message: mxResources.get('errorLoadingFile')})
 									}
-									else if (doc.documentElement.nodeName == 'mxfile')
+
+									if (dropTarget != null && dropTarget.parentNode != null && images.length > 0)
 									{
-										try
-										{
-											var temp = mxUtils.getTextContent(doc.documentElement.getElementsByTagName('diagram')[0]);
-											var cells = this.stringToCells(this.editor.graph.decompress(temp));
-											addCells(cells, new mxRectangle(0, 0, w, h), evt);
-											done = true;
-										}
-										catch (e)
-										{
-											// ignore
-										}
+										dropTarget.parentNode.removeChild(dropTarget);
+										dropTarget = null;
 									}
-								}
+								});
 								
-								if (!done)
+								if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
 								{
-									this.spinner.stop();
-									this.handleError({message: mxResources.get('errorLoadingFile')})
+									this.parseFile(file, mxUtils.bind(this, function(xhr)
+									{
+										if (xhr.readyState == 4)
+										{
+											this.spinner.stop();
+											
+											if (xhr.status >= 200 && xhr.status <= 299)
+											{
+												doImport(xhr.responseText, 'text/xml');
+											}
+											else
+											{
+												this.handleError({message: mxResources.get((xhr.status == 413) ?
+					            						'drawingTooLarge' : 'invalidOrMissingFile')},
+					            						mxResources.get('errorLoadingFile'));
+											}
+										}
+									}));
 								}
-							}
-							
-							if (dropTarget != null && dropTarget.parentNode != null && images.length > 0)
-							{
-								dropTarget.parentNode.removeChild(dropTarget);
-								dropTarget = null;
+								else
+								{
+									doImport(data, mimeType);
+								}
 							}
 				    	}));
 					}
@@ -2193,7 +2247,7 @@
 	{
 		var dlg = new LibraryDialog(this, name, sidebar, images, file, mode);
 		
-		this.showDialog(dlg.container, 620, 440, true, true, mxUtils.bind(this, function(cancel)
+		this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 		{
 			if (cancel && this.getCurrentFile() == null && urlParams['embed'] != '1')
 			{
@@ -3087,7 +3141,7 @@
 			params.push('title=' + encodeURIComponent(file.getTitle()));
 		}
 		
-		return ((mxClient.IS_CHROMEAPP) ? 'https://www.draw.io/' : 'https://' + location.host + '/') +
+		return ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 'https://www.draw.io/' : 'https://' + location.host + '/') +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
 	
@@ -4935,6 +4989,11 @@
 						
 						if (xml != null && xml.substring(0, 10) == '<mxlibrary')
 						{
+							if (filename != null && filename.toLowerCase().substring(filename.length - 5) == '.vssx')
+							{
+								filename = filename.substring(0, filename.length - 5) + '.xml';
+							}
+							
 							this.loadLibrary(new LocalLibrary(this, xml, filename));
 						}
 						else
@@ -5220,7 +5279,7 @@
 				    				if (!containsModel)
 				    				{
 				    					// Cannot load local files in Chrome App
-				    					if (window.chrome != null && chrome.app != null && chrome.app.runtime != null)
+				    					if (mxClient.IS_CHROMEAPP)
 				    					{
 				    						this.spinner.stop();
 				    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
@@ -6513,7 +6572,7 @@
 											this.openLocalFile(xml, null, true);
 										}
 									}
-									if (!this.isOffline() && this.isRemoteFileFormat(data))
+									else if (!this.isOffline() && this.isRemoteFileFormat(data))
 									{
 							    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
 										{
@@ -8298,37 +8357,70 @@
 		
 		if (this.isOfflineApp())
 		{
-			// In FF, IE and Safari (desktop) the cache status never changes
-			if ((mxClient.IS_GC || (mxClient.IS_IOS && mxClient.IS_SF)) && applicationCache != null)
+			var appCache = applicationCache;
+			
+			// NOTE: HTML5 Cache is deprecated
+			if (appCache != null && this.offlineStatus == null)
 			{
-				var appCache = applicationCache;
-		
-				if (this.offlineStatus == null)
+				this.offlineStatus = document.createElement('div');
+				this.offlineStatus.className = 'geItem';
+				this.offlineStatus.style.position = 'absolute';
+				this.offlineStatus.style.fontSize = '8pt';
+				this.offlineStatus.style.top = '2px';
+				this.offlineStatus.style.right = '12px';
+				this.offlineStatus.style.color = '#666';
+				this.offlineStatus.style.margin = '4px';
+				this.offlineStatus.style.padding = '2px';
+				this.offlineStatus.style.verticalAlign = 'middle';
+				this.offlineStatus.innerHTML = '';
+				
+				this.menubarContainer.appendChild(this.offlineStatus);
+				
+				var appCache = window.applicationCache;
+
+				function getImageTagForStatus(status)
 				{
-					this.offlineStatus = document.createElement('div');
-					this.offlineStatus.className = 'geItem';
-					this.offlineStatus.style.position = 'absolute';
-					this.offlineStatus.style.fontSize = '8pt';
-					this.offlineStatus.style.top = '2px';
-					this.offlineStatus.style.right = '12px';
-					this.offlineStatus.style.color = '#666';
-					this.offlineStatus.style.margin = '4px';
-					this.offlineStatus.style.padding = '2px';
-					this.offlineStatus.style.verticalAlign = 'middle';
-					this.offlineStatus.innerHTML = '';
-					
-					this.menubarContainer.appendChild(this.offlineStatus);
-		
-					// Events are not working, use polling instead (10 secs interval)
-					var thread = window.setTimeout(mxUtils.bind(this, function()
+					switch (status)
 					{
-						if (appCache.status == appCache.IDLE)
-						{
-							this.offlineStatus.innerHTML = '[' + '<img title="Cached" border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>]';
-							window.clearTimeout(thread);
-						}
-					}), 5000);
-				}
+					  case appCache.UNCACHED: // UNCACHED == 0
+					    return '';
+					    break;
+					  case appCache.IDLE: // IDLE == 1
+					    return '<img title="Cached" border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
+					    break;
+					  case appCache.CHECKING: // CHECKING == 2
+					    return '<img title="Checking..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+					    break;
+					  case appCache.DOWNLOADING: // DOWNLOADING == 3
+					    return '<img title="Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+					    break;
+					  case appCache.UPDATEREADY:  // UPDATEREADY == 4
+					    return '<img title="Update ready" border="0" src="' + IMAGE_PATH + '/download.png"/>';
+					    break;
+					  case appCache.OBSOLETE: // OBSOLETE == 5
+					    return '<img title="Obsolete" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
+					    break;
+					  default:
+					    return '<img title="Unknown" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
+					    break;
+					};
+				};
+
+				var updateStatus = mxUtils.bind(this, function()
+				{
+					this.offlineStatus.innerHTML = getImageTagForStatus(appCache.status);
+				});
+				
+				mxEvent.addListener(appCache, 'checking', updateStatus);
+				mxEvent.addListener(appCache, 'noupdate', updateStatus);
+				mxEvent.addListener(appCache, 'downloading', updateStatus);
+				mxEvent.addListener(appCache, 'progress', updateStatus);
+				mxEvent.addListener(appCache, 'cached', updateStatus);
+				mxEvent.addListener(appCache, 'updateready', updateStatus);
+				mxEvent.addListener(appCache, 'obsolete', updateStatus);
+				mxEvent.addListener(appCache, 'error', updateStatus);
+				
+				updateStatus();
 			}
 		}
 		else

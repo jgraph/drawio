@@ -58,12 +58,11 @@ Draw.loadPlugin(function(ui)
 							tmp.push(vertex);
 						}
 						
-						return true;
+						// Stop traversal on collapsed vertices
+						return vertex == cells[i] || !graph.model.isCollapsed(vertex);
 					});
 					
 					graph.model.setCollapsed(cells[i], collapse);
-					
-					//mxUtils.remove(cells[i], newCells);
 				}
 			}
 
@@ -438,43 +437,47 @@ Draw.loadPlugin(function(ui)
 	
     sb.addPalette('mindmaps', 'Mindmaps', true, function(content)
     {
-    	content.appendChild(ui.sidebar.createVertexTemplate('shape=cloud;mindmapRoot=1;fontSize=15;fontStyle=1;strokeWidth=2;' +
-        	'align=center;points=[[0.16,0.55,0],[0.875,0.5,0]];snapToPoint=1;collapsible=1;', 120, 80, 'Main Idea', 'Mindmap Root'));
-        
+    	var sw = 1;
+    	
+    	content.appendChild(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;mindmapRoot=1;' +
+    		'strokeWidth=' + sw + ';collapsible=0;container=1;recursiveResize=0;align=center;',
+        	120, 60, 'Main Topic', 'Mindmap Root'));
+
         (function()
         {
-	    	var cell = new mxCell('Main Topic', new mxGeometry(0, 0, 80, 20),
-	    		'shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];snapToPoint=1;autosize=1;' +
-	    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;strokeWidth=2;');
+	    	var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 80, 20),
+	    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
+	    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+	    		'snapToPoint=1;collapsible=0;container=1;recursiveResize=0;strokeWidth=' + sw + ';');
 	    	cell.vertex = true;
-	    	
-			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;curved=1;' +
-				'startArrow=none;endArrow=none;endFill=0;jettySize=auto;strokeWidth=2;');
-			edge.geometry.setTerminalPoint(new mxPoint(-100, 60), true);
+
+	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;curved=1;' +
+				'startArrow=none;endArrow=none;segment=10;strokeWidth=' + sw + ';');
+			edge.geometry.setTerminalPoint(new mxPoint(-60, 40), true);
 			edge.geometry.relative = true;
 			edge.edge = true;
-			
+
 			cell.insertEdge(edge, false);
 	
-			content.appendChild(sb.createVertexTemplateFromCells([cell, edge], 80, 20, 'Main Branch'));
+			content.appendChild(sb.createVertexTemplateFromCells([cell, edge], 80, 20, 'Sub Topic'));
         })();
         
         (function()
         {
-	    	var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 80, 20),
-	    		'shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];snapToPoint=1;autosize=1;' +
-	    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=middle;fontSize=12;fontStyle=0;');
+	    	var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 100, 30),
+	    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;collapsible=1;' +
+	    		'collapsible=0;container=1;recursiveResize=0;strokeWidth=' + sw + ';');
 	    	cell.vertex = true;
-	    	
-			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;curved=1;' +
-				'startArrow=none;endArrow=none;endFill=0;jettySize=auto;');
-			edge.geometry.setTerminalPoint(new mxPoint(-100, 60), true);
+
+	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;curved=1;' +
+				'startArrow=none;endArrow=none;segment=10;strokeWidth=' + sw + ';');
+			edge.geometry.setTerminalPoint(new mxPoint(-60, 40), true);
 			edge.geometry.relative = true;
 			edge.edge = true;
-			
+
 			cell.insertEdge(edge, false);
-	
-			content.appendChild(sb.createVertexTemplateFromCells([cell, edge], 80, 20, 'Sub Branch'));
+
+			content.appendChild(sb.createVertexTemplateFromCells([cell, edge], 100, 30, 'Sub Topic'));
         })();
     });
     

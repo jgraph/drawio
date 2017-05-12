@@ -185,7 +185,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
-	'mind': '/plugins/mind/mind.js'};
+	'mind': '/plugins/mind/mind.js', 'import': '/plugins/import.js'};
 
 /**
  * Function: authorize
@@ -5079,8 +5079,12 @@ App.prototype.updateUserElement = function()
 		if (user != null)
 		{
 			this.userElement.innerHTML = '';
-			mxUtils.write(this.userElement, user.displayName);
-			this.userElement.style.display = 'block';
+			
+			if (screen.width > 560)
+			{
+				mxUtils.write(this.userElement, user.displayName);
+				this.userElement.style.display = 'block';
+			}
 		}
 		else
 		{

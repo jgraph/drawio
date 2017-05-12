@@ -1221,7 +1221,7 @@
 			menu.addSeparator(parent);
 
 			// Redirects export to PDF to print in Chrome App
-			if (editorUi.printPdfExport)
+			if (editorUi.isOffline() || editorUi.printPdfExport)
 			{
 				menu.addItem(mxResources.get('formatPdf') + '...', null, this.editorUi.actions.get('exportPdf').funct, parent);
 			}
@@ -1335,7 +1335,7 @@
 			}), parent);
 
 			// Disables menu item for all external hosted integrations
-			if (/.*\.draw\.io$/.test(window.location.hostname))
+			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||/.*\.draw\.io$/.test(window.location.hostname))
 			{
 				menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 				{

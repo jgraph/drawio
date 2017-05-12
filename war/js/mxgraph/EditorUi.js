@@ -428,7 +428,7 @@ EditorUi = function(editor, container, lightbox)
 	this.clearDefaultStyle = function()
 	{
 		graph.currentEdgeStyle = graph.defaultEdgeStyle;
-		graph.currentVertexStyle = {};
+		graph.currentVertexStyle = graph.defaultVertexStyle;
 		
 		// Updates UI
 		this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
@@ -931,7 +931,7 @@ EditorUi.prototype.editButtonLink = null;
  * Specifies the position of the horizontal split bar. Default is 204 or 120 for
  * screen widths <= 500px.
  */
-EditorUi.prototype.hsplitPosition = (screen.width <= 500) ? 116 : 208;
+EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? ((screen.width <= 360) ? 62 : 116) : 208;
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.
@@ -2868,6 +2868,12 @@ EditorUi.prototype.createStatusContainer = function()
 {
 	var container = document.createElement('a');
 	container.className = 'geItem geStatus';
+	
+	if (screen.width < 420)
+	{
+		container.style.maxWidth = Math.max(20, screen.width - 320) + 'px';
+		container.style.overflow = 'hidden';
+	}
 	
 	return container;
 };

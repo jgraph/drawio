@@ -1271,6 +1271,12 @@ DriveRealtime.prototype.updateCollaborators = function()
 		this.collaboratorsElement.style.backgroundPosition = '100% 60%';
 		this.collaboratorsElement.style.backgroundRepeat = 'no-repeat';
 		
+		if (screen.width <= 540)
+		{
+			this.collaboratorsElement.style.maxWidth = Math.max(10, screen.width - 500) + 'px';
+			this.collaboratorsElement.style.overflow = 'hidden';
+		}
+		
 		this.ui.toolbarContainer.appendChild(this.collaboratorsElement);
 		
 		mxEvent.addListener(this.collaboratorsElement, 'click', mxUtils.bind(this, function(evt)
