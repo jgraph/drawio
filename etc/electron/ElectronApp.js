@@ -1,3 +1,4 @@
+window.OPEN_URL = 'https://www.draw.io/open';
 window.TEMPLATE_PATH = 'templates';
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
@@ -86,7 +87,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		// Replaces file menu to replace openFrom menu with open and rename downloadAs to export
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
+			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import'], parent);
 			this.addSubmenu('exportAs', menu, parent);
 			this.addSubmenu('embed', menu, parent);
 			this.addMenuItems(menu, ['-', 'newLibrary', 'openLibrary', '-', 'documentProperties', 'print'], parent);
@@ -94,6 +95,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
+			this.addSubmenu('insert', menu, parent);
+			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting', 'autosave', '-',
 			                         'createShape', 'editDiagram', '-', 'online'], parent);
 		})));
@@ -129,88 +132,99 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			editorUi.pickLibrary(App.MODE_DEVICE);
 		}));
 
-//		// Replaces import action
-//		this.actions.addAction('import...', mxUtils.bind(this, function()
-//		{
-//			if (this.getCurrentFile() != null)
-//			{
-//				chrome.fileSystem.chooseEntry({type: 'openFile', acceptsAllTypes: true}, mxUtils.bind(this, function(fileEntry)
-//				{
-//					if (!chrome.runtime.lastError)
-//					{
-//						fileEntry.file(mxUtils.bind(this, function(fileObject)
-//						{
-//							if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
-//							{
-//								var reader = new FileReader();
-//								
-//								reader.onload = function(evt)
-//								{
-//									editorUi.spinner.stop();
-//									
-//									try
-//									{
-//										var data = reader.result;
-//										
-//										if (fileObject.type.substring(0, 9) == 'image/png')
-//										{
-//											data = editorUi.extractGraphModelFromPng(data);
-//										}
-//										else if (fileObject.type.substring(0, 6) == 'image/')
-//										{
-//											data = null;
-//										}
-//										
-//										if (data != null)
-//										{
-//											graph.setSelectionCells(editorUi.importXml(data));
-//										}
-//										else
-//										{
-//											var img = new Image();
-//											img.onload = function()
-//											{
-//												editorUi.resizeImage(img, reader.result, function(data2, w, h)
-//												{
-//													var pt = graph.getInsertPoint();
-//													graph.setSelectionCell(graph.insertVertex(null, null, '', pt.x, pt.y, w, h,
-//														'shape=image;aspect=fixed;image=' + editorUi.convertDataUri(data2) + ';'));
-//												}, true);
-//											};
-//											img.src = reader.result;
-//										}
-//									}
-//									catch(e)
-//									{
-//										console.log(e);
-//										editorUi.handleError(e);
-//									}
-//								};
-//								
-//								reader.onerror = function(ev)
-//								{
-//									editorUi.spinner.stop();
-//									editorUi.handleError(ev);
-//								};
-//							
-//								if (fileObject.type.substring(0, 6) == 'image/')
-//								{
-//									reader.readAsDataURL(fileObject);
-//								}
-//								else
-//								{
-//									reader.readAsText(fileObject);
-//								}
-//							}
-//						}));
-//					}
-//					else if (chrome.runtime.lastError.message != 'User cancelled')
-//					{
-//						editorUi.handleError(chrome.runtime.lastError);
-//					}
-//				}));
-//			}
-//		}));
+		// Replaces import action
+		this.actions.addAction('import...', mxUtils.bind(this, function()
+		{
+			if (editorUi.getCurrentFile() != null)
+			{
+				const electron = require('electron');
+				var remote = electron.remote;
+				var dialog = remote.dialog;
+
+		        var paths = dialog.showOpenDialog({properties: ['openFile']});
+			           
+		        if (paths !== undefined && paths[0] != null)
+		        {
+		        	var fs = require('fs');
+		        	var path = paths[0];
+		        	var index = path.lastIndexOf('.png');
+		        	var isPng = index > -1 && index == path.length - 4;
+		        	var encoding = (isPng || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path) ||
+		        		/\.vsdx$/i.test(path)) ? 'base64' : 'utf-8'
+
+					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+					{
+			        	fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
+			        	{
+			        		if (e)
+			        		{
+			        			editorUi.spinner.stop();
+			        			editorUi.handleError(e);
+			        		}
+			        		else
+			        		{
+								try
+								{
+									if (isPng)
+									{
+										var tmp = editorUi.extractGraphModelFromPng(data);
+										
+										if (tmp != null)
+										{
+											data = tmp;
+										}
+									}
+									
+									if (!editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, path))
+									{
+										// Asynchronous parsing via server
+										editorUi.parseFile(editorUi.base64ToBlob(data, 'application/octet-stream'), mxUtils.bind(this, function(xhr)
+										{
+											if (xhr.readyState == 4)
+											{
+												editorUi.spinner.stop();
+												
+												if (xhr.status >= 200 && xhr.status <= 299)
+												{
+													
+													editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xhr.responseText, 0, 0, true));
+												}
+											}
+										}), path);
+									}
+									else if (isPng || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path))
+									{
+										var img = new Image();
+										img.onload = function()
+										{
+											editorUi.resizeImage(img, img.src, function(data2, w, h)
+											{
+												editorUi.spinner.stop();
+												var pt = graph.getInsertPoint();
+												graph.setSelectionCell(graph.insertVertex(null, null, '', pt.x, pt.y, w, h,
+													'shape=image;aspect=fixed;image=' + editorUi.convertDataUri(data2) + ';'));
+											}, true);
+										};
+										
+										img.src = 'data:image/png;base64,' + data;
+									}
+									else if (data != null)
+									{
+										editorUi.spinner.stop();
+										graph.setSelectionCells(editorUi.importXml(data));
+									}
+								}
+								catch(e)
+								{
+									editorUi.spinner.stop();
+									editorUi.handleError(e);
+								}
+			        		}
+			        	}));
+					}
+		        }
+			}
+		}));
 		
 		// Replaces new action
 		var oldNew = this.actions.get('new').funct;
@@ -292,9 +306,16 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		this.chooseFileEntry(mxUtils.bind(this, function(fileEntry, data)
 		{
-			var library = new LocalLibrary(this, data, fileEntry.name);
-			library.fileObject = fileEntry;
-			this.loadLibrary(library);
+			try
+			{
+				var library = new LocalLibrary(this, data, fileEntry.name);
+				library.fileObject = fileEntry;
+				this.loadLibrary(library);
+			}
+			catch (e)
+			{
+				this.handleError(e, mxResources.get('errorLoadingFile'));
+			}
 		}));
 	};
 	
@@ -305,7 +326,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 
-        var paths = dialog.showOpenDialog({properties: [ 'openFile' ] });
+        var paths = dialog.showOpenDialog({properties: ['openFile']});
 	           
         if (paths !== undefined && paths[0] != null)
         {
@@ -352,7 +373,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 	LocalFile.prototype.isAutosave = function()
 	{
-		return this.ui.editor.autosave;
+		return this.ui.editor.autosave && this.fileObject != null;
 	};
 	
 	LocalFile.prototype.isAutosaveOptional = function()
@@ -362,12 +383,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	LocalLibrary.prototype.isAutosave = function()
 	{
-		return true;
+		return this.fileObject != null;
 	};
 	
 	LocalFile.prototype.getTitle = function()
 	{
-		return (this.fileObject != null) ? this.fileObject.name : null;
+		return (this.fileObject != null) ? this.fileObject.name : this.title;
 	};
 
 	LocalFile.prototype.isRenamable = function()
@@ -382,11 +403,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		DrawioFile.prototype.save.apply(this, arguments);
 		
-		this.saveFile(revision, success, error);
-	};
-	
-	LocalLibrary.prototype.save = function(revision, success, error)
-	{
 		this.saveFile(revision, success, error);
 	};
 	
@@ -423,8 +439,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		        		{
 							this.savingFile = false;
 							this.isModified = prevModified;
-							
 							this.contentChanged();
+							this.lastData = data;
 							
 							if (success != null)
 							{
@@ -436,7 +452,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				else
 				{
 					// TODO, already saving. Need a better error
-					error();
+					if (error != null)
+					{
+        				error();
+					}
 				}
 			});
 
@@ -511,8 +530,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			const electron = require('electron');
 			var remote = electron.remote;
 			var dialog = remote.dialog;
-			
-	        var path = dialog.showSaveDialog({defaultPath: this.title});
+
+			var path = dialog.showSaveDialog({defaultPath: this.title});
 
 	        if (path != null)
 	        {
@@ -522,11 +541,20 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				this.fileObject.type = 'utf-8';
 				fn();
 			}
+	        else if (error != null)
+			{
+				error();
+			}
 		}
 		else
 		{
 			fn();
 		}
+	};
+
+	LocalLibrary.prototype.save = function(revision, success, error)
+	{
+		LocalFile.prototype.saveFile.apply(this, arguments);
 	};
 	
 	LocalFile.prototype.saveAs = function(title, success, error)
@@ -543,7 +571,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			filename += '.xml';
 		}
 		
-        var path = dialog.showSaveDialog({defaultPath: filename});
+		var path = dialog.showSaveDialog({defaultPath: filename});
         
         if (path != null)
         {
@@ -552,6 +580,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
 			this.save(false, success, error);
+		}
+        else if (error != null)
+		{
+			error();
 		}
 	};
 
@@ -693,11 +725,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			
 			fs.writeFile(this.fileObject.path, data, this.fileObject.type, mxUtils.bind(this, function (e)
 		    {
-        		if (e)
-        		{
-        			// TODO
-        		}
-
+				if (e)
+				{
+					this.handleError({message: mxResources.get('errorSavingFile')});
+				}
         	}));
 		}
 	};

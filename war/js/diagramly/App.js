@@ -840,10 +840,8 @@ App.prototype.init = function()
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
-//											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-//											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
-											'<a title="Please star this issue" href="https://issuetracker.google.com/issues/36761624" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please star this issue</a>'];
+											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
+											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
 							this.updateAd(this.adsHtml.length - 1);
 						}
 						
@@ -2631,7 +2629,14 @@ App.prototype.pickLibrary = function(mode)
 			{
 				if (optionalFile != null)
 				{
-					this.loadLibrary(optionalFile);
+					try
+					{
+						this.loadLibrary(optionalFile);
+					}
+					catch (e)
+					{
+						this.handleError(e, mxResources.get('errorLoadingFile'));
+					}
 				}
 				else
 				{

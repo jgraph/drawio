@@ -58,4 +58,11 @@
 <template url="uml/sysml.xml" libs="general;uml;sysml"/>
 <template url="uml/uml_1.xml" libs="general;uml"/>
 <template url="uml/uml_2.xml" libs="general;uml"/>
+<template url="venn/spider_1.xml" libs="general"/>
+<template url="venn/spider_2.xml" libs="general"/>
+<template url="venn/venn_1.xml" libs="general"/>
+<template url="venn/venn_2.xml" libs="general"/>
+<template url="venn/venn_3.xml" libs="general"/>
+<template url="venn/venn_4.xml" libs="general"/>
+<template url="venn/venn_5.xml" libs="general"/>
 </templates>

@@ -40,7 +40,7 @@
 			item.firstChild.nextSibling.appendChild(link);
 		}
 	};
-	
+
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()
 	{
@@ -2475,5 +2475,28 @@
 				this.addMenuItems(menu, ['-', 'close']);
 			}
 		})));
+	};
+
+	/**
+	 * Replaces help menu label with icon on small screen
+	 */
+	var menuCreated = Menus.prototype.menuCreated;
+	
+	Menus.prototype.menuCreated = function(menu, elt)
+	{
+		if (screen.width <= 480 && menu == this.get('help'))
+		{
+			elt.style.paddingRight = '0px';
+			elt.style.paddingLeft = '0px';
+			elt.innerHTML = '';
+			
+			var icon = document.createElement('img');
+			icon.setAttribute('border', '0');
+			icon.setAttribute('valign', 'bottom');
+			icon.setAttribute('src', Editor.helpImage);
+			elt.appendChild(icon);
+		}
+		
+		menuCreated.apply(this, arguments);
 	};
 })();

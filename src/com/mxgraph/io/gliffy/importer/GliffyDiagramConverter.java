@@ -13,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,6 +64,8 @@ public class GliffyDiagramConverter
 	private mxGraphHeadless drawioDiagram;
 
 	private Map<Integer, GliffyObject> vertices;
+	
+	private Pattern rotationPattern = Pattern.compile("rotation=(\\-?\\w+)");
 
 	/**
 	 * Constructs a new converter and starts a conversion.
@@ -323,7 +327,6 @@ public class GliffyDiagramConverter
 		mxGeometry geometry = new mxGeometry((int) gliffyObject.x, (int) gliffyObject.y, (int) gliffyObject.width, (int) gliffyObject.height);
 		cell.setGeometry(geometry);
 		
-		String text;
 		GliffyObject textObject = null;
 		String link = null;
 
@@ -463,7 +466,6 @@ public class GliffyDiagramConverter
 			}
 
 			GliffyObject header = gliffyObject.children.get(0);// first child is the header of the swimlane
-			GliffyObject headerText = header.children.get(0);
 			
 			GliffyShape shape = header.graphic.getShape();
 			style.append("strokeWidth=" + shape.strokeWidth).append(";");
@@ -471,8 +473,6 @@ public class GliffyDiagramConverter
 			style.append("fillColor=" + shape.fillColor).append(";");
 			style.append("strokeColor=" + shape.strokeColor).append(";");
 			style.append("whiteSpace=wrap;");
-
-			text = headerText.getText();
 
 			for (int i = 1; i < gliffyObject.children.size(); i++) // rest of the children are lanes
 			{
@@ -521,7 +521,22 @@ public class GliffyDiagramConverter
 
 		if (gliffyObject.rotation != 0)
 		{
-			style.append("rotation=" + gliffyObject.rotation + ";");
+			//if there's a rotation by default, add to it
+			if(style.lastIndexOf("rotation") != -1) 
+			{
+				Matcher m = rotationPattern.matcher(style);
+				if(m.find())
+				{
+					String rot = m.group(1);
+					Float rotation = Float.parseFloat(rot) + gliffyObject.rotation;
+					
+					m.replaceFirst("rotation=" + rotation.toString());
+				}
+			}
+			else 
+			{
+				style.append("rotation=" + gliffyObject.rotation + ";");
+			}
 		}
 
 		if (!gliffyObject.isLine() && textObject != null)

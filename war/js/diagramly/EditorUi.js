@@ -1716,7 +1716,9 @@
 			
 			var saveLibrary = mxUtils.bind(this, function(evt)
 			{
-				if (file.constructor != LocalLibrary && file.isAutosave())
+				file.setModified(true);
+				
+				if (file.isAutosave())
 				{
 					if (spinBtn != null && spinBtn.parentNode != null)
 					{
@@ -1751,10 +1753,15 @@
 					mxEvent.addListener(saveBtn, 'click', mxUtils.bind(this, function(evt)
 					{
 						this.saveLibrary(file.getTitle(), images, file, file.getMode(),
-							file.constructor == LocalLibrary, true);
-						saveBtn.parentNode.removeChild(saveBtn);
-						saveBtn = null;
-						title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
+							file.constructor == LocalLibrary, true, function()
+							{
+								if (saveBtn != null && !file.isModified())
+								{
+									title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
+									saveBtn.parentNode.removeChild(saveBtn);
+									saveBtn = null;
+								}
+							});
 						
 						mxEvent.consume(evt);
 					}));

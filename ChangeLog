@@ -1,3 +1,11 @@
+16-MAY-2017: 6.6.0
+
+- Adds Venn diagram templates
+- Starts .vsdx export functionality
+- Improvements and bug fixes for Electron build
+- Fixes for Gliffy importer
+- Adds autosave for libraries in Chrome App
+
 13-MAY-2017: 6.5.10
 
 - Fixes case sensitivity issue for template names and folders
