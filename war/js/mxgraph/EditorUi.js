@@ -1283,7 +1283,7 @@ EditorUi.prototype.initCanvas = function()
 	
 	if (this.editor.chromeless)
 	{
-		resize = mxUtils.bind(this, function(autoscale)
+		resize = mxUtils.bind(this, function(autoscale, maxScale)
 	   	{
 			if (graph.container != null)
 			{
@@ -1310,7 +1310,7 @@ EditorUi.prototype.initCanvas = function()
 				var cw = graph.container.offsetWidth - sb;
 				var ch = graph.container.offsetHeight - sb;
 				
-				var ns = (autoscale) ? Math.max(0.3, Math.min(1, cw / b.width)) : s;
+				var ns = (autoscale) ? Math.max(0.3, Math.min(maxScale || 1, cw / b.width)) : s;
 				var dx = Math.max((cw - ns * b.width) / 2, 0) / ns;
 				var dy = Math.max((ch - ns * b.height) / 4, 0) / ns;
 				

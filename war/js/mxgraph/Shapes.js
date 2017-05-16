@@ -2927,8 +2927,9 @@
 				//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
 				{
 					var name = this.state.style['shape'];
-					
-					if (this.state.view.graph.cellRenderer.defaultShapes[name] == null)
+
+					if (this.state.view.graph.cellRenderer.defaultShapes[name] == null &&
+						mxStencilRegistry.getStencil(name) == null)
 					{
 						name = mxConstants.SHAPE_RECTANGLE;
 					}
@@ -2951,7 +2952,8 @@
 			{
 				var name = this.state.style['shape'];
 				
-				if (this.state.view.graph.cellRenderer.defaultShapes[name] == null)
+				if (this.state.view.graph.cellRenderer.defaultShapes[name] == null &&
+					mxStencilRegistry.getStencil(name) == null)
 				{
 					name = mxConstants.SHAPE_CONNECTOR;
 				}

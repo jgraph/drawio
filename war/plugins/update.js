@@ -8,7 +8,11 @@
  * <update ...>
  * <model>...</model>
  * <view ...>
+ * <fit ...>
  * </updates>
+ * 
+ * The outermost updates node may contain an optional url and interval property
+ * to change the current updateUrl and updateInterval.
  * 
  * Where update must contain an id attribute to reference the cell in the diagram.
  * 
@@ -56,13 +60,17 @@
  * scale and translate.
  * 
  * Example: <view scale="0.5" dx="100" dy="100"/>
+ * 
+ * - A fit node may be specified with a max-scale property to fit the diagram to the
+ * available viewport with the specified max-scale.
  */
 Draw.loadPlugin(function(editorUi)
 {
 	if (editorUi.editor.chromeless)
 	{
 		var graph = editorUi.editor.graph;
-		var interval = 60000;
+		var updateInterval = 60000;
+		var updateUrl = null;
 		
 		function createOverlay(desc)
 		{
@@ -83,18 +91,32 @@ Draw.loadPlugin(function(editorUi)
 			if (xml != null && xml.length > 0)
 			{
 				var doc = mxUtils.parseXml(xml);
+				var node = (doc != null) ? doc.documentElement : null;
 				
-				if (doc != null && doc.documentElement != null)
+				if (node != null && node.nodeName == 'updates')
 				{
-					var node = doc.documentElement.firstChild;
+					if (node.hasAttribute('url'))
+					{
+						updateUrl = node.getAttribute('url');
+					}
+					
+					if (node.hasAttribute('interval'))
+					{
+						updateInterval = node.getAttribute('interval');
+					}
+					
 					var model = graph.getModel();
 					model.beginUpdate();
 					var fit = null;
-					
+
 					try
 					{
+						node = node.firstChild;
+						
 						while (node != null)
 						{
+							console.log('processing', node.nodeName);
+							
 							if (node.nodeName == 'update')
 							{
 								// Resolves the cell ID
@@ -228,8 +250,19 @@ Draw.loadPlugin(function(editorUi)
 							} // if node.nodeName == 'update
 							else if (node.nodeName == 'model')
 							{
-								var dec = new mxCodec(node.ownerDocument);
-								dec.decode(node.firstChild, model);
+								// Finds first child element
+								var dataNode = node.firstChild;
+								
+								while (dataNode != null && dataNode.nodeType != mxConstants.NODETYPE_ELEMENT)
+								{
+									dataNode = dataNode.nextSibling;
+								}
+								
+								if (dataNode != null)
+								{
+									var dec = new mxCodec(node.firstChild);
+									dec.decode(dataNode, model);
+								}
 							}
 							else if (node.nodeName == 'view')
 							{
@@ -244,6 +277,17 @@ Draw.loadPlugin(function(editorUi)
 										parseFloat(node.getAttribute('dy') || 0));
 								}
 							}
+							else if (node.nodeName == 'fit')
+							{
+								if (node.hasAttribute('max-scale'))
+								{
+									fit = parseFloat(node.getAttribute('max-scale'));
+								}
+								else
+								{
+									fit = 1;
+								}
+							}
 							
 							node = node.nextSibling;
 						} // end of while
@@ -251,6 +295,11 @@ Draw.loadPlugin(function(editorUi)
 					finally
 					{
 						model.endUpdate();
+					}
+					
+					if (fit != null && editorUi.chromelessResize)
+					{
+						editorUi.chromelessResize(true, fit);
 					}
 				}
 			}
@@ -260,30 +309,31 @@ Draw.loadPlugin(function(editorUi)
 		
 		function scheduleUpdates()
 		{
+			var page = editorUi.currentPage;
 			var root = editorUi.editor.graph.getModel().getRoot();
 			var result = false;
 			
 			if (root.value != null && typeof(root.value) == 'object')
 			{
-				interval = parseInt(root.value.getAttribute('updateInterval') || interval);
-				var url = root.value.getAttribute('updateUrl');
+				updateInterval = parseInt(root.value.getAttribute('updateInterval') || updateInterval);
+				updateUrl = root.value.getAttribute('updateUrl') || updateUrl;
 				
-				if (url != null)
+				if (updateUrl != null)
 				{
 					var currentXml = mxUtils.getXml(editorUi.editor.getGraphXml());
 					
 					function doUpdate()
 					{
-						if (url === 'demo')
+						if (updateUrl === 'demo')
 						{
 							parseResponse(mxUtils.getXml(createDemoResponse().documentElement));	
 							schedule();
 						}
 						else
 						{
-							mxUtils.post(url, 'xml=' + encodeURIComponent(currentXml), function(req)
+							mxUtils.post(updateUrl, 'xml=' + encodeURIComponent(currentXml), function(req)
 							{
-								if (root === editorUi.editor.graph.getModel().getRoot())
+								if (page === editorUi.currentPage)
 								{
 									if (req.getStatus() >= 200 && req.getStatus() <= 300)
 									{
@@ -305,7 +355,7 @@ Draw.loadPlugin(function(editorUi)
 					
 					function schedule()
 					{
-						currentThread = window.setTimeout(doUpdate, interval);
+						currentThread = window.setTimeout(doUpdate, updateInterval);
 					};
 					
 					doUpdate();
