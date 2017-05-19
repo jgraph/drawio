@@ -3,7 +3,9 @@ package com.mxgraph.io.gliffy.model;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GliffyText
+import com.mxgraph.io.gliffy.importer.PostDeserializer;
+
+public class GliffyText implements PostDeserializer.PostDeserializable
 {
 	//places the text in the middle of the line
 	public static Double DEFAULT_LINE_T_VALUE = 0.5; 
@@ -38,11 +40,16 @@ public class GliffyText
 	public GliffyText()
 	{
 	}
+	
+	public void postDeserialize() 
+	{
+		halign = getHorizontalTextAlignment();
+		html = replaceParagraphWithDiv(html);
+	}
 
 	public String getHtml()
 	{
-		halign = halign == null ? getHorizontalTextAlignment() : halign;
-		return replaceParagraphWithDiv(html);
+		return html;
 	}
 
 	//this is never invoked by Gson builder
@@ -80,10 +87,9 @@ public class GliffyText
 		}
 		else if (hposition.equals("none"))
 		{
-			String hAlign = getHorizontalTextAlignment();
-			if (hAlign != null)
+			if (halign != null)
 			{
-				sb.append("align=").append(hAlign).append(";");
+				sb.append("align=").append(halign).append(";");
 			}
 			else 
 				sb.append("align=center;");

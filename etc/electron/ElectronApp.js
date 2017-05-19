@@ -98,7 +98,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.addSubmenu('insert', menu, parent);
 			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting', 'autosave', '-',
-			                         'createShape', 'editDiagram', '-', 'online'], parent);
+			                         'createShape', 'editDiagram', '-', 'tags', '-', 'online'], parent);
 		})));
 	};
 	

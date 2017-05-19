@@ -18,6 +18,11 @@
 	Sidebar.prototype.gearImage = GRAPH_IMAGE_PATH + '/clipart/Gear_128x128.png';
 	
 	/**
+	 * Aliases for IDs in the libs parameter.
+	 */
+	Sidebar.prototype.libAliases = {'aws2': 'aws3'};
+	
+	/**
 	 * 
 	 */
 	Sidebar.prototype.defaultEntries = 'general;images;uml;er;bpmn;flowchart;basic;arrows2';
@@ -285,12 +290,20 @@
 			urlParams['libs'].length > 0) ? decodeURIComponent(urlParams['libs']) : mxSettings.getLibraries());
 		var tmp = this.libs.split(';');
 		
+		// Maps library names via the alias table
+		for (var i = 0; i < tmp.length; i++)
+		{
+			tmp[i] = this.libAliases[tmp[i]] || tmp[i];
+		}
+		
 		for (var i = 0; i < this.configuration.length; i++)
 		{
 			// Search has separate switch in Extras menu
 			if (this.configuration[i].id != 'search')
 			{
-				this.showPalettes(this.configuration[i].prefix || '', this.configuration[i].libs || [this.configuration[i].id], mxUtils.indexOf(tmp, this.configuration[i].id) >= 0);
+				this.showPalettes(this.configuration[i].prefix || '',
+					this.configuration[i].libs || [this.configuration[i].id],
+					mxUtils.indexOf(tmp, this.configuration[i].id) >= 0);
 			}
 		}
 		
@@ -1068,36 +1081,52 @@
 					{
 						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
-							var res = JSON.parse(req.getText());
-							
-							for (var i = 0; i < res.icons.length; i++)
+							try
 							{
-								var sizes = res.icons[i].raster_sizes;
-								var index = sizes.length - 1;
+								var res = JSON.parse(req.getText());
 								
-								while (index > 0 && sizes[index].size > 128)
+								if (res == null || res.icons == null)
 								{
-									index--;
+									succ(results, len, false, terms);
+									this.editorUi.handleError(res);
 								}
-		
-								var size = sizes[index].size;
-								var url = sizes[index].formats[0].preview_url;
-		
-								if (size != null && url != null)
+								else
 								{
-									(mxUtils.bind(this, function(s, u)
+									for (var i = 0; i < res.icons.length; i++)
 									{
-										results.push(mxUtils.bind(this, function()
+										var sizes = res.icons[i].raster_sizes;
+										var index = sizes.length - 1;
+										
+										while (index > 0 && sizes[index].size > 128)
 										{
-											return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
-												'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
-												'aspect=fixed;image=' + u, s, s, '');
-										}));
-									}))(size, url);
+											index--;
+										}
+				
+										var size = sizes[index].size;
+										var url = sizes[index].formats[0].preview_url;
+				
+										if (size != null && url != null)
+										{
+											(mxUtils.bind(this, function(s, u)
+											{
+												results.push(mxUtils.bind(this, function()
+												{
+													return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
+														'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
+														'aspect=fixed;image=' + u, s, s, '');
+												}));
+											}))(size, url);
+										}
+									}
+				
+									succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
 								}
 							}
-		
-							succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
+							catch (e)
+							{
+								succ(results, len, false, terms);
+								this.editorUi.handleError(e);
+							}
 						}
 						else
 						{

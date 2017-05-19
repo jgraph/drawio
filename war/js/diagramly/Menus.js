@@ -738,6 +738,16 @@
 					
 				this.addMenuItems(menu, ['testXmlImageExport'], parent);
 
+				// For testing local Vsdx export
+				mxResources.parse('testVsdxExport=Vsdx Export');
+				
+				this.editorUi.actions.addAction('testVsdxExport', mxUtils.bind(this, function()
+				{
+					new VsdxExport(this.editorUi).exportCurrentDiagrams();
+				}));
+					
+				this.addMenuItems(menu, ['testVsdxExport'], parent);
+
 				mxResources.parse('testShowRtModel=Show RT model');
 				mxResources.parse('testDebugRtModel=Debug RT model');
 				mxResources.parse('testDownloadRtModel=Download RT model');
@@ -2348,6 +2358,8 @@
 			}
 			else
 			{
+				menu.addSeparator(parent);
+				this.addMenuItem(menu, 'tags', parent);
 				menu.addSeparator(parent);
 			}
 			

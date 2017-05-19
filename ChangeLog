@@ -1,3 +1,14 @@
+19-MAY-2017: 6.6.2
+
+- Adds trees plugin
+- Fixes text preview, custom handles with math
+- Uses mxGraph 3.7.3 beta 7
+
+17-MAY-2017: 6.6.1
+
+- Fixes libs=aws2 URL parameter
+- Uses mxGraph 3.7.3 beta 6
+
 16-MAY-2017: 6.6.0
 
 - Adds Venn diagram templates

@@ -950,46 +950,11 @@ EditorUi.prototype.init = function()
 		
 	mxEvent.addListener(graph.container, 'keydown', mxUtils.bind(this, function(evt)
 	{
-		// Tab selects next cell
-		if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
-		{
-			if (graph.isEditing())
-			{
-				graph.stopEditing(false);
-			}
-			else
-			{
-				graph.selectCell(!mxEvent.isShiftDown(evt));
-			}
-			
-			mxEvent.consume(evt);
-		}
+		this.onKeyDown(evt);
 	}));
-	
 	mxEvent.addListener(graph.container, 'keypress', mxUtils.bind(this, function(evt)
 	{
-		// KNOWN: Focus does not work if label is empty in quirks mode
-		if (this.isImmediateEditingEvent(evt) && !graph.isEditing() && !graph.isSelectionEmpty() && evt.which !== 0 &&
-			!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
-		{
-			graph.escape();
-			graph.startEditing();
-
-			// Workaround for FF where char is lost if cursor is placed before char
-			if (mxClient.IS_FF)
-			{
-				var ce = graph.cellEditor;
-				ce.textarea.innerHTML = String.fromCharCode(evt.which);
-
-				// Moves cursor to end of textarea
-				var range = document.createRange();
-				range.selectNodeContents(ce.textarea);
-				range.collapse(false);
-				var sel = window.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(range);
-			}
-		}
+		this.onKeyPress(evt);
 	}));
 
 	// Updates action states
@@ -1026,6 +991,60 @@ EditorUi.prototype.init = function()
 	if (this.format != null)
 	{
 		this.format.init();
+	}
+};
+
+/**
+ * Returns true if the given event should start editing. This implementation returns true.
+ */
+EditorUi.prototype.onKeyDown = function(evt)
+{
+	var graph = this.editor.graph;
+	
+	// Tab selects next cell
+	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
+	{
+		if (graph.isEditing())
+		{
+			graph.stopEditing(false);
+		}
+		else
+		{
+			graph.selectCell(!mxEvent.isShiftDown(evt));
+		}
+		
+		mxEvent.consume(evt);
+	}
+};
+
+/**
+ * Returns true if the given event should start editing. This implementation returns true.
+ */
+EditorUi.prototype.onKeyPress = function(evt)
+{
+	var graph = this.editor.graph;
+	
+	// KNOWN: Focus does not work if label is empty in quirks mode
+	if (this.isImmediateEditingEvent(evt) && !graph.isEditing() && !graph.isSelectionEmpty() && evt.which !== 0 &&
+		!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
+	{
+		graph.escape();
+		graph.startEditing();
+
+		// Workaround for FF where char is lost if cursor is placed before char
+		if (mxClient.IS_FF)
+		{
+			var ce = graph.cellEditor;
+			ce.textarea.innerHTML = String.fromCharCode(evt.which);
+
+			// Moves cursor to end of textarea
+			var range = document.createRange();
+			range.selectNodeContents(ce.textarea);
+			range.collapse(false);
+			var sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
 	}
 };
 
