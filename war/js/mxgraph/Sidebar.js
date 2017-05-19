@@ -281,7 +281,10 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				
 				this.tooltip.style.display = 'block';
 				this.graph2.labelsVisible = (showLabel == null || showLabel);
+				var fo = mxClient.NO_FO;
+				mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
 				this.graph2.addCells(cells);
+				mxClient.NO_FO = fo;
 				
 				var bounds = this.graph2.getGraphBounds();
 				var width = bounds.width + 2 * this.tooltipBorder + 4;
@@ -2086,13 +2089,13 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 {
 	var geo = this.getDropAndConnectGeometry(source, targets[dropCellIndex], direction, targets);
 	
+	// Targets without the new edge for selection
+	var tmp = [];
+	
 	if (geo != null)
 	{
 		var graph = this.editorUi.editor.graph;
-		
-		// Targets without the new edge for selection
-		var tmp = [];
-		
+
 		graph.model.beginUpdate();
 		try
 		{
@@ -2194,9 +2197,9 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 		{
 			graph.model.endUpdate();
 		}
-		
-		graph.setSelectionCells(tmp);
 	}
+	
+	return tmp;
 };
 
 /**
@@ -2397,7 +2400,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		else if (cells != null && activeArrow != null && currentTargetState != null && activeArrow != styleTarget)
 		{
 			var index = (graph.model.isEdge(currentTargetState.cell) || freeSourceEdge == null) ? firstVertex : freeSourceEdge;
-			this.dropAndConnect(currentTargetState.cell, cells, direction, index);
+			graph.setSelectionCells(this.dropAndConnect(currentTargetState.cell, cells, direction, index));
 		}
 		else
 		{
@@ -3062,9 +3065,9 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 			
 			if (firstVertex != null)
 			{
-				this.dropAndConnect(graph.getSelectionCell(), cells, (mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt)) ?
+				graph.setSelectionCells(this.dropAndConnect(graph.getSelectionCell(), cells, (mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt)) ?
 					(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH) : 
-					(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_EAST : mxConstants.DIRECTION_SOUTH), firstVertex);
+					(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_EAST : mxConstants.DIRECTION_SOUTH), firstVertex));
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}

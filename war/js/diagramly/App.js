@@ -185,7 +185,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
-	'mind': '/plugins/mind/mind.js', 'import': '/plugins/import.js'};
+	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js'};
 
 /**
  * Function: authorize
@@ -3190,76 +3190,75 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		var redirect = window.location.protocol + '//' + window.location.hostname + url;
 		var graph = null;
 		
-		// TODO: This code and comment needs checking (name is undefined and condition is inversed)
 		// Handles special case where SVG files need a rendered graph to be saved
-//		if (!/\.svg$/i.test(name) && dataNode != null)
-//		{
-//			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-//
-//			document.body.appendChild(graph.container);
-//			node = dataNode;
-//			
-//			if (node != null)
-//			{
-//				var diagramNode = null;
-//				
-//				if (node.nodeName == 'diagram')
-//				{
-//					diagramNode = node;
-//				}
-//				else if (node.nodeName == 'mxfile')
-//				{
-//					var diagrams = node.getElementsByTagName('diagram');
-//
-//					if (diagrams.length > 0)
-//					{
-//						diagramNode = diagrams[0];
-//						var graphGetGlobalVariable = graph.getGlobalVariable;
-//						
-//						graph.getGlobalVariable = function(name)
-//						{
-//							if (name == 'page')
-//							{
-//								return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
-//							}
-//							else if (name == 'pagenumber')
-//							{
-//								return 1;
-//							}
-//							
-//							return graphGetGlobalVariable.apply(this, arguments);
-//						};
-//					}
-//				}
-//				
-//				if (diagramNode != null)
-//				{
-//					var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
-//					
-//					if (tmp != null && tmp.length > 0)
-//					{
-//						node = mxUtils.parseXml(tmp).documentElement;
-//					}
-//				}
-//			}
-//			
-//			// Hack to decode XML into temp graph via editor
-//			var prev = this.editor.graph;
-//			
-//			try
-//			{
-//				this.editor.graph = graph;
-//				this.editor.setGraphXml(node);	
-//			}
-//			catch (e)
-//			{
-//				// ignore
-//			}
-//			finally
-//			{
-//				this.editor.graph = prev;
-//			}
-//		}
+		if (dataNode != null && /\.svg$/i.test(file.getTitle()))
+		{
+			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+
+			document.body.appendChild(graph.container);
+			node = dataNode;
+			
+			if (node != null)
+			{
+				var diagramNode = null;
+				
+				if (node.nodeName == 'diagram')
+				{
+					diagramNode = node;
+				}
+				else if (node.nodeName == 'mxfile')
+				{
+					var diagrams = node.getElementsByTagName('diagram');
+
+					if (diagrams.length > 0)
+					{
+						diagramNode = diagrams[0];
+						var graphGetGlobalVariable = graph.getGlobalVariable;
+						
+						graph.getGlobalVariable = function(name)
+						{
+							if (name == 'page')
+							{
+								return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
+							}
+							else if (name == 'pagenumber')
+							{
+								return 1;
+							}
+							
+							return graphGetGlobalVariable.apply(this, arguments);
+						};
+					}
+				}
+				
+				if (diagramNode != null)
+				{
+					var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
+					
+					if (tmp != null && tmp.length > 0)
+					{
+						node = mxUtils.parseXml(tmp).documentElement;
+					}
+				}
+			}
+			
+			// Hack to decode XML into temp graph via editor
+			var prev = this.editor.graph;
+			
+			try
+			{
+				this.editor.graph = graph;
+				this.editor.setGraphXml(node);	
+			}
+			catch (e)
+			{
+				// ignore
+			}
+			finally
+			{
+				this.editor.graph = prev;
+			}
+		}
 		
 		file.setData(this.createFileData(dataNode, graph, file, redirect));
 

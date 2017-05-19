@@ -1,8 +1,11 @@
 /**
  * Update plugin. Use updateUrl and updateInterval (optional, default is 60000ms)
- * in the meta data of the diagram to configure the plugin. It will send the XML
- * of the current page to the given URL as a POST request (with a parameter called
- * xml) and allows for the following type of XML response (with CORS headers):
+ * in the meta data of the diagram to configure the plugin. (Alternatively, the
+ * update-url and update-interval URL parameters may be used instead.)
+ * 
+ * It will send the XML of the current page to the given URL as a POST request
+ * (with a parameter called xml) and allows for the following type of XML response
+ * (with CORS headers):
  * 
  * <updates>
  * <update ...>
@@ -69,8 +72,20 @@ Draw.loadPlugin(function(editorUi)
 	if (editorUi.editor.chromeless)
 	{
 		var graph = editorUi.editor.graph;
-		var updateInterval = 60000;
+		var updateInterval = parseInt(urlParams['update-interval'] || 60000);
+		var updateUrlParam = urlParams['update-url'];
 		var updateUrl = null;
+		
+		if (updateUrlParam != null)
+		{
+			updateUrl = decodeURIComponent(updateUrlParam);
+			
+			// Creates empty file if update URL is in URL parameter
+			if (editorUi.getCurrentFile() == null)
+			{
+				editorUi.createFile(editorUi.defaultFilename, null, null, null, null, null, null, true);
+			}
+		}
 		
 		function createOverlay(desc)
 		{
@@ -115,8 +130,6 @@ Draw.loadPlugin(function(editorUi)
 						
 						while (node != null)
 						{
-							console.log('processing', node.nodeName);
-							
 							if (node.nodeName == 'update')
 							{
 								// Resolves the cell ID
@@ -313,10 +326,13 @@ Draw.loadPlugin(function(editorUi)
 			var root = editorUi.editor.graph.getModel().getRoot();
 			var result = false;
 			
-			if (root.value != null && typeof(root.value) == 'object')
+			if (urlParams['update-url'] || (root.value != null && typeof(root.value) == 'object'))
 			{
-				updateInterval = parseInt(root.value.getAttribute('updateInterval') || updateInterval);
-				updateUrl = root.value.getAttribute('updateUrl') || updateUrl;
+				if (root.value != null && typeof(root.value) == 'object')
+				{
+					updateInterval = parseInt(root.value.getAttribute('updateInterval') || updateInterval);
+					updateUrl = root.value.getAttribute('updateUrl') || updateUrl;
+				}
 				
 				if (updateUrl != null)
 				{

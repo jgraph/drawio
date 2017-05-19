@@ -70,8 +70,7 @@ public class GliffyDiagramConverter
 	/**
 	 * Constructs a new converter and starts a conversion.
 	 * 
-	 * @param gliffyDiagramString
-	 *            JSON string of a gliffy diagram
+	 * @param gliffyDiagramString JSON string of a gliffy diagram
 	 */
 	public GliffyDiagramConverter(String gliffyDiagramString)
 	{
@@ -84,11 +83,9 @@ public class GliffyDiagramConverter
 	private void start()
 	{
 		// creates a diagram object from the JSON string
-		this.gliffyDiagram = new GsonBuilder().create().fromJson(diagramString,
-				Diagram.class);
+		this.gliffyDiagram = new GsonBuilder().registerTypeAdapterFactory(new PostDeserializer()).create().fromJson(diagramString, Diagram.class);
 
-		collectVerticesAndConvert(vertices, gliffyDiagram.stage.getObjects(),
-				null);
+		collectVerticesAndConvert(vertices, gliffyDiagram.stage.getObjects(), null);
 
 		//sort objects by the order specified in the Gliffy diagram
 		sortObjectsByOrder(gliffyDiagram.stage.getObjects());
@@ -148,32 +145,33 @@ public class GliffyDiagramConverter
 
 	private void sortObjectsByOrder(Collection<GliffyObject> values)
 	{
-		Collections.sort((List<GliffyObject>) values,
-				new Comparator<GliffyObject>()
+		Comparator<GliffyObject> c = new Comparator<GliffyObject>()
+		{
+			public int compare(GliffyObject o1, GliffyObject o2)
+			{
+				Float o1o;
+				Float o2o;
+				try
 				{
-					public int compare(GliffyObject o1, GliffyObject o2)
+					if (o1.order == null || o2.order == null)
 					{
-						Float o1o;
-						Float o2o;
-						try
-						{
-							if (o1.order == null || o2.order == null)
-							{
-								return 0;
-							}
-
-							o1o = Float.parseFloat(o1.order);
-							o2o = Float.parseFloat(o2.order);
-
-							return o1o.compareTo(o2o);
-						}
-						catch (NumberFormatException e)
-						{
-							return o1.order.compareTo(o2.order);
-						}
-
+						return 0;
 					}
-				});
+
+					o1o = Float.parseFloat(o1.order);
+					o2o = Float.parseFloat(o2.order);
+
+					return o1o.compareTo(o2o);
+				}
+				catch (NumberFormatException e)
+				{
+					return o1.order.compareTo(o2.order);
+				}
+
+			}
+		};
+		
+		Collections.sort((List<GliffyObject>) values, c); 
 	}
 
 	private mxCell getTerminalCell(GliffyObject gliffyEdge, boolean start)
@@ -422,7 +420,7 @@ public class GliffyDiagramConverter
 						
 						style.append("labelBackgroundColor=" + gliffyDiagram.stage.getBackgroundColor()).append(";");
 						//should we force horizontal align for text on lines?
-						style.append("align=center;");
+						//style.append("align=center;");
 					}
 					else 
 					{
@@ -519,7 +517,7 @@ public class GliffyDiagramConverter
 			cell.setVertex(true);
 		}
 
-		if (gliffyObject.rotation != 0)
+		if (!gliffyObject.isLine() && gliffyObject.rotation != 0)
 		{
 			//if there's a rotation by default, add to it
 			if(style.lastIndexOf("rotation") != -1) 
@@ -530,7 +528,7 @@ public class GliffyDiagramConverter
 					String rot = m.group(1);
 					Float rotation = Float.parseFloat(rot) + gliffyObject.rotation;
 					
-					m.replaceFirst("rotation=" + rotation.toString());
+					style.append(m.replaceFirst("rotation=" + rotation.toString()));
 				}
 			}
 			else 
@@ -538,16 +536,16 @@ public class GliffyDiagramConverter
 				style.append("rotation=" + gliffyObject.rotation + ";");
 			}
 		}
-
-		if (!gliffyObject.isLine() && textObject != null)
-		{
-			style.append(textObject.graphic.getText().getStyle());
-			cell.setValue(textObject.getText());
-		}
 		
 		if (textObject != null) 
 		{
-			style.append("html=1;nl2Br=0;whiteSpace=wrap");
+			style.append("html=1;nl2Br=0;whiteSpace=wrap;");
+			
+			if(!gliffyObject.isLine())
+			{
+				cell.setValue(textObject.getText());
+				style.append(textObject.graphic.getText().getStyle());
+			}
 		}
 		
 		if (link != null) 

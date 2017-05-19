@@ -74,7 +74,7 @@ Actions.prototype.init = function()
 	this.addAction('editDiagram...', function()
 	{
 		var dlg = new EditDiagramDialog(ui);
-		ui.showDialog(dlg.container, 620, 420, true, true);
+		ui.showDialog(dlg.container, 620, 420, true, false);
 		dlg.init();
 	});
 	this.addAction('pageSetup...', function() { ui.showDialog(new PageSetupDialog(ui).container, 320, 220, true, true); }).isEnabled = isGraphEnabled;

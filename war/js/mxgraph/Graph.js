@@ -1520,8 +1520,10 @@ Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
 /**
  * Adds a connection to the given vertex.
  */
-Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone)
+Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt)
 {
+	ignoreCellAt = (ignoreCellAt) ? ignoreCellAt : false;
+	
 	var pt = (source.geometry.relative && source.parent.geometry != null) ?
 			new mxPoint(source.parent.geometry.width * source.geometry.x, source.parent.geometry.height * source.geometry.y) :
 			new mxPoint(source.geometry.x, source.geometry.y);
@@ -1567,7 +1569,8 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	}
 	
 	// Checks actual end point of edge for target cell
-	var target = (mxEvent.isControlDown(evt) && !forceClone) ? null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
+	var target = (ignoreCellAt || (mxEvent.isControlDown(evt) && !forceClone)) ?
+		null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
 	
 	if (this.model.isAncestor(target, source))
 	{
@@ -6331,12 +6334,12 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					if (!this.graph.isGridEnabled())
 					{
-						if (dx < this.graph.tolerance)
+						if (Math.abs(dx) < this.graph.tolerance)
 						{
 							dx = 0;
 						}
 						
-						if (dy < this.graph.tolerance)
+						if (Math.abs(dy) < this.graph.tolerance)
 						{
 							dy = 0;
 						}

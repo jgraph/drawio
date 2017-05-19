@@ -535,6 +535,8 @@
 		
 		Editor.prototype.init = function()
 		{
+			editorInit.apply(this, arguments);
+			
 			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 			{
 				if (this.graph.mathEnabled)
