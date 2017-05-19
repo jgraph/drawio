@@ -1,1 +1,0 @@
-dist/Electron.app/Contents/MacOS/Electron
