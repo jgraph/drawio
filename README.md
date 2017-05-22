@@ -8,7 +8,7 @@ draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the bas
 
 License
 -------
-draw.io is licensed under the GPL v3.
+draw.io is licensed under the Apache v2.
 
 Development
 -----------
