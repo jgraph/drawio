@@ -20,8 +20,8 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	
 	var dh = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
 	
-	var left = Math.max(0, Math.round((document.body.scrollWidth - w) / 2));
-	var top = Math.max(0, Math.round((dh - h - editorUi.footerHeight) / 3));
+	var left = Math.max(1, Math.round((document.body.scrollWidth - w - 64) / 2));
+	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 
 	// Keeps window size inside available space
 	if (!mxClient.IS_QUIRKS)

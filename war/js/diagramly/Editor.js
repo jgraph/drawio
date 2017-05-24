@@ -114,44 +114,16 @@
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
 	
 	/**
-	 * Global configuration of the Editor. Possible configuration values are:
-	 * 
-	 * - presetColors: array of color codes for upper palette, default is ColorDialog.prototype.presetColors (no leading #)
-	 * - defaultColors: array of color codes for the lower palette, default is ColorDialog.prototype.defaultColors (no leading #)
-	 * - defaultFonts: array of available font family names, default is Menus.prototype.defaultFonts
-	 * - defaultColorSchemes: array of array of available color schemes, default is StyleFormatPanel.prototype.defaultColorSchemes
-	 * 
-	 * (code)
-	 * Editor.configure({defaultFonts: ['Helvetica', 'Verdana', 'Times New Roman', 'Garamond',
-	 * 		'Comic Sans MS', 'Courier New', 'Georgia', 'Lucida Console', 'Tahoma'],
-	 *   presetColors: ['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5',
-	 *   	'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC',
-	 *   	'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66'],
-	 * 	 defaultColorSchemes: [[null, {fill: '#f5f5f5', stroke: '#666666'},
-	 * 		{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
-	 * 		{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
-	 * 		{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
-	 * 	    [null,
-	 * 		{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
-	 * 		{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
-	 * 		{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
-	 * 		{fill: '#ffcd28', stroke: '#d79b00', gradient: '#ffa500'},
-	 * 		{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
-	 * 		{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
-	 * 		{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
-	 * 		[null, {fill: '#eeeeee', stroke: '#36393d'},
-	 * 		{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
-	 * 		{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
-	 * 		{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]]});
-	 * (end)
+	 * Global configuration of the Editor
+	 * see https://desk.draw.io/solution/articles/16000058316
 	 */
 	Editor.configure = function(config)
 	{
 		// LATER: DefaultFont and DefaultFontSize should override Graph's stylesheet,
 		// default edge and vertex styles would have to be set before loading mxSettings
+		Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 		ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 		ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
-		Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 		StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 	};
 
