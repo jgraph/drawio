@@ -1,3 +1,12 @@
+24-MAY-2017: 6.6.4
+
+- Fixes possible data loss for back button
+- Enables OneDrive support on iOS
+
+22-MAY-2017: 6.6.3
+
+- vsdx export improvements
+
 19-MAY-2017: 6.6.2
 
 - Adds trees plugin

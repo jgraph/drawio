@@ -320,8 +320,7 @@ App.getStoredMode = function()
 				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
 				if (typeof window.OneDriveClient === 'function')
 				{
-					if (urlParams['od'] != '0' && !/(iPad|iPhone|iPod)/.test(navigator.userAgent) &&
-						(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
+					if (urlParams['od'] != '0' && (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
 						// Immediately loads client
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
@@ -627,8 +626,7 @@ App.main = function(callback)
 			if (typeof window.OneDriveClient === 'function' &&
 				(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
 				(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-				urlParams['od'] == '1')) && !/(iPad|iPhone|iPod)/.test(navigator.userAgent) &&
-				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+				urlParams['od'] == '1')) && (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 			{
 				mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
 			}
@@ -2413,7 +2411,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
-		var rowLimit = (serviceCount <= 4) ? 4 : 3;
+		var rowLimit = (serviceCount <= 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
@@ -2921,9 +2919,14 @@ App.prototype.saveFile = function(forceDialog)
 			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 			var prev = this.mode;
-			
 			var serviceCount = this.getServiceCount(true);
-			var rowLimit = (serviceCount <= 4) ? 4 : 3;
+			
+			if (isLocalStorage)
+			{
+				serviceCount++;
+			}
+			
+			var rowLimit = (serviceCount <= 4) ? 2 : 3;
 			
 			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode)
 			{
@@ -3376,7 +3379,12 @@ App.prototype.loadFile = function(id, sameWindow, file)
 	
 	var fn2 = mxUtils.bind(this, function()
 	{
-		if (this.spinner.spin(document.body, mxResources.get('loading')))
+		if (id == null || id.length == 0)
+		{
+			this.editor.setStatus('');
+			this.fileLoaded(null);
+		}
+		else if (this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			// Handles files from localStorage
 			if (id.charAt(0) == 'L')
@@ -3597,15 +3605,19 @@ App.prototype.loadFile = function(id, sameWindow, file)
 		}
 		else
 		{
-			this.confirm(mxResources.get('allChangesLost'), null, fn2,
-				mxResources.get('cancel'), mxResources.get('discardChanges'));
+			this.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
+			{
+				if (currentFile != null)
+				{
+					window.location.hash = currentFile.getHash();
+				}
+			}), fn2, mxResources.get('cancel'), mxResources.get('discardChanges'));
 		}
 	});
 	
 	if (id == null || id.length == 0)
 	{
-		this.editor.setStatus('');
-		this.fileLoaded(null);
+		fn();
 	}
 	else if (currentFile != null && currentFile.isModified() && !sameWindow)
 	{
