@@ -68,11 +68,12 @@ mxVsdxCanvas2D.prototype.createGeoSec = function ()
  *  
  * Create a new shape.
  */
-mxVsdxCanvas2D.prototype.newShape = function (shape, xmGeo, xmlDoc)
+mxVsdxCanvas2D.prototype.newShape = function (shape, cellState, xmlDoc)
 {
 	this.geoIndex = 0;
 	this.shape = shape;
-	this.xmGeo = xmGeo;
+	this.cellState = cellState;
+	this.xmGeo = cellState.cell.geometry;
 	this.xmlDoc = xmlDoc;
 	this.geoSec = null;
 	this.shapeImg = null;
@@ -557,6 +558,23 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		}
 
 		//TODO support HTML text formatting and remaining attributes
+		if (this.cellState.style['html'] == '1')
+    	{
+    		if (mxUtils.getValue(this.cellState.style, 'nl2Br', '1') != '0')
+			{
+				// Removes newlines from HTML and converts breaks to newlines
+				// to match the HTML output in plain text
+    			str = str.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
+			}
+    		
+    		// Removes HTML tags
+			if (this.html2txtDiv == null)
+				this.html2txtDiv = document.createElement('div');
+			
+			this.html2txtDiv.innerHTML = str;
+			str = mxUtils.extractTextWithWhitespace(this.html2txtDiv.childNodes);
+    	}
+		
 		var s = this.state;
 		var geo = this.xmGeo;
 

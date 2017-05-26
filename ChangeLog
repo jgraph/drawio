@@ -1,3 +1,8 @@
+25-MAY-2017: 6.6.5
+
+- Adds print option in lightbox
+- Moves insert to arrange menu
+
 24-MAY-2017: 6.6.4
 
 - Fixes possible data loss for back button

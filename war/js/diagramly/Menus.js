@@ -81,13 +81,6 @@
 			dlg.init();
 		});
 		
-		editorUi.actions.get('print').funct = function()
-		{
-			editorUi.showDialog(new PrintDialog(editorUi).container, 360,
-				(editorUi.pages != null && editorUi.pages.length > 1) ?
-				420 : 360, true, true);
-		};
-
 		// Export PDF action for chrome OS (same as print with different dialog title)
 		editorUi.actions.addAction('exportPdf', function()
 		{
@@ -1843,20 +1836,6 @@
 			}
 		})));
 
-		// Overrides arrange menu to add insert submenu
-		this.put('arrange', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			this.addMenuItems(menu, ['toFront', 'toBack', '-'], parent);
-			this.addSubmenu('direction', menu, parent);
-			this.addMenuItems(menu, ['turn', '-'], parent);
-			this.addSubmenu('align', menu, parent);
-			this.addSubmenu('distribute', menu, parent);
-			menu.addSeparator(parent);
-			this.addSubmenu('navigation', menu, parent);
-			this.addSubmenu('layout', menu, parent);
-			this.addMenuItems(menu, ['-', 'group', 'ungroup', 'removeFromGroup', '-', 'editGeometry', 'clearWaypoints', 'autosize'], parent);
-		})));
-		
 		var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree', '-', 'organic', 'circle', '-', 'fromText'];
 
 		var addInsertItem = function(menu, parent, title, method)
@@ -2324,8 +2303,6 @@
 				menu.addSeparator(parent);
 			}
 			
-			this.addSubmenu('insert', menu, parent);
-			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
 
 			if (typeof(MathJax) !== 'undefined')
