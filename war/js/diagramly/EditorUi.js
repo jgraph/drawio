@@ -5689,14 +5689,18 @@
 			this.editor.graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
 		}
 
-		/**
-		 * Specifies the default filename.
-		 */
+		// Overrides print dialog size
+		ui.actions.get('print').funct = function()
+		{
+			ui.showDialog(new PrintDialog(ui).container, 360,
+				(ui.pages != null && ui.pages.length > 1) ?
+				420 : 360, true, true);
+		};
+
+		// Specifies the default filename
 		this.defaultFilename = mxResources.get('untitledDiagram');
 		
-		/**
-		 * Adds placeholder for %page% and %pagenumber%
-		 */
+		// Adds placeholder for %page% and %pagenumber%
 		var graphGetGlobalVariable = graph.getGlobalVariable;
 		
 		graph.getGlobalVariable = function(name)
@@ -5720,9 +5724,7 @@
 			return graphGetGlobalVariable.apply(this, arguments);
 		};
 
-		/**
-		 * Overrides editor filename.
-		 */
+		// Overrides editor filename
 		this.editor.getOrCreateFilename = function()
 		{
 			var filename = ui.defaultFilename;
@@ -8383,6 +8385,16 @@
 				
 				this.menubarContainer.appendChild(this.offlineStatus);
 				
+				mxEvent.addListener(this.offlineStatus, 'click', mxUtils.bind(this, function()
+				{
+					var img = this.offlineStatus.getElementsByTagName('img');
+					
+					if (img != null && img.length > 0)
+					{
+						this.alert(img[0].getAttribute('title'));
+					}
+				}));
+				
 				var appCache = window.applicationCache;
 
 				function getImageTagForStatus(status)
@@ -8396,10 +8408,10 @@
 					    return '<img title="Cached" border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
 					    break;
 					  case appCache.CHECKING: // CHECKING == 2
-					    return '<img title="Checking..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+					    return '<img title="Checking/Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
 					    break;
 					  case appCache.DOWNLOADING: // DOWNLOADING == 3
-					    return '<img title="Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+					    return '<img title="Checking/Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
 					    break;
 					  case appCache.UPDATEREADY:  // UPDATEREADY == 4
 					    return '<img title="Update ready" border="0" src="' + IMAGE_PATH + '/download.png"/>';
@@ -8415,7 +8427,12 @@
 
 				var updateStatus = mxUtils.bind(this, function()
 				{
-					this.offlineStatus.innerHTML = getImageTagForStatus(appCache.status);
+					var tmp = getImageTagForStatus(appCache.status);
+					
+					if (this.offlineStatus.innerHTML != tmp)
+					{
+						this.offlineStatus.innerHTML = tmp;
+					}
 				});
 				
 				mxEvent.addListener(appCache, 'checking', updateStatus);

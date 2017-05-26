@@ -105,8 +105,8 @@ function VsdxExport(editorUi, resDir)
 		var row = xmlDoc.createElement("Row");
 		row.setAttribute("T", type);
 		row.setAttribute("IX", index);
-		row.appendChild(createCellElem("X", x, xmlDoc));
-		row.appendChild(createCellElem("Y", y, xmlDoc));
+		row.appendChild(createCellElemScaled("X", x, xmlDoc));
+		row.appendChild(createCellElemScaled("Y", y, xmlDoc));
 		return row;
 	};
 
@@ -294,6 +294,131 @@ function VsdxExport(editorUi, resDir)
 		
 		return shape;
 	};
+
+	function getArrowType(arrow, isFilled)
+	{
+		isFilled = isFilled == null? "1" : isFilled;
+		arrow = arrow == null? "none" : arrow;
+		var key = arrow + "|" + isFilled;
+		var type = that.ARROWS_MAP[key];
+		if (type != null)
+			return type;
+		else
+			return 1;
+	};
+	
+	function getArrowSize(size)
+	{
+		if (size == null) return 2;
+		
+		if (size <=2)
+			return 0;
+		else if (size <= 3)
+			return 1;
+		else if (size <= 5)
+			return 2;
+		else if (size <= 7)
+			return 3;
+		else if (size <= 9)
+			return 4;
+		else if (size <= 22)
+			return 5;
+		else
+			return 6;
+	};
+
+	function convertMxEdge2Shape(cell, graph, xmlDoc, parentHeight, parentGeo)
+	{
+		var state = graph.view.getState(cell);
+		
+		var shape = xmlDoc.createElement("Shape");
+		shape.setAttribute("ID", cell.id);
+		shape.setAttribute("NameU", "Edge" + cell.id);
+		shape.setAttribute("LineStyle", "0");
+		shape.setAttribute("FillStyle", "0");
+		shape.setAttribute("TextStyle", "0");
+		
+		var points = state.absolutePoints;
+		var bounds = state.cellBounds;
+		
+		var hw = bounds.width/2, hh = bounds.height/2;
+		
+		shape.appendChild(createCellElemScaled("PinX", bounds.x + hw, xmlDoc));
+		shape.appendChild(createCellElemScaled("PinY", parentHeight - bounds.y - hh, xmlDoc));
+		shape.appendChild(createCellElemScaled("Width", bounds.width, xmlDoc));
+		shape.appendChild(createCellElemScaled("Height", bounds.height, xmlDoc));
+		shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
+		shape.appendChild(createCellElemScaled("LocPinY", hh, xmlDoc));
+
+		var s = vsdxCanvas.state;
+		
+		var calcVsdxPoint = function(p, noHeight) 
+		{
+			var x = p.x, y = p.y;
+			x = (x - bounds.x + s.dx) * s.scale;
+			y = ((noHeight? 0 : bounds.height) - y + bounds.y - s.dy) * s.scale;
+			return {x: x, y: y};
+		};
+
+		var p0 = calcVsdxPoint(points[0], true);
+		
+		shape.appendChild(createCellElemScaled("BeginX", bounds.x + p0.x, xmlDoc));
+		shape.appendChild(createCellElemScaled("BeginY", parentHeight - bounds.y + p0.y, xmlDoc));
+
+		var pe = calcVsdxPoint(points[points.length - 1], true);
+		
+		shape.appendChild(createCellElemScaled("EndX", bounds.x + pe.x, xmlDoc));
+		shape.appendChild(createCellElemScaled("EndY", parentHeight - bounds.y + pe.y, xmlDoc));
+
+		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc));
+		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc));
+		shape.appendChild(createCellElem("ConFixedCode", "6", xmlDoc));
+		shape.appendChild(createCellElem("LockHeight", "1", xmlDoc));
+		shape.appendChild(createCellElem("LockCalcWH", "1", xmlDoc));
+		shape.appendChild(createCellElem("NoAlignBox", "1", xmlDoc));
+		shape.appendChild(createCellElem("DynFeedback", "2", xmlDoc));
+		shape.appendChild(createCellElem("GlueType", "2", xmlDoc));
+		shape.appendChild(createCellElem("ObjType", "2", xmlDoc));
+		shape.appendChild(createCellElem("NoLiveDynamics", "1", xmlDoc));
+		shape.appendChild(createCellElem("ShapeSplittable", "1", xmlDoc));
+		shape.appendChild(createCellElem("LayerMember", "0", xmlDoc));
+
+		applyMxCellStyle(state, shape, xmlDoc);
+		
+		//Edge special styles
+		var startFill =  state.style[mxConstants.STYLE_STARTFILL];
+		var startArrow = state.style[mxConstants.STYLE_STARTARROW];
+		var startSize =  state.style[mxConstants.STYLE_STARTSIZE];
+		
+		var type = getArrowType(startArrow, startFill);
+		shape.appendChild(createCellElem("BeginArrow", type, xmlDoc));
+		shape.appendChild(createCellElem("BeginArrowSize", getArrowSize(startSize), xmlDoc));
+		
+		var endFill =  state.style[mxConstants.STYLE_ENDFILL];
+		var endArrow = state.style[mxConstants.STYLE_ENDARROW];
+		var endSize =  state.style[mxConstants.STYLE_ENDSIZE];
+		
+		var type = getArrowType(endArrow, endFill);
+		shape.appendChild(createCellElem("EndArrow", type, xmlDoc));
+		shape.appendChild(createCellElem("EndArrowSize", getArrowSize(endSize), xmlDoc));
+		
+		var geoSec = xmlDoc.createElement("Section");
+		
+		geoSec.setAttribute("N", "Geometry");
+		geoSec.setAttribute("IX", "0");
+
+		for (var i = 0; i < points.length; i++)
+		{
+			var p = calcVsdxPoint(points[i]);
+			geoSec.appendChild(createRow(i==0 ? "MoveTo" : "LineTo", (i + 1), p.x, p.y, xmlDoc));
+		}
+		
+		geoSec.appendChild(createCellElem("NoFill", "1", xmlDoc));
+		geoSec.appendChild(createCellElem("NoLine", "0", xmlDoc));
+		shape.appendChild(geoSec);
+		
+		return shape;
+	};
 	
 	function convertMxCell2Shape(cell, graph, xmlDoc, parentHeight, parentGeo)
 	{
@@ -301,6 +426,7 @@ function VsdxExport(editorUi, resDir)
 		
 		if (geo != null)
 		{
+			//fix relative geo coordinates
 			if (geo.relative && parentGeo)
 			{
 				geo = geo.clone();
@@ -308,49 +434,90 @@ function VsdxExport(editorUi, resDir)
 				geo.y *= parentGeo.height;
 				geo.relative = 0;
 			}
-
-			var shape = createShape(cell.id, geo, xmlDoc, parentHeight);
 			
-			var state = graph.view.getState(cell);
-
-			applyMxCellStyle(state, shape, xmlDoc);
-			
-			vsdxCanvas.newShape(shape, geo, xmlDoc);
-
-			if (state.text != null && state.text.checkBounds())
+			if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group 
 			{
-				vsdxCanvas.save();
+				//Create group shape as an empty shape with no geo
+				var shape = createShape(cell.id+"10000", geo, xmlDoc, parentHeight);
+				shape.setAttribute("Type", "Group");
 				
-				if (parentGeo)
+				//Create group shape
+				var gShapes = xmlDoc.createElement("Shapes");
+
+				//translate the canvas using the group coordinates
+				vsdxCanvas.save();
+				vsdxCanvas.translate(-geo.x, -geo.y);
+
+				//Draw the actual group shape as a child (so change its geo coord to 0,0). 
+				//	In mxGraph group shape can have styles and stencil
+				var newGeo = geo.clone();
+				newGeo.x = 0;
+				newGeo.y = 0;
+				cell.setGeometry(newGeo);
+				cell.treatAsSingle = true;
+				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo);
+				cell.treatAsSingle = false;
+				cell.setGeometry(geo);
+				gShapes.appendChild(subShape);
+				
+				//add group children
+				for (var i = 0; i < cell.children.length; i++)
 				{
-					vsdxCanvas.translate(-parentGeo.x, -parentGeo.y);
+					var child = cell.children[i];
+					var subShape;
+					
+					if (child.vertex)
+						subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo);
+					else
+						subShape = convertMxEdge2Shape(child, graph, xmlDoc, geo.height, geo);
+					
+					gShapes.appendChild(subShape);
 				}
 				
-				state.text.paint(vsdxCanvas);
+				shape.appendChild(gShapes);
+				
+				//restore the canvas to before group translation 
 				vsdxCanvas.restore();
+				
+				return shape;
 			}
-			if (state.shape != null && state.shape.checkBounds())
+			else
 			{
-				vsdxCanvas.save();
+	
+				var shape = createShape(cell.id, geo, xmlDoc, parentHeight);
 				
-				if (parentGeo)
+				var state = graph.view.getState(cell);
+
+				applyMxCellStyle(state, shape, xmlDoc);
+				
+				vsdxCanvas.newShape(shape, state, xmlDoc);
+
+				//Draw text first to have its shape cell elements before visio geo.
+				if (state.text != null && state.text.checkBounds())
 				{
-					vsdxCanvas.translate(-parentGeo.x, -parentGeo.y);
+					vsdxCanvas.save();
+					state.text.paint(vsdxCanvas);
+					vsdxCanvas.restore();
 				}
-				
-				state.shape.paint(vsdxCanvas);
-				vsdxCanvas.restore();
+				if (state.shape != null && state.shape.checkBounds())
+				{
+					vsdxCanvas.save();
+					state.shape.paint(vsdxCanvas);
+					vsdxCanvas.restore();
+				}
+
+				shape.appendChild(vsdxCanvas.getShapeGeo());
+
+				vsdxCanvas.endShape();
+				shape.setAttribute("Type", vsdxCanvas.getShapeType());
+
+				return shape;
 			}
-
-			shape.appendChild(vsdxCanvas.getShapeGeo());
-
-			vsdxCanvas.endShape();
-			shape.setAttribute("Type", vsdxCanvas.getShapeType());
-
-			return shape;
 		}
-		
-		return null;
+		else
+		{
+			return null;
+		}
 	};
 
 	
@@ -379,45 +546,52 @@ function VsdxExport(editorUi, resDir)
 		
 		for (var id in model.cells) 
 		{
-			var c = model.cells[id];
+			var cell = model.cells[id];
 			//top-most cells
-			if (c.parent == defParent)
+			if (cell.parent == defParent)
 			{
 				var shape;
-				if (c.getChildCount() > 0) //Group 
-				{
-					var geo = c.geometry;
-					shape = createShape(c.id+"10000", geo, xmlDoc, modelAttrib.pageHeight);
-					shape.setAttribute("Type", "Group");
-					
-					var gShapes = xmlDoc.createElement("Shapes");
-
-					var newGeo = geo.clone();
-					newGeo.x = 0;
-					newGeo.y = 0;
-					c.setGeometry(newGeo);
-					var subShape = convertMxCell2Shape(c, graph, xmlDoc, geo.height, geo);
-					c.setGeometry(geo);
-					gShapes.appendChild(subShape);
-					
-					for (var i = 0; i < c.children.length; i++)
-					{
-						var subShape = convertMxCell2Shape(c.children[i], graph, xmlDoc, geo.height, geo);
-						gShapes.appendChild(subShape);
-					}
-					
-					shape.appendChild(gShapes);
-				}
+				
+				if (cell.vertex)
+					shape = convertMxCell2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
 				else
-				{
-					shape = convertMxCell2Shape(c, graph, xmlDoc, modelAttrib.pageHeight);
-				}
+					shape = convertMxEdge2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
 				
 				if (shape != null)
 					shapes.appendChild(shape);
 			}
 		}
 		
+        var connects = xmlDoc.createElement("Connects");
+        root.appendChild(connects);
+
+        //Second pass to add edges (connections)
+		for (var id in model.cells) 
+		{
+			var cell = model.cells[id];
+
+			if (cell.edge)
+			{
+				if (cell.source)
+				{
+					var connect = xmlDoc.createElement("Connect");
+					connect.setAttribute("FromSheet", cell.id);
+					connect.setAttribute("FromCell", "BeginX");
+					connect.setAttribute("ToSheet", cell.source.id);
+					connects.appendChild(connect);
+				}
+				
+				if (cell.target)
+				{
+					var connect = xmlDoc.createElement("Connect");
+					connect.setAttribute("FromSheet", cell.id);
+					connect.setAttribute("FromCell", "EndX");
+					connect.setAttribute("ToSheet", cell.target.id);
+					connects.appendChild(connect);
+				}
+			}
+		}
+
 		xmlDoc.appendChild(root);
 
 		return xmlDoc;
@@ -608,3 +782,9 @@ VsdxExport.prototype.VSDX_ENC = "ISO-8859-1";
 VsdxExport.prototype.PART_NAME = "PartName";
 VsdxExport.prototype.CONTENT_TYPES_XML = "[Content_Types].xml";
 VsdxExport.prototype.VISIO_PAGES_RELS = "visio/pages/_rels/";
+VsdxExport.prototype.ARROWS_MAP = {
+	"none|1": 0, "none|0": 0, "open|1": 1, "open|0": 1, "block|1": 4, "block|1": 14, "classic|1": 5, "classic|0": 17,
+	"oval|1": 10, "oval|0": 20, "diamond|1": 11, "diamond|0": 22, "blockThin|1": 2, "blockThin|0": 2, "dash|1": 23, "dash|0": 23,
+	"ERone|1": 24, "ERone|0": 24, "ERmandOne|1": 25, "ERmandOne|0": 25, "ERmany|1": 27, "ERmany|0": 27, "ERoneToMany|1": 28, "ERoneToMany|0": 28,
+	"ERzeroToMany|1": 29, "ERzeroToMany|0": 29, "ERzeroToOne|1": 30, "ERzeroToOne|1": 30, "openAsync|1": 9, "openAsync|0": 9
+};
