@@ -95,8 +95,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addSubmenu('insert', menu, parent);
-			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting', 'autosave', '-',
 			                         'createShape', 'editDiagram', '-', 'tags', '-', 'online'], parent);
 		})));

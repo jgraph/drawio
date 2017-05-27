@@ -1374,8 +1374,12 @@ EditorUi.prototype.initCanvas = function()
 		this.chromelessToolbar.style.backgroundColor = '#000000';
 		this.chromelessToolbar.style.padding = '10px 10px 8px 10px';
 		this.chromelessToolbar.style.left = '50%';
-		mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'borderRadius', '20px');
-		mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transition', 'opacity 600ms ease-in-out');
+		
+		if (!mxClient.IS_VML)
+		{
+			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'borderRadius', '20px');
+			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transition', 'opacity 600ms ease-in-out');
+		}
 		
 		var updateChromelessToolbarPosition = mxUtils.bind(this, function()
 		{
@@ -1418,7 +1422,7 @@ EditorUi.prototype.initCanvas = function()
 		{
 			this.actions.get('previousPage').funct();
 			mxEvent.consume(evt);
-		}), Editor.previousLargeImage, mxResources.get('previousPage') || 'Previous Page');
+		}), Editor.previousLargeImage, mxResources.get('previousPage'));
 		
 		
 		var pageInfo = document.createElement('div');
@@ -1433,7 +1437,7 @@ EditorUi.prototype.initCanvas = function()
 		{
 			this.actions.get('nextPage').funct();
 			mxEvent.consume(evt);
-		}), Editor.nextLargeImage, mxResources.get('nextPage') || 'Next Page');
+		}), Editor.nextLargeImage, mxResources.get('nextPage'));
 		
 		var updatePageInfo = mxUtils.bind(this, function()
 		{
@@ -1474,13 +1478,13 @@ EditorUi.prototype.initCanvas = function()
 		{
 			this.actions.get('zoomOut').funct();
 			mxEvent.consume(evt);
-		}), Editor.zoomOutLargeImage, (mxResources.get('zoomOut') || 'Zoom Out') + ' (Alt+Mousewheel)');
+		}), Editor.zoomOutLargeImage, mxResources.get('zoomOut') + ' (Alt+Mousewheel)');
 		
 		addButton(mxUtils.bind(this, function(evt)
 		{
 			this.actions.get('zoomIn').funct();
 			mxEvent.consume(evt);
-		}), Editor.zoomInLargeImage, (mxResources.get('zoomIn') || 'Zoom In') + ' (Alt+Mousewheel)');
+		}), Editor.zoomInLargeImage, mxResources.get('zoomIn') + ' (Alt+Mousewheel)');
 		
 		addButton(mxUtils.bind(this, function(evt)
 		{
@@ -1503,7 +1507,7 @@ EditorUi.prototype.initCanvas = function()
 			}
 			
 			mxEvent.consume(evt);
-		}), Editor.actualSizeLargeImage, mxResources.get('fit') || 'Fit');
+		}), Editor.actualSizeLargeImage, mxResources.get('fit'));
 
 		// Changes toolbar opacity on hover
 		var fadeThread = null;
@@ -1597,7 +1601,7 @@ EditorUi.prototype.initCanvas = function()
 				}
 				
 				mxEvent.consume(evt);
-			}), Editor.layersLargeImage, mxResources.get('layers') || 'Layers');
+			}), Editor.layersLargeImage, mxResources.get('layers'));
 			
 			// Shows/hides layers button depending on content
 			var model = graph.getModel();
@@ -1607,7 +1611,13 @@ EditorUi.prototype.initCanvas = function()
 				 layersButton.style.display = (model.getChildCount(model.root) > 1) ? '' : 'none';
 			});
 		}
-
+		
+		addButton(mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('print').funct();
+			mxEvent.consume(evt);
+		}), Editor.printLargeImage, mxResources.get('print'));
+		
 		if (this.editor.editButtonLink != null)
 		{
 			addButton(mxUtils.bind(this, function(evt)
@@ -1622,9 +1632,9 @@ EditorUi.prototype.initCanvas = function()
 				}
 				
 				mxEvent.consume(evt);
-			}), Editor.editLargeImage, mxResources.get('openInNewWindow') || 'Open in New Window');
+			}), Editor.editLargeImage, mxResources.get('openInNewWindow'));
 		}
-		
+
 		if (graph.lightbox && this.container != document.body)
 		{
 			addButton(mxUtils.bind(this, function(evt)
@@ -1638,14 +1648,14 @@ EditorUi.prototype.initCanvas = function()
 					this.destroy();
 					mxEvent.consume(evt);
 				}
-			}), Editor.closeLargeImage, (mxResources.get('close') || 'Close') + ' (Escape)');
+			}), Editor.closeLargeImage, mxResources.get('close') + ' (Escape)');
 		}
 
 		// Initial state invisible
 		this.chromelessToolbar.style.display = 'none';
+		mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transform', 'translate(-50%,0)');
 		graph.container.appendChild(this.chromelessToolbar);
-		this.chromelessToolbar.style.marginLeft = -(btnCount * 24 + 10) + 'px';
-		
+
 		// Installs handling of hightligh and handling links to relative links and anchors
 		this.addChromelessClickHandler();
 		

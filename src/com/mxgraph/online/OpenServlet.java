@@ -24,6 +24,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxGraphMlCodec;
@@ -128,10 +129,10 @@ public class OpenServlet extends HttpServlet
 						filename = item.getName();
 						vsdx = filename.toLowerCase().endsWith(".vsdx");
 						vssx = filename.toLowerCase().endsWith(".vssx");
-						
+
 						if (vsdx || vssx)
 						{
-							upfile = Streams.asString(stream, "ISO-8859-1");  
+							upfile = Streams.asString(stream, "ISO-8859-1");
 						}
 						else
 						{
@@ -152,11 +153,11 @@ public class OpenServlet extends HttpServlet
 				}
 
 				String xml = null;
-				
+
 				if (filename.toLowerCase().endsWith(".png"))
 				{
-					xml = extractXmlFromPng(upfile
-							.getBytes(Utils.CHARSET_FOR_URL_ENCODING));
+					xml = extractXmlFromPng(
+							upfile.getBytes(Utils.CHARSET_FOR_URL_ENCODING));
 				}
 				else if (ENABLE_GRAPHML_SUPPORT && upfile.matches(graphMlRegex))
 				{
@@ -165,12 +166,14 @@ public class OpenServlet extends HttpServlet
 					mxGraph graph = new mxGraphHeadless();
 
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
-					xml = mxXmlUtils.getXml(new mxCodec().encode(graph.getModel()));
+					xml = mxXmlUtils
+							.getXml(new mxCodec().encode(graph.getModel()));
 				}
 				else if (ENABLE_VSDX_SUPPORT && vsdx)
 				{
 					mxVsdxCodec vdxCodec = new mxVsdxCodec();
-					xml = vdxCodec.decodeVsdx(upfile.getBytes("ISO-8859-1"), Utils.CHARSET_FOR_URL_ENCODING);
+					xml = vdxCodec.decodeVsdx(upfile.getBytes("ISO-8859-1"),
+							Utils.CHARSET_FOR_URL_ENCODING);
 
 					// Replaces VSDX extension
 					int dot = filename.lastIndexOf('.');
@@ -179,7 +182,8 @@ public class OpenServlet extends HttpServlet
 				else if (ENABLE_VSSX_SUPPORT && vssx)
 				{
 					mxVssxCodec vssxCodec = new mxVssxCodec();
-					xml = vssxCodec.decodeVssx(upfile.getBytes("ISO-8859-1"), Utils.CHARSET_FOR_URL_ENCODING);
+					xml = vssxCodec.decodeVssx(upfile.getBytes("ISO-8859-1"),
+							Utils.CHARSET_FOR_URL_ENCODING);
 
 					// Replaces VSDX extension
 					int dot = filename.lastIndexOf('.');
@@ -210,10 +214,12 @@ public class OpenServlet extends HttpServlet
 					{
 						// Workaround for replacement char and null byte in IE9 request
 						xml = xml.replaceAll("[\\uFFFD\\u0000]*", "");
-						writeScript(writer, "try{window.parent.setCurrentXml(decodeURIComponent('"
-							+ Utils.encodeURIComponent(xml, Utils.CHARSET_FOR_URL_ENCODING)
-							+ "'), decodeURIComponent('" + Utils.encodeURIComponent(filename, Utils.CHARSET_FOR_URL_ENCODING)
-							+ "'));}catch(e){window.parent.showOpenAlert({message:window.parent.mxResources.get('notAUtf8File')});}");
+						writeScript(writer,
+								"try{window.parent.setCurrentXml(decodeURIComponent('"
+										+ encodeString(xml)
+										+ "'), decodeURIComponent('"
+										+ encodeString(filename)
+										+ "'));}catch(e){window.parent.showOpenAlert({message:window.parent.mxResources.get('notAUtf8File')});}");
 					}
 				}
 				else
@@ -223,9 +229,9 @@ public class OpenServlet extends HttpServlet
 			}
 			else
 			{
-				response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-				writeScript(
-						writer,
+				response.setStatus(
+						HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+				writeScript(writer,
 						"window.parent.showOpenAlert(window.parent.mxResources.get('drawingTooLarge'));");
 			}
 		}
@@ -233,14 +239,22 @@ public class OpenServlet extends HttpServlet
 		{
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			writeScript(
-					writer,
+			writeScript(writer,
 					"window.parent.showOpenAlert(window.parent.mxResources.get('invalidOrMissingFile'));");
 		}
 
 		writer.flush();
 		writer.close();
 	}
+
+	/**
+	 * URI encodes the given string for JavaScript.
+	 */
+	protected String encodeString(String s)
+	{
+		return StringEscapeUtils.escapeEcmaScript(
+				Utils.encodeURIComponent(s, Utils.CHARSET_FOR_URL_ENCODING));
+	};
 
 	/**
 	 * Writes the given string as a script in a HTML page to the given print writer.
@@ -259,8 +273,8 @@ public class OpenServlet extends HttpServlet
 	// NOTE: Key length must not be longer than 79 bytes (not checked)
 	protected String extractXmlFromPng(byte[] data)
 	{
-		Map<String, String> textChunks = decodeCompressedText(new ByteArrayInputStream(
-				data));
+		Map<String, String> textChunks = decodeCompressedText(
+				new ByteArrayInputStream(data));
 
 		return (textChunks != null) ? textChunks.get("mxGraphModel") : null;
 	}
