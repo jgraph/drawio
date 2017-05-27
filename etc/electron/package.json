@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "6.2.4",
+  "version": "6.6.4",
   "description": "draw.io desktop",
   "main": "electron.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "UML"
   ],
   "author": "JGraph",
-  "license": "GPL-3.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/jgraph/draw.io/issues"
   },
