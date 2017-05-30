@@ -1270,7 +1270,7 @@
 			   	item6.geometry.offset = new mxPoint(150, 40);
 			   	item6.vertex = true;
 			   	item5.insert(item6);
-		   		return sb.createVertexTemplateFromCells([item1, item2, item5], 340, 320, 'Error message');
+		   		return sb.createVertexTemplateFromCells([item1, item2, item5], 340, 150, 'Error message');
 			}),
 			this.addEntry(dt + 'progress tracker', function()
 	   		{
@@ -1286,7 +1286,7 @@
 			   	item5.vertex = true;
 			   	var item6 = new mxCell('', new mxGeometry(425, 0, 10, 10), 'shape=ellipse;fillColor=#A5ADBA;strokeColor=none;shadow=0');
 			   	item6.vertex = true;
-		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 340, 30, 'Progress tracker');
+		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 470, 30, 'Progress tracker');
 			}),
 			this.addEntry(dt + 'radio button group', function()
 	   		{
@@ -1305,9 +1305,940 @@
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 150, 173, 'Radio button group');
 			}),
 					 
+			this.addEntry(dt + 'single select', function()
+	   		{
+			   	var item1 = new mxCell("Sprint", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('ver', new mxGeometry(0, 25, 340, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=5;fontColor=#000000;align=left');
+			   	item2.vertex = true;
+			   	var icon2 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.close;fillColor=#97A0AF;strokeColor=none');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-28, -7);
+			   	icon2.vertex = true;
+			   	item2.insert(icon2);
+			   	var item4 = new mxCell(
+			   			'<b><font color="#596780">SUGGESTIONS</font></b><div>\n<div><b>Ver</b>tigo Jim <font color="#596780">(Future sprint)</font></div>\n<div><b>Ver</b>tigo Logos 1 <font color="#596780">(Active sprint)</font></div><div>\n\n</div><div><b><font color="#596780">ALL SPRINTS</font></b></div><div>' +
+			   			'\n</div><div>Fusion <b>Ver</b>tigo S20 <font color="#596780">(Active sprint in Fusion)</font></div><div>\n</div><div><b>Ver</b>tigo CI Sprint 4 <font color="#596780">(Active sprint in Ninja verti...</font></div><div>\n</div><div><b>Ver</b>tigo JIM SA <font color="#596780">(Active sprint in Dalek)</font></div><div>' +
+			   			'\n</div><div><b>Ver</b>tigo Logos 2 <font color="#596780">(Active sprint in Dalek)</font></div><div></div></div>', 
+			   			new mxGeometry(0, 60, 340, 260), 'html=1;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;fontSize=12;align=left;fontColor=#000000;shadow=1;arcSize=1;whiteSpace=wrap;spacing=2;verticalAlign=top;fontStyle=0;spacingLeft=20;spacingTop=15;');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('', new mxGeometry(0, 0, 340, 33), 'rounded=0;fillColor=#000000;strokeColor=none;html=1;opacity=10;resizeWidth=1');
+			   	item5.geometry.relative = true;
+			   	item5.geometry.offset = new mxPoint(0, 69);
+			   	item5.vertex = true;
+			   	item4.insert(item5);
+		   		return sb.createVertexTemplateFromCells([item1, item2, item4], 340, 320, 'Single select');
+			}),
+			this.addEntry(dt + 'avatar single select', function()
+	   		{
+			   	var item1 = new mxCell("Assignee", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 25, 340, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=30;fontColor=#000000;align=left');
+			   	item2.vertex = true;
+			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 15, 15), 'shape=mxgraph.ios7.icons.looking_glass;fillColor=none;strokeColor=#243759;html=1;strokeWidth=2');
+			   	icon1.geometry.relative = true;
+			   	icon1.geometry.offset = new mxPoint(-30, -7.5);
+			   	icon1.vertex = true;
+			   	item2.insert(icon1);
+			   	var item3 = new mxCell('', new mxGeometry(0, 60, 340, 410), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;arcSize=1');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('SUGGESTIONS', new mxGeometry(0, 0, 270, 33), 'fillColor=none;strokeColor=none;html=1;resizeWidth=1;align=left;spacingLeft=20;fontSize=11;fontStyle=1;fontColor=#596780');
+			   	item4.geometry.relative = true;
+			   	item4.geometry.offset = new mxPoint(0, 10);
+			   	item4.vertex = true;
+			   	item3.insert(item4);
+			   	var item5 = new mxCell('', new mxGeometry(0, 0, 340, 33), 'rounded=0;fillColor=#000000;strokeColor=none;html=1;opacity=10;resizeWidth=1');
+			   	item5.geometry.relative = true;
+			   	item5.geometry.offset = new mxPoint(0, 41);
+			   	item5.vertex = true;
+			   	item3.insert(item5);
+			   	var icon2 = new mxCell('Marianne Nguyen <font color="#596780">mnguyen@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(20, 45);
+			   	icon2.vertex = true;
+			   	item3.insert(icon2);
+			   	var item6 = new mxCell('ALL USERS', new mxGeometry(0, 0, 270, 33), 'fillColor=none;strokeColor=none;html=1;resizeWidth=1;align=left;spacingLeft=20;fontSize=11;fontStyle=1;fontColor=#596780');
+			   	item6.geometry.relative = true;
+			   	item6.geometry.offset = new mxPoint(0, 85);
+			   	item6.vertex = true;
+			   	item3.insert(item6);
+			   	var icon3 = new mxCell('Sam Samuels <font color="#596780">ssamuels@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon3.geometry.relative = true;
+			   	icon3.geometry.offset = new mxPoint(20, 118);
+			   	icon3.vertex = true;
+			   	item3.insert(icon3);
+			   	var icon4 = new mxCell('Leana Stevens <font color="#596780">lstevens@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon4.geometry.relative = true;
+			   	icon4.geometry.offset = new mxPoint(20, 151);
+			   	icon4.vertex = true;
+			   	item3.insert(icon4);
+			   	var icon5 = new mxCell('Casey Chambers <font color="#596780">cchambers@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon5.geometry.relative = true;
+			   	icon5.geometry.offset = new mxPoint(20, 184);
+			   	icon5.vertex = true;
+			   	item3.insert(icon5);
+			   	var icon6 = new mxCell('Paige Turner <font color="#596780">pturner@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon6.geometry.relative = true;
+			   	icon6.geometry.offset = new mxPoint(20, 217);
+			   	icon6.vertex = true;
+			   	item3.insert(icon6);
+			   	var icon7 = new mxCell('Marianne Nguyen <font color="#596780">mnguyen@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon7.geometry.relative = true;
+			   	icon7.geometry.offset = new mxPoint(20, 250);
+			   	icon7.vertex = true;
+			   	item3.insert(icon7);
+			   	var icon8 = new mxCell('Casey Chambers <font color="#596780">cchambers@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon8.geometry.relative = true;
+			   	icon8.geometry.offset = new mxPoint(20, 283);
+			   	icon8.vertex = true;
+			   	item3.insert(icon8);
+			   	var icon9 = new mxCell('Sebastian Philip Cloud <font color="#596780">spcloud@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon9.geometry.relative = true;
+			   	icon9.geometry.offset = new mxPoint(20, 316);
+			   	icon9.vertex = true;
+			   	item3.insert(icon9);
+			   	var icon10 = new mxCell('Leana Stevens <font color="#596780">lstevens@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon10.geometry.relative = true;
+			   	icon10.geometry.offset = new mxPoint(20, 349);
+			   	icon10.vertex = true;
+			   	item3.insert(icon10);
+			   	var icon11 = new mxCell('Justin Case <font color="#596780">jcase@atlassian.com</font>', new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=none;strokeColor=#253858;html=1;;align=left;fontSize=12;spacingLeft=5;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
+			   	icon11.geometry.relative = true;
+			   	icon11.geometry.offset = new mxPoint(20, 382);
+			   	icon11.vertex = true;
+			   	item3.insert(icon11);
+		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 340, 470, 'Avatar single select');
+			}),
+			this.addEntry(dt + 'grouped single select', function()
+	   		{
+			   	var item1 = new mxCell("Issue", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('IR-83', new mxGeometry(0, 25, 360, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=5;fontColor=#000000;align=left');
+			   	item2.vertex = true;
+			   	var icon2 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.close;fillColor=#97A0AF;strokeColor=none');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-28, -7);
+			   	icon2.vertex = true;
+			   	item2.insert(icon2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 60, 360, 200), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;arcSize=1;fontSize=12;fontColor=#596780;align=center;html=1;verticalAlign=top;spacingTop=5;');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('HISTORY SEARCH', new mxGeometry(0, 0, 140, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=1');
+			   	item4.geometry.relative = true;
+			   	item4.geometry.offset = new mxPoint(20, 15);
+			   	item4.vertex = true;
+			   	item3.insert(item4);
+			   	var item5 = new mxCell('(Showing 1 of 1 matching issues)', new mxGeometry(0, 0, 200, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item5.geometry.relative = true;
+			   	item5.geometry.offset = new mxPoint(160, 15);
+			   	item5.vertex = true;
+			   	item3.insert(item5);
+			   	var icon1 = new mxCell('<b>IR-83</b> Integration inject select issue from core board...', new mxGeometry(0, 0, 20, 20), 
+			   			'shape=ellipse;fillColor=#00A8E5;strokeColor=none;fontSize=12;align=left;fontColor=#596780;fontStyle=0;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;html=1;spacingLeft=5');
+			   	icon1.geometry.relative = true;
+			   	icon1.geometry.offset = new mxPoint(20, 45);
+			   	icon1.vertex = true;
+			   	item3.insert(icon1);
+			   	var icon2 = new mxCell('', new mxGeometry(0.5, 0.5, 8, 10), s + 'location;fillColor=#ffffff;strokeColor=none;flipV=1;html=1;');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-4, -5);
+			   	icon2.vertex = true;
+			   	icon1.insert(icon2);
+			   	var item6 = new mxCell('CURRENT SEARCH', new mxGeometry(0, 0, 140, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=1');
+			   	item6.geometry.relative = true;
+			   	item6.geometry.offset = new mxPoint(20, 90);
+			   	item6.vertex = true;
+			   	item3.insert(item6);
+			   	var item7 = new mxCell('(Showing 1 of 1 matching issues)', new mxGeometry(0, 0, 200, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item7.geometry.relative = true;
+			   	item7.geometry.offset = new mxPoint(160, 90);
+			   	item7.vertex = true;
+			   	item3.insert(item7);
+			   	var icon3 = new mxCell('<b>IR-83</b> Integration inject select issue from core board...', new mxGeometry(0, 0, 20, 20), 
+			   			'shape=ellipse;fillColor=#00A8E5;strokeColor=none;fontSize=12;align=left;fontColor=#596780;fontStyle=0;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;html=1;spacingLeft=5');
+			   	icon3.geometry.relative = true;
+			   	icon3.geometry.offset = new mxPoint(20, 120);
+			   	icon3.vertex = true;
+			   	item3.insert(icon3);
+			   	var icon4 = new mxCell('', new mxGeometry(0.5, 0.5, 8, 10), s + 'location;fillColor=#ffffff;strokeColor=none;flipV=1;html=1;');
+			   	icon4.geometry.relative = true;
+			   	icon4.geometry.offset = new mxPoint(-4, -5);
+			   	icon4.vertex = true;
+			   	icon3.insert(icon4);
+			   	var item7 = new mxCell('', new mxGeometry(0, 0, 360, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5');
+			   	item7.geometry.relative = true;
+			   	item7.geometry.offset = new mxPoint(0, 150);
+			   	item7.vertex = true;
+			   	item3.insert(item7);
+			   	var item8 = new mxCell('<b><font color="#000000">IR-83</font></b> (Enter issue key)', new mxGeometry(0, 0, 140, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item8.geometry.relative = true;
+			   	item8.geometry.offset = new mxPoint(20, 170);
+			   	item8.vertex = true;
+			   	item3.insert(item8);
+			   	return sb.createVertexTemplateFromCells([item1, item2, item3], 360, 260, 'Single select (grouped)');
+			}),
 							
+			this.addEntry(dt + 'single select', function()
+	   		{
+			   	var item1 = new mxCell("Epic link", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Vertiga: Misc', new mxGeometry(0, 25, 360, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=5;fontColor=#000000;align=left');
+			   	item2.vertex = true;
+			   	var icon2 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.close;fillColor=#97A0AF;strokeColor=none');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-28, -7);
+			   	icon2.vertex = true;
+			   	item2.insert(icon2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 60, 360, 320), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;arcSize=1;fontSize=12;fontColor=#596780;align=center;html=1;verticalAlign=top;spacingTop=5;');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('SUGGESTIONS', new mxGeometry(0, 0, 140, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=1');
+			   	item4.geometry.relative = true;
+			   	item4.geometry.offset = new mxPoint(20, 15);
+			   	item4.vertex = true;
+			   	item3.insert(item4);
+			   	var item5 = new mxCell('1-click invite phase 1 (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item5.geometry.relative = true;
+			   	item5.geometry.offset = new mxPoint(20, 40);
+			   	item5.vertex = true;
+			   	item3.insert(item5);
+			   	var item6 = new mxCell('ADV - Editable detail review (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item6.geometry.relative = true;
+			   	item6.geometry.offset = new mxPoint(20, 65);
+			   	item6.vertex = true;
+			   	item3.insert(item6);
+			   	var item7 = new mxCell('Bugfix and warranty (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item7.geometry.relative = true;
+			   	item7.geometry.offset = new mxPoint(20, 90);
+			   	item7.vertex = true;
+			   	item3.insert(item7);
+			   	var item8 = new mxCell('Build test release (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item8.geometry.relative = true;
+			   	item8.geometry.offset = new mxPoint(20, 115);
+			   	item8.vertex = true;
+			   	item3.insert(item8);
+			   	var item9 = new mxCell('Burnup chart (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item9.geometry.relative = true;
+			   	item9.geometry.offset = new mxPoint(20, 140);
+			   	item9.vertex = true;
+			   	item3.insert(item9);
+			   	var item10 = new mxCell('Design debt (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item10.geometry.relative = true;
+			   	item10.geometry.offset = new mxPoint(20, 165);
+			   	item10.vertex = true;
+			   	item3.insert(item10);
+			   	var item11 = new mxCell('Engineering health (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item11.geometry.relative = true;
+			   	item11.geometry.offset = new mxPoint(20, 190);
+			   	item11.vertex = true;
+			   	item3.insert(item11);
+			   	var item12 = new mxCell('Feature flag service (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item12.geometry.relative = true;
+			   	item12.geometry.offset = new mxPoint(20, 215);
+			   	item12.vertex = true;
+			   	item3.insert(item12);
+			   	var item13 = new mxCell('Indy ranking (SW-3033)', new mxGeometry(0, 0, 330, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item13.geometry.relative = true;
+			   	item13.geometry.offset = new mxPoint(20, 240);
+			   	item13.vertex = true;
+			   	item3.insert(item13);
+			   	var item7 = new mxCell('', new mxGeometry(0, 1, 360, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item7.geometry.relative = true;
+			   	item7.geometry.offset = new mxPoint(0, -50);
+			   	item7.vertex = true;
+			   	item3.insert(item7);
+			   	var item8 = new mxCell('Showing 30 of 3049 matching epics', new mxGeometry(0, 1, 210, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=0');
+			   	item8.geometry.relative = true;
+			   	item8.geometry.offset = new mxPoint(20, -34);
+			   	item8.vertex = true;
+			   	item3.insert(item8);
+			   	var item9 = new mxCell('Show done epics', new mxGeometry(1, 1, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	item9.geometry.relative = true;
+			   	item9.geometry.offset = new mxPoint(-130, -30);
+			   	item9.vertex = true;
+			   	item3.insert(item9);
+			   	return sb.createVertexTemplateFromCells([item1, item2, item3], 360, 380, 'Single select');
+			}),
+			this.addEntry(dt + 'table', function()
+	   		{
+			   	var item1 = new mxCell('Repository', new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Collaborators', new mxGeometry(300, 0, 100, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(0, 20, 430, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('&lt;/&gt;', new mxGeometry(0, 40, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('3rd_library', new mxGeometry(37, 46, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('', new mxGeometry(320, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('', new mxGeometry(300, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('+6', new mxGeometry(350, 46, 20, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('', new mxGeometry(400, 49, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('', new mxGeometry(0, 85, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#EA4232;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item10.vertex = true;
+			   	var item11 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 18), 'shape=mxgraph.signs.science.nuclear_1;fillColor=#ffffff;strokeColor=none');
+			   	item11.geometry.relative = true;
+			   	item11.geometry.offset = new mxPoint(-10, -9);
+			   	item11.vertex = true;
+			   	item10.insert(item11);
+			   	var item12 = new mxCell('a11y-dashboard', new mxGeometry(37, 91, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('', new mxGeometry(340, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item13.vertex = true;
+			   	var item14 = new mxCell('', new mxGeometry(320, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item14.vertex = true;
+			   	var item15 = new mxCell('', new mxGeometry(300, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item15.vertex = true;
+			   	var item16 = new mxCell('', new mxGeometry(400, 94, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
+			   	item16.vertex = true;
+			   	var item17 = new mxCell('JS', new mxGeometry(0, 130, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#F1DD3F;strokeColor=none;fontColor=#000000;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item17.vertex = true;
+			   	var item18 = new mxCell('aac-sac', new mxGeometry(37, 136, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item18.vertex = true;
+			   	var item19 = new mxCell('', new mxGeometry(340, 134, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item19.vertex = true;
+			   	var item20 = new mxCell('', new mxGeometry(320, 134, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item20.vertex = true;
+			   	var item21 = new mxCell('', new mxGeometry(300, 134, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item21.vertex = true;
+			   	var item22 = new mxCell('&lt;/&gt;', new mxGeometry(0, 175, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item22.vertex = true;
+			   	var item23 = new mxCell('3rd_library', new mxGeometry(37, 181, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item23.vertex = true;
+			   	var item24 = new mxCell('', new mxGeometry(320, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item24.vertex = true;
+			   	var item25 = new mxCell('', new mxGeometry(300, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item25.vertex = true;
+			   	var item26 = new mxCell('+6', new mxGeometry(350, 181, 20, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item26.vertex = true;
+			   	var item27 = new mxCell('', new mxGeometry(400, 184, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
+			   	item27.vertex = true;
+			   	var item28 = new mxCell('', new mxGeometry(0, 220, 430, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item28.vertex = true;
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28], 400, 230, 'Table');
+			}),
+			this.addEntry(dt + 'table', function()
+	   		{
+			   	var item1 = new mxCell('Pull requests', new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Reviewers', new mxGeometry(490, 0, 100, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('Builds', new mxGeometry(590, 0, 30, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('', new mxGeometry(0, 20, 620, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('', new mxGeometry(0, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell(
+			   			'BSERV-7610: Only fire resizes events if element...\n<span style="font-weight: normal"><font color="#596780" style="font-size: 11px">Marcin Szczepanski - #8095, last updated 1 minutes ago in Repo ABC</font></span>', 
+			   			new mxGeometry(37, 41, 360, 30), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('', new mxGeometry(330, 44, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('staging', new mxGeometry(355, 39, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('+6', new mxGeometry(535, 44, 24, 24), 'shape=ellipse;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('', new mxGeometry(515, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item10.vertex = true;
+			   	var item11 = new mxCell('', new mxGeometry(495, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item11.vertex = true;
+			   	var item12 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(600, 48, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('', new mxGeometry(0, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item13.vertex = true;
+			   	var item14 = new mxCell(
+			   			'Feature/BSERVDEV-13108 import...\n<span style="font-weight: normal"><font color="#596780" style="font-size: 11px">Lucy Bain - #8092, last updated 15 minutes ago in Bitbucket repository</font></span>', 
+			   			new mxGeometry(37, 86, 360, 30), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item14.vertex = true;
+			   	var item15 = new mxCell('', new mxGeometry(245, 89, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
+			   	item15.vertex = true;
+			   	var item16 = new mxCell('feature/BSERVDEV-12...', new mxGeometry(270, 84, 145, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item16.vertex = true;
+			   	var item17 = new mxCell('9', new mxGeometry(440, 93, 16, 15), 'shape=mxgraph.basic.oval_callout;fillColor=#596780;strokeColor=none;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1;labelPosition=right;verticalLabelPosition=middle');
+			   	item17.vertex = true;
+			   	var item18 = new mxCell('', new mxGeometry(535, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item18.vertex = true;
+			   	var item19 = new mxCell('', new mxGeometry(515, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item19.vertex = true;
+			   	var item20 = new mxCell('', new mxGeometry(495, 89, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item20.vertex = true;
+			   	var item21 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(600, 93, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;flipH=1;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item21.vertex = true;
+			   	var item22 = new mxCell('', new mxGeometry(0, 134, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item22.vertex = true;
+			   	var item23 = new mxCell(
+			   			'BSERVDEV-13151: Disable the &apos;latest&apos; event filtering\n<span style="font-weight: normal"><font color="#596780" style="font-size: 11px">Felix Haenel - #8068, last updated 34 minutes ago in Repository</font></span>', 
+			   			new mxGeometry(37, 131, 360, 30), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
+			   	item23.vertex = true;
+			   	var item24 = new mxCell('', new mxGeometry(342, 134, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
+			   	item24.vertex = true;
+			   	var item25 = new mxCell('staging', new mxGeometry(365, 129, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item25.vertex = true;
+			   	var item26 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(600, 138, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;flipH=1;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item26.vertex = true;
+
+			   	var item27 = new mxCell('', new mxGeometry(0, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item27.vertex = true;
+			   	var item28 = new mxCell(
+			   			'Feature/BSERVDEV-13193: commit lvl review...\n<span style="font-weight: normal"><font style="font-size: 11px">John Van Der Loo - #8093; last updated 29 Oct 2014 in Repository</span>', 
+			   			new mxGeometry(37, 176, 360, 30), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap;fontStyle=1');
+			   	item28.vertex = true;
+			   	var item29 = new mxCell('', new mxGeometry(330, 179, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
+			   	item29.vertex = true;
+			   	var item30 = new mxCell('staging', new mxGeometry(355, 174, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#A5ADBA;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	item30.vertex = true;
+			   	var item31 = new mxCell('2', new mxGeometry(440, 183, 16, 15), 'shape=mxgraph.basic.oval_callout;fillColor=#A5ADBA;strokeColor=none;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1;labelPosition=right;verticalLabelPosition=middle');
+			   	item31.vertex = true;
+			   	var item32 = new mxCell('+2', new mxGeometry(535, 179, 24, 24), 'shape=ellipse;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item32.vertex = true;
+			   	var item33 = new mxCell('', new mxGeometry(515, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item33.vertex = true;
+			   	var item34 = new mxCell('', new mxGeometry(495, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item34.vertex = true;
+			   	var item35 = new mxCell('', new mxGeometry(512, 177, 9, 9), 'shape=ellipse;fillColor=#A5ADBA;strokeColor=#ffffff');
+			   	item35.vertex = true;
+			   	var item36 = new mxCell('', new mxGeometry(600, 183, 16, 16), s + 'checkbox;fillColor=#A5ADBA;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item36.vertex = true;
+			   	var item37 = new mxCell('This PR has been merged', new mxGeometry(50, 210, 160, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#172B4D;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0;html=1');
+			   	item37.vertex = true;
+			   	var item38 = new mxCell('', new mxGeometry(0, 228, 620, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item38.vertex = true;
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, 
+			   				item29, item30, item31, item32, item33, item34, item35, item36, item37, item38], 620, 230, 'Table');
+			}),
+			this.addEntry(dt + 'table', function()
+	   		{
+			   	var item1 = new mxCell('Name', new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Size', new mxGeometry(300, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('Last commit', new mxGeometry(360, 0, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('Commit description', new mxGeometry(460, 0, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('', new mxGeometry(0, 20, 630, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('h8m0n62f', new mxGeometry(0, 39, 18, 16), 'shape=mxgraph.office.concepts.folders;fillColor=#344563;strokeColor=none;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('', new mxGeometry(80, 42, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('./h8m0n62f [10b2fa24d299]', new mxGeometry(100, 37, 160, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=0');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('209 B', new mxGeometry(280, 37, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('20 Jan 2016', new mxGeometry(360, 37, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item10.vertex = true;
+			   	var item11 = new mxCell('initial commit', new mxGeometry(460, 37, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item11.vertex = true;
+			   	var item12 = new mxCell('settings', new mxGeometry(0, 69, 18, 16), 'shape=mxgraph.office.concepts.folder;fillColor=#344563;strokeColor=none;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('197 B', new mxGeometry(280, 67, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item13.vertex = true;
+			   	var item14 = new mxCell('08 Feb 2011', new mxGeometry(360, 67, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item14.vertex = true;
+			   	var item15 = new mxCell('initial commit', new mxGeometry(460, 67, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item15.vertex = true;
+			   	var item16 = new mxCell('templates', new mxGeometry(0, 99, 18, 16), 'shape=mxgraph.office.concepts.folder;fillColor=#344563;strokeColor=none;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5');
+			   	item16.vertex = true;
+			   	var item17 = new mxCell('209 B', new mxGeometry(280, 97, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item17.vertex = true;
+			   	var item18 = new mxCell('20 Jan 2016', new mxGeometry(360, 97, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item18.vertex = true;
+			   	var item19 = new mxCell('initial commit', new mxGeometry(460, 97, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item19.vertex = true;
+			   	var item20 = new mxCell('tests', new mxGeometry(0, 129, 18, 16), 'shape=mxgraph.office.concepts.folder;fillColor=#344563;strokeColor=none;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5');
+			   	item20.vertex = true;
+			   	var item21 = new mxCell('30.4 KB', new mxGeometry(280, 127, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item21.vertex = true;
+			   	var item22 = new mxCell('16 Jun 2016', new mxGeometry(360, 127, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item22.vertex = true;
+			   	var item23 = new mxCell('initial commit', new mxGeometry(460, 127, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item23.vertex = true;
+			   	var item24 = new mxCell('debug.py', new mxGeometry(3, 159, 12, 16), 'shape=note;fillColor=#ffffff;strokeColor=#344563;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5;size=5');
+			   	item24.vertex = true;
+			   	var item25 = new mxCell('2.0 KB', new mxGeometry(280, 157, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item25.vertex = true;
+			   	var item26 = new mxCell('03 July 2016', new mxGeometry(360, 157, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item26.vertex = true;
+			   	var item27 = new mxCell("Remove Atlassian's npm mirror...", new mxGeometry(460, 157, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item27.vertex = true;
+			   	var item28 = new mxCell('package.json', new mxGeometry(3, 189, 12, 16), 'shape=note;fillColor=#ffffff;strokeColor=#344563;fontColor=#344563;fontSize=11;fontStyle=0;labelPosition=right;align=left;html=1;spacingLeft=5;size=5');
+			   	item28.vertex = true;
+			   	var item29 = new mxCell('2.0 KB', new mxGeometry(280, 187, 50, 20), 'strokeColor=none;fillColor=none;fontSize=11;fontColor=#596780;align=right;html=1');
+			   	item29.vertex = true;
+			   	var item30 = new mxCell('25 July 2016', new mxGeometry(360, 187, 70, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item30.vertex = true;
+			   	var item31 = new mxCell('<font color="#0057d8">BBCDEV-2045</font> optimize flow perf', new mxGeometry(460, 187, 170, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item31.vertex = true;
+			   	var item32 = new mxCell('', new mxGeometry(0, 217, 630, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item32.vertex = true;
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, 
+			   				item30, item31, item32], 
+			   			630, 230, 'Table');
+			}),
+			this.addEntry(dt + 'table action', function()
+	   		{
+			   	var item1 = new mxCell('Branch', new mxGeometry(10, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Behind', new mxGeometry(270, 0, 40, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('Ahead', new mxGeometry(310, 0, 40, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=right;fontColor=#596780;whiteSpace=wrap');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('Updated', new mxGeometry(370, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('Pull request', new mxGeometry(460, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('Builds', new mxGeometry(550, 0, 40, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=center;fontColor=#596780;whiteSpace=wrap');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('', new mxGeometry(10, 20, 630, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('', new mxGeometry(0, 26, 640, 30), 'strokeColor=none;fillColor=#FAFBFC;html=1');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('staging', new mxGeometry(10, 31, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('Main Branch', new mxGeometry(60, 31, 65, 20), 'strokeColor=none;fillColor=#EDEEEF;fontSize=11;fontColor=#596780;rounded=1;html=1');
+			   	item10.vertex = true;
+			   	var item11 = new mxCell('28 minutes ago', new mxGeometry(370, 31, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item11.vertex = true;
+			   	var item12 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(565, 33, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('', new mxGeometry(595, 28, 40, 24), 'rounded=1;arcSize=23;fillColor=#42526E;strokeColor=none');
+			   	item13.vertex = true;
+			   	var icon1 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon1.geometry.relative = true;
+			   	icon1.geometry.offset = new mxPoint(-10, -2);
+			   	icon1.vertex = true;
+			   	item13.insert(icon1);
+			   	var icon2 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-2, -2);
+			   	icon2.vertex = true;
+			   	item13.insert(icon2);
+			   	var icon3 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon3.geometry.relative = true;
+			   	icon3.geometry.offset = new mxPoint(6, -2);
+			   	icon3.vertex = true;
+			   	item13.insert(icon3);
+			   	var item14 = new mxCell('abhin/repo/api/allow_repo_updates', new mxGeometry(10, 61, 240, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item14.vertex = true;
+			   	var item15 = new mxCell('', new mxGeometry(270, 66, 80, 10), 'shape=mxgraph.mockup.misc.progressBar;fillColor=#3384FF;strokeColor=none;fillColor2=#F2F2F2;barPos=80;');
+			   	item15.vertex = true;
+			   	var item16 = new mxCell('107', new mxGeometry(270, 73, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=left;html=1');
+			   	item16.vertex = true;
+			   	var item17 = new mxCell('3', new mxGeometry(310, 73, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=right;html=1');
+			   	item17.vertex = true;
+			   	var item18 = new mxCell('5 minutes ago', new mxGeometry(370, 61, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item18.vertex = true;
+			   	var item19 = new mxCell('#10258', new mxGeometry(460, 61, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item19.vertex = true;
+			   	var item20 = new mxCell('OPEN', new mxGeometry(510, 61, 40, 20), 'strokeColor=none;fillColor=#CCE0FF;fontSize=11;fontColor=#3384FF;rounded=1;html=1;align=center;fontStyle=1');
+			   	item20.vertex = true;
+			   	var item21 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(565, 63, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item21.vertex = true;
+			   	var item22 = new mxCell('zdavis/BBCDEV-1577', new mxGeometry(10, 91, 240, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item22.vertex = true;
+			   	var item23 = new mxCell('', new mxGeometry(270, 96, 80, 10), 'shape=mxgraph.mockup.misc.progressBar;fillColor=#3384FF;strokeColor=none;fillColor2=#F2F2F2;barPos=80;');
+			   	item23.vertex = true;
+			   	var item24 = new mxCell('103', new mxGeometry(270, 103, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=left;html=1');
+			   	item24.vertex = true;
+			   	var item25 = new mxCell('2', new mxGeometry(310, 103, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=right;html=1');
+			   	item25.vertex = true;
+			   	var item26 = new mxCell('5 minutes ago', new mxGeometry(370, 91, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item26.vertex = true;
+			   	var item27 = new mxCell('#10232', new mxGeometry(460, 91, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item27.vertex = true;
+			   	var item28 = new mxCell('OPEN', new mxGeometry(510, 91, 40, 20), 'strokeColor=none;fillColor=#CCE0FF;fontSize=11;fontColor=#3384FF;rounded=1;html=1;align=center;fontStyle=1');
+			   	item28.vertex = true;
+			   	var item29 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(565, 93, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item29.vertex = true;
+			   	var item30 = new mxCell('tkells/BBCDEV-1631-fix-require-account=access', new mxGeometry(10, 121, 240, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item30.vertex = true;
+			   	var item31 = new mxCell('', new mxGeometry(270, 126, 80, 10), 'shape=mxgraph.mockup.misc.progressBar;fillColor=#3384FF;strokeColor=none;fillColor2=#F2F2F2;barPos=80;');
+			   	item31.vertex = true;
+			   	var item32 = new mxCell('7', new mxGeometry(270, 133, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=left;html=1');
+			   	item32.vertex = true;
+			   	var item33 = new mxCell('1', new mxGeometry(310, 133, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=right;html=1');
+			   	item33.vertex = true;
+			   	var item34 = new mxCell('25 minutes ago', new mxGeometry(370, 121, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item34.vertex = true;
+			   	var item35 = new mxCell('#10267', new mxGeometry(460, 121, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item35.vertex = true;
+			   	var item36 = new mxCell('OPEN', new mxGeometry(510, 121, 40, 20), 'strokeColor=none;fillColor=#CCE0FF;fontSize=11;fontColor=#3384FF;rounded=1;html=1;align=center;fontStyle=1');
+			   	item36.vertex = true;
+			   	var item37 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(565, 123, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item37.vertex = true;
+			   	var item38 = new mxCell('jmooring/BBDEV-1603', new mxGeometry(10, 151, 240, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item38.vertex = true;
+			   	var item39 = new mxCell('', new mxGeometry(270, 156, 80, 10), 'shape=mxgraph.mockup.misc.progressBar;fillColor=#3384FF;strokeColor=none;fillColor2=#F2F2F2;barPos=80;');
+			   	item39.vertex = true;
+			   	var item40 = new mxCell('2', new mxGeometry(270, 163, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=left;html=1');
+			   	item40.vertex = true;
+			   	var item41 = new mxCell('14', new mxGeometry(310, 163, 40, 20), 'strokeColor=none;fillColor=none;fontSize=10;fontColor=#596780;align=right;html=1');
+			   	item41.vertex = true;
+			   	var item42 = new mxCell('29 minutes ago', new mxGeometry(370, 151, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#596780;align=left;html=1');
+			   	item42.vertex = true;
+			   	var item43 = new mxCell('#10244', new mxGeometry(460, 151, 50, 20), 'strokeColor=none;fillColor=none;fontSize=12;fontColor=#0057D8;align=left;html=1');
+			   	item43.vertex = true;
+			   	var item44 = new mxCell('OPEN', new mxGeometry(510, 151, 40, 20), 'strokeColor=none;fillColor=#CCE0FF;fontSize=11;fontColor=#3384FF;rounded=1;html=1;align=center;fontStyle=1');
+			   	item44.vertex = true;
+			   	var item45 = new mxCell('', new mxGeometry(565, 153, 16, 16), s +'checkbox;fillColor=#008465;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	item45.vertex = true;
+			   	var item46 = new mxCell('', new mxGeometry(10, 179, 630, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item46.vertex = true;
+			   	var item47 = new mxCell('', new mxGeometry(530, 61, 110, 78), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	item47.vertex = true;
+			   	var item48 = new mxCell('View source', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	item48.geometry.relative = true;
+			   	item48.geometry.offset = new mxPoint(0, 6);
+			   	item48.vertex = true;
+			   	item47.insert(item48);
+			   	var item49 = new mxCell('Delete branch', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	item49.geometry.relative = true;
+			   	item49.geometry.offset = new mxPoint(0, 39);
+			   	item49.vertex = true;
+			   	item47.insert(item49);
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29,
+			   				item30, item31, item32, item33, item34, item35, item36, item37, item38, item39, item40, item41, item42, item43, item44, item45, item46, item47], 
+			   			630, 189, 'Table with action');
+			}),
+			this.addEntry(dt + 'table action', function()
+	   		{
+			   	var item1 = new mxCell('Details', new mxGeometry(0, 0, 50, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#3384FF;fontStyle=1;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Diff', new mxGeometry(70, 0, 40, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;fontStyle=1;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('Commits', new mxGeometry(130, 0, 60, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;fontStyle=1;whiteSpace=wrap');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('Challenges', new mxGeometry(200, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;fontStyle=1;whiteSpace=wrap');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('', new mxGeometry(0, 20, 350, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('', new mxGeometry(0, 20, 40, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#3384FF;resizeWidth=1');
+			   	item6.vertex = true;
+			   	return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 350, 30, 'Table with action');
+			}),
+			
+			 this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#596780;fontStyle=1;fontSize=11;shadow=0',
+					 60, 20, 'Tag text', 'Tag', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
+			 this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#3384FF;fontStyle=1;fontSize=11;shadow=0',
+					 60, 20, 'Tag link', 'Tag link', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
 					 
-					
+			this.addEntry(dt + 'tag removable', function()
+	   		{
+			   	var item1 = new mxCell('Removable tag', new mxGeometry(0, 0, 100, 20), 'dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=left;rounded=1;arcSize=10;fontColor=#596780;fontStyle=1;fontSize=11;shadow=0;spacingLeft=3');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 6, 6), s + 'x;strokeColor=#596780;strokeWidth=2');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-11, -3);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	return sb.createVertexTemplateFromCells([item1], item1.geometry.width, item1.geometry.height, 'Removable tag');
+			}),
+			this.addEntry(dt + 'tag removable link', function()
+	   		{
+			   	var item1 = new mxCell('Removable tag link', new mxGeometry(0, 0, 130, 20), 'dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=left;rounded=1;arcSize=10;fontColor=#3384FF;fontStyle=1;fontSize=11;shadow=0;spacingLeft=3');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 6, 6), s + 'x;strokeColor=#596780;strokeWidth=2');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-11, -3);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	return sb.createVertexTemplateFromCells([item1], item1.geometry.width, item1.geometry.height, 'Removable tag link');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Name<sup><font color="#ff0000">*</font></sup>', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Messina Cake', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Text field');
+			}),
+			this.addEntry(dt + 'password field', function()
+	   		{
+			   	var item1 = new mxCell('Password<sup><font color="#ff0000">*</font></sup>', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Password field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Project name', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Watermelon Squad', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Compact text field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Project name', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Watermelon Squad', new mxGeometry(0, 25, 290, 40), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 65, 'Text field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Location', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Compact text field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Location', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 25, 290, 40), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 65, 'Text field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Details', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('eg. ATP, VOSS etc', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Compact text field');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Details', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('eg. ATP, VOSS etc', new mxGeometry(0, 25, 290, 40), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 65, 'Text field');
+			}),
+			this.addEntry(dt + 'text field help', function()
+	   		{
+			   	var item1 = new mxCell('Form label', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Banana bread', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Text field with placeholder text');
+			}),
+			this.addEntry(dt + 'text field tooltip', function()
+	   		{
+			   	var item1 = new mxCell('Selected help', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('<b>Not great</b><div>The best password is hard to guess. Try again.</div>', new mxGeometry(300, 0, 180, 80), 
+			   			'html=1;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;fontSize=12;align=left;fontColor=#000000;shadow=1;arcSize=1;whiteSpace=wrap;verticalAlign=top;spacingLeft=15;spacingRight=15;spacingTop=10');
+			   	item3.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 480, 80, 'Text field with tooltip');
+			}),
+			this.addEntry(dt + 'text field tooltip', function()
+	   		{
+			   	var item1 = new mxCell('Hover Icon Help', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Sally Hanson', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('i', new mxGeometry(1, 0.5, 18, 18), 'shape=ellipse;strokeColor=none;fillColor=#6554C0;fontColor=#ffffff;fontStyle=1;fontSize=12');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-34, -9);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+			   	var item4 = new mxCell('Some issues are not available due to the <font color="#4c9aff">field configuration.</font>', new mxGeometry(300, 0, 200, 60), 
+			   			'html=1;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;fontSize=12;align=left;fontColor=#000000;shadow=1;arcSize=1;whiteSpace=wrap;verticalAlign=top;spacingLeft=15;spacingRight=15;spacingTop=10');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2, item4], 480, 80, 'Text field with tooltip');
+			}),
+			
+			this.addEntry(dt + 'toggle subtle', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 30, 16), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 12, 12), 'shape=ellipse;strokeColor=none;fillColor=#ffffff');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-14, -6);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 0.5, 6, 5), s + 'check;strokeColor=#ffffff');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(4, -3);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+		   		return sb.createVertexTemplateFromCells([item1], item1.geometry.width, item1.geometry.height, 'Subtle toggle');
+			}),
+			this.addEntry(dt + 'toggle bold', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 20), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 16, 16), 'shape=ellipse;strokeColor=none;fillColor=#ffffff');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-18, -8);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 0.5, 10, 8), s + 'check;strokeColor=#ffffff;strokeWidth=2');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(6, -5);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+		   		return sb.createVertexTemplateFromCells([item1], item1.geometry.width, item1.geometry.height, 'Bold toggle');
+			}),
+			this.addEntry(dt + 'toggle bold tooltip', function()
+	   		{
+			   	var item1 = new mxCell('Allow pull requests', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 25, 40, 20), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 16, 16), 'shape=ellipse;strokeColor=none;fillColor=#ffffff');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-18, -8);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+			   	var item4 = new mxCell('', new mxGeometry(0, 0.5, 10, 8), s + 'check;strokeColor=#ffffff;strokeWidth=2');
+			   	item4.geometry.relative = true;
+			   	item4.geometry.offset = new mxPoint(6, -5);
+			   	item4.vertex = true;
+			   	item2.insert(item4);
+			   	var item5 = new mxCell('Disable pull requests', new mxGeometry(45, 25, 115, 20), 'rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('Allow other users to merge this branch via pull request', new mxGeometry(0, 50, 280, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;align=left;fontColor=#596780;fontStyle=0;fontSize=11');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('Rewriting history', new mxGeometry(5, 75, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('Branch deletion', new mxGeometry(5, 100, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	item8.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2, item5, item6, item7, item8], 280, 112, 'Bold toggle with tooltip');
+			}),
+			this.addEntry(dt + 'toggle bold disabled', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 20), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 16, 16), 'shape=ellipse;strokeColor=none;fillColor=#9AD9BE');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-18, -8);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 0.5, 10, 8), s + 'check;strokeColor=#9AD9BE;strokeWidth=2');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(6, -5);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+			   	var item4 = new mxCell('Subscribed', new mxGeometry(45, 0, 75, 20), 'rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item4], 280, 112, 'Bold toggle disabled');
+			}),
+			this.addEntry(dt + 'toggle bold disabled', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 20), 'fillColor=#F1F2F4;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 0.5, 16, 16), 'shape=ellipse;strokeColor=none;fillColor=#C2C7D0');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(2, -8);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 6, 6), s + 'x;strokeColor=#C2C7D0;strokeWidth=2');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-12, -3);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+			   	var item4 = new mxCell('Cancelled', new mxGeometry(45, 0, 65, 20), 'rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item4], 280, 112, 'Bold toggle disabled');
+			}),
+			this.addEntry(dt + 'toggle subtle disabled', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 2, 30, 16), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(1, 0.5, 12, 12), 'shape=ellipse;strokeColor=none;fillColor=#9AD9BE');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-14, -6);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(0, 0.5, 6, 5), s + 'check;strokeColor=#9AD9BE');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(4, -3);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+			   	var item4 = new mxCell('Subscribed', new mxGeometry(35, 0, 75, 20), 'rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item4], 280, 112, 'Bold subtle disabled');
+			}),
+			this.addEntry(dt + 'toggle subtle disabled', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 2, 30, 16), 'fillColor=#F1F2F4;strokeColor=none;rounded=1;arcSize=50');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 0.5, 12, 12), 'shape=ellipse;strokeColor=none;fillColor=#C2C7D0');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(2, -6);
+			   	item2.vertex = true;
+			   	item1.insert(item2);
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 5, 5), s + 'x;strokeColor=#C2C7D0');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-10, -3);
+			   	item3.vertex = true;
+			   	item1.insert(item3);
+			   	var item4 = new mxCell('Cancelled', new mxGeometry(45, 0, 65, 20), 'rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item4], 280, 112, 'Bold subtle disabled');
+			}),
+			
+			this.createVertexTemplateEntry('rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11',
+				 65, 20, 'Tooltip', 'Tooltip', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
+
+			this.addEntry(dt + 'comment', function()
+	   		{
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 32, 32), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Jim Bunnings', new mxGeometry(40, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('AUTHOR', new mxGeometry(125, 0, 55, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('30, August 2016', new mxGeometry(190, 0, 110, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('Thanks for the write-up.', new mxGeometry(40, 20, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell(
+			   			'You&apos;ve mentioned the reasons for changing the name. But what were the reasons for holding onto the old name so long? I remember <font color="#4c9aff" style="background-color: rgb(244 , 245 , 247)">@Jesse Byler</font> suggesting the name change back in January in: Re: Y U NO use Confluence', 
+			   			new mxGeometry(40, 45, 430, 60), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;verticalAlign=top');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('Reply &#8226; Edit &#8226; Delete &#8226; Like', new mxGeometry(40, 105, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item7.vertex = true;
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5, item6, item7], 470, 125, 'Comment');
+			}),
+			
+			this.addEntry(dt + 'linear discussion', function()
+	   		{
+			   	var item1 = new mxCell(
+			   			'<font color="#596780"><b>Martin Papy</b> 27, April 16&nbsp;</font><div>\n<div>Hi Sam, I have ordered your new 24" monitor. When it arrives, I will notify you&nbsp;</div><div>and you can come and collect it from teh IT department.</div></div>', 
+			   			new mxGeometry(0, 0, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858;fontSize=12;align=left;fontColor=#000000;labelPosition=right;html=1;verticalAlign=top;spacingTop=-10;spacingLeft=5');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell(
+			   			'<font color="#596780"><b>Sam Lawrence</b> 27, April 16&nbsp;</font><div>\n<div>Are we still proviging 24" monitors? I thought we only provided laptops now...;</div><div>can you confirm. <font color="#4c9aff" style="background-color: rgb(244 , 245 , 247)">@Martin</font> ?</div></div>', 
+			   			new mxGeometry(0, 75, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858;fontSize=12;align=left;fontColor=#000000;labelPosition=right;html=1;verticalAlign=top;spacingTop=-10;spacingLeft=5');
+			   	item2.vertex = true;
+			   	return sb.createVertexTemplateFromCells([item1, item2], 470, 125, 'Linear discussion');
+			}),
+			
+			this.addEntry(dt + 'nested discussion', function()
+	   		{
+			   	var item1 = new mxCell(
+			   			'<p style="line-height: 40%"><font color="#596780"><b>Raj Shah</b> 12, November 2016</font></p><p style="line-height: 40%"><div><font color="#4c9aff" style="background-color: rgb(244 , 245 , 247)">@Matthew Wu</font>, can we re-run this once create/edit is out the door?</div></p><p style="line-height: 40%"><div></div><div><font color="#596780">Reply • Edit • Delete • Like</font></div></p>', 
+			   			new mxGeometry(0, 0, 32, 32), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858;fontSize=12;align=left;fontColor=#000000;labelPosition=right;html=1;verticalAlign=top;spacingTop=-10;spacingLeft=5');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell(
+			   			'<p style="line-height: 40%"><font color="#596780"><b>Matthew Wu</b> </font><font style="font-size: 10px"><b style="background-color: rgb(244 , 245 , 247)">AUTHOR</b></font><font color="#596780"> 13, November 2016</font></p><p></p><div>Sure we can do that. We have a summary report every month. This is\n' + 
+			   			'the last one: Mobile Feedback Scorecard - October 2016</div><p></p><p></p><div></div><div><font color="#596780">Reply • Edit • Delete • Like</font></div><p></p>', 
+			   			new mxGeometry(40, 75, 16, 16), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858;fontSize=12;align=left;fontColor=#000000;labelPosition=right;html=1;verticalAlign=top;spacingTop=-10;spacingLeft=5');
+			   	item2.vertex = true;
+			   	return sb.createVertexTemplateFromCells([item1, item2], 470, 125, 'Nested discussion');
+			}),
+			
+
+			
+							
 		];
 			   	
    		this.addPalette('atlassian', 'Atlassian', false, mxUtils.bind(this, function(content)

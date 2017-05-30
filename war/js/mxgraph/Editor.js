@@ -715,6 +715,12 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	}
 	
 	w = Math.min(w, document.body.scrollWidth - 64);
+	
+	if (h > dh - 64)
+	{
+		elt.style.overflowY = 'auto';
+	}
+	
 	h = Math.min(h, dh - 64);
 	
 	// Increments zIndex to put subdialogs and background over existing dialogs and background

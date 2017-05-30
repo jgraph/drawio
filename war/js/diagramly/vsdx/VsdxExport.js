@@ -69,13 +69,38 @@ function VsdxExport(editorUi, resDir)
 		
 		try
 		{
+			// Computes the horizontal and vertical page count
+			var bounds = graph.getGraphBounds().clone();
+			var sc = graph.view.scale;
+			var tr = graph.view.translate;
+
+			//TODO compute the empty space at the left most page and add it to width and height
+			
+			// Compute the unscaled, untranslated bounds to find
+			// the number of vertical and horizontal pages
+			bounds.width /= sc;
+			bounds.height /= sc;
+//			bounds.x /= sc;
+//			bounds.y /= sc;
+			
+//			var x0 = bounds.width - Math.abs(bounds.x - tr.x);
+//			var y0 = bounds.height - Math.abs(bounds.y - tr.y);
+			
+			// Store the available page area
+			var availableWidth = graph.pageFormat.width;
+			var availableHeight = graph.pageFormat.height;
+		
+			
+			var hpages = Math.max(1, Math.ceil((bounds.width  /*+ x0*/) / availableWidth));
+			var vpages = Math.max(1, Math.ceil((bounds.height /*+ y0*/) / availableHeight));
+			
 			attr['gridEnabled'] = graph.gridEnabled;
 			attr['gridSize'] = graph.gridSize;
 			attr['guidesEnabled'] = graph.graphHandler.guidesEnabled
 			attr['pageVisible'] = graph.pageVisible;
 			attr['pageScale'] = graph.pageScale;
-			attr['pageWidth'] = graph.pageFormat.width;
-			attr['pageHeight'] = graph.pageFormat.height;
+			attr['pageWidth'] = graph.pageFormat.width * hpages;
+			attr['pageHeight'] = graph.pageFormat.height * vpages;
 			attr['backgroundClr'] = graph.background;
 			attr['mathEnabled'] = graph.mathEnabled;
 			attr['shadowVisible'] = graph.shadowVisible;
@@ -269,6 +294,7 @@ function VsdxExport(editorUi, resDir)
 		if (rounded == 1) shape.appendChild(createCellElemScaled("Rounding", state.cell.geometry.width*0.1, xmlDoc));
 
 		//TODO for some reason, visio doesn't show the label (text) background color!
+		//May be we need mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, align, valign, overflow)
 		var lbkgnd = state.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
 		if (lbkgnd) shape.appendChild(createCellElem("TextBkgnd", lbkgnd, xmlDoc));
 	};
@@ -327,6 +353,7 @@ function VsdxExport(editorUi, resDir)
 			return 6;
 	};
 
+	//TODO add edge group support (e.g. when edge has multiple labels)
 	function convertMxEdge2Shape(cell, graph, xmlDoc, parentHeight, parentGeo)
 	{
 		var state = graph.view.getState(cell);
@@ -401,6 +428,14 @@ function VsdxExport(editorUi, resDir)
 		var type = getArrowType(endArrow, endFill);
 		shape.appendChild(createCellElem("EndArrow", type, xmlDoc));
 		shape.appendChild(createCellElem("EndArrowSize", getArrowSize(endSize), xmlDoc));
+		
+		//Draw text first to have its shape cell elements before visio geo.
+		if (state.text != null && state.text.checkBounds())
+		{
+			vsdxCanvas.save();
+			state.text.paint(vsdxCanvas);
+			vsdxCanvas.restore();
+		}
 		
 		var geoSec = xmlDoc.createElement("Section");
 		
@@ -537,8 +572,17 @@ function VsdxExport(editorUi, resDir)
         
 		var t = graph.view.translate;
 		var s = graph.view.scale;
+		var bounds = graph.getGraphBounds();
+
+		var shiftX = 0, shiftY = 0;
+		//-ve pages
+		if (bounds.x / s < t.x || bounds.y / s < t.y) 
+		{
+			shiftX = Math.ceil((t.x - bounds.x / s) / graph.pageFormat.width) * graph.pageFormat.width;
+			shiftY = Math.ceil((t.y - bounds.y / s) / graph.pageFormat.height) * graph.pageFormat.height;
+		}
 		
-		vsdxCanvas.translate(-t.x, -t.y);
+		vsdxCanvas.translate(-t.x + shiftX, -t.y + shiftY);
 		vsdxCanvas.scale(1 / s);
 		vsdxCanvas.newPage();
 		

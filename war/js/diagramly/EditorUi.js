@@ -8005,6 +8005,7 @@
 	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
 	    				treeLayout.levelDistance = nodespacing;
 	    				treeLayout.edgeRouting = false;
+	    				treeLayout.resetEdges = false;
 	    				
 	    				this.executeLayout(function()
 	    	    		{
@@ -8022,6 +8023,7 @@
 		    			var flowLayout = new mxHierarchicalLayout(graph,
 		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
 		    			flowLayout.intraCellSpacing = nodespacing;
+		    			flowLayout.disableEdgeStyle = false;
 		    			
 		        		this.executeLayout(function()
 		        		{
@@ -8396,45 +8398,48 @@
 				}));
 				
 				var appCache = window.applicationCache;
-
-				function getImageTagForStatus(status)
-				{
-					switch (status)
-					{
-					  case appCache.UNCACHED: // UNCACHED == 0
-					    return '';
-					    break;
-					  case appCache.IDLE: // IDLE == 1
-					    return '<img title="Cached" border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
-					    break;
-					  case appCache.CHECKING: // CHECKING == 2
-					    return '<img title="Checking/Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
-					    break;
-					  case appCache.DOWNLOADING: // DOWNLOADING == 3
-					    return '<img title="Checking/Downloading..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
-					    break;
-					  case appCache.UPDATEREADY:  // UPDATEREADY == 4
-					    return '<img title="Update ready" border="0" src="' + IMAGE_PATH + '/download.png"/>';
-					    break;
-					  case appCache.OBSOLETE: // OBSOLETE == 5
-					    return '<img title="Obsolete" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-					    break;
-					  default:
-					    return '<img title="Unknown" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-					    break;
-					};
-				};
-
+				var lastStatus = null;
+				
 				var updateStatus = mxUtils.bind(this, function()
 				{
-					var tmp = getImageTagForStatus(appCache.status);
+					var newStatus = appCache.status;
+					var html = '';
 					
-					if (this.offlineStatus.innerHTML != tmp)
+					if (newStatus == appCache.CHECKING)
 					{
-						this.offlineStatus.innerHTML = tmp;
+						newStatus = appCache.DOWNLOADING;
+					}
+					
+					switch (newStatus)
+					{
+						case appCache.UNCACHED: // UNCACHED == 0
+							html = '';
+							break;
+						case appCache.IDLE: // IDLE == 1
+							html = '<img title="draw.io is up to date." border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
+							break;
+						case appCache.DOWNLOADING: // DOWNLOADING == 3
+							html = '<img title="Downloading new version" border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+							break;
+						case appCache.UPDATEREADY:  // UPDATEREADY == 4
+							html = '<img title="' + mxUtils.htmlEntities(mxResources.get('restartForChangeRequired')) +
+					    		'" border="0" src="' + IMAGE_PATH + '/download.png"/>';
+							break;
+						case appCache.OBSOLETE: // OBSOLETE == 5
+							html = '<img title="Obsolete" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
+							break;
+						default:
+							html = '<img title="Unknown" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
+							break;
+					}
+					
+					if (newStatus != lastStatus)
+					{
+						this.offlineStatus.innerHTML = html;
+						lastStatus = newStatus;
 					}
 				});
-				
+
 				mxEvent.addListener(appCache, 'checking', updateStatus);
 				mxEvent.addListener(appCache, 'noupdate', updateStatus);
 				mxEvent.addListener(appCache, 'downloading', updateStatus);

@@ -2419,7 +2419,7 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, rowLimit * 100, (serviceCount > rowLimit) ? 420 : 300, true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 240 : 300, (serviceCount > rowLimit) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)

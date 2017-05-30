@@ -71,13 +71,11 @@ Draw.loadPlugin(function(ui) {
 	mxResources.parse('number=Number');
 
     // Adds action
-    ui.actions.addAction('number...', function()
+    var action = ui.actions.addAction('number...', function()
     {
 		enabled = !enabled;
 		graph.refresh();
     });
-	
-	var action = ui.actions.get('number');
 	
     action.setToggleAction(true);
 	action.setSelectedCallback(function() { return enabled; });
