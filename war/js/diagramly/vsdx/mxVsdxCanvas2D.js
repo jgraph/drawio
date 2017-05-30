@@ -602,7 +602,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw));
 		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh));
 
-		this.shape.appendChild(this.createCellElemScaled("TxtAngle", rotation * Math.PI / 180));
+		this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
 		
 		var text = this.xmlDoc.createElement("Text");
 		text.textContent = str + "\n";
@@ -657,6 +657,32 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 //		this.root.appendChild(elem);
 	}
 };
+
+/**
+ * Function: rotate
+ * 
+ * Sets the rotation of the canvas. Note that rotation cannot be concatenated.
+ */
+mxVsdxCanvas2D.prototype.rotate = function(theta, flipH, flipV, cx, cy)
+{
+	//Vsdx has flipX/Y support separate from rotation
+	if (theta != 0)
+	{
+		var s = this.state;
+		cx += s.dx;
+		cy += s.dy;
+	
+		cx *= s.scale;
+		cy *= s.scale;
+
+		this.shape.appendChild(this.createCellElem("Angle", (360 - theta) * Math.PI / 180));
+		
+		s.rotation = s.rotation + theta;
+		s.rotationCx = cx;
+		s.rotationCy = cy;
+	}
+};
+
 
 /**
  * Function: stroke

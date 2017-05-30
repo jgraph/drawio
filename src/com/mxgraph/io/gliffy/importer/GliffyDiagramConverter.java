@@ -214,8 +214,7 @@ public class GliffyDiagramConverter
 	 * @param startTerminal starting point
 	 * @param endTerminal ending point
 	 */
-	private void setWaypoints(GliffyObject object, mxCell startTerminal,
-			mxCell endTerminal)
+	private void setWaypoints(GliffyObject object, mxCell startTerminal, mxCell endTerminal)
 	{
 		mxCell cell = object.getMxObject();
 		mxGeometry geo = drawioDiagram.getModel().getGeometry(cell);
@@ -227,13 +226,17 @@ public class GliffyDiagramConverter
 		{
 			return;
 		}
-
+		
 		List<mxPoint> mxPoints = new ArrayList<mxPoint>();
 
 		for (float[] point : points)
 		{
-			mxPoints.add(new mxPoint((int) point[0] + (int) object.x,
-					(int) point[1] + (int) object.y));
+			float[] pts = {point[0], point[1]};
+			
+			if(object.rotation != 0)
+				pts = rotate(pts[0], pts[1], object.rotation);
+			
+			mxPoints.add(new mxPoint(pts[0] + object.x, pts[1] + object.y));
 		}
 
 		if (startTerminal == null)
@@ -257,6 +260,15 @@ public class GliffyDiagramConverter
 
 		drawioDiagram.getModel().setGeometry(cell, geo);
 
+	}
+	
+	private float[] rotate(float px, float py, float angle) 
+	{
+		double angleRad = Math.toRadians(angle);
+		double x = px * Math.cos(angleRad) - py * Math.sin(angleRad); 
+		double y = px * Math.sin(angleRad) + py * Math.cos(angleRad);
+
+		return new float[] {(float)x, (float)y};
 	}
 
 	/**
