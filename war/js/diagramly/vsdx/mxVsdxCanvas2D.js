@@ -602,7 +602,8 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw));
 		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh));
 
-		this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
+		if (rotation != 0)
+			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
 		
 		var text = this.xmlDoc.createElement("Text");
 		text.textContent = str + "\n";

@@ -109,7 +109,7 @@ public class RowFactory
 					return new PolylineTo(index, x, y, formulaA);
 				case "RelCubBezTo":
 					return new RelCubBezTo(index, x, y, a, b, c, d);
-				case "RelEllipticalArcTo ":
+				case "RelEllipticalArcTo":
 					return new RelEllipticalArcTo(index, x, y, a, b, c, d);
 				case "RelLineTo":
 					return new RelLineTo(index, x, y);

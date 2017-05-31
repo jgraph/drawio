@@ -33,7 +33,6 @@
 					24, 24, 'MM', 'Avatar (Small)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
 			this.createVertexTemplateEntry('shape=ellipse;fillColor=#FF5630;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1', 
 					16, 16, 'M', 'Avatar (Tiny)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
-					
 			this.addEntry(dt + 'avatar available', function()
 	   		{
 			   	var bg = new mxCell('MM', new mxGeometry(0, 0, 32, 32), 'shape=ellipse;fillColor=#6554C0;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=17;fontStyle=1;html=1');
@@ -67,24 +66,21 @@
 			   	bg.insert(button1);
 		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Avatar (Do not disturb)');
 			}),
-
-			this.createVertexTemplateEntry('shape=rect;rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;html=1', 
+			this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;html=1', 
 					40, 40, '&lt;/&gt;', 'Container Avatar (Large)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar large').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1', 
+			this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1', 
 					32, 32, '&lt;/&gt;', 'Container Avatar (Medium)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar medium').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1', 
+			this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1', 
 					24, 24, '&lt;/&gt;', 'Container Avatar (Small)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar small').join(' ')),
-					
 			this.createVertexTemplateEntry('shape=ellipse;fillColor=#0065FF;strokeColor=none;html=1', 
 					10, 10, '', 'Dot Badge', null, null, this.getTagsForStencil(gn, '', dt + 'dot badge').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;fillColor=#0065FF;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;arcSize=50', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#0065FF;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;arcSize=50', 
 					40, 25, '13', 'Bold Badge', null, null, this.getTagsForStencil(gn, '', dt + 'bold badge').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;fillColor=#E3FCEF;strokeColor=none;html=1;fontColor=#016745;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;arcSize=50', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#E3FCEF;strokeColor=none;html=1;fontColor=#016745;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;arcSize=50', 
 					40, 25, '+1', 'Subtle Badge', null, null, this.getTagsForStencil(gn, '', dt + 'subtle badge').join(' ')),
-
 			this.addEntry(dt + 'banner', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'shape=rect;rounded=0;fillColor=#FFAB00;strokeColor=none;html=1');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'rounded=0;fillColor=#FFAB00;strokeColor=none;html=1');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('<b>More information?</b> See the <u>recovery process documentation</u>.', 
 			   			new mxGeometry(0.15, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#172B4C;strokeColor=none;fontColor=#172B4C;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
@@ -96,7 +92,7 @@
 			}),
 			this.addEntry(dt + 'banner', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'shape=rect;rounded=0;fillColor=#DE350A;strokeColor=none;html=1');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'rounded=0;fillColor=#DE350A;strokeColor=none;html=1');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('A database error has occurred. Please reload the page.', 
 			   			new mxGeometry(0.15, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#ffffff;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
@@ -108,10 +104,9 @@
 			}),
 			this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0', 
 					360, 25, 'Atlassian / Atlassian Connect / atlassian-connect-js-extra', 'Breadcrumb', null, null, this.getTagsForStencil(gn, '', dt + 'breadcrumb').join(' ')),
-					
 			this.addEntry(dt + 'button primary', function()
 	   		{
-			   	var bg = new mxCell('Pay now', new mxGeometry(25, 0, 86, 33), 'shape=rect;rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
+			   	var bg = new mxCell('Pay now', new mxGeometry(25, 0, 86, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'checkbox;fillColor=#008465;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -119,7 +114,7 @@
 			}),
 			this.addEntry(dt + 'button standard', function()
 	   		{
-			   	var bg = new mxCell('Create Group', new mxGeometry(25, 0, 115, 33), 'shape=rect;rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg = new mxCell('Create Group', new mxGeometry(25, 0, 115, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'checkbox;fillColor=#008465;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -127,7 +122,7 @@
 			}),
 			this.addEntry(dt + 'button link', function()
 	   		{
-			   	var bg = new mxCell('Visit documentation', new mxGeometry(25, 0, 125, 33), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=left;fontSize=12');
+			   	var bg = new mxCell('Visit documentation', new mxGeometry(25, 0, 125, 33), 'fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=left;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'checkbox;fillColor=#008465;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -135,7 +130,7 @@
 			}),
 			this.addEntry(dt + 'button primary', function()
 	   		{
-			   	var bg = new mxCell('Submit', new mxGeometry(25, 0, 80, 33), 'shape=rect;rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
+			   	var bg = new mxCell('Submit', new mxGeometry(25, 0, 80, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'close;fillColor=#BA3200;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -143,7 +138,7 @@
 			}),
 			this.addEntry(dt + 'button standard', function()
 	   		{
-			   	var bg = new mxCell('Done', new mxGeometry(25, 0, 55, 33), 'shape=rect;rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg = new mxCell('Done', new mxGeometry(25, 0, 55, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'close;fillColor=#BA3200;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -151,22 +146,21 @@
 			}),
 			this.addEntry(dt + 'button link', function()
 	   		{
-			   	var bg = new mxCell('Click here', new mxGeometry(25, 0, 75, 33), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=left;fontSize=12');
+			   	var bg = new mxCell('Click here', new mxGeometry(25, 0, 75, 33), 'fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=left;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'close;fillColor=#BA3200;strokeColor=none;html=1');
 			   	icon1.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg, icon1], 100, 33, 'Button (Link)');
 			}),
-					
-			this.createVertexTemplateEntry('shape=rect;rounded=1;fillColor=#0057D8;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#0057D8;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
 					86, 33, 'Primary', 'Button (Primary)', null, null, this.getTagsForStencil(gn, '', dt + 'button primary').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
 					86, 33, 'Standard', 'Button (Standard)', null, null, this.getTagsForStencil(gn, '', dt + 'button standard').join(' ')),
 			this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
 					86, 33, 'Link button', 'Button (Link)', null, null, this.getTagsForStencil(gn, '', dt + 'button link').join(' ')),
 			this.addEntry(dt + 'dropdown button', function()
 	   		{
-			   	var bg = new mxCell('Dropdown button', new mxGeometry(0, 0, 140, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
+			   	var bg = new mxCell('Dropdown button', new mxGeometry(0, 0, 140, 33), 'rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#596780;strokeColor=none;html=1');
 			   	icon1.geometry.relative = true;
@@ -177,13 +171,13 @@
 			}),
 			this.addEntry(dt + 'button label only', function()
 	   		{
-			   	var bg = new mxCell('Label only', new mxGeometry(0, 0, 80, 33), 'shape=rect;rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg = new mxCell('Label only', new mxGeometry(0, 0, 80, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg], 80, 33, 'Button (label only)');
 			}),
 			this.addEntry(dt + 'button icon and label', function()
 	   		{
-			   	var bg = new mxCell('Icon and label', new mxGeometry(0, 0, 120, 33), 'shape=rect;rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
+			   	var bg = new mxCell('Icon and label', new mxGeometry(0, 0, 120, 33), 'rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', 
 			   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
@@ -195,7 +189,7 @@
 			}),
 			this.addEntry(dt + 'button icon only', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 32, 33), 'shape=rect;rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 32, 33), 'rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', 
 			   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
@@ -207,7 +201,7 @@
 			}),
 			this.addEntry(dt + 'button subtle', function()
 	   		{
-			   	var bg = new mxCell('Subtle', new mxGeometry(0, 0, 80, 33), 'shape=rect;rounded=1;align=left;fillColor=none;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
+			   	var bg = new mxCell('Subtle', new mxGeometry(0, 0, 80, 33), 'rounded=1;align=left;fillColor=none;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', 
 			   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
@@ -219,13 +213,13 @@
 			}),
 			this.addEntry(dt + 'button disabled', function()
 	   		{
-			   	var bg = new mxCell('Disabled button', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#A5ADBA;fontSize=12');
+			   	var bg = new mxCell('Disabled button', new mxGeometry(0, 0, 110, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#A5ADBA;fontSize=12');
 			   	bg.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg], 110, 33, 'Button (disabled)');
 			}),
 			this.addEntry(dt + 'split button', function()
 	   		{
-			   	var bg = new mxCell('Split', new mxGeometry(0, 0, 80, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
+			   	var bg = new mxCell('Split', new mxGeometry(0, 0, 80, 33), 'rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#596780;strokeColor=none;html=1');
 			   	icon1.geometry.relative = true;
@@ -243,12 +237,12 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 320, 33), s3 + 'rrect;rSize=10;fillColor=#F1F2F4;strokeColor=#ffffff;strokeWidth=2');
 			   	bg.vertex = true;
-			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 80, 33), s3 + 'rrect;rSize=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
+			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 80, 33), 'rounded=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(80, 0);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 80, 33), s3 + 'rrect;rSize=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
+			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 80, 33), 'rounded=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(160, 0);
 			   	button3.vertex = true;
@@ -267,7 +261,7 @@
 			}),
 			this.addEntry(dt + 'button compact', function()
 	   		{
-			   	var bg = new mxCell('Compact', new mxGeometry(0, 0, 86, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg = new mxCell('Compact', new mxGeometry(0, 0, 86, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(107, 13, 6, 6), 'shape=ellipse;fillColor=#596780;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -279,11 +273,11 @@
 			}),
 			this.addEntry(dt + 'button grouped group', function()
 	   		{
-			   	var bg1 = new mxCell('Edit', new mxGeometry(0, 0, 50, 33), 'shape=rect;rounded=1;fillColor=#0065FF;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
+			   	var bg1 = new mxCell('Edit', new mxGeometry(0, 0, 50, 33), 'rounded=1;fillColor=#0065FF;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12');
 			   	bg1.vertex = true;
-			   	var bg2 = new mxCell('Comment', new mxGeometry(55, 0, 80, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg2 = new mxCell('Comment', new mxGeometry(55, 0, 80, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg2.vertex = true;
-			   	var bg3 = new mxCell('Assign', new mxGeometry(140, 0, 70, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg3 = new mxCell('Assign', new mxGeometry(140, 0, 70, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg3.vertex = true;
 			   	
 			   	var bg4 = new mxCell('', new mxGeometry(215, 0, 240, 33), s3 + 'rrect;rSize=10;fillColor=#F1F2F4;strokeColor=#ffffff;strokeWidth=2');
@@ -307,8 +301,7 @@
 			   	icon1.geometry.offset = new mxPoint(-20, -3);
 			   	icon1.vertex = true;
 			   	button3.insert(icon1);
-			   	
-			   	var bg5 = new mxCell('', new mxGeometry(500, 0, 56, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg5 = new mxCell('', new mxGeometry(500, 0, 56, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
 			   	bg5.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(15, 13, 6, 6), 'shape=ellipse;fillColor=#596780;strokeColor=none;html=1');
 			   	icon1.vertex = true;
@@ -329,7 +322,7 @@
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg1.insert(button1);
-			   	var button2 = new mxCell('Assign to me', new mxGeometry(0, 0, 90, 33), s3 + 'rrect;rSize=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
+			   	var button2 = new mxCell('Assign to me', new mxGeometry(0, 0, 90, 33), 'rounded=0;fontSize=12;fontColor=#596780;fontStyle=0;fillColor=none;strokeColor=#ffffff;strokeWidth=2;resizeHeight=1;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(60, 0);
 			   	button2.vertex = true;
@@ -383,36 +376,33 @@
 			   	bg4.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4], 551, 104, 'Button (grouped, responsive)');
 			}),
-					
 			this.createVertexTemplateEntry(s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10', 
 					12, 12, 'Text', 'Checkbox (on)', null, null, this.getTagsForStencil(gn, '', dt + 'checkbox on').join(' ')),
-			this.createVertexTemplateEntry('shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0', 
 					12, 12, 'Text', 'Checkbox (off)', null, null, this.getTagsForStencil(gn, '', dt + 'checkbox on').join(' ')),
-					
 			this.addEntry(dt + 'checkbox group', function()
 	   		{
-			   	var item1 = new mxCell('Selected coffees', new mxGeometry(0, 0, 150, 20), 'shape=rect;fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
+			   	var item1 = new mxCell('Selected coffees', new mxGeometry(0, 0, 150, 20), 'fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
 			   	item1.vertex = true;
-			   	var item2 = new mxCell('Espresso', new mxGeometry(10, 30, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item2 = new mxCell('Espresso', new mxGeometry(10, 30, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item2.vertex = true;
 			   	var item3 = new mxCell('Cappuccino', new mxGeometry(10, 55, 12, 12), s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10');
 			   	item3.vertex = true;
 			   	var item4 = new mxCell('Flat white', new mxGeometry(10, 80, 12, 12), s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10');
 			   	item4.vertex = true;
-			   	var item5 = new mxCell('Long black', new mxGeometry(10, 105, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item5 = new mxCell('Long black', new mxGeometry(10, 105, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item5.vertex = true;
-			   	var item6 = new mxCell('Add', new mxGeometry(0, 140, 60, 33), 'shape=rect;rounded=1;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	var item6 = new mxCell('Add', new mxGeometry(0, 140, 60, 33), 'rounded=1;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
 			   	item6.vertex = true;
-			   	var item7 = new mxCell('Cancel', new mxGeometry(70, 140, 60, 33), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	var item7 = new mxCell('Cancel', new mxGeometry(70, 140, 60, 33), 'fillColor=none;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
 			   	item7.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6, item7], 150, 173, 'Checkbox group');
 			}),
-					
 			this.addEntry(dt + 'dropdown button', function()
 	   		{
-			   	var item1 = new mxCell('Status', new mxGeometry(0, 0, 100, 20), 'shape=rect;rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
+			   	var item1 = new mxCell('Status', new mxGeometry(0, 0, 100, 20), 'rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
 			   	item1.vertex = true;
-			   	var item2 = new mxCell('Workflow', new mxGeometry(0, 20, 100, 33), 'shape=rect;rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
+			   	var item2 = new mxCell('Workflow', new mxGeometry(0, 20, 100, 33), 'rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10');
 			   	item2.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#596780;strokeColor=none;html=1');
 			   	icon1.geometry.relative = true;
@@ -421,36 +411,35 @@
 			   	item2.insert(icon1);
 		   		return sb.createVertexTemplateFromCells([item1, item2], 100, 53, 'Button (dropdown)');
 			}),
-					
 			this.addEntry(dt + 'dropdown button open', function()
 	   		{
-			   	var item1 = new mxCell('Status', new mxGeometry(0, 0, 100, 20), 'shape=rect;rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
+			   	var item1 = new mxCell('Status', new mxGeometry(0, 0, 100, 20), 'rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
 			   	item1.vertex = true;
-			   	var item2 = new mxCell('Workflow', new mxGeometry(0, 20, 100, 33), 'shape=rect;rounded=1;fillColor=#253858;strokeColor=none;html=1;fontColor=#ffffff;align=left;fontSize=12;spacingLeft=10');
+			   	var item2 = new mxCell('Workflow', new mxGeometry(0, 20, 100, 33), 'rounded=1;fillColor=#253858;strokeColor=none;html=1;fontColor=#ffffff;align=left;fontSize=12;spacingLeft=10');
 			   	item2.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;html=1');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(-20, -3);
 			   	icon1.vertex = true;
 			   	item2.insert(icon1);
-			   	var item3 = new mxCell('', new mxGeometry(0, 56, 110, 144), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item3 = new mxCell('', new mxGeometry(0, 56, 110, 144), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item3.vertex = true;
-			   	var item4 = new mxCell('Closed', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item4 = new mxCell('Closed', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item4.geometry.relative = true;
 			   	item4.geometry.offset = new mxPoint(0, 6);
 			   	item4.vertex = true;
 			   	item3.insert(item4);
-			   	var item5 = new mxCell('Reviewed', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item5 = new mxCell('Reviewed', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item5.geometry.relative = true;
 			   	item5.geometry.offset = new mxPoint(0, 39);
 			   	item5.vertex = true;
 			   	item3.insert(item5);
-			   	var item6 = new mxCell('Abandoned', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item6 = new mxCell('Abandoned', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item6.geometry.relative = true;
 			   	item6.geometry.offset = new mxPoint(0, 72);
 			   	item6.vertex = true;
 			   	item3.insert(item6);
-			   	var item7 = new mxCell('Workflow', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item7 = new mxCell('Workflow', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item7.geometry.relative = true;
 			   	item7.geometry.offset = new mxPoint(0, 105);
 			   	item7.vertex = true;
@@ -459,9 +448,9 @@
 			}),
 			this.addEntry(dt + 'dropdown avatar', function()
 	   		{
-			   	var item1 = new mxCell('Choose a designer', new mxGeometry(0, 0, 120, 20), 'shape=rect;rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
+			   	var item1 = new mxCell('Choose a designer', new mxGeometry(0, 0, 120, 20), 'rounded=1;fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=11;spacingLeft=10;fontSize=11');
 			   	item1.vertex = true;
-			   	var item2 = new mxCell('', new mxGeometry(0, 20, 150, 33), 'shape=rect;rounded=1;fillColor=#253858;strokeColor=none;html=1;');
+			   	var item2 = new mxCell('', new mxGeometry(0, 20, 150, 33), 'rounded=1;fillColor=#253858;strokeColor=none;html=1;');
 			   	item2.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;html=1');
 			   	icon1.geometry.relative = true;
@@ -473,9 +462,9 @@
 			   	icon2.geometry.offset = new mxPoint(10, -12);
 			   	icon2.vertex = true;
 			   	item2.insert(icon2);
-			   	var item3 = new mxCell('', new mxGeometry(0, 56, 160, 111), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item3 = new mxCell('', new mxGeometry(0, 56, 160, 111), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item3.vertex = true;
-			   	var item4 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'shape=rect;rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item4 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item4.geometry.relative = true;
 			   	item4.geometry.offset = new mxPoint(0, 6);
 			   	item4.vertex = true;
@@ -485,7 +474,7 @@
 			   	icon3.geometry.offset = new mxPoint(10, -12);
 			   	icon3.vertex = true;
 			   	item4.insert(icon3);
-			   	var item5 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item5 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item5.geometry.relative = true;
 			   	item5.geometry.offset = new mxPoint(0, 39);
 			   	item5.vertex = true;
@@ -495,7 +484,7 @@
 			   	icon3.geometry.offset = new mxPoint(10, -12);
 			   	icon3.vertex = true;
 			   	item5.insert(icon3);
-			   	var item6 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item6 = new mxCell('', new mxGeometry(0, 0, 160, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item6.geometry.relative = true;
 			   	item6.geometry.offset = new mxPoint(0, 72);
 			   	item6.vertex = true;
@@ -505,12 +494,11 @@
 			   	icon3.geometry.offset = new mxPoint(10, -12);
 			   	icon3.vertex = true;
 			   	item6.insert(icon3);
-			   	
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 160, 167, 'Button (avatar)');
 			}),
 			this.addEntry(dt + 'flag message', function()
 	   		{
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 90), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 90), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item1.vertex = true;
 			   	var icon1 = new mxCell('START-85 has been created', new mxGeometry(0, 0, 14, 14), s + 'checkbox;fillColor=#36B37E;strokeColor=none;html=1;fontSize=14;fontStyle=0;labelPosition=right;align=left;spacingLeft=20');
 			   	icon1.geometry.relative = true;
@@ -531,14 +519,14 @@
 			}),
 			this.addEntry(dt + 'multiple flag message', function()
 	   		{
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 150), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 150), ' rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item1.vertex = true;
 			   	var icon1 = new mxCell('Nifty concise title', new mxGeometry(0, 0, 14, 14), 'shape=mxgraph.azure.azure_alert;fillColor=#FF5630;strokeColor=none;html=1;fontSize=14;fontStyle=0;labelPosition=right;align=left;spacingLeft=20');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(25, 25);
 			   	icon1.vertex = true;
 			   	item1.insert(icon1);
-			   	var icon2 = new mxCell("It's best if the title is in sentence case and this description text is super informative and awesome.", new mxGeometry(0, 0, 230, 60), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
+			   	var icon2 = new mxCell("It's best if the title is in sentence case and this description text is super informative and awesome.", new mxGeometry(0, 0, 230, 60), 'fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
 			   	icon2.geometry.relative = true;
 			   	icon2.geometry.offset = new mxPoint(60, 50);
 			   	icon2.vertex = true;
@@ -557,14 +545,14 @@
 			}),
 			this.addEntry(dt + 'flag message', function()
 	   		{
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 120), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 333, 120), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item1.vertex = true;
 			   	var icon1 = new mxCell('You are now connected', new mxGeometry(0, 0, 14, 14), s + 'checkbox;fillColor=#36B37E;strokeColor=none;html=1;fontSize=14;fontStyle=0;labelPosition=right;align=left;spacingLeft=20');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(25, 25);
 			   	icon1.vertex = true;
 			   	item1.insert(icon1);
-			   	var icon2 = new mxCell('You have been added to the group "Find the Haiku on this site."', new mxGeometry(0, 0, 230, 60), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
+			   	var icon2 = new mxCell('You have been added to the group "Find the Haiku on this site."', new mxGeometry(0, 0, 230, 60), 'fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
 			   	icon2.geometry.relative = true;
 			   	icon2.geometry.offset = new mxPoint(60, 50);
 			   	icon2.vertex = true;
@@ -578,14 +566,14 @@
 			}),
 			this.addEntry(dt + 'inline dialog', function()
 	   		{
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 292, 190), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 292, 190), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item1.vertex = true;
-			   	var icon1 = new mxCell('Use the HipChat app', new mxGeometry(0, 0, 240, 20), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=1;align=left');
+			   	var icon1 = new mxCell('Use the HipChat app', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=1;align=left');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(25, 21);
 			   	icon1.vertex = true;
 			   	item1.insert(icon1);
-			   	var icon2 = new mxCell('Would you rather open links in the HipChat application instead of your browser?', new mxGeometry(0, 0, 240, 60), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
+			   	var icon2 = new mxCell('Would you rather open links in the HipChat application instead of your browser?', new mxGeometry(0, 0, 240, 60), 'fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
 			   	icon2.geometry.relative = true;
 			   	icon2.geometry.offset = new mxPoint(25, 50);
 			   	icon2.vertex = true;
@@ -595,12 +583,12 @@
 			   	icon3.geometry.offset = new mxPoint(30, 120);
 			   	icon3.vertex = true;
 			   	item1.insert(icon3);
-			   	var icon4 = new mxCell('Don&apos;t have the app? <font color="#0057d8">Get it!</font>', new mxGeometry(0, 0, 240, 20), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
+			   	var icon4 = new mxCell('Don&apos;t have the app? <font color="#0057d8">Get it!</font>', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=14;fontStyle=0;fontColor=#000000;align=left;whiteSpace=wrap');
 			   	icon4.geometry.relative = true;
 			   	icon4.geometry.offset = new mxPoint(25, 152);
 			   	icon4.vertex = true;
 			   	item1.insert(icon4);
-			   	var item2 = new mxCell('', new mxGeometry(242, 195, 50, 33), 'shape=rect;rounded=1;fillColor=#42526E;strokeColor=none;shadow=0;html=1;arcSize=12');
+			   	var item2 = new mxCell('', new mxGeometry(242, 195, 50, 33), 'rounded=1;fillColor=#42526E;strokeColor=none;shadow=0;html=1;arcSize=12');
 			   	item2.vertex = true;
 			   	var icon5 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 20), 'shape=mxgraph.mscae.enterprise.settings;fillColor=#ffffff;strokeColor=none');
 			   	icon5.geometry.relative = true;
@@ -611,18 +599,18 @@
 			}),
 			this.addEntry(dt + 'inline dialog', function()
 	   		{
-			   	var bg1 = new mxCell('20', new mxGeometry(0, 0, 40, 20), 'shape=rect;rounded=1;fillColor=#DEE1E6;strokeColor=none;shadow=0;html=1;arcSize=50;fontSize=12;align=center;verticalAlign=middle');
+			   	var bg1 = new mxCell('20', new mxGeometry(0, 0, 40, 20), 'rounded=1;fillColor=#DEE1E6;strokeColor=none;shadow=0;html=1;arcSize=50;fontSize=12;align=center;verticalAlign=middle');
 			   	bg1.vertex = true;
-			   	var bg2 = new mxCell('Start watching this issue', new mxGeometry(40, 0, 200, 20), 'shape=rect;rounded=1;fillColor=none;strokeColor=none;shadow=0;html=1;arcSize=50;fontSize=12;align=left;verticalAlign=middle;spacingLeft=10');
+			   	var bg2 = new mxCell('Start watching this issue', new mxGeometry(40, 0, 200, 20), 'rounded=1;fillColor=none;strokeColor=none;shadow=0;html=1;arcSize=50;fontSize=12;align=left;verticalAlign=middle;spacingLeft=10');
 			   	bg2.vertex = true;
-			   	var bg3 = new mxCell('', new mxGeometry(0, 30, 340, 420), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=1;fontFamily=Verdana;fontSize=14;fontColor=#000000;align=left;');
+			   	var bg3 = new mxCell('', new mxGeometry(0, 30, 340, 420), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=1;fontFamily=Verdana;fontSize=14;fontColor=#000000;align=left;');
 			   	bg3.vertex = true;
-			   	var item1 = new mxCell('Add watchers', new mxGeometry(0, 0, 240, 20), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
+			   	var item1 = new mxCell('Add watchers', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
 			   	item1.geometry.relative = true;
 			   	item1.geometry.offset = new mxPoint(25, 25);
 			   	item1.vertex = true;
 			   	bg3.insert(item1);
-			   	var item2 = new mxCell('', new mxGeometry(0, 0, 290, 35), 'shape=rect;rounded=1;arcSize=9;fillColor=none;strokeColor=#4C9AFF;html=1;strokeWidth=2');
+			   	var item2 = new mxCell('', new mxGeometry(0, 0, 290, 35), 'rounded=1;arcSize=9;fillColor=none;strokeColor=#4C9AFF;html=1;strokeWidth=2');
 			   	item2.geometry.relative = true;
 			   	item2.geometry.offset = new mxPoint(25, 50);
 			   	item2.vertex = true;
@@ -686,13 +674,13 @@
 			}),
 			this.addEntry(dt + 'inline edit', function()
 	   		{
-			   	var item1 = new mxCell('Sprint', new mxGeometry(0, 0, 240, 20), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
+			   	var item1 = new mxCell('Sprint', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
 			   	item1.vertex = true;
-			   	var item2 = new mxCell('Android - 8 - Publish comments', new mxGeometry(0, 25, 290, 35), 'shape=rect;rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=5');
+			   	var item2 = new mxCell('Android - 8 - Publish comments', new mxGeometry(0, 25, 290, 35), 'rounded=1;arcSize=9;fillColor=#ffffff;strokeColor=#4C9AFF;html=1;strokeWidth=2;spacingLeft=5');
 			   	item2.vertex = true;
-			   	var item3 = new mxCell('', new mxGeometry(0, 0, 240, 20), 'shape=rect;fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
+			   	var item3 = new mxCell('', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left');
 			   	item3.vertex = true;
-			   	var item4 = new mxCell('', new mxGeometry(300, 28, 29, 29), 'shape=rect;rounded=1;arcSize=12;fillColor=#F0F2F5;strokeColor=none;html=1');
+			   	var item4 = new mxCell('', new mxGeometry(300, 28, 29, 29), 'rounded=1;arcSize=12;fillColor=#F0F2F5;strokeColor=none;html=1');
 			   	item4.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0.5, 0.5, 10, 8), s + 'check;strokeColor=#42526E;strokeWidth=2');
 			   	icon1.geometry.relative = true;
@@ -795,10 +783,9 @@
 			   	icon4.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, icon3, icon4], 230, 60, 'Inline edit');
 			}),
-					
 			this.addEntry(dt + 'inline message', function()
 	   		{
-			   	var item1 = new mxCell('Access level applications', new mxGeometry(0, 30, 150, 20), 'shape=rect;fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
+			   	var item1 = new mxCell('Access level applications', new mxGeometry(0, 30, 150, 20), 'fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell('JIRA', new mxGeometry(10, 60, 12, 12), s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10');
 			   	item2.vertex = true;
@@ -806,9 +793,9 @@
 			   	item3.vertex = true;
 			   	var item4 = new mxCell('Bamboo', new mxGeometry(10, 110, 12, 12), s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10');
 			   	item4.vertex = true;
-			   	var item5 = new mxCell('Bitbucket accounts', new mxGeometry(0, 135, 150, 20), 'shape=rect;fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
+			   	var item5 = new mxCell('Bitbucket accounts', new mxGeometry(0, 135, 150, 20), 'fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
 			   	item5.vertex = true;
-			   	var item6 = new mxCell('New users will be sent a request to join.', new mxGeometry(0, 160, 220, 20), 'shape=rect;fillColor=none;strokeColor=none;fontSize=12;fontStyle=0;align=left;fontColor=#000000');
+			   	var item6 = new mxCell('New users will be sent a request to join.', new mxGeometry(0, 160, 220, 20), 'fillColor=none;strokeColor=none;fontSize=12;fontStyle=0;align=left;fontColor=#000000');
 			   	item6.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(230, 160, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#FF8B00;strokeColor=none;fontColor=#172B4C;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
 			   	icon1.vertex = true;
@@ -816,11 +803,10 @@
 			   			'<b>Multiple accounts</b>\n\n' +
 			   			'We will automatically invite any new users to Bitbucket, depending on your account settings.\n\n' +
 			   			'<font color="#0057d8">Update your setting</font> or <font color="#0057d8">read more</font>'
-			   				, new mxGeometry(220, 0, 240, 152), 'rounded=1;arcSize=3;fillColor=#ffffff;strokeColor=#DFE1E5;strokeWidth=1;shadow=1;align=left;html=1;whiteSpace=wrap;spacingLeft=20;spacingRight=20;');
+			   				, new mxGeometry(220, 0, 240, 152), 'rounded=1;arcSize=3;fillColor=#ffffff;strokeColor=#DFE1E5;strokeWidth=1;shadow=1;align=left;html=1;whiteSpace=wrap;spacingLeft=20;spacingRight=20;fontSize=12');
 			   	item7.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6, icon1, item7], 150, 180, 'Inline message');
 			}),
-
 			this.addEntry(dt + 'inline message subtitle', function()
 	   		{
 			   	var icon1 = new mxCell('i', new mxGeometry(0, 0, 20, 20), 'shape=ellipse;fillColor=#403294;strokeColor=none;fontSize=14;fontStyle=1;align=center;fontColor=#ffffff');
@@ -831,32 +817,30 @@
 			   	item2.vertex = true;
 		   		return sb.createVertexTemplateFromCells([icon1, item1, item2], 230, 63, 'Inline message with subtitle');
 			}),
-					
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#DFE1E6;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
-					 70, 20, 'DEFAULT', 'Lozenge (state, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#DFE1E6;strokeColor=#DFE1E6;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
-					 70, 20, 'DEFAULT', 'Lozenge (state, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#008364;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#008364',
-					 70, 20, 'SUCCESS', 'Lozenge (success, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#008364;strokeColor=#008364;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
-					 70, 20, 'SUCCESS', 'Lozenge (success, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#BA3200;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#BA3200',
-					 70, 20, 'REMOVED', 'Lozenge (problem, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#BA3200;strokeColor=#BA3200;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
-					 70, 20, 'REMOVED', 'Lozenge (problem, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#0057D8;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#0057D8',
-					 100, 20, 'IN PROGRESS', 'Lozenge (current, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#0057D8;strokeColor=#0057D8;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
-					 100, 20, 'IN PROGRESS', 'Lozenge (current, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#6554C0;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#6554C0',
-					 50, 20, 'NEW', 'Lozenge (new, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#6554C0;strokeColor=#6554C0;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
-					 50, 20, 'NEW', 'Lozenge (new, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#FFAB00;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
-					 60, 20, 'MOVED', 'Lozenge (moved, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFAB00;strokeColor=#FFAB00;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
-					 60, 20, 'MOVED', 'Lozenge (moved, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
-
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#DFE1E6;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
+				 70, 20, 'DEFAULT', 'Lozenge (state, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#DFE1E6;strokeColor=#DFE1E6;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
+				 70, 20, 'DEFAULT', 'Lozenge (state, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#008364;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#008364',
+				 70, 20, 'SUCCESS', 'Lozenge (success, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#008364;strokeColor=#008364;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
+				 70, 20, 'SUCCESS', 'Lozenge (success, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#BA3200;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#BA3200',
+				 70, 20, 'REMOVED', 'Lozenge (problem, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#BA3200;strokeColor=#BA3200;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
+				 70, 20, 'REMOVED', 'Lozenge (problem, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#0057D8;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#0057D8',
+				 100, 20, 'IN PROGRESS', 'Lozenge (current, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#0057D8;strokeColor=#0057D8;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
+				 100, 20, 'IN PROGRESS', 'Lozenge (current, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#6554C0;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#6554C0',
+				 50, 20, 'NEW', 'Lozenge (new, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#6554C0;strokeColor=#6554C0;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#ffffff',
+				 50, 20, 'NEW', 'Lozenge (new, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFFFFF;strokeColor=#FFAB00;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
+				 60, 20, 'MOVED', 'Lozenge (moved, subtle)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;rounded=1;fillColor=#FFAB00;strokeColor=#FFAB00;fontSize=12;align=center;fontStyle=1;strokeWidth=2;fontColor=#42526E',
+				 60, 20, 'MOVED', 'Lozenge (moved, bold)', null, null, this.getTagsForStencil(gn, 'lozenge', dt).join(' ')),
 			this.addEntry(dt + 'inline message subtitle', function()
 	   		{
 			   	var item1 = new mxCell('Yeah, progress!', new mxGeometry(0, 0, 120, 20), 'dashed=0;html=1;rounded=1;fillColor=#172B4D;strokeColor=#172B4D;fontSize=12;align=center;fontStyle=0;strokeWidth=2;fontColor=#ffffff');
@@ -873,13 +857,12 @@
 			   	item2.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2], 120, 50, 'Lozenge (tooltip)');
 			}),
-
 			this.addEntry(dt + 'modal dialog', function()
 	   		{
 			   	var item1 = new mxCell(
 			   			'<b><font style="font-size: 14px">Your dashboard</font></b><div></div><div>\nYour dashboard is the first thing you see when you log in. The JIRA Software dashboard is like your car&apos;s dashboard. But instead of' +
 			   			' showing your speed and fuel level, it shows important information about your work - like your projects, your activities and your issues.</div>', 
-			   				new mxGeometry(0, 0, 330, 210), 'html=1;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;fontSize=12;align=left;fontColor=#000000;shadow=1;arcSize=1;whiteSpace=wrap;spacing=20;verticalAlign=top');
+			   				new mxGeometry(0, 0, 330, 210), 'html=1;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;fontSize=12;align=left;fontColor=#000000;shadow=1;arcSize=1;whiteSpace=wrap;spacing=20;verticalAlign=top;');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell("Add", new mxGeometry(0, 0, 50, 33), 'dashed=0;html=1;rounded=1;fillColor=#0057D8;strokeColor=none;fontSize=12;align=center;fontStyle=0;strokeWidth=2;fontColor=#ffffff');
 			   	item2.geometry.relative = true;
@@ -977,7 +960,7 @@
 			   	item9.geometry.offset = new mxPoint(20, 270);
 			   	item9.vertex = true;
 			   	item1.insert(item9);
-			   	var item10 = new mxCell('Branch deletion', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item10 = new mxCell('Branch deletion', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item10.geometry.relative = true;
 			   	item10.geometry.offset = new mxPoint(20, 306);
 			   	item10.vertex = true;
@@ -1016,7 +999,7 @@
 			   	item4.geometry.offset = new mxPoint(170, 60);
 			   	item4.vertex = true;
 			   	item1.insert(item4);
-			   	var item5 = new mxCell('Show joined/left room messages', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item5 = new mxCell('Show joined/left room messages', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item5.geometry.relative = true;
 			   	item5.geometry.offset = new mxPoint(170, 90);
 			   	item5.vertex = true;
@@ -1036,12 +1019,12 @@
 			   	item8.geometry.offset = new mxPoint(170, 180);
 			   	item8.vertex = true;
 			   	item1.insert(item8);
-			   	var item9 = new mxCell('Turned text emoticons into images', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item9 = new mxCell('Turned text emoticons into images', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item9.geometry.relative = true;
 			   	item9.geometry.offset = new mxPoint(170, 210);
 			   	item9.vertex = true;
 			   	item1.insert(item9);
-			   	var item10 = new mxCell('Idle', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item10 = new mxCell('Idle', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item10.geometry.relative = true;
 			   	item10.geometry.offset = new mxPoint(170, 240);
 			   	item10.vertex = true;
@@ -1061,19 +1044,18 @@
 			   	item13.geometry.offset = new mxPoint(170, 270);
 			   	item13.vertex = true;
 			   	item1.insert(item13);
-			   	var item14 = new mxCell('Enable spell check', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item14 = new mxCell('Enable spell check', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item14.geometry.relative = true;
 			   	item14.geometry.offset = new mxPoint(170, 300);
 			   	item14.vertex = true;
 			   	item1.insert(item14);
-			   	var item15 = new mxCell('Correct spelling automatically', new mxGeometry(0, 0, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item15 = new mxCell('Correct spelling automatically', new mxGeometry(0, 0, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item15.geometry.relative = true;
 			   	item15.geometry.offset = new mxPoint(170, 330);
 			   	item15.vertex = true;
 			   	item1.insert(item15);
 		   		return sb.createVertexTemplateFromCells([item1], item1.geometry.width, item1.geometry.height, 'Modal dialog (medium)');
 			}),
-					 
 			this.addEntry(dt + 'error modal dialog', function()
 	   		{
 			   	var item1 = new mxCell("You are about to delete the job 'Newtown'. If you proceed with this action Bamboo will permanently delete all configuration settings, logs and results for this job.", 
@@ -1290,7 +1272,7 @@
 			}),
 			this.addEntry(dt + 'radio button group', function()
 	   		{
-			   	var item1 = new mxCell('Permissions', new mxGeometry(0, 0, 150, 20), 'shape=rect;fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
+			   	var item1 = new mxCell('Permissions', new mxGeometry(0, 0, 150, 20), 'fillColor=none;strokeColor=none;fontSize=11;fontStyle=1;align=left;fontColor=#596780');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell('Read only', new mxGeometry(10, 30, 12, 12), 'shape=ellipse;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item2.vertex = true;
@@ -1298,13 +1280,12 @@
 			   	item3.vertex = true;
 			   	var item4 = new mxCell('Restricted', new mxGeometry(10, 80, 12, 12), 'shape=ellipse;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item4.vertex = true;
-			   	var item5 = new mxCell('Add', new mxGeometry(0, 115, 60, 33), 'shape=rect;rounded=1;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	var item5 = new mxCell('Add', new mxGeometry(0, 115, 60, 33), 'rounded=1;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
 			   	item5.vertex = true;
-			   	var item6 = new mxCell('Cancel', new mxGeometry(70, 115, 60, 33), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	var item6 = new mxCell('Cancel', new mxGeometry(70, 115, 60, 33), 'fillColor=none;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
 			   	item6.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 150, 173, 'Radio button group');
 			}),
-					 
 			this.addEntry(dt + 'single select', function()
 	   		{
 			   	var item1 = new mxCell("Sprint", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap;');
@@ -1476,7 +1457,6 @@
 			   	item3.insert(item8);
 			   	return sb.createVertexTemplateFromCells([item1, item2, item3], 360, 260, 'Single select (grouped)');
 			}),
-							
 			this.addEntry(dt + 'single select', function()
 	   		{
 			   	var item1 = new mxCell("Epic link", new mxGeometry(0, 0, 150, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=11;align=left;fontColor=#596780;whiteSpace=wrap');
@@ -1565,7 +1545,7 @@
 			   	item2.vertex = true;
 			   	var item3 = new mxCell('', new mxGeometry(0, 20, 430, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
 			   	item3.vertex = true;
-			   	var item4 = new mxCell('&lt;/&gt;', new mxGeometry(0, 40, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item4 = new mxCell('&lt;/&gt;', new mxGeometry(0, 40, 32, 32), 'rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item4.vertex = true;
 			   	var item5 = new mxCell('3rd_library', new mxGeometry(37, 46, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
 			   	item5.vertex = true;
@@ -1573,11 +1553,11 @@
 			   	item6.vertex = true;
 			   	var item7 = new mxCell('', new mxGeometry(300, 44, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
 			   	item7.vertex = true;
-			   	var item8 = new mxCell('+6', new mxGeometry(350, 46, 20, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	var item8 = new mxCell('+6', new mxGeometry(350, 46, 20, 20), 'rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
 			   	item8.vertex = true;
 			   	var item9 = new mxCell('', new mxGeometry(400, 49, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
 			   	item9.vertex = true;
-			   	var item10 = new mxCell('', new mxGeometry(0, 85, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#EA4232;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item10 = new mxCell('', new mxGeometry(0, 85, 32, 32), 'rounded=1;arcSize=5;fillColor=#EA4232;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item10.vertex = true;
 			   	var item11 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 18), 'shape=mxgraph.signs.science.nuclear_1;fillColor=#ffffff;strokeColor=none');
 			   	item11.geometry.relative = true;
@@ -1594,7 +1574,7 @@
 			   	item15.vertex = true;
 			   	var item16 = new mxCell('', new mxGeometry(400, 94, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
 			   	item16.vertex = true;
-			   	var item17 = new mxCell('JS', new mxGeometry(0, 130, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#F1DD3F;strokeColor=none;fontColor=#000000;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item17 = new mxCell('JS', new mxGeometry(0, 130, 32, 32), 'rounded=1;arcSize=5;fillColor=#F1DD3F;strokeColor=none;fontColor=#000000;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item17.vertex = true;
 			   	var item18 = new mxCell('aac-sac', new mxGeometry(37, 136, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
 			   	item18.vertex = true;
@@ -1604,7 +1584,7 @@
 			   	item20.vertex = true;
 			   	var item21 = new mxCell('', new mxGeometry(300, 134, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
 			   	item21.vertex = true;
-			   	var item22 = new mxCell('&lt;/&gt;', new mxGeometry(0, 175, 32, 32), 'shape=rect;rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item22 = new mxCell('&lt;/&gt;', new mxGeometry(0, 175, 32, 32), 'rounded=1;arcSize=5;fillColor=#59ADDF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item22.vertex = true;
 			   	var item23 = new mxCell('3rd_library', new mxGeometry(37, 181, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;fontStyle=1');
 			   	item23.vertex = true;
@@ -1612,7 +1592,7 @@
 			   	item24.vertex = true;
 			   	var item25 = new mxCell('', new mxGeometry(300, 179, 24, 24), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
 			   	item25.vertex = true;
-			   	var item26 = new mxCell('+6', new mxGeometry(350, 181, 20, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
+			   	var item26 = new mxCell('+6', new mxGeometry(350, 181, 20, 20), 'rounded=1;arcSize=5;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
 			   	item26.vertex = true;
 			   	var item27 = new mxCell('', new mxGeometry(400, 184, 10, 14), 'shape=mxgraph.office.security.lock_protected;fillColor=#5E6C84;strokeColor=none');
 			   	item27.vertex = true;
@@ -1639,7 +1619,7 @@
 			   	item6.vertex = true;
 			   	var item7 = new mxCell('', new mxGeometry(330, 44, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
 			   	item7.vertex = true;
-			   	var item8 = new mxCell('staging', new mxGeometry(355, 39, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item8 = new mxCell('staging', new mxGeometry(355, 39, 50, 20), 'rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item8.vertex = true;
 			   	var item9 = new mxCell('+6', new mxGeometry(535, 44, 24, 24), 'shape=ellipse;fillColor=#F0F2F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
 			   	item9.vertex = true;
@@ -1677,7 +1657,7 @@
 			   	item23.vertex = true;
 			   	var item24 = new mxCell('', new mxGeometry(342, 134, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
 			   	item24.vertex = true;
-			   	var item25 = new mxCell('staging', new mxGeometry(365, 129, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item25 = new mxCell('staging', new mxGeometry(365, 129, 50, 20), 'rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item25.vertex = true;
 			   	var item26 = new mxCell('&#8226;&#8226;&#8226;', new mxGeometry(600, 138, 16, 16), 'shape=ellipse;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;flipH=1;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
 			   	item26.vertex = true;
@@ -1690,7 +1670,7 @@
 			   	item28.vertex = true;
 			   	var item29 = new mxCell('', new mxGeometry(330, 179, 16, 10), 'shape=mxgraph.arrows2.sharpArrow2;dy1=0.82;dx1=4.02;dx2=5.92;dy3=0.26;dx3=7.37;notch=0;strokeColor=none;fillColor=#C1C7D0;direction=east;');
 			   	item29.vertex = true;
-			   	var item30 = new mxCell('staging', new mxGeometry(355, 174, 50, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#A5ADBA;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
+			   	var item30 = new mxCell('staging', new mxGeometry(355, 174, 50, 20), 'rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#A5ADBA;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1');
 			   	item30.vertex = true;
 			   	var item31 = new mxCell('2', new mxGeometry(440, 183, 16, 15), 'shape=mxgraph.basic.oval_callout;fillColor=#A5ADBA;strokeColor=none;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1;labelPosition=right;verticalLabelPosition=middle');
 			   	item31.vertex = true;
@@ -1704,7 +1684,7 @@
 			   	item35.vertex = true;
 			   	var item36 = new mxCell('', new mxGeometry(600, 183, 16, 16), s + 'checkbox;fillColor=#A5ADBA;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;html=1');
 			   	item36.vertex = true;
-			   	var item37 = new mxCell('This PR has been merged', new mxGeometry(50, 210, 160, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#172B4D;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0;html=1');
+			   	var item37 = new mxCell('This PR has been merged', new mxGeometry(50, 210, 160, 20), 'rounded=1;arcSize=5;fillColor=#172B4D;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0;html=1');
 			   	item37.vertex = true;
 			   	var item38 = new mxCell('', new mxGeometry(0, 228, 620, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
 			   	item38.vertex = true;
@@ -1892,14 +1872,14 @@
 			   	item45.vertex = true;
 			   	var item46 = new mxCell('', new mxGeometry(10, 179, 630, 10), 'shape=line;strokeWidth=2;html=1;strokeColor=#DFE1E5;resizeWidth=1');
 			   	item46.vertex = true;
-			   	var item47 = new mxCell('', new mxGeometry(530, 61, 110, 78), 'shape=rect;rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	var item47 = new mxCell('', new mxGeometry(530, 61, 110, 78), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
 			   	item47.vertex = true;
-			   	var item48 = new mxCell('View source', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item48 = new mxCell('View source', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item48.geometry.relative = true;
 			   	item48.geometry.offset = new mxPoint(0, 6);
 			   	item48.vertex = true;
 			   	item47.insert(item48);
-			   	var item49 = new mxCell('Delete branch', new mxGeometry(0, 0, 110, 33), 'shape=rect;rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	var item49 = new mxCell('Delete branch', new mxGeometry(0, 0, 110, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
 			   	item49.geometry.relative = true;
 			   	item49.geometry.offset = new mxPoint(0, 39);
 			   	item49.vertex = true;
@@ -1925,12 +1905,10 @@
 			   	item6.vertex = true;
 			   	return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6], 350, 30, 'Table with action');
 			}),
-			
-			 this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#596780;fontStyle=1;fontSize=11;shadow=0',
-					 60, 20, 'Tag text', 'Tag', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
-			 this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#3384FF;fontStyle=1;fontSize=11;shadow=0',
-					 60, 20, 'Tag link', 'Tag link', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
-					 
+			this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#596780;fontStyle=1;fontSize=11;shadow=0',
+				 60, 20, 'Tag text', 'Tag', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
+			this.createVertexTemplateEntry('dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=center;rounded=1;arcSize=10;fontColor=#3384FF;fontStyle=1;fontSize=11;shadow=0',
+				 60, 20, 'Tag link', 'Tag link', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
 			this.addEntry(dt + 'tag removable', function()
 	   		{
 			   	var item1 = new mxCell('Removable tag', new mxGeometry(0, 0, 100, 20), 'dashed=0;html=1;fillColor=#F0F2F5;strokeColor=none;align=left;rounded=1;arcSize=10;fontColor=#596780;fontStyle=1;fontSize=11;shadow=0;spacingLeft=3');
@@ -2052,7 +2030,6 @@
 			   	item4.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, item4], 480, 80, 'Text field with tooltip');
 			}),
-			
 			this.addEntry(dt + 'toggle subtle', function()
 	   		{
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 30, 16), 'fillColor=#36B37E;strokeColor=none;rounded=1;arcSize=50');
@@ -2105,9 +2082,9 @@
 			   	item5.vertex = true;
 			   	var item6 = new mxCell('Allow other users to merge this branch via pull request', new mxGeometry(0, 50, 280, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;align=left;fontColor=#596780;fontStyle=0;fontSize=11');
 			   	item6.vertex = true;
-			   	var item7 = new mxCell('Rewriting history', new mxGeometry(5, 75, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item7 = new mxCell('Rewriting history', new mxGeometry(5, 75, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item7.vertex = true;
-			   	var item8 = new mxCell('Branch deletion', new mxGeometry(5, 100, 12, 12), 'shape=rect;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	var item8 = new mxCell('Branch deletion', new mxGeometry(5, 100, 12, 12), 'rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
 			   	item8.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item2, item5, item6, item7, item8], 280, 112, 'Bold toggle with tooltip');
 			}),
@@ -2183,17 +2160,15 @@
 			   	item4.vertex = true;
 		   		return sb.createVertexTemplateFromCells([item1, item4], 280, 112, 'Bold subtle disabled');
 			}),
-			
 			this.createVertexTemplateEntry('rounded=1;arcSize=10;fillColor=#172B4D;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#ffffff;fontStyle=0;fontSize=11',
 				 65, 20, 'Tooltip', 'Tooltip', null, null, this.getTagsForStencil(gn, 'tag', dt).join(' ')),
-
 			this.addEntry(dt + 'comment', function()
 	   		{
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 32, 32), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell('Jim Bunnings', new mxGeometry(40, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap');
 			   	item2.vertex = true;
-			   	var item3 = new mxCell('AUTHOR', new mxGeometry(125, 0, 55, 20), 'shape=rect;rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1');
+			   	var item3 = new mxCell('AUTHOR', new mxGeometry(125, 0, 55, 20), 'rounded=1;arcSize=5;fillColor=#F2F3F5;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1');
 			   	item3.vertex = true;
 			   	var item4 = new mxCell('30, August 2016', new mxGeometry(190, 0, 110, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap');
 			   	item4.vertex = true;
@@ -2208,7 +2183,6 @@
 			   	return sb.createVertexTemplateFromCells(
 			   			[item1, item2, item3, item4, item5, item6, item7], 470, 125, 'Comment');
 			}),
-			
 			this.addEntry(dt + 'linear discussion', function()
 	   		{
 			   	var item1 = new mxCell(
@@ -2221,7 +2195,6 @@
 			   	item2.vertex = true;
 			   	return sb.createVertexTemplateFromCells([item1, item2], 470, 125, 'Linear discussion');
 			}),
-			
 			this.addEntry(dt + 'nested discussion', function()
 	   		{
 			   	var item1 = new mxCell(
@@ -2233,12 +2206,345 @@
 			   			'the last one: Mobile Feedback Scorecard - October 2016</div><p></p><p></p><div></div><div><font color="#596780">Reply • Edit • Delete • Like</font></div><p></p>', 
 			   			new mxGeometry(40, 75, 16, 16), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858;fontSize=12;align=left;fontColor=#000000;labelPosition=right;html=1;verticalAlign=top;spacingTop=-10;spacingLeft=5');
 			   	item2.vertex = true;
-			   	return sb.createVertexTemplateFromCells([item1, item2], 470, 125, 'Nested discussion');
+			   	return sb.createVertexTemplateFromCells([item1, item2], 450, 160, 'Nested discussion');
 			}),
-			
-
-			
-							
+			this.addEntry(dt + 'comment', function()
+	   		{
+			   	var item1 = new mxCell('Comment', new mxGeometry(0, 0, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=15;align=left;fontColor=#000000;whiteSpace=wrap');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('', new mxGeometry(0, 20, 320, 10), 'shape=line;strokeColor=#596780;html=1');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(20, 40, 32, 32), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('Jim Bunnings', new mxGeometry(60, 40, 90, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('30, August 2016', new mxGeometry(150, 40, 110, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('Thanks for the write-up.', new mxGeometry(60, 60, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell(
+			   			'You&apos;ve mentioned the reasons for changing the name. But what were the reasons for holding onto the old name so long?', 
+			   			new mxGeometry(60, 85, 260, 55), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#000000;whiteSpace=wrap;verticalAlign=top');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('Reply &#8226; Likes', new mxGeometry(60, 140, 240, 20), 'html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;fontColor=#596780;whiteSpace=wrap');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('', new mxGeometry(20, 180, 32, 32), 'shape=mxgraph.ios7.icons.user;fillColor=#ffffff;strokeColor=#253858');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('Type something', new mxGeometry(60, 180, 260, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item10.vertex = true;
+			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'html=1;shadow=0;dashed=0;shape=mxgraph.basic.cross2;dx=0;strokeColor=#42526E;fillColor=#42526E');
+			   	icon1.geometry.relative = true;
+			   	icon1.geometry.offset = new mxPoint(-28, -7);
+			   	icon1.vertex = true;
+			   	item10.insert(icon1);
+			   	var item11 = new mxCell('', new mxGeometry(280, 28, 40, 24), 'rounded=1;arcSize=23;fillColor=#42526E;strokeColor=none');
+			   	item11.vertex = true;
+			   	var icon2 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon2.geometry.relative = true;
+			   	icon2.geometry.offset = new mxPoint(-10, -2);
+			   	icon2.vertex = true;
+			   	item11.insert(icon2);
+			   	var icon3 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon3.geometry.relative = true;
+			   	icon3.geometry.offset = new mxPoint(-2, -2);
+			   	icon3.vertex = true;
+			   	item11.insert(icon3);
+			   	var icon4 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 4), 'shape=ellipse;fillColor=#ffffff;strokeColor=none;html=1');
+			   	icon4.geometry.relative = true;
+			   	icon4.geometry.offset = new mxPoint(6, -2);
+			   	icon4.vertex = true;
+			   	item11.insert(icon4);
+			   	var item12 = new mxCell('', new mxGeometry(190, 61, 130, 78), 'rounded=1;fillColor=#ffffff;strokeColor=#DFE1E5;shadow=1;html=1;arcSize=4');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('Edit', new mxGeometry(0, 0, 130, 33), 'rounded=0;fillColor=#F4F5F7;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	item13.geometry.relative = true;
+			   	item13.geometry.offset = new mxPoint(0, 6);
+			   	item13.vertex = true;
+			   	item12.insert(item13);
+			   	var item14 = new mxCell('Delete', new mxGeometry(0, 0, 130, 33), 'rounded=0;fillColor=none;strokeColor=none;shadow=0;html=1;align=left;fontSize=12;spacingLeft=10;fontColor=#253858;resizeWidth=1');
+			   	item14.geometry.relative = true;
+			   	item14.geometry.offset = new mxPoint(0, 39);
+			   	item14.vertex = true;
+			   	item12.insert(item14);
+			   	return sb.createVertexTemplateFromCells(
+			   			[item1, item2, item3, item4, item5,item6, item7, item8, item9, item10, item11, item12], 320, 213, 'Comment');
+			}),
+			this.addEntry(dt + 'date picker', function()
+	   		{
+			   	var item1 = new mxCell('Due date', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Your name', new mxGeometry(0, 25, 150, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 18, 18), 'shape=mxgraph.gmdl.calendar;fillColor=#5A6881;strokeColor=none');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-29, -9);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+		   		return sb.createVertexTemplateFromCells([item1, item2], 150, 53, 'Date picker');
+			}),
+			this.addEntry(dt + 'date picker', function()
+	   		{
+				var z1 = 'strokeColor=none;fillColor=none;fontColor=#000000;fontSize=16';
+				var z2 = 'strokeColor=none;fillColor=none;fontColor=#999999;fontSize=16';
+				var z3 = 'strokeColor=none;fillColor=none;fontColor=#999999;fontSize=12;fontStyle=1';
+			   	var item1 = new mxCell('Due date', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Today', new mxGeometry(0, 25, 150, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#0057D8;html=1;strokeWidth=2;fontColor=#253858;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 18, 18), 'shape=mxgraph.gmdl.calendar;fillColor=#253858;strokeColor=none');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-29, -9);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+			   	var bg = new mxCell('', new mxGeometry(0, 65, 320, 350), 'shape=mxgraph.mockup.forms.rrect;rSize=5;strokeColor=#DFE1E5;fillColor=#ffffff;shadow=1');
+			   	bg.vertex = true;
+			   	var text1 = new mxCell('November 2015', new mxGeometry(60, 16, 200, 40), 'strokeColor=none;fillColor=none;fontColor=#253858;fontSize=16;fontStyle=1');
+			   	text1.vertex = true;
+			   	bg.insert(text1);
+			   	var button1 = new mxCell('<', new mxGeometry(16, 16, 50, 40), 'strokeColor=none;fillColor=none;fontColor=#253858;fontSize=19;fontStyle=1;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('>', new mxGeometry(254, 16, 50, 40), 'strokeColor=none;fillColor=none;fontColor=#253858;fontSize=19;fontStyle=1;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var text2 = new mxCell('SUN', new mxGeometry(20, 56, 40, 40), z3);
+			   	text2.vertex = true;
+			   	bg.insert(text2);
+			   	var text3 = new mxCell('MON', new mxGeometry(60, 56, 40, 40), z3);
+			   	text3.vertex = true;
+			   	bg.insert(text3);
+			   	var text4 = new mxCell('TUE', new mxGeometry(100, 56, 40, 40), z3);
+			   	text4.vertex = true;
+			   	bg.insert(text4);
+			   	var text5 = new mxCell('WED', new mxGeometry(140, 56, 40, 40), z3);
+			   	text5.vertex = true;
+			   	bg.insert(text5);
+			   	var text6 = new mxCell('THU', new mxGeometry(180, 56, 40, 40), z3);
+			   	text6.vertex = true;
+			   	bg.insert(text6);
+			   	var text7 = new mxCell('FRI', new mxGeometry(220, 56, 40, 40), z3);
+			   	text7.vertex = true;
+			   	bg.insert(text7);
+			   	var text8 = new mxCell('SAT', new mxGeometry(260, 56, 40, 40), z3);
+			   	text8.vertex = true;
+			   	bg.insert(text8);
+			   	var button3 = new mxCell('31', new mxGeometry(20, 96, 40, 40), z2);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('1', new mxGeometry(60, 96, 40, 40), z1);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button5 = new mxCell('2', new mxGeometry(100, 96, 40, 40), z1);
+			   	button5.vertex = true;
+			   	bg.insert(button5);
+			   	var button6 = new mxCell('3', new mxGeometry(140, 96, 40, 40), z1);
+			   	button6.vertex = true;
+			   	bg.insert(button6);
+			   	var button7 = new mxCell('4', new mxGeometry(180, 96, 40, 40), z1);
+			   	button7.vertex = true;
+			   	bg.insert(button7);
+			   	var button8 = new mxCell('5', new mxGeometry(220, 96, 40, 40), z1);
+			   	button8.vertex = true;
+			   	bg.insert(button8);
+			   	var button9 = new mxCell('6', new mxGeometry(260, 96, 40, 40), z1);
+			   	button9.vertex = true;
+			   	bg.insert(button9);
+			   	var button10 = new mxCell('7', new mxGeometry(20, 136, 40, 40), z1);
+			   	button10.vertex = true;
+			   	bg.insert(button10);
+			   	var button11 = new mxCell('8', new mxGeometry(60, 136, 40, 40), z1);
+			   	button11.vertex = true;
+			   	bg.insert(button11);
+			   	var button12 = new mxCell('9', new mxGeometry(100, 136, 40, 40), z1);
+			   	button12.vertex = true;
+			   	bg.insert(button12);
+			   	var button13 = new mxCell('10', new mxGeometry(140, 136, 40, 40), 'strokeColor=none;fillColor=none;fontColor=#0057D8;fontSize=16;fontStyle=4');
+			   	button13.vertex = true;
+			   	bg.insert(button13);
+			   	var button14 = new mxCell('11', new mxGeometry(180, 136, 40, 40), 'strokeColor=none;fillColor=#ECEDF0;fontColor=#000000;fontSize=16;rounded=1;arcSize=10');
+			   	button14.vertex = true;
+			   	bg.insert(button14);
+			   	var button15 = new mxCell('12', new mxGeometry(220, 136, 40, 40), z1);
+			   	button15.vertex = true;
+			   	bg.insert(button15);
+			   	var button16 = new mxCell('13', new mxGeometry(260, 136, 40, 40), z1);
+			   	button16.vertex = true;
+			   	bg.insert(button16);
+			   	var button17 = new mxCell('14', new mxGeometry(20, 176, 40, 40), z1);
+			   	button17.vertex = true;
+			   	bg.insert(button17);
+			   	var button18 = new mxCell('15', new mxGeometry(60, 176, 40, 40), z1);
+			   	button18.vertex = true;
+			   	bg.insert(button18);
+			   	var button19 = new mxCell('16', new mxGeometry(100, 176, 40, 40), z1);
+			   	button19.vertex = true;
+			   	bg.insert(button19);
+			   	var button20 = new mxCell('17', new mxGeometry(140, 176, 40, 40), z1);
+			   	button20.vertex = true;
+			   	bg.insert(button20);
+			   	var button21 = new mxCell('18', new mxGeometry(180, 176, 40, 40), z1);
+			   	button21.vertex = true;
+			   	bg.insert(button21);
+			   	var button22 = new mxCell('19', new mxGeometry(220, 176, 40, 40), z1);
+			   	button22.vertex = true;
+			   	bg.insert(button22);
+			   	var button23 = new mxCell('20', new mxGeometry(260, 176, 40, 40), z1);
+			   	button23.vertex = true;
+			   	bg.insert(button23);
+			   	var button24 = new mxCell('21', new mxGeometry(20, 216, 40, 40), z1);
+			   	button24.vertex = true;
+			   	bg.insert(button24);
+			   	var button25 = new mxCell('22', new mxGeometry(60, 216, 40, 40), z1);
+			   	button25.vertex = true;
+			   	bg.insert(button25);
+			   	var button26 = new mxCell('23', new mxGeometry(100, 216, 40, 40), z2);
+			   	button26.vertex = true;
+			   	bg.insert(button26);
+			   	var button27 = new mxCell('24', new mxGeometry(140, 216, 40, 40), z1);
+			   	button27.vertex = true;
+			   	bg.insert(button27);
+			   	var button28 = new mxCell('25', new mxGeometry(180, 216, 40, 40), z1);
+			   	button28.vertex = true;
+			   	bg.insert(button28);
+			   	var button29 = new mxCell('26', new mxGeometry(220, 216, 40, 40), z1);
+			   	button29.vertex = true;
+			   	bg.insert(button29);
+			   	var button30 = new mxCell('27', new mxGeometry(260, 216, 40, 40), z1);
+			   	button30.vertex = true;
+			   	bg.insert(button30);
+			   	var button31 = new mxCell('28', new mxGeometry(20, 256, 40, 40), z1);
+			   	button31.vertex = true;
+			   	bg.insert(button31);
+			   	var button32 = new mxCell('29', new mxGeometry(60, 256, 40, 40), z1);
+			   	button32.vertex = true;
+			   	bg.insert(button32);
+			   	var button33 = new mxCell('30', new mxGeometry(100, 256, 40, 40), z1);
+			   	button33.vertex = true;
+			   	bg.insert(button33);
+			   	var button34 = new mxCell('1', new mxGeometry(140, 256, 40, 40), z2);
+			   	button34.vertex = true;
+			   	bg.insert(button34);
+			   	var button35 = new mxCell('2', new mxGeometry(180, 256, 40, 40), z2);
+			   	button35.vertex = true;
+			   	bg.insert(button35);
+			   	var button36 = new mxCell('3', new mxGeometry(220, 256, 40, 40), z2);
+			   	button36.vertex = true;
+			   	bg.insert(button36);
+			   	var button37 = new mxCell('4', new mxGeometry(260, 256, 40, 40), z2);
+			   	button37.vertex = true;
+			   	bg.insert(button37);
+			   	var button38 = new mxCell('5', new mxGeometry(20, 296, 40, 40), z2);
+			   	button38.vertex = true;
+			   	bg.insert(button38);
+			   	var button39 = new mxCell('6', new mxGeometry(60, 296, 40, 40), z2);
+			   	button39.vertex = true;
+			   	bg.insert(button39);
+			   	var button40 = new mxCell('7', new mxGeometry(100, 296, 40, 40), z2);
+			   	button40.vertex = true;
+			   	bg.insert(button40);
+			   	var button41 = new mxCell('8', new mxGeometry(140, 296, 40, 40), z2);
+			   	button41.vertex = true;
+			   	bg.insert(button41);
+			   	var button42 = new mxCell('9', new mxGeometry(180, 296, 40, 40), z2);
+			   	button42.vertex = true;
+			   	bg.insert(button42);
+			   	var button43 = new mxCell('10', new mxGeometry(220, 296, 40, 40), z2);
+			   	button43.vertex = true;
+			   	bg.insert(button43);
+			   	var button44 = new mxCell('11', new mxGeometry(260, 296, 40, 40), z2);
+			   	button44.vertex = true;
+			   	bg.insert(button44);
+		   		return sb.createVertexTemplateFromCells([item1, item2, bg], 320, 415, 'Date picker');
+			}),
+			this.addEntry(dt + 'text field', function()
+	   		{
+			   	var item1 = new mxCell('Your name', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Sally Lu', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Text field');
+			}),
+			this.addEntry(dt + 'text field required', function()
+	   		{
+			   	var item1 = new mxCell('Requirements<sup><font color="#ff0000">*</font></sup>', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Design, eating, drinking', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Text field with required fields');
+			}),
+			this.addEntry(dt + 'disabled text field', function()
+	   		{
+			   	var item1 = new mxCell('Guests', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#B3BAC5;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Kris Wesley', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#B3BAC5;fontSize=12');
+			   	item2.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Disabled text field');
+			}),
+			this.addEntry(dt + 'text field layout', function()
+	   		{
+			   	var item1 = new mxCell('Create a project', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#172B4C;fontStyle=1;fontSize=18');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('Projects are where your repositories live. They are containers you can group similar repositories in for better code organisations.', 
+			   			new mxGeometry(0, 25, 370, 45), 'fillColor=none;align=left;strokeColor=none;fontColor=#000000;fontSize=12;html=1;whiteSpace=wrap;verticalAlign=top');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('Project name<sup><font color="#ff0000">*</font></sup>', new mxGeometry(0, 70, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item3.vertex = true;
+			   	var item4 = new mxCell('Waremelon', new mxGeometry(0, 95, 290, 40), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item4.vertex = true;
+			   	var item5 = new mxCell('Key<sup><font color="#ff0000">*</font></sup>', new mxGeometry(0, 145, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item5.vertex = true;
+			   	var item6 = new mxCell('BETA', new mxGeometry(250, 145, 40, 20), 'fillColor=#CCE0FF;strokeColor=none;html=1;fontSize=11;align=center;fontColor=#4C9AFF;fontStyle=1;fontSize=11;rounded=1;');
+			   	item6.vertex = true;
+			   	var item7 = new mxCell('Stash', new mxGeometry(0, 170, 290, 40), 'rounded=1;arcSize=9;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12');
+			   	item7.vertex = true;
+			   	var item8 = new mxCell('Description', new mxGeometry(0, 220, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item8.vertex = true;
+			   	var item9 = new mxCell('What is important for people to know?', new mxGeometry(0, 245, 360, 115), 'rounded=1;arcSize=4;fillColor=#F7F8F9;align=left;spacingLeft=5;strokeColor=#DEE1E6;html=1;strokeWidth=2;fontColor=#596780;fontSize=12;verticalAlign=top');
+			   	item9.vertex = true;
+			   	var item10 = new mxCell('Project permissions', new mxGeometry(0, 380, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#172B4C;fontStyle=1;fontSize=14');
+			   	item10.vertex = true;
+			   	var item11 = new mxCell('User access', new mxGeometry(0, 400, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#172B4C;fontStyle=0;fontSize=12');
+			   	item11.vertex = true;
+			   	var item12 = new mxCell('Read and write', new mxGeometry(11, 430, 10, 10), 'shape=ellipse;fillColor=#ffffff;strokeColor=#0057D8;strokeWidth=4;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10');
+			   	item12.vertex = true;
+			   	var item13 = new mxCell('Read only', new mxGeometry(10, 450, 12, 12), 'shape=ellipse;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	item13.vertex = true;
+			   	var item14 = new mxCell('None', new mxGeometry(10, 470, 12, 12), 'shape=ellipse;rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;fontColor=#000000;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0');
+			   	item14.vertex = true;
+			   	var item15 = new mxCell('Publish', new mxGeometry(0, 510, 60, 33), 'rounded=1;fillColor=#0057D8;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	item15.vertex = true;
+			   	var item16 = new mxCell('Cancel', new mxGeometry(70, 510, 60, 33), 'fillColor=none;strokeColor=none;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=14;html=1;shadow=0;dashed=0');
+			   	item16.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16], 370, 543, 'Disabled text field');
+			}),
+			this.addEntry(dt + 'error message field', function()
+	   		{
+			   	var item1 = new mxCell('Email', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('shrugg#atlassian.com', new mxGeometry(0, 25, 300, 40), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#FFAB00;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#FFAB00;strokeColor=none;html=1');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-30, -10);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+		   		return sb.createVertexTemplateFromCells([item1, item2], 290, 58, 'Error message field');
+			}),
+			this.addEntry(dt + 'error message field', function()
+	   		{
+			   	var item1 = new mxCell('Email', new mxGeometry(0, 0, 240, 20), 'fillColor=none;strokeColor=none;html=1;fontSize=11;fontStyle=0;align=left;fontColor=#596780;fontStyle=1;fontSize=11');
+			   	item1.vertex = true;
+			   	var item2 = new mxCell('shrugg#atlassian.com', new mxGeometry(0, 25, 300, 40), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontColor=#000000;fontSize=12');
+			   	item2.vertex = true;
+			   	var item3 = new mxCell('', new mxGeometry(1, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#FFAB00;strokeColor=none;html=1');
+			   	item3.geometry.relative = true;
+			   	item3.geometry.offset = new mxPoint(-30, -10);
+			   	item3.vertex = true;
+			   	item2.insert(item3);
+			   	var item4 = new mxCell('Please enter a valid address.', new mxGeometry(310, 22, 200, 46), 'rounded=1;arcSize=9;fillColor=#ffffff;align=center;strokeColor=#DFE1E5;html=1;strokeWidth=1;fontColor=#000000;fontSize=12;shadow=1');
+			   	item4.vertex = true;
+		   		return sb.createVertexTemplateFromCells([item1, item2, item4], 290, 58, 'Error message field');
+			})
 		];
 			   	
    		this.addPalette('atlassian', 'Atlassian', false, mxUtils.bind(this, function(content)

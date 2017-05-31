@@ -127,7 +127,7 @@ public class EllipticalArcTo extends Row
 	 * @param x3 y3 control point
 	 * @return true if the start to end angle that contains the control point is a reflex angle 
 	 */
-	private boolean isReflexAngle(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3)
+	protected boolean isReflexAngle(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3)
 	{
 		x1 = x1 - x0;
 		y1 = y1 - y0;
