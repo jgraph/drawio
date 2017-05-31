@@ -135,6 +135,7 @@
            	                           {id: 'cabinets', libs: ['cabinets']},
            	                           {id: 'floorplan', libs: ['floorplan']},
            	                           {id: 'bootstrap', libs: ['bootstrap']},
+           	                           {id: 'atlassian', libs: ['atlassian']},
 	                                   {id: 'gmdl', prefix: 'gmdl', libs: Sidebar.prototype.gmdl},
            	                           {id: 'archimate3', prefix: 'archimate3', libs: Sidebar.prototype.archimate3},
            	                           {id: 'archimate', libs: ['archimate']},
@@ -329,6 +330,7 @@
             			          {title: mxResources.get('flowchart'), id: 'flowchart', image: IMAGE_PATH + '/sidebar-flowchart.png'}]},
             			{title: mxResources.get('software'),
             			entries: [{title: mxResources.get('android'), id: 'android', image: IMAGE_PATH + '/sidebar-android.png'},
+            					  {title: 'Atlassian', id: 'atlassian', image: IMAGE_PATH + '/sidebar-atlassian.png'},
             			          {title: mxResources.get('bootstrap'), id: 'bootstrap', image: IMAGE_PATH + '/sidebar-bootstrap.png'},
             			          {title: mxResources.get('entityRelation'), id: 'er', image: IMAGE_PATH + '/sidebar-er.png'},
             			          {title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
@@ -928,6 +930,7 @@
 		}
 
 		this.addFloorplanPalette();
+		this.addAtlassianPalette();
 		this.addBootstrapPalette();
 
 		for (var i = 0; i < gmdl.length; i++)

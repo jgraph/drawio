@@ -40,12 +40,8 @@ function VsdxExport(editorUi, resDir)
 			    		}
 			    	}
 			    	
-			    	//var p1Id = that.VISIO_PAGES_RELS + "page1.xml.rels";
 			    	for (var i = 2; i <= pageCount; i++)
 			    	{
-			    		//var fId = that.VISIO_PAGES_RELS + "page" + i + ".xml.rels";
-			    		//zip.file(fId, files[p1Id]);
-		
 			        	var newPage = page1.cloneNode();
 			    		newPage.setAttribute(that.PART_NAME, "/visio/pages/page" + i + ".xml");
 			    		root.appendChild(newPage);
@@ -69,30 +65,42 @@ function VsdxExport(editorUi, resDir)
 		
 		try
 		{
+			//This doesn't work when pageView is off
+//			// Computes the horizontal and vertical page count
+//			var bounds = graph.getGraphBounds();
+//			var sc = graph.view.scale;
+//			var bgBounds = graph.view.getBackgroundPageBounds();
+//			
+//			var x0 = Math.round((bounds.x - bgBounds.x) / sc);
+//			var y0 = Math.round((bounds.y - bgBounds.y) / sc);
+//			
+//			var hpages = Math.max(1, Math.ceil((bounds.width / sc  + x0) / graph.pageFormat.width));
+//			var vpages = Math.max(1, Math.ceil((bounds.height / sc + y0) / graph.pageFormat.height));
+			
 			// Computes the horizontal and vertical page count
 			var bounds = graph.getGraphBounds().clone();
 			var sc = graph.view.scale;
 			var tr = graph.view.translate;
 
-			//TODO compute the empty space at the left most page and add it to width and height
-			
-			// Compute the unscaled, untranslated bounds to find
-			// the number of vertical and horizontal pages
-			bounds.width /= sc;
-			bounds.height /= sc;
-//			bounds.x /= sc;
-//			bounds.y /= sc;
-			
-//			var x0 = bounds.width - Math.abs(bounds.x - tr.x);
-//			var y0 = bounds.height - Math.abs(bounds.y - tr.y);
+			var x0 = Math.round(bounds.x / sc) - tr.x;
+			var y0 = Math.round(bounds.y / sc) - tr.y;
 			
 			// Store the available page area
 			var availableWidth = graph.pageFormat.width;
 			var availableHeight = graph.pageFormat.height;
-		
-			
-			var hpages = Math.max(1, Math.ceil((bounds.width  /*+ x0*/) / availableWidth));
-			var vpages = Math.max(1, Math.ceil((bounds.height /*+ y0*/) / availableHeight));
+
+			if (x0 < 0) 
+			{
+				x0 += Math.ceil((tr.x - bounds.x / sc) / availableWidth) * availableWidth;
+			}
+
+			if (y0 < 0) 
+			{
+				y0 += Math.ceil((tr.y - bounds.y / sc) / availableHeight) * availableHeight;
+			}
+
+			var hpages = Math.max(1, Math.ceil((bounds.width / sc  + x0) / availableWidth));
+			var vpages = Math.max(1, Math.ceil((bounds.height / sc + y0) / availableHeight));
 			
 			attr['gridEnabled'] = graph.gridEnabled;
 			attr['gridSize'] = graph.gridSize;
