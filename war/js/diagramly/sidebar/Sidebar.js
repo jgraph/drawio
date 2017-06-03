@@ -1057,7 +1057,7 @@
 		var succ = success;
 		
 		// Logs search terms for improving search results
-		if (this.editorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
+		if (EditorUi.enableLogging && !this.editorUi.isOffline() && page == 0)
 		{
 			try
 			{

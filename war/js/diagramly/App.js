@@ -435,38 +435,41 @@ App.main = function(callback)
 	var lastErrorMessage = null;
 	
 	// Changes top level error handling
-	window.onerror = function(message, url, linenumber, colno, err)
+	if (EditorUi.enableLogging)
 	{
-		try
+		window.onerror = function(message, url, linenumber, colno, err)
 		{
-			if (message == lastErrorMessage || (message != null && url != null &&
-				((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+			try
 			{
-				// TODO log external domain script failure "Script error." is
-				// reported when the error occurs in a script that is hosted
-				// on a domain other than the domain of the current page
+				if (message == lastErrorMessage || (message != null && url != null &&
+					((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+				{
+					// TODO log external domain script failure "Script error." is
+					// reported when the error occurs in a script that is hosted
+					// on a domain other than the domain of the current page
+				}
+				// DocumentClosedError seems to be an FF bug an can be ignored for now
+				else if (message != null && message.indexOf('DocumentClosedError') < 0)
+				{
+					lastErrorMessage = message;
+					var img = new Image();
+					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
+						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
+						'CONFIG' : 'SEVERE';
+					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+		    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+		    			':lnum:' + encodeURIComponent(linenumber) + 
+		    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+				}
 			}
-			// DocumentClosedError seems to be an FF bug an can be ignored for now
-			else if (message != null && message.indexOf('DocumentClosedError') < 0)
+			catch (err)
 			{
-				lastErrorMessage = message;
-				var img = new Image();
-				var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
-					message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-					'CONFIG' : 'SEVERE';
-				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-	    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-	    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
-	    			':lnum:' + encodeURIComponent(linenumber) + 
-	    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
-	    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+				// do nothing
 			}
-		}
-		catch (err)
-		{
-			// do nothing
-		}
-	};
+		};
+	}
 
 	/**
 	 * Lazy loading of additional CSS for atlas theme.

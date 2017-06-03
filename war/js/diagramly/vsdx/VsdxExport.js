@@ -361,8 +361,7 @@ function VsdxExport(editorUi, resDir)
 			return 6;
 	};
 
-	//TODO add edge group support (e.g. when edge has multiple labels)
-	function convertMxEdge2Shape(cell, graph, xmlDoc, parentHeight, parentGeo)
+	function createEdge(cell, graph, xmlDoc, parentHeight)
 	{
 		var state = graph.view.getState(cell);
 		
@@ -507,12 +506,8 @@ function VsdxExport(editorUi, resDir)
 				for (var i = 0; i < cell.children.length; i++)
 				{
 					var child = cell.children[i];
-					var subShape;
 					
-					if (child.vertex)
-						subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo);
-					else
-						subShape = convertMxEdge2Shape(child, graph, xmlDoc, geo.height, geo);
+					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo);
 					
 					gShapes.appendChild(subShape);
 				}
@@ -524,7 +519,7 @@ function VsdxExport(editorUi, resDir)
 				
 				return shape;
 			}
-			else
+			else if (cell.vertex)
 			{
 	
 				var shape = createShape(cell.id, geo, xmlDoc, parentHeight);
@@ -555,6 +550,10 @@ function VsdxExport(editorUi, resDir)
 				shape.setAttribute("Type", vsdxCanvas.getShapeType());
 
 				return shape;
+			}
+			else
+			{
+				return createEdge(cell, graph, xmlDoc, parentHeight);
 			}
 		}
 		else
@@ -590,6 +589,7 @@ function VsdxExport(editorUi, resDir)
 			shiftY = Math.ceil((t.y - bounds.y / s) / graph.pageFormat.height) * graph.pageFormat.height;
 		}
 		
+		vsdxCanvas.save();
 		vsdxCanvas.translate(-t.x + shiftX, -t.y + shiftY);
 		vsdxCanvas.scale(1 / s);
 		vsdxCanvas.newPage();
@@ -602,12 +602,7 @@ function VsdxExport(editorUi, resDir)
 			//top-most cells
 			if (cell.parent == defParent)
 			{
-				var shape;
-				
-				if (cell.vertex)
-					shape = convertMxCell2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
-				else
-					shape = convertMxEdge2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
+				var shape = convertMxCell2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
 				
 				if (shape != null)
 					shapes.appendChild(shape);
@@ -645,6 +640,8 @@ function VsdxExport(editorUi, resDir)
 		}
 
 		xmlDoc.appendChild(root);
+
+		vsdxCanvas.restore();
 
 		return xmlDoc;
 	};

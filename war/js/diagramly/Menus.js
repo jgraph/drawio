@@ -602,7 +602,7 @@
 					mxEvent.addListener(realForm, 'submit', function()
 					{
 						// Logs search terms for improving search results
-						if (editorUi.enableLogging)
+						if (EditorUi.enableLogging)
 						{
 				        	try
 				        	{
