@@ -255,6 +255,5 @@ var lastIndex = host.lastIndexOf(searchString, position);
 
 if (lastIndex !== -1 && lastIndex === position && host != 'test.draw.io')
 {
-	// endsWith polyfill
 	window.DRAWIO_LOG_URL = 'https://log.draw.io';
 }

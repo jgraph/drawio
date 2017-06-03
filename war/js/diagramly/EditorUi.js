@@ -13,6 +13,11 @@
 	 * Overrides compact UI setting.
 	 */
 	EditorUi.compactUi = uiTheme != 'atlas';
+	
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname);
 
 	/**
 	 * https://github.com/electron/electron/issues/2288
@@ -74,11 +79,6 @@
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
-	
-	/**
-	 * Switch to disable logging for mode and search terms.
-	 */
-	EditorUi.prototype.enableLogging = /.*\.draw\.io$/.test(window.location.hostname);
 
 	/**
 	 * Specifies if PDF export should be done via print dialog. Default is

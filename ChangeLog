@@ -1,3 +1,9 @@
+03-JUN-2017: 6.7.3
+
+- Updates Gliffy translations to add Flowchart v2 library
+- Adds edge group support to vsdx export
+- Updates Google Cloud Platform icons
+
 31-MAY-2017: 6.7.2
 
 - Adds Atlassian shapes
