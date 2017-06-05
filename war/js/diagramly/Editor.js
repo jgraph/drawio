@@ -119,12 +119,31 @@
 	 */
 	Editor.configure = function(config)
 	{
-		// LATER: DefaultFont and DefaultFontSize should override Graph's stylesheet,
-		// default edge and vertex styles would have to be set before loading mxSettings
-		Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
-		ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
-		ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
-		StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
+		if (config != null)
+		{
+			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
+			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
+			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
+			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
+
+			// Overrides themes for default edge and vertex styles
+			var graphLoadStylesheet = Graph.prototype.loadStylesheet;
+			
+			Graph.prototype.loadStylesheet = function()
+			{
+				graphLoadStylesheet.apply(this, arguments);
+				
+				if (config.defaultVertexStyle != null)
+				{
+					this.getStylesheet().putDefaultVertexStyle(config.defaultVertexStyle);
+				}
+				
+				if (config.defaultEdgeStyle != null)
+				{
+					this.getStylesheet().putDefaultEdgeStyle(config.defaultEdgeStyle);
+				}
+			};
+		}
 	};
 
 	/**

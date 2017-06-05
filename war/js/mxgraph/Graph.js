@@ -8,8 +8,9 @@ if (typeof html4 !== 'undefined')
 	html4.ATTRIBS["a::target"] = 0;
 	html4.ATTRIBS["source::src"] = 0;
 	html4.ATTRIBS["video::src"] = 0;
-	html4.ATTRIBS["video::autoplay"] = 0;
-	html4.ATTRIBS["video::autobuffer"] = 0;
+	// Would be nice for tooltips but probably a security risk...
+	//html4.ATTRIBS["video::autoplay"] = 0;
+	//html4.ATTRIBS["video::autobuffer"] = 0;
 }
 
 /**

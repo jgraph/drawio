@@ -460,7 +460,10 @@ EditorUi = function(editor, container, lightbox)
 	
 	for (var i = 0; i < connectStyles.length; i++)
 	{
-		styles.push(connectStyles[i]);
+		if (mxUtils.indexOf(styles, connectStyles[i]) < 0)
+		{
+			styles.push(connectStyles[i]);
+		}
 	}
 
 	// Implements a global current style for edges and vertices that is applied to new cells

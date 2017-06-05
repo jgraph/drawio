@@ -185,7 +185,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
-	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js'};
+	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
+	'replay': '/plugins/replay.js'};
 
 /**
  * Function: authorize
@@ -2398,7 +2399,8 @@ App.prototype.showSplash = function(force)
 				if (cancel && !mxClient.IS_CHROMEAPP)
 				{
 					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
+					this.createFile(this.defaultFilename, null, null, null, null, null, null,
+						urlParams['local'] != '1');
 					Editor.useLocalStorage = prev;
 				}
 			}));
