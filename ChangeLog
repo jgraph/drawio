@@ -1,3 +1,9 @@
+05-JUN-2017: 6.7.4
+
+- Fixes overridden rounded style for non-rounded shapes
+- Adds defaultVertexStyle/defaultEdgeStyle in Editor.configure
+- Adds replay plugin
+
 03-JUN-2017: 6.7.3
 
 - Updates Gliffy translations to add Flowchart v2 library

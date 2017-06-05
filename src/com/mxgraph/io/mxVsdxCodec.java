@@ -806,6 +806,22 @@ public class mxVsdxCodec
 		geo.setY(Math.round(y1 + cy - geo.getHeight() / 2));
 	}
 
+	public static void rotatedEdgePoint(mxPoint pt, double rotation,
+			double cx, double cy)
+	{
+		rotation = Math.toRadians(rotation);
+		double cos = Math.cos(rotation), sin = Math.sin(rotation);
+
+		double x = pt.getX() - cx;
+		double y = pt.getY() - cy;
+
+		double x1 = x * cos - y * sin;
+		double y1 = y * cos + x * sin;
+
+		pt.setX(Math.round(x1 + cx));
+		pt.setY(Math.round(y1 + cy));
+	}
+
 	/**
 	 * Adds a simple shape to the graph
 	 * @param graph Graph where the parsed graph is included.
@@ -924,11 +940,11 @@ public class mxVsdxCodec
 
 		//Get beginXY and endXY coordinates.
 		mxPoint beginXY = edgeShape.getStartXY(parentHeight);
-		mxPoint origBeginXY = new mxPoint(beginXY);
-		
-		beginXY = calculateAbsolutePoint(parent, graph, beginXY);
+		mxPoint endXY = edgeShape.getEndXY(parentHeight);
+		List<mxPoint> points = edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation());
 
-		mxPoint fromConstraint = null;
+		rotateChildEdge(graph.getModel(), parent, beginXY, endXY, points);
+
 		Integer sourceSheet = connect.getSourceToSheet();
 
 		mxCell source = sourceSheet != null ? vertexMap
@@ -938,16 +954,10 @@ public class mxVsdxCodec
 		{
 			// Source is dangling
 			source = (mxCell) graph.insertVertex(parent, null, null,
-					origBeginXY.getX(), origBeginXY.getY(), 0, 0);
-			fromConstraint = new mxPoint(0, 0);
+					beginXY.getX(), beginXY.getY(), 0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
 
-		mxPoint endXY = edgeShape.getEndXY(parentHeight);
-		mxPoint originEndXY = new mxPoint(endXY);
-		endXY = calculateAbsolutePoint(parent, graph, endXY);
-		
-		mxPoint toConstraint = null;
 		Integer toSheet = connect.getTargetToSheet();
 
 		mxCell target = toSheet != null ? vertexMap.get(new ShapePageId(
@@ -957,8 +967,7 @@ public class mxVsdxCodec
 		{
 			// Target is dangling
 			target = (mxCell) graph.insertVertex(parent, null, null,
-					originEndXY.getX(), originEndXY.getY(), 0, 0);
-			toConstraint = new mxPoint(0, 0);
+					endXY.getX(), endXY.getY(), 0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
 
@@ -967,7 +976,6 @@ public class mxVsdxCodec
 				.getStyleFromEdgeShape(parentHeight);
 		//Insert new edge and set constraints.
 		Object edge;
-		List<mxPoint> points = edgeShape.getRoutingPoints(parentHeight, origBeginXY, edgeShape.getRotation());
 		double rotation = edgeShape.getRotation();
 		if (rotation != 0)
 		{
@@ -998,17 +1006,6 @@ public class mxVsdxCodec
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 		edgeGeometry.setPoints(points);
 
-		if (fromConstraint != null)
-		{
-			graph.setConnectionConstraint(edge, source, true,
-					new mxConnectionConstraint(fromConstraint, false));
-		}
-		if (toConstraint != null)
-		{
-			graph.setConnectionConstraint(edge, target, false,
-					new mxConnectionConstraint(toConstraint, false));
-		}
-
 		//Gets and sets routing points of the edge.
 		if (styleMap.containsKey("curved")
 				&& styleMap.get("curved").equals("1"))
@@ -1020,24 +1017,6 @@ public class mxVsdxCodec
 		}
 		
 		return edgeId;
-	}
-
-	/**
-	 * Find the top parent in a group
-	 * 
-	 * @param cell
-	 * @return the top most parent (which has the defaultParent as its parent)
-	 */
-	private mxCell findTopParent(mxCell cell, mxCell defaultParent)
-	{
-		mxCell parent = (mxCell) cell.getParent();
-		
-		while (parent.getParent() != null && parent.getParent() != defaultParent)
-		{
-			parent = (mxCell) parent.getParent();
-		}
-
-		return parent;
 	}
 
 	/**
@@ -1111,6 +1090,9 @@ public class mxVsdxCodec
 			mxPoint lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
 			((mxCell)edge).getGeometry().setOffset(lblOffset);
 		}
+		
+		rotateChildEdge(graph.getModel(), parent, beginXY, endXY, points);
+		
 		mxGeometry edgeGeometry = graph.getModel().getGeometry(edge);
 		edgeGeometry.setPoints(points);
 		
@@ -1128,6 +1110,36 @@ public class mxVsdxCodec
 		}
 		
 		return edge;
+	}
+
+	protected void rotateChildEdge(mxIGraphModel model, Object parent, mxPoint beginXY, mxPoint endXY, List<mxPoint> points) {
+		//Rotate all points based on parent rotation
+		//Must get parent rotation and apply it similar to what we did in group rotation of all children
+		if (parent != null)
+		{
+			mxGeometry pgeo = model.getGeometry(parent);
+			String pStyle = model.getStyle(parent);
+			
+			if (pgeo != null && pStyle != null) 
+			{
+				int pos = pStyle.indexOf("rotation=");
+				
+				if (pos > -1)
+				{
+					double pRotation = Double.parseDouble(pStyle.substring(pos + 9, pStyle.indexOf(';', pos))); //9 is the length of "rotation="
+	
+					double hw = pgeo.getWidth() / 2, hh = pgeo.getHeight() / 2;
+					
+					rotatedEdgePoint(beginXY, pRotation, hw, hh);
+					rotatedEdgePoint(endXY, pRotation, hw, hh);
+					
+					for (mxPoint p : points) 
+					{
+						rotatedEdgePoint(p, pRotation, hw, hh);
+					}
+				}
+			}
+		}
 	}
 
 	/**
