@@ -280,6 +280,16 @@
 			</sources>
 		</jscomp>
 		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/vsdx.min.js">
+			<sources dir="${war.dir}/js/jszip">
+				<file name="jszip.min.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/vsdx">
+				<file name="VsdxExport.js" />
+				<file name="mxVsdxCanvas2D.js" />
+			</sources>
+		</jscomp>
+		
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/app.min.js">
 			<sources dir="${war.dir}/js/spin">
 				<file name="spin.min.js" />

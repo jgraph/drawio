@@ -285,6 +285,7 @@ formatPdf=formatPdf
 formatSvg=formatSvg
 formatHtmlEmbedded=formatHtmlEmbedded
 formatSvgEmbedded=formatSvgEmbedded
+formatVsdx=formatVsdx
 formatXmlPlain=formatXmlPlain
 formatXml=formatXml
 forum=forum

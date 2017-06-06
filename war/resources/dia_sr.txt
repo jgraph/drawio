@@ -285,6 +285,7 @@ formatPdf=Portable Document Format (.pdf)
 formatSvg=Scalable Vector Graphics (.svg)
 formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (with XML)
+formatVsdx=VSDX
 formatXmlPlain=XML (Plain)
 formatXml=XML
 forum=Forum

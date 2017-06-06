@@ -285,6 +285,7 @@ formatPdf=PDF
 formatSvg=SVG
 formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (XML 포함)
+formatVsdx=VSDX
 formatXmlPlain=XML (일반)
 formatXml=XML
 forum=토론/문의 포럼

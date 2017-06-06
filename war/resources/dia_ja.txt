@@ -285,6 +285,7 @@ formatPdf=PDF
 formatSvg=SVG
 formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (XMLを含む)
+formatVsdx=VSDX
 formatXmlPlain=XML (非圧縮)
 formatXml=XML
 forum=ヘルプ・ディスカッション 
