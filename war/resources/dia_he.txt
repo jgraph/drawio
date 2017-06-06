@@ -472,6 +472,7 @@ outline=‫מתאר‬
 oval=‫אליפסי‬
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=‫עמודים‬
 pageView=‫תצוגת עמוד‬

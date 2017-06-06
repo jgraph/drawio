@@ -472,6 +472,7 @@ outline=Garis
 oval=Bujur
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Muka surat
 pageView=Pandangan muka surat

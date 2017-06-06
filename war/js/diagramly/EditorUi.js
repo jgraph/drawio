@@ -5679,9 +5679,62 @@
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()
 	{
-		editorUiInit.apply(this, arguments);
-		var graph = this.editor.graph;
 		var ui = this;
+		var graph = this.editor.graph;
+		
+		function pageLinkClicked(href)
+		{
+			var comma = href.indexOf(',');
+			
+			if (comma > 0)
+			{
+				var page = ui.getPageById(href.substring(comma + 1));
+				
+				if (page)
+				{
+					ui.selectPage(page)
+				}
+			}
+		};
+		
+		// For chromeless mode and lightbox mode in viewer
+		// Must be overridden before supercall to be applied
+		// in case of chromeless initialization
+		var graphAddClickHandler = graph.addClickHandler;
+
+		graph.addClickHandler = function(highlight, beforeClick, onClick)
+		{
+			var tmp = beforeClick;
+
+			beforeClick = function(evt, href)
+			{
+				if (href == null)
+				{
+					var source = mxEvent.getSource(evt);
+				
+					if (source.nodeName.toLowerCase() == 'a')
+					{
+						href = source.getAttribute('href');
+					}
+				}
+			
+				if (href != null && graph.isPageLink(href))
+				{
+					pageLinkClicked(href);
+					mxEvent.consume(evt);
+				}
+				
+				if (tmp != null)
+				{
+					tmp(evt);
+				}
+			};
+			
+			// For some reason, local argument override is not enough in this case...
+			graphAddClickHandler.call(this, highlight, beforeClick, onClick);
+		};
+
+		editorUiInit.apply(this, arguments);
 		
 		if (mxClient.IS_SVG)
 		{
@@ -5722,6 +5775,62 @@
 			}
 			
 			return graphGetGlobalVariable.apply(this, arguments);
+		};
+
+		var graphCreateLinkForHint = graph.createLinkForHint;
+		
+		graph.createLinkForHint = function(href, label)
+		{
+			var pageLink = graph.isPageLink(href);
+			
+			if (pageLink)
+			{
+				var comma = href.indexOf(',');
+
+				if (comma > 0)
+				{
+					var page = ui.getPageById(href.substring(comma + 1));
+	
+					if (page != null)
+					{
+						label = page.getName();
+					}
+					else
+					{
+						label = mxResources.get('pageNotFound');
+					}
+				}
+			}
+			
+			var a = graphCreateLinkForHint.apply(this, arguments);
+			
+			if (pageLink)
+			{
+				mxEvent.addListener(a, 'click', function(evt)
+				{
+					pageLinkClicked(href);
+					mxEvent.consume(evt);
+				});
+			}
+			
+			return a;
+		};
+		
+		var graphLabelLinkClicked = graph.labelLinkClicked;
+		
+		graph.labelLinkClicked = function(state, elt, evt)
+		{
+			var href = elt.getAttribute('href');
+			
+			if (graph.isPageLink(href))
+			{
+				pageLinkClicked(href);
+				mxEvent.consume(evt);
+			}
+			else
+			{
+				graphLabelLinkClicked.apply(this, arguments);
+			}
 		};
 
 		// Overrides editor filename
@@ -8157,6 +8266,16 @@
 		}
 
 		return href;
+	};
+
+	/**
+	 * Overrides link dialog.
+	 */
+	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
+	{
+		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
+		this.showDialog(dlg.container, 420, 120, true, true);
+		dlg.init();
 	};
 
 	/**

@@ -558,7 +558,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		}
 
 		//TODO support HTML text formatting and remaining attributes
-		if (this.cellState.style['html'] == '1')
+		if (format == 'html')
     	{
     		if (mxUtils.getValue(this.cellState.style, 'nl2Br', '1') != '0')
 			{
@@ -578,16 +578,30 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		var s = this.state;
 		var geo = this.xmGeo;
 
-		var strRect;
-//		if (h == 0 || w == 0)
-//		{
-//			strRect = mxUtils.getSizeForString(str);
-//		}
+		var strRect = mxUtils.getSizeForString(str, null, null, w > 0? w : null);
+
+		var wShift = 0;
+		var hShift = 0;
 		
-//		h = h > 0 ? h : strRect.height; 
-//		w = w > 0 ? w : strRect.width;
-		h = h > 0 ? h : geo.height; 
-		w = w > 0 ? w : geo.width;
+		switch(align) 
+		{
+			case "right": wShift = strRect.width/4; break;
+			//case "center": wShift = 0; break;
+			case "left": wShift = -strRect.width/4; break;
+		}
+		
+		switch(valign) 
+		{
+			case "top": hShift = strRect.height/2; break;
+//			case "middle": hShift = 0; break;
+			case "bottom": hShift = -strRect.height/2; break;
+		}
+
+		h = h > 0 ? h : strRect.height; 
+		w = w > 0 ? w : strRect.width;
+			
+//		h = h > 0 ? h : geo.height; 
+//		w = w > 0 ? w : geo.width;
 		w = w * s.scale;
 		h = h * s.scale;
 		
@@ -599,14 +613,14 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		this.shape.appendChild(this.createCellElemScaled("TxtPinY", y));
 		this.shape.appendChild(this.createCellElemScaled("TxtWidth", w));
 		this.shape.appendChild(this.createCellElemScaled("TxtHeight", h));
-		this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw));
-		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh));
+		this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw + wShift));
+		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh + hShift));
 
 		if (rotation != 0)
 			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
 		
 		var text = this.xmlDoc.createElement("Text");
-		text.textContent = str + "\n";
+		text.textContent = str;
 		this.shape.appendChild(text);
 //		
 //		var elem = this.createElement('text');

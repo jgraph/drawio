@@ -1,3 +1,9 @@
+06-JUN-2017: 6.7.5
+
+- Fixes links in labels for lightbox on touch devices
+- Adds links to pages
+- Adds zoom option for viewer in Confluence Connect
+
 05-JUN-2017: 6.7.4
 
 - Fixes overridden rounded style for non-rounded shapes

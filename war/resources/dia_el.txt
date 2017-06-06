@@ -472,6 +472,7 @@ outline=Περίγραμμα
 oval=Οβάλ
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Σελίδες
 pageView=Προβολή Σελίδας

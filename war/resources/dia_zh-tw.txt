@@ -472,6 +472,7 @@ outline=Outline
 oval=Oval
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=第 {1} 頁
 pages=頁面
 pageView=頁面檢視

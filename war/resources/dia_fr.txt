@@ -472,6 +472,7 @@ outline=Contour
 oval=Ovale
 page=Page
 pageContent=Page Content
+pageNotFound=Page non trouvée
 pageWithNumber=Page-{1}
 pages=Pages
 pageView=Mise en page

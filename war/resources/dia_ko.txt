@@ -472,6 +472,7 @@ outline=윤곽
 oval=타원형
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=페이지
 pageView=페이지 보기

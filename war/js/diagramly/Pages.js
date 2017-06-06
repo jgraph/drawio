@@ -16,6 +16,26 @@
 function DiagramPage(node)
 {
 	this.node = node;
+	
+	// Create GUID for page
+	if (!this.node.hasAttribute('id'))
+	{
+		// Make global if used anywhere else
+		function guid()
+		{
+		  function s4()
+		  {
+		    return Math.floor((1 + Math.random()) * 0x10000)
+		      .toString(16)
+		      .substring(1);
+		  }
+		  
+		  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+		    s4() + '-' + s4() + s4() + s4();
+		};
+		
+		this.node.setAttribute('id', guid());
+	}
 }
 
 /**
@@ -32,6 +52,14 @@ DiagramPage.prototype.root = null;
  * Holds the view state for the page.
  */
 DiagramPage.prototype.viewState = null;
+
+/**
+ * 
+ */
+DiagramPage.prototype.getId = function()
+{
+	return this.node.getAttribute('id');
+};
 
 /**
  * 
@@ -230,6 +258,25 @@ ChangePage.prototype.execute = function()
 	}
 
 	SelectPage.prototype.execute.apply(this, arguments);
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.getPageById = function(id)
+{
+	if (this.pages != null)
+	{
+		for (var i = 0; i < this.pages.length; i++)
+		{
+			if (this.pages[i].getId() == id)
+			{
+				return this.pages[i];
+			}
+		}
+	}
+	
+	return null;
 };
 
 /**
@@ -721,7 +768,10 @@ EditorUi.prototype.duplicatePage = function(page, name)
 		}
 		
 		// Clones the current page and takes a snapshot of the graph model and view state
-		var newPage = new DiagramPage(page.node.cloneNode(false));
+		var node = page.node.cloneNode(false);
+		node.removeAttribute('id');
+		
+		var newPage = new DiagramPage(node);
 		newPage.root = graph.cloneCells([graph.model.root])[0];
 		newPage.viewState = graph.getViewState();
 		

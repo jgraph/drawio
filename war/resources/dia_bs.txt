@@ -472,6 +472,7 @@ outline=Outline
 oval=Ovalan
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Stranice
 pageView=Pregled strane

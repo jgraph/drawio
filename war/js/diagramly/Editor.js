@@ -1116,6 +1116,14 @@
 	};
 
 	/**
+	 * Adds support for page links.
+	 */
+	Graph.prototype.isPageLink = function(href)
+	{
+		return href != null && href.substring(0, 10) == 'data:page/';
+	};
+
+	/**
 	 * Adds a shadow filter to the given svg root.
 	 */
 	Graph.prototype.addSvgShadow = function(svgRoot, group, createOnly)

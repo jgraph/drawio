@@ -472,6 +472,7 @@ outline=アウトライン
 oval=丸
 page=ページ
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=ページ{1}
 pages=ページ
 pageView=ページのレイアウト
