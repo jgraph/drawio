@@ -832,8 +832,8 @@ VsdxExport.prototype.PART_NAME = "PartName";
 VsdxExport.prototype.CONTENT_TYPES_XML = "[Content_Types].xml";
 VsdxExport.prototype.VISIO_PAGES_RELS = "visio/pages/_rels/";
 VsdxExport.prototype.ARROWS_MAP = {
-	"none|1": 0, "none|0": 0, "open|1": 1, "open|0": 1, "block|1": 4, "block|1": 14, "classic|1": 5, "classic|0": 17,
+	"none|1": 0, "none|0": 0, "open|1": 1, "open|0": 1, "block|0": 4, "block|1": 14, "classic|1": 5, "classic|0": 17,
 	"oval|1": 10, "oval|0": 20, "diamond|1": 11, "diamond|0": 22, "blockThin|1": 2, "blockThin|0": 2, "dash|1": 23, "dash|0": 23,
 	"ERone|1": 24, "ERone|0": 24, "ERmandOne|1": 25, "ERmandOne|0": 25, "ERmany|1": 27, "ERmany|0": 27, "ERoneToMany|1": 28, "ERoneToMany|0": 28,
-	"ERzeroToMany|1": 29, "ERzeroToMany|0": 29, "ERzeroToOne|1": 30, "ERzeroToOne|1": 30, "openAsync|1": 9, "openAsync|0": 9
+	"ERzeroToMany|1": 29, "ERzeroToMany|0": 29, "ERzeroToOne|1": 30, "ERzeroToOne|0": 30, "openAsync|1": 9, "openAsync|0": 9
 };

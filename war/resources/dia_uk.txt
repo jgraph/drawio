@@ -285,6 +285,7 @@ formatPdf=PDF
 formatSvg=SVG
 formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (з XML)
+formatVsdx=VSDX
 formatXmlPlain=XML (звичайний)
 formatXml=XML
 forum=Обговорення/Довідковий форум

@@ -285,6 +285,7 @@ formatPdf=PDF
 formatSvg=SVG
 formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (kasama XML)
+formatVsdx=VSDX
 formatXmlPlain=XML (karaniwan)
 formatXml=XML
 forum=Diskusyon/ Tulong usapan

@@ -285,6 +285,7 @@ formatPdf=PDF
 formatSvg=SVG
 formatHtmlEmbedded=HTML-be beágyazott
 formatSvgEmbedded=SVG-be beágyazott XML (.svg)
+formatVsdx=VSDX
 formatXmlPlain=Sima Draw.io (.xml)
 formatXml=XML
 forum=Fórum

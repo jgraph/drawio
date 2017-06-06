@@ -731,16 +731,6 @@
 					
 				this.addMenuItems(menu, ['testXmlImageExport'], parent);
 
-				// For testing local Vsdx export
-				mxResources.parse('testVsdxExport=Vsdx Export');
-				
-				this.editorUi.actions.addAction('testVsdxExport', mxUtils.bind(this, function()
-				{
-					new VsdxExport(this.editorUi).exportCurrentDiagrams();
-				}));
-					
-				this.addMenuItems(menu, ['testVsdxExport'], parent);
-
 				mxResources.parse('testShowRtModel=Show RT model');
 				mxResources.parse('testDebugRtModel=Debug RT model');
 				mxResources.parse('testDownloadRtModel=Download RT model');
@@ -1298,6 +1288,40 @@
 				
 				//this.editorUi.downloadFile('html');
 			}), parent);
+
+			if (!editorUi.isOfflineApp() && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
+			{
+				menu.addItem(mxResources.get('formatVsdx') + '...', null, mxUtils.bind(this, function()
+				{
+					var delayed = mxUtils.bind(this, function()
+					{
+						// Checks for signature method
+						if (typeof(VsdxExport) !== 'undefined')
+						{
+							try
+							{
+								new VsdxExport(editorUi).exportCurrentDiagrams();
+							}
+							catch (e)
+							{
+								// ignore
+							}
+						}
+					});
+					
+					if (typeof(VsdxExport) === 'undefined' && !this.loadingVsdx && !editorUi.isOffline())
+					{
+						this.loadingVsdx = true;
+						// Dependencies included in Devel.js
+						mxscript('/js/vsdx.min.js', delayed);
+					}
+					else
+					{
+						// Must be async for cell selection
+						window.setTimeout(delayed, 0);
+					}
+				}), parent);
+			}
 
 			menu.addSeparator(parent);
 
