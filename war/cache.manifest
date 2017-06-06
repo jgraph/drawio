@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 06/06/2017 05:29 PM
+# 06/06/2017 09:45 PM
 
 app.html
 index.html?offline=1
@@ -45,11 +45,10 @@ images/logo-jira.png
 images/clear.gif
 images/spin.gif
 images/checkmark.gif
-images/favicon-32x32.png
-images/favicon-194x194.png
-images/favicon-96x96.png
-images/android-chrome-192x192.png
 images/favicon-16x16.png
+images/favicon-32x32.png
+images/android-chrome-192x192.png
+images/android-chrome-512x512.png
 images/glyphicons_google.png
 images/glyphicons_facebook.png
 images/glyphicons_twitter.png
