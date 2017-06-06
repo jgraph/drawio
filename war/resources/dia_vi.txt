@@ -472,6 +472,7 @@ outline=Phác thảo
 oval=Hình bầu dục
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Trang
 pageView=Xem trang

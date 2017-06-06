@@ -175,7 +175,46 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					};
 				}
 			}
-	
+			
+			this.diagrams = [];
+			var lastXmlNode = null;
+			
+			this.selectPage = function(number)
+			{
+				this.currentPage = mxUtils.mod(number, this.diagrams.length);
+				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
+					this.diagrams[this.currentPage]))).documentElement);
+			};
+			
+			this.selectPageById = function(id)
+			{
+				for (var i = 0; i < this.diagrams.length; i++)
+				{
+					if (this.diagrams[i].getAttribute('id') == id)
+					{
+						this.selectPage(i);
+						break;
+					}
+				}
+			};
+			
+			var update = mxUtils.bind(this, function()
+			{
+				if (this.xmlNode == null || this.xmlNode.nodeName != 'mxfile')
+				{
+					this.diagrams = [];
+				}
+				if (this.xmlNode != lastXmlNode)
+				{
+					this.diagrams = this.xmlNode.getElementsByTagName('diagram');
+					lastXmlNode = this.xmlNode;
+				}
+			});
+			
+			// LATER: Add event for setGraphXml
+			this.addListener('xmlNodeChanged', update);
+			update();
+
 			// Passes current page via urlParams global variable
 			// to let the parser know which page we're using
 			urlParams['page'] = self.currentPage;
@@ -217,7 +256,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					translate: this.graph.view.translate.clone(),
 					scale: this.graph.view.scale
 				};
-		
+
 				if (this.graphConfig.toolbar != null)
 				{
 					this.addToolbar();
@@ -855,8 +894,6 @@ GraphViewer.prototype.addToolbar = function()
 		
 		if (token == 'pages')
 		{
-			var diagrams = [];
-
 			pageInfo = container.ownerDocument.createElement('div');
 			pageInfo.style.cssText = 'display:inline-block;position:relative;padding:3px 4px 0 4px;' +
 				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;'
@@ -864,11 +901,7 @@ GraphViewer.prototype.addToolbar = function()
 			
 			var prevButton = addButton(mxUtils.bind(this, function()
 			{
-				this.currentPage = mxUtils.mod(this.currentPage - 1, diagrams.length);
-				pageInfo.innerHTML = '';
-				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
-				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
-					diagrams[this.currentPage]))).documentElement);
+				this.selectPage(this.currentPage - 1);
 			}), Editor.previousImage, mxResources.get('previousPage') || 'Previous Page');
 
 			prevButton.style.borderRightStyle = 'none';
@@ -878,11 +911,7 @@ GraphViewer.prototype.addToolbar = function()
 
 			var nextButton = addButton(mxUtils.bind(this, function()
 			{
-				this.currentPage = mxUtils.mod(this.currentPage + 1, diagrams.length);
-				pageInfo.innerHTML = '';
-				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
-				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
-					diagrams[this.currentPage]))).documentElement);
+				this.selectPage(this.currentPage + 1);
 			}), Editor.nextImage, mxResources.get('nextPage') || 'Next Page');
 			
 			nextButton.style.paddingLeft = '0px';
@@ -892,25 +921,15 @@ GraphViewer.prototype.addToolbar = function()
 			
 			var update = mxUtils.bind(this, function()
 			{
-				if (this.xmlNode == null || this.xmlNode.nodeName != 'mxfile')
-				{
-					diagrams = [];
-				}
-				if (this.xmlNode != lastXmlNode)
-				{
-					diagrams = this.xmlNode.getElementsByTagName('diagram');
-					pageInfo.innerHTML = '';
-					mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + diagrams.length);
-					lastXmlNode = this.xmlNode;
-				}
-				
-				pageInfo.style.display = (diagrams.length > 1) ? 'inline-block' : 'none';
+				pageInfo.innerHTML = '';
+				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + this.diagrams.length);
+				pageInfo.style.display = (this.diagrams.length > 1) ? 'inline-block' : 'none';
 				prevButton.style.display = pageInfo.style.display;
 				nextButton.style.display = pageInfo.style.display;
 			});
 			
 			// LATER: Add event for setGraphXml
-			this.addListener('xmlNodeChanged', update);
+			this.addListener('graphChanged', update);
 			update();
 		}
 		else if (token == 'zoom')
@@ -1116,13 +1135,13 @@ GraphViewer.prototype.addToolbar = function()
 GraphViewer.prototype.addClickHandler = function(graph, ui)
 {
 	graph.linkPolicy = this.graphConfig.target || graph.linkPolicy;
-	
-	graph.addClickHandler(this.graphConfig.highlight, function(evt)
+
+	graph.addClickHandler(this.graphConfig.highlight, mxUtils.bind(this, function(evt, href)
 	{
 		if (ui != null)
 		{
 			var elt = mxEvent.getSource(evt)
-			var href = elt.getAttribute('href');
+			href = elt.getAttribute('href');
 			
 			if (href != null && !(graph.isExternalProtocol(href) || graph.isBlankLink(href)))
 			{
@@ -1130,7 +1149,31 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 				ui.destroy();
 			}
 		}
-	}, mxUtils.bind(this, function(evt)
+		else
+		{
+			if (href == null)
+			{
+				var source = mxEvent.getSource(evt);
+			
+				if (source.nodeName.toLowerCase() == 'a')
+				{
+					href = source.getAttribute('href');
+				}
+			}
+			
+			if (href != null && graph.isPageLink(href))
+			{
+				var comma = href.indexOf(',');
+				
+				if (comma > 0)
+				{
+					var id = href.substring(comma + 1);
+					this.selectPageById(id);
+					mxEvent.consume(evt);
+				}
+			}
+		}
+	}), mxUtils.bind(this, function(evt)
 	{
 		if (ui == null && this.lightboxClickEnabled &&
 			(!mxEvent.isTouchEvent(evt) ||

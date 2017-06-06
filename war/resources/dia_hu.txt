@@ -472,6 +472,7 @@ outline=Áttekintés
 oval=Ovális
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Oldalak
 pageView=Oldal elrendezés

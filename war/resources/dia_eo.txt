@@ -472,6 +472,7 @@ outline=Outline
 oval=Oval
 page=Paĝo
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Paĝo-{1}
 pages=Paĝoj
 pageView=Page View

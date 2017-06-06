@@ -228,6 +228,8 @@ DriveRealtime.prototype.start = function()
 				
 				if (this.file.isEditable())
 				{
+					diagramMap.set('id', page.getId());
+					
 					// Read or create name for page
 					if (page.getName() != '')
 					{
@@ -252,6 +254,7 @@ DriveRealtime.prototype.start = function()
 			this.page = new DiagramPage(document.createElement('diagram'));
 			this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
 			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+			this.diagramMap.set('id', this.page.getId());
 			this.page.setName(this.diagramMap.get('name'));
 			this.page.mapping.init();
 		}
@@ -270,6 +273,7 @@ DriveRealtime.prototype.start = function()
 			if (this.file.isEditable() && !page.mapping.diagramMap.has('name'))
 			{
 				page.mapping.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+				page.mapping.diagramMap.set('id', page.getId());
 			}
 			
 			page.setName(page.mapping.diagramMap.get('name') || mxResources.get('pageWithNumber', [1]));
@@ -294,8 +298,14 @@ DriveRealtime.prototype.start = function()
 			this.diagramMap = this.diagrams.get(0);
 		}
 		
-		// Dummy node, should be XML node if used
-		this.page = new DiagramPage(document.createElement('diagram'));
+		var node = document.createElement('diagram');
+		
+		if (this.diagramMap.has('id'))
+		{
+			node.setAttribute('id', this.diagramMap.get('id'));
+		}
+		
+		this.page = new DiagramPage(node);
 		this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
 		
 		if (!this.diagramMap.has('name'))
@@ -304,6 +314,7 @@ DriveRealtime.prototype.start = function()
 		}
 		
 		this.page.setName(this.page.mapping.diagramMap.get('name'));
+		this.diagramMap.set('id', this.page.getId());
 		
 		// Avoids scroll offset when switching page
 		this.page.mapping.init();
@@ -323,8 +334,16 @@ DriveRealtime.prototype.start = function()
 		
 		for (var i = 0; i < this.diagrams.length; i++)
 		{
-			var page = new DiagramPage(this.ui.fileNode.ownerDocument.createElement('diagram'));
-			page.mapping = new RealtimeMapping(this, this.diagrams.get(i), page);
+			var node = this.ui.fileNode.ownerDocument.createElement('diagram');
+			var diagramMap = this.diagrams.get(i);
+			
+			if (diagramMap.has('id'))
+			{
+				node.setAttribute('id', diagramMap.get('id'));
+			}
+			
+			var page = new DiagramPage(node);
+			page.mapping = new RealtimeMapping(this, diagramMap, page);
 			
 			if (this.file.isEditable() && !page.mapping.diagramMap.has('name'))
 			{
@@ -332,6 +351,7 @@ DriveRealtime.prototype.start = function()
 			}
 			
 			page.setName(page.mapping.diagramMap.get('name') || mxResources.get('pageWithNumber', [i + 1]));
+			diagramMap.set('id', page.getId());
 			this.ui.pages.push(page);
 		}
 

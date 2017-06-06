@@ -472,6 +472,7 @@ outline=Ääriviiva
 oval=Ovaali
 page=Sivu
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Sivu-{1}
 pages=Sivut
 pageView=Sivun katselu

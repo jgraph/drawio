@@ -472,6 +472,7 @@ outline=Контур
 oval=Овал
 page=Page
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Page-{1}
 pages=Сторінки
 pageView=Перегляд сторінки

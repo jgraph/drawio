@@ -1476,7 +1476,7 @@ App.prototype.updateDocumentTitle = function()
 
 		if (this.isOfflineApp())
 		{
-			title += ' ' + mxResources.get('offline');
+			title += ' app';
 		}
 		else
 		{

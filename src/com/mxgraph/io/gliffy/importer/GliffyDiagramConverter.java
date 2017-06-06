@@ -365,17 +365,18 @@ public class GliffyDiagramConverter
 				cell.setVertex(true);
 				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
 				style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
-				style.append("strokeWidth=" + shape.strokeWidth).append(";");
+				
+				if(style.lastIndexOf("strokeWidth") == -1)
+					style.append("strokeWidth=" + shape.strokeWidth).append(";");
 				
 				if(style.lastIndexOf("fillColor") == -1)
 					style.append("fillColor=" + shape.fillColor).append(";");
+				
 				if(style.lastIndexOf("strokeColor") == -1)
 					style.append("strokeColor=" + shape.strokeColor).append(";");
 
-				if (shape.gradient && !gliffyObject.isGradientIgnored())
-				{
+				if(shape.gradient && !gliffyObject.isGradientIgnored() && style.lastIndexOf("gradient") == -1)
 					style.append("gradientColor=" + gliffyObject.getGradientColor() + ";gradientDirection=north;");
-				}
 
 				// opacity value is wrong for venn circles, so ignore it and use the one in the mapping
 				if (!gliffyObject.isVennCircle())

@@ -472,6 +472,7 @@ outline=Контур
 oval=Овал
 page=Страница
 pageContent=Page Content
+pageNotFound=Page not found
 pageWithNumber=Страница {1}
 pages=Страницы
 pageView=Отображать страницы

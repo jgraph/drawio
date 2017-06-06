@@ -3677,7 +3677,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 /**
  * Overrides link dialog to add Google Picker.
  */
-var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
+var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 {
 	var div = document.createElement('div');
 	mxUtils.write(div, mxResources.get('editLink') + ':');
@@ -3694,9 +3694,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	{
 		inner.style.paddingRight = '20px';
 	}
-	
+
 	var linkInput = document.createElement('input');
-	linkInput.setAttribute('value', initialValue);
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
@@ -3713,7 +3712,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	cross.style.width = '12px';
 	cross.style.height = '14px';
 	cross.style.cursor = 'pointer';
-
+	
 	// Workaround for inline-block not supported in IE
 	cross.style.display = (mxClient.IS_VML) ? 'inline' : 'inline-block';
 	cross.style.top = ((mxClient.IS_VML) ? 0 : 3) + 'px';
@@ -3726,32 +3725,135 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		linkInput.value = '';
 		linkInput.focus();
 	});
+
+	var urlRadio = document.createElement('input');
+	urlRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	urlRadio.setAttribute('value', 'url');
+	urlRadio.setAttribute('type', 'radio');
+	urlRadio.setAttribute('name', 'current-linkdialog');
+
+	var pageRadio = document.createElement('input');
+	pageRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	pageRadio.setAttribute('value', 'url');
+	pageRadio.setAttribute('type', 'radio');
+	pageRadio.setAttribute('name', 'current-linkdialog');
+
+	var pageSelect = document.createElement('select');
+	pageSelect.style.width = '380px';
 	
-	inner.appendChild(linkInput);
-	inner.appendChild(cross);
+	if (showPages && editorUi.pages != null)
+	{
+		if (initialValue != null && editorUi.editor.graph.isPageLink(initialValue))
+		{
+			pageRadio.setAttribute('checked', 'checked');
+			pageRadio.defaultChecked = true;
+		}
+		else
+		{
+			linkInput.setAttribute('value', initialValue);
+			urlRadio.setAttribute('checked', 'checked');
+			urlRadio.defaultChecked = true;
+		}
+		
+		linkInput.style.width = '380px';
+		inner.appendChild(urlRadio);
+		inner.appendChild(linkInput);
+		inner.appendChild(cross);
+		mxUtils.br(inner);
+		inner.appendChild(pageRadio);
+		
+		var pageFound = false;
+		
+		for (var i = 0; i < editorUi.pages.length; i++)
+		{
+			var pageOption = document.createElement('option');
+			mxUtils.write(pageOption, editorUi.pages[i].getName() ||
+				mxResources.get('pageWithNumber', [i + 1]));
+			pageOption.setAttribute('value', 'data:page/id,' +
+				editorUi.pages[i].getId());
+			
+			if (initialValue == pageOption.getAttribute('value'))
+			{
+				pageOption.setAttribute('selected', 'selected');
+				pageFound = true;
+			}
+
+			pageSelect.appendChild(pageOption);
+		}
+
+		if (!pageFound && pageRadio.checked)
+		{
+			var notFoundOption = document.createElement('option');
+			mxUtils.write(notFoundOption, mxResources.get('pageNotFound'));
+			notFoundOption.setAttribute('disabled', 'disabled');
+			notFoundOption.setAttribute('selected', 'selected');
+			notFoundOption.setAttribute('value', 'pageNotFound');
+			pageSelect.appendChild(notFoundOption);
+			
+			mxEvent.addListener(pageSelect, 'change', function()
+			{
+				if (notFoundOption.parentNode != null && !notFoundOption.selected)
+				{
+					notFoundOption.parentNode.removeChild(notFoundOption);
+				}
+			});
+		}
+		
+		inner.appendChild(pageSelect);
+	}
+	else
+	{
+		linkInput.setAttribute('value', initialValue);
+		inner.appendChild(linkInput);
+		inner.appendChild(cross);
+	}
+
 	div.appendChild(inner);
 	
 	var mainBtn = mxUtils.button(btnLabel, function()
 	{
 		editorUi.hideDialog();
-		fn(linkInput.value, LinkDialog.selectedDocs);
+		var value = (pageRadio.checked) ? ((pageSelect.value !== 'pageNotFound') ?
+			pageSelect.value : initialValue) : linkInput.value;
+		fn(value, LinkDialog.selectedDocs);
 	});
 	mainBtn.style.verticalAlign = 'middle';
 	mainBtn.className = 'geBtn gePrimaryBtn';
 	
 	this.init = function()
 	{
-		linkInput.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (pageRadio.checked)
 		{
-			linkInput.select();
+			pageSelect.focus();
 		}
 		else
 		{
-			document.execCommand('selectAll', false, null);
+			linkInput.focus();
+			
+			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			{
+				linkInput.select();
+			}
+			else
+			{
+				document.execCommand('selectAll', false, null);
+			}
 		}
 		
+		mxEvent.addListener(pageSelect, 'focus', function()
+		{
+			urlRadio.removeAttribute('checked');
+			pageRadio.setAttribute('checked', 'checked');
+			pageRadio.checked = true;
+		});
+		
+		mxEvent.addListener(linkInput, 'focus', function()
+		{
+			pageRadio.removeAttribute('checked');
+			urlRadio.setAttribute('checked', 'checked');
+			urlRadio.checked = true;
+		});
+
 		// Installs drag and drop handler for links
 		if (Graph.fileSupport)
 		{
@@ -3795,6 +3897,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 			    if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
 			    	linkInput.value = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
+			    	urlRadio.setAttribute('checked', 'checked');
+			    	urlRadio.checked = true;
 			    	mainBtn.click();
 			    }
 
@@ -3991,7 +4095,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		if (e.keyCode == 13)
 		{
 			editorUi.hideDialog();
-			fn(linkInput.value, LinkDialog.selectedDocs);
+			var value = (pageRadio.checked) ? pageSelect.value : linkInput.value;
+			fn(value, LinkDialog.selectedDocs);
 		}
 	});
 

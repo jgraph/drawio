@@ -472,6 +472,7 @@ outline=Übersicht
 oval=Oval
 page=Seite
 pageContent=Seiteninhalt
+pageNotFound=Seite nicht gefunden
 pageWithNumber=Seite-{1}
 pages=Seiten
 pageView=Seitenansicht

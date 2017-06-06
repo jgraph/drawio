@@ -986,7 +986,7 @@ Graph.prototype.init = function(container)
 	{
 		mxCellRenderer.prototype.initializeLabel.apply(this, arguments);
 		
-		mxEvent.addListener(shape.node, 'click', mxUtils.bind(this, function(evt)
+		var fn = mxUtils.bind(this, function(evt)
 		{
 			var elt = mxEvent.getSource(evt)
 			
@@ -994,36 +994,57 @@ Graph.prototype.init = function(container)
 			{
 				if (elt.nodeName == 'A')
 				{
-					var href = elt.getAttribute('href');
-					
-					if (href != null)
-					{
-						var target = state.view.graph.isBlankLink(href) ?
-							state.view.graph.linkTarget : '_top';
-						href = state.view.graph.getAbsoluteUrl(href);
-
-						// Workaround for blocking in same iframe
-						if (target == '_self' && window != window.top)
-						{
-							window.location.href = href;
-						}
-						else
-						{
-							window.open(href, target);
-						}
-						
-						mxEvent.consume(evt);
-					}
-	
+					state.view.graph.labelLinkClicked(state, elt, evt);
 					break;
 				}
 				
 				elt = elt.parentNode;
 			}
-		}));
+		});
+		
+		// Workaround for no click events on touch
+		if (mxClient.IS_TOUCH)
+		{
+			mxEvent.addGestureListeners(shape.node, null, null, fn);
+			mxEvent.addListener(shape.node, 'click', function(evt)
+			{
+				mxEvent.consume(evt);
+			});
+		}
+		else
+		{
+			mxEvent.addListener(shape.node, 'click', fn);
+		}
 	};
 	
 	this.initLayoutManager();
+};
+
+/**
+ * Installs automatic layout via styles
+ */
+Graph.prototype.labelLinkClicked = function(state, elt, evt)
+{
+	var href = elt.getAttribute('href');
+	
+	if (href != null)
+	{
+		var target = state.view.graph.isBlankLink(href) ?
+			state.view.graph.linkTarget : '_top';
+		href = state.view.graph.getAbsoluteUrl(href);
+
+		// Workaround for blocking in same iframe
+		if (target == '_self' && window != window.top)
+		{
+			window.location.href = href;
+		}
+		else
+		{
+			window.open(href, target);
+		}
+		
+		mxEvent.consume(evt);
+	}
 };
 
 /**
@@ -1134,7 +1155,8 @@ Graph.prototype.getPageLayout = function()
 Graph.prototype.sanitizeHtml = function(value, editing)
 {
 	// Uses https://code.google.com/p/google-caja/wiki/JsHtmlSanitizer
-	// NOTE: Original minimized sanitizer was modified to support data URIs for images
+	// NOTE: Original minimized sanitizer was modified to support
+	// data URIs for images, and mailto and special data:-links.
 	// LATER: Add MathML to whitelisted tags
 	function urlX(link)
 	{
@@ -4466,7 +4488,19 @@ if (typeof mxVertexHandler != 'undefined')
 							
 							if (beforeClick != null)
 			    			{
-			    				mxEvent.addListener(links[i], 'click', beforeClick);
+								// Workaround for no click events on touch
+								if (mxClient.IS_TOUCH)
+								{
+									mxEvent.addGestureListeners(links[i], null, null, beforeClick);
+									mxEvent.addListener(links[i], 'click', function(evt)
+									{
+										mxEvent.consume(evt);
+									});
+								}
+								else
+								{
+									mxEvent.addListener(links[i], 'click', beforeClick);
+								}
 			    			}
 						}
 					}
@@ -4569,24 +4603,28 @@ if (typeof mxVertexHandler != 'undefined')
 				    	{
 				    		var blank = graph.isBlankLink(this.currentLink);
 				    		
-				    		if (!blank && beforeClick != null)
+				    		if ((this.currentLink.substring(0, 5) === 'data:' ||
+				    			!blank) && beforeClick != null)
 				    		{
-			    				beforeClick(me.getEvent());
+			    				beforeClick(me.getEvent(), this.currentLink);
 				    		}
 				    		
-				    		var target = (blank) ? graph.linkTarget : '_top';
-				    		
-				    		// Workaround for blocking in same iframe
-							if (target == '_self' && window != window.top)
-							{
-								window.location.href = this.currentLink;
-							}
-							else
-							{
-								window.open(this.currentLink, target);
-							}
-				    		
-				    		me.consume();
+				    		if (!mxEvent.isConsumed(me.getEvent()))
+				    		{
+					    		var target = (blank) ? graph.linkTarget : '_top';
+					    		
+					    		// Workaround for blocking in same iframe
+								if (target == '_self' && window != window.top)
+								{
+									window.location.href = this.currentLink;
+								}
+								else
+								{
+									window.open(this.currentLink, target);
+								}
+					    		
+					    		me.consume();
+				    		}
 				    	}
 				    	else if (onClick != null && !me.isConsumed() &&
 			    			(Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
@@ -5292,6 +5330,36 @@ if (typeof mxVertexHandler != 'undefined')
 		    }
 		};
 	
+		/**
+		 * Creates an anchor elements for handling the given link in the
+		 * hint that is shown when the cell is selected.
+		 */
+		Graph.prototype.createLinkForHint = function(link, label)
+		{
+			var a = document.createElement('a');
+			a.setAttribute('href', this.getAbsoluteUrl(link));
+			a.setAttribute('title', link);
+			
+			if (this.linkTarget != null)
+			{
+				a.setAttribute('target', this.linkTarget);
+			}
+			
+			// Adds shortened label to link
+			var max = 60;
+			var head = 36;
+			var tail = 20;
+			
+			if (label.length > max)
+			{
+				label = label.substring(0, head) + '...' + label.substring(label.length - tail);
+			}
+
+			mxUtils.write(a, label);
+			
+			return a;
+		};
+		
 		/**
 		 * Customized graph for touch devices.
 		 */
@@ -6787,28 +6855,8 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					this.graph.container.appendChild(this.linkHint);
 				}
-				
-				var label = link;
-				var max = 60;
-				var head = 36;
-				var tail = 20;
-				
-				if (label.length > max)
-				{
-					label = label.substring(0, head) + '...' + label.substring(label.length - tail);
-				}
-				
-				var a = document.createElement('a');
-				a.setAttribute('href', this.graph.getAbsoluteUrl(link));
-				a.setAttribute('title', link);
-				
-				if (this.graph.linkTarget != null)
-				{
-					a.setAttribute('target', this.graph.linkTarget);
-				}
-				
-				mxUtils.write(a, label);
-				
+
+				var a = this.graph.createLinkForHint(link, link);
 				this.linkHint.innerHTML = '';
 				this.linkHint.appendChild(a);
 	
