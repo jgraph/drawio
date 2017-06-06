@@ -1,3 +1,7 @@
+06-JUN-2017: 6.7.7
+
+- Fixes broken links in cache.manifest
+
 06-JUN-2017: 6.7.6
 
 - Adds VSDX export in online webapp
