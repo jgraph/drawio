@@ -13,8 +13,9 @@
 		circuit and social network diagrams.">
 	<meta itemprop="image" content="https://lh4.googleusercontent.com/-cLKEldMbT_E/Tx8qXDuw6eI/AAAAAAAAAAs/Ke0pnlk8Gpg/w500-h344-k/BPMN%2Bdiagram%2Brc2f.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="msapplication-config" content="images/browserconfig.xml">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="canonical" href="https://www.draw.io">
+	<meta name="theme-color" content="#d89000">
     <script type="text/javascript">
 		/**
 		 * URL Parameters and protocol description are here:
@@ -101,18 +102,50 @@
 				}
 			})();
 		}
+		
+		/**
+		 * Adds meta tags with application name (depends on offline URL parameter)
+		 */
+		(function()
+		{
+			function addMeta(name, content)
+			{
+				try
+				{
+					var s = document.createElement('meta');
+					s.setAttribute('name', name);
+					s.setAttribute('content', content);
+					
+				  	var t = document.getElementsByTagName('meta')[0];
+				  	t.parentNode.insertBefore(s, t);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			};
+			
+			var name = 'draw.io';
+
+			if (urlParams['offline'] === '1')
+			{
+				name += ' app';
+			}
+			
+			addMeta('apple-mobile-web-app-title', name);
+			addMeta('application-name', name);
+		})();
+
 	</script>
     <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
 	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
 	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
-	<meta name="msapplication-config" content="images/browserconfig.xml">
-	<link rel="manifest" href="images/manifest.json">
-	<meta name="application-name" content="draw.io">
-	<link rel="shortcut icon" href="favicon.ico">
-	<meta name="theme-color" content="#d89000">
     <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
+    <link rel="canonical" href="https://www.draw.io">
+	<link rel="manifest" href="images/manifest.json">
+	<link rel="shortcut icon" href="favicon.ico">
 	<style type="text/css">
 		body { overflow:hidden; }
 		.geSidebarContainer .geTitle { color:#505050; }
@@ -312,7 +345,7 @@
 		if (window && window.process && window.process.type)
 		{
 			// Electron
-			mxscript('../etc/electron/ElectronApp.js');
+			mxscript('js/diagramly/ElectronApp.js');
 		}
 		
 		// Adds basic error handling
