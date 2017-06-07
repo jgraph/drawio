@@ -1,0 +1,197 @@
+<shapes name="mxGraph.rack.ubiquiti">
+    <shape name="UniFi US-16-XG Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f5f5f5"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="148.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#444444"/>
+            <rect x="62" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="62" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="73" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="73" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="84" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="84" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="95" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="95" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="117" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="117" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="126" y="8.5" w="18.3" h="4"/>
+            <fillstroke/>
+            <roundrect x="2" y="2" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="2" y="10.8" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="156.9" y="2" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="156.9" y="10.8" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <strokecolor color="#000099"/>
+            <roundrect x="9" y="2.4" w="12" h="10" arcsize="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="UniFi US-48-500W Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f5f5f5"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#444444"/>
+            <rect x="23.5" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="23.5" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="51" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="51" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="78.5" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="78.5" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="136.5" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="136.5" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <roundrect x="2" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="2" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <strokecolor color="#000099"/>
+            <roundrect x="7.5" y="2.4" w="12" h="10" arcsize="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="UniFi US-24-250W Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f5f5f5"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#444444"/>
+            <rect x="78.5" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="78.5" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="2.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="106" y="8.5" w="27.5" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <roundrect x="2" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="2" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <strokecolor color="#000099"/>
+            <roundrect x="7.5" y="2.4" w="12" h="10" arcsize="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="UniFi US-16-150W Switch" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f5f5f5"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <rect x="6" y="0" w="148.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#444444"/>
+            <rect x="96.9" y="2.5" w="18.3" h="4"/>
+            <fillstroke/>
+            <rect x="96.9" y="8.5" w="18.3" h="4"/>
+            <fillstroke/>
+            <rect x="115.2" y="2.5" w="18.3" h="4"/>
+            <fillstroke/>
+            <rect x="115.2" y="8.5" w="18.3" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="2.5" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="143" y="8.5" w="5" h="4"/>
+            <fillstroke/>
+            <roundrect x="2" y="2" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="2" y="10.8" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="156.9" y="2" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="156.9" y="10.8" w="2" h="2" arcsize="50"/>
+            <stroke/>
+            <strokecolor color="#000099"/>
+            <roundrect x="9" y="2.4" w="12" h="10" arcsize="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+    <shape name="UniFi USG-PRO-4" h="14.8" w="160.9">
+        <foreground>
+            <strokecolor color="#000000"/>
+            <fillcolor color="#f5f5f5"/>
+            <rect x="0" y="0" w="160.9" h="14.8"/>
+            <fillstroke/>
+            <fillcolor color="#444444"/>
+            <rect x="33.5" y="5.4" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="83" y="5.4" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="93" y="5.4" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="103" y="5.4" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="113" y="5.4" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="130" y="6" w="5" h="4"/>
+            <fillstroke/>
+            <rect x="140" y="6" w="5" h="4"/>
+            <fillstroke/>
+            <roundrect x="2" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="2" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="2" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <roundrect x="155.9" y="10.8" w="3" h="2" arcsize="50"/>
+            <stroke/>
+            <fillcolor color="#ffffff"/>
+            <rect x="43.5" y="5.4" w="2.5" h="4"/>
+            <fillstroke/>
+            <strokecolor color="#000099"/>
+            <roundrect x="16.5" y="2.4" w="12" h="10" arcsize="5"/>
+            <stroke/>
+        </foreground>
+    </shape>
+</shapes>
