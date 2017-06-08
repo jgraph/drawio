@@ -1,3 +1,9 @@
+08-JUN-2017: 6.7.8
+
+- Fixes saving local files in MS Edge
+- Fixes binary after text export in Safari
+- Fixes title for offline iOS homescreen app
+
 06-JUN-2017: 6.7.7
 
 - Fixes broken links in cache.manifest

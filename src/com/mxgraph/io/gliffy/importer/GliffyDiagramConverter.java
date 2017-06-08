@@ -38,6 +38,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -371,12 +372,13 @@ public class GliffyDiagramConverter
 				
 				if(style.lastIndexOf("fillColor") == -1)
 					style.append("fillColor=" + shape.fillColor).append(";");
-				
 				if(style.lastIndexOf("strokeColor") == -1)
 					style.append("strokeColor=" + shape.strokeColor).append(";");
-
-				if(shape.gradient && !gliffyObject.isGradientIgnored() && style.lastIndexOf("gradient") == -1)
+				
+				if (style.lastIndexOf("gradient") == -1 && shape.gradient && !gliffyObject.isGradientIgnored())
+				{
 					style.append("gradientColor=" + gliffyObject.getGradientColor() + ";gradientDirection=north;");
+				}
 
 				// opacity value is wrong for venn circles, so ignore it and use the one in the mapping
 				if (!gliffyObject.isVennCircle())
@@ -460,21 +462,11 @@ public class GliffyDiagramConverter
 				style.append("image=data:image/svg+xml,").append(res.getBase64EncodedData()).append(";");
 			} 
 		} 
-		// swimlanes have children w/o uid so their children are converted here ad hoc
+		// swimlanes have children without uid so their children are converted here ad hoc
 		else if (gliffyObject.isSwimlane())
 		{
 			cell.setVertex(true);
 			style.append(StencilTranslator.translate(gliffyObject.uid)).append(";");
-
-			boolean vertical = true;
-			
-			if (gliffyObject.uid.startsWith(GliffyObject.H_SWIMLANE))
-			{
-				vertical = false;
-				cell.getGeometry().setWidth(gliffyObject.height);
-				cell.getGeometry().setHeight(gliffyObject.width);
-				style.append("horizontal=0;");
-			}
 
 			GliffyObject header = gliffyObject.children.get(0);// first child is the header of the swimlane
 			
@@ -484,6 +476,12 @@ public class GliffyDiagramConverter
 			style.append("fillColor=" + shape.fillColor).append(";");
 			style.append("strokeColor=" + shape.strokeColor).append(";");
 			style.append("whiteSpace=wrap;");
+			
+			double rads = Math.toRadians(gliffyObject.rotation);
+			mxPoint pivot = new mxPoint(gliffyObject.width/ 2, gliffyObject.height / 2);
+			double cos = Math.cos(rads);
+			double sin = Math.sin(rads);
+			mxPoint baseP = mxUtils.getRotatedPoint(new mxPoint(0, 0), cos, sin, pivot);
 
 			for (int i = 1; i < gliffyObject.children.size(); i++) // rest of the children are lanes
 			{
@@ -492,19 +490,33 @@ public class GliffyDiagramConverter
 
 				GliffyShape gs = gLane.graphic.getShape();
 				StringBuilder laneStyle = new StringBuilder();
-				laneStyle.append("swimlane;swimlaneLine=0;" + (vertical ? "" : "horizontal=0;"));
+				laneStyle.append("swimlane;swimlaneLine=0;");
 				laneStyle.append("strokeWidth=" + gs.strokeWidth).append(";");
 				laneStyle.append("shadow=" + (gs.dropShadow ? 1 : 0)).append(";");
 				laneStyle.append("fillColor=" + gs.fillColor).append(";");
 				laneStyle.append("strokeColor=" + gs.strokeColor).append(";");
 				laneStyle.append("whiteSpace=wrap;html=1;");
+				
+				mxGeometry childGeometry = null;
+				
+				if(gliffyObject.rotation != 0) 
+				{
+					laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
+					mxPoint pointAbs = new mxPoint(gLane.x, gLane.y );
+					pointAbs = mxUtils.getRotatedPoint(pointAbs, cos, sin, pivot);
+					childGeometry = new mxGeometry(pointAbs.getX()  - baseP.getX(), pointAbs.getY() - baseP.getY(), gLane.width, gLane.height);
+				}
+				else 
+				{
+					childGeometry = new mxGeometry(gLane.x, gLane.y, gLane.width, gLane.height);
+				}
 
 				mxCell mxLane = new mxCell();
 				mxLane.setVertex(true);
 				cell.insert(mxLane);
 				mxLane.setValue(gLane.children.get(0).getText());
 				mxLane.setStyle(laneStyle.toString());
-				mxGeometry childGeometry = new mxGeometry(gLane.x, gLane.y, vertical ? gLane.width : gLane.height, vertical ? gLane.height : gLane.width);
+				
 				mxLane.setGeometry(childGeometry);
 				gLane.mxObject = mxLane;
 			}

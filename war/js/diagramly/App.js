@@ -1473,20 +1473,17 @@ App.prototype.updateDocumentTitle = function()
 	if (!this.editor.graph.lightbox)
 	{
 		var title = this.editor.appName;
-
+		var file = this.getCurrentFile();
+		
 		if (this.isOfflineApp())
 		{
 			title += ' app';
 		}
-		else
+		
+		if (file != null)
 		{
-			var file = this.getCurrentFile();
-			
-			if (file != null)
-			{
-				var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-				title = filename + ' - ' + title;
-			}
+			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+			title = filename + ' - ' + title;
 		}
 		
 		document.title = title;
