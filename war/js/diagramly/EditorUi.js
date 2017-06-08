@@ -2519,11 +2519,12 @@
 	 */
 	EditorUi.prototype.isLocalFileSave = function()
 	{
-		return (urlParams['save'] != 'remote' && (mxClient.IS_IE ||
+		// Workaround for failing local saves in MS Edge Creators Update
+		return !mxClient.IS_EDGE && ((urlParams['save'] != 'remote' && (mxClient.IS_IE ||
 			(typeof window.Blob !== 'undefined' && typeof window.URL !== 'undefined')) &&
 			document.documentMode != 9 && document.documentMode != 8 &&
 			document.documentMode != 7 && !mxClient.IS_QUIRKS) ||
-			this.isOfflineApp() || mxClient.IS_IOS;
+			this.isOfflineApp() || mxClient.IS_IOS);
 	};
 	
 	/**
@@ -2573,13 +2574,17 @@
 		{
 			var a = document.createElement('a');
 			
-			if (typeof a.download !== 'undefined' || this.isOffline())
+			// Workaround for mxXmlRequest.simulate no longer working in Safari
+			// if this is used (ie PNG export broken after XML export in Safari).
+			var useDownload = !mxClient.IS_SF && typeof a.download !== 'undefined';
+			
+			if (useDownload || this.isOffline())
 			{
 				a.href = URL.createObjectURL((base64Encoded) ?
 					this.base64ToBlob(data, mimeType) :
 					new Blob([data], {type: mimeType}));
 				
-				if (typeof a.download !== 'undefined')
+				if (useDownload)
 				{
 					a.download = filename;
 				}
@@ -2593,12 +2598,12 @@
 				
 				try
 				{
-					a.click();
-					
 					window.setTimeout(function()
 					{
 						URL.revokeObjectURL(a.href);
 					}, 0);
+
+					a.click();
 					a.parentNode.removeChild(a);
 				}
 				catch (e)

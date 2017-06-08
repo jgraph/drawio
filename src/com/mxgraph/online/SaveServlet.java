@@ -25,11 +25,6 @@ public class SaveServlet extends HttpServlet
 	/**
 	 * 
 	 */
-	public static String ALLOW_COMPRESSION = "allowCompression";
-
-	/**
-	 * 
-	 */
 	private static final Logger log = Logger
 			.getLogger(SaveServlet.class.getName());
 
