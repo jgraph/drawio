@@ -1,5 +1,6 @@
 package com.mxgraph.io.gliffy.model;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -15,25 +16,41 @@ import com.mxgraph.model.mxCell;
 public class GliffyObject implements PostDeserializable
 {
 	private static Set<String> GRAPHICLESS_SHAPES = new HashSet<String>();
+
 	private static Set<String> GROUP_SHAPES = new HashSet<String>();
+
 	private static Set<String> MINDMAP_SHAPES = new HashSet<>();
 
 	public float x;
+
 	public float y;
+
 	public int id;
+
 	public float width;
+
 	public float height;
+
 	public float rotation;
+
 	public String uid;
+
 	public String tid;
+
 	public String order;
+
 	public boolean lockshape;
+
 	public Graphic graphic;
+
 	public List<GliffyObject> children;
+
 	public Constraints constraints;
+
 	public List<LinkMap> linkMap;
 
 	public mxCell mxObject;// the mxCell this gliffy object got converted into
+
 	public GliffyObject parent = null;
 
 	static
@@ -54,8 +71,6 @@ public class GliffyObject implements PostDeserializable
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.composition");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.aggregation");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.association");
-		
-		
 
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.package");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.simple_class");
@@ -97,11 +112,11 @@ public class GliffyObject implements PostDeserializable
 		*/
 
 		GROUP_SHAPES.add("com.gliffy.shape.basic.basic_v1.default.group");
-		
+
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.main_topic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.subtopic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.child_node");
-		
+
 	}
 
 	public GliffyObject()
@@ -110,11 +125,12 @@ public class GliffyObject implements PostDeserializable
 
 	public Graphic getGraphic()
 	{
-		if(graphic != null)
+		if (graphic != null)
 			return graphic;
-		else if(isUml() || GRAPHICLESS_SHAPES.contains(uid))
+		else if (isUml() || GRAPHICLESS_SHAPES.contains(uid))
 			return getFirstChildGraphic();
-		else return null;
+		else
+			return null;
 	}
 
 	public mxCell getMxObject()
@@ -158,12 +174,12 @@ public class GliffyObject implements PostDeserializable
 	{
 		return graphic.getText().getHtml();
 	}
-	
-	public String getLink() 
+
+	public String getLink()
 	{
-		if(linkMap != null && !linkMap.isEmpty()) 
+		if (linkMap != null && !linkMap.isEmpty())
 			return linkMap.get(0).url;
-		
+
 		return null;
 	}
 
@@ -181,7 +197,7 @@ public class GliffyObject implements PostDeserializable
 	{
 		return uid != null && GROUP_SHAPES.contains(uid);
 	}
-	
+
 	public boolean isMindmap()
 	{
 		return uid != null && MINDMAP_SHAPES.contains(uid);
@@ -191,10 +207,10 @@ public class GliffyObject implements PostDeserializable
 	{
 		return graphic != null && graphic.getType().equals(Graphic.Type.LINE);
 	}
-	
-	private boolean isUml() 
+
+	private boolean isUml()
 	{
-		return uid != null && (uid.startsWith("com.gliffy.shape.uml.uml")); 
+		return uid != null && (uid.startsWith("com.gliffy.shape.uml.uml"));
 	}
 
 	public boolean isShape()
@@ -203,11 +219,11 @@ public class GliffyObject implements PostDeserializable
 		{
 			return graphic.getType().equals(Graphic.Type.SHAPE) || graphic.getType().equals(Graphic.Type.MINDMAP);
 		}
-		else 
+		else
 		{
 			//some UML shapes do not have a graphic,instead their graphic type is determined by their first child
 			Graphic g = getFirstChildGraphic();
-			return  g != null && g.getType().equals(Graphic.Type.SHAPE);
+			return g != null && g.getType().equals(Graphic.Type.SHAPE);
 		}
 	}
 
@@ -235,22 +251,21 @@ public class GliffyObject implements PostDeserializable
 	{
 		return uid != null && uid.startsWith("com.gliffy.shape.venn");
 	}
-	
+
 	public String getGradientColor()
 	{
 		String gradientColor = "#FFFFFF";
-		
+
 		// Gradient colors are lighter version of the fill color except for radial
 		// venn shapes, where white is used with a radial gradient (we use linear)
-		if (graphic != null && graphic.Shape != null && uid != null &&
-			!uid.startsWith("com.gliffy.shape.radial"))
+		if (graphic != null && graphic.Shape != null && uid != null && !uid.startsWith("com.gliffy.shape.radial"))
 		{
 			String hex = graphic.Shape.fillColor;
-			
+
 			if (hex != null && hex.length() == 7 && hex.charAt(0) == '#')
 			{
 				long clr = Long.parseLong(hex.substring(1), 16);
-				
+
 				long r = Math.min(0xFF0000, ((clr & 0xFF0000) + 0xAA0000)) & 0xFF0000;
 				long g = Math.min(0x00FF00, ((clr & 0x00FF00) + 0x00AA00)) & 0x00FF00;
 				long b = Math.min(0x0000FF, ((clr & 0x0000FF) + 0x0000AA)) & 0x0000FF;
@@ -258,7 +273,7 @@ public class GliffyObject implements PostDeserializable
 				gradientColor = String.format("#%06X", 0xFFFFFF & (r + g + b));
 			}
 		}
-		
+
 		return gradientColor;
 	}
 
@@ -267,21 +282,19 @@ public class GliffyObject implements PostDeserializable
 	 */
 	public boolean isGradientIgnored()
 	{
-		return uid != null &&
-			(uid.startsWith("com.gliffy.shape.venn.outline") ||
-			uid.startsWith("com.gliffy.shape.venn.flat"));
+		return uid != null && (uid.startsWith("com.gliffy.shape.venn.outline") || uid.startsWith("com.gliffy.shape.venn.flat"));
 	}
-	
+
 	/**
 	 * Returns a boolean indicating if this object is a subroutine 
 	 * @return true if subroutine, false otherwise
 	 */
-	public boolean isSubRoutine() 
+	public boolean isSubRoutine()
 	{
 		return uid.equals("com.gliffy.shape.flowchart.flowchart_v1.default.subroutine");
 	}
 
-	public boolean isUnrecognizedGraphicType() 
+	public boolean isUnrecognizedGraphicType()
 	{
 		return graphic != null && graphic.type == null;
 	}
@@ -303,57 +316,61 @@ public class GliffyObject implements PostDeserializable
 	}
 
 	@Override
-	public void postDeserialize() {
-		if(isGroup())
+	public void postDeserialize()
+	{
+		if (isGroup())
 			normalizeChildrenCoordinates();
 	}
-	
+
 	/**
 	 * Some Gliffy diagrams have groups whose children have negative coordinates.
 	 * This is a problem in draw.io as they get set to 0.
 	 * This method expands the groups left and up and adjusts children's coordinates so that they are never less than zero.
 	 */
-	private void normalizeChildrenCoordinates() {
+	private void normalizeChildrenCoordinates()
+	{
 		//sorts the list to find the leftmost child and it's X
-		Comparator<GliffyObject> cx = new Comparator<GliffyObject>() {
+		Comparator<GliffyObject> cx = new Comparator<GliffyObject>()
+		{
 			@Override
-			public int compare(GliffyObject o1, GliffyObject o2) {
-				return (int)(o1.x - o2.x);
+			public int compare(GliffyObject o1, GliffyObject o2)
+			{
+				return (int) (o1.x - o2.x);
 			}
 		};
-		 
-		children.sort(cx);
+
+		Collections.sort(children, cx);
 		float xMin = children.get(0).x;
-		
-		if(xMin < 0) 
+
+		if (xMin < 0)
 		{
 			width += -xMin; //increase width
 			x += xMin;
-			
-			for(GliffyObject child : children) //increase x 
-				child.x += -xMin;  
+
+			for (GliffyObject child : children) //increase x 
+				child.x += -xMin;
 		}
-		
+
 		//sorts the list to find the leftmost child and it's Y
-		Comparator<GliffyObject> cy = new Comparator<GliffyObject>() {
+		Comparator<GliffyObject> cy = new Comparator<GliffyObject>()
+		{
 			@Override
-			public int compare(GliffyObject o1, GliffyObject o2) {
-				return (int)(o1.y - o2.y);
+			public int compare(GliffyObject o1, GliffyObject o2)
+			{
+				return (int) (o1.y - o2.y);
 			}
 		};
-		 
+
 		children.sort(cy);
 		float yMin = children.get(0).y;
-		
-		if(yMin < 0) 
+
+		if (yMin < 0)
 		{
 			height += -yMin; //increase height
 			y += yMin;
-			
-			for(GliffyObject child : children) //increase y 
-				child.y += -yMin;  
+
+			for (GliffyObject child : children) //increase y 
+				child.y += -yMin;
 		}
 	}
-	
-	
 }

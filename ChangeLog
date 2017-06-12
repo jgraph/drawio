@@ -1,3 +1,7 @@
+12-JUN-2017: 6.7.10
+
+- Fixes Java compliance issue in Gliffy import
+
 12-JUN-2017: 6.7.9
 
 - Adds css, default styles, libraries to Editor.configure
