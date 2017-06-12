@@ -372,6 +372,7 @@ function VsdxExport(editorUi, resDir)
 		shape.setAttribute("FillStyle", "0");
 		shape.setAttribute("TextStyle", "0");
 		
+		var s = vsdxCanvas.state;
 		var points = state.absolutePoints;
 		var bounds = state.cellBounds;
 		
@@ -384,13 +385,13 @@ function VsdxExport(editorUi, resDir)
 		shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
 		shape.appendChild(createCellElemScaled("LocPinY", hh, xmlDoc));
 
-		var s = vsdxCanvas.state;
+		vsdxCanvas.newEdge(shape, state, xmlDoc);
 		
 		var calcVsdxPoint = function(p, noHeight) 
 		{
 			var x = p.x, y = p.y;
-			x = (x - bounds.x + s.dx) * s.scale;
-			y = ((noHeight? 0 : bounds.height) - y + bounds.y - s.dy) * s.scale;
+			x = (x * s.scale - bounds.x + s.dx) ;
+			y = ((noHeight? 0 : bounds.height) - y * s.scale + bounds.y - s.dy) ;
 			return {x: x, y: y};
 		};
 
@@ -832,8 +833,8 @@ VsdxExport.prototype.PART_NAME = "PartName";
 VsdxExport.prototype.CONTENT_TYPES_XML = "[Content_Types].xml";
 VsdxExport.prototype.VISIO_PAGES_RELS = "visio/pages/_rels/";
 VsdxExport.prototype.ARROWS_MAP = {
-	"none|1": 0, "none|0": 0, "open|1": 1, "open|0": 1, "block|0": 4, "block|1": 14, "classic|1": 5, "classic|0": 17,
-	"oval|1": 10, "oval|0": 20, "diamond|1": 11, "diamond|0": 22, "blockThin|1": 2, "blockThin|0": 2, "dash|1": 23, "dash|0": 23,
+	"none|1": 0, "none|0": 0, "open|1": 1, "open|0": 1, "block|1": 4, "block|0": 14, "classic|1": 5, "classic|0": 17,
+	"oval|1": 10, "oval|0": 20, "diamond|1": 11, "diamond|0": 22, "blockThin|1": 2, "blockThin|0": 15, "dash|1": 23, "dash|0": 23,
 	"ERone|1": 24, "ERone|0": 24, "ERmandOne|1": 25, "ERmandOne|0": 25, "ERmany|1": 27, "ERmany|0": 27, "ERoneToMany|1": 28, "ERoneToMany|0": 28,
 	"ERzeroToMany|1": 29, "ERzeroToMany|0": 29, "ERzeroToOne|1": 30, "ERzeroToOne|0": 30, "openAsync|1": 9, "openAsync|0": 9
 };

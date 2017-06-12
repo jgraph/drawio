@@ -82,6 +82,21 @@ mxVsdxCanvas2D.prototype.newShape = function (shape, cellState, xmlDoc)
 	this.createGeoSec();
 };
 
+
+/**
+ * Function: newEdge
+ *  
+ * Create a new edge.
+ */
+mxVsdxCanvas2D.prototype.newEdge = function (shape, cellState, xmlDoc)
+{
+	this.shape = shape;
+	this.cellState = cellState;
+	this.xmGeo = cellState.cellBounds;
+	var s = this.state;
+	this.xmlDoc = xmlDoc;
+};
+
 /**
  * Function: endShape
  *  
@@ -256,6 +271,9 @@ mxVsdxCanvas2D.prototype.ellipse = function(x, y, w, h)
  */
 mxVsdxCanvas2D.prototype.moveTo = function(x, y)
 {
+	//MoveTo inside a geo usually produce incorrect fill
+	if (this.geoStepIndex > 1)	this.createGeoSec();
+	
 	this.lastMoveToX = x;
 	this.lastMoveToY = y;
 	this.lastX = x;
@@ -578,16 +596,19 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		var s = this.state;
 		var geo = this.xmGeo;
 
-		var strRect = mxUtils.getSizeForString(str, null, null, w > 0? w : null);
+		var fontSize = this.cellState.style["fontSize"];
+		var fontFamily = this.cellState.style["fontFamily"];
+
+		var strRect = mxUtils.getSizeForString(str, fontSize, fontFamily);
 
 		var wShift = 0;
 		var hShift = 0;
 		
 		switch(align) 
 		{
-			case "right": wShift = strRect.width/4; break;
+			case "right": wShift = strRect.width/2; break;
 			//case "center": wShift = 0; break;
-			case "left": wShift = -strRect.width/4; break;
+			case "left": wShift = -strRect.width/2; break;
 		}
 		
 		switch(valign) 
@@ -597,14 +618,12 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			case "bottom": hShift = -strRect.height/2; break;
 		}
 
-		h = h > 0 ? h : strRect.height; 
-		w = w > 0 ? w : strRect.width;
-			
-//		h = h > 0 ? h : geo.height; 
-//		w = w > 0 ? w : geo.width;
 		w = w * s.scale;
 		h = h * s.scale;
-		
+
+		h = Math.max(h, strRect.height); 
+		w = Math.max(w, strRect.width);
+			
 		x = (x - geo.x + s.dx) * s.scale;
 		y = (geo.height - y + geo.y - s.dy) * s.scale;
 
@@ -618,28 +637,29 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 
 		if (rotation != 0)
 			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
+		//TODO Currently, we support a single text block formatting. Later, HTML label should be analysed and split into parts
+		var charSect = this.xmlDoc.createElement("Section");
+		charSect.setAttribute('N', 'Character');
+		var charRow = this.xmlDoc.createElement("Row");
+		charRow.setAttribute('IX', 0);
+		
+		var fontColor = this.cellState.style["fontColor"];
+		if (fontColor)	charRow.appendChild(this.createCellElem("Color", fontColor));
+		
+		if (fontSize)	charRow.appendChild(this.createCellElemScaled("Size", fontSize * 0.97)); //the magic number 0.97 is needed such that text do not overflow
+		
+		if (fontFamily)	charRow.appendChild(this.createCellElem("Font", fontFamily));
+		
+		charSect.appendChild(charRow);
+		this.shape.appendChild(charSect);
 		
 		var text = this.xmlDoc.createElement("Text");
+		var cp = this.xmlDoc.createElement("cp");
+		cp.setAttribute('IX', 0);
+		text.appendChild(cp);
 		text.textContent = str;
 		this.shape.appendChild(text);
-//		
-//		var elem = this.createElement('text');
-//		elem.setAttribute('x', this.format(x));
-//		elem.setAttribute('y', this.format(y));
-//		elem.setAttribute('w', this.format(w));
-//		elem.setAttribute('h', this.format(h));
-//		elem.setAttribute('str', str);
-//		
-//		if (align != null)
-//		{
-//			elem.setAttribute('align', align);
-//		}
-//		
-//		if (valign != null)
-//		{
-//			elem.setAttribute('valign', valign);
-//		}
-//		
+		
 //		elem.setAttribute('wrap', (wrap) ? '1' : '0');
 //		
 //		if (format == null)
@@ -659,17 +679,10 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 //			elem.setAttribute('clip', (clip) ? '1' : '0');
 //		}
 //		
-//		if (rotation != null)
-//		{
-//			elem.setAttribute('rotation', rotation);
-//		}
-//		
 //		if (dir != null)
 //		{
 //			elem.setAttribute('dir', dir);
 //		}
-//		
-//		this.root.appendChild(elem);
 	}
 };
 

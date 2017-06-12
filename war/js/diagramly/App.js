@@ -75,9 +75,6 @@ App = function(editor, container, lightbox)
 		EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
 	}
 
-	// Gets recent colors from settings
-	ColorDialog.recentColors = mxSettings.getRecentColors(ColorDialog.recentColors);
-
 	// Handles opening files via drag and drop
 	this.addFileDropHandler([document]);
 	
@@ -99,10 +96,11 @@ App = function(editor, container, lightbox)
 			}
 		}
 		
-		window.Draw.loadPlugin = function(callback)
+		// Installs global callback for plugins
+		window.Draw.loadPlugin = mxUtils.bind(this, function(callback)
 		{
 			callback(this);
-		};
+		});
 	}
 
 	this.load();
@@ -348,81 +346,6 @@ App.getStoredMode = function()
 				mxscript('js/json/json2.min.js');
 			}
 		}
-
-		/**
-		 * Loading plugins.
-		 */
-		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
-		{
-			var plugins = mxSettings.getPlugins();
-			var temp = urlParams['p'];
-			
-			if ((temp != null) || (plugins != null && plugins.length > 0))
-			{
-				// Workaround for need to load plugins now but wait for UI instance
-				App.DrawPlugins = [];
-				
-				// Global entry point for plugins is Draw.loadPlugin. This is the only
-				// long-term supported solution for access to the EditorUi instance.
-				window.Draw = new Object();
-				window.Draw.loadPlugin = function(callback)
-				{
-					App.DrawPlugins.push(callback);
-				};
-			}
-			
-			if (temp != null)
-			{
-				// Mapping from key to URL in App.plugins
-				var t = temp.split(';');
-				
-				for (var i = 0; i < t.length; i++)
-				{
-					var url = App.pluginRegistry[t[i]];
-					
-					if (url != null)
-					{
-						mxscript(url);
-					}
-					else if (window.console != null)
-					{
-						console.log('Unknown plugin:', t[i]);
-					}
-				}
-			}
-			
-			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
-			{
-				// Loading plugins inside the asynchronous block below stops the page from loading so a 
-				// hardcoded message for the warning dialog is used since the resources are loadd below
-				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
-				var tmp = window.location.protocol + '//' + window.location.host;
-				var local = true;
-				
-				for (var i = 0; i < plugins.length && local; i++)
-				{
-					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
-					{
-						local = false;
-					}
-				}
-				
-				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
-				{
-					for (var i = 0; i < plugins.length; i++)
-					{
-						try
-						{
-							mxscript(plugins[i]);
-						}
-						catch (e)
-						{
-							// ignore
-						}
-					}
-				}
-			}
-		}
 	}
 })();
 
@@ -552,6 +475,81 @@ App.main = function(callback)
 		if (urlParams['picker'] != '0' && !mxClient.IS_QUIRKS && document.documentMode != 8)
 		{
 			mxscript(document.location.protocol + '//www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22picker%22%2C%22version%22%3A%221%22%2C%22language%22%3A%22' + mxClient.language + '%22%7D%5D%7D');
+		}
+
+		/**
+		 * Loading plugins.
+		 */
+		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
+		{
+			var plugins = mxSettings.getPlugins();
+			var temp = urlParams['p'];
+			
+			if ((temp != null) || (plugins != null && plugins.length > 0))
+			{
+				// Workaround for need to load plugins now but wait for UI instance
+				App.DrawPlugins = [];
+				
+				// Global entry point for plugins is Draw.loadPlugin. This is the only
+				// long-term supported solution for access to the EditorUi instance.
+				window.Draw = new Object();
+				window.Draw.loadPlugin = function(callback)
+				{
+					App.DrawPlugins.push(callback);
+				};
+			}
+			
+			if (temp != null)
+			{
+				// Mapping from key to URL in App.plugins
+				var t = temp.split(';');
+				
+				for (var i = 0; i < t.length; i++)
+				{
+					var url = App.pluginRegistry[t[i]];
+					
+					if (url != null)
+					{
+						mxscript(url);
+					}
+					else if (window.console != null)
+					{
+						console.log('Unknown plugin:', t[i]);
+					}
+				}
+			}
+			
+			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
+			{
+				// Loading plugins inside the asynchronous block below stops the page from loading so a 
+				// hardcoded message for the warning dialog is used since the resources are loadd below
+				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
+				var tmp = window.location.protocol + '//' + window.location.host;
+				var local = true;
+				
+				for (var i = 0; i < plugins.length && local; i++)
+				{
+					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
+					{
+						local = false;
+					}
+				}
+				
+				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
+				{
+					for (var i = 0; i < plugins.length; i++)
+					{
+						try
+						{
+							mxscript(plugins[i]);
+						}
+						catch (e)
+						{
+							// ignore
+						}
+					}
+				}
+			}
 		}
 		
 		// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
@@ -705,10 +703,6 @@ App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.p
  * Executes the first step for connecting to Google Drive.
  */
 App.prototype.timeout = 25000;
-
-// Restores app defaults for UI
-App.prototype.formatEnabled = urlParams['format'] != '0';
-App.prototype.formatWidth = (screen.width < 600) ? 0 : mxSettings.getFormatWidth();
 
 /**
  * Overriden UI settings depending on mode.
@@ -1047,97 +1041,6 @@ App.prototype.init = function()
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
 	}
 
-	if (isLocalStorage || mxClient.IS_CHROMEAPP)
-	{
-		/**
-		 * Persists current edge style.
-		 */
-		this.editor.graph.currentEdgeStyle = mxSettings.getCurrentEdgeStyle();
-		this.editor.graph.currentVertexStyle = mxSettings.getCurrentVertexStyle();
-		
-		// Updates UI to reflect current edge style
-		this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
-		
-		this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
-		{
-			mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
-			mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
-			mxSettings.save();
-		}));
-
-		/**
-		 * Persists copy on connect switch.
-		 */
-		this.editor.graph.connectionHandler.setCreateTarget(mxSettings.isCreateTarget());
-		this.fireEvent(new mxEventObject('copyConnectChanged'));
-		
-		this.addListener('copyConnectChanged', mxUtils.bind(this, function(sender, evt)
-		{
-			mxSettings.setCreateTarget(this.editor.graph.connectionHandler.isCreateTarget());
-			mxSettings.save();
-		}));
-		
-		/**
-		 * Persists default page format.
-		 */
-		this.editor.graph.pageFormat = mxSettings.getPageFormat();
-		
-		this.addListener('pageFormatChanged', mxUtils.bind(this, function(sender, evt)
-		{
-			mxSettings.setPageFormat(this.editor.graph.pageFormat);
-			mxSettings.save();
-		}));
-		
-		/**
-		 * Persists default grid color.
-		 */
-		this.editor.graph.view.gridColor = mxSettings.getGridColor();
-		
-		this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
-		{
-			mxSettings.setGridColor(this.editor.graph.view.gridColor);
-			mxSettings.save();
-		}));
-
-		/**
-		 * Persists autosave switch in Chrome app.
-		 */
-		if (mxClient.IS_CHROMEAPP)
-		{
-			this.editor.addListener('autosaveChanged', mxUtils.bind(this, function(sender, evt)
-			{
-				mxSettings.setAutosave(this.editor.autosave);
-				mxSettings.save();
-			}));
-			
-			this.editor.autosave = mxSettings.getAutosave();
-		}
-		
-		/**
-		 * 
-		 */
-		if (this.sidebar != null)
-		{
-			this.sidebar.showPalette('search', mxSettings.settings.search);
-		}
-		
-		/**
-		 * Shows scratchpad if never shown.
-		 */
-		if (!this.editor.chromeless && this.sidebar != null && (mxSettings.settings.isNew ||
-			parseInt(mxSettings.settings.version || 0) <= 8))
-		{
-			this.toggleScratchpad();
-			mxSettings.save();
-		}
-
-		// Saves app defaults for UI
-		this.addListener('formatWidthChanged', function()
-		{
-			mxSettings.setFormatWidth(this.formatWidth);
-			mxSettings.save();
-		});
-	}
 };
 
 /**

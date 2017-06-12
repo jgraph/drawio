@@ -38,7 +38,12 @@
 	 * Blank 1x1 pixel transparent PNG image.
 	 */
 	Editor.blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
-	
+
+	/**
+	 * Default value for custom libraries in mxSettings.
+	 */
+	Editor.defaultCustomLibraries = [];
+
 	/**
 	 * Contains the default XML for an empty diagram.
 	 */
@@ -116,6 +121,9 @@
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
+	 * 
+	 * For defaultVertexStyle, defaultEdgeStyle and defaultLibraries, this must be called before
+	 * mxSettings.load via global config variable window.mxLoadSettings = false.
 	 */
 	Editor.configure = function(config)
 	{
@@ -126,23 +134,40 @@
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 
-			// Overrides themes for default edge and vertex styles
-			var graphLoadStylesheet = Graph.prototype.loadStylesheet;
-			
-			Graph.prototype.loadStylesheet = function()
+			// Custom CSS injected directly into the page
+			if (config.css != null)
 			{
-				graphLoadStylesheet.apply(this, arguments);
+				var s = document.createElement('style');
+				s.setAttribute('type', 'text/css');
+				s.appendChild(document.createTextNode(config.css));
 				
-				if (config.defaultVertexStyle != null)
-				{
-					this.getStylesheet().putDefaultVertexStyle(config.defaultVertexStyle);
-				}
-				
-				if (config.defaultEdgeStyle != null)
-				{
-					this.getStylesheet().putDefaultEdgeStyle(config.defaultEdgeStyle);
-				}
-			};
+				var t = document.getElementsByTagName('script')[0];
+			  	t.parentNode.insertBefore(s, t);
+			}
+			
+			// Overrides default libraries
+			if (config.defaultLibraries != null)
+			{
+				Sidebar.prototype.defaultEntries = config.defaultLibraries;
+			}
+			
+			// Overrides default custom libraries
+			if (config.defaultCustomLibraries != null)
+			{
+				Editor.defaultCustomLibraries = config.defaultCustomLibraries;
+			}
+			
+			// Overrides default vertex style
+			if (config.defaultVertexStyle != null)
+			{
+				Graph.prototype.defaultVertexStyle = config.defaultVertexStyle;
+			}
+
+			// Overrides default edge style
+			if (config.defaultEdgeStyle != null)
+			{
+				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
+			}
 		}
 	};
 

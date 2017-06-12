@@ -24,6 +24,35 @@
 		// NOTE: SVG Output fixes missing symbols in AsciiMath
 		// but produces larger output with clipping problems
 		Editor.initMath();
+	
+		// Workaround for varphi vs. phi export in MathJax on Phantom
+		// see https://github.com/mathjax/MathJax/issues/353
+		(function()
+		{
+			var authInit = MathJax.AuthorInit;
+	
+			MathJax.AuthorInit = function()
+			{
+				authInit();
+				
+				MathJax.Hub.Register.StartupHook('AsciiMath Jax Config', function()
+				{
+					var symbols = MathJax.InputJax.AsciiMath.AM.symbols;
+					
+					for (var i = 0, m = symbols.length; i < m; i++)
+					{
+				    	if (symbols[i].input === 'phi')
+				    	{
+				    		symbols[i].output = '\u03C6'
+				    	}
+				    	else if (symbols[i].input === 'varphi')
+				    	{
+				    		symbols[i].output = '\u03D5'; i = m
+				    	}
+				  	}
+				});
+			};
+		})();
 
 		function render(data)
 		{
