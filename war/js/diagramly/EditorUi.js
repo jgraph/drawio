@@ -90,7 +90,12 @@
 	 * Specifies if PDF export with pages is enabled.
 	 */
 	EditorUi.prototype.pdfPageExport = true;
-	
+
+	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.formatEnabled = urlParams['format'] != '0';
+
 	/**
 	 * Capability check for canvas export
 	 */
@@ -4293,34 +4298,44 @@
 			
 			img.onload = mxUtils.bind(this, function()
 			{
-				var canvas = document.createElement('canvas');
-				var w = parseInt(svgRoot.getAttribute('width'));
-				var h = parseInt(svgRoot.getAttribute('height'));
-				scale = (scale != null) ? scale : 1;
-				
-				if (width != null)
-				{
-					scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
-				}
-				
-				w = Math.ceil(scale * w) + 2 * border;
-				h = Math.ceil(scale * h) + 2 * border;
-				
-				canvas.setAttribute('width', w);
-		   		canvas.setAttribute('height', h);
-		   		var ctx = canvas.getContext('2d');
-		   		
-		   		if (bg != null)
+		   		try
 		   		{
-		   			ctx.beginPath();
-					ctx.rect(0, 0, w, h);
-					ctx.fillStyle = bg;
-					ctx.fill();
+		   			var canvas = document.createElement('canvas');
+					var w = parseInt(svgRoot.getAttribute('width'));
+					var h = parseInt(svgRoot.getAttribute('height'));
+					scale = (scale != null) ? scale : 1;
+					
+					if (width != null)
+					{
+						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+					}
+					
+					w = Math.ceil(scale * w) + 2 * border;
+					h = Math.ceil(scale * h) + 2 * border;
+					
+					canvas.setAttribute('width', w);
+			   		canvas.setAttribute('height', h);
+			   		var ctx = canvas.getContext('2d');
+			   		
+			   		if (bg != null)
+			   		{
+			   			ctx.beginPath();
+						ctx.rect(0, 0, w, h);
+						ctx.fillStyle = bg;
+						ctx.fill();
+			   		}
+
+			   		ctx.scale(scale, scale);
+					ctx.drawImage(img, border / scale, border / scale);
+					callback(canvas);
 		   		}
-				
-		   		ctx.scale(scale, scale);
-				ctx.drawImage(img, border / scale, border / scale);
-				callback(canvas);
+		   		catch (e)
+		   		{
+		   			if (error != null)
+					{
+						error(e);
+					}
+		   		}
 			});
 			
 			img.onerror = function(e)
@@ -5684,6 +5699,12 @@
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()
 	{
+		// Must be set before UI is created in superclass
+		if (typeof window.mxSettings !== 'undefined')
+		{
+			this.formatWidth = mxSettings.getFormatWidth();
+		}
+		
 		var ui = this;
 		var graph = this.editor.graph;
 		
@@ -6412,8 +6433,114 @@
 		{
 			this.initializeEmbedMode();
 		}
+		
+		if (typeof window.mxSettings !== 'undefined')
+		{
+			this.installSettings();
+		}
 	};
 
+	/**
+	 * Creates the format panel and adds overrides.
+	 */
+	EditorUi.prototype.installSettings = function()
+	{
+		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+		{
+			// Gets recent colors from settings
+			ColorDialog.recentColors = mxSettings.getRecentColors();
+
+			/**
+			 * Persists current edge style.
+			 */
+			this.editor.graph.currentEdgeStyle = mxSettings.getCurrentEdgeStyle();
+			this.editor.graph.currentVertexStyle = mxSettings.getCurrentVertexStyle();
+			
+			// Updates UI to reflect current edge style
+			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
+			
+			this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
+				mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
+				mxSettings.save();
+			}));
+
+			/**
+			 * Persists copy on connect switch.
+			 */
+			this.editor.graph.connectionHandler.setCreateTarget(mxSettings.isCreateTarget());
+			this.fireEvent(new mxEventObject('copyConnectChanged'));
+			
+			this.addListener('copyConnectChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setCreateTarget(this.editor.graph.connectionHandler.isCreateTarget());
+				mxSettings.save();
+			}));
+			
+			/**
+			 * Persists default page format.
+			 */
+			this.editor.graph.pageFormat = mxSettings.getPageFormat();
+			
+			this.addListener('pageFormatChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setPageFormat(this.editor.graph.pageFormat);
+				mxSettings.save();
+			}));
+			
+			/**
+			 * Persists default grid color.
+			 */
+			this.editor.graph.view.gridColor = mxSettings.getGridColor();
+			
+			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setGridColor(this.editor.graph.view.gridColor);
+				mxSettings.save();
+			}));
+
+			/**
+			 * Persists autosave switch in Chrome app.
+			 */
+			if (mxClient.IS_CHROMEAPP)
+			{
+				this.editor.addListener('autosaveChanged', mxUtils.bind(this, function(sender, evt)
+				{
+					mxSettings.setAutosave(this.editor.autosave);
+					mxSettings.save();
+				}));
+				
+				this.editor.autosave = mxSettings.getAutosave();
+			}
+			
+			/**
+			 * 
+			 */
+			if (this.sidebar != null)
+			{
+				this.sidebar.showPalette('search', mxSettings.settings.search);
+			}
+			
+			/**
+			 * Shows scratchpad if never shown.
+			 */
+			if (!this.editor.chromeless && this.sidebar != null && (mxSettings.settings.isNew ||
+				parseInt(mxSettings.settings.version || 0) <= 8))
+			{
+				this.toggleScratchpad();
+				mxSettings.save();
+			}
+
+			// Saves app defaults for UI
+			this.addListener('formatWidthChanged', function()
+			{
+				mxSettings.setFormatWidth(this.formatWidth);
+				mxSettings.save();
+			});
+		}
+	};
+	
 	/**
 	 * Creates the format panel and adds overrides.
 	 */
@@ -8543,7 +8670,7 @@
 							html = '<img title="draw.io is up to date." border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
 							break;
 						case appCache.DOWNLOADING: // DOWNLOADING == 3
-							html = '<img title="Downloading new version" border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
+							html = '<img title="Downloading new version..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
 							break;
 						case appCache.UPDATEREADY:  // UPDATEREADY == 4
 							html = '<img title="' + mxUtils.htmlEntities(mxResources.get('restartForChangeRequired')) +

@@ -3717,7 +3717,7 @@ if (typeof mxVertexHandler != 'undefined')
 		/**
 		 * Contains the default style for edges.
 		 */
-		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0', 'html': '1',
+		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0',
 			'jettySize': 'auto', 'orthogonalLoop': '1'};
 
 		/**

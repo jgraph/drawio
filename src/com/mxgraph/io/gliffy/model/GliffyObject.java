@@ -1,63 +1,39 @@
 package com.mxgraph.io.gliffy.model;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.mxgraph.io.gliffy.importer.PostDeserializer.PostDeserializable;
 import com.mxgraph.model.mxCell;
 
 /**
  * Class representing Gliffy diagram object
  * 
  */
-public class GliffyObject
+public class GliffyObject implements PostDeserializable
 {
-	public static String SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default";
-
-	public static String V_SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default.vertical";
-
-	public static String H_SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default.horizontal";
-
-	public static String H_SINGLE_SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default.horizontal_single_lane_pool";
-
-	public static String V_SINGLE_SWIMLANE = "com.gliffy.shape.swimlanes.swimlanes_v1.default.vertical_single_lane_pool";
-
 	private static Set<String> GRAPHICLESS_SHAPES = new HashSet<String>();
-
 	private static Set<String> GROUP_SHAPES = new HashSet<String>();
-	
 	private static Set<String> MINDMAP_SHAPES = new HashSet<>();
 
 	public float x;
-
 	public float y;
-
 	public int id;
-
 	public float width;
-
 	public float height;
-
 	public float rotation;
-
 	public String uid;
-	
 	public String tid;
-
 	public String order;
-
 	public boolean lockshape;
-
 	public Graphic graphic;
-
 	public List<GliffyObject> children;
-
 	public Constraints constraints;
-	
 	public List<LinkMap> linkMap;
 
 	public mxCell mxObject;// the mxCell this gliffy object got converted into
-
 	public GliffyObject parent = null;
 
 	static
@@ -242,7 +218,7 @@ public class GliffyObject
 
 	public boolean isSwimlane()
 	{
-		return uid != null && uid.startsWith(SWIMLANE);
+		return uid != null && uid.contains("com.gliffy.shape.swimlanes");
 	}
 
 	public boolean isText()
@@ -325,4 +301,59 @@ public class GliffyObject
 	{
 		return uid != null ? uid : tid;
 	}
+
+	@Override
+	public void postDeserialize() {
+		if(isGroup())
+			normalizeChildrenCoordinates();
+	}
+	
+	/**
+	 * Some Gliffy diagrams have groups whose children have negative coordinates.
+	 * This is a problem in draw.io as they get set to 0.
+	 * This method expands the groups left and up and adjusts children's coordinates so that they are never less than zero.
+	 */
+	private void normalizeChildrenCoordinates() {
+		//sorts the list to find the leftmost child and it's X
+		Comparator<GliffyObject> cx = new Comparator<GliffyObject>() {
+			@Override
+			public int compare(GliffyObject o1, GliffyObject o2) {
+				return (int)(o1.x - o2.x);
+			}
+		};
+		 
+		children.sort(cx);
+		float xMin = children.get(0).x;
+		
+		if(xMin < 0) 
+		{
+			width += -xMin; //increase width
+			x += xMin;
+			
+			for(GliffyObject child : children) //increase x 
+				child.x += -xMin;  
+		}
+		
+		//sorts the list to find the leftmost child and it's Y
+		Comparator<GliffyObject> cy = new Comparator<GliffyObject>() {
+			@Override
+			public int compare(GliffyObject o1, GliffyObject o2) {
+				return (int)(o1.y - o2.y);
+			}
+		};
+		 
+		children.sort(cy);
+		float yMin = children.get(0).y;
+		
+		if(yMin < 0) 
+		{
+			height += -yMin; //increase height
+			y += yMin;
+			
+			for(GliffyObject child : children) //increase y 
+				child.y += -yMin;  
+		}
+	}
+	
+	
 }

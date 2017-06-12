@@ -3,89 +3,84 @@
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
 /**
- * Utility class for working with persisted application settings
+ * Contains current settings.
  */
 var mxSettings =
 {
+	/**
+	 * Defines current version of settings.
+	 */
+	currentVersion: 14,
+	
+	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
+	
 	// NOTE: Hardcoded in index.html due to timing of JS loading
 	key: '.drawio-config',
 
-	settings:
-	{
-		language: '',
-		libraries: Sidebar.prototype.defaultEntries,
-		customLibraries: [],
-		plugins: [],
-		recentColors: [],
-		formatWidth: '240',
-		currentEdgeStyle: Graph.prototype.defaultEdgeStyle,
-		currentVertexStyle: Graph.prototype.defaultVertexStyle,
-		createTarget: false,
-		pageFormat: mxGraph.prototype.pageFormat,
-		search: true,
-		showStartScreen: true,
-		gridColor: mxGraphView.prototype.gridColor,
-		autosave: true,
-		version: 13,
-		// Only defined and true for new settings which haven't been saved
-		isNew: true
-	},
 	getLanguage: function()
 	{
-		return this.settings.language;
+		return mxSettings.settings.language;
 	},
 	setLanguage: function(lang)
 	{
-		this.settings.language = lang;
+		mxSettings.settings.language = lang;
 	},
 	getUi: function()
 	{
-		return this.settings.ui;
+		return mxSettings.settings.ui;
 	},
 	setUi: function(ui)
 	{
-		this.settings.ui = ui;
+		mxSettings.settings.ui = ui;
 	},
 	getShowStartScreen: function()
 	{
-		return this.settings.showStartScreen;
+		return mxSettings.settings.showStartScreen;
 	},
 	setShowStartScreen: function(showStartScreen)
 	{
-		this.settings.showStartScreen = showStartScreen;
+		mxSettings.settings.showStartScreen = showStartScreen;
 	},
 	getGridColor: function()
 	{
-		return this.settings.gridColor;
+		return mxSettings.settings.gridColor;
 	},
 	setGridColor: function(gridColor)
 	{
-		this.settings.gridColor = gridColor;
+		mxSettings.settings.gridColor = gridColor;
 	},
 	getAutosave: function()
 	{
-		return this.settings.autosave;
+		return mxSettings.settings.autosave;
 	},
 	setAutosave: function(autosave)
 	{
-		this.settings.autosave = autosave;
+		mxSettings.settings.autosave = autosave;
 	},
 	getLibraries: function()
 	{
-		return this.settings.libraries;
+		return mxSettings.settings.libraries;
 	},
 	setLibraries: function(libs)
 	{
-		this.settings.libraries = libs;
+		mxSettings.settings.libraries = libs;
 	},
 	addCustomLibrary: function(id)
 	{
 		// Makes sure to update the latest data from the localStorage
 		mxSettings.load();
 		
-		if (mxUtils.indexOf(this.settings.customLibraries, id) < 0)
+		if (mxUtils.indexOf(mxSettings.settings.customLibraries, id) < 0)
 		{
-			this.settings.customLibraries.push(id);
+			// Makes sure scratchpad is below search in sidebar
+			if (id === 'L.scratchpad')
+			{
+				mxSettings.settings.customLibraries.splice(0, 0, id);
+			}
+			else
+			{
+				mxSettings.settings.customLibraries.push(id);
+			}
 		}
 		
 		mxSettings.save();
@@ -94,68 +89,91 @@ var mxSettings =
 	{
 		// Makes sure to update the latest data from the localStorage
 		mxSettings.load();
-		mxUtils.remove(id, this.settings.customLibraries);
+		mxUtils.remove(id, mxSettings.settings.customLibraries);
 		mxSettings.save();
 	},
 	getCustomLibraries: function()
 	{
-		return this.settings.customLibraries;
+		return mxSettings.settings.customLibraries;
 	},
 	getPlugins: function()
 	{
-		return this.settings.plugins;
+		return mxSettings.settings.plugins;
 	},
 	setPlugins: function(plugins)
 	{
-		this.settings.plugins = plugins;
+		mxSettings.settings.plugins = plugins;
 	},
 	getRecentColors: function()
 	{
-		return this.settings.recentColors;
+		return mxSettings.settings.recentColors;
 	},
 	setRecentColors: function(recentColors)
 	{
-		this.settings.recentColors = recentColors;
+		mxSettings.settings.recentColors = recentColors;
 	},
 	getFormatWidth: function()
 	{
-		return parseInt(this.settings.formatWidth);
+		return parseInt(mxSettings.settings.formatWidth);
 	},
 	setFormatWidth: function(formatWidth)
 	{
-		this.settings.formatWidth = formatWidth;
+		mxSettings.settings.formatWidth = formatWidth;
 	},
 	getCurrentEdgeStyle: function()
 	{
-		return this.settings.currentEdgeStyle;
+		return mxSettings.settings.currentEdgeStyle;
 	},
 	setCurrentEdgeStyle: function(value)
 	{
-		this.settings.currentEdgeStyle = value;
+		mxSettings.settings.currentEdgeStyle = value;
 	},
 	getCurrentVertexStyle: function()
 	{
-		return this.settings.currentVertexStyle;
+		return mxSettings.settings.currentVertexStyle;
 	},
 	setCurrentVertexStyle: function(value)
 	{
-		this.settings.currentVertexStyle = value;
+		mxSettings.settings.currentVertexStyle = value;
 	},
 	isCreateTarget: function()
 	{
-		return this.settings.createTarget;
+		return mxSettings.settings.createTarget;
 	},
 	setCreateTarget: function(value)
 	{
-		this.settings.createTarget = value;
+		mxSettings.settings.createTarget = value;
 	},
 	getPageFormat: function()
 	{
-		return this.settings.pageFormat;
+		return mxSettings.settings.pageFormat;
 	},
 	setPageFormat: function(value)
 	{
-		this.settings.pageFormat = value;
+		mxSettings.settings.pageFormat = value;
+	},
+	init: function()
+	{
+		mxSettings.settings = 
+		{
+			language: '',
+			libraries: Sidebar.prototype.defaultEntries,
+			customLibraries: Editor.defaultCustomLibraries,
+			plugins: [],
+			recentColors: [],
+			formatWidth: mxSettings.defaultFormatWidth,
+			currentEdgeStyle: Graph.prototype.defaultEdgeStyle,
+			currentVertexStyle: Graph.prototype.defaultVertexStyle,
+			createTarget: false,
+			pageFormat: mxGraph.prototype.pageFormat,
+			search: true,
+			showStartScreen: true,
+			gridColor: mxGraphView.prototype.gridColor,
+			autosave: true,
+			version: mxSettings.currentVersion,
+			// Only defined and true for new settings which haven't been saved
+			isNew: true
+		};
 	},
 	save: function()
 	{
@@ -163,9 +181,9 @@ var mxSettings =
 		{
 			try
 			{
-				delete this.settings.isNew;
-				this.settings.version = 12;
-				localStorage.setItem(mxSettings.key, JSON.stringify(this.settings));
+				delete mxSettings.settings.isNew;
+				mxSettings.settings.version = mxSettings.currentVersion;
+				localStorage.setItem(mxSettings.key, JSON.stringify(mxSettings.settings));
 			}
 			catch (e)
 			{
@@ -179,97 +197,102 @@ var mxSettings =
 		{
 			mxSettings.parse(localStorage.getItem(mxSettings.key));
 		}
+
+		if (mxSettings.settings == null)
+		{
+			mxSettings.init();
+		}
 	},
 	parse: function(value)
 	{
 		if (value != null)
 		{
-			this.settings = JSON.parse(value);
+			mxSettings.settings = JSON.parse(value);
 
-			if (this.settings.plugins == null)
+			if (mxSettings.settings.plugins == null)
 			{
-				this.settings.plugins = [];
+				mxSettings.settings.plugins = [];
 			}
 			
-			if (this.settings.recentColors == null)
+			if (mxSettings.settings.recentColors == null)
 			{
-				this.settings.recentColors = [];
+				mxSettings.settings.recentColors = [];
 			}
 			
-			if (this.settings.libraries == null)
+			if (mxSettings.settings.libraries == null)
 			{
-				this.settings.libraries = Sidebar.prototype.defaultEntries;
+				mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
 			}
 			
-			if (this.settings.customLibraries == null)
+			if (mxSettings.settings.customLibraries == null)
 			{
-				this.settings.customLibraries = [];
+				mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
 			}
 			
-			if (this.settings.ui == null)
+			if (mxSettings.settings.ui == null)
 			{
-				this.settings.ui = '';
+				mxSettings.settings.ui = '';
 			}
 			
-			if (this.settings.formatWidth == null)
+			if (mxSettings.settings.formatWidth == null)
 			{
-				this.settings.formatWidth = '240';
+				mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
 			}
 			
-			if (this.settings.lastAlert != null)
+			if (mxSettings.settings.lastAlert != null)
 			{
-				delete this.settings.lastAlert;
+				delete mxSettings.settings.lastAlert;
 			}
 			
-			if (this.settings.currentEdgeStyle == null)
+			if (mxSettings.settings.currentEdgeStyle == null)
 			{
-				this.settings.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
+				mxSettings.settings.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
 			}
-			else if (this.settings.version <= 10)
+			else if (mxSettings.settings.version <= 10)
 			{
 				// Adds new defaults for jetty size and loop routing
-				this.settings.currentEdgeStyle['orthogonalLoop'] = 1;
-				this.settings.currentEdgeStyle['jettySize'] = 'auto';
+				mxSettings.settings.currentEdgeStyle['orthogonalLoop'] = 1;
+				mxSettings.settings.currentEdgeStyle['jettySize'] = 'auto';
 			}
 			
-			if (this.settings.currentVertexStyle == null)
+			if (mxSettings.settings.currentVertexStyle == null)
 			{
-				this.settings.currentVertexStyle = Graph.prototype.defaultEdgeStyle;
+				mxSettings.settings.currentVertexStyle = Graph.prototype.defaultVertexStyle;
 			}
 			
-			if (this.settings.createTarget == null)
+			if (mxSettings.settings.createTarget == null)
 			{
-				this.settings.createTarget = false;
+				mxSettings.settings.createTarget = false;
 			}
 			
-			if (this.settings.pageFormat == null)
+			if (mxSettings.settings.pageFormat == null)
 			{
-				this.settings.pageFormat = mxGraph.prototype.pageFormat;
+				mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
 			}
 			
-			if (this.settings.search == null)
+			if (mxSettings.settings.search == null)
 			{
-				this.settings.search = true;
+				mxSettings.settings.search = true;
 			}
 			
-			if (this.settings.showStartScreen == null)
+			if (mxSettings.settings.showStartScreen == null)
 			{
-				this.settings.showStartScreen = true;
+				mxSettings.settings.showStartScreen = true;
 			}		
 			
-			if (this.settings.gridColor == null)
+			if (mxSettings.settings.gridColor == null)
 			{
-				this.settings.gridColor = mxGraphView.prototype.gridColor;
+				mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
 			}
 			
-			if (this.settings.autosave == null)
+			if (mxSettings.settings.autosave == null)
 			{
-				this.settings.autosave = true;
+				mxSettings.settings.autosave = true;
 			}
 			
-			if (this.settings.scratchpadSeen != null)
+			if (mxSettings.settings.scratchpadSeen != null)
 			{
-				delete this.settings.scratchpadSeen;
+				delete mxSettings.settings.scratchpadSeen;
 			}
 		}
 	},
