@@ -345,13 +345,18 @@ DriveRealtime.prototype.start = function()
 			var page = new DiagramPage(node);
 			page.mapping = new RealtimeMapping(this, diagramMap, page);
 			
-			if (this.file.isEditable() && !page.mapping.diagramMap.has('name'))
+			if (this.file.isEditable() && !diagramMap.has('name'))
 			{
-				page.mapping.diagramMap.set('name', mxResources.get('pageWithNumber', [i + 1]));
+				diagramMap.set('name', mxResources.get('pageWithNumber', [i + 1]));
 			}
 			
-			page.setName(page.mapping.diagramMap.get('name') || mxResources.get('pageWithNumber', [i + 1]));
-			diagramMap.set('id', page.getId());
+			page.setName(diagramMap.get('name') || mxResources.get('pageWithNumber', [i + 1]));
+			
+			if (this.file.isEditable() && !diagramMap.has('id'))
+			{
+				diagramMap.set('id', page.getId());
+			}
+			
 			this.ui.pages.push(page);
 		}
 

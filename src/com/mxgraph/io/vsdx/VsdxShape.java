@@ -119,8 +119,15 @@ public class VsdxShape extends Shape
 			mxResources.add("com/mxgraph/io/vdx/resources/edgeNameU");
 			mxResources.add("com/mxgraph/io/vdx/resources/nameU");
 			
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			docBuilder = docFactory.newDocumentBuilder();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			dbf.setExpandEntityReferences(false);
+			dbf.setXIncludeAware(false);
+			
+			docBuilder = dbf.newDocumentBuilder();
 		}
 		catch (Exception e)
 		{

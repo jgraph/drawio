@@ -52,7 +52,7 @@ DriveFile.prototype.getPublicUrl = function(fn)
 		'fileId': this.desc.id
 	}).execute(mxUtils.bind(this, function(resp)
 	{
-		if (resp != null)
+		if (resp != null && resp.items != null)
 		{
 			for (var i = 0; i < resp.items.length; i++)
 			{

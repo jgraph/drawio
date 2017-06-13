@@ -1,3 +1,11 @@
+13-JUN-2017: 6.7.11
+
+- Fixes possible NPE in DriveFile
+- Fixes Document Read-Only error in Google Drive
+- Fixes OneDrive button in LinkDialog
+- Adds more UML relation notations
+- Inserts custom libraries after scratchpad
+
 12-JUN-2017: 6.7.10
 
 - Fixes Java compliance issue in Gliffy import
