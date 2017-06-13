@@ -3950,6 +3950,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
     		}
     		
     		linkInput.value = href;
+    		linkInput.focus();
         }
 		else
 		{
@@ -4043,29 +4044,21 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 				success : function(files)
 				{
 					linkInput.value = files[0].link;
+					linkInput.focus();
 				}
 			});
 		});
 	}
 	
-	if (typeof(WL) != 'undefined' && typeof(WL.fileDialog) != 'undefined' && editorUi.oneDrive != null)
+	if (editorUi.oneDrive != null)
 	{
 		addButton(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), function()
 		{
-		    WL.fileDialog(
-	        {
-	            mode: 'open',
-	            select: 'single'
-	        }).then(
-	            function (resp)
-	            {
-	            	if (resp != null && resp.data != null && resp.data.files != null && resp.data.files.length > 0)
-	            	{
-            			linkInput.value = resp.data.files[0].link;
-	            	}
-	            },
-	            function (responseFailed) {}
-	        );
+			editorUi.oneDrive.pickFile(function(files)
+			{
+				linkInput.value = files.value[0].webUrl;
+				linkInput.focus();
+			}, true);
 		});
 	}
 	
@@ -4085,6 +4078,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					
 					linkInput.value = 'https://github.com/' + org + '/' +
 						repo + '/blob/' + ref + '/' + path;
+					linkInput.focus();
 				}
 			});
 		});

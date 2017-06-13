@@ -351,7 +351,7 @@ public class GliffyObject implements PostDeserializable
 				child.x += -xMin;
 		}
 
-		//sorts the list to find the leftmost child and it's Y
+		//sorts the list to find the uppermost child and it's Y
 		Comparator<GliffyObject> cy = new Comparator<GliffyObject>()
 		{
 			@Override
@@ -361,7 +361,7 @@ public class GliffyObject implements PostDeserializable
 			}
 		};
 
-		children.sort(cy);
+		Collections.sort(children, cy);
 		float yMin = children.get(0).y;
 
 		if (yMin < 0)

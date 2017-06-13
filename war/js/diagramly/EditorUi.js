@@ -1511,6 +1511,22 @@
 	EditorUi.prototype.repositionLibrary = function(nextChild) 
 	{
 	    var c = this.sidebar.container;
+	    
+	    if (nextChild == null)
+	    {
+	    	var elts = this.sidebar.palettes['L.scratchpad'];
+	    	
+	    	if (elts == null)
+	    	{
+	    		elts = this.sidebar.palettes['search'];
+	    	}
+	    	
+	    	if (elts != null)
+	    	{
+	    		nextChild = elts[elts.length - 1].nextSibling;
+	    	}
+	    }
+	    
 		nextChild = (nextChild != null) ? nextChild : c.firstChild.nextSibling.nextSibling;
 		
 		var content = c.lastChild;

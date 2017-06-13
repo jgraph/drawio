@@ -676,7 +676,7 @@ OneDriveClient.prototype.pickFolder = function(fn)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-OneDriveClient.prototype.pickFile = function(fn)
+OneDriveClient.prototype.pickFile = function(fn, returnObject)
 {
 	fn = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
@@ -696,7 +696,7 @@ OneDriveClient.prototype.pickFile = function(fn)
 		{
 			if (files != null && files.value != null && files.value.length > 0)
 			{
-				fn(files.value[0].id);
+				fn((returnObject) ? files : files.value[0].id);
 			}
 		},
 		cancel: function()
