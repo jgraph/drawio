@@ -169,7 +169,7 @@ App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
 /**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
-App.ONEDRIVE_URL = 'https://js.live.net/v7.0/OneDrive.js';
+App.ONEDRIVE_URL = 'https://js.live.net/v7.2/OneDrive.js';
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at

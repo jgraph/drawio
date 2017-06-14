@@ -1,3 +1,7 @@
+14-JUN-2017: 6.8.0
+
+- Adds support for OneDrive for Business
+
 13-JUN-2017: 6.7.11
 
 - Fixes possible NPE in DriveFile
