@@ -1397,16 +1397,18 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	customDiv.style.height = '24px';
 	
 	var widthInput = document.createElement('input');
-	widthInput.setAttribute('size', '6');
+	widthInput.setAttribute('size', '7');
 	widthInput.setAttribute('value', pageFormat.width);
+	widthInput.style.textAlign = 'right';
 	customDiv.appendChild(widthInput);
-	mxUtils.write(customDiv, ' x ');
+	mxUtils.write(customDiv, ' in x ');
 	
 	var heightInput = document.createElement('input');
-	heightInput.setAttribute('size', '6');
+	heightInput.setAttribute('size', '7');
 	heightInput.setAttribute('value', pageFormat.height);
+	heightInput.style.textAlign = 'right';
 	customDiv.appendChild(heightInput);
-	mxUtils.write(customDiv, ' pt');
+	mxUtils.write(customDiv, ' in');
 
 	formatDiv.style.display = 'none';
 	customDiv.style.display = 'none';
@@ -1448,6 +1450,34 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 				}
 				else if (f.format != null)
 				{
+					// Fixes wrong values for previous A4 and A5 page sizes
+					if (f.key == 'a4')
+					{
+						if (pageFormat.width == 826)
+						{
+							pageFormat = mxRectangle.fromRectangle(pageFormat);
+							pageFormat.width = 827;
+						}
+						else if (pageFormat.height == 826)
+						{
+							pageFormat = mxRectangle.fromRectangle(pageFormat);
+							pageFormat.height = 827;
+						}
+					}
+					else if (f.key == 'a5')
+					{
+						if (pageFormat.width == 584)
+						{
+							pageFormat = mxRectangle.fromRectangle(pageFormat);
+							pageFormat.width = 583;
+						}
+						else if (pageFormat.height == 584)
+						{
+							pageFormat = mxRectangle.fromRectangle(pageFormat);
+							pageFormat.height = 583;
+						}
+					}
+					
 					if (pageFormat.width == f.format.width && pageFormat.height == f.format.height)
 					{
 						paperSizeSelect.value = f.key;
@@ -1476,8 +1506,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			// Selects custom format which is last in list
 			if (!detected)
 			{
-				widthInput.value = pageFormat.width;
-				heightInput.value = pageFormat.height;
+				widthInput.value = pageFormat.width / 100;
+				heightInput.value =pageFormat.height / 100;
 				paperSizeOption.setAttribute('selected', 'selected');
 				portraitCheckBox.setAttribute('checked', 'checked');
 				portraitCheckBox.defaultChecked = true;
@@ -1507,8 +1537,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 		
 		if (f.format != null)
 		{
-			widthInput.value = f.format.width;
-			heightInput.value = f.format.height;
+			widthInput.value = f.format.width / 100;
+			heightInput.value = f.format.height / 100;
 			customDiv.style.display = 'none';
 			formatDiv.style.display = '';
 		}
@@ -1517,8 +1547,10 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			formatDiv.style.display = 'none';
 			customDiv.style.display = '';
 		}
-		
-		var newPageFormat = new mxRectangle(0, 0, parseInt(widthInput.value), parseInt(heightInput.value));
+
+		var newPageFormat = new mxRectangle(0, 0,
+			Math.floor(parseFloat(widthInput.value) * 100),
+			Math.floor(parseFloat(heightInput.value) * 100));
 		
 		if (paperSizeSelect.value != 'custom' && landscapeCheckBox.checked)
 		{
@@ -1584,9 +1616,14 @@ PageSetupDialog.getFormats = function()
 	return [{key: 'letter', title: 'US-Letter (8,5" x 11")', format: mxConstants.PAGE_FORMAT_LETTER_PORTRAIT},
 	        {key: 'legal', title: 'US-Legal (8,5" x 14")', format: new mxRectangle(0, 0, 850, 1400)},
 	        {key: 'tabloid', title: 'US-Tabloid (279 mm x 432 mm)', format: new mxRectangle(0, 0, 1100, 1700)},
-	        {key: 'a3', title: 'A3 (297 mm x 420 mm)', format: new mxRectangle(0, 0, 1169, 1652)},
+	        {key: 'a0', title: 'A0 (841 mm x 1189 mm)', format: new mxRectangle(0, 0, 3300, 4681)},
+	        {key: 'a1', title: 'A1 (594 mm x 841 mm)', format: new mxRectangle(0, 0, 2339, 3300)},
+	        {key: 'a2', title: 'A2 (420 mm x 594 mm)', format: new mxRectangle(0, 0, 1654, 2336)},
+	        {key: 'a3', title: 'A3 (297 mm x 420 mm)', format: new mxRectangle(0, 0, 1169, 1654)},
 	        {key: 'a4', title: 'A4 (210 mm x 297 mm)', format: mxConstants.PAGE_FORMAT_A4_PORTRAIT},
-	        {key: 'a5', title: 'A5 (148 mm x 210 mm)', format: new mxRectangle(0, 0, 584, 826)},
+	        {key: 'a5', title: 'A5 (148 mm x 210 mm)', format: new mxRectangle(0, 0, 583, 827)},
+	        {key: 'a6', title: 'A6 (105 mm x 148 mm)', format: new mxRectangle(0, 0, 413, 583)},
+	        {key: 'a7', title: 'A7 (74 mm x 105 mm)', format: new mxRectangle(0, 0, 291, 413)},
 	        {key: 'custom', title: mxResources.get('custom'), format: null}];
 };
 

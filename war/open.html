@@ -60,8 +60,6 @@
 				var key = localStorage.key(i);
 				var value = localStorage.getItem(key);
 				
-				console.log('key', key, value);
-				
 				if (key.length > 0 && key.charAt(0) != '.' && value.length > 0 &&
 					(value.substring(0, 8) === '<mxfile ' ||
 					value.substring(0, 11) === '<mxlibrary>'))

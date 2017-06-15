@@ -727,6 +727,16 @@ OneDriveClient.prototype.pickFile = function(fn, returnObject)
  */
 OneDriveClient.prototype.logout = function()
 {
+	if (isLocalStorage)
+	{
+		var check = localStorage.getItem('odpickerv7cache');
+		
+		if (check != null && check.substring(0, 19) == '{"odsdkLoginHint":{')
+		{
+			localStorage.removeItem('odpickerv7cache');	
+		}
+	}
+	
 	this.clearPersistentToken();
 	this.setUser(null);
 	this.token = null;
