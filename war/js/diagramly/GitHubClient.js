@@ -334,7 +334,7 @@ GitHubClient.prototype.getLibrary = function(path, success, error)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
+GitHubClient.prototype.getFile = function(path, success, error, asLibrary, checkExists)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	
@@ -345,7 +345,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary)
 	var path = tokens.slice(3, tokens.length).join('/');
 	
 	// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-	if (/\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) || /\.png$/i.test(path))
+	if (!checkExists && (/\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) || /\.png$/i.test(path)))
 	{
 		// Should never be null
 		if (this.token != null)
@@ -580,7 +580,7 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 	}), mxUtils.bind(this, function(err)
 	{
 		fn(true);
-	}));
+	}), null, true);
 };
 
 /**

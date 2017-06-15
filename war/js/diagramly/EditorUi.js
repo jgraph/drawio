@@ -2702,7 +2702,7 @@
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)
 	{
 		allowBrowser = (allowBrowser != null) ? allowBrowser : false;
-		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		var allowTab = (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
