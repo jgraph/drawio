@@ -2767,7 +2767,14 @@
 				{
 					this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 					{
-						this.exportFile(data, newTitle, mimeType, base64Encoded, mode, folderId);
+						try
+						{
+							this.exportFile(data, newTitle, mimeType, base64Encoded, mode, folderId);
+						}
+						catch (e)
+						{
+							this.handleError(e);
+						}
 					}));
 				}
 			}

@@ -36,9 +36,9 @@ import com.mxgraph.io.gliffy.model.Graphic.GliffyShape;
 import com.mxgraph.io.gliffy.model.Graphic.GliffySvg;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
-import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -481,7 +481,7 @@ public class GliffyDiagramConverter
 			mxPoint pivot = new mxPoint(gliffyObject.width/ 2, gliffyObject.height / 2);
 			double cos = Math.cos(rads);
 			double sin = Math.sin(rads);
-			mxPoint baseP = mxUtils.getRotatedPoint(new mxPoint(0, 0), cos, sin, pivot);
+			mxPoint baseP = Utils.getRotatedPoint(new mxPoint(0, 0), cos, sin, pivot);
 
 			for (int i = 1; i < gliffyObject.children.size(); i++) // rest of the children are lanes
 			{
@@ -503,7 +503,7 @@ public class GliffyDiagramConverter
 				{
 					laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
 					mxPoint pointAbs = new mxPoint(gLane.x, gLane.y );
-					pointAbs = mxUtils.getRotatedPoint(pointAbs, cos, sin, pivot);
+					pointAbs = Utils.getRotatedPoint(pointAbs, cos, sin, pivot);
 					childGeometry = new mxGeometry(pointAbs.getX()  - baseP.getX(), pointAbs.getY() - baseP.getY(), gLane.width, gLane.height);
 				}
 				else 

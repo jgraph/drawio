@@ -1,3 +1,9 @@
+15-JUN-2017: 6.8.1
+
+- Adds page formats, uses inch units
+- Fixes logout for OneDrive picker
+- Uses mxGraph 3.7.3 beta 12
+
 14-JUN-2017: 6.8.0
 
 - Adds support for OneDrive for Business
