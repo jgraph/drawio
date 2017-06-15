@@ -795,13 +795,11 @@ function VsdxExport(editorUi, resDir)
 					}
 					else 
 					{
-						zip.generateAsync({type:"blob"}).then(
+						zip.generateAsync({type:"base64"}).then(
 							function(content) 
 							{
-								var file = editorUi.getCurrentFile();
-								
-								var filename = (file != null && file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
-							    editorUi.saveData(filename+".vsdx", 'vsdx', content, 'application/vnd.visio2013');
+							    var basename = editorUi.getBaseFilename();
+							    editorUi.saveData(basename+".vsdx", 'vsdx', content, 'application/vnd.visio2013', true);
 							}
 						);
 					}

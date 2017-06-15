@@ -1291,7 +1291,7 @@
 
 			if (!editorUi.isOfflineApp() && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
-				menu.addItem(mxResources.get('formatVsdx') + '...', null, mxUtils.bind(this, function()
+				menu.addItem(mxResources.get('formatVsdx') + ' (beta)...', null, mxUtils.bind(this, function()
 				{
 					var delayed = mxUtils.bind(this, function()
 					{
