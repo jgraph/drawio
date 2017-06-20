@@ -476,7 +476,8 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 	this.images.push(imgName);
 	
 	//TODO can a shape has more than one image?
-	this.shapeImg = {type: type, id: this.images.length};
+	//We add one to the id as rId1 is reserved for the edges master
+	this.shapeImg = {type: type, id: this.images.length + 1};
 
 	//TODO support these!
 	aspect = (aspect != null) ? aspect : true;

@@ -830,7 +830,7 @@ App.prototype.init = function()
 						// Changes the footer ads for Google Accounts
 						if (this.updateAd != null)
 						{
-							this.adsHtml = ['<a title="Quick start video" href="https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1" target="_blank">' +
+							this.adsHtml = ['<a title="Quick start video" href="https://youtu.be/Z0D96ZikMkc" target="_blank">' +
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>',
 											'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
@@ -964,7 +964,7 @@ App.prototype.init = function()
 	
 	if (td != null)
 	{
-		this.adsHtml = ['<a title="Quick start video" href="https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1" target="_blank">' +
+		this.adsHtml = ['<a title="Quick start video" href="https://youtu.be/Z0D96ZikMkc" target="_blank">' +
 					'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>'];
 		this.adsHtml.push(td.innerHTML);
 		

@@ -3010,13 +3010,100 @@
 	/**
 	 * 
 	 */
+	EditorUi.prototype.addEditButton = function(div, lightbox)
+	{
+		var edit = this.addCheckbox(div, mxResources.get('edit') + ':', true, null, true);
+		edit.style.marginLeft = '24px';
+		
+		var file = this.getCurrentFile();
+		var editUrl = '';
+		
+		if (file != null && file.getMode() != App.MODE_DEVICE && file.getMode() != App.MODE_BROWSER)
+		{
+			editUrl = window.location.href;
+		}
+		
+		var editSelect = document.createElement('select');
+		editSelect.style.width = '120px';
+		editSelect.style.marginLeft = '8px';
+		editSelect.style.marginRight = '10px';
+		editSelect.className = 'geBtn';
+
+		var blankOption = document.createElement('option');
+		blankOption.setAttribute('value', 'blank');
+		mxUtils.write(blankOption, mxResources.get('makeCopy'));
+		editSelect.appendChild(blankOption);
+
+		var customOption = document.createElement('option');
+		customOption.setAttribute('value', 'custom');
+		mxUtils.write(customOption, mxResources.get('custom') + '...');
+		editSelect.appendChild(customOption);
+		
+		div.appendChild(editSelect);
+		
+		mxEvent.addListener(editSelect, 'change', mxUtils.bind(this, function()
+		{
+			if (editSelect.value == 'custom')
+			{
+				var dlg2 = new FilenameDialog(this, editUrl, mxResources.get('ok'), function(value)
+				{
+					if (value != null)
+					{
+						editUrl = value;
+					}
+					else
+					{
+						editSelect.value = 'blank';
+					}
+				}, mxResources.get('url'), null, null, null, null, function()
+				{
+					editSelect.value = 'blank';
+				});
+				this.showDialog(dlg2.container, 300, 80, true, false);
+				dlg2.init();
+			}
+		}));
+		
+		mxEvent.addListener(edit, 'change', mxUtils.bind(this, function()
+		{
+			if (edit.checked && (lightbox == null || lightbox.checked))
+			{
+				editSelect.removeAttribute('disabled');
+			}
+			else
+			{
+				editSelect.setAttribute('disabled', 'disabled');
+			}
+		}));
+
+		mxUtils.br(div);
+		
+		return {
+			getLink: function()
+			{
+				return (edit.checked) ? ((editSelect.value === 'blank') ? '_blank' : editUrl) : null;
+			},
+			getEditInput: function()
+			{
+				return edit;
+			},
+			getEditSelect: function()
+			{
+				return editSelect;
+			}
+		};
+	}
+	
+	/**
+	 * 
+	 */
 	EditorUi.prototype.addLinkSection = function(div, showFrameOption)
 	{
 		mxUtils.write(div, mxResources.get('links') + ':');
 
 		var linkSelect = document.createElement('select');
 		linkSelect.style.width = '100px';
-		linkSelect.style.marginLeft = '4px';
+		linkSelect.style.marginLeft = '8px';
 		linkSelect.style.marginRight = '10px';
 		linkSelect.className = 'geBtn';
 
@@ -3100,7 +3187,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, edit, layers, url, ignoreFile)
+	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile)
 	{
 		var file = this.getCurrentFile();
 		var params = [];
@@ -3119,9 +3206,9 @@
 				params.push('highlight=' + ((linkColor.charAt(0) == '#') ? linkColor.substring(1) : linkColor));
 			}
 			
-			if (edit)
+			if (editLink != null && editLink.length > 0)
 			{
-				params.push('edit=_blank');
+				params.push('edit=' + encodeURIComponent(editLink));
 			}
 			
 			if (layers)
@@ -3189,7 +3276,7 @@
 	 * 
 	 */
 	EditorUi.prototype.createHtml = function(publicUrl, zoomEnabled, initialZoom, linkTarget,
-		linkColor, fit, allPages, layers, lightbox, edit, fn)
+		linkColor, fit, allPages, layers, lightbox, editLink, fn)
 	{
 		var s = this.getBasenames();
 		var data = {};
@@ -3251,16 +3338,9 @@
 			data.toolbar = tb.join(' ');
 		}
 
-		if (edit)
+		if (editLink != null && editLink.length > 0)
 		{
-			if (publicUrl != null)
-			{
-				data.edit = publicUrl;
-			}
-			else
-			{
-				data.edit = '_blank';
-			}
+			data.edit = editLink;
 		}
 		
 		if (publicUrl != null)
@@ -3375,8 +3455,9 @@
 		var allPages = allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
-		var edit = this.addCheckbox(div, mxResources.get('showEditButton'), true);
-		edit.style.marginLeft = '24px';
+		
+		var editSection = this.addEditButton(div, lightbox);
+		var edit = editSection.getEditInput();
 		edit.style.marginBottom = '16px';
 		
 		mxEvent.addListener(lightbox, 'change', function()
@@ -3389,12 +3470,22 @@
 			{
 				edit.setAttribute('disabled', 'disabled');
 			}
+			
+			if (edit.checked && lightbox.checked)
+			{
+				editSection.getEditSelect().removeAttribute('disabled');
+			}
+			else
+			{
+				editSection.getEditSelect().setAttribute('disabled', 'disabled');
+			}
 		});
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSection.getTarget(),
-				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, lightbox.checked, edit.checked);
+				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, lightbox.checked,
+				editSection.getLink());
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, 360, true, true);
 		copyRadio.focus();
@@ -3506,11 +3597,13 @@
 		}
 		
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
-		var edit = this.addCheckbox(div, mxResources.get('showEditButton'), true);
-		edit.style.marginLeft = '24px';
+		var editSection = this.addEditButton(div, lightbox);
+		var edit = editSection.getEditInput();
+
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		layers.style.marginLeft = edit.style.marginLeft;
 		layers.style.marginBottom = '16px';
+		layers.style.marginTop = '8px';
 		
 		mxEvent.addListener(lightbox, 'change', function()
 		{
@@ -3524,14 +3617,23 @@
 				layers.setAttribute('disabled', 'disabled');
 				edit.setAttribute('disabled', 'disabled');
 			}
+			
+			if (edit.checked && lightbox.checked)
+			{
+				editSection.getEditSelect().removeAttribute('disabled');
+			}
+			else
+			{
+				editSection.getEditSelect().setAttribute('disabled', 'disabled');
+			}
 		});
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			fn(linkSection.getTarget(), linkSection.getColor(),
 				(allPages == null) ? true : allPages.checked,
-				lightbox.checked, edit.checked, layers.checked,
-				(widthInput != null) ? widthInput.value : null,
+				lightbox.checked, editSection.getLink(),
+				layers.checked, (widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null);
 		}), null, mxResources.get('create'), helpLink);
 		this.showDialog(dlg.container, 340, 246 + dy, true, true);
@@ -3824,13 +3926,14 @@
 			graph.shadowVisible && shadowEnabled, !shadowEnabled);
 		var image = this.addCheckbox(div, imageLabel);
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
-		var edit = this.addCheckbox(div, mxResources.get('showEditButton'), true);
-		edit.style.marginLeft = '24px';
+		var editSection = this.addEditButton(div, lightbox);
+		var edit = editSection.getEditInput();
 		
 		var hasLayers = graph.model.getChildCount(graph.model.getRoot()) > 1;
 		var layers = this.addCheckbox(div, mxResources.get('layers'), hasLayers, !hasLayers);
 		layers.style.marginLeft = edit.style.marginLeft;
 		layers.style.marginBottom = '12px';
+		layers.style.marginTop = '8px';
 		
 		mxEvent.addListener(lightbox, 'change', function()
 		{
@@ -3848,11 +3951,21 @@
 				layers.setAttribute('disabled', 'disabled');
 				edit.setAttribute('disabled', 'disabled');
 			}
+			
+			if (edit.checked && lightbox.checked)
+			{
+				editSection.getEditSelect().removeAttribute('disabled');
+			}
+			else
+			{
+				editSection.getEditSelect().setAttribute('disabled', 'disabled');
+			}
 		});
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			fn(fit.checked, shadow.checked, image.checked, lightbox.checked, edit.checked, layers.checked);
+			fn(fit.checked, shadow.checked, image.checked, lightbox.checked,
+				editSection.getLink(), layers.checked);
 		}), null, mxResources.get('embed'), helpLink);
 		this.showDialog(dlg.container, 280, 280, true, true);
 	};
