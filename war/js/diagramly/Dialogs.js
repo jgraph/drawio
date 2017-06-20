@@ -33,6 +33,14 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		help.style.bottom = bottom;
 		help.style.left = '26px';
 		help.style.color = 'gray';
+		
+		var icon = document.createElement('img');
+		icon.setAttribute('border', '0');
+		icon.setAttribute('valign', 'bottom');
+		icon.setAttribute('src', Editor.helpImage);
+		icon.style.marginRight = '2px';
+		help.appendChild(icon);
+		
 		mxUtils.write(help, mxResources.get('help'));
 		
 		div.appendChild(help);
@@ -377,6 +385,14 @@ var SplashDialog = function(editorUi)
 		help.style.bottom = '22px';
 		help.style.left = '26px';
 		help.style.color = 'gray';
+
+		var icon = document.createElement('img');
+		icon.setAttribute('border', '0');
+		icon.setAttribute('valign', 'bottom');
+		icon.setAttribute('src', Editor.helpImage);
+		icon.style.marginRight = '2px';
+		help.appendChild(icon);
+		
 		mxUtils.write(help, mxResources.get('help'));
 		
 		div.appendChild(help);

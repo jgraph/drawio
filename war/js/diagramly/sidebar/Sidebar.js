@@ -178,7 +178,7 @@
 			if (hintText != null && !this.hideSearchHint)
 			{
 				var link = document.createElement('a');
-				link.setAttribute('href', 'https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
+				link.setAttribute('href', 'https://youtu.be/Z0D96ZikMkc');
 				link.setAttribute('target', '_blank');
 				link.className = 'geTitle';
 				link.style.cssText = 'background-color:#ffd350;border-radius:6px;color:black;' +

@@ -436,7 +436,7 @@
 
 		editorUi.actions.addAction('quickStart...', function()
 		{
-			window.open('https://www.youtube.com/watch?v=8OaMWa4R1SE&t=1');
+			window.open('https://youtu.be/Z0D96ZikMkc');
 		});
 		
 		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()
@@ -486,7 +486,38 @@
 		}));
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.findWindow != null && this.findWindow.window.isVisible(); }));
-
+		
+		editorUi.actions.put('exportVsdx', new Action(mxResources.get('formatVsdx') + ' (beta)...', function()
+		{
+			var delayed = mxUtils.bind(this, function()
+			{
+				// Checks for signature method
+				if (typeof(VsdxExport) !== 'undefined')
+				{
+					try
+					{
+						new VsdxExport(editorUi).exportCurrentDiagrams();
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+			});
+			
+			if (typeof(VsdxExport) === 'undefined' && !this.loadingVsdx && !editorUi.isOffline())
+			{
+				this.loadingVsdx = true;
+				// Dependencies included in Devel.js
+				mxscript('/js/vsdx.min.js', delayed);
+			}
+			else
+			{
+				// Must be async for cell selection
+				window.setTimeout(delayed, 0);
+			}
+		}));
+		
 		// Adds language menu to options only if localStorage is available for
 		// storing the choice. We do not want to use cookies for older browsers.
 		// Note that the URL param lang=XX is available for setting the language
@@ -842,10 +873,10 @@
 					editorUi.spinner.stop();
 					
 					editorUi.showHtmlDialog(mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542',
-						url, function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
+						url, function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, editLink)
 					{
 						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
-							fit, allPages, layers, lightbox, edit, mxUtils.bind(this, function(html, scriptTag)
+							fit, allPages, layers, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
 							{
 								var dlg = new EmbedDialog(editorUi, html + '\n' + scriptTag, null, null, function()
 								{
@@ -934,11 +965,11 @@
 		
 		editorUi.actions.put('embedImage', new Action(mxResources.get('image') + '...', function()
 		{
-			editorUi.showEmbedImageDialog(function(fit, shadow, retina, lightbox, edit, layers)
+			editorUi.showEmbedImageDialog(function(fit, shadow, retina, lightbox, editLink, layers)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					editorUi.createEmbedImage(fit, shadow, retina, lightbox, edit, layers, function(result)
+					editorUi.createEmbedImage(fit, shadow, retina, lightbox, editLink, layers, function(result)
 					{
 						editorUi.spinner.stop();
 						var dlg = new EmbedDialog(editorUi, result);
@@ -955,11 +986,11 @@
 
 		editorUi.actions.put('embedSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
-			editorUi.showEmbedImageDialog(function(fit, shadow, image, lightbox, edit, layers)
+			editorUi.showEmbedImageDialog(function(fit, shadow, image, lightbox, editLink, layers)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					editorUi.createEmbedSvg(fit, shadow, image, lightbox, edit, layers, function(result)
+					editorUi.createEmbedSvg(fit, shadow, image, lightbox, editLink, layers, function(result)
 					{
 						editorUi.spinner.stop();
 						
@@ -982,7 +1013,7 @@
 			
 			editorUi.showPublishLinkDialog(mxResources.get('iframe'), null, '100%',
 				(Math.ceil((bounds.y + bounds.height - graph.view.translate.y) / graph.view.scale) + 2),
-				function(linkTarget, linkColor, allPages, lightbox, edit, layers, width, height)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
@@ -992,7 +1023,7 @@
 						
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 							';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
-							allPages, lightbox, edit, layers, url) + '"></iframe>');
+							allPages, lightbox, editLink, layers, url) + '"></iframe>');
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -1003,7 +1034,7 @@
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
 			editorUi.showPublishLinkDialog(null, null, null, null,
-				function(linkTarget, linkColor, allPages, lightbox, edit, layers)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
@@ -1011,7 +1042,7 @@
 					{
 						editorUi.spinner.stop();
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
-							linkColor, allPages, lightbox, edit, layers, url));
+							linkColor, allPages, lightbox, editLink, layers, url));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -1271,10 +1302,10 @@
 						editorUi.spinner.stop();
 						
 						editorUi.showHtmlDialog(mxResources.get('export'), null, url, function(publicUrl, zoomEnabled,
-							initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, edit)
+							initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, editLink)
 						{
 							editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
-								fit, allPages, layers, lightbox, edit, mxUtils.bind(this, function(html, scriptTag)
+								fit, allPages, layers, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
 								{
 									var basename = editorUi.getBaseFilename();
 									var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
@@ -1291,36 +1322,7 @@
 
 			if (!editorUi.isOfflineApp() && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
-				menu.addItem(mxResources.get('formatVsdx') + ' (beta)...', null, mxUtils.bind(this, function()
-				{
-					var delayed = mxUtils.bind(this, function()
-					{
-						// Checks for signature method
-						if (typeof(VsdxExport) !== 'undefined')
-						{
-							try
-							{
-								new VsdxExport(editorUi).exportCurrentDiagrams();
-							}
-							catch (e)
-							{
-								// ignore
-							}
-						}
-					});
-					
-					if (typeof(VsdxExport) === 'undefined' && !this.loadingVsdx && !editorUi.isOffline())
-					{
-						this.loadingVsdx = true;
-						// Dependencies included in Devel.js
-						mxscript('/js/vsdx.min.js', delayed);
-					}
-					else
-					{
-						// Must be async for cell selection
-						window.setTimeout(delayed, 0);
-					}
-				}), parent);
+				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
 
 			menu.addSeparator(parent);
@@ -1367,10 +1369,10 @@
 				menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 				{
 					editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-						function(linkTarget, linkColor, allPages, lightbox, edit, layers)
+						function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
 					{
-						var dlg = new EmbedDialog(editorUi, editorUi.createLink(
-							linkTarget, linkColor, allPages, lightbox, edit, layers, null, true));
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
+							linkColor, allPages, lightbox, editLink, layers, null, true));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});

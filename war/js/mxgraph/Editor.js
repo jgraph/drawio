@@ -703,9 +703,8 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	w += dx;
 	h += dx;
 	
-	var dh = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-	
-	var left = Math.max(1, Math.round((document.body.scrollWidth - w - 64) / 2));
+	var dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
+	var left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 
 	// Keeps window size inside available space
@@ -728,22 +727,13 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	{
 		this.zIndex += editorUi.dialogs.length * 2;
 	}
-	
-	var div = editorUi.createDiv('geDialog');
-	div.style.width = w + 'px';
-	div.style.height = h + 'px';
-	div.style.left = left + 'px';
-	div.style.top = top + 'px';
-	div.style.zIndex = this.zIndex;
-	
+
 	if (this.bg == null)
 	{
 		this.bg = editorUi.createDiv('background');
 		this.bg.style.position = 'absolute';
 		this.bg.style.background = 'white';
-		this.bg.style.left = '0px';
-		this.bg.style.top = '0px';
-		this.bg.style.bottom = '0px';
+		this.bg.style.height = dh + 'px';
 		this.bg.style.right = '0px';
 		this.bg.style.zIndex = this.zIndex - 2;
 		
@@ -754,11 +744,24 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 			new mxDivResizer(this.bg);
 		}
 	}
+	
+	var origin = mxUtils.getDocumentScrollOrigin(document);
+	this.bg.style.left = origin.x + 'px';
+	this.bg.style.top = origin.y + 'px';
+	left += origin.x;
+	top += origin.y;
 
 	if (modal)
 	{
 		document.body.appendChild(this.bg);
 	}
+	
+	var div = editorUi.createDiv('geDialog');
+	div.style.width = w + 'px';
+	div.style.height = h + 'px';
+	div.style.left = left + 'px';
+	div.style.top = top + 'px';
+	div.style.zIndex = this.zIndex;
 	
 	div.appendChild(elt);
 	document.body.appendChild(div);
