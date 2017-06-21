@@ -415,8 +415,8 @@ function VsdxExport(editorUi)
 		shape.appendChild(createCellElemScaled("EndY", parentHeight - bounds.y + pe.y, xmlDoc, "_WALKGLUE(EndTrigger,BegTrigger,WalkPreference)"));
 
 		//Formula is used to make the edge dynamic (specify source id and target id)
-		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc, "_XFTRIGGER(Sheet."+ cell.source.id +"!EventXFMod)"));
-		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc, "_XFTRIGGER(Sheet."+ cell.target.id +"!EventXFMod)"));
+		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc, cell.source? "_XFTRIGGER(Sheet."+ cell.source.id +"!EventXFMod)" : null));
+		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc, cell.target? "_XFTRIGGER(Sheet."+ cell.target.id +"!EventXFMod)" : null));
 		shape.appendChild(createCellElem("ConFixedCode", "6", xmlDoc));
 		shape.appendChild(createCellElem("LayerMember", "0", xmlDoc));
 
