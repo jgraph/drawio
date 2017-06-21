@@ -59,7 +59,7 @@ GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
 GraphViewer.prototype.autoFit = true;
 
 /**
- * Specifies if zooming in for auto fir is allowed. Default is false.
+ * Specifies if zooming in for auto fit is allowed. Default is false.
  */
 GraphViewer.prototype.allowZoomIn = false;
 
