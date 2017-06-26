@@ -1,3 +1,8 @@
+26-JUN-2017: 6.8.6
+
+- Fixes save servlet, local file save in MS Edge
+- Removes echo request for save of local data to cloud
+
 21-JUN-2017: 6.8.5
 
 - Removes max-height for Confluence Cloud viewer

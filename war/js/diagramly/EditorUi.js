@@ -43,7 +43,7 @@
 	/**
 	 * Allows for two buttons in the sidebar footer.
 	 */
-	EditorUi.prototype.sidebarFooterHeight = (uiTheme == 'atlas') ? 36 : 36;
+	EditorUi.prototype.sidebarFooterHeight = 36;
 
 	/**
 	 * Specifies the default custom shape style.
@@ -2540,8 +2540,7 @@
 	 */
 	EditorUi.prototype.isLocalFileSave = function()
 	{
-		// Workaround for failing local saves in MS Edge Creators Update
-		return !mxClient.IS_EDGE && ((urlParams['save'] != 'remote' && (mxClient.IS_IE ||
+		return ((urlParams['save'] != 'remote' && (mxClient.IS_IE ||
 			(typeof window.Blob !== 'undefined' && typeof window.URL !== 'undefined')) &&
 			document.documentMode != 9 && document.documentMode != 8 &&
 			document.documentMode != 7 && !mxClient.IS_QUIRKS) ||
@@ -2556,12 +2555,12 @@
 	 */
 	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
-		// Newer versions of IE (except Edge which uses the standard API below)
-		if (!mxClient.IS_EDGE && window.MSBlobBuilder && navigator.msSaveOrOpenBlob)
+		// Newer versions of IE
+		if (window.Blob && navigator.msSaveOrOpenBlob)
 		{
-			var builder = new MSBlobBuilder();
-			builder.append(data);
-			var blob = builder.getBlob(mimeType);
+			var blob = (base64Encoded) ?
+					this.base64ToBlob(data, mimeType) :
+					new Blob([data], {type: mimeType})
 			navigator.msSaveOrOpenBlob(blob, filename);
 		}
 		// Older versions of IE (binary not supported)
@@ -2808,17 +2807,20 @@
 			this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
 			{
 				return this.createEchoRequest(data, newTitle, mime, base64Encoded, format, base64);
-			}));
+			}), data, base64Encoded, mime);
 		}
 	};
 	
 	/**
 	 * Translates this point by the given vector.
 	 * 
+	 * Last 3 argument are optional and must only be used if the data can be stored as is on the client
+	 * side without requiring a server roundtrip.
+	 * 
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveRequest = function(filename, format, fn)
+	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 		
@@ -2839,7 +2841,23 @@
 					{
 						this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 						{
-							if (this.spinner.spin(document.body, mxResources.get('saving')))
+							mimeType = (mimeType != null) ? mimeType : ((format == 'pdf') ?
+								'application/pdf' : 'image/' + format);
+							
+							// Workaround for no roundtrip required if data is available on client-side
+							// TODO: Refactor the saveData/saveRequest call chain for local data
+							if (data != null)
+							{
+								try
+								{
+									this.exportFile(data, newTitle, mimeType, true, mode, folderId);
+								}
+								catch (e)
+								{
+									this.handleError(e);
+								}
+							}
+							else if (this.spinner.spin(document.body, mxResources.get('saving')))
 							{
 								// LATER: Catch possible mixed content error
 								// see http://stackoverflow.com/questions/30646417/catching-mixed-content-error
@@ -2851,7 +2869,6 @@
 									{
 										try
 										{
-											var mimeType = (format == 'pdf') ? 'application/pdf' : 'image/' + format;
 											this.exportFile(xhr.getText(), newTitle, mimeType, true, mode, folderId);
 										}
 										catch (e)
@@ -4400,6 +4417,82 @@
 	};
 
 	/**
+	 * For the fontCSS to be applied when rendering images on canvas, the actual
+	 * font data must be made available via a data URI encoding of the file.
+	 */
+	EditorUi.prototype.loadFonts = function(then)
+	{
+		if (this.editor.fontCss != null && this.editor.resolvedFontCss == null)
+		{
+			var parts = this.editor.fontCss.split('url(');
+			var waiting = 0;
+			var fonts = {};
+			
+			var finish = mxUtils.bind(this, function()
+			{
+				if (waiting == 0)
+				{
+					// Constructs string
+					var result = [parts[0]];
+					
+					for (var j = 1; j < parts.length; j++)
+					{
+						var idx = parts[j].indexOf(')');
+						result.push('url(');
+						result.push(fonts[parts[j].substring(0, idx)]);
+						result.push(parts[j].substring(idx));
+					}
+					
+					this.editor.resolvedFontCss = result.join('');
+					then();
+				}
+			});
+			
+			if (parts.length > 0)
+			{
+				for (var i = 1; i < parts.length; i++)
+				{
+					var idx = parts[i].indexOf(')');
+	
+					(mxUtils.bind(this, function(url)
+					{
+						if (fonts[url] == null)
+						{
+							// Mark font es being fetched and fetch it
+							fonts[url] = url;
+							waiting++;
+							
+							var realUrl = url;
+							
+							if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+							{
+								realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+							}
+							
+							// TODO: Remove cache-control header
+							this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+							{
+								fonts[url] = uri;
+								waiting--;
+								finish();
+							}), mxUtils.bind(this, function(err)
+							{
+								// TODO: handle error
+								waiting--;
+								finish();
+							}), true, null, 'data:application/x-font-ttf;charset=utf-8;base64,');
+						}
+					}))(parts[i].substring(0, idx));
+				}
+			}
+		}
+		else
+		{
+			then();
+		}
+	};
+	
+	/**
 	 *
 	 */
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
@@ -4491,10 +4584,26 @@
 					this.editor.graph.addSvgShadow(svgRoot);
 				}
 				
-				this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+				var done = mxUtils.bind(this, function()
 				{
-					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-				}));
+					if (this.editor.resolvedFontCss != null)
+					{
+						var st = document.createElement('style');
+						st.setAttribute('type', 'text/css');
+						st.innerHTML = this.editor.resolvedFontCss;
+						
+						// Must be in defs section for FF to work
+						var defs = svgRoot.getElementsByTagName('defs');
+						defs[0].appendChild(st);
+					}
+					
+					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					{
+						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+					}));
+				});
+				
+				this.loadFonts(done);
 			}
 			catch (e)
 			{

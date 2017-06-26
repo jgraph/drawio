@@ -45,7 +45,7 @@
 	Editor.defaultCustomLibraries = [];
 
 	/**
-	 * Contains the default XML for an empty diagram.
+	 * Default value for the CSV import dialog.
 	 */
 	Editor.defaultCsvValue = '##\n' +
 		'## Example CSV import. Use ## for comments and # for configuration. Paste CSV below.\n' +
@@ -167,6 +167,43 @@
 			if (config.defaultEdgeStyle != null)
 			{
 				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
+			}
+			
+			if (config.emptyDiagramXml)
+			{
+				EditorUi.prototype.emptyDiagramXml = config.emptyDiagramXml;
+			}
+			
+			if (config.thumbWidth)
+			{
+				Sidebar.prototype.thumbWidth = config.thumbWidth;
+			}
+			
+			if (config.thumbHeight)
+			{
+				Sidebar.prototype.thumbHeight = config.thumbHeight;
+			}
+			
+			if (config.emptyLibraryXml)
+			{
+				EditorUi.prototype.emptyLibraryXml = config.emptyLibraryXml;
+			}
+			
+			if (config.sidebarWidth)
+			{
+				EditorUi.prototype.hsplitPosition = config.sidebarWidth;
+			}
+			
+			if (config.fontCss)
+			{
+				var s = document.createElement('style');
+				s.setAttribute('type', 'text/css');
+				s.appendChild(document.createTextNode(config.fontCss));
+				
+				var t = document.getElementsByTagName('script')[0];
+			  	t.parentNode.insertBefore(s, t);
+			  	
+			  	Editor.prototype.fontCss = config.fontCss;
 			}
 		}
 	};
@@ -1690,6 +1727,21 @@
 					pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
 					pv.pageSelector = false;
 					pv.mathEnabled = false;
+					
+					var writeHead = pv.writeHead;
+					
+					// Overridden to add custom fonts
+					pv.writeHead = function(doc)
+					{
+						writeHead.apply(this, arguments);
+						
+						if (editorUi.editor.fontCss != null)
+						{
+							doc.writeln('<style type="text/css">');
+							doc.writeln(editorUi.editor.fontCss);
+							doc.writeln('</style>');
+						}
+					};
 					
 					if (typeof(MathJax) !== 'undefined')
 					{

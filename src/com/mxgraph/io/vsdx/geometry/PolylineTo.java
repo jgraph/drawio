@@ -34,6 +34,11 @@ public class PolylineTo extends Row
 			
 			String aValue = this.formulaA.replaceAll("\\s","").toLowerCase().replaceAll("polyline\\(","").replaceAll("\\)", "");
 			
+			if (aValue.equals("inh"))
+			{
+				throw new IllegalArgumentException();
+			}
+			
 			LinkedList<String> polyEntriesList = new LinkedList<String>(Arrays.asList(aValue.split(",")));
 			
 			polyEntriesList.remove(0);
