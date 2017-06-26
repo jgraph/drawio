@@ -104,13 +104,9 @@ public class SaveServlet extends HttpServlet
 							.write(mxBase64.decodeFast(URLDecoder.decode(xml,
 									Utils.CHARSET_FOR_URL_ENCODING)));
 				}
-				else if (mime != null && xml != null)
+				else if (xml != null)
 				{
-					if (xml != null)
-					{
-						data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
-					}
-
+					data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
 					String format = request.getParameter("format");
 
 					if (format == null)
@@ -128,10 +124,18 @@ public class SaveServlet extends HttpServlet
 					}
 
 					response.setStatus(HttpServletResponse.SC_OK);
-
+					
 					if (filename != null)
 					{
-						response.setContentType(mime);
+						if (mime != null)
+						{
+							response.setContentType(mime);
+						}
+						else
+						{
+							response.setContentType("application/x-unknown");
+						}
+						
 						response.setHeader("Content-Disposition",
 								"attachment; filename=\"" + filename
 										+ "\"; filename*=UTF-8''" + filename);

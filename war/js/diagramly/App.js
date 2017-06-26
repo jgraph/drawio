@@ -4315,7 +4315,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 /**
  * Checks if the client is authorized and calls the next step.
  */
-App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
+App.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
 {
 	try
 	{
@@ -4353,7 +4353,8 @@ App.prototype.loadUrl = function(url, success, error, forceBinary, retry)
 							
 							// LATER: Could be JPG but modern browsers
 							// ignore the mime type in the data URI
-							data = 'data:image/png;base64,' + this.base64Encode(data);
+							dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
+							data = dataUriPrefix + this.base64Encode(data);
 						}
 			    		
 			    		success(data);
