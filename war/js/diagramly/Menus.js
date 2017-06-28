@@ -1183,24 +1183,26 @@
 							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
 							   		addShadow, editable, border, !cropImage, currentPage);
 							}
-						}), true, false);
+						}), true, false, 'png');
 				}), parent);
 				
 				if (editorUi.jpgSupported)
 				{
 					menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
 					{
-						editorUi.showExportJpgDialog('https://support.draw.io/display/DO/Exporting+Files',
-							mxUtils.bind(this, function(scale, ignoreSelection, addShadow, border, cropImage)
+						editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
+							'https://support.draw.io/display/DO/Exporting+Files',
+							mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+								addShadow, editable, embedImages, border, cropImage, currentPage)
 							{
 								var val = parseInt(scale);
 								
 								if (!isNaN(val) && val > 0)
 								{
-								   	this.editorUi.exportImage(val / 100, false, ignoreSelection,
-								   		addShadow, false, border, !cropImage, false, 'jpeg');
+									this.editorUi.exportImage(val / 100, false, ignoreSelection,
+									   	addShadow, false, border, !cropImage, false, 'jpeg');
 								}
-							}), true);
+							}), true, false, 'jpeg');
 					}), parent);
 				}
 			}
@@ -1239,7 +1241,7 @@
 						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
 						   		addShadow, editable, embedImages, border, !cropImage, currentPage);
 						}
-					}), true);
+					}), true, null, 'svg');
 			}), parent);
 
 			menu.addSeparator(parent);

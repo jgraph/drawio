@@ -41,8 +41,8 @@ public class PolylineTo extends Row
 			
 			LinkedList<String> polyEntriesList = new LinkedList<String>(Arrays.asList(aValue.split(",")));
 			
-			polyEntriesList.remove(0);
-			polyEntriesList.remove(0);
+			double xRel = Double.parseDouble(polyEntriesList.remove(0));
+			double yRel = Double.parseDouble(polyEntriesList.remove(0));
 			double currX = 0;
 			double currY = 0;
 
@@ -50,6 +50,18 @@ public class PolylineTo extends Row
 			{
 				currX = Double.valueOf(polyEntriesList.remove(0)) * mxVsdxUtils.conversionFactor;
 				currY = Double.valueOf(polyEntriesList.remove(0)) * mxVsdxUtils.conversionFactor;
+
+				if (xRel == 1)
+				{
+					currX = currX * 100.0 / w;
+				}
+				
+				if (xRel == 1)
+				{
+					currY = currY * 100.0 / h;
+				}
+				
+
 				currY = 100 - currY;
 				
 				currX = Math.round(currX * 100.0) / 100.0;
@@ -60,6 +72,8 @@ public class PolylineTo extends Row
 
 				result += "<line x=\"" + String.valueOf(currX) + "\" y=\"" + String.valueOf(currY) + "\"/>";
 			}
+
+			result += "<line x=\"" + String.valueOf(x) + "\" y=\"" + String.valueOf(y) + "\"/>";
 
 			if (shape.getLastMoveX() == x && shape.getLastMoveY() == y)
 			{

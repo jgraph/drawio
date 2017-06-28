@@ -301,7 +301,7 @@ public class Style
 	protected double getScreenNumericalValue(double val)
 	{
 		double conVal = val * mxVsdxUtils.conversionFactor;
-		return Math.round(conVal * 100.0) / 100.0;
+		return conVal;
 	}
 
 	/**

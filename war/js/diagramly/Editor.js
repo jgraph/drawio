@@ -205,6 +205,17 @@
 			  	
 			  	Editor.prototype.fontCss = config.fontCss;
 			}
+			
+			if (config.plugins != null)
+			{
+				// Required for callback
+				App.initPluginCallback();
+				
+				for (var i = 0; i < config.plugins.length; i++)
+				{
+					mxscript(config.plugins[i]);
+				}
+			}
 		}
 	};
 
