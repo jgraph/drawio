@@ -36,6 +36,7 @@ import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxResources;
+import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
@@ -118,16 +119,7 @@ public class VsdxShape extends Shape
 		{
 			mxResources.add("com/mxgraph/io/vdx/resources/edgeNameU");
 			mxResources.add("com/mxgraph/io/vdx/resources/nameU");
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			dbf.setExpandEntityReferences(false);
-			dbf.setXIncludeAware(false);
-			
-			docBuilder = dbf.newDocumentBuilder();
+			docBuilder = mxXmlUtils.getDocumentBuilder();
 		}
 		catch (Exception e)
 		{

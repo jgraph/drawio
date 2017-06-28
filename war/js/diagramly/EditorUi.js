@@ -2995,8 +2995,10 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.addCheckbox = function(div, label, checked, disabled, disableNewline)
+	EditorUi.prototype.addCheckbox = function(div, label, checked, disabled, disableNewline, visible)
 	{
+		visible = (visible != null) ? visible : true;
+		
 		var cb = document.createElement('input');
 		cb.style.marginRight = '8px';
 		cb.style.marginTop = '16px';
@@ -3013,12 +3015,15 @@
 			cb.setAttribute('disabled', 'disabled');
 		}
 		
-		div.appendChild(cb);
-		mxUtils.write(div, label);
-		
-		if (!disableNewline)
+		if (visible)
 		{
-			mxUtils.br(div);
+			div.appendChild(cb);
+			mxUtils.write(div, label);
+			
+			if (!disableNewline)
+			{
+				mxUtils.br(div);
+			}
 		}
 		
 		return cb;
@@ -3706,14 +3711,15 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback, cropOption, defaultInclude)
+	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback,
+		cropOption, defaultInclude, format)
 	{
 		defaultInclude = (defaultInclude != null) ? defaultInclude : true;
 		
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = 280;
+		var height = (format == 'jpeg') ? 170 : 280;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -3727,7 +3733,7 @@
 		zoomInput.style.width = '60px';
 		zoomInput.style.marginLeft = '4px';
 		zoomInput.style.marginRight = '12px';
-		zoomInput.value = '100%';
+		zoomInput.value = this.lastExportZoom || '100%';
 		div.appendChild(zoomInput);
 		
 		mxUtils.write(div, mxResources.get('borderWidth') + ':');
@@ -3736,12 +3742,12 @@
 		borderInput.style.marginRight = '16px';
 		borderInput.style.width = '60px';
 		borderInput.style.marginLeft = '4px';
-		borderInput.value = '0';
+		borderInput.value = this.lastExportBorder || '0';
 		div.appendChild(borderInput);
 		mxUtils.br(div);
 		
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
-			graph.background == mxConstants.NONE || graph.background == null);
+			graph.background == mxConstants.NONE || graph.background == null, null, null, format != 'jpeg');
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
 			false, graph.isSelectionEmpty());
 
@@ -3790,9 +3796,9 @@
 			height += 26;
 		}
 		
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude);
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
 		var hasPages = this.pages != null && this.pages.length > 1;
-		var allPages = allPages = this.addCheckbox(div, (hasPages) ? mxResources.get('allPages') : '', hasPages, !hasPages);
+		var allPages = this.addCheckbox(div, (hasPages) ? mxResources.get('allPages') : '', hasPages, !hasPages, null, format != 'jpeg');
 		allPages.style.marginLeft = '24px';
 		allPages.style.marginBottom = '16px';
 		
@@ -3820,95 +3826,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
+			this.lastExportBorder = borderInput.value;
+			this.lastExportZoom = zoomInput.value;
+			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 320, height, true, true);
-		zoomInput.focus();
-		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
-		{
-			zoomInput.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
-	};
-	
-	/**
-	 * 
-	 */
-	EditorUi.prototype.showExportJpgDialog = function(helpLink, callback)
-	{
-		var div = document.createElement('div');
-		div.style.whiteSpace = 'nowrap';
-		var graph = this.editor.graph;
-		
-		var hd = document.createElement('h3');
-		mxUtils.write(hd, mxResources.get('formatJpg'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
-		div.appendChild(hd);
-		
-		mxUtils.write(div, mxResources.get('zoom') + ':');
-		var zoomInput = document.createElement('input');
-		zoomInput.setAttribute('type', 'text');
-		zoomInput.style.marginRight = '16px';
-		zoomInput.style.width = '60px';
-		zoomInput.style.marginLeft = '4px';
-		zoomInput.style.marginBottom = '4px';
-		zoomInput.value = '100%';
-		div.appendChild(zoomInput);
-		
-		mxUtils.write(div, mxResources.get('borderWidth') + ':');
-		var borderInput = document.createElement('input');
-		borderInput.setAttribute('type', 'text');
-		borderInput.style.marginRight = '16px';
-		borderInput.style.width = '60px';
-		borderInput.style.marginLeft = '4px';
-		borderInput.value = '0';
-		div.appendChild(borderInput);
-		mxUtils.br(div);
-		
-		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
-			false, graph.isSelectionEmpty());
-
-		var cb6 = document.createElement('input');
-		cb6.style.marginTop = '16px';
-		cb6.style.marginRight = '8px';
-		cb6.setAttribute('type', 'checkbox');
-
-		div.appendChild(cb6);
-		mxUtils.write(div, mxResources.get('crop'));
-		mxUtils.br(div);
-		
-		if (graph.isSelectionEmpty())
-		{
-			cb6.setAttribute('disabled', 'disabled');
-		}
-		else
-		{
-			cb6.setAttribute('checked', 'checked');
-			cb6.defaultChecked = true;
-		}
-		
-		var shadow = this.addCheckbox(div, mxResources.get('shadow'), graph.shadowVisible);
-
-		var cb5 = document.createElement('input');
-		cb5.style.marginTop = '16px';
-		cb5.style.marginRight = '8px';
-		cb5.setAttribute('type', 'checkbox');
-		
-		if (this.isOffline() || !this.canvasSupported)
-		{
-			cb5.setAttribute('disabled', 'disabled');
-		}
-				
-		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
-		{
-			callback(zoomInput.value, !selection.checked, shadow.checked, borderInput.value, cb6.checked);
-		}), null, mxResources.get('export'), helpLink);
-		this.showDialog(dlg.container, 320, 190, true, true);
 		zoomInput.focus();
 		
 		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
@@ -4462,6 +4386,34 @@
 							fonts[url] = url;
 							waiting++;
 							
+							var mime = 'application/x-font-ttf';
+							
+							// See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+							if (/(\.svg)($|\?)/i.test(url))
+							{
+								mime = 'image/svg+xml';
+							}
+							else if (/(\.otf)($|\?)/i.test(url))
+							{
+								mime = 'application/x-font-opentype';
+							}
+							else if (/(\.woff)($|\?)/i.test(url))
+							{
+								mime = 'application/font-woff';
+							}
+							else if (/(\.woff2)($|\?)/i.test(url))
+							{
+								mime = 'application/font-woff2';
+							}
+							else if (/(\.eot)($|\?)/i.test(url))
+							{
+								mime = 'application/vnd.ms-fontobject';
+							}
+							else if (/(\.sfnt)($|\?)/i.test(url))
+							{
+								mime = 'application/font-sfnt';
+							}
+							
 							var realUrl = url;
 							
 							if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
@@ -4469,7 +4421,7 @@
 								realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
 							}
 							
-							// TODO: Remove cache-control header
+							// LATER: Remove cache-control header
 							this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
 							{
 								fonts[url] = uri;
@@ -4477,10 +4429,10 @@
 								finish();
 							}), mxUtils.bind(this, function(err)
 							{
-								// TODO: handle error
+								// LATER: handle error
 								waiting--;
 								finish();
-							}), true, null, 'data:application/x-font-ttf;charset=utf-8;base64,');
+							}), true, null, 'data:' + mime + ';charset=utf-8;base64,');
 						}
 					}))(parts[i].substring(0, idx));
 				}
@@ -4729,6 +4681,84 @@
 		if (counter == 0)
 		{
 			callback(svgRoot);
+		}
+	};
+
+	/**
+	 * Checks if the client is authorized and calls the next step.
+	 */
+	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	{
+		try
+		{
+			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			retry = (retry != null) ? retry : true;
+			
+			var fn = mxUtils.bind(this, function()
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+				    	if (success != null)
+				    	{
+					    	var data = req.getText();
+					    	
+				    		// Returns PNG as base64 encoded data URI
+							if (binary)
+							{
+								// NOTE: This requires BinaryToArray VB script in the page
+								if ((document.documentMode == 9 || document.documentMode == 10) &&
+									typeof window.mxUtilsBinaryToArray !== 'undefined')
+								{
+									var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
+									var tmp = new Array(bin.length);
+									
+									for (var i = 0; i < bin.length; i++)
+									{
+										tmp[i] = String.fromCharCode(bin[i]);
+									}
+									
+									data = tmp.join('');
+								}
+								
+								// LATER: Could be JPG but modern browsers
+								// ignore the mime type in the data URI
+								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
+								data = dataUriPrefix + this.base64Encode(data);
+							}
+				    		
+				    		success(data);
+				    	}
+					}
+					else if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN});
+			    	}
+				}), function()
+				{
+			    	if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN});
+			    	}
+				}, binary, this.timeout, function()
+			    {
+			    	if (retry && error != null)
+					{
+						error({code: App.ERROR_TIMEOUT, retry: fn});
+					}
+			    });
+			});
+			
+			fn();
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
 		}
 	};
 

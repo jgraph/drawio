@@ -71,8 +71,9 @@ public class RowFactory
 					break;
 					case "A":
 						a = getDoubleVal(val);
+						//TODO check the reason for this
 						//Special case for PolylineTo where we need the F attribute instead of V
-						formulaA = cell.getAttribute("F");
+						formulaA = cell.getAttribute("V");
 					break;
 					case "B":
 						b = getDoubleVal(val);

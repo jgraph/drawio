@@ -1,3 +1,8 @@
+26-JUN-2017: 6.8.7
+
+- Updates translations
+- Uses mxGraph 3.7.4
+
 26-JUN-2017: 6.8.6
 
 - Fixes save servlet, local file save in MS Edge

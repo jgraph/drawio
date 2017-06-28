@@ -81,12 +81,12 @@ GraphViewer.prototype.checkVisibleState = true;
 GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 {
 	this.graphConfig = (graphConfig != null) ? graphConfig : {};
-	this.autoFit = (graphConfig['auto-fit'] != null) ?
-		graphConfig['auto-fit'] : this.autoFit;
-	this.allowZoomIn = (graphConfig['allow-zoom-in'] != null) ?
-		graphConfig['allow-zoom-in'] : this.allowZoomIn;
-	this.checkVisibleState = (graphConfig['check-visible-state'] != null) ?
-		graphConfig['check-visible-state'] : this.checkVisibleState;
+	this.autoFit = (this.graphConfig['auto-fit'] != null) ?
+		this.graphConfig['auto-fit'] : this.autoFit;
+	this.allowZoomIn = (this.graphConfig['allow-zoom-in'] != null) ?
+		this.graphConfig['allow-zoom-in'] : this.allowZoomIn;
+	this.checkVisibleState = (this.graphConfig['check-visible-state'] != null) ?
+		this.graphConfig['check-visible-state'] : this.checkVisibleState;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
 		this.graphConfig.toolbar.split(' ') : [];
 	this.zoomEnabled = mxUtils.indexOf(this.toolbarItems, 'zoom') >= 0;
@@ -95,6 +95,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.lightboxClickEnabled = this.graphConfig.lightbox != false;
 	this.initialWidth = (container != null) ? container.style.width : null;
 	this.widthIsEmpty = (this.initialWidth != null) ? this.initialWidth == '' : true;
+	this.currentPage = parseInt(this.graphConfig.page) || 0;
 	this.editor = null;
 
 	if (xmlNode != null)
@@ -147,8 +148,6 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			}
 			
 			// Adds page placeholders
-			this.currentPage = parseInt(this.graphConfig.page) || 0;
-			
 			if (xmlNode.nodeName == 'mxfile')
 			{
 				var diagrams = xmlNode.getElementsByTagName('diagram');

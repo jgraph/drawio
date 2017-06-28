@@ -487,16 +487,7 @@ App.main = function(callback)
 			
 			if ((temp != null) || (plugins != null && plugins.length > 0))
 			{
-				// Workaround for need to load plugins now but wait for UI instance
-				App.DrawPlugins = [];
-				
-				// Global entry point for plugins is Draw.loadPlugin. This is the only
-				// long-term supported solution for access to the EditorUi instance.
-				window.Draw = new Object();
-				window.Draw.loadPlugin = function(callback)
-				{
-					App.DrawPlugins.push(callback);
-				};
+				App.initPluginCallback();
 			}
 			
 			if (temp != null)
@@ -711,6 +702,26 @@ if (urlParams['embed'] != '1')
 {
 	App.prototype.menubarHeight = 60;
 }
+
+/**
+ * Queue for loading plugins and wait for UI instance
+ */
+App.initPluginCallback = function()
+{
+	if (App.DrawPlugins == null)
+	{
+		// Workaround for need to load plugins now but wait for UI instance
+		App.DrawPlugins = [];
+		
+		// Global entry point for plugins is Draw.loadPlugin. This is the only
+		// long-term supported solution for access to the EditorUi instance.
+		window.Draw = new Object();
+		window.Draw.loadPlugin = function(callback)
+		{
+			App.DrawPlugins.push(callback);
+		};
+	}
+};
 
 /**
  * Translates this point by the given vector.
@@ -4308,84 +4319,6 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		else
 		{
 			this.loadUrl(url, handleData, error, binary);
-		}
-	}
-};
-
-/**
- * Checks if the client is authorized and calls the next step.
- */
-App.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
-{
-	try
-	{
-		var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
-			/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
-		retry = (retry != null) ? retry : true;
-		
-		var fn = mxUtils.bind(this, function()
-		{
-			mxUtils.get(url, mxUtils.bind(this, function(req)
-			{
-				if (req.getStatus() >= 200 && req.getStatus() <= 299)
-				{
-			    	if (success != null)
-			    	{
-				    	var data = req.getText();
-				    	
-			    		// Returns PNG as base64 encoded data URI
-						if (binary)
-						{
-							// NOTE: This requires BinaryToArray VB script in the page
-							if ((document.documentMode == 9 || document.documentMode == 10) &&
-								typeof window.mxUtilsBinaryToArray !== 'undefined')
-							{
-								var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
-								var tmp = new Array(bin.length);
-								
-								for (var i = 0; i < bin.length; i++)
-								{
-									tmp[i] = String.fromCharCode(bin[i]);
-								}
-								
-								data = tmp.join('');
-							}
-							
-							// LATER: Could be JPG but modern browsers
-							// ignore the mime type in the data URI
-							dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
-							data = dataUriPrefix + this.base64Encode(data);
-						}
-			    		
-			    		success(data);
-			    	}
-				}
-				else if (error != null)
-		    	{
-		    		error({code: App.ERROR_UNKNOWN});
-		    	}
-			}), function()
-			{
-		    	if (error != null)
-		    	{
-		    		error({code: App.ERROR_UNKNOWN});
-		    	}
-			}, binary, this.timeout, function()
-		    {
-		    	if (retry && error != null)
-				{
-					error({code: App.ERROR_TIMEOUT, retry: fn});
-				}
-		    });
-		});
-		
-		fn();
-	}
-	catch (e)
-	{
-		if (error != null)
-		{
-			error(e);
 		}
 	}
 };

@@ -257,6 +257,7 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
@@ -327,6 +328,7 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
@@ -345,7 +347,6 @@
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="DrawioClient.js" />
 				<file name="DrawioUser.js" />
-				<file name="UrlLibrary.js" />
 				<file name="DriveRealtime.js" />
 				<file name="RealtimeMapping.js" />
 				<file name="DriveFile.js" />

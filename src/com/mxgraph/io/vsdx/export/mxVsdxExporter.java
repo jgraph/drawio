@@ -255,17 +255,7 @@ public class mxVsdxExporter
 		try 
 		{
 		    ZipOutputStream zip = new ZipOutputStream(out);
-		    
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			dbf.setExpandEntityReferences(false);
-			dbf.setXIncludeAware(false);
-			
-			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-	        
+			DocumentBuilder docBuilder = mxXmlUtils.getDocumentBuilder();
 			LinkedHashMap<String, Document> pages = new LinkedHashMap<>();
 			LinkedHashMap<String, ModelExtAttrib> modelsAttr = new LinkedHashMap<>();
 			
