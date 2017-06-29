@@ -1,4 +1,12 @@
-26-JUN-2017: 6.8.7
+29-JUN-2017: 6.8.8
+
+- Updates translations
+- Disables VSDX export in IE11-
+- Fixes VSDX export in Safari
+- Adds larger thumbnails for Google Drive
+- Adds VSDX export (beta) in Chrome App
+
+28-JUN-2017: 6.8.7
 
 - Updates translations
 - Uses mxGraph 3.7.4

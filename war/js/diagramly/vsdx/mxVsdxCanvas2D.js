@@ -38,6 +38,18 @@ mxVsdxCanvas2D.prototype.init = function (zip)
 };
 
 /**
+ * Function: createElt
+ *  
+ * Create a new geo section.
+ */
+mxVsdxCanvas2D.prototype.createElt = function (name)
+{
+	return (this.xmlDoc.createElementNS != null) ? this.xmlDoc.createElementNS(VsdxExport.prototype.XMLNS, name) :
+		this.xmlDoc.createElement(name);
+};
+
+
+/**
  * Function: createGeoSec
  *  
  * Create a new geo section.
@@ -49,7 +61,7 @@ mxVsdxCanvas2D.prototype.createGeoSec = function ()
 		this.shape.appendChild(this.geoSec);
 	}
 	
-	var geoSec = this.xmlDoc.createElement("Section");
+	var geoSec = this.createElt("Section");
 	
 	geoSec.setAttribute("N", "Geometry");
 	geoSec.setAttribute("IX", this.geoIndex++);
@@ -158,7 +170,7 @@ mxVsdxCanvas2D.prototype.createCellElemScaled = function (name, val, formula)
  */
 mxVsdxCanvas2D.prototype.createCellElem = function (name, val, formula)
 {
-	var cell = this.xmlDoc.createElement("Cell");
+	var cell = this.createElt("Cell");
 	cell.setAttribute("N", name);
 	cell.setAttribute("V", val);
 	
@@ -169,7 +181,7 @@ mxVsdxCanvas2D.prototype.createCellElem = function (name, val, formula)
 
 mxVsdxCanvas2D.prototype.createRowRel = function(type, index, x, y, a, b, c , d) 
 {
-	var row = this.xmlDoc.createElement("Row");
+	var row = this.createElt("Row");
 	row.setAttribute("T", type);
 	row.setAttribute("IX", index);
 	row.appendChild(this.createCellElem("X", x));
@@ -414,7 +426,7 @@ mxVsdxCanvas2D.prototype.close = function()
  */
 mxVsdxCanvas2D.prototype.addForeignData = function(type, index) 
 {
-	var foreignData = this.xmlDoc.createElement("ForeignData");
+	var foreignData = this.createElt("ForeignData");
 	foreignData.setAttribute("ForeignType", "Bitmap");
 	
 	type = type.toUpperCase();
@@ -422,7 +434,7 @@ mxVsdxCanvas2D.prototype.addForeignData = function(type, index)
 	if (type != "BMP")
 		foreignData.setAttribute("CompressionType", type);
 	
-	var rel = this.xmlDoc.createElement("Rel");
+	var rel = this.createElt("Rel");
 	rel.setAttribute("r:id", "rId" + index);
 	
 	
@@ -639,9 +651,9 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		if (rotation != 0)
 			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
 		//TODO Currently, we support a single text block formatting. Later, HTML label should be analysed and split into parts
-		var charSect = this.xmlDoc.createElement("Section");
+		var charSect = this.createElt("Section");
 		charSect.setAttribute('N', 'Character');
-		var charRow = this.xmlDoc.createElement("Row");
+		var charRow = this.createElt("Row");
 		charRow.setAttribute('IX', 0);
 		
 		var fontColor = this.cellState.style["fontColor"];
@@ -654,8 +666,8 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		charSect.appendChild(charRow);
 		this.shape.appendChild(charSect);
 		
-		var text = this.xmlDoc.createElement("Text");
-		var cp = this.xmlDoc.createElement("cp");
+		var text = this.createElt("Text");
+		var cp = this.createElt("cp");
 		cp.setAttribute('IX', 0);
 		text.appendChild(cp);
 		text.textContent = str;

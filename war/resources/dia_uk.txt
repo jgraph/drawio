@@ -1,18 +1,18 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Про програму draw.io
-accessDenied=Access Denied
+accessDenied=Доступ заборонено
 actualSize=Фактичний розмір
 add=Додати
-addedFile=Added {1}
+addedFile=Додано {1}
 addImages=Додати малюнки
 addImageUrl=Додати URL-адресу малюнка
 addLayer=Додати шар
 addProperty=Додати властивість
-address=Address
+address=Адреса
 addToExistingDrawing=Додати до існуючого документа
 addWaypoint=Додати шляхову точку
-adjustTo=Adjust to
+adjustTo=Прив'язати до
 advanced=Розширені
 align=Вирівняти
 alignment=Вирівнювання

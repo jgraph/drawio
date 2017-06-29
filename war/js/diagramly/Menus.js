@@ -1322,7 +1322,9 @@
 				//this.editorUi.downloadFile('html');
 			}), parent);
 
-			if (!editorUi.isOfflineApp() && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
+			// LATER: Fix namespace prefix (NS1, NS2..) in XML
+			// serializer for VSDX export in IE11 and earlier
+			if (!mxClient.IS_IE11 && !mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}

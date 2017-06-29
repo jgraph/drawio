@@ -99,7 +99,7 @@ mxscript(drawDevUrl + 'js/diagramly/Menus.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
 
-//Vsdx Export
-mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
+// Vsdx Export
 mxscript(drawDevUrl + 'js/diagramly/vsdx/VsdxExport.js');
 mxscript(drawDevUrl + 'js/diagramly/vsdx/mxVsdxCanvas2D.js');
+mxscript(drawDevUrl + 'js/jszip/jszip.min.js');

@@ -39,6 +39,7 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -229,15 +230,22 @@ public class GliffyDiagramConverter
 		}
 		
 		List<mxPoint> mxPoints = new ArrayList<mxPoint>();
+		
+		mxPoint pivot = new mxPoint(object.x + object.width / 2, object.y + object.height / 2);
 
 		for (float[] point : points)
 		{
-			float[] pts = {point[0], point[1]};
+			mxPoint waypoint = new mxPoint(point[0] + object.x, point[1] + object.y);
 			
-			if(object.rotation != 0)
-				pts = rotate(pts[0], pts[1], object.rotation);
+			if(object.rotation != 0) 
+			{
+				double rads = Math.toRadians(object.rotation);
+				double cos = Math.cos(rads);
+				double sin = Math.sin(rads);
+				waypoint = mxUtils.getRotatedPoint(waypoint, cos, sin, pivot);
+			}
 			
-			mxPoints.add(new mxPoint(pts[0] + object.x, pts[1] + object.y));
+			mxPoints.add(waypoint);
 		}
 
 		if (startTerminal == null)
@@ -370,8 +378,13 @@ public class GliffyDiagramConverter
 				if(style.lastIndexOf("strokeWidth") == -1)
 					style.append("strokeWidth=" + shape.strokeWidth).append(";");
 				
-				if(style.lastIndexOf("fillColor") == -1)
+				if(style.lastIndexOf("fillColor") == -1) 
+				{
 					style.append("fillColor=" + shape.fillColor).append(";");
+					if(shape.fillColor.equals("none"))
+						style.append("pointerEvents=0;");
+					
+				}
 				if(style.lastIndexOf("strokeColor") == -1)
 					style.append("strokeColor=" + shape.strokeColor).append(";");
 				
