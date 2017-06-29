@@ -37,14 +37,11 @@ public class NURBSTo extends Row
 			{
 				if ((i > 3) && (i % 4 == 0))
 				{
-					double val = Double.parseDouble(n.get(i)) * 100.0;
-					nurbsValues.add(val);
+					nurbsValues.add(Double.parseDouble(n.get(i)) * 100.0);
 				}
 				else if ((i > 3) && (i % 4 == 1))
 				{
-					double val = Double.parseDouble(n.get(i)) * 100.0;
-					val = 100 - val;
-					nurbsValues.add(val);
+					nurbsValues.add(100 - Double.parseDouble(n.get(i)) * 100.0);
 				}
 				else
 				{
@@ -62,20 +59,21 @@ public class NURBSTo extends Row
 
 			for (int i = 0; i + 2 < (this.getSize()) ; i = i + 3)
 			{
-					double k = this.getKnot((i));
-					double k1 = this.getKnot((i + 1));
-					double k2 = this.getKnot((i + 2));
-					
+					double k = Math.round(this.getKnot((i)) * 100.0) / 100.0;
+					double k1 = Math.round(this.getKnot((i + 1)) * 100.0) / 100.0;
+					double k2 = Math.round(this.getKnot((i + 2)) * 100.0) / 100.0;
+
 					if (k != k1 || k != k2 || k1 != k2)
 					{
 						return false;
 					}
 			}
 			
-			double k = this.getKnot((this.getSize() - 2));
-			double k1 = this.getKnot((this.getSize() - 1));
-
-			if (k != k1 || k != lastKnot || k1 != lastKnot)
+			double k = Math.round(this.getKnot((this.getSize() - 2)) * 10.0) / 10.0;
+			double k1 = Math.round(this.getKnot((this.getSize() - 1)) * 10.0) / 10.0;
+			double lk = Math.round(lastKnot * 10.0) / 10.0;
+			
+			if (k != k1 || k != lk || k1 != lk)
 			{
 				return false;
 			}
@@ -217,6 +215,7 @@ public class NURBSTo extends Row
 					{
 						cp1.add(new mxPoint(nurbs.getX(i), nurbs.getY(i)));
 						cp2.add(new mxPoint(nurbs.getX(i + 1), nurbs.getY(i + 1)));
+						
 						if (i < nurbsize - 2)
 						{
 							nut.add(new mxPoint(nurbs.getX(i + 2), nurbs.getY(i + 2)));

@@ -64,10 +64,10 @@ DriveClient.prototype.scopes = (urlParams['photos'] == '1') ?
 DriveClient.prototype.enableThumbnails = true;
 
 /**
- * Specifies the width for thumbnails. Default is 480. This value
+ * Specifies the width for thumbnails. Default is 1000. This value
  * must be between 220 and 1600.
  */
-DriveClient.prototype.thumbnailWidth = 480;
+DriveClient.prototype.thumbnailWidth = 1000;
 
 /**
  * The maximum number of bytes per thumbnail. Default is 2000000.

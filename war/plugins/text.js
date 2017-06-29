@@ -1,5 +1,5 @@
 /**
- * Explore plugin.
+ * Text extraction plugin.
  */
 Draw.loadPlugin(function(ui)
 {

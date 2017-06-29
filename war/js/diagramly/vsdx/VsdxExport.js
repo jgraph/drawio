@@ -62,6 +62,11 @@ function VsdxExport(editorUi)
 		    }
 	    }
 	};
+	
+	function createElt(doc, ns, name)
+	{
+		return (doc.createElementNS != null) ? doc.createElementNS(ns, name) : doc.createElement(name);
+	};
 
 	function getGraphAttributes(graph) 
 	{
@@ -131,7 +136,7 @@ function VsdxExport(editorUi)
 
 	function createCellElem(name, val, xmlDoc, formula)
 	{
-		var cell = xmlDoc.createElement("Cell");
+		var cell = createElt(xmlDoc, that.XMLNS, "Cell");
 		cell.setAttribute("N", name);
 		cell.setAttribute("V", val);
 		
@@ -142,7 +147,7 @@ function VsdxExport(editorUi)
 
 	function createRow(type, index, x, y, xmlDoc) 
 	{
-		var row = xmlDoc.createElement("Row");
+		var row = createElt(xmlDoc, that.XMLNS, "Row");
 		row.setAttribute("T", type);
 		row.setAttribute("IX", index);
 		row.appendChild(createCellElemScaled("X", x, xmlDoc));
@@ -316,7 +321,7 @@ function VsdxExport(editorUi)
 
 	function createShape(id, geo, xmlDoc, parentHeight)
 	{
-		var shape = xmlDoc.createElement("Shape");
+		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
 		
 		shape.setAttribute("ID", id);
 		shape.setAttribute("NameU", "Shape" + id);
@@ -372,7 +377,7 @@ function VsdxExport(editorUi)
 	{
 		var state = graph.view.getState(cell);
 		
-		var shape = xmlDoc.createElement("Shape");
+		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
 		shape.setAttribute("ID", cell.id);
 		shape.setAttribute("NameU", "Dynamic connector." + cell.id);
 		shape.setAttribute("Name", "Dynamic connector." + cell.id);
@@ -447,7 +452,7 @@ function VsdxExport(editorUi)
 			vsdxCanvas.restore();
 		}
 		
-		var geoSec = xmlDoc.createElement("Section");
+		var geoSec = createElt(xmlDoc, that.XMLNS, "Section");
 		
 		geoSec.setAttribute("N", "Geometry");
 		geoSec.setAttribute("IX", "0");
@@ -487,7 +492,7 @@ function VsdxExport(editorUi)
 				shape.setAttribute("Type", "Group");
 				
 				//Create group shape
-				var gShapes = xmlDoc.createElement("Shapes");
+				var gShapes = createElt(xmlDoc, that.XMLNS, "Shapes");
 
 				//translate the canvas using the group coordinates
 				vsdxCanvas.save();
@@ -570,12 +575,13 @@ function VsdxExport(editorUi)
 	{
         var xmlDoc = mxUtils.createXmlDocument();
 
-        var root = xmlDoc.createElement("PageContents");
-        root.setAttribute("xmlns", that.XMLNS);
+        var root = createElt(xmlDoc, that.XMLNS, "PageContents");
+        
+        // LATER: Fix NS1, NS2... namespaces in IE11-
         root.setAttribute("xmlns:r", that.XMLNS_R);
         root.setAttribute("xml:space", that.XML_SPACE);
         
-        var shapes = xmlDoc.createElement("Shapes");
+        var shapes = createElt(xmlDoc, that.XMLNS, "Shapes");
         root.appendChild(shapes);
 
         var model = graph.model;
@@ -612,7 +618,7 @@ function VsdxExport(editorUi)
 			}
 		}
 		
-        var connects = xmlDoc.createElement("Connects");
+        var connects = createElt(xmlDoc, that.XMLNS, "Connects");
         root.appendChild(connects);
 
         //Second pass to add edges (connections)
@@ -624,7 +630,7 @@ function VsdxExport(editorUi)
 			{
 				if (cell.source)
 				{
-					var connect = xmlDoc.createElement("Connect");
+					var connect = createElt(xmlDoc, that.XMLNS, "Connect");
 					connect.setAttribute("FromSheet", cell.id);
 					connect.setAttribute("FromCell", "BeginX");
 					connect.setAttribute("ToSheet", cell.source.id);
@@ -633,7 +639,7 @@ function VsdxExport(editorUi)
 				
 				if (cell.target)
 				{
-					var connect = xmlDoc.createElement("Connect");
+					var connect = createElt(xmlDoc, that.XMLNS, "Connect");
 					connect.setAttribute("FromSheet", cell.id);
 					connect.setAttribute("FromCell", "EndX");
 					connect.setAttribute("ToSheet", cell.target.id);
@@ -658,27 +664,24 @@ function VsdxExport(editorUi)
 	{
 		var pagesXmlDoc = mxUtils.createXmlDocument();
 		var pagesRelsXmlDoc = mxUtils.createXmlDocument();
-		
-		var pagesRoot = pagesXmlDoc.createElement("Pages");
-		pagesRoot.setAttribute("xmlns", that.XMLNS);
+	
+		var pagesRoot = createElt(pagesXmlDoc, that.XMLNS, "Pages");
 		pagesRoot.setAttribute("xmlns:r", that.XMLNS_R);
 		pagesRoot.setAttribute("xml:space", that.XML_SPACE);
-		
-		var pagesRelsRoot = pagesRelsXmlDoc.createElement("Relationships");
-		pagesRelsRoot.setAttribute("xmlns", that.RELS_XMLNS);
+
+		var pagesRelsRoot = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationships");
 		
 		var i = 1;
 		for (var name in pages) 
 		{
 			var pageName = "page" + i + ".xml";
 			
-			var pageE = pagesXmlDoc.createElement("Page");
+			var pageE = createElt(pagesXmlDoc, that.XMLNS, "Page");
 			pageE.setAttribute("ID", i-1);
 			pageE.setAttribute("NameU", name);
 			pageE.setAttribute("Name", name);
 		
-			var pageSheet = pagesXmlDoc.createElement("PageSheet");
-		
+			var pageSheet = createElt(pagesXmlDoc, that.XMLNS, "PageSheet");
 			var modelAttr = modelsAttr[name];
 			
 			pageSheet.appendChild(createCellElemScaled("PageWidth", modelAttr['pageWidth'], pagesXmlDoc));
@@ -686,14 +689,14 @@ function VsdxExport(editorUi)
 			pageSheet.appendChild(createCellElem("PageScale", modelAttr['pageScale'], pagesXmlDoc));
 			pageSheet.appendChild(createCellElem("DrawingScale", 1, pagesXmlDoc));
 		
-			var relE = pagesXmlDoc.createElement("Rel");
+			var relE = createElt(pagesXmlDoc, "Rel");
 			relE.setAttribute("r:id", "rId" + i);
 
 			//Layer (not needed!, it works without it)
-			var layerSec = pagesXmlDoc.createElement("Section");
+			var layerSec = createElt(pagesXmlDoc, that.XMLNS, "Section");
 			layerSec.setAttribute("N", "Layer");
 
-			var layerRow = pagesXmlDoc.createElement("Row");
+			var layerRow = createElt(pagesXmlDoc, that.XMLNS, "Row");
 			layerRow.setAttribute("IX", "0");
 
 			layerSec.appendChild(layerRow)
@@ -716,7 +719,7 @@ function VsdxExport(editorUi)
 			pageE.appendChild(relE);
 			pagesRoot.appendChild(pageE);
 			
-			var relationship = pagesRelsXmlDoc.createElement("Relationship");
+			var relationship = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationship");
 			relationship.setAttribute("Id", "rId" + i);
 			relationship.setAttribute("Type", that.PAGES_TYPE);
 			relationship.setAttribute("Target", pageName);
@@ -742,11 +745,10 @@ function VsdxExport(editorUi)
 		var fId = that.VISIO_PAGES_RELS + "page" + pIndex + ".xml.rels";
 		var pageRelDoc = mxUtils.createXmlDocument();
 
-		var relationships = pageRelDoc.createElement("Relationships");
-		relationships.setAttribute("xmlns", that.RELS_XMLNS);
+		var relationships = createElt(pageRelDoc, that.RELS_XMLNS, "Relationships");
 
 		//Add master relationship (rId1)
-        var relationship = pageRelDoc.createElement("Relationship");
+		var relationship = createElt(pageRelDoc, that.RELS_XMLNS, "Relationship");
         relationship.setAttribute("Type", "http://schemas.microsoft.com/visio/2010/relationships/master");
         relationship.setAttribute("Id", "rId1");
         relationship.setAttribute("Target", "../masters/master1.xml");
@@ -759,7 +761,7 @@ function VsdxExport(editorUi)
 		{
     		for (var i = 0; i < imgs.length; i++)
 			{
-    	        var relationship = pageRelDoc.createElement("Relationship");
+    			var relationship = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationship");
     	        relationship.setAttribute("Type", that.XMLNS_R + "/image");
     	        relationship.setAttribute("Id", "rId" + (i+2));
     	        relationship.setAttribute("Target", "../media/" + imgs[i]);
@@ -790,12 +792,18 @@ function VsdxExport(editorUi)
 			
 			if (editorUi.pages != null) 
 			{
+				var selectedCells = editorUi.editor.graph.getSelectionCells();
 				var currentPage = editorUi.currentPage;
 
 				for (var i=0; i < editorUi.pages.length; i++)
 				{
 					var page = editorUi.pages[i];
-					editorUi.selectPage(page);
+					
+					if (editorUi.currentPage != page)
+					{
+						editorUi.selectPage(page);
+					}
+					
 					var diagramName = page.getName();
 					var graph = editorUi.editor.graph;
 					var modelAttrib = getGraphAttributes(graph);
@@ -803,7 +811,13 @@ function VsdxExport(editorUi)
 					addImagesRels(zip, i+1);
 					modelsAttr[diagramName] = modelAttrib;
 				}
-				editorUi.selectPage(currentPage);
+				
+				if (currentPage != editorUi.currentPage)
+				{
+					editorUi.selectPage(currentPage);
+				}
+				
+				editorUi.editor.graph.setSelectionCells(selectedCells);
 			}
 			else
 			{

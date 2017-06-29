@@ -1443,24 +1443,9 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml sequence invoke call delegation callback activation', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 60), 'html=1;points=[];perimeter=orthogonalPerimeter;');
-	    	cell.vertex = true;
-	    	
-			var edge1 = new mxCell('callback', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;entryX=1;entryY=0;');
-			edge1.geometry.setTerminalPoint(new mxPoint(70, 0), true);
-			edge1.geometry.relative = true;
-			edge1.edge = true;
-
-			cell.insertEdge(edge1, false);
-			
-			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=1;exitY=0.95;');
-			edge2.geometry.setTerminalPoint(new mxPoint(70, 57), false);
-			edge2.geometry.relative = true;
-			edge2.edge = true;
-			
-			cell.insertEdge(edge2, true);
-			
-			return sb.createVertexTemplateFromCells([cell, edge1, edge2], 10, 60, 'Callback');
+			// TODO: Check if more entries should be converted to compressed XML
+			return sb.createVertexTemplateFromData('xZRNT8MwDIZ/Ta6oaymD47rBTkiTuMAxW6wmIm0q19s6fj1OE3V0Y2iCA4dK8euP2I+riGxedUuUjX52CqzIHkU2R+conKpuDtaKNDFKZAuRpgl/In264J303qSRCDVdk5CGhJ20WwhKEFo62ChoqritxURkReNMTa2X80LkC68AmgoIkEWHpF3pamlXR7WIFwASdBeb7KXY4RIc5+KBQ/ZGkY4RYY5Egyl1zLqLmmyDXQ6Zx4n5EIf+HkB2BmAjrV3LzftPIPw4hgNn1pQ1a2tH5Cp2QK1miG7vNeu4iJe4pdeY2BtvbCQDGlAljMCQxBJotJ8rWCFYSWY3LvUdmZi68rvkkLiU6QnL1m1xAzHoBOdw61WEb88II9AW67/ydQ2wq1Cy1aAGvOrFfPh6997qDA3g+dxzv3nIL6MPU/8T+kMw8+m4QPgdfrEJNo8PSQj/+s58Ag==',
+				10, 60, 'Callback');
 		}),
 		this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;', 10, 80, '', 'Activation', null, null, 'uml sequence activation'),
 	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
@@ -3159,8 +3144,26 @@ Sidebar.prototype.createVertexTemplate = function(style, width, height, value, t
 /**
  * Creates a drop handler for inserting the given cells.
  */
+Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel, showTitle, allowCellsInserted)
+{
+	var doc = mxUtils.parseXml(this.graph.decompress(data));
+	var codec = new mxCodec(doc);
+
+	var model = new mxGraphModel();
+	codec.decode(doc.documentElement, model);
+	
+	var cells = this.graph.cloneCells(model.root.getChildAt(0).children);
+
+	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted);
+};
+
+/**
+ * Creates a drop handler for inserting the given cells.
+ */
 Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted)
 {
+	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
+	//console.trace('xml', this.graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted);
 };
 
