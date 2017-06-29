@@ -274,7 +274,26 @@
     		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
     	</concat>
 		
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp2.js">
+		<delete file="${basedir}/.tmp1.js"/>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp1.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="LocalLibrary.js" />
+				<file name="StorageFile.js" />
+				<file name="StorageLibrary.js" />
+				<file name="UrlLibrary.js" />
+				<file name="Dialogs.js" />
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="Settings.js" />
+			</sources>
+				
+			<sources dir="${basedir}">
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+
 			<sources dir="${war.dir}/js/diagramly/util">
 				<file name="mxAsyncCanvas.js" />
 				<file name="mxJsCanvas.js" />
@@ -299,6 +318,12 @@
 				<file name="GitHubClient.js" />
 				<file name="ChatWindow.js" />
 			</sources>
+			
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="App.js" />
+				<file name="Menus.js" />
+				<file name="Pages.js" />
+			</sources>
 		</jscomp>
 
 		<concat destfile="${war.dir}/js/app.min.js" fixlastline="yes" append="no">
@@ -309,7 +334,6 @@
 			<file name="${basedir}/grapheditor.min.js" />
 			<file name="${basedir}/sidebar.min.js" />
 			<file name="${basedir}/.tmp1.js" />
-			<file name="${basedir}/.tmp2.js" />
     	</concat>
 
 		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
@@ -320,7 +344,6 @@
 		<delete file="${basedir}/sidebar.min.js"/>
 		<delete file="${basedir}/client.min.js"/>
 		<delete file="${basedir}/.tmp1.js"/>
-		<delete file="${basedir}/.tmp2.js"/>
 	</target>
 
 	<target name="all" depends="app">
