@@ -9028,6 +9028,7 @@
 		this.actions.get('editDiagram').setEnabled((urlParams['embed'] == '1'  &&
 			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
+		this.actions.get('tags').setEnabled(file != null && file.isEditable());
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
 		var state = graph.view.getState(graph.getSelectionCell());
