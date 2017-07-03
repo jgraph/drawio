@@ -761,7 +761,7 @@ function VsdxExport(editorUi)
 		{
     		for (var i = 0; i < imgs.length; i++)
 			{
-    			var relationship = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationship");
+    			var relationship = createElt(pageRelDoc, that.RELS_XMLNS, "Relationship");
     	        relationship.setAttribute("Type", that.XMLNS_R + "/image");
     	        relationship.setAttribute("Id", "rId" + (i+2));
     	        relationship.setAttribute("Target", "../media/" + imgs[i]);

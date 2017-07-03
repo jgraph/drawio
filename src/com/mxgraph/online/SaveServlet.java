@@ -2,7 +2,9 @@ package com.mxgraph.online;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -44,6 +46,48 @@ public class SaveServlet extends HttpServlet
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		handlePost(request, response);
+	}
+
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	protected static String validateFilename(String filename)
+	{
+		// Only limited characters allowed
+		try
+		{
+			filename = URLDecoder.decode(filename, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// ignore unsupported encoding
+		}
+		
+		filename = filename.replaceAll("[\\/:;*?\"<>|]", "");
+		
+		if (filename.length() == 0)
+		{
+			filename = "export.xml";
+		}
+		else if (!filename.toLowerCase().endsWith(".svg") &&
+			!filename.toLowerCase().endsWith(".html") &&
+			!filename.toLowerCase().endsWith(".xml") &&
+			!filename.toLowerCase().endsWith(".png") &&
+			!filename.toLowerCase().endsWith(".jpg") &&
+			!filename.toLowerCase().endsWith(".pdf") &&
+			!filename.toLowerCase().endsWith(".vsdx") &&
+			!filename.toLowerCase().endsWith(".txt"))
+		{
+			filename = filename + ".xml";
+		}
+		
+		filename = Utils.encodeURIComponent(filename, "UTF-8");
+		
+		return filename;
 	}
 
 	public static void handlePost(HttpServletRequest request,
@@ -90,6 +134,8 @@ public class SaveServlet extends HttpServlet
 
 					if (filename != null)
 					{
+						filename = validateFilename(filename);
+
 						response.setContentType("application/x-unknown");
 						response.setHeader("Content-Disposition",
 								"attachment; filename=\"" + filename
@@ -124,9 +170,11 @@ public class SaveServlet extends HttpServlet
 					}
 
 					response.setStatus(HttpServletResponse.SC_OK);
-					
+
 					if (filename != null)
 					{
+						filename = validateFilename(filename);
+
 						if (mime != null)
 						{
 							response.setContentType(mime);
@@ -135,7 +183,7 @@ public class SaveServlet extends HttpServlet
 						{
 							response.setContentType("application/x-unknown");
 						}
-						
+
 						response.setHeader("Content-Disposition",
 								"attachment; filename=\"" + filename
 										+ "\"; filename*=UTF-8''" + filename);
