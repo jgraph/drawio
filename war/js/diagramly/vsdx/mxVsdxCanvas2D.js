@@ -477,8 +477,12 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 		xhr.responseType = 'arraybuffer';
 		xhr.onreadystatechange = function(e) 
 		{
-		    if (this.readyState == 4 && this.status == 200) {
-		    	that.zip.file("visio/media/" + imgName, this.response);
+		    if (this.readyState == 4) 
+		    {
+		    	if (this.status == 200)
+	    		{
+			    	that.zip.file("visio/media/" + imgName, this.response);
+	    		}
 		    	that.filesLoading--;
 		    }
 		};
@@ -581,6 +585,7 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
  */
 mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation, dir)
 {
+	var that = this;
 	if (this.textEnabled && str != null)
 	{
 		if (mxUtils.isNode(str))
@@ -612,30 +617,131 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		var fontSize = this.cellState.style["fontSize"];
 		var fontFamily = this.cellState.style["fontFamily"];
 
-		var strRect = mxUtils.getSizeForString(str, fontSize, fontFamily);
+		w = w * s.scale;
+		h = h * s.scale;
 
+		var charSect = this.createElt("Section");
+		charSect.setAttribute('N', 'Character');
+		
+		var text = this.createElt("Text");
+
+		var rgb2hex = function (rgb){
+			rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+			return (rgb && rgb.length === 4) ? "#" +
+			  ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+			  ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+			  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
+		};
+		
+		var rowIndex = 0;
+		var calcW = 0, calcH = 0, newLineH = 0;
+		
+		var createTextRow = function(fontColor, fontSize, fontFamily, charSect, textEl, txt) 
+		{
+			var strRect = mxUtils.getSizeForString(txt, fontSize, fontFamily, wrap? w : null);
+			calcW = Math.max(calcW, strRect.width);
+			calcH += strRect.height + newLineH;
+			newLineH = 6;
+			
+			var charRow = that.createElt("Row");
+			charRow.setAttribute('IX', rowIndex);
+			
+			
+			if (fontColor)	charRow.appendChild(that.createCellElem("Color", fontColor));
+			
+			if (fontSize)	charRow.appendChild(that.createCellElemScaled("Size", fontSize * 0.97)); //the magic number 0.97 is needed such that text do not overflow
+			
+			if (fontFamily)	charRow.appendChild(that.createCellElem("Font", fontFamily));
+			
+			charRow.appendChild(that.createCellElem("Case", "0"));
+			charRow.appendChild(that.createCellElem("Pos", "0"));
+			charRow.appendChild(that.createCellElem("FontScale", "1"));
+			charRow.appendChild(that.createCellElem("Letterspace", "0"));
+			
+			charSect.appendChild(charRow);
+			
+			var cp = that.createElt("cp");
+			cp.setAttribute('IX', rowIndex++);
+			textEl.appendChild(cp);
+			var txtNode = that.xmlDoc.createTextNode(txt+"\n");  
+			textEl.appendChild(txtNode);
+		};
+
+		var processNodeChildren = function(ch, fontSize, fontFamily) 
+		{
+			for (var i=0; i<ch.length; i++) 
+			{
+				if (ch[i].nodeType == 3) 
+				{ //#text
+					var fontColor = that.cellState.style["fontColor"];
+					
+					createTextRow(fontColor, fontSize, fontFamily, charSect, text, ch[i].textContent);
+				} 
+				else if (ch[i].nodeType == 1) 
+				{ //element
+					var chLen = ch[i].childNodes.length;
+					if (chLen > 0 && !(chLen == 1 && ch[i].childNodes[0].nodeType == 3)) 
+					{
+						processNodeChildren(ch[i].childNodes, fontSize, fontFamily);
+					}
+					else
+					{
+						var style = window.getComputedStyle(ch[i], null);
+						
+						var fontColor = rgb2hex(style.getPropertyValue('color'));
+						
+						var fontSize = style.getPropertyValue('font-size');
+						if (fontSize) 
+						{
+							fontSize = parseFloat(fontSize);
+						}
+						
+						var fontFamily = style.getPropertyValue('font-family');
+						if (fontFamily)	
+						{
+							fontFamily = fontFamily.replace(/"/g, ''); //remove quotes
+						}
+						
+						createTextRow(fontColor, fontSize, fontFamily, charSect, text, ch[i].textContent);
+					}
+				}
+			}
+		};
+		
+		if (format == 'html' && mxClient.IS_SVG)
+    	{
+			//Get the actual HTML label node
+			var ch = this.cellState.text.node.getElementsByTagName('div')[mxClient.NO_FO? 0 : 1].childNodes;
+			
+			processNodeChildren(ch, fontSize, fontFamily);
+    	}
+		else
+		{
+			//If it is not HTML or SVG, we fall back to removing html format
+			var fontColor = this.cellState.style["fontColor"];
+
+			createTextRow(fontColor, fontSize, fontFamily, charSect, text, str);
+		}
+		
 		var wShift = 0;
 		var hShift = 0;
-		
+
 		switch(align) 
 		{
-			case "right": wShift = strRect.width/2; break;
-			//case "center": wShift = 0; break;
-			case "left": wShift = -strRect.width/2; break;
+			case "right": wShift = calcW/2; break;
+			case "center": wShift = 0; break;
+			case "left": wShift = -calcW/2; break;
 		}
 		
 		switch(valign) 
 		{
-			case "top": hShift = strRect.height/2; break;
-//			case "middle": hShift = 0; break;
-			case "bottom": hShift = -strRect.height/2; break;
+			case "top": hShift = calcH/2; break;
+			case "middle": hShift = 0; break;
+			case "bottom": hShift = -calcH/2; break;
 		}
 
-		w = w * s.scale;
-		h = h * s.scale;
-
-		h = Math.max(h, strRect.height); 
-		w = Math.max(w, strRect.width);
+		h = Math.max(h, calcH); 
+		w = Math.max(w, calcW);
 			
 		x = (x - geo.x + s.dx) * s.scale;
 		y = (geo.height - y + geo.y - s.dy) * s.scale;
@@ -650,38 +756,11 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 
 		if (rotation != 0)
 			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
-		//TODO Currently, we support a single text block formatting. Later, HTML label should be analysed and split into parts
-		var charSect = this.createElt("Section");
-		charSect.setAttribute('N', 'Character');
-		var charRow = this.createElt("Row");
-		charRow.setAttribute('IX', 0);
+
 		
-		var fontColor = this.cellState.style["fontColor"];
-		if (fontColor)	charRow.appendChild(this.createCellElem("Color", fontColor));
 		
-		if (fontSize)	charRow.appendChild(this.createCellElemScaled("Size", fontSize * 0.97)); //the magic number 0.97 is needed such that text do not overflow
-		
-		if (fontFamily)	charRow.appendChild(this.createCellElem("Font", fontFamily));
-		
-		charSect.appendChild(charRow);
 		this.shape.appendChild(charSect);
-		
-		var text = this.createElt("Text");
-		var cp = this.createElt("cp");
-		cp.setAttribute('IX', 0);
-		text.appendChild(cp);
-		text.textContent = str;
 		this.shape.appendChild(text);
-		
-//		elem.setAttribute('wrap', (wrap) ? '1' : '0');
-//		
-//		if (format == null)
-//		{
-//			format = '';
-//		}
-//		
-//		elem.setAttribute('format', format);
-//		
 //		if (overflow != null)
 //		{
 //			elem.setAttribute('overflow', overflow);
