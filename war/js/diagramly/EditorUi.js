@@ -7004,12 +7004,15 @@
 		
 				mxEvent.addListener(elts[i], 'dragover', mxUtils.bind(this, function(evt)
 				{
-					// IE 10 does not implement pointer-events so it can't have a drop highlight
-					if (dropElt == null && (!mxClient.IS_IE || (document.documentMode > 10 && document.documentMode < 12)))
+					if (this.editor.graph.isEnabled())
 					{
-						dropElt = this.highlightElement();
+						// IE 10 does not implement pointer-events so it can't have a drop highlight
+						if (dropElt == null && (!mxClient.IS_IE || (document.documentMode > 10 && document.documentMode < 12)))
+						{
+							dropElt = this.highlightElement();
+						}
 					}
-					
+
 					evt.stopPropagation();
 					evt.preventDefault();
 				}));
@@ -7022,113 +7025,116 @@
 				    	dropElt = null;
 				    }
 					
-					if (evt.dataTransfer.files.length > 0)
+					if (this.editor.graph.isEnabled())
 					{
-						this.hideDialog();
-						
-						// Never open files in embed mode
-						if (urlParams['embed'] == '1')
+						if (evt.dataTransfer.files.length > 0)
 						{
-							this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, null, null,
-								null, null, !mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt));
-						}
-						else
-						{
-							this.openFiles(evt.dataTransfer.files);
-						}
-					}
-					else
-					{
-						// Handles open special files via text drag and drop
-						var data = this.extractGraphModelFromEvent(evt);
-						
-						// Tries additional and async parsing of text content such as HTML, Gliffy data
-						if (data == null)
-						{
-							var provider = (evt.dataTransfer != null) ? evt.dataTransfer : evt.clipboardData;
-						
-							if (provider != null)
+							this.hideDialog();
+							
+							// Never open files in embed mode
+							if (urlParams['embed'] == '1')
 							{
-								if (document.documentMode == 10 || document.documentMode == 11)
-								{
-									data = provider.getData('Text');
-								}
-								else
-								{
-							    	var data = null;
-							    	
-							    	if (mxUtils.indexOf(provider.types, 'text/uri-list') >= 0)
-							    	{
-							    		var data = evt.dataTransfer.getData('text/uri-list');
-							    	}
-							    	else
-							    	{
-							    		data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ? provider.getData('text/html') : null;
-							    	}
-									
-									if (data != null && data.length > 0)
-									{
-										var div = document.createElement('div');
-							    		div.innerHTML = data;
-	
-							    		// Extracts single image
-							    		var imgs = div.getElementsByTagName('img');
-							    		
-							    		if (imgs.length > 0)
-							    		{
-							    			data = imgs[0].getAttribute('src');
-							    		}
-									}
-									else if (mxUtils.indexOf(provider.types, 'text/plain') >= 0)
-									{
-										data = provider.getData('text/plain');
-									}
-								}
-								
-								if (data != null)
-								{
-									// Checks for embedded XML in PNG
-									if (data.substring(0, 22) == 'data:image/png;base64,')
-									{
-										var xml = this.extractGraphModelFromPng(data);
-										
-										if (xml != null && xml.length > 0)
-										{
-											this.openLocalFile(xml, null, true);
-										}
-									}
-									else if (!this.isOffline() && this.isRemoteFileFormat(data))
-									{
-							    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
-										{
-							    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
-							    			{
-							    				this.openLocalFile(req.getText(), null, true);
-							    			}
-										}));
-									}
-									else if (/^https?:\/\//.test(data))
-									{
-										if (this.getCurrentFile() == null)
-										{
-											window.location.hash = '#U' + encodeURIComponent(data);
-										}
-										else
-										{
-											window.openWindow(((mxClient.IS_CHROMEAPP) ?
-												'https://www.draw.io/' : 'https://' + location.host + '/') +
-												window.location.search + '#U' + encodeURIComponent(data));
-										}
-									}
-								}
+								this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, null, null,
+									null, null, !mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt));
+							}
+							else
+							{
+								this.openFiles(evt.dataTransfer.files);
 							}
 						}
 						else
 						{
-							this.openLocalFile(data, null, true);
+							// Handles open special files via text drag and drop
+							var data = this.extractGraphModelFromEvent(evt);
+							
+							// Tries additional and async parsing of text content such as HTML, Gliffy data
+							if (data == null)
+							{
+								var provider = (evt.dataTransfer != null) ? evt.dataTransfer : evt.clipboardData;
+							
+								if (provider != null)
+								{
+									if (document.documentMode == 10 || document.documentMode == 11)
+									{
+										data = provider.getData('Text');
+									}
+									else
+									{
+								    	var data = null;
+								    	
+								    	if (mxUtils.indexOf(provider.types, 'text/uri-list') >= 0)
+								    	{
+								    		var data = evt.dataTransfer.getData('text/uri-list');
+								    	}
+								    	else
+								    	{
+								    		data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ? provider.getData('text/html') : null;
+								    	}
+										
+										if (data != null && data.length > 0)
+										{
+											var div = document.createElement('div');
+								    		div.innerHTML = data;
+		
+								    		// Extracts single image
+								    		var imgs = div.getElementsByTagName('img');
+								    		
+								    		if (imgs.length > 0)
+								    		{
+								    			data = imgs[0].getAttribute('src');
+								    		}
+										}
+										else if (mxUtils.indexOf(provider.types, 'text/plain') >= 0)
+										{
+											data = provider.getData('text/plain');
+										}
+									}
+									
+									if (data != null)
+									{
+										// Checks for embedded XML in PNG
+										if (data.substring(0, 22) == 'data:image/png;base64,')
+										{
+											var xml = this.extractGraphModelFromPng(data);
+											
+											if (xml != null && xml.length > 0)
+											{
+												this.openLocalFile(xml, null, true);
+											}
+										}
+										else if (!this.isOffline() && this.isRemoteFileFormat(data))
+										{
+								    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
+											{
+								    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
+								    			{
+								    				this.openLocalFile(req.getText(), null, true);
+								    			}
+											}));
+										}
+										else if (/^https?:\/\//.test(data))
+										{
+											if (this.getCurrentFile() == null)
+											{
+												window.location.hash = '#U' + encodeURIComponent(data);
+											}
+											else
+											{
+												window.openWindow(((mxClient.IS_CHROMEAPP) ?
+													'https://www.draw.io/' : 'https://' + location.host + '/') +
+													window.location.search + '#U' + encodeURIComponent(data));
+											}
+										}
+									}
+								}
+							}
+							else
+							{
+								this.openLocalFile(data, null, true);
+							}
 						}
 					}
-					
+
 					evt.stopPropagation();
 					evt.preventDefault();
 				}));

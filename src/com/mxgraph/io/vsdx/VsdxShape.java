@@ -705,7 +705,8 @@ public class VsdxShape extends Shape
 		double w = getScreenNumericalValue(this.getShapeNode(mxVsdxConstants.WIDTH), 0);
 		double h = getScreenNumericalValue(this.getShapeNode(mxVsdxConstants.HEIGHT), 0);
 
-		return new mxPoint(w, h);
+        //some shapes has zero height/width while the other dimension is non-zero. Setting it to 1 fixed it.
+        return new mxPoint(w == 0 && h > 0? 1 : w, h == 0 && w > 0? 1 : h);
 	}
 
 	/**

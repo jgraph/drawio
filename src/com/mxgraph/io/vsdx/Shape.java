@@ -387,7 +387,8 @@ public class Shape extends Style
 	 */
 	public double getWidth()
 	{
-		return this.width;
+		//some shapes has zero width while the height is non-zero. Setting width to 1 fixed it.
+		return this.width == 0 && this.height > 0 ? 1 : this.width;
 	}
 
 	/**
@@ -396,7 +397,8 @@ public class Shape extends Style
 	 */
 	public double getHeight()
 	{
-		return this.height;
+		//some shapes has zero height while the width is non-zero. Setting height to 1 fixed it.
+		return this.height == 0 && this.width > 0 ? 1 : this.height;
 	}
 	
 	/**

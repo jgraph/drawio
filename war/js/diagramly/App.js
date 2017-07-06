@@ -841,8 +841,8 @@ App.prototype.init = function()
 						// Changes the footer ads for Google Accounts
 						if (this.updateAd != null)
 						{
-							this.adsHtml = ['<a title="Quick start video" href="https://youtu.be/Z0D96ZikMkc" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>',
+							this.adsHtml = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
+											'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:14px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
 											'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
@@ -975,8 +975,8 @@ App.prototype.init = function()
 	
 	if (td != null)
 	{
-		this.adsHtml = ['<a title="Quick start video" href="https://youtu.be/Z0D96ZikMkc" target="_blank">' +
-					'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Quick start video</a>'];
+		this.adsHtml = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
+			'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:14px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>'];
 		this.adsHtml.push(td.innerHTML);
 		
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
