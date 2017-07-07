@@ -8,7 +8,7 @@
  *
  * Constructs a new abstract canvas.
  */
-function mxVsdxCanvas2D(zip)
+function mxVsdxCanvas2D()
 {
 	mxAbstractCanvas2D.call(this);
 };
@@ -35,6 +35,16 @@ mxVsdxCanvas2D.prototype.init = function (zip)
 {
 	this.filesLoading = 0;
 	this.zip = zip;
+};
+
+/**
+ * Function: onFilesLoaded
+ *  
+ * Called after all pending files have finished loading.
+ */
+mxVsdxCanvas2D.prototype.onFilesLoaded = function ()
+{
+	// hook for subclassers
 };
 
 /**
@@ -483,7 +493,13 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 	    		{
 			    	that.zip.file("visio/media/" + imgName, this.response);
 	    		}
+		    	
 		    	that.filesLoading--;
+		    	
+		    	if (that.filesLoading == 0)
+		    	{
+		    		that.onFilesLoaded();
+		    	}
 		    }
 		};
 		xhr.send();
