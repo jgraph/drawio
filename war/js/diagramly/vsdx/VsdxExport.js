@@ -781,77 +781,84 @@ function VsdxExport(editorUi)
 	{
 		try 
 		{
-			var zip = new JSZip();
-		    
-			vsdxCanvas.init(zip);
-			
-			pages = {};
-			modelsAttr = {};
-			
-			var pagesCount = editorUi.pages != null? editorUi.pages.length : 1;
-			
-			if (editorUi.pages != null) 
+			if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
 			{
-				var selectedCells = editorUi.editor.graph.getSelectionCells();
-				var currentPage = editorUi.currentPage;
-
-				for (var i=0; i < editorUi.pages.length; i++)
+				var zip = new JSZip();
+			    
+				vsdxCanvas.init(zip);
+				
+				pages = {};
+				modelsAttr = {};
+				
+				var pagesCount = editorUi.pages != null? editorUi.pages.length : 1;
+				
+				if (editorUi.pages != null) 
 				{
-					var page = editorUi.pages[i];
-					
-					if (editorUi.currentPage != page)
+					var selectedCells = editorUi.editor.graph.getSelectionCells();
+					var currentPage = editorUi.currentPage;
+	
+					for (var i=0; i < editorUi.pages.length; i++)
 					{
-						editorUi.selectPage(page);
+						var page = editorUi.pages[i];
+						
+						if (editorUi.currentPage != page)
+						{
+							editorUi.selectPage(page);
+						}
+						
+						var diagramName = page.getName();
+						var graph = editorUi.editor.graph;
+						var modelAttrib = getGraphAttributes(graph);
+						pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
+						addImagesRels(zip, i+1);
+						modelsAttr[diagramName] = modelAttrib;
 					}
 					
-					var diagramName = page.getName();
+					if (currentPage != editorUi.currentPage)
+					{
+						editorUi.selectPage(currentPage);
+					}
+					
+					editorUi.editor.graph.setSelectionCells(selectedCells);
+				}
+				else
+				{
 					var graph = editorUi.editor.graph;
 					var modelAttrib = getGraphAttributes(graph);
+					var diagramName = "Page1";
 					pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
-					addImagesRels(zip, i+1);
+					addImagesRels(zip, 1);
 					modelsAttr[diagramName] = modelAttrib;
 				}
 				
-				if (currentPage != editorUi.currentPage)
-				{
-					editorUi.selectPage(currentPage);
-				}
+				createVsdxSkeleton(zip, pagesCount);
 				
-				editorUi.editor.graph.setSelectionCells(selectedCells);
-			}
-			else
-			{
-				var graph = editorUi.editor.graph;
-				var modelAttrib = getGraphAttributes(graph);
-				var diagramName = "Page1";
-				pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
-				addImagesRels(zip, 1);
-				modelsAttr[diagramName] = modelAttrib;
-			}
-			
-			createVsdxSkeleton(zip, pagesCount);
-			
-			addPagesXML(zip, pages, modelsAttr);
-			
-			//wait until all media files are loaded
-			var createZipFile = function() 
-			{
-				if (vsdxCanvas.filesLoading > 0) 
-				{
-					setTimeout(createZipFile, vsdxCanvas.filesLoading * 200);
-				}
-				else 
+				addPagesXML(zip, pages, modelsAttr);
+
+				var createZipFile = function() 
 				{
 					zip.generateAsync({type:"base64"}).then(
 						function(content) 
 						{
-						    var basename = editorUi.getBaseFilename();
-						    editorUi.saveData(basename+".vsdx", 'vsdx', content, 'application/vnd.visio2013', true);
+							editorUi.spinner.stop();
+							var basename = editorUi.getBaseFilename();
+						    editorUi.saveData(basename + ".vsdx", 'vsdx', content,
+						    	'application/vnd.visio2013', true);
 						}
 					);
+				};
+				
+				if (vsdxCanvas.filesLoading > 0)
+				{
+					// wait until all media files are loaded
+					vsdxCanvas.onFilesLoaded = createZipFile;
 				}
-			};
-			createZipFile();
+				else
+				{
+					createZipFile();
+				}
+			}
+			
 			return true;
 		}
 		catch(e) 
