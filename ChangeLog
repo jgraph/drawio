@@ -1,3 +1,8 @@
+10-JUL-2017: 6.8.13
+
+- Adds Alt+Click to select cells behind cells
+- Uses mxGraph 3.7.5 beta 2
+
 07-JUL-2017: 6.8.12
 
 - Updated translations
