@@ -1207,6 +1207,14 @@ Graph.prototype.isReplacePlaceholders = function(cell)
 };
 
 /**
+ * Adds Alt+click to select cells behind cells.
+ */
+Graph.prototype.isTransparentClickEvent = function(evt)
+{
+	return mxEvent.isAltDown(evt);
+};
+
+/**
  * Adds ctrl+shift+connect to disable connections.
  */
 Graph.prototype.isIgnoreTerminalEvent = function(evt)

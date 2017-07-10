@@ -630,9 +630,6 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		var s = this.state;
 		var geo = this.xmGeo;
 
-		var fontSize = this.cellState.style["fontSize"];
-		var fontFamily = this.cellState.style["fontFamily"];
-
 		w = w * s.scale;
 		h = h * s.scale;
 
@@ -650,25 +647,61 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		};
 		
 		var rowIndex = 0;
-		var calcW = 0, calcH = 0, newLineH = 0;
+		var calcW = 0, calcH = 0, lastW = 0, lastH = 0, lineH = 0;
 		
-		var createTextRow = function(fontColor, fontSize, fontFamily, charSect, textEl, txt) 
+		var createTextRow = function(styleMap, charSect, textEl, txt) 
 		{
-			var strRect = mxUtils.getSizeForString(txt, fontSize, fontFamily, wrap? w : null);
-			calcW = Math.max(calcW, strRect.width);
-			calcH += strRect.height + newLineH;
-			newLineH = 6;
+			var fontSize = styleMap['fontSize'];
+			var fontFamily = styleMap['fontFamily'];
+			
+			var strRect = mxUtils.getSizeForString(txt, fontSize, fontFamily);
+			var wrapped = false;
+			
+			if (wrap && strRect.width > w) 
+			{
+				strRect = mxUtils.getSizeForString(txt, fontSize, fontFamily, w);
+				wrapped = true;
+			}
+
+			if (styleMap['blockElem'])
+			{
+				lastW += strRect.width;
+				calcW = Math.min(Math.max(calcW, lastW), w);
+				lastW = 0;
+				lastH = Math.max(lastH, strRect.height);
+				calcH += lastH + lineH;
+				lineH = lastH;
+				lastH = 0;
+			}
+			else 
+			{
+				lastW += strRect.width;
+				calcW = Math.min(Math.max(calcW, lastW), w);
+				lastH = Math.max(lastH, strRect.height);
+				calcH = Math.max(calcH, lastH);
+			}
 			
 			var charRow = that.createElt("Row");
 			charRow.setAttribute('IX', rowIndex);
 			
 			
-			if (fontColor)	charRow.appendChild(that.createCellElem("Color", fontColor));
+			if (styleMap['fontColor'])	charRow.appendChild(that.createCellElem("Color", styleMap['fontColor']));
 			
 			if (fontSize)	charRow.appendChild(that.createCellElemScaled("Size", fontSize * 0.97)); //the magic number 0.97 is needed such that text do not overflow
 			
 			if (fontFamily)	charRow.appendChild(that.createCellElem("Font", fontFamily));
 			
+			//0x00 No format
+			//0x01 Specifies that the text run has a bold character property. 
+			//0x02 Specifies that the text run has an italic character property. 
+			//0x04 Specifies that the text run has an underline character property. 
+			//0x08 Specifies that the text run has a small caps character property.
+			var style = 0;
+			if (styleMap['bold']) style |= 0x11;	
+			if (styleMap['italic']) style |= 0x22;
+			if (styleMap['underline']) style |= 0x4;
+			
+			charRow.appendChild(that.createCellElem("Style", style));
 			charRow.appendChild(that.createCellElem("Case", "0"));
 			charRow.appendChild(that.createCellElem("Pos", "0"));
 			charRow.appendChild(that.createCellElem("FontScale", "1"));
@@ -679,46 +712,48 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			var cp = that.createElt("cp");
 			cp.setAttribute('IX', rowIndex++);
 			textEl.appendChild(cp);
-			var txtNode = that.xmlDoc.createTextNode(txt+"\n");  
+			var txtNode = that.xmlDoc.createTextNode(txt + (styleMap['blockElem']? "\n" : ""));  
 			textEl.appendChild(txtNode);
 		};
 
-		var processNodeChildren = function(ch, fontSize, fontFamily) 
+		var processNodeChildren = function(ch, pStyle) 
 		{
+			pStyle = pStyle || {};
 			for (var i=0; i<ch.length; i++) 
 			{
 				if (ch[i].nodeType == 3) 
 				{ //#text
-					var fontColor = that.cellState.style["fontColor"];
-					
-					createTextRow(fontColor, fontSize, fontFamily, charSect, text, ch[i].textContent);
+					var styleMap = {
+						fontColor: pStyle['fontColor'] || that.cellState.style["fontColor"],
+						fontSize: pStyle['fontSize'] || that.cellState.style["fontSize"],
+						fontFamily: pStyle['fontFamily'] || that.cellState.style["fontFamily"],
+						bold: pStyle['bold'],
+						italic: pStyle['italic'],
+						underline: pStyle['underline']
+					};
+					createTextRow(styleMap, charSect, text, ch[i].textContent);
 				} 
 				else if (ch[i].nodeType == 1) 
 				{ //element
 					var chLen = ch[i].childNodes.length;
-					if (chLen > 0 && !(chLen == 1 && ch[i].childNodes[0].nodeType == 3)) 
+					var style = window.getComputedStyle(ch[i], null);
+					var styleMap = {
+						bold: style.getPropertyValue('font-weight') == 'bold' || pStyle['bold'],
+						italic: style.getPropertyValue('font-style') == 'italic' || pStyle['italic'],
+						underline: style.getPropertyValue('text-decoration').indexOf('underline') >= 0 || pStyle['underline'],
+						fontColor: rgb2hex(style.getPropertyValue('color')),
+						fontSize: parseFloat(style.getPropertyValue('font-size')),
+						fontFamily: style.getPropertyValue('font-family').replace(/"/g, ''), //remove quotes
+						blockElem: style.getPropertyValue('display') == 'block'
+					};
+					if (chLen > 0 /*&& !(chLen == 1 && ch[i].childNodes[0].nodeType == 3)*/) 
 					{
-						processNodeChildren(ch[i].childNodes, fontSize, fontFamily);
+						createTextRow(styleMap, charSect, text, ""); //to handle block elements if any
+						processNodeChildren(ch[i].childNodes, styleMap);
 					}
 					else
 					{
-						var style = window.getComputedStyle(ch[i], null);
-						
-						var fontColor = rgb2hex(style.getPropertyValue('color'));
-						
-						var fontSize = style.getPropertyValue('font-size');
-						if (fontSize) 
-						{
-							fontSize = parseFloat(fontSize);
-						}
-						
-						var fontFamily = style.getPropertyValue('font-family');
-						if (fontFamily)	
-						{
-							fontFamily = fontFamily.replace(/"/g, ''); //remove quotes
-						}
-						
-						createTextRow(fontColor, fontSize, fontFamily, charSect, text, ch[i].textContent);
+						createTextRow(styleMap, charSect, text, ch[i].textContent);
 					}
 				}
 			}
@@ -729,14 +764,17 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			//Get the actual HTML label node
 			var ch = this.cellState.text.node.getElementsByTagName('div')[mxClient.NO_FO? 0 : 1].childNodes;
 			
-			processNodeChildren(ch, fontSize, fontFamily);
+			processNodeChildren(ch, {});
     	}
 		else
 		{
 			//If it is not HTML or SVG, we fall back to removing html format
-			var fontColor = this.cellState.style["fontColor"];
-
-			createTextRow(fontColor, fontSize, fontFamily, charSect, text, str);
+			var styleMap = {
+				fontColor: that.cellState.style["fontColor"],
+				fontSize: that.cellState.style["fontSize"],
+				fontFamily: that.cellState.style["fontFamily"]
+			};
+			createTextRow(styleMap, charSect, text, str);
 		}
 		
 		var wShift = 0;
