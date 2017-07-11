@@ -6,6 +6,9 @@ function VsdxExport(editorUi)
 	var that = this;
 	
 	var vsdxCanvas = new mxVsdxCanvas2D();
+	
+	var idsMap = {};
+	var idsCounter = 1;
 	/**
 	 * Fill the required files in vsdx format which are constants in our exporter
 	 * @param zip JSZip of vsdx file
@@ -68,6 +71,18 @@ function VsdxExport(editorUi)
 		return (doc.createElementNS != null) ? doc.createElementNS(ns, name) : doc.createElement(name);
 	};
 
+	function getCellVsdxId(cellId)
+	{
+		var vsdxId = idsMap[cellId];
+		
+		if (vsdxId == null)
+		{
+			vsdxId = idsCounter++;
+			idsMap[cellId] = vsdxId;
+		}
+		return vsdxId;
+	};
+	
 	function getGraphAttributes(graph) 
 	{
 		var attr = {};
@@ -378,9 +393,10 @@ function VsdxExport(editorUi)
 		var state = graph.view.getState(cell);
 		
 		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
-		shape.setAttribute("ID", cell.id);
-		shape.setAttribute("NameU", "Dynamic connector." + cell.id);
-		shape.setAttribute("Name", "Dynamic connector." + cell.id);
+		var vsdxId = getCellVsdxId(cell.id);
+		shape.setAttribute("ID", vsdxId);
+		shape.setAttribute("NameU", "Dynamic connector." + vsdxId);
+		shape.setAttribute("Name", "Dynamic connector." + vsdxId);
 		shape.setAttribute("Type", "Shape");
 		shape.setAttribute("Master", "4"); //Dynamic Connector Master
 			
@@ -420,8 +436,8 @@ function VsdxExport(editorUi)
 		shape.appendChild(createCellElemScaled("EndY", parentHeight - bounds.y + pe.y, xmlDoc, "_WALKGLUE(EndTrigger,BegTrigger,WalkPreference)"));
 
 		//Formula is used to make the edge dynamic (specify source id and target id)
-		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc, cell.source? "_XFTRIGGER(Sheet."+ cell.source.id +"!EventXFMod)" : null));
-		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc, cell.target? "_XFTRIGGER(Sheet."+ cell.target.id +"!EventXFMod)" : null));
+		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc, cell.source? "_XFTRIGGER(Sheet."+ getCellVsdxId(cell.source.id) +"!EventXFMod)" : null));
+		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc, cell.target? "_XFTRIGGER(Sheet."+ getCellVsdxId(cell.target.id) +"!EventXFMod)" : null));
 		shape.appendChild(createCellElem("ConFixedCode", "6", xmlDoc));
 		shape.appendChild(createCellElem("LayerMember", "0", xmlDoc));
 
@@ -485,10 +501,12 @@ function VsdxExport(editorUi)
 				geo.relative = 0;
 			}
 			
+			var vsdxId = getCellVsdxId(cell.id);
+			
 			if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group 
 			{
 				//Create group shape as an empty shape with no geo
-				var shape = createShape(cell.id+"10000", geo, xmlDoc, parentHeight);
+				var shape = createShape(vsdxId + "10000", geo, xmlDoc, parentHeight);
 				shape.setAttribute("Type", "Group");
 				
 				//Create group shape
@@ -530,7 +548,7 @@ function VsdxExport(editorUi)
 			else if (cell.vertex)
 			{
 	
-				var shape = createShape(cell.id, geo, xmlDoc, parentHeight);
+				var shape = createShape(vsdxId, geo, xmlDoc, parentHeight);
 				
 				var state = graph.view.getState(cell);
 
@@ -631,18 +649,18 @@ function VsdxExport(editorUi)
 				if (cell.source)
 				{
 					var connect = createElt(xmlDoc, that.XMLNS, "Connect");
-					connect.setAttribute("FromSheet", cell.id);
+					connect.setAttribute("FromSheet", getCellVsdxId(cell.id));
 					connect.setAttribute("FromCell", "BeginX");
-					connect.setAttribute("ToSheet", cell.source.id);
+					connect.setAttribute("ToSheet", getCellVsdxId(cell.source.id));
 					connects.appendChild(connect);
 				}
 				
 				if (cell.target)
 				{
 					var connect = createElt(xmlDoc, that.XMLNS, "Connect");
-					connect.setAttribute("FromSheet", cell.id);
+					connect.setAttribute("FromSheet", getCellVsdxId(cell.id));
 					connect.setAttribute("FromCell", "EndX");
-					connect.setAttribute("ToSheet", cell.target.id);
+					connect.setAttribute("ToSheet", getCellVsdxId(cell.target.id));
 					connects.appendChild(connect);
 				}
 			}
@@ -689,7 +707,7 @@ function VsdxExport(editorUi)
 			pageSheet.appendChild(createCellElem("PageScale", modelAttr['pageScale'], pagesXmlDoc));
 			pageSheet.appendChild(createCellElem("DrawingScale", 1, pagesXmlDoc));
 		
-			var relE = createElt(pagesXmlDoc, "Rel");
+			var relE = createElt(pagesXmlDoc, that.XMLNS,"Rel");
 			relE.setAttribute("r:id", "rId" + i);
 
 			//Layer (not needed!, it works without it)
@@ -785,10 +803,13 @@ function VsdxExport(editorUi)
 			{
 				var zip = new JSZip();
 			    
+				//init class global variables
 				vsdxCanvas.init(zip);
+				idsMap = {};
+				idsCounter = 1;
 				
-				pages = {};
-				modelsAttr = {};
+				var pages = {};
+				var modelsAttr = {};
 				
 				var pagesCount = editorUi.pages != null? editorUi.pages.length : 1;
 				

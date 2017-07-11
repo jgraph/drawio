@@ -3327,6 +3327,10 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	var linkInput = document.createElement('input');
 	linkInput.setAttribute('value', initialValue);
 	linkInput.setAttribute('type', 'text');
+	linkInput.setAttribute('spellcheck', 'false');
+	linkInput.setAttribute('autocorrect', 'off');
+	linkInput.setAttribute('autocomplete', 'off');
+	linkInput.setAttribute('autocapitalize', 'off');
 	linkInput.style.marginTop = '6px';
 	var realWidth = (Graph.fileSupport) ? 420 : 340;
 	linkInput.style.width = realWidth + ((mxClient.IS_QUIRKS) ? 20 : -20) + 'px';

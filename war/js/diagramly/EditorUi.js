@@ -7004,7 +7004,7 @@
 		
 				mxEvent.addListener(elts[i], 'dragover', mxUtils.bind(this, function(evt)
 				{
-					if (this.editor.graph.isEnabled())
+					if (this.editor.graph.isEnabled() || urlParams['embed'] != '1')
 					{
 						// IE 10 does not implement pointer-events so it can't have a drop highlight
 						if (dropElt == null && (!mxClient.IS_IE || (document.documentMode > 10 && document.documentMode < 12)))
@@ -7025,7 +7025,7 @@
 				    	dropElt = null;
 				    }
 					
-					if (this.editor.graph.isEnabled())
+					if (this.editor.graph.isEnabled() || urlParams['embed'] != '1')
 					{
 						if (evt.dataTransfer.files.length > 0)
 						{

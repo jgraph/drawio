@@ -635,7 +635,10 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 
 		var charSect = this.createElt("Section");
 		charSect.setAttribute('N', 'Character');
-		
+
+		var pSect = this.createElt("Section");
+		pSect.setAttribute('N', 'Paragraph');
+
 		var text = this.createElt("Text");
 
 		var rgb2hex = function (rgb){
@@ -646,10 +649,10 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
 		};
 		
-		var rowIndex = 0;
+		var rowIndex = 0, pIndex = 0;
 		var calcW = 0, calcH = 0, lastW = 0, lastH = 0, lineH = 0;
 		
-		var createTextRow = function(styleMap, charSect, textEl, txt) 
+		var createTextRow = function(styleMap, charSect, pSect, textEl, txt) 
 		{
 			var fontSize = styleMap['fontSize'];
 			var fontFamily = styleMap['fontFamily'];
@@ -709,6 +712,25 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			
 			charSect.appendChild(charRow);
 			
+//			var pRow = that.createElt("Row");
+//			pRow.setAttribute('IX', pIndex);
+//			
+//			var align = 1; //center is default
+//			
+//			switch(styleMap['align'])
+//			{
+//				case 'left': align = 0; break;
+//				case 'center': align = 1; break;
+//				case 'right': align = 2; break;
+//			}
+			
+//			pRow.appendChild(that.createCellElem("HorzAlign", align));
+//			pRow.appendChild(that.createCellElem("SpLine", "-1.2"));
+//			pSect.appendChild(pRow);
+			
+//			var pp = that.createElt("pp");
+//			pp.setAttribute('IX', pIndex++);
+//			textEl.appendChild(pp);
 			var cp = that.createElt("cp");
 			cp.setAttribute('IX', rowIndex++);
 			textEl.appendChild(cp);
@@ -727,33 +749,51 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						fontColor: pStyle['fontColor'] || that.cellState.style["fontColor"],
 						fontSize: pStyle['fontSize'] || that.cellState.style["fontSize"],
 						fontFamily: pStyle['fontFamily'] || that.cellState.style["fontFamily"],
+						align: pStyle['align'] || that.cellState.style["align"],
 						bold: pStyle['bold'],
 						italic: pStyle['italic'],
 						underline: pStyle['underline']
 					};
-					createTextRow(styleMap, charSect, text, ch[i].textContent);
+					createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
 				} 
 				else if (ch[i].nodeType == 1) 
 				{ //element
+					var nodeName = ch[i].nodeName.toUpperCase();
 					var chLen = ch[i].childNodes.length;
 					var style = window.getComputedStyle(ch[i], null);
 					var styleMap = {
 						bold: style.getPropertyValue('font-weight') == 'bold' || pStyle['bold'],
 						italic: style.getPropertyValue('font-style') == 'italic' || pStyle['italic'],
 						underline: style.getPropertyValue('text-decoration').indexOf('underline') >= 0 || pStyle['underline'],
+						align: style.getPropertyValue('text-align'),
 						fontColor: rgb2hex(style.getPropertyValue('color')),
 						fontSize: parseFloat(style.getPropertyValue('font-size')),
 						fontFamily: style.getPropertyValue('font-family').replace(/"/g, ''), //remove quotes
-						blockElem: style.getPropertyValue('display') == 'block'
+						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI"
 					};
-					if (chLen > 0 /*&& !(chLen == 1 && ch[i].childNodes[0].nodeType == 3)*/) 
+					
+//					if (nodeName == "OL" || nodeName == "UL")
+//					{
+//						var pRow = that.createElt("Row");
+//						pRow.setAttribute('IX', pIndex);
+//						
+//						pRow.appendChild(that.createCellElem("HorzAlign", "0"));
+//						pRow.appendChild(that.createCellElem("Bullet", "1"));
+//						pSect.appendChild(pRow);
+//						
+//						var pp = that.createElt("pp");
+//						pp.setAttribute('IX', pIndex++);
+//						text.appendChild(pp);
+//					}
+					
+					if (chLen > 0)
 					{
-						createTextRow(styleMap, charSect, text, ""); //to handle block elements if any
+						createTextRow(styleMap, charSect, pSect, text, ""); //to handle block elements if any
 						processNodeChildren(ch[i].childNodes, styleMap);
 					}
 					else
 					{
-						createTextRow(styleMap, charSect, text, ch[i].textContent);
+						createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
 					}
 				}
 			}
@@ -774,7 +814,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 				fontSize: that.cellState.style["fontSize"],
 				fontFamily: that.cellState.style["fontFamily"]
 			};
-			createTextRow(styleMap, charSect, text, str);
+			createTextRow(styleMap, charSect, pSect, text, str);
 		}
 		
 		var wShift = 0;
@@ -814,6 +854,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		
 		
 		this.shape.appendChild(charSect);
+//		this.shape.appendChild(pSect);
 		this.shape.appendChild(text);
 //		if (overflow != null)
 //		{

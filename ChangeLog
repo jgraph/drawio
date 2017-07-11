@@ -1,3 +1,8 @@
+11-JUL-2017: 6.8.14
+
+- Fixes VSDX export for non-numeric IDs
+- Fixes drag and drop to splash screen
+
 10-JUL-2017: 6.8.13
 
 - Adds Alt+Click to select cells behind cells
