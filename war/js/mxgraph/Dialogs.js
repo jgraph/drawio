@@ -582,6 +582,11 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 		nameInput.setAttribute('wrap', 'off');
 	}
 	
+	nameInput.setAttribute('spellcheck', 'false');
+	nameInput.setAttribute('autocorrect', 'off');
+	nameInput.setAttribute('autocomplete', 'off');
+	nameInput.setAttribute('autocapitalize', 'off');
+	
 	mxUtils.write(nameInput, url || '');
 	nameInput.style.resize = 'none';
 	nameInput.style.width = w + 'px';
