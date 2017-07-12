@@ -270,15 +270,6 @@ public class GliffyDiagramConverter
 		drawioDiagram.getModel().setGeometry(cell, geo);
 
 	}
-	
-	private float[] rotate(float px, float py, float angle) 
-	{
-		double angleRad = Math.toRadians(angle);
-		double x = px * Math.cos(angleRad) - py * Math.sin(angleRad); 
-		double y = px * Math.sin(angleRad) + py * Math.cos(angleRad);
-
-		return new float[] {(float)x, (float)y};
-	}
 
 	/**
 	 * Creates a map of all vertices so they can be easily accessed when looking
@@ -555,7 +546,7 @@ public class GliffyDiagramConverter
 			cell.setVertex(true);
 		}
 
-		if (!gliffyObject.isLine() && gliffyObject.rotation != 0)
+		if (!gliffyObject.isLine())
 		{
 			//if there's a rotation by default, add to it
 			if(style.lastIndexOf("rotation") != -1) 
@@ -564,12 +555,27 @@ public class GliffyDiagramConverter
 				if(m.find())
 				{
 					String rot = m.group(1);
-					Float rotation = Float.parseFloat(rot) + gliffyObject.rotation;
-					
-					style.append(m.replaceFirst("rotation=" + rotation.toString()));
+					float initialRotation = Float.parseFloat(rot);
+					Float rotation = initialRotation + gliffyObject.rotation;
+					String tmp = m.replaceFirst("rotation=" + rotation.toString());
+					style.setLength(0);
+					style.append(tmp);
+
+					//handles a specific case where draw.io triangle needs to have an initial rotation of -90 to match that of Gliffy
+					//in this case, width and height are swapped and x and y are updated
+					if(style.lastIndexOf("swapwidthandheight") != -1) 
+					{
+						geometry.setX(geometry.getX() + (geometry.getWidth() - geometry.getHeight()) / 2);
+						geometry.setY(geometry.getY() + + (geometry.getHeight() - geometry.getWidth()) / 2);
+						
+						double w = geometry.getWidth();
+						double h = geometry.getHeight();
+						geometry.setWidth(h);
+						geometry.setHeight(w);
+					}
 				}
 			}
-			else 
+			else if(gliffyObject.rotation != 0)
 			{
 				style.append("rotation=" + gliffyObject.rotation + ";");
 			}

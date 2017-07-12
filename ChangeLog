@@ -1,3 +1,9 @@
+12-JUL-2017: 6.8.15
+
+- Fixes deleted transparent labels with spaces
+- Enables resize of containers with stack layout
+- Adds links option in Confluence Cloud add-on
+
 11-JUL-2017: 6.8.14
 
 - Fixes VSDX export for non-numeric IDs

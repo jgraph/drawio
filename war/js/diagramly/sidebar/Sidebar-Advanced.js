@@ -58,7 +58,7 @@
 		 	this.addEntry('container swimlane pool horizontal', function()
 		 	{
 				var cell = new mxCell('Pool', new mxGeometry(0, 0, 480, 380),
-			    	'swimlane;html=1;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;');
+			    	'swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;horizontal=1;startSize=20;horizontalStack=0;');
 				cell.vertex = true;
 				
 				var cell1 = new mxCell('Lane 1', new mxGeometry(0, 20, 480, 120), 'swimlane;html=1;startSize=20;horizontal=0;');
@@ -78,7 +78,7 @@
 		 	this.addEntry('container swimlane pool horizontal', function()
 			{
 				var cell = new mxCell('Pool', new mxGeometry(0, 0, 480, 360),
-			    	'swimlane;html=1;childLayout=stackLayout;horizontal=0;startSize=20;horizontalStack=0;');
+			    	'swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;horizontal=0;startSize=20;horizontalStack=0;');
 				cell.vertex = true;
 				
 				var cell1 = new mxCell('Lane 1', new mxGeometry(20, 0, 460, 120), 'swimlane;html=1;startSize=20;horizontal=0;');
@@ -98,7 +98,7 @@
 		 	this.addEntry('container swimlane pool vertical', function()
 			{
 				var cell = new mxCell('Pool', new mxGeometry(0, 0, 360, 480),
-			    	'swimlane;html=1;childLayout=stackLayout;startSize=20;');
+			    	'swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;startSize=20;');
 				cell.vertex = true;
 				
 				var cell1 = new mxCell('Lane 1', new mxGeometry(0, 20, 120, 460), 'swimlane;html=1;startSize=20;');
@@ -118,7 +118,7 @@
 		 	this.addEntry('container swimlane pool vertical', function()
 			{
 				var cell = new mxCell('Pool', new mxGeometry(0, 0, 380, 480),
-			    	'swimlane;html=1;childLayout=stackLayout;startSize=20;horizontal=0;horizontalStack=1;');
+			    	'swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;startSize=20;horizontal=0;horizontalStack=1;');
 				cell.vertex = true;
 				
 				var cell1 = new mxCell('Lane 1', new mxGeometry(20, 0, 120, 480), 'swimlane;html=1;startSize=20;');
