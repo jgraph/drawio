@@ -1137,11 +1137,18 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 
 	graph.addClickHandler(this.graphConfig.highlight, mxUtils.bind(this, function(evt, href)
 	{
+		if (href == null)
+		{
+			var source = mxEvent.getSource(evt);
+		
+			if (source.nodeName.toLowerCase() == 'a')
+			{
+				href = source.getAttribute('href');
+			}
+		}
+		
 		if (ui != null)
 		{
-			var elt = mxEvent.getSource(evt)
-			href = elt.getAttribute('href');
-			
 			if (href != null && !(graph.isExternalProtocol(href) || graph.isBlankLink(href)))
 			{
 				// Hides lightbox if any links are clicked
@@ -1150,16 +1157,6 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 		}
 		else
 		{
-			if (href == null)
-			{
-				var source = mxEvent.getSource(evt);
-			
-				if (source.nodeName.toLowerCase() == 'a')
-				{
-					href = source.getAttribute('href');
-				}
-			}
-			
 			if (href != null && graph.isPageLink(href))
 			{
 				var comma = href.indexOf(',');

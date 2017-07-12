@@ -972,7 +972,7 @@ Graph.prototype.defaultThemes = {};
 /**
  * Base URL for relative links.
  */
-Graph.prototype.baseUrl = (window != window.top) ? document.referrer : document.location.toString();
+Graph.prototype.baseUrl = ((window != window.top) ? document.referrer : document.location.toString()).split('#')[0];
 
 /**
  * Installs child layout styles.
@@ -986,35 +986,50 @@ Graph.prototype.init = function(container)
 	{
 		mxCellRenderer.prototype.initializeLabel.apply(this, arguments);
 		
-		var fn = mxUtils.bind(this, function(evt)
+		// Checks tolerance for clicks on links
+		var tol = state.view.graph.tolerance;
+		var handleClick = true;
+		var first = null;
+		
+		var down = mxUtils.bind(this, function(evt)
 		{
-			var elt = mxEvent.getSource(evt)
-			
-			while (elt != null && elt != shape.node)
-			{
-				if (elt.nodeName == 'A')
-				{
-					state.view.graph.labelLinkClicked(state, elt, evt);
-					break;
-				}
-				
-				elt = elt.parentNode;
-			}
+			first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 		});
 		
-		// Workaround for no click events on touch
-		if (mxClient.IS_TOUCH)
+		var move = mxUtils.bind(this, function(evt)
 		{
-			mxEvent.addGestureListeners(shape.node, null, null, fn);
-			mxEvent.addListener(shape.node, 'click', function(evt)
+			handleClick = handleClick && first != null &&
+				Math.abs(first.x - mxEvent.getClientX(evt)) < tol &&
+				Math.abs(first.y - mxEvent.getClientY(evt)) < tol;
+		});
+		
+		var up = mxUtils.bind(this, function(evt)
+		{
+			if (handleClick)
 			{
-				mxEvent.consume(evt);
-			});
-		}
-		else
+				var elt = mxEvent.getSource(evt)
+				
+				while (elt != null && elt != shape.node)
+				{
+					if (elt.nodeName == 'A')
+					{
+						state.view.graph.labelLinkClicked(state, elt, evt);
+						break;
+					}
+					
+					elt = elt.parentNode;
+				}
+			}
+			
+			handleClick = true;
+			first = null;
+		});
+		
+		mxEvent.addGestureListeners(shape.node, down, move, up);
+		mxEvent.addListener(shape.node, 'click', function(evt)
 		{
-			mxEvent.addListener(shape.node, 'click', fn);
-		}
+			mxEvent.consume(evt);
+		});
 	};
 	
 	this.initLayoutManager();
@@ -1062,7 +1077,7 @@ Graph.prototype.initLayoutManager = function()
 		if (style['childLayout'] == 'stackLayout')
 		{
 			var stackLayout = new mxStackLayout(this.graph, true);
-			stackLayout.resizeParentMax = true;
+			stackLayout.resizeParentMax = mxUtils.getValue(style, 'resizeParentMax', '1') == '1';
 			stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
 			stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
 			stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
@@ -1262,7 +1277,7 @@ Graph.prototype.isLabelMovable = function(cell)
 /**
  * Adds event if grid size is changed.
  */
-mxGraph.prototype.setGridSize = function(value)
+Graph.prototype.setGridSize = function(value)
 {
 	this.gridSize = value;
 	this.fireEvent(new mxEventObject('gridSizeChanged'));
@@ -5996,7 +6011,7 @@ if (typeof mxVertexHandler != 'undefined')
 					var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
 					var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
 					
-					if (mxUtils.trim(value || '') == '' && stroke == mxConstants.NONE && fill == mxConstants.NONE)
+					if (value == '' && stroke == mxConstants.NONE && fill == mxConstants.NONE)
 					{
 						this.graph.removeCells([state.cell], false);
 					}
