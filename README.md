@@ -17,6 +17,24 @@ A development guide is being started on the GitHub project wiki. There is a [dra
 
 The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
 
+Building
+--------
+From project directory,
+```bash
+cd etc/build/
+ant war
+```
+This will create a war under build directory.
+
+Docker
+------
+After successful build, from the project directory run
+```bash
+docker build -t draw .
+docker run -d -p 8888:8080 draw
+```
+Now the app will be accessible at http://localhost:8888/draw/?https=0
+
 Running
 -------
 The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
