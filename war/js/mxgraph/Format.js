@@ -4397,7 +4397,10 @@ DiagramFormatPanel.prototype.addView = function(div)
 			return graph.background;
 		}, function(color)
 		{
-			ui.setBackgroundColor(color);
+			var change = new ChangePageSetup(ui, color);
+			change.ignoreImage = true;
+			
+			graph.model.execute(change);
 		}, '#ffffff',
 		{
 			install: function(apply)
@@ -4677,9 +4680,14 @@ DiagramFormatPanel.prototype.addPaperSize = function(div)
 
 	var accessor = PageSetupDialog.addPageFormatPanel(div, 'formatpanel', graph.pageFormat, function(pageFormat)
 	{
-		if (graph.pageFormat == null || graph.pageFormat.width != pageFormat.width || graph.pageFormat.height != pageFormat.height)
+		if (graph.pageFormat == null || graph.pageFormat.width != pageFormat.width ||
+			graph.pageFormat.height != pageFormat.height)
 		{
-			ui.setPageFormat(pageFormat);
+			var change = new ChangePageSetup(ui, null, null, pageFormat);
+			change.ignoreColor = true;
+			change.ignoreImage = true;
+			
+			graph.model.execute(change);
 		}
 	});
 	

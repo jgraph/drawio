@@ -957,26 +957,39 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 						{
 							var tokens = value.split('/');
 							
-							if (tokens.length > 1 && this.ui.spinner.spin(div, mxResources.get('loading')))
+							if (tokens.length > 1)
 							{
 								var tmpOrg = tokens[0];
 								var tmpRepo = tokens[1];
-								var tmpRef = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
-								
-								this.getFile(tmpOrg + '/' + tmpRepo + '/' + tmpRef, mxUtils.bind(this, function(file)
+
+								if (tokens.length < 3)
 								{
-									this.ui.spinner.stop();
-									org = file.meta.org;
-									repo = file.meta.repo;
-									ref = decodeURIComponent(file.meta.ref);
-									path = '';
+									org = tmpOrg;
+									repo = tmpRepo;
+									ref = null;
+									path = null;
 									
-									selectFile();
-								}), mxUtils.bind(this, function(err)
+									selectRef();
+								}
+								else if (this.ui.spinner.spin(div, mxResources.get('loading')))
 								{
-									this.ui.spinner.stop();
-									this.ui.handleError({message: mxResources.get('fileNotFound')});
-								}));
+									var tmpRef = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+									
+									this.getFile(tmpOrg + '/' + tmpRepo + '/' + tmpRef, mxUtils.bind(this, function(file)
+									{
+										this.ui.spinner.stop();
+										org = file.meta.org;
+										repo = file.meta.repo;
+										ref = decodeURIComponent(file.meta.ref);
+										path = '';
+										
+										selectFile();
+									}), mxUtils.bind(this, function(err)
+									{
+										this.ui.spinner.stop();
+										this.ui.handleError({message: mxResources.get('fileNotFound')});
+									}));
+								}
 							}
 							else
 							{

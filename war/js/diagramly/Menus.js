@@ -687,6 +687,41 @@
 				this.addMenuItems(menu, ['support', '-', 'about']);
 			}
 
+			if (urlParams['ruler'] == '1')
+			{
+				mxResources.parse('rulerInch=Ruler unit: Inches');
+
+				this.editorUi.actions.addAction('rulerInch', mxUtils.bind(this, function()
+				{
+					this.editorUi.vRuler.setUnit(mxRuler.prototype.INCHES);
+					this.editorUi.hRuler.setUnit(mxRuler.prototype.INCHES);
+					this.editorUi.vRuler.drawRuler(true);
+					this.editorUi.hRuler.drawRuler(true);
+				}));
+
+				mxResources.parse('rulerCM=Ruler unit: CMs');
+
+				this.editorUi.actions.addAction('rulerCM', mxUtils.bind(this, function()
+				{
+					this.editorUi.vRuler.setUnit(mxRuler.prototype.CENTIMETER);
+					this.editorUi.hRuler.setUnit(mxRuler.prototype.CENTIMETER);
+					this.editorUi.vRuler.drawRuler(true);
+					this.editorUi.hRuler.drawRuler(true);
+				}));
+
+				mxResources.parse('rulerPixel=Ruler unit: Pixels');
+
+				this.editorUi.actions.addAction('rulerPixel', mxUtils.bind(this, function()
+				{
+					this.editorUi.vRuler.setUnit(mxRuler.prototype.PIXELS);
+					this.editorUi.hRuler.setUnit(mxRuler.prototype.PIXELS);
+					this.editorUi.vRuler.drawRuler(true);
+					this.editorUi.hRuler.drawRuler(true);
+				}));
+
+				this.addMenuItems(menu, ['-', 'rulerInch', 'rulerCM', 'rulerPixel'], parent);
+			}
+			
 			if (urlParams['test'] == '1')
 			{
 				// For showing the bounding box

@@ -697,13 +697,15 @@ public class mxVsdxCodec
 		if (subLabel)
 		{
 			group = (mxCell) graph.insertVertex(parent, null, null,
-					o.getX(), o.getY(), d.getX(), d.getY(), style);
+				Math.round(o.getX() * 100) / 100, Math.round(o.getY() * 100) / 100,
+				Math.round(d.getX() * 100) / 100, Math.round(d.getY() * 100) / 100, style);
 		}
 		else
 		{
 			String textLabel = shape.getTextLabel();
 			group = (mxCell) graph.insertVertex(parent, null, textLabel,
-					o.getX(), o.getY(), d.getX(), d.getY(), style);
+				Math.round(o.getX() * 100) / 100, Math.round(o.getY() * 100) / 100,
+				Math.round(d.getX() * 100) / 100, Math.round(d.getY() * 100) / 100, style);
 		}
 
 		Iterator<Map.Entry<Integer, VsdxShape>> entries = children.entrySet()
@@ -883,14 +885,14 @@ public class mxVsdxCodec
 			if (hasSubLabel)
 			{
 				v1 = (mxCell) graph.insertVertex(parent, null, null,
-						coordinates.getX(), coordinates.getY(), dimensions.getX(),
-						dimensions.getY(), style);
+					Math.round(coordinates.getX() * 100) / 100, Math.round(coordinates.getY() * 100) / 100,
+					Math.round(dimensions.getX() * 100) / 100, Math.round(dimensions.getY() * 100) / 100, style);
 			}
 			else
 			{
 				v1 = (mxCell) graph.insertVertex(parent, null, textLabel,
-						coordinates.getX(), coordinates.getY(), dimensions.getX(),
-						dimensions.getY(), style);
+					Math.round(coordinates.getX() * 100) / 100, Math.round(coordinates.getY() * 100) / 100,
+					Math.round(dimensions.getX() * 100) / 100, Math.round(dimensions.getY() * 100) / 100, style);
 			}
 
 			vertexMap.put(new ShapePageId(pageId, shape.getId()), v1);
@@ -954,7 +956,8 @@ public class mxVsdxCodec
 		{
 			// Source is dangling
 			source = (mxCell) graph.insertVertex(parent, null, null,
-					beginXY.getX(), beginXY.getY(), 0, 0);
+				Math.round(beginXY.getX() * 100) / 100,
+				Math.round(beginXY.getY() * 100) / 100, 0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
 
@@ -967,7 +970,8 @@ public class mxVsdxCodec
 		{
 			// Target is dangling
 			target = (mxCell) graph.insertVertex(parent, null, null,
-					endXY.getX(), endXY.getY(), 0, 0);
+				Math.round(endXY.getX() * 100) / 100,
+				Math.round(endXY.getY() * 100) / 100, 0, 0);
 		}
 		//Else: Routing points will contain the exit/entry points, so no need to set the to/from constraint 
 

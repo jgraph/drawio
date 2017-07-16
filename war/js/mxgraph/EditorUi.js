@@ -2398,6 +2398,55 @@ EditorUi.prototype.setPageVisible = function(value)
 };
 
 /**
+ * Change types
+ */
+function ChangePageSetup(ui, color, image, format)
+{
+	this.ui = ui;
+	this.previousColor = color;
+	this.previousImage = image;
+	this.previousFormat = format;
+	
+	// Needed since null are valid values for color and image
+	this.ignoreColor = false;
+	this.ignoreImage = false;
+}
+
+/**
+ * Implementation of the undoable page rename.
+ */
+ChangePageSetup.prototype.execute = function()
+{
+	var graph = this.ui.editor.graph;
+	
+	if (!this.ignoreColor)
+	{
+		var tmp = graph.background;
+		this.ui.setBackgroundColor(this.previousColor);
+		this.previousColor = tmp;
+	}
+	
+	if (!this.ignoreImage)
+	{
+		var tmp = graph.backgroundImage;
+		this.ui.setBackgroundImage(this.previousImage);
+		this.previousImage = tmp;
+	}
+	
+	if (this.previousFormat != null)
+	{
+		var tmp = graph.pageFormat;
+		
+		if (this.previousFormat.width != tmp.width ||
+			this.previousFormat.height != tmp.height)
+		{
+			this.ui.setPageFormat(this.previousFormat);
+			this.previousFormat = tmp;
+		}
+	}
+};
+
+/**
  * Loads the stylesheet for this graph.
  */
 EditorUi.prototype.setBackgroundColor = function(value)
@@ -3390,8 +3439,12 @@ EditorUi.prototype.showBackgroundImageDialog = function(apply)
 {
 	apply = (apply != null) ? apply : mxUtils.bind(this, function(image)
 	{
-		this.setBackgroundImage(image);
+		var change = new ChangeGraphBackground(this, null, image);
+		change.ignoreColor = true;
+		
+		this.editor.graph.model.execute(change);
 	});
+	
 	var newValue = mxUtils.prompt(mxResources.get('backgroundImage'), '');
 	
 	if (newValue != null && newValue.length > 0)

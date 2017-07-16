@@ -1319,21 +1319,26 @@ var PageSetupDialog = function(editorUi)
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
-		editorUi.setPageFormat(accessor.get());
-		
-		if (graph.background != newBackgroundColor)
-		{
-			editorUi.setBackgroundColor(newBackgroundColor);
-		}
-		
-		if (graph.backgroundImage !== newBackgroundImage)
-		{
-			editorUi.setBackgroundImage(newBackgroundImage);
-		}
 		
 		if (graph.gridSize !== gridSizeInput.value)
 		{
 			graph.setGridSize(parseInt(gridSizeInput.value));
+		}
+
+		var change = new ChangePageSetup(editorUi, newBackgroundColor,
+			newBackgroundImage, accessor.get());
+		change.ignoreColor = graph.background == newBackgroundColor;
+		
+		var oldSrc = (graph.backgroundImage != null) ? graph.backgroundImage.src : null;
+		var newSrc = (newBackgroundImage != null) ? newBackgroundImage.src : null;
+		
+		change.ignoreImage = oldSrc === newSrc;
+
+		if (graph.pageFormat.width != change.previousFormat.width ||
+			graph.pageFormat.height != change.previousFormat.height ||
+			!change.ignoreColor || !change.ignoreImage)
+		{
+			graph.model.execute(change);
 		}
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';

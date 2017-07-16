@@ -2137,7 +2137,7 @@
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 				{
-					window.open('https://support.draw.io/questions/10420280');
+					window.open('https://desk.draw.io/support/solutions/articles/16000042367');
 					mxEvent.consume(evt);
 				}));
 				
@@ -2258,7 +2258,10 @@
 	{
 		apply = (apply != null) ? apply : mxUtils.bind(this, function(image)
 		{
-			this.setBackgroundImage(image);
+			var change = new ChangePageSetup(this, null, image);
+			change.ignoreColor = true;
+			
+			this.editor.graph.model.execute(change);
 		});
 		var dlg = new BackgroundImageDialog(this, mxUtils.bind(this, function(image)
 		{
@@ -6497,6 +6500,41 @@
 					}));
 				}
 			}));
+		}
+		
+		//Add ruler in test mode only
+		//TODO add the ruler containers correctly and make the vertical one dynamic as the side panel size can change
+		if (urlParams['ruler'] == '1' && typeof mxRuler !== 'undefined')
+		{
+			var hRulerDiv = document.createElement('div');
+			hRulerDiv.style.position = 'absolute';
+			hRulerDiv.style.top = '95px';
+			hRulerDiv.style.left = '250px';
+			hRulerDiv.style.width = '2000px';
+			hRulerDiv.style.height = '30px';
+			hRulerDiv.style.background = 'whiteSmoke';
+			document.body.appendChild(hRulerDiv);
+			
+			var vRulerDiv = document.createElement('div');
+			vRulerDiv.style.position = 'absolute';
+			vRulerDiv.style.top = '125px';
+			vRulerDiv.style.left = '220px';
+			vRulerDiv.style.width = '30px';
+			vRulerDiv.style.height = '1000px';
+			vRulerDiv.style.background = 'whiteSmoke';
+			document.body.appendChild(vRulerDiv);
+
+			var square = document.createElement('div');
+			square.style.position = 'absolute';
+			square.style.top = '95px';
+			square.style.left = '220px';
+			square.style.width = '30px';
+			square.style.height = '30px';
+			square.style.background = 'whiteSmoke';
+			document.body.appendChild(square);
+
+			this.vRuler = new mxRuler(this.editor.graph, vRulerDiv, true);
+			this.hRuler = new mxRuler(this.editor.graph, hRulerDiv, false);
 		}
 		
 		// Adds an element to edit the style in the footer in test mode
