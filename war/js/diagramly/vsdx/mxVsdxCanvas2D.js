@@ -189,18 +189,26 @@ mxVsdxCanvas2D.prototype.createCellElem = function (name, val, formula)
 	return cell;
 };
 
-mxVsdxCanvas2D.prototype.createRowRel = function(type, index, x, y, a, b, c , d) 
+mxVsdxCanvas2D.prototype.createRowScaled = function(type, index, x, y, a, b, c , d, xF, yF, aF, bF, cF, dF) 
+{
+	return this.createRowRel(type, index, x / VsdxExport.prototype.CONVERSION_FACTOR, y / VsdxExport.prototype.CONVERSION_FACTOR,
+			a / VsdxExport.prototype.CONVERSION_FACTOR, b / VsdxExport.prototype.CONVERSION_FACTOR,
+			c / VsdxExport.prototype.CONVERSION_FACTOR, d / VsdxExport.prototype.CONVERSION_FACTOR,
+			xF, yF, aF, bF, cF, dF);
+};
+
+mxVsdxCanvas2D.prototype.createRowRel = function(type, index, x, y, a, b, c , d, xF, yF, aF, bF, cF, dF) 
 {
 	var row = this.createElt("Row");
 	row.setAttribute("T", type);
 	row.setAttribute("IX", index);
-	row.appendChild(this.createCellElem("X", x));
-	row.appendChild(this.createCellElem("Y", y));
+	row.appendChild(this.createCellElem("X", x, xF));
+	row.appendChild(this.createCellElem("Y", y, yF));
 	
-	if (a != null) row.appendChild(this.createCellElem("A", a));
-	if (b != null) row.appendChild(this.createCellElem("B", b));
-	if (c != null) row.appendChild(this.createCellElem("C", c));
-	if (d != null) row.appendChild(this.createCellElem("D", d));
+	if (a != null) row.appendChild(this.createCellElem("A", a, aF));
+	if (b != null) row.appendChild(this.createCellElem("B", b, bF));
+	if (c != null) row.appendChild(this.createCellElem("C", c, cF));
+	if (d != null) row.appendChild(this.createCellElem("D", d, dF));
 	
 	return row;
 };
@@ -271,14 +279,15 @@ mxVsdxCanvas2D.prototype.ellipse = function(x, y, w, h)
 	x = (x - geo.x + s.dx) * s.scale;
 	y = gh + (-y + geo.y - s.dy) * s.scale;
 
-	var hr = h/gh;
-	var wr = w/gw;
+	var xWr = (x + w/2) / gw;
+	var yHr = (y - h/2) / gh;
+	var aWr = x / gw;
+	var bHr = (y - h/2) / gh;
+	var cWr = (x + w/2) / gw;
+	var dHr = y / gh;
 	
-	this.geoSec.appendChild(this.createRowRel("RelMoveTo", this.geoStepIndex++, x/gw, y/gh - hr * 0.5));
-	
-	var row = this.createRowRel("RelEllipticalArcTo", this.geoStepIndex++, x/gw, y/gh - hr * 0.5001, wr * 0.5 + x/gw, y/gh - hr, 0);
-	row.appendChild(this.createCellElem("D", w/h, "Width/Height*"+(wr/hr)));
-	this.geoSec.appendChild(row);
+	this.geoSec.appendChild(this.createRowScaled("Ellipse", this.geoStepIndex++, x + w/2, y - h/2, x, y - h/2, x + w/2, y
+			, "Width*" + xWr, "Height*" + yHr, "Width*" + aWr, "Height*" + bHr, "Width*" + cWr, "Height*" + dHr));
 };
 
 /**

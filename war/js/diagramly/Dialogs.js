@@ -4985,6 +4985,8 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	
 	var titleDiv = document.createElement('div');
 	titleDiv.style.marginTop = '0px';
+	titleDiv.style.whiteSpace = 'nowrap';
+	titleDiv.style.overflow = 'auto';
 	mxUtils.write(titleDiv, title);
 	div.appendChild(titleDiv);
 	
@@ -4993,7 +4995,8 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	container.style.border = '1px solid lightGray';
 	container.style.marginTop = '10px';
 	container.style.width = '640px';
-	container.style.height = '386px';
+	container.style.top = '46px';
+	container.style.bottom = '74px';
 	container.style.overflow = 'hidden';
 	
 	mxEvent.disableContextMenu(container);
@@ -5113,14 +5116,14 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 
 	var buttons = document.createElement('div');
 	buttons.style.position = 'absolute';
-	buttons.style.top = '470px';
+	buttons.style.bottom = '30px';
 	buttons.style.width = '640px';
 	buttons.style.textAlign = 'right';
 
 	var tb = document.createElement('div');
 	tb.className = 'geToolbarContainer';
 	tb.style.cssText = 'box-shadow:none !important;background-color:transparent;' +
-		'padding:2px;border-style:none !important;top:470px;';
+		'padding:2px;border-style:none !important;bottom:30px;';
 
 	this.init = function()
 	{

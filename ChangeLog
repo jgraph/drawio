@@ -1,3 +1,9 @@
+16-JUL-2017: 6.8.16
+
+- Makes ref optional in value dialog for GitHub
+- Adds undoable background color, image and page format changes
+- Uses mxGraph 3.7.5 beta 3
+
 12-JUL-2017: 6.8.15
 
 - Fixes deleted transparent labels with spaces

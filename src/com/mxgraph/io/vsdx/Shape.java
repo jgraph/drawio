@@ -854,7 +854,7 @@ public class Shape extends Style
 		Element sizeElem = getCellElement(mxVsdxConstants.SIZE, index, mxVsdxConstants.CHARACTER);
 		double size = getScreenNumericalValue(sizeElem, 12);
 		
-		return String.valueOf(size);
+		return Double.toString(Math.round(size * 100) / 100);
 	}
 	
 	/**

@@ -667,13 +667,6 @@ Actions.prototype.init = function()
 	}));
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.pageVisible; });
-	this.put('pageBackgroundColor', new Action(mxResources.get('backgroundColor') + '...', function()
-	{
-		ui.pickColor(graph.background || 'none', function(color)
-		{
-			ui.setBackgroundColor(color);
-		});
-	}));
 	action = this.addAction('connectionArrows', function()
 	{
 		graph.connectionArrowsEnabled = !graph.connectionArrowsEnabled;

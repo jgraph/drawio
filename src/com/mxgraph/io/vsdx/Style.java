@@ -830,7 +830,7 @@ public class Style
 	public String getIndentLeft(String index)
 	{
 		Element indentLeftElem = getCellElement(mxVsdxConstants.INDENT_LEFT, index, mxVsdxConstants.PARAGRAPH);
-		return String.valueOf(getScreenNumericalValue(indentLeftElem, 0));
+		return String.valueOf((int) Math.round(getScreenNumericalValue(indentLeftElem, 0)));
 	}
 
 	/**
@@ -841,7 +841,7 @@ public class Style
 	public String getIndentRight(String index)
 	{
 		Element indentRightElem = getCellElement(mxVsdxConstants.INDENT_RIGHT, index, mxVsdxConstants.PARAGRAPH);
-		return String.valueOf(getScreenNumericalValue(indentRightElem, 0));
+		return String.valueOf((int) Math.round(getScreenNumericalValue(indentRightElem, 0)));
 	}
 
 	/**
@@ -852,7 +852,7 @@ public class Style
 	public String getSpBefore(String index)
 	{
 		Element spBeforeElem = getCellElement(mxVsdxConstants.SPACE_BEFORE, index, mxVsdxConstants.PARAGRAPH);
-		return String.valueOf(getScreenNumericalValue(spBeforeElem, 0));
+		return String.valueOf((int) Math.round(getScreenNumericalValue(spBeforeElem, 0)));
 	}
 
 	/**
@@ -863,7 +863,7 @@ public class Style
 	public String getSpAfter(String index)
 	{
 		Element spAfterElem = getCellElement(mxVsdxConstants.SPACE_AFTER, index, mxVsdxConstants.PARAGRAPH);
-		return String.valueOf(getScreenNumericalValue(spAfterElem, 0));
+		return String.valueOf((int) Math.round(getScreenNumericalValue(spAfterElem, 0)));
 	}
 
 	/**
