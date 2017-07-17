@@ -541,6 +541,7 @@ required=обязательно
 reset=Сбросить
 resetView=Сбросить режим просмотра
 resize=Изменить размер
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Отзывчивый
 restore=Восстановить

@@ -541,6 +541,7 @@ required=vereist
 reset=Resetten
 resetView=Weergave resetten
 resize=Grootte aanpassen
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsief
 restore=Herstellen

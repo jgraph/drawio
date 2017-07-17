@@ -428,6 +428,17 @@ Sidebar.prototype.hideTooltip = function()
 /**
  * Hides the current tooltip.
  */
+Sidebar.prototype.addDataEntry = function(tags, width, height, title, data)
+{
+	return this.addEntry(tags, mxUtils.bind(this, function()
+	{
+	   	return this.createVertexTemplateFromData(data, width, height, title);
+	}));
+};
+
+/**
+ * Hides the current tooltip.
+ */
 Sidebar.prototype.addEntry = function(tags, fn)
 {
 	if (this.taglist != null && tags != null && tags.length > 0)

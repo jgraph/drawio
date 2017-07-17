@@ -685,7 +685,7 @@ var SplashDialog = function(editorUi)
 /**
  * 
  */
-var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel)
+var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption)
 {
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
@@ -704,19 +704,31 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	div.appendChild(p2);
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '16px';
 	btns.style.textAlign = 'center';
-	
+	btns.style.whiteSpace = 'nowrap';
+
+	var cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+
 	var cancelBtn = mxUtils.button(cancelLabel || mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
 		
 		if (cancelFn != null)
 		{
-			cancelFn();
+			cancelFn(cb.checked);
 		}
 	});
 	cancelBtn.className = 'geBtn';
+	
+	if (cancelImg != null)
+	{
+		cancelBtn.innerHTML = cancelImg + '<br>' + cancelBtn.innerHTML;
+		cancelBtn.style.paddingBottom = '8px';
+		cancelBtn.style.paddingTop = '8px';
+		cancelBtn.style.height = 'auto';
+		cancelBtn.style.width = '40%';
+	}
 	
 	if (editorUi.editor.cancelFirst)
 	{
@@ -729,12 +741,24 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 		
 		if (okFn != null)
 		{
-			okFn();
+			okFn(cb.checked);
 		}
 	});
 	btns.appendChild(okBtn);
 	
-	okBtn.className = 'geBtn gePrimaryBtn';
+	if (okImg != null)
+	{
+		okBtn.innerHTML = okImg + '<br>' + okBtn.innerHTML + '<br>';
+		okBtn.style.paddingBottom = '8px';
+		okBtn.style.paddingTop = '8px';
+		okBtn.style.height = 'auto';
+		okBtn.className = 'geBtn';
+		okBtn.style.width = '40%';
+	}
+	else
+	{
+		okBtn.className = 'geBtn gePrimaryBtn';
+	}
 	
 	if (!editorUi.editor.cancelFirst)
 	{
@@ -742,6 +766,28 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	}
 
 	div.appendChild(btns);
+	
+	if (showRememberOption)
+	{
+		btns.style.marginTop = '10px';
+		var p2 = document.createElement('p');
+		p2.style.marginTop = '20px';
+		p2.appendChild(cb);
+		var span = document.createElement('span');
+		mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
+		p2.appendChild(span);
+		div.appendChild(p2);
+		
+		mxEvent.addListener(span, 'click', function(evt)
+		{
+			cb.checked = !cb.checked;
+			mxEvent.consume(evt);
+		});
+	}
+	else
+	{
+		btns.style.marginTop = '16px';
+	}
 
 	this.container = div;
 };

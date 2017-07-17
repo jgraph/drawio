@@ -541,6 +541,7 @@ required=required
 reset=reset
 resetView=resetView
 resize=resize
+resizeLargeImages=resizeLargeImages
 retina=retina
 responsive=responsive
 restore=restore

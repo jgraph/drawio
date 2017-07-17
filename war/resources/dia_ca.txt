@@ -541,6 +541,7 @@ required=requerit
 reset=Restableix
 resetView=Restableix la vista
 resize=Ajusta la mida
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Receptiu
 restore=Recupera

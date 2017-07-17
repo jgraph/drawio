@@ -10,7 +10,7 @@ var mxSettings =
 	/**
 	 * Defines current version of settings.
 	 */
-	currentVersion: 14,
+	currentVersion: 15,
 	
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
 	
@@ -56,6 +56,14 @@ var mxSettings =
 	setAutosave: function(autosave)
 	{
 		mxSettings.settings.autosave = autosave;
+	},
+	getResizeImages: function()
+	{
+		return mxSettings.settings.resizeImages;
+	},
+	setResizeImages: function(resizeImages)
+	{
+		mxSettings.settings.resizeImages = resizeImages;
 	},
 	getLibraries: function()
 	{
@@ -170,6 +178,7 @@ var mxSettings =
 			showStartScreen: true,
 			gridColor: mxGraphView.prototype.gridColor,
 			autosave: true,
+			resizeImages: null,
 			version: mxSettings.currentVersion,
 			// Only defined and true for new settings which haven't been saved
 			isNew: true

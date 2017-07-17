@@ -541,6 +541,7 @@ required=obligatoriu
 reset=Resetare
 resetView=Resetează perspectiva
 resize=Redimensionare
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsiv
 restore=Recuperare

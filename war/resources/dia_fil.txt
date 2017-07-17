@@ -541,6 +541,7 @@ required=kinakailangan
 reset=Magsimulang muli
 resetView=Ibalik sa simulang pagtanaw
 resize=Baguhin ang sukat
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Tumutugon
 restore=Ibalik sa dati

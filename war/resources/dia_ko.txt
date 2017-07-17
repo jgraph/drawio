@@ -541,6 +541,7 @@ required=필요
 reset=재설정
 resetView=뷰어 재설정
 resize=크기 조정
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=망막
 responsive=응답
 restore=복구

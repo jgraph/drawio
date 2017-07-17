@@ -1,3 +1,9 @@
+17-JUL-2017: 6.8.17
+
+- Adds dialog for importing large images
+- Fixes sorting of properties in metadata dialog for IE 11
+- Fixes handling of lineHeight in IE 11
+
 16-JUL-2017: 6.8.16
 
 - Makes ref optional in value dialog for GitHub

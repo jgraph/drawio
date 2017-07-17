@@ -541,6 +541,7 @@ required=必填
 reset=重置
 resetView=重置视图
 resize=调整大小
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=响应式
 restore=恢复

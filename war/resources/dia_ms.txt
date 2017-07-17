@@ -541,6 +541,7 @@ required=diperlukan
 reset=Tetapkan semula
 resetView=Tetapkan semula Pandangan
 resize=Ubah semula saiz
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsif
 restore=Pulihkan

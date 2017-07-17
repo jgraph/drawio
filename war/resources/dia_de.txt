@@ -541,6 +541,7 @@ required=erforderlich
 reset=Zurücksetzen
 resetView=Ansicht zurücksetzen
 resize=Größe ändern
+resizeLargeImages=Möchte Sie grosse Bilder verkleinern, um die Applikation schneller zu machen?
 retina=Retina
 responsive=Responsive
 restore=Wiederherstellen
