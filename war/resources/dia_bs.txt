@@ -541,6 +541,7 @@ required=potrebno
 reset=Resetuj
 resetView=Resetuj pregled
 resize=Izmjena veličine
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Osjetljiv
 restore=Obnoviti

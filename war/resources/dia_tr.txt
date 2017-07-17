@@ -541,6 +541,7 @@ required=gerekli
 reset=Sıfırla
 resetView=Görüntülemeyi sıfırla
 resize=Yeniden Boyutlandır
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Hızlı cevap veren
 restore=Eski Haline Al

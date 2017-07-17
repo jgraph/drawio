@@ -541,6 +541,7 @@ required=необходимо
 reset=Нулиране
 resetView=Преглед на нулирането
 resize=Промяна на размера
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Отзивчив
 restore=Възстановяване

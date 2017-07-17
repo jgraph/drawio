@@ -541,6 +541,7 @@ required=‫נדרש‬
 reset=‫אפס ‬
 resetView=‫אפס תצוגה‬
 resize=‫שנה גודל‬
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=‫רשתית‬
 responsive=‫מגיב‬
 restore=‫שחזר‬

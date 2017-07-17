@@ -541,6 +541,7 @@ required=cần thiết
 reset=Reset
 resetView=Reset màn hình
 resize=Đặt lại kích thước
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsive
 restore=Phục hồi

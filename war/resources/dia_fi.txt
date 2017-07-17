@@ -541,6 +541,7 @@ required=vaaditaan
 reset=Tyhjennä
 resetView=Nollaa zoomaus
 resize=Muuta koko
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsiivinen
 restore=Palauta

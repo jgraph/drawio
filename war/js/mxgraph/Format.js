@@ -3156,6 +3156,13 @@ TextFormatPanel.prototype.addFont = function(container)
 					
 					if (node != null)
 					{
+						// Workaround for commonAncestor on range in IE11 returning parent of common ancestor
+						if (node == graph.cellEditor.textarea && graph.cellEditor.textarea.children.length == 1 &&
+							graph.cellEditor.textarea.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT)
+						{
+							node = graph.cellEditor.textarea.firstChild;
+						}
+						
 						var css = mxUtils.getCurrentStyle(node);
 						
 						if (css != null)

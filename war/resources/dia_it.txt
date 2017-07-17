@@ -541,6 +541,7 @@ required=richiesto
 reset=Resetta
 resetView=Resetta vista
 resize=Ridimensiona
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Reattivo
 restore=Recupera

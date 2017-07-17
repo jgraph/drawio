@@ -1349,7 +1349,7 @@ var EditDataDialog = function(ui, cell)
 		var img = mxUtils.createImage(Dialog.prototype.closeImage);
 		img.style.height = '9px';
 		img.style.fontSize = '9px';
-		img.style.marginBottom = '7px';
+		img.style.marginBottom = (mxClient.IS_IE11) ? '-1px' : '5px';
 		
 		removeAttr.className = 'geButton';
 		removeAttr.setAttribute('title', mxResources.get('delete'));
@@ -1413,7 +1413,18 @@ var EditDataDialog = function(ui, cell)
 	// Sorts by name
 	temp.sort(function(a, b)
 	{
-		return ~~(a.name > b.name);
+	    if (a.name < b.name)
+	    {
+	    	return -1;
+	    }
+	    else if (a.name > b.name)
+	    {
+	    	return 1;
+	    }
+	    else
+	    {
+	    	return 0;
+	    }
 	});
 	
 	for (var i = 0; i < temp.length; i++)
@@ -1431,7 +1442,7 @@ var EditDataDialog = function(ui, cell)
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('placeholder', mxResources.get('enterPropertyName'));
 	nameInput.setAttribute('type', 'text');
-	nameInput.setAttribute('size', (mxClient.IS_QUIRKS) ? '18' : '22');
+	nameInput.setAttribute('size', (mxClient.IS_QUIRKS || mxClient.IS_IE11) ? '18' : '22');
 	nameInput.style.marginLeft = '2px';
 
 	newProp.appendChild(nameInput);
@@ -1611,7 +1622,7 @@ var EditDataDialog = function(ui, cell)
 			var icon = document.createElement('img');
 			icon.setAttribute('border', '0');
 			icon.setAttribute('valign', 'middle');
-			icon.style.marginTop = '-4px';
+			icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
 			icon.setAttribute('src', Editor.helpImage);
 			link.appendChild(icon);
 			

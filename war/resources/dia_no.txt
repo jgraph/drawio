@@ -541,6 +541,7 @@ required=påkrevd
 reset=Tilbakestill
 resetView=Tilbakestill visualisasjon
 resize=Endre størrelse
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsiv
 restore=Gjenopprett

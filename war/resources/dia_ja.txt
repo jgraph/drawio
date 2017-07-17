@@ -541,6 +541,7 @@ required=必須
 reset=リセット
 resetView=ビューをリセット
 resize=サイズ変更
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=網膜
 responsive=応答性
 restore=復帰する

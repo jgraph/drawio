@@ -541,6 +541,7 @@ required=obrigatório
 reset=Reiniciallizar
 resetView=Repor a visualização
 resize=Redimensionar
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Responsivo
 restore=Restaurar

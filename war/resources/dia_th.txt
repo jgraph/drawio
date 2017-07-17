@@ -541,6 +541,7 @@ required=จำเป็นต้องมี
 reset=ตั้งค่าใหม่
 resetView= รีเซ็ตมุมมอง
 resize=ปรับขนาด
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=เรติน่า
 responsive=โต้ตอบ
 restore=ฟื้นฟู

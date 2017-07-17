@@ -541,6 +541,7 @@ required=szükséges
 reset=Újrakezd
 resetView=Nézetet visszaállít
 resize=Átméretez
+resizeLargeImages=Do you want to resize large images to make the application run faster?
 retina=Retina
 responsive=Fogékony
 restore=Visszaállít
