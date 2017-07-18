@@ -5373,15 +5373,15 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn, resizeImages, maxBytes, resampleThreshold, ignoreEmbeddedXml)
+	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn, resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
 	{
-		var crop = x != null && y != null;
-		
 		x = (x != null) ? x : 0;
 		y = (y != null) ? y : 0;
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		maxBytes = (maxBytes != null) ? maxBytes : this.maxImageBytes;
-		resizeImages = (resizeImages != null) ? resizeImages : true;
+		
+		var crop = x != null && y != null;
+		var resizeImages = true;
 		
 		// Checks if large images are imported
 		var largeImages = false;
@@ -5684,13 +5684,13 @@
 			}
 		});
 		
-		if (largeImages && resizeImages)
+		if (largeImages)
 		{
 			this.confirmImageResize(function(doResize)
 			{
 				resizeImages = doResize;
 				doImportFiles();
-			});
+			}, resizeDialog);
 		}
 		else
 		{
@@ -5702,24 +5702,22 @@
 	 * Parses the file using XHR2 via the server. File can be a blob or file object.
 	 * Filename is an optional parameter for blobs (that do not have a filename).
 	 */
-	EditorUi.prototype.confirmImageResize = function(fn)
+	EditorUi.prototype.confirmImageResize = function(fn, force)
 	{
+		force = (force != null) ? force : false;
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		
 		var wrapper = function(remember, resize)
 		{
-			if (remember)
-			{
-				mxSettings.setResizeImages(resize);
-				mxSettings.save();
-			}
-			
+			mxSettings.setResizeImages((remember) ? resize : null);
+			mxSettings.save();
 			resume();
 			fn(resize);
 		};
 		
 		var resizeImages = (isLocalStorage || mxClient.IS_CHROMEAPP) ? mxSettings.getResizeImages() : null;
 		
-		if (resizeImages != null)
+		if (resizeImages != null && !force)
 		{
 			wrapper(false, resizeImages);
 		}
@@ -6538,7 +6536,7 @@
 					    		{
 					    			queue[i]();
 					    		}
-					    	}, !mxEvent.isControlDown(evt));
+					    	}, mxEvent.isControlDown(evt));
 			    		}
 					    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 					    {
@@ -6739,7 +6737,7 @@
 				    if (evt.dataTransfer.files.length > 0)
 				    {
 						this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null, null,
-							!mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
+							mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
 		    		}
 				    else
 				    {
@@ -6785,20 +6783,20 @@
 				    			}
 				    		}
 				    		
-				    		var resizeImages = !mxEvent.isControlDown(evt);
+				    		var resizeImages = true;
 				    		
 				    		var doInsert = mxUtils.bind(this, function()
 				    		{
 				    			graph.setSelectionCells(this.insertTextAt(html, x, y, true, asImage, null, resizeImages));
 				    		});
 				    		
-				    		if (asImage && resizeImages && html.length > this.resampleThreshold)
+				    		if (asImage && html.length > this.resampleThreshold)
 				    		{
 				    			this.confirmImageResize(function(doResize)
 		    					{
 		    						resizeImages = doResize;
 		    						doInsert();
-		    					});
+		    					}, mxEvent.isControlDown(evt));
 				    		}
 				    		else
 			    			{
