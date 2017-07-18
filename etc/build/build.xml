@@ -55,7 +55,7 @@
 		<delete file="${basedir}/Graph-Stylesheet.js"/>
 		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
-			<file name="${basedir}/.tmp1.xml" />
+			<filelist dir="${basedir}" files=".tmp1.xml"/>
     	</concat>
 		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
 
@@ -67,7 +67,7 @@
 		<delete file="${basedir}/Graph-Resources.js"/>
 		<echo file="${basedir}/Graph-Resources.js">mxResources.parse('</echo>
 		<concat destfile="${basedir}/Graph-Resources.js" fixlastline="no" append="true">
-			<file name="${basedir}/.tmp2.xml" />
+			<filelist dir="${basedir}" files=".tmp2.xml"/>
     	</concat>
 		<echo file="${basedir}/Graph-Resources.js" append="true">');</echo>
 		
@@ -178,12 +178,11 @@
 		</jscomp>
 		
 		<concat destfile="${basedir}/base-viewer.min.js" fixlastline="yes" append="no">
-			<file name="${basedir}/.tmp0.min.js" />
-			<file name="${war.dir}/js/spin/spin.min.js" />
-			<file name="${war.dir}/js/sanitizer/sanitizer.min.js" />
-			<file name="${war.dir}/js/deflate/pako.min.js" />
-			<file name="${basedir}/client.min.js" />
-			<file name="${basedir}/.tmp1.js" />			
+			<filelist dir="${basedir}" files=".tmp0.min.js"/>
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${basedir}" files="client.min.js,.tmp1.js"/>
     	</concat>
 
 		<echo file="${basedir}/.tmp2.js">
@@ -211,8 +210,7 @@
 		</jscomp>
 		
 		<concat destfile="${war.dir}/js/viewer.min.js" fixlastline="yes" append="no">
-			<file name="${basedir}/base-viewer.min.js" />
-			<file name="${basedir}/.tmp2.min.js" />
+			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
     	</concat>
 
 		<delete file="${basedir}/.tmp0.js"/>
@@ -246,13 +244,10 @@
 		</jscomp>
 			
 		<concat destfile="${basedir}/base.min.js" fixlastline="yes" append="no">
-			<file name="${war.dir}/js/spin/spin.min.js" />
-			<file name="${war.dir}/js/sanitizer/sanitizer.min.js" />
-			<file name="${war.dir}/js/deflate/pako.min.js" />
-			<file name="${basedir}/client.min.js" />
-			<file name="${basedir}/grapheditor.min.js" />
-			<file name="${basedir}/sidebar.min.js" />
-			<file name="${basedir}/.tmp1.js" />
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 
 		<loadfile property="version" srcFile="../../VERSION"/>
@@ -327,13 +322,10 @@
 		</jscomp>
 
 		<concat destfile="${war.dir}/js/app.min.js" fixlastline="yes" append="no">
-			<file name="${war.dir}/js/spin/spin.min.js" />
-			<file name="${war.dir}/js/sanitizer/sanitizer.min.js" />
-			<file name="${war.dir}/js/deflate/pako.min.js" />
-			<file name="${basedir}/client.min.js" />
-			<file name="${basedir}/grapheditor.min.js" />
-			<file name="${basedir}/sidebar.min.js" />
-			<file name="${basedir}/.tmp1.js" />
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 
 		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
