@@ -100,24 +100,20 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	cb.defaultChecked = true;
 	var count = 0;
 	
-	function addLogo(img, title, mode, clientName)
+	function addLogo(img, title, mode, clientName, labels, clientFn)
 	{
 		var button = document.createElement('a');
 		button.style.overflow = 'hidden';
-		
-		var logo = document.createElement('img');
-		logo.setAttribute('src', img);
-		logo.setAttribute('border', '0');
-		logo.setAttribute('align', 'absmiddle');
-		logo.style.width = '60px';
-		logo.style.height = '60px';
-		logo.style.paddingBottom = '6px';
 		button.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 		button.className = 'geBaseButton';
+		button.style.fontSize = '11px';
 		button.style.position = 'relative';
 		button.style.margin = '4px';
 		button.style.padding = '8px 10px 12px 10px';
+		button.style.width = '68px';
+		button.style.height = '80px';
 		button.style.whiteSpace = 'nowrap';
+		button.setAttribute('title', title);
 		
 		// Workaround for quirks is a vertical list (limited to max 2 items)
 		if (mxClient.IS_QUIRKS)
@@ -126,15 +122,43 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			button.style.zoom = '1';
 		}
 
-		button.appendChild(logo);
-		
 		var label = document.createElement('div');
+		label.style.textOverflow = 'ellipsis';
+		label.style.overflow = 'hidden';
+		
+		if (img != null)
+		{
+			var logo = document.createElement('img');
+			logo.setAttribute('src', img);
+			logo.setAttribute('border', '0');
+			logo.setAttribute('align', 'absmiddle');
+			logo.style.width = '60px';
+			logo.style.height = '60px';
+			logo.style.paddingBottom = '6px';
+
+			button.appendChild(logo);
+		}
+		else
+		{
+			label.style.paddingTop = '10px';
+			label.style.whiteSpace = 'normal';
+		}
+		
 		button.appendChild(label);
 		mxUtils.write(label, title);
 		
+		if (labels != null)
+		{
+			for (var i = 0; i < labels.length; i++)
+			{
+				mxUtils.br(label);
+				mxUtils.write(label, labels[i]);
+			}
+		}
+		
 		function initButton()
 		{
-			mxEvent.addListener(button, 'click', function()
+			mxEvent.addListener(button, 'click', (clientFn != null) ? clientFn : function()
 			{
 				// Special case: Redirect all drive users to draw.io pro
 				if (mode == App.MODE_GOOGLE && !editorUi.isDriveDomain())
@@ -256,6 +280,28 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
 	{
 		addLogo(IMAGE_PATH + '/osa_database.png', mxResources.get('browser'), App.MODE_BROWSER);
+	}
+	else if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+	{
+		addLogo(null, mxResources.get('import'), null, null, ['',
+			mxResources.get('gliffy'), mxResources.get('formatVsdx'),
+			mxResources.get('lucidchart')], function()
+		{
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', function()
+			{
+				if (input.files != null)
+				{
+					// Using null for position will disable crop of input file
+					editorUi.hideDialog();
+					editorUi.openFiles(input.files, null, null, editorUi.maxImageSize);
+				}
+			});
+
+			input.click();
+		});
 	}
 	
 	div.appendChild(buttons);

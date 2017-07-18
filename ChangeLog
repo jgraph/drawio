@@ -1,3 +1,10 @@
+18-JUL-2017: 6.9.0
+
+- Adds import tile in splash screen
+- Adds social media sharing in footer
+- Uses mxGraph 3.7.5 beta 4
+- Fixes Extras, Tags and Autosave in Embed mode
+
 18-JUL-2017: 6.8.18
 
 - Ctrl+drop for images shows size dialog to reset default

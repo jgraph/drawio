@@ -742,7 +742,22 @@ App.prototype.init = function()
 	 * Holds the listener for description changes.
 	 */	
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
-	
+
+	/**
+	 * Basic adds for all backends.
+	 */
+	this.basicAds = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:12px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
+		'<a title="' + mxResources.get('loveApp') + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
+			encodeURIComponent(mxResources.get('loveApp')) + '&url=' +
+			encodeURIComponent('https://www.draw.io') + '">' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.tweetImage + '"/>' + mxResources.get('loveApp') + '</a>',
+		'<a title="' + mxResources.get('loveApp') + '" target="_blank" href="https://www.facebook.com/sharer.php?p[url]=' + 
+		encodeURIComponent('https://www.draw.io') + '">' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.facebookImage + '"/>' + mxResources.get('loveApp') + '</a>'];
+
 	/**
 	 * Creates github client.
 	 */
@@ -841,14 +856,12 @@ App.prototype.init = function()
 						// Changes the footer ads for Google Accounts
 						if (this.updateAd != null)
 						{
-							this.adsHtml = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
-											'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:14px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
-											'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
-											'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
-											'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-											'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>'];
+							this.adsHtml = this.basicAds.concat(['<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
+								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
+								'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
+								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
+								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
+								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
 							this.updateAd(this.adsHtml.length - 1);
 						}
 						
@@ -975,10 +988,8 @@ App.prototype.init = function()
 	
 	if (td != null)
 	{
-		this.adsHtml = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
-			'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:14px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>'];
-		this.adsHtml.push(td.innerHTML);
-		
+		this.basicAds.push(td.innerHTML);
+		this.adsHtml = this.basicAds;
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
 		var lastAd = this.adsHtml.length - 1;
 		
@@ -1006,16 +1017,9 @@ App.prototype.init = function()
 		
 		window.setInterval(mxUtils.bind(this, function()
 		{
-			if (this.adsHtml.length == 3)
-			{
-				this.updateAd(mxUtils.mod(lastAd + 1, 3));
-			}
-			else
-			{
-				var rnd = Math.random();
-				this.updateAd(Math.round(rnd * (this.adsHtml.length - 1)));
-			}
-		}), 300000);
+			var rnd = Math.random();
+			this.updateAd(Math.round(rnd * (this.adsHtml.length - 1)));
+		}), 200000);
 	}
 	
 	if (this.menubar != null)
@@ -2334,6 +2338,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
+		serviceCount++;
 		var rowLimit = (serviceCount <= 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
@@ -2342,7 +2347,7 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 240 : 300, (serviceCount > rowLimit) ? 420 : 300, true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300, (serviceCount > rowLimit) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
