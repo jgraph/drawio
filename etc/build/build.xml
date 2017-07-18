@@ -33,7 +33,7 @@
 		<echo file="${war.dir}/cache.manifest" append="true"># THIS FILE WAS GENERATED. DO NOT MODIFY!${line.separator}</echo>
 		<echo file="${war.dir}/cache.manifest" append="true"># ${time.stamp}${line.separator}${line.separator}</echo>
     	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="true">
-			<file name="${basedir}/cache.txt" />
+    		<filelist dir="${basedir}" files="cache.txt"/>
     	</concat>
     	
 		<delete dir="${basedir}/../../build"/>
