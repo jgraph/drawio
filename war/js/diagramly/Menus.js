@@ -2393,8 +2393,13 @@
 				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
 				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
 			}
+			
+			if (urlParams['embed'] != '1')
+			{
+				this.addMenuItems(menu, ['autosave'], parent);
+			}
 
-			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram'], parent);
+			this.addMenuItems(menu, ['-', 'createShape', 'editDiagram'], parent);
 
 			menu.addSeparator(parent);
 			
@@ -2405,22 +2410,22 @@
 
 			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['plugins', '-'], parent);
-				
-				var item = this.addMenuItem(menu, 'tags', parent);
-				
-				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
-				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
-				}
-				
-				this.addMenuItems(menu, ['-', 'offline'], parent);
+				this.addMenuItems(menu, ['plugins'], parent);
 			}
-			else
+				
+			menu.addSeparator(parent);
+			var item = this.addMenuItem(menu, 'tags', parent);
+			
+			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 			{
-				menu.addSeparator(parent);
-				this.addMenuItem(menu, 'tags', parent);
-				menu.addSeparator(parent);
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+			}
+
+			menu.addSeparator(parent);
+			
+			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
+			{
+				this.addMenuItems(menu, ['-', 'offline'], parent);
 			}
 			
 			if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')

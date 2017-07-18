@@ -4951,6 +4951,33 @@
 	/**
 	 * Automatic loading for lucidchart import.
 	 */
+	EditorUi.prototype.importLucidChart = function(data, dx, dy, crop)
+	{
+		// Finds and imports first page
+		var state = JSON.parse(JSON.parse(data).state);
+		var page = null;
+		
+		for (var id in state.Pages)
+		{
+			var tmp = state.Pages[id];
+			
+			if (tmp != null && tmp.Properties.Order == '0')
+			{
+				page = tmp;
+				
+				break;
+			}
+		}
+		
+		if (page != null)
+		{
+			this.insertLucidChart(page, 0, 0);
+		}
+	};
+	
+	/**
+	 * Automatic loading for lucidchart import.
+	 */
 	EditorUi.prototype.insertLucidChart = function(g, dx, dy, crop)
 	{
 		var delayed = mxUtils.bind(this, function()
@@ -5118,26 +5145,7 @@
 				{
 					if (text.substring(0, 26) == '{"state":"{\\"Properties\\":')
 					{
-						// Finds and imports first page
-						var state = JSON.parse(JSON.parse(text).state);
-						var page = null;
-						
-						for (var id in state.Pages)
-						{
-							var tmp = state.Pages[id];
-							
-							if (tmp != null && tmp.Properties.Order == '0')
-							{
-								page = tmp;
-								
-								break;
-							}
-						}
-						
-						if (page != null)
-						{
-							this.insertLucidChart(page, dx, dy, crop);
-						}
+						this.importLucidChart(text, dx, dy, crop);
 					}
 					else
 					{
@@ -7406,6 +7414,19 @@
 									}
 								}));
 							}
+							else if (data.substring(0, 26) == '{"state":"{\\"Properties\\":')
+							{
+								if (/(\.json)$/i.test(name))
+								{
+									name = name.substring(0, name.length - 5) + '.xml';
+								}
+
+								// LATER: Add import step that produces cells and insert
+								// via callback to avoid an undoable step to be created
+								this.spinner.stop();
+								this.openLocalFile(this.emptyDiagramXml, name);
+								this.importLucidChart(data, 0, 0);
+							}
 							else if (e.target.result.substring(0, 10) == '<mxlibrary')
 			    			{
 								this.spinner.stop();
@@ -9163,10 +9184,11 @@
 		this.actions.get('createRevision').setEnabled(active);
 		this.actions.get('moveToFolder').setEnabled(file != null);
 		this.actions.get('makeCopy').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('editDiagram').setEnabled((urlParams['embed'] == '1'  &&
+		this.actions.get('editDiagram').setEnabled((urlParams['embed'] == '1' &&
 			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('tags').setEnabled(file != null && file.isEditable());
+		this.actions.get('tags').setEnabled((urlParams['embed'] == '1' &&
+			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
 		var state = graph.view.getState(graph.getSelectionCell());
