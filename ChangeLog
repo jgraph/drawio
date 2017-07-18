@@ -1,3 +1,8 @@
+18-JUL-2017: 6.8.18
+
+- Ctrl+drop for images shows size dialog to reset default
+- Adds dialog before unloading modified page in embed mode
+
 17-JUL-2017: 6.8.17
 
 - Adds dialog for importing large images

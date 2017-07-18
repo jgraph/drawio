@@ -1354,24 +1354,31 @@ App.prototype.removeDraft = function()
  */
 App.prototype.onBeforeUnload = function()
 {
-	var file = this.getCurrentFile();
-	
-	if (file != null)
+	if (urlParams['embed'] == '1' && this.editor.modified)
 	{
-		// KNOWN: Message is ignored by most browsers
-		if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
-			urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
-			!this.editor.chromeless)
+		return mxResources.get('allChangesLost');
+	}
+	else
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
 		{
-			return mxResources.get('ensureDataSaved');
-		}
-		else if (file.constructor != DriveFile && file.isModified())
-		{
-			return mxResources.get('allChangesLost');
-		}
-		else
-		{
-			file.close(true);
+			// KNOWN: Message is ignored by most browsers
+			if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
+				urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
+				!this.editor.chromeless)
+			{
+				return mxResources.get('ensureDataSaved');
+			}
+			else if (file.constructor != DriveFile && file.isModified())
+			{
+				return mxResources.get('allChangesLost');
+			}
+			else
+			{
+				file.close(true);
+			}
 		}
 	}
 };
