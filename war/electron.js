@@ -15,7 +15,7 @@ autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = true
 
 const __DEV__ = process.env.NODE_ENV === 'development'
-
+		
 let windowsRegistry = []
 
 function createWindow (opt = {}) {
@@ -38,7 +38,7 @@ function createWindow (opt = {}) {
 		protocol: 'file:',
 		query: {
 			'dev': __DEV__ ? 1 : 0,
-			'test': 1,
+			'test': __DEV__ ? 1 : 0,
 			'db': 0,
 			'gapi': 0,
 			'od': 0,
@@ -57,7 +57,10 @@ function createWindow (opt = {}) {
 	mainWindow.loadURL(wurl)
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools()
+	if (__DEV__)
+	{
+		mainWindow.webContents.openDevTools()
+	}
 
 	mainWindow.on('close', (event/*:WindowEvent*/) => {
 		const win = event.sender
