@@ -1,0 +1,31 @@
+{
+  "name": "draw.io",
+  "version": "6.7.7",
+  "description": "draw.io desktop",
+  "main": "electron.js",
+  "scripts": {
+    "start": "electron ./draw.io/war",
+    "sync": "node ./sync.js",
+    "release": "build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jgraph/drawio-desktop.git"
+  },
+  "keywords": [
+    "draw.io",
+    "diagram",
+    "flowchart",
+    "UML"
+  ],
+  "author": "JGraph <sales@jgraph.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jgraph/drawio-desktop/issues"
+  },
+  "homepage": "https://github.com/jgraph/draw.io",
+  "devDependencies": {
+    "electron": "^1.7.2",
+    "electron-builder": "^18.1.0"
+  }
+}
