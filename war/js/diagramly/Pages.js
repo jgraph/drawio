@@ -601,8 +601,9 @@ EditorUi.prototype.updatePageRoot = function(page)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.selectPage = function(page)
+EditorUi.prototype.selectPage = function(page, quiet)
 {
+	quiet = (quiet != null) ? quiet : false;
 	this.editor.graph.stopEditing();
 	
 	var edit = this.editor.graph.model.createUndoableEdit();
@@ -615,7 +616,10 @@ EditorUi.prototype.selectPage = function(page)
 	edit.add(change);
 	edit.notify();
 	
-	this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+	if (!quiet)
+	{
+		this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+	}
 };
 
 /**

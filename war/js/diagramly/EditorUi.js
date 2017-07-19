@@ -4949,36 +4949,9 @@
 	};
 
 	/**
-	 * Automatic loading for lucidchart import.
+	 * Imports the given Lucidchart data.
 	 */
-	EditorUi.prototype.importLucidChart = function(data, dx, dy, crop)
-	{
-		// Finds and imports first page
-		var state = JSON.parse(JSON.parse(data).state);
-		var page = null;
-		
-		for (var id in state.Pages)
-		{
-			var tmp = state.Pages[id];
-			
-			if (tmp != null && tmp.Properties.Order == '0')
-			{
-				page = tmp;
-				
-				break;
-			}
-		}
-		
-		if (page != null)
-		{
-			this.insertLucidChart(page, 0, 0);
-		}
-	};
-	
-	/**
-	 * Automatic loading for lucidchart import.
-	 */
-	EditorUi.prototype.insertLucidChart = function(g, dx, dy, crop)
+	EditorUi.prototype.importLucidChart = function(data, dx, dy, crop, done)
 	{
 		var delayed = mxUtils.bind(this, function()
 		{
@@ -4987,11 +4960,18 @@
 			{
 				try
 				{
-					this.pasteLucidChart(g, dx, dy, crop);
+					this.insertLucidChart(data, dx, dy, crop, done);
 				}
 				catch (e)
 				{
-					// ignore
+					this.handleError(e);
+				}
+				finally
+				{
+			    	if (done != null)
+			    	{
+			    		done();
+			    	}
 				}
 			}
 		});
@@ -5013,6 +4993,66 @@
 		{
 			// Must be async for cell selection
 			window.setTimeout(delayed, 0);
+		}
+	};
+	
+	/**
+	 * Automatic loading for lucidchart import.
+	 */
+	EditorUi.prototype.insertLucidChart = function(data, dx, dy, crop, done)
+	{
+		var state = JSON.parse(JSON.parse(data).state);
+		
+		// Extracts and sorts all pages
+		var pages = [];
+
+		for (var id in state.Pages)
+		{
+			pages.push(state.Pages[id]);
+		}
+		
+		pages.sort(function(a, b)
+		{
+		    if (a.Properties.Order < b.Properties.Order)
+		    {
+		    	return -1;
+		    }
+		    else if (a.Properties.Order > b.Properties.Order)
+		    {
+		    	return 1;
+		    }
+		    else
+		    {
+		    	return 0;
+		    }
+		});
+		
+		if (pages.length > 0)
+		{
+	    	this.editor.graph.getModel().beginUpdate();
+	    	
+	    	try
+	    	{
+				this.pasteLucidChart(pages[0], dx, dy, crop);
+				
+				// If pages are enabled add more pages
+				if (this.pages != null)
+				{
+					var current = this.currentPage;
+					
+					for (var i = 1; i < pages.length; i++)
+					{
+						this.insertPage();
+						this.pasteLucidChart(pages[i]);
+					}
+					
+					this.selectPage(current);
+				}
+	    	}
+	    	finally
+	    	{
+	    		this.editor.graph.getModel().endUpdate();
+	    	}
 		}
 	};
 	
@@ -7179,7 +7219,7 @@
 							}
 							else
 							{
-								this.openFiles(evt.dataTransfer.files);
+								this.openFiles(evt.dataTransfer.files, true);
 							}
 						}
 						else
@@ -7359,7 +7399,7 @@
 	/**
 	 * Opens the given files in the editor.
 	 */
-	EditorUi.prototype.openFiles = function(files)
+	EditorUi.prototype.openFiles = function(files, temp)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('loading')))
 		{
@@ -7403,7 +7443,34 @@
 										
 										if (xhr.status >= 200 && xhr.status <= 299)
 										{
-											this.openLocalFile(xhr.responseText, name);
+											var xml = xhr.responseText;
+											
+											if (xml.substring(0, 10) == '<mxlibrary')
+											{
+												// Creates new temporary file if library is dropped in splash screen
+												if (this.getCurrentFile() == null && urlParams['embed'] != '1')
+												{
+													this.openLocalFile(this.emptyDiagramXml, name, temp);
+												}
+												
+												if (name != null && name.toLowerCase().substring(name.length - 5) == '.vssx')
+												{
+													name = name.substring(0, filename.length - 5) + '.xml';
+												}
+												
+							    				try
+								    			{
+							    					this.loadLibrary(new LocalLibrary(this, xml, name));
+								    			}
+							    				catch (e)
+								    			{
+								    				this.handleError(e, mxResources.get('errorLoadingFile'));
+								    			}
+											}
+											else
+											{
+												this.openLocalFile(xml, name, temp);
+											}
 										}
 										else
 										{
@@ -7421,15 +7488,23 @@
 									name = name.substring(0, name.length - 5) + '.xml';
 								}
 
-								// LATER: Add import step that produces cells and insert
-								// via callback to avoid an undoable step to be created
-								this.spinner.stop();
-								this.openLocalFile(this.emptyDiagramXml, name);
-								this.importLucidChart(data, 0, 0);
+								// LATER: Add import step that produces cells and use callback
+								this.openLocalFile(this.emptyDiagramXml, name, temp);
+								this.importLucidChart(data, 0, 0, null, mxUtils.bind(this, function()
+								{
+									this.editor.undoManager.clear();
+									this.spinner.stop();
+								}));
 							}
 							else if (e.target.result.substring(0, 10) == '<mxlibrary')
 			    			{
 								this.spinner.stop();
+								
+								// Creates new temporary file if library is dropped in splash screen
+								if (this.getCurrentFile() == null && urlParams['embed'] != '1')
+								{
+									this.openLocalFile(this.emptyDiagramXml, name, temp);
+								}
 								
 			    				try
 				    			{
@@ -7448,7 +7523,7 @@
 								}
 								
 								this.spinner.stop();
-								this.openLocalFile(data, name);
+								this.openLocalFile(data, name, temp);
 							}
 						}
 					});

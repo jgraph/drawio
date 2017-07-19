@@ -1,3 +1,8 @@
+19-JUL-2017: 6.9.1
+
+- Adds open button for spreadsheets, videos, photos, maps in GDriveConnector
+- Fixes import of multiple pages in Lucidchart files
+
 18-JUL-2017: 6.9.0
 
 - Adds import tile in splash screen
