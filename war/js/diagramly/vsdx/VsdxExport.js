@@ -824,7 +824,7 @@ function VsdxExport(editorUi)
 						
 						if (editorUi.currentPage != page)
 						{
-							editorUi.selectPage(page);
+							editorUi.selectPage(page, true);
 						}
 						
 						var diagramName = page.getName();
@@ -837,7 +837,7 @@ function VsdxExport(editorUi)
 					
 					if (currentPage != editorUi.currentPage)
 					{
-						editorUi.selectPage(currentPage);
+						editorUi.selectPage(currentPage, true);
 					}
 					
 					editorUi.editor.graph.setSelectionCells(selectedCells);

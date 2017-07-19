@@ -140,7 +140,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		}
 		else
 		{
-			label.style.paddingTop = '10px';
+			label.style.paddingTop = '5px';
 			label.style.whiteSpace = 'normal';
 		}
 		
@@ -283,8 +283,8 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	}
 	else if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
 	{
-		addLogo(null, mxResources.get('import'), null, null, ['',
-			mxResources.get('gliffy'), mxResources.get('formatVsdx'),
+		addLogo(null, mxResources.get('import'), null, null, ['', mxResources.get('gliffy'),
+			mxResources.get('formatVssx'), mxResources.get('formatVsdx'),
 			mxResources.get('lucidchart')], function()
 		{
 			var input = document.createElement('input');
@@ -296,7 +296,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				{
 					// Using null for position will disable crop of input file
 					editorUi.hideDialog();
-					editorUi.openFiles(input.files, null, null, editorUi.maxImageSize);
+					editorUi.openFiles(input.files, true);
 				}
 			});
 

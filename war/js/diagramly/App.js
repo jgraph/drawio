@@ -748,15 +748,15 @@ App.prototype.init = function()
 	 */
 	this.basicAds = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:12px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
-		'<a title="' + mxResources.get('loveApp') + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
-			encodeURIComponent(mxResources.get('loveApp')) + '&url=' +
+		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
+			encodeURIComponent(mxUtils.trim(mxResources.get('loveIt', ['']))) + '&url=' +
 			encodeURIComponent('https://www.draw.io') + '">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>' + mxResources.get('loveApp') + '</a>',
-		'<a title="' + mxResources.get('loveApp') + '" target="_blank" href="https://www.facebook.com/sharer.php?p[url]=' + 
+		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
+		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://www.facebook.com/sharer.php?p[url]=' + 
 		encodeURIComponent('https://www.draw.io') + '">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.facebookImage + '"/>' + mxResources.get('loveApp') + '</a>'];
+		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>'];
 
 	/**
 	 * Creates github client.
@@ -1019,7 +1019,7 @@ App.prototype.init = function()
 		{
 			var rnd = Math.random();
 			this.updateAd(Math.round(rnd * (this.adsHtml.length - 1)));
-		}), 200000);
+		}), 180000);
 	}
 	
 	if (this.menubar != null)
