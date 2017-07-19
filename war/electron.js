@@ -7,7 +7,8 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
-const autoUpdater = require('electron-updater').autoUpdater
+const electUpdater = require('electron-updater')
+const autoUpdater = electUpdater.autoUpdater
 const log = require('electron-log')
 autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
