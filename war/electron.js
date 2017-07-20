@@ -6,14 +6,15 @@ const ipcMain = electron.ipcMain
 const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-const log = require('electron-log')
 
 let updatesOn = true
+let log = null
 let autoUpdater = null
 
 try
 {
 	autoUpdater = require('electron-updater').autoUpdater
+	log = require('electron-log')
 	autoUpdater.logger = log
 	autoUpdater.logger.transports.file.level = 'info'
 	// autoUpdater.autoDownload = false
