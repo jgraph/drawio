@@ -7,13 +7,22 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
-const electUpdater = require('electron-updater')
-const autoUpdater = electUpdater.autoUpdater
+const updatesOn = true;
+
+try
+{
+	const autoUpdater = require('electron-updater').autoUpdater
+	autoUpdater.logger = log
+	autoUpdater.logger.transports.file.level = 'info'
+	// autoUpdater.autoDownload = false
+	autoUpdater.autoDownload = true
+}
+catch (e)
+{
+	updatesOn = false
+}
+
 const log = require('electron-log')
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = 'info'
-// autoUpdater.autoDownload = false
-autoUpdater.autoDownload = true
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 		
@@ -121,7 +130,11 @@ app.on('ready', e => {
 		event.returnValue = 'pong'
 	})
 	createWindow()
-	checkUpdate()
+	
+	if (updatesOn)
+	{
+		checkUpdate()
+	}
 })
 
 // Quit when all windows are closed.
