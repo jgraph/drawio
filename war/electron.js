@@ -7,22 +7,12 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
-let log = null
-let autoUpdater = null
-
-try
-{
-	autoUpdater = require('electron-updater').autoUpdater
-	log = require('electron-log')
-	autoUpdater.logger = log
-	autoUpdater.logger.transports.file.level = 'info'
-	// autoUpdater.autoDownload = false
-	autoUpdater.autoDownload = true
-}
-catch (e)
-{
-	autoUpdater = null
-}
+const autoUpdater = require('electron-updater').autoUpdater
+const log = require('electron-log')
+autoUpdater.logger = log
+autoUpdater.logger.transports.file.level = 'info'
+// autoUpdater.autoDownload = false
+autoUpdater.autoDownload = true
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 		
@@ -130,11 +120,7 @@ app.on('ready', e => {
 		event.returnValue = 'pong'
 	})
 	createWindow()
-
-	if (autoUpdater != null)
-	{
-		checkUpdate()
-	}
+	checkUpdate()
 })
 
 // Quit when all windows are closed.
@@ -175,28 +161,25 @@ function checkUpdate () {
 	})
 }
 
-if (autoUpdater != null)
-{
-	autoUpdater.on('error', e => log.error('@error@\n', e))
-	
-	autoUpdater.on('update-available',
-		(a, b) => log.info('@update-available@\n', a, b))
-	
-	/**/
-	autoUpdater.on('update-downloaded', (event, info) => {
-		log.info('@update-downloaded@\n', info, event)
-		// Ask user to update the app
-		dialog.showMessageBox({
-			type: 'question',
-			buttons: ['Install and Relaunch', 'Later'],
-			defaultId: 0,
-			message: 'A new version of ' + app.getName() + ' has been downloaded',
-			detail: 'It will be installed the next time you restart the application',
-		}, response => {
-			if (response === 0) {
-				setTimeout(() => autoUpdater.quitAndInstall(), 1)
-			}
-		})
+autoUpdater.on('error', e => log.error('@error@\n', e))
+
+autoUpdater.on('update-available',
+	(a, b) => log.info('@update-available@\n', a, b))
+
+/**/
+autoUpdater.on('update-downloaded', (event, info) => {
+	log.info('@update-downloaded@\n', info, event)
+	// Ask user to update the app
+	dialog.showMessageBox({
+		type: 'question',
+		buttons: ['Install and Relaunch', 'Later'],
+		defaultId: 0,
+		message: 'A new version of ' + app.getName() + ' has been downloaded',
+		detail: 'It will be installed the next time you restart the application',
+	}, response => {
+		if (response === 0) {
+			setTimeout(() => autoUpdater.quitAndInstall(), 1)
+		}
 	})
-}
+})
 /**/
