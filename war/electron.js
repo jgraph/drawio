@@ -120,7 +120,11 @@ app.on('ready', e => {
 		event.returnValue = 'pong'
 	})
 	createWindow()
-	checkUpdate()
+	// checkUpdate()
+	if (!__DEV__)
+	{
+		autoUpdater.checkForUpdates()
+	}
 })
 
 // Quit when all windows are closed.

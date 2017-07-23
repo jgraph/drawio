@@ -54,6 +54,7 @@ public class mxVsdxConstants
 	public static String FILL_FOREGND_TRANS = "FillForegndTrans";
 	public static String FILL_PATTERN = "FillPattern";
 	public static String FILL_STYLE = "FillStyle";
+	public static String FILL_GRADIENT_ENABLED = "FillGradientEnabled";
 	public static String FLAGS = "Flags";
 	public static String FLIP_X = "FlipX";
 	public static String FLIP_Y = "FlipY";

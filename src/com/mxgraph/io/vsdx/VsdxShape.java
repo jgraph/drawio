@@ -418,6 +418,12 @@ public class VsdxShape extends Shape
 		return null;
 	}
 
+	private String getIndex(Element elem)
+	{
+		String ix = elem.getAttribute("IX");
+		return ix.isEmpty()? "0" : ix;
+	}
+	
 	/**
 	 * Initialises the text labels
 	 * @param children the text Elements
@@ -441,26 +447,26 @@ public class VsdxShape extends Shape
 				case "cp":
 				{
 					Element elem = (Element) node;
-					ch = elem.getAttribute("IX");
+					ch = getIndex(elem);
 				}
 					break;
 				case "tp":
 				{
 					// TODO
 					Element elem = (Element) node;
-					elem.getAttribute("IX");
+					getIndex(elem);
 				}
 					break;
 				case "pp":
 				{
 					Element elem = (Element) node;
-					pg = elem.getAttribute("IX");
+					pg = getIndex(elem);
 				}
 					break;
 				case "fld":
 				{
 					Element elem = (Element) node;
-					fld = elem.getAttribute("IX");
+					fld = getIndex(elem);
 					break;
 				}
 				case "#text":
@@ -568,17 +574,17 @@ public class VsdxShape extends Shape
 				if (node.getNodeName().equals("cp"))
 				{
 					Element elem = (Element) node;
-					cp = elem.getAttribute("IX");
+					cp = getIndex(elem);
 				}
 				else if (node.getNodeName().equals("tp"))
 				{
 					Element elem = (Element) node;
-					tp = elem.getAttribute("IX");
+					tp = getIndex(elem);
 				}
 				else if (node.getNodeName().equals("pp"))
 				{
 					Element elem = (Element) node;
-					pp = elem.getAttribute("IX");
+					pp = getIndex(elem);
 
 					if (first)
 					{
@@ -595,7 +601,7 @@ public class VsdxShape extends Shape
 				else if (node.getNodeName().equals("fld"))
 				{
 					Element elem = (Element) node;
-					fld = elem.getAttribute("IX");
+					fld = getIndex(elem);
 
 					String text = null;
 
@@ -809,6 +815,23 @@ public class VsdxShape extends Shape
 	 */
 	private String getGradient()
 	{
+		String fillGradientEnabled = this.getValue(this.getCellElement(mxVsdxConstants.FILL_GRADIENT_ENABLED), "0");
+		
+		if ("1".equals(fillGradientEnabled))
+		{
+			Section fillGradient = sections.get("FillGradient");
+			
+			if (fillGradient != null)
+			{
+				//find the last row. We approximate gradients with first and last color
+				ArrayList<Element> rows = mxVsdxUtils.getDirectChildNamedElements(fillGradient.elem, "Row");
+				
+				String color = this.getColor(fillGradient.getIndexedCell(rows.get(rows.size() - 1).getAttribute("IX"), "GradientStopColor"));
+				
+				if (color != null && !color.isEmpty()) return color;
+			}
+		}
+
 		String gradient = "";
 		String fillPattern = this.getValue(
 				this.getCellElement(mxVsdxConstants.FILL_PATTERN), "0");

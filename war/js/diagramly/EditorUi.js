@@ -1337,6 +1337,16 @@
 						// ignore
 					}
 				}
+				
+				try
+				{
+					mxSettings.setOpenCounter(mxSettings.getOpenCounter() + 1);
+					mxSettings.save();
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
 			catch (e)
 			{
@@ -2188,7 +2198,7 @@
     		}
     	}
 
-		EditorUi.prototype.footerHeight = (screen.height <= 740) ? 5 : 46;
+		EditorUi.prototype.footerHeight = (screen.width >= 780 && screen.height >= 240) ? 46 : 0;
 		
 		// Fetches footer from page
 		EditorUi.prototype.createFooter = function()
@@ -7450,7 +7460,7 @@
 												// Creates new temporary file if library is dropped in splash screen
 												if (this.getCurrentFile() == null && urlParams['embed'] != '1')
 												{
-													this.openLocalFile(this.emptyDiagramXml, name, temp);
+													this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 												}
 												
 												if (name != null && name.toLowerCase().substring(name.length - 5) == '.vssx')
@@ -7503,7 +7513,7 @@
 								// Creates new temporary file if library is dropped in splash screen
 								if (this.getCurrentFile() == null && urlParams['embed'] != '1')
 								{
-									this.openLocalFile(this.emptyDiagramXml, name, temp);
+									this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 								}
 								
 			    				try

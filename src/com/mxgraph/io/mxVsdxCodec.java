@@ -168,7 +168,23 @@ public class mxVsdxCodec
 					String str = out.toString(charset);
 					if (!str.isEmpty())
 					{
+						//UTF-8 BOM causes exception while parsing, so remove it
+						//TODO is the text encoding will be correct or string must be re-read as UTF-8?
+						if (str.startsWith("ï»¿")) str = str.substring(3);
+						
 						Document doc = mxXmlUtils.parseXml(str);
+						
+						if (doc == null) //An exception that is most probably due to encoding issues
+						{
+							byte[] outBytes = out.toByteArray();
+							if (outBytes[1] == 0 && outBytes[3] == 0 && outBytes[5] == 0) //UTF-16 Little Endian (has a null every other character) [Heuristic]
+							{
+								str = out.toString("UTF-16LE");
+								doc = mxXmlUtils.parseXml(str);
+							}
+							//TODO add any other non-standard encoding that may be needed 
+						}
+						
 						// Hack to be able to find the filename from an element in the XML
 						doc.setDocumentURI(filename);
 						docData.put(filename, doc);
