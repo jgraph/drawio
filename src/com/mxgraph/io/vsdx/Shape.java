@@ -830,7 +830,7 @@ public class Shape extends Style
 	public String getTextOpacity(String index)
 	{
 		Element colorTrans = getCellElement(mxVsdxConstants.COLOR_TRANS, index, mxVsdxConstants.CHARACTER);
-		String trans = getValue(colorTrans, "1");
+		String trans = getValue(colorTrans, "0");
 		String result = "1";
 		
 		if (trans != null && !trans.isEmpty())

@@ -1,3 +1,9 @@
+24-JUL-2017: 6.9.2
+
+- Add experimental support for bridges
+- Adds fixes to VSDX export
+- Minor UI fixes
+
 19-JUL-2017: 6.9.1
 
 - Adds open button for spreadsheets, videos, photos, maps in GDriveConnector

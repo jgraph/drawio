@@ -9,6 +9,19 @@ import com.mxgraph.io.vsdx.mxVsdxUtils;
 
 public class RowFactory 
 {
+	private static int getIndex(Element elem)
+	{
+		try
+		{
+			return Integer.parseInt(elem.getAttribute("IX"));
+		}
+		catch (Exception e)
+		{
+			//Some non-standard visio file omit the index when it is one 
+			return 1;
+		}
+	}
+	
 	private static Double getDoubleVal(String val)
 	{
 		try
@@ -28,7 +41,7 @@ public class RowFactory
 	public static Row getRowObj(Element elem, List<Row> pRows) 
 	{
 		String rowType = elem.getAttribute("T");
-		int index = Integer.parseInt(elem.getAttribute("IX"));
+		int index = getIndex(elem);
 		String del = elem.getAttribute("Del");
 		if (!del.equals("1"))
 		{

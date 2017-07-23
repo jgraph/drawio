@@ -748,15 +748,17 @@ App.prototype.init = function()
 	 */
 	this.basicAds = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:12px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
-		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
-			encodeURIComponent(mxUtils.trim(mxResources.get('loveIt', ['']))) + '&url=' +
-			encodeURIComponent('https://www.draw.io') + '">' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
-		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://www.facebook.com/sharer.php?p[url]=' + 
+		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://www.facebook.com/sharer.php?u=' + 
 		encodeURIComponent('https://www.draw.io') + '">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>'];
+		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
+		'<a title="draw.io Offline App" href="https://www.draw.io/app" target="_blank">' +
+		'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/download.png"/>&nbsp;&nbsp;draw.io Offline App</a>',
+		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
+			encodeURIComponent(mxUtils.trim(mxResources.get('loveIt', ['']))) + '&url=' +
+			encodeURIComponent('https://www.draw.io') + '&via=drawio">' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>'];
 
 	/**
 	 * Creates github client.
@@ -988,38 +990,61 @@ App.prototype.init = function()
 	
 	if (td != null)
 	{
-		this.basicAds.push(td.innerHTML);
 		this.adsHtml = this.basicAds;
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
 		var lastAd = this.adsHtml.length - 1;
+		var thread = null;
 		
 		this.updateAd = function(index)
 		{
-			if (index == lastAd)
+			if (this.adsHtml.length == 0 && td.parentNode != null)
 			{
-				index = this.adsHtml.length - 1;
+				window.clearInterval(thread);
+				td.parentNode.removeChild(td);
 			}
-
-			if (index != lastAd)
+			else
 			{
-				mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(0)');
-				td.style.opacity = '0';
-				lastAd = index;
-				
-				window.setTimeout(mxUtils.bind(this, function()
+				if (index == lastAd)
 				{
-					td.innerHTML = this.adsHtml[index];
-					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
-					td.style.opacity = '1';
-				}), 1000);
+					index = this.adsHtml.length - 1;
+					lastAd = null;
+				}
+
+				if (index != lastAd)
+				{
+					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(0)');
+					td.style.opacity = '0';
+					lastAd = index;
+				
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						td.innerHTML = this.adsHtml[index];
+						mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
+						td.style.opacity = '1';
+					}), 1000);
+				}
 			}
 		};
 		
-		window.setInterval(mxUtils.bind(this, function()
+		thread = window.setInterval(mxUtils.bind(this, function()
 		{
-			var rnd = Math.random();
-			this.updateAd(Math.round(rnd * (this.adsHtml.length - 1)));
+			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
 		}), 180000);
+		
+		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
+		{
+			this.adsHtml.splice(lastAd, 1);
+			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
+		}));
+
+		if (mxSettings.getOpenCounter() < 3)
+		{
+			this.adsHtml.push(td.innerHTML);
+		}
+		else
+		{
+			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
+		}
 	}
 	
 	if (this.menubar != null)

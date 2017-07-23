@@ -99,7 +99,9 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	cb.setAttribute('checked', 'checked');
 	cb.defaultChecked = true;
 	var count = 0;
-	
+
+	var p3 = document.createElement('p');
+
 	function addLogo(img, title, mode, clientName, labels, clientFn)
 	{
 		var button = document.createElement('a');
@@ -225,6 +227,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 					logo.style.visibility = '';
 					spinner.stop();
 					initButton();
+					
+					if (clientName == 'drive' && p3.parentNode != null)
+					{
+						p3.parentNode.removeChild(p3);
+					}
 				}
 			}));
 		}
@@ -390,7 +397,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			{
 				// To check for Disconnect plugin in chrome use mxClient.IS_GC and check for URL:
 				// chrome-extension://jeoacafpbcihiomhlakheieifhpjdfeo/scripts/vendor/jquery/jquery-2.0.3.min.map
-				var p3 = document.createElement('p');
 				p3.style.padding = '8px';
 				p3.style.fontSize = '9pt';
 				p3.style.marginTop = '-14px';

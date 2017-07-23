@@ -18,15 +18,28 @@ public class mxVsdxGeometry {
 	
 	private ArrayList<Row> rows = null;
 	
+	private int getIndex(Element elem)
+	{
+		try
+		{
+			return Integer.parseInt(elem.getAttribute("IX"));
+		}
+		catch (Exception e)
+		{
+			//Some non-standard visio file omit the index when it is zero 
+			return 0;
+		}
+	}
+	
 	public mxVsdxGeometry(Element elem)
 	{
-		index = Integer.parseInt(elem.getAttribute("IX"));
+		index = getIndex(elem);
 		processGeoElem(elem);
 	}
 
 	public mxVsdxGeometry(Element elem, List<mxVsdxGeometry> parentGeo)
 	{
-		index = Integer.parseInt(elem.getAttribute("IX"));
+		index = getIndex(elem);
 		if (parentGeo != null && index < parentGeo.size())
 		{
 			//inherit all parent values including 

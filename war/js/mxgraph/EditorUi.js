@@ -931,10 +931,10 @@ EditorUi.prototype.sidebarFooterHeight = 34;
 EditorUi.prototype.editButtonLink = null;
 
 /**
- * Specifies the position of the horizontal split bar. Default is 204 or 120 for
- * screen widths <= 500px.
+ * Specifies the position of the horizontal split bar. Default is 190 or 110 for
+ * screen widths <= 640px.
  */
-EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? ((screen.width <= 360) ? 62 : 116) : 208;
+EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 110 : 200;
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.

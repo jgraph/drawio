@@ -106,3 +106,9 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
 // mxRuler
 mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
+
+//Edges bridges
+if (urlParams['bridges'] == '1')
+{
+	mxscript(drawDevUrl + 'js/diagramly/mxEdgeBridge.js');
+}
