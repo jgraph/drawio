@@ -746,19 +746,24 @@ App.prototype.init = function()
 	/**
 	 * Basic adds for all backends.
 	 */
-	this.basicAds = ['<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:12px;" src="images/glyphicons_github.png"/>Fork us on GitHub</a>',
-		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://www.facebook.com/sharer.php?u=' + 
-		encodeURIComponent('https://www.draw.io') + '">' +
+	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
+		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
+		encodeURIComponent(mxResources.get('loveIt', ['www.draw.io'])) +
+		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=280,width=640\');return false;"\'>' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
+		'<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
+		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_github.png"/>' +
+		'Fork us on GitHub</a>',
+		'<a title="' + mxResources.get('loveIt', ['draw.io']) +
+		'" target="_blank" href="https://www.facebook.com/sharer.php?u=' + 
+		encodeURIComponent('https://www.draw.io') +
+		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=520,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
 		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 		'<a title="draw.io Offline App" href="https://www.draw.io/app" target="_blank">' +
-		'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/download.png"/>&nbsp;&nbsp;draw.io Offline App</a>',
-		'<a title="' + mxResources.get('loveIt', ['draw.io']) + '" target="_blank" href="https://twitter.com/intent/tweet?text=' + 
-			encodeURIComponent(mxUtils.trim(mxResources.get('loveIt', ['']))) + '&url=' +
-			encodeURIComponent('https://www.draw.io') + '&via=drawio">' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>'];
+		'<img border="0" align="absmiddle" style="margin-top:-1px;padding-right:8px;" src="images/download.png"/>' +
+		'draw.io Offline App</a>'];
 
 	/**
 	 * Creates github client.
@@ -858,10 +863,15 @@ App.prototype.init = function()
 						// Changes the footer ads for Google Accounts
 						if (this.updateAd != null)
 						{
-							this.adsHtml = this.basicAds.concat(['<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
+							this.adsHtml = this.basicAds.concat([
+								'<a title="' + mxResources.get('loveIt', ['draw.io']) +
+								'" target="_blank" href="https://plus.google.com/share?url=' + encodeURIComponent('https://www.draw.io') +
+								'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=520,width=480\');return false;"\'>' +
+								'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_google.png"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
+								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 								'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
-								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Chrome App</a>',
+								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/download.png"/>&nbsp;&nbsp;Google Chrome App</a>',
 								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
 							this.updateAd(this.adsHtml.length - 1);
@@ -992,22 +1002,25 @@ App.prototype.init = function()
 	{
 		this.adsHtml = this.basicAds;
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
-		var lastAd = this.adsHtml.length - 1;
+		var lastAd = null;
 		var thread = null;
 		
 		this.updateAd = function(index)
 		{
-			if (this.adsHtml.length == 0 && td.parentNode != null)
+			if (this.adsHtml.length == 0)
 			{
-				window.clearInterval(thread);
-				td.parentNode.removeChild(td);
+				if (td.parentNode != null)
+				{
+					window.clearInterval(thread);
+					td.parentNode.removeChild(td);
+				}
 			}
 			else
 			{
 				if (index == lastAd)
 				{
-					index = this.adsHtml.length - 1;
 					lastAd = null;
+					index = 0;
 				}
 
 				if (index != lastAd)
@@ -1034,12 +1047,18 @@ App.prototype.init = function()
 		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
 		{
 			this.adsHtml.splice(lastAd, 1);
-			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
+			lastAd = null;
+			this.updateAd(0);
 		}));
 
 		if (mxSettings.getOpenCounter() < 3)
 		{
 			this.adsHtml.push(td.innerHTML);
+			lastAd = this.adsHtml.length - 1;
+		}
+		else if (mxSettings.getOpenCounter() < 4)
+		{
+			this.updateAd(0);
 		}
 		else
 		{
@@ -2333,13 +2352,13 @@ App.prototype.start = function()
  */
 App.prototype.showSplash = function(force)
 {
-	var serviceCount = this.getServiceCount(false);
+	var serviceCount = this.getServiceCount(false) + 1;
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (serviceCount < 2) ? 180 : 260, true, true,
+		this.showDialog(dlg.container, 340, (serviceCount < 2 || mxClient.IS_CHROMEAPP) ? 160 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
@@ -2363,7 +2382,6 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
-		serviceCount++;
 		var rowLimit = (serviceCount <= 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
