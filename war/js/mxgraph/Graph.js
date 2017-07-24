@@ -1040,7 +1040,7 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 {
 	var href = elt.getAttribute('href');
 	
-	if (href != null)
+	if (href != null && !this.isPageLink(href))
 	{
 		var target = state.view.graph.isBlankLink(href) ?
 			state.view.graph.linkTarget : '_top';
@@ -4516,7 +4516,6 @@ if (typeof mxVertexHandler != 'undefined')
 									mxEvent.addListener(links[i], 'click', function(evt)
 									{
 										mxEvent.consume(evt);
-										console.log('consumed');
 									});
 								}
 								else
@@ -4646,7 +4645,6 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 					    		
 					    		me.consume();
-								console.log('consumed');
 				    		}
 				    	}
 				    	else if (onClick != null && !me.isConsumed() &&
