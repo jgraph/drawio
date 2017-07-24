@@ -320,7 +320,14 @@ EditorUi = function(editor, container, lightbox)
 	// Workaround for page scroll if embedded via iframe
 	if (window.self === window.top && graph.container.parentNode != null)
 	{
-		graph.container.focus();
+		try
+		{
+			graph.container.focus();
+		}
+		catch (e)
+		{
+			// ignores error in old versions of IE
+		}
 	}
 
    	// Keeps graph container focused on mouse down
@@ -1637,8 +1644,8 @@ EditorUi.prototype.initCanvas = function()
 				mxEvent.consume(evt);
 			}), Editor.editLargeImage, mxResources.get('openInNewWindow'));
 		}
-
-		if (graph.lightbox && this.container != document.body)
+		
+		if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))
 		{
 			addButton(mxUtils.bind(this, function(evt)
 			{

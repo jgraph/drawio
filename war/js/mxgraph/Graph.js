@@ -1053,7 +1053,17 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 		}
 		else
 		{
-			window.open(href, target);
+			// Avoids page reload for anchors (workaround for IE but used everywhere)
+			if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
+				href.charAt(this.baseUrl.length) == '#' &&
+				target == '_top' && window == window.top)
+			{
+				window.location.hash = href.split('#')[1];
+			}
+			else
+			{
+				window.open(href, target);
+			}
 		}
 		
 		mxEvent.consume(evt);
@@ -4509,19 +4519,7 @@ if (typeof mxVertexHandler != 'undefined')
 							
 							if (beforeClick != null)
 			    			{
-								// Workaround for no click events on touch
-								if (mxClient.IS_TOUCH)
-								{
-									mxEvent.addGestureListeners(links[i], null, null, beforeClick);
-									mxEvent.addListener(links[i], 'click', function(evt)
-									{
-										mxEvent.consume(evt);
-									});
-								}
-								else
-								{
-									mxEvent.addListener(links[i], 'click', beforeClick);
-								}
+								mxEvent.addGestureListeners(links[i], null, null, beforeClick);
 			    			}
 						}
 					}
@@ -4616,9 +4614,12 @@ if (typeof mxVertexHandler != 'undefined')
 			    	var source = me.getSource();
 			    	
 			    	// Ignores clicks on links and collapse/expand icon
-			    	if (source.nodeName.toLowerCase() != 'a' && !me.isConsumed() &&
+			    	if (source.nodeName.toLowerCase() != 'a' &&
+			    		(Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
+			        	Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
 			    		(me.getState() == null || !me.isSource(me.getState().control)) &&
-			    		(mxEvent.isLeftMouseButton(me.getEvent()) || mxEvent.isTouchEvent(me.getEvent())))
+			    		(mxEvent.isLeftMouseButton(me.getEvent()) ||
+			    		mxEvent.isTouchEvent(me.getEvent())))
 			    	{
 				    	if (this.currentLink != null) 
 				    	{
@@ -4641,7 +4642,17 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 								else
 								{
-									window.open(this.currentLink, target);
+									// Avoids page reload for anchors (workaround for IE but used everywhere)
+									if (this.currentLink.substring(0, graph.baseUrl.length) == graph.baseUrl &&
+										this.currentLink.charAt(graph.baseUrl.length) == '#' &&
+										target == '_top' && window == window.top)
+									{
+										window.location.hash = this.currentLink.split('#')[1];
+									}
+									else
+									{
+										window.open(this.currentLink, target);
+									}
 								}
 					    		
 					    		me.consume();

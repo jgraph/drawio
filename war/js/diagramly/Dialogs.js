@@ -513,24 +513,28 @@ var SplashDialog = function(editorUi)
 		service = mxResources.get('device');
 	}
 
-	hd.appendChild(logo);
-	
-	mxUtils.write(hd, service);
-		
-	div.appendChild(hd);
-
 	var buttons = document.createElement('div');
+	buttons.style.margin = '4px 0px 0px 0px';
 	
+	if (!mxClient.IS_CHROMEAPP)
+	{
+		hd.appendChild(logo);
+		mxUtils.write(hd, service);
+		div.appendChild(hd);
+		buttons.style.border = '1px solid #d3d3d3';
+		buttons.style.borderWidth = '1px 0px 1px 0px';
+		buttons.style.padding = '18px 0px 24px 0px';
+	}
+	else
+	{
+		buttons.style.padding = '24px 0px 28px 0px';
+	}
+
 	if (mxClient.IS_QUIRKS)
 	{
 		buttons.style.whiteSpace = 'nowrap';
 		buttons.style.cssFloat = 'left';
 	}
-
-	buttons.style.border = '1px solid #d3d3d3';
-	buttons.style.borderWidth = '1px 0px 1px 0px';
-	buttons.style.padding = '18px 0px 24px 0px';
-	buttons.style.margin = '4px 0px 0px 0px';
 	
 	var btn = document.createElement('button');
 	btn.className = 'geBigButton';
@@ -698,39 +702,24 @@ var SplashDialog = function(editorUi)
 			});
 		}
 		
-		if (serviceCount > 1)
+		var link = document.createElement('a');
+		link.setAttribute('href', 'javascript:void(0)');
+		link.style.display = 'block';
+		link.style.marginTop = '8px';
+		mxUtils.write(link, mxResources.get('notUsingService', [storage]));
+		
+		mxEvent.addListener(link, 'click', function()
 		{
-			var link = document.createElement('a');
-			link.setAttribute('href', 'javascript:void(0)');
-			link.style.display = 'block';
-			link.style.marginTop = '8px';
-			mxUtils.write(link, mxResources.get('notUsingService', [storage]));
-			
-			mxEvent.addListener(link, 'click', function()
-			{
-				editorUi.hideDialog(false);
-				editorUi.setMode(null);
-				editorUi.clearMode();
-				editorUi.showSplash(true);
-			});
-			
-			buttons.appendChild(link);
-		}
+			editorUi.hideDialog(false);
+			editorUi.setMode(null);
+			editorUi.clearMode();
+			editorUi.showSplash(true);
+		});
+		
+		buttons.appendChild(link);
 	}
-	
+		
 	div.appendChild(buttons);
-	
-	// Changes Chrome App dialog
-	if (serviceCount < 2)
-	{
-		hd.style.paddingTop = '12px';
-		hd.innerHTML = '';
-		mxUtils.write(hd, mxResources.get('chooseAnOption') + ':');
-		buttons.style.border = 'none';
-		buttons.style.padding = '16px 0px 0px 0px';
-		btn.style.marginBottom = '0px';
-	}
-	
 	this.container = div;
 };
 
