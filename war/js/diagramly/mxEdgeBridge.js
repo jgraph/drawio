@@ -112,9 +112,9 @@ mxConnector.prototype.paintLine = function(canvas, pts, rounded)
         	  {
         		  var eState = graph.view.getState(edge);
         		  
-        		  if (eState.absolutePoints != null) 
+        		  if (eState != null && eState.absolutePoints != null) 
         		  {
-                    var eScale = eState.shape.scale;
+                    var eScale = eState.view.scale;
                     
                     for (var j = 0; j < eState.absolutePoints.length - 1; j++)
               	  	{

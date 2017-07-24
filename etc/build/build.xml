@@ -234,7 +234,6 @@
 				<file name="EditorUi.js" />
 				<file name="Settings.js" />
 				<file name="App.js" />
-				<file name="mxEdgeBridge.js" />
 				<file name="Menus.js" />
 				<file name="Pages.js" />
 			</sources>
@@ -317,7 +316,6 @@
 			
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="App.js" />
-				<file name="mxEdgeBridge.js" />
 				<file name="Menus.js" />
 				<file name="Pages.js" />
 			</sources>
