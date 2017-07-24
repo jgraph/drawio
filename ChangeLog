@@ -1,3 +1,12 @@
+24-JUL-2017: 6.9.4
+
+- Fixes hyperlinks in viewer
+
+24-JUL-2017: 6.9.3
+
+- Uses mxGraph 3.7.5 beta 5
+- Add experimental support for bridges in dev mode only
+
 24-JUL-2017: 6.9.2
 
 - Add experimental support for bridges

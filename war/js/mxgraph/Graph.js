@@ -993,6 +993,7 @@ Graph.prototype.init = function(container)
 		
 		var down = mxUtils.bind(this, function(evt)
 		{
+			handleClick = true;
 			first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 		});
 		
@@ -1011,7 +1012,7 @@ Graph.prototype.init = function(container)
 				
 				while (elt != null && elt != shape.node)
 				{
-					if (elt.nodeName == 'A')
+					if (elt.nodeName.toLowerCase() == 'a')
 					{
 						state.view.graph.labelLinkClicked(state, elt, evt);
 						break;
@@ -1020,9 +1021,6 @@ Graph.prototype.init = function(container)
 					elt = elt.parentNode;
 				}
 			}
-			
-			handleClick = true;
-			first = null;
 		});
 		
 		mxEvent.addGestureListeners(shape.node, down, move, up);
@@ -4518,6 +4516,7 @@ if (typeof mxVertexHandler != 'undefined')
 									mxEvent.addListener(links[i], 'click', function(evt)
 									{
 										mxEvent.consume(evt);
+										console.log('consumed');
 									});
 								}
 								else
@@ -4647,6 +4646,7 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 					    		
 					    		me.consume();
+								console.log('consumed');
 				    		}
 				    	}
 				    	else if (onClick != null && !me.isConsumed() &&
