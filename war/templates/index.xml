@@ -4,6 +4,8 @@
 <template url="business/bpmn.xml" libs="general;bpmn"/>
 <template url="business/business_model_1.xml" libs="general;signs"/>
 <template url="business/business_model_2.xml" libs="general"/>
+<template url="business/ishikawa_1.xml" libs="general"/>
+<template url="business/ishikawa_2.xml" libs="general"/>
 <template url="business/pert_1.xml" libs="general"/>
 <template url="business/pert_2.xml" libs="general"/>
 <template url="business/timeline_1.xml" libs="general"/>

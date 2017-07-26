@@ -102,6 +102,8 @@ public class Style
 		catch (Exception e)
 		{
 			// TODO handle exception correctly
+			//For numbers outside Integer range (usually unused/deleted shape), we just set the id to -1
+			this.Id = -1;
 		}
 		
 		cacheCells(model);

@@ -144,6 +144,13 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		{
 			label.style.paddingTop = '5px';
 			label.style.whiteSpace = 'normal';
+			
+			// Handles special case
+			if (mxClient.IS_IOS)
+			{
+				button.style.padding = '0px 10px 20px 10px';
+				button.style.top = '6px';
+			}
 		}
 		
 		button.appendChild(label);
@@ -516,7 +523,12 @@ var SplashDialog = function(editorUi)
 	var buttons = document.createElement('div');
 	buttons.style.margin = '4px 0px 0px 0px';
 	
-	if (!mxClient.IS_CHROMEAPP)
+	var btn = document.createElement('button');
+	btn.className = 'geBigButton';
+	btn.style.overflow = 'hidden';
+	btn.style.width = '340px';
+	
+	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
 		hd.appendChild(logo);
 		mxUtils.write(hd, service);
@@ -524,10 +536,12 @@ var SplashDialog = function(editorUi)
 		buttons.style.border = '1px solid #d3d3d3';
 		buttons.style.borderWidth = '1px 0px 1px 0px';
 		buttons.style.padding = '18px 0px 24px 0px';
+		btn.style.marginBottom = '8px';
 	}
 	else
 	{
-		buttons.style.padding = '24px 0px 28px 0px';
+		buttons.style.padding = '42px 0px 56px 0px';
+		btn.style.marginBottom = '12px';
 	}
 
 	if (mxClient.IS_QUIRKS)
@@ -535,13 +549,7 @@ var SplashDialog = function(editorUi)
 		buttons.style.whiteSpace = 'nowrap';
 		buttons.style.cssFloat = 'left';
 	}
-	
-	var btn = document.createElement('button');
-	btn.className = 'geBigButton';
-	btn.style.marginBottom = '8px';
-	btn.style.overflow = 'hidden';
-	btn.style.width = '340px';
-	
+
 	if (mxClient.IS_QUIRKS)
 	{
 		btn.style.width = '340px';
@@ -605,7 +613,7 @@ var SplashDialog = function(editorUi)
 		storage = mxResources.get('browser');
 	}
 	
-	if (!mxClient.IS_CHROMEAPP)
+	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
 		var driveUser = (editorUi.drive != null) ? editorUi.drive.getUser() : null;
 		

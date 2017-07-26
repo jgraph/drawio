@@ -31,41 +31,8 @@
 			this.createVertexTemplateEntry(s + 'iBgFlat;strokeColor=#18211b;fillColor=#dddddd;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (gray)', null, null, null),
 			this.createVertexTemplateEntry(s + 'iBgStriped;strokeColor=#18211b;fillColor=#5D7585;strokeColor2=#657E8F;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (striped)', null, null, null),
 			this.createVertexTemplateEntry(s + 'iBgMap;strokeColor=#18211b;fillColor=#ffffff;strokeColor2=#008cff;fillColor2=#96D1FF;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (map)', null, null, null),
-
-			this.addEntry(null, function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s4 + 'rrect;rSize=5;strokeColor=#444444;fillColor=#ffffff;gradientColor=none;');
-			   	bg.vertex = true;
-			   	var button1 = new mxCell('Item 1', new mxGeometry(0, 0, 165, 12.5), s4 + 'topButton;rSize=5;fillColor=none;strokeColor=#c4c4c4;align=left;spacingLeft=10;fontSize=8;fontColor=#666666;');
-			   	button1.vertex = true;
-			   	bg.insert(button1);
-			   	var text1 = new mxCell('>', new mxGeometry(140, 1, 10, 10), s4 + 'anchor;fontColor=#c4c4c4;fontStyle=1;');
-			   	text1.vertex = true;
-			   	button1.insert(text1);
-			   	var button3 = new mxCell('Item 3', new mxGeometry(0, 25, 165, 12.5), s4 + 'rrect;rSize=0;fillColor=none;strokeColor=#c4c4c4;align=left;spacingLeft=10;fontSize=8;fontColor=#666666;');
-			   	button3.vertex = true;
-			   	bg.insert(button3);
-			   	var text3 = new mxCell('>', new mxGeometry(140, 1, 10, 10), s4 + 'anchor;fontColor=#c4c4c4;fontStyle=1;');
-			   	text3.vertex = true;
-			   	button3.insert(text3);
-			   	var button4 = new mxCell('Item 4', new mxGeometry(0, 37.5, 165, 12.5), s4 + 'bottomButton;rSize=5;fillColor=none;strokeColor=#c4c4c4;align=left;spacingLeft=10;fontSize=8;fontColor=#666666;');
-			   	button4.vertex = true;
-			   	bg.insert(button4);
-			   	var text4 = new mxCell('>', new mxGeometry(140, 1, 10, 10), s4 + 'anchor;fontColor=#c4c4c4;fontStyle=1;');
-			   	text4.vertex = true;
-			   	button4.insert(text4);
-			   	var button2 = new mxCell('Item 2', new mxGeometry(0, 12.5, 165, 12.5), s4 + 'rrect;rSize=0;fillColor=#5D7585;strokeColor=none;align=left;spacingLeft=10;fontSize=8;fontColor=#ffffff;gradientColor=#008cff;');
-			   	button2.vertex = true;
-			   	bg.insert(button2);
-			   	var text2 = new mxCell('>', new mxGeometry(140, 1, 10, 10), s4 + 'anchor;fontColor=#c4c4c4;fontStyle=1;');
-			   	text2.vertex = true;
-			   	button2.insert(text2);
-			   	var fg = new mxCell('', new mxGeometry(0, 0, 165, 50), s4 + 'rrect;rSize=5;strokeColor=#444444;fillColor=none;');
-			   	fg.vertex = true;
-			   	bg.insert(fg);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button bar');
-			}),
+			this.addDataEntry(null, 165, 50, 'Button bar',
+				'3ZfdboIwFMefhltSKCjeIptZsl3tCTqo0KxQUurUPf0OpfgJiVN0OowJ55z20P7Ov01r4Wm+mklSZm8iodzCTxaeSiFU85avppRzy0UssXBkuS6Cv+U+90QdHUUlkbRQp3Rwmw5fhC9o42kclVpz48hUDsOKHAuHVUYSsQQDgZGQKqOJMSBS1u3zVVrPxWaisqWkMQwilO/su475dTslxSedCi6kzo49/UBkzjjf8c/1A37IlzCYTRsrRAHJQjNuKhVd9c5du8zEZ1TkVMk1NFmyRGWmxchvumWUpZnp5jfMEKkaO9103ZKEFwOzGyw+AvuiaA4eZzjASpThQilRHEDeRWlwHXGPvfoHEcJZCgkiTud1saqSxKxIX7UVOfWn56JQJntgzJ1EI/2cWhH3vIo4ru1fXhOvQ+yjVG3GPkRNSBFnNZpDTBvemqb5kHMqNtyNre3gGcGu9xLsQkUdTAdQud+ncny9bQQ9pMJNaVpitxH86GEF79+p4Md9gveGI/ohYE/P/8nObiqEx/ZNlR88rPLHd6r8SZ/yr3hiPNzqAa4fjf3g+CRpFsOlku89dUIMoSDWsQGWw1bkt1kOrQAecD1M7nQ9OE4H0r+/Ov3menTmYfyM6xGY2zutju1deX8A'),
 
 			this.addEntry(null, function()
 			{
@@ -130,54 +97,10 @@
 					sizeX * 0.2175, sizeY * 0.0375, '', 'Prev/next button', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;fontColor=#000000;buttonText=;fontSize=8;fillColor=#ffffff;whiteSpace=wrap;align=left;', 
 					sizeX * 0.2175, sizeY * 0.0375, 'Default text', 'Text input', null, null, null),
-
-			this.addEntry(null, function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s4 + 'rrect;rSize=3;strokeColor=#666666;fillColor=#ffffff;gradientColor=none;recursiveResize=0');
-			   	bg.vertex = true;
-			   	var radio1 = new mxCell('Option 1', new mxGeometry(2.5, 3.5, 5, 5), 
-			   			'shape=ellipse;resizable=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio1.vertex = true;
-			   	bg.insert(radio1);
-			   	var radio2 = new mxCell('Option 2', new mxGeometry(2.5, 16, 5, 5), 
-	   					'shape=ellipse;resizable=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio2.vertex = true;
-			   	bg.insert(radio2);
-			   	var radio3 = new mxCell('Option 3', new mxGeometry(2.5, 28.5, 5, 5), 
-						'shape=ellipse;resizable=0;fillColor=#444444;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio3.vertex = true;
-			   	bg.insert(radio3);
-			   	var radio4 = new mxCell('Option 4', new mxGeometry(2.5, 41, 5, 5), 
-			   			'shape=ellipse;resizable=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio4.vertex = true;
-			   	bg.insert(radio4);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Radio Buttons');
-			}),
-	
-			this.addEntry(null, function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s4 + 'rrect;rSize=3;strokeColor=#666666;fillColor=#ffffff;gradientColor=none;recursiveResize=0;');
-			   	bg.vertex = true;
-			   	var radio1 = new mxCell('Setting 1', new mxGeometry(2.5, 3.5, 5, 5), 
-			   			s4 + 'rrect;rSize=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio1.vertex = true;
-			   	bg.insert(radio1);
-			   	var radio2 = new mxCell('Setting 2', new mxGeometry(2.5, 16, 5, 5), 
-			   			s4 + 'rrect;rSize=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio2.vertex = true;
-			   	bg.insert(radio2);
-			   	var radio3 = new mxCell('Setting 3', new mxGeometry(2.5, 28.5, 5, 5), 
-			   			s4 + 'checkbox;fillColor=#999999;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio3.vertex = true;
-			   	bg.insert(radio3);
-			   	var radio4 = new mxCell('Setting 4', new mxGeometry(2.5, 41, 5, 5), 
-			   			s4 + 'rrect;rSize=0;fillColor=#dddddd;align=left;spacingLeft=2;fontSize=8;fontColor=#666666;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;spacingTop=3;');
-			   	radio4.vertex = true;
-			   	bg.insert(radio4);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Checkboxes');
-			}),
+			this.addDataEntry(null, 165, 50, 'Radio Buttons',
+				'7VbbbsIwDP2avqI2AcTrgI2XTZu2/UAgpo2WNlWSMdjXz0kMu0AlNLa9jEiV6nNsyz6nkZrxSb2eWdFWN0aCzvhlxifWGJ/e6vUEtM5YrmTGpxljOT4Zu+pgi8jmrbDQ+GMKWCpYCf0MCUmA8xtNQOVrHGtaZHzsKiHNCwY5BlK4CiQFyLQhv16XYZeeMq5nLSxwiLF9UK+B4yHPW/MEE6ONjd35MB5klkrrD/gyHsSxn1S4zZZrTAOhKSyerVMruAeX2ue0ClgP6045IkRazMDU4O0GU16U9BVlDAeprAJVVlQ2oO7Cpbjclb6Liy+k72Gt+Z7Wt61XpkGs2FN9Kyi2UK1LG+OiYq6BJP8imIwHcaFV2SCmYRnUd61YqKa8jtGUhULTeLJkROEhQ7SYg74zTsUZ+dQmNcZBYLUQ+voLXyspw3C7hAsaZEfQKI+mpa/hKMfYYceogPXIrQ2JvI0/OHrIz9Pt7HfbuX+JznZ+z85i+EduDrrd5Ke72Y/n37vJRn92O4fdfvbPt/OH/OwXv+Mmhu+/QJH79If0Bg=='),
+			this.addDataEntry(null, 165, 50, 'Checkboxes',
+				'7ZZbT8IwFMc/zV7J1gLBRxnKCyZG/AJlPWyN3bq0RYef3tOLeGEQEoUXbbKk55rT/29NmtC87uaatdWd4iATepPQXCtlw67ucpAyIangCZ0lhKT4JeT2QDTz0bRlGhp7SgEJBc9MbiB4gsPYrYyOytY41ixL6NRUjKsXNFI0ODMV8GhgpHX5dVe6swyEMgOtocAhpnopXl2Mujyr1RPkSirtu9OxXxhZCyk/+dd+oR/7cYGneY81qgHXFIqNNuIZHsCE9m6MeBrQFrqDinhXlGMOqgart5jyIritYsZ4FMoqEGUVy0ZByZSZYJe70g99cRMl7peb7sm9BGtFU6IzO5/y6b6+3C/0MynKBn0S1q7EtKzAeRbemhFXqBob+0yi2cdPshXIe2WEFcr100G5qYMhCiYX3+K14NwddJdwHQfZBeIoj6qNP89JdEk/3VhABpHsNgJ5tz/R72P/c/TDI+jPeOn+0R9Cn40vRH50hDz9PfJFBcXTSnX7wK/8+vPAyeRil318BPnw/7Jfnv0wOw95ND8eaz725S33Bg=='),
 			   	
 			this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;', 
 					sizeX * 0.29, sizeY * 0.0375, 'Option 1', 'Combobox', null, null, null),
@@ -185,49 +108,10 @@
 					'ON', 'On-off button', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;fontColor=#000000;align=left;buttonText=;fontSize=8;fillColor=#ffffff;', sizeX * 0.2175, sizeY * 0.0375, 
 					'********', 'Password field', null, null, null),
-
-			this.addEntry(null, function()
-			{
-			   	var bg = new mxCell(
-			   			'Alert description text\ndescription text second line', 
-			   			new mxGeometry(0, 0, 150, 100), s4 + 'fancyRRect;rSize=8;strokeColor=#dddddd;fillColor=#497198;gradientColor=#193168;opacity=80;fontColor=#ffffff;fontSize=9;whiteSpace=wrap;align=center;');
-			   	bg.vertex = true;
-			   	var text1 = new mxCell('Something happened', new mxGeometry(0, 0, 150, 25), s4 + 'anchor;fontSize=13;fontColor=#ffffff;whiteSpace=wrap;resizeWidth=1;');
-			   	text1.geometry.relative = true;
-			   	text1.vertex = true;
-			   	bg.insert(text1);
-			   	var button1 = new mxCell('Button', new mxGeometry(0.5, 1, 80, 20), s4 + 'rrect;rSize=3;fontSize=9;fontColor=#ffffff;strokeColor=#ffffff;fillColor=#497198;gradientColor=#c5cee1;opacity=80;whiteSpace=wrap;');
-			   	button1.geometry.relative = true;
-			   	button1.geometry.offset = new mxPoint(-40, -25);
-			   	button1.vertex = true;
-			   	bg.insert(button1);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Alert Box');
-			}),
-
-			this.addEntry(null, function()
-			{
-			   	var bg = new mxCell(
-			   			'Dialog question text\nquestion text second line', 
-			   			new mxGeometry(0, 0, 150, 100), s4 + 'fancyRRect;rSize=8;strokeColor=#dddddd;fillColor=#497198;gradientColor=#193168;opacity=80;fontColor=#ffffff;fontSize=9;whiteSpace=wrap;align=center;');
-			   	bg.vertex = true;
-			   	var text1 = new mxCell('Something happened', new mxGeometry(0, 0, 150, 25), s4 + 'anchor;fontSize=13;fontColor=#ffffff;whiteSpace=wrap;resizeWidth=1;');
-			   	text1.geometry.relative = true;
-			   	text1.vertex = true;
-			   	bg.insert(text1);
-			   	var button1 = new mxCell('Cancel', new mxGeometry(0.25, 1, 65, 20), s4 + 'rrect;rSize=3;fontSize=9;fontColor=#ffffff;strokeColor=#ffffff;fillColor=#497198;gradientColor=#c5cee1;opacity=80;whiteSpace=wrap;');
-			   	button1.geometry.relative = true;
-			   	button1.geometry.offset = new mxPoint(-32.5, -25);
-			   	button1.vertex = true;
-			   	bg.insert(button1);
-			   	var button2 = new mxCell('OK', new mxGeometry(0.75, 1, 65, 20), s4 + 'rrect;rSize=3;fontSize=9;fontColor=#ffffff;strokeColor=#ffffff;fillColor=#497198;gradientColor=#c5cee1;opacity=80;whiteSpace=wrap;');
-			   	button2.geometry.relative = true;
-			   	button2.geometry.offset = new mxPoint(-32.5, -25);
-			   	button2.vertex = true;
-			   	bg.insert(button2);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dialog Box');
-			}),
+			this.addDataEntry(null, 150, 100, 'Alert Box',
+				'rVVNb6MwEP01PjaycdI2x02629NKq+awZwsGbNXYyHYb6K/fMTgNCLJKP5CQmDdf9nszgvB93T460cjftgBN+E/C987aMHzV7R60JhlVBeEPJMsoviT7dcHLei9thAMTrknIhoRXoV9gQH5ocAGhAnzuVBOUNWgFaBG8JRlnlPDdkpN6yK0p8EMrA0NdHzqd6spQ4+0eGGZ7KQp7RKMvJbyEIhnoaWJ83VaRkpWyflUKk3dPT5DjhXbuoN5iwH0MDs4+w95q6/oWvOgf9JRK6xG+3t6xbczAooVCZkY+tuXsNvpsI3IVulg7nqS0k7CyfxKezrBF8yhVgAOmRuCIZ0ZMaFUZNHPsBJi/Sxwjr9Be1KmHkkiPYGsIrsOQoyqCTBGbQUsqQVXylEYTKPwAVO+5Z9nxIym/PAV8NgWHWEQqU8V2omnAoEbfJikqKiOzYzYZ/w/rSzQ78Jj5N/HDruU5+xzP2WbAHGgR1CtM6n+F+/WM+91LCHGvvott56a7w+djfIn32Yqd9+D6Fcs3OQCbr9iSqF+RMCXQVZKqmxQYCXy/pC/9oL6p/x+rTDg3v1nTSfOb09ycStiy9BBmA/J+jaWZQfP8RxjCxz+Mfw=='),
+			this.addDataEntry(null, 150, 100, 'Dialog Box',
+				'7VZNb6MwEP01PjbCdkk315BuD6vVrprDni08YKsGs8ZtQn99x+A0IJJVtu2pKhKS59P2e28QhGfV/s6JRv20Egzht4Rnzlo/rKp9BsYQlmhJ+IYwluBL2PczUdpHk0Y4qP0lBWwoeBLmEQbPRgtjS/T9fYTWa1vj0sPeE7YkjNOE8PUskrSQ21riwugahpat70xsqXyFF9tQLG2VkHaHRugjRatARgMjTciv9mVAY6FtuyhEnXf395DjXdZuq59DwreQ7J19gMwa6/otuOwfjBTamJH/enVDV6ECm0qNoIxidMXpMsRsI3Ltu9A7nKSwk7Sif6I/nmGF5k5pD1ssDY4dnhl9wuiyRjPHnQDr1xFecAjUWYp6V+TnDmwF3nWYstPSq5iRDjQmCnSpDmVJdIp2cJSvtUfGcRFJPy0APhPANjRRug4aQE4aqJGjD6MUGVUB2TGalP8D9VMwO2ix8k/Eh16KM3sbziwdfA6M8PoJJv3fg/31DPsM4cGPwIeh7dx0dvhcxudwn43YcQ4uH7E8zQHofMROkfoeCmNBsjhw1U06jBhepicITv6T4HiA31bX/rj7FWeL6fZXh+McmtiiaMHPNPJ6k4tkk85k8+vHl2TeLJmbzycZNI+/EEP6+A/jBQ=='),
 
 			this.createVertexTemplateEntry(s2 + 'iLockButton;fontColor=#cccccc;fontSize=13;mainText=;spacingLeft=50;spacingRight=10;align=center;', sizeX * 0.87, sizeY * 0.125, 'slide to unlock', 'Lock button', null, null, null),
 			this.createVertexTemplateEntry(s + 'iArrowIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff;', sizeX * 0.075, sizeY * 0.0375, '', 'Arrow', null, null, null),

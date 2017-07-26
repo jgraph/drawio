@@ -1,3 +1,8 @@
+26-JUL-2017: 6.9.6
+
+- Switches to Google Cloud SDK
+- Adds fishbone diagram templates in business section
+
 24-JUL-2017: 6.9.5
 
 - Fixes anchor links in lightbox for viewer
