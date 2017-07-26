@@ -16,28 +16,8 @@
 		var fns =
 		[
 			this.createVertexTemplateEntry(s2 + 'boat_shipment;align=center;', w, h, '', 'Boat Shipment', null, null, this.getTagsForStencil(gn, 'boat_shipment', dt).join(' ')),
-			this.addEntry(dt + 'data box', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 60, 100), s + 'data_box;html=1;');
-			   	bg.vertex = true;
-			   	var text1 = new mxCell('C/T=', new mxGeometry(0, 0, 60, 20), 'text;fontSize=8;spacingLeft=2;verticalAlign=middle;html=1;');
-			   	text1.vertex = true;
-			   	bg.insert(text1);
-			   	var text2 = new mxCell('C/O=', new mxGeometry(0, 20, 60, 20), 'text;fontSize=8;spacingLeft=2;verticalAlign=middle;html=1;');
-			   	text2.vertex = true;
-			   	bg.insert(text2);
-			   	var text3 = new mxCell('Batch=', new mxGeometry(0, 40, 60, 20), 'text;fontSize=8;spacingLeft=2;verticalAlign=middle;html=1;');
-			   	text3.vertex = true;
-			   	bg.insert(text3);
-			   	var text4 = new mxCell('Avail=', new mxGeometry(0, 60, 60, 20), 'text;fontSize=8;spacingLeft=2;verticalAlign=middle;html=1;');
-			   	text4.vertex = true;
-			   	bg.insert(text4);
-			   	var text5 = new mxCell('', new mxGeometry(0, 80, 60, 20), 'text;fontSize=8;spacingLeft=2;verticalAlign=middle;html=1;');
-			   	text5.vertex = true;
-			   	bg.insert(text5);
-
-	   			return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Data Box');
-			}),
+			this.addDataEntry(dt + 'data box', 60, 100, 'Data Box',
+				'1ZVfT8MgFMU/Da9LB7Pude10LxofNPFxuRZWiLQQirP10wstczbd4p9osz00uT2XA/f8HgCRtKhXBjS/VZRJRK4QSY1StquKOmVSIhwJisgSYRy5D+HrI91p2400GFba7xhwZ9iCfGGd0gmVbWQQKmvUM3sU1HInYEQSbgs36HLqyoqD9uuKOvcZJpJBuS5Aa1HmEwoW1k+q7lvCicxYVh+dupXCyCumCmZN45a8hilcN+6CRZyJnO9cURCh6oT8w7pn4IqA4TASMkDiLQ87Op/RuATu5GSjSnsv3rw490w0ZC7+DdvYAMyHFRnIhRR56WkJSv0eP8aCf4UF/wGV2UEqd6dMpemnHwHSxQBSAjbjZwBpNh6keABpsQUhzwBSPB6ky6/v5RODM/83OO53/yC2vd57+Q4='),
 		   	
 			this.createVertexTemplateEntry(s + 'outside_sources;whiteSpace=wrap;align=center;', w, h * 0.7, 
 					'<table cellpadding="5" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +

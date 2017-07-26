@@ -861,7 +861,9 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	
 	// Adds paging for repos and branches (files limited to 1000 by API)
 	var pageSize = 100;
-	
+	var nextPageDiv = null;
+	var scrollFn = null;
+
 	var selectRef = mxUtils.bind(this, function(page)
 	{
 		if (page == null)
@@ -875,18 +877,42 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		dlg.okButton.setAttribute('disabled', 'disabled');
 		this.ui.spinner.spin(div, mxResources.get('loading'));
 		
+		if (nextPageDiv != null && nextPageDiv.parentNode != null)
+		{
+			nextPageDiv.parentNode.removeChild(nextPageDiv);
+		}
+		
+		nextPageDiv = document.createElement('a');
+		nextPageDiv.style.display = 'block';
+		nextPageDiv.setAttribute('href', 'javascript:void(0);');
+		mxUtils.write(nextPageDiv, mxResources.get('more') + '...');
+		
+		var nextPage = mxUtils.bind(this, function()
+		{
+			mxEvent.removeListener(div, 'scroll', scrollFn);
+			selectRef(page + 1);
+		});
+		
+		mxEvent.addListener(nextPageDiv, 'click', nextPage);
+		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
 			this.ui.spinner.stop();
-			updatePathInfo(true);
-			var branches = JSON.parse(req.getText());
 			
-			div.appendChild(createLink('../ [Up]', mxUtils.bind(this, function()
+			if (page == 1)
 			{
-				path = null;
-				selectRepo();
-			})));
-			mxUtils.br(div);
+				updatePathInfo(true);
+				
+				div.appendChild(createLink('../ [Up]', mxUtils.bind(this, function()
+				{
+					path = null;
+					selectRepo();
+				})));
+				
+				mxUtils.br(div);
+			}
+
+			var branches = JSON.parse(req.getText());
 			
 			if (branches == null || branches.length == 0)
 			{
@@ -910,16 +936,17 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 				
 				if (branches.length == pageSize)
 				{
-					var nextPage = mxUtils.bind(this, function()
-					{
-						if (div.scrollTop == div.scrollHeight - div.offsetHeight)
-						{
-							mxEvent.removeListener(div, 'scroll', nextPage);
-							selectRef(page + 1);
-						}
-					});
+					div.appendChild(nextPageDiv);
 					
-					mxEvent.addListener(div, 'scroll', nextPage);
+					scrollFn = function()
+					{
+						if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
+						{
+							nextPage();
+						}
+					};
+					
+					mxEvent.addListener(div, 'scroll', scrollFn);
 				}
 			}
 		}), error);
@@ -938,6 +965,24 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		dlg.okButton.setAttribute('disabled', 'disabled');
 		this.ui.spinner.spin(div, mxResources.get('loading'));
 		
+		if (nextPageDiv != null && nextPageDiv.parentNode != null)
+		{
+			nextPageDiv.parentNode.removeChild(nextPageDiv);
+		}
+		
+		nextPageDiv = document.createElement('a');
+		nextPageDiv.style.display = 'block';
+		nextPageDiv.setAttribute('href', 'javascript:void(0);');
+		mxUtils.write(nextPageDiv, mxResources.get('more') + '...');
+		
+		var nextPage = mxUtils.bind(this, function()
+		{
+			mxEvent.removeListener(div, 'scroll', scrollFn);
+			selectRepo(page + 1);
+		});
+		
+		mxEvent.addListener(nextPageDiv, 'click', nextPage);
+		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
 			this.ui.spinner.stop();
@@ -949,60 +994,64 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			}
 			else
 			{
-				div.appendChild(createLink(mxResources.get('enterValue') + '...', mxUtils.bind(this, function()
+				if (page == 1)
 				{
-					var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
+					div.appendChild(createLink(mxResources.get('enterValue') + '...', mxUtils.bind(this, function()
 					{
-						if (value != null)
+						var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
 						{
-							var tokens = value.split('/');
-							
-							if (tokens.length > 1)
+							if (value != null)
 							{
-								var tmpOrg = tokens[0];
-								var tmpRepo = tokens[1];
-
-								if (tokens.length < 3)
+								var tokens = value.split('/');
+								
+								if (tokens.length > 1)
 								{
-									org = tmpOrg;
-									repo = tmpRepo;
-									ref = null;
-									path = null;
-									
-									selectRef();
-								}
-								else if (this.ui.spinner.spin(div, mxResources.get('loading')))
-								{
-									var tmpRef = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
-									
-									this.getFile(tmpOrg + '/' + tmpRepo + '/' + tmpRef, mxUtils.bind(this, function(file)
+									var tmpOrg = tokens[0];
+									var tmpRepo = tokens[1];
+	
+									if (tokens.length < 3)
 									{
-										this.ui.spinner.stop();
-										org = file.meta.org;
-										repo = file.meta.repo;
-										ref = decodeURIComponent(file.meta.ref);
-										path = '';
+										org = tmpOrg;
+										repo = tmpRepo;
+										ref = null;
+										path = null;
 										
-										selectFile();
-									}), mxUtils.bind(this, function(err)
+										selectRef();
+									}
+									else if (this.ui.spinner.spin(div, mxResources.get('loading')))
 									{
-										this.ui.spinner.stop();
-										this.ui.handleError({message: mxResources.get('fileNotFound')});
-									}));
+										var tmpRef = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+										
+										this.getFile(tmpOrg + '/' + tmpRepo + '/' + tmpRef, mxUtils.bind(this, function(file)
+										{
+											this.ui.spinner.stop();
+											org = file.meta.org;
+											repo = file.meta.repo;
+											ref = decodeURIComponent(file.meta.ref);
+											path = '';
+											
+											selectFile();
+										}), mxUtils.bind(this, function(err)
+										{
+											this.ui.spinner.stop();
+											this.ui.handleError({message: mxResources.get('fileNotFound')});
+										}));
+									}
+								}
+								else
+								{
+									this.ui.spinner.stop();
+									this.ui.handleError({message: mxResources.get('invalidName')});
 								}
 							}
-							else
-							{
-								this.ui.spinner.stop();
-								this.ui.handleError({message: mxResources.get('invalidName')});
-							}
-						}
-					}), mxResources.get('enterValue'));
-					this.ui.showDialog(dlg.container, 300, 80, true, false);
-					dlg.init();
-				})));
-				mxUtils.br(div);
-				mxUtils.br(div);
+						}), mxResources.get('enterValue'));
+						this.ui.showDialog(dlg.container, 300, 80, true, false);
+						dlg.init();
+					})));
+					
+					mxUtils.br(div);
+					mxUtils.br(div);
+				}
 				
 				for (var i = 0; i < repos.length; i++)
 				{
@@ -1024,16 +1073,17 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 
 			if (repos.length == pageSize)
 			{
-				var nextPage = mxUtils.bind(this, function()
-				{
-					if (div.scrollTop == div.scrollHeight - div.offsetHeight)
-					{
-						mxEvent.removeListener(div, 'scroll', nextPage);
-						selectRepo(page + 1);
-					}
-				});
+				div.appendChild(nextPageDiv);
 				
-				mxEvent.addListener(div, 'scroll', nextPage);
+				scrollFn = function()
+				{
+					if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
+					{
+						nextPage();
+					}
+				};
+				
+				mxEvent.addListener(div, 'scroll', scrollFn);
 			}
 		}), error);
 	});

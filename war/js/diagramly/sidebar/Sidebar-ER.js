@@ -41,89 +41,11 @@
 				
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Section'); 
 	   		}),
-	   	 	this.addEntry(dt + 'table section subsection', function()
-	   		{
-				var cell = new mxCell('Table', new mxGeometry(0, 0, 160, 144),
-			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
-				cell.vertex = true;
+			this.addDataEntry(dt + 'table section subsection', 160, 144, 'ER Table 1',
+				'7VjrjqIwFH4a/m5aKs76c2EumaybTMZ5gQIVmi0tW+qq8/R7CsVL0GhGjDsTFJOee3u+84VYj0TF6knTMv+lUiY88uCRSCtlmlWxipgQno946pF7z/cR/Dz/8YgV11ZUUs2kOSfAbwL+UrFgjeaNxoI12sqshdNWS14IKkEK50qambMgkJOci3RK12phK1aGJr9bKcyV5u/gT+Fg9xgUYNZmxt9tsD+22bgQkRJK13UIQ/a7FzmzGV0tzSqIfWmPhzeqKa1Mux8lBC0rHtc7tC4F1RmXoTJGFc6pPc/jfvl5/QE7FTyToEugEANj6PrEtGGro72uVa7RT0wVzOg1uCx5anLnMW7wQDnjWd6GjUaNklaNItvEbqGDhUPvMJKkg+RC8j8L9px2wcxpaZewdcOpeGWJoTKz1tCo0nVIsHnbUe22atdx20W806XGN7Td4QkVP5y64GlaZ90FWap6iqqSJlxm06YKGW1Vr66aVSlIORdqCWIOyZi0u1GGGhpv5q9UXJq6cUEID/Q3Qt8CL4CTRiDjrQyPddcmUrIymvIaNwajs2R2fMJUq/INhoW1p92d9eDcKfBPTsHkwBAQdPkMjDoz8PLzYvTjXd4cQPLcIdhHvDfAT2Fqj+nG9Sh6iZLStiFue4S6qJKTqJIroRp0UNXQIB/h6xAbnca0TvZ5WX1FFsM77WK8xx28b83hBu9PTuDgQwTuA9C7IwS+HNeBwP8jgb8PBL4Gge9uRuDJEQKTgcBfksAYDQy+BoMnN2Mwxv0jOnC3b+7iHv4t4e6V1sDdHriLT19uHSLvByAFcXsBWtv27kf/AQ=='),
+			this.addDataEntry(dt + 'table section subsection', 160, 112, 'ER Table 2',
+				'7VfbbuIwEP2avK5yIenu4yYsfSiVqtIfGBKTWHU8keMu0K/fseNwEUTQUrStVAiSPRePZ845QvGirF7dKmiqeyyY8KI/XpQpRN2t6lXGhPBCnxdeNPbC0KefF04GvIH1+g0oJvU5CWGX8BfEC+ssTzAXrLO2ei2ctV3yWoCkXbpAqWfO49M+r7goprDGF1Ox1ZA/97u0QsVfKR6osXFABnIrPeOvJjlMzGlciAwFKlsnYr757mXOzImulmIt5T707QUb0xRa3d8HhYCm5XN7QxNSgyq5TFFrrF1Q389kv/zCfsgPgpeSbDkVYuRM3ZyY0mw1OGtrcoO+ZVgzrdYUsuSFrlxE0uHhV4yXVZ8WOBig7QzlJncLHS0ceseRjA6QVLgkQ3CIZQWNWdLNNQfxyHINsjTeVGPjBiTYoh+ocjc16/nuEPshdbGpGQ7PQfx25poXhT11F2OJlkRtAzmX5bSrkvhb06OrNiIT0pELQW1E44oOY9LcBjVomG/o1yCX2s4tTumh8Wb+j9iLqdOM9sF2T48JVzpD2WoF3MLGiDlLZtiTFgqbJ+IK67vdpXp8LgnCkyT4dYQDkX85BUYHFHi4o/Ynd2/iwG7TwRAn9nhwBN9zqbHPg9FH0eAU0qZt194gpjlKacYy72fmH2IdncQ6Tq6DdTwg9/A6cg++5f7p5J4Myf1NHPiW+/lyj/+b3G8+3b+7Pezrav2K2u6FeQnePw/wvhjoCzXc4f3FBXzzLgG/A1Dabl/irG/vHe8f'),
 				
-	   			var cell1 = new mxCell('uniqueId', new mxGeometry(0, 0, 90, 30), 'shape=partialRectangle;top=0;left=0;right=0;bottom=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;');
-	   			cell1.vertex = true;
-
-	   			var cell11 = sb.cloneCell(row, 'PK');
-	   			cell11.connectable = false;
-	   			cell11.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-	   			cell11.geometry.width = 30;
-	   			cell11.geometry.height = 30;
-	   			cell1.insert(cell11);
-	   			cell.insert(cell1);
-	   			
-	   			var cell2 = new mxCell('row 1', new mxGeometry(0, 0, 90, 26), 'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
-	   			cell2.vertex = true;
-
-	   			var cell21 = sb.cloneCell(row, '');
-	   			cell21.connectable = false;
-	   			cell21.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-	   			cell21.geometry.width = 30;
-	   			cell2.insert(cell21);
-	   			cell.insert(cell2);
-	   			
-	   			cell2 = sb.graph.cloneCells([cell2])[0];
-	   			cell2.value = 'row 2';
-	   			cell.insert(cell2);
-	   			
-	   			cell2 = sb.graph.cloneCells([cell2])[0];
-	   			cell2.value = 'row 3';
-	   			cell.insert(cell2);
-	   			
-	   			cell2 = sb.graph.cloneCells([cell2])[0];
-	   			cell2.value = '';
-	   			cell2.children[0].geometry.height = 10;
-	   			cell2.geometry.height = 10;
-	   			cell.insert(cell2);
-	   			
-				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'ER Table 1'); 
-	   		}),
-	   	 	this.addEntry(dt + 'table section subsection', function()
-	   		{
-				var cell = new mxCell('Table', new mxGeometry(0, 0, 160, 112),
-			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
-				cell.vertex = true;
-				
-	   			var cell1 = new mxCell('row 1', new mxGeometry(0, 0, 90, 30), 'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=middle;fillColor=none;spacingLeft=60;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;');
-	   			cell1.vertex = true;
-
-	   			var cell11 = sb.cloneCell(row, 'PK,FK1');
-	   			cell11.connectable = false;
-	   			cell11.style = 'shape=partialRectangle;fontStyle=1;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-	   			cell11.geometry.width = 56;
-	   			cell11.geometry.height = 30;
-	   			cell1.insert(cell11);
-	   			cell.insert(cell1);
-	   			
-	   			var cell1 = new mxCell('row 2', new mxGeometry(0, 0, 90, 30), 'shape=partialRectangle;top=0;left=0;right=0;bottom=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=60;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;');
-	   			cell1.vertex = true;
-
-	   			var cell11 = sb.cloneCell(row, 'PK,FK2');
-	   			cell11.connectable = false;
-	   			cell11.style = 'shape=partialRectangle;fontStyle=1;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-	   			cell11.geometry.width = 56;
-	   			cell11.geometry.height = 30;
-	   			cell1.insert(cell11);
-	   			cell.insert(cell1);
-	   			
-	   			var cell2 = new mxCell('row 1', new mxGeometry(0, 0, 90, 26), 'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;fillColor=none;spacingLeft=60;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
-	   			cell2.vertex = true;
-
-	   			var cell21 = sb.cloneCell(row, '');
-	   			cell21.connectable = false;
-	   			cell21.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-	   			cell21.geometry.width = 56;
-	   			cell2.insert(cell21);
-	   			cell.insert(cell2);
-	   			
-				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'ER Table 2'); 
-	   		}),
 			this.addEntry(dt + 'table row', function()
 			{
 				return sb.createVertexTemplateFromCells([row.clone()], row.geometry.width, row.geometry.height, 'Row 1');

@@ -112,3 +112,9 @@ if (urlParams['bridges'] == '1')
 {
 	mxscript(drawDevUrl + 'js/diagramly/mxEdgeBridge.js');
 }
+
+//EquiSpaced Guides
+if (urlParams['equiGuides'] == '1')
+{
+	mxscript(drawDevUrl + 'js/diagramly/mxEquiSpacedGuides.js');
+}

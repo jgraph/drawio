@@ -154,50 +154,10 @@
 		 	this.createVertexTemplateEntry(
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad13inch;fillColor=#ffffff;strokeColor=#c0c0c0;', 
 		 			sizeX * 2.86, sizeY * 2.0325, '', "iPad (13'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'portrait').join(' ')),
-			this.addEntry(dt + 'app bar portrait', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 175, 15), s2 + 'appBar;fillColor=#ffffff;gradientColor=none;');
-			   	bg.vertex = true;
-			   	var text1 = new mxCell('CARRIER', new mxGeometry(0, 0.5, 50, 13), 'shape=rect;align=left;fontSize=8;spacingLeft=24;fontSize=4;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-			   	text1.geometry.relative = true;
-			   	text1.geometry.offset = new mxPoint(0, -6.5);
-			   	text1.vertex = true;
-			   	bg.insert(text1);
-			   	var text2 = new mxCell('11:55PM', new mxGeometry(0.5, 0.5, 50, 13), 'shape=rect;fontSize=8;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-			   	text2.geometry.relative = true;
-			   	text2.geometry.offset = new mxPoint(-30, -6.5);
-			   	text2.vertex = true;
-			   	bg.insert(text2);
-			   	var text3 = new mxCell('98%', new mxGeometry(1, 0.5, 45, 13), 'shape=rect;align=right;fontSize=8;spacingRight=19;fontSize=6;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-			   	text3.geometry.relative = true;
-			   	text3.geometry.offset = new mxPoint(-45, -6.5);
-			   	text3.vertex = true;
-			   	bg.insert(text3);
-			   	
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'App Bar (Portrait)');
-			}),
-			this.addEntry(dt + 'app bar landscape', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 280, 15), s2 + 'appBar;fillColor=#ffffff;gradientColor=none;');
-				bg.vertex = true;
-				var text1 = new mxCell('CARRIER', new mxGeometry(0, 0.5, 50, 13), 'shape=rect;align=left;fontSize=8;spacingLeft=24;fontSize=4;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-				text1.geometry.relative = true;
-				text1.geometry.offset = new mxPoint(0, -6.5);
-				text1.vertex = true;
-				bg.insert(text1);
-				var text2 = new mxCell('11:55PM', new mxGeometry(0.5, 0.5, 50, 13), 'shape=rect;fontSize=8;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(-25, -6.5);
-				text2.vertex = true;
-				bg.insert(text2);
-				var text3 = new mxCell('98%', new mxGeometry(1, 0.5, 45, 13), 'shape=rect;align=right;fontSize=8;spacingRight=19;fontSize=6;fontColor=#aaaaaa;strokeColor=none;fillColor=none;spacingTop=4;');
-				text3.geometry.relative = true;
-				text3.geometry.offset = new mxPoint(-45, -6.5);
-				text3.vertex = true;
-				bg.insert(text3);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'App Bar (landscape)');
-			}),
+			this.addDataEntry(dt + 'app bar portrait', 175, 15, 'App Bar (portrait)',
+				'zVVdb4IwFP01fZTw6cejoDNLZmLYkj03o0CzQkmpivv1u0BBEIw+zMUmJL3n3tt7e05LkeUlxUbgLN7ygDBkrZHlCc5lPUsKjzCGTJ0GyFoh09ThQ+bLFa9RefUMC5LKexLMOuGA2Z7USA3k8sQUEMsE2loZyHJzKfg3+aSBjBskxgE/gqGDEeA8JoEywJOVKyRFVO5Oozyf7amGs8zFAvwhZczjjIuqihVWA3CIDih03/hSnsIyruqTCEmKq3utILXRDeEJkeIEIUfVcBkxc+q0mNAobtIUhvPajtrUM3MwUeSNE2kNiPSWvv+69gd8NsQI8gX1XcxolILJSFiaIU/lO/0pA+Ylixn+omn0VjlXpt2PaMwOj7garVYXLHZJV5Cq8MEzteBdTJvjTJ/UmdMUox3mHX2EeMWaIAxLeiC9cmNqqIo7TqGRttxkql0oyMMwJ3KgX9vpXZLaA0kNOPJLx9ltb4l6oeJTaVRcaPTPmqnyE0vvlX+Qhs5Aw8UcNejtSynqfV+5lb5ixVj0Q6ZPKrlxU3B77O/4R4LbzgMEB/P8WNbh3bf0Fw=='),
+			this.addDataEntry(dt + 'app bar landscape', 280, 15, 'App Bar (landscape)',
+				'zZVdb4IwFIZ/TS81UMDppaIzS2Zi2JJdN6NAs0JJqYr79TvQovJh9MbFJiScj/ac87wlIMdPy7UkebIRIeXIWSHHl0Io/ZaWPuUcYYuFyFkijC14EH69ErXrqJUTSTN1zwasN+wJ31Ht0Y5CHblxJCqFtpY2chaFkuKHfrFQJY0nIaE4gGGBEZIioaExIJJXJ6RlXE03ZqJ42bExyfMFkRCPGOe+4ELWVZyoXuCH7JBB900sExkcszB9UqloeXXW2mUGXVORUiWPkHIwDVfzTjUPK6EsTpptnvaRQtvxaeuZHLwYeMMgnR5Ifx4Eb6ugx7MBI+k31F8QzuIMTE6jyoxEpj7Yb5UwrSjm5Jtl8XsdXGK3ndGYFxxJvU5adSheQjcuU+FT5ObAu0jjYdJHc+fGhugFeW8IvKEmKSeK7Wmr3JAapuJWMGjkVG40GXcUFFFUUNXT79TpXZK6PUltuPJzz9tubonaUfGpNCo7Gv2zZqb8CLfLP0hDr6fhbIoa7+2PUuq5r3yVgaFiz9opkyeV3L4puOs9TnD3EYKDef5Z6vTLf+kf'),
 			
 			this.createVertexTemplateEntry(
 					s + 'slider;barPos=20;strokeColor=#0080f0;fillColor=#ffffff;strokeColor2=#a0a0a0;', 
@@ -208,66 +168,12 @@
 			this.createVertexTemplateEntry(
 					sm + 'adjust;fillColor=#ffffff;gradientColor=none;', 
 					sizeX * 0.4, sizeY * 0.05, '', 'Adjust', null, null, this.getTagsForStencil(gn, 'adjust', dt + '').join(' ')),
-					
-			this.addEntry(dt + 'horizontal button bar', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 12.5), s2 + 'rrect;rSize=3;strokeColor=#0080F0;fillColor=#ffffff;gradientColor=none;');
-				bg.vertex = true;
-				var button1 = new mxCell('Item 1', new mxGeometry(0, 0, 41, 12.5), s2 + 'leftButton;rSize=3;strokeColor=#0080F0;fontSize=8;fillColor=none;');
-				button1.vertex = true;
-				bg.insert(button1);
-				var button2 = new mxCell('Item 2', new mxGeometry(41, 0, 41, 12.5), s2 + 'rrect;rSize=0;strokeColor=#0080F0;fillColor=#0080F0;fontColor=#ffffff;fontSize=8;');
-				button2.vertex = true;
-				bg.insert(button2);
-				var button3 = new mxCell('Item 3', new mxGeometry(82, 0, 41, 12.5), s2 + 'rrect;rSize=0;strokeColor=#0080F0;fontSize=8;fillColor=none;');
-				button3.vertex = true;
-				bg.insert(button3);
-				var button4 = new mxCell('Item 4', new mxGeometry(123, 0, 41, 12.5), s2 + 'rightButton;rSize=3;strokeColor=#0080F0;fontSize=8;fillColor=none;');
-				button4.vertex = true;
-				bg.insert(button4);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Horizontal button bar');
-			}),
-
-			this.addEntry(dt + 'select bar', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, sizeX * 0.825, sizeY * 0.0675), s4 + 'selectBar;dx=120;dy=5;dx2=75;size=5;strokeColor=#ffffff;fillColor=#222222;gradientColor=none;');
-				bg.vertex = true;
-				var text1 = new mxCell('Select', new mxGeometry(0, 0, sizeX * 0.375, sizeY * 0.0675), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#ffffff;fontSize=12;fontFamily=Helvetica;perimeter=none;resizeHeight=1;');
-				text1.geometry.relative = true;
-				text1.vertex = true;
-				bg.insert(text1);
-				var text2 = new mxCell('Select All', new mxGeometry(0, 0, sizeX * 0.375, sizeY * 0.0675), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#ffffff;fontSize=12;fontFamily=Helvetica;perimeter=none;resizeHeight=1;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(sizeX * 0.375, 0);
-				text2.vertex = true;
-				bg.insert(text2);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Select Bar');
-			}),
-					
-					
-			this.addEntry(dt + 'select bar', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, sizeX * 0.825, sizeY * 0.0675), s4 + 'selectBar;dx=120;dy=5;dx2=50;size=5;strokeColor=#ffffff;fillColor=#222222;gradientColor=none;');
-				bg.vertex = true;
-				var text1 = new mxCell('Select', new mxGeometry(0, 0, sizeX * 0.25, sizeY * 0.0675), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#ffffff;fontSize=10;fontFamily=Helvetica;perimeter=none;resizeHeight=1;');
-				text1.geometry.relative = true;
-				text1.vertex = true;
-				bg.insert(text1);
-				var text2 = new mxCell('Select All', new mxGeometry(0, 0, sizeX * 0.25, sizeY * 0.0675), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#ffffff;fontSize=10;fontFamily=Helvetica;perimeter=none;resizeHeight=1;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(sizeX * 0.25, 0);
-				text2.vertex = true;
-				bg.insert(text2);
-				var text3 = new mxCell('Paste', new mxGeometry(0, 0, sizeX * 0.25, sizeY * 0.0675), 'shape=rect;fillColor=none;strokeColor=none;fontColor=#ffffff;fontSize=10;fontFamily=Helvetica;perimeter=none;resizeHeight=1;');
-				text3.geometry.relative = true;
-				text3.geometry.offset = new mxPoint(sizeX * 0.5, 0);
-				text3.vertex = true;
-				bg.insert(text3);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Select Bar');
-			}),
+			this.addDataEntry(dt + 'horizontal button bar', 164, 12.5, 'Horizontal button bar',
+				'zZVRb4IwEMc/TV9NadHxDE7jw572sGeyHrZZoabUifv0O2jR6STTLBhJSLj/9Y7e7y4t4VnZLG2+kS9GgCb8mfDMGuP8V9lkoDVhVAnC54Qxii9hiwFv1HnpJrdQuWsCmA/4zPUWvOKF2u11EKQrcVvziPC0dtZ8wJsSTvaKzIXZoUHREHktQQQDPZs2Q9ms2+omytRPWzWxFt5xZ6l9VV+tmx/SZkYb2/2SU5rQRZukUFr/0IvuQR1TCoUl9r7KVJgsDcWAddAMAumkQGMJpgRn97hkF6pqV8xiHyZBrWUfxiZTr+a1V9aH4CNg/AiML/Pmv3ivHJSoRCNz11C4dOucqa6HbyoXFiZnvbiFN/uTdxyNhTsewn3vMae3jPlJBy6N/1ln/tOG5rQFd+nKdKgr/LG6Mur8h4CE3RH8bAh8PDb4tpKHOn76gP5EHoM/msebvPOdXPTf'),
+			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
+				'7ZRNb8IwDIZ/Ta6oTcZ6HmWDy6RJHHaOiEujpU2VBCj79XM+ClTAhrbrIlWKX8dO/LxSCSubfmF4V79qAYqwZ8JKo7WLu6YvQSlCMykImxNKM/wIfbmRzUM267iB1t1TQGPBjqstRCUK1h1UEmrX4LPmOWEz64z+gHcpXI0K9UrNhd5jkGEguK1BpAAzne/Q9Bs/3URqW2zlxIKCtZtx48/3vi8NpQfcToOGbeeF31r5CUmNF5daaRMexaqwMFNJpc50GhbqeKmQCGHItbrFZrM0LhgH/U1kQUq8FqAbcOaAR/Zpbn/icRrLapCbOpXRImrcxnhzLD0ZgJvkwXU/2IUfqwDswpUBr/HJMYY06phZEit9QjLCiPoq8s5pil94I5X3ZQlqB06uOSY6MBKngrOeBrxTy4FEfi9m+iPm4hvKBhR3cgej9n9B/3ATffbkD/4b8EsD0g1vWrYeZj9uPVToqrLgLgw7vuuahxiefpXx+Pmf9As='),
+			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
+				'7ZVNb8IwDIZ/Ta4oTddxHmXAZRISh50j6tJoaVMlAcp+/ZyPAlWHhrYdiVQpfh078fMeStK87paat9WbKkCS9JWkuVbKhl3d5SAlYVQUJJ0Txih+hC1uZBOfpS3X0Nh7ClgoOHC5h6AEwdiTjEJla3zWPCHpzFitPuBdFLZChTml4oU6YkAxKLipoIgBZlrXoe52brqJUGa6FxMDErZ2xrU737m+zJeecJt5jbmd7yA+Iarh4lxJpf2j0tIvzJRCyiud+YU6XloIhNDnGtVgs1kcF7SF7iYyL0VeS1A1WH3CI8c4tzvxnIWyCsSuimVsGjRuQrw7l14MwE304Hs/0pEfGw9s5EqPV7vkEEMcdcgsiqW6IBlgRH0TeCc0xgteC+l8WYE8gBVbjokWtMCp4KqnBufUqieR3IuZ/Yg5o7cpa5DcigMM2v8F/dNN9PTFHXwY8EsD4g1rJRoHsxu27itUWRqwI8PO77rLw2zk4ZobCw/z/tm8hP6DexhefnTh+PV/8As='),
 					
 			this.addEntry(dt + 'labels', function()
 			{
@@ -314,333 +220,22 @@
 
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Search Box');
 			}),
-
-			this.addEntry(dt + 'status', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 164, 25), 'shape=rect;fillColor=#F6F6F6;strokeColor=none;');
-			   	bg.vertex = true;
-			   	var text1 = new mxCell('Updated Just Now', new mxGeometry(0, 0, 164, 20), 'text;fontColor=#000000;fontSize=5;verticalAlign=top;align=center;spacingTop=-2;');
-			   	text1.vertex = true;
-			   	bg.insert(text1);
-			   	var text2 = new mxCell('2 Unread', new mxGeometry(0, 5, 164, 20), 'text;fontColor=#bbbbbb;fontSize=5;verticalAlign=middle;align=center;');
-			   	text2.vertex = true;
-			   	bg.insert(text2);
-			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 15, 15), 'shape=mxgraph.ios7.icons.compose;strokeColor=#0080f0;fillColor=none;');
-				icon1.geometry.offset = new mxPoint(-20, -7.5);
-			   	icon1.geometry.relative = true;
-			   	icon1.vertex = true;
-			   	bg.insert(icon1);
-
-			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Status');
-			}),
-
-			this.addEntry(dt + 'message', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 164, 20), 'shape=rect;fillColor=#F7F7F7;strokeColor=none;');
-			   	bg.vertex = true;
-			   	var part1 = new mxCell('iMessage', new mxGeometry(0, 0, 164, 20), s2 + 'marginRect;rx=3;ry=3;rectMarginLeft=25;rectMarginRight=25;rectMarginTop=3;rectMarginBottom=3;fillColor=#FBFBFB;strokeColor=#B3B3B3;fontColor=#B3B3B3;align=left;spacingLeft=29;fontSize=8;');
-			   	part1.vertex = true;
-			   	bg.insert(part1);
-			   	var icon1 = new mxCell('', new mxGeometry(0, 0.5, 15, 9), 'strokeWidth=1;strokeColor=#F7F7F7;fillColor=#666666;shape=mxgraph.ios7.icons.camera;');
-			   	icon1.geometry.offset = new mxPoint(5, -4.5);
-			   	icon1.geometry.relative = true;
-			   	icon1.vertex = true;
-			   	bg.insert(icon1);
-			   	var icon2 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'strokeColor=none;fillColor=#666666;shape=ellipse;');
-			   	icon2.geometry.offset = new mxPoint(-19, -7);
-			   	icon2.geometry.relative = true;
-			   	icon2.vertex = true;
-			   	bg.insert(icon2);
-			   	var icon3 = new mxCell('', new mxGeometry(0.5, 0.5, 4, 10), 'strokeColor=#F7F7F7;fillColor=none;shape=mxgraph.ios7.icons.microphone;strokeWidth=1;');
-			   	icon3.geometry.offset = new mxPoint(-2, -5);
-			   	icon3.geometry.relative = true;
-			   	icon3.vertex = true;
-			   	icon2.insert(icon3);
-
-			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Message');
-			}),
-
-			this.addEntry(dt + 'action sheet', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 115), 'shape=rect;rSize=3;strokeColor=none;fillColor=#D2D3D5;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var button1 = new mxCell('Label', new mxGeometry(0, 0, 154, 20), s2 + 'topButton;rSize=3;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button1.geometry.relative = true;
-				button1.geometry.offset = new mxPoint(5, 5);
-				button1.vertex = true;
-				bg.insert(button1);
-				var button2 = new mxCell('Label', new mxGeometry(0, 0, 154, 20), 'shape=rect;html=1;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button2.geometry.relative = true;
-				button2.geometry.offset = new mxPoint(5, 25);
-				button2.vertex = true;
-				bg.insert(button2);
-				var button3 = new mxCell('Label', new mxGeometry(0, 0, 154, 20), 'shape=rect;html=1;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button3.geometry.relative = true;
-				button3.geometry.offset = new mxPoint(5, 45);
-				button3.vertex = true;
-				bg.insert(button3);
-				var button4 = new mxCell('Label', new mxGeometry(0, 0, 154, 20), s2 + 'bottomButton;rSize=3;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button4.geometry.relative = true;
-				button4.geometry.offset = new mxPoint(5, 65);
-				button4.vertex = true;
-				bg.insert(button4);
-				var button5 = new mxCell('Cancel', new mxGeometry(0, 1, 164, 30), s2 + 'marginRect;rx=5;ry=5;rectMargin=5;strokeColor=#D2D3D5;fontSize=8;fillColor=#ffffff;fontColor=#0080F0;resizeWidth=1;');
-				button5.geometry.relative = true;//zzz
-				button5.geometry.offset = new mxPoint(0, -30);
-				button5.vertex = true;
-				bg.insert(button5);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Action Sheet');
-			}),
-
-			this.addEntry(dt + 'action sheet', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 115), 'shape=rect;rSize=3;strokeColor=none;fillColor=#D2D3D5;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var button1 = new mxCell('', new mxGeometry(0, 0, 154, 40), s2 + 'topButton;rSize=3;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button1.geometry.relative = true;
-				button1.geometry.offset = new mxPoint(5, 5);
-				button1.vertex = true;
-				bg.insert(button1);
-				var button2 = new mxCell('', new mxGeometry(0, 0, 154, 40), s2 + 'bottomButton;rSize=3;strokeColor=#D2D3D5;fontSize=8;fillColor=#F1F1F1;fontColor=#0080F0;resizeWidth=1;');
-				button2.geometry.relative = true;
-				button2.geometry.offset = new mxPoint(5, 45);
-				button2.vertex = true;
-				bg.insert(button2);
-				var button3 = new mxCell('Cancel', new mxGeometry(0, 1, 164, 30), 'shape=mxgraph.ios7ui.marginRect;rx=3;ry=3;rectMargin=5;strokeColor=#D2D3D5;fontSize=8;fillColor=#ffffff;fontColor=#0080F0;resizeWidth=1;');
-				button3.geometry.relative = true;
-				button3.geometry.offset = new mxPoint(0, -30);
-				button3.vertex = true;
-				bg.insert(button3);
-				var icon1 = new mxCell('Message', new mxGeometry(0, 0.5, 22, 22), 'shape=rect;rounded=1;strokeColor=none;fontSize=5;fillColor=#68F783;fontColor=#000000;gradientColor=#05B61E;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-4;');
-				icon1.geometry.relative = true;
-				icon1.geometry.offset = new mxPoint(5, -15);
-				icon1.vertex = true;
-				button1.insert(icon1);
-				var icon2 = new mxCell('', new mxGeometry(2, 3, 18, 16), 'shape=mxgraph.basic.oval_callout;strokeColor=none;fillColor=#ffffff;');
-				icon2.vertex = true;
-				icon1.insert(icon2);
-				var icon3 = new mxCell('Mail', new mxGeometry(0, 0.5, 22, 22), 'shape=rect;rounded=1;strokeColor=none;fontSize=5;fillColor=#1960EC;fontColor=#000000;gradientColor=#1FDCFF;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-4;');
-				icon3.geometry.relative = true;
-				icon3.geometry.offset = new mxPoint(37, -15);
-				icon3.vertex = true;
-				button1.insert(icon3);
-				var icon4 = new mxCell('', new mxGeometry(3, 6, 16, 10), 'shape=mxgraph.ios7.icons.mail;strokeColor=#2299F3;fillColor=#ffffff;');
-				icon4.vertex = true;
-				icon3.insert(icon4);
-				var icon5 = new mxCell('Open in App', new mxGeometry(0, 0.5, 22, 22), 'shape=rect;rounded=1;strokeColor=none;fontSize=5;fillColor=#ffffff;fontColor=#000000;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-7;whiteSpace=wrap;');
-				icon5.geometry.relative = true;
-				icon5.geometry.offset = new mxPoint(5, -15);
-				icon5.vertex = true;
-				button2.insert(icon5);
-				var icon6 = new mxCell('Open Link', new mxGeometry(0, 0.5, 22, 22), 'shape=rect;rounded=1;strokeColor=none;fontSize=5;fillColor=#ffffff;fontColor=#000000;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-7;whiteSpace=wrap;');
-				icon6.geometry.relative = true;
-				icon6.geometry.offset = new mxPoint(37, -15);
-				icon6.vertex = true;
-				button2.insert(icon6);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Action Sheet');
-			}),
-
-			this.addEntry(dt + 'cell list', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 120), 'shape=rect;strokeColor=none;fillColor=#ffffff;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var part1 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part1.geometry.relative = true;
-				part1.vertex = true;
-				bg.insert(part1);
-				var button1 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF9501;');
-				button1.geometry.relative = true;
-				button1.geometry.offset = new mxPoint(5, -7.5);
-				button1.vertex = true;
-				part1.insert(button1);
-				var button2 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button2.geometry.relative = true;
-				button2.geometry.offset = new mxPoint(-15, -5);
-				button2.vertex = true;
-				part1.insert(button2);
-				
-				var part2 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part2.geometry.offset = new mxPoint(0, 20);
-				part2.geometry.relative = true;
-				part2.vertex = true;
-				bg.insert(part2);
-				var button3 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF3B2F;');
-				button3.geometry.relative = true;
-				button3.geometry.offset = new mxPoint(5, -7.5);
-				button3.vertex = true;
-				part2.insert(button3);
-				var button4 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button4.geometry.relative = true;
-				button4.geometry.offset = new mxPoint(-15, -5);
-				button4.vertex = true;
-				part2.insert(button4);
-
-				var part3 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part3.geometry.offset = new mxPoint(0, 40);
-				part3.geometry.relative = true;
-				part3.vertex = true;
-				bg.insert(part3);
-				var button5 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#4CDA64;');
-				button5.geometry.relative = true;
-				button5.geometry.offset = new mxPoint(5, -7.5);
-				button5.vertex = true;
-				part3.insert(button5);
-				var button6 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button6.geometry.relative = true;
-				button6.geometry.offset = new mxPoint(-15, -5);
-				button6.vertex = true;
-				part3.insert(button6);
-
-				var part4 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part4.geometry.offset = new mxPoint(0, 60);
-				part4.geometry.relative = true;
-				part4.vertex = true;
-				bg.insert(part4);
-				var button7 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#007AFF;');
-				button7.geometry.relative = true;
-				button7.geometry.offset = new mxPoint(5, -7.5);
-				button7.vertex = true;
-				part4.insert(button7);
-				var button8 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button8.geometry.relative = true;
-				button8.geometry.offset = new mxPoint(-15, -5);
-				button8.vertex = true;
-				part4.insert(button8);
-
-				var part5 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part5.geometry.offset = new mxPoint(0, 80);
-				part5.geometry.relative = true;
-				part5.vertex = true;
-				bg.insert(part5);
-				var button9 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#5855D6;');
-				button9.geometry.relative = true;
-				button9.geometry.offset = new mxPoint(5, -7.5);
-				button9.vertex = true;
-				part5.insert(button9);
-				var button10 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button10.geometry.relative = true;
-				button10.geometry.offset = new mxPoint(-15, -5);
-				button10.vertex = true;
-				part5.insert(button10);
-
-				var part6 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingLeft=25;spacingTop=2;');
-				part6.geometry.offset = new mxPoint(0, 100);
-				part6.geometry.relative = true;
-				part6.vertex = true;
-				bg.insert(part6);
-				var button11 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#8F8E94;');
-				button11.geometry.relative = true;
-				button11.geometry.offset = new mxPoint(5, -7.5);
-				button11.vertex = true;
-				part6.insert(button11);
-				var button12 = new mxCell('', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;');
-				button12.geometry.relative = true;
-				button12.geometry.offset = new mxPoint(-15, -5);
-				button12.vertex = true;
-				part6.insert(button12);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Cell List');
-			}),
-
-			this.addEntry(dt + 'cell list', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 60), 'shape=rect;strokeColor=none;fillColor=#ffffff;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var part1 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingTop=2;spacingLeft=5;');
-				part1.geometry.relative = true;
-				part1.vertex = true;
-				bg.insert(part1);
-				var button2 = new mxCell('Label', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;fontSize=10;spacingRight=4;fontColor=#999999;');
-				button2.geometry.relative = true;
-				button2.geometry.offset = new mxPoint(-15, -5);
-				button2.vertex = true;
-				part1.insert(button2);
-				
-				var part2 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingTop=2;spacingLeft=5;');
-				part2.geometry.offset = new mxPoint(0, 20);
-				part2.geometry.relative = true;
-				part2.vertex = true;
-				bg.insert(part2);
-				var button4 = new mxCell('Label', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;fontSize=10;spacingRight=4;fontColor=#999999;');
-				button4.geometry.relative = true;
-				button4.geometry.offset = new mxPoint(-15, -5);
-				button4.vertex = true;
-				part2.insert(button4);
-
-				var part3 = new mxCell('Label', new mxGeometry(0, 0, 164, 20), 'shape=rect;strokeColor=none;fontSize=10;fontColor=#000000;resizeWidth=1;align=left;spacingTop=2;spacingLeft=5;');
-				part3.geometry.offset = new mxPoint(0, 40);
-				part3.geometry.relative = true;
-				part3.vertex = true;
-				bg.insert(part3);
-				var button6 = new mxCell('Label', new mxGeometry(1, 0.5, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;fontSize=10;spacingRight=4;fontColor=#999999;');
-				button6.geometry.relative = true;
-				button6.geometry.offset = new mxPoint(-15, -5);
-				button6.vertex = true;
-				part3.insert(button6);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Cell List');
-			}),
-
-			this.addEntry(dt + 'message', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 35), 'shape=rect;strokeColor=none;fillColor=#ffffff;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var part1 = new mxCell('Peter Gilles', new mxGeometry(0, 0, 10, 10), 'shape=ellipse;strokeColor=none;fillColor=#007FF8;fontSize=8;fontColor=#000000;align=left;spacingTop=1;spacingLeft=2;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;');
-				part1.geometry.relative = true;
-				part1.geometry.offset = new mxPoint(5, 5);
-				part1.vertex = true;
-				bg.insert(part1);
-				var button1 = new mxCell('22:45', new mxGeometry(1, 0, 5, 10), 'shape=mxgraph.ios7.misc.right;strokeColor=#666666;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;fontSize=8;spacingRight=4;fontColor=#999999;');
-				button1.geometry.relative = true;
-				button1.geometry.offset = new mxPoint(-15, 5);
-				button1.vertex = true;
-				bg.insert(button1);
-				var text1 = new mxCell('I just got a new friend', new mxGeometry(0, 0, 164, 10), 'shape=text;strokeColor=none;align=left;verticalAlign=middle;fontSize=7;spacingLeft=17;fontColor=#000000;spacingTop=2;');
-				text1.geometry.relative = true;
-				text1.geometry.offset = new mxPoint(0, 15);
-				text1.vertex = true;
-				bg.insert(text1);
-				var text2 = new mxCell('You know I wanted a dog. Yesterday I got a puppy ...', new mxGeometry(0, 0, 164, 10), 'shape=text;strokeColor=none;align=left;verticalAlign=middle;fontSize=6;spacingLeft=17;fontColor=#808080;spacingTop=2;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(0, 25);
-				text2.vertex = true;
-				bg.insert(text2);
-				
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Message');
-			}),
-
-			this.addEntry(dt + 'message', function()
-			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 100), 'shape=rect;strokeColor=none;fillColor=#ffffff;gradientColor=none;shadow=0;');
-				bg.vertex = true;
-				var text1 = new mxCell('Saturday 10:12 AM', 
-						new mxGeometry(0, 0, 164, 10), 'shape=text;align=center;verticalAlign=middle;fontSize=5;fontColor=#999999;strokeColor=none;fillColor=none;spacingTop=3;resizeWidth=1;');
-				text1.geometry.relative = true;
-				text1.geometry.offset = new mxPoint(0, 0);
-				text1.vertex = true;
-				bg.insert(text1);
-				var part1 = new mxCell('Hey man, got a sec?', 
-						new mxGeometry(0, 0, 90, 20), s2 + 'callout;strokeColor=none;fillColor=#E7E6EC;align=left;verticalAlign=middle;fontSize=7;spacingLeft=17;fontColor=#000000;spacingTop=2;whiteSpace=wrap;resizeWidth=1;');
-				part1.geometry.relative = true;
-				part1.geometry.offset = new mxPoint(5, 15);
-				part1.vertex = true;
-				bg.insert(part1);
-				var part2 = new mxCell('Hi Tim, of course, just give me a couple minutes to finish breakfast.', 
-						new mxGeometry(0.35, 0, 100, 35), s2 + 'callout;strokeColor=none;fillColor=#0680FF;flipH=1;align=left;verticalAlign=top;fontSize=7;spacingLeft=2;fontColor=#ffffff;spacingTop=-2;whiteSpace=wrap;spacingRight=12;resizeWidth=1;');
-				part2.geometry.relative = true;
-				part2.geometry.offset = new mxPoint(0, 40);
-				part2.vertex = true;
-				bg.insert(part2);
-				var text2 = new mxCell('Read Friday', new mxGeometry(0, 0, 164, 10), 'shape=text;align=right;verticalAlign=middle;fontSize=5;fontColor=#999999;strokeColor=none;fillColor=none;spacingTop=3;resizeWidth=1;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(0, 80);
-				text2.vertex = true;
-				bg.insert(text2);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Message');
-			}),
+			this.addDataEntry(dt + 'status', 164, 25, 'Status',
+				'vZRtb4MgEMc/jS9rnNZ2b1e7NlmyZcnWD8D0VDLkDNDW7tMPhD5qM7cm0xi5/3HA/eDwoqRqloLU5TNmwLzo0YsSgahsq2oSYMwLA5p50dwLw0B/Xri44r1rvUFNBHA1JCC0ARvC1mAVK0i1Y06QJalNU0Cqh5zllLEEGYrWGy0m5tW6VAI/Ye/hyHXMzI0OQkFzdYWt5Ja3BKxAiZ3usqWZKl2PydiGlUCL0oWFsdWItHZxCD3mqxsu5f70o076qzojCjItPq2l0r8X3HaQ6GxaFMjVCYqgfZz+Rr9M51ibJn2aEvbAaMG1prDWKnFWqjmAMABrklJevBvvfBQOpRf+kV5wO71xh54xV1wAyQYy+2ifn5lVNMvMSF1st0DaWa87SP+BLB5eb1VTmGvBpyinPk2RSz/FqkYJnWprD999kAcX9fmbKryC6DzAAQv8HmRxl9heE8CIohs4G6sPo5v/FSlXx8lHe/Ju+tHUv6h9zHMJqrMRhzz69kabx3vWdj+9hr8B'),
+			this.addDataEntry(dt + 'message', 164, 20, 'Message',
+				'xVbbbqMwEP0aHouICUnzSnp52UirdqU+WzDB1toY2W6b9OvX4IGWW5ZVuyoWkn3GM545x4MI4r083WtasYPKQQTxbRDvtVLWz+RpD0IEJOJ5EN8EhETuDcjdjHXVWKOKaijtEgfiHV6oeAaPeMDYs0DAMFrVUw2ZC5keuRB7JZRurPHdth4ON1ar39BaSlU6nxSjg7Zwms2wgTC9e1ASrD67La88twx3bNbejQEvGLphZRE1fl10ru/1ugmWPF1+PCqfH8AYWsCIBmali3Kz6kp9wvwahNFcvbpF5BY5NQxyXLTsyVNRixxyZbbPPJRUF7x88JTqmpu4npzbiTMcmi0/4FjXS5Ie+oA0DOBfqhoFSJW1SiI8FC+tx0g8Z0mbUXuo0k7hVPCidJho8ktNRTNeFm22O/R85G918ddLrwL5vquwXtAJY92HvHXtMGB60zwz9yHkmSpNmFEJmn6SqjN2fZh4l4/UJWPmdh7SIKjlL9A7bYpNPPCn4i4PEmF6GBjPvlq3h7cR1PFowI7U6NJeJFCyVKDBN+hvSrhTeGUWf61meO87XFJh4v622CdluFrt+kJs/4MMm3+VYa4rUJ4LDSF5plXFcN+o+RbJlVyUqxPogmBTekVfoxfpy/UFXeOW7z8PfvvHf4s/'),
+			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
+				'7VZNc4IwEP01HOuERNSzUL3UmU576DlKgEwDYUL86q/vQoKi2Err0F7UcWb3ZXez2ffMxCF+upsrmicLGTLhkEeH+EpKbax05zMhHIx46JDAwRjBz8GzL1bdahXlVLFMd0nAJmFDxZoZxACF3gsLFAnNS1OxFZScqlf+UboE7EIr+c58KaQCJJMZLEwjLkQNOZgEOCCBB3isaMihrbNwKB/KLfgIHNsNU5rtvjxRBdnjzJlMmVZ7CNnyUCc2YjQ0aQnjcVKnuZ4BaWGA+JB7HBAYdkaX50Va83qiS6DtfGiJTqFE4B6G9Ga7c8+PHNIiYaF16lmnu7iUxIDLYrzmAy3z6VprmX07/+awI5lpGzhpczJzy68Na+AITdCs7EOxApKbPXdiBl9nxrvAjNUoUkxQzTfspP4ltuwWz5LDzhjZhiy9+xOvTpdRVDDdovrQZSf2hx3ZP/vLtMRwZ+wSY71Q5t0p65GyYR+Ujf7ljl1KuGDT+zX7QwWM+lDAuKUAn2ar3iWQUhXz7MW+c8rjlhyXTRsDFhZViAV+q4uo+vyZLvYnCdeeSeRGldjdHuo6twgD3ONT2IQ3X8qf'),
+			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
+				'7VhRj6IwEP41PK4BqoiPKyz7suY2t5fc46ULFZotlLR11fv1N5XiouCK52ruEjWadjpTynzfN0OwUJCvHgUusxlPCLPQg4UCwbmqRvkqIIxZrk0TC4WW69rws9zowKqzWbVLLEih+gS4VcA7ZgtSWSqDVGtmDDLDpR4KEsOWU/FCf+spgrFUgr+RgDMuwFLwAhamc8pYbbJcFLohCkdgTwVOKBxrzx22T/gS5jZMzGmIUGR18I42JnM7j4TnRIk1uCxpojLj4Q2rsIzQNKvDnFFlxLIypNvYjwTBwOSoO1/oeL4ylUN06Gzz89MczNm/2wTLjCRmUqc5X6WaDQPK5XhBB4qX04VSvPg09c08z3mhjKPfhiNy9Ne4Ney27duRPocgEoKbZ+4FinsclFEHKMOKnrYgDCv6Tnb27wLKXOKZU7iya5sDGWTXO7M6nM/nkqgWyttT9gJ+2AJ+RqTEKTmqF74okg3KzkHFfCA2aiPm+dHYR12I6U+HsPTaaOo5cB9TjRqNMbtnNAUKhUAnsDL8Stgzl1RRTawwhmgiGu5Pew6vHCiYgwM2+2wjZIljWqQ/9L7h3bAvXVA3XQyA9sBA2KBPrbQme2rbl7Lnbr9OfAl/Rv0LbV0BXrGk8YBDyC+AhPGF6lly55tPXyiG3VCsdhrEeqf8NVXtd1Ra7/xC67X1him7uNiciWc/BKeJzYnCIIpuYusnNjS+gtrGp6tN99sBjXkhB7lmWkeLdd3JJELn6s37VG9oJzteW29eh97s8/XmX/vBpmL57dnmxO40vIRcJi3wv5Wk0A76774sL153txI6VHevXFvHYFlmVJEXMOszL4G7ffni/0v19hoPN3UBahPoiRZvN/L8t+S5SrN2nBZ7AlzE5PDT3l4rybFIafHdsGlluoi+fDWAhdnGxdDnb/vLYZ5dpL+sdwKOvd5AZ3abGmJknw8xTD9eYVXuzTdcfwA='),
+			this.addDataEntry(dt + 'cell list', 164, 120, 'Cell List',
+				'7ZlNb6MwEIZ/DcdGtgmEHBtSeulKK3WlPbPBgLUGI0PbpL9+HWyaD2BlWlxVBUuR7MEz2O+YRxmwbD/b3/OwSH+wCFPLvrNsnzNWyV629zGlFgIksuythRAQPwsFPVdhfRUUIcd5peOApMNzSJ+wtEhDWR2oMpRpWBy7HO9EyE1ZcfYX+4wyLow5y8W1TUwobUwWsuO6CXvCw4iIpVxNFyEj9iLGQAzUCjCv8L53F7VJbeEeswxX/CCmvJCoStUMdyndUkyStHFT2wdhKQ3Jm+9JFNFRunRrZLc0egj/iFS9SyiWV4/k9TgNAjU+Ew7UTdg5LsWs32p7UFhCSpJc9CmO6+hFuCN58lCPtsg5mX6x4mjRVRa9T9lGWI5pWJFnfBH/I2ovB59Izp7yCEdKJ67ktTXPahCsHQB11bK71TqoZ23hSJdz9ZyOY+kMFE/d8ScjYiEIqPWpKOrmN6vm7k0EFsclrlriv61bKx+Ofj6yfXIE2YKwcrXISLlbcLnnq0QI1d26fVD1S4f/5KArBUPPb3cKbuBVEkykwJ0BNAKArhJ4uAwzasJWn84we3Ncrp7g7uQY5n0BhvWoPhWGrWeGGWPY0gTDmsP1aRBb+ttbIZKm4uvJQQzCL0CxHtmnQjHYrpdnjI2FMdcIxtrVu1mMAbC6DbT/i8Eeyb8zxwZU+MY41qf7ZEDWLutnkI0FMs8IyNpvAcyCzPEcZ6v/QDnTA9mAMt8cyHp0nwzI2rX9DLKxQAaBEZK13wWYJZkXeHdr7cpSnqhJkQwNqPXNkaxH929KMjE8feaV08+/Av8D'),
+			this.addDataEntry(dt + 'cell list', 164, 60, 'Cell List',
+				'7Vddb4IwFP01PGr4dnucuvniErMt2XMnBZoVStpOZb9+F1pRQCPqfJImJL3nfrXn9D5gOJNkM+Moi19ZgKnhPBvOhDMm1S7ZTDClhm2SwHCmhm2b8Bn2yxGvVXrNDHGcyi4JtkpYIfqDFaIAIXOqARGjrNhyvISSYyE5+8YTRhkHMGUp+MYhoXQLGbYTlgvwiKOAwFEa4VAyYGuwTTD0CTCXeHP0FiWkrzDDLMGS5xCyJoGMdYTvqrQYkyjWab66vYmEsqMqdccJbDQthylyWhTN0RcodRFPLJXv5LcIs0xt7/FmlgtwjgVEferbWYAgSqIU9hSHZfUMLUkafbAMMHsHzEv31OvKq30Zr/pVmRxTJMkK1+pfQ7Z7JtnJJipmZ0iYGA0TIpZDrk7Z4B/I9csFHlpUXDBBJGF7lBZMkSWi84Y7IUFQtK0k2HbYJjxpvApsqqy1edP8uW3hH8vVVTTnsGj1hFyP/9BT9p6kXltQ61xBdfsFI3CqqvfA8mrdB169AgtDgWXrQVSX6PRGvH4grx/Ihn55vcy/6uX3M31ad+++Z3rUz/StZtq9xUw/9DN9WvfRXc00mLv/FhW+/1vzBw=='),
+			this.addDataEntry(dt + 'message', 164, 35, 'Message',
+				'1VbbbqMwEP0aHhdxyaX72KSbaKWuFO3uSx+98QBuDYNsp0n263cMJikQWqQ2K9URhDme8WXO8YAXL/PDWrEy+4EcpBd/8+KlQjT1U35YgpReFAjuxXdeFAV0edFqoDeseoOSKSjMmICoDnhmcgc1UgPaHKUDdMZK+6hgS0MutFH4BEuUqAgssKC+RSKkbCAvipOqEZ4qxgUtpeNOQ3Lckx2Q4VYAysBhcBcV5LawBszBqCO57AU3mfOYTeqwDESaubB4WmNM13Z6Cj3nhB5cWi6nKO6laAMGFEFr2jXowYTRMKLUMDJnQTBfrW4sjoX5Jf7aERqz5WYb4UyKtCBMQlLRUrKtKNLfWBIWnoH7qvuOkreQ7A/IDWphBNpIVedpYVMvtkzed/pzwbnd08nh1k156hhFXfQ2dUGfuQZTIJkRz9Aa/hKdboYNCpo4Ctx6HP/HltWEY5JoMD0tnBY5Sh6TnjzsYm4n00Fd5IfUnndfoJ77udBbv2GirRNie1a1C9w51t+krlFJl+selR3VOfX8dIRM+kL8WrV3iqAd8EIS06sp4kt4fU1Me5r4TubjTtt1pGjvjK4C9nRPFFVIPqgWyupg2e3UgDHkznulIZy/UmVaZSX6wCN/qVq/l2HHaHgNSmc9Sh9wR8BTgZZEy++eFQa445Zj6tPfA2h6V3B2dD5n8stdWVrU9/3/xf1sFPc3gf19Uu4/4jiTef4Aq91ffp/9Aw=='),
+			this.addDataEntry(dt + 'message', 164, 100, 'Message',
+				'7Zbfb9sgEMf/Gj8uwjg/2sckTdqHVZqaSntm5myzYmMBbpL99TsM+VUnm9el0h6GFAu+3AF393FwlMzLzb1mdfGoOMgoWUTJXCtlfa/czEHKiBLBo+QuopTgL6LLC7NxO0tqpqGyfRyod3hlsgGveMHYrQyCKVjtuhpSXHJmrFYvMFdSaRQrVeHcLBNS7qSIJlnbUM814wKP8sYcl+RqjWOCg3AC0BY2F6NopRDCPagSrN6iyVpwWwSL8dC7FSDyYudGfPiEGS/ke99DUrAT8nI+R0knRytmG82ZO0GMIUxjNz99vJg6jMyljkmRVzhMMSzAdMxc0CJlchomSsG5bPOpKrsSP5zvKAyP0nvbtj612OW7Zqmo8mdVo5agoMHg6l9D9uK+VaDvrYLXNEhmxSucrH+uMmGLL0rgzgcTlWUGbKd0+5P0quawU80HcEGUrIooepNctXu6SkIaJctOVQtbypA1X4DjPJ6gzZkpgIfBDoZyk7vXfSCUmTRigOWXqun7Zi0mi/FifsSShMz2JGlyIOFz63UXT7pwkba9hQZrMlsXwsIKVbfYGmP4SJBuSZcj+pcchfOMvMM2uI9O/a8C2agLmcDxsyg9YyrDR6oabcAL3xvjTpi7qJBFCASiSS1bRVSNBYM9q/CRiUqYAjvfNLCXjBk7+KcwJeMbslw6XYr6Iez5G2StA+3XvNIurvur5gTXT5d4DVZPAaqYXp3h4EAGSYDg+N+RnKF6Z/deqgPHQ/IBHI87HD8B46gstWjvv34XnvbR/r/v/qiiN1eoKA4PH5Pe/Phb8yc='),
 
 			this.addEntry(dt + 'alert', function()
 			{
@@ -655,31 +250,8 @@
 
 				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Alert');
 			}),
-
-			this.addEntry(dt + 'dialog', function()
-			{
-				var bg = new mxCell("A dialog title", 
-						new mxGeometry(0, 0, 120, 70), 'shape=rect;rounded=1;strokeColor=none;fillColor=#F6F6F8;gradientColor=none;shadow=0;glass=0;dashed=1;fontFamily=Helvetica;fontSize=8;fontColor=#333333;align=center;html=0;verticalAlign=top;whiteSpace=wrap;spacing=8;spacingTop=0;');
-				bg.vertex = true;
-				var text1 = new mxCell("A dialog text that notifies you of something and you need to decide which action to take.",
-						new mxGeometry(0, 0, 120, 30), 'shape=text;align=center;verticalAlign=middle;fontSize=7;fontColor=#333333;strokeColor=none;fillColor=none;spacingTop=-8;resizeWidth=1;whiteSpace=wrap;');
-				text1.geometry.relative = true;
-				text1.geometry.offset = new mxPoint(0, 20);
-				text1.vertex = true;
-				bg.insert(text1);
-				var text2 = new mxCell('Action 1', new mxGeometry(0, 1, 60, 20), 'shape=text;align=center;verticalAlign=middle;fontSize=8;fontColor=#0680FF;strokeColor=none;fillColor=none;spacingTop=3;resizeWidth=1;');
-				text2.geometry.relative = true;
-				text2.geometry.offset = new mxPoint(0, -20);
-				text2.vertex = true;
-				bg.insert(text2);
-				var text3 = new mxCell('Action 2', new mxGeometry(0.5, 1, 60, 20), 'shape=text;align=center;verticalAlign=middle;fontSize=8;fontColor=#0680FF;strokeColor=none;fillColor=none;spacingTop=3;resizeWidth=1;');
-				text3.geometry.relative = true;
-				text3.geometry.offset = new mxPoint(0, -20);
-				text3.vertex = true;
-				bg.insert(text3);
-
-				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dialog');
-			}),
+			this.addDataEntry(dt + 'dialog', 120, 70, 'Dialog',
+				'5ZZNb9pAEIZ/jY+JjN0SroHW6aVSpVTqeeUde0dZ71rr4cP99Z3FAwFiNyhtDlVB4J3vwc+L5CRfNbuHoFrz1WuwSf45yVfBexpOzW4F1iZZijrJPyVZlvInyYqJ6GwfTVsVwNE1BdlQsFF2DYPnnk2NyvqaD4RkYUjpqLeS0hnVxmOAkocsg187DbHhjK2Ogn+Clbc+sMd5x5nLCq09uJIsL+b8XrC/Dkojr3qRzgO037Kdxhyruk7OWnXmOKnyjgrVoO3Z8QXsBghLJYFH/BlXXIh5Mnx4sV9ZrB37Sl4AOLg01FgZtIEQm9l7ySHfsndrkOCxVWVsvWVocVc20dUyS6zvMX3fSO4vt4PdJKO9SwA9gG+AQs8pW9RkJEM4pgawNlJ2Jz7VDXZ9LH0mzgeBPi6A/BUBwI7ixah4cZ6wQuj42Ps1f/sqKiNONfEe8CpOH4MOIBrkY0MoUUP8TQZLExNLQu8OYVJPcDups/0SI7wuITWotYVzAdz9RgCvSvUgx1OoNxFzgI7b/xA+swlpXMU+exv7XHwBrCLcwFn/MUHIiG8eXUTZy/QLCfmq6oBeCOi42FWa+vBSUwfas3eBPPIvT+eLtCjeCjkfZfwnPPuzghO68xG42d+Be/MudD9O083+V7pSkN7KzflnabP5/PAxpJ8+m/wC'),
 
 			this.createVertexTemplateEntry(
 		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.bluetooth;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
@@ -860,60 +432,10 @@
 			this.createVertexTemplateEntry(
 					sm + 'expand;fillColor=#c0c0c0;', 
 					sizeX * 0.12, sizeY * 0.015, '', 'Expand', null, null, this.getTagsForStencil(gnm, 'expand', dt + '').join(' ')),
-
-			this.addEntry(dt + 'volume control', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 160, 14), 'shape=rect;strokeColor=none;fillColor=none;');
-			   	bg.vertex = true;
-			   	var icon1 = new mxCell('', new mxGeometry(0, 0.5, 6, 8), 'shape=mxgraph.ios7.misc.volume_down;fillColor=#666666;strokeColor=none;');
-			   	icon1.geometry.relative = true;
-			   	icon1.geometry.offset = new mxPoint(0, -4);
-			   	icon1.vertex = true;
-			   	bg.insert(icon1);
-			   	var icon2 = new mxCell('', new mxGeometry(1, 0.5, 14, 14), 'shape=mxgraph.ios7.misc.volume_up;fillColor=#666666;strokeColor=none;');
-			   	icon2.geometry.relative = true;
-			   	icon2.geometry.offset = new mxPoint(-14, -7);
-			   	icon2.vertex = true;
-			   	bg.insert(icon2);
-			   	var part1 = new mxCell('', new mxGeometry(18, 0, 116, 14), s2 + 'slider;barPos=60;strokeColor=#0680FF;opacity=100;fillColor=#FFFFFF;handleSize=14;');
-			   	part1.vertex = true;
-			   	bg.insert(part1);
-	
-			   	return sb.createVertexTemplateFromCells([bg], 160, 14, 'Volume Control');
-			}),
-					
-					
-			this.addEntry(dt + 'picker', function()
-			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 175, 160), s2 + 'anchor;');
-			   	bg.vertex = true;
-			   	var button1 = new mxCell('Item 1', new mxGeometry(0, 0, 175, 32), s2 + 'anchor;fontSize=15;fontColor=#a0a0a0;resizeWidth=1;');
-			   	button1.geometry.relative = true;
-			   	button1.vertex = true;
-			   	bg.insert(button1);
-			   	var button2 = new mxCell('Item 2', new mxGeometry(0, 0, 175, 32), s2 + 'anchor;fontSize=15;fontColor=#a0a0a0;resizeWidth=1;');
-			   	button2.geometry.relative = true;
-			   	button2.geometry.offset = new mxPoint(0, 32);
-			   	button2.vertex = true;
-			   	bg.insert(button2);
-			   	var button3 = new mxCell('Item 3', new mxGeometry(0, 0, 175, 32), s2 + 'horLines;fontSize=15;fontColor=#222222;strokeColor=#a0a0a0;fillColor=none;strokeWidth=2;resizeWidth=1;');
-			   	button3.geometry.relative = true;
-			   	button3.geometry.offset = new mxPoint(0, 64);
-			   	button3.vertex = true;
-			   	bg.insert(button3);
-			   	var button4 = new mxCell('Item 4', new mxGeometry(0, 0, 175, 32), s2 + 'anchor;fontSize=15;fontColor=#a0a0a0;resizeWidth=1;');
-			   	button4.geometry.relative = true;
-			   	button4.geometry.offset = new mxPoint(0, 96);
-			   	button4.vertex = true;
-			   	bg.insert(button4);
-			   	var button5 = new mxCell('Item 5', new mxGeometry(0, 0, 175, 32), s2 + 'anchor;fontSize=15;fontColor=#a0a0a0;resizeWidth=1;');
-			   	button5.geometry.relative = true;
-			   	button5.geometry.offset = new mxPoint(0, 128);
-			   	button5.vertex = true;
-			   	bg.insert(button5);
-	
-			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Picker');
-			})
+			this.addDataEntry(dt + 'volume control', 160, 14, 'Volume Control',
+				'vVVdb8IgFP01fbTBVqvPuunTEpM97HFhchUyWhqgWvfrd1to/WjdjHEjacI9cLmcc4AG8Twtl5rm/EUxkEH8HMRzrZR1vbScg5RBRAQL4qcgigh+QbS4MjqsR0lONWT2loTIJeyoLMAhDjD2ID1gOM2rroY1LjkzVqtPmCupNIKZynBsthFSXkB+YdAWyqubqyG/syWoFKw+4JS9YJb7GYkjQDiILW/SRg6jxsXbNvVIFTuebT/z+HbmabmtDAqFMpMwFWYd7pQsUnhnap9dsA+iOKnbNalu0iXq1+XgLQ3HLuVEp6Sr0tRBGiS1YgdnxfqU8/VWSuA22mKDC63VZmPAdpRud3mT+KMHiF/k/yn9ecIPRjRns++83muFLz5o1mmsmfyBNePfreE2xeynYavzm6dfI5zitcCAYMCo4cB80OdoIUIjBQN0afZB9UpVVBLScRC9JcmULJDXTOV0LWylwZCQ7hlY1A1xTjMm4VV8VUVRusccgGnX8WHP5bvjicLw+PA7507/C98='),
+			this.addDataEntry(dt + 'picker', 175, 160, 'Picker',
+				'7ZZta8IwEMc/Td5Km9i6vV3dZLDBYC/2OqxXE5Y2kkSt+/S7mtQHtEx8gg0Vofe/u9z1/6tQwrKyHhk+Ea86B0XYI2GZ0dr5q7LOQClCI5kTNiSURvgj9KkjGy+z0YQbqNwhDdQ3zLiagle8YN1CBUG4EtcaxoQ9WGf0F3zI3IlWETzXcwwiDHJuBeQhwMykOaGsx83d9aS2g6ns8epTaIP5MBiMg7pz+aUUNh+BLsGZBZbMwwZNxSDxbQLkWLRtqb/riFsvjFe9ay/wItix3xq2Y82zgxKV+FoWFbpy7/K7KYmTEGdaNTmcynjUfFE3YLFqc+ZB5tLjzGXhETGguJMz2Dr/FMP7XYZf7Zn8J4aHEW9a4mQaLbaPaTt0UVhwO4BWix3ELOlixi7MDIG9yArs79To8rOauo9nIZVq9UpXsLMi/avQ0/4FoKdd0Pu3P+oZmN2nF2A26GKW3JidgVlM706HhuH6zc+Xb74Y/gA=')
 		];
 
 		this.addPalette('ios7ui', 'iOS UI', false, mxUtils.bind(this, function(content)

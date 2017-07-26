@@ -124,78 +124,14 @@
 
 	   			return sb.createVertexTemplateFromCells([chair1, chair2, table], 80, 120, 'Small kitchen table');
 			}),
-					
-			this.addEntry(dt + 'kitchen table', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(88, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, table], 140, 140, 'Kitchen table');
-			}),
-			
-			this.addEntry(dt + 'kitchen table', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=ellipse;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(88, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, table], 140, 140, 'Round kitchen table');
-			}),
-			
-			this.addEntry(dt + 'kitchen table large', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(148, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large kitchen table');
-			}),
-			
-			this.addEntry(dt + 'kitchen table large', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(148, 50, 52, 40), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 88, 40, 52), s + 'chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large kitchen table');
-			}),
+			this.addDataEntry(dt + 'kitchen table', 140, 140, 'Kitchen table',
+				'5VZdb8IgFP01vJoKuvi61c2XLdnbnrG9FjLa2wBq++93W6gfmWZbXIyJJE2453I/OCdQmEjLZmFlrd4wB8PEMxOpRfRhVjYpGMN4onMm5ozzhD7GX854x703qaWFyv8mgIeAjTRrCEgAnG9NBDZgvc6keZVLMO/otNdYkWuJ3mPJxJPyJfU9H9N0WPtodNGt8VgTKqOVUVNgCXDe4id86NyrGOiUrLt6ZVN0XIxWBtHWRlajTEndxay0MSkatH1XYtWPXa4DT9KPkDPHLYGdEfdJ/UFzlqseikQtAEvwtqUlMWAaqEy2sW+yJhFSoAsVk0wjhdIFu9gl2utAkyjFaVnEvciSawtZ7HwLzv+vUm0wZ7OrCTe5R+EqtF3hi5Rrz56xQZZDqQb5LpFqeo9SOVxT4ctP2HCkri/bw8+yDYx2276JPwc/vo/4d7bGyYkLaQf+gS8y96+H3nf0uPgC'),
+			this.addDataEntry(dt + 'round kitchen table', 140, 140, 'Round kitchen table',
+				'5ZZNb8IwDIZ/Ta6oJDBx3crGZZN22zm0pomW1lUSoP33c5uUDw20TUwIiUqV4tex4/pR0jCRls3Cylq9YQ6GiWcmUovow6hsUjCG8UTnTMwZ5wm9jL+c8Y57b1JLC5X/TQAPARtp1hCUIDjfmihswHqdSfMql2De0WmvsSLXEr3Hkokn5Uuqez6m4TD30eiim+OxJlVGK6OiwJLgvMVP+NC5VzHQKVl365VN0fVitDKItjayGmVK6i5mpY1J0aDtqxKr/tnlOvAk/RNy5rglsTPid1J90JztVS/FRi0AS/C2pSkxYBpamWxj3WRNoqRAFyommcYWShfsYpdoz4EGEcVpLOJesOTaQhYr34Lz/0uqDeZsdjVwk3sEV6HtFr6IXHt2jw1YDlEN+C5BNb1HVA7XtPDlO2zYUtfH9vAztqGjFKhrBzfx8+DHRxL/3rBxcuJM2ol/aBmZ+wtE7zu6X3wB'),
+			this.addDataEntry(dt + 'kitchen table large', 200, 140, 'Large kitchen table',
+				'5ZZfb4MgEMA/Da+NQtv5utmtL1uytz1TpUKKngHa6rcfCPZP1mZb2pklkphwd9xx3A8ERNKyWSpa8zfImUTkGZFUARjfK5uUSYlwJHJEFgjjyH4Iv1yxxp01qqlilfmJA/YOOyq3zGu8QptWBsWOKSMyKl/pisl30MIIqKxpBcZAicgTN6XNexHbbj/2UYrCjTFQWy0NUmaTYsoqtFGwYR8iNzw4ak5rN1/ZFK4Wk7UEULWk1STjVDiftZAyBQmqy4qsu3aIdWKJuuZj5rC3SieEddr8WHO1Vp0qFGrJoGRGtXZIcJj5Ukb7kLeVpkHFmSh4CDILJaTay8Uh0JGD7QQUl7GQsWDJhWJZyHzPtLkvqdaLSTIYuOkYwVWg3MQ3kWuvnrEeyymqHt8tqGZjRKVhaye+/YTF0+TsiA3IbT4WbvfAFA93Zz2Mhcvf3FkHVMNfWsn35PqiupX/i52Nz6uFv+7zeH6hXHH0+z+QFY8P8s529l7/BA=='),
+			this.addDataEntry(dt + 'kitchen table large', 200, 140, 'Large kitchen table',
+				'5ZZNb4MwDIZ/Ta4VH23HdaNbL5u0284puBA1YJSkLfz7GRL6obXapnZoEkhI8es4MX4SEhbGRb1UvMrfMAXJwmcWxgrR2FZRxyAlCzyRsnDBgsCjlwUvV7x+5/UqrqA0PwkIbMCOyy1YxQraNNIJO1BGJFy+8hXId9TCCCzJtUJjsGDhU24KynvhU7Pv+yhF1vYxWJHKnZVQUqBI0EbhBj5EanIXqHNetfMVddbWYrKWiKqSvJwkORdtzFpIGaNE1WUVrrvnMNaJx+seO2aKexJbw30n5Qf11Vp1kivUErAAoxrq4gJmtpTe3uVN1tRJOYgsd4PMXAm5tnZ2GOjIgRoOxWUs4ViwpEJB4jLfgzb3JdVYM4oGAzcdI7gSVTvxTeSaq3usx3KKqsd3C6rZGFFp3NLEt+8wfxqdbbEBuc3Hwu0emPzhzqyHsXD5mzPrgGr4Qyv6nlxfVAoUlYZ/sbiD84IFX5e6P79QMd/7/U+IzOOdvPOdXdk/AQ=='),
 			
 			this.addEntry(dt + 'office table', function()
 			{
@@ -208,134 +144,16 @@
 
 	   			return sb.createVertexTemplateFromCells([chair1, table, item1], 80, 70, 'Office table');
 			}),
-					
-			this.addEntry(dt + 'office table', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(97, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, table], 140, 140, 'Office table');
-			}),
-			
-			this.addEntry(dt + 'office table large', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(157, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large office table');
-			}),
-					
-			this.addEntry(dt + 'office table large', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(157, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large office table');
-			}),
-
-			this.addEntry(dt + 'office table large', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 280, 100), 'shape=ellipse;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(277, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-			   	var chair7 = new mxCell('', new mxGeometry(170, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair7.vertex = true;
-			   	var chair8 = new mxCell('', new mxGeometry(170, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair8.vertex = true;
-			   	var chair9 = new mxCell('', new mxGeometry(230, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair9.vertex = true;
-			   	var chair10 = new mxCell('', new mxGeometry(230, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair10.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, chair7, chair8, chair9, chair10, table], 320, 140, 'Large office table');
-			}),
-
-			this.addEntry(dt + 'office table conference large huge', function()
-			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 520, 100), 'shape=ellipse;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	table.vertex = true;
-			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair1.vertex = true;
-			   	var chair2 = new mxCell('', new mxGeometry(50, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair2.vertex = true;
-			   	var chair3 = new mxCell('', new mxGeometry(0, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=north;');
-			   	chair3.vertex = true;
-			   	var chair4 = new mxCell('', new mxGeometry(517, 50, 43, 40), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=south');
-			   	chair4.vertex = true;
-			   	var chair5 = new mxCell('', new mxGeometry(110, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair5.vertex = true;
-			   	var chair6 = new mxCell('', new mxGeometry(110, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair6.vertex = true;
-			   	var chair7 = new mxCell('', new mxGeometry(170, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair7.vertex = true;
-			   	var chair8 = new mxCell('', new mxGeometry(170, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair8.vertex = true;
-			   	var chair9 = new mxCell('', new mxGeometry(230, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair9.vertex = true;
-			   	var chair10 = new mxCell('', new mxGeometry(230, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair10.vertex = true;
-			   	var chair11 = new mxCell('', new mxGeometry(290, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair11.vertex = true;
-			   	var chair12 = new mxCell('', new mxGeometry(290, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair12.vertex = true;
-			   	var chair13 = new mxCell('', new mxGeometry(350, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair13.vertex = true;
-			   	var chair14 = new mxCell('', new mxGeometry(350, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair14.vertex = true;
-			   	var chair15 = new mxCell('', new mxGeometry(410, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair15.vertex = true;
-			   	var chair16 = new mxCell('', new mxGeometry(410, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair16.vertex = true;
-			   	var chair17 = new mxCell('', new mxGeometry(470, 0, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;');
-			   	chair17.vertex = true;
-			   	var chair18 = new mxCell('', new mxGeometry(470, 97, 40, 43), s + 'office_chair;fillColor=#ffffff;strokeColor=#000000;shadow=0;direction=west;');
-			   	chair18.vertex = true;
-
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, chair7, chair8, chair9, chair10, chair11, chair12, chair13, chair14, chair15, chair16, chair17, chair18, table], 560, 140, 'Conference table');
-			})
+			this.addDataEntry(dt + 'office table', 140, 140, 'Office table',
+				'5VZdb8IgFP01vBoE3bLHrW6+bMne9rhge1vIaG8DqO2/HxTUmWm2RWOWSNKEey73g3MChfCs7uZGtPIFC9CEPxKeGUQXZ3WXgdaEUVUQPiOMUf8R9nTEOx68tBUGGvebABYDVkIvISIRsK7XCViBcSoX+lksQL+iVU5h410LdA5rwh+kq33fs7Gfbtbea1WFNQ5bj4pk5b4pMB6wzuAHvKnCyRRopWhDvbqrAhejUiOaVotmhGWpcnjPpVAhtFRaZ6jRDM3xchjblF88dBgxdYFrDwYjbde3Cd1RygYo8TUHrMGZ3i9JAdPIKF2n9r01SZAEVcmUZMIjJmy0q22inRx+khQ5rA6/MnUKZSBPG1iDdecVrI/m3e3F9JtcsX4NmlD/JAH74yeOH1CMnq7Y9IoVs7j09U8/b5sDdnn1bn5Wb0Ns2Pa/+J2w/duJfWdrTA9cT1vwD3x5c/eyGHx7D49P'),
+			this.addDataEntry(dt + 'office table large', 200, 140, 'Large office table',
+				'5ZZRT4MwEMc/TV8XaLehj8p0L5r45qPp4IDGwpG22+DbW2i3ubhFzSYxgYSk979ee70fpSUsLpul4nXxjClIwh4IixWica2yiUFKQgORErYglAb2JfTxjDfsvUHNFVTmJwHUBWy4XINTnKBNK72wAWVEwuUTX4F8QS2MwMq6VmgMloTdF6a0eS9C29z1vZMi7/oYrK3KvZXYpEBZQRuF7/AqUlP4QF3wupuvbPKuFpNMIqpa8mqCWSYSeEsKLrrQTEgZo0TVJ8ey/tkP+ckT9I8bOsWtFTvDL9emCc3ZkvWSr9cSsASjWtvFB8xcRYOtT99aUy8VIPLCDzJlTuPa2fl+oAMO2/BETtNhI6OTCgWJX8AWtLkusNaZt9Fg/KYj5leh6ua/CGB7fsexE8SCy4nNRkxM49rOf/l+C2fR0YYbEN98ZPiuQSsc7jyLRobnb86zPbHhD7Sb7wHuatut/F984PS4WvTr5x7OT5QrDH7/P7Lm4ere+45u9h8='),
+			this.addDataEntry(dt + 'office table large', 200, 140, 'Large office table',
+				'5ZbfT4MwEMf/mr4uQPdDH5XpXjTxzUfTwTEaC0faboP/3oN2m4tb1GwSE0hIet/rtdf7tBTG46JeaFHlz5iCYvyB8VgjWtcq6hiUYlEgU8bnLIoCeln0eMYbdt6gEhpK+5OAyAVshFqDU5xgbKO8sAFtZSLUk1iCekEjrcSSXEu0FgvG73NbUN7zkJq7vndKrto+FitShbcSSgo0CcZqfIdXmdrcB5pcVO18Rb1qazHKFKKulChHmGUygbckF7INzaRSMSrUXXI86579kJ88Qfe4oVPcktgafrmUJtRnS9ZJvl4LwAKsbqiLD5i4igZbnz5ZYy/lIFe5H2TMnSaMs1f7gQ44qOGJnKbDB0YnlRoSv4AtGHtdYI0zb2e98RsPmF+Jup3/IoDN+RPHTxALLic2GTAxg2ua//LzFk5mRweuR3zTgeG7Bq2wv/tsNjA8f3Of7Yn1f6HdfA9wV1sKlJWBf7HHo+OCRV93fDg9UbEw+P0niczD33vnO/q5/wA='),
+			this.addDataEntry(dt + 'office table large', 320, 140, 'Large office table',
+				'5ZhRb4MgEMc/ja+NQjvbx81ufdmSve1xoYpKhp4B2uq3Hwq1a9YmXWrtEkxMuIOD837+A8HDUVGvBKnyN0go9/CzhyMBoEyrqCPKuYd8lnh46SHk69dDL2d6g67Xr4igpbokAJmALeEbajzGIVXDrWNLhWIx4a9kTfk7SKYYlLprDUpB4eGnXBU672Wgm/uxj5xl7RgFlfYSa8U6KSq0QyoBX/SDJSq3gTInVbteUWdtLSYpBxAVJ+UE0pTF9DPOCWtDU8Z5BBxElxxOu6ef8keP3z1m6gR22tka9nN1mrQ+W7LOZeu1olBQJRo9xAbMTEX9nU1fW1PryinLcjvJFBsfkcbO+okOOHTDEjlNBztGJ2GCxvYDdlSqYYE1xlyEo/GbOsyvBNGufxXA5rzi8Ali/vXEZg4Tk7DR61+vNxSGR4IbEd+DY/gGoBUE4+1noWN4brOf9cTG39DmjgEcglY4nr4WjuG5kb7Cu+lrr2xnCA5x3MDjCSwIHONzG4X1yO6gsAtuPPbF1ZGskvR//OXHFUO//3k0P1GywP/7qVqbhwuoru/ofuob'),
+			this.addDataEntry(dt + 'office table conference large huge', 560, 140, 'Conference table',
+				'7Zpda4MwFIZ/jbfDJO1cL7fu42aD3e1yZBprWPRITL/+/aJJ25W10NI0DqJQ8Jx8eh5fAm+NyLRcvUhaF2+QMRGRp4hMJYAyd+VqyoSIcMyziDxGGMf6F+HnI62oa41rKlmlThmAzYAFFXNmMibRqLWwiQWTiqdUvNIvJt6h4YpDpZu+QCkoI/JQqFLv+xHp203fe8FnbR8Ftc5SG6V6U0zqRKMkfLMPnqnCDmwKWrfrlatZW4ubXADIWtDqBvKcp+wzLShvh+ZciCkIkN3mSN5d2yl/tcTdZabOYKmTbWAfV2+TrY6WrEvZer0wKJmSa93FDhibisZLu30djWyqYHxW2ElGxORoY+LZdqIdDn1jiRymQwKjk3HJUvsAS9Yot8DWJpwk3viNAuZXgWzXvwjg+rjiyAFi8eXExgETa2Cu13egN5TsCc4jvtvA8DmghZC/8ywJDM91zrMtMf8H2l1gAF3QSvzpaxIYnivpK+lNXxtlB0PQAS49tT8+KDA+11HYFlkPChscj/NxTTwqbPA8nCLrQWGhuR4OcBGPpiIK2eNwpzDSn62IBpvjbFwjjzYHGnwOp8h6UNhgdJyPy6PRgQanwyky/wrDJzgdm+Lqkbxu2L94y/F+xfDfd36MD5QMxef/u6HD3YcAXdvedwI/')
 		];
 
 		this.addPalette('floorplan', mxResources.get('floorplans'), false, mxUtils.bind(this, function(content)

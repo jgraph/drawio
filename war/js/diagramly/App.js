@@ -749,16 +749,17 @@ App.prototype.init = function()
 	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
 		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
 		encodeURIComponent(mxResources.get('loveIt', ['www.draw.io'])) +
-		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=280,width=640\');return false;"\'>' +
+		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
+		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
 		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 		'<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_github.png"/>' +
 		'Fork us on GitHub</a>',
 		'<a title="' + mxResources.get('loveIt', ['draw.io']) +
-		'" target="_blank" href="https://www.facebook.com/sharer.php?u=' + 
-		encodeURIComponent('https://www.draw.io') +
-		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=520,width=640\');return false;"\'>' +
+		'" target="_blank" href="https://www.facebook.com/sharer.php?u=' + encodeURIComponent('https://www.draw.io') +
+		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
+		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
 		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 		'<a title="draw.io Offline App" href="https://www.draw.io/app" target="_blank">' +
@@ -866,7 +867,8 @@ App.prototype.init = function()
 							this.adsHtml = this.basicAds.concat([
 								'<a title="' + mxResources.get('loveIt', ['draw.io']) +
 								'" target="_blank" href="https://plus.google.com/share?url=' + encodeURIComponent('https://www.draw.io') +
-								'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=520,width=480\');return false;"\'>' +
+								'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
+								'left=\'+((screen.width-480)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=480\');return false;"\'>' +
 								'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_google.png"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
@@ -1000,18 +1002,23 @@ App.prototype.init = function()
 	
 	if (td != null)
 	{
+		this.basicAds.push(td.innerHTML);
 		this.adsHtml = this.basicAds;
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
-		var lastAd = null;
+		var lastAd = this.adsHtml.length - 1;
 		var thread = null;
 		
 		this.updateAd = function(index)
 		{
+			if (this.adsHtml.length == 1)
+			{
+				window.clearInterval(thread);
+			}
+			
 			if (this.adsHtml.length == 0)
 			{
 				if (td.parentNode != null)
 				{
-					window.clearInterval(thread);
 					td.parentNode.removeChild(td);
 				}
 			}
@@ -1019,29 +1026,25 @@ App.prototype.init = function()
 			{
 				if (index == lastAd)
 				{
-					lastAd = null;
-					index = 0;
+					index++;
 				}
 
-				if (index != lastAd)
+				mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(0)');
+				td.style.opacity = '0';
+			
+				window.setTimeout(mxUtils.bind(this, function()
 				{
-					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(0)');
-					td.style.opacity = '0';
+					td.innerHTML = this.adsHtml[index];
+					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
+					td.style.opacity = '1';
 					lastAd = index;
-				
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						td.innerHTML = this.adsHtml[index];
-						mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
-						td.style.opacity = '1';
-					}), 1000);
-				}
+				}), 1000);
 			}
 		};
 		
 		thread = window.setInterval(mxUtils.bind(this, function()
 		{
-			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
+			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 2)));
 		}), 180000);
 		
 		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
@@ -1051,18 +1054,12 @@ App.prototype.init = function()
 			this.updateAd(0);
 		}));
 
-		if (mxSettings.getOpenCounter() < 3)
+		if (mxSettings.getOpenCounter() > 10)
 		{
-			this.adsHtml.push(td.innerHTML);
-			lastAd = this.adsHtml.length - 1;
-		}
-		else if (mxSettings.getOpenCounter() < 4)
-		{
-			this.updateAd(0);
-		}
-		else
-		{
-			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 1)));
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.updateAd(0);
+			}), 15000);
 		}
 	}
 	
@@ -2358,7 +2355,8 @@ App.prototype.showSplash = function(force)
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (serviceCount < 2 || mxClient.IS_CHROMEAPP) ? 160 : 260, true, true,
+		this.showDialog(dlg.container, 340, (serviceCount < 2 ||
+			mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed

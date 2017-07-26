@@ -13,65 +13,10 @@
 		
 		this.addPaletteFunctions('network', 'Network', false,
 		[
-			this.addEntry(dt + 'ring bus', function()
-			{
-			   	var cell = new mxCell('', new mxGeometry(25, 25, 50, 50), 'html=1;fillColor=#CCCCCC;strokeColor=#6881B3;shape=ellipse;perimeter=ellipsePerimeter;gradientColor=none;gradientDirection=north;fontColor=#ffffff;strokeWidth=2;');
-			   	cell.vertex = true;
-			   	var cells = [cell];
-			   	
-			   	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;dashed=0;html=1;strokeWidth=2;');
-			   	edge.geometry.relative = true;
-		    	edge.edge = true;
-		    	
-		    	function insertEdge(x, y)
-		    	{
-		    		var e = sb.cloneCell(edge);
-				   	e.geometry.setTerminalPoint(new mxPoint(x, y), true);
-		    		cell.insertEdge(e, false);
-		    		cells.push(e);
-		    	};
-			   	
-		    	insertEdge(50, 0);
-		    	insertEdge(85.5, 14.5);
-		    	insertEdge(100, 50);
-		    	insertEdge(85.5, 85.5);
-		    	insertEdge(50, 100);
-		    	insertEdge(14.5, 85.5);
-		    	insertEdge(0, 50);
-		    	insertEdge(14.5, 14.5);
-
-			   	return sb.createVertexTemplateFromCells(cells, cell.geometry.width * 2, cell.geometry.height * 2, 'Ring Bus');
-			}),
-			this.addEntry(this.getTagsForStencil(gn, 'bus backbone', dt).join(' '), function()
-			{
-			   	var cell = new mxCell('', new mxGeometry(0, 60, 260, 20), s + 'bus;gradientColor=none;gradientDirection=north;fontColor=#ffffff;perimeter=backbonePerimeter;backboneSize=20;');
-			   	cell.vertex = true;
-			   	
-				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;');
-				edge.geometry.setTerminalPoint(new mxPoint(40, 0), true);
-				edge.geometry.relative = true;
-				edge.edge = true;
-
-			   	var cells = [cell];
-		    	
-			   	for (var i = 0; i < 4; i++)
-			   	{
-			    	var e = sb.cloneCell(edge);
-			    	e.geometry.setTerminalPoint(new mxPoint(40 + i * 60, 0), true);
-			    	cell.insertEdge(e, false);
-			    	cells.push(e);
-			   	}
-			   	
-			   	for (var i = 0; i < 4; i++)
-			   	{
-			    	var e = sb.cloneCell(edge);
-			    	e.geometry.setTerminalPoint(new mxPoint(40 + i * 60, 140), true);
-			    	cell.insertEdge(e, false);
-			    	cells.push(e);
-			   	}
-		    	
-			   	return sb.createVertexTemplateFromCells(cells,  cell.geometry.width, cell.geometry.height + 120, 'Bus');
-			}),
+			this.addDataEntry(dt + 'ring bus', 100, 100, 'Ring Bus',
+				'7VfJboMwEP0arpWBkNJjgTanSpF66NmKJ2DVYDQ429/XYIclKi2Nkp5AQrLfrLzHsDh+nB9XSMvsTTIQjv/i+DFKqcwqP8YghOMRzhw/cTyP6NPxXkesbmMlJUUo1JQAzwTsqdiBQQxQqZOwQKZy3VbiOn605ULEUkhsLH7cHBqvFMpP6FmWYehGfm3JaFnn0VV5WelVVALyHBRgh647KEqRMq6bPycrZAE9OOEIG8Vl0ZhQZXVXsnPXtbfN0Xb1wVntlXgasRcLqOA4SlgDWbZWIHVjeNIuNsALTMRpuD3YKnoXGMZJBjzN1BCjldmnbd5OG72w8nwvlf+7VOM6AEvh3TpaSlHuCgZ1clI7FOwZUR46O6NV1pp7N8EYrXWJAamKYgpqcJ9N4BlBUMX3w1Tf8WZD15LrjK0+l0xXcocbsE4XZLdVJ/G/mPmfwH8YPAwnxF2cgdtLEsySTJDEJWSgyP1GZDnrcc2IdMDtJXmcJfnDW+P8zCJ3G5Fw1mPKI2vxjyPyNEvykyR3f2u4ZBbgmpm44ZeV3nb/nMa9/0v6BQ=='),
+			this.addDataEntry(dt + 'bus backbone', 260, 140, 'Bus',
+				'7ZdNj4IwEIZ/DVcD1HXd4wK7njYx8bDnKiM0FmqGori/fltaBb8Ws5EbJCb0nel0fF4yBIeEWTVDuk2/RAzcIR8OCVEIae6yKgTOHd9lsUMix/dd9XP8zztRr466W4qQy0c2+GbDjvISjGKEQh64FVKZqbYizyHBmnEeCi6wjpCwvpReSBQbaEUm06kXEBVJkMZM9XKM5SKHlhwxhJVkIq9DKNNTsW8W61XkayWlW91MViUa1CgHuRe4KUbLsvjfGWvRpKt21/Wl9C0gy0CC1pd0tVmqUvNGC47agv3ohhRcEliCgBKquy7UkrVgBkLVw4NKOZjoxJjk7u2f1sYctRRYktoq1kyXFmadnCo1Fqsb6/Jtx0m34/fthDiBhU20mFGUeQy6uIYBefyOKPZNvPX4XDtrjtZVz8hJignIsyf0AZgInEq2Oy91C5XdOhdMVfRd69r4Am4hSlyBTbrgezr1IeTjAflt5J7bG/OXgfkd5pPemE8G5reZXw3u5zF/HZj/Pc7tK9brb7xPBws6xnv/HrwNHnSM+/498NzBhI75/3QT1LL5WDTp7W/JXw=='),
 			this.createVertexTemplateEntry(s + 'bus;gradientColor=none;gradientDirection=north;fontColor=#ffffff;perimeter=backbonePerimeter;backboneSize=20;', 200, 20, '', 'Bus', null, null, this.getTagsForStencil(gn, 'bus backbone', dt).join(' ')),
 		    this.createEdgeTemplateEntry(s + 'comm_link_edge;html=1;', 100, 100, '', 'Comm Link', null, this.getTagsForStencil(gn, 'comm_link_edge', dt).join(' ')),
 			this.createVertexTemplateEntry(s0 + s + 'biometric_reader;', 60, 100, '', 'Biometric Reader', null, null, this.getTagsForStencil(gn, 'biometric_reader', dt).join(' ')),
