@@ -33,6 +33,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 	public Integer linePerpValue;
 
+	public String overflow;
+	
 	private static Pattern pattern = Pattern.compile("<p(.*?)<\\/p>");
 
 	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
@@ -61,6 +63,9 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	{
 		StringBuilder sb = new StringBuilder();
 
+		//I hate magic numbers, but -7 seams to fix all text top padding when valign is not middle 
+		int topPaddingShift = 7;
+		
 		//vertical label position
 		if (vposition.equals("above"))
 		{
@@ -75,6 +80,9 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		else if (vposition.equals("none"))
 		{
 			sb.append("verticalAlign=").append(valign).append(";");
+			
+			if ("middle".equals(valign))
+				topPaddingShift = 0;
 		}
 
 		if (hposition.equals("left"))
@@ -97,9 +105,13 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 		sb.append("spacingLeft=").append(paddingLeft).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
-		sb.append("spacingTop=").append(paddingTop).append(";");
+		sb.append("spacingTop=").append(paddingTop - topPaddingShift).append(";");
 		sb.append("spacingBottom=").append(paddingBottom).append(";");
 
+		//We should wrap only if overflow is none. (TODO better support left & right overflow) 
+		if ("none".equals(overflow))
+			sb.append("whiteSpace=wrap;");
+		
 		return sb.toString();
 	}
 

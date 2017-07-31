@@ -79,6 +79,11 @@ public class GliffyDiagramConverter
 		vertices = new LinkedHashMap<Integer, GliffyObject>();
 		this.diagramString = gliffyDiagramString;
 		drawioDiagram = new mxGraphHeadless();
+		//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
+		drawioDiagram.setExtendParents(false);
+		drawioDiagram.setExtendParentsOnAdd(false);
+		drawioDiagram.setConstrainChildren(false);
+		
 		start();
 	}
 
@@ -334,7 +339,7 @@ public class GliffyDiagramConverter
 		
 		StringBuilder style = new StringBuilder();
 
-		mxGeometry geometry = new mxGeometry((int) gliffyObject.x, (int) gliffyObject.y, (int) gliffyObject.width, (int) gliffyObject.height);
+		mxGeometry geometry = new mxGeometry(gliffyObject.x, gliffyObject.y, gliffyObject.width, gliffyObject.height);
 		cell.setGeometry(geometry);
 		
 		GliffyObject textObject = null;
@@ -367,7 +372,12 @@ public class GliffyDiagramConverter
 				style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
 				
 				if(style.lastIndexOf("strokeWidth") == -1)
+				{
 					style.append("strokeWidth=" + shape.strokeWidth).append(";");
+					
+					if (shape.strokeWidth == 0)
+						style.append("strokeColor=none;");
+				}
 				
 				if(style.lastIndexOf("fillColor") == -1) 
 				{
@@ -418,7 +428,7 @@ public class GliffyDiagramConverter
 			{
 				textObject = gliffyObject;
 				cell.setVertex(true);
-				style.append("text;whiteSpace=wrap;html=1;nl2Br=0;");
+				style.append("text;html=1;nl2Br=0;");
 				cell.setValue(gliffyObject.getText());
 				
 				//if text is a child of a cell, use relative geometry and set X and Y to 0
@@ -479,14 +489,9 @@ public class GliffyDiagramConverter
 			style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
 			style.append("fillColor=" + shape.fillColor).append(";");
 			style.append("strokeColor=" + shape.strokeColor).append(";");
+			style.append("startSize=" + header.height).append(";");
 			style.append("whiteSpace=wrap;");
 			
-			double rads = Math.toRadians(gliffyObject.rotation);
-			mxPoint pivot = new mxPoint(gliffyObject.width/ 2, gliffyObject.height / 2);
-			double cos = Math.cos(rads);
-			double sin = Math.sin(rads);
-			mxPoint baseP = Utils.getRotatedPoint(new mxPoint(0, 0), cos, sin, pivot);
-
 			for (int i = 1; i < gliffyObject.children.size(); i++) // rest of the children are lanes
 			{
 				GliffyObject gLane = gliffyObject.children.get(i);
@@ -499,26 +504,25 @@ public class GliffyDiagramConverter
 				laneStyle.append("shadow=" + (gs.dropShadow ? 1 : 0)).append(";");
 				laneStyle.append("fillColor=" + gs.fillColor).append(";");
 				laneStyle.append("strokeColor=" + gs.strokeColor).append(";");
-				laneStyle.append("whiteSpace=wrap;html=1;");
+				laneStyle.append("whiteSpace=wrap;html=1;fontStyle=0;");
 				
-				mxGeometry childGeometry = null;
+				mxGeometry childGeometry = new mxGeometry(gLane.x, gLane.y, gLane.width, gLane.height);
 				
 				if(gliffyObject.rotation != 0) 
 				{
 					laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
-					mxPoint pointAbs = new mxPoint(gLane.x, gLane.y );
-					pointAbs = Utils.getRotatedPoint(pointAbs, cos, sin, pivot);
-					childGeometry = new mxGeometry(pointAbs.getX()  - baseP.getX(), pointAbs.getY() - baseP.getY(), gLane.width, gLane.height);
-				}
-				else 
-				{
-					childGeometry = new mxGeometry(gLane.x, gLane.y, gLane.width, gLane.height);
+					Utils.rotatedGeometry(childGeometry, gliffyObject.rotation, gliffyObject.width/ 2, gliffyObject.height / 2);
 				}
 
 				mxCell mxLane = new mxCell();
 				mxLane.setVertex(true);
 				cell.insert(mxLane);
-				mxLane.setValue(gLane.children.get(0).getText());
+				
+				GliffyObject laneTxt = gLane.children.get(0);
+				mxLane.setValue(laneTxt.getText());
+				laneStyle.append(laneTxt.graphic.getText().getStyle());
+				//for debugging, add gliffy id to the output in the style 
+				laneStyle.append("gliffyId=" + gLane.id + ";");
 				mxLane.setStyle(laneStyle.toString());
 				
 				mxLane.setGeometry(childGeometry);
@@ -583,7 +587,7 @@ public class GliffyDiagramConverter
 		
 		if (textObject != null) 
 		{
-			style.append("html=1;nl2Br=0;whiteSpace=wrap;");
+			style.append("html=1;nl2Br=0;");
 			
 			if(!gliffyObject.isLine())
 			{
@@ -605,6 +609,9 @@ public class GliffyDiagramConverter
 			}
 		}
 
+		//for debugging, add gliffy id to the output in the style 
+		style.append("gliffyId=" + gliffyObject.id + ";");
+		
 		cell.setStyle(style.toString());
 		gliffyObject.mxObject = cell;
 

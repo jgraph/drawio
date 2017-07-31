@@ -2449,7 +2449,7 @@ public class VsdxShape extends Shape
 				mxGeometry tmpGeo = new mxGeometry(x, y, txtWV, txtHV);
 				mxGeometry pgeo = parent.getGeometry();
 				double hw = pgeo.getWidth() / 2, hh = pgeo.getHeight() / 2;
-				mxVsdxCodec.rotatedPoint(tmpGeo, rotation, hw, hh);
+				Utils.rotatedGeometry(tmpGeo, rotation, hw, hh);
 				x = tmpGeo.getX();
 				y = tmpGeo.getY();
 			}

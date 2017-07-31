@@ -753,9 +753,6 @@ App.prototype.init = function()
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
 		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
-		'<a title="HTML5 JavaScript Diagramming" target="_blank" href="https://github.com/jgraph/draw.io">' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_github.png"/>' +
-		'Fork us on GitHub</a>',
 		'<a title="' + mxResources.get('loveIt', ['draw.io']) +
 		'" target="_blank" href="https://www.facebook.com/sharer.php?u=' + encodeURIComponent('https://www.draw.io') +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
@@ -1006,10 +1003,17 @@ App.prototype.init = function()
 		this.adsHtml = this.basicAds;
 		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
 		var lastAd = this.adsHtml.length - 1;
+		var thread2 = null;
 		var thread = null;
 		
 		this.updateAd = function(index)
 		{
+			if (thread2 != null)
+			{
+				window.clearTimeout(thread2);
+				thread2 = null;
+			}
+			
 			if (this.adsHtml.length == 1)
 			{
 				window.clearInterval(thread);
@@ -1056,7 +1060,7 @@ App.prototype.init = function()
 
 		if (mxSettings.getOpenCounter() > 10)
 		{
-			window.setTimeout(mxUtils.bind(this, function()
+			thread2 = window.setTimeout(mxUtils.bind(this, function()
 			{
 				this.updateAd(0);
 			}), 15000);
