@@ -802,26 +802,10 @@ public class mxVsdxCodec
 			for (int i = 0; i < group.getChildCount(); i++)
 			{
 				mxICell child = group.getChildAt(i);
-				rotatedPoint(child.getGeometry(), rotation, hw, hh);				
+				Utils.rotatedGeometry(child.getGeometry(), rotation, hw, hh);				
 			}
 		}
 		return group;
-	}
-
-	public static void rotatedPoint(mxGeometry geo, double rotation,
-			double cx, double cy)
-	{
-		rotation = Math.toRadians(rotation);
-		double cos = Math.cos(rotation), sin = Math.sin(rotation);
-
-		double x = geo.getCenterX() - cx;
-		double y = geo.getCenterY() - cy;
-
-		double x1 = x * cos - y * sin;
-		double y1 = y * cos + x * sin;
-
-		geo.setX(Math.round(x1 + cx - geo.getWidth() / 2));
-		geo.setY(Math.round(y1 + cy - geo.getHeight() / 2));
 	}
 
 	public static void rotatedEdgePoint(mxPoint pt, double rotation,

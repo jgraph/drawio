@@ -436,7 +436,7 @@
 
 		editorUi.actions.addAction('quickStart...', function()
 		{
-			window.open('https://youtu.be/Z0D96ZikMkc');
+			window.open('https://www.youtube.com/watch?v=Z0D96ZikMkc');
 		});
 		
 		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()

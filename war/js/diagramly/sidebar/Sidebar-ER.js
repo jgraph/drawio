@@ -21,7 +21,7 @@
 	   		this.addEntry(dt + 'table', function()
 			{
 				var cell = new mxCell('Table', new mxGeometry(0, 0, 160, 110),
-			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
 				cell.vertex = true;
 				cell.insert(sb.cloneCell(row, 'Row 1'));
 				cell.insert(sb.cloneCell(row, 'Row 2'));
@@ -32,7 +32,7 @@
 	   	 	this.addEntry(dt + 'table section subsection', function()
 	   		{
 				var cell = new mxCell('Section', new mxGeometry(0, 0, 140, 110),
-		    		'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=22;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+		    		'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=22;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
 				cell.vertex = true;
 
 				cell.insert(sb.cloneCell(row, 'Row 1'));
@@ -42,9 +42,9 @@
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Section'); 
 	   		}),
 			this.addDataEntry(dt + 'table section subsection', 160, 144, 'ER Table 1',
-				'7VjrjqIwFH4a/m5aKs76c2EumaybTMZ5gQIVmi0tW+qq8/R7CsVL0GhGjDsTFJOee3u+84VYj0TF6knTMv+lUiY88uCRSCtlmlWxipgQno946pF7z/cR/Dz/8YgV11ZUUs2kOSfAbwL+UrFgjeaNxoI12sqshdNWS14IKkEK50qambMgkJOci3RK12phK1aGJr9bKcyV5u/gT+Fg9xgUYNZmxt9tsD+22bgQkRJK13UIQ/a7FzmzGV0tzSqIfWmPhzeqKa1Mux8lBC0rHtc7tC4F1RmXoTJGFc6pPc/jfvl5/QE7FTyToEugEANj6PrEtGGro72uVa7RT0wVzOg1uCx5anLnMW7wQDnjWd6GjUaNklaNItvEbqGDhUPvMJKkg+RC8j8L9px2wcxpaZewdcOpeGWJoTKz1tCo0nVIsHnbUe22atdx20W806XGN7Td4QkVP5y64GlaZ90FWap6iqqSJlxm06YKGW1Vr66aVSlIORdqCWIOyZi0u1GGGhpv5q9UXJq6cUEID/Q3Qt8CL4CTRiDjrQyPddcmUrIymvIaNwajs2R2fMJUq/INhoW1p92d9eDcKfBPTsHkwBAQdPkMjDoz8PLzYvTjXd4cQPLcIdhHvDfAT2Fqj+nG9Sh6iZLStiFue4S6qJKTqJIroRp0UNXQIB/h6xAbnca0TvZ5WX1FFsM77WK8xx28b83hBu9PTuDgQwTuA9C7IwS+HNeBwP8jgb8PBL4Gge9uRuDJEQKTgcBfksAYDQy+BoMnN2Mwxv0jOnC3b+7iHv4t4e6V1sDdHriLT19uHSLvByAFcXsBWtv27kf/AQ=='),
+				'7Zhtb9owEMc/Td5OdkzoeLmkazWNSlXpF3ASk1h17MwxA/rpd06cAg0IVIJYq0CQ7DufH+53f0XYI1Gxute0zB9UyoRHfnok0kqZplWsIiaE5yOeeuTW830EP8+/O+DFtReVVDNpTgnwm4C/VCxYY3mmsWCNtTJr4azVkheCSuiFcyXNzHkQ9JOci3RK12phV6wMTV7aXpgrzV9hPIWD3WIwgFubGX+1wf7YzsaFiJRQul6HMGS/O5EzO6NbS7MKYh/b4+F3pge62hk4pZVpd6mEoGXF43rfNrCgOuMyVMaowg1qT3m3u6l5/QE/FTyTYEtgLQbO0GWPacNWBwnUJpf+e6YKZvQahix5anI3YtxQQjnjWd6GjUaNkVaNIXuL3QCFhmO6ny/p8F1I/mfBfqVdxDktbRO2bjgVTywxVGbWGxpVugwJNm8zqt1WbTtus4i3stSMDW12eELFD2cueJrWs26jl6quraqkCZfZtFmFjDamJ7eaNSmYci7UEro5TMak3Y0y1ND4rSpLxaWpExeE8EB+I/Qt8AI4aQR9vOnDY4drEylZGU15zY1B6SyZLZ8w1ap8hmJh7Wm3FRCcWgX+0SqY7CkCgs6vgVGnBh5/n00/3tbNHpKnFsEu8d6AH2Nqj+nK9SC9RElp0xC3OUJdquQoVXIhqkGHqoYE+QhfRtjoONN6ss+r6guqGN50Z/Med3hfW8MN708u4OBDAu4D6M0BAZ/PdRDw/yjg74OALyHgm6sJeHJAwGQQ8JcUMEaDgi+h4MnVFIxx/0QH7fatXdzDvyXcvegatNuDdvHxy6194v0AUuhurkVr386t6T8='),
 			this.addDataEntry(dt + 'table section subsection', 160, 112, 'ER Table 2',
-				'7VfbbuIwEP2avK5yIenu4yYsfSiVqtIfGBKTWHU8keMu0K/fseNwEUTQUrStVAiSPRePZ845QvGirF7dKmiqeyyY8KI/XpQpRN2t6lXGhPBCnxdeNPbC0KefF04GvIH1+g0oJvU5CWGX8BfEC+ssTzAXrLO2ei2ctV3yWoCkXbpAqWfO49M+r7goprDGF1Ox1ZA/97u0QsVfKR6osXFABnIrPeOvJjlMzGlciAwFKlsnYr757mXOzImulmIt5T707QUb0xRa3d8HhYCm5XN7QxNSgyq5TFFrrF1Q389kv/zCfsgPgpeSbDkVYuRM3ZyY0mw1OGtrcoO+ZVgzrdYUsuSFrlxE0uHhV4yXVZ8WOBig7QzlJncLHS0ceseRjA6QVLgkQ3CIZQWNWdLNNQfxyHINsjTeVGPjBiTYoh+ocjc16/nuEPshdbGpGQ7PQfx25poXhT11F2OJlkRtAzmX5bSrkvhb06OrNiIT0pELQW1E44oOY9LcBjVomG/o1yCX2s4tTumh8Wb+j9iLqdOM9sF2T48JVzpD2WoF3MLGiDlLZtiTFgqbJ+IK67vdpXp8LgnCkyT4dYQDkX85BUYHFHi4o/Ynd2/iwG7TwRAn9nhwBN9zqbHPg9FH0eAU0qZt194gpjlKacYy72fmH2IdncQ6Tq6DdTwg9/A6cg++5f7p5J4Myf1NHPiW+/lyj/+b3G8+3b+7Pezrav2K2u6FeQnePw/wvhjoCzXc4f3FBXzzLgG/A1Dabl/irG/vHe8f'),
+				'7VfbbuIwEP2avK5yIXT3cROWPpRKVekPDIlJrDqeyHEL9Ot37DiFLETQUrStVAiSPTd75pwjFC9Kq/W1grq8xZwJL/rjRalC1O2qWqdMCC/0ee5FEy8Mffp54XTAG1ivX4NiUp+SELYJzyCeWGt5gIVgrbXRG+GszYpXAiTtkiVKPXcen/ZZyUU+gw0+mRMbDdljt0tKVPyF4oEamwRkILfSc/5iksOxqcaFSFGgsudEzDffXubcVHRnKdZQ7l3XXvCP6RbWvcAZNLq7JQoBdcMX9t4msQJVcJmg1li5oK7Laf9SS/shPwheSLJldBYjZ+Kmx5Rm60EErMmN/5phxbTaUMiK57p0EeMWJb9kvCi7tMCBA01rKF5zt4DSwmF6GN9oD1+FKzIE+wiXUJsl3VxzEPcs0yAL40001m5Agi27gSp3U7Ne7A6xG1Ibm5jh8AzEb2eueJ7bqrvIS7TUamrIuCxm7Sljf2u6d6eNyIRUcimojWhSUjEmzW1Qg4bFKylr5FLbucUJPTTe1P8RezF1mtI+2O7pMeFKpygbrYBb2BgxZ8UMe5JcYf1AXGFdt7sCiE8lQXiUBL8OcCDyz6fAaI8CdzfU/vTmTRzYbToY4kSPBwfwPZUafR6MPooGx5A2bbv2BjHNUEozlkU3M38f6+go1vH4MljHA3IPLyP34Fvun07u4yG5v4kD33I/Xe7xf5P71af7d7fFvq7WL6jtTpjn4P1zD++zgT5Twy3eX1zAV+8S8DsApe321c76em9+fwE='),
 				
 			this.addEntry(dt + 'table row', function()
 			{

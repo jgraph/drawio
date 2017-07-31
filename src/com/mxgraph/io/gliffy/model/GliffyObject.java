@@ -163,7 +163,10 @@ public class GliffyObject implements PostDeserializable
 			}
 			else
 			{
-				return child.getTextObject();
+				GliffyObject txtObj = child.getTextObject();
+				
+				if (txtObj != null)
+					return txtObj;
 			}
 		}
 
