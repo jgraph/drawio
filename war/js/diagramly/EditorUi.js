@@ -4978,10 +4978,10 @@
 				}
 				finally
 				{
-			    	if (done != null)
-			    	{
-			    		done();
-			    	}
+				    	if (done != null)
+				    	{
+				    		done();
+				    	}
 				}
 			}
 		});
@@ -5011,38 +5011,47 @@
 	 */
 	EditorUi.prototype.insertLucidChart = function(data, dx, dy, crop, done)
 	{
-		var state = JSON.parse(JSON.parse(data).state);
+		var state = JSON.parse(data);
 		
 		// Extracts and sorts all pages
 		var pages = [];
 
-		for (var id in state.Pages)
+		if (state.state != null)
 		{
-			pages.push(state.Pages[id]);
+			state = JSON.parse(state.state);
+			
+			for (var id in state.Pages)
+			{
+				pages.push(state.Pages[id]);
+			}
+			
+			pages.sort(function(a, b)
+			{
+			    if (a.Properties.Order < b.Properties.Order)
+			    {
+			    	return -1;
+			    }
+			    else if (a.Properties.Order > b.Properties.Order)
+			    {
+			    	return 1;
+			    }
+			    else
+			    {
+			    	return 0;
+			    }
+			});
 		}
-		
-		pages.sort(function(a, b)
+		else
 		{
-		    if (a.Properties.Order < b.Properties.Order)
-		    {
-		    	return -1;
-		    }
-		    else if (a.Properties.Order > b.Properties.Order)
-		    {
-		    	return 1;
-		    }
-		    else
-		    {
-		    	return 0;
-		    }
-		});
+			pages.push(state);
+		}
 		
 		if (pages.length > 0)
 		{
-	    	this.editor.graph.getModel().beginUpdate();
-	    	
-	    	try
-	    	{
+		    	this.editor.graph.getModel().beginUpdate();
+		    	
+		    	try
+		    	{
 				this.pasteLucidChart(pages[0], dx, dy, crop);
 				
 				// If pages are enabled add more pages
@@ -5058,11 +5067,11 @@
 					
 					this.selectPage(current);
 				}
-	    	}
-	    	finally
-	    	{
-	    		this.editor.graph.getModel().endUpdate();
-	    	}
+		    	}
+		    	finally
+		    	{
+		    		this.editor.graph.getModel().endUpdate();
+		    	}
 		}
 	};
 	
@@ -7063,7 +7072,7 @@
 				
 				if (content != null && content.length > 0)
 				{
-					this.insertLucidChart(JSON.parse(content));
+					this.importLucidChart(content, 0, 0);
 					mxEvent.consume(evt);
 				}
 			}
