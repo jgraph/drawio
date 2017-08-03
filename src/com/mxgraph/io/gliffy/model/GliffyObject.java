@@ -114,11 +114,10 @@ public class GliffyObject implements PostDeserializable
 		GROUP_SHAPES.add("com.gliffy.shape.basic.basic_v1.default.group");
 		GROUP_SHAPES.add("com.gliffy.shape.erd.erd_v1.default.entity_with_attributes");
 		GROUP_SHAPES.add("com.gliffy.shape.erd.erd_v1.default.entity_with_multiple_attributes");
-//		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.frame");//
-//		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.interaction_use");//
-//		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.opt_combined_fragment");//
-//		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.loop_combined_fragment");//
-//		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.alt_combined_fragment");//
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.interaction_use");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.opt_combined_fragment");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.loop_combined_fragment");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.alt_combined_fragment");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.object");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.enumeration");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.interface");
@@ -127,8 +126,11 @@ public class GliffyObject implements PostDeserializable
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.data_type");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.state_machine.composite_state");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.state_machine.orthoganal_state");
-		//GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.use_case.frame");//???
-		//GROUP_SHAPES.add("");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.package");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.boundary_lifeline");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.lifeline");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.entity_lifeline");
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.control_lifeline");
 		
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.main_topic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.subtopic");
@@ -215,7 +217,9 @@ public class GliffyObject implements PostDeserializable
 
 	public boolean isGroup()
 	{
-		return uid != null && GROUP_SHAPES.contains(uid);
+		return (uid != null && (GROUP_SHAPES.contains(uid) || uid.startsWith("com.gliffy.shape.table")))
+				//Since we treat text in a different way (added as cell value instead of another child cell, this is probably the best way to detect groups when uid is null)
+				|| (uid == null && hasChildren() && !children.get(0).isText());
 	}
 
 	public boolean isMindmap()

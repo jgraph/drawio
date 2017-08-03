@@ -345,17 +345,18 @@ public class GliffyDiagramConverter
 		GliffyObject textObject = null;
 		String link = null;
 
-		Graphic graphic = null;
+		Graphic graphic = gliffyObject.getGraphic();
+		String mxShapeName = StencilTranslator.translate(gliffyObject.uid, graphic != null && graphic.getShape() != null ? graphic.getShape().tid : null);
 
 		if (gliffyObject.isGroup())
 		{
-			style.append("group;");
+			if (graphic == null || mxShapeName == null)
+				style.append("group;");
+			
 			cell.setVertex(true);
 		}
 		else
 		{
-			// groups don't have graphic
-			graphic = gliffyObject.getGraphic();
 			textObject = gliffyObject.getTextObject();
 		}
 
@@ -368,8 +369,12 @@ public class GliffyDiagramConverter
 				GliffyShape shape = graphic.Shape;
 				
 				cell.setVertex(true);
-				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
-				style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
+				
+				if (mxShapeName != null)
+					style.append("shape=").append(mxShapeName).append(";");
+				
+				if(style.lastIndexOf("shadow=") == -1)
+					style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
 				
 				if(style.lastIndexOf("strokeWidth") == -1)
 				{
@@ -463,7 +468,7 @@ public class GliffyDiagramConverter
 			{
 				GliffyImage image = graphic.getImage();
 				cell.setVertex(true);
-				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
+				style.append("shape=" + StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 				style.append("image=" + image.getUrl()).append(";");
 			}
 			else if (gliffyObject.isSvg())
@@ -480,7 +485,7 @@ public class GliffyDiagramConverter
 		else if (gliffyObject.isSwimlane())
 		{
 			cell.setVertex(true);
-			style.append(StencilTranslator.translate(gliffyObject.uid)).append(";");
+			style.append(StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 
 			GliffyObject header = gliffyObject.children.get(0);// first child is the header of the swimlane
 			
@@ -535,7 +540,7 @@ public class GliffyDiagramConverter
 			
 			GliffyMindmap mindmap = rectangle.graphic.Mindmap;
 			
-			style.append("shape=" + StencilTranslator.translate(gliffyObject.uid)).append(";");
+			style.append("shape=" + StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 			style.append("shadow=" + (mindmap.dropShadow ? 1 : 0)).append(";");
 			style.append("strokeWidth=" + mindmap.strokeWidth).append(";");
 			style.append("fillColor=" + mindmap.fillColor).append(";");

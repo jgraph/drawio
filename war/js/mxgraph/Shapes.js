@@ -915,11 +915,14 @@
 					var width = this.style['symbol' + counter + 'Width'];
 					var height = this.style['symbol' + counter + 'Height'];
 					var spacing = this.style['symbol' + counter + 'Spacing'] || 0;
+					var vspacing = this.style['symbol' + counter + 'VSpacing'] || spacing;
 					var arcspacing = this.style['symbol' + counter + 'ArcSpacing'];
 					
 					if (arcspacing != null)
 					{
-						spacing += this.getArcSize(w + this.strokewidth, h + this.strokewidth) * arcspacing;
+						var arcSize = this.getArcSize(w + this.strokewidth, h + this.strokewidth) * arcspacing;
+						spacing += arcSize;
+						vspacing += arcSize;
 					}
 					
 					var x2 = x;
@@ -944,11 +947,11 @@
 					}
 					else if (valign == mxConstants.ALIGN_BOTTOM)
 					{
-						y2 += h - height - spacing;
+						y2 += h - height - vspacing;
 					}
 					else
 					{
-						y2 += spacing;
+						y2 += vspacing;
 					}
 					
 					c.save();

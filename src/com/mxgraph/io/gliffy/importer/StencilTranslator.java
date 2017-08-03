@@ -27,10 +27,15 @@ public class StencilTranslator
 		}
 	}
 
-	public static String translate(String gliffyShapeKey)
+	public static String translate(String gliffyShapeKey, String tid)
 	{
 		String shape = translationTable.get(gliffyShapeKey);
+		
+		if (shape == null && tid != null)
+			shape = translationTable.get(tid);
+		
 		logger.info(gliffyShapeKey + " -> " + shape);
+		
 		return shape;
 	}
 }
