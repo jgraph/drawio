@@ -151,6 +151,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				button.style.padding = '0px 10px 20px 10px';
 				button.style.top = '6px';
 			}
+			else if (mxClient.IS_FF)
+			{
+				label.style.paddingTop = '0px';
+				label.style.marginTop = '-2px';
+			}
 		}
 		
 		button.appendChild(label);

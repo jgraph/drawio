@@ -2111,7 +2111,36 @@
 	};
 
 	mxCellRenderer.prototype.defaultShapes['display'] = DisplayShape;
+	
+	// FilledEdge shape
+	function FilledEdge()
+	{
+		mxConnector.call(this);
+	};
+	mxUtils.extend(FilledEdge, mxConnector);
+	
+	FilledEdge.prototype.origPaintEdgeShape = FilledEdge.prototype.paintEdgeShape;
+	FilledEdge.prototype.paintEdgeShape = function(c, pts, rounded)
+	{
+		FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);
+		if (c.state.strokeWidth >= 3)
+		{
+			var fillClr = mxUtils.getValue(this.style, 'fillColor', null);
+			
+			if (fillClr != null)
+			{
+				c.setStrokeColor(fillClr);
+				c.setStrokeWidth(c.state.strokeWidth - 2);
+			
+				FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);		
+			}
+		}
+	};
 
+	// Registers the link shape
+	mxCellRenderer.prototype.defaultShapes['filledEdge'] = FilledEdge;
+
+	
 	// Registers and defines the custom marker
 	mxMarker.addMarker('dash', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{

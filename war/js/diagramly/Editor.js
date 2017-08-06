@@ -1749,6 +1749,13 @@
 					pv.pageSelector = false;
 					pv.mathEnabled = false;
 					
+					var file = editorUi.getCurrentFile();
+					
+					if (file != null)
+					{
+						pv.title = file.getTitle();
+					}
+					
 					var writeHead = pv.writeHead;
 					
 					// Overridden to add custom fonts
