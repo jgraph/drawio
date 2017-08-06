@@ -1,3 +1,14 @@
+06-AUG-2017: 7.0.2
+
+- Improvements to Gliffy import
+- Uses filename for print preview title
+
+04-AUG-2017: 7.0.1
+
+- Improvements to Gliffy import
+- Improvements to Lucidchart import
+- Fixes PlantUML macro dialog
+
 03-AUG-2017: 7.0.0
 
 - Improvements to Gliffy import

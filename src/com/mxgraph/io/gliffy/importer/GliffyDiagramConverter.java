@@ -419,8 +419,10 @@ public class GliffyDiagramConverter
 				GliffyLine line = graphic.Line;
 				
 				cell.setEdge(true);
+				style.append("shape=filledEdge;fixDash=1;");
 				style.append("strokeWidth=" + line.strokeWidth).append(";");
 				style.append("strokeColor=" + line.strokeColor).append(";");
+				style.append("fillColor=" + line.fillColor).append(";");
 				style.append(ArrowMapping.get(line.startArrow).toString(true)).append(";");
 				style.append(ArrowMapping.get(line.endArrow).toString(false)).append(";");
 				style.append(DashStyleMapping.get(line.dashStyle));
@@ -448,7 +450,7 @@ public class GliffyDiagramConverter
 						 * draw.io's text offset is a float in the range of [-1,-1] (while still keeping the text within the line)
 						 * The equation that translates Gliffy offset to draw.io offset is : G*2 - 1 = D 
 						 */
-						mxGeometry mxGeo = new mxGeometry(graphic.Text.lineTValue != null ? graphic.Text.lineTValue * 2 -1 : GliffyText.DEFAULT_LINE_T_VALUE, 0, 0, 0);
+						mxGeometry mxGeo = new mxGeometry(graphic.Text.lineTValue != null ? graphic.Text.lineTValue * 2 -1 : 0, 0, 0, 0);
 						mxGeo.setOffset(new mxPoint());
 						cell.setGeometry(mxGeo);
 						

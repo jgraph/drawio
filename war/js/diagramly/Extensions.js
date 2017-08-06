@@ -555,6 +555,226 @@
 			'AWSSubnetBlock2' : ss + 'aws3.permissions;',
 //AWS Containers
 //			'AWSRoundedRectangleContainerBlock2' EXT
+//Azure Cloud
+			'ACAccessControlBlock' : ss + 'azure.access_control;',
+			'ACAPIAppsBlock' : ss + 'mscae.cloud.api_app;',
+			'ACAPIManagementBlock' : ss + 'mscae.cloud.api_management;',
+			'ACAppInsightsBlock' : ss + 'mscae.cloud.application_insights;',
+			'ACAppServicesBlock' : ss + 'mscae.cloud.app_service;',
+			'ACAutoscalingBlock' : ss + 'azure.autoscale;',
+			'ACAzureActiveDirectoryBlock' : ss + 'azure.azure_active_directory;',
+			'ACAzurealertBlock' : ss + 'azure.azure_alert;',
+			'ACAzureAutomationBlock' : ss + 'azure.automation;',
+			'ACAzureBatchBlock' : ss + 'mscae.cloud.azure_batch;',
+			'ACAzureRedisBlock' : ss + 'azure.azure_cache;',
+			'ACAzureFilesBlock' : ss + 'mscae.cloud.azure_files_service;',
+			'ACAzureloadbalancerBlock' : ss + 'mscae.cloud.azure_automatic_load_balancer;',
+			'ACAzureMarketplaceBlock' : ss + 'azure.azure_marketplace;',
+			'ACAzureRightManagementRMSBlock' : ss + 'mscae.cloud.azure_rights_management_rms;',
+			'ACAzureSDKBlock' : ss + 'azure.azure_sdk;',
+			'ACAzureSearchBlock' : ss + 'mscae.cloud.azure_search;',
+			'ACAzureSQLdatabaseBlock' : ss + 'azure.sql_database_sql_azure;',
+			'ACAzuresubscriptionBlock' : ss + 'azure.azure_subscription;',
+			'ACAzureWebsitesBlock' : ss + 'azure.azure_website;',
+			'ACBackupServiceBlock' : ss + 'azure.backup_service;',
+			'ACBitbucketcodesourceBlock' : ss + 'azure.bitbucket_code_source;',
+			'ACBizTalkServicesBlock' : ss + 'azure.biztalk_services;',
+			'ACCloudServiceBlock' : ss + 'azure.cloud_service;',
+			'ACCodePlexBlock' : ss + 'azure.codeplex_code_source;',
+//			'ACComputeBlock' NA
+			'ACContentDeliveryNetworkBlock' : ss + 'azure.content_delivery_network;',
+			'ACDataFactoryBlock' : ss + 'mscae.cloud.data_factory;',
+//			'ACDataservicesBlock' NA
+			'ACDocumentDBBlock' : ss + 'mscae.cloud.documentdb;',
+			'ACDropboxcodesourceBlock' : ss + 'azure.dropbox_code_source;',
+			'ACEventsHubBlock' : ss + 'mscae.cloud.event_hubs;',
+			'ACExpressRouteBlock' : ss + 'azure.express_route;',
+			'ACGitHubBlock' : ss + 'azure.github_code;',
+			'ACGitrepositoryBlock' : ss + 'azure.git_repository;',
+			'ACHDInsightBlock' : ss + 'mscae.cloud.hdinsight;',
+			'ACHealthmonitoringBlock' : ss + 'azure.health_monitoring;',
+			'ACHealthyBlock' : ss + 'azure.healthy;',
+			'ACHybridConnectionBlock' : ss + 'mscae.cloud.hybrid_connections;',
+			'ACBizTalkhybridconnectionBlock' : ss + 'mscae.cloud.hybrid_connection_manager;',
+			'ACKeyVaultBlock' : ss + 'mscae.cloud.key_vault;',
+			'ACLogicAppBlock' : ss + 'mscae.cloud.logic_app;',
+			'ACMachineLearningBlock' : ss + 'mscae.cloud.machine_learning;',
+			'ACMediaServicesBlock' : ss + 'azure.media_service;',
+			'ACMicrosoftaccountBlock' : ss + 'mscae.cloud.microsoft_account;',
+			'ACMicrosoftAzureBlock' : ss + 'mscae.cloud.microsoft_azure;',
+			'ACMobileEngagementBlock' : ss + 'mscae.cloud.mobile_engagement;',
+			'ACMobileServicesBlock' : ss + 'mscae.cloud.mobile_app;',
+			'ACMultiFactorAuthBlock' : ss + 'azure.multi_factor_authentication;',
+			'ACMySQLdatabaseBlock' : ss + 'azure.mysql_database;',
+			'ACNotificationHubsBlock' : ss + 'azure.notification_hub;',
+			'ACNotificationtopicBlock' : ss + 'azure.notification_topic;',
+			'ACOperationalInsightsBlock' : ss + 'mscae.cloud.operational_insights;',
+			'ACOSimageBlock' : ss + 'azure.operating_system_image;',
+			'ACRemoteAppBlock' : ss + 'mscae.cloud.remoteapp;',
+			'ACrpdRemotingfileBlock' : ss + 'azure.rdp_remoting_file;',
+			'ACSchedulerBlock' : ss + 'azure.scheduler;',
+			'ACServiceBusBlock' : ss + 'azure.service_bus;',
+			'ACServiceBusQueueBlock' : ss + 'azure.service_bus_queues;',
+			'ACServiceBusRelayBlock' : ss + 'azure.service_bus_relay;',
+			'ACServiceBusTopicBlock' : ss + 'azure.service_bus_topics_and_subscriptions;',
+			'ACServiceEndpointBlock' : ss + 'mscae.cloud.service_endpoint;',
+			'ACServicepackageBlock' : ss + 'mscae.cloud.service_package;',
+			'ACSiteRecoveryBlock' : ss + 'azure.hyper_v_recovery_manager;',
+			'ACSQLdatabasegenericBlock' : ss + 'azure.sql_database;',
+//			'ACSQLDatabasePremiumBlock' NA
+			'ACSQLdatasyncBlock' : ss + 'azure.sql_datasync;',
+			'ACSQLreportingdeprecatedBlock' : ss + 'azure.sql_reporting;',
+			'ACStartuptaskBlock' : ss + 'azure.startup_task;',
+			'ACStorageAzureBlock' : ss + 'mscae.cloud.azure_storage;',
+			'ACStorageblobBlock' : ss + 'azure.storage_blob;',
+			'ACStoragequeueBlock' : ss + 'azure.storage_queue;',
+			'ACStoragetableBlock' : ss + 'azure.storage_table;',
+			'ACStorSimpleBlock' : ss + 'azure.storsimple;',
+			'ACStreamAnalyticsBlock' : ss + 'mscae.cloud.stream_analytics;',
+			'ACTrafficManagerBlock' : ss + 'azure.traffic_manager;',
+			'ACAlienBlock' : ss + 'azure.unidentified_code_object;',
+			'ACVHDBlock' : ss + 'azure.vhd;',
+			'ACVHDdatadiskBlock' : ss + 'azure.vhd_data_disk;',
+			'ACVirtualmachineBlock' : ss + 'azure.virtual_machine;',
+			'ACVirtualmachinecontainerBlock' : ss + 'mscae.cloud.virtual_machine_container;',
+			'ACVirtualnetworkBlock' : ss + 'azure.virtual_network;',
+			'ACVisualStudioOnlineBlock' : ss + 'azure.visual_studio_online;',
+			'ACVMsymbolonlyBlock' : ss + 'azure.virtual_machine_feature;',
+			'ACWebJobsBlock' : ss + 'mscae.cloud.webjobs;',
+			'ACWebroleBlock' : ss + 'azure.web_role;',
+			'ACWebrolesBlock' : ss + 'azure.web_roles;',
+			'ACWorkaccountBlock' : ss + 'mscae.cloud.work_account;',
+			'ACWorkerroleBlock' : ss + 'azure.worker_role;',
+			'ACWorkerrolesBlock' : ss + 'azure.worker_roles;',
+			'ADNSBlock' : ss + 'mscae.cloud.azure_dns;',
+//			'AGatewayBlock' NA
+			'ACLoadBalancerBlock' : ss + 'mscae.cloud.azure_load_balancer_feature;',
+			'ACResourceGroupBlock' : ss + 'mscae.cloud.resource_group;',
+			'ACVPNGatewayBlock' : ss + 'mscae.cloud.vpn_gateway;',
+//Azure Enterprise
+			'AEActiveDirectoryFSPBlock' : ss + 'mscae.enterprise.d;',
+			'AEADFSBlock' : ss + 'mscae.enterprise.ad_fs;',
+			'AEAndroidPhoneBlock' : ss + 'mscae.enterprise.android_phone;',
+			'AEappblankfortextBlock' : ss + 'mscae.enterprise.application_blank;',
+			'AEAppGenericBlock' : ss + 'mscae.enterprise.app_generic;',
+			'AEAppserverBlock' : ss + 'mscae.enterprise.application_server;',
+			'AEBackuplocalBlock' : ss + 'mscae.enterprise.backup_local;',
+			'AEBackuponlineBlock' : ss + 'mscae.enterprise.backup_online;',
+			'AECalendarBlock' : ss + 'mscae.general.calendar;',
+			'AECertificateBlock' : ss + 'azure.certificate;',
+			'AEClientAppBlock' : ss + 'mscae.enterprise.client_application;',
+			'AECloudBlock' : ss + 'mscae.enterprise.internet;',
+			'AEClusterserverBlock' : ss + 'mscae.enterprise.cluster_server;',
+			'AECodefileBlock' : ss + 'azure.code_file;',
+			'AEConnectorsBlock' : ss + 'mscae.enterprise.connectors;',
+			'AEDatabasegenericBlock' : ss + 'mscae.enterprise.database_generic;',
+			'AEDatabaseserverBlock' : ss + 'mscae.enterprise.database_server;',
+			'AEDatabasesyncBlock' : ss + 'mscae.enterprise.database_synchronization;',
+			'AEDeviceBlock' : ss + 'mscae.enterprise.device;',
+			'AEDirectaccessBlock' : ss + 'mscae.enterprise.direct_access_feature;',
+			'AEDocumentBlock' : ss + 'mscae.enterprise.document;',
+			'AEDomaincontrollerBlock' : ss + 'mscae.enterprise.domain_controller;',
+			'AEEnterpriseBuildingBlock' : ss + 'azure.enterprise;',
+			'AEFilegeneralBlock' : ss + 'azure.file;',
+			'AEFilterBlock' : ss + 'mscae.enterprise.filter;',
+			'AEFirewallBlock' : ss + 'mscae.enterprise.firewall;',
+			'AEFolderBlock' : ss + 'mscae.enterprise.folder;',
+			'AEGatewayBlock' : ss + 'mscae.enterprise.gateway;',
+			'AEGenericcodeBlock' : ss + 'azure.code_file;',
+			'AEGraphBlock' : ss + 'mscae.general.graph;',
+			'AEHealthmonitoringBlock' : ss + 'azure.health_monitoring;',
+			'AEHealthyBlock' : ss + 'azure.healthy;',
+			'AEImportgenericBlock' : ss + 'mscae.enterprise.import_generic;',
+			'AEInternetBlock' : ss + 'mscae.enterprise.internet;',
+			'AEKeyboardBlock' : ss + 'mscae.enterprise.keyboard;',
+			'AEKeypermissionsBlock' : ss + 'mscae.enterprise.key_permissions;',
+			'AELaptopcomputerBlock' : ss + 'azure.laptop;',
+			'AELoadbalancerBlock' : ss + 'azure.load_balancer_generic;',
+			'AELoadTestingBlock' : ss + 'mscae.enterprise.load_testing;',
+			'AELockprotectedBlock' : ss + 'mscae.enterprise.lock;',
+			'AELockunprotectedBlock' : ss + 'mscae.enterprise.lock_unlocked;',
+			'AEMaintenanceBlock' : ss + 'mscae.enterprise.maintenance;',
+			'AEManagementconsoleBlock' : ss + 'mscae.enterprise.management_console;',
+			'AEMessageBlock' : ss + 'azure.message;',
+			'AEMonitorBlock' : ss + 'azure.computer;',
+			'AEMonitorrunningappsBlock' : ss + 'mscae.enterprise.monitor_running_apps;',
+			'AEMouseBlock' : ss + 'mscae.enterprise.mouse;',
+			'AENetworkcardBlock' : ss + 'mscae.enterprise.network_card;',
+			'AENotallowedBlock' : ss + 'mscae.general.not_allowed;',
+			'AEPerformanceBlock' : ss + 'mscae.enterprise.performance;',
+			'AEPerformancemonitorBlock' : ss + 'mscae.enterprise.performance_monitor;',
+			'AEPhoneBlock' : ss + 'azure.mobile;',
+			'AEPlugandplayBlock' : ss + 'mscae.enterprise.plug_and_play;',
+			'AEPowershellscriptfileBlock' : ss + 'azure.powershell_file;',
+			'AEProtocolstackBlock' : ss + 'mscae.enterprise.protocol_stack;',
+			'AEQueuegeneralBlock' : ss + 'azure.queue_generic;',
+			'AERMSconnectorBlock' : ss + 'mscae.enterprise.rms_connector;',
+			'AERouterBlock' : ss + 'mscae.enterprise.router;',
+			'AEScriptfileBlock' : ss + 'azure.script_file;',
+			'AESecurevirtualmachineBlock' : ss + 'mscae.enterprise.secure_virtual_machine;',
+			'AEServerbladeBlock' : ss + 'azure.server;',
+			'AEServerdirectoryBlock' : ss + 'mscae.enterprise.server_directory;',
+			'AEServerfarmBlock' : ss + 'mscae.enterprise.server_farm;',
+			'AEServergenericBlock' : ss + 'mscae.enterprise.server_generic;',
+			'AEServerrackBlock' : ss + 'azure.server_rack;',
+			'AESettingsBlock' : ss + 'mscae.enterprise.settings;',
+			'AESharedfolderBlock' : ss + 'mscae.enterprise.shared_folder;',
+			'AESmartcardBlock' : ss + 'mscae.enterprise.smartcard;',
+			'AEStorageBlock' : ss + 'mscae.enterprise.storage;',
+			'AETableBlock' : ss + 'mscae.enterprise.table;',
+			'AETabletBlock' : ss + 'azure.tablet;',
+			'AEToolBlock' : ss + 'mscae.enterprise.tool;',
+			'AETunnelBlock' : ss + 'mscae.general.tunnel;',
+			'AEUnhealthyBlock' : ss + 'mscae.enterprise.unhealthy;',
+			'AEUSBBlock' : ss + 'mscae.enterprise.usb;',
+			'AEUserBlock' : ss + 'azure.user;',
+			'AEVideoBlock' : ss + 'mscae.general.video;',
+			'AEVirtualmachineBlock' : ss + 'azure.virtual_machine_feature;',
+			'AEWebBlock' : ss + 'mscae.enterprise.web;',
+			'AEWebserverBlock' : ss + 'mscae.enterprise.web_server;',
+			'AEWindowsserverBlock' : ss + 'mscae.enterprise.windows_server;',
+			'AEWirelessconnectionBlock' : ss + 'mscae.enterprise.wireless_connection;',
+			'AEWorkstationclientBlock' : ss + 'mscae.enterprise.workstation_client;',
+			'AEXMLwebserviceBlock' : ss + 'mscae.enterprise.xml_web_service;',
+			'AGSAudioBlock' : ss + 'mscae.general.audio;',
+			'AGSBugBlock' : ss + 'mscae.general.bug;',
+			'AGSCablesettopTVboxBlock' : ss + 'mscae.general.cable_settop_tv_box;',
+			'AGSCalendarBlock' : ss + 'mscae.general.calendar;',
+			'AGSChartBlock' : ss + 'mscae.general.chart;',
+			'AGSCheckmarkSuccessBlock' : ss + 'mscae.general.checkmark;',
+			'AGSContinousCycleCircleBlock' : ss + 'mscae.general.continuous_cycle;',
+			'AGSCrossoutFailureBlock' : ss + 'mscae.general.crossout;',
+			'AGSCutandpasteBlock' : ss + 'mscae.general.cut_and_paste;',
+			'AGSFolderBlock' : ss + 'mscae.enterprise.folder;',
+			'AGSGamecontrollerBlock' : ss + 'mscae.general.game_controller;',
+			'AGSGearsBlock' : ss + 'mscae.general.gears;',
+			'AGSGraphBlock' : ss + 'mscae.general.graph;',
+			'AGSLikeBlock' : ss + 'mscae.general.like;',
+			'AGSNotallowedBlock' : ss + 'mscae.general.not_allowed;',
+			'AGSSliderbarhorizontalBlock' : ss + 'mscae.general.slider_bar_horizontal;',
+			'AGSSliderbarvertBlock' : ss + 'mscae.general.slider_bar_vertical;',
+			'AGSTasklistorBacklogBlock' : ss + 'mscae.general.task_list;',
+			'AGSTasksBlock' : ss + 'mscae.general.tasks;',
+			'AGSTunnelBlock' : ss + 'mscae.general.tunnel;',
+			'AGSUserBlock' : ss + 'azure.user;',
+			'AGSVideoBlock' : ss + 'mscae.general.video;',
+// Azure VMS			
+//			'AVMActiveDirectoryVMBlock' NA
+//			'AVMActiveDirectoryVMmultiBlock' NA
+//			'AVMAppServerVMBlock' NA
+//			'AVMAppServerVMmultiBlock' NA
+//			'AVMDatabaseServerVMBlock' NA
+//			'AVMDatabaseServerVMmultiBlock' NA
+//			'AVMDirectoryServerVMBlock' NA
+//			'AVMDirectoryServerVMmultiBlock' NA
+//			'AVMDomainServerVMBlock' NA
+//			'AVMDomainServerVMmultiBlock' NA
+//			'AVMFileServerVMBlock' NA
+//			'AVMFileServerVMmultiBlock' NA
+//			'AVMWebServerVMBlock' NA
+//			'AVMWebServerVMmultiBlock' NA
+//			'AVMWindowsServerVMBlock' NA
+//			'AVMWindowsServerVMmultiBlock' NA
 //Cisco Basic
 			'Cisco_cisco_androgenous_person' : s + 'cisco.people.androgenous_person;' + c,
 			'Cisco_cisco_atm_switch' : s + 'cisco.switches.atm_switch;' + c,
@@ -1801,12 +2021,22 @@
 					
 					// Fixes the case for horizontal swimlanes where we use horizontal=0
 					// and Lucid uses rotation
+					
+					//stencils to rotate counter clockwise 90 degrees
+					var rccw = ['AEUSBBlock', 'AGSCutandpasteBlock'];
+					
 					if (a.Class == 'AdvancedSwimLaneBlockRotated')
 					{
 						deg += 90;
 						cell.geometry.rotate90();
 					}
-					
+					else if (rccw.includes(a.Class))
+					{
+						deg -= 90;
+						cell.geometry.rotate90();
+						cell.geometry.rotate90();
+						cell.geometry.rotate90();
+					}
 					cell.style += 'rotation=' + deg + ';';
 				}
 				
