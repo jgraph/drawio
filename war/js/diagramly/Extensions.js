@@ -241,11 +241,12 @@
 //			'DFDExternalEntityBlock' NA
 			'DFDExternalEntityBlock2' : 'shape=rect;rounded=1;',
 			'YDMDFDProcessBlock' : 'shape=ellipse;',
-			'YDMDFDDataStoreBlock' : s + 'bootstrap.horLines;',
+			'YDMDFDDataStoreBlock' : 'shape=partialRectangle;right=0;left=0;',
 			'GSDFDProcessBlock' : 'shape=swimlane;rounded=1;',
 			'GSDFDProcessBlock2' : 'shape=rect;rounded=1;',
 //			'GSDFDDataStoreBlock' NA
-//			'GSDFDDataStoreBlock2' NA
+			'GSDFDDataStoreBlock2' : 'shape=partialRectangle;right=0;',
+			
 //Org Chart
 			'OrgBlock' : 'shape=rect;rounded=1;',
 //Tables
@@ -1220,8 +1221,8 @@
 			'EE_CurrentSource' : s + 'electrical.signal_sources.dc_source_2;direction=north;', //EXT
 			'EE_ControlledCurrentSource' : s + 'electrical.signal_sources.dependent_source_2;direction=west;', //EXT
 			'EE_ControlledVoltageSource' : s + 'electrical.signal_sources.dependent_source_3;', //EXT
-//			'EE_DcSource1' NA
-//			'EE_DcSource2' NA
+			'EE_DcSource1' : s + 'electrical.miscellaneous.monocell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top;',
+			'EE_DcSource2' : s + 'electrical.miscellaneous.multicell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top;',
 			'EE_Vss' : s + 'electrical.signal_sources.vss2;verticalLabelPosition=top;verticalAlign=bottom;fontSize=24;',
 			'EE_Vdd' : s + 'electrical.signal_sources.vdd;verticalLabelPosition=bottom;verticalAlign=top;',
 //Transistors
@@ -1326,6 +1327,46 @@
 			'EISmartProxyBlock' : s + 'eip.smart_proxy;',
 			'EITestMessageBlock' : s + 'eip.test_message;',
 			'EIChannelPurgerBlock' : s + 'eip.channel_purger;',
+//Google Cloud Platform
+			'GCPIconComputeEngineBlock' : ss + 'gcp.compute.compute_engine;',
+			'GCPIconAppEngineBlock' : ss + 'gcp.compute.app_engine;',
+			'GCPIconContainerEngineBlock' : ss + 'gcp.compute.container_engine;',
+			'GCPIconContainerRegistryBlock' : ss + 'gcp.compute.container_registry;',
+			'GCPIconCloudFunctionsBlock' : ss + 'gcp.compute.cloud_functions;',
+			'GCPIconCloudStorageBlock' : ss + 'gcp.storage_databases.cloud_storage;',
+			'GCPIconCloudSQLBlock' : ss + 'gcp.storage_databases.cloud_sql;',
+			'GCPIconCloudBigtableBlock' : ss + 'gcp.storage_databases.cloud_bigtable;',
+			'GCPIconCloudDatastoreBlock' : ss + 'gcp.storage_databases.cloud_datastore;',
+			'GCPIconPersistentDiskBlock' : ss + 'gcp.storage_databases.persistent_disk;',
+			'GCPIconCloudVirtualNetworkBlock' : ss + 'gcp.networking.cloud_virtual_network;',
+			'GCPIconCloudLoadBalancingBlock' : ss + 'gcp.networking.cloud_load_balancing;',
+			'GCPIconCloudCDNBlock' : ss + 'gcp.networking.cloud_cdn;',
+			'GCPIconCloudInterconnectBlock' : ss + 'gcp.networking.cloud_interconnect;',
+			'GCPIconCloudDNSBlock' : ss + 'gcp.networking.cloud_dns;',
+			'GCPIconBigQueryBlock' : ss + 'gcp.big_data.bigquery;',
+			'GCPIconCloudDataflowBlock' : ss + 'gcp.big_data.cloud_dataflow;',
+			'GCPIconCloudDataprocBlock' : ss + 'gcp.big_data.cloud_dataproc;',
+			'GCPIconCloudDatalabBlock' : ss + 'gcp.big_data.cloud_datalab;',
+			'GCPIconCloudPubSubBlock' : ss + 'gcp.big_data.cloud_pubsub;',
+			'GCPIconGenomicsBlock' : ss + 'gcp.big_data.genomics;',
+			'GCPIconCloudMachineLearningServicesBlock' : ss + 'gcp.machine_learning.cloud_machine_learning;',
+			'GCPIconVisionAPIBlock' : ss + 'gcp.machine_learning.vision_api;',
+			'GCPIconSpeechAPIBlock' : ss + 'gcp.machine_learning.speech_api;',
+			'GCPIconNaturalLanguageAPIBlock' : ss + 'gcp.machine_learning.natural_language_api;',
+			'GCPIconTranslateAPIBlock' : ss + 'gcp.machine_learning.translation_api;',
+			'GCPIconStackdriverOverviewBlock' : ss + 'gcp.management_tools.stackdriver;',
+			'GCPIconMonitoringBlock' : ss + 'gcp.management_tools.monitoring;',
+//			'GCPIconLoggingBlock' NA
+			'GCPIconErrorReportingBlock' : ss + 'gcp.management_tools.error_reporting;',
+			'GCPIconTraceBlock' : ss + 'gcp.management_tools.trace;',
+			'GCPIconDebuggerBlock' : ss + 'gcp.management_tools.debugger;',
+			'GCPIconDeploymentManagerBlock' : ss + 'gcp.management_tools.deployment_manager;',
+			'GCPIconCloudEndpointsBlock' : ss + 'gcp.management_tools.cloud_endpoints;',
+			'GCPIconCloudToolsForPowerShellBlock' : ss + 'gcp.developer_tools.cloud_tools_for_powershell;',
+			'GCPIconCloudToolsForVisualStudioBlock' : ss + 'gcp.developer_tools.cloud_tools_for_visual_studio;',
+			'GCPIconCloudIAMBlock' : ss + 'gcp.identity_and_security.cloud_iam;',
+			'GCPIconGCPLogoBlock' : ss + 'gcp.extras.generic_gcp;',
+			'GCPIconBlankBlock' : ss + 'gcp.extras.blue_hexagon;',
 //Equation
 //			'Equation' EXT
 //Walls
@@ -2141,7 +2182,7 @@
 		var p = getAction(obj).Properties;
 		var b = p.BoundingBox;
 
-		if (obj.Class.startsWith("AWS"))
+		if (obj.Class != null && obj.Class.substring(0, 3) === "AWS")
 		{
 			b.h = b.h - 20;
 		}

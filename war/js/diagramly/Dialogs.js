@@ -3688,6 +3688,23 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		}
 	}
 
+	// Image cropping (experimental)
+	if (!!document.createElement('canvas').getContext && linkInput.value.substring(0, 11) == 'data:image/')
+	{
+		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
+		{
+		    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
+		    	{
+		    		linkInput.value = image;
+		    	});
+		    	editorUi.showDialog(dlg.container, 200, 160, true, true);
+			dlg.init();
+		});
+		
+		cropBtn.className = 'geBtn';
+		btns.appendChild(cropBtn);
+	}
+	
 	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && window.self === window.top)
 	{
 		var searchBtn = mxUtils.button(mxResources.get('search'), function()
@@ -6353,6 +6370,179 @@ var PluginsDialog = function(editorUi)
 	else
 	{
 		buttons.appendChild(addBtn);
+		buttons.appendChild(applyBtn);
+		buttons.appendChild(cancelBtn);
+	}
+
+	div.appendChild(buttons);
+
+	this.container = div;
+};
+
+var CropImageDialog = function(editorUi, image, fn) 
+{
+	var div = document.createElement('div');
+	
+	var table = document.createElement('table');
+	var tbody = document.createElement('tbody');
+	var row = document.createElement('tr');
+	var left = document.createElement('td');
+	var right = document.createElement('td');
+	table.style.paddingLeft = '6px';
+	
+	mxUtils.write(left, mxResources.get('left') + ':');
+	
+	var xInput = document.createElement('input');
+	xInput.setAttribute('type', 'text');
+	xInput.style.width = '100px';
+	xInput.value = '0';
+	
+	this.init = function()
+	{
+		xInput.focus();
+		xInput.select();
+	};
+
+	right.appendChild(xInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('top') + ':');
+	
+	var yInput = document.createElement('input');
+	yInput.setAttribute('type', 'text');
+	yInput.style.width = '100px';
+	yInput.value = '0';
+
+	right.appendChild(yInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('right') + ':');
+	
+	var wInput = document.createElement('input');
+	wInput.setAttribute('type', 'text');
+	wInput.style.width = '100px';
+	wInput.value = '0';
+
+	right.appendChild(wInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('bottom') + ':');
+	
+	var hInput = document.createElement('input');
+	hInput.setAttribute('type', 'text');
+	hInput.style.width = '100px';
+	hInput.value = '0';
+
+	right.appendChild(hInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('circle') + ':');
+	
+	row.appendChild(left);
+	
+	var circleInput = document.createElement('input');
+	circleInput.setAttribute('type', 'checkbox');
+
+	right.appendChild(circleInput);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	table.appendChild(tbody);
+	div.appendChild(table);
+	
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	
+	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
+	{
+		editorUi.hideDialog();
+		
+		var canvas = document.createElement('canvas');
+		var context = canvas.getContext('2d');
+		var imageObj = new Image();
+		
+		imageObj.onload = function()
+		{
+			var w = imageObj.width;
+			var h = imageObj.height;
+			
+			// draw cropped image
+			var sourceX = parseInt(xInput.value);
+			var sourceY = parseInt(yInput.value);
+			var sourceWidth = Math.max(1, w - sourceX - parseInt(wInput.value));
+			var sourceHeight = Math.max(1, h - sourceY - parseInt(hInput.value));
+			canvas.width = sourceWidth;
+			canvas.height = sourceHeight;
+			
+			if (circleInput.checked)
+			{
+				context.fillStyle = '#000000';
+				context.arc(sourceWidth / 2, sourceHeight / 2, Math.min(sourceWidth / 2,
+					sourceHeight / 2), 0, 2 * Math.PI);
+				context.fill();
+				context.globalCompositeOperation = 'source-in';
+			}
+			
+		    context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+			fn(canvas.toDataURL());
+		};
+		imageObj.src = image;
+	});
+
+	mxEvent.addListener(div, 'keypress', function(e)
+	{
+		if (e.keyCode == 13)
+		{
+			applyBtn.click();
+		}
+	});
+	
+	var buttons = document.createElement('div');
+	buttons.style.marginTop = '20px';
+	buttons.style.textAlign = 'right';
+
+	if (editorUi.editor.cancelFirst)
+	{
+		buttons.appendChild(cancelBtn);
+		buttons.appendChild(applyBtn);
+	}
+	else
+	{
 		buttons.appendChild(applyBtn);
 		buttons.appendChild(cancelBtn);
 	}
