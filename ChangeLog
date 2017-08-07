@@ -1,3 +1,11 @@
+07-AUG-2017: 7.0.3
+
+- Adds cropping for data URIs in edit image dialog
+- Uses mxGraph 3.7.5 beta 6
+- Adds filled edge shape in basic sidebar
+- Fixes possible NPE, undefined function in Lucidchart Import
+- Fixes error handling in PlantUML add-on
+
 06-AUG-2017: 7.0.2
 
 - Improvements to Gliffy import

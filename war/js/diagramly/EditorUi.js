@@ -2256,8 +2256,8 @@
     EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting, convertDataUri)
 	{
 		// KNOWN: IE+FF don't return keyboard focus after image dialog (calling focus doesn't help)
-    	var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
-		this.showDialog(dlg.container, (Graph.fileSupport) ? 420 : 340, (Graph.fileSupport) ? 200 : 90, true, true);
+	    	var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
+		this.showDialog(dlg.container, (Graph.fileSupport) ? 440 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
 		dlg.init();
 	};
 
@@ -4971,6 +4971,19 @@
 				try
 				{
 					this.insertLucidChart(data, dx, dy, crop, done);
+					
+					if (this.updateAd != null && !this.lucidchartTweetShown)
+					{
+						this.adsHtml.push('<a title="' + mxResources.get('loveIt', ['draw.io']) +
+							'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
+							encodeURIComponent('I\'ve just copy and pasted my Lucidchart diagram into www.draw.io') +
+							'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
+							'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
+							'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+							Editor.tweetImage + '"/>Happy with the Import?</a>');
+						this.updateAd(this.adsHtml.length - 1);
+						this.lucidchartTweetShown = true;
+					}
 				}
 				catch (e)
 				{
