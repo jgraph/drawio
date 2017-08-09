@@ -3270,6 +3270,16 @@ TextFormatPanel.prototype.addFont = function(container)
 								{
 									ff = ff.substring(0, ff.length - 1);
 								}
+
+								if (ff.charAt(0) == '"')
+								{
+									ff = ff.substring(1);
+								}
+								
+								if (ff.charAt(ff.length - 1) == '"')
+								{
+									ff = ff.substring(0, ff.length - 1);
+								}
 								
 								fontMenu.firstChild.nodeValue = ff;
 							}

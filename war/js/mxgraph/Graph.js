@@ -1250,7 +1250,7 @@ Graph.prototype.isIgnoreTerminalEvent = function(evt)
  */
 Graph.prototype.isSplitTarget = function(target, cells, evt)
 {
-	return !mxEvent.isShiftDown(evt) && mxGraph.prototype.isSplitTarget.apply(this, arguments);
+	return !mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) && mxGraph.prototype.isSplitTarget.apply(this, arguments);
 };
 
 /**

@@ -2936,7 +2936,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
  * Constructs a dialog for creating new files from a template URL.
  */
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-		allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit)
+		allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
@@ -2978,6 +2978,22 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	};
 
 	div.appendChild(nameInput);
+	
+	if (data != null && mimeType != null && mimeType.substring(0, 6) == 'image/')
+	{
+		nameInput.style.width = '160px';
+		
+		var preview = document.createElement('img');
+		preview.setAttribute('src', 'data:' + mimeType + ((base64Encoded) ? ';base64,': ';utf8,') + data );
+		preview.style.position = 'absolute';
+		preview.style.top = '70px';
+		preview.style.right = '100px';
+		preview.style.maxWidth = '120px';
+		preview.style.maxHeight = '80px';
+		mxUtils.setPrefixedStyle(preview.style, 'transform', 'translate(50%,-50%)');
+		div.appendChild(preview);
+	}
+	
 	mxUtils.br(div);
 	
 	var buttons = document.createElement('div');
@@ -5096,7 +5112,7 @@ var RevisionDialog = function(editorUi, revs)
 /**
  * Constructs a new revision dialog
  */
-var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, discardLabel)
+var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, discardLabel, ignoreFn)
 {
 	var div = document.createElement('div');
 	
@@ -5337,10 +5353,23 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	});
 	
 	cancelBtn.className = 'geBtn';
+	
+	var ignoreBtn = (ignoreFn != null) ? mxUtils.button(mxResources.get('ignore'), ignoreFn) : null;
+	
+	if (ignoreBtn != null)
+	{
+		ignoreBtn.className = 'geBtn';
+	}
 
 	if (editorUi.editor.cancelFirst)
 	{
 		buttons.appendChild(cancelBtn);
+		
+		if (ignoreBtn != null)
+		{
+			buttons.appendChild(ignoreBtn);
+		}
+		
 		buttons.appendChild(restoreBtn);
 		buttons.appendChild(showBtn);
 	}
@@ -5348,6 +5377,12 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	{
 		buttons.appendChild(showBtn);
 		buttons.appendChild(restoreBtn);
+		
+		if (ignoreBtn != null)
+		{
+			buttons.appendChild(ignoreBtn);
+		}
+		
 		buttons.appendChild(cancelBtn);
 	}
 

@@ -862,11 +862,6 @@ App.prototype.init = function()
 						if (this.updateAd != null)
 						{
 							this.adsHtml = this.basicAds.concat([
-								'<a title="' + mxResources.get('loveIt', ['draw.io']) +
-								'" target="_blank" href="https://plus.google.com/share?url=' + encodeURIComponent('https://www.draw.io') +
-								'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
-								'left=\'+((screen.width-480)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=480\');return false;"\'>' +
-								'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="images/glyphicons_google.png"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 								'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +

@@ -1,3 +1,15 @@
+09-AUG-2017: 7.0.5
+
+- Uses mxGraph 3.7.5 beta 7
+- Fixes pen events for Chrome on Windows
+- Adds preview for clipboard in save image dialog
+- Enables drafts in Confluence Cloud add-on
+
+08-AUG-2017: 7.0.4
+
+- Improvements to Gliffy import
+- Fixes remember option for image resize dialog
+
 07-AUG-2017: 7.0.3
 
 - Adds cropping for data URIs in edit image dialog
