@@ -624,8 +624,9 @@ DropboxClient.prototype.saveFile = function(filename, data, success, error)
 	}
 	else
 	{
+		// Mute switch is ignored
 		var promise = this.client.filesUpload({path: '/' + filename, mode: {'.tag': 'overwrite'},
-			contents: new Blob([data], {type: 'text/plain'})});
+			contents: new Blob([data], {type: 'text/plain'}), mute: true});
 		this.executePromise(promise, success, error);
 	}
 };

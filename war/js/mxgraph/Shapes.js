@@ -1321,6 +1321,131 @@
 	
 	mxStyleRegistry.putValue('backbonePerimeter', mxPerimeter.BackbonePerimeter);
 	
+	//Parallelogram Perimeter
+	mxPerimeter.ParallelogramPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		var size = ParallelogramShape.prototype.size;
+		
+		if (vertex != null)
+		{
+			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		var dx = bounds.width * Math.max(0, Math.min(1, size));
+		
+		if (next.y == bounds.y)
+		{
+			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
+		}
+		else if (next.y == bounds.y + bounds.height)
+		{
+			return new mxPoint(bounds.x + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
+		}
+		else if (next.x == bounds.x)
+		{
+			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
+		}
+		else
+		{
+			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
+		}
+	};
+	
+	mxStyleRegistry.putValue('parallelogramPerimeter', mxPerimeter.ParallelogramPerimeter);
+	
+	
+	//Trapezoid Perimeter
+	mxPerimeter.TrapezoidPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		var size = TrapezoidShape.prototype.size;
+		
+		if (vertex != null)
+		{
+			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		var dx = bounds.width * Math.max(0, Math.min(1, size));
+		
+		if (next.y == bounds.y)
+		{
+			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - 2 * dx), next.y);
+		}
+		else if (next.x == bounds.x)
+		{
+			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
+		}
+		else if (next.x == bounds.x + bounds.width)
+		{
+			return new mxPoint(bounds.x + bounds.width - dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
+		}
+		else
+		{
+			return next;
+		}
+	};
+	
+	mxStyleRegistry.putValue('trapezoidPerimeter', mxPerimeter.TrapezoidPerimeter);
+	
+	//Step Perimeter
+	mxPerimeter.StepPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		var size = StepShape.prototype.size;
+		
+		if (vertex != null)
+		{
+			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		var dx = bounds.width * Math.max(0, Math.min(1, size));
+		
+		if (next.x == bounds.x)
+		{
+			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height, next.y)
+										: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
+		}
+		else if (next.x == bounds.x + bounds.width)
+		{
+			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height + (bounds.width - dx), next.y)
+											: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
+		}
+		else
+		{
+			return new mxPoint(bounds.x + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
+		}
+	};
+	
+	mxStyleRegistry.putValue('stepPerimeter', mxPerimeter.StepPerimeter);
+	
+	//Hexagon Perimeter (keep existing one)
+	mxPerimeter.HexagonPerimeter2 = function (bounds, vertex, next, orthogonal)
+	{
+		var size = HexagonShape.prototype.size;
+		
+		if (vertex != null)
+		{
+			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		var dx = bounds.width * Math.max(0, Math.min(1, size));
+		
+		if (next.x == bounds.x)
+		{
+			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + dx * (1 - 2 * (next.y - bounds.y) / bounds.height), next.y)
+										: new mxPoint(bounds.x + dx * (2 * (next.y - bounds.y) / bounds.height - 1), next.y);
+		}
+		else if (next.x == bounds.x + bounds.width)
+		{
+			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height + (bounds.width - dx), next.y)
+											: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
+		}
+		else
+		{
+			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - 2 * dx), next.y);
+		}
+	};
+	
+	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
+	
 	// Lollipop Shape
 	function LollipopShape()
 	{
@@ -2122,6 +2247,10 @@
 	FilledEdge.prototype.origPaintEdgeShape = FilledEdge.prototype.paintEdgeShape;
 	FilledEdge.prototype.paintEdgeShape = function(c, pts, rounded)
 	{
+		//paintEdgeShape reset dashed to false
+		var dashed = c.state.dashed;
+		var fixDash = c.state.fixDash; 
+		
 		FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);
 		if (c.state.strokeWidth >= 3)
 		{
@@ -2131,6 +2260,7 @@
 			{
 				c.setStrokeColor(fillClr);
 				c.setStrokeWidth(c.state.strokeWidth - 2);
+				c.setDashed(dashed, fixDash);
 			
 				FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);		
 			}

@@ -222,8 +222,7 @@
 	 */
 	EditorUi.prototype.isOffline = function()
 	{
-		// In FF navigator.onLine is always true
-		return (mxClient.IS_FF && this.isOfflineApp()) || !navigator.onLine || urlParams['stealth'] == '1';
+		return this.isOfflineApp() || !navigator.onLine || urlParams['stealth'] == '1';
 	};
 
 	/**
@@ -2797,7 +2796,8 @@
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab, null, null, (allowBrowser) ? 3 : 4);
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
+			null, null, (allowBrowser) ? 3 : 4, data, mimeType, base64Encoded);
 		this.showDialog(dlg.container, 380, (this.getServiceCount(allowBrowser) - 1 <
 			((allowBrowser) ? 4 : 5)) ? 270 : 390, true, true);
 		dlg.init();
@@ -2906,7 +2906,8 @@
 		}), mxUtils.bind(this, function()
 		{
 			this.hideDialog();
-		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab, null, null, 4);
+		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
+			null, null, 4, data, mimeType, base64Encoded);
 		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 5) ? 270 : 390, true, true);
 		dlg.init();
 	};
@@ -3767,6 +3768,8 @@
 		var cb6 = document.createElement('input');
 		cb6.style.marginTop = '16px';
 		cb6.style.marginRight = '8px';
+		cb6.style.marginLeft = '24px';
+		cb6.setAttribute('disabled', 'disabled');
 		cb6.setAttribute('type', 'checkbox');
 
 		if (cropOption)
@@ -3776,13 +3779,21 @@
 			mxUtils.br(div);
 			
 			height += 26;
+			
+			mxEvent.addListener(selection, 'change', function()
+			{
+				if (selection.checked)
+				{
+					cb6.removeAttribute('disabled');
+				}
+				else
+				{
+					cb6.setAttribute('disabled', 'disabled');
+				}
+			});
 		}
 		
-		if (graph.isSelectionEmpty())
-		{
-			cb6.setAttribute('disabled', 'disabled');
-		}
-		else
+		if (!graph.isSelectionEmpty())
 		{
 			cb6.setAttribute('checked', 'checked');
 			cb6.defaultChecked = true;
@@ -5786,17 +5797,20 @@
 	{
 		force = (force != null) ? force : false;
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		var resizeImages = (isLocalStorage || mxClient.IS_CHROMEAPP) ? mxSettings.getResizeImages() : null;
 		
 		var wrapper = function(remember, resize)
 		{
-			mxSettings.setResizeImages((remember) ? resize : null);
-			mxSettings.save();
+			if (remember || force)
+			{
+				mxSettings.setResizeImages((remember) ? resize : null);
+				mxSettings.save();
+			}
+			
 			resume();
 			fn(resize);
 		};
-		
-		var resizeImages = (isLocalStorage || mxClient.IS_CHROMEAPP) ? mxSettings.getResizeImages() : null;
-		
+
 		if (resizeImages != null && !force)
 		{
 			wrapper(false, resizeImages);
@@ -7946,7 +7960,12 @@
 						this.hideDialog();
 						parent.postMessage(JSON.stringify({event: 'draft', result: 'discard', message: data}), '*');
 					}), (data.editKey) ? mxResources.get(data.editKey) : null,
-						(data.discardKey) ? mxResources.get(data.discardKey) : null);
+						(data.discardKey) ? mxResources.get(data.discardKey) : null,
+						(data.ignore) ? mxUtils.bind(this, function()
+						{
+							this.hideDialog();
+							parent.postMessage(JSON.stringify({event: 'draft', result: 'ignore', message: data}), '*');
+						}) : null);
 					this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
 					{
 						if (cancel)
@@ -8054,8 +8073,9 @@
 								
 								var msg = this.createLoadMessage('export');
 								msg.format = data.format;
-								msg.xml = encodeURIComponent(xml);
+								msg.message = data;
 								msg.data = uri;
+								msg.xml = encodeURIComponent(xml);
 								parent.postMessage(JSON.stringify(msg), '*');
 							});
 							
@@ -8068,12 +8088,12 @@
 								
 						   	    if (data.format == 'xmlpng')
 						   	    {
-						   	    	uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
-						   	    		atob(this.editor.graph.compress(xml)));	
+						   	    		uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
+						   	    				atob(this.editor.graph.compress(xml)));	
 						   	    }
 						   	    	
 								// Removes temporary graph from DOM
-				   	   	    	if (graph != this.editor.graph)
+						   	    if (graph != this.editor.graph)
 								{
 									graph.container.parentNode.removeChild(graph.container);
 								}
@@ -8262,8 +8282,14 @@
 							this.buttonContainer.style.paddingRight = '38px';
 							this.buttonContainer.style.paddingTop = '6px';
 						}
-						
+
+						if (this.embedFilenameSpan != null)
+						{
+							this.embedFilenameSpan.parentNode.removeChild(this.embedFilenameSpan);
+						}
+
 						this.buttonContainer.appendChild(tmp);
+						this.embedFilenameSpan = tmp;
 					}
 					
 					if (data.xmlpng != null)
