@@ -184,7 +184,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
 	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
-	'replay': '/plugins/replay.js'};
+	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js'};
 
 /**
  * Function: authorize
@@ -996,13 +996,15 @@ App.prototype.init = function()
 	{
 		this.basicAds.push(td.innerHTML);
 		this.adsHtml = this.basicAds;
-		mxUtils.setPrefixedStyle(td.style, 'transition', 'all 1s ease');
 		var lastAd = this.adsHtml.length - 1;
 		var thread2 = null;
 		var thread = null;
 		
-		this.updateAd = function(index)
+		this.updateAd = function(index, delay)
 		{
+			delay = (delay != null) ? delay : 1000;
+			mxUtils.setPrefixedStyle(td.style, 'transition', 'all ' + (delay / 1000) + 's ease');
+
 			if (thread2 != null)
 			{
 				window.clearTimeout(thread2);
@@ -1016,13 +1018,13 @@ App.prototype.init = function()
 			
 			if (this.adsHtml.length == 0)
 			{
-				if (td.parentNode != null)
-				{
-					td.parentNode.removeChild(td);
-				}
+				td.style.visibility = 'hidden';
+				td.innerHTML = '';
 			}
 			else
 			{
+				td.style.visibility = 'visible';
+				
 				if (index == lastAd)
 				{
 					index++;
@@ -1037,7 +1039,7 @@ App.prototype.init = function()
 					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
 					td.style.opacity = '1';
 					lastAd = index;
-				}), 1000);
+				}), delay);
 			}
 		};
 		

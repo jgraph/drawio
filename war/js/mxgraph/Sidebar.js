@@ -3093,7 +3093,7 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 		var pt = graph.getFreeInsertPoint();
 		ds.drop(graph, evt, null, pt.x, pt.y);
 		
-		if (this.editorUi.hoverIcons != null && mxEvent.isTouchEvent(evt))
+		if (this.editorUi.hoverIcons != null && (mxEvent.isTouchEvent(evt) || mxEvent.isPenEvent(evt)))
 		{
 			this.editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
 		}

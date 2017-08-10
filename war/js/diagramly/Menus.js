@@ -1104,8 +1104,7 @@
 			}
 		});
 
-		// Adds plugins menu item in file menu only if localStorage is available for
-		// storing the plugins.
+		// Adds plugins menu item only if localStorage is available for storing the plugins
 		if (isLocalStorage || mxClient.IS_CHROMEAPP)
 		{
 			var action = editorUi.actions.addAction('scratchpad', function()
@@ -2410,7 +2409,12 @@
 
 			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['plugins'], parent);
+				var item = this.addMenuItem(menu, 'plugins', parent);
+				
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+				{
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
+				}
 			}
 				
 			menu.addSeparator(parent);

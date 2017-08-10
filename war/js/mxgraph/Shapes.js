@@ -1321,6 +1321,62 @@
 	
 	mxStyleRegistry.putValue('backbonePerimeter', mxPerimeter.BackbonePerimeter);
 	
+	mxPerimeter.lineIntersection = function (line1Start, line1End, line2Start, line2End)
+	{
+	  // if the lines intersect, the result contains the the
+	  // intersection point if both line segment 1 and line segment 2 contain the point
+	  // null otherwise
+	  var denominator = ((line2End.y - line2Start.y) * (line1End.x - line1Start.x)) 
+	  						- ((line2End.x - line2Start.x) * (line1End.y - line1Start.y));
+	  
+	  if (denominator == 0) //parallel?
+	  {
+	    return null;
+	  }
+	  else
+	  {
+	    var a = line1Start.y - line2Start.y;
+	    var b = line1Start.x - line2Start.x;
+	    var numerator1 = ((line2End.x - line2Start.x) * a) - ((line2End.y - line2Start.y) * b);
+	    var numerator2 = ((line1End.x - line1Start.x) * a) - ((line1End.y - line1Start.y) * b);
+	    a = numerator1 / denominator;
+	    b = numerator2 / denominator;
+
+	    // if we cast these lines infinitely in both directions, they intersect here:
+	    var x = line1Start.x + (a * (line1End.x - line1Start.x));
+	    var y = line1Start.y + (a * (line1End.y - line1Start.y));
+
+	    if (a > 0 && a <= 1)// on line1?
+	    	{
+		  	  var dx = line2End.x - x;
+			  var dy = line2End.y - y;
+			  var d = Math.sqrt(dy * dy + dx * dx); //distance from end of line 2 (next) to intersection point
+		      return {dist: d, p: new mxPoint(x, y)};
+	    	}
+	    else
+	    {
+	      return null;
+	    }
+	  }
+	};
+
+	mxPerimeter.getPerimeterPoint = function (points, center, point)
+	{
+		var min = false;
+		
+		for (var i = 0; i < points.length - 1; i++)
+		{
+			var ip = mxPerimeter.lineIntersection(points[i], points[i + 1], center, point);
+			
+			if (ip != null && (!min || min.dist > ip.dist))
+			{
+				min = ip;
+			}
+		}
+		
+		return min.p;
+	};
+
 	//Parallelogram Perimeter
 	mxPerimeter.ParallelogramPerimeter = function (bounds, vertex, next, orthogonal)
 	{
@@ -1333,22 +1389,18 @@
 		
 		var dx = bounds.width * Math.max(0, Math.min(1, size));
 		
-		if (next.y == bounds.y)
-		{
-			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
-		}
-		else if (next.y == bounds.y + bounds.height)
-		{
-			return new mxPoint(bounds.x + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
-		}
-		else if (next.x == bounds.x)
-		{
-			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
-		}
-		else
-		{
-			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
-		}
+		var x = bounds.x;
+		var y = bounds.y;
+		var w = bounds.width;
+		var h = bounds.height;
+
+		var points = [new mxPoint(x + dx, y), new mxPoint(x + w, y),
+						new mxPoint(x + w - dx, y + h), new mxPoint(x, y + h), new mxPoint(x + dx, y)];
+
+		var cx = bounds.getCenterX();
+		var cy = bounds.getCenterY();
+		
+		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
 	};
 	
 	mxStyleRegistry.putValue('parallelogramPerimeter', mxPerimeter.ParallelogramPerimeter);
@@ -1366,22 +1418,18 @@
 		
 		var dx = bounds.width * Math.max(0, Math.min(1, size));
 		
-		if (next.y == bounds.y)
-		{
-			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - 2 * dx), next.y);
-		}
-		else if (next.x == bounds.x)
-		{
-			return new mxPoint(bounds.x + dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
-		}
-		else if (next.x == bounds.x + bounds.width)
-		{
-			return new mxPoint(bounds.x + bounds.width - dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
-		}
-		else
-		{
-			return next;
-		}
+		var x = bounds.x;
+		var y = bounds.y;
+		var w = bounds.width;
+		var h = bounds.height;
+
+		var points = [new mxPoint(x + dx, y), new mxPoint(x + w - dx, y),
+						new mxPoint(x + w, y + h), new mxPoint(x, y + h), new mxPoint(x + dx, y)];
+
+		var cx = bounds.getCenterX();
+		var cy = bounds.getCenterY();
+		
+		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
 	};
 	
 	mxStyleRegistry.putValue('trapezoidPerimeter', mxPerimeter.TrapezoidPerimeter);
@@ -1398,20 +1446,19 @@
 		
 		var dx = bounds.width * Math.max(0, Math.min(1, size));
 		
-		if (next.x == bounds.x)
-		{
-			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height, next.y)
-										: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height), next.y);
-		}
-		else if (next.x == bounds.x + bounds.width)
-		{
-			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height + (bounds.width - dx), next.y)
-											: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
-		}
-		else
-		{
-			return new mxPoint(bounds.x + (next.x - bounds.x) / bounds.width * (bounds.width - dx), next.y);
-		}
+		var x = bounds.x;
+		var y = bounds.y;
+		var w = bounds.width;
+		var h = bounds.height;
+
+		var cx = bounds.getCenterX();
+		var cy = bounds.getCenterY();
+		
+		var points = [new mxPoint(x, y), new mxPoint(x + w - dx, y), new mxPoint(x + w, cy),
+						new mxPoint(x + w - dx, y + h), new mxPoint(x, y + h),
+						new mxPoint(x + dx, cy), new mxPoint(x, y)];
+		
+		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
 	};
 	
 	mxStyleRegistry.putValue('stepPerimeter', mxPerimeter.StepPerimeter);
@@ -1428,20 +1475,19 @@
 		
 		var dx = bounds.width * Math.max(0, Math.min(1, size));
 		
-		if (next.x == bounds.x)
-		{
-			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + dx * (1 - 2 * (next.y - bounds.y) / bounds.height), next.y)
-										: new mxPoint(bounds.x + dx * (2 * (next.y - bounds.y) / bounds.height - 1), next.y);
-		}
-		else if (next.x == bounds.x + bounds.width)
-		{
-			return next.y < bounds.getCenterY() ? new mxPoint(bounds.x + 2 * dx * (next.y - bounds.y) / bounds.height + (bounds.width - dx), next.y)
-											: new mxPoint(bounds.x + 2 * dx * (1 - (next.y - bounds.y) / bounds.height) + (bounds.width - dx), next.y);
-		}
-		else
-		{
-			return new mxPoint(bounds.x + dx + (next.x - bounds.x) / bounds.width * (bounds.width - 2 * dx), next.y);
-		}
+		var x = bounds.x;
+		var y = bounds.y;
+		var w = bounds.width;
+		var h = bounds.height;
+
+		var cx = bounds.getCenterX();
+		var cy = bounds.getCenterY();
+		
+		var points = [new mxPoint(x + dx, y), new mxPoint(x + w - dx, y), new mxPoint(x + w, cy),
+						new mxPoint(x + w - dx, y + h), new mxPoint(x + dx, y + h),
+						new mxPoint(x, cy), new mxPoint(x + dx, y)];
+		
+		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
 	};
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);

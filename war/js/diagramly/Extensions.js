@@ -24,8 +24,10 @@
 	var styleMap = {
 //Standard
 			'DefaultTextBlockNew': 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;',
+			'DefaultTextBlock': 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;',
 			'DefaultSquareBlock': 'rounded=1;arcSize=' + arcSize + ';',
 			'DefaultNoteBlock': 'shape=note;size=15;',
+			'DefaultNoteBlockV2': 'shape=note;size=15;',
 			'HotspotBlock': 'strokeColor=none;opacity=50;',
 			'ImageSearchBlock2': 'shape=image;',
 //Flowchart
@@ -37,6 +39,7 @@
 			'MultiDocumentBlock': s + 'flowchart.multi-document;',
 			'ManualInputBlock': 'shape=manualInput;size=15;rounded=1;arcSize=' + arcSize + ';',
 			'PreparationBlock': 'shape=hexagon;rounded=1;arcSize=' + arcSize + ';',
+			'DataBlock': 'shape=parallelogram;rounded=1;arcSize=' + arcSize + ';',
 			'DataBlockNew': 'shape=parallelogram;rounded=1;arcSize=' + arcSize + ';',
 			'DatabaseBlock': 'shape=cylinder;',
 			'DirectAccessStorageBlock': s + 'flowchart.direct_data;',
@@ -80,6 +83,8 @@
 			'ShapeCircleBlock': 'ellipse;',
 			'ShapePolyStarBlock': s + 'basic.star;',
 			'ShapeDiamondBlock': 'rhombus;rounded=1;arcSize=' + arcSize + ';',
+//Misc
+			'UI2HotspotBlock' : 'shape=rect;opacity=50;strokeColor=none;rounded=1;',
 //Android Devices
 //			'AndroidDevice' EXT
 //Android Dialogs
@@ -130,6 +135,47 @@
 //			'AndroidIconDownload' NA
 //			'AndroidIconError' NA
 //			'AndroidIconWarning' NA
+//iOS mockups
+			'iOSDeviceiPhoneSE': s + 'ios7.misc.iphone;',
+			'iOSDeviceiPhone6s': s + 'ios7.misc.iphone;',
+			'iOSDeviceiPhone6sPlus': s + 'ios7.misc.iphone;',
+			'iOSDeviceiPadPortrait': s + 'ios7.misc.ipad7inch;',
+			'iOSDeviceiPadLandscape': s + 'ios7.misc.ipad7inch;',
+			'iOSDeviceiPadProPortrait': s + 'ios7.misc.ipad7inch;',
+			'iOSDeviceiPadProLandscape': s + 'ios7.misc.ipad10inch;',
+//iOS UI components
+			'iOSButton': 'shape=rect;',
+//			'iOSSegmentedControl' EXT
+			'iOSStepper': s + 'ios7.misc.adjust;',
+			'iOSToggle': s + 'ios7ui.onOffButton;buttonState=on;strokeColor2=#aaaaaa;fillColor2=#ffffff;',
+			'iOSSlider': s + 'ios7ui.slider;barPos=20;strokeColor2=#a0a0a0;',
+			'iOSProgressBar': s + 'ios.iCloudProgressBar;barPos=20;',
+			'iOSPageControls': s + 'ios.iCloudProgressBar;barPos=20;',
+//			'iOSStatusBar' NA
+//			'iOSSearchBar' EXT
+//			'iOSNavBar' EXT
+//			'iOSTabs' EXT
+			'iOSUniversalKeyboard': s + 'ios.iKeybLett;',
+//			'iOSDatePicker' EXT
+//			'iOSTimePicker' EXT
+//			'iOSCountdownPicker' EXT
+//			'iOSBasicCell' EXT
+//			'iOSSubtitleCell' EXT
+//			'iOSRightDetailCell' EXT
+//			'iOSLeftDetailCell' EXT
+//			'iOSTableGroupedSectionBreak' EXT
+//			'iOSTablePlainHeaderFooter' EXT
+//Mind Map
+			'MindMapBlock' : 'shape=rect;rounded=1;',
+			'MindMapStadiumBlock' : 'shape=rect;rounded=1;arcSize=50;',
+			'MindMapCloud' : 'shape=cloud;',
+			'MindMapCircle' : 'shape=ellipse;',
+			'MindMapIsoscelesTriangleBlock' : 'shape=triangle;direction=north;',
+			'MindMapDiamondBlock' : 'shape=rhombus;',
+			'MindMapPentagonBlock' : s + 'basic.pentagon;',
+			'MindMapHexagonBlock' : 'shape=hexagon;',
+			'MindMapOctagonBlock' : s + 'basic.octagon;',
+			'MindMapCrossBlock' : s + 'basic.cross2;dx=20;',
 //Entity Relationship
 //			'ERDEntityBlock' EXT
 //			'ERDEntityBlock2' EXT
@@ -194,7 +240,7 @@
 			'UMLEndBlock' : s + 'bpmn.shape;outline=end;symbol=terminate;',
 			'UMLObjectBlock' : 'shape=rect;rounded=1;',
 			'UMLSendSignalBlock' : s + 'sysml.sendSigAct;',
-			'UMLReceiveSignalBlock' : s + 'sysml.accEvent;',
+			'UMLReceiveSignalBlock' : s + 'sysml.accEvent;flipH=1;',
 			'UMLAcceptTimeEventActionBlock' : s + 'sysml.timeEvent;',
 //			'UMLInterruptingEdgeBlock' NA
 			'UMLOffPageLinkBlock' : s + 'sysml.sendSigAct;direction=south;',
@@ -1074,62 +1120,62 @@
 			'Cisco_cisco_workstation' : s + 'cisco.computers_and_peripherals.workstation;' + c,
 			'Cisco_cisco_www_server' : s + 'cisco.servers.www_server;' + c,
 //Computers and Monitors
-//			'NET_PC' NA
-//			'NET_Virtual-PC' NA
-//			'NET_Terminal' NA
-//			'NET_DataPipe' NA
-//			'NET_SlateDevice' NA
-//			'NET_TabletDevice' NA
-//			'NET_Laptop' NA
-//			'NET_PDA' NA
-//			'NET_CRTMonitor' NA
-//			'NET_LCDMonitor' NA
+			'NET_PC' : s + 'networks.pc;fillColor=#29AAE1;',
+			'NET_Virtual-PC' : s + 'networks.virtual_pc;fillColor=#29AAE1;',
+			'NET_Terminal' : s + 'networks.terminal;fillColor=#29AAE1;',
+			'NET_DataPipe' : s + 'networks.bus;fillColor=#29AAE1;',
+			'NET_SlateDevice' : s + 'networks.tablet;fillColor=#29AAE1;', 
+			'NET_TabletDevice' : s + 'networks.tablet;fillColor=#29AAE1;',
+			'NET_Laptop' : s + 'networks.laptop;fillColor=#29AAE1;',
+			'NET_PDA' : s + 'networks.mobile;fillColor=#29AAE1;',
+			'NET_CRTMonitor' : s + 'networks.monitor;fillColor=#29AAE1;',
+			'NET_LCDMonitor' : s + 'networks.monitor;fillColor=#29AAE1;',
 //Detailed Network Diagrams
 //			'NET_ABSwitch' NA
 //			'NET_Repeater' NA
 //			'NET_DiagnosticDevice' NA
 //			'NET_CardReader' NA
 //			'NET_PatchPanel' NA
-//			'NET_RadioTower' NA
+			'NET_RadioTower' : s + 'networks.radio_tower;fillColor=#29AAE1;',
 //			'NET_BiometricReader' NA
-//			'NET_ExternalHardDrive' NA
+			'NET_ExternalHardDrive' : s + 'networks.external_storage;fillColor=#29AAE1;',
 //			'NET_WebService' NA
 //			'NET_FiberOptic' NA
-//			'NET_SatelliteDish' NA
-//			'NET_Satellite' NA
+			'NET_SatelliteDish' : s + 'networks.satellite_dish;fillColor=#29AAE1;',
+			'NET_Satellite' : s + 'networks.satellite;fillColor=#29AAE1;',
 //			'NET_VoIPPhone' NA
 //			'NET_PBX' NA
 //			'NET_MLPS' NA
 //Basic Network Shapes
-//			'NET_WirelessAccessPoint' NA
-//			'NET_RingNetwork' NA
-//			'NET_Ethernet' NA
-//			'NET_Server' NA
+			'NET_WirelessAccessPoint' : s + 'networks.radio_tower;fillColor=#29AAE1;',
+//			'NET_RingNetwork' EXT
+//			'NET_Ethernet' EXT
+			'NET_Server' : s + 'networks.server;fillColor=#29AAE1;',
 //			'NET_ExternalMediaDrive' NA
-//			'NET_Mainframe' NA
-//			'NET_Router' NA
-//			'NET_Switch' NA
-//			'NET_Firewall' NA
-//			'NET_User' NA
-//			'NET_CommLink' NA
-//			'NET_SuperComputer' NA
-//			'NET_VirtualServer' NA
-//			'NET_Printer' NA
+			'NET_Mainframe' : s + 'networks.mainframe;fillColor=#29AAE1;',
+			'NET_Router' : s + 'networks.wireless_hub;fillColor=#29AAE1;',
+			'NET_Switch' : s + 'networks.switch;fillColor=#29AAE1;',
+			'NET_Firewall' : s + 'networks.firewall;fillColor=#29AAE1;',
+			'NET_User' : s + 'networks.user_male;fillColor=#29AAE1;',
+			'NET_CommLink' : s + 'networks.comm_link_edge;fillColor=#29AAE1;',
+			'NET_SuperComputer' : s + 'networks.supercomputer;fillColor=#29AAE1;',
+			'NET_VirtualServer' : s + 'networks.virtual_server;fillColor=#29AAE1;',
+			'NET_Printer' : s + 'networks.printer;fillColor=#29AAE1;',
 //			'NET_Plotter' NA
-//			'NET_Scanner' NA
-//			'NET_Copier' NA
+			'NET_Scanner' : s + 'networks.scanner;fillColor=#29AAE1;',
+			'NET_Copier' : s + 'networks.copier;fillColor=#29AAE1;',
 //			'NET_FaxMachine' NA
-//			'NET_MultiFunctionMachine' NA
-//			'NET_Projector' NA
-//			'NET_ProjectorScreen' NA
-//			'NET_Bridge' NA
-//			'NET_Hub' NA
-//			'NET_Modem' NA
-//			'NET_Telephone' NA
-//			'NET_CellPhone' NA
-//			'NET_SmartPhone' NA
+			'NET_MultiFunctionMachine' : s + 'networks.copier;fillColor=#29AAE1;',
+			'NET_Projector' : s + 'networks.video_projector;fillColor=#29AAE1;',
+			'NET_ProjectorScreen' : s + 'networks.video_projector_screen;fillColor=#29AAE1;',
+			'NET_Bridge' : s + 'networks.router;fillColor=#29AAE1;',
+			'NET_Hub' : s + 'networks.hub;fillColor=#29AAE1;',
+			'NET_Modem' : s + 'networks.modem;fillColor=#29AAE1;',
+			'NET_Telephone' : s + 'signs.tech.telephone_5;fillColor=#29AAE1;',
+			'NET_CellPhone' : s + 'networks.mobile;fillColor=#29AAE1;',
+			'NET_SmartPhone' : s + 'networks.mobile;fillColor=#29AAE1;',
 //			'NET_VideoPhone' NA
-//			'NET_Camera' NA
+			'NET_Camera' : s + 'signs.tech.camera_2;fillColor=#29AAE1;',
 //			'NET_VideoCamera' NA
 //Server Racks
 			'RackServerRack' : s + 'rackGeneral.container;container=1;collapsible=0;childLayout=rack;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#000000;numDisp=off;',
@@ -1487,7 +1533,7 @@
 //			'fpPianoBench' : 'shape=rect;rounded=1;',
 //Equipment
 			'PEAxialCompressor' : s + 'pid.compressors.centrifugal_compressor_-_turbine_driven;',
-			'PECentrifugalCompressor' : s + 'pid.compressors.centrifugal_compressor',
+			'PECentrifugalCompressor' : s + 'pid.compressors.centrifugal_compressor;',
 			'PECentrifugalCompressor2' : s + 'pid.compressors.centrifugal_compressor_-_turbine_driven;',
 //			'PECentrifugalCompressor3' NA
 			'PEReciprocationCompressor' : s + 'pid.compressors.reciprocating_compressor;',
@@ -1581,7 +1627,7 @@
 //Vessels
 			'PEVesselBlock' : 'shape=rect;', //EXT
 			'PEOpenTankBlock' : s + 'pid.vessels.container,_tank,_cistern;', //EXT
-//			'PEOpenTopTank' NA
+			'PEOpenTopTank' : s + 'pid.vessels.container,_tank,_cistern;',
 			'PEClosedTankBlock' : 'shape=rect;', //EXT
 			'PEStorageSphereBlock' : s + 'pid.vessels.storage_sphere;',
 			'PEColumnBlock' : s + 'pid.vessels.pressurized_vessel;', //EXT
@@ -2040,6 +2086,41 @@
 			if (p != null)
 			{
 				cell.value = convertText(p);
+
+				//adds labels and font size
+				var isV = 0;
+				
+				if (p.Text != null)
+				{
+					if (p.Text.m != null)
+					{
+						var m = p.Text.m;
+						var i = 0;
+						
+						while ((isV == 0) && (i < m.length))
+						{
+							var currM = m[i];
+							
+							if (currM.n == 's')
+							{
+								if (currM.v != null)
+								{
+									isV = 1;
+
+									var fontSize = currM.v;
+									fontSize = fontSize / 2;
+									cell.style += 'fontSize=' + fontSize + ';';
+								}
+							}
+							i++;
+						}
+					}
+				}
+				
+				if (isV == 0)
+				{
+					cell.style += 'fontSize=9;';
+				}
 				
 				// Converts images
 				if (a.Class == 'ImageSearchBlock2')
@@ -2049,10 +2130,26 @@
 				
 				// Adds styles
 				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, p.LineWidth, '1');
-				cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.LineColor.substring(0, 7), '#000000');
+				
+				//stencils with hardcoded stroke color
+				var hardStroke = ['DefaultTextBlock', 'UI2HotspotBlock'];
+				
+				if (!hardStroke.includes(a.Class))
+				{
+					cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.LineColor.substring(0, 7), '#000000');
+				}
+				
 				cell.style += createStyle(mxConstants.STYLE_ALIGN, p.TextAlign, 'center');
 				cell.style += createStyle(mxConstants.STYLE_VERTICAL_ALIGN, p.TextVAlign, 'middle');
-				cell.style += createStyle(mxConstants.STYLE_OPACITY, p.Opacity, '100');
+				
+				//stencils with hardcoded opacity
+				var hardOpacity = ['UI2HotspotBlock'];
+
+				if (!hardOpacity.includes(a.Class))
+				{
+					cell.style += createStyle(mxConstants.STYLE_OPACITY, p.Opacity, '100');
+				}
+
 				
 				// Converts rotation
 				if (p.Rotation != null)
@@ -2064,7 +2161,7 @@
 					// and Lucid uses rotation
 					
 					//stencils to rotate counter clockwise 90 degrees
-					var rccw = ['AEUSBBlock', 'AGSCutandpasteBlock'];
+					var rccw = ['AEUSBBlock', 'AGSCutandpasteBlock', 'iOSDeviceiPadLandscape', 'iOSDeviceiPadProLandscape'];
 					
 					if (a.Class == 'AdvancedSwimLaneBlockRotated')
 					{
@@ -2110,7 +2207,8 @@
 				// Gradients and fill color
 				if (p.FillColor != null)
 				{
-					var exc = ['AWSAndroidBlock3', 'AWSiOSBlock3', 'AWSJavaBlock3', 'AWSJavaScript', 'AWSNetBlock3', 'AWSNodeJSBlock3', 'AWSPHPBlock3', 'AWSPythonBlock3', 'AWSRubyBlock3', 'AWSXamarin', 'AWSCLIBlock3', 'AWSEclipseToolkitBlock3', 'AWSVisualStudioToolkitBlock3', 'AWSWindowsPowershellToolkitBlock3'];
+					//stencils with hardCoded fill color
+					var exc = ['AWSAndroidBlock3', 'AWSiOSBlock3', 'AWSJavaBlock3', 'AWSJavaScript', 'AWSNetBlock3', 'AWSNodeJSBlock3', 'AWSPHPBlock3', 'AWSPythonBlock3', 'AWSRubyBlock3', 'AWSXamarin', 'AWSCLIBlock3', 'AWSEclipseToolkitBlock3', 'AWSVisualStudioToolkitBlock3', 'AWSWindowsPowershellToolkitBlock3', 'DefaultTextBlock'];
 				
 					if (!exc.includes(a.Class))
 					{
