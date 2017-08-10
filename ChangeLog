@@ -1,3 +1,12 @@
+10-AUG-2017: 7.0.7
+
+- Adds anonymize plugin (p=anon)
+
+09-AUG-2017: 7.0.6
+
+- Conf Cloud license changes
+- Fixes for Perimeters
+
 09-AUG-2017: 7.0.5
 
 - Uses mxGraph 3.7.5 beta 7

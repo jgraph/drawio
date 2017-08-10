@@ -4991,8 +4991,8 @@
 							'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 							'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
 							'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-							Editor.tweetImage + '"/>Happy with the Import?</a>');
-						this.updateAd(this.adsHtml.length - 1);
+							Editor.tweetImage + '"/>Paste from Lucidchart?</a>');
+						this.updateAd(this.adsHtml.length - 1, 200);
 						this.lucidchartTweetShown = true;
 					}
 				}
