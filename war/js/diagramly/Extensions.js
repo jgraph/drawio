@@ -2085,9 +2085,10 @@
 			
 			if (p != null)
 			{
+				//adds label
 				cell.value = convertText(p);
 
-				//adds labels and font size
+				//adds font size
 				var isV = 0;
 				
 				if (p.Text != null)
@@ -2108,7 +2109,7 @@
 									isV = 1;
 
 									var fontSize = currM.v;
-									fontSize = fontSize / 2;
+									fontSize = Math.round(fontSize / 1.7);
 									cell.style += 'fontSize=' + fontSize + ';';
 								}
 							}
@@ -2119,7 +2120,45 @@
 				
 				if (isV == 0)
 				{
-					cell.style += 'fontSize=9;';
+					cell.style += 'fontSize=10;';
+				}
+				
+				//adds font color
+				var isC = 0;
+				
+				if (p.Text != null)
+				{
+					if (p.Text.m != null)
+					{
+						var m = p.Text.m;
+						var i = 0;
+						
+						while ((isC == 0) && (i < m.length))
+						{
+							var currM = m[i];
+							
+							if (currM.n == 'c')
+							{
+								if (currM.v != null)
+								{
+									isC = 1;
+									
+									var currV = currM.v;
+									
+									if (currV.charAt(0) != '#')
+									{
+										currV = '#' + currV;
+									}
+
+									var currV = currV.substring(0, 7);
+
+									cell.style += mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
+								}
+							}
+							
+							i++;
+						}
+					}
 				}
 				
 				// Converts images

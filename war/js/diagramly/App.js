@@ -492,6 +492,14 @@ App.main = function(callback)
 			
 			if (temp != null)
 			{
+				// Used to request draw.io sources in dev mode
+				var drawDevUrl = '';
+
+				if (urlParams['drawdev'] == '1')
+				{
+					drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
+				}
+				
 				// Mapping from key to URL in App.plugins
 				var t = temp.split(';');
 				
@@ -501,7 +509,7 @@ App.main = function(callback)
 					
 					if (url != null)
 					{
-						mxscript(url);
+						mxscript(drawDevUrl + url);
 					}
 					else if (window.console != null)
 					{

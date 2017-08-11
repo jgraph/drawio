@@ -801,5 +801,17 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		}), 0);
 	};
 	
+	EditorUi.prototype.createImageUrlConverter = function()
+	{
+		var converter = new mxUrlConverter();
+		converter.updateBaseUrl();
+		return converter;
+	};
+	
+	EditorUi.prototype.isCorsEnabledForUrl = function()
+	{
+		return true;
+	}
+
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 })();
