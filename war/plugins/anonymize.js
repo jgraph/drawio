@@ -85,6 +85,9 @@ Draw.loadPlugin(function(editorUi)
 		model.beginUpdate();
 		try
 		{
+			// Queue used to fix ancestor placeholders
+			var queue = [];
+
 			for (var id in model.cells)
 			{
 				var cell = model.cells[id];
@@ -99,7 +102,12 @@ Draw.loadPlugin(function(editorUi)
 					label = anonymizeString(label);
 				}
 				
-				model.setValue(cell, label);
+				queue.push({cell: cell, label: label});
+			}
+			
+			for (var i = 0; i < queue.length; i++)
+			{
+				model.setValue(queue[i].cell, queue[i].label);
 			}
 		}
 		finally

@@ -57,7 +57,7 @@ function createWindow (opt = {}) {
 	mainWindow.loadURL(wurl)
 
 	// Open the DevTools.
-	//if (__DEV__)
+	if (__DEV__)
 	{
 		mainWindow.webContents.openDevTools()
 	}

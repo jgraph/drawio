@@ -1,3 +1,7 @@
+11-AUG-2017: 7.0.8
+
+- Fixes error handling in Confluence Cloud add-on
+
 10-AUG-2017: 7.0.7
 
 - Adds anonymize plugin (p=anon)

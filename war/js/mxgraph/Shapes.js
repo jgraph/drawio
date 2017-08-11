@@ -1346,7 +1346,7 @@
 	    var x = line1Start.x + (a * (line1End.x - line1Start.x));
 	    var y = line1Start.y + (a * (line1End.y - line1Start.y));
 
-	    if (a > 0 && a <= 1)// on line1?
+	    if (a >= 0 && a <= 1)// on line1?
 	    	{
 		  	  var dx = line2End.x - x;
 			  var dy = line2End.y - y;
@@ -1400,11 +1400,20 @@
 		var cx = bounds.getCenterX();
 		var cy = bounds.getCenterY();
 		
-		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
+		var p1 = new mxPoint(cx, cy);
+		
+		if (orthogonal)
+		{
+			if (next.x < x || next.x > x + w)
+				p1.y = next.y;
+			else
+				p1.x = next.x;
+		}
+		
+		return mxPerimeter.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('parallelogramPerimeter', mxPerimeter.ParallelogramPerimeter);
-	
 	
 	//Trapezoid Perimeter
 	mxPerimeter.TrapezoidPerimeter = function (bounds, vertex, next, orthogonal)
@@ -1429,7 +1438,17 @@
 		var cx = bounds.getCenterX();
 		var cy = bounds.getCenterY();
 		
-		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
+		var p1 = new mxPoint(cx, cy);
+		
+		if (orthogonal)
+		{
+			if (next.x < x || next.x > x + w)
+				p1.y = next.y;
+			else
+				p1.x = next.x;
+		}
+
+		return mxPerimeter.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('trapezoidPerimeter', mxPerimeter.TrapezoidPerimeter);
@@ -1458,7 +1477,17 @@
 						new mxPoint(x + w - dx, y + h), new mxPoint(x, y + h),
 						new mxPoint(x + dx, cy), new mxPoint(x, y)];
 		
-		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
+		var p1 = new mxPoint(cx, cy);
+		
+		if (orthogonal)
+		{
+			if (next.x < x || next.x > x + w)
+				p1.y = next.y;
+			else
+				p1.x = next.x;
+		}
+		
+		return mxPerimeter.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('stepPerimeter', mxPerimeter.StepPerimeter);
@@ -1487,7 +1516,17 @@
 						new mxPoint(x + w - dx, y + h), new mxPoint(x + dx, y + h),
 						new mxPoint(x, cy), new mxPoint(x + dx, y)];
 		
-		return mxPerimeter.getPerimeterPoint(points, new mxPoint(cx, cy), next);
+		var p1 = new mxPoint(cx, cy);
+		
+		if (orthogonal)
+		{
+			if (next.x < x || next.x > x + w)
+				p1.y = next.y;
+			else
+				p1.x = next.x;
+		}
+		
+		return mxPerimeter.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
@@ -2521,11 +2560,10 @@
 		};
 	}
 	
-	
 	// Handlers are only added if mxVertexHandler is defined (ie. not in embedded graph)
 	if (typeof mxVertexHandler !== 'undefined')
 	{
-		function createHandle(state, keys, getPositionFn, setPositionFn, ignoreGrid)
+		function createHandle(state, keys, getPositionFn, setPositionFn, ignoreGrid, redrawEdges)
 		{
 			var handle = new mxHandle(state, null, mxVertexHandler.prototype.secondaryHandleImage);
 			
@@ -2536,10 +2574,25 @@
 					this.copyStyle(keys[i]);
 				}
 			};
-
+			
 			handle.getPosition = getPositionFn;
 			handle.setPosition = setPositionFn;
 			handle.ignoreGrid = (ignoreGrid != null) ? ignoreGrid : true;
+			
+			// Overridden to update connected edges
+			if (redrawEdges)
+			{
+				var positionChanged = handle.positionChanged;
+				
+				handle.positionChanged = function()
+				{
+					positionChanged.apply(this, arguments);
+					
+					// Redraws connected edges TODO: Include child edges
+					state.view.invalidate(this.state.cell);
+					state.view.validate();
+				};
+			}
 			
 			return handle;
 		};
@@ -2589,7 +2642,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(max, (pt.x - bounds.x) / (bounds.width * 0.75)));
-				})];
+				}, null, true)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -2600,7 +2653,7 @@
 			};
 		};
 		
-		function createDisplayHandleFunction(defaultValue, allowArcHandle, max)
+		function createDisplayHandleFunction(defaultValue, allowArcHandle, max, redrawEdges)
 		{
 			max = (max != null) ? max : 1;
 			
@@ -2614,7 +2667,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(max, (pt.x - bounds.x) / bounds.width));
-				})];
+				}, null, redrawEdges)];
 				
 				if (allowArcHandle && mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3134,8 +3187,8 @@
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.y + bounds.height - pt.y) / bounds.height));
 				})];
 			},
-			'step': createDisplayHandleFunction(StepShape.prototype.size, true),
-			'hexagon': createDisplayHandleFunction(HexagonShape.prototype.size, true, 0.5),
+			'step': createDisplayHandleFunction(StepShape.prototype.size, true, null, true),
+			'hexagon': createDisplayHandleFunction(HexagonShape.prototype.size, true, 0.5, true),
 			'curlyBracket': createDisplayHandleFunction(CurlyBracketShape.prototype.size, false),
 			'display': createDisplayHandleFunction(DisplayShape.prototype.size, false),
 			'cube': createCubeHandleFunction(1, CubeShape.prototype.size, false),
@@ -3420,19 +3473,18 @@
 		                                new mxConnectionConstraint(new mxPoint(1, 0.65), false),
 										new mxConnectionConstraint(new mxPoint(0.25, 1), false),
 										new mxConnectionConstraint(new mxPoint(0.75, 0), false)];
-	// TODO: Relative ports
 	StepShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-                                       new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                       new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-                                       new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-  	        	            		 	new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-  	        	            		 	new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-	                                   new mxConnectionConstraint(new mxPoint(0.1, 0.25), false),
-	                                   new mxConnectionConstraint(new mxPoint(0.2, 0.5), false),
-	                                   new mxConnectionConstraint(new mxPoint(0.1, 0.75), false),
-	                                   new mxConnectionConstraint(new mxPoint(0.9, 0.25), false),
-		                                new mxConnectionConstraint(new mxPoint(1, 0.5), false),
-		                                new mxConnectionConstraint(new mxPoint(0.9, 0.75), false)];
+									new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+									new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+									new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+									new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+									new mxConnectionConstraint(new mxPoint(0.75, 1), true),
+									new mxConnectionConstraint(new mxPoint(0.1, 0.25), true),
+									new mxConnectionConstraint(new mxPoint(0.2, 0.5), true),
+									new mxConnectionConstraint(new mxPoint(0.1, 0.75), true),
+									new mxConnectionConstraint(new mxPoint(0.9, 0.25), true),
+									new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+									new mxConnectionConstraint(new mxPoint(0.9, 0.75), true)];
 	mxLine.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
 	                                new mxConnectionConstraint(new mxPoint(0.25, 0.5), false),
 	                                new mxConnectionConstraint(new mxPoint(0.75, 0.5), false),
@@ -3450,13 +3502,13 @@
 	mxHexagon.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.375, 0), true),
 	                                    new mxConnectionConstraint(new mxPoint(0.5, 0), true),
 	                                   new mxConnectionConstraint(new mxPoint(0.625, 0), true),
-	                                   new mxConnectionConstraint(new mxPoint(0.125, 0.25), false),
+	                                   new mxConnectionConstraint(new mxPoint(0.125, 0.25), true),
 	                                   new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-	                                   new mxConnectionConstraint(new mxPoint(0.125, 0.75), false),
-	                                   new mxConnectionConstraint(new mxPoint(0.875, 0.25), false),
+	                                   new mxConnectionConstraint(new mxPoint(0.125, 0.75), true),
+	                                   new mxConnectionConstraint(new mxPoint(0.875, 0.25), true),
 	                                   new mxConnectionConstraint(new mxPoint(0, 0.5), true),
 	                                   new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-	                                   new mxConnectionConstraint(new mxPoint(0.875, 0.75), false),
+	                                   new mxConnectionConstraint(new mxPoint(0.875, 0.75), true),
 	                                   new mxConnectionConstraint(new mxPoint(0.375, 1), true),
 	                                    new mxConnectionConstraint(new mxPoint(0.5, 1), true),
 	                                   new mxConnectionConstraint(new mxPoint(0.625, 1), true)];
