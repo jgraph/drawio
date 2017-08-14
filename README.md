@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jgraph/drawio.png?branch=master)](https://travis-ci.org/jgraph/draw.io)
+[![Build Status](https://travis-ci.org/jgraph/drawio.svg?branch=master)](https://travis-ci.org/jgraph/drawio)
 
 About
 -----
