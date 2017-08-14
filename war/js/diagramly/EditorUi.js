@@ -2973,17 +2973,17 @@
 				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 					mxUtils.getXml(svgRoot);
 				
-	    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
-	    		{
-	    	    	this.saveData(filename, 'svg', svg, 'image/svg+xml');
-	    		}
-	    		else
-	    		{
-	    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-	    			{
-	    				mxUtils.popup(svg);
-	    			}));
-	    		}
+		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
+		    		{
+		    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
+		    		}
+		    		else
+		    		{
+		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+		    			{
+		    				mxUtils.popup(svg);
+		    			}));
+		    		}
 			});
 			
 			this.convertMath(this.editor.graph, svgRoot, false, mxUtils.bind(this, function()
@@ -4983,7 +4983,7 @@
 				{
 					this.insertLucidChart(data, dx, dy, crop, done);
 					
-					if (this.updateAd != null && !this.lucidchartTweetShown)
+					if (this.updateAd != null && !this.lucidchartTweetShown && urlParams['embed'] != '1')
 					{
 						this.adsHtml.push('<a title="' + mxResources.get('loveIt', ['draw.io']) +
 							'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
@@ -8235,7 +8235,7 @@
 											parent.postMessage(JSON.stringify(msg), '*');
 					        			}));
 					        		}
-								}
+							}
 				        		
 				        		return;
 				        	}
