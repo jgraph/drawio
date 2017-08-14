@@ -56,6 +56,66 @@ mxShapeArrows2Arrow.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
+mxShapeArrows2Arrow.prototype.getLabelBounds = function(rect)
+{
+	if (mxUtils.getValue(this.style, "boundedLbl", false))
+	{
+		var w = rect.width;
+		var h = rect.height;
+		
+		var dy, dx;
+		var direction = this.direction || mxConstants.DIRECTION_EAST;
+		
+		if (mxUtils.getValue(this.style, "flipH", false))
+		{
+			if (direction == mxConstants.DIRECTION_WEST)
+				direction = mxConstants.DIRECTION_EAST;
+			else if (direction == mxConstants.DIRECTION_EAST)
+				direction = mxConstants.DIRECTION_WEST;
+		}
+		
+		if (mxUtils.getValue(this.style, "flipV", false))
+		{
+			if (direction == mxConstants.DIRECTION_NORTH)
+				direction = mxConstants.DIRECTION_SOUTH;
+			else if (direction == mxConstants.DIRECTION_SOUTH)
+				direction = mxConstants.DIRECTION_NORTH;
+		}
+		
+		
+		if (direction == mxConstants.DIRECTION_NORTH
+				|| direction == mxConstants.DIRECTION_SOUTH)
+		{
+			dy = w * 0.5 * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+			dx = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		}
+		else
+		{
+			dy = h * 0.5 * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+			dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		}
+		
+		if (direction == mxConstants.DIRECTION_EAST)
+		{
+			return new mxRectangle(rect.x, rect.y + dy, w - dx, h - 2 * dy);
+		}
+		else if (direction == mxConstants.DIRECTION_WEST)
+		{
+			return new mxRectangle(rect.x + dx, rect.y + dy, w - dx, h - 2 * dy);
+		}
+		else if (direction == mxConstants.DIRECTION_NORTH)
+		{
+			return new mxRectangle(rect.x + dy, rect.y + dx, w - 2 * dy, h - dx);
+		}
+		else
+		{
+			return new mxRectangle(rect.x + dy, rect.y, w - 2 * dy, h - dx);
+		}
+	}
+	
+	return rect;
+};
+
 mxCellRenderer.registerShape(mxShapeArrows2Arrow.prototype.cst.ARROW, mxShapeArrows2Arrow);
 
 mxShapeArrows2Arrow.prototype.constraints = null;
@@ -141,6 +201,41 @@ mxShapeArrows2TwoWayArrow.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(dx, 0);
 	c.close();
 	c.fillAndStroke();
+};
+
+mxShapeArrows2TwoWayArrow.prototype.getLabelBounds = function(rect)
+{
+	if (mxUtils.getValue(this.style, "boundedLbl", false))
+	{
+		var w = rect.width;
+		var h = rect.height;
+		var vertical = this.direction == mxConstants.DIRECTION_NORTH
+						|| this.direction == mxConstants.DIRECTION_SOUTH;
+
+		var dy, dx;
+		
+		if (vertical)
+		{
+			dy = w * 0.5 * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+			dx = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		}
+		else
+		{
+			dy = h * 0.5 * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+			dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		}
+		
+		if (vertical)
+		{
+			return new mxRectangle(rect.x + dy, rect.y + dx, w - 2 * dy, h - 2 * dx);
+		}
+		else
+		{
+			return new mxRectangle(rect.x + dx, rect.y + dy, w - 2 * dx, h - 2 * dy);
+		}
+	}
+	
+	return rect;
 };
 
 mxCellRenderer.registerShape(mxShapeArrows2TwoWayArrow.prototype.cst.TWO_WAY_ARROW, mxShapeArrows2TwoWayArrow);

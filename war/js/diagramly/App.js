@@ -1063,7 +1063,7 @@ App.prototype.init = function()
 			this.updateAd(0);
 		}));
 
-		if (mxSettings.getOpenCounter() > 10)
+		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
 		{
 			thread2 = window.setTimeout(mxUtils.bind(this, function()
 			{
