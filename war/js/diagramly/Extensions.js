@@ -1717,23 +1717,23 @@
 //			'PEOrificeBlock' NA
 			'PERotameterBlock' : s + 'pid.flow_sensors.rotameter;flipH=1;',
 //Venn Gradient
-			'VennGradientColor1' : 'shape=ellipse;',
-			'VennGradientColor2' : 'shape=ellipse;',
-			'VennGradientColor3' : 'shape=ellipse;',
-			'VennGradientColor4' : 'shape=ellipse;',
-			'VennGradientColor5' : 'shape=ellipse;',
-			'VennGradientColor6' : 'shape=ellipse;',
-			'VennGradientColor7' : 'shape=ellipse;',
-			'VennGradientColor8' : 'shape=ellipse;',
+			'VennGradientColor1' : 'shape=ellipse;strokeColor=#49c1a1;fillOpacity=35;',
+			'VennGradientColor2' : 'shape=ellipse;strokeColor=#7769e0;fillOpacity=35;',
+			'VennGradientColor3' : 'shape=ellipse;strokeColor=#efd95d;fillOpacity=35;',
+			'VennGradientColor4' : 'shape=ellipse;strokeColor=#e24adb;fillOpacity=35;',
+			'VennGradientColor5' : 'shape=ellipse;strokeColor=#e55050;fillOpacity=35;',
+			'VennGradientColor6' : 'shape=ellipse;strokeColor=#f49769;fillOpacity=35;',
+			'VennGradientColor7' : 'shape=ellipse;strokeColor=#7ae266;fillOpacity=35;',
+			'VennGradientColor8' : 'shape=ellipse;strokeColor=#47b0e5;fillOpacity=35;',
 //Venn Plain
-			'VennPlainColor1' : 'shape=ellipse;',
-			'VennPlainColor2' : 'shape=ellipse;',
-			'VennPlainColor3' : 'shape=ellipse;',
-			'VennPlainColor4' : 'shape=ellipse;',
-			'VennPlainColor5' : 'shape=ellipse;',
-			'VennPlainColor6' : 'shape=ellipse;',
-			'VennPlainColor7' : 'shape=ellipse;',
-			'VennPlainColor8' : 'shape=ellipse;',
+			'VennPlainColor1' : 'shape=ellipse;strokeColor=#49c1a1;fillOpacity=35;',
+			'VennPlainColor2' : 'shape=ellipse;strokeColor=#7769e0;fillOpacity=35;',
+			'VennPlainColor3' : 'shape=ellipse;strokeColor=#efd95d;fillOpacity=35;',
+			'VennPlainColor4' : 'shape=ellipse;strokeColor=#e24adb;fillOpacity=35;',
+			'VennPlainColor5' : 'shape=ellipse;strokeColor=#e55050;fillOpacity=35;',
+			'VennPlainColor6' : 'shape=ellipse;strokeColor=#f49769;fillOpacity=35;',
+			'VennPlainColor7' : 'shape=ellipse;strokeColor=#7ae266;fillOpacity=35;',
+			'VennPlainColor8' : 'shape=ellipse;strokeColor=#47b0e5;fillOpacity=35;',
 //iOS Devices
 			'iOS7DeviceiPhone5Portrait' : s + 'ios.iPhone;bgStyle=bgGreen;', //EXT
 			'iOS7DeviceiPhone5Landscape' : s + 'ios.iPhone;bgStyle=bgGreen;', //EXT
@@ -2089,7 +2089,7 @@
 				cell.value = convertText(p);
 
 				//adds font size
-				var isV = 0;
+				var isV = false;
 				
 				if (p.Text != null)
 				{
@@ -2098,7 +2098,7 @@
 						var m = p.Text.m;
 						var i = 0;
 						
-						while ((isV == 0) && (i < m.length))
+						while ((!isV) && (i < m.length))
 						{
 							var currM = m[i];
 							
@@ -2106,10 +2106,10 @@
 							{
 								if (currM.v != null)
 								{
-									isV = 1;
+									isV = true;
 
 									var fontSize = currM.v;
-									fontSize = Math.round(fontSize / 1.7);
+									fontSize = 1 + Math.round(fontSize / 1.8);
 									cell.style += 'fontSize=' + fontSize + ';';
 								}
 							}
@@ -2124,7 +2124,7 @@
 				}
 				
 				//adds font color
-				var isC = 0;
+				var isC = false;
 				
 				if (p.Text != null)
 				{
@@ -2133,7 +2133,7 @@
 						var m = p.Text.m;
 						var i = 0;
 						
-						while ((isC == 0) && (i < m.length))
+						while ((!isC) && (i < m.length))
 						{
 							var currM = m[i];
 							
@@ -2141,7 +2141,7 @@
 							{
 								if (currM.v != null)
 								{
-									isC = 1;
+									isC = true;
 									
 									var currV = currM.v;
 									
@@ -2159,8 +2159,279 @@
 							i++;
 						}
 					}
+
+					var fontStyle = 0;
+
+					//check for bold text
+					var isBT = false;
+					
+					if (p.Text.m != null)
+					{
+						var m = p.Text.m;
+						var i = 0;
+						
+						while ((!isBT) && (i < m.length))
+						{
+							var currM = m[i];
+							
+							if (currM.n == 'b')
+							{
+								if (currM.v != null && currM.v)
+								{
+									isBT = true;
+									fontStyle += 1;
+								}
+							}
+							
+							i++;
+						}
+					}
+						
+					//check for italic text
+					var isIT = false;
+					
+					if (p.Text.m != null)
+					{
+						var m = p.Text.m;
+						var i = 0;
+						
+						while ((!isIT) && (i < m.length))
+						{
+							var currM = m[i];
+							
+							if (currM.n == 'i')
+							{
+								if (currM.v != null && currM.v)
+								{
+									isIT = true;
+									fontStyle += 2;
+								}
+							}
+							
+							i++;
+						}
+					}
+						
+					//check for underline text
+					var isUT = false;
+					
+					if (p.Text.m != null)
+					{
+						var m = p.Text.m;
+						var i = 0;
+						
+						while ((!isUT) && (i < m.length))
+						{
+							var currM = m[i];
+							
+							if (currM.n == 'u')
+							{
+								if (currM.v != null && currM.v)
+								{
+									isUT = true;
+									fontStyle += 4;
+								}
+							}
+							
+							i++;
+						}
+					}
+					
+					if (fontStyle > 0)
+					{
+						cell.style += 'fontStyle=' + fontStyle + ';';
+					}
+					
+					//adds text alignment
+					var isA = false;
+					
+					if (p.Text != null)
+					{
+						if (p.Text.m != null)
+						{
+							var m = p.Text.m;
+							var i = 0;
+							
+							while ((!isA) && (i < m.length))
+							{
+								var currM = m[i];
+								
+								if (currM.n == 'a')
+								{
+									if (currM.v != null)
+									{
+										isA = true;
+										
+										var currV = currM.v;
+										
+										cell.style += 'align=' + currV + ';';
+									}
+								}
+								
+								i++;
+							}
+						}
+					}
+
+					//adds left spacing
+					var isIL = false;
+					
+					if (p.Text != null)
+					{
+						if (p.Text.m != null)
+						{
+							var m = p.Text.m;
+							var i = 0;
+							
+							while ((!isIL) && (i < m.length))
+							{
+								var currM = m[i];
+								
+								if (currM.n == 'il')
+								{
+									if (currM.v != null)
+									{
+										isIL = true;
+										
+										var currV = currM.v;
+										
+										cell.style += 'spacingLeft=' + currV + ';';
+									}
+								}
+								
+								i++;
+							}
+						}
+					}
+
+					//adds right spacing
+					var isIR = false;
+					
+					if (p.Text != null)
+					{
+						if (p.Text.m != null)
+						{
+							var m = p.Text.m;
+							var i = 0;
+							
+							while ((!isIR) && (i < m.length))
+							{
+								var currM = m[i];
+								
+								if (currM.n == 'ir')
+								{
+									if (currM.v != null)
+									{
+										isIR = true;
+										
+										var currV = currM.v;
+										
+										cell.style += 'spacingRight=' + currV + ';';
+									}
+								}
+								
+								i++;
+							}
+						}
+					}
+
+					//adds top spacing
+					var isMT = false;
+					
+					if (p.Text != null)
+					{
+						if (p.Text.m != null)
+						{
+							var m = p.Text.m;
+							var i = 0;
+							
+							while ((!isMT) && (i < m.length))
+							{
+								var currM = m[i];
+								
+								if (currM.n == 'mt')
+								{
+									if (currM.v != null)
+									{
+										isMT = true;
+										
+										var currV = currM.v;
+										
+										cell.style += 'spacingTop=' + currV + ';';
+									}
+								}
+								
+								i++;
+							}
+						}
+					}
+
+					//adds bottom spacing
+					var isMB = false;
+					
+					if (p.Text != null)
+					{
+						if (p.Text.m != null)
+						{
+							var m = p.Text.m;
+							var i = 0;
+							
+							while ((!isMB) && (i < m.length))
+							{
+								var currM = m[i];
+								
+								if (currM.n == 'mb')
+								{
+									if (currM.v != null)
+									{
+										isMB = true;
+										
+										var currV = currM.v;
+										
+										cell.style += 'spacingBottom=' + currV + ';';
+									}
+								}
+								
+								i++;
+							}
+						}
+					}
+
+					//adds global spacing
+					if (typeof p.InsetMargin === 'number')
+					{
+							cell.style += 'spacing=' + parseInt(p.InsetMargin) + ';';
+					}
+					
+					//adds opacity
+					if (typeof p.LineColor === 'string')
+					{
+						if (p.LineColor.length > 7)
+						{
+							var sOpac = "0x" + p.LineColor.substring(p.LineColor.length - 2, p.LineColor.length);
+							cell.style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
+						}
+					}
+					
+					if (typeof p.FillColor === 'string')
+					{
+						if (p.FillColor.length > 7)
+						{
+							var fOpac = "0x" + p.FillColor.substring(p.FillColor.length - 2, p.FillColor.length);
+							cell.style += 'fillOpacity=' + Math.round(parseInt(fOpac) / 2.55) + ';';
+						}
+					}
+
+					// adds text vertical alignment
+					if (p.Text_VAlign != null)
+					{
+						if (typeof p.Text_VAlign === 'string')
+						{
+							cell.style += 'verticalAlign=' + p.Text_VAlign + ';';
+						}
+					}
 				}
-				
+
 				// Converts images
 				if (a.Class == 'ImageSearchBlock2')
 				{
@@ -2170,8 +2441,9 @@
 				// Adds styles
 				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, p.LineWidth, '1');
 				
-				//stencils with hardcoded stroke color
-				var hardStroke = ['DefaultTextBlock', 'UI2HotspotBlock'];
+//				stencils with hardcoded stroke color
+				var hardStroke = ['VennPlainColor1', 'VennPlainColor2', 'VennPlainColor3', 'VennPlainColor4', 'VennPlainColor5', 'VennPlainColor6', 'VennPlainColor7', 'VennPlainColor8',
+					'VennGradientColor1', 'VennGradientColor2', 'VennGradientColor3', 'VennGradientColor4', 'VennGradientColor5', 'VennGradientColor6', 'VennGradientColor7', 'VennGradientColor8'];
 				
 				if (!hardStroke.includes(a.Class))
 				{
@@ -2181,8 +2453,9 @@
 				cell.style += createStyle(mxConstants.STYLE_ALIGN, p.TextAlign, 'center');
 				cell.style += createStyle(mxConstants.STYLE_VERTICAL_ALIGN, p.TextVAlign, 'middle');
 				
-				//stencils with hardcoded opacity
-				var hardOpacity = ['UI2HotspotBlock'];
+//				stencils with hardcoded opacity
+				var hardOpacity = ['VennPlainColor1', 'VennPlainColor2', 'VennPlainColor3', 'VennPlainColor4', 'VennPlainColor5', 'VennPlainColor6', 'VennPlainColor7', 'VennPlainColor8', 
+					'VennGradientColor1', 'VennGradientColor2', 'VennGradientColor3', 'VennGradientColor4', 'VennGradientColor5', 'VennGradientColor6', 'VennGradientColor7', 'VennGradientColor8'];
 
 				if (!hardOpacity.includes(a.Class))
 				{
@@ -2263,6 +2536,10 @@
 						{
 							cell.style += createStyle(mxConstants.STYLE_FILLCOLOR, p.FillColor.substring(0, 7), '#FFFFFF');
 						}
+						else
+						{
+							cell.style += createStyle(mxConstants.STYLE_FILLCOLOR, 'none');
+						}
 					}
 				}
 
@@ -2302,6 +2579,46 @@
 							{
 								cell.style += 'curved=1;';
 							}
+						}
+					}
+
+					if (p.Endpoint1.Style != null)
+					{
+						if (p.Endpoint1.Style == 'None')
+						{
+							cell.style += 'startArrow=none;';
+						}
+						else if (p.Endpoint1.Style == 'Arrow')
+						{
+							cell.style += 'startArrow=block;endFill=1;';
+						}
+						else if (p.Endpoint1.Style == 'Hollow Arrow')
+						{
+							cell.style += 'startArrow=block;endFill=0;';
+						}
+						else if (p.Endpoint1.Style == 'Open Arrow')
+						{
+							cell.style += 'startArrow=open;';
+						}
+					}
+					
+					if (p.Endpoint2.Style != null)
+					{
+						if (p.Endpoint2.Style == 'None')
+						{
+							cell.style += 'endArrow=none;';
+						}
+						else if (p.Endpoint2.Style == 'Arrow')
+						{
+							cell.style += 'endArrow=block;endFill=1;';
+						}
+						else if (p.Endpoint2.Style == 'Hollow Arrow')
+						{
+							cell.style += 'endArrow=block;endFill=0;';
+						}
+						else if (p.Endpoint2.Style == 'Open Arrow')
+						{
+							cell.style += 'endArrow=open;';
 						}
 					}
 					

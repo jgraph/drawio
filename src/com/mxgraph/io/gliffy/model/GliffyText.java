@@ -32,6 +32,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 	public String overflow;
 	
+	private boolean forceTopPaddingShift = false;
+	
 	private static Pattern pattern = Pattern.compile("<p(.*?)<\\/p>");
 
 	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
@@ -56,7 +58,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	{
 	}
 
-	public String getStyle()
+	public String getStyle(float x, float y)
 	{
 		StringBuilder sb = new StringBuilder();
 
@@ -78,7 +80,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		{
 			sb.append("verticalAlign=").append(valign).append(";");
 			
-			if ("middle".equals(valign))
+			if (!forceTopPaddingShift && "middle".equals(valign))
 				topPaddingShift = 0;
 		}
 
@@ -100,10 +102,14 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 				sb.append("align=center;");
 		}
 
-		sb.append("spacingLeft=").append(paddingLeft).append(";");
+		sb.append("spacingLeft=").append(paddingLeft + x).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
-		sb.append("spacingTop=").append(paddingTop - topPaddingShift).append(";");
-		sb.append("spacingBottom=").append(paddingBottom).append(";");
+		
+		if (forceTopPaddingShift || !"middle".equals(valign))
+		{
+			sb.append("spacingTop=").append(paddingTop - topPaddingShift + y).append(";");
+			sb.append("spacingBottom=").append(paddingBottom).append(";");
+		}
 
 		//We should wrap only if overflow is none. (TODO better support left & right overflow) 
 		if ("none".equals(overflow))
@@ -142,4 +148,13 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		return null;
 	}
 
+	public void setValign(String valign) 
+	{
+		this.valign = valign;
+	}
+
+	public void setForceTopPaddingShift(boolean forceTopPaddingShift) 
+	{
+		this.forceTopPaddingShift = forceTopPaddingShift;
+	}
 }
