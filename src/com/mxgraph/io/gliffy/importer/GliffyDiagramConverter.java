@@ -340,6 +340,7 @@ public class GliffyDiagramConverter
 		StringBuilder style = new StringBuilder();
 
 		mxGeometry geometry = new mxGeometry(gliffyObject.x, gliffyObject.y, gliffyObject.width, gliffyObject.height);
+		gliffyObject.adjustGeo(geometry);
 		cell.setGeometry(geometry);
 		
 		GliffyObject textObject = null;
@@ -527,7 +528,7 @@ public class GliffyDiagramConverter
 				
 				GliffyObject laneTxt = gLane.children.get(0);
 				mxLane.setValue(laneTxt.getText());
-				laneStyle.append(laneTxt.graphic.getText().getStyle());
+				laneStyle.append(laneTxt.graphic.getText().getStyle(0, 0));
 				//for debugging, add gliffy id to the output in the style 
 				laneStyle.append("gliffyId=" + gLane.id + ";");
 				mxLane.setStyle(laneStyle.toString());
@@ -598,8 +599,17 @@ public class GliffyDiagramConverter
 			
 			if(!gliffyObject.isLine())
 			{
+				GliffyText txt = textObject.graphic.getText();
+				
+				if (gliffyObject.isSwimlane())
+				{
+					txt.setForceTopPaddingShift(true);
+					txt.setValign("middle");
+				}
+				
 				cell.setValue(textObject.getText());
-				style.append(textObject.graphic.getText().getStyle());
+				gliffyObject.adjustTextPos(textObject);
+				style.append(textObject == gliffyObject ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
 			}
 		}
 		

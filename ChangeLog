@@ -1,3 +1,15 @@
+14-AUG-2017: 7.1.0
+
+- Improves Lucidchart import
+- Improves Gliffy import
+- Uses mxGraph 3.7.5 beta 8
+- Fixes ignored horizontal/vertical flip for connection points
+
+11-AUG-2017: 7.0.9
+
+- Fixes path to clipart images for SVG export in Chrome App
+- Adds perimeter for parallelogram, trapezoid, step and hexagon
+
 11-AUG-2017: 7.0.8
 
 - Fixes error handling in Confluence Cloud add-on
