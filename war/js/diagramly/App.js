@@ -768,9 +768,9 @@ App.prototype.init = function()
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
 		Editor.facebookImage + '"/>Share on Facebook</a>',
-		'<a title="draw.io Offline App" href="https://www.draw.io/app" target="_blank">' +
+		'<a title="draw.io Offline" href="https://www.draw.io/app" target="_blank">' +
 		'<img border="0" align="absmiddle" style="margin-top:-1px;padding-right:8px;" src="images/download.png"/>' +
-		'draw.io Offline App</a>'];
+		'draw.io Offline</a>'];
 
 	/**
 	 * Creates github client.
@@ -873,8 +873,6 @@ App.prototype.init = function()
 							this.adsHtml = this.basicAds.concat([
 								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
-								'<a title="Google Chrome App" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
-								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/download.png"/>&nbsp;&nbsp;Google Chrome App</a>',
 								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
 						}
@@ -996,6 +994,41 @@ App.prototype.init = function()
 	}
 
 	this.updateHeader();
+	
+	// Announce Desktop Apps
+	// TODO: Remove after one week
+	var td2 = document.getElementById('geFooterItem1');
+	
+	if (td2 != null)
+	{
+		var link = 'https://www.facebook.com/drawioapp/posts/1628618103829386';
+
+		if (['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].indexOf(navigator.platform) >= 0)
+		{
+			td2.innerHTML = '<a title="draw.io for macOS" href="' + link + '" target="_blank">' +
+				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for macOS</a>';
+		}
+		else if (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(navigator.platform) >= 0)
+		{
+			td2.innerHTML = '<a title="draw.io for Windows" href="' + link + '" target="_blank">' +
+				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Windows</a>';
+		}
+		else if (/\bCrOS\b/.test(navigator.userAgent))
+		{
+			td2.innerHTML = '<a title="draw.io for Chrome OS" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
+				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Chrome OS</a>';
+		}
+		else if (/Linux/.test(navigator.platform))
+		{
+			td2.innerHTML = '<a title="draw.io for Linux" href="' + link + '" target="_blank">' +
+				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Linux</a>';
+		}
+		else
+		{
+			td2.innerHTML = '<a title="draw.io Desktop" href="' + link + '" target="_blank">' +
+				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io Desktop</a>';
+		}
+	}
 	
 	// Changes footer from time to time
 	var td = document.getElementById('geFooterItem2');
