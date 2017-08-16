@@ -1395,7 +1395,8 @@
 	{
 		return mxPerimeter.RectanglePerimeter(mxUtils.getDirectedBounds(bounds, new mxRectangle(0, 0, 0,
 			Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(vertex.style, 'size',
-			CalloutShape.prototype.size))))), vertex.style), vertex, next, orthogonal);
+			CalloutShape.prototype.size)) * vertex.view.scale))),
+			vertex.style), vertex, next, orthogonal);
 	};
 	
 	mxStyleRegistry.putValue('calloutPerimeter', mxPerimeter.CalloutPerimeter);
@@ -3542,6 +3543,7 @@
 	// Defines connection points for all shapes
 	IsoRectangleShape.prototype.constraints = [];
 	IsoCubeShape.prototype.constraints = [];
+	CalloutShape.prototype.constraints = [];
 	mxRectangleShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
 	                                          new mxConnectionConstraint(new mxPoint(0.5, 0), true),
 	                                          new mxConnectionConstraint(new mxPoint(0.75, 0), true),
