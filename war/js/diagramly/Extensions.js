@@ -2703,20 +2703,37 @@
 			while (ta['t' + count] != null)
 			{
 				var ta = ta['t' + count];
-				
-				var x = (parseFloat(ta.Location) - 0.5) * 2;
-				var lab = new mxCell(convertText(ta), new mxGeometry(x, 0, 0, 0), labelStyle);
-				lab.geometry.relative = true
-				lab.vertex = true;
-				
-				e.insert(lab);
+				e = insertLabel(ta, e);
 				count++;
+			}
+			
+			var ta = (p != null) ? p.TextAreas : obj.TextAreas;
+			
+			if (ta.Message != null)
+			{
+				e = insertLabel(ta.Message, e);
+			}
+			
+			if (ta.Text != null)
+			{
+				e = insertLabel(ta.Text, e);
 			}
 		}
 		
 		return e;
 	}
 
+	function insertLabel(textArea, e)
+	{
+		var x = (parseFloat(textArea.Location) - 0.5) * 2;
+		var lab = new mxCell(convertText(textArea), new mxGeometry(x, 0, 0, 0), labelStyle);
+		lab.geometry.relative = true
+		lab.vertex = true;
+		e.insert(lab);
+		
+		return e;
+	};
+	
 	function createStyle(key, prop, defaultValue, fn)
 	{
 		if (prop != null && fn != null)
