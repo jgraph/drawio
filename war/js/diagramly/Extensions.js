@@ -2050,8 +2050,28 @@
 			((props.Value != null) ? props.Value :
 			props.Lane_0);
 		
+		
+		var text2 = null;
+		
+		if (text == null && props.State != null)
+		{
+			if (props.State.t != null)
+			{
+				text2 = props.State.t;
+			}
+		}
+
 		// TODO: Convert text object to HTML
-		return (text != null && text.t != null) ? text.t : '';
+		if (text != null)
+		{
+			if (text.t != null)
+			{
+				return text.t;
+				other = false;
+			}
+		}
+		
+		return (text2 != null) ? text2 : ''; 
 	};
 		
 	function getAction(obj)
@@ -2725,6 +2745,31 @@
 		}
 	};
 
+	var hideObj = function(key, groups, hidden)
+	{
+		if (!hidden.includes(key))
+		{
+			hidden.push(key);
+		}
+
+		if (key in groups)
+		{
+			var obj = groups[key];
+			obj.id = key;
+			
+			if (obj.Members != null)
+			{
+				for (var key2 in obj.Members)
+				{
+					hidden = hideObj(key2, groups, hidden);
+				}
+			}
+		
+		}
+		
+		return hidden;
+	};
+	
 	EditorUi.prototype.pasteLucidChart = function(g, dx, dy, crop)
 	{
 		// Creates a new graph, inserts cells and returns XML for insert
@@ -2737,6 +2782,32 @@
 			var lookup = {};
 			var queue = [];
 
+			//collect IDs that are part of groups and hidden
+			var hidden = [];
+			var i = 0;
+			
+			if (g.Groups != null)
+			{
+				for (var key in g.Groups)
+				{
+					var obj = g.Groups[key];
+					obj.id = key;
+					
+					if (obj.Hidden == true && obj.Members != null)
+					{
+						if (!hidden.includes(key))
+						{
+							hidden.push(key);
+						}
+
+						for (var key2 in obj.Members)
+						{
+							hidden = hideObj(key2, g.Groups, hidden);
+						}
+					}
+				}
+			}
+			
 			// Vertices first (populates lookup table for connecting edges)
 			if (g.Blocks != null)
 			{
@@ -2744,8 +2815,12 @@
 				{
 					var obj = g.Blocks[key];
 					obj.id = key;
-				    lookup[obj.id] = createVertex(obj);
-					queue.push(obj);
+					
+					if (!hidden.includes(key))
+					{
+					    lookup[obj.id] = createVertex(obj);
+						queue.push(obj);
+					}
 				}
 			}
 			else
@@ -2788,14 +2863,14 @@
 				
 				if (src == null && p.Endpoint1 != null)
 				{
-					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint1.x * scale + dx),
-						Math.round(p.Endpoint1.y * scale + dy)), true);
+					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint1.x * scale),
+						Math.round(p.Endpoint1.y * scale)), true);
 				}
 				
 				if (trg == null && p.Endpoint2 != null)
 				{
-					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint2.x * scale + dx),
-						Math.round(p.Endpoint2.y * scale + dy)), false);
+					e.geometry.setTerminalPoint(new mxPoint(Math.round(p.Endpoint2.x * scale),
+						Math.round(p.Endpoint2.y * scale)), false);
 				}
 				
 				select.push(graph.addCell(e, null, null, src, trg));

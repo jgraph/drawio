@@ -235,7 +235,7 @@ Format.prototype.isRoundedState = function(state)
 			shape == 'parallelogram' || shape == 'swimlane' || shape == 'triangle' || shape == 'trapezoid' ||
 			shape == 'ext' || shape == 'step' || shape == 'tee' || shape == 'process' || shape == 'link' ||
 			shape == 'rhombus' || shape == 'offPageConnector' || shape == 'loopLimit' || shape == 'hexagon' ||
-			shape == 'manualInput' || shape == 'curlyBracket' || shape == 'singleArrow' || 
+			shape == 'manualInput' || shape == 'curlyBracket' || shape == 'singleArrow' || shape == 'callout' ||
 			shape == 'doubleArrow' || shape == 'flexArrow' || shape == 'card' || shape == 'umlLifeline');
 };
 

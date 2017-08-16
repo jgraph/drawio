@@ -2319,7 +2319,8 @@ Graph.prototype.getTooltipForCell = function(cell)
 		{
 			var ignored = ['label', 'tooltip', 'placeholders', 'placeholder'];
 			var attrs = cell.value.attributes;
-			
+			var temp = [];
+
 			// Hides links in edit mode
 			if (this.isEnabled())
 			{
@@ -2330,9 +2331,31 @@ Graph.prototype.getTooltipForCell = function(cell)
 			{
 				if (mxUtils.indexOf(ignored, attrs[i].nodeName) < 0 && attrs[i].nodeValue.length > 0)
 				{
-					tip += ((attrs[i].nodeName != 'link') ? attrs[i].nodeName + ':' : '') +
-						mxUtils.htmlEntities(attrs[i].nodeValue) + '\n';
+					temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
 				}
+			}
+			
+			// Sorts by name
+			temp.sort(function(a, b)
+			{
+				if (a.name < b.name)
+				{
+					return -1;
+				}
+				else if (a.name > b.name)
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			});
+
+			for (var i = 0; i < temp.length; i++)
+			{
+				tip += ((temp[i].name != 'link') ? temp[i].name + ':' : '') +
+					mxUtils.htmlEntities(temp[i].value) + '\n';
 			}
 			
 			if (tip.length > 0)

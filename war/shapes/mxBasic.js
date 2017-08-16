@@ -2,9 +2,8 @@
  * $Id: mxBasic.js,v 1.5 2016/04/1 12:32:06 mate Exp $
  * Copyright (c) 2006-2016, JGraph Ltd
  */
-
 //**********************************************************************************************************************************************************
-//Cross
+// Cross
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -24,9 +23,7 @@ function mxShapeBasicCross(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeBasicCross, mxActor);
 
-mxShapeBasicCross.prototype.cst = {
-		CROSS : 'mxgraph.basic.cross2'
-};
+mxShapeBasicCross.prototype.cst = {CROSS : 'mxgraph.basic.cross2'};
 
 /**
 * Function: paintVertexShape
@@ -63,21 +60,20 @@ mxShapeBasicCross.prototype.constraints = null;
 Graph.handleFactory[mxShapeBasicCross.prototype.cst.CROSS] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
-			{
-				var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
 
-				return new mxPoint(bounds.x + bounds.width / 2 + dx, bounds.y + bounds.height / 2 - dx);
-			}, function(bounds, pt)
-			{
-				this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x - bounds.width / 2))) / 100;
-			})];
+		return new mxPoint(bounds.x + bounds.width / 2 + dx, bounds.y + bounds.height / 2 - dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x - bounds.width / 2))) / 100;
+	})];
 			
 	return handles;
-
-}
+};
 
 //**********************************************************************************************************************************************************
-//Rectangular Callout
+// Rectangular Callout
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -98,9 +94,7 @@ function mxShapeBasicRectCallout(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeBasicRectCallout, mxActor);
 
-mxShapeBasicRectCallout.prototype.cst = {
-		RECT_CALLOUT : 'mxgraph.basic.rectCallout'
-};
+mxShapeBasicRectCallout.prototype.cst = {RECT_CALLOUT : 'mxgraph.basic.rectCallout'};
 
 /**
 * Function: paintVertexShape
@@ -113,7 +107,6 @@ mxShapeBasicRectCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
 	var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
-	var dh = 20;
 
 	c.begin();
 	c.moveTo(dx - dy * 0.5, h - dy);
@@ -127,6 +120,16 @@ mxShapeBasicRectCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
+mxShapeBasicRectCallout.prototype.getLabelMargins = function()
+{
+	if (mxUtils.getValue(this.style, 'boundedLbl', false))
+	{
+		return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy)) * this.scale);
+	}
+	
+	return new mxRectangle(rect.x, rect.y, rect.width, rect.height);
+};
+
 mxCellRenderer.registerShape(mxShapeBasicRectCallout.prototype.cst.RECT_CALLOUT, mxShapeBasicRectCallout);
 
 mxShapeBasicRectCallout.prototype.constraints = null;
@@ -134,24 +137,23 @@ mxShapeBasicRectCallout.prototype.constraints = null;
 Graph.handleFactory[mxShapeBasicRectCallout.prototype.cst.RECT_CALLOUT] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['dx', 'dy'], function(bounds)
-			{
-				var dx = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
-				var dy = Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
+	{
+		var dx = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+		var dy = Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
 
-				return new mxPoint(bounds.x + dx, bounds.y + bounds.height - dy);
-			}, function(bounds, pt)
-			{
-				var y = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy)) * 0.6;
-				this.state.style['dx'] = Math.round(100 * Math.max(y, Math.min(bounds.width - y, pt.x - bounds.x))) / 100;
-				this.state.style['dy'] = Math.round(100 * Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y))) / 100;
-			})];
+		return new mxPoint(bounds.x + dx, bounds.y + bounds.height - dy);
+	}, function(bounds, pt)
+	{
+		var y = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy)) * 0.6;
+		this.state.style['dx'] = Math.round(100 * Math.max(y, Math.min(bounds.width - y, pt.x - bounds.x))) / 100;
+		this.state.style['dy'] = Math.round(Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y)));
+	})];
 			
 	return handles;
-
-}
+};
 
 //**********************************************************************************************************************************************************
-//Rounded Rectangular Callout
+// Rounded Rectangular Callout
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -173,9 +175,9 @@ function mxShapeBasicRoundRectCallout(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeBasicRoundRectCallout, mxActor);
 
-mxShapeBasicRoundRectCallout.prototype.cst = {
-		ROUND_RECT_CALLOUT : 'mxgraph.basic.roundRectCallout'
-};
+mxShapeBasicRoundRectCallout.prototype.cst = {ROUND_RECT_CALLOUT : 'mxgraph.basic.roundRectCallout'};
+
+mxShapeBasicRoundRectCallout.prototype.getLabelMargins = mxShapeBasicRectCallout.prototype.getLabelMargins;
 
 /**
 * Function: paintVertexShape
@@ -217,38 +219,33 @@ mxShapeBasicRoundRectCallout.prototype.constraints = null;
 
 Graph.handleFactory[mxShapeBasicRoundRectCallout.prototype.cst.ROUND_RECT_CALLOUT] = function(state)
 {
-	var handles = [Graph.createHandle(state, ['dx', 'dy'], function(bounds)
-			{
-				var dx = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
-				var dy = Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
+	return [Graph.createHandle(state, ['dx', 'dy'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+		var dy = Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
 
-				return new mxPoint(bounds.x + dx, bounds.y + bounds.height - dy);
-			}, function(bounds, pt)
-			{
-				var y = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy)) * 0.6;
-				this.state.style['dx'] = Math.round(100 * Math.max(y, Math.min(bounds.width - y, pt.x - bounds.x))) / 100;
-				this.state.style['dy'] = Math.round(100 * Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y))) / 100;
-			})];
+		return new mxPoint(bounds.x + dx, bounds.y + bounds.height - dy);
+	}, function(bounds, pt)
+	{
+		var y = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy)) * 0.6;
+		this.state.style['dx'] = Math.round(100 * Math.max(y, Math.min(bounds.width - y, pt.x - bounds.x))) / 100;
+		this.state.style['dy'] = Math.round(Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y)));
+	}), Graph.createHandle(state, ['size'], function(bounds)
+	{
+		var size = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'size', this.size))));
 
-	var handle2 = Graph.createHandle(state, ['size'], function(bounds)
-			{
-				var size = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'size', this.size))));
+		return new mxPoint(bounds.x + bounds.width - size, bounds.y + 10);
+	}, function(bounds, pt)
+	{
+		var dy = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy));
+		this.state.style['size'] = Math.round(100 * Math.max(0, Math.min(bounds.width / 2, (bounds.height - dy) / 2, bounds.x + bounds.width - pt.x))) / 100;
+	})];
+};
 
-				return new mxPoint(bounds.x + bounds.width - size, bounds.y + 10);
-			}, function(bounds, pt)
-			{
-				var dy = parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy));
-				this.state.style['size'] = Math.round(100 * Math.max(0, Math.min(bounds.width / 2, (bounds.height - dy) / 2, bounds.x + bounds.width - pt.x))) / 100;
-			});
-	
-	handles.push(handle2);
-
-	return handles;
-
-}
+mxShapeBasicRoundRectCallout.prototype.getLabelBounds = mxShapeBasicRectCallout.prototype.getLabelBounds;
 
 //**********************************************************************************************************************************************************
-//Wave
+// Wave
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -268,9 +265,7 @@ function mxShapeBasicWave(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeBasicWave, mxActor);
 
-mxShapeBasicWave.prototype.cst = {
-		WAVE : 'mxgraph.basic.wave2'
-};
+mxShapeBasicWave.prototype.cst = {WAVE : 'mxgraph.basic.wave2'};
 
 /**
 * Function: paintVertexShape
@@ -304,16 +299,14 @@ mxShapeBasicWave.prototype.constraints = null;
 Graph.handleFactory[mxShapeBasicWave.prototype.cst.WAVE] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['dy'], function(bounds)
-			{
-				var dy = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
+	{
+		var dy = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
 
-				return new mxPoint(bounds.x + bounds.width / 2, bounds.y + dy * bounds.height);
-			}, function(bounds, pt)
-			{
-				this.state.style['dy'] = Math.round(100 * Math.max(0, Math.min(1, (pt.y - bounds.y) / bounds.height))) / 100;
-			})];
+		return new mxPoint(bounds.x + bounds.width / 2, bounds.y + dy * bounds.height);
+	}, function(bounds, pt)
+	{
+		this.state.style['dy'] = Math.round(100 * Math.max(0, Math.min(1, (pt.y - bounds.y) / bounds.height))) / 100;
+	})];
 
 	return handles;
-
-}
-
+};

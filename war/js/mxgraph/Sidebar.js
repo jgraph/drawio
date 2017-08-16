@@ -937,22 +937,22 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;', 120, 60, '', 'Parallelogram'),
 	 	this.createVertexTemplateEntry('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;', 120, 80, '', 'Hexagon', null, null, 'hexagon preparation'),
 	 	this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;', 60, 80, '', 'Triangle', null, null, 'triangle logic inverter buffer'),
-	 	this.createVertexTemplateEntry('shape=cylinder;whiteSpace=wrap;html=1;', 60, 80, '', 'Cylinder', null, null, 'cylinder data database'),
+	 	this.createVertexTemplateEntry('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;', 60, 80, '', 'Cylinder', null, null, 'cylinder data database'),
 	 	this.createVertexTemplateEntry('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80, '', 'Cloud', null, null, 'cloud network'),
-	 	this.createVertexTemplateEntry('shape=document;whiteSpace=wrap;html=1;', 120, 80, '', 'Document'),
+	 	this.createVertexTemplateEntry('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80, '', 'Document'),
 	 	this.createVertexTemplateEntry('shape=internalStorage;whiteSpace=wrap;html=1;', 80, 80, '', 'Internal Storage'),
-	 	this.createVertexTemplateEntry('shape=cube;whiteSpace=wrap;html=1;', 120, 80, '', 'Cube'),
+	 	this.createVertexTemplateEntry('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80, '', 'Cube'),
 	 	this.createVertexTemplateEntry('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;', 120, 80, '', 'Step'),
 	 	this.createVertexTemplateEntry('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;', 120, 60, '', 'Trapezoid'),
 	 	this.createVertexTemplateEntry('shape=tape;whiteSpace=wrap;html=1;', 120, 100, '', 'Tape'),
 	 	this.createVertexTemplateEntry('shape=note;whiteSpace=wrap;html=1;', 80, 100, '', 'Note'),
 	    this.createVertexTemplateEntry('shape=card;whiteSpace=wrap;html=1;', 80, 100, '', 'Card'),
-	 	this.createEdgeTemplateEntry('endArrow=classic;html=1;', 50, 50, '', 'Directional Connector', null, lineTags + 'directional directed'),
-	    this.createEdgeTemplateEntry('endArrow=none;html=1;dashed=1;dashPattern=1 4;', 50, 50, '', 'Dotted Line', null, lineTags + 'dotted undirected no'),
+	    this.createVertexTemplateEntry('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80, '', 'Callout'),
 	 	this.createEdgeTemplateEntry('endArrow=none;dashed=1;html=1;', 50, 50, '', 'Dashed Line', null, lineTags + 'dashed undirected no'),
 	 	this.createEdgeTemplateEntry('endArrow=none;html=1;', 50, 50, '', 'Line', null, lineTags + 'simple undirected plain blank no'),
-	 	this.createEdgeTemplateEntry('endArrow=classic;startArrow=classic;html=1;', 50, 50, '', 'Bidirectional Connector', null, lineTags + 'bidirectional')
-	 ];
+	 	this.createEdgeTemplateEntry('endArrow=classic;startArrow=classic;html=1;', 50, 50, '', 'Bidirectional Connector', null, lineTags + 'bidirectional'),
+	 	this.createEdgeTemplateEntry('endArrow=classic;html=1;', 50, 50, '', 'Directional Connector', null, lineTags + 'directional directed')
+	];
 	
 	this.addPaletteFunctions('general', mxResources.get('general'), (expand != null) ? expand : true, fns);
 };
@@ -962,8 +962,6 @@ Sidebar.prototype.addGeneralPalette = function(expand)
  */
 Sidebar.prototype.addBasicPalette = function(dir)
 {
-	console.log('here');
-	
 	this.addStencilPalette('basic', mxResources.get('basic'), dir + '/basic.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2',
 		null, null, null, null, [

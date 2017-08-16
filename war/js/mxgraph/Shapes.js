@@ -40,7 +40,18 @@
 			path.end();
 		}
 	};
-
+	CubeShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var s = parseFloat(mxUtils.getValue(this.style, 'size', this.size)) * this.scale;
+			
+			return new mxRectangle(s, s, 0, 0);
+		}
+		
+		return null;
+	};
+	
 	mxCellRenderer.prototype.defaultShapes['cube'] = CubeShape;
 	
 	var tan30 = Math.tan(mxUtils.toRadians(30));
@@ -162,35 +173,11 @@
 			c.close();
 		}
 	};
-	DataStoreShape.prototype.getLabelBounds = function(rect)
+	DataStoreShape.prototype.getLabelMargins = function(rect)
 	{
-		var dy = 2.5 * Math.min(rect.height / 2, Math.round(rect.height / 8) + this.strokewidth - 1);
-
-		if ((!this.flipV && (this.direction == null || this.direction == mxConstants.DIRECTION_EAST) ||
-			(this.flipV && this.direction == mxConstants.DIRECTION_WEST)))
-		{
-			rect.y += dy;
-			rect.height -= dy;
-		}
-		else if ((!this.flipV && this.direction == mxConstants.DIRECTION_SOUTH) ||
-				((this.flipV && this.direction == mxConstants.DIRECTION_NORTH)))
-		{
-			rect.width -= dy;
-		}
-		else if ((!this.flipV && this.direction == mxConstants.DIRECTION_WEST) ||
-				(this.flipV && (this.direction == null || this.direction == mxConstants.DIRECTION_EAST)))
-		{
-			rect.height -= dy;
-		}
-		else if ((!this.flipV && this.direction == mxConstants.DIRECTION_NORTH) ||
-				(this.flipV && this.direction == mxConstants.DIRECTION_SOUTH))
-		{
-			rect.x += dy;
-			rect.width -= dy;
-		}
-		
-		return rect;
-	};
+		return new mxRectangle(0, 2.5 * Math.min(rect.height / 2, Math.round(rect.height / 8) +
+			this.strokewidth - 1) * this.scale, 0, 0);
+	}
 
 	mxCellRenderer.prototype.defaultShapes['datastore'] = DataStoreShape;
 
@@ -359,11 +346,13 @@
 					this.direction == mxConstants.DIRECTION_WEST)
 			{
 				var dy = h * size;
+				
 				return new mxRectangle(rect.x, rect.y + dy, w, h - 2 * dy);
 			}
 			else
 			{
 				var dx = w * size;
+				
 				return new mxRectangle(rect.x + dx, rect.y, w - 2 * dx, h);
 			}
 		}
@@ -380,6 +369,15 @@
 	};
 	mxUtils.extend(DocumentShape, mxActor);
 	DocumentShape.prototype.size = 0.3;
+	DocumentShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(this.style, 'size', this.size)) * rect.height);
+		}
+		
+		return null;
+	};
 	DocumentShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dy = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -396,6 +394,16 @@
 	};
 
 	mxCellRenderer.prototype.defaultShapes['document'] = DocumentShape;
+	
+	mxCylinder.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			return new mxRectangle(0, Math.min(this.maxHeight * this.scale, rect.height * 0.3), 0, 0);
+		}
+		
+		return null;
+	};
 
 	// Parallelogram shape
 	function ParallelogramShape()
@@ -784,6 +792,37 @@
 
 	mxCellRenderer.prototype.defaultShapes['process'] = ProcessShape;
 
+	// Callout shape
+	function CalloutShape()
+	{
+		mxActor.call(this);
+	};
+	mxUtils.extend(CalloutShape, mxHexagon);
+	CalloutShape.prototype.size = 30;
+	CalloutShape.prototype.position = 0.5;
+	CalloutShape.prototype.position2 = 0.5;
+	CalloutShape.prototype.base = 20;
+	CalloutShape.prototype.getLabelMargins = function()
+	{
+		return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(
+			this.style, 'size', this.size)) * this.scale);
+	};
+	CalloutShape.prototype.redrawPath = function(c, x, y, w, h)
+	{
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+		var s = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'position', this.position))));
+		var dx2 = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'position2', this.position2))));
+		var base = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'base', this.base))));
+		
+		this.addPoints(c, [new mxPoint(0, 0), new mxPoint(w, 0), new mxPoint(w, h - s),
+			new mxPoint(Math.min(w, dx + base), h - s), new mxPoint(dx2, h),
+			new mxPoint(Math.max(0, dx), h - s), new mxPoint(0, h - s)],
+			this.isRounded, arcSize, true, [4]);
+	};
+
+	mxCellRenderer.prototype.defaultShapes['callout'] = CalloutShape;
+
 	// Step shape
 	function StepShape()
 	{
@@ -851,9 +890,11 @@
 	{
 		if (this.style['double'] == 1)
 		{
-			var margin = (Math.max(2, this.strokewidth + 1) * 2 + parseFloat(this.style[mxConstants.STYLE_MARGIN] || 0)) * this.scale;
+			var margin = (Math.max(2, this.strokewidth + 1) * 2 + parseFloat(
+				this.style[mxConstants.STYLE_MARGIN] || 0)) * this.scale;
 		
-			return new mxRectangle(rect.x + margin, rect.y + margin, rect.width - 2 * margin, rect.height - 2 * margin);
+			return new mxRectangle(rect.x + margin, rect.y + margin,
+				rect.width - 2 * margin, rect.height - 2 * margin);
 		}
 		
 		return rect;
@@ -864,7 +905,8 @@
 
 		if (!this.outline && this.style['double'] == 1)
 		{
-			var margin = Math.max(2, this.strokewidth + 1) * 2 + parseFloat(this.style[mxConstants.STYLE_MARGIN] || 0);
+			var margin = Math.max(2, this.strokewidth + 1) * 2 +
+				parseFloat(this.style[mxConstants.STYLE_MARGIN] || 0);
 			x += margin;
 			y += margin;
 			w -= 2 * margin;
@@ -895,9 +937,11 @@
 	{
 		if (this.style['double'] == 1)
 		{
-			var margin = (Math.max(2, this.strokewidth + 1) + parseFloat(this.style[mxConstants.STYLE_MARGIN] || 0)) * this.scale;
+			var margin = (Math.max(2, this.strokewidth + 1) + parseFloat(
+				this.style[mxConstants.STYLE_MARGIN] || 0)) * this.scale;
 		
-			return new mxRectangle(rect.x + margin, rect.y + margin, rect.width - 2 * margin, rect.height - 2 * margin);
+			return new mxRectangle(rect.x + margin, rect.y + margin,
+				rect.width - 2 * margin, rect.height - 2 * margin);
 		}
 		
 		return rect;
@@ -1070,9 +1114,9 @@
 		mxShape.call(this);
 	};
 	mxUtils.extend(UmlBoundaryShape, mxShape);
-	UmlBoundaryShape.prototype.getLabelBounds = function(rect)
+	UmlBoundaryShape.prototype.getLabelMargins = function(rect)
 	{
-		return new mxRectangle(rect.x + rect.width / 6, rect.y, rect.width * 5 / 6, rect.height);
+		return new mxRectangle(rect.width / 6, 0, 0, 0);
 	};
 	UmlBoundaryShape.prototype.paintBackground = function(c, x, y, w, h)
 	{
@@ -1191,7 +1235,8 @@
 	};
 	UmlLifeline.prototype.getLabelBounds = function(rect)
 	{
-		var size = Math.max(0, Math.min(rect.height, parseFloat(mxUtils.getValue(this.style, 'size', this.size)) * this.scale));
+		var size = Math.max(0, Math.min(rect.height, parseFloat(
+			mxUtils.getValue(this.style, 'size', this.size)) * this.scale));
 		
 		return new mxRectangle(rect.x, rect.y, rect.width, size);
 	};
@@ -1245,12 +1290,11 @@
 	UmlFrame.prototype.width = 60;
 	UmlFrame.prototype.height = 30;
 	UmlFrame.prototype.corner = 10;
-	UmlFrame.prototype.getLabelBounds = function(rect)
+	UmlFrame.prototype.getLabelMargins = function(rect)
 	{
-		var w = Math.max(0, Math.min(rect.width, parseFloat(mxUtils.getValue(this.style, 'width', this.width)) * this.scale));
-		var h = Math.max(0, Math.min(rect.height, parseFloat(mxUtils.getValue(this.style, 'height', this.height)) * this.scale));
-		
-		return new mxRectangle(rect.x, rect.y, w, h);
+		return new mxRectangle(0, 0,
+			rect.width - (parseFloat(mxUtils.getValue(this.style, 'width', this.width) * this.scale)),
+			rect.height - (parseFloat(mxUtils.getValue(this.style, 'height', this.height) * this.scale)));
 	};
 	UmlFrame.prototype.paintBackground = function(c, x, y, w, h)
 	{
@@ -1345,64 +1389,18 @@
 	};
 	
 	mxStyleRegistry.putValue('backbonePerimeter', mxPerimeter.BackbonePerimeter);
+
+	// Callout Perimeter
+	mxPerimeter.CalloutPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		return mxPerimeter.RectanglePerimeter(mxUtils.getDirectedBounds(bounds, new mxRectangle(0, 0, 0,
+			Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(vertex.style, 'size',
+			CalloutShape.prototype.size))))), vertex.style), vertex, next, orthogonal);
+	};
 	
-	mxPerimeter.lineIntersection = function (line1Start, line1End, line2Start, line2End)
-	{
-	  // if the lines intersect, the result contains the the
-	  // intersection point if both line segment 1 and line segment 2 contain the point
-	  // null otherwise
-	  var denominator = ((line2End.y - line2Start.y) * (line1End.x - line1Start.x)) 
-	  						- ((line2End.x - line2Start.x) * (line1End.y - line1Start.y));
-	  
-	  if (denominator == 0) //parallel?
-	  {
-	    return null;
-	  }
-	  else
-	  {
-	    var a = line1Start.y - line2Start.y;
-	    var b = line1Start.x - line2Start.x;
-	    var numerator1 = ((line2End.x - line2Start.x) * a) - ((line2End.y - line2Start.y) * b);
-	    var numerator2 = ((line1End.x - line1Start.x) * a) - ((line1End.y - line1Start.y) * b);
-	    a = numerator1 / denominator;
-	    b = numerator2 / denominator;
-
-	    // if we cast these lines infinitely in both directions, they intersect here:
-	    var x = line1Start.x + (a * (line1End.x - line1Start.x));
-	    var y = line1Start.y + (a * (line1End.y - line1Start.y));
-
-	    if (a >= 0 && a <= 1)// on line1?
-	    	{
-		  	  var dx = line2End.x - x;
-			  var dy = line2End.y - y;
-			  var d = Math.sqrt(dy * dy + dx * dx); //distance from end of line 2 (next) to intersection point
-		      return {dist: d, p: new mxPoint(x, y)};
-	    	}
-	    else
-	    {
-	      return null;
-	    }
-	  }
-	};
-
-	mxPerimeter.getPerimeterPoint = function (points, center, point)
-	{
-		var min = false;
-		
-		for (var i = 0; i < points.length - 1; i++)
-		{
-			var ip = mxPerimeter.lineIntersection(points[i], points[i + 1], center, point);
-			
-			if (ip != null && (!min || min.dist > ip.dist))
-			{
-				min = ip;
-			}
-		}
-		
-		return min.p;
-	};
-
-	//Parallelogram Perimeter
+	mxStyleRegistry.putValue('calloutPerimeter', mxPerimeter.CalloutPerimeter);
+	
+	// Parallelogram Perimeter
 	mxPerimeter.ParallelogramPerimeter = function (bounds, vertex, next, orthogonal)
 	{
 		var size = ParallelogramShape.prototype.size;
@@ -1418,11 +1416,10 @@
 		var h = bounds.height;
 
 		var direction = (vertex != null) ? mxUtils.getValue(
-				vertex.style, mxConstants.STYLE_DIRECTION,
-				mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
-		var vertical = direction == mxConstants.DIRECTION_NORTH
-				|| direction == mxConstants.DIRECTION_SOUTH;
-				
+			vertex.style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
+		var vertical = direction == mxConstants.DIRECTION_NORTH ||
+			direction == mxConstants.DIRECTION_SOUTH;
 		var points;
 		
 		if (vertical)
@@ -1446,17 +1443,21 @@
 		if (orthogonal)
 		{
 			if (next.x < x || next.x > x + w)
+			{
 				p1.y = next.y;
+			}
 			else
+			{
 				p1.x = next.x;
+			}
 		}
 		
-		return mxPerimeter.getPerimeterPoint(points, p1, next);
+		return mxUtils.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('parallelogramPerimeter', mxPerimeter.ParallelogramPerimeter);
 	
-	//Trapezoid Perimeter
+	// Trapezoid Perimeter
 	mxPerimeter.TrapezoidPerimeter = function (bounds, vertex, next, orthogonal)
 	{
 		var size = TrapezoidShape.prototype.size;
@@ -1474,7 +1475,6 @@
 		var direction = (vertex != null) ? mxUtils.getValue(
 				vertex.style, mxConstants.STYLE_DIRECTION,
 				mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
-		
 		var points;
 		
 		if (direction == mxConstants.DIRECTION_EAST)
@@ -1510,17 +1510,21 @@
 		if (orthogonal)
 		{
 			if (next.x < x || next.x > x + w)
+			{
 				p1.y = next.y;
+			}
 			else
+			{
 				p1.x = next.x;
+			}
 		}
 
-		return mxPerimeter.getPerimeterPoint(points, p1, next);
+		return mxUtils.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('trapezoidPerimeter', mxPerimeter.TrapezoidPerimeter);
 	
-	//Step Perimeter
+	// Step Perimeter
 	mxPerimeter.StepPerimeter = function (bounds, vertex, next, orthogonal)
 	{
 		var size = StepShape.prototype.size;
@@ -1541,7 +1545,6 @@
 		var direction = (vertex != null) ? mxUtils.getValue(
 				vertex.style, mxConstants.STYLE_DIRECTION,
 				mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
-		
 		var points;
 		
 		if (direction == mxConstants.DIRECTION_EAST)
@@ -1578,17 +1581,21 @@
 		if (orthogonal)
 		{
 			if (next.x < x || next.x > x + w)
+			{
 				p1.y = next.y;
+			}
 			else
+			{
 				p1.x = next.x;
+			}
 		}
 		
-		return mxPerimeter.getPerimeterPoint(points, p1, next);
+		return mxUtils.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('stepPerimeter', mxPerimeter.StepPerimeter);
 	
-	//Hexagon Perimeter (keep existing one)
+	// Hexagon Perimeter 2 (keep existing one)
 	mxPerimeter.HexagonPerimeter2 = function (bounds, vertex, next, orthogonal)
 	{
 		var size = HexagonShape.prototype.size;
@@ -1607,11 +1614,10 @@
 		var cy = bounds.getCenterY();
 		
 		var direction = (vertex != null) ? mxUtils.getValue(
-				vertex.style, mxConstants.STYLE_DIRECTION,
-				mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
-		var vertical = direction == mxConstants.DIRECTION_NORTH
-				|| direction == mxConstants.DIRECTION_SOUTH;
-		
+			vertex.style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
+		var vertical = direction == mxConstants.DIRECTION_NORTH ||
+			direction == mxConstants.DIRECTION_SOUTH;
 		var points;
 		
 		if (vertical)
@@ -1634,12 +1640,16 @@
 		if (orthogonal)
 		{
 			if (next.x < x || next.x > x + w)
+			{
 				p1.y = next.y;
+			}
 			else
+			{
 				p1.x = next.x;
+			}
 		}
 		
-		return mxPerimeter.getPerimeterPoint(points, p1, next);
+		return mxUtils.getPerimeterPoint(points, p1, next);
 	};
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
@@ -3101,11 +3111,6 @@
 					this.state.style['height'] = Math.round(Math.max(UmlFrame.prototype.corner * 1.5, Math.min(bounds.height, pt.y - bounds.y)));
 				}, false)];
 				
-				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
-				{
-					handles.push(createArcHandle(state));
-				}
-				
 				return handles;
 			},
 			'process': function(state)
@@ -3186,6 +3191,49 @@
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.x + bounds.width - pt.x) / bounds.width));
 				})];
+			},
+			'callout': function(state)
+			{
+				var handles = [createHandle(state, ['size', 'position'], function(bounds)
+				{
+					var size = Math.max(0, Math.min(bounds.height, mxUtils.getValue(this.state.style, 'size', CalloutShape.prototype.size)));
+					var position = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position', CalloutShape.prototype.position)));
+					var base = Math.max(0, Math.min(bounds.width, mxUtils.getValue(this.state.style, 'base', CalloutShape.prototype.base)));
+					
+					return new mxPoint(bounds.x + position * bounds.width, bounds.y + bounds.height - size);
+				}, function(bounds, pt)
+				{
+					var base = Math.max(0, Math.min(bounds.width, mxUtils.getValue(this.state.style, 'base', CalloutShape.prototype.base)));
+					this.state.style['size'] = Math.round(Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y)));
+					this.state.style['position'] = Math.round(Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width)) * 100) / 100;
+				}), createHandle(state, ['position2'], function(bounds)
+				{
+					var position2 = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position2', CalloutShape.prototype.position2)));
+
+					return new mxPoint(bounds.x + position2 * bounds.width, bounds.y + bounds.height);
+				}, function(bounds, pt)
+				{
+					this.state.style['position2'] = Math.round(Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width)) * 100) / 100;
+				}), createHandle(state, ['base'], function(bounds)
+				{
+					var size = Math.max(0, Math.min(bounds.height, mxUtils.getValue(this.state.style, 'size', CalloutShape.prototype.size)));
+					var position = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position', CalloutShape.prototype.position)));
+					var base = Math.max(0, Math.min(bounds.width, mxUtils.getValue(this.state.style, 'base', CalloutShape.prototype.base)));
+					
+					return new mxPoint(bounds.x + Math.min(bounds.width, position * bounds.width + base), bounds.y + bounds.height - size);
+				}, function(bounds, pt)
+				{
+					var position = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position', CalloutShape.prototype.position)));
+
+					this.state.style['base'] = Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x - position * bounds.width)));
+				})];
+				
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
+				{
+					handles.push(createArcHandle(state));
+				}
+				
+				return handles;
 			},
 			'internalStorage': function(state)
 			{
