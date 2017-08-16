@@ -224,7 +224,7 @@
 			'UMLNoteBlock': 'shape=note;size=15;',
 			'UMLTextBlock': 'shape=text;strokeColor=none;fillColor=none;',
 //UML Use Case
-			'UMLActorBlock': 'shape=umlActor;',
+			'UMLActorBlock': 'shape=umlActor;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;whiteSpace=nowrap;',
 			'UMLUseCaseBlock': 'shape=ellipse;',
 			'UMLCircleContainerBlock': 'shape=ellipse;container=1;',
 			'UMLRectangleContainerBlock': 'rounded=1;container=1;',
@@ -1717,23 +1717,23 @@
 //			'PEOrificeBlock' NA
 			'PERotameterBlock' : s + 'pid.flow_sensors.rotameter;flipH=1;',
 //Venn Gradient
-			'VennGradientColor1' : 'shape=ellipse;strokeColor=#49c1a1;fillOpacity=35;',
-			'VennGradientColor2' : 'shape=ellipse;strokeColor=#7769e0;fillOpacity=35;',
-			'VennGradientColor3' : 'shape=ellipse;strokeColor=#efd95d;fillOpacity=35;',
-			'VennGradientColor4' : 'shape=ellipse;strokeColor=#e24adb;fillOpacity=35;',
-			'VennGradientColor5' : 'shape=ellipse;strokeColor=#e55050;fillOpacity=35;',
-			'VennGradientColor6' : 'shape=ellipse;strokeColor=#f49769;fillOpacity=35;',
-			'VennGradientColor7' : 'shape=ellipse;strokeColor=#7ae266;fillOpacity=35;',
-			'VennGradientColor8' : 'shape=ellipse;strokeColor=#47b0e5;fillOpacity=35;',
+			'VennGradientColor1' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor2' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor3' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor4' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor5' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor6' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor7' : 'shape=ellipse;fillOpacity=35;',
+			'VennGradientColor8' : 'shape=ellipse;fillOpacity=35;',
 //Venn Plain
-			'VennPlainColor1' : 'shape=ellipse;strokeColor=#49c1a1;fillOpacity=35;',
-			'VennPlainColor2' : 'shape=ellipse;strokeColor=#7769e0;fillOpacity=35;',
-			'VennPlainColor3' : 'shape=ellipse;strokeColor=#efd95d;fillOpacity=35;',
-			'VennPlainColor4' : 'shape=ellipse;strokeColor=#e24adb;fillOpacity=35;',
-			'VennPlainColor5' : 'shape=ellipse;strokeColor=#e55050;fillOpacity=35;',
-			'VennPlainColor6' : 'shape=ellipse;strokeColor=#f49769;fillOpacity=35;',
-			'VennPlainColor7' : 'shape=ellipse;strokeColor=#7ae266;fillOpacity=35;',
-			'VennPlainColor8' : 'shape=ellipse;strokeColor=#47b0e5;fillOpacity=35;',
+			'VennPlainColor1' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor2' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor3' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor4' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor5' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor6' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor7' : 'shape=ellipse;fillOpacity=35;',
+			'VennPlainColor8' : 'shape=ellipse;fillOpacity=35;',
 //iOS Devices
 			'iOS7DeviceiPhone5Portrait' : s + 'ios.iPhone;bgStyle=bgGreen;', //EXT
 			'iOS7DeviceiPhone5Landscape' : s + 'ios.iPhone;bgStyle=bgGreen;', //EXT
@@ -2467,7 +2467,22 @@
 				
 				if (!hardStroke.includes(a.Class))
 				{
-					cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.LineColor.substring(0, 7), '#000000');
+					if (p.LineWidth == 0)
+					{
+						cell.style += mxConstants.STYLE_STROKECOLOR + '=none;';
+					}
+					else
+					{
+						cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.LineColor.substring(0, 7), '#000000');
+					}
+				}
+				else
+				{
+					var t = a.Class.substring(0,4); 
+					if (t == 'Venn')
+					{
+						cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.FillColor.substring(0, 7), '#FFFFFF');
+					}
 				}
 				
 				cell.style += createStyle(mxConstants.STYLE_ALIGN, p.TextAlign, 'center');
@@ -2540,7 +2555,7 @@
 				if (p.FillColor != null)
 				{
 					//stencils with hardCoded fill color
-					var exc = ['AWSAndroidBlock3', 'AWSiOSBlock3', 'AWSJavaBlock3', 'AWSJavaScript', 'AWSNetBlock3', 'AWSNodeJSBlock3', 'AWSPHPBlock3', 'AWSPythonBlock3', 'AWSRubyBlock3', 'AWSXamarin', 'AWSCLIBlock3', 'AWSEclipseToolkitBlock3', 'AWSVisualStudioToolkitBlock3', 'AWSWindowsPowershellToolkitBlock3', 'DefaultTextBlock'];
+					var exc = ['AWSAndroidBlock3', 'AWSiOSBlock3', 'AWSJavaBlock3', 'AWSJavaScript', 'AWSNetBlock3', 'AWSNodeJSBlock3', 'AWSPHPBlock3', 'AWSPythonBlock3', 'AWSRubyBlock3', 'AWSXamarin', 'AWSCLIBlock3', 'AWSEclipseToolkitBlock3', 'AWSVisualStudioToolkitBlock3', 'AWSWindowsPowershellToolkitBlock3', 'DefaultTextBlock', 'RectangleContainerBlock'];
 				
 					if (!exc.includes(a.Class))
 					{
