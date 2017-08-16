@@ -173,19 +173,20 @@ autoUpdater.on('update-available', (a, b) =>
 {
 	log.info('@update-available@\n', a, b)
 	
-	let idx = dialog.showMessageBox(
+	dialog.showMessageBox(
 	{
 		type: 'question',
 		buttons: ['Ok', 'Cancel'],
 		title: 'Confirm Update',
 		message: 'Update available.\n\nWould you like to download and install new version?',
 		detail: 'Application will automatically restart to apply update after download',
-	})
-	
-	if (idx === 0)
+	}, response =>
 	{
-		return autoUpdater.downloadUpdate()
-	}
+		if (response === 0)
+		{
+			return autoUpdater.downloadUpdate()
+		}
+	})
 })
 
 
