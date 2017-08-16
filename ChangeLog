@@ -1,3 +1,8 @@
+16-AUG-2017: 7.1.3
+
+- Uses mxGraph 3.7.5 beta 9
+- Uses retina icons for social media footers
+
 16-AUG-2017: 7.1.2
 
 - Fixes possible NPE in mxShapeBasicRectCallout shape

@@ -756,17 +756,18 @@ App.prototype.init = function()
 	 */
 	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
 		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
-		encodeURIComponent(mxResources.get('loveIt', ['www.draw.io'])) +
+		'I%20%E2%9D%A4%EF%B8%8F%20www.draw.io' +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
-		'<a title="' + mxResources.get('loveIt', ['draw.io']) +
-		'" target="_blank" href="https://www.facebook.com/sharer.php?u=' + encodeURIComponent('https://www.draw.io') +
+		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:12px;" src="' +
+		Editor.tweetImage + '"/>I <img width="18" height="18" src="' + Editor.heartImage +
+		'" border="0" align="absmiddle"> draw.io</a>',
+		'<a title="Share on Facebook" target="_blank" href="https://www.facebook.com/sharer.php?u=' +
+		encodeURIComponent('https://www.draw.io') +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=640\');return false;"\'>' +
-		'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.facebookImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
+		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.facebookImage + '"/>Share on Facebook</a>',
 		'<a title="draw.io Offline App" href="https://www.draw.io/app" target="_blank">' +
 		'<img border="0" align="absmiddle" style="margin-top:-1px;padding-right:8px;" src="images/download.png"/>' +
 		'draw.io Offline App</a>'];
@@ -876,7 +877,6 @@ App.prototype.init = function()
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/download.png"/>&nbsp;&nbsp;Google Chrome App</a>',
 								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
-							this.updateAd(this.adsHtml.length - 1);
 						}
 						
 						this.updateUserElement();
