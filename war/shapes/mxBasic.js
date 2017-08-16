@@ -127,7 +127,7 @@ mxShapeBasicRectCallout.prototype.getLabelMargins = function()
 		return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy)) * this.scale);
 	}
 	
-	return new mxRectangle(rect.x, rect.y, rect.width, rect.height);
+	return null;
 };
 
 mxCellRenderer.registerShape(mxShapeBasicRectCallout.prototype.cst.RECT_CALLOUT, mxShapeBasicRectCallout);
@@ -241,8 +241,6 @@ Graph.handleFactory[mxShapeBasicRoundRectCallout.prototype.cst.ROUND_RECT_CALLOU
 		this.state.style['size'] = Math.round(100 * Math.max(0, Math.min(bounds.width / 2, (bounds.height - dy) / 2, bounds.x + bounds.width - pt.x))) / 100;
 	})];
 };
-
-mxShapeBasicRoundRectCallout.prototype.getLabelBounds = mxShapeBasicRectCallout.prototype.getLabelBounds;
 
 //**********************************************************************************************************************************************************
 // Wave
