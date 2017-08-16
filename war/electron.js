@@ -104,64 +104,47 @@ function createWindow (opt = {}) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', e =>
-{
+app.on('ready', e => {
 	//asynchronous
-	ipcMain.on('asynchronous-message', (event, arg) =>
-	{
-		//console.log(arg)  // prints "ping"
+	ipcMain.on('asynchronous-message', (event, arg) => {
+		console.log(arg)  // prints "ping"
 		event.sender.send('asynchronous-reply', 'pong')
 	})
 	//synchronous
-	ipcMain.on('winman', (event, arg) =>
-	{
-		//console.log('ipcMain.on winman', arg)
-		
-		if (arg.action === 'newfile')
-		{
+	ipcMain.on('winman', (event, arg) => {
+		console.log('ipcMain.on winman', arg)
+		if (arg.action === 'newfile') {
 			event.returnValue = createWindow(arg.opt)
 			return
 		}
 		event.returnValue = 'pong'
 	})
-
 	createWindow()
-	
-	if (process.platform !== 'linux')
-	{
-		checkUpdate()
-	}
+	checkUpdate()
 })
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function ()
-{
-	// console.log('window-all-closed', windowsRegistry.length)
+app.on('window-all-closed', function () {
+	console.log('window-all-closed', windowsRegistry.length)
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
-	if (process.platform !== 'darwin')
-	{
+	if (process.platform !== 'darwin') {
 		app.quit()
 	}
 })
 
-app.on('activate', function ()
-{
-	// console.log('app on activate', windowsRegistry.length)
+app.on('activate', function () {
+	console.log('app on activate', windowsRegistry.length)
 	// On OS X it's common to re-create a window in the app when the
 	// dock icon is clicked and there are no other windows open.
-	if (windowsRegistry.length === 0)
-	{
+	if (windowsRegistry.length === 0) {
 		createWindow()
 	}
 })
 
-function checkUpdate ()
-{
-	autoUpdater.checkForUpdates().then(UpdateCheckResult =>
-	{
-		if (UpdateCheckResult)
-		{
+function checkUpdate () {
+	autoUpdater.checkForUpdates().then(UpdateCheckResult => {
+		if (UpdateCheckResult) {
 			let idx = dialog.showMessageBox({
 				type: 'question',
 				buttons: ['Ok', 'Cancel'],
@@ -169,11 +152,7 @@ function checkUpdate ()
 				message: 'Update available.\n\nWould you like to download and install new version?',
 				detail: 'Application will automatically restart to apply update after download',
 			})
-			
-			if (idx === 0)
-			{
-				return autoUpdater.downloadUpdate()
-			}
+			if (idx === 0) return autoUpdater.downloadUpdate()
 		}
 	}).then((a, b) => {
 		log.info('@cfu update-downloaded@\n', a, b)
@@ -188,21 +167,17 @@ autoUpdater.on('update-available',
 	(a, b) => log.info('@update-available@\n', a, b))
 
 /**/
-autoUpdater.on('update-downloaded', (event, info) =>
-{
+autoUpdater.on('update-downloaded', (event, info) => {
 	log.info('@update-downloaded@\n', info, event)
 	// Ask user to update the app
-	dialog.showMessageBox(
-	{
+	dialog.showMessageBox({
 		type: 'question',
 		buttons: ['Install and Relaunch', 'Later'],
 		defaultId: 0,
 		message: 'A new version of ' + app.getName() + ' has been downloaded',
 		detail: 'It will be installed the next time you restart the application',
-	}, response =>
-	{
-		if (response === 0)
-		{
+	}, response => {
+		if (response === 0) {
 			setTimeout(() => autoUpdater.quitAndInstall(), 1)
 		}
 	})

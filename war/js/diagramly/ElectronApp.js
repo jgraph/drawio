@@ -74,9 +74,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	PrintDialog.previewEnabled = false;
 	
-	// Enables PDF export via print
-	EditorUi.prototype.printPdfExport = true;
-	
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()
 	{

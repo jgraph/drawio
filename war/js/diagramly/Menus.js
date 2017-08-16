@@ -508,12 +508,10 @@
 			if (typeof(VsdxExport) === 'undefined' && !this.loadingVsdx && !editorUi.isOffline())
 			{
 				this.loadingVsdx = true;
-				// Dependencies included in Devel.js
-				mxscript('/js/vsdx.min.js', delayed);
+				mxscript('js/vsdx.min.js', delayed);
 			}
 			else
 			{
-				// Must be async for cell selection
 				window.setTimeout(delayed, 0);
 			}
 		}));

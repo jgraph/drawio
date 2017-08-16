@@ -2835,7 +2835,7 @@
 	 */
 	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
 	{
-		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		var allowTab = (!mxClient.IS_IOS || !navigator.standalone) && !EditorUi.isElectronApp;
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2848,7 +2848,7 @@
 				{
 					if (mode == App.MODE_DEVICE || mode == '_blank')
 					{
-						xhr.simulate(document, '_blank');
+						xhr.simulate(document, (!EditorUi.isElectronApp) ? '_blank' : null);
 					}
 					else
 					{
@@ -5000,7 +5000,7 @@
 				{
 					this.handleError(e);
 				}
-				finally
+				finally 
 				{
 				    	if (done != null)
 				    	{
@@ -5016,11 +5016,11 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				mxscript('/js/diagramly/Extensions.js', delayed);
+				mxscript('js/diagramly/Extensions.js', delayed);
 			}
 			else
 			{
-				mxscript('/js/extensions.min.js', delayed);
+				mxscript('js/extensions.min.js', delayed);
 			}
 		}
 		else

@@ -1,3 +1,9 @@
+16-AUG-2017: 7.1.1
+
+- Disables drafts in Confluence Cloud add-on
+- Uses mxGraph 3.7.5 beta 9
+- Fixes label positions, adds callout shape in general sidebar
+
 14-AUG-2017: 7.1.0
 
 - Improves Lucidchart import
