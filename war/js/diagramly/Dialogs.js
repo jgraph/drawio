@@ -7428,18 +7428,15 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		btns.appendChild(cancelBtn);
 	}
 
-	// Does not show download button, allow filename editing in Chrome Apps
-	if (!window.chrome || !chrome.app || !chrome.app.runtime)
+	var btn = mxUtils.button(mxResources.get('export'), function()
 	{
-		var btn = mxUtils.button(mxResources.get('export'), function()
-		{
 	    	var data = editorUi.createLibraryDataFromImages(images);
 	    	var filename = nameInput.value;
 	    	
-			if (!/(\.xml)$/i.test(filename))
-			{
-				filename += '.xml';
-			}
+		if (!/(\.xml)$/i.test(filename))
+		{
+			filename += '.xml';
+		}
 	    	
 	    	if (editorUi.isLocalFileSave())
 	    	{
@@ -7450,15 +7447,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    		new mxXmlRequest(SAVE_URL, 'filename=' + encodeURIComponent(filename) +
 	    			'&format=xml&xml=' + encodeURIComponent(data)).simulate(document, '_blank');
 	    	}
-		});
-		btn.setAttribute('id', 'btnDownload');
-		btn.className = 'geBtn';
-		btns.appendChild(btn);
-	}
-	else
-	{
-		nameInput.setAttribute('disabled', 'disabled');
-	}
+	});
+	
+	btn.setAttribute('id', 'btnDownload');
+	btn.className = 'geBtn';
+	btns.appendChild(btn);
 	
 	var fileInput = document.createElement('input');
 	fileInput.setAttribute('multiple', 'multiple');

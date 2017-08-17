@@ -188,6 +188,88 @@ Graph.handleFactory[mxShapeSysMLPackage.prototype.cst.PACKAGE] = function(state)
 }
 
 //**********************************************************************************************************************************************************
+//Package2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeSysMLPackage2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeSysMLPackage2, mxShape);
+
+mxShapeSysMLPackage2.prototype.cst = {
+		PACKAGE2 : 'mxgraph.sysml.package2',
+		LABEL_X : 'labelX'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeSysMLPackage2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	this.background(c, x, y, w, h);
+	c.setShadow(false);
+	this.foreground(c, x, y, w, h);
+};
+
+mxShapeSysMLPackage2.prototype.background = function(c, x, y, w, h)
+{
+	c.rect(0, 0, w, h);
+	c.stroke();
+};
+
+mxShapeSysMLPackage2.prototype.foreground = function(c, x, y, w, h)
+{
+	var xSize = parseInt(mxUtils.getValue(this.style, mxShapeSysMLPackage2.prototype.cst.LABEL_X, '90'));
+	var ySize = 20;
+	
+	xSize = Math.min(xSize, w);
+	
+	if (xSize > ySize)
+	{
+		c.begin();
+		c.moveTo(0, ySize);
+		c.lineTo(xSize - ySize * 0.5, ySize);
+		c.lineTo(xSize, ySize * 0.5);
+		c.lineTo(xSize, 0);
+		c.lineTo(0, 0);
+		c.close();
+		c.fillAndStroke();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeSysMLPackage2.prototype.cst.PACKAGE2, mxShapeSysMLPackage2);
+
+Graph.handleFactory[mxShapeSysMLPackage2.prototype.cst.PACKAGE2] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['labelX'], function(bounds)
+			{
+				var labelX = Math.max(0, Math.min(bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'labelX', 90))));
+
+				return new mxPoint(bounds.x + labelX, bounds.y + 10);
+			}, function(bounds, pt)
+			{
+				this.state.style['labelX'] = Math.round(100 * Math.max(0, Math.min(bounds.width, pt.x - bounds.x))) / 100;
+			})];
+	
+	return handles;
+
+}
+
+//**********************************************************************************************************************************************************
 //None
 //**********************************************************************************************************************************************************
 /**

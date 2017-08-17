@@ -87,7 +87,9 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import'], parent);
 			this.addSubmenu('exportAs', menu, parent);
 			this.addSubmenu('embed', menu, parent);
-			this.addMenuItems(menu, ['-', 'newLibrary', 'openLibrary', '-', 'documentProperties', 'print'], parent);
+			this.addMenuItems(menu, ['-', 'newLibrary', 'openLibrary', '-', 'documentProperties',
+									'print', '-', 'close'], parent);
+			// LATER: Find API for application.quit
 		})));
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -761,7 +763,38 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			}
 		}
 	};
-
+	
+	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)
+	{
+		this.saveData(filename, format, data, mimeType, base64Encoded);
+	};
+	
+	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
+	{
+		var xhr = fn(null, '1');
+		
+		if (xhr != null && this.spinner.spin(document.body, mxResources.get('saving')))
+		{
+			xhr.send(mxUtils.bind(this, function()
+			{
+				this.spinner.stop();
+				
+				if (xhr.getStatus() >= 200 && xhr.getStatus() <= 299)
+				{
+					this.saveData(filename, format, xhr.getText(), mimeType, true);
+				}
+				else
+				{
+					this.handleError({message: mxResources.get('errorSavingFile')});
+				}
+			}), function(resp)
+			{
+				this.spinner.stop();
+				this.handleError(resp);
+			});
+		}
+	};
+	
 	EditorUi.prototype.saveData = function(filename, format, data, mimeType, base64Encoded)
 	{
 		const electron = require('electron');
@@ -793,18 +826,28 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					{
 						this.handleError({message: mxResources.get('errorSavingFile')});
 					}
-	        	}));
+	        		}));
 			}
 		}), 0);
 	};
-	
+
 	EditorUi.prototype.createImageUrlConverter = function()
 	{
 		var converter = new mxUrlConverter();
 		converter.updateBaseUrl();
+		
 		return converter;
 	};
+
+	// Adds file: protocol as absolute URL for images
+	var mxUrlConverterIsRelativeUrl = mxUrlConverter.prototype.isRelativeUrl;
 	
+	mxUrlConverter.prototype.isRelativeUrl = function(url)
+	{
+		return url.substring(0, 7) !== 'file://' && mxUrlConverterIsRelativeUrl.apply(this, arguments);
+	};
+		
+	// Disables proxy for all images
 	EditorUi.prototype.isCorsEnabledForUrl = function()
 	{
 		return true;

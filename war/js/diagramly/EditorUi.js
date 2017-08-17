@@ -2835,7 +2835,7 @@
 	 */
 	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
 	{
-		var allowTab = (!mxClient.IS_IOS || !navigator.standalone) && !EditorUi.isElectronApp;
+		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2848,7 +2848,7 @@
 				{
 					if (mode == App.MODE_DEVICE || mode == '_blank')
 					{
-						xhr.simulate(document, (!EditorUi.isElectronApp) ? '_blank' : null);
+						xhr.simulate(document, '_blank');
 					}
 					else
 					{
@@ -7729,6 +7729,11 @@
 		this.sidebarContainer.style.display = (enabled) ? '' : 'none';
 		this.hsplit.style.display = (enabled) ? '' : 'none';
 		this.editor.graph.setEnabled(enabled);
+		
+		if (this.tabContainer != null)
+		{
+			this.tabContainer.style.visibility = (enabled) ? '' : 'hidden';	
+		}
 	};
 	
 	/**
@@ -9322,6 +9327,7 @@
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('tags').setEnabled((urlParams['embed'] == '1' &&
 			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
+		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
 		var state = graph.view.getState(graph.getSelectionCell());

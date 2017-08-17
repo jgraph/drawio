@@ -229,7 +229,8 @@
 			'UMLCircleContainerBlock': 'shape=ellipse;container=1;',
 			'UMLRectangleContainerBlock': 'rounded=1;container=1;',
 //UML State/Activity			
-			'UMLOptionLoopBlock' : s + 'sysml.package;xSize=90;align=left;spacingLeft=10;overflow=fill;',
+			'UMLOptionLoopBlock' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill;',
+			'UMLAlternativeBlock2' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill;',
 			'UMLStartBlock' : 'shape=ellipse;fillColor=#000000;',
 			'UMLStateBlock' : 'shape=rect;rounded=1;',
 			'UMLDecisionBlock' : 'shape=rhombus;rounded=1;',
