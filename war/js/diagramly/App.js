@@ -754,14 +754,12 @@ App.prototype.init = function()
 	/**
 	 * Basic adds for all backends.
 	 */
-	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
-		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
-		'I%20%E2%9D%A4%EF%B8%8F%20www.draw.io' +
+	this.basicAds = ['<a title="Share on Twitter" target="_blank" href="https://twitter.com/intent/tweet?text=' +
+		'www.draw.io free online diagramming' +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
-		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:12px;" src="' +
-		Editor.tweetImage + '"/>I <img width="18" height="18" src="' + Editor.heartImage +
-		'" border="0" align="absmiddle"> draw.io</a>',
+		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
+		Editor.tweetImage + '"/>Share on Twitter</a>',
 		'<a title="Share on Facebook" target="_blank" href="https://www.facebook.com/sharer.php?u=' +
 		encodeURIComponent('https://www.draw.io') +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +

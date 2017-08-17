@@ -30,11 +30,6 @@
 	Editor.tweetImage = IMAGE_PATH + '/tweet.png';
 
 	/**
-	 * 
-	 */
-	Editor.heartImage = IMAGE_PATH + '/heart.png';
-
-	/**
 	 * Used in the GraphViewer lightbox.
 	 */
 	Editor.facebookImage = IMAGE_PATH + '/facebook.png';
