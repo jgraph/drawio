@@ -2620,41 +2620,93 @@
 
 					if (p.Endpoint1.Style != null)
 					{
-						if (p.Endpoint1.Style == 'None')
+						var s = p.Endpoint1.Style;
+						
+						if (s == 'None')
 						{
 							cell.style += 'startArrow=none;';
 						}
-						else if (p.Endpoint1.Style == 'Arrow')
+						else if (s == 'Arrow')
 						{
 							cell.style += 'startArrow=block;endFill=1;';
 						}
-						else if (p.Endpoint1.Style == 'Hollow Arrow')
+						else if (s == 'Hollow Arrow')
 						{
 							cell.style += 'startArrow=block;endFill=0;';
 						}
-						else if (p.Endpoint1.Style == 'Open Arrow')
+						else if (s == 'Open Arrow')
 						{
 							cell.style += 'startArrow=open;';
+						}
+						else if (s == 'CFN ERD Zero Or More Arrow')
+						{
+							cell.style += 'startArrow=ERzeroToMany;startSize=10;';
+						}
+						else if (s == 'CFN ERD One Or More Arrow')
+						{
+							cell.style += 'startArrow=ERoneToMany;startSize=10;';
+						}
+						else if (s == 'CFN ERD Many Arrow')
+						{
+							cell.style += 'startArrow=ERmany;startSize=10;';
+						}
+						else if (s == 'CFN ERD Exactly One Arrow')
+						{
+							cell.style += 'startArrow=ERmandOne;startSize=10;';
+						}
+						else if (s == 'CFN ERD Zero Or One Arrow')
+						{
+							cell.style += 'startArrow=ERzeroToOne;startSize=10;';
+						}
+						else if (s == 'CFN ERD One Arrow')
+						{
+							cell.style += 'startArrow=ERone;startSize=10;';
 						}
 					}
 					
 					if (p.Endpoint2.Style != null)
 					{
-						if (p.Endpoint2.Style == 'None')
+						var s = p.Endpoint2.Style;
+						
+						if (s == 'None')
 						{
 							cell.style += 'endArrow=none;';
 						}
-						else if (p.Endpoint2.Style == 'Arrow')
+						else if (s == 'Arrow')
 						{
 							cell.style += 'endArrow=block;endFill=1;';
 						}
-						else if (p.Endpoint2.Style == 'Hollow Arrow')
+						else if (s == 'Hollow Arrow')
 						{
 							cell.style += 'endArrow=block;endFill=0;';
 						}
-						else if (p.Endpoint2.Style == 'Open Arrow')
+						else if (s == 'Open Arrow')
 						{
 							cell.style += 'endArrow=open;';
+						}
+						else if (s == 'CFN ERD Zero Or More Arrow')
+						{
+							cell.style += 'endArrow=ERzeroToMany;endSize=10;';
+						}
+						else if (s == 'CFN ERD One Or More Arrow')
+						{
+							cell.style += 'endArrow=ERoneToMany;endSize=10;';
+						}
+						else if (s == 'CFN ERD Many Arrow')
+						{
+							cell.style += 'endArrow=ERmany;endSize=10;';
+						}
+						else if (s == 'CFN ERD Exactly One Arrow')
+						{
+							cell.style += 'endArrow=ERmandOne;endSize=10;';
+						}
+						else if (s == 'CFN ERD Zero Or One Arrow')
+						{
+							cell.style += 'endArrow=ERzeroToOne;endSize=10;';
+						}
+						else if (s == 'CFN ERD One Arrow')
+						{
+							cell.style += 'endArrow=ERone;endSize=10;';
 						}
 					}
 					

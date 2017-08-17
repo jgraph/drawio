@@ -1,3 +1,9 @@
+17-AUG-2017: 7.1.6
+
+- Improvements for Lucidchart import
+- Uses mxGraph 3.7.5 beta 11
+- Fixes possible NPE in custom handles
+
 17-AUG-2017: 7.1.5
 
 - Uses mxGraph 3.7.5 beta 10
