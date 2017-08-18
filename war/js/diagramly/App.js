@@ -754,12 +754,13 @@ App.prototype.init = function()
 	/**
 	 * Basic adds for all backends.
 	 */
-	this.basicAds = ['<a title="Share on Twitter" target="_blank" href="https://twitter.com/intent/tweet?text=' +
-		'www.draw.io free online diagramming' +
+	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
+		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
+		encodeURIComponent(mxResources.get('loveIt', ['www.draw.io'])) +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
 		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>Share on Twitter</a>',
+		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
 		'<a title="Share on Facebook" target="_blank" href="https://www.facebook.com/sharer.php?u=' +
 		encodeURIComponent('https://www.draw.io') +
 		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
@@ -873,6 +874,7 @@ App.prototype.init = function()
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
 								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
 								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
+							this.updateAd(this.adsHtml.length - 1);
 						}
 						
 						this.updateUserElement();
@@ -993,39 +995,68 @@ App.prototype.init = function()
 
 	this.updateHeader();
 	
+	var rotate = mxUtils.bind(this, function(elt, html, delay, fn)
+	{
+		delay = (delay != null) ? delay : 1000;
+		mxUtils.setPrefixedStyle(elt.style, 'transition', 'all ' + (delay / 1000) + 's ease');
+		mxUtils.setPrefixedStyle(elt.style, 'transform', 'scale(0)');
+		elt.style.visibility = 'visible';
+		elt.style.opacity = '0';
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			elt.innerHTML = html;
+			mxUtils.setPrefixedStyle(elt.style, 'transform', 'scale(1)');
+			elt.style.opacity = '1';
+			
+			if (fn != null)
+			{
+				fn();
+			}
+		}), delay);
+	});
+	
 	// Announce Desktop Apps
 	// TODO: Remove after one week
 	var td2 = document.getElementById('geFooterItem1');
 	
 	if (td2 != null)
 	{
-		var link = 'https://www.facebook.com/drawioapp/posts/1628618103829386';
+		var link = 'https://download.draw.io/';
+		var lastHtml = td2.innerHTML;
+		var os = 'draw.io';
 
 		if (['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].indexOf(navigator.platform) >= 0)
 		{
-			td2.innerHTML = '<a title="draw.io for macOS" href="' + link + '" target="_blank">' +
-				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for macOS</a>';
+			os += ' for macOS';
 		}
 		else if (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(navigator.platform) >= 0)
 		{
-			td2.innerHTML = '<a title="draw.io for Windows" href="' + link + '" target="_blank">' +
-				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Windows</a>';
+			os += ' for Windows';
 		}
 		else if (/\bCrOS\b/.test(navigator.userAgent))
 		{
-			td2.innerHTML = '<a title="draw.io for Chrome OS" href="https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla" target="_blank">' +
-				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Chrome OS</a>';
+			os += ' for Chrome OS';
 		}
 		else if (/Linux/.test(navigator.platform))
 		{
-			td2.innerHTML = '<a title="draw.io for Linux" href="' + link + '" target="_blank">' +
-				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io for Linux</a>';
+			os += ' for Linux';
 		}
 		else
 		{
-			td2.innerHTML = '<a title="draw.io Desktop" href="' + link + '" target="_blank">' +
-				'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" src="images/drawlogo48.png"/>&nbsp;&nbsp;draw.io Desktop</a>';
+			os += ' Desktop';
 		}
+		
+		td2.innerHTML = '<a title="' + os + '" href="' + link + '" target="_blank">' +
+			'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" ' +
+			'src="images/drawlogo48.png"/>&nbsp;&nbsp;' + os + '</a>';
+		
+		window.setInterval(mxUtils.bind(this, function()
+		{
+			var temp = lastHtml;
+			lastHtml = td2.innerHTML;
+			rotate(td2, temp);
+		}), 300000);
 	}
 	
 	// Changes footer from time to time
@@ -1041,8 +1072,11 @@ App.prototype.init = function()
 		
 		this.updateAd = function(index, delay)
 		{
-			delay = (delay != null) ? delay : 1000;
-			mxUtils.setPrefixedStyle(td.style, 'transition', 'all ' + (delay / 1000) + 's ease');
+			if (thread != null)
+			{
+				window.clearTimeout(thread);
+				thread = null;
+			}
 
 			if (thread2 != null)
 			{
@@ -1050,42 +1084,50 @@ App.prototype.init = function()
 				thread2 = null;
 			}
 			
-			if (this.adsHtml.length == 1)
-			{
-				window.clearInterval(thread);
-			}
-			
 			if (this.adsHtml.length == 0)
 			{
-				td.style.visibility = 'hidden';
+				td.style.display = 'none';
 				td.innerHTML = '';
 			}
 			else
 			{
-				td.style.visibility = 'visible';
-				
-				if (index == lastAd)
+				var schedule = mxUtils.bind(this, function()
 				{
-					index++;
-				}
-
-				mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(0)');
-				td.style.opacity = '0';
+					if (this.adsHtml.length > 0)
+					{
+						thread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							var tmp = 0;
+							
+							if (this.adsHtml.length > 1)
+							{
+								tmp = Math.round(Math.random() * (this.adsHtml.length - 2));
+								
+								if (tmp == lastAd)
+								{
+									tmp++;
+								}
+							}
+							
+							this.updateAd(tmp);
+						}), 180000);
+					}
+				});
 			
-				window.setTimeout(mxUtils.bind(this, function()
+				if (index != lastAd)
 				{
-					td.innerHTML = this.adsHtml[index];
-					mxUtils.setPrefixedStyle(td.style, 'transform', 'scale(1)');
-					td.style.opacity = '1';
-					lastAd = index;
-				}), delay);
+					rotate(td, this.adsHtml[index], delay, function()
+					{
+						lastAd = index;
+						schedule();
+					});
+				}
+				else
+				{
+					schedule();
+				}
 			}
 		};
-		
-		thread = window.setInterval(mxUtils.bind(this, function()
-		{
-			this.updateAd(Math.round(Math.random() * (this.adsHtml.length - 2)));
-		}), 180000);
 		
 		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
 		{
@@ -1100,6 +1142,10 @@ App.prototype.init = function()
 			{
 				this.updateAd(0);
 			}), 15000);
+		}
+		else
+		{
+			this.updateAd(this.adsHtml.length - 1);
 		}
 	}
 	

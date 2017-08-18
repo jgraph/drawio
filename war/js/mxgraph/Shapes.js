@@ -373,7 +373,8 @@
 	{
 		if (mxUtils.getValue(this.style, 'boundedLbl', false))
 		{
-			return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(this.style, 'size', this.size)) * rect.height);
+			return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(
+				this.style, 'size', this.size)) * rect.height);
 		}
 		
 		return null;
