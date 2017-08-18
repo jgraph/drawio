@@ -1095,6 +1095,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 			
 			var img = document.createElement('img');
 			img.setAttribute('src', Editor.facebookImage);
+			img.setAttribute('width', '18');
+			img.setAttribute('height', '18');
 			img.setAttribute('border', '0');
 				
 			fbBtn.appendChild(img);
@@ -1126,6 +1128,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 			
 			var img = document.createElement('img');
 			img.setAttribute('src', Editor.tweetImage);
+			img.setAttribute('width', '18');
+			img.setAttribute('height', '18');
 			img.setAttribute('border', '0');
 			img.style.marginBottom = '5px'
 	

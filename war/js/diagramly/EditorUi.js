@@ -4990,7 +4990,7 @@
 							encodeURIComponent('I\'ve just copy and pasted my Lucidchart diagram into www.draw.io') +
 							'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
 							'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
-							'<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
+							'<img border="0" width="18" height="18" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
 							Editor.tweetImage + '"/>Paste from Lucidchart?</a>');
 						this.updateAd(this.adsHtml.length - 1, 200);
 						this.lucidchartTweetShown = true;
@@ -7623,9 +7623,16 @@
 
 		if (data != null && data.length > 0)
 		{
-			if (currentFile == null || !currentFile.isModified())
+			if (currentFile == null || (!currentFile.isModified() &&
+				(mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)))
 			{
 				fn();
+			}
+			else if ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) &&
+				currentFile != null && currentFile.isModified())
+			{
+				this.confirm(mxResources.get('allChangesLost'), null, fn,
+					mxResources.get('cancel'), mxResources.get('discardChanges'));
 			}
 			else
 			{

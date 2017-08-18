@@ -18,7 +18,28 @@
 	var c = "fillColor=#036897;strokeColor=#ffffff;";
 	var s = "shape=mxgraph.";
 	var ss = "strokeColor=none;shape=mxgraph.";
-	
+
+	var edgeStyleMap = {
+			//Standard
+						'None': 'none',
+						'Arrow': 'block;endFill=1',
+						'Hollow Arrow': 'block;endFill=0',
+						'Open Arrow': 'open;',
+						'CFN ERD Zero Or More Arrow': 'ERzeroToMany;startSize=10',
+						'CFN ERD One Or More Arrow': 'ERoneToMany;startSize=10',
+						'CFN ERD Many Arrow': 'ERmany;startSize=10',
+						'CFN ERD Exactly One Arrow': 'ERmandOne;startSize=10',
+						'CFN ERD Zero Or One Arrow': 'ERzeroToOne;startSize=10',
+						'CFN ERD One Arrow': 'ERone;startSize=16',
+						'Generalization': 'block;endFill=0;startSize=12',
+						'Big Open Arrow': 'open;startSize=10',
+						'Asynch1': 'openAsync;flipH=1;startSize=10',
+						'Asynch2': 'openAsync;startSize=10',
+						'Aggregation': 'diamond;endFill=0;startSize=16',
+						'Composition': 'diamond;endFill=1;startSize=16',
+						'BlockEnd': 'none;endFill=1;startSize=16'
+	};
+
 	// TODO: Add shape mappings
 	// FIXME: Factor our common strings, eg. shape=mxgraph. to save space
 	var styleMap = {
@@ -2050,8 +2071,6 @@
 		var text = (props.Text != null) ? props.Text :
 			((props.Value != null) ? props.Value :
 			props.Lane_0);
-		
-		
 		var text2 = null;
 		
 		if (text == null && props.State != null)
@@ -2130,7 +2149,7 @@
 									isV = true;
 
 									var fontSize = currM.v;
-									fontSize = 1 + Math.round(fontSize / 1.8);
+									fontSize = Math.round(fontSize * scale);
 									cell.style += 'fontSize=' + fontSize + ';';
 								}
 							}
@@ -2460,7 +2479,7 @@
 				}
 				
 				// Adds styles
-				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, p.LineWidth, '1');
+				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, parseFloat(p.LineWidth) * scale, '1');
 				
 //				stencils with hardcoded stroke color
 				var hardStroke = ['VennPlainColor1', 'VennPlainColor2', 'VennPlainColor3', 'VennPlainColor4', 'VennPlainColor5', 'VennPlainColor6', 'VennPlainColor7', 'VennPlainColor8',
@@ -2620,94 +2639,16 @@
 
 					if (p.Endpoint1.Style != null)
 					{
-						var s = p.Endpoint1.Style;
-						
-						if (s == 'None')
-						{
-							cell.style += 'startArrow=none;';
-						}
-						else if (s == 'Arrow')
-						{
-							cell.style += 'startArrow=block;endFill=1;';
-						}
-						else if (s == 'Hollow Arrow')
-						{
-							cell.style += 'startArrow=block;endFill=0;';
-						}
-						else if (s == 'Open Arrow')
-						{
-							cell.style += 'startArrow=open;';
-						}
-						else if (s == 'CFN ERD Zero Or More Arrow')
-						{
-							cell.style += 'startArrow=ERzeroToMany;startSize=10;';
-						}
-						else if (s == 'CFN ERD One Or More Arrow')
-						{
-							cell.style += 'startArrow=ERoneToMany;startSize=10;';
-						}
-						else if (s == 'CFN ERD Many Arrow')
-						{
-							cell.style += 'startArrow=ERmany;startSize=10;';
-						}
-						else if (s == 'CFN ERD Exactly One Arrow')
-						{
-							cell.style += 'startArrow=ERmandOne;startSize=10;';
-						}
-						else if (s == 'CFN ERD Zero Or One Arrow')
-						{
-							cell.style += 'startArrow=ERzeroToOne;startSize=10;';
-						}
-						else if (s == 'CFN ERD One Arrow')
-						{
-							cell.style += 'startArrow=ERone;startSize=10;';
-						}
+						cell.style += 'startArrow=' + edgeStyleMap[p.Endpoint1.Style] + ';';
 					}
 					
 					if (p.Endpoint2.Style != null)
 					{
-						var s = p.Endpoint2.Style;
+						var tmp = edgeStyleMap[p.Endpoint2.Style];
 						
-						if (s == 'None')
-						{
-							cell.style += 'endArrow=none;';
-						}
-						else if (s == 'Arrow')
-						{
-							cell.style += 'endArrow=block;endFill=1;';
-						}
-						else if (s == 'Hollow Arrow')
-						{
-							cell.style += 'endArrow=block;endFill=0;';
-						}
-						else if (s == 'Open Arrow')
-						{
-							cell.style += 'endArrow=open;';
-						}
-						else if (s == 'CFN ERD Zero Or More Arrow')
-						{
-							cell.style += 'endArrow=ERzeroToMany;endSize=10;';
-						}
-						else if (s == 'CFN ERD One Or More Arrow')
-						{
-							cell.style += 'endArrow=ERoneToMany;endSize=10;';
-						}
-						else if (s == 'CFN ERD Many Arrow')
-						{
-							cell.style += 'endArrow=ERmany;endSize=10;';
-						}
-						else if (s == 'CFN ERD Exactly One Arrow')
-						{
-							cell.style += 'endArrow=ERmandOne;endSize=10;';
-						}
-						else if (s == 'CFN ERD Zero Or One Arrow')
-						{
-							cell.style += 'endArrow=ERzeroToOne;endSize=10;';
-						}
-						else if (s == 'CFN ERD One Arrow')
-						{
-							cell.style += 'endArrow=ERone;endSize=10;';
-						}
+						tmp = tmp.replace(/startSize/g, 'endSize');
+						
+						cell.style += 'endArrow=' + tmp + ';';
 					}
 					
 					// Anchor points and arrows
@@ -2811,21 +2752,6 @@
 				cell.style += ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' +
 					((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';' +
 					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=0;';
-			}
-				
-			if (endpoint.Style == 'Arrow')
-			{
-				cell.style += ((source) ? 'startArrow' : 'endArrow') + '=block;';
-			}
-			else if (endpoint.Style == 'Hollow Arrow')
-			{
-				cell.style += ((source) ? 'startArrow' : 'endArrow') + '=block;';
-				cell.style += ((source) ? 'startFill' : 'endFill') + '=0;';
-			}
-			else if (endpoint.Style == 'Open Arrow')
-			{
-				cell.style += ((source) ? 'startArrow' : 'endArrow') + '=open;';
-				cell.style += ((source) ? 'startSize' : 'endSize') + '=12;';
 			}
 		}
 	};

@@ -101,12 +101,17 @@ public class GliffyObject implements PostDeserializable
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.forms_controls.combo_box");
 
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.tooltip_top");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.tooltip_bottom");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.tooltip_left");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.tooltip_right");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.popover_top");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.popover_bottom");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.forms_controls.selector");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.icon_symbols.annotate_left");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.icon_symbols.annotate_right");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.icon_symbols.annotate_top");
-		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.popover_top");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.speech_bubble_right");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.speech_bubble_left");
 
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.page");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.home");
@@ -136,8 +141,6 @@ public class GliffyObject implements PostDeserializable
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.lifeline");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.entity_lifeline");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.control_lifeline");
-		GROUP_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.speech_bubble_right");
-		GROUP_SHAPES.add("com.gliffy.shape.ui.ui_v3.containers_content.speech_bubble_left");
 		//UML V1
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.object_timeline");
 		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.class");
