@@ -1033,74 +1033,74 @@
 			
 			if (format == 'xml')
 			{
-		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-		    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
-		    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
-		    	
-		    	this.saveData(filename, format, data, 'text/xml');
+			    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+			    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
+			    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+			    	
+			    	this.saveData(filename, format, data, 'text/xml');
 			}
 		    else if (format == 'html')
 		    {
-		    	var data = this.getHtml2(this.getFileData(true), this.editor.graph, basename);
-		    	this.saveData(filename, format, data, 'text/html');
+			    	var data = this.getHtml2(this.getFileData(true), this.editor.graph, basename);
+			    	this.saveData(filename, format, data, 'text/html');
 		    }
 		    else if ((format == 'svg' || format == 'xmlsvg') && this.spinner.spin(document.body, mxResources.get('export')))
 		    {
-		    	var svg = null;
-		    	
-		    	var saveSvg = mxUtils.bind(this, function(data)
-		    	{
-		    		if (data.length <= MAX_REQUEST_SIZE)
-		    		{
-		    	    	this.saveData(filename, 'svg', data, 'image/svg+xml');
-		    		}
-		    		else
-		    		{
-		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-		    			{
-		    				mxUtils.popup(svg);
-		    			}));
-		    		}
-		    	});
-		    	
-		    	if (format == 'svg')
-		    	{
-		        	var bg = this.editor.graph.background;
-		        	
-		        	if (bg == mxConstants.NONE)
-		        	{
-		        		bg = null;
-		        	}
-		
-		        	// Sets or disables alternate text for foreignObjects. Disabling is needed
-		        	// because PhantomJS seems to ignore switch statements and paint all text.
-		        	var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);
-					
-					if (addShadow)
-					{
-						this.editor.graph.addSvgShadow(svgRoot);
-					}
-					
-					// Embeds the images in the SVG output (async)
-					this.convertImages(svgRoot, mxUtils.bind(this, mxUtils.bind(this, function(svgRoot2)
-					{
-						this.spinner.stop();
+			    	var svg = null;
+			    	
+			    	var saveSvg = mxUtils.bind(this, function(data)
+			    	{
+			    		if (data.length <= MAX_REQUEST_SIZE)
+			    		{
+			    	    		this.saveData(filename, 'svg', data, 'image/svg+xml');
+			    		}
+			    		else
+			    		{
+			    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+			    			{
+			    				mxUtils.popup(svg);
+			    			}));
+			    		}
+			    	});
+			    	
+			    	if (format == 'svg')
+			    	{
+			        	var bg = this.editor.graph.background;
+			        	
+			        	if (bg == mxConstants.NONE)
+			        	{
+			        		bg = null;
+			        	}
+			
+			        	// Sets or disables alternate text for foreignObjects. Disabling is needed
+			        	// because PhantomJS seems to ignore switch statements and paint all text.
+			        	var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);
 						
-						saveSvg('<?xml version="1.0" encoding="UTF-8"?>\n' +
-							'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-							mxUtils.getXml(svgRoot2));
-					})));
-		    	}
-		    	else
-		    	{
-		    		filename = basename + '.svg';
-		    		
-		    		svg = this.getFileData(false, true, null, mxUtils.bind(this, function(svg)
-		    		{
-		    			this.spinner.stop();
-		        		saveSvg(svg);    			
-		    		}), ignoreSelection);
-		    	}
+						if (addShadow)
+						{
+							this.editor.graph.addSvgShadow(svgRoot);
+						}
+						
+						// Embeds the images in the SVG output (async)
+						this.convertImages(svgRoot, mxUtils.bind(this, mxUtils.bind(this, function(svgRoot2)
+						{
+							this.spinner.stop();
+							
+							saveSvg('<?xml version="1.0" encoding="UTF-8"?>\n' +
+								'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+								mxUtils.getXml(svgRoot2));
+						})));
+			    	}
+			    	else
+			    	{
+			    		filename = basename + '.svg';
+			    		
+			    		svg = this.getFileData(false, true, null, mxUtils.bind(this, function(svg)
+			    		{
+			    			this.spinner.stop();
+			        		saveSvg(svg);
+			    		}), ignoreSelection);
+			    	}
 		    }
 			else
 			{
