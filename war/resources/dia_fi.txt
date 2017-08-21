@@ -373,6 +373,7 @@ lessThanAMinute=alle minuutti sitten
 licensingError=Lisenssi virhe
 licenseHasExpired={1} lisenssi on päättynyt {2}. Klikkaa tästä.
 licenseWillExpire={1} lisenssi päättyy {2}. Klikkaa tästä.
+lineJumps=Line jumps
 linkAccountRequired=Jos kaavio ei ole julkinen, tarkistamiseen tarvitaan Google tiliä.
 linkText=Linkin teksti
 list=Lista

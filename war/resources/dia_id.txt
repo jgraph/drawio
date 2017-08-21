@@ -373,6 +373,7 @@ lessThanAMinute=kurang dari satu menit
 licensingError=Galat Lisensi
 licenseHasExpired=Lisensi {1} telah berakhir pada {2}. Klik di sini.
 licenseWillExpire=Lisensi {1} akan berakhir pada {2}. Klik di sini.
+lineJumps=Line jumps
 linkAccountRequired=Jika diagram tidak bersifat publik, akun Google diperlukan untuk membaca tautan.
 linkText=Teks Tautan
 list=Daftar

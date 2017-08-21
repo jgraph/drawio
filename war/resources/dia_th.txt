@@ -373,6 +373,7 @@ lessThanAMinute=น้อยกว่าหนึ่งนาที
 licensingError=ข้อผิดพลาดในการให้สิทธิ์
 licenseHasExpired=ใบอนุญาตของ {1} หมดอายุแล้วเมื่อ {2}  คลิกที่นี่
 licenseWillExpire=ใบอนุุญาตของ {1} จะหมดอายุเมื่อ {2}  คลิกที่นี่
+lineJumps=Line jumps
 linkAccountRequired=หากแผนภาพไม่ได้เป็นสาธารณะต้องใช้บัญชี Google เพื่อดูลิงก์
 linkText=เชื่อมโยงข้อความ
 list=รายการ

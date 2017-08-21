@@ -373,6 +373,7 @@ lessThanAMinute=méně než 1 min.
 licensingError=Chyba licence
 licenseHasExpired=Licence pro {1} vypršela {2}. Klepněte sem.
 licenseWillExpire=Licence pro {1} vyprší {2}. Klepněte sem.
+lineJumps=Line jumps
 linkAccountRequired=Pokud je diagram neveřejný, k jeho zobrazení je potřeba účet Google.
 linkText=Odkaz na text
 list=Seznam

@@ -281,6 +281,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 	}
 	
+	if (editorUi.trello != null)
+	{
+		addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
+	}
+
 	if (typeof window.DropboxClient === 'function')
 	{
 		addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
@@ -1011,7 +1016,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	var previewBtn = null;
 	
 	// Loads forever in IE9
-	if (!mxClient.IS_CHROMEAPP && !navigator.standalone && (validUrl ||
+	if ((!mxClient.IS_CHROMEAPP || validUrl) && !navigator.standalone && (validUrl ||
 		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
 	{
 		previewBtn = mxUtils.button(mxResources.get((result.length < maxSize) ? 'preview' : 'openInNewWindow'), function()
@@ -1075,7 +1080,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	}
 
 	// Twitter-intent does not allow more characters, must be pasted manually
-	if (validUrl && !editorUi.isOffline())
+	if (validUrl && (!editorUi.isOffline() || mxClient.IS_CHROMEAPP))
 	{
 		if (result.length < maxFbSize)
 		{
@@ -3144,6 +3149,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
 	
+		if (editorUi.trello != null)
+		{
+			var trelloOption = document.createElement('option');
+			trelloOption.setAttribute('value', App.MODE_TRELLO);
+			mxUtils.write(trelloOption, mxResources.get('trello'));
+			serviceSelect.appendChild(trelloOption);
+			
+			addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
+		}
+		
 		if (typeof window.DropboxClient === 'function')
 		{
 			var dropboxOption = document.createElement('option');
@@ -3228,6 +3243,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				else if (newMode == App.MODE_GITHUB)
 				{
 					ext = editorUi.gitHub.extension;
+				}
+				else if (newMode == App.MODE_TRELLO)
+				{
+					ext = editorUi.trello.extension;
 				}
 				else if (newMode == App.MODE_DROPBOX)
 				{

@@ -373,6 +373,7 @@ lessThanAMinute=kurang dari satu minit
 licensingError=Ralat Pelesenan
 licenseHasExpired=Lesen untuk {1} telah luput pada {2}. Klik di sini.
 licenseWillExpire=Lesen untuk {1} akan luput pada {2}. Klik di sini.
+lineJumps=Line jumps
 linkAccountRequired=Jika gambarajah tidak umum, akaun Google diperlukan untuk melihat pautan tersebut.
 linkText=Teks Pautan
 list=Senarai

@@ -373,6 +373,7 @@ lessThanAMinute=vähem kui minut
 licensingError=Litsentsiviga
 licenseHasExpired=Litsents {1} jaoks aegub {2}. Vajuta siia.
 licenseWillExpire=Litsents {1} jaoks aegub {2}. Vajuta siia.
+lineJumps=Line jumps
 linkAccountRequired=Kui diagramm pole avalik, siis läheb lingi vaatamiseks Google'i kasutajakontot vaja.
 linkText=Lingi tekst
 list=Nimekiri

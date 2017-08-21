@@ -373,6 +373,7 @@ lessThanAMinute=kevesebb mint egy perc
 licensingError=Engedélyezési hiba
 licenseHasExpired={2}-n lejárt az engedély a(z) {1}-hez. Kattintson ide.
 licenseWillExpire={2}-n lejár az engedély a(z) {1}-hez. Kattintson ide.
+lineJumps=Line jumps
 linkAccountRequired=Amiben a diagram nem nyilvános, Google számla szükséges a link megtekintéséhez.
 linkText=Szöveg link
 list=Lista

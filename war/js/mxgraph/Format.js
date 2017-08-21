@@ -2309,11 +2309,13 @@ TextFormatPanel.prototype.addFont = function(container)
 				document.execCommand('justifyfull', false, null);
 			}, stylePanel3);
 		this.styleButtons([full,
-       		sub = this.editorUi.toolbar.addButton('geSprite-subscript', mxResources.get('subscript') + ' (Ctrl+,)',
+       		sub = this.editorUi.toolbar.addButton('geSprite-subscript',
+       			mxResources.get('subscript') + ' (' + Editor.ctrlKey + '+,)',
 			function()
 			{
 				document.execCommand('subscript', false, null);
-			}, stylePanel3), sup = this.editorUi.toolbar.addButton('geSprite-superscript', mxResources.get('superscript') + ' (Ctrl+.)',
+			}, stylePanel3), sup = this.editorUi.toolbar.addButton('geSprite-superscript',
+				mxResources.get('superscript') + ' (' + Editor.ctrlKey + '+.)',
 			function()
 			{
 				document.execCommand('superscript', false, null);

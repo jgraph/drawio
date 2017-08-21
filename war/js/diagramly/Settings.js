@@ -185,7 +185,7 @@ var mxSettings =
 			search: true,
 			showStartScreen: true,
 			gridColor: mxGraphView.prototype.gridColor,
-			autosave: true,
+			autosave: !EditorUi.isElectronApp,
 			resizeImages: null,
 			openCounter: 0,
 			version: mxSettings.currentVersion,

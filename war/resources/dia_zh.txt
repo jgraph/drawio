@@ -373,6 +373,7 @@ lessThanAMinute=一分钟以内
 licensingError=授权出错
 licenseHasExpired={1} 的许可证已于 {2} 过期。请点击此处。
 licenseWillExpire={1} 的许可证将于 {2} 过期。请点击此处。
+lineJumps=Line jumps
 linkAccountRequired=如果图表未公开，则需要提供谷歌账户才能查看该链接。
 linkText=链接文本
 list=列表

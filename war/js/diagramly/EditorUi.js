@@ -7004,7 +7004,7 @@
 			/**
 			 * Persists autosave switch in Chrome app.
 			 */
-			if (mxClient.IS_CHROMEAPP)
+			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				this.editor.addListener('autosaveChanged', mxUtils.bind(this, function(sender, evt)
 				{
@@ -8417,7 +8417,7 @@
 
 			var button = document.createElement('button');
 			mxUtils.write(button, mxResources.get('save'));
-			button.setAttribute('title', mxResources.get('save') + ' (Ctrl+S)');
+			button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
 			button.className = 'geBigButton';
 			button.style.fontSize = '12px';
 			button.style.padding = '4px 6px 4px 6px';
@@ -9119,6 +9119,11 @@
 		}
 		
 		if (this.gitHub != null)
+		{
+			serviceCount++
+		}
+		
+		if (this.trello != null)
 		{
 			serviceCount++
 		}

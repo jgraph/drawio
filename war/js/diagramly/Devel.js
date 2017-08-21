@@ -92,6 +92,9 @@ mxscript(drawDevUrl + 'js/diagramly/GitHubClient.js');
 mxscript(drawDevUrl + 'js/diagramly/OneDriveFile.js');
 mxscript(drawDevUrl + 'js/diagramly/OneDriveLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
+mxscript(drawDevUrl + 'js/diagramly/TrelloFile.js');
+mxscript(drawDevUrl + 'js/diagramly/TrelloLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
 mxscript(drawDevUrl + 'js/diagramly/ChatWindow.js');
 
 mxscript(drawDevUrl + 'js/diagramly/App.js');

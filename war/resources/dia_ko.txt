@@ -373,6 +373,7 @@ lessThanAMinute=방금
 licensingError=라이선스 오류
 licenseHasExpired={1} 관련 라이선스가 {2}에 만료되었습니다. 여기를 클릭해 주시기 바랍니다.
 licenseWillExpire={1} 관련 라이선스가 {2}에 만료될 예정입니다. 여기를 클릭해 주시기 바랍니다.
+lineJumps=Line jumps
 linkAccountRequired=다이어그램이 공개상태가 아닌 경우, 링크를 확인하기 위해 구글 계정이 필요합니다.
 linkText=링크 텍스트
 list=목록

@@ -373,6 +373,7 @@ lessThanAMinute=mindre än en minut
 licensingError=Ett fel uppstod med licensen
 licenseHasExpired=Licensen för {1} utgick den {2}. Klicka här.
 licenseWillExpire=Licensen för {1} kommer utgå den {2}. Klicka här.
+lineJumps=Line jumps
 linkAccountRequired=Om inte diagrammet är offentligt krävs ett Googlekonto för att visa länken.
 linkText=Länktext
 list=Lista

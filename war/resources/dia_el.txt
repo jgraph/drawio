@@ -373,6 +373,7 @@ lessThanAMinute=λιγότερο από ένα λεπτό
 licensingError=Σφάλμα στην άδεια χρήση
 licenseHasExpired=Η άδεια χρήσης για {1} έχει λήξει στις {2}. Πατήστε εδώ.
 licenseWillExpire=Η άδεια χρήσης για {1} θα λήξει στις {2}. Πατήστε εδώ.
+lineJumps=Line jumps
 linkAccountRequired=Εάν το διάγραμμα δεν είναι δημόσιο, χρειάζεται λογαριασμός Google για να δείτε τον σύνδεσμο.
 linkText=Κείμενο συνδέσμου
 list=Λίστα

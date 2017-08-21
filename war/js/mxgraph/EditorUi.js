@@ -3703,14 +3703,17 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	var keyHandlerGetFunction = keyHandler.getFunction;
 
 	// Alt+Shift+Keycode mapping to action
-	var altShiftActions = {67: this.actions.get('clearWaypoints')}; // Alt+Shift+C
+	var altShiftActions = {67: this.actions.get('clearWaypoints'), // Alt+Shift+C
+						  65: this.actions.get('connectionArrows'), // Alt+Shift+A
+						  80: this.actions.get('connectionPoints') // Alt+Shift+P
+	};
 	
 	mxKeyHandler.prototype.getFunction = function(evt)
 	{
 		if (graph.isEnabled())
 		{
 			// TODO: Add alt modified state in core API, here are some specific cases
-			if (!graph.isSelectionEmpty() && mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
+			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
 			{
 				var action = altShiftActions[evt.keyCode];
 
@@ -3887,8 +3890,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(89, true, 'autosize', true); // Ctrl+Shift+Y
 		keyHandler.bindAction(88, true, 'cut'); // Ctrl+X
 		keyHandler.bindAction(67, true, 'copy'); // Ctrl+C
-		keyHandler.bindAction(81, true, 'connectionArrows'); // Ctrl+Q
-		keyHandler.bindAction(81, true, 'connectionPoints', true); // Ctrl+Shift+Q
 		keyHandler.bindAction(86, true, 'paste'); // Ctrl+V
 		keyHandler.bindAction(71, true, 'group'); // Ctrl+G
 		keyHandler.bindAction(77, true, 'editData'); // Ctrl+M
