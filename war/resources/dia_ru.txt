@@ -373,6 +373,7 @@ lessThanAMinute=меньше минуты
 licensingError=Ошибка лицензирования
 licenseHasExpired=Лицензия на {1} истекла {2}. Нажмите сюда.
 licenseWillExpire=Лицензия на {1} истекает {2}. Нажмите сюда.
+lineJumps=Line jumps
 linkAccountRequired=Если диаграмма не опубликована, для просмотра понадобится войти в учетную запись Google.
 linkText=Текст ссылки
 list=Список

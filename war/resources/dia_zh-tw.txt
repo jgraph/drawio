@@ -373,6 +373,7 @@ lessThanAMinute=一分鐘內
 licensingError=授權出錯
 licenseHasExpired={1}的授權已在{2}過期。請點擊這裡。
 licenseWillExpire={1}的授權將在{2}過期。請點擊這裡。
+lineJumps=Line jumps
 linkAccountRequired=如果圖表非公開，則需要Google帳戶才能查看該連結。
 linkText=連結文字
 list=清單

@@ -373,6 +373,7 @@ lessThanAMinute=по-малко от една минута
 licensingError=Грешка при лицензирането
 licenseHasExpired=Лицензът за {1} изтече на {2}. Кликнете тук.
 licenseWillExpire=Лицензът за {1} ще изтече на {2}. Кликнете тук.
+lineJumps=Line jumps
 linkAccountRequired=Ако диаграмата не е публична, е необходим профил в Google, за да видите линка. 
 linkText=Текст на линка
 list=Списък

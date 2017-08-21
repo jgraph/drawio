@@ -373,6 +373,7 @@ lessThanAMinute=‫کمتر از یک دقیقه‬
 licensingError=‫خطای مجوز‬
 licenseHasExpired=‫مجوز مربوط به {1} در {2} منقضی شده است. اینجا کلیک کنید. ‬
 licenseWillExpire=‫مجوز مربوط به {1} در {2} منقضی خواهد شد. اینجا کلیک کنید. ‬
+lineJumps=Line jumps
 linkAccountRequired=‫اگر نمودار عمومی نیست، برای مشاهده لینک به حساب گوگل نیاز است.‬
 linkText=‫لینک متن‬
 list=‫لیست‬

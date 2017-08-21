@@ -373,6 +373,7 @@ lessThanAMinute=manje od minute
 licensingError=Greška pri licenciranju
 licenseHasExpired=Licenca za {1} je istekla {2}. Kliknite ovdje.
 licenseWillExpire=Licenca za {1} će isteći {2}. Kliknite ovdje.
+lineJumps=Line jumps
 linkAccountRequired=Ukoliko dijagram nije javni, potreban je Google nalog za pregledanje linka.
 linkText=Poveži tekst
 list=Lista

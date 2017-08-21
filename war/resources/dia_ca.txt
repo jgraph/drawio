@@ -373,6 +373,7 @@ lessThanAMinute=menys d'un minut
 licensingError=Error de llicència
 licenseHasExpired=La llicència per a {1} ha expirat el {2}. Clica aquí.
 licenseWillExpire=La llicència per a {1} expira el {2}. Clica aquí.
+lineJumps=Line jumps
 linkAccountRequired=Si el diagrama no és públic es requereix un compte de Google per a veure l'enllaç.
 linkText=Text de l'enllaç
 list=Llista

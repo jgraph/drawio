@@ -373,6 +373,7 @@ lessThanAMinute=lessThanAMinute
 licensingError=licensingError
 licenseHasExpired=licenseHasExpired
 licenseWillExpire=licenseWillExpire
+lineJumps=lineJumps
 linkAccountRequired=linkAccountRequired
 linkText=linkText
 list=list

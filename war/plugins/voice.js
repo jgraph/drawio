@@ -183,13 +183,13 @@ Draw.loadPlugin(function(ui) {
 				if (recognizing != null)
 				{
 	    			td.innerHTML = '<img style="margin-right:4px;" align="absmiddle" border="0" src="' + micImage + '"/> Listening...';
-					td.setAttribute('title', 'Click to Stop (Ctrl+O)');
+					td.setAttribute('title', 'Click to Stop (' + Editor.ctrlKey + '+O)');
 	    			td.style.color = 'darkGray';
 				}
 				else
 				{
 					td.innerHTML = '<img style="margin-right:4px;" align="absmiddle" border="0" src="' + micImage + '"/> Click to Speak';
-					td.setAttribute('title', 'Click to Speak (Ctrl+O)');
+					td.setAttribute('title', 'Click to Speak (' + Editor.ctrlKey + '+O)');
 					td.style.color = '#235695';
 				}
 			}
@@ -220,7 +220,7 @@ Draw.loadPlugin(function(ui) {
     ui.actions.addAction('speechListenContinuous', function()
     {
     	App.listen(true);
-    }, null, null, 'Ctrl+O');
+    }, null, null, Editor.ctrlKey + '+O');
 	
     ui.actions.addAction('speechHint', function()
     {

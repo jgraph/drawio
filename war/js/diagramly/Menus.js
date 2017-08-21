@@ -58,6 +58,8 @@
 				(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
 				urlParams['od'] == '1')) && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
 				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10));
+		var trelloEnabled = ((urlParams['embed'] != '1' && urlParams['tr'] != '0') || (urlParams['embed'] == '1' && urlParams['tr'] == '1')) &&
+			mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9);
 
 		if (!editorUi.isOffline())
 		{
@@ -224,7 +226,7 @@
 		editorUi.actions.addAction('createRevision', function()
 		{
 			editorUi.actions.get('save').funct();
-		}, null, null, 'Ctrl+S');
+		}, null, null, Editor.ctrlKey + '+S');
 
 		editorUi.actions.addAction('upload...', function()
 		{
@@ -296,7 +298,7 @@
 				editorUi.showDialog(dlg.container, 180, 180, true, true);
 				dlg.init();
 			}
-		}, null, null, 'Ctrl+Shift+M');
+		}, null, null, Editor.ctrlKey + '+Shift+M');
 
 		var copiedStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle',
 			 				'align', 'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
@@ -333,7 +335,7 @@
 			 		}
 				}
 			}
-		}, null, null, 'Ctrl+Shift+C');
+		}, null, null, Editor.ctrlKey + '+Shift+C');
 
 		editorUi.actions.addAction('pasteStyle', function()
 		{
@@ -366,7 +368,7 @@
 					graph.getModel().endUpdate();
 				}
 			}
-		}, null, null, 'Ctrl+Shift+V');
+		}, null, null, Editor.ctrlKey + '+Shift+V');
 		
 		editorUi.actions.put('pageBackgroundImage', new Action(mxResources.get('backgroundImage') + '...', function()
 		{
@@ -1651,6 +1653,21 @@
 				}, parent, null, false);
 			}
 			
+			if (editorUi.trello != null)
+			{
+				menu.addItem(mxResources.get('trello', null, 'Trello') + '...', null, function()
+				{
+					pickFileFromService(editorUi.trello);
+				}, parent);
+			}
+			else if (trelloEnabled)
+			{
+				menu.addItem(mxResources.get('trello', null, 'Trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
 			menu.addSeparator(parent);
 
 			if (isLocalStorage && urlParams['browser'] != '0')
@@ -1949,7 +1966,7 @@
 				cell.vertex = true;
 	    	    graph.startEditingAtCell(graph.addCell(cell));
 			}
-		}, null, null, 'Ctrl+Shift+X').isEnabled = isGraphEnabled;
+		}, null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
 		
 		editorUi.actions.addAction('insertRectangle', function()
 		{
@@ -1961,7 +1978,7 @@
 	    	    graph.setSelectionCell(graph.addCell(cell));
 	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
-		}, null, null, 'Ctrl+K').isEnabled = isGraphEnabled;
+		}, null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
 		
 		editorUi.actions.addAction('insertEllipse', function()
 		{
@@ -1973,7 +1990,7 @@
 	    	    graph.setSelectionCell(graph.addCell(cell));
 	    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
-		}, null, null, 'Ctrl+Shift+K').isEnabled = isGraphEnabled;
+		}, null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
 		
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -2081,6 +2098,21 @@
 			else if (oneDriveEnabled)
 			{
 				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
+			if (editorUi.trello != null)
+			{
+				menu.addItem(mxResources.get('trello', null, 'Trello') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_TRELLO);
+				}, parent);
+			}
+			else if (trelloEnabled)
+			{
+				menu.addItem(mxResources.get('trello', null, 'Trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
 					// do nothing
 				}, parent, null, false);

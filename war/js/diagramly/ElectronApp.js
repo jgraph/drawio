@@ -86,9 +86,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		{
 			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import'], parent);
 			this.addSubmenu('exportAs', menu, parent);
+			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
-			this.addMenuItems(menu, ['-', 'newLibrary', 'openLibrary', '-', 'documentProperties',
-									'print', '-', 'close'], parent);
+			this.addSubmenu('publish', menu, parent);
+			menu.addSeparator(parent);
+			this.addMenuItems(menu, ['newLibrary', 'openLibrary', '-', 'pageSetup',
+				'print', '-', 'close'], parent);
 			// LATER: Find API for application.quit
 		})));
 		
@@ -107,7 +110,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 		var editorUi = this;
 		var graph = this.editor.graph;
-		this.editor.autosave = false;
 		
 		global.__emt_isModified = e => {
 			if (this.getCurrentFile())
@@ -300,9 +302,9 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				ipc.sendSync('winman', {action: 'newfile', opt: {width: 1600}})
 
 			}
-		}), null, null, 'Ctrl+N');
+		}), null, null, Editor.ctrlKey + '+N');
 		
-		this.actions.get('open').shortcut = 'Ctrl+O';
+		this.actions.get('open').shortcut = Editor.ctrlKey + '+O';
 		
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N

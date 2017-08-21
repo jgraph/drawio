@@ -373,6 +373,7 @@ lessThanAMinute=менше хвилини
 licensingError=Помилка ліцензії
 licenseHasExpired=Строк дії ліцензії на {1} завершено {2}. Натисніть тут.
 licenseWillExpire=Строк дії ліцензії на {1} завершиться {2}. Натисніть тут.
+lineJumps=Line jumps
 linkAccountRequired=Якщо діаграма не є публічною, для перегляду посилання необхідно увійти в акаунт Google.
 linkText=Текст посилання
 list=Список

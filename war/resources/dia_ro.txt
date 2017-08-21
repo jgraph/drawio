@@ -373,6 +373,7 @@ lessThanAMinute=mai puţin de un minut
 licensingError=Eroare la licențiere
 licenseHasExpired=Licența pentru {1} a expirat pe {2}, Apăsați aici.
 licenseWillExpire=Licența pentru {1} va expira pe {2}, Apăsați aici.
+lineJumps=Line jumps
 linkAccountRequired=Dacă diagrama nu este public, un cont Google este necesar pentru a deschide acest link.
 linkText=Textul linkului
 list=Listă

@@ -373,6 +373,7 @@ lessThanAMinute=‫פחות מדקה‬
 licensingError=‫שגיאת רישיון‬
 licenseHasExpired=‫הרשיון עבור {1} אינו בתוקף מתאריך {2}. לחץ כאן.‬
 licenseWillExpire=‫תוקף הרשיון עבור {1} יפוג בתאריך {2}. לחץ כאן.‬
+lineJumps=Line jumps
 linkAccountRequired=‫אם הדיאגרמה אינה ציבורית, נדרש חשבון גוגל כדי לפתוח את הקישור.‬
 linkText=‫טקסט מקושר‬
 list=‫רשימה‬

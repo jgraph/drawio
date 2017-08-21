@@ -373,6 +373,7 @@ lessThanAMinute=bir dakikadan az
 licensingError=Lisans hatası
 licenseHasExpired={1} için olan lisans {2} tarihinde sona ermiştir. Buraya tıklayınız.
 licenseWillExpire={1} için olan lisans {2} tarihinde sona erecektir. Buraya tıklayınız.
+lineJumps=Line jumps
 linkAccountRequired=Eğer diyagram herkese açık değilse, linki görmek için bir google hesabına gerek vardır
 linkText=Metni linkle
 list=Listele

@@ -373,6 +373,7 @@ lessThanAMinute=ít hơn một phút
 licensingError=Lỗi cấp phép
 licenseHasExpired=Giấy phép của {1} đã hết hạn vào {2}. Nhấn vào đây.
 licenseWillExpire=Giấy phép của {1} sẽ hết hạn vào {2}. Nhấn vào đây.
+lineJumps=Line jumps
 linkAccountRequired=Nếu một biểu đồ không được công khai, bạn cần một tài khoản Google để xem liên kết.
 linkText=Liên kết văn bản
 list=Danh sách

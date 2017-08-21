@@ -373,6 +373,7 @@ lessThanAMinute=1分以内に
 licensingError=ライセンス エラー
 licenseHasExpired=ライセンス{1} は{2}に期限がきれました。 ここをクリックしてください。
 licenseWillExpire=ライセンス{1} に期限切れになります{2}. ここをクリックしてください。
+lineJumps=Line jumps
 linkAccountRequired=図が公式表示されていない場合は、リンクを表示するために Google アカウントが必要です。
 linkText=リンク テキスト
 list=リスト

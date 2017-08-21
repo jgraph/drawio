@@ -373,6 +373,7 @@ lessThanAMinute=Mababa sa isang minuto
 licensingError=Pagkakamali sa paglilisensya
 licenseHasExpired=Ang lisensya para kay {1} ay nagwakas ng {2}. Pindutin dito
 licenseWillExpire=Ang lisensya para kay {1} ay magwawakas sa {2}. Pindutin dito
+lineJumps=Line jumps
 linkAccountRequired=Kung ang Dayagram ay di pampubliko, kailangan ng Google account para tingnan ang Link
 linkText=I-link ang teksto
 list=Listahan

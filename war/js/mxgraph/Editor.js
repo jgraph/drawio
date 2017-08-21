@@ -188,7 +188,14 @@ Editor.previousLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAA
  */
 Editor.nextLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAPFBMVEUAAAD////////////////////////////////////////////////////////////////////////////YSWgTAAAAE3RSTlMA7fci493c0MW8uJ6CZks4MxQHEZL6ewAAAFRJREFUOMvd0skRgCAQBVEFwQ0V7fxzNQP6wI05v6pZ/kyj1b7FNgik2gQzzLcAwiUAigHOTwDHK4A1CmB5BJANJG1hQ9qafYcqFlZP3IFc9eVGrR+iIgkDQRUXIAAAAABJRU5ErkJggg==';
 
-// Editor inherits from mxEventSource
+/**
+ * Specifies the image URL to be used for the transparent background.
+ */
+Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
+
+/**
+ * Editor inherits from mxEventSource
+ */
 mxUtils.extend(Editor, mxEventSource);
 
 /**

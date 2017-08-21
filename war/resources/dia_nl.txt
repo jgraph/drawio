@@ -373,6 +373,7 @@ lessThanAMinute=minder dan een minuut
 licensingError=Licentiefout
 licenseHasExpired=De licentie voor {1} is verlopen op {2}. Klik hier.
 licenseWillExpire=De licentie voor {1} zal op {2} verlopen. Klik hier
+lineJumps=Line jumps
 linkAccountRequired=Als het diagram niet openbaar is, is een Google-account vereist om de link te bekijken.
 linkText=Linktekst
 list=Lijst

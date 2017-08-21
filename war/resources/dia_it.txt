@@ -373,6 +373,7 @@ lessThanAMinute=meno di un minuto
 licensingError=Errore di licenza
 licenseHasExpired=La licenza per {1} è scaduta il {2}. Clicca qui.
 licenseWillExpire=La licenza per {1} scadrà il {2}. Clicca qui.
+lineJumps=Line jumps
 linkAccountRequired=Se il diagramma non è pubblico, è necessario un account Google per visualizzare il link.
 linkText=Testo del link
 list=Lista

@@ -152,6 +152,11 @@ App.MODE_DEVICE = 'device';
 App.MODE_BROWSER = 'browser';
 
 /**
+ * Trello App Mode
+ */
+App.MODE_TRELLO = 'trello';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = 'libwls2fa9szdji';
@@ -170,6 +175,16 @@ App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.ONEDRIVE_URL = 'https://js.live.net/v7.2/OneDrive.js';
+
+/**
+ * Trello URL
+ */
+App.TRELLO_URL = 'https://api.trello.com/1/client.js';
+
+/**
+ * Trello JQuery dependency
+ */
+App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
@@ -336,6 +351,31 @@ App.getStoredMode = function()
 					{
 						// Disables loading of client
 						window.OneDriveClient = null;
+					}
+				}
+				
+				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+				if (typeof window.TrelloClient === 'function')
+				{
+					if (urlParams['tr'] != '0' && isSvgBrowser &&
+							(document.documentMode == null || document.documentMode >= 10))
+					{
+						// Immediately loads client
+						if (App.mode == App.MODE_TRELLO || (window.location.hash != null &&
+							window.location.hash.substring(0, 2) == '#T'))
+						{
+							mxscript(App.TRELLO_JQUERY_URL);
+							mxscript(App.TRELLO_URL);
+						}
+						else if (urlParams['chrome'] == '0')
+						{
+							window.TrelloClient = null;
+						}
+					}
+					else
+					{
+						// Disables loading of client
+						window.TrelloClient = null;
 					}
 				}
 			}
@@ -636,6 +676,28 @@ App.main = function(callback)
 			{
 				window.OneDriveClient = null;
 			}
+			
+			// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+			if (typeof window.TrelloClient === 'function' &&
+				(typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
+				(((urlParams['embed'] != '1' && urlParams['tr'] != '0') || (urlParams['embed'] == '1' &&
+				urlParams['tr'] == '1')) && (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+			{
+				mxscript(App.TRELLO_JQUERY_URL, function()
+				{
+					// Must load this after the dropbox SDK since they use the same namespace
+					mxscript(App.TRELLO_URL, function()
+					{
+						DrawTrelloClientCallback();
+					});
+				});
+			}
+			// Disables client
+			else if (typeof window.Trello === 'undefined')
+			{
+				window.TrelloClient = null;
+			}
+
 		}
 		
 		if (callback != null)
@@ -809,7 +871,7 @@ App.prototype.init = function()
 				{
 					this.updateUserElement();
 					this.restoreLibraries();
-				}))
+				}));
 				
 				// Notifies listeners of new client
 				this.fireEvent(new mxEventObject('clientLoaded', 'client', this.oneDrive));
@@ -821,6 +883,38 @@ App.prototype.init = function()
 		});
 
 		initOneDriveClient();
+	}
+
+	/**
+	 * Lazy-loading for Trello
+	 */
+	if (urlParams['embed'] != '1' || urlParams['tr'] == '1')
+	{
+		/**
+		 * Creates Trello client if all required libraries are available.
+		 */
+		var initTrelloClient = mxUtils.bind(this, function()
+		{
+			if (typeof window.Trello !== 'undefined')
+			{
+				this.trello = new TrelloClient(this);
+				
+				this.trello.addListener('userChanged', mxUtils.bind(this, function()
+				{
+//					this.updateUserElement();
+//					this.restoreLibraries();
+				}));
+				
+				// Notifies listeners of new client
+				this.fireEvent(new mxEventObject('clientLoaded', 'client', this.trello));
+			}
+			else if (window.DrawTrelloClientCallback == null)
+			{
+				window.DrawTrelloClientCallback = initTrelloClient;
+			}
+		});
+
+		initTrelloClient();
 	}
 
 	/**
@@ -2981,7 +3075,7 @@ App.prototype.saveFile = function(forceDialog)
 				serviceCount++;
 			}
 			
-			var rowLimit = (serviceCount <= 4) ? 2 : 3;
+			var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
 			
 			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode)
 			{
@@ -3101,6 +3195,10 @@ App.prototype.getPeerForMode = function(mode)
 	{
 		return this.oneDrive;
 	}
+	else if (mode == App.MODE_TRELLO)
+	{
+		return this.trello;
+	} 
 	else
 	{
 		return null;
@@ -3160,6 +3258,14 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					this.fileCreated(file, libs, replace, done);
 				}), error, false, folderId);
 			}));
+		}
+		else if (mode == App.MODE_TRELLO && this.trello != null)
+		{
+			this.trello.insertFile(title, data, mxUtils.bind(this, function(file)
+			{
+				complete();
+				this.fileCreated(file, libs, replace, done);
+			}), error, false, folderId);
 		}
 		else if (mode == App.MODE_DROPBOX && this.dropbox != null)
 		{
@@ -3604,6 +3710,10 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				else if (id.charAt(0) == 'H')
 				{
 					peer = this.gitHub;
+				}
+				else if (id.charAt(0) == 'T')
+				{
+					peer = this.trello;
 				}
 				
 				if (peer == null)
@@ -4069,6 +4179,14 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 			fn(folderPath);
 		}));
 	}
+	else if (enabled && mode == App.MODE_TRELLO && this.trello != null)
+	{
+		this.trello.pickFolder(mxUtils.bind(this, function(cardId)
+		{
+			resume();
+			fn(cardId);
+		}));
+	}
 	else
 	{
 		EditorUi.prototype.pickFolder.apply(this, arguments);
@@ -4166,6 +4284,21 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 				this.spinner.stop();
 				this.handleError(resp);
 			}), true, folderId, base64Encoded);
+		}
+	}
+	else if (mode == App.MODE_TRELLO)
+	{
+		if (this.trello != null && this.spinner.spin(document.body, mxResources.get('saving')))
+		{
+			this.trello.insertFile(filename, (base64Encoded) ? this.base64ToBlob(data, mimeType) :
+				data, mxUtils.bind(this, function()
+			{
+				this.spinner.stop();
+			}), mxUtils.bind(this, function(resp)
+			{
+				this.spinner.stop();
+				this.handleError(resp);
+			}), false, folderId);
 		}
 	}
 	else if (mode == App.MODE_BROWSER)
@@ -4581,7 +4714,7 @@ App.prototype.updateHeader = function()
 		 */
 		this.toggleFormatElement = document.createElement('a');
 		this.toggleFormatElement.setAttribute('href', 'javascript:void(0);');
-		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (Ctrl+Shift+P)');
+		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
 		this.toggleFormatElement.style.top = '5px';
