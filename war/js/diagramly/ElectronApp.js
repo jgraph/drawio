@@ -97,8 +97,23 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting', 'autosave', '-',
-			                         'createShape', 'editDiagram', '-', 'tags', '-', 'online'], parent);
+			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
+
+			if (typeof(MathJax) !== 'undefined')
+			{
+				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+			}
+			
+			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram', '-'], parent);
+			var item = this.addMenuItem(menu, 'tags', parent);
+			
+			if (!editorUi.isOffline())
+			{
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+			}
+
+			this.addMenuItems(menu, ['-', 'online'], parent);			
 		})));
 	};
 	

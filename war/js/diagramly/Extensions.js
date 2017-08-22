@@ -2908,8 +2908,11 @@
 			{
 				for (var key in g.Lines)
 				{
-					var obj = g.Lines[key];
-				    addLine(obj, obj);
+					if (!hidden.includes(key))
+					{
+						var obj = g.Lines[key];
+					    addLine(obj, obj);
+					}
 				}
 			}
 			

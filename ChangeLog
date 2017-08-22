@@ -1,3 +1,7 @@
+22-AUG-2017: 7.1.10
+
+- Fixes transistor icon set
+
 21-AUG-2017: 7.1.9
 
 - Adds persistent autosave setting in Electron App

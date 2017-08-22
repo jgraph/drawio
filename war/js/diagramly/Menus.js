@@ -2450,7 +2450,7 @@
 			menu.addSeparator(parent);
 			var item = this.addMenuItem(menu, 'tags', parent);
 			
-			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+			if (!editorUi.isOffline())
 			{
 				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
 			}
