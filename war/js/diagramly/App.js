@@ -961,15 +961,15 @@ App.prototype.init = function()
 					this.drive.addListener('userChanged', mxUtils.bind(this, function()
 					{
 						// Changes the footer ads for Google Accounts
-						if (this.updateAd != null)
-						{
-							this.adsHtml = this.basicAds.concat([
-								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
-								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
-								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
-							this.updateAd(this.adsHtml.length - 1);
-						}
+//						if (this.updateAd != null)
+//						{
+//							this.adsHtml = this.basicAds.concat([
+//								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
+//								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
+//								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
+//								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
+//							this.updateAd(this.adsHtml.length - 1);
+//						}
 						
 						this.updateUserElement();
 						this.restoreLibraries();
@@ -1111,136 +1111,140 @@ App.prototype.init = function()
 	});
 	
 	// Announce Desktop Apps
-	// TODO: Remove after one week
-	var td2 = document.getElementById('geFooterItem1');
-	
-	if (td2 != null)
-	{
-		var link = 'https://download.draw.io/';
-		var lastHtml = td2.innerHTML;
-		var os = 'draw.io';
-
-		if (['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].indexOf(navigator.platform) >= 0)
-		{
-			os += ' for macOS';
-		}
-		else if (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(navigator.platform) >= 0)
-		{
-			os += ' for Windows';
-		}
-		else if (/\bCrOS\b/.test(navigator.userAgent))
-		{
-			os += ' for Chrome OS';
-		}
-		else if (/Linux/.test(navigator.platform))
-		{
-			os += ' for Linux';
-		}
-		else
-		{
-			os += ' Desktop';
-		}
-		
-		td2.innerHTML = '<a title="' + os + '" href="' + link + '" target="_blank">' +
-			'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" ' +
-			'src="images/drawlogo48.png"/>&nbsp;&nbsp;' + os + '</a>';
-		
-		window.setInterval(mxUtils.bind(this, function()
-		{
-			var temp = lastHtml;
-			lastHtml = td2.innerHTML;
-			rotate(td2, temp);
-		}), 300000);
-	}
+//	var td2 = document.getElementById('geFooterItem1');
+//	
+//	if (td2 != null)
+//	{
+//		var link = 'https://download.draw.io/';
+//		var lastHtml = td2.innerHTML;
+//		var os = 'draw.io';
+//
+//		if (['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].indexOf(navigator.platform) >= 0)
+//		{
+//			os += ' for macOS';
+//		}
+//		else if (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(navigator.platform) >= 0)
+//		{
+//			os += ' for Windows';
+//		}
+//		else if (/\bCrOS\b/.test(navigator.userAgent))
+//		{
+//			os += ' for Chrome OS';
+//		}
+//		else if (/Linux/.test(navigator.platform))
+//		{
+//			os += ' for Linux';
+//		}
+//		else
+//		{
+//			os += ' Desktop';
+//		}
+//		
+//		td2.innerHTML = '<a title="' + os + '" href="' + link + '" target="_blank">' +
+//			'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" ' +
+//			'src="images/drawlogo48.png"/>&nbsp;&nbsp;' + os + '</a>';
+//		
+//		window.setInterval(mxUtils.bind(this, function()
+//		{
+//			var temp = lastHtml;
+//			lastHtml = td2.innerHTML;
+//			rotate(td2, temp);
+//		}), 300000);
+//	}
 	
 	// Changes footer from time to time
 	var td = document.getElementById('geFooterItem2');
 	
-	if (td != null)
+	if (td != null && mxClient.IS_SVG)
 	{
-		this.basicAds.push(td.innerHTML);
-		this.adsHtml = this.basicAds;
-		var lastAd = this.adsHtml.length - 1;
-		var thread2 = null;
-		var thread = null;
+		td.innerHTML = '<a title="Collaborate on diagrams in Samepage" target="_blank" ' +
+			((mxClient.IS_SF) ? 'style="margin-top:-22px;" ' : '') +
+			'href="https://www.samepage.io/draw-diagram-online?SPcid=SIOF%2BDraw%2Breferral%2BDraw%2Bv1%2BNA"\>' +
+			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
+			'src="' + IMAGE_PATH + '/samepage-icon-color.svg"/>Collaborate on diagrams in Samepage</a>';
+//		this.basicAds.push(td.innerHTML);
+//		this.adsHtml = this.basicAds;
+//		var lastAd = this.adsHtml.length - 1;
+//		var thread2 = null;
+//		var thread = null;
+//		
+//		this.updateAd = function(index, delay)
+//		{
+//			if (thread != null)
+//			{
+//				window.clearTimeout(thread);
+//				thread = null;
+//			}
+//
+//			if (thread2 != null)
+//			{
+//				window.clearTimeout(thread2);
+//				thread2 = null;
+//			}
+//			
+//			if (this.adsHtml.length == 0)
+//			{
+//				td.style.display = 'none';
+//				td.innerHTML = '';
+//			}
+//			else
+//			{
+//				var schedule = mxUtils.bind(this, function()
+//				{
+//					if (this.adsHtml.length > 0)
+//					{
+//						thread = window.setTimeout(mxUtils.bind(this, function()
+//						{
+//							var tmp = 0;
+//							
+//							if (this.adsHtml.length > 1)
+//							{
+//								tmp = Math.round(Math.random() * (this.adsHtml.length - 2));
+//								
+//								if (tmp == lastAd)
+//								{
+//									tmp++;
+//								}
+//							}
+//							
+//							this.updateAd(tmp);
+//						}), 180000);
+//					}
+//				});
+//			
+//				if (index != lastAd)
+//				{
+//					rotate(td, this.adsHtml[index], delay, function()
+//					{
+//						lastAd = index;
+//						schedule();
+//					});
+//				}
+//				else
+//				{
+//					schedule();
+//				}
+//			}
+//		};
 		
-		this.updateAd = function(index, delay)
-		{
-			if (thread != null)
-			{
-				window.clearTimeout(thread);
-				thread = null;
-			}
-
-			if (thread2 != null)
-			{
-				window.clearTimeout(thread2);
-				thread2 = null;
-			}
-			
-			if (this.adsHtml.length == 0)
-			{
-				td.style.display = 'none';
-				td.innerHTML = '';
-			}
-			else
-			{
-				var schedule = mxUtils.bind(this, function()
-				{
-					if (this.adsHtml.length > 0)
-					{
-						thread = window.setTimeout(mxUtils.bind(this, function()
-						{
-							var tmp = 0;
-							
-							if (this.adsHtml.length > 1)
-							{
-								tmp = Math.round(Math.random() * (this.adsHtml.length - 2));
-								
-								if (tmp == lastAd)
-								{
-									tmp++;
-								}
-							}
-							
-							this.updateAd(tmp);
-						}), 180000);
-					}
-				});
-			
-				if (index != lastAd)
-				{
-					rotate(td, this.adsHtml[index], delay, function()
-					{
-						lastAd = index;
-						schedule();
-					});
-				}
-				else
-				{
-					schedule();
-				}
-			}
-		};
-		
-		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
-		{
-			this.adsHtml.splice(lastAd, 1);
-			lastAd = null;
-			this.updateAd(0);
-		}));
-
-		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
-		{
-			thread2 = window.setTimeout(mxUtils.bind(this, function()
-			{
-				this.updateAd(0);
-			}), 15000);
-		}
-		else
-		{
-			this.updateAd(this.adsHtml.length - 1);
-		}
+//		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
+//		{
+//			this.adsHtml.splice(lastAd, 1);
+//			lastAd = null;
+//			this.updateAd(0);
+//		}));
+//
+//		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
+//		{
+//			thread2 = window.setTimeout(mxUtils.bind(this, function()
+//			{
+//				this.updateAd(0);
+//			}), 15000);
+//		}
+//		else
+//		{
+//			this.updateAd(this.adsHtml.length - 1);
+//		}
 	}
 	
 	if (this.menubar != null)

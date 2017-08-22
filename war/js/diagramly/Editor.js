@@ -781,7 +781,8 @@
 		/**
 		 * Adds predefiend styles.
 		 */
-		var StyleFormatPanelInit = StyleFormatPanel.prototype.init;
+		var styleFormatPanelInit = StyleFormatPanel.prototype.init;
+		
 		StyleFormatPanel.prototype.init = function()
 		{
 			// TODO: Update sstate in Format
@@ -792,13 +793,14 @@
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
 			
-			StyleFormatPanelInit.apply(this, arguments);
+			styleFormatPanelInit.apply(this, arguments);
 		};
 
 		/**
 		 * Overridden to add copy and paste style.
 		 */
 		var styleFormatPanelAddStyleOps = StyleFormatPanel.prototype.addStyleOps;
+		
 		StyleFormatPanel.prototype.addStyleOps = function(div)
 		{
 			var btn = mxUtils.button(mxResources.get('copyStyle'), mxUtils.bind(this, function(evt)

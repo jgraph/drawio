@@ -155,6 +155,38 @@
 			<stroke/>
 		</foreground>
 	</shape>
+	<shape aspect="fixed" h="110" name="NMOS" strokewidth="inherit" w="70">
+		<connections>
+			<constraint name="NE" perimeter="0" x="1" y="0"/>
+			<constraint name="SE" perimeter="0" x="1" y="1"/>
+			<constraint name="W" perimeter="0" x="0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="0" y="55"/>
+				<line x="41" y="55"/>
+				<move x="41" y="35"/>
+				<line x="41" y="75"/>
+				<move x="70" y="0"/>
+				<line x="70" y="35"/>
+				<line x="45" y="35"/>
+				<line x="45" y="75"/>
+				<line x="70" y="75"/>
+				<line x="70" y="110"/>
+			</path>
+		</background>
+		<foreground>
+			<stroke/>
+			<path>
+				<move x="54" y="70"/>
+				<line x="69" y="75"/>
+				<line x="54" y="80"/>
+				<close/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
 	<shape aspect="fixed" h="110" name="NPN Transistor 1" strokewidth="inherit" w="100">
 		<connections>
 			<constraint name="NE" perimeter="0" x="0.7" y="0"/>
@@ -361,6 +393,38 @@
 				<line x="20" y="75"/>
 			</path>
 			<stroke/>
+		</foreground>
+	</shape>
+	<shape aspect="fixed" h="110" name="PMOS" strokewidth="inherit" w="70">
+		<connections>
+			<constraint name="NE" perimeter="0" x="1" y="0"/>
+			<constraint name="SE" perimeter="0" x="1" y="1"/>
+			<constraint name="W" perimeter="0" x="0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="0" y="55"/>
+				<line x="41" y="55"/>
+				<move x="41" y="35"/>
+				<line x="41" y="75"/>
+				<move x="70" y="0"/>
+				<line x="70" y="35"/>
+				<line x="45" y="35"/>
+				<line x="45" y="75"/>
+				<line x="70" y="75"/>
+				<line x="70" y="110"/>
+			</path>
+		</background>
+		<foreground>
+			<stroke/>
+			<path>
+				<move x="61" y="30"/>
+				<line x="46" y="35"/>
+				<line x="61" y="40"/>
+				<close/>
+			</path>
+			<fillstroke/>
 		</foreground>
 	</shape>
 	<shape aspect="fixed" h="110" name="PNP Transistor 1" strokewidth="inherit" w="100">
