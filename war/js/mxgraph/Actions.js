@@ -1201,7 +1201,7 @@ function Action(label, funct, enabled, iconCls, shortcut)
 {
 	mxEventSource.call(this);
 	this.label = label;
-	this.funct = funct;
+	this.funct = this.createFunction(funct);
 	this.enabled = (enabled != null) ? enabled : true;
 	this.iconCls = iconCls;
 	this.shortcut = shortcut;
@@ -1210,6 +1210,14 @@ function Action(label, funct, enabled, iconCls, shortcut)
 
 // Action inherits from mxEventSource
 mxUtils.extend(Action, mxEventSource);
+
+/**
+ * Sets the enabled state of the action and fires a stateChanged event.
+ */
+Action.prototype.createFunction = function(funct)
+{
+	return funct;
+};
 
 /**
  * Sets the enabled state of the action and fires a stateChanged event.

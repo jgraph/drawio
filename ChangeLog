@@ -1,3 +1,10 @@
+23-AUG-2017: 7.2.0
+
+- Adds support for line jumps (beta)
+- Improvements for Lucidchart import
+- Adds usage stats for actions
+- Uses mxGraph 3.7.5 beta 13
+
 22-AUG-2017: 7.1.10
 
 - Fixes transistor icon set

@@ -9,6 +9,11 @@
  */
 Draw.loadPlugin(function(ui)
 {
+	if (ui.editor.chromeless)
+	{
+		return;
+	}
+	
 	var spacing = 10;
 	var level = 40;
 	

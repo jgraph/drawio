@@ -1655,14 +1655,14 @@
 			
 			if (editorUi.trello != null)
 			{
-				menu.addItem(mxResources.get('trello', null, 'Trello') + '...', null, function()
+				menu.addItem(mxResources.get('trello') + '...', null, function()
 				{
 					pickFileFromService(editorUi.trello);
 				}, parent);
 			}
 			else if (trelloEnabled)
 			{
-				menu.addItem(mxResources.get('trello', null, 'Trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
 					// do nothing
 				}, parent, null, false);
@@ -1895,12 +1895,12 @@
 
 		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
 		{
-		    window.open('http://www.draw.io/app')
+		    window.open('https://www.draw.io/app')
 		}));
 		
-		editorUi.actions.put('chromeApp', new Action(mxResources.get('chromeApp') + '...', function()
+		editorUi.actions.put('download', new Action(mxResources.get('download') + '...', function()
 		{
-			window.open('https://chrome.google.com/webstore/detail/drawio-desktop/pebppomjfocnoigkeepgbmcifnnlndla')
+			window.open('https://download.draw.io')
 		}));
 
 		this.editorUi.actions.addAction('share...', mxUtils.bind(this, function()
@@ -2105,14 +2105,14 @@
 			
 			if (editorUi.trello != null)
 			{
-				menu.addItem(mxResources.get('trello', null, 'Trello') + '...', null, function()
+				menu.addItem(mxResources.get('trello') + '...', null, function()
 				{
 					editorUi.pickFile(App.MODE_TRELLO);
 				}, parent);
 			}
 			else if (trelloEnabled)
 			{
-				menu.addItem(mxResources.get('trello', null, 'Trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
 					// do nothing
 				}, parent, null, false);
@@ -2222,6 +2222,21 @@
 				}, parent, null, false);
 			}
 			
+			if (editorUi.trello != null)
+			{
+				menu.addItem(mxResources.get('trello') + '...', null, function()
+				{
+					editorUi.showLibraryDialog(null, null, null, null, App.MODE_TRELLO);
+				}, parent);
+			}
+			else if (trelloEnabled)
+			{
+				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
 			menu.addSeparator(parent);
 
 			if (isLocalStorage && urlParams['browser'] != '0')
@@ -2294,6 +2309,21 @@
 			else if (oneDriveEnabled)
 			{
 				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
+			if (editorUi.trello != null)
+			{
+				menu.addItem(mxResources.get('trello') + '...', null, function()
+				{
+					editorUi.pickLibrary(App.MODE_TRELLO);
+				}, parent);
+			}
+			else if (trelloEnabled)
+			{
+				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
 					// do nothing
 				}, parent, null, false);
@@ -2456,15 +2486,15 @@
 			}
 
 			menu.addSeparator(parent);
+
+			if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')
+			{
+				this.addMenuItems(menu, ['download'], parent);
+			}
 			
 			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['-', 'offline'], parent);
-			}
-			
-			if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')
-			{
-				this.addMenuItems(menu, ['chromeApp'], parent);
+				this.addMenuItems(menu, ['offline'], parent);
 			}
 		})));
 

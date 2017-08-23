@@ -899,10 +899,11 @@ App.prototype.init = function()
 			{
 				this.trello = new TrelloClient(this);
 				
+				//TODO we have no user info from Trello so we don't set a user
 				this.trello.addListener('userChanged', mxUtils.bind(this, function()
 				{
-//					this.updateUserElement();
-//					this.restoreLibraries();
+					this.updateUserElement();
+					this.restoreLibraries();
 				}));
 				
 				// Notifies listeners of new client
@@ -1111,10 +1112,18 @@ App.prototype.init = function()
 	});
 	
 	// Announce Desktop Apps
-//	var td2 = document.getElementById('geFooterItem1');
-//	
-//	if (td2 != null)
-//	{
+	var td2 = document.getElementById('geFooterItem1');
+	
+	if (td2 != null)
+	{
+		mxEvent.addListener(td2, 'click', mxUtils.bind(this, function()
+		{
+			if (typeof window.ga === 'function' && !this.isOffline())
+			{
+				ga('send', 'event', 'Footer', 'click', 'Confluence');
+			}
+		}));
+	}
 //		var link = 'https://download.draw.io/';
 //		var lastHtml = td2.innerHTML;
 //		var os = 'draw.io';
@@ -1227,12 +1236,16 @@ App.prototype.init = function()
 //			}
 //		};
 		
-//		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
-//		{
+		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
+		{
 //			this.adsHtml.splice(lastAd, 1);
 //			lastAd = null;
 //			this.updateAd(0);
-//		}));
+			if (typeof window.ga === 'function' && !this.isOffline())
+			{
+				ga('send', 'event', 'Footer', 'click', 'Samepage');
+			}
+		}));
 //
 //		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
 //		{
@@ -1963,6 +1976,10 @@ App.prototype.appIconClicked = function(evt)
 		{
 			window.open('https://onedrive.live.com/');
 		}
+		else if (mode == App.MODE_TRELLO)
+		{
+			window.open('https://trello.com/');
+		}
 		else if (mode == App.MODE_GITHUB)
 		{
 			if (file != null && file.constructor == GitHubFile)
@@ -2564,7 +2581,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
-		var rowLimit = (serviceCount <= 4) ? 2 : 3;
+		var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
@@ -2572,7 +2589,7 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300, (serviceCount > rowLimit) ? 420 : 300, true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : ((rowLimit < 4) ? 300 : 390), (serviceCount > rowLimit) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
@@ -2767,12 +2784,13 @@ App.prototype.pickLibrary = function(mode)
 {
 	mode = (mode != null) ? mode : this.mode;
 	
-	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB)
+	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB || mode == App.MODE_TRELLO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
 			((mode == App.MODE_GITHUB) ? this.gitHub :
-			this.dropbox));
+			((mode == App.MODE_TRELLO) ? this.trello :
+			this.dropbox)));
 		
 		if (peer != null)
 		{
@@ -2933,6 +2951,15 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 			else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 			{
 				this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+				{
+					this.spinner.stop();
+					this.hideDialog(true);
+					this.libraryLoaded(newFile, images);
+				}), error, folderId);
+			}
+			else if (mode == App.MODE_TRELLO && this.trello != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+			{
+				this.trello.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 				{
 					this.spinner.stop();
 					this.hideDialog(true);
@@ -3821,6 +3848,10 @@ App.prototype.getLibraryStorageHint = function(file)
 	{
 		tip += ' (' + mxResources.get('github') + ')';
 	}
+	else if (file.constructor == TrelloLibrary)
+	{
+		tip += ' (' + mxResources.get('trello') + ')';
+	}
 	else if (file.constructor == DropboxLibrary)
 	{
 		tip += ' (' + mxResources.get('dropbox') + ')';
@@ -3962,7 +3993,13 @@ App.prototype.restoreLibraries = function()
 										peer = this.gitHub;
 									}
 								}
-
+								else if (service == 'T')
+								{
+									if (this.trello != null && this.trello.isAuthorized())
+									{
+										peer = this.trello;
+									}
+								}
 								else if (service == 'D')
 								{
 									if (this.dropbox != null && this.dropbox.getUser() != null)
@@ -4655,6 +4692,10 @@ App.prototype.updateHeader = function()
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/github-logo-white.svg)';
 				}
+				else if (mode == App.MODE_TRELLO)
+				{
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white.svg)';
+				}
 			}
 		}));
 		
@@ -4893,7 +4934,8 @@ App.prototype.updateUserElement = function()
 	if ((this.drive == null || this.drive.getUser() == null) &&
 		(this.oneDrive == null || this.oneDrive.getUser() == null) &&
 		(this.dropbox == null || this.dropbox.getUser() == null) &&
-		(this.gitHub == null || this.gitHub.getUser() == null))
+		(this.gitHub == null || this.gitHub.getUser() == null) &&
+		(this.trello == null || !this.trello.isAuthorized())) //TODO Trello no user issue
 	{
 		if (this.userElement != null)
 		{
@@ -5163,6 +5205,38 @@ App.prototype.updateUserElement = function()
 						}));
 					}
 					
+					//TODO We have no user info from Trello, how we can create a user?
+					if (this.trello != null)
+					{
+						addUser(this.trello.getUser(), IMAGE_PATH + '/trello-logo.svg', mxUtils.bind(this, function()
+						{
+							var file = this.getCurrentFile();
+
+							if (file != null && file.constructor == TrelloFile)
+							{
+								var doLogout = mxUtils.bind(this, function()
+								{
+									this.trello.logout();
+									window.location.hash = '';
+								});
+								
+								if (!file.isModified())
+								{
+									doLogout();
+								}
+								else
+								{
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
+								}
+							}
+							else
+							{
+								this.trello.logout();
+							}
+						}));
+					}
+					
 					if (!connected)
 					{
 						var div = document.createElement('div');
@@ -5206,6 +5280,7 @@ App.prototype.updateUserElement = function()
 		{
 			user = this.gitHub.getUser();
 		}
+		//TODO Trello no user issue
 		
 		if (user != null)
 		{

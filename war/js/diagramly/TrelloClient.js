@@ -104,9 +104,9 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 /**
  * 
  */
-TrelloClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
+TrelloClient.prototype.insertLibrary = function(filename, data, success, error, cardId)
 {
-	this.insertFile(filename, data, success, error, true, folderId);
+	this.insertFile(filename, data, success, error, true, cardId);
 };
 
 /**
@@ -298,7 +298,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 	content.style.height = '224px';
 
 	var hd = document.createElement('h3');
-	mxUtils.write(hd, showFiles? mxResources.get('selectFile') : mxResources.get('selectCard', null, 'Select Card'));
+	mxUtils.write(hd, showFiles? mxResources.get('selectFile') : mxResources.get('selectCard'));
 	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 	content.appendChild(hd);
 
@@ -439,7 +439,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 				{
 					if (filter != null)
 					{
-						div.appendChild(createLink(mxResources.get('ClearFilter', null, 'Clear Filter'), mxUtils.bind(this, function()
+						div.appendChild(createLink(mxResources.get('clearFilter'), mxUtils.bind(this, function()
 						{
 							filter = null;
 							selectCard();
@@ -454,7 +454,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 					{
 						if (filter != null)
 						{
-							div.appendChild(createLink(mxResources.get('ClearFilter', null, 'Clear Filter'), mxUtils.bind(this, function()
+							div.appendChild(createLink(mxResources.get('clearFilter'), mxUtils.bind(this, function()
 							{
 								filter = null;
 								selectCard();
@@ -462,16 +462,16 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 						}
 						else
 						{
-							div.appendChild(createLink(mxResources.get('FilterCards', null, 'Filter Cards') + '...', mxUtils.bind(this, function()
+							div.appendChild(createLink(mxResources.get('filterCards') + '...', mxUtils.bind(this, function()
 							{
-								var dlg = new FilenameDialog(this.ui, mxResources.get('CardName', null, 'Card Name'), mxResources.get('ok'), mxUtils.bind(this, function(value)
+								var dlg = new FilenameDialog(this.ui, mxResources.get('cardName'), mxResources.get('ok'), mxUtils.bind(this, function(value)
 								{
 									if (value != null)
 									{
 										filter = value;
 										selectCard();
 									}
-								}), mxResources.get('CardName', null, 'Card Name'));
+								}), mxResources.get('cardName'));
 								this.ui.showDialog(dlg.container, 300, 80, true, false);
 								dlg.init();
 							})));
@@ -523,7 +523,17 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Checks if the client is authorized
+ */
+TrelloClient.prototype.isAuthorized = function()
+{
+	//TODO this may break if Trello client.js is changed
+	return localStorage["trello_token"] != null; //Trello.authorized(); doesn't work unless authorize is called first
+};
+
+
+/**
+ * Logout and deauthorize the user. 
  */
 TrelloClient.prototype.logout = function()
 {

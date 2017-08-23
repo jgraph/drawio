@@ -10,7 +10,7 @@
 	var dx = 0;
 	var dy = 0;
 	
-	var arcSize = 5;
+	var arcSize = 6;
 	var edgeStyle = 'html=1;';
 	var vertexStyle = 'html=1;whiteSpace=wrap;';
 	var labelStyle = 'text;html=1;resizable=0;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;';
@@ -19,8 +19,81 @@
 	var s = "shape=mxgraph.";
 	var ss = "strokeColor=none;shape=mxgraph.";
 
+//	stencils with hardcoded stroke color
+	var hardStroke = [
+		'VennPlainColor1', 
+		'VennPlainColor2', 
+		'VennPlainColor3', 
+		'VennPlainColor4', 
+		'VennPlainColor5', 
+		'VennPlainColor6', 
+		'VennPlainColor7', 
+		'VennPlainColor8',
+		'VennGradientColor1', 
+		'VennGradientColor2', 
+		'VennGradientColor3', 
+		'VennGradientColor4', 
+		'VennGradientColor5', 
+		'VennGradientColor6', 
+		'VennGradientColor7', 
+		'VennGradientColor8', 
+		'UMLEndBlock',
+		'DefaultTextBlockNew'
+	];
+	
+	//stencils with hardCoded fill color
+	var hardFill = [
+		'AWSAndroidBlock3', 
+		'AWSiOSBlock3', 
+		'AWSJavaBlock3', 
+		'AWSJavaScript', 
+		'AWSNetBlock3', 
+		'AWSNodeJSBlock3', 
+		'AWSPHPBlock3', 
+		'AWSPythonBlock3', 
+		'AWSRubyBlock3', 
+		'AWSXamarin', 
+		'AWSCLIBlock3', 
+		'AWSEclipseToolkitBlock3', 
+		'AWSVisualStudioToolkitBlock3', 
+		'AWSWindowsPowershellToolkitBlock3', 
+		'DefaultTextBlock', 
+		'RectangleContainerBlock', 
+		'UMLStartBlock', 
+		'UMLEndBlock',
+		'DefaultTextBlockNew',
+		'UMLHForkJoinBlock'
+	];
+
+//	stencils with hardcoded opacity
+	var hardOpacity = [
+		'VennPlainColor1', 
+		'VennPlainColor2', 
+		'VennPlainColor3', 
+		'VennPlainColor4', 
+		'VennPlainColor5', 
+		'VennPlainColor6', 
+		'VennPlainColor7', 
+		'VennPlainColor8', 
+		'VennGradientColor1', 
+		'VennGradientColor2', 
+		'VennGradientColor3', 
+		'VennGradientColor4', 
+		'VennGradientColor5', 
+		'VennGradientColor6', 
+		'VennGradientColor7', 
+		'VennGradientColor8'
+	];
+
+	//stencils to rotate counter clockwise 90 degrees
+	var rccw = [
+		'AEUSBBlock', 
+		'AGSCutandpasteBlock', 
+		'iOSDeviceiPadLandscape', 
+		'iOSDeviceiPadProLandscape'
+	];
+	
 	var edgeStyleMap = {
-			//Standard
 						'None': 'none',
 						'Arrow': 'block;endFill=1',
 						'Hollow Arrow': 'block;endFill=0',
@@ -40,22 +113,20 @@
 						'BlockEnd': 'none;endFill=1;startSize=16'
 	};
 
-	// TODO: Add shape mappings
-	// FIXME: Factor our common strings, eg. shape=mxgraph. to save space
 	var styleMap = {
 //Standard
-			'DefaultTextBlockNew': 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;',
-			'DefaultTextBlock': 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;',
-			'DefaultSquareBlock': 'rounded=1;arcSize=' + arcSize + ';',
+			'DefaultTextBlockNew': 'text;strokeColor=none;fillColor=none;',
+			'DefaultTextBlock': 'text;strokeColor=none;fillColor=none;',
+			'DefaultSquareBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';',
 			'DefaultNoteBlock': 'shape=note;size=15;',
 			'DefaultNoteBlockV2': 'shape=note;size=15;',
 			'HotspotBlock': 'strokeColor=none;opacity=50;',
 			'ImageSearchBlock2': 'shape=image;',
 //Flowchart
-			'ProcessBlock': 'rounded=1;arcSize=' + arcSize + ';',
+			'ProcessBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';',
 			'DecisionBlock': 'rhombus;rounded=1;arcSize=' + arcSize + ';',
 			'TerminatorBlock': 'rounded=1;arcSize=50;',
-			'PredefinedProcessBlock': 'shape=process;rounded=1;arcSize=' + arcSize + ';',
+			'PredefinedProcessBlock': 'shape=process;absoluteArcSize=1;rounded=1;arcSize=' + arcSize + ';',
 			'DocumentBlock': 'shape=document;',
 			'MultiDocumentBlock': s + 'flowchart.multi-document;',
 			'ManualInputBlock': 'shape=manualInput;size=15;rounded=1;arcSize=' + arcSize + ';',
@@ -78,11 +149,11 @@
 			'BraceNoteBlock': 'shape=curlyBracket;rounded=1;', //EXT
 			'NoteBlock': s + 'flowchart.annotation_1;',
 //Containers
-			'AdvancedSwimLaneBlock': 'swimlane;rounded=1;arcSize=' + arcSize + ';', //EXT
-			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0;rounded=1;arcSize=' + arcSize + ';', //EXT
-			'RectangleContainerBlock': 'fillColor=none;container=1;rounded=1;arcSize=' + arcSize + ';',
+			'AdvancedSwimLaneBlock': 'swimlane;rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';', //EXT
+			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0;rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';', //EXT
+			'RectangleContainerBlock': 'fillColor=none;container=1;absoluteArcSize=1;rounded=1;arcSize=' + arcSize + ';',
 			'DiamondContainerBlock':  'shape=rhombus;fillColor=none;container=1;',
-			'RoundedRectangleContainerBlock': 'rounded=1;fillColor=none;container=1;', 
+			'RoundedRectangleContainerBlock': 'absoluteArcSize=1;arcSize=' + arcSize+ ';rounded=1;fillColor=none;container=1;', 
 			'CircleContainerBlock': 'shape=ellipse;fillColor=none;container=1;',
 			'PillContainerBlock': 'rounded=1;arcSize=50;fillColor=none;container=1;',
 //			'BraceBlock' NA
@@ -105,7 +176,7 @@
 			'ShapePolyStarBlock': s + 'basic.star;',
 			'ShapeDiamondBlock': 'rhombus;rounded=1;arcSize=' + arcSize + ';',
 //Misc
-			'UI2HotspotBlock' : 'shape=rect;opacity=50;strokeColor=none;rounded=1;',
+			'UI2HotspotBlock' : 'opacity=50;strokeColor=none;absoluteArcSize=1;arcSize=' + arcSize + 'rounded=1;',
 //Android Devices
 //			'AndroidDevice' EXT
 //Android Dialogs
@@ -187,8 +258,8 @@
 //			'iOSTableGroupedSectionBreak' EXT
 //			'iOSTablePlainHeaderFooter' EXT
 //Mind Map
-			'MindMapBlock' : 'shape=rect;rounded=1;',
-			'MindMapStadiumBlock' : 'shape=rect;rounded=1;arcSize=50;',
+			'MindMapBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + 'rounded=1;',
+			'MindMapStadiumBlock' : 'rounded=1;arcSize=50;',
 			'MindMapCloud' : 'shape=cloud;',
 			'MindMapCircle' : 'shape=ellipse;',
 			'MindMapIsoscelesTriangleBlock' : 'shape=triangle;direction=north;',
@@ -237,7 +308,7 @@
 //			'SMSlideshow' EXT
 //			'SMUpload' EXT
 //UML Class Diagram
-			'UMLClassBlock': 'rounded=1;',
+			'UMLClassBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';',
 			'UMLActiveClassBlock': s + 'flowchart.predefined_process;',
 //			'UMLMultiplicityBlock' NA
 			'UMLPackageBlock': 'shape=folder;tabPosition=left;',
@@ -248,19 +319,19 @@
 			'UMLActorBlock': 'shape=umlActor;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;whiteSpace=nowrap;',
 			'UMLUseCaseBlock': 'shape=ellipse;',
 			'UMLCircleContainerBlock': 'shape=ellipse;container=1;',
-			'UMLRectangleContainerBlock': 'rounded=1;container=1;',
+			'UMLRectangleContainerBlock': 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;container=1;',
 //UML State/Activity			
 			'UMLOptionLoopBlock' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill;',
 			'UMLAlternativeBlock2' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill;',
 			'UMLStartBlock' : 'shape=ellipse;fillColor=#000000;',
-			'UMLStateBlock' : 'shape=rect;rounded=1;',
+			'UMLStateBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'UMLDecisionBlock' : 'shape=rhombus;rounded=1;',
-			'UMLHForkJoinBlock' : 'shape=rect;rounded=1;fillColor=#000000;',
-			'UMLVForkJoinBlock' : 'shape=rect;rounded=1;fillColor=#000000;',
+			'UMLHForkJoinBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#000000;',
+			'UMLVForkJoinBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#000000;',
 			'UMLFlowFinalBlock' : s + 'flowchart.or;',
 			'UMLHistoryStateBlock' : 'shape=ellipse;',
-			'UMLEndBlock' : s + 'bpmn.shape;outline=end;symbol=terminate;',
-			'UMLObjectBlock' : 'shape=rect;rounded=1;',
+			'UMLEndBlock' : s + 'bpmn.shape;outline=end;symbol=terminate;strokeColor=#000000;fillColor=#ffffff;',
+			'UMLObjectBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'UMLSendSignalBlock' : s + 'sysml.sendSigAct;',
 			'UMLReceiveSignalBlock' : s + 'sysml.accEvent;flipH=1;',
 			'UMLAcceptTimeEventActionBlock' : s + 'sysml.timeEvent;',
@@ -271,7 +342,7 @@
 //			'UMLMultiLanePoolRotatedBlock' EXT
 //			'UMLMultidimensionalSwimlane' EXT
 //UML Sequence
-			'UMLActivationBlock' : 'shape=rect;rounded=1;',
+			'UMLActivationBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'UMLDeletionBlock' : s + 'sysml.x;strokeWidth=4;',
 //			'UMLAlternativeBlock' NA
 			'UMLSeqEntityBlock' : s + 'electrical.radio.microphone_1;direction=north;',
@@ -287,7 +358,7 @@
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north;',
 //UML Deployment
 //UML Entity Relationship
-			'UMLEntityBlock' : 'shape=rect;rounded=1;',
+			'UMLEntityBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'UMLWeakEntityBlock' : 'shape=ext;double=1;rounded=1;',
 			'UMLAttributeBlock' : 'shape=ellipse;',
 			'UMLMultivaluedAttributeBlock' : 'shape=doubleEllipse;',
@@ -307,16 +378,16 @@
 //			'BPMNBlackPool' EXT
 //Data Flow
 //			'DFDExternalEntityBlock' NA
-			'DFDExternalEntityBlock2' : 'shape=rect;rounded=1;',
+			'DFDExternalEntityBlock2' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'YDMDFDProcessBlock' : 'shape=ellipse;',
 			'YDMDFDDataStoreBlock' : 'shape=partialRectangle;right=0;left=0;',
-			'GSDFDProcessBlock' : 'shape=swimlane;rounded=1;',
-			'GSDFDProcessBlock2' : 'shape=rect;rounded=1;',
+			'GSDFDProcessBlock' : 'shape=swimlane;rounded=1;absoluteArcSize=1;arcSize=' + arcSize + ';',
+			'GSDFDProcessBlock2' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'GSDFDDataStoreBlock' NA
 			'GSDFDDataStoreBlock2' : 'shape=partialRectangle;right=0;',
 			
 //Org Chart
-			'OrgBlock' : 'shape=rect;rounded=1;',
+			'OrgBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //Tables
 //			'DefaultTableBlock' EXT
 //Processes
@@ -338,7 +409,7 @@
 			'VSMExternalShipmentBoatBlock' : s + 'lean_mapping.boat_shipment;',
 //Information
 			'VSMProductionControlBlock' : s + 'lean_mapping.manufacturing_process;',
-			'VSMOtherInformationBlock' : 'shape=rect;rounded=1;',
+			'VSMOtherInformationBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'VSMHeijyunkaBoxBlock' NA
 			'VSMSequencedPullBallBlock' : s + 'lean_mapping.sequenced_pull_ball;',
 			'VSMMRPERPBlock' : s + 'lean_mapping.mrp_erp;whiteSpace=wrap;',
@@ -1453,7 +1524,7 @@
 //Desks
 //			'fpDeskEndSegment' NA
 			'fpDeskLongSegment' : 'shape=rect;',
-			'fpDeskShortSegment' : 'shape=rect;rounded=1;',
+			'fpDeskShortSegment' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'fpDeskSmallCornerSegment' NA
 			'fpDeskLargeCornerSegment' : s + 'floorplan.desk_corner;',
 //			'fpDeskMediumCornerSegment' NA
@@ -1471,10 +1542,10 @@
 			'fpCubicleEnclosed11x9' : s + 'floorplan.wallU;wallThickness=3;',
 //Tables & Chairs
 			'fpTableConferenceOval' : 'shape=ellipse;',
-			'fpTableConferenceBoat' : 'shape=rect;rounded=1;',
-			'fpTableConferenceRectangle' : 'shape=rect;rounded=1;',
+			'fpTableConferenceBoat' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpTableConferenceRectangle' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'fpTableDiningRound' : 'shape=ellipse;',
-			'fpTableDiningSquare' : 'shape=rect;rounded=1;',
+			'fpTableDiningSquare' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'fpChairOffice' : s + 'floorplan.office_chair;',
 			'fpChairExecutive' : s + 'floorplan.office_chair;',
 			'fpChairLobby' : s + 'floorplan.office_chair;',
@@ -1483,14 +1554,14 @@
 //Cubicles - Prebuilt
 //Tables - Prebuilt
 //Cabinets - we don't have corresponding stencils, just rounded rectangles			
-			'fpCabinetBasic' : 'shape=rect;rounded=1;',
+			'fpCabinetBasic' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'fpCabinetCornerLarge' NA
-			'fpCabinetDoubleWide' : 'shape=rect;rounded=1;',
-			'fpCabinetDoubleWithShelves' : 'shape=rect;rounded=1;',
-			'fpCabinetShelvesBasic' : 'shape=rect;rounded=1;',
-			'fpCabinetShelvesDouble' : 'shape=rect;rounded=1;',
-			'fpCabinetBasicWithShelves' : 'shape=rect;rounded=1;',
-			'fpCabinetsAboveDeskShelves' : 'shape=rect;rounded=1;',
+			'fpCabinetDoubleWide' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpCabinetDoubleWithShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpCabinetShelvesBasic' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpCabinetShelvesDouble' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpCabinetBasicWithShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'fpCabinetsAboveDeskShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //Restroom
 			'fpRestroomToiletPrivate' : s + 'floorplan.toilet;',
 			'fpRestroomToiletPublic' : s + 'floorplan.toilet;',
@@ -1502,7 +1573,7 @@
 			'fpRestroomShower' : s + 'floorplan.shower;flipH=1;',
 //			'fpRestroomCornerSink' NA
 			'fpRestroomPedastalSink' : s + 'floorplan.sink_1;',
-			'fpRestroomCountertop' : 'shape=rect;rounded=1;',
+			'fpRestroomCountertop' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'fpRestroomMirror' : 'shape=line;strokeWidth=3;',
 //			'fpDresserOrnateMirror' NA
 //			'fpRestroomToiletPaper' NA
@@ -1533,13 +1604,13 @@
 //Kitchen
 			'fpKitchenSink' : s + 'floorplan.sink_2;',
 			'fpKitchenDoubleSink' : s + 'floorplan.sink_double;',
-			'fpKitchenCountertop' : 'shape=rect;rounded=1;',
+			'fpKitchenCountertop' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'fpKitchenCountertopCorner' : s + 'floorplan.desk_corner;',
 //Couches
 			'fpCouchLoveSeat' : s + 'floorplan.couch;',
 			'fpCouchSofa' : s + 'floorplan.couch;',
 //			'fpCouchSectional' NA
-			'fpCouchOttoman' : 'shape=rect;rounded=1;',
+			'fpCouchOttoman' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'fpCouchPillow' NA
 //Technology
 			'fpMiscDesktopComputer' : s + 'floorplan.workstation;',
@@ -1552,7 +1623,7 @@
 			'fpMiscIndoorPlant' : s + 'floorplan.plant;',
 //			'fpMiscPodium' NA
 			'fpPiano' : s + 'floorplan.piano;',
-//			'fpPianoBench' : 'shape=rect;rounded=1;',
+//			'fpPianoBench' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //Equipment
 			'PEAxialCompressor' : s + 'pid.compressors.centrifugal_compressor_-_turbine_driven;',
 			'PECentrifugalCompressor' : s + 'pid.compressors.centrifugal_compressor;',
@@ -1916,13 +1987,13 @@
 			'UI2CaptchaBlock' : s + 'mockup.text.captcha;mainText=;',
 //			'Image_ui_formatting_toolbar2'
 //UI Input
-			'UI2ButtonBlock' : 'shape=rect;rounded=1;',
+			'UI2ButtonBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 //			'UI2CheckBoxBlock' EXT
 //			'UI2HorizontalCheckBoxBlock' EXT
 //			'UI2RadioBlock' EXT
 //			'UI2HorizontalRadioBlock' EXT
 			'UI2ColorPickerBlock' : s + 'mockup.forms.colorPicker;chosenColor=#aaddff;',
-			'UI2TextInputBlock' : 'shape=rect;rounded=1;',
+			'UI2TextInputBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'UI2SelectBlock' : s + 'mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666;',
 			'UI2VSliderBlock' : s + 'mockup.forms.horSlider;sliderStyle=basic;sliderPos=20;handleStyle=circle;direction=north;',
 			'UI2HSliderBlock' : s + 'mockup.forms.horSlider;sliderStyle=basic;sliderPos=20;handleStyle=circle;',
@@ -1972,7 +2043,7 @@
 			'Image_ipad_back_button_black' : s + 'ios.iButtonBack;buttonText=;fillColor=#888888;fillColor2=#000000;',
 			'Image_ipad_sort_handle' : s + 'ios7.icons.options;',
 			'Image_ipad_dropdown' : s + 'ios.iComboBox;buttonText=;fillColor=#dddddd;fillColor2=#3D5565;',
-			'Image_ipad_email_name' : 'shape=rect;rounded=1;',
+			'Image_ipad_email_name' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'Image_ipad_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff;',
 			'Image_ipad_keyboard_portrait' : s + 'ios.iKeybLett;',
 			'Image_ipad_keyboard_landscape' : s + 'ios.iKeybLett;',
@@ -1994,8 +2065,8 @@
 			'Image_ipad_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600;',
 			'Image_ipad_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000;',
 			'Image_ipad_radio_off' : 'shape=ellipse;', //EXT
-			'Image_ipad_checkbox_off' : 'shape=rect;rounded=1;', //EXT
-			'Image_ipad_indicator' : 'shape=rect;rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff;',
+			'Image_ipad_checkbox_off' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;', //EXT
+			'Image_ipad_indicator' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff;',
 //iOS 6 iPhone Elements
 			'Image_iphone_iphone_4' : s + 'ios.iPhone;bgStyle=bgGreen;',
 			'Image_iphone_bg_black' : 'shape=rect;',
@@ -2015,31 +2086,31 @@
 //			'Image_iphone_list' EXT
 //			'Image_iphone_safari_top' NA
 //			'Image_iphone_safari_bottom' NA
-			'Image_iphone_gray_grad_list' : 'shape=rect;rounded=1;', //EXT
+			'Image_iphone_gray_grad_list' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;', //EXT
 //			'Image_iphone_alert_bar' NA
 //			'Image_iphone_alert_dialog' EXT
 //			'Image_iphone_dialog' EXT
 //			'Image_iphone_scroll_pane' EXT
 			'Image_iphone_alpha_list' : s + 'ios.iAlphaList;',
 //iOS 6 iPhone Controls
-			'Image_iphone_button_black' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_blue' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_grayblue' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_red' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_lg_light' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_lg_dark' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_lg_green' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_lg_red' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_lg_yellow' : 'shape=rect;rounded=1;',
-			'Image_iphone_button_xl_green' : 'shape=rect;rounded=1;',
+			'Image_iphone_button_black' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_blue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_grayblue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_red' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_lg_light' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_lg_dark' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_lg_green' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_lg_red' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_lg_yellow' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
+			'Image_iphone_button_xl_green' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'Image_iphone_back_button' : s + 'ios.iButtonBack;strokeColor=#444444;buttonText=;fillColor=#dddddd;fillColor2=#3D5565;',
 			'Image_iphone_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff;',
 			'Image_iphone_sort_handle' : s + 'ios7.icons.options;',
 			'Image_iphone_slider' : s + 'ios.iSlider;barPos=60;',
 			'Image_iphone_dropdown' : s + 'ios.iComboBox;buttonText=;fillColor=#dddddd;fillColor2=#3D5565;',
-			'Image_iphone_email_name' : 'shape=rect;rounded=1;',
+			'Image_iphone_email_name' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'Image_iphone_switch_off' : s + 'android.switch_off;fillColor=#666666;', //EXT
-			'Image_iphone_keyboard_button_blue' : 'shape=rect;rounded=1;',
+			'Image_iphone_keyboard_button_blue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;',
 			'Image_iphone_keyboard_letters' : s + 'ios.iKeybLett;',
 			'Image_iphone_keyboard_landscape' : s + 'ios.iKeybLett;',
 //			'Image_iphone_large_tabbed_button' EXT
@@ -2060,10 +2131,10 @@
 			'Image_iphone_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600;',
 			'Image_iphone_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000;',
 			'Image_iphone_radio_off' : 'shape=ellipse;', //EXT
-			'Image_iphone_checkbox_off' : 'shape=rect;rounded=1;', //EXT
-			'Image_iphone_indicator' : 'shape=rect;rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff;',
+			'Image_iphone_checkbox_off' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;', //EXT
+			'Image_iphone_indicator' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff;',
 			// NOTE: NO COMMA ON LAST LINE
-			'Image_iphone_thread_count' : 'shape=rect;rounded=1;'
+			'Image_iphone_thread_count' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;'
 	};
 	
 	function convertText(props)
@@ -2078,6 +2149,8 @@
 			if (props.State.t != null)
 			{
 				text2 = props.State.t;
+				text2 = text2.replace(/</g, '&lt;');
+				text2 = text2.replace(/>/g, '&gt;');
 			}
 		}
 
@@ -2086,8 +2159,9 @@
 		{
 			if (text.t != null)
 			{
+				text.t = text.t.replace(/</g, '&lt;');
+				text.t = text.t.replace(/>/g, '&gt;');
 				return text.t;
-				other = false;
 			}
 		}
 		
@@ -2104,6 +2178,32 @@
 		return obj;
 	};
 		
+	function getTextM(p)
+	{
+		if (p.Text != null)
+		{
+			if (p.Text.m != null)
+			{
+				return p.Text.m;
+			}
+		}
+//		else if(p.TextAreas != null)
+//		{
+//			if (p.TextAreas.Text != null)
+//			{
+//				if (p.TextAreas.Text.Value != null)
+//				{
+//					if (p.TextAreas.Text.Value.m != null)
+//					{
+//						return p.TextAreas.Text.Value.m;
+//					}
+//				}
+//			}
+//		}
+
+		return null;
+	}
+	
 	function updateCell(cell, obj)
 	{
 		var a = getAction(obj);
@@ -2122,7 +2222,9 @@
 			}
 			
 			var p = (a.Properties != null) ? a.Properties : a;
-			
+
+			//TODO separate edge label style from here
+
 			if (p != null)
 			{
 				//adds label
@@ -2131,30 +2233,29 @@
 				//adds font size
 				var isV = false;
 				
-				if (p.Text != null)
+				
+				var m = getTextM(p);
+				
+				if (m != null)
 				{
-					if (p.Text.m != null)
+					var i = 0;
+					
+					while ((!isV) && (i < m.length))
 					{
-						var m = p.Text.m;
-						var i = 0;
+						var currM = m[i];
 						
-						while ((!isV) && (i < m.length))
+						if (currM.n == 's')
 						{
-							var currM = m[i];
-							
-							if (currM.n == 's')
+							if (currM.v != null)
 							{
-								if (currM.v != null)
-								{
-									isV = true;
+								isV = true;
 
-									var fontSize = currM.v;
-									fontSize = Math.round(fontSize * scale);
-									cell.style += 'fontSize=' + fontSize + ';';
-								}
+								var fontSize = currM.v;
+								fontSize = Math.round(fontSize * scale);
+								cell.style += 'fontSize=' + fontSize + ';';
 							}
-							i++;
 						}
+						i++;
 					}
 				}
 				
@@ -2166,38 +2267,34 @@
 				//adds font color
 				var isC = false;
 				
-				if (p.Text != null)
+				if (m != null)
 				{
-					if (p.Text.m != null)
+					var i = 0;
+					
+					while ((!isC) && (i < m.length))
 					{
-						var m = p.Text.m;
-						var i = 0;
+						var currM = m[i];
 						
-						while ((!isC) && (i < m.length))
+						if (currM.n == 'c')
 						{
-							var currM = m[i];
-							
-							if (currM.n == 'c')
+							if (currM.v != null)
 							{
-								if (currM.v != null)
+								isC = true;
+								
+								var currV = currM.v;
+								
+								if (currV.charAt(0) != '#')
 								{
-									isC = true;
-									
-									var currV = currM.v;
-									
-									if (currV.charAt(0) != '#')
-									{
-										currV = '#' + currV;
-									}
-
-									var currV = currV.substring(0, 7);
-
-									cell.style += mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
+									currV = '#' + currV;
 								}
+
+								var currV = currV.substring(0, 7);
+
+								cell.style += mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
 							}
-							
-							i++;
 						}
+						
+						i++;
 					}
 
 					var fontStyle = 0;
@@ -2205,9 +2302,8 @@
 					//check for bold text
 					var isBT = false;
 					
-					if (p.Text.m != null)
+					if (m != null)
 					{
-						var m = p.Text.m;
 						var i = 0;
 						
 						while ((!isBT) && (i < m.length))
@@ -2230,9 +2326,8 @@
 					//check for italic text
 					var isIT = false;
 					
-					if (p.Text.m != null)
+					if (m != null)
 					{
-						var m = p.Text.m;
 						var i = 0;
 						
 						while ((!isIT) && (i < m.length))
@@ -2255,9 +2350,8 @@
 					//check for underline text
 					var isUT = false;
 					
-					if (p.Text.m != null)
+					if (m != null)
 					{
-						var m = p.Text.m;
 						var i = 0;
 						
 						while ((!isUT) && (i < m.length))
@@ -2285,155 +2379,135 @@
 					//adds text alignment
 					var isA = false;
 					
-					if (p.Text != null)
+					if (m != null)
 					{
-						if (p.Text.m != null)
+						var i = 0;
+						
+						while ((!isA) && (i < m.length))
 						{
-							var m = p.Text.m;
-							var i = 0;
+							var currM = m[i];
 							
-							while ((!isA) && (i < m.length))
+							if (currM.n == 'a')
 							{
-								var currM = m[i];
-								
-								if (currM.n == 'a')
+								if (currM.v != null)
 								{
-									if (currM.v != null)
-									{
-										isA = true;
-										
-										var currV = currM.v;
-										
-										cell.style += 'align=' + currV + ';';
-									}
+									isA = true;
+									
+									var currV = currM.v;
+									
+									cell.style += 'align=' + currV + ';';
 								}
-								
-								i++;
 							}
+							
+							i++;
 						}
 					}
 
 					//adds left spacing
 					var isIL = false;
 					
-					if (p.Text != null)
+					if (m != null)
 					{
-						if (p.Text.m != null)
+						var i = 0;
+						
+						while ((!isIL) && (i < m.length))
 						{
-							var m = p.Text.m;
-							var i = 0;
+							var currM = m[i];
 							
-							while ((!isIL) && (i < m.length))
+							if (currM.n == 'il')
 							{
-								var currM = m[i];
-								
-								if (currM.n == 'il')
+								if (currM.v != null)
 								{
-									if (currM.v != null)
-									{
-										isIL = true;
-										
-										var currV = currM.v;
-										
-										cell.style += 'spacingLeft=' + currV + ';';
-									}
+									isIL = true;
+									
+									var currV = currM.v;
+									
+									cell.style += 'spacingLeft=' + currV + ';';
 								}
-								
-								i++;
 							}
+							
+							i++;
 						}
 					}
 
 					//adds right spacing
 					var isIR = false;
 					
-					if (p.Text != null)
+					if (m != null)
 					{
-						if (p.Text.m != null)
+						var i = 0;
+						
+						while ((!isIR) && (i < m.length))
 						{
-							var m = p.Text.m;
-							var i = 0;
+							var currM = m[i];
 							
-							while ((!isIR) && (i < m.length))
+							if (currM.n == 'ir')
 							{
-								var currM = m[i];
-								
-								if (currM.n == 'ir')
+								if (currM.v != null)
 								{
-									if (currM.v != null)
-									{
-										isIR = true;
-										
-										var currV = currM.v;
-										
-										cell.style += 'spacingRight=' + currV + ';';
-									}
+									isIR = true;
+									
+									var currV = currM.v;
+									
+									cell.style += 'spacingRight=' + currV + ';';
 								}
-								
-								i++;
 							}
+							
+							i++;
 						}
 					}
 
 					//adds top spacing
 					var isMT = false;
 					
-					if (p.Text != null)
+					if (m != null)
 					{
-						if (p.Text.m != null)
+						var i = 0;
+						
+						while ((!isMT) && (i < m.length))
 						{
-							var m = p.Text.m;
-							var i = 0;
+							var currM = m[i];
 							
-							while ((!isMT) && (i < m.length))
+							if (currM.n == 'mt')
 							{
-								var currM = m[i];
-								
-								if (currM.n == 'mt')
+								if (currM.v != null)
 								{
-									if (currM.v != null)
-									{
-										isMT = true;
-										
-										var currV = currM.v;
-										
-										cell.style += 'spacingTop=' + currV + ';';
-									}
+									isMT = true;
+									
+									var currV = currM.v;
+									
+									cell.style += 'spacingTop=' + currV + ';';
 								}
-								
-								i++;
 							}
+							
+							i++;
 						}
 					}
 
 					//adds bottom spacing
 					var isMB = false;
 					
-					if (p.Text != null)
+					if (m != null)
 					{
-						if (p.Text.m != null)
+						var i = 0;
+						
+						while ((!isMB) && (i < m.length))
 						{
-							var m = p.Text.m;
-							var i = 0;
+							var currM = m[i];
 							
-							while ((!isMB) && (i < m.length))
+							if (currM.n == 'mb')
 							{
-								var currM = m[i];
-								
-								if (currM.n == 'mb')
+								if (currM.v != null)
 								{
-									if (currM.v != null)
-									{
-										isMB = true;
-										
-										var currV = currM.v;
-										
-										cell.style += 'spacingBottom=' + currV + ';';
-									}
+									isMB = true;
+									
+									var currV = currM.v;
+									
+									cell.style += 'spacingBottom=' + currV + ';';
 								}
-								
-								i++;
 							}
+							
+							i++;
 						}
 					}
 
@@ -2481,10 +2555,6 @@
 				// Adds styles
 				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, parseFloat(p.LineWidth) * scale, '1');
 				
-//				stencils with hardcoded stroke color
-				var hardStroke = ['VennPlainColor1', 'VennPlainColor2', 'VennPlainColor3', 'VennPlainColor4', 'VennPlainColor5', 'VennPlainColor6', 'VennPlainColor7', 'VennPlainColor8',
-					'VennGradientColor1', 'VennGradientColor2', 'VennGradientColor3', 'VennGradientColor4', 'VennGradientColor5', 'VennGradientColor6', 'VennGradientColor7', 'VennGradientColor8'];
-				
 				if (!hardStroke.includes(a.Class))
 				{
 					if (p.LineWidth == 0)
@@ -2508,10 +2578,6 @@
 				cell.style += createStyle(mxConstants.STYLE_ALIGN, p.TextAlign, 'center');
 				cell.style += createStyle(mxConstants.STYLE_VERTICAL_ALIGN, p.TextVAlign, 'middle');
 				
-//				stencils with hardcoded opacity
-				var hardOpacity = ['VennPlainColor1', 'VennPlainColor2', 'VennPlainColor3', 'VennPlainColor4', 'VennPlainColor5', 'VennPlainColor6', 'VennPlainColor7', 'VennPlainColor8', 
-					'VennGradientColor1', 'VennGradientColor2', 'VennGradientColor3', 'VennGradientColor4', 'VennGradientColor5', 'VennGradientColor6', 'VennGradientColor7', 'VennGradientColor8'];
-
 				if (!hardOpacity.includes(a.Class))
 				{
 					cell.style += createStyle(mxConstants.STYLE_OPACITY, p.Opacity, '100');
@@ -2526,9 +2592,6 @@
 					
 					// Fixes the case for horizontal swimlanes where we use horizontal=0
 					// and Lucid uses rotation
-					
-					//stencils to rotate counter clockwise 90 degrees
-					var rccw = ['AEUSBBlock', 'AGSCutandpasteBlock', 'iOSDeviceiPadLandscape', 'iOSDeviceiPadProLandscape'];
 					
 					if (a.Class == 'AdvancedSwimLaneBlockRotated')
 					{
@@ -2574,10 +2637,7 @@
 				// Gradients and fill color
 				if (p.FillColor != null)
 				{
-					//stencils with hardCoded fill color
-					var exc = ['AWSAndroidBlock3', 'AWSiOSBlock3', 'AWSJavaBlock3', 'AWSJavaScript', 'AWSNetBlock3', 'AWSNodeJSBlock3', 'AWSPHPBlock3', 'AWSPythonBlock3', 'AWSRubyBlock3', 'AWSXamarin', 'AWSCLIBlock3', 'AWSEclipseToolkitBlock3', 'AWSVisualStudioToolkitBlock3', 'AWSWindowsPowershellToolkitBlock3', 'DefaultTextBlock', 'RectangleContainerBlock'];
-				
-					if (!exc.includes(a.Class))
+					if (!hardFill.includes(a.Class))
 					{
 						if (typeof p.FillColor === 'object')
 						{
@@ -2696,8 +2756,17 @@
 			
 			while (ta['t' + count] != null)
 			{
-				var ta = ta['t' + count];
-				e = insertLabel(ta, e);
+				var tmp = ta['t' + count];
+				e = insertLabel(tmp, e);
+				count++;
+			}
+			
+			var count = 1;
+			
+			while (ta['m' + count] != null)
+			{
+				var tmp = ta['m' + count];
+				e = insertLabel(tmp, e);
 				count++;
 			}
 			
@@ -2719,6 +2788,7 @@
 
 	function insertLabel(textArea, e)
 	{
+		//TODO move edge label style to here
 		var x = (parseFloat(textArea.Location) - 0.5) * 2;
 		var lab = new mxCell(convertText(textArea), new mxGeometry(x, 0, 0, 0), labelStyle);
 		lab.geometry.relative = true
