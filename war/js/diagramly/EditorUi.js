@@ -2714,6 +2714,7 @@
 	{
 		allowBrowser = (allowBrowser != null) ? allowBrowser : false;
 		var allowTab = (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
+		var count = this.getServiceCount(allowBrowser);
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2797,9 +2798,8 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-			null, null, (allowBrowser) ? 3 : 4, data, mimeType, base64Encoded);
-		this.showDialog(dlg.container, 380, (this.getServiceCount(allowBrowser) - 1 <
-			((allowBrowser) ? 4 : 5)) ? 270 : 390, true, true);
+			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+		this.showDialog(dlg.container, 380, (count > 4) ? 390 : 270, true, true);
 		dlg.init();
 	};
 
@@ -2836,6 +2836,7 @@
 	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
 	{
 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		var count = this.getServiceCount(false);
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
@@ -2907,8 +2908,8 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
-			null, null, 4, data, mimeType, base64Encoded);
-		this.showDialog(dlg.container, 380, (this.getServiceCount(false) - 1 < 5) ? 270 : 390, true, true);
+			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+		this.showDialog(dlg.container, 380, (count > 4) ? 390 : 270, true, true);
 		dlg.init();
 	};
 		

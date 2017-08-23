@@ -2581,7 +2581,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
-		var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
+		var rowLimit = (serviceCount <= 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
@@ -2589,7 +2589,8 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : ((rowLimit < 4) ? 300 : 390), (serviceCount > rowLimit) ? 420 : 300, true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300,
+			(serviceCount > rowLimit) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
