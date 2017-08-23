@@ -280,11 +280,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 	}
-	
-	if (editorUi.trello != null)
-	{
-		addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
-	}
 
 	if (typeof window.DropboxClient === 'function')
 	{
@@ -294,6 +289,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	if (typeof window.OneDriveClient === 'function')
 	{
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
+	}
+	
+	if (typeof window.TrelloClient === 'function')
+	{
+		addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
 	}
 
 	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
@@ -519,6 +519,16 @@ var SplashDialog = function(editorUi)
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 		service = mxResources.get('github');
 	}
+	else if (editorUi.mode == App.MODE_TRELLO)
+	{
+		logo.src = IMAGE_PATH + '/trello-logo.svg';
+		service = mxResources.get('trello');
+		
+//		if (help != null)
+//		{
+//			help.setAttribute('href', 'https://support.draw.io/display/DO/Using+draw.io+with+Trello');
+//		}
+	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
 		logo.src = IMAGE_PATH + '/osa_database.png';
@@ -613,6 +623,10 @@ var SplashDialog = function(editorUi)
 	else if (editorUi.mode == App.MODE_GITHUB)
 	{
 		storage = mxResources.get('github');
+	}
+	else if (editorUi.mode == App.MODE_TRELLO)
+	{
+		storage = mxResources.get('trello');
 	}
 	else if (editorUi.mode == App.MODE_DEVICE)
 	{
@@ -709,6 +723,16 @@ var SplashDialog = function(editorUi)
 				editorUi.gitHub.logout();
 				window.open('https://www.github.com/logout');
 			});
+		}
+		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
+		{
+			if (editorUi.trello.isAuthorized())
+			{
+				addLogout(function()
+				{
+					editorUi.trello.logout();
+				});
+			}
 		}
 		else if (editorUi.mode == App.MODE_DROPBOX && editorUi.dropbox != null)
 		{
@@ -2508,6 +2532,10 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	{
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 	}
+	else if (editorUi.mode == App.MODE_TRELLO)
+	{
+		logo.src = IMAGE_PATH + '/trello-logo.svg';
+	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
 		logo.src = IMAGE_PATH + '/osa_database.png';
@@ -2545,6 +2573,10 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
 	{
 		ext = editorUi.gitHub.extension;
+	}
+	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
+	{
+		ext = editorUi.trello.extension;
 	}
 	
 	var nameInput = document.createElement('input');
@@ -2596,7 +2628,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
 				
 			if (title != null && title.length > 0)
 			{
-				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || (editorUi.mode == App.MODE_GOOGLE &&
+				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || editorUi.mode == App.MODE_TRELLO || (editorUi.mode == App.MODE_GOOGLE &&
 					(editorUi.stateArg == null || editorUi.stateArg.folderId == null))) ? editorUi.mode : null;
 				
 				editorUi.pickFolder(tempMode, function(folderId)
@@ -4259,7 +4291,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 			});
 		});
 	}
-
+	//TODO should Trello support this?
+	
 	mxEvent.addListener(linkInput, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)
@@ -5862,6 +5895,7 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
 	}
+	//TODO Trello?
 	
 	var p = document.createElement('p');
 	mxUtils.write(p, mxResources.get('authorizeThisAppIn', [service]));

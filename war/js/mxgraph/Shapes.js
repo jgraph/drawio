@@ -685,9 +685,20 @@
 				
 				if (this.isRounded)
 				{
-					var f = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE,
-						mxConstants.RECTANGLE_ROUNDING_FACTOR * 100) / 100;
-					var r = Math.min(w * f, h * f);
+					var r = 0;
+					
+					if (mxUtils.getValue(this.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1')
+					{
+						r = Math.min(w / 2, Math.min(h / 2, mxUtils.getValue(this.style,
+							mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2));
+					}
+					else
+					{
+						var f = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE,
+							mxConstants.RECTANGLE_ROUNDING_FACTOR * 100) / 100;
+						r = Math.min(w * f, h * f);
+					}
+					
 					c.moveTo(x + r, y);
 					c.lineTo(x + w - r, y);
 					c.quadTo(x + w, y, x + w, y + r);
@@ -2726,17 +2737,35 @@
 		{
 			return createHandle(state, [mxConstants.STYLE_ARCSIZE], function(bounds)
 			{
-				var arcSize = Math.max(0, parseFloat(mxUtils.getValue(state.style,
-					mxConstants.STYLE_ARCSIZE, mxConstants.RECTANGLE_ROUNDING_FACTOR * 100))) / 100;
 				var tmp = (yOffset != null) ? yOffset : bounds.height / 8;
 				
-				return new mxPoint(bounds.x + bounds.width - Math.min(Math.max(bounds.width / 2, bounds.height / 2),
-					Math.min(bounds.width, bounds.height) * arcSize), bounds.y + tmp);
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1')
+				{
+					var arcSize = mxUtils.getValue(state.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+					
+					return new mxPoint(bounds.x + bounds.width - Math.min(bounds.width / 2, arcSize), bounds.y + tmp);
+				}
+				else
+				{
+					var arcSize = Math.max(0, parseFloat(mxUtils.getValue(state.style,
+						mxConstants.STYLE_ARCSIZE, mxConstants.RECTANGLE_ROUNDING_FACTOR * 100))) / 100;
+					
+					return new mxPoint(bounds.x + bounds.width - Math.min(Math.max(bounds.width / 2, bounds.height / 2),
+						Math.min(bounds.width, bounds.height) * arcSize), bounds.y + tmp);
+				}
 			}, function(bounds, pt, me)
 			{
-				var f = Math.min(50, Math.max(0, (bounds.width - pt.x + bounds.x) * 100 /
-					Math.min(bounds.width, bounds.height)));
-				this.state.style[mxConstants.STYLE_ARCSIZE] = Math.round(f);
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1')
+				{
+					this.state.style[mxConstants.STYLE_ARCSIZE] = Math.round(Math.max(0, Math.min(bounds.width,
+						(bounds.x + bounds.width - pt.x) * 2)));
+				}
+				else
+				{
+					var f = Math.min(50, Math.max(0, (bounds.width - pt.x + bounds.x) * 100 /
+						Math.min(bounds.width, bounds.height)));
+					this.state.style[mxConstants.STYLE_ARCSIZE] = Math.round(f);
+				}
 			});
 		}
 

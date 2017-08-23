@@ -1312,17 +1312,17 @@
 				
 				if (this.enableLogging && !this.isOffline() && file.getMode() != null)
 				{
-		        	try
-		        	{
-	        			var img = new Image();
-						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-	        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
-        				'&v=' + encodeURIComponent(EditorUi.VERSION);
-		        	}
-		        	catch (e)
-		        	{
-		        		// ignore
-		        	}
+			        	try
+			        	{
+		        			var img = new Image();
+							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+		        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
+	        				'&v=' + encodeURIComponent(EditorUi.VERSION);
+			        	}
+			        	catch (e)
+			        	{
+			        		// ignore
+			        	}
 				}
 				
 				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
@@ -9123,7 +9123,7 @@
 			serviceCount++
 		}
 		
-		if (this.trello != null)
+		if (this.trello != null || typeof window.TrelloClient === 'function')
 		{
 			serviceCount++
 		}

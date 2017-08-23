@@ -358,7 +358,6 @@
 				status.innerHTML = 'Page could not be loaded. Please try refreshing.';
 			}
 		};
-
 	</script>
 </head>
 <body class="geEditor">
@@ -416,24 +415,25 @@
 </div>
 <script type="text/javascript">
 /**
+ * Overridden for usage stats.
+ */
+Action.prototype.createFunction = function(funct)
+{
+	return mxUtils.bind(this, function()
+	{
+		if (typeof window.ga === 'function')
+		{
+			ga('send', 'event', 'Action', 'click', this.label);
+		}
+
+		funct();
+	});
+};
+
+/**
  * Main
  */
 App.main();
-
-// Logs footer1 clicks
-if (document != null)
-{
-	var footerElem = document.getElementById('geFooterLink1');
-	
-	if (footerElem != null)
-	{
-		footerElem.onclick = function()
-		{
-			var img = new Image();
-			img.src = 'https://log.draw.io/log?msg=geFooterLink1:%20location=' + encodeURIComponent(window.location) + '&v=' + encodeURIComponent(EditorUi.VERSION);
-		}
-	}
-}
 
 /**
  * Analytics

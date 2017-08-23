@@ -1100,6 +1100,30 @@ EditorUi.prototype.createPageMenuTab = function()
 				{
 					this.insertPage();
 				}), parent);
+
+				var page = this.currentPage;
+				
+				if (page != null)
+				{
+					menu.addSeparator(parent);
+	
+					menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
+					{
+						this.removePage(page);
+					}), parent);
+					
+					menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
+					{
+						this.renamePage(page, page.getName());
+					}), parent);
+					
+					menu.addSeparator(parent);
+					
+					menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
+					{
+						this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
+					}), parent);
+				}
 			}
 		}));
 		

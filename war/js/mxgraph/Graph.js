@@ -874,7 +874,19 @@ Graph.touchStyle = mxClient.IS_TOUCH || (mxClient.IS_FF && mxClient.IS_WIN) || n
 Graph.fileSupport = window.File != null && window.FileReader != null && window.FileList != null &&
 	(window.urlParams == null || urlParams['filesupport'] != '0');
 
-// Graph inherits from mxGraph
+/**
+ * Default size for line jumps.
+ */
+Graph.lineJumpsEnabled = true;
+
+/**
+ * Default size for line jumps.
+ */
+Graph.defaultJumpSize = 6;
+
+/**
+ * Graph inherits from mxGraph.
+ */
 mxUtils.extend(Graph, mxGraph);
 
 /**
@@ -1250,7 +1262,9 @@ Graph.prototype.isIgnoreTerminalEvent = function(evt)
  */
 Graph.prototype.isSplitTarget = function(target, cells, evt)
 {
-	return !mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) && mxGraph.prototype.isSplitTarget.apply(this, arguments);
+	return !this.model.isEdge(cells[0]) &&
+		!mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) &&
+		mxGraph.prototype.isSplitTarget.apply(this, arguments);
 };
 
 /**
@@ -3273,6 +3287,306 @@ HoverIcons.prototype.setCurrentState = function(state)
 
 (function()
 {
+	
+	/**
+	 * Reset the list of processed edges.
+	 */
+	var mxGraphViewResetValidationState = mxGraphView.prototype.resetValidationState;
+	
+	mxGraphView.prototype.resetValidationState = function()
+	{
+		mxGraphViewResetValidationState.apply(this, arguments);
+		
+		this.validEdges = [];
+	};
+	
+	/**
+	 * Updates jumps for valid edges and repaints if needed.
+	 */
+	var mxGraphViewValidateCellState = mxGraphView.prototype.validateCellState;
+	
+	mxGraphView.prototype.validateCellState = function(cell, recurse)
+	{
+		var state = this.getState(cell);
+		
+		// Forces repaint if jumps change on a valid edge
+		if (state != null && this.graph.model.isEdge(state.cell) &&
+			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1 &&
+			!state.invalid && this.updateLineJumps(state))
+		{
+			this.graph.cellRenderer.redraw(state, false, this.isRendering());
+		}
+		
+		state = mxGraphViewValidateCellState.apply(this, arguments);
+		
+		// Adds to the list of edges that may intersect with later edges
+		if (state != null && this.graph.model.isEdge(state.cell) &&
+			state.style[mxConstants.STYLE_CURVED] != 1)
+		{
+			// LATER: Reuse jumps for valid edges
+			this.validEdges.push(state);
+		}
+		
+		return state;
+	};
+
+	/**
+	 * Forces repaint if routed points have changed.
+	 */
+	var mxCellRendererIsShapeInvalid = mxCellRenderer.prototype.isShapeInvalid;
+	
+	mxCellRenderer.prototype.isShapeInvalid = function(state, shape)
+	{
+		return mxCellRendererIsShapeInvalid.apply(this, arguments) ||
+			(state.routedPoints != null && shape.routedPoints != null &&
+			!mxUtils.equalPoints(shape.routedPoints, state.routedPoints))
+	};
+
+	
+	/**
+	 * Updates jumps for invalid edges.
+	 */
+	var mxGraphViewUpdateCellState = mxGraphView.prototype.updateCellState;
+	
+	mxGraphView.prototype.updateCellState = function(state)
+	{
+		mxGraphViewUpdateCellState.apply(this, arguments);
+
+		// Updates jumps on invalid edge before repaint
+		if (this.graph.model.isEdge(state.cell) &&
+			state.style[mxConstants.STYLE_CURVED] != 1)
+		{
+			this.updateLineJumps(state);
+		}
+	};
+	
+	/**
+	 * Updates the jumps between given state and processed edges.
+	 */
+	mxGraphView.prototype.updateLineJumps = function(state)
+	{
+		if (Graph.lineJumpsEnabled)
+		{
+			var changed = state.routedPoints != null;
+			var thresh = 0.5 * this.scale;
+			var actual = null;
+			
+			if (mxUtils.getValue(state.style, 'jumpStyle', 'none') !== 'none')
+			{
+				var pts = state.absolutePoints;
+				changed = false;
+				actual = [];
+				
+				// Type 0 means normal waypoint, 1 means jump
+				function addPoint(type, x, y)
+				{
+					var rpt = new mxPoint(x, y);
+					rpt.type = type;
+					
+					actual.push(rpt);
+					var curr = (state.routedPoints != null) ? state.routedPoints[actual.length - 1] : null;
+					
+					return curr == null || curr.type != type || curr.x != x || curr.y != y;
+				};
+				
+				for (var i = 0; i < pts.length - 1; i++)
+				{
+					var p1 = pts[i + 1];
+					var p0 = pts[i];
+					var list = [];
+					
+					changed = addPoint(0, p0.x, p0.y) || changed;
+					
+					// Processes all previous edges
+					for (var e = 0; e < this.validEdges.length; e++)
+					{
+						var state2 = this.validEdges[e];
+						var pts2 = state2.absolutePoints;
+						var added = false;
+						
+						// Compares each segment of the edge with the current segment
+						for (var j = 0; j < pts2.length - 1; j++)
+						{
+							var p2 = pts2[j];
+							var p3 = pts2[j + 1];
+							var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+
+							// Handles intersection between two segments
+							if (pt != null && (Math.abs(pt.x - p2.x) > thresh ||
+								Math.abs(pt.y - p2.y) > thresh) &&
+								(Math.abs(pt.x - p3.x) > thresh ||
+								Math.abs(pt.y - p3.y) > thresh))
+							{
+								var dx = pt.x - p0.x;
+								var dy = pt.y - p0.y;
+								var temp = {distSq: dx * dx + dy * dy, x: pt.x, y: pt.y};
+							
+								// Intersections must be ordered by distance from start of segment
+								for (var t = 0; t < list.length; t++)
+								{
+									if (list[t].distSq > temp.distSq)
+									{
+										list.splice(t, 0, temp);
+										temp = null;
+										
+										break;
+									}
+								}
+								
+								// Ignores multiple intersections at segment joint
+								if (temp != null && (list.length == 0 ||
+									list[list.length - 1].x !== temp.x ||
+									list[list.length - 1].y !== temp.y))
+								{
+									list.push(temp);
+								}
+							}
+						}
+					}
+					
+					// Adds ordered intersections to routed points
+					for (var j = 0; j < list.length; j++)
+					{
+						changed = addPoint(1, list[j].x, list[j].y) || changed;
+					}
+				}
+	
+				var pt = pts[pts.length - 1];
+				changed = addPoint(0, pt.x, pt.y) || changed;
+			}
+			
+			state.routedPoints = actual;
+			
+			return changed;
+		}
+		else
+		{
+			return false;
+		}
+	};
+	
+	/**
+	 * Overrides painting the actual shape for taking into account jump style.
+	 */
+	var mxConnectorPaintLine = mxConnector.prototype.paintLine;
+
+	mxConnector.prototype.paintLine = function (c, absPts, rounded)
+	{
+		// Required for checking dirty state
+		this.routedPoints = (this.state != null) ? this.state.routedPoints : null;
+		
+		if (this.outline || this.state == null || this.style == null ||
+			this.state.routedPoints == null || this.state.routedPoints.length == 0)
+		{
+			mxConnectorPaintLine.apply(this, arguments);
+		}
+		else
+		{
+			var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE,
+				mxConstants.LINE_ARCSIZE) / 2;
+			var size = (parseInt(mxUtils.getValue(this.style, 'jumpSize',
+				Graph.defaultJumpSize)) - 2) / 2 + this.strokewidth;
+			var style = mxUtils.getValue(this.style, 'jumpStyle', 'none');
+			var f = Editor.jumpSizeRatio;
+			var moveTo = true;
+			var last = null;
+			var len = null;
+			var pts = [];
+			var n = null;
+			c.begin();
+			
+			for (var i = 0; i < this.state.routedPoints.length; i++)
+			{
+				var rpt = this.state.routedPoints[i];
+				var pt = new mxPoint(rpt.x / this.scale, rpt.y / this.scale);
+				
+				// Takes first and last point from passed-in array
+				if (i == 0)
+				{
+					pt = absPts[0];
+				}
+				else if (i == this.state.routedPoints.length - 1)
+				{
+					pt = absPts[absPts.length - 1];
+				}
+				
+				var done = false;
+
+				// Type 1 is an intersection
+				if (last != null && rpt.type == 1)
+				{
+					if (n == null)
+					{
+						n = new mxPoint(pt.x - last.x, pt.y - last.y);
+						len = Math.sqrt(n.x * n.x + n.y * n.y);
+						n.x = n.x * size / len;
+						n.y = n.y * size / len;
+					}
+					
+					// Checks if next/previous points are too close
+					var next = this.state.routedPoints[i + 1];
+					var dx = next.x / this.scale - pt.x;
+					var dy = next.y / this.scale - pt.y;
+					var dist = dx * dx + dy * dy;
+					
+					if (dist > size * size && len > 0)
+					{
+						var dx = last.x - pt.x;
+						var dy = last.y - pt.y;
+						var dist = dx * dx + dy * dy;
+						
+						if (dist > size * size)
+						{
+							var p0 = new mxPoint(pt.x - n.x, pt.y - n.y);
+							var p1 = new mxPoint(pt.x + n.x, pt.y + n.y);
+							pts.push(p0);
+							
+							this.addPoints(c, pts, rounded, arcSize, false, null, moveTo);
+	
+							var f = (Math.round(n.x) <= 0) ? 1 : -1;
+							moveTo = false;
+							
+							if (style == 'sharp')
+							{
+								c.lineTo(p0.x - n.y * f, p0.y + n.x * f);
+								c.lineTo(p1.x - n.y * f, p1.y + n.x * f);
+								c.lineTo(p1.x, p1.y);
+							}
+							else if (style == 'arc')
+							{
+								f *= 1.3;
+								c.curveTo(p0.x - n.y * f, p0.y + n.x * f,
+									p1.x - n.y * f, p1.y + n.x * f,
+									p1.x, p1.y);
+							}
+							else
+							{
+								c.moveTo(p1.x, p1.y);
+								moveTo = true;
+							}
+	
+							pts = [p1];
+							done = true;
+						}
+					}
+				}
+				else
+				{
+					n = null;
+				}
+				
+				if (!done)
+				{
+					pts.push(pt);
+					last = pt;
+				}
+			}
+			
+			this.addPoints(c, pts, rounded, arcSize, false, null, moveTo);
+			c.stroke();
+		}
+	};
+	
 	/**
 	 * Adds support for snapToPoint style.
 	 */
@@ -3799,6 +4113,16 @@ if (typeof mxVertexHandler != 'undefined')
 			if (this.currentEdgeStyle['comic'] != null)
 			{
 				style += 'comic=' + this.currentEdgeStyle['comic'] + ';';
+			}
+
+			if (this.currentEdgeStyle['jumpStyle'] != null)
+			{
+				style += 'jumpStyle=' + this.currentEdgeStyle['jumpStyle'] + ';';
+			}
+
+			if (this.currentEdgeStyle['jumpSize'] != null)
+			{
+				style += 'jumpSize=' + this.currentEdgeStyle['jumpSize'] + ';';
 			}
 			
 			// Special logic for custom property of elbowEdgeStyle
