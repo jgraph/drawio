@@ -92,7 +92,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 
 	buttons.style.border = '1px solid #d3d3d3';
 	buttons.style.borderWidth = '1px 0px 1px 0px';
-	buttons.style.padding = '18px 0px 18px 0px';
+	buttons.style.padding = '12px 0px 12px 0px';
 
 	var cb = document.createElement('input');
 	cb.setAttribute('type', 'checkbox');
@@ -305,34 +305,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		addLogo(IMAGE_PATH + '/osa_database.png', mxResources.get('browser'), App.MODE_BROWSER);
 	}
-	else if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
-	{
-		addLogo(null, mxResources.get('import'), null, null, ['', mxResources.get('gliffy'),
-			mxResources.get('formatVssx'), mxResources.get('formatVsdx'),
-			mxResources.get('lucidchart')], function()
-		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', function()
-			{
-				if (input.files != null)
-				{
-					// Using null for position will disable crop of input file
-					editorUi.hideDialog();
-					editorUi.openFiles(input.files, true);
-				}
-			});
-
-			input.click();
-		});
-	}
 	
 	div.appendChild(buttons);
 
 	var p2 = document.createElement('p');
 	p2.style.marginTop = '12px';
-	p2.style.marginBottom = '10px';
+	p2.style.marginBottom = '6px';
 	p2.appendChild(cb);
 	
 	var span = document.createElement('span');
@@ -347,7 +325,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	if (recent != null && recent.length > 0)
 	{
 		var recentSelect = document.createElement('select');
-		recentSelect.style.marginTop = '14px';
+		recentSelect.style.marginTop = '8px';
 		recentSelect.style.width = '140px';
 
 		var titleOption = document.createElement('option');
@@ -394,6 +372,39 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		p2.style.marginTop = '20px';
 		buttons.style.padding = '30px 0px 26px 0px';
+	}
+	
+	if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+	{
+		var link = document.createElement('div');
+		link.style.cursor = 'pointer';
+		link.style.padding = '18px 0px 6px 0px';
+		link.style.fontSize = '12px';
+		link.style.color = 'gray';
+		mxUtils.write(link, mxResources.get('import') + ' ' + mxResources.get('gliffy') + ', ' +
+				mxResources.get('formatVssx') + ', ' + mxResources.get('formatVsdx') + ', ' +
+				mxResources.get('lucidchart') + '...');
+		
+		mxEvent.addListener(link, 'click', function()
+		{
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', function()
+			{
+				if (input.files != null)
+				{
+					// Using null for position will disable crop of input file
+					editorUi.hideDialog();
+					editorUi.openFiles(input.files, true);
+				}
+			});
+
+			input.click();
+		});
+		
+		p2.appendChild(link);
+		buttons.style.paddingBottom = '4px';
 	}
 	
 	buttons.appendChild(p2);
@@ -3180,17 +3191,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			
 			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
-	
-		if (editorUi.trello != null)
-		{
-			var trelloOption = document.createElement('option');
-			trelloOption.setAttribute('value', App.MODE_TRELLO);
-			mxUtils.write(trelloOption, mxResources.get('trello'));
-			serviceSelect.appendChild(trelloOption);
-			
-			addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
-		}
-		
+
 		if (typeof window.DropboxClient === 'function')
 		{
 			var dropboxOption = document.createElement('option');
@@ -3219,6 +3220,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			}
 			
 			addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
+		}
+		
+		if (editorUi.trello != null)
+		{
+			var trelloOption = document.createElement('option');
+			trelloOption.setAttribute('value', App.MODE_TRELLO);
+			mxUtils.write(trelloOption, mxResources.get('trello'));
+			serviceSelect.appendChild(trelloOption);
+			
+			addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
 		}
 	}
 	

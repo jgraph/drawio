@@ -19,6 +19,11 @@ TrelloClient.prototype.baseUrl = 'https://api.trello.com/1/';
 TrelloClient.prototype.SEPARATOR = '|$|';
 
 /**
+ * Maximum attachment size of Trello.
+ */
+TrelloClient.prototype.maxFileSize = 10000000 /*10MB*/;
+
+/**
  * Default extension for new files.
  */
 TrelloClient.prototype.extension = '.xml'; //TODO export to png
@@ -40,7 +45,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 
 	Trello.authorize({
 	  type: 'popup',
-	  name: 'Draw.io',
+	  name: 'draw.io',
 	  scope: {
 	    read: 'true',
 	    write: 'true' },
@@ -138,7 +143,7 @@ TrelloClient.prototype.saveFile = function(file, success, error)
 	var ids = file.meta.compoundId.split(this.SEPARATOR);
 	Trello.authorize({
 	  type: 'popup',
-	  name: 'Draw.io',
+	  name: 'draw.io',
 	  scope: {
 	    read: 'true',
 	    write: 'true' 
@@ -162,9 +167,17 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 {
 	if (filename != null && data != null)
 	{
+		if (data.length >= this.maxFileSize)
+		{
+			error({message: mxResources.get('drawingTooLarge') + ' (' +
+				this.ui.formatFileSize(data.length) + ' / 10 MB)'});
+			
+			return;
+		}
+		
 		Trello.authorize({
 		  type: 'popup',
-		  name: 'Draw.io',
+		  name: 'draw.io',
 		  scope: {
 		    read: 'true',
 		    write: 'true' 
@@ -238,7 +251,7 @@ TrelloClient.prototype.pickFolder = function(fn)
 {
 	Trello.authorize({
 		  type: 'popup',
-		  name: 'Draw.io',
+		  name: 'draw.io',
 		  scope: {
 		    read: 'true',
 		    write: 'true' },
@@ -266,7 +279,7 @@ TrelloClient.prototype.pickFile = function(fn, returnObject)
 	
 	Trello.authorize({
 		  type: 'popup',
-		  name: 'Draw.io',
+		  name: 'draw.io',
 		  scope: {
 		    read: 'true',
 		    write: 'true' },
@@ -426,7 +439,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 		mxEvent.addListener(nextPageDiv, 'click', nextPage);
 		
 		Trello.get('search', {
-				'query': '@me' + (filter != null ? ' ' + filter : ''),
+				'query': (filter != null ? filter : 'is:open'),
 				'cards_limit': pageSize,
 				'cards_page': page-1
 			},
@@ -464,14 +477,14 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 						{
 							div.appendChild(createLink(mxResources.get('filterCards') + '...', mxUtils.bind(this, function()
 							{
-								var dlg = new FilenameDialog(this.ui, mxResources.get('cardName'), mxResources.get('ok'), mxUtils.bind(this, function(value)
+								var dlg = new FilenameDialog(this.ui, 'is:open', mxResources.get('ok'), mxUtils.bind(this, function(value)
 								{
 									if (value != null)
 									{
 										filter = value;
 										selectCard();
 									}
-								}), mxResources.get('cardName'));
+								}), mxResources.get('cardName'), null, null, 'http://help.trello.com/article/808-searching-for-cards-all-boards');
 								this.ui.showDialog(dlg.container, 300, 80, true, false);
 								dlg.init();
 							})));
