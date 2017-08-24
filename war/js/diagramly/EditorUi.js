@@ -1314,10 +1314,10 @@
 				{
 			        	try
 			        	{
-		        			var img = new Image();
-							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-		        			img.src = logDomain + '/log?msg=storageMode:' + encodeURIComponent(file.getMode()) +
-	        				'&v=' + encodeURIComponent(EditorUi.VERSION);
+			    			if (typeof window.ga === 'function')
+			    			{
+			    				ga('send', 'event', 'File', 'open', file.getMode());
+			    			}
 			        	}
 			        	catch (e)
 			        	{

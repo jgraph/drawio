@@ -167,7 +167,13 @@ EditorUi.prototype.addTrees = function()
 	
 	graph.foldCells = function(collapse, recurse, cells, checkFoldable, evt)
 	{
-		//console.log('cells', cells, collapse);
+		recurse = (recurse != null) ? recurse : false;
+		
+		if (cells == null)
+		{
+			cells = this.getFoldableCells(this.getSelectionCells(), collapse);
+		}
+
 		this.stopEditing();
 		
 		this.model.beginUpdate();

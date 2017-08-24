@@ -3365,15 +3365,17 @@ HoverIcons.prototype.setCurrentState = function(state)
 	 */
 	mxGraphView.prototype.updateLineJumps = function(state)
 	{
+		var pts = state.absolutePoints;
+		
 		if (Graph.lineJumpsEnabled)
 		{
 			var changed = state.routedPoints != null;
-			var thresh = 0.5 * this.scale;
 			var actual = null;
 			
-			if (mxUtils.getValue(state.style, 'jumpStyle', 'none') !== 'none')
+			if (pts != null && this.validEdges != null &&
+				mxUtils.getValue(state.style, 'jumpStyle', 'none') !== 'none')
 			{
-				var pts = state.absolutePoints;
+				var thresh = 0.5 * this.scale;
 				changed = false;
 				actual = [];
 				
@@ -3404,41 +3406,44 @@ HoverIcons.prototype.setCurrentState = function(state)
 						var pts2 = state2.absolutePoints;
 						var added = false;
 						
-						// Compares each segment of the edge with the current segment
-						for (var j = 0; j < pts2.length - 1; j++)
+						if (pts2 != null)
 						{
-							var p2 = pts2[j];
-							var p3 = pts2[j + 1];
-							var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-
-							// Handles intersection between two segments
-							if (pt != null && (Math.abs(pt.x - p2.x) > thresh ||
-								Math.abs(pt.y - p2.y) > thresh) &&
-								(Math.abs(pt.x - p3.x) > thresh ||
-								Math.abs(pt.y - p3.y) > thresh))
+							// Compares each segment of the edge with the current segment
+							for (var j = 0; j < pts2.length - 1; j++)
 							{
-								var dx = pt.x - p0.x;
-								var dy = pt.y - p0.y;
-								var temp = {distSq: dx * dx + dy * dy, x: pt.x, y: pt.y};
-							
-								// Intersections must be ordered by distance from start of segment
-								for (var t = 0; t < list.length; t++)
+								var p2 = pts2[j];
+								var p3 = pts2[j + 1];
+								var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+	
+								// Handles intersection between two segments
+								if (pt != null && (Math.abs(pt.x - p2.x) > thresh ||
+									Math.abs(pt.y - p2.y) > thresh) &&
+									(Math.abs(pt.x - p3.x) > thresh ||
+									Math.abs(pt.y - p3.y) > thresh))
 								{
-									if (list[t].distSq > temp.distSq)
-									{
-										list.splice(t, 0, temp);
-										temp = null;
-										
-										break;
-									}
-								}
+									var dx = pt.x - p0.x;
+									var dy = pt.y - p0.y;
+									var temp = {distSq: dx * dx + dy * dy, x: pt.x, y: pt.y};
 								
-								// Ignores multiple intersections at segment joint
-								if (temp != null && (list.length == 0 ||
-									list[list.length - 1].x !== temp.x ||
-									list[list.length - 1].y !== temp.y))
-								{
-									list.push(temp);
+									// Intersections must be ordered by distance from start of segment
+									for (var t = 0; t < list.length; t++)
+									{
+										if (list[t].distSq > temp.distSq)
+										{
+											list.splice(t, 0, temp);
+											temp = null;
+											
+											break;
+										}
+									}
+									
+									// Ignores multiple intersections at segment joint
+									if (temp != null && (list.length == 0 ||
+										list[list.length - 1].x !== temp.x ||
+										list[list.length - 1].y !== temp.y))
+									{
+										list.push(temp);
+									}
 								}
 							}
 						}
