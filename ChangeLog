@@ -1,3 +1,7 @@
+24-AUG-2017: 7.2.5
+
+- Fixes possible NPE
+
 24-AUG-2017: 7.2.4
 
 - Adds mindmaps and orgcharts in Advanced sidebar (beta)
