@@ -74,8 +74,8 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	mxGraph.call(this, container, model, renderHint, stylesheet);
 	
 	this.themes = themes || this.defaultThemes;
-	this.currentEdgeStyle = this.defaultEdgeStyle;
-	this.currentVertexStyle = this.defaultVertexStyle;
+	this.currentEdgeStyle = mxUtils.clone(this.defaultEdgeStyle);
+	this.currentVertexStyle = mxUtils.clone(this.defaultVertexStyle);
 
 	// Sets the base domain URL and domain path URL for relative links.
 	var b = this.baseUrl;

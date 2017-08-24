@@ -3334,6 +3334,7 @@ StyleFormatPanel.prototype.init = function()
 	}
 
 	this.container.appendChild(this.addStroke(this.createPanel()));
+	this.container.appendChild(this.addLineJumps(this.createPanel()));
 	var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
 	opacityPanel.style.paddingTop = '8px';
 	opacityPanel.style.paddingBottom = '8px';
@@ -4192,7 +4193,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
 	listener();
 
-	return this.addLineJumps(container);
+	return container;
 };
 
 /**
@@ -4204,35 +4205,24 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 	
 	if (Graph.lineJumpsEnabled && ss.edges.length > 0 && ss.vertices.length == 0)
 	{
+		container.style.padding = '8px 0px 24px 18px';
+		
 		var ui = this.editorUi;
 		var editor = ui.editor;
 		var graph = editor.graph;
 		
-		// Used if only edges selected
-		var stylePanel = document.createElement('div');
-		stylePanel.style.whiteSpace = 'nowrap';
-		stylePanel.style.padding = '8px 0px 10px 16px';
-		stylePanel.style.borderTop = '1px solid #c0c0c0';
-		stylePanel.style.overflow = 'visible';
-		stylePanel.style.position = 'relative';
-		stylePanel.style.left = '-16px';
-		stylePanel.style.top = '4px';
-		stylePanel.style.width = (ui.formatWidth) + 'px';
-		stylePanel.style.height = '12px';
-		stylePanel.className = 'geToolbarContainer';
-		
 		var span = document.createElement('div');
 		span.style.position = 'absolute';
 		span.style.fontWeight = 'bold';
-		span.style.width = '76px';
+		span.style.width = '80px';
 		
 		mxUtils.write(span, mxResources.get('lineJumps'));
-		stylePanel.appendChild(span);
+		container.appendChild(span);
 		
 		var styleSelect = document.createElement('select');
 		styleSelect.style.position = 'absolute';
 		styleSelect.style.marginTop = '-2px';
-		styleSelect.style.right = '92px';
+		styleSelect.style.right = '76px';
 		styleSelect.style.width = '62px';
 
 		var styles = ['none', 'arc', 'gap', 'sharp'];
@@ -4268,16 +4258,14 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 			mxEvent.consume(evt);
 		});
 		
-		stylePanel.appendChild(styleSelect);
+		container.appendChild(styleSelect);
 		
 		var jumpSizeUpdate;
 		
-		var jumpSize = this.addUnitInput(stylePanel, 'pt', 38, 33, function()
+		var jumpSize = this.addUnitInput(container, 'pt', 22, 33, function()
 		{
 			jumpSizeUpdate.apply(this, arguments);
 		});
-		
-		container.appendChild(stylePanel);
 		
 		jumpSizeUpdate = this.installInputHandler(jumpSize, 'jumpSize',
 			Graph.defaultJumpSize, 0, 999, ' pt');
@@ -4299,6 +4287,10 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 		graph.getModel().addListener(mxEvent.CHANGE, listener);
 		this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
 		listener();
+	}
+	else
+	{
+		container.style.display = 'none';
 	}
 	
 	return container;

@@ -1171,16 +1171,19 @@ App.prototype.init = function()
 //			'href="https://www.samepage.io/draw-diagram-online?SPcid=SIOF%2BDraw%2Breferral%2BDraw%2Bv1%2BNA"\>' +
 //			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
 //			'src="' + IMAGE_PATH + '/samepage-icon-color.svg"/>Collaborate on diagrams in Samepage</a>';
-		td.innerHTML = '<a title="Trello integration" target="_blank" ' +
-			'href="https://www.facebook.com/drawioapp/posts/1635338883157308"\>' +
-			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
-			'src="' + IMAGE_PATH + '/trello-logo.svg"/>NEW! Trello integration</a>';
+//		td.innerHTML = '<a title="Trello integration" target="_blank" ' +
+//			'href="https://www.facebook.com/drawioapp/posts/1635338883157308"\>' +
+//			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
+//			'src="' + IMAGE_PATH + '/trello-logo.svg"/>NEW! Trello integration</a>';
+		td.innerHTML = '<a title="Line jumps now available" target="_blank" ' +
+			'href="https://www.facebook.com/drawioapp/posts/1636030279754835"\>' +
+			'<span style="color:red;">NEW!</span> Line jumps now available</a>';
 		
 		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
 		{
 			if (typeof window.ga === 'function' && !this.isOffline())
 			{
-				ga('send', 'event', 'Footer', 'click', 'Trello');
+				ga('send', 'event', 'Footer', 'click', 'Line jumps');
 			}
 		}));
 
