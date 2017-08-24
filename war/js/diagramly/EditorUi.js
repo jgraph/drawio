@@ -1309,8 +1309,8 @@
 				
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
 				result = true;
-				
-				if (this.enableLogging && !this.isOffline() && file.getMode() != null)
+
+				if (EditorUi.enableLogging && !this.isOffline() && file.getMode() != null)
 				{
 			        	try
 			        	{
@@ -1355,21 +1355,21 @@
 					console.log('error in fileLoaded:', file, e);
 				}
 				
-				if (this.enableLogging && !this.isOffline())
+				if (EditorUi.enableLogging && !this.isOffline())
 				{
-		        	try
-		        	{
-						var img = new Image();
-						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-			    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-			    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
-		    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-		    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
-		        	}
-		        	catch (e)
-		        	{
-		        		// ignore
-		        	}
+			        	try
+			        	{
+							var img = new Image();
+							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+				    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
+				    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
+			    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
+			    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+			        	}
+			        	catch (e)
+			        	{
+			        		// ignore
+			        	}
 				}
 				
 				// Asynchronous handling of errors
