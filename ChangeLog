@@ -1,3 +1,8 @@
+24-AUG-2017: 7.2.4
+
+- Adds mindmaps and orgcharts in Advanced sidebar (beta)
+- Fixes page ID after import in Confluence Cloud add-on
+
 24-AUG-2017: 7.2.3
 
 - Fixes reset of current styles
