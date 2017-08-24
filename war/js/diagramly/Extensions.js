@@ -13,11 +13,25 @@
 	var arcSize = 6;
 	var edgeStyle = 'html=1;';
 	var vertexStyle = 'html=1;whiteSpace=wrap;';
-	var labelStyle = 'text;html=1;resizable=0;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;';
+	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;';
 	
 	var c = "fillColor=#036897;strokeColor=#ffffff";
 	var s = "shape=mxgraph.";
 	var ss = "strokeColor=none;shape=mxgraph.";
+
+//	stencils with hardcoded rounding
+	var hardRound = [
+		'GSDFDProcessBlock',
+		'RoundedRectangleContainerBlock',
+		'UI2ButtonBlock',
+		'UMLStateBlock'
+	];
+	
+//	stencils with hardcoded default rounding (having absolute rounding of arcSize=8 without declaring anything)
+	var hardDefRound = [
+		'ProcessBlock',
+		'UMLActivationBlock'
+	];
 
 //	stencils with hardcoded stroke color
 	var hardStroke = [
@@ -117,45 +131,45 @@
 //Standard
 			'DefaultTextBlockNew': 'text;strokeColor=none;fillColor=none',
 			'DefaultTextBlock': 'text;strokeColor=none;fillColor=none',
-			'DefaultSquareBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize + '',
+			'DefaultSquareBlock': '',
 			'DefaultNoteBlock': 'shape=note;size=15',
 			'DefaultNoteBlockV2': 'shape=note;size=15',
 			'HotspotBlock': 'strokeColor=none;opacity=50',
 			'ImageSearchBlock2': 'shape=image',
 //Flowchart
-			'ProcessBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize,
-			'DecisionBlock': 'rhombus;rounded=1;arcSize=' + arcSize,
+			'ProcessBlock': '',
+			'DecisionBlock': 'rhombus',
 			'TerminatorBlock': 'rounded=1;arcSize=50',
-			'PredefinedProcessBlock': 'shape=process;absoluteArcSize=1;rounded=1;arcSize=' + arcSize,
+			'PredefinedProcessBlock': 'shape=process',
 			'DocumentBlock': 'shape=document',
 			'MultiDocumentBlock': s + 'flowchart.multi-document',
-			'ManualInputBlock': 'shape=manualInput;size=15;rounded=1;arcSize=' + arcSize,
-			'PreparationBlock': 'shape=hexagon;rounded=1;arcSize=' + arcSize,
-			'DataBlock': 'shape=parallelogram;rounded=1;arcSize=' + arcSize,
-			'DataBlockNew': 'shape=parallelogram;rounded=1;arcSize=' + arcSize,
+			'ManualInputBlock': 'shape=manualInput;size=15',
+			'PreparationBlock': 'shape=hexagon',
+			'DataBlock': 'shape=parallelogram',
+			'DataBlockNew': 'shape=parallelogram',
 			'DatabaseBlock': 'shape=cylinder',
 			'DirectAccessStorageBlock': s + 'flowchart.direct_data',
-			'InternalStorageBlock': 'shape=internalStorage;rounded=1;arcSize=' + arcSize + ';dx=10;dy=10',
+			'InternalStorageBlock': 'shape=internalStorage;dx=10;dy=10',
 			'PaperTapeBlock': 'shape=tape;size=0.2',
-			'ManualOperationBlockNew': 'shape=trapezoid;rounded=1;arcSize=' + arcSize + ';flipV=1',
+			'ManualOperationBlockNew': 'shape=trapezoid;flipV=1',
 			'DelayBlock': 'shape=delay',
 			'StoredDataBlock': 'shape=dataStorage',
-			'MergeBlock': 'triangle;direction=south;rounded=1;arcSize=' + arcSize,
+			'MergeBlock': 'triangle;direction=south',
 			'ConnectorBlock': 'ellipse',
 			'OrBlock': s + 'flowchart.summing_function',
 			'SummingJunctionBlock': s + 'flowchart.or',
 			'DisplayBlock': 'shape=display',
-			'OffPageLinkBlock': 'shape=offPageConnector;rounded=1;arcSize=' + arcSize,
-			'BraceNoteBlock': 'shape=curlyBracket;rounded=1', //EXT
+			'OffPageLinkBlock': 'shape=offPageConnector',
+			'BraceNoteBlock': 'shape=curlyBracket', //EXT
 			'NoteBlock': s + 'flowchart.annotation_1',
 //Containers
-			'AdvancedSwimLaneBlock': 'swimlane;rounded=1;absoluteArcSize=1;arcSize=' + arcSize, //EXT
-			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0;rounded=1;absoluteArcSize=1;arcSize=' + arcSize, //EXT
-			'RectangleContainerBlock': 'fillColor=none;container=1;absoluteArcSize=1;rounded=1;arcSize=' + arcSize,
+			'AdvancedSwimLaneBlock': 'swimlane', //EXT
+			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //EXT
+			'RectangleContainerBlock': 'fillColor=none;container=1',
 			'DiamondContainerBlock':  'shape=rhombus;fillColor=none;container=1',
-			'RoundedRectangleContainerBlock': 'absoluteArcSize=1;arcSize=' + arcSize+ ';rounded=1;fillColor=none;container=1', 
+			'RoundedRectangleContainerBlock': 'fillColor=none;container=1;rounded=1;absoluteArcSize=1;arcSize=24',
 			'CircleContainerBlock': 'shape=ellipse;fillColor=none;container=1',
-			'PillContainerBlock': 'rounded=1;arcSize=50;fillColor=none;container=1',
+			'PillContainerBlock': 'arcSize=50;fillColor=none;container=1',
 //			'BraceBlock' NA
 //			'BracketBlock' NA
 //			'BraceBlockRotated' NA
@@ -164,7 +178,7 @@
 			'IsoscelesTriangleBlock': 'triangle;direction=north',
 			'RightTriangleBlock': s + 'basic.orthogonal_triangle',
 			'PentagonBlock': s + 'basic.pentagon',
-			'HexagonBlock': 'shape=hexagon;rounded=1;arcSize=' + arcSize,
+			'HexagonBlock': 'shape=hexagon',
 			'OctagonBlock': s + 'basic.octagon',
 			'CrossBlock': 'shape=cross;size=0.6',
 			'CloudBlock': 'ellipse;shape=cloud',
@@ -174,9 +188,9 @@
 			'CalloutBlock': s + 'basic.rectangular_callout',
 			'ShapeCircleBlock': 'ellipse',
 			'ShapePolyStarBlock': s + 'basic.star',
-			'ShapeDiamondBlock': 'rhombus;rounded=1;arcSize=' + arcSize,
+			'ShapeDiamondBlock': 'rhombus',
 //Misc
-			'UI2HotspotBlock' : 'opacity=50;strokeColor=none;absoluteArcSize=1;arcSize=' + arcSize + 'rounded=1',
+			'UI2HotspotBlock' : 'opacity=50;strokeColor=none',
 //Android Devices
 //			'AndroidDevice' EXT
 //Android Dialogs
@@ -258,8 +272,8 @@
 //			'iOSTableGroupedSectionBreak' EXT
 //			'iOSTablePlainHeaderFooter' EXT
 //Mind Map
-			'MindMapBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + 'rounded=1',
-			'MindMapStadiumBlock' : 'rounded=1;arcSize=50',
+			'MindMapBlock' : '',
+			'MindMapStadiumBlock' : 'arcSize=50',
 			'MindMapCloud' : 'shape=cloud',
 			'MindMapCircle' : 'shape=ellipse',
 			'MindMapIsoscelesTriangleBlock' : 'shape=triangle;direction=north',
@@ -308,8 +322,8 @@
 //			'SMSlideshow' EXT
 //			'SMUpload' EXT
 //UML Class Diagram
-			'UMLClassBlock': 'rounded=1;absoluteArcSize=1;arcSize=' + arcSize + '',
-			'UMLActiveClassBlock': s + 'flowchart.predefined_process',
+			'UMLClassBlock': '',
+			'UMLActiveClassBlock': 'shape=process',
 //			'UMLMultiplicityBlock' NA
 			'UMLPackageBlock': 'shape=folder;tabPosition=left',
 //			'UMLConstraintBlock' NA
@@ -319,19 +333,19 @@
 			'UMLActorBlock': 'shape=umlActor;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;whiteSpace=nowrap',
 			'UMLUseCaseBlock': 'shape=ellipse',
 			'UMLCircleContainerBlock': 'shape=ellipse;container=1',
-			'UMLRectangleContainerBlock': 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;container=1',
+			'UMLRectangleContainerBlock': 'container=1',
 //UML State/Activity			
-			'UMLOptionLoopBlock' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill',
-			'UMLAlternativeBlock2' : s + 'sysml.package2;xSize=90;align=left;spacingLeft=10;overflow=fill',
+			'UMLOptionLoopBlock' : s + 'sysml.package2;xSize=90;overflow=fill',
+			'UMLAlternativeBlock2' : s + 'sysml.package2;xSize=90;overflow=fill',
 			'UMLStartBlock' : 'shape=ellipse;fillColor=#000000',
-			'UMLStateBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'UMLDecisionBlock' : 'shape=rhombus;rounded=1;',
-			'UMLHForkJoinBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#000000',
-			'UMLVForkJoinBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#000000',
+			'UMLStateBlock' : 'rounded=1;arcSize=20',
+			'UMLDecisionBlock' : 'shape=rhombus;',
+			'UMLHForkJoinBlock' : 'fillColor=#000000',
+			'UMLVForkJoinBlock' : 'fillColor=#000000',
 			'UMLFlowFinalBlock' : s + 'flowchart.or',
 			'UMLHistoryStateBlock' : 'shape=ellipse',
 			'UMLEndBlock' : s + 'bpmn.shape;outline=end;symbol=terminate;strokeColor=#000000;fillColor=#ffffff',
-			'UMLObjectBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'UMLObjectBlock' : '',
 			'UMLSendSignalBlock' : s + 'sysml.sendSigAct',
 			'UMLReceiveSignalBlock' : s + 'sysml.accEvent;flipH=1',
 			'UMLAcceptTimeEventActionBlock' : s + 'sysml.timeEvent',
@@ -342,7 +356,7 @@
 //			'UMLMultiLanePoolRotatedBlock' EXT
 //			'UMLMultidimensionalSwimlane' EXT
 //UML Sequence
-			'UMLActivationBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'UMLActivationBlock' : '',
 			'UMLDeletionBlock' : s + 'sysml.x;strokeWidth=4',
 //			'UMLAlternativeBlock' NA
 			'UMLSeqEntityBlock' : s + 'electrical.radio.microphone_1;direction=north',
@@ -358,12 +372,12 @@
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north',
 //UML Deployment
 //UML Entity Relationship
-			'UMLEntityBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'UMLWeakEntityBlock' : 'shape=ext;double=1;rounded=1',
+			'UMLEntityBlock' : '',
+			'UMLWeakEntityBlock' : 'shape=ext;double=1',
 			'UMLAttributeBlock' : 'shape=ellipse',
 			'UMLMultivaluedAttributeBlock' : 'shape=doubleEllipse',
-			'UMLRelationshipBlock' : 'shape=rhombus;rounded=1',
-			'UMLWeakRelationshipBlock' : 'shape=rhombus;rounded=1;double=1',
+			'UMLRelationshipBlock' : 'shape=rhombus',
+			'UMLWeakRelationshipBlock' : 'shape=rhombus;double=1',
 //BPMN 2.0
 //			'BPMNActivity' EXT
 //			'BPMNActivity' EXT
@@ -378,16 +392,16 @@
 //			'BPMNBlackPool' EXT
 //Data Flow
 //			'DFDExternalEntityBlock' NA
-			'DFDExternalEntityBlock2' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'DFDExternalEntityBlock2' : '',
 			'YDMDFDProcessBlock' : 'shape=ellipse',
 			'YDMDFDDataStoreBlock' : 'shape=partialRectangle;right=0;left=0',
-			'GSDFDProcessBlock' : 'shape=swimlane;rounded=1;absoluteArcSize=1;arcSize=' + arcSize,
-			'GSDFDProcessBlock2' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'GSDFDProcessBlock' : 'shape=swimlane;rounded=1;arcSize=10',
+			'GSDFDProcessBlock2' : '',
 //			'GSDFDDataStoreBlock' NA
 			'GSDFDDataStoreBlock2' : 'shape=partialRectangle;right=0',
 			
 //Org Chart
-			'OrgBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'OrgBlock' : '',
 //Tables
 //			'DefaultTableBlock' EXT
 //Processes
@@ -409,7 +423,7 @@
 			'VSMExternalShipmentBoatBlock' : s + 'lean_mapping.boat_shipment',
 //Information
 			'VSMProductionControlBlock' : s + 'lean_mapping.manufacturing_process',
-			'VSMOtherInformationBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'VSMOtherInformationBlock' : '',
 //			'VSMHeijyunkaBoxBlock' NA
 			'VSMSequencedPullBallBlock' : s + 'lean_mapping.sequenced_pull_ball',
 			'VSMMRPERPBlock' : s + 'lean_mapping.mrp_erp;whiteSpace=wrap',
@@ -1523,8 +1537,8 @@
 //			'fpStairsCurvedWide' EXT
 //Desks
 //			'fpDeskEndSegment' NA
-			'fpDeskLongSegment' : 'shape=rect',
-			'fpDeskShortSegment' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpDeskLongSegment' : '',
+			'fpDeskShortSegment' : '',
 //			'fpDeskSmallCornerSegment' NA
 			'fpDeskLargeCornerSegment' : s + 'floorplan.desk_corner',
 //			'fpDeskMediumCornerSegment' NA
@@ -1542,10 +1556,10 @@
 			'fpCubicleEnclosed11x9' : s + 'floorplan.wallU;wallThickness=3',
 //Tables & Chairs
 			'fpTableConferenceOval' : 'shape=ellipse',
-			'fpTableConferenceBoat' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpTableConferenceRectangle' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpTableConferenceBoat' : '',
+			'fpTableConferenceRectangle' : '',
 			'fpTableDiningRound' : 'shape=ellipse',
-			'fpTableDiningSquare' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpTableDiningSquare' : '',
 			'fpChairOffice' : s + 'floorplan.office_chair',
 			'fpChairExecutive' : s + 'floorplan.office_chair',
 			'fpChairLobby' : s + 'floorplan.office_chair',
@@ -1554,14 +1568,14 @@
 //Cubicles - Prebuilt
 //Tables - Prebuilt
 //Cabinets - we don't have corresponding stencils, just rounded rectangles			
-			'fpCabinetBasic' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpCabinetBasic' : '',
 //			'fpCabinetCornerLarge' NA
-			'fpCabinetDoubleWide' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpCabinetDoubleWithShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpCabinetShelvesBasic' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpCabinetShelvesDouble' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpCabinetBasicWithShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'fpCabinetsAboveDeskShelves' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpCabinetDoubleWide' : '',
+			'fpCabinetDoubleWithShelves' : '',
+			'fpCabinetShelvesBasic' : '',
+			'fpCabinetShelvesDouble' : '',
+			'fpCabinetBasicWithShelves' : '',
+			'fpCabinetsAboveDeskShelves' : '',
 //Restroom
 			'fpRestroomToiletPrivate' : s + 'floorplan.toilet',
 			'fpRestroomToiletPublic' : s + 'floorplan.toilet',
@@ -1573,7 +1587,7 @@
 			'fpRestroomShower' : s + 'floorplan.shower;flipH=1',
 //			'fpRestroomCornerSink' NA
 			'fpRestroomPedastalSink' : s + 'floorplan.sink_1',
-			'fpRestroomCountertop' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpRestroomCountertop' : '',
 			'fpRestroomMirror' : 'shape=line;strokeWidth=3',
 //			'fpDresserOrnateMirror' NA
 //			'fpRestroomToiletPaper' NA
@@ -1604,13 +1618,13 @@
 //Kitchen
 			'fpKitchenSink' : s + 'floorplan.sink_2',
 			'fpKitchenDoubleSink' : s + 'floorplan.sink_double',
-			'fpKitchenCountertop' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpKitchenCountertop' : '',
 			'fpKitchenCountertopCorner' : s + 'floorplan.desk_corner',
 //Couches
 			'fpCouchLoveSeat' : s + 'floorplan.couch',
 			'fpCouchSofa' : s + 'floorplan.couch',
 //			'fpCouchSectional' NA
-			'fpCouchOttoman' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'fpCouchOttoman' : '',
 //			'fpCouchPillow' NA
 //Technology
 			'fpMiscDesktopComputer' : s + 'floorplan.workstation',
@@ -1718,10 +1732,10 @@
 			'PERotaryValve' : s + 'pid.piping.rotary_valve',
 			'PEExpansionJoint' : s + 'pid.piping.expansion_joint',
 //Vessels
-			'PEVesselBlock' : 'shape=rect', //EXT
+			'PEVesselBlock' : '', //EXT
 			'PEOpenTankBlock' : s + 'pid.vessels.container,_tank,_cistern', //EXT
 			'PEOpenTopTank' : s + 'pid.vessels.container,_tank,_cistern',
-			'PEClosedTankBlock' : 'shape=rect', //EXT
+			'PEClosedTankBlock' : '', //EXT
 			'PEStorageSphereBlock' : s + 'pid.vessels.storage_sphere',
 			'PEColumnBlock' : s + 'pid.vessels.pressurized_vessel', //EXT
 			'PEBagBlock' : s + 'pid.vessels.bag',
@@ -1987,13 +2001,13 @@
 			'UI2CaptchaBlock' : s + 'mockup.text.captcha;mainText=',
 //			'Image_ui_formatting_toolbar2'
 //UI Input
-			'UI2ButtonBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'UI2ButtonBlock' : 'rounded=1;arcSize=25;',
 //			'UI2CheckBoxBlock' EXT
 //			'UI2HorizontalCheckBoxBlock' EXT
 //			'UI2RadioBlock' EXT
 //			'UI2HorizontalRadioBlock' EXT
 			'UI2ColorPickerBlock' : s + 'mockup.forms.colorPicker;chosenColor=#aaddff',
-			'UI2TextInputBlock' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'UI2TextInputBlock' : '',
 			'UI2SelectBlock' : s + 'mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666',
 			'UI2VSliderBlock' : s + 'mockup.forms.horSlider;sliderStyle=basic;sliderPos=20;handleStyle=circle;direction=north',
 			'UI2HSliderBlock' : s + 'mockup.forms.horSlider;sliderStyle=basic;sliderPos=20;handleStyle=circle',
@@ -2035,15 +2049,15 @@
 //			'Image_ipad_table' EXT
 //			'Image_ipad_vtab' EXT
 //iOS 6 iPad Controls
-			'Image_ipad_button_black' : 'shape=rect;roudned=1',
-			'Image_ipad_button_blue' : 'shape=rect;roudned=1',
-			'Image_ipad_button_grayblue' : 'shape=rect;roudned=1',
-			'Image_ipad_button_red' : 'shape=rect;roudned=1',
+			'Image_ipad_button_black' : '',
+			'Image_ipad_button_blue' : '',
+			'Image_ipad_button_grayblue' : '',
+			'Image_ipad_button_red' : '',
 			'Image_ipad_back_button_gray' : s + 'ios.iButtonBack;buttonText=;fillColor=#eeeeee;fillColor2=#aaaaaa',
 			'Image_ipad_back_button_black' : s + 'ios.iButtonBack;buttonText=;fillColor=#888888;fillColor2=#000000',
 			'Image_ipad_sort_handle' : s + 'ios7.icons.options',
 			'Image_ipad_dropdown' : s + 'ios.iComboBox;buttonText=;fillColor=#dddddd;fillColor2=#3D5565',
-			'Image_ipad_email_name' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'Image_ipad_email_name' : '',
 			'Image_ipad_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff',
 			'Image_ipad_keyboard_portrait' : s + 'ios.iKeybLett',
 			'Image_ipad_keyboard_landscape' : s + 'ios.iKeybLett',
@@ -2069,16 +2083,16 @@
 			'Image_ipad_indicator' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
 //iOS 6 iPhone Elements
 			'Image_iphone_iphone_4' : s + 'ios.iPhone;bgStyle=bgGreen',
-			'Image_iphone_bg_black' : 'shape=rect',
-			'Image_iphone_bg_gray' : 'shape=rect',
+			'Image_iphone_bg_black' : '',
+			'Image_iphone_bg_gray' : '',
 			'Image_iphone_bg_stripe_drk' : s + 'ios.iBgStriped;strokeColor=#18211b;fillColor=#5D7585;strokeColor2=#657E8F',
 			'Image_iphone_bg_stripe_lt' : s + 'ios.iBgStriped;strokeColor=#18211b;fillColor=#5D7585;strokeColor2=#657E8F',
-			'Image_iphone_bg_white' : 'shape=rect',
+			'Image_iphone_bg_white' : '',
 			'Image_iphone_top_bar_app' : s + 'ios.iAppBar',
 			'Image_iphone_top_bar_home' : s + 'ios.iTopBar2;opacity=50;fillColor=#999999;strokeColor=#cccccc;strokeWidth=1',
-			'Image_iphone_bar_top' : 'shape=rect',
-			'Image_iphone_bar_semi_trans_black' : 'shape=rect',
-			'Image_iphone_bar_semi_trans_blue' : 'shape=rect',
+			'Image_iphone_bar_top' : '',
+			'Image_iphone_bar_semi_trans_black' : '',
+			'Image_iphone_bar_semi_trans_blue' : '',
 			'Image_iphone_search' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
 //			'Image_iphone_table' EXT
 //			'Image_iphone_table_w_buttons' EXT
@@ -2086,31 +2100,31 @@
 //			'Image_iphone_list' EXT
 //			'Image_iphone_safari_top' NA
 //			'Image_iphone_safari_bottom' NA
-			'Image_iphone_gray_grad_list' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1', //EXT
+			'Image_iphone_gray_grad_list' : '', //EXT
 //			'Image_iphone_alert_bar' NA
 //			'Image_iphone_alert_dialog' EXT
 //			'Image_iphone_dialog' EXT
 //			'Image_iphone_scroll_pane' EXT
 			'Image_iphone_alpha_list' : s + 'ios.iAlphaList',
 //iOS 6 iPhone Controls
-			'Image_iphone_button_black' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_blue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_grayblue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_red' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_lg_light' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_lg_dark' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_lg_green' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_lg_red' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_lg_yellow' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
-			'Image_iphone_button_xl_green' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'Image_iphone_button_black' : '',
+			'Image_iphone_button_blue' : '',
+			'Image_iphone_button_grayblue' : '',
+			'Image_iphone_button_red' : '',
+			'Image_iphone_button_lg_light' : '',
+			'Image_iphone_button_lg_dark' : '',
+			'Image_iphone_button_lg_green' : '',
+			'Image_iphone_button_lg_red' : '',
+			'Image_iphone_button_lg_yellow' : '',
+			'Image_iphone_button_xl_green' : '',
 			'Image_iphone_back_button' : s + 'ios.iButtonBack;strokeColor=#444444;buttonText=;fillColor=#dddddd;fillColor2=#3D5565',
 			'Image_iphone_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff',
 			'Image_iphone_sort_handle' : s + 'ios7.icons.options',
 			'Image_iphone_slider' : s + 'ios.iSlider;barPos=60',
 			'Image_iphone_dropdown' : s + 'ios.iComboBox;buttonText=;fillColor=#dddddd;fillColor2=#3D5565',
-			'Image_iphone_email_name' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'Image_iphone_email_name' : '',
 			'Image_iphone_switch_off' : s + 'android.switch_off;fillColor=#666666', //EXT
-			'Image_iphone_keyboard_button_blue' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1',
+			'Image_iphone_keyboard_button_blue' : '',
 			'Image_iphone_keyboard_letters' : s + 'ios.iKeybLett',
 			'Image_iphone_keyboard_landscape' : s + 'ios.iKeybLett',
 //			'Image_iphone_large_tabbed_button' EXT
@@ -2131,10 +2145,9 @@
 			'Image_iphone_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600',
 			'Image_iphone_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000',
 			'Image_iphone_radio_off' : 'shape=ellipse', //EXT
-			'Image_iphone_checkbox_off' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1', //EXT
-			'Image_iphone_indicator' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
-			// NOTE: NO COMMA ON LAST LINE
-			'Image_iphone_thread_count' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1'
+			'Image_iphone_checkbox_off' : '', //EXT
+			'Image_iphone_indicator' : 'fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
+			'Image_iphone_thread_count' : ''
 	};
 	
 	function convertText(props)
@@ -2252,7 +2265,6 @@
 
 				//adds font size
 				var isV = false;
-				
 				
 				var m = getTextM(p);
 				
@@ -2422,6 +2434,11 @@
 							i++;
 						}
 					}
+					
+					if (!isA)
+					{
+						cell.style += 'align=center;';
+					}
 
 					//adds left spacing
 					var isIL = false;
@@ -2537,25 +2554,6 @@
 							cell.style += 'spacing=' + parseInt(p.InsetMargin) + ';';
 					}
 					
-					//adds opacity
-					if (typeof p.LineColor === 'string')
-					{
-						if (p.LineColor.length > 7)
-						{
-							var sOpac = "0x" + p.LineColor.substring(p.LineColor.length - 2, p.LineColor.length);
-							cell.style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
-						}
-					}
-					
-					if (typeof p.FillColor === 'string')
-					{
-						if (p.FillColor.length > 7)
-						{
-							var fOpac = "0x" + p.FillColor.substring(p.FillColor.length - 2, p.FillColor.length);
-							cell.style += 'fillOpacity=' + Math.round(parseInt(fOpac) / 2.55) + ';';
-						}
-					}
-
 					// adds text vertical alignment
 					if (p.Text_VAlign != null)
 					{
@@ -2603,7 +2601,39 @@
 					cell.style += createStyle(mxConstants.STYLE_OPACITY, p.Opacity, '100');
 				}
 
+				//adds opacity
+				if (typeof p.LineColor === 'string')
+				{
+					if (p.LineColor.length > 7)
+					{
+						var sOpac = "0x" + p.LineColor.substring(p.LineColor.length - 2, p.LineColor.length);
+						cell.style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
+					}
+				}
 				
+				if (typeof p.FillColor === 'string')
+				{
+					if (p.FillColor.length > 7)
+					{
+						var fOpac = "0x" + p.FillColor.substring(p.FillColor.length - 2, p.FillColor.length);
+						cell.style += 'fillOpacity=' + Math.round(parseInt(fOpac) / 2.55) + ';';
+					}
+				}
+
+
+				//rounding check
+				if (p.Rounding != null && !hardRound.includes(a.Class))
+				{
+					if (p.Rounding > 0)
+					{
+						cell.style += 'rounded=1;absoluteArcSize=1;arcSize=' + p.Rounding * 0.6 + ';';
+					}
+				}
+				else if (p.Rounding == null && hardDefRound.includes(a.Class))
+				{
+					cell.style += 'rounded=1;absoluteArcSize=1;arcSize=8;'
+				}
+
 				// Converts rotation
 				if (p.Rotation != null)
 				{
@@ -2625,7 +2655,11 @@
 						cell.geometry.rotate90();
 						cell.geometry.rotate90();
 					}
-					cell.style += 'rotation=' + deg + ';';
+					
+					if (deg != 0)
+					{
+						cell.style += 'rotation=' + deg + ';';
+					}
 				}
 				
 				if (p.FlipX)

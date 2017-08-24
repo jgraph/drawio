@@ -1,3 +1,8 @@
+24-AUG-2017: 7.2.6
+
+- Improvements for Lucidchart import
+- Fixes possible NPEs
+
 24-AUG-2017: 7.2.5
 
 - Fixes possible NPE

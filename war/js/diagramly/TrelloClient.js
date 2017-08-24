@@ -446,7 +446,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 			mxUtils.bind(this, function(data)
 			{
 				this.ui.spinner.stop();
-				var cards = data.cards;
+				var cards = (data != null) ? data.cards : null;
 				
 				if (cards == null || cards.length == 0)
 				{
