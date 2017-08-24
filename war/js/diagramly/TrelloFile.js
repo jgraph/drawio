@@ -28,12 +28,13 @@ TrelloFile.prototype.getMode = function()
 	return App.MODE_TRELLO;
 };
 
+
 /**
- * Overridden to disable the autosave
+ * Overridden to enable the autosave option in the document properties dialog.
  */
-TrelloFile.prototype.isAutosave = function()
+TrelloFile.prototype.isAutosaveOptional = function()
 {
-	return false;
+	return true;
 };
 
 /**

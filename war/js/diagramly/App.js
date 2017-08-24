@@ -1166,11 +1166,24 @@ App.prototype.init = function()
 	
 	if (td != null && mxClient.IS_SVG)
 	{
-		td.innerHTML = '<a title="Collaborate on diagrams in Samepage" target="_blank" ' +
-			((mxClient.IS_SF) ? 'style="margin-top:-22px;" ' : '') +
-			'href="https://www.samepage.io/draw-diagram-online?SPcid=SIOF%2BDraw%2Breferral%2BDraw%2Bv1%2BNA"\>' +
+//		td.innerHTML = '<a title="Collaborate on diagrams in Samepage" target="_blank" ' +
+//			((mxClient.IS_SF) ? 'style="margin-top:-22px;" ' : '') +
+//			'href="https://www.samepage.io/draw-diagram-online?SPcid=SIOF%2BDraw%2Breferral%2BDraw%2Bv1%2BNA"\>' +
+//			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
+//			'src="' + IMAGE_PATH + '/samepage-icon-color.svg"/>Collaborate on diagrams in Samepage</a>';
+		td.innerHTML = '<a title="Trello integration" target="_blank" ' +
+			'href="https://www.facebook.com/drawioapp/posts/1635338883157308"\>' +
 			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
-			'src="' + IMAGE_PATH + '/samepage-icon-color.svg"/>Collaborate on diagrams in Samepage</a>';
+			'src="' + IMAGE_PATH + '/trello-logo.svg"/>NEW! Trello integration</a>';
+		
+		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
+		{
+			if (typeof window.ga === 'function' && !this.isOffline())
+			{
+				ga('send', 'event', 'Footer', 'click', 'Trello');
+			}
+		}));
+
 //		this.basicAds.push(td.innerHTML);
 //		this.adsHtml = this.basicAds;
 //		var lastAd = this.adsHtml.length - 1;
@@ -1235,17 +1248,13 @@ App.prototype.init = function()
 //				}
 //			}
 //		};
-		
-		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
-		{
+//		
+//		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
+//		{
 //			this.adsHtml.splice(lastAd, 1);
 //			lastAd = null;
 //			this.updateAd(0);
-			if (typeof window.ga === 'function' && !this.isOffline())
-			{
-				ga('send', 'event', 'Footer', 'click', 'Samepage');
-			}
-		}));
+//		}));
 //
 //		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
 //		{
