@@ -218,6 +218,21 @@ EditorUi.prototype.addTrees = function()
 	
 	graph.removeCells = function(cells, includeEdges)
 	{
+		includeEdges = (includeEdges != null) ? includeEdges : true;
+		
+		if (cells == null)
+		{
+			cells = this.getDeletableCells(this.getSelectionCells());
+		}
+
+		// Adds all edges to the cells
+		if (includeEdges)
+		{
+			// FIXME: Remove duplicate cells in result or do not add if
+			// in cells or descendant of cells
+			cells = this.getDeletableCells(this.addAllEdges(cells));
+		}
+		
 		var tmp = [];
 		
 		for (var i = 0; i < cells.length; i++)
@@ -255,7 +270,7 @@ EditorUi.prototype.addTrees = function()
 		
 		cells = tmp;
 		
-		graphRemoveCells.apply(this, arguments);
+		return graphRemoveCells.apply(this, arguments);
 	};
 
 	ui.hoverIcons.getStateAt = function(state, x, y)
