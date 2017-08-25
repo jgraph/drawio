@@ -179,7 +179,7 @@ EditorUi.prototype.addTrees = function()
 		this.model.beginUpdate();
 		try
 		{
-			var newCells = cells.splice();
+			var newCells = cells.slice();
 			var tmp = [];
 			
 			for (var i = 0; i < cells.length; i++)
@@ -212,12 +212,14 @@ EditorUi.prototype.addTrees = function()
 			}
 			
 			cells = newCells;
-			graphFoldCells.apply(this, arguments);
+			cells = graphFoldCells.apply(this, arguments);
 		}
 		finally
 		{
 			this.model.endUpdate();
 		}
+		
+		return cells;
 	};
 	
 	var graphRemoveCells = graph.removeCells;

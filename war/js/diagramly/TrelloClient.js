@@ -175,60 +175,65 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 			return;
 		}
 		
-		Trello.authorize({
-		  type: 'popup',
-		  name: 'draw.io',
-		  scope: {
-		    read: 'true',
-		    write: 'true' 
-		  },
-		  expiration: 'never',
-		  success: mxUtils.bind(this, function() 
-		  {
-			  var acceptResponse = true;
-				
-			  var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		var fn = mxUtils.bind(this, function()
+		{
+			Trello.authorize({
+			  type: 'popup',
+			  name: 'draw.io',
+			  scope: {
+			    read: 'true',
+			    write: 'true' 
+			  },
+			  expiration: 'never',
+			  success: mxUtils.bind(this, function() 
 			  {
-				acceptResponse = false;
-				error({code: App.ERROR_TIMEOUT, retry: fn});
-			  }), this.ui.timeout);
-				
-			  var formData = new FormData();
-			  formData.append("key", Trello.key());
-			  formData.append("token", Trello.token());
-			  formData.append("file", data);
-			  formData.append("name", filename);  
-
-			  var request = new XMLHttpRequest();
-			  request.responseType = "json";
-			  
-			  request.onreadystatechange = mxUtils.bind(this, function() 
-			  {
-			    if (request.readyState === 4)
-			    {
-			    	window.clearTimeout(timeoutThread);
-			    	
-			    	if (acceptResponse)
-		    		{
-			    		if (request.status == 200)
-		    			{
-			    			var fileMeta = request.response;
-			    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
-			    			success(fileMeta);
-		    			}
-		    			else
-	    				{
-			    			error();
-	    				}
-		    		}
-			    }
-			  });
-			  
-			  request.open("POST", this.baseUrl + 'cards/' + cardId + '/attachments');
-			  request.send(formData);
-		  }),
-		  error: error
+				  var acceptResponse = true;
+					
+				  var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+				  {
+					acceptResponse = false;
+					error({code: App.ERROR_TIMEOUT, retry: fn});
+				  }), this.ui.timeout);
+					
+				  var formData = new FormData();
+				  formData.append("key", Trello.key());
+				  formData.append("token", Trello.token());
+				  formData.append("file", data);
+				  formData.append("name", filename);  
+	
+				  var request = new XMLHttpRequest();
+				  request.responseType = "json";
+				  
+				  request.onreadystatechange = mxUtils.bind(this, function() 
+				  {
+				    if (request.readyState === 4)
+				    {
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+			    		{
+				    		if (request.status == 200)
+			    			{
+				    			var fileMeta = request.response;
+				    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
+				    			success(fileMeta);
+			    			}
+			    			else
+		    				{
+				    			error();
+		    				}
+			    		}
+				    }
+				  });
+				  
+				  request.open("POST", this.baseUrl + 'cards/' + cardId + '/attachments');
+				  request.send(formData);
+			  }),
+			  error: error
+			});
 		});
+		
+		fn();
 	}
 	else
 	{

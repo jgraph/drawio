@@ -1,3 +1,9 @@
+25-AUG-2017: 7.2.8
+
+- Fixes open in new window for local exports
+- Fixes collapse/expand for containers
+- Uses mxGraph 3.7.5 beta 14
+
 24-AUG-2017: 7.2.7
 
 - Fixes file usage stats
