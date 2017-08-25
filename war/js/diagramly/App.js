@@ -187,6 +187,11 @@ App.TRELLO_URL = 'https://api.trello.com/1/client.js';
 App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
 
 /**
+ * Trello JQuery dependency
+ */
+App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
+
+/**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://desk.draw.io/solution/articles/16000042546
  */
@@ -525,10 +530,8 @@ App.main = function(callback)
 			var plugins = mxSettings.getPlugins();
 			var temp = urlParams['p'];
 			
-			if ((temp != null) || (plugins != null && plugins.length > 0))
-			{
-				App.initPluginCallback();
-			}
+			App.initPluginCallback();
+			mxscript(App.FOOTER_PLUGIN_URL);
 			
 			if (temp != null)
 			{
@@ -814,26 +817,6 @@ App.prototype.init = function()
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
 
 	/**
-	 * Basic adds for all backends.
-	 */
-	this.basicAds = ['<a title="' + mxResources.get('loveIt', ['draw.io']) +
-		'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
-		encodeURIComponent(mxResources.get('loveIt', ['www.draw.io'])) +
-		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
-		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
-		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.tweetImage + '"/>' + mxResources.get('loveIt', ['draw.io']) + '</a>',
-		'<a title="Share on Facebook" target="_blank" href="https://www.facebook.com/sharer.php?u=' +
-		encodeURIComponent('https://www.draw.io') +
-		'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
-		'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-520)/3)+\',height=520,width=640\');return false;"\'>' +
-		'<img border="0" align="absmiddle" width="18" height="18" style="margin-top:-2px;padding-right:8px;" src="' +
-		Editor.facebookImage + '"/>Share on Facebook</a>',
-		'<a title="draw.io Offline" href="https://www.draw.io/app" target="_blank">' +
-		'<img border="0" align="absmiddle" style="margin-top:-1px;padding-right:8px;" src="images/download.png"/>' +
-		'draw.io Offline</a>'];
-
-	/**
 	 * Creates github client.
 	 */
 	this.gitHub = (!mxClient.IS_IE || document.documentMode == 10 ||
@@ -961,17 +944,6 @@ App.prototype.init = function()
 					
 					this.drive.addListener('userChanged', mxUtils.bind(this, function()
 					{
-						// Changes the footer ads for Google Accounts
-//						if (this.updateAd != null)
-//						{
-//							this.adsHtml = this.basicAds.concat([
-//								'<a title="Google Docs Add-on" href="https://chrome.google.com/webstore/detail/drawio-diagrams/clpbjldiohnnmfmkngmaohehlnfkmoea" target="_blank">' +
-//								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Google Docs Add-on</a>',
-//								'<a title="Please help us to 5 stars" href="https://chrome.google.com/webstore/detail/drawio-pro/onlkggianjhjenigcpigpjehhpplldkc/reviews" target="_blank">' +
-//								'<img border="0" align="absmiddle" style="margin-top:-4px;" src="images/glyphicons_star.png"/>&nbsp;&nbsp;Please help us to 5 stars</a>']);
-//							this.updateAd(this.adsHtml.length - 1);
-//						}
-						
 						this.updateUserElement();
 						this.restoreLibraries();
 						this.checkLicense();
@@ -1089,182 +1061,7 @@ App.prototype.init = function()
 	}
 
 	this.updateHeader();
-	
-	var rotate = mxUtils.bind(this, function(elt, html, delay, fn)
-	{
-		delay = (delay != null) ? delay : 1000;
-		mxUtils.setPrefixedStyle(elt.style, 'transition', 'all ' + (delay / 1000) + 's ease');
-		mxUtils.setPrefixedStyle(elt.style, 'transform', 'scale(0)');
-		elt.style.visibility = 'visible';
-		elt.style.opacity = '0';
-		
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			elt.innerHTML = html;
-			mxUtils.setPrefixedStyle(elt.style, 'transform', 'scale(1)');
-			elt.style.opacity = '1';
-			
-			if (fn != null)
-			{
-				fn();
-			}
-		}), delay);
-	});
-	
-	// Announce Desktop Apps
-	var td2 = document.getElementById('geFooterItem1');
-	
-	if (td2 != null)
-	{
-		mxEvent.addListener(td2, 'click', mxUtils.bind(this, function()
-		{
-			if (typeof window.ga === 'function' && !this.isOffline())
-			{
-				ga('send', 'event', 'Footer', 'click', 'Confluence');
-			}
-		}));
-	}
-//		var link = 'https://download.draw.io/';
-//		var lastHtml = td2.innerHTML;
-//		var os = 'draw.io';
-//
-//		if (['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].indexOf(navigator.platform) >= 0)
-//		{
-//			os += ' for macOS';
-//		}
-//		else if (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(navigator.platform) >= 0)
-//		{
-//			os += ' for Windows';
-//		}
-//		else if (/\bCrOS\b/.test(navigator.userAgent))
-//		{
-//			os += ' for Chrome OS';
-//		}
-//		else if (/Linux/.test(navigator.platform))
-//		{
-//			os += ' for Linux';
-//		}
-//		else
-//		{
-//			os += ' Desktop';
-//		}
-//		
-//		td2.innerHTML = '<a title="' + os + '" href="' + link + '" target="_blank">' +
-//			'<img border="0" align="absmiddle" style="margin-top:-4px;" width="24" height="24" ' +
-//			'src="images/drawlogo48.png"/>&nbsp;&nbsp;' + os + '</a>';
-//		
-//		window.setInterval(mxUtils.bind(this, function()
-//		{
-//			var temp = lastHtml;
-//			lastHtml = td2.innerHTML;
-//			rotate(td2, temp);
-//		}), 300000);
-//	}
-	
-	// Changes footer from time to time
-	var td = document.getElementById('geFooterItem2');
-	
-	if (td != null && mxClient.IS_SVG)
-	{
-		td.innerHTML = '<a title="Collaborate on diagrams in Samepage" target="_blank" ' +
-			((mxClient.IS_SF) ? 'style="margin-top:-22px;" ' : '') +
-			'href="https://www.samepage.io/draw-diagram-online?SPcid=SIOF%2BDraw%2Breferral%2BDraw%2Bv1%2BNA"\>' +
-			'<img border="0" align="absmiddle" width="24" height="24" style="margin-top:-2px;padding-right:8px;" ' +
-			'src="' + IMAGE_PATH + '/samepage-icon-color.svg"/>Collaborate on diagrams in Samepage</a>';
-		
-		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
-		{
-			if (typeof window.ga === 'function' && !this.isOffline())
-			{
-				ga('send', 'event', 'Footer', 'click', 'Samepage');
-			}
-		}));
 
-//		this.basicAds.push(td.innerHTML);
-//		this.adsHtml = this.basicAds;
-//		var lastAd = this.adsHtml.length - 1;
-//		var thread2 = null;
-//		var thread = null;
-//		
-//		this.updateAd = function(index, delay)
-//		{
-//			if (thread != null)
-//			{
-//				window.clearTimeout(thread);
-//				thread = null;
-//			}
-//
-//			if (thread2 != null)
-//			{
-//				window.clearTimeout(thread2);
-//				thread2 = null;
-//			}
-//			
-//			if (this.adsHtml.length == 0)
-//			{
-//				td.style.display = 'none';
-//				td.innerHTML = '';
-//			}
-//			else
-//			{
-//				var schedule = mxUtils.bind(this, function()
-//				{
-//					if (this.adsHtml.length > 0)
-//					{
-//						thread = window.setTimeout(mxUtils.bind(this, function()
-//						{
-//							var tmp = 0;
-//							
-//							if (this.adsHtml.length > 1)
-//							{
-//								tmp = Math.round(Math.random() * (this.adsHtml.length - 2));
-//								
-//								if (tmp == lastAd)
-//								{
-//									tmp++;
-//								}
-//							}
-//							
-//							this.updateAd(tmp);
-//						}), 180000);
-//					}
-//				});
-//			
-//				if (index != lastAd)
-//				{
-//					rotate(td, this.adsHtml[index], delay, function()
-//					{
-//						lastAd = index;
-//						schedule();
-//					});
-//				}
-//				else
-//				{
-//					schedule();
-//				}
-//			}
-//		};
-//		
-//		mxEvent.addListener(td, 'click', mxUtils.bind(this, function()
-//		{
-//			this.adsHtml.splice(lastAd, 1);
-//			lastAd = null;
-//			this.updateAd(0);
-//		}));
-//
-//		if (mxSettings.getOpenCounter() > 10 && urlParams['embed'] != '1')
-//		{
-//			thread2 = window.setTimeout(mxUtils.bind(this, function()
-//			{
-//				this.updateAd(0);
-//			}), 15000);
-//		}
-//		else
-//		{
-//			this.updateAd(this.adsHtml.length - 1);
-//		}
-	}
-	
 	if (this.menubar != null)
 	{
 		this.buttonContainer = document.createElement('div');

@@ -2726,7 +2726,8 @@
 					if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
 						(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
 					{
-						if (mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+						// In Google Chrome 60 the code from below produces a blank window 
+						if (mxClient.IS_GC || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
 						{
 							var win = window.open('about:blank');
 							
