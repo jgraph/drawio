@@ -88,7 +88,7 @@ Format.prototype.initSelectionState = function()
 {
 	return {vertices: [], edges: [], x: null, y: null, width: null, height: null, style: {},
 		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,
-		comic: true, autoSize: false, image: true, shadow: true};
+		comic: true, autoSize: false, image: true, shadow: true, lineJumps: true};
 };
 
 /**
@@ -174,6 +174,7 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 		result.autoSize = result.autoSize || this.isAutoSizeState(state);
 		result.glass = result.glass && this.isGlassState(state);
 		result.rounded = result.rounded && this.isRoundedState(state);
+		result.lineJumps = result.lineJumps && this.isLineJumpState(state);
 		result.comic = result.comic && this.isComicState(state);
 		result.image = result.image && this.isImageState(state);
 		result.shadow = result.shadow && this.isShadowState(state);
@@ -237,6 +238,16 @@ Format.prototype.isRoundedState = function(state)
 			shape == 'rhombus' || shape == 'offPageConnector' || shape == 'loopLimit' || shape == 'hexagon' ||
 			shape == 'manualInput' || shape == 'curlyBracket' || shape == 'singleArrow' || shape == 'callout' ||
 			shape == 'doubleArrow' || shape == 'flexArrow' || shape == 'card' || shape == 'umlLifeline');
+};
+
+/**
+ * Returns information about the current selection.
+ */
+Format.prototype.isLineJumpState = function(state)
+{
+	var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+	
+	return shape == 'connector' || shape == 'filledEdge';
 };
 
 /**
@@ -4203,7 +4214,8 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 {
 	var ss = this.format.getSelectionState();
 	
-	if (Graph.lineJumpsEnabled && ss.edges.length > 0 && ss.vertices.length == 0)
+	if (Graph.lineJumpsEnabled && ss.edges.length > 0 &&
+		ss.vertices.length == 0 && ss.lineJumps)
 	{
 		container.style.padding = '8px 0px 24px 18px';
 		
