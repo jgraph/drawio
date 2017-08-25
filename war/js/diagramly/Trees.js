@@ -353,7 +353,7 @@ EditorUi.prototype.addTrees = function()
 		{
 			var newSource = target;
 			
-			if (isTreeVertex(target))
+			if (cells != null && isTreeVertex(target))
 			{
 				// Handles only drag from tree or from sidebar with dangling edges
 				for (var i = 0; i < cells.length; i++)
@@ -361,13 +361,13 @@ EditorUi.prototype.addTrees = function()
 					if (isTreeVertex(cells[i]) || (graph.model.isEdge(cells[i]) &&
 						graph.model.getTerminal(cells[i], true) == null))
 					{
-						target = null;
+						target = graph.model.getParent(cells[i]);
 						break;
 					}
 				}
 
 				// Applies distance between previous and current parent for non-sidebar drags
-				if (newSource != null && target == null && this.view.getState(cells[0]) != null)
+				if (newSource != null && target != newSource && this.view.getState(cells[0]) != null)
 				{
 					var edges = graph.getIncomingEdges(cells[0]);
 					
@@ -391,7 +391,7 @@ EditorUi.prototype.addTrees = function()
 
 			result = graphMoveCells.apply(this, arguments);
 			
-			if (result.length == cells.length)
+			if (result != null && cells != null && result.length == cells.length)
 			{
 				for (var i = 0; i < result.length; i++)
 				{
@@ -427,7 +427,7 @@ EditorUi.prototype.addTrees = function()
 								{
 									var temp = newSource;
 									
-									if (temp == null)
+									if (temp == null || temp == graph.model.getParent(cells[i]))
 									{
 										temp = graph.model.getTerminal(edges[0], true);
 									}
@@ -566,8 +566,11 @@ EditorUi.prototype.addTrees = function()
 				clones[1].geometry.x = cell.geometry.x + cell.geometry.width - clones[1].geometry.width; 
 			}
 			
-			clones[1].geometry.x -= pgeo.x;
-			clones[1].geometry.y -= pgeo.y;
+			if (graph.view.currentRoot != parent)
+			{
+				clones[1].geometry.x -= pgeo.x;
+				clones[1].geometry.y -= pgeo.y;
+			}
 			
 			// Moves existing siblings
 			var state = graph.view.getState(cell);
@@ -687,7 +690,15 @@ EditorUi.prototype.addTrees = function()
 			graph.model.setTerminal(clones[0], cell, false);
 
 			// Makes space for new parent
+			var parent = graph.model.getParent(cell);
+			var pgeo = parent.geometry;
 			var subtree = [];
+			
+			if (graph.view.currentRoot != parent)
+			{
+				clones[1].geometry.x -= pgeo.x;
+				clones[1].geometry.y -= pgeo.y;
+			}
 			
 			graph.traverse(cell, true, function(vertex, edge)
 			{
@@ -725,7 +736,7 @@ EditorUi.prototype.addTrees = function()
 			
 			graph.moveCells(subtree, dx, dy);
 
-			return graph.addCells(clones);
+			return graph.addCells(clones, parent);
 		}
 		finally
 		{
@@ -748,6 +759,12 @@ EditorUi.prototype.addTrees = function()
 			var pgeo = parent.geometry;
 			var targets = [];
 			
+			// Not offset if inside group
+			if (graph.view.currentRoot == parent)
+			{
+				pgeo = new mxRectangle();
+			}
+
 			for (var i = 0; i < edges.length; i++)
 			{
 				var target = graph.model.getTerminal(edges[i], false);

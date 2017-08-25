@@ -1054,27 +1054,30 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 	
 	if (href != null && !this.isPageLink(href))
 	{
-		var target = state.view.graph.isBlankLink(href) ?
-			state.view.graph.linkTarget : '_top';
-		href = state.view.graph.getAbsoluteUrl(href);
-
-		// Workaround for blocking in same iframe
-		if (target == '_self' && window != window.top)
+		if (!this.isEnabled())
 		{
-			window.location.href = href;
-		}
-		else
-		{
-			// Avoids page reload for anchors (workaround for IE but used everywhere)
-			if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
-				href.charAt(this.baseUrl.length) == '#' &&
-				target == '_top' && window == window.top)
+			var target = state.view.graph.isBlankLink(href) ?
+				state.view.graph.linkTarget : '_top';
+			href = state.view.graph.getAbsoluteUrl(href);
+	
+			// Workaround for blocking in same iframe
+			if (target == '_self' && window != window.top)
 			{
-				window.location.hash = href.split('#')[1];
+				window.location.href = href;
 			}
 			else
 			{
-				window.open(href, target);
+				// Avoids page reload for anchors (workaround for IE but used everywhere)
+				if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
+					href.charAt(this.baseUrl.length) == '#' &&
+					target == '_top' && window == window.top)
+				{
+					window.location.hash = href.split('#')[1];
+				}
+				else
+				{
+					window.open(href, target);
+				}
 			}
 		}
 		
@@ -1897,6 +1900,19 @@ Graph.prototype.convertValueToString = function(cell)
 	}
 	
 	return mxGraph.prototype.convertValueToString.apply(this, arguments);
+};
+
+/**
+ * Returns the link for the given cell.
+ */
+Graph.prototype.getLinksForState = function(state)
+{
+	if (state != null && state.text != null && state.text.node != null)
+	{
+		return state.text.node.getElementsByTagName('a');
+	}
+	
+	return null;
 };
 
 /**
@@ -3396,6 +3412,19 @@ HoverIcons.prototype.setCurrentState = function(state)
 					var p1 = pts[i + 1];
 					var p0 = pts[i];
 					var list = [];
+					
+					// Ignores waypoint on straight segments
+					if (i < pts.length - 2)
+					{
+						var pn = pts[i + 2];
+						
+						if (mxUtils.ptSegDistSq(p0.x, p0.y, pn.x, pn.y,
+							p1.x, p1.y) < 1 * this.scale * this.scale)
+						{
+							p1 = pn;
+							i++;
+						}
+					}
 					
 					changed = addPoint(0, p0.x, p0.y) || changed;
 					
@@ -5720,6 +5749,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.createLinkForHint = function(link, label)
 		{
+			label = (label != null) ? label : link;
+			
 			var a = document.createElement('a');
 			a.setAttribute('href', this.getAbsoluteUrl(link));
 			a.setAttribute('title', link);
@@ -7188,7 +7219,8 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			this.changeHandler = mxUtils.bind(this, function(sender, evt)
 			{
-				this.updateLinkHint(this.graph.getLinkForCell(this.state.cell));
+				this.updateLinkHint(this.graph.getLinkForCell(this.state.cell),
+					this.graph.getLinksForState(this.state));
 				update();
 			});
 			
@@ -7203,9 +7235,10 @@ if (typeof mxVertexHandler != 'undefined')
 			this.graph.addListener(mxEvent.EDITING_STOPPED, this.editingHandler);
 
 			var link = this.graph.getLinkForCell(this.state.cell);
-			this.updateLinkHint(link);
+			var links = this.graph.getLinksForState(this.state);
+			this.updateLinkHint(link, links);
 			
-			if (link != null)
+			if (link != null || (links != null && links.length > 0))
 			{
 				redraw = true;
 			}
@@ -7216,9 +7249,10 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 		};
 	
-		mxVertexHandler.prototype.updateLinkHint = function(link)
+		mxVertexHandler.prototype.updateLinkHint = function(link, links)
 		{
-			if (link == null || this.graph.getSelectionCount() > 1)
+			if ((link == null && (links == null || links.length == 0)) ||
+				this.graph.getSelectionCount() > 1)
 			{
 				if (this.linkHint != null)
 				{
@@ -7226,7 +7260,7 @@ if (typeof mxVertexHandler != 'undefined')
 					this.linkHint = null;
 				}
 			}
-			else if (link != null)
+			else if (link != null || (links != null && links.length > 0))
 			{
 				if (this.linkHint == null)
 				{
@@ -7235,33 +7269,49 @@ if (typeof mxVertexHandler != 'undefined')
 					this.linkHint.style.fontSize = '90%';
 					this.linkHint.style.opacity = '1';
 					this.linkHint.style.filter = '';
-					this.updateLinkHint(link);
 					
 					this.graph.container.appendChild(this.linkHint);
 				}
 
-				var a = this.graph.createLinkForHint(link, link);
 				this.linkHint.innerHTML = '';
-				this.linkHint.appendChild(a);
-	
-				if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
+				
+				if (link != null)
 				{
-					var changeLink = document.createElement('img');
-					changeLink.setAttribute('src', IMAGE_PATH + '/edit.gif');
-					changeLink.setAttribute('title', mxResources.get('editLink'));
-					changeLink.setAttribute('width', '11');
-					changeLink.setAttribute('height', '11');
-					changeLink.style.marginLeft = '10px';
-					changeLink.style.marginBottom = '-1px';
-					changeLink.style.cursor = 'pointer';
-					this.linkHint.appendChild(changeLink);
+					this.linkHint.appendChild(this.graph.createLinkForHint(link));
 					
-					mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
+					if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
 					{
-						this.graph.setSelectionCell(this.state.cell);
-						this.graph.editLink();
-						mxEvent.consume(evt);
-					}));
+						var changeLink = document.createElement('img');
+						changeLink.setAttribute('src', IMAGE_PATH + '/edit.gif');
+						changeLink.setAttribute('title', mxResources.get('editLink'));
+						changeLink.setAttribute('width', '11');
+						changeLink.setAttribute('height', '11');
+						changeLink.style.marginLeft = '10px';
+						changeLink.style.marginBottom = '-1px';
+						changeLink.style.cursor = 'pointer';
+						this.linkHint.appendChild(changeLink);
+						
+						mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
+						{
+							this.graph.setSelectionCell(this.state.cell);
+							this.graph.editLink();
+							mxEvent.consume(evt);
+						}));
+					}
+				}
+
+				if (links != null)
+				{
+					for (var i = 0; i < links.length; i++)
+					{
+						var div = document.createElement('div');
+						div.style.marginTop = '6px';
+						div.appendChild(this.graph.createLinkForHint(
+								links[i].getAttribute('href'),
+								mxUtils.getTextContent(links[i])));
+						
+						this.linkHint.appendChild(div);
+					}
 				}
 			}
 		};
@@ -7301,7 +7351,8 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			this.changeHandler = mxUtils.bind(this, function(sender, evt)
 			{
-				this.updateLinkHint(this.graph.getLinkForCell(this.state.cell));
+				this.updateLinkHint(this.graph.getLinkForCell(this.state.cell),
+					this.graph.getLinksForState(this.state));
 				update();
 				this.redrawHandles();
 			});
@@ -7309,10 +7360,11 @@ if (typeof mxVertexHandler != 'undefined')
 			this.graph.getModel().addListener(mxEvent.CHANGE, this.changeHandler);
 	
 			var link = this.graph.getLinkForCell(this.state.cell);
+			var links = this.graph.getLinksForState(this.state);
 									
-			if (link != null)
+			if (link != null || (links != null && links.length > 0))
 			{
-				this.updateLinkHint(link);
+				this.updateLinkHint(link, links);
 				this.redrawHandles();
 			}
 		};
@@ -7340,16 +7392,25 @@ if (typeof mxVertexHandler != 'undefined')
 				var c = new mxPoint(this.state.getCenterX(), this.state.getCenterY());
 				var tmp = new mxRectangle(this.state.x, this.state.y - 22, this.state.width + 24, this.state.height + 22);
 				var bb = mxUtils.getBoundingBox(tmp, this.state.style[mxConstants.STYLE_ROTATION] || '0', c);
-				var rs = (bb != null) ? mxUtils.getBoundingBox(this.state, this.state.style[mxConstants.STYLE_ROTATION] || '0') : this.state;
+				var rs = (bb != null) ? mxUtils.getBoundingBox(this.state,
+					this.state.style[mxConstants.STYLE_ROTATION] || '0') : this.state;
+				var tb = (this.state.text != null) ? this.state.text.boundingBox : null;
 				
 				if (bb == null)
 				{
 					bb = this.state;
 				}
 				
+				var b = bb.y + bb.height;
+				
+				if (tb != null)
+				{
+					b = Math.max(b, tb.y + tb.height);
+				}
+				
 				this.linkHint.style.left = Math.round(rs.x + (rs.width - this.linkHint.clientWidth) / 2) + 'px';
-				this.linkHint.style.top = Math.round(bb.y + bb.height + this.verticalOffset / 2 +
-						6 + this.state.view.graph.tolerance) + 'px';
+				this.linkHint.style.top = Math.round(b + this.verticalOffset / 2 + 6 +
+					this.state.view.graph.tolerance) + 'px';
 			}
 		};
 

@@ -1,3 +1,7 @@
+25-AUG-2017: 7.2.9
+
+- Moves clickable label links to tooltip in edit mode
+
 25-AUG-2017: 7.2.8
 
 - Fixes open in new window for local exports
