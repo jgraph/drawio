@@ -6398,7 +6398,7 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				mxCellEditorApplyValue.apply(this, arguments);
 				
-				if (this.graph.isCellDeletable(state.cell))
+				if (this.graph.isCellDeletable(state.cell) && this.graph.model.getChildCount(state.cell) == 0)
 				{
 					var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
 					var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);

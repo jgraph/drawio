@@ -1,3 +1,10 @@
+28-AUG-2017: 7.3.0
+
+- Fixes event handling for page links in labels
+- Fixes label for page links on shapes
+- Fixes folding in tree containers
+- Uses mxGraph 3.7.5
+
 25-AUG-2017: 7.2.9
 
 - Moves clickable label links to tooltip in edit mode
