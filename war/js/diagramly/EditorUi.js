@@ -6277,8 +6277,8 @@
 					}
 				}
 			}
-			
-			var a = graphCreateLinkForHint.apply(this, arguments);
+
+			var a = graphCreateLinkForHint.call(this, href, label);
 			
 			if (pageLink)
 			{
@@ -6300,7 +6300,12 @@
 			
 			if (graph.isPageLink(href))
 			{
-				pageLinkClicked(href);
+				// Active links are moved to the hint
+				if (!graph.isEnabled())
+				{
+					pageLinkClicked(href);
+				}
+				
 				mxEvent.consume(evt);
 			}
 			else
