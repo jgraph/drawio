@@ -43,66 +43,91 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 
-	Trello.authorize({
-	  type: 'popup',
-	  name: 'draw.io',
-	  scope: {
-	    read: 'true',
-	    write: 'true' },
-	  expiration: 'never',
-	  success: mxUtils.bind(this, function() {
-		var ids = id.split(this.SEPARATOR);
-		Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta) 
-		{ 
-			//TODO Trello doesn't allow CORS requests to load attachments. Confirm that and make sure that only a proxy technique can work!
-			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-			if ((/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) || /\.png$/i.test(meta.name)))
-			{
-				this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
-					this.extension, success, error);
-			}
-			else
-			{
-				var acceptResponse = true;
+	Trello.authorize(
+	{
+		type: 'popup',
+		name: 'draw.io',
+		scope:
+		{
+			read: 'true',
+		    write: 'true'
+		},
+		expiration: 'never',
+		success: mxUtils.bind(this, function()
+		{
+			var ids = id.split(this.SEPARATOR);
+			
+			Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta) 
+			{ 
+				var binary = /\.png$/i.test(meta.name);
 				
-				var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
+				// and make sure that only a proxy technique can work!
+				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
+				if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+					(!this.ui.useCanvasForExport && binary))
 				{
-					acceptResponse = false;
-					error({code: App.ERROR_TIMEOUT})
-				}), this.ui.timeout);
-				
-				this.ui.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
-	    		{
-					window.clearTimeout(timeoutThread);
-		    	
-			    	if (acceptResponse)
-			    	{
-			    		//keep our id which includes the cardId
-			    		meta.compoundId = id;
-			    		
-						if (asLibrary)
-						{
-							success(new TrelloLibrary(this.ui, data, meta));
-						}
-						else
-						{
-							success(new TrelloFile(this.ui, data, meta));
-						}
-			    	}
-	    		}), mxUtils.bind(this, function(req)
+					this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
+						this.extension, success, error);
+				}
+				else
 				{
-					window.clearTimeout(timeoutThread);
-			    	
-			    	if (acceptResponse)
-			    	{
-						error();
-			    	}
-				}), meta.mimeType != null &&
-	    			meta.mimeType.substring(0, 6) == 'image/');
-			}
-		}));
-	  }),
-	  error: error
+					var acceptResponse = true;
+					
+					var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+					{
+						acceptResponse = false;
+						error({code: App.ERROR_TIMEOUT})
+					}), this.ui.timeout);
+					
+					this.ui.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
+					{
+						window.clearTimeout(timeoutThread);
+				    	
+					    	if (acceptResponse)
+					    	{
+					    		//keep our id which includes the cardId
+					    		meta.compoundId = id;
+					    		
+							var index = (binary) ? data.lastIndexOf(',') : -1;
+
+							if (index > 0)
+							{
+								var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+								
+								if (xml != null && xml.length > 0)
+								{
+									data = xml;
+								}
+								else
+								{
+									// TODO: Import PNG
+								}
+							}
+				    		
+							if (asLibrary)
+							{
+								success(new TrelloLibrary(this.ui, data, meta));
+							}
+							else
+							{
+								success(new TrelloFile(this.ui, data, meta));
+							}
+					    	}
+			    		}), mxUtils.bind(this, function(req)
+					{
+						window.clearTimeout(timeoutThread);
+					    	
+					    	if (acceptResponse)
+					    	{
+							error();
+					    	}
+					}), binary || (meta.mimeType != null &&
+						meta.mimeType.substring(0, 6) == 'image/'));
+				}
+			}));
+		}),
+		error: error
 	});
 };
 
@@ -139,24 +164,41 @@ TrelloClient.prototype.insertFile = function(filename, data, success, error, asL
  */
 TrelloClient.prototype.saveFile = function(file, success, error)
 {
-	//delete file first, then write it again
+	// delete file first, then write it again
 	var ids = file.meta.compoundId.split(this.SEPARATOR);
-	Trello.authorize({
-	  type: 'popup',
-	  name: 'draw.io',
-	  scope: {
-	    read: 'true',
-	    write: 'true' 
-	  },
-	  expiration: 'never',
-	  success: mxUtils.bind(this, function() 
-	  {
-		  Trello.del('cards/' + ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function()
-		  {
-			  this.writeFile(file.meta.name, file.getData(), ids[0], success, error);
-		  }), error);
-	  }),
-	  error: error
+	Trello.authorize(
+	{
+		type: 'popup',
+		name: 'draw.io',
+		scope:
+		{
+			read: 'true',
+			write: 'true' 
+		},
+		expiration: 'never',
+		success: mxUtils.bind(this, function() 
+		{
+			var fn = mxUtils.bind(this, function(data)
+			{
+				Trello.del('cards/' + ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function()
+				{
+					this.writeFile(file.meta.name, data, ids[0], success, error);
+				}), error);
+			});
+			
+			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
+			{
+				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+				{
+					fn(this.ui.base64ToBlob(data, 'image/png'));
+				}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+			}
+			else
+			{
+				fn(file.getData());
+			}
+		}),
+		error: error
 	});	
 };
 
@@ -196,37 +238,37 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 				  }), this.ui.timeout);
 					
 				  var formData = new FormData();
-				  formData.append("key", Trello.key());
-				  formData.append("token", Trello.token());
-				  formData.append("file", data);
-				  formData.append("name", filename);  
+				  formData.append('key', Trello.key());
+				  formData.append('token', Trello.token());
+				  formData.append('file', data);
+				  formData.append('name', filename);
 	
 				  var request = new XMLHttpRequest();
-				  request.responseType = "json";
+				  request.responseType = 'json';
 				  
 				  request.onreadystatechange = mxUtils.bind(this, function() 
 				  {
 				    if (request.readyState === 4)
 				    {
-				    	window.clearTimeout(timeoutThread);
-				    	
-				    	if (acceptResponse)
-			    		{
-				    		if (request.status == 200)
-			    			{
-				    			var fileMeta = request.response;
-				    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
-				    			success(fileMeta);
-			    			}
-			    			else
-		    				{
-				    			error();
-		    				}
-			    		}
+					    	window.clearTimeout(timeoutThread);
+					    	
+					    	if (acceptResponse)
+				    		{
+					    		if (request.status == 200)
+				    			{
+					    			var fileMeta = request.response;
+					    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
+					    			success(fileMeta);
+				    			}
+				    			else
+			    				{
+					    			error();
+			    				}
+				    		}
 				    }
 				  });
 				  
-				  request.open("POST", this.baseUrl + 'cards/' + cardId + '/attachments');
+				  request.open('POST', this.baseUrl + 'cards/' + cardId + '/attachments');
 				  request.send(formData);
 			  }),
 			  error: error
@@ -261,7 +303,8 @@ TrelloClient.prototype.pickFolder = function(fn)
 		    read: 'true',
 		    write: 'true' },
 		  expiration: 'never',
-		  success: mxUtils.bind(this, function() {
+		  success: mxUtils.bind(this, function()
+		  {
 			  //show file select
 			  this.showTrelloDialog(false, fn);
 		  }),
@@ -289,7 +332,8 @@ TrelloClient.prototype.pickFile = function(fn, returnObject)
 		    read: 'true',
 		    write: 'true' },
 		  expiration: 'never',
-		  success: mxUtils.bind(this, function() {
+		  success: mxUtils.bind(this, function()
+		 {
 			  //show file select
 			  this.showTrelloDialog(true, fn);
 		  }),
@@ -464,6 +508,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 						})));
 						mxUtils.br(div);
 					}
+					
 					mxUtils.write(div, mxResources.get('noFiles'));
 				}
 				else
@@ -517,21 +562,21 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 							})));
 						}))(cards[i]);
 					}
-				}
 	
-				if (cards.length == pageSize)
-				{
-					div.appendChild(nextPageDiv);
-					
-					scrollFn = function()
+					if (cards.length == pageSize)
 					{
-						if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
+						div.appendChild(nextPageDiv);
+						
+						scrollFn = function()
 						{
-							nextPage();
-						}
-					};
-					
-					mxEvent.addListener(div, 'scroll', scrollFn);
+							if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
+							{
+								nextPage();
+							}
+						};
+						
+						mxEvent.addListener(div, 'scroll', scrollFn);
+					}
 				}
 			}),
 		error);
@@ -546,7 +591,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 TrelloClient.prototype.isAuthorized = function()
 {
 	//TODO this may break if Trello client.js is changed
-	return localStorage["trello_token"] != null; //Trello.authorized(); doesn't work unless authorize is called first
+	return localStorage['trello_token'] != null; //Trello.authorized(); doesn't work unless authorize is called first
 };
 
 

@@ -1886,7 +1886,7 @@ App.prototype.open = function()
 					}
 					
 					// Replaces PNG with XML extension
-					var dot = filename.substring(filename.length - 4) == '.png';
+					var dot = (!this.useCanvasForExport) ? filename.substring(filename.length - 4) == '.png' : -1;
 					
 					if (dot > 0)
 					{
@@ -2547,9 +2547,9 @@ App.prototype.pickFile = function(mode)
 			window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
 			{
 				// Replaces PNG with XML extension
-				var dot = filename.substring(filename.length - 4) == '.png';
+				var dot = !this.useCanvasForExport && filename.substring(filename.length - 4) == '.png';
 				
-				if (dot > 0)
+				if (dot)
 				{
 					filename = filename.substring(0, filename.length - 4) + '.xml';
 				}
@@ -3186,76 +3186,15 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
 			mxUtils.parseXml(data).documentElement, true) : null;
 		var redirect = window.location.protocol + '//' + window.location.hostname + url;
+		var node = dataNode;
 		var graph = null;
 		
 		// Handles special case where SVG files need a rendered graph to be saved
 		if (dataNode != null && /\.svg$/i.test(file.getTitle()))
 		{
 			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-
 			document.body.appendChild(graph.container);
-			node = dataNode;
-			
-			if (node != null)
-			{
-				var diagramNode = null;
-				
-				if (node.nodeName == 'diagram')
-				{
-					diagramNode = node;
-				}
-				else if (node.nodeName == 'mxfile')
-				{
-					var diagrams = node.getElementsByTagName('diagram');
-
-					if (diagrams.length > 0)
-					{
-						diagramNode = diagrams[0];
-						var graphGetGlobalVariable = graph.getGlobalVariable;
-						
-						graph.getGlobalVariable = function(name)
-						{
-							if (name == 'page')
-							{
-								return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
-							}
-							else if (name == 'pagenumber')
-							{
-								return 1;
-							}
-							
-							return graphGetGlobalVariable.apply(this, arguments);
-						};
-					}
-				}
-				
-				if (diagramNode != null)
-				{
-					var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
-					
-					if (tmp != null && tmp.length > 0)
-					{
-						node = mxUtils.parseXml(tmp).documentElement;
-					}
-				}
-			}
-			
-			// Hack to decode XML into temp graph via editor
-			var prev = this.editor.graph;
-			
-			try
-			{
-				this.editor.graph = graph;
-				this.editor.setGraphXml(node);	
-			}
-			catch (e)
-			{
-				// ignore
-			}
-			finally
-			{
-				this.editor.graph = prev;
-			}
+			node = this.decodeNodeIntoGraph(node, graph);
 		}
 		
 		file.setData(this.createFileData(dataNode, graph, file, redirect));
@@ -3469,12 +3408,13 @@ App.prototype.loadFile = function(id, sameWindow, file)
 								tmp = tmp.substring(slash + 1, dot);
 								var ext = url.substring(dot);
 								
-								if (ext == '.png')
+								if (!this.useCanvasForExport && ext == '.png')
 								{
 									ext = '.xml';
 								}
 
-								if (ext === '.svg' || ext === '.xml' || ext === '.html')
+								if (ext === '.svg' || ext === '.xml' ||
+									ext === '.html' || ext === '.png')
 								{
 									filename = tmp + ext;
 								}

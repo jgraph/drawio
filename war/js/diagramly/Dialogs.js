@@ -2639,16 +2639,18 @@ var NewDialog = function(editorUi, compact, showName, callback)
 				
 			if (title != null && title.length > 0)
 			{
-				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || editorUi.mode == App.MODE_TRELLO || (editorUi.mode == App.MODE_GOOGLE &&
-					(editorUi.stateArg == null || editorUi.stateArg.folderId == null))) ? editorUi.mode : null;
+				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || editorUi.mode == App.MODE_TRELLO ||
+					(editorUi.mode == App.MODE_GOOGLE && (editorUi.stateArg == null ||
+					editorUi.stateArg.folderId == null))) ? editorUi.mode : null;
 				
 				editorUi.pickFolder(tempMode, function(folderId)
 				{
-					editorUi.createFile(title, templateXml, (templateLibs != null && templateLibs.length > 0) ? templateLibs : null, null, function()
+					editorUi.createFile(title, templateXml, (templateLibs != null &&
+						templateLibs.length > 0) ? templateLibs : null, null, function()
 					{
 						editorUi.hideDialog();
 					}, null, folderId);
-				}, tempMode != App.MODE_GOOGLE);
+				});
 			}
 		}
 	};
@@ -4273,11 +4275,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	{
 		addButton(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), function()
 		{
-			editorUi.oneDrive.pickFile(function(files)
+			editorUi.oneDrive.pickFile(function(id, files)
 			{
 				linkInput.value = files.value[0].webUrl;
 				linkInput.focus();
-			}, true);
+			});
 		});
 	}
 	

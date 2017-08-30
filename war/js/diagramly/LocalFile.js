@@ -98,38 +98,57 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 	// Updates data after changing file name
 	this.updateFileData();
 	var data = this.getData();
+	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 	
-	if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
+	var doSave = mxUtils.bind(this, function(data)
 	{
-		this.ui.doSaveLocalFile(data, title, 'text/xml');
-	}
-	else
-	{
-		if (data.length < MAX_REQUEST_SIZE)
+		if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
 		{
-			var dot = title.lastIndexOf('.');
-			var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
-
-			// Do not update modified flag
-			new mxXmlRequest(SAVE_URL, 'format=' + format + '&filename=' +
-				encodeURIComponent(title) + '&xml=' +
-				encodeURIComponent(data)).simulate(document, '_blank');
+			this.ui.doSaveLocalFile(data, title, (binary) ?
+				'image/png' : 'text/xml', binary);
 		}
 		else
 		{
-			this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+			if (data.length < MAX_REQUEST_SIZE)
 			{
-				mxUtils.popup(data);
-			}));
+				var dot = title.lastIndexOf('.');
+				var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
+
+				// Do not update modified flag
+				new mxXmlRequest(SAVE_URL, 'format=' + format +
+					'&xml=' + encodeURIComponent(data) +
+					'&filename=' + encodeURIComponent(title) +
+					((binary) ? '&binary=1' : '')).
+					simulate(document, '_blank');
+			}
+			else
+			{
+				this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+				{
+					mxUtils.popup(data);
+				}));
+			}
 		}
-	}
+		
+		this.setModified(false);
+		this.contentChanged();
+		
+		if (success != null)
+		{
+			success();
+		}
+	});
 	
-	this.setModified(false);
-	this.contentChanged();
-	
-	if (success != null)
+	if (binary)
 	{
-		success();
+		this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
+		{
+			doSave(imageData);
+		}), error, (this.ui.getCurrentFile() != this) ? this.getData() : null);
+	}
+	else
+	{
+		doSave(data);
 	}
 };
 

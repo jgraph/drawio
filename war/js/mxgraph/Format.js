@@ -1010,7 +1010,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				((color != null && color != mxConstants.NONE) ? color : defaultColor) + ';"></div>';
 			
 			// Fine-tuning in Firefox, quirks mode and IE8 standards
-			if (mxClient.IS_MT || mxClient.IS_QUIRKS || document.documentMode == 8)
+			if (mxClient.IS_QUIRKS || document.documentMode == 8)
 			{
 				btn.firstChild.style.margin = '0px';
 			}

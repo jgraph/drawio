@@ -2567,6 +2567,11 @@ HoverIcons.prototype.refreshTarget = new mxImage((mxClient.IS_SVG) ? 'data:image
 	IMAGE_PATH + '/refresh.png', 38, 38);
 
 /**
+ * Tolerance for hover icon clicks.
+ */
+HoverIcons.prototype.tolerance = (mxClient.IS_TOUCH) ? 6 : 0;
+
+/**
  * 
  */
 HoverIcons.prototype.init = function()
@@ -2756,6 +2761,7 @@ HoverIcons.prototype.createArrow = function(img, tooltip)
 		arrow = mxUtils.createImage(img.src);
 		arrow.style.width = img.width + 'px';
 		arrow.style.height = img.height + 'px';
+		arrow.style.padding = this.tolerance + 'px';
 	}
 	
 	if (tooltip != null)
@@ -3050,19 +3056,19 @@ HoverIcons.prototype.repaint = function()
 				}
 			}
 			
-			this.arrowUp.style.left = Math.round(this.currentState.getCenterX() - this.triangleUp.width / 2) + 'px';
-			this.arrowUp.style.top = Math.round(bds.y - this.triangleUp.height) + 'px';
+			this.arrowUp.style.left = Math.round(this.currentState.getCenterX() - this.triangleUp.width / 2 - this.tolerance) + 'px';
+			this.arrowUp.style.top = Math.round(bds.y - this.triangleUp.height - this.tolerance) + 'px';
 			mxUtils.setOpacity(this.arrowUp, this.inactiveOpacity);
 			
-			this.arrowRight.style.left = Math.round(bds.x + bds.width) + 'px';
-			this.arrowRight.style.top = Math.round(this.currentState.getCenterY() - this.triangleRight.height / 2) + 'px';
+			this.arrowRight.style.left = Math.round(bds.x + bds.width - this.tolerance) + 'px';
+			this.arrowRight.style.top = Math.round(this.currentState.getCenterY() - this.triangleRight.height / 2 - this.tolerance) + 'px';
 			mxUtils.setOpacity(this.arrowRight, this.inactiveOpacity);
 			
-			this.arrowDown.style.left = this.arrowUp.style.left
-			this.arrowDown.style.top = Math.round(bds.y + bds.height) + 'px';
+			this.arrowDown.style.left = this.arrowUp.style.left;
+			this.arrowDown.style.top = Math.round(bds.y + bds.height - this.tolerance) + 'px';
 			mxUtils.setOpacity(this.arrowDown, this.inactiveOpacity);
 			
-			this.arrowLeft.style.left = Math.round(bds.x - this.triangleLeft.width) + 'px';
+			this.arrowLeft.style.left = Math.round(bds.x - this.triangleLeft.width - this.tolerance) + 'px';
 			this.arrowLeft.style.top = this.arrowRight.style.top;
 			mxUtils.setOpacity(this.arrowLeft, this.inactiveOpacity);
 			
@@ -3576,10 +3582,11 @@ HoverIcons.prototype.setCurrentState = function(state)
 							pts.push(p0);
 							
 							this.addPoints(c, pts, rounded, arcSize, false, null, moveTo);
-	
-							var f = (Math.round(n.x) <= 0) ? 1 : -1;
-							moveTo = false;
 							
+							var f = (Math.round(n.x) < 0 || (Math.round(n.x) == 0
+									&& Math.round(n.y) <= 0)) ? 1 : -1;
+							moveTo = false;
+
 							if (style == 'sharp')
 							{
 								c.lineTo(p0.x - n.y * f, p0.y + n.x * f);
@@ -7265,7 +7272,7 @@ if (typeof mxVertexHandler != 'undefined')
 				if (this.linkHint == null)
 				{
 					this.linkHint = createHint();
-					this.linkHint.style.padding = '4px 10px 6px 10px';
+					this.linkHint.style.padding = '6px 8px 6px 8px';
 					this.linkHint.style.fontSize = '90%';
 					this.linkHint.style.opacity = '1';
 					this.linkHint.style.filter = '';
@@ -7305,7 +7312,7 @@ if (typeof mxVertexHandler != 'undefined')
 					for (var i = 0; i < links.length; i++)
 					{
 						var div = document.createElement('div');
-						div.style.marginTop = '6px';
+						div.style.marginTop = (link != null || i > 0) ? '6px' : '0px';
 						div.appendChild(this.graph.createLinkForHint(
 								links[i].getAttribute('href'),
 								mxUtils.getTextContent(links[i])));

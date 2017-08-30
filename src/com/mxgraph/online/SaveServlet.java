@@ -128,7 +128,7 @@ public class SaveServlet extends HttpServlet
 				String binary = request.getParameter("binary");
 
 				if (binary != null && binary.equals("1") && xml != null
-						&& mime != null)
+						&& (mime != null || filename != null))
 				{
 					response.setStatus(HttpServletResponse.SC_OK);
 

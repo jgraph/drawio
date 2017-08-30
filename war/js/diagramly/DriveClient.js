@@ -638,8 +638,11 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 		{
 			if (this.user != null)
 			{
+				var binary = /\.png$/i.test(resp.title);
+				
 				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if ((/\.vsdx$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) || /\.png$/i.test(resp.title)))
+				if (/\.vsdx$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
+					(!this.ui.useCanvasForExport && binary))
 				{
 					var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;
 					this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
@@ -653,27 +656,27 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 					else
 					{
 						this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-				    	{
+					    	{
 							try
 							{
 								// Converts XML files to realtime including old realtime model
 								if (doc == null || doc.getModel() == null || doc.getModel().getRoot() == null ||
 									doc.getModel().getRoot().isEmpty() || (doc.getModel().getRoot().has('cells') &&
 									!doc.getModel().getRoot().has(DriveRealtime.prototype.diagramsKey)))
-					    		{
-					    			this.getXmlFile(resp, doc, success, error);
-					    		}
-					    		else
-					    		{
-					        		// XML not required here since the realtime model is not empty
-					    			success(new DriveFile(this.ui, null, resp, doc));
-					    		}
+						    		{
+						    			this.getXmlFile(resp, doc, success, error);
+						    		}
+						    		else
+						    		{
+						        		// XML not required here since the realtime model is not empty
+						    			success(new DriveFile(this.ui, null, resp, doc));
+						    		}
 							}
 							catch (e)
 							{
 								error(e);
 							}
-				    	}), error);
+					    	}), error);
 					}
 				}
 			}
@@ -762,6 +765,25 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 		}
 		else
 		{
+			if (/\.png$/i.test(resp.title))
+			{
+				var index = data.lastIndexOf(',');
+
+				if (index > 0)
+				{
+					var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+					
+					if (xml != null && xml.length > 0)
+					{
+						data = xml;
+					}
+					else
+					{
+						// TODO: Import PNG
+					}
+				}
+			}
+			
 			var file = new DriveFile(this.ui, data, resp, doc);
 	
 			// Checks if mime-type needs to be updated if the file is editable and no viewer app
@@ -842,13 +864,29 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			// Updates saveDelay on drive file
 			var wrapper = function()
 			{
-	    		file.saveDelay = new Date().getTime() - t0;
-	    		success.apply(this, arguments);
+		    		file.saveDelay = new Date().getTime() - t0;
+		    		success.apply(this, arguments);
 			};
 			
-			this.executeRequest(this.createUploadRequest(file.getId(), meta,
-				file.getData(), revision || (file.desc.mimeType != this.mimeType &&
-				file.desc.mimeType != this.libraryMimeType)), wrapper, error);
+			var fn = mxUtils.bind(this, function(data, binary)
+			{
+				this.executeRequest(this.createUploadRequest(file.getId(), meta,
+					data, revision || (file.desc.mimeType != this.mimeType &&
+					file.desc.mimeType != this.libraryMimeType), binary),
+					wrapper, error);
+			});
+			
+			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle()))
+			{
+				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+				{
+					fn(data, true);
+				}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+			}
+			else
+			{
+				fn(file.getData(), false);
+			}
 		});
 		
 		// Indirection to generate thumbnails if enabled and supported
@@ -1037,7 +1075,7 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 		else if (allowRealtime)
 		{
 			this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-	    	{
+		    	{
 				if (this.user != null)
 				{
 					var file = new DriveFile(this.ui, data, resp, doc);
@@ -1051,7 +1089,7 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 				{
 					error({message: mxResources.get('loggedOut')});
 				}
-	    	}), error);
+		    	}), error);
 		}
 		else
 		{
@@ -1311,13 +1349,14 @@ DriveClient.prototype.pickFolder = function(fn)
 					}
 					else
 					{
-						// Simulates a pick event
+						// Simulates a pick event for the root
 						this.ui.spinner.stop();
 						fn({'action': google.picker.Action.PICKED, 'docs': [{'type': 'folder', 'id': 'root'}]});						
 					}
 				}
 				else
 				{
+					// Shows the picker if any folders are found
 					showPicker();
 				}
 			}), mxUtils.bind(this, function(err)
