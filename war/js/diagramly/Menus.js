@@ -1499,40 +1499,40 @@
 				if (data.substring(0, 11) == 'data:image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
-	    			{
-			    		var resizeImages = true;
-			    		
-			    		var doInsert = mxUtils.bind(this, function()
-			    		{
-		    				editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
-    	    				{
-    		    				var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
-
-    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
-    							{
-    								editorUi.spinner.stop();
-    								graph.setSelectionCells(cells);
-    								graph.scrollCellToVisible(graph.getSelectionCell());
-    							});
-    	    				}), resizeImages);
-			    		});
-			    		
-			    		if (data.length > editorUi.resampleThreshold)
-			    		{
-			    			editorUi.confirmImageResize(function(doResize)
-	    					{
-	    						resizeImages = doResize;
-	    						doInsert();
-	    					});
-			    		}
-			    		else
 		    			{
-			    			doInsert();
-		    			}
-	    			}), mxUtils.bind(this, function()
-	    			{
-	    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
-	    			}));
+				    		var resizeImages = true;
+				    		
+				    		var doInsert = mxUtils.bind(this, function()
+				    		{
+			    				editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
+		    	    				{
+		    		    				var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
+		
+		    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
+		    							{
+		    								editorUi.spinner.stop();
+		    								graph.setSelectionCells(cells);
+		    								graph.scrollCellToVisible(graph.getSelectionCell());
+		    							});
+		    	    				}), resizeImages);
+				    		});
+				    		
+				    		if (data.length > editorUi.resampleThreshold)
+				    		{
+				    			editorUi.confirmImageResize(function(doResize)
+		    					{
+		    						resizeImages = doResize;
+		    						doInsert();
+		    					});
+				    		}
+				    		else
+			    			{
+				    			doInsert();
+			    			}
+		    			}), mxUtils.bind(this, function()
+		    			{
+		    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
+		    			}));
 				}
 				else
 				{

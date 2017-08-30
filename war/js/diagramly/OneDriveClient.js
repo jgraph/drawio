@@ -317,9 +317,11 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 		if (req.getStatus() >= 200 && req.getStatus() <= 299)
 		{
 			var meta = JSON.parse(req.getText());
+			var binary = /\.png$/i.test(meta.name);
 			
 			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-			if ((/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) || /\.png$/i.test(meta.name)))
+			if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+				(!this.ui.useCanvasForExport && binary))
 			{
 				var mimeType = (meta.file != null) ? meta.file.mimeType : null;
 				this.ui.convertFile(meta['@microsoft.graph.downloadUrl'], meta.name, mimeType,
@@ -336,12 +338,34 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 				}), this.ui.timeout);
 				
 				this.ui.loadUrl(meta['@microsoft.graph.downloadUrl'], mxUtils.bind(this, function(data)
-	    		{
+				{
 					window.clearTimeout(timeoutThread);
 		    	
-			    	if (acceptResponse)
-			    	{
-						if (asLibrary)
+				    	if (acceptResponse)
+				    	{
+						var index = (binary) ? data.lastIndexOf(',') : -1;
+						var file = null;
+
+						if (index > 0)
+						{
+							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+							
+							if (xml != null && xml.length > 0)
+							{
+								data = xml;
+							}
+							else
+							{
+								// Imports as PNG image
+								file = new LocalFile(this.ui, data, meta.name, true);
+							}
+						}
+						
+						if (file != null)
+						{
+							success(file);
+						}
+						else if (asLibrary)
 						{
 							success(new OneDriveLibrary(this.ui, data, meta));
 						}
@@ -349,17 +373,17 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 						{
 							success(new OneDriveFile(this.ui, data, meta));
 						}
-			    	}
-	    		}), mxUtils.bind(this, function(req)
+				    	}
+	    			}), mxUtils.bind(this, function(req)
 				{
 					window.clearTimeout(timeoutThread);
 			    	
-			    	if (acceptResponse)
-			    	{
+				    	if (acceptResponse)
+				    	{
 						error(this.parseRequestText(req));
-			    	}
-				}), meta.file != null && meta.file.mimeType != null &&
-	    			meta.file.mimeType.substring(0, 6) == 'image/');
+				    	}
+				}), binary || (meta.file != null && meta.file.mimeType != null &&
+					meta.file.mimeType.substring(0, 6) == 'image/'));
 			}
 		}
 		else
@@ -508,8 +532,23 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
  */
 OneDriveClient.prototype.saveFile = function(file, success, error)
 {
-	var url = this.baseUrl + '/me/drive/items/' + file.meta.id + '/content/';
-	this.writeFile(url, file.getData(), 'PUT', null, success, error);
+	var fn = mxUtils.bind(this, function(data)
+	{
+		var url = this.baseUrl + '/me/drive/items/' + file.meta.id + '/content/';
+		this.writeFile(url, data, 'PUT', null, success, error);
+	});
+	
+	if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
+	{
+		this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+		{
+			fn(this.ui.base64ToBlob(data, 'image/png'));
+		}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+	}
+	else
+	{
+		fn(file.getData());
+	}
 };
 
 /**
@@ -686,7 +725,7 @@ OneDriveClient.prototype.pickFolder = function(fn)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-OneDriveClient.prototype.pickFile = function(fn, returnObject)
+OneDriveClient.prototype.pickFile = function(fn)
 {
 	fn = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
@@ -708,7 +747,7 @@ OneDriveClient.prototype.pickFile = function(fn, returnObject)
 			{
 				// KNOWN: Token should be per I/O operation
 				this.token = files.accessToken;
-				fn((returnObject) ? files : files.value[0].id);
+				fn(files.value[0].id, files);
 			}
 		}),
 		cancel: function()

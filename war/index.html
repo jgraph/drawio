@@ -374,7 +374,7 @@
 		</p>
 	</div>
 </div>
-<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:200px;height:100%;">
+<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:170px;height:100%;">
 	<div class="geSocialFooter" style="position:absolute;right:32px;white-space:nowrap;">
     	<a href="https://www.youtube.com/channel/UCiTtRN9b8P4CoSfpkfgEJHA" title="draw.io on Youtube" target="_blank">
     		<img border="0" width="24" height="24" src="images/glyphicons_youtube.png" alt="draw.io on Youtube"/>
@@ -386,10 +386,6 @@
     	&nbsp;
     	<a href="https://www.twitter.com/drawio" title="draw.io on Twitter" target="_blank">
     		<img border="0" width="24" height="24" src="images/glyphicons_twitter.png" alt="draw.io on Twitter"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://plus.google.com/u/0/+DrawIo1/posts" title="draw.io on Google+" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_google.png" alt="draw.io on Google+"/>
     	</a>
     	&nbsp;
     	<a href="https://github.com/jgraph/drawio" title="draw.io on GitHub" target="_blank">
@@ -414,22 +410,6 @@
 	</table>
 </div>
 <script type="text/javascript">
-/**
- * Overridden for usage stats.
- */
-Action.prototype.createFunction = function(funct)
-{
-	return mxUtils.bind(this, function()
-	{
-		if (typeof window.ga === 'function')
-		{
-			ga('send', 'event', 'Action', 'click', this.label);
-		}
-
-		funct();
-	});
-};
-
 /**
  * Main
  */

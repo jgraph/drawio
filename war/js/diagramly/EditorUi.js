@@ -2171,31 +2171,31 @@
     }
     else
     {
-    	if (uiTheme == 'atlas')
-    	{
-    		if (typeof Toolbar !== 'undefined')
-    		{
-    			Toolbar.prototype.unselectedBackground = (mxClient.IS_QUIRKS) ? 'none' : 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
-    			Toolbar.prototype.selectedBackground = 'rgb(242, 242, 242)';
-    		}
-    		
-    		Editor.prototype.initialTopSpacing = 3;
-    		EditorUi.prototype.menubarHeight = 41;
-    		EditorUi.prototype.toolbarHeight = 38;
-    		EditorUi.prototype.hsplitPosition = 188;
-    		Sidebar.prototype.thumbWidth = 46;
-    		Sidebar.prototype.thumbHeight = 46;
-    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
-    		Sidebar.prototype.thumbBorder = 2;
-    	}
-    	else
-    	{
-    		if (urlParams['savesidebar'] == '1')
-    		{
-        		Sidebar.prototype.thumbWidth = 64;
-        		Sidebar.prototype.thumbHeight = 64;
-    		}
-    	}
+	    	if (uiTheme == 'atlas')
+	    	{
+	    		if (typeof Toolbar !== 'undefined')
+	    		{
+	    			Toolbar.prototype.unselectedBackground = (mxClient.IS_QUIRKS) ? 'none' : 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
+	    			Toolbar.prototype.selectedBackground = 'rgb(242, 242, 242)';
+	    		}
+	    		
+	    		Editor.prototype.initialTopSpacing = 3;
+	    		EditorUi.prototype.menubarHeight = 41;
+	    		EditorUi.prototype.toolbarHeight = 38;
+	    		EditorUi.prototype.hsplitPosition = 188;
+	    		Sidebar.prototype.thumbWidth = 46;
+	    		Sidebar.prototype.thumbHeight = 46;
+	    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
+	    		Sidebar.prototype.thumbBorder = 2;
+	    	}
+	    	else
+	    	{
+	    		if (urlParams['savesidebar'] == '1')
+	    		{
+	        		Sidebar.prototype.thumbWidth = 64;
+	        		Sidebar.prototype.thumbHeight = 64;
+	    		}
+	    	}
 
 		EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
 		
@@ -2239,14 +2239,14 @@
      */
     EditorUi.prototype.hideFooter = function()
     {
-    	var footer = document.getElementById('geFooter');
-    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = 0;
-    		footer.style.display = 'none';
-    		this.refresh();
-    	}
+	    	var footer = document.getElementById('geFooter');
+	    	
+	    	if (footer != null)
+	    	{
+	    		this.footerHeight = 0;
+	    		footer.style.display = 'none';
+	    		this.refresh();
+	    	}
     };
 
 	/**
@@ -2525,7 +2525,7 @@
    	    // Checks if output is invalid or empty
    	    if (data.length <= 6 || data == canvas.cloneNode(false).toDataURL('image/' + format))
    	    {
-   	    	throw {message: 'Invalid image'};
+   	    		throw {message: 'Invalid image'};
    	    }
    	    
    	    if (xml != null)
@@ -2595,12 +2595,12 @@
 		else if (mxClient.IS_IOS)
 		{
 			// Poor man's saveAs in iOS via context menu of selected output
-	    	var dlg = new TextareaDialog(this, filename + ':', data, null, null, mxResources.get('close'));
-	    	dlg.textarea.style.width = '600px';
-	    	dlg.textarea.style.height = '380px';
-			this.showDialog(dlg.container, 620, 460, true, true);
-			dlg.init();
-			document.execCommand('selectall', false, null);
+		    	var dlg = new TextareaDialog(this, filename + ':', data, null, null, mxResources.get('close'));
+		    	dlg.textarea.style.width = '600px';
+		    	dlg.textarea.style.height = '380px';
+				this.showDialog(dlg.container, 620, 460, true, true);
+				dlg.init();
+				document.execCommand('selectall', false, null);
 		}
 		else
 		{
@@ -4259,6 +4259,153 @@
 	};
 	
 	/**
+	 * 
+	 */
+	EditorUi.prototype.decodeNodeIntoGraph = function(node, graph)
+	{
+		if (node != null)
+		{
+			var diagramNode = null;
+			
+			if (node.nodeName == 'diagram')
+			{
+				diagramNode = node;
+			}
+			else if (node.nodeName == 'mxfile')
+			{
+				var diagrams = node.getElementsByTagName('diagram');
+
+				if (diagrams.length > 0)
+				{
+					diagramNode = diagrams[0];
+					var graphGetGlobalVariable = graph.getGlobalVariable;
+					
+					graph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return diagramNode.getAttribute('name') || mxResources.get('pageWithNumber', [1])
+						}
+						else if (name == 'pagenumber')
+						{
+							return 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
+				}
+			}
+			
+			if (diagramNode != null)
+			{
+				var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
+				
+				if (tmp != null && tmp.length > 0)
+				{
+					node = mxUtils.parseXml(tmp).documentElement;
+				}
+			}
+		}
+		
+		// Hack to decode XML into temp graph via editor
+		var prev = this.editor.graph;
+		
+		try
+		{
+			this.editor.graph = graph;
+			this.editor.setGraphXml(node);	
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		finally
+		{
+			this.editor.graph = prev;
+		}
+		
+		return node;
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData)
+	{
+		var graph = this.editor.graph;
+		var diagramData = null;
+		
+		// Exports PNG for given optional data
+		if (optionalData != null && optionalData.length > 0)
+		{
+			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+			document.body.appendChild(graph.container);
+			this.decodeNodeIntoGraph(this.editor.extractGraphModel(
+				mxUtils.parseXml(optionalData).documentElement, true), graph);
+			diagramData = optionalData;
+		}
+		// Exports PNG for first page while other page is showing
+		else if (this.pages != null && this.currentPage != this.pages[0])
+		{
+			graph = this.createTemporaryGraph(graph.getStylesheet());
+			var graphGetGlobalVariable = graph.getGlobalVariable;
+			var page = this.pages[0];
+	
+			graph.getGlobalVariable = function(name)
+			{
+				if (name == 'page')
+				{
+					return page.getName();
+				}
+				else if (name == 'pagenumber')
+				{
+					return 1;
+				}
+				
+				return graphGetGlobalVariable.apply(this, arguments);
+			};
+	
+			document.body.appendChild(graph.container);
+			graph.model.setRoot(page.root);
+		}
+	
+	   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
+	   	{
+	   		try
+	   		{
+	   			if (diagramData == null)
+	   			{
+	   				diagramData = this.getFileData(true);
+	   			}
+	   			
+	   	   	    var data = canvas.toDataURL('image/png');
+   	   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
+   	   	   			atob(this.editor.graph.compress(diagramData)));
+   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
+
+				// Removes temporary graph from DOM
+   	   	   		if (graph != this.editor.graph)
+				{
+					graph.container.parentNode.removeChild(graph.container);
+				}
+	   		}
+	   		catch (e)
+	   		{
+	   			if (error != null)
+	   			{
+	   				error(e);
+	   			}
+	   		}
+	   	}), null, null, null, mxUtils.bind(this, function(e)
+	   	{
+	   		if (error != null)
+   			{
+   				error(e);
+   			}
+	   	}), null, null, null, null, graph.shadowVisible, null, graph);
+	}
+	
+	/**
 	 * Returns the SVG of the diagram with embedded XML. If a callback function is
 	 * used, the images are converted to data URIs.
 	 */
@@ -5759,9 +5906,9 @@
 							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 							{
 								barrier(index, function()
-	    	    				{
-	    		    				return cells;
-	    	    				});
+			    	    				{
+			    		    				return cells;
+			    	    				});
 							}, file);
 						}
 						else if (file.type.substring(0, 5) == 'image')
@@ -7469,7 +7616,7 @@
 						
 						if (name != null && name.length > 0)
 						{
-							if (/(\.png)$/i.test(name))
+							if (!this.useCanvasForExport && /(\.png)$/i.test(name))
 							{
 								name = name.substring(0, name.length - 4) + '.xml';
 							}
@@ -7550,7 +7697,7 @@
 								}));
 							}
 							else if (e.target.result.substring(0, 10) == '<mxlibrary')
-			    			{
+			    				{
 								this.spinner.stop();
 								
 								// Creates new temporary file if library is dropped in splash screen
@@ -7558,16 +7705,16 @@
 								{
 									this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 								}
-								
-			    				try
-				    			{
-				    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
+									
+				    				try
+					    			{
+					    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
+					    			}
+					    			catch (e)
+					    			{
+					    				this.handleError(e, mxResources.get('errorLoadingFile'));
+					    			}
 				    			}
-				    			catch (e)
-				    			{
-				    				this.handleError(e, mxResources.get('errorLoadingFile'));
-				    			}
-			    			}
 							else
 							{
 								if (file.type.substring(0, 9) == 'image/png')

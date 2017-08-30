@@ -343,9 +343,11 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 	var repo = tokens[1];
 	var ref = tokens[2];
 	var path = tokens.slice(3, tokens.length).join('/');
+	var binary = /\.png$/i.test(path);
 	
 	// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-	if (!checkExists && (/\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) || /\.png$/i.test(path)))
+	if (!checkExists && (/\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) ||
+		(!this.ui.useCanvasForExport && binary)))
 	{
 		// Should never be null
 		if (this.token != null)
@@ -402,11 +404,27 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibra
 		}
 		else if (/\.gif$/i.test(data.name))
 		{
-			content = 'data:image/gif;base64,' + content;	
+			content = 'data:image/gif;base64,' + content;
 		}
 		else
 		{
-			content = Base64.decode(content);
+			if (/\.png$/i.test(data.name))
+			{
+				var xml = this.ui.extractGraphModelFromPng(content);
+				
+				if (xml != null && xml.length > 0)
+				{
+					content = xml;
+				}
+				else
+				{
+					content = 'data:image/png;base64,' + content;
+				}
+			}
+			else
+			{
+				content = Base64.decode(content);
+			}
 		}
 	}
 	
@@ -598,9 +616,7 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 	
 	this.showCommitDialog(file.meta.name, file.meta.sha == null || file.meta.isNew, mxUtils.bind(this, function(message)
 	{
-		var data = Base64.encode(file.getData());
-		
-		var fn = mxUtils.bind(this, function(sha)
+		var fn = mxUtils.bind(this, function(sha, data)
 		{
 			this.writeFile(org, repo, ref, path, message, data, sha, mxUtils.bind(this, function(req)
 			{
@@ -624,10 +640,10 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 							// Gets the latest sha and tries again
 							this.getFile(org + '/' + repo + '/' + ref + '/' + path, mxUtils.bind(this, function(tempFile)
 							{
-								fn(tempFile.meta.sha);
+								fn(tempFile.meta.sha, data);
 							}), mxUtils.bind(this, function()
 							{
-								fn(null);
+								fn(null, data);
 							}));
 						}));
 					this.ui.showDialog(dlg.container, 340, 150, true, false);
@@ -640,7 +656,17 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 			}));
 		});
 		
-		fn(file.meta.sha);
+		if (this.ui.useCanvasForExport && /(\.png)$/i.test(path))
+		{
+			this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+			{
+				fn(file.meta.sha, data);
+			}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+		}
+		else
+		{
+			fn(file.meta.sha, Base64.encode(file.getData()));
+		}
 	}), mxUtils.bind(this, function()
 	{
 		error();

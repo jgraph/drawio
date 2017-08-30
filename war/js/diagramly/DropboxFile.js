@@ -142,40 +142,58 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 				
 				prepare();
 				
-				this.ui.dropbox.saveFile(title, this.getData(), mxUtils.bind(this, function(stat)
+				var doSave = mxUtils.bind(this, function(data)
 				{
-					this.savingFile = false;
-					this.isModified = prevModified;
-					this.stat = stat;
-					this.contentChanged();
+					var index = this.stat.path_display.lastIndexOf('/');
+					var folder = (index > 1) ? this.stat.path_display.substring(1, index + 1) : null;
 					
-					if (success != null)
+					this.ui.dropbox.saveFile(title, data, mxUtils.bind(this, function(stat)
 					{
-						success();
-					}
-				}), mxUtils.bind(this, function(err)
-				{
-					this.savingFile = false;
-					this.isModified = prevModified;
-					this.setModified(modified || this.isModified());
-					
-					if (error != null)
-					{
-						// Handles modified state for retries
-						if (err != null && err.retry != null)
-						{
-							var retry = err.retry;
-							
-							err.retry = function()
-							{
-								prepare();
-								retry();
-							};
-						}
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.stat = stat;
+						this.contentChanged();
 						
-						error(err);
-					}
-				}));
+						if (success != null)
+						{
+							success();
+						}
+					}), mxUtils.bind(this, function(err)
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setModified(modified || this.isModified());
+						
+						if (error != null)
+						{
+							// Handles modified state for retries
+							if (err != null && err.retry != null)
+							{
+								var retry = err.retry;
+								
+								err.retry = function()
+								{
+									prepare();
+									retry();
+								};
+							}
+							
+							error(err);
+						}
+					}), folder);
+				});
+				
+				if (this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle()))
+				{
+					this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+					{
+						doSave(this.ui.base64ToBlob(data, 'image/png'));
+					}), error, (this.ui.getCurrentFile() != this) ? this.getData() : null);
+				}
+				else
+				{
+					doSave(this.getData());
+				}
 			}
 			else if (error != null)
 			{

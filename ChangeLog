@@ -1,3 +1,9 @@
+30-AUG-2017: 7.3.1
+
+- Fixes folder dialog for inserting new Google Drive files
+- Adds support for PNG+XML files in Chrome, Firefox and Edge
+- Fixes tolerance for connection arrows on touch devices
+
 28-AUG-2017: 7.3.0
 
 - Fixes event handling for page links in labels

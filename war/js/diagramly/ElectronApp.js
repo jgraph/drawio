@@ -540,63 +540,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			}
 			else
 			{
-				var graph = this.ui.editor.graph;
-				
-				// Exports PNG for first page while other page is visible by creating a graph
-				// LATER: Add caching for the graph or SVG while not on first page
-				if (this.ui.pages != null && this.ui.currentPage != this.ui.pages[0])
+				this.ui.getEmbeddedPng(function(data)
 				{
-					graph = this.ui.createTemporaryGraph(graph.getStylesheet());
-					var graphGetGlobalVariable = graph.getGlobalVariable;
-					var page = this.ui.pages[0];
-			
-					graph.getGlobalVariable = function(name)
-					{
-						if (name == 'page')
-						{
-							return page.getName();
-						}
-						else if (name == 'pagenumber')
-						{
-							return 1;
-						}
-						
-						return graphGetGlobalVariable.apply(this, arguments);
-					};
-			
-					document.body.appendChild(graph.container);
-					graph.model.setRoot(page.root);
-				}
-				
-			   	this.ui.exportToCanvas(mxUtils.bind(this, function(canvas)
-			   	{
-			   		try
-			   		{
-			   	   	    var data = canvas.toDataURL('image/png');
-		   	   	   		data = this.ui.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
-		   	   	   			atob(this.ui.editor.graph.compress(this.ui.getFileData(true))));
-		   	   	   		doSave(atob(data.substring(data.lastIndexOf(',') + 1)), 'binary');
-
-						// Removes temporary graph from DOM
-		   	   	    	if (graph != this.ui.editor.graph)
-						{
-							graph.container.parentNode.removeChild(graph.container);
-						}
-			   		}
-			   		catch (e)
-			   		{
-			   			if (error != null)
-			   			{
-			   				error(e);
-			   			}
-			   		}
-			   	}), null, null, null, mxUtils.bind(this, function(e)
-			   	{
-			   		if (error != null)
-		   			{
-		   				error(e);
-		   			}
-			   	}), null, null, null, null, null, null, graph);
+					doSave(atob(data), 'binary');
+				}, error);
 			}
 		});
 		
