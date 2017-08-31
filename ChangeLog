@@ -1,3 +1,7 @@
+31-AUG-2017: 7.3.4
+
+- Adds event handling for tree and flow layouts
+
 31-AUG-2017: 7.3.3
 
 - Removes footer in Chrome App
