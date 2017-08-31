@@ -591,7 +591,16 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 TrelloClient.prototype.isAuthorized = function()
 {
 	//TODO this may break if Trello client.js is changed
-	return localStorage['trello_token'] != null; //Trello.authorized(); doesn't work unless authorize is called first
+	try
+	{
+		return localStorage['trello_token'] != null; //Trello.authorized(); doesn't work unless authorize is called first
+	}
+	catch (e)
+	{
+		// ignores access denied
+	}
+	
+	return false;
 };
 
 
