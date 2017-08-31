@@ -3419,17 +3419,16 @@ HoverIcons.prototype.setCurrentState = function(state)
 					var p0 = pts[i];
 					var list = [];
 					
-					// Ignores waypoint on straight segments
-					if (i < pts.length - 2)
+					// Ignores waypoints on straight segments
+					var pn = pts[i + 2];
+					
+					while (i < pts.length - 2 &&
+						mxUtils.ptSegDistSq(p0.x, p0.y, pn.x, pn.y,
+						p1.x, p1.y) < 1 * this.scale * this.scale)
 					{
-						var pn = pts[i + 2];
-						
-						if (mxUtils.ptSegDistSq(p0.x, p0.y, pn.x, pn.y,
-							p1.x, p1.y) < 1 * this.scale * this.scale)
-						{
-							p1 = pn;
-							i++;
-						}
+						p1 = pn;
+						i++;
+						pn = pts[i + 2];
 					}
 					
 					changed = addPoint(0, p0.x, p0.y) || changed;
@@ -3439,15 +3438,27 @@ HoverIcons.prototype.setCurrentState = function(state)
 					{
 						var state2 = this.validEdges[e];
 						var pts2 = state2.absolutePoints;
-						var added = false;
 						
-						if (pts2 != null)
+						if (pts2 != null && mxUtils.intersects(state, state2))
 						{
 							// Compares each segment of the edge with the current segment
 							for (var j = 0; j < pts2.length - 1; j++)
 							{
-								var p2 = pts2[j];
 								var p3 = pts2[j + 1];
+								var p2 = pts2[j];
+								
+								// Ignores waypoints on straight segments
+								pn = pts2[j + 2];
+								
+								while (j < pts2.length - 2 &&
+									mxUtils.ptSegDistSq(p2.x, p2.y, pn.x, pn.y,
+									p3.x, p3.y) < 1 * this.scale * this.scale)
+								{
+									p3 = pn;
+									j++;
+									pn = pts2[j + 2];
+								}
+								
 								var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 	
 								// Handles intersection between two segments
@@ -3555,6 +3566,12 @@ HoverIcons.prototype.setCurrentState = function(state)
 				// Type 1 is an intersection
 				if (last != null && rpt.type == 1)
 				{
+					// Checks if next/previous points are too close
+					var next = this.state.routedPoints[i + 1];
+					var dx = next.x / this.scale - pt.x;
+					var dy = next.y / this.scale - pt.y;
+					var dist = dx * dx + dy * dy;
+
 					if (n == null)
 					{
 						n = new mxPoint(pt.x - last.x, pt.y - last.y);
@@ -3562,12 +3579,6 @@ HoverIcons.prototype.setCurrentState = function(state)
 						n.x = n.x * size / len;
 						n.y = n.y * size / len;
 					}
-					
-					// Checks if next/previous points are too close
-					var next = this.state.routedPoints[i + 1];
-					var dx = next.x / this.scale - pt.x;
-					var dy = next.y / this.scale - pt.y;
-					var dist = dx * dx + dy * dy;
 					
 					if (dist > size * size && len > 0)
 					{
@@ -3804,8 +3815,6 @@ mxStencilRegistry.getStencil = function(name)
 			{
 				if (mxStencilRegistry.packages[basename] == null)
 				{
-					mxStencilRegistry.packages[basename] = 1;
-					
 					for (var i = 0; i < libs.length; i++)
 					{
 						var fname = libs[i];
@@ -3841,6 +3850,8 @@ mxStencilRegistry.getStencil = function(name)
 							//mxResources.add(fname);
 						}
 					}
+
+					mxStencilRegistry.packages[basename] = 1;
 				}
 			}
 			else

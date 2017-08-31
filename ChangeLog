@@ -1,3 +1,7 @@
+31-AUG-2017: 7.3.2
+
+- Fixes special cases for line jumps
+
 30-AUG-2017: 7.3.1
 
 - Fixes folder dialog for inserting new Google Drive files
