@@ -89,4 +89,10 @@ Draw.loadPlugin(function(ui) {
 		
 		ui.menus.addMenuItems(menu, ['-', 'number'], parent);
 	};
+	
+	// Forces refresh if file was loaded before plugin
+	if (ui.getCurrentFile() != null)
+	{
+		graph.refresh();
+	}
 });

@@ -18,7 +18,7 @@
 	var c = "fillColor=#036897;strokeColor=#ffffff";
 	var s = "shape=mxgraph.";
 	var ss = "strokeColor=none;shape=mxgraph.";
-
+	var cs = 'mxCompositeShape';
 //	stencils with hardcoded rounding
 	var hardRound = [
 		'GSDFDProcessBlock',
@@ -160,11 +160,12 @@
 			'SummingJunctionBlock': s + 'flowchart.or',
 			'DisplayBlock': 'shape=display',
 			'OffPageLinkBlock': 'shape=offPageConnector',
-			'BraceNoteBlock': 'shape=curlyBracket', //EXT
+//			'BraceNoteBlock': 'shape=curlyBracket', //TODO
+			'BraceNoteBlock': cs, //TODO
 			'NoteBlock': s + 'flowchart.annotation_1',
 //Containers
-			'AdvancedSwimLaneBlock': 'swimlane', //EXT
-			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //EXT
+			'AdvancedSwimLaneBlock': 'swimlane', //TODO
+			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //TODO
 			'RectangleContainerBlock': 'fillColor=none;container=1',
 			'DiamondContainerBlock':  'shape=rhombus;fillColor=none;container=1',
 			'RoundedRectangleContainerBlock': 'fillColor=none;container=1;rounded=1;absoluteArcSize=1;arcSize=24',
@@ -192,26 +193,26 @@
 //Misc
 			'UI2HotspotBlock' : 'opacity=50;strokeColor=none',
 //Android Devices
-//			'AndroidDevice' EXT
+			'AndroidDevice' : cs, //TODO
 //Android Dialogs
-//			'AndroidAlertDialog' EXT
-//			'AndroidDateDialog' EXT
-//			'AndroidTimeDialog' EXT
+			'AndroidAlertDialog' : cs, //TODO
+			'AndroidDateDialog' : cs, //TODO
+			'AndroidTimeDialog' : cs, //TODO
 //Android Blocks
-//			'AndroidListItems' EXT
-//			'AndroidTabs' EXT
-//			'AndroidProgressBar' EXT
-//			'AndroidImageBlock' EXT
-//			'AndroidTextBlock' EXT
-//			'AndroidActionBar' EXT
-//			'AndroidBrowserBar' EXT
+			'AndroidListItems' : cs, //TODO
+//			'AndroidTabs' : cs, //TODO
+			'AndroidProgressBar' : cs, //TODO
+			'AndroidImageBlock' : cs, //TODO
+			'AndroidTextBlock' : cs, //TODO
+			'AndroidActionBar' : cs, //TODO
+			'AndroidBrowserBar' : cs, //TODO
 //Android Inputs
-//			'AndroidButton' EXT
-//			'AndroidTextBox' EXT
-//			'AndroidRadioButton' EXT
-//			'AndroidCheckBox' EXT
-//			'AndroidToggle' EXT
-//			'AndroidSlider' EXT
+			'AndroidButton' : cs, //TODO
+			'AndroidTextBox' : cs, //TODO
+			'AndroidRadioButton' : cs, //TODO
+			'AndroidCheckBox' : cs, //TODO
+			'AndroidToggle' : cs, //TODO
+			'AndroidSlider' : cs, //TODO
 //Android Icons (not working properly, needs specific code)
 			'AndroidIconCheck': s + 'ios7.misc.check',
 //			'AndroidIconBack' NA
@@ -251,26 +252,26 @@
 			'iOSDeviceiPadProLandscape': s + 'ios7.misc.ipad10inch',
 //iOS UI components
 			'iOSButton': '',
-//			'iOSSegmentedControl' EXT
+			'iOSSegmentedControl' : cs, //TODO
 			'iOSStepper': s + 'ios7.misc.adjust',
 			'iOSToggle': s + 'ios7ui.onOffButton;buttonState=on;strokeColor2=#aaaaaa;fillColor2=#ffffff',
 			'iOSSlider': s + 'ios7ui.slider;barPos=20;strokeColor2=#a0a0a0',
 			'iOSProgressBar': s + 'ios.iCloudProgressBar;barPos=20',
 			'iOSPageControls': s + 'ios.iCloudProgressBar;barPos=20',
 //			'iOSStatusBar' NA
-//			'iOSSearchBar' EXT
-//			'iOSNavBar' EXT
-//			'iOSTabs' EXT
+			'iOSSearchBar' : cs, //TODO
+			'iOSNavBar' : cs, //TODO
+			'iOSTabs' : cs, //TODO
 			'iOSUniversalKeyboard': s + 'ios.iKeybLett',
-//			'iOSDatePicker' EXT
-//			'iOSTimePicker' EXT
-//			'iOSCountdownPicker' EXT
-//			'iOSBasicCell' EXT
-//			'iOSSubtitleCell' EXT
-//			'iOSRightDetailCell' EXT
-//			'iOSLeftDetailCell' EXT
-//			'iOSTableGroupedSectionBreak' EXT
-//			'iOSTablePlainHeaderFooter' EXT
+			'iOSDatePicker' : cs, //TODO
+			'iOSTimePicker' : cs, //TODO
+			'iOSCountdownPicker' : cs, //TODO
+			'iOSBasicCell' : cs, //TODO
+			'iOSSubtitleCell' : cs, //TODO
+			'iOSRightDetailCell' : cs, //TODO
+			'iOSLeftDetailCell' : cs, //TODO
+			'iOSTableGroupedSectionBreak' : cs, //TODO
+			'iOSTablePlainHeaderFooter' : cs, //TODO
 //Mind Map
 			'MindMapBlock' : '',
 			'MindMapStadiumBlock' : 'arcSize=50',
@@ -283,44 +284,44 @@
 			'MindMapOctagonBlock' : s + 'basic.octagon',
 			'MindMapCrossBlock' : s + 'basic.cross2;dx=20',
 //Entity Relationship
-//			'ERDEntityBlock' EXT
-//			'ERDEntityBlock2' EXT
-//			'ERDEntityBlock3' EXT
-//			'ERDEntityBlock4' EXT
+			'ERDEntityBlock' : cs, //TODO
+			'ERDEntityBlock2' : cs, //TODO
+			'ERDEntityBlock3' : cs, //TODO
+			'ERDEntityBlock4' : cs, //TODO
 //Site Maps
-//			'SMPage' EXT
-//			'SMHome' EXT
-//			'SMGallery' EXT
-//			'SMShopping' EXT
-//			'SMMap' EXT
-//			'SMAthletics' EXT
-//			'SMLogin' EXT
-//			'SMPrint' EXT
-//			'SMScript' EXT
-//			'SMSearch' EXT
-//			'SMSettings' EXT
-//			'SMSitemap' EXT
-//			'SMSuccess' EXT
-//			'SMVideo' EXT
-//			'SMAudio' EXT
-//			'SMBlog' EXT
-//			'SMCalendar' EXT
-//			'SMChart' EXT
-//			'SMCloud' EXT
-//			'SMDocument' EXT
-//			'SMDownload' EXT
-//			'SMError' EXT
-//			'SMForm' EXT
-//			'SMGame' EXT
-//			'SMJobs' EXT
-//			'SMLucid' EXT
-//			'SMNewspress' EXT
-//			'SMPhoto' EXT
-//			'SMPortfolio' EXT
-//			'SMPricing' EXT
-//			'SMProfile' EXT
-//			'SMSlideshow' EXT
-//			'SMUpload' EXT
+			'SMPage'  : cs, //TODO
+			'SMHome'  : cs, //TODO
+			'SMGallery'  : cs, //TODO
+			'SMShopping'  : cs, //TODO
+			'SMMap'  : cs, //TODO
+			'SMAthletics'  : cs, //TODO
+			'SMLogin'  : cs, //TODO
+			'SMPrint'  : cs, //TODO
+			'SMScript'  : cs, //TODO
+			'SMSearch'  : cs, //TODO
+			'SMSettings'  : cs, //TODO
+			'SMSitemap'  : cs, //TODO
+			'SMSuccess'  : cs, //TODO
+			'SMVideo'  : cs, //TODO
+			'SMAudio'  : cs, //TODO
+			'SMBlog'  : cs, //TODO
+			'SMCalendar'  : cs, //TODO
+			'SMChart'  : cs, //TODO
+			'SMCloud'  : cs, //TODO
+			'SMDocument'  : cs, //TODO
+			'SMDownload'  : cs, //TODO
+			'SMError'  : cs, //TODO
+			'SMForm'  : cs, //TODO
+			'SMGame'  : cs, //TODO
+			'SMJobs'  : cs, //TODO
+			'SMLucid'  : cs, //TODO
+			'SMNewspress'  : cs, //TODO
+			'SMPhoto'  : cs, //TODO
+			'SMPortfolio'  : cs, //TODO
+			'SMPricing'  : cs, //TODO
+			'SMProfile'  : cs, //TODO
+			'SMSlideshow'  : cs, //TODO
+			'SMUpload'  : cs, //TODO
 //UML Class Diagram
 			'UMLClassBlock': '',
 			'UMLActiveClassBlock': 'shape=process',
@@ -352,9 +353,9 @@
 //			'UMLInterruptingEdgeBlock' NA
 			'UMLOffPageLinkBlock' : s + 'sysml.sendSigAct;direction=south',
 //			'UMLExpansionNodeBlock' NA
-//			'UMLMultiLanePoolBlock' EXT
-//			'UMLMultiLanePoolRotatedBlock' EXT
-//			'UMLMultidimensionalSwimlane' EXT
+			'UMLMultiLanePoolBlock' : cs, //TODO
+			'UMLMultiLanePoolRotatedBlock' : cs, //TODO
+			'UMLMultidimensionalSwimlane' : cs, //TODO
 //UML Sequence
 			'UMLActivationBlock' : '',
 			'UMLDeletionBlock' : s + 'sysml.x;strokeWidth=4',
@@ -366,7 +367,7 @@
 			'UMLComponentBlock' : 'shape=component;align=left;spacingLeft=36',
 			'UMLNodeBlock' : 'shape=cube;size=12;flipH=1',
 			'UMLComponentInterfaceBlock' : 'shape=ellipse',
-//			'UMLComponentBoxBlock' EXT
+			'UMLComponentBoxBlock' : cs, //TODO
 //			'UMLAssemblyConnectorBlock' NA
 			'UMLProvidedInterfaceBlock' : 'shape=lollipop;direction=south',
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north',
@@ -379,17 +380,17 @@
 			'UMLRelationshipBlock' : 'shape=rhombus',
 			'UMLWeakRelationshipBlock' : 'shape=rhombus;double=1',
 //BPMN 2.0
-//			'BPMNActivity' EXT
-//			'BPMNActivity' EXT
-//			'BPMNEvent' EXT
-//			'BPMNChoreography' EXT
-//			'BPMNConversation' EXT
-//			'BPMNGateway' EXT
-//			'BPMNData' EXT
-//			'BPMNDataStore'
-//			'BPMNAdvancedPoolBlock' EXT
-//			'BPMNAdvancedPoolBlockRotated' EXT
-//			'BPMNBlackPool' EXT
+			'BPMNActivity' : cs, //TODO
+//			'BPMNActivity' : cs, //TODO
+//			'BPMNEvent' : cs, //TODO
+//			'BPMNChoreography' : cs, //TODO
+//			'BPMNConversation' : cs, //TODO
+			'BPMNGateway' : cs, //TODO
+			'BPMNData' : cs, //TODO
+			'BPMNDataStore' : cs, //TODO
+			'BPMNAdvancedPoolBlock' : cs, //TODO
+			'BPMNAdvancedPoolBlockRotated' : cs, //TODO
+			'BPMNBlackPool' : cs, //TODO
 //Data Flow
 //			'DFDExternalEntityBlock' NA
 			'DFDExternalEntityBlock2' : '',
@@ -403,19 +404,19 @@
 //Org Chart
 			'OrgBlock' : '',
 //Tables
-//			'DefaultTableBlock' EXT
+			'DefaultTableBlock' : cs, //TODO
 //Processes
 			'VSMCustomerSupplierBlock' : s + 'lean_mapping.outside_sources',
 			'VSMDedicatedProcessBlock' : s + 'lean_mapping.manufacturing_process',
 			'VSMSharedProcessBlock' : s + 'lean_mapping.manufacturing_process_shared',
 			'VSMWorkcellBlock' : s + 'lean_mapping.work_cell',
-//			'VSMDatacellBlock' EXT
+			'VSMDatacellBlock' : cs, //TODO
 //Materials
 			'VSMInventoryBlock' : s + 'lean_mapping.inventory_box',
-//			'VSMSupermarketBlock' EXT
+			'VSMSupermarketBlock' : cs, //TODO
 			'VSMPhysicalPullBlock' : s + 'lean_mapping.physical_pull;direction=south',
 			'VSMFIFOLaneBlock' : s + 'lean_mapping.fifo_sequence_flow;fontStyle=0;fontSize=20',
-//			'VSMSafetyBufferStockBlock' EXT
+			'VSMSafetyBufferStockBlock' : cs, //TODO
 //Shipments
 			'VSMExternalShipmentAirplaneBlock' : s + 'lean_mapping.airplane_7',
 			'VSMExternalShipmentForkliftBlock' : s + 'lean_mapping.move_by_forklift',
@@ -434,7 +435,7 @@
 //Value Stream Mapping
 			'VSMKaizenBurstBlock' : s + 'lean_mapping.kaizen_lightening_burst',
 			'VSMOperatorBlock' : s + 'lean_mapping.operator;flipV=1',
-//			'VSMTimelineBlock' EXT
+			'VSMTimelineBlock' : cs, //TODO
 			'VSMQualityProblemBlock' : s + 'lean_mapping.quality_problem',
 //Kanban
 			'VSMProductionKanbanSingleBlock' : s + 'lean_mapping.production_kanban',
@@ -446,7 +447,7 @@
 //Arrows
 			'VSMShipmentArrow': 'shape=singleArrow;arrowWidth=0.5;arrowSize=0.13',
 			'VSMPushArrow' : s + 'lean_mapping.push_arrow',
-//			'VSMElectronicInformationArrow' : s + 'lean_mapping.electronic_info_flow_edge;', EXT
+			'VSMElectronicInformationArrow' : s + 'lean_mapping.electronic_info_flow_edge;', //TODO
 //EC2
 			'AWSElasticComputeCloudBlock2' : ss + 'aws3.ec2',
 			'AWSInstanceBlock2' : ss + 'aws3.instance',
@@ -708,7 +709,7 @@
 //			'AWSExampleIAMBlock2' NA
 			'AWSSubnetBlock2' : ss + 'aws3.permissions',
 //AWS Containers
-//			'AWSRoundedRectangleContainerBlock2' EXT
+			'AWSRoundedRectangleContainerBlock2' : cs, //TODO
 //Azure Cloud
 			'ACAccessControlBlock' : ss + 'azure.access_control',
 			'ACAPIAppsBlock' : ss + 'mscae.cloud.api_app',
@@ -1255,8 +1256,8 @@
 //			'NET_MLPS' NA
 //Basic Network Shapes
 			'NET_WirelessAccessPoint' : s + 'networks.radio_tower;fillColor=#29AAE1',
-//			'NET_RingNetwork' EXT
-//			'NET_Ethernet' EXT
+			'NET_RingNetwork' : cs, //TODO
+//			'NET_Ethernet' : cs, //TODO
 			'NET_Server' : s + 'networks.server;fillColor=#29AAE1',
 //			'NET_ExternalMediaDrive' NA
 			'NET_Mainframe' : s + 'networks.mainframe;fillColor=#29AAE1',
@@ -1346,34 +1347,34 @@
 //			'Image_audio_headset' NA
 //Electrical
 			'EE_Amplifier' : s + 'electrical.abstract.amplifier',
-			'EE_OpAmp' : s + 'electrical.abstract.operational_amp_1', //EXT
-			'EE_ControlledAmp' : s + 'electrical.abstract.controlled_amplifier', //EXT
-			'EE_Multiplexer' : s + 'electrical.abstract.mux', //EXT
-			'EE_Demultiplexer' : s + 'electrical.abstract.demux;', //EXT
-			'EE_Capacitor1' : s + 'electrical.capacitors.capacitor_1', //EXT
-			'EE_Capacitor2' : s + 'electrical.capacitors.capacitor_3', //EXT
-			'EE_Diode' : s + 'electrical.diodes.diode', //EXT
-			'EE_Resistor' : s + 'electrical.resistors.resistor_2', //EXT
+			'EE_OpAmp' : s + 'electrical.abstract.operational_amp_1', //TODO
+			'EE_ControlledAmp' : s + 'electrical.abstract.controlled_amplifier', //TODO
+			'EE_Multiplexer' : s + 'electrical.abstract.mux', //TODO
+			'EE_Demultiplexer' : s + 'electrical.abstract.demux;', //TODO
+			'EE_Capacitor1' : s + 'electrical.capacitors.capacitor_1', //TODO
+			'EE_Capacitor2' : s + 'electrical.capacitors.capacitor_3', //TODO
+			'EE_Diode' : s + 'electrical.diodes.diode', //TODO
+			'EE_Resistor' : s + 'electrical.resistors.resistor_2', //TODO
 			'EE_VarResistor' : s + 'electrical.resistors.variable_resistor_2',
-			'EE_Potentiometer' : s + 'electrical.resistors.potentiometer_2', //EXT
+			'EE_Potentiometer' : s + 'electrical.resistors.potentiometer_2', //TODO
 			'EE_ProtGround' : s + 'electrical.signal_sources.protective_earth',
 			'EE_SignalGround' : s + 'electrical.signal_sources.signal_ground',
 			'EE_Transformer' : s + 'electrical.inductors.transformer_1',
-			'EE_Inductor' : s + 'electrical.inductors.inductor_3', //EXT
-			'EE_Variable Inductor' : s + 'electrical.inductors.variable_inductor', //EXT
+			'EE_Inductor' : s + 'electrical.inductors.inductor_3', //TODO
+			'EE_Variable Inductor' : s + 'electrical.inductors.variable_inductor', //TODO
 			'EE_TwoWaySwitch' : s + 'electrical.electro-mechanical.2-way_switch',
 			'EE_OnOffSwitch' : s + 'electrical.electro-mechanical.simple_switch',
 			'EE_Loudspeaker' : s + 'electrical.electro-mechanical.loudspeaker',
-			'EE_Motor' : s + 'electrical.electro-mechanical.motor_1', //EXT
+			'EE_Motor' : s + 'electrical.electro-mechanical.motor_1', //TODO
 			'EE_LED1' : s + 'electrical.opto_electronics.led_2',
 			'EE_Lightbulb' : s + 'electrical.miscellaneous.light_bulb',
-//			'EE_IntegratedCircuit' EXT
+			'EE_IntegratedCircuit' : cs, //TODO
 //Power Sources
-			'EE_AcSource' : s + 'electrical.signal_sources.ac_source;strokeWidth=1', //EXT
-			'EE_VoltageSource' : s + 'electrical.signal_sources.dc_source_3', //EXT
-			'EE_CurrentSource' : s + 'electrical.signal_sources.dc_source_2;direction=north', //EXT
-			'EE_ControlledCurrentSource' : s + 'electrical.signal_sources.dependent_source_2;direction=west', //EXT
-			'EE_ControlledVoltageSource' : s + 'electrical.signal_sources.dependent_source_3', //EXT
+			'EE_AcSource' : s + 'electrical.signal_sources.ac_source;strokeWidth=1', //TODO
+			'EE_VoltageSource' : s + 'electrical.signal_sources.dc_source_3', //TODO
+			'EE_CurrentSource' : s + 'electrical.signal_sources.dc_source_2;direction=north', //TODO
+			'EE_ControlledCurrentSource' : s + 'electrical.signal_sources.dependent_source_2;direction=west', //TODO
+			'EE_ControlledVoltageSource' : s + 'electrical.signal_sources.dependent_source_3', //TODO
 			'EE_DcSource1' : s + 'electrical.miscellaneous.monocell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top',
 			'EE_DcSource2' : s + 'electrical.miscellaneous.multicell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top',
 			'EE_Vss' : s + 'electrical.signal_sources.vss2;verticalLabelPosition=top;verticalAlign=bottom;fontSize=24',
@@ -1420,10 +1421,10 @@
 //Messaging Systems
 			'EIChannelBlock' : s + 'eip.messageChannel',
 //			'EIMessageChannelBlock' NA
-//			'EIMessageBlock' EXT
+			'EIMessageBlock' : cs, //TODO
 			'EIMessageRouterBlock' : s + 'eip.content_based_router',
 			'EIMessageTranslatorBlock' : s + 'eip.message_translator',
-//			'EIMessageEndpointBlock' EXT
+			'EIMessageEndpointBlock' : cs, //TODO
 //Messaging Channels
 //			'EIPublishSubscribeChannelBlock' NA
 //			'EIDatatypeChannelBlock' NA
@@ -1434,9 +1435,9 @@
 			'EIMessagingBridgeBlock' : s + 'eip.messaging_bridge',
 //			'EIMessageBusBlock' NA
 //Message Construction
-//			'EICommandMessageBlock' EXT
-//			'EIDocumentMessageBlock' EXT
-//			'EIEventMessageBlock' EXT
+			'EICommandMessageBlock'  : cs, //TODO
+			'EIDocumentMessageBlock'  : cs, //TODO
+			'EIEventMessageBlock'  : cs, //TODO
 //			'EIEventMessageBlock' NA
 //			'EIRequestReplyBlock' NA
 //			'EIReturnAddressBlock' NA
@@ -1454,7 +1455,7 @@
 			'EIComposedMessageBlock' : s + 'eip.composed_message_processor',
 			'EIRoutingSlipBlock' : s + 'eip.routing_slip',
 			'EIProcessManagerBlock' : s + 'eip.process_manager',
-//			'EIMessageBrokerBlock' EXT
+			'EIMessageBrokerBlock' : cs, //TODO
 //Message Transformation
 			'EIEnvelopeWrapperBlock' : s + 'eip.envelope_wrapper',
 			'EIContentEnricherBlock' : s + 'eip.content_enricher',
@@ -1475,7 +1476,7 @@
 //			'EIControlBusBlock' NA
 			'EIDetourBlock' : s + 'eip.detour',
 			'EIWireTapBlock' : s + 'eip.wire_tap',
-//			'EIMessageHistoryBlock' EXT
+			'EIMessageHistoryBlock' : cs, //TODO
 			'EIMessageStoreBlock' : s + 'eip.message_store',
 			'EISmartProxyBlock' : s + 'eip.smart_proxy',
 			'EITestMessageBlock' : s + 'eip.test_message',
@@ -1521,20 +1522,20 @@
 			'GCPIconGCPLogoBlock' : ss + 'gcp.extras.generic_gcp',
 			'GCPIconBlankBlock' : ss + 'gcp.extras.blue_hexagon',
 //Equation
-//			'Equation' EXT
+			'Equation' : cs, //TODO
 //Walls
 			'fpWall' : '',
 //Rooms
 //Doors & Windows
 			'fpWindow' : s + 'floorplan.window',
 			'fpOpening' : 'shape=rect',
-			'fpDoor' : s + 'floorplan.doorLeft;flipV=1', //EXT
-			'fpDoubleDoor' : s + 'floorplan.doorDouble;flipV=1', //EXT
+			'fpDoor' : s + 'floorplan.doorLeft;flipV=1', //TODO
+			'fpDoubleDoor' : s + 'floorplan.doorDouble;flipV=1', //TODO
 //Stairs			
 			'fpStairs' : s + 'floorplan.stairs;direction=north',
 			'fpStairsDirectional' : s + 'floorplan.stairs;direction=north',
-//			'fpStairsCurved' EXT
-//			'fpStairsCurvedWide' EXT
+			'fpStairsCurved' : cs, //TODO
+			'fpStairsCurvedWide' : cs, //TODO
 //Desks
 //			'fpDeskEndSegment' NA
 			'fpDeskLongSegment' : '',
@@ -1580,8 +1581,8 @@
 			'fpRestroomToiletPrivate' : s + 'floorplan.toilet',
 			'fpRestroomToiletPublic' : s + 'floorplan.toilet',
 //			'fpRestroomBidet' NA
-//			'fpRestroomLights' EXT
-//			'fpRestroomSinks' EXT
+			'fpRestroomLights' : cs, //TODO
+			'fpRestroomSinks' : cs, //TODO
 //			'fpRestroomGrabBar' NA
 			'fpRestroomBathtub' : s + 'floorplan.bathtub;direction=south',
 			'fpRestroomShower' : s + 'floorplan.shower;flipH=1',
@@ -1686,8 +1687,8 @@
 			'PEFurnaceBlock' : s + 'pid.vessels.furnace',
 //			'PEChimneyTowerBlock' NA
 //Piping
-//			'PEOneToMany' EXT
-//			'PEMultilines' EXT
+			'PEOneToMany' : cs, //TODO
+			'PEMultilines' : cs, //TODO
 			'PEMidArrow' : 'shape=triangle',
 			'PEButtWeld' : s + 'sysml.x',
 			'PETopToTop' : s + 'pid.vessels.container,_tank,_cistern',
@@ -1732,12 +1733,12 @@
 			'PERotaryValve' : s + 'pid.piping.rotary_valve',
 			'PEExpansionJoint' : s + 'pid.piping.expansion_joint',
 //Vessels
-			'PEVesselBlock' : '', //EXT
-			'PEOpenTankBlock' : s + 'pid.vessels.container,_tank,_cistern', //EXT
+			'PEVesselBlock' : cs, //TODO
+			'PEOpenTankBlock' : s + 'pid.vessels.container,_tank,_cistern', //TODO
 			'PEOpenTopTank' : s + 'pid.vessels.container,_tank,_cistern',
-			'PEClosedTankBlock' : '', //EXT
+			'PEClosedTankBlock' : cs, //TODO
 			'PEStorageSphereBlock' : s + 'pid.vessels.storage_sphere',
-			'PEColumnBlock' : s + 'pid.vessels.pressurized_vessel', //EXT
+			'PEColumnBlock' : s + 'pid.vessels.pressurized_vessel', //TODO
 			'PEBagBlock' : s + 'pid.vessels.bag',
 			'PEGasCylinderBlock' : s + 'pid.vessels.gas_bottle',
 			'PEGasHolderBlock' : s + 'pid.vessels.gas_holder',
@@ -1773,11 +1774,11 @@
 			'PEHeaterBlock' : s + 'pid.heat_exchangers.heater',
 //Pumps
 			'PEEjectorInjectorBlock' : s + 'pid.fittings.injector',
-			'PECompressorTurbineBlock' : s + 'pid.engines.turbine;flipH=1', //EXT
+			'PECompressorTurbineBlock' : s + 'pid.engines.turbine;flipH=1', //TODO
 //			'PEMotorDrivenTurbineBlock' NA
 			'PETripleFanBlades2Block' : s + 'pid2misc.fan;fanType=common',
-			'PEFanBlades2Block' : s + 'pid2misc.fan;fanType=common', //EXT
-			'PECentrifugalPumpBlock' : s + 'pid.pumps.centrifugal_pump_1', //EXT
+			'PEFanBlades2Block' : s + 'pid2misc.fan;fanType=common', //TODO
+			'PECentrifugalPumpBlock' : s + 'pid.pumps.centrifugal_pump_1', //TODO
 			'PECentrifugalPump' : s + 'pid.pumps.centrifugal_pump_1',
 			'PECentrifugalPump2' : s + 'pid.pumps.centrifugal_pump_2',
 			'PECentrifugalPump3' : s + 'pid.pumps.centrifugal_pump_1;flipH=1',
@@ -1791,19 +1792,19 @@
 			'PEVerticalPump' : s + 'pid.pumps.vertical_pump',
 			'PEVerticalPump2' : s + 'pid.pumps.vertical_pump',
 //Instruments
-			'PEIndicatorBlock' : s + 'pid2inst.discInst;mounting=room', //EXT
-			'PEIndicator2Block' : s + 'pid2inst.indicator;mounting=room;indType=inst', //EXT
+			'PEIndicatorBlock' : s + 'pid2inst.discInst;mounting=room', //TODO
+			'PEIndicator2Block' : s + 'pid2inst.indicator;mounting=room;indType=inst', //TODO
 			'PEIndicator3Block' : s + 'pid2inst.discInst;mounting=field',
 			'PEIndicator4Block' : s + 'pid2inst.indicator;mounting=field;indType=inst',
 //			'PEIndicator5Block' NA
-			'PESharedIndicatorBlock' : s + 'pid2inst.sharedCont;mounting=room', //EXT
-			'PESharedIndicator2Block' : s + 'pid2inst.indicator;mounting=room;indType=ctrl', //EXT
+			'PESharedIndicatorBlock' : s + 'pid2inst.sharedCont;mounting=room', //TODO
+			'PESharedIndicator2Block' : s + 'pid2inst.indicator;mounting=room;indType=ctrl', //TODO
 //			'PEComputerIndicatorBlock' NA
-			'PEProgrammableIndicatorBlock' : s + 'pid2inst.progLogCont;mounting=room', //EXT
+			'PEProgrammableIndicatorBlock' : s + 'pid2inst.progLogCont;mounting=room', //TODO
 //Valves
-			'PEGateValveBlock' : s + 'pid2valves.valve;valveType=gate', //EXT
-			'PEGlobeValveBlock' : s + 'pid2valves.valve;valveType=globe', //EXT
-			'PEControlValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=diaph', //EXT
+			'PEGateValveBlock' : s + 'pid2valves.valve;valveType=gate', //TODO
+			'PEGlobeValveBlock' : s + 'pid2valves.valve;valveType=globe', //TODO
+			'PEControlValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=diaph', //TODO
 			'PENeedleValveBlock' : s + 'pid2valves.valve;valveType=needle',
 //			'PEButterflyValveBlock' NA
 			'PEButterflyValve2Block' : s + 'pid2valves.valve;valveType=butterfly',
@@ -1813,8 +1814,8 @@
 			'PECheckValveBlock' : s + 'pid2valves.valve;valveType=check',
 			'PECheckValve2Block' : s + 'pid2valves.valve;valveType=check',
 			'PEAngleValveBlock' : s + 'pid2valves.valve;valveType=angle;actuator=none',
-			'PEAngleGlobeValveBlock' : s + 'pid2valves.valve;valveType=angleGlobe;actuator=man;flipH=1', //EXT
-			'PEPoweredValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=digital', //EXT
+			'PEAngleGlobeValveBlock' : s + 'pid2valves.valve;valveType=angleGlobe;actuator=man;flipH=1', //TODO
+			'PEPoweredValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=digital', //TODO
 			'PEFloatOperatedValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=singActing',
 //			'PENeedleValve2Block' NA
 			'PEThreeWayValveBlock' : s + 'pid2valves.valve;valveType=threeWay;actuator=none',
@@ -1842,45 +1843,45 @@
 			'VennPlainColor7' : 'shape=ellipse;fillOpacity=35',
 			'VennPlainColor8' : 'shape=ellipse;fillOpacity=35',
 //iOS Devices
-			'iOS7DeviceiPhone5Portrait' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPhone5Landscape' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPadPortrait' : s + 'ios.iPad;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPadLandscape' : s + 'ios.iPad;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPhone6Portrait' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPhone6Landscape' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPhone6PlusPortrait' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
-			'iOS7DeviceiPhone6PlusLandscape' : s + 'ios.iPhone;bgStyle=bgGreen', //EXT
+			'iOS7DeviceiPhone5Portrait' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPhone5Landscape' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPadPortrait' : s + 'ios.iPad;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPadLandscape' : s + 'ios.iPad;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPhone6Portrait' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPhone6Landscape' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPhone6PlusPortrait' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
+			'iOS7DeviceiPhone6PlusLandscape' : s + 'ios.iPhone;bgStyle=bgGreen', //TODO
 //iPhone Elements
 			'iOS7StatusBariPhone' : s + 'ios7ui.appBar',
 //			'iOS7NavBariPhone' NA
-//			'iOS7TabsiPhone' EXT
-//			'iOS7iPhoneActionSheet' EXT
+			'iOS7TabsiPhone' : cs, //TODO
+			'iOS7iPhoneActionSheet' : cs, //TODO
 			'iOS7iPhoneKeyboard' : s + 'ios7.misc.keyboard_(letters)',
-//			'iOS7TableView' EXT
+			'iOS7TableView' : cs, //TODO
 //iPad Elements
 			'iOS7StatusBariPad' : s + 'ios7ui.appBar',
-//			'iOS7NavBariPad' EXT
-//			'iOS7TabsiPad' EXT
-//			'iOS7iPadActionSheet' EXT
+			'iOS7NavBariPad' : cs, //TODO
+			'iOS7TabsiPad' : cs, //TODO
+			'iOS7iPadActionSheet' : cs, //TODO
 			'iOS7iPadKeyboard' : s + 'ios7.misc.keyboard_(letters)',
 //			'iOS7SplitView'
 //			'iOS7iPadPopover'
 //Common Elements
-//			'iOS7AlertDialog' EXT
-			'iOS7ProgressBar' : s + 'ios7ui.downloadBar', //EXT
-			'iOS7Slider' : s + 'ios7ui.searchBox', //EXT
+			'iOS7AlertDialog' : cs, //TODO
+			'iOS7ProgressBar' : s + 'ios7ui.downloadBar', //TODO
+			'iOS7Slider' : s + 'ios7ui.searchBox', //TODO
 			'iOS7SearchBar' : s + 'ios7ui.searchBox', 
 			'iOS7Button' : '',
 			'iOS7TextField' : '',
 			'iOS7TextView' : '',
-//			'iOS7SegmentedControl' EXT
-			'iOS7Toggle' : s + 'ios7ui.onOffButton;buttonState=on;strokeColor=#38D145;strokeColor2=#aaaaaa;fillColor=#38D145;fillColor2=#ffffff', //EXT
+			'iOS7SegmentedControl' : cs, //TODO
+			'iOS7Toggle' : s + 'ios7ui.onOffButton;buttonState=on;strokeColor=#38D145;strokeColor2=#aaaaaa;fillColor=#38D145;fillColor2=#ffffff', //TODO
 			'iOS7Stepper' : s + 'ios7.misc.adjust;fillColor=#ffffff;gradientColor=none',
-			'iOS7PageControls' : s + 'ios7ui.pageControl;fillColor=#666666;strokeColor=#bbbbbb', //EXT
+			'iOS7PageControls' : s + 'ios7ui.pageControl;fillColor=#666666;strokeColor=#bbbbbb', //TODO
 			'iOS7Block' : '',
-//			'iOS7DatePicker' EXT
-//			'iOS7TimePicker' EXT
-//			'iOS7CountdownPicker' EXT
+			'iOS7DatePicker' : cs, //TODO
+			'iOS7TimePicker' : cs, //TODO
+			'iOS7CountdownPicker' : cs, //TODO
 //iOS Icons
 			'iOS7IconArrow left' : s + 'ios7.misc.left',
 			'iOS7IconArrow' : s + 'ios7.misc.right',
@@ -1974,15 +1975,15 @@
 //			'iOS7ActivitySlideshow' NA
 //			'iOS7ActivityUse as wallpaper' NA
 //UI Containers
-			'UI2BrowserBlock' : s + 'mockup.containers.browserWindow;mainText=,', //EXT
+			'UI2BrowserBlock' : s + 'mockup.containers.browserWindow;mainText=,', //TODO
 			'UI2WindowBlock' : s + 'mockup.containers.window;strokeColor2=#008cff;strokeColor3=#c4c4c4;fontColor=#666666;mainText=', 
-//			'UI2DialogBlock' EXT
+			'UI2DialogBlock' : cs, //TODO
 			'UI2AreaBlock' : '',
 			'UI2ElementBlock' : '',
-//			'UI2AccordionBlock' EXT
-//			'UI2TabBarContainerBlock' EXT
-//			'UI2TabBar2ContainerBlock' EXT
-//			'UI2VTabBarContainerBlock' EXT
+			'UI2AccordionBlock' : cs, //TODO
+			'UI2TabBarContainerBlock' : cs, //TODO
+			'UI2TabBar2ContainerBlock' : cs, //TODO
+			'UI2VTabBarContainerBlock' : cs, //TODO
 			'UI2VScrollBlock' : s + 'mockup.navigation.scrollBar;direction=north',
 			'UI2HScrollBlock' : s + 'mockup.navigation.scrollBar',
 			'UI2VerticalSplitterBlock' : s + 'mockup.forms.splitter;direction=north',
@@ -2002,10 +2003,10 @@
 //			'Image_ui_formatting_toolbar2'
 //UI Input
 			'UI2ButtonBlock' : 'rounded=1;arcSize=25;',
-//			'UI2CheckBoxBlock' EXT
-//			'UI2HorizontalCheckBoxBlock' EXT
-//			'UI2RadioBlock' EXT
-//			'UI2HorizontalRadioBlock' EXT
+			'UI2CheckBoxBlock' : cs, //TODO
+			'UI2HorizontalCheckBoxBlock' : cs, //TODO
+			'UI2RadioBlock' : cs, //TODO
+			'UI2HorizontalRadioBlock' : cs, //TODO
 			'UI2ColorPickerBlock' : s + 'mockup.forms.colorPicker;chosenColor=#aaddff',
 			'UI2TextInputBlock' : '',
 			'UI2SelectBlock' : s + 'mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666',
@@ -2014,26 +2015,26 @@
 //			'UI2DatePickerBlock' NA
 			'UI2SearchBlock' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
 			'UI2NumericStepperBlock' : s + 'mockup.forms.spinner;spinLayout=right;spinStyle=normal;adjStyle=triangle;fillColor=#000000;mainText=',
-//			'UI2TableBlock' EXT
+			'UI2TableBlock' : cs, //TODO
 //UI Menus
-//			'UI2ButtonBarBlock' EXT
-//			'UI2VerticalButtonBarBlock' EXT
-//			'UI2LinkBarBlock' EXT
-//			'UI2BreadCrumbsBlock' EXT
-//			'UI2MenuBarBlock' EXT
+			'UI2ButtonBarBlock' : cs, //TODO
+			'UI2VerticalButtonBarBlock' : cs, //TODO
+			'UI2LinkBarBlock' : cs, //TODO
+			'UI2BreadCrumbsBlock' : cs, //TODO
+			'UI2MenuBarBlock' : cs, //TODO
 			'UI2AtoZBlock' : s + 'mockup.text.alphanumeric;linkText=;fontStyle=4',
 			'UI2PaginationBlock' : s + 'mockup.navigation.pagination;linkText=;fontStyle=4',
-//			'UI2ContextMenuBlock' EXT
-//			'UI2TreePaneBlock'EXT
+			'UI2ContextMenuBlock' : cs, //TODO
+			'UI2TreePaneBlock' : cs, //TODO
 			'UI2PlaybackControlsBlock' : s + 'mockup.misc.playbackControls;fillColor=#ffffff;strokeColor=#999999;fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none',
 			'Image_ui_formatting_toolbar' : s + 'mockup.menus_and_buttons.font_style_selector_2',
 //UI Misc
 			'UI2ProgressBarBlock' : s + 'mockup.misc.progressBar;fillColor2=#888888;barPos=25',
 			'UI2HelpIconBlock' : s + 'mockup.misc.help_icon',
-			'UI2BraceNoteBlock' : s + 'mockup.markup.curlyBrace;direction=north', //EXT
-			'UI2TooltipBlock' : s + 'basic.rectangular_callout;flipV=1', //EXT
+			'UI2BraceNoteBlock' : s + 'mockup.markup.curlyBrace;direction=north', //TODO
+			'UI2TooltipBlock' : s + 'basic.rectangular_callout;flipV=1', //TODO
 			'UI2CalloutBlock' : 'shape=ellipse',
-//			'UI2AlertBlock' EXT
+			'UI2AlertBlock' : cs, //TODO
 //iOS 6 iPad Elements
 			'Image_ipad_ipad' : s + 'ios.iPad;bgStyle=bgGreen',
 			'iPadGrayBackgroundBlock' : '',
@@ -2043,11 +2044,11 @@
 //			'Image_ipad_bar_black' : '',
 //			'Image_ipad_safari_top' NA
 			'Image_ipad_search' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
-//			'Image_ipad_alert_dialog' EXT
-//			'Image_ipad_dialog' EXT
+			'Image_ipad_alert_dialog' : cs, //TODO
+			'Image_ipad_dialog' : cs, //TODO
 			'Image_ipad_popover' : s + 'ios.iOption;barPos=50;pointerPos=top;buttonText=',
-//			'Image_ipad_table' EXT
-//			'Image_ipad_vtab' EXT
+			'Image_ipad_table' : cs, //TODO
+			'Image_ipad_vtab' : cs, //TODO
 //iOS 6 iPad Controls
 			'Image_ipad_button_black' : '',
 			'Image_ipad_button_blue' : '',
@@ -2061,9 +2062,9 @@
 			'Image_ipad_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff',
 			'Image_ipad_keyboard_portrait' : s + 'ios.iKeybLett',
 			'Image_ipad_keyboard_landscape' : s + 'ios.iKeybLett',
-//			'Image_ipad_large_tabbed_button' EXT
-//			'Image_ipad_sort_button' EXT
-//			'Image_ipad_tab_bar' EXT
+			'Image_ipad_large_tabbed_button' : cs, //TODO
+			'Image_ipad_sort_button' : cs, //TODO
+			'Image_ipad_tab_bar' : cs, //TODO
 			'Image_ipad_slider' : s + 'ios.iSlider;barPos=20',
 //			'Image_ipad_switch_off'
 //iOS 6 iPad Icons
@@ -2073,16 +2074,16 @@
 			'Image_ipad_arrow_icon' : s + 'ios.iArrowIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff',
 			'Image_ipad_arrow' : s + 'ios7.misc.more',
 			'Image_ipad_checkmark' : s + 'ios7.misc.check',
-			'Image_ipad_check_off' : 'shape=ellipse', //EXT
+			'Image_ipad_check_off' : 'shape=ellipse', //TODO
 			'Image_ipad_location_dot' : 'shape=ellipse',
 			'Image_ipad_mark_as_read' : 'shape=ellipse',
 			'Image_ipad_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600',
 			'Image_ipad_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000',
-			'Image_ipad_radio_off' : 'shape=ellipse', //EXT
-			'Image_ipad_checkbox_off' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1', //EXT
+			'Image_ipad_radio_off' : 'shape=ellipse', //TODO
+			'Image_ipad_checkbox_off' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1', //TODO
 			'Image_ipad_indicator' : 'absoluteArcSize=1;arcSize=' + arcSize + ';rounded=1;fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
 //iOS 6 iPhone Elements
-			'Image_iphone_iphone_4' : s + 'ios.iPhone;bgStyle=bgGreen',
+			'Image_iphone_iphone_4' : s + 'ios.iPhone;bg=bgGreen',
 			'Image_iphone_bg_black' : '',
 			'Image_iphone_bg_gray' : '',
 			'Image_iphone_bg_stripe_drk' : s + 'ios.iBgStriped;strokeColor=#18211b;fillColor=#5D7585;strokeColor2=#657E8F',
@@ -2094,17 +2095,17 @@
 			'Image_iphone_bar_semi_trans_black' : '',
 			'Image_iphone_bar_semi_trans_blue' : '',
 			'Image_iphone_search' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
-//			'Image_iphone_table' EXT
-//			'Image_iphone_table_w_buttons' EXT
-//			'Image_iphone_table_w_icons' EXT
-//			'Image_iphone_list' EXT
+			'Image_iphone_table' : cs, //TODO
+			'Image_iphone_table_w_buttons' : cs, //TODO
+			'Image_iphone_table_w_icons' : cs, //TODO
+			'Image_iphone_list' : cs, //TODO
 //			'Image_iphone_safari_top' NA
 //			'Image_iphone_safari_bottom' NA
-			'Image_iphone_gray_grad_list' : '', //EXT
+			'Image_iphone_gray_grad_list' : '', //TODO
 //			'Image_iphone_alert_bar' NA
-//			'Image_iphone_alert_dialog' EXT
-//			'Image_iphone_dialog' EXT
-//			'Image_iphone_scroll_pane' EXT
+//			'Image_iphone_alert_dialog' : cs, //TODO
+			'Image_iphone_dialog' : cs, //TODO
+			'Image_iphone_scroll_pane' : cs, //TODO
 			'Image_iphone_alpha_list' : s + 'ios.iAlphaList',
 //iOS 6 iPhone Controls
 			'Image_iphone_button_black' : '',
@@ -2123,15 +2124,15 @@
 			'Image_iphone_slider' : s + 'ios.iSlider;barPos=60',
 			'Image_iphone_dropdown' : s + 'ios.iComboBox;buttonText=;fillColor=#dddddd;fillColor2=#3D5565',
 			'Image_iphone_email_name' : '',
-			'Image_iphone_switch_off' : s + 'android.switch_off;fillColor=#666666', //EXT
+			'Image_iphone_switch_off' : s + 'android.switch_off;fillColor=#666666', //TODO
 			'Image_iphone_keyboard_button_blue' : '',
 			'Image_iphone_keyboard_letters' : s + 'ios.iKeybLett',
 			'Image_iphone_keyboard_landscape' : s + 'ios.iKeybLett',
-//			'Image_iphone_large_tabbed_button' EXT
-//			'Image_iphone_sort_button' EXT
-//			'Image_iphone_tab_bar' EXT
-//			'Image_iphone_picker_multi' EXT
-//			'Image_iphone_picker_web' EXT
+			'Image_iphone_large_tabbed_button' : cs, //TODO
+			'Image_iphone_sort_button' : cs, //TODO
+			'Image_iphone_tab_bar' : cs, //TODO
+			'Image_iphone_picker_multi' : cs, //TODO
+			'Image_iphone_picker_web' : cs, //TODO
 //iOS 6 iPhone Icons
 			'Image_iphone_add_icon_blue' : s + 'ios.iAddIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff',
 			'Image_iphone_add_icon_green' : s + 'ios.iAddIcon;fillColor=#7AdF78;fillColor2=#1A9917;strokeColor=#ffffff',
@@ -2139,13 +2140,13 @@
 			'Image_iphone_arrow_icon' : s + 'ios.iArrowIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff',
 			'Image_iphone_arrow' : s + 'ios7.misc.more',
 			'Image_iphone_checkmark' : s + 'ios7.misc.check',
-			'Image_iphone_check_off' : 'shape=ellipse', //EXT
+			'Image_iphone_check_off' : 'shape=ellipse', //TODO
 			'Image_iphone_location_dot' : 'shape=ellipse',
 			'Image_iphone_mark_as_read' : 'shape=ellipse',
 			'Image_iphone_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600',
 			'Image_iphone_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000',
-			'Image_iphone_radio_off' : 'shape=ellipse', //EXT
-			'Image_iphone_checkbox_off' : '', //EXT
+			'Image_iphone_radio_off' : 'shape=ellipse', //TODO
+			'Image_iphone_checkbox_off' : '', //TODO
 			'Image_iphone_indicator' : 'fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
 			'Image_iphone_thread_count' : ''
 	};
@@ -2162,6 +2163,13 @@
 			if (props.State.t != null)
 			{
 				text = props.State;
+			}
+		}
+		else if (text == null && props.Note != null)
+		{
+			if (props.Note.t != null)
+			{
+				text = props.Note;
 			}
 		}
 
@@ -2213,30 +2221,574 @@
 		return obj;
 	};
 		
-	function getTextM(p)
+	function getTextM(properties)
 	{
-		if (p.Text != null)
+		if (properties.Text != null)
 		{
-			if (p.Text.m != null)
+			if (properties.Text.m != null)
 			{
-				return p.Text.m;
+				return properties.Text.m;
 			}
 		}
-		else if(p.TextAreas != null)
+		else if(properties.TextAreas != null)
 		{
-			if (p.TextAreas.Text != null)
+			if (properties.TextAreas.Text != null)
 			{
-				if (p.TextAreas.Text.Value != null)
+				if (properties.TextAreas.Text.Value != null)
 				{
-					if (p.TextAreas.Text.Value.m != null)
+					if (properties.TextAreas.Text.Value.m != null)
 					{
-						return p.TextAreas.Text.Value.m;
+						return properties.TextAreas.Text.Value.m;
 					}
 				}
 			}
 		}
 
 		return null;
+	}
+	
+	function getFontSize(properties)
+	{
+		//adds font size
+		var isV = false;
+		
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isV) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 's')
+				{
+					if (currM.v != null)
+					{
+						isV = true;
+						return 'fontSize=' + Math.round(currM.v * scale) + ';';
+					}
+				}
+				i++;
+			}
+		}
+		
+		if (isV == 0)
+		{
+			return 'fontSize=10;';
+		}
+		
+		return '';
+	}
+	
+	function getFontColor(properties)
+	{
+		//adds font color
+		var isC = false;
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isC) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 'c')
+				{
+					if (currM.v != null)
+					{
+						isC = true;
+						
+						var currV = currM.v;
+						
+						if (currV.charAt(0) != '#')
+						{
+							currV = '#' + currV;
+						}
+
+						var currV = currV.substring(0, 7);
+
+						return mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
+					}
+				}
+				
+				i++;
+			}
+		}
+		
+		return '';
+	}
+	
+	function getFontStyle(properties)
+	{
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var fontStyle = 0;
+			//check for bold text
+			var isBT = false;
+			
+			if (m != null)
+			{
+				var i = 0;
+				
+				while ((!isBT) && (i < m.length))
+				{
+					var currM = m[i];
+					
+					if (currM.n == 'b')
+					{
+						if (currM.v != null && currM.v)
+						{
+							isBT = true;
+							fontStyle += 1;
+						}
+					}
+					
+					i++;
+				}
+			}
+				
+			//check for italic text
+			var isIT = false;
+			
+			if (m != null)
+			{
+				var i = 0;
+				
+				while ((!isIT) && (i < m.length))
+				{
+					var currM = m[i];
+					
+					if (currM.n == 'i')
+					{
+						if (currM.v != null && currM.v)
+						{
+							isIT = true;
+							fontStyle += 2;
+						}
+					}
+					
+					i++;
+				}
+			}
+				
+			//check for underline text
+			var isUT = false;
+			
+			if (m != null)
+			{
+				var i = 0;
+				
+				while ((!isUT) && (i < m.length))
+				{
+					var currM = m[i];
+					
+					if (currM.n == 'u')
+					{
+						if (currM.v != null && currM.v)
+						{
+							isUT = true;
+							fontStyle += 4;
+						}
+					}
+					
+					i++;
+				}
+			}
+			
+			if (fontStyle > 0)
+			{
+				return 'fontStyle=' + fontStyle + ';';
+			}
+		}
+		
+		return '';
+	}
+	
+	function getTextAlignment(properties, cell)
+	{
+		var m = getTextM(properties);
+		
+		//adds text alignment
+		var isA = false;
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isA) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 'a')
+				{
+					if (currM.v != null)
+					{
+						isA = true;
+						cell.style += 'align=' + currM.v + ';';
+					}
+				}
+				
+				i++;
+			}
+		}
+		
+		if (!isA)
+		{
+			return createStyle(mxConstants.STYLE_ALIGN, properties.TextAlign, 'center');
+		}
+		
+		return '';
+	}
+	
+	function getTextLeftSpacing(properties)
+	{
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			//adds left spacing
+			var isIL = false;
+			
+			if (m != null)
+			{
+				var i = 0;
+				
+				while ((!isIL) && (i < m.length))
+				{
+					var currM = m[i];
+					
+					if (currM.n == 'il')
+					{
+						if (currM.v != null)
+						{
+							isIL = true;
+							return 'spacingLeft=' + currM.v + ';';
+						}
+					}
+					
+					i++;
+				}
+			}
+		}
+		
+		return '';
+	}
+
+	function getTextRightSpacing(properties)
+	{
+		//adds right spacing
+		var isIR = false;
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isIR) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 'ir')
+				{
+					if (currM.v != null)
+					{
+						isIR = true;
+						
+						return 'spacingRight=' + currM.v + ';';
+					}
+				}
+				
+				i++;
+			}
+		}
+		
+		return '';
+	}
+	
+	function getTextTopSpacing(properties)
+	{
+		//adds top spacing
+		var isMT = false;
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isMT) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 'mt')
+				{
+					if (currM.v != null)
+					{
+						isMT = true;
+						return 'spacingTop=' + currM.v + ';';
+					}
+				}
+				
+				i++;
+			}
+		}
+
+		return '';
+	}
+	
+	function getTextBottomSpacing(properties)
+	{
+		//adds bottom spacing
+		var isMB = false;
+		var m = getTextM(properties);
+		
+		if (m != null)
+		{
+			var i = 0;
+			
+			while ((!isMB) && (i < m.length))
+			{
+				var currM = m[i];
+				
+				if (currM.n == 'mb')
+				{
+					if (currM.v != null)
+					{
+						isMB = true;
+						return 'spacingBottom=' + currM.v + ';';
+					}
+				}
+				
+				i++;
+			}
+		}
+		
+		return '';
+	}
+	
+	function getTextGlobalSpacing(properties)
+	{
+		//adds global spacing
+		if (typeof properties.InsetMargin === 'number')
+		{
+				return 'spacing=' + parseInt(properties.InsetMargin) + ';';
+		}
+	
+		return '';
+	}
+	
+	function getTextVerticalAlignment(properties)
+	{
+		// adds text vertical alignment
+		if (properties.Text_VAlign != null)
+		{
+			if (typeof properties.Text_VAlign === 'string')
+			{
+				return 'verticalAlign=' + properties.Text_VAlign + ';';
+			}
+		}
+		
+		return createStyle(mxConstants.STYLE_VERTICAL_ALIGN, properties.TextVAlign, 'middle');
+	}
+	
+	function getStrokeColor(properties, action)
+	{
+		if (!hardStroke.includes(action.Class))
+		{
+			if (properties.LineWidth == 0)
+			{
+				return mxConstants.STYLE_STROKECOLOR + '=none;';
+			}
+			else
+			{
+				return createStyle(mxConstants.STYLE_STROKECOLOR, properties.LineColor.substring(0, 7), '#000000');
+			}
+		}
+		else
+		{
+			if (action.Class.substring(0,4) == 'Venn')
+			{
+				return createStyle(mxConstants.STYLE_STROKECOLOR, properties.FillColor.substring(0, 7), '#FFFFFF');
+			}
+		}
+		
+		return '';
+	}
+
+	function getOpacity(properties, action)
+	{
+		var style = '';
+		
+		if (!hardOpacity.includes(action.Class))
+		{
+			style += createStyle(mxConstants.STYLE_OPACITY, properties.Opacity, '100');
+		}
+
+		if (typeof properties.LineColor === 'string')
+		{
+			if (properties.LineColor.length > 7)
+			{
+				var sOpac = "0x" + properties.LineColor.substring(properties.LineColor.length - 2, properties.LineColor.length);
+				style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
+			}
+		}
+		
+		if (typeof properties.FillColor === 'string')
+		{
+			if (properties.FillColor.length > 7)
+			{
+				var fOpac = "0x" + properties.FillColor.substring(properties.FillColor.length - 2, properties.FillColor.length);
+				style += 'fillOpacity=' + Math.round(parseInt(fOpac) / 2.55) + ';';
+			}
+		}
+		
+		return style;
+	}
+
+	function getRounded(properties, action)
+	{
+		//rounding check
+		if (properties.Rounding != null && !hardRound.includes(action.Class))
+		{
+			if (properties.Rounding > 0)
+			{
+				return 'rounded=1;absoluteArcSize=1;arcSize=' + properties.Rounding * 0.6 + ';';
+			}
+		}
+		else if (properties.Rounding == null && hardDefRound.includes(action.Class))
+		{
+			return 'rounded=1;absoluteArcSize=1;arcSize=8;'
+		}
+		
+		return '';
+	}
+
+	function getRotation(properties, action, cell)
+	{
+		// Converts rotation
+		if (properties.Rotation != null)
+		{
+			// KNOWN: TextRotation currently ignored
+			var deg = mxUtils.toDegree(parseFloat(properties.Rotation));
+			
+			// Fixes the case for horizontal swimlanes where we use horizontal=0
+			// and Lucid uses rotation
+			
+			if (action.Class == 'AdvancedSwimLaneBlockRotated')
+			{
+				deg += 90;
+				cell.geometry.rotate90();
+			}
+			else if (rccw.includes(action.Class))
+			{
+				deg -= 90;
+				cell.geometry.rotate90();
+				cell.geometry.rotate90();
+				cell.geometry.rotate90();
+			}
+			
+			if (deg != 0)
+			{
+				return 'rotation=' + deg + ';';
+			}
+		}
+		
+		return '';
+	}
+	
+	function getFlipH(properties)
+	{
+		if (properties.FlipX)
+		{
+			return 'flipH=1;';
+		}
+		
+		return '';
+	}
+	
+	function getFlipV(properties)
+	{
+		if (properties.FlipY)
+		{
+			return 'flipV=1;';
+		}
+		
+		return '';
+	}
+
+	function getShadow(properties)
+	{
+		// Shadow is mapped simple shadow style
+		if (properties.Shadow != null)
+		{
+			return mxConstants.STYLE_SHADOW + '=1;';
+		}
+		
+		return '';
+	}
+
+	function getFillColor(properties, action)
+	{
+		// Gradients and fill color
+		if (properties.FillColor != null)
+		{
+			if (!hardFill.includes(action.Class))
+			{
+				if (typeof properties.FillColor === 'object')
+				{
+					if (properties.FillColor.cs != null && properties.FillColor.cs.length > 1)
+					{
+						return createStyle(mxConstants.STYLE_FILLCOLOR, properties.FillColor.cs[0].c.substring(0, 7)) + createStyle(mxConstants.STYLE_GRADIENTCOLOR, properties.FillColor.cs[1].c.substring(0, 7));
+					}
+				}
+				else if (typeof properties.FillColor === 'string')
+				{
+					return createStyle(mxConstants.STYLE_FILLCOLOR, properties.FillColor.substring(0, 7), '#FFFFFF');
+				}
+				else
+				{
+					return createStyle(mxConstants.STYLE_FILLCOLOR, 'none');
+				}
+			}
+		}
+		
+		return '';
+	}
+	
+	function getStrokeStyle(properties)
+	{
+		// Stroke style
+		if (properties.StrokeStyle == 'dashed')
+		{
+			return 'dashed=1;';
+		}
+		else if (properties.StrokeStyle == 'dotted')
+		{
+			return 'dashed=1;dashPattern=1 4;';
+		}
+		
+		return '';
+	}
+	
+	function getStrokeWidth(properties)
+	{
+		return createStyle(mxConstants.STYLE_STROKEWIDTH, parseFloat(properties.LineWidth) * scale, '1');
+	}
+	
+	function getImage(properties, action)
+	{
+		// Converts images
+		if (action.Class == 'ImageSearchBlock2')
+		{
+			return 'image=' + properties.URL + ';';
+		}
+		
+		return '';
 	}
 	
 	function updateCell(cell, obj)
@@ -2262,456 +2814,30 @@
 			{
 				//adds label
 				cell.value = convertText(p);
-
-				//adds font size
-				var isV = false;
 				
-				var m = getTextM(p);
 				
-				if (m != null)
-				{
-					var i = 0;
-					
-					while ((!isV) && (i < m.length))
-					{
-						var currM = m[i];
-						
-						if (currM.n == 's')
-						{
-							if (currM.v != null)
-							{
-								isV = true;
-
-								var fontSize = currM.v;
-								fontSize = Math.round(fontSize * scale);
-								cell.style += 'fontSize=' + fontSize + ';';
-							}
-						}
-						i++;
-					}
-				}
+				cell.style += 	getFontSize(p) +
+								getFontColor(p) + 
+								getFontStyle(p) +
+								getTextAlignment(p, cell) + 
+								getTextLeftSpacing(p) +
+								getTextRightSpacing(p) + 
+								getTextTopSpacing(p) +
+								getTextBottomSpacing(p) + 
+								getTextGlobalSpacing(p) +
+								getTextVerticalAlignment(p) + 
+								getStrokeColor(p, a) + 
+								getOpacity(p, a) + 
+								getRounded(p, a) +
+								getRotation(p, a, cell) + 
+								getFlipH(p) + 
+								getFlipV(p) +
+								getShadow(p) +
+								getFillColor(p, a)  +
+								getStrokeStyle(p) + 
+								getStrokeWidth(p) + 
+								getImage(p, a);
 				
-				if (isV == 0)
-				{
-					cell.style += 'fontSize=10;';
-				}
-				
-				//adds font color
-				var isC = false;
-				
-				if (m != null)
-				{
-					var i = 0;
-					
-					while ((!isC) && (i < m.length))
-					{
-						var currM = m[i];
-						
-						if (currM.n == 'c')
-						{
-							if (currM.v != null)
-							{
-								isC = true;
-								
-								var currV = currM.v;
-								
-								if (currV.charAt(0) != '#')
-								{
-									currV = '#' + currV;
-								}
-
-								var currV = currV.substring(0, 7);
-
-								cell.style += mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
-							}
-						}
-						
-						i++;
-					}
-
-					var fontStyle = 0;
-
-					//check for bold text
-					var isBT = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isBT) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'b')
-							{
-								if (currM.v != null && currM.v)
-								{
-									isBT = true;
-									fontStyle += 1;
-								}
-							}
-							
-							i++;
-						}
-					}
-						
-					//check for italic text
-					var isIT = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isIT) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'i')
-							{
-								if (currM.v != null && currM.v)
-								{
-									isIT = true;
-									fontStyle += 2;
-								}
-							}
-							
-							i++;
-						}
-					}
-						
-					//check for underline text
-					var isUT = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isUT) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'u')
-							{
-								if (currM.v != null && currM.v)
-								{
-									isUT = true;
-									fontStyle += 4;
-								}
-							}
-							
-							i++;
-						}
-					}
-					
-					if (fontStyle > 0)
-					{
-						cell.style += 'fontStyle=' + fontStyle + ';';
-					}
-					
-					//adds text alignment
-					var isA = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isA) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'a')
-							{
-								if (currM.v != null)
-								{
-									isA = true;
-									
-									var currV = currM.v;
-									
-									cell.style += 'align=' + currV + ';';
-								}
-							}
-							
-							i++;
-						}
-					}
-					
-					if (!isA)
-					{
-						cell.style += 'align=center;';
-					}
-
-					//adds left spacing
-					var isIL = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isIL) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'il')
-							{
-								if (currM.v != null)
-								{
-									isIL = true;
-									
-									var currV = currM.v;
-									
-									cell.style += 'spacingLeft=' + currV + ';';
-								}
-							}
-							
-							i++;
-						}
-					}
-
-					//adds right spacing
-					var isIR = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isIR) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'ir')
-							{
-								if (currM.v != null)
-								{
-									isIR = true;
-									
-									var currV = currM.v;
-									
-									cell.style += 'spacingRight=' + currV + ';';
-								}
-							}
-							
-							i++;
-						}
-					}
-
-					//adds top spacing
-					var isMT = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isMT) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'mt')
-							{
-								if (currM.v != null)
-								{
-									isMT = true;
-									
-									var currV = currM.v;
-									
-									cell.style += 'spacingTop=' + currV + ';';
-								}
-							}
-							
-							i++;
-						}
-					}
-
-					//adds bottom spacing
-					var isMB = false;
-					
-					if (m != null)
-					{
-						var i = 0;
-						
-						while ((!isMB) && (i < m.length))
-						{
-							var currM = m[i];
-							
-							if (currM.n == 'mb')
-							{
-								if (currM.v != null)
-								{
-									isMB = true;
-									
-									var currV = currM.v;
-									
-									cell.style += 'spacingBottom=' + currV + ';';
-								}
-							}
-							
-							i++;
-						}
-					}
-
-					//adds global spacing
-					if (typeof p.InsetMargin === 'number')
-					{
-							cell.style += 'spacing=' + parseInt(p.InsetMargin) + ';';
-					}
-					
-					// adds text vertical alignment
-					if (p.Text_VAlign != null)
-					{
-						if (typeof p.Text_VAlign === 'string')
-						{
-							cell.style += 'verticalAlign=' + p.Text_VAlign + ';';
-						}
-					}
-				}
-
-				// Converts images
-				if (a.Class == 'ImageSearchBlock2')
-				{
-					cell.style += 'image=' + p.URL + ';';
-				}
-				
-				// Adds styles
-				cell.style += createStyle(mxConstants.STYLE_STROKEWIDTH, parseFloat(p.LineWidth) * scale, '1');
-				
-				if (!hardStroke.includes(a.Class))
-				{
-					if (p.LineWidth == 0)
-					{
-						cell.style += mxConstants.STYLE_STROKECOLOR + '=none;';
-					}
-					else
-					{
-						cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.LineColor.substring(0, 7), '#000000');
-					}
-				}
-				else
-				{
-					var t = a.Class.substring(0,4); 
-					if (t == 'Venn')
-					{
-						cell.style += createStyle(mxConstants.STYLE_STROKECOLOR, p.FillColor.substring(0, 7), '#FFFFFF');
-					}
-				}
-				
-				cell.style += createStyle(mxConstants.STYLE_ALIGN, p.TextAlign, 'center');
-				cell.style += createStyle(mxConstants.STYLE_VERTICAL_ALIGN, p.TextVAlign, 'middle');
-				
-				if (!hardOpacity.includes(a.Class))
-				{
-					cell.style += createStyle(mxConstants.STYLE_OPACITY, p.Opacity, '100');
-				}
-
-				//adds opacity
-				if (typeof p.LineColor === 'string')
-				{
-					if (p.LineColor.length > 7)
-					{
-						var sOpac = "0x" + p.LineColor.substring(p.LineColor.length - 2, p.LineColor.length);
-						cell.style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
-					}
-				}
-				
-				if (typeof p.FillColor === 'string')
-				{
-					if (p.FillColor.length > 7)
-					{
-						var fOpac = "0x" + p.FillColor.substring(p.FillColor.length - 2, p.FillColor.length);
-						cell.style += 'fillOpacity=' + Math.round(parseInt(fOpac) / 2.55) + ';';
-					}
-				}
-
-
-				//rounding check
-				if (p.Rounding != null && !hardRound.includes(a.Class))
-				{
-					if (p.Rounding > 0)
-					{
-						cell.style += 'rounded=1;absoluteArcSize=1;arcSize=' + p.Rounding * 0.6 + ';';
-					}
-				}
-				else if (p.Rounding == null && hardDefRound.includes(a.Class))
-				{
-					cell.style += 'rounded=1;absoluteArcSize=1;arcSize=8;'
-				}
-
-				// Converts rotation
-				if (p.Rotation != null)
-				{
-					// KNOWN: TextRotation currently ignored
-					var deg = mxUtils.toDegree(parseFloat(p.Rotation));
-					
-					// Fixes the case for horizontal swimlanes where we use horizontal=0
-					// and Lucid uses rotation
-					
-					if (a.Class == 'AdvancedSwimLaneBlockRotated')
-					{
-						deg += 90;
-						cell.geometry.rotate90();
-					}
-					else if (rccw.includes(a.Class))
-					{
-						deg -= 90;
-						cell.geometry.rotate90();
-						cell.geometry.rotate90();
-						cell.geometry.rotate90();
-					}
-					
-					if (deg != 0)
-					{
-						cell.style += 'rotation=' + deg + ';';
-					}
-				}
-				
-				if (p.FlipX)
-				{
-					cell.style += 'flipH=1;';
-				}
-				
-				if (p.FlipY)
-				{
-					cell.style += 'flipV=1;';
-				}
-				
-				// Shadow is mapped simple shadow style
-				if (p.Shadow != null)
-				{
-					cell.style += mxConstants.STYLE_SHADOW + '=1;';
-				}
-				
-				// Stroke style
-				if (p.StrokeStyle == 'dashed')
-				{
-					cell.style += 'dashed=1;';
-				}
-				else if (p.StrokeStyle == 'dotted')
-				{
-					cell.style += 'dashed=1;dashPattern=1 4;';
-				}
-				
-				// Gradients and fill color
-				if (p.FillColor != null)
-				{
-					if (!hardFill.includes(a.Class))
-					{
-						if (typeof p.FillColor === 'object')
-						{
-							if (p.FillColor.cs != null && p.FillColor.cs.length > 1)
-							{
-								cell.style += createStyle(mxConstants.STYLE_FILLCOLOR, p.FillColor.cs[0].c.substring(0, 7));
-								cell.style += createStyle(mxConstants.STYLE_GRADIENTCOLOR, p.FillColor.cs[1].c.substring(0, 7));
-							}
-						}
-						else if (typeof p.FillColor === 'string')
-						{
-							cell.style += createStyle(mxConstants.STYLE_FILLCOLOR, p.FillColor.substring(0, 7), '#FFFFFF');
-						}
-						else
-						{
-							cell.style += createStyle(mxConstants.STYLE_FILLCOLOR, 'none');
-						}
-					}
-				}
-
 				// Edge style
 				if (cell.edge)
 				{
@@ -2948,8 +3074,23 @@
 					
 					if (!hidden.includes(key))
 					{
-					    lookup[obj.id] = createVertex(obj);
-						queue.push(obj);
+						var created = false;
+						
+						if (styleMap[obj.Class] != null)
+						{
+							if (styleMap[obj.Class] == 'mxCompositeShape')
+							{
+								lookup[obj.id] = addCompositeShape(obj);
+								queue.push(obj);
+								created = true;
+							}
+						}
+						
+						if (!created)
+						{
+						    lookup[obj.id] = createVertex(obj);
+							queue.push(obj);
+						}
 					}
 				}
 			}
@@ -3069,4 +3210,470 @@
 		}
 	};
 
+	function addCompositeShape(obj)
+	{
+		var p = getAction(obj).Properties;
+		var b = p.BoundingBox;
+
+		var w = b.w * scale;
+		var h = b.h * scale;
+		var x = b.x * scale + dx;
+		var y = b.y * scale + dy;
+		
+		v = new mxCell('', new mxGeometry(Math.round(x), Math.round(y), Math.round(w), Math.round(h)), vertexStyle);
+	    v.vertex = true;
+//	    updateCell(v, obj);
+
+		switch (obj.Class)
+		{
+			case 'BraceNoteBlock' :
+				v.style = "strokeColor=none;fillColor=none;"
+					
+				var brace = new mxCell('', new mxGeometry(0, 0,	h * 0.125, h), 'shape=curlyBracket;rounded=1;flipH=1;');
+				brace.vertex = true;
+				v.insert(brace);
+				
+				var label = new mxCell('', new mxGeometry(h * 0.125, 0,	w - h * 0.125, h), 'strokeColor=none;fillColor=none;');
+				label.vertex = true;
+				label.value = convertText(p);
+				v.insert(label);
+				
+				var a = getAction(obj);
+				
+				//zzz
+				break;
+			case 'AdvancedSwimLaneBlock' :
+				break;
+			case 'AdvancedSwimLaneBlockRotated' :
+				break;
+			case 'AndroidDevice' :
+				break;
+			case 'AndroidAlertDialog' :
+				break;
+			case 'AndroidDateDialog' :
+				break;
+			case 'AndroidTimeDialog' :
+				break;
+			case 'AndroidListItems' :
+				break;
+			case 'AndroidTabs' :
+				break;
+			case 'AndroidProgressBar' :
+				break;
+			case 'AndroidImageBlock' :
+				break;
+			case 'AndroidTextBlock' :
+				break;
+			case 'AndroidActionBar' :
+				break;
+			case 'AndroidBrowserBar' :
+				break;
+			case 'AndroidButton' :
+				break;
+			case 'AndroidTextBox' :
+				break;
+			case 'AndroidRadioButton' :
+				break;
+			case 'AndroidCheckBox' :
+				break;
+			case 'AndroidToggle' :
+				break;
+			case 'AndroidSlider' :
+				break;
+			case 'iOSSegmentedControl' :
+				break;
+			case 'iOSSearchBar' :
+				break;
+			case 'iOSNavBar' :
+				break;
+			case 'iOSTabs' :
+				break;
+			case 'iOSDatePicker' :
+				break;
+			case 'iOSTimePicker' :
+				break;
+			case 'iOSCountdownPicker' :
+				break;
+			case 'iOSBasicCell' :
+				break;
+			case 'iOSSubtitleCell' :
+				break;
+			case 'iOSRightDetailCell' :
+				break;
+			case 'iOSLeftDetailCell' :
+				break;
+			case 'iOSTableGroupedSectionBreak' :
+				break;
+			case 'iOSTablePlainHeaderFooter' :
+				break;
+			case 'ERDEntityBlock' :
+				break;
+			case 'ERDEntityBlock2' :
+				break;
+			case 'ERDEntityBlock3' :
+				break;
+			case 'ERDEntityBlock4' :
+				break;
+			case 'SMPage' :
+				break;
+			case 'SMHome' :
+				break;
+			case 'SMGallery' :
+				break;
+			case 'SMShopping' :
+				break;
+			case 'SMMap' :
+				break;
+			case 'SMAthletics' :
+				break;
+			case 'SMLogin' :
+				break;
+			case 'SMPrint' :
+				break;
+			case 'SMScript' :
+				break;
+			case 'SMSearch' :
+				break;
+			case 'SMSettings' :
+				break;
+			case 'SMSitemap' :
+				break;
+			case 'SMSuccess' :
+				break;
+			case 'SMVideo' :
+				break;
+			case 'SMAudio' :
+				break;
+			case 'SMBlog' :
+				break;
+			case 'SMCalendar' :
+				break;
+			case 'SMChart' :
+				break;
+			case 'SMCloud' :
+				break;
+			case 'SMDocument' :
+				break;
+			case 'SMDownload' :
+				break;
+			case 'SMError' :
+				break;
+			case 'SMForm' :
+				break;
+			case 'SMGame' :
+				break;
+			case 'SMJobs' :
+				break;
+			case 'SMLucid' :
+				break;
+			case 'SMNewspress' :
+				break;
+			case 'SMPhoto' :
+				break;
+			case 'SMPortfolio' :
+				break;
+			case 'SMPricing' :
+				break;
+			case 'SMProfile' :
+				break;
+			case 'SMSlideshow' :
+				break;
+			case 'SMUpload' :
+				break;
+			case 'UMLMultiLanePoolBlock' :
+				break;
+			case 'UMLMultiLanePoolRotatedBlock' :
+				break;
+			case 'UMLMultidimensionalSwimlane' :
+				break;
+			case 'UMLComponentBoxBlock' :
+				break;
+			case 'BPMNActivity' :
+				break;
+			case 'BPMNActivity' :
+				break;
+			case 'BPMNEvent' :
+				break;
+			case 'BPMNChoreography' :
+				break;
+			case 'BPMNConversation' :
+				break;
+			case 'BPMNGateway' :
+				break;
+			case 'BPMNData' :
+				break;
+			case 'BPMNDataStore' :
+				break;
+			case 'BPMNAdvancedPoolBlock' :
+				break;
+			case 'BPMNAdvancedPoolBlockRotated' :
+				break;
+			case 'BPMNBlackPool' :
+				break;
+			case 'DefaultTableBlock' :
+				break;
+			case 'VSMDatacellBlock' :
+				break;
+			case 'VSMSupermarketBlock' :
+				break;
+			case 'VSMSafetyBufferStockBlock' :
+				break;
+			case 'VSMTimelineBlock' :
+				break;
+			case 'VSMElectronicInformationArrow' :
+				break;
+			case 'AWSRoundedRectangleContainerBlock2' :
+				break;
+			case 'NET_RingNetwork' :
+				break;
+			case 'NET_Ethernet' :
+				break;
+			case 'EE_OpAmp' :
+				break;
+			case 'EE_ControlledAmp' :
+				break;
+			case 'EE_Multiplexer' :
+				break;
+			case 'EE_Demultiplexer' :
+				break;
+			case 'EE_Capacitor1' :
+				break;
+			case 'EE_Capacitor2' :
+				break;
+			case 'EE_Diode' :
+				break;
+			case 'EE_Resistor' :
+				break;
+			case 'EE_Potentiometer' :
+				break;
+			case 'EE_Inductor' :
+				break;
+			case 'EE_Variable Inductor' :
+				break;
+			case 'EE_Motor' :
+				break;
+			case 'EE_IntegratedCircuit' :
+				break;
+			case 'EE_AcSource' :
+				break;
+			case 'EE_VoltageSource' :
+				break;
+			case 'EE_CurrentSource' :
+				break;
+			case 'EE_ControlledCurrentSource' :
+				break;
+			case 'EE_ControlledVoltageSource' :
+				break;
+			case 'EIMessageBlock' :
+				break;
+			case 'EIMessageEndpointBlock' :
+				break;
+			case 'EICommandMessageBlock' :
+				break;
+			case 'EIDocumentMessageBlock' :
+				break;
+			case 'EIEventMessageBlock' :
+				break;
+			case 'EIMessageBrokerBlock' :
+				break;
+			case 'EIMessageHistoryBlock' :
+				break;
+			case 'Equation' :
+				break;
+			case 'fpDoor' :
+				break;
+			case 'fpDoubleDoor' :
+				break;
+			case 'fpStairsCurved' :
+				break;
+			case 'fpStairsCurvedWide' :
+				break;
+			case 'fpRestroomLights' :
+				break;
+			case 'fpRestroomSinks' :
+				break;
+			case 'PEOneToMany' :
+				break;
+			case 'PEMultilines' :
+				break;
+			case 'PEVesselBlock' :
+				break;
+			case 'PEOpenTankBlock' :
+				break;
+			case 'PEClosedTankBlock' :
+				break;
+			case 'PEColumnBlock' :
+				break;
+			case 'PECompressorTurbineBlock' :
+				break;
+			case 'PEFanBlades2Block' :
+				break;
+			case 'PECentrifugalPumpBlock' :
+				break;
+			case 'PEIndicatorBlock' :
+				break;
+			case 'PEIndicator2Block' :
+				break;
+			case 'PESharedIndicatorBlock' :
+				break;
+			case 'PESharedIndicator2Block' :
+				break;
+			case 'PEProgrammableIndicatorBlock' :
+				break;
+			case 'PEGateValveBlock' :
+				break;
+			case 'PEGlobeValveBlock' :
+				break;
+			case 'PEControlValveBlock' :
+				break;
+			case 'PEAngleGlobeValveBlock' :
+				break;
+			case 'PEPoweredValveBlock' :
+				break;
+			case 'iOS7DeviceiPhone5Portrait' :
+				break;
+			case 'iOS7DeviceiPhone5Landscape' :
+				break;
+			case 'iOS7DeviceiPadPortrait' :
+				break;
+			case 'iOS7DeviceiPadLandscape' :
+				break;
+			case 'iOS7DeviceiPhone6Portrait' :
+				break;
+			case 'iOS7DeviceiPhone6Landscape' :
+				break;
+			case 'iOS7DeviceiPhone6PlusPortrait' :
+				break;
+			case 'iOS7DeviceiPhone6PlusLandscape' :
+				break;
+			case 'iOS7TabsiPhone' :
+				break;
+			case 'iOS7iPhoneActionSheet' :
+				break;
+			case 'iOS7TableView' :
+				break;
+			case 'iOS7NavBariPad' :
+				break;
+			case 'iOS7TabsiPad' :
+				break;
+			case 'iOS7iPadActionSheet' :
+				break;
+			case 'iOS7AlertDialog' :
+				break;
+			case 'iOS7ProgressBar' :
+				break;
+			case 'iOS7Slider' :
+				break;
+			case 'iOS7SegmentedControl' :
+				break;
+			case 'iOS7Toggle' :
+				break;
+			case 'iOS7PageControls' :
+				break;
+			case 'iOS7DatePicker' :
+				break;
+			case 'iOS7TimePicker' :
+				break;
+			case 'iOS7CountdownPicker' :
+				break;
+			case 'UI2BrowserBlock' :
+				break;
+			case 'UI2DialogBlock' :
+				break;
+			case 'UI2AccordionBlock' :
+				break;
+			case 'UI2TabBarContainerBlock' :
+				break;
+			case 'UI2TabBar2ContainerBlock' :
+				break;
+			case 'UI2VTabBarContainerBlock' :
+				break;
+			case 'UI2CheckBoxBlock' :
+				break;
+			case 'UI2HorizontalCheckBoxBlock' :
+				break;
+			case 'UI2RadioBlock' :
+				break;
+			case 'UI2HorizontalRadioBlock' :
+				break;
+			case 'UI2TableBlock' :
+				break;
+			case 'UI2ButtonBarBlock' :
+				break;
+			case 'UI2VerticalButtonBarBlock' :
+				break;
+			case 'UI2LinkBarBlock' :
+				break;
+			case 'UI2BreadCrumbsBlock' :
+				break;
+			case 'UI2MenuBarBlock' :
+				break;
+			case 'UI2ContextMenuBlock' :
+				break;
+			case 'UI2TreePaneBlock' :
+				break;
+			case 'UI2BraceNoteBlock' :
+				break;
+			case 'UI2TooltipBlock' :
+				break;
+			case 'UI2AlertBlock' :
+				break;
+			case 'Image_ipad_alert_dialog' :
+				break;
+			case 'Image_ipad_dialog' :
+				break;
+			case 'Image_ipad_table' :
+				break;
+			case 'Image_ipad_vtab' :
+				break;
+			case 'Image_ipad_large_tabbed_button' :
+				break;
+			case 'Image_ipad_sort_button' :
+				break;
+			case 'Image_ipad_tab_bar' :
+				break;
+			case 'Image_ipad_check_off' :
+				break;
+			case 'Image_ipad_radio_off' :
+				break;
+			case 'Image_ipad_checkbox_off' :
+				break;
+			case 'Image_iphone_table' :
+				break;
+			case 'Image_iphone_table_w_buttons' :
+				break;
+			case 'Image_iphone_table_w_icons' :
+				break;
+			case 'Image_iphone_list' :
+				break;
+			case 'Image_iphone_gray_grad_list' :
+				break;
+			case 'Image_iphone_alert_dialog' :
+				break;
+			case 'Image_iphone_dialog' :
+				break;
+			case 'Image_iphone_scroll_pane' :
+				break;
+			case 'Image_iphone_switch_off' :
+				break;
+			case 'Image_iphone_large_tabbed_button' :
+				break;
+			case 'Image_iphone_sort_button' :
+				break;
+			case 'Image_iphone_tab_bar' :
+				break;
+			case 'Image_iphone_picker_multi' :
+				break;
+			case 'Image_iphone_picker_web' :
+				break;
+			case 'Image_iphone_check_off' :
+				break;
+			case 'Image_iphone_radio_off' :
+				break;
+			case 'Image_iphone_checkbox_off' :
+				break;
+		}
+
+	    return v;
+	};
 })();

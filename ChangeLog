@@ -1,3 +1,9 @@
+31-AUG-2017: 7.3.3
+
+- Removes footer in Chrome App
+- Improvements for Lucidchart import 
+- Fixes timing issue in number plugin
+
 31-AUG-2017: 7.3.2
 
 - Fixes special cases for line jumps
