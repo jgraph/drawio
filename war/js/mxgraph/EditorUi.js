@@ -2622,7 +2622,6 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('rotation').setEnabled(vertexSelected);
 	this.actions.get('wordWrap').setEnabled(vertexSelected);
 	this.actions.get('autosize').setEnabled(vertexSelected);
-	this.actions.get('collapsible').setEnabled(vertexSelected);
    	var oneVertexSelected = vertexSelected && graph.getSelectionCount() == 1;
 	this.actions.get('group').setEnabled(graph.getSelectionCount() > 1 ||
 		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell())));
@@ -2635,7 +2634,7 @@ EditorUi.prototype.updateActionStates = function()
 	// Updates menu states
    	var state = graph.view.getState(graph.getSelectionCell());
     this.menus.get('navigation').setEnabled(selected || graph.view.currentRoot != null);
-    this.actions.get('collapsible').setEnabled(vertexSelected && graph.getSelectionCount() == 1 &&
+    this.actions.get('collapsible').setEnabled(vertexSelected &&
     	(graph.isContainer(graph.getSelectionCell()) || graph.model.getChildCount(graph.getSelectionCell()) > 0));
     this.actions.get('home').setEnabled(graph.view.currentRoot != null);
     this.actions.get('exitGroup').setEnabled(graph.view.currentRoot != null);

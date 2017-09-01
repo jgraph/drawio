@@ -2177,8 +2177,10 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				{
 					// Adds parent offset to other nodes
 					var tmpState = graph.view.getState(targetParent);
-					var offset = new mxPoint((tmpState.x / graph.view.scale - graph.view.translate.x),
-							(tmpState.y / graph.view.scale - graph.view.translate.y));
+					var offset = (tmpState.cell != graph.view.currentRoot) ?
+						new mxPoint((tmpState.x / graph.view.scale - graph.view.translate.x),
+						(tmpState.y / graph.view.scale - graph.view.translate.y)) : new mxPoint(0, 0);
+
 					graph.cellsMoved(targets, offset.x, offset.y, null, null, true);
 				}
 			}
@@ -2595,9 +2597,10 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 				var dx = view.translate.x * view.scale;
 				var dy = view.translate.y * view.scale;
 				
-				if (geo2 != null && !geo2.relative && graph.model.isVertex(parent))
+				if (geo2 != null && !geo2.relative && graph.model.isVertex(parent) && parent != view.currentRoot)
 				{
 					var pState = view.getState(parent);
+					
 					dx = pState.x;
 					dy = pState.y;
 				}

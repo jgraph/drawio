@@ -105,7 +105,25 @@ EditorUi.prototype.addTrees = function()
 			var state = graph.view.getState(parent);
 			var style = (pstate != null) ? pstate.style : graph.getCellStyle(parent);
 
-			return style['containerType'] == 'tree';
+			result = style['containerType'] == 'tree';
+		}
+		
+		return result;
+	};
+
+	function hasLayoutParent(cell)
+	{
+		var result = false;
+		
+		if (cell != null)
+		{
+			var parent = model.getParent(cell);
+			var pstate = graph.view.getState(parent);
+			
+			var state = graph.view.getState(parent);
+			var style = (pstate != null) ? pstate.style : graph.getCellStyle(parent);
+			
+			result = style['childLayout'] != null;
 		}
 		
 		return result;
@@ -1076,7 +1094,7 @@ EditorUi.prototype.addTrees = function()
 //				target = model.getTerminal(target, false);
 //			}
 			
-			if (isTreeVertex(target))
+			if (isTreeVertex(target) && !hasLayoutParent(target))
 			{
 				// Gets the subtree from cell downwards
 				graph.traverse(target, true, function(vertex, edge)
@@ -1196,8 +1214,8 @@ EditorUi.prototype.addTrees = function()
 			
 			// Ignores everything but vertices
 			if ((graph.isMouseDown && !mxEvent.isTouchEvent(me.getEvent())) ||
-				graph.isEditing() || (tmp != null &&
-				(!graph.getModel().isVertex(tmp.cell) || !isTreeVertex(me.getCell()))))
+				graph.isEditing() || (tmp != null && (!graph.getModel().isVertex(tmp.cell) ||
+				!isTreeVertex(me.getCell()) || hasLayoutParent(tmp.cell))))
 			{
 				tmp = null;
 			}
@@ -1206,14 +1224,14 @@ EditorUi.prototype.addTrees = function()
 	      	{
 		        	if (this.currentState != null)
 		        	{
-		          		this.dragLeave(me.getEvent(), this.currentState);
+		          	this.dragLeave(me.getEvent(), this.currentState);
 		        	}
 		        
 	        		this.currentState = tmp;
 		        
 		        	if (this.currentState != null)
 		        	{
-		          		this.dragEnter(me.getEvent(), this.currentState);
+		          	this.dragEnter(me.getEvent(), this.currentState);
 		        	}
 	      	}
 	    },

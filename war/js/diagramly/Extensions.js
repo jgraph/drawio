@@ -160,12 +160,12 @@
 			'SummingJunctionBlock': s + 'flowchart.or',
 			'DisplayBlock': 'shape=display',
 			'OffPageLinkBlock': 'shape=offPageConnector',
-//			'BraceNoteBlock': 'shape=curlyBracket', //TODO
-			'BraceNoteBlock': cs, //TODO
+			'BraceNoteBlock': cs,
 			'NoteBlock': s + 'flowchart.annotation_1',
 //Containers
-			'AdvancedSwimLaneBlock': 'swimlane', //TODO
-			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //TODO
+			'AdvancedSwimLaneBlock': cs,
+			'AdvancedSwimLaneBlockRotated': cs, //TODO
+//			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //TODO
 			'RectangleContainerBlock': 'fillColor=none;container=1',
 			'DiamondContainerBlock':  'shape=rhombus;fillColor=none;container=1',
 			'RoundedRectangleContainerBlock': 'fillColor=none;container=1;rounded=1;absoluteArcSize=1;arcSize=24',
@@ -193,7 +193,7 @@
 //Misc
 			'UI2HotspotBlock' : 'opacity=50;strokeColor=none',
 //Android Devices
-			'AndroidDevice' : cs, //TODO
+			'AndroidDevice' : cs,
 //Android Dialogs
 			'AndroidAlertDialog' : cs, //TODO
 			'AndroidDateDialog' : cs, //TODO
@@ -2172,6 +2172,10 @@
 				text = props.Note;
 			}
 		}
+		else if (props.t != null)
+		{
+			text = props;
+		}
 
 		if (text == null && props.TextAreas != null)
 		{
@@ -2242,6 +2246,10 @@
 					}
 				}
 			}
+		}
+		else if (properties.m != null)
+		{
+			return properties.m;
 		}
 
 		return null;
@@ -3212,7 +3220,8 @@
 
 	function addCompositeShape(obj)
 	{
-		var p = getAction(obj).Properties;
+		var a = getAction(obj);
+		var p = a.Properties;
 		var b = p.BoundingBox;
 
 		var w = b.w * scale;
@@ -3222,31 +3231,178 @@
 		
 		v = new mxCell('', new mxGeometry(Math.round(x), Math.round(y), Math.round(w), Math.round(h)), vertexStyle);
 	    v.vertex = true;
-//	    updateCell(v, obj);
 
 		switch (obj.Class)
 		{
 			case 'BraceNoteBlock' :
+				
+				var isRightBrace = false;
+				
+				if (p.BraceDirection != null)
+				{
+					if (p.BraceDirection == 'Right')
+					{
+						isRightBrace = true;
+					}				
+				}
+				
+				var brace = null;
+				var label = null;
+				
+				if (isRightBrace)
+				{
+					brace = new mxCell('', new mxGeometry(w - h * 0.125, 0,	h * 0.125, h), 'shape=curlyBracket;rounded=1;');
+					label = new mxCell('', new mxGeometry(0, 0,	w - h * 0.125, h), 'strokeColor=none;fillColor=none;');
+				}
+				else
+				{
+					brace = new mxCell('', new mxGeometry(0, 0,	h * 0.125, h), 'shape=curlyBracket;rounded=1;flipH=1;');
+					label = new mxCell('', new mxGeometry(h * 0.125, 0,	w - h * 0.125, h), 'strokeColor=none;fillColor=none;');
+				}
+				
 				v.style = "strokeColor=none;fillColor=none;"
+				v.style += 	getRotation(p, a, v); 
 					
-				var brace = new mxCell('', new mxGeometry(0, 0,	h * 0.125, h), 'shape=curlyBracket;rounded=1;flipH=1;');
 				brace.vertex = true;
 				v.insert(brace);
-				
-				var label = new mxCell('', new mxGeometry(h * 0.125, 0,	w - h * 0.125, h), 'strokeColor=none;fillColor=none;');
+
+				brace.style += 	getStrokeColor(p, a) + 
+								getOpacity(p, a) + 
+								getShadow(p) +
+								getStrokeStyle(p) + 
+								getStrokeWidth(p); 
+
+
 				label.vertex = true;
 				label.value = convertText(p);
 				v.insert(label);
 				
-				var a = getAction(obj);
+				label.style += 	getFontSize(p) +
+								getFontColor(p) + 
+								getFontStyle(p) +
+								getTextAlignment(p, label) + 
+								getTextLeftSpacing(p) +
+								getTextRightSpacing(p) + 
+								getTextTopSpacing(p) +
+								getTextBottomSpacing(p) + 
+								getTextGlobalSpacing(p) +
+								getTextVerticalAlignment(p); 
+				break;
 				
-				//zzz
-				break;
-			case 'AdvancedSwimLaneBlock' :
-				break;
 			case 'AdvancedSwimLaneBlockRotated' :
+			case 'AdvancedSwimLaneBlock' :
+				var lanesNum = 0;
+				
+				if (p.Lanes != null)
+				{
+					lanesNum = p.Lanes.length;
+				}
+
+				v.style = "strokeColor=none;fillColor=none;"
+				var totalOffset = 0; //relative
+				var lane = new Array();
+				
+				for (var i = 0; i < lanesNum; i++)
+				{
+					var currOffset = parseFloat(p.Lanes[i].p);
+					
+					lane.push(new mxCell('', new mxGeometry(w * totalOffset, 0,	w * currOffset, h), 'shape=swimlane;startSize=25;'));
+					
+					lane[i].vertex = true;
+					v.insert(lane[i]);
+					lane[i].value = convertText(p["Lane_" + i]);
+					lane[i].style += 	getFontSize(p["Lane_" + i]) +
+									getFontColor(p["Lane_" + i]) + 
+									getFontStyle(p["Lane_" + i]) +
+									getTextAlignment(p["Lane_" + i], lane[i]) + 
+									getTextLeftSpacing(p["Lane_" + i]) +
+									getTextRightSpacing(p["Lane_" + i]) + 
+									getTextTopSpacing(p["Lane_" + i]) +
+									getTextBottomSpacing(p["Lane_" + i]) + 
+									getTextGlobalSpacing(p["Lane_" + i]) +
+									getTextVerticalAlignment(p["Lane_" + i]) + 
+									getStrokeColor(p, a) + 
+									getOpacity(p, a) + 
+									getRounded(p, a) +
+									getRotation(p, a, lane[i]) + 
+									getFlipH(p) + 
+									getFlipV(p) +
+									getShadow(p) +
+									getFillColor(p, a)  +
+									getStrokeStyle(p) + 
+									getStrokeWidth(p); 
+
+					totalOffset += currOffset;
+				}
+				
+				break;
+				
 				break;
 			case 'AndroidDevice' :
+				if (p.AndroidDeviceName != null)
+				{
+					
+					v.style = "fillColor=#000000;strokeColor=#000000;";
+					var background = null;
+					var keyboard = null;
+					var statusBar = null;
+					
+					if (p.AndroidDeviceName == 'Tablet' || p.AndroidDeviceName == 'Mini Tablet')
+					{
+						v.style += "shape=mxgraph.android.tab2;"
+						background = new mxCell('', new mxGeometry(w * 0.112, h * 0.077, w * 0.77, h * 0.85), '');
+						
+						if (p.KeyboardShown)
+						{
+							keyboard = new mxCell('', new mxGeometry(w * 0.112, h * 0.727, w * 0.77, h * 0.2), 'shape=mxgraph.android.keyboard;');
+						}
+
+						if (!p.FullScreen)
+						{
+							statusBar = new mxCell('', new mxGeometry(w * 0.112, h * 0.077, w * 0.77, h * 0.03), 'shape=mxgraph.android.statusBar;strokeColor=#33b5e5;fillColor=#000000;fontColor=#33b5e5;fontSize=' + h * 0.015 + ';');
+						}
+					}
+					else if (p.AndroidDeviceName == 'Large Phone' || p.AndroidDeviceName == 'Phone')
+					{
+						v.style += "shape=mxgraph.android.phone2;"
+						background = new mxCell('', new mxGeometry(w * 0.04, h * 0.092, w * 0.92, h * 0.816), '');
+						
+						if (p.KeyboardShown)
+						{
+							keyboard = new mxCell('', new mxGeometry(w * 0.04, h * 0.708, w * 0.92, h * 0.2), 'shape=mxgraph.android.keyboard;');
+						}
+						
+						if (!p.FullScreen)
+						{
+							statusBar = new mxCell('', new mxGeometry(w * 0.04, h * 0.092, w * 0.92, h * 0.03), 'shape=mxgraph.android.statusBar;strokeColor=#33b5e5;fillColor=#000000;fontColor=#33b5e5;fontSize=' + h * 0.015 + ';');
+						}
+					}
+					
+					background.vertex = true;
+					v.insert(background);
+					
+					if (p.Scheme == "Dark")
+					{
+						background.style += "fillColor=#111111;"
+					}
+					else if (p.Scheme == "Light")
+					{
+						background.style += "fillColor=#ffffff;"
+					}
+					
+					if (keyboard != null)
+					{
+						keyboard.vertex = true;
+						v.insert(keyboard);
+					}
+
+					if (statusBar != null)
+					{
+						statusBar.vertex = true;
+						v.insert(statusBar);
+					}
+				}
+				
 				break;
 			case 'AndroidAlertDialog' :
 				break;
