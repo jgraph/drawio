@@ -1,3 +1,9 @@
+01-SEP-2017: 7.3.5
+
+- Improvements for Lucidchart import
+- Hides move icon in tree and flow layouts
+- Fixes collapsible action for multiple selection cells
+
 31-AUG-2017: 7.3.4
 
 - Adds event handling for tree and flow layouts
@@ -5,7 +11,7 @@
 31-AUG-2017: 7.3.3
 
 - Removes footer in Chrome App
-- Improvements for Lucidchart import 
+- Improvements for Lucidchart import
 - Fixes timing issue in number plugin
 
 31-AUG-2017: 7.3.2
