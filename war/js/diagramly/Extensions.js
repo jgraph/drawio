@@ -268,12 +268,12 @@
 			'iOSDatePicker' : cs,
 			'iOSTimePicker' : cs,
 			'iOSCountdownPicker' : cs,
-			'iOSBasicCell' : cs, //TODO
-			'iOSSubtitleCell' : cs, //TODO
-			'iOSRightDetailCell' : cs, //TODO
-			'iOSLeftDetailCell' : cs, //TODO
-			'iOSTableGroupedSectionBreak' : cs, //TODO
-			'iOSTablePlainHeaderFooter' : cs, //TODO
+			'iOSBasicCell' : cs,
+			'iOSSubtitleCell' : cs,
+			'iOSRightDetailCell' : cs,
+			'iOSLeftDetailCell' : cs,
+			'iOSTableGroupedSectionBreak' : cs,
+			'iOSTablePlainHeaderFooter' : cs,
 //Mind Map
 			'MindMapBlock' : '',
 			'MindMapStadiumBlock' : 'arcSize=50',
@@ -291,39 +291,39 @@
 			'ERDEntityBlock3' : cs, //TODO
 			'ERDEntityBlock4' : cs, //TODO
 //Site Maps
-			'SMPage'  : cs, //TODO
-			'SMHome'  : cs, //TODO
-			'SMGallery'  : cs, //TODO
-			'SMShopping'  : cs, //TODO
-			'SMMap'  : cs, //TODO
-			'SMAthletics'  : cs, //TODO
-			'SMLogin'  : cs, //TODO
-			'SMPrint'  : cs, //TODO
-			'SMScript'  : cs, //TODO
-			'SMSearch'  : cs, //TODO
-			'SMSettings'  : cs, //TODO
-			'SMSitemap'  : cs, //TODO
-			'SMSuccess'  : cs, //TODO
-			'SMVideo'  : cs, //TODO
-			'SMAudio'  : cs, //TODO
-			'SMBlog'  : cs, //TODO
-			'SMCalendar'  : cs, //TODO
-			'SMChart'  : cs, //TODO
-			'SMCloud'  : cs, //TODO
-			'SMDocument'  : cs, //TODO
-			'SMDownload'  : cs, //TODO
-			'SMError'  : cs, //TODO
-			'SMForm'  : cs, //TODO
-			'SMGame'  : cs, //TODO
-			'SMJobs'  : cs, //TODO
-			'SMLucid'  : cs, //TODO
-			'SMNewspress'  : cs, //TODO
-			'SMPhoto'  : cs, //TODO
-			'SMPortfolio'  : cs, //TODO
-			'SMPricing'  : cs, //TODO
-			'SMProfile'  : cs, //TODO
-			'SMSlideshow'  : cs, //TODO
-			'SMUpload'  : cs, //TODO
+			'SMPage'  : cs,
+			'SMHome'  : cs,
+//			'SMGallery' NA
+//			'SMShopping' NA
+//			'SMMap' NA
+//			'SMAthletics' NA
+//			'SMLogin' NA
+			'SMPrint'  : cs,
+//			'SMScript'  NA
+			'SMSearch'  : cs,
+			'SMSettings'  : cs,
+			'SMSitemap'  : cs,
+			'SMSuccess'  : cs,
+			'SMVideo'  : cs,
+			'SMAudio'  : cs,
+//			'SMBlog' NA
+			'SMCalendar'  : cs,
+			'SMChart'  : cs,
+			'SMCloud'  : cs,
+			'SMDocument'  : cs,
+//			'SMDownload' NA
+//			'SMError' NA
+			'SMForm'  : cs,
+			'SMGame'  : cs,
+//			'SMJobs' NA
+//			'SMLucid' NA
+//			'SMNewspress' NA
+//			'SMPhoto' NA
+//			'SMPortfolio' NA
+//			'SMPricing' NA
+//			'SMProfile' NA
+//			'SMSlideshow' NA
+			'SMUpload'  : cs,
 //UML Class Diagram
 			'UMLClassBlock': '',
 			'UMLActiveClassBlock': 'shape=process',
@@ -4650,70 +4650,148 @@
 			case 'ERDEntityBlock4' :
 				break;
 			case 'SMPage' :
+				if (p.Group)
+				{
+					v.style += 'strokeColor=none;fillColor=none;'
+						
+					var item1 = new mxCell('', new mxGeometry(0, 0, w * 0.9, h * 0.9), 'part=1;');
+					item1.vertex = true;
+					v.insert(item1);
+					
+					item1.style += 	getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getOpacity(p, a) + 
+						getShadow(p) +
+						getStrokeWidth(p); 
+
+					var item2 = new mxCell('', new mxGeometry(w * 0.1, h * 0.1, w * 0.9, h * 0.9), 'part=1;');
+					item2.vertex = true;
+					v.insert(item2);
+					
+					item2.style += 	getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getOpacity(p, a) + 
+						getShadow(p) +
+						getStrokeWidth(p) +
+						getLabelStyle(p);
+					
+					item2.value = convertText(p.Text);
+					
+					if (p.Future)
+					{
+						item1.style += 'dashed=1;';
+						item2.style += 'dashed=1;';
+					}
+				}
+				else
+				{
+					if (p.Future)
+					{
+						v.style += 'dashed=1;';
+					}
+					
+					v.style += 	getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getOpacity(p, a) + 
+						getShadow(p) +
+						getStrokeWidth(p) + 
+						getLabelStyle(p);
+				
+					v.value = convertText(p.Text);
+				}
+				
 				break;
+				
 			case 'SMHome' :
-				break;
-			case 'SMGallery' :
-				break;
-			case 'SMShopping' :
-				break;
-			case 'SMMap' :
-				break;
-			case 'SMAthletics' :
-				break;
-			case 'SMLogin' :
-				break;
 			case 'SMPrint' :
-				break;
-			case 'SMScript' :
-				break;
 			case 'SMSearch' :
-				break;
 			case 'SMSettings' :
-				break;
 			case 'SMSitemap' :
-				break;
 			case 'SMSuccess' :
-				break;
 			case 'SMVideo' :
-				break;
 			case 'SMAudio' :
-				break;
-			case 'SMBlog' :
-				break;
 			case 'SMCalendar' :
-				break;
 			case 'SMChart' :
-				break;
 			case 'SMCloud' :
-				break;
 			case 'SMDocument' :
-				break;
-			case 'SMDownload' :
-				break;
-			case 'SMError' :
-				break;
 			case 'SMForm' :
-				break;
 			case 'SMGame' :
-				break;
-			case 'SMJobs' :
-				break;
-			case 'SMLucid' :
-				break;
-			case 'SMNewspress' :
-				break;
-			case 'SMPhoto' :
-				break;
-			case 'SMPortfolio' :
-				break;
-			case 'SMPricing' :
-				break;
-			case 'SMProfile' :
-				break;
-			case 'SMSlideshow' :
-				break;
 			case 'SMUpload' :
+				
+				v.style += 	getStrokeColor(p, a) + 
+				getFillColor(p, a) +
+				getOpacity(p, a) + 
+				getShadow(p) +
+				getStrokeWidth(p);
+
+				var item1 = null;
+				
+				switch (obj.Class)
+				{
+					case 'SMHome' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.1, h * 0.8, h * 0.8), 'part=1;shape=mxgraph.office.concepts.home;flipH=1;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMPrint' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.19, h * 0.8, h * 0.62), 'part=1;shape=mxgraph.office.devices.printer;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMSearch' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.1, h * 0.8, h * 0.8), 'part=1;shape=mxgraph.office.concepts.search;flipH=1;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMSettings' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.35, h * 0.15, h * 0.7, h * 0.7), 'part=1;shape=mxgraph.mscae.enterprise.settings;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMSitemap' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.35, h * 0.2, h * 0.7, h * 0.6), 'part=1;shape=mxgraph.office.sites.site_collection;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMSuccess' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.3, h * 0.25, h * 0.6, h * 0.5), 'part=1;shape=mxgraph.mscae.general.checkmark;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMVideo' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.2, h * 0.8, h * 0.6), 'part=1;shape=mxgraph.office.concepts.video_play;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMAudio' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.3, h * 0.2, h * 0.6, h * 0.6), 'part=1;shape=mxgraph.mscae.general.audio;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMCalendar' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.15, h * 0.8, h * 0.7), 'part=1;shape=mxgraph.office.concepts.form;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMChart' :
+						var fc = getFillColor(p, a);
+						
+						if (fc == '')
+						{
+							fc = '#ffffff;'
+						}
+						else
+						{
+							fc = fc.replace('fillColor=', '');
+						}
+						
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.35, h * 0.15, h * 0.7, h * 0.7), 'part=1;shape=mxgraph.ios7.icons.pie_chart;fillColor=#e6e6e6;fillOpacity=50;strokeWidth=4;strokeColor=' + fc);
+						break;
+					case 'SMCloud' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.27, h * 0.8, h * 0.46), 'part=1;shape=mxgraph.networks.cloud;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMDocument' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.25, h * 0.15, h * 0.5, h * 0.7), 'part=1;shape=mxgraph.mscae.enterprise.document;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMForm' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.15, h * 0.8, h * 0.7), 'part=1;shape=mxgraph.office.concepts.form;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMGame' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.2, h * 0.8, h * 0.6), 'part=1;shape=mxgraph.mscae.general.game_controller;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+					case 'SMUpload' :
+						item1 = new mxCell('', new mxGeometry(w * 0.5 - h * 0.4, h * 0.2, h * 0.8, h * 0.6), 'part=1;shape=mxgraph.mscae.enterprise.backup_online;fillColor=#e6e6e6;opacity=50;strokeColor=none;');
+						break;
+				}
+					
+				item1.vertex = true;
+				v.insert(item1);
+				
+				item1.style += 	getLabelStyle(p);
+				item1.value = convertText(p.Text);
+				
 				break;
 			case 'UMLMultiLanePoolBlock' :
 				break;

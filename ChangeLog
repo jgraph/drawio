@@ -1,3 +1,8 @@
+08-SEP-2017: 7.3.7
+
+- Uses mxGraph 3.7.6 beta 1
+- Fixes links on shapes in print output
+
 07-SEP-2017: 7.3.6
 
 - Fixes overridden paths for folding icons
