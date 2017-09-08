@@ -404,10 +404,9 @@ public class GliffyDiagramConverter
 				if (!gliffyObject.isVennCircle())
 				{
 					style.append("opacity=" + shape.opacity * 100).append(";");
-					style.append(DashStyleMapping.get(shape.dashStyle));
 				}
 				
-				style.append(DashStyleMapping.get(shape.dashStyle));
+				style.append(DashStyleMapping.get(shape.dashStyle, 1));
 				
 				if(gliffyObject.isSubRoutine()) 
 				{
@@ -420,13 +419,13 @@ public class GliffyDiagramConverter
 				GliffyLine line = graphic.Line;
 				
 				cell.setEdge(true);
-				style.append("shape=filledEdge;fixDash=1;");
+				style.append("shape=filledEdge;");
 				style.append("strokeWidth=" + line.strokeWidth).append(";");
 				style.append("strokeColor=" + line.strokeColor).append(";");
 				style.append("fillColor=" + line.fillColor).append(";");
 				style.append(ArrowMapping.get(line.startArrow).toString(true)).append(";");
 				style.append(ArrowMapping.get(line.endArrow).toString(false)).append(";");
-				style.append(DashStyleMapping.get(line.dashStyle));
+				style.append(DashStyleMapping.get(line.dashStyle, line.strokeWidth));
 				style.append(LineMapping.get(line.interpolationType));
 
 				geometry.setX(0);
@@ -548,7 +547,7 @@ public class GliffyDiagramConverter
 			style.append("strokeWidth=" + mindmap.strokeWidth).append(";");
 			style.append("fillColor=" + mindmap.fillColor).append(";");
 			style.append("strokeColor=" + mindmap.strokeColor).append(";");
-			style.append(DashStyleMapping.get(mindmap.dashStyle));
+			style.append(DashStyleMapping.get(mindmap.dashStyle, 1));
 
 			if (mindmap.gradient)
 			{

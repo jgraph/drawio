@@ -259,7 +259,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -394,7 +393,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -551,7 +549,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -950,7 +947,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -1286,7 +1282,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -1308,7 +1303,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -1570,8 +1564,6 @@
         </path>
     </background>
     <foreground>
-        <fillcolor color="none"/>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>
@@ -2020,7 +2012,6 @@
         </path>
     </background>
     <foreground>
-        <strokewidth width="2"/>
         <stroke/>
     </foreground>
 </shape>

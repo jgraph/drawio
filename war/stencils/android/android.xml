@@ -1680,6 +1680,7 @@
         <fillcolor color="#33b5e5"/>
         <roundrect arcsize="11.76" h="17" w="37" x="41" y="1.5"/>
         <fillstroke/>
+        <fontsize size="10"/>
         <fontcolor color="#ffffff"/>
         <text str="ON" valign="middle" align="center" x="58" y="10"/>
     </foreground>

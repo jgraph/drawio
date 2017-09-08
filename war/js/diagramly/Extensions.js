@@ -52,7 +52,8 @@
 		'VennGradientColor7', 
 		'VennGradientColor8', 
 		'UMLEndBlock',
-		'DefaultTextBlockNew'
+		'DefaultTextBlockNew',
+		'iOSButton'
 	];
 	
 	//stencils with hardCoded fill color
@@ -76,7 +77,8 @@
 		'UMLStartBlock', 
 		'UMLEndBlock',
 		'DefaultTextBlockNew',
-		'UMLHForkJoinBlock'
+		'UMLHForkJoinBlock',
+		'iOSButton'
 	];
 
 //	stencils with hardcoded opacity
@@ -195,24 +197,24 @@
 //Android Devices
 			'AndroidDevice' : cs,
 //Android Dialogs
-			'AndroidAlertDialog' : cs, //TODO
-			'AndroidDateDialog' : cs, //TODO
-			'AndroidTimeDialog' : cs, //TODO
+			'AndroidAlertDialog' : cs,
+			'AndroidDateDialog' : cs,
+			'AndroidTimeDialog' : cs,
 //Android Blocks
-			'AndroidListItems' : cs, //TODO
-//			'AndroidTabs' : cs, //TODO
-			'AndroidProgressBar' : cs, //TODO
-			'AndroidImageBlock' : cs, //TODO
-			'AndroidTextBlock' : cs, //TODO
-			'AndroidActionBar' : cs, //TODO
-			'AndroidBrowserBar' : cs, //TODO
+			'AndroidListItems' : cs,
+			'AndroidTabs' : cs,
+			'AndroidProgressBar' : cs,
+			'AndroidImageBlock' : cs,
+			'AndroidTextBlock' : cs,
+			'AndroidActionBar' : cs,
+//			'AndroidBrowserBar' NA
 //Android Inputs
-			'AndroidButton' : cs, //TODO
-			'AndroidTextBox' : cs, //TODO
-			'AndroidRadioButton' : cs, //TODO
-			'AndroidCheckBox' : cs, //TODO
-			'AndroidToggle' : cs, //TODO
-			'AndroidSlider' : cs, //TODO
+			'AndroidButton' : cs,
+			'AndroidTextBox' : cs,
+			'AndroidRadioButton' : cs,
+			'AndroidCheckBox' : cs,
+			'AndroidToggle' : cs,
+			'AndroidSlider' : cs,
 //Android Icons (not working properly, needs specific code)
 			'AndroidIconCheck': s + 'ios7.misc.check',
 //			'AndroidIconBack' NA
@@ -251,21 +253,21 @@
 			'iOSDeviceiPadProPortrait': s + 'ios7.misc.ipad7inch',
 			'iOSDeviceiPadProLandscape': s + 'ios7.misc.ipad10inch',
 //iOS UI components
-			'iOSButton': '',
+			'iOSButton': 'fillColor=none;strokeColor=none;',
 			'iOSSegmentedControl' : cs, //TODO
 			'iOSStepper': s + 'ios7.misc.adjust',
 			'iOSToggle': s + 'ios7ui.onOffButton;buttonState=on;strokeColor2=#aaaaaa;fillColor2=#ffffff',
-			'iOSSlider': s + 'ios7ui.slider;barPos=20;strokeColor2=#a0a0a0',
-			'iOSProgressBar': s + 'ios.iCloudProgressBar;barPos=20',
-			'iOSPageControls': s + 'ios.iCloudProgressBar;barPos=20',
-//			'iOSStatusBar' NA
-			'iOSSearchBar' : cs, //TODO
-			'iOSNavBar' : cs, //TODO
-			'iOSTabs' : cs, //TODO
+			'iOSSlider': cs,
+			'iOSProgressBar': cs,
+			'iOSPageControls': cs,
+			'iOSStatusBar' : cs, 
+			'iOSSearchBar' : cs,
+			'iOSNavBar' : cs,
+			'iOSTabs' : cs,
 			'iOSUniversalKeyboard': s + 'ios.iKeybLett',
-			'iOSDatePicker' : cs, //TODO
-			'iOSTimePicker' : cs, //TODO
-			'iOSCountdownPicker' : cs, //TODO
+			'iOSDatePicker' : cs,
+			'iOSTimePicker' : cs,
+			'iOSCountdownPicker' : cs,
 			'iOSBasicCell' : cs, //TODO
 			'iOSSubtitleCell' : cs, //TODO
 			'iOSRightDetailCell' : cs, //TODO
@@ -2255,6 +2257,22 @@
 		return null;
 	}
 	
+	function getLabelStyle(properties)
+	{
+		var style = getFontSize(properties) +
+				getFontColor(properties) + 
+				getFontStyle(properties) +
+				getTextAlignment(properties) + 
+				getTextLeftSpacing(properties) +
+				getTextRightSpacing(properties) + 
+				getTextTopSpacing(properties) +
+				getTextBottomSpacing(properties) + 
+				getTextGlobalSpacing(properties) +
+				getTextVerticalAlignment(properties);
+		
+		return style;  
+	}
+	
 	function getFontSize(properties)
 	{
 		//adds font size
@@ -2418,7 +2436,7 @@
 		return '';
 	}
 	
-	function getTextAlignment(properties, cell)
+	function getTextAlignment(properties)
 	{
 		var m = getTextM(properties);
 		
@@ -2438,7 +2456,7 @@
 					if (currM.v != null)
 					{
 						isA = true;
-						cell.style += 'align=' + currM.v + ';';
+						return 'align=' + currM.v + ';';
 					}
 				}
 				
@@ -2446,12 +2464,12 @@
 			}
 		}
 		
-		if (!isA)
-		{
-			return createStyle(mxConstants.STYLE_ALIGN, properties.TextAlign, 'center');
-		}
+//		if (!isA)
+//		{
+//			return createStyle(mxConstants.STYLE_ALIGN, properties.TextAlign, 'center');
+//		}
 		
-		return '';
+		return 'align=center;';
 	}
 	
 	function getTextLeftSpacing(properties)
@@ -2461,27 +2479,28 @@
 		if (m != null)
 		{
 			//adds left spacing
-			var isIL = false;
+			var i = 0;
 			
-			if (m != null)
+			while (i < m.length)
 			{
-				var i = 0;
+				var currM = m[i];
 				
-				while ((!isIL) && (i < m.length))
+				if (currM.n == 'il')
 				{
-					var currM = m[i];
-					
-					if (currM.n == 'il')
+					if (currM.v != null)
 					{
-						if (currM.v != null)
-						{
-							isIL = true;
-							return 'spacingLeft=' + currM.v + ';';
-						}
+						return 'spacingLeft=' + currM.v * 0.6 + ';';
 					}
-					
-					i++;
 				}
+				else if (currM.n == 's' && getTextAlignment(properties) != 'align=center;')
+				{
+					if (currM.v != null)
+					{
+						return 'spacingLeft=' + currM.v * 0.6 + ';';
+					}
+				}
+					
+				i++;
 			}
 		}
 		
@@ -3224,12 +3243,12 @@
 		var p = a.Properties;
 		var b = p.BoundingBox;
 
-		var w = b.w * scale;
-		var h = b.h * scale;
-		var x = b.x * scale + dx;
-		var y = b.y * scale + dy;
+		var w = Math.round(b.w * scale);
+		var h = Math.round(b.h * scale);
+		var x = Math.round(b.x * scale + dx);
+		var y = Math.round(b.y * scale + dy);
 		
-		v = new mxCell('', new mxGeometry(Math.round(x), Math.round(y), Math.round(w), Math.round(h)), vertexStyle);
+		v = new mxCell('', new mxGeometry(x, y, w, h), vertexStyle);
 	    v.vertex = true;
 
 		switch (obj.Class)
@@ -3337,7 +3356,6 @@
 				
 				break;
 				
-				break;
 			case 'AndroidDevice' :
 				if (p.AndroidDeviceName != null)
 				{
@@ -3404,64 +3422,1225 @@
 				}
 				
 				break;
+				
 			case 'AndroidAlertDialog' :
+				var dialog = new mxCell('', new mxGeometry(0, 0, w, 30), 'strokeColor=none;fillColor=none;spacingLeft=9;');
+				dialog.vertex = true;
+				v.insert(dialog);
+				var line = new mxCell('', new mxGeometry(0, 25, w, 10), 'shape=line;strokeColor=#33B5E5;');
+				line.vertex = true;
+				v.insert(line);
+				var dialogText = new mxCell('', new mxGeometry(0, 30, w, h - 30), 'strokeColor=none;fillColor=none;verticalAlign=top;');
+				dialogText.vertex = true;
+				v.insert(dialogText);
+				var cancelButton = new mxCell('', new mxGeometry(0, h - 25, w * 0.5, 25), 'fillColor=none;');
+				cancelButton.vertex = true;
+				v.insert(cancelButton);
+				var okButton = new mxCell('', new mxGeometry(w * 0.5, h - 25, w * 0.5, 25), 'fillColor=none;');
+				okButton.vertex = true;
+				v.insert(okButton);
+				dialog.value = convertText(p.DialogTitle);
+				dialog.style += getLabelStyle(p.DialogTitle);
+				dialogText.value = convertText(p.DialogText);
+				dialogText.style += getLabelStyle(p.DialogText);
+				cancelButton.value = convertText(p.Button_0);
+				cancelButton.style += getLabelStyle(p.Button_0);
+				okButton.value = convertText(p.Button_1);
+				okButton.style += getLabelStyle(p.Button_1);
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeColor=#353535;fillColor=#282828;shadow=1;';
+					cancelButton.style += 'strokeColor=#353535;';
+					okButton.style += 'strokeColor=#353535;';
+				}
+				else
+				{
+					v.style += 'strokeColor=none;fillColor=#ffffff;shadow=1;';
+					cancelButton.style += 'strokeColor=#E2E2E2;';
+					okButton.style += 'strokeColor=#E2E2E2;';
+				}
+				
 				break;
+				
 			case 'AndroidDateDialog' :
-				break;
 			case 'AndroidTimeDialog' :
+				var dialog = new mxCell('', new mxGeometry(0, 0, w, 30), 'strokeColor=none;fillColor=none;spacingLeft=9;');
+				dialog.vertex = true;
+				v.insert(dialog);
+				dialog.value = convertText(p.DialogTitle);
+				dialog.style += getLabelStyle(p.DialogTitle);
+				var line = new mxCell('', new mxGeometry(0, 25, w, 10), 'shape=line;strokeColor=#33B5E5;');
+				line.vertex = true;
+				v.insert(line);
+				var cancelButton = new mxCell('', new mxGeometry(0, h - 25, w * 0.5, 25), 'fillColor=none;');
+				cancelButton.vertex = true;
+				v.insert(cancelButton);
+				cancelButton.value = convertText(p.Button_0);
+				cancelButton.style += getLabelStyle(p.Button_0);
+				var okButton = new mxCell('', new mxGeometry(w * 0.5, h - 25, w * 0.5, 25), 'fillColor=none;');
+				okButton.vertex = true;
+				v.insert(okButton);
+				okButton.value = convertText(p.Button_1);
+				okButton.style += getLabelStyle(p.Button_1);
+
+				var triangle1 = new mxCell('', new mxGeometry(w * 0.5 - 4, 41, 8, 4), 'shape=triangle;direction=north;');
+				triangle1.vertex = true;
+				v.insert(triangle1);
+				var triangle2 = new mxCell('', new mxGeometry(w * 0.25 - 4, 41, 8, 4), 'shape=triangle;direction=north;');
+				triangle2.vertex = true;
+				v.insert(triangle2);
+				var triangle3 = new mxCell('', new mxGeometry(w * 0.75 - 4, 41, 8, 4), 'shape=triangle;direction=north;');
+				triangle3.vertex = true;
+				v.insert(triangle3);
+
+				var prevDate1 = new mxCell('', new mxGeometry(w * 0.375, 50, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				prevDate1.vertex = true;
+				v.insert(prevDate1);
+				prevDate1.value = convertText(p.Label_1);
+				prevDate1.style += getLabelStyle(p.Label_1);
+				var prevDate2 = new mxCell('', new mxGeometry(w * 0.125, 50, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				prevDate2.vertex = true;
+				v.insert(prevDate2);
+				prevDate2.value = convertText(p.Label_0);
+				prevDate2.style += getLabelStyle(p.Label_0);
+
+				var prevDate3 = null;
+				
+				if (obj.Class == 'AndroidDateDialog')
+				{
+					prevDate3 = new mxCell('', new mxGeometry(w * 0.625, 50, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+					prevDate3.vertex = true;
+					v.insert(prevDate3);
+					prevDate3.value = convertText(p.Label_2);
+					prevDate3.style += getLabelStyle(p.Label_2);
+				}
+
+				var line1 = new mxCell('', new mxGeometry(w * 0.43, 60, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line1.vertex = true;
+				v.insert(line1);
+				var line2 = new mxCell('', new mxGeometry(w * 0.18, 60, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line2.vertex = true;
+				v.insert(line2);
+				var line3 = new mxCell('', new mxGeometry(w * 0.68, 60, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line3.vertex = true;
+				v.insert(line3);
+
+				var date1 = new mxCell('', new mxGeometry(w * 0.375, 65, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				date1.vertex = true;
+				v.insert(date1);
+				date1.value = convertText(p.Label_4);
+				date1.style += getLabelStyle(p.Label_4);
+				
+				var sep = null;
+				
+				if (obj.Class == 'AndroidTimeDialog')
+				{
+					sep = new mxCell('', new mxGeometry(w * 0.3, 65, w * 0.1, 15), 'strokeColor=none;fillColor=none;');
+					sep.vertex = true;
+					v.insert(sep);
+					sep.value = convertText(p.Label_Colon);
+					sep.style += getLabelStyle(p.Label_Colon);
+				}
+				
+				var date2 = new mxCell('', new mxGeometry(w * 0.125, 65, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				date2.vertex = true;
+				v.insert(date2);
+				date2.value = convertText(p.Label_3);
+				date2.style += getLabelStyle(p.Label_3);
+				var date3 = new mxCell('', new mxGeometry(w * 0.625, 65, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				date3.vertex = true;
+				v.insert(date3);
+				date3.value = convertText(p.Label_5);
+				date3.style += getLabelStyle(p.Label_5);
+
+				var line4 = new mxCell('', new mxGeometry(w * 0.43, 75, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line4.vertex = true;
+				v.insert(line4);
+				var line5 = new mxCell('', new mxGeometry(w * 0.18, 75, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line5.vertex = true;
+				v.insert(line5);
+				var line6 = new mxCell('', new mxGeometry(w * 0.68, 75, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
+				line6.vertex = true;
+				v.insert(line6);
+
+				var nextDate1 = new mxCell('', new mxGeometry(w * 0.375, 80, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				nextDate1.vertex = true;
+				v.insert(nextDate1);
+				nextDate1.value = convertText(p.Label_7);
+				nextDate1.style += getLabelStyle(p.Label_7);
+				var nextDate2 = new mxCell('', new mxGeometry(w * 0.125, 80, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				nextDate2.vertex = true;
+				v.insert(nextDate2);
+				nextDate2.value = convertText(p.Label_6);
+				nextDate2.style += getLabelStyle(p.Label_6);
+				var nextDate3 = new mxCell('', new mxGeometry(w * 0.625, 80, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
+				nextDate3.vertex = true;
+				v.insert(nextDate3);
+				nextDate3.value = convertText(p.Label_8);
+				nextDate3.style += getLabelStyle(p.Label_8);
+				
+				var triangle4 = new mxCell('', new mxGeometry(w * 0.5 - 4, 99, 8, 4), 'shape=triangle;direction=south;');
+				triangle4.vertex = true;
+				v.insert(triangle4);
+				var triangle5 = new mxCell('', new mxGeometry(w * 0.25 - 4, 99, 8, 4), 'shape=triangle;direction=south;');
+				triangle5.vertex = true;
+				v.insert(triangle5);
+				var triangle6 = new mxCell('', new mxGeometry(w * 0.75 - 4, 99, 8, 4), 'shape=triangle;direction=south;');
+				triangle6.vertex = true;
+				v.insert(triangle6);
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeColor=#353535;fillColor=#282828;shadow=1;';
+					cancelButton.style += 'strokeColor=#353535;';
+					okButton.style += 'strokeColor=#353535;';
+					triangle1.style += 'strokeColor=none;fillColor=#7E7E7E;';
+					triangle2.style += 'strokeColor=none;fillColor=#7E7E7E;';
+					triangle3.style += 'strokeColor=none;fillColor=#7E7E7E;';
+					triangle4.style += 'strokeColor=none;fillColor=#7E7E7E;';
+					triangle5.style += 'strokeColor=none;fillColor=#7E7E7E;';
+					triangle6.style += 'strokeColor=none;fillColor=#7E7E7E;';
+				}
+				else
+				{
+					v.style += 'strokeColor=none;fillColor=#ffffff;shadow=1;';
+					cancelButton.style += 'strokeColor=#E2E2E2;';
+					okButton.style += 'strokeColor=#E2E2E2;';
+					triangle1.style += 'strokeColor=none;fillColor=#939393;';
+					triangle2.style += 'strokeColor=none;fillColor=#939393;';
+					triangle3.style += 'strokeColor=none;fillColor=#939393;';
+					triangle4.style += 'strokeColor=none;fillColor=#939393;';
+					triangle5.style += 'strokeColor=none;fillColor=#939393;';
+					triangle6.style += 'strokeColor=none;fillColor=#939393;';
+				}
+				
 				break;
+				
 			case 'AndroidListItems' :
+				var itemFullH = h;
+				var startH = 0;
+				
+				if (p.ShowHeader)
+				{
+					startH = 8;
+					
+					var header = new mxCell('', new mxGeometry(0, 0, w, startH), 'strokeColor=none;fillColor=none;');
+					header.vertex = true;
+					v.insert(header);
+					header.value = convertText(p.Header);
+					header.style += getLabelStyle(p.Header);
+					
+					itemFullH -= startH;
+					
+					var lineH = new mxCell('', new mxGeometry(0, startH - 2, w, 4), 'shape=line;strokeColor=#999999;');
+					lineH.vertex = true;
+					v.insert(lineH);
+
+				}
+				
+				var numItems = parseInt(p.Items);
+				
+				if (numItems > 0)
+				{
+					itemFullH = itemFullH / numItems;
+				}
+				
+				var item = new Array();
+				var line = new Array();
+				
+				for (var i = 0; i < numItems; i++)
+				{
+					item[i] = new mxCell('', new mxGeometry(0, startH + i * itemFullH, w, itemFullH), 'strokeColor=none;fillColor=none;');
+					item[i].vertex = true;
+					v.insert(item[i]);
+					item[i].value = convertText(p["Item_" + i]);
+					item[i].style += getLabelStyle(p["Item_" + i]);
+					
+					if (i > 0)
+					{
+						line[i] = new mxCell('', new mxGeometry(0, startH + i * itemFullH - 2, w, 4), 'shape=line;');
+						line[i].vertex = true;
+						v.insert(line[i]);
+						
+						if (p.Scheme == 'Dark')
+						{
+							line[i].style += 'strokeColor=#ffffff;';
+						}
+						else
+						{
+							line[i].style += 'strokeColor=#D9D9D9;';
+						}
+					}
+				}
+				
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeColor=none;fillColor=#111111;';
+				}
+				else
+				{
+					v.style += 'strokeColor=none;fillColor=#ffffff;';
+				}
+				
 				break;
+				
 			case 'AndroidTabs' :
+				var numTabs = parseInt(p.Tabs);
+				var tabFullW = w;
+				
+				if (numTabs > 0)
+				{
+					tabFullW = tabFullW / numTabs;
+				}
+				
+				var tab = new Array();
+				var line = new Array();
+				
+				for (var i = 0; i < numTabs; i++)
+				{
+					tab[i] = new mxCell('', new mxGeometry(i * tabFullW, 0, tabFullW, h), 'strokeColor=none;fillColor=none;');
+					tab[i].vertex = true;
+					v.insert(tab[i]);
+					tab[i].value = convertText(p["Tab_" + i]);
+					tab[i].style += getLabelStyle(p["Tab_" + i]);
+					
+					if (i > 0)
+					{
+						line[i] = new mxCell('', new mxGeometry(i * tabFullW - 2, h * 0.2, 4, h * 0.6), 'shape=line;direction=north;');
+						line[i].vertex = true;
+						v.insert(line[i]);
+						
+						if (p.Scheme == 'Dark')
+						{
+							line[i].style += 'strokeColor=#484848;';
+						}
+						else
+						{
+							line[i].style += 'strokeColor=#CCCCCC;';
+						}
+					}
+				}
+
+				var selectedMarker = new mxCell('', new mxGeometry(p.Selected * tabFullW + 2, h - 3, tabFullW - 4, 3), 'strokeColor=none;fillColor=#33B5E5;');
+				selectedMarker.vertex = true;
+				v.insert(selectedMarker);
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeColor=none;fillColor=#333333;';
+				}
+				else
+				{
+					v.style += 'strokeColor=none;fillColor=#DDDDDD;';
+				}
+				
 				break;
+				
 			case 'AndroidProgressBar' :
+				v = new mxCell('', new mxGeometry(Math.round(x), Math.round(y + h * 0.25), Math.round(w), Math.round(h * 0.5)), vertexStyle);
+			    v.vertex = true;
+				
+				var progressBar = new mxCell('', new mxGeometry(0, 0, w * p.BarPosition, Math.round(h * 0.5)), 'strokeColor=none;fillColor=#33B5E5;');
+				progressBar.vertex = true;
+				v.insert(progressBar);
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeColor=none;fillColor=#474747;';
+				}
+				else
+				{
+					v.style += 'strokeColor=none;fillColor=#BBBBBB;';
+				}
+				
 				break;
+				
 			case 'AndroidImageBlock' :
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'shape=mxgraph.mockup.graphics.simpleIcon;strokeColor=#7E7E7E;fillColor=#111111;';
+				}
+				else
+				{
+					v.style += 'shape=mxgraph.mockup.graphics.simpleIcon;strokeColor=#939393;fillColor=#ffffff;';
+				}
+				
 				break;
+				
 			case 'AndroidTextBlock' :
+				if (p.Scheme == 'Dark')
+				{
+					if (p.ShowBorder)
+					{
+						v.style += 'fillColor=#111111;strokeColor=#ffffff;';
+					}
+					else
+					{
+						v.style += 'fillColor=#111111;strokeColor=none;';
+					}
+				}
+				else
+				{
+					if (p.ShowBorder)
+					{
+						v.style += 'fillColor=#ffffff;strokeColor=#000000;';
+					}
+					else
+					{
+						v.style += 'fillColor=#ffffff;strokeColor=none;';
+					}
+				}
+				
+				v.value = convertText(p.Label);
+				v.style += getLabelStyle(p.Label);
+				
 				break;
+
 			case 'AndroidActionBar' :
+				v.style += 'strokeColor=none;';
+				
+				switch (p.BarBackground)
+				{
+					case 'Blue' :
+						v.style += 'fillColor=#002E3E;';
+						break;
+					case 'Gray' :
+						v.style += 'fillColor=#DDDDDD;';
+						break;
+					case 'Dark Gray' :
+						v.style += 'fillColor=#474747;';
+						break;
+					case 'White' :
+						v.style += 'fillColor=#ffffff;';
+						break;
+				}
+				
+				if (p.HighlightShow)
+				{
+					var highlight = null;
+					
+					if (p.HighlightTop)
+					{
+						highlight = new mxCell('', new mxGeometry(0, 0, w, 2), 'strokeColor=none;');
+					}
+					else
+					{
+						highlight = new mxCell('', new mxGeometry(0, h - 2, w, 2), 'strokeColor=none;');
+					}
+
+					highlight.vertex = true;
+					v.insert(highlight);
+
+					switch (p.HighlightColor)
+					{
+						case 'Blue' :
+							highlight.style += 'fillColor=#33B5E5;';
+							break;
+						case 'Dark Gray' :
+							highlight.style += 'fillColor=#B0B0B0;';
+							break;
+						case 'White' :
+							highlight.style += 'fillColor=#ffffff;';
+							break;
+					}
+				}
+				
+				if (p.VlignShow)
+				{
+					var vLine = new mxCell('', new mxGeometry(20, 5, 2, h - 10), 'shape=line;direction=north;');
+					vLine.vertex = true;
+					v.insert(vLine);
+
+					switch (p.VlignColor)
+					{
+						case 'Blue' :
+							vLine.style += 'strokeColor=#244C5A;';
+							break;
+						case 'White' :
+							vLine.style += 'strokeColor=#ffffff;';
+							break;
+					}
+				}
+				
 				break;
-			case 'AndroidBrowserBar' :
-				break;
+				
 			case 'AndroidButton' :
+				v.value = convertText(p.Label);
+				v.style += getLabelStyle(p.Label) + 'shape=partialRectangle;left=0;right=0;';
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'fillColor=#474747;strokeColor=#C6C5C6;bottom=0;';
+				}
+				else
+				{
+					v.style += 'fillColor=#DFE0DF;strokeColor=#C6C5C6;top=0;';
+				}
+				
 				break;
+				
 			case 'AndroidTextBox' :
+				v.value = convertText(p.Label);
+				v.style += getLabelStyle(p.Label);
+
+				var underline = new mxCell('', new mxGeometry(2, h - 6, w - 4, 4), 'shape=partialRectangle;top=0;fillColor=none;');
+				underline.vertex = true;
+				v.insert(underline);
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'fillColor=#111111;strokeColor=none;';
+				}
+				else
+				{
+					v.style += 'fillColor=#ffffff;strokeColor=none;';
+				}
+				
+				if (p.TextFocused)
+				{
+					underline.style += 'strokeColor=#33B5E5;';
+				}
+				else
+				{
+					underline.style += 'strokeColor=#A9A9A9;';
+				}
+				
 				break;
+				
 			case 'AndroidRadioButton' :
+				var dot = null;
+				
+				if (p.Checked)
+				{
+					dot = new mxCell('', new mxGeometry(w * 0.15, h * 0.15, w * 0.7, h * 0.7), 'shape=ellipse;fillColor=#33B5E5;strokeWidth=0.6;');
+					dot.vertex = true;
+					v.insert(dot);
+				}
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'shape=ellipse;strokeWidth=0.6;strokeColor=#272727;';
+					
+					if (p.Checked)
+					{
+						dot.style += 'strokeColor=#1F5C73;';
+						v.style += 'fillColor=#193C49;';
+					}
+					else
+					{
+						v.style += 'fillColor=#111111;';
+					}
+				}
+				else
+				{
+					v.style += 'shape=ellipse;strokeWidth=0.6;fillColor=#ffffff;strokeColor=#5C5C5C;';
+					
+					if (p.Checked)
+					{
+						dot.style += 'strokeColor=#999999;';
+					}
+				}
+
 				break;
+				
 			case 'AndroidCheckBox' :
+				var check = null;
+				if (p.Checked)
+				{
+					check = new mxCell('', new mxGeometry(w * 0.25, - h * 0.05, w, h * 0.8), 'shape=mxgraph.ios7.misc.check;strokeColor=#33B5E5;strokeWidth=2;');
+					check.vertex = true;
+					v.insert(check);
+				}
+
+				if (p.Scheme == 'Dark')
+				{
+					v.style += 'strokeWidth=0.6;strokeColor=#272727;fillColor=#111111;';
+				}
+				else
+				{
+					v.style += 'strokeWidth=0.6;strokeColor=#5C5C5C;fillColor=#ffffff;';
+				}
+
 				break;
+				
 			case 'AndroidToggle' :
+				if (p.Scheme == 'Dark')
+				{
+					if (p.Checked)
+					{
+						v.style += 'shape=mxgraph.android.switch_on;fillColor=#666666;';
+					}
+					else
+					{
+						v.style += 'shape=mxgraph.android.switch_off;fillColor=#666666;';
+					}
+				}
+				else
+				{
+					if (p.Checked)
+					{
+						v.style += 'shape=mxgraph.android.switch_on;fillColor=#E6E6E6;';
+					}
+					else
+					{
+						v.style += 'shape=mxgraph.android.switch_off;fillColor=#E6E6E6;';
+					}
+				}
+				
 				break;
+				
 			case 'AndroidSlider' :
+				v.style += 'shape=mxgraph.android.progressScrubberFocused;dx=' + p.BarPosition + ';fillColor=#33b5e5;';
+				
 				break;
+				
 			case 'iOSSegmentedControl' :
+				var numTabs = parseInt(p.Tabs);
+				var tabFullW = w;
+				v.style += 'strokeColor=none;fillColor=none;';
+				
+				if (numTabs > 0)
+				{
+					tabFullW = tabFullW / numTabs;
+				}
+				
+				var tab = new Array();
+				var line = new Array();
+				
+				for (var i = 0; i < numTabs; i++)
+				{
+					tab[i] = new mxCell('', new mxGeometry(i * tabFullW, 0, tabFullW, h), 'strokeColor=' + p.FillColor + ';');
+					tab[i].vertex = true;
+					v.insert(tab[i]);
+					tab[i].value = convertText(p["Tab_" + i]);
+					tab[i].style += getLabelStyle(p["Tab_" + i]);
+					
+					if (p.Selected == i)
+					{
+						tab[i].style += getFillColor(p, a);
+					}
+					else
+					{
+						tab[i].style += 'fillColor=none;';
+					}
+				}
+
 				break;
+
+			case 'iOSSlider' :
+				v.style += 'shape=mxgraph.ios7ui.slider;strokeColor=' + p.FillColor + ';fillColor=#ffffff;strokeWidth=2;barPos=' + p.BarPosition * 100 + ';';
+				
+				break;
+
+			case 'iOSProgressBar':
+				v = new mxCell('', new mxGeometry(Math.round(x), Math.round(y + h * 0.25), Math.round(w), Math.round(h * 0.5)), vertexStyle + 'strokeColor=none;fillColor=#B5B5B5;');
+			    v.vertex = true;
+				
+				var progressBar = new mxCell('', new mxGeometry(0, 0, w * p.BarPosition, Math.round(h * 0.5)), 'strokeColor=none;' + getFillColor(p, a));
+				progressBar.vertex = true;
+				v.insert(progressBar);
+
+				break;
+
+			case 'iOSPageControls' :
+				v.style += 'shape=mxgraph.ios7ui.pageControl;' + getFillColor(p, a) + 'strokeColor=#D6D6D6;';
+				
+				break;
+
+			case 'iOSStatusBar' :
+				v.style += 'shape=mxgraph.ios7ui.appBar;' + getFillColor(p, a) + 'strokeColor=#000000;';
+
+				var text1 = new mxCell(convertText(p.Text), new mxGeometry(w * 0.35, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
+				text1.vertex = true;
+				v.insert(text1);
+				text1.style += getLabelStyle(p.Text);
+				
+				var text2 = new mxCell(convertText(p.Carrier), new mxGeometry(w * 0.09, 0, w * 0.2, h), 'strokeColor=none;fillColor=none;');
+				text2.vertex = true;
+				v.insert(text2);
+				text2.style += getLabelStyle(p.Carrier);
+				
+				break;
+				
 			case 'iOSSearchBar' :
+				v.style += 'strokeColor=none;' +
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getRounded(p, a) +
+					getLabelStyle(p.Search);
+				
+				v.value = convertText(p.Search);
+				
+				var icon1 = new mxCell('', new mxGeometry(w * 0.3, h * 0.3, h * 0.4, h * 0.4), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#000000;fillColor=none;');
+				icon1.vertex = true;
+				v.insert(icon1);
+				
 				break;
+				
 			case 'iOSNavBar' :
+				v.style += 'shape=partialRectangle;top=0;right=0;left=0;strokeColor=#979797;' + getFillColor(p, a) + getOpacity(p, a) + getLabelStyle(p.Title);
+				v.value = convertText(p.Title);
+
+				var text1 = new mxCell(convertText(p.LeftText), new mxGeometry(w * 0.03, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
+				text1.vertex = true;
+				v.insert(text1);
+				text1.style += getLabelStyle(p.LeftText);
+				
+				var text2 = new mxCell(convertText(p.RightText), new mxGeometry(w * 0.65, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
+				text2.vertex = true;
+				v.insert(text2);
+				text2.style += getLabelStyle(p.RightText);
+				
+				var icon1 = new mxCell('', new mxGeometry(w * 0.02, h * 0.2, h * 0.3, h * 0.5), 'shape=mxgraph.ios7.misc.left;strokeColor=#007AFF;strokeWidth=2;');
+				icon1.vertex = true;
+				v.insert(icon1);
+				
 				break;
+				
 			case 'iOSTabs' :
+				var numTabs = parseInt(p.Tabs);
+				var tabFullW = w;
+				v.style += 'shape=partialRectangle;right=0;left=0;bottom=0;strokeColor=#979797;' + getFillColor(p, a) + getOpacity(p, a);
+				
+				if (numTabs > 0)
+				{
+					tabFullW = tabFullW / numTabs;
+				}
+				
+				var tab = new Array();
+				var line = new Array();
+				
+				for (var i = 0; i < numTabs; i++)
+				{
+					tab[i] = new mxCell('', new mxGeometry(i * tabFullW, 0, tabFullW, h), 'strokeColor=none;');
+					tab[i].vertex = true;
+					v.insert(tab[i]);
+					tab[i].value = convertText(p["Tab_" + i]);
+					
+					tab[i].style += getFontSize(p["Tab_" + i]);
+
+					tab[i].style += 
+									getFontColor(p["Tab_" + i]) + 
+									getFontStyle(p["Tab_" + i]) +
+									getTextAlignment(p["Tab_" + i]) + 
+									getTextLeftSpacing(p["Tab_" + i]) +
+									getTextRightSpacing(p["Tab_" + i]) + 
+									getTextTopSpacing(p["Tab_" + i]) +
+									getTextBottomSpacing(p["Tab_" + i]) + 
+									getTextGlobalSpacing(p["Tab_" + i]);
+					
+					tab[i].style += 'verticalAlign=bottom;';
+					
+					if (p.Selected == i)
+					{
+						tab[i].style += 'fillColor=#BBBBBB;';
+					}
+					else
+					{
+						tab[i].style += 'fillColor=none;';
+					}
+				}
+
 				break;
+
 			case 'iOSDatePicker' :
+				var firstDate1 = new mxCell('', new mxGeometry(0, 0, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate1.vertex = true;
+				v.insert(firstDate1);
+				firstDate1.value = convertText(p.Option11);
+				firstDate1.style += getLabelStyle(p.Option11);
+				var firstDate2 = new mxCell('', new mxGeometry(w * 0.5, 0, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate2.vertex = true;
+				v.insert(firstDate2);
+				firstDate2.value = convertText(p.Option21);
+				firstDate2.style += getLabelStyle(p.Option21);
+				var firstDate3 = new mxCell('', new mxGeometry(w * 0.65, 0, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate3.vertex = true;
+				v.insert(firstDate3);
+				firstDate3.value = convertText(p.Option31);
+				firstDate3.style += getLabelStyle(p.Option31);
+
+				var secondDate1 = new mxCell('', new mxGeometry(0, h * 0.2, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate1.vertex = true;
+				v.insert(secondDate1);
+				secondDate1.value = convertText(p.Option12);
+				secondDate1.style += getLabelStyle(p.Option12);
+				var secondDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.2, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate2.vertex = true;
+				v.insert(secondDate2);
+				secondDate2.value = convertText(p.Option22);
+				secondDate2.style += getLabelStyle(p.Option22);
+				var secondDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.2, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate3.vertex = true;
+				v.insert(secondDate3);
+				secondDate3.value = convertText(p.Option32);
+				secondDate3.style += getLabelStyle(p.Option32);
+
+				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate1.vertex = true;
+				v.insert(currDate1);
+				currDate1.value = convertText(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13);
+				var currDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate2.vertex = true;
+				v.insert(currDate2);
+				currDate2.value = convertText(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23);
+				var currDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate3.vertex = true;
+				v.insert(currDate3);
+				currDate3.value = convertText(p.Option33);
+				currDate3.style += getLabelStyle(p.Option33);
+				var currDate4 = new mxCell('', new mxGeometry(w * 0.80, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate4.vertex = true;
+				v.insert(currDate4);
+				currDate4.value = convertText(p.Option43);
+				currDate4.style += getLabelStyle(p.Option43);
+
+				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate1.vertex = true;
+				v.insert(fourthDate1);
+				fourthDate1.value = convertText(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14);
+				var fourthDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate2.vertex = true;
+				v.insert(fourthDate2);
+				fourthDate2.value = convertText(p.Option24);
+				fourthDate2.style += getLabelStyle(p.Option24);
+				var fourthDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate3.vertex = true;
+				v.insert(fourthDate3);
+				fourthDate3.value = convertText(p.Option34);
+				fourthDate3.style += getLabelStyle(p.Option34);
+				var fourthDate4 = new mxCell('', new mxGeometry(w * 0.8, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate4.vertex = true;
+				v.insert(fourthDate4);
+				fourthDate4.value = convertText(p.Option44);
+				fourthDate4.style += getLabelStyle(p.Option44);
+
+				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate1.vertex = true;
+				v.insert(fifthDate1);
+				fifthDate1.value = convertText(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15);
+				var fifthDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.8, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate2.vertex = true;
+				v.insert(fifthDate2);
+				fifthDate2.value = convertText(p.Option25);
+				fifthDate2.style += getLabelStyle(p.Option25);
+				var fifthDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.8, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate3.vertex = true;
+				v.insert(fifthDate3);
+				fifthDate3.value = convertText(p.Option35);
+				fifthDate3.style += getLabelStyle(p.Option35);
+
+				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line1.vertex = true;
+				v.insert(line1);
+				var line2 = new mxCell('', new mxGeometry(0, h * 0.6 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line2.vertex = true;
+				v.insert(line2);
+
+				v.style += getFillColor(p, a) + getOpacity(p, a) + 'strokeColor=none;';
+				
 				break;
+				
 			case 'iOSTimePicker' :
+				var firstDate1 = new mxCell('', new mxGeometry(0, 0, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate1.vertex = true;
+				v.insert(firstDate1);
+				firstDate1.value = convertText(p.Option11);
+				firstDate1.style += getLabelStyle(p.Option11);
+				var firstDate2 = new mxCell('', new mxGeometry(w * 0.25, 0, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate2.vertex = true;
+				v.insert(firstDate2);
+				firstDate2.value = convertText(p.Option21);
+				firstDate2.style += getLabelStyle(p.Option21);
+
+				var secondDate1 = new mxCell('', new mxGeometry(0, h * 0.2, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate1.vertex = true;
+				v.insert(secondDate1);
+				secondDate1.value = convertText(p.Option12);
+				secondDate1.style += getLabelStyle(p.Option12);
+				var secondDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.2, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate2.vertex = true;
+				v.insert(secondDate2);
+				secondDate2.value = convertText(p.Option22);
+				secondDate2.style += getLabelStyle(p.Option22);
+
+				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate1.vertex = true;
+				v.insert(currDate1);
+				currDate1.value = convertText(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13);
+				var currDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.4, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate2.vertex = true;
+				v.insert(currDate2);
+				currDate2.value = convertText(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23);
+				var currDate4 = new mxCell('', new mxGeometry(w * 0.7, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate4.vertex = true;
+				v.insert(currDate4);
+				currDate4.value = convertText(p.Option33);
+				currDate4.style += getLabelStyle(p.Option33);
+
+				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate1.vertex = true;
+				v.insert(fourthDate1);
+				fourthDate1.value = convertText(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14);
+				var fourthDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.6, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate2.vertex = true;
+				v.insert(fourthDate2);
+				fourthDate2.value = convertText(p.Option24);
+				fourthDate2.style += getLabelStyle(p.Option24);
+				var fourthDate4 = new mxCell('', new mxGeometry(w * 0.7, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate4.vertex = true;
+				v.insert(fourthDate4);
+				fourthDate4.value = convertText(p.Option34);
+				fourthDate4.style += getLabelStyle(p.Option34);
+
+				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate1.vertex = true;
+				v.insert(fifthDate1);
+				fifthDate1.value = convertText(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15);
+				var fifthDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.8, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate2.vertex = true;
+				v.insert(fifthDate2);
+				fifthDate2.value = convertText(p.Option25);
+				fifthDate2.style += getLabelStyle(p.Option25);
+
+				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line1.vertex = true;
+				v.insert(line1);
+				var line2 = new mxCell('', new mxGeometry(0, h * 0.6 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line2.vertex = true;
+				v.insert(line2);
+
+				v.style += getFillColor(p, a) + getOpacity(p, a) + 'strokeColor=none;';
+				
 				break;
+				
 			case 'iOSCountdownPicker' :
+				var firstDate3 = new mxCell('', new mxGeometry(w * 0.45, 0, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				firstDate3.vertex = true;
+				v.insert(firstDate3);
+				firstDate3.value = convertText(p.Option31);
+				firstDate3.style += getLabelStyle(p.Option31);
+
+				var secondDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.2, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				secondDate3.vertex = true;
+				v.insert(secondDate3);
+				secondDate3.value = convertText(p.Option32);
+				secondDate3.style += getLabelStyle(p.Option32);
+
+				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate1.vertex = true;
+				v.insert(currDate1);
+				currDate1.value = convertText(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13);
+				var currDate2 = new mxCell('', new mxGeometry(w * 0.2, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate2.vertex = true;
+				v.insert(currDate2);
+				currDate2.value = convertText(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23);
+				var currDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.4, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate3.vertex = true;
+				v.insert(currDate3);
+				currDate3.value = convertText(p.Option33);
+				currDate3.style += getLabelStyle(p.Option33);
+				var currDate4 = new mxCell('', new mxGeometry(w * 0.6, h * 0.4, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				currDate4.vertex = true;
+				v.insert(currDate4);
+				currDate4.value = convertText(p.Option43);
+				currDate4.style += getLabelStyle(p.Option43);
+
+				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate1.vertex = true;
+				v.insert(fourthDate1);
+				fourthDate1.value = convertText(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14);
+				var fourthDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.6, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fourthDate3.vertex = true;
+				v.insert(fourthDate3);
+				fourthDate3.value = convertText(p.Option34);
+				fourthDate3.style += getLabelStyle(p.Option34);
+
+				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate1.vertex = true;
+				v.insert(fifthDate1);
+				fifthDate1.value = convertText(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15);
+				var fifthDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.8, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
+				fifthDate3.vertex = true;
+				v.insert(fifthDate3);
+				fifthDate3.value = convertText(p.Option35);
+				fifthDate3.style += getLabelStyle(p.Option35);
+
+				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line1.vertex = true;
+				v.insert(line1);
+				var line2 = new mxCell('', new mxGeometry(0, h * 0.6 - 2, w, 4), 'shape=line;strokeColor=#888888;');
+				line2.vertex = true;
+				v.insert(line2);
+
+				v.style += getFillColor(p, a) + getOpacity(p, a) + 'strokeColor=none;';
+				
 				break;
+				
 			case 'iOSBasicCell' :
+				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;spacing=0;align=left;spacingLeft=' + (p.SeparatorInset * scale) + ';';
+				v.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text) +
+					getTextVerticalAlignment(p.text);
+
+				v.value = convertText(p.text);
+				
+				switch (p.AccessoryIndicatorType) 
+				{
+					case 'Disclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+						
+					case 'DetailDisclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						var icon2 = new mxCell('', new mxGeometry(w * 0.79, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'DetailIndicator' :
+						var icon2 = new mxCell('', new mxGeometry(w * 0.87, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'CheckMark' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.89, h * 0.37, h * 0.4, h * 0.26), 'shape=mxgraph.ios7.misc.check;strokeColor=#007AFF;strokeWidth=2;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+				}
+
 				break;
+				
 			case 'iOSSubtitleCell' :
+				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=top;spacingLeft=' + (p.SeparatorInset * scale) + ';';
+				v.style += getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext);
+
+				v.value = convertText(p.subtext);
+				
+				var subtext = new mxCell('', new mxGeometry(0, h * 0.4, w, h * 0.6), 'fillColor=none;strokeColor=none;spacing=0;align=left;verticalAlign=bottom;spacingLeft=' + (p.SeparatorInset * scale) + ';');
+				subtext.vertex = true;
+				v.insert(subtext);
+				subtext.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text);
+				subtext.value = convertText(p.text);
+
+				switch (p.AccessoryIndicatorType) 
+				{
+					case 'Disclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+						
+					case 'DetailDisclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						var icon2 = new mxCell('', new mxGeometry(w * 0.79, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'DetailIndicator' :
+						var icon2 = new mxCell('', new mxGeometry(w * 0.87, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'CheckMark' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.89, h * 0.37, h * 0.4, h * 0.26), 'shape=mxgraph.ios7.misc.check;strokeColor=#007AFF;strokeWidth=2;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+				}
+
 				break;
+				
 			case 'iOSRightDetailCell' :
+				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=middle;spacingLeft=' + (p.SeparatorInset * scale) + ';';
+				v.style += getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext);
+
+				v.value = convertText(p.subtext);
+				
+				var subtext = null;
+				
+				switch (p.AccessoryIndicatorType) 
+				{
+					case 'Disclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+
+						subtext = new mxCell('', new mxGeometry(w * 0.55, 0, w * 0.3, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;');
+
+						break;
+						
+					case 'DetailDisclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						var icon2 = new mxCell('', new mxGeometry(w * 0.79, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+
+						subtext = new mxCell('', new mxGeometry(w * 0.45, 0, w * 0.3, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;');
+
+						break;
+						
+					case 'DetailIndicator' :
+						var icon2 = new mxCell('', new mxGeometry(w * 0.87, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+
+						subtext = new mxCell('', new mxGeometry(w * 0.52, 0, w * 0.3, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;');
+
+						break;
+						
+					case 'CheckMark' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.89, h * 0.37, h * 0.4, h * 0.26), 'shape=mxgraph.ios7.misc.check;strokeColor=#007AFF;strokeWidth=2;');
+						icon1.vertex = true;
+						v.insert(icon1);
+
+						subtext = new mxCell('', new mxGeometry(w * 0.55, 0, w * 0.3, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;');
+
+						break;
+						
+					default :
+						subtext = new mxCell('', new mxGeometry(w * 0.65, 0, w * 0.3, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;');
+				}
+
+				subtext.vertex = true;
+				v.insert(subtext);
+				subtext.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text);
+				subtext.value = convertText(p.text);
+
+
 				break;
+				
 			case 'iOSLeftDetailCell' :
+				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;';
+				
+				var text = new mxCell('', new mxGeometry(0, 0, w * 0.25, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;verticalAlign=middle;spacingRight=3;');
+				text.vertex = true;
+				v.insert(text);
+				text.style += getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext);
+				text.value = convertText(p.subtext);
+
+				var subtext = new mxCell('', new mxGeometry(w * 0.25, 0, w * 0.5, h), 'fillColor=none;strokeColor=none;spacing=0;align=left;verticalAlign=middle;spacingLeft=3;');
+				subtext.vertex = true;
+				v.insert(subtext);
+				subtext.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text);
+				subtext.value = convertText(p.text);
+
+				switch (p.AccessoryIndicatorType) 
+				{
+					case 'Disclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+						
+					case 'DetailDisclosure' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.91, h * 0.35, h * 0.15, h * 0.3), 'shape=mxgraph.ios7.misc.right;strokeColor=#D2D2D6;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						var icon2 = new mxCell('', new mxGeometry(w * 0.79, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'DetailIndicator' :
+						var icon2 = new mxCell('', new mxGeometry(w * 0.87, h * 0.25, h * 0.5, h * 0.5), 'shape=mxgraph.ios7.icons.info;strokeColor=#007AFF;fillColor=#ffffff;');
+						icon2.vertex = true;
+						v.insert(icon2);
+						
+						break;
+						
+					case 'CheckMark' :
+						var icon1 = new mxCell('', new mxGeometry(w * 0.89, h * 0.37, h * 0.4, h * 0.26), 'shape=mxgraph.ios7.misc.check;strokeColor=#007AFF;strokeWidth=2;');
+						icon1.vertex = true;
+						v.insert(icon1);
+						
+						break;
+				}
+
 				break;
+				
 			case 'iOSTableGroupedSectionBreak' :
+				v.style += 'shape=partialRectangle;left=0;right=0;fillColor=#EFEFF4;strokeColor=#C8C7CC;';
+				
+				var text1 = new mxCell('', new mxGeometry(0, 0, w, h * 0.4), 'fillColor=none;strokeColor=none;spacing=10;align=left;');
+				text1.vertex = true;
+				v.insert(text1);
+				text1.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text);
+				text1.value = convertText(p.text);
+
+				var text2 = new mxCell('', new mxGeometry(0, h * 0.6, w, h * 0.4), 'fillColor=none;strokeColor=none;spacing=10;align=left;');
+				text2.vertex = true;
+				v.insert(text2);
+				text2.style += getFontSize(p["bottom-text"]) +
+					getFontColor(p["bottom-text"]) + 
+					getFontStyle(p["bottom-text"]);
+				text2.value = convertText(p["bottom-text"]);
+
 				break;
+				
 			case 'iOSTablePlainHeaderFooter' :
+				v.style += 'fillColor=#F7F7F7;strokeColor=none;align=left;spacingLeft=5;spacing=0;';
+				v.style += getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text);
+				v.value = convertText(p.text);
+				
 				break;
+				
 			case 'ERDEntityBlock' :
 				break;
 			case 'ERDEntityBlock2' :

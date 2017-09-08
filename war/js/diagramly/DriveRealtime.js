@@ -830,7 +830,8 @@ DriveRealtime.prototype.updateStatus = function()
 			}
 			
 			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('lastChange', [str])) +
-				(this.file.isEditable() ? '' : ' (' + mxUtils.htmlEntities(mxResources.get('readOnly')) + ')'));
+				(this.file.isEditable() ? '' : '<span class="geStatusAlert" style="margin-left:8px;">' +
+				mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>'));
 		}
 	}
 };

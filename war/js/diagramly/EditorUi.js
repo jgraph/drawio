@@ -1264,12 +1264,13 @@
 				this.setCurrentFile(file);
 				file.addListener('descriptorChanged', this.descriptorChangedListener);
 				file.addListener('contentChanged', this.descriptorChangedListener);
-				this.descriptorChanged();
 				file.open();
 				
+				// DescriptorChanged updates the enabled state of the graph
 				this.setGraphEnabled(true);
 				this.setMode(file.getMode());
 				this.editor.undoManager.clear();
+				this.descriptorChanged();
 				this.updateUi();
 				
 				// Realtime files have a valid status message
@@ -1277,7 +1278,8 @@
 				{
 					if (!file.isEditable())
 					{
-						this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('readOnly')));
+						this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
+							mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
 					}
 					else
 					{
@@ -1359,8 +1361,8 @@
 				{
 			        	try
 			        	{
-							var img = new Image();
-							var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+						var img = new Image();
+						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
 				    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
 				    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
 			    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
@@ -5131,19 +5133,6 @@
 				try
 				{
 					this.insertLucidChart(data, dx, dy, crop, done);
-					
-					if (this.updateAd != null && !this.lucidchartTweetShown && urlParams['embed'] != '1')
-					{
-						this.adsHtml.push('<a title="' + mxResources.get('loveIt', ['draw.io']) +
-							'" target="_blank" href="https://twitter.com/intent/tweet?text=' +
-							encodeURIComponent('I\'ve just copy and pasted my Lucidchart diagram into www.draw.io') +
-							'" onclick="javascript:window.open(this.href, \'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,' +
-							'left=\'+((screen.width-640)/2)+\',top=\'+((screen.height-280)/3)+\',height=280,width=640\');return false;"\'>' +
-							'<img border="0" width="18" height="18" align="absmiddle" style="margin-top:-2px;padding-right:8px;" src="' +
-							Editor.tweetImage + '"/>Paste from Lucidchart?</a>');
-						this.updateAd(this.adsHtml.length - 1, 200);
-						this.lucidchartTweetShown = true;
-					}
 				}
 				catch (e)
 				{
@@ -9474,10 +9463,11 @@
 		var graph = this.editor.graph;
 		var file = this.getCurrentFile();
 		var active = (file != null && file.isEditable()) || 
-			(urlParams['embed'] == '1'  && this.editor.graph.isEnabled());
+			(urlParams['embed'] == '1' && this.editor.graph.isEnabled());
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
+		this.actions.get('editData').setEnabled(active);
 		this.actions.get('shadowVisible').setEnabled(active);
 		this.actions.get('connectionArrows').setEnabled(active);
 		this.actions.get('connectionPoints').setEnabled(active);
