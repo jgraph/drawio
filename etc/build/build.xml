@@ -42,8 +42,12 @@
 	<target name="app" depends="merge">
 		<delete file="${basedir}/.tmp0.js"/>
 		<echo file="${basedir}/.tmp0.js">
-			var mxBasePath = 'https://www.draw.io/mxgraph/';
-			var mxLoadStylesheets = false;
+			if (typeof window.mxBasePath === 'undefined')
+			{
+				window.mxBasePath = 'https://www.draw.io/mxgraph/';
+			}
+			
+			window.mxLoadStylesheets = window.mxLoadStylesheets || false;
 		</echo>
 
 		<delete file="${basedir}/.tmp1.js"/>
@@ -165,6 +169,7 @@
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
 				<file name="Pages.js" />
+				<file name="Trees.js" />
 			</sources>
 					
 			<sources dir="${basedir}">

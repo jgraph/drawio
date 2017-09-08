@@ -529,9 +529,12 @@ App.main = function(callback)
 		{
 			var plugins = mxSettings.getPlugins();
 			var temp = urlParams['p'];
-			
 			App.initPluginCallback();
-			mxscript(App.FOOTER_PLUGIN_URL);
+			
+			if (urlParams['chrome'] != '0')
+			{
+				mxscript(App.FOOTER_PLUGIN_URL);
+			}
 			
 			if (temp != null)
 			{
@@ -4130,7 +4133,6 @@ App.prototype.descriptorChanged = function()
 		if (urlParams['rev'] == null)
 		{
 			this.updateDocumentTitle();
-			
 			var newHash = file.getHash();
 			
 			if (newHash.length > 0)

@@ -1,3 +1,12 @@
+07-SEP-2017: 7.3.6
+
+- Fixes overridden paths for folding icons
+- Fixes subtree folding in viewer
+- Fixes disabled state for edit data action
+- Fixes footer plugin in chromeless mode
+- Adds CSS style for read-only status
+- Fixes possible editing for read-only files
+
 01-SEP-2017: 7.3.5
 
 - Improvements for Lucidchart import
