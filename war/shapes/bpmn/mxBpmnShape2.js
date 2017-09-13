@@ -543,7 +543,6 @@ mxBpmnShape.prototype.symbols = {
 			c.lineTo(w * 0.5, 0);
 			c.lineTo(w * 0.5, h);
 			c.close();
-			c.stroke();
 			c.moveTo(w * 0.5, h * 0.5);
 			c.lineTo(w, 0);
 			c.lineTo(w, h);

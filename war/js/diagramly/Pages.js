@@ -942,12 +942,13 @@ EditorUi.prototype.updateTabContainer = function()
 		var insertTab = null;
 		
 		// Not chromeless and not read-only file
-		if (graph.isEnabled())
+		if (urlParams['embed'] == 1 || (this.getCurrentFile() != null &&
+			this.getCurrentFile().isEditable()))
 		{
 			insertTab = this.createPageInsertTab();
 			this.tabContainer.appendChild(insertTab);
 		}
-		
+
 		if (wrapper.clientWidth > this.tabContainer.clientWidth - btnWidth)
 		{
 			if (insertTab != null)

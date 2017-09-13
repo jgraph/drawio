@@ -295,7 +295,7 @@ public class GliffyDiagramConverter
 			}
 
 			// don't collect for swimlanes and mindmaps, their children are treated differently
-			if (object.isGroup() || (object.isLine() && object.hasChildren()))
+			if (object.isGroup() || object.isSelection() || (object.isLine() && object.hasChildren()))
 			{
 				collectVerticesAndConvert(vertices, object.children, object);
 			}
