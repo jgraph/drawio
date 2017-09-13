@@ -11,6 +11,7 @@ import java.util.Set;
 import com.mxgraph.io.gliffy.importer.PostDeserializer.PostDeserializable;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.online.Utils;
 
 /**
  * Class representing Gliffy diagram object
@@ -156,6 +157,7 @@ public class GliffyObject implements PostDeserializable
 		SHAPES_COORD_FIX.put("com.gliffy.shape.uml.uml_v2.deployment.node", new double[]{0, -10, 10, 10});
 		SHAPES_COORD_FIX.put("com.gliffy.shape.uml.uml_v2.deployment.device_node", new double[]{0, -10, 10, 10});
 		SHAPES_COORD_FIX.put("com.gliffy.shape.uml.uml_v2.deployment.execution_environment_node", new double[]{0, -10, 10, 10});
+		SHAPES_COORD_FIX.put("com.gliffy.shape.flowchart.flowchart_v1.default.data_storage", new double[]{0, 0, 0.115, 0});
 	}
 
 	public GliffyObject()
@@ -247,6 +249,11 @@ public class GliffyObject implements PostDeserializable
 		return (uid != null && (GROUP_SHAPES.contains(uid) || uid.startsWith("com.gliffy.shape.table")))
 				//Since we treat text in a different way (added as cell value instead of another child cell, this is probably the best way to detect groups when uid is null)
 				|| (uid == null && hasChildren() && !children.get(0).isText());
+	}
+	
+	public boolean isSelection() 
+	{
+		return uid.contains("default.selection");
 	}
 
 	public boolean isMindmap()
@@ -424,6 +431,35 @@ public class GliffyObject implements PostDeserializable
 				child.y += -yMin;
 		}
 	}
+
+	private mxGeometry getAdjustShifts(double[] arr, double x, double y, double w, double h)
+	{
+		double xShift = (Math.abs(arr[0]) < 1 ? w * arr[0] : arr[0]);
+		double yShift = (Math.abs(arr[1]) < 1 ? h * arr[1] : arr[1]);
+		double wShift = (Math.abs(arr[2]) < 1 ? w * arr[2] : arr[2]);
+		double hShift = (Math.abs(arr[3]) < 1 ? h * arr[3] : arr[3]);
+		
+		mxGeometry mod = new mxGeometry(x + xShift, y + yShift, w + wShift, h + hShift);
+		
+		//TODO test all possible cases!
+		if (rotation > 0)
+		{
+			mxGeometry orig = new mxGeometry(x, y, w, h);
+			
+			Utils.rotatedGeometry(orig, rotation, 0, 0);
+			Utils.rotatedGeometry(mod, rotation, 0, 0);
+			
+			xShift += mod.getX() - orig.getX();
+			yShift += mod.getY() - orig.getY();
+		}
+		
+		mod.setX(xShift);
+		mod.setY(yShift);
+		mod.setWidth(wShift);
+		mod.setHeight(hShift);
+		
+		return mod;
+	}
 	
 	public void adjustGeo(mxGeometry geo)
 	{
@@ -433,10 +469,12 @@ public class GliffyObject implements PostDeserializable
 		{
 			double x = geo.getX(), y = geo.getY(), w = geo.getWidth(), h = geo.getHeight();
 			
-			geo.setX(x + (Math.abs(arr[0]) < 1 ? w * arr[0]: arr[0]));
-			geo.setY(y + (Math.abs(arr[1]) < 1 ? h * arr[1]: arr[1]));
-			geo.setWidth(w + (Math.abs(arr[2]) < 1 ? w * arr[2]: arr[2]));
-			geo.setHeight(h + (Math.abs(arr[3]) < 1 ? h * arr[3]: arr[3]));
+			mxGeometry shifts = getAdjustShifts(arr, x, y, w, h);
+			
+			geo.setX(x + shifts.getX());
+			geo.setY(y + shifts.getY());
+			geo.setWidth(w + shifts.getWidth());
+			geo.setHeight(h + shifts.getHeight());
 		}
 	}
 
@@ -446,8 +484,10 @@ public class GliffyObject implements PostDeserializable
 		
 		if (arr != null)
 		{
-			textObject.x -= (Math.abs(arr[0]) < 1 ? width * arr[0]: arr[0]);
-			textObject.y -= (Math.abs(arr[1]) < 1 ? height * arr[1]: arr[1]);
+			mxGeometry shifts = getAdjustShifts(arr, x, y, width, height);
+			
+			textObject.x -= shifts.getX();
+			textObject.y -= shifts.getY();
 		}
 	}
 }
