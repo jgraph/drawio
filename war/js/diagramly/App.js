@@ -778,6 +778,10 @@ if (urlParams['embed'] != '1')
 {
 	App.prototype.menubarHeight = 60;
 }
+else
+{
+	App.prototype.footerHeight = 0;
+}
 
 /**
  * Queue for loading plugins and wait for UI instance

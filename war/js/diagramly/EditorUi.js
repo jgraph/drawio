@@ -2728,36 +2728,7 @@
 					if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
 						(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
 					{
-						// In Google Chrome 60 the code from below produces a blank window 
-						if (mxClient.IS_GC || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
-						{
-							var win = window.open('about:blank');
-							
-							if (win == null)
-							{
-								mxUtils.popup(data, true);
-							}
-							else
-							{
-								win.document.write('<html><img src="data:' +
-									mimeType + ((base64Encoded) ? ';base64,' +
-									data : ';charset=utf8,' + encodeURIComponent(data)) +
-									'"/></html>');
-								win.document.close();
-							}
-						}
-						else
-						{
-							// win.open is workaround for cleared contents in Chrome after delay
-							// when using location.replace
-							var win = window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
-									data : ';charset=utf8,' + encodeURIComponent(data)));
-							
-							if (win == null)
-							{
-								mxUtils.popup(data, true);
-							}
-						}
+						this.openInNewWindow(data, mimeType, base64Encoded);
 					}
 					else
 					{
@@ -2805,6 +2776,151 @@
 		this.showDialog(dlg.container, 380, (count > 4) ? 390 : 270, true, true);
 		dlg.init();
 	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.openInNewWindow = function(data, mimeType, base64Encoded)
+	{
+		// In Google Chrome 60 the code from below produces a blank window 
+		if (mxClient.IS_GC || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+		{
+			var win = window.open('about:blank');
+			
+			if (win == null)
+			{
+				mxUtils.popup(data, true);
+			}
+			else
+			{
+				win.document.write('<html><img src="data:' +
+					mimeType + ((base64Encoded) ? ';base64,' +
+					data : ';charset=utf8,' + encodeURIComponent(data)) +
+					'"/></html>');
+				win.document.close();
+			}
+		}
+		else
+		{
+			// win.open is workaround for cleared contents in Chrome after delay
+			// when using location.replace
+			var win = window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
+					data : ';charset=utf8,' + encodeURIComponent(data)));
+			
+			if (win == null)
+			{
+				mxUtils.popup(data, true);
+			}
+		}
+	};
+	
+	var editoUiAddChromelessToolbarItems = EditorUi.prototype.addChromelessToolbarItems;
+
+	/**
+	 * Creates a temporary graph instance for rendering off-screen content.
+	 */
+	EditorUi.prototype.addChromelessToolbarItems = function(addButton)
+	{
+		editoUiAddChromelessToolbarItems.apply(this, arguments);
+		
+		if (this.isExportToCanvas())
+		{
+			this.exportDialog = null;
+			
+			var exportButton = addButton(mxUtils.bind(this, function(evt)
+			{
+				if (this.exportDialog != null)
+				{
+					this.exportDialog.parentNode.removeChild(this.exportDialog);
+					this.exportDialog = null;
+				}
+				else
+				{
+					this.exportDialog = document.createElement('div');
+					var r = exportButton.getBoundingClientRect();
+					
+					mxUtils.setPrefixedStyle(this.exportDialog.style, 'borderRadius', '5px');
+					this.exportDialog.style.position = 'fixed';
+					this.exportDialog.style.textAlign = 'center';
+					this.exportDialog.style.fontFamily = 'Helvetica,Arial';
+					this.exportDialog.style.backgroundColor = '#000000';
+					this.exportDialog.style.width = '50px';
+					this.exportDialog.style.height = '50px';
+					this.exportDialog.style.padding = '4px 2px 4px 2px';
+					this.exportDialog.style.color = '#ffffff';
+					mxUtils.setOpacity(this.exportDialog, 70);
+					this.exportDialog.style.left = r.left + 'px';
+					this.exportDialog.style.bottom = parseInt(this.chromelessToolbar.style.bottom) +
+						this.chromelessToolbar.offsetHeight + 4 + 'px';
+					
+					// Puts the dialog on top of the container z-index
+					var style = mxUtils.getCurrentStyle(this.editor.graph.container);
+					this.exportDialog.style.zIndex = style.zIndex;
+					
+					var spinner = new Spinner({
+						lines: 8, // The number of lines to draw
+						length: 6, // The length of each line
+						width: 5, // The line thickness
+						radius: 6, // The radius of the inner circle
+						rotate: 0, // The rotation offset
+						color: '#fff', // #rgb or #rrggbb
+						speed: 1.5, // Rounds per second
+						trail: 60, // Afterglow percentage
+						shadow: false, // Whether to render a shadow
+						hwaccel: false, // Whether to use hardware acceleration
+						top: '28px',
+						zIndex: 2e9 // The z-index (defaults to 2000000000)
+					});
+					spinner.spin(this.exportDialog);
+					
+					var clickHandler = mxUtils.bind(this, function()
+					{
+						mxEvent.removeListener(this.editor.graph.container, 'click', clickHandler);
+						this.exportDialog.parentNode.removeChild(this.exportDialog);
+						this.exportDialog = null;
+					});
+					
+				   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
+				   	{
+				   		spinner.stop();
+				   		
+						this.exportDialog.style.width = 'auto';
+						this.exportDialog.style.height = 'auto';
+						this.exportDialog.style.padding = '10px';
+				   		
+			   	   	    var data = this.createImageDataUri(canvas, null, 'png');
+			   	   	    var img = document.createElement('img');
+			   	   	    
+			   	   	    img.style.maxWidth = '140px';
+			   	   	    img.style.maxHeight = '140px';
+			   	   	    img.style.cursor = 'pointer';
+			   	   	    
+			   	   	    img.setAttribute('title', mxResources.get('openInNewWindow'));
+			   	   	    img.setAttribute('border', '0');
+			   	   	    img.setAttribute('src', data);
+			   	   	    
+			   	   	    this.exportDialog.appendChild(img);
+
+						mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+						{
+							this.openInNewWindow(data.substring(data.indexOf(',') + 1), 'image/png', true);
+							clickHandler.apply(this, arguments);
+						}));
+				   	}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
+				   	{
+				   		this.spinner.stop();
+				   		this.handleError(e);
+				   	}));
+					
+					mxEvent.addListener(this.editor.graph.container, 'click', clickHandler);
+				   	document.body.appendChild(this.exportDialog);
+				}
+				
+				mxEvent.consume(evt);
+			}), Editor.cameraLargeImage, mxResources.get('export'));
+		}
+	};
+
 
 	/**
 	 * Translates this point by the given vector.
