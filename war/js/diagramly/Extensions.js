@@ -1258,8 +1258,8 @@
 //			'NET_MLPS' NA
 //Basic Network Shapes
 			'NET_WirelessAccessPoint' : s + 'networks.radio_tower;fillColor=#29AAE1',
-			'NET_RingNetwork' : cs, //TODO
-//			'NET_Ethernet' : cs, //TODO
+			'NET_RingNetwork' : cs,
+			'NET_Ethernet' : cs,
 			'NET_Server' : s + 'networks.server;fillColor=#29AAE1',
 //			'NET_ExternalMediaDrive' NA
 			'NET_Mainframe' : s + 'networks.mainframe;fillColor=#29AAE1',
@@ -1349,34 +1349,34 @@
 //			'Image_audio_headset' NA
 //Electrical
 			'EE_Amplifier' : s + 'electrical.abstract.amplifier',
-			'EE_OpAmp' : s + 'electrical.abstract.operational_amp_1', //TODO
-			'EE_ControlledAmp' : s + 'electrical.abstract.controlled_amplifier', //TODO
-			'EE_Multiplexer' : s + 'electrical.abstract.mux', //TODO
-			'EE_Demultiplexer' : s + 'electrical.abstract.demux;', //TODO
-			'EE_Capacitor1' : s + 'electrical.capacitors.capacitor_1', //TODO
-			'EE_Capacitor2' : s + 'electrical.capacitors.capacitor_3', //TODO
-			'EE_Diode' : s + 'electrical.diodes.diode', //TODO
-			'EE_Resistor' : s + 'electrical.resistors.resistor_2', //TODO
+			'EE_OpAmp' : cs,
+			'EE_ControlledAmp' : s + 'electrical.abstract.controlled_amplifier',
+			'EE_Multiplexer' : s + 'electrical.abstract.mux',
+			'EE_Demultiplexer' : s + 'electrical.abstract.demux;',
+			'EE_Capacitor1' : s + 'electrical.capacitors.capacitor_1',
+			'EE_Capacitor2' : s + 'electrical.capacitors.capacitor_3',
+			'EE_Diode' : s + 'electrical.diodes.diode',
+			'EE_Resistor' : s + 'electrical.resistors.resistor_2',
 			'EE_VarResistor' : s + 'electrical.resistors.variable_resistor_2',
-			'EE_Potentiometer' : s + 'electrical.resistors.potentiometer_2', //TODO
+			'EE_Potentiometer' : s + 'electrical.resistors.potentiometer_2',
 			'EE_ProtGround' : s + 'electrical.signal_sources.protective_earth',
 			'EE_SignalGround' : s + 'electrical.signal_sources.signal_ground',
 			'EE_Transformer' : s + 'electrical.inductors.transformer_1',
-			'EE_Inductor' : s + 'electrical.inductors.inductor_3', //TODO
-			'EE_Variable Inductor' : s + 'electrical.inductors.variable_inductor', //TODO
+			'EE_Inductor' : s + 'electrical.inductors.inductor_3',
+			'EE_Variable Inductor' : s + 'electrical.inductors.variable_inductor',
 			'EE_TwoWaySwitch' : s + 'electrical.electro-mechanical.2-way_switch',
 			'EE_OnOffSwitch' : s + 'electrical.electro-mechanical.simple_switch',
 			'EE_Loudspeaker' : s + 'electrical.electro-mechanical.loudspeaker',
-			'EE_Motor' : s + 'electrical.electro-mechanical.motor_1', //TODO
+			'EE_Motor' : s + 'electrical.electro-mechanical.motor_1',
 			'EE_LED1' : s + 'electrical.opto_electronics.led_2',
 			'EE_Lightbulb' : s + 'electrical.miscellaneous.light_bulb',
-			'EE_IntegratedCircuit' : cs, //TODO
+//			'EE_IntegratedCircuit' : NA
 //Power Sources
-			'EE_AcSource' : s + 'electrical.signal_sources.ac_source;strokeWidth=1', //TODO
-			'EE_VoltageSource' : s + 'electrical.signal_sources.dc_source_3', //TODO
-			'EE_CurrentSource' : s + 'electrical.signal_sources.dc_source_2;direction=north', //TODO
-			'EE_ControlledCurrentSource' : s + 'electrical.signal_sources.dependent_source_2;direction=west', //TODO
-			'EE_ControlledVoltageSource' : s + 'electrical.signal_sources.dependent_source_3', //TODO
+			'EE_AcSource' : s + 'electrical.signal_sources.ac_source;strokeWidth=1',
+			'EE_VoltageSource' : s + 'electrical.signal_sources.dc_source_3',
+			'EE_CurrentSource' : s + 'electrical.signal_sources.dc_source_2;direction=north',
+			'EE_ControlledCurrentSource' : s + 'electrical.signal_sources.dependent_source_2;direction=west',
+			'EE_ControlledVoltageSource' : s + 'electrical.signal_sources.dependent_source_3',
 			'EE_DcSource1' : s + 'electrical.miscellaneous.monocell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top',
 			'EE_DcSource2' : s + 'electrical.miscellaneous.multicell_battery;flipH=1;verticalLabelPosition=bottom;verticalAlign=top',
 			'EE_Vss' : s + 'electrical.signal_sources.vss2;verticalLabelPosition=top;verticalAlign=bottom;fontSize=24',
@@ -1421,29 +1421,28 @@
 			'EE_Sawtooth' : s + 'electrical.waveforms.sawtooth',
 			'EE_SquareWave' : s + 'electrical.waveforms.square_wave',
 //Messaging Systems
-			'EIChannelBlock' : s + 'eip.messageChannel',
-//			'EIMessageChannelBlock' NA
-			'EIMessageBlock' : cs, //TODO
-			'EIMessageRouterBlock' : s + 'eip.content_based_router',
-			'EIMessageTranslatorBlock' : s + 'eip.message_translator',
-			'EIMessageEndpointBlock' : cs, //TODO
+			'EIChannelBlock' : s + 'eip.messageChannel;verticalLabelPosition=bottom;verticalAlign=top',
+			'EIMessageChannelBlock' : cs,
+			'EIMessageBlock' : cs,
+			'EIMessageRouterBlock' : s + 'eip.content_based_router;verticalLabelPosition=bottom;verticalAlign=top',
+			'EIMessageTranslatorBlock' : s + 'eip.message_translator;verticalLabelPosition=bottom;verticalAlign=top',
+			'EIMessageEndpointBlock' : cs,
 //Messaging Channels
-//			'EIPublishSubscribeChannelBlock' NA
-//			'EIDatatypeChannelBlock' NA
-//			'EIInvalidMessageChannelBlock' NA
-//			'EIDeadLetterChannelBlock' NA
-//			'EIGuaranteedDeliveryBlock' NA
-//			'EIChannelAdapterBlock' NA
-			'EIMessagingBridgeBlock' : s + 'eip.messaging_bridge',
-//			'EIMessageBusBlock' NA
+			'EIPublishSubscribeChannelBlock' : cs,
+			'EIDatatypeChannelBlock' : cs,
+			'EIInvalidMessageChannelBlock' : cs,
+			'EIDeadLetterChannelBlock' : cs,
+			'EIGuaranteedDeliveryBlock' : cs,
+			'EIChannelAdapterBlock' : cs,
+			'EIMessagingBridgeBlock' : s + 'eip.messaging_bridge;verticalLabelPosition=bottom;verticalAlign=top',
+			'EIMessageBusBlock' : cs,
 //Message Construction
-			'EICommandMessageBlock'  : cs, //TODO
-			'EIDocumentMessageBlock'  : cs, //TODO
-			'EIEventMessageBlock'  : cs, //TODO
-//			'EIEventMessageBlock' NA
-//			'EIRequestReplyBlock' NA
-//			'EIReturnAddressBlock' NA
-//			'EICorrelationIDBlock' NA
+			'EICommandMessageBlock' : cs,
+			'EIDocumentMessageBlock' : cs,
+			'EIEventMessageBlock' : cs,
+			'EIRequestReplyBlock' : cs, 
+			'EIReturnAddressBlock' : cs,
+			'EICorrelationIDBlock' : cs, //TODO
 //			'EIMessageSequenceBlock' NA
 //			'EIMessageExpirationBlock' NA
 //Message Routing
@@ -2172,6 +2171,13 @@
 			if (props.Note.t != null)
 			{
 				text = props.Note;
+			}
+		}
+		else if (text == null && props.Title != null)
+		{
+			if (props.Title.t != null)
+			{
+				text = props.Title;
 			}
 		}
 		else if (props.t != null)
@@ -3115,7 +3121,7 @@
 						{
 							if (styleMap[obj.Class] == 'mxCompositeShape')
 							{
-								lookup[obj.id] = addCompositeShape(obj);
+								lookup[obj.id] = addCompositeShape(obj, select, graph);
 								queue.push(obj);
 								created = true;
 							}
@@ -3245,7 +3251,40 @@
 		}
 	};
 
-	function addCompositeShape(obj)
+	function addRouterEdge(x, y, edge, select, graph, cells, v, cell)
+	{
+	   	var dummy = new mxCell('', new mxGeometry(x, y, 0, 0), 'strokeColor=none;fillColor=none;');
+	   	dummy.vertex = true;
+	   	v.insert(dummy);
+	   	cells = [dummy];
+	   	
+		var e = sb.cloneCell(edge);
+		cell.insertEdge(e, false);
+		dummy.insertEdge(e, true);
+		cells.push(e);
+		select.push(graph.addCell(e, null, null, null, null));
+	};
+   	
+	function addFloatingEdge(x1, y1, x2, y2, edge, select, graph, cells, v)
+	{
+	   	var dummy1 = new mxCell('', new mxGeometry(x1, y1, 0, 0), 'strokeColor=none;fillColor=none;');
+	   	dummy1.vertex = true;
+	   	v.insert(dummy1);
+	   	cells = [dummy1];
+	   	
+	   	var dummy2 = new mxCell('', new mxGeometry(x2, y2, 0, 0), 'strokeColor=none;fillColor=none;');
+	   	dummy2.vertex = true;
+	   	v.insert(dummy2);
+	   	cells = [dummy2];
+	   	
+		var e = sb.cloneCell(edge);
+		dummy1.insertEdge(e, true);
+		dummy2.insertEdge(e, false);
+		cells.push(e);
+		select.push(graph.addCell(e, null, null, null, null));
+	};
+   	
+	function addCompositeShape(obj, select, graph)
 	{
 		var a = getAction(obj);
 		var p = a.Properties;
@@ -5834,48 +5873,431 @@
 
 				break;
 			case 'NET_RingNetwork' :
+				v.style += 'strokeColor=none;fillColor=none;';
+				
+			   	var cell = new mxCell('', new mxGeometry(w * 0.25, h * 0.25, w * 0.5, h * 0.5), 'html=1;shape=ellipse;perimeter=ellipsePerimeter;strokeColor=#29AAE1;strokeWidth=2;');
+			   	cell.vertex = true;
+			   	v.insert(cell);
+			   	var cells = [cell];
+			   	cell.style += getFillColor(p, a);
+			   	
+			   	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=none;dashed=0;html=1;strokeColor=#29AAE1;strokeWidth=2;');
+			   	edge.geometry.relative = true;
+		    	edge.edge = true;
+		    	
+		    	addRouterEdge(w * 0.5, 0, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w * 0.855, h * 0.145, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w, h * 0.5, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w * 0.855, h * 0.855, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w * 0.5, h, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w * 0.145, h * 0.855, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(0, h * 0.5, edge, select, graph, cells, v, cell);
+		    	addRouterEdge(w * 0.145, h * 0.145, edge, select, graph, cells, v, cell);
 				break;
+				
 			case 'NET_Ethernet' :
+				v.style += 'strokeColor=none;fillColor=none;';
+				
+			   	var cell = new mxCell('', new mxGeometry(0, h * 0.5 - 10, w, 20), 'shape=mxgraph.networks.bus;gradientColor=none;gradientDirection=north;fontColor=#ffffff;perimeter=backbonePerimeter;backboneSize=20;fillColor=#29AAE1;strokeColor=#29AAE1;');
+			   	cell.vertex = true;
+			   	v.insert(cell);
+			   	var cells = [cell];
+
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'strokeColor=#29AAE1;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;');
+				edge.geometry.relative = true;
+				edge.edge = true;
+
+			   	var cells = [cell];
+		    	var stepX = w / p.NumTopNodes;
+		    	
+			   	for (var i = 0; i < p.NumTopNodes; i++)
+			   	{
+			   		addRouterEdge(stepX * 0.5 + i * stepX, 0, edge, select, graph, cells, v, cell);
+			   	}
+			   	
+		    	stepX = w / p.NumBottomNodes;
+		    	
+			   	for (var i = 0; i < p.NumBottomNodes; i++)
+			   	{
+			   		addRouterEdge(stepX * 0.5 + i * stepX, h, edge, select, graph, cells, v, cell);
+			   	}
+			   	
 				break;
+				
 			case 'EE_OpAmp' :
+				v.style += 'shape=mxgraph.electrical.abstract.operational_amp_1;' + 
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Title);
+				
+				if (p.ToggleCharge)
+				{
+					v.style += 'flipV=1;';
+				}
+				
 				break;
-			case 'EE_ControlledAmp' :
+				
+			case 'EIMessageChannelBlock' :
+			case 'EIDatatypeChannelBlock' :
+			case 'EIInvalidMessageChannelBlock' :
+			case 'EIDeadLetterChannelBlock' :
+			case 'EIGuaranteedDeliveryBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				if (obj.Class == 'EIMessageChannelBlock')
+				{
+					var item1 = new mxCell('', new mxGeometry(0.5, 0.5, w * 0.9, 20), 'shape=mxgraph.eip.messageChannel;fillColor=#818181;part=1;');
+					item1.geometry.offset = new mxPoint( - w * 0.45, 0);
+				}
+				else if (obj.Class == 'EIDatatypeChannelBlock')
+				{
+					var item1 = new mxCell('', new mxGeometry(0.5, 0.5, w * 0.9, 20), 'shape=mxgraph.eip.dataChannel;fillColor=#818181;part=1;');
+					item1.geometry.offset = new mxPoint( - w * 0.45, 0);
+				}
+				else if (obj.Class == 'EIInvalidMessageChannelBlock')
+				{
+					var item1 = new mxCell('', new mxGeometry(0.5, 0.5, w * 0.9, 20), 'shape=mxgraph.eip.invalidMessageChannel;fillColor=#818181;part=1;');
+					item1.geometry.offset = new mxPoint( - w * 0.45, 0);
+				}
+				else if (obj.Class == 'EIDeadLetterChannelBlock')
+				{
+					var item1 = new mxCell('', new mxGeometry(0.5, 0.5, w * 0.9, 20), 'shape=mxgraph.eip.deadLetterChannel;fillColor=#818181;part=1;');
+					item1.geometry.offset = new mxPoint( - w * 0.45, 0);
+				}
+				else if (obj.Class == 'EIGuaranteedDeliveryBlock')
+				{
+					var item1 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 27), 'shape=cylinder;fillColor=#818181;part=1;');
+					item1.geometry.offset = new mxPoint( -10, -7);
+				}
+				
+				item1.geometry.relative = true;
+				item1.vertex = true;
+				v.insert(item1);
+
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p);
+
+			   	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+			   	edge.geometry.relative = true;
+		    	edge.edge = true;
+		    	
+		    	addFloatingEdge(w * 0.15, h * 0.25, w * 0.85, h * 0.25, edge, select, graph, cells, v, cell);
+		    	
 				break;
-			case 'EE_Multiplexer' :
+
+			case 'EIChannelAdapterBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				var item1 = new mxCell('', new mxGeometry(0, h * 0.07, w * 0.21, h * 0.86), 'fillColor=#FFFF33;part=1;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p);
+				
+				var item2 = new mxCell('', new mxGeometry(w * 0.26, h * 0.09, w * 0.2, h * 0.82), 'shape=mxgraph.eip.channel_adapter;fillColor=#4CA3D9;part=1;');
+				item2.vertex = true;
+				v.insert(item2);
+				item2.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p);
+				
+				var item3 = new mxCell('', new mxGeometry(1, 0.5, w * 0.35, 20), 'shape=mxgraph.eip.messageChannel;fillColor=#818181;part=1;');
+				item3.geometry.relative = true;
+				item3.geometry.offset = new mxPoint( - w * 0.4, -10);
+				item3.vertex = true;
+				v.insert(item3);
+				item3.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p);
+				
+				edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endArrow=none;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=2;');
+		    	edge1.geometry.relative = true;
+		    	edge1.edge = true;
+		    	item1.insertEdge(edge1, true);
+		    	item2.insertEdge(edge1, false);
+				edge1.style += getStrokeColor(p, a); 
+
+				select.push(graph.addCell(edge1, null, null, null, null));
+
+				edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endArrow=block;startArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=2;startFill=1;startSize=2;');
+		    	edge2.geometry.relative = true;
+		    	edge2.edge = true;
+		    	item2.insertEdge(edge2, true);
+		    	item3.insertEdge(edge2, false);
+
+				select.push(graph.addCell(edge2, null, null, null, null));
+				
 				break;
-			case 'EE_Demultiplexer' :
-				break;
-			case 'EE_Capacitor1' :
-				break;
-			case 'EE_Capacitor2' :
-				break;
-			case 'EE_Diode' :
-				break;
-			case 'EE_Resistor' :
-				break;
-			case 'EE_Potentiometer' :
-				break;
-			case 'EE_Inductor' :
-				break;
-			case 'EE_Variable Inductor' :
-				break;
-			case 'EE_Motor' :
-				break;
-			case 'EE_IntegratedCircuit' :
-				break;
-			case 'EE_AcSource' :
-				break;
-			case 'EE_VoltageSource' :
-				break;
-			case 'EE_CurrentSource' :
-				break;
-			case 'EE_ControlledCurrentSource' :
-				break;
-			case 'EE_ControlledVoltageSource' :
-				break;
+				
 			case 'EIMessageBlock' :
+			case 'EICommandMessageBlock' :
+			case 'EIDocumentMessageBlock' :
+			case 'EIEventMessageBlock' :
+				v.style += 'strokeColor=none;fillColor=none;verticalLabelPosition=bottom;verticalAlign=top;' +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				var item1 = new mxCell('', new mxGeometry(0, 0, 17, 17), 'shape=ellipse;fillColor=#808080;part=1;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p);
+				
+				var messagesNum = p.Messages;
+				var oneH = (h - 17) / messagesNum;
+				var item2 = new Array();
+				var edge = new Array();
+				
+				for (var i = 0; i < messagesNum; i++)
+				{
+					var currY = oneH * (i + 1) - 3;
+ 					item2[i] = new mxCell('', new mxGeometry(w - 20, currY, 20, 20), 'part=1;');
+					item2[i].vertex = true;
+					v.insert(item2[i]);
+					
+					item2[i].style += 
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getOpacity(p, a) + 
+						getShadow(p) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p);
+
+					switch(obj.Class)
+					{
+						case 'EIMessageBlock' :
+							item2[i].value = convertText(p['message_' + (i + 1)]);
+							item2.style += getLabelStyle(p['message_' + (i + 1)]);
+
+							break;
+						case 'EICommandMessageBlock' :
+							item2[i].value = 'C';
+							item2[i].style += 'fontStyle=1;fontSize=10;';
+							break;
+						case 'EIDocumentMessageBlock' :
+							item2[i].value = 'D';
+							item2[i].style += 'fontStyle=1;fontSize=10;';
+							break;
+						case 'EIEventMessageBlock' :
+							item2[i].value = 'E';
+							item2[i].style += 'fontStyle=1;fontSize=10;';
+							break;
+					}
+
+					edge[i] = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;');
+			    	edge[i].geometry.relative = true;
+			    	edge[i].edge = true;
+			    	item1.insertEdge(edge[i], false);
+			    	item2[i].insertEdge(edge[i], true);
+					edge[i].style += 
+						getStrokeColor(p, a) + 
+						getStrokeWidth(p);
+
+					var wp = new Array();
+					wp.push(new mxPoint(x + 8.5, y + currY + 10));
+					
+					edge[i].geometry.points = wp;
+					select.push(graph.addCell(edge[i], null, null, null, null));
+				}
+
 				break;
+				
 			case 'EIMessageEndpointBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				var item1 = new mxCell('', new mxGeometry(w * 0.45, h * 0.25, w * 0.3, h * 0.5), 'part=1;');
+				item1.vertex = true;
+				v.insert(item1);
+	
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p);
+	
+			   	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+			   	edge.geometry.relative = true;
+		    	edge.edge = true;
+		    	
+		    	addFloatingEdge(0, h * 0.5, w * 0.4, h * 0.5, edge, select, graph, cells, v, cell);
+		    	
+				break;
+			case 'EIPublishSubscribeChannelBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+				getStrokeColor(p, a) + 
+				getFillColor(p, a) +
+				getOpacity(p, a) + 
+				getShadow(p) +
+				getStrokeWidth(p) +
+				getStrokeStyle(p) +
+				getLabelStyle(p);
+			
+			v.value = convertText(p.Text);
+			
+		   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+		   	edge1.geometry.relative = true;
+	    	edge1.edge = true;
+	    	addFloatingEdge(w * 0.05, h * 0.5, w * 0.85, h * 0.5, edge1, select, graph, cells, v, cell);
+	    	
+		   	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+		   	edge2.geometry.relative = true;
+	    	edge2.edge = true;
+	    	addFloatingEdge(w * 0.05, h * 0.5, w * 0.85, h * 0.15, edge2, select, graph, cells, v, cell);
+	    	
+		   	var edge3 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+		   	edge3.geometry.relative = true;
+	    	edge3.edge = true;
+	    	addFloatingEdge(w * 0.05, h * 0.5, w * 0.85, h * 0.85, edge3, select, graph, cells, v, cell);
+	    	
+				break;
+				
+			case 'EIMessageBusBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+			   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=4;startArrow=block;startFill=1;startSize=4;');
+			   	edge1.geometry.relative = true;
+		    	edge1.edge = true;
+		    	edge1.style += getStrokeColor(p, a);
+		    	addFloatingEdge(w * 0.05, h * 0.5, w * 0.95, h * 0.5, edge1, select, graph, cells, v, cell);
+		    	
+			   	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=4;startArrow=block;startFill=1;startSize=4;');
+			   	edge2.geometry.relative = true;
+		    	edge2.edge = true;
+		    	edge2.style += getStrokeColor(p, a);
+		    	addFloatingEdge(w * 0.3, h * 0.1, w * 0.3, h * 0.5, edge2, select, graph, cells, v, cell);
+		    	
+			   	var edge3 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=4;startArrow=block;startFill=1;startSize=4;');
+			   	edge3.geometry.relative = true;
+		    	edge3.edge = true;
+		    	edge3.style += getStrokeColor(p, a);
+		    	addFloatingEdge(w * 0.7, h * 0.1, w * 0.7, h * 0.5, edge3, select, graph, cells, v, cell);
+		    	
+			   	var edge4 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=4;startArrow=block;startFill=1;startSize=4;');
+			   	edge4.geometry.relative = true;
+		    	edge4.edge = true;
+		    	edge4.style += getStrokeColor(p, a);
+		    	addFloatingEdge(w * 0.5, h * 0.5, w * 0.5, h * 0.9, edge4, select, graph, cells, v, cell);
+	    	
+				break;
+				
+			case 'EIRequestReplyBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				var item1 = new mxCell('', new mxGeometry(w * 0.2, h * 0.21, w * 0.16, h * 0.24), 'part=1;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p);
+
+			   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+			   	edge1.geometry.relative = true;
+		    	edge1.edge = true;
+		    	
+		    	addFloatingEdge(w * 0.45, h * 0.33, w * 0.8, h * 0.33, edge1, select, graph, cells, v, cell);
+		    	
+				var item2 = new mxCell('', new mxGeometry(w * 0.64, h * 0.55, w * 0.16, h * 0.24), 'part=1;');
+				item2.vertex = true;
+				v.insert(item2);
+				item2.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p);
+
+			   	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
+			   	edge2.geometry.relative = true;
+		    	edge2.edge = true;
+		    	
+		    	addFloatingEdge(w * 0.55, h * 0.67, w * 0.2, h * 0.67, edge2, select, graph, cells, v, cell);
+		    	
+				break;
+
+			case 'EIReturnAddressBlock' :
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getOpacity(p, a) + 
+					getShadow(p) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p);
+				
+				v.value = convertText(p.Text);
+				
+				var item1 = new mxCell('', new mxGeometry(w * 0.1, h * 0.15, w * 0.8, h * 0.7), 'part=1;shape=mxgraph.eip.retAddr;fillColor=#FFE040;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style += 
+					getStrokeColor(p, a) + 
+					getOpacity(p, a) + 
+					getStrokeWidth(p);
+				
+				break;
+				
+			case 'EICorrelationIDBlock' :
+				
+				
 				break;
 			case 'EICommandMessageBlock' :
 				break;

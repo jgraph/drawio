@@ -1,3 +1,13 @@
+18-SEP-2017: 7.4.1
+
+- Hides footer in embed mode
+- Restores feedback form in help menu
+
+18-SEP-2017: 7.4.0
+
+- Removes feedback form in help menu
+- Adds client-side image export in lightbox
+
 13-SEP-2017: 7.3.9
 
 - Fixes missing insert page tab

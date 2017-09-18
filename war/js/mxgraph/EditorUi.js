@@ -1622,13 +1622,9 @@ EditorUi.prototype.initCanvas = function()
 				 layersButton.style.display = (model.getChildCount(model.root) > 1) ? '' : 'none';
 			});
 		}
-		
-		addButton(mxUtils.bind(this, function(evt)
-		{
-			this.actions.get('print').funct();
-			mxEvent.consume(evt);
-		}), Editor.printLargeImage, mxResources.get('print'));
-		
+
+		this.addChromelessToolbarItems(addButton);
+
 		if (this.editor.editButtonLink != null)
 		{
 			addButton(mxUtils.bind(this, function(evt)
@@ -1937,6 +1933,18 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}
 	}));
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.addChromelessToolbarItems = function(addButton)
+{
+	addButton(mxUtils.bind(this, function(evt)
+	{
+		this.actions.get('print').funct();
+		mxEvent.consume(evt);
+	}), Editor.printLargeImage, mxResources.get('print'));	
 };
 
 /**

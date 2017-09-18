@@ -101,7 +101,6 @@
     <servlet-name>GitHubServlet</servlet-name>
     <url-pattern>/github</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <description/>
     <display-name>EmailServlet</display-name>
