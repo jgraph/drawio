@@ -1,3 +1,11 @@
+19-SEP-2017: 7.4.3
+
+- Improvements for Trello integration
+
+19-SEP-2017: 7.4.2
+
+- Hard codes Dropbox SDK version to work around their bug
+
 18-SEP-2017: 7.4.1
 
 - Hides footer in embed mode
