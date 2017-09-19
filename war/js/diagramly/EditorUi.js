@@ -2821,18 +2821,26 @@
 	 */
 	EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 	{
-		editoUiAddChromelessToolbarItems.apply(this, arguments);
-		
 		if (this.isExportToCanvas())
 		{
 			this.exportDialog = null;
 			
 			var exportButton = addButton(mxUtils.bind(this, function(evt)
 			{
+				var clickHandler = mxUtils.bind(this, function()
+				{
+					mxEvent.removeListener(this.editor.graph.container, 'click', clickHandler);
+					
+					if (this.exportDialog != null)
+					{
+						this.exportDialog.parentNode.removeChild(this.exportDialog);
+						this.exportDialog = null;
+					}
+				});
+				
 				if (this.exportDialog != null)
 				{
-					this.exportDialog.parentNode.removeChild(this.exportDialog);
-					this.exportDialog = null;
+					clickHandler.apply(this);
 				}
 				else
 				{
@@ -2873,13 +2881,6 @@
 					});
 					spinner.spin(this.exportDialog);
 					
-					var clickHandler = mxUtils.bind(this, function()
-					{
-						mxEvent.removeListener(this.editor.graph.container, 'click', clickHandler);
-						this.exportDialog.parentNode.removeChild(this.exportDialog);
-						this.exportDialog = null;
-					});
-					
 				   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
 				   	{
 				   		spinner.stop();
@@ -2919,6 +2920,8 @@
 				mxEvent.consume(evt);
 			}), Editor.cameraLargeImage, mxResources.get('export'));
 		}
+
+		editoUiAddChromelessToolbarItems.apply(this, arguments);
 	};
 
 
@@ -8522,6 +8525,22 @@
 					}
 					
 					return;
+				}
+				else if (data.action == 'loadFile' && this.loadFile)
+				{
+					if (data.type == 'T')
+					{
+						if (this.trello == null)
+						{
+							this.addListener('clientLoaded', function() {
+								this.loadFile(data.file, true);
+							});
+						}
+						else
+						{
+							this.loadFile(data.file, true);
+						}
+					}
 				}
 				else if (data.action == 'load')
 				{
