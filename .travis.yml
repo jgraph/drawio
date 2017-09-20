@@ -12,5 +12,5 @@ deploy:
   file: build/draw.war
   skip_cleanup: true
   on:
-    repo: jgraph/draw.io
+    repo: jgraph/drawio
     tags: true
