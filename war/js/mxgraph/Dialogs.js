@@ -329,8 +329,10 @@ ColorDialog.resetRecentColors = function()
 /**
  * Constructs a new about dialog.
  */
+var isDialogOpen = false;
 var AboutDialog = function(editorUi)
 {
+    if(!isDialogOpen){
 	var div = document.createElement('div');
 	div.setAttribute('align', 'center');
 	var h3 = document.createElement('h3');
@@ -355,11 +357,14 @@ var AboutDialog = function(editorUi)
 	var closeBtn = mxUtils.button(mxResources.get('close'), function()
 	{
 		editorUi.hideDialog();
+                isDialogOpen = false;
 	});
 	closeBtn.className = 'geBtn gePrimaryBtn';
 	div.appendChild(closeBtn);
 	
 	this.container = div;
+        isDialogOpen = true;
+    }
 };
 
 /**
