@@ -89,6 +89,11 @@ public class mxVsdxGeometryList
 		return !geomList.isEmpty();
 	}
 	
+	public int getGeoCount()
+	{
+		return geomList.size();
+	}
+	
 	private void rotatedPoint(mxPoint pt, double cos, double sin)
 	{
 		double x1 = pt.getX() * cos - pt.getY() * sin;

@@ -884,21 +884,6 @@
 		var js = 'https://www.draw.io/js/viewer.min.js';
 		var s = '';
 	
-		// LATER: Merge common code with EmbedDialog
-		if (graph != null)
-		{
-			// Embed script only used if no redirect
-			if (redirect == null)
-			{
-				var s = this.getBasenames().join(';');
-				
-				if (s.length > 0)
-				{
-					js = 'https://www.draw.io/embed2.js?s=' + s;
-				}
-			}
-		}
-	
 		// Makes XHTML compatible
 		if (redirect != null)
 		{
@@ -3516,12 +3501,11 @@
 			((tb != '') ? 'border:1px solid transparent;' : '') +
 			'" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>';
 		
-		var sParam = (s.length > 0) ? 's=' + s.join(';') : '';
-		var fetchParam = (publicUrl != null) ? 'fetch=' + encodeURIComponent(publicUrl) : '';
-		var s2 = (sParam.length > 0 || fetchParam.length > 0) ?
+		var fetchParam = (publicUrl != null) ? '&fetch=' + encodeURIComponent(publicUrl) : '';
+		var s2 = (fetchParam.length > 0) ?
 			(((urlParams['dev'] == '1') ?
-			'https://test.draw.io/embed2.js?dev=1&' + sParam :
-			'https://www.draw.io/embed2.js?' + sParam)) + '&' + fetchParam :
+			'https://test.draw.io/embed2.js?dev=1' :
+			'https://www.draw.io/embed2.js?')) + fetchParam :
 			(((urlParams['dev'] == '1') ?
 			'https://test.draw.io/js/viewer.min.js' :
 			'https://www.draw.io/js/viewer.min.js'));

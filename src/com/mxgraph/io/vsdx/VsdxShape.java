@@ -325,7 +325,7 @@ public class VsdxShape extends Shape
 		//several shapes have beginX/Y and also has a fill color, thus it is better to render it as a vertex
 		//vsdx can have an edge as a group!
 		this.vertex = vertex || (childShapes != null && !childShapes.isEmpty())
-				|| (geomList != null && !geomList.isNoFill());
+				|| (geomList != null && (!geomList.isNoFill() || geomList.getGeoCount() > 1)); //TODO is the assumption that shapes with more than one geometry are vertices correct? 
 	}
 
 	/**

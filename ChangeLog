@@ -1,3 +1,9 @@
+22-SEP-2017: 7.4.4
+
+- Restores latest Dropbox SDK
+- Improves CORS headers configuration
+- Fixes ignored nav, highlight and page in tabbed lightbox for viewer
+
 19-SEP-2017: 7.4.3
 
 - Improvements for Trello integration
