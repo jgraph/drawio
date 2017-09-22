@@ -6,17 +6,17 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
 
 	<target name="merge">
-    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
-    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
-    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
-    	</concat>
+	    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
+	    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
+	    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
+	    	</concat>
     	
 		<echo file="${war.dir}/stencils.xml" append="false"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>]]>${line.separator}</echo>
 		<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[<stencils>]]>${line.separator}</echo>
-    	<concat destfile="${war.dir}/stencils.xml" fixlastline="yes" append="yes">
-    		<fileset dir="${war.dir}/shapes" includes="**/*.xml"/>
-    		<fileset dir="${war.dir}/stencils" includes="**/*.xml"/>
-    	</concat>
+	    	<concat destfile="${war.dir}/stencils.xml" fixlastline="yes" append="yes">
+	    		<fileset dir="${war.dir}/shapes" includes="**/*.xml"/>
+	    		<fileset dir="${war.dir}/stencils" includes="**/*.xml"/>
+	    	</concat>
     	<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[</stencils>]]></echo>
 
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes.min.js">
@@ -32,9 +32,9 @@
 		<echo file="${war.dir}/cache.manifest" append="false">CACHE MANIFEST${line.separator}${line.separator}</echo>
 		<echo file="${war.dir}/cache.manifest" append="true"># THIS FILE WAS GENERATED. DO NOT MODIFY!${line.separator}</echo>
 		<echo file="${war.dir}/cache.manifest" append="true"># ${time.stamp}${line.separator}${line.separator}</echo>
-    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="true">
-    		<filelist dir="${basedir}" files="cache.txt"/>
-    	</concat>
+	    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="true">
+	    		<filelist dir="${basedir}" files="cache.txt"/>
+	    	</concat>
     	
 		<delete dir="${basedir}/../../build"/>
 	</target>
@@ -42,11 +42,9 @@
 	<target name="app" depends="merge">
 		<delete file="${basedir}/.tmp0.js"/>
 		<echo file="${basedir}/.tmp0.js">
-			if (typeof window.mxBasePath === 'undefined')
-			{
-				window.mxBasePath = 'https://www.draw.io/mxgraph/';
-			}
-			
+			window.STENCIL_PATH = window.STENCIL_PATH || 'https://www.draw.io/stencils';
+			window.SHAPES_PATH = window.SHAPES_PATH || 'https://www.draw.io/shapes';
+			window.mxBasePath = window.mxBasePath || 'https://www.draw.io/mxgraph/';
 			window.mxLoadStylesheets = window.mxLoadStylesheets || false;
 		</echo>
 
@@ -60,7 +58,7 @@
 		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
-    	</concat>
+    		</concat>
 		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
 
 		<delete file="${basedir}/.tmp2.js"/>
@@ -72,7 +70,7 @@
 		<echo file="${basedir}/Graph-Resources.js">mxResources.parse('</echo>
 		<concat destfile="${basedir}/Graph-Resources.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp2.xml"/>
-    	</concat>
+    		</concat>
 		<echo file="${basedir}/Graph-Resources.js" append="true">');</echo>
 		
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/grapheditor.min.js">
@@ -188,14 +186,13 @@
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,.tmp1.js"/>
-    	</concat>
+    		</concat>
 
 		<echo file="${basedir}/.tmp2.js">
 			(function()
 			{
 				Editor.initMath();
 				GraphViewer.initCss();
-				mxStencilRegistry.dynamicLoading = false;
 				
 				if (window.onDrawioViewerLoad != null)
 				{
@@ -216,7 +213,7 @@
 		
 		<concat destfile="${war.dir}/js/viewer.min.js" fixlastline="yes" append="no">
 			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
-    	</concat>
+    		</concat>
 
 		<delete file="${basedir}/.tmp0.js"/>
 		<delete file="${basedir}/.tmp0.min.js"/>
@@ -336,7 +333,7 @@
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
-    	</concat>
+    		</concat>
 
 		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 

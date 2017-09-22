@@ -12,18 +12,11 @@
 	<sessions-enabled>false</sessions-enabled>
 	<threadsafe>false</threadsafe>
 
-	<!-- FOR LOCAL TESTING OF EMBED2 WITH DYNAMIC LOADING -->
+	<!-- Path patterns not supported in production -->
 	<static-files>
-		<include path="/styles/**">
+	    	<include path="/**">
 			<http-header name="Access-Control-Allow-Origin" value="*"/>
-    	</include>
-    	<include path="/stencils/**">
-			<http-header name="Access-Control-Allow-Origin" value="*"/>
-    	</include>
-    	<include path="/shapes/**">
-			<http-header name="Access-Control-Allow-Origin" value="*"/>
-    	</include>
-    	<include path="/**"/>
+	    	</include>
 	</static-files>
 
 	<instance-class>F2</instance-class>

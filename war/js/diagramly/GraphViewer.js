@@ -1192,23 +1192,34 @@ GraphViewer.prototype.showLightbox = function()
 	if (this.graphConfig.lightbox == 'open' || window.self !== window.top)
 	{
 		var url = 'https://www.draw.io/?client=1&lightbox=1&close=1&edit=_blank&target=blank';
+		url += (this.graphConfig != null && this.graphConfig.nav != false) ? '&nav=1' : '';
+		url += (this.graphConfig != null && this.graphConfig.highlight != null) ?
+			'&highlight=' + this.graphConfig.highlight.substring(1) : '';
+		url += (this.currentPage != null) ? '&page=' + this.currentPage : '';
 		url += (this.layersEnabled) ? '&layers=1' : '';
 		
 		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
-		{
-			var wnd = null;
-			
-			var receive = mxUtils.bind(this, function(evt)
+		{	
+			if (this.lightboxWindow != null && !this.lightboxWindow.closed)
 			{
-				if (evt.data == 'ready' && evt.source == wnd)
+				this.lightboxWindow.focus();
+			}
+			else
+			{
+
+				this.lightboxWindow = window.open(url);
+
+				var receive = mxUtils.bind(this, function(evt)
 				{
-					wnd.postMessage(this.xml, '*');
-					mxEvent.removeListener(window, 'message', receive);
-				}
-			});
-			
-			mxEvent.addListener(window, 'message', receive);
-			wnd = window.open(url);
+					if (evt.data == 'ready' && evt.source == this.lightboxWindow)
+					{
+						this.lightboxWindow.postMessage(this.xml, '*');
+						mxEvent.removeListener(window, 'message', receive);
+					}
+				});
+				
+				mxEvent.addListener(window, 'message', receive);
+			}
 		}
 		else
 		{

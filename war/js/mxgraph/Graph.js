@@ -1470,6 +1470,7 @@ Graph.prototype.createLayersDialog = function()
 			span.style.whiteSpace = 'nowrap';
 
 			var cb = document.createElement('input');
+			cb.style.display = 'inline-block';
 			cb.setAttribute('type', 'checkbox');
 			
 			if (model.isVisible(layer))
