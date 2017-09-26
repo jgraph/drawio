@@ -112,6 +112,18 @@
 			this.createVertexTemplateEntry(sv + 'gate;actuator=man', 100, 100, '', 'Gate Valve (Manual)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate manual').join(' ')),
 			this.createVertexTemplateEntry(sv + 'gate;actuator=diaph', 100, 100, '', 'Gate Valve (Diaphragm)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate diaphragm').join(' ')),
 			this.createVertexTemplateEntry(sv + 'gate;actuator=balDiaph', 100, 100, '', 'Gate Valve (Balanced Diaphragm)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate balanced diaphragm').join(' ')),
+			
+			this.addEntry(dt + 'valve gate powered', function()
+			{
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 100, 100), sv + 'gate;actuator=powered');
+				bg1.vertex = true;
+				var item1 = new mxCell('', new mxGeometry(32.5, 0, 35, 35), 'part=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=14;');
+				item1.vertex = true;
+				bg1.insert(item1);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], 100, 100, 'Gate Valve (Powered)');
+			}),
+
 			this.createVertexTemplateEntry(sv + 'gate;actuator=digital', 100, 100, '', 'Gate Valve (Digital)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate digital').join(' ')),
 			this.createVertexTemplateEntry(sv + 'gate;actuator=elHyd', 100, 100, '', 'Gate Valve (Electro-Hydraulic)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate electro hydraulic').join(' ')),
 			this.createVertexTemplateEntry(sv + 'gate;actuator=key', 100, 100, '', 'Gate Valve (Key)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'gate key').join(' ')),

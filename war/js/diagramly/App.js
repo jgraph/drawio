@@ -76,7 +76,10 @@ App = function(editor, container, lightbox)
 	}
 
 	// Handles opening files via drag and drop
-	this.addFileDropHandler([document]);
+	if (!this.editor.chromeless)
+	{
+		this.addFileDropHandler([document]);
+	}
 	
 	// Process the queue for waiting plugins
 	if (App.DrawPlugins != null)
@@ -399,7 +402,7 @@ App.getStoredMode = function()
  * 
  * Optional callback is called with the app instance.
  */
-App.main = function(callback)
+App.main = function(callback, createUi)
 {
 	var lastErrorMessage = null;
 	
@@ -642,7 +645,7 @@ App.main = function(callback)
 		}
 
 		// Main
-		var ui = new App(new Editor(urlParams['chrome'] == '0'));
+		var ui = (createUi != null) ? createUi() : new App(new Editor(urlParams['chrome'] == '0'));
 		
 		if (window.mxscript != null)
 		{
@@ -4443,7 +4446,7 @@ App.prototype.updateHeader = function()
 				}
 				else if (mode == App.MODE_TRELLO)
 				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white.svg)';
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
 				}
 			}
 		}));

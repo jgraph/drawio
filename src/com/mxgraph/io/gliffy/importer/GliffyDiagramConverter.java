@@ -268,7 +268,7 @@ public class GliffyDiagramConverter
 		}
 		
 		//TODO this is temporary until self-loops routing is changed
-		if (startTerminal == endTerminal && mxPoints.size() >= 2 /*&& startTerminal.getStyle().indexOf(";rotation=") == -1*/) //special case for self-loops to force correct routing
+		if (startTerminal != null && startTerminal == endTerminal && mxPoints.size() >= 2 /*&& startTerminal.getStyle().indexOf(";rotation=") == -1*/) //special case for self-loops to force correct routing
 		{
 			mxPoint first = mxPoints.get(0);
 			mxPoint last = mxPoints.get(mxPoints.size() - 1);

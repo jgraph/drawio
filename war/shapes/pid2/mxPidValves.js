@@ -38,6 +38,7 @@ mxShapePidValve.prototype.cst = {
 		NONE : 'none',
 		SPRING : 'spring',
 		PILOT : 'pilot',
+		POWERED: 'powered',
 		SOLENOID : 'solenoid',
 		SOLENOID_MANUAL_RESET : 'solenoidManRes',
 		SINGLE_ACTING : 'singActing',
@@ -260,6 +261,7 @@ mxShapePidValve.prototype.drawDiaphAct = function(c, w, h)
 	c.lineTo(w * 0.5, h);
 	c.stroke();
 	
+	c.begin();
 	c.moveTo(0, h * 0.2);
 	c.arcTo(w * 0.6, h * 0.4, 0, 0, 1, w, h * 0.2);
 	c.close();
@@ -831,6 +833,7 @@ mxShapePidValve.prototype.isSquareVariant = function(actType)
 {
 	if (actType === mxShapePidValve.prototype.cst.PILOT || 
 			actType === mxShapePidValve.prototype.cst.SOLENOID ||
+			actType === mxShapePidValve.prototype.cst.POWERED ||
 			actType === mxShapePidValve.prototype.cst.DIGITAL ||
 			actType === mxShapePidValve.prototype.cst.WEIGHT ||
 			actType === mxShapePidValve.prototype.cst.KEY)

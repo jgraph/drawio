@@ -29,6 +29,39 @@ TrelloClient.prototype.maxFileSize = 10000000 /*10MB*/;
 TrelloClient.prototype.extension = '.xml'; //TODO export to png
 
 /**
+ * Authorizes the client, used with methods that can be called without a user click and popup blockers will interfere
+ * Show the AuthDialog to work around the popup blockers if the file is opened directly
+ */
+TrelloClient.prototype.authenticate = function(success, error)
+{
+	var callback = mxUtils.bind(this, function(remember)
+	{
+		Trello.authorize(
+		{
+			type: 'popup',
+			name: 'draw.io',
+			scope:
+			{
+				read: 'true',
+			    write: 'true'
+			},
+			expiration: remember? 'never' : '1hour',
+			success: success,
+			error: error
+		});
+	});
+	
+	if (this.isAuthorized()) 
+	{
+		callback(true);
+	}
+	else
+	{
+		this.ui.showAuthDialog(this, true, callback);
+	}
+}
+
+/**
  * 
  */
 TrelloClient.prototype.getLibrary = function(id, success, error)
@@ -36,99 +69,91 @@ TrelloClient.prototype.getLibrary = function(id, success, error)
 	this.getFile(id, success, error, false, true);
 };
 
+
 /**
  * 
  */
 TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLibrary)
 {
+	//In getFile only, we 
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 
-	Trello.authorize(
+	var callback = mxUtils.bind(this, function()
 	{
-		type: 'popup',
-		name: 'draw.io',
-		scope:
-		{
-			read: 'true',
-		    write: 'true'
-		},
-		expiration: 'never',
-		success: mxUtils.bind(this, function()
-		{
-			var ids = id.split(this.SEPARATOR);
+		var ids = id.split(this.SEPARATOR);
+		
+		Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta) 
+		{ 
+			var binary = /\.png$/i.test(meta.name);
 			
-			Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta) 
-			{ 
-				var binary = /\.png$/i.test(meta.name);
+			// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
+			// and make sure that only a proxy technique can work!
+			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
+			if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+				(!this.ui.useCanvasForExport && binary))
+			{
+				this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
+					this.extension, success, error);
+			}
+			else
+			{
+				var acceptResponse = true;
 				
-				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
-				// and make sure that only a proxy technique can work!
-				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
-					(!this.ui.useCanvasForExport && binary))
+				var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 				{
-					this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
-						this.extension, success, error);
-				}
-				else
+					acceptResponse = false;
+					error({code: App.ERROR_TIMEOUT})
+				}), this.ui.timeout);
+				
+				this.ui.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
 				{
-					var acceptResponse = true;
-					
-					var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-					{
-						acceptResponse = false;
-						error({code: App.ERROR_TIMEOUT})
-					}), this.ui.timeout);
-					
-					this.ui.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
-					{
-						window.clearTimeout(timeoutThread);
-				    	
-					    	if (acceptResponse)
-					    	{
-					    		//keep our id which includes the cardId
-					    		meta.compoundId = id;
-					    		
-							var index = (binary) ? data.lastIndexOf(',') : -1;
-
-							if (index > 0)
-							{
-								var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
-								
-								if (xml != null && xml.length > 0)
-								{
-									data = xml;
-								}
-								else
-								{
-									// TODO: Import PNG
-								}
-							}
+					window.clearTimeout(timeoutThread);
+			    	
+				    	if (acceptResponse)
+				    	{
+				    		//keep our id which includes the cardId
+				    		meta.compoundId = id;
 				    		
-							if (asLibrary)
+						var index = (binary) ? data.lastIndexOf(',') : -1;
+
+						if (index > 0)
+						{
+							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+							
+							if (xml != null && xml.length > 0)
 							{
-								success(new TrelloLibrary(this.ui, data, meta));
+								data = xml;
 							}
 							else
 							{
-								success(new TrelloFile(this.ui, data, meta));
+								// TODO: Import PNG
 							}
-					    	}
-			    		}), mxUtils.bind(this, function(req)
-					{
-						window.clearTimeout(timeoutThread);
-					    	
-					    	if (acceptResponse)
-					    	{
-							error();
-					    	}
-					}), binary || (meta.mimeType != null &&
-						meta.mimeType.substring(0, 6) == 'image/'));
-				}
-			}));
-		}),
-		error: error
+						}
+			    		
+						if (asLibrary)
+						{
+							success(new TrelloLibrary(this.ui, data, meta));
+						}
+						else
+						{
+							success(new TrelloFile(this.ui, data, meta));
+						}
+				    	}
+		    		}), mxUtils.bind(this, function(req)
+				{
+					window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+						error();
+				    	}
+				}), binary || (meta.mimeType != null &&
+					meta.mimeType.substring(0, 6) == 'image/'));
+			}
+		}));
 	});
+	
+	this.authenticate(callback, error);
 };
 
 /**
@@ -146,17 +171,37 @@ TrelloClient.prototype.insertFile = function(filename, data, success, error, asL
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	
-	this.writeFile(filename, data, cardId, mxUtils.bind(this, function(meta)
+	var callback = mxUtils.bind(this, function()
 	{
-		if (asLibrary)
+		var fn = mxUtils.bind(this, function(fileData)
 		{
-			success(new TrelloLibrary(this.ui, data, meta));
+			this.writeFile(filename, fileData, cardId, mxUtils.bind(this, function(meta)
+			{
+				if (asLibrary)
+				{
+					success(new TrelloLibrary(this.ui, data, meta));
+				}
+				else
+				{
+					success(new TrelloFile(this.ui, data, meta));
+				}
+			}), error);
+		});
+						
+		if (this.ui.useCanvasForExport && /(\.png)$/i.test(filename))
+		{
+			this.ui.getEmbeddedPng(mxUtils.bind(this, function(pngData)
+			{
+				fn(this.ui.base64ToBlob(pngData, 'image/png'));
+			}), error, data);
 		}
 		else
 		{
-			success(new TrelloFile(this.ui, data, meta));
+			fn(data);
 		}
-	}), error);
+	});
+	
+	this.authenticate(callback, error);
 };
 
 /**
@@ -240,7 +285,7 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 				  var formData = new FormData();
 				  formData.append('key', Trello.key());
 				  formData.append('token', Trello.token());
-				  formData.append('file', data);
+				  formData.append('file', data, filename);
 				  formData.append('name', filename);
 	
 				  var request = new XMLHttpRequest();

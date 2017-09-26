@@ -253,7 +253,7 @@ public class GliffyObject implements PostDeserializable
 	
 	public boolean isSelection() 
 	{
-		return uid.contains("default.selection");
+		return uid != null && uid.contains("default.selection");
 	}
 
 	public boolean isMindmap()
