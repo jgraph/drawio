@@ -3785,7 +3785,7 @@
 		{
 			widthInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				widthInput.select();
 			}
@@ -3966,7 +3966,7 @@
 		this.showDialog(dlg.container, 320, height, true, true);
 		zoomInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			zoomInput.select();
 		}
@@ -7015,7 +7015,7 @@
 
 		// Installs drag and drop handler for files
 		// Enables dropping files
-		if (Graph.fileSupport)
+		if (Graph.fileSupport && !this.editor.chromeless)
 		{
 			// Setup the dnd listeners
 			var dropElt = null;
@@ -7619,6 +7619,7 @@
 	 */
 	EditorUi.prototype.highlightElement = function(elt)
 	{
+		console.trace('here');
 		var x = 0;
 		var y = 0;
 		var w = 0;
@@ -8517,12 +8518,30 @@
 						if (this.trello == null)
 						{
 							this.addListener('clientLoaded', function() {
-								this.loadFile(data.file, true);
+								this.loadFile(data.type + data.file, true);
 							});
 						}
 						else
 						{
-							this.loadFile(data.file, true);
+							this.loadFile(data.type + data.file, true);
+						}
+					}
+				}
+				else if (data.action == 'newFile' && this.createFile)
+				{
+					if (data.type == 'T')
+					{
+						if (this.trello == null)
+						{
+							this.addListener('clientLoaded', function() {
+								this.createFile(data.name + '.drawio.png', null,
+										null, App.MODE_TRELLO, null, true, data.folderId);
+							});
+						}
+						else
+						{
+							this.createFile(data.name + '.drawio.png', null,
+									null, App.MODE_TRELLO, null, true, data.folderId);
 						}
 					}
 				}

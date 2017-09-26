@@ -412,7 +412,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		
 		nameInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			nameInput.select();
 		}
@@ -1713,7 +1713,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	{
 		linkInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			linkInput.select();
 		}

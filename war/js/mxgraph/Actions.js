@@ -710,9 +710,20 @@ Actions.prototype.init = function()
 		
 		window.open(RESOURCES_PATH + '/help' + ext + '.html');
 	});
+	
+	var showingAbout = false;
+	
 	this.put('about', new Action(mxResources.get('about') + ' Graph Editor...', function()
 	{
-		ui.showDialog(new AboutDialog(ui).container, 320, 280, true, true);
+		if (!showingAbout)
+		{
+			ui.showDialog(new AboutDialog(ui).container, 320, 280, true, true, function()
+			{
+				showingAbout = false;
+			});
+			
+			showingAbout = true;
+		}
 	}, null, null, 'F1'));
 	
 	// Font style actions

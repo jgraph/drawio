@@ -526,12 +526,12 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    	
 			if (mxUtils.getValue(style, 'part', false))
 			{
-		        var parent = this.graph.model.getParent(source);
+				var parent = this.graph.model.getParent(source);
 
-		        if (this.graph.model.isVertex(parent))
-		        {
-		        	source = parent;
-		        }
+				if (this.graph.model.isVertex(parent))
+				{
+					source = parent;
+				}
 			}
 			
 			return mxConnectionHandler.prototype.createTargetVertex.apply(this, arguments);
@@ -541,7 +541,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    
 	    this.getRubberband = function()
 	    {
-	    	return rubberband;
+	    		return rubberband;
 	    };
 	    
 	    // Timer-based activation of outline connect in connection handler
@@ -552,18 +552,18 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    
 	    this.connectionHandler.mouseMove = function()
 	    {
-	    	var prev = this.currentState;
-	    	connectionHandlerMouseMove.apply(this, arguments);
-	    	
-	    	if (prev != this.currentState)
-	    	{
-	    		startTime = new Date().getTime();
-	    		timeOnTarget = 0;
-	    	}
-	    	else
-	    	{
-		    	timeOnTarget = new Date().getTime() - startTime;
-	    	}
+		    	var prev = this.currentState;
+		    	connectionHandlerMouseMove.apply(this, arguments);
+		    	
+		    	if (prev != this.currentState)
+		    	{
+		    		startTime = new Date().getTime();
+		    		timeOnTarget = 0;
+		    	}
+		    	else
+		    	{
+			    	timeOnTarget = new Date().getTime() - startTime;
+		    	}
 	    };
 
 	    // Activates outline connect after 1500ms with touch event or if alt is pressed inside the shape
@@ -571,16 +571,16 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    
 	    this.connectionHandler.isOutlineConnectEvent = function(me)
 	    {
-	    	return (this.currentState != null && me.getState() == this.currentState && timeOnTarget > 2000) ||
-	    		((this.currentState == null || mxUtils.getValue(this.currentState.style, 'outlineConnect', '1') != '0') &&
-	    		connectionHandleIsOutlineConnectEvent.apply(this, arguments));
+		    	return (this.currentState != null && me.getState() == this.currentState && timeOnTarget > 2000) ||
+		    		((this.currentState == null || mxUtils.getValue(this.currentState.style, 'outlineConnect', '1') != '0') &&
+		    		connectionHandleIsOutlineConnectEvent.apply(this, arguments));
 	    };
 	    
 	    // Adds shift+click to toggle selection state
 	    var isToggleEvent = this.isToggleEvent;
 	    this.isToggleEvent = function(evt)
 	    {
-	    	return isToggleEvent.apply(this, arguments) || mxEvent.isShiftDown(evt);
+	    		return isToggleEvent.apply(this, arguments) || mxEvent.isShiftDown(evt);
 	    };
 	    
 	    // Workaround for Firefox where first mouse down is received
@@ -589,9 +589,9 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    var isForceRubberBandEvent = rubberband.isForceRubberbandEvent;
 	    rubberband.isForceRubberbandEvent = function(me)
 	    {
-	    	return isForceRubberBandEvent.apply(this, arguments) ||
-	    		(mxUtils.hasScrollbars(this.graph.container) && mxClient.IS_FF &&
-	    		mxClient.IS_WIN && me.getState() == null && mxEvent.isTouchEvent(me.getEvent()));
+		    	return isForceRubberBandEvent.apply(this, arguments) ||
+		    		(mxUtils.hasScrollbars(this.graph.container) && mxClient.IS_FF &&
+		    		mxClient.IS_WIN && me.getState() == null && mxEvent.isTouchEvent(me.getEvent()));
 	    };
 	    
 	    // Shows hand cursor while panning

@@ -1026,7 +1026,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 				text.value = result;
 				text.focus();
 					
-				if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 				{
 					text.select();
 				}
@@ -1195,7 +1195,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	{
 		text.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			text.select();
 		}
@@ -1261,7 +1261,7 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	{
 		gadgetInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			gadgetInput.select();
 		}
@@ -1482,7 +1482,7 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	{
 		gadgetInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			gadgetInput.select();
 		}
@@ -2602,7 +2602,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
 		{
 			nameInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				nameInput.select();
 			}
@@ -3021,7 +3021,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	{
 		nameInput.focus();
 		
-		if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 		{
 			nameInput.select();
 		}
@@ -4051,7 +4051,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 		{
 			linkInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				linkInput.select();
 			}
@@ -5670,7 +5670,7 @@ var FindWindow = function(ui, x, y, w, h)
 		{
 			searchInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				searchInput.select();
 			}
@@ -5849,7 +5849,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		{
 			searchInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				searchInput.select();
 			}
@@ -5908,7 +5908,11 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
 	}
-	//TODO Trello?
+	else if (peer == editorUi.trello)
+	{
+		service = mxResources.get('trello');
+		img.src = IMAGE_PATH + '/trello-logo-white.svg';
+	}
 	
 	var p = document.createElement('p');
 	mxUtils.write(p, mxResources.get('authorizeThisAppIn', [service]));
@@ -6896,7 +6900,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		{
 			nameInput.focus();
 			
-			if (mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
 			{
 				nameInput.select();
 			}

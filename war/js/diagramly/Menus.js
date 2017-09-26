@@ -392,9 +392,20 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return graph.shadowVisible; });
 
+		var showingAbout = false;
+		
 		editorUi.actions.put('about', new Action(mxResources.get('aboutDrawio') + '...', function()
 		{
-			editorUi.showDialog(new AboutDialog(editorUi).container, 220, 300, true, true);
+			if (!showingAbout)
+			{
+				editorUi.showDialog(new AboutDialog(editorUi).container, 220, 300, true, true, function()
+				{
+					showingAbout = false;
+				});
+				
+				showingAbout = true;
+			}
+			
 		}, null, null, 'F1'));
 		
 		editorUi.actions.addAction('userManual...', function()

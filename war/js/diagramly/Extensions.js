@@ -1808,28 +1808,28 @@
 			'PEComputerIndicatorBlock' : cs,
 			'PEProgrammableIndicatorBlock' : cs,
 //Valves
-			'PEGateValveBlock' : cs,
-			'PEGlobeValveBlock' : s + 'pid2valves.valve;valveType=globe', //TODO
-			'PEControlValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=diaph', //TODO
-			'PENeedleValveBlock' : s + 'pid2valves.valve;valveType=needle',
+			'PEGateValveBlock' : cs, //TODO not all variants covered
+			'PEGlobeValveBlock' : cs,
+			'PEControlValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=diaph;verticalLabelPosition=bottom;verticalAlign=top',  //TODO not all variants covered
+			'PENeedleValveBlock' : s + 'pid2valves.valve;valveType=needle;verticalLabelPosition=bottom;verticalAlign=top',
 //			'PEButterflyValveBlock' NA
-			'PEButterflyValve2Block' : s + 'pid2valves.valve;valveType=butterfly',
-//			'PEBallValveBlock' NA
-			'PEDiaphragmBlock' : s + 'pid2valves.valve;valveType=ball', 
-//			'PEPlugValveBlock' NA
-			'PECheckValveBlock' : s + 'pid2valves.valve;valveType=check',
-			'PECheckValve2Block' : s + 'pid2valves.valve;valveType=check',
-			'PEAngleValveBlock' : s + 'pid2valves.valve;valveType=angle;actuator=none',
-			'PEAngleGlobeValveBlock' : s + 'pid2valves.valve;valveType=angleGlobe;actuator=man;flipH=1', //TODO
-			'PEPoweredValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=digital', //TODO
-			'PEFloatOperatedValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=singActing',
-//			'PENeedleValve2Block' NA
-			'PEThreeWayValveBlock' : s + 'pid2valves.valve;valveType=threeWay;actuator=none',
+			'PEButterflyValve2Block' : s + 'pid2valves.valve;flipH=1;valveType=butterfly;verticalLabelPosition=bottom;verticalAlign=top',
+			'PEBallValveBlock' : s + 'pid2valves.valve;valveType=ball;verticalLabelPosition=bottom;verticalAlign=top',
+			'PEDiaphragmBlock' : s + 'pid2valves.valve;valveType=ball;verticalLabelPosition=bottom;verticalAlign=top', 
+			'PEPlugValveBlock' : s + 'pid2valves.valve;valveType=ball;verticalLabelPosition=bottom;verticalAlign=top',
+			'PECheckValveBlock' : s + 'pid2valves.valve;valveType=check;verticalLabelPosition=bottom;verticalAlign=top',
+			'PECheckValve2Block' : s + 'pid2valves.valve;valveType=check;verticalLabelPosition=bottom;verticalAlign=top',
+			'PEAngleValveBlock' : cs,
+			'PEAngleGlobeValveBlock' : cs,
+			'PEPoweredValveBlock' : cs,
+			'PEFloatOperatedValveBlock' : s + 'pid2valves.valve;valveType=gate;actuator=singActing;verticalLabelPosition=bottom;verticalAlign=top',
+			'PENeedleValve2Block' : s + 'pid2valves.valve;valveType=needle;verticalLabelPosition=bottom;verticalAlign=top',
+			'PEThreeWayValveBlock' : s + 'pid2valves.valve;valveType=threeWay;actuator=none;verticalLabelPosition=bottom;verticalAlign=top',
 //			'PEFourWayValveBlock' NA
 //			'PEGaugeBlock' NA
-			'PEBleederValveBlock' : s + 'pid2valves.blockBleedValve;actuator=none',
+			'PEBleederValveBlock' : s + 'pid2valves.blockBleedValve;actuator=none;verticalLabelPosition=bottom;verticalAlign=top',
 //			'PEOrificeBlock' NA
-			'PERotameterBlock' : s + 'pid.flow_sensors.rotameter;flipH=1',
+			'PERotameterBlock' : s + 'pid.flow_sensors.rotameter;flipH=1;verticalLabelPosition=bottom;verticalAlign=top',
 //Venn Gradient
 			'VennGradientColor1' : 'shape=ellipse;fillOpacity=35',
 			'VennGradientColor2' : 'shape=ellipse;fillOpacity=35',
@@ -7160,13 +7160,13 @@
 			case 'PEProgrammableIndicatorBlock' :
 				var st = getOpacity(p, a);
 				
-					v.style += st +
-						getStrokeColor(p, a) + 
-						getFillColor(p, a) +
-						getStrokeWidth(p) +
-						getStrokeStyle(p) +
-						getShadow(p) +
-						getRotation(p, a, v);
+				v.style += st +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getRotation(p, a, v);
 				
 				switch(obj.Class)
 				{
@@ -7248,37 +7248,137 @@
 				break;
 				
 			case 'PEGateValveBlock' :
-				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' 
-					getOpacity(p, a) +
-					getStrokeColor(p, a) + 
-					getFillColor(p, a) +
-					getStrokeWidth(p) +
-					getStrokeStyle(p) +
-					getShadow(p) +
-					getRotation(p, a, v) +
-					getFontSize(p) +
-					getFontColor(p) + 
-					getFontStyle(p) +
-					getTextAlignment(p); 
+			case 'PEGlobeValveBlock' :
+			case 'PEAngleValveBlock' :
+			case 'PEAngleGlobeValveBlock' :
+			case 'PEPoweredValveBlock' :
 				
-				if (p.handOperated == 1)
+				var actuator = false;
+				
+				if (obj.Class == 'PEPoweredValveBlock')
 				{
-					v.style += 'shape=mxgraph.pid2valves.valve;valveType=gate;actuator=man;';
+					if (p.poweredHandOperated != 1)
+					{
+						actuator = true;
+					}
 				}
 				else
 				{
-					v.style += 'shape=mxgraph.pid2valves.valve;valveType=gate';
+					if (p.handOperated != 1)
+					{
+						actuator = true;
+					}
+				}
+
+				if (actuator)
+				{
+					var p = getAction(obj).Properties;
+					var b = p.BoundingBox;
+
+					var oldH = b.h;
+					
+					if (obj.Class == 'PEAngleValveBlock' || obj.Class == 'PEAngleGlobeValveBlock')
+					{
+						b.h = b.h * 0.7;
+					}
+					else
+					{
+						b.h = b.h * 0.6;
+					}
+					
+					v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round((b.y + oldH - b.h) * scale + dy),
+							Math.round(b.w * scale), Math.round(b.h * scale)), '');
+				    v.vertex = true;
+				    updateCell(v, obj);
+				}
+				
+				if (obj.Class == 'PEPoweredValveBlock')
+				{
+					v.style += 'shape=mxgraph.pid2valves.valve;verticalLabelPosition=bottom;verticalAlign=top;' + 
+						getOpacity(p, a) +
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getShadow(p) +
+						getRotation(p, a, v);
+					
+						if (p.poweredHandOperated == 1)
+						{
+							v.style += 'valveType=gate;actuator=powered;';
+							
+							var item1 = new mxCell('', new mxGeometry(w * 0.325, 0, w * 0.35, h * 0.35), 'part=1;strokeColor=none;fillColor=none;spacingTop=2;');
+							item1.vertex = true;
+							v.insert(item1);
+							item1.style += st +
+								getOpacity(p, a) +
+								getStrokeColor(p, a) + 
+								getFillColor(p, a) +
+								getStrokeWidth(p) +
+								getStrokeStyle(p) +
+								getShadow(p) +
+								'fontSize=6;' +
+								getFontColor(p.PoweredText) + 
+								getFontStyle(p.PoweredText) +
+								getTextAlignment(p.PoweredText) + 
+								getTextLeftSpacing(p.PoweredText) +
+								getTextRightSpacing(p.PoweredText) + 
+								getTextBottomSpacing(p.PoweredText) + 
+								getTextGlobalSpacing(p.PoweredText) +
+								getTextVerticalAlignment(p.PoweredText);
+							
+							item1.value = convertText(p.PoweredText);
+						}
+						else
+						{
+							v.style += 'valveType=gate;';
+						}
+				}
+				else
+				{
+					v.style += 'verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.pid2valves.valve;' +
+						getOpacity(p, a) +
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getShadow(p) +
+						getRotation(p, a, v) +
+						getFontSize(p) +
+						getFontColor(p) + 
+						getFontStyle(p) +
+						getTextAlignment(p); 
+					
+					v.value = convertText(p.Text);
+					
+					switch (obj.Class)
+					{
+						case 'PEGateValveBlock' :
+								v.style += 'valveType=gate;';
+							break;
+							
+						case 'PEGlobeValveBlock' :
+								v.style += 'valveType=globe;';
+							break;
+							
+						case 'PEAngleValveBlock' :
+								v.style += 'valveType=angle;';
+							break;
+							
+						case 'PEAngleGlobeValveBlock' :
+								v.style += 'valveType=angleGlobe;flipH=1;';
+							break;
+					}
+					
+					if (p.handOperated == 1)
+					{
+						v.style += 'actuator=man;';
+					}
 				}
 				
 				break;
 				
-			case 'PEGlobeValveBlock' :
-				break;
 			case 'PEControlValveBlock' :
-				break;
-			case 'PEAngleGlobeValveBlock' :
-				break;
-			case 'PEPoweredValveBlock' :
 				break;
 			case 'iOS7DeviceiPhone5Portrait' :
 				break;
