@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,8 +53,6 @@ public class GliffyObject implements PostDeserializable
 	public List<GliffyObject> children;
 
 	public Constraints constraints;
-
-	public List<LinkMap> linkMap;
 
 	public mxCell mxObject;// the mxCell this gliffy object got converted into
 
@@ -228,8 +227,17 @@ public class GliffyObject implements PostDeserializable
 
 	public String getLink()
 	{
-		if (linkMap != null && !linkMap.isEmpty())
-			return linkMap.get(0).url;
+		if(children == null || children.isEmpty())
+			return null;
+			
+		Iterator<GliffyObject> it = children.iterator();
+		
+		while(it.hasNext()) 
+		{
+			GliffyObject child = it.next();
+			if(child.isLink())
+				return child.graphic.getLink().href;
+		}
 
 		return null;
 	}
@@ -264,6 +272,11 @@ public class GliffyObject implements PostDeserializable
 	public boolean isLine()
 	{
 		return graphic != null && graphic.getType().equals(Graphic.Type.LINE);
+	}
+	
+	public boolean isLink()
+	{
+		return graphic != null && graphic.getType().equals(Graphic.Type.LINK);
 	}
 
 	private boolean isUml()

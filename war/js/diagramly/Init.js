@@ -18,15 +18,12 @@ window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
 // Path for images inside the diagram
 window.GRAPH_IMAGE_PATH = window.GRAPH_IMAGE_PATH || 'img';
 window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || (navigator.userAgent.indexOf('MSIE') >= 0 ||
-		urlParams['dev']) && window.location.protocol != 'file:' ? 'iconSearch' : 'https://www.draw.io/iconSearch';
+	urlParams['dev']) && window.location.protocol != 'file:' ? 'iconSearch' : 'https://www.draw.io/iconSearch';
 window.TEMPLATE_PATH = window.TEMPLATE_PATH || '/templates';
 
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';
-
-// URL for logging
-window.DRAWIO_LOG_URL = window.DRAWIO_LOG_URL || '';
 
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language
@@ -209,20 +206,38 @@ function setCurrentXml(data, filename)
 			}
 		}
 	}
-})();
-
-// Customizes export URL
-var ex = urlParams['export'];
-
-if (ex != null)
-{
-	if (ex.substring(0, 7) != 'http://' &&  ex.substring(0, 8) != 'https://')
-	{
-		ex = 'http://' + ex;
-	}
 	
-	EXPORT_URL = ex;
-}
+	// Customizes export URL
+	var ex = urlParams['export'];
+
+	if (ex != null)
+	{
+		if (ex.substring(0, 7) != 'http://' &&  ex.substring(0, 8) != 'https://')
+		{
+			ex = 'http://' + ex;
+		}
+		
+		EXPORT_URL = ex;
+	}
+
+	// URL for logging
+	window.DRAWIO_LOG_URL = window.DRAWIO_LOG_URL || '';
+
+	//Adds hard-coded logging domain for draw.io domains
+	var host = window.location.host;
+	
+	if (host != 'test.draw.io')
+	{
+		var searchString = 'draw.io';
+		var position = host.length - searchString.length;
+		var lastIndex = host.lastIndexOf(searchString, position);
+		
+		if (lastIndex !== -1 && lastIndex === position)
+		{
+			window.DRAWIO_LOG_URL = 'https://log.draw.io';
+		}
+	}
+})();
 
 // Enables offline mode
 if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealth'] == '1' || urlParams['local'] == '1')
@@ -245,15 +260,4 @@ if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 if (urlParams['lightbox'] == '1')
 {
 	urlParams['chrome'] = '0';
-}
-
-// Adds hard-coded logging domain for draw.io domains
-var host = window.location.host;
-var searchString = 'draw.io';
-var position = host.length - searchString.length;
-var lastIndex = host.lastIndexOf(searchString, position);
-
-if (lastIndex !== -1 && lastIndex === position && host != 'test.draw.io')
-{
-	window.DRAWIO_LOG_URL = 'https://log.draw.io';
 }

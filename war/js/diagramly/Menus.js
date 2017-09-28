@@ -415,7 +415,7 @@
 
 		editorUi.actions.addAction('support...', function()
 		{
-			window.open('https://support.draw.io/display/DO/draw.io+Online+Support');
+			window.open('https://about.draw.io/support/');
 		});
 
 		editorUi.actions.addAction('exportOptionsDisabled...', function()

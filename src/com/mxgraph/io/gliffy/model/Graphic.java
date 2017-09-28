@@ -90,12 +90,20 @@ public class Graphic
 	{
 		public String text;
 	}
+	
+	public static class GliffyLink
+	{
+		String href;
+		boolean renderIcon;
+	}
 
 	public Type type;
 
 	public GliffyText Text;
 
 	public GliffyLine Line;
+	
+	public GliffyLink Link;
 
 	public GliffyShape Shape;
 
@@ -125,6 +133,11 @@ public class Graphic
 	public GliffyLine getLine()
 	{
 		return Line;
+	}
+	
+	public GliffyLink getLink()
+	{
+		return Link;
 	}
 
 	public GliffyShape getShape()

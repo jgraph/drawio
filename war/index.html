@@ -55,6 +55,24 @@
 			return result;
 		})();
 
+		// Forces CDN caches by passing URL parameters via URL hash
+		if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P')
+		{
+			try
+			{
+				urlParams = JSON.parse(decodeURIComponent(window.location.hash.substring(2)));
+				
+				if (urlParams.hash != null)
+				{
+					window.location.hash = urlParams.hash;
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
+		
 		// Redirects page if required
 		if (urlParams['dev'] != '1')
 		{
