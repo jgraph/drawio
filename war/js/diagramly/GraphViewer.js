@@ -498,14 +498,17 @@ GraphViewer.prototype.addSizeHandler = function()
 	};
 
 	// Fallback for older browsers
-	if (mxClient.IS_QUIRKS || document.documentMode <= 9)
+	if (GraphViewer.useResizeSensor)
 	{
-		mxEvent.addListener(window, 'resize', updateOverflow);
-		this.graph.addListener('size', updateOverflow);
-	}
-	else
-	{
-		new ResizeSensor(this.graph.container, updateOverflow);
+		if (mxClient.IS_QUIRKS || document.documentMode <= 9)
+		{
+			mxEvent.addListener(window, 'resize', updateOverflow);
+			this.graph.addListener('size', updateOverflow);
+		}
+		else
+		{
+			new ResizeSensor(this.graph.container, updateOverflow);
+		}
 	}
 	
 	if (this.graphConfig.resize || ((this.zoomEnabled || !this.autoFit) && this.graphConfig.resize != false))
@@ -540,13 +543,16 @@ GraphViewer.prototype.addSizeHandler = function()
 			});
 			
 			// Fallback for older browsers
-			if (mxClient.IS_QUIRKS || document.documentMode <= 9)
+			if (GraphViewer.useResizeSensor)
 			{
-				mxEvent.addListener(window, 'resize', doResize);
-			}
-			else
-			{
-				new ResizeSensor(this.graph.container, doResize);
+				if (mxClient.IS_QUIRKS || document.documentMode <= 9)
+				{
+					mxEvent.addListener(window, 'resize', doResize);
+				}
+				else
+				{
+					new ResizeSensor(this.graph.container, doResize);
+				}
 			}
 		}
 		else if (!(mxClient.IS_QUIRKS || document.documentMode <= 9))
@@ -1187,17 +1193,48 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 /**
  * Adds the given array of stencils to avoid dynamic loading of shapes.
  */
-GraphViewer.prototype.showLightbox = function()
+GraphViewer.prototype.showLightbox = function(editable, closable, target)
 {
 	if (this.graphConfig.lightbox == 'open' || window.self !== window.top)
 	{
-		var url = 'https://www.draw.io/?client=1&lightbox=1&close=1&edit=_blank&target=blank';
-		url += (this.graphConfig != null && this.graphConfig.nav != false) ? '&nav=1' : '';
-		url += (this.graphConfig != null && this.graphConfig.highlight != null) ?
-			'&highlight=' + this.graphConfig.highlight.substring(1) : '';
-		url += (this.currentPage != null) ? '&page=' + this.currentPage : '';
-		url += (this.layersEnabled) ? '&layers=1' : '';
+		editable = (editable != null) ? editable : true;
+		closable = (closable != null) ? closable : true;
+		target = (target != null) ? target : 'blank';
 		
+		var param = {'client': 1, 'lightbox': 1, 'target': target};
+	    
+		if (editable)
+		{
+			param.edit = '_blank';
+		}
+	    
+		if (closable)
+		{
+	    		param.close = 1;
+		}
+
+		if (this.layersEnabled)
+		{
+	    		param.layers = 1;
+		}
+		
+		if (this.graphConfig != null && this.graphConfig.nav != false)
+		{
+			param.nav = 1;
+		}
+		
+		if (this.graphConfig != null && this.graphConfig.highlight != null)
+		{
+			param.highlight = this.graphConfig.highlight.substring(1);
+		}
+		
+		if (this.currentPage != null && this.currentPage > 0)
+		{
+			param.page = this.currentPage;
+		}
+		
+	    var url = 'https://www.draw.io/#P' + encodeURIComponent(JSON.stringify(param));
+	    
 		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
 		{	
 			if (this.lightboxWindow != null && !this.lightboxWindow.closed)
@@ -1233,7 +1270,6 @@ GraphViewer.prototype.showLightbox = function()
 		this.showLocalLightbox();
 	}
 };
-
 
 /**
  * Adds the given array of stencils to avoid dynamic loading of shapes.
@@ -1690,6 +1726,11 @@ GraphViewer.getUrl = function(url, onload, onerror)
  * Redirects editing to absolue URLs.
  */
 GraphViewer.resizeSensorEnabled = true;
+
+/**
+ * Redirects editing to absolue URLs.
+ */
+GraphViewer.useResizeSensor = true;
 
 /**
  * Copyright Marc J. Schmidt. See the LICENSE file at the top-level

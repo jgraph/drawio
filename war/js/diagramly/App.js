@@ -2121,7 +2121,7 @@ App.prototype.start = function()
 			{
 				// Starts in client mode and waits for data
 				if (urlParams['client'] == '1' && (window.location.hash == null ||
-					window.location.hash.length == 0))
+					window.location.hash.length == 0 || window.location.hash.substring(0, 2) == '#P'))
 				{
 					var parent = window.opener || window.parent;
 					
@@ -2149,7 +2149,17 @@ App.prototype.start = function()
 									title = this.defaultFilename;
 								}
 								
-								this.fileLoaded(new LocalFile(this, xml, title, true));
+								var file = new LocalFile(this, xml, title, true);
+								
+								if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P')
+								{
+									file.getHash = function()
+									{
+										return window.location.hash.substring(1);
+									};
+								}
+								
+								this.fileLoaded(file);
 								this.getCurrentFile().setModified(!this.editor.chromeless);
 							}
 						}));
@@ -2417,7 +2427,7 @@ App.prototype.showSplash = function(force)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.addLanguageMenu = function(elt)
+App.prototype.addLanguageMenu = function(elt, addLabel)
 {
 	var img = null;
 	
@@ -2434,6 +2444,21 @@ App.prototype.addLanguageMenu = function(elt)
 			img.style.cursor = 'pointer';
 			img.style.bottom = '20px';
 			img.style.right = '20px';
+			
+			if (addLabel)
+			{
+				img.style.direction = 'rtl';
+				img.style.textAlign = 'right';
+				img.style.right = '24px';
+
+				var label = document.createElement('span');
+				label.style.display = 'inline-block';
+				label.style.fontSize = '12px';
+				label.style.margin = '5px 24px 0 0';
+				label.style.color = 'gray';
+				mxUtils.write(label, mxResources.get('language'));
+				img.appendChild(label);
+			}
 			
 			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
 			{
@@ -2986,7 +3011,8 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 	
 	if (!this.isCorsEnabledForUrl(realUrl))
 	{
-		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+		var nocache = 't=' + new Date().getTime();
+		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
 	}
 	
 	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
@@ -3700,7 +3726,8 @@ App.prototype.restoreLibraries = function()
 									
 									if (!this.isCorsEnabledForUrl(realUrl))
 									{
-										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+										var nocache = 't=' + new Date().getTime();
+										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
 									}
 									
 									// Uses proxy to avoid CORS issues

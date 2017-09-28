@@ -391,8 +391,10 @@
 			try
 			{
 				var newSource = target;
-				
-				if (cells != null && isTreeVertex(target))
+				var state = this.view.getState(target);
+				var style = (state != null) ? state.style : this.getCellStyle(target);
+
+				if (cells != null && isTreeVertex(target) && mxUtils.getValue(style, 'treeFolding', '0') == '1')
 				{
 					// Handles only drag from tree or from sidebar with dangling edges
 					for (var i = 0; i < cells.length; i++)
@@ -427,7 +429,7 @@
 						}
 					}
 				}
-	
+
 				result = graphMoveCells.apply(this, arguments);
 				
 				if (result != null && cells != null && result.length == cells.length)

@@ -1,3 +1,10 @@
+28-SEP-2017: 7.4.8
+
+- Adds #P for URL parameters (beta)
+- Bypasses caches for proxy servlet
+- Uses mxGraph 3.7.6 beta 2
+- Checks existing storage file before rename
+
 26-SEP-2017: 7.4.7
 
 - Adds components for Trello Power-Up

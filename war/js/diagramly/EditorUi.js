@@ -7619,7 +7619,6 @@
 	 */
 	EditorUi.prototype.highlightElement = function(elt)
 	{
-		console.trace('here');
 		var x = 0;
 		var y = 0;
 		var w = 0;

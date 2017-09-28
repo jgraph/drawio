@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2017, JGraph Ltd
+ * Copyright (c) 2006-2017, Gaudenz Alder
  */
 package com.mxgraph.io.gliffy.importer;
 
@@ -39,7 +39,6 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
-import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -247,7 +246,7 @@ public class GliffyDiagramConverter
 				double rads = Math.toRadians(object.rotation);
 				double cos = Math.cos(rads);
 				double sin = Math.sin(rads);
-				waypoint = mxUtils.getRotatedPoint(waypoint, cos, sin, pivot);
+				waypoint = Utils.getRotatedPoint(waypoint, cos, sin, pivot);
 			}
 			
 			mxPoints.add(waypoint);

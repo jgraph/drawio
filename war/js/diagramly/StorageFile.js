@@ -182,21 +182,32 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 StorageFile.prototype.rename = function(title, success, error)
 {
 	var oldTitle = this.getTitle();
-	this.title = title;
-	
-	// Updates the data if the extension has changed
-	if (!this.hasSameExtension(oldTitle, title))
+
+	if (oldTitle != title)
 	{
-		this.setData(this.ui.getFileData());
-	}
-	
-	this.saveFile(title, false, mxUtils.bind(this, function()
-	{
-		if (oldTitle != title)
+		this.ui.getLocalData(title, mxUtils.bind(this, function(data)
 		{
-			this.ui.removeLocalData(oldTitle, success);
-		}
-	}), error);
+			this.ui.confirm(mxResources.get('replaceIt', [title]), mxUtils.bind(this, function()
+			{
+				this.title = title;
+				
+				// Updates the data if the extension has changed
+				if (!this.hasSameExtension(oldTitle, title))
+				{
+					this.setData(this.ui.getFileData());
+				}
+				
+				this.saveFile(title, false, mxUtils.bind(this, function()
+				{
+					this.ui.removeLocalData(oldTitle, success);
+				}), error);
+			}), error);
+		}));
+	}
+	else
+	{
+		success();
+	}
 };
 
 /**

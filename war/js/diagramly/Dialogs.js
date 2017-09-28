@@ -12,12 +12,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	div.style.paddingTop = '0px';
 	div.style.paddingBottom = '20px';
 	
-	var elt = editorUi.addLanguageMenu(div);
+	var elt = editorUi.addLanguageMenu(div, true);
 	var bottom = '28px';
 	
 	if (elt != null)
 	{
-		elt.style.bottom = bottom;
+		elt.style.bottom = parseInt(bottom) - 2 + 'px';
 	}
 	
 	if (!editorUi.isOffline() && editorUi.getServiceCount() > 1)
@@ -448,7 +448,7 @@ var SplashDialog = function(editorUi)
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
 	
-	editorUi.addLanguageMenu(div);
+	editorUi.addLanguageMenu(div, true);
 	var help = null;
 	var serviceCount = editorUi.getServiceCount();
 	
@@ -4357,7 +4357,7 @@ var AboutDialog = function(editorUi)
 
 	var small = document.createElement('small');
 	small.style.color = '#505050';
-	small.innerHTML = '&copy; 2005-2017 <a href="https://www.jgraph.com/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
+	small.innerHTML = '&copy; 2005-2017 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
 	div.appendChild(small);
 	
 	mxEvent.addListener(div, 'click', function(e)
