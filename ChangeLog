@@ -1,3 +1,8 @@
+29-SEP-2017: 7.4.9
+
+- Fixes ignored current page in window lightbox
+- Fixes cross-origin frame access in fallback
+
 28-SEP-2017: 7.4.8
 
 - Adds #P for URL parameters (beta)

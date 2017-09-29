@@ -6412,6 +6412,37 @@
 			}
 		};
 		
+		// Passes current page to editor window
+		var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
+		
+		this.editor.getEditBlankUrl = function(params)
+		{
+			params = (params != null) ? params : '';
+			
+			if (ui.pages != null && ui.currentPage != null)
+			{
+				for (var i = 0; i < ui.pages.length; i++)
+				{
+					if (ui.pages[i] == ui.currentPage)
+					{
+						if (i > 0)
+						{
+							params += ((params.length > 0) ? '&' : '?') + 'page=' + i;
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			if (urlParams['dev'] == '1')
+			{
+				params += ((params.length > 0) ? '&' : '?') + 'dev=1&drawdev=1';
+			}
+			
+			return editorGetEditBlankUrl.apply(this, arguments);
+		};
+
 		// For chromeless mode and lightbox mode in viewer
 		// Must be overridden before supercall to be applied
 		// in case of chromeless initialization

@@ -2123,46 +2123,69 @@ App.prototype.start = function()
 				if (urlParams['client'] == '1' && (window.location.hash == null ||
 					window.location.hash.length == 0 || window.location.hash.substring(0, 2) == '#P'))
 				{
+					var doLoadFile = mxUtils.bind(this, function(xml)
+					{
+						// Extracts graph model from PNG
+						if (xml.substring(0, 22) == 'data:image/png;base64,')
+						{
+							xml = this.extractGraphModelFromPng(xml);
+						}
+						
+						var title = urlParams['title'];
+						
+						if (title != null)
+						{
+							title = decodeURIComponent(title);
+						}
+						else
+						{
+							title = this.defaultFilename;
+						}
+						
+						var file = new LocalFile(this, xml, title, true);
+						
+						if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P')
+						{
+							file.getHash = function()
+							{
+								return window.location.hash.substring(1);
+							};
+						}
+						
+						this.fileLoaded(file);
+						this.getCurrentFile().setModified(!this.editor.chromeless);
+					});
+
 					var parent = window.opener || window.parent;
 					
 					if (parent != window)
 					{
-						this.installMessageHandler(mxUtils.bind(this, function(xml, evt)
+						var value = urlParams['create'];
+						
+						if (value != null)
 						{
-							// Ignores messages from other windows
-							if (evt.source == parent)
+							doLoadFile(parent[decodeURIComponent(value)]);
+						}
+						else
+						{
+							value = urlParams['data'];
+							
+							if (value != null)
 							{
-								// Extracts graph model from PNG
-								if (xml.substring(0, 22) == 'data:image/png;base64,')
-								{
-									xml = this.extractGraphModelFromPng(xml);
-								}
-								
-								var title = urlParams['title'];
-								
-								if (title != null)
-								{
-									title = decodeURIComponent(title);
-								}
-								else
-								{
-									title = this.defaultFilename;
-								}
-								
-								var file = new LocalFile(this, xml, title, true);
-								
-								if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P')
-								{
-									file.getHash = function()
-									{
-										return window.location.hash.substring(1);
-									};
-								}
-								
-								this.fileLoaded(file);
-								this.getCurrentFile().setModified(!this.editor.chromeless);
+								doLoadFile(decodeURIComponent(value));
 							}
-						}));
+							else
+							{
+								this.installMessageHandler(mxUtils.bind(this, function(xml, evt)
+								{
+									// Ignores messages from other windows
+									if (evt.source == parent)
+									{
+										doLoadFile(xml);
+									}
+								}));
+							}
+						}
 					}
 				}
 				// Checks if no earlier loading errors are showing
