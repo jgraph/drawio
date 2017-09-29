@@ -261,12 +261,7 @@ Editor.prototype.appName = document.title;
 /**
  * 
  */
-Editor.prototype.editBlankUrl = window.location.protocol + '//' + window.location.host + '/?client=1';
-
-/**
- * 
- */
-Editor.prototype.editBlankFallbackUrl = window.location.protocol + '//' + window.location.host + '/?create=drawdata&splash=0';
+Editor.prototype.editBlankUrl = window.location.protocol + '//' + window.location.host + '/';
 
 /**
  * Initializes the environment.
@@ -285,9 +280,9 @@ Editor.prototype.setAutosave = function(value)
 /**
  * 
  */
-Editor.prototype.getEditBlankUrl = function(params, fallback)
+Editor.prototype.getEditBlankUrl = function(params)
 {
-	return ((fallback) ? this.editBlankFallbackUrl : this.editBlankUrl) + params;
+	return this.editBlankUrl + params;
 }
 
 /**
@@ -295,29 +290,35 @@ Editor.prototype.getEditBlankUrl = function(params, fallback)
  */
 Editor.prototype.editAsNew = function(xml, title)
 {
-	var p = (title != null) ? '&title=' + encodeURIComponent(title) : '';
+	var p = (title != null) ? '?title=' + encodeURIComponent(title) : '';
 	
-	if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
+	if (this.editorWindow != null && !this.editorWindow.closed)
 	{
-		var wnd = null;
-		
-		var receive = mxUtils.bind(this, function(evt)
-		{
-			if (evt.data == 'ready' && evt.source == wnd)
-			{
-				wnd.postMessage(xml, '*');
-				mxEvent.removeListener(window, 'message', receive);
-			}
-		});
-		
-		mxEvent.addListener(window, 'message', receive);
-		wnd = window.open(this.getEditBlankUrl(p, false));
+		this.editorWindow.focus();
 	}
 	else
 	{
-		// Data is pulled from global variable after tab loads
-		window.drawdata = xml;
-		window.open(this.getEditBlankUrl(p, true));
+		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
+		{
+			if (this.editorWindow == null)
+			{
+				mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
+				{
+					if (evt.data == 'ready' && evt.source == this.editorWindow)
+					{
+						this.editorWindow.postMessage(xml, '*');
+					}
+				}));
+			}
+
+			this.editorWindow = window.open(this.getEditBlankUrl(p +
+				((p.length > 0) ? '&' : '?') + 'client=1'));
+		}
+		else
+		{
+			this.editorWindow = window.open(this.getEditBlankUrl(p) +
+				'#R' + encodeURIComponent(xml));
+		}
 	}
 };
 

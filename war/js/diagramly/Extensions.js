@@ -2010,38 +2010,38 @@
 //UI Input
 			'UI2ButtonBlock' : 'rounded=1;arcSize=25;',
 			'UI2CheckBoxBlock' : cs,
-			'UI2HorizontalCheckBoxBlock' : cs, //TODO
-			'UI2RadioBlock' : cs, //TODO
-			'UI2HorizontalRadioBlock' : cs, //TODO
+			'UI2HorizontalCheckBoxBlock' : cs,
+			'UI2RadioBlock' : cs,
+			'UI2HorizontalRadioBlock' : cs,
 			'UI2ColorPickerBlock' : s + 'mockup.forms.colorPicker;chosenColor=#aaddff',
 			'UI2TextInputBlock' : '',
 			'UI2SelectBlock' : s + 'mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666',
 			'UI2VSliderBlock' : cs,
 			'UI2HSliderBlock' : cs,
-//			'UI2HSliderBlock' : s + 'mockup.forms.horSlider;sliderStyle=basic;sliderPos=20;handleStyle=circle',
-//			'UI2DatePickerBlock' NA
-			'UI2SearchBlock' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
-			'UI2NumericStepperBlock' : s + 'mockup.forms.spinner;spinLayout=right;spinStyle=normal;adjStyle=triangle;fillColor=#000000;mainText=',
+			'UI2DatePickerBlock' : cs,
+			'UI2SearchBlock' : cs,
+			'UI2NumericStepperBlock' : cs,
 			'UI2TableBlock' : cs, //TODO
 //UI Menus
-			'UI2ButtonBarBlock' : cs, //TODO
-			'UI2VerticalButtonBarBlock' : cs, //TODO
-			'UI2LinkBarBlock' : cs, //TODO
-			'UI2BreadCrumbsBlock' : cs, //TODO
-			'UI2MenuBarBlock' : cs, //TODO
-			'UI2AtoZBlock' : s + 'mockup.text.alphanumeric;linkText=;fontStyle=4',
-			'UI2PaginationBlock' : s + 'mockup.navigation.pagination;linkText=;fontStyle=4',
-			'UI2ContextMenuBlock' : cs, //TODO
+			'UI2ButtonBarBlock' : cs,
+			'UI2VerticalButtonBarBlock' : cs,
+			'UI2LinkBarBlock' : cs,
+			'UI2BreadCrumbsBlock' : cs,
+			'UI2MenuBarBlock' : cs,
+			'UI2AtoZBlock' : cs,
+			'UI2PaginationBlock' : cs,
+			'UI2ContextMenuBlock' : cs,
 			'UI2TreePaneBlock' : cs, //TODO
 			'UI2PlaybackControlsBlock' : s + 'mockup.misc.playbackControls;fillColor=#ffffff;strokeColor=#999999;fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none',
 			'Image_ui_formatting_toolbar' : s + 'mockup.menus_and_buttons.font_style_selector_2',
 //UI Misc
-			'UI2ProgressBarBlock' : s + 'mockup.misc.progressBar;fillColor2=#888888;barPos=25',
+			'UI2ProgressBarBlock' : cs,
 			'UI2HelpIconBlock' : s + 'mockup.misc.help_icon',
-			'UI2BraceNoteBlock' : s + 'mockup.markup.curlyBrace;direction=north', //TODO
-			'UI2TooltipBlock' : s + 'basic.rectangular_callout;flipV=1', //TODO
-			'UI2CalloutBlock' : 'shape=ellipse',
-			'UI2AlertBlock' : cs, //TODO
+			'UI2BraceNoteBlock' : cs,
+			'UI2TooltipBlock' : s + 'basic.rectangular_callout;flipV=1',
+			'UI2TooltipSquareBlock' : cs,
+			'UI2CalloutBlock' : cs,
+			'UI2AlertBlock' : cs,
 //iOS 6 iPad Elements
 			'Image_ipad_ipad' : s + 'ios.iPad;bgStyle=bgGreen',
 			'iPadGrayBackgroundBlock' : '',
@@ -2660,7 +2660,7 @@
 			style += createStyle(mxConstants.STYLE_OPACITY, properties.Opacity, '100');
 		}
 
-		if (typeof properties.LineColor === 'string')
+		if (typeof properties.LineColor === 'string' && !hardOpacity.includes(action.Class))
 		{
 			if (properties.LineColor.length > 7)
 			{
@@ -2669,7 +2669,7 @@
 			}
 		}
 		
-		if (typeof properties.FillColor === 'string')
+		if (typeof properties.FillColor === 'string' && !hardOpacity.includes(action.Class))
 		{
 			if (properties.FillColor.length > 7)
 			{
@@ -3305,7 +3305,8 @@
 		switch (obj.Class)
 		{
 			case 'BraceNoteBlock' :
-				
+			case 'UI2BraceNoteBlock' :
+								
 				var isRightBrace = false;
 				
 				if (p.BraceDirection != null)
@@ -8256,28 +8257,512 @@
 				}
 				
 				v.style += 'sliderPos=' + (p.ScrollVal * 100) + ';';
+				
 				break;
+				
+			case 'UI2DatePickerBlock' :
+				v.style += 'strokeColor=none;fillColor=none;';
+				
+				var item1 = new mxCell('', new mxGeometry(0, 0, w * 0.6, h), 'part=1;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style +=  
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getLabelStyle(p.Date);
+				
+				item1.value = convertText(p.Date);
+
+				var fc = getStrokeColor(p, a);
+				fc = fc.replace('strokeColor', 'fillColor');
+				
+				if (fc == '')
+				{
+					fc = 'fillColor=#000000;'
+				}
+				
+				var item2 = new mxCell('', new mxGeometry(w * 0.75, 0, w * 0.25, h), 'part=1;shape=mxgraph.gmdl.calendar;');
+				item2.vertex = true;
+				v.insert(item2);
+				item2.style += fc +  
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+
+				break;
+
+			case 'UI2SearchBlock' :
+				v.style += 'shape=mxgraph.mockup.forms.searchBox;mainText=;flipH=1;align=left;spacingLeft=26;' + 
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getFontSize(p.Search) +
+					getFontColor(p.Search) + 
+					getFontStyle(p.Search);
+				
+				v.value = convertText(p.Search);
+				
+				break;
+
+			case 'UI2NumericStepperBlock' :
+				var fc = getStrokeColor(p, a);
+				fc = fc.replace('strokeColor', 'fillColor');
+				
+				if (fc == '')
+				{
+					fc = 'fillColor=#000000;'
+				}
+				
+				v.style += 'shape=mxgraph.mockup.forms.spinner;spinLayout=right;spinStyle=normal;adjStyle=triangle;mainText=;align=left;spacingLeft=8;' + fc + 
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getFontSize(p.Number) +
+					getFontColor(p.Number) + 
+					getFontStyle(p.Number);
+				
+				v.value = convertText(p.Number);
+				
+				break;
+				
 			case 'UI2TableBlock' :
 				break;
 			case 'UI2ButtonBarBlock' :
+				v.style +=
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+
+				var item1 = new Array();
+				var item2 = new Array();
+				var itemW = w / p.Buttons;
+					
+				for (var i = 0; i <= (p.Buttons - 1); i++)
+				{
+					if (i == (p.Selected - 1))
+					{
+						item2[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), '');
+						item2[i].vertex = true;
+						v.insert(item2[i]);
+						item2[i].style += 
+							getOpacity(p, a) +
+							getStrokeColor(p, a) + 
+							getFillColor(p, a) +
+							getStrokeWidth(p) +
+							getStrokeStyle(p) +
+							getShadow(p) +
+							getLabelStyle(p['Button_' + (i + 1)]);
+						
+						item2[i].value = convertText(p['Button_' + (i + 1)]);
+					}
+					else
+					{
+						item1[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), 'strokeColor=none;');
+						item1[i].vertex = true;
+						v.insert(item1[i]);
+						item1[i].style += 
+							getOpacity(p, a) +
+							getFillColor(p, a) +
+							getShadow(p);
+						
+						item2[i] = new mxCell('', new mxGeometry(0, 0, itemW, h), 'fillColor=#000000;fillOpacity=25;');
+						item2[i].vertex = true;
+						item1[i].insert(item2[i]);
+						item2[i].style += 
+							getStrokeColor(p, a) + 
+							getStrokeWidth(p) +
+							getStrokeStyle(p) +
+							getLabelStyle(p['Button_' + (i + 1)]);
+						
+						item2[i].value = convertText(p['Button_' + (i + 1)]);
+					}
+				}
+				
 				break;
+				
 			case 'UI2VerticalButtonBarBlock' :
+				v.style +=
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+	
+				var item1 = new Array();
+				var item2 = new Array();
+				var itemH = h / p.Buttons;
+					
+				for (var i = 0; i <= (p.Buttons - 1); i++)
+				{
+					if (i == (p.Selected - 1))
+					{
+						item2[i] = new mxCell('', new mxGeometry(0, i * itemH, w, itemH), '');
+						item2[i].vertex = true;
+						v.insert(item2[i]);
+						item2[i].style += 
+							getOpacity(p, a) +
+							getStrokeColor(p, a) + 
+							getFillColor(p, a) +
+							getStrokeWidth(p) +
+							getStrokeStyle(p) +
+							getShadow(p) +
+							getLabelStyle(p['Button_' + (i + 1)]);
+						
+						item2[i].value = convertText(p['Button_' + (i + 1)]);
+					}
+					else
+					{
+						item1[i] = new mxCell('', new mxGeometry(0, i * itemH, w, itemH), 'strokeColor=none;');
+						item1[i].vertex = true;
+						v.insert(item1[i]);
+						item1[i].style += 
+							getOpacity(p, a) +
+							getFillColor(p, a) +
+							getShadow(p);
+						
+						item2[i] = new mxCell('', new mxGeometry(0, 0, w, itemH), 'fillColor=#000000;fillOpacity=25;');
+						item2[i].vertex = true;
+						item1[i].insert(item2[i]);
+						item2[i].style += 
+							getStrokeColor(p, a) + 
+							getStrokeWidth(p) +
+							getStrokeStyle(p) +
+							getLabelStyle(p['Button_' + (i + 1)]);
+						
+						item2[i].value = convertText(p['Button_' + (i + 1)]);
+					}
+				}
+				
 				break;
 			case 'UI2LinkBarBlock' :
+				v.style += 'strokeColor=none;fillColor=none;'
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+
+				var item1 = new Array();
+				var item2 = new Array();
+				var itemW = w / p.Links;
+					
+				for (var i = 0; i < (p.Links); i++)
+				{
+					if (i != 0)
+					{
+						item2[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), 'shape=partialRectangle;top=0;bottom=0;right=0;fillColor=none;');
+						item2[i].style += 
+							getOpacity(p, a) +
+							getShadow(p) +
+							getStrokeColor(p, a) + 
+							getStrokeWidth(p) +
+							getStrokeStyle(p);
+					}
+					else
+					{
+						item2[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), 'fillColor=none;strokeColor=none;');
+					}
+					
+					item2[i].vertex = true;
+					v.insert(item2[i]);
+					item2[i].style += 
+						getLabelStyle(p['Link_' + (i + 1)]);
+					
+					item2[i].value = convertText(p['Link_' + (i + 1)]);
+				}
+				
 				break;
+				
 			case 'UI2BreadCrumbsBlock' :
+				v.style += 'strokeColor=none;fillColor=none;'
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+
+				var item1 = new Array();
+				var item2 = new Array();
+				var itemW = w / p.Links;
+					
+				for (var i = 0; i < (p.Links); i++)
+				{
+					item1[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), 'fillColor=none;strokeColor=none;');
+					item1[i].vertex = true;
+					v.insert(item1[i]);
+					item1[i].style += 
+						getLabelStyle(p['Link_' + (i + 1)]);
+					
+					item1[i].value = convertText(p['Link_' + (i + 1)]);
+				}
+				
+				for (var i = 1; i < (p.Links); i++)
+				{
+					item2[i] = new mxCell('', new mxGeometry(i / p.Links, 0.5, 6, 10), 'shape=mxgraph.ios7.misc.right;');
+					item2[i].geometry.relative = true;
+					item2[i].geometry.offset = new mxPoint(-3, -5);
+					item2[i].vertex = true;
+					v.insert(item2[i]);
+				}
+				
 				break;
 			case 'UI2MenuBarBlock' :
+				v.style += 'strokeColor=none;' +
+					getOpacity(p, a) +
+					getFillColor(p, a) +
+					getShadow(p);
+
+				var item1 = new Array();
+				var itemW = w / (p.Buttons + 1);
+					
+				for (var i = 0; i <= (p.Buttons - 1); i++)
+				{
+					if (i != (p.Selected - 1))
+					{
+						item1[i] = new mxCell('', new mxGeometry(0, 0, itemW, h), 'strokeColor=none;fillColor=none;resizeHeight=1;');
+					}
+					else
+					{
+						item1[i] = new mxCell('', new mxGeometry(0, 0, itemW, h), 'fillColor=#000000;fillOpacity=25;strokeColor=none;resizeHeight=1;');
+					}
+					
+					item1[i].geometry.relative = true;
+					item1[i].geometry.offset = new mxPoint(i * itemW, 0);
+					item1[i].vertex = true;
+					v.insert(item1[i]);
+					item1[i].style += 
+						getLabelStyle(p['MenuItem_' + (i + 1)]);
+					
+					item1[i].value = convertText(p['MenuItem_' + (i + 1)]);
+				}
+				
 				break;
+			case 'UI2AtoZBlock' :
+				v.style += 'fillColor=none;strokeColor=none;' + 
+					getLabelStyle(p['Text_0']);
+				
+				v.value = '0-9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z';
+				
+				break;
+
+			case 'UI2PaginationBlock' :
+				v.style += 'fillColor=none;strokeColor=none;' + 
+					getLabelStyle(p.Text_prev);
+			
+				v.value = convertText(p.Text_prev) + ' ';
+				
+				for (var i = 0; i < p.Links; i++)
+				{
+					v.value += convertText(p['Link_' + (i + 1)]) + ' ';
+				}
+				
+				v.value += convertText(p.Text_next);
+				
+				break;
+				
 			case 'UI2ContextMenuBlock' :
+				v.style +=
+					getOpacity(p, a) +
+					getFillColor(p, a) + 
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p);
+				
+				var item = new Array();
+				var icon = new Array();
+				var shortcut = new Array();
+				var itemH = h / p.Lines;
+				var st = null; 
+				
+				for (var i = 0; i < p.Lines; i++)
+				{
+					//add label
+					if (p['Item_' + (i + 1)] != null)
+					{
+						if (st == null)
+						{
+							st = '' + 
+								getFontSize(p['Item_' + (i + 1)]) +
+								getFontColor(p['Item_' + (i + 1)]) + 
+								getFontStyle(p['Item_' + (i + 1)]);
+						}
+						
+						item[i] = new mxCell('', new mxGeometry(0, i * h / p.Lines, w, itemH), 'strokeColor=none;fillColor=none;spacingLeft=20;align=left;html=1;');
+						item[i].vertex = true;
+						v.insert(item[i]);
+						item[i].style += st; 
+						
+						item[i].value = convertText(p['Item_' + (i + 1)]);
+					}
+					
+					//add icon
+					if (p.Icons[(i + 1)] != null && item[i] != null)
+					{
+						if (p.Icons[(i + 1)] == 'dot')
+						{
+							icon[i] = new mxCell('', new mxGeometry(0, 0.5, 8, 8), 'shape=ellipse;strokeColor=none;');
+							icon[i].geometry.offset = new mxPoint(6, -4);
+						}
+						else if (p.Icons[(i + 1)] == 'check')
+						{
+							icon[i] = new mxCell('', new mxGeometry(0, 0.5, 7, 8), 'shape=mxgraph.mscae.general.checkmark;strokeColor=none;');
+							icon[i].geometry.offset = new mxPoint(6.5, -4);
+						}
+
+						if (icon[i] != null)
+						{
+							icon[i].geometry.relative = true;
+							icon[i].vertex = true;
+							item[i].insert(icon[i]);
+							
+							var fc = getStrokeColor(p, a);
+							fc = fc.replace('strokeColor', 'fillColor');
+							
+							if (fc == '')
+							{
+								fc = 'fillColor=#000000;'
+							}
+							
+							icon[i].style += fc;
+						}
+					}
+					
+					//add shortcut
+					if (p['Shortcut_' + (i + 1)] != null)
+					{
+						if (st == null)
+						{
+							st = '' + 
+								getFontSize(p['Shortcut_' + (i + 1)]) +
+								getFontColor(p['Shortcut_' + (i + 1)]) + 
+								getFontStyle(p['Shortcut_' + (i + 1)]);
+						}
+						
+						shortcut[i] = new mxCell('', new mxGeometry(w * 0.6, i * h / p.Lines, w * 0.4, itemH), 'strokeColor=none;fillColor=none;spacingRight=3;align=right;html=1;');
+						shortcut[i].vertex = true;
+						v.insert(shortcut[i]);
+						shortcut[i].style += st; 
+						
+						shortcut[i].value = convertText(p['Shortcut_' + (i + 1)]);
+					}
+					
+					//add line
+					if (p.Dividers[(i + 1)] != null)
+					{
+						item[i] = new mxCell('', new mxGeometry(w * 0.05, i * h / p.Lines, w * 0.9, itemH), 'shape=line;strokeWidth=0.25;');
+						item[i].vertex = true;
+						v.insert(item[i]);
+						item[i].style += getStrokeColor(p, a); 
+					}
+				}
+				
 				break;
 			case 'UI2TreePaneBlock' :
 				break;
-			case 'UI2BraceNoteBlock' :
+				
+			case 'UI2ProgressBarBlock' :
+				v.style += 'shape=mxgraph.mockup.misc.progressBar;fillColor2=#888888;barPos=' + (p.ScrollVal * 100) + ';';
+				
 				break;
-			case 'UI2TooltipBlock' :
+				
+			case 'UI2TooltipSquareBlock' :
+				v.style += 'html=1;shape=callout;flipV=1;base=13;size=7;position=0.5;position2=0.66;rounded=1;arcSize=' + (p.RoundCorners) + ';' +
+					getOpacity(p, a) +
+					getFillColor(p, a) + 
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getLabelStyle(p.Tip);
+				
+				v.value = convertText(p.Tip);
+				
 				break;
+			case 'UI2CalloutBlock' :
+				v.style += 'shape=ellipse;' +
+					getOpacity(p, a) +
+					getFillColor(p, a) + 
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getLabelStyle(p.Txt);
+				
+				v.value = convertText(p.Txt);
+				
+				
+				break;
+				
 			case 'UI2AlertBlock' :
+				v.style += 
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getShadow(p) +
+					getRotation(p, a, v) +
+					getLabelStyle(p.Txt);
+
+				v.value = convertText(p.Txt);
+
+				var item1 = new mxCell('', new mxGeometry(0, 0, w, 30), 'part=1;resizeHeight=0;');
+				item1.vertex = true;
+				v.insert(item1);
+				item1.style += st +
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getFillColor(p, a) +
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p.Title);
+				
+				item1.value = convertText(p.Title);
+
+				var item2 = new mxCell('', new mxGeometry(1, 0.5, 20, 20), 'part=1;shape=ellipse;strokeColor=#008cff;resizable=0;fillColor=none;html=1;');
+			   	item2.geometry.relative = true;
+			   	item2.geometry.offset = new mxPoint(-25, -10);
+				item2.vertex = true;
+				item1.insert(item2);
+
+				var bw = 45;
+				var bh = 20;
+				var bs = 10;
+				var totalW = bw * p.Buttons + (bs * p.Buttons - 1)
+				
+				item3 = new Array();
+				
+				for (var i = 0; i < p.Buttons; i++)
+				{
+					item3[i] = new mxCell('', new mxGeometry(0.5, 1, bw, bh), 'part=1;html=1;');
+				   	item3[i].geometry.relative = true;
+				   	item3[i].geometry.offset = new mxPoint(-totalW * 0.5 + i * (bw + bs), -40);
+					item3[i].vertex = true;
+					v.insert(item3[i]);
+					item3[i].style +=
+						getOpacity(p, a) +
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getLabelStyle(p['Button_' + (i + 1)]);
+					
+					item3[i].value = convertText(p['Button_' + (i + 1)]);
+				}
+				
 				break;
 			case 'Image_ipad_alert_dialog' :
 				break;

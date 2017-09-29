@@ -19,11 +19,6 @@ mxUtils.extend(GraphViewer, mxEventSource);
 GraphViewer.prototype.editBlankUrl = 'https://www.draw.io/?client=1';
 
 /**
- * Redirects editing to absolue URLs.
- */
-GraphViewer.prototype.editBlankFallbackUrl = 'https://www.draw.io/?create=drawdata&splash=0';
-
-/**
  * Base URL for relative images.
  */
 GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
@@ -126,7 +121,6 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			// Hack for using EditorUi methods on the graph instance
 			this.editor = new Editor(true, null, null, this.graph);
 			this.editor.editBlankUrl = this.editBlankUrl;
-			this.editor.editBlankFallbackUrl = this.editBlankFallbackUrl;
 			this.graph.lightbox = true;
 			this.graph.centerZoom = false;
 			this.graph.autoExtend = false;
@@ -1197,72 +1191,80 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 {
 	if (this.graphConfig.lightbox == 'open' || window.self !== window.top)
 	{
-		editable = (editable != null) ? editable : true;
-		closable = (closable != null) ? closable : true;
-		target = (target != null) ? target : 'blank';
-		
-		var param = {'client': 1, 'lightbox': 1, 'target': target};
-	    
-		if (editable)
+		if (this.lightboxWindow != null && !this.lightboxWindow.closed)
 		{
-			param.edit = '_blank';
-		}
-	    
-		if (closable)
-		{
-	    		param.close = 1;
-		}
-
-		if (this.layersEnabled)
-		{
-	    		param.layers = 1;
-		}
-		
-		if (this.graphConfig != null && this.graphConfig.nav != false)
-		{
-			param.nav = 1;
-		}
-		
-		if (this.graphConfig != null && this.graphConfig.highlight != null)
-		{
-			param.highlight = this.graphConfig.highlight.substring(1);
-		}
-		
-		if (this.currentPage != null && this.currentPage > 0)
-		{
-			param.page = this.currentPage;
-		}
-		
-	    var url = 'https://www.draw.io/#P' + encodeURIComponent(JSON.stringify(param));
-	    
-		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
-		{	
-			if (this.lightboxWindow != null && !this.lightboxWindow.closed)
-			{
-				this.lightboxWindow.focus();
-			}
-			else
-			{
-
-				this.lightboxWindow = window.open(url);
-
-				var receive = mxUtils.bind(this, function(evt)
-				{
-					if (evt.data == 'ready' && evt.source == this.lightboxWindow)
-					{
-						this.lightboxWindow.postMessage(this.xml, '*');
-						mxEvent.removeListener(window, 'message', receive);
-					}
-				});
-				
-				mxEvent.addListener(window, 'message', receive);
-			}
+			this.lightboxWindow.focus();
 		}
 		else
 		{
-			// Data is pulled from global variable after tab loads
-			window.drawdata = this.xml;
-			window.open(url);
+			editable = (editable != null) ? editable :
+				((this.graphConfig.editable != null) ?
+					this.graphConfig.editable : true);
+			closable = (closable != null) ? closable : true;
+			target = (target != null) ? target : 'blank';
+			
+			var param = {'client': 1, 'lightbox': 1, 'target': target};
+		    
+			if (editable)
+			{
+				param.edit = '_blank';
+			}
+		    
+			if (closable)
+			{
+		    		param.close = 1;
+			}
+
+			if (this.layersEnabled)
+			{
+		    		param.layers = 1;
+			}
+			
+			if (this.graphConfig != null && this.graphConfig.nav != false)
+			{
+				param.nav = 1;
+			}
+			
+			if (this.graphConfig != null && this.graphConfig.highlight != null)
+			{
+				param.highlight = this.graphConfig.highlight.substring(1);
+			}
+			
+			if (this.currentPage != null && this.currentPage > 0)
+			{
+				param.page = this.currentPage;
+			}
+
+			if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
+			{	
+				if (this.lightboxWindow == null)
+				{
+					mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
+					{
+						if (evt.data == 'ready' && evt.source == this.lightboxWindow)
+						{
+							this.lightboxWindow.postMessage(this.xml, '*');
+						}
+					}));					
+				}
+			}
+			else
+			{
+				// Data is pulled from global variable after tab loads
+				param.data = encodeURIComponent(this.xml);
+			}
+			
+			var domain = 'www.draw.io';
+			
+			if (urlParams['dev'] == '1')
+			{
+				param.dev = '1';
+				param.drawdev = '1';
+				domain = 'test.draw.io';
+			}
+			
+		    this.lightboxWindow = window.open('https://' + domain +
+		    		'/#P' + encodeURIComponent(JSON.stringify(param)));
 		}
 	}
 	else
@@ -1352,28 +1354,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 	{
 		ui.destroy();
 	});
-	
-	// Passes current page and local URLs to open in new window action
-	ui.editor.editBlankUrl = this.editBlankUrl;
-	ui.editor.editBlankFallbackUrl = this.editBlankFallbackUrl;
-	var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
-	
-	ui.editor.getEditBlankUrl = function(params, fallback)
-	{
-		var param = '';
-		
-		if (ui.pages != null && ui.currentPage != null)
-		{
-			var pageIndex = mxUtils.indexOf(ui.pages, ui.currentPage);
-		
-			if (pageIndex > 0)
-			{
-				param = '&page=' + pageIndex;
-			}
-		}
-		
-		return editorGetEditBlankUrl.apply(this, arguments) + param;
-	}
 
 	// Handles escape keystroke
 	var keydownHandler = mxUtils.bind(this, function(evt)
@@ -1619,7 +1599,7 @@ GraphViewer.initCss = function()
 	try
 	{
 		var style = document.createElement('style')
-		style.type = 'text/css'
+		style.type = 'text/css';
 		style.innerHTML = ['div.mxTooltip {',
 			'-webkit-box-shadow: 3px 3px 12px #C0C0C0;',
 			'-moz-box-shadow: 3px 3px 12px #C0C0C0;',
@@ -1685,7 +1665,7 @@ GraphViewer.initCss = function()
 			// These are required for the print dialog
 			'.geDialog {	position:absolute;	background:white;	overflow:hidden;	padding:30px;	border:1px solid #acacac;	-webkit-box-shadow:0px 0px 2px 2px #d5d5d5;	-moz-box-shadow:0px 0px 2px 2px #d5d5d5;	box-shadow:0px 0px 2px 2px #d5d5d5;	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color=\'#d5d5d5\', Positive=\'true\');	z-index: 2;}.geDialogClose {	position:absolute;	width:9px;	height:9px;	opacity:0.5;	cursor:pointer;	_filter:alpha(opacity=50);}.geDialogClose:hover {	opacity:1;}.geDialogTitle {	box-sizing:border-box;	white-space:nowrap;	background:rgb(229, 229, 229);	border-bottom:1px solid rgb(192, 192, 192);	font-size:15px;	font-weight:bold;	text-align:center;	color:rgb(35, 86, 149);}.geDialogFooter {	background:whiteSmoke;	white-space:nowrap;	text-align:right;	box-sizing:border-box;	border-top:1px solid #e5e5e5;	color:darkGray;}',
 			'.geBtn {	background-color: #f5f5f5;	border-radius: 2px;	border: 1px solid #d8d8d8;	color: #333;	cursor: default;	font-size: 11px;	font-weight: bold;	height: 29px;	line-height: 27px;	margin: 0 0 0 8px;	min-width: 72px;	outline: 0;	padding: 0 8px;	cursor: pointer;}.geBtn:hover, .geBtn:focus {	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);	border: 1px solid #c6c6c6;	background-color: #f8f8f8;	background-image: linear-gradient(#f8f8f8 0px,#f1f1f1 100%);	color: #111;}.geBtn:disabled {	opacity: .5;}.gePrimaryBtn {	background-color: #4d90fe;	background-image: linear-gradient(#4d90fe 0px,#4787ed 100%);	border: 1px solid #3079ed;	color: #fff;}.gePrimaryBtn:hover, .gePrimaryBtn:focus {	background-color: #357ae8;	background-image: linear-gradient(#4d90fe 0px,#357ae8 100%);	border: 1px solid #2f5bb7;	color: #fff;}.gePrimaryBtn:disabled {	opacity: .5;}'].join('\n');
-		document.getElementsByTagName('head')[0].appendChild(style)
+		document.getElementsByTagName('head')[0].appendChild(style);
 	}
 	catch (e)
 	{

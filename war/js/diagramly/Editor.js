@@ -240,15 +240,6 @@
 	Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURIComponent(urlParams['edit']) : null;
 
 	/**
-	 * 
-	 */
-	if (urlParams['dev'] == '1')
-	{
-		Editor.prototype.editBlankUrl = Editor.prototype.editBlankUrl + '&dev=1';
-		Editor.prototype.editBlankFallbackUrl = Editor.prototype.editBlankFallbackUrl + '&dev=1';
-	}
-
-	/**
 	 * Adds support for old stylesheets and compressed files
 	 */
 	var editorSetGraphXml = Editor.prototype.setGraphXml;
