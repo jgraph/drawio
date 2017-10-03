@@ -28,6 +28,12 @@ TrelloClient.prototype.maxFileSize = 10000000 /*10MB*/;
  */
 TrelloClient.prototype.extension = '.xml'; //TODO export to png
 
+
+TrelloFile.prototype.isAutosaveOptional = function()
+{
+	return false;
+};
+
 /**
  * Authorizes the client, used with methods that can be called without a user click and popup blockers will interfere
  * Show the AuthDialog to work around the popup blockers if the file is opened directly
@@ -285,7 +291,7 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 				  var formData = new FormData();
 				  formData.append('key', Trello.key());
 				  formData.append('token', Trello.token());
-				  formData.append('file', data, filename);
+				  formData.append('file', typeof data === "string"? new Blob([data]) : data, filename);
 				  formData.append('name', filename);
 	
 				  var request = new XMLHttpRequest();

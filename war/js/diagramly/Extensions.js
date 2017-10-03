@@ -292,10 +292,10 @@
 			'MindMapOctagonBlock' : s + 'basic.octagon',
 			'MindMapCrossBlock' : s + 'basic.cross2;dx=20',
 //Entity Relationship
-			'ERDEntityBlock' : cs, //TODO
-			'ERDEntityBlock2' : cs, //TODO
-			'ERDEntityBlock3' : cs, //TODO
-			'ERDEntityBlock4' : cs, //TODO
+			'ERDEntityBlock' : cs,
+			'ERDEntityBlock2' : cs,
+			'ERDEntityBlock3' : cs,
+			'ERDEntityBlock4' : cs,
 //Site Maps
 			'SMPage'  : cs,
 			'SMHome'  : cs,
@@ -331,7 +331,7 @@
 //			'SMSlideshow' NA
 			'SMUpload'  : cs,
 //UML Class Diagram
-			'UMLClassBlock': '',
+			'UMLClassBlock': cs,
 			'UMLActiveClassBlock': 'shape=process',
 			'UMLMultiplicityBlock' : cs,
 			'UMLPackageBlock': 'shape=folder;tabPosition=left',
@@ -456,265 +456,266 @@
 			'VSMPushArrow' : s + 'lean_mapping.push_arrow',
 //			'VSMElectronicInformationArrow' : s + 'lean_mapping.electronic_info_flow_edge;', //TODO
 //EC2
-			'AWSElasticComputeCloudBlock2' : ss + 'aws3.ec2',
+			'AWSElasticComputeCloudBlock2' : cs,
+//			'AWSElasticComputeCloudBlock2' : ss + 'aws3.ec2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AWSInstanceBlock2' : ss + 'aws3.instance',
-			'AWSInstancesBlock2' : ss + 'aws3.instances',
-			'AWSAMIBlock2' : ss + 'aws3.ami',
-			'AWSDBonInstanceBlock2' : ss + 'aws3.db_on_instance',
-			'AWSInstanceCloudWatchBlock2' : ss + 'aws3.instance_with_cloudwatch',
-			'AWSElasticIPBlock2' : ss + 'aws3.elastic_ip',
-			'AWSHDFSClusterBlock2' : ss + 'aws3.hdfs_cluster',
-			'AWSAutoScalingBlock2' : ss + 'aws3.auto_scaling',
-			'AWSEC2OptimizedInstance2' : ss + 'aws3.optimized_instance',
-			'AWSAmazonEC2(Spotinstance)' : ss + 'aws3.spot_instance',
-			'AWSAmazonECR' : ss + 'aws3.ecr',
-			'AWSAmazonECS' : ss + 'aws3.ecs',
-			'AWSLambda2' : ss + 'aws3.lambda',
-			'AWSElasticLoadBalancing' : ss + 'aws3.elastic_load_balancing',
+			'AWSInstancesBlock2' : ss + 'aws3.instances;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAMIBlock2' : ss + 'aws3.ami;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDBonInstanceBlock2' : ss + 'aws3.db_on_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSInstanceCloudWatchBlock2' : ss + 'aws3.instance_with_cloudwatch;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElasticIPBlock2' : ss + 'aws3.elastic_ip;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSHDFSClusterBlock2' : ss + 'aws3.hdfs_cluster;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAutoScalingBlock2' : ss + 'aws3.auto_scaling;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEC2OptimizedInstance2' : ss + 'aws3.optimized_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonEC2(Spotinstance)' : ss + 'aws3.spot_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonECR' : ss + 'aws3.ecr;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonECS' : ss + 'aws3.ecs;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSLambda2' : ss + 'aws3.lambda;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElasticLoadBalancing' : ss + 'aws3.elastic_load_balancing;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Networking
-			'AWSElasticLoadBlock2' : ss + 'aws3.classic_load_balancer',
-			'AWSDirectConnectBlock3' : ss + 'aws3.direct_connect',
-			'AWSElasticNetworkBlock2' : ss + 'aws3.elastic_network_interface',
-			'AWSRoute53Block2' : ss + 'aws3.route_53',
+			'AWSElasticLoadBlock2' : ss + 'aws3.classic_load_balancer;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDirectConnectBlock3' : ss + 'aws3.direct_connect;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElasticNetworkBlock2' : ss + 'aws3.elastic_network_interface;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRoute53Block2' : cs,
 			'AWSHostedZoneBlock2' : ss + 'aws3.hosted_zone;fontColor=#FFFFFF;fontStyle=1',
-			'AWSRouteTableBlock2' : ss + 'aws3.route_table',
-			'AWSVPCBlock2' : ss + 'aws3.vpc',
-			'AWSVPNConnectionBlock2' : ss + 'aws3.vpn_connection',
-			'AWSVPNGatewayBlock2' : ss + 'aws3.vpn_gateway',
-			'AWSCustomerGatewayBlock2' : ss + 'aws3.customer_gateway',
-			'AWSCustomerGatewayBlock3' : ss + 'aws3.customer_gateway',
-			'AWSInternetGatewayBlock2' : ss + 'aws3.internet_gateway',
-			'AWSRouterBlock2' : ss + 'aws3.router',
-			'AWSRouterBlock3' : ss + 'aws3.router',
-			'AWSAmazonVPC(endpoints)' : ss + 'aws3.endpoints',
-			'AWSAmazonVPC(flowlogs)' : ss + 'aws3.flow_logs',
-			'AWSAmazonVPC(VPCNATgateway)' : ss + 'aws3.vpc_nat_gateway',
-			'AWSVPCPeering3' : ss + 'aws3.vpc_peering',
+			'AWSRouteTableBlock2' : ss + 'aws3.route_table;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVPCBlock2' : ss + 'aws3.vpc;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVPNConnectionBlock2' : ss + 'aws3.vpn_connection;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVPNGatewayBlock2' : ss + 'aws3.vpn_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCustomerGatewayBlock2' : ss + 'aws3.customer_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCustomerGatewayBlock3' : ss + 'aws3.customer_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSInternetGatewayBlock2' : ss + 'aws3.internet_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRouterBlock2' : ss + 'aws3.router;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRouterBlock3' : ss + 'aws3.router;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonVPC(endpoints)' : ss + 'aws3.endpoints;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonVPC(flowlogs)' : ss + 'aws3.flow_logs;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonVPC(VPCNATgateway)' : ss + 'aws3.vpc_nat_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVPCPeering3' : ss + 'aws3.vpc_peering;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			
 //S3
-			'AWSSimpleStorageBlock2' : ss + 'aws3.s3',
+			'AWSSimpleStorageBlock2' : ss + 'aws3.s3;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AWSBucketBlock2' : ss + 'aws3.bucket;fontStyle=1;fontColor=#ffffff',
-			'AWSBuckethWithObjectsBlock2' : ss + 'aws3.bucket_with_objects',
+			'AWSBuckethWithObjectsBlock2' : ss + 'aws3.bucket_with_objects;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AWSObjectBlock2' : ss + 'aws3.object;fontStyle=1;fontColor=#ffffff',
-			'AWSImportExportBlock2' : ss + 'aws3.import_export',
-			'AWSStorageGatewayBlock2' : ss + 'aws3.storage_gateway',
+			'AWSImportExportBlock2' : ss + 'aws3.import_export;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStorageGatewayBlock2' : ss + 'aws3.storage_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AWSElasticBlockStorageBlock2' : ss + 'aws3.volume;fontStyle=1;fontColor=#ffffff',
 			'AWSVolumeBlock3' : ss + 'aws3.volume;fontStyle=1;fontColor=#ffffff',
 			'AWSSnapshotBlock2' : ss + 'aws3.snapshot;fontStyle=1;fontColor=#ffffff',
-			'AWSGlacierArchiveBlock3' : ss + 'aws3.archive',
-			'AWSGlacierVaultBlock3' : ss + 'aws3.vault',
-			'AWSAmazonEFS' : ss + 'aws3.efs',
-			'AWSGlacierBlock2' : ss + 'aws3.glacier',
-			'AWSAWSImportExportSnowball' : ss + 'aws3.snowball',
-			'AWSStorageGatewayCachedVolumn2' : ss + 'aws3.cached_volume',
-			'AWSStorageGatewayNon-CachedVolumn2' : ss + 'aws3.non_cached_volume',
-			'AWSStorageGatewayVirtualTapeLibrary2' : ss + 'aws3.virtual_tape_library',
+			'AWSGlacierArchiveBlock3' : ss + 'aws3.archive;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSGlacierVaultBlock3' : ss + 'aws3.vault;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonEFS' : ss + 'aws3.efs;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSGlacierBlock2' : ss + 'aws3.glacier;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSImportExportSnowball' : ss + 'aws3.snowball;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStorageGatewayCachedVolumn2' : ss + 'aws3.cached_volume;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStorageGatewayNon-CachedVolumn2' : ss + 'aws3.non_cached_volume;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStorageGatewayVirtualTapeLibrary2' : ss + 'aws3.virtual_tape_library;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Content Delivery
-			'AWSCloudFrontBlock2' : ss + 'aws3.cloudfront',
-			'AWSDownloadDistBlock2' : ss + 'aws3.download_distribution',
-			'AWSStreamingBlock2' : ss + 'aws3.streaming_distribution',
-			'AWSEdgeLocationBlock2' : ss + 'aws3.edge_location',
+			'AWSCloudFrontBlock2' : ss + 'aws3.cloudfront;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDownloadDistBlock2' : ss + 'aws3.download_distribution;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStreamingBlock2' : ss + 'aws3.streaming_distribution;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEdgeLocationBlock2' : ss + 'aws3.edge_location;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Database
-			'AWSItemBlock2' : ss + 'aws3.item',
-			'AWSItemsBlock2' : ss + 'aws3.items',
-			'AWSAttributeBlock2' : ss + 'aws3.attribute',
-			'AWSAttributesBlock2' : ss + 'aws3.attributes',
-			'AWSRDBSBlock2' : ss + 'aws3.rds',
-			'AWSRDSInstanceBlock2' : ss + 'aws3.rds_db_instance',
-			'AWSRDSStandbyBlock2' : ss + 'aws3.rds_db_instance_standby_multi_az',
-			'AWSRDSInstanceReadBlock2' : ss + 'aws3.rds_db_instance_read_replica',
-			'AWSOracleDBBlock2' : ss + 'aws3.oracle_db_instance',
-			'AWSMySQLDBBlock2' : ss + 'aws3.mysql_db_instance',
-			'AWSDynamoDBBlock2' : ss + 'aws3.dynamo_db',
-			'AWSSimpleDatabaseBlock3' : ss + 'aws2.database.simpledb',
-			'AWSSimpleDatabaseDomainBlock3' : ss + 'aws2.database.simpledb_domain',
-			'AWSTableBlock2' : ss + 'aws3.table',
-			'AWSAmazonRedShiftBlock3' : ss + 'aws3.redshift',
-			'AWSElastiCacheNodeBlock2' : ss + 'aws3.cache_node',
-			'AWSElastiCacheBlock2' : ss + 'aws3.elasticache',
-			'AWSDynamoDBGlobalSecondaryIndexes2' : ss + 'aws3.global_secondary_index',
-			'AWSAmazonElastiCacheMemcache2' : ss + 'aws3.memcached',
-			'AWSAmazonElastiCacheRedis2' : ss + 'aws3.redis',
-			'AWSAmazonRDSMSSQLInstance2' : ss + 'aws3.ms_sql_instance_2',
-			'AWSMSSQLDBBlock3' : ss + 'aws3.ms_sql_instance',
-			'AWSAmazonRDSMySQLDBInstance2' : ss + 'aws3.mysql_db_instance_2',
-			'AWSAmazonRDSOracleDBInstance2' : ss + 'aws3.oracle_db_instance_2',
-			'AWSRDSReplicasetswithPIOP2' : ss + 'aws3.piop',
-			'AWSAmazonRDSPostgreSQL2' : ss + 'aws3.postgre_sql_instance',
-			'AWSRDSMasterSQL2' : ss + 'aws3.sql_master',
-			'AWSRDSSlaveSQL2' : ss + 'aws3.sql_slave',
-			'AWSAmazonRedshift(densecomputenode)' : ss + 'aws3.dense_compute_node',
-			'AWSAmazonRedshift(densestoragenode)' : ss + 'aws3.dense_storage_node',
-			'AWSAWSDatabaseMigrationService' : ss + 'aws3.database_migration_service',
+			'AWSItemBlock2' : ss + 'aws3.item;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSItemsBlock2' : ss + 'aws3.items;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAttributeBlock2' : ss + 'aws3.attribute;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAttributesBlock2' : ss + 'aws3.attributes;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDBSBlock2' : cs,
+			'AWSRDSInstanceBlock2' : ss + 'aws3.rds_db_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDSStandbyBlock2' : ss + 'aws3.rds_db_instance_standby_multi_az;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDSInstanceReadBlock2' : ss + 'aws3.rds_db_instance_read_replica;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOracleDBBlock2' : ss + 'aws3.oracle_db_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMySQLDBBlock2' : ss + 'aws3.mysql_db_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDynamoDBBlock2' : ss + 'aws3.dynamo_db;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSSimpleDatabaseBlock3' : ss + 'aws2.database.simpledb;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSSimpleDatabaseDomainBlock3' : ss + 'aws2.database.simpledb_domain;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSTableBlock2' : ss + 'aws3.table;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedShiftBlock3' : ss + 'aws3.redshift;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElastiCacheNodeBlock2' : ss + 'aws3.cache_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElastiCacheBlock2' : ss + 'aws3.elasticache;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDynamoDBGlobalSecondaryIndexes2' : ss + 'aws3.global_secondary_index;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonElastiCacheMemcache2' : ss + 'aws3.memcached;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonElastiCacheRedis2' : ss + 'aws3.redis;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRDSMSSQLInstance2' : ss + 'aws3.ms_sql_instance_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMSSQLDBBlock3' : ss + 'aws3.ms_sql_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRDSMySQLDBInstance2' : ss + 'aws3.mysql_db_instance_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRDSOracleDBInstance2' : ss + 'aws3.oracle_db_instance_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDSReplicasetswithPIOP2' : ss + 'aws3.piop;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRDSPostgreSQL2' : ss + 'aws3.postgre_sql_instance;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDSMasterSQL2' : ss + 'aws3.sql_master;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRDSSlaveSQL2' : ss + 'aws3.sql_slave;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedshift(densecomputenode)' : ss + 'aws3.dense_compute_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedshift(densestoragenode)' : ss + 'aws3.dense_storage_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSDatabaseMigrationService' : ss + 'aws3.database_migration_service;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Security Identity
-			'AWSACM' : ss + 'aws3.certificate_manager',
-			'AWSAmazonInspector' : ss + 'aws3.inspector',
-			'AWSAWSCloudHSM' : ss + 'aws3.cloudhsm',
-			'AWSDirectoryService2' : ss + 'aws3.directory_service',
-			'AWSAWSKMS' : ss + 'aws3.kms',
-			'AWSAWSWAF' : ss + 'aws3.waf',
-			'AWSACM(certificate-manager)' : ss + 'aws3.certificate_manager_2',
+			'AWSACM' : ss + 'aws3.certificate_manager;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonInspector' : ss + 'aws3.inspector;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSCloudHSM' : ss + 'aws3.cloudhsm;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDirectoryService2' : ss + 'aws3.directory_service;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSKMS' : ss + 'aws3.kms;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSWAF' : ss + 'aws3.waf;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSACM(certificate-manager)' : ss + 'aws3.certificate_manager_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //App Services
-			'AWSSESBlock2' : ss + 'aws3.ses',
-			'AWSEmailBlock2' : ss + 'aws3.email',
-			'AWSSNSBlock2' : ss + 'aws3.sns',
-			'AWSSQSBlock3' : ss + 'aws3.sqs',
-			'AWSQueueBlock2' : ss + 'aws3.queue',
-			'AWSMessageBlock2' : ss + 'aws3.message',
-			'AWSDeciderBlock2' : ss + 'aws3.decider',
-			'AWSSWFBlock2' : ss + 'aws3.swf',
-			'AWSWorkerBlock2' : ss + 'aws3.worker',
-			'AWSCloudSearchBlock2' : ss + 'aws3.cloudsearch',
-			'AWSCloudSearchMetadataBlock3' : ss + 'aws3.search_documents',
-			'AWSElasticTranscoder3' : ss + 'aws3.elastic_transcoder',
-			'AWSAmazonAPIGateway' : ss + 'aws3.api_gateway',
-			'AWSAppStream2' : ss + 'aws3.appstream',
+			'AWSSESBlock2' : ss + 'aws3.ses;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEmailBlock2' : ss + 'aws3.email;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSSNSBlock2' : ss + 'aws3.sns;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSSQSBlock3' : ss + 'aws3.sqs;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSQueueBlock2' : ss + 'aws3.queue;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMessageBlock2' : ss + 'aws3.message;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDeciderBlock2' : ss + 'aws3.decider;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSSWFBlock2' : ss + 'aws3.swf;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSWorkerBlock2' : ss + 'aws3.worker;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCloudSearchBlock2' : ss + 'aws3.cloudsearch;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCloudSearchMetadataBlock3' : ss + 'aws3.search_documents;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElasticTranscoder3' : ss + 'aws3.elastic_transcoder;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonAPIGateway' : ss + 'aws3.api_gateway;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAppStream2' : ss + 'aws3.appstream;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Deployment
-			'AWSCloudFormationBlock2' : ss + 'aws3.cloudformation',
-			'AWSDataPipelineBlock3' : ss + 'aws3.data_pipeline',
-			'AWSDataPipelineBlock2' : ss + 'aws3.data_pipeline',
-			'AWSTemplageBlock2' : ss + 'aws3.template',
-			'AWSStackBlock2' : ss + 'aws3.stack_aws_cloudformation',
-			'AWSBeanStockBlock2' : ss + 'aws3.elastic_beanstalk',
-			'AWSApplicationBlock2' : ss + 'aws3.application',
-			'AWSBeanstalkDeploymentBlock3' : ss + 'aws3.deployment',
-			'AWSIAMBlock3' : ss + 'aws3.iam',
-			'AWSIAMSTSBlock3' : ss + 'aws3.sts',
-			'AWSIAMAddonBlock2' : ss + 'aws3.add_on',
-			'AWSCloudWatchBlock3' : ss + 'aws3.cloudwatch',
-			'AWSCloudWatchAlarmBlock2' : ss + 'aws3.alarm',
-			'AWSIAMSecurityTokenService2' : ss + 'aws3.sts_2',
-			'AWSIAMDataEncryptionKey2' : ss + 'aws3.data_encryption_key',
-			'AWSIAMEncryptedData2' : ss + 'aws3.encrypted_data',
-			'AWSAWSIAM(long-termsecuritycredential)' : ss + 'aws3.long_term_security_credential',
-			'AWSIAMMFAToken2' : ss + 'aws3.mfa_token',
-			'AWSIAMPermissions2' : ss + 'aws3.permissions_2',
-			'AWSIAMRoles2' : ss + 'aws3.role',
-			'AWSAWSIAM(temporarysecuritycredential)' : ss + 'aws3.long_term_security_credential',
-			'AWSCloudTrail2' : ss + 'aws3.cloudtrail',
-			'AWSConfig2' : ss + 'aws3.config',
-			'AWSOpsWorksBlock3' : ss + 'aws3.opsworks',
-			'AWSAWSServiceCatalog' : ss + 'aws3.service_catalog',
-			'AWSTrustedAdvisor2' : ss + 'aws3.trusted_advisor',
-			'AWSOpsWorksApps2' : ss + 'aws3.apps',
-			'AWSOpsWorksDeployments2' : ss + 'aws3.deployments',
-			'AWSOpsWorksInstances2' : ss + 'aws3.instances_2',
-			'AWSOpsWorksLayers2' : ss + 'aws3.layers',
-			'AWSOpsWorksMonitoring2' : ss + 'aws3.monitoring',
-			'AWSOpsWorksPermissions2' : ss + 'aws3.permissions',
-			'AWSOpsWorksResources2' : ss + 'aws3.resources',
-			'AWSOpsWorksStack2' : ss + 'aws3.stack_aws_opsworks',
+			'AWSCloudFormationBlock2' : ss + 'aws3.cloudformation;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDataPipelineBlock3' : ss + 'aws3.data_pipeline;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDataPipelineBlock2' : ss + 'aws3.data_pipeline;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSTemplageBlock2' : ss + 'aws3.template;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSStackBlock2' : ss + 'aws3.stack_aws_cloudformation;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSBeanStockBlock2' : ss + 'aws3.elastic_beanstalk;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSApplicationBlock2' : ss + 'aws3.application;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSBeanstalkDeploymentBlock3' : ss + 'aws3.deployment;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMBlock3' : ss + 'aws3.iam;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMSTSBlock3' : ss + 'aws3.sts;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMAddonBlock2' : ss + 'aws3.add_on;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCloudWatchBlock3' : ss + 'aws3.cloudwatch;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCloudWatchAlarmBlock2' : ss + 'aws3.alarm;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMSecurityTokenService2' : ss + 'aws3.sts_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMDataEncryptionKey2' : ss + 'aws3.data_encryption_key;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMEncryptedData2' : ss + 'aws3.encrypted_data;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIAM(long-termsecuritycredential)' : ss + 'aws3.long_term_security_credential;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMMFAToken2' : ss + 'aws3.mfa_token;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMPermissions2' : ss + 'aws3.permissions_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSIAMRoles2' : ss + 'aws3.role;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIAM(temporarysecuritycredential)' : ss + 'aws3.long_term_security_credential;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCloudTrail2' : ss + 'aws3.cloudtrail;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSConfig2' : ss + 'aws3.config;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksBlock3' : ss + 'aws3.opsworks;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSServiceCatalog' : ss + 'aws3.service_catalog;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSTrustedAdvisor2' : ss + 'aws3.trusted_advisor;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksApps2' : ss + 'aws3.apps;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksDeployments2' : ss + 'aws3.deployments;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksInstances2' : ss + 'aws3.instances_2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksLayers2' : ss + 'aws3.layers;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksMonitoring2' : ss + 'aws3.monitoring;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksPermissions2' : ss + 'aws3.permissions;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksResources2' : ss + 'aws3.resources;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSOpsWorksStack2' : ss + 'aws3.stack_aws_opsworks;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //On-Demand
-			'AWSMechanicalTurkBlock3' : ss + 'aws3.mechanical_turk',
-			'AWSHumanITBlock2' : ss + 'aws3.human_intelligence_tasks_hit',
-			'AWSAssignmentTaskBlock2' : ss + 'aws3.requester',
-			'AWSWorkersBlock2' : ss + 'aws3.users',
-			'AWSRequesterBlock2' : ss + 'aws3.assignment_task',
+			'AWSMechanicalTurkBlock3' : ss + 'aws3.mechanical_turk;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSHumanITBlock2' : ss + 'aws3.human_intelligence_tasks_hit;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAssignmentTaskBlock2' : ss + 'aws3.requester;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSWorkersBlock2' : ss + 'aws3.users;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRequesterBlock2' : ss + 'aws3.assignment_task;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //SDKs
-			'AWSAndroidBlock3': ss + 'aws3.android;fillColor=#96BF3D',
-			'AWSiOSBlock3' : ss + 'aws3.android;fillColor=#CFCFCF',
-			'AWSJavaBlock3' : ss + 'aws3.android;fillColor=#EE472A',
-			'AWSJavaScript' : ss + 'aws3.android;fillColor=#205E00',
-			'AWSNetBlock3' : ss + 'aws3.android;fillColor=#115193',
-			'AWSNodeJSBlock3' : ss + 'aws3.android;fillColor=#8CC64F',
-			'AWSPHPBlock3' : ss + 'aws3.android;fillColor=#5A69A4',
-			'AWSPythonBlock3' : ss + 'aws3.android;fillColor=#FFD44F',
-			'AWSRubyBlock3' : ss + 'aws3.android;fillColor=#AE1F23',
-			'AWSXamarin' : ss + 'aws3.android;fillColor=#4090D7',
-			'AWSCLIBlock3' : ss + 'aws3.cli;fillColor=#444444',
-			'AWSEclipseToolkitBlock3' : ss + 'aws3.toolkit_for_eclipse;fillColor=#342074',
-			'AWSVisualStudioToolkitBlock3' : ss + 'aws3.toolkit_for_visual_studio;fillColor=#53B1CB',
-			'AWSWindowsPowershellToolkitBlock3' : ss + 'aws3.toolkit_for_windows_powershell;fillColor=#737373',
+			'AWSAndroidBlock3': ss + 'aws3.android;fillColor=#96BF3D;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSiOSBlock3' : ss + 'aws3.android;fillColor=#CFCFCF;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSJavaBlock3' : ss + 'aws3.android;fillColor=#EE472A;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSJavaScript' : ss + 'aws3.android;fillColor=#205E00;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSNetBlock3' : ss + 'aws3.android;fillColor=#115193;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSNodeJSBlock3' : ss + 'aws3.android;fillColor=#8CC64F;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSPHPBlock3' : ss + 'aws3.android;fillColor=#5A69A4;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSPythonBlock3' : ss + 'aws3.android;fillColor=#FFD44F;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSRubyBlock3' : ss + 'aws3.android;fillColor=#AE1F23;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSXamarin' : ss + 'aws3.android;fillColor=#4090D7;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCLIBlock3' : ss + 'aws3.cli;fillColor=#444444;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEclipseToolkitBlock3' : ss + 'aws3.toolkit_for_eclipse;fillColor=#342074;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVisualStudioToolkitBlock3' : ss + 'aws3.toolkit_for_visual_studio;fillColor=#53B1CB;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSWindowsPowershellToolkitBlock3' : ss + 'aws3.toolkit_for_windows_powershell;fillColor=#737373;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Analytics
-			'AWSAmazonElasticsearchService' : ss + 'aws3.elasticsearch_service',
-			'AWSElasticMapReduceBlock2' : ss + 'aws3.emr',
-			'AWSClusterBlock2' : ss + 'aws3.emr_cluster',
-			'AWSEMREngine2' : ss + 'aws3.emr_engine',
-			'AWSEMRMapRM3Engine2' : ss + 'aws3.emr_engine_mapr_m3',
-			'AWSEMRMapRM5Engine2' : ss + 'aws3.emr_engine_mapr_m5',
-			'AWSEMRMapRM7Engine2' : ss + 'aws3.emr_engine_mapr_m7',
-			'AWSKinesis2' : ss + 'aws3.kinesis',
-			'AWSAmazonKinesis(AmazonKinesisAnalytics)' : ss + 'aws3.kinesis',
-			'AWSKinesisEnabledApp2' : ss + 'aws3.kinesis_enabled_app',
-			'AWSAmazonKinesis(AmazonKinesisFirehose)' : ss + 'aws3.kinesis_firehose',
-			'AWSAmazonKinesis(AmazonKinesisStreams)' : ss + 'aws3.kinesis_streams',
-			'AWSAmazonMachineLearning' : ss + 'aws3.machine_learning',
-			'AWSAmazonQuickSight' : ss + 'aws3.quicksight',
+			'AWSAmazonElasticsearchService' : ss + 'aws3.elasticsearch_service;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSElasticMapReduceBlock2' : ss + 'aws3.emr;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSClusterBlock2' : ss + 'aws3.emr_cluster;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEMREngine2' : ss + 'aws3.emr_engine;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEMRMapRM3Engine2' : ss + 'aws3.emr_engine_mapr_m3;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEMRMapRM5Engine2' : ss + 'aws3.emr_engine_mapr_m5;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSEMRMapRM7Engine2' : ss + 'aws3.emr_engine_mapr_m7;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSKinesis2' : ss + 'aws3.kinesis;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonKinesis(AmazonKinesisAnalytics)' : ss + 'aws3.kinesis;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSKinesisEnabledApp2' : ss + 'aws3.kinesis_enabled_app;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonKinesis(AmazonKinesisFirehose)' : ss + 'aws3.kinesis_firehose;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonKinesis(AmazonKinesisStreams)' : ss + 'aws3.kinesis_streams;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonMachineLearning' : ss + 'aws3.machine_learning;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonQuickSight' : ss + 'aws3.quicksight;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Mobile Services
-			'AWSCognito2' : ss + 'aws3.cognito',
-			'AWSMobileAnalytics2' : ss + 'aws3.mobile_analytics',
-			'AWSAWSDeviceFarm' : ss + 'aws3.device_farm',
-			'AWSAWSMobileHub' : ss + 'aws3.mobile_hub;gradientColor=#AD688A;gradientDirection=east',
+			'AWSCognito2' : ss + 'aws3.cognito;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMobileAnalytics2' : ss + 'aws3.mobile_analytics;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSDeviceFarm' : ss + 'aws3.device_farm;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSMobileHub' : ss + 'aws3.mobile_hub;gradientColor=#AD688A;gradientDirection=east;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AWSTopicBlock2' : ss + 'aws3.topic_2;fontStyle=1;fontColor=#ffffff;verticalAlign=top;spacingTop=-5',
-			'AWSEmailNotificationBlock2' : ss + 'aws3.email_notification',
-			'AWSHTTPNotificationBlock2' : ss + 'aws3.http_notification',
+			'AWSEmailNotificationBlock2' : ss + 'aws3.email_notification;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSHTTPNotificationBlock2' : ss + 'aws3.http_notification;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Developer Tools
-			'AWSAWSCodeCommit' : ss + 'aws3.codecommit',
-			'AWSCodeDeploy2' : ss + 'aws3.codedeploy',
-			'AWSAWSCodePipeline' : ss + 'aws3.codepipeline',
+			'AWSAWSCodeCommit' : ss + 'aws3.codecommit;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSCodeDeploy2' : ss + 'aws3.codedeploy;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSCodePipeline' : ss + 'aws3.codepipeline;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Enterprise Application
-			'AWSWorkDocs2' : ss + 'aws3.workdocs',
-			'AWSAmazonWorkMail' : ss + 'aws3.workmail',
-			'AWSAmazonWorkSpaces2' : ss + 'aws3.workspaces',
+			'AWSWorkDocs2' : ss + 'aws3.workdocs;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonWorkMail' : ss + 'aws3.workmail;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonWorkSpaces2' : ss + 'aws3.workspaces;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //Internet of Things
-			'AWSAWSIoT' : ss + 'aws3.aws_iot',
-			'AWSAWSIoT(action)' : ss + 'aws3.action',
-			'AWSAWSIoT(actuator)' : ss + 'aws3.actuator',
-			'AWSAWSIoT(certificate)' : ss + 'aws3.certificate',
-			'AWSAWSIoT(desiredstate)' : ss + 'aws3.desired_state',
-			'AWSAWSIoT(hardwareboard)' : ss + 'aws3.hardware_board',
-			'AWSAWSIoT(HTTP2protocol)' : ss + 'aws3.http_2_protocol',
-			'AWSAWSIoT(HTTPprotocol)' : ss + 'aws3.http_protocol',
-			'AWSAWSIoT(MQTTprotocol)' : ss + 'aws3.mqtt_protocol',
-			'AWSAWSIoT(policy)' : ss + 'aws3.policy',
-			'AWSAWSIoT(reportedstate)' : ss + 'aws3.reported_state',
-			'AWSAWSIoT(rule)' : ss + 'aws3.rule',
-			'AWSAWSIoT(sensor)' : ss + 'aws3.sensor',
-			'AWSAWSIoT(servo)' : ss + 'aws3.servo',
-			'AWSAWSIoT(shadow)' : ss + 'aws3.shadow',
-			'AWSAWSIoT(simulator)' : ss + 'aws3.simulator',
-			'AWSAWSIoT(thingbank)' : ss + 'aws3.bank',
-			'AWSAWSIoT(thingbicycle)' : ss + 'aws3.bicycle',
-			'AWSAWSIoT(thingcamera)' : ss + 'aws3.camera',
-			'AWSAWSIoT(thingcar)' : ss + 'aws3.car',
-			'AWSAWSIoT(thingcart)' : ss + 'aws3.cart',
-			'AWSAWSIoT(thingcoffeepot)' : ss + 'aws3.coffee_pot',
-			'AWSAWSIoT(thingdoorlock)' : ss + 'aws3.door_lock',
-			'AWSAWSIoT(thingfactory)' : ss + 'aws3.factory',
-			'AWSAWSIoT(thinggeneric)' : ss + 'aws3.generic',
-			'AWSAWSIoT(thinghouse)' : ss + 'aws3.house',
-			'AWSAWSIoT(thinglightbulb)' : ss + 'aws3.lightbulb',
-			'AWSAWSIoT(thingmedicalemergency)' : ss + 'aws3.medical_emergency',
-			'AWSAWSIoT(thingpoliceemergency)' : ss + 'aws3.police_emergency',
-			'AWSAWSIoT(thingthermostat)' : ss + 'aws3.thermostat',
-			'AWSAWSIoT(thingtravel)' : ss + 'aws3.travel',
-			'AWSAWSIoT(thingutility)' : ss + 'aws3.utility',
-			'AWSAWSIoT(thingwindfarm)' : ss + 'aws3.windfarm',
-			'AWSAWSIoT(topic)' : ss + 'aws3.topic',
+			'AWSAWSIoT' : ss + 'aws3.aws_iot;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(action)' : ss + 'aws3.action;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(actuator)' : ss + 'aws3.actuator;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(certificate)' : ss + 'aws3.certificate;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(desiredstate)' : ss + 'aws3.desired_state;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(hardwareboard)' : ss + 'aws3.hardware_board;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(HTTP2protocol)' : ss + 'aws3.http_2_protocol;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(HTTPprotocol)' : ss + 'aws3.http_protocol;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(MQTTprotocol)' : ss + 'aws3.mqtt_protocol;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(policy)' : ss + 'aws3.policy;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(reportedstate)' : ss + 'aws3.reported_state;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(rule)' : ss + 'aws3.rule;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(sensor)' : ss + 'aws3.sensor;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(servo)' : ss + 'aws3.servo;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(shadow)' : ss + 'aws3.shadow;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(simulator)' : ss + 'aws3.simulator;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingbank)' : ss + 'aws3.bank;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingbicycle)' : ss + 'aws3.bicycle;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingcamera)' : ss + 'aws3.camera;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingcar)' : ss + 'aws3.car;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingcart)' : ss + 'aws3.cart;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingcoffeepot)' : ss + 'aws3.coffee_pot;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingdoorlock)' : ss + 'aws3.door_lock;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingfactory)' : ss + 'aws3.factory;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thinggeneric)' : ss + 'aws3.generic;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thinghouse)' : ss + 'aws3.house;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thinglightbulb)' : ss + 'aws3.lightbulb;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingmedicalemergency)' : ss + 'aws3.medical_emergency;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingpoliceemergency)' : ss + 'aws3.police_emergency;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingthermostat)' : ss + 'aws3.thermostat;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingtravel)' : ss + 'aws3.travel;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingutility)' : ss + 'aws3.utility;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(thingwindfarm)' : ss + 'aws3.windfarm;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAWSIoT(topic)' : ss + 'aws3.topic;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			
 //AWS General			
-			'AWSCloudBlock2' : ss + 'aws3.cloud',
-			'AWSVPCloudBlock3' : ss + 'aws3.virtual_private_cloud',
-			'AWSUserBlock2' : ss + 'aws3.user',
-			'AWSUsersBlock2' : ss + 'aws3.users',
-			'AWSClientBlock2' : ss + 'aws3.management_console',
-			'AWSMobileClientBlock2' : ss + 'aws3.mobile_client',
-			'AWSGenericDatabaseBlock3' : ss + 'aws3.generic_database',
-			'AWSDiskBlock3' : ss + 'aws3.disk',
-			'AWSTapeStorageBlock3' : ss + 'aws3.tape_storage',
-			'AWSMediaBlock2' : ss + 'aws3.multimedia',
-			'AWSDataCenterBlock2' : ss + 'aws3.corporate_data_center',
-			'AWSServerBlock2' : ss + 'aws3.traditional_server',
-			'AWSInternetBlock2' : ss + 'aws2.non-service_specific.internet',
-			'AWSForumsBlock3' : ss + 'aws3.forums',
-			'AWSManagementBlock2' : ss + 'aws3.management_console',
-			'AWSAmazonElasticCacheNode2' : ss + 'aws3.cache_node',
-			'AWSAmazonRedshiftDW1Cluster2' : ss + 'aws3.dense_compute_node',
-			'AWSAmazonRedshiftDW2Cluster2' : ss + 'aws3.dense_storage_node',
-			'AWSAmazonRedshiftSSDFamilyCluster2' : ss + 'aws3.dense_storage_node',
-			'AWSAmazonRoute53RouteTable2' : ss + 'aws3.route_table',
+			'AWSCloudBlock2' : ss + 'aws3.cloud;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSVPCloudBlock3' : ss + 'aws3.virtual_private_cloud;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSUserBlock2' : ss + 'aws3.user;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSUsersBlock2' : ss + 'aws3.users;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSClientBlock2' : ss + 'aws3.management_console;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMobileClientBlock2' : ss + 'aws3.mobile_client;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSGenericDatabaseBlock3' : ss + 'aws3.generic_database;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDiskBlock3' : ss + 'aws3.disk;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSTapeStorageBlock3' : ss + 'aws3.tape_storage;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSMediaBlock2' : ss + 'aws3.multimedia;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSDataCenterBlock2' : ss + 'aws3.corporate_data_center;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSServerBlock2' : ss + 'aws3.traditional_server;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSInternetBlock2' : ss + 'aws2.non-service_specific.internet;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSForumsBlock3' : ss + 'aws3.forums;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSManagementBlock2' : ss + 'aws3.management_console;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonElasticCacheNode2' : ss + 'aws3.cache_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedshiftDW1Cluster2' : ss + 'aws3.dense_compute_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedshiftDW2Cluster2' : ss + 'aws3.dense_storage_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRedshiftSSDFamilyCluster2' : ss + 'aws3.dense_storage_node;verticalLabelPosition=bottom;align=center;verticalAlign=top',
+			'AWSAmazonRoute53RouteTable2' : ss + 'aws3.route_table;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //			'AWSExampleIAMBlock2' NA
-			'AWSSubnetBlock2' : ss + 'aws3.permissions',
+			'AWSSubnetBlock2' : ss + 'aws3.permissions;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 //AWS Containers
 			'AWSRoundedRectangleContainerBlock2' : cs,
 //Azure Cloud
@@ -1488,45 +1489,45 @@
 			'EITestMessageBlock' : s + 'eip.test_message;verticalLabelPosition=bottom;verticalAlign=top',
 			'EIChannelPurgerBlock' : s + 'eip.channel_purger;verticalLabelPosition=bottom;verticalAlign=top',
 //Google Cloud Platform
-			'GCPIconComputeEngineBlock' : ss + 'gcp.compute.compute_engine',
-			'GCPIconAppEngineBlock' : ss + 'gcp.compute.app_engine',
-			'GCPIconContainerEngineBlock' : ss + 'gcp.compute.container_engine',
-			'GCPIconContainerRegistryBlock' : ss + 'gcp.compute.container_registry',
-			'GCPIconCloudFunctionsBlock' : ss + 'gcp.compute.cloud_functions',
-			'GCPIconCloudStorageBlock' : ss + 'gcp.storage_databases.cloud_storage',
-			'GCPIconCloudSQLBlock' : ss + 'gcp.storage_databases.cloud_sql',
-			'GCPIconCloudBigtableBlock' : ss + 'gcp.storage_databases.cloud_bigtable',
-			'GCPIconCloudDatastoreBlock' : ss + 'gcp.storage_databases.cloud_datastore',
-			'GCPIconPersistentDiskBlock' : ss + 'gcp.storage_databases.persistent_disk',
-			'GCPIconCloudVirtualNetworkBlock' : ss + 'gcp.networking.cloud_virtual_network',
-			'GCPIconCloudLoadBalancingBlock' : ss + 'gcp.networking.cloud_load_balancing',
-			'GCPIconCloudCDNBlock' : ss + 'gcp.networking.cloud_cdn',
-			'GCPIconCloudInterconnectBlock' : ss + 'gcp.networking.cloud_interconnect',
-			'GCPIconCloudDNSBlock' : ss + 'gcp.networking.cloud_dns',
-			'GCPIconBigQueryBlock' : ss + 'gcp.big_data.bigquery',
-			'GCPIconCloudDataflowBlock' : ss + 'gcp.big_data.cloud_dataflow',
-			'GCPIconCloudDataprocBlock' : ss + 'gcp.big_data.cloud_dataproc',
-			'GCPIconCloudDatalabBlock' : ss + 'gcp.big_data.cloud_datalab',
-			'GCPIconCloudPubSubBlock' : ss + 'gcp.big_data.cloud_pubsub',
-			'GCPIconGenomicsBlock' : ss + 'gcp.big_data.genomics',
-			'GCPIconCloudMachineLearningServicesBlock' : ss + 'gcp.machine_learning.cloud_machine_learning',
-			'GCPIconVisionAPIBlock' : ss + 'gcp.machine_learning.vision_api',
-			'GCPIconSpeechAPIBlock' : ss + 'gcp.machine_learning.speech_api',
-			'GCPIconNaturalLanguageAPIBlock' : ss + 'gcp.machine_learning.natural_language_api',
-			'GCPIconTranslateAPIBlock' : ss + 'gcp.machine_learning.translation_api',
-			'GCPIconStackdriverOverviewBlock' : ss + 'gcp.management_tools.stackdriver',
-			'GCPIconMonitoringBlock' : ss + 'gcp.management_tools.monitoring',
+			'GCPIconComputeEngineBlock' : ss + 'gcp.compute.compute_engine;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconAppEngineBlock' : ss + 'gcp.compute.app_engine;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconContainerEngineBlock' : ss + 'gcp.compute.container_engine;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconContainerRegistryBlock' : ss + 'gcp.compute.container_registry;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudFunctionsBlock' : ss + 'gcp.compute.cloud_functions;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudStorageBlock' : ss + 'gcp.storage_databases.cloud_storage;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudSQLBlock' : ss + 'gcp.storage_databases.cloud_sql;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudBigtableBlock' : ss + 'gcp.storage_databases.cloud_bigtable;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudDatastoreBlock' : ss + 'gcp.storage_databases.cloud_datastore;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconPersistentDiskBlock' : ss + 'gcp.storage_databases.persistent_disk;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudVirtualNetworkBlock' : ss + 'gcp.networking.cloud_virtual_network;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudLoadBalancingBlock' : ss + 'gcp.networking.cloud_load_balancing;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudCDNBlock' : ss + 'gcp.networking.cloud_cdn;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudInterconnectBlock' : ss + 'gcp.networking.cloud_interconnect;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudDNSBlock' : ss + 'gcp.networking.cloud_dns;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconBigQueryBlock' : ss + 'gcp.big_data.bigquery;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudDataflowBlock' : ss + 'gcp.big_data.cloud_dataflow;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudDataprocBlock' : ss + 'gcp.big_data.cloud_dataproc;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudDatalabBlock' : ss + 'gcp.big_data.cloud_datalab;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudPubSubBlock' : ss + 'gcp.big_data.cloud_pubsub;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconGenomicsBlock' : ss + 'gcp.big_data.genomics;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudMachineLearningServicesBlock' : ss + 'gcp.machine_learning.cloud_machine_learning;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconVisionAPIBlock' : ss + 'gcp.machine_learning.vision_api;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconSpeechAPIBlock' : ss + 'gcp.machine_learning.speech_api;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconNaturalLanguageAPIBlock' : ss + 'gcp.machine_learning.natural_language_api;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconTranslateAPIBlock' : ss + 'gcp.machine_learning.translation_api;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconStackdriverOverviewBlock' : ss + 'gcp.management_tools.stackdriver;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconMonitoringBlock' : ss + 'gcp.management_tools.monitoring;verticalLabelPosition=bottom;verticalAlign=top',
 //			'GCPIconLoggingBlock' NA
-			'GCPIconErrorReportingBlock' : ss + 'gcp.management_tools.error_reporting',
-			'GCPIconTraceBlock' : ss + 'gcp.management_tools.trace',
-			'GCPIconDebuggerBlock' : ss + 'gcp.management_tools.debugger',
-			'GCPIconDeploymentManagerBlock' : ss + 'gcp.management_tools.deployment_manager',
-			'GCPIconCloudEndpointsBlock' : ss + 'gcp.management_tools.cloud_endpoints',
-			'GCPIconCloudToolsForPowerShellBlock' : ss + 'gcp.developer_tools.cloud_tools_for_powershell',
-			'GCPIconCloudToolsForVisualStudioBlock' : ss + 'gcp.developer_tools.cloud_tools_for_visual_studio',
-			'GCPIconCloudIAMBlock' : ss + 'gcp.identity_and_security.cloud_iam',
-			'GCPIconGCPLogoBlock' : ss + 'gcp.extras.generic_gcp',
-			'GCPIconBlankBlock' : ss + 'gcp.extras.blue_hexagon',
+			'GCPIconErrorReportingBlock' : ss + 'gcp.management_tools.error_reporting;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconTraceBlock' : ss + 'gcp.management_tools.trace;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconDebuggerBlock' : ss + 'gcp.management_tools.debugger;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconDeploymentManagerBlock' : ss + 'gcp.management_tools.deployment_manager;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudEndpointsBlock' : ss + 'gcp.management_tools.cloud_endpoints;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudToolsForPowerShellBlock' : ss + 'gcp.developer_tools.cloud_tools_for_powershell;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudToolsForVisualStudioBlock' : ss + 'gcp.developer_tools.cloud_tools_for_visual_studio;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconCloudIAMBlock' : ss + 'gcp.identity_and_security.cloud_iam;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconGCPLogoBlock' : ss + 'gcp.extras.generic_gcp;verticalLabelPosition=bottom;verticalAlign=top',
+			'GCPIconBlankBlock' : ss + 'gcp.extras.blue_hexagon;verticalLabelPosition=bottom;verticalAlign=top',
 //Equation
 			'Equation' : cs, //TODO
 //Walls
@@ -4693,14 +4694,6 @@
 				
 				break;
 				
-			case 'ERDEntityBlock' :
-				break;
-			case 'ERDEntityBlock2' :
-				break;
-			case 'ERDEntityBlock3' :
-				break;
-			case 'ERDEntityBlock4' :
-				break;
 			case 'SMPage' :
 				if (p.Group)
 				{
@@ -5877,6 +5870,39 @@
 				}
 
 				break;
+			case 'AWSElasticComputeCloudBlock2' :
+				v.style += 'strokeColor=none;shape=mxgraph.aws3.ec2;verticalLabelPosition=bottom;align=center;verticalAlign=top;' +
+					getLabelStyle(p.Title) + 
+					getFillColor(p, a) + 
+					getOpacity(p, a) + 
+					getShadow(p);
+				
+				v.value = convertText(p.Title);
+				
+				break;
+				
+			case 'AWSRoute53Block2' :
+				v.style += 'strokeColor=none;shape=mxgraph.aws3.route_53;verticalLabelPosition=bottom;align=center;verticalAlign=top;' +
+					getLabelStyle(p.Title) + 
+					getFillColor(p, a) + 
+					getOpacity(p, a) + 
+					getShadow(p);
+				
+				v.value = convertText(p.Title);
+				
+				break;
+				
+			case 'AWSRDBSBlock2' :
+				v.style += 'strokeColor=none;shape=mxgraph.aws3.rds;verticalLabelPosition=bottom;align=center;verticalAlign=top;' +
+					getLabelStyle(p.Title) + 
+					getFillColor(p, a) + 
+					getOpacity(p, a) + 
+					getShadow(p);
+				
+				v.value = convertText(p.Title);
+				
+				break;
+				
 			case 'NET_RingNetwork' :
 				v.style += 'strokeColor=none;fillColor=none;';
 				
@@ -8764,59 +8790,441 @@
 				}
 				
 				break;
-			case 'Image_ipad_alert_dialog' :
+				
+			case 'UMLClassBlock' :
+				if (p.Simple == 0)
+				{
+					var st = getFillColor(p, a);
+					var th = p.TitleHeight * scale;
+					st = st.replace('fillColor', 'swimlaneFillColor');
+					
+					if (st == '')
+					{
+						st = 'swimlaneFillColor=#ffffff;'
+					}
+					
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+						'startSize=' + th + ';' +
+						getOpacity(p, a) +
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getLabelStyle(p.Title);
+						
+					v.value = convertText(p.Title);
+					
+					var item = new Array();
+					var divider = new Array();
+					var currH = th / h;
+					
+					for (var i = 0; i <= p.Attributes; i++)
+					{
+						if (i > 0)
+						{
+							divider[i] = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+							divider[i].vertex = true;
+							v.insert(divider[i]);
+						}
+						
+						var itemH = 0;
+						
+						if (i < p.Attributes)
+						{
+							itemH = p['Text' + (i + 1) + 'Percent'];
+							currH += itemH;
+						}
+						else
+						{
+							itemH = 1 - currH;
+						}
+						
+						item[i] = new mxCell('', new mxGeometry(0, 0, w, (h - th) * itemH), 'part=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+						item[i].vertex = true;
+						v.insert(item[i]);
+						item[i].style += st +
+							getOpacity(p, a) +
+							getFontSize(p['Text' + (i + 1)]) +
+							getFontColor(p['Text' + (i + 1)]) + 
+							getFontStyle(p['Text' + (i + 1)]);
+						
+						item[i].value = convertText(p['Text' + (i + 1)]);
+					}
+				}
+				else
+				{
+					v.style += 
+						getOpacity(p, a) +
+						getStrokeColor(p, a) + 
+						getFillColor(p, a) +
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getLabelStyle(p.Title);
+						
+					v.value = convertText(p.Title);
+				}
+
 				break;
-			case 'Image_ipad_dialog' :
+			 	
+			case 'ERDEntityBlock' :
+				var st = getFillColor(p, a);
+				var th = p.Name_h * scale;
+				st = st.replace('fillColor', 'swimlaneFillColor');
+				
+				if (st == '')
+				{
+					st = 'swimlaneFillColor=#ffffff;'
+				}
+				
+				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+					'startSize=' + th + ';' +
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p.Name);
+
+				if (p.ShadedHeader)
+				{
+					v.style += 'fillColor=#e0e0e0;';
+				}
+				else
+				{
+					v.style += getFillColor(p, a);
+				}
+				
+				v.value = convertText(p.Name);
+				
+				var item = new Array();
+				var currH = th / h;
+				
+				for (var i = 0; i < p.Fields; i++)
+				{
+					var itemH = 0;
+					
+					item[i] = new mxCell('', new mxGeometry(0, 0, w, p['Field' + (i + 1) + '_h'] * scale), 'part=1;resizeHeight=0;strokeColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i].vertex = true;
+					v.insert(item[i]);
+					item[i].style += st +
+						getFontSize(p['Field' + (i + 1)]) +
+						getFontColor(p['Field' + (i + 1)]) + 
+						getFontStyle(p['Field' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						item[i].style += 'fillColor=#000000;opacity=5;';
+					}
+					else
+					{
+						item[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					item[i].value = convertText(p['Field' + (i + 1)]);
+				}
+				
 				break;
-			case 'Image_ipad_table' :
+				
+			case 'ERDEntityBlock2' :
+				var st = getFillColor(p, a);
+				var th = p.Name_h * scale;
+				st = st.replace('fillColor', 'swimlaneFillColor');
+				
+				if (st == '')
+				{
+					st = 'swimlaneFillColor=#ffffff;'
+				}
+				
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+					'startSize=' + th + ';' +
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p.Name);
+
+				if (p.ShadedHeader)
+				{
+					v.style += 'fillColor=#e0e0e0;';
+				}
+				else
+				{
+					v.style += getFillColor(p, a);
+				}
+				
+				v.value = convertText(p.Name);
+				
+				var item = new Array();
+				var key = new Array();
+				var currH = th;
+				var keyW = 30;
+				
+				if (p.Column1 != null)
+				{
+					keyW = p.Column1 * scale;
+				}
+				
+				for (var i = 0; i < p.Fields; i++)
+				{
+					var itemH = 0;
+
+					key[i] = new mxCell('', new mxGeometry(0, currH, keyW, p['Key' + (i + 1) + '_h'] * scale), 'strokeColor=none;part=1;resizeHeight=0;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					key[i].vertex = true;
+					v.insert(key[i]);
+					key[i].style += st +
+						getFontSize(p['Key' + (i + 1)]) +
+						getFontColor(p['Key' + (i + 1)]) + 
+						getFontStyle(p['Key' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						key[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						key[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					key[i].value = convertText(p['Key' + (i + 1)]);
+					
+					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW, p['Field' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i].vertex = true;
+					v.insert(item[i]);
+					item[i].style += st +
+						getStrokeColor(p, a) + 
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getFontSize(p['Field' + (i + 1)]) +
+						getFontColor(p['Field' + (i + 1)]) + 
+						getFontStyle(p['Field' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						item[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						item[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					item[i].value = convertText(p['Field' + (i + 1)]);
+					
+					currH += p['Key' + (i + 1) + '_h'] * scale;
+				}
+				
 				break;
-			case 'Image_ipad_vtab' :
+				
+			case 'ERDEntityBlock3' :
+				var st = getFillColor(p, a);
+				var th = p.Name_h * scale;
+				st = st.replace('fillColor', 'swimlaneFillColor');
+				
+				if (st == '')
+				{
+					st = 'swimlaneFillColor=#ffffff;'
+				}
+				
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+					'startSize=' + th + ';' +
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p.Name);
+
+				if (p.ShadedHeader)
+				{
+					v.style += 'fillColor=#e0e0e0;';
+				}
+				else
+				{
+					v.style += getFillColor(p, a);
+				}
+				
+				v.value = convertText(p.Name);
+				
+				var item = new Array();
+				var key = new Array();
+				var currH = th;
+				var keyW = 30;
+				
+				if (p.Column1 != null)
+				{
+					keyW = p.Column1 * scale;
+				}
+				
+				for (var i = 0; i < p.Fields; i++)
+				{
+					var itemH = 0;
+
+					key[i] = new mxCell('', new mxGeometry(0, currH, keyW, p['Field' + (i + 1) + '_h'] * scale), 'strokeColor=none;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					key[i].vertex = true;
+					v.insert(key[i]);
+					key[i].style += st +
+						getFontSize(p['Field' + (i + 1)]) +
+						getFontColor(p['Field' + (i + 1)]) + 
+						getFontStyle(p['Field' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						key[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						key[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					key[i].value = convertText(p['Field' + (i + 1)]);
+					
+					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW, p['Type' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i].vertex = true;
+					v.insert(item[i]);
+					item[i].style += st +
+						getStrokeColor(p, a) + 
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getFontSize(p['Type' + (i + 1)]) +
+						getFontColor(p['Type' + (i + 1)]) + 
+						getFontStyle(p['Type' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						item[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						item[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					item[i].value = convertText(p['Type' + (i + 1)]);
+					
+					currH += p['Field' + (i + 1) + '_h'] * scale;
+				}
+				
 				break;
-			case 'Image_ipad_large_tabbed_button' :
-				break;
-			case 'Image_ipad_sort_button' :
-				break;
-			case 'Image_ipad_tab_bar' :
-				break;
-			case 'Image_ipad_check_off' :
-				break;
-			case 'Image_ipad_radio_off' :
-				break;
-			case 'Image_ipad_checkbox_off' :
-				break;
-			case 'Image_iphone_table' :
-				break;
-			case 'Image_iphone_table_w_buttons' :
-				break;
-			case 'Image_iphone_table_w_icons' :
-				break;
-			case 'Image_iphone_list' :
-				break;
-			case 'Image_iphone_gray_grad_list' :
-				break;
-			case 'Image_iphone_alert_dialog' :
-				break;
-			case 'Image_iphone_dialog' :
-				break;
-			case 'Image_iphone_scroll_pane' :
-				break;
-			case 'Image_iphone_switch_off' :
-				break;
-			case 'Image_iphone_large_tabbed_button' :
-				break;
-			case 'Image_iphone_sort_button' :
-				break;
-			case 'Image_iphone_tab_bar' :
-				break;
-			case 'Image_iphone_picker_multi' :
-				break;
-			case 'Image_iphone_picker_web' :
-				break;
-			case 'Image_iphone_check_off' :
-				break;
-			case 'Image_iphone_radio_off' :
-				break;
-			case 'Image_iphone_checkbox_off' :
+			case 'ERDEntityBlock4' :
+				var st = getFillColor(p, a);
+				var th = p.Name_h * scale;
+				st = st.replace('fillColor', 'swimlaneFillColor');
+				
+				if (st == '')
+				{
+					st = 'swimlaneFillColor=#ffffff;'
+				}
+				
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+					'startSize=' + th + ';' +
+					getOpacity(p, a) +
+					getStrokeColor(p, a) + 
+					getStrokeWidth(p) +
+					getStrokeStyle(p) +
+					getLabelStyle(p.Name);
+
+				if (p.ShadedHeader)
+				{
+					v.style += 'fillColor=#e0e0e0;';
+				}
+				else
+				{
+					v.style += getFillColor(p, a);
+				}
+				
+				v.value = convertText(p.Name);
+				
+				var item = new Array();
+				var key = new Array();
+				var type = new Array();
+				var currH = th;
+				var keyW = 30;
+				var typeW = 40;
+				
+				if (p.Column1 != null)
+				{
+					keyW = p.Column1 * scale;
+				}
+				
+				if (p.Column2 != null)
+				{
+					typeW = p.Column2 * scale;
+				}
+				
+				for (var i = 0; i < p.Fields; i++)
+				{
+					var itemH = 0;
+
+					key[i] = new mxCell('', new mxGeometry(0, currH, keyW, p['Key' + (i + 1) + '_h'] * scale), 'strokeColor=none;part=1;resizeHeight=0;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					key[i].vertex = true;
+					v.insert(key[i]);
+					key[i].style += st +
+						getFontSize(p['Key' + (i + 1)]) +
+						getFontColor(p['Key' + (i + 1)]) + 
+						getFontStyle(p['Key' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						key[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						key[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					key[i].value = convertText(p['Key' + (i + 1)]);
+					
+					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW - typeW, p['Field' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i].vertex = true;
+					v.insert(item[i]);
+					item[i].style += st +
+						getStrokeColor(p, a) + 
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getFontSize(p['Field' + (i + 1)]) +
+						getFontColor(p['Field' + (i + 1)]) + 
+						getFontStyle(p['Field' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						item[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						item[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					item[i].value = convertText(p['Field' + (i + 1)]);
+					
+					type[i] = new mxCell('', new mxGeometry(w - typeW, currH, typeW, p['Type' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					type[i].vertex = true;
+					v.insert(type[i]);
+					type[i].style += st +
+						getStrokeColor(p, a) + 
+						getStrokeWidth(p) +
+						getStrokeStyle(p) +
+						getFontSize(p['Type' + (i + 1)]) +
+						getFontColor(p['Type' + (i + 1)]) + 
+						getFontStyle(p['Type' + (i + 1)]);
+
+					if (p.AltRows == 1 && (i % 2 != 0))
+					{
+						type[i].style += 'fillColor=#000000;fillOpacity=5;';
+					}
+					else
+					{
+						type[i].style += 'fillColor=none;' + 
+							getOpacity(p, a);
+					}
+
+					type[i].value = convertText(p['Type' + (i + 1)]);
+					
+					currH += p['Key' + (i + 1) + '_h'] * scale;
+				}
+				
 				break;
 		}
 

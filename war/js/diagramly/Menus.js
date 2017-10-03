@@ -1180,6 +1180,14 @@
 					editorUi.editor.modified = false;
 					editorUi.editor.setStatus('');
 				}
+				
+				//Add support to saving files if embedded mode is running with files
+				var file = editorUi.getCurrentFile();
+				
+				if (file != null)
+				{
+					editorUi.saveFile();
+				}
 			};
 	
 			editorUi.actions.addAction('saveAndExit', function()
@@ -1191,6 +1199,7 @@
 			{
 				var fn = function()
 				{
+					editorUi.editor.modified = false;
 					var msg = (urlParams['proto'] == 'json') ? JSON.stringify({event: 'exit',
 						modified: editorUi.editor.modified}) : '';
 					var parent = window.opener || window.parent;
@@ -1519,12 +1528,12 @@
 		    	    				{
 		    		    				var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
 		
-		    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
-		    							{
-		    								editorUi.spinner.stop();
-		    								graph.setSelectionCells(cells);
-		    								graph.scrollCellToVisible(graph.getSelectionCell());
-		    							});
+	    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
+	    							{
+	    								editorUi.spinner.stop();
+	    								graph.setSelectionCells(cells);
+	    								graph.scrollCellToVisible(graph.getSelectionCell());
+	    							});
 		    	    				}), resizeImages);
 				    		});
 				    		
@@ -1986,8 +1995,8 @@
 				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
 				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 120, 60), 'whiteSpace=wrap;html=1;');
 				cell.vertex = true;
-	    	    graph.setSelectionCell(graph.addCell(cell));
-	    	    graph.scrollCellToVisible(graph.getSelectionCell());
+		    	    graph.setSelectionCell(graph.addCell(cell));
+		    	    graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
 		

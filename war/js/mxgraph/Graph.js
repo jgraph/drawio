@@ -6397,6 +6397,11 @@ if (typeof mxVertexHandler != 'undefined')
 			mxCellEditorStopEditing.apply(this, arguments);
 			
 			// Tries to move focus back to container after editing if possible
+			this.focusContainer();
+		};
+		
+		mxCellEditor.prototype.focusContainer = function()
+		{
 			try
 			{
 				this.graph.container.focus();

@@ -6,25 +6,37 @@ t.render(function()
   {
     return function() 
     {
-      t.card('id')
-      .then(function (card) 
-	  {
         t.modal({
           url: './editor.html',
           fullscreen: true,
-          args: {cardId: card.id, att: att, name: name}
+          args: {attId: att.id, name: name},
+          title: 'draw.io: ' + name,
+          callback: function()
+          {
+        	  //TODO find a way to catch close event before destroying the editor such that we can save
+        	  console.log("Closed!!!!!");  
+          }
         });
-      });
     }    
   };
 
+  var getPrevFunction = function(prevURL, name) 
+  {
+    return function() 
+    {
+        t.modal({
+          url: prevURL,
+          fullscreen: true,
+          title: 'draw.io: ' + name
+        });
+    }    
+  };
+
+  var idSep = encodeURIComponent('|$|');
+  
   t.card('attachments')
   .get('attachments')
-  .filter(function(attachment)
-  {
-      var drawioSuffix = '.drawio.png';
-      return attachment.name.lastIndexOf(drawioSuffix) === attachment.name.length - drawioSuffix.length;
-  })
+  .filter(mxTrelloCommon.attFilterFn)
   .then(function(drawioAtts)
   {
     var content = document.getElementById('content');
@@ -35,14 +47,49 @@ t.render(function()
       var div = document.createElement('div');
       div.className = "attachment-thumbnail";
 
-      var attName = drawioAtts[i].name.replace(".drawio.png", "");
+      var attName = drawioAtts[i].name;
       
-      var imgLink = document.createElement('a');
-      imgLink.className = "attachment-thumbnail-preview";
-      imgLink.setAttribute('href', 'javascript:void(0);');
-      imgLink.setAttribute('title', attName);
-      imgLink.style.cssText = "background-image: url('"+ drawioAtts[i].url +"');background-color: #fcfcfc;"; //trello is using the original file instead of previews!
-      div.appendChild(imgLink);
+      //TODO add preview modal on click
+      //For PNG and SVG (on supported browsers) show them as images, otherwise, load them inside a lightbox editor [size 300px max for images]
+      //Click shows a preview
+      var previews = drawioAtts[i].previews;
+      
+	  var prevURL = mxTrelloCommon.editorURL + '?lightbox=1';
+	  var fileId = '#T' + t.getContext().card + idSep + drawioAtts[i].id;
+	  var prevFn = getPrevFunction(prevURL + fileId, attName);
+      
+      if (previews.length > 0)
+	  {
+    	  //find the best size (max dim is 300px)
+    	  var maxPrev = previews[0];
+    	  for (var j = 1; j < previews.length; j++)
+		  {
+    		  if (previews[j].width <= 350 && previews[j].height <= 260 && maxPrev.width < previews[j].width)
+			  {
+    			  maxPrev = previews[j];
+			  }
+		  }
+    	  var imgLink = document.createElement('a');
+          imgLink.className = "attachment-thumbnail-preview";
+          imgLink.setAttribute('href', 'javascript:void(0);');
+          imgLink.setAttribute('title', attName);
+          
+          imgLink.style.cssText = "background-image: url('"+ maxPrev.url +"');background-color: #fcfcfc;";
+          imgLink.addEventListener("click", prevFn);
+          div.appendChild(imgLink);
+	  }
+      else
+      {
+    	  var prevFrm = document.createElement('iframe');
+    	  prevFrm.className = "attachment-thumbnail-preview";
+    	  prevFrm.setAttribute('src', prevURL + '&toolbar=0&border=0' + fileId);
+          
+    	  //prevFrm.style.cssText = "width:110px;height:80px";
+    	  prevFrm.width = 110;
+    	  prevFrm.height = 80;
+    	  prevFrm.addEventListener("click", prevFn);
+          div.appendChild(prevFrm);
+      }
 
       var detailsP = document.createElement('p');
       detailsP.className = "attachment-thumbnail-details";
@@ -85,6 +132,13 @@ t.render(function()
       editLink.addEventListener("click", getEditFunction(drawioAtts[i], attName));
       actionsSpan.appendChild(editLink);
 
+      var prevLink = document.createElement('a');
+      prevLink.className = "attachment-thumbnail-details-options-item dark-hover";
+      prevLink.setAttribute('href', 'javascript:void(0);');
+      prevLink.innerHTML = '<span class="icon-sm icon-edit"></span> <span class="attachment-thumbnail-details-options-item-text">Preview</span>';
+      prevLink.addEventListener("click", prevFn);
+      actionsSpan.appendChild(prevLink);
+      
       detailsP.appendChild(actionsSpan);
       div.appendChild(detailsP);
       

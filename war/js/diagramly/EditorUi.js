@@ -2464,19 +2464,6 @@
 	{
 		return this.currentFile;
 	};
-
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.isDiagramEmpty = function()
-	{
-		var model = this.editor.graph.getModel();
-		
-		return model.getChildCount(model.root) == 1 && model.getChildCount(model.getChildAt(model.root, 0)) == 0;
-	};
 	
 	/**
 	 * Handling for canvas export.
@@ -8564,13 +8551,17 @@
 						if (this.trello == null)
 						{
 							this.addListener('clientLoaded', function() {
-								this.createFile(data.name + '.drawio.png', null,
+								this.createFile(data.name, this.getFileData(/(\.xml)$/i.test(name) ||
+										name.indexOf('.') < 0, /(\.svg)$/i.test(name),
+										/(\.html)$/i.test(name)),
 										null, App.MODE_TRELLO, null, true, data.folderId);
 							});
 						}
 						else
 						{
-							this.createFile(data.name + '.drawio.png', null,
+							this.createFile(data.name, this.getFileData(/(\.xml)$/i.test(name) ||
+									name.indexOf('.') < 0, /(\.svg)$/i.test(name),
+									/(\.html)$/i.test(name)),
 									null, App.MODE_TRELLO, null, true, data.folderId);
 						}
 					}
