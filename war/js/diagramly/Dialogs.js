@@ -2508,9 +2508,11 @@ var ParseDialog = function(editorUi, title)
 /**
  * Constructs a new dialog for creating files from templates.
  */
-var NewDialog = function(editorUi, compact, showName, callback)
+var NewDialog = function(editorUi, compact, showName, callback, createOnly)
 {
 	showName = (showName != null) ? showName : true;
+	createOnly = (createOnly != null) ? createOnly : false;
+	
 	var outer = document.createElement('div');
 	outer.style.height = '100%';
 	
@@ -2929,12 +2931,12 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	
 	cancelBtn.className = 'geBtn';
 	
-	if (editorUi.editor.cancelFirst)
+	if (editorUi.editor.cancelFirst && !createOnly)
 	{
 		btns.appendChild(cancelBtn);
 	}
 	
-	if (!compact && !editorUi.isOffline() && showName && callback == null)
+	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
@@ -2945,7 +2947,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
 		btns.appendChild(helpBtn);
 	}
 
-	if (!compact && urlParams['embed'] != '1')
+	if (!compact && urlParams['embed'] != '1' && !createOnly)
 	{
 		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
 		{
@@ -2976,7 +2978,7 @@ var NewDialog = function(editorUi, compact, showName, callback)
 	
 	btns.appendChild(createButton);
 	
-	if (!editorUi.editor.cancelFirst && callback == null)
+	if (!editorUi.editor.cancelFirst && callback == null && !createOnly)
 	{
 		btns.appendChild(cancelBtn);
 	}

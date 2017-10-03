@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<svg contentScriptType="text/ecmascript" width="59.4" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" height="76.1" viewBox="-0.1 -0.1 59.3 76" preserveAspectRatio="none meet"
+    xmlns="http://www.w3.org/2000/svg" version="1.0">
+    <defs>
+        <style>.cls-1{fill:#253858;}.cls-2{fill:url(#linear-gradient);}.cls-3{fill:#2684ff;}</style>
+        <linearGradient gradientTransform="translate(-1.77 -1.54) rotate(0.35)" x1="36.5" y1="34.28" x2="45.33"
+            gradientUnits="userSpaceOnUse" y2="60.42" id="linear-gradient">
+            <stop offset="0" stop-color="#0052cc"/>
+            <stop offset="1" stop-color="#2684ff"/>
+        </linearGradient>
+    </defs>
+    <title>Jira Service Desk-blue</title>
+    <path class="cls-2" d="M35.34,29.92,55.95,30a3.21,3.21,0,0,1,2.55,5.14L28.08,75.76a21.61,21.61,0,0,1-4.38-30.25Z"/>
+    <path class="cls-3" d="M23.69,45.51,3.2,45.38A3.21,3.21,0,0,1,.65,40.24L30.77,0a21.61,21.61,0,0,1,4.38,30.25Z"/>
+</svg>

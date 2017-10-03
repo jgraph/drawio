@@ -14,7 +14,7 @@ TrelloPowerUp
 						return t.popup({
 							title : 'Create a New Diagram...',
 							url : './new.html',
-							height : 125
+							height : 190
 						});
 					}
 				} ];
@@ -22,13 +22,7 @@ TrelloPowerUp
 			'attachment-sections' : function(t, options) 
 			{
 				// Claim all png attachment that is created by draw.io
-				var claimed = options.entries
-						.filter(function(attachment) 
-						{
-							var drawioSuffix = '.drawio.png';
-							return attachment.name.lastIndexOf(drawioSuffix) === attachment.name.length
-									- drawioSuffix.length;
-						});
+				var claimed = options.entries.filter(mxTrelloCommon.attFilterFn);
 
 				if (claimed && claimed.length > 0) 
 				{
@@ -40,7 +34,7 @@ TrelloPowerUp
 						{
 							type : 'iframe',
 							url : t.signUrl('./attSection.html', {
-								arg : ""
+								arg: ""
 							}),
 							height : 230
 						}
@@ -53,22 +47,23 @@ TrelloPowerUp
 			},
 			'card-badges' : function(t, options) 
 			{
-				// Claim all png attachment that is created by draw.io
-				var claimed = options.entries
-						.filter(function(attachment) 
+				 return t.card('attachments')
+				    .get('attachments')
+				    .filter(mxTrelloCommon.attFilterFn)
+				    .then(function(claimed)
+		    		{
+						if (claimed && claimed.length > 0) 
 						{
-							var drawioSuffix = '.drawio.png';
-							return attachment.name.lastIndexOf(drawioSuffix) === attachment.name.length
-									- drawioSuffix.length;
-						});
-
-				if (claimed && claimed.length > 0) 
-				{
-					return [{ 
-						  text: 'draw.io (' + claimed.length + ')',
-						  icon: 'https://www.draw.io/images/favicon-32x32.png', 
-						  color: 'white' 
-					}];
-				}
+							return [{ 
+								  text: 'draw.io (' + claimed.length + ')',
+								  icon: 'https://www.draw.io/images/favicon-32x32.png', 
+								  color: 'white' 
+							}];
+						}
+						else
+						{
+							return [];
+						}
+		    		});
 			}
 		});

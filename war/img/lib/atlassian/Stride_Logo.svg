@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<svg contentScriptType="text/ecmascript" width="68.5" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" height="47.9" viewBox="-0.1 7.3 68.4 55.2" preserveAspectRatio="none meet"
+    xmlns="http://www.w3.org/2000/svg" version="1.0">
+    <defs>
+        <style>.cls-1{fill:#253858;}.cls-2{fill:url(#New_Gradient_Swatch_1);}.cls-3{fill:#2684ff;}</style>
+        <linearGradient x1="31.3" gradientUnits="userSpaceOnUse" x2="1.32" y1="24.34" y2="46.28" id="New_Gradient_Swatch_1">
+            <stop stop-color="#0052cc" offset="0.18"/>
+            <stop stop-color="#2684ff" offset="1"/>
+        </linearGradient>
+    </defs>
+    <title>Stride-blue</title>
+    <path class="cls-2" d=
+        "M19.16,7.39v11c0,15.26-7.63,21.14-17.35,22.06a2,2,0,0,0-1.8,2c0,4.1,0,13.79,0,18a2,2,0,0,0,2.11,2c24.34-1.24,39-19,39-41.05h.07v-14Z"/>
+    <path class="cls-3" d="M68,59.5,42.23,7.39H19.16L46.38,60.75a3,3,0,0,0,2.67,1.64H66.23A2,2,0,0,0,68,59.5Z"/>
+</svg>

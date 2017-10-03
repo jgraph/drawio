@@ -2,13 +2,13 @@
 {
   var t = window.TrelloPowerUp.iframe();
 
-  var fileName = t.arg('name');                                                               
-  var att = t.arg('att');
-  var cardId = t.arg('cardId');
+  var fileName = t.arg('name');
+  var type = t.arg('type');
+  var attId = t.arg('attId');
+  var cardId = t.getContext().card;
 
   var iframe = document.getElementById("editorFrame");
-  var temp = null;
-  iframe.setAttribute('src', "https://test-dot-praxis-deck-767.appspot.com/?embed=1&tr=1&spin=1&ui=atlas&proto=json&libraries=1");
+  iframe.setAttribute('src', mxTrelloCommon.editorURL + "?embed=1&tr=1&spin=1&ui=atlas&proto=json&libraries=1");
 
   window.addEventListener('message', function(evt)
 	{
@@ -32,27 +32,27 @@
 	    }
 	    else if (msg.event == 'init')
 	    {
-	      iframe.contentWindow.postMessage(JSON.stringify({action: 'load', autosave: 0,
-	                              saveAndExit: '1', modified: 'unsavedChanges', xml: "", title: fileName}), '*');
+	      iframe.contentWindow.postMessage(JSON.stringify({action: 'load', autosave: 1,
+	                              saveAndExit: '1', modified: false, xml: "", title: fileName}), '*');
 	
-	      if (!att) 
+	      if (!attId) 
 	      {
+	    	  fileName = fileName + '.drawio' + (type == 'xml'? '' : '.' + type);
 	          iframe.contentWindow.postMessage(JSON.stringify({action: 'newFile', type: 'T', folderId: cardId, name: fileName}), '*');
 	      }
 	      else 
 	      {
-	          iframe.contentWindow.postMessage(JSON.stringify({action: 'loadFile', type: 'T', autosave: 0,
-	                                                       file: cardId + '|$|' + att.id}), '*');
+	          iframe.contentWindow.postMessage(JSON.stringify({action: 'loadFile', type: 'T', autosave: 1,
+	                                                       file: cardId + '|$|' + attId}), '*');
 	      }
 	    }
 	    else if (msg.event == 'autosave')
 	    {
-	      temp = msg.xml;
+	      iframe.contentWindow.postMessage(JSON.stringify({action: 'status',
+	          messageKey: 'allChangesSaved', modified: false}), '*');
 	    }
 	    else if (msg.event == 'save')
 	    {
-	      temp = msg.xml;
-	
 	      if (msg.exit)
 	      {
 	        msg.event = 'exit';
