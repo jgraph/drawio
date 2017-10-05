@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<svg contentScriptType="text/ecmascript" width="57.4" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" viewBox="-0.2 -0.2 57.2 72.1" height="71.3" preserveAspectRatio="none meet"
+    xmlns="http://www.w3.org/2000/svg" version="1.0">
+    <defs>
+        <style>.cls-1{fill:#253858;}.cls-2{fill:url(#linear-gradient);}.cls-3{fill:#2684ff;}.cls-4{fill:url(#New_Gradient_Swatch_1);}</style>
+        <linearGradient x1="28.44" gradientUnits="userSpaceOnUse" x2="28.44" y1="0.12" y2="0.12" id="linear-gradient">
+            <stop stop-color="#0052cc" offset="0"/>
+            <stop stop-color="#2684ff" offset="1"/>
+        </linearGradient>
+        <linearGradient x1="42.66" gradientUnits="userSpaceOnUse" x2="42.66" y1="50.35" y2="20.14" id="New_Gradient_Swatch_1">
+            <stop stop-color="#0052cc" offset="0.18"/>
+            <stop stop-color="#2684ff" offset="1"/>
+        </linearGradient>
+    </defs>
+    <title>Sourcetree-blue</title>
+    <polygon class="cls-2" points="28.44 0.12 28.44 0.12 28.44 0.12 28.44 0.12"/>
+    <path class="cls-3" d=
+        "M56.88,28.44A28.44,28.44,0,0,0,28.44,0h0a28.43,28.43,0,0,0-8.79,55.48V69.73a2,2,0,0,0,2,2h13.5a2,2,0,0,0,2-2V55.49A28.45,28.45,0,0,0,56.88,28.44ZM28.44,38.05h0a9.61,9.61,0,1,1,0-19.23h0a9.61,9.61,0,0,1,0,19.23Z"/>
+    <path class="cls-4" d=
+        "M28.44,0V18.83h0a9.61,9.61,0,0,1,0,19.23h0a8.79,8.79,0,0,1,8.79,8.79v8.65A28.44,28.44,0,0,0,28.44,0Z"/>
+</svg>

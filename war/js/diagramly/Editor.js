@@ -686,17 +686,15 @@
 		{
 			formatInit.apply(this, arguments);
 
-			var ui = this.editorUi;
-			ui.editor.addListener('fileLoaded', this.update);
+			this.editorUi.editor.addListener('fileLoaded', this.update);
 		};
 
 		var formatRefresh = Format.prototype.refresh;
 		
 		Format.prototype.refresh = function()
 		{
-			var ui = this.editorUi;
-			
-			if (ui.getCurrentFile() != null || urlParams['embed'] == '1')
+			if (this.editorUi.getCurrentFile() != null || urlParams['embed'] == '1' ||
+				this.editorUi.editor.chromeless)
 			{
 				formatRefresh.apply(this, arguments);
 			}
@@ -704,6 +702,48 @@
 			{
 				this.clear();
 			}
+		};
+		
+		/**
+		 * Add global shadow option.
+		 */
+		var diagramFormatPanelAddView = DiagramFormatPanel.prototype.addView;
+		
+		DiagramFormatPanel.prototype.addView = function(div)
+		{
+			var div = diagramFormatPanelAddView.apply(this, arguments);
+			
+			if (mxClient.IS_SVG)
+			{
+				var ui = this.editorUi;
+				var editor = ui.editor;
+				var graph = editor.graph;
+				
+				div.appendChild(this.createOption(mxResources.get('shadow'), function()
+				{
+					return graph.shadowVisible;
+				}, function(checked)
+				{
+					graph.setShadowVisible(!graph.shadowVisible);
+				},
+				{
+					install: function(apply)
+					{
+						this.listener = function()
+						{
+							apply(graph.shadowVisible);
+						};
+						
+						ui.addListener('shadowVisibleChanged', this.listener);
+					},
+					destroy: function()
+					{
+						ui.removeListener(this.listener);
+					}
+				}));
+			}
+			
+			return div;
 		};
 		
 		/**

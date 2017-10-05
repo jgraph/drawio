@@ -20,6 +20,12 @@
 	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname);
 
 	/**
+	 * Switch to enable PlantUML in the insert from text dialog.
+	 * NOTE: This must also be enabled on the server-side.
+	 */
+	EditorUi.enablePlantUml = EditorUi.enableLogging;
+
+	/**
 	 * https://github.com/electron/electron/issues/2288
 	 */
 	EditorUi.isElectronApp = window != null && window.process != null &&
@@ -8028,7 +8034,20 @@
 					if (xml != null && xml.length > 0)
 					{
 						this.setFileData(xml);
-						this.showLayersDialog();
+						
+						if (!this.editor.chromeless)
+						{
+							this.showLayersDialog();
+						}
+						else if (this.editor.graph.lightbox)
+						{
+							this.lightboxFit();
+						}
+						
+						if (this.chromelessResize)
+						{
+							this.chromelessResize();
+						}
 					}
 					else
 					{

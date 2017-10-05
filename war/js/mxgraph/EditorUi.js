@@ -956,6 +956,11 @@ EditorUi.prototype.allowAnimation = true;
 EditorUi.prototype.lightboxMaxFitScale = 2;
 
 /**
+ * Specifies if animations are allowed in <executeLayout>. Default is true.
+ */
+EditorUi.prototype.lightboxVerticalDivider = 4;
+
+/**
  * Installs the listeners to update the action states.
  */
 EditorUi.prototype.init = function()
@@ -1348,12 +1353,12 @@ EditorUi.prototype.initCanvas = function()
 				
 				var ns = (autoscale) ? Math.max(0.3, Math.min(maxScale || 1, cw / b.width)) : s;
 				var dx = Math.max((cw - ns * b.width) / 2, 0) / ns;
-				var dy = Math.max((ch - ns * b.height) / 4, 0) / ns;
+				var dy = Math.max((ch - ns * b.height) / this.lightboxVerticalDivider, 0) / ns;
 				
-				graph.view.scaleAndTranslate(ns, dx - b.x, dy - b.y);
+				graph.view.scaleAndTranslate(ns, Math.floor(dx - b.x), Math.floor(dy - b.y));
 
 				graph.container.scrollTop = st * ns / s;
-				graph.container.scrollLeft = sl * ns/ s;
+				graph.container.scrollLeft = sl * ns / s;
 			}
 	   	});
 		

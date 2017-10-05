@@ -4437,6 +4437,11 @@ DiagramFormatPanel = function(format, editorUi, container)
 mxUtils.extend(DiagramFormatPanel, BaseFormatPanel);
 
 /**
+ * Switch to disable page view.
+ */
+DiagramFormatPanel.showPageView = true;
+
+/**
  * Specifies if the background image option should be shown. Default is true.
  */
 DiagramFormatPanel.prototype.showBackgroundImageOption = true;
@@ -4476,53 +4481,32 @@ DiagramFormatPanel.prototype.addView = function(div)
 
 	if (graph.isEnabled())
 	{
-		// Guides
-		div.appendChild(this.createOption(mxResources.get('guides'), function()
-		{
-			return graph.graphHandler.guidesEnabled;
-		}, function(checked)
-		{
-			ui.actions.get('guides').funct();
-		},
-		{
-			install: function(apply)
-			{
-				this.listener = function()
-				{
-					apply(graph.graphHandler.guidesEnabled);
-				};
-				
-				ui.addListener('guidesEnabledChanged', this.listener);
-			},
-			destroy: function()
-			{
-				ui.removeListener(this.listener);
-			}
-		}));
-		
 		// Page View
-		div.appendChild(this.createOption(mxResources.get('pageView'), function()
+		if (DiagramFormatPanel.showPageView)
 		{
-			return graph.pageVisible;
-		}, function(checked)
-		{
-			ui.actions.get('pageView').funct();
-		},
-		{
-			install: function(apply)
+			div.appendChild(this.createOption(mxResources.get('pageView'), function()
 			{
-				this.listener = function()
-				{
-					apply(graph.pageVisible);
-				};
-				
-				ui.addListener('pageViewChanged', this.listener);
+				return graph.pageVisible;
+			}, function(checked)
+			{
+				ui.actions.get('pageView').funct();
 			},
-			destroy: function()
 			{
-				ui.removeListener(this.listener);
-			}
-		}));
+				install: function(apply)
+				{
+					this.listener = function()
+					{
+						apply(graph.pageVisible);
+					};
+					
+					ui.addListener('pageViewChanged', this.listener);
+				},
+				destroy: function()
+				{
+					ui.removeListener(this.listener);
+				}
+			}));
+		}
 		
 		// Background
 		var bg = this.createColorOption(mxResources.get('background'), function()
@@ -4630,6 +4614,30 @@ DiagramFormatPanel.prototype.addOptions = function(div)
 				};
 				
 				ui.addListener('connectionPointsChanged', this.listener);
+			},
+			destroy: function()
+			{
+				ui.removeListener(this.listener);
+			}
+		}));
+
+		// Guides
+		div.appendChild(this.createOption(mxResources.get('guides'), function()
+		{
+			return graph.graphHandler.guidesEnabled;
+		}, function(checked)
+		{
+			ui.actions.get('guides').funct();
+		},
+		{
+			install: function(apply)
+			{
+				this.listener = function()
+				{
+					apply(graph.graphHandler.guidesEnabled);
+				};
+				
+				ui.addListener('guidesEnabledChanged', this.listener);
 			},
 			destroy: function()
 			{

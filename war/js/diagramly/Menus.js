@@ -83,13 +83,134 @@
 			dlg.init();
 		});
 		
-		// Export PDF action for chrome OS (same as print with different dialog title)
-		editorUi.actions.addAction('exportPdf', function()
+		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
-			editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
-				(editorUi.pages != null && editorUi.pages.length > 1) ?
-				420 : 360, true, true);
-		});
+			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
+				'https://support.draw.io/display/DO/Exporting+Files',
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+					addShadow, editable, embedImages, border, cropImage, currentPage)
+				{
+					var val = parseInt(scale);
+					
+					if (!isNaN(val) && val > 0)
+					{
+					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
+					   		addShadow, editable, embedImages, border, !cropImage, currentPage);
+					}
+				}), true, null, 'svg');
+		}));
+
+		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()
+		{
+			var div = document.createElement('div');
+			div.style.whiteSpace = 'nowrap';
+			var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
+			
+			var hd = document.createElement('h3');
+			mxUtils.write(hd, mxResources.get('formatXml'));
+			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+			div.appendChild(hd);
+			
+			var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
+				false, graph.isSelectionEmpty());
+			var pages = editorUi.addCheckbox(div, mxResources.get((noPages) ? 'compressed' : 'allPages'), true);
+			pages.style.marginBottom = '16px';
+			
+			mxEvent.addListener(selection, 'change', function()
+			{
+				if (selection.checked)
+				{
+					pages.setAttribute('disabled', 'disabled');
+				}
+				else
+				{
+					pages.removeAttribute('disabled');
+				}
+			});
+			
+			var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
+			{
+				editorUi.downloadFile('xml', (noPages) ? !pages.checked : null, null,
+					!selection.checked, (!noPages) ? !pages.checked : null);
+			}), null, mxResources.get('export'));
+			
+			editorUi.showDialog(dlg.container, 300, 146, true, true);
+		}));
+		
+		editorUi.actions.put('exportHtml', new Action(mxResources.get('formatHtmlEmbedded') + '...', function()
+		{
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+					
+					editorUi.showHtmlDialog(mxResources.get('export'), null, url, function(publicUrl, zoomEnabled,
+						initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, editLink)
+					{
+						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
+							fit, allPages, layers, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
+							{
+								var basename = editorUi.getBaseFilename();
+								var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
+									'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
+									'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
+								editorUi.saveData(basename + '.html', 'html', result, 'text/html');
+							}));
+					});
+				});
+			}
+		}));
+		
+		editorUi.actions.put('exportPdf', new Action(mxResources.get('formatPdf') + '...', function()
+		{
+			if (editorUi.isOffline() || editorUi.printPdfExport)
+			{
+				// Export PDF action for chrome OS (same as print with different dialog title)
+				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
+						(editorUi.pages != null && editorUi.pages.length > 1) ?
+						420 : 360, true, true);
+			}
+			else
+			{
+				var div = document.createElement('div');
+				div.style.whiteSpace = 'nowrap';
+				
+				var hd = document.createElement('h3');
+				mxUtils.write(hd, mxResources.get('formatPdf'));
+				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+				div.appendChild(hd);
+				
+				var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
+					false, graph.isSelectionEmpty());
+				var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
+					!graph.pageVisible || !editorUi.pdfPageExport,
+					!editorUi.pdfPageExport);
+				crop.style.marginBottom = '16px';
+				
+				// Crop is only enabled if selection only is selected
+				if (!editorUi.pdfPageExport)
+				{
+					mxEvent.addListener(selection, 'change', function()
+					{
+						if (selection.checked)
+						{
+							crop.removeAttribute('disabled');
+						}
+						else
+						{
+							crop.setAttribute('disabled', 'disabled');
+						}
+					});	
+				}
+				
+				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
+				{
+					editorUi.downloadFile('pdf', null, null, !selection.checked, null, !crop.checked);
+				}), null, mxResources.get('export'));
+				editorUi.showDialog(dlg.container, 300, 146, true, true);
+			}
+		}));
 		
 		editorUi.actions.addAction('open...', function()
 		{
@@ -382,6 +503,34 @@
 				var dlg = new BackgroundImageDialog(editorUi, apply);
 				editorUi.showDialog(dlg.container, 320, 170, true, true);
 				dlg.init();
+			}
+		}));
+		
+		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
+		{
+			if (editorUi.isExportToCanvas())
+			{
+				// TODO: Enable include option if CRC is fixed
+				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
+					'https://support.draw.io/display/DO/Exporting+Files',
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+						addShadow, editable, embedImages, border, cropImage, currentPage)
+					{
+						var val = parseInt(scale);
+						
+						if (!isNaN(val) && val > 0)
+						{
+						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
+						   		addShadow, editable, border, !cropImage, currentPage);
+						}
+					}), true, false, 'png');
+			}
+			else
+			{
+				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
+				{
+					editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection);
+				}));
 			}
 		}));
 		
@@ -1222,23 +1371,7 @@
 		{
 			if (editorUi.isExportToCanvas())
 			{
-				menu.addItem(mxResources.get('formatPng') + '...', null, mxUtils.bind(this, function()
-				{
-					// TODO: Enable include option if CRC is fixed
-					editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-						'https://support.draw.io/display/DO/Exporting+Files',
-						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, border, cropImage, currentPage)
-						{
-							var val = parseInt(scale);
-							
-							if (!isNaN(val) && val > 0)
-							{
-							   	this.editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-							   		addShadow, editable, border, !cropImage, currentPage);
-							}
-						}), true, false, 'png');
-				}), parent);
+				this.addMenuItems(menu, ['exportPng'], parent);
 				
 				if (editorUi.jpgSupported)
 				{
@@ -1264,117 +1397,31 @@
 			// Disabled for standalone mode in iOS because new tab cannot be closed
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				menu.addItem(mxResources.get('formatPng') + '...', null, mxUtils.bind(this, function()
-				{
-					editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
-					{
-						this.editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection);
-					}));
-				}), parent);
+				this.addMenuItems(menu, ['exportPng'], parent);
 				
 				menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
 				{
 					editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
 					{
-						this.editorUi.downloadFile('jpeg', null, null, ignoreSelection);
+						editorUi.downloadFile('jpeg', null, null, ignoreSelection);
 					}), true);
 				}), parent);
 			}
 			
-			menu.addItem(mxResources.get('formatSvg') + '...', null, mxUtils.bind(this, function()
-			{
-				editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-					'https://support.draw.io/display/DO/Exporting+Files',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, border, cropImage, currentPage)
-					{
-						var val = parseInt(scale);
-						
-						if (!isNaN(val) && val > 0)
-						{
-						   	this.editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-						   		addShadow, editable, embedImages, border, !cropImage, currentPage);
-						}
-					}), true, null, 'svg');
-			}), parent);
-
-			menu.addSeparator(parent);
-
+			this.addMenuItems(menu, ['exportSvg', '-'], parent);
+			
 			// Redirects export to PDF to print in Chrome App
 			if (editorUi.isOffline() || editorUi.printPdfExport)
 			{
-				menu.addItem(mxResources.get('formatPdf') + '...', null, this.editorUi.actions.get('exportPdf').funct, parent);
+				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
 			// Disabled for standalone mode in iOS because new tab cannot be closed
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				menu.addItem(mxResources.get('formatPdf') + '...', null, mxUtils.bind(this, function()
-				{
-					var div = document.createElement('div');
-					div.style.whiteSpace = 'nowrap';
-					
-					var hd = document.createElement('h3');
-					mxUtils.write(hd, mxResources.get('formatPdf'));
-					hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
-					div.appendChild(hd);
-					
-					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
-						false, graph.isSelectionEmpty());
-					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
-						!graph.pageVisible || !editorUi.pdfPageExport,
-						!editorUi.pdfPageExport);
-					crop.style.marginBottom = '16px';
-					
-					// Crop is only enabled if selection only is selected
-					if (!editorUi.pdfPageExport)
-					{
-						mxEvent.addListener(selection, 'change', function()
-						{
-							if (selection.checked)
-							{
-								crop.removeAttribute('disabled');
-							}
-							else
-							{
-								crop.setAttribute('disabled', 'disabled');
-							}
-						});	
-					}
-					
-					var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
-					{
-						this.editorUi.downloadFile('pdf', null, null, !selection.checked, null, !crop.checked);
-					}), null, mxResources.get('export'));
-					this.editorUi.showDialog(dlg.container, 300, 146, true, true);
-				}), parent);
+				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
 
-			menu.addItem(mxResources.get('formatHtmlEmbedded') + '...', null, mxUtils.bind(this, function()
-			{
-				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
-				{
-					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
-					{
-						editorUi.spinner.stop();
-						
-						editorUi.showHtmlDialog(mxResources.get('export'), null, url, function(publicUrl, zoomEnabled,
-							initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, editLink)
-						{
-							editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
-								fit, allPages, layers, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
-								{
-									var basename = editorUi.getBaseFilename();
-									var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
-										'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
-										'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
-									editorUi.saveData(basename + '.html', 'html', result, 'text/html');
-								}));
-						});
-					});
-				}
-				
-				//this.editorUi.downloadFile('html');
-			}), parent);
+			this.addMenuItems(menu, ['exportHtml'], parent);
 
 			// LATER: Fix namespace prefix (NS1, NS2..) in XML
 			// serializer for VSDX export in IE11 and earlier
@@ -1383,43 +1430,7 @@
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
 
-			menu.addSeparator(parent);
-
-			menu.addItem(mxResources.get('formatXml') + '...', null, mxUtils.bind(this, function()
-			{
-				var div = document.createElement('div');
-				div.style.whiteSpace = 'nowrap';
-				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
-				
-				var hd = document.createElement('h3');
-				mxUtils.write(hd, mxResources.get('formatXml'));
-				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
-				div.appendChild(hd);
-				
-				var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
-					false, graph.isSelectionEmpty());
-				var pages = editorUi.addCheckbox(div, mxResources.get((noPages) ? 'compressed' : 'allPages'), true);
-				pages.style.marginBottom = '16px';
-				
-				mxEvent.addListener(selection, 'change', function()
-				{
-					if (selection.checked)
-					{
-						pages.setAttribute('disabled', 'disabled');
-					}
-					else
-					{
-						pages.removeAttribute('disabled');
-					}
-				});
-				
-				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
-				{
-					editorUi.downloadFile('xml', (noPages) ? !pages.checked : null, null,
-						!selection.checked, (!noPages) ? !pages.checked : null);
-				}), null, mxResources.get('export'));
-				this.editorUi.showDialog(dlg.container, 300, 146, true, true);
-			}), parent);
+			this.addMenuItems(menu, ['-', 'exportXml'], parent);
 
 			// Disables menu item for all external hosted integrations
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||/.*\.draw\.io$/.test(window.location.hostname))
