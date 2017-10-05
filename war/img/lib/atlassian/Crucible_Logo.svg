@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="no"?>
+<svg contentScriptType="text/ecmascript" width="61.3" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" viewBox="-0.1 1.9 61.2 63.2" height="61.3" preserveAspectRatio="none meet"
+    xmlns="http://www.w3.org/2000/svg" version="1.0">
+    <defs>
+        <style>.cls-1{fill:#253858;}.cls-2{fill:#2684ff;}.cls-3{fill:url(#New_Gradient_Swatch_1);}</style>
+        <linearGradient x1="30.47" gradientUnits="userSpaceOnUse" x2="30.47" y1="24.34" y2="2.49" id="New_Gradient_Swatch_1">
+            <stop stop-color="#0052cc" offset="0.18"/>
+            <stop stop-color="#2684ff" offset="1"/>
+        </linearGradient>
+    </defs>
+    <title>Crucible-blue</title>
+    <path class="cls-2" d=
+        "M30.47,2.09C13.64,2.09,0,7.84,0,14.92A6.48,6.48,0,0,0,.11,16L5.48,44.18a25.44,25.44,0,0,0,50,0L60.83,16a6.48,6.48,0,0,0,.11-1.07C60.94,7.84,47.3,2.09,30.47,2.09Zm0,46.67c-8.8,0-8.07-20.45-17.93-23.47-.82-.25-1.6-.52-2.36-.81a59.2,59.2,0,0,1,20.29-3.26,59.2,59.2,0,0,1,20.29,3.26c-.76.28-1.54.56-2.36.81-9.86,3-9.12,23.47-17.93,23.47"/>
+    <path class="cls-3" d=
+        "M10.18,24.49a59.19,59.19,0,0,1,20.29-3.26,59.19,59.19,0,0,1,20.29,3.26c6.24-2.35,10.18-5.76,10.18-9.57,0-7.08-13.64-12.83-30.47-12.83S0,7.84,0,14.92C0,18.72,3.93,22.14,10.18,24.49Z"/>
+</svg>

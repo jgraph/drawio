@@ -1127,8 +1127,6 @@ Actions.prototype.init = function()
 		{
 			this.layersWindow.window.setVisible(!this.layersWindow.window.isVisible());
 		}
-		
-		//ui.fireEvent(new mxEventObject('layers'));
 	}), null, null, Editor.ctrlKey + '+Shift+L');
 	action.setToggleAction(true);
 	action.setSelectedCallback(mxUtils.bind(this, function() { return this.layersWindow != null && this.layersWindow.window.isVisible(); }));
@@ -1159,8 +1157,6 @@ Actions.prototype.init = function()
 		{
 			this.outlineWindow.window.setVisible(!this.outlineWindow.window.isVisible());
 		}
-		
-		ui.fireEvent(new mxEventObject('outline'));
 	}), null, null, Editor.ctrlKey + '+Shift+O');
 	
 	action.setToggleAction(true);

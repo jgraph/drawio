@@ -2400,7 +2400,7 @@ var ParseDialog = function(editorUi, title)
 	mxUtils.write(plantUmlPngOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatPng') + ')');
 	
 	// Disabled for invalid hosts via CORS headers
-	if (/.*\.draw\.io$/.test(window.location.hostname) && Graph.fileSupport && !editorUi.isOffline())
+	if (EditorUi.enablePlantUml && Graph.fileSupport && !editorUi.isOffline())
 	{
 		typeSelect.appendChild(plantUmlSvgOption);
 		typeSelect.appendChild(plantUmlPngOption);

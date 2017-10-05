@@ -16,7 +16,7 @@ mxUtils.extend(GraphViewer, mxEventSource);
 /**
  * Redirects editing to absolue URLs.
  */
-GraphViewer.prototype.editBlankUrl = 'https://www.draw.io/?client=1';
+GraphViewer.prototype.editBlankUrl = 'https://www.draw.io/';
 
 /**
  * Base URL for relative images.
@@ -1342,6 +1342,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 	Graph.prototype.shadowId = 'lightboxDropShadow';
 	
 	var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
+	ui.editor.editBlankUrl = this.editBlankUrl;
 	
 	// Workaround for lost reference with same ID
 	Graph.prototype.shadowId = 'dropShadow';
