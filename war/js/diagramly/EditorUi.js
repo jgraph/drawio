@@ -1278,7 +1278,7 @@
 					}
 				}
 	
-				if (!this.editor.chromeless)
+				if (!this.editor.chromeless || this.editor.editable)
 				{
 					this.editor.graph.selectUnlockedLayer();
 					this.showLayersDialog();
@@ -1978,8 +1978,8 @@
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {	
-				    	this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, mxUtils.bind(this, function(data, mimeType, x, y, w, h, img, doneFn, file)
-				    	{
+					    	this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, mxUtils.bind(this, function(data, mimeType, x, y, w, h, img, doneFn, file)
+					    	{
 							if (data != null && mimeType.substring(0, 6) == 'image/')
 							{
 								var style = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;image=' +
@@ -6599,7 +6599,7 @@
 		printAction.visible = printAction.isEnabled();
 		
 		// Scales pages/graph to fit available size
-		if (!this.editor.chromeless)
+		if (!this.editor.chromeless || this.editor.editable)
 		{
 			// Defines additional hotkeys
 			this.keyHandler.bindAction(70, true, 'find'); // Ctrl+F
@@ -7039,7 +7039,7 @@
 
 		// Installs drag and drop handler for files
 		// Enables dropping files
-		if (Graph.fileSupport && !this.editor.chromeless)
+		if (Graph.fileSupport && (!this.editor.chromeless || this.editor.editable))
 		{
 			// Setup the dnd listeners
 			var dropElt = null;
@@ -7296,7 +7296,8 @@
 			/**
 			 * Shows scratchpad if never shown.
 			 */
-			if (!this.editor.chromeless && this.sidebar != null && (mxSettings.settings.isNew ||
+			if ((!this.editor.chromeless || this.editor.editable) &&
+				this.sidebar != null && (mxSettings.settings.isNew ||
 				parseInt(mxSettings.settings.version || 0) <= 8))
 			{
 				this.toggleScratchpad();
@@ -8183,7 +8184,7 @@
 				
 				return data;
 			};
-			
+
 			if (urlParams['proto'] == 'json')
 			{
 				try
@@ -8547,43 +8548,60 @@
 					
 					return;
 				}
-				else if (data.action == 'loadFile' && this.loadFile)
+				else if (data.action == 'create' && this.createFile)
 				{
-					if (data.type == 'T')
+					// Currently only trello supported
+					if (data.mode == 'trello')
 					{
+						var doCreateFile = mxUtils.bind(this, function(templateData)
+						{
+							this.createFile(data.name, templateData ||
+								this.getFileData(/(\.xml)$/i.test(name) ||
+								name.indexOf('.') < 0, /(\.svg)$/i.test(name),
+								/(\.html)$/i.test(name)), null, data.mode,
+								null, true, data.folder);
+						});
+						
+						var resolveTemplate = mxUtils.bind(this, function()
+						{
+							if (data.template != null)
+							{
+								this.trello.getFile(data.folder + this.trello.SEPARATOR +
+									data.template, function(file)
+								{
+									doCreateFile(file.getData());
+								}, function()
+								{
+									doCreateFile();
+								});
+							}
+							else
+							{
+								doCreateFile();
+							}
+						});
+						
 						if (this.trello == null)
 						{
-							this.addListener('clientLoaded', function() {
-								this.loadFile(data.type + data.file, true);
-							});
+							var waitForTrello = function()
+							{
+								if (this.trello != null)
+								{
+									this.removeListener(waitForTrello);
+									resolveTemplate();
+								}
+							};
+							
+							// Waits for Trello client to load
+							this.addListener('clientLoaded', waitForTrello);
 						}
 						else
 						{
-							this.loadFile(data.type + data.file, true);
+							resolveTemplate();
 						}
 					}
-				}
-				else if (data.action == 'newFile' && this.createFile)
-				{
-					if (data.type == 'T')
-					{
-						if (this.trello == null)
-						{
-							this.addListener('clientLoaded', function() {
-								this.createFile(data.name, this.getFileData(/(\.xml)$/i.test(name) ||
-										name.indexOf('.') < 0, /(\.svg)$/i.test(name),
-										/(\.html)$/i.test(name)),
-										null, App.MODE_TRELLO, null, true, data.folderId);
-							});
-						}
-						else
-						{
-							this.createFile(data.name, this.getFileData(/(\.xml)$/i.test(name) ||
-									name.indexOf('.') < 0, /(\.svg)$/i.test(name),
-									/(\.html)$/i.test(name)),
-									null, App.MODE_TRELLO, null, true, data.folderId);
-						}
-					}
+					
+					return;
 				}
 				else if (data.action == 'load')
 				{
