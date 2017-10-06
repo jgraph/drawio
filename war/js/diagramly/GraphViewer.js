@@ -1207,7 +1207,7 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 		    
 			if (editable)
 			{
-				param.edit = '_blank';
+				param.edit = this.graphConfig.edit || '_blank';
 			}
 		    
 			if (closable)

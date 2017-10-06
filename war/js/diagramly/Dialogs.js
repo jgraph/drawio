@@ -3775,7 +3775,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	}
 
 	// Image cropping (experimental)
-	if (!!document.createElement('canvas').getContext && linkInput.value.substring(0, 11) == 'data:image/')
+	if (!!document.createElement('canvas').getContext && linkInput.value.substring(0, 11) == 'data:image/' &&
+		linkInput.value.substring(0, 14) != 'data:image/svg')
 	{
 		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
 		{
@@ -3783,7 +3784,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    	{
 		    		linkInput.value = image;
 		    	});
-		    	editorUi.showDialog(dlg.container, 200, 160, true, true);
+		    	editorUi.showDialog(dlg.container, 200, 180, true, true);
 			dlg.init();
 		});
 		
@@ -6496,6 +6497,15 @@ var CropImageDialog = function(editorUi, image, fn)
 	
 	var table = document.createElement('table');
 	var tbody = document.createElement('tbody');
+	
+	var row = document.createElement('tr');
+	var size = document.createElement('td');
+	size.style.whiteSpace = 'nowrap';
+	size.setAttribute('colspan', '2');
+	mxUtils.write(size, mxResources.get('loading') + '...');
+	row.appendChild(size);
+	tbody.appendChild(row);
+	
 	var row = document.createElement('tr');
 	var left = document.createElement('td');
 	var right = document.createElement('td');
@@ -6599,42 +6609,50 @@ var CropImageDialog = function(editorUi, image, fn)
 		editorUi.hideDialog();
 	});
 	
+	var imageObj = new Image();
+
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
 		
 		var canvas = document.createElement('canvas');
 		var context = canvas.getContext('2d');
-		var imageObj = new Image();
+		var w = imageObj.width;
+		var h = imageObj.height;
 		
-		imageObj.onload = function()
+		// draw cropped image
+		var sourceX = parseInt(xInput.value);
+		var sourceY = parseInt(yInput.value);
+		var sourceWidth = Math.max(1, w - sourceX - parseInt(wInput.value));
+		var sourceHeight = Math.max(1, h - sourceY - parseInt(hInput.value));
+		canvas.width = sourceWidth;
+		canvas.height = sourceHeight;
+		
+		if (circleInput.checked)
 		{
-			var w = imageObj.width;
-			var h = imageObj.height;
-			
-			// draw cropped image
-			var sourceX = parseInt(xInput.value);
-			var sourceY = parseInt(yInput.value);
-			var sourceWidth = Math.max(1, w - sourceX - parseInt(wInput.value));
-			var sourceHeight = Math.max(1, h - sourceY - parseInt(hInput.value));
-			canvas.width = sourceWidth;
-			canvas.height = sourceHeight;
-			
-			if (circleInput.checked)
-			{
-				context.fillStyle = '#000000';
-				context.arc(sourceWidth / 2, sourceHeight / 2, Math.min(sourceWidth / 2,
-					sourceHeight / 2), 0, 2 * Math.PI);
-				context.fill();
-				context.globalCompositeOperation = 'source-in';
-			}
-			
-		    context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
-			fn(canvas.toDataURL());
-		};
-		imageObj.src = image;
+			context.fillStyle = '#000000';
+			context.arc(sourceWidth / 2, sourceHeight / 2, Math.min(sourceWidth / 2,
+				sourceHeight / 2), 0, 2 * Math.PI);
+			context.fill();
+			context.globalCompositeOperation = 'source-in';
+		}
+		
+	    context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+		fn(canvas.toDataURL());
 	});
+	
+	applyBtn.setAttribute('disabled', 'disabled');
+	
+	imageObj.onload = function()
+	{
+		applyBtn.removeAttribute('disabled');
+		size.innerHTML = '';
+		mxUtils.write(size, mxResources.get('width') + ': ' + imageObj.width + ' ' +
+			mxResources.get('height') + ': ' + imageObj.height);
+	};
 
+	imageObj.src = image;
+	
 	mxEvent.addListener(div, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)

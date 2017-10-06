@@ -76,7 +76,7 @@ App = function(editor, container, lightbox)
 	}
 
 	// Handles opening files via drag and drop
-	if (!this.editor.chromeless)
+	if (!this.editor.chromeless || this.editor.editable)
 	{
 		this.addFileDropHandler([document]);
 	}

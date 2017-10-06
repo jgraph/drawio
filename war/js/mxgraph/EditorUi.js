@@ -2699,7 +2699,7 @@ EditorUi.prototype.updateActionStates = function()
     this.actions.get('openLink').setEnabled(graph.getSelectionCount() == 1 &&
     	graph.getLinkForCell(graph.getSelectionCell()) != null);
     this.actions.get('guides').setEnabled(graph.isEnabled());
-    this.actions.get('grid').setEnabled(!this.editor.chromeless);
+    this.actions.get('grid').setEnabled(!this.editor.chromeless || this.editor.editable);
 
     var unlocked = graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent());
     this.menus.get('layout').setEnabled(unlocked);
@@ -3913,7 +3913,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.bindAction(79, true, 'outline', true); // Ctrl+Shift+O
 	keyHandler.bindAction(112, false, 'about'); // F1
 
-	if (!this.editor.chromeless)
+	if (!this.editor.chromeless || this.editor.editable)
 	{
 		keyHandler.bindControlKey(36, function() { if (graph.isEnabled()) { graph.foldCells(true); }}); // Ctrl+Home
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
