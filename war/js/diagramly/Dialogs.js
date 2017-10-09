@@ -5804,7 +5804,11 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	{
 		var cells = searchCells();
 		setCellsVisible(cells, true);
-		graph.setSelectionCells(cells);
+		
+		if (graph.isEnabled())
+		{
+			graph.setSelectionCells(cells);
+		}
 	});
 	
 	showBtn.setAttribute('title', mxResources.get('show'));

@@ -170,7 +170,7 @@ public class mxVsdxCodec
 					{
 						//UTF-8 BOM causes exception while parsing, so remove it
 						//TODO is the text encoding will be correct or string must be re-read as UTF-8?
-						if (str.startsWith("ï»¿")) str = str.substring(3);
+						if (str.startsWith("\u00ef\u00bb\u00bf")) str = str.substring(3);
 						
 						Document doc = mxXmlUtils.parseXml(str);
 						

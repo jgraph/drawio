@@ -1159,18 +1159,16 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 				}, 0);
 			}
 		}
-		else
+		else if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+				!mxEvent.isPopupTrigger(evt)))
 		{
-			if (href != null && graph.isPageLink(href))
+			var comma = href.indexOf(',');
+			
+			if (comma > 0)
 			{
-				var comma = href.indexOf(',');
-				
-				if (comma > 0)
-				{
-					var id = href.substring(comma + 1);
-					this.selectPageById(id);
-					mxEvent.consume(evt);
-				}
+				var id = href.substring(comma + 1);
+				this.selectPageById(id);
+				mxEvent.consume(evt);
 			}
 		}
 	}), mxUtils.bind(this, function(evt)

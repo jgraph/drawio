@@ -300,7 +300,7 @@ Actions.prototype.init = function()
 			ui.showLinkDialog(value, mxResources.get('apply'), function(link)
 			{
 				link = mxUtils.trim(link);
-    			graph.setLinkForCell(cell, (link.length > 0) ? link : null);
+    				graph.setLinkForCell(cell, (link.length > 0) ? link : null);
 			});
 		}
 	});
@@ -308,14 +308,34 @@ Actions.prototype.init = function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
-			var dlg = new LinkDialog(ui, '', mxResources.get('insert'), function(link, docs)
+			ui.showLinkDialog('', mxResources.get('insert'), function(link, docs)
 			{
 				link = mxUtils.trim(link);
 				
 				if (link.length > 0)
 				{
-					var title = link.substring(link.lastIndexOf('/') + 1);
 					var icon = null;
+					var title = link.substring(link.lastIndexOf('/') + 1);
+					var pageLink = graph.isPageLink(link);
+					
+					if (pageLink)
+					{
+						var comma = link.indexOf(',');
+
+						if (comma > 0)
+						{
+							var page = ui.getPageById(link.substring(comma + 1));
+			
+							if (page != null)
+							{
+								title = page.getName();
+							}
+							else
+							{
+								title = mxResources.get('pageNotFound');
+							}
+						}
+					}
 					
 					if (docs != null && docs.length > 0)
 					{
@@ -330,21 +350,30 @@ Actions.prototype.init = function()
 					}
 					
 					var pt = graph.getFreeInsertPoint();
-            		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
-            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
-            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
-            	    	'spacing=10;'));
-            	    linkCell.vertex = true;
+	            		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
+		            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
+		            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
+		            	    	'spacing=10;'));
+	            	    linkCell.vertex = true;
+	
+	            	    graph.setLinkForCell(linkCell, link);
+	            	    graph.cellSizeUpdated(linkCell, true);
 
-            	    graph.setLinkForCell(linkCell, link);
-            	    graph.cellSizeUpdated(linkCell, true);
-            	    graph.setSelectionCell(graph.addCell(linkCell));
-            	    graph.scrollCellToVisible(graph.getSelectionCell());
+	            		graph.getModel().beginUpdate();
+	            		try
+	            	    {
+	            	    		linkCell = graph.addCell(linkCell);
+	            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [linkCell]));
+	            	    }
+	            		finally
+	            		{
+	            			graph.getModel().endUpdate();
+	            		}
+	            		
+	            	    graph.setSelectionCell(linkCell);
+	            	    graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			});
-			
-			ui.showDialog(dlg.container, 420, 90, true, true);
-			dlg.init();
 		}
 	}).isEnabled = isGraphEnabled;
 	this.addAction('link...', mxUtils.bind(this, function()
@@ -367,11 +396,11 @@ Actions.prototype.init = function()
 				
 				ui.showLinkDialog(oldValue, mxResources.get('apply'), mxUtils.bind(this, function(value)
 				{
-		    		graph.cellEditor.restoreSelection(selState);
-
-		    		if (value != null)
-		    		{
-		    			graph.insertLink(value);
+			    		graph.cellEditor.restoreSelection(selState);
+	
+			    		if (value != null)
+			    		{
+			    			graph.insertLink(value);
 					}
 				}));
 			}
@@ -1037,13 +1066,13 @@ Actions.prototype.init = function()
 	    		}
 	    		else
 	    		{
-					var cells = graph.getSelectionCells();
+				var cells = graph.getSelectionCells();
 
-					if (newValue != null)
-					{
-						var select = null;
-						
-						graph.getModel().beginUpdate();
+				if (newValue != null)
+				{
+					var select = null;
+					
+					graph.getModel().beginUpdate();
 			        	try
 			        	{
 			        		// Inserts new cell if no cell is selected
@@ -1053,6 +1082,7 @@ Actions.prototype.init = function()
 			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
 			    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
 			    				select = cells;
+		            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
 			    			}
 			    			
 			        		graph.setCellStyles(mxConstants.STYLE_IMAGE, newValue, cells);
@@ -1093,7 +1123,7 @@ Actions.prototype.init = function()
 			        		graph.setSelectionCells(select);
 			        		graph.scrollCellToVisible(select[0]);
 			        	}
-					}
+				}
 	    		}
 			}, graph.cellEditor.isContentEditing(), !graph.cellEditor.isContentEditing());
 		}
