@@ -30,6 +30,7 @@ ensureDataSaved=‫لطفا مطمئن شوید که پیش از بستن، اط
 allChangesSaved=‫تمامی تغییرات ذخیره شد‬
 allChangesSavedInDrive=‫تمامی تغییرات در Drive ذخیره شد‬
 allowPopups=‫برای ندیدن این پنجره مکالمه، pop-up را فعال کنید‬
+allowRelativeUrl=Allow relative URL
 alreadyConnected=‫گره ها قبلاً وصل شده اند‬
 apply=‫اعمال‬
 archiMate21=x
@@ -533,6 +534,7 @@ realtimeTimeout=‫به نظر می رسد که در حالت آفلاین تغ�
 redo=‫دوباره انجام دادن‬
 refresh=‫ریفرش‬
 regularExpression=‫بیان معمول‬
+relativeUrlNotAllowed=Relative URL not allowed
 rememberMe=‫مرا به خاطر بسپار‬
 rememberThisSetting=‫این تنظیمات را به خاطر بسپار‬
 removeFormat=‫قالب بندی را پاک کن‬

@@ -927,6 +927,7 @@
 						}
 					})
 	
+					btn.className = 'geStyleButton';
 					btn.style.width = '36px';
 					btn.style.height = '30px';
 					btn.style.margin = '0px 6px 6px 0px';

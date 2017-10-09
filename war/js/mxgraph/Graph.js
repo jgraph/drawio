@@ -1046,6 +1046,14 @@ Graph.prototype.init = function(container)
 };
 
 /**
+ * Adds support for page links.
+ */
+Graph.prototype.isPageLink = function(href)
+{
+	return false;
+};
+
+/**
  * Installs automatic layout via styles
  */
 Graph.prototype.labelLinkClicked = function(state, elt, evt)
@@ -1074,7 +1082,9 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 				{
 					window.location.hash = href.split('#')[1];
 				}
-				else
+				else if ((mxEvent.isLeftMouseButton(evt) &&
+					!mxEvent.isPopupTrigger(evt)) ||
+			    		mxEvent.isTouchEvent(evt))
 				{
 					window.open(href, target);
 				}
@@ -4918,9 +4928,9 @@ if (typeof mxVertexHandler != 'undefined')
 							links[i].setAttribute('href', href);
 							
 							if (beforeClick != null)
-			    			{
+			    				{
 								mxEvent.addGestureListeners(links[i], null, null, beforeClick);
-			    			}
+			    				}
 						}
 					}
 				}
@@ -4993,7 +5003,15 @@ if (typeof mxVertexHandler != 'undefined')
 			    	}
 			    	else
 			    	{
-			    		if (me.getSource().nodeName.toLowerCase() == 'a')
+				    	// Checks for parent link
+				    	var linkNode = me.getSource();
+				    	
+				    	while (linkNode != null && linkNode.nodeName.toLowerCase() != 'a')
+				    	{
+				    		linkNode = linkNode.parentNode;
+				    	}
+				    	
+			    		if (linkNode != null)
 			    		{
 			    			this.clear();
 			    		}
@@ -5011,15 +5029,26 @@ if (typeof mxVertexHandler != 'undefined')
 			    },
 			    mouseUp: function(sender, me)
 			    {
+			    	
 			    	var source = me.getSource();
+			    	var evt = me.getEvent();
+			    	
+			    	// Checks for parent link
+			    	var linkNode = source;
+			    	
+			    	while (linkNode != null && linkNode.nodeName.toLowerCase() != 'a')
+			    	{
+			    		linkNode = linkNode.parentNode;
+			    	}
 			    	
 			    	// Ignores clicks on links and collapse/expand icon
-			    	if (source.nodeName.toLowerCase() != 'a' &&
-			    		(Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
+			    	if (linkNode == null &&
+			    		(((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
 			        	Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
-			    		(me.getState() == null || !me.isSource(me.getState().control)) &&
-			    		(mxEvent.isLeftMouseButton(me.getEvent()) ||
-			    		mxEvent.isTouchEvent(me.getEvent())))
+			    		(me.getState() == null || !me.isSource(me.getState().control))) &&
+			    		((mxEvent.isLeftMouseButton(evt) &&
+					!mxEvent.isPopupTrigger(evt)) ||
+			    		mxEvent.isTouchEvent(evt))))
 			    	{
 				    	if (this.currentLink != null) 
 				    	{
@@ -5028,32 +5057,32 @@ if (typeof mxVertexHandler != 'undefined')
 				    		if ((this.currentLink.substring(0, 5) === 'data:' ||
 				    			!blank) && beforeClick != null)
 				    		{
-			    				beforeClick(me.getEvent(), this.currentLink);
+			    				beforeClick(evt, this.currentLink);
 				    		}
 				    		
-				    		if (!mxEvent.isConsumed(me.getEvent()))
+				    		if (!mxEvent.isConsumed(evt))
 				    		{
 					    		var target = (blank) ? graph.linkTarget : '_top';
 					    		
 					    		// Workaround for blocking in same iframe
-								if (target == '_self' && window != window.top)
+							if (target == '_self' && window != window.top)
+							{
+								window.location.href = this.currentLink;
+							}
+							else
+							{
+								// Avoids page reload for anchors (workaround for IE but used everywhere)
+								if (this.currentLink.substring(0, graph.baseUrl.length) == graph.baseUrl &&
+									this.currentLink.charAt(graph.baseUrl.length) == '#' &&
+									target == '_top' && window == window.top)
 								{
-									window.location.href = this.currentLink;
+									window.location.hash = this.currentLink.split('#')[1];
 								}
 								else
 								{
-									// Avoids page reload for anchors (workaround for IE but used everywhere)
-									if (this.currentLink.substring(0, graph.baseUrl.length) == graph.baseUrl &&
-										this.currentLink.charAt(graph.baseUrl.length) == '#' &&
-										target == '_top' && window == window.top)
-									{
-										window.location.hash = this.currentLink.split('#')[1];
-									}
-									else
-									{
-										window.open(this.currentLink, target);
-									}
+									window.open(this.currentLink, target);
 								}
+							}
 					    		
 					    		me.consume();
 				    		}

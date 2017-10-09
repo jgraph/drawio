@@ -1,3 +1,8 @@
+09-OCT-2017: 7.5.4
+
+- Adds missing page option in insert link dialog
+- Fixes viewer event handling for links in labels
+
 06-OCT-2017: 7.5.3
 
 - Fixes Trello integration

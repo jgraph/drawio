@@ -6457,7 +6457,8 @@
 					}
 				}
 			
-				if (href != null && graph.isPageLink(href))
+				if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+					!mxEvent.isPopupTrigger(evt)))
 				{
 					pageLinkClicked(href);
 					mxEvent.consume(evt);
@@ -6561,7 +6562,8 @@
 		{
 			var href = elt.getAttribute('href');
 			
-			if (graph.isPageLink(href))
+			if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+				!mxEvent.isPopupTrigger(evt)))
 			{
 				// Active links are moved to the hint
 				if (!graph.isEnabled())

@@ -16,28 +16,37 @@
 		this.div.style.maxHeight = (h0 - 10) + 'px';
 	};
 	
+	Menus.prototype.createHelpLink = function(href)
+	{
+		var link = document.createElement('span');
+		link.setAttribute('title', mxResources.get('help'));
+		link.style.cssText = 'color:blue;text-decoration:underline;margin-left:12px;cursor:help;';
+		
+		var icon = document.createElement('img');
+		icon.setAttribute('border', '0');
+		icon.setAttribute('valign', 'bottom');
+		icon.setAttribute('src', Editor.helpImage);
+		link.appendChild(icon);
+		
+		mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
+		{
+			if (this.editorUi.menubar != null)
+			{
+				this.editorUi.menubar.hideMenu();
+			}
+			
+			window.open(href);
+			mxEvent.consume(evt);
+		}));
+		
+		return link;
+	};
+
 	Menus.prototype.addLinkToItem = function(item, href)
 	{
 		if (item != null)
 		{
-			var link = document.createElement('span');
-			link.setAttribute('title', mxResources.get('help'));
-			link.style.cssText = 'color:blue;text-decoration:underline;margin-left:12px;cursor:help;';
-			
-			var icon = document.createElement('img');
-			icon.setAttribute('border', '0');
-			icon.setAttribute('valign', 'bottom');
-			icon.setAttribute('src', Editor.helpImage);
-			link.appendChild(icon);
-			
-			mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
-			{
-				this.editorUi.menubar.hideMenu();
-				window.open(href);
-				mxEvent.consume(evt);
-			}));
-			
-			item.firstChild.nextSibling.appendChild(link);
+			item.firstChild.nextSibling.appendChild(this.createHelpLink(href));
 		}
 	};
 
@@ -1048,14 +1057,14 @@
 		{
 			var file = editorUi.getCurrentFile();
 			
-			if (urlParams['embed'] == '1' || (file != null && file.isEditable()))
+			if (graph.isEnabled())
 			{
 				var cell = new mxCell('', new mxGeometry(0, 0, 120, 120), editorUi.defaultCustomShapeStyle);
 				cell.vertex = true;
 				
-		    	var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape') + ':', 630, 400);
-				editorUi.showDialog(dlg.container, 640, 480, true, false);
-				dlg.init();
+			    	var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape') + ':', 630, 400);
+					editorUi.showDialog(dlg.container, 640, 480, true, false);
+					dlg.init();
 			}
 		});
 		
@@ -1987,15 +1996,34 @@
 			}), parent);
 		};
 		
+		var insertVertex = function(value, w, h, style)
+		{
+			var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
+			var cell = new mxCell(value, new mxGeometry(pt.x, pt.y, w, h), style);
+			cell.vertex = true;
+			
+        		graph.getModel().beginUpdate();
+        		try
+        	    {
+        			cell = graph.addCell(cell);
+        	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+        	    }
+        		finally
+        		{
+        			graph.getModel().endUpdate();
+        		}
+			
+        		graph.setSelectionCell(cell);
+        		graph.scrollCellToVisible(cell);
+    	    		
+    	    		return cell;
+		};
+		
 		editorUi.actions.addAction('insertText', function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
-				var cell = new mxCell('Text', new mxGeometry(pt.x, pt.y, 40, 20),
-			    	'text;html=1;resizable=0;autosize=1;align=left;verticalAlign=top;spacingTop=-4;points=[];');
-				cell.vertex = true;
-	    	    graph.startEditingAtCell(graph.addCell(cell));
+    	    			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;align=left;verticalAlign=top;spacingTop=-4;points=[];'));
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
 		
@@ -2003,11 +2031,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
-				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 120, 60), 'whiteSpace=wrap;html=1;');
-				cell.vertex = true;
-		    	    graph.setSelectionCell(graph.addCell(cell));
-		    	    graph.scrollCellToVisible(graph.getSelectionCell());
+    	    			insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;');
 			}
 		}, null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
 		
@@ -2015,11 +2039,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
-				var cell = new mxCell('', new mxGeometry(pt.x, pt.y, 80, 80), 'ellipse;whiteSpace=wrap;html=1;');
-				cell.vertex = true;
-	    	    graph.setSelectionCell(graph.addCell(cell));
-	    	    graph.scrollCellToVisible(graph.getSelectionCell());
+    	    			insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;');
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
 		
