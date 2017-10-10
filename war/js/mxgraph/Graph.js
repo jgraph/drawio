@@ -1204,7 +1204,7 @@ Graph.prototype.sanitizeHtml = function(value, editing)
 {
 	// Uses https://code.google.com/p/google-caja/wiki/JsHtmlSanitizer
 	// NOTE: Original minimized sanitizer was modified to support
-	// data URIs for images, and mailto and special data:-links.
+	// data URIs for images, mailto and special data:-links.
 	// LATER: Add MathML to whitelisted tags
 	function urlX(link)
 	{
@@ -2395,8 +2395,11 @@ Graph.prototype.getTooltipForCell = function(cell)
 
 			for (var i = 0; i < temp.length; i++)
 			{
-				tip += ((temp[i].name != 'link') ? temp[i].name + ':' : '') +
-					mxUtils.htmlEntities(temp[i].value) + '\n';
+				if (temp[i].name != 'link' || !this.isPageLink(temp[i].value))
+				{
+					tip += ((temp[i].name != 'link') ? temp[i].name + ':' : '') +
+						mxUtils.htmlEntities(temp[i].value) + '\n';
+				}
 			}
 			
 			if (tip.length > 0)

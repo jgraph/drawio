@@ -803,6 +803,22 @@
 	};
 
 	mxCellRenderer.prototype.defaultShapes['process'] = ProcessShape;
+	
+	// Transparent Shape
+	function TransparentShape()
+	{
+		mxRectangleShape.call(this);
+	};
+	mxUtils.extend(TransparentShape, mxRectangleShape);
+	TransparentShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		c.setFillColor(mxConstants.NONE);
+		c.rect(x, y, w, h);
+		c.fill();
+	};
+	TransparentShape.prototype.paintForeground = function(c, x, y, w, h) 	{ };
+
+	mxCellRenderer.prototype.defaultShapes['transparent'] = TransparentShape;
 
 	// Callout shape
 	function CalloutShape()

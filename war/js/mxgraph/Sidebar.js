@@ -221,6 +221,14 @@ Sidebar.prototype.defaultImageHeight = 80;
 /**
  * Adds all palettes to the sidebar.
  */
+Sidebar.prototype.getTooltipOffset = function()
+{
+	return new mxPoint(0, 0);
+};
+
+/**
+ * Adds all palettes to the sidebar.
+ */
 Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 {
 	if (this.enableTooltips && this.showTooltips)
@@ -360,11 +368,11 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				
 				var b = document.body;
 				var d = document.documentElement;
+				var off = this.getTooltipOffset();
 				var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
-
-				var left = this.container.clientWidth + this.editorUi.splitSize + 3 + this.editorUi.container.offsetLeft;
+				var left = this.container.clientWidth + this.editorUi.splitSize + 3 + this.editorUi.container.offsetLeft + off.x;
 				var top = Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
-					this.container.offsetTop + elt.offsetTop - this.container.scrollTop - height / 2 + 16)));
+					this.container.offsetTop + elt.offsetTop - this.container.scrollTop - height / 2 + 16))) + off.y;
 
 				if (mxClient.IS_SVG)
 				{

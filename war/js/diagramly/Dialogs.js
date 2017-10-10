@@ -2508,7 +2508,7 @@ var ParseDialog = function(editorUi, title)
 /**
  * Constructs a new dialog for creating files from templates.
  */
-var NewDialog = function(editorUi, compact, showName, callback, createOnly)
+var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback)
 {
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
@@ -2926,12 +2926,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly)
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
+		if (cancelCallback != null)
+		{
+			cancelCallback();
+		}
+		
 		editorUi.hideDialog(true);
 	});
 	
 	cancelBtn.className = 'geBtn';
 	
-	if (editorUi.editor.cancelFirst && !createOnly)
+	if (editorUi.editor.cancelFirst && (!createOnly || cancelCallback != null))
 	{
 		btns.appendChild(cancelBtn);
 	}
@@ -2978,7 +2983,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly)
 	
 	btns.appendChild(createButton);
 	
-	if (!editorUi.editor.cancelFirst && callback == null && !createOnly)
+	if (!editorUi.editor.cancelFirst && callback == null && (!createOnly || cancelCallback != null))
 	{
 		btns.appendChild(cancelBtn);
 	}

@@ -1324,43 +1324,60 @@ EditorUi.prototype.initCanvas = function()
 	
 	if (this.editor.chromeless)
 	{
-		resize = mxUtils.bind(this, function(autoscale, maxScale)
-	   	{
-			if (graph.container != null)
-			{
-				var b = (graph.pageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
-				var tr = graph.view.translate;
-				var s = graph.view.scale;
-				
-				// Normalizes the bounds
-				b = mxRectangle.fromRectangle(b);
-				b.x = b.x / s - tr.x;
-				b.y = b.y / s - tr.y;
-				b.width /= s;
-				b.height /= s;
-				
-				var st = graph.container.scrollTop;
-				var sl = graph.container.scrollLeft;
-				var sb = (mxClient.IS_QUIRKS || document.documentMode >= 8) ? 20 : 14;
-				
-				if (document.documentMode == 8 || document.documentMode == 9)
-				{
-					sb += 3;
-				}
-				
-				var cw = graph.container.offsetWidth - sb;
-				var ch = graph.container.offsetHeight - sb;
-				
-				var ns = (autoscale) ? Math.max(0.3, Math.min(maxScale || 1, cw / b.width)) : s;
-				var dx = Math.max((cw - ns * b.width) / 2, 0) / ns;
-				var dy = Math.max((ch - ns * b.height) / this.lightboxVerticalDivider, 0) / ns;
-				
-				graph.view.scaleAndTranslate(ns, Math.floor(dx - b.x), Math.floor(dy - b.y));
+        resize = mxUtils.bind(this, function(autoscale, maxScale, cx, cy)
+        {
+            if (graph.container != null)
+            {
+                cx = (cx != null) ? cx : 0;
+                cy = (cy != null) ? cy : 0;
+                
+                var bds = (graph.pageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
+                var scroll = mxUtils.hasScrollbars(graph.container);
+                var tr = graph.view.translate;
+                var s = graph.view.scale;
+                
+                // Normalizes the bounds
+                var b = mxRectangle.fromRectangle(bds);
+                b.x = b.x / s - tr.x;
+                b.y = b.y / s - tr.y;
+                b.width /= s;
+                b.height /= s;
+                
+                var st = graph.container.scrollTop;
+                var sl = graph.container.scrollLeft;
+                var sb = (mxClient.IS_QUIRKS || document.documentMode >= 8) ? 20 : 14;
+                
+                if (document.documentMode == 8 || document.documentMode == 9)
+                {
+                    sb += 3;
+                }
+                
+                var cw = graph.container.offsetWidth - sb;
+                var ch = graph.container.offsetHeight - sb;
+                
+                var ns = (autoscale) ? Math.max(0.3, Math.min(maxScale || 1, cw / b.width)) : s;
+                var dx = ((cw - ns * b.width) / 2) / ns;
+                var dy = ((ch - ns * b.height) / this.lightboxVerticalDivider) / ns;
+                
+                if (scroll)
+                {
+                    dx = Math.max(dx, 0);
+                    dy = Math.max(dy, 0);
+                }
 
-				graph.container.scrollTop = st * ns / s;
-				graph.container.scrollLeft = sl * ns / s;
-			}
-	   	});
+                if (scroll || bds.width < cw || bds.height < ch)
+                {
+                    graph.view.scaleAndTranslate(ns, Math.floor(dx - b.x), Math.floor(dy - b.y));
+                    graph.container.scrollTop = st * ns / s;
+                    graph.container.scrollLeft = sl * ns / s;
+                }
+                else if (cx != 0 || cy != 0)
+                {
+                    var t = graph.view.translate;
+                    graph.view.setTranslate(Math.floor(t.x + cx / s), Math.floor(t.y + cy / s));
+                }
+            }
+        });
 		
 		// Hack to make function available to subclassers
 		this.chromelessResize = resize;
@@ -1901,29 +1918,40 @@ EditorUi.prototype.initCanvas = function()
 		
 		this.cumulativeZoomFactor = Math.max(0.01, Math.min(this.view.scale * this.cumulativeZoomFactor, 160) / this.view.scale);
 		
-		this.updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
-		{
-			this.zoom(this.cumulativeZoomFactor);					
-			
-			if (resize != null)
-			{
-				resize(false);
-			}
-			
-			// Zooms to mouse position if scrollbars enabled
-			if (cursorPosition != null && mxUtils.hasScrollbars(graph.container))
-			{
-				var offset = mxUtils.getOffset(graph.container);
-				var dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
-				var dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
-				
-				graph.container.scrollLeft -= dx * (this.cumulativeZoomFactor - 1);
-				graph.container.scrollTop -= dy * (this.cumulativeZoomFactor - 1);
-			}
-			
-			this.cumulativeZoomFactor = 1;
-			this.updateZoomTimeout = null;
-		}), 20);
+        this.updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
+        {
+            var offset = mxUtils.getOffset(graph.container);
+            var dx = 0;
+            var dy = 0;
+            
+            if (cursorPosition != null)
+            {
+                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
+                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
+            }
+
+            var prev = this.view.scale;
+            this.zoom(this.cumulativeZoomFactor);
+            var s = this.view.scale;
+            
+            if (s != prev)
+            {
+                if (resize != null)
+                {
+                    resize(false, null, dx * (this.cumulativeZoomFactor - 1),
+                           dy * (this.cumulativeZoomFactor - 1));
+                }
+                
+                if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))
+                {
+                    graph.container.scrollLeft -= dx * (this.cumulativeZoomFactor - 1);
+                    graph.container.scrollTop -= dy * (this.cumulativeZoomFactor - 1);
+                }
+            }
+            
+            this.cumulativeZoomFactor = 1;
+            this.updateZoomTimeout = null;
+        }), 20);
 	};
 	
 	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up)

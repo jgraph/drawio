@@ -159,6 +159,11 @@
 	})();
 
 	/**
+	 * Hook for subclassers.
+	 */
+	EditorUi.prototype.showSplash = function(force) { };
+
+	/**
 	 * Abstraction for local storage access.
 	 */
 	EditorUi.prototype.getLocalData = function(key, fn)
@@ -1420,11 +1425,19 @@
 	};
 	
 	/**
+	 * 
+	 */
+	EditorUi.prototype.isScratchpadEnabled = function()
+	{
+		return isLocalStorage || mxClient.IS_CHROMEAPP;
+	};
+
+	/**
 	 * Shows or hides the scratchpad library.
 	 */
 	EditorUi.prototype.toggleScratchpad = function()
 	{
-		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+		if (this.isScratchpadEnabled())
 		{
 			if (this.scratchpad == null)
 			{
@@ -7207,10 +7220,15 @@
 			this.initializeEmbedMode();
 		}
 		
-		if (typeof window.mxSettings !== 'undefined')
-		{
-			this.installSettings();
-		}
+		this.installSettings();
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.isSettingsEnabled = function()
+	{
+		return typeof window.mxSettings !== 'undefined' && (isLocalStorage || mxClient.IS_CHROMEAPP);
 	};
 
 	/**
@@ -7218,7 +7236,7 @@
 	 */
 	EditorUi.prototype.installSettings = function()
 	{
-		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+		if (this.isSettingsEnabled())
 		{
 			// Gets recent colors from settings
 			ColorDialog.recentColors = mxSettings.getRecentColors();
