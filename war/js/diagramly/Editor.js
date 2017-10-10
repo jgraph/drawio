@@ -148,7 +148,8 @@
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
-
+			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
+			
 			// Custom CSS injected directly into the page
 			if (config.css != null)
 			{

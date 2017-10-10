@@ -112,7 +112,7 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
 
 //EquiSpaced Guides
-if (urlParams['equiGuides'] == '1')
+if (urlParams['distanceGuides'] == '1')
 {
-	mxscript(drawDevUrl + 'js/diagramly/mxEquiSpacedGuides.js');
+	mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
 }
