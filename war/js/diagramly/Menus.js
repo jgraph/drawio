@@ -1973,7 +1973,7 @@
 			}
 		})));
 
-		var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree', '-', 'organic', 'circle', '-', 'fromText'];
+		var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree', 'radialTree', '-', 'organic', 'circle', '-', 'fromText'];
 
 		var addInsertItem = function(menu, parent, title, method)
 		{

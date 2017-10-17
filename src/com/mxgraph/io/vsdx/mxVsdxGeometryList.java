@@ -91,7 +91,15 @@ public class mxVsdxGeometryList
 	
 	public int getGeoCount()
 	{
-		return geomList.size();
+		int count = 0;
+		
+		for (mxVsdxGeometry geo : geomList) 
+		{
+			if (!geo.isNoShow()) 
+				count++;
+		}
+		
+		return count;
 	}
 	
 	private void rotatedPoint(mxPoint pt, double cos, double sin)

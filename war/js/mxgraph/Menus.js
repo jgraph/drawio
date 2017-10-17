@@ -989,7 +989,6 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	else
 	{
 		this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', '-', 'duplicate'], null, evt);
-
 	}
 
 	if (!graph.isSelectionEmpty())

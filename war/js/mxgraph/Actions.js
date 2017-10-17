@@ -545,7 +545,7 @@ Actions.prototype.init = function()
 			}
 		}, mxResources.get('enterValue') + ' (' + mxResources.get('rotation') + ' 0-360)');
 		
-		ui.showDialog(dlg.container, 300, 80, true, true);
+		ui.showDialog(dlg.container, 375, 80, true, true);
 		dlg.init();
 	});
 	// View actions

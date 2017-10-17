@@ -1,3 +1,8 @@
+16-OCT-2017: 7.5.6
+
+- Adds IBM icons
+- Disables Confluence Cloud revision checks due to saveMacro bug
+
 10-OCT-2017: 7.5.5
 
 - Hides tooltips for page links

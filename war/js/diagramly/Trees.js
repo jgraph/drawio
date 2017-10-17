@@ -84,7 +84,7 @@
 	{
 		editorUiInit.apply(this, arguments);
 		
-		if (!this.editor.chromeless)
+		if (!this.editor.chromeless || this.editor.editable)
 		{
 			this.addTrees();
 		}
@@ -492,43 +492,46 @@
 		
 		// Connects all dangling edges from the sidebar (by
 		// default only first dangling edge gets connected)
-		var sidebarDropAndConnect = ui.sidebar.dropAndConnect;
-		
-		ui.sidebar.dropAndConnect = function(source, targets, direction, dropCellIndex)
+		if (ui.sidebar != null)
 		{
-			var model = graph.model;
-			var result = null;
-		
-			model.beginUpdate();
-			try
+			var sidebarDropAndConnect = ui.sidebar.dropAndConnect;
+			
+			ui.sidebar.dropAndConnect = function(source, targets, direction, dropCellIndex)
 			{
-				result = sidebarDropAndConnect.apply(this, arguments);
-				
-				if (isTreeVertex(source))
+				var model = graph.model;
+				var result = null;
+			
+				model.beginUpdate();
+				try
 				{
-					for (var i = 0; i < result.length; i++)
+					result = sidebarDropAndConnect.apply(this, arguments);
+					
+					if (isTreeVertex(source))
 					{
-						if (model.isEdge(result[i]) && model.getTerminal(result[i], true) == null)
+						for (var i = 0; i < result.length; i++)
 						{
-							model.setTerminal(result[i], source, true);
-							var geo = graph.getCellGeometry(result[i]);
-							geo.points = null;
-							
-							if (geo.getTerminalPoint(true) != null)
+							if (model.isEdge(result[i]) && model.getTerminal(result[i], true) == null)
 							{
-								geo.setTerminalPoint(null, true);
+								model.setTerminal(result[i], source, true);
+								var geo = graph.getCellGeometry(result[i]);
+								geo.points = null;
+								
+								if (geo.getTerminalPoint(true) != null)
+								{
+									geo.setTerminalPoint(null, true);
+								}
 							}
 						}
 					}
 				}
-			}
-			finally
-			{
-				model.endUpdate();
-			}
-			
-			return result;
-		};
+				finally
+				{
+					model.endUpdate();
+				}
+				
+				return result;
+			};
+		}
 	
 		/**
 		 * Checks source point of incoming edge relative to target terminal.
