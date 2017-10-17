@@ -20,6 +20,7 @@ var com;
                     this.RESPONSE_DIAGRAM_START = "";
                     this.RESPONSE_DIAGRAM_END = "</diagram>";
                     this.RESPONSE_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
+                    
                     /**
                      * Stores the vertexes imported.
                      */
@@ -58,7 +59,7 @@ var com;
                  * @return {string}
                  */
                 //FIXME TODO add charset support
-                mxVsdxCodec.prototype.decodeVsdx = function (file, charset, callback) {
+                mxVsdxCodec.prototype.decodeVsdx = function (file, callback, charset) {
                     var _this = this;
                     var docData = ({});
                     var mediaData = ({});
@@ -103,11 +104,8 @@ var com;
 	                                    if (scale !== 1) {
 	                                        var model = graph_1.getModel();
 	                                        {
-	                                            var array124 = (function (m) { var r = []; if (m.entries == null)
-	                                                m.entries = []; for (var i = 0; i < m.entries.length; i++)
-	                                                r.push(m.entries[i].value); return r; })(model.getCells());
-	                                            for (var index123 = 0; index123 < array124.length; index123++) {
-	                                                var c = array124[index123];
+	                                            for (var id in model.cells) {
+	                                                var c = model.cells[id];
 	                                                {
 	                                                    var geo = model.getGeometry(c);
 	                                                    if (geo != null) {
@@ -147,7 +145,7 @@ var com;
 	                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_END); })(xmlBuilder);
 	                    var dateAfter = new Date();
                        	console.log("File processed in " + (dateAfter - dateBefore) + "ms");
-	                    console.log(xmlBuilder.str);
+	                    //console.log(xmlBuilder.str);
 	                    if (callback) 
 	                    {
 	                    	callback(xmlBuilder.str);
@@ -157,6 +155,17 @@ var com;
                     var dateBefore = new Date();
                     var filesCount = 0;
                     var processedFiles = 0;
+                    
+                    var doneCheck = function() 
+                    {
+                    	if (processedFiles == filesCount) 
+                    	{
+                    		var dateAfter = new Date();
+                           	console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
+                           	allDone();
+                    	}
+                    };
+                    
                     JSZip.loadAsync(file)                                   
                     .then(function(zip) 
                     {
@@ -195,73 +204,92 @@ var com;
                                     }
         	                    	processedFiles++;
 
-        	                    	if (processedFiles == filesCount) 
-        	                    	{
-        	                    		var dateAfter = new Date();
-        	                           	console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
-        	                           	allDone();
-        	                    	}
+        	                    	doneCheck();
         	                   	});
                             }
                             else if (name.indexOf(mxVsdxCodec.vsdxPlaceholder + "/media") === 0)//binary files
                            	{
                             	filesCount++;
                             	if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".emf")) {
-	                            	zipEntry.async("uint8array").then(function (emfData) 
-	           	                  	{
-                                        var imageFound = false;
-                                        var base64Str = "";
-                                        for (var i = 0; i < emfData.length - 8; i++) {
-                                            if (_this.isPng(emfData, i) || _this.isJpg(emfData, i)) {
-                                            	base64Str = com.mxgraph.online.mxBase64.encodeToString(emfData, i);
-                                                imageFound = true;
-                                                break;
-                                            }
-                                        }
-                                        ;
-                                        if (!imageFound) {
-                                            base64Str = com.mxgraph.online.mxBase64.encodeToString(emfData, 0);
-                                        }
-	                                    /* put */ (mediaData[filename] = base64Str);
+                            		if (JSZip.support.uint8array) 
+                            		{
+		                            	zipEntry.async("uint8array").then(function (emfData) 
+		           	                  	{
+	                                        var imageFound = false;
+	                                        var base64Str = "";
+	                                        for (var i = 0; i < emfData.length - 8; i++) {
+	                                            if (_this.isPng(emfData, i) || _this.isJpg(emfData, i)) {
+	                                            	base64Str = com.mxgraph.online.mxBase64.encodeToString(emfData, i);
+	                                                imageFound = true;
+	                                                break;
+	                                            }
+	                                        }
+	                                        ;
+	                                        if (imageFound) {
+	    	                                    /* put */ (mediaData[filename] = base64Str);
+	                                        }
+		
+		        	                    	processedFiles++;
 	
-	        	                    	processedFiles++;
-	        	                    	
-	        	                    	if (processedFiles == filesCount) 
-	        	                    	{
-	        	                    		var dateAfter = new Date();
-	        	                           	console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
-	        	                           	allDone();
-	        	                    	}
-	           	                   	});
+		        	                    	doneCheck();
+		           	                   	});
+                            		}
+                            	}
+                            	else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
+                            		if (JSZip.support.uint8array) 
+                            		{
+		                            	zipEntry.async("uint8array").then(function (bmpData) 
+		           	                  	{
+		                            		var bitmap = new BmpDecoder(bmpData);
+		                            		
+		                            		var c = document.createElement("canvas");
+		                            		c.width = bitmap.width;
+		                              	  	c.height = bitmap.height;
+		                            		var ctx = c.getContext("2d");
+		                            		ctx.putImageData(bitmap.imageData, 0, 0);
+		                            		var jpgData = c.toDataURL("image/jpeg");
+                                            /* put */ (mediaData[filename] = jpgData.substr(23)); //23 is the length of "data:image/jpeg;base64,"
+
+		        	                    	processedFiles++;
+		        	                    	doneCheck();
+		           	                   	});
+                            		}
                             	}
                             	else
                             	{
 	                            	zipEntry.async("base64").then(function (base64Str) 
 	           	                  	{
-	        	                    	//FIXME TODO add support for converting bmp files in javascript
-	                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
-	//                                        try {
-	//                                            var bis = new java.io.ByteArrayInputStream(out.toByteArray());
-	//                                            var bos = new java.io.ByteArrayOutputStream();
-	//                                            var image = javax.imageio.ImageIO.read(bis);
-	//                                            javax.imageio.ImageIO.write(image, "PNG", bos);
-	//                                            base64Str = org.apache.commons.codec.binary.StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(bos.toByteArray(), false));
-	//                                        }
-	//                                        catch (e) {
-	//                                            base64Str = org.apache.commons.codec.binary.StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(out.toByteArray(), false));
-	//                                        }
-	//                                        ;
-	                                    }
-	                                    /* put */ (mediaData[filename] = base64Str);
-	
-	        	                    	processedFiles++;
-	        	                    	
-	        	                    	if (processedFiles == filesCount) 
-	        	                    	{
-	        	                    		var dateAfter = new Date();
-	        	                           	console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
-	        	                           	allDone();
-	        	                    	}
+//	                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
+//	                                        try 
+//	                                        {
+//	    	                            		//convert BMP files to PNG
+//		                                    	var bmpImg = new Image();
+//		                                        
+//		                                        bmpImg.onload = function() {
+//		                                            var c = document.createElement("canvas");
+//		                                            c.width = bmpImg.width;
+//		                                            c.height = bmpImg.height;
+//		                                            var ctx = c.getContext("2d");
+//		                                            ctx.drawImage(bmpImg, 0, 0);
+//		                                            var jpgData = c.toDataURL("image/jpeg");
+//		                                            
+//		                                            /* put */ (mediaData[filename] = jpgData.substr(23)); //23 is the length of "data:image/jpeg;base64,"
+//		                                            
+//		                                            processedFiles++;
+//		                                            doneCheck();
+//		                                        };
+//	
+//		                                        bmpImg.src = "data:image/bmp;base64," + base64Str;
+//	                                        }
+//	                                        catch (e) {} //conversion failed. Nothing can be done!
+//	                                    }
+//	                                    else 
+//	                                    {
+		                                    /* put */ (mediaData[filename] = base64Str);
+		                                	
+		        	                    	processedFiles++;
+		        	                    	doneCheck();
+//	                                    }
 	           	                   	});
                             	}
                            	}
@@ -918,6 +946,197 @@ var com;
             }());
             io.mxVsdxCodec = mxVsdxCodec;
             mxVsdxCodec["__class"] = "com.mxgraph.io.mxVsdxCodec";
+        })(io = mxgraph.io || (mxgraph.io = {}));
+    })(mxgraph = com.mxgraph || (com.mxgraph = {}));
+})(com || (com = {}));
+(function (com) {
+    var mxgraph;
+    (function (mxgraph) {
+        var io;
+        (function (io) {
+            var mxVssxCodec = (function (_super) {
+                __extends(mxVssxCodec, _super);
+                function mxVssxCodec() {
+                    var _this = _super.call(this) || this;
+                    _this.RESPONSE_END = "";
+                    _this.RESPONSE_DIAGRAM_START = "";
+                    _this.RESPONSE_DIAGRAM_END = "";
+                    _this.RESPONSE_HEADER = "";
+                    return _this;
+                }
+                mxVssxCodec.prototype.decodeVssx = function (file, callback, charset) {
+                	var _this = this;
+                    var library = { str: "<mxlibrary>[", toString: function () { return this.str; } };
+                    this.decodeVsdx(file, function(shapesInPages) 
+            		{
+                        /* append */ (function (sb) { return sb.str = sb.str.concat(shapesInPages); })(library);
+                        var masterShapes = _this.vsdxModel.getMasterShapes();
+                        var page = (function (a) { var i = 0; return { next: function () { return i < a.length ? a[i++] : null; }, hasNext: function () { return i < a.length; } }; })(/* values */ (function (m) { var r = []; if (m.entries == null)
+                            m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                            r.push(m.entries[i].value); return r; })(_this.vsdxModel.getPages())).next();
+                        if (masterShapes != null) {
+                            var shapes_1 = { str: "", toString: function () { return this.str; } };
+                            var comma_1 = (shapesInPages.length === 0) ? "" : ",";
+                            {
+                                var array129 = (function (obj) { return Object.keys(obj).map(function (key) { return obj[key]; }); })(masterShapes);
+                                var _loop_1 = function (index128) {
+                                    var master = array129[index128];
+                                    {
+                                        var shapeGraph = this_1.createMxGraph();
+                                        var shapeElem = master.getMasterShape().getShape();
+                                        var shape = new com.mxgraph.io.vsdx.VsdxShape(page, shapeElem, !page.isEdge(shapeElem), masterShapes, null, this_1.vsdxModel);
+                                        var cell = null;
+                                        if (shape.isVertex()) {
+                                            /* clear */ this_1.edgeShapeMap.entries = [];
+                                            /* clear */ this_1.parentsMap.entries = [];
+                                            cell = this_1.addShape(shapeGraph, shape, shapeGraph.getDefaultParent(), 0, 1169);
+                                            {
+                                                var array131 = (function (m) { if (m.entries == null)
+                                                    m.entries = []; return m.entries; })(this_1.edgeShapeMap);
+                                                for (var index130 = 0; index130 < array131.length; index130++) {
+                                                    var edgeEntry = array131[index130];
+                                                    {
+                                                        var parent_1 = (function (m, k) { if (m.entries == null)
+                                                            m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                                                            if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+                                                                return m.entries[i].value;
+                                                            } return null; })(this_1.parentsMap, edgeEntry.getKey());
+                                                        this_1.addUnconnectedEdge(shapeGraph, parent_1, edgeEntry.getValue(), 1169);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
+                                        }
+                                        if (cell != null) {
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(comma_1); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat("{\"xml\":\""); })(shapes_1);
+                                            var geo_1 = this_1.normalizeGeo(cell);
+                                            this_1.sanitiseGraph(shapeGraph);
+                                            if (shapeGraph.getModel().getChildCount(shapeGraph.getDefaultParent()) === 0)
+                                                return "continue";
+                                            var shapeXML_1 = _super.prototype.processPage.call(this_1, shapeGraph, null);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(shapeXML_1); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat("\",\"w\":"); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(geo_1.width); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(",\"h\":"); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(geo_1.height); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(",\"title\":\""); })(shapes_1);
+                                            var shapeName_1 = master.getName();
+                                            if (shapeName_1 != null)
+                                                shapeName_1 = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(shapeName_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(shapeName_1); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat("\"}"); })(shapes_1);
+                                            comma_1 = ",";
+                                        }
+                                    }
+                                };
+                                var this_1 = _this;
+                                for (var index128 = 0; index128 < array129.length; index128++) {
+                                    _loop_1(index128);
+                                }
+                            }
+                            /* append */ (function (sb) { return sb.str = sb.str.concat(shapes_1); })(library);
+                        }
+                        /* append */ (function (sb) { return sb.str = sb.str.concat("]</mxlibrary>"); })(library);
+                        if (callback)
+                    	{
+                        	callback(library.str);
+                    	}
+                    }, charset);
+                };
+                mxVssxCodec.prototype.normalizeGeo = function (cell) {
+                    var geo = cell.getGeometry();
+                    geo.x = (0);
+                    geo.y = (0);
+                    var srcP = geo.sourcePoint;
+                    if (cell.isEdge() && srcP != null) {
+                        this.transPoint(geo.targetPoint, srcP);
+                        this.transPoint(geo.offset, srcP);
+                        var points = geo.points;
+                        if (points != null) {
+                            for (var index132 = 0; index132 < points.length; index132++) {
+                                var p = points[index132];
+                                {
+                                    this.transPoint(p, srcP);
+                                }
+                            }
+                        }
+                        this.transPoint(srcP, srcP);
+                    }
+                    return geo;
+                };
+                mxVssxCodec.prototype.transPoint = function (p, srcP) {
+                    if (p != null) {
+                        p.x = (p.x - srcP.x);
+                        p.y = (p.y - srcP.y);
+                    }
+                };
+                /**
+                 *
+                 * @param {com.mxgraph.io.mxGraph} graph
+                 * @param {com.mxgraph.io.vsdx.mxVsdxPage} page
+                 * @return {string}
+                 */
+                mxVssxCodec.prototype.processPage = function (graph, page) {
+                    var model = graph.getModel();
+                    var shapes = { str: "", toString: function () { return this.str; } };
+                    var comma = "";
+                    {
+                    	var this_2 = this;
+                        for (var id in model.cells) {
+                            var c = model.cells[id];
+                            {
+                                if (graph.getDefaultParent() === model.getParent(c)) {
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(comma); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat("{\"xml\":\""); })(shapes);
+                                    var shapeGraph = this_2.createMxGraph();
+                                    shapeGraph.addCell(c);
+                                    this_2.sanitiseGraph(shapeGraph);
+                                    if (shapeGraph.getModel().getChildCount(shapeGraph.getDefaultParent()) === 0)
+                                        return "continue";
+                                    var geo_2 = this_2.normalizeGeo(c);
+                                    var shapeXML_2 = _super.prototype.processPage.call(this_2, shapeGraph, null);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(shapeXML_2); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat("\",\"w\":"); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(geo_2.width); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(",\"h\":"); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(geo_2.height); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(",\"title\":\""); })(shapes);
+                                    var style = model.getStyle(c);
+                                    var name_1 = "";
+                                    if (style != null) {
+                                        var p = style.indexOf(com.mxgraph.io.vsdx.mxVsdxConstants.VSDX_ID);
+                                        if (p >= 0) {
+                                            p += com.mxgraph.io.vsdx.mxVsdxConstants.VSDX_ID.length + 1;
+                                            var id = parseInt(style.substring(p, style.indexOf(";", p)));
+                                            var vsdxShape = (function (m, k) { if (m.entries == null)
+                                                m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                                                if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+                                                    return m.entries[i].value;
+                                                } return null; })(this_2.vertexShapeMap, new com.mxgraph.io.vsdx.ShapePageId(page.getId(), id));
+                                            if (vsdxShape != null)
+                                                name_1 = vsdxShape.getName();
+                                        }
+                                    }
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(name_1); })(shapes);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat("\"}"); })(shapes);
+                                    comma = ",";
+                                }
+                            }
+                        };
+                    }
+                    if (shapes.str.length > 0)
+                        this.RESPONSE_DIAGRAM_START = ",";
+                    else
+                        this.RESPONSE_DIAGRAM_START = "";
+                    return shapes.str;
+                };
+                return mxVssxCodec;
+            }(com.mxgraph.io.mxVsdxCodec));
+            io.mxVssxCodec = mxVssxCodec;
+            mxVssxCodec["__class"] = "com.mxgraph.io.mxVssxCodec";
         })(io = mxgraph.io || (mxgraph.io = {}));
     })(mxgraph = com.mxgraph || (com.mxgraph = {}));
 })(com || (com = {}));
@@ -1841,6 +2060,18 @@ var com;
                     mxVsdxGeometryList.prototype.hasGeom = function () {
                         return !(this.geomList.length == 0);
                     };
+                    
+                    mxVsdxGeometryList.prototype.getGeoCount = function () {
+                    	var count = 0;
+                		
+                		for (var i = 0; i < this.geomList.length; i++) 
+                		{
+                			if (!this.geomList[i].isNoShow()) 
+                				count++;
+                		}
+                		
+                		return count;
+                	};
                     /*private*/ mxVsdxGeometryList.prototype.rotatedPoint = function (pt, cos, sin) {
                         var x1 = pt.x * cos - pt.y * sin;
                         var y1 = pt.y * cos + pt.x * sin;
@@ -2020,7 +2251,7 @@ var com;
                         this.childShapes = ({});
                         this.master = null;
                         this.master = m;
-                        this.Id = m.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID);
+                        this.Id = m.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID) || "";
                         this.processMasterShapes(model);
                     }
                     /**
@@ -2525,7 +2756,7 @@ var com;
                             this.backPageId = parseFloat(back);
                         }
                         this.Id = parseFloat(pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID));
-                        this.pageName = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.NAME);
+                        this.pageName = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.NAME) || "";
                         var pageSheets = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(pageElem, "PageSheet");
                         if (pageSheets.length > 0) {
                             var pageSheet = pageSheets[0];
@@ -2791,7 +3022,7 @@ var com;
                     mxVsdxPage.prototype.getCellValue = function (cellName) {
                         var cell = (function (m, k) { return m[k] ? m[k] : null; })(this.cellElements, cellName);
                         if (cell != null) {
-                            return cell.getAttribute("V");
+                            return cell.getAttribute("V") || "";
                         }
                         return null;
                     };
@@ -2925,7 +3156,7 @@ var com;
                         this.bkgndColor = null;
                         this.name = null;
                         this.theme = theme;
-                        this.name = theme.getAttribute("name");
+                        this.name = theme.getAttribute("name") || "";
                         var themeId = (function (m, k) { return m[k] ? m[k] : null; })(mxVsdxTheme.themesIds_$LI$(), this.name);
                         if (themeId != null) {
                             this.themeIndex = themeId;
@@ -5468,8 +5699,8 @@ var com;
                          */
                         ArcTo.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.a != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x0 = Math.floor(Math.round(shape.getLastX() * w) / 100);
                                 var y0 = Math.floor(Math.round(shape.getLastY() * h) / 100);
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
@@ -5568,8 +5799,8 @@ var com;
                          */
                         Ellipse.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 y = h - y;
@@ -5634,8 +5865,8 @@ var com;
                          */
                         EllipticalArcTo.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 y = h - y;
@@ -5799,8 +6030,8 @@ var com;
                         LineTo.prototype.handle = function (p, shape) {
                             var x = p.x;
                             var y = p.y;
-                            var h = shape.height;
-                            var w = shape.width;
+                            var h = shape.getHeight();
+                            var w = shape.getWidth();
                             if (this.x != null && this.y != null) {
                                 x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
@@ -5848,8 +6079,8 @@ var com;
                         MoveTo.prototype.handle = function (p, shape) {
                             var x = p.x;
                             var y = p.y;
-                            var h = shape.height;
-                            var w = shape.width;
+                            var h = shape.getHeight();
+                            var w = shape.getWidth();
                             if (this.x != null && this.y != null) {
                                 x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
@@ -5904,8 +6135,8 @@ var com;
                          */
                         NURBSTo.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.formulaE != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var eValue = this.formulaE.split("NURBS(").join("");
@@ -6102,8 +6333,8 @@ var com;
                         PolylineTo.prototype.handle = function (p, shape) {
                             var result = "";
                             if (this.x != null && this.y != null && this.formulaA != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 x = x * 100.0 / w;
@@ -6423,8 +6654,8 @@ var com;
                          */
                         SplineStart.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null) {
-                                var h = shape.height;
-                                var w = shape.width;
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
                                 var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 var c = this.c;
@@ -6621,7 +6852,7 @@ var com;
                      */
                     Style.prototype.getValue = function (elem, defaultValue) {
                         if (elem != null) {
-                            return elem.getAttribute("V");
+                            return elem.getAttribute("V") || "";
                         }
                         return defaultValue;
                     };
@@ -6714,7 +6945,7 @@ var com;
                         var result = defaultValue;
                         var cell = (function (m, k) { return m[k] ? m[k] : null; })(this.cellElements, tag);
                         if (cell != null) {
-                            result = cell.getAttribute(attribute);
+                            result = cell.getAttribute(attribute) || "";
                         }
                         return result;
                     };
@@ -6733,8 +6964,8 @@ var com;
                                 else {
                                     return o1 === o2;
                                 } })(childName, "Cell")) {
-                                    name_9 = childElem.getAttribute("N");
-                                    nodeValue = childElem.getAttribute("V");
+                                    name_9 = childElem.getAttribute("N") || "";
+                                    nodeValue = childElem.getAttribute("V") || "";
                                 }
                                 else {
                                     name_9 = childElem.nodeName;
@@ -6743,7 +6974,7 @@ var com;
                                 if (requiredValues != null) {
                                     var nodeOverride = (function (m, k) { return m[k] ? m[k] : null; })(requiredValues, name_9);
                                     if (nodeOverride != null) {
-                                        nodeValue = childElem.getAttribute(nodeOverride);
+                                        nodeValue = childElem.getAttribute(nodeOverride) || "";
                                     }
                                 }
                                 /* put */ (result[name_9] = nodeValue);
@@ -7077,7 +7308,7 @@ var com;
                      * @return {string} Value of the UniqueID attribute.
                      */
                     Style.prototype.getUniqueID = function () {
-                        return this.shape.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.UNIQUE_ID);
+                        return this.shape.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.UNIQUE_ID) || "";
                     };
                     /**
                      * Returns the value of the Id attribute.
@@ -7719,8 +7950,8 @@ var com;
                          */
                         RelEllipticalArcTo.prototype.handle = function (p, shape) {
                             if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null) {
-                                var h = shape.height / com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                var w = shape.width / com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
+                                var h = shape.getHeight() / com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
+                                var w = shape.getWidth() / com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                 this.x *= w;
                                 this.y *= h;
                                 this.a *= w;
@@ -7808,8 +8039,15 @@ var com;
                         _this.height = _this.getScreenNumericalValue$org_w3c_dom_Element$double(/* get */ (function (m, k) { return m[k] ? m[k] : null; })(_this.cellElements, com.mxgraph.io.vsdx.mxVsdxConstants.HEIGHT), 0);
                         return _this;
                     }
-                    Shape.UNICODE_LINE_SEP_$LI$ = function () { if (Shape.UNICODE_LINE_SEP == null)
-                        Shape.UNICODE_LINE_SEP = [String.fromCharCode(226), String.fromCharCode(128), String.fromCharCode(168)].join(''); return Shape.UNICODE_LINE_SEP; };
+                    Shape.UNICODE_LINE_SEP_$LI$ = function () 
+                    {
+                    	if (Shape.UNICODE_LINE_SEP == null)
+                		{
+                    		Shape.ERROR_IMAGE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+DQo8IS0tIENyZWF0ZWQgd2l0aCBJbmtzY2FwZSAoaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvKSAtLT4NCjxzdmcNCiAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyINCiAgIHhtbG5zOmNjPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyMiDQogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiDQogICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIg0KICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIg0KICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIg0KICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiDQogICB3aWR0aD0iMjUwIg0KICAgaGVpZ2h0PSIyNTAiDQogICBpZD0ic3ZnMzMxOSINCiAgIHNvZGlwb2RpOnZlcnNpb249IjAuMzIiDQogICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjQ2Ig0KICAgdmVyc2lvbj0iMS4wIg0KICAgc29kaXBvZGk6ZG9jbmFtZT0ibm9waG90b19pLnN2ZyINCiAgIGlua3NjYXBlOm91dHB1dF9leHRlbnNpb249Im9yZy5pbmtzY2FwZS5vdXRwdXQuc3ZnLmlua3NjYXBlIj4NCiAgPGRlZnMNCiAgICAgaWQ9ImRlZnMzMzIxIj4NCiAgICA8aW5rc2NhcGU6cGVyc3BlY3RpdmUNCiAgICAgICBzb2RpcG9kaTp0eXBlPSJpbmtzY2FwZTpwZXJzcDNkIg0KICAgICAgIGlua3NjYXBlOnZwX3g9IjAgOiA1MjYuMTgxMDkgOiAxIg0KICAgICAgIGlua3NjYXBlOnZwX3k9IjAgOiAxMDAwIDogMCINCiAgICAgICBpbmtzY2FwZTp2cF96PSI3NDQuMDk0NDggOiA1MjYuMTgxMDkgOiAxIg0KICAgICAgIGlua3NjYXBlOnBlcnNwM2Qtb3JpZ2luPSIzNzIuMDQ3MjQgOiAzNTAuNzg3MzkgOiAxIg0KICAgICAgIGlkPSJwZXJzcGVjdGl2ZTMzMjciIC8+DQogICAgPGlua3NjYXBlOnBlcnNwZWN0aXZlDQogICAgICAgaWQ9InBlcnNwZWN0aXZlMzM0MiINCiAgICAgICBpbmtzY2FwZTpwZXJzcDNkLW9yaWdpbj0iMzcyLjA0NzI0IDogMzUwLjc4NzM5IDogMSINCiAgICAgICBpbmtzY2FwZTp2cF96PSI3NDQuMDk0NDggOiA1MjYuMTgxMDkgOiAxIg0KICAgICAgIGlua3NjYXBlOnZwX3k9IjAgOiAxMDAwIDogMCINCiAgICAgICBpbmtzY2FwZTp2cF94PSIwIDogNTI2LjE4MTA5IDogMSINCiAgICAgICBzb2RpcG9kaTp0eXBlPSJpbmtzY2FwZTpwZXJzcDNkIiAvPg0KICA8L2RlZnM+DQogIDxzb2RpcG9kaTpuYW1lZHZpZXcNCiAgICAgaWQ9ImJhc2UiDQogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiINCiAgICAgYm9yZGVyY29sb3I9IiM2NjY2NjYiDQogICAgIGJvcmRlcm9wYWNpdHk9IjEuMCINCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAuMCINCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiINCiAgICAgaW5rc2NhcGU6em9vbT0iMi4yNDI5NDI3Ig0KICAgICBpbmtzY2FwZTpjeD0iMTIxLjk3NjQ4Ig0KICAgICBpbmtzY2FwZTpjeT0iMTIyLjQ0MTk4Ig0KICAgICBpbmtzY2FwZTpkb2N1bWVudC11bml0cz0icHgiDQogICAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9ImxheWVyMSINCiAgICAgc2hvd2dyaWQ9ImZhbHNlIg0KICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjE2NjQiDQogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9Ijg0NCINCiAgICAgaW5rc2NhcGU6d2luZG93LXg9Ii0zIg0KICAgICBpbmtzY2FwZTp3aW5kb3cteT0iLTE4IiAvPg0KICA8bWV0YWRhdGENCiAgICAgaWQ9Im1ldGFkYXRhMzMyNCI+DQogICAgPHJkZjpSREY+DQogICAgICA8Y2M6V29yaw0KICAgICAgICAgcmRmOmFib3V0PSIiPg0KICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD4NCiAgICAgICAgPGRjOnR5cGUNCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4NCiAgICAgICAgPGRjOnRpdGxlPkZvdG9ncmFmaWVydmVyYm90PC9kYzp0aXRsZT4NCiAgICAgICAgPGRjOmRhdGU+MjAwOC0wNi0yOTwvZGM6ZGF0ZT4NCiAgICAgICAgPGRjOmNyZWF0b3I+DQogICAgICAgICAgPGNjOkFnZW50Pg0KICAgICAgICAgICAgPGRjOnRpdGxlPlRvcnJzdGVuIFNrb21wPC9kYzp0aXRsZT4NCiAgICAgICAgICA8L2NjOkFnZW50Pg0KICAgICAgICA8L2RjOmNyZWF0b3I+DQogICAgICAgIDxkYzpyaWdodHM+DQogICAgICAgICAgPGNjOkFnZW50Pg0KICAgICAgICAgICAgPGRjOnRpdGxlPlRvcnN0ZW4gU2tvbXA8L2RjOnRpdGxlPg0KICAgICAgICAgIDwvY2M6QWdlbnQ+DQogICAgICAgIDwvZGM6cmlnaHRzPg0KICAgICAgICA8ZGM6cHVibGlzaGVyPg0KICAgICAgICAgIDxjYzpBZ2VudD4NCiAgICAgICAgICAgIDxkYzp0aXRsZT5Ub3JzdGVuIFNrb21wPC9kYzp0aXRsZT4NCiAgICAgICAgICA8L2NjOkFnZW50Pg0KICAgICAgICA8L2RjOnB1Ymxpc2hlcj4NCiAgICAgICAgPGRjOmxhbmd1YWdlPmRlX0RFPC9kYzpsYW5ndWFnZT4NCiAgICAgICAgPGRjOnN1YmplY3Q+DQogICAgICAgICAgPHJkZjpCYWc+DQogICAgICAgICAgICA8cmRmOmxpPlBpa3RvZ3JhbW07IEZvdG9ncmFmaWVydmVyYm90PC9yZGY6bGk+DQogICAgICAgICAgPC9yZGY6QmFnPg0KICAgICAgICA8L2RjOnN1YmplY3Q+DQogICAgICAgIDxkYzpkZXNjcmlwdGlvbj5Gb3RvZ3JhZmllcnZlcmJvdCBhbHMgUGlrdG9ncmFtbSA8L2RjOmRlc2NyaXB0aW9uPg0KICAgICAgICA8Y2M6bGljZW5zZQ0KICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL3B1YmxpY2RvbWFpbi8iIC8+DQogICAgICA8L2NjOldvcms+DQogICAgICA8Y2M6TGljZW5zZQ0KICAgICAgICAgcmRmOmFib3V0PSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9saWNlbnNlcy9wdWJsaWNkb21haW4vIj4NCiAgICAgICAgPGNjOnBlcm1pdHMNCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyNSZXByb2R1Y3Rpb24iIC8+DQogICAgICAgIDxjYzpwZXJtaXRzDQogICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjRGlzdHJpYnV0aW9uIiAvPg0KICAgICAgICA8Y2M6cGVybWl0cw0KICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zI0Rlcml2YXRpdmVXb3JrcyIgLz4NCiAgICAgIDwvY2M6TGljZW5zZT4NCiAgICA8L3JkZjpSREY+DQogIDwvbWV0YWRhdGE+DQogIDxnDQogICAgIGlua3NjYXBlOmxhYmVsPSJFYmVuZSAxIg0KICAgICBpbmtzY2FwZTpncm91cG1vZGU9ImxheWVyIg0KICAgICBpZD0ibGF5ZXIxIj4NCiAgICA8cGF0aA0KICAgICAgIHN0eWxlPSJmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjEiDQogICAgICAgZD0iTSAxNjQuNTMxMjUgNjIuNjg3NSBDIDE2Mi43OTExNSA2Mi42ODc1MDEgMTYxLjM3NSA2NC4wNzI0MTYgMTYxLjM3NSA2NS44MTI1IEwgMTYxLjM3NSA2OC43NSBMIDM4LjM3NSA2OC43NSBDIDM1LjA5MjI5OCA2OC43NDk5OTkgMzIuNDY4NzUgNzEuMzczNTQ4IDMyLjQ2ODc1IDc0LjY1NjI1IEwgMzIuNDY4NzUgMTgxLjM3NSBDIDMyLjQ2ODc1IDE4NC42NTc3IDM1LjA5MjMwNyAxODcuMzEyNTEgMzguMzc1IDE4Ny4zMTI1IEwgMjExLjYyNSAxODcuMzEyNSBDIDIxNC45MDc2OSAxODcuMzEyNSAyMTcuNTMxMjcgMTg0LjY1NzcgMjE3LjUzMTI1IDE4MS4zNzUgTCAyMTcuNTMxMjUgNzQuNjU2MjUgQyAyMTcuNTMxMjUgNzEuMzczNTUxIDIxNC45MDc2OCA2OC43NSAyMTEuNjI1IDY4Ljc1IEwgMjAyLjA2MjUgNjguNzUgTCAyMDIuMDYyNSA2NS44MTI1IEMgMjAyLjA2MjUgNjQuMDcyNDEgMjAwLjY0NjM1IDYyLjY4NzUgMTk4LjkwNjI1IDYyLjY4NzUgTCAxNjQuNTMxMjUgNjIuNjg3NSB6IE0gNDYuODEyNSA3OCBMIDg4LjY1NjI1IDc4IEMgOTAuMzk2MzQyIDc4IDkxLjgxMjUgNzkuMzg0OTA3IDkxLjgxMjUgODEuMTI1IEwgOTEuODEyNSA5Ni4zMTI1IEMgOTEuODEyNSA5OC4wNTI1OTIgOTAuMzk2MzQzIDk5LjQzNzUgODguNjU2MjUgOTkuNDM3NSBMIDQ2LjgxMjUgOTkuNDM3NSBDIDQ1LjA3MjQwOCA5OS40Mzc1IDQzLjY4NzUgOTguMDUyNTkzIDQzLjY4NzUgOTYuMzEyNSBMIDQzLjY4NzUgODEuMTI1IEMgNDMuNjg3NSA3OS4zODQ5MDggNDUuMDcyNDA3IDc4IDQ2LjgxMjUgNzggeiBNIDE0NiA4OC4yMTg3NSBDIDE2Ny43MzQ3NSA4OC4yMTg3NTMgMTg1LjM3NSAxMDYuMTUwNzEgMTg1LjM3NSAxMjguMjUgQyAxODUuMzc0OTkgMTUwLjM0OTI4IDE2Ny43MzQ3NCAxNjguMjgxMjUgMTQ2IDE2OC4yODEyNSBDIDEyNC4yNjUyNyAxNjguMjgxMjYgMTA2LjYyNSAxNTAuMzQ5MjkgMTA2LjYyNSAxMjguMjUgQyAxMDYuNjI1IDEwNi4xNTA3MSAxMjQuMjY1MjYgODguMjE4NzUgMTQ2IDg4LjIxODc1IHogTSAxNDYgOTEuNzE4NzUgQyAxMjYuMTY1NTcgOTEuNzE4NzUgMTEwLjA2MjUgMTA4LjA4Mjg5IDExMC4wNjI1IDEyOC4yNSBDIDExMC4wNjI1IDE0OC40MTcxMSAxMjYuMTY1NTcgMTY0Ljc4MTI2IDE0NiAxNjQuNzgxMjUgQyAxNjUuODM0NDMgMTY0Ljc4MTI1IDE4MS45Mzc1IDE0OC40MTcxIDE4MS45Mzc1IDEyOC4yNSBDIDE4MS45Mzc1IDEwOC4wODI4OSAxNjUuODM0NDMgOTEuNzE4NzUgMTQ2IDkxLjcxODc1IHogTSAxNDYgOTYuNTkzNzUgQyAxNjMuMTc3NjggOTYuNTkzNzUyIDE3Ny4xMjUgMTEwLjc4NDIgMTc3LjEyNSAxMjguMjUgQyAxNzcuMTI0OTkgMTQ1LjcxNTggMTYzLjE3NzY5IDE1OS44NzUgMTQ2IDE1OS44NzUgQyAxMjguODIyMzEgMTU5Ljg3NSAxMTQuODc1IDE0NS43MTU4IDExNC44NzUgMTI4LjI1IEMgMTE0Ljg3NSAxMTAuNzg0MTkgMTI4LjgyMjMxIDk2LjU5Mzc1IDE0NiA5Ni41OTM3NSB6IE0gMTc2LjUgMTcyLjcxODc1IEwgMjA2LjE4NzUgMTcyLjcxODc1IEMgMjA3LjQyMTM4IDE3Mi43MTg3NSAyMDguNDA2MjUgMTczLjEyNzgzIDIwOC40MDYyNSAxNzMuNjI1IEwgMjA4LjQwNjI1IDE3Ny45Njg3NSBDIDIwOC40MDYyNSAxNzguNDY1OTIgMjA3LjQyMTM4IDE3OC44NDM3NSAyMDYuMTg3NSAxNzguODQzNzUgTCAxNzYuNSAxNzguODQzNzUgQyAxNzUuMjY2MTEgMTc4Ljg0Mzc1IDE3NC4yODEyNSAxNzguNDY1OTIgMTc0LjI4MTI1IDE3Ny45Njg3NSBMIDE3NC4yODEyNSAxNzMuNjI1IEMgMTc0LjI4MTI1IDE3My4xMjc4MyAxNzUuMjY2MTIgMTcyLjcxODc1IDE3Ni41IDE3Mi43MTg3NSB6ICINCiAgICAgICBpZD0icmVjdDMyMDkiIC8+DQogICAgPHBhdGgNCiAgICAgICBzdHlsZT0iZmlsbDojYzQyNjFkO2ZpbGwtb3BhY2l0eToxIg0KICAgICAgIGQ9Ik0gMjAgMCBDIDE4LjU1OTkzOCAwIDE3LjE2NDc0NyAwLjE1MDk4NjY2IDE1LjgxMjUgMC40Mzc1IEMgMTUuMjEwMjkxIDAuNTY1MTk1NzggMTQuNjExOTEzIDAuNzI2MjExMjYgMTQuMDMxMjUgMC45MDYyNSBDIDEzLjU1NDc3MyAxLjA1Mzk4NTIgMTMuMDg1MzQ5IDEuMjI0ODUzNiAxMi42MjUgMS40MDYyNSBDIDEyLjMyODc2NiAxLjUyMzA3MzkgMTIuMDM5MDMzIDEuNjUwOTE4MiAxMS43NSAxLjc4MTI1IEMgMTEuMzQ3Mjc4IDEuOTYyMzU5OCAxMC45NTA0MDYgMi4xMzc0MTY1IDEwLjU2MjUgMi4zNDM3NSBDIDEwLjUyMTU1NSAyLjM2NTU2ODggMTAuNDc4MjczIDIuMzg0MTU1NSAxMC40Mzc1IDIuNDA2MjUgQyAxMC40MTY5MzQgMi40MTczNzU0IDEwLjM5NTUyMiAyLjQyNjMwNDkgMTAuMzc1IDIuNDM3NSBDIDkuODMyNjg2MSAyLjczMzM0NDYgOS4zMjI2NDQ4IDMuMDYzMjQ1MiA4LjgxMjUgMy40MDYyNSBDIDguMjgzMTIyMSAzLjc2MjE4NjUgNy43NzI3NzI4IDQuMTU4OTIwOSA3LjI4MTI1IDQuNTYyNSBDIDcuMjc1MDU1IDQuNTY3NTg2NiA3LjI1NjE4ODggNC41NTc0MDYxIDcuMjUgNC41NjI1IEMgNy4yMzg1NDc5IDQuNTcxOTQzNCA3LjIzMDE4MDYgNC41ODQyODE2IDcuMjE4NzUgNC41OTM3NSBDIDcuMTA0NzM1MiA0LjY4ODAxNTkgNi45ODY4NTA3IDQuNzc4MjY4NyA2Ljg3NSA0Ljg3NSBDIDYuNTE1NzAyMSA1LjE4NjQyNjQgNi4xNzk3OTA5IDUuNTA3NzA5MSA1Ljg0Mzc1IDUuODQzNzUgQyA1LjQwNDQwMjUgNi4yODE4MDc4IDQuOTkwNzQ0OSA2Ljc0MTM1NTQgNC41OTM3NSA3LjIxODc1IEMgNC41NzkwMDg2IDcuMjM2NTQ2MiA0LjU3NzE4MDYgNy4yNjM0MDE1IDQuNTYyNSA3LjI4MTI1IEMgMy43Njc0ODk4IDguMjQzOTE4MSAzLjA0MjI3MjEgOS4yNzE4NzA1IDIuNDM3NSAxMC4zNzUgQyAyLjQyNjIyMzIgMTAuMzk1NjM1IDIuNDE3NDU2MSAxMC40MTY4MiAyLjQwNjI1IDEwLjQzNzUgQyAyLjEwODM5MDggMTAuOTg1MzQ4IDEuODQwMjIzMyAxMS41NDcyMTQgMS41OTM3NSAxMi4xMjUgQyAxLjU3NTU4NjUgMTIuMTY3NjY1IDEuNTQ5MTI1NSAxMi4yMDcxODIgMS41MzEyNSAxMi4yNSBDIDEuMjg3NzEzMSAxMi44MzI0MzMgMS4wOTQ2NzU0IDEzLjQyMTgyMiAwLjkwNjI1IDE0LjAzMTI1IEMgMC43Mjk2MzAxNCAxNC42MDI0OTUgMC41NjMwOTYzNCAxNS4xODg4MjggMC40Mzc1IDE1Ljc4MTI1IEMgMC4xNDY5MTQwNCAxNy4xNDI1NzggLTQuMzkwNjEzM2UtMTggMTguNTQ5NDY2IDAgMjAgTCAwIDIzMCBDIDAgMjQxLjA4IDguOTIgMjUwIDIwIDI1MCBMIDIzMCAyNTAgQyAyMzEuNDQwMDYgMjUwIDIzMi44MzUyNSAyNDkuODQ5MDEgMjM0LjE4NzUgMjQ5LjU2MjUgQyAyMzQuNzg5MDMgMjQ5LjQzNDk3IDIzNS4zODg2NiAyNDkuMjczODEgMjM1Ljk2ODc1IDI0OS4wOTM3NSBDIDIzNi40NDQ3NiAyNDguOTQ2IDIzNi45MTUwNSAyNDguNzc1MjYgMjM3LjM3NSAyNDguNTkzNzUgQyAyMzcuNjcxMjMgMjQ4LjQ3NjkzIDIzNy45NjA5NyAyNDguMzQ5MDggMjM4LjI1IDI0OC4yMTg3NSBDIDIzOC4yNzk4MSAyNDguMjA1MzEgMjM4LjMxNDAyIDI0OC4yMDEwOSAyMzguMzQzNzUgMjQ4LjE4NzUgQyAyMzguNzU4MzYgMjQ3Ljk5ODMgMjM5LjE2Mzc0IDI0Ny44MDk4MSAyMzkuNTYyNSAyNDcuNTkzNzUgQyAyMzkuNTgzMTggMjQ3LjU4MjU0IDIzOS42MDQzNiAyNDcuNTczNzggMjM5LjYyNSAyNDcuNTYyNSBDIDI0MC4xNjkyNSAyNDcuMjY1MTIgMjQwLjY3NTU4IDI0Ni45Mzg3MyAyNDEuMTg3NSAyNDYuNTkzNzUgQyAyNDEuNjY4NzggMjQ2LjI2OTQxIDI0Mi4xNDM1OSAyNDUuOTI2MzkgMjQyLjU5Mzc1IDI0NS41NjI1IEMgMjQyLjY0NDc0IDI0NS41MjEyOCAyNDIuNjk5NDMgMjQ1LjQ3OTIxIDI0Mi43NSAyNDUuNDM3NSBDIDI0Mi44NzY1MSAyNDUuMzMzMTggMjQzLjAwMTE1IDI0NS4yMzIzNSAyNDMuMTI1IDI0NS4xMjUgQyAyNDMuNDgyNjUgMjQ0LjgxNTM4IDI0My44MjE1NSAyNDQuNDkwMTkgMjQ0LjE1NjI1IDI0NC4xNTYyNSBDIDI0NC40OTIyOSAyNDMuODIwMjEgMjQ0LjgxMzU3IDI0My40ODQzIDI0NS4xMjUgMjQzLjEyNSBDIDI0NS4yMzE2NyAyNDMuMDAyMzQgMjQ1LjMzMzgxIDI0Mi44NzUyNyAyNDUuNDM3NSAyNDIuNzUgQyAyNDUuNDQyNzYgMjQyLjc0MzYyIDI0NS40MzIyNSAyNDIuNzI1MTMgMjQ1LjQzNzUgMjQyLjcxODc1IEMgMjQ1Ljg0MjQ5IDI0Mi4yMjgzIDI0Ni4yMzY0IDI0MS43MTU3NiAyNDYuNTkzNzUgMjQxLjE4NzUgQyAyNDYuOTM4MTIgMjQwLjY3ODQzIDI0Ny4yNjUzNiAyNDAuMTY2MjIgMjQ3LjU2MjUgMjM5LjYyNSBDIDI0Ny41NzM2MyAyMzkuNjA0NzIgMjQ3LjU4MjY4IDIzOS41ODI4MiAyNDcuNTkzNzUgMjM5LjU2MjUgQyAyNDcuODkxOTcgMjM5LjAxNDggMjQ4LjE1OTMxIDIzOC40NTIzOSAyNDguNDA2MjUgMjM3Ljg3NSBDIDI0OC40MTU1NCAyMzcuODUzMjggMjQ4LjQyODI5IDIzNy44MzQyNiAyNDguNDM3NSAyMzcuODEyNSBDIDI0OC40NDY0NCAyMzcuNzkxMjkgMjQ4LjQ1OTg4IDIzNy43NzEyNSAyNDguNDY4NzUgMjM3Ljc1IEMgMjQ4LjcwOTkyIDIzNy4xNzQ3NiAyNDguOTA2MjggMjM2LjU3MDA4IDI0OS4wOTM3NSAyMzUuOTY4NzUgQyAyNDkuMjczNzUgMjM1LjM5MTM3IDI0OS40MzQ2OCAyMzQuODE3NTQgMjQ5LjU2MjUgMjM0LjIxODc1IEMgMjQ5Ljg1MzA5IDIzMi44NTc0MiAyNTAgMjMxLjQ1MDUzIDI1MCAyMzAgTCAyNTAgMjAgQyAyNTAgOC45MiAyNDEuMDggLTMuMzUzNzk4N2UtMTcgMjMwIDAgTCAyMCAwIHogTSAzNC43ODEyNSAxOS40MDYyNSBMIDIyNS40Njg3NSAxOS40MDYyNSBDIDIyOC4zMDk0NiAxOS40MDYyNSAyMzAuNTkzNzUgMjEuNjkwNTQ0IDIzMC41OTM3NSAyNC41MzEyNSBMIDIzMC41OTM3NSAyMTUuMjUgTCAzNC43ODEyNSAxOS40MDYyNSB6IE0gMTkuNDA2MjUgMzQuNzUgTCAyMTUuMjE4NzUgMjMwLjU5Mzc1IEwgMjQuNTMxMjUgMjMwLjU5Mzc1IEMgMjEuNjkwNTQ0IDIzMC41OTM3NiAxOS40MDYyNSAyMjguMzA5NDYgMTkuNDA2MjUgMjI1LjQ2ODc1IEwgMTkuNDA2MjUgMzQuNzUgeiAiDQogICAgICAgaWQ9InBhdGgzMTk2IiAvPg0KICA8L2c+DQo8L3N2Zz4NCg==";
+                    		Shape.UNICODE_LINE_SEP = String.fromCharCode(8232);//[String.fromCharCode(226), String.fromCharCode(128), String.fromCharCode(168)].join('');
+                		}
+                		return Shape.UNICODE_LINE_SEP;
+            		};
                     ;
                     Shape.prototype.setThemeAndVariant = function (theme, themeVariant) {
                         this.theme = theme;
@@ -7854,7 +8092,7 @@ var com;
                         } })(childName, "ForeignData")) {
                             var filename = elem.ownerDocument.vsdxFileName; //was getDocumentURI()
                             var iType = elem.getAttribute("ForeignType");
-                            var compression = elem.getAttribute("CompressionType");
+                            var compression = elem.getAttribute("CompressionType") || "";
                             if ((function (o1, o2) { if (o1 && o1.equals) {
                                 return o1.equals(o2);
                             }
@@ -7913,7 +8151,7 @@ var com;
                                             ;
                                             var relElem = model.getRelationship(rid, pre + "/_rels" + post + ".rels");
                                             if (relElem != null) {
-                                                var target = relElem.getAttribute("Target");
+                                                var target = relElem.getAttribute("Target") || "";
                                                 var type = relElem.getAttribute("Type");
                                                 index = target.lastIndexOf('/');
                                                 try {
@@ -7926,20 +8164,28 @@ var com;
                                                 if (type != null && (function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(type, "image")) {
                                                     this.imageData = ({});
                                                     var iData = model.getMedia(com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder + "/media/" + target);
-                                                    /* put */ (this.imageData["iData"] = iData);
-                                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".bmp")) {
-                                                        compression = "png";
-                                                    }
-                                                    else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".emf")) {
-                                                        compression = (function (str, searchString, position) {
-                                                            if (position === void 0) { position = 0; }
-                                                            return str.substr(position, searchString.length) === searchString;
-                                                        })(iData, "iVBORw0K") ? "png" : ((function (str, searchString, position) {
-                                                            if (position === void 0) { position = 0; }
-                                                            return str.substr(position, searchString.length) === searchString;
-                                                        })(iData, "/9j/") ? "jpg" : compression);
-                                                    }
-                                                    /* put */ (this.imageData["iType"] = compression);
+                                                    if (!iData)
+                                                	{
+                                                    	/* put */ (this.imageData["iData"] = Shape.ERROR_IMAGE);
+                                                    	/* put */ (this.imageData["iType"] = 'svg+xml');
+                                                	}
+                                                    else
+                                                	{
+	                                                    /* put */ (this.imageData["iData"] = iData);
+	                                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".bmp")) {
+	                                                        compression = "jpg";
+	                                                    }
+	                                                    else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".emf")) {
+	                                                        compression = (function (str, searchString, position) {
+	                                                            if (position === void 0) { position = 0; }
+	                                                            return str.substr(position, searchString.length) === searchString;
+	                                                        })(iData, "iVBORw0K") ? "png" : ((function (str, searchString, position) {
+	                                                            if (position === void 0) { position = 0; }
+	                                                            return str.substr(position, searchString.length) === searchString;
+	                                                        })(iData, "/9j/") ? "jpg" : compression);
+	                                                    }
+	                                                    /* put */ (this.imageData["iType"] = compression);
+                                                	}
                                                 }
                                             }
                                             else {
@@ -7987,7 +8233,7 @@ var com;
                             for (var index157 = 0; index157 < rows.length; index157++) {
                                 var row = rows[index157];
                                 {
-                                    var ix = row.getAttribute("IX");
+                                    var ix = row.getAttribute("IX") || "";
                                     if (!(ix.length === 0)) {
                                         if (this.fields == null) {
                                             this.fields = ({});
@@ -8141,6 +8387,12 @@ var com;
                                 return o1 === o2;
                             } })(bullet, "0")) {
                                 var entries = text.split("\n");
+                                
+                                if (!entries[entries.length - 1]) 
+                                {
+                                	entries.pop();
+                                }
+                                
                                 var ret = "";
                                 for (var index159 = 0; index159 < entries.length; index159++) {
                                     var entry = entries[index159];
@@ -8683,7 +8935,7 @@ var com;
                             _this.processGeomList(null);
                         }
                         _this.vertex = vertex || (_this.childShapes != null && !(function (m) { if (m.entries == null)
-                            m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && !_this.geomList.isNoFill());
+                            m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1));
                         return _this;
                     }
                     VsdxShape.__static_initialize = function () { if (!VsdxShape.__static_initialized) {
@@ -9034,7 +9286,7 @@ var com;
                         return null;
                     };
                     /*private*/ VsdxShape.prototype.getIndex = function (elem) {
-                        var ix = elem.getAttribute("IX");
+                        var ix = elem.getAttribute("IX") || "";
                         return (ix.length === 0) ? "0" : ix;
                     };
                     /**
@@ -9680,7 +9932,7 @@ var com;
                             var _loop_4 = function (index162) {
                                 var len = pattern[index162];
                                 {
-                                    /* append */ (function (sb) { return sb.str = sb.str.concat(len.toFixed(2)); })(str);
+                                    /* append */ (function (sb) { return sb.str = sb.str.concat(len.toFixed(2) + " "); })(str);
                                 }
                             };
                             for (var index162 = 0; index162 < pattern.length; index162++) {
@@ -10700,8 +10952,8 @@ var com;
                      * @return {mxCell} label sub-shape
                      */
                     VsdxShape.prototype.createLabelSubShape = function (graph, parent) {
-                        var txtWV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_WIDTH), this.width);
-                        var txtHV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_HEIGHT), this.height);
+                        var txtWV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_WIDTH), this.getWidth());
+                        var txtHV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_HEIGHT), this.getHeight());
                         var txtLocPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_LOC_PIN_X), txtWV / 2.0);
                         var txtLocPinYV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_LOC_PIN_Y), txtHV / 2.0);
                         var txtPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_X), txtLocPinXV);
@@ -10709,7 +10961,7 @@ var com;
                         var txtAngleV = this.getValueAsDouble(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE), 0);
                         var textLabel = this.getTextLabel();
                         if (textLabel != null && !(textLabel.length === 0)) {
-                            var styleMap = ({});
+                        	var styleMap = mxUtils.clone(this.getStyleMap()) || {};
                             /* put */ (styleMap[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE);
                             /* put */ (styleMap[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE);
                             /* put */ (styleMap[mxConstants.STYLE_GRADIENTCOLOR] = mxConstants.NONE);
@@ -10791,7 +11043,8 @@ var com;
                  * Number of d.p. to round non-integers to
                  */
                 VsdxShape.maxDp = 2;
-                VsdxShape.USE_SHAPE_MATCH = true;
+                //TODO FIXME In online, matching fails which gives better results! 
+                VsdxShape.USE_SHAPE_MATCH = false;
                 VsdxShape.stencilTemplate = "<shape h=\"htemplate\" w=\"wtemplate\" aspect=\"variable\" strokewidth=\"inherit\"><connections></connections><background></background><foreground></foreground></shape>";
                 vsdx.VsdxShape = VsdxShape;
                 VsdxShape["__class"] = "com.mxgraph.io.vsdx.VsdxShape";

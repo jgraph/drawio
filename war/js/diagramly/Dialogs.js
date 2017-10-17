@@ -1660,6 +1660,12 @@ var CreateGraphDialog = function(editorUi, title, type)
 			layout.levelDistance = 30;
 			edgeStyle = 'edgeStyle=elbowEdgeStyle;elbow=vertical;';
 		}
+		else if (type == 'radialTree')
+		{
+			layout = new mxRadialTreeLayout(graph, false);
+			layout.edgeRouting = false;
+			layout.levelDistance = 80;
+		}
 		else if (type == 'verticalFlow')
 		{
 			layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_NORTH);

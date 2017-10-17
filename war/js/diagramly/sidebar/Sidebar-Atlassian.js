@@ -1,6 +1,6 @@
 (function()
 {
-	// Adds Bootstrap shapes
+	// Adds Atlassian shapes
 	Sidebar.prototype.addAtlassianPalette = function()
 	{
 		var s = 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.';

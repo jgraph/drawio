@@ -1,0 +1,13 @@
+1- Make sure that the Java code has no errors. Include all external libraries and create mock classes for mxGraph ones.
+2- Run JSweet: mvn generate-sources
+3- Ignore the errors. The JS file are generated although there are errors. [Errors are coming from external libraries that JSweet cannot find]
+4- Start replacing mxGraph mock classes with JS equivalents (e.g., com.mxgraph.io.vsdx.mxPoint => mxPoint). Make sure that the JS classes has the methods needed
+	4.a. mxPoint has no getX/Y setX/Y, so replace them with direct fields (e.g., .getX() => .x)
+	4.b. mxGeometry has no getX/Y setX/Y (get/set)Width (get/set)Height. The same for: alternateBounds sourcePoint targetPoint points offset relative
+	4.c. Make sure that your mock classes do not have overloaded methods such that they are translated with the same name
+5- Do the same with all external libraries. Most of them requires equivalent JS libraries and some are supported natively by JS (e.g., DOM)
+	5.a. DOM methods need to be changed to fields: (e.g., getChildNode() => childNode)
+	5.b. getAttribute and hasAttribute methods exists in JS
+	5.c. DOM getAttribute returns null if attribute is not found, in Java, it returns empty string!
+6- Fix JSweet errors in handling fields initialization. Default initialization must be moved before _super call. Also, !string.contains bug and model.getCells() conversion bug 
+7- Try to do a test that covers all the code!

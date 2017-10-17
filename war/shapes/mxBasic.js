@@ -308,3 +308,71 @@ Graph.handleFactory[mxShapeBasicWave.prototype.cst.WAVE] = function(state)
 
 	return handles;
 };
+
+//**********************************************************************************************************************************************************
+//Octagon
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicOctagon(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicOctagon, mxActor);
+
+mxShapeBasicOctagon.prototype.cst = {OCTAGON : 'mxgraph.basic.octagon2'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicOctagon.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, 0);
+	c.lineTo(w - dx, 0);
+	c.lineTo(w, dx);
+	c.lineTo(w, h - dx);
+	c.lineTo(w - dx, h);
+	c.lineTo(dx, h);
+	c.lineTo(0, h - dx);
+	c.lineTo(0, dx);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicOctagon.prototype.cst.OCTAGON, mxShapeBasicOctagon);
+
+mxShapeBasicOctagon.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicOctagon.prototype.cst.OCTAGON] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};

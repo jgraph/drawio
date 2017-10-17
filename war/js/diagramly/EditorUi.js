@@ -1591,6 +1591,11 @@
 	 */
 	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle)
 	{
+		if (this.sidebar == null)
+		{
+			return;
+		}
+		
 		if (file.constructor != LocalLibrary)
 		{
 			mxSettings.addCustomLibrary(file.getHash());
@@ -6001,13 +6006,44 @@
 						// Handles special case of binary file where the reader should not be used
 						if (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name))
 						{
-							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+							//For testing JS Vsdx importer!
+							if (urlParams['dev'] == '1') 
 							{
-								barrier(index, function()
-			    	    				{
-			    		    				return cells;
-			    	    				});
-							}, file);
+								if (/(\.vssx)($|\?)/i.test(file.name)) 
+								{
+									new com.mxgraph.io.mxVssxCodec().decodeVssx(file, mxUtils.bind(this, function(mxFileXML) {
+										barrier(index, mxUtils.bind(this, function()
+							    				{
+													var filename = file.name;
+													if (filename != null && filename.toLowerCase().substring(filename.length - 5) == '.vssx')
+													{
+														filename = filename.substring(0, filename.length - 5) + '.xml';
+													}
+													
+													this.loadLibrary(new LocalLibrary(this, mxFileXML, filename));
+							    				}));
+									}));
+								}
+								else
+								{
+									new com.mxgraph.io.mxVsdxCodec().decodeVsdx(file, mxUtils.bind(this, function(mxFileXML) {
+										barrier(index, mxUtils.bind(this, function()
+							    				{
+							    					return this.importXml(mxFileXML, x + index * gs, y + index * gs);
+							    				}));
+									}));
+								}
+							}
+							else 
+							{
+								fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+								{
+									barrier(index, function()
+				    	    				{
+				    		    				return cells;
+				    	    				});
+								}, file);
+							}
 						}
 						else if (file.type.substring(0, 5) == 'image')
 						{
@@ -9714,7 +9750,7 @@
 		ExportDialog.showXmlOption = false;
 		ExportDialog.showGifOption = false;
 		
-    	ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
+		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
 		{
 			var graph = editorUi.editor.graph;
 			
