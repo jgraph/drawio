@@ -15,6 +15,7 @@
 		var dt = 'ios icon ';
 		
 		var s = 'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;fillColor=#ffffff;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var gn = 'mxgraph.ios7.icons';
 		
 		this.addPaletteFunctions('ios7icons', 'iOS Icons', false,
@@ -168,8 +169,27 @@
 			this.createVertexTemplateEntry(
 					sm + 'adjust;fillColor=#ffffff;gradientColor=none;', 
 					sizeX * 0.4, sizeY * 0.05, '', 'Adjust', null, null, this.getTagsForStencil(gn, 'adjust', dt + '').join(' ')),
-			this.addDataEntry(dt + 'horizontal button bar', 164, 12.5, 'Horizontal button bar',
-				'zZVRb4IwEMc/TV9NadHxDE7jw572sGeyHrZZoabUifv0O2jR6STTLBhJSLj/9Y7e7y4t4VnZLG2+kS9GgCb8mfDMGuP8V9lkoDVhVAnC54Qxii9hiwFv1HnpJrdQuWsCmA/4zPUWvOKF2u11EKQrcVvziPC0dtZ8wJsSTvaKzIXZoUHREHktQQQDPZs2Q9ms2+omytRPWzWxFt5xZ6l9VV+tmx/SZkYb2/2SU5rQRZukUFr/0IvuQR1TCoUl9r7KVJgsDcWAddAMAumkQGMJpgRn97hkF6pqV8xiHyZBrWUfxiZTr+a1V9aH4CNg/AiML/Pmv3ivHJSoRCNz11C4dOucqa6HbyoXFiZnvbiFN/uTdxyNhTsewn3vMae3jPlJBy6N/1ln/tOG5rQFd+nKdKgr/LG6Mur8h4CE3RH8bAh8PDb4tpKHOn76gP5EHoM/msebvPOdXPTf'),
+					
+			this.addEntry(dt + 'horizontal button bar', function()
+			{
+				var bg = new mxCell('', new mxGeometry(0, 0, 164, 12.5), s2 + 'rrect;rSize=3;strokeColor=#0080F0;fillColor=#ffffff;gradientColor=none;');
+				bg.vertex = true;
+				var button1 = new mxCell('Item 1', new mxGeometry(0, 0, 41, 12.5), inh + s2 + 'leftButton;rSize=3;fontSize=8;');
+				button1.vertex = true;
+				bg.insert(button1);
+				var button3 = new mxCell('Item 3', new mxGeometry(82, 0, 41, 12.5), inh + s2 + 'rrect;rSize=0;fontSize=8;');
+				button3.vertex = true;
+				bg.insert(button3);
+				var button4 = new mxCell('Item 4', new mxGeometry(123, 0, 41, 12.5), inh + s2 + 'rightButton;rSize=3;fontSize=8;');
+				button4.vertex = true;
+				bg.insert(button4);
+				var button2 = new mxCell('Item 2', new mxGeometry(41, 0, 41, 12.5), s2 + 'rrect;rSize=0;strokeColor=#0080F0;fillColor=#0080F0;fontColor=#ffffff;fontSize=8;');
+				button2.vertex = true;
+				bg.insert(button2);
+
+				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Horizontal button bar');
+			}),				
+				
 			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
 				'7ZRNb8IwDIZ/Ta6oTcZ6HmWDy6RJHHaOiEujpU2VBCj79XM+ClTAhrbrIlWKX8dO/LxSCSubfmF4V79qAYqwZ8JKo7WLu6YvQSlCMykImxNKM/wIfbmRzUM267iB1t1TQGPBjqstRCUK1h1UEmrX4LPmOWEz64z+gHcpXI0K9UrNhd5jkGEguK1BpAAzne/Q9Bs/3URqW2zlxIKCtZtx48/3vi8NpQfcToOGbeeF31r5CUmNF5daaRMexaqwMFNJpc50GhbqeKmQCGHItbrFZrM0LhgH/U1kQUq8FqAbcOaAR/Zpbn/icRrLapCbOpXRImrcxnhzLD0ZgJvkwXU/2IUfqwDswpUBr/HJMYY06phZEit9QjLCiPoq8s5pil94I5X3ZQlqB06uOSY6MBKngrOeBrxTy4FEfi9m+iPm4hvKBhR3cgej9n9B/3ATffbkD/4b8EsD0g1vWrYeZj9uPVToqrLgLgw7vuuahxiefpXx+Pmf9As='),
 			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
@@ -226,6 +246,7 @@
 				'xVbbbqMwEP0aHouICUnzSnp52UirdqU+WzDB1toY2W6b9OvX4IGWW5ZVuyoWkn3GM545x4MI4r083WtasYPKQQTxbRDvtVLWz+RpD0IEJOJ5EN8EhETuDcjdjHXVWKOKaijtEgfiHV6oeAaPeMDYs0DAMFrVUw2ZC5keuRB7JZRurPHdth4ON1ar39BaSlU6nxSjg7Zwms2wgTC9e1ASrD67La88twx3bNbejQEvGLphZRE1fl10ru/1ugmWPF1+PCqfH8AYWsCIBmali3Kz6kp9wvwahNFcvbpF5BY5NQxyXLTsyVNRixxyZbbPPJRUF7x88JTqmpu4npzbiTMcmi0/4FjXS5Ie+oA0DOBfqhoFSJW1SiI8FC+tx0g8Z0mbUXuo0k7hVPCidJho8ktNRTNeFm22O/R85G918ddLrwL5vquwXtAJY92HvHXtMGB60zwz9yHkmSpNmFEJmn6SqjN2fZh4l4/UJWPmdh7SIKjlL9A7bYpNPPCn4i4PEmF6GBjPvlq3h7cR1PFowI7U6NJeJFCyVKDBN+hvSrhTeGUWf61meO87XFJh4v622CdluFrt+kJs/4MMm3+VYa4rUJ4LDSF5plXFcN+o+RbJlVyUqxPogmBTekVfoxfpy/UFXeOW7z8PfvvHf4s/'),
 			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
 				'7VZNc4IwEP01HOuERNSzUL3UmU576DlKgEwDYUL86q/vQoKi2Err0F7UcWb3ZXez2ffMxCF+upsrmicLGTLhkEeH+EpKbax05zMhHIx46JDAwRjBz8GzL1bdahXlVLFMd0nAJmFDxZoZxACF3gsLFAnNS1OxFZScqlf+UboE7EIr+c58KaQCJJMZLEwjLkQNOZgEOCCBB3isaMihrbNwKB/KLfgIHNsNU5rtvjxRBdnjzJlMmVZ7CNnyUCc2YjQ0aQnjcVKnuZ4BaWGA+JB7HBAYdkaX50Va83qiS6DtfGiJTqFE4B6G9Ga7c8+PHNIiYaF16lmnu7iUxIDLYrzmAy3z6VprmX07/+awI5lpGzhpczJzy68Na+AITdCs7EOxApKbPXdiBl9nxrvAjNUoUkxQzTfspP4ltuwWz5LDzhjZhiy9+xOvTpdRVDDdovrQZSf2hx3ZP/vLtMRwZ+wSY71Q5t0p65GyYR+Ujf7ljl1KuGDT+zX7QwWM+lDAuKUAn2ar3iWQUhXz7MW+c8rjlhyXTRsDFhZViAV+q4uo+vyZLvYnCdeeSeRGldjdHuo6twgD3ONT2IQ3X8qf'),
+				
 			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
 				'7VhRj6IwEP41PK4BqoiPKyz7suY2t5fc46ULFZotlLR11fv1N5XiouCK52ruEjWadjpTynzfN0OwUJCvHgUusxlPCLPQg4UCwbmqRvkqIIxZrk0TC4WW69rws9zowKqzWbVLLEih+gS4VcA7ZgtSWSqDVGtmDDLDpR4KEsOWU/FCf+spgrFUgr+RgDMuwFLwAhamc8pYbbJcFLohCkdgTwVOKBxrzx22T/gS5jZMzGmIUGR18I42JnM7j4TnRIk1uCxpojLj4Q2rsIzQNKvDnFFlxLIypNvYjwTBwOSoO1/oeL4ylUN06Gzz89MczNm/2wTLjCRmUqc5X6WaDQPK5XhBB4qX04VSvPg09c08z3mhjKPfhiNy9Ne4Ney27duRPocgEoKbZ+4FinsclFEHKMOKnrYgDCv6Tnb27wLKXOKZU7iya5sDGWTXO7M6nM/nkqgWyttT9gJ+2AJ+RqTEKTmqF74okg3KzkHFfCA2aiPm+dHYR12I6U+HsPTaaOo5cB9TjRqNMbtnNAUKhUAnsDL8Stgzl1RRTawwhmgiGu5Pew6vHCiYgwM2+2wjZIljWqQ/9L7h3bAvXVA3XQyA9sBA2KBPrbQme2rbl7Lnbr9OfAl/Rv0LbV0BXrGk8YBDyC+AhPGF6lly55tPXyiG3VCsdhrEeqf8NVXtd1Ra7/xC67X1him7uNiciWc/BKeJzYnCIIpuYusnNjS+gtrGp6tN99sBjXkhB7lmWkeLdd3JJELn6s37VG9oJzteW29eh97s8/XmX/vBpmL57dnmxO40vIRcJi3wv5Wk0A76774sL153txI6VHevXFvHYFlmVJEXMOszL4G7ffni/0v19hoPN3UBahPoiRZvN/L8t+S5SrN2nBZ7AlzE5PDT3l4rybFIafHdsGlluoi+fDWAhdnGxdDnb/vLYZ5dpL+sdwKOvd5AZ3abGmJknw8xTD9eYVXuzTdcfwA='),
 			this.addDataEntry(dt + 'cell list', 164, 120, 'Cell List',

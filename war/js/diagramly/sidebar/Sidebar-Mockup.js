@@ -18,6 +18,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 = mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -46,11 +47,61 @@
 
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Formatted Button');
 			}),
-			this.addDataEntry(dt + 'horizontal bar', 500, 50, 'Horizontal Button Bar',
-				'7VZLT8MwDP41PTKlyTY4r8C4ICFx4By1bhstbao02zp+PW6S7t0xIRhDolKl2I4f+fzJScCioplqXuXPKgEZsIeARVop41ZFE4GUASUiCdh9QCnBP6CPPdbQWknFNZTmHAfqHBZczsFpnKI2K+kVtdFqBm8iMTkqwoBN6pwnaokCQSHhdQ6JF7gUWYnrGNODRkVuCrnxqtqQRZO1xx0UKp7Nq4HWEGOpE/0q3ltz2MZJhZSRkkrbElhqvzaGrWXLMrYfWvw5QBtoerGwKg/EFFQBRq9wy9KfDa0j4vAiOYgsN53S6Xjt5GztukEWFx7c40CzA6Anc2NUibpfh9wirkrTdeDWy8dwtvt8peFep0pVwskmaagxxVMHbXhu3+infQvpqL9vGiQ3YgE78Y8106d4UQIzU9Lsxe5cVJrWYA66v67sLEIM+wnB/glx1YQ4GAjfQohRPyGGFydEi5lPvz+a/yAvdh0uxJKbn5kb436ahJemiYT0ayxZX+inWIL7CLmLj1z8nj/XPj163gYobh54jgHb778P'),
-			this.addDataEntry(dt + 'vertical bar', 120, 200, 'Vertical Button Bar',
-				'7VZdT8MgFP01PLpQ2KbPq7onExMffMb2tiWjpaFsa/313lL2vS7LonMmNmnCPXA/OPcEIDzM66kRZfaiY1CEPxEeGq1tN8rrEJQijMqY8EfCGMWfsOee2cDN0lIYKOw5DqxzWAg1hw7pgMo2ygOVNXoG7zK2GQIB4ZMqE7FeokHRiEWVQewNoWRa4DjC9GAQyGyuNl5lGzKv03a7g1xHs3k5MAYiLHVi3uRnOx20cRKpVKiVNq4EnrivjeFq2ZoZuw9n/D7AWKh7uXCQJ2IKOgdrGlyy9HtrV3i+aAYyzbwbox4UVQeka98NtTjw7B5nmh8wPZlbqwvEfp1zR7ku7KoF994+RrRb5ysN9lpV6AJOdslAhSm293VW39hlfRt5zIASVi5gJ/6xXvoUr1piZkab3TArD50kFdiD3q8LO0sOw3458H853LIcgv3T4Fv0MOrXw/DaevjQmDn3+fdP5r+ni2bH4UoqufuRU2Pcr5Lg2iqxurxIIuvL/JREcB2lD9GRS9+L58aPjp5XAZqbt13X/+2n3xc='),
+			
+			this.addEntry(dt + 'horizontal bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 500, 50), s2 + 'rrect;rSize=10;fillColor=#ffffff;strokeColor=#666666;');
+			   	bg.vertex = true;
+			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(125, 0);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(250, 0);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Button 4', new mxGeometry(1, 0, 125, 50), inh + s2 + 'rightButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	button4.geometry.relative = true;
+			   	button4.geometry.offset = new mxPoint(-125, 0);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 50), s2 + 'leftButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
 
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Horizontal Button Bar');
+			}),				
+				
+			this.addEntry(dt + 'vertical bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 120, 200), s2 + 'rrect;rSize=10;fillColor=#ffffff;strokeColor=#666666;');
+			   	bg.vertex = true;
+			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 50);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, 100);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Button 4', new mxGeometry(0, 1, 120, 50), inh + s2 + 'bottomButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button4.geometry.relative = true;
+			   	button4.geometry.offset = new mxPoint(0, -50);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 120, 50), s2 + 'topButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Vertical Button Bar');
+			}),				
+				
 			this.createVertexTemplateEntry(s2 + 'buttons.onOffButton;fillColor=#ffffff;gradientColor=none;' + skcl9 + 'buttonState=on;fillColor2=#008cff;fontColor=#ffffff;fontSize=17;mainText=;spacingRight=40;fontStyle=1;',
 					150, 50, 'ON', 'On-off button', null, null, this.getTagsForStencil(gn, 'onOffButton', dt + 'on off').join(' '))
 		];
@@ -69,6 +120,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 =mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -84,9 +136,37 @@
 		[
 			this.createVertexTemplateEntry(s + 'containers.videoPlayer;' + skcl6 + 'strokeColor2=#008cff;strokeColor3=#c4c4c4;textColor=#666666;' + flclf + 'fillColor2=#008cff;barHeight=30;barPos=20;',
 										300, 200, '', 'Video Player', null, null, this.getTagsForStencil(gn, 'videoPlayer', dt).join(' ')),
+										
 			this.addDataEntry(dt + 'accordion', 100, 220, 'Accordion',
 				'1VZdb4IwFP01fZwprbo96zaflizZw54buEBjoaStCvv1u0BFnLKYbS5IQtJ77kdvzz00EL7MypURRfqiI1CEPxG+NFq7dpWVS1CKMCojwh8JYxRfwp4HvEHjpYUwkLtLElibsBVqAy3SAtZVygPWGb2Gdxm5FIGA8IVNRaR3aFA0ImFTiLwhlExyXIe4PRgEUpepQ1ZRl8zKpD7uJNPhelNMQp07IXMwdmIMhNj1wrzJD/AVY6nUUittmmZ43Dx1taarnmfePOjxJwLjoBxkpYE8JSvQGThTYcjOn7KOoC1zNAWZpD5tTycVtgWSLvdAMi48z+c55yecr4zeFAgFYyMf3d4M7r19jvImzjcdfBlarnM4mZcHDVis3j/dRcNjPxzevMUMKOHkFo7q/2ag08GBju5rutZA+8kjn6rf4lVL3JnR6rjMPkPHsQV3ooKusYuEMRsUBr8tYXTX7nfCwDhKH8Lz13PnuUl1zNgV1DEfVMf0ttQxxmujOkr4J5nc/cUtgubh/68N7/8efgI='),
 
+			this.addEntry(dt + 'accordion', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 100, 220), s2 + 'containers.rrect;rSize=0;fillColor=#ffffff;strokeColor=#666666;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Group 1', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Group 2', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 26);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Group 3', new mxGeometry(0, 0, 100, 26), s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, 52);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Group 4', new mxGeometry(0, 1, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	button4.geometry.relative = true;
+			   	button4.geometry.offset = new mxPoint(0, -26);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Accordion');
+			}),				
+				
 			this.addEntry(dt + 'browser window', function()
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 550, 380), s2 + 'containers.browserWindow;rSize=0;fillColor=#ffffff;strokeColor=#666666;mainText=,;recursiveResize=0;');
@@ -119,10 +199,63 @@
 			
 			this.createVertexTemplateEntry(s2 + 'containers.window;align=left;verticalAlign=top;spacingLeft=8;strokeColor2=#008cff;strokeColor3=#c4c4c4;fontColor=#666666;' + flclf + 'mainText=;fontSize=17;labelBackgroundColor=none;',
 										550, 380, 'Window Title', 'Window', null, null, this.getTagsForStencil(gn, 'window', dt).join(' ')),
-			this.addDataEntry(dt + 'horizontal tab bar', 400, 200, 'Horizontal Tab Bar',
-				'5ZbbboMwDIafhtsqJD3sut3hqtK0Tdp1CgaiBoxC2rV7+hmSHraCVnXr1mlIiPh3nDj5DCQQk3x1Z2SZTTEGHYibQEwMonWtfDUBrQPOVByI64BzRnfAbzu8YeNlpTRQ2GMCuAtYSr0ApzihsmvthcoanMOzim1GQhiIcZXJGF/IYGTEssog9obUKi2oHdH0YEjIbK53UWU9ZL5K6+X2cozmi7IXYWGlKsBUvVyaVBUPEFlO/Q09p43yhCXFiVp0yUxQo2myE8PmIk+itN7Tk+YinSaLFaWz8RVYUBZjv24wFlade9dIfuPuAHOwZk1dXvxekLfP3P6yDFSa+TC+EWXlhHQbu0NBDU+jnYw4IPMkZySEvwjI1ExqNI/qFfyICbm9GY683cbnZ8nxT8kN28ANnGZAS6uW8G74Nph+hntUNDFnm3w+4MckqcAewN/mdVQ99Dvq4Tdf2BPqYUv3oB4Yu4oaz4d62OqXD340OAP4QQd48bfA/8sPQf8cX4LhJf2zLZbjhbVY7FXD4KTXu4OygYpG3V9Kjks505uyo0MTWG+H31cVrT/20deqYv2+uL5SFGTuDomu+/4Z8g0='),
-			this.addDataEntry(dt + 'vertical tab bar', 400, 200, 'Vertical Tab Bar',
-				'3ZZRb4IwEMc/Da+mFMU96zb3MJNlW7LnCgc0FmraqrhPvwOqosLm3IxuJITe/3q9a380reMN03yk2CwZyxCE49053lBJaapWmg9BCIcSHjrerUMpwdeh9y1et/SSGVOQmWMCaBWwYGIOlVIJ2qyEFbRRcgpvPDQJCq7jDXTCQrlEg6ARMp1AaA0meJxhO8D0oFBITCq2UbNiyDSPi+l2UhlM57NOIDPDeAZKd1KmYp49Q2Ao9lf4HZfKI0TFZPx+MUpZzVAKqcryPL980BNxIWp6VD6oY7aQYz1rXyYzLGNgJw7KQN66eKVkV24EMgWjVthlaRcDvV1SLTBJgMeJDaNrkelKiDexWxbYsDia0XgHaF7ZBAX3goRUAaVg88LfwY4Yoduabt/aTXy+T+4oRPRLRH4ToV6lKRDM8AXsDN9EzWZ4khwTU7KyAXucZRRpMAeUN3UdBb7bAv6SW/ME8BuMB+AJuQlKzx74jX794LvnAN9rAe/9LfD/esf3zwHev6ZTWOBpO5gbI7Ma9t5J+1iBxvCHNYUifyoXbCLWfxLeeMDU7F/i3//kSD6Vf777a/2EP5rbG17VvX4B/AA='),
+										
+			this.addEntry(dt + 'horizontal tab bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginTop=32;strokeColor=#666666;fillColor=#ffffff;gradientColor=none;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Tab 1', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;gradientColor=none;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(10, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Tab 2', new mxGeometry(0, 0, 60, 25), s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#ffffff;strokeColor=#008cff;fillColor=#008cff;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(75, 0);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Tab 3', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;gradientColor=none;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(140, 0);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 400, 7), s2 + 'containers.topButton;rSize=5;strokeColor=#008cff;fillColor=#008cff;gradientColor=none;resizeWidth=1;movable=0;deletable=1;');
+			   	bg2.vertex = true;
+			   	bg2.geometry.relative = true;
+			   	bg2.geometry.offset = new mxPoint(0, 25);
+			   	bg.insert(bg2);
+	
+		   		return sb.createVertexTemplateFromCells([bg], 400, 200, 'Horizontal Tab Bar');
+			}),										
+										
+			this.addEntry(dt + 'vertical tab bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginLeft=67;strokeColor=#666666;fillColor=#ffffff;gradientColor=none;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Tab 1', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(0, 10);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Tab 2', new mxGeometry(0, 0, 60, 25), s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#ffffff;strokeColor=#008cff;fillColor=#008cff;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 40);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Tab 3', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, 70);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 7, 200), s2 + 'containers.leftButton;rSize=5;strokeColor=#008cff;fillColor=#008cff;resizeHeight=1;movable=0;deletable=0;');
+			   	bg2.geometry.relative = true;
+			   	bg2.geometry.offset = new mxPoint(60, 0);
+			   	bg2.vertex = true;
+			   	bg.insert(bg2);
+				
+		   		return sb.createVertexTemplateFromCells([bg], 400, 200, 'Vertical Tab Bar');
+			}),				
+				
 			this.addDataEntry(dt + 'dialog box', 250, 140, 'Dialog Box',
 				'7ZZNj5swEIZ/jY+LwA7Z7bFL2j20VStlpZ5dGMBag5FxEtJf3wE7CeGjok0rraoSRbLHnvF4ntcGwqKiedK8yj+pBCRh7wiLtFLGtoomAikJ9UVC2IZQ6uOf0Pczo0E36ldcQ2mWOFDrsOdyB9ayVQWgJYGU76QhdE0oC3zCHhPBpcp6BgON8ax/bY7S+ddGqxf4KhKToyHAeXXOE3XATheF1zkkrsOlyEpsx5gtaDTkppAXr6oNWTRZWx2vUPHLrvJiVRouStC1pzXEuMlHvRXfwUW0q0dKKt2lw9bdgyMpOs7ZXYDgHvt70EbEXL51uRlVofWQCwPbisftvAMm1HoKKXsR0+5pc8BposyeW8cNo2hxRcbI0MyC6kyO0hMgBaOPOOXgKtnCCi1MPweR5Se3lTPy2hqys++FOzYc+mkZsJEMNo62/ywMon1dlIfM5tjOq+GUk4TUXJB97HqbhwHcUpXQZgA1rtnf8yKu9Pe4MmfTILkRe7iKfwvr1Yj1mK6jgo6iqmGqkr7/EHdq76rCv8kzm3HherwXVYxNV+za4eiuNy+0/X49J8pJf7Wcbv0vSmBa58XvaHi1/F0wOH0qTWswIx7nbSxCFI4QRbyM8e3weo/hz67YkXjiVftbcK06Ad1yzpqTTgbkgpFs3kzJJvwzslkNZMPYX5DNeiSbzx/+S+YGydz/a5LB7uXb0k7vf3r+AA=='),
 			this.addDataEntry(dt + 'dialog box', 250, 160, 'Dialog Box',
@@ -143,6 +276,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 =mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -178,9 +312,33 @@
 										'</tr>' +
 										'</table>', 
 										'Spinner', null, null, this.getTagsForStencil(gn, 'spinner', dt).join(' ')),
-			this.addDataEntry(dt + 'menu bar', 498, 30, 'Menu Bar',
-				'7ZY/b4MwEMU/jdcI7PxdQ5N0qTq0UmYUDmzFcMg4Demn7wVbTSIakSWoA5aQ/N5xNn6/ATMR5fXGxKV8wwQ0EysmIoNo3SyvI9Ca8UAlTLwwzgN6GF/fqYZNNShjA4V9pIG7hq9YH8A5zqjsSXujsgb3sFWJlWSETCwrGSd4JBGQSOJKQuJFrFVW0HxH24MhQ9pcX7rK85J5nZ2PO8pxtz+UoxRNXo2MgR198NJ8qG/wi7mNI9Romi8Ri2ZQJVVaX/lpM8j3hwFjob4bSGP5NDaAOVhzoleO/oBUHS/mrk2CyqRvEy7IIK6czn5bL/HSxCf8d9qilfZaUcz/JvEUC+tlOPP6KudpMx4mU2ABj0LhnVDm4jlMxi0mq0TZgcldJvUtjx4QTVqI3kursKgGSl2UQtq1L0zTFqZPRD1A6oREP5zeIM1akLaqOIc/UOqgJATvjdK8RekVdDkw6mI0DifPYkTyci1vaje39h8='),
-		
+										
+			this.addEntry(dt + 'menu bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 498, 30), s2 + 'forms.rrect;rSize=0;strokeColor=#999999;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('File', new mxGeometry(0, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Edit', new mxGeometry(83, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Options', new mxGeometry(166, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Tools', new mxGeometry(249, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button5 = new mxCell('Window', new mxGeometry(332, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button5.vertex = true;
+			   	bg.insert(button5);
+			   	var button6 = new mxCell('Help', new mxGeometry(415, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	button6.vertex = true;
+			   	bg.insert(button6);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Menu Bar');
+			}),				
+				
 			this.createVertexTemplateEntry(s + 'forms.horSlider;' + skcl9 + flclf + 'sliderStyle=basic;sliderPos=20;handleStyle=circle;fillColor2=#ddeeff;',
 										150, 30, '', 'Horizontal Slider', null, null, this.getTagsForStencil(gn, 'horSlider', dt + 'horizontal').join(' ')),
 			this.createVertexTemplateEntry(s + 'forms.horSlider;' + skcl9 + flclf + 'sliderStyle=basic;sliderPos=20;handleStyle=circle;fillColor2=#ddeeff;direction=north;',
@@ -213,6 +371,7 @@
 				'7Vhtb9owEP41+TIJ5DgkLR8HG6jShpBQtc8uubysTowct8B+/RzHQILDFmm4TScsRYrPOft8z3N3sR1vmu3mnGyS7ywE6nhfHW/KGRPVW7abAqUORmnoeF8cjJF8HDy7MOqqUbQhHHLRRQFXCq+EvkAlqQSF2FMtKARnz/AjDUUiBa7jTYqEhGwrO0h2QlIkEOoOoWmcy/e1XB64FCQioyetTTlltovL7Q4ztn5+2QwjxrNiyDmspcETvkp/gZ6sWnjKKOPKEm+smhyJUkpr8kg1KdebAS5gd9EhSqS9MQeWgeB7+clWb7B0CqqchhJI40SreQchKSpBfNQ9+Ve+aBe3u9sz3L0qHYbRQ/4+fif5OindOIlYLrTvXaz7NRcHqtVWohApvKCQSg0jN2Sd5vE3Na6M64QK/isqbhsqmt6IAyUifYXG/G1I6SWWLJUrY3QwSE+zb3YPE7AoKkAYQB/t7IT9qEOoaahomkNbAIQhgCJ6kxu4CbiJybUQuG9BwLWCgGcDAd9A4LGQ0YLRgmRS8PkWgv0JwZENAgQGAX6yJA8ZfIii140OTfB9q/nAb6ODb4MOgQ063Bl0WJKi2DIe3pJBr5LB2LeA/r2B/ifdbtmg59nAdW0QYmwQYvUwX5Q/54t+MMI3GJEz9aN4RobjeejsnBQET0+VvJZcgkNfb+5fGbFvKNT40fbz6F0nXeAmPQZHKl6VHwcS1ggyYzxmpSGnwjHrd+Eo04fiwB8TBTojxejqieMiTdrTiJWyMnCtHPRc1+CJyYkenvQuQ/J2577B2Aoi5jXXArZSUJ3/+hyv3Qo7+j/j884KGVou4ao6/7i81fkPVeevUeZl93TdXn1ev43/DQ=='),
 			this.addDataEntry(dt + 'calendar date', 160, 175, 'Calendar',
 				'7Zxdc6IwFIZ/DbdOPkDktu62V529cGd6zUoUp2CcSLe6v37Dh7bm0K2dLjk2kRlnIBCF9wnkvMmRgE/L3Z1KN/m9zEQR8O8Bnyopq3at3E1FUQSMrLKAfwsYI/oTsNs39tJmL9mkSqyrcyqwtsLvtHgSbUlbsK32RVewrZR8FA+rrMp1AQ34zTZPM/msN4jeyNJtLrJuIy1Wy7Ven+ufF0oX5FVZvNTa1F9Z7pb15Y5KOX982owWUpXbkVJirk/4Rs1Wf+qDorpC88NTWUjVnAlPmkXvWayK4lX5oll0eXcxQlVi96YgTVGnxp2QpajUXh/y3F1gfcS4FY3kYrXMD9XiqC1Mt23B8lj3RV+90kncLzcHcv+YV/KXlooRRmiII366nue1ljcLua769D5LV9ava1eBd5Lu281Ju/VadNIjetd6P6V52NPEx0V1vCzsph7+u6mfIiFkMm+ael3efQE9HDfrroT+H2STd4ixaBhgUR+w5RXYu8Aoi5GQjQGye+nus4yePsv6dB7oWRYDnX8+uaszR9N5AnR+EO7qHKHpnMD2nLurc4ym8+GJ9UroW+Wu0Ame0BQIPUvdFZridYUUWteZw30hxesMKXStFEdoMxInH4nEB4wAQ4swoJ29kCEbNBgcDwa0qtxzGBEeDGhCkcbTLgZGjAcDOtXIcxgJHgxoZ8eewzADV5s0oOmNfaeB14Uz6IwnvtM4hTG2CAO658RzGBwPBjTYh5bhLY0Ij0aPCffdhcd4NKALP4xHeUsjwaMBbTj13YebAa5NHNCIY2W2XA4OxH4cWnHquxc3bo6JRRrQi1PfzbiZG2aRBvTi1HczHqHR4NCLU9/NeIxHA5px6rsbT/BoQDfOfHfjZoxrEwe049dJcbx+nPfMivvux42bgxKLOKAh935inCPigIbc+9nYGBEHNOTez8cmiDigI79OyGJ2HtCTX6dkEXuPELpy72dlzdvDYjZuCG05990ImneHTRzQl3PfjWCEiMOxXHXjn+5ZJsT5/3T/WARsk5JjSewDUjIDY5uUHMtuH5ASiJdtYnIs731ITJiBgmMZ8UNiMihZTAcO4WDAlx6aGZCSeS/ZpORYCv2AlMxY3CKlCA4cfOlxHIuxuE1KjuXcW4zFbVKCwwxfOxnfZjBuk5Nrafo2o3GbnHpGIC7ZNS0WRC+Q0/HVh6enyiC544vIBggqhpuN0JsvL8Ns9p28K/Mv'),
+				
 			this.addDataEntry(dt + 'calendar date', 400, 300, 'Email',
 				'7VhLU9swEP41vmacOLyOJQEu9FLa6VnI61igF3qQ0F/fXcmGdJzMtAOmh8QzcbyrfX6fV05cVAu1uXHMtl9NDbKoropq4YwJ+UptFiBlMStFXVTLYjYr8VPMrvesTtNqaZkDHf7GYZYdnpmMkDXXzqis9OFFdkofnHmEn6IOLSqmRXXpW1abNQolCjXzLdSdwKRYabzmWAI4VLRByTcvSyHVZkUtT5Thj9FOGuOUnzDNW+O2IjixagN5WcaFXn3L4nKGqsbosDCSzLG+6jQdqO/aARdgsxeSpOrwuAGjILgXNFl37eHqSUatbKHLSV7nWcd8llevnm/44kUH8W64qwHcD6bVxbx8yHjw/4W9c8AJ6kZIuYVrkw7UuzvxC7ok+7Dvk0totli7TdKyIk3qZMv1Ih3vpG3zJ2VbLFZj0Tgf0HgX7x8IwYMcnJce7gEDYxFwMiDgxgEE7PU4Pu8bn/1cjjZNpwMyv5uDHqSz4VY2FvZnA+wbhzgeH0gfPlE7SB1tos4HrC4WBz1R0/Lznk0XA/CPE/QhE7SLxNFGaFoOaLw89CGaf95zaTo9TtFIU7SDxfGmaPh+4dY4UGRifaTvOnWNxIpAyTBFMcO4JTfaI/QQIq2yWljhBU+/8EuQorPyyDDFIKWIXhkSAyibYgrNRS3qqCl0pJNk95ifrEOfmyTFVppRGimeIpvg1Q9aBy1USk4mIgvPqGQqZ3+KwuOXNkhgJCPYgOMisCCMppRSMsVNnzcbYxt9NSmdsMmRTiz1rbAL0yOA5QSqZ5lTsRioXuFiqrsHT1A2B9ZBC7oGl7BMymcjo8WCIJWecCvBexI53tJvFCRQIp6auBKMzDSVn281VERHZVxtONgAMTOWcDWcM+DJg0crahayd0LAOiNqulEzW5mJVBiP0rKMIQVpGiSX5Bo8uGynjMwFswy9SBD7Vx6jmhzkpkDbgeBMfulCBGNRu25FgDsMQ5nXWPQH7fpnw6fuvNy1X/T/yv9hwyjodWP/rjOt/fEq9Dc=')
 		];			
@@ -231,6 +390,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 =mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -265,9 +425,151 @@
 			
 			this.createVertexTemplateEntry(s + 'graphics.plotChart;' + flclf +  mxConstants.STYLE_STROKECOLOR + '=none;strokeColor2=#aaaaaa;strokeColor3=#666666;fillColor2=#99aaff,#0022ff,#008cff;',
 										400, 200, '', 'Plot Chart', null, null, this.getTagsForStencil(gn, 'plotChart', dt + 'plot chart').join(' ')),
-			this.addDataEntry(dt + 'gantt chart', 600, 300, 'Gantt Chart',
-				'7Zxdc6IwGIV/DbcOJBH1snVrr3rlzvSakSiMKA7Qre6v3wDxi/d1daYkGSFOO4XQIJynOckhqQ6dbvbvWbCLPtKQJw59c+g0S9Oi3trspzxJHOLGoUN/OYS44tshsxtHveqouwsyvi0eqUDqCn+C5IvXJXVBXhwSWZAXWbrmn3FYRKLAc+hrHgVh+i12XLETBnnEQ7kTJPFqK7YX4u15JgqiYpOca+3KU272q/J2B5t0sf7aDaqdeJEPsowvxDW/ZvP4L5fnq997miZpVl0MnVQvcUReN88Kvr9571WRvPF3nm54kR3Er3zLexFHfbfWx414vIpkNXosDPK6YHWqe5ZSbEg1cWUpoix9EnGX6ba4KPer16Oik7uiE0Rz1oLkDEj+O8jXPdZ8f633BQKmCMEQIJgXQVZYBj5k4FFFEHwA4W25TC0FUWECMQwVURgBCmU7nIkvT/4krscsk5PYlz2Eh0AhLUAZQygjCwVCYUPEr7CW0gaUCYDyYQmcmsXhZieO9R9t8Dg2vsuBlAVCRuaAeADIpwVyimkGgMDcbFsIodQcEBi3ZxYI9c0BgWF8boHQiTkgSDS3QBgxBwTGdDvsPQcPA0BgYredOmFjc0BgWrfDXjL0zAGBSd22EDI0l9SP57DD3isg5pI6gUm9xzyk/tgDXmwC6jRJ8iMCMJr3mMCNh4kIEV8ZEGwmvO9Ams+utAKB0dwCaT4q0QoERnMLpJnMtQKB0dwCaQZBrUBgNLdAmrlDKxAYzT1jRILtIioF1j2GVZUhkJRdrWNzOypxY5nabcXR0NDGWk0Yo/G1Ou7YoS/l0M19MfesVgeL+6MhdPVaKzBghGZu1Gm1vclduVWtvaEwLpvrWnUYObIQU5WRU5h8pZF3VGLcyBHFlRk5jLbWyO+wUGfkMNb2zcgRuZUZOcys5v7dRIeRjzUaOTIzXBt5RyXGjRxRXJmRIwu1rZH/n4U6I4eBtG9GjsitysiPTepS7W5qLbX1XH1OzmC4lE7eUY1xJ8ckV2XlDEmY1srvwFDm5Qxm0r55Oaa3MjN/qrnWbbrlJYs4SS5YBEEYLpct+VBjeScbPvan77XB4qmmWfWz8CELrE9oBcVTTbBqQNGYWx0jzQL7pIpWWDzV3Kp6FpQ1uwsIY9QOC7F7/qiX6tjVJ8H8Aw=='),
-		
+
+			this.addEntry(dt + 'gantt chart', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 600, 300), s2 + 'graphics.rrect;rSize=0;strokeColor=#999999;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var cell1 = new mxCell('#', new mxGeometry(0, 0, 20, 40), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell1.vertex = true;
+			   	bg.insert(cell1);
+			   	var cell2 = new mxCell('Task', new mxGeometry(20, 0, 40, 40), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell2.vertex = true;
+			   	bg.insert(cell2);
+			   	var cell3 = new mxCell('Start', new mxGeometry(60, 0, 130, 40), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell3.vertex = true;
+			   	bg.insert(cell3);
+			   	var cell4 = new mxCell('Effort', new mxGeometry(190, 0, 50, 40), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell4.vertex = true;
+			   	bg.insert(cell4);
+			   	var cell5 = new mxCell('20//10//2014', new mxGeometry(240, 0, 210, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell5.vertex = true;
+			   	bg.insert(cell5);
+			   	var cell6 = new mxCell('27//10//2014', new mxGeometry(450, 0, 150, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell6.vertex = true;
+			   	bg.insert(cell6);
+			   	var cell7 = new mxCell('M', new mxGeometry(240, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;;fontColor=#666666;');
+			   	cell7.vertex = true;
+			   	bg.insert(cell7);
+			   	var cell8 = new mxCell('T', new mxGeometry(270, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell8.vertex = true;
+			   	bg.insert(cell8);
+			   	var cell9 = new mxCell('W', new mxGeometry(300, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell9.vertex = true;
+			   	bg.insert(cell9);
+			   	var cell10 = new mxCell('T', new mxGeometry(330, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell10.vertex = true;
+			   	bg.insert(cell10);
+			   	var cell11 = new mxCell('F', new mxGeometry(360, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell11.vertex = true;
+			   	bg.insert(cell11);
+			   	var cell12 = new mxCell('S', new mxGeometry(390, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell12.vertex = true;
+			   	bg.insert(cell12);
+			   	var cell13 = new mxCell('S', new mxGeometry(420, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell13.vertex = true;
+			   	bg.insert(cell13);
+			   	var cell14 = new mxCell('M', new mxGeometry(450, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell14.vertex = true;
+			   	bg.insert(cell14);
+			   	var cell15 = new mxCell('T', new mxGeometry(480, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell15.vertex = true;
+			   	bg.insert(cell15);
+			   	var cell16 = new mxCell('W', new mxGeometry(510, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell16.vertex = true;
+			   	bg.insert(cell16);
+			   	var cell17 = new mxCell('T', new mxGeometry(540, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell17.vertex = true;
+			   	bg.insert(cell17);
+			   	var cell18 = new mxCell('F', new mxGeometry(570, 20, 30, 20), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell18.vertex = true;
+			   	bg.insert(cell18);
+			   	var cell19 = new mxCell('', new mxGeometry(0, 40, 240, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell19.vertex = true;
+			   	bg.insert(cell19);
+			   	var cell20 = new mxCell('', new mxGeometry(240, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell20.vertex = true;
+			   	bg.insert(cell20);
+			   	var cell21 = new mxCell('', new mxGeometry(300, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell21.vertex = true;
+			   	bg.insert(cell21);
+			   	var cell22 = new mxCell('', new mxGeometry(360, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell22.vertex = true;
+			   	bg.insert(cell22);
+			   	var cell23 = new mxCell('', new mxGeometry(420, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell23.vertex = true;
+			   	bg.insert(cell23);
+			   	var cell24 = new mxCell('', new mxGeometry(480, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell24.vertex = true;
+			   	bg.insert(cell24);
+			   	var cell25 = new mxCell('', new mxGeometry(540, 40, 60, 260), inh + s2 + 'graphics.rrect;rSize=0;fontColor=#666666;');
+			   	cell25.vertex = true;
+			   	bg.insert(cell25);
+			   	var cell26 = new mxCell('1', new mxGeometry(0, 40, 20, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell26.vertex = true;
+			   	bg.insert(cell26);
+			   	var cell27 = new mxCell('Task 1', new mxGeometry(20, 40, 40, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell27.vertex = true;
+			   	bg.insert(cell27);
+			   	var cell28 = new mxCell('20//10//2014 8:00 AM', new mxGeometry(60, 40, 130, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell28.vertex = true;
+			   	bg.insert(cell28);
+			   	var cell29 = new mxCell('40h', new mxGeometry(190, 40, 50, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell29.vertex = true;
+			   	bg.insert(cell29);
+			   	var cell30 = new mxCell('2', new mxGeometry(0, 60, 20, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell30.vertex = true;
+			   	bg.insert(cell30);
+			   	var cell32 = new mxCell('Task 2', new mxGeometry(20, 60, 40, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell32.vertex = true;
+			   	bg.insert(cell32);
+			   	var cell33 = new mxCell('20//10//2014 8:00 AM', new mxGeometry(60, 60, 130, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell33.vertex = true;
+			   	bg.insert(cell33);
+			   	var cell34 = new mxCell('40h', new mxGeometry(190, 60, 50, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell34.vertex = true;
+			   	bg.insert(cell34);
+			   	var cell35 = new mxCell('3', new mxGeometry(0, 80, 20, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell35.vertex = true;
+			   	bg.insert(cell35);
+			   	var cell36 = new mxCell('Task 3', new mxGeometry(20, 80, 40, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell36.vertex = true;
+			   	bg.insert(cell36);
+			   	var cell37 = new mxCell('20//10//2014 8:00 AM', new mxGeometry(60, 80, 130, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell37.vertex = true;
+			   	bg.insert(cell37);
+			   	var cell38 = new mxCell('40h', new mxGeometry(190, 80, 50, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell38.vertex = true;
+			   	bg.insert(cell38);
+			   	var cell39 = new mxCell('4', new mxGeometry(0, 100, 20, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell39.vertex = true;
+			   	bg.insert(cell39);
+			   	var cell40 = new mxCell('Task 4', new mxGeometry(20, 100, 40, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell40.vertex = true;
+			   	bg.insert(cell40);
+			   	var cell41 = new mxCell('20//10//2014 8:00 AM', new mxGeometry(60, 100, 130, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell41.vertex = true;
+			   	bg.insert(cell41);
+			   	var cell42 = new mxCell('40h', new mxGeometry(190, 100, 50, 20), s2 + 'graphics.anchor;fontColor=#666666;');
+			   	cell42.vertex = true;
+			   	bg.insert(cell42);
+			   	var cell43 = new mxCell('', new mxGeometry(250, 45, 130, 10), s2 + 'graphics.rrect;rSize=0;strokeColor=none;fillColor=#aaddff;');
+			   	cell43.vertex = true;
+			   	bg.insert(cell43);
+			   	var cell44 = new mxCell('', new mxGeometry(250, 65, 40, 10), s2 + 'graphics.rrect;rSize=0;strokeColor=none;fillColor=#aaddff;');
+			   	cell44.vertex = true;
+			   	bg.insert(cell44);
+			   	var cell46 = new mxCell('', new mxGeometry(280, 85, 100, 10), s2 + 'graphics.rrect;rSize=0;strokeColor=none;fillColor=#aaddff;');
+			   	cell46.vertex = true;
+			   	bg.insert(cell46);
+			   	var cell47 = new mxCell('', new mxGeometry(340, 105, 70, 10), s2 + 'graphics.rrect;rSize=0;strokeColor=none;fillColor=#aaddff;');
+			   	cell47.vertex = true;
+			   	bg.insert(cell47);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Gantt Chart');
+			}),				
+				
+				
 			this.createVertexTemplateEntry(s + 'misc.map;', 250, 250, '', 'Map', null, null, this.getTagsForStencil(gn, 'map', dt).join(' '))
 		];
 		
@@ -318,6 +620,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 =mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -366,8 +669,36 @@
 					350, 30, '1', 'Vertical Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
 			this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=up;unitSize=10;fillColor=#ffffff;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=0;spacingTop=10;spacingRight=0;rotation=-90;spacing=0;' + skcl9, 
 					350, 30, '1', 'Vertical Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
-			this.addDataEntry(dt + 'revision table', 400, 75, 'Revision Table',
-				'7Zddb4IwFIZ/DbemFD/mpUN0XGwuYrbskkCFxtaSUifu16+03dCAziyyZAkkJD3n9ND2fcIbsByXFnMeZukjixGxHM9yXM6Y0CNauIgQCwIcW87UghDI24KzM1VbVUEWcrQV1zRA3fAekh3SGZ3IxYGYRC4426BXHItUJmzLuc/TMGZ7GQAZxGGeotgEIcHJVo4juTziMpEKSqqurHwkLZLyuD3Kos0u61GcRz3OUST3e88D/IHMs/S6LiOMq404Q3XJitkz4gIVZ8+tUubQc8QoEvwgp+zNOWS1D7Q2IEU4SU3baKBzYa7j5Lu1UlEOjJDNojo1UZfeix/4iyeZffCD1WL59g9kXrOtMBPtkYmP5o3VdS0O+Dsc8AY4+k04Ov2V/odTmY9wDFqiMajRmE5WXodD4ShOtT9Px24Lz7COxwvcpf+8UvbVUaooQfAjJtiWp41qmCYdnGNH+3o//sDR7mosbLnSrPwMmEFg9zswF7ytgVNr3jauexvKS3khoCzGayxV71hdcLgGWLdyOBlWfz2qdvJT9Ak='),
+					
+			this.addEntry(dt + 'revision table', function()
+			{
+				var bg = new mxCell('', new mxGeometry(0, 0, 400, 75), s2 + 'misc.rrect;rSize=0;strokeColor=#666666;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var cell1 = new mxCell('REVISION HISTORY', new mxGeometry(0, 0, 400, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell1.vertex = true;
+			   	bg.insert(cell1);
+			   	var cell2 = new mxCell('REV', new mxGeometry(0, 25, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell2.vertex = true;
+			   	bg.insert(cell2);
+			   	var cell3 = new mxCell('DATE', new mxGeometry(50, 25, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell3.vertex = true;
+			   	bg.insert(cell3);
+			   	var cell4 = new mxCell('DESCRIPTION', new mxGeometry(200, 25, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell4.vertex = true;
+			   	bg.insert(cell4);
+			   	var cell6 = new mxCell('A', new mxGeometry(0, 50, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell6.vertex = true;
+			   	bg.insert(cell6);
+			   	var cell7 = new mxCell('10/23/2014', new mxGeometry(50, 50, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell7.vertex = true;
+			   	bg.insert(cell7);
+			   	var cell8 = new mxCell('Design modified', new mxGeometry(200, 50, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	cell8.vertex = true;
+			   	bg.insert(cell8);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Revision Table');
+			}),				
+				
 			this.addDataEntry(dt + 'status bar', 500, 30, 'Status Bar',
 				'7VfRTsIwFP2aPUq6liF7FZUXfcLE57pdtsZuXdoi4Nd713UCDnRETNC4hKT33N2195zTdQRsUqymmlf5vUpBBuwmYBOtlG1GxWoCUgaUiDRg1wGlBH8BvT2QDV2WVFxDafsU0KbghcsFNEgDGLuWHjBWq2d4FKnNEQgDdmVynqolBgSDlJscUh9wKbISxwlODxqB3BZyU1XVjyxWWd3uoFDJ86IaFMIkA60hwfVe6Zl4Bf+sZt6Jkkq7hbDYXZiZCym38Lm7EPe9gLawOsiHgzwZU1AFWL3GW5a+P8xGpOGM5CCy3Jcxj3HTxNl76YZdHHiC95PNOmTPLLcLgxiu2J4F81GH+VKVUJOuSuvvCSMf9xAnTQGcOO0CJczr+UzFE1Fmdy5ys/ZSj+5XzxdETcF6J9pSNoyjrrL0BMoOO8o+OEHJeWynXy0qJV/Kum/DnkLW6JCs7F/W78rKQvKVrOEP7dbReRx6vEzymvpTsDmMdzdJS913aLrsQZNvDwtFZeCDpbwbOwc5IePE+UyDEa/8SbZH/hZxvTgZfcrJBd112EXruC2P0R96c4z/oMVGp7dY3N9iUhxppl4tj49yUPcdtc8/4fH+wXDzze9yO38J3gA='),
 
@@ -448,6 +779,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s2 =mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 
 		// Space savers
 		var skcl6 = mxConstants.STYLE_STROKECOLOR + '=#666666;';
@@ -465,9 +797,27 @@
 		[
 			this.createVertexTemplateEntry('shape=rectangle;strokeColor=none;fillColor=none;linkText=;fontSize=17;fontColor=#0000ff;fontStyle=4;html=1;align=center;', 
 					150, 30, 'Link', 'Link', null, null, this.getTagsForStencil(gn, 'link', dt).join(' ')),
-			this.addDataEntry(dt + 'horizontal button bar', 500, 25, 'Horizontal Button Bar',
-				'7ZZdb4MgFIZ/DbcGoR+71m292tUudk30VExRDNLV7tfvFKi6raZLujVbUhITzns8R3ifGCA8rbqVEY180jkowh8IT43W1s+qLgWlCKNlTvg9YYziQ9jjRDZ2WdoIA7X9TgHzBa9CbcErXmjtXgWhtUZv4KXMrUQhJjxppcj1DgOKQS5aCXkIhCqLGucZfh4MCtJWaqhqDi2rrjhsN6p0ttk2kYXORsZAhutNzHP5BqHXulQq1Uobtwy+duPQx61nlFm4gZmwFzDYc9IPJwUzVqArsGaPr+zC/jA7p94zKqEsZChjc6+J1sdFXzq4i5Ng8Gmz+Rezk621ukbtD9muaxvCeBnikdkUh8MwxlPrGi4nw06TORYcCYxI9dpPk5pNk+I3UmdI4Q90PVLzaVKzG6kzpPjyiv/UYppU/F9I9YfQp8OJ0rvsxOEUGF5C6hfIYDhcMFzuw/3jHQ=='),
-			
+					
+			this.addEntry(dt + 'horizontal button bar', function()
+			{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 500, 25), s2 + 'text.rrect;rSize=0;fillColor=#ffffff;strokeColor=#666666;');
+			   	bg.vertex = true;
+			   	var button2 = new mxCell('Button 2', new mxGeometry(125, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Button 3', new mxGeometry(250, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Button 4', new mxGeometry(375, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 25), s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fillColor=#008cff;strokeColor=#008cff;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Horizontal Button Bar');
+			}),				
+				
 			this.createVertexTemplateEntry(s2 + 'text.callout;linkText=;textSize=17;textColor=#666666;callDir=NW;callStyle=line;fontSize=17;fontColor=#666666;align=left;verticalAlign=top;' + skcl6,
 					200, 100, 'Callout', 'Callout', null, null, this.getTagsForStencil(gn, 'callout', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'text.callout;linkText=;textSize=17;textColor=#666666;callDir=NE;callStyle=line;fontSize=17;fontColor=#666666;align=right;verticalAlign=top;' + skcl6,

@@ -376,3 +376,78 @@ Graph.handleFactory[mxShapeBasicOctagon.prototype.cst.OCTAGON] = function(state)
 			
 	return handles;
 };
+
+//**********************************************************************************************************************************************************
+//Isometric Cube
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicIsoCube(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.isoAngle = 15;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicIsoCube, mxActor);
+
+mxShapeBasicIsoCube.prototype.cst = {ISO_CUBE : 'mxgraph.basic.isocube'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicIsoCube.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
+	var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+	
+	c.begin();
+	c.moveTo(w * 0.5, 0);
+	c.lineTo(w, isoH);
+	c.lineTo(w, h - isoH);
+	c.lineTo(w * 0.5, h);
+	c.lineTo(0, h - isoH);
+	c.lineTo(0, isoH);
+	c.close();
+	c.fillAndStroke();
+
+	c.setShadow(false);
+	
+	c.begin();
+	c.moveTo(0, isoH);
+	c.lineTo(w * 0.5, 2 * isoH);
+	c.lineTo(w, isoH);
+	c.moveTo(w * 0.5, 2 * isoH);
+	c.lineTo(w * 0.5, h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicIsoCube.prototype.cst.ISO_CUBE, mxShapeBasicIsoCube);
+
+mxShapeBasicIsoCube.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicIsoCube.prototype.cst.ISO_CUBE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
+	{
+		var isoAngle = Math.max(0, Math.min(100, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', this.isoAngle))));
+
+		return new mxPoint(bounds.x, bounds.y + isoAngle);
+	}, function(bounds, pt)
+	{
+		this.state.style['isoAngle'] = Math.round(100 * Math.max(0, Math.min(100, pt.y - bounds.y))) / 100;
+	})];
+			
+	return handles;
+};

@@ -1,3 +1,13 @@
+23-OCT-2017: 7.5.8
+
+- Adds Team Drives support in GDriveConnector
+- Fixes bug in mockups sidebar
+
+22-OCT-2017: 7.5.7
+
+- Adds support for team drives in google picker
+- Removes image export after closing lightbox
+
 16-OCT-2017: 7.5.6
 
 - Adds IBM icons

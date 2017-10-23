@@ -174,7 +174,7 @@
 			   	cell1.vertex = true;
 			   	cell.insert(cell1);
 			   	
-			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'html=1;strokeWidth=2;shape=mxgraph.er.rrect;rSize=5;fontSize=17;whiteSpace=wrap;points=[];');
+			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'html=1;strokeWidth=2;shape=mxgraph.er.rrect;rSize=5;fontSize=17;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
 			   	cell2.vertex = true;
 			   	cell.insert(cell2);
 				

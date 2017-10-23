@@ -623,7 +623,7 @@ mxShapeBootstrapCheckbox.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.translate(x, y);
 	var rSize = 3;
 	c.roundrect(0, 0, w, h, rSize, rSize);
-	c.stroke();
+	c.fillAndStroke();
 	
 	c.setStrokeWidth('3');
 	c.begin();
@@ -670,7 +670,7 @@ mxShapeBootstrapRadioButton.prototype.paintVertexShape = function(c, x, y, w, h)
 	
 	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
 	c.ellipse(0, 0, w, h);
-	c.stroke();
+	c.fillAndStroke();
 	
 	c.setFillColor(strokeColor);
 	c.ellipse(w * 0.25, h * 0.25, w * 0.5, h * 0.5);
