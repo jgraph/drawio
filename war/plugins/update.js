@@ -81,7 +81,7 @@ Draw.loadPlugin(function(editorUi)
 			updateUrl = decodeURIComponent(updateUrlParam);
 			
 			// Creates empty file if update URL is in URL parameter
-			if (editorUi.getCurrentFile() == null)
+			if (editorUi.createFile != null && editorUi.getCurrentFile() == null)
 			{
 				editorUi.createFile(editorUi.defaultFilename, null, null, null, null, null, null, true);
 			}
@@ -453,7 +453,7 @@ Draw.loadPlugin(function(editorUi)
 								Math.round(Math.random() * 100) + '" placeholders="1">');
 							update.setAttribute('style', cell.prevStyle + ';fillColor=red;gradientColor=white;');
 							update.setAttribute('icon', JSON.stringify({tooltip: 'Alert', align: 'right',
-								valign: 'top', image: {src: 'mxgraph/images/warning.gif', width: 26, height: 26}}));
+								valign: 'top', image: {src: 'https://www.draw.io/mxgraph/images/warning.gif', width: 26, height: 26}}));
 //							update.setAttribute('geometry', JSON.stringify({dx: (Math.random() * 100) - 50,
 //								y: cell.geometry.y + (Math.random() * 100) - 50, dh: (Math.random() * 100) - 50}));
 							status.appendChild(update);

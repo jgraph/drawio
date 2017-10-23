@@ -5,6 +5,7 @@
 	{
 		var s = 'html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.';
 		var s2 = 'html=1;shadow=0;dashed=0;fillColor=none;strokeColor=none;shape=mxgraph.bootstrap.rect;';
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var gn = 'mxgraph.bootstrap';
 		var dt = 'bootstrap ';
 		var sb = this;
@@ -14,11 +15,71 @@
 				'5ZhRb5swEMc/DY+NDKaEvIZ2fdm0qpH27gUDVg2HjNuQfvod2EnJnGxRWqJUsRQJn332+ffnbBOPJmX7oFhd/ICUS4/eezRRANo8lW3CpfQCIlKP3nlBQPDnBd8OtPp9K6mZ4pU+xiEwDq9MvnBjMYZGr6U1FLrEsO58j86bgqWwwgrBSsqagqe2gi11179s824tk9+4gkbj40TxJUYyz4SUCUhQ/aA06EvnqBU8801LBRWOMl8VQvNFzZbdkCscBW02UK40bw8utjfZlT5wKLlWa+yyEqkuTI+YGCCk4CIvrFtobawx9Xzr+o4OHyy9/SSpQzKBsmbV+jSgQ16Wyl5U/wcPlR6An/XF2hfirfP1w48wD45gPg7y0EH+yKFGzGd5hUlfDunyF/asL11nJCyq/MmSoGQE9O0u9oESs5GUuHWUiMNPV8HKoOxbG7uSZNkpkpyMP/wnfuuwttvw5NZRY4NtqIYfGZvikmnxynfG2ieRnf8RBIa1nfyGkp3pb+LdESDLGq4diberOEr1yFH9l4AubKiaC931zph+/tTNP98fKQGnjhTh55/kF5eA0ZUnYOyovtAYdKPF8lITcKRk23fYjXXtmLnUuda4q1wZcxq5zKcjMd/sm8O7ngIkd+Jl76syj87J3HeYf4ccDT9f9HVRn9LRqGP1/WvfHAHDPwP+AA=='),
 			this.addDataEntry(dt + 'button bar bright', 800, 40, 'Button Bar (Bright)',
 				'5ZdRb5swEMc/DY9FBhNCXkPavmxStUh798IB1gxGxmvIPv0OcBKoSZetpYpUIyT77DP278+dwaFx0TwqVuVfZQLCofcOjZWUuq8VTQxCOD7hiUM3ju8TvB3/4UKv1/WSiiko9TUOfu/wzMQv6C29odYHYQy5LnBZG8+h6zpnidxjg2AjYXUOiWlgT9WOL5qs3Yv7A3dQa6y6Cna4knXKhYilkKqblKZhe7WOWsmfcOwpZYmzrPc517Ct2K6dco+zoM0sFJSG5uJmO5PZ6SPIArQ64JA9T3Tej4hID4TkwLPcuAXGxuq+nZ1cz+iwYuhNk6QWyVgWFSsP/wd0yMtQmUT1d/Cy1APwSVeMfct/t75e8Bbm/hXM50EeWMifQFaI+WNeYdJel3R5gX3VlXYwEuZl9s2QoGQG9M0Y+0CJ1UxKLCwlouDdVTAyKPPWRhOSpATLlZKkXXkL/uBV/MbhYNKwu7DUOGIbquGFvU2BYJo/w2iuKYnM858kx2WdHn5Hyejxd9F4BpmmNWhL4tMurlI9tFT/zmW7bFnWN5r1PjD8vKUdf543UwAuLSmC9z/Jby4Aw08egJGl+lbjomvNd7cagDMF29RhN9dnx8qmDlpjVvlkzGloM1/OxPyYN0fQmdrlruvOnecWU3nOpK6xUC+/r6fsTPCsRJuAVJ8PpC9da+PNeB6Fi3FGstOhRyfUo/+uHjbPf7B9Whv+4P4B'),
-			this.addDataEntry(dt + 'button group vertical', 100, 150, 'Button Group (Vertical)',
-				'7ZdRT8IwEMc/zR4hZXOojzKUJxMSHnyu9tgau3XpDgZ+eq9b0c2hEmEmRpqQtNe7Xu//y43NC6J0MzM8T+61AOUFt14QGa2xnqWbCJTyfCaFF0w932f08/y7T3ZH1S7LuYEMDwnw64A1VyuoLbWhwK1yhgRTutZ05AWTIuFCl7RgtBC8SEC4Be3k1j/dxLaW4SNVUCBNh8bAE11lYhbyxXqE1huNfoZIK22qHIGoBu00kpWJRFjk/MlGlXQU2ZZSqUbYshpkd1WAQdh8qkRlcjLMQKeAZksupRSYOA9Wq8USkHGyCwudkRe1IX6LfReWJk7b/ToHHZ1vhcRTa406n6wQdfZB76Zsmc7gSwQ5GEn1QcN5HwoDBSV4cOKNDoXg/wxC4GwGFEe5htb5x4C56ICJDHCEk7dB3QX/kIRLMdeSMvts2z5mF6GXywKwQ+7tYgfBDL9/mu0IoZE8i611IqSFI23XTAu9stV/fNCwanRgOSh7OB1E4GI/gXaA04sNXXEtPl084XF0XO7BKGxlH/i79CflNe7wmoKCc/P13XzjPprvsgPzJs8hE2eY/cK87gPmVQfm3EAfNB81va+kf/StZdsK+CXeg1P8ddLy/SOjdm9+g7wC'),
-			this.addDataEntry(dt + 'button group vertical', 160, 160, 'Button Group (Vertical)',
-				'7VbfT4MwEP5reNQw2Ja9CuheNDFZ1OduHNBYWtLefvnXe0Dd2GBuMZtGI8mW3nd3vd73XQqOH+arsWZF9qBiEI5/6/ihVgrrVb4KQQjHc3ns+JHjeS79HO/ugLdXed2CaZB4SoJXJyyYmEON1IDBtbBAhjkdK+o5fmAyFqslGS4ZMTMZxNYgT1HG56u07OV6Sh0YpOW11jCjowR6wt/KiEEZjVq9QqiE0lUNP64e8jSKLTOOMCnYrMxa0laEJVyIRlpSPYTbLkAjrA4yUUGWhjGoHFCvKWTJY8xsxLBmy82ApxnugczUQLrJ3RJLC8ttN89+i+dn0DzhROC5+a7pbjIllYRPWTfEMpfpPSRlz72yABM8lWSICgsKOi01DY3tuvTRYEjlF8to71RlvK8p07eYBsGQL2Bn/y61bIlHxamy5653t/nIUEliAFvqbg52kuD9luABk/Jf7p+Xe3QJuQctuSMQRODZ9Z4qRJUHc/qXe7fqX5iB9U7CN03E1UVugGFrJG4q/5MBbc49FqiKozNB8vvRKAijrsHYeBIlsesVe3xgfuENceD1Teb2E6yWvvmF9g4='),
+				
+			this.addEntry(dt + 'button group vertical', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 100, 150), s + 'rrect;rSize=5;strokeColor=#dddddd;html=1;whiteSpace=wrap;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Edit', new mxGeometry(0, 0, 100, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Create', new mxGeometry(0, 0, 100, 30), inh + s + 'rect;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 30);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Delete', new mxGeometry(0, 0, 100, 30), inh + s + 'rect;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, 60);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Append', new mxGeometry(0, 0, 100, 30), inh + s + 'rect;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button4.geometry.relative = true;
+			   	button4.geometry.offset = new mxPoint(0, 90);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button5 = new mxCell('Prepend', new mxGeometry(0, 1, 100, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button5.geometry.relative = true;
+			   	button5.geometry.offset = new mxPoint(0, -30);
+			   	button5.vertex = true;
+			   	bg.insert(button5);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#000000;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-15, -2.5);
+			   	marker1.vertex = true;
+			   	button2.insert(marker1);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Vertical)');
+			}),
 		    
+		   	this.addEntry(dt + 'button group vertical', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 160, 160), s + 'rrect;rSize=5;strokeColor=#dddddd;html=1;whiteSpace=wrap;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button2 = new mxCell('Verified', new mxGeometry(0, 0, 160, 40), inh + s + 'rect;spacingLeft=10;align=left;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 40);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Banned', new mxGeometry(0, 0, 160, 40), inh + s + 'rect;spacingLeft=10;align=left;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, 80);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var button4 = new mxCell('Deleted', new mxGeometry(0, 1, 160, 40), inh + s + 'bottomButton;rSize=5;spacingLeft=10;align=left;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	button4.geometry.relative = true;
+			   	button4.geometry.offset = new mxPoint(0, -40);
+			   	button4.vertex = true;
+			   	bg.insert(button4);
+			   	var button1 = new mxCell('All Users', new mxGeometry(0, 0, 160, 40), inh + s + 'topButton;rSize=5;fillColor=#3D8BCD;strokeColor=#3D8BCD;fontColor=#ffffff;spacingLeft=10;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Vertical)');
+			}),				
+				
 			this.createVertexTemplateEntry(s + 'topButton;rSize=5;fillColor=#3D8BCD;strokeColor=#0D5B9D;fontColor=#ffffff;spacingLeft=10;align=left;whiteSpace=wrap;', 
 					160, 40, 'All Users', 'Top Button', null, null, this.getTagsForStencil(gn, 'topButton', dt + 'top button').join(' ')),
 			this.createVertexTemplateEntry(s + 'bottomButton;rSize=5;fillColor=#3D8BCD;strokeColor=#0D5B9D;fontColor=#ffffff;spacingLeft=10;align=left;whiteSpace=wrap;', 
@@ -79,19 +140,130 @@
 				
 		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Tiny)');
 			}),
-			this.addDataEntry(dt + 'button group justified large', 240, 40, 'Button Group (Justified, Large)',
-				'5ZXBbsIwDIafJlfUNoB2pmxcxmU8QUZcEi1tqtRby55+bhJGUYfGYYwDkSLZv20l/hwpjOdlt3KiVmsrwTD+yHjurMVglV0OxrAs0ZLxJcuyhDbLns5EUx9NauGgwksKslDwIcw7BCUIDe5NFBSWdK1lyviiUULalpyEHCkaBTI6FKn7/LLb9b1MXqmDBsmcOAdbusrCbfRnnzHrs9HZN8itsc6fwaVfFCm0MQO98Iv0eE1wCN3ZVr0U+1yBLQHdnlJaLVHFdqcBR6JA71QsO2iiCf7uu/QIjozI7meOfMTxGQr8c5YB5RBSZSsYEY1iDU5TJzCQClthHEQ6J79VGmFTi22vtHTGpayzX1k/XAn1dIR6raUkwjeCPXy+NyDendL+hwHMRgN48Qfc3WM/FMyvxp7c41/gYydfxRc='),
-			this.addDataEntry(dt + 'button group justified normal', 180, 30, 'Button Group (Justified, Normal)',
-				'5ZXBbsIwDIafJldUEph2pmxcxmU8QUZcEi1tqtRby55+bpKNog6NwxgHIkWyf9tK/DlSmMjLbuVlrddOgWXigYncO4fRKrscrGU8M4qJJeM8o83444noNESzWnqo8JwCHgvepX2DqEShwb1NgsaSrrWcMrFotFSuJScjR8lGg0oOReo+v+x2fS+TF+qgQTIn3sOWrrLwG/PRZ8z7bPTuFXJnnQ9nCBUWRQpj7UAvwiI9XRM8Qney1SClPlfgSkC/p5TWKNQp4z7iyDSYnU5lImmyif7uu/QAjozE7meOYsTxCQr8c5YR5RBS5SoYEU1iDd5QJzCQCldhGsR0Rn6rDcKmltteaemMc1nzX1nfXQj1bIR6bZQiwleCPXy+VyDeHdP+hwHMRwN4Dgfc3GP/KuAXY0/u4S8IsaOv4hM='),
-			this.addDataEntry(dt + 'button group justified small', 150, 22, 'Button Group (Justified, Small)',
-				'3ZTBbsIwDIafJlcUkvUFKBuXcYEnCMRtoqVNlWZr4ennJmEUdWgcBpMWqZL9267tT1EIz6t+5USj1laCIfyZ8NxZ66NV9TkYQxjVkvAlYYziR9jLleg8RGkjHNT+lgIWCz6EeYeoRKH1B5ME5SscazknfNEqIW2HDkVHilaBTA5GmiG/6sthl9kON2g9mjPnYI+jLNxWH4eMbMj2zr5Bbo11oQeX4WCk0MaM9CIc1NOY4Dz0V1cNUtpzBbYC7w6Y0mnpVcrIIg6qQJcqlZ12Fm30y6/SMzg0ErvvOfIJx1co/K+zjCjHkGpbw4RoEhtwGjeBkdQp7WHbiP3QoMN/3sqW/cj2XmifJmjXWkok+kdwx9f1AYT7S7oPAJ5NgG9Cg39/mU8F9G6s0T2/7SF28fR/Ag=='),
-			this.addDataEntry(dt + 'button group justified tiny', 120, 20, 'Button Group (Justified, Tiny)',
-				'5ZXBbsMgDIafhmuVQCvt3HTrZb2sT8CKU9BIiIi3pHv6GcLWVFm1Htb1MCQk/NuW7Q8kmCiqfu1lozdOgWXinonCO4fDqeoLsJbxzCgmVozzjDbjD2e8efRmjfRQ4yUJfEh4k/YVBmUQWjzYJGisqK1VzsSy1VK5joyMDCVbDSoZ5GlCfNXvwyyzZ5qgRTrOvIcdtbL0W/MeIhYhGr17gcJZ52MNoeIiT2msHellXKSnNsEj9GdHjVKacw2uAvQHCumMQp0iEo5Mg9nrlPapyXaw91+pR3B0SOy+5ygmHB+hxF9nOaAcQ6pdDROiSWzAG5oERlLpakwXkYdanTYI20bugtJRjUtZ8x9Zz6+Eej5BvTFKEeEbwR4/3xsQ709p/8EFLCYX8BQL/LvHnhLuroaezONXEH0nP8UH'),
-			this.addDataEntry(dt + 'button toolbar', 260, 30, 'Button Toolbar',
-				'5ZfdboMgFICfhttGpb+32q1Xu+oTsIpChmKQTrun30HZ2oZ280Jd40hMOH+B84HnBISjrN4pUrAXGVOB8BPCkZJSt7OsjqgQKPB4jPAWBYEHHwqe71j9xuoVRNFcdwkI2oB3Io601bSKUp+EVTCdwba2PsJhyUgsKxA8EGJSMhpbASyF8c/q1OQye4UMSg3TmVL0AFsJ1Z5/GI+F8dZKvtFICqmaNXDcDLDY7VClaX03pUZl89lRmVGtTuBS8Vgz62HT9hjlKbNh2OpI2crpd+gZEEwso9u8sMPL7xuYoIkOj1rLvDO1gioOqVCjz2UOAWEic21j/TnIFeOa7gtyMJoK1ukKO/gVNh6I9dxh3f/lbO/mQ5GtrwmOAHrhgMb/CPRyPNBLB/S8d9Bmx49fPmzAZjz2qwl1uq+AGzViMxC+tYNvMfHGt/qzxrdxWC8nVY/vkB2/8fmeQ3o19YL8M/wRm6HvO/DXQ5XkS3qQfUgET+E4tgfAYih3PJdb0BMuxIVv0ox+6vuAvwKI50dmY7t6g34C'),
-			this.addDataEntry(dt + 'button group nested', 160, 30, 'Button Group (Nested)',
-				'zZVdboMwDIBPw2MrIKUHALY+TZrWE2TFQLSQoOAWutPPgfRP0LUP69RISPEftj9HiceSqlsZXpdvOgPpsRePJUZrHHZVl4CUXuiLzGOpF4Y+fV74esUa9Fa/5gYU3hMQDgE7LrcwaAZFg3vpFCVWVFYaeCxuSp7plgSfhIw3JWROIEtt/auusL3MP6mDBmk7NwY2VEps1uLbekTWG43+gkRLbfocLOsXWVw5YBC6qy31KtfPCnQFaPbk0ooMS+exHNr2SxBF6cKY0/FmkItj6AkQbRyjaV5sxCv4a2AScoy3iFrdTa0GI6gVsHqlFQXEuVboYoMFyW0pENY131hNS3nuhR3ehM0exHoxYv33h3M4m09Ftrsk+A+goxHo1OiaYKpn5N0QaqGKD8cg8B83g+V4BoH/oCEsb9/EB65oBFeF1caZsEiFvSvSRm9tlXEupDxj6/drRN3RnQB+F7joV3AuYO+eoHk0wXGM0XkZkBzF7vJ+nULr0r9rQVUdc8+C6CL7LDykP/xD53kDOBrOsY2peZF4epUH9/NH+wc='),
+			
+			this.addEntry(dt + 'button group justified large', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 240, 40), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 80, 40), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=16;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Middle', new mxGeometry(80, 0, 80, 40), inh + s + 'rect;perimeter=none;fontSize=16;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Right', new mxGeometry(160, 0, 80, 40), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=16;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+				
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Justified, Large)');
+			}),
+		    
+		   	this.addEntry(dt + 'button group justified normal', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 180, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 60, 30), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Middle', new mxGeometry(60, 0, 60, 30), inh + s + 'rect;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Right', new mxGeometry(120, 0, 60, 30), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
 
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Justified, Normal)');
+			}),
+		    
+		   	this.addEntry(dt + 'button group justified small', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 150, 22), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 50, 22), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Middle', new mxGeometry(50, 0, 50, 22), inh + s + 'rect;perimeter=none;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Right', new mxGeometry(100, 0, 50, 22), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Justified, Small)');
+			}),
+		    
+		   	this.addEntry(dt + 'button group justified tiny', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 120, 20), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 40, 20), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=10;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var button2 = new mxCell('Middle', new mxGeometry(40, 0, 40, 20), inh + s + 'rect;perimeter=none;fontSize=10;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var button3 = new mxCell('Right', new mxGeometry(80, 0, 40, 20), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=10;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Button Group (Justified, Tiny)');
+			}),					
+					
+			this.addEntry(dt + 'button toolbar', function()
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 120, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg1.vertex = true;
+			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg1.insert(button1);
+			   	var button2 = new mxCell('2', new mxGeometry(30, 0, 30, 30), inh + s + 'rect;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg1.insert(button2);
+			   	var button3 = new mxCell('3', new mxGeometry(60, 0, 30, 30), inh + s + 'rect;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg1.insert(button3);
+			   	var button4 = new mxCell('4', new mxGeometry(90, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button4.vertex = true;
+			   	bg1.insert(button4);
+			   	var bg2 = new mxCell('', new mxGeometry(130, 0, 90, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg2.vertex = true;
+			   	var button1 = new mxCell('5', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg2.insert(button1);
+			   	var button2 = new mxCell('6', new mxGeometry(30, 0, 30, 30), inh + s + 'rect;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg2.insert(button2);
+			   	var button4 = new mxCell('7', new mxGeometry(60, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button4.vertex = true;
+			   	bg2.insert(button4);
+			   	var bg3 = new mxCell('8', new mxGeometry(230, 0, 30, 30), s + 'rrect;fontSize=12;align=center;rSize=5;strokeColor=#dddddd;whiteSpace=wrap;fillColor=#ffffff;');
+			   	bg3.vertex = true;
+
+			   	return sb.createVertexTemplateFromCells([bg1, bg2, bg3], 260, 30, 'Button Toolbar');
+			}),				
+				
+			this.addEntry(dt + 'button group nested', function()
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 160, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg1.vertex = true;
+			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button1.vertex = true;
+			   	bg1.insert(button1);
+			   	var button2 = new mxCell('2', new mxGeometry(30, 0, 30, 30), inh + s + 'rect;perimeter=none;fontSize=14;whiteSpace=wrap;');
+			   	button2.vertex = true;
+			   	bg1.insert(button2);
+			   	var button3 = new mxCell('Dropdown', new mxGeometry(60, 0, 100, 30), inh + s + 'rightButton;rSize=5;perimeter=none;fontSize=14;spacingRight=10;whiteSpace=wrap;');
+			   	button3.vertex = true;
+			   	bg1.insert(button3);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#000000;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-15, -2.5);
+			   	marker1.vertex = true;
+			   	button3.insert(marker1);
+	
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Button Group (Nested)');
+			}),				
+				
 		   	this.createVertexTemplateEntry(s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;align=center;fontSize=16;whiteSpace=wrap;', 
 		   			80, 40, 'Button', 'Button (Large)', null, null, this.getTagsForStencil(gn, '', dt + 'button large').join(' ')),
 			this.createVertexTemplateEntry(s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;align=center;fontSize=14;whiteSpace=wrap;', 
@@ -210,22 +382,150 @@
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Small)');
 			}),
 
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZRtboMwDIZPw89VQNoLAPv4M2laT5AVA9ECQcEU2OnnQGhpoR3SGgkJv7YT248Sh4V5+6p5mb2rGKTDnh0WaqVw+MvbEKR0fFfEDosc33fpc/yXG16v97ol11DgmgR/SDhyWcOgRJDwWuKgV9hJq2eYU3WR57CgynisGjJcMmJeZRBbgzylic/b1LS0+aJGKqTfjdZwoIqCREgZKql0vytL+kU6lyItSDtQ4UDOQO/Fj9lqZ7ZFrb5hkhb3y3hKfhBF+inSzPTrmyISVaBN9rZkN5lA2FOgURoqhjTbNmiE9uboesnO7RVUDqg7CmlEjJmNsON1M7AVkMmsxqvBTk+pZxD0Y1ksc2EzLg8HYgoOakRVXE17iqhQBdwFUIIW1B1MgjVUtNnbOBFv7bj95XFfJkyGz+7MXoPkKI5wkbsExJ73oQSVcTrs6ZqhSpIKcEbwVOYqqNu/oY68UAtepEYNYmGujjCYokrVpvvrW+T2a8bJ8lhAtIoHW8Ojs6/MZjfj4y3w2T0Gz3jtutEej/8PLzLPD+8QPn2XfwE='),
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZTdboMgFMefxss1KjXZbtWtu1nSrE/A6lHIUAzSqnv6HRStbW1nspqYcL7g8P8BDonyZqNoyT5kAsIhrw6JlJS6H+VNBEI4vssTh8SO77v4O/7bjajXRd2SKij0kgK/LzhScYDes1U8p6rt/ZVuhfUznWN3seeQsGI0kTUaLhoJrRgk1sBIafLzJjNbWn3hRiqNw5VSsMeOQip4VmDGHhsEhQ614z+mJMBxyoWIpJCqW5KQ+DmMYjOtVvIbJhE3DsKXLlLSPS+yT54xs1/fNJHKQttJvbW1J7Vp96G/ZlzDDicwmTU2iT4rBygNzU1JO5fVcwMyB230cmueaGYzrOwuA9sZmsT6aNXb2Vh6AoQDy2ieF7ni9XBQpuHwoLUs7tApZAF3wZSA5wg6xEOyggonex8U8ZbK7c/LfV4wEZ/c0V6BoJof4ax2Dohdbys5tjEu9nTJUKZpBfqK4NjmIqjrv6EOvLTitMiMN0y4uVLcYIoreTC7v7xA41E/52R5zCBaxIMs4dHa12cVXPHxZvgEj8EzXLt2sIfl/8MLzdOD3KdP3+tf'),
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZRRb4IwEMc/DY8z0Eqmr+jmXpYs8xN0cECzQklbFfbpd4WiqOhIpglJ73937d39bD26KuqNYlX+LhMQHn3x6EpJabpVUa9ACI/4PPHo2iPEx88jrze8Qev1K6agNFMSSJewZ2IHnbLdxTFo3enaNMLpuSmwunXg0UjnLJEHNHw0EqZzSJyBnsrGF3VmW5p9YSPa4HKmFMRYUcQEz0qMiLFAUCioLf+xKSGuUy7ESgqp2iNpuIiW4bPd1ij5DQMPWSyWpPVULOZl9smz3PZLbBGpLI3bNJg7e5Cbtj/UDzk3sMUNbOQBi0TNjQOUgfrmSFvJzXMDsgCjGgw58MTkLsKN3c/BVYYmdRrTnZ0dU0+AcOEYjfOiV7weDsoWHO2MkeUdOqUs4S6YChTH7mAQrEDjZm/9RIKp4ybj4z5PGAyf3pm9AsEM38NZ7hgQd96H5FjG8bCnS4YyTTWYK4LHMidBnf8NtedlFGdlZtUo4fZKcYtpreXOdn95gY5/9XNOjscIokk86BQejXt9ZuEVn2CET/gYPP21a3q7P/4/vNA8Pchd+PC9/gU='),
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZTbboMwDIafhstVQIq0a+hhu5g0rU+QFUOihQSFtMCefg6ElrasQ1orIcW/7cT218QjSdFsNS3Zm0pBeGTtkUQrZfpV0SQghBf6PPXIygtDHz8v3PziDTqvX1IN0sxJCPuEIxUH6JVXmalerEwrnMhMgaWtAo/EFaOpqtHw0UhpxSB1BnpKG180ue1n8YldVAaXC61hj+XEVPBcYsQeqwONgt7xb5sS4TrjQiRKKN0dSaIo3qy7bY1WXzDyhNHzJu48Jd1zmX/wnNlmQ6tlShq3abB09ig3636o14wb2OEGNrLGIlFzswBtoPl1np3khrkFVYDRLYbUPDXMRbiZ+wxcZWgSp9Gqt/NT6pkOLhygaVjkBtbDQdmC44MxSt6hI5WEu2BK0By7g1Gwhgo3exkmEswddzg97suE0fDJndlrENTwI1zkTgFx570rjmWcDnu6ZqiyrAJzQ/BU5iyoy7+hDryM5lTmVo1Tbq8Ut5hWlTrY7q8v0OmvfsnJ8ZhANIsHmcOjdU/PIrrhE0zwiR6DZ7h27WAPx/+HF5rn17gPHz/WPw=='),
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZRdb4IwFIZ/DZczQDW7HvixmyXLvNh1JwfarLSkVIH9+p1CUVR0JNOEpOerfc95bD0S5/VG04K9qQSER1YeibVSplvldQxCeKHPE48svTD08fPC9Y1o0Eb9gmqQZkpB2BUcqNhD5/mkWnKZdf7SNML5mclR3TLwSFQymqgKDR+NhJYMEmdgpLD5eZ3ZlmZf2EhpcDnTGnaoKKKCZxIzdigQNDr0lv/YkgWuUy5ErITS7ZFktX6J58Rua7T6hkEkWj/HQRsp6A7VfvCM2X5DKyJV0rhNg7mzB7Vp+0N/xbiBLW5gMysUiT43DtAG6psjbV1unhtQORjdYErFE8Nchhu7z8ApQ5M4Hy07OzuWngDhwjEa50WueD0clBUc7Y1R8g4dqSTcBVOA5tgdDJI1lLjZaz+RYOq4w/FxnxcMhk/uzF6DoIYf4Kx2DIg7711xlHE87OmSoUrTEswVwaPMSVDnf0PteRnNqcysN0q4vVLcYlqWam+7v7xAx7/6OSfHYwTRJB5kCo/GvT6zxRWfYITP4jF4+mvX9HZ//H94oXl6kLv04Xv9Cw=='),
-			this.addDataEntry(dt + 'dropdown split', 120, 30, 'Dropdown (Split)',
-				'rZTrboIwFICfpj9noJUHGLC5P0uW+QSdHKBZoaRUgT39TqEoKjqSaULSc+u5fJ4SFhXtRvMqf1cJSMJeCIu0UmY4FW0EUhLqiYSwmFDq4Ufo6w2r31u9imsozZIAOgQcuNzDoIl5mYEe1LXppFPnpsDiYp+wsM55ohoUPBQSXueQOAEtlfUv2sx2tPrCPmqDx5XWsMOCQi5FVqLHDuvDLCzUW/FjQwI8p0LKSEml+5QsDgO6juy1RqtvmFieQ2y1t1R8J8rsU2S5bZfaIlJVGnepv3byJDbtf6hvcmFgixdYzwaLRJ2bBmgD7c2J9io3zg2oAozu0KURicmdh5u6l4OrDEXmdLwe5OwYeuKDB4doHhe7wvVwULbgcG+MKu/QKVUJd8FUoAV2BxNnDTVe9jZOxF86bjo/7vOAyfDZndlrkNyIA5zFzgFx+T6UwDKOyZ4uGao0rcFcETyWuQjq+m+oIy+jBa6n1YaJsCslLKa4Vnvb/eUCHf/q55wcjxlEi3iwJTw69/isgis+/gyf4DF4xrXrRnlM/x9eKJ7e48F9+lz/Ag=='),
-			this.addDataEntry(dt + 'dropup split', 120, 30, 'Dropup (Split)',
-				'rZRtboMwDIZPk5+rgLQXgO7jz6RpPUHWGIgWEhTSAjv9HAgtLbRDWiMh4dd2YvtRQmhSNK+Glfm75iAJfSY0MVrb/q9oEpCSRIHghG5JFAX4kejlhjfsvEHJDCi7JCHqE45MHqBXtkaXh7KXK9tKL+e2wOK2IaFxlTOuazQCNDircuDeQE/p4osmcx2tvrCPyuLvyhjYY0FxKqRMtNSm25Wm3UKdSZEp1PZYN6AzNjvx47bauG2t0d8wSuPdcp6S7YXKPkWWu3YjV0SqlfXJ4RrtOhcWdhjolBqLQc13DcZCc3NyneTH9gq6AGtaDKkFt7mP8NMNcvAVoEm9xqrezk6pZw7441HMY6ETLA8H4gqOD9ZqdTXtMSKlFdwFUIIR2B2Mgg1UuNnbMJFw6bij+XFfJoyGT+/M3oBkVhzhIncOiD/vQwss43TY0zVDnaYV2AnBU5mLoK7/hjrwskYwlTk15sJdHeEw4YSN6/76FgXdmnDyPGYQLeJBl/Bo/SOz2kz4hDN8No/BM1y7drCH4//DC83zu9uHj5/lXw=='),
-			this.addDataEntry(dt + 'dropup split', 140, 30, 'Dropup (Split)',
-				'rZTbboMwDIafhstWQFppuwV2uJk0rU+QFQPRQoKMu7Z7+jmQtnRlHdKKhBSfYuf/IIFI690TyqZ6sTnoQDwEIkVrqV/VuxS0DuJQ5YHIgjgO+Q3ix1+iURcNG4lgaEpB3Bd8Sr2B3vOmyorYlaNtNk0fbmmvfbiimofMokAkbSVzu2UjZCOXbQW5NzjSuPx6V7qTzd/5PC3xco4Iax4skVqVhjPWPCcgO3ClvlzJkteF0jq12mLXUojsLkkzty2h/YBBJMyWyX0XaeRambKfXWSxG6Kwhvym0cLbg9qie9i/rRTBijdwmVsekn1eFUCC3a/Kdi4v6xPYGgj3nLJVOVU+Y9GrH1bgJ2NTeJ9se7s8lp448cKjGscmLrDdHJQbONkQWXOFjrEGroJpABWfDgbJCC1v9nxQJJoqdzwu93nBQHxxRXsELUl9wlntGBDf79UqQ6dms58MbVG0QBcEj2NOgrr4G+qBF6GSpnTeJFful1IOEyuM7vQ/f6Djp37OyfMYQTSJh5jCY+8vofnygk80wmd5Gzz+0jt0n8WH9v/hxebpXu7Th9f2Nw=='),
+			this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Default', new mxGeometry(0, 0, 120, 30), s + 'rrect;fillColor=#ffffff;align=center;rSize=5;strokeColor=#dddddd;spacingRight=20;fontSize=14;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#000000;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+
+		   	this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Primary', new mxGeometry(0, 0, 120, 30), s + 'rrect;align=center;rSize=5;fillColor=#3D8BCD;strokeColor=#0D5B9D;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+		    
+		   	this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Success', new mxGeometry(0, 0, 120, 30), s + 'rrect;align=center;rSize=5;fillColor=#58B957;strokeColor=#288927;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+		    
+		   	this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Info', new mxGeometry(0, 0, 120, 30), s + 'rrect;align=center;rSize=5;fillColor=#55BFE0;strokeColor=#258FB0;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+		    
+		   	this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Warning', new mxGeometry(0, 0, 120, 30), s + 'rrect;align=center;rSize=5;fillColor=#EFAC43;strokeColor=#BF7C13;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+		    
+		   	this.addEntry(dt + 'dropdown split', function()
+	   		{
+			   	var bg = new mxCell('Danger', new mxGeometry(0, 0, 120, 30), s + 'rrect;align=center;rSize=5;fillColor=#DB524C;strokeColor=#AB221C;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropdown (Split)');
+			}),
+		    
+		   	this.addEntry(dt + 'dropup split', function()
+	   		{
+			   	var bg = new mxCell('Dropup', new mxGeometry(0, 0, 120, 30), s + 'rrect;fillColor=#ffffff;align=center;rSize=5;strokeColor=#dddddd;spacingRight=20;fontSize=14;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=north;fillColor=#000000;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropup (Split)');
+			}),
+
+		   	this.addEntry(dt + 'dropup split', function()
+	   		{
+			   	var bg = new mxCell('Right dropup', new mxGeometry(0, 0, 140, 30), s + 'rrect;align=center;rSize=5;fillColor=#3D8BCD;strokeColor=#0D5B9D;spacingRight=20;fontSize=14;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button1 = new mxCell('', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;resizeHeight=1;');
+			   	button1.geometry.relative = true;
+			   	button1.geometry.offset = new mxPoint(-30, 0);
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=north;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	button1.insert(marker1);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dropup (Split)');
+			}),				
+				
 			this.addDataEntry(dt + 'dropdown menu', 160, 90, 'Dropdown (Menu)',
 				'rVTbbtswDP0aPzaw5TTYaxKv3UMLDOt+QItoS5gsGbKay75+pCQ7bu0CGToHAcw7eQ7prNy350fHO/lsBeis/JqVe2etj2/teQ9aZyxXIiurjLEc/xl7+MBaBGvecQfG3xLAYsCR61eImsrZTtiTiYbeX3QySN9ie1WRlbtecnRBIUdB8F6CSAJaOvJvzw3NtPqFk/QeX1fOwQFb2nGtGoMeB+wQHCrci/pDIfcU7p39DXurrQtFSxEesnT8oEzzQzWSBiuoWG2NT8HFBmUsKRSmncTDmn4TW6WoD2WpBWOdl2g7SeXhBQtQphM2i7qECzgP5w+xDaoE7CPYFry7oMtJCcobPNYR/1xC6hzFQcf7KDdj6JUpfElkLRNXzoibETZw4Z3ipiHtTkym7+1rmL5WWk8Qy8Mz48JYQwk6cAp7hYnqJqTYMlJvAy5pY1f3UZ7iuABj8nKguVdHeJNqCdpU/rtV2NVY+y5dyFD9jg3lhxy2rnvwM3LGMW7iaz3jaxuJYBsEPazz1lgvEVmWD6b/fIHxAN/xXYfn3TWxJC/tBekfeKs0AfYN9BG8OvAhQep2vkALx/wE9XjL40DF5Buhg8OOdgtL6G1Se9tdk/wkoSo/ebKJ/DWbb95m6YK//PMFo3j9rMcFmn71/wI='),
 			this.addDataEntry(dt + 'dropdown menu', 160, 200, 'Dropdown (Menu)',
@@ -368,9 +668,48 @@
 				'7VfLbsIwEPyaXJHjlEePBVourVSJQ88u2cQWjh05Lo9+fdexeTWgogokQCAh2eNdr3dmEjlRMigWI8NK/qZTkFHyHCUDo7X1o2IxACkjSkQaJcOIUoL/iL4cWI3rVVIyA8oek0B9wozJL/CIByq7lAHgtsBjDeMo6VecpXqOE4KTlFUc0jDBldLFF4vc9dL6xA4qi8OWgQmepJ8JKQdaalNvmmT1zyVao6ewtZLWv+1irvKcCwvjkk1ckTnui1g4OhgLi4Pt11DofQS6AGuWGDIXqeUh4sFTRDiInK/SaM+DrPJAvs7dsImDQOh+cpMGuUOjS2xK1dVYCuZMbO+yqrQCByJ9QuWvkLkmO4gwKXKFY1lDOxqFnBKMwL5hC8q0svv0cvhYfLtzxeSAZAYqjPgI5MfHikj/KWLHYwYks2IGO/vvEzaUeNcCK1Oy9BG/nKCzrALb8MH6XEdZ46FhjaeJFVpdqR9uUveVSCcVvt0UXmnL3ZuAsLsFLswCq61PaoFOwwJjl85RCIRBVlA3Y+DuhMtxQrtzBid0/759rdSUwst08Lq0R4yrJLpLz0B0734Tu4WHsHeOq9hj83UM2DKzKDIl+NxNr9QaN2mBmJzgVobTzSe2D9/+Av8B'),
 			this.addDataEntry(dt + 'context menu', 140, 96, 'Context Menu',
 				'7VZRb4IwEP41vBooE7fHiZsvW7LEhz13ctDGQknpBPfrd6VVIWhmNk1cIglJ7+td7+77rgEvjPNmrmjJXmUCwgufvDBWUmq7ypsYhPCIzxMvnHmE+Ph65PnIbtDu+iVVUOhTAogNWFPxCRaxQKU3wgFM51jWLPDCacVoIms0fDQSWjFInIE7pfHPm8z0MvrADiqNy5GCJVYyTbkQsRRStYeGafuYQK3kCjo7Sft0k5nMrkxQGpqjrbaQ63MOMgetNuhS80Qz53Fn6fAZ8Iy5sIfIYrSydrYL3ROHC8fdYR7DAY+PS81lcSE2+6wVsgADlnTJi+wFUtNYhAgVPCtwLVqop4GLKUFxbBY6UCoLveBfJn9giqkZ17DAsw1SYxGIKajQ490Re7JA5HcCBU4gBYJqvobe+YdUcyneJMfMxN9Yj/t+gEzTCvRA5F1dJ+l+N9S9kJohn5joNgFXNgFbuc46AuPBCCxMOEMhEAZRQduMgtskXM8kbI8+6yREP39Mt2oKbmU6+vU7IMa/JHocXYDoyfDKAbZMNd4a4iO3q9tdu54RmJC/jwCa+59i6979Z/4G'),
-			this.addDataEntry(dt + 'pagination', 330, 30, 'Pagination',
-				'7ZjBcoMgEIafhmtGJTHmqrY59dQnsHEjTlEcJNW8fRHUJEUnnWlCLzqTCeyyyP4fHnYRjop2z5OKvLEUKMIvCEecMaFHRRsBpchz8hThGHmeI3/Ie53xusrrVAmHUvwmwNMBXwk9gbZoQy3OtDcQUchjxS7CYU2SlDVy4shJmtQE0n4iPVW3vmizLpfVh8ygFnK44hwO8ijhMac0YpRxtSs+qqeLFJx9wpUnVY/0NCQX8F4lh27jRu4lbf1xgQtoZ1NWpj7fPbACBD/LJU2eCqJXYKxlcQjkGenDBltS63k2hl4ElINew2k98YSePhXq5MP/Y/WlcBThSQhWGmKWrIQfyg8mVooryXEchFH8F8m9+5I/SfG1obj78Cusb/D8TZ1QuAKey1zgH0Rvb8W1wGBjMMALg867s8fANxisFwYqwLMHYWtA2CwQVMDGHoTAgOAvEFRAYA/CzoCwXSAor2sPwvCqKwrBQkF51xYpuAaF3UJBebcWKUyVun7Wl2bZM0oz3mUwU5vdYWO9VrAIwqyRH990mPkcRh1/dCNG+/1vYmxcPAmF/zQScnppLCnfTd/pGw=='),
-	
+				
+			this.addEntry(dt + 'pagination', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 330, 30), s + 'rrect;fillColor=#ffffff;strokeColor=#dddddd;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var bg2 = new mxCell('<<', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg2.vertex = true;
+			   	bg.insert(bg2);
+			   	var bg3 = new mxCell('1', new mxGeometry(30, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg3.vertex = true;
+			   	bg.insert(bg3);
+			   	var bg5 = new mxCell('3', new mxGeometry(90, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg5.vertex = true;
+			   	bg.insert(bg5);
+			   	var bg6 = new mxCell('4', new mxGeometry(120, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg6.vertex = true;
+			   	bg.insert(bg6);
+			   	var bg7 = new mxCell('5', new mxGeometry(150, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg7.vertex = true;
+			   	bg.insert(bg7);
+			   	var bg8 = new mxCell('6', new mxGeometry(180, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg8.vertex = true;
+			   	bg.insert(bg8);
+			   	var bg9 = new mxCell('7', new mxGeometry(210, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg9.vertex = true;
+			   	bg.insert(bg9);
+			   	var bg10 = new mxCell('8', new mxGeometry(240, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg10.vertex = true;
+			   	bg.insert(bg10);
+			   	var bg11 = new mxCell('9', new mxGeometry(270, 0, 30, 30), inh + s + 'rect;perimeter=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg11.vertex = true;
+			   	bg.insert(bg11);
+			   	var bg12 = new mxCell('>>', new mxGeometry(300, 0, 30, 30), inh + s + 'rightButton;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	bg12.vertex = true;
+			   	bg.insert(bg12);
+			   	var bg4 = new mxCell('2', new mxGeometry(60, 0, 30, 30), s + 'rect;strokeColor=#3D8BCD;fillColor=#3D8BCD;perimeter=none;fontColor=#ffffff;whiteSpace=wrap;');
+			   	bg4.vertex = true;
+			   	bg.insert(bg4);
+			    
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Pagination');
+			}),				
+				
 		   	this.createVertexTemplateEntry(s + 'roundedButton;fillColor=#ffffff;align=center;strokeColor=#dddddd;fontColor=#3D8BCD;whiteSpace=wrap;', 
 		   			100, 30, 'Previous', 'Button (Previous)', null, null, this.getTagsForStencil(gn, '', dt + '').join(' ')),
 		   	this.createVertexTemplateEntry(s + 'roundedButton;fillColor=#ffffff;align=center;strokeColor=#dddddd;fontColor=#3D8BCD;whiteSpace=wrap;', 
@@ -407,8 +746,54 @@
 				'3ZbdbpswFMefhstEgANjlwO27mKVpvUJ3HACVg1Gttske/odg6Ekhipdx80sIdnH5/jj//Mx9khWn+4kbat7UQD3yFePZFII3dfqUwace6HPCo/kXhj6+Hnht4XeoOv1Wyqh0bcEhH3AC+XP0Fu+ixp6o9Jnbo2VrnFpeeCRVFW0EEds+NgoqKqgsA3saY1/fSrNfraPuAulsbqVEva4nJRyVjboscfVgUSDfGC/TUhkwrUUT5AJLrAnb0SDHemBcT6YvJCQPEmz3NhFoyf2Q1euBjxWTMNDS/fGcMR1oM1uF6SG06JkncnqdQeoh5ZndDmyQle9R5T0URWwsrJRu15pn6q+XY6Rr/pjxSKYx0EcHDlT9JGjxqH/gzVPa5G50nnU801iS9CmPlegiq6sAMcGxPZAT1gFvr8OrJ0D6x6UoiWotShdCHsrsfciGnNMIR3WlL+sasRfD1sQxy63IF6HW+RwG1CuRyxxiX3uyuLFt3DBtSAZ7hgmrn/NZPc2kz7gbH8j28ghNCg5BTRAk8CpZi9wMdYcNTv/T8FwWePkGxJfTL9JLkcQh4MC7VAfd3HTQYidg/Blr5lozF0ryv8zi8MVszhMZrLYXymLPznwHF4DCi0ZbUpjTQtmIBjGJFfi2axy8Y0xK/lM/t2kXPzBXAtmfmLRv0m1q9k34TD9R5INm6+v2N59+sj9Aw=='),
 			this.addDataEntry(dt + 'breadcrumb', 460, 30, 'Breadcrumb',
 				'7ZZdb4IwFIZ/TW8NtH7sGph64ZIl/oIqB2lWKCmd4H79Tm39irqZTI1LhJC0b8+hp+/DSSAsLtqR5lX+plKQhL0SFmuljBsVbQxSEhqIlLCEUBrgQ+jwzGq4Xg0qrqE0lyRQl7Dk8hOc4oTarKQXclNgWUlIWFTnPFUNTgKcpLzOIfUTXKlsfNEu7Fk6MzxBbXDY0RrmWEqkp+LLRvRstNHqA2IllUalVCUuRJmQciMRyrK+vVH3FYI20J495VryRxyBKsDoFYY0IjW5i+j2nRNBDmKR+zTmNV67+WKbuvMMB9620xayIwvH+JKr2+hcrEALrBD2fPvVzI2kSrPnL0teojix+RWfi3IxgcyaEtoymlwYmKJua2lwe8sPagQ43pgXXkqG/kqm9wMYDZIbsYSD1/+FVvfEBz98eFjp+ro7GXoNMn6HdyVwYxq0h9A3GSrLajBHJLd1XQS3dwR3Imaa+y/kkQFvu/Eftt5pwINbAO4/u/chujekt6A7OKKbcMOfeO/eu2H3CnhxuvuPdeH7v7nf'),
-			this.addDataEntry(dt + 'pills vertical', 200, 158, 'Pills (Vertical)',
-				'7Vjfb5swEP5r/NgI7MCS18DWPbRSpTzs2S0HWDU4sr0m2V+/Axza1KRjnZiippaQfJ9/3d33nS1BWFLtrjXflLcqA0nYV8ISrZTtetUuASkJDURGWEooDfAj9NuJ0bAdDTZcQ23HLKDdgicuf0KHdICxe+mA0lboVhoStjIlz9QWjQCNjJsSMmfgyKaZX+2KJpbZPUZgLHZnWsMDurLSa/ELomZLnG21eoRESaURqFWNS1e5kPIAEcrytiHuPARtYXcyyhZyIV6DqsDqPU7ZisyWLtKgy0RQgijKw7Jo0YHcdEDRr31OGnZc3oZzyLwcfsdNJs0jzohG5pGli1XSJD1XtR3KL5eiqBGTkDf7mw1/EHVx01pp2Di1LYWFNeLNuVt0pnEDDPrxw+U3HMsTfR9PzGEaJLfiCY72/xfu5h5382krAGcs3hD7MKPHzPWMDvEyigU2zMLxgr27P2ZRZ7/kKBoopfgvKXLn3ymBbvWHXzF2dPzVqwJVeW7AehT3UYxiPfJYv9MKKZmsaE/R/ediPkH9hyzaV4pwCmB0AgXEngJuwRhegPmUwPlJIJ5PIIEvngQOr8F/vfqXbRtJfq+ad1/98YVf/QuP9VQYfi+RTBrciPrx3Os/a9tl1f8ynkAJS08J672xUCG2Bmsxl59vwRlqIaRTXAth4Kkh/PiPwfKyHgM0n/+sdNNf/nj5DQ=='),
+				
+			this.addEntry(dt + 'pills vertical', function()
+	   		{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 158), s + 'rrect;rSize5=;strokeColor=none;fillColor=#ffffff;');
+			   	bg.vertex = true;
+			   	var bg1 = new mxCell('Home', new mxGeometry(0, 0, 200, 30), s + 'rrect;rSize=5;strokeColor=none;fillColor=#3D8BCD;fontColor=#ffffff;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg1.geometry.relative = true;
+			   	bg1.vertex = true;
+			   	bg.insert(bg1);
+			   	var notif1 = new mxCell('42', new mxGeometry(1, 0.5, 25, 16), s + 'rrect;rSize=8;fillColor=#ffffff;strokeColor=none;fontColor=#3D8BCD;whiteSpace=wrap;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(-33, -8);
+			   	notif1.vertex = true;
+			   	bg1.insert(notif1);
+			   	var bg2 = new mxCell('Profile', new mxGeometry(0, 0, 200, 30), inh + s + 'rect;fontColor=#3D8BCD;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.geometry.offset = new mxPoint(0, 32);
+			   	bg2.vertex = true;
+			   	bg.insert(bg2);
+			   	var bg3 = new mxCell('Messages', new mxGeometry(0, 0, 200, 30), inh + s + 'rect;fontColor=#3D8BCD;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.geometry.offset = new mxPoint(0, 64);
+			   	bg3.vertex = true;
+			   	bg.insert(bg3);
+			   	var notif2 = new mxCell('24', new mxGeometry(1, 0.5, 25, 16), s + 'rrect;rSize=8;fillColor=#999999;strokeColor=none;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(-33, -8);
+			   	notif2.vertex = true;
+			   	bg3.insert(notif2);
+			   	var bg4 = new mxCell('Disabled Link', new mxGeometry(0, 0, 200, 30), inh + s + 'rect;fontColor=#dddddd;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(0, 96);
+			   	bg4.vertex = true;
+			   	bg.insert(bg4);
+			   	var bg5 = new mxCell('System Settings', new mxGeometry(0, 0, 200, 30), inh + s + 'bottomRect;fontColor=#3D8BCD;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(0, 128);
+			   	bg5.vertex = true;
+			   	bg.insert(bg5);
+			   	var notif3 = new mxCell('1', new mxGeometry(1, 0.5, 25, 16), s + 'rrect;rSize=8;fillColor=#999999;strokeColor=none;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(-33, -8);
+			   	notif3.vertex = true;
+			   	bg5.insert(notif3);
+			    
+			   	return sb.createVertexTemplateFromCells([bg], 200, 158, 'Pills (Vertical)');
+			}),				
+				
 			this.addDataEntry(dt + 'navbar', 720, 100, 'Navbar',
 				'3ZjdjqIwFMefhksJBXX0Vt2dm9lkMz5BBw7QTGlJqaPu028LFUFgcCKwk8WYtKenX79/21OwvG1yehY4jX/xAKjl/bC8reBcFqnktAVKLdchgeXtLNd11N9yf3aUorzUSbEAJu+p4BYVPjA9QGEpDJk8U2OIZaKGtUOWt8liHPCjyjgqE+AshsBkVEmq/ZNTpOdiv6kZZFIlbSHAV0PZiD35oz0WKh0SSreccpH34IVL/dOtSMHfoVIS5I+uDf5BZOQDXiEr2tG9msGDkHDqBJCbzOyfgScgxVm5HEkg48LjyUByYiBRfKnmGCPOCkNU1r3yVAmDtB2v18C7EZgFgzMuENfxMc7ghvXFxJmsQF7nj7EbldBc5Y8xkbBPsa8tR9XRvcjdXuSrFuLzAYDPG8BfCHsfiffNMi4Xa7sOHdCHhnyqA64wX47EfDEl80fX+Ei40Xw63ssG753gqQLKvinzTOEmLHo1GJAzng6u09ShPMmHFuKpP3he2EpBMIvoLbgapTbKAdEaEM6UKeMHPaVNCoKosULF7S5yy89XcFHhbG4N9qLBcdWkaJwEUCxVcK611EbW9P6bEzWosusZWtc6n3n1FngYZiAbypRzuEusVUOsPWDhx7ZtT3Hl6b7a3Oya0o4pibTsFEJ53UQveW7UPeQ5i5oczZXgtu0ob4AdtW6KdHhLiPy3Co3EeYGcHs5tt6QhMF86HjlkY+bHGubkwbiGFX0pMD98lK3qos5uA80ghxlCk90BekWcMLr3CftppH9YWXcSZe94I/9OlwrU8Xr9f94qVPb6baZwr366+Qs='),
 			this.addDataEntry(dt + 'navbar form', 720, 40, 'Navbar Form',
@@ -663,9 +1048,44 @@
 				'7VjLcpswFP0ath5eIc2yxk1WySZfIEsC7lRIVEjY7tf3SsiNHdtNZmq8aMGDka50Hzr3cBZEWdlunzTpmmfFuIiyb1FWaqXMOGq3JRciSmNgUbaK0jTGO0ofL6wmfjXuiObSfMYhHR0GIiwfLUW+LfLR2pudCNbGtFjbKomyZd8QpjY4iXHCSN9wFia40rn97bZ2B1qs8Ri9weFCc4rlLImAWuIGitVx7TyMVt95qYTC2Uoqie7LCoTYm6I0qwr3c3YlzYH9wV9o3zRg+GtHqMu9wXRoC8fi2vDtRWi8KeDyxFXLjd7hlg0w0+zBGL0aDnVjjm2kH+f1b883nHEQoD4Pe3YC+zNnQHwmwkDW124AkbRxwHkQX+Gn25XmBy0RvDITYBkc7kcWHkKbxvEptln899jmJ9iWGuMhmmBcaAyIDwnrBh8C1lyrKC1dAIl/CNwAzHVCWiHIAgcvbuARcGnQ3fpolAuuof+BWTAqEtoZlRBAwVjmg1HVtoopFyTU0FntvRWDkHXgvYG1FbbdlzBY0VlDfEBixl2Gt513HAAboV05xuoOehf70WIxPp1k0GJLfCxpJXURqD9tD+8iVxppBuGIK3zz3D5BKEjPQ4xV+5NVXEC/L60ilmKxLutE/HzHR8c6oER8DWajugssPSB2kk/P5N0xYQ81IztD7OIKxL6btfqkK6ENSXymDxNpd/GfavcfoJ5My+9nLZ+1/GbMvqWYf5nF/JNtSW+o7Q8nXXnBVxpxdlrxL4t8kn8MejaVyifxLPOzzN+O22d0/q64js7j9O3jjV87+rbzCw=='),
 			this.addDataEntry(dt + 'media list', 700, 460, 'Media List',
 				'7Vldc6MgFP01vmYErG0eN2a3T+1LfwEREpmiuIj56K/vBU1rotlmZkMfrMkkwoV7wXMPZ5xrQJJ8/6hpmT0pxmVAfgck0UqZppXvEy5lgEPBArIMMA7hF+A/F0aRGw1LqnlhrnHAjcOWypo3ljjax1FjrcxBttbM5LC3JQrIosooUzvohNBhtMo4azswUtr5+X5jb2i2gtuoDDRnmqewnQWVYlPAhBR2x7X1MFq98kRJBb1loQpwX6yFlEdTgMk6tl9rV4Xp2OfuA/ZdJgx/KWlq197BcmBrb4trw/cXoXGmFpdHrnJu9AGm7AQz2RGMxivjYpOZUxutmv7mw/MTZ2i0UA/DTnqwP3EmqFuJMlFsbp0AWqSZBc6B+CLe7CwcdVIi+dp4wLJ1uG9Y2IUWh2EfWxL+P7ZRD9tEQzxAUxgbGgLCpRCrDC5SrLhWAU5sgAL+ALitYDYTRS0lnUHj2TYcAnYZcK9dtJRLrkX1F1aBqEBoa1RSilSYmrlgqcpzxZQN0u6hrLXzVky0q255ZcSqlnV+3MK2lmVtqAtITTPL8Lx0jlsBidB2O6bWpahm3phyxgybf5FS+as1G1Ve4EuHYijyz6nDKXW6p5cMUCy+AcXuJtW8Mivzgax40tS4l5RnOFoAMw7HLa4o+hJz4kts7yex/RFie84xhPsku4s9ye3DJLdX5+Xh+wR3fllw81ELLkZfg+5NcY9rT5I7csk9Z9lHv8OyaO5JchGaNPfKR1z8jZKL+vWaH/qQO4S6P83t12smzR2j5p6zjAxorrfHXNSvXE2a2zrEJD5NzEBF0Zvo9ss9I9Xaf4DrrVyL+nWbSVtHpa0tq6Jw4MjeqEIL3c93Zm7s5JXaOw=='),
-			this.addDataEntry(dt + 'linked item custom content', 400, 240, 'Linked Items (Custom Content)',
-				'7VfJbtswEP0aHWvIopP4WllpLglQIIeeaXEkEaVIgaS3fn2HS700diI7aho0FWCRHM4MZ3l6shIya9d3mnbNg2IgEnKbkJlWyoZZu56BEEmWcpaQIsmyFH9J9uXE7tjvph3VIG0fgywYLKlYQJAEgbEbEQWNbTGsYpyQ3DSUqRUuUlwwahpgcYE7ndNv17XLZTTHDIzF6UhrKDGUXD/yH07jCucVF2KmhNL+BFL5y3mxWn2HvR3mL9xZNdzCY0dL52KFflEWQwdtYX0yfS+Kud+BasHqDaqsOLNN0JikoURpA7xuohlKg5CaIKi3trtq4iQW9HhxyZPiFkpCGTSyFAS3OEgl8d5yF7jSluKINVxy5mbUaUANbsDzF2aUZNdYmLEr+gOFEiRGiP0C55Fx2u70NTcL48/X3E/mgkrG7WjwFocO73cVk4JnG9qB5pgQ7Ctje7ms76FyTfAZUsFriQvhZXmlpI0wGk9OoMLhgZdUfI6mc2Wtanfu87gOB2gw6O9bRMO4L6qyy1A1jTINglq+hAP/x5AWj/iquHQd3Ry6+WWhqsq4jv+GzG1gvcA6eQLWe26sB6NadE7RQuvzoQzLODSGqCwbB5IzUTA9gYIL+0ou6+vk3L72ZZCrD8Ig4SHNF3iXz7wrXmSV8ynkCA+9jlXI4KyyOTB4I4759EdI5vo/ycSH+h2RzM0HIRmruhcZBmMmxTSfFcdoZrvjwHH0/+u/SD+DE05fXE7fCVkM0+2BSeTm75IILncfqeFFsP8N+xM='),
+				
+			this.addEntry(dt + 'linked item custom content', function()
+		   	{
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 240), s + 'rrect;rSize=5;fillColor=#ffffff;strokeColor=#dddddd;whiteSpace=wrap;');
+			   	bg.vertex = true;
+			   	var button2 = new mxCell('Donec id elit non mi porta gravida at eget metus.\nMaecenas sed diam eget risus varius blandit.', new mxGeometry(0, 0, 400, 80), 
+			   			inh + s + 'rect;perimeter=none;spacingLeft=10;align=left;fontSize=14;whiteSpace=wrap;verticalAlign=bottom;spacingBottom=10;resizeWidth=1;');
+			   	button2.geometry.relative = true;
+			   	button2.geometry.offset = new mxPoint(0, 80);
+			   	button2.vertex = true;
+			   	bg.insert(button2);
+			   	var heading2 = new mxCell('List group item heading', new mxGeometry(0, 0, 400, 40), s + 'anchor;spacingLeft=10;align=left;fontSize=18;whiteSpace=wrap;resizeWidth=1;');
+			   	heading2.geometry.relative = true;
+			   	heading2.vertex = true;
+			   	button2.insert(heading2);
+			   	var button3 = new mxCell('Donec id elit non mi porta gravida at eget metus.\nMaecenas sed diam eget risus varius blandit.', new mxGeometry(0, 1, 400, 80),
+			   			inh + s + 'bottomButton;rSize=5;spacingLeft=10;align=left;fontSize=14;perimeter=none;whiteSpace=wrap;verticalAlign=bottom;spacingBottom=13;resizeWidth=1;');
+			   	button3.geometry.relative = true;
+			   	button3.geometry.offset = new mxPoint(0, -80);
+			   	button3.vertex = true;
+			   	bg.insert(button3);
+			   	var heading3 = new mxCell('List group item heading', new mxGeometry(0, 0, 400, 40), s + 'anchor;spacingLeft=10;align=left;fontSize=18;whiteSpace=wrap;resizeWidth=1;');
+			   	heading3.geometry.relative = true;
+			   	heading3.vertex = true;
+			   	button3.insert(heading3);
+			   	var button1 = new mxCell('Donec id elit non mi porta gravida at eget metus.\nMaecenas sed diam eget risus varius blandit.', new mxGeometry(0, 0, 400, 80), 
+			   			s + 'topButton;rSize=5;fillColor=#3D8BCD;strokeColor=#3D8BCD;fontColor=#ffffff;spacingLeft=10;align=left;fontSize=14;perimeter=none;whiteSpace=wrap;verticalAlign=bottom;spacingBottom=13;resizeWidth=1;');
+			   	button1.geometry.relative = true;
+			   	button1.vertex = true;
+			   	bg.insert(button1);
+			   	var heading1 = new mxCell('List group item heading', new mxGeometry(0, 0, 400, 40), s + 'anchor;fontColor=#ffffff;spacingLeft=10;align=left;fontSize=18;whiteSpace=wrap;resizeWidth=1;');
+			   	heading1.geometry.relative = true;
+			   	heading1.vertex = true;
+			   	button1.insert(heading1);
 			    
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Linked Items (Custom Content)');
+			}),				
+				
 		   	this.addEntry(dt + 'panel', function()
 		   	{
 			   	var bg1 = new mxCell('Panel content', new mxGeometry(0, 0, 150, 200), s + 'rrect;align=center;rSize=5;strokeColor=#E0F0D6;fillColor=#ffffff;fontColor=#f0f0f0;spacingTop=30;whiteSpace=wrap;');
@@ -738,19 +1158,1048 @@
 			    
 			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Panel (Footer)');
 			}),
-			this.addDataEntry(dt + 'table', 800, 280, 'Table',
-				'7Ztbc9o6EIB/jR+b8SWkyWMhp+10mk5mMmfOs8ALVipLVJILOb/+rGRBITIHkljmEsxksNa6eT+vvLsRUTYo518kmRZ3IgcWZX9F2UAKoeuzcj4AxqI0pnmU3UZpGuNflH7ecDWxV+MpkcD1Lg3SusFvwiqoJbVA6SfmBIUucVq3SZT1VUFyMcNCjIWcqAJyV8ArU1O/nE/MvVwM8Q6UxtMLKWGEU+nLB/qvqdEztbUUP2EgmJB2jCy3B14ZU8ZW5GN7oHxWUA0PUzIyXcywX5S5qYPUMN94+1bk7v0LiBK0fMIqM5rroq5xHdcqigugk8I1Q2ktJKoWTJZt/2gTT5xCm5Wbecq9JxxMDU01qrdlTWsx7VdaC/5qbefmY+SC6xX5jT2c3HWcXC7Kbv5m1oTRCY5+y2BskCvkRfnkuy3dJvEGjhIU9vmPI5LsSjZ9HdlLJ5PAiKa/Ya3/t9C+9Gg/YCcoyWFMKqbt9Gv8I9SbuQ8zMwkX+P2jYoyY1lQT0wYYNZcZHYIUUTowczMdFKgAhG2K1aSyTT8BB8JNZaNtaq4NsRnPqxJPuetY4QNkB1ZojqArudYUKtMecKT4V0VKc+0e7w7nCOpXZSYkJMehbUfl2limvoXFgaNClT1Xmg4rVpXLWytrRaEy7GPlCpwOC/xC5Ug6olC3LeioYsS0bH0pqlei3eyBCw5H8khfv/SRdkPcC2ofwqd1y1i0EOOxAu2ZwHJiO1lFL/wL5iVUV1e5/YN78VrUDC5JQ5C7aiCXdQLPmV6DNW57AW1G+nWh9p2Z9rYy7XX5evno4fhMpTJPwQ9Stu5LtMzl2SraLaakFU7PTG++vvS2annXHurv5Ex6z6TTLATqGw/13wrQ1Tpz3hfnLIhJJ7EH+tPIzvKMeTPmED6Tm1DvKgjmxMPcF0qdIe8H8sc4COQOkmaviFRPJ5wJY5p+Ni45MLts0/CS7Qw7DV8SPz32TRT8wAgEXAl3AHJ0gUriZ3f6QpyZHnVIkviJn0e0VP50fWjr5emSDRSE+DmktomOChj9HIp5k/NyZY+3EnBOQnzh1p4VImkDkLTlcMEN/yEJAsjP/HiAFrrHlnSq4H8VvQLzCHW+9N7D6txPwXSyzL0Xbz4NEoOlfj6lG2x78uZvtjLs1JtP/TzHHXFdHA6BkP7BdiBH580vLGjVm5di9p5itP1SDePPN2xDKqlS5dlej92fb9hy1DbRFv35DQRO2Z/vYvcLyalYbvs7KUbd+P+N+1zaZTQUiKd8w97Mk4sJgmw1a9gic2j7ldp8pdUP7gHFBH7y4hsp4dD++RnQydiByPEFBX565E4ISd6R77hnrGGigsxPoDzSx7O9Hn1QkPmpmdaJPvtJT/Z2z3MTilOODjI/3+KRCpntPyydB/H2sfjnt3R19dWf2v0H'),
-			this.addDataEntry(dt + 'table', 600, 320, 'Panel (List Group)',
-				'7VhNc9owEP01PjZjbEKTY4E2l6aTmcy0Zxmv8bayRPQRoL++u7IggMkMSUjJATNgabUrrd57kmWSfNQsboyY1be6BJnkX5N8ZLR2balZjEDKJEuxTPJxkmUpfZPs2zOtvdCazoQB5Q4JyNqARyE9tJbWYN1SRkPtGkpr3Evyoa1FqedUSalSCltDGSvUMmP/ZjHluVwUNAPrqHhhDEwolaG5x7/sccnezug/MNJSmzBGXoaLWiqUcsNehYvsMU0wDhbPTjWY4jxvQDfgzJJc5li6uvUYpC0caQ04rWNYHjFKhW0N03XsE3JUiODtBzLvAHknFLCHQ0dQHhlVp2dD75xWr0a25A/btXIb9utwRXvsuNdf1WP+nLWQOKXRxxIqptfOxATV9HuojXuc/bxGB/dk55A5Zc25gqU+f0VGeocym72O2X60GZDC4SNs9f8Wtvsdtu+pE7KUUAkvXUi/pX9CuPE8ODMDF3T/4aUUHI1OcAxI5GaJBRidZCPOjTuoCQAim6t+6kPoF1AgFDsz2shtBYWp0jdUVLFjSwIKA1taeuC82QoFz/FAI6UPXjTcdkezoxzBPnhOSBtFQ4eOmq2x2D+QpUARoDaUrcPCS9+sp9a0QBEYQVaxorCo6UbgGJwgtLE1TrwUHHn0bafddQ5bD0oreLWkdxfK6WV/9VLZxyHuNAahLrdXzypCV5UF11km68QOWjmXnZUzMoLF8Ntbx5rUJeqPIIY97O8yvaOX0xP/4v1uP/G93QfiUZgfdJgfixltHUy+mNBPRYBLtGFbQXXWwGk1MHgPDXzuaOBWmwLXDySDlvVwZv6EzGfpezB/1T0fa+PEau1vHFai6ayBU2rgXZ791x0N/FyfHnksToCOwEffAApNb0rNG96XPrAgllsB/0ken44hD6o+/c/Rum/+DfIP'),
-			this.addDataEntry(dt + 'table', 800, 160, 'Table',
-				'7Ztdb5swFIZ/DZerMORrl0u6dqqaaVI17doNJ8Ep4Mh2G7JfPwMmTWqyoAYHSKCqhA822O+DyesTYrmTML5neOVPqQeB5X633AmjVGR7YTyBILAcm3iWe2s5ji3/LefuwFGUHrVXmEEkyjRwsgZvOHiFLJIFuNgEKuCLUHbrFlnumPvYo2tZsGXBw9wHTxXkkVVSP4wXyVhunuUIuJC7NwxmIqkgGH2BCQ0ok9UiGsna4zkJgjxkOe483WRcdQqYgPjgwNKQGtU90BAE28gqa+IJP6sxsrPB2z6QhZ83G6gg5llgsW37rpPcUVIVy+Yal82n7JFEwDXppE5euhXo5yV/Ms6Ak7/wRymByirqfE7RnooxCLAgb7B3/lNU7hWo7NZ1f+YhGoknKW5yxV5eVp1JurD2iYCnFZ4lgbW8wBbHj1yy0jzcozz658TR13DcEcaFDP3EITScCw7IIpL7AczF2TGhSjipS/yiJEpEj/Mpud+CzucchMZ127FSqAca6kfcka6ZtOOaQD3UUP/mwKKOc22cXSNTeqRx/jZLO9lRPky5ErtTTLn/0YdWQvmrRnlMOe8Y18N4aJtgjOwCX1zz6kORbvjC4wOlzf5pqoWENEioYdOwynmW3ZPNWasgPbHxQP2oYQQMPvhKAGndqgTpaZcxpR3TVq8/kJ7lWcqZGm1GTXteXi5ZMysOpCeMqiY682H28kzjIp8ySLdTCSiPYN+owewQcQqAOBUvDtTlvyAjgPQ0jwYo1162JCsO/xV6B2YLNd+adbOa6/mWqifFVZl3M08uPVlSOaUmmffhUYTnNe96FmOK1SmaQ8CkHTgOpHXmPX9K75p3RtfXtCSrl6oZ++7oeY6QcB5287Xt9j3/yGuHfT9A4JLt+xneQmHYI3T8KgSNLo3Reex+4Tssnd3/tN1HjhFKeqaiae8ZVflxld2UzfH7Ba+bPOAQmva1pUEDUYJI+wy/numYUsrwFfnCmrEacvx6cmRJlt18bb/h19MulRNVSJni5J7uKg+huGTnn8/ruhL3zdLciJOXxfdfYWTVd3+k8Q8='),
-			this.addDataEntry(dt + 'table', 800, 360, 'Table',
-				'7V1db6M4FP01SLsPU4GBfDwmaTuj0XY1mmh3n2lwAirBWSBtsr9+bbDzZUg9qZ3i4IxGhRvjmHuurzmXQ2K5k+XmaxasoicUwsRyHyx3kiFUVFvLzQQmiQXsOLTcewsAG/+3wGPDu075rr0KMpgWIgeA6oDXIFnDylIZ8mKbUENULPGw7h3LHedREKI3vGPjnTDIIxjSHfzOirRfbhbkXO6e8RnkBd68y+CsIA2KDL3ACUpQhpulKMWtx/M4SZjJAu68fGH7WxQXcLoKZqTLN9wLttGBwqyAm8aTLU30TL9CtIRFtsVN3uKwiKoWA7tyiB3BeBHRw9weNQZ5ZVjsjt37Dm9Q99W70lXuyghlf8QpzDl3Yt+F5avGpyH5h+0ZzOP/4D/UE46oR8FlHvWoLYNJUMSv8Kj/j3jZ47z8Z7CEnxW0zITSYoq9Sz7RY/t0MGQIQRIvUrydwHnREN4VPN+YC4Xxcd/Fx/Fl4EM/4geK8ScDmw7IP5k3aD7PYcHhuRuYEMQ+B/E9Wj8n8AsJfgv0cFQ7BL5vMAhhZqD/HOjVYN/jsP+JB5kuDMqfg7KnBOU+h/IU+w/DBuy/VgbqM1BLWWvroe4BFVAP3r8qYtAVWRykC2IdhzFBLUbE0Tlak9MXuoK0y5eov/v1/j4+YFvt2Xd0WTpCgwfDl4LFF9bPlu2zj5cKzvB9cK59yUpxbfnV6glq2+NupGLEgkxkBuEj41UOBSfLzv8HGAt5eVjv5TMzBdQ4HchJW87JTHGUgOAonynrHF/LigE3LF/CnNg+m+Z2cJ1LdB4PnwPkZLr+MXw9FejxVY7vKEqxZYxQyy43FF5eNExbnamiwxdd0It0RCmkGcXJFZym/mA89PsnGIOaS0qyL7UM9usJ2lWXoHfIq83QfGFIehxUTFQM/IfH0cQjkQKXq2L72LDy4o8IWUhV3U9nQTlcf2+hJ5AXQaYuAGqnPnOqLBLJIqCvIgD4spEFegmZuEXwjD0I7Bk+YhWEYYkibtD7d03q7GN7v0lb5XjSnW+1DytmpM4clRyNwMc8ubcc9tBb0L/VEDPOQtgwWw32B84wxqTodTCUV77VMg5DcsoHrfZYM6NfjoobEnGkPYWYh2Of2wM8fh8vyvboySIJoRocyVjEVbuQ3nfCgpvr9zdgO+7vrAcMZ9XJ8VljMzlx3sj5hxgrXJm9zes4whN2npRjIAdff2Xv6VY4cPhSoGyIO0VOB0pA4it5HEhXJqdV3HSLnQoU2VrLTs8X4brATvkq3FM8iwJIGv1Ez3Gao7Tdq5vMtaxp/upMU1kyMTT1o6lae54K1FcSFfLUA1YqhadeEAHaE1UGuCGqUolqn4wfGKLaaqIqsrhrx1TbqPzTmak6alASKBBfmao2CT5umKrWiPtkzxVlVLWKoC5T1Rp53iiBmyAtdZiErHaKqt6i+LZGmzdO0OyFiPPawVd3k/bqfPWCfN3Xnq/W1RYNW/koW8GZaeQattJutiKS3/VjK0b0KQel7UkESEWJ1TnbxFa6J/t0NZZ9up2Xfbp8ofU7TNN4XpKVH3Gav7Tu8TGVbOUG9Z8uX3rbsRUbeJF0dPXjLL+etYe6cxa3rtRnOMtHOQsGdWQPDGdpN2e5RS2gq75q3CnOAmwlKAkoNq/MWarA6RZnEZBktpazNNwe7hBn4cutY/Rsde/eStPM1Zqt8KU3IwO8KElrLwNkYaqnDJAMSaYM8III0F4G6NXVFg1JNc+rtWIpV0tSRRZ37Uiqx5ebZWPcLZKq5OtUPAGx5pVJqtfg5xsmqZ76p/WVkVSvQRXQHZLq8eW4Lj+x1jR/daaqHl/Lm67zFcGgLXzVHz8+2J/BVy/I19rLAD31VUWFfNWTzFcviAD9+aoRgprH1lq7nqvlqyIrvH581QhB5aDE+KqSb1hhqb1NfLV7QlBfYyGo33khqM9X5rosBG2avzrzVd98EaikVK39rVXfqD+VPbHmGaLSbqJyi+pP36g/5aBE066rBqX2qT/97qk/fY3Vn37n1Z8+X2Pt4g8VNM1brQkKX237O0ZknApulV7IU+7HPvAmn8FTLsjU2t9SY9dhet5SI2Eh85baBRGg/S21npGAmucUW7uiq2WqImt825kq3t3/UnfVPDv4Ie//AQ=='),
-			this.addDataEntry(dt + 'table', 800, 340, 'Table',
-				'7Z1dc5s4FIZ/DTO7F82IDzvJpZ1s2ulsdjPNtHuNjWzUYOQVcuLsr98jQDaOIKExIgbkTqf2sUDivDoH6UFyLfdqtf3M/HV4SwMcWe4flnvFKOXZu9X2CkeR5SASWO615TgI/lrOTcW3dvotWvsMx7zOAU52wKMfbXBmyQwJf45yQ8hX0Kxr23KnSegH9Ak+IPgQ+EmIg/wDfLMW5VfbpbiWsxlcQcLh7RnDcy4KcEYf8BWNKINiMY2h9HRBokiaLMddpC+wP4WE4/u1PxenfIKzgC1vKGYcbysvNjXlV/oZ0xXm7BmKPJGAh1mJC5Q5BIWYLMP8MNfLjX6SGZa7Y/e+gze5+8pd6Wp3ZUjZnyTGieJO8F2Qvkp8Gog/YGc4If/hf3JP2HU96rzPo9KhDEc+J4/44PzHeNlTvDwJViQG01/+Cn9U55UmGvN78LKo0ZOf88aIJvgRWcbwPsILXtHNM5m+SFfW1sl9Uyd71IROeRV3lEDNDpINehE/dLFIMFd03TWsltQjReq/Zz+FIEbkDxHZQTpUHqsBPeeExkblj1HZ06LyuaLytc9Nun5N40Zuq+Uajx0dGl+8PQCS0nFG/HgprNOACNVEwLvXCd2Iy681WETp60h/P2fforP8XnPgf9X9o2a8P87Pk9f+yZHVNyrH5dtytD0ezZVsdyg6OjJmng9Dr1GNZCcriPQVxzFZYAbWOxInD+Id3CNde9/XTyZhakyQl++7CR4rts7xrG3XT5BwJFknuGYu3AVboTsc4+VX0qJT4nSn4fGlzIu2jrRo60cemwSCtp5yl+mrNt6o4BvbF3q9dlvzVP2kS47U79P5oXxjHeqplOUrDcX0f0qpSZStJ0oYh+lQWaU8oG0kXMf9GUjqoDkcsfaDgMTLtMD4341gplO0f5uXSsDPr5fadxNpzL03SQfhI5FYc9ftLcUzjJf5v1kTmWIJhIfyPrA/MO0NxYY8qmVWJAjEBRdK7aWVxlHaJqVBd4xC3xTe+r4OYLoVyPbMmFDnRSNFnxUu2yWn/enkDUap4YawhO/YGyKJ8KaQH3GaxuRs9izPD1VmVRxWC2bhHtWoeFEYM/Wl/ZRjnELcLqK0DeLg1qO+fAJzyozAVoFfH6N+DiKmg3ptcS8cie7x2nLA5+gC2j+CGyOa3FpipPb+aP/NQbb7ezGJHF6wajEx3+6dfqwv5vUwI1vFv01LPChKcalFJJXewp0dDN/oLBGkfoDD7qzj9gxQ/ALBbQlQVLm514RCP7nVRyguyvUaDqGQXa2g3i2Zhz6OsoRJYpMye4QqnDKo279Ji25U8YNQIa6IDPQNJzR61EEr/Aehxx1maQiiYqXsRaVm5tJu5HcPV8i7cs8jv21ccS7a7xhcMYSg7x6vOMVVvl3mFbaWZRUlq4TNGLzQf/uFLUoWCiuCtowt3rHerPPYomQlb9NxpQ1bZF1o0NhCZbyTCG/9OEiXovWR9HYgX2piFmWct38zF93M4n6TrNPtKPqIxa2fiCUVN4zgONUCJkq7Wg2yqD17+fVR8dtx30FiUfZgoX9x3zaxgL45cT1DLE4s5vVMjjpHLOQIwhCLhoiFliUWrvoYyWwEKfTffhELt+zRwccSiyo395lYuPphrjZi4VZkweEQC1eFvCZlnkLK1AMt3GGsDm9vT0hx9cM15tCbW9ogsvLZAw6y/nHQDDOlaXxKUyMVdI9juGVPGvqXCtrmGCDiBF0YjjGEoO8gx1AfUDWt8aA4hp4ftHDVR0sD35+d9due8YsaOxTa5hcVbu4zv5AR3El+UbGbcTj8wlOR7+B31X1wstRDLrwy2tu/6Yr5NQszYdEX9t2jFF7Z04X+hb35OQsT9Nru9Z2jFF7ZL1cZSvF+SqFltYWnPksy+0MK/bdftMKrsTGhZVpR5eZe0wr9AFcbrfAq9jIOiFaoYNekzFNImZqYxTCWiutmFt+TdDHSNKLzBw3AYndetKCiHrHvFYV0wxIzY9EwY6kR6d3DFLJxPY908zMWJui13d5PHVPAx/1/KZgVL/6Pg/8D'),
-			this.addDataEntry(dt + 'table', 800, 430, 'Table',
-				'7VpNU+M4EP0te8hxqdgBhj0OgZ05zGxNFbO1Z0XuJF0jW0aSQ9hfv90tOSE47ASSQAYIRWy1pVbrPX08d6U3GJbzT07V06+2ANMbXPYGQ2dtiHflfAjG9PI+Fr3BRS/P+/Tfy/984GkmT/u1clCFTRrkscFMmQaiJRp8uDXJMA0lhXWR9QbnfqoKe0OFPhUK5adQpAI9qbl+OZ/wWI5GNAIf6PbIgQ5cITj7A4bWWEfVKltR7fMxGtOaevlgLB+yp6DABZg/ODAxpVF9AltCcLdU5QaLMI01zvpx8P0p4GSamh0PklH5aJgs2i5xopsE1XrYBnuHbWrdF6zAd6AjnAr5rMGv4D+yO/D4L/yTkMg2RTR/IqLJ5sCogDNY8b8NyscdlL9DWVMnQNa/VAkvNVdbk63CFQHNPR635RQMh6AMTiq6NzAWt7XSWE2+SOki41Buphjgiuzc5IZCWJD3uQV4Y/YGP2Uvf1b2TjrsfQXv1eQ1s3Z3yR06j6mLbxap57w/v+e7bWLHYw+hQ/wiso3mwunh7ZdpNjzvVpkNtmTpdpXsnZL0oUPS35W2tOFCIALy/jdnCcCXXr5PW54bkXp6YDvoWYeQz1TB/ka2jyEOx9IFrOdvtiitG6/KZmHAxgeuYwvkS0HYofdYSpOi0RjrXjdI3yOjqgIDIptqp8ATNNiUXBUMVPSI+wjXDR/A2jrX1GK6bqI/ZgpkIpJJsam0BnxAuYe5hjo0jlv4OJ2t1gq0Eie6qZF6j6c7kS0x2BkWzE8+lEYlGoy9+0YcYCUtTa0Wo6C1gBqVBO3BxXoUh6Hw2aoqchMdIk9ris+okXUyToldxiHFcTNRR3S9ZPNURSN1U0AphKdaNAWNgEa+Wicwr4GHI6gTBJUOaI8WwqVvcBTpC6RpCLYYkRaH3ppGWlZ2dNcvTX0ghiyhbmPlCEaFU5SJU0qfkZGjw1qos7YcbL1+3fLqRK3Mx3UVv3Ph4nTj03dHC/54L7v4Xs/aPzq7xqXMiR1PhjQbXJJSJ496UWlf9Ha9Va82uMPjyRoad8Ti71l7AKTDOTvZA6tZv0PrBfDJ/MaJPd0jsWfPwWv2Lo3TBN+NNM4+7GNTzbqJMprdfFZfNb7mFXNQh+0uVXH280Tb88rirJt9E10cFdRjlGqr1V5IrD5Bqe5Pkz6oNnnkK4JzrdrkyLGSlwmJlUx8KdUcRe7WhmaeCu+idBfrbb0q3XYD3asqzbrJ3FcoSx/i7hXr0m6a91Xq0kcz+8sL0/ecbQvEboRpvh9h2s3aLvK0/XNj9Q/O3R7SmbtTbbplynYrGfo/6dkrSZg3zH4Nztcs84Joq6YqmBlbVlIkFSYKUoWYs3WOkGPxKPlda0i2ksZkcRZTu4t8rAjYlP4zqinaJywWgw0qakFpSBGgSo9AxSZYe7pTfKtGXBb9TAp1RthKNpKhZ4GLKypZZLXTzJeWxPKIRJ24mWG8FqhFYCbNS5LTkH4aRZkJpSSsSdemGMr7wyQhq5Y2H7FQ9IrlGCPGRgmsNirPWCBJjK3shmLpRdvKw3VDkUjLUk0q7K2of7vMfjsaK0/YewGxA35M+5RG8hTHEVGs6cXCRgee0Clb7TyMTRJJcajNndHJgwXNqoQUvMSrA0i4bFAF1kj9Ch1m7Rjjy0fFyjwGgE18lxHlHpPLSqjVWEROBDPJeUPLbQqVABInit9cVIxYASGzRIVqvYv4XWxM60X8tofNfkX8m8gtP8Td6xXx+RtJLj+a2V9MxFNx+dPBWP3uLwv/Aw=='),
-	
+				
+		   	this.addEntry(dt + 'table', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 280), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('Panel title', new mxGeometry(0, 0, 800, 40), s + 'topButton;rSize=5;strokeColor=inherit;fillColor=#000000;fillOpacity=3;fontColor=#999999;fontSize=14;fontStyle=1;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg2a = new mxCell(
+			   			'Some default panel content here. Nulla vitae elit libero, a pharetra augue. Aenean lacinia bibendum nulla sed consectetur. ' + 
+			   			'Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula. ', 
+			   			new mxGeometry(0, 0, 800, 80), inh + s + 'rect;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg2a.geometry.relative = true;
+			   	bg2a.geometry.offset = new mxPoint(0, 40);
+			   	bg2a.vertex = true;
+			   	bg1.insert(bg2a);
+			   	var bg3 = new mxCell('', new mxGeometry(0, 0, 800, 40), s + 'rect;strokeColor=inherit;fillColor=#000000;fillOpacity=3;whiteSpace=wrap;resizeWidth=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.geometry.offset = new mxPoint (0, 120);
+			   	bg3.vertex = true;
+			   	bg1.insert(bg3);
+			   	var bg4 = new mxCell('#', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;whiteSpace=wrap;resizeHeight=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.vertex = true;
+			   	bg3.insert(bg4);
+			   	var bg5 = new mxCell('First Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(80, 0);
+			   	bg5.vertex = true;
+			   	bg3.insert(bg5);
+			   	var bg6 = new mxCell('Last Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg6.geometry.relative = true;
+			   	bg6.geometry.offset = new mxPoint(230, 0);
+			   	bg6.vertex = true;
+			   	bg3.insert(bg6);
+			   	var bg7 = new mxCell('Username', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg7.geometry.relative = true;
+			   	bg7.geometry.offset = new mxPoint(380, 0);
+			   	bg7.vertex = true;
+			   	bg3.insert(bg7);
+			   	var bg8 = new mxCell('Active', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(560, 0);
+			   	bg8.vertex = true;
+			   	bg3.insert(bg8);
+			   	var bg9 = new mxCell('Boss', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(700, 0);
+			   	bg9.vertex = true;
+			   	bg3.insert(bg9);
+			   	var bg10 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'rect;whiteSpace=wrap;resizeWidth=1;');
+			   	bg10.geometry.relative = true;
+			   	bg10.geometry.offset = new mxPoint(0, 160);
+			   	bg10.vertex = true;
+			   	bg1.insert(bg10);
+			   	var bg11 = new mxCell('1', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg11.geometry.relative = true;
+			   	bg11.vertex = true;
+			   	bg10.insert(bg11);
+			   	var bg12 = new mxCell('John', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(80, 0);
+			   	bg12.vertex = true;
+			   	bg10.insert(bg12);
+			   	var bg13 = new mxCell('Boo', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(230, 0);
+			   	bg13.vertex = true;
+			   	bg10.insert(bg13);
+			   	var bg14 = new mxCell('johnny81', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(380, 0);
+			   	bg14.vertex = true;
+			   	bg10.insert(bg14);
+			   	var notif1 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'checkbox;fillColor=#ffffff;strokeColor=#666666;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(560, -10);
+			   	notif1.vertex = true;
+			   	bg10.insert(notif1);
+			   	var notif2 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=#666666;fillColor=#ffffff;html=1;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(700, -10);
+			   	notif2.vertex = true;
+			   	bg10.insert(notif2);
+			   	var bg17 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'rect;whiteSpace=wrap;resizeWidth=1;');
+			   	bg17.geometry.relative = true;
+			   	bg17.geometry.offset = new mxPoint(0, 200);
+			   	bg17.vertex = true;
+			   	bg1.insert(bg17);
+			   	var bg18 = new mxCell('2', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg18.geometry.relative = true;
+			   	bg18.vertex = true;
+			   	bg17.insert(bg18);
+			   	var bg19 = new mxCell('Mary', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg19.geometry.relative = true;
+			   	bg19.geometry.offset = new mxPoint(80, 0);
+			   	bg19.vertex = true;
+			   	bg17.insert(bg19);
+			   	var bg20 = new mxCell('Brown', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg20.geometry.relative = true;
+			   	bg20.geometry.offset = new mxPoint(230, 0);
+			   	bg20.vertex = true;
+			   	bg17.insert(bg20);
+			   	var bg21 = new mxCell('missmary', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg21.geometry.relative = true;
+			   	bg21.geometry.offset = new mxPoint(380, 0);
+			   	bg21.vertex = true;
+			   	bg17.insert(bg21);
+			   	var notif3 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'checkbox;fillColor=#ffffff;strokeColor=#666666;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(560, -10);
+			   	notif3.vertex = true;
+			   	bg17.insert(notif3);
+			   	var notif4 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'radioButton;fillColor=#ffffff;strokeColor=#666666;');
+			   	notif4.geometry.relative = true;
+			   	notif4.geometry.offset = new mxPoint(700, -10);
+			   	notif4.vertex = true;
+			   	bg17.insert(notif4);
+			   	var bg24 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'bottomButton;rSize=5;whiteSpace=wrap;resizeWidth=1;');
+			   	bg24.geometry.relative = true;
+			   	bg24.geometry.offset = new mxPoint(0, 240);
+			   	bg24.vertex = true;
+			   	bg1.insert(bg24);
+			   	var bg25 = new mxCell('3', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg25.geometry.relative = true;
+			   	bg25.vertex = true;
+			   	bg24.insert(bg25);
+			   	var bg26 = new mxCell('James', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg26.geometry.relative = true;
+			   	bg26.geometry.offset = new mxPoint(80, 0);
+			   	bg26.vertex = true;
+			   	bg24.insert(bg26);
+			   	var bg27 = new mxCell('Mooray', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg27.geometry.relative = true;
+			   	bg27.geometry.offset = new mxPoint(230, 0);
+			   	bg27.vertex = true;
+			   	bg24.insert(bg27);
+			   	var bg28 = new mxCell('jijames', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg28.geometry.relative = true;
+			   	bg28.geometry.offset = new mxPoint(380, 0);
+			   	bg28.vertex = true;
+			   	bg24.insert(bg28);
+			   	var notif5 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'rrect;rSize=3;fillColor=#ffffff;strokeColor=#666666;');
+			   	notif5.geometry.relative = true;
+			   	notif5.geometry.offset = new mxPoint(560, -10);
+			   	notif5.vertex = true;
+			   	bg24.insert(notif5);
+			   	var notif6 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;fillColor=#ffffff;strokeColor=#666666;html=1;');
+			   	notif6.geometry.relative = true;
+			   	notif6.geometry.offset = new mxPoint(700, -10);
+			   	notif6.vertex = true;
+			   	bg24.insert(notif6);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Table');
+			}),				
+				
+			this.addEntry(dt + 'panel list group', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 600, 320), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('Panel title', new mxGeometry(0, 0, 600, 40), s + 'topButton;rSize=5;strokeColor=inherit;fillColor=#000000;fillOpacity=3;fontColor=#999999;fontSize=14;fontStyle=1;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg3 = new mxCell(
+			   			'Some default panel content here. Nulla vitae elit libero, a pharetra augue. Aenean lacinia bibendum nulla sed consectetur. ' + 
+			   			'Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula. ', 
+			   			new mxGeometry(0, 0, 600, 80), inh + s + 'rect;align=left;spacingLeft=10;whiteSpace=wrap;fontSize=14;whiteSpace=wrap;resizeWidth=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.geometry.offset = new mxPoint(0, 40);
+			   	bg3.vertex = true;
+			   	bg1.insert(bg3);
+			   	var bg4 = new mxCell('Cras justo odio', new mxGeometry(0, 0, 600, 40), inh + s + 'rect;spacingLeft=10;fontSize=14;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(0, 120);
+			   	bg4.vertex = true;
+			   	bg1.insert(bg4);
+			   	var bg5 = new mxCell('Dapibus ac facilisis in', new mxGeometry(0, 0, 600, 40), inh + s + 'rect;spacingLeft=10;fontSize=14;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(0, 160);
+			   	bg5.vertex = true;
+			   	bg1.insert(bg5);
+			   	var bg6 = new mxCell('Morbi leo risus', new mxGeometry(0, 0, 600, 40), inh + s + 'rect;spacingLeft=10;fontSize=14;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	bg6.geometry.relative = true;
+			   	bg6.geometry.offset = new mxPoint(0, 200);
+			   	bg6.vertex = true;
+			   	bg1.insert(bg6);
+			   	var bg7 = new mxCell('Porta ac consectetur ac', new mxGeometry(0, 0, 600, 40), inh + s + 'rect;spacingLeft=10;fontSize=14;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	bg7.geometry.relative = true;
+			   	bg7.geometry.offset = new mxPoint(0, 240);
+			   	bg7.vertex = true;
+			   	bg1.insert(bg7);
+			   	var bg8 = new mxCell('Vestibulum at eros', new mxGeometry(0, 1, 600, 40), inh + s + 'bottomButton;rSize=5;spacingLeft=10;fontSize=14;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, -40);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Panel (List Group)');
+			}),				
+				
+			this.addEntry(dt + 'table', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 160), 'html=1;shadow=0;dashed=0;shape=partialRectangle;top=0;bottom=0;right=0;left=0;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 800, 40), s + 'horLines;strokeColor=inherit;fillColor=#000000;fillOpacity=3;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg3 = new mxCell('#', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;whiteSpace=wrap;resizeHeight=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.vertex = true;
+			   	bg2.insert(bg3);
+			   	var bg4 = new mxCell('First Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(80, 0);
+			   	bg4.vertex = true;
+			   	bg2.insert(bg4);
+			   	var bg5 = new mxCell('Last Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(230, 0);
+			   	bg5.vertex = true;
+			   	bg2.insert(bg5);
+			   	var bg6 = new mxCell('Username', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg6.geometry.relative = true;
+			   	bg6.geometry.offset = new mxPoint(380, 0);
+			   	bg6.vertex = true;
+			   	bg2.insert(bg6);
+			   	var bg7 = new mxCell('Active', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg7.geometry.relative = true;
+			   	bg7.geometry.offset = new mxPoint(560, 0);
+			   	bg7.vertex = true;
+			   	bg2.insert(bg7);
+			   	var bg8 = new mxCell('Boss', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(700, 0);
+			   	bg8.vertex = true;
+			   	bg2.insert(bg8);
+			   	var bg9 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(0, 40);
+			   	bg9.vertex = true;
+			   	bg1.insert(bg9);
+			   	var bg10 = new mxCell('1', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg10.geometry.relative = true;
+			   	bg10.vertex = true;
+			   	bg9.insert(bg10);
+			   	var bg11 = new mxCell('John', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg11.geometry.relative = true;
+			   	bg11.geometry.offset = new mxPoint(80, 0);
+			   	bg11.vertex = true;
+			   	bg9.insert(bg11);
+			   	var bg12 = new mxCell('Boo', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg9.insert(bg12);
+			   	var bg13 = new mxCell('johnny81', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(380, 0);
+			   	bg13.vertex = true;
+			   	bg9.insert(bg13);
+			   	var notif1 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'checkbox;strokeColor=#666666;fillColor=#ffffff;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(560, -10);
+			   	notif1.vertex = true;
+			   	bg9.insert(notif1);
+			   	var notif2 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=#666666;html=1;fillColor=#ffffff;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(700, -10);
+			   	notif2.vertex = true;
+			   	bg9.insert(notif2);
+			   	var bg16 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg16.geometry.relative = true;
+			   	bg16.geometry.offset = new mxPoint(0, 80);
+			   	bg16.vertex = true;
+			   	bg1.insert(bg16);
+			   	var bg17 = new mxCell('2', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg17.geometry.relative = true;
+			   	bg17.vertex = true;
+			   	bg16.insert(bg17);
+			   	var bg18 = new mxCell('Mary', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg18.geometry.relative = true;
+			   	bg18.geometry.offset = new mxPoint(80, 0);
+			   	bg18.vertex = true;
+			   	bg16.insert(bg18);
+			   	var bg19 = new mxCell('Brown', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg19.geometry.relative = true;
+			   	bg19.geometry.offset = new mxPoint(230, 0);
+			   	bg19.vertex = true;
+			   	bg16.insert(bg19);
+			   	var bg20 = new mxCell('missmary', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg20.geometry.relative = true;
+			   	bg20.geometry.offset = new mxPoint(380, 0);
+			   	bg20.vertex = true;
+			   	bg16.insert(bg20);
+			   	var notif3 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'checkbox;strokeColor=#666666;fillColor=#ffffff;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(560, -10);
+			   	notif3.vertex = true;
+			   	bg16.insert(notif3);
+			   	var notif4 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'radioButton;strokeColor=#666666;fillColor=#ffffff;');
+			   	notif4.geometry.relative = true;
+			   	notif4.geometry.offset = new mxPoint(700, -10);
+			   	notif4.vertex = true;
+			   	bg16.insert(notif4);
+			   	var bg23 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg23.geometry.relative = true;
+			   	bg23.geometry.offset = new mxPoint(0, 120);
+			   	bg23.vertex = true;
+			   	bg1.insert(bg23);
+			   	var bg24 = new mxCell('3', new mxGeometry(0, 0, 50, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;whiteSpace=wrap;resizeHeight=1;');
+			   	bg24.geometry.relative = true;
+			   	bg24.vertex = true;
+			   	bg23.insert(bg24);
+			   	var bg25 = new mxCell('James', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg25.geometry.relative = true;
+			   	bg25.geometry.offset = new mxPoint(80, 0);
+			   	bg25.vertex = true;
+			   	bg23.insert(bg25);
+			   	var bg26 = new mxCell('Mooray', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg26.geometry.relative = true;
+			   	bg26.geometry.offset = new mxPoint(230, 0);
+			   	bg26.vertex = true;
+			   	bg23.insert(bg26);
+			   	var bg27 = new mxCell('jijames', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg27.geometry.relative = true;
+			   	bg27.geometry.offset = new mxPoint(380, 0);
+			   	bg27.vertex = true;
+			   	bg23.insert(bg27);
+			   	var notif5 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), s + 'rrect;rSize=3;strokeColor=#666666;fillColor=#ffffff;');
+			   	notif5.geometry.relative = true;
+			   	notif5.geometry.offset = new mxPoint(560, -10);
+			   	notif5.vertex = true;
+			   	bg23.insert(notif5);
+			   	var notif6 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=#666666;fillColor=#ffffff;html=1;');
+			   	notif6.geometry.relative = true;
+			   	notif6.geometry.offset = new mxPoint(700, -10);
+			   	notif6.vertex = true;
+			   	bg23.insert(notif6);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Table');
+			}),				
+				
+			this.addEntry(dt + 'table', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 360), 'shape=partialRectangle;right=0;left=0;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 800, 40), s + 'horLines;strokeColor=inherit;fillColor=#000000;fillOpacity=3;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg3 = new mxCell('Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.geometry.offset = new mxPoint(50, 0);
+			   	bg3.vertex = true;
+			   	bg2.insert(bg3);
+			   	var bg4 = new mxCell('Double-Line\nHeader', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(250, 0);
+			   	bg4.vertex = true;
+			   	bg2.insert(bg4);
+			   	var bg5 = new mxCell('Rating', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(450, 0);
+			   	bg5.vertex = true;
+			   	bg2.insert(bg5);
+			   	var bg6 = new mxCell('Signed Up', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg6.geometry.relative = true;
+			   	bg6.geometry.offset = new mxPoint(620, 0);
+			   	bg6.vertex = true;
+			   	bg2.insert(bg6);
+			   	var notif1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;strokeColor=none;fillColor=#000000;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(-25, -2.5);
+			   	notif1.vertex = true;
+			   	bg6.insert(notif1);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 40);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var notif2 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(15, -10);
+			   	notif2.vertex = true;
+			   	bg8.insert(notif2);
+			   	var notif3 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(-7, -6);
+			   	notif3.vertex = true;
+			   	notif2.insert(notif3);
+			   	var bg11 = new mxCell('John Boo', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg11.geometry.relative = true;
+			   	bg11.geometry.offset = new mxPoint(50, 0);
+			   	bg11.vertex = true;
+			   	bg8.insert(bg11);
+			   	var notif4 = new mxCell('ok', new mxGeometry(0, 0.5, 30, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#58B957;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif4.geometry.relative = true;
+			   	notif4.geometry.offset = new mxPoint(250, -10);
+			   	notif4.vertex = true;
+			   	bg8.insert(notif4);
+			   	var notif5 = new mxCell('', new mxGeometry(0, 0.5, 150, 14), s + 'rating;strokeColor=none;fillColor=#EFAC43;emptyFillColor=#dddddd;grade=3;ratingScale=5;ratingStyle=star;');
+			   	notif5.geometry.relative = true;
+			   	notif5.geometry.offset = new mxPoint(450, -7);
+			   	notif5.vertex = true;
+			   	bg8.insert(notif5);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 8:56 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			   	var bg15 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg15.geometry.relative = true;
+			   	bg15.geometry.offset = new mxPoint(0, 80);
+			   	bg15.vertex = true;
+			   	bg1.insert(bg15);
+			   	var notif6 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif6.geometry.relative = true;
+			   	notif6.geometry.offset = new mxPoint(15, -10);
+			   	notif6.vertex = true;
+			   	bg15.insert(notif6);
+			   	var notif7 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif7.geometry.relative = true;
+			   	notif7.geometry.offset = new mxPoint(-7, -6);
+			   	notif7.vertex = true;
+			   	notif6.insert(notif7);
+			   	var bg18 = new mxCell('Michael Robinson', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg18.geometry.relative = true;
+			   	bg18.geometry.offset = new mxPoint(50, 0);
+			   	bg18.vertex = true;
+			   	bg15.insert(bg18);
+			   	var notif8 = new mxCell('ok', new mxGeometry(0, 0.5, 30, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#58B957;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif8.geometry.relative = true;
+			   	notif8.geometry.offset = new mxPoint(250, -10);
+			   	notif8.vertex = true;
+			   	bg15.insert(notif8);
+			   	var notif9 = new mxCell('', new mxGeometry(0, 0.5, 150, 14), s + 'rating;strokeColor=none;fillColor=#EFAC43;emptyFillColor=#dddddd;grade=5;ratingScale=5;ratingStyle=star;');
+			   	notif9.geometry.relative = true;
+			   	notif9.geometry.offset = new mxPoint(450, -7);
+			   	notif9.vertex = true;
+			   	bg15.insert(notif9);
+			   	var bg21 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 7:12 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg21.geometry.relative = true;
+			   	bg21.geometry.offset = new mxPoint(620, 0);
+			   	bg21.vertex = true;
+			   	bg15.insert(bg21);
+			   	var bg22 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg22.geometry.relative = true;
+			   	bg22.geometry.offset = new mxPoint(0, 120);
+			   	bg22.vertex = true;
+			   	bg1.insert(bg22);
+			   	var notif10 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif10.geometry.relative = true;
+			   	notif10.geometry.offset = new mxPoint(15, -10);
+			   	notif10.vertex = true;
+			   	bg22.insert(notif10);
+			   	var notif11 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif11.geometry.relative = true;
+			   	notif11.geometry.offset = new mxPoint(-7, -6);
+			   	notif11.vertex = true;
+			   	notif10.insert(notif11);
+			   	var bg25 = new mxCell('Alexander Robson', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg25.geometry.relative = true;
+			   	bg25.geometry.offset = new mxPoint(50, 0);
+			   	bg25.vertex = true;
+			   	bg22.insert(bg25);
+			   	var notif12 = new mxCell('Blocked', new mxGeometry(0, 0.5, 70, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#999999;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif12.geometry.relative = true;
+			   	notif12.geometry.offset = new mxPoint(250, -10);
+			   	notif12.vertex = true;
+			   	bg22.insert(notif12);
+			   	var bg27 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 4:32 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg27.geometry.relative = true;
+			   	bg27.geometry.offset = new mxPoint(620, 0);
+			   	bg27.vertex = true;
+			   	bg22.insert(bg27);
+			   	var bg28 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg28.geometry.relative = true;
+			   	bg28.geometry.offset = new mxPoint(0, 160);
+			   	bg28.vertex = true;
+			   	bg1.insert(bg28);
+			   	var notif13 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif13.geometry.relative = true;
+			   	notif13.geometry.offset = new mxPoint(15, -10);
+			   	notif13.vertex = true;
+			   	bg28.insert(notif13);
+			   	var notif14 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif14.geometry.relative = true;
+			   	notif14.geometry.offset = new mxPoint(-7, -6);
+			   	notif14.vertex = true;
+			   	notif13.insert(notif14);
+			   	var bg31 = new mxCell('Jennifer Pinsker', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg31.geometry.relative = true;
+			   	bg31.geometry.offset = new mxPoint(50, 0);
+			   	bg31.vertex = true;
+			   	bg28.insert(bg31);
+			   	var notif15 = new mxCell('Blocked 24h', new mxGeometry(0, 0.5, 90, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#999999;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif15.geometry.relative = true;
+			   	notif15.geometry.offset = new mxPoint(250, -10);
+			   	notif15.vertex = true;
+			   	bg28.insert(notif15);
+			   	var bg33 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 2:08 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg33.geometry.relative = true;
+			   	bg33.geometry.offset = new mxPoint(620, 0);
+			   	bg33.vertex = true;
+			   	bg28.insert(bg33);
+			   	var bg34 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg34.geometry.relative = true;
+			   	bg34.geometry.offset = new mxPoint(0, 200);
+			   	bg34.vertex = true;
+			   	bg1.insert(bg34);
+			   	var notif16 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif16.geometry.relative = true;
+			   	notif16.geometry.offset = new mxPoint(15, -10);
+			   	notif16.vertex = true;
+			   	bg34.insert(notif16);
+			   	var notif17 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif17.geometry.relative = true;
+			   	notif17.geometry.offset = new mxPoint(-7, -6);
+			   	notif17.vertex = true;
+			   	notif16.insert(notif17);
+			   	var bg37 = new mxCell('Bob Robson', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg37.geometry.relative = true;
+			   	bg37.geometry.offset = new mxPoint(50, 0);
+			   	bg37.vertex = true;
+			   	bg34.insert(bg37);
+			   	var notif18 = new mxCell('ok', new mxGeometry(0, 0.5, 30, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#58B957;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif18.geometry.relative = true;
+			   	notif18.geometry.offset = new mxPoint(250, -10);
+			   	notif18.vertex = true;
+			   	bg34.insert(notif18);
+			   	var notif20 = new mxCell('', new mxGeometry(0, 0.5, 150, 14), s + 'rating;strokeColor=none;fillColor=#EFAC43;emptyFillColor=#dddddd;grade=1;ratingScale=5;ratingStyle=star;');
+			   	notif20.geometry.relative = true;
+			   	notif20.geometry.offset = new mxPoint(450, -7);
+			   	notif20.vertex = true;
+			   	bg34.insert(notif20);
+			   	var bg40 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 8:56 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg40.geometry.relative = true;
+			   	bg40.geometry.offset = new mxPoint(620, 0);
+			   	bg40.vertex = true;
+			   	bg34.insert(bg40);
+			   	var bg41 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg41.geometry.relative = true;
+			   	bg41.geometry.offset = new mxPoint(0, 240);
+			   	bg41.vertex = true;
+			   	bg1.insert(bg41);
+			   	var notif21 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif21.geometry.relative = true;
+			   	notif21.geometry.offset = new mxPoint(15, -10);
+			   	notif21.vertex = true;
+			   	bg41.insert(notif21);
+			   	var notif22 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif22.geometry.relative = true;
+			   	notif22.geometry.offset = new mxPoint(-7, -6);
+			   	notif22.vertex = true;
+			   	notif21.insert(notif22);
+			   	var bg44 = new mxCell('Michael Robinson', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg44.geometry.relative = true;
+			   	bg44.geometry.offset = new mxPoint(50, 0);
+			   	bg44.vertex = true;
+			   	bg41.insert(bg44);
+			   	var notif23 = new mxCell('Suspect', new mxGeometry(0, 0.5, 70, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#55BFE0;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif23.geometry.relative = true;
+			   	notif23.geometry.offset = new mxPoint(250, -10);
+			   	notif23.vertex = true;
+			   	bg41.insert(notif23);
+			   	var notif24 = new mxCell('', new mxGeometry(0, 0.5, 150, 14), s + 'rating;strokeColor=none;fillColor=#EFAC43;emptyFillColor=#dddddd;grade=4;ratingScale=5;ratingStyle=star;');
+			   	notif24.geometry.relative = true;
+			   	notif24.geometry.offset = new mxPoint(450, -7);
+			   	notif24.vertex = true;
+			   	bg41.insert(notif24);
+			   	var bg47 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 7:12 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg47.geometry.relative = true;
+			   	bg47.geometry.offset = new mxPoint(620, 0);
+			   	bg47.vertex = true;
+			   	bg41.insert(bg47);
+			   	var bg48 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg48.geometry.relative = true;
+			   	bg48.geometry.offset = new mxPoint(0, 280);
+			   	bg48.vertex = true;
+			   	bg1.insert(bg48);
+			   	var notif25 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif25.geometry.relative = true;
+			   	notif25.geometry.offset = new mxPoint(15, -10);
+			   	notif25.vertex = true;
+			   	bg48.insert(notif25);
+			   	var notif26 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif26.geometry.relative = true;
+			   	notif26.geometry.offset = new mxPoint(-7, -6);
+			   	notif26.vertex = true;
+			   	notif25.insert(notif26);
+			   	var bg51 = new mxCell('Jennifer Pinsker', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg51.geometry.relative = true;
+			   	bg51.geometry.offset = new mxPoint(50, 0);
+			   	bg51.vertex = true;
+			   	bg48.insert(bg51);
+			   	var notif27 = new mxCell('ok', new mxGeometry(0, 0.5, 30, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#58B957;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif27.geometry.relative = true;
+			   	notif27.geometry.offset = new mxPoint(250, -10);
+			   	notif27.vertex = true;
+			   	bg48.insert(notif27);
+			   	var bg53 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 4:34 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg53.geometry.relative = true;
+			   	bg53.geometry.offset = new mxPoint(620, 0);
+			   	bg53.vertex = true;
+			   	bg48.insert(bg53);
+			   	var bg54 = new mxCell('', new mxGeometry(0, 0, 800, 40), inh + s + 'horLines;resizeWidth=1;');
+			   	bg54.geometry.relative = true;
+			   	bg54.geometry.offset = new mxPoint(0, 320);
+			   	bg54.vertex = true;
+			   	bg1.insert(bg54);
+			   	var notif28 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif28.geometry.relative = true;
+			   	notif28.geometry.offset = new mxPoint(15, -10);
+			   	notif28.vertex = true;
+			   	bg54.insert(notif28);
+			   	var notif29 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif29.geometry.relative = true;
+			   	notif29.geometry.offset = new mxPoint(-7, -6);
+			   	notif29.vertex = true;
+			   	notif28.insert(notif29);
+			   	var bg57 = new mxCell('John Boo', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg57.geometry.relative = true;
+			   	bg57.geometry.offset = new mxPoint(50, 0);
+			   	bg57.vertex = true;
+			   	bg54.insert(bg57);
+			   	var notif30 = new mxCell('Violation', new mxGeometry(0, 0.5, 70, 20), s + 'rrect;rSize=3;strokeColor=none;fillColor=#DB524C;fontSize=12;fontStyle=1;fontColor=#ffffff;whiteSpace=wrap;');
+			   	notif30.geometry.relative = true;
+			   	notif30.geometry.offset = new mxPoint(250, -10);
+			   	notif30.vertex = true;
+			   	bg54.insert(notif30);
+			   	var notif31 = new mxCell('', new mxGeometry(0, 0.5, 150, 14), s + 'rating;strokeColor=none;fillColor=#EFAC43;emptyFillColor=#dddddd;grade=2;ratingScale=5;ratingStyle=star;');
+			   	notif31.geometry.relative = true;
+			   	notif31.geometry.offset = new mxPoint(450, -7);
+			   	notif31.vertex = true;
+			   	bg54.insert(notif31);
+			   	var bg60 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 2:08 AM <font color="#dddddd">(2013)</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg60.geometry.relative = true;
+			   	bg60.geometry.offset = new mxPoint(620, 0);
+			   	bg60.vertex = true;
+			   	bg54.insert(bg60);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Table');
+			}),				
+				
+			this.addEntry(dt + 'table', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 340), 'shape=partialRectangle;right=0;left=0;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 800, 40), s + 'horLines;strokeColor=inherit;fillColor=#000000;fillOpacity=3;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg3 = new mxCell('Admin Name', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.geometry.offset = new mxPoint(10, 0);
+			   	bg3.vertex = true;
+			   	bg2.insert(bg3);
+			   	var bg4 = new mxCell('Object', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(200, 0);
+			   	bg4.vertex = true;
+			   	bg2.insert(bg4);
+			   	var bg5 = new mxCell('Action', new mxGeometry(0, 0, 150, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(400, 0);
+			   	bg5.vertex = true;
+			   	bg2.insert(bg5);
+			   	var bg6 = new mxCell('Date', new mxGeometry(0, 0, 100, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg6.geometry.relative = true;
+			   	bg6.geometry.offset = new mxPoint(620, 0);
+			   	bg6.vertex = true;
+			   	bg2.insert(bg6);
+			   	var notif1 = new mxCell('', new mxGeometry(0, 0.5, 10, 5), 'shape=triangle;direction=south;strokeColor=none;fillColor=#000000;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(665, -2.5);
+			   	notif1.vertex = true;
+			   	bg2.insert(notif1);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 40);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('Jennifer Pinsker\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(10, 0);
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var notif2 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(200, -15);
+			   	notif2.vertex = true;
+			   	bg8.insert(notif2);
+			   	var notif3 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(-7, -6);
+			   	notif3.vertex = true;
+			   	notif2.insert(notif3);
+			   	var bg12 = new mxCell('John Boo\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg8.insert(bg12);
+			   	var bg13 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">Profile Updated<br/><font color="#dddddd">First Name is set to Bobby</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(400, 0);
+			   	bg13.vertex = true;
+			   	bg8.insert(bg13);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 8:56 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			   	var bg15 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg15.geometry.relative = true;
+			   	bg15.geometry.offset = new mxPoint(0, 90);
+			   	bg15.vertex = true;
+			   	bg1.insert(bg15);
+			   	var bg16 = new mxCell('Bob Robson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg16.geometry.relative = true;
+			   	bg16.geometry.offset = new mxPoint(10, 0);
+			   	bg16.vertex = true;
+			   	bg15.insert(bg16);
+			   	var notif4 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif4.geometry.relative = true;
+			   	notif4.geometry.offset = new mxPoint(200, -15);
+			   	notif4.vertex = true;
+			   	bg15.insert(notif4);
+			   	var notif5 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif5.geometry.relative = true;
+			   	notif5.geometry.offset = new mxPoint(-7, -6);
+			   	notif5.vertex = true;
+			   	notif4.insert(notif5);
+			   	var bg19 = new mxCell('Michael Robinson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg19.geometry.relative = true;
+			   	bg19.geometry.offset = new mxPoint(230, 0);
+			   	bg19.vertex = true;
+			   	bg15.insert(bg19);
+			   	var bg20 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">Violation Resolved<br/><font color="#dddddd">Fake Person Violation resolved</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg20.geometry.relative = true;
+			   	bg20.geometry.offset = new mxPoint(400, 0);
+			   	bg20.vertex = true;
+			   	bg15.insert(bg20);
+			   	var bg21 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 7:12 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg21.geometry.relative = true;
+			   	bg21.geometry.offset = new mxPoint(620, 0);
+			   	bg21.vertex = true;
+			   	bg15.insert(bg21);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 140);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('Michael Robinson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(10, 0);
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var notif6 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif6.geometry.relative = true;
+			   	notif6.geometry.offset = new mxPoint(200, -15);
+			   	notif6.vertex = true;
+			   	bg8.insert(notif6);
+			   	var notif7 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif7.geometry.relative = true;
+			   	notif7.geometry.offset = new mxPoint(-7, -6);
+			   	notif7.vertex = true;
+			   	notif6.insert(notif7);
+			   	var bg12 = new mxCell('Alexander Robson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg8.insert(bg12);
+			   	var bg13 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">Suspect Resolved<br/><font color="#dddddd">Mass Friending Suspect resolved</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeWidth=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(400, 0);
+			   	bg13.vertex = true;
+			   	bg8.insert(bg13);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 4:34 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 190);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('Jennifer Pinsker\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(10, 0);
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var notif8 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif8.geometry.relative = true;
+			   	notif8.geometry.offset = new mxPoint(200, -15);
+			   	notif8.vertex = true;
+			   	bg8.insert(notif8);
+			   	var notif9 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif9.geometry.relative = true;
+			   	notif9.geometry.offset = new mxPoint(-7, -6);
+			   	notif9.vertex = true;
+			   	notif8.insert(notif9);
+			   	var bg12 = new mxCell('Jennifer Pinsker\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg8.insert(bg12);
+			   	var bg13 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">Profile Violation Detected<br/><font color="#dddddd">First Name is marked as Violation</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(400, 0);
+			   	bg13.vertex = true;
+			   	bg8.insert(bg13);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 2:08 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 240);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('John Boo\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(10, 0);
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var notif10 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif10.geometry.relative = true;
+			   	notif10.geometry.offset = new mxPoint(200, -15);
+			   	notif10.vertex = true;
+			   	bg8.insert(notif10);
+			   	var notif11 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif11.geometry.relative = true;
+			   	notif11.geometry.offset = new mxPoint(-7, -6);
+			   	notif11.vertex = true;
+			   	notif10.insert(notif11);
+			   	var bg12 = new mxCell('Bob Robson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg8.insert(bg12);
+			   	var bg13 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">Profile Updated<br/><font color="#dddddd">First Name is set to Bobby</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(400, 0);
+			   	bg13.vertex = true;
+			   	bg8.insert(bg13);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 8:56 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 50), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 290);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('Michael Robinson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg9.geometry.relative = true;
+			   	bg9.geometry.offset = new mxPoint(10, 0);
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var notif12 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'shape=ellipse;strokeColor=none;fillColor=#dddddd;html=1;');
+			   	notif12.geometry.relative = true;
+			   	notif12.geometry.offset = new mxPoint(200, -15);
+			   	notif12.vertex = true;
+			   	bg8.insert(notif12);
+			   	var notif13 = new mxCell('', new mxGeometry(0.5, 0.5, 14, 12), s + 'user;strokeColor=none;fillColor=#999999;');
+			   	notif13.geometry.relative = true;
+			   	notif13.geometry.offset = new mxPoint(-7, -6);
+			   	notif13.vertex = true;
+			   	notif12.insert(notif13);
+			   	var bg12 = new mxCell('Michael Robinson\n', new mxGeometry(0, 0, 150, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;whiteSpace=wrap;resizeHeight=1;');
+			   	bg12.geometry.relative = true;
+			   	bg12.geometry.offset = new mxPoint(230, 0);
+			   	bg12.vertex = true;
+			   	bg8.insert(bg12);
+			   	var bg13 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="left" valign="middle" width="50%">User Blocked<br/><font color="#dddddd">Blocked for 24 hours</font></td></tr></table>',
+			   			new mxGeometry(0, 0, 210, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(400, 0);
+			   	bg13.vertex = true;
+			   	bg8.insert(bg13);
+			   	var bg14 = new mxCell(
+						'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;"><tr><td align="center" valign="middle" width="50%">15 Sep, 7:12 AM <font color="#dddddd">(2013)<br><br></font></td></tr></table>',
+			   			new mxGeometry(0, 0, 160, 50), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;align=left;overflow=fill;whiteSpace=wrap;resizeHeight=1;');
+			   	bg14.geometry.relative = true;
+			   	bg14.geometry.offset = new mxPoint(620, 0);
+			   	bg14.vertex = true;
+			   	bg8.insert(bg14);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Table');
+			}),				
+				
+			this.addEntry(dt + 'table', function()
+		   	{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 430), s + 'horLines;strokeColor=#dddddd;fillColor=#ffffff;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(0, 0, 800, 40), s + 'horLines;strokeColor=inherit;fillColor=#000000;fillOpacity=3;resizeWidth=1;');
+			   	bg2.geometry.relative = true;
+			   	bg2.vertex = true;
+			   	bg1.insert(bg2);
+			   	var bg3 = new mxCell('Template Name', new mxGeometry(0, 0, 200, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;spacingLeft=10;whiteSpace=wrap;resizeHeight=1;');
+			   	bg3.geometry.relative = true;
+			   	bg3.vertex = true;
+			   	bg2.insert(bg3);
+			   	var bg4 = new mxCell('Message', new mxGeometry(0, 0, 200, 40), s + 'rect;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=left;spacingLeft=10;whiteSpace=wrap;resizeWidth=1;resizeHeight=1;');
+			   	bg4.geometry.relative = true;
+			   	bg4.geometry.offset = new mxPoint(200, 0);
+			   	bg4.vertex = true;
+			   	bg2.insert(bg4);
+			   	var bg5 = new mxCell('', new mxGeometry(0, 0, 800, 130), inh + s + 'horLines;resizeWidth=1;');
+			   	bg5.geometry.relative = true;
+			   	bg5.geometry.offset = new mxPoint(0, 40);
+			   	bg5.vertex = true;
+			   	bg1.insert(bg5);
+			   	var bg6 = new mxCell('Uncompleted Profile', new mxGeometry(0, 0, 200, 40), s + 'rect;strokeColor=none;fillColor=none;align=left;spacingLeft=10;whiteSpace=wrap;');
+			   	bg6.geometry.relative = true;
+			   	bg6.vertex = true;
+			   	bg5.insert(bg6);
+			   	var bg7 = new mxCell(
+			   			'Hello! At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium deleniti atque corrupti quos dolores' + 
+			   			'et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est' + 
+			   			'laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Name libero tempore, cum soluta nobis est eligendi' + 
+			   			'optio cumque nihil impedit quo.', 
+			   			new mxGeometry(0, 0, 400, 130), s + 'rect;strokeColor=none;fillColor=none;align=left;valign=top;spacingLeft=10;verticalAlign=top;spacingTop=6;whiteSpace=wrap;resizeWidth=1;');
+			   	bg7.geometry.relative = true;
+			   	bg7.geometry.offset = new mxPoint(200, 0);
+			   	bg7.vertex = true;
+			   	bg5.insert(bg7);
+			   	var notif1 = new mxCell('Edit', new mxGeometry(1, 0, 50, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(-140, 15);
+			   	notif1.vertex = true;
+			   	bg5.insert(notif1);
+			   	var notif2 = new mxCell('Delete', new mxGeometry(1, 0, 60, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(-80, 15);
+			   	notif2.vertex = true;
+			   	bg5.insert(notif2);
+			   	var bg8 = new mxCell('', new mxGeometry(0, 0, 800, 100), inh + s + 'horLines;resizeWidth=1;');
+			   	bg8.geometry.relative = true;
+			   	bg8.geometry.offset = new mxPoint(0, 170);
+			   	bg8.vertex = true;
+			   	bg1.insert(bg8);
+			   	var bg9 = new mxCell('Spam Suspect', new mxGeometry(0, 0, 200, 40), s + 'rect;strokeColor=none;fillColor=none;align=left;spacingLeft=10;whiteSpace=wrap;');
+			   	bg9.geometry.relative = true;
+			   	bg9.vertex = true;
+			   	bg8.insert(bg9);
+			   	var bg10 = new mxCell(
+			   			'Hello, deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui' + 
+			   			'officia deserunt mollitia animi, id est fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam nobis est eligendi optio cumque' + 
+			   			'nihil impedit quo minus id quod maxime placeat.', 
+			   			new mxGeometry(0, 0, 400, 100), s + 'rect;strokeColor=none;fillColor=none;align=left;valign=top;spacingLeft=10;verticalAlign=top;spacingTop=6;whiteSpace=wrap;resizeWidth=1;');
+			   	bg10.geometry.relative = true;
+			   	bg10.geometry.offset = new mxPoint(200, 0);
+			   	bg10.vertex = true;
+			   	bg8.insert(bg10);
+			   	var notif3 = new mxCell('Edit', new mxGeometry(1, 0, 50, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif3.geometry.relative = true;
+			   	notif3.geometry.offset = new mxPoint(-140, 15);
+			   	notif3.vertex = true;
+			   	bg8.insert(notif3);
+			   	var notif4 = new mxCell('Delete', new mxGeometry(1, 0, 60, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif4.geometry.relative = true;
+			   	notif4.geometry.offset = new mxPoint(-80, 15);
+			   	notif4.vertex = true;
+			   	bg8.insert(notif4);
+			   	
+			   	var bg11 = new mxCell('', new mxGeometry(0, 0, 800, 160), inh + s + 'horLines;resizeWidth=1;');
+			   	bg11.geometry.relative = true;
+			   	bg11.geometry.offset = new mxPoint(0, 270);
+			   	bg11.vertex = true;
+			   	bg1.insert(bg11);
+			   	var bg12 = new mxCell('Profile Blocked', new mxGeometry(0, 0, 200, 40), s + 'rect;strokeColor=none;fillColor=none;align=left;spacingLeft=10;whiteSpace=wrap;');
+			   	bg12.vertex = true;
+			   	bg11.insert(bg12);
+			   	var bg13 = new mxCell(
+			   			'Hello! Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa' + 
+			   			'quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit' + 
+			   			'aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est,' + 
+			   			'qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore' + 
+			   			'magnam aliquam quaerat voluptarem.', 
+			   			new mxGeometry(0, 0, 400, 160), s + 'rect;strokeColor=none;fillColor=none;align=left;valign=top;spacingLeft=10;verticalAlign=top;spacingTop=6;whiteSpace=wrap;resizeWidth=1;');
+			   	bg13.geometry.relative = true;
+			   	bg13.geometry.offset = new mxPoint(200, 0);
+			   	bg13.vertex = true;
+			   	bg11.insert(bg13);
+			   	var notif1 = new mxCell('Edit', new mxGeometry(1, 0, 50, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif1.geometry.relative = true;
+			   	notif1.geometry.offset = new mxPoint(-140, 15);
+			   	notif1.vertex = true;
+			   	bg11.insert(notif1);
+			   	var notif2 = new mxCell('Delete', new mxGeometry(1, 0, 60, 30), s + 'rrect;rSize=5;strokeColor=#dddddd;fillColor=#ffffff;whiteSpace=wrap;');
+			   	notif2.geometry.relative = true;
+			   	notif2.geometry.offset = new mxPoint(-80, 15);
+			   	notif2.vertex = true;
+			   	bg11.insert(notif2);
+			    
+			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Table');
+			}),				
+				
 		   	this.addEntry(dt + 'table', function()
 		   	{
 			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 800, 80), s + 'horLines;strokeColor=#dddddd;fillColor=#fdfdfd;');

@@ -1,0 +1,8 @@
+compiler.candyJsFolder=webapp
+compiler.debugMode=ts
+compiler.javascriptFolder=target/js
+compiler.moduleKind=none
+compiler.profiles=default
+compiler.sourceFolders=
+compiler.typescriptFolder=target/ts
+eclipse.preferences.version=1

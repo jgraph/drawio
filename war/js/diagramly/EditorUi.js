@@ -203,20 +203,6 @@
 		return this.editor.graph.mathEnabled;
 	};
 	
-	// Helper method to move picket to top
-	EditorUi.prototype.movePickersToTop = function()
-	{
-		var divs = document.getElementsByTagName('div');
-		
-		for (var i = 0; i < divs.length; i++)
-		{
-			if (divs[i].className == 'picker modal-dialog picker-dialog')
-			{
-				divs[i].style.zIndex = mxPopupMenu.prototype.zIndex + 1;
-			}
-		}
-	};
-
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -2769,7 +2755,9 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
 			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
-		this.showDialog(dlg.container, 380, (count > 4) ? 390 : 270, true, true);
+		var noServices = (mxClient.IS_IOS) ? 0 : 1;
+		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
+		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
 	};
 	
@@ -3027,7 +3015,9 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
 			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
-		this.showDialog(dlg.container, 380, (count > 4) ? 390 : 270, true, true);
+		var noServices = (mxClient.IS_IOS) ? 0 : 1;
+		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
+		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
 	};
 		
@@ -9705,6 +9695,17 @@
 	};
 	
 	/**
+	 * Returns true if a diagram is cative and editable.
+	 */
+	EditorUi.prototype.isDiagramActive = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return (file != null && file.isEditable()) || 
+			(urlParams['embed'] == '1' && this.editor.graph.isEnabled());
+	};
+	
+	/**
 	 * Updates action states depending on the selection.
 	 */
 	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
@@ -9713,9 +9714,8 @@
 		editorUiUpdateActionStates.apply(this, arguments);
 
 		var graph = this.editor.graph;
+		var active = this.isDiagramActive();
 		var file = this.getCurrentFile();
-		var active = (file != null && file.isEditable()) || 
-			(urlParams['embed'] == '1' && this.editor.graph.isEnabled());
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -9740,6 +9740,22 @@
 		
 		var state = graph.view.getState(graph.getSelectionCell());
 		this.actions.get('editShape').setEnabled(active && state != null && state.shape != null && state.shape.stencil != null);
+	};
+
+	/**
+	 * Overridden to remove export dialog in chromeless lightbox.
+	 */
+	var editoUiDestroy = EditorUi.prototype.destroy;
+
+	EditorUi.prototype.destroy = function()
+	{
+		if (this.exportDialog != null)
+		{
+			this.exportDialog.parentNode.removeChild(this.exportDialog);
+			this.exportDialog = null;
+		}
+		
+		editoUiDestroy.apply(this, arguments);
 	};
 				
 	/**

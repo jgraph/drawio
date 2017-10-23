@@ -518,14 +518,6 @@ App.main = function(callback, createUi)
 		}
 		
 		/**
-		 * Loads Google Image Picker API (not allowed inside iframes)
-		 */
-		if (urlParams['picker'] != '0' && !mxClient.IS_QUIRKS && document.documentMode != 8)
-		{
-			mxscript(document.location.protocol + '//www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22picker%22%2C%22version%22%3A%221%22%2C%22language%22%3A%22' + mxClient.language + '%22%7D%5D%7D');
-		}
-
-		/**
 		 * Loading plugins.
 		 */
 		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
@@ -965,7 +957,7 @@ App.prototype.init = function()
 				
 				if (window.DrawGapiClientCallback != null)
 				{
-					gapi.load('auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
 					{
 						// Starts the app without the Google Option if the API fails to load
 						if (gapi.drive != null && gapi.drive.realtime != null)
@@ -1967,7 +1959,7 @@ App.prototype.load = function()
 				}
 				else
 				{
-					gapi.load('auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
 					{
 						// Starts the app without the Google Option if the API fails to load
 						if (gapi.drive == null || gapi.drive.realtime == null)

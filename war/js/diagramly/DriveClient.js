@@ -1189,11 +1189,13 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 
 				// Pseudo-hierarchical directory view, see
 				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-		        	.setParent('root')
-		        	.setIncludeFolders(true);
+				var view = new google.picker.DocsView()
+			        	.setParent('root')
+			        	.setIncludeFolders(true);
 				
-				var view2 = new google.picker.DocsView();
+				var view2 = new google.picker.DocsView()
+					.setEnableTeamDrives(true)
+					.setIncludeFolders(true);
 				
 				var view3 = new google.picker.DocsUploadView()
 					.setIncludeFolders(true);
@@ -1214,6 +1216,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 			        .setOAuthToken(this[name + 'Token'])
 			        .setLocale(mxLanguage)
 			        .setAppId(this.appId)
+			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 			        .addView(view)
 			        .addView(view2)
 			        .addView(google.picker.ViewId.RECENTLY_PICKED)
@@ -1235,7 +1238,6 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 
 			mxEvent.addListener(document, 'click', exit);
 			this[name].setVisible(true);
-			this.ui.movePickersToTop();
 		}));
 	}
 };
@@ -1290,40 +1292,47 @@ DriveClient.prototype.pickFolder = function(fn)
 					// Pseudo-hierarchical directory view, see
 					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
 					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-			        	.setParent('root')
-			        	.setIncludeFolders(true)
+						.setParent('root')
+						.setIncludeFolders(true)
 						.setSelectFolderEnabled(true)
-			        	.setMimeTypes('application/vnd.google-apps.folder');
+			        		.setMimeTypes('application/vnd.google-apps.folder');
 					
 					var view2 = new google.picker.DocsView()
-						.setIncludeFolders(true) 
+						.setIncludeFolders(true)
 						.setSelectFolderEnabled(true)
 						.setMimeTypes('application/vnd.google-apps.folder');
-				
+					
+					var view21 = new google.picker.DocsView()
+						.setIncludeFolders(true)
+						.setEnableTeamDrives(true)
+						.setSelectFolderEnabled(true)
+						.setMimeTypes('application/vnd.google-apps.folder');
+					
 					this[name] = new google.picker.PickerBuilder()
 						.setSelectableMimeTypes('application/vnd.google-apps.folder')
 				        .setOAuthToken(this[name + 'Token'])
 				        .setLocale(mxLanguage)
 				        .setAppId(this.appId)
+					    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 				        .addView(view)
 				        .addView(view2)
+				        .addView(view21)
 				        .addView(google.picker.ViewId.RECENTLY_PICKED)
 				        .setTitle(mxResources.get('pickFolder'))
 				        .setCallback(mxUtils.bind(this, function(data)
 				        {
-				        	if (data.action == google.picker.Action.PICKED ||
-				        		data.action == google.picker.Action.CANCEL)
-				        	{
-				        		mxEvent.removeListener(document, 'click', exit);
-				        	}
-				        	
-				        	this.folderPickerCallback(data);
+					        	if (data.action == google.picker.Action.PICKED ||
+					        		data.action == google.picker.Action.CANCEL)
+					        	{
+					        		mxEvent.removeListener(document, 'click', exit);
+					        	}
+					        	
+					        	this.folderPickerCallback(data);
 				        })).build();
 				}
 	
 				mxEvent.addListener(document, 'click', exit);
 				this[name].setVisible(true);
-				this.ui.movePickersToTop();
 			}));
 		});
 		
@@ -1426,13 +1435,15 @@ DriveClient.prototype.pickLibrary = function(fn)
 				// Pseudo-hierarchical directory view, see
 				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
 				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-		        	.setParent('root')
-		        	.setIncludeFolders(true)
+					.setParent('root')
+		        		.setIncludeFolders(true)
 					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
 			
 				var view2 = new google.picker.DocsView()
+					.setEnableTeamDrives(true)
+					.setIncludeFolders(true)
 					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
-			
+				
 				var view3 = new google.picker.DocsUploadView()
 					.setIncludeFolders(true);
 				
@@ -1440,28 +1451,28 @@ DriveClient.prototype.pickLibrary = function(fn)
 			        .setOAuthToken(this.libraryPickerToken)
 			        .setLocale(mxLanguage)
 			        .setAppId(this.appId)
+			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 			        .addView(view)
 			        .addView(view2)
 			        .addView(google.picker.ViewId.RECENTLY_PICKED)
 			        .addView(view3)
 			        .setCallback(mxUtils.bind(this, function(data)
 			        {
-			        	if (data.action == google.picker.Action.PICKED ||
-			        		data.action == google.picker.Action.CANCEL)
-			        	{
-			        		mxEvent.removeListener(document, 'click', exit);
-			        	}
-			        	
-			        	if (data.action == google.picker.Action.PICKED)
-			    		{
-			        		this.filePicked(data);
-			    		}
+				        	if (data.action == google.picker.Action.PICKED ||
+				        		data.action == google.picker.Action.CANCEL)
+				        	{
+				        		mxEvent.removeListener(document, 'click', exit);
+				        	}
+				        	
+				        	if (data.action == google.picker.Action.PICKED)
+				    		{
+				        		this.filePicked(data);
+				    		}
 			        })).build();
 			}
 			
 			mxEvent.addListener(document, 'click', exit);
 			this.libraryPicker.setVisible(true);
-			this.ui.movePickersToTop();
 		}));
 	}
 };

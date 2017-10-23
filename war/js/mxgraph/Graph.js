@@ -1096,6 +1096,38 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 };
 
 /**
+ * Returns true if the fiven href references an external protocol that
+ * should never open in a new window. Default returns true for mailto.
+ */
+Graph.prototype.isExternalProtocol = function(href)
+{
+	return href.substring(0, 7) === 'mailto:';
+};
+
+/**
+ * Hook for links to open in same window. Default returns true for anchors,
+ * links to same domain or if target == 'self' in the config.
+ */
+Graph.prototype.isBlankLink = function(href)
+{
+	return !this.isExternalProtocol(href) &&
+		(this.linkPolicy === 'blank' ||
+		(this.linkPolicy !== 'self' &&
+		!this.isRelativeUrl(href) &&
+		href.substring(0, this.domainUrl.length) !== this.domainUrl));
+};
+
+/**
+ * 
+ */
+Graph.prototype.isRelativeUrl = function(url)
+{
+	return url != null && !this.absoluteUrlPattern.test(url) &&
+		url.substring(0, 5) !== 'data:' &&
+		!this.isExternalProtocol(url);
+};
+
+/**
  * Installs automatic layout via styles
  */
 Graph.prototype.initLayoutManager = function()
@@ -4876,38 +4908,6 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			return url;
-		};
-
-		/**
-		 * Returns true if the fiven href references an external protocol that
-		 * should never open in a new window. Default returns true for mailto.
-		 */
-		Graph.prototype.isExternalProtocol = function(href)
-		{
-			return href.substring(0, 7) === 'mailto:';
-		};
-
-		/**
-		 * Hook for links to open in same window. Default returns true for anchors,
-		 * links to same domain or if target == 'self' in the config.
-		 */
-		Graph.prototype.isBlankLink = function(href)
-		{
-			return !this.isExternalProtocol(href) &&
-				(this.linkPolicy === 'blank' ||
-				(this.linkPolicy !== 'self' &&
-				!this.isRelativeUrl(href) &&
-				href.substring(0, this.domainUrl.length) !== this.domainUrl));
-		};
-
-		/**
-		 * 
-		 */
-		Graph.prototype.isRelativeUrl = function(url)
-		{
-			return url != null && !this.absoluteUrlPattern.test(url) &&
-				url.substring(0, 5) !== 'data:' &&
-				!this.isExternalProtocol(url);
 		};
 
 		/**

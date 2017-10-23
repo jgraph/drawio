@@ -2045,7 +2045,6 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 				}
 				
 				editorUi.imageSearchPicker.setVisible(true);
-				editorUi.movePickersToTop();
 			});
 			
 			searchBtn.className = 'geBtn';
@@ -2064,7 +2063,7 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 							// Creates one picker and reuses it to avoid polluting the DOM
 							if (editorUi.photoPicker == null)
 							{
-						    	var token = gapi.auth.getToken().access_token;
+								var token = gapi.auth.getToken().access_token;
 								var picker = new google.picker.PickerBuilder()
 									.setAppId(editorUi.drive.appId)	
 									.setLocale(mxLanguage)
@@ -2080,7 +2079,6 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 							}
 							
 							editorUi.photoPicker.setVisible(true);
-							editorUi.movePickersToTop();
 						}));
 					}
 				});
@@ -3822,7 +3820,6 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			}
 			
 			editorUi.imageSearchPicker.setVisible(true);
-			editorUi.movePickersToTop();
 		});
 		searchBtn.className = 'geBtn';
 		btns.appendChild(searchBtn);
@@ -3856,7 +3853,6 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 						}
 						
 						editorUi.photoPicker.setVisible(true);
-						editorUi.movePickersToTop();
 					}));
 				}
 			});
@@ -4223,20 +4219,26 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					// Creates one picker and reuses it to avoid polluting the DOM
 					if (editorUi.linkPicker == null)
 					{
-				    	var token = gapi.auth.getToken().access_token;
+					    	var token = gapi.auth.getToken().access_token;
 						var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-			        		.setParent('root')
-			        		.setIncludeFolders(true)
-			        		.setSelectFolderEnabled(true);
-				    	var view2 = new google.picker.DocsView()
+				        		.setParent('root')
+				        		.setIncludeFolders(true)
+				        		.setSelectFolderEnabled(true);
+						var view2 = new google.picker.DocsView()
 							.setIncludeFolders(true)
+				            .setSelectFolderEnabled(true);
+						var view21 = new google.picker.DocsView()
+							.setIncludeFolders(true)
+							.setEnableTeamDrives(true)
 				            .setSelectFolderEnabled(true);
 						var picker = new google.picker.PickerBuilder()
 							.setAppId(editorUi.drive.appId)	
 							.setLocale(mxLanguage)
 							.setOAuthToken(token)
+							.enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 						    .addView(view)
 							.addView(view2)
+							.addView(view21)
 							.addView(google.picker.ViewId.RECENTLY_PICKED)
 				            .addView(google.picker.ViewId.IMAGE_SEARCH)
 				            .addView(google.picker.ViewId.VIDEO_SEARCH)
@@ -4256,7 +4258,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					}
 					
 					editorUi.linkPicker.setVisible(true);
-					editorUi.movePickersToTop();
 				}));
 			}
 		});
