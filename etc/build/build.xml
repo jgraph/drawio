@@ -145,6 +145,10 @@
 			<sources dir="${basedir}/../mxgraph">
 				<file name="mxClient.js" />
 			</sources>
+			
+			<sources dir="${war.dir}/js/jscolor">
+				<file name="jscolor.js" />
+			</sources>
 		</jscomp>
 
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/.tmp0.min.js">

@@ -773,8 +773,8 @@
 				inset = Math.max(inset, Math.min(w * f, h * f));
 			}
 			
-			r.x += inset;
-			r.width -= 2 * inset;
+			r.x += Math.round(inset);
+			r.width -= Math.round(2 * inset);
 			
 			return r;
 		}
@@ -791,6 +791,9 @@
 				mxConstants.RECTANGLE_ROUNDING_FACTOR * 100) / 100;
 			inset = Math.max(inset, Math.min(w * f, h * f));
 		}
+		
+		// Crisp rendering of inner lines
+		inset = Math.round(inset);
 		
 		c.begin();
 		c.moveTo(x + inset, y);

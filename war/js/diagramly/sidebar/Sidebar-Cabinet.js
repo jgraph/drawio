@@ -3,8 +3,9 @@
 	// Adds Cabinets shapes
 	Sidebar.prototype.addCabinetsPalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;dashed=0;shadow=0;strokeColor=#000000;fillColor=#ffffff;html=1;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=1;shape=mxgraph.cabinets.';
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=middle;dashed=0;shadow=0;strokeColor=#000000;fillColor=#ffffff;html=1;' + mxConstants.STYLE_STROKEWIDTH + '=1;shape=mxgraph.cabinets.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;dashed=0;shadow=0;html=1;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;shape=mxgraph.cabinets.';
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=middle;dashed=0;shadow=0;html=1;shape=mxgraph.cabinets.';
+		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var w = 50;
 		var h = 50;
 		var gn = 'mxgraph.cabinets';
@@ -43,20 +44,96 @@
 					w * 7, h, '100x40', 'Panel Wiring System 100x40mm (Vertical)', null, null, this.getTagsForStencil(gn, '', dt + 'panel wiring system').join(' ')),
 			this.createVertexTemplateEntry(s + 'cb_1p;', 
 					w * 0.18, h, '', 'Circuit Breaker (1P)', null, null, this.getTagsForStencil(gn, 'cb_1p', dt).join(' ')),
-			this.addDataEntry(dt + 'circuit breaker row', w * 1.8, h, 'Circuit Breaker (1P x 10)',
-				'7dhPb8IgFADwT8PVFLD+Oc66edmS3XZcaIuFSKVpmdZvv9eCOpOZbCRygqQJvNcH9P1uRTSr+03LGvGmS64QfUY0a7U2dlb3GVcKkUSWiK4RIQk8iLzcyeIxmzSs5XvzlwJiCw5MfXEbsYHOnJQLHHhrZMHUK8u5etedNFLvIZVrY3SN6KpkneDDfgksOsFKfTwvTKt3PNNKt+NeNBkHZLZSqR/x7TggLkwNPVhjmDIlq+GcAj6Fw3ur80WeXMLo5nLGhyyNcIVwhWa4e91XQ18nBcvlnptuUuSfeChx3wzb8f5u38aQa9qG65qb9gSvHN1BkF3aIsFlJVxRarudsM6uq0vh1QAmjuF3EhpJ/kfS33A8HmgagbyA8CKUUBqFvITIPJTQLAp5CdFZKKF5FPISmqahhBZRyEsonYYSWkYhL6EZDSWEk0jkRTQnwYhwJPIiWuAHEcHy+odizN38wPgG'),
-
+					
+			this.addEntry(dt + 'circuit breaker row', function()
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(w * 0.18, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg2.vertex = true;
+			   	var bg3 = new mxCell('', new mxGeometry(w * 0.36, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg3.vertex = true;
+			   	var bg4 = new mxCell('', new mxGeometry(w * 0.54, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg4.vertex = true;
+			   	var bg5 = new mxCell('', new mxGeometry(w * 0.72, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg5.vertex = true;
+			   	var bg6 = new mxCell('', new mxGeometry(w * 0.9, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg6.vertex = true;
+			   	var bg7 = new mxCell('', new mxGeometry(w * 1.08, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg7.vertex = true;
+			   	var bg8 = new mxCell('', new mxGeometry(w * 1.26, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg8.vertex = true;
+			   	var bg9 = new mxCell('', new mxGeometry(w * 1.44, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg9.vertex = true;
+			   	var bg10 = new mxCell('', new mxGeometry(w * 1.62, 0, w * 0.18, h), s + 'cb_1p;');
+			   	bg10.vertex = true;
+			    
+			   	return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4, bg5, bg6, bg7, bg8, bg9, bg10], w * 1.8, h, 'Circuit Breaker (1P x 10)');
+			}),				
+				
 			this.createVertexTemplateEntry(s + 'cb_2p;', w * 0.36, h, '', 'Circuit Breaker (2P)', null, null, this.getTagsForStencil(gn, 'cb_2p', dt).join(' ')),
-			this.addDataEntry(dt + 'circuit breaker row', w * 3.6, h, 'Circuit Breaker (2P x 10)',
-				'7ZhNb8MgDIZ/DdeKQD+Pa7r1skm77TiRxA1opESEtem/Hwm0XaVV2pDGCSQkbPMa8HOxQDRv+q1mLX9RFUhEHxHNtVLGrZo+BykRwaJCdIMIwXYi8nQnmo1R3DINe/MbAXGCA5Of4DzO0ZmT9I4DaCNKJp9ZAfJVdcIItbehQhmjGkTXFes4DPmwNTrOKnU8G0arD8iVVHrMRfE4bGQnpPzm343D+rlpbA02mV0yKerhnNI+Bey+9fkiDz5gVHs5401UhnuhvUI73L3p66Guk5IVYg+mm5TFOxkk/s02HfR36za6fNG2oBow+mS3HP1Bw46lU3EQNfeqmSs3Zp2z64vyCsEuPIefmdDE5G9M+lseERBNE6IgRHQeDdEsIQpCNJtGQzRPiIIQLUg0RIuEKAjRCkdDtEyIwtoFHK9fWCVGYYxIvIYhwwlSGKRpvJYhyxKkMEjzf2sarHn9sBhjN/8ZXw=='),
-
+			
+			this.addEntry(dt + 'circuit breaker row', function()
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(w * 0.36, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg2.vertex = true;
+			   	var bg3 = new mxCell('', new mxGeometry(w * 0.72, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg3.vertex = true;
+			   	var bg4 = new mxCell('', new mxGeometry(w * 1.08, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg4.vertex = true;
+			   	var bg5 = new mxCell('', new mxGeometry(w * 1.44, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg5.vertex = true;
+			   	var bg6 = new mxCell('', new mxGeometry(w * 1.8, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg6.vertex = true;
+			   	var bg7 = new mxCell('', new mxGeometry(w * 2.16, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg7.vertex = true;
+			   	var bg8 = new mxCell('', new mxGeometry(w * 2.52, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg8.vertex = true;
+			   	var bg9 = new mxCell('', new mxGeometry(w * 2.88, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg9.vertex = true;
+			   	var bg10 = new mxCell('', new mxGeometry(w * 3.24, 0, w * 0.36, h), s + 'cb_2p;');
+			   	bg10.vertex = true;
+			    
+			   	return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4, bg5, bg6, bg7, bg8, bg9, bg10], w * 3.6, h, 'Circuit Breaker (2P x 10)');
+			}),				
+				
 			this.createVertexTemplateEntry(s + 'cb_3p;', w * 0.54, h, '', 'Circuit Breaker (3P)', null, null, this.getTagsForStencil(gn, 'cb_3p', dt).join(' ')),
-			this.addDataEntry(dt + 'circuit breaker row', w * 2.7, h, 'Circuit Breaker (3P x 5)',
-				'7ZbBbsIwDIafJleUNrBxHWXjskm77TilrWmipbhKPShvP7cJMKQhbUjj1EiRYju/7fi7RKis7lZeN+YFS3BCPQqVeUQKp7rLwDmRSlsKtRRpKnmL9OlCNBmistEeNvQbQRoEW+0+IXiCo6W9i44teLKFds86B/eKrSWLGw7lSIS1UItStwb6fJKN1ugSdweDPH5Ahg79kEvJYXFkbZ375l8Pi/2Gap7BMuGjdrbq6xT8FOB7i0MjDzFA2BxrvNmSTBRyC03fe91V/Vwnhc7tBqidFPm76iXxzZwOuotzG1xxaCvAGsjv+couFupndx9UBmxlomoWxi11G+zqqDxB4EPk8DMTNTL5G5PunMcNEE1HRFchmk1vhmg2IroK0Ty5GaK7EdFViBI5/y9GbJ4+H0Ps7G/yBQ=='),
-	
+			
+			this.addEntry(dt + 'circuit breaker row', function()
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, w * 0.54, h), s + 'cb_3p;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(w * 0.54, 0, w * 0.54, h), s + 'cb_3p;');
+			   	bg2.vertex = true;
+			   	var bg3 = new mxCell('', new mxGeometry(w * 1.08, 0, w * 0.54, h), s + 'cb_3p;');
+			   	bg3.vertex = true;
+			   	var bg4 = new mxCell('', new mxGeometry(w * 1.62, 0, w * 0.54, h), s + 'cb_3p;');
+			   	bg4.vertex = true;
+			   	var bg5 = new mxCell('', new mxGeometry(w * 2.16, 0, w * 0.54, h), s + 'cb_3p;');
+			   	bg5.vertex = true;
+			    
+			   	return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4, bg5], w * 2.7, h, 'Circuit Breaker (3P x 5)');
+			}),				
+				
 			this.createVertexTemplateEntry(s + 'cb_4p;', w * 0.72, h, '', 'Circuit Breaker (4P)', null, null, this.getTagsForStencil(gn, 'cb_4p', dt).join(' ')),
-			this.addDataEntry(dt + 'circuit breaker row', w * 3.6, h, 'Circuit Breaker (4P x 5)',
-				'7ZbBbsIwDIafJlcUmsJ2HWXjskm77TilrWmipbhKPShvP7cJMKQhbUjj1EiRYv/5ncTfJUJldbfyujEvWIIT6lGozCNSWNVdBs6JRNpSqKVIEslTJE8X1OmgykZ72NBvDEkwbLX7hJAJiZb2Lia24MkW2j3rHNwrtpYsbljKkQhroRalbg309SQHrdEl7g4BefyADB36oZaSw2BlbZ37ll8Pg/OGau7BcspL7WzVn1PwU4D3LQ4XeYgCYXM8482WZKKRr9D0d6+7qu/rpNC53QC1kyJ/T3tLfDOXg+5i34ZUbNoKsAbye96yiwexqubBZcBWJrpmod1StyGujs4TBF5EDj8zUSOTvzHpznncAFE6IroK0V1yM0SzEdFViKby/maM5iOj6xil6X8x4vD0+xi0s8/JFw=='),
+			
+			this.addEntry(dt + 'circuit breaker row', function()
+	   		{
+				var bg1 = new mxCell('', new mxGeometry(0, 0, w * 0.72, h), s + 'cb_4p;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(w * 0.72, 0, w * 0.72, h), s + 'cb_4p;');
+			   	bg2.vertex = true;
+			   	var bg3 = new mxCell('', new mxGeometry(w * 1.44, 0, w * 0.72, h), s + 'cb_4p;');
+			   	bg3.vertex = true;
+			   	var bg4 = new mxCell('', new mxGeometry(w * 2.16, 0, w * 0.72, h), s + 'cb_4p;');
+			   	bg4.vertex = true;
+			   	var bg5 = new mxCell('', new mxGeometry(w * 2.88, 0, w * 0.72, h), s + 'cb_4p;');
+			   	bg5.vertex = true;
+			    
+			   	return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4, bg5], w * 3.6, h, 'Circuit Breaker (4P x 5)');
+			}),				
 				
 			this.createVertexTemplateEntry(s + 'cb_auxiliary_contact;', 
 					w * 0.09, h, '', 'Auxiliary Contact (Circuit Breaker)', null, null, this.getTagsForStencil(gn, 'cb_auxiliary_contact', dt).join(' ')),

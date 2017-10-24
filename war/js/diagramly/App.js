@@ -454,14 +454,6 @@ App.main = function(callback, createUi)
 	if (window.mxscript != null)
 	{
 		/**
-		 * Color dialog - Do not add to app.min.js due to path issues!
-		 */
-		if (urlParams['chrome'] != '0')
-		{
-			mxscript('js/jscolor/jscolor.js');
-		}
-	
-		/**
 		 * Injects offline dependencies
 		 */
 		if (urlParams['offline'] == '1')

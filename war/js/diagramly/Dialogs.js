@@ -108,12 +108,13 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		button.style.overflow = 'hidden';
 		button.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 		button.className = 'geBaseButton';
+		button.style.boxSizing = 'border-box';
 		button.style.fontSize = '11px';
 		button.style.position = 'relative';
 		button.style.margin = '4px';
 		button.style.padding = '8px 10px 12px 10px';
-		button.style.width = '68px';
-		button.style.height = '80px';
+		button.style.width = '88px';
+		button.style.height = '100px';
 		button.style.whiteSpace = 'nowrap';
 		button.setAttribute('title', title);
 		
