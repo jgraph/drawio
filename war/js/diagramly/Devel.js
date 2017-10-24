@@ -10,6 +10,7 @@
 mxscript(drawDevUrl + 'js/spin/spin.min.js');
 mxscript(drawDevUrl + 'js/deflate/pako.min.js');
 mxscript(drawDevUrl + 'js/deflate/base64.js');
+mxscript(drawDevUrl + 'js/jscolor/jscolor.js');
 mxscript(drawDevUrl + 'js/sanitizer/sanitizer.min.js');
 
 // Uses grapheditor from devhost

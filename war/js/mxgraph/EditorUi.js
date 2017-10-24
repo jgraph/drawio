@@ -57,7 +57,7 @@ EditorUi = function(editor, container, lightbox)
 			evt = window.event;
 		}
 		
-		return this.isSelectionAllowed(evt) ||  graph.isEditing();
+		return (this.isSelectionAllowed(evt) || graph.isEditing());
 	});
 
 	// Disables text selection while not editing and no dialog visible
