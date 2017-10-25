@@ -2513,10 +2513,14 @@ var ParseDialog = function(editorUi, title)
 /**
  * Constructs a new dialog for creating files from templates.
  */
-var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback)
+var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback, leftHighlight, rightHighlight, rightHighlightBorder, itemPadding, templateFile)
 {
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
+	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
+	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
+	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
+	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
 	
 	var outer = document.createElement('div');
 	outer.style.height = '100%';
@@ -2703,8 +2707,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		templateLibs = libs;
 		selectedElt = elt;
 		
-		selectedElt.style.backgroundColor = '#e6eff8';
-		selectedElt.style.border = '1px solid #ccd9ea';
+		selectedElt.style.backgroundColor = rightHighlight;
+		selectedElt.style.border = rightHighlightBorder;
 	};
 
 	function addButton(url, libs, title, tooltip, select)
@@ -2833,13 +2837,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
 			entry.setAttribute('title', label + ' (' + templateList.length + ')');
 			mxUtils.write(entry, entry.getAttribute('title'));
+			
+			if (itemPadding != null)
+			{
+				entry.style.padding = itemPadding;
+			}
 
 			list.appendChild(entry);
 			
 			if (currentEntry == null)
 			{
 				currentEntry = entry;
-				currentEntry.style.backgroundColor = '#ebf2f9';
+				currentEntry.style.backgroundColor = leftHighlight;
 			}
 			
 			(function(cat2, entry2)
@@ -2850,7 +2859,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					{
 						currentEntry.style.backgroundColor = '';
 						currentEntry = entry2;
-						currentEntry.style.backgroundColor = '#ebf2f9';	
+						currentEntry.style.backgroundColor = leftHighlight;
 						
 						div.scrollTop = 0;
 						div.innerHTML = '';
@@ -2871,7 +2880,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		outer.appendChild(div);
 		var indexLoaded = false;
 		
-		mxUtils.get(TEMPLATE_PATH + '/index.xml', function(req)
+		mxUtils.get(templateFile, function(req)
 		{
 			// Workaround for index loaded 3 times in iOS offline mode
 			if (!indexLoaded)
