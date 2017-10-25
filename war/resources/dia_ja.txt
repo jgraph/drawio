@@ -356,6 +356,7 @@ insertHorizontalRule=罫線を挿入
 insertLink=リンクを挿入
 insertPage=ページを挿入
 insertRectangle=四角形を挿入
+insertRhombus=Insert Rhombus
 insertRowBefore=行を上に挿入
 insertRowAfter=行を下に挿入
 insertText=文字を挿入

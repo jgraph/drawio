@@ -356,6 +356,7 @@ insertHorizontalRule=Indsæt vandret streg
 insertLink=Indsæt link
 insertPage=Indsæt side
 insertRectangle=Indsæt rektangel
+insertRhombus=Insert Rhombus
 insertRowBefore=Indsæt række ovenover
 insertRowAfter=Indsæt række nedenfor
 insertText=Indsæt tekst

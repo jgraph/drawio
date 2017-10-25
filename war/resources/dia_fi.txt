@@ -356,6 +356,7 @@ insertHorizontalRule=Lisää vaakaviiva
 insertLink=Lisää linkki
 insertPage=Lisää sivu
 insertRectangle=Lisää suorakulmio
+insertRhombus=Insert Rhombus
 insertRowBefore=Lisää rivi yläpuolelle
 insertRowAfter=Lisää rivi alapuolelle
 insertText=Lisää tekstiä

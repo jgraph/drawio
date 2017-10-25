@@ -356,6 +356,7 @@ insertHorizontalRule=Magsingit ng pahalang na linyang gabay
 insertLink=Magsingit ng Link
 insertPage=Magsingit ng Pahina
 insertRectangle=Magsingit ng parihaba
+insertRhombus=Insert Rhombus
 insertRowBefore=Magsingit ng hanay sa ibabaw
 insertRowAfter=Magsingit ng hilera pagkatapos
 insertText=Magsingit ng teksto

@@ -356,6 +356,7 @@ insertHorizontalRule=Chèn quy tắc ngang
 insertLink=Chèn đường dẫn
 insertPage=Insert Page
 insertRectangle=Chèn hình chữ nhật
+insertRhombus=Insert Rhombus
 insertRowBefore=Chèn dòng lên trên
 insertRowAfter=Chèn dòng xuống dưới
 insertText=Chèn văn bản

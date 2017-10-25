@@ -356,6 +356,7 @@ insertHorizontalRule=‫وارد کردن قانون افقی‬
 insertLink=‫وارد کردن لینک‬
 insertPage=‫وارد کردن صفحه‬
 insertRectangle=‫وارد کردن مستطیل‬
+insertRhombus=Insert Rhombus
 insertRowBefore=‫وارد کردن یک ردیف در بالا‬
 insertRowAfter=‫وارد کردن یک ردیف در بعد‬
 insertText=‫وارد کردن متن‬

@@ -356,6 +356,7 @@ insertHorizontalRule=Εισαγωγή οριζόντιου χάρακα
 insertLink=Εισαγωγή συνδέσμου
 insertPage=Εισαγωγή σελίδας
 insertRectangle=Εισαγωγή ορθογώνιου παραλληλόγραμμου
+insertRhombus=Insert Rhombus
 insertRowBefore=Εισαγωγή σειράς από πάνω
 insertRowAfter=Εισαγωγή σειράς μετά
 insertText=Εισαγωγή κειμένου

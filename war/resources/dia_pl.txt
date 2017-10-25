@@ -356,6 +356,7 @@ insertHorizontalRule=Wstaw poziomą linię
 insertLink=Wstaw hiperłącze
 insertPage=Wstaw stronę
 insertRectangle=Wstaw prostokąt
+insertRhombus=Insert Rhombus
 insertRowBefore=Wstaw wiersz u góry
 insertRowAfter=Wstaw wiersz u dołu
 insertText=Wstaw tekst

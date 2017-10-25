@@ -1,3 +1,9 @@
+25-OCT-2017: 7.6.1
+
+- Fixes Google picker for certain file types
+- Fixes text entries in general sidebar
+- Uses mxGraph 3.7.6 beta 6
+
 24-OCT-2017: 7.6.0
 
 - Uses mxGraph 3.7.6 beta 5

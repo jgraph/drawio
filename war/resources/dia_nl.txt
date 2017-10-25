@@ -356,6 +356,7 @@ insertHorizontalRule=Horizontale Lijn Invoegen
 insertLink=Link Invoegen
 insertPage=Pagina Invoegen
 insertRectangle=Rechthoek Invoegen
+insertRhombus=Insert Rhombus
 insertRowBefore=Rij Bovenaan Invoegen
 insertRowAfter=Rij Onderaan Invoegen
 insertText=Tekst Invoegen

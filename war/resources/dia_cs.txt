@@ -356,6 +356,7 @@ insertHorizontalRule=Vložit vodorovnou čáru
 insertLink=Vložit odkaz
 insertPage=Vložit stránku
 insertRectangle=Vložit obdélník
+insertRhombus=Insert Rhombus
 insertRowBefore=Vložit řádek nad
 insertRowAfter=Vložit řádek za
 insertText=Vložit text

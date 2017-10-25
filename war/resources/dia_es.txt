@@ -356,6 +356,7 @@ insertHorizontalRule=Insertar regla horizontal
 insertLink=Insertar enlace
 insertPage=Insertar página
 insertRectangle=Insertar rectángulo
+insertRhombus=Insert Rhombus
 insertRowBefore=Insertar fila arriba
 insertRowAfter=insertar fila abajo
 insertText=Insertar texto

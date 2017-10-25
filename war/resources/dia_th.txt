@@ -356,6 +356,7 @@ insertHorizontalRule=แทรกกฎเกณฑ์ในแนวนอน
 insertLink=แทรก Link
 insertPage=แทรกหน้า
 insertRectangle=แทรกรูปทรงสี่เหลี่ยม
+insertRhombus=Insert Rhombus
 insertRowBefore=แทรกบรรทัดข้างบน
 insertRowAfter=แทรกบรรทัดข้างล่าง
 insertText=แทรกข้อความ

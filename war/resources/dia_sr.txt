@@ -356,6 +356,7 @@ insertHorizontalRule=Umetni vodoravnu liniju
 insertLink=Umetni vezu
 insertPage=Insert Page
 insertRectangle=Insert Rectangle
+insertRhombus=Insert Rhombus
 insertRowBefore=Umetni red iznad
 insertRowAfter=Umetni red ispod
 insertText=Insert Text

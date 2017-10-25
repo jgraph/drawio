@@ -356,6 +356,7 @@ insertHorizontalRule=Afegeix una regla horizontal
 insertLink=Afegeix un enllaç
 insertPage=Afegeix una pàgina
 insertRectangle=Afegeix un rectangle
+insertRhombus=Insert Rhombus
 insertRowBefore=Afegeix una fila amunt
 insertRowAfter=Afegeix una fila avall
 insertText=Afegeix text

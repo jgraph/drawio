@@ -356,6 +356,7 @@ insertHorizontalRule=‫إضافة مسطرة أفقية‬
 insertLink=‫إضافة رابط‬
 insertPage=Insert Page
 insertRectangle=‫إضافة مستطيل‬
+insertRhombus=Insert Rhombus
 insertRowBefore=‫إضافة سطر قبل‬
 insertRowAfter=‫إضافة سطر بعد‬
 insertText=‫إضافة نص‬

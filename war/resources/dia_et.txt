@@ -356,6 +356,7 @@ insertHorizontalRule=Sisesta horisontaalliin
 insertLink=Sisesta link
 insertPage=Sisesta leht
 insertRectangle=Sisesta ristkülik
+insertRhombus=Insert Rhombus
 insertRowBefore=Sisesta rida ülespoole
 insertRowAfter=Sisesta rida allapoole
 insertText=Sisesta tekst

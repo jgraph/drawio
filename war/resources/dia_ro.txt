@@ -356,6 +356,7 @@ insertHorizontalRule=Inserează linie orizontală
 insertLink=Inserează link
 insertPage=Inserează pagină
 insertRectangle=Inserează dreptunghi
+insertRhombus=Insert Rhombus
 insertRowBefore=Inserează rând deasupra
 insertRowAfter=Inserează rând dedesubt
 insertText=Inserează text

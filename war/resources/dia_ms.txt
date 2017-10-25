@@ -356,6 +356,7 @@ insertHorizontalRule=Masukkan Peraturan Melintang
 insertLink=Masukkan Pautan
 insertPage=Masukkan Halaman
 insertRectangle=Masukkan Segi Empat
+insertRhombus=Insert Rhombus
 insertRowBefore=Masukkan Baris di Atas
 insertRowAfter=Masukkan Baris Selepas
 insertText=Masukkan Teks

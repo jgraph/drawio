@@ -356,6 +356,7 @@ insertHorizontalRule=‫הוספת חוק אופקי‬
 insertLink=‫הוספת קישור‬
 insertPage=‫הוספת עמוד‬
 insertRectangle=‫הוספת מלבן‬
+insertRhombus=Insert Rhombus
 insertRowBefore=‫הוספת שורה למעלה‬
 insertRowAfter=‫הוספת  שורה למטה‬
 insertText=‫הוספת טקסט‬

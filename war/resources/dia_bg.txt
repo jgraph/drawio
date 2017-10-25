@@ -356,6 +356,7 @@ insertHorizontalRule=Вмъкване на хоризонтална линия
 insertLink=Вмъкване на линк
 insertPage=Вмъкване на страница
 insertRectangle=Вмъкване на правоъгълник
+insertRhombus=Insert Rhombus
 insertRowBefore=Вмъкване на ред отгоре
 insertRowAfter=Вмъкване на ред отдолу
 insertText=Вмъкване на текст

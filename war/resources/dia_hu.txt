@@ -356,6 +356,7 @@ insertHorizontalRule=Vízszintes vonalat beszúr
 insertLink=Linket beszúr
 insertPage=Oldalt beszúr
 insertRectangle=Téglalapot beszúr
+insertRhombus=Insert Rhombus
 insertRowBefore=Sort beszúr felette
 insertRowAfter=Sort beszúr alatta
 insertText=Szöveget beszúr
