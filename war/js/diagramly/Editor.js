@@ -874,7 +874,7 @@
 		{
 			var graph = this.editorUi.editor.graph;
 			var picker = document.createElement('div');
-			picker.style.whiteSpace = 'normal';
+			picker.style.whiteSpace = 'nowrap';
 			picker.style.paddingLeft = '24px';
 			picker.style.paddingRight = '20px';
 			div.style.paddingLeft = '16px';

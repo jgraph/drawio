@@ -356,6 +356,7 @@ insertHorizontalRule=Inforga horisontell linje
 insertLink=Infoga länk
 insertPage=Inforga sida
 insertRectangle=Infoga rektangel
+insertRhombus=Insert Rhombus
 insertRowBefore=Infoga rad ovanför
 insertRowAfter=Infoga rad efter
 insertText=Infoga text

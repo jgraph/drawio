@@ -356,6 +356,7 @@ insertHorizontalRule=Yatay cetvel ekle
 insertLink=Link ekle 
 insertPage=Sayfa ekle
 insertRectangle=Dikdörtgen ekle
+insertRhombus=Insert Rhombus
 insertRowBefore=Üste satır ekle 
 insertRowAfter=Alta satır ekle
 insertText=Metin ekle

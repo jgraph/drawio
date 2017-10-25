@@ -356,6 +356,7 @@ insertHorizontalRule=Horizontale Linie einfügen
 insertLink=Verknüpfung einfügen
 insertPage=Seite einfügen
 insertRectangle=Rechteck einfügen
+insertRhombus=Rhombus einfügen
 insertRowBefore=Zeile oberhalb einfügen
 insertRowAfter=Zeile unterhalb einfügen
 insertText=Text einfügen

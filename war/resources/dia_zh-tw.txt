@@ -356,6 +356,7 @@ insertHorizontalRule=插入水平尺標
 insertLink=插入連結
 insertPage=插入頁
 insertRectangle=插入矩形
+insertRhombus=Insert Rhombus
 insertRowBefore=插入上方列
 insertRowAfter=插入下方列
 insertText=插入文字

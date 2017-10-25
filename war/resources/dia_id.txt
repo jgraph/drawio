@@ -356,6 +356,7 @@ insertHorizontalRule=Sisipkan Aturan Horizontal
 insertLink=Sisipkan Tautan
 insertPage=Sisipkan Halaman
 insertRectangle=Sisipkan Persegi Panjang
+insertRhombus=Insert Rhombus
 insertRowBefore=Sisipkan Baris di Atas
 insertRowAfter=Sisipkan Baris di Bawah
 insertText=Sisipkan Teks

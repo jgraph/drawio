@@ -356,6 +356,7 @@ insertHorizontalRule=插入水平标尺
 insertLink=插入链接
 insertPage=插入页面
 insertRectangle=插入矩形
+insertRhombus=Insert Rhombus
 insertRowBefore=上方插入行
 insertRowAfter=下方插入行
 insertText=插入文本

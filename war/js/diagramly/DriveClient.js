@@ -1189,27 +1189,31 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 
 				// Pseudo-hierarchical directory view, see
 				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-				var view = new google.picker.DocsView()
+				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
 			        	.setParent('root')
 			        	.setIncludeFolders(true);
 				
 				var view2 = new google.picker.DocsView()
+					.setIncludeFolders(true);
+				
+				var view3 = new google.picker.DocsView()
 					.setEnableTeamDrives(true)
 					.setIncludeFolders(true);
 				
-				var view3 = new google.picker.DocsUploadView()
+				var view4 = new google.picker.DocsUploadView()
 					.setIncludeFolders(true);
 
 				if (!acceptAllFiles)
 				{
 					view.setMimeTypes(this.mimeTypes);
 					view2.setMimeTypes(this.mimeTypes);
+					view3.setMimeTypes(this.mimeTypes);
 				}
 				else
 				{
-					// Workaround for no files shown
-					view.setMimeTypes(this.mimeTypes + ',image/png,image/jpg,image/svg+xml,' +
-						'application/xml,text/plain,text/html');
+					view.setMimeTypes('*/*');
+					view2.setMimeTypes('*/*');
+					view3.setMimeTypes('*/*');
 				}
 				
 				this[name] = new google.picker.PickerBuilder()
@@ -1219,8 +1223,9 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 			        .addView(view)
 			        .addView(view2)
-			        .addView(google.picker.ViewId.RECENTLY_PICKED)
 			        .addView(view3)
+			        .addView(google.picker.ViewId.RECENTLY_PICKED)
+			        .addView(view4)
 			        .setCallback(mxUtils.bind(this, function(data)
 			        {
 			        	if (data.action == google.picker.Action.PICKED ||
@@ -1302,7 +1307,7 @@ DriveClient.prototype.pickFolder = function(fn)
 						.setSelectFolderEnabled(true)
 						.setMimeTypes('application/vnd.google-apps.folder');
 					
-					var view21 = new google.picker.DocsView()
+					var view3 = new google.picker.DocsView()
 						.setIncludeFolders(true)
 						.setEnableTeamDrives(true)
 						.setSelectFolderEnabled(true)
@@ -1316,7 +1321,7 @@ DriveClient.prototype.pickFolder = function(fn)
 					    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 				        .addView(view)
 				        .addView(view2)
-				        .addView(view21)
+				        .addView(view3)
 				        .addView(google.picker.ViewId.RECENTLY_PICKED)
 				        .setTitle(mxResources.get('pickFolder'))
 				        .setCallback(mxUtils.bind(this, function(data)
@@ -1435,16 +1440,20 @@ DriveClient.prototype.pickLibrary = function(fn)
 				// Pseudo-hierarchical directory view, see
 				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
 				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-					.setParent('root')
+			        	.setParent('root')
+			        	.setIncludeFolders(true)
+					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+				
+				var view2 = new google.picker.DocsView()
 		        		.setIncludeFolders(true)
 					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
 			
-				var view2 = new google.picker.DocsView()
+				var view3 = new google.picker.DocsView()
 					.setEnableTeamDrives(true)
 					.setIncludeFolders(true)
 					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
 				
-				var view3 = new google.picker.DocsUploadView()
+				var view4 = new google.picker.DocsUploadView()
 					.setIncludeFolders(true);
 				
 			    this.libraryPicker = new google.picker.PickerBuilder()
@@ -1454,8 +1463,9 @@ DriveClient.prototype.pickLibrary = function(fn)
 			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 			        .addView(view)
 			        .addView(view2)
-			        .addView(google.picker.ViewId.RECENTLY_PICKED)
 			        .addView(view3)
+			        .addView(google.picker.ViewId.RECENTLY_PICKED)
+			        .addView(view4)
 			        .setCallback(mxUtils.bind(this, function(data)
 			        {
 				        	if (data.action == google.picker.Action.PICKED ||

@@ -356,6 +356,7 @@ insertHorizontalRule=Вставити горизонтальну лінію
 insertLink=Вставити посилання
 insertPage=Вставити сторінку
 insertRectangle=Вставити прямокутник
+insertRhombus=Insert Rhombus
 insertRowBefore=Вставити рядок зверху
 insertRowAfter=Вставити рядок внизу
 insertText=Вставити текст

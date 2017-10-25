@@ -356,6 +356,7 @@ insertHorizontalRule=Legg til horisontal linje
 insertLink=Legg til lenke
 insertPage=Legg til side
 insertRectangle=Legg til rektangel
+insertRhombus=Insert Rhombus
 insertRowBefore=Legg til rad ovenfor
 insertRowAfter=Legg til rad nedenfor
 insertText=Legg til tekst

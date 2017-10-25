@@ -356,6 +356,7 @@ insertHorizontalRule=가로선 삽입
 insertLink=링크 삽입
 insertPage=Insert Page
 insertRectangle=직사각형 삽입
+insertRhombus=Insert Rhombus
 insertRowBefore=위에 열 삽입
 insertRowAfter=아래에 열 삽입
 insertText=텍스트 삽입
