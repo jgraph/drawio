@@ -2245,7 +2245,7 @@ var ParseDialog = function(editorUi, title)
 				var graph = editorUi.editor.graph;
 				
 				var listCell = new mxCell(lines[0], new mxGeometry(0, 0, 160, 26 + 4),
-				    'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+				    'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
 				listCell.vertex = true;
 				
 				var size = graph.getPreferredSizeForCell(listCell);
@@ -2255,6 +2255,8 @@ var ParseDialog = function(editorUi, title)
 	   				listCell.geometry.width = size.width + 10;
 	   			}
 				
+	   			var inserted = [listCell];
+	   			
 				if (lines.length > 1)
 				{
 					for (var i = 1; i < lines.length; i++)
@@ -2265,6 +2267,7 @@ var ParseDialog = function(editorUi, title)
 							divider.vertex = true;
 							listCell.geometry.height += divider.geometry.height;
 							listCell.insert(divider);
+							inserted.push(divider);
 						}
 						else if (lines[i].length > 0 && lines[i].charAt(0) != ';')
 						{
@@ -2281,11 +2284,23 @@ var ParseDialog = function(editorUi, title)
 				   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
 							listCell.geometry.height += field.geometry.height;
 							listCell.insert(field);
+							inserted.push(field);
 						}
 					}
 				}
 				
-				graph.setSelectionCells(graph.importCells([listCell], insertPoint.x, insertPoint.y));
+				graph.getModel().beginUpdate();
+				try
+				{
+					listCell = graph.importCells([listCell], insertPoint.x, insertPoint.y)[0];
+					graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [listCell].concat(listCell.children)));
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
+				
+				graph.setSelectionCells(listCell);
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}
@@ -2300,7 +2315,7 @@ var ParseDialog = function(editorUi, title)
 	
 				if (vertex == null)
 				{
-					vertex = new mxCell(id, new mxGeometry(0, 0, 80, 30));
+					vertex = new mxCell(id, new mxGeometry(0, 0, 80, 30), 'whiteSpace=wrap;html=1;');
 					vertex.vertex = true;
 					vertices[id] = vertex;
 					cells.push(vertex);
@@ -2364,10 +2379,24 @@ var ParseDialog = function(editorUi, title)
 				}
 				
 				graph.clearCellOverlays();
-				editorUi.editor.graph.setSelectionCells(editorUi.editor.graph.importCells(
-						graph.getModel().getChildren(graph.getDefaultParent()), insertPoint.x, insertPoint.y));
-				editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
 				
+				// Copy to actual graph
+				var inserted = [];
+				
+				editorUi.editor.graph.getModel().beginUpdate();
+				try
+				{
+					inserted = editorUi.editor.graph.importCells(graph.getModel().getChildren(
+						graph.getDefaultParent()), insertPoint.x, insertPoint.y)
+					editorUi.editor.graph.fireEvent(new mxEventObject('cellsInserted', 'cells', inserted));
+				}
+				finally
+				{
+					editorUi.editor.graph.getModel().endUpdate();
+				}
+
+				editorUi.editor.graph.setSelectionCells(inserted[0]);
+				editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
 				graph.destroy();
 				container.parentNode.removeChild(container);
 			}
@@ -3067,6 +3096,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		preview.style.maxHeight = '80px';
 		mxUtils.setPrefixedStyle(preview.style, 'transform', 'translate(50%,-50%)');
 		div.appendChild(preview);
+		
+		if (allowTab)
+		{
+			preview.style.cursor = 'pointer';
+			
+			mxEvent.addListener(preview, 'click', function()
+			{
+				create('_blank');
+			});
+		}
 	}
 	
 	mxUtils.br(div);

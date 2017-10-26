@@ -1661,7 +1661,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					if (this.editor.editButtonLink == '_blank')
 					{
-						this.editor.editAsNew(this.getEditBlankXml(), null, true);
+						this.editor.editAsNew(this.getEditBlankXml());
 					}
 					else
 					{
@@ -2299,7 +2299,7 @@ EditorUi.prototype.canUndo = function()
  */
 EditorUi.prototype.getEditBlankXml = function()
 {
-	return mxUtils.getXml(this.getGraphXml());
+	return mxUtils.getXml(this.editor.getGraphXml());
 };
 
 /**
