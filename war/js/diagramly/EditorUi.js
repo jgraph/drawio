@@ -3020,6 +3020,14 @@
 		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
 	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getEditBlankXml = function()
+	{
+		return this.getFileData(true);
+	};
 		
 	/**
 	 * Hook for subclassers.
@@ -4623,105 +4631,120 @@
 	 * For the fontCSS to be applied when rendering images on canvas, the actual
 	 * font data must be made available via a data URI encoding of the file.
 	 */
-	EditorUi.prototype.loadFonts = function(then)
-	{
-		if (this.editor.fontCss != null && this.editor.resolvedFontCss == null)
-		{
-			var parts = this.editor.fontCss.split('url(');
-			var waiting = 0;
-			var fonts = {};
-			
-			var finish = mxUtils.bind(this, function()
-			{
-				if (waiting == 0)
-				{
-					// Constructs string
-					var result = [parts[0]];
-					
-					for (var j = 1; j < parts.length; j++)
-					{
-						var idx = parts[j].indexOf(')');
-						result.push('url(');
-						result.push(fonts[parts[j].substring(0, idx)]);
-						result.push(parts[j].substring(idx));
-					}
-					
-					this.editor.resolvedFontCss = result.join('');
-					then();
-				}
-			});
-			
-			if (parts.length > 0)
-			{
-				for (var i = 1; i < parts.length; i++)
-				{
-					var idx = parts[i].indexOf(')');
-	
-					(mxUtils.bind(this, function(url)
-					{
-						if (fonts[url] == null)
-						{
-							// Mark font es being fetched and fetch it
-							fonts[url] = url;
-							waiting++;
-							
-							var mime = 'application/x-font-ttf';
-							
-							// See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
-							if (/(\.svg)($|\?)/i.test(url))
-							{
-								mime = 'image/svg+xml';
-							}
-							else if (/(\.otf)($|\?)/i.test(url))
-							{
-								mime = 'application/x-font-opentype';
-							}
-							else if (/(\.woff)($|\?)/i.test(url))
-							{
-								mime = 'application/font-woff';
-							}
-							else if (/(\.woff2)($|\?)/i.test(url))
-							{
-								mime = 'application/font-woff2';
-							}
-							else if (/(\.eot)($|\?)/i.test(url))
-							{
-								mime = 'application/vnd.ms-fontobject';
-							}
-							else if (/(\.sfnt)($|\?)/i.test(url))
-							{
-								mime = 'application/font-sfnt';
-							}
-							
-							var realUrl = url;
-							
-							if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
-							{
-								realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
-							}
-							
-							// LATER: Remove cache-control header
-							this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
-							{
-								fonts[url] = uri;
-								waiting--;
-								finish();
-							}), mxUtils.bind(this, function(err)
-							{
-								// LATER: handle error
-								waiting--;
-								finish();
-							}), true, null, 'data:' + mime + ';charset=utf-8;base64,');
-						}
-					}))(parts[i].substring(0, idx));
-				}
-			}
-		}
-		else
-		{
-			then();
-		}
-	};
+    EditorUi.prototype.loadFonts = function(then)
+    {
+        if (this.editor.fontCss != null && this.editor.resolvedFontCss == null)
+        {
+            var parts = this.editor.fontCss.split('url(');
+            var waiting = 0;
+            var fonts = {};
+
+            // Strips leading and trailing quotes and spaces
+            function trimString(str)
+            {
+                return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+            };
+            
+            var finish = mxUtils.bind(this, function()
+            {
+                if (waiting == 0)
+                {
+                    // Constructs string
+                    var result = [parts[0]];
+                    
+                    for (var j = 1; j < parts.length; j++)
+                    {
+                        var idx = parts[j].indexOf(')');
+                        result.push('url("');
+                        result.push(fonts[trimString(parts[j].substring(0, idx))]);
+                        result.push('"' + parts[j].substring(idx));
+                    }
+                    
+                    this.editor.resolvedFontCss = result.join('');
+                    then();
+                }
+            });
+            
+            if (parts.length > 0)
+            {
+                for (var i = 1; i < parts.length; i++)
+                {
+                    var idx = parts[i].indexOf(')');
+                    var format = null;
+                    
+                    // Checks if there is a format directive
+                    var fmtIdx = parts[i].indexOf('format(', idx);
+                    
+                    if (fmtIdx > 0)
+                    {
+                        format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                    }
+    
+                    (mxUtils.bind(this, function(url)
+                    {
+                        if (fonts[url] == null)
+                        {
+                            // Mark font es being fetched and fetch it
+                            fonts[url] = url;
+                            waiting++;
+                            
+                            var mime = 'application/x-font-ttf';
+                            
+                            // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+                            if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
+                            {
+                                mime = 'image/svg+xml';
+                            }
+                            else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
+                            {
+                                mime = 'application/x-font-opentype';
+                            }
+                            else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff';
+                            }
+                            else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff2';
+                            }
+                            else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
+                            {
+                                mime = 'application/vnd.ms-fontobject';
+                            }
+                            else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-sfnt';
+                            }
+                            
+                            var realUrl = url;
+                            
+                            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+                            {
+                                realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+                            }
+
+                            // LATER: Remove cache-control header
+                            this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+                            {
+                                fonts[url] = uri;
+                                waiting--;
+                                finish();
+                            }), mxUtils.bind(this, function(err)
+                            {
+                                // LATER: handle error
+                                waiting--;
+                                finish();
+                            }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+                        }
+                    }))(trimString(parts[i].substring(0, idx)), format);
+                }
+            }
+        }
+        else
+        {
+            then();
+        }
+    };
 	
 	/**
 	 *
@@ -8863,10 +8886,10 @@
 		if (this.importCsvDialog == null)
 		{
 			this.importCsvDialog = new TextareaDialog(this, mxResources.get('csv') + ':',
-    			Editor.defaultCsvValue, mxUtils.bind(this, function(newValue)
-			{
-    			this.importCsv(newValue);
-			}), null, null, 620, 430, null, true, true, mxResources.get('import'));
+	    			Editor.defaultCsvValue, mxUtils.bind(this, function(newValue)
+				{
+	    				this.importCsv(newValue);
+				}), null, null, 620, 430, null, true, true, mxResources.get('import'));
 		}
 		
 		this.showDialog(this.importCsvDialog.container, 640, 520, true, true);
@@ -8880,158 +8903,158 @@
 	{
 		try
 		{
-    		var lines = text.split('\n');
-    		var cells = [];
-    		
-    		if (lines.length > 0)
-    		{
-        		// Internal lookup table
-        		var lookups = {};
-        		
-        		// Default values
-        		var style = null;
-        		var identity = null;
-        		var width = 'auto';
-        		var height = 'auto';
-        		var edgespacing = 40;
-        		var nodespacing = 40;
-        		var padding = 0;
-        		
-        		var graph = this.editor.graph;
+	    		var lines = text.split('\n');
+	    		var cells = [];
+	    		
+	    		if (lines.length > 0)
+	    		{
+	        		// Internal lookup table
+	        		var lookups = {};
+	        		
+	        		// Default values
+	        		var style = null;
+	        		var identity = null;
+	        		var width = 'auto';
+	        		var height = 'auto';
+	        		var edgespacing = 40;
+	        		var nodespacing = 40;
+	        		var padding = 0;
+	        		
+	        		var graph = this.editor.graph;
 				var view = graph.view;
 				var bds = graph.getGraphBounds();
-
-				// Delayed after optional layout
-    			var afterInsert = function()
-    			{
-    				graph.setSelectionCells(select);
-		    		graph.scrollCellToVisible(graph.getSelectionCell());
-    			};
-    				
-				// Computes unscaled, untranslated graph bounds
-    			var pt = graph.getFreeInsertPoint();
+	
+					// Delayed after optional layout
+	    			var afterInsert = function()
+	    			{
+	    				graph.setSelectionCells(select);
+			    		graph.scrollCellToVisible(graph.getSelectionCell());
+	    			};
+	    				
+					// Computes unscaled, untranslated graph bounds
+	    			var pt = graph.getFreeInsertPoint();
 				var x0 = pt.x;
 				var y0 = pt.y;
 				var y = y0;
-
-    			// Default label value depends on column names
-        		var label = null;
-        		
-    			// Default layout to run.
-        		var layout = 'auto';
-        		
-        		// Name of the attribute that contains the parent reference
-        		var parent = null;
-        		
-        		// Name of the attribute that contains the references for creating edges
-        		var edges = [];
-
-        		// Name of the column for hyperlinks
-        		var link = null;
-        		
-        		// String array of names to remove from metadata
-        		var ignore = null;
-        		
-        		// Read processing instructions first
-        		var index = 0;
-        		
-        		while (index < lines.length && lines[index].charAt(0) == '#')
-        		{
-        			var text = lines[index];
-        			index++;
-        			
-        			while (index < lines.length && text.charAt(text.length - 1) == '\\' &&
-        				lines[index].charAt(0) == '#')
-        			{
-        				text = text.substring(0, text.length - 1) + mxUtils.trim(lines[index].substring(1));
-        				index++;
-        			}
-        			
-        			if (text.charAt(1) != '#')
-        			{
-	    				// Processing instruction
-	    				var idx = text.indexOf(':');
-	    				
-	    				if (idx > 0)
-	    				{
-		    				var key = mxUtils.trim(text.substring(1, idx));
-		    				var value = mxUtils.trim(text.substring(idx + 1));
 	
-		    				if (key == 'label')
+	    			// Default label value depends on column names
+	        		var label = null;
+	        		
+	    			// Default layout to run.
+	        		var layout = 'auto';
+	        		
+	        		// Name of the attribute that contains the parent reference
+	        		var parent = null;
+	        		
+	        		// Name of the attribute that contains the references for creating edges
+	        		var edges = [];
+	
+	        		// Name of the column for hyperlinks
+	        		var link = null;
+	        		
+	        		// String array of names to remove from metadata
+	        		var ignore = null;
+	        		
+	        		// Read processing instructions first
+	        		var index = 0;
+	        		
+	        		while (index < lines.length && lines[index].charAt(0) == '#')
+	        		{
+	        			var text = lines[index];
+	        			index++;
+	        			
+	        			while (index < lines.length && text.charAt(text.length - 1) == '\\' &&
+	        				lines[index].charAt(0) == '#')
+	        			{
+	        				text = text.substring(0, text.length - 1) + mxUtils.trim(lines[index].substring(1));
+	        				index++;
+	        			}
+	        			
+	        			if (text.charAt(1) != '#')
+	        			{
+		    				// Processing instruction
+		    				var idx = text.indexOf(':');
+		    				
+		    				if (idx > 0)
 		    				{
-		    					label = graph.sanitizeHtml(value);
+			    				var key = mxUtils.trim(text.substring(1, idx));
+			    				var value = mxUtils.trim(text.substring(idx + 1));
+		
+			    				if (key == 'label')
+			    				{
+			    					label = graph.sanitizeHtml(value);
+			    				}
+			    				else if (key == 'style')
+			    				{
+			    					style = value;
+			    				}
+			    				else if (key == 'identity' && value.length > 0 && value != '-')
+			    				{
+			    					identity = value;
+			    				}
+			    				else if (key == 'width')
+			    				{
+			    					width = value;
+			    				}
+			    				else if (key == 'height')
+			    				{
+			    					height = value;
+			    				}
+			    				else if (key == 'ignore')
+			    				{
+			    					ignore = value.split(',');
+			    				}
+			    				else if (key == 'connect')
+			    				{
+			    					edges.push(JSON.parse(value));
+			    				}
+			    				else if (key == 'link')
+			    				{
+			    					link = value;
+			    				}
+			    				else if (key == 'padding')
+			    				{
+			    					padding = parseFloat(value);
+			    				}
+			    				else if (key == 'edgespacing')
+			    				{
+			    					edgespacing = parseFloat(value);
+			    				}
+			    				else if (key == 'nodespacing')
+			    				{
+			    					nodespacing = parseFloat(value);
+			    				}
+			    				else if (key == 'layout')
+			    				{
+			    					layout = value;
+			    				}
 		    				}
-		    				else if (key == 'style')
-		    				{
-		    					style = value;
-		    				}
-		    				else if (key == 'identity' && value.length > 0 && value != '-')
-		    				{
-		    					identity = value;
-		    				}
-		    				else if (key == 'width')
-		    				{
-		    					width = value;
-		    				}
-		    				else if (key == 'height')
-		    				{
-		    					height = value;
-		    				}
-		    				else if (key == 'ignore')
-		    				{
-		    					ignore = value.split(',');
-		    				}
-		    				else if (key == 'connect')
-		    				{
-		    					edges.push(JSON.parse(value));
-		    				}
-		    				else if (key == 'link')
-		    				{
-		    					link = value;
-		    				}
-		    				else if (key == 'padding')
-		    				{
-		    					padding = parseFloat(value);
-		    				}
-		    				else if (key == 'edgespacing')
-		    				{
-		    					edgespacing = parseFloat(value);
-		    				}
-		    				else if (key == 'nodespacing')
-		    				{
-		    					nodespacing = parseFloat(value);
-		    				}
-		    				else if (key == 'layout')
-		    				{
-		    					layout = value;
-		    				}
-	    				}
-        			}
-        		}
-        		
-    			var keys = this.editor.csvToArray(lines[index]);
-    			
-    			// Converts name of identity to index of column
-    			var identityIndex = null;
-    			
-    			if (identity != null)
-    			{
-    				for (var i = 0; i < keys.length; i++)
-		    		{
-    					if (identity == keys[i])
-    					{
-    						identityIndex = i;
-    						break;
-    					}
-		    		}
-    			}
-    			
-    			if (label == null)
-    			{
-    				label = '%' + keys[0] + '%';
-    			}
-    			
-    			if (edges != null)
+	        			}
+	        		}
+	        		
+	    			var keys = this.editor.csvToArray(lines[index]);
+	    			
+	    			// Converts name of identity to index of column
+	    			var identityIndex = null;
+	    			
+	    			if (identity != null)
+	    			{
+	    				for (var i = 0; i < keys.length; i++)
+			    		{
+	    					if (identity == keys[i])
+	    					{
+	    						identityIndex = i;
+	    						break;
+	    					}
+			    		}
+	    			}
+	    			
+	    			if (label == null)
+	    			{
+	    				label = '%' + keys[0] + '%';
+	    			}
+	    			
+	    			if (edges != null)
 				{
 					for (var e = 0; e < edges.length; e++)
 					{
@@ -9041,45 +9064,45 @@
 						}
 					}
 				}
-    			
-        		graph.model.beginUpdate();
-        		try
-        		{
-	    			for (var i = index + 1; i < lines.length; i++)
-		    		{
-    	    			var values = this.editor.csvToArray(lines[i]);
-    	    			
-	    				if (values.length == keys.length)
-		    			{
-	    					var cell = null;
-	    					var id = (identityIndex != null) ? values[identityIndex] : null;
-	    					
-	    					if (id != null)
-	    					{
-	    						cell = graph.model.getCell(id);
-	    					}
-
-	    					if (cell == null)
-	    					{
-				    			var cell = new mxCell(label, new mxGeometry(x0, y,
-				    				0, 0), style || 'whiteSpace=wrap;html=1;');
-								cell.vertex = true;
-								cell.id = id;
-	    					}
+	    			
+	        		graph.model.beginUpdate();
+	        		try
+	        		{
+		    			for (var i = index + 1; i < lines.length; i++)
+			    		{
+	    	    				var values = this.editor.csvToArray(lines[i]);
+	    	    			
+		    				if (values.length == keys.length)
+			    			{
+		    					var cell = null;
+		    					var id = (identityIndex != null) ? values[identityIndex] : null;
+		    					
+		    					if (id != null)
+		    					{
+		    						cell = graph.model.getCell(id);
+		    					}
+	
+		    					if (cell == null)
+		    					{
+					    			var cell = new mxCell(label, new mxGeometry(x0, y,
+					    				0, 0), style || 'whiteSpace=wrap;html=1;');
+									cell.vertex = true;
+									cell.id = id;
+		    					}
 							
 							for (var j = 0; j < values.length; j++)
-				    		{
-								graph.setAttributeForCell(cell, keys[j], values[j]);
-				    		}
+					    		{
+									graph.setAttributeForCell(cell, keys[j], values[j]);
+					    		}
 							
 							graph.setAttributeForCell(cell, 'placeholders', '1');
 							cell.style = graph.replacePlaceholders(cell, cell.style);
-							
-	    					for (var e = 0; e < edges.length; e++)
-	    					{
-	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-	    					}
-							
+								
+		    					for (var e = 0; e < edges.length; e++)
+		    					{
+		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+		    					}
+								
 							if (link != null && link != 'link')
 							{
 								graph.setLinkForCell(cell, cell.getAttribute(link));
@@ -9087,82 +9110,78 @@
 								// Removes attribute
 								graph.setAttributeForCell(cell, link, null);
 							}
-
+	
 							// Sets the size
+							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 							var size = this.editor.graph.getPreferredSizeForCell(cell);
 							
 							cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
 							cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
 							y += cell.geometry.height + nodespacing;
-
+	
 							cells.push(graph.addCell(cell));
-		    			}
-		    		}
-	    			
-	    			if (style == null)
-	    			{
-	    				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', cells));
-	    			}
+			    			}
+			    		}
 	    			
 					var roots = cells.slice();
 					var select = cells.slice();
-
+	
 					for (var e = 0; e < edges.length; e++)
 					{
-    					var edge = edges[e];
-
+						var edge = edges[e];
+	
 						for (var i = 0; i < cells.length; i++)
-	    				{
-							var cell = cells[i];
-
-	    					var tmp = cell.getAttribute(edge.from);
-	    					
-	    					if (tmp != null)
 	    					{
-	    						// Removes attribute
-		    					graph.setAttributeForCell(cell, edge.from, null);
-	    						var refs = tmp.split(',');
+							var cell = cells[i];
+		
+		    					var tmp = cell.getAttribute(edge.from);
 		    					
-		    					for (var j = 0; j < refs.length; j++)
-		        				{
-		    						var ref = lookups[edge.to][refs[j]];
-		    						
-		    						if (ref != null)
-		    						{
-		    							select.push(graph.insertEdge(null, null, edge.label || '',
-			    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
-							    			edge.style || graph.createCurrentEdgeStyle()));
-		    							mxUtils.remove((edge.invert) ? cell : ref, roots);
-		    						}
-		        				}
-	    					}
-    					}
-    				}
-					
+		    					if (tmp != null)
+		    					{
+		    						// Removes attribute
+			    					graph.setAttributeForCell(cell, edge.from, null);
+		    						var refs = tmp.split(',');
+			    					
+			    					for (var j = 0; j < refs.length; j++)
+			        				{
+			    						var ref = lookups[edge.to][refs[j]];
+			    						
+			    						if (ref != null)
+			    						{
+			    							select.push(graph.insertEdge(null, null, edge.label || '',
+				    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
+								    			edge.style || graph.createCurrentEdgeStyle()));
+			    							mxUtils.remove((edge.invert) ? cell : ref, roots);
+			    						}
+			        				}
+		    					}
+						}
+					}
+						
 					// Removes ignored attributes after processing above
 					if (ignore != null)
 					{
 						for (var i = 0; i < cells.length; i++)
-	    				{
+						{
 							var cell = cells[i];
 							
 							for (var j = 0; j < ignore.length; j++)
-				    		{
+					    		{
 								graph.setAttributeForCell(cell, mxUtils.trim(ignore[j]), null);
-				    		}
-	    				}
+					    		}
+						}
 					}
 					
 					var edgeLayout = new mxParallelEdgeLayout(graph);
-    				edgeLayout.spacing = edgespacing;
+						edgeLayout.spacing = edgespacing;
 					
 					var postProcess = function()
 					{
 						edgeLayout.execute(graph.getDefaultParent());
 						
-	    	    		// Aligns cells to grid and/or rounds positions
+	    	    				// Aligns cells to grid and/or rounds positions
 						for (var i = 0; i < cells.length; i++)
-	    				{
+		    				{
 							var geo = graph.getCellGeometry(cells[i]);
 							geo.x = Math.round(graph.snap(geo.x));
 							geo.y = Math.round(graph.snap(geo.y));
@@ -9176,113 +9195,113 @@
 							{
 								geo.height = Math.round(graph.snap(geo.height));	
 							}
-	    				}
+		    				}
 					};
 					
 					if (layout == 'circle')
 					{
 						var circleLayout = new mxCircleLayout(graph);
-	    				circleLayout.resetEdges = false;
-	    				
-	    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
-	    				
-    	    			// Ignore other cells
-	    				circleLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
+		    				circleLayout.resetEdges = false;
+		    				
+		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
+		    				
+	    	    				// Ignore other cells
+		    				circleLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
 						
-			    		this.executeLayout(function()
-			    		{
-			    			circleLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-			    		}, true, afterInsert);
+				    		this.executeLayout(function()
+				    		{
+				    			circleLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+				    		}, true, afterInsert);
 	    				
-	    				afterInsert = null;
+				    		afterInsert = null;
 					}
 					else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
 						(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
-	    				treeLayout.levelDistance = nodespacing;
-	    				treeLayout.edgeRouting = false;
-	    				treeLayout.resetEdges = false;
-	    				
-	    				this.executeLayout(function()
-	    	    		{
-	    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
-	    	    		}, true, afterInsert);
-	    				
-	    				afterInsert = null;
-	    			}
-	    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
-	    					(layout == 'auto' && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-		    			var flowLayout = new mxHierarchicalLayout(graph,
-		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
-		    			flowLayout.intraCellSpacing = nodespacing;
-		    			flowLayout.disableEdgeStyle = false;
-		    			
-		        		this.executeLayout(function()
-		        		{
-		        			flowLayout.execute(graph.getDefaultParent(), select);
-		        			
-		        			// Workaround for flow layout moving cells to origin
-		        			graph.moveCells(select, x0, y0);
-		        		}, true, afterInsert);
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
 			    			
-		    			afterInsert = null;
-		    		}
-	    			else if (layout == 'organic' || (layout == 'auto' &&
-	    					select.length > cells.length))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
+		    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
+		    				treeLayout.levelDistance = nodespacing;
+		    				treeLayout.edgeRouting = false;
+		    				treeLayout.resetEdges = false;
+		    				
+		    				this.executeLayout(function()
+		    	    		{
+		    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
+		    	    		}, true, afterInsert);
+		    				
+		    				afterInsert = null;
+		    			}
+		    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
+		    					(layout == 'auto' && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+			    			var flowLayout = new mxHierarchicalLayout(graph,
+			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+			    			flowLayout.intraCellSpacing = nodespacing;
+			    			flowLayout.disableEdgeStyle = false;
+			    			
+			        		this.executeLayout(function()
+			        		{
+			        			flowLayout.execute(graph.getDefaultParent(), select);
+			        			
+			        			// Workaround for flow layout moving cells to origin
+			        			graph.moveCells(select, x0, y0);
+			        		}, true, afterInsert);
+				    			
+			    			afterInsert = null;
+			    		}
+		    			else if (layout == 'organic' || (layout == 'auto' &&
+		    					select.length > cells.length))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+		    				var organicLayout = new mxFastOrganicLayout(graph);
+		    				organicLayout.forceConstant = nodespacing * 3;
+		    				organicLayout.resetEdges = false;
+	
+		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
+	
+	    	    				// Ignore other cells
+		    				organicLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+	
+		    				var edgeLayout = new mxParallelEdgeLayout(graph);
+		    				edgeLayout.spacing = edgespacing;
+			    				
+			    	    		this.executeLayout(function()
+			    	    		{
+			    	    			organicLayout.execute(graph.getDefaultParent());
+					    			postProcess();
+			    	    		}, true, afterInsert);
+			    	    		
+			    	    		afterInsert = null;
+		    			}
 		    			
-	    				var organicLayout = new mxFastOrganicLayout(graph);
-	    				organicLayout.forceConstant = nodespacing * 3;
-	    				organicLayout.resetEdges = false;
-
-	    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
-
-    	    			// Ignore other cells
-	    				organicLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-
-	    				var edgeLayout = new mxParallelEdgeLayout(graph);
-	    				edgeLayout.spacing = edgespacing;
-	    				
-	    	    		this.executeLayout(function()
-	    	    		{
-	    	    			organicLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-	    	    		}, true, afterInsert);
-	    	    		
-	    	    		afterInsert = null;
-	    			}
-	    			
-	    			this.hideDialog();
-        		}
-        		finally
-        		{
-        			graph.model.endUpdate();
-        		}
-				
-        		if (afterInsert != null)
-        		{
-        			afterInsert();
-        		}
-    		}
+		    			this.hideDialog();
+	        		}
+	        		finally
+	        		{
+	        			graph.model.endUpdate();
+	        		}
+					
+	        		if (afterInsert != null)
+	        		{
+	        			afterInsert();
+	        		}
+	    		}
 		}
 		catch (e)
 		{

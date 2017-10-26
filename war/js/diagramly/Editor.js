@@ -102,7 +102,7 @@
 		'#\n' +
 		'## Padding for autosize. Default is 0.\n' +
 		'#\n' +
-		'# padding: -26\n' +
+		'# padding: -12\n' +
 		'#\n' +
 		'## Comma-separated list of ignored columns for metadata. (These can be\n' +
 		'## used for connections and styles but will not be added as metadata.)\n' +

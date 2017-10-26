@@ -54,6 +54,26 @@ public class ProxyServlet extends HttpServlet
 				response.setHeader("Cache-control", "private, no-cache, no-store");
 				response.setHeader("Expires", "0");
 				
+				// build the UML source from the compressed request parameter
+				String ref = request.getHeader("referer");
+				String dom = null;
+
+				if (ref != null && ref.toLowerCase()
+						.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
+				{
+					dom = ref.toLowerCase().substring(0, ref.indexOf(".draw.io/") + 8);
+				}
+				else if (ref != null && ref.toLowerCase()
+						.matches("https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
+				{
+					dom = ref.toLowerCase().substring(0, ref.indexOf(".quipelements.com/") + 17);
+				}
+
+				if (dom != null)
+				{
+					response.addHeader("Access-Control-Allow-Origin", dom);
+				}
+				
 				// Status code pass-through
 				if (connection instanceof HttpURLConnection)
 				{
