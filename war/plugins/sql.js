@@ -83,7 +83,7 @@ Draw.loadPlugin(function(ui)
 						'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
 		   			rowCell.vertex = true;
 	
-					var left = sb.cloneCell(rowCell, '' /* eg. PK */);
+					var left = sb.cloneCell(rowCell, 'PK' /* eg. PK */);
 		   			left.connectable = false;
 		   			left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
 		   			left.geometry.width = 30;
