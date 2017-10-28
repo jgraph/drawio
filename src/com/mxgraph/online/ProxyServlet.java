@@ -4,11 +4,14 @@
  */
 package com.mxgraph.online;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -80,10 +83,38 @@ public class ProxyServlet extends HttpServlet
 					response.setStatus(((HttpURLConnection) connection).getResponseCode());
 				}
 				
+				String base64 = request.getParameter("base64");
+				
 				if (connection != null)
 				{
-					response.setContentType(connection.getContentType());
-					Utils.copy(connection.getInputStream(), out);
+					if (base64 != null && base64.equals("1"))
+					{
+						int BUFFER_SIZE = 3 * 1024;
+						
+						try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream(), BUFFER_SIZE); )
+						{
+						    StringBuilder result = new StringBuilder();
+						    byte[] chunk = new byte[BUFFER_SIZE];
+						    int len = 0;
+						    while ( (len = in.read(chunk)) == BUFFER_SIZE )
+						    {
+						         result.append(mxBase64.encodeToString(chunk, false));
+						    }
+						    
+						    if ( len > 0 )
+						    {
+						         chunk = Arrays.copyOf(chunk,len);
+						         result.append(mxBase64.encodeToString(chunk, false));
+						    }
+
+							out.write(result.toString().getBytes());
+						}
+					}
+					else
+					{
+						response.setContentType(connection.getContentType());
+						Utils.copy(connection.getInputStream(), out);
+					}
 				}
 
 				out.flush();
