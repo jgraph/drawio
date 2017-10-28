@@ -1,3 +1,7 @@
+28-OCT-2017: 7.6.5
+
+- Fixes possible NPE in legacy embed mode
+
 28-OCT-2017: 7.6.4
 
 - Adds vector handles
