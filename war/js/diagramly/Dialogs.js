@@ -4403,11 +4403,24 @@ var AboutDialog = function(editorUi)
 	
 	var img = document.createElement('img');
 	img.style.border = '0px';
-	img.setAttribute('width', '176');
-	img.setAttribute('width', '151');
-	img.style.width = '170px';
-	img.style.height = '219px';
-	img.setAttribute('src', IMAGE_PATH + '/logo-flat.png');
+	
+	if (mxClient.IS_SVG)
+	{
+		img.setAttribute('width', '164');
+		img.setAttribute('height', '221');
+		img.style.width = '164px';
+		img.style.height = '221px';
+		img.setAttribute('src', IMAGE_PATH + '/drawlogo-text-bottom.svg');
+	}
+	else
+	{
+		img.setAttribute('width', '176');
+		img.setAttribute('height', '219');
+		img.style.width = '170px';
+		img.style.height = '219px';
+		img.setAttribute('src', IMAGE_PATH + '/logo-flat.png');
+	}
+
 	div.appendChild(img);
 	mxUtils.br(div);
 	
@@ -7911,7 +7924,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	this.container = table;
 };
 
-var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink)
+var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent)
 {
 	var div = document.createElement('div');
 	div.appendChild(content);
@@ -7919,6 +7932,11 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	var btns = document.createElement('div');
 	btns.style.marginTop = '16px';
 	btns.style.textAlign = 'right';
+	
+	if (buttonsContent != null)
+	{
+		btns.appendChild(buttonsContent);
+	}
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{

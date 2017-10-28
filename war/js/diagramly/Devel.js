@@ -123,3 +123,6 @@ if (urlParams['distanceGuides'] == '1')
 //mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 mxscript(drawDevUrl + 'js/vsdx/bmpDecoder.js');
 mxscript(drawDevUrl + 'js/vsdx/importer.js');
+
+//GraphMl Import
+mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');

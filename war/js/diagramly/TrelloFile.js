@@ -7,6 +7,7 @@ TrelloFile = function(ui, data, meta)
 	DrawioFile.call(this, ui, data);
 	
 	this.meta = meta;
+	this.saveNeededCounter = 0;
 };
 
 //Extends mxEventSource
@@ -33,7 +34,7 @@ TrelloFile.prototype.getMode = function()
  */
 TrelloFile.prototype.isAutosave = function()
 {
-	return false;
+	return true;
 };
 
 /**
@@ -127,6 +128,10 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
 				{
 					success();
 				}
+				if (this.saveNeededCounter > 0) {
+					this.saveNeededCounter--;
+					this.saveFile(title, revision, success, error);
+				}
 			}),
 			mxUtils.bind(this, function(err)
 			{
@@ -166,6 +171,11 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
 					}
 					
 					this.ui.fileLoaded(file);
+					
+					if (this.saveNeededCounter > 0) {
+						this.saveNeededCounter--;
+						this.saveFile(title, revision, success, error);
+					}
 				}), mxUtils.bind(this, function()
 				{
 					this.savingFile = false;
@@ -180,6 +190,7 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
 	}
 	else if (error != null)
 	{
+		this.saveNeededCounter++;
 		error({code: App.ERROR_BUSY});
 	}
 };

@@ -2694,10 +2694,10 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)
+	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser, allowTab)
 	{
 		allowBrowser = (allowBrowser != null) ? allowBrowser : false;
-		var allowTab = (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
+		allowTab = (allowTab != null) ? allowTab : (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
 		var count = this.getServiceCount(allowBrowser);
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
@@ -2939,9 +2939,9 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType)
+	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType, allowTab)
 	{
-		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+		allowTab = (allowTab != null) ? allowTab : !mxClient.IS_IOS || !navigator.standalone;
 		var count = this.getServiceCount(false);
 		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
@@ -5633,6 +5633,18 @@
 					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
+		else if (urlParams['dev'] == '1' && /(\.*<graphml )/.test(data)) 
+        {
+            new mxGraphMlCodec().decode(data, mxUtils.bind(this, function(xml)
+            {
+                var importedCells = this.importXml(xml, dx, dy, crop);
+                
+                if (done != null)
+                {
+                    done(importedCells);
+                }
+            }));
+        }
 		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filename))
 		{
 			//  LATER: done and async are a hack before making this asynchronous

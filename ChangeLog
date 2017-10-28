@@ -1,3 +1,10 @@
+28-OCT-2017: 7.6.4
+
+- Adds vector handles
+- Fixes text style combo in Firefox
+- Fixes text flow after word wrap change
+- Uses mxGraph 3.7.6 beta 7
+
 26-OCT-2017: 7.6.3
 
 - Adds current style to CSV and text 
