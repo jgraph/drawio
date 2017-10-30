@@ -161,6 +161,14 @@
 	/**
 	 * Hook for subclassers.
 	 */
+	EditorUi.prototype.openLink = function(url)
+	{
+		window.open(url);
+	};
+
+	/**
+	 * Hook for subclassers.
+	 */
 	EditorUi.prototype.showSplash = function(force) { };
 
 	/**
@@ -2143,7 +2151,7 @@
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 				{
-					window.open('https://desk.draw.io/support/solutions/articles/16000042367');
+					this.openLink('https://desk.draw.io/support/solutions/articles/16000042367');
 					mxEvent.consume(evt);
 				}));
 				
@@ -8228,6 +8236,13 @@
 		// Receives XML message from opener and puts it into the graph
 		mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
 		{
+			// Ignores messages from Google APIs (use evt.source == parent || opener?)
+			if (/https:\/\/.*\.googleapis\.com$/.test(evt.origin) ||
+				/https:\/\/.*\.google\.com$/.test(evt.origin))
+			{
+				return;
+			}
+			
 			var data = evt.data;
 			
 			function extractDiagramXml(data)
@@ -8625,61 +8640,6 @@
 						}
 
 						parent.postMessage(JSON.stringify(msg), '*');
-					}
-					
-					return;
-				}
-				else if (data.action == 'create' && this.createFile)
-				{
-					// Currently only trello supported
-					if (data.mode == 'trello')
-					{
-						var doCreateFile = mxUtils.bind(this, function(templateData)
-						{
-							this.createFile(data.name, templateData ||
-								this.getFileData(/(\.xml)$/i.test(name) ||
-								name.indexOf('.') < 0, /(\.svg)$/i.test(name),
-								/(\.html)$/i.test(name)), null, data.mode,
-								null, true, data.folder);
-						});
-						
-						var resolveTemplate = mxUtils.bind(this, function()
-						{
-							if (data.template != null)
-							{
-								this.trello.getFile(data.folder + this.trello.SEPARATOR +
-									data.template, function(file)
-								{
-									doCreateFile(file.getData());
-								}, function()
-								{
-									doCreateFile();
-								});
-							}
-							else
-							{
-								doCreateFile();
-							}
-						});
-						
-						if (this.trello == null)
-						{
-							var waitForTrello = function()
-							{
-								if (this.trello != null)
-								{
-									this.removeListener(waitForTrello);
-									resolveTemplate();
-								}
-							};
-							
-							// Waits for Trello client to load
-							this.addListener('clientLoaded', waitForTrello);
-						}
-						else
-						{
-							resolveTemplate();
-						}
 					}
 					
 					return;

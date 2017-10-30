@@ -733,7 +733,7 @@ var SplashDialog = function(editorUi)
 			addLogout(function()
 			{
 				editorUi.gitHub.logout();
-				window.open('https://www.github.com/logout');
+				editorUi.openLink('https://www.github.com/logout');
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -752,7 +752,7 @@ var SplashDialog = function(editorUi)
 			addLogout(function()
 			{
 				editorUi.dropbox.logout();
-				window.open('https://www.dropbox.com/logout');
+				editorUi.openLink('https://www.dropbox.com/logout');
 			});
 		}
 		
@@ -1126,7 +1126,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 				{
 					var url = 'https://www.facebook.com/sharer.php?p[url]=' +
 						encodeURIComponent(text.value);
-					window.open(url);
+					editorUi.openLink(url);
 				}
 				catch (e)
 				{
@@ -1159,7 +1159,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 					var url = 'https://twitter.com/intent/tweet?text=' + 
 						encodeURIComponent('Check out the diagram I made using @drawio') +
 						'&url=' + encodeURIComponent(text.value);
-					window.open(url);
+					editorUi.openLink(url);
 				}
 				catch (e)
 				{
@@ -2988,7 +2988,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://support.draw.io/display/DO/Creating+and+Opening+Files');
+			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -3391,7 +3391,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open(helpLink);
+			editorUi.openLink(helpLink);
 		});
 		
 		helpBtn.className = 'geBtn';
@@ -3531,7 +3531,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 			pre();
 		}
 		
-		window.open(url);
+		editorUi.openLink(url);
 	});
 	wndBtn.className = 'geBtn gePrimaryBtn';
 	wndBtn.style.width = replaceBtn.style.width;
@@ -4886,7 +4886,7 @@ var RevisionDialog = function(editorUi, revs)
 	{
 		if (currentRev != null)
 		{
-			window.open(currentRev.getUrl());
+			editorUi.openLink(currentRev.getUrl());
 		}
 	});
 	showBtn.className = 'geBtn gePrimaryBtn';
@@ -7827,7 +7827,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open('https://desk.draw.io/support/solutions/articles/16000052874');
+			editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000052874');
 		});
 		
 		helpBtn.className = 'geBtn';
@@ -7958,7 +7958,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open(helpLink);
+			editorUi.openLink(helpLink);
 		});
 		
 		helpBtn.className = 'geBtn';	

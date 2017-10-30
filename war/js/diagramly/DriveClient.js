@@ -1341,45 +1341,7 @@ DriveClient.prototype.pickFolder = function(fn)
 			}));
 		});
 		
-		// Does not show picker if there are no folders in the root
-		var nextPage = mxUtils.bind(this, function(token)
-		{
-			var query = {'folderId': 'root', 'maxResults': 1, 'q': 'trashed=false and mimeType=\'application/vnd.google-apps.folder\''};
-			
-			if (token != null)
-			{
-				query.pageToken = token;
-			}
-			
-			this.executeRequest(gapi.client.drive.children.list(query), mxUtils.bind(this, function(res)
-			{
-				if (res == null || res.items == null || res.items.length == 0)
-				{
-					if (res != null && res.nextPageToken != null)
-					{
-						// Next page can still contain results, see
-						// https://stackoverflow.com/questions/23741845
-						nextPage(res.nextPageToken);
-					}
-					else
-					{
-						// Simulates a pick event for the root
-						this.ui.spinner.stop();
-						fn({'action': google.picker.Action.PICKED, 'docs': [{'type': 'folder', 'id': 'root'}]});						
-					}
-				}
-				else
-				{
-					// Shows the picker if any folders are found
-					showPicker();
-				}
-			}), mxUtils.bind(this, function(err)
-			{
-				showPicker();
-			}));
-		});
-		
-		nextPage(null);
+		showPicker();
 	}
 };
 

@@ -207,7 +207,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'props': '/plugins/props.js', 'text': '/plugins/text.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
 	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
-	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js'};
+	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js',
+	'tr': '/plugins/trello.js'};
 
 /**
  * Function: authorize
@@ -1757,34 +1758,34 @@ App.prototype.appIconClicked = function(evt)
 		{
 			if (file.desc.parents.length > 0)
 			{
-				window.open('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
+				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
 			}
 			else
 			{
-				window.open('https://drive.google.com/?authuser=0');
+				this.openLink('https://drive.google.com/?authuser=0');
 			}
 		}
 		else if (mode == App.MODE_DROPBOX)
 		{
-			window.open('https://www.dropbox.com/');
+			this.openLink('https://www.dropbox.com/');
 		}
 		else if (mode == App.MODE_ONEDRIVE)
 		{
-			window.open('https://onedrive.live.com/');
+			this.openLink('https://onedrive.live.com/');
 		}
 		else if (mode == App.MODE_TRELLO)
 		{
-			window.open('https://trello.com/');
+			this.openLink('https://trello.com/');
 		}
 		else if (mode == App.MODE_GITHUB)
 		{
 			if (file != null && file.constructor == GitHubFile)
 			{
-				window.open(file.meta.html_url);
+				this.openLink(file.meta.html_url);
 			}
 			else
 			{
-				window.open('https://github.com/');
+				this.openLink('https://github.com/');
 			}
 		}
 	}
@@ -1900,6 +1901,40 @@ App.prototype.open = function()
 	}
 };
 
+App.prototype.loadGapi = function(then)
+{
+	if (typeof gapi !== 'undefined')
+	{
+		gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+		{
+			// Starts the app without the Google Option if the API fails to load
+			if (gapi.drive == null || gapi.drive.realtime == null)
+			{
+				this.mode = null;
+				this.drive = null;
+				then();
+			}
+			else
+			{
+				gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
+				{
+					// Needed to avoid popup blocking for non-immediate authentication
+					gapi.auth.init(mxUtils.bind(this, function()
+					{
+						if (gapi.client.drive == null)
+						{
+							this.mode = null;
+							this.drive = null;
+						}
+						
+						then();
+					}));
+				}));
+			}
+		}));
+	}
+};
+
 /**
  * Main function. Program starts here.
  * 
@@ -1951,32 +1986,9 @@ App.prototype.load = function()
 				}
 				else
 				{
-					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+					this.loadGapi(mxUtils.bind(this, function()
 					{
-						// Starts the app without the Google Option if the API fails to load
-						if (gapi.drive == null || gapi.drive.realtime == null)
-						{
-							this.mode = null;
-							this.drive = null;
-							this.start();
-						}
-						else
-						{
-							gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
-							{
-								// Needed to avoid popup blocking for non-immediate authentication
-								gapi.auth.init(mxUtils.bind(this, function()
-								{
-									if (gapi.client.drive == null)
-									{
-										this.mode = null;
-										this.drive = null;
-									}
-									
-									this.start();
-								}));
-							}));
-						}
+						this.start();
 					}));
 				}
 			}
@@ -1985,6 +1997,11 @@ App.prototype.load = function()
 	else
 	{
 		this.restoreLibraries();
+		
+		if (urlParams['gapi'] == '1')
+		{
+			this.loadGapi(function() {});
+		}
 	}
 };
 
@@ -2549,7 +2566,7 @@ App.prototype.pickFile = function(mode)
 		}
 		else
 		{
-			window.open('https://drive.google.com');
+			this.openLink('https://drive.google.com');
 		}
 	}
 	else
@@ -2976,7 +2993,7 @@ App.prototype.saveFile = function(forceDialog)
 						
 						// Do not use a filename to use undefined mode
 						window.openFile.setData(this.getFileData(true));
-						window.open(this.getUrl(window.location.pathname));
+						this.openLink(this.getUrl(window.location.pathname));
 					}
 					else if (prev != mode)
 					{

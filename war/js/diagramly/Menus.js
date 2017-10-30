@@ -35,7 +35,7 @@
 				this.editorUi.menubar.hideMenu();
 			}
 			
-			window.open(href);
+			this.editorUi.openLink(href);
 			mxEvent.consume(evt);
 		}));
 		
@@ -368,7 +368,7 @@
 				// LATER: Change to use message passing to deal with potential cross-domain
 				window.drawdata = editorUi.getFileData();
 				var filename = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
-				window.open(window.location.protocol + '//' + window.location.host + '/?create=drawdata&' +
+				editorUi.openLink(window.location.protocol + '//' + window.location.host + '/?create=drawdata&' +
 						((editorUi.mode == App.MODE_DROPBOX) ? 'mode=dropbox&' : '') +
 						'title=' + encodeURIComponent(filename));
 			}
@@ -568,12 +568,12 @@
 		
 		editorUi.actions.addAction('userManual...', function()
 		{
-			window.open('https://support.draw.io/display/DO/Draw.io+Online+User+Manual');
+			editorUi.openLink('https://support.draw.io/display/DO/Draw.io+Online+User+Manual');
 		});
 
 		editorUi.actions.addAction('support...', function()
 		{
-			window.open('https://about.draw.io/support/');
+			editorUi.openLink('https://about.draw.io/support/');
 		});
 
 		editorUi.actions.addAction('exportOptionsDisabled...', function()
@@ -586,15 +586,15 @@
 		{
 			if (mxClient.IS_CHROMEAPP)
 			{
-				window.open('https://www.draw.io/shortcuts.svg');
+				editorUi.openLink('https://www.draw.io/shortcuts.svg');
 			}
 			else if (mxClient.IS_SVG)
 			{
-				window.open('shortcuts.svg');
+				editorUi.openLink('shortcuts.svg');
 			}
 			else
 			{
-				window.open('https://www.draw.io/?lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
+				editorUi.openLink('https://www.draw.io/?lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
 			}
 		});
 
@@ -607,7 +607,7 @@
 
 		editorUi.actions.addAction('quickStart...', function()
 		{
-			window.open('https://www.youtube.com/watch?v=Z0D96ZikMkc');
+			editorUi.openLink('https://www.youtube.com/watch?v=Z0D96ZikMkc');
 		});
 		
 		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()
@@ -1256,7 +1256,7 @@
 
 		editorUi.actions.addAction('googleDocs...', function()
 		{
-			window.open('http://docsaddon.draw.io');
+			editorUi.openLink('http://docsaddon.draw.io');
 		});
 
 		editorUi.actions.addAction('googleSites...', function()
@@ -1935,12 +1935,12 @@
 
 		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
 		{
-		    window.open('https://www.draw.io/app')
+			editorUi.openLink('https://www.draw.io/app')
 		}));
 		
 		editorUi.actions.put('download', new Action(mxResources.get('download') + '...', function()
 		{
-			window.open('https://download.draw.io')
+			editorUi.openLink('https://download.draw.io')
 		}));
 
 		this.editorUi.actions.addAction('share...', mxUtils.bind(this, function()

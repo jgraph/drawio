@@ -2046,7 +2046,7 @@ EditorUi.prototype.toggleFormatPanel = function(forceHide)
 /**
  * Adds support for placeholders in labels.
  */
-EditorUi.prototype.lightboxFit = function()
+EditorUi.prototype.lightboxFit = function(maxHeight)
 {
 	if (this.isDiagramEmpty())
 	{
@@ -2064,7 +2064,7 @@ EditorUi.prototype.lightboxFit = function()
 		
 		// LATER: Use initial graph bounds to avoid rounding errors
 		this.editor.graph.maxFitScale = this.lightboxMaxFitScale;
-		this.editor.graph.fit(border);
+		this.editor.graph.fit(border, null, null, null, null, null, maxHeight);
 		this.editor.graph.maxFitScale = null;
 	}
 };
