@@ -5011,50 +5011,50 @@
 				{
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-				    	if (success != null)
-				    	{
-					    	var data = req.getText();
-					    	
-				    		// Returns PNG as base64 encoded data URI
-							if (binary)
-							{
-								// NOTE: This requires BinaryToArray VB script in the page
-								if ((document.documentMode == 9 || document.documentMode == 10) &&
-									typeof window.mxUtilsBinaryToArray !== 'undefined')
+					    	if (success != null)
+					    	{
+						    	var data = req.getText();
+						    	
+					    		// Returns PNG as base64 encoded data URI
+								if (binary)
 								{
-									var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
-									var tmp = new Array(bin.length);
-									
-									for (var i = 0; i < bin.length; i++)
+									// NOTE: This requires BinaryToArray VB script in the page
+									if ((document.documentMode == 9 || document.documentMode == 10) &&
+										typeof window.mxUtilsBinaryToArray !== 'undefined')
 									{
-										tmp[i] = String.fromCharCode(bin[i]);
+										var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
+										var tmp = new Array(bin.length);
+										
+										for (var i = 0; i < bin.length; i++)
+										{
+											tmp[i] = String.fromCharCode(bin[i]);
+										}
+										
+										data = tmp.join('');
 									}
 									
-									data = tmp.join('');
+									// LATER: Could be JPG but modern browsers
+									// ignore the mime type in the data URI
+									dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
+									data = dataUriPrefix + this.base64Encode(data);
 								}
-								
-								// LATER: Could be JPG but modern browsers
-								// ignore the mime type in the data URI
-								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
-								data = dataUriPrefix + this.base64Encode(data);
-							}
-				    		
-				    		success(data);
-				    	}
+					    		
+					    		success(data);
+					    	}
 					}
 					else if (error != null)
-			    	{
-			    		error({code: App.ERROR_UNKNOWN});
-			    	}
+				    	{
+				    		error({code: App.ERROR_UNKNOWN}, req);
+				    	}
 				}), function()
 				{
-			    	if (error != null)
-			    	{
-			    		error({code: App.ERROR_UNKNOWN});
-			    	}
+				    	if (error != null)
+				    	{
+				    		error({code: App.ERROR_UNKNOWN});
+				    	}
 				}, binary, this.timeout, function()
 			    {
-			    	if (retry && error != null)
+				    	if (retry && error != null)
 					{
 						error({code: App.ERROR_TIMEOUT, retry: fn});
 					}
@@ -8236,9 +8236,9 @@
 		// Receives XML message from opener and puts it into the graph
 		mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
 		{
-			// Ignores messages from Google APIs (use evt.source == parent || opener?)
-			if (/https:\/\/.*\.googleapis\.com$/.test(evt.origin) ||
-				/https:\/\/.*\.google\.com$/.test(evt.origin))
+			var validSource = window.opener || window.parent;
+			
+			if (evt.source != validSource)
 			{
 				return;
 			}

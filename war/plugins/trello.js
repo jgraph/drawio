@@ -25,6 +25,11 @@ Draw.loadPlugin(function(editorUi)
 		}
 	};
 	
+	editorUi.showSplash = function()
+	{
+		this.actions.get('exit').funct();
+	};
+	
 	function main()
 	{
 		var name = (urlParams['filename'] != null) ? decodeURIComponent(urlParams['filename']) : null;
