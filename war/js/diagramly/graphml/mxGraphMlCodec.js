@@ -23,7 +23,7 @@ mxGraphMlCodec.prototype.decode = function (xml, callback)
 		var graph = this.createMxGraph();
         graph.getModel().beginUpdate();
         
-        this.importPage(pageElement, graph);
+        this.importGraph(pageElement, graph, graph.getDefaultParent());
         
         mxFile += this.processPage(graph, i+1);
 	}
@@ -141,6 +141,7 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 {
 	var ref = this.getDirectFirstChildNamedElements(elem, mxGraphMlConstants.GRAPHML_REFERENCE);
 	var refKey = null;
+	var origElem = elem;
 	var obj = {};
 	
 	if (ref) 
@@ -151,6 +152,8 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 		//already cached
 		if (cachedObj)
 		{
+			//parse all attributes to update the reference
+			this.parseAttributes(elem, cachedObj);
 			return cachedObj;
 		}
 		
@@ -204,7 +207,19 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 					attName = attName.substr(dotPos + 1);
 				}
 				
-				obj[attName] = this.dataElem2Obj(child);
+				if (obj[attName] != null)
+				{
+					if (!(obj[attName] instanceof Array))
+					{
+						obj[attName] = [obj[attName]];
+					}
+					
+					obj[attName].push(this.dataElem2Obj(child));
+				}
+				else
+				{
+					obj[attName] = this.dataElem2Obj(child);
+				}
 			}
 		}
 	}
@@ -213,6 +228,8 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 	if (refKey)
 	{
 		var tmpObj = {};
+		//parse all attributes before following the reference
+		this.parseAttributes(origElem, tmpObj);
 		tmpObj[this.sharedData[refKey].nodeName] = obj; 
 		this.cachedRefObj[refKey] = tmpObj;
 		return tmpObj;
@@ -225,6 +242,15 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 //TODO yjs looks like they need special handling
 mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 {
+	//defaults can be overridden by actual values later
+	if (mapping.defaults)
+	{
+		for (var key in mapping.defaults)
+		{
+			map[key] = mapping.defaults[key];
+		}
+	}
+	
 	for (var key in mapping)
 	{
 		var parts = key.split('.');
@@ -249,21 +275,43 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 				}
 				else if (typeof mappingObj === "object")
 				{
-					var modVal;
+					var modVal = val.toLowerCase();
 					switch(mappingObj.mod)
 					{
 						case "color": //mxGraph doesn't support alfa in colors
-							if (val.indexOf("#") == 0)
+							if (val.indexOf("#") == 0 && val.length == 9)
+							{
 								modVal = "#" + val.substr(3);
+							}
+							else if (val == "TRANSPARENT")
+							{
+								modVal = "none";
+							}
 						break;
 						case "shape":
-							console.log(val);
+//							console.log(val);
 							modVal = mxGraphMlShapesMap[val];
 						break;
-						default:
-							modVal = val.toLowerCase();
+						case "bpmnOutline":
+//							console.log(val);
+							modVal = mxGraphMlShapesMap.bpmnOutline[val];
+						break;
+						case "bool":
+							modVal = val == "true"? "1" : "0";
+						break;
+						case "scale":
+							try {
+								modVal = parseFloat(val) * mappingObj.scale;
+							} catch(e) {
+								//nothing!
+							}
+						break;
+						case "arrow":
+							modVal = mxGraphMlArrowsMap[val];
+						break;
 					}
-					map[mappingObj.key] = modVal;
+					if (modVal != null)
+						map[mappingObj.key] = modVal;
 				}
 				else
 				{
@@ -289,22 +337,22 @@ mxGraphMlCodec.prototype.createMxGraph = function ()
     return graph;
 }
 
-mxGraphMlCodec.prototype.importPage = function (pageElement, graph)
+mxGraphMlCodec.prototype.importGraph = function (pageElement, graph, parent, nodesMap)
 {
 	var nodes = this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.NODE);
 	
-	var nodesMap = {};
+	nodesMap = nodesMap || {};
 	
 	for (var i = 0; i < nodes.length; i++)
 	{
-		this.importNode(nodes[i], graph, nodesMap);
+		this.importNode(nodes[i], graph, nodesMap, parent);
 	}
 	
 	var edges = this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.EDGE);
 	
 	for (var i = 0; i < edges.length; i++)
 	{
-		this.importEdge(edges[i], graph, nodesMap);
+		this.importEdge(edges[i], graph, nodesMap, parent);
 	}
 };
 
@@ -337,7 +385,7 @@ mxGraphMlCodec.prototype.styleMap2Str = function (styleMap)
 	return str;
 };
 
-mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
+mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, parent)
 {
 	var data = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.DATA);
 	var v;
@@ -345,7 +393,11 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
 	
 	var node = new mxCell();
 	node.vertex = true;
-	var style = {};
+
+	graph.addCell(node, parent);
+
+	var style = {graphMlID: id};
+	var mlStyleObj = null;
 	
 	for (var i = 0; i < data.length; i++)
 	{
@@ -354,11 +406,12 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
 		
 		if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key) 
 		{
-			this.addNodeGeo(node, dataObj);
+			this.addNodeGeo(node, dataObj, parent.geometry);
 		} 
 		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
 		{
-			console.log(dataObj);
+//			console.log(JSON.stringify(dataObj));
+			mlStyleObj = dataObj;
 			var dashStyleFn = function(val, map)
 			{
 				map["dashed"] = 1;
@@ -391,6 +444,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
 				"activityType": {key: "shape", mod: "shape"},
 				"fill": {key: "fillColor", mod: "color"},
 				"fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
+				"fill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
 				"stroke": {key: "strokeColor", mod: "color"},
 				"stroke.yjs:Stroke":
 				{
@@ -404,12 +458,131 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
 				}
 			};
 
+			var assetNodesStyle = mxUtils.clone(styleCommonMap);
+			assetNodesStyle["defaults"] = {
+				"fillColor": "#CCCCCC",
+				"strokeColor": "#6881B3"
+			};
+			
+			var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
+			bpmnActivityStyle["defaults"] = {
+				"shape": "ext;rounded=1",
+				"fillColor": "#FFFFFF",
+				"strokeColor": "#000090"
+			};
+			
+			var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
+			bpmnGatewayStyle["defaults"] = {
+				"shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
+			};
+			
+			var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
+			bpmnConversationStyle["defaults"] = {
+				"shape": "hexagon",
+				"strokeColor": "#007000"
+			};
+			
+			var bpmnEventStyle = mxUtils.clone(styleCommonMap);
+			bpmnEventStyle["defaults"] = {
+				"shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
+				"outline": "standard"
+			};
+			bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
+			
+			var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
+			bpmnDataObjectStyle["defaults"] = {
+				"shape": "js:bpmnDataObject"
+			};
+			
+			var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
+			bpmnDataStoreStyle["defaults"] = {
+				"shape": "datastore"
+			};
+			
+			var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
+			bpmnGroupNodeStyle["defaults"] = {
+				"shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
+			};
+			
+			var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
+			bpmnChoreographyNodeStyle["defaults"] = {
+				"shape": "swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
+			};
+			
+			//approximation to GraphML shapes TODO improve them
+			var bevelNodeStyle = mxUtils.clone(styleCommonMap);
+			bevelNodeStyle["defaults"] = {
+				"rounded": "1",
+				"glass": "1",
+				"strokeColor": "#FFFFFF"
+			};
+			bevelNodeStyle["inset"] = "strokeWidth";
+			bevelNodeStyle["radius"] = "arcSize";
+			bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+			bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
+			bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
+			
+			var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
+			shinyPlateNodeStyle["defaults"] = {
+				"rounded": "1",
+				"arcSize": 10,
+				"glass": "1",
+				"shadow": "1",
+				"strokeColor": "none",
+				"rotation": -90 //TODO requires rotation!
+			};
+			shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+			
+			var demoGroupStyle = mxUtils.clone(styleCommonMap);
+			demoGroupStyle["defaults"] = {
+				"shape": "swimlane",
+				"startSize": 20,
+				"strokeWidth": 4,
+				"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+			};
+			demoGroupStyle["isCollapsible"] = {key:"collapsible", mod:"bool"};
+			demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
+			demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
+//			demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
+			
+			var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
+			collapsibleNodeStyle["defaults"] = {
+				"shape": "swimlane",
+				"startSize": 20,
+				"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+			};
+			collapsibleNodeStyle["yjs:PanelNodeStyle"] = {
+				"color": {key:"swimlaneFillColor", mod:"color"},
+				"color.yjs:Color.value": {key:"swimlaneFillColor", mod:"color"},
+				"labelInsetsColor": {key:"fillColor", mod:"color"},
+				"labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
+			};
+			
+			var tableStyle = mxUtils.clone(styleCommonMap);
+			tableStyle["defaults"] = {
+				"shape": "js:table"
+			};
+			
 			this.mapObject(dataObj, {
 				"yjs:ShapeNodeStyle": styleCommonMap,
 				"demostyle:FlowchartNodeStyle": styleCommonMap,
-				"demostyle:AssetNodeStyle": styleCommonMap,
+				"demostyle:AssetNodeStyle": assetNodesStyle,
 				"demostyle:DemoGroupStyle": styleCommonMap,
-				"bpmn:ActivityNodeStyle": styleCommonMap
+				"bpmn:ActivityNodeStyle": bpmnActivityStyle,
+				"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
+				"bpmn:ConversationNodeStyle": bpmnConversationStyle,
+				"bpmn:EventNodeStyle": bpmnEventStyle,
+				"bpmn:DataObjectNodeStyle": bpmnDataObjectStyle,
+				"bpmn:DataStoreNodeStyle": bpmnDataStoreStyle,
+				"bpmn:GroupNodeStyle": bpmnGroupNodeStyle,
+				"bpmn:ChoreographyNodeStyle": bpmnChoreographyNodeStyle,
+				"yjs:BevelNodeStyle": bevelNodeStyle,
+				"yjs:ShinyPlateNodeStyle": shinyPlateNodeStyle,
+				"demostyle:DemoGroupStyle": demoGroupStyle,
+				"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
+				"bpmn:PoolNodeStyle": tableStyle,
+				"yjs:TableNodeStyle": tableStyle,
+				"demotablestyle:DemoTableStyle": tableStyle
 			}, style);
 		}
 		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key) 
@@ -426,29 +599,278 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap)
 		this.importPort(ports[i], portsMap);
 	}
 	
+	this.handleFixedRatio(node, style);
+
+	//handle special compound shapes
+	this.handleCompoundShape(node, style, mlStyleObj);
+	
 	node.style = this.styleMap2Str(style);
 	
-	graph.addCell(node);
+	var subGraphs = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.GRAPH);
+	
+	for (var i = 0; i < subGraphs.length; i++)
+	{
+		this.importGraph(subGraphs[i], graph, node, portsMap);
+	}	
+	
 	nodesMap[id] = {node: node, ports: portsMap};
 };
 
-mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj) 
+mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyleObj)
+{
+	var shape = styleMap["shape"];
+	
+	if (shape && shape.indexOf("js:") == 0)
+	{
+		switch(shape)
+		{
+			case "js:bpmnDataObject":
+				styleMap["shape"] = "note;size=16";
+				mlStyleObj = mlStyleObj["bpmn:DataObjectNodeStyle"];
+				
+				if (mlStyleObj["collection"] == "true")
+				{
+					var cell2 = new mxCell('', new mxGeometry(0.5, 1, 10, 10), 'html=1;whiteSpace=wrap;shape=parallelMarker;');
+					cell2.vertex = true;
+					cell2.geometry.relative = true;
+					cell2.geometry.offset = new mxPoint(-5, -10);
+					node.insert(cell2);
+				}
+				if (mlStyleObj["type"] == "INPUT")
+				{
+					var cell1 = new mxCell('', new mxGeometry(0, 0, 10, 10), 'html=1;shape=singleArrow;arrowWidth=0.4;arrowSize=0.4;');
+					cell1.vertex = true;
+					cell1.geometry.relative = true;
+					cell1.geometry.offset = new mxPoint(2, 2);
+					node.insert(cell1);
+				}
+				else if (mlStyleObj["type"] == "OUTPUT")
+				{
+					var cell1 = new mxCell('', new mxGeometry(0, 0, 10, 10), 'html=1;shape=singleArrow;arrowWidth=0.4;arrowSize=0.4;fillColor=#000000;');
+					cell1.vertex = true;
+					cell1.geometry.relative = true;
+					cell1.geometry.offset = new mxPoint(2, 2);
+					node.insert(cell1);
+				}
+			break;
+			case "js:table":
+				styleMap["shape"] = "swimlane;collapsible=0;swimlaneLine=0";
+				var tableObj = mlStyleObj["yjs:TableNodeStyle"] || mlStyleObj["demotablestyle:DemoTableStyle"];
+				
+				if (!tableObj && mlStyleObj["bpmn:PoolNodeStyle"])
+				{
+					tableObj = mlStyleObj["bpmn:PoolNodeStyle"]["yjs:TableNodeStyle"];
+				}
+				
+				console.log(tableObj);
+				
+				this.mapObject(tableObj, {
+					"backgroundStyle.demotablestyle:TableBackgroundStyle.insetFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+					"backgroundStyle.yjs:ShapeNodeStyle.fill": {key: "fillColor", mod: "color"},
+					"backgroundStyle.yjs:ShapeNodeStyle.fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
+				}, styleMap);
+				
+				//Lane fill color is the same as the fill color
+				styleMap["swimlaneFillColor"] = styleMap["fillColor"];
+				
+				tableObj = tableObj["table"]["y:Table"];
+				
+				var x = 0, y = 0, xShift = 0, yShift = 0;
+				var insets = tableObj["Insets"];
+				
+				if (insets)
+				{
+					insets = insets.split(',');
+					
+					if (insets[0] != "0")
+					{
+						styleMap["startSize"] = insets[0];
+						xShift = parseFloat(insets[0]);
+						x += xShift;						
+						styleMap["horizontal"] = "0";
+					} 
+					else if (insets[1] != "0")
+					{
+						styleMap["startSize"] = insets[1];
+						yShift = parseFloat(insets[1]); 
+						y += yShift;
+					}
+				}
+				else
+				{
+					styleMap["startSize"] = "0";
+				}
+				
+				var defRowStyle = {};
+				
+				var rowMapping = {
+					"Insets": function(val, map)
+					{
+						map["startSize"] = val.split(',')[0];
+					},
+					"Style.bpmn:AlternatingLeafStripeStyle": {
+						"evenLeafDescriptor.bpmn:StripeDescriptor": {
+							"insetFill": {key: "evenFill", mod: "color"},
+							"backgroundFill": {key: "evenLaneFill", mod: "color"}
+						},
+						"oddLeafDescriptor.bpmn:StripeDescriptor": {
+							"insetFill": {key: "oddFill", mod: "color"},
+							"backgroundFill": {key: "oddLaneFill", mod: "color"}
+						}
+						//parentDescriptor ??
+						//TODO Handle labels 
+						//TODO collect common types in a special mapping hash
+					},
+					"Size": "height"
+				};
+				this.mapObject(tableObj["RowDefaults"], {
+					"defaults": {
+						"shape": "swimlane;collapsible=0;horizontal=0",
+						"startSize": "0"
+					},
+					"y:StripeDefaults": rowMapping
+				}, defRowStyle);
+
+				var defColStyle = {};
+				
+				var colMapping = {
+					"Insets": function(val, map)
+					{
+						map["startSize"] = val.split(',')[1];
+					},
+					"Style.yjs:NodeStyleStripeStyleAdapter.yjs:ShapeNodeStyle": {
+						"fill": {key: "swimlaneFillColor", mod: "color"}
+					},
+					"Size": "width"
+				};
+				
+				this.mapObject(tableObj["ColumnDefaults"], {
+					"defaults": {
+						"shape": "swimlane;collapsible=0",
+						"startSize": "0",
+						"fillColor": "none"
+					},
+					"y:StripeDefaults": colMapping
+				}, defColStyle);
+
+				var pGeo = node.geometry;
+				
+				var rows = tableObj["Rows"]["y:Row"];
+				y += parseFloat(defColStyle["startSize"]);
+				
+				if (rows)
+				{
+					if (!(rows instanceof Array))
+						rows = [rows];
+					
+					for (var i = 0; i < rows.length; i++)
+					{
+						var cell = new mxCell();
+						cell.vertex = true;
+						var rowStyle = mxUtils.clone(defRowStyle);
+						this.mapObject(rows[i], rowMapping, rowStyle);
+						
+						if (i & 1) //odd
+						{
+							if (rowStyle["oddFill"]) 
+							{
+								rowStyle["fillColor"] = rowStyle["oddFill"];
+								rowStyle["swimlaneFillColor"] = rowStyle["oddLaneFill"];
+							}
+						}
+						else
+						{
+							if (rowStyle["evenFill"]) 
+							{
+								rowStyle["fillColor"] = rowStyle["evenFill"];
+								rowStyle["swimlaneFillColor"] = rowStyle["evenLaneFill"];
+							}
+						}
+						var height = parseFloat(rowStyle["height"]);
+						cell.geometry = new mxGeometry(xShift, y, pGeo.width - xShift, height);
+						y += height;
+						
+						cell.style = this.styleMap2Str(rowStyle);
+						node.insert(cell);
+					}
+				}
+
+				var columns = tableObj["Columns"]["y:Column"];
+				x += parseFloat(defRowStyle["startSize"]);
+				
+				if (columns)
+				{
+					if (!(columns instanceof Array))
+						columns = [columns];
+					
+					for (var i = 0; i < columns.length; i++)
+					{
+						var cell = new mxCell();
+						cell.vertex = true;
+						var colStyle = mxUtils.clone(defColStyle);
+						this.mapObject(columns[i], colMapping, colStyle);
+						
+						var width = parseFloat(colStyle["width"]);
+						cell.geometry = new mxGeometry(x, yShift, width, pGeo.height - yShift);
+						x += width;
+						
+						cell.style = this.styleMap2Str(colStyle);
+						node.insert(cell);
+					}
+				}
+			break;
+		}
+	}
+};
+
+mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
+{
+	var shape = styleMap["shape"];
+	
+	if (shape && shape.indexOf(";aspect=fixed") > 0)
+	{
+		var geo = node.geometry;
+		
+		if (geo) 
+		{
+			var min = Math.min(geo.height, geo.width);
+			
+			if (min == geo.height) //fix coordinates
+			{
+				geo.x += (geo.width - min) / 2;
+			}
+			
+			geo.height = min;
+			geo.width = min;
+		}
+	}
+};
+
+mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, parentGeo) 
 {
 	var geoRect = geoObj[mxGraphMlConstants.RECT];
 	
 	if (geoRect)
 	{
+		var dx = 0, dy = 0;
+		
+		if (parentGeo) 
+		{
+			dx = parentGeo.x;
+			dy = parentGeo.y;
+		}
+		
 		var geo = new mxGeometry( 
-				geoRect[mxGraphMlConstants.X],
-				geoRect[mxGraphMlConstants.Y],
-				geoRect[mxGraphMlConstants.WIDTH],
-				geoRect[mxGraphMlConstants.HEIGHT]
+				parseFloat(geoRect[mxGraphMlConstants.X]) - dx,
+				parseFloat(geoRect[mxGraphMlConstants.Y]) - dy,
+				parseFloat(geoRect[mxGraphMlConstants.WIDTH]),
+				parseFloat(geoRect[mxGraphMlConstants.HEIGHT])
 		);
 		node.geometry = geo;
 	}
 };
 
-mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap)
+mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap, parent)
 {
 	var data = this.getDirectChildNamedElements(edgeElement, mxGraphMlConstants.DATA);
 	var e;
@@ -458,8 +880,8 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap)
 	var srcPort = edgeElement.getAttribute(mxGraphMlConstants.EDGE_SOURCE_PORT);
 	var trgPort = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET_PORT);
 	
-	var edge = graph.insertEdge(graph.getDefaultParent(), null, "", nodesMap[srcId].node, nodesMap[trgId].node, "graphMLId=" + id);
-	var style = {};
+	var edge = graph.insertEdge(parent, null, "", nodesMap[srcId].node, nodesMap[trgId].node, "graphMLId=" + id);
+	var style = {graphMlID: id};
 	
 	for (var i = 0; i < data.length; i++)
 	{
@@ -472,13 +894,16 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap)
 		} 
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_STYLE].key) 
 		{
-			this.addEdgeStyle(edge, dataObj);
+//			console.log(dataObj);
+			this.addEdgeStyle(edge, dataObj, style);
 		}
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_LABELS].key) 
 		{
 			this.addLabels(edge, dataObj, style);
 		}
 	}
+	
+	edge.style = this.styleMap2Str(style);
 	
 	return edge;
 };
@@ -504,9 +929,84 @@ mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj)
 	}
 };
 
-mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj) 
+//TODO improve similarity handling
+mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap) 
 {
+	var dashStyleFn = function(val, map)
+	{
+		map["dashed"] = 1;
+		//map["fixDash"] = 1;
+		var pattern = null;
+		switch(val)
+		{
+			case "DashDot":
+				pattern = "3 1 1 1";
+			break;
+			case "Dot":
+				pattern = "1 1";
+			break;
+			case "DashDotDot":
+				pattern = "3 1 1 1 1 1";
+			break;
+			default:
+				pattern = val.replace(/0/g, '1');
+		}
+		
+		if (pattern)
+			map["dashPattern"] = pattern;
+	};
 	
+	// can be mapping to WHITE => empty, BLACK => filled
+	var endArrowFill = function(val, map)
+	{
+		map["endFill"] = val == 'WHITE'? "0" : "1"; 
+	};
+	// can be mapping to WHITE => empty, BLACK => filled
+	var startArrowFill = function(val, map)
+	{
+		map["startFill"] = val == 'WHITE'? "0" : "1"; 
+	};
+
+	this.mapObject(styleObj, {
+		"yjs:PolylineEdgeStyle": {
+			"defaults" : 
+			{
+				"endArrow": "none"
+			},
+//			"smoothingLength": "",//?
+			"stroke": {key: "strokeColor", mod: "color"},
+			"stroke.yjs:Stroke":
+			{
+				"dashStyle": dashStyleFn,
+				"dashStyle.yjs:DashStyle.dashes": dashStyleFn,
+				"fill": {key: "strokeColor", mod: "color"},
+				"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
+				//"lineCap": "", //??
+				"thickness.sys:Double": "strokeWidth",
+				"thickness": "strokeWidth",
+			},
+			"targetArrow.yjs:Arrow": {
+				"defaults" : 
+				{
+					"endArrow": "classic",
+					"endFill": "1",
+					"endSize": "6"
+				},
+//				cropLength: "", //??
+				"fill": endArrowFill,
+				"scale": {key: "endSize", mod: "scale", scale: 5},
+//				stroke: "", //?
+				"type": {key: "endArrow", mod: "arrow"}
+			},
+			"sourceArrow.yjs:Arrow": {
+//				cropLength: "", //??
+				"fill": startArrowFill,
+				"scale": {key: "startSize", mod: "scale", scale: 5},
+//				stroke: "", //?
+				"type": {key: "startArrow", mod: "arrow"}
+			}
+		}
+	}, styleMap);
 };
 
 mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle) 
@@ -521,7 +1021,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 		for (var i = 0; i < lblList.length; i++)
 		{
 			var lbl = lblList[i];
-			console.log(lbl);
+//			console.log(lbl);
 			var styleMap = {};
 			var txt = lbl[mxGraphMlConstants.TEXT];
 			
@@ -670,12 +1170,127 @@ mxGraphMlCodec.prototype.getDirectFirstChildElement = function (parent) {
     return null;
 };
 
+var mxGraphMlArrowsMap =
+{
+	"SIMPLE": "open",
+	"TRIANGLE": "block",
+	"DIAMOND": "diamond",
+	"CIRCLE": "oval",
+	"CROSS": "cross",
+	"SHORT": "classicThin",
+	
+};
+
 var mxGraphMlShapesMap =
 {
 	"STAR5": "mxgraph.basic.star;flipV=1", //TODO This is not close enough!
+	"STAR6": "mxgraph.basic.6_point_star;rotation=30", //TODO requires rotation!
+	"STAR8": "mxgraph.basic.8_point_star",
 	"SHEARED_RECTANGLE": "parallelogram",
+	"SHEARED_RECTANGLE2": "parallelogram;flipH=1",
 	"HEXAGON": "hexagon",
-	"ELLIPSE": "ellipse"
+	"OCTAGON": "mxgraph.basic.octagon",
+	"ELLIPSE": "ellipse",
+	"ROUND_RECTANGLE": "rect;rounded=1;arcSize=30",
+	"DIAMOND": "rhombus",
+	"FAT_ARROW": "step;perimeter=stepPerimeter",
+	"FAT_ARROW2": "step;perimeter=stepPerimeter;flipH=1",
+	"TRAPEZ": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
+	"TRAPEZ2": "trapezoid;perimeter=trapezoidPerimeter",
+	"TRIANGLE": "triangle;rotation=270", //TODO requires rotation!
+	"TRIANGLE2": "triangle;rotation=90", //TODO requires rotation!
+	//flowchart
+	"process": "mxgraph.flowchart.process",
+	"decision": "mxgraph.flowchart.decision",
+	"start1": "mxgraph.flowchart.start_1",
+	"start2": "mxgraph.flowchart.start_2;aspect=fixed",
+	"terminator": "mxgraph.flowchart.terminator",
+	"cloud": "cloud",
+	"data": "mxgraph.flowchart.data",
+	"directData": "mxgraph.flowchart.direct_data",
+	"dataBase": "mxgraph.flowchart.database",
+	"document": "mxgraph.flowchart.document",
+	"predefinedProcess": "mxgraph.flowchart.predefined_process",
+	"storedData": "mxgraph.flowchart.stored_data",
+	"internalStorage": "mxgraph.flowchart.internal_storage",
+	"sequentialData": "mxgraph.flowchart.sequential_data;aspect=fixed",
+	"manualInput": "mxgraph.flowchart.manual_input",
+	"card": "card;size=10",
+	"paperType": "mxgraph.flowchart.paper_tape",
+	"delay": "mxgraph.flowchart.delay",
+	"display": "mxgraph.flowchart.display",
+	"manualOperation": "mxgraph.flowchart.manual_operation",
+	"preparation": "mxgraph.flowchart.preparation",
+	"loopLimit": "mxgraph.flowchart.loop_limit",
+	"loopLimitEnd": "mxgraph.flowchart.loop_limit;flipV=1",
+	"onPageReference": "mxgraph.flowchart.on-page_reference;aspect=fixed",
+	"offPageReference": "mxgraph.flowchart.off-page_reference",
+	"annotation": "mxgraph.flowchart.annotation_1", //TODO not similar!
+	"userMessage": "mxgraph.arrows2.arrow;dy=0;dx=10;notch=0", //TODO requires rotation!
+	"networkMessage": "mxgraph.arrows2.arrow;dy=0;dx=0;notch=10",
+	//icons (network)
+	"database.svg": "mxgraph.networks.storage", //TODO not similar!
+	"laptop.svg": "mxgraph.networks.laptop",//TODO not similar!
+	"server.svg": "mxgraph.networks.server",//TODO not similar!
+	"smartphone.svg": "mxgraph.networks.mobile",//TODO not similar! //TODO fixed aspect ratio
+	"switch.svg": "mxgraph.networks.switch",//TODO not similar! //TODO fixed aspect ratio
+	"wlan.svg": "mxgraph.networks.wireless_hub",//TODO not similar!
+	"workstation.svg": "mxgraph.networks.pc",//TODO not similar!
+	//bpmn
+	"TRANSACTION": "ext;double=1;rounded=1",
+	"SUB_PROCESS": "ext;rounded=1",
+	"CALL_ACTIVITY": "ext;rounded=1;strokeWidth=3",
+	//TODO two colors for stroke!
+	"EXCLUSIVE_WITH_MARKER": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw",  
+	"EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=boundInt;symbol=multiple", 
+	"PARALLEL": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=parallelGw",
+	"INCLUSIVE": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=end;symbol=general",
+	"COMPLEX": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=complexGw",
+	"EXCLUSIVE_EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=multiple", 
+	"PARALLEL_EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=parallelMultiple",
+	//hexagon
+	"CALLING_GLOBAL_CONVERSATION": "hexagon;strokeWidth=4",
+	//mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general
+	"MESSAGE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=message",
+	"TIMER": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=timer",
+	"ESCALATION": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=escalation",
+	"CONDITIONAL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=conditional",
+	"LINK": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=link",
+	"ERROR": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=error",
+	"CANCEL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=cancel",
+	"COMPENSATION": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=compensation",
+	"SIGNAL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=signal",
+	"MULTIPLE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=multiple",
+	"PARALLEL_MULTIPLE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=parallelMultiple",
+	"TERMINATE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=terminate",
+	bpmnOutline: {
+		"SUB_PROCESS_INTERRUPTING": "eventInt",
+		"SUB_PROCESS_NON_INTERRUPTING": "eventNonint",
+		"CATCHING": "catching",
+		"BOUNDARY_INTERRUPTING": "boundInt",
+		"BOUNDARY_NON_INTERRUPTING": "boundNonint",
+		"THROWING": "throwing",
+		"END": "end",
+		"CATCHING": "catching"
+	},
+	//Male/Female icons (FIXME Not similar and unsafe as it refers to remote resources)
+	"usericon_female1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
+	"usericon_female2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
+	"usericon_female3.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
+	"usericon_female4.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
+	"usericon_female5.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
+	"usericon_male1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
+	"usericon_male2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
+	"usericon_male3.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
+	"usericon_male4.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
+	"usericon_male5.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
+	"": "",
+	"": "",
+	"": "",
+	"": "",
+	"": "",
+	"": "",
+	"": ""
 };
 
 var mxGraphMlConstants =
