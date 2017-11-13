@@ -999,7 +999,8 @@
 		var file = this.getCurrentFile();
 		var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 		
-		if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) || /(\.svg)$/i.test(basename))
+		if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) ||
+			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename))
 		{
 			basename = basename.substring(0, basename.lastIndexOf('.'));
 		}
@@ -8586,57 +8587,57 @@
 						else
 						{
 							// Creates a preview with no alt text for unsupported browsers
-				        	mxSvgCanvas2D.prototype.foAltText = null;
-				        	
-				        	var bg = this.editor.graph.background;
-				        	
-				        	if (bg == mxConstants.NONE)
-				        	{
-				        		bg = null;
-				        	}
-				        	
+					        	mxSvgCanvas2D.prototype.foAltText = null;
+					        	
+					        	var bg = this.editor.graph.background;
+					        	
+					        	if (bg == mxConstants.NONE)
+					        	{
+					        		bg = null;
+					        	}
+					        	
 							msg.xml = this.getFileData(true);
 							msg.format = 'svg';
-				        	
-				        	if (data.embedImages || data.embedImages == null)
-				        	{
+					        	
+					        	if (data.embedImages || data.embedImages == null)
+					        	{
 								if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
 									(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 								{
 									this.editor.graph.setEnabled(false);
 									
-					        		if (data.format == 'xmlsvg')
-					        		{
-						        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
-					        			{
+						        		if (data.format == 'xmlsvg')
+						        		{
+							        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
+						        			{
 											this.editor.graph.setEnabled(true);
 											this.spinner.stop();
 											
 											msg.data = this.createSvgDataUri(svg);
 											parent.postMessage(JSON.stringify(msg), '*');
-					        			}));
-					        		}
-					        		else
-					        		{
-					        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
-					        			{
+						        			}));
+						        		}
+						        		else
+						        		{
+						        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
+						        			{
 											this.editor.graph.setEnabled(true);
 											this.spinner.stop();
 											
 											msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 											parent.postMessage(JSON.stringify(msg), '*');
-					        			}));
-					        		}
-							}
-				        		
-				        		return;
-				        	}
-				        	else
-				        	{
-				        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
-				        			this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
+						        			}));
+						        		}
+								}
+					        		
+					        		return;
+					        	}
+					        	else
+					        	{
+					        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
+					        			this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
 								msg.data = this.createSvgDataUri(svg);
-				        	}
+					        	}
 						}
 
 						parent.postMessage(JSON.stringify(msg), '*');
