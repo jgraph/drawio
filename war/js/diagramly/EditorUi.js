@@ -6357,7 +6357,7 @@
 			}
 			
 			result += f.substring(pos - 8, pos - 4 + n);
-			value = fread(f,n);
+			fread(f,n);
 			fread(f,4);
 		}
 		while (n);
