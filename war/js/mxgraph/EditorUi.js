@@ -1342,6 +1342,7 @@ EditorUi.prototype.initCanvas = function()
 	
 	// Scales pages/graph to fit available size
 	var resize = null;
+	var ui = this;
 	
 	if (this.editor.chromeless)
 	{
@@ -1403,10 +1404,16 @@ EditorUi.prototype.initCanvas = function()
 		// Hack to make function available to subclassers
 		this.chromelessResize = resize;
 
+		// Hook for subclassers for override
+		this.chromelessWindowResize = mxUtils.bind(this, function()
+	   	{
+			this.chromelessResize(false);
+	   	});
+
 		// Removable resize listener
 		var autoscaleResize = mxUtils.bind(this, function()
 	   	{
-			this.chromelessResize(false);
+			this.chromelessWindowResize(false);
 	   	});
 		
 	   	mxEvent.addListener(window, 'resize', autoscaleResize);
@@ -1776,7 +1783,6 @@ EditorUi.prototype.initCanvas = function()
 
 			// Shows/hides toolbar for touch devices
 			var tol = graph.getTolerance();
-			var ui = this;
 
 			graph.addMouseListener(
 			{
@@ -1967,7 +1973,7 @@ EditorUi.prototype.initCanvas = function()
             {
                 if (resize != null)
                 {
-                		this.chromelessResize(false, null, dx * (this.cumulativeZoomFactor - 1),
+                		ui.chromelessResize(false, null, dx * (this.cumulativeZoomFactor - 1),
                 				dy * (this.cumulativeZoomFactor - 1));
                 }
                 

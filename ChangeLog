@@ -1,3 +1,7 @@
+15-NOV-2017: 7.7.0
+
+- Fixes alt+mousewheel in lightbox mode
+
 15-NOV-2017: 7.6.9
 
 - Adds predefined filters for Trello picker
@@ -32,7 +36,7 @@
 
 26-OCT-2017: 7.6.3
 
-- Adds current style to CSV and text 
+- Adds current style to CSV and text
 - Uses mxGraph 3.7.6 beta 7
 
 25-OCT-2017: 7.6.2
