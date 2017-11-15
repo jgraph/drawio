@@ -454,7 +454,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 					"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
 					//"lineCap": "", //??
 					"thickness.sys:Double": "strokeWidth",
-					"thickness": "strokeWidth",
+					"thickness": "strokeWidth"
 				}
 			};
 
@@ -665,9 +665,16 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				console.log(tableObj);
 				
 				this.mapObject(tableObj, {
-					"backgroundStyle.demotablestyle:TableBackgroundStyle.insetFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+					"backgroundStyle.demotablestyle:TableBackgroundStyle": {
+						"insetFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+						"tableBackgroundFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "swimlaneFillColor", mod: "color"},
+						"tableBackgroundStroke.yjs:Stroke":{
+							"fill": {key: "strokeColor", mod: "color"},
+							"thickness": "strokeWidth" 
+						}
+					},
 					"backgroundStyle.yjs:ShapeNodeStyle.fill": {key: "fillColor", mod: "color"},
-					"backgroundStyle.yjs:ShapeNodeStyle.fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
+					"backgroundStyle.yjs:ShapeNodeStyle.fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"}
 				}, styleMap);
 				
 				//Lane fill color is the same as the fill color
@@ -718,8 +725,16 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 							"backgroundFill": {key: "oddLaneFill", mod: "color"}
 						}
 						//parentDescriptor ??
-						//TODO Handle labels 
 						//TODO collect common types in a special mapping hash
+					},
+					"Style.yjs:NodeStyleStripeStyleAdapter":{
+						"demotablestyle:DemoStripeStyle": {
+							"stripeInsetFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+							"tableLineFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "strokeColor", mod: "color"}
+						},
+						"yjs:ShapeNodeStyle": {
+							"fill": {key: "swimlaneFillColor", mod: "color"}
+						}
 					},
 					"Size": "height"
 				};
@@ -738,8 +753,26 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					{
 						map["startSize"] = val.split(',')[1];
 					},
-					"Style.yjs:NodeStyleStripeStyleAdapter.yjs:ShapeNodeStyle": {
-						"fill": {key: "swimlaneFillColor", mod: "color"}
+					"Style.bpmn:AlternatingLeafStripeStyle": {
+						"evenLeafDescriptor.bpmn:StripeDescriptor": {
+							"insetFill": {key: "evenFill", mod: "color"},
+							"backgroundFill": {key: "evenLaneFill", mod: "color"}
+						},
+						"oddLeafDescriptor.bpmn:StripeDescriptor": {
+							"insetFill": {key: "oddFill", mod: "color"},
+							"backgroundFill": {key: "oddLaneFill", mod: "color"}
+						}
+						//parentDescriptor ??
+						//TODO collect common types in a special mapping hash
+					},
+					"Style.yjs:NodeStyleStripeStyleAdapter":{
+						"demotablestyle:DemoStripeStyle": {
+							"stripeInsetFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+							"tableLineFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "strokeColor", mod: "color"}
+						},
+						"yjs:ShapeNodeStyle": {
+							"fill": {key: "swimlaneFillColor", mod: "color"}
+						}
 					},
 					"Size": "width"
 				};
@@ -758,6 +791,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				var rows = tableObj["Rows"]["y:Row"];
 				y += parseFloat(defColStyle["startSize"]);
 				
+				//TODO We need two passes to determine the header size!
 				if (rows)
 				{
 					if (!(rows instanceof Array))
@@ -765,33 +799,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					
 					for (var i = 0; i < rows.length; i++)
 					{
-						var cell = new mxCell();
-						cell.vertex = true;
-						var rowStyle = mxUtils.clone(defRowStyle);
-						this.mapObject(rows[i], rowMapping, rowStyle);
-						
-						if (i & 1) //odd
-						{
-							if (rowStyle["oddFill"]) 
-							{
-								rowStyle["fillColor"] = rowStyle["oddFill"];
-								rowStyle["swimlaneFillColor"] = rowStyle["oddLaneFill"];
-							}
-						}
-						else
-						{
-							if (rowStyle["evenFill"]) 
-							{
-								rowStyle["fillColor"] = rowStyle["evenFill"];
-								rowStyle["swimlaneFillColor"] = rowStyle["evenLaneFill"];
-							}
-						}
-						var height = parseFloat(rowStyle["height"]);
-						cell.geometry = new mxGeometry(xShift, y, pGeo.width - xShift, height);
-						y += height;
-						
-						cell.style = this.styleMap2Str(rowStyle);
-						node.insert(cell);
+						y = this.addRow(rows[i], node, (i & 1), y, xShift, rowMapping, defRowStyle);
 					}
 				}
 
@@ -805,23 +813,123 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					
 					for (var i = 0; i < columns.length; i++)
 					{
-						var cell = new mxCell();
-						cell.vertex = true;
-						var colStyle = mxUtils.clone(defColStyle);
-						this.mapObject(columns[i], colMapping, colStyle);
-						
-						var width = parseFloat(colStyle["width"]);
-						cell.geometry = new mxGeometry(x, yShift, width, pGeo.height - yShift);
-						x += width;
-						
-						cell.style = this.styleMap2Str(colStyle);
-						node.insert(cell);
+						x = this.addColumn(columns[i], node, (i & 1), x, yShift, colMapping, defColStyle);
 					}
 				}
+				
 			break;
 		}
 	}
 };
+
+mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMapping, defRowStyle)
+{
+	var cell = new mxCell();
+	cell.vertex = true;
+	var rowStyle = mxUtils.clone(defRowStyle);
+	this.mapObject(row, rowMapping, rowStyle);
+	
+	if (odd)
+	{
+		if (rowStyle["oddFill"]) 
+			rowStyle["fillColor"] = rowStyle["oddFill"];
+
+		if (rowStyle["oddLaneFill"])
+			rowStyle["swimlaneFillColor"] = rowStyle["oddLaneFill"];
+	}
+	else
+	{
+		if (rowStyle["evenFill"]) 
+			rowStyle["fillColor"] = rowStyle["evenFill"];
+		
+		if (rowStyle["evenLaneFill"])
+			rowStyle["swimlaneFillColor"] = rowStyle["evenLaneFill"];
+	}
+	
+	var height = parseFloat(rowStyle["height"]);
+	cell.geometry = new mxGeometry(xShift, y, parent.geometry.width - xShift, height);
+
+	var lblObj = row["Labels"];
+	
+	if (lblObj)
+		this.addLabels(cell, lblObj, rowStyle)
+	
+	cell.style = this.styleMap2Str(rowStyle);
+	parent.insert(cell);
+	
+	var subRow = row["y:Row"];
+	
+	var subY = 0;
+	if (subRow)
+	{
+		if (!(subRow instanceof Array))
+			subRow = [subRow];
+		
+		for (var i = 0; i < subRow.length; i++)
+		{
+			subY = this.addRow(subRow[i], cell, (i & 1), subY, xShift, rowMapping, defRowStyle);
+		}
+	}
+	height = Math.max(height, subY);
+	cell.geometry.height = height;
+	y += height;
+
+	return y;
+}
+
+mxGraphMlCodec.prototype.addColumn = function(column, parent, odd, x, yShift, colMapping, defColStyle)
+{
+	var cell = new mxCell();
+	cell.vertex = true;
+	var colStyle = mxUtils.clone(defColStyle);
+	this.mapObject(column, colMapping, colStyle);
+	
+	if (odd)
+	{
+		if (colStyle["oddFill"]) 
+			colStyle["fillColor"] = colStyle["oddFill"];
+		
+		if (colStyle["oddLaneFill"])
+			colStyle["swimlaneFillColor"] = colStyle["oddLaneFill"];
+	}
+	else
+	{
+		if (colStyle["evenFill"]) 
+			colStyle["fillColor"] = colStyle["evenFill"];
+		
+		if (colStyle["evenLaneFill"])
+			colStyle["swimlaneFillColor"] = colStyle["evenLaneFill"];
+	}
+
+	var width = parseFloat(colStyle["width"]);
+	cell.geometry = new mxGeometry(x, yShift, width, parent.geometry.height - yShift);
+
+	var lblObj = column["Labels"];
+	
+	if (lblObj)
+		this.addLabels(cell, lblObj, colStyle)
+
+	cell.style = this.styleMap2Str(colStyle);
+	parent.insert(cell);
+	
+	var subCol = column["y:Column"];
+	
+	var subX = 0;
+	if (subCol)
+	{
+		if (!(subCol instanceof Array))
+			subCol = [subCol];
+		
+		for (var i = 0; i < subCol.length; i++)
+		{
+			subX = this.addColumn(subCol[i], cell, (i & 1), subX, yShift, colMapping, defColStyle);
+		}
+	}
+	width = Math.max(width, subX);
+	cell.geometry.width = width;
+	x += width;
+	return x;
+}
 
 mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 {
@@ -983,7 +1091,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 				"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
 				//"lineCap": "", //??
 				"thickness.sys:Double": "strokeWidth",
-				"thickness": "strokeWidth",
+				"thickness": "strokeWidth"
 			},
 			"targetArrow.yjs:Arrow": {
 				"defaults" : 
@@ -1018,6 +1126,11 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 	
 	if (lblList)
 	{
+		if (!(lblList instanceof Array)) 
+		{
+			lblList = [lblList];
+		}
+		
 		for (var i = 0; i < lblList.length; i++)
 		{
 			var lbl = lblList[i];

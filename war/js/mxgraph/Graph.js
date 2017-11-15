@@ -5823,9 +5823,9 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			// Adds shortened label to link
-			var max = 60;
-			var head = 36;
-			var tail = 20;
+			var max = 40;
+			var head = 26;
+			var tail = 10;
 			
 			if (label.length > max)
 			{
@@ -6652,13 +6652,26 @@ if (typeof mxVertexHandler != 'undefined')
 				
 				this.hint.style.left = bb.x + Math.round((bb.width - this.hint.clientWidth) / 2) + 'px';
 				this.hint.style.top = (bb.y + bb.height + 12) + 'px';
+				
+				if (this.linkHint != null)
+				{
+					this.linkHint.style.display = 'none';
+				}
 			}
 		};
 	
 		/**
 		 * Updates the hint for the current operation.
 		 */
-		mxVertexHandler.prototype.removeHint = mxGraphHandler.prototype.removeHint;
+		mxVertexHandler.prototype.removeHint = function()
+		{
+			mxGraphHandler.prototype.removeHint.apply(this, arguments);
+			
+			if (this.linkHint != null)
+			{
+				this.linkHint.style.display = '';
+			}
+		};
 	
 		/**
 		 * Updates the hint for the current operation.
@@ -7481,7 +7494,7 @@ if (typeof mxVertexHandler != 'undefined')
 					b = Math.max(b, tb.y + tb.height);
 				}
 				
-				this.linkHint.style.left = Math.round(rs.x + (rs.width - this.linkHint.clientWidth) / 2) + 'px';
+				this.linkHint.style.left = Math.max(0, Math.round(rs.x + (rs.width - this.linkHint.clientWidth) / 2)) + 'px';
 				this.linkHint.style.top = Math.round(b + this.verticalOffset / 2 + 6 +
 					this.state.view.graph.tolerance) + 'px';
 			}
@@ -7549,7 +7562,7 @@ if (typeof mxVertexHandler != 'undefined')
 						b.add(this.state.text.bounds);
 					}
 					
-					this.linkHint.style.left = Math.round(b.x + (b.width - this.linkHint.clientWidth) / 2) + 'px';
+					this.linkHint.style.left = Math.max(0, Math.round(b.x + (b.width - this.linkHint.clientWidth) / 2)) + 'px';
 					this.linkHint.style.top = Math.round(b.y + b.height + 6 + this.state.view.graph.tolerance) + 'px';
 				}
 			}
