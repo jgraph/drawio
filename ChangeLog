@@ -1,3 +1,10 @@
+15-NOV-2017: 7.6.9
+
+- Adds predefined filters for Trello picker
+- Fixes picker for GDriveConnector and Google Docs Add-on
+- Fixes UTF8 strings in imported SVG images
+- Adds context menu for links in hints
+
 13-NOV-2017: 7.6.8
 
 - Updates to latest AWS stencils

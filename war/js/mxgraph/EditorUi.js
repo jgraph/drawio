@@ -86,14 +86,35 @@ EditorUi = function(editor, container, lightbox)
 	// And uses built-in context menu while editing
 	if (!this.editor.chromeless || this.editor.editable)
 	{
+		// Allows context menu for links in hints
+		var linkHandler = function(evt)
+		{
+			var source = mxEvent.getSource(evt);
+			
+			if (source.nodeName == 'A')
+			{
+				while (source != null)
+				{
+					if (source.className == 'geHint')
+					{
+						return true;
+					}
+					
+					source = source.parentNode;
+				}
+			}
+			
+			return textEditing(evt);
+		};
+		
 		if (mxClient.IS_IE && (typeof(document.documentMode) === 'undefined' || document.documentMode < 9))
 		{
-			mxEvent.addListener(this.diagramContainer, 'contextmenu', textEditing);
+			mxEvent.addListener(this.diagramContainer, 'contextmenu', linkHandler);
 		}
 		else
 		{
 			// Allows browser context menu outside of diagram and sidebar
-			this.diagramContainer.oncontextmenu = textEditing;
+			this.diagramContainer.oncontextmenu = linkHandler;
 		}
 	}
 	else
@@ -1357,7 +1378,7 @@ EditorUi.prototype.initCanvas = function()
                 
                 var ns = (autoscale) ? Math.max(0.3, Math.min(maxScale || 1, cw / b.width)) : s;
                 var dx = ((cw - ns * b.width) / 2) / ns;
-                var dy = ((ch - ns * b.height) / this.lightboxVerticalDivider) / ns;
+                var dy = (this.lightboxVerticalDivider == 0) ? 0 : ((ch - ns * b.height) / this.lightboxVerticalDivider) / ns;
                 
                 if (scroll)
                 {
@@ -1385,7 +1406,7 @@ EditorUi.prototype.initCanvas = function()
 		// Removable resize listener
 		var autoscaleResize = mxUtils.bind(this, function()
 	   	{
-			resize(false);
+			this.chromelessResize(false);
 	   	});
 		
 	   	mxEvent.addListener(window, 'resize', autoscaleResize);
@@ -1397,11 +1418,19 @@ EditorUi.prototype.initCanvas = function()
 	   	
 		this.editor.addListener('resetGraphView', mxUtils.bind(this, function()
 		{
-			resize(true);
+			this.chromelessResize(true);
 		}));
 
-		this.actions.get('zoomIn').funct = function(evt) { graph.zoomIn(); resize(false); };
-		this.actions.get('zoomOut').funct = function(evt) { graph.zoomOut(); resize(false); };
+		this.actions.get('zoomIn').funct = mxUtils.bind(this, function(evt)
+		{
+			graph.zoomIn();
+			this.chromelessResize(false);
+		});
+		this.actions.get('zoomOut').funct = mxUtils.bind(this, function(evt)
+		{
+			graph.zoomOut();
+			this.chromelessResize(false);
+		});
 		
 		// Creates toolbar for viewer - do not use CSS here
 		// as this may be used in a viewer that has no CSS
@@ -1540,11 +1569,11 @@ EditorUi.prototype.initCanvas = function()
 						graph.zoomTo(1);
 					}
 					
-					resize(false);
+					this.chromelessResize(false);
 				}
 				else
 				{
-					resize(true);
+					this.chromelessResize(true);
 				}
 				
 				mxEvent.consume(evt);
@@ -1938,8 +1967,8 @@ EditorUi.prototype.initCanvas = function()
             {
                 if (resize != null)
                 {
-                    resize(false, null, dx * (this.cumulativeZoomFactor - 1),
-                           dy * (this.cumulativeZoomFactor - 1));
+                		this.chromelessResize(false, null, dx * (this.cumulativeZoomFactor - 1),
+                				dy * (this.cumulativeZoomFactor - 1));
                 }
                 
                 if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))

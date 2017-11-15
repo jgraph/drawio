@@ -5867,7 +5867,7 @@
 					    				// Checks if SVG contains content attribute
 				    					var data = e.target.result;
 				    					var comma = data.indexOf(',');
-				    					var svgText = atob(data.substring(comma + 1));
+				    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
 				    					var root = mxUtils.parseXml(svgText);
 			    						var svgs = root.getElementsByTagName('svg');
 			    						
@@ -5936,7 +5936,6 @@
 									    						}
 		
 									    						data = this.createSvgDataUri(mxUtils.getXml(svgs[0]));
-									    						
 									    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
 											    				
 											    				return fn(data, file.type, x + index * gs, y + index * gs,
@@ -6357,7 +6356,7 @@
 			}
 			
 			result += f.substring(pos - 8, pos - 4 + n);
-			value = fread(f,n);
+			fread(f,n);
 			fread(f,4);
 		}
 		while (n);
