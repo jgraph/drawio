@@ -614,7 +614,7 @@
 		{
 			if (this.tagsWindow == null)
 			{
-				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 380, 230, 280, 120);
+				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 380, 230, 300, 120);
 				this.tagsWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
@@ -1442,7 +1442,7 @@
 			this.addMenuItems(menu, ['-', 'exportXml'], parent);
 
 			// Disables menu item for all external hosted integrations
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||/.*\.draw\.io$/.test(window.location.hostname))
+			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || /.*\.draw\.io$/.test(window.location.hostname))
 			{
 				menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
 				{

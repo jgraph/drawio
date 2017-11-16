@@ -9721,11 +9721,9 @@
 		this.actions.get('createRevision').setEnabled(active);
 		this.actions.get('moveToFolder').setEnabled(file != null);
 		this.actions.get('makeCopy').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('editDiagram').setEnabled((urlParams['embed'] == '1' &&
-			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
+		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('tags').setEnabled((urlParams['embed'] == '1' &&
-			this.editor.graph.isEnabled()) || (file != null && !file.isRestricted()));
+		this.actions.get('tags').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		

@@ -5781,7 +5781,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	searchInput.setAttribute('placeholder', mxResources.get('allTags'));
 	searchInput.setAttribute('type', 'text');
 	searchInput.style.marginTop = '4px';
-	searchInput.style.width = '240px';
+	searchInput.style.width = '260px';
 	searchInput.style.fontSize = '12px';
 	searchInput.style.borderRadius = '4px';
 	searchInput.style.padding = '6px';
