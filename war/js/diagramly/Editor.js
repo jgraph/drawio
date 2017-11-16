@@ -1133,7 +1133,27 @@
 	 * Specifies if the page should be visible for new files. Default is true.
 	 */
 	Graph.prototype.shadowId = 'dropShadow';
+	
+	/**
+	 * Properties for the SVG shadow effect.
+	 */
+	Graph.prototype.svgShadowColor = '#3D4574';
 
+	/**
+	 * Properties for the SVG shadow effect.
+	 */
+	Graph.prototype.svgShadowOpacity = '0.4';
+
+	/**
+	 * Properties for the SVG shadow effect.
+	 */
+	Graph.prototype.svgShadowBlur = '1.7';
+	
+	/**
+	 * Properties for the SVG shadow effect.
+	 */
+	Graph.prototype.svgShadowSize = '3';
+		
 	/**
 	 * Enables move of bends/segments without selecting.
 	 */
@@ -1262,22 +1282,22 @@
 		var blur = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'feGaussianBlur') : svgDoc.createElement('feGaussianBlur');
 		blur.setAttribute('in', 'SourceAlpha');
-		blur.setAttribute('stdDeviation', '1.7');
+		blur.setAttribute('stdDeviation', this.svgShadowBlur);
 		blur.setAttribute('result', 'blur');
 		filter.appendChild(blur);
 		
 		var offset = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'feOffset') : svgDoc.createElement('feOffset');
 		offset.setAttribute('in', 'blur');
-		offset.setAttribute('dx', '3');
-		offset.setAttribute('dy', '3');
+		offset.setAttribute('dx', this.svgShadowSize);
+		offset.setAttribute('dy', this.svgShadowSize);
 		offset.setAttribute('result', 'offsetBlur');
 		filter.appendChild(offset);
 		
 		var flood = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'feFlood') : svgDoc.createElement('feFlood');
-		flood.setAttribute('flood-color', '#3D4574');
-		flood.setAttribute('flood-opacity', '0.4');
+		flood.setAttribute('flood-color', this.svgShadowColor);
+		flood.setAttribute('flood-opacity', this.svgShadowOpacity);
 		flood.setAttribute('result', 'offsetColor');
 		filter.appendChild(flood);
 		

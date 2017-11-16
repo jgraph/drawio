@@ -1,3 +1,9 @@
+16-NOV-2017: 7.7.1
+
+- Adds switches for SVG shadow
+- Fixes tags dialog size
+- Fixes action states
+
 15-NOV-2017: 7.7.0
 
 - Fixes alt+mousewheel in lightbox mode
