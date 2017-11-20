@@ -788,7 +788,7 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	var p2 = document.createElement('div');
 	p2.style.padding = '6px';
 	p2.style.overflow = 'auto';
-	p2.style.maxHeight = '40px';
+	p2.style.maxHeight = '44px';
 	
 	if (mxClient.IS_QUIRKS)
 	{
@@ -5606,7 +5606,7 @@ var FindWindow = function(ui, x, y, w, h)
 
 		var active = lastFound == null;
 		
-		if (graph.isEnabled() && search.length > 0)
+		if (search.length > 0)
 		{
 			for (var i = 0; i < cells.length; i++)
 			{
@@ -5650,15 +5650,23 @@ var FindWindow = function(ui, x, y, w, h)
 		if (firstMatch != null)
 		{
 			lastFound = firstMatch;
-			graph.setSelectionCell(lastFound.cell);
 			graph.scrollCellToVisible(lastFound.cell);
+			
+			if (graph.isEnabled())
+			{
+				graph.setSelectionCell(lastFound.cell);
+			}
+			else
+			{
+				graph.highlightCell(lastFound.cell);
+			}
 		}
-		else
+		else if (graph.isEnabled())
 		{
 			graph.clearSelection();
 		}
 		
-		return !graph.isEnabled() || search.length == 0 || firstMatch != null;
+		return search.length == 0 || firstMatch != null;
 	};
 
 	mxUtils.br(div);

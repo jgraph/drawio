@@ -167,7 +167,23 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 	if (elem.childNodes.length == 1)
 	{
 		if (elem.childNodes[0].nodeType != 1)
-			return elem.childNodes[0].textContent;
+		{
+			//TODO handle this similar case better
+			//cache referenced objects
+			if (refKey)
+			{
+				var tmpObj = {};
+				//parse all attributes before following the reference
+				this.parseAttributes(origElem, tmpObj);
+				tmpObj[this.sharedData[refKey].nodeName] = elem.childNodes[0].textContent; 
+				this.cachedRefObj[refKey] = tmpObj;
+				return tmpObj;
+			}
+			else 
+			{
+				return elem.childNodes[0].textContent;
+			}
+		}
 	}
 	
 	for (var i = 0; i < elem.childNodes.length; i++)
@@ -202,7 +218,7 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 			{
 				var dotPos = attName.lastIndexOf(".");
 				
-				if (dotPos)
+				if (dotPos > 0)
 				{
 					attName = attName.substr(dotPos + 1);
 				}
@@ -393,11 +409,15 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 	
 	var node = new mxCell();
 	node.vertex = true;
+	node.geometry = new mxGeometry(0,0,0,0);
 
 	graph.addCell(node, parent);
 
 	var style = {graphMlID: id};
 	var mlStyleObj = null;
+	var mlTemplate = null;
+	var lblObj = null;
+	var lbls = null;
 	
 	for (var i = 0; i < data.length; i++)
 	{
@@ -411,183 +431,191 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
 		{
 //			console.log(JSON.stringify(dataObj));
+			//TODO move these static mapping objects outside such that they are defined once only
 			mlStyleObj = dataObj;
-			var dashStyleFn = function(val, map)
+			if (dataObj["yjs:StringTemplateNodeStyle"])
 			{
-				map["dashed"] = 1;
-				//map["fixDash"] = 1;
-				var pattern = null;
-				switch(val)
+				mlTemplate = dataObj["yjs:StringTemplateNodeStyle"];
+			} 
+			else
+			{
+				var dashStyleFn = function(val, map)
 				{
-					case "DashDot":
-						pattern = "3 1 1 1";
-					break;
-					case "Dot":
-						pattern = "1 1";
-					break;
-					case "DashDotDot":
-						pattern = "3 1 1 1 1 1";
-					break;
-					default:
-						pattern = val;
-				}
+					map["dashed"] = 1;
+					//map["fixDash"] = 1;
+					var pattern = null;
+					switch(val)
+					{
+						case "DashDot":
+							pattern = "3 1 1 1";
+						break;
+						case "Dot":
+							pattern = "1 1";
+						break;
+						case "DashDotDot":
+							pattern = "3 1 1 1 1 1";
+						break;
+						default:
+							pattern = val;
+					}
+					
+					if (pattern)
+						map["dashPattern"] = pattern;
+				};
 				
-				if (pattern)
-					map["dashPattern"] = pattern;
-			};
-			
-			var styleCommonMap = 
-			{
-				"shape": {key: "shape", mod: "shape"},
-				"type": {key: "shape", mod: "shape"},
-				"assetName": {key: "shape", mod: "shape"},
-				"activityType": {key: "shape", mod: "shape"},
-				"fill": {key: "fillColor", mod: "color"},
-				"fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
-				"fill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
-				"stroke": {key: "strokeColor", mod: "color"},
-				"stroke.yjs:Stroke":
+				var styleCommonMap = 
 				{
-					"dashStyle": dashStyleFn,
-					"dashStyle.yjs:DashStyle.dashes": dashStyleFn,
-					"fill": {key: "strokeColor", mod: "color"},
-					"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
-					//"lineCap": "", //??
-					"thickness.sys:Double": "strokeWidth",
-					"thickness": "strokeWidth"
-				}
-			};
-
-			var assetNodesStyle = mxUtils.clone(styleCommonMap);
-			assetNodesStyle["defaults"] = {
-				"fillColor": "#CCCCCC",
-				"strokeColor": "#6881B3"
-			};
-			
-			var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
-			bpmnActivityStyle["defaults"] = {
-				"shape": "ext;rounded=1",
-				"fillColor": "#FFFFFF",
-				"strokeColor": "#000090"
-			};
-			
-			var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
-			bpmnGatewayStyle["defaults"] = {
-				"shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
-			};
-			
-			var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
-			bpmnConversationStyle["defaults"] = {
-				"shape": "hexagon",
-				"strokeColor": "#007000"
-			};
-			
-			var bpmnEventStyle = mxUtils.clone(styleCommonMap);
-			bpmnEventStyle["defaults"] = {
-				"shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
-				"outline": "standard"
-			};
-			bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
-			
-			var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
-			bpmnDataObjectStyle["defaults"] = {
-				"shape": "js:bpmnDataObject"
-			};
-			
-			var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
-			bpmnDataStoreStyle["defaults"] = {
-				"shape": "datastore"
-			};
-			
-			var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
-			bpmnGroupNodeStyle["defaults"] = {
-				"shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
-			};
-			
-			var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
-			bpmnChoreographyNodeStyle["defaults"] = {
-				"shape": "swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
-			};
-			
-			//approximation to GraphML shapes TODO improve them
-			var bevelNodeStyle = mxUtils.clone(styleCommonMap);
-			bevelNodeStyle["defaults"] = {
-				"rounded": "1",
-				"glass": "1",
-				"strokeColor": "#FFFFFF"
-			};
-			bevelNodeStyle["inset"] = "strokeWidth";
-			bevelNodeStyle["radius"] = "arcSize";
-			bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
-			bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
-			bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
-			
-			var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
-			shinyPlateNodeStyle["defaults"] = {
-				"rounded": "1",
-				"arcSize": 10,
-				"glass": "1",
-				"shadow": "1",
-				"strokeColor": "none",
-				"rotation": -90 //TODO requires rotation!
-			};
-			shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
-			
-			var demoGroupStyle = mxUtils.clone(styleCommonMap);
-			demoGroupStyle["defaults"] = {
-				"shape": "swimlane",
-				"startSize": 20,
-				"strokeWidth": 4,
-				"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
-			};
-			demoGroupStyle["isCollapsible"] = {key:"collapsible", mod:"bool"};
-			demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
-			demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
-//			demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
-			
-			var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
-			collapsibleNodeStyle["defaults"] = {
-				"shape": "swimlane",
-				"startSize": 20,
-				"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
-			};
-			collapsibleNodeStyle["yjs:PanelNodeStyle"] = {
-				"color": {key:"swimlaneFillColor", mod:"color"},
-				"color.yjs:Color.value": {key:"swimlaneFillColor", mod:"color"},
-				"labelInsetsColor": {key:"fillColor", mod:"color"},
-				"labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
-			};
-			
-			var tableStyle = mxUtils.clone(styleCommonMap);
-			tableStyle["defaults"] = {
-				"shape": "js:table"
-			};
-			
-			this.mapObject(dataObj, {
-				"yjs:ShapeNodeStyle": styleCommonMap,
-				"demostyle:FlowchartNodeStyle": styleCommonMap,
-				"demostyle:AssetNodeStyle": assetNodesStyle,
-				"demostyle:DemoGroupStyle": styleCommonMap,
-				"bpmn:ActivityNodeStyle": bpmnActivityStyle,
-				"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
-				"bpmn:ConversationNodeStyle": bpmnConversationStyle,
-				"bpmn:EventNodeStyle": bpmnEventStyle,
-				"bpmn:DataObjectNodeStyle": bpmnDataObjectStyle,
-				"bpmn:DataStoreNodeStyle": bpmnDataStoreStyle,
-				"bpmn:GroupNodeStyle": bpmnGroupNodeStyle,
-				"bpmn:ChoreographyNodeStyle": bpmnChoreographyNodeStyle,
-				"yjs:BevelNodeStyle": bevelNodeStyle,
-				"yjs:ShinyPlateNodeStyle": shinyPlateNodeStyle,
-				"demostyle:DemoGroupStyle": demoGroupStyle,
-				"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
-				"bpmn:PoolNodeStyle": tableStyle,
-				"yjs:TableNodeStyle": tableStyle,
-				"demotablestyle:DemoTableStyle": tableStyle
-			}, style);
+					"shape": {key: "shape", mod: "shape"},
+					"type": {key: "shape", mod: "shape"},
+					"assetName": {key: "shape", mod: "shape"},
+					"activityType": {key: "shape", mod: "shape"},
+					"fill": {key: "fillColor", mod: "color"},
+					"fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
+					"fill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+					"stroke": {key: "strokeColor", mod: "color"},
+					"stroke.yjs:Stroke":
+					{
+						"dashStyle": dashStyleFn,
+						"dashStyle.yjs:DashStyle.dashes": dashStyleFn,
+						"fill": {key: "strokeColor", mod: "color"},
+						"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
+						//"lineCap": "", //??
+						"thickness.sys:Double": "strokeWidth",
+						"thickness": "strokeWidth"
+					}
+				};
+	
+				var assetNodesStyle = mxUtils.clone(styleCommonMap);
+				assetNodesStyle["defaults"] = {
+					"fillColor": "#CCCCCC",
+					"strokeColor": "#6881B3"
+				};
+				
+				var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
+				bpmnActivityStyle["defaults"] = {
+					"shape": "ext;rounded=1",
+					"fillColor": "#FFFFFF",
+					"strokeColor": "#000090"
+				};
+				
+				var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
+				bpmnGatewayStyle["defaults"] = {
+					"shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
+				};
+				
+				var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
+				bpmnConversationStyle["defaults"] = {
+					"shape": "hexagon",
+					"strokeColor": "#007000"
+				};
+				
+				var bpmnEventStyle = mxUtils.clone(styleCommonMap);
+				bpmnEventStyle["defaults"] = {
+					"shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
+					"outline": "standard"
+				};
+				bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
+				
+				var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
+				bpmnDataObjectStyle["defaults"] = {
+					"shape": "js:bpmnDataObject"
+				};
+				
+				var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
+				bpmnDataStoreStyle["defaults"] = {
+					"shape": "datastore"
+				};
+				
+				var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
+				bpmnGroupNodeStyle["defaults"] = {
+					"shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
+				};
+				
+				var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
+				bpmnChoreographyNodeStyle["defaults"] = {
+					"shape": "js:BpmnChoreography"//"swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
+				};
+				
+				//approximation to GraphML shapes TODO improve them
+				var bevelNodeStyle = mxUtils.clone(styleCommonMap);
+				bevelNodeStyle["defaults"] = {
+					"rounded": "1",
+					"glass": "1",
+					"strokeColor": "#FFFFFF"
+				};
+				bevelNodeStyle["inset"] = "strokeWidth";
+				bevelNodeStyle["radius"] = "arcSize";
+				bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+				bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
+				bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
+				
+				var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
+				shinyPlateNodeStyle["defaults"] = {
+					"rounded": "1",
+					"arcSize": 10,
+					"glass": "1",
+					"shadow": "1",
+					"strokeColor": "none",
+					"rotation": -90 //TODO requires rotation!
+				};
+				shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+				
+				var demoGroupStyle = mxUtils.clone(styleCommonMap);
+				demoGroupStyle["defaults"] = {
+					"shape": "swimlane",
+					"startSize": 20,
+					"strokeWidth": 4,
+					"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+				};
+				demoGroupStyle["isCollapsible"] = {key:"collapsible", mod:"bool"};
+				demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
+				demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
+	//			demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
+				
+				var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
+				collapsibleNodeStyle["defaults"] = {
+					"shape": "swimlane",
+					"startSize": 20,
+					"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+				};
+				collapsibleNodeStyle["yjs:PanelNodeStyle"] = {
+					"color": {key:"swimlaneFillColor", mod:"color"},
+					"color.yjs:Color.value": {key:"swimlaneFillColor", mod:"color"},
+					"labelInsetsColor": {key:"fillColor", mod:"color"},
+					"labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
+				};
+				
+				var tableStyle = mxUtils.clone(styleCommonMap);
+				tableStyle["defaults"] = {
+					"shape": "js:table"
+				};
+				
+				this.mapObject(dataObj, {
+					"yjs:ShapeNodeStyle": styleCommonMap,
+					"demostyle:FlowchartNodeStyle": styleCommonMap,
+					"demostyle:AssetNodeStyle": assetNodesStyle,
+					"demostyle:DemoGroupStyle": styleCommonMap,
+					"bpmn:ActivityNodeStyle": bpmnActivityStyle,
+					"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
+					"bpmn:ConversationNodeStyle": bpmnConversationStyle,
+					"bpmn:EventNodeStyle": bpmnEventStyle,
+					"bpmn:DataObjectNodeStyle": bpmnDataObjectStyle,
+					"bpmn:DataStoreNodeStyle": bpmnDataStoreStyle,
+					"bpmn:GroupNodeStyle": bpmnGroupNodeStyle,
+					"bpmn:ChoreographyNodeStyle": bpmnChoreographyNodeStyle,
+					"yjs:BevelNodeStyle": bevelNodeStyle,
+					"yjs:ShinyPlateNodeStyle": shinyPlateNodeStyle,
+					"demostyle:DemoGroupStyle": demoGroupStyle,
+					"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
+					"bpmn:PoolNodeStyle": tableStyle,
+					"yjs:TableNodeStyle": tableStyle,
+					"demotablestyle:DemoTableStyle": tableStyle
+				}, style);
+			}
 		}
 		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key) 
 		{
-			this.addLabels(node, dataObj, style);
+			lblObj = dataObj;
 		}
 	}
 	
@@ -599,10 +627,19 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 		this.importPort(ports[i], portsMap);
 	}
 	
+	if (mlTemplate)
+	{
+		this.handleTemplates(mlTemplate, node, style);
+	}
+	
 	this.handleFixedRatio(node, style);
 
+	//handle labels after node geometry is determined
+	if (lblObj)
+		lbls = this.addLabels(node, lblObj, style);
+	
 	//handle special compound shapes
-	this.handleCompoundShape(node, style, mlStyleObj);
+	this.handleCompoundShape(node, style, mlStyleObj, lbls);
 	
 	node.style = this.styleMap2Str(style);
 	
@@ -616,7 +653,19 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 	nodesMap[id] = {node: node, ports: portsMap};
 };
 
-mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyleObj)
+
+mxGraphMlCodec.prototype.handleTemplates = function (template, node, styleMap)
+{
+	var svg = template.match(/\<svg(\s|\S)+\<\/svg\>/);
+	if (svg)
+	{
+		svg = svg[0];
+		styleMap["shape"] = "image";
+		styleMap["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(svg) : Base64.encode(svg));
+	}
+};
+
+mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyleObj, lbls)
 {
 	var shape = styleMap["shape"];
 	
@@ -653,7 +702,34 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					node.insert(cell1);
 				}
 			break;
+			case "js:BpmnChoreography":
+				this.mapObject(mlStyleObj, {
+					"defaults": {
+						"shape": "swimlane;collapsible=0;rounded=1",
+						"startSize": "20",
+						"strokeColor": "#006000",
+						"fillColor": "#CCCCCC"
+					}
+				}, styleMap);
+				
+				//TODO the shape should be clipped by parent borders. It should also be resized relative to its parent
+				var pGeo = node.geometry;
+				var cell1 = new mxCell('', new mxGeometry(0, pGeo.height - 20, pGeo.width, 20), 'strokeColor=#006000;fillColor=#777777;rounded=1');
+				cell1.vertex = true;
+				node.insert(cell1);
+				
+				//TODO handle labels accurately
+				if (lbls && lbls.lblTxts)
+				{
+//					console.log(lbls);
+					node.value = lbls.lblTxts[0];
+					cell1.value = lbls.lblTxts[1];
+				}
+			break;
 			case "js:table":
+				//TODO we need 2 passes to find the exact shift of columns/rows especially when there is rows inside rows
+				//TODO Internal table strokes needs to match table strokeWidth and only be on one side
+				//TODO code optimization
 				styleMap["shape"] = "swimlane;collapsible=0;swimlaneLine=0";
 				var tableObj = mlStyleObj["yjs:TableNodeStyle"] || mlStyleObj["demotablestyle:DemoTableStyle"];
 				
@@ -662,7 +738,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					tableObj = mlStyleObj["bpmn:PoolNodeStyle"]["yjs:TableNodeStyle"];
 				}
 				
-				console.log(tableObj);
+//				console.log(tableObj);
 				
 				this.mapObject(tableObj, {
 					"backgroundStyle.demotablestyle:TableBackgroundStyle": {
@@ -968,16 +1044,16 @@ mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, parentGeo)
 			dy = parentGeo.y;
 		}
 		
-		var geo = new mxGeometry( 
-				parseFloat(geoRect[mxGraphMlConstants.X]) - dx,
-				parseFloat(geoRect[mxGraphMlConstants.Y]) - dy,
-				parseFloat(geoRect[mxGraphMlConstants.WIDTH]),
-				parseFloat(geoRect[mxGraphMlConstants.HEIGHT])
-		);
-		node.geometry = geo;
+		var geo = node.geometry;
+		 
+		geo.x = parseFloat(geoRect[mxGraphMlConstants.X]) - dx;
+		geo.y = parseFloat(geoRect[mxGraphMlConstants.Y]) - dy;
+		geo.width = parseFloat(geoRect[mxGraphMlConstants.WIDTH]);
+		geo.height = parseFloat(geoRect[mxGraphMlConstants.HEIGHT]);
 	}
 };
 
+//TODO handle ports
 mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap, parent)
 {
 	var data = this.getDirectChildNamedElements(edgeElement, mxGraphMlConstants.DATA);
@@ -1117,12 +1193,14 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 	}, styleMap);
 };
 
+//TODO label offset
 mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle) 
 {
 	var lblList = LblObj[mxGraphMlConstants.Y_LABEL];
 	
-	lblTxts = [];
-	lblStyles = [];
+	var lblTxts = [];
+	var lblStyles = [];
+	var lblLayouts = [];
 	
 	if (lblList)
 	{
@@ -1192,22 +1270,158 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 
 			lblTxts.push(txt);
 			lblStyles.push(styleMap);
+			lblLayouts.push(layout);
 		}
 	}
 	
-	if (lblTxts.length == 1)
+	//TODO Use the style map with defaults to change the style
+	for (var i = 0; i < lblTxts.length; i++)
 	{
-		node.value = lblTxts[0];
-		
-		for (var key in lblStyles[0])
+		if (lblTxts[i])
 		{
-			nodeStyle[key] = lblStyles[0][key];
+			if (lblLayouts[i] && lblLayouts[i]["bpmn:ParticipantParameter"])
+				continue;
+			
+			lblTxts[i] = mxUtils.htmlEntities(lblTxts[i], false).replace(/\n/g, '<br/>');
+			var geo = node.geometry;
+
+			var lblCell = new mxCell(lblTxts[i], new mxGeometry(0, 0, geo.width, geo.height), 'text;html=1;spacing=0;' + this.styleMap2Str(lblStyles[i]));
+			lblCell.vertex = true;
+			node.insert(lblCell, 0);
+			var lGeo = lblCell.geometry;
+
+			console.log(lblTxts[i]);
+			console.log(lblLayouts[i]);
+			
+			if (lblLayouts[i]["y:RatioAnchoredLabelModelParameter"])
+			{
+				var strSize = mxUtils.getSizeForString(lblTxts[i], lblStyles[i]["fontSize"], lblStyles[i]["fontFamily"]);
+				var offsetStr = lblLayouts[i]["y:RatioAnchoredLabelModelParameter"]["LayoutOffset"];
+				
+				if (offsetStr)
+				{
+					var parts = offsetStr.split(',');
+					lGeo.x = parseFloat(parts[0]);
+					lGeo.y = parseFloat(parts[1]);
+					lGeo.width = strSize.width;
+					lGeo.height = strSize.height;
+					lblCell.style += ";spacingTop=-4;";
+				}
+				else
+				{
+					//TODO map there?
+					var lblRatio = lblLayouts[i]["y:RatioAnchoredLabelModelParameter"]["LabelRatio"];
+					var layoutRatio = lblLayouts[i]["y:RatioAnchoredLabelModelParameter"]["LayoutRatio"];
+					
+					lblCell.style += ";align=center;";
+				}
+			}
+			else if (lblLayouts[i]["y:InteriorLabelModel"]) //TODO this is probably can be done by setting the value?
+			{
+				//TODO merge with next one if they are identical in all cases!
+				switch (lblLayouts[i]["y:InteriorLabelModel"])
+				{
+					case "Center":
+						lblCell.style += ";verticalAlign=middle;";
+					break;
+					case "North":
+						lGeo.height = 1;
+					break;
+					case "West":
+						lGeo.width = geo.height;
+						lGeo.height = geo.width;
+						//-90 rotation of origin
+						lGeo.y = geo.height /2 - geo.width /2;
+						lGeo.x = -lGeo.y;
+						lblCell.style += ";rotation=-90";
+					break;
+				}
+				lblCell.style += ";align=center;";
+			}
+			//TODO Spacing still need to be adjusted
+			else if (lblLayouts[i]["y:StretchStripeLabelModel"])
+			{
+				switch (lblLayouts[i]["y:StretchStripeLabelModel"])
+				{
+					case "North":
+						lGeo.height = 1;
+					break;
+					case "West":
+						lGeo.width = geo.height;
+						lGeo.height = geo.width;
+						//-90 rotation of origin
+						lGeo.y = geo.height /2 - geo.width /2;
+						lGeo.x = -lGeo.y;
+						lblCell.style += ";rotation=-90;";
+					break;
+				}
+			}
+			else if (lblLayouts[i]["bpmn:PoolHeaderLabelModel"])
+			{
+				//TODO merge with previous one if they are identical in all cases!
+				switch (lblLayouts[i]["bpmn:PoolHeaderLabelModel"])
+				{
+					case "NORTH":
+						lGeo.height = 1;
+					break;
+					case "WEST":
+						lGeo.width = geo.height;
+						lGeo.height = geo.width;
+						//-90 rotation of origin
+						lGeo.y = geo.height /2 - geo.width /2;
+						lGeo.x = -lGeo.y;
+						lblCell.style += ";rotation=-90;";
+					break;
+				}
+				lblCell.style += ";align=center;";
+			}
+			else if (lblLayouts[i]["y:InteriorStretchLabelModelParameter"])
+			{
+				//TODO probably mapObject is needed in this method in general
+				try {
+					var insets = lblLayouts[i]["y:InteriorStretchLabelModelParameter"]["Model"]["y:InteriorStretchLabelModel"]["Insets"];
+					//TODO how to map it?
+				} catch(e) {
+					//Ignore
+				}
+				lblCell.style += ";align=center;";
+			}
+			else if (lblLayouts[i]["y:FreeEdgeLabelModelParameter"])
+			{
+				lGeo.relative = true;
+				var layout = lblLayouts[i]["y:FreeEdgeLabelModelParameter"];
+				var ratio = layout["Ratio"];
+				var distance = layout["Distance"];
+				var angle = layout["Angle"];
+				
+				if (angle)
+				{
+					lblCell.style += ";rotation=" + (parseFloat(angle) * (180 / Math.PI));
+				}
+				//TODO what is the formula?
+			}
+			else if (lblLayouts[i]["y:ExteriorLabelModel"])
+			{
+				var lblPos;
+				switch (lblLayouts[i]["y:ExteriorLabelModel"])
+				{
+					case "East":
+						lblCell.style += ";labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;";
+					break;
+					case "South":
+						lblCell.style += ";labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;";
+					break;
+					case "North":
+						lblCell.style += ";labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;"
+					break;
+					case "West":
+						lblCell.style += ";labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;";
+					break;
+				}
+			}
 		}
 	}
-	else
-	{
-	
-	}
+	return {lblTxts: lblTxts, lblStyles: lblStyles};
 };
 
 

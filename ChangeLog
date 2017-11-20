@@ -1,3 +1,8 @@
+20-NOV-2017: 7.7.2
+
+- Fixes stack layout and adds styles
+- Uses mxGraph 3.7.6 beta 10
+
 16-NOV-2017: 7.7.1
 
 - Adds switches for SVG shadow
