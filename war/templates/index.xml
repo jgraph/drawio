@@ -32,6 +32,13 @@
 <template url="network/azure.xml" libs="general;azure;mscae"/>
 <template url="network/cisco.xml" libs="general;cisco"/>
 <template url="network/citrix.xml" libs="general;citrix"/>
+<template url="network/ibm_bda_reference_architecture.xml" libs="general;ibm"/>
+<template url="network/ibm_cognitive_conversation.xml" libs="general;ibm"/>
+<template url="network/ibm_cognitive_discovery.xml" libs="general;ibm"/>
+<template url="network/ibm_iot_architecture.xml" libs="general;ibm"/>
+<template url="network/ibm_microservices.xml" libs="general;ibm"/>
+<template url="network/ibm_private_cloud.xml" libs="general;ibm"/>
+<template url="network/ibm_vcenter_server_platform.xml" libs="general;ibm"/>
 <template url="network/internet.xml" libs="general;network"/>
 <template url="network/lan.xml" libs="general;network"/>
 <template url="network/telecomm.xml" libs="general;network"/>

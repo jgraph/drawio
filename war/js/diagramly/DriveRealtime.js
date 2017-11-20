@@ -1479,43 +1479,21 @@ DriveRealtime.prototype.createPrefix = function()
 
 DriveRealtime.prototype.highlight = function(cell, sessionId)
 {
-	var state = this.graph.view.getState(cell);
+	var color = 'red'; // session not found
 	
-	if (state != null)
+	for (var i = 0; i < this.doc.getCollaborators().length; i = i + 1)
 	{
-		var color = 'red'; // session not found
-		
-		for (var i = 0; i < this.doc.getCollaborators().length; i = i + 1)
-		{
-			var collaborator = this.doc.getCollaborators()[i];
+		var collaborator = this.doc.getCollaborators()[i];
 
-			if (collaborator.sessionId == sessionId)
-			{
-				color = collaborator.color;
-				
-				break;
-			}      
-		}
-
-		var sw = Math.max(5, mxUtils.getValue(state.style, mxConstants.STYLE_STROKEWIDTH, 1) + 4);
-		var hl = new mxCellHighlight(this.graph, color, sw, false);
-		hl.highlight(state);
-		
-		// Fades out the highlight after a delay
-		window.setTimeout(function()
+		if (collaborator.sessionId == sessionId)
 		{
-			if (hl.shape != null)
-			{
-			 	mxUtils.setPrefixedStyle(hl.shape.node.style, 'transition', 'all 1200ms ease-in-out');
-				hl.shape.node.style.opacity = 0;
-			}
+			color = collaborator.color;
 			
-			window.setTimeout(function()
-			{
-				hl.destroy();
-			}, 2000);
-		}, 1000);
+			break;
+		}      
 	}
+	
+	this.graph.highlightCell(cell, color);
 };
 
 /**

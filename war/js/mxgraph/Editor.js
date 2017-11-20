@@ -769,6 +769,10 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	}
 	
 	var div = editorUi.createDiv('geDialog');
+	var pos = this.getPosition(left, top, w, h);
+	left = pos.x;
+	top = pos.y;
+	
 	div.style.width = w + 'px';
 	div.style.height = h + 'px';
 	div.style.left = left + 'px';
@@ -810,13 +814,15 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 		
 		left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
 		top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-	
-		div.style.left = left + 'px';
-		div.style.top = top + 'px';
-		
 		w = Math.min(w0, document.body.scrollWidth - 64);
 		h = Math.min(h0, dh - 64);
 		
+		var pos = this.getPosition(left, top, w, h);
+		left = pos.x;
+		top = pos.y;
+		
+		div.style.left = left + 'px';
+		div.style.top = top + 'px';
 		div.style.width = w + 'px';
 		div.style.height = h + 'px';
 		
@@ -878,6 +884,14 @@ Dialog.prototype.unlockedImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/unlocked.pn
  * Removes the dialog from the DOM.
  */
 Dialog.prototype.bgOpacity = 80;
+
+/**
+ * Removes the dialog from the DOM.
+ */
+Dialog.prototype.getPosition = function(left, top)
+{
+	return new mxPoint(left, top);
+};
 
 /**
  * Removes the dialog from the DOM.

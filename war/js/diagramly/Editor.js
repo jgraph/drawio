@@ -1265,6 +1265,39 @@
 	{
 		return href != null && href.substring(0, 10) == 'data:page/';
 	};
+	
+	/**
+	 * Highlights the given cell.
+	 */
+	Graph.prototype.highlightCell = function(cell, color, duration)
+	{
+		color = (color != null) ? color : mxConstants.DEFAULT_VALID_COLOR;
+		duration = (duration != null) ? duration : 1000;
+		var state = this.view.getState(cell);
+		
+		if (state != null)
+		{
+			var sw = Math.max(5, mxUtils.getValue(state.style, mxConstants.STYLE_STROKEWIDTH, 1) + 4);
+			var hl = new mxCellHighlight(this, color, sw, false);
+			hl.highlight(state);
+			
+			// Fades out the highlight after a duration
+			window.setTimeout(function()
+			{
+				if (hl.shape != null)
+				{
+				 	mxUtils.setPrefixedStyle(hl.shape.node.style, 'transition', 'all 1200ms ease-in-out');
+					hl.shape.node.style.opacity = 0;
+				}
+				
+				// Destroys the highlight after the fade
+				window.setTimeout(function()
+				{
+					hl.destroy();
+				}, 1200);
+			}, duration);
+		}
+	};
 
 	/**
 	 * Adds a shadow filter to the given svg root.

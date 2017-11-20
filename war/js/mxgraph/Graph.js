@@ -1157,6 +1157,8 @@ Graph.prototype.initLayoutManager = function()
 			stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
 			stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
 			stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
+			stackLayout.spacing = style['stackSpacing'] || stackLayout.spacing;
+			stackLayout.border = style['stackBorder'] || stackLayout.border;
 			stackLayout.marginLeft = style['marginLeft'] || 0;
 			stackLayout.marginRight = style['marginRight'] || 0;
 			stackLayout.marginTop = style['marginTop'] || 0;
