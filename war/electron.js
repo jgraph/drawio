@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const url = require('url')
 const electron = require('electron')
+const {Menu: menu, shell} = require('electron')
 const ipcMain = electron.ipcMain
 const dialog = electron.dialog
 const app = electron.app
@@ -144,6 +145,28 @@ app.on('ready', e =>
 	createWindow()
 	autoUpdater.checkForUpdates()
 	
+	
+	let template = [{
+	    label: app.getName(),
+	    submenu: [
+	      {
+	        label: 'Website',
+	        click() { shell.openExternal('https://about.draw.io'); }
+	      },
+	      {
+	        label: 'Support',
+	        click() { shell.openExternal('https://about.draw.io/support'); }
+	      },
+	      {
+	        type: 'separator'
+	      },
+	      {
+	        label: 'Quit',
+	        accelerator: 'CmdOrCtrl+Q',
+	        click() { app.quit(); }
+	      }]
+	}];
+	
 	if (process.platform === 'darwin')
 	{
 	    template = [{
@@ -183,6 +206,9 @@ app.on('ready', e =>
 	      }]
 	    }];
 	}
+	
+	const menuBar = menu.buildFromTemplate(template);
+	menu.setApplicationMenu(menuBar);
 })
 
 // Quit when all windows are closed.
