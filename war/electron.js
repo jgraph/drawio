@@ -143,6 +143,46 @@ app.on('ready', e =>
 	
 	createWindow()
 	autoUpdater.checkForUpdates()
+	
+	if (process.platform === 'darwin')
+	{
+	    template = [{
+	      label: app.getName(),
+	      submenu: [
+	        {
+	          label: 'About ' + app.getName(),
+	          click() { shell.openExternal('https://about.draw.io'); }
+	        },
+	        {
+	          label: 'Support',
+	          click() { shell.openExternal('https://about.draw.io/support'); }
+	        },
+	        {
+	          type: 'separator'
+	        },
+	        {
+	          label: 'Quit',
+	          accelerator: 'Command+Q',
+	          click() { app.quit(); }
+	        }
+	      ]
+	    }, {
+	      label: 'Edit',
+	      submenu: [{
+	        label: 'Cut',
+	        accelerator: 'CmdOrCtrl+X',
+	        selector: 'cut:'
+	      }, {
+	        label: 'Copy',
+	        accelerator: 'CmdOrCtrl+C',
+	        selector: 'copy:'
+	      }, {
+	        label: 'Paste',
+	        accelerator: 'CmdOrCtrl+V',
+	        selector: 'paste:'
+	      }]
+	    }];
+	}
 })
 
 // Quit when all windows are closed.
