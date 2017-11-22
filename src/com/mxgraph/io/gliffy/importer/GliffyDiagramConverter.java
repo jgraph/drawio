@@ -507,6 +507,11 @@ public class GliffyDiagramConverter
 			cell.setVertex(true);
 			style.append(StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 
+			if(gliffyObject.rotation == 0) //270 case is handled in rotation below
+			{
+				style.append("childLayout=stackLayout;resizeParent=1;resizeParentMax=0;");
+			}
+			
 			GliffyObject header = gliffyObject.children.get(0);// first child is the header of the swimlane
 			
 			GliffyShape shape = header.graphic.getShape();
@@ -535,8 +540,18 @@ public class GliffyDiagramConverter
 				
 				if(gliffyObject.rotation != 0) 
 				{
-					laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
-					Utils.rotatedGeometry(childGeometry, gliffyObject.rotation, gliffyObject.width/ 2, gliffyObject.height / 2);
+					if (gliffyObject.rotation == 270) //Special handling for this common case
+					{
+						laneStyle.append("horizontal=0;");
+						double width = childGeometry.getWidth();
+						childGeometry.setWidth(childGeometry.getHeight());
+						childGeometry.setHeight(width);
+					}
+					else
+					{
+						laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
+						Utils.rotatedGeometry(childGeometry, gliffyObject.rotation, gliffyObject.width/ 2, gliffyObject.height / 2);
+					}
 				}
 
 				mxCell mxLane = new mxCell();
@@ -606,7 +621,19 @@ public class GliffyDiagramConverter
 			}
 			else if(gliffyObject.rotation != 0)
 			{
-				style.append("rotation=" + gliffyObject.rotation + ";");
+				//handling the special common case
+				if (style.indexOf("swimlane;") > -1 && gliffyObject.rotation == 270) {
+					double w = geometry.getWidth();
+					double h = geometry.getHeight();
+					geometry.setX(geometry.getX() + (w - h) / 2);
+					geometry.setY(geometry.getY() + + (h - w) / 2);
+					geometry.setWidth(h);
+					geometry.setHeight(w);
+
+					style.append("childLayout=stackLayout;resizeParent=1;resizeParentMax=0;horizontal=0;horizontalStack=0;");
+				} else {
+					style.append("rotation=" + gliffyObject.rotation + ";");
+				}
 			}
 		}
 		
