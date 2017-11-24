@@ -2634,7 +2634,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
 	nameInput.style.marginRight = '20px';
 	nameInput.style.marginLeft = '10px';
-	nameInput.style.width = (compact) ? '220px' : '450px';
+	nameInput.style.width = (compact) ? '220px' : '430px';
 	
 	this.init = function()
 	{
@@ -2708,13 +2708,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	div.style.left = '160px';
 	div.style.right = '34px';
 	div.style.top = (showName) ? '72px' : '40px';
-	div.style.bottom = '76px';
+	div.style.bottom = '68px';
 	div.style.margin = '6px 0 0 -1px';
 	div.style.padding = '6px';
 	div.style.overflow = 'auto';
 	
 	var list = document.createElement('div');
-	list.style.cssText = 'position:absolute;left:30px;width:128px;top:72px;bottom:76px;margin-top:6px;overflow:auto;border:1px solid #d3d3d3;';
+	list.style.cssText = 'position:absolute;left:30px;width:128px;top:72px;bottom:68px;margin-top:6px;overflow:auto;border:1px solid #d3d3d3;';
 	
 	if (!showName)
 	{
@@ -2964,7 +2964,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	btns.style.textAlign = 'right';
 	btns.style.position = 'absolute';
 	btns.style.left = '40px';
-	btns.style.bottom = '30px';
+	btns.style.bottom = '24px';
 	btns.style.right = '40px';
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()

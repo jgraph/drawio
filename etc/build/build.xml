@@ -11,14 +11,11 @@
 	    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
 	    	</concat>
     	
-		<echo file="${war.dir}/stencils.xml" append="false"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>]]>${line.separator}</echo>
-		<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[<stencils>]]>${line.separator}</echo>
-	    	<concat destfile="${war.dir}/stencils.xml" fixlastline="yes" append="yes">
-	    		<fileset dir="${war.dir}/shapes" includes="**/*.xml"/>
-	    		<fileset dir="${war.dir}/stencils" includes="**/*.xml"/>
-	    	</concat>
-    	<echo file="${war.dir}/stencils.xml" append="true"><![CDATA[</stencils>]]></echo>
-
+		<java fork="false" classname="Xml2Js" classpath=".">
+			<arg value="../../war/stencils"/>
+			<arg value="../../war/js/stencils.min.js"/>
+		</java>
+		
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes.min.js">
 			<sources dir="${basedir}/../../build">
 				<file name="shapes.js" />

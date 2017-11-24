@@ -358,6 +358,11 @@
 		else
 		{
 			mxscript('js/app.min.js');
+			
+			if (urlParams['offline'] == '1')
+			{
+				mxscript('js/stencils.min.js');
+			}
 		}
 
 		if (window && window.process && window.process.type)

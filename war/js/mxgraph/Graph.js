@@ -3969,18 +3969,13 @@ mxStencilRegistry.loadStencilSet = function(stencilFile, postStencilLoad, force,
 			{
 				if (async)
 				{
-					var req = mxUtils.get(stencilFile, mxUtils.bind(this, function(req)
+					mxStencilRegistry.loadStencil(stencilFile, mxUtils.bind(this, function(xmlDoc2)
 					{
-						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						if (xmlDoc2 != null && xmlDoc2.documentElement != null)
 						{
-							xmlDoc = req.getXml();
-							mxStencilRegistry.packages[stencilFile] = xmlDoc;
+							mxStencilRegistry.packages[stencilFile] = xmlDoc2;
 							install = true;
-							
-							if (xmlDoc != null && xmlDoc.documentElement != null)
-							{
-								mxStencilRegistry.parseStencilSet(xmlDoc.documentElement, postStencilLoad, install);
-							}
+							mxStencilRegistry.parseStencilSet(xmlDoc2.documentElement, postStencilLoad, install);
 						}
 					}));
 				
@@ -3988,8 +3983,7 @@ mxStencilRegistry.loadStencilSet = function(stencilFile, postStencilLoad, force,
 				}
 				else
 				{
-					var req = mxUtils.load(stencilFile);
-					xmlDoc = req.getXml();
+					xmlDoc = mxStencilRegistry.loadStencil(stencilFile);
 					mxStencilRegistry.packages[stencilFile] = xmlDoc;
 					install = true;
 				}
@@ -4007,6 +4001,22 @@ mxStencilRegistry.loadStencilSet = function(stencilFile, postStencilLoad, force,
 		{
 			mxStencilRegistry.parseStencilSet(xmlDoc.documentElement, postStencilLoad, install);
 		}
+	}
+};
+
+// Loads the given stencil XML file.
+mxStencilRegistry.loadStencil = function(filename, fn)
+{
+	if (fn != null)
+	{
+		var req = mxUtils.get(filename, mxUtils.bind(this, function(req)
+		{
+			fn((req.getStatus() >= 200 && req.getStatus() <= 299) ? req.getXml() : null);
+		}));
+	}
+	else
+	{
+		return mxUtils.load(filename).getXml();
 	}
 };
 
@@ -4277,6 +4287,73 @@ if (typeof mxVertexHandler != 'undefined')
 				dec.decode(node, this.getStylesheet());
 			}
 		};
+		
+		/**
+		 * 
+		 */
+		Graph.prototype.importGraphModel = function(node, dx, dy, crop)
+		{
+			dx = (dx != null) ? dx : 0;
+			dy = (dy != null) ? dy : 0;
+			
+			var cells = []
+			var model = new mxGraphModel();
+			var codec = new mxCodec(node.ownerDocument);
+			codec.decode(node, model);
+			
+			var childCount = model.getChildCount(model.getRoot());
+			var targetChildCount = this.model.getChildCount(this.model.getRoot());
+			
+			// Merges into active layer if one layer is pasted
+			this.model.beginUpdate();
+			try
+			{
+				// Mapping for multiple calls to cloneCells with the same set of cells
+				var mapping = new Object();
+				
+				for (var i = 0; i < childCount; i++)
+				{
+					var parent = model.getChildAt(model.getRoot(), i);
+					
+					// Adds cells to existing layer if not locked
+					if (childCount == 1 && !this.isCellLocked(this.getDefaultParent()))
+					{
+						var children = model.getChildren(parent);
+						cells = cells.concat(this.importCells(children, dx, dy, this.getDefaultParent(), null, mapping));
+					}
+					else
+					{
+						// Delta is non cascading, needs separate move for layers
+						parent = this.importCells([parent], 0, 0, this.model.getRoot(), null, mapping)[0];
+						var children = this.model.getChildren(parent);
+						this.moveCells(children, dx, dy);
+						cells = cells.concat(children);
+					}
+				}
+				
+				if (crop)
+				{
+					if (this.isGridEnabled())
+					{
+						dx = this.snap(dx);
+						dy = this.snap(dy);
+					}
+					
+					var bounds = this.getBoundingBoxFromGeometry(cells, true);
+					
+					if (bounds != null)
+					{
+						this.moveCells(cells, dx - bounds.x, dy - bounds.y);
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+			
+			return cells;
+		}
 		
 		/**
 		 * Overrides method to provide connection constraints for shapes.

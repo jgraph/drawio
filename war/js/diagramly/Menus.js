@@ -783,69 +783,55 @@
 			else
 			{
 				// No translation for menu item since help is english only
-				var item = menu.addItem('Search', null, null, parent, null, null, false);
-				
-				var form = document.createElement('div');
-				form.style.display = 'inline';
-				form.innerHTML = ':<form style="display:inline;margin-left:8px;"' +
-					'target="_blank" method="get" action="https://desk.draw.io/support/search/solutions">' +
-					'<input type="text" name="term" size="25"></form>';
-				item.firstChild.nextSibling.appendChild(form);
+				var item = menu.addItem('Search:', null, null, parent, null, null, false);
 				item.style.backgroundColor = 'whiteSmoke';
 				item.style.cursor = 'default';
 				
-				var realForm = form.getElementsByTagName('form')[0]
-				var input = form.getElementsByTagName('input')[0];
-				
-				if (input != null && realForm != null)
-				{
-					mxEvent.addListener(realForm, 'submit', function()
-					{
-						// Logs search terms for improving search results
-						if (EditorUi.enableLogging)
-						{
-				        	try
-				        	{
-								var img = new Image();
-								var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-								img.src = logDomain + '/log?severity=CONFIG&msg=helpsearch:' + encodeURIComponent(input.value) + '&v=' + encodeURIComponent(EditorUi.VERSION);
-				        	}
-				        	catch (e)
-				        	{
-				        		// ignore
-				        	}
-						}
-						
-						// Workaround for blocked submit on iOS/IE11
-						window.setTimeout(function()
-						{
-							editorUi.menubar.hideMenu();
-						}, 0);
-					});
-					
-					mxEvent.addGestureListeners(item, function(evt)
-					{
-						if (document.activeElement != input)
-						{
-							input.focus();
-						}
-						
-						mxEvent.consume(evt);
-					}, function(evt)
-					{
-						mxEvent.consume(evt);
-					}, function(evt)
-					{
-						mxEvent.consume(evt);
-					});
+				var input = document.createElement('input');
+				input.setAttribute('type', 'text');
+				input.setAttribute('size', '25');
+				input.style.marginLeft = '8px';
 
-					// Sets initial focus on input element
-					window.setTimeout(function()
+				mxEvent.addListener(input, 'keypress', mxUtils.bind(this, function(e)
+				{
+					var term = mxUtils.trim(input.value);
+					
+					if (e.keyCode == 13 && term.length > 0)
+					{
+						this.editorUi.openLink('https://desk.draw.io/support/search/solutions?term=' +
+							encodeURIComponent(term));
+						this.editorUi.logEvent({category: 'Help', action: 'search', label: term});
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							this.editorUi.menubar.hideMenu();
+						}), 0);
+					}
+				}));
+				
+				item.firstChild.nextSibling.appendChild(input);
+				
+				mxEvent.addGestureListeners(input, function(evt)
+				{
+					if (document.activeElement != input)
 					{
 						input.focus();
-					}, 0);
-				}
-
+					}
+					
+					mxEvent.consume(evt);
+				}, function(evt)
+				{
+					mxEvent.consume(evt);
+				}, function(evt)
+				{
+					mxEvent.consume(evt);
+				});
+				
+				window.setTimeout(function()
+				{
+					input.focus();
+				}, 0);
+				
 				this.addMenuItems(menu, ['-', 'quickStart', 'userManual', 'keyboardShortcuts', '-']);
 				
 				if (!mxClient.IS_CHROMEAPP)
@@ -1825,7 +1811,10 @@
 				this.editorUi.showDialog(dlg.container, 300, 80, true, true);
 				dlg.init();
 			}
-		})).isEnabled = isGraphEnabled;
+		})).isEnabled = function()
+		{
+			return this.enabled && isGraphEnabled.apply(this, arguments);
+		}
 		
 		editorUi.actions.addAction('makeCopy...', mxUtils.bind(this, function()
 		{

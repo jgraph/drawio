@@ -1468,14 +1468,12 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	
 	var widthInput = document.createElement('input');
 	widthInput.setAttribute('size', '7');
-	widthInput.setAttribute('value', pageFormat.width);
 	widthInput.style.textAlign = 'right';
 	customDiv.appendChild(widthInput);
 	mxUtils.write(customDiv, ' in x ');
 	
 	var heightInput = document.createElement('input');
 	heightInput.setAttribute('size', '7');
-	heightInput.setAttribute('value', pageFormat.height);
 	heightInput.style.textAlign = 'right';
 	customDiv.appendChild(heightInput);
 	mxUtils.write(customDiv, ' in');
@@ -1577,7 +1575,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			if (!detected)
 			{
 				widthInput.value = pageFormat.width / 100;
-				heightInput.value =pageFormat.height / 100;
+				heightInput.value = pageFormat.height / 100;
 				paperSizeOption.setAttribute('selected', 'selected');
 				portraitCheckBox.setAttribute('checked', 'checked');
 				portraitCheckBox.defaultChecked = true;
@@ -1617,7 +1615,17 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			formatDiv.style.display = 'none';
 			customDiv.style.display = '';
 		}
+		
+		if (isNaN(parseFloat(widthInput.value)))
+		{
+			widthInput.value = pageFormat.width / 100;
+		}
 
+		if (isNaN(parseFloat(heightInput.value)))
+		{
+			heightInput.value = pageFormat.height / 100;
+		}
+		
 		var newPageFormat = new mxRectangle(0, 0,
 			Math.floor(parseFloat(widthInput.value) * 100),
 			Math.floor(parseFloat(heightInput.value) * 100));

@@ -2516,7 +2516,6 @@
 	// Registers the link shape
 	mxCellRenderer.prototype.defaultShapes['filledEdge'] = FilledEdge;
 
-	
 	// Registers and defines the custom marker
 	mxMarker.addMarker('dash', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{
