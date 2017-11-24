@@ -430,11 +430,11 @@ App.main = function(callback, createUi)
 						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
 						'CONFIG' : 'SEVERE';
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-		    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
-		    			':lnum:' + encodeURIComponent(linenumber) + 
-		    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
-		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+			    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+			    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+			    			':lnum:' + encodeURIComponent(linenumber) + 
+			    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+			    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
 				}
 			}
 			catch (err)
@@ -466,48 +466,6 @@ App.main = function(callback, createUi)
 			frame.setAttribute('height', '0');
 			frame.setAttribute('src', 'offline.html');
 			document.body.appendChild(frame);
-		
-			// Precaching for stencils. Alternatively we could generate
-			// a cache manifest with all stencil and shape files but this
-			// simplifies the cache file, streamlines the shape loading
-			// to a single loading point (here) vs dynamic loading in the
-			// online version. It does slow down the startup time though.
-			mxStencilRegistry.stencilSet = {};
-		
-			// Overrides dynamic loading (everything loaded at startup)
-			mxStencilRegistry.getStencil = function(name)
-			{
-				return mxStencilRegistry.stencils[name];
-			};
-	
-			// Takes stencil data from cache for populating sidebar
-			mxStencilRegistry.loadStencilSet = function(stencilFile, postStencilLoad, force)
-			{
-				var name = stencilFile.substring(stencilFile.indexOf('/') + 1);
-				name = 'mxgraph.' + name.substring(0, name.length - 4).replace(/\//g, '.');
-				var node = mxStencilRegistry.stencilSet[name];
-				
-				if (node != null)
-				{
-					mxStencilRegistry.parseStencilSet(node, postStencilLoad, false);
-				}
-			};
-			
-			// Preload all stencils from merged XML file
-			var req2 = mxUtils.load('stencils.xml');
-			var root = req2.getXml().documentElement;
-			var node = root.firstChild;
-			
-			while (node != null)
-			{
-				if (node.nodeName == 'shapes' && node.getAttribute('name') != null)
-				{
-					mxStencilRegistry.stencilSet[node.getAttribute('name').toLowerCase()] = node;
-					mxStencilRegistry.parseStencilSet(node);
-				}
-				
-				node = node.nextSibling;
-			}
 		}
 		
 		/**
@@ -518,12 +476,7 @@ App.main = function(callback, createUi)
 			var plugins = mxSettings.getPlugins();
 			var temp = urlParams['p'];
 			App.initPluginCallback();
-			
-			if (urlParams['chrome'] != '0')
-			{
-				mxscript(App.FOOTER_PLUGIN_URL);
-			}
-			
+
 			if (temp != null)
 			{
 				// Used to request draw.io sources in dev mode
@@ -550,6 +503,10 @@ App.main = function(callback, createUi)
 						console.log('Unknown plugin:', t[i]);
 					}
 				}
+			}
+			else if (urlParams['chrome'] != '0')
+			{
+				mxscript(App.FOOTER_PLUGIN_URL);
 			}
 			
 			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')

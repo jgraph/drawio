@@ -1303,19 +1303,9 @@
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
 				result = true;
 
-				if (EditorUi.enableLogging && !this.isOffline() && file.getMode() != null)
+				if (!this.isOffline() && file.getMode() != null)
 				{
-			        	try
-			        	{
-			    			if (typeof window.ga === 'function')
-			    			{
-			    				ga('send', 'event', 'File', 'open', file.getMode());
-			    			}
-			        	}
-			        	catch (e)
-			        	{
-			        		// ignore
-			        	}
+					this.logEvent({category: 'File', action: 'open', label: file.getMode()})
 				}
 				
 				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
@@ -1398,6 +1388,28 @@
 		}
 		
 		return result;
+	};
+
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.prototype.logEvent = function(data)
+	{
+		if (EditorUi.enableLogging)
+		{
+			try
+			{
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+				var img = new Image();
+				img.src = logDomain + '/images/1x1.png?' +
+						'v=' + encodeURIComponent(EditorUi.VERSION) +
+						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
+	    		}
+			catch (e)
+			{
+	    			// ignore
+			}
+		}
 	};
 
 	/**
@@ -5184,60 +5196,7 @@
 				
 				if (node != null && node.nodeName === 'mxGraphModel')
 				{
-					var model = new mxGraphModel();
-					var codec = new mxCodec(node.ownerDocument);
-					codec.decode(node, model);
-					
-					var childCount = model.getChildCount(model.getRoot());
-					var targetChildCount = graph.model.getChildCount(graph.model.getRoot());
-					
-					// Merges into active layer if one layer is pasted
-					graph.model.beginUpdate();
-					try
-					{
-						// Mapping for multiple calls to cloneCells with the same set of cells
-						var mapping = new Object();
-						
-						for (var i = 0; i < childCount; i++)
-						{
-							var parent = model.getChildAt(model.getRoot(), i);
-							
-							// Adds cells to existing layer if not locked
-							if (childCount == 1 && !graph.isCellLocked(graph.getDefaultParent()))
-							{
-								var children = model.getChildren(parent);
-								cells = cells.concat(graph.importCells(children, dx, dy, graph.getDefaultParent(), null, mapping));
-							}
-							else
-							{
-								// Delta is non cascading, needs separate move for layers
-								parent = graph.importCells([parent], 0, 0, graph.model.getRoot(), null, mapping)[0];
-								var children = graph.model.getChildren(parent);
-								graph.moveCells(children, dx, dy);
-								cells = cells.concat(children);
-							}
-						}
-						
-						if (crop)
-						{
-							if (graph.isGridEnabled())
-							{
-								dx = graph.snap(dx);
-								dy = graph.snap(dy);
-							}
-							
-							var bounds = graph.getBoundingBoxFromGeometry(cells, true);
-							
-							if (bounds != null)
-							{
-								graph.moveCells(cells, dx - bounds.x, dy - bounds.y);
-							}
-						}
-					}
-					finally
-					{
-						graph.model.endUpdate();
-					}
+					graph.importGraphModel(node, dx, dy, crop);
 				}
 			}
 		}
@@ -9722,6 +9681,7 @@
 		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('tags').setEnabled(active && (file == null || !file.isRestricted()));
+		this.actions.get('rename').setEnabled(file != null && file.isRenamable());
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		

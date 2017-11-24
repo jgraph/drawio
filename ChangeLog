@@ -1,3 +1,11 @@
+24-NOV-2017: 7.7.4
+
+- Uses mxGraph 3.7.6
+- Checks existing filename in Trello Power-Up
+- Adds root dialog for cancel in Google picker
+- Faster startup time for offline app
+- Validates page format input
+
 22-NOV-2017: 7.7.3
 
 - Improves Gliffy importer

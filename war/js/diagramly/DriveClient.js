@@ -1332,7 +1332,21 @@ DriveClient.prototype.pickFolder = function(fn)
 					        		mxEvent.removeListener(document, 'click', exit);
 					        	}
 					        	
-					        	this.folderPickerCallback(data);
+					        	if (data.action == google.picker.Action.CANCEL)
+					        	{
+					        		this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+					        		{
+					        			this.folderPickerCallback(data);
+					        		}), mxUtils.bind(this, function()
+					        		{
+					        			this.folderPickerCallback({action: google.picker.Action.PICKED,
+					        				docs: [{type: 'folder', id: 'root'}]});
+					        		}), mxResources.get('cancel'), mxResources.get('ok'));
+					        	}
+					        	else
+					        	{
+					        		this.folderPickerCallback(data);
+					        	}
 				        })).build();
 				}
 	

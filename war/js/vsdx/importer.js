@@ -8951,8 +8951,8 @@ var com;
                     VsdxShape.arrowTypes_$LI$ = function () { VsdxShape.__static_initialize(); return VsdxShape.arrowTypes; };
                     ;
                     VsdxShape.__static_initializer_0 = function () {
-            			mxResources.add("/js/vsdx/resources/edgeNameU");
-            			mxResources.add("/js/vsdx/resources/nameU");
+//            			mxResources.add("/js/vsdx/resources/edgeNameU");
+//            			mxResources.add("/js/vsdx/resources/nameU");
                         VsdxShape.arrowTypes = ({});
                         /* put */ (function (m, k, v) { if (m.entries == null)
                             m.entries = []; for (var i = 0; i < m.entries.length; i++)
@@ -10387,25 +10387,25 @@ var com;
                      */
                     VsdxShape.prototype.getForm = function () {
                         var result = ({});
-                        this.styleDebug("Looking to match shape = " + this.shapeName);
-                        if (this.shapeName != null && !(function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(this.shapeName, "") && VsdxShape.USE_SHAPE_MATCH) {
-                            var trans = mxResources.get(this.shapeName);
-                            if (trans != null && !(function (o1, o2) { if (o1 && o1.equals) {
-                                return o1.equals(o2);
-                            }
-                            else {
-                                return o1 === o2;
-                            } })(trans, "")) {
-                                this.styleDebug("Translation = " + trans);
-                                /* put */ (result[mxConstants.STYLE_SHAPE] = trans);
-                                return result;
-                            }
-                        }
+//                        this.styleDebug("Looking to match shape = " + this.shapeName);
+//                        if (this.shapeName != null && !(function (o1, o2) { if (o1 && o1.equals) {
+//                            return o1.equals(o2);
+//                        }
+//                        else {
+//                            return o1 === o2;
+//                        } })(this.shapeName, "") && VsdxShape.USE_SHAPE_MATCH) {
+//                            var trans = mxResources.get(this.shapeName);
+//                            if (trans != null && !(function (o1, o2) { if (o1 && o1.equals) {
+//                                return o1.equals(o2);
+//                            }
+//                            else {
+//                                return o1 === o2;
+//                            } })(trans, "")) {
+//                                this.styleDebug("Translation = " + trans);
+//                                /* put */ (result[mxConstants.STYLE_SHAPE] = trans);
+//                                return result;
+//                            }
+//                        }
                         if (this.isVertex()) {
                             try {
                                 var type = VsdxShape.getType(this.getShape());
