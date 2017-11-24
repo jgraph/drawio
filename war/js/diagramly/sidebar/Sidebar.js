@@ -373,8 +373,8 @@
             			          {title: 'Web Icons', id: 'webicons', image: IMAGE_PATH + '/sidebar-webIcons.png'},
             			          {title: mxResources.get('signs'), id: 'signs', image: IMAGE_PATH + '/sidebar-signs.png'}]}];
 
-		// Uses server-side stencil search if online
-		this.addStencilsToIndex = this.editorUi.isOffline();
+		// Uses search.xml index file instead (faster load times)
+		this.addStencilsToIndex = false;
 		
 		// Contains additional tags for shapes
 		this.shapetags = {};
@@ -409,49 +409,46 @@
 		
 		// Loads search index to avoid having to pre-parse the stencil files
 		// before they are used for stencils that are not programmatically added
-		if (!this.editorUi.isOffline())
+		mxUtils.get(this.searchFileUrl, mxUtils.bind(this, function(req)
 		{
-			mxUtils.get(this.searchFileUrl, mxUtils.bind(this, function(req)
+			var node = req.getDocumentElement();
+			
+			if (node != null)
 			{
-				var node = req.getDocumentElement();
+				var shapes = node.getElementsByTagName('shape');
 				
-				if (node != null)
+				for (var i = 0; i < shapes.length; i++)
 				{
-					var shapes = node.getElementsByTagName('shape');
+					var style = shapes[i].getAttribute('style');
+					var shapeStyle = this.extractShapeStyle(style);
 					
-					for (var i = 0; i < shapes.length; i++)
+					if (style != null && shapeStyle != null)
 					{
-						var style = shapes[i].getAttribute('style');
-						var shapeStyle = this.extractShapeStyle(style);
+						var lastDot = shapeStyle.lastIndexOf('.');
 						
-						if (style != null && shapeStyle != null)
+						if (lastDot > 0)
 						{
-							var lastDot = shapeStyle.lastIndexOf('.');
+							var pkg = shapeStyle.substring(0, lastDot);
+							var stc = shapeStyle.substring(lastDot + 1, shapeStyle.length);
+							var tags = this.getTagsForStencil(pkg, stc, shapes[i].getAttribute('tags'));
 							
-							if (lastDot > 0)
+							// TODO: Use shapetags for programmatic stencils
+							if (tags != null)
 							{
-								var pkg = shapeStyle.substring(0, lastDot);
-								var stc = shapeStyle.substring(lastDot + 1, shapeStyle.length);
-								var tags = this.getTagsForStencil(pkg, stc, shapes[i].getAttribute('tags'));
+								// Converts stencil name to lowercase
+								var semi = style.indexOf(';');
+								style = 'shape=' + pkg + '.' + stc.toLowerCase() + ';' +
+									((semi < 0) ? '' : style.substring(semi + 1));
 								
-								// TODO: Use shapetags for programmatic stencils
-								if (tags != null)
-								{
-									// Converts stencil name to lowercase
-									var semi = style.indexOf(';');
-									style = 'shape=' + pkg + '.' + stc.toLowerCase() + ';' +
-										((semi < 0) ? '' : style.substring(semi + 1));
-									
-									this.createVertexTemplateEntry(style, parseInt(shapes[i].getAttribute('w')),
-											parseInt(shapes[i].getAttribute('h')), '', stc.replace(/_/g, ' '),
-											null, null, this.filterTags(tags.join(' ')));
-								}
+								this.createVertexTemplateEntry(style, parseInt(shapes[i].getAttribute('w')),
+										parseInt(shapes[i].getAttribute('h')), '', stc.replace(/_/g, ' '),
+										null, null, this.filterTags(tags.join(' ')));
 							}
 						}
 					}
 				}
-			}));
-		}
+			}
+		}));
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 11/24/2017 05:56 PM
+# 11/24/2017 08:53 PM
 
 app.html
 index.html?offline=1
@@ -16,7 +16,6 @@ styles/atlas.css
 search.xml
 favicon.ico
 mxgraph/css/common.css
-js/jscolor/jscolor.js
 mxgraph/images/maximize.gif
 mxgraph/images/minimize.gif
 mxgraph/images/close.gif
@@ -53,9 +52,9 @@ images/glyphicons_google.png
 images/glyphicons_facebook.png
 images/glyphicons_twitter.png
 images/glyphicons_github.png
-js/jscolor/arrow.gif
-js/jscolor/hs.png
-js/jscolor/cross.gif
+images/arrow.gif
+images/hs.png
+images/cross.gif
 img/clipart/Battery_0_128x128.png
 img/clipart/Battery_100_128x128.png
 img/clipart/Battery_50_128x128.png
