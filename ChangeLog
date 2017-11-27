@@ -1,3 +1,11 @@
+27-NOV-2017: 7.7.6
+
+- Removes Trello option from splash screen (use Power-Up)
+- Fixes import of SVG with no width, height and viewbox
+- Adds undo for global shadow switch
+- Uses mxGraph 3.7.7 beta 1
+- Fixes select after paste
+
 24-NOV-2017: 7.7.5
 
 - Even faster startup time for offline app

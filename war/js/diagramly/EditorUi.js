@@ -5196,7 +5196,7 @@
 				
 				if (node != null && node.nodeName === 'mxGraphModel')
 				{
-					graph.importGraphModel(node, dx, dy, crop);
+					cells = graph.importGraphModel(node, dx, dy, crop);
 				}
 			}
 		}
@@ -5747,7 +5747,7 @@
 					this.spinner.stop();
 					this.loadLibrary(new LocalLibrary(this, data, filename));
 	    			
-	    			return null;
+	    				return null;
 				}
 				else
 				{
@@ -5891,12 +5891,43 @@
 									    								h = parseFloat(tokens[3]);
 									    							}
 									    						}
-		
-									    						data = this.createSvgDataUri(mxUtils.getXml(svgs[0]));
+
+									    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 									    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-											    				
-											    				return fn(data, file.type, x + index * gs, y + index * gs,
+
+									    						var cells = fn(data, file.type, x + index * gs, y + index * gs,
 											    					Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
+									    						
+									    						// Hack to fix width and height asynchronously
+									    						if (isNaN(w) || isNaN(h))
+									    						{
+									    							var img = new Image();
+									    							
+									    							img.onload = mxUtils.bind(this, function()
+									    							{
+									    								w = Math.max(1, img.width);
+									    								h = Math.max(1, img.height);
+									    								
+									    								cells[0].geometry.width = w;
+									    								cells[0].geometry.height = h;
+									    								
+									    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+									    								data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+									    								
+									    								var semi = data.indexOf(';');
+									    								
+									    								if (semi > 0)
+									    								{
+									    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
+									    								}
+									    								
+									    								graph.setCellStyles('image', data, [cells[0]]);
+									    							});
+									    							
+									    							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+									    						}
+									    						
+									    						return cells;
 									    					}
 								    					}
 						    						}

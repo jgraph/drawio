@@ -2527,8 +2527,11 @@ EditorUi.prototype.setPageVisible = function(value)
 function ChangePageSetup(ui, color, image, format)
 {
 	this.ui = ui;
+	this.color = color;
 	this.previousColor = color;
+	this.image = image;
 	this.previousImage = image;
+	this.format = format;
 	this.previousFormat = format;
 	
 	// Needed since null are valid values for color and image
@@ -2545,6 +2548,7 @@ ChangePageSetup.prototype.execute = function()
 	
 	if (!this.ignoreColor)
 	{
+		this.color = this.previousColor;
 		var tmp = graph.background;
 		this.ui.setBackgroundColor(this.previousColor);
 		this.previousColor = tmp;
@@ -2552,6 +2556,7 @@ ChangePageSetup.prototype.execute = function()
 	
 	if (!this.ignoreImage)
 	{
+		this.image = this.previousImage;
 		var tmp = graph.backgroundImage;
 		this.ui.setBackgroundImage(this.previousImage);
 		this.previousImage = tmp;
@@ -2559,6 +2564,7 @@ ChangePageSetup.prototype.execute = function()
 	
 	if (this.previousFormat != null)
 	{
+		this.format = this.previousFormat;
 		var tmp = graph.pageFormat;
 		
 		if (this.previousFormat.width != tmp.width ||
@@ -2569,6 +2575,28 @@ ChangePageSetup.prototype.execute = function()
 		}
 	}
 };
+
+// Registers codec for ChangePageSetup
+(function()
+{
+	var codec = new mxObjectCodec(new ChangePageSetup(),  ['ui', 'previousColor', 'previousImage', 'previousFormat']);
+
+	/**
+	 * Function: afterDecode
+	 *
+	 * Restores the state by assigning the previous value.
+	 */
+	codec.afterDecode = function(dec, node, obj)
+	{
+		obj.previousColor = obj.color;
+		obj.previousImage = obj.image;
+		obj.previousFormat = obj.format;
+
+		return obj;
+	};
+
+	mxCodecRegistry.register(codec);
+})();
 
 /**
  * Loads the stylesheet for this graph.

@@ -276,15 +276,10 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
 	}
-	
-	if (editorUi.gitHub != null)
-	{
-		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
-	}
 
-	if (typeof window.DropboxClient === 'function')
+	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
 	{
-		addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
+		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
 	}
 	
 	if (typeof window.OneDriveClient === 'function')
@@ -292,14 +287,14 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 	}
 	
-	if (typeof window.TrelloClient === 'function')
+	if (typeof window.DropboxClient === 'function')
 	{
-		addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
+		addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
 	}
 
-	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
+	if (editorUi.gitHub != null)
 	{
-		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
+		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 	}
 	
 	if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
