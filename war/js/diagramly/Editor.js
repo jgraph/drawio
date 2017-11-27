@@ -725,7 +725,7 @@
 					return graph.shadowVisible;
 				}, function(checked)
 				{
-					graph.setShadowVisible(!graph.shadowVisible);
+					graph.model.execute(new ChangeShadow(ui, checked));
 				},
 				{
 					install: function(apply)
@@ -2100,4 +2100,44 @@
 
 		this.container = div;
 	};
+})();
+
+/**
+ * Change types
+ */
+function ChangeShadow(ui, visible)
+{
+	this.ui = ui;
+	this.visible = visible;
+	this.previous = this.visible;
+}
+
+/**
+ * Implementation of the undoable page rename.
+ */
+ChangeShadow.prototype.execute = function()
+{
+	this.visible = this.previous;
+	this.previous = this.ui.editor.graph.shadowVisible;
+	this.ui.editor.graph.setShadowVisible(this.visible);
+};
+
+//Registers codec for ChangePageSetup
+(function()
+{
+	var codec = new mxObjectCodec(new ChangeShadow(),  ['ui', 'previous']);
+
+	/**
+	 * Function: afterDecode
+	 *
+	 * Restores the state by assigning the previous value.
+	 */
+	codec.afterDecode = function(dec, node, obj)
+	{
+		obj.previous = obj.visible;
+
+		return obj;
+	};
+
+	mxCodecRegistry.register(codec);
 })();

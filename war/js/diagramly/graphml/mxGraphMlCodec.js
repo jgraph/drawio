@@ -23,8 +23,25 @@ mxGraphMlCodec.prototype.decode = function (xml, callback)
 		var graph = this.createMxGraph();
         graph.getModel().beginUpdate();
         
+        this.nodesMap = {};
+    	this.edges = [];
         this.importGraph(pageElement, graph, graph.getDefaultParent());
-        
+    	
+    	for (var i = 0; i < this.edges.length; i++)
+		{
+    		var edgesObj = this.edges[i];
+    		var edges = edgesObj.edges;
+    		var parent = edgesObj.parent;
+    		var dx = edgesObj.dx, dy = edgesObj.dy;
+
+	    	for (var j = 0; j < edges.length; j++)
+	    	{
+	    		this.importEdge(edges[j], graph, parent, dx, dy);
+	    	}
+		}
+    	
+    	graph.getModel().endUpdate();
+    	
         mxFile += this.processPage(graph, i+1);
 	}
 
@@ -49,27 +66,31 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 	
 	for (var i = 0; i < keys.length; i++)
 	{
-		var id = keys[i].getAttribute(mxGraphMlConstants.ID);
-		var _for = keys[i].getAttribute(mxGraphMlConstants.KEY_FOR);
-		var attName = keys[i].getAttribute(mxGraphMlConstants.KEY_NAME);
+		var keyObj = this.dataElem2Obj(keys[i]);
+	
+		var id = keyObj[mxGraphMlConstants.ID];
+		var _for = keyObj[mxGraphMlConstants.KEY_FOR];
+		var attName = keyObj[mxGraphMlConstants.KEY_NAME];
 		
 		if (attName == mxGraphMlConstants.SHARED_DATA) sharedDataId = id;
 		
+		//TODO handle the defaults inside these keys
 		switch (_for)
 		{
 			case mxGraphMlConstants.NODE:
-				this.nodesKeys[attName] = {key: id, elems: keys[i].childNodes};
+				this.nodesKeys[attName] = {key: id, keyObj: keyObj};
 			break;
 			case mxGraphMlConstants.EDGE:
-				this.edgesKeys[attName] = {key: id, elems: keys[i].childNodes};
+				this.edgesKeys[attName] = {key: id, keyObj: keyObj};
 			break;
 			case mxGraphMlConstants.PORT:
-				this.portsKeys[attName] = {key: id, elems: keys[i].childNodes};
+				this.portsKeys[attName] = {key: id, keyObj: keyObj};
 			break;
 			case mxGraphMlConstants.ALL:
-				this.nodesKeys[attName] = {key: id, elems: keys[i].childNodes};
-				this.edgesKeys[attName] = {key: id, elems: keys[i].childNodes};
-				this.portsKeys[attName] = {key: id, elems: keys[i].childNodes};
+				var obj = {key: id, keyObj: keyObj};
+				this.nodesKeys[attName] = obj;
+				this.edgesKeys[attName] = obj;
+				this.portsKeys[attName] = obj;
 			break;
 		}
 	}
@@ -294,10 +315,10 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 					var modVal = val.toLowerCase();
 					switch(mappingObj.mod)
 					{
-						case "color": //mxGraph doesn't support alfa in colors
+						case "color": //mxGraph support alfa in colors in the standard format
 							if (val.indexOf("#") == 0 && val.length == 9)
 							{
-								modVal = "#" + val.substr(3);
+								modVal = "#" + val.substr(3) + val.substr(1,2);
 							}
 							else if (val == "TRANSPARENT")
 							{
@@ -353,28 +374,38 @@ mxGraphMlCodec.prototype.createMxGraph = function ()
     return graph;
 }
 
-mxGraphMlCodec.prototype.importGraph = function (pageElement, graph, parent, nodesMap)
+mxGraphMlCodec.prototype.importGraph = function (pageElement, graph, parent)
 {
 	var nodes = this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.NODE);
-	
-	nodesMap = nodesMap || {};
-	
+
+	var p = parent;
+	var dx = 0, dy = 0;
+	while (p && p.geometry)
+	{
+		dx += p.geometry.x;
+		dy += p.geometry.y;
+		
+		p = p.parent;
+	}
+
 	for (var i = 0; i < nodes.length; i++)
 	{
-		this.importNode(nodes[i], graph, nodesMap, parent);
+		this.importNode(nodes[i], graph, parent, dx, dy);
 	}
 	
-	var edges = this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.EDGE);
-	
-	for (var i = 0; i < edges.length; i++)
-	{
-		this.importEdge(edges[i], graph, nodesMap, parent);
-	}
+	this.edges.push({
+		edges: this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.EDGE),
+		parent: parent,
+		dx: dx,
+		dy: dy
+	});	
 };
 
+//FIXME port 0.5, 0.5 push the edge to the other side (bpmn example)
 mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
 {
 	var name = portElement.getAttribute(mxGraphMlConstants.PORT_NAME);
+	var portObj = {};
 	
 	var data = this.getDirectChildNamedElements(portElement, mxGraphMlConstants.DATA);
 	
@@ -384,7 +415,28 @@ mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
 		var key = d.getAttribute(mxGraphMlConstants.KEY);
 		
 		var dataObj = this.dataElem2Obj(d);
+//		console.log(dataObj);
+		if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_LOCATION_PARAMETER].key) 
+		{
+			this.mapObject(dataObj, {
+				"y:FreeNodePortLocationModelParameter.Ratio": function(val, map)
+				{
+					var parts = val.split(',');
+					map["pos"] = {x: parts[0], y: parts[1]};
+				}
+			}, portObj);
+		} 
+		else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_STYLE].key) 
+		{
+			
+		}
+		else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE].key) 
+		{
+			
+		}
 	}
+	
+	portsMap[name] = portObj;
 };
 
 mxGraphMlCodec.prototype.styleMap2Str = function (styleMap)
@@ -401,7 +453,7 @@ mxGraphMlCodec.prototype.styleMap2Str = function (styleMap)
 	return str;
 };
 
-mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, parent)
+mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, dy)
 {
 	var data = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.DATA);
 	var v;
@@ -416,6 +468,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 	var style = {graphMlID: id};
 	var mlStyleObj = null;
 	var mlTemplate = null;
+	var mlUserTags = null;
 	var lblObj = null;
 	var lbls = null;
 	
@@ -426,8 +479,12 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 		
 		if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key) 
 		{
-			this.addNodeGeo(node, dataObj, parent.geometry);
+			this.addNodeGeo(node, dataObj, dx, dy);
 		} 
+		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.USER_TAGS].key) 
+		{
+			mlUserTags = dataObj;
+		}
 		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
 		{
 //			console.log(JSON.stringify(dataObj));
@@ -456,11 +513,18 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 							pattern = "3 1 1 1 1 1";
 						break;
 						default:
-							pattern = val;
+							pattern = val.replace(/0/g, '1');
 					}
 					
 					if (pattern)
+					{
+						//Some patterns in graphML has only one number
+						if (pattern.indexOf(" ") < 0) 
+						{
+							pattern = pattern + " " + pattern;
+						}
 						map["dashPattern"] = pattern;
+					}
 				};
 				
 				var styleCommonMap = 
@@ -590,6 +654,16 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 					"shape": "js:table"
 				};
 				
+				var imageNodeStyle = mxUtils.clone(styleCommonMap);
+				imageNodeStyle["defaults"] = {
+					"shape": "image"
+				};
+				
+				imageNodeStyle["image"] = function(val, map)
+				{
+					map["image"] = val; 
+				};
+				
 				this.mapObject(dataObj, {
 					"yjs:ShapeNodeStyle": styleCommonMap,
 					"demostyle:FlowchartNodeStyle": styleCommonMap,
@@ -609,7 +683,8 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 					"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
 					"bpmn:PoolNodeStyle": tableStyle,
 					"yjs:TableNodeStyle": tableStyle,
-					"demotablestyle:DemoTableStyle": tableStyle
+					"demotablestyle:DemoTableStyle": tableStyle,
+					"yjs:ImageNodeStyle": imageNodeStyle
 				}, style);
 			}
 		}
@@ -629,7 +704,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 	
 	if (mlTemplate)
 	{
-		this.handleTemplates(mlTemplate, node, style);
+		this.handleTemplates(mlTemplate, mlUserTags, node, style);
 	}
 	
 	this.handleFixedRatio(node, style);
@@ -641,6 +716,12 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 	//handle special compound shapes
 	this.handleCompoundShape(node, style, mlStyleObj, lbls);
 	
+	//fix for stroke size of zero
+	if (style["strokeWidth"] == 0)
+	{
+		style["strokeColor"] = "none";
+	}
+	
 	node.style = this.styleMap2Str(style);
 	
 	var subGraphs = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.GRAPH);
@@ -650,16 +731,97 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, nodesMap, pa
 		this.importGraph(subGraphs[i], graph, node, portsMap);
 	}	
 	
-	nodesMap[id] = {node: node, ports: portsMap};
+	this.nodesMap[id] = {node: node, ports: portsMap};
 };
 
 
-mxGraphMlCodec.prototype.handleTemplates = function (template, node, styleMap)
+mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, styleMap)
 {
-	var svg = template.match(/\<svg(\s|\S)+\<\/svg\>/);
-	if (svg)
+	if (template)
 	{
-		svg = svg[0];
+		var header = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g>';
+		var footer = '</g></svg>';
+		
+		//TODO optimize this! probably only the text before defs has bindings
+		var matches = null;
+		var bindingPairs = [];
+		//find template bindings
+		var tempBindRegEx = /\{TemplateBinding\s+([^}]+)\}/g;
+		
+		while ((matches = tempBindRegEx.exec(template)) != null) 
+		{
+	        var replacement = "";
+	        switch (matches[1])
+	        {
+	        	case "width":
+	        		replacement = node.geometry.width;
+	        	break;
+	        	case "height":
+	        		replacement = node.geometry.height;
+	    		break;
+	        }
+	        
+	        bindingPairs.push({match: matches[0], repl: replacement});
+		}
+		
+		if (userTags && userTags["y:Json"])
+		{
+			var json = JSON.parse(userTags["y:Json"]);
+			//find user tags bindings
+			var userTagBindRegEx = /\{Binding\s+([^}]+)\}/g;
+			
+			while ((matches = userTagBindRegEx.exec(template)) != null) 
+			{
+		        var parts = matches[1].split(',');
+		        var val = json[parts[0]];
+		        
+		        if (val)
+	        	{
+		        	if (parts.length > 1)
+	        		{
+		        		if (parts[1].indexOf('Converter='))
+	        			{
+		        			var func = mxGraphMlConverters[parts[1].substr(11)]; //11 is the length of Converter=
+		        			
+		        			if (func)
+	        				{
+				        		var arguments = [val];
+				        		
+				        		if (parts[2])
+				        		{
+				        			arguments.push(parts[2].substr(11)); //11 is the length of Parameter=
+				        		}
+				        			
+		        				val = func.apply(null, arguments)
+	        				}
+	        			}
+	        		}
+		        	
+		        	bindingPairs.push({match: matches[0], repl: mxUtils.htmlEntities(val)});
+	        	}
+			}
+		}
+
+		for (var i = 0; i < bindingPairs.length; i++)
+		{
+			template = template.replace(bindingPairs[i].match, bindingPairs[i].repl);		
+		}
+		
+		bindingPairs = [];
+		//Fix text elements (TODO can it be merged with the previous step?)
+		var txtRegEx = /\<text.+data-content="([^"]+).+\<\/text\>/g;
+		while ((matches = txtRegEx.exec(template)) != null) 
+		{
+			var val = matches[0].substr(0, matches[0].length - 7) + matches[1] + "</text>"; //7 is the length of </text> 
+			bindingPairs.push({match: matches[0], repl: val});
+		}
+
+		for (var i = 0; i < bindingPairs.length; i++)
+		{
+			template = template.replace(bindingPairs[i].match, bindingPairs[i].repl);		
+		}
+
+		var svg = header + template + footer;
 		styleMap["shape"] = "image";
 		styleMap["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(svg) : Base64.encode(svg));
 	}
@@ -758,7 +920,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				
 				tableObj = tableObj["table"]["y:Table"];
 				
-				var x = 0, y = 0, xShift = 0, yShift = 0;
+				var x = 0, y = 0, xShift = {x: 0}, yShift = 0;
 				var insets = tableObj["Insets"];
 				
 				if (insets)
@@ -768,8 +930,8 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					if (insets[0] != "0")
 					{
 						styleMap["startSize"] = insets[0];
-						xShift = parseFloat(insets[0]);
-						x += xShift;						
+						xShift.x = parseFloat(insets[0]);
+						//x += xShift.x;						
 						styleMap["horizontal"] = "0";
 					} 
 					else if (insets[1] != "0")
@@ -867,6 +1029,8 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				var rows = tableObj["Rows"]["y:Row"];
 				y += parseFloat(defColStyle["startSize"]);
 				
+				var maxX = xShift.x;
+				var initX = xShift.x;
 				//TODO We need two passes to determine the header size!
 				if (rows)
 				{
@@ -875,12 +1039,14 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					
 					for (var i = 0; i < rows.length; i++)
 					{
+						xShift.x = initX;
 						y = this.addRow(rows[i], node, (i & 1), y, xShift, rowMapping, defRowStyle);
+						maxX = Math.max(xShift.x, maxX);
 					}
 				}
 
 				var columns = tableObj["Columns"]["y:Column"];
-				x += parseFloat(defRowStyle["startSize"]);
+				x = maxX;//parseFloat(defRowStyle["startSize"]);
 				
 				if (columns)
 				{
@@ -923,7 +1089,7 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 	}
 	
 	var height = parseFloat(rowStyle["height"]);
-	cell.geometry = new mxGeometry(xShift, y, parent.geometry.width - xShift, height);
+	cell.geometry = new mxGeometry(xShift.x, y, parent.geometry.width - xShift.x, height);
 
 	var lblObj = row["Labels"];
 	
@@ -934,7 +1100,13 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 	parent.insert(cell);
 	
 	var subRow = row["y:Row"];
+
+	if (rowStyle["startSize"])
+	{
+		xShift.x += parseFloat(rowStyle["startSize"]);
+	}
 	
+	var initX = xShift.x, maxX = xShift.x;
 	var subY = 0;
 	if (subRow)
 	{
@@ -943,9 +1115,12 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 		
 		for (var i = 0; i < subRow.length; i++)
 		{
+			xShift.x = initX;
 			subY = this.addRow(subRow[i], cell, (i & 1), subY, xShift, rowMapping, defRowStyle);
+			maxX = Math.max(xShift.x, maxX) 
 		}
 	}
+	xShift.x = maxX;
 	height = Math.max(height, subY);
 	cell.geometry.height = height;
 	y += height;
@@ -1030,20 +1205,12 @@ mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 	}
 };
 
-mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, parentGeo) 
+mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy) 
 {
 	var geoRect = geoObj[mxGraphMlConstants.RECT];
 	
 	if (geoRect)
 	{
-		var dx = 0, dy = 0;
-		
-		if (parentGeo) 
-		{
-			dx = parentGeo.x;
-			dy = parentGeo.y;
-		}
-		
 		var geo = node.geometry;
 		 
 		geo.x = parseFloat(geoRect[mxGraphMlConstants.X]) - dx;
@@ -1054,17 +1221,20 @@ mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, parentGeo)
 };
 
 //TODO handle ports
-mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap, parent)
+mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, dy)
 {
 	var data = this.getDirectChildNamedElements(edgeElement, mxGraphMlConstants.DATA);
 	var e;
 	var id = edgeElement.getAttribute(mxGraphMlConstants.ID);
 	var srcId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_SOURCE);
 	var trgId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET);
-	var srcPort = edgeElement.getAttribute(mxGraphMlConstants.EDGE_SOURCE_PORT);
-	var trgPort = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET_PORT);
+	var srcPortId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_SOURCE_PORT);
+	var trgPortId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET_PORT);
 	
-	var edge = graph.insertEdge(parent, null, "", nodesMap[srcId].node, nodesMap[trgId].node, "graphMLId=" + id);
+	var src = this.nodesMap[srcId];
+	var trg = this.nodesMap[trgId];
+	
+	var edge = graph.insertEdge(parent, null, "", src.node, trg.node, "graphMLId=" + id);
 	var style = {graphMlID: id};
 	
 	for (var i = 0; i < data.length; i++)
@@ -1074,11 +1244,11 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap, pa
 		
 		if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_GEOMETRY].key) 
 		{
-			this.addEdgeGeo(edge, dataObj);
+			this.addEdgeGeo(edge, dataObj, dx, dy);
 		} 
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_STYLE].key) 
 		{
-//			console.log(dataObj);
+			console.log(dataObj);
 			this.addEdgeStyle(edge, dataObj, style);
 		}
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_LABELS].key) 
@@ -1087,12 +1257,35 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, nodesMap, pa
 		}
 	}
 	
+	//handle simple ports (exit/entry[X/Y])
+	if (src.ports && srcPortId)
+	{
+		var srcPort = src.ports[srcPortId];
+		
+		if (srcPort.pos)
+		{
+			style["exitX"] = srcPort.pos.x;
+			style["exitY"] = srcPort.pos.y;
+		}
+	}
+
+	if (trg.ports && trgPortId)
+	{
+		var trgPort = trg.ports[trgPortId];
+		
+		if (trgPort.pos)
+		{
+			style["entryX"] = trgPort.pos.x;
+			style["entryY"] = trgPort.pos.y;
+		}
+	}
+
 	edge.style = this.styleMap2Str(style);
-	
+
 	return edge;
 };
 
-mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj) 
+mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy) 
 {
 	var list = geoObj[mxGraphMlConstants.Y_BEND];
 	
@@ -1104,8 +1297,8 @@ mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj)
 			var pointStr = list[i][mxGraphMlConstants.LOCATION];
 			
 			if (pointStr) {
-				var xy = pointStr.split(','); 
-				points.push(new mxPoint(parseFloat(xy[0]), parseFloat(xy[1])));
+				var xy = pointStr.split(',');
+				points.push(new mxPoint(parseFloat(xy[0]) - dx, parseFloat(xy[1]) - dy));
 			}
 		}
 		
@@ -1137,7 +1330,14 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 		}
 		
 		if (pattern)
+		{
+			//Some patterns in graphML has only one number
+			if (pattern.indexOf(" ") < 0) 
+			{
+				pattern = pattern + " " + pattern;
+			}
 			map["dashPattern"] = pattern;
+		}
 	};
 	
 	// can be mapping to WHITE => empty, BLACK => filled
@@ -1155,9 +1355,13 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 		"yjs:PolylineEdgeStyle": {
 			"defaults" : 
 			{
-				"endArrow": "none"
+				"endArrow": "none",
+				"rounded": 0
 			},
-//			"smoothingLength": "",//?
+			"smoothingLength": function(val, map)
+			{
+				map["rounded"] = (val && parseFloat(val) > 0)? "1" : "0"; 
+			},
 			"stroke": {key: "strokeColor", mod: "color"},
 			"stroke.yjs:Stroke":
 			{
@@ -1169,6 +1373,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 				"thickness.sys:Double": "strokeWidth",
 				"thickness": "strokeWidth"
 			},
+			"targetArrow": {key: "endArrow", mod: "arrow"},
 			"targetArrow.yjs:Arrow": {
 				"defaults" : 
 				{
@@ -1182,7 +1387,14 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 //				stroke: "", //?
 				"type": {key: "endArrow", mod: "arrow"}
 			},
+			"sourceArrow": {key: "startArrow", mod: "arrow"},
 			"sourceArrow.yjs:Arrow": {
+				"defaults" : 
+				{
+					"startArrow": "classic",
+					"startFill": "1",
+					"startSize": "6"
+				},
 //				cropLength: "", //??
 				"fill": startArrowFill,
 				"scale": {key: "startSize", mod: "scale", scale: 5},
@@ -1194,6 +1406,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 };
 
 //TODO label offset
+//TODO labels object is over swim lanes collapse button
 mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle) 
 {
 	var lblList = LblObj[mxGraphMlConstants.Y_LABEL];
@@ -1265,12 +1478,19 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 								"fontWeight": fontStyleFn,
 								"textDecoration": fontStyleFn
 							}
+					},
+				"Style.y:VoidLabelStyle": function (val, map)
+					{
+						map["VoidLbl"] = true;
 					}
 			}, styleMap);
 
-			lblTxts.push(txt);
-			lblStyles.push(styleMap);
-			lblLayouts.push(layout);
+			if (!styleMap["VoidLbl"])
+			{
+				lblTxts.push(txt);
+				lblStyles.push(styleMap);
+				lblLayouts.push(layout);
+			}
 		}
 	}
 	
@@ -1290,8 +1510,8 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 			node.insert(lblCell, 0);
 			var lGeo = lblCell.geometry;
 
-			console.log(lblTxts[i]);
-			console.log(lblLayouts[i]);
+//			console.log(lblTxts[i]);
+//			console.log(lblLayouts[i]);
 			
 			if (lblLayouts[i]["y:RatioAnchoredLabelModelParameter"])
 			{
@@ -1339,9 +1559,11 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 				lblCell.style += ";align=center;";
 			}
 			//TODO Spacing still need to be adjusted
-			else if (lblLayouts[i]["y:StretchStripeLabelModel"])
+			else if (lblLayouts[i]["y:StretchStripeLabelModel"] || lblLayouts[i]["y:StripeLabelModelParameter"])
 			{
-				switch (lblLayouts[i]["y:StretchStripeLabelModel"])
+				//TODO merge with previous one if they are identical in all cases!
+				var dir = lblLayouts[i]["y:StretchStripeLabelModel"] || lblLayouts[i]["y:StripeLabelModelParameter"]["Position"];
+				switch (dir)
 				{
 					case "North":
 						lGeo.height = 1;
@@ -1386,20 +1608,6 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 				}
 				lblCell.style += ";align=center;";
 			}
-			else if (lblLayouts[i]["y:FreeEdgeLabelModelParameter"])
-			{
-				lGeo.relative = true;
-				var layout = lblLayouts[i]["y:FreeEdgeLabelModelParameter"];
-				var ratio = layout["Ratio"];
-				var distance = layout["Distance"];
-				var angle = layout["Angle"];
-				
-				if (angle)
-				{
-					lblCell.style += ";rotation=" + (parseFloat(angle) * (180 / Math.PI));
-				}
-				//TODO what is the formula?
-			}
 			else if (lblLayouts[i]["y:ExteriorLabelModel"])
 			{
 				var lblPos;
@@ -1418,6 +1626,35 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 						lblCell.style += ";labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;";
 					break;
 				}
+			}
+			else if (lblLayouts[i]["y:FreeEdgeLabelModelParameter"])
+			{
+				lGeo.relative = true;
+				var layout = lblLayouts[i]["y:FreeEdgeLabelModelParameter"];
+				var ratio = layout["Ratio"];
+				var distance = layout["Distance"];
+				var angle = layout["Angle"];
+
+				//This is just an approximation
+				//TODO calculate the absolute value based on edge start/end points only, then orthogonal distance. Finally, convert it back to mxGraph relative point
+				if (ratio)
+				{
+					lGeo.x = 2 * parseFloat(ratio) - 2;
+				}
+				
+				if (distance)
+				{
+					lGeo.y = parseFloat(distance);
+				}
+				
+				if (angle)
+				{
+					lblCell.style += ";rotation=" + (parseFloat(angle) * (180 / Math.PI));
+				}
+			}
+			else if (node.isEdge)
+			{
+				lGeo.relative = true;
 			}
 		}
 	}
@@ -1497,6 +1734,31 @@ mxGraphMlCodec.prototype.getDirectFirstChildElement = function (parent) {
     return null;
 };
 
+var mxGraphMlConverters = //TODO this code is taken from yworks.com. Is that OK?
+{
+	"orgchartconverters.linebreakconverter": function(e, t) {
+		if (typeof e === "string") {
+			var i = e;
+			while (i.length > 20 && i.indexOf(" ") > -1)
+				i = i.substring(0, i.lastIndexOf(" "));
+			return t === "true" ? i : e.substring(i.length)
+		}
+		return ""
+	},
+	"orgchartconverters.borderconverter": function(e, t) {
+		return typeof e === "boolean" ? e ? "#FFBB33" : "rgba(0,0,0,0)" : "#FFF"
+	},
+	"orgchartconverters.addhashconverter": function(e, t) {
+		return typeof e === "string" ? typeof t === "string" ? "#" + e + t : "#" + e : e
+	},
+	"orgchartconverters.intermediateconverter": function(e, t) {
+		return typeof e === "string" && e.length > 17 ? e.replace(/^(.)(\S*)(.*)/, "$1.$3") : e
+	},
+	"orgchartconverters.overviewconverter": function(e, t) {
+		return typeof e === "string" && e.length > 0 ? e.replace(/^(.)(\S*)(.*)/, "$1.$3") : ""
+	}
+};
+
 var mxGraphMlArrowsMap =
 {
 	"SIMPLE": "open",
@@ -1505,7 +1767,8 @@ var mxGraphMlArrowsMap =
 	"CIRCLE": "oval",
 	"CROSS": "cross",
 	"SHORT": "classicThin",
-	
+	"DEFAULT": "classic",
+	"NONE": "none"
 };
 
 var mxGraphMlShapesMap =
