@@ -2843,11 +2843,17 @@
 					var size = parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? fixedDefaultValue : defaultValue));
 	
 					return new mxPoint(bounds.x + Math.max(0, Math.min(bounds.width, size * ((fixed) ? 1 : bounds.width))), bounds.getCenterY());
-				}, function(bounds, pt)
+				}, function(bounds, pt, me)
 				{
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
+					var size = (fixed) ? (pt.x - bounds.x) : Math.max(0, Math.min(max, (pt.x - bounds.x) / bounds.width));
 					
-					this.state.style['size'] = (fixed) ? (pt.x - bounds.x) : Math.max(0, Math.min(max, (pt.x - bounds.x) / bounds.width));
+					if (fixed && !mxEvent.isAltDown(me.getEvent()))
+					{
+						size = state.view.graph.snap(size);
+					}
+					
+					this.state.style['size'] = size;
 				}, null, redrawEdges)];
 				
 				if (allowArcHandle && mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
@@ -2904,26 +2910,37 @@
 		
 		function createEdgeHandle(state, keys, start, getPosition, setPosition)
 		{
-			var pts = state.absolutePoints;
-			var n = pts.length - 1;
-			
-			var tr = state.view.translate;
-			var s = state.view.scale;
-			
-			var p0 = (start) ? pts[0] : pts[n];
-			var p1 = (start) ? pts[1] : pts[n - 1];
-			var dx = (start) ? p1.x - p0.x : p1.x - p0.x;
-			var dy = (start) ? p1.y - p0.y : p1.y - p0.y;
-
-			var dist = Math.sqrt(dx * dx + dy * dy);
-			
 			return createHandle(state, keys, function(bounds)
 			{
+				var pts = state.absolutePoints;
+				var n = pts.length - 1;
+				
+				var tr = state.view.translate;
+				var s = state.view.scale;
+				
+				var p0 = (start) ? pts[0] : pts[n];
+				var p1 = (start) ? pts[1] : pts[n - 1];
+				var dx = (start) ? p1.x - p0.x : p1.x - p0.x;
+				var dy = (start) ? p1.y - p0.y : p1.y - p0.y;
+
+				var dist = Math.sqrt(dx * dx + dy * dy);
+				
 				var pt = getPosition.call(this, dist, dx / dist, dy / dist, p0, p1);
 				
 				return new mxPoint(pt.x / s - tr.x, pt.y / s - tr.y);
 			}, function(bounds, pt, me)
 			{
+				var pts = state.absolutePoints;
+				var n = pts.length - 1;
+				
+				var tr = state.view.translate;
+				var s = state.view.scale;
+				
+				var p0 = (start) ? pts[0] : pts[n];
+				var p1 = (start) ? pts[1] : pts[n - 1];
+				var dx = (start) ? p1.x - p0.x : p1.x - p0.x;
+				var dy = (start) ? p1.y - p0.y : p1.y - p0.y;
+
 				var dist = Math.sqrt(dx * dx + dy * dy);
 				pt.x = (pt.x + tr.x) * s;
 				pt.y = (pt.y + tr.y) * s;
@@ -3699,12 +3716,12 @@
 									new mxConnectionConstraint(new mxPoint(0.25, 1), true),
 									new mxConnectionConstraint(new mxPoint(0.5, 1), true),
 									new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-									new mxConnectionConstraint(new mxPoint(0.1, 0.25), true),
-									new mxConnectionConstraint(new mxPoint(0.2, 0.5), true),
-									new mxConnectionConstraint(new mxPoint(0.1, 0.75), true),
-									new mxConnectionConstraint(new mxPoint(0.9, 0.25), true),
+									new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+									new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+									new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+									new mxConnectionConstraint(new mxPoint(1, 0.25), true),
 									new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-									new mxConnectionConstraint(new mxPoint(0.9, 0.75), true)];
+									new mxConnectionConstraint(new mxPoint(1, 0.75), true)];
 	mxLine.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
 	                                new mxConnectionConstraint(new mxPoint(0.25, 0.5), false),
 	                                new mxConnectionConstraint(new mxPoint(0.75, 0.5), false),
