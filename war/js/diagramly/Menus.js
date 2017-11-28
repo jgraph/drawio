@@ -890,7 +890,20 @@
 					graph.insertVertex(parent, null, '', b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s, 'fillColor=none;strokeColor=red;');
 				}));
 
-				this.addMenuItems(menu, ['-', 'showBoundingBox'], parent);
+				mxResources.parse('createSidebarEntry=Create sidebar entry');
+				
+				this.editorUi.actions.addAction('createSidebarEntry', mxUtils.bind(this, function()
+				{
+					if (!graph.isSelectionEmpty())
+					{
+						mxLog.show();
+						mxLog.debug('sb.createVertexTemplateFromData(\'' +
+								graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
+								'\', width, height, \'Title\');');
+					}
+				}));
+
+				this.addMenuItems(menu, ['-', 'createSidebarEntry', 'showBoundingBox'], parent);
 
 				// For testing local XML export
 				mxResources.parse('testXmlImageExport=XML Image Export');

@@ -1,3 +1,11 @@
+28-NOV-2017: 7.7.7
+
+- Adds Sitemap sidebar
+- Moves double border shapes to Misc sidebar
+- Enables custom libraries in Trello Power-Up
+- Fixes resize vertex with touch events
+- Uses mxGraph 3.7.7 beta 2
+
 27-NOV-2017: 7.7.6
 
 - Removes Trello option from splash screen (use Power-Up)

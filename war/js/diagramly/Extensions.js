@@ -297,39 +297,39 @@
 			'ERDEntityBlock3' : cs,
 			'ERDEntityBlock4' : cs,
 //Site Maps
-			'SMPage'  : cs,
-			'SMHome'  : cs,
-//			'SMGallery' NA
-//			'SMShopping' NA
-//			'SMMap' NA
-//			'SMAthletics' NA
-//			'SMLogin' NA
-			'SMPrint'  : cs,
-//			'SMScript'  NA
-			'SMSearch'  : cs,
-			'SMSettings'  : cs,
-			'SMSitemap'  : cs,
-			'SMSuccess'  : cs,
-			'SMVideo'  : cs,
-			'SMAudio'  : cs,
-//			'SMBlog' NA
-			'SMCalendar'  : cs,
-			'SMChart'  : cs,
-			'SMCloud'  : cs,
-			'SMDocument'  : cs,
-//			'SMDownload' NA
-//			'SMError' NA
-			'SMForm'  : cs,
-			'SMGame'  : cs,
-//			'SMJobs' NA
-//			'SMLucid' NA
-//			'SMNewspress' NA
-//			'SMPhoto' NA
-//			'SMPortfolio' NA
-//			'SMPricing' NA
-//			'SMProfile' NA
-//			'SMSlideshow' NA
-			'SMUpload'  : cs,
+			'SMPage'  : 'shape=mxgraph.sitemap.page',
+			'SMHome'  : 'shape=mxgraph.sitemap.home',
+			'SMGallery' : 'shape=mxgraph.sitemap.gallery',
+			'SMShopping' : 'shape=mxgraph.sitemap.shopping',
+			'SMMap' : 'shape=mxgraph.sitemap.map',
+			'SMAthletics' : 'shape=mxgraph.sitemap.sports',
+			'SMLogin' : 'shape=mxgraph.sitemap.login',
+			'SMPrint'  : 'shape=mxgraph.sitemap.print',
+			'SMScript' : 'shape=mxgraph.sitemap.script',
+			'SMSearch'  : 'shape=mxgraph.sitemap.search',
+			'SMSettings'  : 'shape=mxgraph.sitemap.settings',
+			'SMSitemap'  : 'shape=mxgraph.sitemap.sitemap',
+			'SMSuccess'  : 'shape=mxgraph.sitemap.success',
+			'SMVideo'  : 'shape=mxgraph.sitemap.video',
+			'SMAudio'  : 'shape=mxgraph.sitemap.audio',
+			'SMBlog' : 'shape=mxgraph.sitemap.blog',
+			'SMCalendar'  : 'shape=mxgraph.sitemap.calendar',
+			'SMChart'  : 'shape=mxgraph.sitemap.chart',
+			'SMCloud'  : 'shape=mxgraph.sitemap.cloud',
+			'SMDocument'  : 'shape=mxgraph.sitemap.document',
+			'SMDownload' : 'shape=mxgraph.sitemap.download',
+			'SMError' : 'shape=mxgraph.sitemap.error',
+			'SMForm'  : 'shape=mxgraph.sitemap.form',
+			'SMGame'  : 'shape=mxgraph.sitemap.game',
+			'SMJobs' : 'shape=mxgraph.sitemap.jobs',
+			'SMLucid' : 'shape=mxgraph.sitemap.page',
+			'SMNewspress' : 'shape=mxgraph.sitemap.news',
+			'SMPhoto' : 'shape=mxgraph.sitemap.photo',
+			'SMPortfolio' : 'shape=mxgraph.sitemap.portfolio',
+			'SMPricing' : 'shape=mxgraph.sitemap.pricing',
+			'SMProfile' : 'shape=mxgraph.sitemap.profile',
+			'SMSlideshow' : 'shape=mxgraph.sitemap.slideshow',
+			'SMUpload'  : 'shape=mxgraph.sitemap.upload',
 //UML Class Diagram
 			'UMLClassBlock': cs,
 			'UMLActiveClassBlock': 'shape=process',

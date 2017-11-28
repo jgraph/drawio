@@ -59,6 +59,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Network.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Office.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-PID.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Rack.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sitemap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sysml.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-WebIcons.js');

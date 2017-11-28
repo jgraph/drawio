@@ -1287,6 +1287,15 @@
 			var graph = this.editorUi.editor.graph;
 			
 			return result.concat([
+				this.addEntry('tree container', function()
+				{
+					var cell = new mxCell('Tree Container', new mxGeometry(0, 0, 220, 160),
+						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;');
+					cell.vertex = true;
+					
+				    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
+					    		cell.geometry.height, cell.value);
+				}),
 				this.addEntry('tree mindmap central idea branch topic', function()
 				{
 					var mindmap = new mxCell('Mindmap', new mxGeometry(0, 0, 420, 126),
@@ -1461,15 +1470,6 @@
 					return sb.createVertexTemplateFromCells([orgchart], orgchart.geometry.width,
 							orgchart.geometry.height, orgchart.value);
 				}),
-				this.addEntry('tree container', function()
-				{
-					var cell = new mxCell('Tree Container', new mxGeometry(0, 0, 220, 160),
-						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;');
-					cell.vertex = true;
-					
-				    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
-					    		cell.geometry.height, cell.value);
-				}),
 				this.addEntry('tree root', function()
 				{
 				    	var cell = new mxCell('Organization', new mxGeometry(0, 0, 120, 60),
@@ -1480,6 +1480,25 @@
 				
 				    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
 					    		cell.geometry.height, cell.value);
+				}),
+				this.addEntry('tree division', function()
+				{
+			    		var cell = new mxCell('Division', new mxGeometry(20, 40, 100, 60),
+				    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+				    		'container=1;recursiveResize=0;treeFolding=1;');
+				    	cell.vertex = true;
+				    	
+				    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0),
+				    		'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
+						'startArrow=none;endArrow=none;rounded=0;');
+				    	edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
+					edge.geometry.relative = true;
+					edge.edge = true;
+	
+					cell.insertEdge(edge, false);
+				    	
+					return sb.createVertexTemplateFromCells([cell, edge], cell.geometry.width,
+						cell.geometry.height, cell.value);
 				}),
 				this.addEntry('tree sub sections', function()
 				{
