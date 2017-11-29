@@ -21,26 +21,73 @@ mxGraphMlCodec.prototype.decode = function (xml, callback)
 		var pageElement = graphs[i];
 
 		var graph = this.createMxGraph();
-        graph.getModel().beginUpdate();
-        
-        this.nodesMap = {};
-    	this.edges = [];
-        this.importGraph(pageElement, graph, graph.getDefaultParent());
+		var model = graph.getModel();
+		
+        model.beginUpdate();
+        try 
+        {
+	        this.nodesMap = {};
+	    	this.edges = [];
+	        this.importGraph(pageElement, graph, graph.getDefaultParent());
+	    	
+	    	for (var i = 0; i < this.edges.length; i++)
+			{
+	    		var edgesObj = this.edges[i];
+	    		var edges = edgesObj.edges;
+	    		var parent = edgesObj.parent;
+	    		var dx = edgesObj.dx, dy = edgesObj.dy;
+	
+		    	for (var j = 0; j < edges.length; j++)
+		    	{
+		    		this.importEdge(edges[j], graph, parent, dx, dy);
+		    	}
+			}
+        }
+        catch(e)
+        {
+        	console.log(e);
+        }
+        finally
+        {
+        	model.endUpdate();
+        }
     	
-    	for (var i = 0; i < this.edges.length; i++)
-		{
-    		var edgesObj = this.edges[i];
-    		var edges = edgesObj.edges;
-    		var parent = edgesObj.parent;
-    		var dx = edgesObj.dx, dy = edgesObj.dy;
-
-	    	for (var j = 0; j < edges.length; j++)
-	    	{
-	    		this.importEdge(edges[j], graph, parent, dx, dy);
-	    	}
-		}
-    	
-    	graph.getModel().endUpdate();
+    	//update edges' labels to convert their labels relative coordinate to ours
+        model.beginUpdate();
+        try 
+        {
+        	var cells = graph.getModel().cells;
+        	
+        	for (var id in cells)
+    		{
+        		var cell = cells[id];
+        		var geo = cell.geometry;
+        		
+        		if (cell.parent && cell.parent.edge && geo.relative)
+    			{
+        			var state = graph.view.getState(cell.parent);
+        			var abdPs = state.absolutePoints;
+        			var p0 = abdPs[0];
+        			var pe = abdPs[abdPs.length - 1];
+        			
+        			geo.relative = false;
+        			
+        			var ratio = geo.x;
+        			geo.x = p0.x + ratio * (pe.x - p0.x);
+        			geo.y = p0.y + ratio * (pe.y - p0.y);
+        			
+        			console.log(ratio);
+    			}
+    		}
+        }
+        catch(e)
+        {
+        	console.log(e);
+        }
+        finally
+        {
+        	model.endUpdate();
+        }
     	
         mxFile += this.processPage(graph, i+1);
 	}
@@ -739,7 +786,9 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 {
 	if (template)
 	{
-		var header = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g>';
+		var w = node.geometry.width;
+		var h = node.geometry.height;
+		var header = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 '+ w + ' ' + h +'"><g>';
 		var footer = '</g></svg>';
 		
 		//TODO optimize this! probably only the text before defs has bindings
@@ -754,10 +803,10 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 	        switch (matches[1])
 	        {
 	        	case "width":
-	        		replacement = node.geometry.width;
+	        		replacement = w;
 	        	break;
 	        	case "height":
-	        		replacement = node.geometry.height;
+	        		replacement = h;
 	    		break;
 	        }
 	        
@@ -1031,6 +1080,8 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				
 				var maxX = xShift.x;
 				var initX = xShift.x;
+				xShift.lx = xShift.x;
+				
 				//TODO We need two passes to determine the header size!
 				if (rows)
 				{
@@ -1040,6 +1091,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					for (var i = 0; i < rows.length; i++)
 					{
 						xShift.x = initX;
+						xShift.lx = initX;
 						y = this.addRow(rows[i], node, (i & 1), y, xShift, rowMapping, defRowStyle);
 						maxX = Math.max(xShift.x, maxX);
 					}
@@ -1089,7 +1141,7 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 	}
 	
 	var height = parseFloat(rowStyle["height"]);
-	cell.geometry = new mxGeometry(xShift.x, y, parent.geometry.width - xShift.x, height);
+	cell.geometry = new mxGeometry(xShift.lx, y, parent.geometry.width - xShift.lx, height);
 
 	var lblObj = row["Labels"];
 	
@@ -1101,12 +1153,14 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 	
 	var subRow = row["y:Row"];
 
+	xShift.lx = 0;
 	if (rowStyle["startSize"])
 	{
-		xShift.x += parseFloat(rowStyle["startSize"]);
+		xShift.lx = parseFloat(rowStyle["startSize"]);
+		xShift.x += xShift.lx;
 	}
 	
-	var initX = xShift.x, maxX = xShift.x;
+	var initX = xShift.x, maxX = xShift.x, initLx = xShift.lx;
 	var subY = 0;
 	if (subRow)
 	{
@@ -1116,6 +1170,7 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
 		for (var i = 0; i < subRow.length; i++)
 		{
 			xShift.x = initX;
+			xShift.lx = initLx;
 			subY = this.addRow(subRow[i], cell, (i & 1), subY, xShift, rowMapping, defRowStyle);
 			maxX = Math.max(xShift.x, maxX) 
 		}
@@ -1220,7 +1275,7 @@ mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy)
 	}
 };
 
-//TODO handle ports
+//TODO handle other ports cases
 mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, dy)
 {
 	var data = this.getDirectChildNamedElements(edgeElement, mxGraphMlConstants.DATA);
@@ -1248,7 +1303,7 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
 		} 
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_STYLE].key) 
 		{
-			console.log(dataObj);
+//			console.log(dataObj);
 			this.addEdgeStyle(edge, dataObj, style);
 		}
 		else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_LABELS].key) 
@@ -1639,7 +1694,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 				//TODO calculate the absolute value based on edge start/end points only, then orthogonal distance. Finally, convert it back to mxGraph relative point
 				if (ratio)
 				{
-					lGeo.x = 2 * parseFloat(ratio) - 2;
+					lGeo.x = parseFloat(ratio);//2 * parseFloat(ratio) - 2;
 				}
 				
 				if (distance)

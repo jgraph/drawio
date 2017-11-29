@@ -3590,7 +3590,7 @@ EditorUi.prototype.showBackgroundImageDialog = function(apply)
 {
 	apply = (apply != null) ? apply : mxUtils.bind(this, function(image)
 	{
-		var change = new ChangeGraphBackground(this, null, image);
+		var change = new ChangePageSetup(this, null, image);
 		change.ignoreColor = true;
 		
 		this.editor.graph.model.execute(change);
