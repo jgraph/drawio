@@ -2295,7 +2295,7 @@ var ParseDialog = function(editorUi, title)
 					graph.getModel().endUpdate();
 				}
 				
-				graph.setSelectionCells(listCell);
+				graph.setSelectionCell(listCell);
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}

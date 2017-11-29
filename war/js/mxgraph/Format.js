@@ -1502,6 +1502,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	var cell = graph.getSelectionCell();
 	var ss = this.format.getSelectionState();
 	var count = 0;
+	var btn = null;
 	
 	div.style.paddingTop = '8px';
 	div.style.paddingBottom = '6px';

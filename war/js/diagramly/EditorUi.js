@@ -32,6 +32,11 @@
 		window.process.versions != null && window.process.versions['electron'] != null;
 
 	/**
+	 * Link for scratchpad help.
+	 */
+	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
+	
+	/**
 	 * Contains the default XML for an empty diagram.
 	 */
 	EditorUi.prototype.emptyDiagramXml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel>';
@@ -2153,7 +2158,7 @@
 			btn.setAttribute('title', mxResources.get('add'));
 			buttons.insertBefore(btn, buttons.firstChild);
 			
-			if (!this.isOffline() && file.title == '.scratchpad')
+			if (!this.isOffline() && file.title == '.scratchpad' && EditorUi.scratchpadHelpLink != null)
 			{
 				var link = document.createElement('span');
 				link.setAttribute('title', mxResources.get('help'));
@@ -2163,7 +2168,7 @@
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 				{
-					this.openLink('https://desk.draw.io/support/solutions/articles/16000042367');
+					this.openLink(EditorUi.scratchpadHelpLink);
 					mxEvent.consume(evt);
 				}));
 				

@@ -10,9 +10,6 @@
 .geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
 	cursor:pointer !important;
 }
-.geContentEditable div, .geContentEditable table, .geContentEditable table td {
-	border: 1px dashed lightGray;
-}
 .geBackgroundPage {
   	-webkit-box-shadow:0px 0px 3px 0px #d9d9d9;
 	-moz-box-shadow:0px 0px 3px 0px #d9d9d9;
