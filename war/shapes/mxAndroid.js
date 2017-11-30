@@ -164,7 +164,7 @@ mxShapeAndroidTabBar.prototype.buttonText = function(c, w, h, textString, button
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeAndroidTabBar.prototype.cst.SHAPE_TAB_BAR] = mxShapeAndroidTabBar;
+mxCellRenderer.registerShape(mxShapeAndroidTabBar.prototype.cst.SHAPE_TAB_BAR, mxShapeAndroidTabBar);
 
 //**********************************************************************************************************************************************************
 //Android Phone Vertical
@@ -220,7 +220,7 @@ mxShapeAndroidPhone.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.phone'] = mxShapeAndroidPhone;
+mxCellRenderer.registerShape('mxgraph.android.phone', mxShapeAndroidPhone);
 
 //**********************************************************************************************************************************************************
 //Android Status Bar
@@ -317,7 +317,7 @@ mxShapeAndroidStatusBar.prototype.foreground = function(c, x, y, w, h)
 	
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.statusBar'] = mxShapeAndroidStatusBar;
+mxCellRenderer.registerShape('mxgraph.android.statusBar', mxShapeAndroidStatusBar);
 
 //**********************************************************************************************************************************************************
 //Checkbox Button Group
@@ -439,7 +439,7 @@ mxShapeAndroidCheckboxGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.checkboxGroup'] = mxShapeAndroidCheckboxGroup;
+mxCellRenderer.registerShape('mxgraph.android.checkboxGroup', mxShapeAndroidCheckboxGroup);
 
 //**********************************************************************************************************************************************************
 //Radio Button Group
@@ -558,7 +558,7 @@ mxShapeAndroidRadioGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.radioGroup'] = mxShapeAndroidRadioGroup;
+mxCellRenderer.registerShape('mxgraph.android.radioGroup', mxShapeAndroidRadioGroup);
 
 //**********************************************************************************************************************************************************
 //Menu Bar (LEGACY)
@@ -642,7 +642,7 @@ mxShapeAndroidMenuBar.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.menuBar'] = mxShapeAndroidMenuBar;
+mxCellRenderer.registerShape('mxgraph.android.menuBar', mxShapeAndroidMenuBar);
 
 //**********************************************************************************************************************************************************
 //Text Selection Handles
@@ -699,7 +699,7 @@ mxShapeAndroidTextSelHandles.prototype.paintVertexShape = function(c, x, y, w, h
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.textSelHandles'] = mxShapeAndroidTextSelHandles;
+mxCellRenderer.registerShape('mxgraph.android.textSelHandles', mxShapeAndroidTextSelHandles);
 
 //**********************************************************************************************************************************************************
 //Android Indeterminate Spinner
@@ -753,7 +753,7 @@ mxShapeAndroidIndeterminateSpinner.prototype.background = function(c, x, y, w, h
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.android.indeterminateSpinner'] = mxShapeAndroidIndeterminateSpinner;
+mxCellRenderer.registerShape('mxgraph.android.indeterminateSpinner', mxShapeAndroidIndeterminateSpinner);
 
 //**********************************************************************************************************************************************************
 //Anchor (a dummy shape without visuals used for anchoring)

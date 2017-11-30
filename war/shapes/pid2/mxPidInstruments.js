@@ -81,7 +81,7 @@ mxShapePidDiscInst.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidDiscInst.prototype.cst.SHAPE_DISC_INST] = mxShapePidDiscInst;
+mxCellRenderer.registerShape(mxShapePidDiscInst.prototype.cst.SHAPE_DISC_INST, mxShapePidDiscInst);
 
 mxShapePidDiscInst.prototype.constraints = [
                     new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -175,7 +175,7 @@ mxShapePidSharedCont.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidSharedCont.prototype.cst.SHAPE_SHARED_CONT] = mxShapePidSharedCont;
+mxCellRenderer.registerShape(mxShapePidSharedCont.prototype.cst.SHAPE_SHARED_CONT, mxShapePidSharedCont);
 
 mxShapePidSharedCont.prototype.constraints = [
                                             new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -273,7 +273,7 @@ mxShapePidCompFunc.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidCompFunc.prototype.cst.SHAPE_COMP_FUNC] = mxShapePidCompFunc;
+mxCellRenderer.registerShape(mxShapePidCompFunc.prototype.cst.SHAPE_COMP_FUNC, mxShapePidCompFunc);
 
 mxShapePidCompFunc.prototype.constraints = [
                                               new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -372,7 +372,7 @@ mxShapePidProgLogCont.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidProgLogCont.prototype.cst.SHAPE_PROG_LOG_CONT] = mxShapePidProgLogCont;
+mxCellRenderer.registerShape(mxShapePidProgLogCont.prototype.cst.SHAPE_PROG_LOG_CONT, mxShapePidProgLogCont);
 
 mxShapePidProgLogCont.prototype.constraints = [
                                             new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -517,7 +517,7 @@ mxShapePidIndicator.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidIndicator.prototype.cst.SHAPE_INDICATOR] = mxShapePidIndicator;
+mxCellRenderer.registerShape(mxShapePidIndicator.prototype.cst.SHAPE_INDICATOR, mxShapePidIndicator);
 
 mxShapePidIndicator.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.5, 1), true)];
 
@@ -604,7 +604,7 @@ mxShapePidLogic.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidLogic.prototype.cst.SHAPE_LOGIC] = mxShapePidLogic;
+mxCellRenderer.registerShape(mxShapePidLogic.prototype.cst.SHAPE_LOGIC, mxShapePidLogic);
 
 mxShapePidLogic.prototype.constraints = [
                                             new mxConnectionConstraint(new mxPoint(0.5, 0), true),

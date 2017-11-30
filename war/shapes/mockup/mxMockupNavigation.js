@@ -112,7 +112,7 @@ mxShapeMockupBreadcrumb.prototype.buttonText = function(c, w, h, textString, but
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupBreadcrumb.prototype.cst.SHAPE_BREADCRUMB] = mxShapeMockupBreadcrumb;
+mxCellRenderer.registerShape(mxShapeMockupBreadcrumb.prototype.cst.SHAPE_BREADCRUMB, mxShapeMockupBreadcrumb);
 
 //**********************************************************************************************************************************************************
 //Step Bar
@@ -360,7 +360,7 @@ mxShapeMockupStepBar.prototype.buttonText = function(c, w, h, textString, button
 	c.text((w + buttonWidth * 0.5) * trueW / minW, fontSize * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupStepBar.prototype.cst.SHAPE_STEP_BAR] = mxShapeMockupStepBar;
+mxCellRenderer.registerShape(mxShapeMockupStepBar.prototype.cst.SHAPE_STEP_BAR, mxShapeMockupStepBar);
 
 //**********************************************************************************************************************************************************
 //Cover Flow
@@ -434,7 +434,7 @@ mxShapeMockupCoverFlow.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCoverFlow.prototype.cst.SHAPE_COVER_FLOW] = mxShapeMockupCoverFlow;
+mxCellRenderer.registerShape(mxShapeMockupCoverFlow.prototype.cst.SHAPE_COVER_FLOW, mxShapeMockupCoverFlow);
 
 //**********************************************************************************************************************************************************
 //Scroll Bar
@@ -531,7 +531,7 @@ mxShapeMockupScrollBar.prototype.foreground = function(c, w, h, buttonX)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupScrollBar.prototype.cst.SHAPE_SCROLL_BAR] = mxShapeMockupScrollBar;
+mxCellRenderer.registerShape(mxShapeMockupScrollBar.prototype.cst.SHAPE_SCROLL_BAR, mxShapeMockupScrollBar);
 
 Graph.handleFactory[mxShapeMockupScrollBar.prototype.cst.SHAPE_SCROLL_BAR] = function(state)
 {
@@ -598,7 +598,7 @@ mxShapeMockupPagination.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPagination.prototype.cst.SHAPE_PAGINATION] = mxShapeMockupPagination;
+mxCellRenderer.registerShape(mxShapeMockupPagination.prototype.cst.SHAPE_PAGINATION, mxShapeMockupPagination);
 
 //**********************************************************************************************************************************************************
 //Page Control
@@ -650,7 +650,7 @@ mxShapeMockupPageControl.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPageControl.prototype.cst.SHAPE_PAGE_CONTROL] = mxShapeMockupPageControl;
+mxCellRenderer.registerShape(mxShapeMockupPageControl.prototype.cst.SHAPE_PAGE_CONTROL, mxShapeMockupPageControl);
 
 //**********************************************************************************************************************************************************
 //Map Navigator
@@ -792,7 +792,7 @@ mxShapeMockupMapNavigator.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupMapNavigator.prototype.cst.SHAPE_MAP_NAVIGATOR] = mxShapeMockupMapNavigator;
+mxCellRenderer.registerShape(mxShapeMockupMapNavigator.prototype.cst.SHAPE_MAP_NAVIGATOR, mxShapeMockupMapNavigator);
 
 //**********************************************************************************************************************************************************
 //Anchor (a dummy shape without visuals used for anchoring)

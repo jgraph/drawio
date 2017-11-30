@@ -157,7 +157,7 @@ mxShapeMockupPlaybackControls.prototype.foreground = function(c, w, h, controlBa
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPlaybackControls.prototype.cst.SHAPE_PLAYBACK_CONTROLS] = mxShapeMockupPlaybackControls;
+mxCellRenderer.registerShape(mxShapeMockupPlaybackControls.prototype.cst.SHAPE_PLAYBACK_CONTROLS, mxShapeMockupPlaybackControls);
 
 //**********************************************************************************************************************************************************
 //Progress Bar
@@ -221,7 +221,7 @@ mxShapeMockupProgressBar.prototype.foreground = function(c, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupProgressBar.prototype.cst.SHAPE_PROGRESS_BAR] = mxShapeMockupProgressBar;
+mxCellRenderer.registerShape(mxShapeMockupProgressBar.prototype.cst.SHAPE_PROGRESS_BAR, mxShapeMockupProgressBar);
 
 Graph.handleFactory[mxShapeMockupProgressBar.prototype.cst.SHAPE_PROGRESS_BAR] = function(state)
 {
@@ -313,7 +313,7 @@ mxShapeMockupShoppingCart.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupShoppingCart.prototype.cst.SHAPE_SHOPPING_CART] = mxShapeMockupShoppingCart;
+mxCellRenderer.registerShape(mxShapeMockupShoppingCart.prototype.cst.SHAPE_SHOPPING_CART, mxShapeMockupShoppingCart);
 
 //**********************************************************************************************************************************************************
 //Rating
@@ -432,7 +432,7 @@ mxShapeMockupRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRating.prototype.cst.SHAPE_RATING] = mxShapeMockupRating;
+mxCellRenderer.registerShape(mxShapeMockupRating.prototype.cst.SHAPE_RATING, mxShapeMockupRating);
 
 //**********************************************************************************************************************************************************
 //Mail
@@ -478,7 +478,7 @@ mxShapeMockupMail.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupMail.prototype.cst.SHAPE_MAIL] = mxShapeMockupMail;
+mxCellRenderer.registerShape(mxShapeMockupMail.prototype.cst.SHAPE_MAIL, mxShapeMockupMail);
 
 //**********************************************************************************************************************************************************
 //Volume Slider
@@ -574,7 +574,7 @@ mxShapeMockupVolumeSlider.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupVolumeSlider.prototype.cst.SHAPE_VOLUME_SLIDER] = mxShapeMockupVolumeSlider;
+mxCellRenderer.registerShape(mxShapeMockupVolumeSlider.prototype.cst.SHAPE_VOLUME_SLIDER, mxShapeMockupVolumeSlider);
 
 Graph.handleFactory[mxShapeMockupVolumeSlider.prototype.cst.SHAPE_VOLUME_SLIDER] = function(state)
 {
@@ -649,7 +649,7 @@ mxShapeMockupEdit.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupEdit.prototype.cst.SHAPE_EDIT] = mxShapeMockupEdit;
+mxCellRenderer.registerShape(mxShapeMockupEdit.prototype.cst.SHAPE_EDIT, mxShapeMockupEdit);
 
 //**********************************************************************************************************************************************************
 //Print Icon
@@ -715,7 +715,7 @@ mxShapeMockupPrint.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPrint.prototype.cst.SHAPE_PRINT] = mxShapeMockupPrint;
+mxCellRenderer.registerShape(mxShapeMockupPrint.prototype.cst.SHAPE_PRINT, mxShapeMockupPrint);
 
 //**********************************************************************************************************************************************************
 //Print Icon
@@ -783,7 +783,7 @@ mxShapeMockupShare.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupShare.prototype.cst.SHAPE_SHARE] = mxShapeMockupShare;
+mxCellRenderer.registerShape(mxShapeMockupShare.prototype.cst.SHAPE_SHARE, mxShapeMockupShare);
 
 //**********************************************************************************************************************************************************
 //Trashcan Icon
@@ -845,7 +845,7 @@ mxShapeMockupTrashcan.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupTrashcan.prototype.cst.SHAPE_TRASHCAN] = mxShapeMockupTrashcan;
+mxCellRenderer.registerShape(mxShapeMockupTrashcan.prototype.cst.SHAPE_TRASHCAN, mxShapeMockupTrashcan);
 
 //**********************************************************************************************************************************************************
 //Copyright Icon
@@ -897,7 +897,7 @@ mxShapeMockupCopyright.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCopyright.prototype.cst.SHAPE_COPYRIGHT] = mxShapeMockupCopyright;
+mxCellRenderer.registerShape(mxShapeMockupCopyright.prototype.cst.SHAPE_COPYRIGHT, mxShapeMockupCopyright);
 
 //**********************************************************************************************************************************************************
 //Registered Icon
@@ -959,7 +959,7 @@ mxShapeMockupRegistered.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRegistered.prototype.cst.SHAPE_REGISTERED] = mxShapeMockupRegistered;
+mxCellRenderer.registerShape(mxShapeMockupRegistered.prototype.cst.SHAPE_REGISTERED, mxShapeMockupRegistered);
 
 //**********************************************************************************************************************************************************
 //Volume Icon
@@ -1024,7 +1024,7 @@ mxShapeMockupVolume.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupVolume.prototype.cst.SHAPE_VOLUME] = mxShapeMockupVolume;
+mxCellRenderer.registerShape(mxShapeMockupVolume.prototype.cst.SHAPE_VOLUME, mxShapeMockupVolume);
 
 //**********************************************************************************************************************************************************
 //Ruler
@@ -1146,7 +1146,7 @@ mxShapeMockupRuler.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRuler.prototype.cst.SHAPE_RULER] = mxShapeMockupRuler;
+mxCellRenderer.registerShape(mxShapeMockupRuler.prototype.cst.SHAPE_RULER, mxShapeMockupRuler);
 
 //**********************************************************************************************************************************************************
 //Advanced Ruler 
@@ -1302,7 +1302,7 @@ mxShapeMockupRuler2.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRuler2.prototype.cst.SHAPE_RULER] = mxShapeMockupRuler2;
+mxCellRenderer.registerShape(mxShapeMockupRuler2.prototype.cst.SHAPE_RULER, mxShapeMockupRuler2);
 
 Graph.handleFactory[mxShapeMockupRuler2.prototype.cst.SHAPE_RULER] = function(state)
 {
@@ -1417,7 +1417,7 @@ mxShapeMockupRevisionTable.prototype.foreground = function(c, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRevisionTable.prototype.cst.SHAPE_REVISION_TABLE] = mxShapeMockupRevisionTable;
+mxCellRenderer.registerShape(mxShapeMockupRevisionTable.prototype.cst.SHAPE_REVISION_TABLE, mxShapeMockupRevisionTable);
 
 //**********************************************************************************************************************************************************
 //Status Bar
@@ -1501,7 +1501,7 @@ mxShapeMockupStatusBar.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupStatusBar.prototype.cst.SHAPE_STATUS_BAR] = mxShapeMockupStatusBar;
+mxCellRenderer.registerShape(mxShapeMockupStatusBar.prototype.cst.SHAPE_STATUS_BAR, mxShapeMockupStatusBar);
 
 //**********************************************************************************************************************************************************
 //Pin
@@ -1562,7 +1562,7 @@ mxShapeMockupPin.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPin.prototype.cst.SHAPE_PIN] = mxShapeMockupPin;
+mxCellRenderer.registerShape(mxShapeMockupPin.prototype.cst.SHAPE_PIN, mxShapeMockupPin);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)

@@ -51,7 +51,7 @@ mxShapeEipMessageExpiration.prototype.background = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipMessageExpiration.prototype.cst.SHAPE_MESS_EXP] = mxShapeEipMessageExpiration;
+mxCellRenderer.registerShape(mxShapeEipMessageExpiration.prototype.cst.SHAPE_MESS_EXP, mxShapeEipMessageExpiration);
 
 //**********************************************************************************************************************************************************
 //Return Address
@@ -120,7 +120,7 @@ mxShapeEipReturnAddress.prototype.foreground = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipReturnAddress.prototype.cst.SHAPE_RET_ADDR] = mxShapeEipReturnAddress;
+mxCellRenderer.registerShape(mxShapeEipReturnAddress.prototype.cst.SHAPE_RET_ADDR, mxShapeEipReturnAddress);
 
 //**********************************************************************************************************************************************************
 //Anchor
@@ -155,7 +155,7 @@ mxShapeEipAnchor.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipAnchor.prototype.cst.SHAPE_ANCHOR] = mxShapeEipAnchor;
+mxCellRenderer.registerShape(mxShapeEipAnchor.prototype.cst.SHAPE_ANCHOR, mxShapeEipAnchor);
 
 //**********************************************************************************************************************************************************
 //Message Channel
@@ -216,7 +216,7 @@ mxShapeEipMessageChannel.prototype.foreground = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipMessageChannel.prototype.cst.SHAPE_MESSAGE_CHANNEL] = mxShapeEipMessageChannel;
+mxCellRenderer.registerShape(mxShapeEipMessageChannel.prototype.cst.SHAPE_MESSAGE_CHANNEL, mxShapeEipMessageChannel);
 
 mxShapeEipMessageChannel.prototype.constraints = [
                                                    new mxConnectionConstraint(new mxPoint(0, 0.5), true),
@@ -329,7 +329,7 @@ mxShapeEipDatatypeChannel.prototype.foreground = function(c, x, y, w, h)
 	};
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipDatatypeChannel.prototype.cst.SHAPE_DATATYPE_CHANNEL] = mxShapeEipDatatypeChannel;
+mxCellRenderer.registerShape(mxShapeEipDatatypeChannel.prototype.cst.SHAPE_DATATYPE_CHANNEL, mxShapeEipDatatypeChannel);
 
 mxShapeEipDatatypeChannel.prototype.constraints = [
                                             new mxConnectionConstraint(new mxPoint(0, 0.5), true),
@@ -455,7 +455,7 @@ mxShapeEipDeadLetterChannel.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipDeadLetterChannel.prototype.cst.SHAPE_DEAD_LETTER_CHANNEL] = mxShapeEipDeadLetterChannel;
+mxCellRenderer.registerShape(mxShapeEipDeadLetterChannel.prototype.cst.SHAPE_DEAD_LETTER_CHANNEL, mxShapeEipDeadLetterChannel);
 
 mxShapeEipDeadLetterChannel.prototype.constraints = [
                                                   new mxConnectionConstraint(new mxPoint(0, 0.5), true),
@@ -576,7 +576,7 @@ mxShapeEipInvalidMessageChannel.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeEipInvalidMessageChannel.prototype.cst.SHAPE_INVALID_MESSAGE_CHANNEL] = mxShapeEipInvalidMessageChannel;
+mxCellRenderer.registerShape(mxShapeEipInvalidMessageChannel.prototype.cst.SHAPE_INVALID_MESSAGE_CHANNEL, mxShapeEipInvalidMessageChannel);
 
 mxShapeEipInvalidMessageChannel.prototype.constraints = [
                                                      new mxConnectionConstraint(new mxPoint(0, 0.5), true),

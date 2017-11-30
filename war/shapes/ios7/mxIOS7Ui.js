@@ -139,7 +139,7 @@ mxShapeIOS7AppBar.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_APP_BAR] = mxShapeIOS7AppBar;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_APP_BAR, mxShapeIOS7AppBar);
 
 //**********************************************************************************************************************************************************
 //On-Off Button
@@ -209,7 +209,7 @@ mxShapeIOS7OnOffButton.prototype.foreground = function(c, x, y, w, h, state)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_ON_OFF_BUTTON] = mxShapeIOS7OnOffButton;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_ON_OFF_BUTTON, mxShapeIOS7OnOffButton);
 
 //**********************************************************************************************************************************************************
 //Slider
@@ -266,7 +266,7 @@ mxShapeIOS7Slider.prototype.foreground = function(c, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_SLIDER] = mxShapeIOS7Slider;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_SLIDER, mxShapeIOS7Slider);
 
 Graph.handleFactory[mxIOS7C.SHAPE_IOS7_SLIDER] = function(state)
 {
@@ -341,7 +341,7 @@ mxShapeIOS7DownloadBar.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_DOWNLOAD_BAR] = mxShapeIOS7DownloadBar;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_DOWNLOAD_BAR, mxShapeIOS7DownloadBar);
 
 Graph.handleFactory[mxIOS7C.SHAPE_IOS7_DOWNLOAD_BAR] = function(state)
 {
@@ -403,7 +403,7 @@ mxShapeIOS7Icon.prototype.foreground = function(c, w, h)
 	c.text(w * 0.5, h * 0.5, 0, 0, fieldText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_ICON] = mxShapeIOS7Icon;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_ICON, mxShapeIOS7Icon);
 
 //**********************************************************************************************************************************************************
 //Horizontal Button Bar
@@ -607,7 +607,7 @@ mxShapeIOS7horButtonBar.prototype.buttonText = function(c, w, h, textString, but
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_HOR_BUTTON_BAR] = mxShapeIOS7horButtonBar;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_HOR_BUTTON_BAR, mxShapeIOS7horButtonBar);
 
 //**********************************************************************************************************************************************************
 //Page Control
@@ -656,7 +656,7 @@ mxShapeIOS7pageControl.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_PAGE_CONTROL] = mxShapeIOS7pageControl;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_PAGE_CONTROL, mxShapeIOS7pageControl);
 
 //**********************************************************************************************************************************************************
 //Icon Grid
@@ -701,7 +701,7 @@ mxShapeIOS7iconGrid.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_ICON_GRID] = mxShapeIOS7iconGrid;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_ICON_GRID, mxShapeIOS7iconGrid);
 
 //**********************************************************************************************************************************************************
 //iPhone Vertical
@@ -757,7 +757,7 @@ mxShapeIOS7phone.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_PHONE] = mxShapeIOS7phone;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_PHONE, mxShapeIOS7phone);
 
 //**********************************************************************************************************************************************************
 //Search Box
@@ -824,7 +824,7 @@ mxShapeIOS7searchBox.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_SEARCH_BOX] = mxShapeIOS7searchBox;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_SEARCH_BOX, mxShapeIOS7searchBox);
 
 //**********************************************************************************************************************************************************
 //URL
@@ -897,7 +897,7 @@ mxShapeIOS7URL.prototype.foreground = function(c, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_URL] = mxShapeIOS7URL;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_URL, mxShapeIOS7URL);
 
 //**********************************************************************************************************************************************************
 //Action Dialog
@@ -967,7 +967,7 @@ mxShapeIOS7Actiondialog.prototype.subText = function(c, x, y, w, h, text, fontSi
 	c.text(w * 0.5, h * 0.7, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxIOS7C.SHAPE_IOS7_ACTION_DIALOG] = mxShapeIOS7Actiondialog;
+mxCellRenderer.registerShape(mxIOS7C.SHAPE_IOS7_ACTION_DIALOG, mxShapeIOS7Actiondialog);
 
 //**********************************************************************************************************************************************************
 //Anchor (a dummy shape without visuals used for anchoring)
@@ -1349,7 +1349,7 @@ mxShapeIOS7MarginRect.prototype.background = function(c, x, y, w, h, state)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeIOS7MarginRect.prototype.cst.SHAPE_MARGIN_RECT] = mxShapeIOS7MarginRect;
+mxCellRenderer.registerShape(mxShapeIOS7MarginRect.prototype.cst.SHAPE_MARGIN_RECT, mxShapeIOS7MarginRect);
 
 //**********************************************************************************************************************************************************
 //Callout
@@ -1409,7 +1409,7 @@ mxShapeIOS7Callout.prototype.background = function(c, x, y, w, h, state)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeIOS7Callout.prototype.cst.SHAPE_CALLOUT] = mxShapeIOS7Callout;
+mxCellRenderer.registerShape(mxShapeIOS7Callout.prototype.cst.SHAPE_CALLOUT, mxShapeIOS7Callout);
 
 //**********************************************************************************************************************************************************
 //Select Bar
@@ -1631,7 +1631,7 @@ mxShapeIOS7Slider2.prototype.background = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeIOS7Slider2.prototype.cst.SHAPE_SLIDER] = mxShapeIOS7Slider2;
+mxCellRenderer.registerShape(mxShapeIOS7Slider2.prototype.cst.SHAPE_SLIDER, mxShapeIOS7Slider2);
 
 mxShapeIOS7Slider2.prototype.constraints = null;
 

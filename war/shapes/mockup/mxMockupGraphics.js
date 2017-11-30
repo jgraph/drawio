@@ -95,7 +95,7 @@ mxShapeMockupBarChart.prototype.bars = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupBarChart.prototype.cst.SHAPE_BAR_CHART] = mxShapeMockupBarChart;
+mxCellRenderer.registerShape(mxShapeMockupBarChart.prototype.cst.SHAPE_BAR_CHART, mxShapeMockupBarChart);
 
 //**********************************************************************************************************************************************************
 //Column Chart
@@ -190,7 +190,7 @@ mxShapeMockupColumnChart.prototype.bars = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupColumnChart.prototype.cst.SHAPE_COLUMN_CHART] = mxShapeMockupColumnChart;
+mxCellRenderer.registerShape(mxShapeMockupColumnChart.prototype.cst.SHAPE_COLUMN_CHART, mxShapeMockupColumnChart);
 
 //**********************************************************************************************************************************************************
 //Line Chart
@@ -281,7 +281,7 @@ mxShapeMockupLineChart.prototype.bars = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupLineChart.prototype.cst.SHAPE_LINE_CHART] = mxShapeMockupLineChart;
+mxCellRenderer.registerShape(mxShapeMockupLineChart.prototype.cst.SHAPE_LINE_CHART, mxShapeMockupLineChart);
 
 //**********************************************************************************************************************************************************
 //Pie Chart
@@ -391,7 +391,7 @@ mxShapeMockupPieChart.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPieChart.prototype.cst.SHAPE_PIE_CHART] = mxShapeMockupPieChart;
+mxCellRenderer.registerShape(mxShapeMockupPieChart.prototype.cst.SHAPE_PIE_CHART, mxShapeMockupPieChart);
 
 //**********************************************************************************************************************************************************
 //Icon Grid (LEGACY)
@@ -467,7 +467,7 @@ mxShapeMockupIconGrid.prototype.foreground = function(c, w, h, gridSize)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupIconGrid.prototype.cst.SHAPE_ICON_GRID] = mxShapeMockupIconGrid;
+mxCellRenderer.registerShape(mxShapeMockupIconGrid.prototype.cst.SHAPE_ICON_GRID, mxShapeMockupIconGrid);
 
 //**********************************************************************************************************************************************************
 //Bubble Chart
@@ -584,7 +584,7 @@ mxShapeMockupBubbleChart.prototype.bars = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupBubbleChart.prototype.cst.SHAPE_BUBBLE_CHART] = mxShapeMockupBubbleChart;
+mxCellRenderer.registerShape(mxShapeMockupBubbleChart.prototype.cst.SHAPE_BUBBLE_CHART, mxShapeMockupBubbleChart);
 
 //**********************************************************************************************************************************************************
 //Gauge
@@ -729,7 +729,7 @@ mxShapeMockupGauge.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupGauge.prototype.cst.SHAPE_GAUGE] = mxShapeMockupGauge;
+mxCellRenderer.registerShape(mxShapeMockupGauge.prototype.cst.SHAPE_GAUGE, mxShapeMockupGauge);
 
 Graph.handleFactory[mxShapeMockupGauge.prototype.cst.SHAPE_GAUGE] = function(state)
 {
@@ -932,7 +932,7 @@ mxShapeMockupPlotChart.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPlotChart.prototype.cst.SHAPE_PLOT_CHART] = mxShapeMockupPlotChart;
+mxCellRenderer.registerShape(mxShapeMockupPlotChart.prototype.cst.SHAPE_PLOT_CHART, mxShapeMockupPlotChart);
 
 //**********************************************************************************************************************************************************
 //Gantt Chart
@@ -1063,7 +1063,7 @@ mxShapeMockupGanttChart.prototype.foreground = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupGanttChart.prototype.cst.SHAPE_GANTT_CHART] = mxShapeMockupGanttChart;
+mxCellRenderer.registerShape(mxShapeMockupGanttChart.prototype.cst.SHAPE_GANTT_CHART, mxShapeMockupGanttChart);
 
 //**********************************************************************************************************************************************************
 //Simple Icon
@@ -1109,7 +1109,7 @@ mxShapeMockupSimpleIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupSimpleIcon.prototype.cst.SIMPLE_ICON] = mxShapeMockupSimpleIcon;
+mxCellRenderer.registerShape(mxShapeMockupSimpleIcon.prototype.cst.SIMPLE_ICON, mxShapeMockupSimpleIcon);
 
 //**********************************************************************************************************************************************************
 //Anchor (a dummy shape without visuals used for anchoring)

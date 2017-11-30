@@ -66,7 +66,7 @@ mxShapeGmdlPlayer.prototype.foreground = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlPlayer.prototype.cst.SHAPE_PLAYER] = mxShapeGmdlPlayer;
+mxCellRenderer.registerShape(mxShapeGmdlPlayer.prototype.cst.SHAPE_PLAYER, mxShapeGmdlPlayer);
 
 //**********************************************************************************************************************************************************
 //switch
@@ -156,7 +156,7 @@ mxShapeGmdlSwitch.prototype.foreground = function(c, x, y, w, h, state)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSwitch.prototype.cst.SHAPE_SWITCH] = mxShapeGmdlSwitch;
+mxCellRenderer.registerShape(mxShapeGmdlSwitch.prototype.cst.SHAPE_SWITCH, mxShapeGmdlSwitch);
 
 //**********************************************************************************************************************************************************
 //rect with margins
@@ -219,7 +219,7 @@ mxShapeGmdlMarginRect.prototype.background = function(c, x, y, w, h, state)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlMarginRect.prototype.cst.SHAPE_MARGIN_RECT] = mxShapeGmdlMarginRect;
+mxCellRenderer.registerShape(mxShapeGmdlMarginRect.prototype.cst.SHAPE_MARGIN_RECT, mxShapeGmdlMarginRect);
 
 //**********************************************************************************************************************************************************
 //slider normal
@@ -272,7 +272,7 @@ mxShapeGmdlSliderNormal.prototype.background = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderNormal.prototype.cst.SHAPE_SLIDER_NORMAL] = mxShapeGmdlSliderNormal;
+mxCellRenderer.registerShape(mxShapeGmdlSliderNormal.prototype.cst.SHAPE_SLIDER_NORMAL, mxShapeGmdlSliderNormal);
 
 //**********************************************************************************************************************************************************
 //slider normal v2
@@ -340,7 +340,7 @@ mxShapeGmdlSlider2.prototype.background = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSlider2.prototype.cst.SHAPE_SLIDER] = mxShapeGmdlSlider2;
+mxCellRenderer.registerShape(mxShapeGmdlSlider2.prototype.cst.SHAPE_SLIDER, mxShapeGmdlSlider2);
 
 mxShapeGmdlSlider2.prototype.constraints = null;
 
@@ -432,7 +432,7 @@ mxShapeGmdlSliderFocused.prototype.background = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderFocused.prototype.cst.SHAPE_SLIDER_FOCUSED] = mxShapeGmdlSliderFocused;
+mxCellRenderer.registerShape(mxShapeGmdlSliderFocused.prototype.cst.SHAPE_SLIDER_FOCUSED, mxShapeGmdlSliderFocused);
 
 mxShapeGmdlSliderFocused.prototype.constraints = null;
 
@@ -521,7 +521,7 @@ mxShapeGmdlSliderDisabled.prototype.background = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderDisabled.prototype.cst.SHAPE_SLIDER_DISABLED] = mxShapeGmdlSliderDisabled;
+mxCellRenderer.registerShape(mxShapeGmdlSliderDisabled.prototype.cst.SHAPE_SLIDER_DISABLED, mxShapeGmdlSliderDisabled);
 
 //**********************************************************************************************************************************************************
 //slider disabled v2
@@ -591,7 +591,7 @@ mxShapeGmdlSliderDisabled2.prototype.background = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderDisabled2.prototype.cst.SHAPE_SLIDER_DISABLED] = mxShapeGmdlSliderDisabled2;
+mxCellRenderer.registerShape(mxShapeGmdlSliderDisabled2.prototype.cst.SHAPE_SLIDER_DISABLED, mxShapeGmdlSliderDisabled2);
 
 mxShapeGmdlSlider2.prototype.constraints = null;
 
@@ -686,7 +686,7 @@ mxShapeGmdlSliderDiscrete.prototype.background = function(c, x, y, w, h)
 	c.text(barPos * w, h * 0.5 - 9, 0, 0, p.toString() , mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderDiscrete.prototype.cst.SHAPE_DISCRETE] = mxShapeGmdlSliderDiscrete;
+mxCellRenderer.registerShape(mxShapeGmdlSliderDiscrete.prototype.cst.SHAPE_DISCRETE, mxShapeGmdlSliderDiscrete);
 
 mxShapeGmdlSliderDiscrete.prototype.constraints = null;
 
@@ -814,7 +814,7 @@ mxShapeGmdlSliderDiscreteDots.prototype.background = function(c, x, y, w, h)
 	c.text(barPos * w, h * 0.5 - 9, 0, 0, p.toString() , mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeGmdlSliderDiscreteDots.prototype.cst.SHAPE_DISCRETE_DOTS] = mxShapeGmdlSliderDiscreteDots;
+mxCellRenderer.registerShape(mxShapeGmdlSliderDiscreteDots.prototype.cst.SHAPE_DISCRETE_DOTS, mxShapeGmdlSliderDiscreteDots);
 
 mxShapeGmdlSliderDiscreteDots.prototype.constraints = null;
 

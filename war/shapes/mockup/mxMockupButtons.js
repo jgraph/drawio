@@ -103,7 +103,7 @@ mxShapeMockupMultiButton.prototype.subText = function(c, x, y, w, h, text, fontS
 	c.text(w * 0.5, h * 0.7, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupMultiButton.prototype.cst.SHAPE_MULTILINE_BUTTON] = mxShapeMockupMultiButton;
+mxCellRenderer.registerShape(mxShapeMockupMultiButton.prototype.cst.SHAPE_MULTILINE_BUTTON, mxShapeMockupMultiButton);
 
 //**********************************************************************************************************************************************************
 //Button
@@ -195,7 +195,7 @@ mxShapeMockupButton.prototype.mainText = function(c, x, y, w, h, text, fontSize,
 	c.text(w / 2, h / 2, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupButton.prototype.cst.SHAPE_BUTTON] = mxShapeMockupButton;
+mxCellRenderer.registerShape(mxShapeMockupButton.prototype.cst.SHAPE_BUTTON, mxShapeMockupButton);
 
 //**********************************************************************************************************************************************************
 //Horizontal Button Bar
@@ -412,7 +412,7 @@ mxShapeMockupHorButtonBar.prototype.buttonText = function(c, w, h, textString, b
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupHorButtonBar.prototype.cst.SHAPE_HOR_BUTTON_BAR] = mxShapeMockupHorButtonBar;
+mxCellRenderer.registerShape(mxShapeMockupHorButtonBar.prototype.cst.SHAPE_HOR_BUTTON_BAR, mxShapeMockupHorButtonBar);
 
 //**********************************************************************************************************************************************************
 //Vertical Button Bar
@@ -623,7 +623,7 @@ mxShapeMockupVerButtonBar.prototype.buttonText = function(c, w, h, textString, f
 	c.text((w * 0.5), h, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupVerButtonBar.prototype.cst.SHAPE_VER_BUTTON_BAR] = mxShapeMockupVerButtonBar;
+mxCellRenderer.registerShape(mxShapeMockupVerButtonBar.prototype.cst.SHAPE_VER_BUTTON_BAR, mxShapeMockupVerButtonBar);
 
 //**********************************************************************************************************************************************************
 //On-Off Button
@@ -713,7 +713,7 @@ mxShapeMockupOnOffButton.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupOnOffButton.prototype.cst.SHAPE_ON_OFF_BUTTON] = mxShapeMockupOnOffButton;
+mxCellRenderer.registerShape(mxShapeMockupOnOffButton.prototype.cst.SHAPE_ON_OFF_BUTTON, mxShapeMockupOnOffButton);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)

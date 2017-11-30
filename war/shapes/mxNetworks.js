@@ -61,7 +61,7 @@ mxShapeNetworksBus.prototype.foreground = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeNetworksBus.prototype.cst.SHAPE_BUS] = mxShapeNetworksBus;
+mxCellRenderer.registerShape(mxShapeNetworksBus.prototype.cst.SHAPE_BUS, mxShapeNetworksBus);
 
 //**********************************************************************************************************************************************************
 //Comm Link
@@ -117,5 +117,5 @@ mxShapeNetworksCommLinkEdge.prototype.paintEdgeShape = function(c, pts)
 };
 
 //Registers the comm link edge
-mxCellRenderer.prototype.defaultShapes['mxgraph.networks.comm_link_edge'] = mxShapeNetworksCommLinkEdge;
+mxCellRenderer.registerShape('mxgraph.networks.comm_link_edge', mxShapeNetworksCommLinkEdge);
 

@@ -22,7 +22,7 @@ mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 {
 	if (this.style != null)
 	{
-		var shape = mxCellRenderer.prototype.defaultShapes[this.style['symbol0']];
+		var shape = mxCellRenderer.defaultShapes[this.style['symbol0']];
 
 		c.save();
 			
@@ -40,7 +40,7 @@ mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 			
 		do
 		{
-			shape = mxCellRenderer.prototype.defaultShapes[this.style['symbol' + counter]];
+			shape = mxCellRenderer.defaultShapes[this.style['symbol' + counter]];
 				
 			if (shape != null)
 			{
@@ -105,7 +105,7 @@ mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.sysml.composite'] = mxShapeSysMLComposite;
+mxCellRenderer.registerShape('mxgraph.sysml.composite', mxShapeSysMLComposite);
 
 //**********************************************************************************************************************************************************
 //Package
