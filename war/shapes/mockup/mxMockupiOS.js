@@ -637,7 +637,7 @@ mxShapeMockupiPhone.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPHONE] = mxShapeMockupiPhone;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPHONE, mxShapeMockupiPhone);
 
 //**********************************************************************************************************************************************************
 //iPhone flat colored background
@@ -677,7 +677,7 @@ mxShapeMockupiBgFlat.prototype.background = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBG_FLAT] = mxShapeMockupiBgFlat;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBG_FLAT, mxShapeMockupiBgFlat);
 
 //**********************************************************************************************************************************************************
 //iPhone striped background
@@ -744,7 +744,7 @@ mxShapeMockupiBgStriped.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBG_STRIPED] = mxShapeMockupiBgStriped;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBG_STRIPED, mxShapeMockupiBgStriped);
 
 //**********************************************************************************************************************************************************
 //iPhone map background
@@ -1142,7 +1142,7 @@ mxShapeMockupiBgMap.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBG_MAP] = mxShapeMockupiBgMap;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBG_MAP, mxShapeMockupiBgMap);
 
 //**********************************************************************************************************************************************************
 //Vertical Button Bar
@@ -1358,7 +1358,7 @@ mxShapeMockupiButtonBar.prototype.buttonText = function(c, w, h, textString, fon
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBUTTON_BAR] = mxShapeMockupiButtonBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBUTTON_BAR, mxShapeMockupiButtonBar);
 
 //**********************************************************************************************************************************************************
 //iPhone Application Bar
@@ -1502,7 +1502,7 @@ mxShapeMockupiAppBar.prototype.foreground = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IAPP_BAR] = mxShapeMockupiAppBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IAPP_BAR, mxShapeMockupiAppBar);
 
 //**********************************************************************************************************************************************************
 //iPhone Top Bar (LEGACY)
@@ -1594,7 +1594,7 @@ mxShapeMockupiTopBar.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ITOP_BAR] = mxShapeMockupiTopBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ITOP_BAR, mxShapeMockupiTopBar);
 
 //**********************************************************************************************************************************************************
 //iPhone Top Bar 2
@@ -1633,11 +1633,8 @@ mxShapeMockupiTopBar2.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.setShadow(false);
 	this.foreground(c, x, y, w, h);
 };
-//zzz
 mxShapeMockupiTopBar2.prototype.background = function(c, x, y, w, h)
 {
-//	c.setAlpha(0.5);
-//	c.setFillColor('#999999');
 	c.rect(0, 0, w, h);
 	c.fill();
 };
@@ -1687,7 +1684,7 @@ mxShapeMockupiTopBar2.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupiTopBar2.prototype.cst.SHAPE_ITOP_BAR2] = mxShapeMockupiTopBar2;
+mxCellRenderer.registerShape(mxShapeMockupiTopBar2.prototype.cst.SHAPE_ITOP_BAR2, mxShapeMockupiTopBar2);
 
 //**********************************************************************************************************************************************************
 //iPhone Top Bar Locked
@@ -1733,8 +1730,6 @@ mxShapeMockupiTopBarLocked.prototype.foreground = function(c, x, y, w, h)
 {
 	c.setFillColor('#cccccc');
 	c.setStrokeColor('#cccccc');
-//	c.setFontColor('#cccccc');
-//	c.setFontSize(7.5);
 
 	c.rect(5, h * 0.5 + 1.75, 1.5, 2.5);
 	c.fill();
@@ -1753,8 +1748,6 @@ mxShapeMockupiTopBarLocked.prototype.foreground = function(c, x, y, w, h)
 
 	c.rect(15, h * 0.5 - 3.25, 1.5, 7.5);
 	c.fill();
-
-//	c.text(18, h * 0.5, 0, 0, 'CARRIER', mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 
 	c.begin();
 	c.moveTo(w * 0.5 - 2, h * 0.5 - 1);
@@ -1787,7 +1780,7 @@ mxShapeMockupiTopBarLocked.prototype.foreground = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ITOP_BAR_LOCKED] = mxShapeMockupiTopBarLocked;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ITOP_BAR_LOCKED, mxShapeMockupiTopBarLocked);
 
 //**********************************************************************************************************************************************************
 //Button
@@ -1843,7 +1836,7 @@ mxShapeMockupiButton.prototype.mainText = function(c, x, y, w, h, text, fontSize
 	c.text(w / 2, h / 2, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBUTTON] = mxShapeMockupiButton;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBUTTON, mxShapeMockupiButton);
 
 //**********************************************************************************************************************************************************
 //Button Back
@@ -1909,7 +1902,7 @@ mxShapeMockupiButtonBack.prototype.mainText = function(c, x, y, w, h, text, font
 	c.text(w * 0.5 + 2.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBUTTON_BACK] = mxShapeMockupiButtonBack;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBUTTON_BACK, mxShapeMockupiButtonBack);
 
 //**********************************************************************************************************************************************************
 //Button Forward
@@ -1975,7 +1968,7 @@ mxShapeMockupiButtonForward.prototype.mainText = function(c, x, y, w, h, text, f
 	c.text(w * 0.5 - 2.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IBUTTON_FORWARD] = mxShapeMockupiButtonForward;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IBUTTON_FORWARD, mxShapeMockupiButtonForward);
 
 //**********************************************************************************************************************************************************
 //Prev/Next Button
@@ -2046,7 +2039,7 @@ mxShapeMockupiPrevNextButton.prototype.foreground = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPREV_NEXT] = mxShapeMockupiPrevNextButton;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPREV_NEXT, mxShapeMockupiPrevNextButton);
 
 //**********************************************************************************************************************************************************
 //Text Input
@@ -2098,7 +2091,7 @@ mxShapeMockupiTextInput.prototype.mainText = function(c, x, y, w, h, text, fontS
 	c.text(2, h * 0.5, 0, 0, text, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ITEXT_INPUT] = mxShapeMockupiTextInput;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ITEXT_INPUT, mxShapeMockupiTextInput);
 
 //**********************************************************************************************************************************************************
 //Radio Button Group (LEGACY)
@@ -2209,7 +2202,7 @@ mxShapeMockupiRadioGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IRADIO_GROUP] = mxShapeMockupiRadioGroup;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IRADIO_GROUP, mxShapeMockupiRadioGroup);
 
 //**********************************************************************************************************************************************************
 //Checkbox Group (LEGACY)
@@ -2324,7 +2317,7 @@ mxShapeMockupiCheckboxGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICHECKBOX_GROUP] = mxShapeMockupiCheckboxGroup;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICHECKBOX_GROUP, mxShapeMockupiCheckboxGroup);
 
 //**********************************************************************************************************************************************************
 //Combo box
@@ -2401,7 +2394,7 @@ mxShapeMockupiComboBox.prototype.mainText = function(c, x, y, w, h, text, fontSi
 	c.text(2.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICOMBO_BOX] = mxShapeMockupiComboBox;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICOMBO_BOX, mxShapeMockupiComboBox);
 
 //**********************************************************************************************************************************************************
 //On-Off Button
@@ -2491,7 +2484,7 @@ mxShapeMockupiOnOffButton.prototype.mainText = function(c, x, y, w, h, state)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ION_OFF_BUTTON] = mxShapeMockupiOnOffButton;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ION_OFF_BUTTON, mxShapeMockupiOnOffButton);
 
 //**********************************************************************************************************************************************************
 //Alert Box
@@ -2578,7 +2571,7 @@ mxShapeMockupiAlertBox.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.text(w * 0.5, h - 15, 0, 0, mainText[1], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IALERT_BOX] = mxShapeMockupiAlertBox;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IALERT_BOX, mxShapeMockupiAlertBox);
 
 //**********************************************************************************************************************************************************
 //Dialog Box
@@ -2669,7 +2662,7 @@ mxShapeMockupiDialogBox.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.text(w * 0.75, h - 15, 0, 0, mainText[2], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IDIALOG_BOX] = mxShapeMockupiDialogBox;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IDIALOG_BOX, mxShapeMockupiDialogBox);
 
 //**********************************************************************************************************************************************************
 //Lock Button
@@ -2741,7 +2734,7 @@ mxShapeMockupiLockButton.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ILOCK_BUTTON] = mxShapeMockupiLockButton;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ILOCK_BUTTON, mxShapeMockupiLockButton);
 
 //**********************************************************************************************************************************************************
 //Arrow Icon
@@ -2800,7 +2793,7 @@ mxShapeMockupiArrowIcon.prototype.foreground = function(c, x, y, w, h, strokeCol
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IARROW_ICON] = mxShapeMockupiArrowIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IARROW_ICON, mxShapeMockupiArrowIcon);
 
 //**********************************************************************************************************************************************************
 //Delete Icon
@@ -2858,7 +2851,7 @@ mxShapeMockupiDeleteIcon.prototype.foreground = function(c, x, y, w, h, strokeCo
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IDELETE_ICON] = mxShapeMockupiDeleteIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IDELETE_ICON, mxShapeMockupiDeleteIcon);
 
 //**********************************************************************************************************************************************************
 //Add Icon
@@ -2918,7 +2911,7 @@ mxShapeMockupiAddIcon.prototype.foreground = function(c, x, y, w, h, strokeColor
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IADD_ICON] = mxShapeMockupiAddIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IADD_ICON, mxShapeMockupiAddIcon);
 
 //**********************************************************************************************************************************************************
 //Info Icon
@@ -2996,7 +2989,7 @@ mxShapeMockupiInfoIcon.prototype.foreground = function(c, x, y, w, h, strokeColo
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IINFO_ICON] = mxShapeMockupiInfoIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IINFO_ICON, mxShapeMockupiInfoIcon);
 
 
 //**********************************************************************************************************************************************************
@@ -3071,7 +3064,7 @@ mxShapeMockupiSortFindIcon.prototype.foreground = function(c, x, y, w, h, stroke
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ISORT_FIND_ICON] = mxShapeMockupiSortFindIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ISORT_FIND_ICON, mxShapeMockupiSortFindIcon);
 
 //**********************************************************************************************************************************************************
 //Arrow Icon
@@ -3130,7 +3123,7 @@ mxShapeMockupiCheckIcon.prototype.foreground = function(c, x, y, w, h, strokeCol
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICHECK_ICON] = mxShapeMockupiCheckIcon;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICHECK_ICON, mxShapeMockupiCheckIcon);
 
 //**********************************************************************************************************************************************************
 //Keyboard (letters)
@@ -3344,7 +3337,7 @@ mxShapeMockupiKeybLetters.prototype.foreground = function(c, x, y, w, h, strokeC
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IKEYB_LETTERS] = mxShapeMockupiKeybLetters;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IKEYB_LETTERS, mxShapeMockupiKeybLetters);
 
 //**********************************************************************************************************************************************************
 //Keyboard (numbers)
@@ -3543,7 +3536,7 @@ mxShapeMockupiKeybNumbers.prototype.foreground = function(c, x, y, w, h, strokeC
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IKEYB_NUMBERS] = mxShapeMockupiKeybNumbers;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IKEYB_NUMBERS, mxShapeMockupiKeybNumbers);
 
 //**********************************************************************************************************************************************************
 //Keyboard (symbols)
@@ -3742,7 +3735,7 @@ mxShapeMockupiKeybSymbols.prototype.foreground = function(c, x, y, w, h, strokeC
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IKEYB_SYMBOLS] = mxShapeMockupiKeybSymbols;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IKEYB_SYMBOLS, mxShapeMockupiKeybSymbols);
 
 //**********************************************************************************************************************************************************
 //Delete App
@@ -3802,7 +3795,7 @@ mxShapeMockupiDeleteApp.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IDELETE_APP] = mxShapeMockupiDeleteApp;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IDELETE_APP, mxShapeMockupiDeleteApp);
 
 //**********************************************************************************************************************************************************
 //Direction
@@ -3867,7 +3860,7 @@ mxShapeMockupiDirection.prototype.foreground = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IDIRECTION] = mxShapeMockupiDirection;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IDIRECTION, mxShapeMockupiDirection);
 
 //**********************************************************************************************************************************************************
 //Location Bar
@@ -3989,7 +3982,7 @@ mxShapeMockupiLocationBar.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ILOCATION_BAR] = mxShapeMockupiLocationBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ILOCATION_BAR, mxShapeMockupiLocationBar);
 
 //**********************************************************************************************************************************************************
 //Call Dialog
@@ -4181,7 +4174,7 @@ mxShapeMockupiCallDialog.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICALL_DIALOG] = mxShapeMockupiCallDialog;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICALL_DIALOG, mxShapeMockupiCallDialog);
 
 //**********************************************************************************************************************************************************
 //Call Buttons
@@ -4328,7 +4321,7 @@ mxShapeMockupiCallButtons.prototype.foreground = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICALL_BUTTONS] = mxShapeMockupiCallButtons;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICALL_BUTTONS, mxShapeMockupiCallButtons);
 
 //**********************************************************************************************************************************************************
 //Option
@@ -4431,7 +4424,7 @@ mxShapeMockupiOption.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IOPTION] = mxShapeMockupiOption;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IOPTION, mxShapeMockupiOption);
 
 //**********************************************************************************************************************************************************
 //Alpha List
@@ -4504,7 +4497,7 @@ mxShapeMockupiAlphaList.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IALPHA_LIST] = mxShapeMockupiAlphaList;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IALPHA_LIST, mxShapeMockupiAlphaList);
 
 //**********************************************************************************************************************************************************
 //Horizontal Button Bar
@@ -4712,7 +4705,7 @@ mxShapeMockupiHorButtonBar.prototype.buttonText = function(c, w, h, textString, 
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IHOR_BUTTON_BAR] = mxShapeMockupiHorButtonBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IHOR_BUTTON_BAR, mxShapeMockupiHorButtonBar);
 
 //**********************************************************************************************************************************************************
 //Pin
@@ -4767,7 +4760,7 @@ mxShapeMockupiPin.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPIN] = mxShapeMockupiPin;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPIN, mxShapeMockupiPin);
 
 //**********************************************************************************************************************************************************
 //Video Controls
@@ -4933,7 +4926,7 @@ mxShapeMockupiVideoControls.prototype.foreground = function(c, w, h, rSize)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IVIDEO_CONTROLS] = mxShapeMockupiVideoControls;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IVIDEO_CONTROLS, mxShapeMockupiVideoControls);
 
 Graph.handleFactory[mxMockupC.SHAPE_IVIDEO_CONTROLS] = function(state)
 {
@@ -5024,7 +5017,7 @@ mxShapeMockupiURLBar.prototype.foreground = function(c, w, h)
 	c.text(w * 0.875, h * 0.625, 0, 0, fieldText[2], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IURL_BAR] = mxShapeMockupiURLBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IURL_BAR, mxShapeMockupiURLBar);
 
 //**********************************************************************************************************************************************************
 //Slider
@@ -5088,7 +5081,7 @@ mxShapeMockupiSlider.prototype.foreground = function(c, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ISLIDER] = mxShapeMockupiSlider;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ISLIDER, mxShapeMockupiSlider);
 
 Graph.handleFactory[mxMockupC.SHAPE_ISLIDER] = function(state)
 {
@@ -5163,7 +5156,7 @@ mxShapeMockupiProgressBar.prototype.foreground = function(c, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPROGRESS_BAR] = mxShapeMockupiProgressBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPROGRESS_BAR, mxShapeMockupiProgressBar);
 
 Graph.handleFactory[mxMockupC.SHAPE_IPROGRESS_BAR] = function(state)
 {
@@ -5232,7 +5225,7 @@ mxShapeMockupiCloudProgressBar.prototype.foreground = function(c, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICLOUD_PROGRESS_BAR] = mxShapeMockupiCloudProgressBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICLOUD_PROGRESS_BAR, mxShapeMockupiCloudProgressBar);
 
 Graph.handleFactory[mxMockupC.SHAPE_ICLOUD_PROGRESS_BAR] = function(state)
 {
@@ -5316,7 +5309,7 @@ mxShapeMockupiDownloadBar.prototype.foreground = function(c, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IDOWNLOAD_BAR] = mxShapeMockupiDownloadBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IDOWNLOAD_BAR, mxShapeMockupiDownloadBar);
 
 Graph.handleFactory[mxMockupC.SHAPE_IDOWNLOAD_BAR] = function(state)
 {
@@ -5386,7 +5379,7 @@ mxShapeMockupiScreenNameBar.prototype.foreground = function(c, w, h, rSize)
 	c.text(w * 0.5, h * 0.45, 0, 0, fieldText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ISCREEN_NAME_BAR] = mxShapeMockupiScreenNameBar;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ISCREEN_NAME_BAR, mxShapeMockupiScreenNameBar);
 
 //**********************************************************************************************************************************************************
 //Icon Grid
@@ -5462,7 +5455,7 @@ mxShapeMockupiIconGrid.prototype.foreground = function(c, w, h, gridSize)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IICON_GRID] = mxShapeMockupiIconGrid;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IICON_GRID, mxShapeMockupiIconGrid);
 
 //**********************************************************************************************************************************************************
 //Copy
@@ -5538,7 +5531,7 @@ mxShapeMockupiCopy.prototype.foreground = function(c, w, h, rSize)
 	c.text(w * 0.5, (h - 7.5)* 0.45, 0, 0, fieldText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICOPY] = mxShapeMockupiCopy;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICOPY, mxShapeMockupiCopy);
 
 //**********************************************************************************************************************************************************
 //Copy Area
@@ -5658,7 +5651,7 @@ mxShapeMockupiCopyArea.prototype.foreground = function(c, w, h, rSize)
 	c.text(w * 0.5, 8.75, 0, 0, fieldText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ICOPY_AREA] = mxShapeMockupiCopyArea;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_ICOPY_AREA, mxShapeMockupiCopyArea);
 
 //**********************************************************************************************************************************************************
 //Home Page Control
@@ -5711,7 +5704,7 @@ mxShapeMockupiHomePageControl.prototype.paintVertexShape = function(c, x, y, w, 
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IHOME_PAGE_CONTROL] = mxShapeMockupiHomePageControl;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IHOME_PAGE_CONTROL, mxShapeMockupiHomePageControl);
 
 //**********************************************************************************************************************************************************
 //Page Control
@@ -5759,7 +5752,7 @@ mxShapeMockupiPageControl.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPAGE_CONTROL] = mxShapeMockupiPageControl;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPAGE_CONTROL, mxShapeMockupiPageControl);
 
 //**********************************************************************************************************************************************************
 //iPad
@@ -6327,7 +6320,7 @@ mxShapeMockupiPad.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_IPAD] = mxShapeMockupiPad;
+mxCellRenderer.registerShape(mxMockupC.SHAPE_IPAD, mxShapeMockupiPad);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)
@@ -6609,4 +6602,3 @@ mxShapeMockupFancyRRect.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeMockupFancyRRect.prototype.cst.FANCY_RRECT, mxShapeMockupFancyRRect);
-

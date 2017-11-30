@@ -898,7 +898,7 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeBootstrapRating.prototype.cst.RATING] = mxShapeBootstrapRating;
+mxCellRenderer.registerShape(mxShapeBootstrapRating.prototype.cst.RATING, mxShapeBootstrapRating);
 
 //**********************************************************************************************************************************************************
 //Anchor (a dummy shape without visuals used for anchoring)

@@ -55,7 +55,7 @@ mxShapeMockupLink.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupLink.prototype.cst.SHAPE_LINK] = mxShapeMockupLink;
+mxCellRenderer.registerShape(mxShapeMockupLink.prototype.cst.SHAPE_LINK, mxShapeMockupLink);
 
 //**********************************************************************************************************************************************************
 //Link Bar
@@ -254,7 +254,7 @@ mxShapeMockupLinkBar.prototype.buttonText = function(c, w, h, textString, button
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupLinkBar.prototype.cst.SHAPE_LINK_BAR] = mxShapeMockupLinkBar;
+mxCellRenderer.registerShape(mxShapeMockupLinkBar.prototype.cst.SHAPE_LINK_BAR, mxShapeMockupLinkBar);
 
 //**********************************************************************************************************************************************************
 //Callout
@@ -444,7 +444,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCallout.prototype.cst.SHAPE_CALLOUT] = mxShapeMockupCallout;
+mxCellRenderer.registerShape(mxShapeMockupCallout.prototype.cst.SHAPE_CALLOUT, mxShapeMockupCallout);
 
 //**********************************************************************************************************************************************************
 //Sticky Note
@@ -525,7 +525,7 @@ mxShapeMockupStickyNote.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupStickyNote.prototype.cst.SHAPE_STICKY_NOTE] = mxShapeMockupStickyNote;
+mxCellRenderer.registerShape(mxShapeMockupStickyNote.prototype.cst.SHAPE_STICKY_NOTE, mxShapeMockupStickyNote);
 
 //**********************************************************************************************************************************************************
 //Bulleted List
@@ -614,7 +614,7 @@ mxShapeMockupBulletedList.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupBulletedList.prototype.cst.SHAPE_BULLETED_LIST] = mxShapeMockupBulletedList;
+mxCellRenderer.registerShape(mxShapeMockupBulletedList.prototype.cst.SHAPE_BULLETED_LIST, mxShapeMockupBulletedList);
 
 //**********************************************************************************************************************************************************
 //Text Box
@@ -677,7 +677,7 @@ mxShapeMockupTextBox.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupTextBox.prototype.cst.SHAPE_TEXT_BOX] = mxShapeMockupTextBox;
+mxCellRenderer.registerShape(mxShapeMockupTextBox.prototype.cst.SHAPE_TEXT_BOX, mxShapeMockupTextBox);
 
 //**********************************************************************************************************************************************************
 //Captcha
@@ -759,7 +759,7 @@ mxShapeMockupCaptcha.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCaptcha.prototype.cst.SHAPE_CAPTCHA] = mxShapeMockupCaptcha;
+mxCellRenderer.registerShape(mxShapeMockupCaptcha.prototype.cst.SHAPE_CAPTCHA, mxShapeMockupCaptcha);
 
 //**********************************************************************************************************************************************************
 //Alphanumeric
@@ -811,7 +811,7 @@ mxShapeMockupAlphanumeric.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupAlphanumeric.prototype.cst.SHAPE_ALPHANUMERIC] = mxShapeMockupAlphanumeric;
+mxCellRenderer.registerShape(mxShapeMockupAlphanumeric.prototype.cst.SHAPE_ALPHANUMERIC, mxShapeMockupAlphanumeric);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)

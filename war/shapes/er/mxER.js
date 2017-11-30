@@ -103,7 +103,7 @@ mxShapeEREntity.prototype.mainText = function(c, x, y, w, h, text, fontSize, fon
 	c.text(w * 0.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.entity'] = mxShapeEREntity;
+mxCellRenderer.registerShape('mxgraph.er.entity', mxShapeEREntity);
 
 mxShapeEREntity.prototype.constraints = [
                                            new mxConnectionConstraint(new mxPoint(0.25, 0), true),
@@ -296,7 +296,7 @@ mxShapeEREntityExt.prototype.attrText = function(c, x, y, w, h, attributes, font
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.entityExt'] = mxShapeEREntityExt;
+mxCellRenderer.registerShape('mxgraph.er.entityExt', mxShapeEREntityExt);
 
 mxShapeEREntityExt.prototype.constraints = [
                                          new mxConnectionConstraint(new mxPoint(0.25, 0), true),
@@ -384,7 +384,7 @@ mxShapeERAttribute.prototype.mainText = function(c, x, y, w, h, text, fontSize, 
 	c.text(w * 0.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.attribute'] = mxShapeERAttribute;
+mxCellRenderer.registerShape('mxgraph.er.attribute', mxShapeERAttribute);
 
 mxShapeERAttribute.prototype.constraints = [
                                                  new mxConnectionConstraint(new mxPoint(0.144, 0.144), false),
@@ -479,7 +479,7 @@ mxShapeERHas.prototype.mainText = function(c, x, y, w, h, text, fontSize, fontCo
 	c.text(w * 0.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.has'] = mxShapeERHas;
+mxCellRenderer.registerShape('mxgraph.er.has', mxShapeERHas);
 
 mxShapeERHas.prototype.constraints = [
                                       new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -552,7 +552,7 @@ mxShapeERCloud.prototype.mainText = function(c, x, y, w, h, text, fontSize, font
 	c.text(w * 0.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.cloud'] = mxShapeERCloud;
+mxCellRenderer.registerShape('mxgraph.er.cloud', mxShapeERCloud);
 
 mxShapeERCloud.prototype.constraints = [
                                         new mxConnectionConstraint(new mxPoint(0.08, 0.5), false),
@@ -732,7 +732,7 @@ mxShapeERHierarchy.prototype.shapeText = function(c, x, y, w, h, text, subText, 
 	c.text(w * 0.7, (h + fontSize) * 0.5, 0, 0, subText[1], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.hierarchy'] = mxShapeERHierarchy;
+mxCellRenderer.registerShape('mxgraph.er.hierarchy', mxShapeERHierarchy);
 
 mxShapeERHierarchy.prototype.constraints = [
                                          new mxConnectionConstraint(new mxPoint(0.25, 0), true),
@@ -822,7 +822,7 @@ mxShapeERNote.prototype.mainText = function(c, x, y, w, h, text, fontSize, fontC
 	c.text(w * 0.5, h * 0.5, 0, 0, text, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.note'] = mxShapeERNote;
+mxCellRenderer.registerShape('mxgraph.er.note', mxShapeERNote);
 
 mxShapeERNote.prototype.constraints = [
                                            new mxConnectionConstraint(new mxPoint(0, 0), true),
@@ -932,7 +932,7 @@ mxShapeERChen.prototype.foreground = function(c, x, y, w, h, fontSize, fontColor
 	c.text(w * 0.875, h * 0.875, 0, 0, 'Mandatory', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.chens'] = mxShapeERChen;
+mxCellRenderer.registerShape('mxgraph.er.chens', mxShapeERChen);
 
 mxShapeERChen.prototype.constraints = [
                                        new mxConnectionConstraint(new mxPoint(0, 0), true),
@@ -1087,7 +1087,7 @@ mxShapeERBachman.prototype.foreground = function(c, x, y, w, h, fontSize, fontCo
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.bachmans'] = mxShapeERBachman;
+mxCellRenderer.registerShape('mxgraph.er.bachmans', mxShapeERBachman);
 
 mxShapeERBachman.prototype.constraints = [
                                        new mxConnectionConstraint(new mxPoint(0, 0), true),
@@ -1223,7 +1223,7 @@ mxShapeERInfEng.prototype.foreground = function(c, x, y, w, h, fontSize, fontCol
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.er.ie'] = mxShapeERInfEng;
+mxCellRenderer.registerShape('mxgraph.er.ie', mxShapeERInfEng);
 
 mxShapeERInfEng.prototype.constraints = [
                                           new mxConnectionConstraint(new mxPoint(0, 0), true),

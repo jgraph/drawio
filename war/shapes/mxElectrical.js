@@ -53,7 +53,7 @@ mxShapeElectricalTestPoint.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalTestPoint.prototype.cst.SHAPE_TEST_POINT] = mxShapeElectricalTestPoint;
+mxCellRenderer.registerShape(mxShapeElectricalTestPoint.prototype.cst.SHAPE_TEST_POINT, mxShapeElectricalTestPoint);
 
 mxShapeElectricalTestPoint.prototype.constraints = [
                                                   new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -117,7 +117,7 @@ mxShapeElectricalStraightBus.prototype.paintVertexShape = function(c, x, y, w, h
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalStraightBus.prototype.cst.SHAPE_STRAIGHT_BUS] = mxShapeElectricalStraightBus;
+mxCellRenderer.registerShape(mxShapeElectricalStraightBus.prototype.cst.SHAPE_STRAIGHT_BUS, mxShapeElectricalStraightBus);
 
 mxShapeElectricalStraightBus.prototype.constraints = [
                                                     new mxConnectionConstraint(new mxPoint(0.5, 0), true),
@@ -176,7 +176,7 @@ mxShapeElectricalTwoLineBusElbow.prototype.paintVertexShape = function(c, x, y, 
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalTwoLineBusElbow.prototype.cst.SHAPE_TWO_LINE_BUS_ELBOW] = mxShapeElectricalTwoLineBusElbow;
+mxCellRenderer.registerShape(mxShapeElectricalTwoLineBusElbow.prototype.cst.SHAPE_TWO_LINE_BUS_ELBOW, mxShapeElectricalTwoLineBusElbow);
 
 mxShapeElectricalTwoLineBusElbow.prototype.constraints = null;
 
@@ -254,7 +254,7 @@ mxShapeElectricalThreeLineBusElbow.prototype.paintVertexShape = function(c, x, y
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalThreeLineBusElbow.prototype.cst.SHAPE_THREE_LINE_BUS_ELBOW] = mxShapeElectricalThreeLineBusElbow;
+mxCellRenderer.registerShape(mxShapeElectricalThreeLineBusElbow.prototype.cst.SHAPE_THREE_LINE_BUS_ELBOW, mxShapeElectricalThreeLineBusElbow);
 
 mxShapeElectricalThreeLineBusElbow.prototype.constraints = null;
 
@@ -338,7 +338,7 @@ mxShapeElectricalFourLineBusElbow.prototype.paintVertexShape = function(c, x, y,
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalFourLineBusElbow.prototype.cst.SHAPE_FOUR_LINE_BUS_ELBOW] = mxShapeElectricalFourLineBusElbow;
+mxCellRenderer.registerShape(mxShapeElectricalFourLineBusElbow.prototype.cst.SHAPE_FOUR_LINE_BUS_ELBOW, mxShapeElectricalFourLineBusElbow);
 
 mxShapeElectricalFourLineBusElbow.prototype.constraints = null;
 
@@ -446,7 +446,7 @@ mxShapeElectricalEightLineBusElbow.prototype.paintVertexShape = function(c, x, y
 	
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeElectricalEightLineBusElbow.prototype.cst.SHAPE_EIGHT_LINE_BUS_ELBOW] = mxShapeElectricalEightLineBusElbow;
+mxCellRenderer.registerShape(mxShapeElectricalEightLineBusElbow.prototype.cst.SHAPE_EIGHT_LINE_BUS_ELBOW, mxShapeElectricalEightLineBusElbow);
 
 mxShapeElectricalEightLineBusElbow.prototype.constraints = null;
 

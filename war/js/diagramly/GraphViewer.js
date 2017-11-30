@@ -101,119 +101,119 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 		if (container != null)
 		{
-			this.graph = new Graph(container);
-			this.graph.transparentBackground = false;
-			
-			if (this.graphConfig.move)
-			{
-				this.graph.isMoveCellsEvent = function(evt)
-				{
-					return true;
-				};
-			}
-	
-			// Adds lightbox and link handling for shapes
-			if (this.lightboxClickEnabled)
-			{
-				container.style.cursor = 'pointer';
-			}
-			
-			// Hack for using EditorUi methods on the graph instance
-			this.editor = new Editor(true, null, null, this.graph);
-			this.editor.editBlankUrl = this.editBlankUrl;
-			this.graph.lightbox = true;
-			this.graph.centerZoom = false;
-			this.graph.autoExtend = false;
-			this.graph.autoScroll = false;
-			this.graph.setEnabled(false);
-			
-			// Handles relative images
-			var self = this;
-			
-			this.graph.getImageFromBundles = function(key)
-			{
-				return self.getImageUrl(key);
-			};
-	
-			if (mxClient.IS_SVG)
-			{
-				// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
-				this.editor.graph.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
-			}
-			
-			// Adds page placeholders
-			if (xmlNode.nodeName == 'mxfile')
-			{
-				var diagrams = xmlNode.getElementsByTagName('diagram');
-				
-				if (diagrams.length > 0)
-				{
-					var graphGetGlobalVariable = this.graph.getGlobalVariable;
-					var self = this;
-					
-					this.graph.getGlobalVariable = function(name)
-					{
-						var diagram = diagrams[self.currentPage];
-						
-						if (name == 'page')
-						{
-							return diagram.getAttribute('name') || 'Page-' + (self.currentPage + 1);
-						}
-						else if (name == 'pagenumber')
-						{
-							return self.currentPage + 1;
-						}
-						
-						return graphGetGlobalVariable.apply(this, arguments);
-					};
-				}
-			}
-			
-			this.diagrams = [];
-			var lastXmlNode = null;
-			
-			this.selectPage = function(number)
-			{
-				this.currentPage = mxUtils.mod(number, this.diagrams.length);
-				this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
-					this.diagrams[this.currentPage]))).documentElement);
-			};
-			
-			this.selectPageById = function(id)
-			{
-				for (var i = 0; i < this.diagrams.length; i++)
-				{
-					if (this.diagrams[i].getAttribute('id') == id)
-					{
-						this.selectPage(i);
-						break;
-					}
-				}
-			};
-			
-			var update = mxUtils.bind(this, function()
-			{
-				if (this.xmlNode == null || this.xmlNode.nodeName != 'mxfile')
-				{
-					this.diagrams = [];
-				}
-				if (this.xmlNode != lastXmlNode)
-				{
-					this.diagrams = this.xmlNode.getElementsByTagName('diagram');
-					lastXmlNode = this.xmlNode;
-				}
-			});
-			
-			// LATER: Add event for setGraphXml
-			this.addListener('xmlNodeChanged', update);
-			update();
-
-			// Passes current page via urlParams global variable
-			// to let the parser know which page we're using
-			urlParams['page'] = self.currentPage;
-			
 			var render = mxUtils.bind(this, function()
 			{
+				this.graph = new Graph(container);
+				this.graph.transparentBackground = false;
+				
+				if (this.graphConfig.move)
+				{
+					this.graph.isMoveCellsEvent = function(evt)
+					{
+						return true;
+					};
+				}
+		
+				// Adds lightbox and link handling for shapes
+				if (this.lightboxClickEnabled)
+				{
+					container.style.cursor = 'pointer';
+				}
+				
+				// Hack for using EditorUi methods on the graph instance
+				this.editor = new Editor(true, null, null, this.graph);
+				this.editor.editBlankUrl = this.editBlankUrl;
+				this.graph.lightbox = true;
+				this.graph.centerZoom = false;
+				this.graph.autoExtend = false;
+				this.graph.autoScroll = false;
+				this.graph.setEnabled(false);
+				
+				// Handles relative images
+				var self = this;
+				
+				this.graph.getImageFromBundles = function(key)
+				{
+					return self.getImageUrl(key);
+				};
+		
+				if (mxClient.IS_SVG)
+				{
+					// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
+					this.editor.graph.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
+				}
+				
+				// Adds page placeholders
+				if (xmlNode.nodeName == 'mxfile')
+				{
+					var diagrams = xmlNode.getElementsByTagName('diagram');
+					
+					if (diagrams.length > 0)
+					{
+						var graphGetGlobalVariable = this.graph.getGlobalVariable;
+						var self = this;
+						
+						this.graph.getGlobalVariable = function(name)
+						{
+							var diagram = diagrams[self.currentPage];
+							
+							if (name == 'page')
+							{
+								return diagram.getAttribute('name') || 'Page-' + (self.currentPage + 1);
+							}
+							else if (name == 'pagenumber')
+							{
+								return self.currentPage + 1;
+							}
+							
+							return graphGetGlobalVariable.apply(this, arguments);
+						};
+					}
+				}
+				
+				this.diagrams = [];
+				var lastXmlNode = null;
+				
+				this.selectPage = function(number)
+				{
+					this.currentPage = mxUtils.mod(number, this.diagrams.length);
+					this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
+						this.diagrams[this.currentPage]))).documentElement);
+				};
+				
+				this.selectPageById = function(id)
+				{
+					for (var i = 0; i < this.diagrams.length; i++)
+					{
+						if (this.diagrams[i].getAttribute('id') == id)
+						{
+							this.selectPage(i);
+							break;
+						}
+					}
+				};
+				
+				var update = mxUtils.bind(this, function()
+				{
+					if (this.xmlNode == null || this.xmlNode.nodeName != 'mxfile')
+					{
+						this.diagrams = [];
+					}
+					if (this.xmlNode != lastXmlNode)
+					{
+						this.diagrams = this.xmlNode.getElementsByTagName('diagram');
+						lastXmlNode = this.xmlNode;
+					}
+				});
+				
+				// LATER: Add event for setGraphXml
+				this.addListener('xmlNodeChanged', update);
+				update();
+	
+				// Passes current page via urlParams global variable
+				// to let the parser know which page we're using
+				urlParams['page'] = self.currentPage;
+
 				this.graph.getModel().beginUpdate();
 				try
 				{

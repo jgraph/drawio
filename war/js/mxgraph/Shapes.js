@@ -52,7 +52,7 @@
 		return null;
 	};
 	
-	mxCellRenderer.prototype.defaultShapes['cube'] = CubeShape;
+	mxCellRenderer.registerShape('cube', CubeShape);
 	
 	var tan30 = Math.tan(mxUtils.toRadians(30));
 	var tan30Dx = (0.5 - tan30) / 2;
@@ -78,7 +78,7 @@
 		path.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['isoRectangle'] = IsoRectangleShape;
+	mxCellRenderer.registerShape('isoRectangle', IsoRectangleShape);
 
 	// Cube Shape, supports size style
 	function IsoCubeShape()
@@ -114,7 +114,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['isoCube'] = IsoCubeShape;
+	mxCellRenderer.registerShape('isoCube', IsoCubeShape);
 	
 	// DataStore Shape, supports size style
 	function DataStoreShape()
@@ -179,7 +179,7 @@
 			this.strokewidth - 1) * this.scale, 0, 0);
 	}
 
-	mxCellRenderer.prototype.defaultShapes['datastore'] = DataStoreShape;
+	mxCellRenderer.registerShape('datastore', DataStoreShape);
 
 	// Note Shape, supports size style
 	function NoteShape()
@@ -212,7 +212,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['note'] = NoteShape;
+	mxCellRenderer.registerShape('note', NoteShape);
 
 	// Note Shape, supports size style
 	function SwitchShape()
@@ -231,7 +231,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['switch'] = SwitchShape;
+	mxCellRenderer.registerShape('switch', SwitchShape);
 
 	// Folder Shape, supports tabWidth, tabHeight styles
 	function FolderShape()
@@ -290,7 +290,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['folder'] = FolderShape;
+	mxCellRenderer.registerShape('folder', FolderShape);
 
 	// Card shape
 	function CardShape()
@@ -308,7 +308,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['card'] = CardShape;
+	mxCellRenderer.registerShape('card', CardShape);
 
 	// Tape shape
 	function TapeShape()
@@ -360,7 +360,7 @@
 		return rect;
 	};
 	
-	mxCellRenderer.prototype.defaultShapes['tape'] = TapeShape;
+	mxCellRenderer.registerShape('tape', TapeShape);
 
 	// Document shape
 	function DocumentShape()
@@ -394,7 +394,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['document'] = DocumentShape;
+	mxCellRenderer.registerShape('document', DocumentShape);
 	
 	mxCylinder.prototype.getLabelMargins = function(rect)
 	{
@@ -422,7 +422,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['parallelogram'] = ParallelogramShape;
+	mxCellRenderer.registerShape('parallelogram', ParallelogramShape);
 
 	// Trapezoid shape
 	function TrapezoidShape()
@@ -439,7 +439,7 @@
 				this.isRounded, arcSize, true);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['trapezoid'] = TrapezoidShape;
+	mxCellRenderer.registerShape('trapezoid', TrapezoidShape);
 
 	// Curly Bracket shape
 	function CurlyBracketShape()
@@ -459,7 +459,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['curlyBracket'] = CurlyBracketShape;
+	mxCellRenderer.registerShape('curlyBracket', CurlyBracketShape);
 
 	// Parallel marker shape
 	function ParallelMarkerShape()
@@ -480,7 +480,7 @@
 		c.fillAndStroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['parallelMarker'] = ParallelMarkerShape;
+	mxCellRenderer.registerShape('parallelMarker', ParallelMarkerShape);
 
 	/**
 	 * Adds handJiggle style (jiggle=n sets jiggle)
@@ -805,7 +805,7 @@
 		mxRectangleShape.prototype.paintForeground.apply(this, arguments);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['process'] = ProcessShape;
+	mxCellRenderer.registerShape('process', ProcessShape);
 	
 	// Transparent Shape
 	function TransparentShape()
@@ -821,7 +821,7 @@
 	};
 	TransparentShape.prototype.paintForeground = function(c, x, y, w, h) 	{ };
 
-	mxCellRenderer.prototype.defaultShapes['transparent'] = TransparentShape;
+	mxCellRenderer.registerShape('transparent', TransparentShape);
 
 	// Callout shape
 	function CalloutShape()
@@ -852,7 +852,7 @@
 			this.isRounded, arcSize, true, [4]);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['callout'] = CalloutShape;
+	mxCellRenderer.registerShape('callout', CalloutShape);
 
 	// Step shape
 	function StepShape()
@@ -873,7 +873,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['step'] = StepShape;
+	mxCellRenderer.registerShape('step', StepShape);
 
 	// Hexagon shape
 	function HexagonShape()
@@ -890,7 +890,7 @@
 		                   new mxPoint(s, h), new mxPoint(0, 0.5 * h)], this.isRounded, arcSize, true);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['hexagon'] = HexagonShape;
+	mxCellRenderer.registerShape('hexagon', HexagonShape);
 
 	// Plus Shape
 	function PlusShape()
@@ -916,7 +916,7 @@
 		mxRectangleShape.prototype.paintForeground.apply(this, arguments);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['plus'] = PlusShape;
+	mxCellRenderer.registerShape('plus', PlusShape);
 	
 	// Overrides painting of rhombus shape to allow for double style
 	var mxRhombusPaintVertexShape = mxRhombus.prototype.paintVertexShape;
@@ -1009,7 +1009,7 @@
 			
 			do
 			{
-				shape = mxCellRenderer.prototype.defaultShapes[this.style['symbol' + counter]];
+				shape = mxCellRenderer.defaultShapes[this.style['symbol' + counter]];
 				
 				if (shape != null)
 				{
@@ -1076,7 +1076,7 @@
 		mxRectangleShape.prototype.paintForeground.apply(this, arguments);
 	};
 
-	mxCellRenderer.prototype.defaultShapes['ext'] = ExtendedShape;
+	mxCellRenderer.registerShape('ext', ExtendedShape);
 	
 	// Tape Shape, supports size style
 	function MessageShape()
@@ -1103,7 +1103,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['message'] = MessageShape;
+	mxCellRenderer.registerShape('message', MessageShape);
 	
 	// UML Actor Shape
 	function UmlActorShape()
@@ -1140,7 +1140,7 @@
 	};
 
 	// Replaces existing actor shape
-	mxCellRenderer.prototype.defaultShapes['umlActor'] = UmlActorShape;
+	mxCellRenderer.registerShape('umlActor', UmlActorShape);
 	
 	// UML Boundary Shape
 	function UmlBoundaryShape()
@@ -1176,7 +1176,7 @@
 	};
 
 	// Replaces existing actor shape
-	mxCellRenderer.prototype.defaultShapes['umlBoundary'] = UmlBoundaryShape;
+	mxCellRenderer.registerShape('umlBoundary', UmlBoundaryShape);
 
 	// UML Entity Shape
 	function UmlEntityShape()
@@ -1195,7 +1195,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['umlEntity'] = UmlEntityShape;
+	mxCellRenderer.registerShape('umlEntity', UmlEntityShape);
 
 	// UML Destroy Shape
 	function UmlDestroyShape()
@@ -1216,7 +1216,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['umlDestroy'] = UmlDestroyShape;
+	mxCellRenderer.registerShape('umlDestroy', UmlDestroyShape);
 	
 	// UML Control Shape
 	function UmlControlShape()
@@ -1254,7 +1254,7 @@
 	};
 
 	// Replaces existing actor shape
-	mxCellRenderer.prototype.defaultShapes['umlControl'] = UmlControlShape;
+	mxCellRenderer.registerShape('umlControl', UmlControlShape);
 
 	// UML Lifeline Shape
 	function UmlLifeline()
@@ -1313,7 +1313,7 @@
 		mxRectangleShape.prototype.paintForeground.call(this, c, x, y, w, Math.min(h, size));
 	};
 
-	mxCellRenderer.prototype.defaultShapes['umlLifeline'] = UmlLifeline;
+	mxCellRenderer.registerShape('umlLifeline', UmlLifeline);
 	
 	// UML Frame Shape
 	function UmlFrame()
@@ -1354,7 +1354,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['umlFrame'] = UmlFrame;
+	mxCellRenderer.registerShape('umlFrame', UmlFrame);
 	
 	mxPerimeter.LifelinePerimeter = function (bounds, vertex, next, orthogonal)
 	{
@@ -1712,7 +1712,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['lollipop'] = LollipopShape;
+	mxCellRenderer.registerShape('lollipop', LollipopShape);
 
 	// Lollipop Shape
 	function RequiresShape()
@@ -1742,7 +1742,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['requires'] = RequiresShape;
+	mxCellRenderer.registerShape('requires', RequiresShape);
 	
 	// Component shape
 	function ComponentShape()
@@ -1792,7 +1792,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['component'] = ComponentShape;
+	mxCellRenderer.registerShape('component', ComponentShape);
 	
 	// State Shapes derives from double ellipse
 	function StateShape()
@@ -1820,7 +1820,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['endState'] = StateShape;
+	mxCellRenderer.registerShape('endState', StateShape);
 
 	function StartStateShape()
 	{
@@ -1829,7 +1829,7 @@
 	mxUtils.extend(StartStateShape, StateShape);
 	StartStateShape.prototype.outerStroke = false;
 	
-	mxCellRenderer.prototype.defaultShapes['startState'] = StartStateShape;
+	mxCellRenderer.registerShape('startState', StartStateShape);
 
 	// Link shape
 	function LinkShape()
@@ -1856,7 +1856,7 @@
 	};
 
 	// Registers the link shape
-	mxCellRenderer.prototype.defaultShapes['link'] = LinkShape;
+	mxCellRenderer.registerShape('link', LinkShape);
 
 	// Generic arrow
 	function FlexArrowShape()
@@ -1884,7 +1884,7 @@
 	};
 	
 	// Registers the link shape
-	mxCellRenderer.prototype.defaultShapes['flexArrow'] = FlexArrowShape;
+	mxCellRenderer.registerShape('flexArrow', FlexArrowShape);
 	
 	// Manual Input shape
 	function ManualInputShape()
@@ -1902,7 +1902,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['manualInput'] = ManualInputShape;
+	mxCellRenderer.registerShape('manualInput', ManualInputShape);
 
 	// Internal storage
 	function InternalStorageShape()
@@ -1944,7 +1944,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['internalStorage'] = InternalStorageShape;
+	mxCellRenderer.registerShape('internalStorage', InternalStorageShape);
 
 	// Internal storage
 	function CornerShape()
@@ -1968,7 +1968,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['corner'] = CornerShape;
+	mxCellRenderer.registerShape('corner', CornerShape);
 
 	// Crossbar shape
 	function CrossbarShape()
@@ -1992,7 +1992,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['crossbar'] = CrossbarShape;
+	mxCellRenderer.registerShape('crossbar', CrossbarShape);
 
 	// Internal storage
 	function TeeShape()
@@ -2018,7 +2018,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['tee'] = TeeShape;
+	mxCellRenderer.registerShape('tee', TeeShape);
 
 	// Arrow
 	function SingleArrowShape()
@@ -2042,7 +2042,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['singleArrow'] = SingleArrowShape;
+	mxCellRenderer.registerShape('singleArrow', SingleArrowShape);
 
 	// Arrow
 	function DoubleArrowShape()
@@ -2065,7 +2065,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['doubleArrow'] = DoubleArrowShape;
+	mxCellRenderer.registerShape('doubleArrow', DoubleArrowShape);
 
 	// Data storage
 	function DataStorageShape()
@@ -2087,7 +2087,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['dataStorage'] = DataStorageShape;
+	mxCellRenderer.registerShape('dataStorage', DataStorageShape);
 
 	// Or
 	function OrShape()
@@ -2104,7 +2104,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['or'] = OrShape;
+	mxCellRenderer.registerShape('or', OrShape);
 
 	// Xor
 	function XorShape()
@@ -2122,7 +2122,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['xor'] = XorShape;
+	mxCellRenderer.registerShape('xor', XorShape);
 
 	// Loop limit
 	function LoopLimitShape()
@@ -2140,7 +2140,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['loopLimit'] = LoopLimitShape;
+	mxCellRenderer.registerShape('loopLimit', LoopLimitShape);
 
 	// Off page connector
 	function OffPageConnectorShape()
@@ -2158,7 +2158,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['offPageConnector'] = OffPageConnectorShape;
+	mxCellRenderer.registerShape('offPageConnector', OffPageConnectorShape);
 
 	// Internal storage
 	function TapeDataShape()
@@ -2177,7 +2177,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['tapeData'] = TapeDataShape;
+	mxCellRenderer.registerShape('tapeData', TapeDataShape);
 
 	// OrEllipseShape
 	function OrEllipseShape()
@@ -2203,7 +2203,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['orEllipse'] = OrEllipseShape;
+	mxCellRenderer.registerShape('orEllipse', OrEllipseShape);
 
 	// SumEllipseShape
 	function SumEllipseShape()
@@ -2230,7 +2230,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['sumEllipse'] = SumEllipseShape;
+	mxCellRenderer.registerShape('sumEllipse', SumEllipseShape);
 
 	// SortShape
 	function SortShape()
@@ -2250,7 +2250,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['sortShape'] = SortShape;
+	mxCellRenderer.registerShape('sortShape', SortShape);
 
 	// CollateShape
 	function CollateShape()
@@ -2275,7 +2275,7 @@
 		c.fillAndStroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['collate'] = CollateShape;
+	mxCellRenderer.registerShape('collate', CollateShape);
 
 	// DimensionShape
 	function DimensionShape()
@@ -2310,7 +2310,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['dimension'] = DimensionShape;
+	mxCellRenderer.registerShape('dimension', DimensionShape);
 
 	// PartialRectangleShape
 	function PartialRectangleShape()
@@ -2373,7 +2373,7 @@
 		}
 	};
 
-	mxCellRenderer.prototype.defaultShapes['partialRectangle'] = PartialRectangleShape;
+	mxCellRenderer.registerShape('partialRectangle', PartialRectangleShape);
 
 	// LineEllipseShape
 	function LineEllipseShape()
@@ -2403,7 +2403,7 @@
 		c.stroke();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['lineEllipse'] = LineEllipseShape;
+	mxCellRenderer.registerShape('lineEllipse', LineEllipseShape);
 
 	// Delay
 	function DelayShape()
@@ -2423,7 +2423,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['delay'] = DelayShape;
+	mxCellRenderer.registerShape('delay', DelayShape);
 
 	// Cross Shape
 	function CrossShape()
@@ -2457,7 +2457,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['cross'] = CrossShape;
+	mxCellRenderer.registerShape('cross', CrossShape);
 
 	// Display
 	function DisplayShape()
@@ -2481,7 +2481,7 @@
 		c.end();
 	};
 
-	mxCellRenderer.prototype.defaultShapes['display'] = DisplayShape;
+	mxCellRenderer.registerShape('display', DisplayShape);
 	
 	// FilledEdge shape
 	function FilledEdge()
@@ -2514,7 +2514,7 @@
 	};
 
 	// Registers the link shape
-	mxCellRenderer.prototype.defaultShapes['filledEdge'] = FilledEdge;
+	mxCellRenderer.registerShape('filledEdge', FilledEdge);
 
 	// Registers and defines the custom marker
 	mxMarker.addMarker('dash', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
@@ -3449,7 +3449,7 @@
 				{
 					var name = this.state.style['shape'];
 
-					if (this.state.view.graph.cellRenderer.defaultShapes[name] == null &&
+					if (mxCellRenderer.defaultShapes[name] == null &&
 						mxStencilRegistry.getStencil(name) == null)
 					{
 						name = mxConstants.SHAPE_RECTANGLE;
@@ -3473,7 +3473,7 @@
 			{
 				var name = this.state.style['shape'];
 				
-				if (this.state.view.graph.cellRenderer.defaultShapes[name] == null &&
+				if (mxCellRenderer.defaultShapes[name] == null &&
 					mxStencilRegistry.getStencil(name) == null)
 				{
 					name = mxConstants.SHAPE_CONNECTOR;

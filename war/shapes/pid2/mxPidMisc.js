@@ -95,7 +95,7 @@ mxShapePidFan.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidFan.prototype.cst.SHAPE_FAN] = mxShapePidFan;
+mxCellRenderer.registerShape(mxShapePidFan.prototype.cst.SHAPE_FAN, mxShapePidFan);
 
 //**********************************************************************************************************************************************************
 //Column
@@ -400,7 +400,7 @@ mxShapePidColumn.prototype.foreground = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidColumn.prototype.cst.SHAPE_COLUMN] = mxShapePidColumn;
+mxCellRenderer.registerShape(mxShapePidColumn.prototype.cst.SHAPE_COLUMN, mxShapePidColumn);
 
 //**********************************************************************************************************************************************************
 //Conveyor
@@ -473,5 +473,5 @@ mxShapePidConveyor.prototype.background = function(c, x, y, w, h)
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidConveyor.prototype.cst.SHAPE_CONVEYOR] = mxShapePidConveyor;
+mxCellRenderer.registerShape(mxShapePidConveyor.prototype.cst.SHAPE_CONVEYOR, mxShapePidConveyor);
 

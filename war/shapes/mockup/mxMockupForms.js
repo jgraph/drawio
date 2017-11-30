@@ -128,7 +128,7 @@ mxShapeMockupCheckboxGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCheckboxGroup.prototype.cst.SHAPE_CHECKBOX_GROUP] = mxShapeMockupCheckboxGroup;
+mxCellRenderer.registerShape(mxShapeMockupCheckboxGroup.prototype.cst.SHAPE_CHECKBOX_GROUP, mxShapeMockupCheckboxGroup);
 
 //**********************************************************************************************************************************************************
 //Radio Button Group
@@ -250,7 +250,7 @@ mxShapeMockupRadioGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRadioGroup.prototype.cst.SHAPE_RADIO_GROUP] = mxShapeMockupRadioGroup;
+mxCellRenderer.registerShape(mxShapeMockupRadioGroup.prototype.cst.SHAPE_RADIO_GROUP, mxShapeMockupRadioGroup);
 
 //**********************************************************************************************************************************************************
 //Color Picker
@@ -319,7 +319,7 @@ mxShapeMockupColorPicker.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupColorPicker.prototype.cst.SHAPE_COLOR_PICKER] = mxShapeMockupColorPicker;
+mxCellRenderer.registerShape(mxShapeMockupColorPicker.prototype.cst.SHAPE_COLOR_PICKER, mxShapeMockupColorPicker);
 
 //**********************************************************************************************************************************************************
 //Combo box
@@ -405,7 +405,7 @@ mxShapeMockupComboBox.prototype.mainText = function(c, x, y, w, h)
 	c.text(5, h * 0.5, 0, 0, mainText, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupComboBox.prototype.cst.SHAPE_COMBO_BOX] = mxShapeMockupComboBox;
+mxCellRenderer.registerShape(mxShapeMockupComboBox.prototype.cst.SHAPE_COMBO_BOX, mxShapeMockupComboBox);
 
 //**********************************************************************************************************************************************************
 //Spinner
@@ -951,7 +951,7 @@ mxShapeMockupSpinner.prototype.mainText = function(c, w, h, spinnerLayout)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupSpinner.prototype.cst.SHAPE_SPINNER] = mxShapeMockupSpinner;
+mxCellRenderer.registerShape(mxShapeMockupSpinner.prototype.cst.SHAPE_SPINNER, mxShapeMockupSpinner);
 
 //**********************************************************************************************************************************************************
 //Menu Bar (LEGACY)
@@ -1116,7 +1116,7 @@ mxShapeMockupMenuBar.prototype.buttonText = function(c, w, h, textString, button
 	c.text((w + buttonWidth * 0.5) * trueW / minW, h * 0.5, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupMenuBar.prototype.cst.SHAPE_MENU_BAR] = mxShapeMockupMenuBar;
+mxCellRenderer.registerShape(mxShapeMockupMenuBar.prototype.cst.SHAPE_MENU_BAR, mxShapeMockupMenuBar);
 
 //**********************************************************************************************************************************************************
 //Horizontal Slider
@@ -1243,7 +1243,7 @@ mxShapeMockupHorSlider.prototype.foreground = function(c, w, h, rSize, sliderSty
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupHorSlider.prototype.cst.SHAPE_HOR_SLIDER] = mxShapeMockupHorSlider;
+mxCellRenderer.registerShape(mxShapeMockupHorSlider.prototype.cst.SHAPE_HOR_SLIDER, mxShapeMockupHorSlider);
 
 Graph.handleFactory[mxShapeMockupHorSlider.prototype.cst.SHAPE_HOR_SLIDER] = function(state)
 {
@@ -1388,7 +1388,7 @@ mxShapeMockupListBox.prototype.foreground = function(c, w, h, frameColor, select
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupListBox.prototype.cst.SHAPE_LIST_BOX] = mxShapeMockupListBox;
+mxCellRenderer.registerShape(mxShapeMockupListBox.prototype.cst.SHAPE_LIST_BOX, mxShapeMockupListBox);
 
 //**********************************************************************************************************************************************************
 //Password Field
@@ -1448,7 +1448,7 @@ mxShapeMockupPwField.prototype.foreground = function(c, w, h)
 	c.text(5, h * 0.5, 0, 0, mainText, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupPwField.prototype.cst.SHAPE_PW_FIELD] = mxShapeMockupPwField;
+mxCellRenderer.registerShape(mxShapeMockupPwField.prototype.cst.SHAPE_PW_FIELD, mxShapeMockupPwField);
 
 //**********************************************************************************************************************************************************
 //Splitter
@@ -1522,7 +1522,7 @@ mxShapeMockupSplitter.prototype.foreground = function(c, w, h)
 	c.fill();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupSplitter.prototype.cst.SHAPE_SPLITTER] = mxShapeMockupSplitter;
+mxCellRenderer.registerShape(mxShapeMockupSplitter.prototype.cst.SHAPE_SPLITTER, mxShapeMockupSplitter);
 
 //**********************************************************************************************************************************************************
 //Wedge Bar (LEGACY)
@@ -1766,7 +1766,7 @@ mxShapeMockupWedgeBar.prototype.tabText = function(c, w, h, rSize, tabH, startOf
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupWedgeBar.prototype.cst.SHAPE_WEDGE_BAR] = mxShapeMockupWedgeBar;
+mxCellRenderer.registerShape(mxShapeMockupWedgeBar.prototype.cst.SHAPE_WEDGE_BAR, mxShapeMockupWedgeBar);
 
 //**********************************************************************************************************************************************************
 //Search Box
@@ -1836,7 +1836,7 @@ mxShapeMockupSearchBox.prototype.foreground = function(c, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupSearchBox.prototype.cst.SHAPE_SEARCH_BOX] = mxShapeMockupSearchBox;
+mxCellRenderer.registerShape(mxShapeMockupSearchBox.prototype.cst.SHAPE_SEARCH_BOX, mxShapeMockupSearchBox);
 
 //**********************************************************************************************************************************************************
 //Sign In (LEGACY)
@@ -1950,7 +1950,7 @@ mxShapeMockupSignIn.prototype.foreground = function(c, w, h)
 	c.text(w * 0.27, h * 0.885, 0, 0, mainText[8], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupSignIn.prototype.cst.SHAPE_SIGN_IN] = mxShapeMockupSignIn;
+mxCellRenderer.registerShape(mxShapeMockupSignIn.prototype.cst.SHAPE_SIGN_IN, mxShapeMockupSignIn);
 
 //**********************************************************************************************************************************************************
 //Calendar (LEGACY)
@@ -2174,7 +2174,7 @@ mxShapeMockupCalendar.prototype.foreground = function(c, w, h)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCalendar.prototype.cst.SHAPE_CALENDAR] = mxShapeMockupCalendar;
+mxCellRenderer.registerShape(mxShapeMockupCalendar.prototype.cst.SHAPE_CALENDAR, mxShapeMockupCalendar);
 
 //**********************************************************************************************************************************************************
 //Email Form
@@ -2301,7 +2301,7 @@ mxShapeMockupEmailForm.prototype.foreground = function(c, w, h, fontSize, tabX, 
 	c.text(fontSize * 0.5, messX + fontSize * 0.75, 0, 0, mainText[5], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupEmailForm.prototype.cst.SHAPE_EMAIL_FORM] = mxShapeMockupEmailForm;
+mxCellRenderer.registerShape(mxShapeMockupEmailForm.prototype.cst.SHAPE_EMAIL_FORM, mxShapeMockupEmailForm);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)

@@ -685,4 +685,4 @@ mxBpmnShape.prototype.symbols = {
 		}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.bpmn.shape'] = mxBpmnShape;
+mxCellRenderer.registerShape('mxgraph.bpmn.shape', mxBpmnShape);

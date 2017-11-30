@@ -3862,7 +3862,7 @@ mxStencilRegistry.getStencil = function(name)
 {
 	var result = mxStencilRegistry.stencils[name];
 	
-	if (result == null && mxCellRenderer.prototype.defaultShapes[name] == null && mxStencilRegistry.dynamicLoading)
+	if (result == null && mxCellRenderer.defaultShapes[name] == null && mxStencilRegistry.dynamicLoading)
 	{
 		var basename = mxStencilRegistry.getBasenameForStencil(name);
 		

@@ -1887,7 +1887,7 @@ LeanElectronicInfoShape.prototype.paintEdgeShape = function(c, pts)
 };
 
 // Registers the electronic info shape
-mxCellRenderer.prototype.defaultShapes['mxgraph.lean_mapping.electronic_info_flow_edge'] = LeanElectronicInfoShape;
+mxCellRenderer.registerShape('mxgraph.lean_mapping.electronic_info_flow_edge', LeanElectronicInfoShape);
 
 //**********************************************************************************************************************************************************
 //Manual Info
@@ -1933,7 +1933,7 @@ LeanManualInfoShape.prototype.paintEdgeShape = function(c, pts)
 };
 
 //Registers the electronic info shape
-mxCellRenderer.prototype.defaultShapes['mxgraph.lean_mapping.manual_info_flow_edge'] = LeanManualInfoShape;
+mxCellRenderer.registerShape('mxgraph.lean_mapping.manual_info_flow_edge', LeanManualInfoShape);
 
 //**********************************************************************************************************************************************************
 //Timeline
@@ -2118,7 +2118,7 @@ mxShapeLeanTimeline.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeLeanTimeline.prototype.cst.SHAPE_TIMELINE] = mxShapeLeanTimeline;
+mxCellRenderer.registerShape(mxShapeLeanTimeline.prototype.cst.SHAPE_TIMELINE, mxShapeLeanTimeline);
 
 Graph.handleFactory[mxShapeLeanTimeline.prototype.cst.SHAPE_TIMELINE] = function(state)
 {

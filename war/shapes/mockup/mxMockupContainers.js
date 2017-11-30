@@ -171,7 +171,7 @@ mxShapeMockupVideoPlayer.prototype.otherShapes = function(c, x, y, w, h, buttonC
 	c.text(barHeight * 1.9, h - barHeight * 0.45, 0, 0, '0:00/3:53', mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupVideoPlayer.prototype.cst.SHAPE_VIDEO_PLAYER] = mxShapeMockupVideoPlayer;
+mxCellRenderer.registerShape(mxShapeMockupVideoPlayer.prototype.cst.SHAPE_VIDEO_PLAYER, mxShapeMockupVideoPlayer);
 
 Graph.handleFactory[mxShapeMockupVideoPlayer.prototype.cst.SHAPE_VIDEO_PLAYER] = function(state)
 {
@@ -392,7 +392,7 @@ mxShapeMockupAccordion.prototype.buttonText = function(c, w, h, textString, font
 	c.text((w * 0.5), h, 0, 0, textString, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupAccordion.prototype.cst.SHAPE_ACCORDION] = mxShapeMockupAccordion;
+mxCellRenderer.registerShape(mxShapeMockupAccordion.prototype.cst.SHAPE_ACCORDION, mxShapeMockupAccordion);
 
 //**********************************************************************************************************************************************************
 //Browser Window
@@ -590,7 +590,7 @@ mxShapeMockupBrowserWindow.prototype.otherShapes = function(c, x, y, w, h, frame
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupBrowserWindow.prototype.cst.SHAPE_BROWSER_WINDOW] = mxShapeMockupBrowserWindow;
+mxCellRenderer.registerShape(mxShapeMockupBrowserWindow.prototype.cst.SHAPE_BROWSER_WINDOW, mxShapeMockupBrowserWindow);
 
 //**********************************************************************************************************************************************************
 //User, Male
@@ -785,7 +785,7 @@ mxShapeMockupUserMale.prototype.otherShapes = function(c, x, y, w, h, insideColo
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupUserMale.prototype.cst.SHAPE_MALE_USER] = mxShapeMockupUserMale;
+mxCellRenderer.registerShape(mxShapeMockupUserMale.prototype.cst.SHAPE_MALE_USER, mxShapeMockupUserMale);
 
 //**********************************************************************************************************************************************************
 //User, Female
@@ -976,7 +976,7 @@ mxShapeMockupUserFemale.prototype.otherShapes = function(c, x, y, w, h, insideCo
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupUserFemale.prototype.cst.SHAPE_FEMALE_USER] = mxShapeMockupUserFemale;
+mxCellRenderer.registerShape(mxShapeMockupUserFemale.prototype.cst.SHAPE_FEMALE_USER, mxShapeMockupUserFemale);
 
 //**********************************************************************************************************************************************************
 //Group
@@ -1057,7 +1057,7 @@ mxShapeMockupGroup.prototype.buttonText = function(c, w, h, textString, fontSize
 	c.text(6, 0, 0, 0, textString, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 0, null, 0, 0, 0);
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupGroup.prototype.cst.SHAPE_GROUP] = mxShapeMockupGroup;
+mxCellRenderer.registerShape(mxShapeMockupGroup.prototype.cst.SHAPE_GROUP, mxShapeMockupGroup);
 
 //**********************************************************************************************************************************************************
 //Window
@@ -1151,7 +1151,7 @@ mxShapeMockupWindow.prototype.otherShapes = function(c, x, y, w, h, frameColor, 
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupWindow.prototype.cst.SHAPE_WINDOW] = mxShapeMockupWindow;
+mxCellRenderer.registerShape(mxShapeMockupWindow.prototype.cst.SHAPE_WINDOW, mxShapeMockupWindow);
 
 //**********************************************************************************************************************************************************
 //Horizontal Tab Bar (LEGACY)
@@ -1426,7 +1426,7 @@ mxShapeMockupHorTabBar.prototype.tabText = function(c, w, h, rSize, tabH, startO
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupHorTabBar.prototype.cst.SHAPE_HOR_TAB_BAR] = mxShapeMockupHorTabBar;
+mxCellRenderer.registerShape(mxShapeMockupHorTabBar.prototype.cst.SHAPE_HOR_TAB_BAR, mxShapeMockupHorTabBar);
 
 //**********************************************************************************************************************************************************
 //Vertical Tab Bar (LEGACY)
@@ -1647,7 +1647,7 @@ mxShapeMockupVerTabBar.prototype.tabText = function(c, w, h, rSize, tabH, tabW, 
 
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupVerTabBar.prototype.cst.SHAPE_VER_TAB_BAR] = mxShapeMockupVerTabBar;
+mxCellRenderer.registerShape(mxShapeMockupVerTabBar.prototype.cst.SHAPE_VER_TAB_BAR, mxShapeMockupVerTabBar);
 
 //**********************************************************************************************************************************************************
 //Alert Box (LEGACY)
@@ -1761,7 +1761,7 @@ mxShapeMockupAlertBox.prototype.foreground = function(c, x, y, w, h, frameColor,
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupAlertBox.prototype.cst.SHAPE_ALERT_BOX] = mxShapeMockupAlertBox;
+mxCellRenderer.registerShape(mxShapeMockupAlertBox.prototype.cst.SHAPE_ALERT_BOX, mxShapeMockupAlertBox);
 
 //**********************************************************************************************************************************************************
 //Rounded rectangle (adjustable rounding)
@@ -1995,7 +1995,7 @@ mxShapeMockupContainersMarginRect.prototype.background = function(c, x, y, w, h,
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupContainersMarginRect.prototype.cst.SHAPE_MARGIN_RECT] = mxShapeMockupContainersMarginRect;
+mxCellRenderer.registerShape(mxShapeMockupContainersMarginRect.prototype.cst.SHAPE_MARGIN_RECT, mxShapeMockupContainersMarginRect);
 
 //**********************************************************************************************************************************************************
 //rect with margins (not rounded)
@@ -2058,5 +2058,5 @@ mxShapeMockupContainersMarginRect2.prototype.background = function(c, x, y, w, h
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupContainersMarginRect2.prototype.cst.SHAPE_MARGIN_RECT] = mxShapeMockupContainersMarginRect2;
+mxCellRenderer.registerShape(mxShapeMockupContainersMarginRect2.prototype.cst.SHAPE_MARGIN_RECT, mxShapeMockupContainersMarginRect2);
 

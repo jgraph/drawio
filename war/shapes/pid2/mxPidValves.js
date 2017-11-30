@@ -846,7 +846,7 @@ mxShapePidValve.prototype.isSquareVariant = function(actType)
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapePidValve.prototype.cst.SHAPE_VALVE] = mxShapePidValve;
+mxCellRenderer.registerShape(mxShapePidValve.prototype.cst.SHAPE_VALVE, mxShapePidValve);
 
 //**********************************************************************************************************************************************************
 //Integrated Block And Bleed Valve
@@ -1034,7 +1034,7 @@ mxShapePidIntBlockBleedValve.prototype.drawActuatorFg = function(c, x, y, w, h, 
 	}
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.pid2valves.blockBleedValve'] = mxShapePidIntBlockBleedValve;
+mxCellRenderer.registerShape('mxgraph.pid2valves.blockBleedValve', mxShapePidIntBlockBleedValve);
 
 //**********************************************************************************************************************************************************
 //Auto Recirculation Valve
@@ -1103,4 +1103,4 @@ mxShapePidAutoRecircValve.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.setFillColor(fillColor);
 };
 
-mxCellRenderer.prototype.defaultShapes['mxgraph.pid2valves.autoRecircValve'] = mxShapePidAutoRecircValve;
+mxCellRenderer.registerShape('mxgraph.pid2valves.autoRecircValve', mxShapePidAutoRecircValve);

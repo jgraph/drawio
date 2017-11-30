@@ -53,7 +53,7 @@ mxShapeMockupCurlyBrace.prototype.background = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupCurlyBrace.prototype.cst.SHAPE_CURLY_BRACE] = mxShapeMockupCurlyBrace;
+mxCellRenderer.registerShape(mxShapeMockupCurlyBrace.prototype.cst.SHAPE_CURLY_BRACE, mxShapeMockupCurlyBrace);
 
 //**********************************************************************************************************************************************************
 //Line
@@ -93,7 +93,7 @@ mxShapeMockupLine.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupLine.prototype.cst.SHAPE_LINE] = mxShapeMockupLine;
+mxCellRenderer.registerShape(mxShapeMockupLine.prototype.cst.SHAPE_LINE, mxShapeMockupLine);
 
 //**********************************************************************************************************************************************************
 //Scratch Out
@@ -146,7 +146,7 @@ mxShapeMockupScratchOut.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupScratchOut.prototype.cst.SHAPE_SCRATCH_OUT] = mxShapeMockupScratchOut;
+mxCellRenderer.registerShape(mxShapeMockupScratchOut.prototype.cst.SHAPE_SCRATCH_OUT, mxShapeMockupScratchOut);
 
 //**********************************************************************************************************************************************************
 //Red X
@@ -197,4 +197,4 @@ mxShapeMockupRedX.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
-mxCellRenderer.prototype.defaultShapes[mxShapeMockupRedX.prototype.cst.SHAPE_RED_X] = mxShapeMockupRedX;
+mxCellRenderer.registerShape(mxShapeMockupRedX.prototype.cst.SHAPE_RED_X, mxShapeMockupRedX);
