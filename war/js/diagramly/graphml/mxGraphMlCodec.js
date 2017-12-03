@@ -57,27 +57,46 @@ mxGraphMlCodec.prototype.decode = function (xml, callback)
         try 
         {
         	var cells = graph.getModel().cells;
+        	var tr = graph.view.translate;
         	
         	for (var id in cells)
     		{
-        		var cell = cells[id];
-        		var geo = cell.geometry;
+        		var edge = cells[id];
         		
-        		if (cell.parent && cell.parent.edge && geo.relative)
+        		if (edge.edge && edge.getChildCount() > 0)
     			{
-        			var state = graph.view.getState(cell.parent);
-        			var abdPs = state.absolutePoints;
-        			var p0 = abdPs[0];
-        			var pe = abdPs[abdPs.length - 1];
-        			
-        			geo.relative = false;
-        			
-        			var ratio = geo.x;
-        			geo.x = p0.x + ratio * (pe.x - p0.x);
-        			geo.y = p0.y + ratio * (pe.y - p0.y);
-        			
-        			console.log(ratio);
-    			}
+        			for (var i = 0; i < edge.getChildCount(); i++)
+    				{
+        				var cell = edge.children[i];
+                		var geo = cell.geometry;
+                		
+                		if (!geo.adjustIt) continue;
+                		
+	        			var state = graph.view.getState(edge);
+	        			var abdPs = state.absolutePoints;
+	        			var p0 = abdPs[0];
+	        			var pe = abdPs[abdPs.length - 1];
+	        			
+	        			var ratio = geo.x;
+	        			var dist = geo.y;
+	        			var dx = pe.x - p0.x
+	        			var dy = pe.y - p0.y
+	 
+	        			var x = p0.x + ratio * dx;
+	        			var y = p0.y + ratio * dy;
+	        			
+	        			var d = Math.sqrt(dx*dx + dy*dy);
+	        			dx /= d;
+	        			dy /= d;
+	        			
+	        			x -= dist * dy;
+	        			y += dist * dx;
+	        			
+	        			var np = graph.view.getRelativePoint(state, x, y);
+	        			geo.x = np.x;
+	        			geo.y = np.y;
+	    			}
+	    		}
     		}
         }
         catch(e)
@@ -558,6 +577,9 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 						break;
 						case "DashDotDot":
 							pattern = "3 1 1 1 1 1";
+						break;
+						case "Dash":
+							pattern = "3 1";
 						break;
 						default:
 							pattern = val.replace(/0/g, '1');
@@ -1380,6 +1402,9 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 			case "DashDotDot":
 				pattern = "3 1 1 1 1 1";
 			break;
+			case "Dash":
+				pattern = "3 1";
+			break;
 			default:
 				pattern = val.replace(/0/g, '1');
 		}
@@ -1685,16 +1710,16 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 			else if (lblLayouts[i]["y:FreeEdgeLabelModelParameter"])
 			{
 				lGeo.relative = true;
+				lGeo.adjustIt = true;
 				var layout = lblLayouts[i]["y:FreeEdgeLabelModelParameter"];
 				var ratio = layout["Ratio"];
 				var distance = layout["Distance"];
 				var angle = layout["Angle"];
 
-				//This is just an approximation
-				//TODO calculate the absolute value based on edge start/end points only, then orthogonal distance. Finally, convert it back to mxGraph relative point
+				//The geometry is adjusted after finishing the graph import (in decode method)
 				if (ratio)
 				{
-					lGeo.x = parseFloat(ratio);//2 * parseFloat(ratio) - 2;
+					lGeo.x = parseFloat(ratio);
 				}
 				
 				if (distance)
@@ -1706,7 +1731,36 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 				{
 					lblCell.style += ";rotation=" + (parseFloat(angle) * (180 / Math.PI));
 				}
+				
+				lblCell.style += ";verticalAlign=middle;";
 			}
+			else if (lblLayouts[i]["y:EdgePathLabelModelParameter"])
+			{
+				lGeo.relative = true;
+				var layout = lblLayouts[i]["y:EdgePathLabelModelParameter"];
+				var side = layout["SideOfEdge"];
+				var ratio = layout["SegmentRatio"];
+
+				lGeo.x = ratio? (2 * parseFloat(ratio) - 1) : 0;
+
+				//TODO this is an approximation, it needs to take into consideration the segment direction and label size
+				if (side)
+				{
+					switch(side) 
+					{
+						case "RightOfEdge":
+							lGeo.y = -15;
+						break;
+						case "LeftOfEdge":
+							lGeo.y = 15;
+						break;
+					}
+				}
+
+				lblCell.style += ";verticalAlign=middle;";
+				
+			}
+			//y:SmartEdgeLabelModelParameter TODO
 			else if (node.isEdge)
 			{
 				lGeo.relative = true;

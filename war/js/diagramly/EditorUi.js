@@ -168,7 +168,7 @@
 	 */
 	EditorUi.prototype.openLink = function(url)
 	{
-		window.open(url);
+		return window.open(url);
 	};
 
 	/**
@@ -1659,7 +1659,7 @@
 						}
 						
 						content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
-							data, img.w, img.h, '', img.title || '', false, false, false));
+							data, img.w, img.h, '', img.title || '', false, false, true));
 					}
 					else if (img.xml != null)
 					{
@@ -1668,12 +1668,52 @@
 						if (cells.length > 0)
 						{
 							content.appendChild(this.sidebar.createVertexTemplateFromCells(
-								cells, img.w, img.h, img.title || '', true, false, false));
+								cells, img.w, img.h, img.title || '', true, false, true));
 						}
 					}
 				}
 			}
 		});
+
+		// Adds entries to search index
+		// KNOWN: Existing entries are not replaced after edit of custom library
+		if (this.sidebar != null && images != null)
+		{
+			for (var i = 0; i < images.length; i++)
+			{
+				(mxUtils.bind(this, function(img)
+				{
+					var data = img.data;
+					
+					if (data != null && img.title != null)
+					{
+						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
+						{
+							data = this.convertDataUri(data);
+							var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
+							
+							if (img.aspect == 'fixed')
+							{
+								s += 'aspect=fixed;'
+							}
+							
+							return this.sidebar.createVertexTemplate(s + 'image=' +
+								data, img.w, img.h, '', img.title || '', false, false, true)
+						}));
+					}
+					else if (img.xml != null && img.title != null)
+					{
+						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
+						{
+							var cells = this.stringToCells(this.editor.graph.decompress(img.xml));
+	
+							return this.sidebar.createVertexTemplateFromCells(
+								cells, img.w, img.h, img.title || '', true, false, true);
+						}));
+					}
+				}))(images[i]);
+			}
+		}
 		
 		// Adds new sidebar entry for this library
 		var tmp = (optionalTitle != null && optionalTitle.length > 0) ? optionalTitle : file.getTitle();
@@ -2261,16 +2301,31 @@
      */
     EditorUi.prototype.hideFooter = function()
     {
-	    	var footer = document.getElementById('geFooter');
+    	var footer = document.getElementById('geFooter');
 	    	
-	    	if (footer != null)
-	    	{
-	    		this.footerHeight = 0;
-	    		footer.style.display = 'none';
-	    		this.refresh();
-	    	}
+    	if (footer != null)
+    	{
+    		this.footerHeight = 0;
+    		footer.style.display = 'none';
+    		this.refresh();
+    	}
     };
 
+    /**
+     * Shows the footer.
+     */
+    EditorUi.prototype.showFooter = function(height)
+    {
+    	var footer = document.getElementById('geFooter');
+	    	
+    	if (footer != null)
+    	{
+    		this.footerHeight = height;
+    		footer.style.display = 'inline';
+    		this.refresh();
+    	}
+    };
+    
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
@@ -3445,8 +3500,9 @@
 		{
 			params.push('title=' + encodeURIComponent(file.getTitle()));
 		}
-		
-		return ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 'https://www.draw.io/' : 'https://' + location.host + '/') +
+
+		return ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || !(/.*\.draw\.io$/.test(window.location.hostname))) ?
+			'https://www.draw.io/' : 'https://' + window.location.host + '/') +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
 	
@@ -5551,8 +5607,7 @@
 	 */
 	EditorUi.prototype.isRemoteFileFormat = function(data, filename)
 	{
-		return /(\.*<graphml xmlns=\".*)/.test(data) ||
-			/(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data) ||
+		return /(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data) ||
 			(filename != null && /(\.vsdx)($|\?)/i.test(filename)) ||
 			(filename != null && /(\.vssx)($|\?)/i.test(filename));
 	};
@@ -5604,7 +5659,7 @@
 					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
-		else if (urlParams['dev'] == '1' && /(\.*<graphml )/.test(data)) 
+		else if (/(\.*<graphml )/.test(data)) 
         {
             new mxGraphMlCodec().decode(data, mxUtils.bind(this, function(xml)
             {
