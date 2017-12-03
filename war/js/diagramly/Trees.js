@@ -101,7 +101,7 @@
 		// Adds resources for actions
 		mxResources.parse('selectChildren=Select Children');
 		mxResources.parse('selectSiblings=Select Siblings');
-		mxResources.parse('selectSubtree=Select Subtree');
+		mxResources.parse('selectDescendants=Select Descendants');
 		mxResources.parse('selectParent=Select Parent');
 	
 		function isTreeVertex(cell)
@@ -150,7 +150,7 @@
 		{
 			uiCreatePopupMenu.apply(this, arguments);
 			
-			if (isTreeVertex(graph.getSelectionCell()) && graph.getSelectionCount() == 1)
+			if (graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
 				var sib = graph.getOutgoingEdges(cell);
@@ -158,14 +158,22 @@
 				
 				if (sib != null && sib.length > 0)
 				{
-					this.addMenuItems(menu, ['selectChildren', 'selectSubtree'], null, evt);
+					if (isTreeVertex(graph.getSelectionCell()))
+					{
+						this.addMenuItems(menu, ['selectChildren'], null, evt);	
+					}
+					
+					this.addMenuItems(menu, ['selectDescendants'], null, evt);
 				}
 				
-				menu.addSeparator();
-				
-				if (graph.getIncomingEdges(cell).length > 0)
+				if (isTreeVertex(graph.getSelectionCell()))
 				{
-					this.addMenuItems(menu, ['selectSiblings', 'selectParent'], null, evt);
+					menu.addSeparator();
+					
+					if (graph.getIncomingEdges(cell).length > 0)
+					{
+						this.addMenuItems(menu, ['selectSiblings', 'selectParent'], null, evt);
+					}
 				}
 			}
 		};
@@ -234,7 +242,7 @@
 			}
 		}, null, null, 'Alt+Shift+P');
 		
-		ui.actions.addAction('selectSubtree', function()
+		ui.actions.addAction('selectDescendants', function()
 		{
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{

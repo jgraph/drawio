@@ -1,3 +1,16 @@
+03-DEC-2017: 7.8.2
+
+- Adds select descendants for cells with outgoing edges
+- Adds defaults for insert from custom library
+- Adds search of metadata in find dialog
+- Enables export URL for external domains
+- Adds custom libraries to shape search index
+- Uses mxGraph 3.8.1 beta 1
+
+01-DEC-2017: 7.8.1
+
+- Fixes Confluence Cloud revision history diagram display
+
 30-NOV-2017: 7.8.0
 
 - Uses mxGraph 3.8.0

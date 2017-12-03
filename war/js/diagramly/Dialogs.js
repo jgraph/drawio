@@ -1064,9 +1064,9 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 				{
 					try
 					{
-						var win = window.open(value);
+						var win = editorUi.openLink(value);
 						
-						if (timeout == null || timeout > 0)
+						if (win != null && (timeout == null || timeout > 0))
 						{
 							window.setTimeout(mxUtils.bind(this, function()
 							{
@@ -5568,7 +5568,7 @@ var FindWindow = function(ui, x, y, w, h)
 
 	var tmp = document.createElement('div');
 	
-	function testMeta(re, cell)
+	function testMeta(re, cell, search)
 	{
 		if (typeof cell.value === 'object' && cell.value.attributes != null)
 		{
@@ -5576,10 +5576,16 @@ var FindWindow = function(ui, x, y, w, h)
 			
 			for (var i = 0; i < attrs.length; i++)
 			{
-				if (attrs[i].nodeName != 'label' && re.test(attrs[i].nodeValue.toLowerCase()))
+				if (attrs[i].nodeName != 'label')
 				{
-					return true;
-				}	
+					var value = mxUtils.trim(attrs[i].nodeValue.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
+					
+					if ((re == null && value.substring(0, search.length) === search) ||
+						(re != null && re.test(value)))
+					{
+						return true;
+					}
+				}
 			}
 		}
 		
@@ -5622,8 +5628,8 @@ var FindWindow = function(ui, x, y, w, h)
 		
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if ((re == null && label.substring(0, search.length) === search) ||
-						(re != null && (re.test(label) || testMeta(re, state.cell))))
+					if ((re == null && (label.substring(0, search.length) === search || testMeta(re, state.cell, search))) ||
+						(re != null && (re.test(label) || testMeta(re, state.cell, search))))
 					{
 						if (active)
 						{

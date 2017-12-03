@@ -146,6 +146,18 @@
 			editorUi.showDialog(dlg.container, 300, 146, true, true);
 		}));
 		
+		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
+		{
+			editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
+			{
+				var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
+					linkColor, allPages, lightbox, editLink, layers, null, true));
+				editorUi.showDialog(dlg.container, 440, 240, true, true);
+				dlg.init();
+			});
+		}));
+		
 		editorUi.actions.put('exportHtml', new Action(mxResources.get('formatHtmlEmbedded') + '...', function()
 		{
 			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
@@ -534,12 +546,39 @@
 						}
 					}), true, false, 'png');
 			}
-			else
+			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
 				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
 				{
 					editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection);
 				}));
+			}
+		}));
+		
+		editorUi.actions.put('exportJpg', new Action(mxResources.get('formatJpg') + '...', function()
+		{
+			if (editorUi.isExportToCanvas())
+			{
+				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
+					'https://support.draw.io/display/DO/Exporting+Files',
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+						addShadow, editable, embedImages, border, cropImage, currentPage)
+					{
+						var val = parseInt(scale);
+						
+						if (!isNaN(val) && val > 0)
+						{
+							editorUi.exportImage(val / 100, false, ignoreSelection,
+							   	addShadow, false, border, !cropImage, false, 'jpeg');
+						}
+					}), true, false, 'jpeg');
+			}
+			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
+			{
+				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
+				{
+					editorUi.downloadFile('jpeg', null, null, ignoreSelection);
+				}), true);
 			}
 		}));
 		
@@ -1383,37 +1422,14 @@
 				
 				if (editorUi.jpgSupported)
 				{
-					menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
-					{
-						editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-							'https://support.draw.io/display/DO/Exporting+Files',
-							mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-								addShadow, editable, embedImages, border, cropImage, currentPage)
-							{
-								var val = parseInt(scale);
-								
-								if (!isNaN(val) && val > 0)
-								{
-									this.editorUi.exportImage(val / 100, false, ignoreSelection,
-									   	addShadow, false, border, !cropImage, false, 'jpeg');
-								}
-							}), true, false, 'jpeg');
-					}), parent);
+					this.addMenuItems(menu, ['exportJpg'], parent);
 				}
 			}
 			
 			// Disabled for standalone mode in iOS because new tab cannot be closed
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				this.addMenuItems(menu, ['exportPng'], parent);
-				
-				menu.addItem(mxResources.get('formatJpg') + '...', null, mxUtils.bind(this, function()
-				{
-					editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
-					{
-						editorUi.downloadFile('jpeg', null, null, ignoreSelection);
-					}), true);
-				}), parent);
+				this.addMenuItems(menu, ['exportPng', 'exportJpg'], parent);
 			}
 			
 			this.addMenuItems(menu, ['exportSvg', '-'], parent);
@@ -1429,8 +1445,6 @@
 				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
 
-			this.addMenuItems(menu, ['exportHtml'], parent);
-
 			// LATER: Fix namespace prefix (NS1, NS2..) in XML
 			// serializer for VSDX export in IE11 and earlier
 			if (!mxClient.IS_IE11 && !mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
@@ -1438,24 +1452,8 @@
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
 
-			this.addMenuItems(menu, ['-', 'exportXml'], parent);
+			this.addMenuItems(menu, ['-', 'exportHtml', 'exportXml', 'exportUrl'], parent);
 
-			// Disables menu item for all external hosted integrations
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || /.*\.draw\.io$/.test(window.location.hostname))
-			{
-				menu.addItem(mxResources.get('url') + '...', null, mxUtils.bind(this, function()
-				{
-					editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-						function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
-					{
-						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
-							linkColor, allPages, lightbox, editLink, layers, null, true));
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
-						dlg.init();
-					});
-				}), parent);
-			}
-			
 			if (!editorUi.isOffline())
 			{
 				menu.addSeparator(parent);
