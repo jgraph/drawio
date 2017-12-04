@@ -197,11 +197,11 @@ Actions.prototype.init = function()
 
 	// Navigation actions
 	this.addAction('home', function() { graph.home(); }, null, null, 'Home');
-	this.addAction('exitGroup', function() { graph.exitGroup(); }, null, null, Editor.ctrlKey + '+Shift+Page Up');
-	this.addAction('enterGroup', function() { graph.enterGroup(); }, null, null, Editor.ctrlKey + '+Shift+Page Down');
-	this.addAction('expand', function() { graph.foldCells(false); }, null, null, Editor.ctrlKey + '+Page Down');
-	this.addAction('collapse', function() { graph.foldCells(true); }, null, null, Editor.ctrlKey + '+Page Up');
-
+	this.addAction('exitGroup', function() { graph.exitGroup(); }, null, null, Editor.ctrlKey + '+Shift+Home');
+	this.addAction('enterGroup', function() { graph.enterGroup(); }, null, null, Editor.ctrlKey + '+Shift+End');
+	this.addAction('collapse', function() { graph.foldCells(true); }, null, null, Editor.ctrlKey + '+Home');
+	this.addAction('expand', function() { graph.foldCells(false); }, null, null, Editor.ctrlKey + '+End');
+	
 	// Arrange actions
 	this.addAction('toFront', function() { graph.orderCells(false); }, null, null, Editor.ctrlKey + '+Shift+F');
 	this.addAction('toBack', function() { graph.orderCells(true); }, null, null, Editor.ctrlKey + '+Shift+B');

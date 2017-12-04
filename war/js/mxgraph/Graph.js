@@ -6789,24 +6789,16 @@ if (typeof mxVertexHandler != 'undefined')
 			this.hint.style.left = Math.round(me.getGraphX() - this.hint.clientWidth / 2) + 'px';
 			this.hint.style.top = (Math.max(me.getGraphY(), point.y) + this.state.view.graph.gridSize) + 'px';
 			
-			if (this.hideEdgeHintThread != null)
+			if (this.linkHint != null)
 			{
-				window.clearTimeout(this.hideEdgeHintThread);
+				this.linkHint.style.display = 'none';
 			}
-			
-			this.hideEdgeHintThread = window.setTimeout(mxUtils.bind(this, function()
-			{
-				if (this.hint != null)
-				{
-					this.hint.style.visibility = 'hidden';
-				}
-			}), 500);
 		};
 	
 		/**
 		 * Updates the hint for the current operation.
 		 */
-		mxEdgeHandler.prototype.removeHint = mxGraphHandler.prototype.removeHint;
+		mxEdgeHandler.prototype.removeHint = mxVertexHandler.prototype.removeHint;
 	
 		/**
 		 * Defines the handles for the UI. Uses data-URIs to speed-up loading time where supported.
@@ -7461,6 +7453,22 @@ if (typeof mxVertexHandler != 'undefined')
 						{
 							this.graph.setSelectionCell(this.state.cell);
 							this.graph.editLink();
+							mxEvent.consume(evt);
+						}));
+						
+						var removeLink = document.createElement('img');
+						removeLink.setAttribute('src', Dialog.prototype.clearImage);
+						removeLink.setAttribute('title', mxResources.get('removeIt', [mxResources.get('link')]));
+						removeLink.setAttribute('width', '13');
+						removeLink.setAttribute('height', '10');
+						removeLink.style.marginLeft = '4px';
+						removeLink.style.marginBottom = '-1px';
+						removeLink.style.cursor = 'pointer';
+						this.linkHint.appendChild(removeLink);
+						
+						mxEvent.addListener(removeLink, 'click', mxUtils.bind(this, function(evt)
+						{
+							this.graph.setLinkForCell(this.state.cell, null);
 							mxEvent.consume(evt);
 						}));
 					}

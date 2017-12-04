@@ -6066,6 +6066,9 @@
 									    					}
 											    		}));
 								    				}), resizeImages, maxSize, resampleThreshold);
+								    			}), mxUtils.bind(this, function()
+								    			{
+								    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
 								    			}));
 					    					}
 					    				}
