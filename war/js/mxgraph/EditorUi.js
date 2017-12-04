@@ -499,13 +499,15 @@ EditorUi = function(editor, container, lightbox)
 	// Implements a global current style for edges and vertices that is applied to new cells
 	var insertHandler = function(cells, asText)
 	{
-		graph.getModel().beginUpdate();
+		var model = graph.getModel();
+		
+		model.beginUpdate();
 		try
 		{
 			// Applies only basic text styles
 			if (asText)
 			{
-				var edge = graph.getModel().isEdge(cell);
+				var edge = model.isEdge(cell);
 				var current = (edge) ? graph.currentEdgeStyle : graph.currentVertexStyle;
 				var textStyles = ['fontSize', 'fontFamily', 'fontColor'];
 				
@@ -526,7 +528,7 @@ EditorUi = function(editor, container, lightbox)
 					var cell = cells[i];
 
 					// Removes styles defined in the cell style from the styles to be applied
-					var cellStyle = graph.getModel().getStyle(cell);
+					var cellStyle = model.getStyle(cell);
 					var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
 					var appliedStyles = styles.slice();
 					
@@ -567,8 +569,9 @@ EditorUi = function(editor, container, lightbox)
 					}
 	
 					// Applies the current style to the cell
-					var edge = graph.getModel().isEdge(cell);
+					var edge = model.isEdge(cell);
 					var current = (edge) ? graph.currentEdgeStyle : graph.currentVertexStyle;
+					var newStyle = model.getStyle(cell);
 					
 					for (var j = 0; j < appliedStyles.length; j++)
 					{
@@ -580,16 +583,18 @@ EditorUi = function(editor, container, lightbox)
 							// Special case: Connect styles are not applied here but in the connection handler
 							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
 							{
-								graph.setCellStyles(key, styleValue, [cell]);
+								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
 							}
 						}
 					}
+					
+					model.setStyle(cell, newStyle);
 				}
 			}
 		}
 		finally
 		{
-			graph.getModel().endUpdate();
+			model.endUpdate();
 		}
 	};
 

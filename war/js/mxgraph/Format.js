@@ -2528,30 +2528,88 @@ TextFormatPanel.prototype.addFont = function(container)
 	var pendingFontSize = null;
 
 	var inputUpdate = this.installInputHandler(input, mxConstants.STYLE_FONTSIZE, Menus.prototype.defaultFontSize, 1, 999, ' pt',
-	function(fontsize)
+	function(fontSize)
 	{
-		pendingFontSize = fontsize;
-
-		// Workaround for can't set font size in px is to change font size afterwards
-		document.execCommand('fontSize', false, '4');
-		var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+		var handled = false;
 		
-		for (var i = 0; i < elts.length; i++)
+		// KNOWN: Fixes font size issues but bypasses undo
+		if (window.getSelection)
 		{
-			if (elts[i].getAttribute('size') == '4')
+			input.value = fontSize + ' pt';
+			var selection = window.getSelection();
+			var container = selection.getRangeAt(0).commonAncestorContainer;
+			
+			if (container.nodeType == mxConstants.NODETYPE_ELEMENT)
 			{
-				elts[i].removeAttribute('size');
-				elts[i].style.fontSize = pendingFontSize + 'px';
-	
-				// Overrides fontSize in input with the one just assigned as a workaround
-				// for potential fontSize values of parent elements that don't match
-				window.setTimeout(function()
-				{
-					input.value = pendingFontSize + ' pt';
-					pendingFontSize = null;
-				}, 0);
+				var elts = container.getElementsByTagName('*');
 				
-				break;
+				function updateSize(elt)
+				{
+					if (elt.nodeName == 'FONT')
+					{
+						elt.removeAttribute('size');
+						elt.style.fontSize = fontSize + 'px';
+					}
+					else
+					{
+						var css = mxUtils.getCurrentStyle(elt);
+						
+						if (css.fontSize != fontSize + 'px')
+						{
+							if (mxUtils.getCurrentStyle(elt.parentNode).fontSize != fontSize + 'px')
+							{
+								elt.style.fontSize = fontSize + 'px';
+							}
+							else
+							{
+								elt.style.fontSize = '';
+							}
+						}
+					}
+				};
+		
+				if (container != graph.cellEditor.textarea)
+				{
+					updateSize(container);
+					handled = true;
+				}
+				
+				for (var i = 0; i < elts.length; i++)
+				{
+					if (selection.containsNode(elts[i], true))
+					{
+						updateSize(elts[i]);
+						handled = true;
+					}
+				}
+			}
+		}
+		
+		if (!handled)
+		{
+			pendingFontSize = fontSize;
+			
+			// Workaround for can't set font size in px is to change font size afterwards
+			document.execCommand('fontSize', false, '4');
+			var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+			
+			for (var i = 0; i < elts.length; i++)
+			{
+				if (elts[i].getAttribute('size') == '4')
+				{
+					elts[i].removeAttribute('size');
+					elts[i].style.fontSize = pendingFontSize + 'px';
+		
+					// Overrides fontSize in input with the one just assigned as a workaround
+					// for potential fontSize values of parent elements that don't match
+					window.setTimeout(function()
+					{
+						input.value = pendingFontSize + ' pt';
+						pendingFontSize = null;
+					}, 0);
+					
+					break;
+				}
 			}
 		}
 	}, true);
@@ -3182,14 +3240,17 @@ TextFormatPanel.prototype.addFont = function(container)
 				{
 					var selectedElement = graph.getSelectedElement();
 					var node = selectedElement;
-					
+
 					while (node != null && node.nodeType != mxConstants.NODETYPE_ELEMENT)
 					{
 						node = node.parentNode;
 					}
-					
+
 					if (node != null)
 					{
+						// Finds common font size
+						var elts = node.getElementsByTagName('*');
+
 						// Workaround for commonAncestor on range in IE11 returning parent of common ancestor
 						if (node == graph.cellEditor.textarea && graph.cellEditor.textarea.children.length == 1 &&
 							graph.cellEditor.textarea.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT)
@@ -3197,7 +3258,50 @@ TextFormatPanel.prototype.addFont = function(container)
 							node = graph.cellEditor.textarea.firstChild;
 						}
 						
+						function getRelativeLineHeight(fontSize, lineHeight, elt)
+						{
+							if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+							{
+								return parseInt(elt.style.lineHeight) / 100;
+							}
+							else
+							{
+								return (lineHeight.substring(css.lineHeight.length - 2) == 'px') ?
+										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+							}
+						};
+						
+						//var realCss = mxUtils.getCurrentStyle(selectedElement);
 						var css = mxUtils.getCurrentStyle(node);
+						var fontSize = parseFloat(css.fontSize);
+						var lineHeight = getRelativeLineHeight(fontSize, css.lineHeight, node);
+
+						if (elts.length > 0 && window.getSelection)
+						{
+							var selection = window.getSelection();
+							
+							if (selection.containsNode(elts[0], true))
+							{
+								var temp = mxUtils.getCurrentStyle(elts[0]);
+								fontSize = parseFloat(temp.fontSize);
+								lineHeight = getRelativeLineHeight(fontSize, temp.lineHeight, elts[0]);
+	
+								for (var i = 0; i < elts.length; i++)
+								{
+									if (selection.containsNode(elts[i], true))
+									{
+										temp = mxUtils.getCurrentStyle(elts[i]);
+										fontSize = Math.max(parseFloat(temp.fontSize), fontSize);
+										var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
+										
+										if (lh != lineHeight || isNaN(lh))
+										{
+											lineHeight = '';
+										}
+									}
+								}
+							}
+						}
 						
 						if (css != null)
 						{
@@ -3227,23 +3331,19 @@ TextFormatPanel.prototype.addFont = function(container)
 								}
 								else
 								{
-									input.value = parseFloat(css.fontSize) + ' pt';
+									input.value = (isNaN(fontSize)) ? '' : fontSize + 'px';
 								}
 								
-								var tmp = node.style.lineHeight || css.lineHeight;
-								var lh = parseFloat(tmp);
+								var lh = parseFloat(lineHeight);
 								
-								if (tmp.substring(tmp.length - 2) == 'px')
+								if (!isNaN(lh))
 								{
-									lh = lh / parseFloat(css.fontSize);
+									lineHeightInput.value = Math.round(lh * 100) + ' %';
 								}
-								
-								if (tmp.substring(tmp.length - 1) != '%')
+								else
 								{
-									lh *= 100; 
+									lineHeightInput.value = '100 %';
 								}
-								
-								lineHeightInput.value = lh + ' %';
 							}
 							
 							// Converts rgb(r,g,b) values

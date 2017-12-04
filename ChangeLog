@@ -1,3 +1,11 @@
+04-DEC-2017: 7.8.3
+
+- Improves handling of fontsize in format panel
+- Hides link hint for edges while moving points
+- Improves loop routing with control points
+- Adds remove option for links
+- Uses mxGraph 3.8.1 beta 2
+
 03-DEC-2017: 7.8.2
 
 - Adds select descendants for cells with outgoing edges
