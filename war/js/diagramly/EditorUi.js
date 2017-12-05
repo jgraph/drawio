@@ -1741,7 +1741,7 @@
 	    // Workaround for CSS error in IE8 (standards and quirks)
 	    if (!mxClient.IS_QUIRKS && document.documentMode != 8)
 	    {
-	    	buttons.style.backgroundColor = 'inherit';
+	    		buttons.style.backgroundColor = 'inherit';
 	    }
 	    
 	    title.style.position = 'relative';
@@ -1783,22 +1783,10 @@
 			}
 		}));
 		
-		// Shows tooltip if mouse over background
-		mxEvent.addListener(contentDiv, 'mousemove', mxUtils.bind(this, function(evt)
-		{
-			if (mxEvent.getSource(evt) == contentDiv)
-			{
-				contentDiv.setAttribute('title', mxResources.get('libraryTooltip'));
-			}
-			else
-			{
-				contentDiv.removeAttribute('title');
-			}
-		}));
-		
 		if (file.isEditable())
 		{
 			var graph = this.editor.graph;
+			var spinBtn = null;
 			
 			var editLibrary = mxUtils.bind(this, function(evt)
 			{
@@ -2193,10 +2181,11 @@
 				}
 			});
 			
-			btn = btn.cloneNode(false);
-			btn.setAttribute('src', Editor.plusImage);
-			btn.setAttribute('title', mxResources.get('add'));
-			buttons.insertBefore(btn, buttons.firstChild);
+			var btn2 = btn.cloneNode(false);
+			btn2.setAttribute('src', Editor.plusImage);
+			btn2.setAttribute('title', mxResources.get('add'));
+			buttons.insertBefore(btn2, buttons.firstChild);
+			mxEvent.addListener(btn2, 'click', addSelection);
 			
 			if (!this.isOffline() && file.title == '.scratchpad' && EditorUi.scratchpadHelpLink != null)
 			{
@@ -2214,10 +2203,6 @@
 				
 				buttons.insertBefore(link, buttons.firstChild);
 			}
-			
-			var spinBtn = null;
-	
-			mxEvent.addListener(btn, 'click', addSelection);
 		}
 		
 		title.appendChild(buttons);

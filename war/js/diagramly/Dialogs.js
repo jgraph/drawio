@@ -7545,7 +7545,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		evt.stopPropagation();
 	    evt.preventDefault();
-    	errorShowed = false;
+    		errorShowed = false;
 	    
 	    dropTargetIndex = getIndexForEvent(evt);
 		
@@ -7565,11 +7565,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		}
 	    else if (evt.dataTransfer.files.length > 0)
 	    {
-	    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
+	    		editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
 		}
 	    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 	    {
-	    	var uri = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
+	    		var uri = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
 	    	
 			if (/(\.jpg)($|\?)/i.test(uri) || /(\.png)($|\?)/i.test(uri) ||
 				/(\.gif)($|\?)/i.test(uri) || /(\.svg)($|\?)/i.test(uri))

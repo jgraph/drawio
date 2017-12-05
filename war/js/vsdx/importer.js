@@ -43,9 +43,17 @@ var com;
                     this.debugPaths = false;
                     this.vsdxModel = null;
                 }
-                mxVsdxCodec.vsdxPlaceholder_$LI$ = function () { if (mxVsdxCodec.vsdxPlaceholder == null)
-                    mxVsdxCodec.vsdxPlaceholder = atob("dmlzaW8="); return mxVsdxCodec.vsdxPlaceholder; };
-                ;
+                mxVsdxCodec.vsdxPlaceholder_$LI$ = function ()
+                {
+                		if (mxVsdxCodec.vsdxPlaceholder == null)
+                		{
+                			var tmp = "dmlzaW8=";
+                			mxVsdxCodec.vsdxPlaceholder = (window.atob) ? atob(tmp) : Base64.decode(tmp, true);
+                			
+                			return mxVsdxCodec.vsdxPlaceholder;
+                		}
+                };
+                
                 /**
                  * Parses the input VSDX format and uses the information to populate
                  * the specified graph.

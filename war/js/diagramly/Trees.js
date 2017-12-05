@@ -8,7 +8,7 @@
 	 * Defines resources.
 	 */
 	var moveImage =  (!mxClient.IS_SVG) ? IMAGE_PATH + '/move.png' :
-		'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAMAAADypuvZAAAAhFBMVEUAAAD///8KCgpNTU24uLgBAQEBAQEMDAxFRUWEhIQBAQEBAQEBAQEAAAAVFRXAwMBYWFgBAQEBAQEAAAAAAAAAAAAAAAAAAAABAQEBAQEAAAAAAAAAAAABAQEBAQEAAAAAAAASEhLAwMC+vr4BAQEBAQEAAAAAAAAAAAABAQEAAAD///+vipwtAAAAKnRSTlMA/Prw9f7A+fHq1uvFOfPv7+TOmkUyCwb3kT9UT+yPLAL49PTbkmloKvYw/P7BAAABe0lEQVRIx52W63LCIBBGwRhUkFxNYtTEa9Xi+79fR9KxrgtY9/xjMmcIH5ddhmmqSylk3nW5FOWlath7dCsNQLY6bOzWwjgQ64CzmhsPYuVR6jY2XuK2djnbwgQptthZKPMGtXh1NkvzluXmZR7geC0w17YziNHIILrrU26FwzkeHVbxl+GXwxnfbmOH1T72NHY6Tiv+3eXd3Ol4rPnOSmv0YWIda03QxyF3NNE+5XxwOE/3aCp7F9CKkiyacevMoixBq9JDdJjpIE2NcQbYnIyDaJAi4+DUsCqGGSRYSmAaccXOMOs0w1KWwuTPrIT7w6dwTcMA7lfJBHDugd2x6T0NgCWYfDkH3GKdpwGwJMuB4wFaOVOP3A63IIdHhookkX6PFAQpctLmko4R6cCSrgbtEjJtCNed8LAQnjDSY0l4ljWhAPT0UmO5/rOoqSulfH5eqL83lJaA1nxg6j7U5vS1r6ESgYbKj7d1C6N7Cf9L9joogHZUKW87+gMYYTZWVGas2QAAAABJRU5ErkJggg==';
+		'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAASFBMVEUAAAAAAAB/f3/9/f319fUfHx/7+/s+Pj69vb0AAAAAAAAAAAAAAAAAAAAAAAAAAAB2dnZ1dXUAAAAAAAAVFRX///8ZGRkGBgbOcI1hAAAAE3RSTlMA+vr9/f38+fb1893Bo00u+/tFvPJUBQAAAIRJREFUGNM0jEcSxCAQAxlydGqD///TNWxZBx1aXVIrWysplbapL3sFxgDq/idXBnHgBPK1nIxwc55vCXl6dRFtrV6svs/A/UjsPcpzA5tqyByD92HqQlMFh45BG6ND1DiKSoPDdm96N77bg5F+wyaEqRGb8ZiOwHQqdg9hehszcLAEIQB2lQ4p/sEpnAAAAABJRU5ErkJggg==';
 
 	/**
 	 * Overrides folding based on treeFolding style.
@@ -1075,212 +1075,96 @@
 			}
 			else
 			{
-				this.model.beginUpdate();
-				try
-				{
-					var cells = graphConnectVertex.call(this, source, direction, length, evt, forceClone,
-						ignoreCellAt || edges.length == 0);
-				}
-				finally
-				{
-					this.model.endUpdate();
-				}
-				
-				return cells;
+				return graphConnectVertex.call(this, source, direction,
+					length, evt, forceClone, ignoreCellAt);
 			}
 		};
-	
-		// Keeps edges connected in trees
-		var graphHandlerGetCells = graph.graphHandler.getCells;
-	
-		graph.graphHandler.getCells = function(initialCell)
+		
+		graph.getSubtree = function(initialCell)
 		{
-			var cells = graphHandlerGetCells.apply(this, arguments);
-			var temp = cells.slice(0);
-	
-			// Removes all edges first
-			for (var i = 0; i < temp.length; i++)
-			{
-				if (isTreeVertex(temp[i]))
-				{
-					// Avoids disconnecting subtree by removing all incoming edges
-					var edges = graph.getIncomingEdges(temp[i]);
-					
-					for (var j = 0; j < edges.length; j++)
-					{
-						mxUtils.remove(edges[j], cells);
-					}
-				}
-			}
+			var cells = [initialCell];
 			
-			for (var i = 0; i < temp.length; i++)
+			if (isTreeVertex(initialCell) && !hasLayoutParent(initialCell))
 			{
-				var target = cells[i];
-				
-				// LATER: Move edge should move subtree
-	//			if (model.isEdge(target) && hasTreeParent(target))
-	//			{
-	//				target = model.getTerminal(target, false);
-	//			}
-				
-				if (isTreeVertex(target) && !hasLayoutParent(target))
+				// Gets the subtree from cell downwards
+				graph.traverse(initialCell, true, function(vertex, edge)
 				{
-					// Gets the subtree from cell downwards
-					graph.traverse(target, true, function(vertex, edge)
+					// LATER: Use dictionary to avoid duplicates
+					if (edge != null && mxUtils.indexOf(cells, edge) < 0)
 					{
-						// LATER: Use dictionary to avoid duplicates
-						if (edge != null && mxUtils.indexOf(cells, edge) < 0)
-						{
-							cells.push(edge);
-						}
+						cells.push(edge);
+					}
 	
-						if (mxUtils.indexOf(cells, vertex) < 0)
-						{
-							cells.push(vertex);
-						}
-						
-						return true;
-					});
-				}
+					if (mxUtils.indexOf(cells, vertex) < 0)
+					{
+						cells.push(vertex);
+					}
+					
+					return true;
+				});
 			}
 	
 			return cells;
 		};
-	
-		// Defines a new class for all icons
-		function mxIconSet(state)
-		{
-			this.images = [];
-			var graph = state.view.graph;
-	
-			// Delete
-			var img = mxUtils.createImage(moveImage);
-			img.setAttribute('title', 'Move Cell without Subtree');
-			img.style.position = 'absolute';
-			img.style.cursor = 'pointer';
-			img.style.width = '26px';
-			img.style.height = '26px';
-			img.style.left = (state.getCenterX() - 13) + 'px';
-			img.style.top = (state.getCenterY() - 13) + 'px';
-			
-			mxEvent.addGestureListeners(img, mxUtils.bind(this, function(evt)
-			{
-				graph.stopEditing(false);
-				ui.hoverIcons.reset();
-				
-				if (!graph.isCellSelected(state.cell))
-				{
-					graph.setSelectionCell(state.cell);
-				}
-				
-				graph.graphHandler.start(state.cell, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-	
-				graph.graphHandler.cells = [state.cell];
-				graph.graphHandler.bounds = graph.graphHandler.graph.getView().getBounds(graph.graphHandler.cells);
-				graph.graphHandler.pBounds = graph.graphHandler.getPreviewBounds(graph.graphHandler.cells);
-				
-				graph.graphHandler.cellWasClicked = true;
-				graph.isMouseDown = true;
-				graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
-				mxEvent.consume(evt);
-				
-				// Disables dragging the image
-				mxEvent.consume(evt);
-				this.destroy();
-			}));
-	
-			state.view.graph.container.appendChild(img);
-			this.images.push(img);
-		};
+
 		
-		mxIconSet.prototype.destroy = function()
+		var vertexHandlerInit = mxVertexHandler.prototype.init;
+		
+		mxVertexHandler.prototype.init = function()
 		{
-			if (this.images != null)
+			vertexHandlerInit.apply(this, arguments);
+			
+			if (isTreeVertex(this.state.cell) && this.graph.getOutgoingEdges(this.state.cell).length > 0)
 			{
-				for (var i = 0; i < this.images.length; i++)
+				this.moveHandle = mxUtils.createImage(moveImage);
+				this.moveHandle.setAttribute('title', 'Move Subtree');
+				this.moveHandle.style.position = 'absolute';
+				this.moveHandle.style.cursor = 'pointer';
+				this.moveHandle.style.width = '18px';
+				this.moveHandle.style.height = '18px';
+				this.graph.container.appendChild(this.moveHandle);
+				
+				mxEvent.addGestureListeners(this.moveHandle, mxUtils.bind(this, function(evt)
 				{
-					var img = this.images[i];
-					img.parentNode.removeChild(img);
-				}
+					this.graph.graphHandler.start(this.state.cell, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+					this.graph.graphHandler.cells = this.graph.getSubtree(this.state.cell);
+					this.graph.graphHandler.bounds = this.state.view.getBounds(this.graph.graphHandler.cells);
+					this.graph.graphHandler.pBounds = this.graph.graphHandler.getPreviewBounds(this.graph.graphHandler.cells);
+					this.graph.graphHandler.cellWasClicked = true;
+					this.graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
+					this.graph.isMouseDown = true;
+					mxEvent.consume(evt);
+				}));
 			}
+		};
+
+		var vertexHandlerRedrawHandles = mxVertexHandler.prototype.redrawHandles;
+
+		mxVertexHandler.prototype.redrawHandles = function()
+		{
+			vertexHandlerRedrawHandles.apply(this, arguments);
 			
-			this.images = null;
+			if (this.moveHandle != null)
+			{
+				this.moveHandle.style.left = this.state.x + this.state.width +
+					((this.state.width < 40) ? 10 : 0) + 2 + 'px';
+				this.moveHandle.style.top = this.state.y + this.state.height +
+					((this.state.height < 40) ? 10 : 0) + 2 + 'px';
+			}
 		};
 		
-		// Defines the tolerance before removing the icons
-		var iconTolerance = 20;
-	
-		// Shows icons if the mouse is over a cell
-		graph.addMouseListener(
+		var vertexHandlerDestroy = mxVertexHandler.prototype.destroy;
+
+		mxVertexHandler.prototype.destroy = function(sender, me)
 		{
-		    currentState: null,
-		    currentIconSet: null,
-		    mouseDown: function(sender, me)
-		    {
-			    	// Hides icons on mouse down
-		        	if (this.currentState != null)
-		        	{
-		          		this.dragLeave(me.getEvent(), this.currentState);
-		          		this.currentState = null;
-		        	}
-		    },
-		    mouseMove: function(sender, me)
-		    {
-			    	if (this.currentState != null && (me.getState() == this.currentState ||
-			    		me.getState() == null))
-			    	{
-			    		var tol = iconTolerance;
-			    		var tmp = new mxRectangle(me.getGraphX() - tol,
-			    			me.getGraphY() - tol, 2 * tol, 2 * tol);
-		
-			    		if (mxUtils.intersects(tmp, this.currentState))
-			    		{
-			    			return;
-			    		}
-			    	}
-		    	
-				var tmp = me.getState();
-				
-				// Ignores everything but vertices
-				if ((graph.isMouseDown && !mxEvent.isTouchEvent(me.getEvent())) ||
-					graph.isEditing() || (tmp != null && (!graph.getModel().isVertex(tmp.cell) ||
-					!isTreeVertex(me.getCell()) || hasLayoutParent(tmp.cell))))
-				{
-					tmp = null;
-				}
-				
-		      	if (tmp != this.currentState)
-		      	{
-			        	if (this.currentState != null)
-			        	{
-			          	this.dragLeave(me.getEvent(), this.currentState);
-			        	}
-			        
-		        		this.currentState = tmp;
-			        
-			        	if (this.currentState != null)
-			        	{
-			          	this.dragEnter(me.getEvent(), this.currentState);
-			        	}
-		      	}
-		    },
-		    mouseUp: function(sender, me) { },
-		    dragEnter: function(evt, state)
-		    {
-			    	if (this.currentIconSet == null)
-			    	{
-		    			this.currentIconSet = new mxIconSet(state);
-			    	}
-		    },
-		    dragLeave: function(evt, state)
-		    {
-			    	if (this.currentIconSet != null)
-			    	{
-		    			this.currentIconSet.destroy();
-		    			this.currentIconSet = null;
-			    	}
-		    }
-		});
+			vertexHandlerDestroy.apply(this, arguments);
+
+			if (this.moveHandle != null)
+			{
+				this.moveHandle.parentNode.removeChild(this.moveHandle);
+				this.moveHandle = null;
+			}
+		};
 	};
 
 	/**

@@ -2530,20 +2530,17 @@ TextFormatPanel.prototype.addFont = function(container)
 	var inputUpdate = this.installInputHandler(input, mxConstants.STYLE_FONTSIZE, Menus.prototype.defaultFontSize, 1, 999, ' pt',
 	function(fontSize)
 	{
-		var handled = false;
-		
+		// IE does not support containsNode
 		// KNOWN: Fixes font size issues but bypasses undo
-		if (window.getSelection)
+		if (window.getSelection && !mxClient.IS_IE && !mxClient.IS_IE11)
 		{
-			input.value = fontSize + ' pt';
 			var selection = window.getSelection();
-			var container = selection.getRangeAt(0).commonAncestorContainer;
-			
-			if (container.nodeType == mxConstants.NODETYPE_ELEMENT)
+			var container = (selection.rangeCount > 0) ? selection.getRangeAt(0).commonAncestorContainer :
+				graph.cellEditor.textarea;
+
+			function updateSize(elt, ignoreContains)
 			{
-				var elts = container.getElementsByTagName('*');
-				
-				function updateSize(elt)
+				if (elt != graph.cellEditor.textarea && (ignoreContains || selection.containsNode(elt, true)))
 				{
 					if (elt.nodeName == 'FONT')
 					{
@@ -2566,26 +2563,35 @@ TextFormatPanel.prototype.addFont = function(container)
 							}
 						}
 					}
-				};
-		
-				if (container != graph.cellEditor.textarea)
-				{
-					updateSize(container);
-					handled = true;
 				}
+			};
+			
+			// Wraps text node or mixed selection with leading text in a font element
+			if (container == graph.cellEditor.textarea ||
+				container.nodeType != mxConstants.NODETYPE_ELEMENT)
+			{
+				document.execCommand('fontSize', false, '1');
+			}
+
+			if (container != graph.cellEditor.textarea)
+			{
+				container = container.parentNode;
+			}
+			
+			if (container.nodeType == mxConstants.NODETYPE_ELEMENT)
+			{
+				var elts = container.getElementsByTagName('*');
+				updateSize(container);
 				
 				for (var i = 0; i < elts.length; i++)
 				{
-					if (selection.containsNode(elts[i], true))
-					{
-						updateSize(elts[i]);
-						handled = true;
-					}
+					updateSize(elts[i]);
 				}
 			}
+
+			input.value = fontSize + ' pt';
 		}
-		
-		if (!handled)
+		else
 		{
 			pendingFontSize = fontSize;
 			
@@ -3248,9 +3254,6 @@ TextFormatPanel.prototype.addFont = function(container)
 
 					if (node != null)
 					{
-						// Finds common font size
-						var elts = node.getElementsByTagName('*');
-
 						// Workaround for commonAncestor on range in IE11 returning parent of common ancestor
 						if (node == graph.cellEditor.textarea && graph.cellEditor.textarea.children.length == 1 &&
 							graph.cellEditor.textarea.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT)
@@ -3266,38 +3269,47 @@ TextFormatPanel.prototype.addFont = function(container)
 							}
 							else
 							{
-								return (lineHeight.substring(css.lineHeight.length - 2) == 'px') ?
+								return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
 										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
 							}
 						};
 						
+						function getAbsoluteFontSize(fontSize)
+						{
+							if (fontSize.substring(fontSize.length - 2) == 'px')
+							{
+								return parseFloat(fontSize);
+							}
+							else
+							{
+								return mxConstants.DEFAULT_FONTSIZE;
+							}
+						}
+						
 						//var realCss = mxUtils.getCurrentStyle(selectedElement);
 						var css = mxUtils.getCurrentStyle(node);
-						var fontSize = parseFloat(css.fontSize);
+						var fontSize = getAbsoluteFontSize(css.fontSize);
 						var lineHeight = getRelativeLineHeight(fontSize, css.lineHeight, node);
 
-						if (elts.length > 0 && window.getSelection)
+						// Finds common font size
+						var elts = node.getElementsByTagName('*');
+
+						// IE does not support containsNode
+						if (elts.length > 0 && window.getSelection && !mxClient.IS_IE && !mxClient.IS_IE11)
 						{
 							var selection = window.getSelection();
-							
-							if (selection.containsNode(elts[0], true))
+
+							for (var i = 0; i < elts.length; i++)
 							{
-								var temp = mxUtils.getCurrentStyle(elts[0]);
-								fontSize = parseFloat(temp.fontSize);
-								lineHeight = getRelativeLineHeight(fontSize, temp.lineHeight, elts[0]);
-	
-								for (var i = 0; i < elts.length; i++)
+								if (selection.containsNode(elts[i], true))
 								{
-									if (selection.containsNode(elts[i], true))
+									temp = mxUtils.getCurrentStyle(elts[i]);
+									fontSize = Math.max(getAbsoluteFontSize(temp.fontSize), fontSize);
+									var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
+									
+									if (lh != lineHeight || isNaN(lh))
 									{
-										temp = mxUtils.getCurrentStyle(elts[i]);
-										fontSize = Math.max(parseFloat(temp.fontSize), fontSize);
-										var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
-										
-										if (lh != lineHeight || isNaN(lh))
-										{
-											lineHeight = '';
-										}
+										lineHeight = '';
 									}
 								}
 							}
@@ -3326,12 +3338,12 @@ TextFormatPanel.prototype.addFont = function(container)
 									pendingFontSize != null)
 								{
 									node.removeAttribute('size');
-									node.style.fontSize = pendingFontSize + 'px';
+									node.style.fontSize = pendingFontSize + ' pt';
 									pendingFontSize = null;
 								}
 								else
 								{
-									input.value = (isNaN(fontSize)) ? '' : fontSize + 'px';
+									input.value = (isNaN(fontSize)) ? '' : fontSize + ' pt';
 								}
 								
 								var lh = parseFloat(lineHeight);
