@@ -2493,11 +2493,19 @@
 	FilledEdge.prototype.origPaintEdgeShape = FilledEdge.prototype.paintEdgeShape;
 	FilledEdge.prototype.paintEdgeShape = function(c, pts, rounded)
 	{
-		//paintEdgeShape reset dashed to false
-		var dashed = c.state.dashed;
-		var fixDash = c.state.fixDash; 
+		// Markers modify incoming points array
+		var temp = [];
 		
-		FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);
+		for (var i = 0; i < pts.length; i++)
+		{
+			temp.push(mxUtils.clone(pts[i]));
+		}
+		
+		// paintEdgeShape resets dashed to false
+		var dashed = c.state.dashed;
+		var fixDash = c.state.fixDash;
+		FilledEdge.prototype.origPaintEdgeShape.apply(this, [c, temp, rounded]);
+
 		if (c.state.strokeWidth >= 3)
 		{
 			var fillClr = mxUtils.getValue(this.style, 'fillColor', null);
@@ -2507,8 +2515,8 @@
 				c.setStrokeColor(fillClr);
 				c.setStrokeWidth(c.state.strokeWidth - 2);
 				c.setDashed(dashed, fixDash);
-			
-				FilledEdge.prototype.origPaintEdgeShape.apply(this, arguments);		
+				
+				FilledEdge.prototype.origPaintEdgeShape.apply(this, [c, pts, rounded]);
 			}
 		}
 	};

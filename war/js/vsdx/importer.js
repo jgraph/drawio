@@ -49,9 +49,9 @@ var com;
                 		{
                 			var tmp = "dmlzaW8=";
                 			mxVsdxCodec.vsdxPlaceholder = (window.atob) ? atob(tmp) : Base64.decode(tmp, true);
-                			
-                			return mxVsdxCodec.vsdxPlaceholder;
                 		}
+
+                		return mxVsdxCodec.vsdxPlaceholder;
                 };
                 
                 /**
@@ -74,7 +74,7 @@ var com;
 
                     var allDone = function () 
                     {
-	                    var path = mxVsdxCodec.vsdxPlaceholder_$LI$() + "/document.xml";
+	                    var path = mxVsdxCodec.vsdxPlaceholder + "/document.xml";
 	                    var rootDoc = (function (m, k) { return m[k] ? m[k] : null; })(docData, path);
 	                    var rootChild = rootDoc.firstChild;
 	                    while (rootChild != null && !(rootChild.nodeType == 1)) {

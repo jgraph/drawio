@@ -1,3 +1,9 @@
+14-DEC-2017: 7.8.5
+
+- Uses mxGraph 3.8.1 beta 3
+- Uses relative path for templates
+- Adds configVersion to force reset of configuration
+
 05-DEC-2017: 7.8.4
 
 - Fixes font rendering in library dialog

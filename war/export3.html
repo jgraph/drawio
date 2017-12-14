@@ -266,10 +266,9 @@
 			{
 				if (--waitCounter < 1)
 				{
-					//TODO handle bounds in a different way
-					//window.callPhantom(bounds);
 					var doneDiv = document.createElement("div");
 					doneDiv.id = 'LoadingComplete';
+					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
 					document.body.appendChild(doneDiv);
 				}
 			};

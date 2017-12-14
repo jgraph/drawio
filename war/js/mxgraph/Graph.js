@@ -2596,31 +2596,31 @@ HoverIcons.prototype.checkCollisions = true;
  * Up arrow.
  */
 HoverIcons.prototype.triangleUp = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/triangle-up.png', 26, 14) :
-	Graph.createSvgImage(26, 14, '<path d="m 1 14 L 13 1 L 26 14 z" stroke="#fff" fill="rgb(41, 182, 242)"/>');
+	Graph.createSvgImage(26, 14, '<path d="m 1 14 L 13 1 L 26 14 z" stroke="#fff" fill="#007dfc"/>');
 
 /**
  * Right arrow.
  */
 HoverIcons.prototype.triangleRight = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/triangle-right.png', 14, 26) :
-	Graph.createSvgImage(14, 26, '<path d="m 1 1 L 14 13 L 1 26 z" stroke="#fff" fill="rgb(41, 182, 242)"/>');
+	Graph.createSvgImage(14, 26, '<path d="m 1 1 L 14 13 L 1 26 z" stroke="#fff" fill="#007dfc"/>');
 
 /**
  * Down arrow.
  */
 HoverIcons.prototype.triangleDown = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/triangle-down.png', 26, 14) :
-	Graph.createSvgImage(26, 14, '<path d="m 1 1 L 13 14 L 26 1 z" stroke="#fff" fill="rgb(41, 182, 242)"/>');
+	Graph.createSvgImage(26, 14, '<path d="m 1 1 L 13 14 L 26 1 z" stroke="#fff" fill="#007dfc"/>');
 
 /**
  * Left arrow.
  */
 HoverIcons.prototype.triangleLeft = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/triangle-left.png', 14, 26) :
-	Graph.createSvgImage(14, 26, '<path d="m 14 1 L 1 13 L 14 26 z" stroke="#fff" fill="rgb(41, 182, 242)"/>');
+	Graph.createSvgImage(14, 26, '<path d="m 14 1 L 1 13 L 14 26 z" stroke="#fff" fill="#007dfc"/>');
 
 /**
  * Round target.
  */
 HoverIcons.prototype.roundDrop = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/round-drop.png', 26, 26) :
-	Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="rgb(41, 182, 242)"/>');
+	Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="#007dfc"/>');
 
 /**
  * Refresh target.

@@ -99,15 +99,33 @@ Actions.prototype.init = function()
 				
 				if (cells != null)
 				{
-					var bb = graph.getBoundingBoxFromGeometry(cells);
+					var includeEdges = true;
+					
+					for (var i = 0; i < cells.length && includeEdges; i++)
+					{
+						includeEdges = includeEdges && graph.model.isEdge(cells[i]);
+					}
+
+					var t = graph.view.translate;
+					var s = graph.view.scale;
+					var dx = t.x;
+					var dy = t.y;
+					var bb = null;
+					
+					if (cells.length == 1 && includeEdges)
+					{
+						var geo = graph.getCellGeometry(cells[0]);
+						
+						if (geo != null)
+						{
+							bb = geo.getTerminalPoint(true);
+						}
+					}
+
+					bb = (bb != null) ? bb : graph.getBoundingBoxFromGeometry(cells, includeEdges);
 					
 					if (bb != null)
 					{
-						var t = graph.view.translate;
-						var s = graph.view.scale;
-						var dx = t.x;
-						var dy = t.y;
-						
 						var x = Math.round(graph.snap(graph.popupMenuHandler.triggerX / s - dx));
 						var y = Math.round(graph.snap(graph.popupMenuHandler.triggerY / s - dy));
 						

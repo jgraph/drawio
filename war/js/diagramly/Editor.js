@@ -144,6 +144,7 @@
 	{
 		if (config != null)
 		{
+			Editor.configVersion = config.version;
 			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;

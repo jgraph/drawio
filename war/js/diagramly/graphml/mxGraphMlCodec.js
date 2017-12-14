@@ -128,6 +128,18 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 	this.portsKeys = {};
 	this.sharedData = {};
 	
+	this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY] = {}; 
+	this.nodesKeys[mxGraphMlConstants.USER_TAGS] = {};
+	this.nodesKeys[mxGraphMlConstants.NODE_STYLE] = {};
+	this.nodesKeys[mxGraphMlConstants.NODE_LABELS] = {};
+	this.nodesKeys[mxGraphMlConstants.NODE_GRAPHICS] = {};
+	this.edgesKeys[mxGraphMlConstants.EDGE_GEOMETRY] = {};
+	this.edgesKeys[mxGraphMlConstants.EDGE_STYLE] = {}; 
+	this.edgesKeys[mxGraphMlConstants.EDGE_LABELS] = {}; 
+	this.portsKeys[mxGraphMlConstants.PORT_LOCATION_PARAMETER] = {};
+	this.portsKeys[mxGraphMlConstants.PORT_STYLE] = {};
+	this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE] = {};
+	
 	var sharedDataId;
 	
 	for (var i = 0; i < keys.length; i++)
@@ -137,8 +149,11 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 		var id = keyObj[mxGraphMlConstants.ID];
 		var _for = keyObj[mxGraphMlConstants.KEY_FOR];
 		var attName = keyObj[mxGraphMlConstants.KEY_NAME];
+		var yType = keyObj[mxGraphMlConstants.KEY_YTYPE];
 		
 		if (attName == mxGraphMlConstants.SHARED_DATA) sharedDataId = id;
+		
+		attName = attName? attName : yType
 		
 		//TODO handle the defaults inside these keys
 		switch (_for)
@@ -178,6 +193,21 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 				for (var k = 0; k < dataItems.length; k++)
 				{
 					var dkey = dataItems[k].getAttribute(mxGraphMlConstants.X_KEY);
+					this.sharedData[dkey] = dataItems[k];
+				}
+			}
+		}
+		else
+		{
+			var resources = this.getDirectChildNamedElements(data[i], mxGraphMlConstants.Y_RESOURCES);
+			
+			for (var j = 0; j < resources.length; j++)
+			{
+				var dataItems = this.getDirectChildElements(resources[j]);
+				
+				for (var k = 0; k < dataItems.length; k++)
+				{
+					var dkey = dataItems[k].getAttribute(mxGraphMlConstants.ID);
 					this.sharedData[dkey] = dataItems[k];
 				}
 			}
@@ -226,14 +256,15 @@ mxGraphMlCodec.prototype.parseAttributes = function (elem, obj)
 
 mxGraphMlCodec.prototype.dataElem2Obj = function (elem) 
 {
-	var ref = this.getDirectFirstChildNamedElements(elem, mxGraphMlConstants.GRAPHML_REFERENCE);
+	var ref = this.getDirectFirstChildNamedElements(elem, mxGraphMlConstants.GRAPHML_REFERENCE)
+					|| elem.getAttribute(mxGraphMlConstants.REFID);
 	var refKey = null;
 	var origElem = elem;
 	var obj = {};
 	
 	if (ref) 
 	{
-		var key = ref.getAttribute(mxGraphMlConstants.RESOURCE_KEY);
+		var key = (typeof ref === "string")? ref : ref.getAttribute(mxGraphMlConstants.RESOURCE_KEY);
 		var cachedObj = this.cachedRefObj[key];
 		
 		//already cached
@@ -250,29 +281,7 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 
 	//parse all attributes
 	this.parseAttributes(elem, obj);
-	
-	if (elem.childNodes.length == 1)
-	{
-		if (elem.childNodes[0].nodeType != 1)
-		{
-			//TODO handle this similar case better
-			//cache referenced objects
-			if (refKey)
-			{
-				var tmpObj = {};
-				//parse all attributes before following the reference
-				this.parseAttributes(origElem, tmpObj);
-				tmpObj[this.sharedData[refKey].nodeName] = elem.childNodes[0].textContent; 
-				this.cachedRefObj[refKey] = tmpObj;
-				return tmpObj;
-			}
-			else 
-			{
-				return elem.childNodes[0].textContent;
-			}
-		}
-	}
-	
+
 	for (var i = 0; i < elem.childNodes.length; i++)
 	{
 		var child = elem.childNodes[i]; 
@@ -324,6 +333,10 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 					obj[attName] = this.dataElem2Obj(child);
 				}
 			}
+		} 
+		else if ((child.nodeType == 3 || child.nodeType == 4) && child.textContent.trim())
+		{
+			obj["#text"] = child.textContent;
 		}
 	}
 	
@@ -392,12 +405,12 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 							}
 						break;
 						case "shape":
-//							console.log(val);
-							modVal = mxGraphMlShapesMap[val];
+							console.log(val.toLowerCase());
+							modVal = mxGraphMlShapesMap[val.toLowerCase()];
 						break;
 						case "bpmnOutline":
-//							console.log(val);
-							modVal = mxGraphMlShapesMap.bpmnOutline[val];
+							console.log(val.toLowerCase());
+							modVal = mxGraphMlShapesMap.bpmnOutline[val.toLowerCase()];
 						break;
 						case "bool":
 							modVal = val == "true"? "1" : "0";
@@ -527,7 +540,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 	
 	var node = new mxCell();
 	node.vertex = true;
-	node.geometry = new mxGeometry(0,0,0,0);
+	node.geometry = new mxGeometry(0,0,30,30); //some node has no geometry, this is the default
 
 	graph.addCell(node, parent);
 
@@ -543,223 +556,77 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 		var d = data[i];
 		var dataObj = this.dataElem2Obj(d);
 		
-		if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key) 
+		if (dataObj.key)
 		{
-			this.addNodeGeo(node, dataObj, dx, dy);
-		} 
-		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.USER_TAGS].key) 
-		{
-			mlUserTags = dataObj;
-		}
-		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
-		{
-//			console.log(JSON.stringify(dataObj));
-			//TODO move these static mapping objects outside such that they are defined once only
-			mlStyleObj = dataObj;
-			if (dataObj["yjs:StringTemplateNodeStyle"])
+			if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key) 
 			{
-				mlTemplate = dataObj["yjs:StringTemplateNodeStyle"];
+				this.addNodeGeo(node, dataObj, dx, dy);
 			} 
-			else
+			else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.USER_TAGS].key) 
 			{
-				var dashStyleFn = function(val, map)
+				mlUserTags = dataObj;
+			}
+			else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
+			{
+	//			console.log(JSON.stringify(dataObj));
+				mlStyleObj = dataObj;
+				if (dataObj["yjs:StringTemplateNodeStyle"])
 				{
-					map["dashed"] = 1;
-					//map["fixDash"] = 1;
-					var pattern = null;
-					switch(val)
+					mlTemplate = dataObj["yjs:StringTemplateNodeStyle"]["#text"];
+				} 
+				else
+				{
+					this.addNodeStyle(node, dataObj, style);
+				}
+			}
+			else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key) 
+			{
+				lblObj = dataObj;
+			}
+			else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GRAPHICS].key)
+			{
+				var shape = null, key = null;
+				for (var key in dataObj)
+				{
+					if (key == "key" || key == "#text") continue;
+					
+					//Special case when a node has multiple graphics
+					//TODO support the open/closed states
+					if (key == "y:ProxyAutoBoundsNode") 
 					{
-						case "DashDot":
-							pattern = "3 1 1 1";
-						break;
-						case "Dot":
-							pattern = "1 1";
-						break;
-						case "DashDotDot":
-							pattern = "3 1 1 1 1 1";
-						break;
-						case "Dash":
-							pattern = "3 1";
-						break;
-						default:
-							pattern = val.replace(/0/g, '1');
+						var realizers = dataObj[key]["y:Realizers"];
+						if (realizers)
+						{
+							for (var key2 in realizers)
+							{
+								if (key2 == "active" || key2 == "#text") continue;
+								
+								shape = realizers[key2][realizers["active"]];
+								dataObj = {"y:GroupNode": shape};
+								break;
+							}
+						}
+					}
+					else
+					{
+						shape = dataObj[key];
+					}
+					break;
+				}
+				if (shape)
+				{
+					if (shape[mxGraphMlConstants.GEOMETRY])
+					{
+						this.addNodeGeo(node, shape[mxGraphMlConstants.GEOMETRY], dx, dy);
 					}
 					
-					if (pattern)
+					if (shape[mxGraphMlConstants.NODE_LABEL])
 					{
-						//Some patterns in graphML has only one number
-						if (pattern.indexOf(" ") < 0) 
-						{
-							pattern = pattern + " " + pattern;
-						}
-						map["dashPattern"] = pattern;
+						lblObj = shape[mxGraphMlConstants.NODE_LABEL];
 					}
-				};
-				
-				var styleCommonMap = 
-				{
-					"shape": {key: "shape", mod: "shape"},
-					"type": {key: "shape", mod: "shape"},
-					"assetName": {key: "shape", mod: "shape"},
-					"activityType": {key: "shape", mod: "shape"},
-					"fill": {key: "fillColor", mod: "color"},
-					"fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
-					"fill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
-					"stroke": {key: "strokeColor", mod: "color"},
-					"stroke.yjs:Stroke":
-					{
-						"dashStyle": dashStyleFn,
-						"dashStyle.yjs:DashStyle.dashes": dashStyleFn,
-						"fill": {key: "strokeColor", mod: "color"},
-						"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
-						//"lineCap": "", //??
-						"thickness.sys:Double": "strokeWidth",
-						"thickness": "strokeWidth"
-					}
-				};
-	
-				var assetNodesStyle = mxUtils.clone(styleCommonMap);
-				assetNodesStyle["defaults"] = {
-					"fillColor": "#CCCCCC",
-					"strokeColor": "#6881B3"
-				};
-				
-				var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
-				bpmnActivityStyle["defaults"] = {
-					"shape": "ext;rounded=1",
-					"fillColor": "#FFFFFF",
-					"strokeColor": "#000090"
-				};
-				
-				var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
-				bpmnGatewayStyle["defaults"] = {
-					"shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
-				};
-				
-				var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
-				bpmnConversationStyle["defaults"] = {
-					"shape": "hexagon",
-					"strokeColor": "#007000"
-				};
-				
-				var bpmnEventStyle = mxUtils.clone(styleCommonMap);
-				bpmnEventStyle["defaults"] = {
-					"shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
-					"outline": "standard"
-				};
-				bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
-				
-				var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
-				bpmnDataObjectStyle["defaults"] = {
-					"shape": "js:bpmnDataObject"
-				};
-				
-				var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
-				bpmnDataStoreStyle["defaults"] = {
-					"shape": "datastore"
-				};
-				
-				var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
-				bpmnGroupNodeStyle["defaults"] = {
-					"shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
-				};
-				
-				var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
-				bpmnChoreographyNodeStyle["defaults"] = {
-					"shape": "js:BpmnChoreography"//"swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
-				};
-				
-				//approximation to GraphML shapes TODO improve them
-				var bevelNodeStyle = mxUtils.clone(styleCommonMap);
-				bevelNodeStyle["defaults"] = {
-					"rounded": "1",
-					"glass": "1",
-					"strokeColor": "#FFFFFF"
-				};
-				bevelNodeStyle["inset"] = "strokeWidth";
-				bevelNodeStyle["radius"] = "arcSize";
-				bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
-				bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
-				bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
-				
-				var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
-				shinyPlateNodeStyle["defaults"] = {
-					"rounded": "1",
-					"arcSize": 10,
-					"glass": "1",
-					"shadow": "1",
-					"strokeColor": "none",
-					"rotation": -90 //TODO requires rotation!
-				};
-				shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
-				
-				var demoGroupStyle = mxUtils.clone(styleCommonMap);
-				demoGroupStyle["defaults"] = {
-					"shape": "swimlane",
-					"startSize": 20,
-					"strokeWidth": 4,
-					"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
-				};
-				demoGroupStyle["isCollapsible"] = {key:"collapsible", mod:"bool"};
-				demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
-				demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
-	//			demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
-				
-				var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
-				collapsibleNodeStyle["defaults"] = {
-					"shape": "swimlane",
-					"startSize": 20,
-					"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
-				};
-				collapsibleNodeStyle["yjs:PanelNodeStyle"] = {
-					"color": {key:"swimlaneFillColor", mod:"color"},
-					"color.yjs:Color.value": {key:"swimlaneFillColor", mod:"color"},
-					"labelInsetsColor": {key:"fillColor", mod:"color"},
-					"labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
-				};
-				
-				var tableStyle = mxUtils.clone(styleCommonMap);
-				tableStyle["defaults"] = {
-					"shape": "js:table"
-				};
-				
-				var imageNodeStyle = mxUtils.clone(styleCommonMap);
-				imageNodeStyle["defaults"] = {
-					"shape": "image"
-				};
-				
-				imageNodeStyle["image"] = function(val, map)
-				{
-					map["image"] = val; 
-				};
-				
-				this.mapObject(dataObj, {
-					"yjs:ShapeNodeStyle": styleCommonMap,
-					"demostyle:FlowchartNodeStyle": styleCommonMap,
-					"demostyle:AssetNodeStyle": assetNodesStyle,
-					"demostyle:DemoGroupStyle": styleCommonMap,
-					"bpmn:ActivityNodeStyle": bpmnActivityStyle,
-					"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
-					"bpmn:ConversationNodeStyle": bpmnConversationStyle,
-					"bpmn:EventNodeStyle": bpmnEventStyle,
-					"bpmn:DataObjectNodeStyle": bpmnDataObjectStyle,
-					"bpmn:DataStoreNodeStyle": bpmnDataStoreStyle,
-					"bpmn:GroupNodeStyle": bpmnGroupNodeStyle,
-					"bpmn:ChoreographyNodeStyle": bpmnChoreographyNodeStyle,
-					"yjs:BevelNodeStyle": bevelNodeStyle,
-					"yjs:ShinyPlateNodeStyle": shinyPlateNodeStyle,
-					"demostyle:DemoGroupStyle": demoGroupStyle,
-					"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
-					"bpmn:PoolNodeStyle": tableStyle,
-					"yjs:TableNodeStyle": tableStyle,
-					"demotablestyle:DemoTableStyle": tableStyle,
-					"yjs:ImageNodeStyle": imageNodeStyle
-				}, style);
+				}
+				this.addNodeStyle(node, dataObj, style);
 			}
-		}
-		else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key) 
-		{
-			lblObj = dataObj;
 		}
 	}
 	
@@ -803,6 +670,271 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 	this.nodesMap[id] = {node: node, ports: portsMap};
 };
 
+mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
+{
+	//TODO move these static mapping objects outside such that they are defined once only
+	var dashStyleFn = function(val, map)
+	{
+		if (val == "line") return;
+		
+		map["dashed"] = 1;
+		//map["fixDash"] = 1;
+		var pattern = null;
+		switch(val)
+		{
+			case "DashDot":
+				pattern = "3 1 1 1";
+			break;
+			case "Dot":
+				pattern = "1 1";
+			break;
+			case "DashDotDot":
+				pattern = "3 1 1 1 1 1";
+			break;
+			case "Dash":
+				pattern = "3 1";
+			break;
+			case "dotted":
+				pattern = "1 3";
+			break;
+			case "dashed":
+				pattern = "5 2";
+			break;
+			default:
+				pattern = val.replace(/0/g, '1');
+		}
+		
+		if (pattern)
+		{
+			//Some patterns in graphML has only one number
+			if (pattern.indexOf(" ") < 0) 
+			{
+				pattern = pattern + " " + pattern;
+			}
+			map["dashPattern"] = pattern;
+		}
+	};
+	
+	var styleCommonMap = 
+	{
+		"shape": {key: "shape", mod: "shape"},
+		"y:Shape.type": {key: "shape", mod: "shape"},
+		"configuration": {key: "shape", mod: "shape"},
+		"type": {key: "shape", mod: "shape"},
+		"assetName": {key: "shape", mod: "shape"},
+		"activityType": {key: "shape", mod: "shape"},
+		"fill": {key: "fillColor", mod: "color"},
+		"fill.yjs:SolidColorFill.color": {key: "fillColor", mod: "color"},
+		"fill.yjs:SolidColorFill.color.yjs:Color.value": {key: "fillColor", mod: "color"},
+		"y:Fill": {
+			"color": {key: "fillColor", mod: "color"},
+			//"color2": {key: "gradientColor", mod: "color"}, //??
+			"transparent": function(val, map)
+			{
+				if (val == "true")
+				{
+					map["fillColor"] = "none";
+				}
+			}
+		},
+		"y:BorderStyle": {
+			"color": {key: "strokeColor", mod: "color"},
+			"width": "strokeWidth",
+			"hasColor":  function(val, map)
+			{
+				if (val == "false")
+				{
+					map["strokeColor"] = "none";
+				}
+			},
+			"type": dashStyleFn
+			//"raised": ??
+		},
+		"stroke": {key: "strokeColor", mod: "color"},
+		"stroke.yjs:Stroke":
+		{
+			"dashStyle": dashStyleFn,
+			"dashStyle.yjs:DashStyle.dashes": dashStyleFn,
+			"fill": {key: "strokeColor", mod: "color"},
+			"fill.yjs:SolidColorFill.color": {key: "strokeColor", mod: "color"},
+			//"lineCap": "", //??
+			"thickness.sys:Double": "strokeWidth",
+			"thickness": "strokeWidth"
+		}
+	};
+
+	var assetNodesStyle = mxUtils.clone(styleCommonMap);
+	assetNodesStyle["defaults"] = {
+		"fillColor": "#CCCCCC",
+		"strokeColor": "#6881B3"
+	};
+	
+	var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
+	bpmnActivityStyle["defaults"] = {
+		"shape": "ext;rounded=1",
+		"fillColor": "#FFFFFF",
+		"strokeColor": "#000090"
+	};
+	
+	var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
+	bpmnGatewayStyle["defaults"] = {
+		"shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
+	};
+	
+	var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
+	bpmnConversationStyle["defaults"] = {
+		"shape": "hexagon",
+		"strokeColor": "#007000"
+	};
+	
+	var bpmnEventStyle = mxUtils.clone(styleCommonMap);
+	bpmnEventStyle["defaults"] = {
+		"shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
+		"outline": "standard"
+	};
+	bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
+	
+	var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
+	bpmnDataObjectStyle["defaults"] = {
+		"shape": "js:bpmnDataObject"
+	};
+	
+	var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
+	bpmnDataStoreStyle["defaults"] = {
+		"shape": "datastore"
+	};
+	
+	var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
+	bpmnGroupNodeStyle["defaults"] = {
+		"shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
+	};
+	
+	var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
+	bpmnChoreographyNodeStyle["defaults"] = {
+		"shape": "js:BpmnChoreography"//"swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
+	};
+	
+	//approximation to GraphML shapes TODO improve them
+	var bevelNodeStyle = mxUtils.clone(styleCommonMap);
+	bevelNodeStyle["defaults"] = {
+		"rounded": "1",
+		"glass": "1",
+		"strokeColor": "#FFFFFF"
+	};
+	bevelNodeStyle["inset"] = "strokeWidth";
+	bevelNodeStyle["radius"] = "arcSize";
+	bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+	bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
+	bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
+	
+	var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
+	shinyPlateNodeStyle["defaults"] = {
+		"rounded": "1",
+		"arcSize": 10,
+		"glass": "1",
+		"shadow": "1",
+		"strokeColor": "none",
+		"rotation": -90 //TODO requires rotation!
+	};
+	shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
+	
+	var demoGroupStyle = mxUtils.clone(styleCommonMap);
+	demoGroupStyle["defaults"] = {
+		"shape": "swimlane",
+		"startSize": 20,
+		"strokeWidth": 4,
+		"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+	};
+	demoGroupStyle["isCollapsible"] = {key:"collapsible", mod:"bool"};
+	demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
+	demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
+//			demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
+	
+	var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
+	collapsibleNodeStyle["defaults"] = {
+		"shape": "swimlane",
+		"startSize": 20,
+		"spacingLeft": 10 //TODO can we change collapse icon to be in right side?
+	};
+	collapsibleNodeStyle["yjs:PanelNodeStyle"] = {
+		"color": {key:"swimlaneFillColor", mod:"color"},
+		"color.yjs:Color.value": {key:"swimlaneFillColor", mod:"color"},
+		"labelInsetsColor": {key:"fillColor", mod:"color"},
+		"labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
+	};
+	
+	var tableStyle = mxUtils.clone(styleCommonMap);
+	tableStyle["defaults"] = {
+		"shape": "js:table"
+	};
+	
+	var imageNodeStyle = mxUtils.clone(styleCommonMap);
+	imageNodeStyle["defaults"] = {
+		"shape": "image"
+	};
+	
+	imageNodeStyle["image"] = function(val, map)
+	{
+		map["image"] = val; 
+	};
+	
+	var svgNodeStyle = mxUtils.clone(styleCommonMap);
+	svgNodeStyle["defaults"] = {
+		"shape": "image"
+	};
+//	svgNodeStyle["y:SVGNodeProperties"] = {
+//		"usingVisualBounds": ""//??
+//	};
+//	y:SVGModel.svgBoundsPolicy ??
+	svgNodeStyle["y:SVGModel.y:SVGContent.y:Resource.#text"] = function(val, map)
+	{
+		map["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(val) : Base64.encode(val)); 
+	};
+	
+	var groupNodeStyle = mxUtils.clone(styleCommonMap);
+	groupNodeStyle["defaults"] = {
+		"shape": "swimlane",
+		"startSize": 20
+	};
+	
+	groupNodeStyle["y:Shape.type"] = function(val, map)
+	{
+		if (val == "roundrectangle")
+		{
+			map['rounded'] = 1;
+			map['arcSize'] = 5;
+		}
+	};
+	
+	this.mapObject(dataObj, {
+		"yjs:ShapeNodeStyle": styleCommonMap,
+		"demostyle:FlowchartNodeStyle": styleCommonMap,
+		"demostyle:AssetNodeStyle": assetNodesStyle,
+		"demostyle:DemoGroupStyle": styleCommonMap,
+		"bpmn:ActivityNodeStyle": bpmnActivityStyle,
+		"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
+		"bpmn:ConversationNodeStyle": bpmnConversationStyle,
+		"bpmn:EventNodeStyle": bpmnEventStyle,
+		"bpmn:DataObjectNodeStyle": bpmnDataObjectStyle,
+		"bpmn:DataStoreNodeStyle": bpmnDataStoreStyle,
+		"bpmn:GroupNodeStyle": bpmnGroupNodeStyle,
+		"bpmn:ChoreographyNodeStyle": bpmnChoreographyNodeStyle,
+		"yjs:BevelNodeStyle": bevelNodeStyle,
+		"yjs:ShinyPlateNodeStyle": shinyPlateNodeStyle,
+		"demostyle:DemoGroupStyle": demoGroupStyle,
+		"yjs:CollapsibleNodeStyleDecorator": collapsibleNodeStyle,
+		"bpmn:PoolNodeStyle": tableStyle,
+		"yjs:TableNodeStyle": tableStyle,
+		"demotablestyle:DemoTableStyle": tableStyle,
+		"yjs:ImageNodeStyle": imageNodeStyle,
+		//desktop
+		"y:ShapeNode": styleCommonMap,
+		"y:GenericNode": styleCommonMap,
+		"y:TableNode": styleCommonMap,
+		"y:SVGNode": svgNodeStyle,
+		"y:GroupNode": groupNodeStyle
+	}, style);
+};
 
 mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, styleMap)
 {
@@ -837,7 +969,7 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 		
 		if (userTags && userTags["y:Json"])
 		{
-			var json = JSON.parse(userTags["y:Json"]);
+			var json = JSON.parse(userTags["y:Json"]["#text"]);
 			//find user tags bindings
 			var userTagBindRegEx = /\{Binding\s+([^}]+)\}/g;
 			
@@ -1262,13 +1394,13 @@ mxGraphMlCodec.prototype.addColumn = function(column, parent, odd, x, yShift, co
 mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 {
 	var shape = styleMap["shape"];
+	var geo = node.geometry;
 	
-	if (shape && shape.indexOf(";aspect=fixed") > 0)
+	if (shape && geo)
 	{
-		var geo = node.geometry;
-		
-		if (geo) 
+		if (shape.indexOf(";aspect=fixed") > 0) 
 		{
+			
 			var min = Math.min(geo.height, geo.width);
 			
 			if (min == geo.height) //fix coordinates
@@ -1279,22 +1411,40 @@ mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 			geo.height = min;
 			geo.width = min;
 		}
+		else if (shape.indexOf(";rotation=90") > 0 || shape.indexOf(";rotation=-90") > 0 )
+		{
+			var h = geo.height;
+			geo.height = geo.width;
+			geo.width = h;
+		}
 	}
 };
 
 mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy) 
 {
 	var geoRect = geoObj[mxGraphMlConstants.RECT];
-	
+
+	var x = 0, y = 0, w = 30, h = 30; //some node has no geometry, this is the default
 	if (geoRect)
 	{
-		var geo = node.geometry;
-		 
-		geo.x = parseFloat(geoRect[mxGraphMlConstants.X]) - dx;
-		geo.y = parseFloat(geoRect[mxGraphMlConstants.Y]) - dy;
-		geo.width = parseFloat(geoRect[mxGraphMlConstants.WIDTH]);
-		geo.height = parseFloat(geoRect[mxGraphMlConstants.HEIGHT]);
+		x = geoRect[mxGraphMlConstants.X];
+		y = geoRect[mxGraphMlConstants.Y];
+		w = geoRect[mxGraphMlConstants.WIDTH];
+		h = geoRect[mxGraphMlConstants.HEIGHT];
 	}
+	else
+	{
+		x = geoObj[mxGraphMlConstants.X_L] || x;
+		y = geoObj[mxGraphMlConstants.Y_L] || y;
+		w = geoObj[mxGraphMlConstants.WIDTH_L] || w;
+		h = geoObj[mxGraphMlConstants.HEIGHT_L] || h;
+	}
+	
+	var geo = node.geometry;
+	geo.x = parseFloat(x) - dx;
+	geo.y = parseFloat(y) - dy;
+	geo.width = parseFloat(w);
+	geo.height = parseFloat(h);
 };
 
 //TODO handle other ports cases
@@ -1487,9 +1637,9 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 
 //TODO label offset
 //TODO labels object is over swim lanes collapse button
-mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle) 
+mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle) 
 {
-	var lblList = LblObj[mxGraphMlConstants.Y_LABEL];
+	var lblList = lblObj[mxGraphMlConstants.Y_LABEL] || lblObj;
 	
 	var lblTxts = [];
 	var lblStyles = [];
@@ -1507,10 +1657,12 @@ mxGraphMlCodec.prototype.addLabels = function (node, LblObj, nodeStyle)
 			var lbl = lblList[i];
 //			console.log(lbl);
 			var styleMap = {};
-			var txt = lbl[mxGraphMlConstants.TEXT];
+			var txt = lbl[mxGraphMlConstants.TEXT] || lbl;
+			
+			if (txt) txt = txt["#text"];
 			
 			//layout
-			var layout = lbl[mxGraphMlConstants.LAYOUTPARAMETER];
+			var layout = lbl[mxGraphMlConstants.LAYOUTPARAMETER] || lbl["y:LabelModel"] || {};
 			
 			//style
 			var fontStyleFn = function(val, map) 
@@ -1882,22 +2034,61 @@ var mxGraphMlArrowsMap =
 
 var mxGraphMlShapesMap =
 {
-	"STAR5": "mxgraph.basic.star;flipV=1", //TODO This is not close enough!
-	"STAR6": "mxgraph.basic.6_point_star;rotation=30", //TODO requires rotation!
-	"STAR8": "mxgraph.basic.8_point_star",
-	"SHEARED_RECTANGLE": "parallelogram",
-	"SHEARED_RECTANGLE2": "parallelogram;flipH=1",
-	"HEXAGON": "hexagon",
-	"OCTAGON": "mxgraph.basic.octagon",
-	"ELLIPSE": "ellipse",
-	"ROUND_RECTANGLE": "rect;rounded=1;arcSize=30",
-	"DIAMOND": "rhombus",
-	"FAT_ARROW": "step;perimeter=stepPerimeter",
-	"FAT_ARROW2": "step;perimeter=stepPerimeter;flipH=1",
-	"TRAPEZ": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
-	"TRAPEZ2": "trapezoid;perimeter=trapezoidPerimeter",
-	"TRIANGLE": "triangle;rotation=270", //TODO requires rotation!
-	"TRIANGLE2": "triangle;rotation=90", //TODO requires rotation!
+	"star5": "mxgraph.basic.star;flipV=1", //TODO This is not close enough!
+	"star6": "mxgraph.basic.6_point_star;rotation=30", //TODO requires rotation!
+	"star8": "mxgraph.basic.8_point_star",
+	"sheared_rectangle": "parallelogram",
+	"sheared_rectangle2": "parallelogram;flipH=1",
+	"hexagon": "hexagon",
+	"octagon": "mxgraph.basic.octagon",
+	"ellipse": "ellipse",
+	"round_rectangle": "rect;rounded=1;arcsize=30",
+	"diamond": "rhombus",
+	"fat_arrow": "step;perimeter=stepPerimeter",
+	"fat_arrow2": "step;perimeter=stepPerimeter;flipH=1",
+	"trapez": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
+	"trapez2": "trapezoid;perimeter=trapezoidPerimeter",
+	"triangle": "triangle;rotation=-90", //TODO requires rotation!
+	"triangle2": "triangle;rotation=90", //TODO requires rotation!
+	"rectangle": "rect",
+	"rectangle3d": "", //TODO create this shape
+	"roundrectangle": "rect;rounded=1;arcsize=30",
+	"fatarrow": "step;perimeter=stepPerimeter",
+	"fatarrow2": "step;perimeter=stepPerimeter;flipH=1",
+	"parallelogram": "parallelogram",
+	"parallelogram2": "parallelogram;flipH=1",
+	"trapezoid2": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
+	"trapezoid": "trapezoid;perimeter=trapezoidPerimeter",
+	//Bevel TODO make them looks closer to yEd
+	"bevelnode": "rect;glass=1;",
+	"bevelnodewithshadow": "rect;glass=1;shadow=1",
+	"bevelnode2": "rect;glass=1;rounded=1;arcsize=30",
+	"bevelnode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1",
+	"shinyplatenode": "rect;glass=1;rotation=-90",//TODO requires rotation!
+	"shinyplatenodewithshadow": "rect;glass=1;shadow=1;rotation=-90",//TODO requires rotation!
+	"shinyplatenode2": "rect;glass=1;rounded=1;arcsize=30;rotation=-90",//TODO requires rotation!
+	"shinyplatenode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1;rotation=-90",//TODO requires rotation!
+	//Table
+//	"yed_table_node
+//	"com.yworks.entityrelationship.big_entity
+//	"com.yworks.entityrelationship.small_entity
+//	"com.yworks.entityrelationship.relationship
+//	"com.yworks.entityrelationship.attribute
+//	"com.yworks.sbgn.unspecifiedentity
+//	"com.yworks.sbgn.simplechemical
+//	"com.yworks.sbgn.macromolecule
+//	"com.yworks.sbgn.nucleicacidfeature
+//	"com.yworks.sbgn.perturbingagent
+//	"com.yworks.sbgn.phenotype
+//	"com.yworks.sbgn.emptyset
+//	"com.yworks.sbgn.submap
+//	"com.yworks.sbgn.simplechemical
+//	"com.yworks.sbgn.macromolecule
+//	"com.yworks.sbgn.unitofinformation
+//	"com.yworks.sbgn.statevariable
+//	"com.yworks.sbgn.tag
+//	"com.yworks.sbgn.process
+//	"com.yworks.sbgn.operator
 	//flowchart
 	"process": "mxgraph.flowchart.process",
 	"decision": "mxgraph.flowchart.decision",
@@ -1906,27 +2097,57 @@ var mxGraphMlShapesMap =
 	"terminator": "mxgraph.flowchart.terminator",
 	"cloud": "cloud",
 	"data": "mxgraph.flowchart.data",
-	"directData": "mxgraph.flowchart.direct_data",
-	"dataBase": "mxgraph.flowchart.database",
+	"directdata": "mxgraph.flowchart.direct_data",
+	"database": "mxgraph.flowchart.database",
 	"document": "mxgraph.flowchart.document",
-	"predefinedProcess": "mxgraph.flowchart.predefined_process",
-	"storedData": "mxgraph.flowchart.stored_data",
-	"internalStorage": "mxgraph.flowchart.internal_storage",
-	"sequentialData": "mxgraph.flowchart.sequential_data;aspect=fixed",
-	"manualInput": "mxgraph.flowchart.manual_input",
+	"predefinedprocess": "mxgraph.flowchart.predefined_process",
+	"storeddata": "mxgraph.flowchart.stored_data",
+	"internalstorage": "mxgraph.flowchart.internal_storage",
+	"sequentialdata": "mxgraph.flowchart.sequential_data;aspect=fixed",
+	"manualinput": "mxgraph.flowchart.manual_input",
 	"card": "card;size=10",
-	"paperType": "mxgraph.flowchart.paper_tape",
+	"papertype": "mxgraph.flowchart.paper_tape",
 	"delay": "mxgraph.flowchart.delay",
 	"display": "mxgraph.flowchart.display",
-	"manualOperation": "mxgraph.flowchart.manual_operation",
+	"manualoperation": "mxgraph.flowchart.manual_operation",
 	"preparation": "mxgraph.flowchart.preparation",
-	"loopLimit": "mxgraph.flowchart.loop_limit",
-	"loopLimitEnd": "mxgraph.flowchart.loop_limit;flipV=1",
-	"onPageReference": "mxgraph.flowchart.on-page_reference;aspect=fixed",
-	"offPageReference": "mxgraph.flowchart.off-page_reference",
+	"looplimit": "mxgraph.flowchart.loop_limit",
+	"looplimitend": "mxgraph.flowchart.loop_limit;flipV=1",
+	"onpagereference": "mxgraph.flowchart.on-page_reference;aspect=fixed",
+	"offpagereference": "mxgraph.flowchart.off-page_reference;aspect=fixed",
 	"annotation": "mxgraph.flowchart.annotation_1", //TODO not similar!
-	"userMessage": "mxgraph.arrows2.arrow;dy=0;dx=10;notch=0", //TODO requires rotation!
-	"networkMessage": "mxgraph.arrows2.arrow;dy=0;dx=0;notch=10",
+	"usermessage": "mxgraph.arrows2.arrow;dy=0;dx=10;notch=0", //TODO requires rotation!
+	"networkmessage": "mxgraph.arrows2.arrow;dy=0;dx=0;notch=10",
+	//The same like above but with "com.yworks.flowchart." prefex. TODO should we just remove the prefex? 
+	"com.yworks.flowchart.start1": "mxgraph.flowchart.start_1",
+	"com.yworks.flowchart.start2": "mxgraph.flowchart.start_2;aspect=fixed",
+	"com.yworks.flowchart.terminator": "mxgraph.flowchart.terminator",
+	"com.yworks.flowchart.process": "mxgraph.flowchart.process",
+	"com.yworks.flowchart.predefinedprocess": "mxgraph.flowchart.predefined_process",
+	"com.yworks.flowchart.decision": "mxgraph.flowchart.decision",
+	"com.yworks.flowchart.looplimit": "mxgraph.flowchart.loop_limit",
+	"com.yworks.flowchart.looplimitend": "mxgraph.flowchart.loop_limit;flipV=1",
+	"com.yworks.flowchart.document": "mxgraph.flowchart.document",
+	"com.yworks.flowchart.data": "mxgraph.flowchart.data",
+	"com.yworks.flowchart.directdata": "mxgraph.flowchart.direct_data",
+	"com.yworks.flowchart.storeddata": "mxgraph.flowchart.stored_data",
+	"com.yworks.flowchart.sequentialdata": "mxgraph.flowchart.sequential_data;aspect=fixed",
+	"com.yworks.flowchart.database": "mxgraph.flowchart.database",
+	"com.yworks.flowchart.internalstorage": "mxgraph.flowchart.internal_storage",
+	"com.yworks.flowchart.manualinput": "mxgraph.flowchart.manual_input",
+	"com.yworks.flowchart.card": "card;size=10",
+	"com.yworks.flowchart.papertype": "mxgraph.flowchart.paper_tape",
+	"com.yworks.flowchart.cloud": "cloud",
+	"com.yworks.flowchart.delay": "mxgraph.flowchart.delay",
+	"com.yworks.flowchart.display": "mxgraph.flowchart.display",
+	"com.yworks.flowchart.manualoperation": "mxgraph.flowchart.manual_operation",
+	"com.yworks.flowchart.preparation": "mxgraph.flowchart.preparation",
+	"com.yworks.flowchart.onpagereference": "mxgraph.flowchart.on-page_reference;aspect=fixed",
+	"com.yworks.flowchart.offpagereference": "mxgraph.flowchart.off-page_reference;aspect=fixed",
+	"com.yworks.flowchart.usermessage": "mxgraph.arrows2.arrow;dy=0;dx=10;notch=0", //TODO requires rotation!
+	"com.yworks.flowchart.networkmessage": "mxgraph.arrows2.arrow;dy=0;dx=0;notch=10",
+	"com.yworks.flowchart.annotation": "mxgraph.flowchart.annotation_1", //TODO not similar!
+
 	//icons (network)
 	"database.svg": "mxgraph.networks.storage", //TODO not similar!
 	"laptop.svg": "mxgraph.networks.laptop",//TODO not similar!
@@ -1936,41 +2157,48 @@ var mxGraphMlShapesMap =
 	"wlan.svg": "mxgraph.networks.wireless_hub",//TODO not similar!
 	"workstation.svg": "mxgraph.networks.pc",//TODO not similar!
 	//bpmn
-	"TRANSACTION": "ext;double=1;rounded=1",
-	"SUB_PROCESS": "ext;rounded=1",
-	"CALL_ACTIVITY": "ext;rounded=1;strokeWidth=3",
+	"transaction": "ext;double=1;rounded=1",
+	"sub_process": "ext;rounded=1",
+	"call_activity": "ext;rounded=1;strokeWidth=3",
 	//TODO two colors for stroke!
-	"EXCLUSIVE_WITH_MARKER": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw",  
-	"EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=boundInt;symbol=multiple", 
-	"PARALLEL": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=parallelGw",
-	"INCLUSIVE": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=end;symbol=general",
-	"COMPLEX": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=complexGw",
-	"EXCLUSIVE_EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=multiple", 
-	"PARALLEL_EVENT_BASED": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=parallelMultiple",
+	"exclusive_with_marker": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw",  
+	"event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=boundInt;symbol=multiple", 
+	"parallel": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=parallelGw",
+	"inclusive": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=end;symbol=general",
+	"complex": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=complexGw",
+	"exclusive_event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=multiple", 
+	"parallel_event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=parallelMultiple",
 	//hexagon
-	"CALLING_GLOBAL_CONVERSATION": "hexagon;strokeWidth=4",
+	"calling_global_conversation": "hexagon;strokeWidth=4",
 	//mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general
-	"MESSAGE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=message",
-	"TIMER": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=timer",
-	"ESCALATION": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=escalation",
-	"CONDITIONAL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=conditional",
-	"LINK": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=link",
-	"ERROR": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=error",
-	"CANCEL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=cancel",
-	"COMPENSATION": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=compensation",
-	"SIGNAL": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=signal",
-	"MULTIPLE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=multiple",
-	"PARALLEL_MULTIPLE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=parallelMultiple",
-	"TERMINATE": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=terminate",
+	"message": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=message",
+	"timer": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=timer",
+	"escalation": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=escalation",
+	"conditional": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=conditional",
+	"link": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=link",
+	"error": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=error",
+	"cancel": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=cancel",
+	"compensation": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=compensation",
+	"signal": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=signal",
+	"multiple": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=multiple",
+	"parallel_multiple": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=parallelMultiple",
+	"terminate": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=terminate",
+	
+//	"com.yworks.bpmn.pool
+//	"com.yworks.bpmn.activity.withshadow
+//	"com.yworks.bpmn.gateway.withshadow
+//	"com.yworks.bpmn.event.withshadow
+//	"com.yworks.bpmn.conversation.withshadow
+//	"com.yworks.bpmn.artifact.withshadow
+
 	bpmnOutline: {
-		"SUB_PROCESS_INTERRUPTING": "eventInt",
-		"SUB_PROCESS_NON_INTERRUPTING": "eventNonint",
-		"CATCHING": "catching",
-		"BOUNDARY_INTERRUPTING": "boundInt",
-		"BOUNDARY_NON_INTERRUPTING": "boundNonint",
-		"THROWING": "throwing",
-		"END": "end",
-		"CATCHING": "catching"
+		"sub_process_interrupting": "eventInt",
+		"sub_process_non_interrupting": "eventNonint",
+		"catching": "catching",
+		"boundary_interrupting": "boundInt",
+		"boundary_non_interrupting": "boundNonint",
+		"throwing": "throwing",
+		"end": "end"
 	},
 	//Male/Female icons (FIXME Not similar and unsafe as it refers to remote resources)
 	"usericon_female1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
@@ -2001,6 +2229,8 @@ var mxGraphMlConstants =
 	KEY_NAME: "attr.name",
 
 	KEY_TYPE: "attr.type",
+	
+	KEY_YTYPE: "yfiles.type",
 
 	GRAPH: "graph",
 
@@ -2046,13 +2276,21 @@ var mxGraphMlConstants =
 
 	Y: "Y",
 
+	HEIGHT_L: "height",
+
+	WIDTH_L: "width",
+
+	X_L: "x",
+
+	Y_L: "y",
+
 	JGRAPH: "jGraph:",
 
-	GEOMETRY: "Geometry",
+	GEOMETRY: "y:Geometry",
 
 	FILL: "Fill",
 
-	SHAPENODE: "ShapeNode",
+	SHAPENODE: "y:ShapeNode",
 
 	SHAPEEDGE: "ShapeEdge",
 
@@ -2084,11 +2322,15 @@ var mxGraphMlConstants =
 	
 	NODE_LABELS: "NodeLabels",
 	
+	NODE_LABEL: "y:NodeLabel",
+	
 	NODE_GEOMETRY: "NodeGeometry",
 	
 	USER_TAGS: "UserTags",
 
 	NODE_STYLE: "NodeStyle",
+	
+	NODE_GRAPHICS: "nodegraphics",
 	
 	NODE_VIEW_STATE: "NodeViewState",
 	
@@ -2115,6 +2357,12 @@ var mxGraphMlConstants =
 	GRAPHML_REFERENCE: "y:GraphMLReference",
 	
 	RESOURCE_KEY: "ResourceKey",
+	
+	Y_RESOURCES: "y:Resources",
+	
+	Y_RESOURCE: "y:Resource",
+	
+	REFID: "refid",
 		
 	X_LIST: "x:List",
 	
