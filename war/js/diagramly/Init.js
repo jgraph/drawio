@@ -19,7 +19,7 @@ window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
 window.GRAPH_IMAGE_PATH = window.GRAPH_IMAGE_PATH || 'img';
 window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || ((navigator.userAgent.indexOf('MSIE') >= 0 ||
 	urlParams['dev']) && window.location.protocol != 'file:' ? 'iconSearch' : 'https://www.draw.io/iconSearch');
-window.TEMPLATE_PATH = window.TEMPLATE_PATH || '/templates';
+window.TEMPLATE_PATH = window.TEMPLATE_PATH || 'templates';
 
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';

@@ -3892,13 +3892,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var lineStart = this.editorUi.toolbar.addMenuFunctionInContainer(stylePanel2, 'geSprite-startclassic', mxResources.get('linestart'), false, mxUtils.bind(this, function(menu)
 	{
-		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow')
+		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge')
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
 			item.firstChild.firstChild.innerHTML = '<font style="font-size:10px;">' + mxUtils.htmlEntities(mxResources.get('none')) + '</font>';
 
-			if (ss.style.shape == 'connector')
+			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
 			{
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.ARROW_CLASSIC, 1], 'geIcon geSprite geSprite-startclassic', null, false).setAttribute('title', mxResources.get('classic'));
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.ARROW_CLASSIC_THIN, 1], 'geIcon geSprite geSprite-startclassicthin', null, false);
@@ -3940,13 +3940,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var lineEnd = this.editorUi.toolbar.addMenuFunctionInContainer(stylePanel2, 'geSprite-endclassic', mxResources.get('lineend'), false, mxUtils.bind(this, function(menu)
 	{
-		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow')
+		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge')
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
 			item.firstChild.firstChild.innerHTML = '<font style="font-size:10px;">' + mxUtils.htmlEntities(mxResources.get('none')) + '</font>';
 			
-			if (ss.style.shape == 'connector')
+			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
 			{
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.ARROW_CLASSIC, 1], 'geIcon geSprite geSprite-endclassic', null, false).setAttribute('title', mxResources.get('classic'));
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.ARROW_CLASSIC_THIN, 1], 'geIcon geSprite geSprite-endclassicthin', null, false);
@@ -4277,7 +4277,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		mxUtils.setOpacity(edgeStyle, (ss.style.shape == 'arrow') ? 30 : 100);			
 		
-		if (ss.style.shape != 'connector' && ss.style.shape != 'flexArrow')
+		if (ss.style.shape != 'connector' && ss.style.shape != 'flexArrow' && ss.style.shape != 'filledEdge')
 		{
 			mxUtils.setOpacity(lineStart, 30);
 			mxUtils.setOpacity(lineEnd, 30);

@@ -173,6 +173,7 @@ var mxSettings =
 		mxSettings.settings = 
 		{
 			language: '',
+			configVersion: Editor.configVersion,
 			libraries: Sidebar.prototype.defaultEntries,
 			customLibraries: Editor.defaultCustomLibraries,
 			plugins: [],
@@ -225,92 +226,101 @@ var mxSettings =
 	{
 		if (value != null)
 		{
-			mxSettings.settings = JSON.parse(value);
-
-			if (mxSettings.settings.plugins == null)
-			{
-				mxSettings.settings.plugins = [];
-			}
+			var temp = JSON.parse(value);
 			
-			if (mxSettings.settings.recentColors == null)
+			if (temp.configVersion != Editor.configVersion)
 			{
-				mxSettings.settings.recentColors = [];
+				mxSettings.settings = null;
 			}
-			
-			if (mxSettings.settings.libraries == null)
+			else
 			{
-				mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
-			}
-			
-			if (mxSettings.settings.customLibraries == null)
-			{
-				mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
-			}
-			
-			if (mxSettings.settings.ui == null)
-			{
-				mxSettings.settings.ui = '';
-			}
-			
-			if (mxSettings.settings.formatWidth == null)
-			{
-				mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
-			}
-			
-			if (mxSettings.settings.lastAlert != null)
-			{
-				delete mxSettings.settings.lastAlert;
-			}
-			
-			if (mxSettings.settings.currentEdgeStyle == null)
-			{
-				mxSettings.settings.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
-			}
-			else if (mxSettings.settings.version <= 10)
-			{
-				// Adds new defaults for jetty size and loop routing
-				mxSettings.settings.currentEdgeStyle['orthogonalLoop'] = 1;
-				mxSettings.settings.currentEdgeStyle['jettySize'] = 'auto';
-			}
-			
-			if (mxSettings.settings.currentVertexStyle == null)
-			{
-				mxSettings.settings.currentVertexStyle = Graph.prototype.defaultVertexStyle;
-			}
-			
-			if (mxSettings.settings.createTarget == null)
-			{
-				mxSettings.settings.createTarget = false;
-			}
-			
-			if (mxSettings.settings.pageFormat == null)
-			{
-				mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
-			}
-			
-			if (mxSettings.settings.search == null)
-			{
-				mxSettings.settings.search = true;
-			}
-			
-			if (mxSettings.settings.showStartScreen == null)
-			{
-				mxSettings.settings.showStartScreen = true;
-			}		
-			
-			if (mxSettings.settings.gridColor == null)
-			{
-				mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
-			}
-			
-			if (mxSettings.settings.autosave == null)
-			{
-				mxSettings.settings.autosave = true;
-			}
-			
-			if (mxSettings.settings.scratchpadSeen != null)
-			{
-				delete mxSettings.settings.scratchpadSeen;
+				mxSettings.settings = temp;
+	
+				if (mxSettings.settings.plugins == null)
+				{
+					mxSettings.settings.plugins = [];
+				}
+				
+				if (mxSettings.settings.recentColors == null)
+				{
+					mxSettings.settings.recentColors = [];
+				}
+				
+				if (mxSettings.settings.libraries == null)
+				{
+					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
+				}
+				
+				if (mxSettings.settings.customLibraries == null)
+				{
+					mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
+				}
+				
+				if (mxSettings.settings.ui == null)
+				{
+					mxSettings.settings.ui = '';
+				}
+				
+				if (mxSettings.settings.formatWidth == null)
+				{
+					mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
+				}
+				
+				if (mxSettings.settings.lastAlert != null)
+				{
+					delete mxSettings.settings.lastAlert;
+				}
+				
+				if (mxSettings.settings.currentEdgeStyle == null)
+				{
+					mxSettings.settings.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
+				}
+				else if (mxSettings.settings.version <= 10)
+				{
+					// Adds new defaults for jetty size and loop routing
+					mxSettings.settings.currentEdgeStyle['orthogonalLoop'] = 1;
+					mxSettings.settings.currentEdgeStyle['jettySize'] = 'auto';
+				}
+				
+				if (mxSettings.settings.currentVertexStyle == null)
+				{
+					mxSettings.settings.currentVertexStyle = Graph.prototype.defaultVertexStyle;
+				}
+				
+				if (mxSettings.settings.createTarget == null)
+				{
+					mxSettings.settings.createTarget = false;
+				}
+				
+				if (mxSettings.settings.pageFormat == null)
+				{
+					mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
+				}
+				
+				if (mxSettings.settings.search == null)
+				{
+					mxSettings.settings.search = true;
+				}
+				
+				if (mxSettings.settings.showStartScreen == null)
+				{
+					mxSettings.settings.showStartScreen = true;
+				}		
+				
+				if (mxSettings.settings.gridColor == null)
+				{
+					mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
+				}
+				
+				if (mxSettings.settings.autosave == null)
+				{
+					mxSettings.settings.autosave = true;
+				}
+				
+				if (mxSettings.settings.scratchpadSeen != null)
+				{
+					delete mxSettings.settings.scratchpadSeen;
+				}
 			}
 		}
 	},
