@@ -79,43 +79,38 @@
 			(function()
 			{
 				var proto = window.location.protocol;
-				
-				// Electron protocol is file:
-				if (proto != 'file:')
+				var host = window.location.host;
+	
+				// Redirects apex and rt to www
+				if (host === 'draw.io' || host === 'rt.draw.io')
 				{
-					var host = window.location.host;
-		
-					// Redirects apex and rt to www
-					if (host === 'draw.io' || host === 'rt.draw.io')
-					{
-						host = 'www.draw.io';
-					}
+					host = 'www.draw.io';
+				}
+				
+				// Redirects to SSL/non-SSL
+				if (urlParams['demo'] != '1')
+				{
+					var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
+						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
 					
-					// Redirects to SSL/non-SSL
-					if (urlParams['demo'] != '1')
+					if (ssl && proto != 'https:')
 					{
-						var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
-							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
-						
-						if (ssl && proto != 'https:')
-						{
-							proto = 'https:';
-						}
-						else if (!ssl && proto != 'http:')
-						{
-							proto = 'http:';
-						}
+						proto = 'https:';
 					}
-					
-					var href = proto + '//' + host + window.location.href.substring(
-							window.location.protocol.length +
-							window.location.host.length + 2);
-		
-					// Redirects if href changes
-					if (href != window.location.href)
+					else if (!ssl && proto != 'http:')
 					{
-						window.location.href = href;
+						proto = 'http:';
 					}
+				}
+				
+				var href = proto + '//' + host + window.location.href.substring(
+						window.location.protocol.length +
+						window.location.host.length + 2);
+	
+				// Redirects if href changes
+				if (href != window.location.href)
+				{
+					window.location.href = href;
 				}
 			})();
 		}
@@ -358,7 +353,7 @@
 		{
 			mxscript('js/app.min.js');
 			
-			if (urlParams['offline'] == '1')
+			if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
 			{
 				mxscript('js/stencils.min.js');
 			}

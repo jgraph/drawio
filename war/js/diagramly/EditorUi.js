@@ -217,10 +217,15 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns true if using application cache
+	 */
+	EditorUi.prototype.isAppCache = function()
+	{
+		return (urlParams['appcache'] == '1' || this.isOfflineApp());
+	};
+	
+	/**
+	 * Returns true if offline app, which isn't a defined thing
 	 */
 	EditorUi.prototype.isOfflineApp = function()
 	{
@@ -228,7 +233,7 @@
 	};
 
 	/**
-	 * Returns true if this offline app is offline.
+	 * Returns true if no external comms allowed or possible
 	 */
 	EditorUi.prototype.isOffline = function()
 	{
@@ -9613,7 +9618,7 @@
 			}
 		}
 		
-		if (this.isOfflineApp())
+		if (this.isAppCache())
 		{
 			var appCache = applicationCache;
 			
