@@ -7,12 +7,7 @@ const ipcMain = electron.ipcMain
 const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-
-const autoUpdater = require('electron-updater').autoUpdater
 const log = require('electron-log')
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = 'info'
-autoUpdater.autoDownload = false
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 		
@@ -37,8 +32,8 @@ function createWindow (opt = {})
 
 	let wurl = url.format(
 	{
-		pathname: `${__dirname}/index.html`,
-		protocol: 'file:',
+		pathname: `www.draw.io`,
+		protocol: 'https:',
 		query:
 		{
 			'dev': __DEV__ ? 1 : 0,
@@ -53,6 +48,7 @@ function createWindow (opt = {})
 			'mode': 'device',
 			'browser': 0,
 			'p': 'electron',
+			'appcache': 1
 		},
 		slashes: true,
 	})
@@ -143,8 +139,6 @@ app.on('ready', e =>
 	})
 	
 	createWindow()
-	autoUpdater.checkForUpdates()
-	
 	
 	let template = [{
 	    label: app.getName(),
@@ -233,48 +227,3 @@ app.on('activate', function ()
 		createWindow()
 	}
 })
-
-autoUpdater.on('error', e => log.error('@error@\n', e))
-
-autoUpdater.on('update-available', (a, b) =>
-{
-	log.info('@update-available@\n', a, b)
-	
-	dialog.showMessageBox(
-	{
-		type: 'question',
-		buttons: ['Ok', 'Cancel'],
-		title: 'Confirm Update',
-		message: 'Update available.\n\nWould you like to download and install new version?',
-		detail: 'Application will automatically restart to apply update after download',
-	}, response =>
-	{
-		if (response === 0)
-		{
-			return autoUpdater.downloadUpdate()
-		}
-	})
-})
-
-
-/**/
-autoUpdater.on('update-downloaded', (event, info) =>
-{
-	log.info('@update-downloaded@\n', info, event)
-	// Ask user to update the app
-	dialog.showMessageBox(
-	{
-		type: 'question',
-		buttons: ['Install and Relaunch', 'Later'],
-		defaultId: 0,
-		message: 'A new version of ' + app.getName() + ' has been downloaded',
-		detail: 'It will be installed the next time you restart the application',
-	}, response =>
-	{
-		if (response === 0)
-		{
-			setTimeout(() => autoUpdater.quitAndInstall(), 1)
-		}
-	})
-})
-/**/
