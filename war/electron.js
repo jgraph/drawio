@@ -109,6 +109,28 @@ function createWindow (opt = {})
 		console.log('Window closed idx:%d', index)
 		windowsRegistry.splice(index, 1)
 	})
+	
+	mainWindow.webContents.on('did-fail-load', function()
+    {
+        console.log('did-fail-load');
+        
+		var choice = dialog.showMessageBox(mainWindow,
+		{
+			type: 'question',
+			buttons: ['Try again', 'Quit'],
+			title: 'Launcher',
+			message: 'Ensure you are online to setup'
+		});
+			
+		if (choice === 0)
+		{
+			mainWindow.loadURL(wurl);
+		}
+		else if (choice === 1)
+		{
+			app.quit();
+		}
+    });
 
 	return mainWindow.id
 }
