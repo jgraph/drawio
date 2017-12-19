@@ -2013,6 +2013,7 @@
         			graph.getModel().endUpdate();
         		}
 			
+        		graph.container.focus();
         		graph.setSelectionCell(cell);
         		graph.scrollCellToVisible(cell);
     	    		
