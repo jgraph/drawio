@@ -112,24 +112,29 @@ function createWindow (opt = {})
 	
 	mainWindow.webContents.on('did-fail-load', function()
     {
-        console.log('did-fail-load');
-        
-		var choice = dialog.showMessageBox(mainWindow,
-		{
-			type: 'question',
-			buttons: ['Try again', 'Quit'],
-			title: 'Launcher',
-			message: 'Ensure you are online to setup'
-		});
-			
-		if (choice === 0)
-		{
-			mainWindow.loadURL(wurl);
-		}
-		else if (choice === 1)
-		{
-			app.quit();
-		}
+        let ourl = url.format(
+					{
+						pathname: `${__dirname}/index.html`,
+						protocol: 'file:',
+						query:
+						{
+							'dev': __DEV__ ? 1 : 0,
+							'test': __DEV__ ? 1 : 0,
+							'db': 0,
+							'gapi': 0,
+							'od': 0,
+							'gh': 0,
+							'tr': 0,
+							'analytics': 0,
+							'picker': 0,
+							'mode': 'device',
+							'browser': 0,
+							'p': 'electron'
+						},
+						slashes: true,
+					})
+		
+		mainWindow.loadURL(ourl)
     });
 
 	return mainWindow.id
