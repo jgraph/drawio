@@ -2731,25 +2731,25 @@ EditorUi.prototype.updateActionStates = function()
 	
 	if (cells != null)
 	{
-    	for (var i = 0; i < cells.length; i++)
-    	{
-    		var cell = cells[i];
-    		
-    		if (graph.getModel().isEdge(cell))
-    		{
-    			edgeSelected = true;
-    		}
-    		
-    		if (graph.getModel().isVertex(cell))
-    		{
-    			vertexSelected = true;
-    		}
-    		
-    		if (edgeSelected && vertexSelected)
+	    	for (var i = 0; i < cells.length; i++)
+	    	{
+	    		var cell = cells[i];
+	    		
+	    		if (graph.getModel().isEdge(cell))
+	    		{
+	    			edgeSelected = true;
+	    		}
+	    		
+	    		if (graph.getModel().isVertex(cell))
+	    		{
+	    			vertexSelected = true;
+	    		}
+	    		
+	    		if (edgeSelected && vertexSelected)
 			{
 				break;
 			}
-    	}
+    		}
 	}
 	
 	// Updates action states

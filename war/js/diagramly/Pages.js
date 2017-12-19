@@ -92,6 +92,7 @@ function RenamePage(ui, page, name)
 {
 	this.ui = ui;
 	this.page = page;
+	this.name = name;
 	this.previous = name;
 }
 
@@ -872,9 +873,14 @@ EditorUi.prototype.updateTabContainer = function()
 			{
 				if (this.pages[index] == this.currentPage)
 				{
+					tab.className = 'geActivePage';
 					tab.style.backgroundColor = '#eeeeee';
 					tab.style.fontWeight = 'bold';
 					tab.style.borderTopStyle = 'none';
+				}
+				else
+				{
+					tab.className = 'geInactivePage';
 				}
 				
 				tab.setAttribute('draggable', 'true');
@@ -942,8 +948,7 @@ EditorUi.prototype.updateTabContainer = function()
 		var insertTab = null;
 		
 		// Not chromeless and not read-only file
-		if (urlParams['embed'] == 1 || (this.getCurrentFile() != null &&
-			this.getCurrentFile().isEditable()))
+		if (this.isPageInsertTabVisible())
 		{
 			insertTab = this.createPageInsertTab();
 			this.tabContainer.appendChild(insertTab);
@@ -998,6 +1003,15 @@ EditorUi.prototype.updateTabContainer = function()
 			}));
 		}
 	}
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.isPageInsertTabVisible = function()
+{
+	return urlParams['embed'] == 1 || (this.getCurrentFile() != null &&
+		this.getCurrentFile().isEditable());
 };
 
 /**
@@ -1069,6 +1083,7 @@ EditorUi.prototype.createPageMenuTab = function()
 	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" style="display:inline-block;width:21px;height:21px;"></div>');
 	tab.setAttribute('title', mxResources.get('pages'));
 	tab.style.position = 'absolute';
+	tab.style.top = '0px';
 	tab.style.left = '1px';
 	
 	mxEvent.addListener(tab, 'click', mxUtils.bind(this, function(evt)
