@@ -1,3 +1,10 @@
+21-DEC-2017: 7.8.8
+
+- Deletes transparent groups with no remaining cells
+- Fixes refresh of straight edge handles
+- Adds terminal points in Arrange tab
+- Uses mxGraph 3.8.1 beta 5
+
 19-DEC-2017: 7.8.7
 
 - Uses mxGraph 3.8.1 beta 4
