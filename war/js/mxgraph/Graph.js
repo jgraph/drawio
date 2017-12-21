@@ -4718,6 +4718,67 @@ if (typeof mxVertexHandler != 'undefined')
 				this.model.endUpdate();
 			}
 		};
+
+		/**
+		 * Removes transparent empty groups if all children are removed.
+		 */
+		Graph.prototype.cellsRemoved = function(cells)
+		{
+			if (cells != null)
+			{
+				var dict = new mxDictionary();
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					dict.put(cells[i], true);
+				}
+				
+				// LATER: Recurse up the cell hierarchy
+				var parents = [];
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					var parent = this.model.getParent(cells[i]);
+
+					if (parent != null && !dict.get(parent))
+					{
+						dict.put(parent, true);
+						parents.push(parent);
+					}
+				}
+				
+				for (var i = 0; i < parents.length; i++)
+				{
+					var state = this.view.getState(parents[i]);
+					
+					if (state != null && this.isCellDeletable(state.cell))
+					{
+						var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
+						var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
+						
+						if (stroke == mxConstants.NONE && fill == mxConstants.NONE)
+						{
+							var allChildren = true;
+							
+							for (var j = 0; j < this.model.getChildCount(state.cell) && allChildren; j++)
+							{
+								if (!dict.get(this.model.getChildAt(state.cell, j)))
+								{
+									allChildren = false;
+								}
+							}
+							
+							if (allChildren)
+							{
+								cells.push(state.cell);
+							}
+						}
+					}
+				}
+			}
+			
+			mxGraph.prototype.cellsRemoved.apply(this, arguments);
+		};
 		
 		/**
 		 * Overrides ungroup to check if group should be removed.

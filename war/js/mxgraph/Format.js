@@ -2079,6 +2079,68 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 	return update;
 };
 
+ArrangePanel.prototype.addEdgeGeometryHandler = function(input, fn)
+{
+    var ui = this.editorUi;
+    var graph = ui.editor.graph;
+    var initialValue = null;
+
+    function update(evt)
+    {
+        if (input.value != '')
+        {
+            var value = parseFloat(input.value);
+
+            if (isNaN(value))
+            {
+                input.value = initialValue + ' pt';
+            }
+            else if (value != initialValue)
+            {
+                graph.getModel().beginUpdate();
+                try
+                {
+                    var cells = graph.getSelectionCells();
+
+                    for (var i = 0; i < cells.length; i++)
+                    {
+                        if (graph.getModel().isEdge(cells[i]))
+                        {
+                            var geo = graph.getCellGeometry(cells[i]);
+
+                            if (geo != null)
+                            {
+                                geo = geo.clone();
+                                fn(geo, value);
+
+                                graph.getModel().setGeometry(cells[i], geo);
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    graph.getModel().endUpdate();
+                }
+
+                initialValue = value;
+                input.value = value + ' pt';
+            }
+        }
+
+        mxEvent.consume(evt);
+    };
+
+    mxEvent.addListener(input, 'blur', update);
+    mxEvent.addListener(input, 'change', update);
+    mxEvent.addListener(input, 'focus', function()
+    {
+        initialValue = input.value;
+    });
+
+    return update;
+};
+
 /**
  * 
  */
@@ -2098,7 +2160,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.write(span, mxResources.get('width'));
 	div.appendChild(span);
 
-	var widthUpdate, leftUpdate, topUpdate;
+	var widthUpdate, xtUpdate, ytUpdate, xsUpdate, ysUpdate;
 	var width = this.addUnitInput(div, 'pt', 20, 44, function()
 	{
 		widthUpdate.apply(this, arguments);
@@ -2128,10 +2190,65 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxEvent.addListener(width, 'change', widthUpdate);
 
 	container.appendChild(div);
-	
+
+	var divs = this.createPanel();
+	divs.style.paddingBottom = '30px';
+
+	var span = document.createElement('div');
+	span.style.position = 'absolute';
+	span.style.width = '70px';
+	span.style.marginTop = '0px';
+	span.style.fontWeight = 'bold';
+	mxUtils.write(span, 'Start');
+	divs.appendChild(span);
+
+	var xs = this.addUnitInput(divs, 'pt', 84, 44, function()
+	{
+		xsUpdate.apply(this, arguments);
+	});
+	var ys = this.addUnitInput(divs, 'pt', 20, 44, function()
+	{
+		ysUpdate.apply(this, arguments);
+	});
+
+	mxUtils.br(divs);
+	this.addLabel(divs, mxResources.get('left'), 84);
+	this.addLabel(divs, mxResources.get('top'), 20);
+	container.appendChild(divs);
+	this.addKeyHandler(xs, listener);
+	this.addKeyHandler(ys, listener);
+
+	var divt = this.createPanel();
+	divt.style.paddingBottom = '30px';
+
+	var span = document.createElement('div');
+	span.style.position = 'absolute';
+	span.style.width = '70px';
+	span.style.marginTop = '0px';
+	span.style.fontWeight = 'bold';
+	mxUtils.write(span, 'End');
+	divt.appendChild(span);
+
+	var xt = this.addUnitInput(divt, 'pt', 84, 44, function()
+	{
+		xtUpdate.apply(this, arguments);
+	});
+	var yt = this.addUnitInput(divt, 'pt', 20, 44, function()
+	{
+		ytUpdate.apply(this, arguments);
+	});
+
+	mxUtils.br(divt);
+	this.addLabel(divt, mxResources.get('left'), 84);
+	this.addLabel(divt, mxResources.get('top'), 20);
+	container.appendChild(divt);
+	this.addKeyHandler(xt, listener);
+	this.addKeyHandler(yt, listener);
+
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
 		rect = this.format.getSelectionState();
+		var cell = graph.getSelectionCell();
 		
 		if (rect.style.shape == 'link' || rect.style.shape == 'flexArrow')
 		{
@@ -2148,6 +2265,56 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 		{
 			div.style.display = 'none';
 		}
+
+		if (graph.getSelectionCount() == 1 && graph.model.isEdge(cell))
+		{
+			var geo = graph.model.getGeometry(cell);
+			
+			if (geo.sourcePoint != null && graph.model.getTerminal(cell, true) == null)
+			{
+				xs.value = geo.sourcePoint.x;
+				ys.value = geo.sourcePoint.y;
+			}
+			else
+			{
+				divs.style.display = 'none';
+			}
+			
+			if (geo.targetPoint != null && graph.model.getTerminal(cell, false) == null)
+			{
+				xt.value = geo.targetPoint.x;
+				yt.value = geo.targetPoint.y;
+			}
+			else
+			{
+				divt.style.display = 'none';
+			}
+		}
+		else
+		{
+			divs.style.display = 'none';
+			divt.style.display = 'none';
+		}
+	});
+
+	xsUpdate = this.addEdgeGeometryHandler(xs, function(geo, value)
+	{
+		geo.sourcePoint.x = value;
+	});
+
+	ysUpdate = this.addEdgeGeometryHandler(ys, function(geo, value)
+	{
+		geo.sourcePoint.y = value;
+	});
+
+	xtUpdate = this.addEdgeGeometryHandler(xt, function(geo, value)
+	{
+		geo.targetPoint.x = value;
+	});
+
+	ytUpdate = this.addEdgeGeometryHandler(yt, function(geo, value)
+	{
+		geo.targetPoint.y = value;
 	});
 
 	graph.getModel().addListener(mxEvent.CHANGE, listener);

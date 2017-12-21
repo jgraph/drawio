@@ -354,6 +354,18 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 	return obj;
 };
 
+mxGraphMlCodec.prototype.mapArray = function(arr, mapping, map)
+{
+	var obj = {};
+	for (var k = 0; k < arr.length; k++)
+	{
+		if (arr[k].name)
+		{
+			obj[arr[k].name] = arr[k].value;
+		}
+	}
+	this.mapObject(obj, mapping, map);
+}
 //Use mapping information to fill the map based on obj content
 //TODO yjs looks like they need special handling
 mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
@@ -378,6 +390,11 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 			if (!val) break;
 			
 			val = val[parts[i]];
+		}
+		
+		if (val == null && obj) //some vals doesn't need to be split
+		{
+			val = obj[key];
 		}
 		
 		if (val != null)
@@ -405,12 +422,16 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 							}
 						break;
 						case "shape":
-							console.log(val.toLowerCase());
+//							console.log(val.toLowerCase());
 							modVal = mxGraphMlShapesMap[val.toLowerCase()];
 						break;
 						case "bpmnOutline":
-							console.log(val.toLowerCase());
+//							console.log(val.toLowerCase());
 							modVal = mxGraphMlShapesMap.bpmnOutline[val.toLowerCase()];
+						break;
+						case "bpmnSymbol":
+							console.log(val.toLowerCase());
+							modVal = mxGraphMlShapesMap.bpmnSymbol[val.toLowerCase()];
 						break;
 						case "bool":
 							modVal = val == "true"? "1" : "0";
@@ -433,6 +454,10 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
 				{
 					mappingObj(val, map);
 				}
+			}
+			else if (val instanceof Array)
+			{
+				this.mapArray(val, mappingObj, map);
 			}
 			else
 			{
@@ -602,7 +627,8 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 								if (key2 == "active" || key2 == "#text") continue;
 								
 								shape = realizers[key2][realizers["active"]];
-								dataObj = {"y:GroupNode": shape};
+								dataObj = {};
+								dataObj[key2] = shape;
 								break;
 							}
 						}
@@ -625,6 +651,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
 						lblObj = shape[mxGraphMlConstants.NODE_LABEL];
 					}
 				}
+				mlStyleObj = dataObj;
 				this.addNodeStyle(node, dataObj, style);
 			}
 		}
@@ -906,6 +933,21 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		}
 	};
 	
+	var tableNodeStyle = mxUtils.clone(styleCommonMap);
+	tableNodeStyle["defaults"] = {
+		"shape": "js:table2"
+	};
+
+	var genericNodeStyle = mxUtils.clone(styleCommonMap);
+	genericNodeStyle["y:StyleProperties.y:Property"] = {
+		"com.yworks.bpmn.characteristic": {key: "outline", mod: "bpmnOutline"},
+		//TODO support colors for the icon itself other than the remaining shape!
+//		"com.yworks.bpmn.icon.line.color": "",
+		"com.yworks.bpmn.icon.fill": {key:"gradientColor", mod:"color"},
+		"com.yworks.bpmn.icon.fill2": {key:"fillColor", mod:"color"},
+		"com.yworks.bpmn.type": {key: "symbol", mod: "bpmnSymbol"},
+	};
+//	console.log(dataObj);
 	this.mapObject(dataObj, {
 		"yjs:ShapeNodeStyle": styleCommonMap,
 		"demostyle:FlowchartNodeStyle": styleCommonMap,
@@ -929,8 +971,9 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		"yjs:ImageNodeStyle": imageNodeStyle,
 		//desktop
 		"y:ShapeNode": styleCommonMap,
-		"y:GenericNode": styleCommonMap,
-		"y:TableNode": styleCommonMap,
+		"y:GenericNode": genericNodeStyle,
+		"y:GenericGroupNode": genericNodeStyle,
+		"y:TableNode": tableNodeStyle,
 		"y:SVGNode": svgNodeStyle,
 		"y:GroupNode": groupNodeStyle
 	}, style);
@@ -1038,11 +1081,29 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 	{
 		switch(shape)
 		{
+			case "js:bpmnArtifactShadow":
+				styleMap["shadow"] = "1";
+			case "js:bpmnArtifact":
+				styleMap["shape"] = styleMap["symbol"];
+				delete styleMap["fillColor"];
+				delete styleMap["strokeColor"];
+				delete styleMap["gradientColor"];
+				this.handleCompoundShape(node, styleMap, mlStyleObj, lbls)
+			break;
+			case "js:bpmnDataObjectShadow":
 			case "js:bpmnDataObject":
-				styleMap["shape"] = "note;size=16";
-				mlStyleObj = mlStyleObj["bpmn:DataObjectNodeStyle"];
+				styleMap["shape"] = "note;size=16";console.log(mlStyleObj);
+				mlStyleObj = mlStyleObj["bpmn:DataObjectNodeStyle"] || mlStyleObj["y:GenericNode"] || mlStyleObj["y:GenericGroupNode"];
+				var tmpMap = {};
 				
-				if (mlStyleObj["collection"] == "true")
+				this.mapObject(mlStyleObj, {
+					"y:StyleProperties.y:Property": {
+						"com.yworks.bpmn.dataObjectType": "dataObjectType",
+						"com.yworks.bpmn.marker1": "marker1"
+					}
+				}, tmpMap);
+				
+				if (mlStyleObj["collection"] == "true" || tmpMap["marker1"] == "bpmn_marker_parallel")
 				{
 					var cell2 = new mxCell('', new mxGeometry(0.5, 1, 10, 10), 'html=1;whiteSpace=wrap;shape=parallelMarker;');
 					cell2.vertex = true;
@@ -1050,7 +1111,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					cell2.geometry.offset = new mxPoint(-5, -10);
 					node.insert(cell2);
 				}
-				if (mlStyleObj["type"] == "INPUT")
+				if (mlStyleObj["type"] == "INPUT" || tmpMap["dataObjectType"] == "data_object_type_input")
 				{
 					var cell1 = new mxCell('', new mxGeometry(0, 0, 10, 10), 'html=1;shape=singleArrow;arrowWidth=0.4;arrowSize=0.4;');
 					cell1.vertex = true;
@@ -1058,7 +1119,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					cell1.geometry.offset = new mxPoint(2, 2);
 					node.insert(cell1);
 				}
-				else if (mlStyleObj["type"] == "OUTPUT")
+				else if (mlStyleObj["type"] == "OUTPUT" || tmpMap["dataObjectType"] == "data_object_type_output")
 				{
 					var cell1 = new mxCell('', new mxGeometry(0, 0, 10, 10), 'html=1;shape=singleArrow;arrowWidth=0.4;arrowSize=0.4;fillColor=#000000;');
 					cell1.vertex = true;
@@ -1089,6 +1150,124 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 //					console.log(lbls);
 					node.value = lbls.lblTxts[0];
 					cell1.value = lbls.lblTxts[1];
+				}
+			break;
+			case "js:bpmnActivityShadow":
+			case "js:bpmnActivity":
+				styleMap["shape"] = "ext;rounded=1";
+				var tmpMap = {};
+				mlStyleObj = mlStyleObj["y:GenericNode"] || mlStyleObj["y:GenericGroupNode"];
+				
+				this.mapObject(mlStyleObj, {
+					"y:StyleProperties.y:Property": {
+						"com.yworks.bpmn.taskType": "taskType",
+						"com.yworks.bpmn.activityType": "activityType",
+						"com.yworks.bpmn.marker1": "marker1",
+						"com.yworks.bpmn.marker2": "marker2",
+						"com.yworks.bpmn.marker3": "marker3",
+						"com.yworks.bpmn.marker4": "marker4"
+					}
+				}, tmpMap);
+				
+				switch(tmpMap["activityType"])
+				{
+					case "activity_type_transaction":
+						styleMap["double"] = "1";
+					break;
+				}
+				
+				switch(tmpMap["taskType"])
+				{
+					case "task_type_send":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 19, 12), 'shape=message;fillColor=#000000;strokeColor=#FFFFFF;');
+						item1.geometry.offset = new mxPoint(4, 7);
+						break;
+					case "task_type_receive":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 19, 12), 'shape=message;');
+						item1.geometry.offset = new mxPoint(4, 7);
+						break;
+					case "task_type_user":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 15, 15), 'shape=mxgraph.bpmn.user_task;');
+						item1.geometry.offset = new mxPoint(4, 5);
+						break;
+					case "task_type_manual":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 15, 10), 'shape=mxgraph.bpmn.manual_task;');
+						item1.geometry.offset = new mxPoint(4, 7);
+						break;
+					case "task_type_business_rule":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 18, 13), 'shape=mxgraph.bpmn.business_rule_task;');
+						item1.geometry.offset = new mxPoint(4, 7);
+						break;
+					case "task_type_service":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 15, 15), 'shape=mxgraph.bpmn.service_task;');
+						item1.geometry.offset = new mxPoint(4, 5);
+						break;
+					case "task_type_script":
+						var item1 = new mxCell('', new mxGeometry(0, 0, 15, 15), 'shape=mxgraph.bpmn.script_task;');
+						item1.geometry.offset = new mxPoint(4, 5);
+						break;
+				}
+				
+				if (item1)
+				{
+					item1.vertex = true;
+					item1.geometry.relative = true;
+					node.insert(item1);
+					item1 = null;
+				}
+				
+				var numIcons = 0;
+				
+				for (var i = 1; i <= 4; i++)
+				{
+					if (tmpMap["marker" + i])
+						numIcons++;
+				}
+
+				var iconX = -7.5 * numIcons - 2 * (numIcons - 1);
+				
+				for (var i = 1; i <= numIcons; i++)
+				{
+					switch(tmpMap["marker" + i])
+					{
+						case "bpmn_marker_closed":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 15), 'shape=plus;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -20);
+							break;
+						case "bpmn_marker_open":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 15), 'shape=rect;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -20);
+							var item2 = new mxCell('', new mxGeometry(0.5, 0.5, 8, 1), 'shape=rect;part=1;');
+							item2.geometry.offset = new mxPoint(-4, -1);
+							item2.geometry.relative = true;
+							item2.vertex = true;
+							item1.insert(item2);
+							break;
+						case "bpmn_marker_loop":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 15), 'shape=mxgraph.bpmn.loop;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -20);
+							break;
+						case "bpmn_marker_parallel":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 15), 'shape=parallelMarker;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -20);
+							break;
+						case "bpmn_marker_sequential":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 15), 'shape=parallelMarker;direction=south;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -20);
+							break;
+						case "bpmn_marker_ad_hoc":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 10), 'shape=mxgraph.bpmn.ad_hoc;strokeColor=none;flipH=1;part=1;fillColor=#000000');
+							item1.geometry.offset = new mxPoint(iconX, -17);
+							break;
+						case "bpmn_marker_compensation":
+							var item1 = new mxCell('', new mxGeometry(0.5, 1, 15, 11), 'shape=mxgraph.bpmn.compensation;part=1;');
+							item1.geometry.offset = new mxPoint(iconX, -18);
+							break;
+					}
+					item1.geometry.relative = true;
+					item1.vertex = true;
+					node.insert(item1);
+					iconX += 20;
 				}
 			break;
 			case "js:table":
@@ -1266,6 +1445,135 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 				}
 				
 			break;
+			case "js:table2":
+				styleMap["shape"] = "swimlane;collapsible=0;swimlaneLine=0";
+				console.log(mlStyleObj);
+				var tmpMap = {};
+				this.mapObject(mlStyleObj, {
+					"y:TableNode": {
+						"y:StyleProperties.y:Property": {
+							"yed.table.section.color": {key: "secColor", mod: "color"},
+							"yed.table.header.height": "headerH",
+							"yed.table.header.color.main": {key: "headerColor", mod: "color"},
+							"yed.table.header.color.alternating": {key: "headerColorAlt", mod: "color"},
+							"yed.table.lane.color.main": {key: "laneColor", mod: "color"},
+							"yed.table.lane.color.alternating": {key: "laneColorAlt", mod: "color"},
+							"yed.table.lane.style": "laneStyle",
+							"com.yworks.bpmn.type": "isHorz",
+							"y.view.tabular.TableNodePainter.ALTERNATE_ROW_STYLE": {
+								"fillColor": {key: "secColor", mod: "color"},
+								"lineColor": {key: "secColor", mod: "color"},
+								"lineType": "lineType",
+								"lineWidth": "lineWidth"
+							}
+						},
+						"y:Table": {
+							"y:DefaultColumnInsets.top": "colHHeight",
+							"y:DefaultRowInsets.left": "rowHWidth",
+							"y:Insets.top": "tblHHeight", //TODO is there rotated tables?
+						}
+					}
+				}, tmpMap);
+
+				styleMap["startSize"] = tmpMap["tblHHeight"];
+				styleMap["swimlaneFillColor"] = styleMap["fillColor"];
+				
+				var th = parseFloat(styleMap["startSize"]);
+				//Assumptions: There is always rows and cols in every table
+				//Also all tables seems to be not rotated
+				try 
+				{
+					var rows = mlStyleObj["y:TableNode"]["y:Table"]["y:Rows"]["y:Row"];
+					var cols = mlStyleObj["y:TableNode"]["y:Table"]["y:Columns"]["y:Column"];
+					
+					var atts4Rows = tmpMap["laneStyle"] == "lane.style.rows";
+					
+					if (!(rows instanceof Array))
+						rows = [rows];
+					
+					if (!(cols instanceof Array))
+						cols = [cols];
+					
+					var y = th + parseFloat(tmpMap["colHHeight"]); 
+					
+					for (var i = 0; i < rows.length; i++)
+					{
+						var odd = i & 1;
+						var cell = new mxCell();
+						cell.vertex = true;
+						var rowStyle = {
+							"shape": "swimlane;collapsible=0;horizontal=0",
+							"startSize": (rows[i]["y:Insets"]? rows[i]["y:Insets"]["left"] : tmpMap["rowHWidth"]),
+							"fillColor": tmpMap["secColor"]
+						};
+						
+						if (parseFloat(rowStyle["startSize"]) == 0)
+						{
+							rowStyle["fillColor"] = "none";
+						}
+						
+						if (atts4Rows)
+						{
+							rowStyle["fillColor"] = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
+							rowStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
+						}
+						
+						var height = parseFloat(rows[i]["height"]);
+						cell.geometry = new mxGeometry(0, y, node.geometry.width, height);
+						y += height;
+						
+//						if (lblObj)
+//							this.addLabels(cell, lblObj, rowStyle)
+						
+						cell.style = this.styleMap2Str(rowStyle);
+						node.insert(cell);
+					}
+					
+					var x = parseFloat(tmpMap["rowHWidth"]);
+					
+					for (var i = 0; i < cols.length; i++)
+					{
+						var odd = i & 1;
+						var cell = new mxCell();
+						cell.vertex = true;
+						var colStyle = {
+							"shape": "swimlane;collapsible=0",
+							"startSize": (cols[i]["y:Insets"]? cols[i]["y:Insets"]["top"] : tmpMap["colHHeight"]),
+							"fillColor": tmpMap["secColor"]
+						};
+						
+						if (parseFloat(colStyle["startSize"]) == 0)
+						{
+							colStyle["fillColor"] = "none";
+						}
+						
+						if (!atts4Rows)
+						{
+							colStyle["fillColor"] = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
+							colStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
+						}
+						
+						var width = parseFloat(cols[i]["width"]);
+						cell.geometry = new mxGeometry(x, th, width, node.geometry.height - th);
+						x += width;
+						
+//						if (lblObj)
+//							this.addLabels(cell, lblObj, rowStyle)
+						
+						cell.style = this.styleMap2Str(colStyle);
+						node.insert(cell);
+					}
+				}
+				catch(e)
+				{
+					//nothing!
+				}
+			break;
+		}
+		
+		if (shape.indexOf("Shadow") > 0) 
+		{
+			styleMap["shadow"] = "1";
 		}
 	}
 };
@@ -1662,11 +1970,16 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle)
 			if (txt) txt = txt["#text"];
 			
 			//layout
-			var layout = lbl[mxGraphMlConstants.LAYOUTPARAMETER] || lbl["y:LabelModel"] || {};
+			var layout = lbl[mxGraphMlConstants.LAYOUTPARAMETER] || lbl || {};
 			
 			//style
 			var fontStyleFn = function(val, map) 
 			{
+				if (val)
+				{
+					val = val.toUpperCase();
+				}
+				
 				var style = map["fontStyle"] || 0;
 				
 				switch(val)
@@ -1714,10 +2027,22 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle)
 				"Style.y:VoidLabelStyle": function (val, map)
 					{
 						map["VoidLbl"] = true;
-					}
+					},
+				//Desktop format
+					//hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" iconTextGap="4" modelName="custom" visible="true" width="4.0" x="26.277050018310547" y="70.76200103759766">
+				"alignment": "align",
+				//"autoSizePolicy": "",//??
+				"fontFamily": "fontFamily",
+				"fontSize": "fontSize",
+				"fontStyle": fontStyleFn,
+				"horizontalTextPosition": "",//?? how this is compared to alignment?
+				"textColor": {key: "fontColor", mod: "color"},
+				"verticalTextPosition": "verticalAlign",
+				"hasText": {key: "hasText", type: "bool"},
+				
 			}, styleMap);
 
-			if (!styleMap["VoidLbl"])
+			if (!styleMap["VoidLbl"] && styleMap["hasText"] != "0")
 			{
 				lblTxts.push(txt);
 				lblStyles.push(styleMap);
@@ -1916,6 +2241,13 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle)
 			else if (node.isEdge)
 			{
 				lGeo.relative = true;
+			}
+			else //Desktop format
+			{
+				if (lbl["width"]) lGeo.width = parseFloat(lbl["width"]);
+				if (lbl["height"]) lGeo.height = parseFloat(lbl["height"]);
+				if (lbl["x"]) lGeo.x = parseFloat(lbl["x"]);
+				if (lbl["y"]) lGeo.y = parseFloat(lbl["y"]);
 			}
 		}
 	}
@@ -2185,11 +2517,16 @@ var mxGraphMlShapesMap =
 	"terminate": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=terminate",
 	
 //	"com.yworks.bpmn.pool
-//	"com.yworks.bpmn.activity.withshadow
-//	"com.yworks.bpmn.gateway.withshadow
-//	"com.yworks.bpmn.event.withshadow
-//	"com.yworks.bpmn.conversation.withshadow
-//	"com.yworks.bpmn.artifact.withshadow
+	"com.yworks.bpmn.activity.withshadow": "js:bpmnActivityShadow",
+	"com.yworks.bpmn.activity": "js:bpmnActivity",
+	"com.yworks.bpmn.gateway.withshadow": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;shadow=1",
+	"com.yworks.bpmn.gateway": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway",
+	"com.yworks.bpmn.event.withshadow": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;shadow=1",
+	"com.yworks.bpmn.event": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter",
+	"com.yworks.bpmn.conversation.withshadow": "hexagon;shadow=1",
+	"com.yworks.bpmn.conversation": "hexagon",
+	"com.yworks.bpmn.artifact.withshadow": "js:bpmnArtifactShadow",
+	"com.yworks.bpmn.artifact": "js:bpmnArtifact",
 
 	bpmnOutline: {
 		"sub_process_interrupting": "eventInt",
@@ -2198,8 +2535,58 @@ var mxGraphMlShapesMap =
 		"boundary_interrupting": "boundInt",
 		"boundary_non_interrupting": "boundNonint",
 		"throwing": "throwing",
-		"end": "end"
+		"end": "end",
+		"event_characteristic_start": "standard",
+		"event_characteristic_end": "end",
+		"event_characteristic_intermediate_catching": "catching",
+		"event_characteristic_start_event_sub_process_interrupting": "eventInt",
+		"event_characteristic_intermediate_boundary_interrupting": "boundInt"
 	},
+	bpmnSymbol: {
+		"event_type_plain": "general",
+		"event_type_message": "message",
+		"event_type_timer": "timer",
+		"event_type_escalation": "escalation",
+		"event_type_conditional": "conditional",
+		"event_type_link": "link",
+		"event_type_error": "error",
+		"event_type_cancel": "cancel",
+		"event_type_compensation": "compensation",
+		"event_type_signal": "signal",
+		"event_type_multiple": "multiple",
+		"event_type_parallel_multiple": "parallelMultiple",
+		"event_type_terminate": "terminate",
+		"gateway_type_plain": "",
+		"gateway_type_data_based_exclusive": "exclusiveGw",
+		"gateway_type_inclusive": "general;outline=end",
+		"gateway_type_parallel": "parallelGw",
+		"gateway_type_complex": "complexGw",
+		"gateway_type_event_based_exclusive": "multiple;outline=catching",
+		"gateway_type_event_based_exclusive_start_process": "multiple;outline=standard",
+		"gateway_type_parallel_event_based_exclusive_start_process": "parallelMultiple;outline=standard",
+		"conversation_type": "",
+		"artifact_type_data_object": "js:bpmnDataObject",
+		"artifact_type_annotation": "mxgraph.flowchart.annotation_1",
+		"artifact_type_group": "rect;fillColor=none;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1",
+		"artifact_type_data_store": "datastore",
+		"artifact_type_reply_message": "message;strokeColor=#000000;fillColor=#A1A1A1",
+		"artifact_type_request_message": "message",
+		"connection_type_sequence_flow": "",
+		"connection_type_default_flow": "",
+		"connection_type_conditional_flow": "",
+		"connection_type_association": "",
+		"connection_type_directed_association": "",
+		"connection_type_bidirected_association": "",
+		"connection_type_message_flow": "",
+		"connection_type_conversation_link": "",
+		"connection_type_forked_conversation_link": "",
+		"pool_type_lane_and_column": "",
+		"pool_type_empty": "",
+		"pool_type_lane": "",
+		"pool_type_column": "",
+		"activity_type": ""
+	},
+	
 	//Male/Female icons (FIXME Not similar and unsafe as it refers to remote resources)
 	"usericon_female1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
 	"usericon_female2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
