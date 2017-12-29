@@ -1,3 +1,7 @@
+29-DEC-2017: 7.8.9
+
+- Replaces search.xml with inline data
+
 21-DEC-2017: 7.8.8
 
 - Deletes transparent groups with no remaining cells
