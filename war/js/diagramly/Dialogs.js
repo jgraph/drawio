@@ -4613,7 +4613,7 @@ FeedbackDialog.maxAttachmentSize = 1000000;
 /**
  * Constructs a new revision dialog
  */
-var RevisionDialog = function(editorUi, revs)
+var RevisionDialog = function(editorUi, revs, restoreFn)
 {
 	var div = document.createElement('div');
 	
@@ -4821,19 +4821,26 @@ var RevisionDialog = function(editorUi, revs)
 		{
 			editorUi.confirm(mxResources.get('areYouSure'), function()
 			{
-				if (editorUi.spinner.spin(document.body, mxResources.get('restoring')))
+				if (restoreFn != null)
 				{
-					file.save(true, function(resp)
+					restoreFn(currentXml);
+				}
+				else
+				{
+					if (editorUi.spinner.spin(document.body, mxResources.get('restoring')))
 					{
-						editorUi.spinner.stop();
-						editorUi.replaceFileData(currentXml);
-						editorUi.hideDialog();
-					}, function(resp)
-					{
-						editorUi.spinner.stop();
-						editorUi.editor.setStatus('');
-						editorUi.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
-					});
+						file.save(true, function(resp)
+						{
+							editorUi.spinner.stop();
+							editorUi.replaceFileData(currentXml);
+							editorUi.hideDialog();
+						}, function(resp)
+						{
+							editorUi.spinner.stop();
+							editorUi.editor.setStatus('');
+							editorUi.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+						});
+					}
 				}
 			});
 		}
@@ -4877,6 +4884,11 @@ var RevisionDialog = function(editorUi, revs)
 	newBtn.className = 'geBtn';
 	newBtn.setAttribute('disabled', 'disabled');
 	
+	if (restoreFn != null)
+	{
+		newBtn.style.display = 'none';
+	}
+	
 	var showBtn = mxUtils.button(mxResources.get('show'), function()
 	{
 		if (currentRev != null)
@@ -4886,6 +4898,12 @@ var RevisionDialog = function(editorUi, revs)
 	});
 	showBtn.className = 'geBtn gePrimaryBtn';
 	showBtn.setAttribute('disabled', 'disabled');
+	
+	if (restoreFn != null)
+	{
+		showBtn.style.display = 'none';
+		restoreBtn.className = 'geBtn gePrimaryBtn';
+	}
 
 	var buttons = document.createElement('div');
 	buttons.style.position = 'absolute';
@@ -4902,8 +4920,294 @@ var RevisionDialog = function(editorUi, revs)
 	tb.style.top = '442px';
 	
 	var currentElt = null;
+
+	if (revs != null && revs.length > 0)
+	{
+		container.style.cursor = 'move';
+		
+		var table = document.createElement('table');
+		table.style.border = '1px solid lightGray';
+		table.style.borderCollapse = 'collapse';
+		table.style.borderSpacing = '0px';
+		table.style.width = '100%';
+		var tbody = document.createElement('tbody');
+		var today = new Date().toDateString();
+
+		if (editorUi.currentPage != null && editorUi.pages != null)
+		{
+			currentPage = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
+		}
+		
+		for (var i = revs.length - 1; i >= 0; i--)
+		{
+			var elt = (function(item)
+			{
+				var ts = new Date(item.modifiedDate);
+				var row = null;
+				var pd = '6px';
+				
+				// Workaround for negative timestamps in Dropbox
+				if (ts.getTime() >= 0)
+				{
+					row = document.createElement('tr');
+					row.style.borderBottom = '1px solid lightGray';
+					row.style.fontSize = '12px';
+					row.style.cursor = 'pointer';
+					
+					var date = document.createElement('td');
+					date.style.padding = pd;
+					date.style.whiteSpace = 'nowrap';
+					
+					if (item == revs[revs.length - 1])
+					{
+						mxUtils.write(date, mxResources.get('current'));
+					}
+					else
+					{
+						if (ts.toDateString() === today)
+						{
+							mxUtils.write(date, ts.toLocaleTimeString());
+						}
+						else
+						{
+							mxUtils.write(date, ts.toLocaleDateString() + ' ' +
+								ts.toLocaleTimeString());
+						}
+					}
+					
+					row.appendChild(date);
+
+					row.setAttribute('title', ts.toLocaleDateString() + ' ' +
+						ts.toLocaleTimeString() + ' ' +
+						editorUi.formatFileSize(parseInt(item.fileSize)) +
+						((item.lastModifyingUserName != null) ? ' ' +
+						item.lastModifyingUserName : ''));
+
+					function updateGraph(xml)
+					{
+						spinner.stop();
+						var doc = mxUtils.parseXml(xml);
+						var node = editorUi.editor.extractGraphModel(doc.documentElement, true);
+						
+						if (node != null)
+						{
+							pageSelect.style.display = 'none';
+							pageSelect.innerHTML = '';
+							currentDoc = doc;
+							currentXml = xml;
+							parseSelectFunction = null;
+							diagrams = null;
+							realPage = 0;
+							
+							function parseGraphModel(dataNode)
+							{
+								var bg = dataNode.getAttribute('background');
+								
+								if (bg == null || bg == '' || bg == mxConstants.NONE)
+								{
+									bg = '#ffffff';
+								}
+								
+								container.style.backgroundColor = bg;
+								
+								var codec = new mxCodec(dataNode.ownerDocument);
+								codec.decode(dataNode, graph.getModel());
+								graph.maxFitScale = 1;
+								graph.fit(8);
+								graph.center();
+								
+								return dataNode;
+							}
+							
+							function parseDiagram(diagramNode)
+							{
+								if (diagramNode != null)
+								{
+									diagramNode = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
+								        	mxUtils.getTextContent(diagramNode))).documentElement);
+								}
+								
+								return diagramNode;
+							}
+
+							if (node.nodeName == 'mxfile')
+							{
+								// Workaround for "invalid calling object" error in IE
+								var tmp = node.getElementsByTagName('diagram');
+								diagrams = [];
+								
+								for (var i = 0; i < tmp.length; i++)
+								{
+									diagrams.push(tmp[i]);	
+								}
+								
+								realPage = Math.min(currentPage, diagrams.length - 1);
+								
+								if (diagrams.length > 0)
+								{
+									parseDiagram(diagrams[realPage]);
+								}
+								
+								if (diagrams.length > 1)
+								{
+									pageSelect.removeAttribute('disabled');
+									pageSelect.style.display = '';
+
+									for (var i = 0; i < diagrams.length; i++)
+									{
+										var pageOption = document.createElement('option');
+										mxUtils.write(pageOption, diagrams[i].getAttribute('name') ||
+											mxResources.get('pageWithNumber', [i + 1]));
+										pageOption.setAttribute('value', i);
+										
+										if (i == realPage)
+										{
+											pageOption.setAttribute('selected', 'selected');
+										}
 	
-	if (file == null || (editorUi.drive == null && file.constructor == window.DriveFile) ||
+										pageSelect.appendChild(pageOption);
+									}
+								}
+								
+								pageSelectFunction = function()
+								{
+									currentPage = parseInt(pageSelect.value);
+									realPage = currentPage;
+									parseDiagram(diagrams[currentPage]);
+								}
+							}
+							else
+							{
+								parseGraphModel(node);
+							}
+							
+							fileInfo.innerHTML = '';
+							mxUtils.write(fileInfo, ts.toLocaleDateString() + ' ' +
+									ts.toLocaleTimeString());
+							fileInfo.setAttribute('title', row.getAttribute('title'));
+							zoomInBtn.removeAttribute('disabled');
+							zoomOutBtn.removeAttribute('disabled');
+							zoomFitBtn.removeAttribute('disabled');
+							zoomActualBtn.removeAttribute('disabled');
+							
+							if (file == null || !file.isRestricted())
+							{
+								if (editorUi.editor.graph.isEnabled())
+								{
+									restoreBtn.removeAttribute('disabled');
+								}
+								
+								downloadBtn.removeAttribute('disabled');
+								showBtn.removeAttribute('disabled');
+								newBtn.removeAttribute('disabled');
+							}
+							
+							mxUtils.setOpacity(zoomInBtn, 60);
+							mxUtils.setOpacity(zoomOutBtn, 60);
+							mxUtils.setOpacity(zoomFitBtn, 60);
+							mxUtils.setOpacity(zoomActualBtn, 60);
+						}
+						else
+						{
+							pageSelect.style.display = 'none';
+							pageSelect.innerHTML = '';
+							fileInfo.innerHTML = '';
+							mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
+						}
+					};
+					
+					mxEvent.addListener(row, 'click', function(evt)
+					{
+						if (currentRev != item)
+						{
+							spinner.stop();
+							
+							if (currentRow != null)
+							{
+								currentRow.style.backgroundColor = '';
+							}
+							
+							currentRev = item;
+							currentRow = row;
+							currentRow.style.backgroundColor = '#ebf2f9';
+							currentDoc = null;
+							currentXml = null;
+
+							fileInfo.removeAttribute('title');
+							fileInfo.innerHTML = mxResources.get('loading') + '...';
+							container.style.backgroundColor = '#ffffff';
+							graph.getModel().clear();
+	
+							restoreBtn.setAttribute('disabled', 'disabled');
+							downloadBtn.setAttribute('disabled', 'disabled');
+							zoomInBtn.setAttribute('disabled', 'disabled');
+							zoomOutBtn.setAttribute('disabled', 'disabled');
+							zoomActualBtn.setAttribute('disabled', 'disabled');
+							zoomFitBtn.setAttribute('disabled', 'disabled');
+							newBtn.setAttribute('disabled', 'disabled');
+							showBtn.setAttribute('disabled', 'disabled');
+							pageSelect.setAttribute('disabled', 'disabled');
+							
+							mxUtils.setOpacity(zoomInBtn, 20);
+							mxUtils.setOpacity(zoomOutBtn, 20);
+							mxUtils.setOpacity(zoomFitBtn, 20);
+							mxUtils.setOpacity(zoomActualBtn, 20);
+							
+							spinner.spin(container);
+							
+							item.getXml(function(xml)
+				   			{
+								if (currentRev == item)
+								{
+									updateGraph(xml);
+								}
+				   			}, function(err)
+				   			{
+				   				spinner.stop();
+								pageSelect.style.display = 'none';
+								pageSelect.innerHTML = '';
+				   				fileInfo.innerHTML = '';
+								mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
+				   			});
+
+							mxEvent.consume(evt);
+						}
+					});
+					
+					mxEvent.addListener(row, 'dblclick', function(evt)
+					{
+						showBtn.click();
+						
+						if (window.getSelection)
+						{
+							window.getSelection().removeAllRanges();
+						}
+					    else if (document.selection)
+					    {
+					    	document.selection.empty();
+					    }
+						
+						mxEvent.consume(evt);
+					}, false);
+					
+					tbody.appendChild(row);
+				}
+
+				return row;
+			})(revs[i]);
+			
+			// Selects and loads first element in list (ie current version) after
+			// graph container was initialized since there is no loading delay
+			if (elt != null && i == revs.length - 1)
+			{
+				currentElt = elt;
+			}
+		}
+		
+		table.appendChild(tbody);
+		list.appendChild(table);
+	}
+	else if (file == null || (editorUi.drive == null && file.constructor == window.DriveFile) ||
 		(editorUi.dropbox == null && file.constructor == window.DropboxFile))
 	{
 		container.style.display = 'none';
@@ -4912,298 +5216,9 @@ var RevisionDialog = function(editorUi, revs)
 	}
 	else
 	{
-		if (revs != null && revs.length > 0)
-		{
-			container.style.cursor = 'move';
-			
-			var table = document.createElement('table');
-			table.style.border = '1px solid lightGray';
-			table.style.borderCollapse = 'collapse';
-			table.style.borderSpacing = '0px';
-			table.style.width = '100%';
-			var tbody = document.createElement('tbody');
-			var today = new Date().toDateString();
-
-			if (editorUi.currentPage != null && editorUi.pages != null)
-			{
-				currentPage = mxUtils.indexOf(editorUi.pages, editorUi.currentPage);
-			}
-			
-			for (var i = revs.length - 1; i >= 0; i--)
-			{
-				var elt = (function(item)
-				{
-					var ts = new Date(item.modifiedDate);
-					var row = null;
-					var pd = '6px';
-					
-					// Workaround for negative timestamps in Dropbox
-					if (ts.getTime() >= 0)
-					{
-						row = document.createElement('tr');
-						row.style.borderBottom = '1px solid lightGray';
-						row.style.fontSize = '12px';
-						row.style.cursor = 'pointer';
-						
-						var date = document.createElement('td');
-						date.style.padding = pd;
-						date.style.whiteSpace = 'nowrap';
-						
-						if (item == revs[revs.length - 1])
-						{
-							mxUtils.write(date, mxResources.get('current'));
-						}
-						else
-						{
-							if (ts.toDateString() === today)
-							{
-								mxUtils.write(date, ts.toLocaleTimeString());
-							}
-							else
-							{
-								mxUtils.write(date, ts.toLocaleDateString() + ' ' +
-									ts.toLocaleTimeString());
-							}
-						}
-						
-						row.appendChild(date);
-	
-						row.setAttribute('title', ts.toLocaleDateString() + ' ' +
-							ts.toLocaleTimeString() + ' ' +
-							editorUi.formatFileSize(parseInt(item.fileSize)) +
-							((item.lastModifyingUserName != null) ? ' ' +
-							item.lastModifyingUserName : ''));
-
-						function updateGraph(xml)
-						{
-							spinner.stop();
-							var doc = mxUtils.parseXml(xml);
-							var node = editorUi.editor.extractGraphModel(doc.documentElement, true);
-							
-							if (node != null)
-							{
-								pageSelect.style.display = 'none';
-								pageSelect.innerHTML = '';
-								currentDoc = doc;
-								currentXml = xml;
-								parseSelectFunction = null;
-								diagrams = null;
-								realPage = 0;
-								
-								function parseGraphModel(dataNode)
-								{
-									var bg = dataNode.getAttribute('background');
-									
-									if (bg == null || bg == '' || bg == mxConstants.NONE)
-									{
-										bg = '#ffffff';
-									}
-									
-									container.style.backgroundColor = bg;
-									
-									var codec = new mxCodec(dataNode.ownerDocument);
-									codec.decode(dataNode, graph.getModel());
-									graph.maxFitScale = 1;
-									graph.fit(8);
-									graph.center();
-									
-									return dataNode;
-								}
-								
-								function parseDiagram(diagramNode)
-								{
-									if (diagramNode != null)
-									{
-										diagramNode = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
-									        	mxUtils.getTextContent(diagramNode))).documentElement);
-									}
-									
-									return diagramNode;
-								}
-
-								if (node.nodeName == 'mxfile')
-								{
-									// Workaround for "invalid calling object" error in IE
-									var tmp = node.getElementsByTagName('diagram');
-									diagrams = [];
-									
-									for (var i = 0; i < tmp.length; i++)
-									{
-										diagrams.push(tmp[i]);	
-									}
-									
-									realPage = Math.min(currentPage, diagrams.length - 1);
-									
-									if (diagrams.length > 0)
-									{
-										parseDiagram(diagrams[realPage]);
-									}
-									
-									if (diagrams.length > 1)
-									{
-										pageSelect.removeAttribute('disabled');
-										pageSelect.style.display = '';
-	
-										for (var i = 0; i < diagrams.length; i++)
-										{
-											var pageOption = document.createElement('option');
-											mxUtils.write(pageOption, diagrams[i].getAttribute('name') ||
-												mxResources.get('pageWithNumber', [i + 1]));
-											pageOption.setAttribute('value', i);
-											
-											if (i == realPage)
-											{
-												pageOption.setAttribute('selected', 'selected');
-											}
-		
-											pageSelect.appendChild(pageOption);
-										}
-									}
-									
-									pageSelectFunction = function()
-									{
-										currentPage = parseInt(pageSelect.value);
-										realPage = currentPage;
-										parseDiagram(diagrams[currentPage]);
-									}
-								}
-								else
-								{
-									parseGraphModel(node);
-								}
-								
-								fileInfo.innerHTML = '';
-								mxUtils.write(fileInfo, ts.toLocaleDateString() + ' ' +
-										ts.toLocaleTimeString());
-								fileInfo.setAttribute('title', row.getAttribute('title'));
-								zoomInBtn.removeAttribute('disabled');
-								zoomOutBtn.removeAttribute('disabled');
-								zoomFitBtn.removeAttribute('disabled');
-								zoomActualBtn.removeAttribute('disabled');
-								
-								if (file == null || !file.isRestricted())
-								{
-									if (editorUi.editor.graph.isEnabled())
-									{
-										restoreBtn.removeAttribute('disabled');
-									}
-									
-									downloadBtn.removeAttribute('disabled');
-									showBtn.removeAttribute('disabled');
-									newBtn.removeAttribute('disabled');
-								}
-								
-								mxUtils.setOpacity(zoomInBtn, 60);
-								mxUtils.setOpacity(zoomOutBtn, 60);
-								mxUtils.setOpacity(zoomFitBtn, 60);
-								mxUtils.setOpacity(zoomActualBtn, 60);
-							}
-							else
-							{
-								pageSelect.style.display = 'none';
-								pageSelect.innerHTML = '';
-								fileInfo.innerHTML = '';
-								mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
-							}
-						};
-						
-						mxEvent.addListener(row, 'click', function(evt)
-						{
-							if (currentRev != item)
-							{
-								spinner.stop();
-								
-								if (currentRow != null)
-								{
-									currentRow.style.backgroundColor = '';
-								}
-								
-								currentRev = item;
-								currentRow = row;
-								currentRow.style.backgroundColor = '#ebf2f9';
-								currentDoc = null;
-								currentXml = null;
-
-								fileInfo.removeAttribute('title');
-								fileInfo.innerHTML = mxResources.get('loading') + '...';
-								container.style.backgroundColor = '#ffffff';
-								graph.getModel().clear();
-		
-								restoreBtn.setAttribute('disabled', 'disabled');
-								downloadBtn.setAttribute('disabled', 'disabled');
-								zoomInBtn.setAttribute('disabled', 'disabled');
-								zoomOutBtn.setAttribute('disabled', 'disabled');
-								zoomActualBtn.setAttribute('disabled', 'disabled');
-								zoomFitBtn.setAttribute('disabled', 'disabled');
-								newBtn.setAttribute('disabled', 'disabled');
-								showBtn.setAttribute('disabled', 'disabled');
-								pageSelect.setAttribute('disabled', 'disabled');
-								
-								mxUtils.setOpacity(zoomInBtn, 20);
-								mxUtils.setOpacity(zoomOutBtn, 20);
-								mxUtils.setOpacity(zoomFitBtn, 20);
-								mxUtils.setOpacity(zoomActualBtn, 20);
-								
-								spinner.spin(container);
-								
-								item.getXml(function(xml)
-					   			{
-									if (currentRev == item)
-									{
-										updateGraph(xml);
-									}
-					   			}, function(err)
-					   			{
-					   				spinner.stop();
-									pageSelect.style.display = 'none';
-									pageSelect.innerHTML = '';
-					   				fileInfo.innerHTML = '';
-									mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
-					   			});
-
-								mxEvent.consume(evt);
-							}
-						});
-						
-						mxEvent.addListener(row, 'dblclick', function(evt)
-						{
-							showBtn.click();
-							
-							if (window.getSelection)
-							{
-								window.getSelection().removeAllRanges();
-							}
-						    else if (document.selection)
-						    {
-						    	document.selection.empty();
-						    }
-							
-							mxEvent.consume(evt);
-						}, false);
-						
-						tbody.appendChild(row);
-					}
-
-					return row;
-				})(revs[i]);
-				
-				// Selects and loads first element in list (ie current version) after
-				// graph container was initialized since there is no loading delay
-				if (elt != null && i == revs.length - 1)
-				{
-					currentElt = elt;
-				}
-			}
-			
-			table.appendChild(tbody);
-			list.appendChild(table);
-		}
-		else
-		{
-			container.style.display = 'none';
-			tb.style.display = 'none';
-			mxUtils.write(list, mxResources.get('noRevisions'));
-		}
+		container.style.display = 'none';
+		tb.style.display = 'none';
+		mxUtils.write(list, mxResources.get('noRevisions'));
 	}
 	
 	this.init = function()

@@ -361,7 +361,7 @@ mxGraphMlCodec.prototype.mapArray = function(arr, mapping, map)
 	{
 		if (arr[k].name)
 		{
-			obj[arr[k].name] = arr[k].value;
+			obj[arr[k].name] = arr[k].value || arr[k]; 
 		}
 	}
 	this.mapObject(obj, mapping, map);
@@ -1460,25 +1460,58 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 							"yed.table.lane.color.alternating": {key: "laneColorAlt", mod: "color"},
 							"yed.table.lane.style": "laneStyle",
 							"com.yworks.bpmn.type": "isHorz",
-							"y.view.tabular.TableNodePainter.ALTERNATE_ROW_STYLE": {
-								"fillColor": {key: "secColor", mod: "color"},
-								"lineColor": {key: "secColor", mod: "color"},
-								"lineType": "lineType",
-								"lineWidth": "lineWidth"
-							}
+							"POOL_LANE_COLOR_ALTERNATING": {key: "laneColorAlt", mod: "color"},
+							"POOL_LANE_COLOR_MAIN": {key: "laneColor", mod: "color"},
+							"POOL_LANE_STYLE": "laneStyle",
+							"POOL_HEADER_COLOR_MAIN": {key: "headerColor", mod: "color"},
+							"POOL_HEADER_COLOR_ALTERNATING": {key: "headerColorAlt", mod: "color"},
+							"POOL_TABLE_SECTION_COLOR": {key: "secColor", mod: "color"}
+//							//Not Used!
+//							"y.view.tabular.TableNodePainter.ALTERNATE_ROW_STYLE": {
+//								"y:SimpleStyle": {
+//									"fillColor": {key: "rowAltFillColor", mod: "color"},
+//									"lineColor": {key: "rowAltLineColor", mod: "color"},
+//									"lineType": "rowAltlineType",
+//									"lineWidth": "rowAltlineWidth"
+//								}
+//							},
+//							"y.view.tabular.TableNodePainter.ALTERNATE_COLUMN_STYLE": {
+//								"y:SimpleStyle": {
+//									"fillColor": {key: "colAltFillColor", mod: "color"},
+//									"lineColor": {key: "colAltLineColor", mod: "color"},
+//									"lineType": "colAltlineType",
+//									"lineWidth": "colAltlineWidth"
+//								}
+//							}
 						},
 						"y:Table": {
 							"y:DefaultColumnInsets.top": "colHHeight",
 							"y:DefaultRowInsets.left": "rowHWidth",
-							"y:Insets.top": "tblHHeight", //TODO is there rotated tables?
+							"y:Insets": {
+								"top": "tblHHeight",
+								"left": "tblHWidth"
+							}
 						}
 					}
 				}, tmpMap);
 
-				styleMap["startSize"] = tmpMap["tblHHeight"];
 				styleMap["swimlaneFillColor"] = styleMap["fillColor"];
 				
-				var th = parseFloat(styleMap["startSize"]);
+				var isHor = tmpMap["isHorz"] == "pool_type_lane_and_column"
+					|| tmpMap["isHorz"] == "pool_type_empty"
+					|| tmpMap["isHorz"] == "pool_type_lane";
+
+				var th = 0, tw = 0;
+				if (isHor)
+				{
+					tw = parseFloat(tmpMap["tblHWidth"]);
+				}
+				else
+				{
+					th = parseFloat(tmpMap["tblHHeight"]);
+				}
+				
+				styleMap["startSize"] = th? th : tw;
 				//Assumptions: There is always rows and cols in every table
 				//Also all tables seems to be not rotated
 				try 
@@ -1486,7 +1519,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					var rows = mlStyleObj["y:TableNode"]["y:Table"]["y:Rows"]["y:Row"];
 					var cols = mlStyleObj["y:TableNode"]["y:Table"]["y:Columns"]["y:Column"];
 					
-					var atts4Rows = tmpMap["laneStyle"] == "lane.style.rows";
+					var atts4Rows = tmpMap["laneStyle"] == "lane.style.rows" || tmpMap["laneStyle"] == "lane_style_rows";
 					
 					if (!(rows instanceof Array))
 						rows = [rows];
@@ -1494,74 +1527,31 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 					if (!(cols instanceof Array))
 						cols = [cols];
 					
-					var y = th + parseFloat(tmpMap["colHHeight"]); 
-					
+					var rowStartSize = parseFloat(tmpMap["rowHWidth"]);
 					for (var i = 0; i < rows.length; i++)
 					{
-						var odd = i & 1;
-						var cell = new mxCell();
-						cell.vertex = true;
-						var rowStyle = {
-							"shape": "swimlane;collapsible=0;horizontal=0",
-							"startSize": (rows[i]["y:Insets"]? rows[i]["y:Insets"]["left"] : tmpMap["rowHWidth"]),
-							"fillColor": tmpMap["secColor"]
-						};
-						
-						if (parseFloat(rowStyle["startSize"]) == 0)
-						{
-							rowStyle["fillColor"] = "none";
-						}
-						
-						if (atts4Rows)
-						{
-							rowStyle["fillColor"] = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
-							rowStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
-						}
-						
-						var height = parseFloat(rows[i]["height"]);
-						cell.geometry = new mxGeometry(0, y, node.geometry.width, height);
-						y += height;
-						
-//						if (lblObj)
-//							this.addLabels(cell, lblObj, rowStyle)
-						
-						cell.style = this.styleMap2Str(rowStyle);
-						node.insert(cell);
+						if (rows[i]["y:Insets"])
+							rowStartSize = Math.max(rowStartSize, 
+									parseFloat(rows[i]["y:Insets"]["left"]) + parseFloat(rows[i]["y:Insets"]["right"]));
 					}
 					
-					var x = parseFloat(tmpMap["rowHWidth"]);
-					
+					var colStartSize = parseFloat(tmpMap["colHHeight"]);
 					for (var i = 0; i < cols.length; i++)
 					{
-						var odd = i & 1;
-						var cell = new mxCell();
-						cell.vertex = true;
-						var colStyle = {
-							"shape": "swimlane;collapsible=0",
-							"startSize": (cols[i]["y:Insets"]? cols[i]["y:Insets"]["top"] : tmpMap["colHHeight"]),
-							"fillColor": tmpMap["secColor"]
-						};
-						
-						if (parseFloat(colStyle["startSize"]) == 0)
-						{
-							colStyle["fillColor"] = "none";
-						}
-						
-						if (!atts4Rows)
-						{
-							colStyle["fillColor"] = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
-							colStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
-						}
-						
-						var width = parseFloat(cols[i]["width"]);
-						cell.geometry = new mxGeometry(x, th, width, node.geometry.height - th);
-						x += width;
-						
-//						if (lblObj)
-//							this.addLabels(cell, lblObj, rowStyle)
-						
-						cell.style = this.styleMap2Str(colStyle);
-						node.insert(cell);
+						if (cols[i]["y:Insets"])
+							colStartSize = Math.max(colStartSize, 
+									parseFloat(cols[i]["y:Insets"]["top"]) + parseFloat(cols[i]["y:Insets"]["bottom"]));
+					}
+					
+					if (atts4Rows)
+					{
+						this.addTbl2Rows(node, rows, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap);
+						this.addTbl2Cols(node, cols, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap);
+					}
+					else
+					{
+						this.addTbl2Cols(node, cols, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap);
+						this.addTbl2Rows(node, rows, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap);
 					}
 				}
 				catch(e)
@@ -1575,6 +1565,90 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
 		{
 			styleMap["shadow"] = "1";
 		}
+	}
+};
+
+mxGraphMlCodec.prototype.addTbl2Rows = function(node, rows, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap) 
+{
+	var y = th + colStartSize; 
+	var isBPMN = tmpMap["isHorz"] != null;
+	
+	for (var i = 0; i < rows.length; i++)
+	{
+		var odd = i & 1;
+		var cell = new mxCell();
+		cell.vertex = true;
+		var rowStyle = {
+			"shape": "swimlane;collapsible=0;horizontal=0",
+			"startSize": rowStartSize,
+			"fillColor": tmpMap["secColor"] || "none",
+			"swimlaneLine": (isBPMN? "0" : "1")
+		};
+		
+		if (parseFloat(rowStyle["startSize"]) == 0)
+		{
+			rowStyle["fillColor"] = "none";
+		}
+		
+		if (atts4Rows)
+		{
+			var fillColor = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
+			rowStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
+			rowStyle["fillColor"] = fillColor? fillColor : rowStyle["swimlaneFillColor"];
+		}
+		
+		var height = parseFloat(rows[i]["height"]);
+		var dh = (isBPMN && i == 0)? colStartSize : 0 ;
+		cell.geometry = new mxGeometry(tw, y - dh, node.geometry.width - tw, height + dh);
+		y += height;
+		
+//		if (lblObj)
+//			this.addLabels(cell, lblObj, rowStyle)
+		
+		cell.style = this.styleMap2Str(rowStyle);
+		node.insert(cell);
+	}	
+};
+
+mxGraphMlCodec.prototype.addTbl2Cols = function(node, cols, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap) 
+{
+	var x = rowStartSize + tw;
+	var isBPMN = tmpMap["isHorz"] != null;
+	
+	for (var i = 0; i < cols.length; i++)
+	{
+		var odd = i & 1;
+		var cell = new mxCell();
+		cell.vertex = true;
+		var colStyle = {
+			"shape": "swimlane;collapsible=0",
+			"startSize": colStartSize,
+			"fillColor": tmpMap["secColor"] || "none",
+			"swimlaneLine": (isBPMN? "0" : "1")
+		};
+		
+		if (parseFloat(colStyle["startSize"]) == 0)
+		{
+			colStyle["fillColor"] = "none";
+		}
+		
+		if (!atts4Rows)
+		{
+			var fillColor = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
+			colStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
+			colStyle["fillColor"] = fillColor? fillColor : colStyle["swimlaneFillColor"];
+		}
+		
+		var width = parseFloat(cols[i]["width"]);
+		var dw = (isBPMN && i == 0)? rowStartSize : 0 ;
+		cell.geometry = new mxGeometry(x - dw, th, width + dw, node.geometry.height - th);
+		x += width;
+		
+//		if (lblObj)
+//			this.addLabels(cell, lblObj, rowStyle)
+		
+		cell.style = this.styleMap2Str(colStyle);
+		node.insert(cell);
 	}
 };
 
