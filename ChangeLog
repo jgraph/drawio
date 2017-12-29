@@ -1,3 +1,7 @@
+29-DEC-2017: 7.9.0
+
+- Removes search.xml from offline manifest
+
 29-DEC-2017: 7.8.9
 
 - Replaces search.xml with inline data
