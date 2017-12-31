@@ -605,6 +605,11 @@ EditorUi.prototype.updatePageRoot = function(page)
  */
 EditorUi.prototype.selectPage = function(page, quiet)
 {
+	if (this.editor.graph.isEditing())
+	{
+		this.editor.graph.stopEditing(false);
+	}
+	
 	quiet = (quiet != null) ? quiet : false;
 	this.editor.graph.isMouseDown = false;
 	this.editor.graph.reset();

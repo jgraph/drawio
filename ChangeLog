@@ -1,3 +1,8 @@
+31-DEC-2017: 7.9.1
+
+- Uses round app icon for Android
+- Applies editing value before selecting page
+
 29-DEC-2017: 7.9.0
 
 - Removes search.xml from offline manifest
