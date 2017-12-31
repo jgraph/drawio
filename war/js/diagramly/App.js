@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2018, JGraph Ltd
+ * Copyright (c) 2006-2018, Gaudenz Alder
  */
 /**
  * Constructs a new point for the optional x and y coordinates. If no
