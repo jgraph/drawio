@@ -8,6 +8,7 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const log = require('electron-log')
+const program = require('commander');
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 		
@@ -137,7 +138,7 @@ function createWindow (opt = {})
 		mainWindow.loadURL(ourl)
     });
 
-	return mainWindow.id
+	return mainWindow
 }
 
 // This method will be called when Electron has finished
@@ -158,14 +159,32 @@ app.on('ready', e =>
 		
 		if (arg.action === 'newfile')
 		{
-			event.returnValue = createWindow(arg.opt)
+			event.returnValue = createWindow(arg.opt).id
 			return
 		}
 		
 		event.returnValue = 'pong'
 	})
 	
-	createWindow()
+	let argv = process.argv
+	// https://github.com/electron/electron/issues/4690#issuecomment-217435222
+	if (process.defaultApp != true)
+	{
+		argv.unshift(null)
+	}
+
+	program
+		.version(app.getVersion())
+		.usage('[options] [file]')
+	 	.option('-c, --create-if-not-exists', 'create a new empty file if it doesn\'t exist. If no file is passed loads a blank document')
+		.parse(argv)
+		
+	let win = createWindow()
+	
+	win.webContents.on('did-finish-load', function()
+	{
+		win.webContents.send('args-obj', program)
+	});
 	
 	let template = [{
 	    label: app.getName(),
