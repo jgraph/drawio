@@ -701,7 +701,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
-					this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+					this.handleError(resp, (resp === undefined || resp === null) ? mxResources.get('errorSavingFile') : null);
 				}));
 			}
 			else
@@ -713,7 +713,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
-					this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+					this.handleError(resp, (resp === undefined || resp === null) ? mxResources.get('errorSavingFile') : null);
 				}));
 			}
 		}
