@@ -2118,12 +2118,12 @@ var ParseDialog = function(editorUi, title)
 		{
 			var plantUmlServerUrl = (type == 'plantUmlPng') ? 'https://exp.draw.io/plantuml2/png/' :
 				'https://exp.draw.io/plantuml2/svg/';
-	    	var graph = editorUi.editor.graph;
-	    	
-	    	// TODO: Change server to return base64 & accept POST request
-	    	if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-	    	{
-		    	function encode64(data) {
+		    	var graph = editorUi.editor.graph;
+		    	
+		    	// TODO: Change server to return base64 & accept POST request
+		    	if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+		    	{
+	    			function encode64(data) {
 					r = "";
 					for (i=0; i<data.length; i+=3) {
 				 		if (i+2==data.length) {
@@ -2231,7 +2231,93 @@ var ParseDialog = function(editorUi, title)
 				};
 				 
 				xhr.send();
-	    	}
+	    		}
+		}
+		else if (type == 'table')
+		{
+			var tableCell = null;
+			var rows = null;
+			var cells = [];
+			var dx = 0;
+
+			for (var i = 0; i < lines.length; i++)
+			{
+				var tmp = mxUtils.trim(lines[i]);
+				
+				if (tmp.substring(0, 12).toLowerCase() == 'create table')
+				{
+					var name = mxUtils.trim(tmp.substring(12));
+					
+					if (name.charAt(name.length - 1) == '(')
+					{
+						name = name.substring(0, name.lastIndexOf(' '));
+					}
+					
+					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
+						'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+					tableCell.vertex = true;
+					cells.push(tableCell);
+					
+					var size = editorUi.editor.graph.getPreferredSizeForCell(rowCell);
+		   			
+		   			if (size != null)
+		   			{
+		   				tableCell.geometry.width = size.width + 10;
+		   			}
+		   			
+		   			// For primary key lookups
+		   			rows = {};
+				}
+				else if (tableCell != null && tmp.charAt(0) == ')')
+				{
+					dx += tableCell.geometry.width + 40;
+					tableCell = null;
+				}
+				else if (tmp != '(' && tableCell != null)
+				{
+					var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
+					
+					if (name.substring(0, 11).toLowerCase() != 'primary key')
+					{
+						var rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
+							'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
+			   			rowCell.vertex = true;
+		
+						var left = sb.cloneCell(rowCell, '' /* eg. PK */);
+			   			left.connectable = false;
+			   			left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
+			   			left.geometry.width = 30;
+			   			left.geometry.height = 26;
+			   			rowCell.insert(left);
+			   			
+			   			var size = editorUi.editor.graph.getPreferredSizeForCell(rowCell);
+			   			
+			   			if (size != null && tableCell.geometry.width < size.width + 10)
+			   			{
+			   				tableCell.geometry.width = size.width + 10;
+			   			}
+			   			
+			   			tableCell.insert(rowCell);
+			   			tableCell.geometry.height += 26;
+			   			
+			   			rows[rowCell.value] = rowCell;
+					}
+				}
+			}
+			
+			if (cells.length > 0)
+			{
+				var graph = editorUi.editor.graph;
+				var view = graph.view;
+				var bds = graph.getGraphBounds();
+				
+				// Computes unscaled, untranslated graph bounds
+				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
+				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
+
+				graph.setSelectionCells(graph.importCells(cells, x, y));
+				graph.scrollCellToVisible(graph.getSelectionCell());
+			}
 		}
 		else if (type == 'list')
 		{
@@ -2414,6 +2500,11 @@ var ParseDialog = function(editorUi, title)
 	listOption.setAttribute('selected', 'selected');
 	mxUtils.write(listOption, mxResources.get('list'));
 	typeSelect.appendChild(listOption);
+
+	var tableOption = document.createElement('option');
+	tableOption.setAttribute('value', 'table');
+	mxUtils.write(tableOption, mxResources.get('table'));
+	typeSelect.appendChild(tableOption);
 	
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
@@ -2437,6 +2528,28 @@ var ParseDialog = function(editorUi, title)
 
 	function getDefaultValue()
 	{
+		if (typeSelect.value == 'list')
+		{
+			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean';
+		}
+		else if (typeSelect.value == 'table')
+		{
+			return 'CREATE TABLE Persons\n(\nPersonID int,\nLastName varchar(255),\n' +
+	  			'FirstName varchar(255),\nAddress varchar(255),\nCity varchar(255)\n);';
+		}
+		else if (typeSelect.value == 'plantUmlPng')
+		{
+			return '@startuml\nskinparam backgroundcolor transparent\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml';
+		}
+		else if (typeSelect.value == 'plantUmlSvg')
+		{
+			return '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml';
+		}
+		else if (typeSelect.value == '')
+		{
+			return ';Example:\na->b\nb->c\nc->a\n';
+		}
+		
 		return  (typeSelect.value == 'list') ?
 			'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean' :
 			((typeSelect.value == 'plantUmlPng') ? '@startuml\nskinparam backgroundcolor transparent\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml' :
@@ -3081,9 +3194,26 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	if (data != null && mimeType != null && mimeType.substring(0, 6) == 'image/')
 	{
 		nameInput.style.width = '160px';
+		var preview = null;
 		
-		var preview = document.createElement('img');
-		preview.setAttribute('src', 'data:' + mimeType + ((base64Encoded) ? ';base64,': ';utf8,') + data );
+		// Workaround for broken images in SVG preview in Chrome
+		if (mimeType == 'image/svg+xml' && mxClient.IS_SVG)
+		{
+			preview = document.createElement('div');
+			preview.innerHTML = mxUtils.trim(data);
+			var svg = preview.getElementsByTagName('svg')[0];
+			var w = parseInt(svg.getAttribute('width'));
+			var h = parseInt(svg.getAttribute('height'));
+			svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+			svg.setAttribute('width', '120px');
+			svg.setAttribute('height', '80px');
+		}
+		else
+		{
+			preview = document.createElement('img');
+			preview.setAttribute('src', 'data:' + mimeType + ((base64Encoded) ? ';base64,': ';utf8,') + data);
+		}
+		
 		preview.style.position = 'absolute';
 		preview.style.top = '70px';
 		preview.style.right = '100px';

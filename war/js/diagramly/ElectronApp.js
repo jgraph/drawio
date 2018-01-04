@@ -106,6 +106,14 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			}
 			
 			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram', '-'], parent);
+			
+			var item = this.addMenuItem(menu, 'plugins', parent);
+			
+			if (!editorUi.isOffline())
+			{
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
+			}
+			
 			var item = this.addMenuItem(menu, 'tags', parent);
 			
 			if (!editorUi.isOffline())
@@ -346,6 +354,79 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		});
 	}
 
+	App.prototype.load = function()
+	{
+		const {ipcRenderer} = require('electron');
+		
+		ipcRenderer.on('args-obj', (event, argsObj) =>
+		{
+			this.loadArgs(argsObj)
+		})
+	}
+	
+	App.prototype.loadArgs = function(argsObj)
+	{
+		var paths = argsObj.args;
+		
+		// If a file is passed 
+		if (paths !== undefined && paths[0] != null)
+		{
+			var path = paths[0];
+			
+			var success = mxUtils.bind(this, function(fileEntry, data)
+			{
+				var file = new LocalFile(this, data, '');
+				file.fileObject = fileEntry;
+				this.fileLoaded(file);
+				
+				this.start();
+			});
+			
+			var error = mxUtils.bind(this, function(e)
+			{
+				if (e.code === 'ENOENT')
+				{
+					var title = path.replace(/^.*[\\\/]/, '');
+					var data = this.emptyDiagramXml;
+					var file = new LocalFile(this, data, title, null);
+					
+					file.fileObject = new Object();
+					file.fileObject.path = path;
+					file.fileObject.name = title;
+					file.fileObject.type = 'utf-8';
+					this.fileCreated(file, null, null, null);					
+					this.saveFile();
+					
+					this.start();
+				}
+				else
+				{
+					this.start();
+					this.handleError(e);
+				}
+				
+			});
+			
+			// Tries to open the file
+			this.readGraphFile(success, error, path);
+		}
+		// If no file is passed, but there is the "create-if-not-exists" flag
+		else if (argsObj.create != null)
+		{
+			var title = 'Untitled document';
+			var data = this.emptyDiagramXml;
+			var file = new LocalFile(this, data, title, null);
+			this.fileCreated(file, null, null, null);
+			
+			this.start();
+		}
+		// If no args are passed 
+		else
+		{
+			this.start();
+		}		
+	}
+
 	// Uses local picker
 	App.prototype.pickFile = function()
 	{
@@ -405,35 +486,39 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	           
         if (paths !== undefined && paths[0] != null)
         {
-        	var fs = require('fs');
-        	var path = paths[0];
-        	var index = path.lastIndexOf('.png');
-        	var isPng = index > -1 && index == path.length - 4;
-        	var encoding = isPng ? 'base64' : 'utf-8'
-
-        	fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
-        	{
-        		if (e)
-        		{
-        			this.handleError(e);
-        		}
-        		else
-        		{
-        			if (isPng)
-        			{
-        				// Detecting png by extension. Would need https://github.com/mscdex/mmmagic
-        				// to do it by inspection
-        				data = this.extractGraphModelFromPng(data, true);
-        			}
-
-        			var fileEntry = new Object();
-        			fileEntry.path = path;
-        			fileEntry.name = path.replace(/^.*[\\\/]/, '');
-        			fileEntry.type = encoding;
-        			fn(fileEntry, data);
-        		}
-        	}));
+			this.readGraphFile(fn, this.handleError.bind(this), paths[0]);
         }
+	};
+
+	App.prototype.readGraphFile = function(fn, fnErr, path)
+	{
+		var fs = require('fs');
+		var index = path.lastIndexOf('.png');
+		var isPng = index > -1 && index == path.length - 4;
+		var encoding = isPng ? 'base64' : 'utf-8'
+
+		fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
+		{
+			if (e)
+			{
+				fnErr(e);
+			}
+			else
+			{
+				if (isPng)
+				{
+					// Detecting png by extension. Would need https://github.com/mscdex/mmmagic
+					// to do it by inspection
+					data = this.extractGraphModelFromPng(data, true);
+				}
+
+				var fileEntry = new Object();
+				fileEntry.path = path;
+				fileEntry.name = path.replace(/^.*[\\\/]/, '');
+				fileEntry.type = encoding;
+				fn(fileEntry, data);
+			}
+		}));
 	};
 
 	// Disables temp files in Electron
@@ -624,7 +709,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
-					this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+					this.handleError(resp, mxResources.get('errorSavingFile'));
 				}));
 			}
 			else
@@ -636,7 +721,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				}), mxUtils.bind(this, function(resp)
 				{
 					this.editor.setStatus('');
-					this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+					this.handleError(resp, mxResources.get('errorSavingFile'));
 				}));
 			}
 		}
