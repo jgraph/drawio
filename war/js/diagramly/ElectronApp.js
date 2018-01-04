@@ -353,9 +353,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			});
 		});
 	}
+	
+	var appLoad = App.prototype.load;
 
 	App.prototype.load = function()
 	{
+		appLoad.apply(this, arguments);
 		const {ipcRenderer} = require('electron');
 		
 		ipcRenderer.on('args-obj', (event, argsObj) =>
@@ -378,8 +381,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				var file = new LocalFile(this, data, '');
 				file.fileObject = fileEntry;
 				this.fileLoaded(file);
-				
-				this.start();
 			});
 			
 			var error = mxUtils.bind(this, function(e)
@@ -396,12 +397,9 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					file.fileObject.type = 'utf-8';
 					this.fileCreated(file, null, null, null);					
 					this.saveFile();
-					
-					this.start();
 				}
 				else
 				{
-					this.start();
 					this.handleError(e);
 				}
 				
@@ -417,13 +415,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			var data = this.emptyDiagramXml;
 			var file = new LocalFile(this, data, title, null);
 			this.fileCreated(file, null, null, null);
-			
-			this.start();
-		}
-		// If no args are passed 
-		else
-		{
-			this.start();
 		}		
 	}
 
