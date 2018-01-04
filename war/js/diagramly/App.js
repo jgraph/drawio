@@ -52,11 +52,7 @@ App = function(editor, container, lightbox)
 	// Initial state for toolbar items is disabled
 	this.updateDocumentTitle();
 	this.updateUi();
-	
-	// Checks if canvas is supported
-	var cnv = document.createElement('canvas');
-	this.canvasSupported = !!(cnv.getContext && cnv.getContext('2d'));
-	
+
 	// Global helper method to display error messages
 	window.showOpenAlert = mxUtils.bind(this, function(message)
 	{
@@ -504,7 +500,7 @@ App.main = function(callback, createUi)
 					}
 				}
 			}
-			else if (urlParams['chrome'] != '0')
+			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
 			{
 				mxscript(App.FOOTER_PLUGIN_URL);
 			}

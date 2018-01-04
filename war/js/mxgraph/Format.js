@@ -656,12 +656,18 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 		// Text size via arrow button limits to 16 in IE11. Why?
 		mxEvent.addListener(input, 'mousedown', function()
 		{
-			selState = graph.cellEditor.saveSelection();
+			if (document.activeElement == graph.cellEditor.textarea)
+			{
+				selState = graph.cellEditor.saveSelection();
+			}
 		});
 		
 		mxEvent.addListener(input, 'touchstart', function()
 		{
-			selState = graph.cellEditor.saveSelection();
+			if (document.activeElement == graph.cellEditor.textarea)
+			{
+				selState = graph.cellEditor.saveSelection();
+			}
 		});
 	}
 	
@@ -2990,12 +2996,18 @@ TextFormatPanel.prototype.addFont = function(container)
 			// Text size via arrow button limits to 16 in IE11. Why?
 			mxEvent.addListener(input, 'mousedown', function()
 			{
-				selState = graph.cellEditor.saveSelection();
+				if (document.activeElement == graph.cellEditor.textarea)
+				{
+					selState = graph.cellEditor.saveSelection();
+				}
 			});
 			
 			mxEvent.addListener(input, 'touchstart', function()
 			{
-				selState = graph.cellEditor.saveSelection();
+				if (document.activeElement == graph.cellEditor.textarea)
+				{
+					selState = graph.cellEditor.saveSelection();
+				}
 			});
 			
 			input.value = '120 %';

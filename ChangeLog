@@ -1,3 +1,17 @@
+04-JAN-2018: 7.9.4
+
+- Adds Extras, Plugins in desktop app
+- Adds command line arguments in desktop app
+- Fixes images in SVG export preview
+- Uses mxGraph 3.8.1 beta 8
+- Adds table option in insert text dialog
+- Fixes text formatting for input selection
+
+02-JAN-2018: 7.9.3
+
+- Workaround for null variable in Jira Connect
+- Uses mxGraph 3.8.1 beta 6
+
 31-DEC-2017: 7.9.2
 
 - Improves app icons for Android

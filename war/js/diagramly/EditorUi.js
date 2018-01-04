@@ -115,6 +115,17 @@
 		EditorUi.prototype.useCanvasForExport = false;
 		EditorUi.prototype.jpgSupported = false;
 		
+		// Checks if canvas is supported
+		try
+		{
+			var cnv = document.createElement('canvas');
+			EditorUi.prototype.canvasSupported = !!(cnv.getContext && cnv.getContext('2d'));
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
 		try
 		{
 			var canvas = document.createElement('canvas');
@@ -2217,7 +2228,7 @@
 	/**
 	 * EditorUi Overrides
 	 */
-    if (urlParams['offline'] == '1')
+    if (urlParams['offline'] == '1' || EditorUi.isElectronApp)
     {
 		EditorUi.prototype.footerHeight = 4;
     }
@@ -2836,7 +2847,7 @@
 	 */
 	EditorUi.prototype.openInNewWindow = function(data, mimeType, base64Encoded)
 	{
-		// In Google Chrome 60 the code from below produces a blank window 
+		// In Google Chrome 60 the code from below produces a blank window
 		if (mxClient.IS_GC || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
 		{
 			var win = window.open('about:blank');
@@ -2847,10 +2858,19 @@
 			}
 			else
 			{
-				win.document.write('<html><img src="data:' +
-					mimeType + ((base64Encoded) ? ';base64,' +
-					data : ';charset=utf8,' + encodeURIComponent(data)) +
-					'"/></html>');
+				// Workaround for broken images in SVG output in Chrome
+				if (mimeType == 'image/svg+xml')
+				{
+					win.document.write('<html>' + data + '</html>');
+				}
+				else
+				{
+					win.document.write('<html><img src="data:' +
+						mimeType + ((base64Encoded) ? ';base64,' +
+						data : ';charset=utf8,' + encodeURIComponent(data)) +
+						'"/></html>');
+				}
+				
 				win.document.close();
 			}
 		}
@@ -5649,7 +5669,7 @@
 					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
-		else if (/(\.*<graphml )/.test(data)) 
+		else if (/(\.*<graphml )/.test(data) && typeof window.mxGraphMlCodec !== 'undefined') 
         {
             new mxGraphMlCodec().decode(data, mxUtils.bind(this, function(xml)
             {

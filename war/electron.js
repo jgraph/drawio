@@ -8,6 +8,7 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const log = require('electron-log')
+const program = require('commander')
 
 const __DEV__ = process.env.NODE_ENV === 'development'
 		
@@ -20,9 +21,10 @@ function createWindow (opt = {})
 		width: 1600,
 		height: 1200,
 		'web-security': false,
+		allowRunningInsecureContent: __DEV__,
 		webPreferences: {
 			// preload: path.resolve('./preload.js'),
-		},
+		}
 	}, opt)
 
 	let mainWindow = new BrowserWindow(options)
@@ -32,11 +34,11 @@ function createWindow (opt = {})
 
 	let wurl = url.format(
 	{
-		pathname: `www.draw.io`,
-		protocol: 'https:',
+		pathname: __DEV__ ? 'test.draw.io' : 'www.draw.io',
+		protocol: __DEV__ ? 'http' : 'https:',
 		query:
 		{
-			'dev': __DEV__ ? 1 : 0,
+		    'https': __DEV__ ? 0 : 1,
 			'test': __DEV__ ? 1 : 0,
 			'db': 0,
 			'gapi': 0,
@@ -47,14 +49,11 @@ function createWindow (opt = {})
 			'picker': 0,
 			'mode': 'device',
 			'browser': 0,
-			'p': 'electron',
 			'appcache': 1
 		},
-		slashes: true,
+		slashes: true
 	})
 
-//`file://${__dirname}/index.html?dev=1&test=1&db=0&gapi=0&od=0&analytics=0&picker=0&mode=device&browser=0&p=electron`
-	// and load the index.html of the app.
 	mainWindow.loadURL(wurl)
 
 	// Open the DevTools.
@@ -63,16 +62,16 @@ function createWindow (opt = {})
 		mainWindow.webContents.openDevTools()
 	}
 
-	mainWindow.on('close', (event/*:WindowEvent*/) =>
+	mainWindow.on('close', (event) =>
 	{
 		const win = event.sender
 		const index = windowsRegistry.indexOf(win)
-		console.log('Window on close idx:%d', index)
+		console.log('Window on close', index)
 		const contents = win.webContents
 
 		if (contents != null)
 		{
-			contents.executeJavaScript(`global.__emt_isModified()`, true,
+			contents.executeJavaScript('global.__emt_isModified()', true,
 				isModified =>
 				{
 					console.log('__emt_isModified', isModified)
@@ -110,34 +109,34 @@ function createWindow (opt = {})
 		windowsRegistry.splice(index, 1)
 	})
 	
-	mainWindow.webContents.on('did-fail-load', function()
+	mainWindow.webContents.on('did-fail-load', function(err)
     {
         let ourl = url.format(
-					{
-						pathname: `${__dirname}/index.html`,
-						protocol: 'file:',
-						query:
-						{
-							'dev': __DEV__ ? 1 : 0,
-							'test': __DEV__ ? 1 : 0,
-							'db': 0,
-							'gapi': 0,
-							'od': 0,
-							'gh': 0,
-							'tr': 0,
-							'analytics': 0,
-							'picker': 0,
-							'mode': 'device',
-							'browser': 0,
-							'p': 'electron'
-						},
-						slashes: true,
-					})
+			{
+				pathname: `${__dirname}/index.html`,
+				protocol: 'file:',
+				query:
+				{
+					'dev': __DEV__ ? 1 : 0,
+					'drawdev': __DEV__ ? 1 : 0,
+					'test': __DEV__ ? 1 : 0,
+					'db': 0,
+					'gapi': 0,
+					'od': 0,
+					'gh': 0,
+					'tr': 0,
+					'analytics': 0,
+					'picker': 0,
+					'mode': 'device',
+					'browser': 0
+				},
+				slashes: true,
+			})
 		
 		mainWindow.loadURL(ourl)
-    });
+    })
 
-	return mainWindow.id
+	return mainWindow
 }
 
 // This method will be called when Electron has finished
@@ -158,14 +157,33 @@ app.on('ready', e =>
 		
 		if (arg.action === 'newfile')
 		{
-			event.returnValue = createWindow(arg.opt)
+			event.returnValue = createWindow(arg.opt).id
+			
 			return
 		}
 		
 		event.returnValue = 'pong'
 	})
 	
-	createWindow()
+    let argv = process.argv
+    // https://github.com/electron/electron/issues/4690#issuecomment-217435222
+    if (process.defaultApp != true)
+    {
+        argv.unshift(null)
+    }
+
+    program
+        .version(app.getVersion())
+        .usage('[options] [file]')
+        .option('-c, --create', 'creates a new empty file if no file is passed')
+        .parse(argv)
+        
+    let win = createWindow()
+    
+    win.webContents.on('did-finish-load', function()
+    {
+        win.webContents.send('args-obj', program)
+    });
 	
 	let template = [{
 	    label: app.getName(),
@@ -186,7 +204,7 @@ app.on('ready', e =>
 	        accelerator: 'CmdOrCtrl+Q',
 	        click() { app.quit(); }
 	      }]
-	}];
+	}]
 	
 	if (process.platform === 'darwin')
 	{
@@ -225,11 +243,11 @@ app.on('ready', e =>
 	        accelerator: 'CmdOrCtrl+V',
 	        selector: 'paste:'
 	      }]
-	    }];
+	    }]
 	}
 	
-	const menuBar = menu.buildFromTemplate(template);
-	menu.setApplicationMenu(menuBar);
+	const menuBar = menu.buildFromTemplate(template)
+	menu.setApplicationMenu(menuBar)
 })
 
 // Quit when all windows are closed.
