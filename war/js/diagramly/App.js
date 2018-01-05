@@ -481,6 +481,10 @@ App.main = function(callback, createUi)
 				if (urlParams['drawdev'] == '1')
 				{
 					drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
+					if  (document.location.protocol == 'file:')
+					{
+						drawDevUrl = './';
+					}
 				}
 				
 				// Mapping from key to URL in App.plugins

@@ -343,6 +343,10 @@
 			if (urlParams['drawdev'] == '1')
 			{
 				drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
+				if  (document.location.protocol == 'file:')
+				{
+					drawDevUrl = './';
+				}
 			}
 			
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
