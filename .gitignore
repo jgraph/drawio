@@ -1,2 +1,4 @@
 /bin/
 node_modules/
+war/js/*.min.js
+etc/build/*.min.js
