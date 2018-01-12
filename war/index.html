@@ -91,22 +91,6 @@
 						host = 'www.draw.io';
 					}
 					
-					// Redirects to SSL/non-SSL
-					if (urlParams['demo'] != '1')
-					{
-						var ssl = (urlParams['https'] != null) ? urlParams['https'] == '1' :
-							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;
-						
-						if (ssl && proto != 'https:')
-						{
-							proto = 'https:';
-						}
-						else if (!ssl && proto != 'http:')
-						{
-							proto = 'http:';
-						}
-					}
-					
 					var href = proto + '//' + host + window.location.href.substring(
 							window.location.protocol.length +
 							window.location.host.length + 2);

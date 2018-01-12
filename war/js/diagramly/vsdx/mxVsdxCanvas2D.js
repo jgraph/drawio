@@ -858,7 +858,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh + hShift));
 
 		if (rotation != 0)
-			this.shape.appendChild(this.createCellElemScaled("TxtAngle", (360 - rotation) * Math.PI / 180));
+			this.shape.appendChild(this.createCellElem("TxtAngle", (360 - rotation) * Math.PI / 180));
 
 		
 		

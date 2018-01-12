@@ -507,7 +507,7 @@ public class GliffyDiagramConverter
 			cell.setVertex(true);
 			style.append(StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 
-			if(gliffyObject.rotation == 0) //270 case is handled in rotation below
+			if (gliffyObject.rotation == 0) //270 case is handled in rotation below
 			{
 				style.append("childLayout=stackLayout;resizeParent=1;resizeParentMax=0;");
 			}
@@ -540,17 +540,22 @@ public class GliffyDiagramConverter
 				
 				if(gliffyObject.rotation != 0) 
 				{
+					
 					if (gliffyObject.rotation == 270) //Special handling for this common case
 					{
 						laneStyle.append("horizontal=0;");
 						double width = childGeometry.getWidth();
 						childGeometry.setWidth(childGeometry.getHeight());
 						childGeometry.setHeight(width);
+						double x = childGeometry.getX();
+						childGeometry.setX(childGeometry.getY());
+						childGeometry.setY(gliffyObject.width - width - x);
 					}
 					else
 					{
 						laneStyle.append("rotation=" + gliffyObject.rotation).append(";");
 						Utils.rotatedGeometry(childGeometry, gliffyObject.rotation, gliffyObject.width/ 2, gliffyObject.height / 2);
+
 					}
 				}
 
@@ -593,10 +598,11 @@ public class GliffyDiagramConverter
 		if (!gliffyObject.isLine())
 		{
 			//if there's a rotation by default, add to it
-			if(style.lastIndexOf("rotation") != -1) 
+			if (style.lastIndexOf("rotation") != -1) 
 			{
 				Matcher m = rotationPattern.matcher(style);
-				if(m.find())
+				
+				if (m.find())
 				{
 					String rot = m.group(1);
 					float initialRotation = Float.parseFloat(rot);
@@ -607,7 +613,7 @@ public class GliffyDiagramConverter
 
 					//handles a specific case where draw.io triangle needs to have an initial rotation of -90 to match that of Gliffy
 					//in this case, width and height are swapped and x and y are updated
-					if(style.lastIndexOf("swapwidthandheight") != -1) 
+					if (style.lastIndexOf("swapwidthandheight") != -1) 
 					{
 						geometry.setX(geometry.getX() + (geometry.getWidth() - geometry.getHeight()) / 2);
 						geometry.setY(geometry.getY() + + (geometry.getHeight() - geometry.getWidth()) / 2);
@@ -619,7 +625,7 @@ public class GliffyDiagramConverter
 					}
 				}
 			}
-			else if(gliffyObject.rotation != 0)
+			else if (gliffyObject.rotation != 0)
 			{
 				//handling the special common case
 				if (style.indexOf("swimlane;") > -1 && gliffyObject.rotation == 270) {

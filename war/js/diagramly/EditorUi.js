@@ -3177,6 +3177,16 @@
 					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection, currentPage));
 				}
 				
+				if (this.editor.fontCss != null)
+				{
+					var svgDoc = svgRoot.ownerDocument;
+					var style = (svgDoc.createElementNS != null) ?
+							svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+					style.setAttribute('type', 'text/css');
+					mxUtils.setTextContent(style, this.editor.fontCss);
+					svgRoot.getElementsByTagName('defs')[0].appendChild(style);
+				}
+				
 				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 					mxUtils.getXml(svgRoot);
 				
