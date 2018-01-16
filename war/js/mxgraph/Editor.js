@@ -744,7 +744,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	{
 		this.bg = editorUi.createDiv('background');
 		this.bg.style.position = 'absolute';
-		this.bg.style.background = 'white';
+		this.bg.style.background = Dialog.backdropColor;
 		this.bg.style.height = dh + 'px';
 		this.bg.style.right = '0px';
 		this.bg.style.zIndex = this.zIndex - 2;
@@ -849,6 +849,11 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose)
 	
 	editorUi.editor.fireEvent(new mxEventObject('showDialog'));
 };
+
+/**
+ * 
+ */
+Dialog.backdropColor = 'white';
 
 /**
  * 
@@ -1805,8 +1810,8 @@ PageSetupDialog.getFormats = function()
 	mxGraphView.prototype.validateBackgroundStyles = function()
 	{
 		var graph = this.graph;
-		var color = (graph.background == null || graph.background == mxConstants.NONE) ? '#ffffff' : graph.background;
-		var gridColor = (this.gridColor != color.toLowerCase()) ? this.gridColor : '#ffffff';
+		var color = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
+		var gridColor = (color != null && this.gridColor != color.toLowerCase()) ? this.gridColor : '#ffffff';
 		var image = 'none';
 		var position = '';
 		
@@ -2043,7 +2048,7 @@ PageSetupDialog.getFormats = function()
 	// Creates background page shape
 	mxGraphView.prototype.createBackgroundPageShape = function(bounds)
 	{
-		return new mxRectangleShape(bounds, '#ffffff', '#cacaca');
+		return new mxRectangleShape(bounds, '#ffffff', this.graph.defaultPageBorderColor);
 	};
 
 	// Fits the number of background pages to the graph

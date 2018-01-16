@@ -91,6 +91,7 @@ chromeApp=Chrome Aplikacija
 compressed=Kompresovano
 commitMessage=Posveti poruku
 csv=CSV
+dark=Dark
 draftFound={1} nacrt pronađen. Učitajte ga u uređivač ili ga odbacite kako biste nastavili.
 dragAndDropNotSupported=Prevlačenje nije podržano kada je riječ o slikama. Želite li uvesti umjesto toga?
 dropboxCharsNotAllowed=Sljedeći znakovi nisu dozvoljeni: \ / : ? * " |

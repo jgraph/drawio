@@ -447,6 +447,10 @@ App.main = function(callback, createUi)
 	{
 		mxClient.link('stylesheet', 'styles/atlas.css');
 	}
+	else if (uiTheme == 'dark')
+	{
+		mxClient.link('stylesheet', 'styles/dark.css');
+	}
 	
 	if (window.mxscript != null)
 	{
@@ -571,7 +575,7 @@ App.main = function(callback, createUi)
 	// Prefetches asynchronous requests so that below code runs synchronous
 	// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
 	// is compiled into JS in the build process and is only needed for local development.
-	mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle, STYLE_PATH + '/default.xml'], function(xhr)
+	mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle, (uiTheme == 'dark') ? STYLE_PATH + '/dark-default.xml' : STYLE_PATH + '/default.xml'], function(xhr)
 	{
 		// Adds bundle text to resources
 		mxResources.parse(xhr[0].getText());
@@ -4528,6 +4532,11 @@ App.prototype.updateHeader = function()
 		this.toggleFormatElement.style.backgroundPosition = '50% 50%';
 		this.toggleFormatElement.style.backgroundRepeat = 'no-repeat';
 		this.toolbarContainer.appendChild(this.toggleFormatElement);
+		
+		if (uiTheme == 'dark')
+		{
+			this.toggleFormatElement.style.filter = 'invert(100%)';
+		}
 
 		mxEvent.addListener(this.toggleFormatElement, 'click', mxUtils.bind(this, function(evt)
 		{
@@ -4570,6 +4579,11 @@ App.prototype.updateHeader = function()
 		var initialPosition = this.hsplitPosition;
 		var collapsed = false;
 
+		if (uiTheme == 'dark')
+		{
+			this.fullscreenElement.style.filter = 'invert(100%)';
+		}
+		
 		mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
 		{
 			if (uiTheme != 'atlas' && urlParams['embed'] != '1')
@@ -4618,6 +4632,11 @@ App.prototype.updateHeader = function()
 				
 			this.toggleElement.style.backgroundPosition = '50% 50%';
 			this.toggleElement.style.backgroundRepeat = 'no-repeat';
+			
+			if (uiTheme == 'dark')
+			{
+				this.toggleElement.style.filter = 'invert(100%)';
+			}
 			
 			// Toggles compact mode
 			mxEvent.addListener(this.toggleElement, 'click', mxUtils.bind(this, function(evt)

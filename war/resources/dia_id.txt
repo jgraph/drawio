@@ -91,6 +91,7 @@ chromeApp=Aplikasi Chrome
 compressed=Mampat
 commitMessage=Kirim Pesan
 csv=CSV
+dark=Dark
 draftFound=Draf untuk '{1}' ditemukan. Muat ke editor atau buang untuk melanjutkan.
 dragAndDropNotSupported=Tidak mendukung seret dan jatuhkan untuk gambar. Anda ingin mengimpor?
 dropboxCharsNotAllowed=Karakter berikut tidak diizinkan: \ / : ? * " |

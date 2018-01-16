@@ -91,6 +91,7 @@ chromeApp=Chrome应用软件
 compressed=已压缩
 commitMessage=提交信息
 csv=CSV
+dark=Dark
 draftFound={1}的草图已找到。载入其进行编辑或丢弃以继续。
 dragAndDropNotSupported=暂不支持图片拖放功能。要选择导入选项吗？
 dropboxCharsNotAllowed=系统不允许使用下列字符：\ / : ? * " |

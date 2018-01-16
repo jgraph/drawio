@@ -91,6 +91,7 @@ chromeApp=โครมแอพลิเคชั่น
 compressed=บีบอัดแล้ว
 commitMessage=ข้อความสัญญา
 csv=CSV
+dark=Dark
 draftFound=พบฉบับร่างของ '{1}' แล้ว โหลดไปยังตัวแก้ไขหรือยกเลิกเพื่อดำเนินการต่อ
 dragAndDropNotSupported=รูปภาพไม่รองรับการลากและวาง คุณต้องการนำเข้าแทนหรือไม่
 dropboxCharsNotAllowed=ไม่อนุญาตให้ใช้อักขระต่อไปนี้: \ / : ? * " |

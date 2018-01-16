@@ -91,6 +91,7 @@ chromeApp=Aplicació Chrome
 compressed=Comprimit
 commitMessage=Missatge de Commit
 csv=CSV
+dark=Dark
 draftFound=S'ha trobat un esborrany per a '{1}'. Carrega'l a l'editor o descarta'l per continuar.
 dragAndDropNotSupported=Les imatges no es poden arrosegar i amollar. Vols importar-les?
 dropboxCharsNotAllowed=No es permeten aquests caràcters: \ / : ? * " |

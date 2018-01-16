@@ -91,6 +91,7 @@ chromeApp=Chrome app
 compressed=Komprimerad
 commitMessage=Skicka meddelande
 csv=CSV
+dark=Dark
 draftFound=Ett utkast för '{1}' har lokaliserats. Ladda utkastet till behandlaren eller ta bort det för att fortsätta.
 dragAndDropNotSupported=Dra-och-släpp tillåts ej för bilder. Vill du istället importera?
 dropboxCharsNotAllowed=Följande tecken får inte användas: \ / : ? * " |

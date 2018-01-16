@@ -514,6 +514,11 @@ BaseFormatPanel = function(format, editorUi, container)
 };
 
 /**
+ * 
+ */
+BaseFormatPanel.prototype.buttonBackgroundColor = 'white';
+
+/**
  * Adds the given color option.
  */
 BaseFormatPanel.prototype.getSelectionState = function()
@@ -1226,7 +1231,7 @@ BaseFormatPanel.prototype.addArrow = function(elt, height)
 
 	mxUtils.setOpacity(elt, 100);
 	elt.style.border = '1px solid #a0a0a0';
-	elt.style.backgroundColor = 'white';
+	elt.style.backgroundColor = this.buttonBackgroundColor;
 	elt.style.backgroundImage = 'none';
 	elt.style.width = 'auto';
 	elt.className += ' geColorBtn';
@@ -3641,6 +3646,11 @@ StyleFormatPanel = function(format, editorUi, container)
 mxUtils.extend(StyleFormatPanel, BaseFormatPanel);
 
 /**
+ * 
+ */
+StyleFormatPanel.prototype.defaultStrokeColor = 'black';
+
+/**
  * Adds the label menu items to the given menu and parent.
  */
 StyleFormatPanel.prototype.init = function()
@@ -3922,7 +3932,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		var pat = document.createElement('div');
 		pat.style.width = width + 'px';
 		pat.style.height = '1px';
-		pat.style.borderBottom = '1px ' + cssName + ' black';
+		pat.style.borderBottom = '1px ' + cssName + ' ' + this.defaultStrokeColor;
 		pat.style.paddingTop = '6px';
 
 		item.firstChild.firstChild.style.padding = '0px 4px 0px 4px';
@@ -5147,7 +5157,7 @@ DiagramFormatPanel.prototype.addPaperSize = function(div)
 	{
 		accessor.set(graph.pageFormat);
 	});
--	this.addKeyHandler(accessor.heightInput, function()
+	this.addKeyHandler(accessor.heightInput, function()
 	{
 		accessor.set(graph.pageFormat);	
 	});

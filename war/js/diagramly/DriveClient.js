@@ -292,10 +292,7 @@ DriveClient.prototype.execute = function(fn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Executes the given request.
  */
 DriveClient.prototype.executeRequest = function(req, success, error)
 {

@@ -91,6 +91,7 @@ chromeApp=chromeApp
 compressed=compressed
 commitMessage=commitMessage
 csv=csv
+dark=dark
 draftFound=draftFound
 dragAndDropNotSupported=dragAndDropNotSupported
 dropboxCharsNotAllowed=dropboxCharsNotAllowed

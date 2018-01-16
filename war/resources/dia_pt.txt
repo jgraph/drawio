@@ -91,6 +91,7 @@ chromeApp=Chrome App
 compressed=Compactado
 commitMessage=Mensagem da alteração
 csv=CSV
+dark=Dark
 draftFound=Encontrado um projeto. Carregar no editor ou rejeitar para continuar.
 dragAndDropNotSupported=Arrastar e largar não suportado para imagens. Deseja importar?
 dropboxCharsNotAllowed=Os seguintes caracteres não são permitidos: \/:?*"|

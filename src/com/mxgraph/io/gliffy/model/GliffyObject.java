@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.mxgraph.io.gliffy.importer.PostDeserializer.PostDeserializable;
 import com.mxgraph.model.mxCell;
@@ -389,8 +390,11 @@ public class GliffyObject implements PostDeserializable
 	@Override
 	public void postDeserialize()
 	{
-		if (isGroup())
+		if (isGroup()) 
+		{
 			normalizeChildrenCoordinates();
+			adjustZOrder();			
+		}
 	}
 
 	/**
@@ -443,6 +447,35 @@ public class GliffyObject implements PostDeserializable
 			for (GliffyObject child : children) //increase y 
 				child.y += -yMin;
 		}
+	}
+	
+	/**
+	 * Fix for https://desk.draw.io/helpdesk/tickets/5205
+	 * Since Gliffy can have groups whose children interleave in terms of z order and we can't, we assign the group a z order 
+	 * to that of it's highest ordered rectangle child
+	 */
+	private void adjustZOrder() 
+	{
+		Integer maxOrder = null;
+		
+		for(GliffyObject c : children)  
+		{
+			if(c.uid != null && c.uid.equals("com.gliffy.shape.basic.basic_v1.default.rectangle") && c.x == 0 && c.y== 0 && c.width == width && c.height == height) 
+			{
+				try {
+					Integer childOrder = Integer.parseInt(c.order);
+					 
+					if(maxOrder == null || childOrder > maxOrder) 
+					{
+						maxOrder = childOrder;
+					}
+					
+				} catch (NumberFormatException e) {}
+			}
+		}
+		
+		if(maxOrder != null) 
+			this.order = maxOrder.toString();
 	}
 
 	private mxGeometry getAdjustShifts(double[] arr, double x, double y, double w, double h)

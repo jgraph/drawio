@@ -1771,7 +1771,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 var OutlineWindow = function(editorUi, x, y, w, h)
 {
 	var graph = editorUi.editor.graph;
-	
+
 	var div = document.createElement('div');
 	div.style.position = 'absolute';
 	div.style.width = '100%';
@@ -1846,9 +1846,9 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		g.gridEnabled = false;
 		g.pageScale = graph.pageScale;
 		g.pageFormat = graph.pageFormat;
-		g.background = graph.background;
+		g.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
 		g.pageVisible = graph.pageVisible;
-		
+
 		var current = mxUtils.getCurrentStyle(graph.container);
 		div.style.backgroundColor = current.backgroundColor;
 		
@@ -1860,11 +1860,11 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		outline.outline.pageScale = graph.pageScale;
 		outline.outline.pageFormat = graph.pageFormat;
 		outline.outline.pageVisible = graph.pageVisible;
-		outline.outline.background = graph.background;
+		outline.outline.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;;
 		
 		var current = mxUtils.getCurrentStyle(graph.container);
 		div.style.backgroundColor = current.backgroundColor;
-		
+
 		if (graph.view.backgroundPageShape != null && outline.outline.view.backgroundPageShape != null)
 		{
 			outline.outline.view.backgroundPageShape.fill = graph.view.backgroundPageShape.fill;
@@ -1932,7 +1932,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
-	div.style.background = 'whiteSmoke';
+	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
 	div.style.border = '1px solid whiteSmoke';
 	div.style.height = '100%';
 	div.style.marginBottom = '10px';
@@ -1941,7 +1941,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = '#e5e5e5';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#a2a2a2' : '#e5e5e5';
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -1981,7 +1981,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	ldiv.style.height = tbarHeight;
 	ldiv.style.overflow = 'hidden';
 	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
-	ldiv.style.backgroundColor = 'whiteSmoke';
+	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
 	ldiv.style.borderWidth = '1px 0px 0px 0px';
 	ldiv.style.borderColor = '#c3c3c3';
 	ldiv.style.borderStyle = 'solid';

@@ -126,6 +126,11 @@ Sidebar.prototype.tooltipImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/tooltip.png
 Sidebar.prototype.searchImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/search.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAEaSURBVHjabNGxS5VxFIfxz71XaWuQUJCG/gCHhgTD9VpEETg4aMOlQRp0EoezObgcd220KQiXmpretTAHQRBdojlQEJyukPdt+b1ywfvAGc7wnHP4nlZd1yKijQW8xzNc4Su+ZOYfQ3T6/f4YNvEJYzjELXp4VVXVz263+7cR2niBxAFeZ2YPi3iHR/gYERPDwhpOsd6sz8x/mfkNG3iOlWFhFj8y89J9KvzGXER0GuEaD42mgwHqUtoljbcRsTBCeINpfM/MgZLKPpaxFxGbOCqDXmILN7hoJrTKH+axhxmcYRxP0MIDnOBDZv5q1XUNIuJxifJp+UNV7t7BFM6xeic0RMQ4Bpl5W/ol7GISx/eEUUTECrbx+f8A8xhiZht9zsgAAAAASUVORK5CYII=';
 
 /**
+ * 
+ */
+Sidebar.prototype.dragPreviewBorder = '1px dashed black';
+
+/**
  * Specifies if tooltips should be visible. Default is true.
  */
 Sidebar.prototype.enableTooltips = true;
@@ -2093,7 +2098,7 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 Sidebar.prototype.createDragPreview = function(width, height)
 {
 	var elt = document.createElement('div');
-	elt.style.border = '1px dashed black';
+	elt.style.border = this.dragPreviewBorder;
 	elt.style.width = width + 'px';
 	elt.style.height = height + 'px';
 	

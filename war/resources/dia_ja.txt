@@ -91,6 +91,7 @@ chromeApp=Chrome アプリ
 compressed=圧縮
 commitMessage=メッセージを省略する
 csv=CSV
+dark=Dark
 draftFound=ドラフト{1}が見つかりました。読み込む、または廃棄する。
 dragAndDropNotSupported=画像の移動、添付に対応しておりません。その代わりに画像読み込みを選択しますか？
 dropboxCharsNotAllowed=次の文字列は使用できません: \ / : ? * " |

@@ -267,7 +267,7 @@
 			width: Math.round(size / 3), // The line thickness
 			radius: Math.round(size / 2), // The radius of the inner circle
 			rotate: 0, // The rotation offset
-			color: '#000', // #rgb or #rrggbb
+			color: (uiTheme == 'dark') ? '#c0c0c0' : '#000', // #rgb or #rrggbb
 			speed: 1.5, // Rounds per second
 			trail: 60, // Afterglow percentage
 			shadow: false, // Whether to render a shadow
@@ -304,8 +304,12 @@
 					status.style.top = Math.max(0, y + 70) + 'px';
 					
 					mxUtils.setPrefixedStyle(status.style, 'borderRadius', '6px');
-					mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
 					mxUtils.setPrefixedStyle(status.style, 'transform', 'translate(-50%,-50%)');
+
+					if (uiTheme != 'dark')
+					{
+						mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
+					}
 					
 					status.innerHTML = label + '...';
 					container.appendChild(status);
@@ -2297,19 +2301,39 @@
 		};
     }
     
+    if (uiTheme == 'dark')
+	{
+    		Graph.prototype.defaultThemeName = 'darkTheme';
+		Dialog.backdropColor = '#2a2a2a';
+		Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
+		Graph.prototype.defaultGraphBackground = null;
+		Graph.prototype.defaultPageBorderColor = '#505759';
+		Format.prototype.inactiveTabBackgroundColor = 'black';
+		BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
+		Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
+		mxGraphHandler.prototype.previewColor = '#cccccc';
+		StyleFormatPanel.prototype.defaultStrokeColor = '#cccccc';
+		
+		if (mxClient.IS_SVG)
+		{
+			Editor.helpImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAP1BMVEUAAAD///////////////////////////////////////////////////////////////////////////////9Du/pqAAAAFXRSTlMAT30qCJRBboyDZyCgRzUUdF46MJlgXETgAAAAeklEQVQY022O2w4DIQhEQUURda/9/28tUO2+7CQS5sgQ4F1RapX78YUwRqQjTU8ILqQfKerTKTvACJ4nLX3krt+8aS82oI8aQC4KavRgtvEW/mDvsICgA03PSGRr79MqX1YPNIxzjyqtw8ZnnRo4t5a5undtJYRywau+ds4Cyza3E6YAAAAASUVORK5CYII=';
+			Editor.checkmarkImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAMAAACeyVWkAAAARVBMVEUAAACZmZkICAgEBASNjY2Dg4MYGBiTk5N5eXl1dXVmZmZQUFBCQkI3NzceHh4MDAykpKSJiYl+fn5sbGxaWlo/Pz8SEhK96uPlAAAAAXRSTlMAQObYZgAAAE5JREFUGNPFzTcSgDAQQ1HJGUfy/Y9K7V1qeOUfzQifCQZai1XHaz11LFysbDbzgDSSWMZiETz3+b8yNUc/MMsktxuC8XQBSncdLwz+8gCCggGXzBcozAAAAABJRU5ErkJggg==';
+		}
+	}
+    
     /**
      * Hides the footer.
      */
     EditorUi.prototype.hideFooter = function()
     {
-    	var footer = document.getElementById('geFooter');
-	    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = 0;
-    		footer.style.display = 'none';
-    		this.refresh();
-    	}
+	    	var footer = document.getElementById('geFooter');
+		    	
+	    	if (footer != null)
+	    	{
+	    		this.footerHeight = 0;
+	    		footer.style.display = 'none';
+	    		this.refresh();
+	    	}
     };
 
     /**
@@ -4410,7 +4434,7 @@
 	EditorUi.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
 	{
 		// FIXME: Only horizontal dash in output so better no conversion at all
-		if (false && graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		/*if (false && graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
 		{
 			// Workaround for lost gradients in Chrome after remove from DOM
 			var elts = svgRoot.getElementsByTagName('*');
@@ -4466,7 +4490,7 @@
 				callback();
 			}));
 		}
-		else
+		else*/
 		{
 			callback();
 		}
@@ -4872,7 +4896,7 @@
 		// Handles special case where background is null but transparent is false
 		if (bg == null && transparentBackground == false)
 		{
-			bg = '#ffffff';
+			bg = this.editor.graph.defaultPageBackgroundColor;
 		}
 		
 		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)

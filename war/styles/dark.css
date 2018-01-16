@@ -1,0 +1,94 @@
+html body .geDiagramContainer, html body div.geMenubarContainer, html body .geFooterContainer>div>img, html body div.mxPopupMenu,  html body td.mxPopupMenuIcon, html body .geFormatContainer {
+	background-color: #2a2a2a;
+}
+html body .geFormatContainer {
+	border-left: 1px solid #505759;
+}
+html body .geDiagramContainer {
+	border-bottom: 1px solid #505759;
+}
+html body .geSidebarContainer a, html body .geMenubarContainer a, html body .geToolbar a {
+	color: #cccccc;
+}
+html body .geMenubarMenu {
+	border-color:#505759 !important;
+}
+html body .geToolbarMenu, html body .geFooterContainer, html body .geFooterContainer td {
+	border-color:#505759;
+}
+html body div.mxPopupMenu {
+	border-color:#505759 !important;
+	box-shadow:none;
+}
+html body .geSidebarContainer, html body .geDiagramBackdrop {
+	background-color:#2a2a2a;
+	border-color:#505759;
+}
+html body .geBackgroundPage {
+	box-shadow:none;
+}
+html body .geToolbarContainer, html body .geSidebar, html body .geSidebarContainer .geTitle, html body input, html body textarea, html body button {
+	background:#2a2a2a;
+	border-color:#505759;
+	color: #cccccc;
+}
+html body .geBtn {
+	background:#2a2a2a !important;
+	border-color:#505759 !important;
+	color: #cccccc !important;
+}
+html body .gePrimaryBtn {
+	background:#505759 !important;
+	border-color:#cccccc !important;
+	color: #cccccc !important;
+}
+html body .geBtn:hover {
+	background:black !important;
+}
+html body .geSprite {
+	background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAABeQCAMAAAByzXKPAAAA2FBMVEUAAADMzM3MzM3MzM3Hx8fMzM3MzM3MzM7JycnMzM7MzM3Nzc3MzM3MzM3MzM7Ly83MzM3Ly83MzM3MzMzMzM3Nzc7MzM7Nzc3MzM3Nzc3MzM7Nzc7MzM7Ly87KytDMzMzMzMzMzM3MzM3Nzc3Ly87MzM3MzM3MzM3///9KSkoAAACZmZnPz8/v7+8BAgHZ2dmsdw2EhIQAmJuPj4/f39+enp6MjIzAwMDy8vLk5OTIyMi5ubmsrKyBgYFzc3NlZWVXV1eAgICvr68PDw8/Pz8fHx9fX19PT08H++10AAAAKHRSTlMAf4jDBnHoexLv3KWOeFYilIVoNd/KvbWfg2JNQS8nHA/VsJpdR/jOKLnJ6gAACwtJREFUeNrs3ItS4kAQheF+nJMyXZSVwex9F97/oTbDoM3YHUk0CoTz1e7K/tXExKoxGEAZASD4PwQ1weisQGqQd9TNRrJ8w+rmWMuNejb/9TU7P7sZ5FpuhHu2RF3i60t0U3CgvoooNKg9EM62rmYSz87Yrsb7S0QTALdUWwxan0t02eJcOMUzN60ZKtOn17ZdopuHg6pUPrqI7qUSXQrGcwryTqGu7pCkdVkTxGVtRSxbzOqsMCmqKkZh8fHRsk0+PYlli1XO0VXRIZYsROv0mVfzkcmgDSuSrxikaFbPbtdMqZhcWwCtn1VotIXEq/m0QqqTr6ql/T75ivzntT6JpN6N7kR2kNoWB9u6opdBDzF2X+yiI1BeuSd6hm/fNz9+/tp2v//8/dewvqMS3RLUwgsCl6tAUIFDBk4rsvLBVUyo8T7wWTmiMSOLooOGw+L1SFNHE/qpo4rONS5gotdQmTq7vu0SXSe+2s3z++D3Nz62r/v68rsOXRccna0xVIIqYcWUardGqoF9OFt5/if6mK0G501kpaN++q3L44qXqlL0yKTo5NkeVncvVa0a5VImehsqc+bXtV2iu4FTZ+qEmw8Pl6nmXM0ezFglukmKLorwOXUYuEkdsvq7a+dilqKoi0YJo4RRSnw6kpkQeavyrbd0Ve726jivrxNNAti/l6qpvDY/TXulTcJhkj/jE32BFoBuxWhuR1ah5SeD+p0zyHq7o9W9POvCB/E7Kfh7sYjmaKOH4Chexy6vvzq3OW5ybqtROVQB6rrJXHWzfrvxPlgu2ujY2pyduXkrROuwxJqXcM3LjDUv4ZoXrnmiK4YmrGFGUzJqUjKkNuR4Ntzu5H3g22OJvhw8GcMnxIiWBCCqEtQGQBAbudUIWAyOnb/hiu4egPD7AFxsgtkheg2iaKOz7x8/+kfuDdcx0YzzvM364eUqTi3/Gfzx8DxP92bRNT//BO5jg6KZdUeDhmue6GbwYh3RdfvP3rnupA4FUXigLfe7d5CLt3NWJf7yEYzx/d/oFLY4nnZ2UmnBGtcXYtqP5a5/ho3DhCK2te1he6hHCjuba93E8XM6QsoHiEvUSGFnC0mWPSEHqHmYGqZGzn1esznXZc0TcjRiALEhDQ1HrppXa62b0axvQgpSrCPu3blVI4Una+jcnXb2BQkpndi3yac9gNw1b0hjXfXc5AnZUbm+vdYnoIgARpZ9e0IKcOQenpmG3bffntnZrGUPj5Dvxe7hrUVkndZwP8038LCz5rrs4RFyHGDKGJaUGIYU1XBspGoz619XNXt4hBwJwHJxnPZrxK621+LQinfazFrr8utsCTk8MSwHy8FwRhIpfFn1YnsxPV8FCClS8ChdClJ4sntp7vuEHKTmYUqYErlr3r+uqVnzhPipwMSt2hScuCWkOpQzc2tJhTO3hFSd/cduVSocuyWkShTs2xu/vskBimbZtyekAEfv4QksmbXYGCierGr28Aj5Ot8/cZu2H3DilpDqUM7MrSE3+h3O3BJSefYeu1WpVc+xW0LK4vqy024E0eqza110oovLcbPbGKhc3dTDaFGT3mp+Ov2wt3eXgyupyXI87jdOxPFwE8qo3jzv14Kh3Afi6E5EriTJyiwJNobOng4TtX0sp0nm3tk/vXo92D565/X6Wd/ZdmuXbUUio4mzwfXOnszc2Yb+XaLCjY1aMmyHzrYac4m6o/OrXtCS26a8M+j0HkZhTQaDZvcslB2TxmTerA3Hi4uzpSgnQfu00/nbbm6TymLaj2ahEPLjgP8OMIXuLGMDwPa5rwbgMFfjPS3ILwGAz2KHWvBqhJDC8DY2hPwgsEWPVCbokfV/hNrPMV/Wv67oIV81CNmLL2+8mSw8MTML5M/m/Bv88E0FIaXWvCo7Z9Z8jqxq1jwhRwawBPQJrWNAj/V5PU1HNeyOdAEFcAuAH9ATUnBL/98+vbw8Ze3z4+Nz1r6+vb1m7D/27mg7TSCKwvA8zh5qXGliV6/Tpn3/RyoDJkPmHDugiIj/18Yku6cjN1uMgPnV/Gr/lun7n3b8vUh3zZv01uy+pn+bzt8v6aF5/9l6bw7D9K35odaP5m2Y/v6tpP3M4wEw4jmxant5Ozr/AlL5f9SlKnf/I6+u15E3m9ctU55HYIMk+Xl9Vv2NnMaaWVMek5oVCuJMeuCmbAttY+fv/NTHKH+Sk++wXRrKafExOt3YusAmab/f6+Xlpft8XtpKqS1MSnMyXzqtmhqd7iTtbPykQ3AcAnB3/F3bvuemjZM2TZkqS1UKvZdPKdXBpmodvNknd127vXbLRqXs4rENen5+1nJpcuXdrD4Nd7NKJdaxybV0fzrdm3TfKN3wWIBV217Th9pQn/yKT09t8W1K8XFf5HazSS5KlYxMm/Ss2kkn35tv5/37k9r0OQnZQa2c5tjMJjuu0sEdW6gXfkf2iz7CdD+3n70NXI8HLEzDD9YN4pQjYHaaMjv7CgpKf/tPq9oy4LFImpJyb8DdUlCvTENyhbQ3aq+tzKybzJtyliIeh3rBa+LsqX9vXguz+Xtu04zn/dg69fxrA+dPe8GQCTL3sqZZU3bzeBQaGjUb1HGvJ541TUzamyvl2CUelpJrNsv2eLlHjU5wcdUhYIqwQI8HLlmBPTpQpy8edxa4Cyq5L4ZNTevrKiYPkIpfNQT8l/xU439bl/h1+sB0MrctScVtS8nw1l/hYVPg0Si6qRsrfsSSgj6ENu6S/s+neEy8WbPu+G0IAIYkLZNqaHJavzfOrAcmkGzk1sCp5muxJ9ZRlF3g1d8bRz9+1au/sbdPgVVTZ66X789MB8KQSf3xctHpaTYl5QV63KOpnbdkujk5ld/uaiq5s9PSAp3Hxn0fqKX563GpBuppODKpNDZVp5a27Ap+muSv689NOD6POyeNStX6KFctPdmrnVq7Mk3xzsy28c5v5pSUbgMbIEU3zbkK/mxJHNkDVulE54Pb+e47O0vngXXSWakKo1fg/TGBm1LQWakKl6zLe2MBS1F/K5tKMZbpN+VIBX921LqcmAMsy/bNdjOpdt7O+utyMh5wE1FKxdTX8FsqbKy+n66S/JW8WX9duw38PA9cje1bS3K6qRhNjxWrnbezdt1yG9jPA7cSJS+zqQrubBapNLBKUXIzk3ZzbucDnQfWSJelKnBUHli5C4+fq8BxeWDN/KveY5RMmkR9K1MVzGx1XfFGeMBickdNN1tu58P4znvrckAeuDHl42QD+jimVqT/fY+cxM6OWjdEcdkNcH2po7ZvMcrvZlS183a2tm6ao/PASqh6Ab0KJ2YLNBxYp1Odj27n03fOLJ0HVkeKZ8YqTFiEa2yAJURJ0YZBoY3NqfGyL7jlj0QFf9Zft7oN/KQPXK3zLdt5JWXnj0Z1/oO/rrMNdB44w5reAxPAPTnR+UDngU2JkrxMoaSCN5tFHhSAVTrR+eh1Pn1keZbOA+sjxQtjFThEB6zFnMfoMhU4RgesxZzH6DIVOEYH3KX6++Hxsj2wJf/au6MUBmEgiqLbudn/BgsipDgJY0Sihnughb5ONR+dRtpqCjQze176NCjbfSOGEqtjyEGoTbcLxe/wpGfk83zAwX+t172VPqPb8x7bS0uA0NR7UJJ/5HHQq823Cx4ISE+DkuTXzp/3ZzjpnTq96Tk20kRwal0IQm19THhxkgY1HV/GhiQdHj/N3fkBpFUAIYCk5+9ZUop6q/adAyS1l8eQ9/zGntea8nk+1uZRUKMJ8ehInee1uvH3+j1PTAhPD87+X8kPR4qyJ+Qn5o0AAAAASUVORK5CYII=');
+}
+html body .geDialogTitle, html body .geDialogFooter {
+	background:#2a2a2a;
+	color: #cccccc;
+}
+html body textarea, html body .mxWindowTitle {
+	background:#2a2a2a;
+	color: #cccccc;
+}
+html body tr.mxPopupMenuItem {
+	color: #cccccc;
+}
+html body tr.mxPopupMenuItemHover {
+	background:#000000;
+	color: #cccccc;
+}
+html body .geSidebarContainer .geTitle:hover, html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover {
+	background:#000000;
+}
+html body table.mxPopupMenu hr {
+	background-color:#505759;
+}
+html body .geFooterContainer, html body .geFooterContainer a, html body #geFooterItem1 {
+	background:#2a2a2a;
+	color: #cccccc;
+}
+html body .geHsplit, html body .geToolbarContainer .geSeparator {
+	background-color:#505759;
+}
+html body .geToolbar {
+	border-color:#505759;
+	box-shadow:none;
+}
+html body .geDialog, html body div.mxWindow {
+	background:#2a2a2a;
+	border-color:#c0c0c0;
+	box-shadow:none;
+	color: #cccccc;
+}
+html body .geColorBtn, html body .geBaseButton, html body .geSidebarTooltip {
+	background:#2a2a2a;
+	border-color:#505759;
+	box-shadow:none;
+	color: #cccccc;
+}
