@@ -836,7 +836,7 @@ EditorUi.prototype.movePage = function(oldIndex, newIndex)
 EditorUi.prototype.createTabContainer = function()
 {
 	var div = document.createElement('div');
-	div.style.backgroundColor = '#dcdcdc';
+	div.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#dcdcdc';
 	div.style.position = 'absolute';
 	div.style.whiteSpace = 'nowrap';
 	div.style.overflow = 'hidden';
@@ -879,7 +879,7 @@ EditorUi.prototype.updateTabContainer = function()
 				if (this.pages[index] == this.currentPage)
 				{
 					tab.className = 'geActivePage';
-					tab.style.backgroundColor = '#eeeeee';
+					tab.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#eeeeee';
 					tab.style.fontWeight = 'bold';
 					tab.style.borderTopStyle = 'none';
 				}
@@ -1033,7 +1033,7 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 	tab.style.marginLeft = '-1px';
 	tab.style.height = this.tabContainer.clientHeight + 'px';
 	tab.style.padding = '8px 4px 8px 4px';
-	tab.style.border = '1px solid #c0c0c0';
+	tab.style.border = (uiTheme == 'dark') ? '1px solid #505759' : '1px solid #c0c0c0';
 	tab.style.borderBottomStyle = 'solid';
 	tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
 	tab.style.cursor = 'default';
@@ -1045,7 +1045,7 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 		{
 			if (!this.editor.graph.isMouseDown)
 			{
-				tab.style.backgroundColor = '#d3d3d3';
+				tab.style.backgroundColor = (uiTheme == 'dark') ? 'black' : '#d3d3d3';
 				mxEvent.consume(evt);
 			}
 		}));

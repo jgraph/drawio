@@ -91,6 +91,7 @@ chromeApp=Chrome app
 compressed=Komprimeret
 commitMessage=Commit Besked
 csv=CSV
+dark=Dark
 draftFound=Et udkast for '{1}' blev fundet. Load det i editoren eller kasser det for at fortsætte.
 dragAndDropNotSupported=Drag & drop er ikke understøttet for billeder Vil du importere i stedet?
 dropboxCharsNotAllowed=Følgende tegn er ikke tilladt: \ / : ? * " |

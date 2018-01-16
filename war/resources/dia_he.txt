@@ -91,6 +91,7 @@ chromeApp=‫אפליקציית כרום‬
 compressed=‫דחוס‬
 commitMessage=‫הודעת commit‬
 csv=CSV
+dark=Dark
 draftFound=‫נמצאה טיוטה עבור '{1}'. טען אותה אל העורך או מחק אותה כדי להמשיך.‬
 dragAndDropNotSupported=‫גרירה אינה נתמכת עבור תמונות. תרצה לייבא תמונה במקום?‬
 dropboxCharsNotAllowed=‫התווים הבאים אינם מותרים לשימוש: / \ : ? * " |‬

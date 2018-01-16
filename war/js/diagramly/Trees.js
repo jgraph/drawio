@@ -1070,8 +1070,6 @@
 					return addSibling(source, direction != mxConstants.DIRECTION_NORTH &&
 						direction != mxConstants.DIRECTION_WEST);
 				}
-				
-				return [];
 			}
 			else
 			{

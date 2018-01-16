@@ -91,6 +91,7 @@ chromeApp=Εφαρμογή Chrome
 compressed=Συμπιεσμένο
 commitMessage=Υποβολή μυνήματος
 csv=CSV
+dark=Dark
 draftFound=Έχει βρεθει ένα σχέδιο για το '{1}' . Φορτώστε το στον επεξεργαστή ή απορρίψτε το για να συνεχίσετε.
 dragAndDropNotSupported=Το Drag & Drop δεν υποστηρίζεται για τις εικόνες. Θα θέλατε να τις εισάγετε παρόλα αυτά;
 dropboxCharsNotAllowed=Οι παρακάτω χαρακτήρες δεν υποστηρίζονται: \ / : ? * " |

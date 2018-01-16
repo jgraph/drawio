@@ -91,6 +91,7 @@ chromeApp=Aplikace Chrome
 compressed=Komprimováno
 commitMessage=Zpráva ke commitu
 csv=CSV
+dark=Dark
 draftFound=Byl nalezen koncept pro '{1}'. Abyste mohli pokračovat, nahrajte ho do editoru nebo jej zahoďte.
 dragAndDropNotSupported=Pro obrázky není funkce Drag & Drop k dispozici. Chcete ho místo toho naimportovat?
 dropboxCharsNotAllowed=Následující znaky nejsou povoleny: \ / : ? * " |

@@ -91,6 +91,7 @@ chromeApp=Chrome приложение
 compressed=Компресиран
 commitMessage=Съобщение при подаване
 csv=CSV
+dark=Dark
 draftFound=Открита е чернова за {1}. За да продължите, я качете в редактора или я откажете. 
 dragAndDropNotSupported=Опцията плъзгане и пускане не се поддържа за изображения. Желаете ли да импортирате вместо това?
 dropboxCharsNotAllowed=Следните знаци не са позволени: \ / : ? * " |

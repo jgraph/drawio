@@ -943,6 +943,16 @@ Graph.prototype.lightbox = false;
 /**
  * 
  */
+Graph.prototype.defaultPageBackgroundColor = '#ffffff';
+
+/**
+ * 
+ */
+Graph.prototype.defaultPageBorderColor = '#ffffff';
+
+/**
+ * 
+ */
 Graph.prototype.defaultGraphBackground = '#ffffff';
 
 /**

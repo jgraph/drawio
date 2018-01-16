@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 01/12/2018 11:30 PM
+# 01/16/2018 01:58 PM
 
 app.html
 index.html?offline=1
@@ -13,6 +13,7 @@ js/shapes.min.js
 js/stencils.min.js
 styles/grapheditor.css
 styles/atlas.css
+styles/dark.css
 favicon.ico
 mxgraph/css/common.css
 mxgraph/images/maximize.gif
@@ -27,6 +28,7 @@ mxgraph/images/point.gif
 mxgraph/images/transparent.gif
 resources/dia.txt
 styles/default.xml
+styles/dark-default.xml
 styles/default-old.xml
 img/clipart/Gear_128x128.png
 images/delete.png

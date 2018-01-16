@@ -91,6 +91,7 @@ chromeApp=Chrome-sovellus
 compressed=Pakattu
 commitMessage=Lähetä viesti
 csv=CSV
+dark=Dark
 draftFound=Vedos tiedostolle '{1}' on löytynyt. Lataa se muokattavaksi tai hylkää se jatkaaksesi.
 dragAndDropNotSupported=Vedä ja pudota'-toiminto ei tue kuvia. Haluatko tuoda kuvat?
 dropboxCharsNotAllowed=Seuraavat merkit eivät ole sallittuja: \ / : ? * " |

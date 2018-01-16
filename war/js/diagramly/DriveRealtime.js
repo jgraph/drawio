@@ -1682,7 +1682,7 @@ DriveRealtime.prototype.checkChildren = function(cell)
  */
 DriveRealtime.prototype.log = function(message)
 {
-	if (this.logLevel > 1)
+	//if (this.logLevel > 1)
 	{
 		//mxLog.debug.apply(mxLog, arguments);
 		//console.log(message);
@@ -1694,7 +1694,7 @@ DriveRealtime.prototype.log = function(message)
  */
 DriveRealtime.prototype.warn = function(message)
 {
-	if (this.logLevel > 0)
+	//if (this.logLevel > 0)
 	{
 		//mxLog.debug.apply(mxLog, arguments);
 		//console.log(message);

@@ -91,6 +91,7 @@ chromeApp=Chrome App
 compressed=Tömörített
 commitMessage=Üzenetet küld
 csv=CSV
+dark=Dark
 draftFound=Vázlat találva a '{1}'-hoz. Töltse a szerkesztőbe, vagy dobja el a folytatásért.
 dragAndDropNotSupported=Fogd és vidd nincs támogatva képekhez. Szeretné-e importálni?
 dropboxCharsNotAllowed=A következő betűk nem engedélyezettek: \ / : ? * " |

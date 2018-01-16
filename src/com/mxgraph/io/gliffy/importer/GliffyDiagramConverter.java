@@ -159,11 +159,14 @@ public class GliffyDiagramConverter
 				Float o2o;
 				try
 				{
-					if (o1.order == null || o2.order == null)
-					{
+					//we treat the "null" order as higher than "non-null"
+					if (o1.order == null && o2.order == null)
 						return 0;
-					}
-
+					else if(o1.order == null && o2.order != null)
+						return 1;
+					else if(o1.order != null && o2.order == null)
+						return -1;
+					
 					o1o = Float.parseFloat(o1.order);
 					o2o = Float.parseFloat(o2.order);
 

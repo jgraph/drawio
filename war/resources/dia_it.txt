@@ -91,6 +91,7 @@ chromeApp=App Chrome
 compressed=Compresso
 commitMessage=Invia il messaggio
 csv=CSV
+dark=Dark
 draftFound=È stata trovata una bozza per '{1}'. Caricala nell'editor o scartala per continuare.
 dragAndDropNotSupported=Drag and drop delle immagini non supportato. Vuoi importare?
 dropboxCharsNotAllowed=I seguenti caratteri non sono permessi: \ / : ? * " |

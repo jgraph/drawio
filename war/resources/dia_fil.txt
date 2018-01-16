@@ -91,6 +91,7 @@ chromeApp=Chrome App
 compressed=Siniksik
 commitMessage=Maglagak ng mensahe
 csv=CSV
+dark=Dark
 draftFound=Isang draft para sa '{1}' ang nahanap. Ikarga ito sa loob ng editor o isantabi ito para magpatuloy
 dragAndDropNotSupported=Ang paghila at paglagay ay hindi suportado para sa mga imahe. Gusto mo bang mag angkat na lang?
 dropboxCharsNotAllowed=Ang mga sumusunod na simbolo ay hindi pinahihintulutan: \ / : ? * " |

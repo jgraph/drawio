@@ -58,6 +58,19 @@
     		</concat>
 		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
 
+		<delete file="${basedir}/.tmp1.js"/>
+		<copy file="${war.dir}/styles/dark-default.xml" tofile="${basedir}/.tmp1.xml" overwrite="true"/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="${line.separator}" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="\t" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
+
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = mxUtils.parseXml('</echo>
+		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
+			<filelist dir="${basedir}" files=".tmp1.xml"/>
+    		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
+
+		
 		<delete file="${basedir}/.tmp2.js"/>
 		<copy file="${war.dir}/resources/dia.txt" tofile="${basedir}/.tmp2.xml" overwrite="true"/>
 		<replaceregexp file="${basedir}/.tmp2.xml" match="${line.separator}" flags="g" replace="\\\\n"/>

@@ -91,6 +91,7 @@ chromeApp=Chrome App
 compressed=Pakitud
 commitMessage=Kinnita sõnum
 csv=CSV
+dark=Dark
 draftFound=Mustand {1} jaoks on leitud. Lae see töötluskeskkonda või tühista jätkamiseks.
 dragAndDropNotSupported=Piltidele puudub pukseerimise tugi. Kas sooviksid selle asemel importida?
 dropboxCharsNotAllowed=Järgnevad tähemärgid pole lubatud:  \ / : ? * " |

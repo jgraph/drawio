@@ -91,6 +91,7 @@ chromeApp=Додаток Chrome
 compressed=Стисло
 commitMessage=Повідомлення при коміті
 csv=CSV
+dark=Dark
 draftFound=Була знайдена чернетка '{1}'. Завантажте її в редактор або відмовтеся, щоб продовжити.
 dragAndDropNotSupported=Переміщення зображень не підтримується. Импортувати зображення?
 dropboxCharsNotAllowed=Наступні символи не підтримуються: \ / : ? * " |

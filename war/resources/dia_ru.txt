@@ -91,6 +91,7 @@ chromeApp=Приложение Chrome
 compressed=Сжато
 commitMessage=Сообщение при коммите
 csv=CSV
+dark=Dark
 draftFound=Был обнаружен черновик '{1}'. Загрузите его в редактор или откажитесь, чтобы продолжить.
 dragAndDropNotSupported=Перетаскивание изображений не поддерживается. Импортировать изображение?
 dropboxCharsNotAllowed=Следующие символы не допускаются: \ / : ? * " |

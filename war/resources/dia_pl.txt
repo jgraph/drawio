@@ -91,6 +91,7 @@ chromeApp=Aplikacja Chrome
 compressed=Skompresowany
 commitMessage=commit Wiadomość
 csv=CSV
+dark=Dark
 draftFound=Znaleziono wersję roboczą {1}. Załaduj ją do edytora lub odrzuć, by kontynuować.
 dragAndDropNotSupported=Przeciągnij i upuść dla obrazów nie jest wspierane. Czy chcesz zamiast tego użyć importowania?
 dropboxCharsNotAllowed=Następujące znaki są niedozwolone: \ / : ? * " |

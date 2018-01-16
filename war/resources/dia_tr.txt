@@ -91,6 +91,7 @@ chromeApp=Chrome Uygulaması
 compressed=Sıkıştırılmış
 commitMessage=Mesaj oluştur
 csv=CSV
+dark=Dark
 draftFound=Taslak (1) için bulundu. Editöre yükleyiniz veya devam etmek için iptal ediniz.
 dragAndDropNotSupported=Desteklenmeyen resimleri sürükle ve at. Veya bu resimleri geri çağırmak ister misiniz ?
 dropboxCharsNotAllowed=Bu karakterler desteklenmemektedir : \ / : ? * " |

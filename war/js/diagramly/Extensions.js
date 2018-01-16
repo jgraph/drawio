@@ -2849,7 +2849,7 @@
 			{
 				cell.style += s;
 			}
-			else if (a.Class != null)
+//			else if (a.Class != null)
 			{
 //				console.log('no mapping', a.Class);
 			}
@@ -7055,7 +7055,7 @@
 				break;
 				
 			case 'PEColumnBlock' :
-				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
+				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;' +
 					getStrokeColor(p, a) +
 					getFillColor(p,a) +
 					getStrokeWidth(p) +
@@ -8473,7 +8473,7 @@
 				
 				break;
 			case 'UI2LinkBarBlock' :
-				v.style += 'strokeColor=none;fillColor=none;'
+				v.style += 'strokeColor=none;fillColor=none;' +
 					getOpacity(p, a) +
 					getStrokeColor(p, a) + 
 					getStrokeWidth(p) +
@@ -8512,7 +8512,7 @@
 				break;
 				
 			case 'UI2BreadCrumbsBlock' :
-				v.style += 'strokeColor=none;fillColor=none;'
+				v.style += 'strokeColor=none;fillColor=none;' +
 					getOpacity(p, a) +
 					getStrokeColor(p, a) + 
 					getStrokeWidth(p) +

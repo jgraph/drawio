@@ -211,7 +211,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				width: 5, // The line thickness
 				radius: 10, // The radius of the inner circle
 				rotate: 0, // The rotation offset
-				color: '#000', // #rgb or #rrggbb
+				color: (uiTheme == 'dark') ? '#c0c0c0' : '#000', // #rgb or #rrggbb
 				speed: 1.5, // Rounds per second
 				trail: 60, // Afterglow percentage
 				shadow: false, // Whether to render a shadow
@@ -6258,7 +6258,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			{
 				var title = listEntry.cloneNode(false);
 				title.style.fontWeight = 'bold';
-				title.style.backgroundColor = '#e5e5e5';
+				title.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#e5e5e5';
 				title.style.padding = '6px 0px 6px 20px';
 				mxUtils.write(title, section.title);
 				list.appendChild(title);
@@ -6304,7 +6304,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 								}
 								
 								currentListItem = option;
-								currentListItem.style.backgroundColor = '#ebf2f9';
+								currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#ebf2f9';
 								
 								if (evt != null)
 								{

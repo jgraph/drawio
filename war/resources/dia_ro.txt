@@ -91,6 +91,7 @@ chromeApp=Aplicaţie Chrome
 compressed=Comprimat
 commitMessage=Comite un mesaj
 csv=CSV
+dark=Dark
 draftFound=O schiță pentru '{1}' a fost găsită. Încarc-o în editor sau înlătureaz-o pentru a continua.
 dragAndDropNotSupported= „Drag and Drop” nu este suportat pentru imagini. Doriți să importați in schimb?
 dropboxCharsNotAllowed=Următoarele caractere nu sunt permise: \ / : ? * " |
