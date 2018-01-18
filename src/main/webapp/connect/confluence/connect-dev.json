@@ -1,0 +1,240 @@
+{
+    "name": "Draw.io gaudenz",
+    "description": "Draw.io add-on for Confluence",
+    "key": "com.mxgraph.confluence.plugins.diagramly",
+    "baseUrl": "https://3f145265.ngrok.io",
+    "vendor": 
+    {
+        "name": "JGraph Ltd.",
+        "url": "https://www.jgraph.com"
+    },
+    "links": {
+        "documentation": "https://support.draw.io/display/DFCC/draw.io+for+Confluence+Cloud"
+    },
+    "version": "1.1.0",
+    "authentication": 
+    {
+        "type": "none"
+    },
+    "modules": 
+    {
+		"generalPages": [
+            {
+                "key": "lightbox",
+                "url": "/connect/confluence/viewer2.html?lightbox=1",
+                "name": {
+                    "value": "Lightbox"
+                }
+            }
+        ],
+        "adminPages": [
+            {
+                "key": "admin",
+                "url": "/connect/confluence/admin.html",
+                "name": {
+                    "value": "draw.io configuration"
+                }
+            }
+        ],
+        "dynamicContentMacros": 
+        [
+            {
+                "name": 
+                {
+                    "i18n": "drawioMacro",
+                    "value": "Draw.io Diagram"
+                },
+                "url": "/connect/confluence/viewer2.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}",
+                "width": "100%",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Inserts a new Draw.io Diagram"
+                }, "icon": 
+                {
+		          "width": 128,
+		          "height": 128,
+		          "url": "/images/drawlogo128.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "drawio",
+			    "parameters": 
+			    [
+				    {
+				      "identifier": "diagramName",
+				      "name": 
+				      {
+				        "value": "Diagram name (do not change)"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "automatic size"
+				      },
+				      "type": "boolean"
+				    },
+				    {
+				      "identifier": "PageId",
+				      "name": 
+				      {
+				        "value": "Parent page ID"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "baseUrl",
+				      "name": 
+				      {
+				        "value": "Confluence Base URL"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "Diagram width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Diagram Height"
+				      },
+				      "type": "string"
+				    }
+  				],
+  				"editor": {
+				    "url": "/connect/confluence/macroEditor.html?ceoId=${page.id}&diagramName=${diagramName}",
+				    "width": "100%",
+				    "height": "100%"
+				},
+				"imagePlaceholder": {
+				    "width": 500,
+				    "height": 300,
+				    "url": "/connectImage",
+				    "applyChrome": true
+				},
+				"renderModes": {
+		          "default": {
+		            "url": "/connectRender?pageId=${page.id}&diagramName=${diagramName}"
+		          }
+		        }
+            },
+            {
+                "name": 
+                {
+                    "i18n": "drawioMacro",
+                    "value": "Legacy draw.io macro"
+                },
+                "url": "/connect/confluence/viewer.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}",
+                "width": "100%",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Do not use"
+                }, "icon": 
+                {
+		          "width": 80,
+		          "height": 80,
+		          "url": "/images/stop-flat-icon-80.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": false,
+                "key": "drawio-macro",
+			    "parameters": 
+			    [
+				    {
+				      "identifier": "diagramName",
+				      "name": 
+				      {
+				        "value": "Diagram name (do not change)"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "automatic size"
+				      },
+				      "type": "boolean"
+				    },
+				    {
+				      "identifier": "PageId",
+				      "name": 
+				      {
+				        "value": "Parent page ID"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "baseUrl",
+				      "name": 
+				      {
+				        "value": "Confluence Base URL"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "Diagram width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Diagram Height"
+				      },
+				      "type": "string"
+				    }
+  				],
+  				"editor": {
+				    "url": "/connect/confluence/macroEditor.html?ceoId=${page.id}&diagramName=${diagramName}",
+				    "editTitle": {
+				      "value": "Edit MarkDown",
+				      "i18n": "macro.md.edit"
+				    },
+				    "insertTitle": {
+				      "value": "Insert New MarkDown",
+				      "i18n": "macro.md.insert"
+				    },
+				    "width": "100%",
+				    "height": "100%"
+				},
+				"imagePlaceholder": {
+				    "width": 500,
+				    "height": 300,
+				    "url": "/connectImage",
+				    "applyChrome": true
+				},
+				"renderModes": {
+		          "default": {
+		            "url": "/connectRender?pageId=${page.id}&diagramName=${diagramName}&revision=${revision}"
+		          }
+		        }
+            }
+        ]
+    },
+    "scopes": [
+    "read",
+    "write",
+    "delete"
+  	]
+}

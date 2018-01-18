@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PlantUML for Confluence</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+<script src="deflate.js" type="text/javascript"></script>
+<script src="../../js/spin/spin.min.js" type="text/javascript"></script>
+<script src="../../js/deflate/pako.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.min.css" media="all">
+<style type="text/css">
+body {
+	font-family:Arial, sans-serif;
+	overflow:hidden;
+	height:100%;
+	width:100%;
+	margin:0;
+}
+</style>
+<script>
+
+function encode64(data) {
+	r = "";
+	for (i=0; i<data.length; i+=3) {
+ 		if (i+2==data.length) {
+			r +=append3bytes(data.charCodeAt(i), data.charCodeAt(i+1), 0);
+		} else if (i+1==data.length) {
+			r += append3bytes(data.charCodeAt(i), 0, 0);
+		} else {
+			r += append3bytes(data.charCodeAt(i), data.charCodeAt(i+1),
+				data.charCodeAt(i+2));
+		}
+	}
+	return r;
+}
+
+function append3bytes(b1, b2, b3) {
+	c1 = b1 >> 2;
+	c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+	c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+	c4 = b3 & 0x3F;
+	r = "";
+	r += encode6bit(c1 & 0x3F);
+	r += encode6bit(c2 & 0x3F);
+	r += encode6bit(c3 & 0x3F);
+	r += encode6bit(c4 & 0x3F);
+	return r;
+}
+
+function encode6bit(b) {
+	if (b < 10) {
+ 		return String.fromCharCode(48 + b);
+	}
+	b -= 10;
+	if (b < 26) {
+ 		return String.fromCharCode(65 + b);
+	}
+	b -= 26;
+	if (b < 26) {
+ 		return String.fromCharCode(97 + b);
+	}
+	b -= 26;
+	if (b == 0) {
+ 		return '-';
+	}
+	if (b == 1) {
+ 		return '_';
+	}
+	return '?';
+}
+
+function compress(s) 
+{
+  s = unescape(encodeURIComponent(s));
+  return encode64(zip_deflate(s, 9));
+}
+</script>
+
+<script>
+function bytesToString(arr)
+{
+	var result = new Array(arr.length);
+  
+    for (var i = 0; i < arr.length; i++)
+    {
+    	result[i] = String.fromCharCode(arr[i]);
+    }
+    
+    return result.join('');
+}
+</script>
+
+</head>
+<body style="height:100%">
+<div style="height:100%;">
+	<div style="position:absolute;top:0px;height:100%;width:450px;border-right:1px solid #cccccc;display:inline-block;">
+		<form class="aui top-label" style="height:100%;">
+			<div class="field-group" style="padding-left:15px;">
+				<label for="filename">File name</label> 
+				<input class="text macro-param-input" type="text" id="filename" name="filename" >
+				<div class="description">Name of the attachment that will hold the diagram data</div>
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<label for="width" style="display:inline-block;">Width:</label> <input class="text medium-field" id="width" value="800">
+				<div class="description" style="display:inline-block;">px</div>
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<label for="height" style="display:inline-block;">Height:</label> <input class="text medium-field" id="height" value="600">
+				<div class="description" style="display:inline-block;">px</div>
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<input class="checkbox small-field" id="autoSize" type="checkbox" >
+				<label for="height" style="display:inline-block;">Automatically set the width and height of the viewer</label>
+			</div>
+			<div class="field-group" style="padding-left:15px;top:200px;bottom:60px;position:absolute;">
+				<label for="data">Definition</label>
+				<textarea class="large-field" id="data" style="resize:none;width:390px;height:100%;"></textarea>
+				<button class="aui-button aui-button-primary ap-dialog-submit" id="render"
+					style="position:absolute;left:413px;">&#8658;</button>
+			</div>
+		</form>
+	</div>
+	<div id="preview" style="position:absolute;top:0px;left:451px;right:0px;height:100%;overflow:auto;display:inline-block;">
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var plantUmlServerUrl = 'https://exp.draw.io/plantuml/png/';
+	var isNewDiagram = true;
+	
+	var opts =
+	{
+		left : '325px',
+		lines : 12, // The number of lines to draw
+		length : 8, // The length of each line
+		width : 3, // The line thickness
+		radius : 5, // The radius of the inner circle
+		rotate : 0, // The rotation offset
+		color : '#000', // #rgb or #rrggbb
+		speed : 1, // Rounds per second
+		trail : 60, // Afterglow percentage
+		shadow : false, // Whether to render a shadow
+		hwaccel : false, // Whether to use hardware acceleration
+		className : 'spinner', // The CSS class to assign to the spinner
+		zIndex : 2e9 // The z-index (defaults to 2000000000)
+	};
+
+	var spinner = new Spinner(opts);
+	var macroDialog = null;
+	
+	var head = document.getElementsByTagName("head")[0];
+
+	$("#render").click(function(evt) 
+	{
+		evt.preventDefault();
+		data =  $('#data').val();
+		loadPreview(data);
+	});
+	
+	$("#autoSize").on('change', function(evt) 
+	{
+		if(this.checked) 
+		{
+			$("#width").prop('disabled', true);
+			$("#height").prop('disabled', true);
+		}
+		else 
+		{
+			$("#width").prop('disabled', false);
+			$("#height").prop('disabled', false);
+		}
+	});
+
+	// String.endsWith polyfill
+	if (!String.prototype.endsWith)
+	{
+		String.prototype.endsWith = function(searchString, position)
+		{
+			var subjectString = this.toString();
+
+			if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length)
+			{
+				position = subjectString.length;
+			}
+			
+			position -= searchString.length;
+			var lastIndex = subjectString.indexOf(searchString, position);
+			return lastIndex !== -1 && lastIndex === position;
+		};
+	}
+
+	function loadAtlassianApi() 
+	{
+		var script = document.createElement("script");
+		script.src = connectUrl + '/all-debug.js';
+		script.setAttribute('data-options', 'resize:false;margin:false');
+
+		script.onload = function() 
+		{
+			AP.require([ "confluence", "dialog" , "navigator"], function(confluence, dialog, navigator) 
+			{
+				function onSubmit() 
+				{
+					var name = $('#filename').val();
+
+					if (name != null && name.length > 3 && !/[&\*+=\\;/{}|\":<>\?]/g.test(name))
+					{
+						var fileSuffix = name.toLowerCase().endsWith('.png') ? '' : '.png';
+						name = name + fileSuffix;
+						
+						var macroParams = 
+						{
+							filename : name,
+							data : $('#data').val(),
+							width : $('#width').val(),
+							height : $('#height').val(),
+							autoSize : $('#autoSize').is(":checked")
+						};
+						
+						getRenderedDiagramData(macroParams.data, function(response) 
+						{
+							navigator.getLocation(function(location) 
+							{
+								saveSuccess = function(response) 
+								{
+									response = JSON.parse(response);	
+								
+									if(response.error == null) 
+									{
+										macroParams.data = btoa(bytesToString(pako.deflateRaw(encodeURIComponent(macroParams.data))));
+										macroParams.compressed = 'true';
+										confluence.saveMacro(macroParams);
+										confluence.closeMacroEditor();
+									}
+									else 
+									{
+										console.log('Error saving diagram : ' + response.error.message);
+										alert('Error saving diagram. Please consult tech support for more info.');
+										
+										// Workaround for lost handler
+										window.setTimeout(function()
+										{
+											dialog.getButton("submit").bind(onSubmit);
+										}, 0);
+									}
+								};
+								
+								if (location != null && location.target != null && location.context!= null && (location.target == "contentedit" || location.target == "contentcreate")) 
+								{
+									pageId = location.context.contentId;
+								}
+								
+								AC.saveDiagram(pageId, macroParams.filename, response, saveSuccess, isNewDiagram, 'image/png',
+										function()
+										{
+											// Exist handler
+											alert('Attachment ' + macroParams.filename + ' already exists. Please choose another name.');
+
+											// Workaround for lost handler
+											window.setTimeout(function()
+											{
+												dialog.getButton("submit").bind(onSubmit);
+											}, 0);
+										});
+							});
+						
+						}, function(error) 
+						{
+							alert("Error rendering diagram. Please check your syntax.");
+
+							// Workaround for lost handler
+							window.setTimeout(function()
+							{
+								dialog.getButton("submit").bind(onSubmit);
+							}, 0);
+						});
+					}
+					else 
+					{
+						alert("Diagram names must be longer than 3 characters and must not contain the following characters : \ / | : ; { < & + ? =");
+
+						// Workaround for lost handler
+						window.setTimeout(function()
+						{
+							dialog.getButton("submit").bind(onSubmit);
+						}, 0);
+					}
+						
+					return false;
+				};
+				
+				confluence.getMacroData(function(macroParams) 
+				{
+					if(macroParams != null && Object.keys(macroParams).length > 0) 
+					{
+						macroParams.data = macroParams.compressed != null && macroParams.compressed == 'true' ? decodeURIComponent(bytesToString(pako.inflateRaw(atob(macroParams.data)))) : decodeURIComponent(macroParams.data);
+						loadMacroParameters(macroParams);
+						loadPreview(macroParams.data);
+						
+						if(macroParams.filename.length > 0)
+							isNewDiagram = false;
+					}
+			    });
+				
+				macroDialog = dialog;
+				dialog.getButton("submit").bind(onSubmit);
+			});
+		};
+		
+		head.appendChild(script);
+	}
+	
+	function loadMacroParameters(macroParams) 
+	{
+		$('#filename').val(macroParams.filename);
+		$('#data').val(macroParams.data);
+		$('#width').val(macroParams.width);      
+		$('#height').val(macroParams.height);
+
+		if(macroParams.autoSize == true || macroParams.autoSize == "true")
+			$('#autoSize').click();
+		
+		if(macroParams.filename != null) 
+			$('#filename').attr('disabled', true);
+		
+	}
+	
+	function loadPreview(data) 
+	{
+		var preview = document.createElement('img');
+ 
+		preview.src = plantUmlServerUrl + compress(data);
+		$('#preview').empty();
+		$('#preview').append(preview);
+	}
+	
+	function getRenderedDiagramData(data, success, error) 
+	{
+		//using XHR to get the binary response so that PNGs work	
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", plantUmlServerUrl + compress(data), true);
+		xhr.responseType = 'blob';
+		 
+		xhr.onload = function(e) 
+		{
+		  if (this.status >= 200 && this.status < 300) 
+		  {
+		    var reader = new window.FileReader();
+		    reader.readAsDataURL(this.response); 
+		    reader.onloadend = function() 
+		    {
+	            base64data = reader.result;                
+	            success(base64data.split(",")[1]);
+		    }
+		  }
+		  else 
+		  {
+			  error(e);
+		  }
+		};
+		
+		xhr.onerror = error;
+		 
+		xhr.send();
+	}
+	
+	loadAtlassianApi();
+
+</script>
+</html>

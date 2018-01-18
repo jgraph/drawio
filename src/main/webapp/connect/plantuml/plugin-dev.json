@@ -1,0 +1,127 @@
+{
+    "name": "PlantUML for Confluence",
+    "description": "PlantUML for Confluence",
+    "key": "com.mxgraph.confluence.plugins.plantuml",
+    "baseUrl": "https://ae9fca65.ngrok.io",
+    "vendor": 
+    {
+        "name": "JGraph ltd.",
+        "url": "https://www.jgraph.com"
+    },
+    "links":
+    {
+        "documentation": "https://support.draw.io/display/PFCC"
+    },
+    "version": "1.2.0",
+    "authentication": 
+    {
+        "type": "none"
+    },
+    "modules": 
+    {
+        "dynamicContentMacros": 
+        [
+            {
+                "name": 
+                {
+                    "i18n": "plantumlcloud",
+                    "value": "PlantUML for Confluence"
+                },
+                "url": "/connect/plantuml/viewer.html?pageId=${page.id}&filename=${filename}&width=${width}&height=${height}&autoSize=${autoSize}",
+                "width": "600px",
+                "height": "400px",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "PlantUML for Confluence"
+                }, "icon": 
+                {
+		          "width": 144,
+		          "height": 144,
+		          "url": "/images/plant-uml-atlas.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "plantumlcloud",
+			    "editor": {
+				    "url": "/connect/plantuml/macroEditor.html",
+				    "width": "1400px",
+				    "height": "650px"
+				},
+			    "parameters": 
+			    [
+				    {
+				      "identifier": "filename",
+				      "name": 
+				      {
+				        "value": "Name of the diagram"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "data",
+				      "name": 
+				      {
+				        "value": "Definition of the diagram"
+				      },
+				      "type": "string",
+				      "hidden": false
+				    },
+				    {
+				      "identifier": "compressed",
+				      "name": 
+				      {
+				        "value": "Is definition of the diagram compressed?"
+				      },
+				      "type": "string",
+				      "hidden": false
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Height"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "Auto size"
+				      },
+				      "type": "boolean"
+				    },
+				    {
+				      "identifier": "contentType",
+				      "name": 
+				      {
+				        "value": "Content Type"
+				      },
+				      "type": "boolean"
+				    }
+  				],
+				"renderModes": {
+		          "default": {
+		            "url": "/connectRender?pageId=${page.id}&diagramName=${filename}&filenameIntact=1"
+		          }
+		        }
+            }
+        ]
+    },
+    "scopes": [
+    "READ",
+    "WRITE"
+  	]
+}

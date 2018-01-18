@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io Viewer</title>
+<script src="https://bitbucket.org/atlassian-connect/all.js"></script>
+<style type="text/css">
+html, body {
+	height:100%;
+	overflow:hidden;
+}
+body {
+	background-color:#ffffff;
+	background-image:url(/images/logo-flat.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	font-family:Arial,sans-serif;
+	width:100%;
+	margin:0;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+// Parses URL parameters
+function getUrlParam(param)
+{
+	var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+	
+	if (result != null && result.length > 0)
+	{
+		return decodeURIComponent(result[1].replace(/\+/g, '%20'))
+	}
+	
+	return null;
+};
+
+// Sets global environment variables
+RESOURCE_BASE = '/resources/dia';
+STENCIL_PATH = '/stencils';
+SHAPES_PATH = '/shapes';
+
+// Overrides browser language with Confluence user language
+var lang = getUrlParam('loc');
+
+// Language is in the Connect URL
+if (lang != null)
+{
+	var dash = lang.indexOf('-');
+	
+	if (dash >= 0)
+	{
+		mxLanguage = lang.substring(0, dash);
+	}
+}
+</script>
+<script type="text/javascript" src="/js/viewer.min.js"></script>
+<script type="text/javascript">
+(function()
+{
+	// Enables dynamic loading of shapes and stencils (same domain)
+	mxStencilRegistry.dynamicLoading = true;
+
+	var srcRawUrl = '/1.0/repositories/{}/' + RBR.queryParam('repo') +
+    	'/raw/' + RBR.queryParam('cset') +
+    	'/' + RBR.queryParam('path');  
+
+	var tbHeight = GraphViewer.prototype.toolbarHeight;
+	var border = 8;
+
+	document.body.style.backgroundImage = 'url(/images/ajax-loader.gif)';
+
+	function main()
+	{
+		AP.require(['request'], function(request)
+		{
+			request(
+			{
+				url: srcRawUrl,
+				responseType: 'text/plain',
+			    success: function (xml)
+			    {                
+					
+					// LATER: Fix horizontal alignment ignored with 100% width of iframe
+					// LATER: Fix page scrolling on touch device if trigger event on diagram
+					// LATER: Hide toolbar after second container click for iOS
+					// LATER: Disable responsive resize while lightbox shows
+					var container = document.createElement('div');
+					container.style.cssText = 'position:absolute;box-sizing:border-box;' +
+						'max-width:100%;margin-bottom:' + tbHeight +'px;border:1px solid transparent;';
+					document.body.appendChild(container);
+					var doc = mxUtils.parseXml(xml);
+					
+					var viewer = new GraphViewer(container, doc.documentElement,
+						{highlight: '#3572b0', 'toolbar-position': 'top', nav: true,
+						'max-height': screen.height / 1.5,
+						toolbar: 'zoom layers lightbox', title: name, border: border});
+
+					// Handles resize of iframe after zoom
+					var graphDoResizeContainer = viewer.graph.doResizeContainer;
+					
+					function updateHeight()
+					{
+						AP.resize('100%', container.offsetHeight + tbHeight);
+					}
+					
+					viewer.graph.doResizeContainer = function(width, height)
+					{
+						graphDoResizeContainer.apply(this, arguments);
+						updateHeight();
+					};
+
+					// Updates the size of the iframe in responsive cases
+					viewer.updateContainerHeight = function(container, height)
+					{
+						updateHeight();
+					};
+					
+					updateHeight();
+					
+					viewer.showLightbox = function()
+					{
+		                dialog.create(
+		                {
+		                    header: name,
+		                	key: 'lightbox',
+		                    size: 'fullscreen',
+		                    customData: {id: id, name: name},
+		                    chrome: true
+		                });
+					};
+					
+					
+			    },
+			    error: function(err)
+			    {
+					document.body.innerHTML = 'Failed to load source file from Bitbucket. (' +
+						JSON.stringify(err) + ')';
+			    }
+			});
+			
+		});
+	};
+	
+	mxResources.loadDefaultBundle = false;
+	var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+		mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
+
+	// Prefetches asynchronous requests so that below code runs synchronous
+	// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
+	// is compiled into JS in the build process and is only needed for local development.
+	var bundleLoaded = false;
+	var scriptLoaded = false;
+	var validSize = document.documentElement.offsetWidth > 0;
+
+	function mainBarrier()
+	{
+		if (validSize && bundleLoaded && scriptLoaded)
+		{
+			main();
+		}
+	};
+	
+	// Workaround for collapsed side panel is to delay main until size is not 0
+	if (!validSize)
+	{
+		var listener = function()
+		{
+			if (document.documentElement.offsetWidth > 0)
+			{
+				window.removeEventListener('resize', listener);
+				validSize = true;
+				mainBarrier();
+			}
+		};
+		
+		window.addEventListener('resize', listener);
+	}
+	
+	mxUtils.getAll([bundle], function(xhr)
+	{
+		// Adds bundle text to resources
+		mxResources.parse(xhr[0].getText());
+		bundleLoaded = true;
+		mainBarrier();
+	});
+
+	script.onload = function()
+	{
+		scriptLoaded = true;
+		mainBarrier();
+	};
+
+	script.src = baseUrl + '/atlassian-connect/all.js';
+	script.setAttribute('data-options', 'sizeToParent:true;');
+	document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+</body>
+</html>

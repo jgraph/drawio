@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project basedir="." default="run">
+
+	<target name="compile">
+		<mkdir dir="classes"/>
+		<javac includeantruntime="false" srcdir="." destdir="classes">
+			<classpath>
+				<path location="classes"/>
+				<path location="../../classes"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<java fork="true" classname="com.mxgraph.vsdxutils.VsdxBatchConvert">
+            <classpath>
+                <path location="classes"/>
+            		<path location="../../classes"/>
+          	  	<fileset dir="lib"/>
+            		<fileset dir="../../src/main/webapp/WEB-INF/lib"/>
+            </classpath>
+        </java>
+	</target>
+
+</project>

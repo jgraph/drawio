@@ -1,0 +1,156 @@
+<shapes name="mxgraph.atlassian">
+<shape aspect="variable" h="100" name="Away" strokewidth="inherit" w="100">
+    <connections/>
+    <foreground>
+        <ellipse h="100" w="100" x="0" y="0"/>
+        <fillstroke/>
+        <strokecolor color="none"/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="25" y="58"/>
+            <line x="25" y="42"/>
+            <line x="75" y="42"/>
+            <line x="75" y="58"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="75.0" name="Check" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <fillcolor color="none"/>
+        <path>
+            <move x="0.0" y="50.0"/>
+            <line x="25.0" y="75.0"/>
+            <line x="100.0" y="0.0"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.0" name="Checkbox" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <ellipse h="100.0" w="100.0" x="0.0" y="0.0"/>
+        <fillstroke/>
+        <strokecolor color="none"/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="46.57" y="73.87"/>
+            <line x="20.47" y="50.27"/>
+            <line x="28.27" y="41.67"/>
+            <line x="45.57" y="57.57"/>
+            <line x="72.42" y="26.47"/>
+            <line x="81.17" y="33.97"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.0" name="Checkbox 2" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <save/>
+        <fillcolor color="none"/>
+        <roundrect arcsize="10.0" h="100.0" w="100.0" x="0.0" y="0.0"/>
+        <stroke/>
+        <restore/>
+        <rect/>
+        <stroke/>
+        <strokecolor color="none"/>
+        <path>
+            <move x="0.0" y="10.0"/>
+            <arc large-arc-flag="0.0" rx="10.0" ry="10.0" sweep-flag="1.0" x="10.0" x-axis-rotation="0.0" y="0.0"/>
+            <line x="90.0" y="0.0"/>
+            <arc large-arc-flag="0.0" rx="10.0" ry="10.0" sweep-flag="1.0" x="100.0" x-axis-rotation="0.0" y="10.0"/>
+            <line x="100.0" y="90.0"/>
+            <arc large-arc-flag="0.0" rx="10.0" ry="10.0" sweep-flag="1.0" x="90.0" x-axis-rotation="0.0" y="100.0"/>
+            <line x="10.0" y="100.0"/>
+            <arc large-arc-flag="0.0" rx="10.0" ry="10.0" sweep-flag="1.0" x="0.0" x-axis-rotation="0.0" y="90.0"/>
+            <close/>
+        </path>
+        <fill/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="10.4" y="63.4"/>
+            <line x="36.4" y="87.0"/>
+            <line x="90.2" y="25.0"/>
+            <line x="81.5" y="17.3"/>
+            <line x="35.4" y="70.8"/>
+            <line x="18.1" y="54.9"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.0" name="Close" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <ellipse h="100.0" w="100.0" x="0.0" y="0.0"/>
+        <fillstroke/>
+        <strokecolor color="none"/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="21.4" y="71.5"/>
+            <line x="43.0" y="50.0"/>
+            <line x="21.4" y="28.5"/>
+            <line x="28.5" y="21.4"/>
+            <line x="50.0" y="43.0"/>
+            <line x="71.5" y="21.4"/>
+            <line x="78.6" y="28.5"/>
+            <line x="57.0" y="50.0"/>
+            <line x="78.5" y="71.5"/>
+            <line x="71.5" y="78.5"/>
+            <line x="50.0" y="57.0"/>
+            <line x="28.5" y="78.5"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.0" name="Do not disturb" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <ellipse h="100.0" w="100.0" x="0.0" y="0.0"/>
+        <fillstroke/>
+        <strokecolor color="none"/>
+        <fillcolor color="#ffffff"/>
+        <path>
+            <move x="38.0" y="26.7"/>
+            <line x="73.2" y="62.0"/>
+            <line x="62.0" y="73.2"/>
+            <line x="26.7" y="38.0"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.87" name="Location" strokewidth="inherit" w="79.94">
+    <connections/>
+    <foreground>
+        <path>
+            <move x="39.97" y="100.87"/>
+            <line x="9.97" y="58.87"/>
+            <arc large-arc-flag="1.0" rx="36.0" ry="36.0" sweep-flag="1.0" x="69.97" x-axis-rotation="0.0" y="58.87"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100.0" name="X" strokewidth="inherit" w="100.0">
+    <connections/>
+    <foreground>
+        <fillcolor color="none"/>
+        <path>
+            <move x="0.0" y="0.0"/>
+            <line x="100.0" y="100.0"/>
+        </path>
+        <stroke/>
+        <path>
+            <move x="100.0" y="0.0"/>
+            <line x="0.0" y="100.0"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+</shapes>

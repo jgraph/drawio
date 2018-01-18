@@ -12,8 +12,8 @@
 	    	</concat>
     	
 		<java fork="false" classname="Xml2Js" classpath=".">
-			<arg value="../../war/stencils"/>
-			<arg value="../../war/js/stencils.min.js"/>
+			<arg value="../../src/main/webapp/stencils"/>
+			<arg value="../../src/main/webapp/js/stencils.min.js"/>
 		</java>
 		
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes.min.js">
@@ -285,8 +285,8 @@
 			</sources>
 		</jscomp>
 		<concat destfile="${war.dir}/js/vsdx.min.js" fixlastline="yes" append="yes">
-    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
-    	</concat>
+	    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
+	    	</concat>
 		
 		<delete file="${basedir}/.tmp1.js"/>
 		
@@ -367,18 +367,12 @@
 	<!-- ================== Stand-alone war creation ============================= -->
 
 	<path id="javac.class.path">
-		<fileset dir="${war.dir}/WEB-INF/lib" includes="mxgraph-core.jar" />
-		<fileset dir="${basedir}/jars" includes="servlet-api.jar" />
-		<fileset dir="${basedir}/jars" includes="commons-codec-1.10.jar" />
-		<fileset dir="${basedir}/jars" includes="commons-fileupload-1.3.2.jar" />
-		<fileset dir="${basedir}/jars" includes="gson-2.7.jar" />
-		<fileset dir="${basedir}/jars" includes="commons-lang3-3.5.jar" />
-		<fileset dir="${basedir}/jars" includes="gae-stub-1.0.1.jar" />
+		<fileset dir="${war.dir}/WEB-INF/lib" />
 	</path>
 
 	<target name="javac" depends="app" description="Java compilation">
 		<mkdir dir="${javac.dir}"/>
-		<javac srcdir="${src.dir}" excludes="**/EmbedServlet2.java" encoding="utf-8" destdir="${javac.dir}" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source">
+		<javac includeantruntime="false" srcdir="${src.dir}" excludes="**/EmbedServlet2.java" destdir="${javac.dir}">
 			<classpath refid="javac.class.path" />
 		</javac>
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
@@ -391,10 +385,12 @@
 			<fileset dir="${build.dir}">
 			</fileset>
 		</delete>
+		<delete file="${basedir}/base.min.js"/>
+		<delete file="${basedir}/base-viewer.min.js"/>
 	</target>
 	
 	<target name="war" depends="javac" description="Create the stand-alone war file">
-		<zip excludes="**/appengine*.jar,**/jsr*.jar,**/junit*.jar"  destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
+		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
 		</zip>
 	</target>
 

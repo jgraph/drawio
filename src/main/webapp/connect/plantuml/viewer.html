@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io viewer</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+</head>
+<body style='overflow : none'>
+<script type="text/javascript">
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName("head")[0];
+	
+	var script = document.createElement("script");
+	script.src = connectUrl + '/all.js';
+	script.setAttribute('data-options', 'resize:false;margin:false');
+
+	script.onload = main;
+	
+	head.appendChild(script);
+	
+	var link = document.createElement("link");
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	function main() 
+	{
+		filename = AC.getUrlParam('filename');
+		width = AC.getUrlParam('width');
+		height = AC.getUrlParam('height');
+		pageId = AC.getUrlParam('pageId');
+		autoSize = AC.getUrlParam('autoSize');
+		
+		img = document.createElement('img');
+		img.src = baseUrl + '/download/attachments/' + pageId + '/' + filename;
+		$(img).on('load', function(evt) 
+		{
+			if(autoSize == "true")
+				AP.resize(evt.target.width + 20, evt.target.height + 20);
+			else
+				AP.resize(width, height);
+		});
+		
+		document.getElementsByTagName('body')[0].appendChild(img);
+	}
+</script>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+<html>
+  <head>
+      <link rel="stylesheet" href="https://trello.com/power-ups/power-up.css">
+      <script src="https://trello.com/power-ups/power-up.min.js"></script>
+      <script src="/js/viewer.min.js"></script>
+      <script src="js/common.js"></script>
+  </head>
+  <body>
+    <div id="content" style="width:100%;height:100%">
+      <label for="diagName">Diagram Name</label> 
+      <input type="text" id="diagName" placeholder="New Diagram Name">
+      <div id="errorMsg" style="display: none; color: red"></div>
+      <label for="format">File Type</label>
+	  <select id="format">
+		  <option value="xml">XML</option>
+		  <option value="png">PNG</option>
+		  <option value="svg">SVG</option>
+		  <option value="html">HTML</option>
+	  </select>
+      <button disabled="disabled" id="createBtn">
+        Create
+      </button>
+      <br>
+      <label id="importLbl" for="otherAtt">Or import an existing attachment</label>
+      <select id="otherAtt"></select>
+      <button id="importBtn">
+        Import
+      </button>      
+    </div>
+    <script src="js/new.js"></script>
+  </body>
+</html>

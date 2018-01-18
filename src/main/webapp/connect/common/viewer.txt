@@ -1,0 +1,9 @@
+diagramly.reader.edit=Edit
+diagramly.reader.remove=Remove
+diagramly.reader.fit=Zoom to Fit
+diagramly.reader.zoomActual=Actual Size
+diagramly.reader.zoomOut=Zoom Out
+diagramly.reader.zoomIn=Zoom In
+diagramly.reader.confirmDelete=Are you sure you want to delete this diagram?
+diagramly.reader.fullScreen=Full screen
+diagramly.reader.closeFullScreen=Close full screen

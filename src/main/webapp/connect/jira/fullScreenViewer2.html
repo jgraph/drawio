@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io Viewer</title>
+<style type="text/css">
+html, body {
+	height:100%;
+	overflow:hidden;
+}
+body {
+	background-color:#ffffff;
+	background-image:url(/images/logo-flat.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	font-family:Arial,sans-serif;
+	width:100%;
+	margin:0;
+}
+</style>
+<script type="text/javascript">
+// Parses URL parameters
+function getUrlParam(param)
+{
+	var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+	
+	if (result != null && result.length > 0)
+	{
+		return decodeURIComponent(result[1].replace(/\+/g, '%20'))
+	}
+	
+	return null;
+};
+
+// Sets global environment variables
+RESOURCE_BASE = '/resources/dia';
+STENCIL_PATH = '/stencils';
+SHAPES_PATH = '/shapes';
+
+// Overrides browser language with Confluence user language
+var lang = getUrlParam('loc');
+
+// Language is in the Connect URL
+if (lang != null)
+{
+	var dash = lang.indexOf('-');
+	
+	if (dash >= 0)
+	{
+		mxLanguage = lang.substring(0, dash);
+	}
+}
+</script>
+<script type="text/javascript" src="/js/viewer.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+	// Enables dynamic loading of shapes and stencils (same domain)
+	mxStencilRegistry.dynamicLoading = true;
+
+	// Specifies connection mode for touch devices (at least one should be true)
+	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName('head')[0];
+	
+	var script = document.createElement('script');
+	script.setAttribute('data-options', 'resize:false;margin:false');
+	
+	head.appendChild(script);
+	
+	var link = document.createElement('link');
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	function main()
+	{
+		AP.resize('100%', '100%');
+		
+		AP.require(['request', 'dialog', 'jira', 'messages'], function(request, dialog, jira, messages)
+		{
+			var diagramId = (dialog.customData != null) ? dialog.customData.diagramId : null;
+	       	var diagramName = (dialog.customData != null) ? dialog.customData.diagramName : null;  
+	    	var serverName = document.referrer;
+	    	var timeout = 25000;
+	    	var index1 = serverName.indexOf('//');
+	    	
+	    	if (index1 > 0)
+	    	{
+	    		var index2 = serverName.indexOf('/', index1 + 2);
+	    		
+	    		if (index2 > index1)
+	    		{
+	    			serverName = serverName.substring(index1 + 2, index2);
+	    		}
+	    	}
+	    	
+			var acceptResponse = true;
+			
+			var timeoutThread = window.setTimeout(function()
+			{
+				acceptResponse = false;
+				var message = messages.error('The connection has timed out', 'The server at ' +
+					serverName + ' is taking too long to respond.');
+				
+				messages.onClose(message, function()
+				{
+					dialog.close();
+				});
+			}, timeout);
+	    	
+	       	// LATER: Add fallback using diagramName lookup via attachment list
+			request({
+				url: '/secure/attachment/' + diagramId + '/' + encodeURIComponent(diagramName),
+				success: function(xml)
+				{
+		    		window.clearTimeout(timeoutThread);
+		    		
+		    		if (acceptResponse)
+			    	{
+		    			document.body.style.backgroundImage = 'none';
+						var viewer = new GraphViewer(null, null, {highlight: '#3572b0', nav: true, lightbox: false});
+						viewer.currentPage = parseInt(((dialog.customData != null) ? dialog.customData.page : null) || 0);
+						viewer.lightboxChrome = false;
+						viewer.xml = xml;
+	
+						// Enables layers via flag to avoid toolbar
+						viewer.layersEnabled = true;
+						
+						var ui = viewer.showLocalLightbox();
+						
+						// Destroy lightbox with ui instance
+						var destroy = ui.destroy;
+						ui.destroy = function()
+						{
+							dialog.close();
+							destroy.apply(this, arguments);
+						};
+			    	}
+				},
+				error : mxUtils.bind(this,  function() 
+				{
+		    		window.clearTimeout(timeoutThread);
+		    		
+		    		if (acceptResponse)
+			    	{
+						jira.refreshIssuePage();
+						dialog.close();
+			    	}
+				})
+			});
+	    });			
+	}
+	
+	mxResources.loadDefaultBundle = false;
+	var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+		mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
+
+	// Prefetches asynchronous requests so that below code runs synchronous
+	// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
+	// is compiled into JS in the build process and is only needed for local development.
+	var bundleLoaded = false;
+	var scriptLoaded = false;
+	
+	function mainBarrier()
+	{
+		if (bundleLoaded && scriptLoaded)
+		{
+			main();
+		}
+	};
+	
+	mxUtils.getAll([bundle], function(xhr)
+	{
+		// Adds bundle text to resources
+		mxResources.parse(xhr[0].getText());
+		bundleLoaded = true;
+		mainBarrier();
+	});
+
+	script.onload = function()
+	{
+		scriptLoaded = true;
+		mainBarrier();
+	};
+	
+	script.src = connectUrl + '/all.js';
+</script>
+
+</body>
+</html>

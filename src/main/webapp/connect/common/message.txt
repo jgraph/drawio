@@ -1,0 +1,90 @@
+diagramly.new.diagram=Draw.io diagram
+diagramly.edit.diagram=Edit
+diagramly.reader.edit=Edit
+diagramly.reader.remove=Remove
+diagramly.reader.fit=Zoom to fit
+diagramly.reader.zoomActual=Actual size
+diagramly.reader.zoomOut=Zoom out
+diagramly.reader.zoomIn=Zoom in
+diagramly.reader.confirmDelete=Are you sure you want to delete this diagram?
+diagramly.reader.fullScreen=Full screen
+diagramly.reader.closeFullScreen=Close
+drawio.reader.evaluation=draw.io evaluation copy
+
+#macro properties editor
+drawio.macrooptions.size.label=Size
+drawio.macrooptions.options.label=Options
+drawio.macrooptions.width.label=Width
+drawio.macrooptions.height.label=Height
+drawio.macrooptions.border.label=Border
+drawio.macrooptions.border.desc=Display a border around the graph
+drawio.macrooptions.grid.label=Grid
+drawio.macrooptions.grid.desc=Display grid on the graph reader
+drawio.macrooptions.fitWindow.label=Fit to Window
+drawio.macrooptions.fitWindow.desc=Zoom the diagram to fit the reader
+drawio.macrooptions.autoSize.label=Auto Size
+drawio.macrooptions.viewerToolbar.label=Toolbar
+drawio.macrooptions.autoSize.desc=Update width and height of the reader to fit the diagram
+drawio.macrooptions.save.button=Save
+com.mxgraph.confluence.plugins.diagramly.diagramly.desc=Draw.io is a free online diagram drawing application for workflow, BPM, org charts, UML, ER, network diagrams.
+
+diagramly.propertypanel.macrooptions=Draw.io Macro Settings
+diagramly.propertypanel.editMacro=Edit Macro
+diagramly.propertypanel.dupediagram=Duplicate
+drawio.propertypanel.size.original=Original
+
+#search labels
+diagramly.search.header=Search for diagrams
+diagramly.search.button=Search
+diagramly.search.allspaces=All spaces
+diagramly.search.description=Enter the name of a diagram
+diagramly.search.diagramName=Diagram
+diagramly.search.spaceName=Space name
+diagramly.search.lastModified=Last modified
+diagramly.search.noResults=No diagrams have been found
+diagramly.search.error=Error during search. Specified reason
+diagramly.search.select.button=Select
+diagramly.search.copy.button=Copy
+diagramly.search.import.button=Import
+diagramly.search.cancel.button=Cancel
+
+#blueprint popup create dialog
+diagramly.create.header=How do you want to create the diagram?
+diagramly.create.blank=Blank
+diagramly.create.search=Search
+diagramly.create.select.button=Select
+diagramly.create.search.button=Search
+diagramly.create.back.button=Back
+diagramly.create.cancel.button=Cancel
+
+diagramly.import.description=Select a Visio file (.vdx)
+diagramly.import.error=There was an error during import
+diagramly.duplicate.newName=Please enter the name
+diagramly.duplicate.nameConflict=Could not duplicate diagram. Please choose a different name.
+diagramly.duplicate.error=Could not duplicate diagram. Please try again later.
+diagramly.import.uploading=Uploading file...
+drawio-rest.name=Drawio Rest
+drawio-rest.description=The Drawio Rest Plugin
+drawio.pagetemplate.cantadddiagram=Diagrams cannot be added to page templates. You can only add them to pages.
+drawio.linktodiagram.button=Link to Diagram
+
+#new diagram dialog
+drawio.templates.label=Draw.io Templates
+drawio.search.recent=Recent diagrams
+drawio.template.businessprocess=Business Process
+drawio.template.charts=Charts
+drawio.template.engineering=Engineering
+drawio.template.flowcharts=Flowcharts
+drawio.template.mindmaps=Mindmaps
+drawio.template.mockups=Mockups
+drawio.template.networkdiagrams=Network Diagrams
+drawio.template.other=Other
+drawio.template.softwaredesign=Software Design
+drawio.template.venndiagrams=Venn diagrams
+drawio.template.wireframes=Wireframes
+
+drawio.admin.info=Plugin Information
+drawio.admin.config=Plugin Configuration
+drawio.admin.config.externalImageService=Use external image service
+drawio.admin.config.saveChanges=Save changes
+

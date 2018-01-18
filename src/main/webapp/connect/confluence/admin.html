@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/6.0.7/css/aui.min.css" media="all">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+
+var script = document.createElement('script');
+
+function searchContentForMacro(macroName, onSuccess, onError) 
+{
+	url = '/rest/api/content/search?cql=macro=' + macroName;
+	
+	AP.require(['request'], function(request) 
+	{
+		request({
+			type: 'GET',
+			url: '/rest/api/content/search?cql=macro=' + macroName + "&limit=1000",
+			contentType: 'application/json;charset=UTF-8',
+			success: onSuccess,
+			error: onError
+		});
+	});
+};
+
+function getPageContent(pageId, success, error) 
+{
+	AP.require(['request'], function(request) 
+	{
+		request({
+			type: 'GET',
+			url: '/rest/api/content/' + pageId + '/?expand=body.storage',
+			contentType: 'application/json;charset=UTF-8',
+			success: success,
+			error: error
+		});
+	});
+};
+
+function main() 
+{
+	function nsResolver(prefix) 
+	{
+	  var ns = {
+	    'ac' : 'https://www.atlassian.com/software/confluence/ac',
+	    'ri': 'https://www.atlassian.com/software/confluence/ri'
+	  };
+	  return ns[prefix] || null;
+	}
+	
+	function loadPageSuccess(page) 
+	{
+		page = JSON.parse(page);
+		var pageXml = page.body.storage.value.replace(/&/g, '&amp;');
+		
+		var pageDom = new DOMParser().parseFromString('<root xmlns:ac="https://www.atlassian.com/software/confluence/ac">' + pageXml + '</root>', "text/xml");
+		var nodes = pageDom.evaluate( "//ac:structured-macro[@ac:name='gliffy']", pageDom.documentElement, nsResolver, XPathResult.ANY_TYPE, null );
+		var nextMacro = null;
+		var gliffyMacros = [];
+		
+		while(( nextMacro = nodes.iterateNext()) != null) 
+			gliffyMacros.push(nextMacro);
+		
+		for(var i = 0; i < gliffyMacros.length; i++) 
+		{
+			var element = gliffyMacros[i];
+			var nameEl = pageDom.evaluate("ac:parameter[@ac:name='name']", element, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+			var imageIdEl = pageDom.evaluate("ac:parameter[@ac:name='diagramAttachmentId']", element, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+			var containerEl = pageDom.evaluate("ac:parameter[@ac:name='containerId']", element, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+			
+		};
+		
+		//console.log(new XMLSerializer().serializeToString(pageDom.documentElement))
+		
+	}; 
+	
+	function loadPageError(resp) 
+	{
+		console.log(resp);
+	};
+
+	searchContentForMacro('gliffy', function success(resp) 
+	{
+		var resp = JSON.parse(resp);
+		for(var i = 0; i < resp.results.length; i++) 
+		{
+			var page = resp.results[i];
+			getPageContent(page.id, loadPageSuccess, loadPageError);
+		}
+	}, function error(err) 
+	{
+		console.log(err);
+	});
+};	 
+
+script.onload = function()
+{
+	scriptLoaded = true;
+	main();
+};
+
+script.src = baseUrl + '/atlassian-connect/all.js';
+script.setAttribute('data-options', 'sizeToParent:true;');
+document.getElementsByTagName('head')[0].appendChild(script);
+</script>
+</head>
+
+<body>
+<h6>Gliffy import</h6>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GDrive Connector Viewer</title>
+<style type="text/css">
+html, body {
+	height:100%;
+	overflow:hidden;
+}
+body {
+	background-image:url(/connect/gdriveconnector/spinner.gif);
+	background-repeat:no-repeat;
+	background-position:center;
+}
+</style>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+</head>
+<body style='overflow : none'>
+<div id="status" style="display : none"><span>Unable to load the Google Drive file.</span></div>
+<script type="text/javascript">
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName("head")[0];
+	
+	var script = document.createElement("script");
+	script.src = connectUrl + '/all.js';
+	script.setAttribute('data-options', 'resize:false;margin:false');
+
+	script.onload = main;
+	
+	head.appendChild(script);
+	
+	var link = document.createElement("link");
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	var diagramMimeTypes = 'application/mxe,application/vnd.jgraph.mxfile,' +
+		'application/mxr,application/vnd.jgraph.mxfile.realtime,' +
+		'application/vnd.jgraph.mxfile.rtlegacy';
+	
+	var formsMimeType = 'application/vnd.google-apps.form';
+	var folderMimeType = 'application/vnd.google-apps.folder';
+	
+	function main() 
+	{
+		var fileId = AC.getUrlParam('fileId');
+		var width = AC.getUrlParam('width');
+		var height = AC.getUrlParam('height');
+		var name = AC.getUrlParam('filename');
+		var mimeType = AC.getUrlParam('mimeType', true);
+	
+		// Workaround for AP not available for preview in macro editor
+		if (typeof window.AP !== 'undefined')
+		{
+			AP.resize(width, height);
+		}
+
+		// Forces reload of document to override browser cache
+		var nocache = 't=' + new Date().getTime();
+		var url = null;
+				
+		if (fileId == null)
+		{
+			document.body.style.backgroundImage = 'none';
+			document.body.innerHTML = '<img src="/mxgraph/images/error.gif" border="0" align="absmiddle"/>' + 
+				' Error: Missing File ID';
+			AP.resize('100%', '20');
+		}
+		else if (mimeType == 'image')
+		{
+			document.body.style.backgroundImage = 'none';
+			document.body.innerHTML = '<img width="100%" src="' + decodeURIComponent(fileId) +
+				'" border="0"/>';
+		}
+		else if (mimeType == 'thumb')
+		{
+			document.body.style.backgroundImage = 'none';
+			document.body.innerHTML = '<a target="_blank" href="' + decodeURIComponent(name) +
+				'"><img width="100%" src="' + decodeURIComponent(fileId) + '" border="0"/></a>';
+		}
+		else
+		{
+			if (diagramMimeTypes.indexOf(mimeType) > -1) 
+			{
+				// Uses public file URL, fallback implemented in editor
+				var pubUrl = encodeURIComponent('https://drive.google.com/uc?id=' + fileId + '&export=download');
+				var editUrl = encodeURIComponent('https://www.draw.io/#G' + fileId);
+				
+				url = 'https://www.draw.io/?lightbox=1&layers=1&edit=' + editUrl +'#U' + pubUrl;
+			}
+			else if (mimeType == formsMimeType)
+			{
+				url = 'https://docs.google.com/forms/d/' + fileId + '/viewform?' + nocache;
+			}
+			else if (mimeType == folderMimeType)
+			{
+				// Possible view options are #list and #grid
+				url = 'https://drive.google.com/embeddedfolderview?id=' + fileId + '&authuser=0&' + nocache + '#list';
+			}
+			else if (mimeType == 'url')
+			{
+				url = decodeURIComponent(fileId);
+			}
+			else 
+			{
+				url = 'https://drive.google.com/file/d/' + fileId + '/preview?authuser=0&' + nocache;
+			}
+			
+			window.location.href = url;
+		}
+	}
+</script>
+</body>
+</html>
