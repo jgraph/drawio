@@ -1,0 +1,19 @@
+{
+  "name": "draw.io",
+  "details":"[draw.io](https://www.draw.io) is a free diagramming Power-up that enables you to draw a wide range of diagrams including flowcharts, BPMN, network diagrams, UML and ER diagrams, and much more. draw.io offers these advantages:\n\n* Fully open source platform.\n* All data stored inside Trello, nothing externally.\n* Import diagrams from other diagramming tools.\n\n### Screenshot\n\n![Screenshot of a draw.io diagram insertion in Trello card.](https://www.draw.io/connect/trello/images/drawio-trello-ss.png)",
+  "icon": {
+    "url": "https://www.draw.io/images/drawlogo128.png"
+  },
+  "author": "draw.io",
+  "capabilities": [
+    "callback",
+    "card-buttons",
+    "card-badges",
+    "attachment-sections"
+  ],
+  "connectors": {
+    "iframe": {
+      "url": "./index.html"
+    }
+  }
+}

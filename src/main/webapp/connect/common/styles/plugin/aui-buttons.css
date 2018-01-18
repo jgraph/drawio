@@ -1,0 +1,536 @@
+/* AUI BUTTONS
+ * Note hover/disabled styles set directly as they are not precisely the same as
+ * if we used straight opacity.
+ */
+
+/* Basic Button Style */
+.aui-button,
+a.aui-button,
+.aui-button:visited {
+    background: #f2f2f2;
+    background: -webkit-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:    -moz-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:     -ms-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:      -o-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:         linear-gradient(to bottom, #fff 0%, #f2f2f2 100%);
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #333;
+    cursor: pointer;
+    display: inline-block;
+    font-family: inherit;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.1428571428571em; /* 30px - using ems so the fields increase in line with user specified font-sizes */
+    line-height: 1.4285714285714;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    text-shadow: 0 1px 0 white;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+.aui-button ~ .aui-button {
+    margin-left: 10px;
+}
+/* Ensure underlines not added by link styles */
+a.aui-button:hover,
+a.aui-button:active,
+a.aui-button:focus {
+    text-decoration: none;
+}
+
+/* Control button height in Firefox. See http://www.experimentgarden.com/2010/11/firefox-buttontext-height-and-padding.html */
+.aui-button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+.aui-button:focus,
+.aui-button:hover,
+.aui-button-subtle.aui-button:focus,
+.aui-button-subtle.aui-button:hover {
+    background: #f7f7f7;
+    background: -webkit-linear-gradient(top, #fff 0%, #f7f7f7 100%);
+    background:    -moz-linear-gradient(top, #fff 0%, #f7f7f7 100%);
+    background:     -ms-linear-gradient(top, #fff 0%, #f7f7f7 100%);
+    background:      -o-linear-gradient(top, #fff 0%, #f7f7f7 100%);
+    background:         linear-gradient(to bottom, #fff 0%, #f7f7f7 100%);
+    border-color: #999;
+    color: #000;
+    text-decoration:none;
+}
+
+.aui-button:active,
+.aui-button.active,
+.aui-header .aui-button-split-more.active,
+.aui-button-subtle.aui-button:active,
+.aui-button-subtle.aui-button.active {
+    background-image: none;
+    background-color: #f2f2f2;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,.1);
+    text-shadow: none;
+    text-decoration:none;
+}
+
+/* Primary Buttons */
+.aui-button.aui-button-primary,
+.aui-button.aui-button-primary:visited {
+    background: #3068a2;
+    background: -webkit-linear-gradient(top, #4687ce 0%, #3068a2 100%);
+    background:    -moz-linear-gradient(top, #4687ce 0%, #3068a2 100%);
+    background:     -ms-linear-gradient(top, #4687ce 0%, #3068a2 100%);
+    background:      -o-linear-gradient(top, #4687ce 0%, #3068a2 100%);
+    background:         linear-gradient(to bottom, #4687ce 0%, #3068a2 100%); 
+    border-color: #486582;
+    color: #fff;
+    font-weight: bold;
+    -webkit-font-smoothing: antialiased; /* for chrome on mac */
+    text-shadow: 0 1px 0 #205081;
+}
+
+.aui-button.aui-button-primary:hover,
+.aui-button.aui-button-primary:focus {
+    background: #3673B5;
+    background: -webkit-linear-gradient(top, #5A94D3 0%, #3673B5 100%);
+    background:    -moz-linear-gradient(top, #5A94D3 0%, #3673B5 100%); 
+    background:     -ms-linear-gradient(top, #5A94D3 0%, #3673B5 100%);
+    background:      -o-linear-gradient(top, #5A94D3 0%, #3673B5 100%);
+    background:         linear-gradient(to bottom, #5A94D3 0%,#3673B5 100%);
+    border-color: #205081;
+    color: #fff;
+    text-shadow: 0 1px 0 #205081;
+}
+
+.aui-button.aui-button-primary:active {
+    background: #3673B5;
+    background-image: none;
+    background-color: #3673B5;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,.1);
+    text-shadow: none;
+    text-decoration:none;
+}
+
+/* Link style buttons - used for destructive/cancel actions ONLY */
+.aui-button.aui-button-link,
+.aui-button.aui-button-link:visited  {
+    background: transparent;
+    border-color: transparent;
+    color: #3b73af;
+    padding: 5px 0;
+    text-decoration: none;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+.aui-button.aui-button-link:focus,
+.aui-button.aui-button-link:hover,
+.aui-button.aui-button-link:active,
+.aui-buttons .aui-button.aui-button-link:focus,
+.aui-buttons .aui-button.aui-button-link:hover,
+.aui-buttons .aui-button.aui-button-link:active,
+.aui-buttons .aui-button.aui-button-link[aria-pressed="true"] {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+/* Subtle/hybrid/entity action/mugger buttons */
+.aui-button.aui-button-subtle {
+    background: transparent;
+    border-color: transparent;
+    color: #707070;
+}
+.aui-buttons .aui-button.aui-button-subtle {
+    border-radius: 3.01px;
+}
+.aui-button.aui-button-subtle .aui-icon {
+    margin-right: 1px;
+}
+
+/* aui-buttons groups buttons together into one button lozenge. */
+.aui-buttons {
+    display: inline-block;
+    font-size: 0;
+}
+.aui-buttons:after {
+    clear: both;
+    content: "";
+    display: table;
+}
+.aui-buttons .aui-button {
+    border-radius: 0;
+    margin: 0;
+}
+.aui-buttons .aui-button:first-child {
+    border-top-left-radius: 3.01px;
+    border-bottom-left-radius: 3.01px;
+}
+.aui-buttons .aui-button:last-child {
+    border-top-right-radius: 3.01px;
+    border-bottom-right-radius: 3.01px;
+}
+.aui-buttons + .aui-buttons {
+    margin-left: 10px;
+}
+
+/* Grouped buttons go into toolbar style */
+.aui-buttons .aui-button:focus,
+.aui-buttons .aui-button:hover,
+.aui-buttons .aui-button:active {
+    border-color: #999;
+}
+.aui-buttons .aui-button[disabled],
+.aui-buttons .aui-button[disabled]:hover,
+.aui-buttons .aui-button[disabled]:focus,
+.aui-buttons .aui-button[disabled]:active,
+.aui-buttons .aui-button[aria-disabled="true"],
+.aui-buttons .aui-button[aria-disabled="true"]:hover,
+.aui-buttons .aui-button[aria-disabled="true"]:focus,
+.aui-buttons .aui-button[aria-disabled="true"]:active {
+    border-color: #ccc;
+}
+
+
+/* Grouped Primary Buttons */
+
+/* Primary Buttons */
+.aui-buttons .aui-button.aui-button-primary {
+    background: #f2f2f2;
+    background: -webkit-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:    -moz-linear-gradient(top, #fff 0%, #f2f2f2 100%); 
+    background:     -ms-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:      -o-linear-gradient(top, #fff 0%, #f2f2f2 100%); 
+    background:         linear-gradient(to bottom, #fff 0%, #f2f2f2 100%);
+    border-color: #ccc;
+    color: #3b73af;
+    text-shadow: none;
+}
+
+.aui-buttons .aui-button ~ .aui-button {
+    border-left-width: 0;
+    padding-left: 11px;
+}
+
+.aui-buttons .aui-button.aui-button-primary:hover,
+.aui-buttons .aui-button.aui-button-primary:focus,
+.aui-buttons .aui-button.aui-button-primary:active {
+    border-color: #999;
+    color: #205081;
+}
+
+.aui-buttons .aui-button ~ .aui-button:hover,
+.aui-buttons .aui-button ~ .aui-button:focus,
+.aui-buttons .aui-button ~ .aui-button:active {
+    border-width: 1px;
+    margin-left: -1px;
+    position: relative;
+}
+
+/* Selected buttons - NOT supported for free-standing primary buttons
+ARIA usage from http://www.paciellogroup.com/blog/misc/ARIA/togglebutton.html */
+.aui-button[aria-pressed="true"],
+.aui-buttons .aui-button[aria-pressed="true"],
+.aui-buttons .aui-button[aria-pressed="true"].aui-button-primary,
+.aui-buttons .aui-button[aria-pressed="true"].aui-button-subtle {
+    background: #ccc;
+    background: -webkit-linear-gradient(top, #ccc 0%, #ddd 13%); 
+    background:    -moz-linear-gradient(top, #ccc 0%, #ddd 13%);
+    background:     -ms-linear-gradient(top, #ccc 0%, #ddd 13%); 
+    background:      -o-linear-gradient(top, #ccc 0%, #ddd 13%); 
+    background:         linear-gradient(to bottom, #ccc 0%, #ddd 13%);
+}
+
+.aui-button[aria-pressed="true"].aui-button-subtle,
+.aui-buttons .aui-button[aria-pressed="true"].aui-button-subtle {
+    color: #333;
+    border-color: #ccc;
+}
+
+.aui-buttons .aui-button[aria-pressed="true"]:active {
+    background: #ccc;
+    box-shadow: inset 0px 3px 6px rgba(0,0,0,.2);
+}
+
+
+/* Disabled states (keep last to avoid excessive selector weight)
+---------------------------------------------------------------------- */
+.aui-button[disabled],
+.aui-button[disabled]:hover,
+.aui-button[disabled]:focus,
+.aui-button[disabled]:active,
+.aui-button[aria-disabled="true"],
+.aui-button[aria-disabled="true"]:hover,
+.aui-button[aria-disabled="true"]:focus,
+.aui-button[aria-disabled="true"]:active,
+.aui-button[aria-disabled="true"][aria-pressed] {
+    background: #f2f2f2;
+    background: -webkit-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:    -moz-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:     -ms-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:      -o-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:         linear-gradient(to bottom, #fff 0%, #f2f2f2 100%);
+    border-color: #ccc;
+    box-shadow: none;
+    color: #999;
+    cursor: default;
+    text-shadow: none;
+}
+
+/* Subtle buttons have their own disabled stated*/
+.aui-button.aui-button-subtle[disabled],
+.aui-button.aui-button-subtle[aria-disabled="true"] {
+    border: 0;
+    background: none;
+}
+
+.aui-button.aui-button-primary[disabled],
+.aui-button.aui-button-primary[disabled]:hover,
+.aui-button.aui-button-primary[disabled]:focus,
+.aui-button.aui-button-primary[disabled]:active,
+.aui-button.aui-button-primary[aria-disabled="true"],
+.aui-button.aui-button-primary[aria-disabled="true"]:hover,
+.aui-button.aui-button-primary[aria-disabled="true"]:focus,
+.aui-button.aui-button-primary[aria-disabled="true"]:active {
+    background: #97b3d0;
+    background: -webkit-linear-gradient(top, #a2c3e6 0%, #97b3d0 100%);
+    background:    -moz-linear-gradient(top, #a2c3e6 0%, #97b3d0 100%);
+    background:     -ms-linear-gradient(top, #a2c3e6 0%, #97b3d0 100%);
+    background:      -o-linear-gradient(top, #a2c3e6 0%, #97b3d0 100%);
+    background:         linear-gradient(to bottom, #a2c3e6 0%, #97b3d0 100%);
+    border-color: #7f9cb9;
+    box-shadow:none;
+    color: #fff;
+    text-shadow: none;
+}
+
+.aui-button.aui-button-link[disabled],
+.aui-button.aui-button-link[disabled]:hover,
+.aui-button.aui-button-link[disabled]:focus,
+.aui-button.aui-button-link[disabled]:active,
+.aui-button.aui-button-link[aria-disabled="true"],
+.aui-button.aui-button-link[aria-disabled="true"]:hover,
+.aui-button.aui-button-link[aria-disabled="true"]:focus,
+.aui-button.aui-button-link[aria-disabled="true"]:active {
+    background: transparent;
+    border-color: transparent;
+    color: #999;
+    text-shadow: none;
+    text-decoration: none;
+}
+
+.aui-buttons .aui-button.aui-button-primary[disabled],
+.aui-buttons .aui-button.aui-button-primary[disabled]:hover,
+.aui-buttons .aui-button.aui-button-primary[disabled]:focus,
+.aui-buttons .aui-button.aui-button-primary[disabled]:active,
+.aui-buttons .aui-button.aui-button-primary[aria-disabled="true"],
+.aui-buttons .aui-button.aui-button-primary[aria-disabled="true"]:hover,
+.aui-buttons .aui-button.aui-button-primary[aria-disabled="true"]:focus,
+.aui-buttons .aui-button.aui-button-primary[aria-disabled="true"]:active {
+    background: #f2f2f2;
+    background: -webkit-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:    -moz-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:     -ms-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:      -o-linear-gradient(top, #fff 0%, #f2f2f2 100%);
+    background:         linear-gradient(to bottom, #fff 0%, #f2f2f2 100%);
+    border-color: #ccc;
+    color: #9dbbd9;
+    text-shadow: none;
+}
+
+
+/* Cross-component integration
+---------------------------------------------------------------------- */
+
+/* Dropdown2 integration
+---------- */
+.aui-button.aui-dropdown2-trigger:first-child.active,
+.aui-button.aui-dropdown2-trigger.active {
+    /* square off bottom corners */
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-width: 0; /* avoid double border when the dropdown is active - increase padding to cater for this reduction */
+    padding-bottom: 5px; /* increase the padding to cater for the lack of border so the button doesn't change size */
+}
+.aui-button-link.aui-dropdown2-trigger:first-child.active,
+.aui-button-link.aui-dropdown2-trigger.active {
+    border-bottom-width: 1px;
+    box-shadow: none;
+    padding-bottom: 5px;
+}
+
+.aui-buttons .aui-button.aui-button-subtle.aui-dropdown2-trigger.active,
+.aui-button.aui-button-subtle.aui-dropdown2-trigger.active {
+    border-color: #ccc;
+}
+.aui-button.aui-button-subtle.aui-dropdown2-trigger:hover {
+    border-color: #999;
+}
+
+.aui-button.aui-dropdown2-trigger {
+    padding-right: 23px !important; /* 8px (arrow width) + 10px (right padding) + 5px (margin between arrow and logo) */
+    position: relative;
+}
+.aui-button.aui-dropdown2-trigger:after {
+    border: 4px solid transparent;
+    content: "";
+    height: 0;
+    left: 100%; /* "left" + "margin-left" required because of webkit not working properly with "right" */
+    margin-left: -18px;
+    margin-top: -2px;
+    opacity: 0.8;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+.aui-button.aui-dropdown2-trigger:after,
+.aui-buttons .aui-button.aui-button-primary.aui-dropdown2-trigger:after {
+    border-top-color: #333;
+}
+.aui-button.aui-button-primary.aui-dropdown2-trigger:after {
+    border-top-color: #fff;
+}
+.aui-button.aui-dropdown2-trigger:hover:after,
+.aui-button.aui-dropdown2-trigger.active:after {
+    opacity: 1;
+}
+.aui-button.aui-button.aui-dropdown2-trigger:after {
+    margin-top: 0;
+    top: 13px;
+}
+
+/* suppress old icon pattern for dropdown widget so we don't get double arrows */
+.aui-button.aui-dropdown2-trigger > .icon-dropdown,
+.aui-button.aui-dropdown2-trigger > .aui-icon-dropdown {
+    display: none;
+}
+
+
+/* INPUT does not play with :after - dropdown2 does not support arrow styles for INPUT buttons */
+input.aui-button.aui-dropdown2-trigger {
+    padding-right: 10px !important; /* someone used important now we're all doomed */
+}
+input.aui-button.aui-dropdown2-trigger:after {
+    display: none;
+}
+
+/* Dropdown2-only / Split Button
+---------- */
+.aui-button.aui-dropdown2-trigger.aui-button-split-more,
+.aui-button.aui-dropdown2-trigger.aui-button-split-more.active {
+    /* don't touch vertical padding or things jump around, jump around, jump up jump up and get down */
+    padding-left: 5px;
+    padding-right: 10px;
+    text-align: left;
+    text-indent: -9999em;
+}
+
+/* remove the element border... */
+.aui-button-split-main {
+    border-right: 0;
+}
+
+.aui-button.aui-dropdown2-trigger.aui-button-split-more:hover {
+    border-left: 0;
+    margin-left: 0;
+}
+ 
+/* ...then replace it with a border on a pseudo element so we can control the height. */
+.aui-button.aui-dropdown2-trigger.aui-button-split-more:before {
+    border-left: 1px solid #ccc;
+    bottom: 4px;
+    content: "";
+    display: block;
+    left: 0;
+    position: absolute;
+    top: 4px;
+}
+
+/* ...then extend it to full height border on hover */
+.aui-button.aui-button-split-main:hover + .aui-button.aui-dropdown2-trigger.aui-button-split-more:before,
+.aui-button.aui-dropdown2-trigger.aui-button-split-more.active:hover:before,
+.aui-button.aui-dropdown2-trigger.aui-button-split-more.active:before,
+.aui-button.aui-dropdown2-trigger.aui-button-split-more:hover:before {
+    border-left-color: #999; /* dark border for hover. */
+    bottom: -1px; /* -1 to pull it out over the border */
+    top: -1px; /* -1 to pull it out over the border */
+}
+/* ...and change the colour on dropdown .active */
+.aui-button.aui-dropdown2-trigger.aui-button-split-more.active:before {
+    border-left-color: #ccc; /* lighter border for dropdown-active */
+}
+
+
+/* App Header Buttons and Split Button
+---------- */
+.aui-header .aui-nav .aui-button,
+.aui-header .aui-nav .aui-button-primary {
+    margin: 5px 0 0 10px;
+}
+
+.aui-header .aui-nav .aui-button-split-main {
+    margin-right: 0;
+}
+
+/* long selector set required to avoid a jump in non-hover focus */
+.aui-header .aui-nav .aui-buttons .aui-button ~ .aui-button:hover, 
+.aui-header .aui-nav .aui-buttons .aui-button ~ .aui-button:focus, 
+.aui-header .aui-nav .aui-buttons .aui-button ~ .aui-button:active,
+.aui-header .aui-nav .aui-button-split-more {
+    margin-left: 0;
+}
+
+.aui-header .aui-nav .aui-button-primary,
+.aui-header .aui-nav .aui-button-primary:link,
+.aui-header .aui-nav .aui-button-primary:visited {
+    background: #336ea9;
+    background-image: -moz-linear-gradient(top, #3b7fc4, #336ea9);
+    background-image: -ms-linear-gradient(top,  #3b7fc4, #336ea9);
+    background-image: -webkit-linear-gradient(top,  #3b7fc4, #336ea9);
+    background-image: -o-linear-gradient(top,  #3b7fc4, #336ea9);
+    background-image: linear-gradient(top,  #3b7fc4, #336ea9);
+    border: 0;
+    box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0 0 inset, rgba(0, 0, 0, 0.2) 0 1px 1px 0;
+    color: #fff;    
+    text-shadow: 0 1px 0 #295989;
+}
+
+.aui-header .aui-nav .aui-button.aui-button-primary:focus,
+.aui-header .aui-nav .aui-button.aui-button-primary:hover {
+    background: #2D5F9C;
+    background-image: -moz-linear-gradient(top, #4796e6, #3773af);
+    background-image: -ms-linear-gradient(top, #4796e6, #3773af);
+    background-image: -webkit-linear-gradient(top, #4796e6, #3773af);
+    background-image: -o-linear-gradient(top, #4796e6, #3773af);
+    background-image: linear-gradient(top, #4796e6, #3773af);
+    color: #fff;    
+}
+
+.aui-header .aui-nav .aui-button.aui-button-primary:active,
+.aui-header .aui-nav .aui-button.aui-button-primary.active {
+    background-color: #3572b0;
+    background-image: none;
+}
+
+.aui-header .aui-nav .aui-buttons .aui-button-primary.aui-dropdown2-trigger:after {
+    border-top-color: #fff;
+}
+
+.aui-header .aui-button-primary.aui-dropdown2-trigger.aui-button-split-more.active {
+    top: -1px;
+}
+
+.aui-header .aui-button-primary.aui-button-split-main:hover + .aui-button.aui-dropdown2-trigger.aui-button-split-more:before,
+.aui-header .aui-button-primary.aui-dropdown2-trigger.aui-button-split-more.active:hover:before,
+.aui-header .aui-button-primary.aui-dropdown2-trigger.aui-button-split-more.active:before,
+.aui-header .aui-button-primary.aui-dropdown2-trigger.aui-button-split-more:hover:before,
+.aui-header .aui-button-primary.aui-dropdown2-trigger.aui-button-split-more:before {
+    border-color: #1f4e7e;
+    bottom: 0;
+    top: 0;
+}
+

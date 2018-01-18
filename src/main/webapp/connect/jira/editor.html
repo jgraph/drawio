@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="ac.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		// Specifies connection mode for touch devices (at least one should be true)
+		var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+		var connectUrl = baseUrl + '/atlassian-connect';
+		var head = document.getElementsByTagName("head")[0];
+		
+		var script = document.createElement("script");
+		script.src = connectUrl + '/all-debug.js';
+		script.setAttribute('data-options', 'resize:false;margin:false');
+
+		script.onload = main;
+		
+		head.appendChild(script);
+		
+		var link = document.createElement("link");
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.href = connectUrl + '/all.css';
+		head.appendChild(link);
+		
+		function main()
+		{
+			var issueId = AC.getUrlParam('issueId', true);
+			var channel = AC.getUrlParam('xdm_c', true);
+			
+			AP.require('dialog', function(dialog){
+				  var diagramName = dialog.customData != null ? dialog.customData.diagramName : null;
+				  AC.openEditor(baseUrl, issueId, diagramName);
+			});
+		}
+		
+	</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,105 @@
+{
+    "name": "Google Drive Connector for Confluence",
+    "description": "Google Drive Connector for Confluence",
+    "key": "com.mxgraph.confluence.plugins.driveconnector",
+    "baseUrl": "https://drive.draw.io",
+    "vendor": 
+    {
+        "name": "JGraph Ltd.",
+        "url": "https://www.jgraph.com"
+    },
+    "links": {
+        "documentation": "https://desk.draw.io/support/solutions/articles/16000042550"
+    },
+    "version": "1.0.2",
+    "authentication": 
+    {
+        "type": "none"
+    },
+    "modules": 
+    {
+        "dynamicContentMacros": 
+        [
+            {
+                "name": 
+                {
+                    "i18n": "gdriveconnector",
+                    "value": "Google Drive Connector"
+                },
+                "url": "/connect/gdriveconnector/viewer.html?fileId=${fileId}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}",
+                "width": "600px",
+                "height": "400px",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Views a Google Drive file"
+                }, "icon": 
+                {
+		          "width": 144,
+		          "height": 144,
+		          "url": "/images/google-drive-connector-atlas.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "gdriveconnector",
+			    "editor": {
+				    "url": "/connect/gdriveconnector/macroEditor.html?fileId=${fileId}&filename=${filename}&width=${width}&height=${height}",
+				    "width": "80%",
+				    "height": "60%"
+				},
+			    "parameters": 
+			    [
+				    {
+				      "identifier": "fileId",
+				      "name": 
+				      {
+				        "value": "Google Drive file ID"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "mimeType",
+				      "name": 
+				      {
+				        "value": "Google Drive file mime type"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "filename",
+				      "name": 
+				      {
+				        "value": "Name of the Google Drive file"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Height"
+				      },
+				      "type": "string"
+				    }
+  				]
+            }
+        ]
+    },
+    "scopes": [
+    "read",
+    "write"
+  	]
+}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io viewer</title>
+<link rel="stylesheet" type="text/css" href="../common/styles/plugin/reader.css"></link> 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+<script src="../common/js/mxProperties.js"></script>
+</head>
+<body style='overflow : none'>
+<div id='graphContainer' style="position: absolute;box-sizing:border-box;"></div>
+<img id='logo' src='../../images/logo.png' style="margin-top : 5px; float : left; clear : left; width : 90px; height : 80px; display : none"/>
+
+<script type="text/javascript">
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName("head")[0];
+	
+	var script = document.createElement("script");
+	script.src = connectUrl + '/all-debug.js';
+	script.setAttribute('data-options', 'resize:false;margin:false');
+
+	script.onload = main;
+	
+	head.appendChild(script);
+	
+	var link = document.createElement("link");
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	// Redirects clipart images
+	mxUrlConverter.prototype.convert = function(url)
+	{
+		if (this.isEnabled() && this.isRelativeUrl(url))
+		{
+			//we rewrite the URL of the images so diagrams made with draw.io online work in the plugins and vice versa
+			if (url.substring(0,4) == 'img/') 
+			{
+				url = ATLAS_RESOURCE_BASE + '/' + url;
+			}
+			
+			if (url.substring(0,4) == '/img') 
+			{
+				url = ATLAS_RESOURCE_BASE + url;
+			}
+		}
+		
+		return url;
+	};
+	
+	function main()
+	{
+		var maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20;
+
+		var diagramWidth = parseFloat(AC.getUrlParam('width'));
+		var diagramHeight = parseFloat(AC.getUrlParam('height'));
+
+		var viewerOpts = {};
+		viewerOpts.stylePath = '../../styles';
+		viewerOpts.stencilPath = '../../stencils';
+		viewerOpts.imagePath = '../common/images/reader';
+		viewerOpts.border = true;
+		viewerOpts.width = null;
+		viewerOpts.height = null;
+		viewerOpts.autosize = true;
+		viewerOpts.fitWindow = true;
+		viewerOpts.center = true;
+		viewerOpts.viewerToolbar = true;
+		viewerOpts.border = false;
+		viewerOpts.resourcePath = '../common/message';
+		
+		DrawioViewer.prototype.loadGraph = function(diagramName, pageId) 
+		{
+			var reader = this;
+			AC.loadDiagram(pageId, diagramName, AC.getUrlParam('revision'), function(responseText) 
+			{
+				var doc = mxUtils.parseXml(responseText);
+				reader.xmlDoc = doc;
+				reader.filename = diagramName;
+				
+				reader.setGraphXml(doc.documentElement);
+		    });
+		};
+	
+		var graphContainer = document.getElementById('graphContainer');
+		
+		var diagramName = AC.getUrlParam('diagramName');
+		
+		if (diagramName != null && diagramName.length > 0) 
+		{
+			viewer = new DrawioViewer(diagramName , 0, AC.getUrlParam('ceoId'), viewerOpts, null, null, true);
+			viewer.buttons[DrawioViewerActions.ACTUAL_SIZE].visible = false;
+			viewer.buttons[DrawioViewerActions.EDIT].visible = false;
+			viewer.buttons[DrawioViewerActions.REMOVE].visible = false;
+			viewer.buttons[DrawioViewerActions.EXPAND].visible = false;
+			viewer.show(graphContainer);
+			AP.resize('100%', diagramHeight + 40 /* padding for toolbar */);
+		}
+		else 
+		{
+			document.getElementById('logo').style.display = 'block';
+		}
+	
+		AP.require('confluence', function(confluence)
+		{
+			confluence.getMacroData(function(location) 
+			{
+				var pageId = AC.getUrlParam('pageId', true, location);
+				var macroPageId = data.PageId != null ? data.PageId : '';
+				var macroBaseUrl = data.baseUrl != null ? data.baseUrl : '';
+				var macroDiagramName = data.baseUrl != null ? data.diagramName : '';
+				var macroRevision = data.baseUrl != null ? data.revision : '';
+				
+				if (pageId != null && macroPageId != null && macroBaseUrl != null && macroDiagramName != null && macroRevision != null)
+				{
+					if (macroBaseUrl != baseUrl || macroPageId != pageId)
+					{
+						AP.require(['confluence'], function(confluence) 
+						{
+							confluence.saveMacro(
+							{
+								diagramName : macroDiagramName,
+								revision : macroRevision,
+								pageId : pageId,
+								baseUrl : baseUrl
+							});
+						});
+					}
+				}
+			});
+		});
+	}
+</script>
+
+</body>
+</html>

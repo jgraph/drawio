@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+<script src="../common/js/mxProperties.js"></script>
+<script src="../common/js/mxReader.js"></script>
+<link rel="stylesheet" type="text/css" href="../common/styles/plugin/reader.css"></link> 
+</head>
+<body>
+<span id="drawio-viewer" style="position : relative; display : block;">
+	<span id="drawio-viewer-content" style="position : relative; display : block;">
+	</span>
+</span>
+<script type="text/javascript">
+		// Specifies connection mode for touch devices (at least one should be true)
+		var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+		var connectUrl = baseUrl + '/atlassian-connect';
+		var head = document.getElementsByTagName("head")[0];
+		
+		var script = document.createElement("script");
+		script.src = connectUrl + '/all-debug.js';
+		script.setAttribute('data-options', 'resize:false;margin:false');
+		 
+		script.onload = main;
+		
+		head.appendChild(script);
+		
+		var link = document.createElement("link");
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.href = connectUrl + '/all.css';
+		head.appendChild(link);
+	
+		function main()
+		{
+			var issueId = AC.getUrlParam('issueId', true);
+			
+			AP.require('dialog', function(dialog) {
+		        
+	        	var diagramName = dialog.customData != null ? dialog.customData.diagramName : null;  
+	            
+	            DrawioViewer.prototype.loadGraph = function() 
+				{
+					var reader = this;
+					AC.loadDiagram(issueId, diagramName, mxUtils.bind(this, function(responseText) 
+					{
+						var doc = mxUtils.parseXml(responseText);
+						this.xmlDoc = doc;
+						this.setGraphXml(doc.documentElement);
+						this.graph.center(true, false);
+						
+				    }), mxUtils.bind(this,  function() 
+				    {
+						this.showEvaluationWarning(mxResources.get('error'));
+						this.graph.container.style.border = this.options.border ? '1px solid #DDDDDD' : 'none';
+						this.graph.container.style.backgroundColor = '#ffffff';
+						this.graph.container.style.height = '20px';
+				    }));
+				};
+				
+				
+				var viewerOpts = {};
+				viewerOpts.stylePath = '../../styles';
+				viewerOpts.stencilPath = '../../stencils';
+				viewerOpts.imagePath = '../common/images/reader';
+				viewerOpts.border = true;
+				viewerOpts.width = screen.availWidth - 30;
+				viewerOpts.height = screen.availHeight - 120;
+				viewerOpts.center = true;
+				viewerOpts.viewerToolbar = true;
+				viewerOpts.resourcePath = '../common/viewer';
+				
+				viewer = new DrawioViewer(diagramName , 0, issueId, viewerOpts, true, null, true);
+				viewer.buttons[DrawioViewerActions.ZOOM_TO_FIT].visible = false;
+				viewer.buttons[DrawioViewerActions.EXPAND].visible = false;
+				viewer.buttons[DrawioViewerActions.EDIT].visible = false;
+				viewer.buttons[DrawioViewerActions.REMOVE].visible = false;
+				viewer.buttons[DrawioViewerActions.CLOSE].visible = true;
+				viewer.buttons[DrawioViewerActions.CLOSE].clickHandler = function() 
+				{
+					AP.require('dialog', function(dialog){
+						 dialog.close();
+					});
+				};
+				container = $('#drawio-viewer-content')[0];
+				viewer.show(container);
+				
+				AP.resize('50%', '50%');
+		    });
+			
+		}
+		
+</script>
+
+</body>
+</html>

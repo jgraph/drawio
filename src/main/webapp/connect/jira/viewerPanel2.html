@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io Viewer</title>
+<style type="text/css">
+html, body {
+	height:100%;
+	overflow:hidden;
+}
+body {
+	font-family:Arial,sans-serif;
+	width:100%;
+	margin:0;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+//Parses URL parameters
+function getUrlParam(param)
+{
+	var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+	
+	if (result != null && result.length > 0)
+	{
+		return decodeURIComponent(result[1].replace(/\+/g, '%20'))
+	}
+	
+	return null;
+};
+
+// Sets global environment variables
+RESOURCE_BASE = '/resources/dia';
+STENCIL_PATH = '/stencils';
+SHAPES_PATH = '/shapes';
+
+// Overrides browser language with JIRA user language
+var lang = getUrlParam('loc');
+
+// Language is in the Connect URL
+if (lang != null)
+{
+	var dash = lang.indexOf('-');
+	
+	if (dash >= 0)
+	{
+		mxLanguage = lang.substring(0, dash);
+	}
+}
+</script>
+<script src="/js/viewer.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function()
+{
+	// Enables dynamic loading of shapes and stencils (same domain)
+	mxStencilRegistry.dynamicLoading = true;
+
+	// Specifies connection mode for touch devices (at least one should be true)
+	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName("head")[0];
+	
+	var script = document.createElement("script");
+	script.setAttribute('data-options', 'resize:false;margin:false');
+
+	head.appendChild(script);
+	
+	var link = document.createElement("link");
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	mxResources.loadDefaultBundle = false;
+	var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+		mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
+
+	// Prefetches asynchronous requests so that below code runs synchronous
+	// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
+	// is compiled into JS in the build process and is only needed for local development.
+	var bundleLoaded = false;
+	var scriptLoaded = false;
+	
+	function mainBarrier()
+	{
+		if (bundleLoaded && scriptLoaded)
+		{
+			main();
+		}
+	};
+	
+	mxUtils.getAll([bundle], function(xhr)
+	{
+		// Adds bundle text to resources
+		mxResources.parse(xhr[0].getText());
+		bundleLoaded = true;
+		mainBarrier();
+	});
+
+	script.onload = function()
+	{
+		scriptLoaded = true;
+		mainBarrier();
+	};
+	script.src = connectUrl + '/all.js';
+	
+	function main()
+	{
+		var editImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVBAMAAABbObilAAAAD1BMVEUAAAAAAAAQEBBycnIgICBqwj3hAAAAAXRSTlMAQObYZgAAADlJREFUCNdjoBwoChrAmCyGggJwYWVBBSiTSVDICKFa0AEuLCiEJKyAX5gBSZgBSZgBKGwMBKQ7HAAWzQSfKKAyBgAAAABJRU5ErkJggg==';
+		var removeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVAQMAAACT2TfVAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAABlJREFUCNdjQAF/GBj4/x8AYxBg/k80RgYApAUPr950a4AAAAAASUVORK5CYII=';
+		var issueId = getUrlParam('issueId');
+		var serverName = document.referrer;
+		var timeout = 25000;
+		var index1 = serverName.indexOf('//');
+		
+		if (index1 > 0)
+		{
+			var index2 = serverName.indexOf('/', index1 + 2);
+			
+			if (index2 > index1)
+			{
+				serverName = serverName.substring(index1 + 2, index2);
+			}
+		}
+		
+		// Delayed invocation see below
+		function init()
+		{
+			// Workaround to ignore scrollbars when applying fit to available width in all but FF
+			if (!mxClient.IS_FF)
+			{
+				document.body.style.width = document.documentElement.offsetWidth + 'px';
+			}
+			
+			AP.resize('100%', '0px');
+			AP.require(['request', 'dialog', 'jira'], function(request, dialog, jira) 
+			{
+				request({
+					url: '/rest/api/2/issue/' + issueId + '?fields=attachment',
+					type: 'GET',
+					success: function(resp) 
+					{
+						var tbHeight = GraphViewer.prototype.toolbarHeight;
+						var containers = [];
+						var count = 0;
+						
+						function updateHeight()
+						{
+							var h = 0;
+
+							// +2 is needed to include margin
+							for (var i = 0; i < containers.length; i++)
+							{
+								h += containers[i].offsetHeight + tbHeight + 2;
+							}
+							
+							// Restricts the max sidebar panel height
+							h = Math.min(screen.height * 1.5, h);
+							AP.resize('100%', h);
+							
+							// Workaround for iframe scrollbars
+							document.body.style.height = h + 'px';
+						}
+						
+						function finish() 
+						{
+							count--;
+							
+			 				if (count == 0) 
+			 				{
+			 					document.body.style.width = '';
+								updateHeight();
+			 				}
+						}
+	
+						function loadDiagram(value)
+						{
+							count++;
+							var container = document.createElement('div');
+							container.style.cssText = 'position:relative;box-sizing:border-box;margin-bottom:2px;' +
+								'max-width:100%;min-width:100%;border:1px solid transparent;';
+								
+							// Adds filename and ID to side panel
+							var title = document.createElement('div');
+							title.innerHTML = '&ndash; ';
+							mxUtils.write(title, value.filename + ' [' + value.id + ']');
+							var displayName = value.author != null ? value.author.displayName : '';
+							title.setAttribute('title', value.filename + ' [' + value.id + '] - ' + displayName +
+									' ' + new Date(value.created).toLocaleString());
+							title.style.cssText = 'position:relative;box-sizing:border-box;width:100%;padding-top:6px;height:' + tbHeight +
+								'px;margin-bottom:-' + tbHeight + 'px;text-align:left;white-space:nowrap;cursor:pointer;';
+							document.body.appendChild(title);
+							
+							// Simple collapse-expand for diagrams
+							title.addEventListener('click', function()
+							{
+								if (container.style.display != 'none')
+								{
+									title.innerHTML = '+ ';
+									mxUtils.write(title, value.filename + ' [' + value.id + ']');
+									container.style.display = 'none';
+									title.style.marginBottom = '0px';
+								}
+								else
+								{
+									title.innerHTML = '&ndash; ';
+									mxUtils.write(title, value.filename + ' [' + value.id + ']');
+									container.style.display = '';
+									title.style.marginBottom = -tbHeight + 'px';
+								}
+								
+								updateHeight();
+							});
+							
+							document.body.appendChild(container);
+							containers.push(container);
+							var acceptResponse = true;
+							
+							var timeoutThread = window.setTimeout(function()
+							{
+								acceptResponse = false;
+								
+	 							container.style.height = '24px';
+	 							container.style.textAlign = 'center';
+	 							container.style.marginTop = tbHeight + 'px';
+	 							mxUtils.write(container, 'The connection has timed out: The server at ' +
+										serverName + ' is taking too long to respond.');
+	 							finish();
+							}, timeout);
+							
+							// Loads attachment content
+							request({
+								url: '/secure/attachment/' + value.id + '/' + encodeURIComponent(value.filename),
+								success: function(xml)
+								{
+							 		window.clearTimeout(timeoutThread);
+									
+							 		if (acceptResponse)
+							 		{
+										var doc = mxUtils.parseXml(xml);
+			
+										var btnDefs = {
+											'edit': {title: mxResources.get('edit'), enabled: typeof window.Blob !== 'undefined',
+												image: editImage, handler: function()
+											{
+												dialog.create(
+												{
+												   key: 'drawioEditor',
+												   width: '100%',
+												   height: '100%',
+												   chrome: false,
+												   customData : {diagramName: value.filename, diagramId: value.id, page: viewer.currentPage}
+												});
+											}},
+											'remove': {title: mxResources.get('delete'), image: removeImage, handler: function()
+											{
+												if (confirm(mxResources.get('removeIt', [value.filename]) + '?'))
+												{
+									    	        request({
+									    	            url: '/rest/api/2/attachment/' + value.id,
+									    	            type: 'DELETE',
+									    	            success: function()
+									    	            {
+									    	            	jira.refreshIssuePage();
+									    	            },
+									    	            error : function()
+									    	            {
+									    	            	jira.refreshIssuePage();
+									    	            }
+									    	        });
+												}
+											}}
+										};
+										
+										var viewer = new GraphViewer(container, doc.documentElement, {highlight: '#3572b0',
+											'toolbar-position': 'top', toolbar: 'edit pages layers lightbox remove', 'max-height':
+											Math.max(280, document.documentElement.offsetWidth / 1.5), border: 8,
+											/* disables automatic zoom with no buttons */'auto-fit': false,
+											nav: true, title: value.filename + ' [' + value.id + ']', 'toolbar-buttons': btnDefs});
+										
+										// Handles resize of iframe after zoom
+										var graphDoResizeContainer = viewer.graph.doResizeContainer;
+										
+										viewer.graph.doResizeContainer = function(width, height)
+										{
+											graphDoResizeContainer.apply(this, arguments);
+											updateHeight();
+										};
+										
+										// Updates the size of the iframe in responsive cases
+										viewer.updateContainerHeight = function(container, height)
+										{
+											updateHeight();
+										};
+			
+										viewer.showLightbox = function()
+										{
+											dialog.create(
+											{
+							                   header: value.filename + ' [' + value.id + ']',
+											   key: 'drawioFullScreenViewer',
+							                   size: 'fullscreen',
+											   chrome: true,
+											   customData: {diagramName: value.filename, diagramId: value.id, page: viewer.currentPage}
+											});					
+										};
+										
+										finish();
+							 		}
+								},
+								error: mxUtils.bind(this,  function(err, statusText, exc) 
+								{
+							 		window.clearTimeout(timeoutThread);
+									
+							 		if (acceptResponse)
+							 		{
+										container.style.height = '24px';
+										container.style.textAlign = 'center';
+										container.style.marginTop = tbHeight + 'px';
+										mxUtils.write(container, 'Error: ' + err.status);
+										finish();
+							 		}
+							    })
+							});
+						};
+						
+						var respObj = JSON.parse(resp);
+						
+						for (var i = 0; i < respObj.fields.attachment.length; i++)
+						{
+							var attachment = respObj.fields.attachment[i];
+							
+							if (attachment.mimeType == 'application/drawio')
+							{
+								loadDiagram(attachment);
+							}
+						}
+						
+						// Shows message if no files are found
+						if (count == 0)
+						{
+							mxUtils.write(document.body, mxResources.get('noFiles'));
+							AP.resize('100%', '20px');
+						}
+					},
+					error: function() 
+					{
+						AP.resize('100%', '0px');
+					}
+				});
+			});
+		}; // end of init
+		
+		// Workaround for collapsed side panel is to delay init until size is not 0
+		// NOTE: Since container.offsetWidth is 2 in this case the delayed rendering
+		// in the viewer does not triggger. We disable is here to make sure this does
+		// not change in case the container width is zero in the future.
+		GraphViewer.prototype.checkVisibleState = false;
+		
+		if (document.documentElement.offsetWidth == 0)
+		{
+			var listener = function()
+			{
+				if (document.documentElement.offsetWidth > 0)
+				{
+					window.removeEventListener('resize', listener);
+					init();
+				}
+			};
+			
+			window.addEventListener('resize', listener);
+		}
+		else
+		{
+			init();
+		}
+	}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GDrive Connector Editor</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="ac.js" type="text/javascript"></script>
+<script src="../../js/spin/spin.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.min.css" media="all">
+<style type="text/css">
+body {
+	font-family:Arial, sans-serif;
+	overflow:hidden;
+	height:100%;
+	width:100%;
+	margin:0;
+}
+</style>
+<script type="text/javascript">
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	var connectUrl = baseUrl + '/atlassian-connect';
+
+	// See https://console.developers.google.com/apis/credentials/oauthclient/671128082532.apps.googleusercontent.com?project=api-project-671128082532&authuser=2
+	var clientId = '671128082532.apps.googleusercontent.com';
+	//var clientId = '798289808817-ep3ols4fa67338do10s9kiat93jqjstt.apps.googleusercontent.com';//test client id
+	
+	var opts =
+	{
+		left: '325px',
+		lines: 12, // The number of lines to draw
+		length: 8, // The length of each line
+		width: 3, // The line thickness
+		radius: 5, // The radius of the inner circle
+		rotate: 0, // The rotation offset
+		color: '#000', // #rgb or #rrggbb
+		speed: 1, // Rounds per second
+		trail: 60, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		className: 'spinner', // The CSS class to assign to the spinner
+		zIndex: 2e9 // The z-index (defaults to 2000000000)
+	};
+
+	var spinner = new Spinner(opts);
+	var macroDialog = null;
+	var theParams = null;
+	
+	var head = document.getElementsByTagName("head")[0];
+	oauthToken = null;
+	
+	// Handles timeouts
+	var acceptResponse = true;
+	
+	var timeoutHandler = function()
+	{
+		acceptResponse = false;
+		spinner.stop();
+		alert('The connection has timed out');
+	};
+	
+	var timeoutThread = window.setTimeout(timeoutHandler, 25000);
+	
+	// Waits for both APIs to load in parallel
+	function main()
+	{
+		if (typeof window.AP !== 'undefined' && typeof window.gapi != 'undefined')
+		{
+			spinner.spin(document.getElementById('spinner-container'));
+			gapi.load('auth', { 'callback' : onAuthApiLoad });
+		}
+	};
+	
+	function onAuthApiLoad() 
+	{
+		window.clearTimeout(timeoutThread);
+		spinner.stop();
+		
+		if (acceptResponse)
+		{
+			$("#filePicker").prop('disabled', false);
+			$("#filePicker").click(function(evt) 
+			{
+				evt.preventDefault();
+				
+				window.gapi.auth.authorize({
+					'client_id' : clientId,
+					'scope' : 'https://www.googleapis.com/auth/drive.readonly',
+					'immediate' : false
+				}, handleAuthResult);
+			});
+			
+			if (theParams == null || theParams.fileId == null)
+			{
+				document.getElementById('filePicker').click();
+			}
+		}
+	};
+	
+	function handleAuthResult(authResult) 
+	{
+		if (authResult && !authResult.error) 
+		{
+			oauthToken = authResult.access_token;
+			gapi.load('picker', { 'callback' : createPicker });
+		}
+		else 
+		{
+			alert('Could not connect to Google Drive. Please try again later.');
+		}
+	};
+	
+	function createPicker() 
+	{
+		if (oauthToken)
+		{
+			var view1 = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+		        	.setParent('root')
+		        	.setIncludeFolders(true)
+				.setSelectFolderEnabled(true)
+				.setMimeTypes('*/*');
+			
+			var view2 = new google.picker.DocsView()
+				.setIncludeFolders(true)
+				.setSelectFolderEnabled(true);
+			
+			var view3 = new google.picker.DocsView()
+				.setEnableTeamDrives(true)
+				.setIncludeFolders(true)
+				.setSelectFolderEnabled(true);
+			
+			var builder = new google.picker.PickerBuilder()
+					.addView(view1)
+					.addView(view2)
+					.addView(view3)
+					.addView(new google.picker.MapsView())
+					.addView(new google.picker.PhotosView())
+					.addView(new google.picker.PhotoAlbumsView())
+					.addView(new google.picker.ImageSearchView())
+					.addView(new google.picker.VideoSearchView())
+					.setOAuthToken(oauthToken)
+					.enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+					.setCallback(pickerCallback)
+					.setOrigin(AC.getUrlParam('xdm_e', true))
+					.setSize(860, 600)
+					
+			picker = builder.build();		
+			picker.setVisible(true);
+			macroDialog.getButton("submit").disable();
+		}
+	};
+	
+	function pickerCallback(data) 
+	{
+        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED)
+        {
+			var doc = data[google.picker.Response.DOCUMENTS][0];
+			var youtubeIdent = 'https://www.youtube.com/watch?v=';
+			
+			if (doc.type == 'document' || doc.type == 'file' || doc.type == 'folder')
+			{
+				id = doc[google.picker.Document.ID];
+				name = doc[google.picker.Document.NAME];
+				mimeType = doc[google.picker.Document.MIME_TYPE];
+			}
+			else if (doc.embedUrl != null)
+			{
+				id = doc.embedUrl;
+				name = doc.type;
+				mimeType = 'url';
+			}
+			else if (doc.url.substring(0, youtubeIdent.length) == youtubeIdent)
+			{
+				// Uses embed URL for Youtube videos
+				id = 'https://www.youtube.com/embed/' + doc.url.substring(youtubeIdent.length);
+				name = doc.name;
+				mimeType = 'url';
+			}
+			else if (doc.thumbnails != null)
+			{
+				// Photos and Videos cannot be shown inside IFrames
+				id = doc.thumbnails[doc.thumbnails.length - 1].url;
+				
+				if (doc.serviceId == 'web' && doc.type == 'photo')
+				{
+					// Uses images with no link to source page
+					name = doc.name;
+					mimeType = 'image';
+				}
+				else
+				{
+					// Name is href for link to source page
+					name = doc.url;
+					mimeType = 'thumb';
+				}
+			}
+			else
+			{
+				id = doc.url;
+				name = doc.name;
+				mimeType = 'url';
+			}
+			
+			$('#fileId').val(id);
+			$('#filename').val(name);
+			$('#mimeType').val(mimeType);
+			loadPreview({ fileId : id, mimeType : mimeType, filename: name});
+        }
+        
+        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED ||
+        	data[google.picker.Response.ACTION] == google.picker.Action.CANCEL)
+       	{
+        	macroDialog.getButton("submit").enable();
+        }
+    };
+	
+	function loadAtlassianApi() 
+	{
+		var script = document.createElement("script");
+		script.src = connectUrl + '/all.js';
+		script.setAttribute('data-options', 'resize:false;margin:false');
+
+		script.onload = function() 
+		{
+			AP.require([ "confluence", "dialog" ], function(confluence, dialog) 
+			{
+				function onSubmit() 
+				{
+					var macroParams = 
+					{
+						fileId : $('#fileId').val(),
+						filename : $('#filename').val(),
+						width : $('#width').val(),
+						height : $('#height').val(),
+						mimeType : $('#mimeType').val()
+					};
+		
+					confluence.saveMacro(macroParams);
+					confluence.closeMacroEditor();
+					return true;
+				}
+				
+				confluence.getMacroData(function(macroParams) 
+				{
+					
+					if (macroParams != null && Object.keys(macroParams).length > 0) 
+					{
+						loadMacroParameters(macroParams);
+						loadPreview(macroParams);
+						theParams = macroParams;
+					}
+			    });
+				
+				macroDialog = dialog;
+				dialog.getButton("submit").bind(onSubmit);
+				
+				main();
+			});
+		};
+		
+		head.appendChild(script);
+	};
+	
+	function loadGoogleApi() 
+	{
+		var script = document.createElement("script");
+		script.src = "https://apis.google.com/js/api.js?onload=main";
+		head.appendChild(script);
+	};
+	
+	function loadMacroParameters(macroParams) 
+	{
+		$('#fileId').val(macroParams.fileId);    
+		$('#filename').val(macroParams.filename);
+		$('#width').val(macroParams.width);      
+		$('#height').val(macroParams.height);
+		$('#mimeType').val(macroParams.mimeType);
+	};
+	
+	function loadPreview(macroParams) 
+	{
+		$('#preview').empty();
+		var iframe = document.createElement('iframe');
+		var xdm_e = '&xdm_e=' + AC.getUrlParam('xdm_e', true); 
+		var cp = '&cp=' + AC.getUrlParam('cp', true);
+		var mimeTypeParam = '&mimeType=' + macroParams.mimeType;
+		var nameParam = '&filename=' + encodeURIComponent(macroParams.filename);
+		iframe.src = '/connect/gdriveconnector/viewer.html?fileId=' +
+			encodeURIComponent(macroParams.fileId) +
+			xdm_e + cp + mimeTypeParam + nameParam;
+		iframe.setAttribute('frameborder', '0');
+		iframe.width = '100%';
+		iframe.height = '100%';
+		$('#preview').append(iframe);
+	};
+	
+	// Loads APIs in parallel and waits in main
+	loadAtlassianApi();
+	loadGoogleApi();
+</script>
+</head>
+<body style="height:100%;">
+<div style="height:100%;">
+	<div style="height:100%;width:350px;border-right:1px solid #cccccc;position:absolute;top:0px;display:inline-block;">
+		<form class="aui top-label" style="height:100%;top:0px;">
+			<div class="field-group" style="padding-left:15px;">
+				<label for="filename">File name</label> 
+				<input class="text macro-param-input" type="text" id="filename" name="filename" disabled>
+				<button class="aui-button aui-button-primary ap-dialog-submit" id="filePicker" disabled>...</button>
+				<div id="spinner-container"></div>
+				<div class="description">Google Drive file name</div>
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<input class="text medium-field" type="hidden" id="fileId" name="fileId">
+				<input class="text medium-field" type="hidden" id="mimeType" name="mimeType">
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<label for="width">Width</label> <input class="text medium-field" id="width" value="800">
+				<div class="description">Width of the viewer (px)</div>
+			</div>
+			<div class="field-group" style="padding-left:15px;">
+				<label for="height">Height</label> <input class="text medium-field" id="height" value="600">
+				<div class="description">Height of the viewer (px)</div>
+			</div>
+			<div id="geFooter" style="bottom:0px;text-align:center;padding:3px;padding-bottom:6px;position:absolute;width:100%;">
+				<a href="https://marketplace.atlassian.com/plugins/com.mxgraph.confluence.plugins.driveconnector/cloud/reviews"
+				title="Please help us to 5 stars" target="_blank" style="display:inline;text-decoration:none;color:gray;">
+					<img border="0" align="absmiddle" style="margin-top:-4px;padding-right:5px;"
+						src="/images/glyphicons_star.png"/>Like this free plugin? Please help us to 4 stars.
+				</a>
+			</div>
+		</form>
+	</div>
+	<div id="preview" style="height:100%;left:351px;position:absolute;top:0px;right:0px;display:inline-block;">
+	</div>
+</div>
+</body>
+</html>

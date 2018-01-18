@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Draw.io Editor</title>
+<style type="text/css">
+html, body {
+  height:100%;
+  overflow:hidden;
+}
+body {
+	background-color:#ffffff;
+	background-image:url(/images/logo-flat.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	font-family:Arial,sans-serif;
+	width:100%;
+	margin:0;
+}
+iframe {
+	border:0;
+	position:fixed;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	width:100%;
+	height:100%;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+(function()
+{
+	// Parses URL parameters
+	function getUrlParam(param)
+	{
+		var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+		
+		if (result != null && result.length > 0)
+		{
+			return decodeURIComponent(result[1].replace(/\+/g, '%20'))
+		}
+		
+		return null;
+	};
+
+	// Overrides browser language with Confluence user language
+	var lang = getUrlParam('loc');
+
+	// Language is in the Connect URL
+	if (lang != null)
+	{
+		var dash = lang.indexOf('-');
+		
+		if (dash >= 0)
+		{
+			lang = lang.substring(0, dash);
+		}
+	}
+	
+	// Specifies connection mode for touch devices (at least one should be true)
+	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
+	var connectUrl = baseUrl + '/atlassian-connect';
+	var head = document.getElementsByTagName("head")[0];
+
+	var script = document.createElement('script');
+	script.src = connectUrl + '/all.js';
+	script.setAttribute('data-options', 'resize:false;margin:false');
+
+	script.onload = main;
+	head.appendChild(script);
+	
+	var link = document.createElement('link');
+	link.type = 'text/css';
+	link.rel = 'stylesheet';
+	link.href = connectUrl + '/all.css';
+	head.appendChild(link);
+	
+	// Gets current domain and protocol
+	var link2 = document.createElement('a');
+	link2.href = location.href;
+	link2.href = link2.href; //to have 'host' populated under IE
+	var editorHost = link2.protocol + '//' + link2.hostname;
+	var editorUrl = editorHost + '/?embed=1&p=acj&modified=unsavedChanges&keepmodified=1&spin=1&ui=atlas&proto=json&libraries=1&lang=' + lang;
+	
+	// Injects iframe into page
+	var iframe = document.createElement('iframe');
+	iframe.setAttribute('frameborder', '0');
+
+	var initReceived = false;
+	var xmlReceived = null;
+	var filename = null;
+	var timeout = 25000;
+	
+	function startEditor()
+	{
+		// InitReceived is usually last (iframe loads slower than data)
+		if (initReceived && xmlReceived != null)
+		{
+			// Shows template dialog if diagram is empty
+			if (xmlReceived == '')
+			{
+				iframe.contentWindow.postMessage(JSON.stringify({action: 'template'}), '*');
+			}
+			else
+			{
+				iframe.contentWindow.postMessage(JSON.stringify({action: 'load',
+					xml: xmlReceived, title: filename}), '*');
+			}
+		}
+	};
+	
+	window.addEventListener('message', function(evt)
+	{
+		if (evt.origin == editorHost)
+		{
+			var msg = JSON.parse(evt.data);
+			
+			if (msg.event == 'init')
+			{
+				document.body.style.backgroundImage = 'none';
+				initReceived = true;
+				startEditor();
+			}
+		}
+	});
+	
+	iframe.setAttribute('src', editorUrl);
+	document.body.appendChild(iframe);
+	
+	function main()
+	{
+		var issueId = getUrlParam('issueId');
+
+		AP.sizeToParent(true);
+		AP.require(['dialog', 'request', 'jira', 'messages'], function(dialog, request, jira, messages)
+		{
+			var serverName = document.referrer;
+			var index1 = serverName.indexOf('//');
+			
+			if (index1 > 0)
+			{
+				var index2 = serverName.indexOf('/', index1 + 2);
+				
+				if (index2 > index1)
+				{
+					serverName = serverName.substring(index1 + 2, index2);
+				}
+			}
+			
+			// LATER: Add fallback diagramName lookup via attachment list if name is unique
+			var diagramId = (dialog.customData != null) ? dialog.customData.diagramId : null;
+			var diagramName = (dialog.customData != null) ? dialog.customData.diagramName : null;
+
+		    function error(err, modified)
+		   	{
+		    	iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+            	var obj = JSON.parse(err.responseText);
+            	iframe.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+            		titleKey: 'error', message: obj.errorMessages[0],
+            		modified: modified, buttonKey: 'close'}), '*');
+		   	};
+		   	
+		   	function done(arg)
+		   	{
+		   		jira.refreshIssuePage();
+            	dialog.close();
+		   	};
+		   	
+		   	function saveDiagram(xml, insert)
+		   	{
+		   		try
+		   		{
+					var blob = new Blob([xml], {type: 'application/drawio'});
+				    blob.name = diagramName;
+
+		   			iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+							messageKey: (insert) ? 'inserting' : 'saving'}), '*');
+
+				    // LATER: Update existing attachment if rest call available
+			        request(
+			        {
+			            url: '/rest/api/2/issue/' + issueId + '/attachments',
+			            type: 'POST',
+						//data: formData,
+			            data: {file: blob},
+			            contentType: 'multipart/form-data',
+			            headers: {'X-Atlassian-Token': 'no-check'},
+			            success: function()
+			            {
+			            	if (insert)
+			            	{
+			            		done();
+			            	}
+			            	else
+			            	{
+			            		// Deletes previous diagram
+				    	        request({
+				    	            url: '/rest/api/2/attachment/' + diagramId,
+				    	            type: 'DELETE',
+				    	            success: done,
+				    	            error: function(err)
+				    	            {
+				    	            	// Error deleting last version means concurrent save
+				    	            	// in which case a copy of the attachment is created
+				    	            	// or server-side flow was used, in which case a
+				    	            	// manual delete of the attachment is required.
+				    	            	done();
+				    	            }
+				    	        });
+			            	}
+			            },
+			            error: function(err)
+	    	            {
+	    	            	error(err, true);
+	    	            }
+			        });
+		   		}
+		   		catch (e)
+		   		{
+		   			error({responseText: JSON.stringify({errorMessages: [e.message]})}, true);
+		   		}
+		   	};
+
+		   	// Creates a new diagram
+		   	if (diagramName == null)
+		   	{
+		   		xmlReceived = '';
+		   		filename = null;
+		   		
+				function promptName(name, err, errKey)
+				{
+					iframe.contentWindow.postMessage(JSON.stringify({action: 'prompt',
+						titleKey: 'filename', okKey: 'save', defaultValue: name || '' }), '*');
+					
+					if (err != null || errKey != null)
+					{
+						iframe.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+							titleKey: 'error', message: err, messageKey: errKey,
+							buttonKey: 'ok'}), '*');
+					}
+				};
+				
+				function checkName(name, fn, err)
+				{
+					if (name == null || name.length < 3)
+					{
+						err(name, 'Filename too short');
+					}
+					else if (/[&\*+=\\;/{}|\":<>\?~]/g.test(name))
+					{
+						err(name, 'Invalid characters \\ / | : { } < > & + ? = ; * " ~');
+					}
+					else
+					{
+						request({
+							url: '/rest/api/2/issue/' + issueId + '?fields=attachment',
+							type: 'GET',
+							success: function(resp) 
+							{
+								var respObj = JSON.parse(resp);
+								
+								for (var i = 0; i < respObj.fields.attachment.length; i++)
+								{
+									var attachment = respObj.fields.attachment[i];
+									
+									if (attachment.filename == name)
+									{
+										err(name, null, 'fileExists');
+										
+										return;
+									}
+								}
+								
+								fn(name);
+							},
+							error: function(res) 
+							{
+								var msg = (res.responseText != null && res.responseText) ?
+									res.responseText : res.statusText;
+								
+								try
+								{
+									var tmp = JSON.parse(msg);
+									
+									if (tmp != null && tmp.errorMessages != null &&
+										tmp.errorMessages.length > 0)
+									{
+										msg = tmp.errorMessages[0];
+									}
+								}
+								catch (e)
+								{
+									// ignore
+								}
+								
+								err(name, msg);
+							}
+						});
+					}
+				};
+				
+				var currentXml = null;
+				
+				window.addEventListener('message', function(evt)
+				{
+					if (evt.origin == editorHost)
+					{
+						var msg = JSON.parse(evt.data);
+						
+						if (msg.event == 'save')
+						{
+							currentXml = msg.xml;
+							
+							if (diagramName != null)
+							{
+								saveDiagram(msg.xml, true);
+							}
+							else
+							{
+								promptName('');
+							}
+						}
+						else if (msg.event == 'prompt')
+						{
+							iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: true, messageKey: 'inserting'}), '*');
+
+							checkName(msg.value, function(name)
+							{
+								iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+									show: false}), '*');
+								diagramName = name;
+								saveDiagram(currentXml, true);
+							},
+							function(name, err, errKey)
+							{
+								iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+									show: false}), '*');
+								promptName(name, err, errKey);
+							});
+						}
+						else if (msg.event == 'exit')
+						{
+							dialog.close();
+						}
+					}
+				});
+		   	}
+		   	else
+		   	{
+				var acceptResponse = true;
+				
+				var timeoutThread = window.setTimeout(function()
+				{
+					acceptResponse = false;
+					var message = messages.error('The connection has timed out', 'The server at ' +
+						serverName + ' is taking too long to respond.');
+					
+    				messages.onClose(message, function()
+    				{
+    					dialog.close();
+    				});
+    				
+					iframe.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+				}, timeout);
+				
+				request({
+					url: '/secure/attachment/' + diagramId + '/' + encodeURIComponent(diagramName),
+					success: function(xml)
+					{
+			    		window.clearTimeout(timeoutThread);
+			    		
+			    		if (acceptResponse)
+				    	{
+							filename = diagramName;
+							xmlReceived = xml;
+							startEditor();
+							
+							window.addEventListener('message', function(evt)
+							{
+								if (evt.origin == editorHost)
+								{
+									var msg = JSON.parse(evt.data);
+									
+									if (msg.event == 'save')
+									{
+										saveDiagram(msg.xml, false);
+									}
+									else if (msg.event == 'exit')
+									{
+										dialog.close();
+									}
+								}
+							});
+						}
+					},
+					error: function()
+					{
+			    		window.clearTimeout(timeoutThread);
+			    		
+			    		if (acceptResponse)
+				    	{
+							done();
+				    	}
+					}
+				});
+		   	}
+		});
+	};
+})();
+</script>
+</body>
+</html>

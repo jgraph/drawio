@@ -1,0 +1,29 @@
+{
+  "key": "com.mxgraph.bitbucket.plugins.diagramly",
+  "name": "Draw.io Viewer",
+  "description": "Viewer for files created with draw.io",
+  "baseUrl": "https://8d3077df.ngrok.io",
+  "modules": {
+    "fileViews": [
+      {
+        "key": "diagram",
+        "name": {
+          "value": "Diagram"
+        },
+        "url": "/viewer.html?repo={repo_uuid}&cset={file_cset}&path={file_path}&name={file_name}",
+        "file_matches": {
+        	"extensions": ["xml"]
+        }
+      }
+    ],
+    "oauthConsumer": {
+      "clientId": "Ss8dQHwm4RaeMqCaak"
+    }
+  },
+  "scopes": [
+    "repository"
+  ],
+  "contexts": [
+    "personal"
+  ]
+}

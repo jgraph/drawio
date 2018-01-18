@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+
+  <threadsafe>true</threadsafe>
+  <sessions-enabled>false</sessions-enabled>
+  <runtime>java8</runtime>
+
+  <!-- Configure java.util.logging -->
+  <system-properties>
+    <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+  </system-properties>
+
+  <!-- Path patterns not supported in production -->
+  <static-files>
+    <include path="/**">
+	  <http-header name="Access-Control-Allow-Origin" value="*"/>
+	</include>
+  </static-files>
+
+  <instance-class>F2</instance-class>
+  <automatic-scaling>
+    <min-idle-instances>1</min-idle-instances>
+    <max-idle-instances>1</max-idle-instances>
+  </automatic-scaling>
+</appengine-web-app>
