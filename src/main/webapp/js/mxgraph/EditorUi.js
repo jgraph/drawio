@@ -2579,6 +2579,12 @@ ChangePageSetup.prototype.execute = function()
 			this.previousFormat = tmp;
 		}
 	}
+
+    if (this.foldingEnabled != null && this.foldingEnabled != this.ui.editor.graph.foldingEnabled)
+    {
+    		this.ui.setFoldingEnabled(this.foldingEnabled);
+        this.foldingEnabled = !this.foldingEnabled;
+    }
 };
 
 // Registers codec for ChangePageSetup
@@ -2586,20 +2592,20 @@ ChangePageSetup.prototype.execute = function()
 {
 	var codec = new mxObjectCodec(new ChangePageSetup(),  ['ui', 'previousColor', 'previousImage', 'previousFormat']);
 
-	/**
-	 * Function: afterDecode
-	 *
-	 * Restores the state by assigning the previous value.
-	 */
 	codec.afterDecode = function(dec, node, obj)
 	{
 		obj.previousColor = obj.color;
 		obj.previousImage = obj.image;
 		obj.previousFormat = obj.format;
 
+        if (obj.foldingEnabled != null)
+        {
+        		obj.foldingEnabled = !obj.foldingEnabled;
+        }
+       
 		return obj;
 	};
-
+	
 	mxCodecRegistry.register(codec);
 })();
 

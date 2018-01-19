@@ -1313,3 +1313,132 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		}), parent);
 	});
 };
+
+//Registers codec for MovePage
+(function()
+{
+	var codec = new mxObjectCodec(new MovePage(),  ['ui']);
+	
+	codec.beforeDecode = function(dec, node, obj)
+	{
+		  obj.ui = dec.ui;
+		  
+		  return node;
+	};
+	
+	mxCodecRegistry.register(codec);
+})();
+
+//Registers codec for RenamePage
+(function()
+{
+	var codec = new mxObjectCodec(new RenamePage(),  ['ui', 'page', 'previous']);
+	
+	codec.afterEncode = function(enc, obj, node)
+	{
+	    node.setAttribute('page', obj.page.getId())
+	    
+	    return node;
+	};
+	
+	codec.beforeDecode = function(dec, node, obj)
+	{
+		  obj.ui = dec.ui;
+		  
+		  return node;
+	};
+	
+	codec.afterDecode = function(dec, node, obj)
+	{
+	    obj.page = dec.ui.getPageById(node.getAttribute('page'));
+	    obj.previous = obj.name;
+	    
+	    return obj;
+	};
+	
+	mxCodecRegistry.register(codec);
+})();
+
+//Registers codec for ChangePage
+(function()
+{
+	var codec = new mxObjectCodec(new ChangePage(),  ['ui', 'relatedPage', 'index', 'neverShown']);
+	
+	codec.afterEncode = function(enc, obj, node)
+	{
+	    node.setAttribute('relatedPage', obj.relatedPage.getId())
+	    
+	    if (obj.index == null)
+	    {
+	        node.setAttribute('name', obj.relatedPage.getName());
+	        
+	        if (obj.relatedPage.root != null)
+	        {
+	            enc.encodeCell(obj.relatedPage.root, node);
+	        }
+	    }
+	    
+	    return node;
+	};
+	
+	codec.beforeDecode = function(dec, node, obj)
+	{
+		  obj.ui = dec.ui;
+	    obj.relatedPage = obj.ui.getPageById(node.getAttribute('relatedPage'));
+	    
+	    if (obj.relatedPage == null)
+	    {
+	        var temp = document.createElement('diagram');
+	        temp.setAttribute('id', node.getAttribute('relatedPage'));
+	        temp.setAttribute('name', node.getAttribute('name'));
+	        obj.relatedPage = new DiagramPage(temp);
+	        
+	        // Makes sure the original node isn't modified
+	        node = node.cloneNode(true);
+	        var tmp = node.firstChild;
+	        
+	        if (tmp != null)
+	        {
+	            obj.relatedPage.root = dec.decodeCell(tmp, false);
+	
+	            var tmp2 = tmp.nextSibling;
+	            tmp.parentNode.removeChild(tmp);
+	            tmp = tmp2;
+	            
+	            while (tmp != null)
+	            {
+	                tmp2 = tmp.nextSibling;
+	                
+	                if (tmp.nodeType == mxConstants.NODETYPE_ELEMENT)
+	                {
+	                    // Ignores all existing cells because those do not need to
+	                    // be re-inserted into the model. Since the encoded version
+	                    // of these cells contains the new parent, this would leave
+	                    // to an inconsistent state on the model (ie. a parent
+	                    // change without a call to parentForCellChanged).
+	                    var id = tmp.getAttribute('id');
+	                    
+	                    if (dec.lookup(id) == null)
+	                    {
+	                        dec.decodeCell(tmp);
+	                    }
+	                }
+	                
+	                tmp.parentNode.removeChild(tmp);
+	                tmp = tmp2;
+	            }
+	        }
+	    }
+	    
+	    return node;
+	};
+	
+	codec.afterDecode = function(dec, node, obj)
+	{
+	    obj.index = obj.previousIndex;
+	    
+	    return obj;
+	};
+	
+	mxCodecRegistry.register(codec);
+})();

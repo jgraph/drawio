@@ -228,6 +228,7 @@ errorSavingFileSessionTimeout=Sesi Anda telah berakhir. Harap <a target='_blank'
 errorSendingFeedback=Galat mengirim umpan balik.
 errorUpdatingPreview=Galat memperbarui pratinjau.
 exit=Keluar
+exitFullscreen=Exit Fullscreen
 exitGroup=Keluar Grup
 expand=Perluas
 export=Ekspor

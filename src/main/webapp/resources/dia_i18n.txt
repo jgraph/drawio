@@ -228,6 +228,7 @@ errorSavingFileSessionTimeout=errorSavingFileSessionTimeout
 errorSendingFeedback=errorSendingFeedback
 errorUpdatingPreview=errorUpdatingPreview
 exit=exit
+exitFullscreen=exitFullscreen
 exitGroup=exitGroup
 expand=expand
 export=export

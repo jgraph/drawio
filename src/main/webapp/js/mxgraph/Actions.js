@@ -692,7 +692,12 @@ Actions.prototype.init = function()
 	
 	action = this.addAction('collapseExpand', function()
 	{
-		ui.setFoldingEnabled(!graph.foldingEnabled);
+		var change = new ChangePageSetup(ui);
+		change.ignoreColor = true;
+		change.ignoreImage = true;
+		change.foldingEnabled = !graph.foldingEnabled;
+		
+		graph.model.execute(change);
 	});
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.foldingEnabled; });

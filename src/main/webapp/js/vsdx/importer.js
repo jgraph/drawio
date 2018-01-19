@@ -2107,7 +2107,8 @@ var com;
                                     for (var index129 = 0; index129 < rows.length; index129++) {
                                         var row = rows[index129];
                                         {
-                                            if (row != null && row instanceof com.mxgraph.io.vsdx.geometry.MoveTo) {
+                                            //FIXME We don't support a moveTo inside the edge path
+                                        	if (index129 == 0 && row != null && row instanceof com.mxgraph.io.vsdx.geometry.MoveTo) {
                                                 offsetX = row.x != null ? row.x : 0;
                                                 offsetY = row.y != null ? row.y : 0;
                                             }

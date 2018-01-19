@@ -9864,17 +9864,17 @@
 			if (format == 'xml')
 			{
 				editorUi.hideDialog();
-		    	editorUi.saveData(name, 'xml', mxUtils.getXml(editorUi.editor.getGraphXml()), 'text/xml');
+				editorUi.saveData(name, 'xml', mxUtils.getXml(editorUi.editor.getGraphXml()), 'text/xml');
 			}
 		    else if (format == 'svg')
 			{
-		    	editorUi.hideDialog();
+		    		editorUi.hideDialog();
 				editorUi.saveData(name, 'svg', mxUtils.getXml(graph.getSvg(bg, s, b)), 'image/svg+xml');
 			}
 		    else
 		    {
-		    	var data = editorUi.getFileData(true, null, null, null, null, true);
-		    	var bounds = graph.getGraphBounds();
+		    		var data = editorUi.getFileData(true, null, null, null, null, true);
+		    		var bounds = graph.getGraphBounds();
 				var w = Math.floor(bounds.width * s / graph.view.scale);
 				var h = Math.floor(bounds.height * s / graph.view.scale);
 				
