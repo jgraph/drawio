@@ -390,7 +390,12 @@
 		{
 			var action = editorUi.actions.addAction('mathematicalTypesetting', function()
 			{
-				editorUi.setMathEnabled(!editorUi.isMathEnabled());
+				var change = new ChangePageSetup(editorUi);
+				change.ignoreColor = true;
+				change.ignoreImage = true;
+				change.mathEnabled = !editorUi.isMathEnabled();
+				
+				graph.model.execute(change);
 			});
 			
 			action.setToggleAction(true);

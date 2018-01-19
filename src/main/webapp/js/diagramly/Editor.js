@@ -726,7 +726,12 @@
 					return graph.shadowVisible;
 				}, function(checked)
 				{
-					graph.model.execute(new ChangeShadow(ui, checked));
+					var change = new ChangePageSetup(ui);
+					change.ignoreColor = true;
+					change.ignoreImage = true;
+					change.shadowVisible = checked;
+					
+					graph.model.execute(change);
 				},
 				{
 					install: function(apply)
@@ -2101,42 +2106,100 @@
 
 		this.container = div;
 	};
+	
+    // Execute fit page on page setup changes
+    var changePageSetupExecute = ChangePageSetup.prototype.execute;
+    
+    ChangePageSetup.prototype.execute = function()
+    {
+        if (this.page == null)
+        {
+            this.page = this.ui.currentPage;
+        }
+
+        // Workaround for redo existing change with different current page
+        if (this.page != this.ui.currentPage)
+        {
+            if (this.page.viewState != null)
+            {
+                if (!this.ignoreColor)
+                {
+                    this.page.viewState.background = this.color;
+                }
+                
+                if (!this.ignoreImage)
+                {
+                    this.page.viewState.backgroundImage = this.image;
+                }
+
+                if (this.format != null)
+                {
+                    this.page.viewState.pageFormat = this.format;
+                }
+                
+                if (this.mathEnabled != null)
+                {
+                    this.page.viewState.mathEnabled = this.mathEnabled;
+                }
+                
+                if (this.shadowVisible != null)
+                	{
+                		this.page.viewState.shadowVisible = this.shadowVisible;
+                	}
+            }   
+        }
+        else
+        {
+            changePageSetupExecute.apply(this, arguments);
+            
+            if (this.mathEnabled != null && this.mathEnabled != this.ui.isMathEnabled())
+            {
+                this.ui.setMathEnabled(this.mathEnabled);
+                this.mathEnabled = !this.mathEnabled;
+            }
+
+            if (this.shadowVisible != null && this.shadowVisible != this.ui.editor.graph.shadowVisible)
+            {
+            		this.ui.editor.graph.setShadowVisible(this.shadowVisible);
+                this.shadowVisible = !this.shadowVisible;
+            }
+        }
+    };
 })();
 
-/**
- * Change types
- */
-function ChangeShadow(ui, visible)
-{
-	this.ui = ui;
-	this.visible = visible;
-	this.previous = this.visible;
-}
-
-/**
- * Implementation of the undoable page rename.
- */
-ChangeShadow.prototype.execute = function()
-{
-	this.visible = this.previous;
-	this.previous = this.ui.editor.graph.shadowVisible;
-	this.ui.editor.graph.setShadowVisible(this.visible);
-};
-
-//Registers codec for ChangePageSetup
+// Extends codec for ChangePageSetup
 (function()
 {
-	var codec = new mxObjectCodec(new ChangeShadow(),  ['ui', 'previous']);
+	var codec = new mxObjectCodec(new ChangePageSetup(),  ['ui', 'previousColor', 'previousImage', 'previousFormat']);
+	  
+	codec.beforeDecode = function(dec, node, obj)
+	{
+		obj.ui = dec.ui;
+		  
+		return node;
+	};
 
-	/**
-	 * Function: afterDecode
-	 *
-	 * Restores the state by assigning the previous value.
-	 */
 	codec.afterDecode = function(dec, node, obj)
 	{
-		obj.previous = obj.visible;
+		obj.previousColor = obj.color;
+		obj.previousImage = obj.image;
+		obj.previousFormat = obj.format;
 
+        if (obj.foldingEnabled != null)
+        {
+        		obj.foldingEnabled = !obj.foldingEnabled;
+        }
+       
+        if (obj.mathEnabled != null)
+        {
+        		obj.mathEnabled = !obj.mathEnabled;
+        }
+        
+        if (obj.shadowVisible != null)
+        {
+        		obj.shadowVisible = !obj.shadowVisible;
+        }
+        
 		return obj;
 	};
 

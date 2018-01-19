@@ -1796,8 +1796,12 @@ mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 		else if (shape.indexOf(";rotation=90") > 0 || shape.indexOf(";rotation=-90") > 0 )
 		{
 			var h = geo.height;
-			geo.height = geo.width;
+			var w = geo.width;
+			geo.height = w;
 			geo.width = h;
+			var diff = (h - w) / 2;
+			geo.x -= diff;
+			geo.y += diff;
 		}
 	}
 };
