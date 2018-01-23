@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Twoja sesja wygasła. <a target='_blank' href='{1}
 errorSendingFeedback=Błąd podczas przesyłania opinii.
 errorUpdatingPreview=Błąd podczas aktualizowania podglądu.
 exit=Wyjdź
-exitFullscreen=Exit Fullscreen
 exitGroup=Wyjdź z grupy
 expand=Rozwiń
 export=Eksportuj

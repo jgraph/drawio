@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' 
 errorSendingFeedback=‫خطأ في إرسال التعليق.‬
 errorUpdatingPreview=Error updating preview.
 exit=‫مغادرة‬
-exitFullscreen=Exit Fullscreen
 exitGroup=‫مغادرة مجموعة‬
 expand=‫إظهار‬
 export=‫تصدير‬

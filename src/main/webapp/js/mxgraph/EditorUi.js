@@ -3247,7 +3247,7 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3256,7 +3256,7 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose)
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll);
 	this.dialogs.push(this.dialog);
 };
 

@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Вашу сесію завершено. Будь �
 errorSendingFeedback=Помилка при відправці форми зворотнього зв'язку.
 errorUpdatingPreview=Помилка при оновленні прев'ю.
 exit=Вихід
-exitFullscreen=Exit Fullscreen
 exitGroup=Вийти з групи
 expand=Розгорнути
 export=Експортувати

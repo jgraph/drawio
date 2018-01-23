@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Din session har avslutats. Vänligen <a target='_b
 errorSendingFeedback=Ett fel uppstod vid sändning av feedback.
 errorUpdatingPreview=Ett fel uppstod vid uppdatering av förhandsvisning.
 exit=Avsluta
-exitFullscreen=Exit Fullscreen
 exitGroup=Lämna grupp
 expand=Expandera
 export=Exportera

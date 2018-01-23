@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=‫ההתקשרות שלך הסתיימה. אנא 
 errorSendingFeedback=‫שגיאה בשליחת המשוב.‬
 errorUpdatingPreview=‫שגיאה בעדכון התצוגה המקדימה.‬
 exit=‫יציאה‬
-exitFullscreen=Exit Fullscreen
 exitGroup=‫צא מהקבוצה‬
 expand=‫הרחב‬
 export=‫ייצא‬

@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Ihre Sitzung wurde beendet. Bitte <a target='_blan
 errorSendingFeedback=Fehler beim versenden des Feedback.
 errorUpdatingPreview=Fehler beim aktualisieren der Vorschau.
 exit=Beenden
-exitFullscreen=Vollbildmodus verlassen
 exitGroup=Aus Gruppe heraus
 expand=Ausklappen
 export=Exportieren

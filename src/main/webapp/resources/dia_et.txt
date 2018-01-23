@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Sessioon on lõppenud. Palun <a target='_blank' hr
 errorSendingFeedback=Viga tagasiside saatmisel.
 errorUpdatingPreview=Viga eelvaate uuendamisel.
 exit=Välju
-exitFullscreen=Exit Fullscreen
 exitGroup=Välju rühmast
 expand=Laienda
 export=Ekspordi

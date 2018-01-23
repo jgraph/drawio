@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Pagkakamali sa pagpalit ng pangalan ng file.  Hind
 errorSendingFeedback=Pagkakamali sa pag-send ng kumento.
 errorUpdatingPreview=Pagkakamali sa pag-update ng paunang tingin.
 exit=Lumabas
-exitFullscreen=Exit Fullscreen
 exitGroup=Lumabas sa grupo
 expand=Palawakin
 export=Iluwas

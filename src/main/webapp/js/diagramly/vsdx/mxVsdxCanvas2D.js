@@ -462,6 +462,86 @@ mxVsdxCanvas2D.prototype.addForeignData = function(type, index)
 	this.shapeType = "Foreign";
 };
 
+
+mxVsdxCanvas2D.prototype.convertSvg2Png = function(svgData, isBase64, callback)
+{
+	var that = this;
+	this.filesLoading++;
+	try
+	{
+		var canvas = document.createElement("canvas");
+		var ctx = canvas.getContext("2d");
+		
+		if (!isBase64)
+		{
+			svgData = String.fromCharCode.apply(null, new Uint8Array(svgData));
+			
+			svgData =  ((window.btoa)? btoa(svgData) : Base64.encode(svgData, true));
+		}
+		
+		var svgUrl = "data:image/svg+xml;base64," + svgData;  
+			
+	    img = new Image;
+	
+		img.onload = function () {
+			canvas.width = this.width;
+			canvas.height = this.height;
+			
+		    ctx.drawImage(this, 0, 0);     
+		    
+		    try
+		    {
+		    	callback(canvas.toDataURL("image/png"));
+		    }
+		    catch(e){}//ignore
+
+		    that.filesLoading--;
+	    	
+		    if (that.filesLoading == 0)
+	    	{
+	    		that.onFilesLoaded();
+	    	}
+		};
+		
+		img.onerror = function () {
+			console.log("SVG2PNG conversion failed");
+
+			try
+		    {
+		    	callback(svgData); //Error, just return the original data!
+		    }
+		    catch(e){}//ignore
+
+		    that.filesLoading--;
+		    
+	    	if (that.filesLoading == 0)
+	    	{
+	    		that.onFilesLoaded();
+	    	}
+		};
+		
+		img.src = svgUrl;
+	}
+	catch(e)
+	{
+		console.log("SVG2PNG conversion failed" + e.message);
+		
+		try
+		{
+			callback(svgData); //just to keep going!
+	    }
+	    catch(e){}//ignore
+
+		this.filesLoading--;
+
+		if (that.filesLoading == 0)
+    	{
+    		that.onFilesLoaded();
+    	}
+	}
+};
+
+
 /**
  * Function: image
  * 
@@ -469,6 +549,8 @@ mxVsdxCanvas2D.prototype.addForeignData = function(type, index)
  */
 mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 {
+	var that = this;
+
 	//TODO image reusing, if the same image is used more than once, reuse it. Applicable for URLs specifically (but can also be applied to embedded ones)
 	var imgName = "image" + (this.images.length + 1) + "."; 
 	var type;
@@ -476,20 +558,40 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 	{
 		var p = src.indexOf("base64,");
 		var base64 = src.substring(p + 7); //7 is the length of "base64,"
-		type = src.substring(11, p-1); //5 is the length of "data:image/"
-		imgName += type;
-		this.zip.file("visio/media/" + imgName, base64, {base64: true});
+		type = src.substring(11, p-1); //11 is the length of "data:image/"
+		
+		//SVG files cannot be embedded in vsdx files, TODO convert them to a visio shape
+		if (type.indexOf('svg') == 0) {
+			type = 'png';
+			imgName += type;
+			this.convertSvg2Png(base64, true, function(pngData){
+				that.zip.file("visio/media/" + imgName, pngData.substring(22), {base64: true}); //22 is the length of "data:image/png;base64,"
+			});
+		}
+		else
+		{
+			imgName += type;
+			this.zip.file("visio/media/" + imgName, base64, {base64: true});
+		}
 	}
 	else if (window.XMLHttpRequest) //URL src, fetch it
 	{
 		src = this.converter.convert(src);
 		this.filesLoading++;
-		var that = this;
 		
 		var p = src.lastIndexOf(".");
 		type = src.substring(p+1);
-		imgName += type;
 		
+		var convertSvg = false;
+		
+		if (type.indexOf('svg') == 0) 
+		{
+			type = 'png';
+			convertSvg = true;
+		}
+
+		imgName += type;
+
 		//The old browsers binary workaround doesn't work with jszip and converting to base64 encoding doesn't work also
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', src, true);
@@ -500,7 +602,17 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 		    {
 		    	if (this.status == 200)
 	    		{
-			    	that.zip.file("visio/media/" + imgName, this.response);
+		    		//SVG files cannot be embedded in vsdx files, TODO convert them to a visio shape
+		    		if (convertSvg)
+	    			{
+		    			that.convertSvg2Png(this.response, false, function(pngData){
+		    				that.zip.file("visio/media/" + imgName, pngData.substring(22), {base64: true}); //22 is the length of "data:image/png;base64,"
+		    			});
+		    		}
+		    		else
+		    		{
+		    			that.zip.file("visio/media/" + imgName, this.response);
+		    		}
 	    		}
 		    	
 		    	that.filesLoading--;

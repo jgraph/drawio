@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=La tua sessione è terminata. Perfavore  <a target
 errorSendingFeedback=Errore nell'invio del feedback
 errorUpdatingPreview=Errore nell'aggiornamento dell'anteprima
 exit=Esci  
-exitFullscreen=Exit Fullscreen
 exitGroup=Esci dal gruppo
 expand=Espandi
 export=Esporta

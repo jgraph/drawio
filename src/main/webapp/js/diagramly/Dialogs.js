@@ -4,7 +4,7 @@
  */
 var StorageDialog = function(editorUi, fn, rowLimit)
 {
-	rowLimit = (rowLimit != null) ? rowLimit : 3;
+	rowLimit = (rowLimit != null) ? rowLimit : 2;
 	
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
@@ -277,24 +277,14 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
 	}
 
-	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
-	{
-		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
-	}
-	
 	if (typeof window.OneDriveClient === 'function')
 	{
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 	}
-	
-	if (typeof window.DropboxClient === 'function')
-	{
-		addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
-	}
 
-	if (editorUi.gitHub != null)
+	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
 	{
-		addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
+		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
 	}
 	
 	if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
@@ -530,11 +520,6 @@ var SplashDialog = function(editorUi)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
 		service = mxResources.get('trello');
-		
-//		if (help != null)
-//		{
-//			help.setAttribute('href', 'https://support.draw.io/display/DO/Using+draw.io+with+Trello');
-//		}
 	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
@@ -3737,32 +3722,39 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	{
 		var dataUri = newValue.substring(0, 5) == 'data:';
 		
-		if ((!editorUi.isOffline() || (dataUri && typeof chrome === 'undefined')) &&
-			editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+		if (!editorUi.isOffline() || (dataUri && typeof chrome === 'undefined'))
 		{
-			var maxSize = 520;
-			
-			editorUi.loadImage(newValue, function(img)
-    		{
-				editorUi.spinner.stop();
-				editorUi.hideDialog();
-				var s = (w != null && h != null) ? Math.max(w / img.width, h / img.height) :
-					Math.min(1, Math.min(maxSize / img.width, maxSize / img.height));
+			if (newValue.length > 0 && editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+			{
+				var maxSize = 520;
 				
-				// Handles special case of data URI which needs to be rewritten
-				// to be used in a cell style to remove the semicolon
-				if (convertDataUri)
+				editorUi.loadImage(newValue, function(img)
 				{
-					newValue = editorUi.convertDataUri(newValue);
-				}
-				
-    			fn(newValue, Math.round(Number(img.width) * s), Math.round(Number(img.height) * s));
-    		}, function()
-    		{
-    			editorUi.spinner.stop();
-    			fn(null);
-				editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
-    		});
+					editorUi.spinner.stop();
+					editorUi.hideDialog();
+					var s = (w != null && h != null) ? Math.max(w / img.width, h / img.height) :
+						Math.min(1, Math.min(maxSize / img.width, maxSize / img.height));
+					
+					// Handles special case of data URI which needs to be rewritten
+					// to be used in a cell style to remove the semicolon
+					if (convertDataUri)
+					{
+						newValue = editorUi.convertDataUri(newValue);
+					}
+					
+	    				fn(newValue, Math.round(Number(img.width) * s), Math.round(Number(img.height) * s));
+		    		}, function()
+		    		{
+		    			editorUi.spinner.stop();
+		    			fn(null);
+					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+		    		});
+			}
+			else
+			{
+				editorUi.hideDialog();
+				fn(newValue);
+			}
 		}
 		else
 		{
@@ -3777,7 +3769,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	
 	var apply = function(newValue)
 	{
-		if (newValue != null && newValue.length > 0)
+		if (newValue != null)
 		{
 			var geo = (ignoreExisting) ? null : graph.getModel().getGeometry(graph.getSelectionCell());
 

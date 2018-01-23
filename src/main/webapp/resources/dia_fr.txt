@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Votre session a été fermée. Veuillez <a target=
 errorSendingFeedback=Erreur lors de l'envoi du commentaire.
 errorUpdatingPreview=Erreur lors de la mise à jour de l'aperçu.
 exit=Quitter
-exitFullscreen=Exit Fullscreen
 exitGroup=Quitter le groupe
 expand=Agrandir
 export=Exporter

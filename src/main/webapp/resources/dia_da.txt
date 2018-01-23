@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Din session er afsluttet. Gør venligst <a target=
 errorSendingFeedback=Fejl ved afsendelse af feedback.
 errorUpdatingPreview=Fejl ved opdatering af preview.
 exit=Afslut
-exitFullscreen=Exit Fullscreen
 exitGroup=Afslut Gruppe
 expand=Udvid
 export=Eksporter

@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Az ülése véget ért. Kérjük <a target='_blank
 errorSendingFeedback=Hiba a visszajelzés küldésekor.
 errorUpdatingPreview=Hiba az előnézet frissítésekor
 exit=Kilép
-exitFullscreen=Exit Fullscreen
 exitGroup=Csoportból kilép
 expand=Bővít
 export=Exportálás

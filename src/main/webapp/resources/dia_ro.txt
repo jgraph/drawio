@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Sesiunea dumneavoastră a expirat. Va rugăm să <
 errorSendingFeedback=Eroare la trimitere feedback.
 errorUpdatingPreview=Eroare la actualizarea exemplului.
 exit=Ieşire
-exitFullscreen=Exit Fullscreen
 exitGroup=Părăsire grup
 expand=Extinde
 export=Exportează
