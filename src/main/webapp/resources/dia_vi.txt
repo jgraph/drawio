@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Phiên làm việc của bạn đã kết thúc. V
 errorSendingFeedback=Lỗi khi gửi phản hồi.
 errorUpdatingPreview=Lỗi khi cập nhật bản xem trước.
 exit=Thoát
-exitFullscreen=Exit Fullscreen
 exitGroup=Thoát khỏi nhóm
 expand=Mở rộng
 export=Xuất tập tin

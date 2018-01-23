@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Sua sessão foi finalizada. Por favor <a target='_
 errorSendingFeedback=Erro ao enviar feedback.
 errorUpdatingPreview=Erro na atualização da visualização
 exit=Sair
-exitFullscreen=Exit Fullscreen
 exitGroup=Sair do Grupo
 expand=Expandir
 export=Exportar

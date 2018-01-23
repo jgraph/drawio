@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Сесията Ви приключи. Моля <a 
 errorSendingFeedback=Грешка при изпращането на обратна връзка.
 errorUpdatingPreview=Грешка при актуализирането на предварителния преглед.
 exit=Изход
-exitFullscreen=Exit Fullscreen
 exitGroup=Изход от групата
 expand=Разтягане
 export=Експортиране

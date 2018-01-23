@@ -9576,7 +9576,7 @@
 	/**
 	 * Returns the number of storage options enabled
 	 */
-	EditorUi.prototype.getServiceCount = function(allowBrowser)
+	EditorUi.prototype.getServiceCount = function(allowBrowser, splash)
 	{
 		var serviceCount = 0;
 		
@@ -9585,7 +9585,7 @@
 			serviceCount++
 		}
 		
-		if (this.dropbox != null || typeof window.DropboxClient === 'function')
+		if (!splash && (this.dropbox != null || typeof window.DropboxClient === 'function'))
 		{
 			serviceCount++
 		}
@@ -9595,12 +9595,12 @@
 			serviceCount++
 		}
 		
-		if (this.gitHub != null)
+		if (!splash && (this.gitHub != null))
 		{
 			serviceCount++
 		}
 		
-		if (this.trello != null || typeof window.TrelloClient === 'function')
+		if (!splash && (this.trello != null || typeof window.TrelloClient === 'function'))
 		{
 			serviceCount++
 		}

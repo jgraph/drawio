@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Uw sessie is verlopen. Graag <a target='_blank' hr
 errorSendingFeedback=Fout bij versturen feedback.
 errorUpdatingPreview=Fout bij bijwerken voorbeeld.
 exit=Afsluiten
-exitFullscreen=Exit Fullscreen
 exitGroup=Groep verlaten
 expand=Uitklappen
 export=Exporteren

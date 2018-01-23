@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Vaša sesija je istekla. Molimo <a target='_blank'
 errorSendingFeedback=Greška pri slanju povratne informacije.
 errorUpdatingPreview=Greška pri osvežavanju pregleda
 exit=Izlaz
-exitFullscreen=Exit Fullscreen
 exitGroup=Izađi iz grupe
 expand=Razvij
 export=Izvezi

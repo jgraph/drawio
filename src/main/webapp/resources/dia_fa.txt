@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=‫نوبت شما پایان یافته است. �
 errorSendingFeedback=‫خطا در ارسال نظر.‬
 errorUpdatingPreview=‫خطا در بروز رسانی پیش نما‬
 exit=‫خروج‬
-exitFullscreen=Exit Fullscreen
 exitGroup=‫خروج از گروه‬
 expand=‫بزرگ کردن‬
 export=‫فرستادن‬

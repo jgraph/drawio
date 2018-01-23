@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Istuntosi on päättynyt. Ole hyvä <a target='_bl
 errorSendingFeedback=Palautteen lähettäminen epäonnistui.
 errorUpdatingPreview=Virhe esikatselua päivitettäessä.
 exit=Poistu
-exitFullscreen=Exit Fullscreen
 exitGroup=Poistu ryhmästä
 expand=Laajenna
 export=Vie

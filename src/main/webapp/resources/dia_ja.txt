@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=あなたのセッションは終了しました�
 errorSendingFeedback=エラーのフィードバックを送信中。
 errorUpdatingPreview=エラー更新プレビュー。
 exit=終了
-exitFullscreen=Exit Fullscreen
 exitGroup=グループから出る
 expand=拡張
 export=エクスポート

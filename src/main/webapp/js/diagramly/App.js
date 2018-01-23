@@ -163,7 +163,7 @@ App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 /**
  * Sets URL to load the Dropbox SDK from
  */
-App.DROPBOX_URL = 'https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js';
+App.DROPBOX_URL = 'https://unpkg.com/dropbox@2.5.13/dist/Dropbox-sdk.min.js';
 
 /**
  * Sets the delay for autosave in milliseconds. Default is 2000.
@@ -2341,7 +2341,7 @@ App.prototype.start = function()
  */
 App.prototype.showSplash = function(force)
 {
-	var serviceCount = this.getServiceCount(false) + 1;
+	var serviceCount = this.getServiceCount(true, true);
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
@@ -2359,7 +2359,7 @@ App.prototype.showSplash = function(force)
 						urlParams['local'] != '1');
 					Editor.useLocalStorage = prev;
 				}
-			}));
+			}), true);
 	});
 	
 	if (this.editor.chromeless)
@@ -2372,7 +2372,7 @@ App.prototype.showSplash = function(force)
 	}
 	else if (this.mode == null || force)
 	{
-		var rowLimit = (serviceCount <= 4) ? 2 : 3;
+		var rowLimit = (serviceCount == 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
@@ -2381,7 +2381,7 @@ App.prototype.showSplash = function(force)
 		}), rowLimit);
 		
 		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300,
-			(serviceCount > rowLimit) ? 420 : 300, true, false);
+			(serviceCount >= 4) ? 420 : 300, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)

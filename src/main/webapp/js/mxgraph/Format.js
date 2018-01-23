@@ -1903,21 +1903,36 @@ ArrangePanel.prototype.addGeometry = function(container)
 	wrapper.appendChild(opt);
 	div.appendChild(wrapper);
 	
+	var constrainCheckbox = opt.getElementsByTagName('input')[0];
 	this.addKeyHandler(width, listener);
 	this.addKeyHandler(height, listener);
-
+	
 	widthUpdate = this.addGeometryHandler(width, function(geo, value)
 	{
 		if (geo.width > 0)
 		{
-			geo.width = Math.max(1, value);
+			var value = Math.max(1, value);
+			
+			if (constrainCheckbox.checked)
+			{
+				geo.height = Math.round((geo.height  * value * 100) / geo.width) / 100;
+			}
+			
+			geo.width = value;
 		}
 	});
 	heightUpdate = this.addGeometryHandler(height, function(geo, value)
 	{
 		if (geo.height > 0)
 		{
-			geo.height = Math.max(1, value);
+			var value = Math.max(1, value);
+			
+			if (constrainCheckbox.checked)
+			{
+				geo.width = Math.round((geo.width  * value * 100) / geo.height) / 100;
+			}
+			
+			geo.height = value;
 		}
 	});
 	

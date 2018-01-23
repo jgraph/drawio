@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Vaše připojení skončilo. Prosím <a target='_b
 errorSendingFeedback=Chyba při odesílání zpětné vazby.
 errorUpdatingPreview=Chyba při aktualizaci náhledu.
 exit=Odejít  
-exitFullscreen=Exit Fullscreen
 exitGroup=Odejít ze skupiny
 expand=Rozšířit
 export=Exportovat

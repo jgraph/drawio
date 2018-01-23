@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Sesi anda telah tamat. Sila <a target='_blank' hre
 errorSendingFeedback=Ralat menghantar maklum balas.
 errorUpdatingPreview=Ralat mengemaskini pratonton.
 exit=Keluar  
-exitFullscreen=Exit Fullscreen
 exitGroup=Keluar dari Kumpulan
 expand=Kembangkan 
 export=Eksport  

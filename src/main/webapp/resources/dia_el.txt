@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Η συνεδρία σας τελείωσε. Πα�
 errorSendingFeedback=Σφάλμα κατά την αποστολή κριτικής.
 errorUpdatingPreview=Σφάλμα κατά την ενημέρωση προεπισκόπησης.
 exit=Έξοδος
-exitFullscreen=Exit Fullscreen
 exitGroup=Έξοδος από την ομάδα
 expand=Επέκταση
 export=Εξαγωγή

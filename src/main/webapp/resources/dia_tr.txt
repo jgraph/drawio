@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Oturumunuz sona ermiştir. Lütfen <a hedef='_boş
 errorSendingFeedback=Geri-bildirim gönderme hatası.
 errorUpdatingPreview=Önizleme güncelleme hatası
 exit=Çıkış 
-exitFullscreen=Exit Fullscreen
 exitGroup=Gruptan çık
 expand=Genişlet
 export=Dışa aktar

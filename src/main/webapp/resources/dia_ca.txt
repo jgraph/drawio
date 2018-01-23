@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=La teva sessió ha acabat. Si us plau, <a target='
 errorSendingFeedback=Error en enviar la opinió.
 errorUpdatingPreview=Error pujant la vista prèvia.
 exit=Sortir
-exitFullscreen=Exit Fullscreen
 exitGroup=Sortir del grup
 expand=Amplia
 export=Exporta

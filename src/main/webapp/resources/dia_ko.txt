@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=세션이 종료 되었습니다. <a target='_blan
 errorSendingFeedback=의견 보내기 오류
 errorUpdatingPreview=업데이트 미리보기 오류
 exit=나가기
-exitFullscreen=Exit Fullscreen
 exitGroup=그룹 나가기
 expand=펼치기
 export=내보내기

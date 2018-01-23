@@ -1,3 +1,11 @@
+23-JAN-2018: 8.0.2
+
+- Fixes constrained size change in arrange panel
+- Removes Dropbox and GitHub from splash screen
+- Handles empty string for image style
+- Adds workaround for dialog clipping
+- Uses mxGraph 3.9.1 beta 1
+
 19-JAN-2018: 8.0.1
 
 - Fixes ChangePageSetup

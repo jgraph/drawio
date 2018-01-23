@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Din nåværende sesjon er avsluttet. Vennligst <a 
 errorSendingFeedback=Feil ved sending av tilbakemelding.
 errorUpdatingPreview=Feil ved oppdatering av forhåndsvisning.
 exit=Avslutt
-exitFullscreen=Exit Fullscreen
 exitGroup=Avslutt gruppe
 expand=Utvid
 export=Eksporter som

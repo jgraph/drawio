@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=你的會話已經結束。請<a target='_blank'hr
 errorSendingFeedback=傳送回饋出錯。
 errorUpdatingPreview=更新預覽畫面出錯。
 exit=退出
-exitFullscreen=Exit Fullscreen
 exitGroup=退出編輯組
 expand=展開
 export=匯出

@@ -228,7 +228,6 @@ errorSavingFileSessionTimeout=Su sesión ha terminado. Por favor, <a target='_bl
 errorSendingFeedback=Error al enviar opiniones.
 errorUpdatingPreview=Error al actualizar la vista previa.
 exit=Salir
-exitFullscreen=Exit Fullscreen
 exitGroup=Salir del grupo
 expand=Expandir
 export=Exportar
