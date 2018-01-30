@@ -803,21 +803,21 @@ EditorUi = function(editor, container, lightbox)
 		{
 			var ff = graph.currentVertexStyle['fontFamily'] || 'Helvetica';
 			var fs = String(graph.currentVertexStyle['fontSize'] || '12');
-	    	var state = graph.getView().getState(graph.getSelectionCell());
-	    	
-	    	if (state != null)
-	    	{
-	    		ff = state.style[mxConstants.STYLE_FONTFAMILY] || ff;
-	    		fs = state.style[mxConstants.STYLE_FONTSIZE] || fs;
-	    		
-	    		if (ff.length > 10)
-	    		{
-	    			ff = ff.substring(0, 8) + '...';
-	    		}
-	    	}
-	    	
-	    	this.toolbar.setFontName(ff);
-	    	this.toolbar.setFontSize(fs);
+		    	var state = graph.getView().getState(graph.getSelectionCell());
+		    	
+		    	if (state != null)
+		    	{
+		    		ff = state.style[mxConstants.STYLE_FONTFAMILY] || ff;
+		    		fs = state.style[mxConstants.STYLE_FONTSIZE] || fs;
+		    		
+		    		if (ff.length > 10)
+		    		{
+		    			ff = ff.substring(0, 8) + '...';
+		    		}
+		    	}
+		    	
+		    	this.toolbar.setFontName(ff);
+		    	this.toolbar.setFontSize(fs);
 		});
 		
 	    graph.getSelectionModel().addListener(mxEvent.CHANGE, update);
@@ -3297,7 +3297,7 @@ EditorUi.prototype.pickColor = function(color, apply)
 	{
 		graph.cellEditor.restoreSelection(selState);
 	});
-	this.showDialog(dlg.container, 220, 430, true, false);
+	this.showDialog(dlg.container, 230, 430, true, false);
 	dlg.init();
 };
 

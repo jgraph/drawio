@@ -2729,9 +2729,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 
 		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 2500ms
 		if (timeOnTarget < 2500 && state != null && !mxEvent.isShiftDown(evt) &&
-			// If shape is equal or target has no stroke then add long delay except for images
+			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images
 			(((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) &&
-			mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE) ||
+			(mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE) != mxConstants.NONE)) ||
 			mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) == 'image') ||
 			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) && 
 			((graph.model.isVertex(state.cell) && firstVertex != null) ||
@@ -3099,13 +3101,10 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 		}
 	}
 	// Shift+Click updates shape
-	else if (mxEvent.isShiftDown(evt))
+	else if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())
 	{
-		if (!graph.isSelectionEmpty())
-		{
-			this.updateShapes(cells[0], graph.getSelectionCells());
-			graph.scrollCellToVisible(graph.getSelectionCell());
-		}
+		this.updateShapes(cells[0], graph.getSelectionCells());
+		graph.scrollCellToVisible(graph.getSelectionCell());
 	}
 	else
 	{

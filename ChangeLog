@@ -1,3 +1,8 @@
+30-JAN-2018: 8.0.3
+
+- Reverts to using previously GAE blacklisted classes
+- Use mxGraph 3.9.2 beta 1
+
 23-JAN-2018: 8.0.2
 
 - Fixes constrained size change in arrange panel

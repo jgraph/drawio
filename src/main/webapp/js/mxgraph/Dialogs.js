@@ -675,7 +675,7 @@ var EditDiagramDialog = function(editorUi)
 	textarea.style.overflow = 'auto';
 	textarea.style.resize = 'none';
 	textarea.style.width = '600px';
-	textarea.style.height = '370px';
+	textarea.style.height = '360px';
 	textarea.style.marginBottom = '16px';
 	
 	textarea.value = mxUtils.getPrettyXml(editorUi.editor.getGraphXml());
