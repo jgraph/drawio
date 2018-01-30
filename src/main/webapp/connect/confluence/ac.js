@@ -214,7 +214,7 @@ AC.initAsync = function(baseUrl)
 		    navigator.getLocation(function (data)
 		    {
 			    	if (data != null && data.target != null && data.context!= null &&
-			    		(data.target == 'contentedit')) // || data.target == 'contentcreate'))
+			    		(data.target == 'contentedit' || data.target == 'contentcreate'))
 			    	{
 			    		pageId = data.context.contentId;
 			    	}
@@ -225,9 +225,20 @@ AC.initAsync = function(baseUrl)
 		    			document.body.style.backgroundSize = 'auto auto';
 			    		editor.parentNode.removeChild(editor);
 		    			
-		    			var message = messages.error('Cannot insert draw.io diagram to a new Confluence page',
-		    				'Please save the page and try again.');
-		    	
+			    		var message;
+			    		
+			    		if (data != null && data.target == 'contentcreate') 
+			    		{
+			    			message = messages.error('Cannot insert draw.io diagram to a new Confluence page',
+			    				'Please save the page and try again.');
+			    		}
+			    		else 
+			    		{
+			    			message = messages.error('Unable to determine page ID',
+		    				'Please contact your Confluence administrator.');
+			    		}
+			    		
+			    		
 		    			messages.onClose(message, function()
 		    			{
 		    				confluence.closeMacroEditor();
@@ -318,6 +329,7 @@ AC.initAsync = function(baseUrl)
 					    		if (name != null && name.length > 0)
 					    		{
 					    			var revision = parseInt(macroData.revision);
+					    			var owningPageId = macroData.pageId;
 						    		draftName = (name != null) ? AC.draftPrefix + name + AC.draftExtension : null;
 						    		loadDraft();
 					    			
@@ -355,7 +367,7 @@ AC.initAsync = function(baseUrl)
 						    					confluence.closeMacroEditor();
 						    				});
 								    	}
-					    			});
+					    			}, owningPageId, true);
 					    		}
 					    		else
 					    		{
@@ -870,7 +882,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 	});
 };
 
-AC.loadDiagram = function (pageId, diagramName, revision, success, error) {
+AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1) {
 	// TODO: Get binary
 	
 	AP.require('request', function(request) {
@@ -879,7 +891,40 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error) {
 			url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName) +
 				((revision != null) ? '?version=' + revision : ''),
 			success: success,
-			error : error
+			error : function(resp) 
+			{
+				//When a page is copied, attachments are reset to version 1 while the revision parameter remains the same
+				if (tryRev1 && revision > 1 && resp.status == 404)
+				{
+					request({
+						url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName),
+						success: success,
+						error : function(resp) { //If revesion 1 failed, then try the owningPageId
+							if (owningPageId && resp.status == 404)
+							{
+								request({
+									url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName)
+										+'?version=' + revision, //this version should exists in the original owning page
+									success: success,
+									error : error
+								});
+							}
+						}
+					});
+				}
+				else if (owningPageId && resp.status == 404) //We are at revesion 1, so try the owningPageId directly
+				{
+					request({
+						url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName),
+						success: success,
+						error : error
+					});
+				}
+				else
+				{
+					error(resp);
+				}
+			}
 		});
 	});
 };

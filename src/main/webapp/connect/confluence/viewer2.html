@@ -125,9 +125,11 @@ if (lang != null)
 				}
 				
 				// Loads the given XML into the viewer
-				function showDiagram(id, backupId, name, revision, page, links)
+				function showDiagram(id, backupId, name, revision, page, links, retryParams)
 				{
 					id = id.toString();
+					
+					retryParams = retryParams || {}; //so we can use it without NPE check
 					
 					if (id != null && id.length > 0 && name != null && name.length > 0) 
 					{
@@ -315,15 +317,54 @@ if (lang != null)
 											};
 
 										}
+										if (retryParams.saveIt)
+										{
+								 			//Since attachment wasn't found in this page, it is better to save it to this page
+								 			//First load AC dynamically. Since AC is not needed in the viewer except for this case
+							 				var head = document.getElementsByTagName('head')[0];
+											var script = document.createElement('script');
+											script.setAttribute('data-options', 'resize:false;margin:false');
+											
+											// Main
+											script.onload = function()
+											{
+												//save diagram
+												AC.saveDiagram(retryParams.pageId, name, btoa(unescape(encodeURIComponent(xml))),
+												function()
+												{
+													//nothing!
+												}, 
+												function()
+												{
+													//nothing!
+												}, false, 'text/plain', 'Diagram imported by Draw.io');
+
+												
+												//TODO save preview png
+												//This requires an editor to do the png export, may be a canvas can be used with supported browsers
+											};
+											script.src = 'ac.js';
+											head.appendChild(script);
+										}
 							 		}
 								},
 								error: function (err)
 								{
 							 		window.clearTimeout(timeoutThread);
 									
-							 		if (err.status == 404 && backupId != null)
+							 		if (err.status == 404)
 							 		{
-							 			showDiagram(backupId, null, name, revision, page, links);
+							 			//Copied pages are reset to revision 1, in addition, copy&paste pages saves diagrams imported from another page
+							 			//So, try revision 1 first
+							 			if (revision > 1)
+							 			{
+								 			showDiagram(id, backupId, name, null, page, links, {revision: revision});
+							 			}
+							 			else if (backupId != null)
+						 				{
+								 			//Since attachment wasn't found in this page, it is better to save it to this page
+								 			showDiagram(backupId, null, name, revision || retryParams.revision, page, links, {saveIt: true, pageId: id});
+						 				}
 							 		}
 							 		else if (acceptResponse)
 							 		{

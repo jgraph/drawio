@@ -163,7 +163,7 @@ public class OpenServlet extends HttpServlet
 				{
 					// Creates a graph that contains a model but does not validate
 					// since that is not needed for the model and not allowed on GAE
-					mxGraph graph = new mxGraphHeadless();
+					mxGraph graph = new mxGraph();
 
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
 					xml = mxXmlUtils
