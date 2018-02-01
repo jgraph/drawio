@@ -85,6 +85,9 @@
 		'#\n' +
 		'## Connections between rows ("from": source colum, "to": target column).\n' +
 		'## Label, style and invert are optional. Defaults are \'\', current style and false.\n' +
+		'## In addition to label, an optional fromlabel and tolabel can be used to name the column\n' +
+		'## that contains the text for the label in the edges source or target (invert ignored).\n' +
+		'## The label is concatenated in the form fromlabel + label + tolabel if all are defined.\n' +
 		'## The target column may contain a comma-separated list of values.\n' +
 		'## Multiple connect entries are allowed.\n' +
 		'#\n' +

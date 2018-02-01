@@ -44,11 +44,6 @@ GraphViewer.prototype.lightboxZIndex = 999;
 GraphViewer.prototype.toolbarZIndex = 999;
 
 /**
- * Base URL for relative images.
- */
-GraphViewer.prototype.imageBaseUrl = 'https://www.draw.io/';
-
-/**
  * If automatic fit should be enabled if zoom is disabled. Default is true.
  */
 GraphViewer.prototype.autoFit = true;

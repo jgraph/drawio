@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2018, JGraph Ltd
+ * Copyright (c) 2006-2018, Gaudenz Alder
  */
 package com.mxgraph.io.vsdx;
 
@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.mxgraph.io.mxVsdxCodec;
 import com.mxgraph.io.vsdx.theme.Color;
 import com.mxgraph.io.vsdx.theme.QuickStyleVals;
 import com.mxgraph.model.mxCell;

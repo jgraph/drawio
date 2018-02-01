@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2018, JGraph Ltd
+ * Copyright (c) 2006-2018, Gaudenz Alder
  */
 package com.mxgraph.io;
 
@@ -31,12 +31,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.appengine.api.images.Image;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesService.OutputEncoding;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.api.images.Transform;
-import com.google.appengine.api.utils.SystemProperty;
 import com.mxgraph.io.vsdx.ShapePageId;
 import com.mxgraph.io.vsdx.VsdxShape;
 import com.mxgraph.io.vsdx.mxPathDebug;
@@ -58,7 +52,6 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
-import com.mxgraph.view.mxConnectionConstraint;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -108,30 +101,6 @@ public class mxVsdxCodec
 	
 	public mxVsdxCodec()
 	{
-	}
-
-	/**
-	 * Calculate the absolute coordinates of a cell's point.
-	 * @param cellParent Cell that contains the point.
-	 * @param graph Graph where the parsed graph is included.
-	 * @param point Point to which coordinates are calculated.
-	 * @return The point in absolute coordinates.
-	 */
-	private static mxPoint calculateAbsolutePoint(Object cellParent,
-			mxGraph graph, mxPoint point)
-	{
-		if (cellParent != null)
-		{
-			mxGeometry geo = graph.getModel().getGeometry(cellParent);
-
-			if (geo != null) 
-			{
-				point.setX(point.getX() + geo.getX());
-				point.setY(point.getY() + geo.getY());				
-			}
-		}
-
-		return point;
 	}
 
 	/**
@@ -198,33 +167,14 @@ public class mxVsdxCodec
 					{
 						try 
 						{
-							String environ = SystemProperty.environment.get();
-
-							if (environ.equals("Production") || environ.equals("Development"))
-							{
-								ImagesService imagesService = ImagesServiceFactory.getImagesService();
-								
-								Image image = ImagesServiceFactory.makeImage(out.toByteArray());
-
-								//dummy transform
-								Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
-
-								//Use PNG format as it is lossless similar to BMP but compressed
-								Image newImage = imagesService.applyTransform(transform, image, OutputEncoding.PNG);
-
-								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(newImage.getImageData(), false));
-							}
-							else
-							{
-								//Use ImageIO as it is normally available in other servlet containers (e.g.; Tomcat)
-								ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
-								ByteArrayOutputStream bos = new ByteArrayOutputStream();
-								
-								BufferedImage image = ImageIO.read(bis);
-								ImageIO.write(image, "PNG", bos);
-								
-								base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(bos.toByteArray(), false));
-							}
+							//Use ImageIO as it is normally available in other servlet containers (e.g.; Tomcat)
+							ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
+							ByteArrayOutputStream bos = new ByteArrayOutputStream();
+							
+							BufferedImage image = ImageIO.read(bis);
+							ImageIO.write(image, "PNG", bos);
+							
+							base64Str = StringUtils.newStringUtf8(Base64.encodeBase64(bos.toByteArray(), false));
 						}
 						catch (Exception e) 
 						{

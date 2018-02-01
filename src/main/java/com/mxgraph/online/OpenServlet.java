@@ -10,10 +10,13 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,6 +47,9 @@ public class OpenServlet extends HttpServlet
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private static final Logger log = Logger.getLogger(OpenServlet.class
+			.getName());
 
 	/**
 	 * Global switch to enabled VSDX support.
@@ -163,7 +169,7 @@ public class OpenServlet extends HttpServlet
 				{
 					// Creates a graph that contains a model but does not validate
 					// since that is not needed for the model and not allowed on GAE
-					mxGraph graph = new mxGraph();
+					mxGraph graph = new mxGraphHeadless();
 
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
 					xml = mxXmlUtils
@@ -237,8 +243,10 @@ public class OpenServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			StringWriter errors = new StringWriter();
+			e.printStackTrace(new PrintWriter(errors));
+			log.log(Level.SEVERE, errors.toString());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			writeScript(writer,
 					"window.parent.showOpenAlert(window.parent.mxResources.get('invalidOrMissingFile'));");
 		}

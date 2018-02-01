@@ -1,7 +1,20 @@
+01-FEB-2018: 8.0.5
+
+- Fixes possible NPE for cache invalidation
+- Fixes in-place change of graph model
+- Uses mxGraph 3.9.2 beta 2
+
+31-JAN-2018: 8.0.4
+
+- Reverts to using headless mxgraph
+- Fixes swap icon for shapes with fill color
+- Adds gradient and background in UML frame
+- Adds edge labels in text, CSV import
+
 30-JAN-2018: 8.0.3
 
 - Reverts to using previously GAE blacklisted classes
-- Use mxGraph 3.9.2 beta 1
+- Uses mxGraph 3.9.2 beta 1
 
 23-JAN-2018: 8.0.2
 

@@ -3842,13 +3842,32 @@ StyleFormatPanel.prototype.addFill = function(container)
 	
 	container.appendChild(fillPanel);
 	container.appendChild(gradientPanel);
+	
+	// Adds custom colors
+	var custom = this.getCustomColors();
+	
+	for (var i = 0; i < custom.length; i++)
+	{
+		container.appendChild(this.createCellColorOption(custom[i].title, custom[i].key, custom[i].defaultValue));
+	}
+	
+	return container;
+};
 
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
+StyleFormatPanel.prototype.getCustomColors = function()
+{
+	var ss = this.format.getSelectionState();
+	var result = [];
+	
 	if (ss.style.shape == 'swimlane')
 	{
-		container.appendChild(this.createCellColorOption(mxResources.get('laneColor'), 'swimlaneFillColor', '#ffffff'));
+		result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: '#ffffff'});
 	}
-
-	return container;
+	
+	return result;
 };
 
 /**

@@ -89,10 +89,10 @@
 				<file name="EditorUi.js" />
 				<file name="Sidebar.js" />
 				<file name="Graph.js" />
+				<file name="Format.js" />
 				<file name="Shapes.js" />
 				<file name="Actions.js" />
 				<file name="Menus.js" />
-				<file name="Format.js" />
 				<file name="Toolbar.js" />
 				<file name="Dialogs.js" />
 			</sources>

@@ -18,10 +18,10 @@ mxscript(geBasePath +'/Editor.js');
 mxscript(geBasePath +'/EditorUi.js');
 mxscript(geBasePath +'/Sidebar.js');
 mxscript(geBasePath +'/Graph.js');
+mxscript(geBasePath +'/Format.js');
 mxscript(geBasePath +'/Shapes.js');
 mxscript(geBasePath +'/Actions.js');
 mxscript(geBasePath +'/Menus.js');
-mxscript(geBasePath +'/Format.js');
 mxscript(geBasePath +'/Toolbar.js');
 mxscript(geBasePath +'/Dialogs.js');
 
