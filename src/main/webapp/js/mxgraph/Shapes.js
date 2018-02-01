@@ -1335,6 +1335,24 @@
 		var co = this.corner;
 		var w0 = Math.min(w, Math.max(co, parseFloat(mxUtils.getValue(this.style, 'width', this.width))));
 		var h0 = Math.min(h, Math.max(co * 1.5, parseFloat(mxUtils.getValue(this.style, 'height', this.height))));
+		var bg = mxUtils.getValue(this.style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, mxConstants.NONE);
+		
+		if (bg != mxConstants.NONE)
+		{
+			c.setFillColor(bg);
+			c.rect(x, y, w, h);
+			c.fill();
+		}
+		
+		if (this.fill != null && this.fill != mxConstants.NONE && this.gradient && this.gradient != mxConstants.NONE)
+		{
+			var b = this.getGradientBounds(c, x, y, w, h);
+			c.setGradient(this.fill, this.gradient, x, y, w, h, this.gradientDirection);
+		}
+		else
+		{
+			c.setFillColor(this.fill);
+		}
 
 		c.begin();
 		c.moveTo(x, y);
@@ -2524,6 +2542,28 @@
 	// Registers the link shape
 	mxCellRenderer.registerShape('filledEdge', FilledEdge);
 
+	// Implements custom colors for shapes
+	if (typeof StyleFormatPanel !== 'undefined')
+	{
+		(function()
+		{
+			var styleFormatPanelGetCustomColors = StyleFormatPanel.prototype.getCustomColors;
+			
+			StyleFormatPanel.prototype.getCustomColors = function()
+			{
+				var ss = this.format.getSelectionState();
+				var result = styleFormatPanelGetCustomColors.apply(this, arguments);
+				
+				if (ss.style.shape == 'umlFrame')
+				{
+					result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: '#ffffff'});
+				}
+				
+				return result;
+			};
+		})();
+	}
+	
 	// Registers and defines the custom marker
 	mxMarker.addMarker('dash', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{

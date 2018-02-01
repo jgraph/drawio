@@ -41,6 +41,7 @@ import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphHeadless;
 
 /**
  * Performs a conversion of a Gliffy diagram into a Draw.io diagram
@@ -62,7 +63,7 @@ public class GliffyDiagramConverter
 
 	private Diagram gliffyDiagram;
 
-	private mxGraph drawioDiagram;
+	private mxGraphHeadless drawioDiagram;
 
 	private Map<Integer, GliffyObject> vertices;
 	
@@ -77,7 +78,7 @@ public class GliffyDiagramConverter
 	{
 		vertices = new LinkedHashMap<Integer, GliffyObject>();
 		this.diagramString = gliffyDiagramString;
-		drawioDiagram = new mxGraph();
+		drawioDiagram = new mxGraphHeadless();
 		//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
 		drawioDiagram.setExtendParents(false);
 		drawioDiagram.setExtendParentsOnAdd(false);

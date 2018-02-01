@@ -1855,7 +1855,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 			if (tmp != null && tmp.parent != null && tmp.parent == edge.parent)
 			{
 				var index = tmp.parent.getIndex(tmp);
-				tmp.parent.insert(edge, index);
+				this.model.add(tmp.parent, edge, index);
 			}
 		}
 		
@@ -1864,7 +1864,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 			layout.constructor == mxStackLayout && direction == mxConstants.DIRECTION_WEST)
 		{
 			var index = source.parent.getIndex(source);
-			source.parent.insert(realTarget, index);
+			this.model.add(source.parent, realTarget, index);
 		}
 		
 		if (edge != null)
@@ -4673,8 +4673,8 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			mxGraph.prototype.processChange.apply(this, arguments);
 			
-			if (change instanceof mxValueChange && change.cell.value != null &&
-				typeof(change.cell.value) == 'object')
+			if (change instanceof mxValueChange && change.cell != null &&
+				change.cell.value != null && typeof(change.cell.value) == 'object')
 			{
 				// Invalidates all descendants with placeholders
 				var desc = this.model.getDescendants(change.cell);

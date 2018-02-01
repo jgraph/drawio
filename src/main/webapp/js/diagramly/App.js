@@ -1701,8 +1701,14 @@ App.prototype.appIconClicked = function(evt)
 		
 		if (mode == App.MODE_GOOGLE)
 		{
-			if (file.desc.parents.length > 0)
+			if (file.desc != null && file.desc.mimeType != null)
 			{
+				// Opens search for all draw.io diagrams
+				this.openLink('https://drive.google.com/drive/u/0/search?q=type:' + file.desc.mimeType + '&authuser=0');
+			}
+			else if (file.desc != null && file.desc.parents.length > 0)
+			{
+				// Opens containing folder
 				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
 			}
 			else

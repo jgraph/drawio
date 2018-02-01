@@ -1,0 +1,93 @@
+{
+     "name": "Draw.io gaudenz",
+     "description": "Draw.io add-on for JIRA",
+     "key": "com.mxgraph.jira.plugins.drawio.gaudenz",
+     "baseUrl": "https://7a8b3ef9.ngrok.io",
+     "vendor": {
+         "name": "JGraph Ltd.",
+         "url": "https://www.jgraph.com"
+     },
+     "authentication": 
+     {
+         "type": "none"
+     },
+     "version": "1.0.4",
+     "scopes": 
+     [
+     	"READ",
+     	"WRITE",
+     	"DELETE"
+	 ],
+     "modules": 
+     {
+      "generalPages": 
+      [
+      	{
+			"url":"/connect/jira/editor2.html?issueId=${issue.id}",
+			"key":"drawioEditor",
+			"name":
+			{
+				"value":"Draw.io Editor"
+			},
+			"location":"hidden"
+		},
+		{
+			"url":"/connect/jira/fullScreenViewer2.html?issueId=${issue.id}",
+			"key":"drawioFullScreenViewer",
+			"name":
+			{
+				"value":"Draw.io Full Screen Viewer"
+			},
+			"location":"hidden"
+		}
+      ],
+	  "webItems": [
+	    {
+	      "location": "operations-attachments",
+	      "weight": 50,
+	      "key": "drawioEditorBlank",
+	      "url": "/connect/jira/editor2.html?issueId=${issue.id}",
+	      "name": {
+	        "value": "Add Draw.io Diagram"
+	      },
+	      "target": 
+	      {
+			"type":"dialog",
+			"options": 
+			{
+				"width":"100%",
+				"height":"100%",
+				"chrome":false
+			}
+		  }
+	    }, 
+	    {
+       	   "key": "drawioEditorDialog",
+	        "name": 
+	        {
+	            "value": "Draw.io Editor"
+	        },
+	        "url": "/connect/jira/editor2.html?issueId=${issue.id}",
+	        "location": "none",
+	        "context": "addon"
+	    }
+	  ],
+	  "webPanels": 
+	  [
+      {
+        "url": "/connect/jira/viewerPanel2.html?issueId=${issue.id}",
+        "location": "atl.jira.view.issue.right.context",
+        "layout": 
+        {
+          "width": "300px"
+        },
+        "weight": 50,
+        "key": "drawioViewerPanel",
+        "name": 
+        {
+          "value": "Draw.io Diagrams"
+        }
+      }
+    ] 
+	}
+ }

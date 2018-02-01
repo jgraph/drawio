@@ -2396,12 +2396,12 @@ var ParseDialog = function(editorUi, title)
 				{
 					var values = lines[i].split('->');
 					
-					if (values.length == 2)
+					if (values.length >= 2)
 					{
 						var source = getOrCreateVertex(values[0]);
-						var target = getOrCreateVertex(values[1]);
+						var target = getOrCreateVertex(values[values.length - 1]);
 						
-						var edge = new mxCell('', new mxGeometry());
+						var edge = new mxCell((values.length > 2) ? values[1] : '', new mxGeometry());
 						edge.edge = true;
 						source.insertEdge(edge, true);
 						target.insertEdge(edge, false);
@@ -2530,16 +2530,10 @@ var ParseDialog = function(editorUi, title)
 		{
 			return '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml';
 		}
-		else if (typeSelect.value == '')
+		else
 		{
-			return ';Example:\na->b\nb->c\nc->a\n';
+			return ';Example:\na->b\nb->edge label->c\nc->a\n';
 		}
-		
-		return  (typeSelect.value == 'list') ?
-			'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean' :
-			((typeSelect.value == 'plantUmlPng') ? '@startuml\nskinparam backgroundcolor transparent\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml' :
-			((typeSelect.value == 'plantUmlSvg') ? '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml' :
-			';Example:\na->b\nb->c\nc->a\n'));
 	};
 	
 	var defaultValue = getDefaultValue();
