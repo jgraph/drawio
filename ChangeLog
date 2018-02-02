@@ -1,3 +1,9 @@
+02-FEB-2018: 8.0.6
+
+- Fixes Ctrl+connect of orthogonal edges
+- Fixes CSS for metadata dialog
+- Uses mxGraph 3.9.2 beta 3
+
 01-FEB-2018: 8.0.5
 
 - Fixes possible NPE for cache invalidation

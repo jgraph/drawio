@@ -1315,9 +1315,6 @@ var EditDataDialog = function(ui, cell)
 {
 	var div = document.createElement('div');
 	var graph = ui.editor.graph;
-
-	div.style.height = '310px';
-	div.style.overflow = 'auto';
 	
 	var value = graph.getModel().getValue(cell);
 	
@@ -1333,7 +1330,6 @@ var EditDataDialog = function(ui, cell)
 	// Creates the dialog contents
 	var form = new mxForm('properties');
 	form.table.style.width = '100%';
-	form.table.style.paddingRight = '20px';
 
 	var attrs = value.attributes;
 	var names = [];
@@ -1343,7 +1339,11 @@ var EditDataDialog = function(ui, cell)
 	// FIXME: Fix remove button for quirks mode
 	var addRemoveButton = function(text, name)
 	{
-		text.parentNode.style.marginRight = '12px';
+		var wrapper = document.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.paddingRight = '20px';
+		wrapper.style.boxSizing = 'border-box';
+		wrapper.style.width = '100%';
 		
 		var removeAttr = document.createElement('a');
 		var img = mxUtils.createImage(Dialog.prototype.closeImage);
@@ -1353,12 +1353,13 @@ var EditDataDialog = function(ui, cell)
 		
 		removeAttr.className = 'geButton';
 		removeAttr.setAttribute('title', mxResources.get('delete'));
+		removeAttr.style.position = 'absolute';
+		removeAttr.style.top = '4px';
+		removeAttr.style.right = '0px';
 		removeAttr.style.margin = '0px';
-		removeAttr.style.width = '14px';
-		removeAttr.style.height = '14px';
-		removeAttr.style.fontSize = '14px';
+		removeAttr.style.width = '9px';
+		removeAttr.style.height = '9px';
 		removeAttr.style.cursor = 'pointer';
-		removeAttr.style.marginLeft = '6px';
 		removeAttr.appendChild(img);
 		
 		var removeAttrFn = (function(name)
@@ -1387,8 +1388,10 @@ var EditDataDialog = function(ui, cell)
 		
 		mxEvent.addListener(removeAttr, 'click', removeAttrFn);
 		
-		text.parentNode.style.whiteSpace = 'nowrap';
-		text.parentNode.appendChild(removeAttr);
+		var parent = text.parentNode;
+		wrapper.appendChild(text);
+		wrapper.appendChild(removeAttr);
+		parent.appendChild(wrapper);
 	};
 	
 	var addTextArea = function(index, name, value)
@@ -1415,15 +1418,15 @@ var EditDataDialog = function(ui, cell)
 	{
 	    if (a.name < b.name)
 	    {
-	    	return -1;
+	    		return -1;
 	    }
 	    else if (a.name > b.name)
 	    {
-	    	return 1;
+	    		return 1;
 	    }
 	    else
 	    {
-	    	return 0;
+	    		return 0;
 	    }
 	});
 	
@@ -1433,7 +1436,9 @@ var EditDataDialog = function(ui, cell)
 		count++;
 	}
 	
-	div.appendChild(form.table);
+	var top = document.createElement('div');
+	top.style.cssText = 'position:absolute;left:30px;right:30px;overflow-y:auto;top:30px;bottom:80px;';
+	top.appendChild(form.table);
 
 	var newProp = document.createElement('div');
 	newProp.style.whiteSpace = 'nowrap';
@@ -1446,7 +1451,8 @@ var EditDataDialog = function(ui, cell)
 	nameInput.style.marginLeft = '2px';
 
 	newProp.appendChild(nameInput);
-	div.appendChild(newProp);
+	top.appendChild(newProp);
+	div.appendChild(top);
 	
 	var addBtn = mxUtils.button(mxResources.get('addProperty'), function()
 	{
@@ -1518,6 +1524,7 @@ var EditDataDialog = function(ui, cell)
 	{
 		ui.hideDialog.apply(ui, arguments);
 	});
+	
 	cancelBtn.className = 'geBtn';
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
@@ -1578,8 +1585,7 @@ var EditDataDialog = function(ui, cell)
 	mxEvent.addListener(nameInput, 'change', updateAddBtn);
 	
 	var buttons = document.createElement('div');
-	buttons.style.marginTop = '18px';
-	buttons.style.textAlign = 'right';
+	buttons.style.cssText = 'position:absolute;left:30px;right:30px;text-align:right;bottom:30px;height:40px;'
 	
 	if (ui.editor.graph.getModel().isVertex(cell) || ui.editor.graph.getModel().isEdge(cell))
 	{
