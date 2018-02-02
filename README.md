@@ -23,6 +23,15 @@ The simplest way to run draw.io initially is to fork this project, [publish the 
 
 The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
 
+Docker
+------
+
+```bash
+docker build -d draw .
+docker run -p 8080:8080 -d draw
+```
+Open your favourite browser and go to [http://localhost:8080/](http://localhost:8080/)
+
 Supported Browsers
 ------------------
 draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 7.1.x, 8.0.x, 9.1.x and 10.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 10.x and 9.x) and Edge 23+.
