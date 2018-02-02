@@ -13,6 +13,8 @@ DriveClient = function(editorUi)
 
 	if (this.ui.editor.chromeless && urlParams['rt'] != '1')
 	{
+		// Workaround for Google Drive requiring the user to click on the file in the
+		// drive UI when not using this scope (user other scope with rt=1 URL param)
 		this.appId = '850530949725';
 		this.clientId = '850530949725.apps.googleusercontent.com';
 		this.scopes = ['https://www.googleapis.com/auth/drive.readonly', 'openid'];
