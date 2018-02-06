@@ -769,14 +769,14 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node, compact)
+	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node, compact, file)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
 		
 		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage);
+		file = (file != null) ? file : this.getCurrentFile();
 		var graph = this.editor.graph;
-		var file = this.getCurrentFile();
 		
 		// Exports SVG for first page while other page is visible by creating a graph
 		// LATER: Add caching for the graph or SVG while not on first page
@@ -8482,6 +8482,9 @@
 				{
 					this.spinner.stop();
 					
+					var enableRecentDocs = data.enableRecent == 1;
+					var enableSearchDocs = data.enableSearch == 1;
+					
 					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
 					{
 						xml = xml || this.emptyDiagramXml;
@@ -8502,7 +8505,24 @@
 								this.editor.setStatus('');
 							}
 						}
-					}));
+					}), null, null, null, null, null, null, null, 
+					enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
+					{
+						this.recentReadyCallback = recentReadyCallback;
+						
+						parent.postMessage(JSON.stringify({event: 'recentDocs'}), '*');
+					}) : null, 
+					enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
+					{
+						this.searchReadyCallback = searchReadyCallback;
+						
+						parent.postMessage(JSON.stringify({event: 'searchDocs', searchStr: searchStr}), '*');
+					}) : null, 
+					function(url, info, name) 
+					{
+						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
+							name: name}), '*');
+					});
 
 					this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 					{
@@ -8514,6 +8534,14 @@
 					dlg.init();
 					
 					return;
+				}
+				else if (data.action == 'searchDocsList')
+				{
+					this.searchReadyCallback(data.list, data.errorMsg);
+				}
+				else if (data.action == 'recentDocsList')
+				{
+					this.recentReadyCallback(data.list, data.errorMsg);
 				}
 				else if (data.action == 'status')
 				{

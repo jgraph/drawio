@@ -468,7 +468,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 			}
 			else
 			{
-				editor.contentWindow.postMessage(JSON.stringify({action: 'template'}), '*');
+				editor.contentWindow.postMessage(JSON.stringify({action: 'template', enableRecent: true, enableSearch: true}), '*');
 			}
 		};
 		
@@ -629,54 +629,268 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						}
 					}	
 				}
+				else if (drawMsg.event == 'searchDocs')
+				{
+					//since we don't use a unique file extension for draw.io diagrams, we need to find pages having draw.io macro also
+					//So, two search requests are needed
+					AP.require('request', function(request) {
+						request({
+							//TODO this query can be enhanced to get part of the name matching but the problem is with the png!
+							url: '/rest/api/content/search?cql=' + encodeURIComponent('type=attachment and (title ~ "' + drawMsg.searchStr + '" or title ~ "' + drawMsg.searchStr + '.png")') + '&limit=100', //limit is 100 and the pages limit is 50 since each diagram has two attachments (and we assume one diagram per page) 
+							success: function(resp) 
+							{
+								resp = JSON.parse(resp);
+								var retList = [];
+								var list = resp.results; 
+								if (list)
+								{
+									var attMap = {};
+									//convert the list to map so we can search by name effeciently
+									for (var i = 0; i < list.length; i++)
+									{
+										//key is pageId + | + att name
+										var pageId = list[i]["_links"]["webui"].match(/pages\/(\d+)/);
+										
+										if (pageId != null)
+										{
+											attMap[pageId[1] + '|' + list[i].title] = {att: list[i], pageId: pageId[1]};
+										}
+									}
+
+									//TODO confirm that the attachments are in a page having draw.io macro
+									for (var key in attMap) 
+									{
+										var att = attMap[key];
+										
+										if (attMap[key+'.png']) //each draw.io attachment should have an associated png preview
+										{
+											//We cannot get the latest version info, it can searched when a diagram is selected
+											retList.push({
+												title: att.att.title,
+												url: "/download/attachments/" + att.pageId + "/"
+													+ encodeURIComponent(att.att.title),
+												info: {
+													id: att.att.id, 
+													pageId: att.pageId 
+												},
+												imgUrl: baseUrl + "/download/attachments/" + att.pageId + "/"
+													+ encodeURIComponent(att.att.title)
+													+ ".png?api=v2"
+											});
+										}
+									}
+									editor.contentWindow.postMessage(JSON.stringify({action: 'searchDocsList',
+										list: retList}), '*');
+								}
+							},
+							error : function(resp) 
+							{
+								editor.contentWindow.postMessage(JSON.stringify({action: 'searchDocsList',
+									list: [], errorMsg: "Network Error!"}), '*');
+							}
+						});
+					});
+
+				}
+				else if (drawMsg.event == 'recentDocs')
+				{
+					//since we don't use a unique file extension for draw.io diagrams, we need to find pages having draw.io macro also
+					//So, two search requests are needed
+					AP.require('request', function(request) {
+						request({
+							url: '/rest/api/content/search?cql=type=attachment%20and%20lastmodified%3E%20startOfDay(%22-7d%22)&limit=100', //cql= type=attachment and lastmodified > startOfDay("-7d") //modified in the last 7 days
+																																		   //limit is 100 and the pages limit is 50 since each diagram has two attachments (and we assume one diagram per page) 
+							success: function(resp) 
+							{
+								resp = JSON.parse(resp);
+								var retList = [];
+								var list = resp.results; 
+								if (list)
+								{
+									var attMap = {};
+									//convert the list to map so we can search by name effeciently
+									for (var i = 0; i < list.length; i++)
+									{
+										//key is pageId + | + att name
+										var pageId = list[i]["_links"]["webui"].match(/pages\/(\d+)/);
+										
+										if (pageId != null)
+										{
+											attMap[pageId[1] + '|' + list[i].title] = {att: list[i], pageId: pageId[1]};
+										}
+									}
+
+									//confirm that the attachments are in a page having draw.io macro
+									request({
+										url: '/rest/api/content/search?cql=macro=drawio%20and%20lastmodified%3E%20startOfDay(%22-7d%22)&limit=50', //cql= macro=drawio and lastmodified > startOfDay("-7d") //modified in the last 7 days
+										success: function(resp) 
+										{
+											resp = JSON.parse(resp);
+											var pages = {};
+											var list = resp.results; 
+											if (list)
+											{
+												for (var i = 0; i < list.length; i++)
+												{
+													pages[list[i].id] = list[i];
+												}
+											}
+											
+											
+											for (var key in attMap) 
+											{
+												var att = attMap[key];
+												
+												if (attMap[key+'.png'] && pages[att.pageId] != null) //each draw.io attachment should have an associated png preview
+												{
+													//We cannot get the latest version info, it can searched when a diagram is selected
+													retList.push({
+														title: att.att.title,
+														url: "/download/attachments/" + att.pageId + "/"
+															+ encodeURIComponent(att.att.title),
+														info: {
+															id: att.att.id, 
+															pageId: att.pageId
+														},
+														imgUrl: baseUrl + "/download/attachments/" + att.pageId + "/"
+														+ encodeURIComponent(att.att.title)
+														+ ".png?api=v2"
+													});
+												}
+											}
+											editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
+												list: retList}), '*');
+										},
+										error : function(resp) 
+										{
+											editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
+												list: [], errorMsg: "Network Error!"}), '*');
+										}
+									});
+								}
+							},
+							error : function(resp) 
+							{
+								editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
+									list: [], errorMsg: "Network Error!"}), '*');
+							}
+						});
+					});
+
+					
+				}
 				else if (drawMsg.event == 'template')
 				{
 					editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 						show: true, messageKey: 'inserting'}), '*');
 					
-					checkName(drawMsg.name, function(name)
+					if (drawMsg.docUrl)
 					{
-						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
-							show: false}), '*');
-						diagramName = name;
-
-						if (AC.draftEnabled)
+						checkName(drawMsg.name, function(name)
 						{
-							draftName = '~drawio~' + user + '~' + diagramName + AC.draftExtension;
-							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
-								show: true, messageKey: 'inserting'}), '*');
+							diagramName = name;
 							
-							saveDraft(drawMsg.xml, function()
+							AP.require('request', function(request) {
+								
+								var loadTemplate = function(version)
+								{
+									request({
+										url: drawMsg.docUrl + (version != null? "?version=" + version : ""),
+										success: function(xml) 
+										{
+											editor.contentWindow.postMessage(JSON.stringify({action: 'load',
+												autosave: 1, xml: xml, title: diagramName}), '*');
+											editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+												show: false}), '*');
+										},
+										error : function(resp) 
+										{
+											editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+												show: false}), '*');
+											editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+												titleKey: 'error', message: "Diagram cannot be loaded", messageKey: null,
+												buttonKey: 'ok'}), '*');
+										}
+									});
+								}
+								
+								request({
+									url: '/rest/api/content/' + drawMsg.info.id,
+									success: function(resp) 
+									{
+										resp = JSON.parse(resp);
+										
+										try
+										{
+											loadTemplate(resp.version.number);
+										}
+										catch(e)
+										{
+											loadTemplate();
+										}
+									},
+									error : function(resp) 
+									{
+										loadTemplate();
+									}
+								});
+							});
+						},
+						function(name, err, errKey)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+								titleKey: 'error', message: err, messageKey: errKey,
+								buttonKey: 'ok'}), '*');
+						});
+					}
+					else
+					{
+						checkName(drawMsg.name, function(name)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							diagramName = name;
+	
+							if (AC.draftEnabled)
 							{
-								editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+								draftName = '~drawio~' + user + '~' + diagramName + AC.draftExtension;
+								editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+									show: true, messageKey: 'inserting'}), '*');
+								
+								saveDraft(drawMsg.xml, function()
+								{
+									editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+									editor.contentWindow.postMessage(JSON.stringify({action: 'load',
+										autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
+								},
+								function()
+								{
+									editor.parentNode.removeChild(editor);
+									var message = messages.error('Draft Write Error', 'Draft could not be created');
+				    		
+				    				messages.onClose(message, function()
+				    				{
+				    					confluence.closeMacroEditor();
+				    				});
+								});
+							}
+							else
+							{
 								editor.contentWindow.postMessage(JSON.stringify({action: 'load',
 									autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
-							},
-							function()
-							{
-								editor.parentNode.removeChild(editor);
-								var message = messages.error('Draft Write Error', 'Draft could not be created');
-			    		
-			    				messages.onClose(message, function()
-			    				{
-			    					confluence.closeMacroEditor();
-			    				});
-							});
-						}
-						else
+							}
+						},
+						function(name, err, errKey)
 						{
-							editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-								autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
-						}
-					},
-					function(name, err, errKey)
-					{
-						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
-							show: false}), '*');
-						editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
-							titleKey: 'error', message: err, messageKey: errKey,
-							buttonKey: 'ok'}), '*');
-					});
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+								titleKey: 'error', message: err, messageKey: errKey,
+								buttonKey: 'ok'}), '*');
+						});
+					}
 				}
 				else if (drawMsg.event == 'autosave')
 				{

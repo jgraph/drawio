@@ -187,7 +187,7 @@ StorageFile.prototype.rename = function(title, success, error)
 	{
 		this.ui.getLocalData(title, mxUtils.bind(this, function(data)
 		{
-			this.ui.confirm(mxResources.get('replaceIt', [title]), mxUtils.bind(this, function()
+			var fn = mxUtils.bind(this, function()
 			{
 				this.title = title;
 				
@@ -201,7 +201,16 @@ StorageFile.prototype.rename = function(title, success, error)
 				{
 					this.ui.removeLocalData(oldTitle, success);
 				}), error);
-			}), error);
+			});
+			
+			if (data != null)
+			{
+				this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+			}
+			else
+			{
+				fn();
+			}
 		}));
 	}
 	else

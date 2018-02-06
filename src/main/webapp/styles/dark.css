@@ -1,9 +1,9 @@
 html body .geDiagramContainer, html body div.geMenubarContainer, html body .geFooterContainer>div>img, html body div.mxPopupMenu,  html body td.mxPopupMenuIcon, html body .geFormatContainer {
-	background-color: #2a2a2a;
+	background-color:#2a2a2a;
 }
-html body .geFooterContainer, html body .geFooterContainer a, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter {
+html body .geFooterContainer, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter {
 	background:#2a2a2a;
-	color: #cccccc;
+	color:#cccccc;
 }
 html body div.mxRubberband {
 	border:1px dashed #ffffff !important; background:#505759 !important;
@@ -12,25 +12,31 @@ html body .geToolbarContainer, html body .geSidebar, html body .geSidebarContain
 	background:#2a2a2a;
 	border-color:#505759;
 	box-shadow:none;
-	color: #cccccc;
+	color:#cccccc;
 }
 html body .geSprite, html body .geSocialFooter img, html body .mxPopupMenuItem>img {
 	filter:invert(100%);
 }
 html body .geFormatContainer {
-	border-left: 1px solid #505759;
+	border-left:1px solid #505759;
 }
 html body .geDiagramContainer {
-	border-bottom: 1px solid #505759;
+	border-bottom:1px solid #505759;
 }
 html body .geSidebarContainer a, html body .geMenubarContainer a, html body .geToolbar a {
-	color: #cccccc;
+	color:#cccccc;
 }
 html body .geMenubarMenu {
 	border-color:#505759 !important;
 }
 html body .geToolbarMenu, html body .geFooterContainer, html body .geFooterContainer td {
 	border-color:#505759;
+}
+html body .geFooterContainer a {
+	background-color:none;
+}
+html body .geFooterContainer td:hover, html body #geFooterItem1:hover {
+	background-color:#000000;
 }
 html body div.mxPopupMenu {
 	border-color:#505759 !important;
@@ -51,17 +57,17 @@ html body .geBtn {
 html body .gePrimaryBtn {
 	background:#505759 !important;
 	border-color:#cccccc !important;
-	color: #cccccc !important;
+	color:#cccccc !important;
 }
 html body .geBtn:hover {
 	background:#000000 !important;
 }
 html body tr.mxPopupMenuItem {
-	color: #cccccc;
+	color:#cccccc;
 }
 html body tr.mxPopupMenuItemHover {
 	background:#000000;
-	color: #cccccc;
+	color:#cccccc;
 }
 html body .geSidebarContainer .geTitle:hover, html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover {
 	background:#000000;
@@ -77,5 +83,5 @@ html body .geDialog, html body div.mxWindow {
 	background:#2a2a2a;
 	border-color:#c0c0c0;
 	box-shadow:none;
-	color: #cccccc;
+	color:#cccccc;
 }
