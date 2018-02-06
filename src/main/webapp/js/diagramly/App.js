@@ -291,7 +291,7 @@ App.getStoredMode = function()
 							window.location.hash == '') || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#G'))
 						{
-							mxscript('https://apis.google.com/js/api.js');
+							mxscript('https://apis.google.com/js/api.js', null, null, null, mxClient.IS_SVG);
 						}
 						// Keeps lazy loading for fallback to authenticated Google file if not public in loadFile
 						else if (urlParams['chrome'] == '0' && (window.location.hash == null ||
@@ -494,7 +494,7 @@ App.main = function(callback, createUi)
 			}
 			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
 			{
-				mxscript(App.FOOTER_PLUGIN_URL);
+				mxscript(App.FOOTER_PLUGIN_URL, null, null, null, mxClient.IS_SVG);
 			}
 			
 			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
@@ -537,7 +537,7 @@ App.main = function(callback, createUi)
 			(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
 			isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
 		{
-			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback');
+			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
 		}
 		// Disables client
 		else if (typeof window.gapi === 'undefined')

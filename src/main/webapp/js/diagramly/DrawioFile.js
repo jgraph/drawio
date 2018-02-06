@@ -103,7 +103,7 @@ DrawioFile.prototype.save = function(revision, success, error, unloading)
  */
 DrawioFile.prototype.updateFileData = function()
 {
-	this.setData(this.ui.getFileData());
+	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this));
 };
 
 /**

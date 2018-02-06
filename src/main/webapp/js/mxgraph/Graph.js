@@ -4772,7 +4772,7 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var state = this.view.getState(parents[i]);
 					
-					if (state != null && this.isCellDeletable(state.cell))
+					if (state != null && (this.model.isEdge(state.cell) || this.model.isVertex(state.cell)) && this.isCellDeletable(state.cell))
 					{
 						var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
 						var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);

@@ -208,7 +208,7 @@
 		}
 		#geFooterItem1:hover {
 			background-color: #b0b0b0;
-		}		
+		}
 		.geFooterContainer>div>img {
 			opacity:0.5;
 			background:#e5e5e5;
@@ -243,9 +243,9 @@
 		/**
 		 * Synchronously adds scripts to the page.
 		 */
-		function mxscript(src, onLoad, id, dataAppKey)
+		function mxscript(src, onLoad, id, dataAppKey, noWrite)
 		{
-			if (onLoad != null)
+			if (onLoad != null || noWrite)
 			{
 				var s = document.createElement('script');
 				s.setAttribute('type', 'text/javascript');
@@ -262,14 +262,17 @@
 					s.setAttribute('data-app-key', dataAppKey);
 				}
 				
-				s.onload = s.onreadystatechange = function()
+				if (onLoad != null)
 				{
-					if (!r && (!this.readyState || this.readyState == 'complete'))
+					s.onload = s.onreadystatechange = function()
 					{
-			      		r = true;
-			      		onLoad();
-					}
-			  	};
+						if (!r && (!this.readyState || this.readyState == 'complete'))
+						{
+				      		r = true;
+				      		onLoad();
+						}
+				  	};
+				}
 			  	
 			  	var t = document.getElementsByTagName('script')[0];
 			  	t.parentNode.insertBefore(s, t);

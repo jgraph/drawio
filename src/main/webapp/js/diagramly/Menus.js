@@ -1918,7 +1918,7 @@
 				else
 				{
 					// Creates a copy with no predefined storage
-					editorUi.editor.editAsNew(editorUi.getEditBlankXml(), title);
+					editorUi.editor.editAsNew(this.editorUi.getFileData(true), title);
 				}
 			}
 		}));
