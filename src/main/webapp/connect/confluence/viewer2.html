@@ -10,9 +10,10 @@ html, body {
 }
 body {
 	background-color:#ffffff;
-	background-image:url(/images/logo-flat.png);
+	background-image:url(/images/drawlogo-gray.svg);
 	background-repeat:no-repeat;
-	background-position:center;
+	background-position:center top;
+	background-size: 64px;
 	font-family:Arial,sans-serif;
 	width:100%;
 	margin:0;
@@ -34,14 +35,6 @@ function getUrlParam(param)
 	return null;
 };
 
-var lightbox = getUrlParam('lightbox') == '1';
-
-if (!lightbox)
-{
-	document.body.style.backgroundImage = 'url(/images/drawlogo256.png)';
-	document.body.style.backgroundSize = 'auto 100%';
-}
-
 // Sets global environment variables
 RESOURCE_BASE = '/resources/dia';
 STENCIL_PATH = '/stencils';
@@ -49,6 +42,14 @@ SHAPES_PATH = '/shapes';
 
 // Overrides browser language with Confluence user language
 var lang = getUrlParam('loc');
+var lightbox = getUrlParam('lightbox') == '1';
+
+if (lightbox)
+{
+	document.body.style.backgroundImage = 'url(/images/drawlogo-text-bottom.svg)';
+	document.body.style.backgroundPosition = 'center 30%';
+	document.body.style.backgroundSize = '128px';
+}
 
 // Language is in the Connect URL
 if (lang != null)
@@ -95,8 +96,9 @@ if (lang != null)
 	
 	if (!lightbox)
 	{
+		document.body.style.backgroundImage = 'url(/images/aui-wait.gif)';
+		document.body.style.backgroundPosition = 'left top';
 		document.body.style.backgroundSize = 'auto auto';
-		document.body.style.backgroundImage = 'url(/images/ajax-loader.gif)';
 	}
 	
 	function main()

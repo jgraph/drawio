@@ -18,6 +18,8 @@ public class Stage
 	private boolean drawingGuidesOn;
 
 	private List<GliffyObject> objects;
+	
+	private List<GliffyLayer> layers;
 
 	public Stage()
 	{
@@ -91,5 +93,13 @@ public class Stage
 	public void setObjects(List<GliffyObject> objects)
 	{
 		this.objects = objects;
+	}
+
+	public List<GliffyLayer> getLayers() {
+		return layers;
+	}
+
+	public void setLayers(List<GliffyLayer> layers) {
+		this.layers = layers;
 	}
 }

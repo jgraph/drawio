@@ -26,6 +26,7 @@ import com.mxgraph.io.gliffy.model.Constraint.ConstraintData;
 import com.mxgraph.io.gliffy.model.Constraints;
 import com.mxgraph.io.gliffy.model.Diagram;
 import com.mxgraph.io.gliffy.model.EmbeddedResources.Resource;
+import com.mxgraph.io.gliffy.model.GliffyLayer;
 import com.mxgraph.io.gliffy.model.GliffyObject;
 import com.mxgraph.io.gliffy.model.GliffyText;
 import com.mxgraph.io.gliffy.model.Graphic;
@@ -40,7 +41,6 @@ import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxXmlUtils;
-import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphHeadless;
 
 /**
@@ -67,6 +67,8 @@ public class GliffyDiagramConverter
 
 	private Map<Integer, GliffyObject> vertices;
 	
+	private Map<String, GliffyLayer> layers;
+	
 	private Pattern rotationPattern = Pattern.compile("rotation=(\\-?\\w+)");
 
 	/**
@@ -77,6 +79,7 @@ public class GliffyDiagramConverter
 	public GliffyDiagramConverter(String gliffyDiagramString)
 	{
 		vertices = new LinkedHashMap<Integer, GliffyObject>();
+		layers = new  LinkedHashMap<String, GliffyLayer>();
 		this.diagramString = gliffyDiagramString;
 		drawioDiagram = new mxGraphHeadless();
 		//Disable parent (groups) auto extend feature as it miss with the coordinates of vsdx format
@@ -92,6 +95,9 @@ public class GliffyDiagramConverter
 		// creates a diagram object from the JSON string
 		this.gliffyDiagram = new GsonBuilder().registerTypeAdapterFactory(new PostDeserializer()).create().fromJson(diagramString, Diagram.class);
 
+		
+		collectLayersAndConvert(layers, gliffyDiagram.stage.getLayers());
+		
 		collectVerticesAndConvert(vertices, gliffyDiagram.stage.getObjects(), null);
 
 		//sort objects by the order specified in the Gliffy diagram
@@ -101,6 +107,8 @@ public class GliffyDiagramConverter
 
 		try
 		{
+			importLayers();
+			
 			for (GliffyObject obj : gliffyDiagram.stage.getObjects())
 			{
 				importObject(obj, obj.parent);
@@ -114,12 +122,41 @@ public class GliffyDiagramConverter
 	}
 
 	/**
+	 * Imports the layers into the draw.io diagram after sorting them by their order. 
+	 */
+	private void importLayers()
+	{
+		Object root = drawioDiagram.getModel().getRoot();
+		
+		List<GliffyLayer> layers = gliffyDiagram.stage.getLayers();
+		
+		if (layers != null)
+		{
+			sortLayersByOrder(layers);
+			
+			for (GliffyLayer layer : layers)
+			{
+				drawioDiagram.addCell(layer.mxObject, root);
+			}
+		}
+	}
+	
+	/**
 	 * Imports the objects into the draw.io diagram. Recursively adds the children 
 	 */
 	private void importObject(GliffyObject obj, GliffyObject gliffyParent)
 	{
 		mxCell parent = gliffyParent != null ? gliffyParent.mxObject : null;
 
+		//add a layer as a parent only if the object is not a child object
+		if (parent == null && obj.layerId != null)
+		{
+			GliffyLayer layer = layers.get(obj.layerId);
+			
+			if (layer != null)
+				parent = layer.mxObject;
+		}
+		
 		drawioDiagram.addCell(obj.mxObject, parent);
 
 		if (obj.hasChildren())
@@ -184,6 +221,20 @@ public class GliffyDiagramConverter
 		Collections.sort((List<GliffyObject>) values, c); 
 	}
 
+	private void sortLayersByOrder(List<GliffyLayer> values)
+	{
+		Comparator<GliffyLayer> c = new Comparator<GliffyLayer>()
+		{
+			public int compare(GliffyLayer o1, GliffyLayer o2)
+			{
+				return o1.order - o2.order;
+			}
+		};
+		
+		Collections.sort(values, c); 
+	}
+
+	
 	private mxCell getTerminalCell(GliffyObject gliffyEdge, boolean start)
 	{
 		Constraints cons = gliffyEdge.getConstraints();
@@ -279,6 +330,37 @@ public class GliffyDiagramConverter
 
 	}
 
+	/**
+	 * Creates a map of all layers so they can be easily accessed when looking
+	 * up cells layers
+	 */
+	private void collectLayersAndConvert(Map<String, GliffyLayer> layersMap,
+			Collection<GliffyLayer> layers)
+	{
+		if (layers == null)
+			return;
+		
+		for (GliffyLayer layer : layers)
+		{
+			mxCell layerCell = new mxCell();
+
+			layerCell.setVisible(layer.visible);
+
+			if (layer.locked)
+			{
+				layerCell.setStyle("locked=1;");
+			}
+			
+//			layer.active //How can we set the active layer in draw.io?
+//			layer.nodeIndex //??
+			
+			layerCell.setValue(layer.name);
+			
+			layer.mxObject = layerCell;
+			
+			layersMap.put(layer.guid, layer);
+		}
+	}
 	/**
 	 * Creates a map of all vertices so they can be easily accessed when looking
 	 * up terminal cells for edges

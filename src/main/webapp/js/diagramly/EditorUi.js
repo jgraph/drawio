@@ -2311,6 +2311,10 @@
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultGraphBackground = null;
 			Graph.prototype.defaultPageBorderColor = '#505759';
+		    Graph.prototype.svgShadowColor = '#e0e0e0';
+		    Graph.prototype.svgShadowOpacity = '0.6';
+		    Graph.prototype.svgShadowSize = '0.8';
+		    Graph.prototype.svgShadowBlur = '1.4';
 			Format.prototype.inactiveTabBackgroundColor = 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
@@ -5199,7 +5203,13 @@
 	 */
 	EditorUi.prototype.isCorsEnabledForUrl = function(url)
 	{
-		return url.substring(0, 34) === 'https?://raw.githubusercontent.com/' ||
+		if (urlParams['cors'] != null && this.corsRegExp == null)
+		{
+			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
+		}
+		
+		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
+			url.substring(0, 34) === 'https?://raw.githubusercontent.com/' ||
 			/^https?:\/\/.*\.github\.io\//.test(url) ||
 			/^https?:\/\/(.*\.)?rawgit\.com\//.test(url);
 	};

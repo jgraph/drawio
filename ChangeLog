@@ -1,3 +1,8 @@
+08-FEB-2018: 8.0.8
+
+- Fixes plantUML SVG insert in IE11
+- Adds cors URL parameter
+
 06-FEB-2018: 8.0.7
 
 - Adds recent/search in Confluence connect
