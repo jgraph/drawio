@@ -49,6 +49,8 @@ public class GliffyObject implements PostDeserializable
 
 	public boolean lockshape;
 
+	public String layerId;
+	
 	public Graphic graphic;
 
 	public List<GliffyObject> children;

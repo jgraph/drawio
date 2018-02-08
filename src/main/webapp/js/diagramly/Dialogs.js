@@ -2173,19 +2173,39 @@ var ParseDialog = function(editorUi, title)
 				  if (this.status >= 200 && this.status < 300)
 				  {
 				    var reader = new FileReader();
-				    reader.readAsDataURL(this.response); 
+				    reader.readAsDataURL(this.response);
+				    
 				    reader.onload = function(e) 
 				    {
-				    	var img = new Image();
-				    	img.onload = function()
-				    	{
-				    		editorUi.spinner.stop();
-				    		
-				    		graph.getModel().beginUpdate();
+					    	var img = new Image();
+					    	
+					    	img.onload = function()
+					    	{
+					    		editorUi.spinner.stop();
+					    		var w = img.width;
+					    		var h = img.height;
+					    		
+					    		// Workaround for 0 image size in IE11
+					    		if (w == 0 && h == 0)
+					    		{
+						    		var data = e.target.result;
+						    		var comma = data.indexOf(',');
+			    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+			    					var root = mxUtils.parseXml(svgText);
+		    						var svgs = root.getElementsByTagName('svg');
+		    						
+		    						if (svgs.length > 0)
+		    						{
+		    							w = parseFloat(svgs[0].getAttribute('width'));
+		    							h = parseFloat(svgs[0].getAttribute('height'));
+		    						}
+					    		}
+					    		
+					    		graph.getModel().beginUpdate();
 							try
 							{
-					    		cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
-									img.width, img.height, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
+					    			cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
+									w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
 									'image=' + editorUi.convertDataUri(e.target.result) + ';');
 							}
 							finally
@@ -2195,12 +2215,14 @@ var ParseDialog = function(editorUi, title)
 							
 							graph.setSelectionCell(cell);
 				           	graph.scrollCellToVisible(graph.getSelectionCell());
-				    	};
-				    	img.src = e.target.result;
+					    	};
+					    	
+					    	img.src = e.target.result;
 				    };
+				    
 				    reader.onerror = function(e)
 				    {
-				    	editorUi.handleError(e);
+				    		editorUi.handleError(e);
 				    };
 				  }
 				  else 
@@ -2637,7 +2659,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
 	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
 	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
-	
 	
 	var outer = document.createElement('div');
 	outer.style.height = '100%';

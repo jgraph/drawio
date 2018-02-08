@@ -1,9 +1,12 @@
-html body .geDiagramContainer, html body div.geMenubarContainer, html body .geFooterContainer>div>img, html body div.mxPopupMenu,  html body td.mxPopupMenuIcon, html body .geFormatContainer {
+html body .geDiagramContainer, html body div.geMenubarContainer, html body div.mxPopupMenu,  html body td.mxPopupMenuIcon, html body .geFormatContainer {
 	background-color:#2a2a2a;
 }
 html body .geFooterContainer, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter {
 	background:#2a2a2a;
 	color:#cccccc;
+}
+html body .geFooterContainer a {
+	color:#337ab7;
 }
 html body div.mxRubberband {
 	border:1px dashed #ffffff !important; background:#505759 !important;
@@ -84,4 +87,25 @@ html body .geDialog, html body div.mxWindow {
 	border-color:#c0c0c0;
 	box-shadow:none;
 	color:#cccccc;
+}
+.geHint {
+	-webkit-box-shadow: 1px 1px 1px 0px #ccc;
+	-moz-box-shadow: 1px 1px 1px 0px #ccc;
+	box-shadow: 1px 1px 1px 0px #ccc;
+}
+.geEditor ::-webkit-scrollbar-corner {
+	background-color: #2a2a2a;
+}
+.geEditor ::-webkit-scrollbar-track {
+	background-color: #000;
+}
+.geEditor ::-webkit-scrollbar-thumb {
+	background-color: #505759;
+	border:#000 solid 3px;
+}
+.geEditor ::-webkit-scrollbar-thumb:hover {
+	background:#b5b5b5;
+}
+.geHsplit:hover, .geVsplit:hover {
+	background-color:#b5b5b5;
 }

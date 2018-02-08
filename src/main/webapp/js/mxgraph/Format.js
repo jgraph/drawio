@@ -3041,7 +3041,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		        this.editorUi.toolbar.addButton('geSprite-horizontalrule', mxResources.get('insertHorizontalRule'),
 				function()
 				{
-					document.execCommand('inserthorizontalrule', false, null);
+					document.execCommand('inserthorizontalrule', false);
 				}, insertPanel),				
 				this.editorUi.toolbar.addMenuFunctionInContainer(insertPanel, 'geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
 				{
@@ -3071,10 +3071,10 @@ TextFormatPanel.prototype.addFont = function(container)
 				{
 					try
 					{
-			        	if (currentTable != null)
-			        	{
-			        		graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0));
-			        	}
+				        	if (currentTable != null)
+				        	{
+				        		graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0));
+				        	}
 					}
 					catch (e)
 					{
@@ -3087,9 +3087,9 @@ TextFormatPanel.prototype.addFont = function(container)
 					try
 					{
 						if (currentTable != null)
-			        	{
-							graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1));
-			        	}
+				        	{
+								graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1));
+				        	}
 					}
 					catch (e)
 					{
@@ -4225,14 +4225,14 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var solid = document.createElement('div');
 	solid.style.width = '85px';
 	solid.style.height = '1px';
-	solid.style.borderBottom = '1px solid black';
+	solid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
 	solid.style.marginBottom = '9px';
 	symbol.appendChild(solid);
 	
 	var altSolid = document.createElement('div');
 	altSolid.style.width = '23px';
 	altSolid.style.height = '1px';
-	altSolid.style.borderBottom = '1px solid black';
+	altSolid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
 	altSolid.style.marginBottom = '9px';
 	altSymbol.appendChild(altSolid);
 
@@ -4379,16 +4379,16 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		{
 			if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, null) == null)
 			{
-				solid.style.borderBottom = '1px dashed black';
+				solid.style.borderBottom = '1px dashed ' + this.defaultStrokeColor;
 			}
 			else
 			{
-				solid.style.borderBottom = '1px dotted black';
+				solid.style.borderBottom = '1px dotted ' + this.defaultStrokeColor;
 			}
 		}
 		else
 		{
-			solid.style.borderBottom = '1px solid black';
+			solid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
 		}
 		
 		altSolid.style.borderBottom = solid.style.borderBottom;
@@ -4475,6 +4475,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 				markerDiv.style.verticalAlign = 'top';
 				markerDiv.style.marginTop = '5px';
 				markerDiv.style.fontSize = '10px';
+				markerDiv.style.filter = 'none';
+				markerDiv.style.color = this.defaultStrokeColor;
 				markerDiv.nextSibling.style.marginTop = '0px';
 			}
 			

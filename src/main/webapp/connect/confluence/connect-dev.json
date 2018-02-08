@@ -2,7 +2,7 @@
     "name": "Draw.io gaudenz",
     "description": "Draw.io add-on for Confluence",
     "key": "com.mxgraph.confluence.plugins.diagramly",
-    "baseUrl": "https://3f145265.ngrok.io",
+    "baseUrl": "https://0d961297.ngrok.io/",
     "vendor": 
     {
         "name": "JGraph Ltd.",
