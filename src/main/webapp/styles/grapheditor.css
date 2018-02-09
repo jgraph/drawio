@@ -312,9 +312,7 @@ div.mxWindow .geButton {
 }
 .geDiagramBackdrop {
 	background-color: #ebebeb;
-	border-style: solid;
-	border-color: #e5e5e5;
-	border-width: 1px 0px 0px 1px;
+	border: 1px solid #e5e5e5;
 }
 .geSidebarContainer {
 	background:#ffffff;
@@ -395,6 +393,12 @@ div.mxWindow .geButton {
 	border-top:1px solid #c0c0c0;
 }
 .geFooterContainer a {
+	display:block;
+	box-sizing:border-box;
+	width:100%;
+	height:100%;
+	padding:12px 10px 0px 10px;
+	white-space:nowrap;
 	font-size:14px;
 	color:#235695;
 	font-weight:bold;
@@ -410,14 +414,6 @@ div.mxWindow .geButton {
 }
 .geFooterContainer td:hover {
 	background-color: #b3b3b3;
-}
-.geFooterContainer a {
-	display:block;
-	box-sizing:border-box;
-	width:100%;
-	height:100%;
-	padding:12px 10px 0px 10px;
-	white-space:nowrap;
 }
 .geHsplit {
 	cursor:col-resize;

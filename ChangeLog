@@ -1,3 +1,8 @@
+09-FEB-2018: 8.0.9
+
+- Fixes block alignment for in-place editor
+- Uses mxGraph 3.9.2 beta 4
+
 08-FEB-2018: 8.0.8
 
 - Fixes plantUML SVG insert in IE11
