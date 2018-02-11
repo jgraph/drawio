@@ -704,31 +704,7 @@
 		
 		editorUi.actions.put('exportVsdx', new Action(mxResources.get('formatVsdx') + ' (beta)...', function()
 		{
-			var delayed = mxUtils.bind(this, function()
-			{
-				// Checks for signature method
-				if (typeof(VsdxExport) !== 'undefined')
-				{
-					try
-					{
-						new VsdxExport(editorUi).exportCurrentDiagrams();
-					}
-					catch (e)
-					{
-						// ignore
-					}
-				}
-			});
-			
-			if (typeof(VsdxExport) === 'undefined' && !this.loadingVsdx && !editorUi.isOffline())
-			{
-				this.loadingVsdx = true;
-				mxscript('js/vsdx.min.js', delayed);
-			}
-			else
-			{
-				window.setTimeout(delayed, 0);
-			}
+			editorUi.exportVisio();
 		}));
 		
 		// Adds language menu to options only if localStorage is available for

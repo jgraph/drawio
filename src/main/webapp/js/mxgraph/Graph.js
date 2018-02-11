@@ -5722,7 +5722,7 @@ if (typeof mxVertexHandler != 'undefined')
 						alt.setAttribute('text-decoration', 'underline');
 					}
 					
-					mxUtils.write(alt, str);
+					alt.innerHTML = str;
 					
 					return alt;
 				}

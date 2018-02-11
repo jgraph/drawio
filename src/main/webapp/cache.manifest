@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 02/09/2018 09:13 AM
+# 02/11/2018 05:31 PM
 
 app.html
 index.html?offline=1
@@ -11,6 +11,7 @@ open.html
 js/app.min.js
 js/shapes.min.js
 js/stencils.min.js
+js/extensions.min.js
 styles/grapheditor.css
 styles/atlas.css
 styles/dark.css

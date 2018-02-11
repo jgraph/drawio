@@ -67,7 +67,7 @@ var com;
                  * @return {string}
                  */
                 //FIXME TODO add charset support
-                mxVsdxCodec.prototype.decodeVsdx = function (file, callback, charset) {
+                mxVsdxCodec.prototype.decodeVsdx = function (file, callback, charset, onerror) {
                     var _this = this;
                     var docData = ({});
                     var mediaData = ({});
@@ -152,11 +152,11 @@ var com;
 	                    }
 	                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_END); })(xmlBuilder);
 	                    var dateAfter = new Date();
-                       	console.log("File processed in " + (dateAfter - dateBefore) + "ms");
+                       	//console.log("File processed in " + (dateAfter - dateBefore) + "ms");
 	                    //console.log(xmlBuilder.str);
 	                    if (callback) 
 	                    {
-	                    	callback(xmlBuilder.str);
+	                    		callback(xmlBuilder.str);
 	                    }
                     };
 
@@ -166,19 +166,19 @@ var com;
                     
                     var doneCheck = function() 
                     {
-                    	if (processedFiles == filesCount) 
-                    	{
-                    		var dateAfter = new Date();
-                           	console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
-                           	allDone();
-                    	}
+	                    	if (processedFiles == filesCount) 
+	                    	{
+	                    		var dateAfter = new Date();
+	                         //console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
+	                         allDone();
+	                    	}
                     };
                     
                     JSZip.loadAsync(file)                                   
                     .then(function(zip) 
                     {
                         var dateAfter = new Date();
-                       	console.log(" (loaded in " + (dateAfter - dateBefore) + "ms)");
+                       	//console.log(" (loaded in " + (dateAfter - dateBefore) + "ms)");
                        	
                         zip.forEach(function (relativePath, zipEntry) 
                         {  
@@ -190,7 +190,7 @@ var com;
                             	filesCount++;
         	                    zipEntry.async("string").then(function (str) 
         	                  	{
-        	                    	if (!(str.length === 0)) {
+        	                    		if (!(str.length === 0)) {
         	    						//UTF-8 BOM causes exception while parsing, so remove it
         	    						//TODO is the text encoding will be correct or string must be re-read as UTF-8?
                                         if ((function (str, searchString, position) {
@@ -210,9 +210,9 @@ var com;
                                         doc.vsdxFileName = filename;
                                         /* put */ (docData[filename] = doc);
                                     }
-        	                    	processedFiles++;
-
-        	                    	doneCheck();
+	        	                    	processedFiles++;
+	
+	        	                    	doneCheck();
         	                   	});
                             }
                             else if (name.indexOf(mxVsdxCodec.vsdxPlaceholder + "/media") === 0)//binary files
@@ -303,7 +303,12 @@ var com;
                            	}
                         });
                     }, function (e) {
-                        console.log("Error!" + e.message);
+                    		//console.log("Error!" + e.message);
+                    		
+                    		if (onerror != null)
+                    		{
+                    			onerror(e);
+                    		}
                     });                    
                 };
                 mxVsdxCodec.prototype.createMxGraph = function () {
@@ -11547,3 +11552,15 @@ com.mxgraph.io.vsdx.mxVsdxConstants.SET_VALUES_$LI$();
 com.mxgraph.io.vsdx.mxPropertiesManager.defaultColors_$LI$();
 com.mxgraph.io.vsdx.mxPropertiesManager.__static_initialize();
 com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder_$LI$();
+
+EditorUi.prototype.doImportVisio = function(file, done, onerror)
+{
+	if (file.name != null && /(\.vssx)($|\?)/i.test(file.name))
+	{
+		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done);
+	}
+	else
+	{
+		new com.mxgraph.io.mxVsdxCodec().decodeVsdx(file, done, null, onerror);
+	}
+};

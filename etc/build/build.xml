@@ -276,15 +276,14 @@
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="Extensions.js" />
 			</sources>
-		</jscomp>
-		
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/vsdx.min.js">
 			<sources dir="${war.dir}/js/diagramly/vsdx">
 				<file name="VsdxExport.js" />
 				<file name="mxVsdxCanvas2D.js" />
+				<file name="bmpDecoder.js" />
+				<file name="importer.js" />
 			</sources>
 		</jscomp>
-		<concat destfile="${war.dir}/js/vsdx.min.js" fixlastline="yes" append="yes">
+		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
 	    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
 	    	</concat>
 		

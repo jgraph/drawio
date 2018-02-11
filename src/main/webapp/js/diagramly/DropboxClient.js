@@ -216,39 +216,39 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
 		// Workaround for IE8/9 support with catch function
 		promise['catch'](mxUtils.bind(this, function(err)
 		{
-	    	window.clearTimeout(timeoutThread);
-	    	
-	    	if (acceptResponse)
-	    	{
-	    		if (err != null && (err.status == 500 || err.status == 400 ||
-	    			err.status == 401))
+		    	window.clearTimeout(timeoutThread);
+		    	
+		    	if (acceptResponse)
 		    	{
-				this.setUser(null);
-				this.client.setAccessToken(null);
-				
-				if (!failOnAuth)
-				{
-					this.authenticate(function()
-					{
-						doExecute(true);
-					}, error);
-				}
-				else
-				{
-					error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
+		    		if (err != null && (err.status == 500 || err.status == 400 ||
+		    			err.status == 401))
+			    	{
+					this.setUser(null);
+					this.client.setAccessToken(null);
+					
+					if (!failOnAuth)
 					{
 						this.authenticate(function()
 						{
-							fn(true);
+							doExecute(true);
 						}, error);
-					})});
-				}
+					}
+					else
+					{
+						error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
+						{
+							this.authenticate(function()
+							{
+								fn(true);
+							}, error);
+						})});
+					}
+			    	}
+		    		else
+		    		{
+		    			error({message: mxResources.get('error') + ' ' + err.status});
+		    		}
 		    	}
-	    		else
-	    		{
-	    			error({message: mxResources.get('error') + ' ' + err.status});
-	    		}
-	    	}
 		}));
 	});
 	
@@ -299,17 +299,21 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 	if (/^https:\/\//i.test(path) || /\.vsdx$/i.test(path) || /\.gliffy$/i.test(path) ||
 		(!this.ui.useCanvasForExport && binary))
 	{
-		// Should never be null
-		if (this.token != null)
+		var fn = mxUtils.bind(this, function()
 		{
 			var tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
 	
 			this.ui.convertFile(path, name, null, this.extension, success, error);
+		});
+		
+		if (this.token != null)
+		{
+			fn();
 		}
 		else
 		{
-			error({message: mxResources.get('accessDenied')});
+			this.authenticate(fn, error);
 		}
 	}
 	else

@@ -1,3 +1,10 @@
+11-FEB-2018: 8.1.0
+
+- Adds VSDX/VSSX import/export for Electron
+- Fixes access denied for Dropbox import
+- Fixes escaping in SVG alternate text
+- Uses mxGraph 3.9.2 beta 5
+
 09-FEB-2018: 8.0.9
 
 - Fixes block alignment for in-place editor

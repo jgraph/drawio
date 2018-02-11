@@ -337,18 +337,12 @@
 		else
 		{
 			mxscript('js/app.min.js');
-			
-			if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
-			{
-				mxscript('js/stencils.min.js');
-			}
 		}
 
+		// Electron
 		if (window && window.process && window.process.type)
 		{
-			// Electron
 			mxscript('js/diagramly/ElectronApp.js');
-			mxscript('js/diagramly/Extensions.js');
 		}
 		
 		// Adds basic error handling
