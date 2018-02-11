@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jgraph/draw.io.git"
+    "url": "git+https://github.com/jgraph/drawio.git"
   },
   "keywords": [
     "draw.io",
@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/jgraph/drawio-desktop/issues"
   },
-  "homepage": "https://github.com/jgraph/draw.io",
+  "homepage": "https://github.com/jgraph/drawio",
   "dependencies": {
     "commander": "^2.12.2",
     "electron-log": "^2.2.7"

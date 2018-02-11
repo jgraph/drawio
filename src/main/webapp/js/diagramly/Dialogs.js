@@ -7853,7 +7853,16 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
+			if  (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
+			{
+				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
+				{
+					editorUi.spinner.stop();
+		    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+		    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+				}));
+			}
+			else if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
 			{
 				editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
 				{
@@ -7861,13 +7870,13 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					{
 						editorUi.spinner.stop();
 	    				
-	    				if (xhr.status >= 200 && xhr.status <= 299)
+	    					if (xhr.status >= 200 && xhr.status <= 299)
 						{
 							var xml = xhr.responseText;
 							
-			    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-			    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-			    			div.scrollTop = div.scrollHeight;
+				    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+				    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+				    			div.scrollTop = div.scrollHeight;
 						}
 					}
 				}));
@@ -7982,15 +7991,15 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		mxEvent.addListener(fileInput, 'change', function(evt)
 		{
-	    	errorShowed = false;
-				
-	    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
-	    	{
-	    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
-
-	    		// Resets input to force change event for same file
-	    		fileInput.value = '';
-	    	});
+		    	errorShowed = false;
+					
+		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
+		    	{
+		    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
+	
+		    		// Resets input to force change event for same file
+		    		fileInput.value = '';
+		    	});
 
 			div.scrollTop = div.scrollHeight;
 		});
@@ -8021,7 +8030,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		
 		editorUi.showImageDialog(mxResources.get('addImageUrl'), '', function(url, w, h)
 		{
-	    	errorShowed = false;
+			errorShowed = false;
 			
 			if (url != null)
 			{

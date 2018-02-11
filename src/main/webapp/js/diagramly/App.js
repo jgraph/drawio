@@ -445,9 +445,11 @@ App.main = function(callback, createUi)
 		/**
 		 * Injects offline dependencies
 		 */
-		if (urlParams['offline'] == '1')
+		if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
 		{
 			mxscript('js/shapes.min.js');
+			mxscript('js/stencils.min.js');
+			mxscript('js/extensions.min.js');
 			
 			var frame = document.createElement('iframe');
 			frame.setAttribute('width', '0');
@@ -2992,7 +2994,14 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 	
 	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
 	{
-		if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
+		if  (/(\.vsdx)($|\?)/i.test(url))
+		{
+			this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
+			{
+				onload(xml);
+			});
+		}
+		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
 		{
 			// Asynchronous parsing via server
 			this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
@@ -3013,7 +3022,7 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 			
 			onload(data);
 		}
-	}), onerror, /(\.png)($|\?)/i.test(url));
+	}), onerror, /(\.png)($|\?)/i.test(url) || /(\.vsdx)($|\?)/i.test(url));
 };
 
 /**
@@ -4264,21 +4273,11 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 			{
 				blob = new Blob([req.response], {type: 'application/octet-stream'});
 			}
-
-			this.parseFile(blob, mxUtils.bind(this, function(xhr)
+			
+			this.importVisio(blob, mxUtils.bind(this, function(xml)
 			{
-				if (xhr.readyState == 4)
-				{
-					if (xhr.status >= 200 && xhr.status <= 299)
-					{
-						success(new LocalFile(this, xhr.responseText, name, true));
-					}
-					else if (error != null)
-					{
-						error({message: mxResources.get('errorLoadingFile')});
-					}
-				}
-			}), filename);
+				success(new LocalFile(this, xml, name, true));
+			}), error)
 		});
 
 		req.send();

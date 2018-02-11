@@ -169,24 +169,24 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
-		        	var path = paths[0];
-		        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
-		        	var encoding = (asImage || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
-		        		'base64' : 'utf-8';
+			        	var path = paths[0];
+			        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
+			        	var encoding = (asImage || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
+			        		'base64' : 'utf-8';
 
 					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 					{
-			        	var fs = require('fs');
+						var fs = require('fs');
 
 						fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
-			        	{
-			        		if (e)
-			        		{
-			        			editorUi.spinner.stop();
-			        			editorUi.handleError(e);
-			        		}
-			        		else
-			        		{
+				        	{
+				        		if (e)
+				        		{
+				        			editorUi.spinner.stop();
+				        			editorUi.handleError(e);
+				        		}
+				        		else
+				        		{
 								try
 								{
 									if (data.substring(0, 26) == '{"state":"{\\"Properties\\":')
@@ -195,6 +195,30 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 										{
 											editorUi.spinner.stop();
 										});
+									}
+									else if  (/(\.vsdx)($|\?)/i.test(path))
+									{
+										editorUi.importVisio(editorUi.base64ToBlob(data, 'application/octet-stream'), function(xml)
+										{
+											editorUi.spinner.stop();
+											editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xml, 0, 0, true));
+										});
+									}
+									else if (!editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, path))
+									{
+										// Asynchronous parsing via server
+										editorUi.parseFile(new Blob([data], {type : 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+										{
+											if (xhr.readyState == 4)
+											{
+												editorUi.spinner.stop();
+												
+												if (xhr.status >= 200 && xhr.status <= 299)
+												{
+													editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xhr.responseText, 0, 0, true));
+												}
+											}
+										}), path);
 									}
 									else
 									{
@@ -209,57 +233,40 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 											}
 										}
 										else if (/\.svg$/i.test(path))
-						    			{
-											// LATER: Use importXml without throwing exception if no data
-						    				// Checks if SVG contains content attribute
-					    					var root = mxUtils.parseXml(data);
-				    						var svgs = root.getElementsByTagName('svg');
-				    						
-				    						if (svgs.length > 0)
-					    					{
-				    							var svgRoot = svgs[0];
-						    					var cont = svgRoot.getAttribute('content');
-		
-						    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
+							    			{
+												// LATER: Use importXml without throwing exception if no data
+							    				// Checks if SVG contains content attribute
+						    					var root = mxUtils.parseXml(data);
+					    						var svgs = root.getElementsByTagName('svg');
+					    						
+					    						if (svgs.length > 0)
 						    					{
-						    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
+					    							var svgRoot = svgs[0];
+							    					var cont = svgRoot.getAttribute('content');
+			
+							    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
+							    					{
+							    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
+							    					}
+							    					
+							    					if (cont != null && cont.charAt(0) == '%')
+							    					{
+							    						cont = decodeURIComponent(cont);
+							    					}
+			
+							    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
+							    						cont.substring(0, 14) === '<mxGraphModel '))
+							    					{
+							    						asImage = false;
+							    						data = cont;
+							    					}
+							    					else
+							    					{
+							    						asImage = true;
+							    						data = btoa(data);
+							    					}
 						    					}
-						    					
-						    					if (cont != null && cont.charAt(0) == '%')
-						    					{
-						    						cont = decodeURIComponent(cont);
-						    					}
-		
-						    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
-						    						cont.substring(0, 14) === '<mxGraphModel '))
-						    					{
-						    						asImage = false;
-						    						data = cont;
-						    					}
-						    					else
-						    					{
-						    						asImage = true;
-						    						data = btoa(data);
-						    					}
-					    					}
-						    			}
-										else if (!editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, path))
-										{
-											// Asynchronous parsing via server
-											editorUi.parseFile(editorUi.base64ToBlob(data, 'application/octet-stream'), mxUtils.bind(this, function(xhr)
-											{
-												if (xhr.readyState == 4)
-												{
-													editorUi.spinner.stop();
-													
-													if (xhr.status >= 200 && xhr.status <= 299)
-													{
-														
-														editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xhr.responseText, 0, 0, true));
-													}
-												}
-											}), path);
-										}
+							    			}
 										
 										if (asImage)
 										{
@@ -306,8 +313,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 									editorUi.spinner.stop();
 									editorUi.handleError(e);
 								}
-			        		}
-			        	}));
+				        		}
+				        	}));
 					}
 		        }
 			}
@@ -872,28 +879,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			}
 		}), 0);
 	};
-
-	EditorUi.prototype.createImageUrlConverter = function()
-	{
-		var converter = new mxUrlConverter();
-		converter.updateBaseUrl();
-		
-		return converter;
-	};
-
-	// Adds file: protocol as absolute URL for images
-	var mxUrlConverterIsRelativeUrl = mxUrlConverter.prototype.isRelativeUrl;
-	
-	mxUrlConverter.prototype.isRelativeUrl = function(url)
-	{
-		return url.substring(0, 7) !== 'file://' && mxUrlConverterIsRelativeUrl.apply(this, arguments);
-	};
-		
-	// Disables proxy for all images
-	EditorUi.prototype.isCorsEnabledForUrl = function()
-	{
-		return true;
-	}
 
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 })();

@@ -19,6 +19,15 @@
     },
     "modules": 
     {
+		"adminPages": [
+			{
+                "key": "gliffyImport",
+                "url": "/connect/confluence/admin.html",
+                "name": {
+                    "value": "Draw.io Import Service"
+                }
+            }
+		],
 		"generalPages": [
             {
                 "key": "lightbox",

@@ -38,7 +38,6 @@ function createWindow (opt = {})
 		protocol: __DEV__ ? 'http' : 'https:',
 		query:
 		{
-		    'https': __DEV__ ? 0 : 1,
 			'test': __DEV__ ? 1 : 0,
 			'db': 0,
 			'gapi': 0,
