@@ -1,3 +1,8 @@
+12-FEB-2018: 8.1.3
+
+- Fixes dynamic loading for VSDX export
+- Fixes possible NPEs in VSDX export
+
 12-FEB-2018: 8.1.2
 
 - Adds resize option in image dialog

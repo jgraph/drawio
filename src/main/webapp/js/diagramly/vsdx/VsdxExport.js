@@ -392,6 +392,11 @@ function VsdxExport(editorUi)
 	{
 		var state = graph.view.getState(cell);
 		
+		if (state == null)
+		{
+			return null;
+		}
+		
 		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
 		var vsdxId = getCellVsdxId(cell.id);
 		shape.setAttribute("ID", vsdxId);

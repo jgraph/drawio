@@ -231,6 +231,7 @@
 			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
     		</concat>
 
+		<delete file="${war.dir}/js/extensions.min.js"/>
 		<delete file="${basedir}/.tmp0.js"/>
 		<delete file="${basedir}/.tmp0.min.js"/>
 		<delete file="${basedir}/.tmp1.js"/>
