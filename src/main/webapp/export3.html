@@ -25,35 +25,6 @@
 		// but produces larger output with clipping problems
 		Editor.initMath();
 	
-		// Workaround for varphi vs. phi export in MathJax on Phantom
-		// see https://github.com/mathjax/MathJax/issues/353
-		(function()
-		{
-			var authInit = MathJax.AuthorInit;
-	
-			MathJax.AuthorInit = function()
-			{
-				authInit();
-				
-				MathJax.Hub.Register.StartupHook('AsciiMath Jax Config', function()
-				{
-					var symbols = MathJax.InputJax.AsciiMath.AM.symbols;
-					
-					for (var i = 0, m = symbols.length; i < m; i++)
-					{
-				    	if (symbols[i].input === 'phi')
-				    	{
-				    		symbols[i].output = '\u03C6'
-				    	}
-				    	else if (symbols[i].input === 'varphi')
-				    	{
-				    		symbols[i].output = '\u03D5'; i = m
-				    	}
-				  	}
-				});
-			};
-		})();
-
 		function render(data)
 		{
 			var graph = new Graph(document.getElementById('graph'));
@@ -112,10 +83,10 @@
 				mxClient.NO_FO = true;
 			}
 
-			// Createa graph instance
+			// Configure graph
 			graph.foldingEnabled = false;
 			graph.setEnabled(false);
-
+			
 			// Sets background image
 			var bgImg = xmlDoc.documentElement.getAttribute('backgroundImage');
 
@@ -268,6 +239,7 @@
 				{
 					var doneDiv = document.createElement("div");
 					doneDiv.id = 'LoadingComplete';
+					doneDiv.style.display = 'none';
 					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
 					document.body.appendChild(doneDiv);
 				}
@@ -353,7 +325,8 @@
 				graph.container.parentNode.removeChild(graph.container);
 
 				// Adds shadow
-				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				// NOTE: Shadow rasterizes output
+				/*if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
 				{
 					var svgs = document.getElementsByTagName('svg');
 					
@@ -368,7 +341,7 @@
 					}
 					
 					border = 7;
-				}
+				}*/
 				
 				bounds = new mxRectangle(0, 0, pf.width, pf.height);
 				renderMath(graph.container.parentNode);
@@ -376,7 +349,8 @@
 			else
 			{
 				// Adds shadow
-				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				// NOTE: PDF shadow rasterizes output so it's disabled
+				if (data.format != 'pdf' && mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
 				{
 					graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
 					graph.setShadowVisible(true);
@@ -385,12 +359,8 @@
 				}
 				
 				renderMath(graph.container);
-				
-				if (data.format != 'pdf')
-				{
-					document.body.style.width = Math.ceil(bounds.x + bounds.width) + 'px';
-					document.body.style.height = (Math.ceil(bounds.y + bounds.height) + 1) + 'px';
-				}
+				document.body.style.width = Math.ceil(bounds.x + bounds.width) + 'px';
+				document.body.style.height = Math.ceil(bounds.y + bounds.height) + 'px';
 			}
 			
 			// Immediate return if not waiting for any content

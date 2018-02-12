@@ -5689,7 +5689,10 @@ if (typeof mxVertexHandler != 'undefined')
 			svgCanvas.textOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
 			svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
-
+			
+			// Convert HTML entities
+			var htmlConverter = document.createElement('textarea');
+			
 			// Adds simple text fallback for viewers with no support for foreignObjects
 			var createAlternateContent = svgCanvas.createAlternateContent;
 			svgCanvas.createAlternateContent = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
@@ -5724,8 +5727,8 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					try
 					{
-						// TODO: Unescape if required
-						alt.innerHTML = str;
+						htmlConverter.innerHTML = str;
+						alt.textContent = htmlConverter.value;
 						
 						return alt;
 					}

@@ -3921,7 +3921,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	inner.appendChild(cross);
 	div.appendChild(inner);
 
-	var insertImage = function(newValue, w, h)
+	var insertImage = function(newValue, w, h, resize)
 	{
 		var dataUri = newValue.substring(0, 5) == 'data:';
 		
@@ -3935,7 +3935,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 				{
 					editorUi.spinner.stop();
 					editorUi.hideDialog();
-					var s = (w != null && h != null) ? Math.max(w / img.width, h / img.height) :
+					var s = (resize === false) ? 1 :
+						(w != null && h != null) ? Math.max(w / img.width, h / img.height) :
 						Math.min(1, Math.min(maxSize / img.width, maxSize / img.height));
 					
 					// Handles special case of data URI which needs to be rewritten
@@ -3970,7 +3971,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		}
 	};
 	
-	var apply = function(newValue)
+	var apply = function(newValue, resize)
 	{
 		if (newValue != null)
 		{
@@ -3979,11 +3980,11 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			// Reuses width and height of existing cell
 			if (geo != null)
 			{
-				insertImage(newValue, geo.width, geo.height);
+				insertImage(newValue, geo.width, geo.height, resize);
 			}
 			else
 			{
-				insertImage(newValue);
+				insertImage(newValue, null, null, resize);
 			}
 		}
 		else
@@ -4035,38 +4036,38 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			{
 			    if (dropElt != null)
 			    {
-			    	dropElt.parentNode.removeChild(dropElt);
-			    	dropElt = null;
+				    	dropElt.parentNode.removeChild(dropElt);
+				    	dropElt = null;
 			    }
 
 			    if (evt.dataTransfer.files.length > 0)
 			    {
-			    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
-			    	{
-			    		apply(data);
-			    	}, function()
-			    	{
-			    		// No post processing
-			    	}, function(file)
-			    	{
-			    		// Handles only images
-			    		return file.type.substring(0, 6) == 'image/';
-			    	}, function(queue)
-			    	{
-			    		// Invokes elements of queue in order
-			    		for (var i = 0; i < queue.length; i++)
-			    		{
-			    			queue[i]();
-			    		}
-			    	}, !mxEvent.isControlDown(evt));
-	    		}
+				    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, fileName, resize)
+				    	{
+				    		apply(data, resize);
+				    	}, function()
+				    	{
+				    		// No post processing
+				    	}, function(file)
+				    	{
+				    		// Handles only images
+				    		return file.type.substring(0, 6) == 'image/';
+				    	}, function(queue)
+				    	{
+				    		// Invokes elements of queue in order
+				    		for (var i = 0; i < queue.length; i++)
+				    		{
+				    			queue[i]();
+				    		}
+				    	}, !mxEvent.isControlDown(evt));
+		    		}
 			    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
-			    	var uri = evt.dataTransfer.getData('text/uri-list');
-			    	
-			    	if ((/\.(gif|jpg|jpeg|tiff|png|svg)($|\?)/i).test(uri))
+				    	var uri = evt.dataTransfer.getData('text/uri-list');
+				    	
+				    	if ((/\.(gif|jpg|jpeg|tiff|png|svg)($|\?)/i).test(uri))
 					{
-			    		apply(decodeURIComponent(uri));
+				    		apply(decodeURIComponent(uri));
 					}
 			    }
 

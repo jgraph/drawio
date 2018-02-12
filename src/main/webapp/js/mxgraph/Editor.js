@@ -1745,7 +1745,7 @@ PageSetupDialog.getFormats = function()
 						this.backgroundPageShape.init(graph.container);
 	
 						// Required for the browser to render the background page in correct order
-						firstChild.style.position = 'absolute';
+						//firstChild.style.position = 'absolute';
 						graph.container.insertBefore(this.backgroundPageShape.node, firstChild);
 						this.backgroundPageShape.redraw();
 						
