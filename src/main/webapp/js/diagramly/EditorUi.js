@@ -6129,7 +6129,8 @@
 										    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
 	
 										    						var cells = fn(data, file.type, x + index * gs, y + index * gs,
-												    					Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
+												    					Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)),
+												    					file.name, resizeImages);
 										    						
 										    						// Hack to fix width and height asynchronously
 										    						if (isNaN(w) || isNaN(h))

@@ -273,11 +273,19 @@ DriveClient.prototype.execute = function(fn)
 				var msg = mxResources.get('cannotLogin');
 				
 				// Handles special domain policy errors
-				if (resp != null && resp.error != null && resp.error.code == 403 &&
-					resp.error.data != null && resp.error.data.length > 0 &&
-					resp.error.data[0].reason == 'domainPolicy')
+				if (resp != null && resp.error != null)
 				{
-					msg = resp.error.message;
+					if (resp.error.code == 403 &&
+							resp.error.data != null && resp.error.data.length > 0 &&
+							resp.error.data[0].reason == 'domainPolicy')
+					{
+						msg = resp.error.message;
+					}
+					
+					if (!this.isOffline())
+					{
+						this.logEvent({category: 'Error', action: 'open', label: resp.error.message})
+					}
 				}
 				
 				this.ui.drive.clearUserId();
