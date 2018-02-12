@@ -5426,7 +5426,7 @@
 			}
 		});
 		
-		if (typeof VsdxExport  !== 'undefined' && !this.loadingExtensions && !this.isOffline())
+		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline())
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);

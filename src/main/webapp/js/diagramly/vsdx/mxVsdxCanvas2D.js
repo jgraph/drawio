@@ -921,12 +921,17 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		};
 		
 		if (format == 'html' && mxClient.IS_SVG)
-    	{
+		{
 			//Get the actual HTML label node
-			var ch = this.cellState.text.node.getElementsByTagName('div')[mxClient.NO_FO? 0 : 1].childNodes;
+			var elt = this.cellState.text.node.getElementsByTagName('div')[mxClient.NO_FO? 0 : 1];
 			
-			processNodeChildren(ch, {});
-    	}
+			if (elt != null)
+			{
+				var ch = elt.childNodes;
+				
+				processNodeChildren(ch, {});
+			}
+		}
 		else
 		{
 			//If it is not HTML or SVG, we fall back to removing html format
