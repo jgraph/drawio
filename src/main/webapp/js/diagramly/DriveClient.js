@@ -282,7 +282,7 @@ DriveClient.prototype.execute = function(fn)
 						msg = resp.error.message;
 					}
 					
-					if (!this.isOffline())
+					if (!this.ui.isOffline())
 					{
 						this.logEvent({category: 'Error', action: 'open', label: resp.error.message})
 					}

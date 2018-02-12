@@ -362,7 +362,8 @@
 				graph.container.parentNode.removeChild(graph.container);
 
 				// Adds shadow
-				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				// NOTE: Shadow rasterizes output
+				/*if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
 				{
 					var svgs = document.getElementsByTagName('svg');
 					
@@ -377,7 +378,7 @@
 					}
 					
 					border = 7;
-				}
+				}*/
 				
 				bounds = new mxRectangle(0, 0, pf.width, pf.height);
 				renderMath(graph.container.parentNode);
@@ -385,7 +386,8 @@
 			else
 			{
 				// Adds shadow
-				if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				// NOTE: PDF shadow rasterizes output so it's disabled
+				if (data.format != 'pdf' && mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
 				{
 					graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
 					graph.setShadowVisible(true);

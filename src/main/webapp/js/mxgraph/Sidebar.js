@@ -322,16 +322,9 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 						
 						// Oversize titles are cut-off currently. Should make tooltip wider later.
 						this.tooltipTitle.style.overflow = 'hidden';
-						
-						if (mxClient.IS_SVG)
-						{
-							this.tooltipTitle.style.paddingTop = '6px';
-						}
-						else
-						{
-							this.tooltipTitle.style.position = 'absolute';
-							this.tooltipTitle.style.paddingTop = '6px';							
-						}
+						this.tooltipTitle.style.position = 'absolute';
+						this.tooltipTitle.style.paddingTop = '6px';
+						this.tooltipTitle.style.bottom = '6px';
 
 						this.tooltip.appendChild(this.tooltipTitle);
 					}
