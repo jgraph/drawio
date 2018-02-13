@@ -1578,9 +1578,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			{
 				widthInput.value = pageFormat.width / 100;
 				heightInput.value = pageFormat.height / 100;
-				paperSizeOption.setAttribute('selected', 'selected');
 				portraitCheckBox.setAttribute('checked', 'checked');
-				portraitCheckBox.defaultChecked = true;
+				paperSizeSelect.value = 'custom';
 				formatDiv.style.display = 'none';
 				customDiv.style.display = '';
 			}
@@ -1591,6 +1590,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			}
 		}
 	};
+	
 	listener();
 
 	div.appendChild(paperSizeSelect);
@@ -1601,7 +1601,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	
 	var currentPageFormat = pageFormat;
 	
-	var update = function()
+	var update = function(evt, selectChanged)
 	{
 		var f = pf[paperSizeSelect.value];
 		
@@ -1637,10 +1637,13 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			newPageFormat = new mxRectangle(0, 0, newPageFormat.height, newPageFormat.width);
 		}
 		
-		if (newPageFormat.width != currentPageFormat.width || newPageFormat.height != currentPageFormat.height)
+		// Initial select of custom should not update page format to avoid update of combo
+		if ((!selectChanged || !customSize) && (newPageFormat.width != currentPageFormat.width ||
+			newPageFormat.height != currentPageFormat.height))
 		{
 			currentPageFormat = newPageFormat;
 			
+			// Updates page format and reloads format panel
 			if (pageFormatListener != null)
 			{
 				pageFormatListener(currentPageFormat);
@@ -1651,14 +1654,14 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	mxEvent.addListener(portraitSpan, 'click', function(evt)
 	{
 		portraitCheckBox.checked = true;
-		update();
+		update(evt);
 		mxEvent.consume(evt);
 	});
 	
 	mxEvent.addListener(landscapeSpan, 'click', function(evt)
 	{
 		landscapeCheckBox.checked = true;
-		update();
+		update(evt);
 		mxEvent.consume(evt);
 	});
 	
@@ -1668,11 +1671,11 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	mxEvent.addListener(heightInput, 'click', update);
 	mxEvent.addListener(landscapeCheckBox, 'change', update);
 	mxEvent.addListener(portraitCheckBox, 'change', update);
-	mxEvent.addListener(paperSizeSelect, 'change', function()
+	mxEvent.addListener(paperSizeSelect, 'change', function(evt)
 	{
 		// Handles special case where custom was chosen
 		customSize = paperSizeSelect.value == 'custom';
-		update();
+		update(evt, true);
 	});
 	
 	update();
