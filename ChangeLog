@@ -1,3 +1,9 @@
+14-FEB-2018: 8.1.6
+
+- Fixes block resize in graph viewer
+- Disables fix for block alignment
+- Uses mxGraph 3.9.2 beta 8
+
 13-FEB-2018: 8.1.5
 
 - Uses mxGraph 3.9.2 beta 7

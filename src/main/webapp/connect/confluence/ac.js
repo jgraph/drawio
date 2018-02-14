@@ -478,10 +478,23 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 				function(res)
 				{
 					//console.trace('DRAFT: Save error');
+					var obj = null;
 					
-					if (err != null)
+					try
 					{
-						err(obj);
+						obj = JSON.parse(res);
+					}
+					catch (e)
+					{
+						// ignore
+					}
+					
+					if (obj != null && obj.error != null)
+					{
+						if (err != null)
+						{
+							err(obj);
+						}
 					}
 				}, false, 'text/plain', 'Created by Draw.io');
 	   	};

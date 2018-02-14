@@ -2301,7 +2301,7 @@ var ParseDialog = function(editorUi, title)
 			   			
 			   			if (size != null && tableCell.geometry.width < size.width + 10)
 			   			{
-			   				tableCell.geometry.width = size.width + 10;
+			   				tableCell.geometry.width = Math.min(220, size.width + 10);
 			   			}
 			   			
 			   			tableCell.insert(rowCell);
