@@ -1305,7 +1305,7 @@
 
 			editorUi.actions.addAction('plugins...', function()
 			{
-				editorUi.showDialog(new PluginsDialog(editorUi).container, 360, 156, true, false);
+				editorUi.showDialog(new PluginsDialog(editorUi).container, 360, 170, true, false);
 			});
 		}
 		
