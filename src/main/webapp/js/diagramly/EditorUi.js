@@ -2297,7 +2297,7 @@
     {
 	    	if (uiTheme == 'atlas')
 	    	{
-	    		mxClient.link('stylesheet', 'styles/atlas.css');
+	    		mxClient.link('stylesheet', STYLE_PATH + '/atlas.css');
 
 	    		if (typeof Toolbar !== 'undefined')
 	    		{
@@ -2316,7 +2316,7 @@
 	    	}
 	    	else if (uiTheme == 'dark')
 	    	{
-	    		mxClient.link('stylesheet', 'styles/dark.css');
+	    		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
 			Dialog.backdropColor = '#2a2a2a';
 	    		Graph.prototype.defaultThemeName = 'darkTheme';

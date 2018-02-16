@@ -3,8 +3,8 @@
 	// Adds Rack shapes
 	Sidebar.prototype.addRackGeneralPalette = function()
 	{
-		var s = 'strokeColor=#666666;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;';
-		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;';
+		var s = 'strokeColor=#666666;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;';
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
 		
 		//default tags
 		var dt = 'rack equipment ';
@@ -38,7 +38,7 @@
 	
 	Sidebar.prototype.addRackF5Palette = function()
 	{
-		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;';
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
 		
 		//default tags
 		var dt = 'rack equipment ';

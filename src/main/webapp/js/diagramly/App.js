@@ -291,7 +291,7 @@ App.getStoredMode = function()
 							window.location.hash == '') || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#G'))
 						{
-							mxscript('https://apis.google.com/js/api.js', null, null, null, mxClient.IS_SVG);
+							mxscript('https://apis.google.com/js/api.js');
 						}
 						// Keeps lazy loading for fallback to authenticated Google file if not public in loadFile
 						else if (urlParams['chrome'] == '0' && (window.location.hash == null ||
@@ -3654,19 +3654,61 @@ App.prototype.restoreLibraries = function()
 			delete this.pendingLibraries[id];
 		});
 				
-		var load = mxUtils.bind(this, function(libs)
+		var load = mxUtils.bind(this, function(libs, done)
 		{
+			var waiting = 0;
+			var files = [];
+
+			// Loads in order of libs array
+			var checkDone = mxUtils.bind(this, function()
+			{
+				if (waiting == 0)
+				{
+					for (var i = libs.length - 1; i >= 0; i--)
+					{
+						if (files[i] != null)
+						{
+							this.loadLibrary(files[i]);
+						}
+					}
+					
+					if (done != null)
+					{
+						done();
+					}
+				}
+			});
+			
 			if (libs != null)
 			{
 				for (var i = 0; i < libs.length; i++)
 				{
 					var name = encodeURIComponent(decodeURIComponent(libs[i]));
 					
-					(mxUtils.bind(this, function(id)
+					(mxUtils.bind(this, function(id, index)
 					{
 						if (id != null && id.length > 0 && this.pendingLibraries[id] == null &&
 							this.sidebar.palettes[id] == null)
 						{
+							// Waits for all libraries to load
+							waiting++;
+							
+							var onload = mxUtils.bind(this, function(file)
+							{
+
+								delete this.pendingLibraries[id];
+								files[index] = file;
+								waiting--;
+								checkDone();
+							});
+							
+							var onerror = mxUtils.bind(this, function()
+							{
+								ignore(id);
+								waiting--;
+								checkDone();
+							});
+							
 							this.pendingLibraries[id] = true;
 							var service = id.substring(0, 1);
 							
@@ -3674,30 +3716,35 @@ App.prototype.restoreLibraries = function()
 							{
 								if (isLocalStorage || mxClient.IS_CHROMEAPP)
 								{
-									try
+									// Make asynchronous for barrier to work
+									window.setTimeout(mxUtils.bind(this, function()
 									{
-										var name = decodeURIComponent(id.substring(1));
-										var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
+										try
 										{
-											if (name == '.scratchpad' && xml == null)
-											{
-												xml = this.emptyLibraryXml;
-											}
+											var name = decodeURIComponent(id.substring(1));
 											
-											if (xml != null)
+											var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
 											{
-												this.loadLibrary(new StorageLibrary(this, xml, name));
-											}
-											else
-											{
-												ignore(id);
-											}
-										}));
-									}
-									catch (e)
-									{
-										ignore(id);
-									}
+												if (name == '.scratchpad' && xml == null)
+												{
+													xml = this.emptyLibraryXml;
+												}
+												
+												if (xml != null)
+												{
+													onload(new StorageLibrary(this, xml, name));
+												}
+												else
+												{
+													onerror();
+												}
+											}));
+										}
+										catch (e)
+										{
+											onerror();
+										}
+									}), 0);
 								}
 							}
 							else if (service == 'U')
@@ -3714,29 +3761,35 @@ App.prototype.restoreLibraries = function()
 										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
 									}
 									
-									// Uses proxy to avoid CORS issues
-									mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+									try
 									{
-										if (req.getStatus() >= 200 && req.getStatus() <= 299)
+										// Uses proxy to avoid CORS issues
+										mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 										{
-											try
+											if (req.getStatus() >= 200 && req.getStatus() <= 299)
 											{
-												this.loadLibrary(new UrlLibrary(this, req.getText(), url));
-												delete this.pendingLibraries[id];
+												try
+												{
+													onload(new UrlLibrary(this, req.getText(), url));
+												}
+												catch (e)
+												{
+													onerror();
+												}
 											}
-											catch (e)
+											else
 											{
-												ignore(id);
+												onerror();
 											}
-										}
-										else
+										}), function()
 										{
-											ignore(id);
-										}
-									}), function()
+											onerror();
+										});
+									}
+									catch (e)
 									{
-										ignore(id);
-									});
+										onerror();
+									}
 								}
 							}
 							else
@@ -3785,31 +3838,39 @@ App.prototype.restoreLibraries = function()
 									{
 										try
 										{
-											this.loadLibrary(file);
-											delete this.pendingLibraries[id];
+											onload(file);
 										}
 										catch (e)
 										{
-											ignore(id);
+											onerror();
 										}
 									}), function(resp)
 									{
-										ignore(id);
+										onerror();
 									});
 								}
 								else
 								{
 									delete this.pendingLibraries[id];
+									onerror();
 								}
 							}
 						}
-					}))(name);
+					}))(name, i);
 				}
+				
+				checkDone();
+			}
+			else
+			{
+				checkDone();
 			}
 		});
 		
-		load(mxSettings.getCustomLibraries());
-		load((urlParams['clibs'] || '').split(';'));
+		load(mxSettings.getCustomLibraries(), function()
+		{
+			load((urlParams['clibs'] || '').split(';'));
+		});
 	}
 };
 

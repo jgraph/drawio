@@ -331,7 +331,7 @@ if (lang != null)
 											script.onload = function()
 											{
 												//save diagram
-												AC.saveDiagram(retryParams.pageId, name, xml,
+												AC.saveDiagram(retryParams.pageId, name, btoa(unescape(encodeURIComponent(xml))),
 												function()
 												{
 													//nothing!
