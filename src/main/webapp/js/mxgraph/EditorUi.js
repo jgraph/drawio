@@ -125,6 +125,17 @@ EditorUi = function(editor, container, lightbox)
 	// Contains the main graph instance inside the given panel
 	graph.init(this.diagramContainer);
 
+    // Improves line wrapping for in-place editor
+    if (mxClient.IS_SVG && graph.view.getDrawPane() != null)
+    {
+        var root = graph.view.getDrawPane().ownerSVGElement;
+        
+        if (root != null)
+        {
+            root.style.position = 'absolute';
+        }
+    }
+    
 	// Creates hover icons
 	this.hoverIcons = this.createHoverIcons();
 	

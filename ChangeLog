@@ -1,3 +1,27 @@
+16-FEB-2018: 8.2.1
+
+- Adds shape group in Misc section, outline connect
+- Fixes line wrapping, hides icons while editing
+- Preserves library order for clibs parameter
+- Uses mxGraph 3.9.2 beta 9
+
+16-FEB-2018: 8.2.0
+
+- Confluence Cloud attachment fixes
+
+16-FEB-2018: 8.1.9
+
+- Fixes Google API load timing issues
+- Fixes attachment write calls for IE and Edge in Confluence Cloud
+
+14-FEB-2018: 8.1.8
+
+- Fixes saving diagram to Confluence Cloud draft pages
+
+14-FEB-2018: 8.1.7
+
+- Fixes custom style path for atlas.css
+
 14-FEB-2018: 8.1.6
 
 - Fixes block resize in graph viewer

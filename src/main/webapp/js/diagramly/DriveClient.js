@@ -284,7 +284,7 @@ DriveClient.prototype.execute = function(fn)
 					
 					if (!this.ui.isOffline())
 					{
-						this.logEvent({category: 'Error', action: 'open', label: resp.error.message})
+						this.ui.logEvent({category: 'Error', action: 'open', label: resp.error.message})
 					}
 				}
 				

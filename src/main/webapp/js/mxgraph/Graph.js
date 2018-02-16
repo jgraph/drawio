@@ -2685,6 +2685,12 @@ HoverIcons.prototype.init = function()
 		}
 	}));
 	
+	// Resets current state when in-place editor starts
+	this.graph.addListener(mxEvent.START_EDITING, mxUtils.bind(this, function(evt)
+	{
+		this.reset();
+	}));
+	
 	// Resets current state after update of selection state for touch events
 	var graphClick = this.graph.click;
 	this.graph.click = mxUtils.bind(this, function(me)
