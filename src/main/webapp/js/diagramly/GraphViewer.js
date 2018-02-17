@@ -1428,8 +1428,8 @@ GraphViewer.prototype.showLocalLightbox = function()
 	GraphViewer.resizeSensorEnabled = false;
 	document.body.style.overflow = 'hidden';
 
-	// Workaround for possible rendering issues in Safari
-	if (!mxClient.IS_SF)
+	// Workaround for possible rendering issues
+	if (!mxClient.IS_SF && !mxClient.IS_EDGE)
 	{
 		mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(90deg)');
 		mxUtils.setPrefixedStyle(lightbox.style, 'transition', 'all .25s ease-in-out');

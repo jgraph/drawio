@@ -281,11 +281,6 @@ DriveClient.prototype.execute = function(fn)
 					{
 						msg = resp.error.message;
 					}
-					
-					if (!this.ui.isOffline())
-					{
-						this.ui.logEvent({category: 'Error', action: 'open', label: resp.error.message})
-					}
 				}
 				
 				this.ui.drive.clearUserId();
@@ -462,6 +457,11 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember)
 			else if (error != null)
 			{
 				error(resp);
+				
+				if (!this.ui.isOffline())
+				{
+					this.ui.logEvent({category: 'Error', action: 'open', label: JSON.stringify(resp)})
+				}
 			}
 
 			this.resetTokenRefresh(resp);

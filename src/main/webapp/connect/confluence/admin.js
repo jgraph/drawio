@@ -56,11 +56,10 @@ var GliffyMassImporter = function(logDiv)
 				success: function(resp) 
 				{
 					var blob = new Blob([resp], {type : 'application/json'});
-					var file = new File([blob], 'gliffy');
 					 
 					 var formData = new FormData();
 					 formData.append('format', 'xml');
-			         formData.append("upfile", file, 'gliffy');
+			         formData.append("upfile", blob);
 					
 			         var xhr = new XMLHttpRequest();
 			 		 xhr.open('POST', hostUrl + "/open");
@@ -117,15 +116,6 @@ var GliffyMassImporter = function(logDiv)
 	};
 	
 	
-	function nsResolver(prefix) 
-	{
-	  var ns = {
-	    'ac' : 'https://www.atlassian.com/software/confluence/ac',
-	    'ri': 'https://www.atlassian.com/software/confluence/ri'
-	  };
-	  return ns[prefix] || null;
-	}
-	
 	var pagesCount = 0;
 	var processedPages = 0;
 	
@@ -147,30 +137,24 @@ var GliffyMassImporter = function(logDiv)
 		
 		var originalBody = page.body.storage.value;
 		
-		var pageXml = page.body.storage.value.replace(/&/g, '&amp;');
+		var pageXml = originalBody;
 		
-		var pageDom = new DOMParser().parseFromString('<root xmlns:ac="https://www.atlassian.com/software/confluence/ac">' + pageXml + '</root>', "text/xml");
-		var nodes = pageDom.evaluate( "//ac:structured-macro[@ac:name='gliffy']", pageDom.documentElement, nsResolver, XPathResult.ANY_TYPE, null );
-		var nextMacro = null;
-		var gliffyMacros = [];
-		
-		while(( nextMacro = nodes.iterateNext()) != null) 
-			gliffyMacros.push(nextMacro);
+		var gliffyMacros = pageXml.match(/\<ac\:structured\-macro\s+ac\:name\=\"gliffy\".*?(?=\<\/ac\:structured\-macro\>)/g);
 		
 		var macrosParsed = 0;
 		var drawIoMacros = {};
 		var gliffyMarcosIds = [];
 		
-		for(var i = 0; i < gliffyMacros.length; i++) 
+		for (var i = 0; i < gliffyMacros.length; i++)
 		{
-			var element = gliffyMacros[i];
-			var macroId = element.getAttribute('ac:macro-id');
-			gliffyMarcosIds.push(macroId);
-			var nameEl = pageDom.evaluate("ac:parameter[@ac:name='name']", element, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
-			var attIdEl = pageDom.evaluate("ac:parameter[@ac:name='diagramAttachmentId']", element, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+			var macroId = gliffyMacros[i].match(/ac\:macro\-id\=\"([^\"]+)/)[1];
 			
+			gliffyMarcosIds.push(macroId);
+			var name = gliffyMacros[i].match(/\<ac\:parameter\s+ac\:name\=\"name\"\s*\>([^\<]+)/)[1];
+			var attId = gliffyMacros[i].match(/\<ac\:parameter\s+ac\:name\=\"diagramAttachmentId\"\s*\>([^\<]+)/)[1];
+
 			//get the attachment content
-			importGliffyAtt(page.id, AC.fromHtmlEntities(nameEl.textContent), attIdEl.textContent, macroId, function(attInfo)
+			importGliffyAtt(page.id, AC.fromHtmlEntities(name), attId, macroId, function(attInfo)
 			{
 				//Replace gliffy macro with a draw.io one and use the gliffy preview image
 
