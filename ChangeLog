@@ -1,3 +1,9 @@
+17-FEB-2018: 8.2.2
+
+- Fixes inconsistency in child change codec
+- Allows for 0.5px steps when moving cells
+- Uses mxGraph 3.9.2 beta 10
+
 16-FEB-2018: 8.2.1
 
 - Adds shape group in Misc section, outline connect

@@ -2286,11 +2286,13 @@ var ParseDialog = function(editorUi, title)
 					
 					if (name.substring(0, 11).toLowerCase() != 'primary key')
 					{
+						var pk = name.toLowerCase().indexOf('primary key');
+						name = name.replace(/primary key/i, '');
 						var rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
 							'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
 			   			rowCell.vertex = true;
 		
-						var left = sb.cloneCell(rowCell, '' /* eg. PK */);
+						var left = sb.cloneCell(rowCell, (pk > 0) ? 'PK' : '');
 			   			left.connectable = false;
 			   			left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
 			   			left.geometry.width = 30;
@@ -2541,7 +2543,7 @@ var ParseDialog = function(editorUi, title)
 		}
 		else if (typeSelect.value == 'table')
 		{
-			return 'CREATE TABLE Persons\n(\nPersonID int,\nLastName varchar(255),\n' +
+			return 'CREATE TABLE Persons\n(\nPersonID int NOT NULL PRIMARY KEY,\nLastName varchar(255),\n' +
 	  			'FirstName varchar(255),\nAddress varchar(255),\nCity varchar(255)\n);';
 		}
 		else if (typeSelect.value == 'plantUmlPng')
