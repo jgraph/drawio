@@ -35,6 +35,37 @@
                 "name": {
                     "value": "Lightbox"
                 }
+            },
+            {
+                "key": "customContentViewer",
+                "url": "/connect/confluence/viewer2.html?custom=1&contentId={content.id}",
+                "name": {
+                    "value": "Draw.io Viewer"
+                }
+            }
+        ],
+        "customContent": [{
+                "key": "drawio-diagram",
+                "name": {
+                    "value": "Draw.io Diagrams"
+                },
+                "uiSupport": {
+                    "contentViewComponent": {
+                        "moduleKey": "customContentViewer"
+                    },
+                    "icons": {
+                        "item": {
+                            "url": "/images/drawlogo48.png"
+                        }
+                    }
+                },
+                "apiSupport": {
+                    "supportedContainerTypes": ["page", "comment", "space", "blogpost"],
+                    "supportedChildTypes": ["attachment"],
+                    "indexing": {
+                        "enabled": true
+                    }
+                }
             }
         ],
         "dynamicContentMacros": 

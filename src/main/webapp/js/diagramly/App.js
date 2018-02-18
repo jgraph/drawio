@@ -3664,11 +3664,14 @@ App.prototype.restoreLibraries = function()
 			{
 				if (waiting == 0)
 				{
-					for (var i = libs.length - 1; i >= 0; i--)
+					if (libs != null)
 					{
-						if (files[i] != null)
+						for (var i = libs.length - 1; i >= 0; i--)
 						{
-							this.loadLibrary(files[i]);
+							if (files[i] != null)
+							{
+								this.loadLibrary(files[i]);
+							}
 						}
 					}
 					
@@ -3695,7 +3698,6 @@ App.prototype.restoreLibraries = function()
 							
 							var onload = mxUtils.bind(this, function(file)
 							{
-
 								delete this.pendingLibraries[id];
 								files[index] = file;
 								waiting--;

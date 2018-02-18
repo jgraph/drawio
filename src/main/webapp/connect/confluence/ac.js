@@ -1052,7 +1052,10 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 					{
 						var resp = null;
 						var revision = '1';
-
+						var contentId = null;
+						var contentVer = null;
+						
+						//TODO Why this code (Is it expected to have incorrect responseText?)
 						try
 						{
 							resp = JSON.parse(responseText);
@@ -1067,7 +1070,26 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//TODO Is prev comment still needed with REST API?
 						if (resp != null && resp.results != null && resp.results[0])
 						{
-							revision = resp.results[0].version.number;
+							var attObj = resp.results[0];
+							revision = attObj.version.number;
+							//Save/update the custom content
+							var spaceKey = AC.getSpaceKey(attObj._expandable.space);
+							var pageType = attObj.container.type;
+
+							
+							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, 
+									drawMsg.macroData.contentId,
+									drawMsg.macroData.contentVer,
+									function(responseText) 
+									{
+										var content = JSON.parse(responseText);
+										
+										contentId = content.id;
+										contentVer = content.version.number;
+										
+										AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+												successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
+									}, saveError);
 						}
 						else
 						{
@@ -1085,8 +1107,13 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							{
 								// do nothing
 							}
+							
+							//TODO Save png here in case responseText is incorrect (But why it can be incorrect?)
+							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+									successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
 						}
 
+						
 						function successPng(pngResponseText) 
 						{
 							try
@@ -1096,6 +1123,8 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									diagramName: diagramName,
 									revision: revision,
 									pageId: newPage ? null : pageId,
+									contentId: contentId,
+									contentVer: contentVer,
 									baseUrl: baseUrl,
 									width: diaWidth,
 									height: diaHeight,
@@ -1125,12 +1154,6 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									titleKey: 'errorSavingFile', message: e.message, buttonKey: 'ok'}), '*');
 							}
 						};
-
-						if (diagramName != null) 
-						{
-							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
-								successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
-						}
 					};
 
 					if (diagramName != null) 
@@ -1139,7 +1162,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							show: true, messageKey: 'saving'}), '*');
 						
 						AC.saveDiagram(pageId, diagramName, diagramXml,
-							successXml, saveError, false, 'text/plain', 'draw.io diagram', false, draftPage, true);
+							successXml, saveError, false, 'text/plain', 'draw.io diagram', false, draftPage);
 					}
 				}
 			}
@@ -1196,8 +1219,66 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 	});
 };
 
+AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revision, contentId, contentVer, success, error)
+{
+    var customObj = {
+        "type": "ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram",
+        "space": {
+           "key": spaceKey
+         },
+         "container": {
+	   	    "type": pageType,
+	   	    "id": pageId
+	   	 },
+         "title": diagramName,
+         "body": {
+           "storage": {
+             "value": encodeURIComponent(JSON.stringify({
+                 "pageId": pageId,
+                 "diagramName": diagramName,
+                 "version": revision
+               })),
+             "representation": "storage"
+           }
+         },
+         "status": "current"
+    };
+    
+    if (contentId)
+	{
+    	customObj.version = {
+	        "number": ++contentVer
+	    };
+	}
+    
+    AP.require(['request'], function(request) 
+	{
+       request({
+           type: contentId? 'PUT' : 'POST',
+           data: JSON.stringify(customObj),
+           url:  "/rest/api/content/" + (contentId? contentId : ""),
+           contentType: "application/json",
+           success: success,
+           error: function(resp) {
+        	   //User can delete a custom content externally and we will get error 403 and message will contain the given id
+        	   //Then save a new one
+        	   var err = JSON.parse(resp.responseText);
+        	   
+        	   if (contentId && err.statusCode == 403 && err.message.indexOf(contentId) > 0)
+    		   {
+        		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, null, null, success, error);
+    		   }
+        	   else
+    		   {
+        		   error(resp);
+    		   }
+           }
+       });
+	});
+};
+
 //TODO We can upload both the diagram and its png in one call if needed?
-AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mime, comment, sendNotif, draftPage, addCustomContent) 
+AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mime, comment, sendNotif, draftPage) 
 {
 	loadSucess = function(resp) 
 	{
@@ -1253,85 +1334,7 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 				data: reqData,
 				url:  "/rest/api/content/"+ pageId +"/child/attachment" + draft,
 				contentType: "multipart/form-data",
-				success: function (resp)
-                {
-                   /* var attObj = JSON.parse(resp);
-					if (addCustomContent && attObj.results && attObj.results[0])
-					{
-						var spaceKey = AC.getSpaceKey(attObj.results[0]._expandable.space);
-						//First, check if we already have a custom content related to this attachment
-						//Names are not unique, so should check first to decide: add or update
-						 request({
-		                        type: 'GET',
-		                        url:  "/rest/api/search?cql=" + encodeURIComponent('creator=currentUser() and type="ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram"' +
-		                        		' and title="'+diagramName+'" and space="' + spaceKey + '"') + '&limit=100', //I don't think there could be more than 100 diagrams with the same name!
-		                        contentType: "application/json",
-	                        success: function(resp) 
-	                        {
-	                            resp = JSON.parse(resp);
-	                            var list = resp.list;
-	                            
-	                            if (list && list.length > 0)
-	                            {
-	                            	//We need to fetch each one to find out the page id
-	                            	for (var i = 0; i < list.length; i++)
-                            		{
-	                            		
-                            		}
-	                            }
-	                            else //just add it
-                            	{
-                            	
-                            	}
-	                        },
-	                        error: error //TODO is this correct??
-	                    });
-	                    
-	                    var customObj = {
-	                         "type": "ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram",
-	                         "space": {
-	                            "key": spaceKey
-	                          },
-	                          "container": {
-                        	    "type": "page",
-                        	    "id": pageId
-                        	  },
-	                          "title": diagramName,
-	                          "body": {
-	                            "storage": {
-	                              "value": "",
-	                              "representation": "storage"
-	                            }
-	                          },
-	                          "metadata": {
-	                            "properties": {
-	                              "diagram-data": {
-	                                "key": "diagram-data",
-	                                "value": {
-	                                  "attId": attObj.id,
-	                                  "pageId": pageId,
-	                                  "diagramName": diagramName,
-	                                  "version": attObj.results[0].version? attObj.results[0].version.number : ""
-	                                } 
-	                              }
-	                            }
-	                          }
-	                    };
-	                    
-	                    request({
-	                        type: 'POST',
-	                        data: JSON.stringify(customObj),
-	                        url:  "/rest/api/content/",
-	                        contentType: "application/json",
-	                        success: function(resp) 
-	                        {
-	                            //TODO We can ignore the resp??
-	                        },
-	                        error: error //TODO is this correct??
-	                    });
-					}*/
-                    sessionCheck(resp);
-                },
+				success: sessionCheck,
 				error: error
 			 });
 		});

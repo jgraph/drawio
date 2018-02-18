@@ -1068,7 +1068,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('label;whiteSpace=wrap;html=1;align=center;verticalAlign=bottom;spacingLeft=0;spacingBottom=4;imageAlign=center;imageVerticalAlign=top;image=' + this.gearImage, 120, 80, 'Label', 'Label 2', null, null, 'label image icon symbol'),
 		this.addEntry('shape group container', function()
 		{
-		    var cell = new mxCell('', new mxGeometry(0, 0, 200, 100),
+		    var cell = new mxCell('Label', new mxGeometry(0, 0, 200, 100),
 				'html=1;whiteSpace=wrap;container=1;recursiveResize=0;collapsible=0;');
 		    cell.vertex = true;
 		    

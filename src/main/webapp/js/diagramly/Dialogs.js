@@ -8285,7 +8285,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	this.container = table;
 };
 
-var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent)
+var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent, hideCancel)
 {
 	var div = document.createElement('div');
 	div.appendChild(content);
@@ -8309,6 +8309,12 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 		}
 	});
 	cancelBtn.className = 'geBtn';
+	
+	if (hideCancel)
+	{
+		cancelBtn.style.display = 'none';
+	}
+	
 	
 	if (editorUi.editor.cancelFirst)
 	{

@@ -1,13 +1,20 @@
-var GliffyMassImporter = function(logDiv) 
+var MassDiagramsProcessor = function(macroName, readableName, attParams, processAttFn, logDiv)
 {
 	logDiv.html("<br>");
 	
-	var link = document.createElement('a');
-	link.href = location.href;
-	link.href = link.href; //to have 'host' populated under IE
-	var hostUrl = link.protocol + '//' + link.hostname;
+	//RegExp that will be used
+	var findMacrosRegEx = new RegExp('\\<ac\\:structured\\-macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)', 'g');
+	var findOneMacroRegEx = new RegExp('\\<ac\\:structured\\-macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)');
+	var findMacroIdRegEx = new RegExp('ac\\:macro\\-id\\=\\"([^\\"]+)');
 	
-	function searchContentForMacro(macroName, onSuccess, onError, nextUrl) 
+	var findAttParamsRegExs = [];
+	
+	for (var i = 0; i < attParams.length; i++)
+	{
+		findAttParamsRegExs.push(new RegExp('\\<ac\\:parameter\\s+ac\\:name\\=\\"' + attParams[i] + '\\"\\s*\\>([^\\<]+)'));
+	}
+	
+	function searchContentForMacro(onSuccess, onError, nextUrl) 
 	{
 		AP.require(['request'], function(request) 
 		{
@@ -41,10 +48,180 @@ var GliffyMassImporter = function(logDiv)
 			});
 		});
 	};
+
+	var pagesCount = 0;
+	var processedPages = 0;
 	
-	
-	function importGliffyAtt(pageId, attName, attId, macroId, success, error) 
+	function pageProcessed()
 	{
+		processedPages++;
+		
+		if (processedPages == pagesCount)
+		{
+			logDiv.append($('<div>All ' + readableName + ' diagrams processed. Process finished!</div>'));
+		}
+	};
+	
+	function loadPageSuccess(page) 
+	{
+		page = JSON.parse(page);
+		
+		logDiv.append($('<div>Started processing page "'+ AC.htmlEntities(page.title) +'"...</div>'));
+		
+		var originalBody = page.body.storage.value;
+		
+		var pageXml = originalBody;
+		
+		var foundMacros = pageXml.match(findMacrosRegEx);
+		
+		var macrosParsed = 0;
+		var drawIoMacros = {};
+		var foundMarcosIds = [];
+		var spaceKey = AC.getSpaceKey(page._expandable.space);
+
+		if (foundMacros && foundMacros.length > 0)
+		{
+			for (var i = 0; i < foundMacros.length; i++)
+			{
+				var macroId = foundMacros[i].match(findMacroIdRegEx)[1];
+				
+				foundMarcosIds.push(macroId);
+				
+				var params = [];
+				
+				for (var j = 0; j < findAttParamsRegExs.length; j++) 
+				{
+					var paramFound = foundMacros[i].match(findAttParamsRegExs[j]);
+					
+					params.push(paramFound? AC.fromHtmlEntities(paramFound[1]) : null); 
+				}
+				
+				//get the attachment content
+				processAttFn(page.id, page.type, spaceKey, params, macroId, function(attInfo)
+				{
+					//Replace found macro with a draw.io one and use the same preview image
+	
+					//generate draw.io macro HTML
+					var drawIoMacro = '<ac:structured-macro ac:name="drawio" ac:schema-version="1" ac:macro-id="' + attInfo.macroId 
+							+ '"><ac:parameter ac:name="baseUrl">' + baseUrl 
+							+ '</ac:parameter><ac:parameter ac:name="diagramName">' + AC.htmlEntities(attInfo.name)
+							+ '</ac:parameter><ac:parameter ac:name="width">' + attInfo.width
+							+ '</ac:parameter><ac:parameter ac:name="zoom">' + (attInfo.zoom ? attInfo.zoom : '1')
+							+ '</ac:parameter><ac:parameter ac:name="pageId">' + page.id
+							+ '</ac:parameter><ac:parameter ac:name="lbox">' + (attInfo.lbox ? attInfo.lbox : '1')
+							+ '</ac:parameter><ac:parameter ac:name="height">' + attInfo.height 
+							+ '</ac:parameter><ac:parameter ac:name="revision">' + attInfo.revision 
+							+ (attInfo.previewPng? ('</ac:parameter><ac:parameter ac:name="tempPreview">' + AC.htmlEntities(attInfo.previewPng)) : "")
+							+ '</ac:parameter><ac:parameter ac:name="contentId">' + attInfo.contentId
+							+ '</ac:parameter><ac:parameter ac:name="contentVer">' + attInfo.contentVer
+							+ '</ac:parameter>';
+							
+					drawIoMacros[attInfo.macroId] = drawIoMacro; 
+					macrosParsed++;
+					
+					if (foundMacros.length == macrosParsed)
+					{
+						for (var j = 0; j < macrosParsed; j++)
+						{
+							var id = foundMarcosIds[j];
+							originalBody = originalBody.replace(findOneMacroRegEx, drawIoMacros[id]);
+						}
+						
+						//update page contents
+						AP.require(['request'], function(request) 
+						{
+							request({
+								type: 'PUT',
+								data: JSON.stringify({
+									"body": {
+										"storage": {
+											"value": originalBody,
+											"representation": "storage",
+											"embeddedContent": []
+										}
+									},
+									"version": {
+								        "number": page.version.number + 1
+								    },
+								    "type": page.type,
+								    "title": page.title,
+								    "status": "current"
+								}),
+								url:  "/rest/api/content/"+ page.id,
+								contentType: 'application/json;charset=UTF-8',
+								success: function(resp) {
+									logDiv.append($('<div>' + readableName + ' diagrams in page "'+ AC.htmlEntities(page.title) +'" processed successfully.</div>'));
+									pageProcessed();
+								},
+								error: function(resp) {
+									logDiv.append($('<div style="color:red">Updating page "'+ AC.htmlEntities(page.title) +'" failed.</div>'));
+									console.error(resp);
+									pageProcessed();
+								}
+							 });
+						});
+					}
+				},
+				function()
+				{
+					pageProcessed();
+				},
+				function()
+				{
+					pageProcessed();
+				});
+			};
+		}
+		else
+		{
+			logDiv.append($('<div>No ' + readableName + ' diagrams found in page "'+ AC.htmlEntities(page.title) +'".</div>'));
+			pageProcessed();
+		}
+	}; 
+	
+	function loadPageError(resp) 
+	{
+		logDiv.append($('<div style="color:red">Fetching the page failed.</div>'));
+		console.log(resp);
+		pageProcessed();
+	};
+
+	//Code starts execution here
+	searchContentForMacro(function success(resp) 
+	{
+		pagesCount += resp.results.length;
+		
+		for(var i = 0; i < resp.results.length; i++) 
+		{
+			var page = resp.results[i];
+			
+			logDiv.append($('<div>Page "'+ AC.htmlEntities(page.title) +'" found. Fetching...</div>'));
+			
+			getPageContent(page.id, loadPageSuccess, loadPageError);
+		}
+		
+		if (resp.results.length == 0)
+		{
+			logDiv.append($('<div>No ' + readableName + ' diagrams found. Process finished.</div>'));
+		}
+	}, function error(err) 
+	{
+		logDiv.append($('<div style="color:red">Searching for ' + readableName + ' diagrams failed. Please try again later.</div>'));
+		console.log(err);
+	});
+};
+
+var GliffyMassImporter = function(logDiv) 
+{
+	var link = document.createElement('a');
+	link.href = location.href;
+	link.href = link.href; //to have 'host' populated under IE
+	var hostUrl = link.protocol + '//' + link.hostname;
+
+	function importGliffyAtt(pageId, pageType, spaceKey, params, macroId, success, error, skip) 
+	{
+		var attName = params[0];
+		
 		logDiv.append($('<div>Gliffy diagram "'+ AC.htmlEntities(attName) +'" found. Importing...</div>'));
 		
 		//Get the latest version (no version parameter)
@@ -76,17 +253,38 @@ var GliffyMassImporter = function(logDiv)
 				 				AC.saveDiagram(pageId, attName + ".drawio.xml", xml,
 								function(resp)
 								{
-				 					logDiv.append($('<div>Gliffy diagram "'+ AC.htmlEntities(attName) +'" imported successfully.</div>'));
-				 					
 				 					resp = JSON.parse(resp);
 				 					
-				 					//TODO get the width & height
-				 					success({
+				 					var attInfo = {
 				 						name: attName + ".drawio.xml", 
 				 						revision: resp.results[0].version.number,
 				 						macroId: macroId,
-				 						previewPng: attName + ".png"
-			 						});
+				 						previewPng: attName + ".png",
+					 					//TODO get the actual width & height
+				 						//TODO It works with this hardcoded number, but it is better to get the actual value
+		 								width: 500,
+		 								height: 500
+			 						};
+				 					
+				 					//Add custom content
+				 					AC.saveCustomContent(spaceKey, pageId, pageType, attName + ".drawio.xml", attInfo.revision, null, null, 
+				 							function(responseText)
+				 							{
+				 								logDiv.append($('<div>Gliffy diagram "'+ AC.htmlEntities(attName) +'" imported successfully.</div>'));
+				 								
+				 								var content = JSON.parse(responseText);
+												
+				 								attInfo.contentId = content.id;
+				 								attInfo.contentVer = content.version.number;
+												
+							 					success(attInfo);
+				 							}, function(err)
+				 							{
+				 								logDiv.append($('<div style="color:red">Saving imported Gliffy diagram "'+ AC.htmlEntities(attName) +'" failed.</div>'));
+							 					console.log(err);
+							 					error();
+				 							});
+				 					
 				 				}, function(err) 
 				 				{
 				 					logDiv.append($('<div style="color:red">Saving imported Gliffy diagram "'+ AC.htmlEntities(attName) +'" failed.</div>'));
@@ -115,149 +313,115 @@ var GliffyMassImporter = function(logDiv)
 		});
 	};
 	
-	
-	var pagesCount = 0;
-	var processedPages = 0;
-	
-	function pageProcessed()
-	{
-		processedPages++;
-		
-		if (processedPages == pagesCount)
-		{
-			logDiv.append($('<div>All Gliffy diagrams processed. Import finished!</div>'));
-		}
-	};
-	
-	function loadPageSuccess(page) 
-	{
-		page = JSON.parse(page);
-		
-		logDiv.append($('<div>Started processing page "'+ AC.htmlEntities(page.title) +'"...</div>'));
-		
-		var originalBody = page.body.storage.value;
-		
-		var pageXml = originalBody;
-		
-		var gliffyMacros = pageXml.match(/\<ac\:structured\-macro\s+ac\:name\=\"gliffy\".*?(?=\<\/ac\:structured\-macro\>)/g);
-		
-		var macrosParsed = 0;
-		var drawIoMacros = {};
-		var gliffyMarcosIds = [];
-		
-		for (var i = 0; i < gliffyMacros.length; i++)
-		{
-			var macroId = gliffyMacros[i].match(/ac\:macro\-id\=\"([^\"]+)/)[1];
-			
-			gliffyMarcosIds.push(macroId);
-			var name = gliffyMacros[i].match(/\<ac\:parameter\s+ac\:name\=\"name\"\s*\>([^\<]+)/)[1];
-			var attId = gliffyMacros[i].match(/\<ac\:parameter\s+ac\:name\=\"diagramAttachmentId\"\s*\>([^\<]+)/)[1];
+	MassDiagramsProcessor('gliffy', 'Gliffy', ['name'], importGliffyAtt, logDiv);
+};
 
-			//get the attachment content
-			importGliffyAtt(page.id, AC.fromHtmlEntities(name), attId, macroId, function(attInfo)
-			{
-				//Replace gliffy macro with a draw.io one and use the gliffy preview image
 
-				//generate draw.io macro HTML
-				var drawIoMacro = '<ac:structured-macro ac:name="drawio" ac:schema-version="1" ac:macro-id="' + attInfo.macroId 
-						+ '"><ac:parameter ac:name="baseUrl">' + baseUrl 
-						+ '</ac:parameter><ac:parameter ac:name="diagramName">' + AC.htmlEntities(attInfo.name)
-						+ '</ac:parameter><ac:parameter ac:name="width">' + 500 //TODO It works with this hardcoded number, but it is better to get the actual value
-						+ '</ac:parameter><ac:parameter ac:name="zoom">1</ac:parameter><ac:parameter ac:name="pageId">' + page.id
-						+ '</ac:parameter><ac:parameter ac:name="lbox">1</ac:parameter><ac:parameter ac:name="height">' + 500 //TODO It works with this hardcoded number, but it is better to get the actual value 
-						+ '</ac:parameter><ac:parameter ac:name="revision">' + attInfo.revision 
-						+ '</ac:parameter><ac:parameter ac:name="tempPreview">' + AC.htmlEntities(attInfo.previewPng) 
-						+ '</ac:parameter>';
-						
-				drawIoMacros[attInfo.macroId] = drawIoMacro; 
-				macrosParsed++;
-				
-				if (gliffyMacros.length == macrosParsed)
-				{
-					for (var j = 0; j < macrosParsed; j++)
-					{
-						var id = gliffyMarcosIds[j];
-						originalBody = originalBody.replace(/\<ac\:structured\-macro\s+ac\:name\=\"gliffy\".*?(?=\<\/ac\:structured\-macro\>)/, drawIoMacros[id]);
-					}
-					
-					//update page contents
-					AP.require(['request'], function(request) 
-					{
-						request({
-							type: 'PUT',
-							data: JSON.stringify({
-								"body": {
-									"storage": {
-										"value": originalBody,
-										"representation": "storage",
-										"embeddedContent": []
-									}
-								},
-								"version": {
-							        "number": page.version.number + 1
-							    },
-							    "type": "page",
-							    "title": page.title,
-							    "status": "current"
-							}),
-							url:  "/rest/api/content/"+ page.id,
-							contentType: 'application/json;charset=UTF-8',
-							success: function(resp) {
-								logDiv.append($('<div>Gliffy diagrams in page "'+ AC.htmlEntities(page.title) +'" imported successfully.</div>'));
-								pageProcessed();
-							},
-							error: function(resp) {
-								logDiv.append($('<div style="color:red">Updating page "'+ AC.htmlEntities(page.title) +'" failed.</div>'));
-								console.error(resp);
-								pageProcessed();
-							}
-						 });
-					});
-				}
-			},
-			function()
-			{
-				pageProcessed();
-			});
+var DrawIoDiagramsIndexer = function(logDiv)
+{
+	function fixDrawIoCustomContent(pageId, pageType, spaceKey, params, macroId, success, error, skip) 
+	{
+		//['diagramName', 'contentId', 'contentVer', 'revision', 'width', 'height', 'tempPreview', 'zoom', 'lbox']
+		var attName = params[0];
+		var contentId = params[1];
+		var contentVer = params[2];
+		var revision = params[3];
+		var width = params[4];
+		var height = params[5];
+		var tempPreview = params[6];
+		var zoom = params[7];
+		var lbox = params[8];
+		
+		logDiv.append($('<div>Diagram "'+ AC.htmlEntities(attName) +'" found. Indexing...</div>'));
+		
+		var attInfo = {
+			macroId: macroId,
+			name: attName,
+			contentId: contentId,
+			contentVer: contentVer,
+			revision: revision,
+			width: width,
+			height: height,
+			previewPng: tempPreview,
+			zoom: zoom,
+			lbox: lbox
 		};
 		
-		if (gliffyMacros.length == 0)
+		
+		function addNewCustomContent()
 		{
-			logDiv.append($('<div>No Gliffy diagrams found in page "'+ AC.htmlEntities(page.title) +'".</div>'));
-			pageProcessed();
+			AC.saveCustomContent(spaceKey, pageId, pageType, attName, revision, null, null, 
+					function(responseText)
+					{
+						logDiv.append($('<div>Diagram "'+ AC.htmlEntities(attName) +'" indexed successfully.</div>'));
+						
+						var content = JSON.parse(responseText);
+					
+						attInfo.contentId = content.id;
+						attInfo.contentVer = content.version.number;
+					
+						success(attInfo);
+					}, function(err)
+					{
+						logDiv.append($('<div style="color:red">Indexing diagram "'+ AC.htmlEntities(attName) +'" failed.</div>'));
+	 					console.log(err);
+	 					error();
+					});
+		};
+		
+		//If contentId exists, make sure it exists and is valid
+		if (contentId)
+		{
+			AP.require(['request'], function(request) 
+			{
+				request({
+					type: 'GET',
+					url: '/rest/api/content/' + contentId + '/?expand=body.storage',
+					contentType: 'application/json;charset=UTF-8',
+					success: function (resp) 
+					{
+						resp = JSON.parse(resp);
+						
+						var info = JSON.parse(decodeURIComponent(resp.body.storage.value));
+						
+						if (info.pageId == pageId && info.diagramName == attName && info.version == revision)
+						{
+							//nothing needs to be done, just skip
+							logDiv.append($('<div>Diagram "'+ AC.htmlEntities(attName) +'" is up to date.</div>'));
+							skip();
+						}
+						else
+						{
+							//We add a new one and leave the current one intact since this is most probably a copied diagram
+							addNewCustomContent();
+						}
+					},
+					error: function (err) 
+					{
+						//If not found, add it
+						if (err.status == 404)
+						{
+							addNewCustomContent();
+						}
+						else
+						{
+							logDiv.append($('<div style="color:red">Indexing diagram "'+ AC.htmlEntities(attName) +'" failed.</div>'));
+		 					console.log(err);
+		 					error();
+						}
+					}
+				});
+			});
 		}
-	}; 
-	
-	function loadPageError(resp) 
-	{
-		logDiv.append($('<div style="color:red">Fetching the page failed.</div>'));
-		console.log(resp);
-		pageProcessed();
+		else //If no contentId exists, just add one
+		{
+			addNewCustomContent();
+		}
 	};
 
-	//Code starts execution here
-	searchContentForMacro('gliffy', function success(resp) 
-	{
-		pagesCount += resp.results.length;
-		
-		for(var i = 0; i < resp.results.length; i++) 
-		{
-			var page = resp.results[i];
-			
-			logDiv.append($('<div>Page "'+ AC.htmlEntities(page.title) +'" found. Fetching...</div>'));
-			
-			getPageContent(page.id, loadPageSuccess, loadPageError);
-		}
-		
-		if (resp.results.length == 0)
-		{
-			logDiv.append($('<div>No Gliffy diagrams found. Import finished.</div>'));
-		}
-	}, function error(err) 
-	{
-		logDiv.append($('<div style="color:red">Searching for Gliffy diagrams failed. Please try again later.</div>'));
-		console.log(err);
-	});
+	MassDiagramsProcessor('drawio', 'Draw.io', 
+			['diagramName', 'contentId', 'contentVer', 'revision', 'width', 'height', 'tempPreview', 'zoom', 'lbox'],
+			fixDrawIoCustomContent, logDiv);
 };
 
 var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
@@ -267,13 +431,24 @@ var script = document.createElement('script');
 script.onload = function()
 {
 	//JQuery is loaded in this page, so we can use it
+	var logDiv = $('#operationLog');
+
 	var importBtn = $('#importBtn');
 	
 	importBtn.attr("disabled", null);
 	
 	importBtn.click(function()
 	{
-		GliffyMassImporter($('#importLog'));
+		GliffyMassImporter(logDiv);
+	});
+	
+	var indexBtn = $('#indexBtn');
+
+	indexBtn.attr("disabled", null);
+	
+	indexBtn.click(function()
+	{
+		DrawIoDiagramsIndexer(logDiv);
 	});
 };
 
