@@ -1721,7 +1721,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.editLargeImage, mxResources.get('openInNewWindow'));
+				}), Editor.editLargeImage, mxResources.get('edit'));
 			}
 			
 			if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))

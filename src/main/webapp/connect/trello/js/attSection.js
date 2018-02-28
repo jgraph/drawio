@@ -98,8 +98,8 @@ t.render(function()
 						imgLink.className = "attachment-thumbnail-preview";
 						imgLink.setAttribute('href', 'javascript:void(0);');
 						imgLink.setAttribute('title', attName);
-	
 						imgLink.style.cssText = "background-image: url('" + maxPrev.url + "');background-color: #fcfcfc;";
+						
 						div.appendChild(imgLink);
 					}
 					else
@@ -122,18 +122,21 @@ t.render(function()
 								var viewer = new GraphViewer(container, req.getDocumentElement(),
 									{highlight: '#3572b0', border: 4, lightbox: false,
 									nav: true, 'max-height': 72});
-								
-								// Adds transparent background
-								viewer.graph.view.canvas.ownerSVGElement.style.backgroundColor = 'transparent';
-								
-								// Undo container resize and center
 								container.style.width = '110px';
 								container.style.height = '80px';
-								var bounds = viewer.graph.getGraphBounds();
-								var dx = (110 - bounds.width) / 2 - bounds.x;
-								var dy = (80 - bounds.height) / 2 - bounds.y;
-								viewer.graph.view.canvas.ownerSVGElement.setAttribute('transform',
-									'translate(' + dx + ' ' + dy + ')');
+								
+								if (viewer.graph != null)
+								{	
+									// Adds transparent background
+									viewer.graph.view.canvas.ownerSVGElement.style.backgroundColor = 'transparent';
+									
+									// Undo container resize and center
+									var bounds = viewer.graph.getGraphBounds();
+									var dx = (110 - bounds.width) / 2 - bounds.x;
+									var dy = (80 - bounds.height) / 2 - bounds.y;
+									viewer.graph.view.canvas.ownerSVGElement.setAttribute('transform',
+										'translate(' + dx + ' ' + dy + ')');
+								}
 							}
 						});
 					}

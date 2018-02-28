@@ -3146,7 +3146,11 @@
 				{
 					var obj = g.Objects[i];
 					
-					if (obj.IsBlock && obj.Action != null && obj.Action.Properties != null)
+					if (obj.Action != null && styleMap[obj.Action.Class] == 'mxCompositeShape')
+					{
+						lookup[obj.id] = addCompositeShape(obj, select, graph);
+					}
+					else if (obj.IsBlock && obj.Action != null && obj.Action.Properties != null)
 					{
 					    lookup[obj.id] = createVertex(obj);
 					}
@@ -3303,7 +3307,9 @@
 		v = new mxCell('', new mxGeometry(x, y, w, h), vertexStyle);
 	    v.vertex = true;
 
-		switch (obj.Class)
+	    var cls = (obj.Class != null) ? obj.Class : (a != null) ? a.Class : null;
+	    
+		switch (cls)
 		{
 			case 'BraceNoteBlock' :
 			case 'UI2BraceNoteBlock' :
@@ -8795,7 +8801,7 @@
 				if (p.Simple == 0)
 				{
 					var st = getFillColor(p, a);
-					var th = p.TitleHeight * scale;
+					var th = Math.round(p.TitleHeight * scale);
 					st = st.replace('fillColor', 'swimlaneFillColor');
 					
 					if (st == '')
@@ -8839,7 +8845,7 @@
 							itemH = 1 - currH;
 						}
 						
-						item[i] = new mxCell('', new mxGeometry(0, 0, w, (h - th) * itemH), 'part=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+						item[i] = new mxCell('', new mxGeometry(0, 0, w, Math.round((h - th) * itemH)), 'part=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
 						item[i].vertex = true;
 						v.insert(item[i]);
 						item[i].style += st +

@@ -457,11 +457,6 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember)
 			else if (error != null)
 			{
 				error(resp);
-				
-				if (!this.ui.isOffline())
-				{
-					this.ui.logEvent({category: 'Error', action: 'open', label: JSON.stringify(resp)})
-				}
 			}
 
 			this.resetTokenRefresh(resp);

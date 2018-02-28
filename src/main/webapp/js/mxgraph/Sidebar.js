@@ -1068,7 +1068,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('label;whiteSpace=wrap;html=1;align=center;verticalAlign=bottom;spacingLeft=0;spacingBottom=4;imageAlign=center;imageVerticalAlign=top;image=' + this.gearImage, 120, 80, 'Label', 'Label 2', null, null, 'label image icon symbol'),
 		this.addEntry('shape group container', function()
 		{
-		    var cell = new mxCell('Label', new mxGeometry(0, 0, 200, 100),
+		    var cell = new mxCell('Label', new mxGeometry(0, 0, 160, 70),
 				'html=1;whiteSpace=wrap;container=1;recursiveResize=0;collapsible=0;');
 		    cell.vertex = true;
 		    
@@ -1079,9 +1079,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	    		return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Shape Group');
 		}),
 	 	this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
-		//this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;top=0;fillColor=none;routingCenterY=0.5;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;top=0;bottom=1;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
-		//this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;points=[];strokeWidth=3;resizable=0;outlineConnect=0;', 1, 1, '', 'Solder Point'),
 		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
 	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;', 60, 40, '', 'Filled Edge'),
 	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),

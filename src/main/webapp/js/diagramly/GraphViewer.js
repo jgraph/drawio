@@ -253,6 +253,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				{
 					container.setAttribute('title', this.graphConfig.title);
 				}
+				
+				this.fireEvent(new mxEventObject('render'));
 			});
 
 			var MutObs = window.MutationObserver ||

@@ -64,7 +64,7 @@
 	/**
 	 * Broken image symbol for offline SVG.
 	 */
-	EditorUi.prototype.svgBrokenImage = Graph.createSvgImage(10, 10, '<rect x="0" y="0" width="10" height="10" stroke="#000" fill="transparent"/><path d="m 0 0 L 10 10 L 0 10 L 10 0" stroke="#000" fill="transparent"/>');svrc =
+	EditorUi.prototype.svgBrokenImage = Graph.createSvgImage(10, 10, '<rect x="0" y="0" width="10" height="10" stroke="#000" fill="transparent"/><path d="m 0 0 L 10 10 L 0 10 L 10 0" stroke="#000" fill="transparent"/>');
 	
 	/**
 	 * Defines the maximum size for images.
