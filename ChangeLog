@@ -1,3 +1,23 @@
+27-FEB-2018: 8.3.4
+
+- Fixes license debug in Confluence Cloud
+
+27-FEB-2108: 8.3.3
+
+- Fixes iconfinder 451 return
+
+25-FEB-2018: 8.3.2
+
+- Remove Google Drive login response checks, caused issues
+
+20-FEB-2018: 8.3.1
+
+- Internal revert to 8.2.3 minus Confluence Cloud changes
+
+19-FEB-2018: 8.3.0
+
+- Internal revert to 8.2.2 minus Confluence Cloud changes
+
 18-FEB-2018: 8.2.3
 
 - Adds optional parameter

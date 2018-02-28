@@ -80,6 +80,9 @@ public class ProxyServlet extends HttpServlet
 				// Status code pass-through
 				if (connection instanceof HttpURLConnection)
 				{
+					// Workaround for 451 response from Iconfinder CDN
+					((HttpURLConnection) connection).setRequestProperty("User-Agent", "draw.io");
+					
 					response.setStatus(((HttpURLConnection) connection).getResponseCode());
 				}
 				

@@ -135,7 +135,12 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
-	
+
+	/**
+	 * Disables the shadow option in the format panel.
+	 */
+	Editor.shadowOptionEnabled = true;
+
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
@@ -724,7 +729,7 @@
 				var editor = ui.editor;
 				var graph = editor.graph;
 				
-				div.appendChild(this.createOption(mxResources.get('shadow'), function()
+				var option = this.createOption(mxResources.get('shadow'), function()
 				{
 					return graph.shadowVisible;
 				}, function(checked)
@@ -750,7 +755,15 @@
 					{
 						ui.removeListener(this.listener);
 					}
-				}));
+				});
+				
+				if (!Editor.shadowOptionEnabled)
+				{
+					option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+					mxUtils.setOpacity(option, 60);
+				}
+				
+				div.appendChild(option);
 			}
 			
 			return div;

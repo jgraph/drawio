@@ -12,7 +12,7 @@
     "links": {
         "documentation": "https://support.draw.io/display/DFCC/draw.io+for+Confluence+Cloud"
     },
-    "version": "2.0.0",
+    "version": "1.4.8",
     "authentication": 
     {
         "type": "none"
@@ -31,7 +31,7 @@
 		"generalPages": [
             {
                 "key": "lightbox",
-                "url": "/connect/confluence/viewer2.html?lightbox=1",
+                "url": "/connect/confluence/viewer-1-4-8.html?lightbox=1",
                 "name": {
                     "value": "Lightbox"
                 }
@@ -76,7 +76,7 @@
                     "i18n": "drawioMacro",
                     "value": "Draw.io Diagram"
                 },
-                "url": "/connect/confluence/viewer2.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}",
+                "url": "/connect/confluence/viewer-1-4-8.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}",
                 "width": "100%",
                 "description": 
                 {
@@ -146,7 +146,7 @@
 				    }
   				],
   				"editor": {
-				    "url": "/connect/confluence/macroEditor.html?ceoId=${page.id}&diagramName=${diagramName}",
+				    "url": "/connect/confluence/macroEditor-1-4-8.html?ceoId=${page.id}&diagramName=${diagramName}",
 				    "width": "100%",
 				    "height": "100%",
 				    "editTitle":

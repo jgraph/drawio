@@ -12,7 +12,7 @@ AC.autoExit = true;
 // Last Checked on 08-AUG-2017: No delete scope needed to delete drafts
 // LATER: If delete scope is needed users must upgrade to the latest json
 // Disabled. Flag to mute notifications for drafts is needed. 16-AUG-2017
-AC.draftEnabled = true; //Enabled with the new save that mute notifications for saving TODO is there notification for deleting a draft?
+AC.draftEnabled = false;
 
 AC.getUrlParam = function(param, escape, url){
     try{
@@ -26,46 +26,9 @@ AC.getUrlParam = function(param, escape, url){
     }
 };
 
-AC.getSpaceKey = function(url)
-{
-    try{
-        var url = url || window.location.href;
-        var regex = new RegExp(/\/(spaces|space)\/([^\/]+)/);
-        return regex.exec(url)[2];
-    } catch (e){
-        return undefined;
-    }
-};
-
 AC.getMetaTag = function(name) {
 	return document.getElementsByTagName('meta')[name].getAttribute('content');
 }
-
-//Code from: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
-AC.b64toBlob = function(b64Data, contentType, sliceSize, isByteCharacters) 
-{
-	  contentType = contentType || '';
-	  sliceSize = sliceSize || 512;
-
-	  var byteCharacters = isByteCharacters? b64Data : atob(b64Data);
-	  var byteArrays = [];
-
-	  for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-	    var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-	    var byteNumbers = new Array(slice.length);
-	    for (var i = 0; i < slice.length; i++) {
-	      byteNumbers[i] = slice.charCodeAt(i);
-	    }
-
-	    var byteArray = new Uint8Array(byteNumbers);
-
-	    byteArrays.push(byteArray);
-	  }
-
-	  var blob = new Blob(byteArrays, {type: contentType});
-	  return blob;
-  }
 
 AC.initAsync = function(baseUrl)
 {
@@ -455,7 +418,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 	   		//console.trace('DRAFT: Save', draftName, xml);
 	   		
 			AC.saveDiagram(pageId, draftName,
-				xml,
+				btoa(unescape(encodeURIComponent(xml))),
 				function(res)
 				{
 					var obj = null;
@@ -972,7 +935,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 				}
 				else if (drawMsg.event == 'save')
 				{
-					diagramXml = drawMsg.xml;
+					diagramXml = btoa(unescape(encodeURIComponent(drawMsg.xml)));
 					
 					if (diagramName == null)
 					{
@@ -1052,10 +1015,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 					{
 						var resp = null;
 						var revision = '1';
-						var contentId = null;
-						var contentVer = null;
-						
-						//TODO Why this code (Is it expected to have incorrect responseText?)
+
 						try
 						{
 							resp = JSON.parse(responseText);
@@ -1067,29 +1027,9 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 
 						// LATER: Get revision from metadata of attachment and check
 						// what condition makes the response not contain an URL
-						//TODO Is prev comment still needed with REST API?
-						if (resp != null && resp.results != null && resp.results[0])
+						if (resp != null && resp.url != null)
 						{
-							var attObj = resp.results[0];
-							revision = attObj.version.number;
-							//Save/update the custom content
-							var spaceKey = AC.getSpaceKey(attObj._expandable.space);
-							var pageType = attObj.container.type;
-
-							
-							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, 
-									drawMsg.macroData.contentId,
-									drawMsg.macroData.contentVer,
-									function(responseText) 
-									{
-										var content = JSON.parse(responseText);
-										
-										contentId = content.id;
-										contentVer = content.version.number;
-										
-										AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
-												successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
-									}, saveError);
+							revision = resp.url.match(/version=(\d+)/i)[1];
 						}
 						else
 						{
@@ -1107,13 +1047,8 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							{
 								// do nothing
 							}
-							
-							//TODO Save png here in case responseText is incorrect (But why it can be incorrect?)
-							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
-									successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
 						}
 
-						
 						function successPng(pngResponseText) 
 						{
 							try
@@ -1123,8 +1058,6 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									diagramName: diagramName,
 									revision: revision,
 									pageId: newPage ? null : pageId,
-									contentId: contentId,
-									contentVer: contentVer,
 									baseUrl: baseUrl,
 									width: diaWidth,
 									height: diaHeight,
@@ -1154,6 +1087,12 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									titleKey: 'errorSavingFile', message: e.message, buttonKey: 'ok'}), '*');
 							}
 						};
+
+						if (diagramName != null) 
+						{
+							AC.saveDiagram(pageId, diagramName + '.png', imageData,
+								successPng, saveError, false, 'image/png');
+						}
 					};
 
 					if (diagramName != null) 
@@ -1219,67 +1158,17 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 	});
 };
 
-AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revision, contentId, contentVer, success, error)
+AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mime, comment) 
 {
-    var customObj = {
-        "type": "ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram",
-        "space": {
-           "key": spaceKey
-         },
-         "container": {
-	   	    "type": pageType,
-	   	    "id": pageId
-	   	 },
-         "title": diagramName,
-         "body": {
-           "storage": {
-             "value": encodeURIComponent(JSON.stringify({
-                 "pageId": pageId,
-                 "diagramName": diagramName,
-                 "version": revision
-               })),
-             "representation": "storage"
-           }
-         },
-         "status": "current"
-    };
-    
-    if (contentId)
+	var attachment = {fileName: diagramName, contentType: mime};
+	
+	if (comment != null)
 	{
-    	customObj.version = {
-	        "number": ++contentVer
-	    };
+		attachment.comment = comment;
 	}
-    
-    AP.require(['request'], function(request) 
-	{
-       request({
-           type: contentId? 'PUT' : 'POST',
-           data: JSON.stringify(customObj),
-           url:  "/rest/api/content/" + (contentId? contentId : ""),
-           contentType: "application/json",
-           success: success,
-           error: function(resp) {
-        	   //User can delete a custom content externally and we will get error 403 and message will contain the given id
-        	   //Then save a new one
-        	   var err = JSON.parse(resp.responseText);
-        	   
-        	   if (contentId && err.statusCode == 403 && err.message.indexOf(contentId) > 0)
-    		   {
-        		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, null, null, success, error);
-    		   }
-        	   else
-    		   {
-        		   error(resp);
-    		   }
-           }
-       });
-	});
-};
-
-//TODO We can upload both the diagram and its png in one call if needed?
-AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mime, comment, sendNotif, draftPage) 
-{
+	
+	var params = [pageId, attachment, xml];
+	
 	loadSucess = function(resp) 
 	{
 		error({status: 409, message: 'File already exists'});
@@ -1303,7 +1192,7 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 		{
 			var obj = JSON.parse(responseText);
 			
-			if (obj != null && obj.code == -32600) //TODO is the codes the same with new REST APIs 
+			if (obj != null && obj.code == -32600)
 			{
 				error({status: 401});
 				
@@ -1316,27 +1205,19 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 	
 	doSave = function() 
 	{
+		// Workaround for encoding problems
+		var data = JSON.stringify(params);
+
 		AP.require(['request'], function(request) 
 		{
-			 var attFile = (xml instanceof Blob)? xml : new Blob([xml], {type: mime});
-			 attFile.name = diagramName;
-			 
-			 var reqData = {file: attFile, minorEdit: sendNotif? false : true};
-			 var draft = draftPage ? "?status=draft" : "";
-
-			 if (comment != null)
-			 {
-				 reqData.comment = comment;
-			 }
-			 
-			 request({
-				type: 'PUT',
-				data: reqData,
-				url:  "/rest/api/content/"+ pageId +"/child/attachment" + draft,
-				contentType: "multipart/form-data",
+			request({
+				type: 'POST',
+				data: data,
+				url: '/rpc/json-rpc/confluenceservice-v2/addAttachment',
+				contentType: 'application/json;charset=UTF-8',
 				success: sessionCheck,
 				error: error
-			 });
+			});
 		});
 	};
 	
@@ -1393,41 +1274,3 @@ AC.getMacroData = function(fn) {
 		confluence.getMacroData(fn);
 	});
 }
-
-//From mxUtils
-AC.htmlEntities = function(s, newline)
-{
-	s = String(s || '');
-	
-	s = s.replace(/&/g,'&amp;'); // 38 26
-	s = s.replace(/"/g,'&quot;'); // 34 22
-	s = s.replace(/\'/g,'&#39;'); // 39 27
-	s = s.replace(/</g,'&lt;'); // 60 3C
-	s = s.replace(/>/g,'&gt;'); // 62 3E
-
-	if (newline == null || newline)
-	{
-		s = s.replace(/\n/g, '&#xa;');
-	}
-	
-	return s;
-};
-
-AC.fromHtmlEntities = function(s, newline)
-{
-	s = String(s || '');
-	
-	s = s.replace(/&amp;/g,'&'); // 38 26
-	s = s.replace(/&quot;/g,'"'); // 34 22
-	s = s.replace(/&#39;/g,'\\'); // 39 27
-	s = s.replace(/&lt;/g,'<'); // 60 3C
-	s = s.replace(/&gt;/g,'>'); // 62 3E
-
-	if (newline == null || newline)
-	{
-		s = s.replace(/&#xa;/g, '\n');
-	}
-	
-	return s;
-};
-

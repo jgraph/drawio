@@ -2597,6 +2597,11 @@ HoverIcons.prototype.activeArrow = null;
 HoverIcons.prototype.inactiveOpacity = 15;
 
 /**
+ * Up arrow.
+ */
+HoverIcons.prototype.cssCursor = 'copy';
+
+/**
  * Whether to hide arrows that collide with vertices.
  * LATER: Add keyboard override, touch support.
  */
@@ -2848,7 +2853,7 @@ HoverIcons.prototype.createArrow = function(img, tooltip)
 	}
 	
 	arrow.style.position = 'absolute';
-	arrow.style.cursor = 'crosshair';
+	arrow.style.cursor = this.cssCursor;
 
 	mxEvent.addGestureListeners(arrow, mxUtils.bind(this, function(evt)
 	{
