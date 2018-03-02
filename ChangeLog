@@ -1,3 +1,11 @@
+01-MAR-2018: 8.3.5
+
+- Adds recent and search to Confluence Cloud splash dialog
+- Adds iconfinder to URLs with CORS
+- Adds support for cross-origin images
+- Fixes bug for vssx shapes with double quotes in labels
+- Add line-height CSS to simulate quirks box sizing [5289]
+
 27-FEB-2018: 8.3.4
 
 - Fixes license debug in Confluence Cloud

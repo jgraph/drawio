@@ -43,6 +43,7 @@ SHAPES_PATH = '/shapes';
 // Overrides browser language with Confluence user language
 var lang = getUrlParam('loc');
 var lightbox = getUrlParam('lightbox') == '1';
+var customContent = getUrlParam('custom') == '1';
 
 if (lightbox)
 {
@@ -339,7 +340,7 @@ if (lang != null)
 												function()
 												{
 													//nothing!
-												}, false, 'text/plain', 'Diagram imported by Draw.io', false, false, true);
+												}, false, 'text/plain', 'Diagram imported by Draw.io', false, false);
 												
 												//TODO save preview png
 												//This requires an editor to do the png export, may be a canvas can be used with supported browsers
@@ -382,7 +383,29 @@ if (lang != null)
 					}
 				};
 	
-				if (lightbox)
+                if (customContent)
+                {
+                    var contentId = getUrlParam('contentId');
+                    
+                    request({
+                        type: 'GET',
+                        url: '/rest/api/content/' + contentId + '/?expand=body.storage',
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (resp) 
+                        {
+                            resp = JSON.parse(resp);
+                            
+                            var info = JSON.parse(decodeURIComponent(resp.body.storage.value));
+                            
+                            showDiagram(info.pageId, info.pageId, info.diagramName, info.version, null, links);
+                        },
+                        error: function (resp) 
+                        {
+                            showError('Diagram not found!');
+                        }
+                    });
+                }
+                else if (lightbox)
 				{
 					// Gets the paramters from the customData object in lightbox mode
 					// LATER: Add XML to custom data (does not seem to work)

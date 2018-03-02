@@ -65,6 +65,11 @@
 	 * Broken image symbol for offline SVG.
 	 */
 	EditorUi.prototype.svgBrokenImage = Graph.createSvgImage(10, 10, '<rect x="0" y="0" width="10" height="10" stroke="#000" fill="transparent"/><path d="m 0 0 L 10 10 L 0 10 L 10 0" stroke="#000" fill="transparent"/>');
+
+	/**
+	 * Specifies if img.crossOrigin is supported. This is true for all browsers except IE10 and earlier.
+	 */
+	EditorUi.prototype.crossOriginImages = !mxClient.IS_IE;
 	
 	/**
 	 * Defines the maximum size for images.
@@ -5025,8 +5030,7 @@
 		var converter = new mxUrlConverter();
 		converter.updateBaseUrl();
 
-		// Extends convert to avoid CORS using an image proxy server
-		// LATER: Use img.crossOrigin="anonymous" to avoid proxy
+		// Extends convert to avoid CORS using an image proxy server where needed
 		var convert = converter.convert;
 		var self = this;
 		
@@ -5040,7 +5044,8 @@
 				{
 					src = self.svgBrokenImage.src;
 				}
-				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl)
+				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl &&
+						(!self.crossOriginImages || !self.isCorsEnabledForUrl(src)))
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
@@ -5234,6 +5239,7 @@
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
+			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
 
@@ -5260,6 +5266,11 @@
 		{
 		    var img = new Image();
 		    var self = this;
+		    
+		    if (this.crossOriginImages)
+		    	{
+			    img.crossOrigin = 'anonymous';
+		    }	
 		    
 		    img.onload = function()
 		    {

@@ -56,6 +56,18 @@ Menus.prototype.init = function()
 			var tr = this.styleChange(menu, fontname, [mxConstants.STYLE_FONTFAMILY], [fontname], null, parent, function()
 			{
 				document.execCommand('fontname', false, fontname);
+			}, function()
+			{
+				graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+				{
+					elt.removeAttribute('face');
+					elt.style.fontFamily = null;
+					
+					if (elt.nodeName == 'PRE')
+					{
+						graph.replaceElement(elt, 'div');
+					}
+				});
 			});
 			tr.firstChild.nextSibling.style.fontFamily = fontname;
 		});
@@ -758,7 +770,7 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 /**
  * Adds a style change item to the given menu.
  */
-Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn)
+Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn, post)
 {
 	var apply = this.createStyleChangeFunction(keys, values);
 	
@@ -772,7 +784,7 @@ Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent
 		}
 		else
 		{
-			apply();
+			apply(post);
 		}
 	}), parent, sprite);
 };
@@ -782,7 +794,7 @@ Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent
  */
 Menus.prototype.createStyleChangeFunction = function(keys, values)
 {
-	return mxUtils.bind(this, function()
+	return mxUtils.bind(this, function(post)
 	{
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
@@ -793,6 +805,11 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 			for (var i = 0; i < keys.length; i++)
 			{
 				graph.setCellStyles(keys[i], values[i]);
+			}
+			
+			if (post != null)
+			{
+				post();
 			}
 			
 			this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', keys, 'values', values,

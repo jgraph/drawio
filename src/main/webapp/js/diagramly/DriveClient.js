@@ -260,7 +260,7 @@ DriveClient.prototype.execute = function(fn)
 		// success executes after successful authorization.
 		this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, success)
 		{
-			this.authorize(false, function()
+			this.authorize(false, mxUtils.bind(this, function()
 			{
 				if (success != null)
 				{
@@ -268,7 +268,7 @@ DriveClient.prototype.execute = function(fn)
 				}
 				
 				fn();
-			}, mxUtils.bind(this, function(resp)
+			}), mxUtils.bind(this, function(resp)
 			{
 				var msg = mxResources.get('cannotLogin');
 				
@@ -287,7 +287,10 @@ DriveClient.prototype.execute = function(fn)
 				this.ui.drive.setUser(null);
 				gapi.auth.signOut();
 				
-				this.ui.showError(mxResources.get('error'), msg, mxResources.get('ok'));
+				this.ui.showError(mxResources.get('error'), msg, mxResources.get('help'), mxUtils.bind(this, function()
+				{
+					this.ui.openLink('https://desk.draw.io/support/solutions/articles/16000074659');
+				}), null, mxResources.get('ok'));
 			}), remember);
 		}));
 	});
