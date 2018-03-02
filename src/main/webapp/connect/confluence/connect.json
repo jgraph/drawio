@@ -19,15 +19,6 @@
     },
     "modules": 
     {
-		"adminPages": [
-			{
-                "key": "gliffyImport",
-                "url": "/connect/confluence/admin.html",
-                "name": {
-                    "value": "Gliffy - draw.io Conversion"
-                }
-            }
-		],
 		"generalPages": [
             {
                 "key": "lightbox",
@@ -38,7 +29,7 @@
             },
             {
                 "key": "customContentViewer",
-                "url": "/connect/confluence/viewer2.html?custom=1&contentId={content.id}",
+                "url": "/connect/confluence/viewer-1-4-8.html?custom=1&contentId={content.id}",
                 "name": {
                     "value": "Draw.io Viewer"
                 }

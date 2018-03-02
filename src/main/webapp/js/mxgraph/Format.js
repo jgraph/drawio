@@ -618,37 +618,20 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 				// Handles special case for fontSize where HTML labels are parsed and updated
 				if (key == mxConstants.STYLE_FONTSIZE)
 				{
-					var cells = graph.getSelectionCells();
-					
-					for (var i = 0; i < cells.length; i++)
+					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
 					{
-						var cell = cells[i];
-							
-						// Changes font tags inside HTML labels
-						if (graph.isHtmlLabel(cell))
-						{
-							var div = document.createElement('div');
-							div.innerHTML = graph.convertValueToString(cell);
-							var elts = div.getElementsByTagName('font');
-							
-							for (var j = 0; j < elts.length; j++)
-							{
-								elts[j].removeAttribute('size');
-								elts[j].style.fontSize = value + 'px';
-							}
-							
-							graph.cellLabelChanged(cell, div.innerHTML)
-						}
-					}
+						elt.style.fontSize = value + 'px';
+						elt.removeAttribute('size');
+					});
 				}
+				
+				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
+						'values', [value], 'cells', graph.getSelectionCells()));
 			}
 			finally
 			{
 				graph.getModel().endUpdate();
 			}
-			
-			ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-					'values', [value], 'cells', graph.getSelectionCells()));
 		}
 		
 		input.value = value + unit;
@@ -1029,7 +1012,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 	var btn = null;
 
-	var apply = function(color, disableUpdate)
+	var apply = function(color, disableUpdate, forceUpdate)
 	{
 		if (!applying)
 		{
@@ -1064,12 +1047,12 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				callbackFn(color);
 			}
 
-			if (!disableUpdate && (hideCheckbox || value != color))
+			if (!disableUpdate)
 			{
 				value = color;
 				
 				// Checks if the color value needs to be updated in the model
-				if (hideCheckbox || getColorFn() != value)
+				if (forceUpdate || hideCheckbox || getColorFn() != value)
 				{
 					setColorFn(value);
 				}
@@ -1081,7 +1064,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 	btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 	{
-		this.editorUi.pickColor(value, apply);
+		this.editorUi.pickColor(value, function(color)
+		{
+			apply(color, null, true);
+		});
 		mxEvent.consume(evt);
 	}));
 	
@@ -2848,7 +2834,13 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		install: function(apply) { bgColorApply = apply; },
 		destroy: function() { bgColorApply = null; }
-	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, '#ffffff');
+	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, '#ffffff', null, function(color)
+	{
+		graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+		{
+			elt.style.backgroundColor = null;
+		});
+	});
 	bgPanel.style.fontWeight = 'bold';
 
 	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'), mxConstants.STYLE_LABEL_BORDERCOLOR, '#000000');
@@ -2886,6 +2878,12 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, graph.getSelectionCells());
 		}
+
+		graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+		{
+			elt.removeAttribute('color');
+			elt.style.color = null;
+		});
 	});
 	panel.style.fontWeight = 'bold';
 	
