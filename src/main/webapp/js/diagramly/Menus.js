@@ -123,6 +123,10 @@
 			var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
 				false, graph.isSelectionEmpty());
 			var pages = editorUi.addCheckbox(div, mxResources.get((noPages) ? 'compressed' : 'allPages'), true);
+			var pagesCompressed = null;
+			if(!noPages) {
+				pagesCompressed = editorUi.addCheckbox(div, mxResources.get('compressed'), true);
+			}
 			pages.style.marginBottom = '16px';
 			
 			mxEvent.addListener(selection, 'change', function()
@@ -139,7 +143,7 @@
 			
 			var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 			{
-				editorUi.downloadFile('xml', (noPages) ? !pages.checked : null, null,
+				editorUi.downloadFile('xml', (noPages) ? !pages.checked : pagesCompressed.checked, null,
 					!selection.checked, (!noPages) ? !pages.checked : null);
 			}), null, mxResources.get('export'));
 			
