@@ -1786,6 +1786,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	div.style.overflow = 'hidden';
 
 	this.window = new mxWindow(mxResources.get('outline'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 80, 80);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);
@@ -2456,6 +2457,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);

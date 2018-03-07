@@ -21,27 +21,36 @@ public class ArrowMapping
 		public Boolean fill;
 		
 		int arrowSize = 6; //6 is the default arrow size
+		
+		int perimeterSpacing = 0;
 
-		public ArrowStyle(String name, boolean fill)
-		{
-			super();
-			this.name = name;
-			this.fill = fill;
-		}
-
-		public ArrowStyle(String name, boolean fill, int arrowSize)
+		public ArrowStyle(String name, boolean fill, int arrowSize, int spacing)
 		{
 			super();
 			this.name = name;
 			this.fill = fill;
 			this.arrowSize = arrowSize;
+			this.perimeterSpacing = spacing;
+		}
+
+		public ArrowStyle(String name, boolean fill, int arrowSize)
+		{
+			this(name, fill, arrowSize, 0);
+			
+		}
+
+		public ArrowStyle(String name, boolean fill)
+		{
+			this(name, fill, 6);
 		}
 
 		public String toString(boolean start)
 		{
 			int intFill = fill ? 1 : 0;
-			return start ? "startArrow=" + name + ";startFill=" + intFill + ";startSize=" + arrowSize
-					: "endArrow=" + name + ";endFill=" + intFill + ";endSize=" + arrowSize;
+			return start ? "startArrow=" + name + ";startFill=" + intFill + ";startSize=" + arrowSize +
+					((perimeterSpacing != 0) ? ";sourcePerimeterSpacing=" + perimeterSpacing + ";" : "")
+					: "endArrow=" + name + ";endFill=" + intFill + ";endSize=" + arrowSize +
+					((perimeterSpacing != 0) ? ";targetPerimeterSpacing=" + perimeterSpacing + ";" : "");
 		}
 
 	}
@@ -66,7 +75,7 @@ public class ArrowMapping
 		mapping.put(12, new ArrowStyle("ERone", true, 10));
 		mapping.put(13, new ArrowStyle("ERzeroToOne", true, 10));
 		mapping.put(14, new ArrowStyle("ERmany", true, 10));
-		mapping.put(15, new ArrowStyle(mxConstants.ARROW_OVAL, false, 10));
+		mapping.put(15, new ArrowStyle(mxConstants.ARROW_OVAL, false, 10, 6));
 		mapping.put(16, new ArrowStyle("dash", false));
 		mapping.put(17, new ArrowStyle(mxConstants.ARROW_BLOCK, true));
 		mapping.put(18, new ArrowStyle(mxConstants.ARROW_CLASSIC, true));

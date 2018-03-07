@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,10 @@ import com.mxgraph.io.gliffy.model.Graphic.GliffySvg;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.online.Utils;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraphHeadless;
 
@@ -161,10 +164,18 @@ public class GliffyDiagramConverter
 
 		if (obj.hasChildren())
 		{
-			if (!obj.isSwimlane())
+			// sort the children except for swimlanes
+			// their order value is "auto"
+			if (obj.isSwimlane())
 			{
-				// sort the children except for swimlanes
-				// their order value is "auto"
+				// rotated swimlane child order is inverse
+				if (obj.rotation != 0)
+				{
+					Collections.reverse(obj.children);
+				}
+			}
+			else
+			{
 				sortObjectsByOrder(obj.children);
 			}
 
@@ -275,6 +286,82 @@ public class GliffyDiagramConverter
 	 * @param startTerminal starting point
 	 * @param endTerminal ending point
 	 */
+	private String getStyle(mxCell cell, String key, String defaultValue)
+	{
+		String style = cell.getStyle();
+		
+		if (style != null && style.length() > 0)
+		{
+			String[] pairs = style.split(";");
+
+			for (int i = 0; i < pairs.length; i++)
+			{
+				String tmp = pairs[i];
+				int c = tmp.indexOf('=');
+
+				if (c >= 0 && tmp.substring(0, c).equalsIgnoreCase(key))
+				{
+					return tmp.substring(c + 1);
+				}
+			}
+		}
+		
+		return defaultValue;
+	};
+	
+	private boolean addConstraint(GliffyObject object, mxCell terminal, boolean source)
+	{
+		Constraints cons = object.getConstraints();
+		Constraint con = (cons != null) ? ((source) ? cons.getStartConstraint() :
+			cons.getEndConstraint()) : null;
+		ConstraintData data = (con != null) ?  ((source) ? con.getStartPositionConstraint() :
+			con.getEndPositionConstraint()) : null;
+
+		if (data != null)
+		{
+			String direction = getStyle(terminal, mxConstants.STYLE_DIRECTION, "east");
+			mxPoint temp = new mxPoint(data.getPx(), data.getPy());
+			int rotation = 0;
+			
+			if (direction.equalsIgnoreCase("south"))
+			{
+				rotation = 270;
+			}
+			else if (direction.equalsIgnoreCase("west"))
+			{
+				rotation = 180;
+			}
+			else if (direction.equalsIgnoreCase("north"))
+			{
+				rotation = 90;
+			}
+			
+			if (rotation != 0)
+			{
+				double rad = Math.toRadians(rotation);
+				
+				temp = mxUtils.getRotatedPoint(temp, Math.cos(rad), Math.sin(rad), new mxPoint(0.5, 0.5));
+			}
+			
+			mxCell cell = object.getMxObject();
+			cell.setStyle(cell.getStyle() +
+					((source) ? "exitX=" : "entryX=") + temp.getX() + ";" +
+					((source) ? "exitY=" : "entryY=") + temp.getY() + ";" +
+					((source) ? "exitPerimeter=0" : "entryPerimeter=0") + ";");
+			
+			return true;
+		}
+		
+		return false;
+	};
+	
+	/**
+	 * Sets the waypoints
+	 * 
+	 * @param object Gliffy line
+	 * @param startTerminal starting point
+	 * @param endTerminal ending point
+	 */
 	private void setWaypoints(GliffyObject object, mxCell startTerminal, mxCell endTerminal)
 	{
 		mxCell cell = object.getMxObject();
@@ -306,19 +393,87 @@ public class GliffyDiagramConverter
 			
 			mxPoints.add(waypoint);
 		}
+		
+		// Analyze waypoints
+		boolean orthogonal = true;
 
+		mxPoint p0 = mxPoints.get(0);
+		mxPoint pe = mxPoints.get(mxPoints.size() - 1);
+		
+		Iterator<mxPoint> it = mxPoints.iterator();
+		mxPoint last = it.next();
+		
+		while (it.hasNext())
+		{
+			mxPoint current = it.next();
+			
+			orthogonal = orthogonal && (last.getX() == current.getX() || last.getY() == current.getY());
+			
+			last = current;
+		}
+		
 		if (startTerminal == null)
 		{
-			mxPoint first = mxPoints.get(0);
-			geo.setTerminalPoint(first, true);
-			mxPoints.remove(first);// remove first so it doesn't become a waypoint
+			geo.setTerminalPoint(p0, true);
+			mxPoints.remove(p0);// remove first so it doesn't become a waypoint
+		}
+		else
+		{
+			// Do not add constraint for orthogonal edges
+			if (orthogonal || addConstraint(object, startTerminal, true))
+			{
+				mxPoints.remove(p0);
+			}
 		}
 
 		if (endTerminal == null)
 		{
-			mxPoint last = mxPoints.get(mxPoints.size() - 1);
-			geo.setTerminalPoint(last, false);
-			mxPoints.remove(last);// remove last so it doesn't become a waypoint
+			geo.setTerminalPoint(pe, false);
+			mxPoints.remove(pe);// remove last so it doesn't become a waypoint
+		}
+		else
+		{
+			// Do not add constraint for orthogonal edges
+			if (orthogonal || addConstraint(object, endTerminal, false))
+			{
+				mxPoints.remove(pe);
+			}
+		}
+		
+		if (orthogonal)
+		{
+			cell.setStyle(cell.getStyle() + "edgeStyle=orthogonalEdgeStyle;");
+			List<mxPoint> result = new ArrayList<mxPoint>();
+			
+			// Removes duplicate waypoints
+			if (mxPoints.size() > 0)
+			{
+				it = mxPoints.iterator();
+				last = it.next();
+				
+				result.add(last);
+				
+				while (it.hasNext())
+				{
+					mxPoint current = it.next();
+					
+					if (last.getX() != current.getX() || last.getY() != current.getY())
+					{
+						result.add(current);
+					}
+					
+					last = current;
+				}
+			}
+			else if ((startTerminal == null && endTerminal != null) || (endTerminal == null && startTerminal != null))
+			{
+				// Adds control points to fix floating connection point
+				mxPoint center = new mxPoint(p0.getX() + (pe.getX() - p0.getX()) / 2, p0.getY() + (pe.getY() - p0.getY()) / 2); 
+				result.add(center);
+				result.add(center);
+			}
+
+			mxPoints = result;
 		}
 		
 		if (!mxPoints.isEmpty())
