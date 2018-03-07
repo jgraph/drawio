@@ -1,3 +1,11 @@
+07-MAR-2018: 8.3.7
+
+- Improvements for Gliffy import
+
+05-MAR-2018: 8.3.6
+
+- Use mxGraph 3.9.3 for post is not a function fix
+
 01-MAR-2018: 8.3.5
 
 - Adds recent and search to Confluence Cloud splash dialog

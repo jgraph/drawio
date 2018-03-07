@@ -70,7 +70,7 @@
 		var trelloEnabled = ((urlParams['embed'] != '1' && urlParams['tr'] != '0') || (urlParams['embed'] == '1' && urlParams['tr'] == '1')) &&
 			mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9);
 
-		if (!editorUi.isOffline())
+		if (!mxClient.IS_SVG && !editorUi.isOffline())
 		{
 			var img = new Image();
 			img.src = IMAGE_PATH + '/help.png';

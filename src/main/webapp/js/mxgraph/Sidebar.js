@@ -66,6 +66,7 @@ function Sidebar(editorUi, container)
 	mxEvent.addListener(container, 'scroll', mxUtils.bind(this, function()
 	{
 		this.showTooltips = true;
+		this.hideTooltip();
 	}));
 	
 	this.init();

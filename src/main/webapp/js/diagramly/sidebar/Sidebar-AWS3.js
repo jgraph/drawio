@@ -415,8 +415,8 @@
 		[
 			 this.createVertexTemplateEntry(n + 'management_console;fillColor=#F58534;gradientColor=none;',
 					 s * 42, s * 42, '', 'Management Console', null, null, this.getTagsForStencil(gn, 'management console', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'cloud;fillColor=#F58534;gradientColor=none;',
-					 s * 53, s * 35, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'cloud_2;fillColor=#F58534;gradientColor=none;',
+					 s * 50, s * 50, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'forums;fillColor=#F58534;gradientColor=none;',
 					 s * 57, s * 55, '', 'Forums', null, null, this.getTagsForStencil(gn, 'forums', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'virtual_private_cloud;fillColor=#F58534;gradientColor=none;',

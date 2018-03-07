@@ -136,7 +136,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		StringBuilder sb = new StringBuilder();
 		while (m.find())
 		{
-			// Adds line-height:0 to span with no line-height
+			// Adds line-height:0 to empty spans with no line-height
 			// to match quirks mode sizing in standards mode
 			sb.append("<div");
 			String str = m.group(1);
@@ -154,7 +154,15 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 					
 					if (!m3.find())
 					{
-						span = span.substring(0, m2.end(1) - last) + " line-height: 0;" + span.substring(m2.end(1) - last);
+						if (str.substring(m2.end(), m2.end() + 5).equalsIgnoreCase("<span"))
+						{
+							span = span.substring(0, m2.end(1) - last) + " line-height: 0;" + span.substring(m2.end(1) - last);
+						}
+						else
+						{
+							// Overrides line-height with default value in child span elements
+							span = span.substring(0, m2.end(1) - last) + " line-height: normal;" + span.substring(m2.end(1) - last);
+						}
 					}
 				}
 

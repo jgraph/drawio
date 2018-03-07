@@ -2460,24 +2460,33 @@ TextFormatPanel.prototype.addFont = function(container)
 	stylePanel3.style.marginLeft = '-3px';
 	stylePanel3.style.paddingBottom = '0px';
 	
+	// Helper function to return a wrapper function does not pass any arguments
+	var callFn = function(fn)
+	{
+		return function()
+		{
+			return fn();
+		};
+	};
+	
 	var left = this.editorUi.toolbar.addButton('geSprite-left', mxResources.get('left'),
 			(graph.cellEditor.isContentEditing()) ?
 			function()
 			{
 				document.execCommand('justifyleft', false, null);
-			} : this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT]), stylePanel3);
+			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT])), stylePanel3);
 	var center = this.editorUi.toolbar.addButton('geSprite-center', mxResources.get('center'),
 			(graph.cellEditor.isContentEditing()) ?
 			function()
 			{
 				document.execCommand('justifycenter', false, null);
-			} : this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER]), stylePanel3);
+			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER])), stylePanel3);
 	var right = this.editorUi.toolbar.addButton('geSprite-right', mxResources.get('right'),
 			(graph.cellEditor.isContentEditing()) ?
 			function()
 			{
 				document.execCommand('justifyright', false, null);
-			} : this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT]), stylePanel3);
+			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT])), stylePanel3);
 
 	this.styleButtons([left, center, right]);
 
@@ -2492,11 +2501,11 @@ TextFormatPanel.prototype.addFont = function(container)
 	}
 	
 	var top = this.editorUi.toolbar.addButton('geSprite-top', mxResources.get('top'),
-		this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_TOP]), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_TOP])), stylePanel3);
 	var middle = this.editorUi.toolbar.addButton('geSprite-middle', mxResources.get('middle'),
-		this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_MIDDLE]), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_MIDDLE])), stylePanel3);
 	var bottom = this.editorUi.toolbar.addButton('geSprite-bottom', mxResources.get('bottom'),
-		this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_BOTTOM]), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_BOTTOM])), stylePanel3);
 	
 	this.styleButtons([top, middle, bottom]);
 	

@@ -272,7 +272,7 @@ public class Xml2Js
 				result.append("var l = mxStencilRegistry.loadStencil;\n\n");
 				result.append(
 						"mxStencilRegistry.loadStencil = function(filename, fn)\n{\n");
-				result.append("  var t = f[filename.substring(9)];\n");
+				result.append("  var t = f[filename.substring(STENCIL_PATH.length + 1)];\n");
 				result.append("  var s = null;\n");
 				result.append("  if (t != null) {\n");
 				result.append("    t = pako.inflateRaw(atob(t));\n");
