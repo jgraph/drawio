@@ -1424,7 +1424,15 @@
 		
 		return result;
 	};
-
+	
+	/**
+	 * Adds empty implementation
+	 */
+	EditorUi.prototype.descriptorChanged = function()
+	{
+		// empty
+	};
+	
 	/**
 	 * Updates action states depending on the selection.
 	 */
@@ -2889,7 +2897,7 @@
 			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
 		var noServices = (mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
-		this.showDialog(dlg.container, 380, height, true, true);
+		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
 	};
 	
@@ -5703,11 +5711,11 @@
 						var graph = this.editor.graph;
 						var cell = null;
 						
-				    	graph.getModel().beginUpdate();
-				    	try
-				    	{
-				    		// Fires cellsInserted to apply the current style to the inserted text.
-				    		// This requires the value to be empty when the event is fired.
+					    	graph.getModel().beginUpdate();
+					    	try
+					    	{
+					    		// Fires cellsInserted to apply the current style to the inserted text.
+					    		// This requires the value to be empty when the event is fired.
 							cell = graph.insertVertex(graph.getDefaultParent(), null, '',
 									graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
 							graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
@@ -5727,11 +5735,11 @@
 							// Adds spacing
 							cell.geometry.width += graph.gridSize;
 							cell.geometry.height += graph.gridSize;
-				    	}
-				    	finally
-				    	{
-				    		graph.getModel().endUpdate();
-				    	}
+					    	}
+					    	finally
+					    	{
+					    		graph.getModel().endUpdate();
+					    	}
 						
 						return [cell];
 					}
