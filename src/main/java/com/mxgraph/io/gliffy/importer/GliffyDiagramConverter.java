@@ -309,7 +309,7 @@ public class GliffyDiagramConverter
 		return defaultValue;
 	};
 	
-	private boolean addConstraint(GliffyObject object, mxCell terminal, boolean source)
+	private boolean addConstraint(GliffyObject object, mxCell terminal, boolean source, boolean orthogonal)
 	{
 		Constraints cons = object.getConstraints();
 		Constraint con = (cons != null) ? ((source) ? cons.getStartConstraint() :
@@ -343,16 +343,19 @@ public class GliffyDiagramConverter
 				temp = mxUtils.getRotatedPoint(temp, Math.cos(rad), Math.sin(rad), new mxPoint(0.5, 0.5));
 			}
 			
-			mxCell cell = object.getMxObject();
-			cell.setStyle(cell.getStyle() +
-					((source) ? "exitX=" : "entryX=") + temp.getX() + ";" +
-					((source) ? "exitY=" : "entryY=") + temp.getY() + ";" +
-					((source) ? "exitPerimeter=0" : "entryPerimeter=0") + ";");
+			if (!orthogonal || (temp.getX() == 0.5 && temp.getY() == 0.5))
+			{
+				mxCell cell = object.getMxObject();
+				cell.setStyle(cell.getStyle() +
+						((source) ? "exitX=" : "entryX=") + temp.getX() + ";" +
+						((source) ? "exitY=" : "entryY=") + temp.getY() + ";" +
+						((source) ? "exitPerimeter=0" : "entryPerimeter=0") + ";");
+			}
 			
 			return true;
 		}
 		
-		return false;
+		return orthogonal;
 	};
 	
 	/**
@@ -420,7 +423,7 @@ public class GliffyDiagramConverter
 		else
 		{
 			// Do not add constraint for orthogonal edges
-			if (orthogonal || addConstraint(object, startTerminal, true))
+			if (addConstraint(object, startTerminal, true, orthogonal))
 			{
 				mxPoints.remove(p0);
 			}
@@ -434,7 +437,7 @@ public class GliffyDiagramConverter
 		else
 		{
 			// Do not add constraint for orthogonal edges
-			if (orthogonal || addConstraint(object, endTerminal, false))
+			if (addConstraint(object, endTerminal, false, orthogonal))
 			{
 				mxPoints.remove(pe);
 			}
@@ -751,7 +754,7 @@ public class GliffyDiagramConverter
 
 				GliffyShape gs = gLane.graphic.getShape();
 				StringBuilder laneStyle = new StringBuilder();
-				laneStyle.append("swimlane;swimlaneLine=0;");
+				laneStyle.append("swimlane;collapsible=0;swimlaneLine=0;");
 				laneStyle.append("strokeWidth=" + gs.strokeWidth).append(";");
 				laneStyle.append("shadow=" + (gs.dropShadow ? 1 : 0)).append(";");
 				laneStyle.append("fillColor=" + gs.fillColor).append(";");
@@ -832,25 +835,12 @@ public class GliffyDiagramConverter
 					String tmp = m.replaceFirst("rotation=" + rotation.toString());
 					style.setLength(0);
 					style.append(tmp);
-
-					//handles a specific case where draw.io triangle needs to have an initial rotation of -90 to match that of Gliffy
-					//in this case, width and height are swapped and x and y are updated
-					if (style.lastIndexOf("swapwidthandheight") != -1) 
-					{
-						geometry.setX(geometry.getX() + (geometry.getWidth() - geometry.getHeight()) / 2);
-						geometry.setY(geometry.getY() + + (geometry.getHeight() - geometry.getWidth()) / 2);
-						
-						double w = geometry.getWidth();
-						double h = geometry.getHeight();
-						geometry.setWidth(h);
-						geometry.setHeight(w);
-					}
 				}
 			}
 			else if (gliffyObject.rotation != 0)
 			{
 				//handling the special common case
-				if (style.indexOf("swimlane;") > -1 && gliffyObject.rotation == 270) {
+				if (style.indexOf("swimlane;collapsible=0;") > -1 && gliffyObject.rotation == 270) {
 					double w = geometry.getWidth();
 					double h = geometry.getHeight();
 					geometry.setX(geometry.getX() + (w - h) / 2);

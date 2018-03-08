@@ -208,7 +208,17 @@ public class OpenServlet extends HttpServlet
 					xml = (upfile == null) ? request.getParameter("data")
 							: upfile;
 				}
-
+				
+				String ref = request.getHeader("referer");
+				
+				if (ref != null && ref.toLowerCase()
+						.matches("https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
+				{
+					String dom = ref.toLowerCase().substring(0, ref.indexOf(".quipelements.com/") + 17);
+					response.addHeader("Access-Control-Allow-Origin", dom);
+					response.addHeader("Access-Control-Allow-Methods", "GET");
+				}
+				
 				if (!format.equals("xml"))
 				{
 					if (xml == null || xml.length() == 0)

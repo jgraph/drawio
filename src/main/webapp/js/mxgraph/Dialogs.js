@@ -2457,7 +2457,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 90, 90);
+	this.window.minimumSize = new mxRectangle(0, 0, 120, 120);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);
