@@ -2,6 +2,12 @@
  * Parse SQL CREATE TABLE. Simple initial version for community to improve.
  */
 Draw.loadPlugin(function(ui) {
+
+    var rows = null;
+    var tableCell = null;
+    var cells = [];
+
+
     // LATER: REFERENCES and PRIMARY KEY
     var div = document.createElement('div');
     div.style.userSelect = 'none';
@@ -31,13 +37,39 @@ Draw.loadPlugin(function(ui) {
     wnd.setResizable(false);
     wnd.setClosable(true);
 
-    function parseSql(text, sqlserver) {
+    function addRow() {
+        var rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
+            'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
+        rowCell.vertex = true;
+
+        var left = sb.cloneCell(rowCell, '' /* eg. PK */ );
+        left.connectable = false;
+        left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
+        left.geometry.width = 30;
+        left.geometry.height = 26;
+        rowCell.insert(left);
+
+        var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
+
+        if (size != null && tableCell.geometry.width < size.width + 10) {
+            tableCell.geometry.width = size.width + 10;
+        }
+
+        tableCell.insert(rowCell);
+        tableCell.geometry.height += 26;
+
+        rows[rowCell.value] = rowCell;
+    }
+
+    function parseSql(text, type) {
         var lines = text.split('\n');
-        var tableCell = null;
-        var rows = null;
-        var cells = [];
         var dx = 0;
         var count = 0;
+        var MODE_SQLSERVER = type !== undefined && type !== null && type === 'sqlserver';
+
+        rows = null;
+        tableCell = null;
+        cells = [];
 
         for (var i = 0; i < lines.length; i++) {
             var tmp = mxUtils.trim(lines[i]);
@@ -45,10 +77,12 @@ Draw.loadPlugin(function(ui) {
             if (tmp.substring(0, 12).toLowerCase() == 'create table') {
                 var name = mxUtils.trim(tmp.substring(12));
 
+                //Count exported tables
                 count++;
 
+                //Parse Table Name
                 if (name.charAt(name.length - 1) == '(') {
-                    if (sqlserver == undefined || sqlserver == null) {
+                    if (!MODE_SQLSERVER) {
                         name = name.substring(0, name.lastIndexOf(' '));
                     } else {
                         name = name.replace('[dbo].[', '');
@@ -61,6 +95,7 @@ Draw.loadPlugin(function(ui) {
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
                     'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
                 tableCell.vertex = true;
+
                 cells.push(tableCell);
 
                 var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
@@ -75,30 +110,39 @@ Draw.loadPlugin(function(ui) {
                 dx += tableCell.geometry.width + 40;
                 tableCell = null;
             } else if (tmp != '(' && tableCell != null) {
+
+                //Parse the row
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
 
-                if (name.substring(0, 11).toLowerCase() != 'primary key') {
-                    var rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
-                        'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
-                    rowCell.vertex = true;
+                //Attempt to get the Key Type
+                var currentName = name.substring(0, 11).toLowerCase();
 
-                    var left = sb.cloneCell(rowCell, '' /* eg. PK */ );
-                    left.connectable = false;
-                    left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'
-                    left.geometry.width = 30;
-                    left.geometry.height = 26;
-                    rowCell.insert(left);
+                //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
+                var normalProperty = currentName != 'primary key' && currentName != 'foreign key';
 
-                    var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
+                //Parse Primary Key
+                if (currentName == 'primary key') {
+                    if (!MODE_SQLSERVER) {
 
-                    if (size != null && tableCell.geometry.width < size.width + 10) {
-                        tableCell.geometry.width = size.width + 10;
+
+                    } else {
+
                     }
+                }
 
-                    tableCell.insert(rowCell);
-                    tableCell.geometry.height += 26;
+                //Parse Foreign Key
+                if (currentName == 'foreign key') {
+                    if (!MODE_SQLSERVER) {
 
-                    rows[rowCell.value] = rowCell;
+
+                    } else {
+
+                    }
+                }
+
+                //Parse properties that don't have relationships
+                if (normalProperty) {
+                    addRow();
                 }
             }
         }
@@ -149,7 +193,7 @@ Draw.loadPlugin(function(ui) {
     div.appendChild(btn);
 
     var btn = mxUtils.button('Insert SQL Server', function() {
-        parseSql(sqlInput.value, true);
+        parseSql(sqlInput.value, 'sqlserver');
     });
 
     btn.style.marginTop = '8px';
