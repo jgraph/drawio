@@ -50,6 +50,7 @@ Draw.loadPlugin(function(ui) {
                     } else {
                         name = name.replace('[dbo].[', '');
                         name = name.replace('](', '');
+                        name = name.replace('].[', '.');
                         name = name.replace('[', '');
                     }
                 }
