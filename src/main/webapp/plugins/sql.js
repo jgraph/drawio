@@ -45,6 +45,8 @@ Draw.loadPlugin(function(ui) {
             if (tmp.substring(0, 12).toLowerCase() == 'create table') {
                 var name = mxUtils.trim(tmp.substring(12));
 
+                count++;
+
                 if (name.charAt(name.length - 1) == '(') {
                     if (sqlserver == undefined || sqlserver == null) {
                         name = name.substring(0, name.lastIndexOf(' '));
@@ -55,7 +57,7 @@ Draw.loadPlugin(function(ui) {
                         name = name.replace('[', '');
                     }
 
-                    count++;
+
                 }
 
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
