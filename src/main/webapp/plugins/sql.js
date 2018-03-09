@@ -37,6 +37,7 @@ Draw.loadPlugin(function(ui) {
         var rows = null;
         var cells = [];
         var dx = 0;
+        var count = 0;
 
         for (var i = 0; i < lines.length; i++) {
             var tmp = mxUtils.trim(lines[i]);
@@ -53,6 +54,8 @@ Draw.loadPlugin(function(ui) {
                         name = name.replace('].[', '.');
                         name = name.replace('[', '');
                     }
+
+                    count++;
                 }
 
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
@@ -113,6 +116,7 @@ Draw.loadPlugin(function(ui) {
             graph.scrollCellToVisible(graph.getSelectionCell());
         }
 
+        alert('processed ' + count + 'tables');
         wnd.setVisible(false);
     };
 
