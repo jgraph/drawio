@@ -4,30 +4,34 @@
 Draw.loadPlugin(function(ui) {
 
     function TableModel() {
-        this.name = null;
-        this.properties = []
+        this.Name = null;
+        this.Properties = []
     }
 
     function PropertyModel() {
-        this.name = null;
-        this.value = null;
+        this.Name = null;
+        this.Value = null;
+        this.TableName = null;
         this.ForeignKey = null;
-        this.isPrimaryKey = false;
-        this.isForeignKey = ForeignKey != null;
+        this.IsPrimaryKey = false;
+        this.IsForeignKey = false;
     }
 
     function ForeignKeyModel() {
-        this.primaryKeyName = null;
-        this.referencesTable = null;
-        this.referencesPropertyName = null
+        this.PrimaryKeyName = null;
+        this.ReferencesTableName = null;
+        this.ReferencesPropertyName = null
     }
 
     //SQL Types
     var SQLServer = 'sqlserver';
 
+    //SQL Modes
+    var MODE_SQLSERVER = null;
+
     //Table Info
     var tableList = [];
-    var rows = null;
+    var rows = {};
     var tableCell = null;
     var cells = [];
     var rowCell = null;
@@ -62,7 +66,8 @@ Draw.loadPlugin(function(ui) {
     wnd.setResizable(false);
     wnd.setClosable(true);
 
-    function AddRow() {
+    function AddRow(name) {
+
         rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
             'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
         rowCell.vertex = true;
@@ -84,10 +89,36 @@ Draw.loadPlugin(function(ui) {
         tableCell.geometry.height += 26;
 
         rows[rowCell.value] = rowCell;
+        rowCell = rowCell;
+
+    };
+
+    function CreateForeignKey(primaryKeyName, referencesPropertyName, referencesTableName) {
+        var foreignKey = new ForeignKeyModel;
+
+        foreignKey.PrimaryKeyName = primaryKeyName;
+        foreignKey.ReferencesPropertyName = referencesPropertyName;
+        foreignKey.ReferencesTableName = referencesTableName;
+
+        return foreignKey;
+    };
+
+    function CreateProperty(name, tableName, foreignKey, isPrimaryKey) {
+        var property = new PropertyModel;
+
+        property.Name = name;
+        property.TableName = tableName;
+        property.ForeignKey = foreignKey;
+        property.IsForeignKey = foreignKey != undefined && foreignKey != null;
+        property.IsPrimaryKey = isPrimaryKey;
+
+        return property;
     };
 
     function CreateTable(name) {
         var table = new TableModel;
+
+        table.Name = name;
 
         //Count exported tables
         exportedTables++;
@@ -113,11 +144,13 @@ Draw.loadPlugin(function(ui) {
     function parseSql(text, type) {
         var lines = text.split('\n');
         var dx = 0;
-        var MODE_SQLSERVER = type !== undefined && type !== null && type === SQLServer;
+        MODE_SQLSERVER = type !== undefined && type !== null && type === SQLServer;
 
         rows = null;
         tableCell = null;
         cells = [];
+        exportedTables = 0;
+
         var currentTableModel = null;
 
         //Parse SQL
@@ -136,9 +169,15 @@ Draw.loadPlugin(function(ui) {
                 //Parse Table Name
                 name = ParseTableName(name);
 
+                if (currentTableModel != null) {
+                    //Add table to the list
+                    tableList.push(currentTableModel);
+                }
+
                 //Create Table
                 currentTableModel = CreateTable(name);
 
+                //TODO: Change to a new loop
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
                     'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
                 tableCell.vertex = true;
@@ -150,9 +189,6 @@ Draw.loadPlugin(function(ui) {
                 if (size != null) {
                     tableCell.geometry.width = size.width + 10;
                 }
-
-                //Add table to the list
-                tableList.push(currentTableModel);
 
                 // For primary key lookups
                 rows = {};
@@ -168,18 +204,25 @@ Draw.loadPlugin(function(ui) {
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
 
                 //Attempt to get the Key Type
-                var currentName = name.substring(0, 11).toLowerCase();
+                var propertyType = name.substring(0, 11).toLowerCase();
 
                 //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
-                var normalProperty = currentName != 'primary key' && currentName != 'foreign key';
+                var normalProperty = propertyType != 'primary key' && propertyType != 'foreign key';
 
                 //Parse properties that don't have relationships
                 if (normalProperty) {
-                    AddRow();
+                    //Add row
+                    AddRow(name);
+
+                    //Create Property
+                    var propertyModel = CreateProperty(name, currentTableModel.Name, null, false, false);
+
+                    //Add Property to table
+                    currentTableModel.Properties.push(propertyModel);
                 }
 
                 //Parse Primary Key
-                if (currentName == 'primary key') {
+                if (propertyType == 'primary key') {
                     if (!MODE_SQLSERVER) {
 
 
@@ -189,7 +232,7 @@ Draw.loadPlugin(function(ui) {
                 }
 
                 //Parse Foreign Key
-                if (currentName == 'foreign key') {
+                if (propertyType == 'foreign key') {
                     if (!MODE_SQLSERVER) {
 
 
