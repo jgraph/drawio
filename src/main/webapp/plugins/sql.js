@@ -6,7 +6,7 @@ Draw.loadPlugin(function(ui) {
     var rows = null;
     var tableCell = null;
     var cells = [];
-
+    var rowCell = null;
 
     // LATER: REFERENCES and PRIMARY KEY
     var div = document.createElement('div');
@@ -38,7 +38,7 @@ Draw.loadPlugin(function(ui) {
     wnd.setClosable(true);
 
     function addRow() {
-        var rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
+        rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
             'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
         rowCell.vertex = true;
 
@@ -72,6 +72,9 @@ Draw.loadPlugin(function(ui) {
         cells = [];
 
         for (var i = 0; i < lines.length; i++) {
+
+            rowCell = null;
+
             var tmp = mxUtils.trim(lines[i]);
 
             if (tmp.substring(0, 12).toLowerCase() == 'create table') {
