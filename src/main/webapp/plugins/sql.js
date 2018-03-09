@@ -56,8 +56,6 @@ Draw.loadPlugin(function(ui) {
                         name = name.replace('].[', '.');
                         name = name.replace('[', '');
                     }
-
-
                 }
 
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
