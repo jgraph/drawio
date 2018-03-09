@@ -13,7 +13,7 @@ Draw.loadPlugin(function(ui) {
         this.value = null;
         this.ForeignKey = null;
         this.isPrimaryKey = false;
-        this.isForeignKey = false
+        this.isForeignKey = ForeignKey != null;
     }
 
     function ForeignKeyModel() {
@@ -22,13 +22,18 @@ Draw.loadPlugin(function(ui) {
         this.referencesPropertyName = null
     }
 
+    //SQL Types
+    var SQLServer = 'sqlserver';
 
+    //Table Info
+    var tableList = [];
     var rows = null;
     var tableCell = null;
     var cells = [];
     var rowCell = null;
+    var exportedTables = 0;
 
-    // LATER: REFERENCES and PRIMARY KEY
+    //Create Base div
     var div = document.createElement('div');
     div.style.userSelect = 'none';
     div.style.overflow = 'hidden';
@@ -57,7 +62,7 @@ Draw.loadPlugin(function(ui) {
     wnd.setResizable(false);
     wnd.setClosable(true);
 
-    function addRow() {
+    function AddRow() {
         rowCell = new mxCell(name, new mxGeometry(0, 0, 90, 26),
             'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
         rowCell.vertex = true;
@@ -79,42 +84,60 @@ Draw.loadPlugin(function(ui) {
         tableCell.geometry.height += 26;
 
         rows[rowCell.value] = rowCell;
-    }
+    };
+
+    function CreateTable(name) {
+        var table = new TableModel;
+
+        //Count exported tables
+        exportedTables++;
+
+        return table;
+    };
+
+    function ParseTableName(name) {
+        if (name.charAt(name.length - 1) == '(') {
+            if (!MODE_SQLSERVER) {
+                name = name.substring(0, name.lastIndexOf(' '));
+            } else {
+                name = name.replace('[dbo].[', '');
+                name = name.replace('](', '');
+                name = name.replace('].[', '.');
+                name = name.replace('[', '');
+            }
+        }
+
+        return name;
+    };
 
     function parseSql(text, type) {
         var lines = text.split('\n');
         var dx = 0;
-        var count = 0;
-        var MODE_SQLSERVER = type !== undefined && type !== null && type === 'sqlserver';
+        var MODE_SQLSERVER = type !== undefined && type !== null && type === SQLServer;
 
         rows = null;
         tableCell = null;
         cells = [];
+        var currentTableModel = null;
 
-        //Parse Models
+        //Parse SQL
         for (var i = 0; i < lines.length; i++) {
 
             rowCell = null;
 
             var tmp = mxUtils.trim(lines[i]);
 
+            //Parse Table
             if (tmp.substring(0, 12).toLowerCase() == 'create table') {
+
+                //Parse row
                 var name = mxUtils.trim(tmp.substring(12));
 
-                //Count exported tables
-                count++;
-
                 //Parse Table Name
-                if (name.charAt(name.length - 1) == '(') {
-                    if (!MODE_SQLSERVER) {
-                        name = name.substring(0, name.lastIndexOf(' '));
-                    } else {
-                        name = name.replace('[dbo].[', '');
-                        name = name.replace('](', '');
-                        name = name.replace('].[', '.');
-                        name = name.replace('[', '');
-                    }
-                }
+                name = ParseTableName(name);
+
+                //Create Table
+                currentTableModel = CreateTable(name);
 
                 tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
                     'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
@@ -128,12 +151,18 @@ Draw.loadPlugin(function(ui) {
                     tableCell.geometry.width = size.width + 10;
                 }
 
+                //Add table to the list
+                tableList.push(currentTableModel);
+
                 // For primary key lookups
                 rows = {};
-            } else if (tableCell != null && tmp.charAt(0) == ')') {
+
+            } //Close Table
+            else if (tableCell != null && tmp.charAt(0) == ')') {
                 dx += tableCell.geometry.width + 40;
                 tableCell = null;
-            } else if (tmp != '(' && tableCell != null) {
+            } // Parse Properties 
+            else if (tmp != '(' && tableCell != null) {
 
                 //Parse the row
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
@@ -143,6 +172,11 @@ Draw.loadPlugin(function(ui) {
 
                 //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
                 var normalProperty = currentName != 'primary key' && currentName != 'foreign key';
+
+                //Parse properties that don't have relationships
+                if (normalProperty) {
+                    AddRow();
+                }
 
                 //Parse Primary Key
                 if (currentName == 'primary key') {
@@ -164,10 +198,6 @@ Draw.loadPlugin(function(ui) {
                     }
                 }
 
-                //Parse properties that don't have relationships
-                if (normalProperty) {
-                    addRow();
-                }
             }
         }
 
@@ -184,7 +214,7 @@ Draw.loadPlugin(function(ui) {
             graph.scrollCellToVisible(graph.getSelectionCell());
         }
 
-        alert('processed ' + count + ' tables');
+        alert('Processed ' + exportedTables + ' tables.');
         wnd.setVisible(false);
     };
 
