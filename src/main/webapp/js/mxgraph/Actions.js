@@ -291,7 +291,7 @@ Actions.prototype.init = function()
 			ui.showDialog(dlg.container, 320, 200, true, true);
 			dlg.init();
 		}
-	});
+	}, null, null, 'Alt+Shift+T');
 	this.addAction('openLink', function()
 	{
 		var link = graph.getLinkForCell(graph.getSelectionCell());

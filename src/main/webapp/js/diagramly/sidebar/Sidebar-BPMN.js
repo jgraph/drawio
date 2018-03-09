@@ -88,6 +88,8 @@
 			this.createVertexTemplateEntry(s + 'outline=throwing;symbol=multiple;', w, h, '', 'Multiple Throwing Gateway', null, null, dt + 'multiple throwing'),
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=multiple;', w, h, '', 'Multiple End Gateway', null, null, dt + 'multiple end'),
 
+			this.createVertexTemplateEntry(s + 'outline=standard;symbol=star;', w, h, '', 'Multiple Start Gateway', null, null, dt + 'multiple end'),
+			
 			this.createVertexTemplateEntry(s + 'outline=standard;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Standard Gateway', null, null, dt + 'parallel multiple standard'),
 			this.createVertexTemplateEntry(s + 'outline=eventInt;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Interrupting Gateway', null, null, dt + 'parallel multiple interrupting'),
 			this.createVertexTemplateEntry(s + 'outline=eventNonint;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Non-Interrupting Gateway', null, null, dt + 'parallel multiple non interrupting noninterrupting'),
@@ -170,6 +172,8 @@
 			this.createVertexTemplateEntry(s + 'outline=throwing;symbol=multiple;', w, h, '', 'Multiple Throwing', null, null, dt + 'multiple throwing'),
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=multiple;', w, h, '', 'Multiple End', null, null, dt + 'multiple end'),
 
+			this.createVertexTemplateEntry(s + 'outline=standard;symbol=star;', w, h, '', 'Multiple Start', null, null, dt + 'multiple start'),
+			
 			this.createVertexTemplateEntry(s + 'outline=standard;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Standard', null, null, dt + 'parallel multiple standard'),
 			this.createVertexTemplateEntry(s + 'outline=eventInt;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Interrupting', null, null, dt + 'parallel multiple interrupting'),
 			this.createVertexTemplateEntry(s + 'outline=eventNonint;symbol=parallelMultiple;', w, h, '', 'Parallel Multiple Non-Interrupting', null, null, dt + 'parallel multiple non interrupting noninterrupting'),

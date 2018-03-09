@@ -101,7 +101,6 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 			if (halign != null)
 			{
 				sb.append("align=").append(halign).append(";");
-				
 
 				if (halign.equalsIgnoreCase("right"))
 				{
@@ -110,9 +109,15 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 					x = 0;
 				}
 			}
-			else 
+			else
+			{
 				sb.append("align=center;");
+			}
 		}
+
+		// Removes default global spacing (workaround for unwanted line wrapping)
+		paddingLeft = Math.max(0, paddingLeft - 2);
+		paddingRight = Math.max(0, paddingRight - 2);
 
 		sb.append("spacingLeft=").append(paddingLeft + x).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
