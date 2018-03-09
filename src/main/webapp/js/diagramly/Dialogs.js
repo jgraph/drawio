@@ -5897,11 +5897,12 @@ var FindWindow = function(ui, x, y, w, h)
 	searchInput.setAttribute('type', 'text');
 	searchInput.style.marginTop = '4px';
 	searchInput.style.marginBottom = '6px';
-	searchInput.style.width = '170px';
+	searchInput.style.width = '200px';
 	searchInput.style.fontSize = '12px';
 	searchInput.style.borderRadius = '4px';
 	searchInput.style.padding = '6px';
 	div.appendChild(searchInput);
+	mxUtils.br(div);
 	
 	var regexInput = document.createElement('input');
 	regexInput.setAttribute('type', 'checkbox');
@@ -6138,6 +6139,15 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	searchInput.style.borderRadius = '4px';
 	searchInput.style.padding = '6px';
 	div.appendChild(searchInput);
+	
+	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+	{
+		searchInput.style.width = '240px';
+		var elt = editorUi.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000046966');
+		elt.firstChild.style.marginBottom = '6px';
+		elt.style.marginLeft = '6px';
+		div.appendChild(elt);
+	}
 	
 	mxEvent.addListener(searchInput, 'dblclick', function()
 	{
@@ -6899,6 +6909,18 @@ var PluginsDialog = function(editorUi)
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';
 
+	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	{
+		editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000056430');
+	});
+
+	helpBtn.className = 'geBtn';
+	
+	if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
+	{
+		helpBtn.style.display = 'none';
+	}
+	
 	var buttons = document.createElement('div');
 	buttons.style.marginTop = '14px';
 	buttons.style.textAlign = 'right';
@@ -6906,11 +6928,13 @@ var PluginsDialog = function(editorUi)
 	if (editorUi.editor.cancelFirst)
 	{
 		buttons.appendChild(cancelBtn);
+		buttons.appendChild(helpBtn);
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
 	}
 	else
 	{
+		buttons.appendChild(helpBtn);
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
 		buttons.appendChild(cancelBtn);

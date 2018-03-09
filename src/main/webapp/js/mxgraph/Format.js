@@ -888,8 +888,6 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
 			
 			apply(cb.checked);
 		}
-		
-		mxEvent.consume(evt);
 	});
 	
 	apply(value);
