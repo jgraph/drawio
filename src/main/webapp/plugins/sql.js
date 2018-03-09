@@ -116,7 +116,7 @@ Draw.loadPlugin(function(ui) {
             graph.scrollCellToVisible(graph.getSelectionCell());
         }
 
-        alert('processed ' + count + 'tables');
+        alert('processed ' + count + ' tables');
         wnd.setVisible(false);
     };
 
