@@ -48,8 +48,7 @@ Draw.loadPlugin(function(ui) {
                     if (sqlserver == undefined || sqlserver == null) {
                         name = name.substring(0, name.lastIndexOf(' '));
                     } else {
-                        name = name.replace('[dbo].', '');
-                        name = name.replace('].[', '');
+                        name = name.replace('[dbo].[', '');
                         name = name.replace('](', '');
                         name = name.replace('[', '');
                     }
