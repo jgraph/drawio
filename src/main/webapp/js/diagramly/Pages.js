@@ -624,6 +624,8 @@ EditorUi.prototype.selectPage = function(page, quiet)
 	edit.add(change);
 	edit.notify();
 	
+	this.editor.graph.tooltipHandler.hide();
+	
 	if (!quiet)
 	{
 		this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
@@ -1313,6 +1315,18 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		}), parent);
 	});
 };
+
+// Overrides refresh to repaint tab container
+(function()
+{
+	var editorUiRefresh = EditorUi.prototype.refresh;
+	
+	EditorUi.prototype.refresh = function(sizeDidChange)
+	{
+		editorUiRefresh.apply(this, arguments);
+		this.updateTabContainer();
+	}
+})();
 
 //Registers codec for MovePage
 (function()

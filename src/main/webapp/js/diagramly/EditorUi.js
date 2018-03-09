@@ -6700,6 +6700,11 @@
 			}
 		};
 		
+		graph.addListener('pageLinkClicked', function(sender, evt)
+		{
+			pageLinkClicked(evt.getProperty('href'));
+		});
+		
 		// Passes current page to editor window
 		var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
 		
@@ -6861,9 +6866,12 @@
 				!mxEvent.isPopupTrigger(evt)))
 			{
 				// Active links are moved to the hint
-				if (!graph.isEnabled())
+				if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)))
 				{
 					pageLinkClicked(href);
+					
+					// Resets rubberband after click on locked cell
+					graph.getRubberband().reset();
 				}
 				
 				mxEvent.consume(evt);

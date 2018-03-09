@@ -1,3 +1,9 @@
+09-MAR-2018: 8.4.2
+
+- Fixes checkboxes in format panel
+- Uses mxGraph 3.9.4 beta 1
+- Enables links and tooltips in locked layers
+
 09-MAR-2018: 8.4.1
 
 - Adds Alt+Shift+T keyboard shortcut to edit tooltips
