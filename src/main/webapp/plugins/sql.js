@@ -3,6 +3,26 @@
  */
 Draw.loadPlugin(function(ui) {
 
+    function TableModel() {
+        this.name = null;
+        this.properties = []
+    }
+
+    function PropertyModel() {
+        this.name = null;
+        this.value = null;
+        this.ForeignKey = null;
+        this.isPrimaryKey = false;
+        this.isForeignKey = false
+    }
+
+    function ForeignKeyModel() {
+        this.primaryKeyName = null;
+        this.referencesTable = null;
+        this.referencesPropertyName = null
+    }
+
+
     var rows = null;
     var tableCell = null;
     var cells = [];
@@ -71,6 +91,7 @@ Draw.loadPlugin(function(ui) {
         tableCell = null;
         cells = [];
 
+        //Parse Models
         for (var i = 0; i < lines.length; i++) {
 
             rowCell = null;
