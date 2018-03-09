@@ -436,6 +436,7 @@ div.mxWindow .geButton {
 .geDialog {
 	position:absolute;
 	background:white;
+	line-height:1em;
 	overflow:hidden;
 	padding:30px;
 	border:1px solid #acacac;

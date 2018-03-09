@@ -3799,7 +3799,7 @@
 				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, lightbox.checked,
 				editSection.getLink());
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, 360, true, true);
+		this.showDialog(dlg.container, 340, 384, true, true);
 		copyRadio.focus();
 	};
 	
@@ -3948,7 +3948,7 @@
 				layers.checked, (widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null);
 		}), null, mxResources.get('create'), helpLink);
-		this.showDialog(dlg.container, 340, 246 + dy, true, true);
+		this.showDialog(dlg.container, 340, 254 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -4009,7 +4009,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg') ? 170 : 280;
+		var height = (format == 'jpeg') ? 196 : 300;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -4132,7 +4132,7 @@
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 320, height, true, true);
+		this.showDialog(dlg.container, 340, height, true, true);
 		zoomInput.focus();
 		
 		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)

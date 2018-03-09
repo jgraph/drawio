@@ -3864,7 +3864,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	// Alt+Shift+Keycode mapping to action
 	var altShiftActions = {67: this.actions.get('clearWaypoints'), // Alt+Shift+C
 						  65: this.actions.get('connectionArrows'), // Alt+Shift+A
-						  80: this.actions.get('connectionPoints') // Alt+Shift+P
+						  80: this.actions.get('connectionPoints'), // Alt+Shift+P
+						  84: this.actions.get('editTooltip') // Alt+Shift+T
 	};
 	
 	mxKeyHandler.prototype.getFunction = function(evt)

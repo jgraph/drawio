@@ -265,16 +265,24 @@ mxBpmnShape.prototype.redrawPath = function(c, x, y, w, h, layer)
 				else if (s === mxBpmnShape.prototype.eventEnum.GW_COMPLEX)
 				{
 				}
-
-				if (o === mxBpmnShape.prototype.eventTypeEnum.THROWING || o === mxBpmnShape.prototype.eventTypeEnum.END)
+				
+				if (s === 'star')
+				{
+					c.setFillColor(strokeColor);
+				}
+				else if (o === mxBpmnShape.prototype.eventTypeEnum.THROWING || o === mxBpmnShape.prototype.eventTypeEnum.END)
 				{
 					c.setStrokeColor(fillColor);
 					c.setFillColor(strokeColor);
 				}
 
 				f.call(this, c, x, y, w, h, layer);
-
-				if (o === mxBpmnShape.prototype.eventTypeEnum.THROWING || o === mxBpmnShape.prototype.eventTypeEnum.END)
+				
+				if (s === 'star')
+				{
+					c.setFillColor(fillColor);
+				}
+				else if (o === mxBpmnShape.prototype.eventTypeEnum.THROWING || o === mxBpmnShape.prototype.eventTypeEnum.END)
 				{
 					c.setStrokeColor(strokeColor);
 					c.setFillColor(fillColor);
@@ -682,6 +690,28 @@ mxBpmnShape.prototype.symbols = {
 
 			c.setStrokeColor(strokeColor);
 			c.setFillColor(fillColor);
+		},
+		'star': function(c, x, y, w, h)
+		{
+			c.translate(w / 5, h / 6);
+			h *= 2 / 3;
+			w *= 3 / 5;
+			
+			c.begin();
+			c.moveTo(0, h / 4);
+			c.lineTo(w / 3, h / 4);
+			c.lineTo(w / 2, 0);
+			c.lineTo(2 * w / 3, h / 4);
+			c.lineTo(w, h / 4);
+			c.lineTo(5 * w / 6, h / 2);
+			c.lineTo(w, 3 * h / 4);
+			c.lineTo(2 * w / 3, 3 * h / 4);
+			c.lineTo(w / 2, h);
+			c.lineTo(w / 3, 3 * h / 4);
+			c.lineTo(0, 3 * h / 4);
+			c.lineTo(w / 6, h / 2);
+			c.close();
+			c.fillAndStroke();
 		}
 };
 
