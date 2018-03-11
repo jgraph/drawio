@@ -2087,7 +2087,7 @@
 		{
 			var helpBtn = mxUtils.button(mxResources.get('help'), function()
 			{
-				window.open('https://desk.draw.io/support/solutions/articles/16000048947');
+				graph.openLink('https://desk.draw.io/support/solutions/articles/16000048947');
 			});
 			
 			helpBtn.className = 'geBtn';

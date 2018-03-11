@@ -206,6 +206,7 @@ embed=‫تضمين‬
 embedImages=Embed Images
 mainEmbedNotice=‫أضف هذا داخل الصفحة‬
 electrical=Electrical
+ellipse=Ellipse
 embedNotice=‫أضف هذا مرة واحدة في نهاية الصفحة‬
 enterGroup=‫ادخل التصنيف‬
 enterName=‫ادخل الاسم‬
@@ -532,6 +533,7 @@ readOnly=‫قراءة فقط‬
 reconnecting=‫إعادة الإتصال‬
 recentlyUpdated=Recently Updated
 recentlyViewed=Recently Viewed
+rectangle=Rectangle
 redirectToNewApp=‫تم إنجاز أو تعديل هذا الملف باستخدام draw.io pro. تتم الآن إعادة التوجيه.‬
 realtimeTimeout=‫يبدو أنك قمت ببعض التعجيلات في وضع غير الاتصال. نعتذر عن عدم إمكانية حفظ التغييرات.‬
 redo=‫إعادة تنفيذ الأمر‬
@@ -566,6 +568,7 @@ retryingLogin=‫انتهت صلاحية التسجيل. تتم إعادة ال�
 reverse=Reverse
 revision=Revision
 revisionHistory=‫سجل المراجعات‬
+rhombus=Rhombus
 right=‫يمين‬
 rightAlign=‫محاذاة إلى اليمين‬
 rightToLeft=‫من اليمين إلى اليسار‬
@@ -594,6 +597,7 @@ selectFile=Select File
 selectFolder=Select Folder
 selectFont=‫تحديد الخط‬
 selectNone=Select None
+selectTemplate=Select Template
 selectVertices=‫تحديد القمم‬
 sendMessage=‫إرسال‬
 sendYourFeedbackToDrawIo=‫إرسال التعليق ل draw.io‬

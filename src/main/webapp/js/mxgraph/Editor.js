@@ -312,12 +312,12 @@ Editor.prototype.editAsNew = function(xml, title)
 				}));
 			}
 
-			this.editorWindow = window.open(this.getEditBlankUrl(p +
+			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p +
 				((p.length > 0) ? '&' : '?') + 'client=1'));
 		}
 		else
 		{
-			this.editorWindow = window.open(this.getEditBlankUrl(p) +
+			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p) +
 				'#R' + encodeURIComponent(xml));
 		}
 	}

@@ -24,7 +24,7 @@ html body .geFormatContainer {
 	border-left:1px solid #505759;
 }
 html body .geDiagramContainer {
-	border-bottom:1px solid #505759;
+	border-color:#505759;
 }
 html body .geSidebarContainer a, html body .geMenubarContainer a, html body .geToolbar a {
 	color:#cccccc;
@@ -47,7 +47,6 @@ html body div.mxPopupMenu {
 }
 html body .geSidebarContainer, html body .geDiagramBackdrop {
 	background-color:#2a2a2a;
-	border-color:#505759;
 }
 html body .geBackgroundPage {
 	box-shadow:none;

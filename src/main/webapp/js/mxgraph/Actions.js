@@ -25,7 +25,7 @@ Actions.prototype.init = function()
 	};
 
 	// File actions
-	this.addAction('new...', function() { window.open(ui.getUrl()); });
+	this.addAction('new...', function() { graph.openLink(ui.getUrl()); });
 	this.addAction('open...', function()
 	{
 		window.openNew = true;
@@ -298,7 +298,7 @@ Actions.prototype.init = function()
 		
 		if (link != null)
 		{
-			window.open(link);
+			graph.openLink(link);
 		}
 	});
 	this.addAction('editLink...', function()
@@ -316,7 +316,7 @@ Actions.prototype.init = function()
     				graph.setLinkForCell(cell, (link.length > 0) ? link : null);
 			});
 		}
-	});
+	}, null, null, 'Alt+Shift+L');
 	this.addAction('insertLink...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
@@ -755,7 +755,7 @@ Actions.prototype.init = function()
 			ext = '_' + mxClient.language;
 		}
 		
-		window.open(RESOURCES_PATH + '/help' + ext + '.html');
+		graph.openLink(RESOURCES_PATH + '/help' + ext + '.html');
 	});
 	
 	var showingAbout = false;
