@@ -187,9 +187,10 @@
 	/**
 	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.openLink = function(url)
+	EditorUi.prototype.openLink = function(url, target)
 	{
-		return window.open(url);
+		// LATER: Replace this with direct calls to graph
+		return this.editor.graph.openLink(url, target);
 	};
 
 	/**
