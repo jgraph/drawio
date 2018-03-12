@@ -36,6 +36,7 @@ Draw.loadPlugin(function(ui) {
     var cells = [];
     var tableCell = null;
     var rowCell = null;
+    var dx = 0;
 
     var exportedTables = 0;
     var propertyForeignKeyList = [];
@@ -226,7 +227,7 @@ Draw.loadPlugin(function(ui) {
 
     function parseSql(text, type) {
         var lines = text.split('\n');
-        var dx = 0;
+        dx = 0;
         MODE_SQLSERVER = type !== undefined && type !== null && type == SQLServer;
 
         tableCell = null;
@@ -335,6 +336,11 @@ Draw.loadPlugin(function(ui) {
         }
 
         //Create Table in UI
+        CreateTableUI();
+    };
+
+    function CreateTableUI() {
+
         tableList.forEach(function(tableModel) {
 
             //Create Table
