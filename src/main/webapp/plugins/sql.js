@@ -25,6 +25,11 @@ Draw.loadPlugin(function(ui) {
         this.ReferencesTableName = null;
     }
 
+    function PrimaryKeyModel() {
+        this.PrimaryKeyName = null;
+        this.PrimaryKeyTableName = null;
+    }
+
     //SQL Types
     var SQLServer = 'sqlserver';
 
@@ -32,14 +37,14 @@ Draw.loadPlugin(function(ui) {
     var MODE_SQLSERVER = null;
 
     //Table Info
+    var foreignKeyList = [];
+    var primaryKeyList = [];
     var tableList = [];
     var cells = [];
     var tableCell = null;
     var rowCell = null;
     var dx = 0;
-
     var exportedTables = 0;
-    var propertyForeignKeyList = [];
 
 
     //Create Base div
@@ -72,20 +77,25 @@ Draw.loadPlugin(function(ui) {
     wnd.setClosable(true);
 
     function AddRow(propertyModel) {
-        rowCell = new mxCell(propertyModel.Name, new mxGeometry(0, 0, 90, 26),
-            'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=34;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
+
+        var cellName = propertyModel.Name;
+
+        if (propertyModel.IsForeignKey) {
+            cellName += ' | ' + propertyModel.ForeignKey.ReferencesTableName + '(' + propertyModel.ForeignKey.ReferencesPropertyName + ')';
+        }
+
+        rowCell = new mxCell(cellName, new mxGeometry(0, 0, 90, 26),
+            'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=64;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
         rowCell.vertex = true;
 
-        var columnType = propertyModel.isPrimaryKey ? 'PK' : propertyModel.IsForeignKey ? 'FK' : '';
+        var columnType = propertyModel.IsPrimaryKey && propertyModel.IsForeignKey ? 'PK | FK' : propertyModel.IsPrimaryKey ? 'PK' : propertyModel.IsForeignKey ? 'FK' : '';
 
         var left = sb.cloneCell(rowCell, columnType);
         left.connectable = false;
         left.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=180;points=[];portConstraint=eastwest;part=1;'
-        left.geometry.width = 30;
+        left.geometry.width = 54;
         left.geometry.height = 26;
         rowCell.insert(left);
-
-
 
         var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
 
@@ -124,8 +134,7 @@ Draw.loadPlugin(function(ui) {
         //Create ForeignKey
         var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
 
-        //Add Property with ForeignKey to List
-        propertyForeignKeyList.push(foreignKeyModel);
+        foreignKeyList.push(foreignKeyModel);
     };
 
     function ParseSQLServerForeignKey(name, currentTableModel) {
@@ -159,10 +168,46 @@ Draw.loadPlugin(function(ui) {
             //Create ForeignKey
             var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
 
-            //Add Property with ForeignKey to List
-            propertyForeignKeyList.push(foreignKeyModel);
+            foreignKeyList.push(foreignKeyModel);
         }
     };
+
+    function ProcessPrimaryKey() {
+
+        primaryKeyList.forEach(function(primaryModel) {
+            tableList.forEach(function(tableModel) {
+                if (tableModel.Name === primaryModel.PrimaryKeyTableName) {
+                    tableModel.Properties.forEach(function(propertyModel) {
+                        if (propertyModel.Name === primaryModel.PrimaryKeyName) {
+                            propertyModel.IsPrimaryKey = true;
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    function AssignForeignKey(foreignKeyModel) {
+        //Encontrar objecto
+        tableList.forEach(function(tableModel) {
+            if (tableModel.Name === foreignKeyModel.ReferencesTableName) {
+                tableModel.Properties.forEach(function(propertyModel) {
+                    if (propertyModel.Name === foreignKeyModel.ReferencesPropertyName) {
+                        propertyModel.IsForeignKey = true;
+                        propertyModel.ForeignKey = foreignKeyModel;
+                    }
+                });
+            }
+        });
+    }
+
+    function ProcessForeignKey() {
+
+        foreignKeyList.forEach(function(foreignKeyModel) {
+            //Assign ForeignKey
+            AssignForeignKey(foreignKeyModel);
+        });
+    }
 
     function CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName) {
         var foreignKey = new ForeignKeyModel;
@@ -173,6 +218,15 @@ Draw.loadPlugin(function(ui) {
         foreignKey.ReferencesTableName = referencesTableName;
 
         return foreignKey;
+    };
+
+    function CreatePrimaryKey(primaryKeyName, primaryKeyTableName) {
+        var primaryKey = new PrimaryKeyModel;
+
+        primaryKey.PrimaryKeyTableName = primaryKeyTableName;
+        primaryKey.PrimaryKeyName = primaryKeyName;
+
+        return primaryKey;
     };
 
     function CreateProperty(name, tableName, foreignKey, isPrimaryKey) {
@@ -241,7 +295,6 @@ Draw.loadPlugin(function(ui) {
         cells = [];
         exportedTables = 0;
         tableList = [];
-        propertyForeignKeyList = [];
 
         var currentTableModel = null;
 
@@ -272,7 +325,7 @@ Draw.loadPlugin(function(ui) {
                 currentTableModel = CreateTable(name);
             }
             // Parse Properties 
-            else if (tmp !== '(' && currentTableModel != null) {
+            else if (tmp !== '(' && currentTableModel != null && propertyRow !== 'alter table ') {
 
                 //Parse the row
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
@@ -321,7 +374,18 @@ Draw.loadPlugin(function(ui) {
                     if (!MODE_SQLSERVER) {
 
                     } else {
+                        //Get primary key row
+                        var primaryKeyRow = mxUtils.trim(lines[i + 2]);
+                        primaryKeyRow = primaryKeyRow.replace("ASC", '');
 
+                        //Parse name
+                        primaryKeyRow = ParseSQLServerName(primaryKeyRow, true);
+
+                        //Create Primary Key
+                        var primaryKeyModel = CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+
+                        //Add Primary Key to List
+                        primaryKeyList.push(primaryKeyModel);
                     }
                 }
 
@@ -350,6 +414,12 @@ Draw.loadPlugin(function(ui) {
             //Add table to the list
             tableList.push(currentTableModel);
         }
+
+        //Process Primary Keys
+        ProcessPrimaryKey();
+
+        //Process Foreign Keys
+        ProcessForeignKey();
 
         //Create Table in UI
         CreateTableUI();
