@@ -19,8 +19,10 @@ Draw.loadPlugin(function(ui) {
 
     function ForeignKeyModel() {
         this.PrimaryKeyName = null;
-        this.ReferencesTableName = null;
         this.ReferencesPropertyName = null
+
+        this.PrimaryKeyTableName = null;
+        this.ReferencesTableName = null;
     }
 
     //SQL Types
@@ -32,10 +34,13 @@ Draw.loadPlugin(function(ui) {
     //Table Info
     var tableList = [];
     var rows = {};
-    var tableCell = null;
     var cells = [];
+    var tableCell = null;
     var rowCell = null;
+
     var exportedTables = 0;
+    var propertyForeignKeyList = [];
+
 
     //Create Base div
     var div = document.createElement('div');
@@ -81,7 +86,7 @@ Draw.loadPlugin(function(ui) {
 
         var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
 
-        if (size != null && tableCell.geometry.width < size.width + 10) {
+        if (size !== null && tableCell.geometry.width < size.width + 10) {
             tableCell.geometry.width = size.width + 10;
         }
 
@@ -93,9 +98,72 @@ Draw.loadPlugin(function(ui) {
 
     };
 
-    function CreateForeignKey(primaryKeyName, referencesPropertyName, referencesTableName) {
+    function ParseMySQLForeignKey(name, currentTableModel) {
+        var referencesIndex = name.toLowerCase().indexOf("references");
+        var foreignKeySQL = name.substring(0, referencesIndex);
+        var referencesSQL = name.substring(referencesIndex, name.length);
+
+        //Remove references syntax
+        referencesSQL = referencesSQL.replace("REFERENCES ", '');
+
+        //Get Table and Property Index
+        var referencedTableIndex = referencesSQL.indexOf("(");
+        var referencedPropertyIndex = referencesSQL.indexOf(")");
+
+        //Get Referenced Table
+        var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
+
+        //Get Referenced Key
+        var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
+
+        //Get ForeignKey 
+        var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '').replace(" ", '');
+
+        //Create ForeignKey
+        var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+
+        //Add Property with ForeignKey to List
+        propertyForeignKeyList.push(foreignKeyModel);
+    };
+
+    function ParseSQLServerForeignKey(name, currentTableModel) {
+        var referencesIndex = name.toLowerCase().indexOf("references");
+        var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key("), referencesIndex).replace("FOREIGN KEY(", '').replace(')', '');
+        var referencesSQL = name.substring(referencesIndex, name.length);
+
+        //Remove references syntax
+        referencesSQL = referencesSQL.replace("REFERENCES ", '');
+
+        //Get Table and Property Index
+        var referencedTableIndex = referencesSQL.indexOf("(");
+        var referencedPropertyIndex = referencesSQL.indexOf(")");
+
+        //Get Referenced Table
+        var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
+
+        referencedTableName = ParseSQLServerName(referencedTableName);
+
+        //Get Referenced Key
+        var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
+
+        referencedPropertyName = ParseSQLServerName(referencedPropertyName);
+
+        //Get ForeignKey 
+        var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '');
+
+        foreignKey = ParseSQLServerName(foreignKey);
+
+        //Create ForeignKey
+        var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+
+        //Add Property with ForeignKey to List
+        propertyForeignKeyList.push(foreignKeyModel);
+    };
+
+    function CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName) {
         var foreignKey = new ForeignKeyModel;
 
+        foreignKey.PrimaryKeyTableName = primaryKeyTableName;
         foreignKey.PrimaryKeyName = primaryKeyName;
         foreignKey.ReferencesPropertyName = referencesPropertyName;
         foreignKey.ReferencesTableName = referencesTableName;
@@ -109,7 +177,7 @@ Draw.loadPlugin(function(ui) {
         property.Name = name;
         property.TableName = tableName;
         property.ForeignKey = foreignKey;
-        property.IsForeignKey = foreignKey != undefined && foreignKey != null;
+        property.IsForeignKey = foreignKey !== undefined && foreignKey !== null;
         property.IsPrimaryKey = isPrimaryKey;
 
         return property;
@@ -126,15 +194,32 @@ Draw.loadPlugin(function(ui) {
         return table;
     };
 
+    function ParseSQLServerName(name, property) {
+        name = name.replace('[dbo].[', '');
+        name = name.replace('](', '');
+        name = name.replace('].[', '.');
+        name = name.replace('[', '');
+
+        if (property == undefined || property == null) {
+            name = name.replace(' [', '');
+            name = name.replace('] ', '');
+        } else {
+            name = name.substring(0, name.indexOf(']'));
+        }
+
+        if (name.lastIndexOf(']') === (name.length - 1)) {
+            name = name.substring(0, name.length - 1);
+        }
+
+        return name;
+    };
+
     function ParseTableName(name) {
-        if (name.charAt(name.length - 1) == '(') {
+        if (name.charAt(name.length - 1) === '(') {
             if (!MODE_SQLSERVER) {
                 name = name.substring(0, name.lastIndexOf(' '));
             } else {
-                name = name.replace('[dbo].[', '');
-                name = name.replace('](', '');
-                name = name.replace('].[', '.');
-                name = name.replace('[', '');
+                name = ParseSQLServerName(name);
             }
         }
 
@@ -144,7 +229,7 @@ Draw.loadPlugin(function(ui) {
     function parseSql(text, type) {
         var lines = text.split('\n');
         var dx = 0;
-        MODE_SQLSERVER = type !== undefined && type !== null && type === SQLServer;
+        MODE_SQLSERVER = type !== undefined && type !== null && type == SQLServer;
 
         rows = null;
         tableCell = null;
@@ -160,8 +245,10 @@ Draw.loadPlugin(function(ui) {
 
             var tmp = mxUtils.trim(lines[i]);
 
+            var propertyRow = tmp.substring(0, 12).toLowerCase();
+
             //Parse Table
-            if (tmp.substring(0, 12).toLowerCase() == 'create table') {
+            if (propertyRow === 'create table') {
 
                 //Parse row
                 var name = mxUtils.trim(tmp.substring(12));
@@ -169,7 +256,7 @@ Draw.loadPlugin(function(ui) {
                 //Parse Table Name
                 name = ParseTableName(name);
 
-                if (currentTableModel != null) {
+                if (currentTableModel !== null) {
                     //Add table to the list
                     tableList.push(currentTableModel);
                 }
@@ -186,45 +273,67 @@ Draw.loadPlugin(function(ui) {
 
                 var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
 
-                if (size != null) {
+                if (size !== null) {
                     tableCell.geometry.width = size.width + 10;
                 }
 
                 // For primary key lookups
                 rows = {};
 
+            } else if (propertyRow === 'alter table ') {
+
+                if (MODE_SQLSERVER) {
+                    //Parse the row
+                    var alterTableRow = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
+                    var referencesRow = mxUtils.trim(lines[i + 1]);
+                    var completeRow = alterTableRow + ' ' + referencesRow;
+
+                    ParseSQLServerForeignKey(completeRow, currentTableModel);
+                }
             } //Close Table
-            else if (tableCell != null && tmp.charAt(0) == ')') {
+            else if (tableCell !== null && tmp.charAt(0) === ')') {
                 dx += tableCell.geometry.width + 40;
                 tableCell = null;
             } // Parse Properties 
-            else if (tmp != '(' && tableCell != null) {
+            else if (tmp !== '(' && tableCell !== null) {
 
                 //Parse the row
-                var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
+                var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
 
                 //Attempt to get the Key Type
                 var propertyType = name.substring(0, 11).toLowerCase();
 
                 //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
-                var normalProperty = propertyType != 'primary key' && propertyType != 'foreign key';
+                var normalProperty = propertyType !== 'primary key' && propertyType !== 'foreign key';
 
                 //Parse properties that don't have relationships
                 if (normalProperty) {
-                    //Add row
-                    AddRow(name);
+                    if (!MODE_SQLSERVER) {
+                        //Add row
+                        AddRow(name);
+                    } else {
+
+                        if (name.toLowerCase().indexOf("asc") !== -1 && name.toLowerCase().indexOf("desc")) {
+                            continue;
+                        }
+                        //Add row
+                        AddRow(name);
+
+                        name = ParseSQLServerName(name, true);
+                    }
 
                     //Create Property
                     var propertyModel = CreateProperty(name, currentTableModel.Name, null, false, false);
 
                     //Add Property to table
                     currentTableModel.Properties.push(propertyModel);
+
+
                 }
 
                 //Parse Primary Key
-                if (propertyType == 'primary key') {
+                if (propertyType === 'primary key') {
                     if (!MODE_SQLSERVER) {
-
 
                     } else {
 
@@ -232,11 +341,9 @@ Draw.loadPlugin(function(ui) {
                 }
 
                 //Parse Foreign Key
-                if (propertyType == 'foreign key') {
+                if (propertyType === 'foreign key') {
                     if (!MODE_SQLSERVER) {
-
-
-                    } else {
+                        ParseMySQLForeignKey(name, currentTableModel);
 
                     }
                 }
