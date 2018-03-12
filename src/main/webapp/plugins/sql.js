@@ -130,33 +130,35 @@ Draw.loadPlugin(function(ui) {
         var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key("), referencesIndex).replace("FOREIGN KEY(", '').replace(')', '');
         var referencesSQL = name.substring(referencesIndex, name.length);
 
-        //Remove references syntax
-        referencesSQL = referencesSQL.replace("REFERENCES ", '');
+        if (referencesIndex !== -1 && foreignKeySQL !== '' && referencesSQL !== '') {
+            //Remove references syntax
+            referencesSQL = referencesSQL.replace("REFERENCES ", '');
 
-        //Get Table and Property Index
-        var referencedTableIndex = referencesSQL.indexOf("(");
-        var referencedPropertyIndex = referencesSQL.indexOf(")");
+            //Get Table and Property Index
+            var referencedTableIndex = referencesSQL.indexOf("(");
+            var referencedPropertyIndex = referencesSQL.indexOf(")");
 
-        //Get Referenced Table
-        var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
+            //Get Referenced Table
+            var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
 
-        referencedTableName = ParseSQLServerName(referencedTableName);
+            referencedTableName = ParseSQLServerName(referencedTableName);
 
-        //Get Referenced Key
-        var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
+            //Get Referenced Key
+            var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
 
-        referencedPropertyName = ParseSQLServerName(referencedPropertyName);
+            referencedPropertyName = ParseSQLServerName(referencedPropertyName);
 
-        //Get ForeignKey 
-        var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '');
+            //Get ForeignKey 
+            var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '');
 
-        foreignKey = ParseSQLServerName(foreignKey);
+            foreignKey = ParseSQLServerName(foreignKey);
 
-        //Create ForeignKey
-        var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+            //Create ForeignKey
+            var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
 
-        //Add Property with ForeignKey to List
-        propertyForeignKeyList.push(foreignKeyModel);
+            //Add Property with ForeignKey to List
+            propertyForeignKeyList.push(foreignKeyModel);
+        }
     };
 
     function CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName) {
@@ -203,7 +205,9 @@ Draw.loadPlugin(function(ui) {
             name = name.replace(' [', '');
             name = name.replace('] ', '');
         } else {
-            name = name.substring(0, name.indexOf(']'));
+            if (name.indexOf(']') !== -1) {
+                name = name.substring(0, name.indexOf(']'));
+            }
         }
 
         if (name.lastIndexOf(']') === (name.length - 1)) {
@@ -263,7 +267,7 @@ Draw.loadPlugin(function(ui) {
                 currentTableModel = CreateTable(name);
             }
             // Parse Properties 
-            else if (tmp !== '(') {
+            else if (tmp !== '(' && currentTableModel != null) {
 
                 //Parse the row
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
@@ -277,19 +281,26 @@ Draw.loadPlugin(function(ui) {
                 //Parse properties that don't have relationships
                 if (normalProperty) {
 
-                    if (name === '') {
+                    if (name === '' || name === "") {
                         continue;
                     }
 
                     if (MODE_SQLSERVER) {
-                        if (name.toLowerCase().indexOf("asc") !== -1 ||
-                            name.toLowerCase().indexOf("desc") !== -1 ||
-                            name.toLowerCase().indexOf("with ") !== -1 ||
-                            name.toLowerCase().indexOf("on ") !== -1 ||
-                            name.toLowerCase().indexOf("alter") !== -1 ||
-                            name.toLowerCase().indexOf("references") !== -1) {
+                        if (name.indexOf("ASC") !== -1 ||
+                            name.indexOf("DESC") !== -1 ||
+                            name.indexOf("EXEC") !== -1 ||
+                            name.indexOf("WITH") !== -1 ||
+                            name.indexOf("ON") !== -1 ||
+                            name.indexOf("ALTER") !== -1 ||
+                            name.indexOf("/*") !== -1 ||
+                            name.indexOf("CONSTRAIN") !== -1 ||
+                            name.indexOf("SET") !== -1 ||
+                            name.indexOf("NONCLUSTERED") !== -1 ||
+                            name.indexOf("GO") !== -1 ||
+                            name.indexOf("REFERENCES") !== -1) {
                             continue;
                         }
+
                         name = ParseSQLServerName(name, true);
                     }
 
@@ -342,23 +353,26 @@ Draw.loadPlugin(function(ui) {
     function CreateTableUI() {
 
         tableList.forEach(function(tableModel) {
+            //Define table size width
+            var maxNameLenght = 100 + tableModel.Name.length;
 
             //Create Table
-            tableCell = new mxCell(tableModel.Name, new mxGeometry(dx, 0, 160, 26),
+            tableCell = new mxCell(tableModel.Name, new mxGeometry(dx, 0, maxNameLenght, 26),
                 'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
             tableCell.vertex = true;
-
-            //Add Table to cells
-            cells.push(tableCell);
 
             //Resize row
             var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
             if (size !== null) {
-                tableCell.geometry.width = size.width + 10;
+                tableCell.geometry.width = size.width + maxNameLenght;
             }
+
+            //Add Table to cells
+            cells.push(tableCell);
 
             //Add properties
             tableModel.Properties.forEach(function(propertyModel) {
+
                 //Add row
                 AddRow(propertyModel.Name);
             });
@@ -367,8 +381,6 @@ Draw.loadPlugin(function(ui) {
             dx += tableCell.geometry.width + 40;
             tableCell = null;
         });
-
-
 
         if (cells.length > 0) {
             var graph = ui.editor.graph;
