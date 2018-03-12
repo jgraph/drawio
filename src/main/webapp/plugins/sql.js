@@ -33,7 +33,6 @@ Draw.loadPlugin(function(ui) {
 
     //Table Info
     var tableList = [];
-    var rows = {};
     var cells = [];
     var tableCell = null;
     var rowCell = null;
@@ -93,7 +92,6 @@ Draw.loadPlugin(function(ui) {
         tableCell.insert(rowCell);
         tableCell.geometry.height += 26;
 
-        rows[rowCell.value] = rowCell;
         rowCell = rowCell;
 
     };
@@ -231,14 +229,13 @@ Draw.loadPlugin(function(ui) {
         var dx = 0;
         MODE_SQLSERVER = type !== undefined && type !== null && type == SQLServer;
 
-        rows = null;
         tableCell = null;
         cells = [];
         exportedTables = 0;
 
         var currentTableModel = null;
 
-        //Parse SQL
+        //Parse SQL to objects
         for (var i = 0; i < lines.length; i++) {
 
             rowCell = null;
@@ -263,39 +260,9 @@ Draw.loadPlugin(function(ui) {
 
                 //Create Table
                 currentTableModel = CreateTable(name);
-
-                //TODO: Change to a new loop
-                tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
-                    'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
-                tableCell.vertex = true;
-
-                cells.push(tableCell);
-
-                var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
-
-                if (size !== null) {
-                    tableCell.geometry.width = size.width + 10;
-                }
-
-                // For primary key lookups
-                rows = {};
-
-            } else if (propertyRow === 'alter table ') {
-
-                if (MODE_SQLSERVER) {
-                    //Parse the row
-                    var alterTableRow = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
-                    var referencesRow = mxUtils.trim(lines[i + 1]);
-                    var completeRow = alterTableRow + ' ' + referencesRow;
-
-                    ParseSQLServerForeignKey(completeRow, currentTableModel);
-                }
-            } //Close Table
-            else if (tableCell !== null && tmp.charAt(0) === ')') {
-                dx += tableCell.geometry.width + 40;
-                tableCell = null;
-            } // Parse Properties 
-            else if (tmp !== '(' && tableCell !== null) {
+            }
+            // Parse Properties 
+            else if (tmp !== '(') {
 
                 //Parse the row
                 var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
@@ -308,17 +275,20 @@ Draw.loadPlugin(function(ui) {
 
                 //Parse properties that don't have relationships
                 if (normalProperty) {
-                    if (!MODE_SQLSERVER) {
-                        //Add row
-                        AddRow(name);
-                    } else {
 
-                        if (name.toLowerCase().indexOf("asc") !== -1 && name.toLowerCase().indexOf("desc")) {
+                    if (name === '') {
+                        continue;
+                    }
+
+                    if (MODE_SQLSERVER) {
+                        if (name.toLowerCase().indexOf("asc") !== -1 ||
+                            name.toLowerCase().indexOf("desc") !== -1 ||
+                            name.toLowerCase().indexOf("with ") !== -1 ||
+                            name.toLowerCase().indexOf("on ") !== -1 ||
+                            name.toLowerCase().indexOf("alter") !== -1 ||
+                            name.toLowerCase().indexOf("references") !== -1) {
                             continue;
                         }
-                        //Add row
-                        AddRow(name);
-
                         name = ParseSQLServerName(name, true);
                     }
 
@@ -327,8 +297,6 @@ Draw.loadPlugin(function(ui) {
 
                     //Add Property to table
                     currentTableModel.Properties.push(propertyModel);
-
-
                 }
 
                 //Parse Primary Key
@@ -344,12 +312,57 @@ Draw.loadPlugin(function(ui) {
                 if (propertyType === 'foreign key') {
                     if (!MODE_SQLSERVER) {
                         ParseMySQLForeignKey(name, currentTableModel);
-
                     }
                 }
 
+            } else if (propertyRow === 'alter table ') {
+
+                if (MODE_SQLSERVER) {
+                    //Parse the row
+                    var alterTableRow = tmp.substring(0, (tmp.charAt(tmp.length - 1) === ',') ? tmp.length - 1 : tmp.length);
+                    var referencesRow = mxUtils.trim(lines[i + 1]);
+                    var completeRow = alterTableRow + ' ' + referencesRow;
+
+                    ParseSQLServerForeignKey(completeRow, currentTableModel);
+                }
             }
         }
+
+        //Add last table
+        if (currentTableModel !== null) {
+            //Add table to the list
+            tableList.push(currentTableModel);
+        }
+
+        //Create Table in UI
+        tableList.forEach(function(tableModel) {
+
+            //Create Table
+            tableCell = new mxCell(tableModel.Name, new mxGeometry(dx, 0, 160, 26),
+                'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+            tableCell.vertex = true;
+
+            //Add Table to cells
+            cells.push(tableCell);
+
+            //Resize row
+            var size = ui.editor.graph.getPreferredSizeForCell(rowCell);
+            if (size !== null) {
+                tableCell.geometry.width = size.width + 10;
+            }
+
+            //Add properties
+            tableModel.Properties.forEach(function(propertyModel) {
+                //Add row
+                AddRow(propertyModel.Name);
+            });
+
+            //Close table
+            dx += tableCell.geometry.width + 40;
+            tableCell = null;
+        });
+
+
 
         if (cells.length > 0) {
             var graph = ui.editor.graph;
