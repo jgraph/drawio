@@ -367,7 +367,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		link.style.padding = '18px 0px 6px 0px';
 		link.style.fontSize = '12px';
 		link.style.color = 'gray';
-		mxUtils.write(link, mxResources.get('import') + ' ' + mxResources.get('gliffy') + ', ' +
+		mxUtils.write(link, mxResources.get('import') + ': ' + mxResources.get('gliffy') + ', ' +
 				mxResources.get('formatVssx') + ', ' + mxResources.get('formatVsdx') + ', ' +
 				mxResources.get('lucidchart') + '...');
 		
@@ -2104,10 +2104,11 @@ var ParseDialog = function(editorUi, title)
 	{
 		var lines = text.split('\n');
 		
-		if (type == 'plantUmlPng' || type == 'plantUmlSvg')
+		if (type == 'plantUmlPng' || type == 'plantUmlSvg' || type == 'plantUmlTxt')
 		{
-			var plantUmlServerUrl = (type == 'plantUmlPng') ? 'https://exp.draw.io/plantuml2/png/' :
-				'https://exp.draw.io/plantuml2/svg/';
+			var plantUmlServerUrl = (type == 'plantUmlTxt') ? 'https://exp.draw.io/plantuml2/txt/' :
+				((type == 'plantUmlPng') ? 'https://exp.draw.io/plantuml2/png/' :
+				'https://exp.draw.io/plantuml2/svg/');
 		    	var graph = editorUi.editor.graph;
 		    	
 		    	// TODO: Change server to return base64 & accept POST request
@@ -2171,64 +2172,90 @@ var ParseDialog = function(editorUi, title)
 			
 				var xhr = new XMLHttpRequest();
 				xhr.open('GET', plantUmlServerUrl + compress(text), true);
-				xhr.responseType = 'blob';
+				
+				if (type != 'plantUmlTxt')
+				{
+					xhr.responseType = 'blob';
+				}
 				
 				xhr.onload = function(e) 
 				{
 				  if (this.status >= 200 && this.status < 300)
 				  {
-				    var reader = new FileReader();
-				    reader.readAsDataURL(this.response);
-				    
-				    reader.onload = function(e) 
-				    {
-					    	var img = new Image();
-					    	
-					    	img.onload = function()
-					    	{
-					    		editorUi.spinner.stop();
-					    		var w = img.width;
-					    		var h = img.height;
-					    		
-					    		// Workaround for 0 image size in IE11
-					    		if (w == 0 && h == 0)
-					    		{
-						    		var data = e.target.result;
-						    		var comma = data.indexOf(',');
-			    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-			    					var root = mxUtils.parseXml(svgText);
-		    						var svgs = root.getElementsByTagName('svg');
-		    						
-		    						if (svgs.length > 0)
-		    						{
-		    							w = parseFloat(svgs[0].getAttribute('width'));
-		    							h = parseFloat(svgs[0].getAttribute('height'));
-		    						}
-					    		}
-					    		
-					    		graph.getModel().beginUpdate();
-							try
-							{
-					    			cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
-									w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
-									'image=' + editorUi.convertDataUri(e.target.result) + ';');
-							}
-							finally
-							{
-								graph.getModel().endUpdate();
-							}
-							
-							graph.setSelectionCell(cell);
-				           	graph.scrollCellToVisible(graph.getSelectionCell());
-					    	};
-					    	
-					    	img.src = e.target.result;
-				    };
-				    
-				    reader.onerror = function(e)
-				    {
-				    		editorUi.handleError(e);
-				    };
+					if (type == 'plantUmlTxt')
+					{
+						editorUi.spinner.stop();
+						
+			    			graph.getModel().beginUpdate();
+						try
+						{
+				    			cell = graph.insertVertex(null, null, '<pre>' + this.response + '</pre>',
+				    				insertPoint.x, insertPoint.y, 1, 1, 'text;html=1;overflow=fill;');
+				    			graph.updateCellSize(cell, true);
+						}
+						finally
+						{
+							graph.getModel().endUpdate();
+						}
+						
+						graph.setSelectionCell(cell);
+			           	graph.scrollCellToVisible(graph.getSelectionCell());
+					}
+					else
+					{
+					    var reader = new FileReader();
+					    reader.readAsDataURL(this.response);
+					    
+					    reader.onload = function(e) 
+					    {
+						    	var img = new Image();
+						    	
+						    	img.onload = function()
+						    	{
+						    		editorUi.spinner.stop();
+						    		var w = img.width;
+						    		var h = img.height;
+						    		
+						    		// Workaround for 0 image size in IE11
+						    		if (w == 0 && h == 0)
+						    		{
+							    		var data = e.target.result;
+							    		var comma = data.indexOf(',');
+				    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+				    					var root = mxUtils.parseXml(svgText);
+			    						var svgs = root.getElementsByTagName('svg');
+			    						
+			    						if (svgs.length > 0)
+			    						{
+			    							w = parseFloat(svgs[0].getAttribute('width'));
+			    							h = parseFloat(svgs[0].getAttribute('height'));
+			    						}
+						    		}
+						    		
+						    		graph.getModel().beginUpdate();
+								try
+								{
+						    			cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
+										w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
+										'image=' + editorUi.convertDataUri(e.target.result) + ';');
+								}
+								finally
+								{
+									graph.getModel().endUpdate();
+								}
+								
+								graph.setSelectionCell(cell);
+					           	graph.scrollCellToVisible(graph.getSelectionCell());
+						    	};
+						    	
+						    	img.src = e.target.result;
+					    };
+					    
+					    reader.onerror = function(e)
+					    {
+					    		editorUi.handleError(e);
+					    };
+					}
 				  }
 				  else 
 				  {
@@ -2533,11 +2560,16 @@ var ParseDialog = function(editorUi, title)
 	plantUmlPngOption.setAttribute('value', 'plantUmlPng');
 	mxUtils.write(plantUmlPngOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatPng') + ')');
 	
+	var plantUmlTxtOption = document.createElement('option');
+	plantUmlTxtOption.setAttribute('value', 'plantUmlTxt');
+	mxUtils.write(plantUmlTxtOption, mxResources.get('plantUml') + ' (' + mxResources.get('text') + ')');
+	
 	// Disabled for invalid hosts via CORS headers
 	if (EditorUi.enablePlantUml && Graph.fileSupport && !editorUi.isOffline())
 	{
 		typeSelect.appendChild(plantUmlSvgOption);
 		typeSelect.appendChild(plantUmlPngOption);
+		typeSelect.appendChild(plantUmlTxtOption);
 	}
 
 	function getDefaultValue()
@@ -2555,7 +2587,7 @@ var ParseDialog = function(editorUi, title)
 		{
 			return '@startuml\nskinparam backgroundcolor transparent\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml';
 		}
-		else if (typeSelect.value == 'plantUmlSvg')
+		else if (typeSelect.value == 'plantUmlSvg' || typeSelect.value == 'plantUmlTxt')
 		{
 			return '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: another authentication Response\n@enduml';
 		}

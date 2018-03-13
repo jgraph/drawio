@@ -334,7 +334,7 @@ function VsdxExport(editorUi)
 		if (lbkgnd) shape.appendChild(createCellElem("TextBkgnd", lbkgnd, xmlDoc));
 	};
 
-	function createShape(id, geo, xmlDoc, parentHeight)
+	function createShape(id, geo, xmlDoc, parentHeight, isChild)
 	{
 		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
 		
@@ -346,8 +346,8 @@ function VsdxExport(editorUi)
 		
 		var hw = geo.width/2, hh = geo.height/2;
 		
-		shape.appendChild(createCellElemScaled("PinX", geo.x + hw + vsdxCanvas.shiftX, xmlDoc));
-		shape.appendChild(createCellElemScaled("PinY", parentHeight - geo.y - hh - vsdxCanvas.shiftY, xmlDoc));
+		shape.appendChild(createCellElemScaled("PinX", geo.x + hw + (isChild? 0 : vsdxCanvas.shiftX), xmlDoc));
+		shape.appendChild(createCellElemScaled("PinY", parentHeight - geo.y - hh - (isChild? 0 : vsdxCanvas.shiftY), xmlDoc));
 		shape.appendChild(createCellElemScaled("Width", geo.width, xmlDoc));
 		shape.appendChild(createCellElemScaled("Height", geo.height, xmlDoc));
 		shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
@@ -388,7 +388,7 @@ function VsdxExport(editorUi)
 			return 6;
 	};
 
-	function createEdge(cell, graph, xmlDoc, parentHeight)
+	function createEdge(cell, graph, xmlDoc, parentHeight, isChild)
 	{
 		var state = graph.view.getState(cell);
 		
@@ -423,8 +423,8 @@ function VsdxExport(editorUi)
 		var calcVsdxPoint = function(p, noHeight) 
 		{
 			var x = p.x, y = p.y;
-			x = (x * s.scale - bounds.x + s.dx + vsdxCanvas.shiftX) ;
-			y = ((noHeight? 0 : bounds.height) - y * s.scale + bounds.y - s.dy - vsdxCanvas.shiftY) ;
+			x = (x * s.scale - bounds.x + s.dx + (isChild? 0 : vsdxCanvas.shiftX)) ;
+			y = ((noHeight? 0 : bounds.height) - y * s.scale + bounds.y - s.dy - (isChild? 0 : vsdxCanvas.shiftY)) ;
 			return {x: x, y: y};
 		};
 
@@ -491,7 +491,7 @@ function VsdxExport(editorUi)
 		return shape;
 	};
 	
-	function convertMxCell2Shape(cell, graph, xmlDoc, parentHeight, parentGeo)
+	function convertMxCell2Shape(cell, graph, xmlDoc, parentHeight, parentGeo, isChild)
 	{
 		var geo = cell.geometry;
 		
@@ -511,7 +511,7 @@ function VsdxExport(editorUi)
 			if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group 
 			{
 				//Create group shape as an empty shape with no geo
-				var shape = createShape(vsdxId + "10000", geo, xmlDoc, parentHeight);
+				var shape = createShape(vsdxId + "10000", geo, xmlDoc, parentHeight, isChild);
 				shape.setAttribute("Type", "Group");
 				
 				//Create group shape
@@ -528,7 +528,7 @@ function VsdxExport(editorUi)
 				newGeo.y = 0;
 				cell.setGeometry(newGeo);
 				cell.treatAsSingle = true;
-				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo);
+				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo, true);
 				cell.treatAsSingle = false;
 				cell.setGeometry(geo);
 				gShapes.appendChild(subShape);
@@ -538,7 +538,7 @@ function VsdxExport(editorUi)
 				{
 					var child = cell.children[i];
 					
-					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo);
+					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo, true);
 					
 					gShapes.appendChild(subShape);
 				}
@@ -553,7 +553,7 @@ function VsdxExport(editorUi)
 			else if (cell.vertex)
 			{
 	
-				var shape = createShape(vsdxId, geo, xmlDoc, parentHeight);
+				var shape = createShape(vsdxId, geo, xmlDoc, parentHeight, isChild);
 				
 				var state = graph.view.getState(cell);
 
@@ -584,7 +584,7 @@ function VsdxExport(editorUi)
 			}
 			else
 			{
-				return createEdge(cell, graph, xmlDoc, parentHeight);
+				return createEdge(cell, graph, xmlDoc, parentHeight, isChild);
 			}
 		}
 		else

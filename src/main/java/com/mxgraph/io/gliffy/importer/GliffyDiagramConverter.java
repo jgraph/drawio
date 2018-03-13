@@ -38,6 +38,7 @@ import com.mxgraph.io.gliffy.model.Graphic.GliffyShape;
 import com.mxgraph.io.gliffy.model.Graphic.GliffySvg;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.online.Utils;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxDomUtils;
@@ -485,7 +486,6 @@ public class GliffyDiagramConverter
 		}
 
 		drawioDiagram.getModel().setGeometry(cell, geo);
-
 	}
 
 	/**
@@ -497,6 +497,17 @@ public class GliffyDiagramConverter
 	{
 		if (layers == null)
 			return;
+		
+		// Removes empty default layer
+		if (layers.size() > 0)
+		{
+			mxIGraphModel model = drawioDiagram.getModel();
+			
+			if (model.getChildCount(model.getRoot()) > 0)
+			{
+				model.remove(model.getChildAt(model.getRoot(), 0));
+			}
+		}
 		
 		for (GliffyLayer layer : layers)
 		{
