@@ -12,7 +12,7 @@ Draw.loadPlugin(function(ui) {
         this.Name = null;
         this.Value = null;
         this.TableName = null;
-        this.ForeignKey = null;
+        this.ForeignKey = [];
         this.IsPrimaryKey = false;
         this.IsForeignKey = false;
     }
@@ -23,6 +23,8 @@ Draw.loadPlugin(function(ui) {
 
         this.PrimaryKeyTableName = null;
         this.ReferencesTableName = null;
+
+        this.IsDestination = false;
     }
 
     function PrimaryKeyModel() {
@@ -76,12 +78,18 @@ Draw.loadPlugin(function(ui) {
     wnd.setResizable(false);
     wnd.setClosable(true);
 
-    function AddRow(propertyModel) {
+    function AddRow(propertyModel, tableName) {
 
         var cellName = propertyModel.Name;
 
-        if (propertyModel.IsForeignKey) {
-            cellName += ' | ' + propertyModel.ForeignKey.PrimaryKeyTableName + '(' + propertyModel.ForeignKey.PrimaryKeyName + ')';
+        if (propertyModel.IsForeignKey && propertyModel.ForeignKey !== undefined && propertyModel.ForeignKey !== null) {
+            propertyModel.ForeignKey.forEach(function(foreignKeyModel) {
+
+                //We do not want the foreign key to be duplicated in our table to the same property
+                if (tableName !== foreignKeyModel.PrimaryKeyTableName || (tableName === foreignKeyModel.PrimaryKeyTableName && propertyModel.Name !== foreignKeyModel.PrimaryKeyName)) {
+                    cellName += ' | ' + foreignKeyModel.PrimaryKeyTableName + '(' + foreignKeyModel.PrimaryKeyName + ')';
+                }
+            })
         }
 
         rowCell = new mxCell(cellName, new mxGeometry(0, 0, 90, 26),
@@ -132,13 +140,13 @@ Draw.loadPlugin(function(ui) {
         var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '').replace(" ", '');
 
         //Create ForeignKey
-        var foreignKeyOriginModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+        var foreignKeyOriginModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName, true);
 
         //Add ForeignKey Origin
         foreignKeyList.push(foreignKeyOriginModel);
 
         //Create ForeignKey
-        var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name);
+        var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name, false);
 
         //Add ForeignKey Destination
         foreignKeyList.push(foreignKeyDestinationModel);
@@ -148,8 +156,9 @@ Draw.loadPlugin(function(ui) {
         var referencesIndex = name.toLowerCase().indexOf("references");
         var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key("), referencesIndex).replace("FOREIGN KEY(", '').replace(')', '');
         var referencesSQL = name.substring(referencesIndex, name.length);
+        var alterTableName = name.substring(0, name.indexOf("WITH")).replace('ALTER TABLE ', '');
 
-        if (referencesIndex !== -1 && foreignKeySQL !== '' && referencesSQL !== '') {
+        if (referencesIndex !== -1 && alterTableName !== '' && foreignKeySQL !== '' && referencesSQL !== '') {
             //Remove references syntax
             referencesSQL = referencesSQL.replace("REFERENCES ", '');
 
@@ -160,11 +169,13 @@ Draw.loadPlugin(function(ui) {
             //Get Referenced Table
             var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
 
+            //Parse Name
             referencedTableName = ParseSQLServerName(referencedTableName);
 
             //Get Referenced Key
             var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
 
+            //Parse Name
             referencedPropertyName = ParseSQLServerName(referencedPropertyName);
 
             //Get ForeignKey 
@@ -173,14 +184,17 @@ Draw.loadPlugin(function(ui) {
             //Parse Name
             foreignKey = ParseSQLServerName(foreignKey);
 
+            //Parse Name
+            alterTableName = ParseSQLServerName(alterTableName);
+
             //Create ForeignKey
-            var foreignKeyOriginModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+            var foreignKeyOriginModel = CreateForeignKey(foreignKey, alterTableName, referencedPropertyName, referencedTableName, true);
 
             //Add ForeignKey Origin
             foreignKeyList.push(foreignKeyOriginModel);
 
             //Create ForeignKey
-            var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name);
+            var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, alterTableName, false);
 
             //Add ForeignKey Destination
             foreignKeyList.push(foreignKeyDestinationModel);
@@ -209,7 +223,16 @@ Draw.loadPlugin(function(ui) {
                 tableModel.Properties.forEach(function(propertyModel) {
                     if (propertyModel.Name === foreignKeyModel.ReferencesPropertyName) {
                         propertyModel.IsForeignKey = true;
-                        propertyModel.ForeignKey = foreignKeyModel;
+                        propertyModel.ForeignKey.push(foreignKeyModel);
+                    }
+                });
+            }
+
+            if (tableModel.Name === foreignKeyModel.PrimaryKeyTableName) {
+                tableModel.Properties.forEach(function(propertyModel) {
+                    if (propertyModel.Name === foreignKeyModel.PrimaryKeyName) {
+                        propertyModel.IsForeignKey = true;
+                        propertyModel.ForeignKey.push(foreignKeyModel);
                     }
                 });
             }
@@ -224,13 +247,14 @@ Draw.loadPlugin(function(ui) {
         });
     }
 
-    function CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName) {
+    function CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName, isDestination) {
         var foreignKey = new ForeignKeyModel;
 
         foreignKey.PrimaryKeyTableName = primaryKeyTableName;
         foreignKey.PrimaryKeyName = primaryKeyName;
         foreignKey.ReferencesPropertyName = referencesPropertyName;
         foreignKey.ReferencesTableName = referencesTableName;
+        foreignKey.IsDestination = (isDestination !== undefined && isDestination !== null) ? isDestination : false;
 
         return foreignKey;
     };
@@ -246,11 +270,12 @@ Draw.loadPlugin(function(ui) {
 
     function CreateProperty(name, tableName, foreignKey, isPrimaryKey) {
         var property = new PropertyModel;
+        var isForeignKey = foreignKey !== undefined && foreignKey !== null;
 
         property.Name = name;
         property.TableName = tableName;
-        property.ForeignKey = foreignKey;
-        property.IsForeignKey = foreignKey !== undefined && foreignKey !== null;
+        property.ForeignKey = isForeignKey ? foreignKey : [];
+        property.IsForeignKey = isForeignKey;
         property.IsPrimaryKey = isPrimaryKey;
 
         return property;
@@ -286,6 +311,8 @@ Draw.loadPlugin(function(ui) {
             name = name.substring(0, name.length - 1);
         }
 
+        name = name.replace(' ', '');
+
         return name;
     };
 
@@ -310,6 +337,7 @@ Draw.loadPlugin(function(ui) {
         cells = [];
         exportedTables = 0;
         tableList = [];
+        foreignKeyList = [];
 
         var currentTableModel = null;
 
@@ -484,7 +512,7 @@ Draw.loadPlugin(function(ui) {
             tableModel.Properties.forEach(function(propertyModel) {
 
                 //Add row
-                AddRow(propertyModel);
+                AddRow(propertyModel, tableModel.Name);
             });
 
             //Close table
