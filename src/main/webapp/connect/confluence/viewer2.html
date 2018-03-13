@@ -84,7 +84,7 @@ if (lang != null)
 	//ceoId is used as fallback in case owningPageId is not set(should be very rare)
 	var ceoId = getUrlParam('ceoId');
 	var owningPageId = getUrlParam('owningPageId');
-	var revision = getUrlParam('revision');
+	var revision = null;
 	
 	var tbStyle = getUrlParam('tbstyle') || 'top';
 	var links = getUrlParam('links') || 'auto';

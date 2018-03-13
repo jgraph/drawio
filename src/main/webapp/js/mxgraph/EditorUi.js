@@ -3005,6 +3005,10 @@ EditorUi.prototype.createDivs = function()
 	{
 		this.tabContainer = this.createTabContainer();
 	}
+	else
+	{
+		this.diagramContainer.style.border = 'none';
+	}
 };
 
 /**

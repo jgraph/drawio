@@ -320,7 +320,9 @@ if (lang != null)
 											};
 
 										}
-										if (retryParams.saveIt)
+										//Saving the diagram to this page negates page linking feature!
+										//May be we should ask the user first or saving is not needed all together
+										/*if (retryParams.saveIt)
 										{
 								 			//Since attachment wasn't found in this page, it is better to save it to this page
 								 			//First load AC dynamically. Since AC is not needed in the viewer except for this case
@@ -332,7 +334,7 @@ if (lang != null)
 											script.onload = function()
 											{
 												//save diagram
-												AC.saveDiagram(retryParams.pageId, name, btoa(unescape(encodeURIComponent(xml))),
+												AC.saveDiagram(retryParams.pageId, name, xml,
 												function()
 												{
 													//nothing!
@@ -347,7 +349,7 @@ if (lang != null)
 											};
 											script.src = 'connectUtils-1-4-8.js';
 											head.appendChild(script);
-										}
+										}*/
 							 		}
 								},
 								error: function (err)

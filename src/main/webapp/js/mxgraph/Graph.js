@@ -878,7 +878,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		{
 			me = graphUpdateMouseEvent.apply(this, arguments);
 			
-			if (this.isCellLocked(me.getCell()))
+			if (me.state != null && this.isCellLocked(me.getCell()))
 			{
 				me.state = null;
 			}
@@ -1119,6 +1119,8 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
  */
 Graph.prototype.openLink = function(href, target)
 {
+	var result = window;
+	
 	// Workaround for blocking in same iframe
 	if (target == '_self' && window != window.top)
 	{
@@ -1143,9 +1145,11 @@ Graph.prototype.openLink = function(href, target)
 		}
 		else
 		{
-			window.open(href, target);
+			result = window.open(href, target);
 		}
 	}
+	
+	return result;
 };
 
 /**
@@ -3579,7 +3583,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 						var state2 = this.validEdges[e];
 						var pts2 = state2.absolutePoints;
 						
-						if (pts2 != null && mxUtils.intersects(state, state2))
+						if (pts2 != null && mxUtils.intersects(state, state2) && state2.style['noJump'] != '1')
 						{
 							// Compares each segment of the edge with the current segment
 							for (var j = 0; j < pts2.length - 1; j++)
@@ -5438,7 +5442,7 @@ if (typeof mxVertexHandler != 'undefined')
 				for (var i = 0; i < cells.length; i++)
 				{
 					var parent = model.getParent(cells[i]);
-					var child = this.moveCells([clones[i]], s, s, false, parent)[0]; 
+					var child = this.moveCells([clones[i]], s, s, false)[0];
 					select.push(child);
 					
 					if (append)

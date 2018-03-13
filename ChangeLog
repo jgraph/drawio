@@ -1,3 +1,12 @@
+13-MAR-2018: 8.4.6
+
+- Fixes adding of clones with new index
+
+13-MAR-2018: 8.4.5
+
+- Fixes Confluence Cloud page includes
+- Removes default empty layer in Gliffy import
+
 12-MAR-2018: 8.4.4
 
 - Uses mxGraph 3.9.4 beta 2

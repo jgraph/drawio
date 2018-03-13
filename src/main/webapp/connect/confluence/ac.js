@@ -1112,7 +1112,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 };
 
 AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1) {
-	// TODO: Get binary
+	revision = null;
 	
 	AP.require('request', function(request) {
 		request({
