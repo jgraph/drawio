@@ -333,8 +333,15 @@ Draw.loadPlugin(function(ui) {
                 //Attempt to get the Key Type
                 var propertyType = name.substring(0, 11).toLowerCase();
 
+                //Add special constraints
+                if (MODE_SQLSERVER) {
+                    if (tmp.indexOf("CONSTRAINT") !== -1 && tmp.indexOf("PRIMARY KEY") !== -1) {
+                        propertyType = "constrain primary key";
+                    }
+                }
+
                 //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
-                var normalProperty = propertyType !== 'primary key' && propertyType !== 'foreign key';
+                var normalProperty = propertyType !== 'primary key' && propertyType !== 'foreign key' && propertyType !== 'constrain primary key';
 
                 //Parse properties that don't have relationships
                 if (normalProperty) {
@@ -370,22 +377,35 @@ Draw.loadPlugin(function(ui) {
                 }
 
                 //Parse Primary Key
-                if (propertyType === 'primary key') {
+                if (propertyType === 'primary key' || propertyType === 'constrain primary key') {
                     if (!MODE_SQLSERVER) {
 
                     } else {
-                        //Get primary key row
-                        var primaryKeyRow = mxUtils.trim(lines[i + 2]);
-                        primaryKeyRow = primaryKeyRow.replace("ASC", '');
+                        var start = i + 2;
+                        var end = 0;
 
-                        //Parse name
-                        primaryKeyRow = ParseSQLServerName(primaryKeyRow, true);
+                        while (end === 0) {
+                            var primaryKeyRow = mxUtils.trim(lines[start]);
 
-                        //Create Primary Key
-                        var primaryKeyModel = CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+                            if (primaryKeyRow.indexOf(')') !== -1) {
+                                end = 1;
+                                break;
+                            }
 
-                        //Add Primary Key to List
-                        primaryKeyList.push(primaryKeyModel);
+                            start++;
+
+                            primaryKeyRow = primaryKeyRow.replace("ASC", '');
+
+                            //Parse name
+                            primaryKeyRow = ParseSQLServerName(primaryKeyRow, true);
+
+                            //Create Primary Key
+                            var primaryKeyModel = CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+
+                            //Add Primary Key to List
+                            primaryKeyList.push(primaryKeyModel);
+                        }
+
                     }
                 }
 
