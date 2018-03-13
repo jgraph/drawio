@@ -389,7 +389,7 @@ Draw.loadPlugin(function(ui) {
                 //Parse properties that don't have relationships
                 if (normalProperty) {
 
-                    if (name === '' || name === "") {
+                    if (name === '' || name === "" || name === ");") {
                         continue;
                     }
 
@@ -410,6 +410,12 @@ Draw.loadPlugin(function(ui) {
                         }
 
                         name = ParseSQLServerName(name, true);
+                    } else {
+                        //Get delimiter of column name
+                        var firstSpaceIndex = name.indexOf(' ');
+
+                        //Get full name
+                        name = name.substring(0, firstSpaceIndex);
                     }
 
                     //Create Property
@@ -422,6 +428,13 @@ Draw.loadPlugin(function(ui) {
                 //Parse Primary Key
                 if (propertyType === 'primary key' || propertyType === 'constrain primary key') {
                     if (!MODE_SQLSERVER) {
+                        var primaryKey = name.replace('PRIMARY KEY (', '').replace(')', '');
+
+                        //Create Primary Key
+                        var primaryKeyModel = CreatePrimaryKey(primaryKey, currentTableModel.Name);
+
+                        //Add Primary Key to List
+                        primaryKeyList.push(primaryKeyModel);
 
                     } else {
                         var start = i + 2;
@@ -548,16 +561,7 @@ Draw.loadPlugin(function(ui) {
     resetBtn.style.padding = '4px';
     div.appendChild(resetBtn);
 
-    var btn = mxUtils.button(mxResources.get('cancel'), function() {
-        wnd.setVisible(false);
-    });
-
-    btn.style.marginTop = '8px';
-    btn.style.marginRight = '4px';
-    btn.style.padding = '4px';
-    div.appendChild(btn);
-
-    var btn = mxUtils.button(mxResources.get('insert'), function() {
+    var btn = mxUtils.button('Insert MySQL', function() {
         parseSql(sqlInput.value);
     });
 
