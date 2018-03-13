@@ -217,7 +217,6 @@ Draw.loadPlugin(function(ui) {
     }
 
     function AssignForeignKey(foreignKeyModel) {
-        //Encontrar objecto
         tableList.forEach(function(tableModel) {
             if (tableModel.Name === foreignKeyModel.ReferencesTableName) {
                 tableModel.Properties.forEach(function(propertyModel) {
