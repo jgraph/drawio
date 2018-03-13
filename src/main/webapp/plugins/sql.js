@@ -81,7 +81,7 @@ Draw.loadPlugin(function(ui) {
         var cellName = propertyModel.Name;
 
         if (propertyModel.IsForeignKey) {
-            cellName += ' | ' + propertyModel.ForeignKey.ReferencesTableName + '(' + propertyModel.ForeignKey.ReferencesPropertyName + ')';
+            cellName += ' | ' + propertyModel.ForeignKey.PrimaryKeyTableName + '(' + propertyModel.ForeignKey.PrimaryKeyName + ')';
         }
 
         rowCell = new mxCell(cellName, new mxGeometry(0, 0, 90, 26),
@@ -132,9 +132,16 @@ Draw.loadPlugin(function(ui) {
         var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '').replace(" ", '');
 
         //Create ForeignKey
-        var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+        var foreignKeyOriginModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
 
-        foreignKeyList.push(foreignKeyModel);
+        //Add ForeignKey Origin
+        foreignKeyList.push(foreignKeyOriginModel);
+
+        //Create ForeignKey
+        var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name);
+
+        //Add ForeignKey Destination
+        foreignKeyList.push(foreignKeyDestinationModel);
     };
 
     function ParseSQLServerForeignKey(name, currentTableModel) {
@@ -163,12 +170,20 @@ Draw.loadPlugin(function(ui) {
             //Get ForeignKey 
             var foreignKey = foreignKeySQL.replace("FOREIGN KEY (", '').replace(")", '');
 
+            //Parse Name
             foreignKey = ParseSQLServerName(foreignKey);
 
             //Create ForeignKey
-            var foreignKeyModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
+            var foreignKeyOriginModel = CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName);
 
-            foreignKeyList.push(foreignKeyModel);
+            //Add ForeignKey Origin
+            foreignKeyList.push(foreignKeyOriginModel);
+
+            //Create ForeignKey
+            var foreignKeyDestinationModel = CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name);
+
+            //Add ForeignKey Destination
+            foreignKeyList.push(foreignKeyDestinationModel);
         }
     };
 
