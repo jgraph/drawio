@@ -154,11 +154,18 @@ Draw.loadPlugin(function(ui) {
 
     function ParseSQLServerForeignKey(name, currentTableModel) {
         var referencesIndex = name.toLowerCase().indexOf("references");
-        var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key("), referencesIndex).replace("FOREIGN KEY(", '').replace(')', '');
+
+        if (name.toLowerCase().indexOf("foreign key(") !== -1) {
+            var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key("), referencesIndex).replace("FOREIGN KEY(", '').replace(')', '');
+        } else {
+            var foreignKeySQL = name.substring(name.toLowerCase().indexOf("foreign key ("), referencesIndex).replace("FOREIGN KEY (", '').replace(')', '');
+        }
+
         var referencesSQL = name.substring(referencesIndex, name.length);
         var alterTableName = name.substring(0, name.indexOf("WITH")).replace('ALTER TABLE ', '');
 
         if (referencesIndex !== -1 && alterTableName !== '' && foreignKeySQL !== '' && referencesSQL !== '') {
+
             //Remove references syntax
             referencesSQL = referencesSQL.replace("REFERENCES ", '');
 
@@ -310,6 +317,14 @@ Draw.loadPlugin(function(ui) {
             name = name.substring(0, name.length - 1);
         }
 
+        if (name.lastIndexOf(')') === (name.length - 1)) {
+            name = name.substring(0, name.length - 1);
+        }
+
+        if (name.lastIndexOf('(') === (name.length - 1)) {
+            name = name.substring(0, name.length - 1);
+        }
+
         name = name.replace(' ', '');
 
         return name;
@@ -380,10 +395,14 @@ Draw.loadPlugin(function(ui) {
                     if (tmp.indexOf("CONSTRAINT") !== -1 && tmp.indexOf("PRIMARY KEY") !== -1) {
                         propertyType = "constrain primary key";
                     }
+
+                    if (tmp.indexOf("CONSTRAINT") !== -1 && tmp.indexOf("FOREIGN KEY") !== -1) {
+                        propertyType = "constrain foreign key";
+                    }
                 }
 
                 //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
-                var normalProperty = propertyType !== 'primary key' && propertyType !== 'foreign key' && propertyType !== 'constrain primary key';
+                var normalProperty = propertyType !== 'primary key' && propertyType !== 'foreign key' && propertyType !== 'constrain primary key' && propertyType !== 'constrain foreign key';
 
                 //Parse properties that don't have relationships
                 if (normalProperty) {
@@ -407,6 +426,11 @@ Draw.loadPlugin(function(ui) {
                             name.indexOf("REFERENCES") !== -1) {
                             continue;
                         }
+                        //Get delimiter of column name
+                        var firstSpaceIndex = name.indexOf(' ');
+
+                        //Get full name
+                        name = name.substring(0, firstSpaceIndex);
 
                         name = ParseSQLServerName(name, true);
                     } else {
@@ -438,36 +462,56 @@ Draw.loadPlugin(function(ui) {
                     } else {
                         var start = i + 2;
                         var end = 0;
-
-                        while (end === 0) {
-                            var primaryKeyRow = mxUtils.trim(lines[start]);
-
-                            if (primaryKeyRow.indexOf(')') !== -1) {
-                                end = 1;
-                                break;
-                            }
-
-                            start++;
-
-                            primaryKeyRow = primaryKeyRow.replace("ASC", '');
-
-                            //Parse name
-                            primaryKeyRow = ParseSQLServerName(primaryKeyRow, true);
+                        if (name.indexOf('PRIMARY KEY') !== -1 && name.indexOf('CLUSTERED') === -1) {
+                            var primaryKey = name.replace('PRIMARY KEY (', '').replace(')', '');
 
                             //Create Primary Key
-                            var primaryKeyModel = CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+                            var primaryKeyModel = CreatePrimaryKey(primaryKey, currentTableModel.Name);
 
                             //Add Primary Key to List
                             primaryKeyList.push(primaryKeyModel);
+
+                        } else {
+                            while (end === 0) {
+                                var primaryKeyRow = mxUtils.trim(lines[start]);
+
+                                if (primaryKeyRow.indexOf(')') !== -1) {
+                                    end = 1;
+                                    break;
+                                }
+
+                                start++;
+
+                                primaryKeyRow = primaryKeyRow.replace("ASC", '');
+
+                                //Parse name
+                                primaryKeyRow = ParseSQLServerName(primaryKeyRow, true);
+
+                                //Create Primary Key
+                                var primaryKeyModel = CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+
+                                //Add Primary Key to List
+                                primaryKeyList.push(primaryKeyModel);
+                            }
                         }
 
                     }
                 }
 
                 //Parse Foreign Key
-                if (propertyType === 'foreign key') {
+                if (propertyType === 'foreign key' || propertyType === 'constrain foreign key') {
                     if (!MODE_SQLSERVER) {
                         ParseMySQLForeignKey(name, currentTableModel);
+                    } else {
+                        var completeRow = name;
+
+                        if (name.indexOf('REFERENCES') === -1) {
+                            var referencesRow = mxUtils.trim(lines[i + 1]);
+                            completeRow = 'ALTER TABLE [dbo].[' + currentTableModel.Name + ']  WITH CHECK ADD' + ' ' + name + ' ' + referencesRow;
+                        }
+
+                        ParseSQLServerForeignKey(completeRow, currentTableModel);
+
                     }
                 }
 
