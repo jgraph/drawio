@@ -6936,9 +6936,17 @@ var PluginsDialog = function(editorUi)
 				
 				for (var i = 0; i < tokens.length; i++)
 				{
-					if (tokens[i].length > 0 && mxUtils.indexOf(plugins, tokens[i]) < 0)
+					var token = tokens[i];
+					var url = App.pluginRegistry[token];
+					
+					if (url != null)
 					{
-						plugins.push(tokens[i]);
+						token = url;
+					}
+					
+					if (token.length > 0 && mxUtils.indexOf(plugins, token) < 0)
+					{
+						plugins.push(token);
 					}
 				}
 				

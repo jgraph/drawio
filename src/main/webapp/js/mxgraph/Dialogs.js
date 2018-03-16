@@ -520,7 +520,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			editorUi.editor.graph.openLink(helpLink);
+			window.open(helpLink);
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -780,7 +780,7 @@ var EditDiagramDialog = function(editorUi)
 			});
 			
 			window.openFile.setData(data, null);
-			editorUi.editor.graph.openLink(editorUi.getUrl());
+			window.open(editorUi.getUrl());
 		}
 		else if (select.value == 'replace')
 		{
@@ -1948,7 +1948,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#dcdcdc' : '#e5e5e5';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#a2a2a2' : '#e5e5e5';
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -2457,7 +2457,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 120, 120);
+	this.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);

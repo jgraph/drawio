@@ -107,23 +107,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
 			}
 			
-			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram', '-'], parent);
-			
-			var item = this.addMenuItem(menu, 'plugins', parent);
-			
-			if (!editorUi.isOffline())
-			{
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
-			}
-			
-			var item = this.addMenuItem(menu, 'tags', parent);
-			
-			if (!editorUi.isOffline())
-			{
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
-			}
-
-			this.addMenuItems(menu, ['-', 'online'], parent);			
+			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram', '-',
+				'plugins', 'tags', '-', 'online'], parent);
 		})));
 	};
 	
