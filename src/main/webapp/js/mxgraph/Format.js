@@ -256,9 +256,8 @@ Format.prototype.isRoundedState = function(state)
 Format.prototype.isLineJumpState = function(state)
 {
 	var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
-	var curved = mxUtils.getValue(state.style, mxConstants.STYLE_CURVED, false);
 	
-	return !curved && (shape == 'connector' || shape == 'filledEdge');
+	return shape == 'connector' || shape == 'filledEdge';
 };
 
 /**
@@ -889,6 +888,8 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
 			
 			apply(cb.checked);
 		}
+		
+		mxEvent.consume(evt);
 	});
 	
 	apply(value);

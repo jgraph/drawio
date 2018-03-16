@@ -621,15 +621,13 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 			return mxEvent.isMouseEvent(me.getEvent());
 		};
 	
-		// Handles links if graph is read-only or cell is locked
+		// Enables links if graph is "disabled" (ie. read-only)
 		var click = this.click;
 		this.click = function(me)
 		{
-			var locked = me.state == null && me.sourceState != null && this.isCellLocked(me.sourceState.cell);
-			
-			if ((!this.isEnabled() || locked) && !me.isConsumed())
+			if (!this.isEnabled() && !me.isConsumed())
 			{
-				var cell = (locked) ? me.sourceState.cell : me.getCell();
+				var cell = me.getCell();
 				
 				if (cell != null)
 				{
@@ -637,14 +635,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 					
 					if (link != null)
 					{
-						if (this.isPageLink(link))
-						{
-							this.pageLinkClicked(cell, link);
-						}
-						else
-						{
-							this.openLink(link);
-						}
+						window.open(link);
 					}
 				}
 			}
@@ -653,28 +644,13 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 				return click.apply(this, arguments);
 			}
 		};
-
-		// Redirects tooltips for locked cells
-		this.tooltipHandler.getStateForEvent = function(me)
-		{
-			return me.sourceState;
-		};
-		
-		// Redirects cursor for locked cells
-		var getCursorForMouseEvent = this.getCursorForMouseEvent; 
-		this.getCursorForMouseEvent = function(me)
-		{
-			var locked = me.state == null && me.sourceState != null && this.isCellLocked(me.sourceState.cell);
-			
-			return this.getCursorForCell((locked) ? me.sourceState.cell : me.getCell());
-		};
 		
 		// Shows pointer cursor for clickable cells with links
 		// ie. if the graph is disabled and cells cannot be selected
 		var getCursorForCell = this.getCursorForCell;
 		this.getCursorForCell = function(cell)
 		{
-			if (!this.isEnabled() || this.isCellLocked(cell))
+			if (!this.isEnabled())
 			{
 				var link = this.getLinkForCell(cell);
 				
@@ -682,13 +658,11 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 				{
 					return 'pointer';
 				}
-				else if (this.isCellLocked(cell))
-				{
-					return 'default';
-				}
 			}
-
-			return getCursorForCell.apply(this, arguments);
+			else
+			{
+				return getCursorForCell.apply(this, arguments);
+			}
 		};
 		
 		// Changes rubberband selection to be recursive
@@ -878,7 +852,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		{
 			me = graphUpdateMouseEvent.apply(this, arguments);
 			
-			if (me.state != null && this.isCellLocked(me.getCell()))
+			if (this.isCellLocked(me.getCell()))
 			{
 				me.state = null;
 			}
@@ -1095,64 +1069,6 @@ Graph.prototype.init = function(container)
 };
 
 /**
- * Installs automatic layout via styles
- */
-Graph.prototype.labelLinkClicked = function(state, elt, evt)
-{
-	var href = elt.getAttribute('href');
-	
-	if (href != null && !this.isPageLink(href) && (mxEvent.isLeftMouseButton(evt) &&
-		!mxEvent.isPopupTrigger(evt)) || mxEvent.isTouchEvent(evt))
-	{
-		if (!this.isEnabled() || this.isCellLocked(state.cell))
-		{
-			var target = this.isBlankLink(href) ? this.linkTarget : '_top';
-			this.openLink(this.getAbsoluteUrl(href), target);
-		}
-		
-		mxEvent.consume(evt);
-	}
-};
-
-/**
- * Returns the size of the page format scaled with the page size.
- */
-Graph.prototype.openLink = function(href, target)
-{
-	var result = window;
-	
-	// Workaround for blocking in same iframe
-	if (target == '_self' && window != window.top)
-	{
-		window.location.href = href;
-	}
-	else
-	{
-		// Avoids page reload for anchors (workaround for IE but used everywhere)
-		if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
-			href.charAt(this.baseUrl.length) == '#' &&
-			target == '_top' && window == window.top)
-		{
-			var hash = href.split('#')[1];
-
-			// Forces navigation if on same hash
-			if (window.location.hash == '#' + hash)
-			{
-				window.location.hash = '';
-			}
-			
-			window.location.hash = hash;
-		}
-		else
-		{
-			result = window.open(href, target);
-		}
-	}
-	
-	return result;
-};
-
-/**
  * Adds support for page links.
  */
 Graph.prototype.isPageLink = function(href)
@@ -1161,11 +1077,45 @@ Graph.prototype.isPageLink = function(href)
 };
 
 /**
- * Adds support for page links.
+ * Installs automatic layout via styles
  */
-Graph.prototype.pageLinkClicked = function(cell, href)
+Graph.prototype.labelLinkClicked = function(state, elt, evt)
 {
-	this.fireEvent(new mxEventObject('pageLinkClicked', 'cell', cell, 'href', href));
+	var href = elt.getAttribute('href');
+	
+	if (href != null && !this.isPageLink(href))
+	{
+		if (!this.isEnabled())
+		{
+			var target = state.view.graph.isBlankLink(href) ?
+				state.view.graph.linkTarget : '_top';
+			href = state.view.graph.getAbsoluteUrl(href);
+	
+			// Workaround for blocking in same iframe
+			if (target == '_self' && window != window.top)
+			{
+				window.location.href = href;
+			}
+			else
+			{
+				// Avoids page reload for anchors (workaround for IE but used everywhere)
+				if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
+					href.charAt(this.baseUrl.length) == '#' &&
+					target == '_top' && window == window.top)
+				{
+					window.location.hash = href.split('#')[1];
+				}
+				else if ((mxEvent.isLeftMouseButton(evt) &&
+					!mxEvent.isPopupTrigger(evt)) ||
+			    		mxEvent.isTouchEvent(evt))
+				{
+					window.open(href, target);
+				}
+			}
+		}
+		
+		mxEvent.consume(evt);
+	}
 };
 
 /**
@@ -1359,17 +1309,6 @@ Graph.prototype.isReplacePlaceholders = function(cell)
 {
 	return cell.value != null && typeof(cell.value) == 'object' &&
 		cell.value.getAttribute('placeholders') == '1';
-};
-
-/**
- * Returns true if the given mouse wheel event should be used for zooming. This
- * is invoked if no dialogs are showing and returns true if Alt or Control
- * (except macOS) is pressed or if the panning handler is active.
- */
-Graph.prototype.isZoomWheelEvent = function(evt)
-{
-	return mxEvent.isAltDown(evt) || (mxEvent.isControlDown(evt) && !mxClient.IS_MAC) ||
-		(this.panningHandler != null && this.panningHandler.isActive());
 };
 
 /**
@@ -3583,7 +3522,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 						var state2 = this.validEdges[e];
 						var pts2 = state2.absolutePoints;
 						
-						if (pts2 != null && mxUtils.intersects(state, state2) && state2.style['noJump'] != '1')
+						if (pts2 != null && mxUtils.intersects(state, state2))
 						{
 							// Compares each segment of the edge with the current segment
 							for (var j = 0; j < pts2.length - 1; j++)
@@ -5256,157 +5195,178 @@ if (typeof mxVertexHandler != 'undefined')
 			    scrollTop: 0,
 			    updateCurrentState: function(me)
 			    {
-			    		var tmp = me.sourceState;
+			    	var tmp = graph.view.getState(me.getCell());
 					
 			      	if (tmp != this.currentState)
 			      	{
-				        	if (this.currentState != null)
-				        	{
-				          	this.clear();
-				        	}
-				        
-			        		this.currentState = tmp;
-				        
-				        	if (this.currentState != null)
-				        	{
-				          	this.activate(this.currentState);
-				        	}
+			        	if (this.currentState != null)
+			        	{
+			          		this.clear();
+			        	}
+			        
+		        		this.currentState = tmp;
+			        
+			        	if (this.currentState != null)
+			        	{
+			          		this.activate(this.currentState);
+			        	}
 			      	}
 			    },
 			    mouseDown: function(sender, me)
 			    {
-				    	this.startX = me.getGraphX();
-				    	this.startY = me.getGraphY();
-					    this.scrollLeft = graph.container.scrollLeft;
-					    this.scrollTop = graph.container.scrollTop;
-					    
-			    		if (this.currentLink == null && graph.container.style.overflow == 'auto')
-			    		{
-			    			graph.container.style.cursor = 'move';
-			    		}
-			    		
-			    		this.updateCurrentState(me);
+			    	this.startX = me.getGraphX();
+			    	this.startY = me.getGraphY();
+				    this.scrollLeft = graph.container.scrollLeft;
+				    this.scrollTop = graph.container.scrollTop;
+				    
+		    		if (this.currentLink == null && graph.container.style.overflow == 'auto')
+		    		{
+		    			graph.container.style.cursor = 'move';
+		    		}
+		    		
+		    		this.updateCurrentState(me);
 			    },
 			    mouseMove: function(sender, me)
 			    {
-				    	if (graph.isMouseDown)
-				    	{
-				    		if (this.currentLink != null)
-				    		{
-						    	var dx = Math.abs(this.startX - me.getGraphX());
-						    	var dy = Math.abs(this.startY - me.getGraphY());
-						    	
-						    	if (dx > tol || dy > tol)
-						    	{
-						    		this.clear();
-						    	}
-				    		}
-				    	}
-				    	else
-				    	{
-					    	// Checks for parent link
-					    	var linkNode = me.getSource();
+			    	if (graph.isMouseDown)
+			    	{
+			    		if (this.currentLink != null)
+			    		{
+					    	var dx = Math.abs(this.startX - me.getGraphX());
+					    	var dy = Math.abs(this.startY - me.getGraphY());
 					    	
-					    	while (linkNode != null && linkNode.nodeName.toLowerCase() != 'a')
+					    	if (dx > tol || dy > tol)
 					    	{
-					    		linkNode = linkNode.parentNode;
+					    		this.clear();
 					    	}
-					    	
-				    		if (linkNode != null)
-				    		{
-				    			this.clear();
-				    		}
-				    		else
-				    		{
-						    	if (this.currentState != null && (me.getState() == this.currentState || me.sourceState == null) &&
-						    		graph.intersects(this.currentState, me.getGraphX(), me.getGraphY()))
-						    	{
-					    			return;
-						    	}
-						    	
-						    	this.updateCurrentState(me);
-				    		}
-				    	}
-			    },
-			    mouseUp: function(sender, me)
-			    {
-				    	var source = me.getSource();
-				    	var evt = me.getEvent();
-				    	
+			    		}
+			    	}
+			    	else
+			    	{
 				    	// Checks for parent link
-				    	var linkNode = source;
+				    	var linkNode = me.getSource();
 				    	
 				    	while (linkNode != null && linkNode.nodeName.toLowerCase() != 'a')
 				    	{
 				    		linkNode = linkNode.parentNode;
 				    	}
 				    	
-				    	// Ignores clicks on links and collapse/expand icon
-				    	if (linkNode == null &&
-				    		(((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
-				        	Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
-				    		(me.sourceState == null || !me.isSource(me.sourceState.control))) &&
-				    		((mxEvent.isLeftMouseButton(evt) &&
-						!mxEvent.isPopupTrigger(evt)) ||
-				    		mxEvent.isTouchEvent(evt))))
-				    	{
-					    	if (this.currentLink != null)
+			    		if (linkNode != null)
+			    		{
+			    			this.clear();
+			    		}
+			    		else
+			    		{
+					    	if (this.currentState != null && (me.getState() == this.currentState || me.getState() == null) &&
+					    		graph.intersects(this.currentState, me.getGraphX(), me.getGraphY()))
 					    	{
-					    		var blank = graph.isBlankLink(this.currentLink);
-					    		
-					    		if ((this.currentLink.substring(0, 5) === 'data:' ||
-					    			!blank) && beforeClick != null)
-					    		{
-				    				beforeClick(evt, this.currentLink);
-					    		}
-					    		
-					    		if (!mxEvent.isConsumed(evt))
-					    		{
-						    		var target = (blank) ? graph.linkTarget : '_top';
-						    		graph.openLink(this.currentLink, target);
-						    		me.consume();
-					    		}
+				    			return;
 					    	}
-					    	else if (onClick != null && !me.isConsumed() &&
-				    			(Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
-				        		Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
-				        		(Math.abs(this.startX - me.getGraphX()) < tol &&
-				        		Math.abs(this.startY - me.getGraphY()) < tol))
-				        	{
-					    		onClick(me.getEvent());
+					    	
+					    	this.updateCurrentState(me);
+			    		}
+			    	}
+			    },
+			    mouseUp: function(sender, me)
+			    {
+			    	
+			    	var source = me.getSource();
+			    	var evt = me.getEvent();
+			    	
+			    	// Checks for parent link
+			    	var linkNode = source;
+			    	
+			    	while (linkNode != null && linkNode.nodeName.toLowerCase() != 'a')
+			    	{
+			    		linkNode = linkNode.parentNode;
+			    	}
+			    	
+			    	// Ignores clicks on links and collapse/expand icon
+			    	if (linkNode == null &&
+			    		(((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
+			        	Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
+			    		(me.getState() == null || !me.isSource(me.getState().control))) &&
+			    		((mxEvent.isLeftMouseButton(evt) &&
+					!mxEvent.isPopupTrigger(evt)) ||
+			    		mxEvent.isTouchEvent(evt))))
+			    	{
+				    	if (this.currentLink != null) 
+				    	{
+				    		var blank = graph.isBlankLink(this.currentLink);
+				    		
+				    		if ((this.currentLink.substring(0, 5) === 'data:' ||
+				    			!blank) && beforeClick != null)
+				    		{
+			    				beforeClick(evt, this.currentLink);
+				    		}
+				    		
+				    		if (!mxEvent.isConsumed(evt))
+				    		{
+					    		var target = (blank) ? graph.linkTarget : '_top';
+					    		
+					    		// Workaround for blocking in same iframe
+							if (target == '_self' && window != window.top)
+							{
+								window.location.href = this.currentLink;
+							}
+							else
+							{
+								// Avoids page reload for anchors (workaround for IE but used everywhere)
+								if (this.currentLink.substring(0, graph.baseUrl.length) == graph.baseUrl &&
+									this.currentLink.charAt(graph.baseUrl.length) == '#' &&
+									target == '_top' && window == window.top)
+								{
+									window.location.hash = this.currentLink.split('#')[1];
+								}
+								else
+								{
+									window.open(this.currentLink, target);
+								}
+							}
+					    		
+					    		me.consume();
 				    		}
 				    	}
-				    	
-				    	this.clear();
+				    	else if (onClick != null && !me.isConsumed() &&
+			    			(Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
+			        		Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
+			        		(Math.abs(this.startX - me.getGraphX()) < tol &&
+			        		Math.abs(this.startY - me.getGraphY()) < tol))
+			        	{
+				    		onClick(me.getEvent());
+			    		}
+			    	}
+			    	
+			    	this.clear();
 			    },
 			    activate: function(state)
 			    {
-				    	this.currentLink = graph.getAbsoluteUrl(graph.getLinkForCell(state.cell));
-	
-				    	if (this.currentLink != null)
-				    	{
-				    		graph.container.style.cursor = 'pointer';
-	
-				    		if (this.highlight != null)
-				    		{
-				    			this.highlight.highlight(state);
-				    		}
+			    	this.currentLink = graph.getAbsoluteUrl(graph.getLinkForCell(state.cell));
+
+			    	if (this.currentLink != null)
+			    	{
+			    		graph.container.style.cursor = 'pointer';
+
+			    		if (this.highlight != null)
+			    		{
+			    			this.highlight.highlight(state);
+			    		}
 				    }
 			    },
 			    clear: function()
 			    {
-				    	if (graph.container != null)
-				    	{
-				    		graph.container.style.cursor = cursor;
-				    	}
-				    	
-				    	this.currentState = null;
-				    	this.currentLink = null;
-				    	
-				    	if (this.highlight != null)
-				    	{
-				    		this.highlight.hide();
-				    	}
+			    	if (graph.container != null)
+			    	{
+			    		graph.container.style.cursor = cursor;
+			    	}
+			    	
+			    	this.currentState = null;
+			    	this.currentLink = null;
+			    	
+			    	if (this.highlight != null)
+			    	{
+			    		this.highlight.hide();
+			    	}
 			    }
 			};
 
@@ -5442,7 +5402,7 @@ if (typeof mxVertexHandler != 'undefined')
 				for (var i = 0; i < cells.length; i++)
 				{
 					var parent = model.getParent(cells[i]);
-					var child = this.moveCells([clones[i]], s, s, false)[0];
+					var child = this.moveCells([clones[i]], s, s, false, parent)[0]; 
 					select.push(child);
 					
 					if (append)
@@ -5451,7 +5411,7 @@ if (typeof mxVertexHandler != 'undefined')
 					}
 					else
 					{
-						// Maintains child index by inserting after clone in parent
+						// Maintains child index by inserting after cloned in parent
 						var index = parent.getIndex(cells[i]);
 						model.add(parent, clones[i], index + 1);
 					}

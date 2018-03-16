@@ -410,29 +410,34 @@ Draw.loadPlugin(function(ui) {
 	
 	function getBestWord(str1, words, useLevenshteinDist)
 	{
+		if (words == null || words.length == 0)
+		{
+			return str1;
+		}
+		
 		useLevenshteinDist = (useLevenshteinDist != null) ? useLevenshteinDist : true;
 		
 	    var bestWord = words[0];
 	    var minDist = ((useLevenshteinDist) ? levenshteinDist(str1, bestWord) :
-	    	naiveHammingDistance(str1, bestWord));
+	    		naiveHammingDistance(str1, bestWord));
 	    
 	    for (var i = 1; i < words.length; i++)
 	    {
-	    	var tmp = ((useLevenshteinDist) ? levenshteinDist(str1, words[i]) :
-	    		((str1 == words[i]) ? 0 : naiveHammingDistance(str1, words[i])));
-	    	
-	    	if (tmp < minDist || (tmp == minDist &&
-	    		str1.length > bestWord.length &&
-	    		bestWord.length < words[i].length))
-	    	{
-	    		bestWord = words[i];
-	    		minDist = tmp;
-	    	}
-	    	
-	    	if (bestWord == str1)
-	    	{
-	    		break;
-	    	}
+		    	var tmp = ((useLevenshteinDist) ? levenshteinDist(str1, words[i]) :
+		    		((str1 == words[i]) ? 0 : naiveHammingDistance(str1, words[i])));
+		    	
+		    	if (tmp < minDist || (tmp == minDist &&
+		    		str1.length > bestWord.length &&
+		    		bestWord.length < words[i].length))
+		    	{
+		    		bestWord = words[i];
+		    		minDist = tmp;
+		    	}
+		    	
+		    	if (bestWord == str1)
+		    	{
+		    		break;
+		    	}
 	    }
 	    
 	    return bestWord;
@@ -1734,7 +1739,7 @@ Draw.loadPlugin(function(ui) {
 		    	{
 		    		shapeList = [];
 		    		
-		    		for (var tmp in mxCellRenderer.prototype.defaultShapes)
+		    		for (var tmp in mxCellRenderer.defaultShapes)
 		    		{
 		    			shapeList.push(tmp.toLowerCase());
 		    		}
@@ -1776,11 +1781,11 @@ Draw.loadPlugin(function(ui) {
 			    		App.say('No cell for {1}', [shape]);
 			    	}
 			    	else if (vertices.length == 0)
-					{
+				{
 			    		App.say('Connections ignored');
-					}
+				}
 			    	else
-					{
+				{
 				    	// LATER: Add perimeter style etc
 			    		graph.setCellStyles(mxConstants.STYLE_SHAPE, shapenameToken, vertices);
 			    		ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_SHAPE],
@@ -1788,7 +1793,7 @@ Draw.loadPlugin(function(ui) {
 			    		
 			    		// Terminate
 			    		return true;
-					}
+				}
 		    	}
 				
 				// Lazy creation of cache for action names

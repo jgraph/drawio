@@ -392,7 +392,7 @@ public class GliffyObject implements PostDeserializable
 	@Override
 	public void postDeserialize()
 	{
-		if (isGroup()) 
+		if (isGroup() && hasChildren()) 
 		{
 			normalizeChildrenCoordinates();
 			adjustZOrder();			
@@ -406,6 +406,12 @@ public class GliffyObject implements PostDeserializable
 	 */
 	private void normalizeChildrenCoordinates()
 	{
+		//Sometimes, a group does not have children
+		if (!hasChildren())
+		{
+			return;
+		}
+		
 		//sorts the list to find the leftmost child and it's X
 		Comparator<GliffyObject> cx = new Comparator<GliffyObject>()
 		{
