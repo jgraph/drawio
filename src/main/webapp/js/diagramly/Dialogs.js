@@ -2832,7 +2832,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	var createButton = mxUtils.button(mxResources.get('create'), function()
 	{
+		createButton.setAttribute('disabled', 'disabled');
 		create();
+		createButton.removeAttribute('disabled');
 	});
 	
 	createButton.className = 'geBtn gePrimaryBtn';

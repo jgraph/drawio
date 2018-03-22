@@ -1,3 +1,10 @@
+21-MAR-2018: 8.4.8
+
+- Gliffy import improvements
+- Adds Cisco Safe Stencils
+- Adds top, left for CSV import
+- Uses mxGraph 3.9.4 beta 3
+
 15-MAR-2018: 8.4.7
 
 - Improves Gliffy import

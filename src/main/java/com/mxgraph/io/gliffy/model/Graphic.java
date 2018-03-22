@@ -45,6 +45,8 @@ public class Graphic
 		public Integer endArrow;
 
 		public String interpolationType;
+		
+		public Integer cornerRadius;
 
 		public List<float[]> controlPath = new ArrayList<float[]>();
 	}

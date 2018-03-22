@@ -520,7 +520,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			window.open(helpLink);
+			editorUi.editor.graph.openLink(helpLink);
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -780,7 +780,7 @@ var EditDiagramDialog = function(editorUi)
 			});
 			
 			window.openFile.setData(data, null);
-			window.open(editorUi.getUrl());
+			editorUi.editor.graph.openLink(editorUi.getUrl());
 		}
 		else if (select.value == 'replace')
 		{
@@ -1807,15 +1807,24 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		}
 	};
 	
-	mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
+	var resizeListener = mxUtils.bind(this, function()
 	{
 		var x = this.window.getX();
 		var y = this.window.getY();
 		
 		this.window.setLocation(x, y);
-	}));
-
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+	
 	var outline = editorUi.createOutline(this.window);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+		outline.destroy();
+	}
 
 	this.window.addListener(mxEvent.RESIZE, mxUtils.bind(this, function()
    	{
@@ -1948,7 +1957,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#a2a2a2' : '#e5e5e5';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#dcdcdc' : '#e5e5e5';
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -2457,7 +2466,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 90, 90);
+	this.window.minimumSize = new mxRectangle(0, 0, 120, 120);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);
@@ -2481,11 +2490,19 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		}
 	};
 	
-	mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
+	var resizeListener = mxUtils.bind(this, function()
 	{
 		var x = this.window.getX();
 		var y = this.window.getY();
 		
 		this.window.setLocation(x, y);
-	}));
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };

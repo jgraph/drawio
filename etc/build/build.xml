@@ -115,6 +115,7 @@
 				<file name="Sidebar-Bootstrap.js" />
 				<file name="Sidebar-BPMN.js" />
 				<file name="Sidebar-Cabinet.js" />
+				<file name="Sidebar-CiscoSafe.js" />
 				<file name="Sidebar-Citrix.js" />
 				<file name="Sidebar-EIP.js" />
 				<file name="Sidebar-Electrical.js" />

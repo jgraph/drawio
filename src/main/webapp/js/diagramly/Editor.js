@@ -95,11 +95,23 @@
 		'#          "style": "curved=1;endArrow=blockThin;endFill=1;fontSize=11;"}\n' +
 		'# connect: {"from": "refs", "to": "id", "style": "curved=1;fontSize=11;"}\n' +
 		'#\n' +
-		'## Node width. Possible value are px or auto. Default is auto.\n' +
+		'## Node x-coordinate. Possible value is a column name. Default is empty. Layouts will\n' +
+		'## override this value.\n' +
+		'#\n' +
+		'# left: \n' +
+		'#\n' +
+		'## Node y-coordinate. Possible value is a column name. Default is empty. Layouts will\n' +
+		'## override this value.\n' +
+		'#\n' +
+		'# top: \n' +
+		'#\n' +
+		'## Node width. Possible value is a number (in px), auto or an @ sign followed by a column\n' +
+		'## name that contains the value for the width. Default is auto.\n' +
 		'#\n' +
 		'# width: auto\n' +
 		'#\n' +
-		'## Node height. Possible value are px or auto. Default is auto.\n' +
+		'## Node height. Possible value is a number (in px), auto or an @ sign followed by a column\n' +
+		'## name that contains the value for the height. Default is auto.\n' +
 		'#\n' +
 		'# height: auto\n' +
 		'#\n' +
@@ -619,7 +631,7 @@
 			
 			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 			{
-				if (this.graph.mathEnabled)
+				if (this.graph.mathEnabled && this.graph.container.style.visibility != 'hidden')
 				{
 					Editor.MathJaxRender(this.graph.container);
 				}

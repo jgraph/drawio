@@ -29,6 +29,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	public Double lineTValue = 0.5;//places the text in the middle of the line
 
 	public Integer linePerpValue;
+	
+	public String cardinalityType;
 
 	public String overflow;
 	
@@ -201,6 +203,11 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		return null;
 	}
 
+	public void setHalign(String halign) 
+	{
+		this.halign = halign;
+	}	
+	
 	public void setValign(String valign) 
 	{
 		this.valign = valign;

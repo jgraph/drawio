@@ -239,7 +239,7 @@ if (lang != null)
 											// LATER: Disable responsive resize while lightbox shows
 											var container = document.createElement('div');
 											container.style.cssText = 'position:absolute;box-sizing:border-box;' +
-												'max-width:100%;margin-bottom:' + tbHeight +'px;border:1px solid transparent;';
+												'max-width:100%;border:1px solid transparent;';
 											document.body.appendChild(container);
 											var doc = mxUtils.parseXml(xml);
 											
@@ -281,6 +281,8 @@ if (lang != null)
 													width += 3;
 													updateContainerWidth.apply(this, arguments);
 												};
+
+												config.resize = true;
 											}
 											
 											var viewer = new GraphViewer(container, doc.documentElement, config);
@@ -290,7 +292,7 @@ if (lang != null)
 											
 											function updateHeight(height)
 											{
-												AP.resize('100%', (tbHeight == 0) ? Math.ceil(height) : container.offsetHeight + tbHeight);
+												AP.resize('100%', Math.ceil(height) + tbHeight + 2 * border);
 											};
 											
 											viewer.graph.doResizeContainer = function(width, height)
@@ -305,14 +307,14 @@ if (lang != null)
 												updateHeight(height);
 											};
 											
-											updateHeight();
+											updateHeight(container.offsetHeight);
 											
 											viewer.showLightbox = function()
 											{
 								                dialog.create(
 								                {
 								                    header: name,
-								                	key: 'lightbox',
+								                		key: 'lightbox',
 								                    size: 'fullscreen',
 								                    customData: {id: id, name: name, revision: revision, page: viewer.currentPage, links: links},
 								                    chrome: true

@@ -9144,6 +9144,8 @@
 	        		var identity = null;
 	        		var width = 'auto';
 	        		var height = 'auto';
+	        		var left = null;
+	        		var top = null;
 	        		var edgespacing = 40;
 	        		var nodespacing = 40;
 	        		var padding = 0;
@@ -9159,7 +9161,7 @@
 			    		graph.scrollCellToVisible(graph.getSelectionCell());
 	    			};
 	    				
-					// Computes unscaled, untranslated graph bounds
+	    			// Computes unscaled, untranslated graph bounds
 	    			var pt = graph.getFreeInsertPoint();
 				var x0 = pt.x;
 				var y0 = pt.y;
@@ -9227,6 +9229,14 @@
 			    				else if (key == 'height')
 			    				{
 			    					height = value;
+			    				}
+			    				else if (key == 'left' && value.length > 0)
+			    				{
+			    					left = value;
+			    				}
+			    				else if (key == 'top' && value.length > 0)
+			    				{
+			    					top = value;
 			    				}
 			    				else if (key == 'ignore')
 			    				{
@@ -9320,7 +9330,7 @@
 							
 							for (var j = 0; j < values.length; j++)
 					    		{
-									graph.setAttributeForCell(cell, keys[j], values[j]);
+								graph.setAttributeForCell(cell, keys[j], values[j]);
 					    		}
 							
 							graph.setAttributeForCell(cell, 'placeholders', '1');
@@ -9343,9 +9353,38 @@
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 							var size = this.editor.graph.getPreferredSizeForCell(cell);
 							
-							cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
-							cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
-							y += cell.geometry.height + nodespacing;
+							if (cell.vertex)
+							{
+								if (left != null && cell.getAttribute(left) != null)
+								{
+									cell.geometry.x = x0 + parseFloat(cell.getAttribute(left));
+								}
+	
+								if (top != null && cell.getAttribute(top) != null)
+								{
+									cell.geometry.y = y0 + parseFloat(cell.getAttribute(top));
+								}
+								
+								if (width.charAt(0) == '@' && cell.getAttribute(width.substring(1)) != null)
+								{
+									cell.geometry.width = parseFloat(cell.getAttribute(width.substring(1)));
+								}
+								else
+								{
+									cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
+								}
+
+								if (height.charAt(0) == '@' && cell.getAttribute(height.substring(1)) != null)
+								{
+									cell.geometry.height = parseFloat(cell.getAttribute(height.substring(1)));
+								}
+								else
+								{
+									cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
+								}
+								
+								y += cell.geometry.height + nodespacing;
+							}
 	
 							cells.push(graph.addCell(cell));
 			    			}

@@ -163,7 +163,7 @@ App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 /**
  * Sets URL to load the Dropbox SDK from
  */
-App.DROPBOX_URL = 'https://unpkg.com/dropbox@2.5.13/dist/Dropbox-sdk.min.js';
+App.DROPBOX_URL = 'js/dropbox/Dropbox-sdk.min.js';
 
 /**
  * Sets the delay for autosave in milliseconds. Default is 2000.
@@ -195,8 +195,9 @@ App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
  * https://desk.draw.io/solution/articles/16000042546
  */
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
-	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js', 'ac': '/plugins/connect.js',
-	'acj': '/plugins/connectJira.js', 'voice': '/plugins/voice.js',
+	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js',
+	'ac': '/plugins/connect.js', 'acj': '/plugins/connectJira.js',
+	'ac148': '/plugins/cConf-1-4-8.js', 'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'doors': '/plugins/doors.js', 'electron': 'plugins/electron.js',
 	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',

@@ -451,3 +451,126 @@ Graph.handleFactory[mxShapeBasicIsoCube.prototype.cst.ISO_CUBE] = function(state
 			
 	return handles;
 };
+
+//**********************************************************************************************************************************************************
+//Acute Triangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicTriangleAcute(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicTriangleAcute, mxActor);
+
+mxShapeBasicTriangleAcute.prototype.cst = {ACUTE_TRIANGLE : 'mxgraph.basic.acute_triangle'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicTriangleAcute.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = w * Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+	
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(dx, 0);
+	c.lineTo(w, h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicTriangleAcute.prototype.cst.ACUTE_TRIANGLE, mxShapeBasicTriangleAcute);
+
+mxShapeBasicTriangleAcute.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicTriangleAcute.prototype.cst.ACUTE_TRIANGLE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx * bounds.width, bounds.y + 10);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width))) / 100;
+	})];
+
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Obtuse Triangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicTriangleObtuse(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicTriangleObtuse, mxActor);
+
+mxShapeBasicTriangleObtuse.prototype.cst = {OBTUSE_TRIANGLE : 'mxgraph.basic.obtuse_triangle'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicTriangleObtuse.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = w * Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+	
+	c.begin();
+	c.moveTo(dx, h);
+	c.lineTo(0, 0);
+	c.lineTo(w, h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicTriangleObtuse.prototype.cst.OBTUSE_TRIANGLE, mxShapeBasicTriangleObtuse);
+
+mxShapeBasicTriangleObtuse.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicTriangleObtuse.prototype.cst.OBTUSE_TRIANGLE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx * bounds.width, bounds.y + bounds.height - 10);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width))) / 100;
+	})];
+
+	return handles;
+};
+
