@@ -406,7 +406,7 @@ GraphViewer.prototype.addSizeHandler = function()
 			updatingOverflow = true;
 			var tmp = this.graph.getGraphBounds();
 			
-			if (container.offsetWidth < tmp.width + this.graph.border)
+			if (container.offsetWidth <= tmp.width + 2 * this.graph.border * this.graph.view.scale)
 			{
 				container.style.overflow = 'auto';
 			}
@@ -504,7 +504,7 @@ GraphViewer.prototype.addSizeHandler = function()
 	
 	if (this.graphConfig.resize || ((this.zoomEnabled || !this.autoFit) && this.graphConfig.resize != false))
 	{
-		this.graph.minimumContainerSize = new mxRectangle(0, 0, 100, this.toolbarHeight);
+		this.graph.minimumContainerSize = new mxRectangle(0, 0, 100, 1);
 		this.graph.resizeContainer = true;
 	}
 	else

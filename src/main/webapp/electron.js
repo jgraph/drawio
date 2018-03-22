@@ -20,7 +20,6 @@ function createWindow (opt = {})
 	{
 		width: 1600,
 		height: 1200,
-		nodeIntegration: false,
 		'web-security': false,
 		allowRunningInsecureContent: __DEV__,
 		webPreferences: {

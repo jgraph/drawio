@@ -63,6 +63,11 @@
 	/**
 	 *
 	 */
+	Sidebar.prototype.cisco_safe = ['Architecture', 'Capability', 'Design', 'Threat'];
+	
+	/**
+	 *
+	 */
 	Sidebar.prototype.sysml = ['Model Elements', 'Blocks', 'Ports and Flows', 'Constraint Blocks', 'Activities', 'Interactions', 'State Machines', 
 	                           'Use Cases', 'Allocations', 'Requirements', 'Profiles', 'Stereotypes'];
 
@@ -137,6 +142,7 @@
            	                           {id: 'aws3', prefix: 'aws3', libs: Sidebar.prototype.aws3},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
+           	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
            	                           {id: 'office', prefix: 'office', libs: Sidebar.prototype.office},
            	                           {id: 'veeam', prefix: 'veeam', libs: Sidebar.prototype.veeam},
            	                           {id: 'cabinets', libs: ['cabinets']},
@@ -351,6 +357,7 @@
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
+            			          {title: 'Cisco Safe', id: 'cisco_safe', image: IMAGE_PATH + '/sidebar-cisco_safe.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
             			          {title: 'Google Cloud Platform', id: 'gcp', image: IMAGE_PATH + '/sidebar-gcp.png'},
             			          {title: 'IBM', id: 'ibm', image: IMAGE_PATH + '/sidebar-ibm.png'},
@@ -631,6 +638,7 @@
 		var rack = this.rack;
 		var pids = this.pids;
 		var cisco = this.cisco;
+		var cisco_safe = this.cisco_safe;
 		var sysml = this.sysml;
 		var eip = this.eip;
 		var gmdl = this.gmdl;
@@ -937,6 +945,7 @@
 				';html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;', null, null, 1.6);
 		}
 
+		this.addCiscoSafePalette();
 		this.addFloorplanPalette();
 		this.addAtlassianPalette();
 		this.addBootstrapPalette();

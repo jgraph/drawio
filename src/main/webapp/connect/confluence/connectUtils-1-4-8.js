@@ -98,7 +98,7 @@ AC.initAsync = function(baseUrl)
 	editor.setAttribute('frameborder', '0');
 	//editor.setAttribute('src', 'https://9674265b.ngrok.io/?dev=1&drawdev=1&' +
 	editor.setAttribute('src', hostUrl + '/?' +
-			'ui=atlas&p=ac&embed=1&modified=unsavedChanges' +
+			'ui=atlas&p=ac148&embed=1&modified=unsavedChanges' +
 			((!AC.autoExit) ? '&saveAndExit=1' : '') +
 			'&keepmodified=1&spin=1&libraries=1&proto=json' +
 		((lang != null) ? '&lang=' + lang : '') + ((site != null) ? '&site=' + encodeURIComponent(site) : '') +
@@ -588,7 +588,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							
 							if (fileExists)
 							{
-								err(name, null, 'fileExists');
+								err(name, name + ' already exists');
 							}
 							else
 							{

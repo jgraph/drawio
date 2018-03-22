@@ -376,7 +376,7 @@ EditorUi.prototype.initPages = function()
 		if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
 		{
 			// Pending math should not be rendered if the graph has no math enabled
-			if (!ignorePendingMath)
+			if (!ignorePendingMath && this.editor != null)
 			{
 				if (MathJax.Hub.queue.pending == 1 && !this.editor.graph.mathEnabled)
 				{
@@ -394,7 +394,7 @@ EditorUi.prototype.initPages = function()
 				}));
 			}
 		}
-		else if (typeof(Editor.MathJaxClear) !== 'undefined' && !this.editor.graph.mathEnabled)
+		else if (typeof(Editor.MathJaxClear) !== 'undefined' && (this.editor == null || !this.editor.graph.mathEnabled))
 		{
 			// Clears our own queue for async loading
 			ignorePendingMath = true;

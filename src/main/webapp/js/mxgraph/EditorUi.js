@@ -1321,8 +1321,6 @@ EditorUi.prototype.initClipboard = function()
  */
 EditorUi.prototype.initCanvas = function()
 {
-	var graph = this.editor.graph;
-
 	// Initial page layout view, scrollBuffer and timer-based scrolling
 	var graph = this.editor.graph;
 	graph.timerAutoScroll = true;
@@ -1717,7 +1715,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					else
 					{
-						window.open(this.editor.editButtonLink, 'editWindow');
+						graph.openLink(this.editor.editButtonLink, 'editWindow');
 					}
 					
 					mxEvent.consume(evt);
@@ -2009,8 +2007,7 @@ EditorUi.prototype.initCanvas = function()
 	{
 		// Ctrl+wheel (or pinch on touchpad) is a native browser zoom event is OS X
 		// LATER: Add support for zoom via pinch on trackpad for Chrome in OS X
-		if ((mxEvent.isAltDown(evt) || (mxEvent.isControlDown(evt) && !mxClient.IS_MAC) ||
-			graph.panningHandler.isActive()) && (this.dialogs == null || this.dialogs.length == 0))
+		if ((this.dialogs == null || this.dialogs.length == 0) && graph.isZoomWheelEvent(evt))
 		{
 			var source = mxEvent.getSource(evt);
 			
@@ -3008,6 +3005,10 @@ EditorUi.prototype.createDivs = function()
 	{
 		this.tabContainer = this.createTabContainer();
 	}
+	else
+	{
+		this.diagramContainer.style.border = 'none';
+	}
 };
 
 /**
@@ -3864,7 +3865,9 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	// Alt+Shift+Keycode mapping to action
 	var altShiftActions = {67: this.actions.get('clearWaypoints'), // Alt+Shift+C
 						  65: this.actions.get('connectionArrows'), // Alt+Shift+A
-						  80: this.actions.get('connectionPoints') // Alt+Shift+P
+						  76: this.actions.get('editLink'), // Alt+Shift+L
+						  80: this.actions.get('connectionPoints'), // Alt+Shift+P
+						  84: this.actions.get('editTooltip') // Alt+Shift+T
 	};
 	
 	mxKeyHandler.prototype.getFunction = function(evt)

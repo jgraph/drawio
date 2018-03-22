@@ -435,6 +435,13 @@ mxBpmnShape.prototype.symbols = {
 			c.rect(0, 0, w, h);
 			c.fillAndStroke();
 
+			var fc = mxUtils.getValue(this.style, "fillColor", "none");
+
+			if (fc === 'none')
+			{
+				c.setStrokeColor('#ffffff');
+			}
+			
 			c.begin();
 			c.moveTo(0, 0);
 			c.lineTo(w * 0.5, h * 0.5);

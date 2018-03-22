@@ -426,7 +426,9 @@ public class GliffyDiagramConverter
 			// Do not add constraint for orthogonal edges
 			if (addConstraint(object, startTerminal, true, orthogonal))
 			{
-				mxPoints.remove(p0);
+				//Removing the point resulted in incorrect edges
+				//TODO confirm nothing is affected from this change
+				//mxPoints.remove(p0);
 			}
 		}
 
@@ -440,7 +442,9 @@ public class GliffyDiagramConverter
 			// Do not add constraint for orthogonal edges
 			if (addConstraint(object, endTerminal, false, orthogonal))
 			{
-				mxPoints.remove(pe);
+				//Removing the point resulted in incorrect edges
+				//TODO confirm nothing is affected from this change
+				//mxPoints.remove(pe);
 			}
 		}
 		
@@ -646,8 +650,11 @@ public class GliffyDiagramConverter
 						style.append("pointerEvents=0;");
 					
 				}
-				if(style.lastIndexOf("strokeColor") == -1)
-					style.append("strokeColor=" + shape.strokeColor).append(";");
+				if(style.lastIndexOf("strokeColor") == -1) 
+				{
+					String strokeClr = gliffyObject.isUseFillColor4StrokeColor()? shape.fillColor: shape.strokeColor;
+					style.append("strokeColor=" + strokeClr).append(";");
+				}
 				
 				if (style.lastIndexOf("gradient") == -1 && shape.gradient && !gliffyObject.isGradientIgnored())
 				{
@@ -655,7 +662,7 @@ public class GliffyDiagramConverter
 				}
 
 				// opacity value is wrong for venn circles, so ignore it and use the one in the mapping
-				if (!gliffyObject.isVennCircle())
+				if (!gliffyObject.isVennCircle() && style.lastIndexOf("opacity") == -1)
 				{
 					style.append("opacity=" + shape.opacity * 100).append(";");
 				}
@@ -679,6 +686,7 @@ public class GliffyDiagramConverter
 				style.append("fillColor=" + line.fillColor).append(";");
 				style.append(ArrowMapping.get(line.startArrow).toString(true)).append(";");
 				style.append(ArrowMapping.get(line.endArrow).toString(false)).append(";");
+				style.append("rounded=" + (line.cornerRadius != null? "1" : "0")).append(";");
 				style.append(DashStyleMapping.get(line.dashStyle, line.strokeWidth));
 				style.append(LineMapping.get(line.interpolationType));
 
@@ -705,12 +713,59 @@ public class GliffyDiagramConverter
 						 * The equation that translates Gliffy offset to draw.io offset is : G*2 - 1 = D 
 						 */
 						mxGeometry mxGeo = new mxGeometry(graphic.Text.lineTValue != null ? graphic.Text.lineTValue * 2 -1 : 0, 0, 0, 0);
-						mxGeo.setOffset(new mxPoint());
+						
+						float lblY = 0, lblX = 0;
+						if (graphic.Text.linePerpValue != null) 
+						{
+							List<float[]> controlPath = gliffyObject.parent.graphic.Line.controlPath;
+							
+							if (controlPath != null && controlPath.size() >= 2)
+							{
+								int i1 = 0, i2 = controlPath.size() - 1;
+								boolean noCardinal = false;
+								if ("begin".equals(graphic.Text.cardinalityType)) 
+								{
+									i2 = 1;
+								}
+								else if ("end".equals(graphic.Text.cardinalityType)) 
+								{
+									i1 = controlPath.size() - 2;
+								}
+								else
+								{
+									noCardinal = true;
+								}
+								
+								if (noCardinal || (controlPath.get(i1)[1] == controlPath.get(i2)[1]))
+								{
+									lblY = graphic.Text.linePerpValue;
+									if (controlPath.get(i1)[0] - controlPath.get(i2)[0] > 0)
+									{
+										lblY = -lblY;										
+									}
+								}
+								else
+								{
+									lblX = graphic.Text.linePerpValue;
+									if (controlPath.get(i1)[1] - controlPath.get(i2)[1] < 0)
+									{
+										lblX = -lblX;
+									}
+								}
+							}
+						}
+						mxGeo.setOffset(new mxPoint(lblX, lblY));
 						cell.setGeometry(mxGeo);
 						
 						style.append("labelBackgroundColor=" + gliffyDiagram.stage.getBackgroundColor()).append(";");
 						//should we force horizontal align for text on lines?
+						//Most probably yes, as extracting alignment from html messes with some cases [set halign to null later]
 						//style.append("align=center;");
+						
+						//This is a workaround for edges as its label offset is incorrect when alignment is set. It should be handled in a better way
+						//HTML text-align is not mapped to halign for edges
+						//TODO Enhance edge's label positioning
+						gliffyObject.graphic.getText().setHalign(null);
 					}
 					else 
 					{
