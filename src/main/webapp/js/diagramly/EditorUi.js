@@ -6706,6 +6706,12 @@
 			pageLinkClicked(evt.getProperty('href'));
 		});
 		
+		// Sets help link for placeholders
+		if (!this.isOffline() && typeof window.EditDataDialog !== 'undefined')
+		{
+			EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
+		}
+		
 		// Passes current page to editor window
 		var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
 		

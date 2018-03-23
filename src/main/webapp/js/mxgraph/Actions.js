@@ -261,7 +261,7 @@ Actions.prototype.init = function()
 		if (cell != null)
 		{
 			var dlg = new EditDataDialog(ui, cell);
-			ui.showDialog(dlg.container, 320, 320, true, false, null, false);
+			ui.showDialog(dlg.container, 340, 340, true, false, null, false);
 			dlg.init();
 		}
 	}, null, null, Editor.ctrlKey + '+M');
