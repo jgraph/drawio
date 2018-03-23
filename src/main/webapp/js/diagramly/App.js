@@ -64,12 +64,6 @@ App = function(editor, container, lightbox)
 		
 		this.handleError(message);
 	});
-	
-	// Sets help link for placeholders
-	if (!this.isOffline())
-	{
-		EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
-	}
 
 	// Handles opening files via drag and drop
 	if (!this.editor.chromeless || this.editor.editable)

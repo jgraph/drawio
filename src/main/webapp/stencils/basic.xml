@@ -586,6 +586,20 @@
 <fillstroke/>
 </foreground>
 </shape>
+<shape aspect="variable" h="100" name="Pointed Oval" strokewidth="inherit" w="50.93">
+    <connections/>
+    <background>
+        <path>
+            <move x="25.46" y="0"/>
+            <arc large-arc-flag="0" rx="75" ry="75" sweep-flag="0" x="25.46" x-axis-rotation="0" y="100"/>
+            <arc large-arc-flag="0" rx="75" ry="75" sweep-flag="0" x="25.46" x-axis-rotation="0" y="0"/>
+            <close/>
+        </path>
+    </background>
+    <foreground>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape name="Rectangular Callout" h="60" w="98" aspect="variable" strokewidth="inherit">
 <connections>
 <constraint x="0.5" y="0" perimeter="0" name="N"/>

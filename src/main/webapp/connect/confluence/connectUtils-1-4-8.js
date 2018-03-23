@@ -1054,7 +1054,10 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 					{
 						var resp = null;
 						var revision = '1';
-
+						var contentId = null;
+						var contentVer = null;
+						
+						//TODO Why this code (Is it expected to have incorrect responseText?)
 						try
 						{
 							resp = JSON.parse(responseText);
@@ -1069,7 +1072,25 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//TODO Is prev comment still needed with REST API?
 						if (resp != null && resp.results != null && resp.results[0])
 						{
-							revision = resp.results[0].version.number;
+							var attObj = resp.results[0];
+							revision = attObj.version.number;
+							//Save/update the custom content
+							var spaceKey = AC.getSpaceKey(attObj._expandable.space);
+							var pageType = attObj.container.type;
+
+							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, 
+									(drawMsg.macroData != null) ? drawMsg.macroData.contentId  : null,
+									(drawMsg.macroData != null) ? drawMsg.macroData.contentVer : null,
+									function(responseText) 
+									{
+										var content = JSON.parse(responseText);
+										
+										contentId = content.id;
+										contentVer = content.version.number;
+										
+										AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+												successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
+									}, saveError);
 						}
 						else
 						{
@@ -1087,6 +1108,10 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							{
 								// do nothing
 							}
+							
+							//TODO Save png here in case responseText is incorrect (But why it can be incorrect?)
+							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+									successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
 						}
 
 						function successPng(pngResponseText) 
@@ -1098,6 +1123,8 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									diagramName: diagramName,
 									revision: revision,
 									pageId: newPage ? null : pageId,
+									contentId: contentId,
+									contentVer: contentVer,
 									baseUrl: baseUrl,
 									width: diaWidth,
 									height: diaHeight,
@@ -1127,12 +1154,6 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									titleKey: 'errorSavingFile', message: e.message, buttonKey: 'ok'}), '*');
 							}
 						};
-
-						if (diagramName != null) 
-						{
-							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
-								successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
-						}
 					};
 
 					if (diagramName != null) 

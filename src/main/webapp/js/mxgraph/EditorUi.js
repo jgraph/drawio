@@ -865,7 +865,10 @@ EditorUi = function(editor, container, lightbox)
    	{
    		window.setTimeout(mxUtils.bind(this, function()
    		{
-   			this.refresh();
+   			if (this.editor.graph != null)
+   			{
+   				this.refresh();
+   			}
    		}), 0);
    	});
 	
