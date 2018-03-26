@@ -2999,14 +2999,32 @@ EditorUi.prototype.createDivs = function()
 	this.hsplit.style.width = this.splitSize + 'px';
 	this.sidebarFooterContainer = this.createSidebarFooterContainer();
 	
+	// LMP -- rightclick/contextmenu click listener that provides default no-behavior
+	var linkHandler = function(evt)
+	{
+		// Source Event for context decoding
+		// var source = mxEvent.getSource(evt);
+
+		// Consume event
+		mxEvent.consume(evt);
+	};
+	mxEvent.addListener(	this.sidebarContainer, 'contextmenu', linkHandler);
+	mxEvent.addListener(	this.formatContainer, 'contextmenu', linkHandler);
+	mxEvent.addListener(	this.menubarContainer, 'contextmenu', linkHandler);
+	mxEvent.addListener(	this.toolbarContainer, 'contextmenu', linkHandler);
+	mxEvent.addListener(	this.hsplit, 'contextmenu', linkHandler);
+	mxEvent.addListener(	this.footerContainer, 'contextmenu', linkHandler);
+
 	if (this.sidebarFooterContainer)
 	{
 		this.sidebarFooterContainer.style.left = '0px';
+		mxEvent.addListener(	this.sidebarFooterContainer, 'contextmenu', linkHandler); // LMP
 	}
 	
 	if (!this.editor.chromeless)
 	{
 		this.tabContainer = this.createTabContainer();
+		mxEvent.addListener(	this.tabContainer, 'contextmenu', linkHandler); // LMP
 	}
 	else
 	{

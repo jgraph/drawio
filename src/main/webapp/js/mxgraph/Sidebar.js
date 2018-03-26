@@ -887,6 +887,15 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	var outer = document.createElement('div');
     outer.appendChild(div);
     this.container.appendChild(outer);
+	// LMP -- rightclick/contextmenu click listener that provides default no-behavior
+	var linkHandler = function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+		console.info( '+++ Source of right-click is ... ' + source );
+		mxEvent.consume(evt);
+	};
+	mxEvent.addListener(outer, 'contextmenu', linkHandler);
+
 	
     // Keeps references to the DOM nodes
 	this.palettes['search'] = [elt, outer];
