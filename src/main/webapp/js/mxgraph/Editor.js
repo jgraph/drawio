@@ -776,6 +776,15 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll)
 	div.appendChild(elt);
 	document.body.appendChild(div);
 	
+	// LMP -- rightclick/contextmenu click listener that provides default no-behavior
+	var linkHandler = function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+		console.info( '+++ Generic BG : Source of right-click is ... ' + source );
+		mxEvent.consume(evt);
+	};
+	mxEvent.addListener(	div, 'contextmenu', linkHandler);
+
 	// Adds vertical scrollbars if needed
 	if (!noScroll && elt.clientHeight > div.clientHeight - 64)
 	{

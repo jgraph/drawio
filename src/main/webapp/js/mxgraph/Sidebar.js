@@ -887,6 +887,15 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	var outer = document.createElement('div');
     outer.appendChild(div);
     this.container.appendChild(outer);
+	// LMP -- rightclick/contextmenu click listener that provides default no-behavior
+	var linkHandler = function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+		console.info( '+++ Source of right-click is ... ' + source );
+		mxEvent.consume(evt);
+	};
+	mxEvent.addListener(outer, 'contextmenu', linkHandler);
+
 	
     // Keeps references to the DOM nodes
 	this.palettes['search'] = [elt, outer];
@@ -3285,12 +3294,12 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 		div.style.display = 'none';
 	}
 	
-    this.addFoldingHandler(elt, div, onInit);
+    this.addFoldingHandler(id, elt, div, onInit); // LMP: Add folding handler parameter so it can delist library from stc list
 	
 	var outer = document.createElement('div');
-    outer.appendChild(div);
-    this.container.appendChild(outer);
-    
+	outer.appendChild(div);
+	this.container.appendChild(outer);
+
     // Keeps references to the DOM nodes
     if (id != null)
     {
@@ -3303,7 +3312,7 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 /**
  * Create the given title element.
  */
-Sidebar.prototype.addFoldingHandler = function(title, content, funct)
+Sidebar.prototype.addFoldingHandler = function(id, title, content, funct) // LMP: Added id to allow removal from stc list 
 {
 	var initialized = false;
 
@@ -3316,6 +3325,67 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	
 	title.style.backgroundRepeat = 'no-repeat';
 	title.style.backgroundPosition = '0% 50%';
+
+	// LMP: Add "X" Button to allow removal of libraries from sidebar
+
+	// Alignment for the sake of the buttons
+	title.style.position = 'relative';
+
+	// Create button container
+	var buttons = document.createElement('div');
+	buttons.style.position = 'absolute';
+	buttons.style.right = '0px';
+	buttons.style.top = '5px';
+
+	// Add close button image to container 
+	var btn = document.createElement('img');
+	btn.setAttribute('src', Dialog.prototype.closeImage);
+	btn.setAttribute('title', mxResources.get('close'));
+	btn.setAttribute('align', 'top');
+	btn.setAttribute('border', '0');
+	btn.className = 'geButton';
+	btn.style.marginRight = '1px';
+	btn.style.marginTop = '-1px';
+	buttons.appendChild(btn);
+
+	// Add listener to the button
+	mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
+		{
+			mxEvent.consume(evt);
+
+			title.style.display='none';
+			content.style.display= 'none'
+
+			// Remove from saved settings
+			var libs = mxSettings.getLibraries();
+			var tmp = libs.split(';');
+			var stc = '';
+			for (var i = 0; i < tmp.length; i++)
+			{
+				if( tmp[i] == id )
+				{
+					// console.info( 'Remove: '+ id );
+				}
+				else
+				{
+					if( stc == '' ) stc = tmp[i] ;
+					else stc = stc + ';' + tmp[i] ;
+					// console.info( 'Keep: '+ tmp[i] );
+				}
+			}
+
+			// 
+			mxSettings.setLibraries(stc);
+
+			// Save the remove of the event
+			mxSettings.save();
+
+		}
+	) );
+
+	title.appendChild(buttons);
+
+	// LMP: End Add "X" Button
 
 	mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
 	{
