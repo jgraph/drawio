@@ -1,3 +1,13 @@
+31-MAR-2018: 8.5.2
+
+- Add mass gliffy import in Confluence Cloud
+- Fixes importing Gliffy sitemap stencils
+- Adds workaround for Confluence Cloud saveMacro problem
+
+28-MAR-2018: 8.5.1
+
+- Confluence Cloud integration improvements
+
 23-MAR-2018: 8.5.0
 
 - Adds shapes in Basic sidebar

@@ -1172,15 +1172,103 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 	});
 };
 
-AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1) {
+AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1, dontCheckVer) {
 	// TODO: Get binary
 	
-	AP.require('request', function(request) {
+	AP.require(['request', 'confluence'], function(request, confluence) {
+		//Confirm that the macro is in sync with the diagram
+		//Sometimes the diagram is saved but the macro is not updated
+		var attInfo = null;
+		var pageInfo = null;
+		
+		function confirmDiagramInSync()
+		{
+			if (attInfo == null || pageInfo == null) 
+				return;
+			
+			//TODO is this condition enough or we need to check timestamps also?
+			if (attInfo.version.number > revision 
+					&& (pageInfo.version.message == null || pageInfo.version.message.indexOf("Reverted") < 0)) 
+			{
+				AC.loadDiagram(pageId, diagramName, attInfo.version.number, success, error, owningPageId, tryRev1, true);
+				//Update the macro
+				//Custom Content version will be fixed on next save, this will not affect correctness 
+				confluence.getMacroData(function (macroData) 
+		    	{
+					if (macroData != null) 
+					{
+						confluence.saveMacro(
+						{
+							diagramName: macroData.diagramName,
+							revision: attInfo.version.number,
+							pageId: macroData.pageId,
+							contentId: macroData.contentId,
+							contentVer: macroData.contentVer,
+							baseUrl: macroData.baseUrl,
+							width: macroData.width,
+							height: macroData.height,
+							tbstyle: macroData.tbstyle,
+							links: macroData.links,
+							lbox: macroData.lbox != null ? macroData.lbox : '1',
+							zoom: macroData.zoom != null ? macroData.zoom : '1'
+						});
+					}
+		    	});
+			}
+		}
+		
+		//To avoid race we do the version check after loading the diagram in the macro 
+		var localSuccess = function()
+		{
+			success.apply(this, arguments);
+			
+			if (!dontCheckVer && revision != null)
+			{
+	            request({
+	                type: 'GET',
+	                url: '/rest/api/content/' + pageId + '?expand=version',
+	                contentType: 'application/json;charset=UTF-8',
+	                success: function (resp) 
+	                {
+	                	pageInfo = JSON.parse(resp);
+	                    
+	                	confirmDiagramInSync();
+	                },
+	                error: function (resp) 
+	                {
+	                    //Ignore
+	                }
+	            });
+	
+	            request({
+	                type: 'GET',
+	                url: '/rest/api/content/' + pageId + '/child/attachment?filename=' + 
+	                		encodeURIComponent(diagramName) + '&expand=version',
+	                contentType: 'application/json;charset=UTF-8',
+	                success: function (resp) 
+	                {
+	                	var tmp = JSON.parse(resp);
+	                    
+	                	if (tmp.results && tmp.results.length == 1)
+	                	{
+	                		attInfo = tmp.results[0];
+	                	}
+	                	
+	                	confirmDiagramInSync();
+	                },
+	                error: function (resp) 
+	                {
+	                    //Ignore
+	                }
+	            });
+			}
+		}
+		
 		request({
 			//TODO find out the ID of the page that actually holds the attachments because historical revisions do not have attachments
 			url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName) +
 				((revision != null) ? '?version=' + revision : ''),
-			success: success,
+			success: localSuccess,
 			error : function(resp) 
 			{
 				//When a page is copied, attachments are reset to version 1 while the revision parameter remains the same
@@ -1188,14 +1276,14 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 				{
 					request({
 						url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName),
-						success: success,
+						success: localSuccess,
 						error : function(resp) { //If revesion 1 failed, then try the owningPageId
 							if (owningPageId && resp.status == 404)
 							{
 								request({
 									url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName)
 										+'?version=' + revision, //this version should exists in the original owning page
-									success: success,
+									success: localSuccess,
 									error : error
 								});
 							}
@@ -1206,7 +1294,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 				{
 					request({
 						url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName),
-						success: success,
+						success: localSuccess,
 						error : error
 					});
 				}
@@ -1268,6 +1356,18 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
                {
                    AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, null, null, success, error);
                }
+               //Sometimes the macro is not updated such that the version is not correct. The same happens when a page version is restored
+               else if (err.statusCode == 409 && err.message.indexOf("Current version is:") > 0)
+        	   {
+            	   //We will use the error message to detect the correct version instead of doing another request. 
+            	   //It should be safe as long as error messages are not translated or changed
+            	   var curContentVer = err.message.match(/\d+/);
+            	   
+            	   if (curContentVer != null)
+        		   {
+            		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, contentId, curContentVer[0], success, error);
+        		   }
+        	   }
                else
                {
                    error(resp);

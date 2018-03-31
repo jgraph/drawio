@@ -121,9 +121,32 @@ public class GliffyObject implements PostDeserializable
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.home");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.gliffy");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.form");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.shopping_cart");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.text");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.video");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.upload");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.slideshow");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.sitemap");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.settings");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.search");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.script");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.print");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.pricing");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.photo");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.map");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.login");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.game");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.gallery");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.download");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.document");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.chat");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.calendar");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.audio");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.profile");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.error");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.success");
+		GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.cloud");
 
-		/*GRAPHICLESS_SHAPES.add("com.gliffy.shape.sitemap.sitemap_v2.page");
-		*/
 
 		GROUP_SHAPES.add("com.gliffy.shape.basic.basic_v1.default.group");
 		GROUP_SHAPES.add("com.gliffy.shape.erd.erd_v1.default.entity_with_attributes");

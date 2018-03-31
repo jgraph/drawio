@@ -156,8 +156,8 @@ Draw.loadPlugin(function(ui)
 		
 		if (td != null)
 		{
-			td.innerHTML = '<a title="faq" href="https://marketplace.atlassian.com/plugins/com.mxgraph.confluence.plugins.diagramly/cloud/reviews" target="_blank">' +
-			'<img border="0" align="absmiddle" style="margin-top:-4px;"/>Enjoying this free plugin? Please help us to 4 stars.</a>';
+			td.innerHTML = '<a title="faq" href="/wiki/plugins/servlet/upm" target="_blank">' +
+			'<img border="0" align="absmiddle" style="margin-top:-4px;"/>Please license draw.io to enable all functionality</a>';
 		}
 		
 		td = document.getElementById('geFooterItem1');	
@@ -173,23 +173,5 @@ Draw.loadPlugin(function(ui)
 		{
 			td.parentNode.removeChild(td);
 		}
-	}
-	
-	var lang = urlParams['lang'];
-	var site = urlParams['site'];
-	var user = urlParams['user'];
-	
-	try
-	{
-		var img = new Image();
-		img.src = 'https://log.draw.io/log?severity=CONFIG&msg=conf-cloud-edit' +
-				((lang != null) ? ':lang=' + encodeURIComponent(lang) : '') + 
-				((site != null) ? ':site=' + encodeURIComponent(site) : '') + 
-				((user != null) ? ':user=' + encodeURIComponent(user) : '') +
-				'&v=' + encodeURIComponent(EditorUi.VERSION);
-	}
-	catch (e)
-	{
-		// not important, just don't break editing because of a log
 	}
 });

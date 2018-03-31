@@ -233,11 +233,19 @@ if (lang != null)
 										}
 										else
 										{
+											//In case we want to load another diagram
+											var oldContainer = document.getElementById("drawIODiagram");
+											
+											if (oldContainer != null)
+											{
+												oldContainer.parentNode.removeChild(oldContainer);
+											}
 											// LATER: Fix horizontal alignment ignored with 100% width of iframe
 											// LATER: Fix page scrolling on touch device if trigger event on diagram
 											// LATER: Hide toolbar after second container click for iOS
 											// LATER: Disable responsive resize while lightbox shows
 											var container = document.createElement('div');
+											container.id = "drawIODiagram";
 											container.style.cssText = 'position:absolute;box-sizing:border-box;' +
 												'max-width:100%;border:1px solid transparent;';
 											document.body.appendChild(container);
@@ -322,6 +330,68 @@ if (lang != null)
 											};
 
 										}
+										//Confirm that the macro is in sync with the diagram
+										//Sometimes the diagram is saved but the macro is not updated
+										var attInfo = null;
+										var pageInfo = null;
+										
+										function confirmDiagramInSync()
+										{
+											if (attInfo == null || pageInfo == null) 
+												return;
+											
+											var loadedVer = parseInt(revision);
+											
+											//TODO is this condition enough or we need to check timestamps also?
+											if (attInfo.version.number > loadedVer 
+													&& (pageInfo.version.message == null || pageInfo.version.message.indexOf("Reverted") < 0)) 
+											{
+												showDiagram(id, backupId, name, attInfo.version.number + '', page, links, {dontCheckVer: true});
+												//I think updating macro here is too risky since calling confluence.getMacroData returns null
+											}
+										}
+										
+										if (!retryParams.dontCheckVer && revision != null && revision.length > 0)
+										{
+						                    request({
+						                        type: 'GET',
+						                        url: '/rest/api/content/' + id + '?expand=version',
+						                        contentType: 'application/json;charset=UTF-8',
+						                        success: function (resp) 
+						                        {
+						                        	pageInfo = JSON.parse(resp);
+						                            
+						                        	confirmDiagramInSync();
+						                        },
+						                        error: function (resp) 
+						                        {
+						                            //Ignore
+						                        }
+						                    });
+	
+						                    request({
+						                        type: 'GET',
+						                        url: '/rest/api/content/' + id + '/child/attachment?filename=' + 
+						                        		encodeURIComponent(name) + '&expand=version',
+						                        contentType: 'application/json;charset=UTF-8',
+						                        success: function (resp) 
+						                        {
+						                        	var tmp = JSON.parse(resp);
+						                            
+						                        	if (tmp.results && tmp.results.length == 1)
+						                        	{
+						                        		attInfo = tmp.results[0];
+						                        	}
+						                        	
+						                        	confirmDiagramInSync();
+						                        },
+						                        error: function (resp) 
+						                        {
+						                            //Ignore
+						                        }
+						                    });
+										}
+										
 										//Saving the diagram to this page negates page linking feature!
 										//May be we should ask the user first or saving is not needed all together
 										/*if (retryParams.saveIt)
@@ -401,7 +471,7 @@ if (lang != null)
                             
                             var info = JSON.parse(decodeURIComponent(resp.body.storage.value));
                             
-                            showDiagram(info.pageId, info.pageId, info.diagramName, info.version, null, links);
+                            showDiagram(info.pageId, info.pageId, info.diagramName, info.version, null, links, {dontCheckVer: true}); //custom content can load old versions which will be overridden by version check
                         },
                         error: function (resp) 
                         {
