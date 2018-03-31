@@ -441,9 +441,10 @@ Graph.handleFactory[mxShapeBasicIsoCube.prototype.cst.ISO_CUBE] = function(state
 {
 	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
 	{
-		var isoAngle = Math.max(0, Math.min(100, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', this.isoAngle))));
+		var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
+		var isoH = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
 
-		return new mxPoint(bounds.x, bounds.y + isoAngle);
+		return new mxPoint(bounds.x, bounds.y + isoH);
 	}, function(bounds, pt)
 	{
 		this.state.style['isoAngle'] = Math.round(100 * Math.max(0, Math.min(100, pt.y - bounds.y))) / 100;
@@ -885,12 +886,1375 @@ Graph.handleFactory[mxShapeBasic4PointStar2.prototype.cst.FOUR_POINT_STAR_2] = f
 	{
 		var dx = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
 
-		return new mxPoint(bounds.x + dx * bounds.width / 2, bounds.y + 10);
+		return new mxPoint(bounds.x + dx * bounds.width / 2, bounds.y + dx * bounds.height / 2);
 	}, function(bounds, pt)
 	{
 		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(1, 2 * (pt.x - bounds.x) / bounds.width))) / 100;
 	})];
 
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Diagonal Snip Rectangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicDiagSnipRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicDiagSnipRect, mxActor);
+
+mxShapeBasicDiagSnipRect.prototype.cst = {DIAG_SNIP_RECT : 'mxgraph.basic.diag_snip_rect'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicDiagSnipRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, h - dx);
+	c.lineTo(w - dx, h);
+	c.lineTo(0, h);
+	c.lineTo(0, dx);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicDiagSnipRect.prototype.cst.DIAG_SNIP_RECT, mxShapeBasicDiagSnipRect);
+
+mxShapeBasicDiagSnipRect.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicDiagSnipRect.prototype.cst.DIAG_SNIP_RECT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+
+//**********************************************************************************************************************************************************
+//Diagonal Round Rectangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicDiagRoundRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicDiagRoundRect, mxActor);
+
+mxShapeBasicDiagRoundRect.prototype.cst = {DIAG_ROUND_RECT : 'mxgraph.basic.diag_round_rect'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicDiagRoundRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, h - dx);
+	c.arcTo(dx, dx, 0, 0, 1, w - dx, h);
+	c.lineTo(0, h);
+	c.lineTo(0, dx);
+	c.arcTo(dx, dx, 0, 0, 1, dx, 0);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicDiagRoundRect.prototype.cst.DIAG_ROUND_RECT, mxShapeBasicDiagRoundRect);
+
+mxShapeBasicDiagRoundRect.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicDiagRoundRect.prototype.cst.DIAG_ROUND_RECT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Corner Round Rectangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicCornerRoundRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicCornerRoundRect, mxActor);
+
+mxShapeBasicCornerRoundRect.prototype.cst = {CORNER_ROUND_RECT : 'mxgraph.basic.corner_round_rect'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicCornerRoundRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(0, h);
+	c.lineTo(0, dx);
+	c.arcTo(dx, dx, 0, 0, 1, dx, 0);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicCornerRoundRect.prototype.cst.CORNER_ROUND_RECT, mxShapeBasicCornerRoundRect);
+
+mxShapeBasicCornerRoundRect.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicCornerRoundRect.prototype.cst.CORNER_ROUND_RECT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Plaque
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPlaque(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPlaque, mxActor);
+
+mxShapeBasicPlaque.prototype.cst = {PLAQUE : 'mxgraph.basic.plaque'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPlaque.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(w - dx, 0);
+	c.arcTo(dx, dx, 0, 0, 0, w, dx);
+	c.lineTo(w, h - dx);
+	c.arcTo(dx, dx, 0, 0, 0, w - dx, h);
+	c.lineTo(dx, h);
+	c.arcTo(dx, dx, 0, 0, 0, 0, h - dx);
+	c.lineTo(0, dx);
+	c.arcTo(dx, dx, 0, 0, 0, dx, 0);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicPlaque.prototype.cst.PLAQUE, mxShapeBasicPlaque);
+
+mxShapeBasicPlaque.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicPlaque.prototype.cst.PLAQUE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx * 1.41, bounds.y + dx * 1.41);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Frame
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicFrame(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicFrame, mxActor);
+
+mxShapeBasicFrame.prototype.cst = {FRAME : 'mxgraph.basic.frame'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicFrame.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(0, h);
+	c.lineTo(0, 0);
+	c.close();
+	c.moveTo(dx, dx);
+	c.lineTo(dx, h - dx);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(w - dx, dx);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicFrame.prototype.cst.FRAME, mxShapeBasicFrame);
+
+mxShapeBasicFrame.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicFrame.prototype.cst.FRAME] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Plaque Frame
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPlaqueFrame(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPlaqueFrame, mxActor);
+
+mxShapeBasicPlaqueFrame.prototype.cst = {PLAQUE_FRAME : 'mxgraph.basic.plaque_frame'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPlaqueFrame.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.25, h * 0.25, dx);
+	
+	c.begin();
+	c.moveTo(w - dx, 0);
+	c.arcTo(dx, dx, 0, 0, 0, w, dx);
+	c.lineTo(w, h - dx);
+	c.arcTo(dx, dx, 0, 0, 0, w - dx, h);
+	c.lineTo(dx, h);
+	c.arcTo(dx, dx, 0, 0, 0, 0, h - dx);
+	c.lineTo(0, dx);
+	c.arcTo(dx, dx, 0, 0, 0, dx, 0);
+	c.close();
+	
+	c.moveTo(dx * 2, dx);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, dx, dx * 2);
+	c.lineTo(dx, h - 2 * dx);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, dx * 2, h - dx);
+	c.lineTo(w - 2 * dx, h - dx);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, w - dx, h - 2 * dx);
+	c.lineTo(w - dx, dx * 2);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, w - 2 * dx, dx);
+	c.close();
+
+	c.fillAndStroke();
+
+};
+
+mxCellRenderer.registerShape(mxShapeBasicPlaqueFrame.prototype.cst.PLAQUE_FRAME, mxShapeBasicPlaqueFrame);
+
+mxShapeBasicPlaqueFrame.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicPlaqueFrame.prototype.cst.PLAQUE_FRAME] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Rounded Frame
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicRoundedFrame(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicRoundedFrame, mxActor);
+
+mxShapeBasicRoundedFrame.prototype.cst = {ROUNDED_FRAME : 'mxgraph.basic.rounded_frame'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicRoundedFrame.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.25, h * 0.25, dx);
+	
+	c.begin();
+	c.moveTo(w - 2 * dx, 0);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, w, 2 * dx);
+	c.lineTo(w, h - 2 * dx);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, w - 2 * dx, h);
+	c.lineTo(dx * 2, h);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, 0, h - 2 * dx);
+	c.lineTo(0, 2 * dx);
+	c.arcTo(dx * 2, dx * 2, 0, 0, 1, 2 * dx, 0);
+	c.close();
+	
+	c.moveTo(dx * 2, dx);
+	c.arcTo(dx, dx, 0, 0, 0, dx, dx * 2);
+	c.lineTo(dx, h - 2 * dx);
+	c.arcTo(dx, dx, 0, 0, 0, dx * 2, h - dx);
+	c.lineTo(w - 2 * dx, h - dx);
+	c.arcTo(dx, dx, 0, 0, 0, w - dx, h - 2 * dx);
+	c.lineTo(w - dx, dx * 2);
+	c.arcTo(dx, dx, 0, 0, 0, w - 2 * dx, dx);
+	c.close();
+
+	c.fillAndStroke();
+
+};
+
+mxCellRenderer.registerShape(mxShapeBasicRoundedFrame.prototype.cst.ROUNDED_FRAME, mxShapeBasicRoundedFrame);
+
+mxShapeBasicRoundedFrame.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicRoundedFrame.prototype.cst.ROUNDED_FRAME] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Frame Corner
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicFrameCorner(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicFrameCorner, mxActor);
+
+mxShapeBasicFrameCorner.prototype.cst = {FRAME_CORNER : 'mxgraph.basic.frame_corner'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicFrameCorner.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w - dx, dx);
+	c.lineTo(dx, dx);
+	c.lineTo(dx, h - dx);
+	c.lineTo(0, h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicFrameCorner.prototype.cst.FRAME_CORNER, mxShapeBasicFrameCorner);
+
+mxShapeBasicFrameCorner.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicFrameCorner.prototype.cst.FRAME_CORNER] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Diagonal Stripe
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicDiagStripe(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicDiagStripe, mxActor);
+
+mxShapeBasicDiagStripe.prototype.cst = {DIAG_STRIPE : 'mxgraph.basic.diag_stripe'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicDiagStripe.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w, h, dx);
+	
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(w, 0);
+	c.lineTo(w, Math.min(dx * 100 / w, h));
+	c.lineTo(Math.min(dx * 100 / h, w), h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicDiagStripe.prototype.cst.DIAG_STRIPE, mxShapeBasicDiagStripe);
+
+mxShapeBasicDiagStripe.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicDiagStripe.prototype.cst.DIAG_STRIPE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + bounds.height);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Donut
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicDonut(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicDonut, mxActor);
+
+mxShapeBasicDonut.prototype.cst = {DONUT : 'mxgraph.basic.donut'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicDonut.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(0, h * 0.5);
+	c.arcTo(w * 0.5, h * 0.5, 0, 0, 1, w * 0.5, 0);
+	c.arcTo(w * 0.5, h * 0.5, 0, 0, 1, w, h * 0.5);
+	c.arcTo(w * 0.5, h * 0.5, 0, 0, 1, w * 0.5, h);
+	c.arcTo(w * 0.5, h * 0.5, 0, 0, 1, 0, h * 0.5);
+	c.close();
+	c.moveTo(w * 0.5, dx);
+	c.arcTo(w * 0.5 - dx, h * 0.5 - dx, 0, 0, 0, dx, h * 0.5);
+	c.arcTo(w * 0.5 - dx, h * 0.5 - dx, 0, 0, 0, w * 0.5, h - dx);
+	c.arcTo(w * 0.5 - dx, h * 0.5 - dx, 0, 0, 0, w - dx, h * 0.5);
+	c.arcTo(w * 0.5 - dx, h * 0.5 - dx, 0, 0, 0, w * 0.5, dx);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicDonut.prototype.cst.DONUT, mxShapeBasicDonut);
+
+mxShapeBasicDonut.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicDonut.prototype.cst.DONUT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + bounds.height / 2);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Layered Rect
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicLayeredRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicLayeredRect, mxActor);
+
+mxShapeBasicLayeredRect.prototype.cst = {LAYERED_RECT : 'mxgraph.basic.layered_rect'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicLayeredRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, dx);
+	c.lineTo(w, dx);
+	c.lineTo(w, h);
+	c.lineTo(dx, h);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(dx * 0.5, dx * 0.5);
+	c.lineTo(w - dx * 0.5, dx * 0.5);
+	c.lineTo(w - dx * 0.5, h - dx * 0.5);
+	c.lineTo(dx * 0.5, h - dx * 0.5);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w - dx, 0);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(0, h - dx);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicLayeredRect.prototype.cst.LAYERED_RECT, mxShapeBasicLayeredRect);
+
+mxShapeBasicLayeredRect.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicLayeredRect.prototype.cst.LAYERED_RECT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + bounds.width - dx, bounds.y + bounds.height - dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, - pt.x + bounds.width + bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Button
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicButton(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicButton, mxActor);
+
+mxShapeBasicButton.prototype.cst = {BUTTON : 'mxgraph.basic.button'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicButton.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(0, h);
+	c.close();
+	c.fillAndStroke();
+	
+	c.setShadow(false);
+	c.setLineJoin('round');
+	
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(0, 0);
+	c.lineTo(dx, dx);
+	c.lineTo(dx, h - dx);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w - dx, dx);
+	c.lineTo(dx, dx);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(w - dx, dx);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(dx, h - dx);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(w, h);
+	c.close();
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(0, 0);
+	c.lineTo(dx, dx);
+	c.lineTo(dx, h - dx);
+	c.close();
+	c.fillAndStroke();
+	
+	
+};
+
+mxCellRenderer.registerShape(mxShapeBasicButton.prototype.cst.BUTTON, mxShapeBasicButton);
+
+mxShapeBasicButton.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicButton.prototype.cst.BUTTON] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Shaded Button
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicShadedButton(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicShadedButton, mxActor);
+
+mxShapeBasicShadedButton.prototype.cst = {SHADED_BUTTON : 'mxgraph.basic.shaded_button'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicShadedButton.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	c.setShadow(false);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(0, h);
+	c.close();
+	c.fill();
+	
+	c.setFillColor('#ffffff');
+	c.setAlpha(0.25);
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(0, 0);
+	c.lineTo(dx, dx);
+	c.lineTo(dx, h - dx);
+	c.close();
+	c.fill();
+	
+	c.setAlpha(0.5);
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w - dx, dx);
+	c.lineTo(dx, dx);
+	c.close();
+	c.fill();
+	
+	c.setFillColor('#000000');
+	c.setAlpha(0.25);
+	c.begin();
+	c.moveTo(w, 0);
+	c.lineTo(w, h);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(w - dx, dx);
+	c.close();
+	c.fill();
+	
+	c.setAlpha(0.5);
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(dx, h - dx);
+	c.lineTo(w - dx, h - dx);
+	c.lineTo(w, h);
+	c.close();
+	c.fill();
+	
+	
+};
+
+mxCellRenderer.registerShape(mxShapeBasicShadedButton.prototype.cst.SHADED_BUTTON, mxShapeBasicShadedButton);
+
+mxShapeBasicShadedButton.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicShadedButton.prototype.cst.SHADED_BUTTON] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 2, bounds.width / 2, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, pt.x - bounds.x))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Pie
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPie(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.startAngle = 0.25;
+	this.endAngle = 0.75;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPie, mxActor);
+
+mxShapeBasicPie.prototype.cst = {PIE : 'mxgraph.basic.pie'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPie.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var rx = w * 0.5;
+	var ry = h * 0.5;
+	
+	var startX = rx + Math.sin(startAngle) * rx;
+	var startY = ry - Math.cos(startAngle) * ry;
+	var endX = rx + Math.sin(endAngle) * rx;
+	var endY = ry - Math.cos(endAngle) * ry;
+	
+	var angDiff = endAngle - startAngle;
+	
+	if (angDiff < 0)
+	{
+		angDiff = angDiff + Math.PI * 2;
+	}
+		
+	var bigArc = 0;
+	
+	if (angDiff > Math.PI)
+	{
+		bigArc = 1;
+	}
+		
+	c.begin();
+	c.moveTo(rx, ry);
+	c.lineTo(startX, startY);
+	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicPie.prototype.cst.PIE, mxShapeBasicPie);
+
+mxShapeBasicPie.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicPie.prototype.cst.PIE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['startAngle'], function(bounds)
+	{
+		var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'startAngle', this.startAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(startAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(startAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+
+		this.state.style['startAngle'] = res;
+		
+	})];
+
+	var handle2 = Graph.createHandle(state, ['endAngle'], function(bounds)
+	{
+		var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'endAngle', this.endAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(endAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(endAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+		
+		this.state.style['endAngle'] = res;
+	});
+	
+	handles.push(handle2);
+	
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Arc
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicArc(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.startAngle = 0.25;
+	this.endAngle = 0.75;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicArc, mxActor);
+
+mxShapeBasicArc.prototype.cst = {ARC : 'mxgraph.basic.arc'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicArc.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var rx = w * 0.5;
+	var ry = h * 0.5;
+	
+	var startX = rx + Math.sin(startAngle) * rx;
+	var startY = ry - Math.cos(startAngle) * ry;
+	var endX = rx + Math.sin(endAngle) * rx;
+	var endY = ry - Math.cos(endAngle) * ry;
+	
+	var angDiff = endAngle - startAngle;
+	
+	if (angDiff < 0)
+	{
+		angDiff = angDiff + Math.PI * 2;
+	}
+		
+	var bigArc = 0;
+	
+	if (angDiff > Math.PI)
+	{
+		bigArc = 1;
+	}
+		
+	c.begin();
+	c.moveTo(startX, startY);
+	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicArc.prototype.cst.ARC, mxShapeBasicArc);
+
+mxShapeBasicArc.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicArc.prototype.cst.ARC] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['startAngle'], function(bounds)
+	{
+		var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'startAngle', this.startAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(startAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(startAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+
+		this.state.style['startAngle'] = res;
+		
+	})];
+
+	var handle2 = Graph.createHandle(state, ['endAngle'], function(bounds)
+	{
+		var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'endAngle', this.endAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(endAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(endAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+		
+		this.state.style['endAngle'] = res;
+	});
+	
+	handles.push(handle2);
+	
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Partial Concentric Ellipse
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.startAngle = 0.25;
+	this.endAngle = 0.75;
+	this.arcWidth = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPartConcEllipse, mxActor);
+
+mxShapeBasicPartConcEllipse.prototype.cst = {PART_CONC_ELLIPSE : 'mxgraph.basic.partConcEllipse'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var arcWidth = 1 - Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arcWidth', this.arcWidth))));
+	var rx = w * 0.5;
+	var ry = h * 0.5;
+	var rx2 = rx * arcWidth;
+	var ry2 = ry * arcWidth;
+	
+	var startX = rx + Math.sin(startAngle) * rx;
+	var startY = ry - Math.cos(startAngle) * ry;
+	var innerStartX = rx + Math.sin(startAngle) * rx2;
+	var innerStartY = ry - Math.cos(startAngle) * ry2;
+	var endX = rx + Math.sin(endAngle) * rx;
+	var endY = ry - Math.cos(endAngle) * ry;
+	var innerEndX = rx + Math.sin(endAngle) * rx2;
+	var innerEndY = ry - Math.cos(endAngle) * ry2;
+	
+	var angDiff = endAngle - startAngle;
+	
+	if (angDiff < 0)
+	{
+		angDiff = angDiff + Math.PI * 2;
+	}
+		
+	var bigArc = 0;
+	
+	if (angDiff > Math.PI)
+	{
+		bigArc = 1;
+	}
+		
+	c.begin();
+	c.moveTo(startX, startY);
+	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	c.lineTo(innerEndX, innerEndY);
+	c.arcTo(rx2, ry2, 0, bigArc, 0, innerStartX, innerStartY);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE, mxShapeBasicPartConcEllipse);
+
+mxShapeBasicPartConcEllipse.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['startAngle'], function(bounds)
+	{
+		var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'startAngle', this.startAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(startAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(startAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+
+		this.state.style['startAngle'] = res;
+		
+	})];
+
+	var handle2 = Graph.createHandle(state, ['endAngle'], function(bounds)
+	{
+		var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'endAngle', this.endAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(endAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(endAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+		
+		this.state.style['endAngle'] = res;
+	});
+	
+	handles.push(handle2);
+	
+	var handle3 = Graph.createHandle(state, ['arcWidth'], function(bounds)
+	{
+		var arcWidth = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'arcWidth', this.arcWidth))));
+
+		return new mxPoint(bounds.x + bounds.width / 2, bounds.y + arcWidth * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		this.state.style['arcWidth'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, (pt.y - bounds.y) / (bounds.height * 0.5)))) / 100;
+	});
+			
+	handles.push(handle3);
+	
 	return handles;
 };
 
