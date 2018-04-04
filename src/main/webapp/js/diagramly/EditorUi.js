@@ -2156,12 +2156,12 @@
 									}
 								});
 								
-								if  (file != null && img != null && ((/(\.vsdx)($|\?)/i.test(img)) || /(\.vssx)($|\?)/i.test(img)))
+								if  (file != null && img != null && ((/(\.vsdx)($|\?)/i.test(img)) || /(\.vssx)($|\?)/i.test(img) || (/(\.vsd)($|\?)/i.test(img))))
 								{
 									this.importVisio(file, function(xml)
 									{
 										doImport(xml, 'text/xml');
-									});
+									}, null, img);
 								}
 								else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
 								{
@@ -2745,12 +2745,8 @@
 				{
 					a.download = filename;
 				}
-				else
-				{
-					// Workaround for same window in Safari
-					a.setAttribute('target', '_blank');
-				}
 
+				a.setAttribute('target', '_blank');
 				document.body.appendChild(a);
 				
 				try
@@ -5389,8 +5385,10 @@
 	/**
 	 * Imports the given Visio file
 	 */
-	EditorUi.prototype.importVisio = function(file, done, onerror)
+	EditorUi.prototype.importVisio = function(file, done, onerror, filename)
 	{
+		filename = (filename != null) ? filename : file.name; 
+
 		onerror = (onerror != null) ? onerror : mxUtils.bind(this, function(e)
 		{
 			this.handleError(e);
@@ -5402,13 +5400,47 @@
 			
 			if (this.doImportVisio)
 			{
-				try
+				if (/(\.vsd)($|\?)/i.test(filename)) 
 				{
-					this.doImportVisio(file, done, onerror);
-				}
-				catch (e)
-				{
-					onerror(e);
+					 var formData = new FormData();
+			         formData.append("file1", file);
+					
+			         var xhr = new XMLHttpRequest();
+			 		 xhr.open('POST', VSD_CONVERT_URL);
+			 		 xhr.responseType = "blob";
+			 		
+			 		 xhr.onreadystatechange = mxUtils.bind(this, function()
+			 		 {
+			 			if (xhr.readyState == 4)
+			 			{	
+			 				if (xhr.status >= 200 && xhr.status <= 299)
+							{
+								try
+								{
+									this.doImportVisio(xhr.response, done, onerror);
+								}
+								catch (e)
+								{
+									onerror(e);
+								}
+							}
+			 				else
+		 					{
+			 					onerror({});
+		 					}
+			 			}
+			 		 });
+			 		
+			 		 xhr.send(formData);
+				} else {
+					try
+					{
+						this.doImportVisio(file, done, onerror);
+					}
+					catch (e)
+					{
+						onerror(e);
+					}
 				}
 			}
 		});
@@ -5874,7 +5906,11 @@
                 }
             }));
         }
-		else if  (file != null && filename != null && ((/(\.vsdx)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename)))
+//		else if  (file != null && filename != null && ((/(\.vsdx)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename) || /(\.vsd)($|\?)/i.test(filename)))
+//		{
+//			
+//        }
+		else if  (file != null && filename != null && ((/(\.vsdx)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename) || /(\.vsd)($|\?)/i.test(filename)))
 		{
 			//  LATER: done and async are a hack before making this asynchronous
 			async = true;
@@ -6282,7 +6318,7 @@
 						});
 						
 						// Handles special cases
-						if (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name))
+						if (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name) || /(\.vsd)($|\?)/i.test(file.name))
 						{
 							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 							{
@@ -8091,7 +8127,7 @@
 								}
 							});
 							
-							if  (/(\.vsdx)($|\?)/i.test(name) || /(\.vssx)($|\?)/i.test(name))
+							if  (/(\.vsdx)($|\?)/i.test(name) || /(\.vssx)($|\?)/i.test(name) || /(\.vsd)($|\?)/i.test(name))
 							{
 								this.importVisio(file, mxUtils.bind(this, function(xml)
 								{

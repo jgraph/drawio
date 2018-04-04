@@ -1,3 +1,8 @@
+04-MAR-2018: 8.5.3
+
+- Gliffy import improvement
+- Fix for anchor download issue in Chrome 65
+
 31-MAR-2018: 8.5.2
 
 - Add mass gliffy import in Confluence Cloud
