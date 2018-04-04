@@ -4306,8 +4306,8 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		gitHubUrl = true;
 	}
 	
-	// Workaround for wrong binary response with VSDX files
-	if (/\.vsdx$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
+	// Workaround for wrong binary response with VSDX/VSD files
+	if ((/\.vsdx$/i.test(filename) || /\.vsd$/i.test(filename)) && Graph.fileSupport && new XMLHttpRequest().upload &&
 		typeof new XMLHttpRequest().responseType === 'string')
 	{
 		var req = new XMLHttpRequest();
@@ -4335,7 +4335,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 			this.importVisio(blob, mxUtils.bind(this, function(xml)
 			{
 				success(new LocalFile(this, xml, name, true));
-			}), error)
+			}), error, filename)
 		});
 
 		req.send();
