@@ -1,0 +1,15 @@
+For Testing:
+
+As david.benson@appsscripttesting.com use (see Tools, Script Editor):
+- TBA -
+
+For Deployment:
+
+As david@jgraph.com use (see Tools, Script Editor):
+- TBA -
+
+Open the web app script in the script editor.
+Make the changes you wanted. Test the code to ensure it functions as intended and is bug-free.
+Click File > Manage Versions. Enter a new version description and click Save New Version. Click OK to close the dialog.
+Click Publish > Deploy as Docs add-on. Update the Project version to the new version you just created.
+Click Update.

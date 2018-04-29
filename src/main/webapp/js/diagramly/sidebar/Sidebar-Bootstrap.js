@@ -72,7 +72,7 @@
 			   	button4.geometry.offset = new mxPoint(0, -40);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button1 = new mxCell('All Users', new mxGeometry(0, 0, 160, 40), inh + s + 'topButton;rSize=5;fillColor=#3D8BCD;strokeColor=#3D8BCD;fontColor=#ffffff;spacingLeft=10;align=left;whiteSpace=wrap;resizeWidth=1;');
+			   	var button1 = new mxCell('All Users', new mxGeometry(0, 0, 160, 40), s + 'topButton;rSize=5;fillColor=#3D8BCD;strokeColor=#3D8BCD;fontColor=#ffffff;spacingLeft=10;align=left;whiteSpace=wrap;resizeWidth=1;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
