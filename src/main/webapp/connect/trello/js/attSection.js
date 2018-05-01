@@ -149,7 +149,7 @@ t.render(function()
 	
 					var nameSpan = document.createElement('span');
 					nameSpan.className = "attachment-thumbnail-name";
-					nameSpan.innerHTML = attName;
+					mxUtils.write(nameSpan, attName);
 					detailsP.appendChild(nameSpan);
 	
 					var detailOpt = document.createElement('span');

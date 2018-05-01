@@ -384,7 +384,7 @@
 			this.addDataEntry(dt + 'block namespace containment', 140, 70, 'Block Namespace Containment',
 				'7ZXPjoIwEMafhjtQ192roOtlTUx8gmpHaCyMKfUPPv0OtKJ1McvBwx6WxKTztfMxfD8MAUuL81zzfb5AASpgs4ClGtHYVXFOQakgDqUI2DSI45B+Qfz5ZDdqd8M911CaIQ2xbThydQCrWKEytXLCEbSRG64mSmYlSWs0BouAJbkpaN5pREsylfuKGpKtVCpFhbptZmF7kV4ZjTvo23ET0F3g/PQpWsk9whywAKNrOuIaxh+2o7Ylc+VJCpNbaWSVHGSWG0/ilS2zzvUWFy1cYv3psd/TA5HBypWg1nia3QQvwVKs5KU5FcW2nGiNJ6qrulp8Lflml2KTRtK6kJ6jlheSOFkkGg+lgGasJlLuUCnYNh2PBAspBN2/HbWZz0u9woPegPd2DAfhPDQobuTRN+4L2hktUZJ/5/IeejijsW9guM7AuJ4HWN1Ig/iNXsjPUblm3RN798e5g1tiCT/w/V0y0chHcyX1ejRv/2gGonk1Cipv3x97/P7z9A0='),
 			this.addDataEntry(dt + 'participant property', 400, 140, 'Participant Property',
-				'5ZfbbtswDEC/xi8DWviS2x7tZOvLBhTrFyg2YwuVLU9WmmRfP+qW1LfBRdKhQB+aiqTpkEekqHjRujw+CFIXP3kGzIu+edFacC7NqjyugTEv9GnmRRsvDH3888LvI9ZAW/2aCKjkFIfQOLwQtgejSRhPn626kSdm1U1BarUUkOKLk0KWGOsmwOWOV/LJPqjkQ0ElPNUkVYoDZoY6wmheoZhiWCBQYb8WhITjaOhaZeN+AF6CFCd85EAzWZgn5iY7vwCaF9bLZuyTxsj52fPCARcWxTCWaBhL8JGxWIfIMfkPmGY9TF64YApE3cK0+L1XBZ2UROQUE479+ngW7yRHFvFMqzBveWexxK+wuDfgKrf/9fdsnSJuGp5KSiTlVeCsGP+261EIlV5Hiaq6q3tLCgx2aIxXb82BlKoMWF/C/ZY0pTXBTXeGtpOVfG+ZQJWphQrTrwWvsXxUQQTeUmsCbYzxUxextjh8HRjvGk9o4wl78YTD+zC51zh2zI7xA4o7qqp1sNtu0FyukU5GXPRbLfIHem11g16b93pNl/y54juwIMvBHT8Vr6ANDHcoFkIDs0aFhaaExfZI2nIpeXmmpl7XYtbwvUihNUQk9gLI1gE6gawAhim8tN9+DahFD5SrwYGphhVCq/yHbt9N1IbkTmfT3OOEGNkCe+QNVTuh6tNsvNEnJH3OBd9X2ZozLi7A9Xygf/R4sOWR8qrC2iZbF54/qWTn/yzZO+txc87LHueB8XgFXz0WPivc1WgRj0L+Zc+bEcoO3OQyttvyMUC/F+ev/RvMMuEiAwGZGVf+/f2XGyMfruxPwdsF3boyXjm6MtIUkFnzhHE1u/1ssq6PnKr7kYMY+u3rQtC5BpiBaZ06DM9RDGFF8fIT0Tz++hfkXw=='),
+				'5ZfbbtswDEC/xi8DWviS2x7tZOvLBhTrFyg2YwuVLU9WmmRfP+qW1LfBRdKhQB+aiqTpkEekqHjRujw+CFIXP3kGzIu+edFacC7NqjyugTEv9GnmRRsvDH3888LvI9ZAW/2aCKjkFIfQOLwQtgejSRhPn626kSdm1U1BarUUkOKLk0KWGOsmwOWOV/LJPqjkQ0ElPNUkVYoDZoY6wmheoZhiWCBQYb8WhITjaOhaZeN+AF6CFCd85EAzWZgn5iY7vwCaF9bLZuyTxsj52fPCARcWxTCWaBhL8JGxWIfIMfkPmGY9TF64YApE3cK0+L1XBZ2UROQUE479+ngW7yRHFvFMqzBveWexxK+wuDfgKrf/9fdsnSJuGp5SIimvAmfE8Lddh0Ko7DpKVNVd3VsyYLBDY7x6awqkVFXA+hJut6QprQnuuTO0nazke8sEqkwtVJh+LXiN1aPqIfCWWhNoY4yfuoa1xdHrwHjXeEIbT9iLJxzeh8mtxrFhdowfUNxRVayDzXaD3nJ9dDLiot9pkT/QaqsbtNq812rtiu/AgiwHd/pUvII2MNyhWAgNzBoVFpoSFtsTacul5OWZmnpdi1nD9yKF1gyR2AsgW+fnBLICGKbw0n77NaAWPVCuBgeGGlYIrfIfun03URuSO5xNc48TYmQL7JE3VO2Eqk+z8UafkPQ5F3xfZWvOuLgA1+OB/tHTwZZHyqsKa5tsXXj+pJKd/7Nk76zHzTkve5wHpuMVfPVU+KxwV6NFPAr5lz1vRig7cJPL2G7LxwD9Xpy/9i8wy4SLDARkZlz59/dfbox8uLI/BW8XdOvGeOXoykhTQGbNE8bV7Pazybo+cqruRw5i6LevC0HnGmAGpnXqMDxHMYQVxcsvRPP46x+QfwE='),
 				
 			this.addEntry(dt + 'participant property', function()
 		    {
@@ -394,7 +394,7 @@
 			   	cardCell2.vertex = true;
 			   	var bg = new mxCell(
 			    		'<p style="margin:0px;margin-top:4px;text-align:center;">' +
-		    			'<b>Assoctiation1</b></p><hr/>' + 
+		    			'<b>Association1</b></p><hr/>' + 
 		    			'<p style="margin:0px;text-align:center;"><i>structure</i></p>',
 			   			new mxGeometry(20, 60, 360, 150), 'shape=rect;html=1;strokeWidth=1;overflow=fill;whiteSpace=wrap;recursiveResize=0;');
 			   	bg.vertex = true;
@@ -453,13 +453,13 @@
 			    
 		    this.createVertexTemplateEntry('shape=rect;html=1;overflow=fill;whiteSpace=wrap;', 300, 80, 
 		    		'<p style="margin:0px;margin-top:4px;text-align:center;">' +
-	    			'<b>Assoctiation1</b></p><hr/>' + 
+	    			'<b>Association1</b></p><hr/>' + 
 	    			'<p style="margin:0px;margin-left:8px;text-align:center;">&lt;&lt;participant&gt;&gt; {end = property 1} p1 : Blcok 1<br/>' +
 	    			'&lt;&lt;participant&gt;&gt; {end = property 2} p2 : Blcok 2</p>',
 		    		'Association', null, null, this.getTagsForStencil(gn, '', dt + 'association').join(' ')),
 		    this.createVertexTemplateEntry('shape=rect;html=1;overflow=fill;whiteSpace=wrap;', 300, 80, 
 		    		'<p style="margin:0px;margin-top:4px;text-align:center;">' +
-	    			'<b>Assoctiation1</b></p><hr/>' + 
+	    			'<b>Association1</b></p><hr/>' + 
 	    			'<p style="margin:0px;text-align:center;"><i>structure</i></p>',
 		    		'Association', null, null, this.getTagsForStencil(gn, '', dt + 'association').join(' ')),
 		    this.createVertexTemplateEntry('shape=rect;html=1;overflow=fill;dashed=1;whiteSpace=wrap;', 150, 80, 

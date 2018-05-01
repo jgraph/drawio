@@ -1222,7 +1222,9 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 		{
 			success.apply(this, arguments);
 			
-			if (!dontCheckVer && revision != null)
+			//This fix contradict with copy/paste workflow where all diagrams have the same name
+			//On copy/paste diagram name must be changed
+			/*if (!dontCheckVer && revision != null)
 			{
 	            request({
 	                type: 'GET',
@@ -1261,7 +1263,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 	                    //Ignore
 	                }
 	            });
-			}
+			}*/
 		}
 		
 		request({

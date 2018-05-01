@@ -1,4 +1,61 @@
-04-MAR-2018: 8.5.3
+01-MAY-2018: 8.5.15
+
+- Fixes showing device when no other storage options available
+- Fixes indexing with multiple diagrams on page in Confluence Cloud
+
+30-APR-2018: 8.5.14
+
+- Fixes XSS vulnerability in Trello Power-Up
+
+27-APR-2018: 8.5.13
+
+- Adds infographic library
+- Adds device option in export dialogs
+
+20-APR-2018: 8.5.12
+
+- Adds test case for Google auth errors
+
+20-APR-2018: 8.5.11
+
+- Fixes plantuml insert
+- Fixes PDF export size
+- Uses mxGraph 3.9.4 beta 4
+
+17-APR-2018: 8.5.10
+
+- Disables autosave for realtime connect errors
+- Fixes format panel background in dark theme
+- Adds click on export option labels
+- Adds namespace for CSV import
+- Changes help links in dialogs
+
+10-APR-2018: 8.5.9
+
+- Reverts macro inconsistency check for Confluence Cloud
+
+08-APR-2018: 8.5.8
+
+- Adds logging for disconnect error
+
+07-APR-2018: 8.5.7
+
+- Improved handling for Google disconnect error
+
+05-APR-2018: 8.5.6
+
+- Revert export server for Desktop version to phantom until full fix found
+
+05-APR-2018: 8.5.5
+
+- Changes Plant export URL
+- Adds JS redirect from http to https
+
+05-APR-2018: 8.5.4
+
+- Works around Chrome 65 bug with echo downloads
+
+04-APR-2018: 8.5.3
 
 - Gliffy import improvement
 - Fix for anchor download issue in Chrome 65

@@ -21,6 +21,7 @@ html body .geSprite, html body .geSocialFooter img, html body .mxPopupMenuItem>i
 	filter:invert(100%);
 }
 html body .geFormatContainer {
+	background-color:#2a2a2a !important;
 	border-left:1px solid #505759;
 }
 html body .geDiagramContainer {

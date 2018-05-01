@@ -105,7 +105,7 @@ if (lang != null)
 	function main()
 	{
 		// Sets initial placeholder size to allow for scrollbars in fit to page width
-		AP.resize('100%', (lightbox) ? '100%' : (diagramHeight * zoom + tbHeight + 2 * border));
+		AP.resize('100%', (lightbox || customContent) ? '100%' : (diagramHeight * zoom + tbHeight + 2 * border));
 		
 		function showError(msg)
 		{
@@ -246,7 +246,11 @@ if (lang != null)
 											// LATER: Disable responsive resize while lightbox shows
 											var container = document.createElement('div');
 											container.id = "drawIODiagram";
-											container.style.cssText = 'position:absolute;box-sizing:border-box;' +
+											//There is an issue with AP.resize when custom content is shown. It works only once!
+											if (customContent) {
+												document.body.style.overflow = "auto";
+											}
+											container.style.cssText = (customContent? '' : 'position:absolute;') + 'box-sizing:border-box;' +
 												'max-width:100%;border:1px solid transparent;';
 											document.body.appendChild(container);
 											var doc = mxUtils.parseXml(xml);
@@ -351,7 +355,9 @@ if (lang != null)
 											}
 										}
 										
-										if (!retryParams.dontCheckVer && revision != null && revision.length > 0)
+										//This fix contradict with copy/paste workflow where all diagrams have the same name
+										//On copy/paste diagram name must be changed
+										/*if (!retryParams.dontCheckVer && revision != null && revision.length > 0)
 										{
 						                    request({
 						                        type: 'GET',
@@ -390,7 +396,7 @@ if (lang != null)
 						                            //Ignore
 						                        }
 						                    });
-										}
+										}*/
 										
 										//Saving the diagram to this page negates page linking feature!
 										//May be we should ask the user first or saving is not needed all together

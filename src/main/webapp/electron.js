@@ -127,7 +127,8 @@ function createWindow (opt = {})
 					'analytics': 0,
 					'picker': 0,
 					'mode': 'device',
-					'browser': 0
+					'browser': 0,
+					'export': 'https://exp2.draw.io/ImageExport4/export'
 				},
 				slashes: true,
 			})

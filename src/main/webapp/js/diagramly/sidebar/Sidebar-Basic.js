@@ -4,9 +4,9 @@
 	{
 		var w = 100;
 		var h = 100;
-		var s = 'strokeWidth=2;whiteSpace=wrap;html=1;shape=mxgraph.basic.';
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=mxgraph.basic.';
-		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=';
+		var s = 'whiteSpace=wrap;html=1;shape=mxgraph.basic.';
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;shape=mxgraph.basic.';
+		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;shape=';
 		var gn = 'mxgraph.basic';
 		var dt = '';
 		
@@ -44,6 +44,7 @@
 			this.createVertexTemplateEntry(s2 + 'diag_snip_rect;dx=6;', w, h * 0.6, '', 'Diagonal Snip Rectangle', null, null, this.getTagsForStencil(gn, 'diag_snip_rect', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'diag_round_rect;dx=6;', w, h * 0.6, '', 'Diagonal Rounded Rectangle', null, null, this.getTagsForStencil(gn, 'diag_round_rect', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'corner_round_rect;dx=6;', w, h * 0.6, '', 'Corner Rounded Rectangle', null, null, this.getTagsForStencil(gn, 'corner_round_rect', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'three_corner_round_rect;dx=6;', w, h * 0.6, '', 'Rounded Rectangle (three corners)', null, null, this.getTagsForStencil(gn, 'three_corner_round_rect', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'plaque;dx=6;', w, h * 0.6, '', 'Plaque', null, null, this.getTagsForStencil(gn, 'plaque', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'frame;dx=10;', w, h * 0.6, '', 'Frame', null, null, this.getTagsForStencil(gn, 'frame', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'rounded_frame;dx=10;', w, h * 0.6, '', 'Rounded Frame', null, null, this.getTagsForStencil(gn, 'rounded_frame', dt).join(' ')),
@@ -58,8 +59,8 @@
 			this.createVertexTemplateEntry(s2 + 'sun', w, h, '', 'Sun', null, null, this.getTagsForStencil(gn, 'sun', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'tick', w * 0.85, h, '', 'Tick', null, null, this.getTagsForStencil(gn, 'tick', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'wave2;dy=0.3;', w, h * 0.6, '', 'Wave', null, null, this.getTagsForStencil(gn, 'wave', dt).join(' ')),
-			this.createVertexTemplateEntry('labelPosition=center;verticalLabelPosition=middle;html=1;strokeWidth=2;shape=mxgraph.basic.button;dx=10;', w, h * 0.6, 'Button', 'Button', null, null, this.getTagsForStencil(gn, 'button', dt).join(' ')),
-			this.createVertexTemplateEntry('labelPosition=center;verticalLabelPosition=middle;html=1;strokeWidth=2;shape=mxgraph.basic.shaded_button;dx=10;fillColor=#E6E6E6;strokeColor=none;', w, h * 0.6, 'Button', 'Button (shaded)', null, null, this.getTagsForStencil(gn, 'button', dt).join(' ')),
+			this.createVertexTemplateEntry('labelPosition=center;verticalLabelPosition=middle;html=1;shape=mxgraph.basic.button;dx=10;', w, h * 0.6, 'Button', 'Button', null, null, this.getTagsForStencil(gn, 'button', dt).join(' ')),
+			this.createVertexTemplateEntry('labelPosition=center;verticalLabelPosition=middle;html=1;shape=mxgraph.basic.shaded_button;dx=10;fillColor=#E6E6E6;strokeColor=none;', w, h * 0.6, 'Button', 'Button (shaded)', null, null, this.getTagsForStencil(gn, 'button', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'x', w, h, '', 'X', null, null, this.getTagsForStencil(gn, 'x', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'pie;startAngle=0.2;endAngle=0.9;', w, h, '', 'Pie', null, null, this.getTagsForStencil(gn, 'pie', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'arc;startAngle=0.3;endAngle=0.1;', w, h, '', 'Arc', null, null, this.getTagsForStencil(gn, 'arc', dt).join(' ')),

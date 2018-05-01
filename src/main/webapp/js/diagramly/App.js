@@ -1074,7 +1074,7 @@ App.prototype.checkLicense = function()
 		if (at >= 0)
 		{
 			domain = email.substring(at + 1);
-			//email = this.crc32(email.substring(0, at)) + '@' + domain;
+			email = this.crc32(email.substring(0, at)) + '@' + domain;
 		}
 		
 		// Timestamp is workaround for cached response in certain environments
@@ -1352,7 +1352,8 @@ App.prototype.onBeforeUnload = function()
 			{
 				return mxResources.get('ensureDataSaved');
 			}
-			else if (file.constructor != DriveFile && file.isModified())
+			else if ((file.constructor != DriveFile || file.realtime == null ||
+					file.realtime.saving) && file.isModified())
 			{
 				return mxResources.get('allChangesLost');
 			}
@@ -1698,12 +1699,7 @@ App.prototype.appIconClicked = function(evt)
 		
 		if (mode == App.MODE_GOOGLE)
 		{
-			if (file.desc != null && file.desc.mimeType != null)
-			{
-				// Opens search for all draw.io diagrams
-				this.openLink('https://drive.google.com/drive/u/0/search?q=type:' + file.desc.mimeType + '&authuser=0');
-			}
-			else if (file.desc != null && file.desc.parents.length > 0)
+			if (file.desc != null && file.desc.parents.length > 0)
 			{
 				// Opens containing folder
 				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);

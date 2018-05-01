@@ -1638,54 +1638,58 @@ Graph.prototype.createLayersDialog = function()
 Graph.prototype.replacePlaceholders = function(cell, str)
 {
 	var result = [];
-	var last = 0;
-	var math = [];
 	
-	while (match = this.placeholderPattern.exec(str))
+	if (str != null)
 	{
-		var val = match[0];
+		var last = 0;
+		var math = [];
 		
-		if (val.length > 2 && val != '%label%' && val != '%tooltip%')
+		while (match = this.placeholderPattern.exec(str))
 		{
-			var tmp = null;
-
-			if (match.index > last && str.charAt(match.index - 1) == '%')
+			var val = match[0];
+			
+			if (val.length > 2 && val != '%label%' && val != '%tooltip%')
 			{
-				tmp = val.substring(1);
-			}
-			else
-			{
-				var name = val.substring(1, val.length - 1);
-				
-				// Workaround for invalid char for getting attribute in older versions of IE
-				if (name.indexOf('{') < 0)
+				var tmp = null;
+	
+				if (match.index > last && str.charAt(match.index - 1) == '%')
 				{
-					var current = cell;
+					tmp = val.substring(1);
+				}
+				else
+				{
+					var name = val.substring(1, val.length - 1);
 					
-					while (tmp == null && current != null)
+					// Workaround for invalid char for getting attribute in older versions of IE
+					if (name.indexOf('{') < 0)
 					{
-						if (current.value != null && typeof(current.value) == 'object')
-						{
-							tmp = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
-									current.getAttribute(name) : '') : null;
-						}
+						var current = cell;
 						
-						current = this.model.getParent(current);
+						while (tmp == null && current != null)
+						{
+							if (current.value != null && typeof(current.value) == 'object')
+							{
+								tmp = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
+										current.getAttribute(name) : '') : null;
+							}
+							
+							current = this.model.getParent(current);
+						}
+					}
+					
+					if (tmp == null)
+					{
+						tmp = this.getGlobalVariable(name);
 					}
 				}
-				
-				if (tmp == null)
-				{
-					tmp = this.getGlobalVariable(name);
-				}
-			}
-
-			result.push(str.substring(last, match.index) + ((tmp != null) ? tmp : val));
-			last = match.index + val.length;
-		}
-	}
 	
-	result.push(str.substring(last));
+				result.push(str.substring(last, match.index) + ((tmp != null) ? tmp : val));
+				last = match.index + val.length;
+			}
+		}
+		
+		result.push(str.substring(last));
+	}	
 
 	return result.join('');
 };

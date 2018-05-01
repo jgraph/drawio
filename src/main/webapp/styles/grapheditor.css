@@ -25,7 +25,7 @@
 	cursor:default;
 }
 .geFormatContainer {
-	background-color:whiteSmoke;
+	background-color: whiteSmoke !important;
 	overflow-x: hidden !important;
 	overflow-y: auto !important;
 	font-size:12px;
