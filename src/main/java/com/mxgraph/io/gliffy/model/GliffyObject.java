@@ -72,7 +72,6 @@ public class GliffyObject implements PostDeserializable
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.use_case");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.actor");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.use_case");
-		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.self_message");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.message");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.activation");
 		GRAPHICLESS_SHAPES.add("com.gliffy.shape.uml.uml_v1.default.dependency");

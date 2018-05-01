@@ -1345,12 +1345,6 @@ GraphViewer.prototype.showLocalLightbox = function()
 	// Disables refresh
 	ui.refresh = function() {};
 	
-	// Click on backdrop closes lightbox
-	mxEvent.addListener(backdrop, 'click', function()
-	{
-		ui.destroy();
-	});
-
 	// Handles escape keystroke
 	var keydownHandler = mxUtils.bind(this, function(evt)
 	{
@@ -1483,6 +1477,12 @@ GraphViewer.prototype.showLocalLightbox = function()
 		ui.lightboxFit();
 		ui.chromelessResize();
 		this.showLayers(graph, this.graph);
+		
+		// Click on backdrop closes lightbox
+		mxEvent.addListener(backdrop, 'click', function()
+		{
+			ui.destroy();
+		});
 	}), 0);
 
 	return ui;

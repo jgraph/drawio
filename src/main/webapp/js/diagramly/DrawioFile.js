@@ -357,7 +357,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 {
 	if (err instanceof Error && err.message != null)
 	{
-		this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
+		this.ui.editor.setStatus('<div class="geStatusAlert" style="overflow:hidden;">' +
 				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
 				' (' + mxUtils.htmlEntities(err.message) + ')</div>');
 	}

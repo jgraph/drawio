@@ -1448,7 +1448,7 @@
 				img.src = logDomain + '/images/1x1.png?' +
 						'v=' + encodeURIComponent(EditorUi.VERSION) +
 						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
-	    		}
+	    	}
 			catch (e)
 			{
 	    			// ignore
@@ -2264,11 +2264,11 @@
     }
     else
     {
-    		if (urlParams['savesidebar'] == '1')
-    		{
-        		Sidebar.prototype.thumbWidth = 64;
-        		Sidebar.prototype.thumbHeight = 64;
-    		}
+		if (urlParams['savesidebar'] == '1')
+		{
+    		Sidebar.prototype.thumbWidth = 64;
+    		Sidebar.prototype.thumbHeight = 64;
+		}
 
 		EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
 		
@@ -2545,10 +2545,10 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2)
+	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h)
 	{
-		var dlg = new ErrorDialog(this, title, msg, btn, fn, retry, btn2, fn2);
-		this.showDialog(dlg.container, 340, 150, true, false);
+		var dlg = new ErrorDialog(this, title, msg, btn, fn, retry, btn2, fn2, null, btn3, fn3);
+		this.showDialog(dlg.container, w || 340, h || 150, true, false);
 		dlg.init();
 	};
 	
@@ -2735,6 +2735,14 @@
 			// if this is used (ie PNG export broken after XML export in Safari).
 			var useDownload = !mxClient.IS_SF && typeof a.download !== 'undefined';
 			
+			// Workaround for Chromium 65 cross-domain anchor download issue
+			if (mxClient.IS_GC)
+			{
+				var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)
+				var vers = raw ? parseInt(raw[2], 10) : false;
+				useDownload = vers == 65 ? false : useDownload;
+			}
+			
 			if (useDownload || this.isOffline())
 			{
 				a.href = URL.createObjectURL((base64Encoded) ?
@@ -2745,8 +2753,12 @@
 				{
 					a.download = filename;
 				}
+				else
+				{
+					// Workaround for same window in Safari
+					a.setAttribute('target', '_blank');
+				}
 
-				a.setAttribute('target', '_blank');
 				document.body.appendChild(a);
 				
 				try
@@ -2864,7 +2876,7 @@
 						}
 					}
 				}
-				else if (mode == App.MODE_DEVICE)
+				else if (mode == App.MODE_DEVICE || mode == 'download')
 				{
 					this.doSaveLocalFile(data, newTitle, mimeType, base64Encoded);
 				} 
@@ -2891,7 +2903,7 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
 		var noServices = (mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 420, height, true, true);
@@ -3094,12 +3106,12 @@
 		{
 			if (mode == '_blank' || newTitle != null && newTitle.length > 0)
 			{
-				var base64 = (mode == App.MODE_DEVICE || mode == null || mode == '_blank') ? '0' : '1';
+				var base64 = (mode == App.MODE_DEVICE || mode == 'download' || mode == null || mode == '_blank') ? '0' : '1';
 				var xhr = fn((mode == '_blank') ? null : newTitle, base64);
 				
 				if (xhr != null)
 				{
-					if (mode == App.MODE_DEVICE || mode == '_blank')
+					if (mode == App.MODE_DEVICE || mode == 'download' || mode == '_blank')
 					{
 						xhr.simulate(document, '_blank');
 					}
@@ -3160,7 +3172,7 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
-			null, null, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
 		var noServices = (mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 380, height, true, true);
@@ -3305,12 +3317,24 @@
 		if (visible)
 		{
 			div.appendChild(cb);
-			mxUtils.write(div, label);
 			
+			var span = document.createElement('span');
+			mxUtils.write(span, label);
+			div.appendChild(span);
+
 			if (!disableNewline)
 			{
 				mxUtils.br(div);
 			}
+			
+			mxEvent.addListener(span, 'click', mxUtils.bind(this, function(evt)
+			{
+				if (cb.getAttribute('disabled') != 'disabled')
+				{
+					cb.checked = !cb.checked;
+					mxEvent.consume(evt);
+				}
+			}));
 		}
 		
 		return cb;
@@ -5245,6 +5269,7 @@
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
 			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
+			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
 
@@ -5400,7 +5425,7 @@
 			
 			if (this.doImportVisio)
 			{
-				if (/(\.vsd)($|\?)/i.test(filename)) 
+				if (/(\.vsd)($|\?)/i.test(filename) && VSD_CONVERT_URL != null) 
 				{
 					 var formData = new FormData();
 			         formData.append("file1", file);
@@ -9173,168 +9198,173 @@
 	{
 		try
 		{
-	    		var lines = text.split('\n');
-	    		var cells = [];
-	    		
-	    		if (lines.length > 0)
-	    		{
-	        		// Internal lookup table
-	        		var lookups = {};
-	        		
-	        		// Default values
-	        		var style = null;
-	        		var identity = null;
-	        		var width = 'auto';
-	        		var height = 'auto';
-	        		var left = null;
-	        		var top = null;
-	        		var edgespacing = 40;
-	        		var nodespacing = 40;
-	        		var padding = 0;
-	        		
-	        		var graph = this.editor.graph;
+    		var lines = text.split('\n');
+    		var cells = [];
+    		
+    		if (lines.length > 0)
+    		{
+        		// Internal lookup table
+        		var lookups = {};
+        		
+        		// Default values
+        		var style = null;
+        		var identity = null;
+        		var namespace = '';
+        		var width = 'auto';
+        		var height = 'auto';
+        		var left = null;
+        		var top = null;
+        		var edgespacing = 40;
+        		var nodespacing = 40;
+        		var padding = 0;
+        		
+        		var graph = this.editor.graph;
 				var view = graph.view;
 				var bds = graph.getGraphBounds();
-	
-					// Delayed after optional layout
-	    			var afterInsert = function()
-	    			{
-	    				graph.setSelectionCells(select);
-			    		graph.scrollCellToVisible(graph.getSelectionCell());
-	    			};
-	    				
-	    			// Computes unscaled, untranslated graph bounds
-	    			var pt = graph.getFreeInsertPoint();
+
+				// Delayed after optional layout
+    			var afterInsert = function()
+    			{
+    				graph.setSelectionCells(select);
+		    		graph.scrollCellToVisible(graph.getSelectionCell());
+    			};
+    				
+    			// Computes unscaled, untranslated graph bounds
+    			var pt = graph.getFreeInsertPoint();
 				var x0 = pt.x;
 				var y0 = pt.y;
 				var y = y0;
+
+    			// Default label value depends on column names
+        		var label = null;
+        		
+    			// Default layout to run.
+        		var layout = 'auto';
+        		
+        		// Name of the attribute that contains the parent reference
+        		var parent = null;
+        		
+        		// Name of the attribute that contains the references for creating edges
+        		var edges = [];
+
+        		// Name of the column for hyperlinks
+        		var link = null;
+        		
+        		// String array of names to remove from metadata
+        		var ignore = null;
+        		
+        		// Read processing instructions first
+        		var index = 0;
+        		
+        		while (index < lines.length && lines[index].charAt(0) == '#')
+        		{
+        			var text = lines[index];
+        			index++;
+        			
+        			while (index < lines.length && text.charAt(text.length - 1) == '\\' &&
+        				lines[index].charAt(0) == '#')
+        			{
+        				text = text.substring(0, text.length - 1) + mxUtils.trim(lines[index].substring(1));
+        				index++;
+        			}
+        			
+        			if (text.charAt(1) != '#')
+        			{
+	    				// Processing instruction
+	    				var idx = text.indexOf(':');
+	    				
+	    				if (idx > 0)
+	    				{
+		    				var key = mxUtils.trim(text.substring(1, idx));
+		    				var value = mxUtils.trim(text.substring(idx + 1));
 	
-	    			// Default label value depends on column names
-	        		var label = null;
-	        		
-	    			// Default layout to run.
-	        		var layout = 'auto';
-	        		
-	        		// Name of the attribute that contains the parent reference
-	        		var parent = null;
-	        		
-	        		// Name of the attribute that contains the references for creating edges
-	        		var edges = [];
-	
-	        		// Name of the column for hyperlinks
-	        		var link = null;
-	        		
-	        		// String array of names to remove from metadata
-	        		var ignore = null;
-	        		
-	        		// Read processing instructions first
-	        		var index = 0;
-	        		
-	        		while (index < lines.length && lines[index].charAt(0) == '#')
-	        		{
-	        			var text = lines[index];
-	        			index++;
-	        			
-	        			while (index < lines.length && text.charAt(text.length - 1) == '\\' &&
-	        				lines[index].charAt(0) == '#')
-	        			{
-	        				text = text.substring(0, text.length - 1) + mxUtils.trim(lines[index].substring(1));
-	        				index++;
-	        			}
-	        			
-	        			if (text.charAt(1) != '#')
-	        			{
-		    				// Processing instruction
-		    				var idx = text.indexOf(':');
-		    				
-		    				if (idx > 0)
+		    				if (key == 'label')
 		    				{
-			    				var key = mxUtils.trim(text.substring(1, idx));
-			    				var value = mxUtils.trim(text.substring(idx + 1));
-		
-			    				if (key == 'label')
-			    				{
-			    					label = graph.sanitizeHtml(value);
-			    				}
-			    				else if (key == 'style')
-			    				{
-			    					style = value;
-			    				}
-			    				else if (key == 'identity' && value.length > 0 && value != '-')
-			    				{
-			    					identity = value;
-			    				}
-			    				else if (key == 'width')
-			    				{
-			    					width = value;
-			    				}
-			    				else if (key == 'height')
-			    				{
-			    					height = value;
-			    				}
-			    				else if (key == 'left' && value.length > 0)
-			    				{
-			    					left = value;
-			    				}
-			    				else if (key == 'top' && value.length > 0)
-			    				{
-			    					top = value;
-			    				}
-			    				else if (key == 'ignore')
-			    				{
-			    					ignore = value.split(',');
-			    				}
-			    				else if (key == 'connect')
-			    				{
-			    					edges.push(JSON.parse(value));
-			    				}
-			    				else if (key == 'link')
-			    				{
-			    					link = value;
-			    				}
-			    				else if (key == 'padding')
-			    				{
-			    					padding = parseFloat(value);
-			    				}
-			    				else if (key == 'edgespacing')
-			    				{
-			    					edgespacing = parseFloat(value);
-			    				}
-			    				else if (key == 'nodespacing')
-			    				{
-			    					nodespacing = parseFloat(value);
-			    				}
-			    				else if (key == 'layout')
-			    				{
-			    					layout = value;
-			    				}
+		    					label = graph.sanitizeHtml(value);
 		    				}
-	        			}
-	        		}
-	        		
-	    			var keys = this.editor.csvToArray(lines[index]);
-	    			
-	    			// Converts name of identity to index of column
-	    			var identityIndex = null;
-	    			
-	    			if (identity != null)
-	    			{
-	    				for (var i = 0; i < keys.length; i++)
-			    		{
-	    					if (identity == keys[i])
-	    					{
-	    						identityIndex = i;
-	    						break;
-	    					}
-			    		}
-	    			}
-	    			
-	    			if (label == null)
-	    			{
-	    				label = '%' + keys[0] + '%';
-	    			}
-	    			
-	    			if (edges != null)
+		    				else if (key == 'style')
+		    				{
+		    					style = value;
+		    				}
+		    				else if (key == 'identity' && value.length > 0 && value != '-')
+		    				{
+		    					identity = value;
+		    				}
+		    				else if (key == 'namespace' && value.length > 0 && value != '-')
+		    				{
+		    					namespace = value;
+		    				}
+		    				else if (key == 'width')
+		    				{
+		    					width = value;
+		    				}
+		    				else if (key == 'height')
+		    				{
+		    					height = value;
+		    				}
+		    				else if (key == 'left' && value.length > 0)
+		    				{
+		    					left = value;
+		    				}
+		    				else if (key == 'top' && value.length > 0)
+		    				{
+		    					top = value;
+		    				}
+		    				else if (key == 'ignore')
+		    				{
+		    					ignore = value.split(',');
+		    				}
+		    				else if (key == 'connect')
+		    				{
+		    					edges.push(JSON.parse(value));
+		    				}
+		    				else if (key == 'link')
+		    				{
+		    					link = value;
+		    				}
+		    				else if (key == 'padding')
+		    				{
+		    					padding = parseFloat(value);
+		    				}
+		    				else if (key == 'edgespacing')
+		    				{
+		    					edgespacing = parseFloat(value);
+		    				}
+		    				else if (key == 'nodespacing')
+		    				{
+		    					nodespacing = parseFloat(value);
+		    				}
+		    				else if (key == 'layout')
+		    				{
+		    					layout = value;
+		    				}
+	    				}
+        			}
+        		}
+        		
+    			var keys = this.editor.csvToArray(lines[index]);
+    			
+    			// Converts name of identity to index of column
+    			var identityIndex = null;
+    			
+    			if (identity != null)
+    			{
+    				for (var i = 0; i < keys.length; i++)
+		    		{
+    					if (identity == keys[i])
+    					{
+    						identityIndex = i;
+    						break;
+    					}
+		    		}
+    			}
+    			
+    			if (label == null)
+    			{
+    				label = '%' + keys[0] + '%';
+    			}
+    			
+    			if (edges != null)
 				{
 					for (var e = 0; e < edges.length; e++)
 					{
@@ -9344,45 +9374,45 @@
 						}
 					}
 				}
-	    			
-	        		graph.model.beginUpdate();
-	        		try
-	        		{
-		    			for (var i = index + 1; i < lines.length; i++)
-			    		{
-	    	    				var values = this.editor.csvToArray(lines[i]);
-	    	    			
-		    				if (values.length == keys.length)
-			    			{
-		    					var cell = null;
-		    					var id = (identityIndex != null) ? values[identityIndex] : null;
-		    					
-		    					if (id != null)
-		    					{
-		    						cell = graph.model.getCell(id);
-		    					}
-	
-		    					if (cell == null)
-		    					{
-					    			var cell = new mxCell(label, new mxGeometry(x0, y,
-					    				0, 0), style || 'whiteSpace=wrap;html=1;');
-									cell.vertex = true;
-									cell.id = id;
-		    					}
-							
+    			
+        		graph.model.beginUpdate();
+        		try
+        		{
+	    			for (var i = index + 1; i < lines.length; i++)
+		    		{
+    	    			var values = this.editor.csvToArray(lines[i]);
+    	    			
+	    				if (values.length == keys.length)
+		    			{
+	    					var cell = null;
+	    					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
+	    					
+	    					if (id != null)
+	    					{
+	    						cell = graph.model.getCell(id);
+	    					}
+
+	    					if (cell == null)
+	    					{
+				    			var cell = new mxCell(label, new mxGeometry(x0, y,
+				    				0, 0), style || 'whiteSpace=wrap;html=1;');
+								cell.vertex = true;
+								cell.id = id;
+	    					}
+						
 							for (var j = 0; j < values.length; j++)
-					    		{
+					    	{
 								graph.setAttributeForCell(cell, keys[j], values[j]);
-					    		}
+					    	}
 							
 							graph.setAttributeForCell(cell, 'placeholders', '1');
 							cell.style = graph.replacePlaceholders(cell, cell.style);
 								
-		    					for (var e = 0; e < edges.length; e++)
-		    					{
-		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-		    					}
-								
+	    					for (var e = 0; e < edges.length; e++)
+	    					{
+	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+	    					}
+							
 							if (link != null && link != 'link')
 							{
 								graph.setLinkForCell(cell, cell.getAttribute(link));
@@ -9429,8 +9459,8 @@
 							}
 	
 							cells.push(graph.addCell(cell));
-			    			}
-			    		}
+		    			}
+		    		}
 	    			
 					var roots = cells.slice();
 					var select = cells.slice();
@@ -9440,42 +9470,42 @@
 						var edge = edges[e];
 	
 						for (var i = 0; i < cells.length; i++)
-	    					{
+	    				{
 							var cell = cells[i];
-		
-		    					var tmp = cell.getAttribute(edge.from);
+	
+	    					var tmp = cell.getAttribute(edge.from);
+	    					
+	    					if (tmp != null)
+	    					{
+	    						// Removes attribute
+		    					graph.setAttributeForCell(cell, edge.from, null);
+	    						var refs = tmp.split(',');
 		    					
-		    					if (tmp != null)
-		    					{
-		    						// Removes attribute
-			    					graph.setAttributeForCell(cell, edge.from, null);
-		    						var refs = tmp.split(',');
-			    					
-			    					for (var j = 0; j < refs.length; j++)
-			        				{
-			    						var ref = lookups[edge.to][refs[j]];
-			    						
-			    						if (ref != null)
-			    						{
-			    							var label = edge.label;
-			    							
-			    							if (edge.fromlabel != null)
-			    							{
-			    								label = (cell.getAttribute(edge.fromlabel) || '') + (label || '');
-			    							}
-			    							
-			    							if (edge.tolabel != null)
-			    							{
-			    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-			    							}
-			    							
-			    							select.push(graph.insertEdge(null, null, label || '',
-				    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
-								    			edge.style || graph.createCurrentEdgeStyle()));
-			    							mxUtils.remove((edge.invert) ? cell : ref, roots);
-			    						}
-			        				}
-		    					}
+		    					for (var j = 0; j < refs.length; j++)
+		        				{
+		    						var ref = lookups[edge.to][refs[j]];
+		    						
+		    						if (ref != null)
+		    						{
+		    							var label = edge.label;
+		    							
+		    							if (edge.fromlabel != null)
+		    							{
+		    								label = (cell.getAttribute(edge.fromlabel) || '') + (label || '');
+		    							}
+		    							
+		    							if (edge.tolabel != null)
+		    							{
+		    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+		    							}
+		    							
+		    							select.push(graph.insertEdge(null, null, label || '',
+			    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
+							    			edge.style || graph.createCurrentEdgeStyle()));
+		    							mxUtils.remove((edge.invert) ? cell : ref, roots);
+		    						}
+		        				}
+	    					}
 						}
 					}
 						
@@ -9494,15 +9524,15 @@
 					}
 					
 					var edgeLayout = new mxParallelEdgeLayout(graph);
-						edgeLayout.spacing = edgespacing;
-					
+					edgeLayout.spacing = edgespacing;
+			
 					var postProcess = function()
 					{
 						edgeLayout.execute(graph.getDefaultParent());
 						
-	    	    				// Aligns cells to grid and/or rounds positions
+    	    				// Aligns cells to grid and/or rounds positions
 						for (var i = 0; i < cells.length; i++)
-		    				{
+	    				{
 							var geo = graph.getCellGeometry(cells[i]);
 							geo.x = Math.round(graph.snap(geo.x));
 							geo.y = Math.round(graph.snap(geo.y));
@@ -9516,7 +9546,7 @@
 							{
 								geo.height = Math.round(graph.snap(geo.height));	
 							}
-		    				}
+	    				}
 					};
 					
 					if (layout == 'circle')
@@ -9542,87 +9572,87 @@
 				    		afterInsert = null;
 					}
 					else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
-						(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
-		    			{
-			    			// Required for layouts to work with new cells
-			    			graph.view.validate();
-			    			
-		    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
-		    				treeLayout.levelDistance = nodespacing;
-		    				treeLayout.edgeRouting = false;
-		    				treeLayout.resetEdges = false;
-		    				
-		    				this.executeLayout(function()
-		    	    		{
-		    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
-		    	    		}, true, afterInsert);
-		    				
-		    				afterInsert = null;
-		    			}
-		    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
-		    					(layout == 'auto' && roots.length == 1))
-		    			{
-			    			// Required for layouts to work with new cells
-			    			graph.view.validate();
-			    			
-			    			var flowLayout = new mxHierarchicalLayout(graph,
-			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
-			    			flowLayout.intraCellSpacing = nodespacing;
-			    			flowLayout.disableEdgeStyle = false;
-			    			
-			        		this.executeLayout(function()
-			        		{
-			        			flowLayout.execute(graph.getDefaultParent(), select);
-			        			
-			        			// Workaround for flow layout moving cells to origin
-			        			graph.moveCells(select, x0, y0);
-			        		}, true, afterInsert);
-				    			
-			    			afterInsert = null;
-			    		}
-		    			else if (layout == 'organic' || (layout == 'auto' &&
-		    					select.length > cells.length))
-		    			{
-			    			// Required for layouts to work with new cells
-			    			graph.view.validate();
-			    			
-		    				var organicLayout = new mxFastOrganicLayout(graph);
-		    				organicLayout.forceConstant = nodespacing * 3;
-		    				organicLayout.resetEdges = false;
-	
-		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
-	
-	    	    				// Ignore other cells
-		    				organicLayout.isVertexIgnored = function(vertex)
-		    				{
-		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
-		    						mxUtils.indexOf(cells, vertex) < 0;
-		    				};
-	
-		    				var edgeLayout = new mxParallelEdgeLayout(graph);
-		    				edgeLayout.spacing = edgespacing;
-			    				
-			    	    		this.executeLayout(function()
-			    	    		{
-			    	    			organicLayout.execute(graph.getDefaultParent());
-					    			postProcess();
-			    	    		}, true, afterInsert);
-			    	    		
-			    	    		afterInsert = null;
-		    			}
+					(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
+	    			{
+		    			// Required for layouts to work with new cells
+		    			graph.view.validate();
 		    			
-		    			this.hideDialog();
-	        		}
-	        		finally
-	        		{
-	        			graph.model.endUpdate();
-	        		}
-					
-	        		if (afterInsert != null)
-	        		{
-	        			afterInsert();
-	        		}
-	    		}
+	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
+	    				treeLayout.levelDistance = nodespacing;
+	    				treeLayout.edgeRouting = false;
+	    				treeLayout.resetEdges = false;
+	    				
+	    				this.executeLayout(function()
+	    	    		{
+	    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
+	    	    		}, true, afterInsert);
+	    				
+	    				afterInsert = null;
+	    			}
+	    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
+	    					(layout == 'auto' && roots.length == 1))
+	    			{
+		    			// Required for layouts to work with new cells
+		    			graph.view.validate();
+		    			
+		    			var flowLayout = new mxHierarchicalLayout(graph,
+		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+		    			flowLayout.intraCellSpacing = nodespacing;
+		    			flowLayout.disableEdgeStyle = false;
+		    			
+		        		this.executeLayout(function()
+		        		{
+		        			flowLayout.execute(graph.getDefaultParent(), select);
+		        			
+		        			// Workaround for flow layout moving cells to origin
+		        			graph.moveCells(select, x0, y0);
+		        		}, true, afterInsert);
+			    			
+		    			afterInsert = null;
+		    		}
+	    			else if (layout == 'organic' || (layout == 'auto' &&
+	    					select.length > cells.length))
+	    			{
+		    			// Required for layouts to work with new cells
+		    			graph.view.validate();
+		    			
+	    				var organicLayout = new mxFastOrganicLayout(graph);
+	    				organicLayout.forceConstant = nodespacing * 3;
+	    				organicLayout.resetEdges = false;
+
+	    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
+
+    	    				// Ignore other cells
+	    				organicLayout.isVertexIgnored = function(vertex)
+	    				{
+	    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
+	    						mxUtils.indexOf(cells, vertex) < 0;
+	    				};
+
+	    				var edgeLayout = new mxParallelEdgeLayout(graph);
+	    				edgeLayout.spacing = edgespacing;
+	    				
+	    	    		this.executeLayout(function()
+	    	    		{
+	    	    			organicLayout.execute(graph.getDefaultParent());
+			    			postProcess();
+	    	    		}, true, afterInsert);
+	    	    		
+	    	    		afterInsert = null;
+	    			}
+	    			
+	    			this.hideDialog();
+        		}
+        		finally
+        		{
+        			graph.model.endUpdate();
+        		}
+				
+        		if (afterInsert != null)
+        		{
+        			afterInsert();
+        		}
+    		}
 		}
 		catch (e)
 		{

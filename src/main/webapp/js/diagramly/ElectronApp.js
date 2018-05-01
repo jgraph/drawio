@@ -112,6 +112,30 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		})));
 	};
 	
+	var graphCreateLinkForHint = Graph.prototype.createLinkForHint;
+	
+	Graph.prototype.createLinkForHint = function(href, label)
+	{
+		var a = graphCreateLinkForHint.call(this, href, label);
+		
+		if (!this.isPageLink(href))
+		{
+			// KNOWN: Event with gesture handler mouseUp the middle click opens a framed window
+			mxEvent.addListener(a, 'click', mxUtils.bind(this, function(evt)
+			{
+				this.openLink(a.getAttribute('href'), a.getAttribute('target'));
+				mxEvent.consume(evt);
+			}));
+		}
+		
+		return a;
+	};
+	
+	Graph.prototype.openLink = function(url, target)
+	{
+		require('electron').shell.openExternal(url);
+	};
+	
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()

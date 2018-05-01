@@ -2162,6 +2162,17 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 	var rx2 = rx * arcWidth;
 	var ry2 = ry * arcWidth;
 	
+	var angDiff = endAngle - startAngle;
+	
+	if (angDiff < 0)
+	{
+		angDiff = angDiff + Math.PI * 2;
+	}
+	else if (angDiff == Math.PI)
+	{
+		endAngle = endAngle + 0.00001;
+	}
+	
 	var startX = rx + Math.sin(startAngle) * rx;
 	var startY = ry - Math.cos(startAngle) * ry;
 	var innerStartX = rx + Math.sin(startAngle) * rx2;
@@ -2171,16 +2182,10 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 	var innerEndX = rx + Math.sin(endAngle) * rx2;
 	var innerEndY = ry - Math.cos(endAngle) * ry2;
 	
-	var angDiff = endAngle - startAngle;
-	
-	if (angDiff < 0)
-	{
-		angDiff = angDiff + Math.PI * 2;
-	}
 		
 	var bigArc = 0;
 	
-	if (angDiff > Math.PI)
+	if (angDiff >= Math.PI)
 	{
 		bigArc = 1;
 	}
@@ -2255,6 +2260,289 @@ Graph.handleFactory[mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE]
 			
 	handles.push(handle3);
 	
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Numbered entry (vertical)
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicNumEntryVert(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dy = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicNumEntryVert, mxActor);
+
+mxShapeBasicNumEntryVert.prototype.cst = {NUM_ENTRY_VERT : 'mxgraph.basic.numberedEntryVert'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicNumEntryVert.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dy = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+
+	var inset = 5;
+
+	var d = Math.min(dy, w - 2 * inset, h - inset);
+	
+	c.ellipse(w * 0.5 - d * 0.5, 0, d, d);
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(0, d * 0.5);
+	c.lineTo(w * 0.5 - d * 0.5 - inset, d * 0.5);
+	c.arcTo(d * 0.5 + inset, d * 0.5 + inset, 0, 0, 0, w * 0.5 + d * 0.5 + inset, d * 0.5);
+	c.lineTo(w, d * 0.5);
+	c.lineTo(w, h);
+	c.lineTo(0, h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicNumEntryVert.prototype.cst.NUM_ENTRY_VERT, mxShapeBasicNumEntryVert);
+
+mxShapeBasicNumEntryVert.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicNumEntryVert.prototype.cst.NUM_ENTRY_VERT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dy'], function(bounds)
+	{
+		var dy = Math.max(0, Math.min(bounds.width, bounds.width, parseFloat(mxUtils.getValue(this.state.style, 'dy', this.dy))));
+
+		return new mxPoint(bounds.x + bounds.width / 2, bounds.y + dy);
+	}, function(bounds, pt)
+	{
+		this.state.style['dy'] = Math.round(100 * Math.max(0, Math.min(bounds.height, bounds.width, pt.y - bounds.y))) / 100;
+	})];
+			
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Bending Arch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicBendingArch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.startAngle = 0.25;
+	this.endAngle = 0.75;
+	this.arcWidth = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicBendingArch, mxActor);
+
+mxShapeBasicBendingArch.prototype.cst = {BENDING_ARCH : 'mxgraph.basic.bendingArch'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicBendingArch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var arcWidth = 1 - Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arcWidth', this.arcWidth))));
+	var rx = w * 0.5;
+	var ry = h * 0.5;
+	var rx2 = rx * arcWidth;
+	var ry2 = ry * arcWidth;
+	
+	var startX = rx + Math.sin(startAngle) * rx;
+	var startY = ry - Math.cos(startAngle) * ry;
+	var innerStartX = rx + Math.sin(startAngle) * rx2;
+	var innerStartY = ry - Math.cos(startAngle) * ry2;
+	var endX = rx + Math.sin(endAngle) * rx;
+	var endY = ry - Math.cos(endAngle) * ry;
+	var innerEndX = rx + Math.sin(endAngle) * rx2;
+	var innerEndY = ry - Math.cos(endAngle) * ry2;
+	
+	var angDiff = endAngle - startAngle;
+	
+	if (angDiff < 0)
+	{
+		angDiff = angDiff + Math.PI * 2;
+	}
+		
+	var bigArc = 0;
+	
+	if (angDiff > Math.PI)
+	{
+		bigArc = 1;
+	}
+
+	var rx3 = rx2 - 5;
+	var ry3 = ry2 - 5;
+
+	c.ellipse(w * 0.5 - rx3, h * 0.5 - ry3, 2 * rx3, 2 * ry3);
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(startX, startY);
+	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	c.lineTo(innerEndX, innerEndY);
+	c.arcTo(rx2, ry2, 0, bigArc, 0, innerStartX, innerStartY);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicBendingArch.prototype.cst.BENDING_ARCH, mxShapeBasicBendingArch);
+
+mxShapeBasicBendingArch.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicBendingArch.prototype.cst.BENDING_ARCH] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['startAngle'], function(bounds)
+	{
+		var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'startAngle', this.startAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(startAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(startAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+
+		this.state.style['startAngle'] = res;
+		
+	})];
+
+	var handle2 = Graph.createHandle(state, ['endAngle'], function(bounds)
+	{
+		var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'endAngle', this.endAngle))));
+
+		return new mxPoint(bounds.x + bounds.width * 0.5 + Math.sin(endAngle) * bounds.width * 0.5, bounds.y + bounds.height * 0.5 - Math.cos(endAngle) * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		var handleX = Math.round(100 * Math.max(-1, Math.min(1, (pt.x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)))) / 100;
+		var handleY = -Math.round(100 * Math.max(-1, Math.min(1, (pt.y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)))) / 100;
+		
+		var res =  0.5 * Math.atan2(handleX, handleY) / Math.PI;
+		
+		if (res < 0)
+		{
+			res = 1 + res;
+		}
+		
+		this.state.style['endAngle'] = res;
+	});
+	
+	handles.push(handle2);
+	
+	var handle3 = Graph.createHandle(state, ['arcWidth'], function(bounds)
+	{
+		var arcWidth = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'arcWidth', this.arcWidth))));
+
+		return new mxPoint(bounds.x + bounds.width / 2, bounds.y + arcWidth * bounds.height * 0.5);
+	}, function(bounds, pt)
+	{
+		this.state.style['arcWidth'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 2, bounds.width / 2, (pt.y - bounds.y) / (bounds.height * 0.5)))) / 100;
+	});
+			
+	handles.push(handle3);
+	
+	return handles;
+};
+
+//**********************************************************************************************************************************************************
+//Three Corner Round Rectangle
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicThreeCornerRoundRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicThreeCornerRoundRect, mxActor);
+
+mxShapeBasicThreeCornerRoundRect.prototype.cst = {THREE_CORNER_ROUND_RECT : 'mxgraph.basic.three_corner_round_rect'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicThreeCornerRoundRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx)))) * 2;
+
+	dx = Math.min(w * 0.5, h * 0.5, dx);
+	
+	c.begin();
+	c.moveTo(dx, 0);
+	c.lineTo(w - dx, 0);
+	c.arcTo(dx, dx, 0, 0, 1, w, dx);
+	c.lineTo(w, h - dx);
+	c.arcTo(dx, dx, 0, 0, 1, w - dx, h);
+	c.lineTo(0, h);
+	c.lineTo(0, dx);
+	c.arcTo(dx, dx, 0, 0, 1, dx, 0);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicThreeCornerRoundRect.prototype.cst.THREE_CORNER_ROUND_RECT, mxShapeBasicThreeCornerRoundRect);
+
+mxShapeBasicThreeCornerRoundRect.prototype.constraints = null;
+
+Graph.handleFactory[mxShapeBasicThreeCornerRoundRect.prototype.cst.THREE_CORNER_ROUND_RECT] = function(state)
+{
+	var handles = [Graph.createHandle(state, ['dx'], function(bounds)
+	{
+		var dx = Math.max(0, Math.min(bounds.width / 4, bounds.width / 4, parseFloat(mxUtils.getValue(this.state.style, 'dx', this.dx))));
+
+		return new mxPoint(bounds.x + dx, bounds.y + dx);
+	}, function(bounds, pt)
+	{
+		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(bounds.height / 4, bounds.width / 4, pt.x - bounds.x))) / 100;
+	})];
+			
 	return handles;
 };
 

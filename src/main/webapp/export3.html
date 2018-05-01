@@ -292,8 +292,6 @@
 			// Converts the graph to a vertical sequence of pages for PDF export
 			if (graph.pdfPageVisible)
 			{
-				// Workaround to match available paper size
-				var printScale = 0.72
 				var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 				var scale = 1 / graph.pageScale;
 				var autoOrigin = false;
@@ -306,9 +304,8 @@
 		
 				// Applies print scale
 				pf = mxRectangle.fromRectangle(pf);
-				pf.width = Math.ceil(pf.width * printScale);
-				pf.height = Math.ceil(pf.height * printScale);
-				scale *= printScale;
+				pf.width = Math.ceil(pf.width);
+				pf.height = Math.ceil(pf.height);
 				
 				// Starts at first visible page
 				var layout = graph.getPageLayout();

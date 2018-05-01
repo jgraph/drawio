@@ -21,6 +21,7 @@ function DriveRealtime(file, doc)
 	this.graph = this.ui.editor.graph;
 	this.model = this.graph.model;
 	this.userId = this.ui.drive.user.id;
+	this.connected = true;
 
 	this.ui.allowAnimation = false;
 	this.codec = new mxCodec();
@@ -38,11 +39,22 @@ function DriveRealtime(file, doc)
 	{
 		var prevValue = this.ui.drive.enableThumbnails;
 		this.ui.drive.enableThumbnails = this.ui.editor.autosave;
-		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+
+		if (this.connected && this.ui.editor.autosave)
+		{
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		}
 		
 		this.file.save(true, mxUtils.bind(this, function()
 		{
-			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+			if (this.connected && this.ui.editor.autosave)
+			{
+				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+			}
+			else
+			{
+				this.file.setModified(true);
+			}
 		}));
 		
 		this.ui.drive.enableThumbnails = prevValue;
@@ -388,59 +400,7 @@ DriveRealtime.prototype.start = function()
 	
 	this.doc.addEventListener(gapi.drive.realtime.EventType.DOCUMENT_SAVE_STATE_CHANGED, mxUtils.bind(this, function(evt)
 	{
-		if (this.saving && !evt.isPending && !evt.isSaving && !forceSave)
-		{
-			// Checks if the mime type of the file has changed on the server-side
-			// when the autosave is triggered to make sure we eventually check
-			// the mime type even if the user continues to change the diagram
-			// within the autosave interval, which will cancel the current thread.
-			if (this.ui.isLegacyDriveDomain() && urlParams['ignoremime'] != '1')
-			{
-				this.ui.drive.verifyMimeType(this.file.getId());
-			}
-
-			// Adds tooltip to small spinner and saves a backup XML copy of the file
-			if (this.file.isAutosave())
-			{
-				this.triggerAutosave();
-			}
-			else
-			{
-				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
-			}
-			
-			this.saving = false;
-			this.resetUpdateStatusThread();
-			this.realtimeHeartbeat = DriveRealtime.prototype.realtimeHeartbeat;
-			
-			if (this.isAliveThread != null)
-			{
-				window.clearTimeout(this.isAliveThread);
-				this.isAliveThread = null;
-			}
-		}
-		
-		if (this.file.isEditable())
-		{
-			var avail = 10485760 - this.rtModel.bytesUsed;
-			
-			if (avail > 0 && avail < 500000 && !this.sizeLimitWarningShown)
-			{
-				// Shows warning just once
-				this.sizeLimitWarningShown = true;
-				
-				this.ui.showError(mxResources.get('warning'), mxResources.get('fileNearlyFullSeeFaq'),
-					mxResources.get('close'), mxUtils.bind(this, function()
-					{
-						// Hides the dialog
-					}), null, mxResources.get('show'), mxUtils.bind(this, function()
-					{
-						// Show FAQ entry
-						window.open('https://desk.draw.io/support/solutions/articles/16000041695');
-					})
-				);
-			}
-		}
+		this.documentSaveStateChanged(evt, forceSave);
 	}));
 	
 	var initialized = mxUtils.bind(this, function()
@@ -479,36 +439,62 @@ DriveRealtime.prototype.start = function()
 /**
  * Syncs initial state from graph model to collab model.
  */
-DriveRealtime.prototype.triggerAutosave = function()
+DriveRealtime.prototype.documentSaveStateChanged = function(evt, forceSave)
 {
-	this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('updatingPreview')));
-	
-	this.file.autosave(this.realtimeAutosaveDelay, this.realtimeMaxAutosaveDelay, mxUtils.bind(this, function(resp)
-	{					
-		// Updates autosave delay to take into account actual delay
-		this.realtimeAutosaveDelay = this.defaultRealtimeAutosaveDelay + Math.min(10000, this.file.saveDelay);
-		
-		// Does not update status if another autosave was scheduled
-		if (this.ui.getCurrentFile() == this.file && !this.saving)
+	if (this.saving && !evt.isPending && !evt.isSaving && !forceSave)
+	{
+		// Checks if the mime type of the file has changed on the server-side
+		// when the autosave is triggered to make sure we eventually check
+		// the mime type even if the user continues to change the diagram
+		// within the autosave interval, which will cancel the current thread.
+		if (this.ui.isLegacyDriveDomain() && urlParams['ignoremime'] != '1')
+		{
+			this.ui.drive.verifyMimeType(this.file.getId());
+		}
+
+		// Adds tooltip to small spinner and saves a backup XML copy of the file
+		if (this.file.isAutosave())
+		{
+			this.triggerAutosave();
+		}
+		else
 		{
 			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
 		}
-	}),
-	mxUtils.bind(this, function(resp)
-	{
-		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('errorUpdatingPreview')));
 		
-		// Handles error where mime type cannot be overridden because it has been changed by another app and no
-		// new revision was created. This happens eg. if draw.io pro overwrites the mime type and adds a new realtime
-		// model to the file which is not visible for this app so we need to switch app to stay connected to RT.
-		// This could be improved to let the RT viewers know that the realtime is no longer valid, but currently
-		// the focus is on not losing data, so only clients that write to the file are being notified with this.
-		if (this.ui.isLegacyDriveDomain() && urlParams['ignoremime'] != '1' && resp != null &&
-			resp.error != null && (resp.error.code == 400 || resp.error.code == 403))
-		{	
-			this.ui.drive.verifyMimeType(this.file.getId(), null, true);
+		this.saving = false;
+		this.connected = true;
+		this.resetUpdateStatusThread();
+		this.realtimeHeartbeat = DriveRealtime.prototype.realtimeHeartbeat;
+		
+		if (this.isAliveThread != null)
+		{
+			window.clearTimeout(this.isAliveThread);
+			this.isAliveThread = null;
 		}
-	}));
+	}
+	
+	if (this.file.isEditable())
+	{
+		var avail = 10485760 - this.rtModel.bytesUsed;
+		
+		if (avail > 0 && avail < 500000 && !this.sizeLimitWarningShown)
+		{
+			// Shows warning just once
+			this.sizeLimitWarningShown = true;
+			
+			this.ui.showError(mxResources.get('warning'), mxResources.get('fileNearlyFullSeeFaq'),
+				mxResources.get('close'), mxUtils.bind(this, function()
+				{
+					// Hides the dialog
+				}), null, mxResources.get('show'), mxUtils.bind(this, function()
+				{
+					// Show FAQ entry
+					window.open('https://desk.draw.io/support/solutions/articles/16000041695');
+				})
+			);
+		}
+	}
 };
 
 /**
@@ -519,7 +505,7 @@ DriveRealtime.prototype.triggerAutosave = function()
 	this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('updatingPreview')));
 	
 	this.file.autosave(this.realtimeAutosaveDelay, this.realtimeMaxAutosaveDelay, mxUtils.bind(this, function(resp)
-	{
+	{					
 		// Updates autosave delay to take into account actual delay
 		this.realtimeAutosaveDelay = this.defaultRealtimeAutosaveDelay + Math.min(10000, this.file.saveDelay);
 		
@@ -814,7 +800,7 @@ DriveRealtime.prototype.timeSince = function(date)
  */
 DriveRealtime.prototype.updateStatus = function()
 {
-	if (!this.saving)
+	if (!this.saving && this.connected)
 	{
 		// LATER: Check if realtime model contains last modified timestamp
 		var mod = this.root.get('modifiedDate');
@@ -1107,7 +1093,11 @@ DriveRealtime.prototype.setFileModified = function()
 	
 	if (!this.saving)
 	{
-		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		if (this.connected)
+		{
+			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		}
+		
 		this.saving = true;
 	}
 };
@@ -1164,8 +1154,14 @@ DriveRealtime.prototype.installGraphModelListener = function()
 				{
 					this.isAliveThread = window.setTimeout(mxUtils.bind(this, function()
 					{
-						this.ui.editor.setStatus('<div class="geStatusAlert geBlink" style="cursor:pointer;">' +
-							mxUtils.htmlEntities(mxResources.get('noResponse')) + '</div>');
+						if (this.connected)
+						{
+							this.ui.editor.setStatus('<div class="geStatusAlert geBlink">' +
+								mxUtils.htmlEntities(mxResources.get('noResponse')) +
+								' <a href="https://desk.draw.io/support/solutions/articles/16000076743" target="_blank"><img border="0" ' +
+								'title="' + mxUtils.htmlEntities(mxResources.get('help')) + '" valign="bottom" src="' +
+								Editor.helpImage + '"/></a></div>');
+						}	
 						
 						this.isAliveThread = window.setTimeout(mxUtils.bind(this, function()
 						{
@@ -1203,17 +1199,66 @@ DriveRealtime.prototype.sessionExpiredError = function()
 DriveRealtime.prototype.timeoutError = function() 
 {
 	// LATER: How to reload realtime document without refreshing the page
-	this.ui.showError(mxResources.get('timeout'), mxResources.get('realtimeTimeout'), mxResources.get('discardChangesAndReconnect'), mxUtils.bind(this, function()
+	if (this.ui.editor.autosave)
 	{
-		this.ui.spinner.spin(document.body, mxResources.get('connecting'));
-		this.file.setModified(false);
-		window.location.reload();
-	}), null, mxResources.get('ignore'), mxUtils.bind(this, function()
+		this.ui.editor.setAutosave(false);
+	}
+	else if (this.connected && !this.timeoutErrorShowing)
 	{
-		this.ui.editor.setStatus('<div class="geStatusAlert geBlink" style="cursor:pointer;">' +
-			mxUtils.htmlEntities(mxResources.get('disconnected')) + '</div>');	
-		this.realtimeHeartbeat *= 2;
-	}));
+		// Checks if we're actually online by retrieving an image
+		var img = new Image();
+		
+		img.onload = mxUtils.bind(this, function()
+		{
+			try
+			{
+				var email = this.ui.drive.getUser().email || 'Unknown email';
+				var desc = this.file.desc;
+	
+				this.ui.logEvent({category: 'Disconnected', action: email, label: {id: desc.id, editable: desc.editable,
+					copyable: desc.copyable, labels: desc.labels, capabilities: desc.capabilities, fileSize: desc.fileSize,
+					teamDriveId: desc.teamDriveId, fileExtension: desc.fileExtension, mimeType: desc.mimeType,
+					explicitlyTrashed: desc.explicitlyTrashed, autosave: this.ui.editor.autosave}});
+			}
+			catch (e)
+			{
+				// ignore
+			}
+
+			// LATER: How to reload realtime document without refreshing the page
+			this.timeoutErrorShowing = true;
+			
+			this.ui.showError(mxResources.get('timeout'), mxResources.get('realtimeTimeout'), mxResources.get('discardChangesAndReconnect'), mxUtils.bind(this, function()
+			{
+				this.ui.spinner.spin(document.body, mxResources.get('connecting'));
+				this.file.setModified(false);
+				window.location.reload();
+			}), null, mxResources.get('ignore'), mxUtils.bind(this, function()
+			{
+				this.showDisconnectedStatus();
+				this.timeoutErrorShowing = false;
+				this.realtimeHeartbeat *= 2;
+				this.connected = false;
+				this.saving = false;
+			}), mxResources.get('help'), mxUtils.bind(this, function()
+			{
+				this.ui.openLink('https://desk.draw.io/support/solutions/articles/16000076743');
+			}), 480, 150);
+		});
+		
+		img.src = IMAGE_PATH + '/1x1.png?t=' + new Date().getTime();
+	}	
+};
+
+/**
+ * 
+ */
+DriveRealtime.prototype.showDisconnectedStatus = function() 
+{
+	this.ui.editor.setStatus('<div class="geStatusAlert geBlink">' + mxUtils.htmlEntities(mxResources.get('disconnected')) +
+			' <a href="https://desk.draw.io/support/solutions/articles/16000076743" target="_blank">' +
+			'<img border="0" title="' + mxUtils.htmlEntities(mxResources.get('help')) + '" valign="bottom" src="' +
+			Editor.helpImage + '"/></a></div>');
 };
 
 /**

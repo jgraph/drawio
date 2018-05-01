@@ -1,11 +1,25 @@
+function guid()
+{
+  function s4()
+  {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+};
+
 var MassDiagramsProcessor = function(macroName, readableName, attParams, processAttFn, logDiv)
 {
 	logDiv.html("<br>");
 	
 	//RegExp that will be used
-	var findMacrosRegEx = new RegExp('\\<ac\\:structured\\-macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)', 'g');
-	var findOneMacroRegEx = new RegExp('\\<ac\\:structured\\-macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)');
+	var findMacrosRegEx = new RegExp('\\<ac\\:structured\\-macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)\\<\\/ac\\:structured\\-macro\\>', 'g');
 	var findMacroIdRegEx = new RegExp('ac\\:macro\\-id\\=\\"([^\\"]+)');
+
+	var findOldMacrosRegEx = new RegExp('\\<ac\\:macro\\s+ac\\:name\\=\\"' + macroName + '\\".*?(?=\\<\\/ac\\:macro\\>)\\<\\/ac\\:macro\\>', 'g');
 	
 	var findAttParamsRegExs = [];
 	
@@ -73,19 +87,90 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 		var pageXml = originalBody;
 		
 		var foundMacros = pageXml.match(findMacrosRegEx);
+		var foundOldMacros = pageXml.match(findOldMacrosRegEx);
 		
 		var macrosParsed = 0;
 		var drawIoMacros = {};
 		var foundMarcosIds = [];
 		var spaceKey = AC.getSpaceKey(page._expandable.space);
+		var macrosCount = (foundMacros? foundMacros.length : 0) + (foundOldMacros? foundOldMacros.length : 0); 
 
+		
+		function attProcessedFn(attInfo)
+		{
+			//Replace found macro with a draw.io one and use the same preview image
+
+			//generate draw.io macro HTML
+			var drawIoMacro = '<ac:structured-macro ac:name="drawio" ac:schema-version="1" ac:macro-id="' + attInfo.macroId 
+					+ '"><ac:parameter ac:name="baseUrl">' + baseUrl 
+					+ '</ac:parameter><ac:parameter ac:name="diagramName">' + AC.htmlEntities(attInfo.name)
+					+ '</ac:parameter><ac:parameter ac:name="width">' + attInfo.width
+					+ '</ac:parameter><ac:parameter ac:name="zoom">' + (attInfo.zoom ? attInfo.zoom : '1')
+					+ '</ac:parameter><ac:parameter ac:name="pageId">' + page.id
+					+ '</ac:parameter><ac:parameter ac:name="lbox">' + (attInfo.lbox ? attInfo.lbox : '1')
+					+ '</ac:parameter><ac:parameter ac:name="height">' + attInfo.height 
+					+ '</ac:parameter><ac:parameter ac:name="revision">' + attInfo.revision 
+					+ (attInfo.previewPng? ('</ac:parameter><ac:parameter ac:name="tempPreview">' + AC.htmlEntities(attInfo.previewPng)) : "")
+					+ '</ac:parameter><ac:parameter ac:name="contentId">' + attInfo.contentId
+					+ '</ac:parameter><ac:parameter ac:name="contentVer">' + attInfo.contentVer
+					+ '</ac:parameter></ac:structured-macro>';
+					
+			drawIoMacros[attInfo.macroId] = drawIoMacro; 
+			macrosParsed++;
+			
+			if (macrosCount == macrosParsed)
+			{
+				for (var j = 0; j < macrosParsed; j++)
+				{
+					var id = foundMarcosIds[j].id;
+					var macroTxt = foundMarcosIds[j].macroTxt;
+					
+					originalBody = originalBody.replace(macroTxt, drawIoMacros[id]);
+				}
+				
+				//update page contents
+				AP.require(['request'], function(request) 
+				{
+					request({
+						type: 'PUT',
+						data: JSON.stringify({
+							"body": {
+								"storage": {
+									"value": originalBody,
+									"representation": "storage",
+									"embeddedContent": []
+								}
+							},
+							"version": {
+						        "number": page.version.number + 1
+						    },
+						    "type": page.type,
+						    "title": page.title,
+						    "status": "current"
+						}),
+						url:  "/rest/api/content/"+ page.id,
+						contentType: 'application/json;charset=UTF-8',
+						success: function(resp) {
+							logDiv.append($('<div>' + readableName + ' diagrams in page "'+ AC.htmlEntities(page.title) +'" processed successfully.</div>'));
+							pageProcessed();
+						},
+						error: function(resp) {
+							logDiv.append($('<div style="color:red">Updating page "'+ AC.htmlEntities(page.title) +'" failed.</div>'));
+							console.error(resp);
+							pageProcessed();
+						}
+					 });
+				});
+			}
+		};
+		
 		if (foundMacros && foundMacros.length > 0)
 		{
 			for (var i = 0; i < foundMacros.length; i++)
 			{
 				var macroId = foundMacros[i].match(findMacroIdRegEx)[1];
 				
-				foundMarcosIds.push(macroId);
+				foundMarcosIds.push({id: macroId, macroTxt: foundMacros[i]});
 				
 				var params = [];
 				
@@ -97,71 +182,7 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 				}
 				
 				//get the attachment content
-				processAttFn(page.id, page.type, spaceKey, params, macroId, function(attInfo)
-				{
-					//Replace found macro with a draw.io one and use the same preview image
-	
-					//generate draw.io macro HTML
-					var drawIoMacro = '<ac:structured-macro ac:name="drawio" ac:schema-version="1" ac:macro-id="' + attInfo.macroId 
-							+ '"><ac:parameter ac:name="baseUrl">' + baseUrl 
-							+ '</ac:parameter><ac:parameter ac:name="diagramName">' + AC.htmlEntities(attInfo.name)
-							+ '</ac:parameter><ac:parameter ac:name="width">' + attInfo.width
-							+ '</ac:parameter><ac:parameter ac:name="zoom">' + (attInfo.zoom ? attInfo.zoom : '1')
-							+ '</ac:parameter><ac:parameter ac:name="pageId">' + page.id
-							+ '</ac:parameter><ac:parameter ac:name="lbox">' + (attInfo.lbox ? attInfo.lbox : '1')
-							+ '</ac:parameter><ac:parameter ac:name="height">' + attInfo.height 
-							+ '</ac:parameter><ac:parameter ac:name="revision">' + attInfo.revision 
-							+ (attInfo.previewPng? ('</ac:parameter><ac:parameter ac:name="tempPreview">' + AC.htmlEntities(attInfo.previewPng)) : "")
-							+ '</ac:parameter><ac:parameter ac:name="contentId">' + attInfo.contentId
-							+ '</ac:parameter><ac:parameter ac:name="contentVer">' + attInfo.contentVer
-							+ '</ac:parameter>';
-							
-					drawIoMacros[attInfo.macroId] = drawIoMacro; 
-					macrosParsed++;
-					
-					if (foundMacros.length == macrosParsed)
-					{
-						for (var j = 0; j < macrosParsed; j++)
-						{
-							var id = foundMarcosIds[j];
-							originalBody = originalBody.replace(findOneMacroRegEx, drawIoMacros[id]);
-						}
-						
-						//update page contents
-						AP.require(['request'], function(request) 
-						{
-							request({
-								type: 'PUT',
-								data: JSON.stringify({
-									"body": {
-										"storage": {
-											"value": originalBody,
-											"representation": "storage",
-											"embeddedContent": []
-										}
-									},
-									"version": {
-								        "number": page.version.number + 1
-								    },
-								    "type": page.type,
-								    "title": page.title,
-								    "status": "current"
-								}),
-								url:  "/rest/api/content/"+ page.id,
-								contentType: 'application/json;charset=UTF-8',
-								success: function(resp) {
-									logDiv.append($('<div>' + readableName + ' diagrams in page "'+ AC.htmlEntities(page.title) +'" processed successfully.</div>'));
-									pageProcessed();
-								},
-								error: function(resp) {
-									logDiv.append($('<div style="color:red">Updating page "'+ AC.htmlEntities(page.title) +'" failed.</div>'));
-									console.error(resp);
-									pageProcessed();
-								}
-							 });
-						});
-					}
-				},
+				processAttFn(page.id, page.type, spaceKey, params, macroId, attProcessedFn,
 				function()
 				{
 					pageProcessed();
@@ -172,7 +193,39 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 				});
 			};
 		}
-		else
+		
+		if (foundOldMacros && foundOldMacros.length > 0)
+		{
+			for (var i = 0; i < foundOldMacros.length; i++)
+			{
+				//these macros has no id, so generate a unique id
+				var macroId = guid();
+				
+				foundMarcosIds.push({id: macroId, macroTxt: foundOldMacros[i]});
+				
+				var params = [];
+				
+				for (var j = 0; j < findAttParamsRegExs.length; j++) 
+				{
+					var paramFound = foundOldMacros[i].match(findAttParamsRegExs[j]);
+					
+					params.push(paramFound? AC.fromHtmlEntities(paramFound[1]) : null); 
+				}
+				
+				//get the attachment content
+				processAttFn(page.id, page.type, spaceKey, params, macroId, attProcessedFn,
+				function()
+				{
+					pageProcessed();
+				},
+				function()
+				{
+					pageProcessed();
+				});
+			};
+		}
+		
+		if (macrosCount == 0)
 		{
 			logDiv.append($('<div>No ' + readableName + ' diagrams found in page "'+ AC.htmlEntities(page.title) +'".</div>'));
 			pageProcessed();
