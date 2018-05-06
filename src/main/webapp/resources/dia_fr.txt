@@ -418,6 +418,7 @@ mathematicalTypesetting=Paramètres d'entrée mathématique
 makeCopy=Faire une copie
 manual=Manuel
 middle=Au milieu
+minimal=Minimal
 misc=Divers
 mockups=Maquettes
 modificationDate=Date de modification

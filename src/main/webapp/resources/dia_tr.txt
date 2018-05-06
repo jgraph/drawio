@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematiksel dizgi
 makeCopy=Kopyasını yap
 manual=Elle
 middle=Orta
+minimal=Minimal
 misc=Çeşitli 
 mockups=Test modelleri
 modificationDate=Modifikasyon tarihi

@@ -418,6 +418,7 @@ mathematicalTypesetting=Математическа текстообработк�
 makeCopy=Направи копие
 manual=Ръководство
 middle=Среден
+minimal=Minimal
 misc=Разни
 mockups=Макети
 modificationDate=Дата на модификация

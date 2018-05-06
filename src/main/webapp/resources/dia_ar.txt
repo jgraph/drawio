@@ -418,6 +418,7 @@ mathematicalTypesetting=‫خيارات الإدخال الرياضي‬
 makeCopy=‫إنشاء نسخة‬
 manual=‫يدوي‬
 middle=‫وسط‬
+minimal=Minimal
 misc=‫متفرقات‬
 mockups=Mockups
 modificationDate=Modification date

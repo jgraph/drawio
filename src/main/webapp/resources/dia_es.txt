@@ -418,6 +418,7 @@ mathematicalTypesetting=Composición tipográfica matemática
 makeCopy=Hacer una copia
 manual=Manual
 middle=Medio
+minimal=Minimal
 misc=Miscelánea
 mockups=Bosquejos
 modificationDate=Fecha de modificación

@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematisk tegnsetting
 makeCopy=Lag en kopi
 manual=Manual
 middle=Midten
+minimal=Minimal
 misc=Øvrig
 mockups=Testmodeller
 modificationDate=Endringsdato

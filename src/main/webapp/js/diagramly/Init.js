@@ -259,8 +259,14 @@ if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 	urlParams['math'] = '0';
 }
 
-// Lightbox enabled chromeless mode
+// Lightbox enables chromeless mode
 if (urlParams['lightbox'] == '1')
 {
 	urlParams['chrome'] = '0';
+}
+
+// Minimal UI disables chromeless toolbar
+if (uiTheme == 'min')
+{
+	urlParams['toolbar'] = '0';
 }

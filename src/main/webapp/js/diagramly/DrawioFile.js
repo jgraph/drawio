@@ -248,7 +248,7 @@ DrawioFile.prototype.getId = function()
  */
 DrawioFile.prototype.isEditable = function()
 {
-	return !this.ui.editor.chromeless || this.ui.editor.editable;
+	return !this.ui.editor.isChromelessView() || this.ui.editor.editable;
 };
 
 /**

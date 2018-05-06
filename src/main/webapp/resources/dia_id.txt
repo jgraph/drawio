@@ -418,6 +418,7 @@ mathematicalTypesetting=Tata Cetak Matematis
 makeCopy=Buat Salinan
 manual=Manual
 middle=Tengah
+minimal=Minimal
 misc=Lain-lain
 mockups=Maket
 modificationDate=Tanggal ubah

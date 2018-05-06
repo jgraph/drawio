@@ -7613,7 +7613,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					rem.setAttribute('title', mxResources.get('delete'));
 					rem.setAttribute('align', 'top');
 					rem.style.paddingTop = '4px';
-					rem.style.marginLeft = '-22px';
+					rem.style.position = 'absolute';
+					rem.style.marginLeft = '-12px';
+					rem.style.zIndex = '1';
 					rem.style.cursor = 'pointer';
 					
 					// Blocks dragging of remove icon
@@ -7621,12 +7623,6 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					{
 						mxEvent.consume(evt);
 					});
-					
-					// Seems to bring remove icon on top of graph
-					if (data == null && img != null)
-					{
-						rem.style.position = 'relative';
-					}
 					
 					(function(wrapperDiv, dataParam, imgParam)
 					{

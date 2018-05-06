@@ -418,6 +418,7 @@ mathematicalTypesetting=Математический набор
 makeCopy=Создать копию
 manual=Вручную
 middle=Середина
+minimal=Minimal
 misc=Прочее
 mockups=Макеты
 modificationDate=Дата изменения

@@ -418,6 +418,7 @@ mathematicalTypesetting=Parametri di scrittura matematica
 makeCopy=Fai una copia
 manual=Manuale
 middle=Al centro
+minimal=Minimal
 misc=Miscellanea
 mockups=Modello
 modificationDate=Data di modifica

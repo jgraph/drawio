@@ -1036,6 +1036,11 @@ Graph.prototype.defaultThemes = {};
 Graph.prototype.baseUrl = ((window != window.top) ? document.referrer : document.location.toString()).split('#')[0];
 
 /**
+ * Specifies if the label should be edited after an insert.
+ */
+Graph.prototype.editAfterInsert = false;
+
+/**
  * Installs child layout styles.
  */
 Graph.prototype.init = function(container)
@@ -1092,6 +1097,14 @@ Graph.prototype.init = function(container)
 	};
 	
 	this.initLayoutManager();
+};
+
+/**
+ * Sets the XML node for the current diagram.
+ */
+Graph.prototype.isLightboxView = function()
+{
+	return this.lightbox;
 };
 
 /**
@@ -1938,6 +1951,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 //			var elbowValue = (direction == mxConstants.DIRECTION_NORTH || direction == mxConstants.DIRECTION_SOUTH) ? 'vertical' : 'horizontal';
 //			edge.style = mxUtils.setStyle(edge.style, 'edgeStyle', 'elbowEdgeStyle');
 //			edge.style = mxUtils.setStyle(edge.style, 'elbow', elbowValue);
+//			edge.style = mxUtils.setStyle(edge.style, 'sourcePortConstraint', direction);
 			result.push(edge);
 		}
 		
@@ -3071,6 +3085,9 @@ HoverIcons.prototype.drag = function(evt, x, y)
 		
 		// Uses elbow edges with vertical or horizontal direction
 //		var direction = this.getDirection();
+//		var es = this.graph.connectionHandler.edgeState;
+//		es.cell.style = mxUtils.setStyle(es.cell.style, 'sourcePortConstraint', direction);
+//		es.style['sourcePortConstraint'] = direction;
 //		var elbowValue = (direction == mxConstants.DIRECTION_NORTH || direction == mxConstants.DIRECTION_SOUTH) ? 'vertical' : 'horizontal';
 //		
 //		var es = this.graph.connectionHandler.edgeState;
@@ -5113,9 +5130,9 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			// Places at same x-coord and 2 grid sizes below existing graph
 			var x = this.snap(Math.round(Math.max(pt.x, bds.x / view.scale - view.translate.x +
-				((bds.width == 0) ? this.gridSize : 0))));
+				((bds.width == 0) ? 2 * this.gridSize : 0))));
 			var y = this.snap(Math.round(Math.max(pt.y, (bds.y + bds.height) / view.scale - view.translate.y +
-				((bds.height == 0) ? 1 : 2) * this.gridSize)));
+				2 * this.gridSize)));
 			
 			return new mxPoint(x, y);
 		};

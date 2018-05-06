@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematikong Typesetting
 makeCopy=Gumawa ng kopya
 manual=De-Mano
 middle=Gitna
+minimal=Minimal
 misc=Sari-sari
 mockups=Mga Mockup
 modificationDate=Petsa ng pagbago

@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematički slog
 makeCopy=Kreiraj kopiju
 manual=Ručno
 middle=Sredina
+minimal=Minimal
 misc=Misc
 mockups=Mockups
 modificationDate=Modification date

@@ -418,6 +418,7 @@ mathematicalTypesetting=Wiskundige notatie
 makeCopy=Een kopie maken
 manual=Handleiding
 middle=Midden
+minimal=Minimal
 misc=Overige
 mockups=Modellen
 modificationDate=Aanpassingsdatum

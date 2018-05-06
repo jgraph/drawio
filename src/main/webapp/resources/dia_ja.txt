@@ -418,6 +418,7 @@ mathematicalTypesetting=数式組版
 makeCopy=複製する
 manual=マニュアル
 middle=中央揃え
+minimal=Minimal
 misc=その他
 mockups=実物大
 modificationDate=変更日

@@ -418,6 +418,7 @@ mathematicalTypesetting=‫סידור דפוס מתמטי‬
 makeCopy=‫צור עותק‬
 manual=‫ידני‬
 middle=‫אמצע‬
+minimal=Minimal
 misc=‫שונות‬
 mockups=‫סקיצות‬
 modificationDate=‫השתנה בתאריך‬

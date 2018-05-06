@@ -418,6 +418,7 @@ mathematicalTypesetting=‫حروف چینی ریاضی‬
 makeCopy=‫ایجاد یک کپی‬
 manual=‫دَستی‬
 middle=‫وسط‬
+minimal=Minimal
 misc=‫متفرقه‬
 mockups=‫ماکت ها‬
 modificationDate=‫تاریخ اصلاح‬

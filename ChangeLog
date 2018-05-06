@@ -1,3 +1,10 @@
+06-MAY-2018: 8.6.0
+
+- Fixes outline connect for BPMN shapes
+- Adds opacity to default style
+- Uses mxGraph 3.9.4 beta 5
+- Adds minimal UI
+
 01-MAY-2018: 8.5.15
 
 - Fixes showing device when no other storage options available

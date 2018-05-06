@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematisk typsättning
 makeCopy=Gör en kopia
 manual=Manual
 middle=Mitten
+minimal=Minimal
 misc=Övrigt
 mockups=Prototyper
 modificationDate=Ändringsdatum

@@ -200,7 +200,7 @@ SelectPage.prototype.execute = function()
 		editor.fireEvent(new mxEventObject('setViewState', 'change', this));
 		
 		// Handles grid state in chromeless mode which is stored in Editor instance
-		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.chromeless ||
+		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.isChromelessView() ||
 			urlParams['grid'] == '1');
 
 		// Updates the display
@@ -345,7 +345,7 @@ EditorUi.prototype.initPages = function()
 			{
 				this.resetScrollbars();
 
-				if (graph.lightbox)
+				if (graph.isLightboxView())
 				{
 					this.lightboxFit();
 				}
@@ -448,7 +448,7 @@ Graph.prototype.createViewState = function(node)
 		guidesEnabled: node.getAttribute('guides') != '0',
 		foldingEnabled: node.getAttribute('fold') != '0',
 		shadowVisible: node.getAttribute('shadow') == '1',
-		pageVisible: (this.lightbox) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
+		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
 		background: (bg != null && bg.length > 0) ? bg : this.defaultGraphBackground,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
 		pageScale: (ps != null) ? ps : mxGraph.prototype.pageScale,
@@ -869,7 +869,7 @@ EditorUi.prototype.updateTabContainer = function()
 		
 		// Automatic tab width to match available width
 		// TODO: Fix tabWidth in chromeless mode
-		var btnWidth = (this.editor.chromeless) ? 29 : 59;
+		var btnWidth = (this.editor.isChromelessView()) ? 29 : 59;
 		var tabWidth = Math.min(140, Math.max(20, (this.tabContainer.clientWidth - btnWidth) / this.pages.length) + 1);
 		var startIndex = null;
 
@@ -1331,7 +1331,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 //Registers codec for MovePage
 (function()
 {
-	var codec = new mxObjectCodec(new MovePage(),  ['ui']);
+	var codec = new mxObjectCodec(new MovePage(), ['ui']);
 	
 	codec.beforeDecode = function(dec, node, obj)
 	{
@@ -1346,7 +1346,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 //Registers codec for RenamePage
 (function()
 {
-	var codec = new mxObjectCodec(new RenamePage(),  ['ui', 'page', 'previous']);
+	var codec = new mxObjectCodec(new RenamePage(), ['ui', 'page', 'previous']);
 	
 	codec.afterEncode = function(enc, obj, node)
 	{
@@ -1376,7 +1376,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 //Registers codec for ChangePage
 (function()
 {
-	var codec = new mxObjectCodec(new ChangePage(),  ['ui', 'relatedPage', 'index', 'neverShown']);
+	var codec = new mxObjectCodec(new ChangePage(), ['ui', 'relatedPage', 'index', 'neverShown']);
 	
 	codec.afterEncode = function(enc, obj, node)
 	{

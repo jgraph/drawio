@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematičke postavke pisanja
 makeCopy=Napravi kopiju
 manual=Ručno
 middle=Sredina
+minimal=Minimal
 misc=Mješavina
 mockups=Model
 modificationDate=Datim uređivanja

@@ -418,6 +418,7 @@ mathematicalTypesetting=Sắp chữ kiểu toán học
 makeCopy=Tạo bản sao
 manual=Hướng dẫn
 middle=Giữa
+minimal=Minimal
 misc=Linh tinh
 mockups=Bản mẫu
 modificationDate=Ngày chỉnh sửa

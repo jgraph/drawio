@@ -418,6 +418,7 @@ mathematicalTypesetting=Composició tipogràfica matemàtica
 makeCopy=Fes una còpia
 manual=Manual
 middle=Mig
+minimal=Minimal
 misc=Diversos
 mockups=Esbossos
 modificationDate=Data de modificació

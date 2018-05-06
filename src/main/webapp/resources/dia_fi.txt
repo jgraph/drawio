@@ -418,6 +418,7 @@ mathematicalTypesetting=Matemaattiset näppäilyasetukset
 makeCopy=Luo kopio
 manual=Manuaalinen
 middle=Keskellä
+minimal=Minimal
 misc=Sekalaiset
 mockups=Mallit
 modificationDate=Muokkauspäivämäärä

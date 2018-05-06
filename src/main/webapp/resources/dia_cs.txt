@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematické nastavení písma
 makeCopy=Udělat kopii
 manual=Manuál
 middle=Střed
+minimal=Minimal
 misc=Různé
 mockups=Mockup prototypy
 modificationDate=Datum změny

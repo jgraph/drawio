@@ -11,7 +11,7 @@ DriveClient = function(editorUi)
 	 */
 	this.ui = editorUi;
 
-	if (this.ui.editor.chromeless && urlParams['rt'] != '1')
+	if (this.ui.editor.isChromelessView() && urlParams['rt'] != '1')
 	{
 		// Workaround for Google Drive requiring the user to click on the file in the
 		// drive UI when not using this scope (user other scope with rt=1 URL param)

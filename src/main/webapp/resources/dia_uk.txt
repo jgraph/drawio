@@ -418,6 +418,7 @@ mathematicalTypesetting=Математична верстка
 makeCopy=Зробити копію
 manual=Вручну
 middle=Посередині
+minimal=Minimal
 misc=Різне
 mockups=Макети
 modificationDate=Дата зміни
