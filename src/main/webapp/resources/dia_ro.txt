@@ -418,6 +418,7 @@ mathematicalTypesetting=Sistem tipografic matematic
 makeCopy=Fă o copie
 manual=Manual
 middle=Mijloc
+minimal=Minimal
 misc=Diverse
 mockups=Mockups
 modificationDate=Data modificării

@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematyczny zestaw znaków
 makeCopy=Zrób kopię 
 manual=Ręczny
 middle=Środek
+minimal=Minimal
 misc=Różne
 mockups=Modele
 modificationDate=Data zmiany

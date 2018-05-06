@@ -418,6 +418,7 @@ mathematicalTypesetting=Atur Huruf Matematik
 makeCopy=Buat satu Salinan
 manual=Manual
 middle=Tengah
+minimal=Minimal
 misc=Pelbagai
 mockups=Latihan
 modificationDate=Tarikh diubahsuai

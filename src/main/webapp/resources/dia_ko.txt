@@ -418,6 +418,7 @@ mathematicalTypesetting=수학 공식 입력
 makeCopy=복사본 만들기
 manual=수동
 middle=중간
+minimal=Minimal
 misc=기타
 mockups=모형
 modificationDate=변경일

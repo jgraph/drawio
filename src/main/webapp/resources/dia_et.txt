@@ -418,6 +418,7 @@ mathematicalTypesetting=Matemaatiline vormistus
 makeCopy=Tee koopia
 manual=Manuaalne
 middle=Keskel
+minimal=Minimal
 misc=Erinevad
 mockups=Mallid
 modificationDate=Muutmise kuupäev

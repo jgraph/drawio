@@ -10,7 +10,7 @@
 		var w = 50;
 		var h = 50;
 
-		var s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=rhombusPerimeter;background=gateway;';
+		var s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=rhombusPerimeter;background=gateway;outlineConnect=0;';
 		//default tags
 		var dt = 'bpmn business process model gateway ';
 		
@@ -100,7 +100,7 @@
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=terminate;', w, h, '', 'Terminate Gateway', null, null, dt + 'terminate')
 		]);
 		
-		s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=ellipsePerimeter;';
+		s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=ellipsePerimeter;outlineConnect=0;';
 		var dt = 'bpmn business process model event ';
 		
 		this.addPaletteFunctions('bpmnEvents', 'BPMN Events', false,

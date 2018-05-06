@@ -418,6 +418,7 @@ mathematicalTypesetting=mathematicalTypesetting
 makeCopy=makeCopy
 manual=manual
 middle=middle
+minimal=minimal
 misc=misc
 mockups=mockups
 modificationDate=modificationDate

@@ -118,6 +118,16 @@
 	EditorUi.prototype.formatEnabled = urlParams['format'] != '0';
 
 	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.closableScratchpad = true;
+	
+	/**
+	 * Specifies if PDF export with pages is enabled.
+	 */
+	EditorUi.prototype.showCsvImport = true;
+
+	/**
 	 * Capability check for canvas export
 	 */
 	(function()
@@ -1264,6 +1274,7 @@
 			// File might have been loaded halfway
 			this.editor.graph.model.clear();
 			this.editor.undoManager.clear();
+			this.setBackgroundImage(null);
 					
 			// Avoids empty hash with no value
 			if (window.location.hash != null && window.location.hash.length > 0)
@@ -1314,7 +1325,7 @@
 					}
 				}
 	
-				if (!this.editor.chromeless || this.editor.editable)
+				if (!this.editor.isChromelessView() || this.editor.editable)
 				{
 					this.editor.graph.selectUnlockedLayer();
 					this.showLayersDialog();
@@ -1326,7 +1337,7 @@
 						window.focus();
 					}
 				}
-				else if (this.editor.graph.lightbox)
+				else if (this.editor.graph.isLightboxView())
 				{
 					this.lightboxFit();
 				}
@@ -1775,7 +1786,8 @@
 	    var buttons = document.createElement('div');
 	    buttons.style.position = 'absolute';
 	    buttons.style.right = '0px';
-	    buttons.style.top = '5px';
+	    buttons.style.top = '0px';
+	    buttons.style.padding = '8px'
 	    
 	    // Workaround for CSS error in IE8 (standards and quirks)
 	    if (!mxClient.IS_QUIRKS && document.documentMode != 8)
@@ -1789,38 +1801,40 @@
 		var btn = document.createElement('img');
 		btn.setAttribute('src', Dialog.prototype.closeImage);
 		btn.setAttribute('title', mxResources.get('close'));
-		btn.setAttribute('align', 'top');
+		btn.setAttribute('valign', 'absmiddle');
 		btn.setAttribute('border', '0');
-		btn.className = 'geButton';
-		btn.style.marginRight = '1px';
-		btn.style.marginTop = '-1px';
-		buttons.appendChild(btn);
+		btn.style.margin = '0 3px';
 		
 		var saveBtn = null;
 		
-		mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
-		{
-			// Workaround for close after any button click in IE8/quirks
-			if (!mxEvent.isConsumed(evt))
+	    if (file.title != '.scratchpad' || this.closableScratchpad)
+	    {
+			buttons.appendChild(btn);
+			
+			mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
 			{
-				var fn = mxUtils.bind(this, function()
+				// Workaround for close after any button click in IE8/quirks
+				if (!mxEvent.isConsumed(evt))
 				{
-					this.closeLibrary(file);
-				});
-				
-				if (saveBtn != null)
-				{
-					this.confirm(mxResources.get('allChangesLost'), null, fn,
-						mxResources.get('cancel'), mxResources.get('discardChanges'));
+					var fn = mxUtils.bind(this, function()
+					{
+						this.closeLibrary(file);
+					});
+					
+					if (saveBtn != null)
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, fn,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+					else
+					{
+						fn();
+					}
+			
+					mxEvent.consume(evt);
 				}
-				else
-				{
-					fn();
-				}
-		
-				mxEvent.consume(evt);
-			}
-		}));
+			}));
+	    }
 		
 		if (file.isEditable())
 		{
@@ -2237,8 +2251,7 @@
 			{
 				var link = document.createElement('span');
 				link.setAttribute('title', mxResources.get('help'));
-				link.style.cssText = 'color:gray;text-decoration:none;';
-				link.className = 'geButton';
+				link.style.cssText = 'color:#a3a3a3;text-decoration:none;margin-right:2px;';
 				mxUtils.write(link, '?');
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
@@ -2309,28 +2322,28 @@
     
     EditorUi.initTheme = function()
     {
-	    	if (uiTheme == 'atlas')
-	    	{
-	    		mxClient.link('stylesheet', STYLE_PATH + '/atlas.css');
+    	if (uiTheme == 'atlas')
+    	{
+    		mxClient.link('stylesheet', STYLE_PATH + '/atlas.css');
 
-	    		if (typeof Toolbar !== 'undefined')
-	    		{
-	    			Toolbar.prototype.unselectedBackground = (mxClient.IS_QUIRKS) ? 'none' : 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
-	    			Toolbar.prototype.selectedBackground = 'rgb(242, 242, 242)';
-	    		}
-	    		
-	    		Editor.prototype.initialTopSpacing = 3;
-	    		EditorUi.prototype.menubarHeight = 41;
-	    		EditorUi.prototype.toolbarHeight = 38;
-	    		EditorUi.prototype.hsplitPosition = 188;
-	    		Sidebar.prototype.thumbWidth = 46;
-	    		Sidebar.prototype.thumbHeight = 46;
-	    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
-	    		Sidebar.prototype.thumbBorder = 2;
-	    	}
-	    	else if (uiTheme == 'dark')
-	    	{
-	    		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
+    		if (typeof Toolbar !== 'undefined')
+    		{
+    			Toolbar.prototype.unselectedBackground = (mxClient.IS_QUIRKS) ? 'none' : 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
+    			Toolbar.prototype.selectedBackground = 'rgb(242, 242, 242)';
+    		}
+    		
+    		Editor.prototype.initialTopSpacing = 3;
+    		EditorUi.prototype.menubarHeight = 41;
+    		EditorUi.prototype.toolbarHeight = 38;
+    		EditorUi.prototype.hsplitPosition = 188;
+    		Sidebar.prototype.thumbWidth = 46;
+    		Sidebar.prototype.thumbHeight = 46;
+    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
+    		Sidebar.prototype.thumbBorder = 2;
+    	}
+    	else if (uiTheme == 'dark')
+    	{
+    		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
 			Dialog.backdropColor = '#2a2a2a';
 	    		Graph.prototype.defaultThemeName = 'darkTheme';
@@ -2352,7 +2365,7 @@
 				Editor.helpImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAP1BMVEUAAAD///////////////////////////////////////////////////////////////////////////////9Du/pqAAAAFXRSTlMAT30qCJRBboyDZyCgRzUUdF46MJlgXETgAAAAeklEQVQY022O2w4DIQhEQUURda/9/28tUO2+7CQS5sgQ4F1RapX78YUwRqQjTU8ILqQfKerTKTvACJ4nLX3krt+8aS82oI8aQC4KavRgtvEW/mDvsICgA03PSGRr79MqX1YPNIxzjyqtw8ZnnRo4t5a5undtJYRywau+ds4Cyza3E6YAAAAASUVORK5CYII=';
 				Editor.checkmarkImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAMAAACeyVWkAAAARVBMVEUAAACZmZkICAgEBASNjY2Dg4MYGBiTk5N5eXl1dXVmZmZQUFBCQkI3NzceHh4MDAykpKSJiYl+fn5sbGxaWlo/Pz8SEhK96uPlAAAAAXRSTlMAQObYZgAAAE5JREFUGNPFzTcSgDAQQ1HJGUfy/Y9K7V1qeOUfzQifCQZai1XHaz11LFysbDbzgDSSWMZiETz3+b8yNUc/MMsktxuC8XQBSncdLwz+8gCCggGXzBcozAAAAABJRU5ErkJggg==';
 			}
-		}
+    	}
     };
     
     EditorUi.initTheme();
@@ -8420,11 +8433,11 @@
 					{
 						this.setFileData(xml);
 						
-						if (!this.editor.chromeless)
+						if (!this.editor.isChromelessView())
 						{
 							this.showLayersDialog();
 						}
-						else if (this.editor.graph.lightbox)
+						else if (this.editor.graph.isLightboxView())
 						{
 							this.lightboxFit();
 						}
@@ -8992,7 +9005,7 @@
 							this.buttonContainer.style.paddingRight = '12px';
 							this.buttonContainer.style.paddingTop = '12px';
 						}
-						else
+						else if (uiTheme != 'min')
 						{
 							this.buttonContainer.style.paddingRight = '38px';
 							this.buttonContainer.style.paddingTop = '6px';

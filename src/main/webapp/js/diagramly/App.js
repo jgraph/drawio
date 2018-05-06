@@ -12,8 +12,8 @@
  */
 App = function(editor, container, lightbox)
 {
-	EditorUi.call(this, editor, container, (lightbox != null) ? lightbox : urlParams['lightbox'] == '1');
-
+	EditorUi.call(this, editor, container, (lightbox != null) ? lightbox : (urlParams['lightbox'] == '1' || uiTheme == 'min'));
+	
 	// Pre-fetches images
 	if (mxClient.IS_SVG)
 	{
@@ -572,7 +572,7 @@ App.main = function(callback, createUi)
 		}
 
 		// Main
-		var ui = (createUi != null) ? createUi() : new App(new Editor(urlParams['chrome'] == '0'));
+		var ui = (createUi != null) ? createUi() : new App(new Editor(urlParams['chrome'] == '0' || uiTheme == 'min', null, null, null, urlParams['chrome'] != '0'));
 		
 		if (window.mxscript != null)
 		{
@@ -1177,7 +1177,7 @@ App.prototype.getEditBlankXml = function()
 {
 	var file = this.getCurrentFile();
 	
-	if (file != null && this.editor.chromeless && this.editor.graph.lightbox && file.realtime == null)
+	if (file != null && this.editor.isChromelessView() && this.editor.graph.isLightboxView() && file.realtime == null)
 	{
 		return file.getData();
 	}
@@ -1348,7 +1348,7 @@ App.prototype.onBeforeUnload = function()
 			// KNOWN: Message is ignored by most browsers
 			if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
 				urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
-				!this.editor.chromeless)
+				!this.editor.isChromelessView())
 			{
 				return mxResources.get('ensureDataSaved');
 			}
@@ -1373,7 +1373,7 @@ App.prototype.onBeforeUnload = function()
  */
 App.prototype.updateDocumentTitle = function()
 {
-	if (!this.editor.graph.lightbox)
+	if (!this.editor.graph.isLightboxView())
 	{
 		var title = this.editor.appName;
 		var file = this.getCurrentFile();
@@ -2361,7 +2361,7 @@ App.prototype.showSplash = function(force)
 			}), true);
 	});
 	
-	if (this.editor.chromeless)
+	if (this.editor.isChromelessView())
 	{
 		this.handleError({message: mxResources.get('noFileSelected')},
 			mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
@@ -4844,7 +4844,8 @@ App.prototype.updateUserElement = function()
 								'</td><td valign="top" style="white-space:nowrap;' +
 								((driveUser.pictureUrl != null) ? 'padding-top:14px;' : '') +
 								'"><b>' + mxUtils.htmlEntities(driveUser.displayName) + '</b><br>' +
-								'<small>' + mxUtils.htmlEntities(driveUser.email) + '</small></tr></table>';
+								'<small>' + mxUtils.htmlEntities(driveUser.email) + '</small><br><br>' +
+								'<small>' + mxResources.get('googleDrive') + '</small></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
 							div.style.padding = '12px';
@@ -4903,7 +4904,7 @@ App.prototype.updateUserElement = function()
 						}
 					}
 					
-					var addUser = mxUtils.bind(this, function(user, logo, logout)
+					var addUser = mxUtils.bind(this, function(user, logo, logout, label)
 					{
 						if (user != null)
 						{
@@ -4916,8 +4917,9 @@ App.prototype.updateUserElement = function()
 							this.userPanel.innerHTML += '<table style="font-size:10pt;padding:20px 20px 10px 10px;"><tr><td valign="top">' +
 								((logo != null) ? '<img style="margin-right:10px;" src="' + logo + '" width="40" height="40"/></td>' : '') +
 								'<td valign="middle" style="white-space:nowrap;"><b>' + mxUtils.htmlEntities(user.displayName) + '</b>' +
-								((user.email != null) ? '<br><font color="gray">' + mxUtils.htmlEntities(user.email) + '</font></td>' : '') +
-								'</tr></table>';
+								((user.email != null) ? '<br><font color="gray">' + mxUtils.htmlEntities(user.email) + '</font>' : '') +
+								((label != null) ? '<br><br><small>' + mxUtils.htmlEntities(label) + '</small>' : '') +
+								'</td></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
 							div.style.padding = '12px';
@@ -4962,7 +4964,7 @@ App.prototype.updateUserElement = function()
 							{
 								this.dropbox.logout();
 							}
-						}));
+						}), mxResources.get('dropbox'));
 					}
 
 					if (this.oneDrive != null)
@@ -4993,7 +4995,7 @@ App.prototype.updateUserElement = function()
 							{
 								this.oneDrive.logout();
 							}
-						}));
+						}), mxResources.get('oneDrive'));
 					}
 
 					if (this.gitHub != null)
@@ -5024,7 +5026,7 @@ App.prototype.updateUserElement = function()
 							{
 								this.gitHub.logout();
 							}
-						}));
+						}), mxResources.get('github'));
 					}
 					
 					//TODO We have no user info from Trello, how we can create a user?
@@ -5056,7 +5058,7 @@ App.prototype.updateUserElement = function()
 							{
 								this.trello.logout();
 							}
-						}));
+						}), mxResources.get('trello'));
 					}
 					
 					if (!connected)

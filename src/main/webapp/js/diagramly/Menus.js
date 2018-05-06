@@ -798,7 +798,7 @@
 		{
 			if (!mxClient.IS_CHROMEAPP && editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['about']);
+				this.addMenuItems(menu, ['about'], parent);
 			}
 			else
 			{
@@ -822,10 +822,13 @@
 							encodeURIComponent(term));
 						this.editorUi.logEvent({category: 'Help', action: 'search', label: term});
 						
-						window.setTimeout(mxUtils.bind(this, function()
+						if (this.editorUi.menubar != null)
 						{
-							this.editorUi.menubar.hideMenu();
-						}), 0);
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								this.editorUi.menubar.hideMenu();
+							}), 0);
+						}
 					}
 				}));
 				
@@ -852,14 +855,14 @@
 					input.focus();
 				}, 0);
 				
-				this.addMenuItems(menu, ['-', 'quickStart', 'userManual', 'keyboardShortcuts', '-']);
+				this.addMenuItems(menu, ['-', 'quickStart', 'userManual', 'keyboardShortcuts', '-'], parent);
 				
 				if (!mxClient.IS_CHROMEAPP)
 				{
-					this.addMenuItems(menu, ['feedback']);
+					this.addMenuItems(menu, ['feedback'], parent);
 				}
 
-				this.addMenuItems(menu, ['support', '-', 'about']);
+				this.addMenuItems(menu, ['support', '-', 'about'], parent);
 			}
 
 			if (urlParams['ruler'] == '1')
@@ -1732,11 +1735,14 @@
 					dlg.init();
 				}, parent);
 			}
-			
-			menu.addItem(mxResources.get('csv') + '...', null, function()
+
+			if (editorUi.showCsvImport)
 			{
-				editorUi.showImportCsvDialog();
-			}, parent);
+				menu.addItem(mxResources.get('csv') + '...', null, function()
+				{
+					editorUi.showImportCsvDialog();
+				}, parent);
+			}
 		})).isEnabled = isGraphEnabled;
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1748,7 +1754,19 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 
-			if (uiTheme != 'atlas' && uiTheme != 'dark')
+			if (uiTheme != 'atlas' && uiTheme != 'dark' && uiTheme != 'min')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
+
+			item = menu.addItem(mxResources.get('minimal'), null, function()
+			{
+				mxSettings.setUi('min');
+				mxSettings.save();
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			}, parent);
+			
+			if (uiTheme == 'min')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -2006,19 +2024,24 @@
         			graph.getModel().endUpdate();
         		}
 			
-        		graph.container.focus();
-        		graph.setSelectionCell(cell);
         		graph.scrollCellToVisible(cell);
-    	    		
-    	    		return cell;
+        		graph.setSelectionCell(cell);
+        		graph.container.focus();
+
+        		if (graph.editAfterInsert)
+        		{
+        	        graph.startEditing(cell);
+        		}
+        		
+    	    	return cell;
 		};
 		
 		editorUi.actions.addAction('insertText', function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;' +
-    	    				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;'));
+    			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;' +
+    				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;'));
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
 		
@@ -2026,7 +2049,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    			insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;');
 			}
 		}, null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
 		
@@ -2034,7 +2057,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    			insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;');
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
 		
@@ -2042,7 +2065,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    			insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;');
 			}
 		}).isEnabled = isGraphEnabled;
 		

@@ -6,7 +6,6 @@ package com.mxgraph.online;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -73,13 +72,30 @@ public class ProxyServlet extends HttpServlet
 				response.setHeader("Expires", "0");
 				response.addHeader("Access-Control-Allow-Origin", dom);
 				
-				// Status code pass-through
+				// Status code pass-through and follow redirects
 				if (connection instanceof HttpURLConnection)
 				{
+					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
+					
 					// Workaround for 451 response from Iconfinder CDN
 					((HttpURLConnection) connection).setRequestProperty("User-Agent", "draw.io");
+					int status = ((HttpURLConnection) connection).getResponseCode();
+					int counter = 0;
 					
-					response.setStatus(((HttpURLConnection) connection).getResponseCode());
+					// Follows a maximum of 2 redirects 
+					while (counter++ < 2 && (status == HttpURLConnection.HTTP_MOVED_PERM ||
+						   status == HttpURLConnection.HTTP_MOVED_TEMP))
+					{
+						url = new URL(connection.getHeaderField("Location"));
+						connection = url.openConnection();
+						((HttpURLConnection) connection).setInstanceFollowRedirects(true);
+						
+						// Workaround for 451 response from Iconfinder CDN
+						((HttpURLConnection) connection).setRequestProperty("User-Agent", "draw.io");
+						status = ((HttpURLConnection) connection).getResponseCode();
+					}
+					
+					response.setStatus(status);
 				}
 				
 				String base64 = request.getParameter("base64");

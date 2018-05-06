@@ -418,6 +418,7 @@ mathematicalTypesetting=数学排版
 makeCopy=创建副本
 manual=手册
 middle=垂直居中
+minimal=Minimal
 misc=杂项
 mockups=实体模型
 modificationDate=修改日期

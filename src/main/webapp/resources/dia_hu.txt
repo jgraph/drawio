@@ -418,6 +418,7 @@ mathematicalTypesetting=Matematikai betűszedés
 makeCopy=Másolatot készít
 manual=Kézi
 middle=Közép
+minimal=Minimal
 misc=Vegyes
 mockups=Makett
 modificationDate=Módosítási dátum

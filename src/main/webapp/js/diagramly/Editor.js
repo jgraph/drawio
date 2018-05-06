@@ -740,8 +740,9 @@
 		DiagramFormatPanel.prototype.addView = function(div)
 		{
 			var div = diagramFormatPanelAddView.apply(this, arguments);
+			var file = this.editorUi.getCurrentFile();
 			
-			if (mxClient.IS_SVG)
+			if (mxClient.IS_SVG && (urlParams['embed'] == '1' || (file != null && file.isEditable())))
 			{
 				var ui = this.editorUi;
 				var editor = ui.editor;
