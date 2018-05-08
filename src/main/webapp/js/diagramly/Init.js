@@ -264,9 +264,3 @@ if (urlParams['lightbox'] == '1')
 {
 	urlParams['chrome'] = '0';
 }
-
-// Minimal UI disables chromeless toolbar
-if (uiTheme == 'min')
-{
-	urlParams['toolbar'] = '0';
-}

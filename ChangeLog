@@ -1,3 +1,9 @@
+08-MAY-2018: 8.6.1
+
+- Fixes links for transparent groups in viewer
+- Fixes minimal UI for small screens
+- Uses mxGraph 3.9.4 beta 6
+
 06-MAY-2018: 8.6.0
 
 - Fixes outline connect for BPMN shapes

@@ -3,6 +3,12 @@
  */
 EditorUi.initMinimalTheme = function()
 {
+	// Disabled in lightbox mode
+	if (urlParams['lightbox'] == '1')
+	{
+		return;
+	}
+	
     var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
     try
@@ -18,7 +24,7 @@ EditorUi.initMinimalTheme = function()
            '.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
            '.mxWindow .geColorBtn, .geDialog .geColorBtn { background: none !important; }' +
            'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: #353535 !important; border-color: rgb(216, 216, 216); }' +
-           'div.diagramContainer button.geBtn, .mxWindow button.geBtn, .geDialog button.geBtn { min-width:72px; font-weight: normal; background: none; }' +
+           'div.diagramContainer button.geBtn, .mxWindow button.geBtn, .geDialog button.geBtn { min-width:72px; font-weight: 600; background: none; }' +
            'div.diagramContainer button.geBtn:hover, .mxWindow button.geBtn:hover, .geDialog button.geBtn:hover { box-shadow: none; border-color: rgb(216, 216, 216); }' +
            'div.diagramContainer button.gePrimaryBtn, .mxWindow button.gePrimaryBtn, .geDialog button.gePrimaryBtn, html body .gePrimaryBtn { background: #29b6f2; color: #fff !important; border: none; box-shadow: none; }' +
            'html body .gePrimaryBtn:hover { background: #29b6f2; border: none; box-shadow: inherit; }' +
@@ -108,8 +114,8 @@ EditorUi.initMinimalTheme = function()
 	    if (ui.formatWindow == null)
 	    {
 	        ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
-	           Math.max(0, ui.diagramContainer.clientWidth - ui.formatWidth - 12), 56,
-	           ui.formatWidth, 546, function(container)
+	           Math.max(20, ui.diagramContainer.clientWidth - 240 - 12), 56,
+	           240, Math.min(546, graph.container.clientHeight - 10), function(container)
 	        {
 	            var format = ui.createFormat(container);
 	            format.init();
@@ -124,23 +130,19 @@ EditorUi.initMinimalTheme = function()
 	        {
 	            ui.fireEvent(new mxEventObject('format'));
 	        });
-	        ui.formatWindow.window.minimumSize = new mxRectangle(0, 0, ui.formatWidth, 80);
+	        ui.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
 	        ui.formatWindow.window.setVisible(true);
-	        ui.formatWindow.window.fit();
 	        ui.fireEvent(new mxEventObject('sidebar'));
 	    }
 	    else
 	    {
 	        ui.formatWindow.window.setVisible(!ui.formatWindow.window.isVisible());
-
-	        if (ui.formatWindow.window.isVisible())
-	        {
-	            ui.formatWindow.window.fit();
-	        }
 	    }
 
-	    var offset = mxUtils.getOffset(ui.container);
-	    ui.formatWindow.window.div.style.top = Math.max(parseInt(ui.formatWindow.window.div.style.top), offset.y) + 'px';
+        if (ui.formatWindow.window.isVisible())
+        {
+            ui.formatWindow.window.fit();
+        }
 	};
 
 	function toggleShapes(ui)
@@ -151,7 +153,7 @@ EditorUi.initMinimalTheme = function()
 
 	    if (ui.sidebarWindow == null)
 	    {
-	        var w = Math.min(graph.container.clientWidth - 10, 300);
+	        var w = Math.min(graph.container.clientWidth - 10, 266);
 	        
 	        ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10, 56,
 	           w - 6, Math.min(600, graph.container.clientHeight - 30),
@@ -248,7 +250,6 @@ EditorUi.initMinimalTheme = function()
 	        });
 	        ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 	        ui.sidebarWindow.window.setVisible(true);
-	        ui.sidebarWindow.window.fit();
 	        ui.fireEvent(new mxEventObject('sidebar'));
 	        
 	        ui.getLocalData('sidebar', function(value)
@@ -261,15 +262,12 @@ EditorUi.initMinimalTheme = function()
 	    else
 	    {
     		ui.sidebarWindow.window.setVisible(!ui.sidebarWindow.window.isVisible());
-	        
-	        if (ui.sidebarWindow.window.isVisible())
-	        {
-	            ui.sidebarWindow.window.fit();
-	        }
 	    }
-	    
-	    var offset = mxUtils.getOffset(ui.container);
-	    ui.sidebarWindow.window.div.style.top = Math.max(parseInt(ui.sidebarWindow.window.div.style.top), offset.y) + 'px';
+        
+        if (ui.sidebarWindow.window.isVisible())
+        {
+            ui.sidebarWindow.window.fit();
+        }
 	};
 	
     // Changes colors for some UI elements
@@ -736,7 +734,7 @@ EditorUi.initMinimalTheme = function()
         {
         	ui.menus.addSubmenu('preferences', menu, parent);
 			menu.addSeparator(parent);
-			
+
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
@@ -755,12 +753,12 @@ EditorUi.initMinimalTheme = function()
 			else
 			{
 	        	ui.menus.addMenuItems(menu, ['new'], parent);
-				ui.menus.addSubmenu('openFrom', menu, parent, mxResources.get('open'));
+				ui.menus.addSubmenu('openFrom', menu, parent);
 				menu.addSeparator(parent);
 				ui.menus.addSubmenu('save', menu, parent);
 			}
-				
-            ui.menus.addSubmenu('exportAs', menu, parent);
+
+			ui.menus.addSubmenu('exportAs', menu, parent);
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags', '-'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
@@ -821,14 +819,21 @@ EditorUi.initMinimalTheme = function()
 			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
         })));
         
+        // Augments the existing export menu
+        var exportAsMenu = ui.menus.get('exportAs');
+        
         ui.menus.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['exportPng', 'exportJpg', 'exportSvg', '-', 'exportPdf', 'exportVsdx', '-',
-                                         'exportHtml', 'exportXml', 'exportUrl', '-'], parent);
+        	exportAsMenu.funct(menu, parent);
+            menu.addSeparator(parent);
             ui.menus.addSubmenu('embed', menu, parent);
-            ui.menus.addSubmenu('publish', menu, parent);
+            // Publish menu contains only one element by default...
+            //ui.menus.addSubmenu('publish', menu, parent); 
+            ui.menus.addMenuItems(menu, ['publishLink'], parent);
         })));
-        
+
+        var langMenu = ui.menus.get('language');
+
         ui.menus.put('preferences', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			if (urlParams['embed'] != '1')
@@ -836,7 +841,11 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('theme', menu, parent);
 			}
 			
-			ui.menus.addSubmenu('language', menu, parent);
+			if (langMenu != null)
+			{
+				ui.menus.addSubmenu('language', menu, parent);
+			}
+			
 			menu.addSeparator(parent);
 			
             ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'pageScale'], parent);
@@ -1112,13 +1121,53 @@ EditorUi.initMinimalTheme = function()
 		ui.statusContainer.style.marginTop = '7px';
 		ui.statusContainer.style.marginLeft = '6px';
 		ui.statusContainer.style.color = 'gray';
+		ui.statusContainer.style.cursor = 'default';
+		
+		function updateTitle()
+		{
+			var file = ui.getCurrentFile();
+			
+			if (file != null && file.getTitle() != null)
+			{
+				var mode = file.getMode();
+				
+				if (mode == 'google')
+				{
+					mode = 'googleDrive';
+				}
+				else if (mode == 'github')
+				{
+					mode = 'gitHub';
+				}
+				else if (mode == 'onedrive')
+				{
+					mode = 'oneDrive';
+				}
+				
+				mode = mxResources.get(mode);
+				menubar.setAttribute('title', file.getTitle() + ((mode != null) ? ' (' + mode + ')' : ''));
+			}
+			else
+			{
+				menubar.removeAttribute('title');
+			}
+		};
 		
 		// Connects the status bar to the editor status
 		ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
 		{
 			ui.setStatusText(ui.editor.getStatus());
 		}));
-	
+		
+		// Connects the status bar to the editor status
+		var uiDescriptorChanged = ui.descriptorChanged;
+		
+		ui.descriptorChanged = function()
+		{
+			uiDescriptorChanged.apply(this, arguments);
+			updateTitle();
+		};
+		
 		ui.setStatusText(ui.editor.getStatus());
 		menubar.appendChild(ui.statusContainer);
 
@@ -1129,29 +1178,24 @@ EditorUi.initMinimalTheme = function()
 		// Container for the user element
 		ui.menubarContainer = ui.buttonContainer;
 		
-		if (iw >= 480)
+		if (langMenu != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && iw >= 480)
 		{
-			var langMenu = ui.menus.get('language');
+			var elt = menuObj.addMenu('', langMenu.funct);
+			elt.setAttribute('title', mxResources.get('language'));
 			
-			if (langMenu != null)
-			{
-				var elt = menuObj.addMenu('', langMenu.funct);
-				elt.setAttribute('title', mxResources.get('language'));
-				
-				elt.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==)';
-	        	elt.style.backgroundPosition = 'center center';
-	        	elt.style.backgroundRepeat = 'no-repeat';
-	        	elt.style.backgroundSize = '24px 24px';
-				elt.style.position = 'absolute';
-	        	elt.style.height = '24px';
-	        	elt.style.width = '24px';
-				elt.style.zIndex = '1';
-				elt.style.top = '11px';
-				elt.style.right = '14px';
-				mxUtils.setOpacity(elt, 30);
-				
-				menubar.appendChild(elt);
-			}
+			elt.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==)';
+        	elt.style.backgroundPosition = 'center center';
+        	elt.style.backgroundRepeat = 'no-repeat';
+        	elt.style.backgroundSize = '24px 24px';
+			elt.style.position = 'absolute';
+        	elt.style.height = '24px';
+        	elt.style.width = '24px';
+			elt.style.zIndex = '1';
+			elt.style.top = '11px';
+			elt.style.right = '14px';
+			mxUtils.setOpacity(elt, 30);
+			
+			menubar.appendChild(elt);
 		}
 			
         ui.tabContainer = document.createElement('div');
