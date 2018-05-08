@@ -73,42 +73,6 @@
 			}
 		}
 		
-		// Redirects page if required
-		if (urlParams['dev'] != '1')
-		{
-			(function()
-			{
-				var proto = window.location.protocol;
-				
-				// Electron protocol is file:
-				if (proto != 'file:')
-				{
-					var host = window.location.host;
-		
-					// Redirects apex and rt to www
-					if (host === 'draw.io' || host === 'rt.draw.io')
-					{
-						host = 'www.draw.io';
-					}
-					
-					if (proto != 'https:')
-					{
-						proto = 'https:';
-					}
-					
-					var href = proto + '//' + host + window.location.href.substring(
-							window.location.protocol.length +
-							window.location.host.length + 2);
-		
-					// Redirects if href changes
-					if (href != window.location.href)
-					{
-						window.location.href = href;
-					}
-				}
-			})();
-		}
-		
 		/**
 		 * Adds meta tags with application name (depends on offline URL parameter)
 		 */
