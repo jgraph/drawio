@@ -4,7 +4,7 @@
 EditorUi.initMinimalTheme = function()
 {
 	// Disabled in lightbox mode
-	if (urlParams['lightbox'] == '1')
+	if (urlParams['lightbox'] == '1' || urlParams['chrome'] == '0')
 	{
 		return;
 	}
@@ -757,8 +757,23 @@ EditorUi.initMinimalTheme = function()
 				menu.addSeparator(parent);
 				ui.menus.addSubmenu('save', menu, parent);
 			}
-
+			
 			ui.menus.addSubmenu('exportAs', menu, parent);
+
+			var file = ui.getCurrentFile();
+			
+			if (file != null && file.constructor == DriveFile)
+			{
+				ui.menus.addMenuItems(menu, ['-', 'share'], parent);
+
+				if (file.realtime != null)
+				{
+					ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
+				}
+				
+				menu.addSeparator(parent);
+			}
+			
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags', '-'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
@@ -799,7 +814,7 @@ EditorUi.initMinimalTheme = function()
 			
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['share', '-', 'makeCopy', 'moveToFolder'], parent);
+				ui.menus.addMenuItems(menu, ['createRevision', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
 			}
 			else
 			{
@@ -809,11 +824,6 @@ EditorUi.initMinimalTheme = function()
 			if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
-			}
-			
-			if (file != null && file.constructor == DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['createRevision'], parent);
 			}
 			
 			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
