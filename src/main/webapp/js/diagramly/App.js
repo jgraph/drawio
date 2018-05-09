@@ -3318,7 +3318,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.loadFile = function(id, sameWindow, file)
+App.prototype.loadFile = function(id, sameWindow, file, success)
 {
 	this.hideDialog();
 	
@@ -3354,6 +3354,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
 						if (data != null)
 						{
 							this.fileLoaded(new StorageFile(this, data, id));
+
+							if (success != null)
+							{
+								success();
+							}
 						}
 						else
 						{
@@ -3375,6 +3380,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
 				// File already loaded
 				this.spinner.stop();
 				this.fileLoaded(file);
+
+				if (success != null)
+				{
+					success();
+				}
 			}
 			else if (id.charAt(0) == 'R')
 			{
@@ -3394,6 +3404,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
 					return id;
 				};
 				this.fileLoaded(tempFile);
+
+				if (success != null)
+				{
+					success();
+				}
 			}
 			else if (id.charAt(0) == 'U')
 			{
@@ -3452,7 +3467,7 @@ App.prototype.loadFile = function(id, sameWindow, file)
 									if (this.drive != null)
 									{
 										this.spinner.stop();
-										this.loadFile('G' + url.substring(31, url.lastIndexOf('&')), sameWindow);
+										this.loadFile('G' + url.substring(31, url.lastIndexOf('&')), sameWindow, success);
 										
 										return true;
 									}
@@ -3517,6 +3532,11 @@ App.prototype.loadFile = function(id, sameWindow, file)
 					{
 						this.spinner.stop();
 						this.fileLoaded(file);
+
+						if (success != null)
+						{
+							success();
+						}
 					}), mxUtils.bind(this, function(resp)
 					{
 						// Makes sure the file does not save the invalid UI model and overwrites anything important
