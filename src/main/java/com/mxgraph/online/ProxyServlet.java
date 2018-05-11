@@ -41,6 +41,7 @@ public class ProxyServlet extends HttpServlet
 		String urlParam = request.getParameter("url");
 		
 		// build the UML source from the compressed request parameter
+		String ua = request.getHeader("User-Agent");
 		String ref = request.getHeader("referer");
 		String dom = null;
 
@@ -53,6 +54,13 @@ public class ProxyServlet extends HttpServlet
 				.matches("https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
 		{
 			dom = ref.toLowerCase().substring(0, ref.indexOf(".quipelements.com/") + 17);
+		}
+		// Enables Confluence/Jira proxy via referer or hardcoded user-agent (for old versions)
+		// UA refers to old FF on macOS so low risk and fixes requests from existing servers
+		else if ((ref != null && ref.equals("draw.io Proxy Confluence Server")) ||
+				(ua != null && ua.equals("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0")))
+		{
+			dom = "";
 		}
 
 		if (dom != null && urlParam != null)
@@ -70,7 +78,13 @@ public class ProxyServlet extends HttpServlet
 				response.setHeader("Pragma", "no-cache"); // HTTP 1.0
 				response.setHeader("Cache-control", "private, no-cache, no-store");
 				response.setHeader("Expires", "0");
-				response.addHeader("Access-Control-Allow-Origin", dom);
+
+				if (dom != null && dom.length() > 0)
+				{
+					response.addHeader("Access-Control-Allow-Origin", dom);
+				}
+
+				connection.setRequestProperty("User-Agent", "draw.io");
 				
 				// Status code pass-through and follow redirects
 				if (connection instanceof HttpURLConnection)
@@ -78,7 +92,6 @@ public class ProxyServlet extends HttpServlet
 					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
 					
 					// Workaround for 451 response from Iconfinder CDN
-					((HttpURLConnection) connection).setRequestProperty("User-Agent", "draw.io");
 					int status = ((HttpURLConnection) connection).getResponseCode();
 					int counter = 0;
 					
@@ -91,7 +104,7 @@ public class ProxyServlet extends HttpServlet
 						((HttpURLConnection) connection).setInstanceFollowRedirects(true);
 						
 						// Workaround for 451 response from Iconfinder CDN
-						((HttpURLConnection) connection).setRequestProperty("User-Agent", "draw.io");
+						connection.setRequestProperty("User-Agent", "draw.io");
 						status = ((HttpURLConnection) connection).getResponseCode();
 					}
 					
