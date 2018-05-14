@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "6.8.0",
+  "version": "8.6.4",
   "description": "draw.io desktop",
   "main": "electron.js",
   "scripts": {
@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/jgraph/drawio",
   "dependencies": {
-    "commander": "^2.12.2",
-    "electron-log": "^2.2.7"
+    "commander": "^2.15.1",
+    "electron-log": "^2.2.14"
   },
   "devDependencies": {
-    "electron": "^1.7.5"
+    "electron": "^1.8.6"
   }
 }

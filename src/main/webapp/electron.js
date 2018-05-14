@@ -20,7 +20,9 @@ function createWindow (opt = {})
 	{
 		width: 1600,
 		height: 1200,
-		'web-security': false,
+		nodeIntegration: false,
+		webViewTag: false,
+		'web-security': true,
 		allowRunningInsecureContent: __DEV__,
 		webPreferences: {
 			// preload: path.resolve('./preload.js'),
@@ -70,33 +72,40 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			contents.executeJavaScript('global.__emt_isModified()', true,
-				isModified =>
-				{
-					console.log('__emt_isModified', isModified)
-					if (isModified)
+			if (global.__emt_isModified() != null)
+			{
+				contents.executeJavaScript('global.__emt_isModified()', true,
+					isModified =>
 					{
-						var choice = dialog.showMessageBox(
-							win,
+						console.log('__emt_isModified', isModified)
+						if (isModified)
+						{
+							var choice = dialog.showMessageBox(
+								win,
+								{
+									type: 'question',
+									buttons: ['Cancel', 'Discard Changes'],
+									title: 'Confirm',
+									message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
+								})
+								
+							if (choice === 1)
 							{
-								type: 'question',
-								buttons: ['Cancel', 'Discard Changes'],
-								title: 'Confirm',
-								message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
-							})
-							
-						if (choice === 1)
+								win.destroy()
+							}
+						}
+						else
 						{
 							win.destroy()
 						}
-					}
-					else
-					{
-						win.destroy()
-					}
-				})
-
-			event.preventDefault()
+					})
+	
+				event.preventDefault()
+			}
+			else
+			{
+				win.destroy()
+			}
 		}
 	})
 
@@ -128,7 +137,7 @@ function createWindow (opt = {})
 					'picker': 0,
 					'mode': 'device',
 					'browser': 0,
-					'export': 'https://exp2.draw.io/ImageExport4/export'
+					'export': 'https://exp.draw.io/ImageExport4/export'
 				},
 				slashes: true,
 			})

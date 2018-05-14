@@ -738,6 +738,27 @@ var com;
                     }
                     return null;
                 };
+                
+                
+                mxVsdxCodec.calculateAbsolutePoint = function (cell) 
+                {
+                    var x = 0, y = 0;
+                    while (cell != null)
+                    {
+                        var geo = cell.geometry;
+
+                        if (geo != null) 
+                        {
+                            x += geo.x;
+                            y += geo.y;                
+                        }
+                        cell = cell.parent;
+                    }
+
+                    return new mxPoint(x, y);
+                }
+                
+
                 /**
                  * Adds a connected edge to the graph.
                  * These edged are the referenced in one Connect element at least.
@@ -774,24 +795,66 @@ var com;
                     var endXY = edgeShape.getEndXY(parentHeight);
                     var points = edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation());
                     this.rotateChildEdge(graph.getModel(), parent, beginXY, endXY, points);
+                    var fromConstraint = null;
                     var sourceSheet = connect.getSourceToSheet();
                     var source = sourceSheet != null ? (function (m, k) { if (m.entries == null)
                         m.entries = []; for (var i = 0; i < m.entries.length; i++)
                         if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                             return m.entries[i].value;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, sourceSheet)) : null;
-                    if (source == null) {
+                    
+                    var removeFirstPt = true;
+                    if (source == null) 
+                    {
                         source = graph.insertVertex(parent, null, null, Math.floor(Math.round(beginXY.x * 100) / 100), Math.floor(Math.round(beginXY.y * 100) / 100), 0, 0);
                     }
+                    else if (source.style && source.style.indexOf(';rotation=') == -1)
+            		{
+                        var absOriginFrom = mxVsdxCodec.calculateAbsolutePoint(source);
+                        var absBeginXY = mxVsdxCodec.calculateAbsolutePoint(parent);
+                        var srcGeo = source.geometry;
+                        fromConstraint = new mxPoint(
+                                (absBeginXY.x + beginXY.x - absOriginFrom.x)
+                                        / srcGeo.width,
+                                (absBeginXY.y + beginXY.y - absOriginFrom.y)
+                                        / srcGeo.height);
+                        //TODO fromConstraint rotation support
+            		}
+                    else
+                	{
+                    	removeFirstPt = false;
+                	}
+                    
+                    var toConstraint = null;
                     var toSheet = connect.getTargetToSheet();
                     var target = toSheet != null ? (function (m, k) { if (m.entries == null)
                         m.entries = []; for (var i = 0; i < m.entries.length; i++)
                         if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                             return m.entries[i].value;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, toSheet)) : null;
-                    if (target == null) {
+                    
+                    var removeLastPt = true;
+                    if (target == null) 
+                    {
                         target = graph.insertVertex(parent, null, null, Math.floor(Math.round(endXY.x * 100) / 100), Math.floor(Math.round(endXY.y * 100) / 100), 0, 0);
                     }
+                    else if (target.style && target.style.indexOf(';rotation=') == -1)
+            		{
+                        var absOriginTo = mxVsdxCodec.calculateAbsolutePoint(target);
+                        var absEndXY = mxVsdxCodec.calculateAbsolutePoint(parent);
+                        var trgGeo = target.geometry;
+                        toConstraint = new mxPoint(
+                                (absEndXY.x + endXY.x - absOriginTo.x)
+                                        / trgGeo.width,
+                                (absEndXY.y + endXY.y - absOriginTo.y)
+                                        / trgGeo.height);
+                        //TODO toConstraint rotation support
+            		}
+                    else 
+                    {
+                    	removeLastPt = false;
+                    }
+                    
                     var styleMap = edgeShape.getStyleFromEdgeShape(parentHeight);
                     var edge;
                     var rotation = edgeShape.getRotation();
@@ -811,8 +874,62 @@ var com;
                         edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                         var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
                         edge.getGeometry().offset = (lblOffset);
+                        
+                        //add entry/exit points when edge, src, and trg are not rotated
+                        if (fromConstraint != null)
+            			{
+            				graph.setConnectionConstraint(edge, source, true,
+            						new mxConnectionConstraint(fromConstraint, false));
+            			}
+                        
+                        if (removeFirstPt)
+                    	{
+	                        points.shift();
+                    	}
+                        
+            			if (toConstraint != null)
+            			{
+            				graph.setConnectionConstraint(edge, target, false,
+            						new mxConnectionConstraint(toConstraint, false));
+            			}
+            			
+            			if (removeLastPt)
+        				{
+	        				points.pop();
+                        }
                     }
                     var edgeGeometry = graph.getModel().getGeometry(edge);
+                    
+                    //when source.parent != target.parent the front end will change the edge parent to parent 1 but waypoints are not corrected
+                    if (source.parent != target.parent && parent != null && parent.id != 1 && source.parent.id == 1)
+                	{
+                    	var accX = 0;
+                    	var accY = 0;
+                    	
+                    	var prnt = parent;
+                    	
+                    	do 
+                    	{
+                        	var prntGeo = prnt.geometry;
+                        	
+                            if (prntGeo != null) 
+                            {
+                            	accX += prntGeo.x;
+                            	accY += prntGeo.y;
+                            }
+                            prnt = prnt.parent;
+                    	}
+                    	while(prnt != null);
+                    	
+                    	edge.parent = source.parent;
+                    	
+                    	for (var i = 0; i < points.length; i++)
+                		{
+                    		points[i].x += accX;
+                    		points[i].y += accY;
+                		}
+                	}
+                    
                     edgeGeometry.points = (points);
                     if (styleMap.hasOwnProperty("curved") && (function (o1, o2) { if (o1 && o1.equals) {
                         return o1.equals(o2);
@@ -879,6 +996,9 @@ var com;
                     }
                     this.rotateChildEdge(graph.getModel(), parent, beginXY, endXY, points);
                     var edgeGeometry = graph.getModel().getGeometry(edge);
+                    //remove begin/end points from points array
+                    points.pop();
+                    points.shift();
                     edgeGeometry.points = (points);
                     edgeGeometry.setTerminalPoint(beginXY, true);
                     edgeGeometry.setTerminalPoint(endXY, false);
@@ -1240,7 +1360,10 @@ var com;
                         /*private*/ RowFactory.getDoubleVal = function (val) {
                             try {
                                 if (val != null && !(val.length === 0)) {
-                                    return parseFloat(val);
+                                    var fVal = parseFloat(val);
+                                    
+                                    if (isFinite(fVal))
+                                    	return fVal;
                                 }
                             }
                             catch (e) {

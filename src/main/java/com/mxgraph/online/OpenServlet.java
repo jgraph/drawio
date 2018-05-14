@@ -31,8 +31,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxGraphMlCodec;
-import com.mxgraph.io.mxVsdxCodec;
-import com.mxgraph.io.mxVssxCodec;
 import com.mxgraph.io.gliffy.importer.GliffyDiagramConverter;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
@@ -50,16 +48,6 @@ public class OpenServlet extends HttpServlet
 
 	private static final Logger log = Logger.getLogger(OpenServlet.class
 			.getName());
-
-	/**
-	 * Global switch to enabled VSDX support.
-	 */
-	public static boolean ENABLE_VSDX_SUPPORT = true;
-
-	/**
-	 * Global switch to enabled VSSX support.
-	 */
-	public static boolean ENABLE_VSSX_SUPPORT = true;
 
 	/**
 	 * Global switch to enabled Gliffy support.
@@ -114,8 +102,6 @@ public class OpenServlet extends HttpServlet
 				String filename = "";
 				String format = null;
 				String upfile = null;
-				boolean vsdx = false;
-				boolean vssx = false;
 
 				ServletFileUpload upload = new ServletFileUpload();
 				FileItemIterator iterator = upload.getItemIterator(request);
@@ -133,18 +119,8 @@ public class OpenServlet extends HttpServlet
 					else if (name.equals("upfile"))
 					{
 						filename = item.getName();
-						vsdx = filename.toLowerCase().endsWith(".vsdx");
-						vssx = filename.toLowerCase().endsWith(".vssx");
-
-						if (vsdx || vssx)
-						{
-							upfile = Streams.asString(stream, "ISO-8859-1");
-						}
-						else
-						{
-							upfile = Streams.asString(stream,
-									Utils.CHARSET_FOR_URL_ENCODING);
-						}
+						upfile = Streams.asString(stream,
+								Utils.CHARSET_FOR_URL_ENCODING);
 					}
 				}
 
@@ -174,26 +150,6 @@ public class OpenServlet extends HttpServlet
 					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
 					xml = mxXmlUtils
 							.getXml(new mxCodec().encode(graph.getModel()));
-				}
-				else if (ENABLE_VSDX_SUPPORT && vsdx)
-				{
-					mxVsdxCodec vdxCodec = new mxVsdxCodec();
-					xml = vdxCodec.decodeVsdx(upfile.getBytes("ISO-8859-1"),
-							Utils.CHARSET_FOR_URL_ENCODING);
-
-					// Replaces VSDX extension
-					int dot = filename.lastIndexOf('.');
-					filename = filename.substring(0, dot + 1) + "xml";
-				}
-				else if (ENABLE_VSSX_SUPPORT && vssx)
-				{
-					mxVssxCodec vssxCodec = new mxVssxCodec();
-					xml = vssxCodec.decodeVssx(upfile.getBytes("ISO-8859-1"),
-							Utils.CHARSET_FOR_URL_ENCODING);
-
-					// Replaces VSDX extension
-					int dot = filename.lastIndexOf('.');
-					filename = filename.substring(0, dot + 1) + "xml";
 				}
 				else if (ENABLE_GLIFFY_SUPPORT && upfile.matches(gliffyRegex))
 				{
