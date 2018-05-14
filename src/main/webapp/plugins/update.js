@@ -69,7 +69,7 @@
  */
 Draw.loadPlugin(function(editorUi)
 {
-	if (editorUi.editor.chromeless)
+	if (editorUi.editor.isChromelessView())
 	{
 		var graph = editorUi.editor.graph;
 		var updateInterval = parseInt(urlParams['update-interval'] || 60000);

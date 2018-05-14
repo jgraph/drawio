@@ -91,7 +91,7 @@
 			
 			dlg.init();
 		});
-		
+
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
@@ -318,6 +318,7 @@
 				// Google Drive File
 				else
 				{
+					// TODO: Allow team drives
 					editorUi.drive.executeRequest(gapi.client.drive.revisions.list({'fileId': file.getId()}), function(resp)
 					{
 						editorUi.spinner.stop();
@@ -329,6 +330,7 @@
 								item.getXml = function(success, error)
 								{
 									// Workaround for vanished head revision is to use current head revision from descriptor
+									// TODO: Allow team drives
 									editorUi.drive.executeRequest(gapi.client.drive.revisions.get({'fileId': file.getId(),
 										'revisionId': (resp.items[resp.items.length - 1] === item) ?
 										file.desc.headRevisionId : item.id}), function(resp)
@@ -628,7 +630,7 @@
 
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{
-			if (mxClient.IS_CHROMEAPP)
+			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				editorUi.openLink('https://www.draw.io/shortcuts.svg');
 			}

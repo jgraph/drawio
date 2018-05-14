@@ -9,7 +9,7 @@
  */
 Draw.loadPlugin(function(ui)
 {
-	if (ui.editor.chromeless)
+	if (ui.editor.isChromelessView())
 	{
 		return;
 	}
