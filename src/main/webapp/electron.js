@@ -72,40 +72,33 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			if (global.__emt_isModified() != null)
-			{
-				contents.executeJavaScript('global.__emt_isModified()', true,
-					isModified =>
+			contents.executeJavaScript('if(global.__emt_isModified!=null){global.__emt_isModified()}', true,
+				isModified =>
+				{
+					console.log('__emt_isModified', isModified)
+					if (isModified)
 					{
-						console.log('__emt_isModified', isModified)
-						if (isModified)
-						{
-							var choice = dialog.showMessageBox(
-								win,
-								{
-									type: 'question',
-									buttons: ['Cancel', 'Discard Changes'],
-									title: 'Confirm',
-									message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
-								})
-								
-							if (choice === 1)
+						var choice = dialog.showMessageBox(
+							win,
 							{
-								win.destroy()
-							}
-						}
-						else
+								type: 'question',
+								buttons: ['Cancel', 'Discard Changes'],
+								title: 'Confirm',
+								message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
+							})
+							
+						if (choice === 1)
 						{
 							win.destroy()
 						}
-					})
-	
-				event.preventDefault()
-			}
-			else
-			{
-				win.destroy()
-			}
+					}
+					else
+					{
+						win.destroy()
+					}
+				})
+
+			event.preventDefault()
 		}
 	})
 
