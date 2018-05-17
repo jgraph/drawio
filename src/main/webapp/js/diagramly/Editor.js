@@ -570,7 +570,13 @@
 		
 		Editor.doMathJaxRender = function(container)
 		{
-			MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
+			window.setTimeout(function()
+			{
+				if (container.style.visibility != 'hidden')
+				{
+					MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
+				}
+			}, 0);
 		};
 
 		// Disables global typesetting and messages on startup, adds queue for
@@ -637,7 +643,7 @@
 			
 			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 			{
-				if (this.graph.mathEnabled && this.graph.container.style.visibility != 'hidden')
+				if (this.graph.container != null && this.graph.mathEnabled)
 				{
 					Editor.MathJaxRender(this.graph.container);
 				}

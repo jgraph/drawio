@@ -2916,7 +2916,7 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+			null, count > 1, (count > 4 && (!allowBrowser || count < 6)) ? 3 : 4, data, mimeType, base64Encoded);
 		var noServices = (mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 420, height, true, true);
@@ -5002,8 +5002,21 @@
 			   		}
 
 			   		ctx.scale(scale, scale);
-					ctx.drawImage(img, border / scale, border / scale);
-					callback(canvas);
+			   		
+			   		// Workaround for broken data URI images in Safari on first export
+			   		if (mxClient.IS_SF)
+			   		{			   		
+						window.setTimeout(function()
+						{
+							ctx.drawImage(img, border / scale, border / scale);
+							callback(canvas);
+						}, 0);
+			   		}
+			   		else
+			   		{
+			   			ctx.drawImage(img, border / scale, border / scale);
+			   			callback(canvas);
+			   		}
 		   		}
 		   		catch (e)
 		   		{
@@ -5311,7 +5324,7 @@
 		    var self = this;
 		    
 		    if (this.crossOriginImages)
-		    	{
+	    	{
 			    img.crossOrigin = 'anonymous';
 		    }	
 		    
@@ -5325,17 +5338,17 @@
 		        
 		        try
 		        {
-		        		callback(canvas.toDataURL());
+	        		callback(canvas.toDataURL());
 		        }
 		        catch (e)
 		        {
-		        		callback(self.svgBrokenImage.src);
+	        		callback(self.svgBrokenImage.src);
 		        }
 		    };
 		    
 		    img.onerror = function()
 		    {
-		    		callback(self.svgBrokenImage.src);
+	    		callback(self.svgBrokenImage.src);
 		    };
 		    
 		    img.src = url;
@@ -5470,7 +5483,9 @@
 			 		 });
 			 		
 			 		 xhr.send(formData);
-				} else {
+				}
+				else
+				{
 					try
 					{
 						this.doImportVisio(file, done, onerror);
@@ -5549,10 +5564,10 @@
 				}
 				finally 
 				{
-				    	if (done != null)
-				    	{
-				    		done();
-				    	}
+			    	if (done != null)
+			    	{
+			    		done();
+			    	}
 				}
 			}
 		});
@@ -5619,10 +5634,10 @@
 		
 		if (pages.length > 0)
 		{
-		    	this.editor.graph.getModel().beginUpdate();
-		    	
-		    	try
-		    	{
+	    	this.editor.graph.getModel().beginUpdate();
+	    	
+	    	try
+	    	{
 				this.pasteLucidChart(pages[0], dx, dy, crop);
 				
 				// If pages are enabled add more pages
@@ -5638,11 +5653,11 @@
 					
 					this.selectPage(current);
 				}
-		    	}
-		    	finally
-		    	{
-		    		this.editor.graph.getModel().endUpdate();
-		    	}
+	    	}
+	    	finally
+	    	{
+	    		this.editor.graph.getModel().endUpdate();
+	    	}
 		}
 	};
 	
@@ -5724,11 +5739,11 @@
 					if (text.substring(0, 5) == 'data:')
 					{
 						this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
-		    				{
-								graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-										w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-										'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
-		    				}), resizeImages, this.maxImageSize);
+	    				{
+							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
+									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
+	    				}), resizeImages, this.maxImageSize);
 					}
 					else
 					{
@@ -5745,18 +5760,18 @@
 					var cell = null;
 					
 					// Inserts invalid data URIs as text
-				    	graph.getModel().beginUpdate();
-				    	try
-				    	{
+			    	graph.getModel().beginUpdate();
+			    	try
+			    	{
 						cell = graph.insertVertex(graph.getDefaultParent(), null, text,
 								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
 						graph.updateCellSize(cell);
 						graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
-				    	}
-				    	finally
-				    	{
-				    		graph.getModel().endUpdate();
-				    	}
+			    	}
+			    	finally
+			    	{
+			    		graph.getModel().endUpdate();
+			    	}
 	
 					graph.setSelectionCell(cell);
 				}));
@@ -5782,35 +5797,35 @@
 						var graph = this.editor.graph;
 						var cell = null;
 						
-					    	graph.getModel().beginUpdate();
-					    	try
-					    	{
-					    		// Fires cellsInserted to apply the current style to the inserted text.
-					    		// This requires the value to be empty when the event is fired.
-							cell = graph.insertVertex(graph.getDefaultParent(), null, '',
-									graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
-							graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
-							
-							// Apply value and updates the cell size to fit the text block
-							cell.value = text;
-							graph.updateCellSize(cell);
-							
-							// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
-							var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
-							
-							if (regexp.test(cell.value))
-							{
-								graph.setLinkForCell(cell, cell.value);
-							}
-							
-							// Adds spacing
-							cell.geometry.width += graph.gridSize;
-							cell.geometry.height += graph.gridSize;
-					    	}
-					    	finally
-					    	{
-					    		graph.getModel().endUpdate();
-					    	}
+				    	graph.getModel().beginUpdate();
+				    	try
+				    	{
+				    		// Fires cellsInserted to apply the current style to the inserted text.
+				    		// This requires the value to be empty when the event is fired.
+						cell = graph.insertVertex(graph.getDefaultParent(), null, '',
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
+						graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
+						
+						// Apply value and updates the cell size to fit the text block
+						cell.value = text;
+						graph.updateCellSize(cell);
+						
+						// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
+						var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
+						
+						if (regexp.test(cell.value))
+						{
+							graph.setLinkForCell(cell, cell.value);
+						}
+						
+						// Adds spacing
+						cell.geometry.width += graph.gridSize;
+						cell.geometry.height += graph.gridSize;
+				    	}
+				    	finally
+				    	{
+				    		graph.getModel().endUpdate();
+				    	}
 						
 						return [cell];
 					}
@@ -5831,7 +5846,7 @@
 		
 	    do
 	    {
-	    		size = size / 1024;
+	    	size = size / 1024;
 	        i++;
 	    } while (size > 1024);
 

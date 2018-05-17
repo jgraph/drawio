@@ -2739,7 +2739,8 @@ TextFormatPanel.prototype.addFont = function(container)
 
 			function updateSize(elt, ignoreContains)
 			{
-				if (elt != graph.cellEditor.textarea && (ignoreContains || selection.containsNode(elt, true)))
+				if (elt != graph.cellEditor.textarea && graph.cellEditor.textarea.contains(elt) &&
+					(ignoreContains || selection.containsNode(elt, true)))
 				{
 					if (elt.nodeName == 'FONT')
 					{
@@ -2790,30 +2791,66 @@ TextFormatPanel.prototype.addFont = function(container)
 
 			input.value = fontSize + ' pt';
 		}
-		else
+		else if (window.getSelection || document.selection)
 		{
-			pendingFontSize = fontSize;
+			// Checks selection
+			var par = null;
 			
-			// Workaround for can't set font size in px is to change font size afterwards
-			document.execCommand('fontSize', false, '4');
-			var elts = graph.cellEditor.textarea.getElementsByTagName('font');
-			
-			for (var i = 0; i < elts.length; i++)
+			if (document.selection)
 			{
-				if (elts[i].getAttribute('size') == '4')
+				par = document.selection.createRange().parentElement();
+			}
+			else
+			{
+				var selection = window.getSelection();
+				
+				if (selection.rangeCount > 0)
 				{
-					elts[i].removeAttribute('size');
-					elts[i].style.fontSize = pendingFontSize + 'px';
-		
-					// Overrides fontSize in input with the one just assigned as a workaround
-					// for potential fontSize values of parent elements that don't match
-					window.setTimeout(function()
+					par = selection.getRangeAt(0).commonAncestorContainer;
+				}
+			}
+			
+			// Node.contains does not work for text nodes in IE11
+			function isOrContains(container, node)
+			{
+			    while (node != null)
+			    {
+			        if (node === container)
+			        {
+			            return true;
+			        }
+			        
+			        node = node.parentNode;
+			    }
+			    
+			    return false;
+			};
+			
+			if (par != null && isOrContains(graph.cellEditor.textarea, par))
+			{
+				pendingFontSize = fontSize;
+				
+				// Workaround for can't set font size in px is to change font size afterwards
+				document.execCommand('fontSize', false, '4');
+				var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+				
+				for (var i = 0; i < elts.length; i++)
+				{
+					if (elts[i].getAttribute('size') == '4')
 					{
-						input.value = pendingFontSize + ' pt';
-						pendingFontSize = null;
-					}, 0);
-					
-					break;
+						elts[i].removeAttribute('size');
+						elts[i].style.fontSize = pendingFontSize + 'px';
+			
+						// Overrides fontSize in input with the one just assigned as a workaround
+						// for potential fontSize values of parent elements that don't match
+						window.setTimeout(function()
+						{
+							input.value = pendingFontSize + ' pt';
+							pendingFontSize = null;
+						}, 0);
+						
+						break;
+					}
 				}
 			}
 		}

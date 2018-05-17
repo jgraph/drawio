@@ -240,7 +240,22 @@
 		
 		editorUi.actions.addAction('close', function()
 		{
-			editorUi.fileLoaded(null);
+			var currentFile = editorUi.getCurrentFile();
+			
+			function fn()
+			{
+				editorUi.fileLoaded(null);
+			};
+			
+			if (currentFile != null && currentFile.isModified())
+			{
+				editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
+					mxResources.get('cancel'), mxResources.get('discardChanges'));
+			}
+			else
+			{
+				fn();
+			}
 		});
 		
 		editorUi.actions.addAction('editShape...', mxUtils.bind(this, function()
@@ -814,7 +829,7 @@
 				input.setAttribute('size', '25');
 				input.style.marginLeft = '8px';
 
-				mxEvent.addListener(input, 'keypress', mxUtils.bind(this, function(e)
+				mxEvent.addListener(input, 'keydown', mxUtils.bind(this, function(e)
 				{
 					var term = mxUtils.trim(input.value);
 					
@@ -822,6 +837,7 @@
 					{
 						this.editorUi.openLink('https://desk.draw.io/support/search/solutions?term=' +
 							encodeURIComponent(term));
+						input.value = '';
 						this.editorUi.logEvent({category: 'Help', action: 'search', label: term});
 						
 						if (this.editorUi.menubar != null)
@@ -832,6 +848,10 @@
 							}), 0);
 						}
 					}
+	                else if (e.keyCode == 27)
+	                {
+	                    input.value = '';
+	                }
 				}));
 				
 				item.firstChild.nextSibling.appendChild(input);
@@ -864,7 +884,19 @@
 					this.addMenuItems(menu, ['feedback'], parent);
 				}
 
-				this.addMenuItems(menu, ['support', '-', 'about'], parent);
+				this.addMenuItems(menu, ['support', '-'], parent);
+				
+				if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')
+				{
+					this.addMenuItems(menu, ['download'], parent);
+				}
+				
+				if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
+				{
+					this.addMenuItems(menu, ['offline'], parent);
+				}
+				
+				this.addMenuItems(menu, ['-', 'about'], parent);
 			}
 
 			if (urlParams['ruler'] == '1')
@@ -2553,17 +2585,6 @@
 				
 			menu.addSeparator(parent);
 			this.addMenuItem(menu, 'tags', parent);
-			menu.addSeparator(parent);
-
-			if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')
-			{
-				this.addMenuItems(menu, ['download'], parent);
-			}
-			
-			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
-			{
-				this.addMenuItems(menu, ['offline'], parent);
-			}
 		})));
 
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)

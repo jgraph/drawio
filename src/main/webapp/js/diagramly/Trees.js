@@ -84,7 +84,7 @@
 	{
 		editorUiInit.apply(this, arguments);
 		
-		if (!this.editor.chromeless || this.editor.editable)
+		if (!this.editor.isChromelessView() || this.editor.editable)
 		{
 			this.addTrees();
 		}
