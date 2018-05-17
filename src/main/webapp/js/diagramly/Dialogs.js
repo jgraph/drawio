@@ -1089,8 +1089,10 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	{
 		var downloadBtn = mxUtils.button(mxResources.get('download'), function()
 		{
+			editorUi.hideDialog();
 			editorUi.saveData('embed.txt', 'txt', result, 'text/plain');
 		});
+		
 		downloadBtn.className = 'geBtn';
 		buttons.appendChild(downloadBtn);
 	}
@@ -3830,12 +3832,13 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		btns.appendChild(laterBtn);
 	}
 
-	if (allowTab)
+	if (allowTab && Editor.popupsAllowed)
 	{
 		var openBtn = mxUtils.button(mxResources.get('openInNewWindow'), function()
 		{
 			create('_blank');
 		});
+		
 		openBtn.className = 'geBtn';
 		btns.appendChild(openBtn);
 	}
@@ -3846,6 +3849,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		{
 			create((showDeviceButton) ? 'download' : ((showButtons) ? App.MODE_DEVICE : serviceSelect.value));
 		});
+		
 		createBtn.className = 'geBtn gePrimaryBtn';
 		btns.appendChild(createBtn);
 	}

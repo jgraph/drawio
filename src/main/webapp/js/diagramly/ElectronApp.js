@@ -145,11 +145,16 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		var editorUi = this;
 		var graph = this.editor.graph;
 		
-		global.__emt_isModified = e => {
+		global.__emt_isModified =
+		e => {
 			if (this.getCurrentFile())
+			{
 				return this.getCurrentFile().isModified()
+			}
+
 			return false
 		}
+		
 		// global.__emt_getCurrentFile = e => {
 		// 	return this.getCurrentFile()
 		// }

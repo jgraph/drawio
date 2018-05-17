@@ -2748,25 +2748,25 @@ EditorUi.prototype.updateActionStates = function()
 	
 	if (cells != null)
 	{
-	    	for (var i = 0; i < cells.length; i++)
-	    	{
-	    		var cell = cells[i];
-	    		
-	    		if (graph.getModel().isEdge(cell))
-	    		{
-	    			edgeSelected = true;
-	    		}
-	    		
-	    		if (graph.getModel().isVertex(cell))
-	    		{
-	    			vertexSelected = true;
-	    		}
-	    		
-	    		if (edgeSelected && vertexSelected)
+    	for (var i = 0; i < cells.length; i++)
+    	{
+    		var cell = cells[i];
+    		
+    		if (graph.getModel().isEdge(cell))
+    		{
+    			edgeSelected = true;
+    		}
+    		
+    		if (graph.getModel().isVertex(cell))
+    		{
+    			vertexSelected = true;
+    		}
+    		
+    		if (edgeSelected && vertexSelected)
 			{
 				break;
 			}
-    		}
+		}
 	}
 	
 	// Updates action states
@@ -3292,6 +3292,7 @@ EditorUi.prototype.hideDialog = function(cancel)
 			this.editor.graph.container.focus();
 		}
 		
+		mxUtils.clearSelection();
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 	}
 };
@@ -3711,7 +3712,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	// Ignores graph enabled state but not chromeless state
 	keyHandler.isEnabledForEvent = function(evt)
 	{
-		return (!mxEvent.isConsumed(evt) && this.isGraphEvent(evt) && this.isEnabled());
+		return (!mxEvent.isConsumed(evt) && this.isGraphEvent(evt) && this.isEnabled() &&
+			(editorUi.dialogs == null || editorUi.dialogs.length == 0));
 	};
 	
 	// Routes command-key to control-key on Mac

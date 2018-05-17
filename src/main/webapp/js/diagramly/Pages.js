@@ -1038,7 +1038,7 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 	tab.style.border = (uiTheme == 'dark') ? '1px solid #505759' : '1px solid #c0c0c0';
 	tab.style.borderBottomStyle = 'solid';
 	tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
-	tab.style.cursor = 'default';
+	tab.style.cursor = 'move';
 	tab.style.color = 'gray';
 
 	if (hoverEnabled)

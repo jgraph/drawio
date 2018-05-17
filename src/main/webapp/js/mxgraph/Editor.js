@@ -195,6 +195,12 @@ Editor.nextLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgC
 Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
 
 /**
+ * Specifies if the diagram should be saved automatically if possible. Default
+ * is true.
+ */
+Editor.popupsAllowed = true;
+
+/**
  * Editor inherits from mxEventSource
  */
 mxUtils.extend(Editor, mxEventSource);
@@ -390,7 +396,7 @@ Editor.prototype.readGraphState = function(node)
 	this.graph.connectionArrowsEnabled = node.getAttribute('arrows') != '0';
 	this.graph.foldingEnabled = node.getAttribute('fold') != '0';
 
-	if (this.chromeless && this.graph.foldingEnabled)
+	if (this.isChromelessView() && this.graph.foldingEnabled)
 	{
 		this.graph.foldingEnabled = urlParams['nav'] == '1';
 		this.graph.cellRenderer.forceControlClickHandler = this.graph.foldingEnabled;

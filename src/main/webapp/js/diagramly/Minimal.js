@@ -283,10 +283,10 @@ EditorUi.initMinimalTheme = function()
     mxEdgeHandler.prototype.terminalHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><circle cx="8" cy="8" r="3" stroke="' + stroke + '" fill="' + fill + '"/>');
     mxEdgeHandler.prototype.fixedHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><path d="m 6 6 L 10 10 M 6 10 L 10 6" stroke="' + stroke + '"/>');
     mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
-    HoverIcons.prototype.triangleUp = Graph.createSvgImage(18, 36, '<path d="m 6 36 L 12 36 L 12 12 L 18 12 L 9 1 L 1 12 L 6 12 z" stroke="#fff" fill="' + fill + '"/>');
+    HoverIcons.prototype.triangleUp = Graph.createSvgImage(18, 38, '<path d="m 6 36 L 12 36 L 12 12 L 18 12 L 9 1 L 1 12 L 6 12 z" stroke="#fff" fill="' + fill + '"/>');
     HoverIcons.prototype.triangleRight = Graph.createSvgImage(36, 18, '<path d="m 1 6 L 24 6 L 24 1 L 36 9 L 24 18 L 24 12 L 1 12 z" stroke="#fff" fill="' + fill + '"/>');
     HoverIcons.prototype.triangleDown = Graph.createSvgImage(18, 36, '<path d="m 6 1 L 6 24 L 1 24 L 9 36 L 18 24 L 12 24 L 12 1 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleLeft = Graph.createSvgImage(36, 18, '<path d="m 1 9 L 12 1 L 12 6 L 36 6 L 36 12 L 12 12 L 12 18 z" stroke="#fff" fill="' + fill + '"/>');
+    HoverIcons.prototype.triangleLeft = Graph.createSvgImage(38, 18, '<path d="m 1 9 L 12 1 L 12 6 L 36 6 L 36 12 L 12 12 L 12 18 z" stroke="#fff" fill="' + fill + '"/>');
     HoverIcons.prototype.roundDrop = Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="' + fill + '"/>');
     HoverIcons.prototype.arrowSpacing = 0;
     mxOutline.prototype.sizerImage = null;
@@ -324,6 +324,7 @@ EditorUi.initMinimalTheme = function()
     mxGraphHandler.prototype.previewColor = '#C0C0C0';
     mxRubberband.prototype.defaultOpacity = 50;
     HoverIcons.prototype.inactiveOpacity = 25;
+    Format.prototype.showCloseButton = false;
 	EditorUi.prototype.closableScratchpad = false;
 	EditorUi.prototype.showCsvImport = false;
     EditorUi.prototype.footerHeight = 0;
@@ -567,7 +568,7 @@ EditorUi.initMinimalTheme = function()
         var editor = ui.editor;
         var graph = editor.graph;
         
-        if (graph.isEnabled())
+        if (graph.isEnabled() && typeof(MathJax) !== 'undefined')
         {
             // Math
             var option = this.createOption(mxResources.get('mathematicalTypesetting'), function()
@@ -911,11 +912,6 @@ EditorUi.initMinimalTheme = function()
         {
             ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
             	'copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting'], parent);
-        })));
-
-        ui.menus.put('embed', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-            ui.menus.addMenuItems(menu, ['embedImage', 'embedSvg', '-', 'embedHtml', 'embedIframe'], parent);
         })));
 
         // Needed for creating elements in Format panel
@@ -1293,22 +1289,22 @@ EditorUi.initMinimalTheme = function()
 
             if (ui.actions.outlineWindow != null)
             {
-            	ui.outlineWindow.fit();
+            	ui.actions.outlineWindow.window.fit();
             }
 
             if (ui.actions.layersWindow != null)
             {
-            	ui.outlineWindow.fit();
+            	ui.actions.layersWindow.window.fit();
             }
 
-            if (ui.actions.tagsWindow != null)
+            if (ui.menus.tagsWindow != null)
             {
-            	ui.tagsWindow.window.fit();
+            	ui.menus.tagsWindow.window.fit();
             }
 
-            if (ui.actions.findWindow != null)
+            if (ui.menus.findWindow != null)
             {
-            	ui.findWindow.window.fit();
+            	ui.menus.findWindow.window.fit();
             }
 		});
 	};	

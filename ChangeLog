@@ -1,3 +1,10 @@
+17-MAY-2018: 8.6.5
+
+- Fixes timing error for export in Safari
+- Fixes change UI font size bug
+- Uses mxGraph 3.9.4
+- Fixes minor bugs
+
 14-MAY-2018: 8.6.4
 
 - Improvements to electron build
