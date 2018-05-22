@@ -289,6 +289,7 @@ formatPng=formatPng
 formatGif=formatGif
 formatJpg=formatJpg
 formatPdf=formatPdf
+formatSql=formatSql
 formatSvg=formatSvg
 formatHtmlEmbedded=formatHtmlEmbedded
 formatSvgEmbedded=formatSvgEmbedded

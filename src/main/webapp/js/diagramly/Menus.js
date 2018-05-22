@@ -570,9 +570,9 @@
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable)
+				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable, transparent)
 				{
-					editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection);
+					editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection, null, null, transparent);
 				}));
 			}
 		}));
@@ -2018,15 +2018,16 @@
 			}
 		})));
 
-		var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree', 'radialTree', '-', 'organic', 'circle', '-', 'fromText'];
+		var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree', 'radialTree', '-',
+			'organic', 'circle', '-', 'fromText', 'plantUml', 'formatSql'];
 
 		var addInsertItem = function(menu, parent, title, method)
 		{
 			menu.addItem(title, null, mxUtils.bind(this, function()
 			{
-				if (method == 'fromText')
+				if (method == 'fromText' || method == 'formatSql' || method == 'plantUml')
 				{
-					var dlg = new ParseDialog(editorUi, title);
+					var dlg = new ParseDialog(editorUi, title, method);
 					editorUi.showDialog(dlg.container, 620, 420, true, false);
 					editorUi.dialog.container.style.overflow = 'auto';
 					dlg.init();

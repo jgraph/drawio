@@ -4859,8 +4859,8 @@ App.prototype.updateUserElement = function()
 								'" style="font-size:10pt;padding:20px 20px 10px 10px;">' +
 								'<tr><td valign="top">' +
 								((driveUser.pictureUrl != null) ?
-									'<img style="margin-right:10px;border-radius:50%;" src="' + driveUser.pictureUrl + '"/>' :
-									'<img style="margin-right:4px;margin-top:2px;" src="' + this.defaultUserPicture + '"/>') +
+									'<img width="80" height="80" style="margin-right:10px;border-radius:50%;" src="' + driveUser.pictureUrl + '"/>' :
+									'<img width="80" height="80" style="margin-right:4px;margin-top:2px;" src="' + this.defaultUserPicture + '"/>') +
 								'</td><td valign="top" style="white-space:nowrap;' +
 								((driveUser.pictureUrl != null) ? 'padding-top:14px;' : '') +
 								'"><b>' + mxUtils.htmlEntities(driveUser.displayName) + '</b><br>' +

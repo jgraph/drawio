@@ -1060,7 +1060,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible)
+	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent)
 	{
 		try
 		{
@@ -1070,74 +1070,74 @@
 			
 			if (format == 'xml')
 			{
-			    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-			    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
-			    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
-			    	
-			    	this.saveData(filename, format, data, 'text/xml');
+		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+		    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
+		    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+		    	
+		    	this.saveData(filename, format, data, 'text/xml');
 			}
 		    else if (format == 'html')
 		    {
-			    	var data = this.getHtml2(this.getFileData(true), this.editor.graph, basename);
-			    	this.saveData(filename, format, data, 'text/html');
+		    	var data = this.getHtml2(this.getFileData(true), this.editor.graph, basename);
+		    	this.saveData(filename, format, data, 'text/html');
 		    }
 		    else if ((format == 'svg' || format == 'xmlsvg') && this.spinner.spin(document.body, mxResources.get('export')))
 		    {
-			    	var svg = null;
-			    	
-			    	var saveSvg = mxUtils.bind(this, function(data)
-			    	{
-			    		if (data.length <= MAX_REQUEST_SIZE)
-			    		{
-			    	    		this.saveData(filename, 'svg', data, 'image/svg+xml');
-			    		}
-			    		else
-			    		{
-			    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-			    			{
-			    				mxUtils.popup(svg);
-			    			}));
-			    		}
-			    	});
-			    	
-			    	if (format == 'svg')
-			    	{
-			        	var bg = this.editor.graph.background;
-			        	
-			        	if (bg == mxConstants.NONE)
-			        	{
-			        		bg = null;
-			        	}
-			
-			        	// Sets or disables alternate text for foreignObjects. Disabling is needed
-			        	// because PhantomJS seems to ignore switch statements and paint all text.
-			        	var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);
+		    	var svg = null;
+		    	
+		    	var saveSvg = mxUtils.bind(this, function(data)
+		    	{
+		    		if (data.length <= MAX_REQUEST_SIZE)
+		    		{
+		    	    		this.saveData(filename, 'svg', data, 'image/svg+xml');
+		    		}
+		    		else
+		    		{
+		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+		    			{
+		    				mxUtils.popup(svg);
+		    			}));
+		    		}
+		    	});
+		    	
+		    	if (format == 'svg')
+		    	{
+		        	var bg = this.editor.graph.background;
+		        	
+		        	if (transparent || bg == mxConstants.NONE)
+		        	{
+		        		bg = null;
+		        	}
+		
+		        	// Sets or disables alternate text for foreignObjects. Disabling is needed
+		        	// because PhantomJS seems to ignore switch statements and paint all text.
+		        	var svgRoot = this.editor.graph.getSvg(bg, null, null, null, null, ignoreSelection);
+					
+					if (addShadow)
+					{
+						this.editor.graph.addSvgShadow(svgRoot);
+					}
+					
+					// Embeds the images in the SVG output (async)
+					this.convertImages(svgRoot, mxUtils.bind(this, mxUtils.bind(this, function(svgRoot2)
+					{
+						this.spinner.stop();
 						
-						if (addShadow)
-						{
-							this.editor.graph.addSvgShadow(svgRoot);
-						}
-						
-						// Embeds the images in the SVG output (async)
-						this.convertImages(svgRoot, mxUtils.bind(this, mxUtils.bind(this, function(svgRoot2)
-						{
-							this.spinner.stop();
-							
-							saveSvg('<?xml version="1.0" encoding="UTF-8"?>\n' +
-								'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-								mxUtils.getXml(svgRoot2));
-						})));
-			    	}
-			    	else
-			    	{
-			    		filename = basename + '.svg';
-			    		
-			    		svg = this.getFileData(false, true, null, mxUtils.bind(this, function(svg)
-			    		{
-			    			this.spinner.stop();
-			        		saveSvg(svg);
-			    		}), ignoreSelection);
-			    	}
+						saveSvg('<?xml version="1.0" encoding="UTF-8"?>\n' +
+							'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+							mxUtils.getXml(svgRoot2));
+					})));
+		    	}
+		    	else
+		    	{
+		    		filename = basename + '.svg';
+		    		
+		    		svg = this.getFileData(false, true, null, mxUtils.bind(this, function(svg)
+		    		{
+		    			this.spinner.stop();
+		        		saveSvg(svg);
+		    		}), ignoreSelection);
+		    	}
 		    }
 			else
 			{
@@ -1161,7 +1161,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1185,7 +1185,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
 		
@@ -1221,7 +1221,15 @@
        		}
        	}
        	
+		var bg = this.editor.graph.background;
+		
+		if (format == 'png' && transparent)
+		{
+			bg = mxConstants.NONE;
+		}
+       	
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
+			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
 			'&filename=' + encodeURIComponent(filename) : ''));
@@ -2558,9 +2566,9 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h)
+	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide)
 	{
-		var dlg = new ErrorDialog(this, title, msg, btn, fn, retry, btn2, fn2, null, btn3, fn3);
+		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'), fn, retry, btn2, fn2, hide, btn3, fn3);
 		this.showDialog(dlg.container, w || 340, h || 150, true, false);
 		dlg.init();
 	};
@@ -4020,16 +4028,21 @@
 			this.editor.graph.isSelectionEmpty());
 		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
 		
-		if (include != null)
+		var graph = this.editor.graph;
+		var transparent = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('transparentBackground'),
+				graph.background == mxConstants.NONE || graph.background == null);
+
+		if (transparent != null)
 		{
-			include.style.marginBottom = '16px';
+			transparent.style.marginBottom = '16px';
 		}
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
-			callback(!selection.checked, (include != null) ? include.checked : false);
+			callback(!selection.checked, (include != null) ? include.checked : false,
+				(transparent != null) ? transparent.checked : false);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 146, true, true);
+		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 186, true, true);
 	};
 	
 	/**
@@ -8424,6 +8437,29 @@
 		{
 			this.tabContainer.style.visibility = (enabled) ? '' : 'hidden';	
 		}
+		
+		if (!enabled)
+		{
+            if (this.actions.outlineWindow != null)
+            {
+            	this.actions.outlineWindow.window.setVisible(false);
+            }
+
+            if (this.actions.layersWindow != null)
+            {
+            	this.actions.layersWindow.window.setVisible(false);
+            }
+
+            if (this.menus.tagsWindow != null)
+            {
+            	this.menus.tagsWindow.window.setVisible(false);
+            }
+
+            if (this.menus.findWindow != null)
+            {
+            	this.menus.findWindow.window.setVisible(false);
+            }
+		}
 	};
 	
 	/**
@@ -8937,57 +8973,57 @@
 						else
 						{
 							// Creates a preview with no alt text for unsupported browsers
-					        	mxSvgCanvas2D.prototype.foAltText = null;
-					        	
-					        	var bg = this.editor.graph.background;
-					        	
-					        	if (bg == mxConstants.NONE)
-					        	{
-					        		bg = null;
-					        	}
+				        	mxSvgCanvas2D.prototype.foAltText = null;
+				        	
+				        	var bg = this.editor.graph.background;
+				        	
+				        	if (bg == mxConstants.NONE)
+				        	{
+				        		bg = null;
+				        	}
 					        	
 							msg.xml = this.getFileData(true);
 							msg.format = 'svg';
 					        	
-					        	if (data.embedImages || data.embedImages == null)
-					        	{
+				        	if (data.embedImages || data.embedImages == null)
+				        	{
 								if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
 									(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 								{
 									this.editor.graph.setEnabled(false);
 									
-						        		if (data.format == 'xmlsvg')
-						        		{
-							        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
-						        			{
-											this.editor.graph.setEnabled(true);
-											this.spinner.stop();
-											
-											msg.data = this.createSvgDataUri(svg);
-											parent.postMessage(JSON.stringify(msg), '*');
-						        			}));
-						        		}
-						        		else
-						        		{
-						        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
-						        			{
-											this.editor.graph.setEnabled(true);
-											this.spinner.stop();
-											
-											msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											parent.postMessage(JSON.stringify(msg), '*');
-						        			}));
-						        		}
+					        		if (data.format == 'xmlsvg')
+					        		{
+						        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
+					        			{
+										this.editor.graph.setEnabled(true);
+										this.spinner.stop();
+										
+										msg.data = this.createSvgDataUri(svg);
+										parent.postMessage(JSON.stringify(msg), '*');
+					        			}));
+					        		}
+					        		else
+					        		{
+					        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
+					        			{
+										this.editor.graph.setEnabled(true);
+										this.spinner.stop();
+										
+										msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										parent.postMessage(JSON.stringify(msg), '*');
+					        			}));
+					        		}
 								}
 					        		
-					        		return;
-					        	}
-					        	else
-					        	{
-					        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
-					        			this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
-								msg.data = this.createSvgDataUri(svg);
-					        	}
+				        		return;
+				        	}
+				        	else
+				        	{
+				        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
+				        		this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
+				        		msg.data = this.createSvgDataUri(svg);
+					        }
 						}
 
 						parent.postMessage(JSON.stringify(msg), '*');
@@ -10114,6 +10150,7 @@
 		var graph = this.editor.graph;
 		var active = this.isDiagramActive();
 		var file = this.getCurrentFile();
+		var enabled = file != null || urlParams['embed'] == '1';
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -10131,6 +10168,9 @@
 		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('tags').setEnabled(active && (file == null || !file.isRestricted()));
+		this.actions.get('find').setEnabled(enabled);
+		this.actions.get('layers').setEnabled(enabled);
+		this.actions.get('outline').setEnabled(enabled);
 		this.actions.get('rename').setEnabled(file != null && file.isRenamable());
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());

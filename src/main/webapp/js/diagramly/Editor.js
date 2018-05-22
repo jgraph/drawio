@@ -737,18 +737,36 @@
 				this.clear();
 			}
 		};
-		
+
+		/**
+		 * Hook for subclassers.
+		 */
+		DiagramFormatPanel.prototype.isShadowOptionVisible = function()
+		{
+			var file = this.editorUi.getCurrentFile();
+			
+			return urlParams['embed'] == '1' || (file != null && file.isEditable());
+		};
+
+		/**
+		 * Option is not visible in default theme.
+		 */
+	    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
+	    {
+	        return false;
+	    };
+	    
 		/**
 		 * Add global shadow option.
 		 */
 		var diagramFormatPanelAddView = DiagramFormatPanel.prototype.addView;
-		
+
 		DiagramFormatPanel.prototype.addView = function(div)
 		{
 			var div = diagramFormatPanelAddView.apply(this, arguments);
 			var file = this.editorUi.getCurrentFile();
 			
-			if (mxClient.IS_SVG && (urlParams['embed'] == '1' || (file != null && file.isEditable())))
+			if (mxClient.IS_SVG && this.isShadowOptionVisible())
 			{
 				var ui = this.editorUi;
 				var editor = ui.editor;
@@ -793,7 +811,7 @@
 			
 			return div;
 		};
-		
+
 		/**
 		 * Adds autosave and math typesetting options.
 		 */
@@ -838,7 +856,42 @@
 					div.appendChild(opt);
 				}
 			}
-
+			
+	        if (this.isMathOptionVisible() && graph.isEnabled() && typeof(MathJax) !== 'undefined')
+	        {
+	            // Math
+	            var option = this.createOption(mxResources.get('mathematicalTypesetting'), function()
+	            {
+	                return graph.mathEnabled;
+	            }, function(checked)
+	            {
+	                ui.actions.get('mathematicalTypesetting').funct();
+	            },
+	            {
+	                install: function(apply)
+	                {
+	                    this.listener = function()
+	                    {
+	                        apply(graph.mathEnabled);
+	                    };
+	                    
+	                    ui.addListener('mathEnabledChanged', this.listener);
+	                },
+	                destroy: function()
+	                {
+	                    ui.removeListener(this.listener);
+	                }
+	            });
+	            
+	            option.style.paddingTop = '0px';
+	            div.appendChild(option);
+	            
+	            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');
+	            help.style.position = 'relative';
+	            help.style.top = '4px';
+	            option.appendChild(help);
+	        }
+	        
 			return div;
 		};
 		
