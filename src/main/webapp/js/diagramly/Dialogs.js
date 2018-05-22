@@ -2098,7 +2098,7 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 /**
  * Constructs a new parse dialog.
  */
-var ParseDialog = function(editorUi, title)
+var ParseDialog = function(editorUi, title, defaultType)
 {
 	var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
 
@@ -2541,14 +2541,23 @@ var ParseDialog = function(editorUi, title)
 
 	var listOption = document.createElement('option');
 	listOption.setAttribute('value', 'list');
-	listOption.setAttribute('selected', 'selected');
 	mxUtils.write(listOption, mxResources.get('list'));
 	typeSelect.appendChild(listOption);
 
+	if (defaultType == null || defaultType == 'fromText')
+	{
+		listOption.setAttribute('selected', 'selected');
+	}
+	
 	var tableOption = document.createElement('option');
 	tableOption.setAttribute('value', 'table');
 	mxUtils.write(tableOption, mxResources.get('table'));
 	typeSelect.appendChild(tableOption);
+	
+	if (defaultType == 'formatSql')
+	{
+		tableOption.setAttribute('selected', 'selected');
+	}
 	
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
@@ -2558,6 +2567,11 @@ var ParseDialog = function(editorUi, title)
 	var plantUmlSvgOption = document.createElement('option');
 	plantUmlSvgOption.setAttribute('value', 'plantUmlSvg');
 	mxUtils.write(plantUmlSvgOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatSvg') + ')');
+	
+	if (defaultType == 'plantUml')
+	{
+		plantUmlSvgOption.setAttribute('selected', 'selected');
+	}
 	
 	var plantUmlPngOption = document.createElement('option');
 	plantUmlPngOption.setAttribute('value', 'plantUmlPng');
@@ -2583,8 +2597,11 @@ var ParseDialog = function(editorUi, title)
 		}
 		else if (typeSelect.value == 'table')
 		{
-			return 'CREATE TABLE Persons\n(\nPersonID int NOT NULL PRIMARY KEY,\nLastName varchar(255),\n' +
-	  			'FirstName varchar(255),\nAddress varchar(255),\nCity varchar(255)\n);';
+			return 'CREATE TABLE Suppliers\n(\nsupplier_id int NOT NULL PRIMARY KEY,\n' +
+				'supplier_name char(50) NOT NULL,\ncontact_name char(50),\n);\n' +
+				'CREATE TABLE Customers\n(\ncustomer_id int NOT NULL PRIMARY KEY,\n' +
+				'customer_name char(50) NOT NULL,\naddress char(50),\n' +
+				'city char(50),\nstate char(25),\nzip_code char(10)\n);\n';
 		}
 		else if (typeSelect.value == 'plantUmlPng')
 		{
@@ -3487,7 +3504,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		mxUtils.setPrefixedStyle(preview.style, 'transform', 'translate(50%,-50%)');
 		div.appendChild(preview);
 		
-		if (allowTab)
+		if (allowTab && Editor.popupsAllowed)
 		{
 			preview.style.cursor = 'pointer';
 			

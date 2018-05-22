@@ -688,7 +688,11 @@ OneDriveClient.prototype.parseRequestText = function(req)
  */
 OneDriveClient.prototype.pickLibrary = function(fn)
 {
-	this.pickFile(fn);
+	this.pickFile(function(id)
+	{
+		// Ignores second argument
+		fn(id);
+	});
 };
 
 /**

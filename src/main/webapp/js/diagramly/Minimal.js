@@ -18,6 +18,7 @@ EditorUi.initMinimalTheme = function()
        style.innerHTML = '* { -webkit-font-smoothing: antialiased; }' +
        	   'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0;}' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
+           'html body button.geBtn:active { opacity: 0.6; }' +
            '.geDialog input, .geToolbarContainer input, .mxWindow input {padding:2px !important;display:inline-block !important; }' +
            'div.geDialog { border-radius: 5px; }' +
            'html body div.geDialog button.geBigButton { color: #fff !important; }' +
@@ -156,7 +157,7 @@ EditorUi.initMinimalTheme = function()
 	        var w = Math.min(graph.container.clientWidth - 10, 266);
 	        
 	        ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10, 56,
-	           w - 6, Math.min(600, graph.container.clientHeight - 30),
+	           w - 6, Math.min(650, graph.container.clientHeight - 30),
 	           function(container)
 	        {
 	            var div = document.createElement('div');
@@ -344,6 +345,25 @@ EditorUi.initMinimalTheme = function()
         	this.tabContainer.style.right = '70px';
         }
     };
+    
+    // Overridden to update save menu state
+	
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
+	
+	EditorUi.prototype.updateActionStates = function()
+	{
+		editorUiUpdateActionStates.apply(this, arguments);
+
+		var saveMenu = this.menus.get('save');
+		
+		if (saveMenu != null)
+		{
+			saveMenu.setEnabled(this.getCurrentFile() != null || urlParams['embed'] == '1');
+		}
+	};
 
     /**
      * Sets the XML node for the current diagram.
@@ -555,55 +575,9 @@ EditorUi.initMinimalTheme = function()
         }
     };
 
-    /**
-     * Adds math switch in format panel.
-     */
-    var diagramFormatPanelAddOptions =  DiagramFormatPanel.prototype.addOptions;
-    
-    DiagramFormatPanel.prototype.addOptions = function(div)
+    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
     {
-        var div = diagramFormatPanelAddOptions.apply(this, arguments);
-        
-        var ui = this.editorUi;
-        var editor = ui.editor;
-        var graph = editor.graph;
-        
-        if (graph.isEnabled() && typeof(MathJax) !== 'undefined')
-        {
-            // Math
-            var option = this.createOption(mxResources.get('mathematicalTypesetting'), function()
-            {
-                return graph.mathEnabled;
-            }, function(checked)
-            {
-                ui.actions.get('mathematicalTypesetting').funct();
-            },
-            {
-                install: function(apply)
-                {
-                    this.listener = function()
-                    {
-                        apply(graph.mathEnabled);
-                    };
-                    
-                    ui.addListener('mathEnabledChanged', this.listener);
-                },
-                destroy: function()
-                {
-                    ui.removeListener(this.listener);
-                }
-            });
-            
-            option.style.paddingTop = '0px';
-            div.appendChild(option);
-            
-            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');
-            help.style.position = 'relative';
-            help.style.top = '4px';
-            option.appendChild(help);
-        }
-
-        return div;
+        return true;
     };
     
 	// Initializes the user interface
@@ -619,38 +593,61 @@ EditorUi.initMinimalTheme = function()
         
         if (this.formatWindow != null)
         {
-            this.formatWindow.window.setVisible(false);
-            this.formatWindow.window.destroy();
-            this.formatWindow = null;
+        	this.formatWindow.window.setVisible(false);
+        	this.formatWindow.window.destroy();
+        	this.formatWindow = null;
         }
 
         if (this.actions.outlineWindow != null)
         {
-            this.actions.outlineWindow.destroy();
-            this.actions.outlineWindow = null;
+        	this.actions.outlineWindow.window.setVisible(false);
+        	this.actions.outlineWindow.window.destroy();
+        	this.actions.outlineWindow = null;
         }
 
         if (this.actions.layersWindow != null)
         {
-            this.actions.layersWindow.destroy();
-            this.actions.layersWindow = null;
+        	this.actions.layersWindow.window.setVisible(false);
+        	this.actions.layersWindow.window.destroy();
+        	this.actions.layersWindow = null;
         }
 
-        if (this.actions.tagsWindow != null)
+        if (this.menus.tagsWindow != null)
         {
-            this.actions.tagsWindow.window.setVisible(false);
-            this.actions.tagsWindow.window.destroy();
-            this.actions.tagsWindow = null;
+        	this.menus.tagsWindow.window.setVisible(false);
+        	this.menus.tagsWindow.window.destroy();
+        	this.menus.tagsWindow = null;
         }
 
-        if (this.actions.findWindow != null)
+        if (this.menus.findWindow != null)
         {
-            this.actions.findWindow.window.setVisible(false);
-            this.actions.findWindow.window.destroy();
-            this.actions.findWindow = null;
+        	this.menus.findWindow.window.setVisible(false);
+        	this.menus.findWindow.window.destroy();
+        	this.menus.findWindow = null;
         }
-		
+
 		editorUiDestroy.apply(this, arguments);
+	};
+	
+	// Hides windows when a file is closed
+	var editorUiSetGraphEnabled = EditorUi.prototype.setGraphEnabled;
+	
+	EditorUi.prototype.setGraphEnabled = function(enabled)
+	{
+		editorUiSetGraphEnabled.apply(this, arguments);
+		
+		if (!enabled)
+		{
+            if (this.sidebarWindow != null)
+            {
+                this.sidebarWindow.window.setVisible(false);
+            }
+            
+            if (this.formatWindow != null)
+            {
+            	this.formatWindow.window.setVisible(false);
+            }
+		}
 	};
 	
     // Disables centering of graph after iframe resize
@@ -658,6 +655,7 @@ EditorUi.initMinimalTheme = function()
     
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;
+	
 	EditorUi.prototype.init = function()
 	{
 		editorUiInit.apply(this, arguments);
@@ -711,7 +709,18 @@ EditorUi.initMinimalTheme = function()
             ui.showDialog(dlg.container, 620, 420, true, false);
             dlg.init();
         }));
-        
+        ui.actions.put('formatSql', new Action(mxResources.get('formatSql') + '...', function()
+        {
+            var dlg = new ParseDialog(ui, 'Insert from Text', 'formatSql');
+            ui.showDialog(dlg.container, 620, 420, true, false);
+            dlg.init();
+        }));
+        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
+        {
+            var dlg = new ParseDialog(ui, 'Insert from Text', 'plantUml');
+            ui.showDialog(dlg.container, 620, 420, true, false);
+            dlg.init();
+        }));
         ui.actions.put('toggleShapes', new Action(mxResources.get('shapes') + '...', function()
         {
         	toggleShapes(ui);
@@ -874,7 +883,7 @@ EditorUi.initMinimalTheme = function()
 
         ui.menus.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['importText', 'createShape', '-', 'importCsv', 'editDiagram', '-', 'insertPage'], parent);
+            ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'editDiagram', 'formatSql', '-', 'insertPage'], parent);
         })));
         
         mxResources.parse('insertLayout=' + mxResources.get('layout'));
@@ -996,7 +1005,7 @@ EditorUi.initMinimalTheme = function()
             {
             	if (btn.getAttribute('disabled') != 'disabled')
             	{
-            		fn();
+            		fn(evt);
             	}
             	
                 mxEvent.consume(evt);
@@ -1027,7 +1036,7 @@ EditorUi.initMinimalTheme = function()
                     else
                     {
                         btn.setAttribute('disabled', 'disabled');
-                        mxUtils.setOpacity(btn, (img != null) ? 10 : 50);
+                        mxUtils.setOpacity(btn, (img != null) ? 10 : 20);
                         btn.style.cursor = 'default';
                     }
                 };
@@ -1077,7 +1086,7 @@ EditorUi.initMinimalTheme = function()
         		addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null, mxResources.get('shapes'), ui.actions.get('image'),
         			(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+' : null),
                      addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
-                    		 mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', null,
+                    		 mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
                     (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==' : null)]);
         var elt = addMenu('insert', true, (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==' : null, 40);
         createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct, null, mxResources.get('delete'), ui.actions.get('delete'),
@@ -1097,6 +1106,10 @@ EditorUi.initMinimalTheme = function()
 
 	        if (iw >= 560)
 	        {
+	        	var zoomInAction = ui.actions.get('zoomIn');
+	        	var zoomOutAction = ui.actions.get('zoomOut');
+	        	var resetViewAction = ui.actions.get('resetView');
+	        	
 		        createGroup([addMenuItem('', function()
 		        {
 		            graph.popupMenuHandler.hideMenu();
@@ -1112,11 +1125,11 @@ EditorUi.initMinimalTheme = function()
 		            {
 		            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
 		            }
-		        }, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', null,
+		        }, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction,
 		        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyA1djRoMlY1aDRWM0g1Yy0xLjEgMC0yIC45LTIgMnptMiAxMEgzdjRjMCAxLjEuOSAyIDIgMmg0di0ySDV2LTR6bTE0IDRoLTR2Mmg0YzEuMSAwIDItLjkgMi0ydi00aC0ydjR6bTAtMTZoLTR2Mmg0djRoMlY1YzAtMS4xLS45LTItMi0yeiIvPjwvc3ZnPg=='),
-		        (iw >= 640) ? addMenuItem('', ui.actions.get('zoomIn').funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)', null,
+		        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)', zoomInAction,
 		       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHptMi41LTRoLTJ2Mkg5di0ySDdWOWgyVjdoMXYyaDJ2MXoiLz48L3N2Zz4=') : null,
-		        (iw >= 640) ? addMenuItem('', ui.actions.get('zoomOut').funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', null,
+		        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction,
 		        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHpNNyA5aDV2MUg3eiIvPjwvc3ZnPg==') : null]);
 	        }
         }

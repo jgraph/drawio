@@ -1,3 +1,10 @@
+22-MAY-2018: 8.6.6
+
+- Fixes enabled state for some menu items
+- Moves SQL and PlantUML to insert menu
+- Fixes loading libraries from OneDrive
+- Adds reverse edge to context menu
+
 17-MAY-2018: 8.6.5
 
 - Fixes timing error for export in Safari

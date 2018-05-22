@@ -5912,7 +5912,18 @@ if (typeof mxVertexHandler != 'undefined')
 			// Implements ignoreSelection flag
 			imgExport.drawCellState = function(state, canvas)
 			{
-				if (ignoreSelection || state.view.graph.isCellSelected(state.cell))
+				var graph = state.view.graph;
+				var selected = graph.isCellSelected(state.cell);
+				var parent = graph.model.getParent(state.cell);
+				
+				// Checks if parent cell is selected
+				while (!ignoreSelection && !selected && parent != null)
+				{
+					selected = graph.isCellSelected(parent);
+					parent = graph.model.getParent(parent);
+				}
+				
+				if (ignoreSelection || selected)
 				{
 					imgExportDrawCellState.apply(this, arguments);
 				}
