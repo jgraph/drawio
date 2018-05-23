@@ -1,3 +1,9 @@
+23-MAY-2018: 8.6.7
+
+- Adds #S parameter for loading from CSV source
+- Adds support for VSD files in cloud storage
+- Adds Lucidchart support for #U parameter
+
 22-MAY-2018: 8.6.6
 
 - Fixes enabled state for some menu items

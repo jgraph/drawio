@@ -320,7 +320,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			var binary = /\.png$/i.test(meta.name);
 			
 			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-			if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+			if (/\.vsdx?$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
 				(!this.ui.useCanvasForExport && binary))
 			{
 				var mimeType = (meta.file != null) ? meta.file.mimeType : null;

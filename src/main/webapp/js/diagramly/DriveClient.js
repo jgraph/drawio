@@ -640,7 +640,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 				var binary = /\.png$/i.test(resp.title);
 				
 				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.vsdx$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
+				if (/\.vsdx?$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
 					(!this.ui.useCanvasForExport && binary))
 				{
 					var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;
@@ -655,7 +655,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 					else
 					{
 						this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-					    	{
+					    {
 							try
 							{
 								// Converts XML files to realtime including old realtime model
@@ -675,7 +675,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 							{
 								error(e);
 							}
-					    	}), error);
+					    }), error);
 					}
 				}
 			}

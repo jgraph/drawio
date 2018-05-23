@@ -2985,12 +2985,12 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 	
 	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
 	{
-		if  (/(\.vsdx)($|\?)/i.test(url))
+		if (/(\.vsdx)($|\?)/i.test(url))
 		{
 			this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
 			{
 				onload(xml);
-			});
+			}, onerror, url);
 		}
 		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
 		{
@@ -3003,6 +3003,13 @@ EditorUi.prototype.loadTemplate = function(url, onload, onerror)
 					onload(xhr.responseText);
 				}
 			}), url);
+		}
+		else if (data.substring(0, 26) == '{"state":"{\\"Properties\\":')
+		{
+			this.importLucidChart(data, 0, 0, false, mxUtils.bind(this, function()
+			{
+				onload(this.getFileData(true));
+			}));
 		}
 		else
 		{
@@ -3384,6 +3391,24 @@ App.prototype.loadFile = function(id, sameWindow, file, success)
 				if (success != null)
 				{
 					success();
+				}
+			}
+			else if (id.charAt(0) == 'S')
+			{
+				this.spinner.stop();
+				
+				try
+				{
+					this.loadDescriptor(JSON.parse(
+						this.editor.graph.decompress(id.substring(1))),
+						success, mxUtils.bind(this, function(e)
+					{
+						this.handleError(e, mxResources.get('errorLoadingFile'));
+					}));
+				}
+				catch (e)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'));
 				}
 			}
 			else if (id.charAt(0) == 'R')
@@ -4322,8 +4347,8 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		gitHubUrl = true;
 	}
 	
-	// Workaround for wrong binary response with VSDX/VSD files
-	if ((/\.vsdx$/i.test(filename) || /\.vsd$/i.test(filename)) && Graph.fileSupport && new XMLHttpRequest().upload &&
+	// Workaround for wrong binary response with VSD(X) files
+	if (/\.vsdx?$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
 		typeof new XMLHttpRequest().responseType === 'string')
 	{
 		var req = new XMLHttpRequest();

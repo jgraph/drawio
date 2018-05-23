@@ -2551,7 +2551,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	
 	var tableOption = document.createElement('option');
 	tableOption.setAttribute('value', 'table');
-	mxUtils.write(tableOption, mxResources.get('table'));
+	mxUtils.write(tableOption, mxResources.get('formatSql'));
 	typeSelect.appendChild(tableOption);
 	
 	if (defaultType == 'formatSql')
