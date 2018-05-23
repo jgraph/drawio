@@ -330,40 +330,6 @@ EditorUi.initMinimalTheme = function()
 	EditorUi.prototype.showCsvImport = false;
     EditorUi.prototype.footerHeight = 0;
 	Graph.prototype.editAfterInsert = true;
-    
-    // Overridden to ignore tabContainer height for diagramContainer
-    var editorUiRefresh = EditorUi.prototype.refresh;
-
-    EditorUi.prototype.refresh = function(sizeDidChange)
-    {
-        editorUiRefresh.apply(this, arguments);
-        this.diagramContainer.style.top = '47px';
-    	
-        if (this.tabContainer != null)
-        {
-        	// Makes room for view zoom menu
-        	this.tabContainer.style.right = '70px';
-        }
-    };
-    
-    // Overridden to update save menu state
-	
-	/**
-	 * Updates action states depending on the selection.
-	 */
-	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
-	
-	EditorUi.prototype.updateActionStates = function()
-	{
-		editorUiUpdateActionStates.apply(this, arguments);
-
-		var saveMenu = this.menus.get('save');
-		
-		if (saveMenu != null)
-		{
-			saveMenu.setEnabled(this.getCurrentFile() != null || urlParams['embed'] == '1');
-		}
-	};
 
     /**
      * Sets the XML node for the current diagram.
@@ -381,6 +347,34 @@ EditorUi.initMinimalTheme = function()
     	return false;
     };
     
+    // Overridden to ignore tabContainer height for diagramContainer
+    var editorUiRefresh = EditorUi.prototype.refresh;
+
+    EditorUi.prototype.refresh = function(sizeDidChange)
+    {
+        editorUiRefresh.apply(this, arguments);
+        this.diagramContainer.style.top = '47px';
+    	
+        if (this.tabContainer != null)
+        {
+        	// Makes room for view zoom menu
+        	this.tabContainer.style.right = '70px';
+        }
+    };
+    
+    // Overridden to update save menu state
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
+	
+	EditorUi.prototype.updateActionStates = function()
+	{
+		editorUiUpdateActionStates.apply(this, arguments);
+
+		this.menus.get('save').setEnabled(this.getCurrentFile() != null || urlParams['embed'] == '1');
+	};
+
     // Hides keyboard shortcuts in menus
     var menusAddShortcut = Menus.prototype.addShortcut; 
     
@@ -652,22 +646,15 @@ EditorUi.initMinimalTheme = function()
 	
     // Disables centering of graph after iframe resize
 	EditorUi.prototype.chromelessWindowResize = function() {};
-    
-	// Initializes the user interface
-	var editorUiInit = EditorUi.prototype.init;
 	
-	EditorUi.prototype.init = function()
+	// Adds actions and menus
+	var menusInit = Menus.prototype.init;
+	Menus.prototype.init = function()
 	{
-		editorUiInit.apply(this, arguments);
+		menusInit.apply(this, arguments);
 		
-        var ui = this;
-        var graph = this.editor.graph;
-        var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
-        
-        var div = document.createElement('div');
-        div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
-        div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
-        this.sidebar = this.createSidebar(div);
+        var ui = this.editorUi;
+        var graph = ui.editor.graph;
         
         ui.actions.get('insertText').label = mxResources.get('text');
         ui.actions.get('insertText').label = mxResources.get('text');
@@ -715,12 +702,7 @@ EditorUi.initMinimalTheme = function()
             ui.showDialog(dlg.container, 620, 420, true, false);
             dlg.init();
         }));
-        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
-        {
-            var dlg = new ParseDialog(ui, 'Insert from Text', 'plantUml');
-            ui.showDialog(dlg.container, 620, 420, true, false);
-            dlg.init();
-        }));
+
         ui.actions.put('toggleShapes', new Action(mxResources.get('shapes') + '...', function()
         {
         	toggleShapes(ui);
@@ -729,18 +711,18 @@ EditorUi.initMinimalTheme = function()
         {
         	toggleFormat(ui);
         }));
-        var addInsertItem = function(menu, parent, title, method)
+        
+        if (EditorUi.enablePlantUml)
         {
-            menu.addItem(title, null, mxUtils.bind(this, function()
-            {
-                var dlg = new CreateGraphDialog(ui, title, method);
-                ui.showDialog(dlg.container, 620, 420, true, false);
-                // Executed after dialog is added to dom
-                dlg.init();
-            }), parent);
-        };
+	        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
+	        {
+	            var dlg = new ParseDialog(ui, 'Insert from Text', 'plantUml');
+	            ui.showDialog(dlg.container, 620, 420, true, false);
+	            dlg.init();
+	        }));
+        }
 
-        ui.menus.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {
         	ui.menus.addSubmenu('preferences', menu, parent);
 			menu.addSeparator(parent);
@@ -806,7 +788,7 @@ EditorUi.initMinimalTheme = function()
 
 		if (isLocalStorage)
 		{
-			var openFromMenu = ui.menus.get('openFrom');
+			var openFromMenu = this.get('openFrom');
 			var oldFunct = openFromMenu.funct;
 			
 			openFromMenu.funct = function(menu, parent)
@@ -818,7 +800,7 @@ EditorUi.initMinimalTheme = function()
 			};
 		}
 
-        ui.menus.put('save', new Menu(mxUtils.bind(this, function(menu, parent)
+		this.put('save', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			var file = ui.getCurrentFile();
 			
@@ -840,9 +822,9 @@ EditorUi.initMinimalTheme = function()
         })));
         
         // Augments the existing export menu
-        var exportAsMenu = ui.menus.get('exportAs');
+        var exportAsMenu = this.get('exportAs');
         
-        ui.menus.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
         {
         	exportAsMenu.funct(menu, parent);
             menu.addSeparator(parent);
@@ -852,9 +834,9 @@ EditorUi.initMinimalTheme = function()
             ui.menus.addMenuItems(menu, ['publishLink'], parent);
         })));
 
-        var langMenu = ui.menus.get('language');
+        var langMenu = this.get('language');
 
-        ui.menus.put('preferences', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('preferences', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			if (urlParams['embed'] != '1')
 			{
@@ -881,7 +863,7 @@ EditorUi.initMinimalTheme = function()
 			}
         })));
 
-        ui.menus.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'editDiagram', 'formatSql', '-', 'insertPage'], parent);
         })));
@@ -889,7 +871,7 @@ EditorUi.initMinimalTheme = function()
         mxResources.parse('insertLayout=' + mxResources.get('layout'));
         mxResources.parse('insertAdvanced=' + mxResources.get('advanced'));
         
-        ui.menus.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-', 'insertText',
                                          'insertLink', '-', 'insertImage'], parent);
@@ -901,8 +883,19 @@ EditorUi.initMinimalTheme = function()
 
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];
-        
-        ui.menus.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
+
+        var addInsertItem = function(menu, parent, title, method)
+        {
+            menu.addItem(title, null, mxUtils.bind(this, function()
+            {
+                var dlg = new CreateGraphDialog(ui, title, method);
+                ui.showDialog(dlg.container, 620, 420, true, false);
+                // Executed after dialog is added to dom
+                dlg.init();
+            }), parent);
+        };
+
+        this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             for (var i = 0; i < methods.length; i++)
             {
@@ -917,14 +910,28 @@ EditorUi.initMinimalTheme = function()
             }
         })));
         
-        ui.menus.put('options', new Menu(mxUtils.bind(this, function(menu, parent)
+        this.put('options', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
             	'copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting'], parent);
         })));
+	};
+	
+	// Initializes the user interface
+	var editorUiInit = EditorUi.prototype.init;
+	
+	EditorUi.prototype.init = function()
+	{
+		editorUiInit.apply(this, arguments);
+
+        var div = document.createElement('div');
+        div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
+        div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
+        this.sidebar = this.createSidebar(div);
 
         // Needed for creating elements in Format panel
-        ui.toolbar = ui.createToolbar(ui.createDiv('geToolbar'));
+        var ui = this;
+        ui.toolbar = this.createToolbar(ui.createDiv('geToolbar'));
         ui.defaultLibraryName = mxResources.get('untitledLibrary');
         
         var menubar = document.createElement('div');
@@ -1196,7 +1203,9 @@ EditorUi.initMinimalTheme = function()
 		
 		// Container for the user element
 		ui.menubarContainer = ui.buttonContainer;
-		
+
+        var langMenu = this.menus.get('language');
+
 		if (langMenu != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && iw >= 480)
 		{
 			var elt = menuObj.addMenu('', langMenu.funct);

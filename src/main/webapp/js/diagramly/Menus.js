@@ -2023,23 +2023,26 @@
 
 		var addInsertItem = function(menu, parent, title, method)
 		{
-			menu.addItem(title, null, mxUtils.bind(this, function()
+			if (method != 'plantUml' || EditorUi.enablePlantUml)
 			{
-				if (method == 'fromText' || method == 'formatSql' || method == 'plantUml')
+				menu.addItem(title, null, mxUtils.bind(this, function()
 				{
-					var dlg = new ParseDialog(editorUi, title, method);
-					editorUi.showDialog(dlg.container, 620, 420, true, false);
-					editorUi.dialog.container.style.overflow = 'auto';
-					dlg.init();
-				}
-				else
-				{
-					var dlg = new CreateGraphDialog(editorUi, title, method);
-					editorUi.showDialog(dlg.container, 620, 420, true, false);
-					// Executed after dialog is added to dom
-					dlg.init();
-				}
-			}), parent);
+					if (method == 'fromText' || method == 'formatSql' || method == 'plantUml')
+					{
+						var dlg = new ParseDialog(editorUi, title, method);
+						editorUi.showDialog(dlg.container, 620, 420, true, false);
+						editorUi.dialog.container.style.overflow = 'auto';
+						dlg.init();
+					}
+					else
+					{
+						var dlg = new CreateGraphDialog(editorUi, title, method);
+						editorUi.showDialog(dlg.container, 620, 420, true, false);
+						// Executed after dialog is added to dom
+						dlg.init();
+					}
+				}), parent);
+			}
 		};
 		
 		var insertVertex = function(value, w, h, style)
