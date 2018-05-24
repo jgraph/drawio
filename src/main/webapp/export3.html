@@ -21,8 +21,6 @@
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
 	<script>
-		// NOTE: SVG Output fixes missing symbols in AsciiMath
-		// but produces larger output with clipping problems
 		Editor.initMath();
 	
 		function render(data)
@@ -273,21 +271,32 @@
 			waitForImages('image', 'xlink:href');
 			waitForImages('img', 'src');
 			
-			// Waits for MathJax to finish rendering
-			function renderMath(elt)
+			// Waits for MathJax.Hub to become available to register
+			// wait counter callback asynchronously after math render
+			var editorDoMathJaxRender = Editor.doMathJaxRender;
+			
+			Editor.doMathJaxRender = function(container)
 			{
-				if (math && window.MathJax != null && window.MathJax.Hub != null)
+				editorDoMathJaxRender.apply(this, arguments);
+				
+				window.setTimeout(function()
 				{
-					waitCounter++;
-					Editor.MathJaxRender(elt);
-					
-					// Asynchronous callback when MathJax has finished
 					window.MathJax.Hub.Queue(function ()
 					{
 						decrementWaitCounter();
 					});
+				}, 0);
+			};
+			
+			// Adds async MathJax rendering task
+			function renderMath(elt)
+			{
+				if (math && Editor.MathJaxRender != null)
+				{
+					waitCounter++;
+					Editor.MathJaxRender(elt);
 				}
-			}
+			};
 
 			// Converts the graph to a vertical sequence of pages for PDF export
 			if (graph.pdfPageVisible)
@@ -341,7 +350,7 @@
 				}*/
 				
 				bounds = new mxRectangle(0, 0, pf.width, pf.height);
-				renderMath(graph.container.parentNode);
+				renderMath(document.body);
 			}
 			else
 			{

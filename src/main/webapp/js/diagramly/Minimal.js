@@ -931,6 +931,7 @@ EditorUi.initMinimalTheme = function()
 
         // Needed for creating elements in Format panel
         var ui = this;
+        var graph = ui.editor.graph;
         ui.toolbar = this.createToolbar(ui.createDiv('geToolbar'));
         ui.defaultLibraryName = mxResources.get('untitledLibrary');
         
