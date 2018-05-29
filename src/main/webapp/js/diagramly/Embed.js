@@ -50,7 +50,16 @@
 				messageStyle: 'none',
 				AuthorInit: function ()
 				{
-					MathJax.Hub.Config({"HTML-CSS":{availableFonts:[],webFont:"STIX-Web",imageFont:null}});
+					MathJax.Hub.Config({
+						jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/HTML-CSS'],
+						extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
+						'HTML-CSS': {
+							imageFont: null
+						},
+						TeX: {
+						  extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
+						}
+					});
 					
 					MathJax.Hub.Register.StartupHook('Begin', function()
 					{
@@ -64,7 +73,7 @@
 
 			var script = document.createElement('script');
 			script.type = 'text/javascript';
-			script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+			script.src = 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 			document.getElementsByTagName('head')[0].appendChild(script);
 		}
 	};

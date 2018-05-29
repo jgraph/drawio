@@ -34,14 +34,19 @@
 	var script = document.createElement('script');
 	script.setAttribute('data-options', 'resize:false;margin:false');
 	
-	alert("Unsupported draw.io version, please upgrade.");
-	
 	// Main
 	script.onload = function()
 	{
 		AP.sizeToParent(true);
-		AC.initAsync(baseUrl);
+		
+		alert("Unsupported draw.io version, please upgrade.");
+		
+		AP.require(['confluence'], function (confluence)
+		{
+			confluence.closeMacroEditor();
+		});
 	};
+
 	script.src = connectUrl + '/all.js';
 	head.appendChild(script);
 	

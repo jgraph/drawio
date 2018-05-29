@@ -123,17 +123,9 @@ EditorUi.initMinimalTheme = function()
 	            
 	            return format;
 	        });
-	        ui.formatWindow.window.addListener('show', function()
-	        {
-	            ui.fireEvent(new mxEventObject('format'));
-	        });
-	        ui.formatWindow.window.addListener('format', function()
-	        {
-	            ui.fireEvent(new mxEventObject('format'));
-	        });
+	        
 	        ui.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
 	        ui.formatWindow.window.setVisible(true);
-	        ui.fireEvent(new mxEventObject('sidebar'));
 	    }
 	    else
 	    {
@@ -192,7 +184,7 @@ EditorUi.initMinimalTheme = function()
 	                return elt;
 	            }
 	            
-				if (urlParams['embed'] != '1' || urlParams['libraries'] == '1')
+				if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' || urlParams['libraries'] == '1'))
 	            {
 					// Defined in native apps together with openLibrary
 					if (ui.actions.get('newLibrary') != null)
@@ -241,17 +233,9 @@ EditorUi.initMinimalTheme = function()
 	            
 	            return container;
 	        });
-	        ui.sidebarWindow.window.addListener('show', function()
-	        {
-	            ui.fireEvent(new mxEventObject('sidebar'));
-	        });
-	        ui.sidebarWindow.window.addListener('sidebar', function()
-	        {
-	            ui.fireEvent(new mxEventObject('sidebar'));
-	        });
+	        
 	        ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 	        ui.sidebarWindow.window.setVisible(true);
-	        ui.fireEvent(new mxEventObject('sidebar'));
 	        
 	        ui.getLocalData('sidebar', function(value)
 	        {
@@ -569,7 +553,7 @@ EditorUi.initMinimalTheme = function()
         }
     };
 
-    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
+    DiagramFormatPanel.prototype.isMathOptionVisible = function()
     {
         return true;
     };

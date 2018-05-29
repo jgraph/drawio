@@ -172,7 +172,7 @@
 						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
 							fit, allPages, layers, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
 							{
-								var basename = editorUi.getBaseFilename();
+								var basename = editorUi.getBaseFilename(allPages);
 								var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
 									'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
 									'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
@@ -1830,7 +1830,7 @@
 			}
 		})));
 
-		this.editorUi.actions.addAction('rename...', mxUtils.bind(this, function()
+		var renameAction = this.editorUi.actions.addAction('rename...', mxUtils.bind(this, function()
 		{
 			var file = this.editorUi.getCurrentFile();
 			
@@ -1867,10 +1867,14 @@
 				this.editorUi.showDialog(dlg.container, 300, 80, true, true);
 				dlg.init();
 			}
-		})).isEnabled = function()
+		}));
+		
+		renameAction.isEnabled = function()
 		{
 			return this.enabled && isGraphEnabled.apply(this, arguments);
 		}
+		
+		renameAction.visible = urlParams['embed'] != '1';
 		
 		editorUi.actions.addAction('makeCopy...', mxUtils.bind(this, function()
 		{
@@ -2279,240 +2283,243 @@
 			}
 		}));
 		
-		this.put('newLibrary', new Menu(function(menu, parent)
+		if (Editor.enableCustomLibraries)
 		{
-			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+			this.put('newLibrary', new Menu(function(menu, parent)
 			{
-				if (editorUi.drive != null)
+				if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 				{
-					menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+					if (editorUi.drive != null)
 					{
-						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GOOGLE);
-					}, parent);
-				}
-				else if (googleEnabled)
-				{
-					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
-					{
-						// do nothing
-					}, parent, null, false);
-				}
-			}
-			
-			if (editorUi.gitHub != null)
-			{
-				menu.addItem(mxResources.get('github') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITHUB);
-				}, parent);
-			}
-			
-			if (editorUi.dropbox != null)
-			{
-				menu.addItem(mxResources.get('dropbox') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_DROPBOX);
-				}, parent);
-			}
-			else if (dropboxEnabled)
-			{
-				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			if (editorUi.oneDrive != null)
-			{
-				menu.addItem(mxResources.get('oneDrive') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_ONEDRIVE);
-				}, parent);
-			}
-			else if (oneDriveEnabled)
-			{
-				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			if (editorUi.trello != null)
-			{
-				menu.addItem(mxResources.get('trello') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_TRELLO);
-				}, parent);
-			}
-			else if (trelloEnabled)
-			{
-				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			menu.addSeparator(parent);
-
-			if (isLocalStorage && urlParams['browser'] != '0')
-			{
-				menu.addItem(mxResources.get('browser') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_BROWSER);
-				}, parent);
-			}
-			
-			if (!mxClient.IS_IOS)
-			{
-				menu.addItem(mxResources.get('device') + '...', null, function()
-				{
-					editorUi.showLibraryDialog(null, null, null, null, App.MODE_DEVICE);
-				}, parent);
-			}
-		}));
-		
-		this.put('openLibraryFrom', new Menu(function(menu, parent)
-		{
-			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
-			{
-				if (editorUi.drive != null)
-				{
-					menu.addItem(mxResources.get('googleDrive') + '...', null, function()
-					{
-						editorUi.pickLibrary(App.MODE_GOOGLE);
-					}, parent);
-				}
-				else if (googleEnabled)
-				{
-					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
-					{
-						// do nothing
-					}, parent, null, false);
-				}
-			}
-			
-			if (editorUi.gitHub != null)
-			{
-				menu.addItem(mxResources.get('github') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_GITHUB);
-				}, parent);
-			}
-			
-			if (editorUi.dropbox != null)
-			{
-				menu.addItem(mxResources.get('dropbox') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_DROPBOX);
-				}, parent);
-			}
-			else if (dropboxEnabled)
-			{
-				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			if (editorUi.oneDrive != null)
-			{
-				menu.addItem(mxResources.get('oneDrive') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_ONEDRIVE);
-				}, parent);
-			}
-			else if (oneDriveEnabled)
-			{
-				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			if (editorUi.trello != null)
-			{
-				menu.addItem(mxResources.get('trello') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_TRELLO);
-				}, parent);
-			}
-			else if (trelloEnabled)
-			{
-				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
-			menu.addSeparator(parent);
-
-			if (isLocalStorage && urlParams['browser'] != '0')
-			{
-				menu.addItem(mxResources.get('browser') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_BROWSER);
-				}, parent);
-			}
-			
-			if (!mxClient.IS_IOS)
-			{
-				menu.addItem(mxResources.get('device') + '...', null, function()
-				{
-					editorUi.pickLibrary(App.MODE_DEVICE);
-				}, parent);
-			}
-
-			if (!editorUi.isOffline())
-			{
-				menu.addSeparator(parent);
-				
-				menu.addItem(mxResources.get('url') + '...', null, function()
-				{
-					var dlg = new FilenameDialog(editorUi, '', mxResources.get('open'), function(fileUrl)
-					{
-						if (fileUrl != null && fileUrl.length > 0 && editorUi.spinner.spin(document.body, mxResources.get('loading')))
+						menu.addItem(mxResources.get('googleDrive') + '...', null, function()
 						{
-							var realUrl = fileUrl;
-							
-							if (!editorUi.isCorsEnabledForUrl(fileUrl))
+							editorUi.showLibraryDialog(null, null, null, null, App.MODE_GOOGLE);
+						}, parent);
+					}
+					else if (googleEnabled)
+					{
+						menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+						{
+							// do nothing
+						}, parent, null, false);
+					}
+				}
+				
+				if (editorUi.gitHub != null)
+				{
+					menu.addItem(mxResources.get('github') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITHUB);
+					}, parent);
+				}
+				
+				if (editorUi.dropbox != null)
+				{
+					menu.addItem(mxResources.get('dropbox') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_DROPBOX);
+					}, parent);
+				}
+				else if (dropboxEnabled)
+				{
+					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				if (editorUi.oneDrive != null)
+				{
+					menu.addItem(mxResources.get('oneDrive') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_ONEDRIVE);
+					}, parent);
+				}
+				else if (oneDriveEnabled)
+				{
+					menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				if (editorUi.trello != null)
+				{
+					menu.addItem(mxResources.get('trello') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_TRELLO);
+					}, parent);
+				}
+				else if (trelloEnabled)
+				{
+					menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				menu.addSeparator(parent);
+	
+				if (isLocalStorage && urlParams['browser'] != '0')
+				{
+					menu.addItem(mxResources.get('browser') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_BROWSER);
+					}, parent);
+				}
+				
+				if (!mxClient.IS_IOS)
+				{
+					menu.addItem(mxResources.get('device') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_DEVICE);
+					}, parent);
+				}
+			}));
+	
+			this.put('openLibraryFrom', new Menu(function(menu, parent)
+			{
+				if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+				{
+					if (editorUi.drive != null)
+					{
+						menu.addItem(mxResources.get('googleDrive') + '...', null, function()
+						{
+							editorUi.pickLibrary(App.MODE_GOOGLE);
+						}, parent);
+					}
+					else if (googleEnabled)
+					{
+						menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+						{
+							// do nothing
+						}, parent, null, false);
+					}
+				}
+				
+				if (editorUi.gitHub != null)
+				{
+					menu.addItem(mxResources.get('github') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_GITHUB);
+					}, parent);
+				}
+				
+				if (editorUi.dropbox != null)
+				{
+					menu.addItem(mxResources.get('dropbox') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_DROPBOX);
+					}, parent);
+				}
+				else if (dropboxEnabled)
+				{
+					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				if (editorUi.oneDrive != null)
+				{
+					menu.addItem(mxResources.get('oneDrive') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_ONEDRIVE);
+					}, parent);
+				}
+				else if (oneDriveEnabled)
+				{
+					menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				if (editorUi.trello != null)
+				{
+					menu.addItem(mxResources.get('trello') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_TRELLO);
+					}, parent);
+				}
+				else if (trelloEnabled)
+				{
+					menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
+					{
+						// do nothing
+					}, parent, null, false);
+				}
+				
+				menu.addSeparator(parent);
+	
+				if (isLocalStorage && urlParams['browser'] != '0')
+				{
+					menu.addItem(mxResources.get('browser') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_BROWSER);
+					}, parent);
+				}
+				
+				if (!mxClient.IS_IOS)
+				{
+					menu.addItem(mxResources.get('device') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_DEVICE);
+					}, parent);
+				}
+	
+				if (!editorUi.isOffline())
+				{
+					menu.addSeparator(parent);
+					
+					menu.addItem(mxResources.get('url') + '...', null, function()
+					{
+						var dlg = new FilenameDialog(editorUi, '', mxResources.get('open'), function(fileUrl)
+						{
+							if (fileUrl != null && fileUrl.length > 0 && editorUi.spinner.spin(document.body, mxResources.get('loading')))
 							{
-								realUrl = PROXY_URL + '?url=' + encodeURIComponent(fileUrl);
-							}
-							
-							// Uses proxy to avoid CORS issues
-							mxUtils.get(realUrl, function(req)
-							{
-								if (req.getStatus() >= 200 && req.getStatus() <= 299)
+								var realUrl = fileUrl;
+								
+								if (!editorUi.isCorsEnabledForUrl(fileUrl))
 								{
-									editorUi.spinner.stop();
-									
-									try
-									{
-										editorUi.loadLibrary(new UrlLibrary(this, req.getText(), fileUrl));
-									}
-									catch (e)
-									{
-										editorUi.handleError(e, mxResources.get('errorLoadingFile'));
-									}
+									realUrl = PROXY_URL + '?url=' + encodeURIComponent(fileUrl);
 								}
-								else
+								
+								// Uses proxy to avoid CORS issues
+								mxUtils.get(realUrl, function(req)
+								{
+									if (req.getStatus() >= 200 && req.getStatus() <= 299)
+									{
+										editorUi.spinner.stop();
+										
+										try
+										{
+											editorUi.loadLibrary(new UrlLibrary(this, req.getText(), fileUrl));
+										}
+										catch (e)
+										{
+											editorUi.handleError(e, mxResources.get('errorLoadingFile'));
+										}
+									}
+									else
+									{
+										editorUi.spinner.stop();
+										editorUi.handleError(null, mxResources.get('errorLoadingFile'));
+									}
+								}, function()
 								{
 									editorUi.spinner.stop();
 									editorUi.handleError(null, mxResources.get('errorLoadingFile'));
-								}
-							}, function()
-							{
-								editorUi.spinner.stop();
-								editorUi.handleError(null, mxResources.get('errorLoadingFile'));
-							});
-						}
-					}, mxResources.get('url'));
-					editorUi.showDialog(dlg.container, 300, 80, true, true);
-					dlg.init();
-				}, parent);
-			}
-		}));
-		
+								});
+							}
+						}, mxResources.get('url'));
+						editorUi.showDialog(dlg.container, 300, 80, true, true);
+						dlg.init();
+					}, parent);
+				}
+			}));
+		}
+			
 		// Overrides edit menu to add find
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -2586,7 +2593,7 @@
 			{
 				this.addMenuItem(menu, 'plugins', parent);
 			}
-				
+
 			menu.addSeparator(parent);
 			this.addMenuItem(menu, 'tags', parent);
 		})));
@@ -2606,7 +2613,7 @@
 					this.addSubmenu('openLibraryFrom', menu, parent);
 				}
 				
-				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'save'], parent);
+				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', 'save'], parent);
 				
 				if (urlParams['saveAndExit'] == '1')
 				{

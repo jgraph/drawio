@@ -7690,7 +7690,7 @@ if (typeof mxVertexHandler != 'undefined')
 					if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
 					{
 						var changeLink = document.createElement('img');
-						changeLink.setAttribute('src', IMAGE_PATH + '/edit.gif');
+						changeLink.setAttribute('src', Editor.editImage);
 						changeLink.setAttribute('title', mxResources.get('editLink'));
 						changeLink.setAttribute('width', '11');
 						changeLink.setAttribute('height', '11');

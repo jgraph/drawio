@@ -58,6 +58,11 @@
 	 * Default value for custom libraries in mxSettings.
 	 */
 	Editor.defaultCustomLibraries = [];
+	
+	/**
+	 * Default value for custom libraries in mxSettings.
+	 */
+	Editor.enableCustomLibraries = true;
 
 	/**
 	 * Default value for the CSV import dialog.
@@ -198,6 +203,12 @@
 			if (config.defaultCustomLibraries != null)
 			{
 				Editor.defaultCustomLibraries = config.defaultCustomLibraries;
+			}
+			
+			// Disables custom libraries
+			if (config.enableCustomLibraries != null)
+			{
+				Editor.enableCustomLibraries = config.enableCustomLibraries;
 			}
 			
 			// Overrides default vertex style
@@ -565,7 +576,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+		src = (src != null) ? src : 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 		Editor.mathJaxQueue = [];
 		
 		Editor.doMathJaxRender = function(container)
@@ -593,6 +604,9 @@
 				MathJax.Hub.Config(config || {
 					jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/HTML-CSS'],
 					extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
+					'HTML-CSS': {
+						imageFont: null
+					},
 					TeX: {
 					  extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
 					},
@@ -2120,10 +2134,12 @@
 				doc.writeln('messageStyle: "none",');
 				doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
 				doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
+				doc.writeln('"HTML-CSS": {');
+				doc.writeln('imageFont: null');
+				doc.writeln('},');
 				doc.writeln('TeX: {');
 				doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
 				doc.writeln('},');
-							// Ignores math in in-place editor
 				doc.writeln('tex2jax: {');
 				doc.writeln('	ignoreClass: "geDisableMathJax"');
 			  	doc.writeln('},');
@@ -2141,7 +2157,7 @@
 				}
 				
 				doc.writeln('</script>');
-				doc.writeln('<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js"></script>');
+				doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
 			}
 			
 			pv.closeDocument();

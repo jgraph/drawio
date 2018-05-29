@@ -512,12 +512,17 @@ Menus.prototype.get = function(name)
  */
 Menus.prototype.addSubmenu = function(name, menu, parent, label)
 {
-	var enabled = this.get(name).isEnabled();
-
-	if (menu.showDisabled || enabled)
+	var entry = this.get(name);
+	
+	if (entry != null)
 	{
-		var submenu = menu.addItem(label || mxResources.get(name), null, null, parent, null, enabled);
-		this.addMenu(name, menu, submenu);
+		var enabled = entry.isEnabled();
+	
+		if (menu.showDisabled || enabled)
+		{
+			var submenu = menu.addItem(label || mxResources.get(name), null, null, parent, null, enabled);
+			this.addMenu(name, menu, submenu);
+		}
 	}
 };
 

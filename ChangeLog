@@ -1,3 +1,10 @@
+29-MAY-2018: 8.6.9
+
+- Adds enableCustomLibraries switch
+- Fixes math rendering timing bug
+- Uses mxGraph 3.9.6 beta 1
+- Uses MathJax 2.7.4
+
 24-MAY-2018: 8.6.8
 
 - Fixes math typesetting in PDF export

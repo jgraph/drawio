@@ -14,9 +14,14 @@ Draw.loadPlugin(function(ui)
 		{
 			data = JSON.parse(data);
 			
-			if (data.action == 'load' && data.macroData != null)
+			if (data.action == 'load')
 			{
-				macroData = data.macroData;
+				if (data.macroData != null) 
+				{
+					macroData = data.macroData;
+				}
+				
+				macroData.diagramDisplayName = data.title;
 			}
 		}
 		catch (e)
@@ -118,6 +123,60 @@ Draw.loadPlugin(function(ui)
 		ui.menus.addMenuItems(menu, ['linksAuto', 'linksBlank', 'linksSelf'], parent);
 	})));
 
+	var renameAction = ui.actions.get("rename"); 
+
+	renameAction.visible = true;
+	
+	renameAction.isEnabled = function()
+	{
+		return macroData.diagramDisplayName != null;
+	}
+	
+	renameAction.funct = function()
+	{
+		var dlg = new FilenameDialog(ui, macroData.diagramDisplayName || "",
+				mxResources.get('rename'), function(newName)
+		{
+			if (newName != null && newName.length > 0)
+			{
+				macroData.diagramDisplayName = newName;
+				var parent = window.opener || window.parent;
+				parent.postMessage(JSON.stringify({event: 'rename', name: newName}), '*'); 
+				//Update file name in the UI
+				var tmp = document.createElement('span');
+				mxUtils.write(tmp, mxUtils.htmlEntities(newName));
+				
+				if (ui.embedFilenameSpan != null)
+				{
+					ui.embedFilenameSpan.parentNode.removeChild(ui.embedFilenameSpan);
+				}
+
+				ui.buttonContainer.appendChild(tmp);
+				ui.embedFilenameSpan = tmp;
+			}
+		}, mxResources.get('rename'), function(name)
+		{
+			var err = "";
+			if (name == null || name.length == 0)
+			{
+				err = 'Filename too short';
+			}
+			else if (/[&\*+=\\;/{}|\":<>\?~]/g.test(name))
+			{        
+				err = 'Invalid characters \\ / | : { } < > & + ? = ; * " ~';
+			}
+			else
+			{
+				return true;
+			}
+			
+			ui.showError(mxResources.get('error'), err, mxResources.get('ok'));
+			return false;
+		});
+		ui.showDialog(dlg.container, 300, 80, true, true);
+		dlg.init();
+	}
+	
 	// Adds Viewer menu at bottom of Extras menu
 	var menu = ui.menus.get('extras');
 	var oldFunct = menu.funct;

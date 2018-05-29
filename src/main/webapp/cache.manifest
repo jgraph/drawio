@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 05/24/2018 11:31 AM
+# 05/29/2018 06:47 PM
 
 app.html
 index.html?offline=1
@@ -26,11 +26,9 @@ mxgraph/images/window.gif
 mxgraph/images/window-title.gif
 mxgraph/images/button.gif
 mxgraph/images/point.gif
-mxgraph/images/transparent.gif
 resources/dia.txt
 images/delete.png
 images/droptarget.png
-images/edit.gif
 images/help.png
 images/download.png
 images/drawlogo-text-bottom.svg
