@@ -76,7 +76,7 @@
                     "i18n": "drawioMacro",
                     "value": "Draw.io Diagram"
                 },
-                "url": "/connect/confluence/viewer-1-4-8.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}",
+                "url": "/connect/confluence/viewer-1-4-8.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}",
                 "width": "100%",
                 "description": 
                 {

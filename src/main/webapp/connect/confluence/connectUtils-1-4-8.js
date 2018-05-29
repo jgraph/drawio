@@ -431,6 +431,8 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 	var user = AC.getUrlParam('user_id', true);
 	var draftExists = false;
 	
+	var diagramDisplayName = macroData != null? (macroData.diagramDisplayName || diagramName) : diagramName;
+	
 	AP.require(['messages', 'confluence', 'request'], function(messages, confluence, request)
 	{
 		var newPage = location.indexOf('createpage.action') > -1 ? true : false;
@@ -613,7 +615,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 		if (initialXml != '')
 		{
 			editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-				autosave: 1, xml: initialXml, title: diagramName,
+				autosave: 1, xml: initialXml, title: diagramDisplayName,
 				macroData: macroData}), '*');
 		}
 
@@ -621,7 +623,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 		{
 			// Keeps ignore option even for existing files
 			editor.contentWindow.postMessage(JSON.stringify({action: 'draft', xml: draftXml,
-				name: diagramName, discardKey: 'discardChanges', ignore: true}), '*');
+				name: diagramDisplayName, discardKey: 'discardChanges', ignore: true}), '*');
 		}
 		else if (initialXml == '')
 		{
@@ -654,7 +656,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//console.trace('DRAFT: Using', draftName);
 
 						editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-							autosave: 1, xml: drawMsg.message.xml, title: diagramName}), '*');
+							autosave: 1, xml: drawMsg.message.xml, title: diagramDisplayName}), '*');
 						editor.contentWindow.postMessage(JSON.stringify({action: 'status',
 							messageKey: 'unsavedChanges', modified: true}), '*');
 						draftExists = true;
@@ -666,7 +668,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							if (initialXml != '')
 							{
 								editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-									autosave: 1, xml: initialXml, title: diagramName,
+									autosave: 1, xml: initialXml, title: diagramDisplayName,
 									macroData: macroData}), '*');
 							}
 							else
@@ -843,6 +845,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						checkName(drawMsg.name, function(name)
 						{
 							diagramName = name;
+							diagramDisplayName = name;
 							
 							AP.require('request', function(request) {
 								
@@ -853,7 +856,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 										success: function(xml) 
 										{
 											editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-												autosave: 1, xml: xml, title: diagramName}), '*');
+												autosave: 1, xml: xml, title: diagramDisplayName}), '*');
 											editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 												show: false}), '*');
 										},
@@ -906,6 +909,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 								show: false}), '*');
 							diagramName = name;
+							diagramDisplayName = name;
 	
 							if (AC.draftEnabled)
 							{
@@ -917,7 +921,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 								{
 									editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
 									editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-										autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
+										autosave: 1, xml: drawMsg.xml, title: diagramDisplayName}), '*');
 								},
 								function()
 								{
@@ -933,7 +937,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							else
 							{
 								editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-									autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
+									autosave: 1, xml: drawMsg.xml, title: diagramDisplayName}), '*');
 							}
 						},
 						function(name, err, errKey)
@@ -996,6 +1000,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 							show: false}), '*');
 						diagramName = name;
+						diagramDisplayName = name;
 						editor.contentWindow.postMessage(JSON.stringify({action: 'export',
 							format: 'png', spinKey: 'saving'}), '*');
 					},
@@ -1005,6 +1010,39 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							show: false}), '*');
 						promptName(name, err, errKey);
 					});
+				}
+				else if (drawMsg.event == 'rename')
+				{
+					//If diagram name is not set yet, use the new name for both file and diagram
+					//TODO should we disable renaming if diagramName is null?
+					if (diagramName == null) 
+					{
+						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+							show: true}), '*');
+
+						checkName(drawMsg.name, function(name)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							diagramName = name;
+							diagramDisplayName = name;
+						},
+						function(name, err, errKey)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+								titleKey: 'error', message: err, messageKey: errKey,
+								buttonKey: 'ok'}), '*');
+						});	
+					}
+					else
+					{
+						diagramDisplayName = drawMsg.name;
+					}
+					
+					editor.contentWindow.postMessage(JSON.stringify({action: 'status',
+						messageKey: 'unsavedChanges', modified: true}), '*');
 				}
 				else if (drawMsg.event == 'export')
 				{
@@ -1078,7 +1116,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							var spaceKey = AC.getSpaceKey(attObj._expandable.space);
 							var pageType = attObj.container.type;
 
-							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, 
+							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, 
 									(drawMsg.macroData != null) ? drawMsg.macroData.contentId  : null,
 									(drawMsg.macroData != null) ? drawMsg.macroData.contentVer : null,
 									function(responseText) 
@@ -1121,6 +1159,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 								confluence.saveMacro(
 								{
 									diagramName: diagramName,
+									diagramDisplayName: diagramDisplayName,
 									revision: revision,
 									pageId: newPage ? null : pageId,
 									contentId: contentId,
@@ -1200,6 +1239,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 						confluence.saveMacro(
 						{
 							diagramName: macroData.diagramName,
+							diagramDisplayName: macroData.diagramDisplayName != null ? macroData.diagramDisplayName : macroData.diagramName,
 							revision: attInfo.version.number,
 							pageId: macroData.pageId,
 							contentId: macroData.contentId,
@@ -1309,7 +1349,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 	});
 };
 
-AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revision, contentId, contentVer, success, error)
+AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error)
 {
     var customObj = {
         "type": "ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram",
@@ -1320,7 +1360,7 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
                "type": pageType,
                "id": pageId
             },
-         "title": diagramName,
+         "title": diagramDisplayName,
          "body": {
            "storage": {
              "value": encodeURIComponent(JSON.stringify({
@@ -1356,7 +1396,7 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
                
                if (contentId && err.statusCode == 403 && err.message.indexOf(contentId) > 0)
                {
-                   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, null, null, success, error);
+                   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, null, null, success, error);
                }
                //Sometimes the macro is not updated such that the version is not correct. The same happens when a page version is restored
                else if (err.statusCode == 409 && err.message.indexOf("Current version is:") > 0)
@@ -1367,7 +1407,7 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
             	   
             	   if (curContentVer != null)
         		   {
-            		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, contentId, curContentVer[0], success, error);
+            		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, curContentVer[0], success, error);
         		   }
         	   }
                else

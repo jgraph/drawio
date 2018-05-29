@@ -587,8 +587,8 @@ Actions.prototype.init = function()
 		if (mxUtils.hasScrollbars(graph.container))
 		{
 			var pad = graph.getPagePadding();
-			graph.container.scrollTop = pad.y * graph.view.scale;
-			graph.container.scrollLeft = Math.min(pad.x * graph.view.scale, (graph.container.scrollWidth - graph.container.clientWidth) / 2);
+			graph.container.scrollTop = pad.y * graph.view.scale - 1;
+			graph.container.scrollLeft = Math.min(pad.x * graph.view.scale, (graph.container.scrollWidth - graph.container.clientWidth) / 2) - 1;
 		}
 	}), null, null, Editor.ctrlKey + '+J');
 	this.addAction('fitTwoPages', mxUtils.bind(this, function()

@@ -2449,8 +2449,9 @@ EditorUi.prototype.resetScrollbars = function()
 			if (graph.pageVisible)
 			{
 				var pad = graph.getPagePadding();
-				graph.container.scrollTop = Math.floor(pad.y - this.editor.initialTopSpacing);
-				graph.container.scrollLeft = Math.floor(Math.min(pad.x, (graph.container.scrollWidth - graph.container.clientWidth) / 2));
+				graph.container.scrollTop = Math.floor(pad.y - this.editor.initialTopSpacing) - 1;
+				graph.container.scrollLeft = Math.floor(Math.min(pad.x,
+					(graph.container.scrollWidth - graph.container.clientWidth) / 2)) - 1;
 
 				// Scrolls graph to visible area
 				var bounds = graph.getGraphBounds();

@@ -4,7 +4,7 @@
 	Sidebar.prototype.addWebIconsPalette = function()
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.webicons.";
+		var s = 'dashed=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.webicons.";
 		var gn = 'mxgraph.webicons';
 		var dt = 'web icons icon';
 		var w = 0.2;
@@ -92,10 +92,8 @@
 				 w * 512, h * 512, '', 'Diigo', null, null, this.getTagsForStencil(gn, 'diiigo', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dopplr;fillColor=#FFFFFF;gradientColor=#DFDEDE',
 				 w * 512, h * 512, '', 'Dopplr', null, null, this.getTagsForStencil(gn, 'dopplr', dt).join(' ')),
-		 this.createVertexTemplateEntry(s + 'drawio1;fillColor=#2174CE;gradientColor=#134277',
-				 w * 512, h * 512, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'drawio2;fillColor=#2174CE;gradientColor=#134277',
-				 w * 512, h * 512, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io', dt).join(' ')),
+				 w * 512, h * 512, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dribbble;fillColor=#FFFFFF;gradientColor=#DFDEDE',
 				 w * 512, h * 512, '', 'Dribbble', null, null, this.getTagsForStencil(gn, 'dribbble', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dropbox;fillColor=#0BAAFE;gradientColor=#0080E6',
@@ -371,7 +369,7 @@
 	Sidebar.prototype.addWebLogosPalette = function()
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.weblogos.";
+		var s = 'dashed=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.weblogos.";
 		var gn = 'mxgraph.weblogos';
 		var dt = 'web logos logo';
 		var w = 0.2;
@@ -467,10 +465,10 @@
 				 w * 306, h * 344, '', 'Diigo', null, null, this.getTagsForStencil(gn, 'diiigo', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dopplr;fillColor=#F9634D;strokeColor=none',
 				 w * 512, h * 512, '', 'Dopplr', null, null, this.getTagsForStencil(gn, 'dopplr', dt).join(' ')),
-		 this.createVertexTemplateEntry(s + 'drawio1;fillColor=#1A5BA3',
-				 w * 248, h * 341, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'drawio2;fillColor=#1A5BA3',
-				 w * 261, h * 354, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io', dt).join(' ')),
+				 w * 261, h * 354, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
+		 this.createVertexTemplateEntry(s + 'drawio3;fillColor=#1A5BA3;fontSize=15;fontColor=#1A5BA3;fontStyle=1',
+				 w * 261, h * 261, 'draw<font color="#f08707">.io</font>', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dribbble;fillColor=#EB548D',
 				 w * 337, h * 336, '', 'Dribbble', null, null, this.getTagsForStencil(gn, 'dribbble', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dropbox;fillColor=#0287EA',

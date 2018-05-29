@@ -1040,7 +1040,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getBaseFilename = function()
+	EditorUi.prototype.getBaseFilename = function(ignorePageName)
 	{
 		var file = this.getCurrentFile();
 		var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
@@ -1049,6 +1049,13 @@
 			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename))
 		{
 			basename = basename.substring(0, basename.lastIndexOf('.'));
+		}
+
+		if (!ignorePageName && this.pages != null && this.pages.length > 1 &&
+			this.currentPage != null && this.currentPage.node.getAttribute('name') != null &&
+			this.currentPage.getName().length > 0)
+		{
+			basename = basename + '-' + this.currentPage.getName();
 		}
 		
 		return basename;
@@ -1065,7 +1072,7 @@
 		try
 		{
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : this.editor.graph.isSelectionEmpty();
-			var basename = this.getBaseFilename();
+			var basename = this.getBaseFilename(!currentPage);
 			var filename = basename + '.' + format;
 			
 			if (format == 'xml')
@@ -2572,8 +2579,8 @@
 											else
 											{
 												this.handleError({message: mxResources.get((xhr.status == 413) ?
-					            						'drawingTooLarge' : 'invalidOrMissingFile')},
-					            						mxResources.get('errorLoadingFile'));
+				            						'drawingTooLarge' : 'invalidOrMissingFile')},
+				            						mxResources.get('errorLoadingFile'));
 											}
 										}
 									}));
@@ -2608,7 +2615,7 @@
 			}
 	
 			btn = btn.cloneNode(false);
-			btn.setAttribute('src', IMAGE_PATH + '/edit.gif');
+			btn.setAttribute('src', Editor.editImage);
 			btn.setAttribute('title', mxResources.get('edit'));
 			buttons.insertBefore(btn, buttons.firstChild);
 			
@@ -6956,6 +6963,19 @@
 		return c;
 	};
 
+	EditorUi.prototype.crc32 = function(str)
+	{
+		this.crcTable = this.crcTable || this.createCrcTable();
+	    var crc = 0 ^ (-1);
+
+	    for (var i = 0; i < str.length; i++ )
+	    {
+	        crc = (crc >>> 8) ^ this.crcTable[(crc ^ str.charCodeAt(i)) & 0xFF];
+	    }
+
+	    return (crc ^ (-1)) >>> 0;
+	};
+
 	/**
 	 * Adds the given text to the compressed or non-compressed text chunk.
 	 */
@@ -10362,9 +10382,13 @@
 		// while waiting for file data
 		var libsEnabled = urlParams['embed'] != '1' ||
 				this.editor.graph.isEnabled();
-		this.menus.get('openLibraryFrom').setEnabled(libsEnabled);
-		this.menus.get('newLibrary').setEnabled(libsEnabled);
 		this.menus.get('extras').setEnabled(libsEnabled);
+		
+		if (Editor.enableCustomLibraries)
+		{
+			this.menus.get('openLibraryFrom').setEnabled(libsEnabled);
+			this.menus.get('newLibrary').setEnabled(libsEnabled);
+		}
 		
 		// Disables actions in the toolbar
 		var editable = (urlParams['embed'] == '1' &&
@@ -10546,7 +10570,7 @@
 		this.actions.get('find').setEnabled(enabled);
 		this.actions.get('layers').setEnabled(enabled);
 		this.actions.get('outline').setEnabled(enabled);
-		this.actions.get('rename').setEnabled(file != null && file.isRenamable());
+		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		

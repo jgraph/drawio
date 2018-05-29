@@ -78,6 +78,7 @@ if (lang != null)
 	var diagramWidth = parseFloat(getUrlParam('width'));
 	var diagramHeight = parseFloat(getUrlParam('height'));
 	var diagramName = getUrlParam('diagramName');
+	var displayName = getUrlParam('displayName');
 	
 	//ceoId and owningPageId are IDs of the page that potentially hold the attachment
 	//they will differ when page history is shown, ceoId will be historical version ID,
@@ -128,8 +129,9 @@ if (lang != null)
 				}
 				
 				// Loads the given XML into the viewer
-				function showDiagram(id, backupId, name, revision, page, links, retryParams)
+				function showDiagram(id, backupId, name, revision, page, links, retryParams, displayName)
 				{
+					displayName = displayName || name;
 					id = id.toString();
 					
 					retryParams = retryParams || {}; //so we can use it without NPE check
@@ -260,7 +262,7 @@ if (lang != null)
 											
 											if (tbStyle == 'top')
 											{
-												config.title = name;
+												config.title = displayName;
 											}
 	
 											if (links != 'auto')
@@ -325,10 +327,10 @@ if (lang != null)
 											{
 								                dialog.create(
 								                {
-								                    header: name,
+								                    header: displayName,
 								                		key: 'lightbox',
 								                    size: 'fullscreen',
-								                    customData: {id: id, name: name, revision: revision, page: viewer.currentPage, links: links},
+								                    customData: {id: id, name: name, revision: revision, page: viewer.currentPage, links: links, displayName: displayName},
 								                    chrome: true
 								                });
 											};
@@ -350,7 +352,7 @@ if (lang != null)
 											if (attInfo.version.number > loadedVer 
 													&& (pageInfo.version.message == null || pageInfo.version.message.indexOf("Reverted") < 0)) 
 											{
-												showDiagram(id, backupId, name, attInfo.version.number + '', page, links, {dontCheckVer: true});
+												showDiagram(id, backupId, name, attInfo.version.number + '', page, links, {dontCheckVer: true}, displayName);
 												//I think updating macro here is too risky since calling confluence.getMacroData returns null
 											}
 										}
@@ -440,12 +442,12 @@ if (lang != null)
 							 			//So, try revision 1 first
 							 			if (revision > 1)
 							 			{
-								 			showDiagram(id, backupId, name, null, page, links, {revision: revision});
+								 			showDiagram(id, backupId, name, null, page, links, {revision: revision}, displayName);
 							 			}
 							 			else if (backupId != null)
 						 				{
 								 			//Since attachment wasn't found in this page, it is better to save it to this page
-								 			showDiagram(backupId, null, name, revision || retryParams.revision, page, links, {saveIt: true, pageId: id});
+								 			showDiagram(backupId, null, name, revision || retryParams.revision, page, links, {saveIt: true, pageId: id}, displayName);
 						 				}
 							 		}
 							 		else if (acceptResponse)
@@ -477,7 +479,7 @@ if (lang != null)
                             
                             var info = JSON.parse(decodeURIComponent(resp.body.storage.value));
                             
-                            showDiagram(info.pageId, info.pageId, info.diagramName, info.version, null, links, {dontCheckVer: true}); //custom content can load old versions which will be overridden by version check
+                            showDiagram(info.pageId, info.pageId, info.diagramName, info.version, null, links, {dontCheckVer: true}, resp.title); //custom content can load old versions which will be overridden by version check
                         },
                         error: function (resp) 
                         {
@@ -489,12 +491,12 @@ if (lang != null)
 				{
 					// Gets the paramters from the customData object in lightbox mode
 					// LATER: Add XML to custom data (does not seem to work)
-					showDiagram(dialog.customData.id, dialog.customData.id, dialog.customData.name, dialog.customData.revision, dialog.customData.page, dialog.customData.links);
+					showDiagram(dialog.customData.id, dialog.customData.id, dialog.customData.name, dialog.customData.revision, dialog.customData.page, dialog.customData.links, null, dialog.customData.displayName);
 				}
 				else
 				{
 					var myPageId = (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId;
-					showDiagram(candidateId, (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId, diagramName, revision, null, links);
+					showDiagram(candidateId, (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId, diagramName, revision, null, links, null, displayName);
 				}
 		    });
 		});

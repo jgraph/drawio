@@ -320,7 +320,7 @@ var GliffyMassImporter = function(logDiv)
 			 						};
 				 					
 				 					//Add custom content
-				 					AC.saveCustomContent(spaceKey, pageId, pageType, attName + ".drawio.xml", attInfo.revision, null, null, 
+				 					AC.saveCustomContent(spaceKey, pageId, pageType, attName + ".drawio.xml", attName + ".drawio.xml", attInfo.revision, null, null, 
 				 							function(responseText)
 				 							{
 				 								logDiv.append($('<div>Gliffy diagram "'+ AC.htmlEntities(attName) +'" imported successfully.</div>'));
@@ -403,7 +403,7 @@ var DrawIoDiagramsIndexer = function(logDiv)
 		
 		function addNewCustomContent()
 		{
-			AC.saveCustomContent(spaceKey, pageId, pageType, attName, revision, null, null, 
+			AC.saveCustomContent(spaceKey, pageId, pageType, attName, attName, revision, null, null, 
 					function(responseText)
 					{
 						logDiv.append($('<div>Diagram "'+ AC.htmlEntities(attName) +'" indexed successfully.</div>'));
