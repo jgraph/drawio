@@ -62,6 +62,7 @@ blockquote=인용문
 blog=블로그
 bold=굵게
 bootstrap=부트스트랩
+border=Border
 borderColor=테두리 색
 borderWidth=테두리 너비
 bottom=아래쪽

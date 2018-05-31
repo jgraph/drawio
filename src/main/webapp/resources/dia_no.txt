@@ -62,6 +62,7 @@ blockquote=Blokksitat
 blog=Blogg
 bold=Fet
 bootstrap=Bootstrap
+border=Border
 borderColor=Kantfarge
 borderWidth=Kantbredde
 bottom=Bunn

@@ -50,6 +50,11 @@ public class OpenServlet extends HttpServlet
 			.getName());
 
 	/**
+	 * 
+	 */
+	public static String CHARSET_FOR_STRING_URL_ENCODING = "UTF-8";
+
+	/**
 	 * Global switch to enabled Gliffy support.
 	 */
 	public static boolean ENABLE_GLIFFY_SUPPORT = true;
@@ -227,7 +232,7 @@ public class OpenServlet extends HttpServlet
 	protected String encodeString(String s)
 	{
 		return StringEscapeUtils.escapeEcmaScript(
-				Utils.encodeURIComponent(s, Utils.CHARSET_FOR_URL_ENCODING));
+				Utils.encodeURIComponent(s, CHARSET_FOR_STRING_URL_ENCODING));
 	};
 
 	/**

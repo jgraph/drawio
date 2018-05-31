@@ -62,6 +62,7 @@ blockquote=Tsitaat
 blog=Blogi
 bold=Rasvane
 bootstrap=Bootstrap
+border=Border
 borderColor=Piirjoone värv
 borderWidth=Piirjoone laius
 bottom=Alaäär

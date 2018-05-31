@@ -62,6 +62,7 @@ blockquote=Bloc de citation
 blog=Blogue
 bold=Gras
 bootstrap=Bootstrap
+border=Border
 borderColor=Couleur de la bordure
 borderWidth=Largeur de la bordure
 bottom=En bas

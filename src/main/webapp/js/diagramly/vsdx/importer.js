@@ -58,16 +58,46 @@ var com;
                 {
             		if (mxVsdxCodec.parsererrorNS == null)
             		{
-            			var parser = new DOMParser();
-            			mxVsdxCodec.parsererrorNS = parser.parseFromString('<', 'text/xml').getElementsByTagName("parsererror")[0].namespaceURI;
+            			mxVsdxCodec.parsererrorNS = "";
+            			
+            			if (window.DOMParser) 
+            			{
+	            			var parser = new DOMParser();
+	            			
+	            			try
+	            			{
+	            				mxVsdxCodec.parsererrorNS = parser.parseFromString('<', 'text/xml').getElementsByTagName("parsererror")[0].namespaceURI;
+	            			}
+	            			catch(e)
+	            			{
+	            				//ignore! IE11 throw an exception on XML syntax error
+	            			}
+            			}
         			}
 
             		return mxVsdxCodec.parsererrorNS;
                 };
                 
-                mxVsdxCodec.isParseError = function (doc) 
+                mxVsdxCodec.parseXml = function (xml) 
                 {
-                    return doc.getElementsByTagNameNS(mxVsdxCodec.parsererrorNS, 'parsererror').length > 0;
+                	try
+                	{
+                		var doc = mxUtils.parseXml(xml);
+                		
+                		if (doc.getElementsByTagNameNS(mxVsdxCodec.parsererrorNS, 'parsererror').length > 0)
+                		{
+                			return null;
+                		}
+                		else
+            			{
+                			return doc;
+            			}
+                	}
+                	catch (e) 
+                	{
+                		//IE11 throw an exception on XML syntax error
+                		return null; 
+                	}
                 };
                 
                 //TODO Optimize this function
@@ -254,18 +284,22 @@ var com;
 	                                            str = str.substring(1);
                                         	}
 	                                        
-	                                        var doc = mxUtils.parseXml(str);
+	                                        var doc = mxVsdxCodec.parseXml(str);
 	                                        
-	                                        if ( mxVsdxCodec.isParseError(doc)) 
+	                                        if (doc == null) 
 	                                        {
 	                                        	if (str.charCodeAt(1) === 0 && str.charCodeAt(3) === 0 && str.charCodeAt(5) === 0)
                                         		{
-	                                        		doc = mxUtils.parseXml(mxVsdxCodec.decodeUTF16LE(str));
+	                                        		doc = mxVsdxCodec.parseXml(mxVsdxCodec.decodeUTF16LE(str));
                                         		}
 	                                        	//TODO add any other non-standard encoding that may be needed 
 	                                        }
-	                                        doc.vsdxFileName = filename;
-	                                        /* put */ (docData[filename] = doc);
+	                                        
+	                                        if (doc != null)
+                                        	{
+		                                        doc.vsdxFileName = filename;
+		                                        /* put */ (docData[filename] = doc);
+                                        	}
 	                                    }
 		        	                    	processedFiles++;
 		

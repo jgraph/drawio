@@ -62,6 +62,7 @@ blockquote=Khối trích dẫn
 blog=Blog
 bold=Đậm
 bootstrap=Bootstrap
+border=Border
 borderColor=Màu viền
 borderWidth=Kích thước viền
 bottom=Đáy

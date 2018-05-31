@@ -62,6 +62,7 @@ blockquote=ปิดกั้นการอ้างอิง
 blog=บล็อก
 bold=ตัวหนา
 bootstrap=ชุดคำสั่งพัฒนาเว็บไซต์
+border=Border
 borderColor=สีเส้นขอบ
 borderWidth=ความกว้างเส้นขอบ
 bottom=ด้านล่าง

@@ -6272,6 +6272,90 @@
 	{
 		return /(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data);
 	};
+
+	/**
+	 * Imports a local file from the device or local storage.
+	 */
+	EditorUi.prototype.importLocalFile = function(device, noSplash)
+	{
+		// input.click does not work in IE on Windows 7
+		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
+			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+		{
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+			{
+				if (input.files != null)
+				{
+					// Using null for position will disable crop of input file
+					this.importFiles(input.files, null, null, this.maxImageSize);
+				}
+			}));
+
+			input.click();
+		}
+		else
+		{
+			window.openNew = false;
+			window.openKey = 'import';
+			
+			if (!noSplash)
+			{
+				var prevValue = Editor.useLocalStorage;
+				Editor.useLocalStorage = !device;
+			}
+
+			// Closes dialog after open
+			window.openFile = new OpenFile(mxUtils.bind(this, function(cancel)
+			{
+				this.hideDialog(cancel);
+			}));
+			
+			window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+			{
+				if (filename != null && Graph.fileSupport && /(\.vsdx?)($|\?)/i.test(filename))
+				{
+					// "Not a UTF 8 file" when opening VSDX in IE so this is never called
+					var file = new Blob([xml], {type: 'application/octet-stream'})
+					
+					this.importVisio(file, mxUtils.bind(this, function(xml)
+					{
+						this.importXml(xml);
+					}), null, filename);
+				}
+				else
+				{				
+					this.editor.graph.setSelectionCells(this.importXml(xml));
+				}
+			}));
+
+			// Removes openFile if dialog is closed
+			this.showDialog(new OpenDialog(this).container, 360, 220, true, true, function()
+			{
+				window.openFile = null;
+			});
+			
+			// Extends dialog close to show splash screen
+			if (!noSplash)
+			{
+				var dlg = this.dialog;
+				var dlgClose = dlg.close;
+				
+				this.dialog.close = mxUtils.bind(this, function(cancel)
+				{
+					Editor.useLocalStorage = prevValue;
+					dlgClose.apply(dlg, arguments);
+					
+					if (cancel && this.getCurrentFile() == null && urlParams['embed'] != '1')
+					{
+						this.showSplash();
+					}
+				});
+			}
+		}
+	};
 	
 	/**
 	 * Imports the given XML into the existing diagram.

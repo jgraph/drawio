@@ -62,6 +62,7 @@ blockquote=Blockquote
 blog=Blog
 bold=Bold
 bootstrap=Bootstrap
+border=Border
 borderColor=Border Color
 borderWidth=Borderwidth
 bottom=Bottom

@@ -62,6 +62,7 @@ blockquote=Idézetblokk
 blog=Blog
 bold=Félkövér
 bootstrap=Bootstrap
+border=Border
 borderColor=Keretszín
 borderWidth=Keret vastagság
 bottom=Alsó

@@ -62,6 +62,7 @@ blockquote=Zitat
 blog=Blog
 bold=Fett
 bootstrap=Bootstrap
+border=Rahmen
 borderColor=Rahmenfarbe
 borderWidth=Rahmenbreite
 bottom=Unten

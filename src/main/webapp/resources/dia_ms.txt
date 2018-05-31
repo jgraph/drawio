@@ -62,6 +62,7 @@ blockquote=Blockquote
 blog=Blog
 bold=Cetak Tebal
 bootstrap=Bootstrap
+border=Border
 borderColor=Warna Sempadan
 borderWidth=Lebar sempadan
 bottom=Bawah

@@ -1483,66 +1483,6 @@
 		
 		this.put('importFrom', new Menu(function(menu, parent)
 		{
-			function importFile(device)
-			{
-				if (device && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
-				{
-					var input = document.createElement('input');
-					input.setAttribute('type', 'file');
-					
-					mxEvent.addListener(input, 'change', function()
-					{
-						if (input.files != null)
-						{
-							// Using null for position will disable crop of input file
-							editorUi.importFiles(input.files, null, null, editorUi.maxImageSize);
-						}
-					});
-
-					input.click();
-				}
-				else
-				{
-					window.openNew = false;
-					window.openKey = 'import';
-					
-					var prevValue = Editor.useLocalStorage;
-					Editor.useLocalStorage = !device;
-	
-					// Closes dialog after open
-					window.openFile = new OpenFile(function(cancel)
-					{
-						editorUi.hideDialog(cancel);
-					});
-					
-					window.openFile.setConsumer(function(xml, filename)
-					{
-						graph.setSelectionCells(editorUi.importXml(xml));
-					});
-	
-					// Removes openFile if dialog is closed
-					editorUi.showDialog(new OpenDialog(editorUi).container, 360, 220, true, true, function()
-					{
-						window.openFile = null;
-					});
-					
-					// Extends dialog close to show splash screen
-					var dlg = editorUi.dialog;
-					var dlgClose = dlg.close;
-					
-					editorUi.dialog.close = function(cancel)
-					{
-						Editor.useLocalStorage = prevValue;
-						dlgClose.apply(dlg, arguments);
-						
-						if (cancel && editorUi.getCurrentFile() == null && urlParams['embed'] != '1')
-						{
-							editorUi.showSplash();
-						}
-					};
-				}
-			};
-			
 			var doImportFile = mxUtils.bind(this, function(data, mime, filename)
 			{
 				// Gets insert location
@@ -1554,40 +1494,40 @@
 				if (data.substring(0, 11) == 'data:image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
+	    			{
+			    		var resizeImages = true;
+			    		
+			    		var doInsert = mxUtils.bind(this, function()
+			    		{
+		    				editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
+	    	    			{
+	    		    			var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
+	
+    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
+    							{
+    								editorUi.spinner.stop();
+    								graph.setSelectionCells(cells);
+    								graph.scrollCellToVisible(graph.getSelectionCell());
+    							});
+	    	    			}), resizeImages);
+			    		});
+			    		
+			    		if (data.length > editorUi.resampleThreshold)
+			    		{
+			    			editorUi.confirmImageResize(function(doResize)
+	    					{
+	    						resizeImages = doResize;
+	    						doInsert();
+	    					});
+			    		}
+			    		else
 		    			{
-				    		var resizeImages = true;
-				    		
-				    		var doInsert = mxUtils.bind(this, function()
-				    		{
-			    				editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
-		    	    				{
-		    		    				var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
-		
-	    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
-	    							{
-	    								editorUi.spinner.stop();
-	    								graph.setSelectionCells(cells);
-	    								graph.scrollCellToVisible(graph.getSelectionCell());
-	    							});
-		    	    				}), resizeImages);
-				    		});
-				    		
-				    		if (data.length > editorUi.resampleThreshold)
-				    		{
-				    			editorUi.confirmImageResize(function(doResize)
-		    					{
-		    						resizeImages = doResize;
-		    						doInsert();
-		    					});
-				    		}
-				    		else
-			    			{
-				    			doInsert();
-			    			}
-		    			}), mxUtils.bind(this, function()
-		    			{
-		    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
-		    			}));
+			    			doInsert();
+		    			}
+	    			}), mxUtils.bind(this, function()
+	    			{
+	    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
+	    			}));
 				}
 				else
 				{
@@ -1729,7 +1669,7 @@
 			{
 				menu.addItem(mxResources.get('browser') + '...', null, function()
 				{
-					importFile(false);
+					editorUi.importLocalFile(false);
 				}, parent);
 			}
 
@@ -1737,7 +1677,7 @@
 			{
 				menu.addItem(mxResources.get('device') + '...', null, function()
 				{
-					importFile(true);
+					editorUi.importLocalFile(true);
 				}, parent);
 			}
 

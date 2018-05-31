@@ -62,6 +62,7 @@ blockquote=Lainauslohko
 blog=Blogi
 bold=Lihavoitu
 bootstrap=Alkulatausohjelma
+border=Border
 borderColor=Reunan väri
 borderWidth=Reunan leveys 
 bottom=Alas

@@ -62,6 +62,7 @@ blockquote=Blok alıntı
 blog=Web günlüğü
 bold=Koyu
 bootstrap=Özyükleme
+border=Border
 borderColor=Kenarlık rengi
 borderWidth=Kenarlık genişliği
 bottom=Alt hiza

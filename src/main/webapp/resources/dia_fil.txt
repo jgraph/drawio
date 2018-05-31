@@ -62,6 +62,7 @@ blockquote=Blockquote
 blog=Ang iyong email adress
 bold=Makapal
 bootstrap=Bootstrap
+border=Border
 borderColor=Kulay ng gilid
 borderWidth=Lapad ng gilid
 bottom=Ibaba

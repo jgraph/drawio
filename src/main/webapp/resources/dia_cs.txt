@@ -62,6 +62,7 @@ blockquote=Bloková citace
 blog=Blog
 bold=Tučné
 bootstrap=Bootstrap
+border=Border
 borderColor=Barva okraje
 borderWidth=Tloušťka okraje
 bottom=Dolní

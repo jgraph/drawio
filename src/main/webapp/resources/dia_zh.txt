@@ -62,6 +62,7 @@ blockquote=块引用
 blog=博客
 bold=粗体
 bootstrap=Bootstrap
+border=Border
 borderColor=边框颜色
 borderWidth=边框宽度
 bottom=底

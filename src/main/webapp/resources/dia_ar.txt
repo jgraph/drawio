@@ -62,6 +62,7 @@ blockquote=‫اقتباس‬
 blog=Blog
 bold=‫تغليظ الخط‬
 bootstrap=Bootstrap
+border=Border
 borderColor=‫لون الحد‬
 borderWidth=‫عرض الحد‬
 bottom=‫أسفل‬
