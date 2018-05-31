@@ -62,6 +62,7 @@ blockquote=Citat
 blog=Blog
 bold=Îngroșat
 bootstrap=Bootstrap
+border=Border
 borderColor=Culoarea marginilor
 borderWidth=Grosimea marginilor
 bottom=Bază

@@ -11,6 +11,18 @@
 		var sb = this;
 		
 		var fns = [
+			this.addEntry(dt + 'issue', function()
+	   		{
+			   	var bg = new mxCell('Task description', new mxGeometry(0, 0, 200, 50), s + 'issue;issueType=story;issuePriority=blocker;issueStatus=inProgress;verticalAlign=bottom;align=left;whiteSpace=wrap;overflow=hidden;spacingTop=25;strokeColor=#A8ADB0;fillColor=#EEEEEE;fontSize=12;perimeter=rectanglePerimeter;');
+			   	bg.vertex = true;
+			   	var label1 = new mxCell('ID', new mxGeometry(0, 0, 60, 20), 'strokeColor=none;fillColor=none;part=1;resizable=0;align=left;autosize=1;points=[];deletable=0;');
+			   	label1.geometry.relative = true;
+			   	label1.geometry.offset = new mxPoint(20, 0);
+			   	label1.vertex = true;
+			   	bg.insert(label1);
+		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Issue');
+			}),
+					 
 			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Atlassian_Logo.svg;',
 					 66, 66, '', 'Atlassian', null, null, this.getTagsForStencil(gn, 'atlassian logo', dt).join(' ')),
 			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Bamboo_Logo.svg;',

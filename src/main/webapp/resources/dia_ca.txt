@@ -62,6 +62,7 @@ blockquote=Cita en bloc
 blog=Blog
 bold=Negreta
 bootstrap=Bootstrap
+border=Border
 borderColor=Color de la vora
 borderWidth=Amplada de la vora
 bottom=Abaix

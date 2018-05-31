@@ -62,6 +62,7 @@ blockquote=Citação
 blog=Blog
 bold=Negrito 
 bootstrap=Bootstrap
+border=Border
 borderColor=Cor da borda 
 borderWidth=Largura da borda
 bottom=Fundo

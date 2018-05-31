@@ -62,6 +62,7 @@ blockquote=Blok citat
 blog=Blog
 bold=Podebljano
 bootstrap=Bootstrap
+border=Border
 borderColor=Boja okvira
 borderWidth=Širina okvira
 bottom=Dno

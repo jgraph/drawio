@@ -62,6 +62,7 @@ blockquote=Blockcitat
 blog=Blog
 bold=Fet
 bootstrap=Bootsrap
+border=Border
 borderColor=Kantfärg
 borderWidth=Kantbredd
 bottom=Nederdel

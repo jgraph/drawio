@@ -62,6 +62,7 @@ blockquote=區塊引言
 blog=部落格
 bold=粗體
 bootstrap=Bootstrap
+border=Border
 borderColor=邊框顏色
 borderWidth=邊框寬度
 bottom=下

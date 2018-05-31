@@ -62,6 +62,7 @@ blockquote=Цитата
 blog=Блог
 bold=Полужирный
 bootstrap=Bootstrap
+border=Border
 borderColor=Цвет границы
 borderWidth=Толщина границы
 bottom=Низ

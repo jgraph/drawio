@@ -62,6 +62,7 @@ blockquote=Citaat
 blog=Blog
 bold=Vet
 bootstrap=Bootstrap
+border=Border
 borderColor=Randkleur
 borderWidth=Randbreedte
 bottom=Onder

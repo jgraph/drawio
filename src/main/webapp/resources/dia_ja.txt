@@ -62,6 +62,7 @@ blockquote=ブロッククォート
 blog=ブログ
 bold=太字
 bootstrap=ブートス トラップ
+border=Border
 borderColor=罫線の色
 borderWidth=枠線の太さ
 bottom=下

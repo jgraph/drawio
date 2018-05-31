@@ -62,6 +62,7 @@ blockquote=Blocchi di testo
 blog=Blog
 bold=Grassetto
 bootstrap=Bootstrap
+border=Border
 borderColor=Colore bordo
 borderWidth=Spessore bordo
 bottom=In basso

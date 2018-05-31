@@ -2516,7 +2516,9 @@ App.prototype.pickFile = function(mode)
 		{
 			peer.pickFile();
 		}
-		else if (mode == App.MODE_DEVICE && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+		// input.click does not work in IE on Windows 7
+		else if (mode == App.MODE_DEVICE && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
+			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
 		{
 			var input = document.createElement('input');
 			input.setAttribute('type', 'file');

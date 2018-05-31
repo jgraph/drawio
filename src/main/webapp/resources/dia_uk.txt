@@ -62,6 +62,7 @@ blockquote=Процитований блок
 blog=Блог
 bold=Напівжирний
 bootstrap=Bootstrap
+border=Border
 borderColor=Колір межі
 borderWidth=Ширина межі
 bottom=По нижньому краю

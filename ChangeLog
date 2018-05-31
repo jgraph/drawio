@@ -1,3 +1,8 @@
+31-MAY-2018: 8.7.0
+
+- Adds editableCssRules style
+- Uses mxGraph 3.9.6
+
 29-MAY-2018: 8.6.9
 
 - Adds enableCustomLibraries switch

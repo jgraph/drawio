@@ -62,6 +62,7 @@ blockquote=‫نقل قول‬
 blog=‫بلاگ‬
 bold=‫ضخیم‬
 bootstrap=Bootstrap
+border=Border
 borderColor=‫رنگ مرز‬
 borderWidth=‫عرض مرز‬
 bottom=‫پایین‬

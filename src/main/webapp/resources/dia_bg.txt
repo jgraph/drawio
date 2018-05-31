@@ -62,6 +62,7 @@ blockquote=Цитат в блок
 blog=Блог
 bold=Удебелено
 bootstrap=Bootstrap
+border=Border
 borderColor=Цвят на рамката
 borderWidth=Ширина на рамката
 bottom=Дъно

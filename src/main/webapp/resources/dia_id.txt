@@ -62,6 +62,7 @@ blockquote=Blockquote
 blog=Blog
 bold=Tebal
 bootstrap=Bootstrap
+border=Border
 borderColor=Warna Tepi
 borderWidth=Lebar Tepi
 bottom=Bawah
