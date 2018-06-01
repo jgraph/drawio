@@ -2520,7 +2520,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					editorUi.editor.graph.getModel().endUpdate();
 				}
 
-				editorUi.editor.graph.setSelectionCells(inserted[0]);
+				editorUi.editor.graph.setSelectionCells(inserted);
 				editorUi.editor.graph.scrollCellToVisible(editorUi.editor.graph.getSelectionCell());
 				graph.destroy();
 				container.parentNode.removeChild(container);
@@ -2538,11 +2538,20 @@ var ParseDialog = function(editorUi, title, defaultType)
 	textarea.style.marginBottom = '16px';
 	
 	var typeSelect = document.createElement('select');
+	
+	if (defaultType == 'formatSql')
+	{
+		typeSelect.style.display = 'none';
+	}
 
 	var listOption = document.createElement('option');
 	listOption.setAttribute('value', 'list');
 	mxUtils.write(listOption, mxResources.get('list'));
-	typeSelect.appendChild(listOption);
+	
+	if (defaultType != 'plantUml')
+	{
+		typeSelect.appendChild(listOption);
+	}
 
 	if (defaultType == null || defaultType == 'fromText')
 	{
@@ -2552,17 +2561,21 @@ var ParseDialog = function(editorUi, title, defaultType)
 	var tableOption = document.createElement('option');
 	tableOption.setAttribute('value', 'table');
 	mxUtils.write(tableOption, mxResources.get('formatSql'));
-	typeSelect.appendChild(tableOption);
 	
 	if (defaultType == 'formatSql')
 	{
+		typeSelect.appendChild(tableOption);
 		tableOption.setAttribute('selected', 'selected');
 	}
 	
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
 	mxUtils.write(diagramOption, mxResources.get('diagram'));
-	typeSelect.appendChild(diagramOption);
+	
+	if (defaultType != 'plantUml')
+	{
+		typeSelect.appendChild(diagramOption);
+	}
 		
 	var plantUmlSvgOption = document.createElement('option');
 	plantUmlSvgOption.setAttribute('value', 'plantUmlSvg');
@@ -2582,7 +2595,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 	mxUtils.write(plantUmlTxtOption, mxResources.get('plantUml') + ' (' + mxResources.get('text') + ')');
 	
 	// Disabled for invalid hosts via CORS headers
-	if (EditorUi.enablePlantUml && Graph.fileSupport && !editorUi.isOffline())
+	if (EditorUi.enablePlantUml && Graph.fileSupport &&
+		!editorUi.isOffline() && defaultType == 'plantUml')
 	{
 		typeSelect.appendChild(plantUmlSvgOption);
 		typeSelect.appendChild(plantUmlPngOption);

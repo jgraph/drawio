@@ -266,6 +266,8 @@ mxBpmnShape.prototype.redrawPath = function(c, x, y, w, h, layer)
 				{
 				}
 				
+				isInverse = false;
+				
 				if (s === 'star')
 				{
 					c.setFillColor(strokeColor);
@@ -274,9 +276,10 @@ mxBpmnShape.prototype.redrawPath = function(c, x, y, w, h, layer)
 				{
 					c.setStrokeColor(fillColor);
 					c.setFillColor(strokeColor);
+					isInverse = true;
 				}
 
-				f.call(this, c, x, y, w, h, layer);
+				f.call(this, c, x, y, w, h, layer, isInverse);
 				
 				if (s === 'star')
 				{
@@ -430,7 +433,7 @@ mxBpmnShape.prototype.symbols = {
 		'general' : function(c, x, y, w, h)
 		{
 		},
-		'message': function(c, x, y, w, h)
+		'message': function(c, x, y, w, h, layer, isInverse)
 		{
 			c.rect(0, 0, w, h);
 			c.fillAndStroke();
@@ -439,7 +442,10 @@ mxBpmnShape.prototype.symbols = {
 
 			if (fc === 'none')
 			{
-				c.setStrokeColor('#ffffff');
+				if (isInverse)
+				{
+					c.setStrokeColor('#ffffff');
+				}
 			}
 			
 			c.begin();

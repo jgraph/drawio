@@ -226,6 +226,7 @@ errorSavingFileUnknown=Google'ın sunucuları yetkilendirme hatası. Lütfen tek
 errorSavingFileForbidden=Dosya kaydetme hatası. Yetersiz erişim hakları.
 errorSavingFileNameConflict=Diyagramı kaydedemedi. Mevcut sayfa '{1}' isimli dosyayı çoktan içeriyor
 errorSavingFileNotFound=Dosyayı kaydederken hata. Dosya bulunamadı.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Oturumunuz sona ermiştir. Lütfen <a hedef='_boşluk' href='{1}'>{2}</a> 
 errorSendingFeedback=Geri-bildirim gönderme hatası.
 errorUpdatingPreview=Önizleme güncelleme hatası

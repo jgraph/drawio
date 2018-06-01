@@ -226,6 +226,7 @@ errorSavingFileUnknown=구글 서버 승인 오류. 페이지 새로 고침 후 
 errorSavingFileForbidden=파일 저장 오류. 접근 권한이 부족합니다.
 errorSavingFileNameConflict=다이어그램이 저장되지 못하였습니다. 이미 '{1}' 이름을 가진 파일이 해당 페이지에 존재합니다.
 errorSavingFileNotFound=파일 저장 오류. 파일을 찾을 수 없습니다.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=세션이 종료 되었습니다. <a target='_blank' href='{1}'>{2}</a> 해주시고, 다시 저장하시려면 해당 탭으로 돌아가 주시기 바랍니다.
 errorSendingFeedback=의견 보내기 오류
 errorUpdatingPreview=업데이트 미리보기 오류

@@ -226,6 +226,7 @@ errorSavingFileUnknown=Googlen palvelimien valtuuttamisessa tapahtui virhe. Päi
 errorSavingFileForbidden=Tiedoston tallentamisessa tapahtui virhe. Ei tarpeeksi käyttöoikeuksia.
 errorSavingFileNameConflict=Kaaviota ei voitu tallentaa. Nykyisellä sivulla on jo tiedosto nimeltä '{1}'.
 errorSavingFileNotFound=Tiedoston tallentamisessa tapahtui virhe. Tiedostoa ei löytynyt.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Istuntosi on päättynyt. Ole hyvä <a target='_blank' href='{1}'>{2}</a> ja palaa takaisin tähän välilehteen tallentaaksesi uudestaan.
 errorSendingFeedback=Palautteen lähettäminen epäonnistui.
 errorUpdatingPreview=Virhe esikatselua päivitettäessä.

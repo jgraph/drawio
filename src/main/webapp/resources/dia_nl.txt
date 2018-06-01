@@ -226,6 +226,7 @@ errorSavingFileUnknown=Fout bij het autoriseren met Google servers. Pagina herla
 errorSavingFileForbidden=Fout bij opslaan bestand. Onvoldoende toegangsrechten.
 errorSavingFileNameConflict=Kon diagram niet opslaan. Huidige pagina bevat al een bestand genaamd '{1}'.
 errorSavingFileNotFound=Fout bij opslaan bestand. Bestand niet gevonden.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Uw sessie is verlopen. Graag <a target='_blank' href='{1}'>{2}</a> en ga weer naar dit tabblad om opnieuw te proberen op te slaan.
 errorSendingFeedback=Fout bij versturen opmerking.
 errorUpdatingPreview=Fout bij bijwerken voorbeeld.

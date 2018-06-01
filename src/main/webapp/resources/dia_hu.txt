@@ -226,6 +226,7 @@ errorSavingFileUnknown=Hiba a Google szerver engedélyezésekor. Kérjük friss�
 errorSavingFileForbidden=Hiba a fájl mentésekor. Elégtelen hozzáférési jog.
 errorSavingFileNameConflict=A diagram mentése sikertelen. A pillanatnyi oldal már tartalmaz {1} nevű fájlt.
 errorSavingFileNotFound=Hiba a fájl mentésekor. A fájl nem található
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Az ülése véget ért. Kérjük <a target='_blank' href='{1}'>{2}</a> és vissza erre a lapra a mentés újrapróbálásához.
 errorSendingFeedback=Hiba a visszajelzés küldésekor.
 errorUpdatingPreview=Hiba az előnézet frissítésekor

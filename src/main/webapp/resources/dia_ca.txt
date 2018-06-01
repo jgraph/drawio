@@ -226,6 +226,7 @@ errorSavingFileUnknown=Error en autoritzar els servidors de Google. Si us plau, 
 errorSavingFileForbidden=Error en desar el fitxer. No disposeu dels drets d'accés suficients.
 errorSavingFileNameConflict=No s'ha pogut desar el diagrama. La pàgina actual conté un fitxer anomenat '{1}'.
 errorSavingFileNotFound=Error en desar. No s'ha trobat el fitxer.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=La teva sessió ha acabat. Si us plau, <a target='_blank' href='{1}'>{2}</a> i retorna a aquesta pestanya per intentar desar-ho de nou.
 errorSendingFeedback=Error en enviar la opinió.
 errorUpdatingPreview=Error pujant la vista prèvia.

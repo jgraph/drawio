@@ -226,6 +226,7 @@ errorSavingFileUnknown=Σφάλμα κατά την εξουσιοδότηση �
 errorSavingFileForbidden=Σφάλμα κατά την αποθήκευση του αρχείου. Ανεπαρκή δικαιώματα πρόσβασης.
 errorSavingFileNameConflict=Το διάγραμμα δεν αποθηκεύτηκε. Η συγκεκριμένη σελίδα περιέχει ήδη αρχείο που ονομάζεται '{1}'.
 errorSavingFileNotFound=Σφάλμα κατά την αποθήκευση του αρχείου. Το αρχείο δεν βρέθηκε.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Η συνεδρία σας τελείωσε. Παρακαλώ  <a target='_blank' href='{1}'>{2}</a> και επιστρέψτε σε αυτή την καρτέλα για να ξαναπροσπαθήσετε να το αποθηκεύσετε.
 errorSendingFeedback=Σφάλμα κατά την αποστολή κριτικής.
 errorUpdatingPreview=Σφάλμα κατά την ενημέρωση προεπισκόπησης.

@@ -226,6 +226,7 @@ errorSavingFileUnknown=‫خطا در دادن اجازه به سرورهای گ
 errorSavingFileForbidden=‫خطا در ذخیره فایل. مجوزهای دسترسی کافی نیستند.‬
 errorSavingFileNameConflict=‫نمودار قابل ذخیره نیست. در صفحه فعلی از قبل فایلی وجود دارد به نام '{1}'‬
 errorSavingFileNotFound=‫خطا در ذخیره فایل. فایل یافت نشد.‬
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=‫نوبت شما پایان یافته است. لطفا <a target='_blank' href='{1}'>{2}</a> و به این صفحه بازگردید تا مجدد عملیات ذخیره سازی را انجام دهید.‬
 errorSendingFeedback=‫خطا در ارسال نظر.‬
 errorUpdatingPreview=‫خطا در بروز رسانی پیش نما‬

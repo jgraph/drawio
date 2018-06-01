@@ -226,6 +226,7 @@ errorSavingFileUnknown=Ralat mendapatkan kebenaran daripada pelayan Google. Sila
 errorSavingFileForbidden=Ralat menyimpan fail. Hak akses tidak mencukupi.
 errorSavingFileNameConflict=Tidak dapat menyimpan gambarajah. Halaman semasa sudah mengandungi fail bernama '{1}'.
 errorSavingFileNotFound=Ralat menyimpan fail. Fail tidak ditemui.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Sesi anda telah tamat. Sila <a target='_blank' href='{1}'>{2}</a> dan kembali ke tab ini untuk mencuba menyimpan semula.
 errorSendingFeedback=Ralat menghantar maklum balas.
 errorUpdatingPreview=Ralat mengemaskini pratonton.

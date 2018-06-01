@@ -226,6 +226,7 @@ errorSavingFileUnknown=Błąd podczas autoryzacji z serwerami Google. Proszę od
 errorSavingFileForbidden=Błąd podczas zapisywania pliku. Brak wystarczających praw dostępu.
 errorSavingFileNameConflict=Nie można zapisać diagramu. Aktualna strona zawiera już plik '{1}'
 errorSavingFileNotFound=Błąd podczas zapisywania pliku. Plik nie został odnaleziony.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Twoja sesja wygasła. <a target='_blank' href='{1}'>{2}</a> i wróć do tej karty, by spróbować zapisać ponownie.
 errorSendingFeedback=Błąd podczas przesyłania opinii.
 errorUpdatingPreview=Błąd podczas aktualizowania podglądu.

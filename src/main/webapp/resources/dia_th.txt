@@ -226,6 +226,7 @@ errorSavingFileUnknown=เกิดข้อผิดพลาดเกี่ย
 errorSavingFileForbidden=เกิดข้อผิดพลาดในการบันทึกไฟล์ สิทธิในการเข้าใช้ไม่เพียงพอ
 errorSavingFileNameConflict=ไม่สามารถบันทึกแผนภาพได้ หน้าปัจจุบันมีไฟล์ชื่อ '{1}' แล้ว
 errorSavingFileNotFound=เกิดข้อผิดพลาดในการบันทึกไฟล์ ไม่พบไฟล์
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=เซสชั่นของคุณได้สิ้นสุดลงแล้ว  กรุณา <a target='_blank' href='{1}'> {2} </a> และกลับไปที่แท็บนี้เพื่อลองบันทึกอีกครั้ง
 errorSendingFeedback=การส่งฟีดแบ็กผิดพลาด
 errorUpdatingPreview=เกิดข้อผิดพลาดในการอัปเดตตัวอย่าง

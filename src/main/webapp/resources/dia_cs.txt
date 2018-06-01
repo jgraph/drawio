@@ -226,6 +226,7 @@ errorSavingFileUnknown=Chyba autorizace s Google servery. Prosím obnovte strán
 errorSavingFileForbidden=Chyba ukládání souboru. Nedostačující přístupová práva.
 errorSavingFileNameConflict=Diagram nelze uložit. Aktuální stránka už obsahuje soubor se jménem '{1}'.
 errorSavingFileNotFound=Chyba ukládání souboru. Soubor nenalezen.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Vaše připojení skončilo. Prosím <a target='_blank' href='{1}'>{2}</a>, pak se vraťte na tento panel a zkuste uložit znovu.
 errorSendingFeedback=Chyba při odesílání zpětné vazby.
 errorUpdatingPreview=Chyba při aktualizaci náhledu.

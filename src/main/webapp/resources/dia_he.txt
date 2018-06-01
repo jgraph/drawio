@@ -226,6 +226,7 @@ errorSavingFileUnknown=‫שגיאה באימות מול שרתי גוגל. אנ
 errorSavingFileForbidden=‫שגיאה בשמירת הקובץ. זכויות גישה לא מתאימות.‬
 errorSavingFileNameConflict=‫לא ניתן לשמור את הדיאגרמה. העמוד הנוכחי כבר מכיל קובץ בשם '{1}'.‬
 errorSavingFileNotFound=‫שגיאה בשמירת הקובץ. קובץ לא נמצא.‬
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=‫ההתקשרות שלך הסתיימה. אנא <a target='_blank' href='{1}'>{2}</a> וחזור ללשונית זו כדי לשמור שוב.‬
 errorSendingFeedback=‫שגיאה בשליחת המשוב.‬
 errorUpdatingPreview=‫שגיאה בעדכון התצוגה המקדימה.‬

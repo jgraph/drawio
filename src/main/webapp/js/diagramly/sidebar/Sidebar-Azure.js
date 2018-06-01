@@ -4,7 +4,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.';
 		var gn = 'mxgraph.azure';
 		var dt = '';
 		

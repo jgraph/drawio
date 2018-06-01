@@ -226,6 +226,7 @@ errorSavingFileUnknown=Lỗi khi cấp phép với máy chủ Google. Xin vui l�
 errorSavingFileForbidden=Lỗi khi lưu tập tin. Không đủ quyền truy xuất.
 errorSavingFileNameConflict=Không thể lưu biểu đồ, Trang hiện tại đã có tập tin mang tên '{1}'
 errorSavingFileNotFound=Lỗi khi lưu tập tin. Không tìm thấy tập tin.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Phiên làm việc của bạn đã kết thúc. Vui lòng <a target='_blank' href='{1}'>{2}</a> và trở về tab này để thử lưu lại lần nữa.
 errorSendingFeedback=Lỗi khi gửi phản hồi.
 errorUpdatingPreview=Lỗi khi cập nhật bản xem trước.

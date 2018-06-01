@@ -226,6 +226,7 @@ errorSavingFileUnknown=Viga Google'i serveritega autoriseerimisel. Palun värske
 errorSavingFileForbidden=Viga faili salvestamisel. Ebapiisavad ligipääsuõigused.
 errorSavingFileNameConflict=Diagramm ei salvestunud. Käesolev leht juba sisaldab faili nimega '{1}'.
 errorSavingFileNotFound=Viga faili salvestamisel. Faili ei leitud.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Sessioon on lõppenud. Palun <a target='_blank' href='{1}'>{2}</a> ja naase sellele vahelehele, et proovida uuesti salvestamist.
 errorSendingFeedback=Viga tagasiside saatmisel.
 errorUpdatingPreview=Viga eelvaate uuendamisel.

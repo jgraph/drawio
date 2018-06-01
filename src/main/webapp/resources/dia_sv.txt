@@ -226,6 +226,7 @@ errorSavingFileUnknown=Ett fel uppstod vid autentisering med Googles servrar. V�
 errorSavingFileForbidden=Ett fel uppstod vid sparande av filen. Otillräckliga behörighetsrättigheter.
 errorSavingFileNameConflict=Kunde inte spara diagrammet. Sidan innehåller redan filnamn '{1}'.
 errorSavingFileNotFound=Ett fel uppstod vid sparande av filen. Filen kunde inte hittas.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Din session har avslutats. Vänligen <a target='_blank' href='{1}'>{2}</a> och återgå till denna flik och försök att spara igen.
 errorSendingFeedback=Ett fel uppstod vid sändning av feedback.
 errorUpdatingPreview=Ett fel uppstod vid uppdatering av förhandsvisning.
