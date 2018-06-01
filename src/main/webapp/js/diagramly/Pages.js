@@ -446,7 +446,7 @@ Graph.prototype.createViewState = function(node)
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
-		mathEnabled: node.getAttribute('math') != '0',
+		mathEnabled: node.getAttribute('math') == '1',
 		selectionCells: null,
 		defaultParent: null,
 		scrollbars: this.defaultScrollbars,

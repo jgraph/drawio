@@ -14,7 +14,7 @@
 		//default tags
 		var dt = 'ios icon ';
 		
-		var s = 'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;fillColor=#ffffff;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
+		var s = 'html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;fillColor=#ffffff;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var gn = 'mxgraph.ios7.icons';
 		

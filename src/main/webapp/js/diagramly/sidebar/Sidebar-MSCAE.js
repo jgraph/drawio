@@ -20,8 +20,8 @@
 
 	Sidebar.prototype.addMSCAECloudPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.mscae.cloud.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.';
 
 		// Space savers
 		var sb = this;
@@ -389,9 +389,9 @@
 
 	Sidebar.prototype.addMSCAEDeprecatedPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.deprecated.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.deprecated.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -481,9 +481,9 @@
 	
 	Sidebar.prototype.addMSCAEEnterprisePalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.enterprise.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -705,10 +705,10 @@
 	
 	Sidebar.prototype.addMSCAEGeneralPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.general.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
-		var s4 = 'shadow=0;dashed=0;html=1;shape=mxgraph.mscae.general.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
+		var s4 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general.';
 
 		// Space savers
 		var sb = this;
@@ -782,11 +782,11 @@
 	
 	Sidebar.prototype.addMSCAEGeneralSymbolsPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.general_symbols.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
-		var s4 = 'shadow=0;dashed=0;html=1;shape=mxgraph.mscae.general_symbols.';
-		var s5 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general_symbols.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
+		var s4 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general_symbols.';
+		var s5 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -874,9 +874,9 @@
 	
 	Sidebar.prototype.addMSCAEIntunePalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.intune.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.intune.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -990,9 +990,9 @@
 	
 	Sidebar.prototype.addMSCAEOMSPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.oms.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.oms.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -1056,9 +1056,9 @@
 	
 	Sidebar.prototype.addMSCAEOpsManagerPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.opsmanager.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.opsmanager.';
+		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -1122,8 +1122,8 @@
 	
 	Sidebar.prototype.addMSCAEOtherPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;strokeColor=none;html=1;shape=mxgraph.mscae.other.';
+		var s = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;strokeColor=none;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.other.';
 
 		// Space savers
 		var sb = this;
@@ -1177,9 +1177,9 @@
 	
 	Sidebar.prototype.addMSCAESystemCenterPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.system_center.';
-		var s3 = 'shadow=0;dashed=0;html=1;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;strokeColor=none;shape=mxgraph.mscae.system_center.';
+		var s3 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -1221,9 +1221,9 @@
 	
 	Sidebar.prototype.addMSCAEVMPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;shape=mxgraph.azure.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;shape=mxgraph.mscae.vm.';
-		var s3 = 'shadow=0;dashed=0;html=1;shape=mxgraph.mscae.';
+		var s = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;strokeColor=none;shape=mxgraph.mscae.vm.';
+		var s3 = 'shadow=0;dashed=0;html=1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.';
 
 		// Space savers
 		var sb = this;
@@ -1548,6 +1548,4 @@
 		}));
 
 	}
-	
-
 })();

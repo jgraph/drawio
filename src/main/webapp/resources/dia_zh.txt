@@ -226,6 +226,7 @@ errorSavingFileUnknown=Google服务器授权出错。请刷新页面，然后重
 errorSavingFileForbidden=保存文件时出错。没有足够的访问权限。
 errorSavingFileNameConflict=无法保存此图表。当前页面已经包含名为'{1}'的文件。
 errorSavingFileNotFound=保存文件时出错，文件未找到。
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=您的会话已经结束。请<a target='_blank'href='{1}'>{2}</a>，然后返回此标签以尝试再次保存。
 errorSendingFeedback=发送反馈出错。
 errorUpdatingPreview=更新预览出错。

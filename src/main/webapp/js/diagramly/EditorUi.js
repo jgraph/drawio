@@ -123,11 +123,6 @@
 	EditorUi.prototype.closableScratchpad = true;
 	
 	/**
-	 * Specifies if PDF export with pages is enabled.
-	 */
-	EditorUi.prototype.showCsvImport = true;
-
-	/**
 	 * Capability check for canvas export
 	 */
 	(function()
@@ -159,8 +154,7 @@
 			   		var ctx = canvas.getContext('2d');
 			   		ctx.drawImage(img, 0, 0);
 
-			   		// Works in Chrome, Firefox, Edge and Opera
-					// LATER: Fix security error caused by foreignObjects in Safari for toDataUri (tainted canvas)
+			   		// Works in Chrome, Firefox, Edge, Safari and Opera
 					var result = canvas.toDataURL('image/png');
 					EditorUi.prototype.useCanvasForExport = result != null && result.length > 6;
 				}
@@ -3025,7 +3019,6 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		// LATER: Fix security error caused by foreignObjects in Safari for toDataUri (tainted canvas)
 		return mxClient.IS_CHROMEAPP || (!this.editor.graph.mathEnabled && this.useCanvasForExport);
 	};
 
@@ -6435,7 +6428,7 @@
                 }
             }));
         }
-		else if  (file != null && filename != null && ((/(\.vsdx?)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename)))
+		else if (file != null && filename != null && ((/(\.vsdx?)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename)))
 		{
 			//  LATER: done and async are a hack before making this asynchronous
 			async = true;
@@ -8649,15 +8642,15 @@
 									{
 										this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 									}
-									
-					    				try
-						    			{
-					    					this.loadLibrary(new LocalLibrary(this, xml, name));
-						    			}
-					    				catch (e)
-						    			{
-						    				this.handleError(e, mxResources.get('errorLoadingFile'));
-						    			}
+								
+				    				try
+					    			{
+				    					this.loadLibrary(new LocalLibrary(this, xml, name));
+					    			}
+				    				catch (e)
+					    			{
+					    				this.handleError(e, mxResources.get('errorLoadingFile'));
+					    			}
 								}
 								else
 								{
@@ -8689,8 +8682,8 @@
 										else
 										{
 											this.handleError({message: mxResources.get((xhr.status == 413) ?
-				            						'drawingTooLarge' : 'invalidOrMissingFile')},
-				            						mxResources.get('errorLoadingFile'));
+			            						'drawingTooLarge' : 'invalidOrMissingFile')},
+			            						mxResources.get('errorLoadingFile'));
 										}
 									}
 								}));
@@ -8711,7 +8704,7 @@
 								}));
 							}
 							else if (e.target.result.substring(0, 10) == '<mxlibrary')
-			    				{
+			    			{
 								this.spinner.stop();
 								
 								// Creates new temporary file if library is dropped in splash screen
@@ -8719,16 +8712,16 @@
 								{
 									this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 								}
-									
-				    				try
-					    			{
-					    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
-					    			}
-					    			catch (e)
-					    			{
-					    				this.handleError(e, mxResources.get('errorLoadingFile'));
-					    			}
+								
+			    				try
+				    			{
+				    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
 				    			}
+				    			catch (e)
+				    			{
+				    				this.handleError(e, mxResources.get('errorLoadingFile'));
+				    			}
+			    			}
 							else
 							{
 								if (file.type.substring(0, 9) == 'image/png')

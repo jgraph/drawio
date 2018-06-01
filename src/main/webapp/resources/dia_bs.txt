@@ -226,6 +226,7 @@ errorSavingFileUnknown=Greška pri autorizaciji sa Google serverima. Molimo da o
 errorSavingFileForbidden=Greška pri spašavanju fajla. Nedovoljne ovlasti pristupa.
 errorSavingFileNameConflict=Nije moguće spasiti dijagram. Trenutna stranica već sadrži fajl naziva '{1}'.
 errorSavingFileNotFound=Greška pri spašavanju fajla. Fajl nije pronađen.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Vaša sesija je istekla. Molimo <a target='_blank' href='{1}'>{2}</a> vratite se na ovu karticu i ponovo pokušajte spasiti.
 errorSendingFeedback=Greška pri slanju povratne informacije.
 errorUpdatingPreview=Greška pri ažuriranju pregleda.

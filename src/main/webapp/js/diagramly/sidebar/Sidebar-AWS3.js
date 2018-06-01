@@ -30,7 +30,7 @@
 	Sidebar.prototype.addAWS3AnalyticsPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service analytics';
 		var s = 1.5; //scale
@@ -87,7 +87,7 @@
 	Sidebar.prototype.addAWS3ApplicationServicesPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service app application services';
 		var s = 1.5; //scale
@@ -112,7 +112,7 @@
 	Sidebar.prototype.addAWS3ArtificialIntelligencePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service ai artificial intelligence';
 		var s = 1.5; //scale
@@ -133,7 +133,7 @@
 	Sidebar.prototype.addAWS3BusinessProductivityPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service business productivity';
 		var s = 1.5; //scale
@@ -152,7 +152,7 @@
 	Sidebar.prototype.addAWS3ComputePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service compute';
 		var s = 1.5; //scale
@@ -259,7 +259,7 @@
 	Sidebar.prototype.addAWS3ContactCenterPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service contact center';
 		var s = 1.5; //scale
@@ -274,7 +274,7 @@
 	Sidebar.prototype.addAWS3DatabasePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service db database';
 		var s = 1.5; //scale
@@ -349,7 +349,7 @@
 	Sidebar.prototype.addAWS3DesktopAndAppStreamingPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service desktop app streaming application';
 		var s = 1.5; //scale
@@ -366,7 +366,7 @@
 	Sidebar.prototype.addAWS3DeveloperToolsPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service dev developer tools';
 		var s = 1.5; //scale
@@ -391,7 +391,7 @@
 	Sidebar.prototype.addAWS3GameDevelopmentPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service game development';
 		var s = 1.5; //scale
@@ -406,7 +406,7 @@
 	Sidebar.prototype.addAWS3GeneralPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service general';
 		var s = 1.5; //scale
@@ -543,7 +543,7 @@
 	Sidebar.prototype.addAWS3InternetOfThingsPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service iot internet of things';
 		var s = 1.5; //scale
@@ -642,7 +642,7 @@
 	Sidebar.prototype.addAWS3ManagementToolsPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service management tools';
 		var s = 1.5; //scale
@@ -729,7 +729,7 @@
 	Sidebar.prototype.addAWS3MessagingPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service messaging';
 		var s = 1.5; //scale
@@ -762,7 +762,7 @@
 	Sidebar.prototype.addAWS3MigrationPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service migration';
 		var s = 1.5; //scale
@@ -789,7 +789,7 @@
 	Sidebar.prototype.addAWS3MobileServicesPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service mobile services';
 		var s = 1.5; //scale
@@ -814,7 +814,7 @@
 	Sidebar.prototype.addAWS3NetworkAndContentDeliveryPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service network and content delivery';
 		var s = 1.5; //scale
@@ -875,7 +875,7 @@
 	Sidebar.prototype.addAWS3OnDemandWorkforcePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service on demand workforce';
 		var s = 1.5; //scale
@@ -898,7 +898,7 @@
 	Sidebar.prototype.addAWS3SDKPalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service sdk software development kit';
 		var s = 1.5; //scale
@@ -939,7 +939,7 @@
 	Sidebar.prototype.addAWS3SecurityIdentityAndCompliancePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service security and identity compliance';
 		var s = 1.5; //scale
@@ -1002,7 +1002,7 @@
 	Sidebar.prototype.addAWS3StoragePalette = function()
 	{
 		var sb = this;
-		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
+		var n = 'dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service storage';
 		var s = 1.5; //scale
@@ -1047,7 +1047,4 @@
 					 s * 35, s * 50, '', 'EBS', null, null, this.getTagsForStencil(gn, 'ebs', dt).join(' '))
 		]);
 	};
-	
-	
-	
 })();

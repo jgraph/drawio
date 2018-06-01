@@ -226,6 +226,7 @@ errorSavingFileUnknown=Google服務授權出錯。請重新載入頁面然後再
 errorSavingFileForbidden=儲存檔案出錯。沒有足夠的存取權。
 errorSavingFileNameConflict=無法儲存此圖表。當前頁面已存在名為「{1}」的檔案。
 errorSavingFileNotFound=儲存檔案出錯。找不到檔案。
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=你的會話已經結束。請<a target='_blank'href='{1}'>{2}</a>，然後返回此選項卡並再次儲存。
 errorSendingFeedback=傳送回饋出錯。
 errorUpdatingPreview=更新預覽畫面出錯。

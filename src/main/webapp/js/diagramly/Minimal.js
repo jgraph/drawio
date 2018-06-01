@@ -311,7 +311,6 @@ EditorUi.initMinimalTheme = function()
     HoverIcons.prototype.inactiveOpacity = 25;
     Format.prototype.showCloseButton = false;
 	EditorUi.prototype.closableScratchpad = false;
-	EditorUi.prototype.showCsvImport = false;
     EditorUi.prototype.footerHeight = 0;
 	Graph.prototype.editAfterInsert = true;
 

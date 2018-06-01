@@ -648,7 +648,7 @@
 	
 	Sidebar.prototype.addGMDLIconsPalette = function(expand)
 	{
-		var s2 = "dashed=0;aspect=fixed;shape=mxgraph.gmdl.";
+		var s2 = "dashed=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.gmdl.";
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library icon ';
 		var sb = this;
@@ -916,7 +916,7 @@
 	Sidebar.prototype.addGMDLSelectionControlsPalette = function(expand)
 	{
 		var s = "dashed=0;shape=";
-		var s2 = "dashed=0;shape=mxgraph.gmdl.";
+		var s2 = "dashed=0;labelPosition=right;align=left;shape=mxgraph.gmdl.";
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library selection control ';
 		var sb = this;
@@ -930,7 +930,7 @@
 			}),
 			this.addEntry(dt + 'checkbox on focused pressed light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#009587;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#009587;strokeWidth=2;');
 				part1.vertex = true;
@@ -945,7 +945,7 @@
 			}),
 			this.addEntry(dt + 'checkbox on disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#B0B0B0;strokeWidth=2;');
 				part1.vertex = true;
@@ -960,7 +960,7 @@
 			}),
 			this.addEntry(dt + 'checkbox off focused pressed light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -975,7 +975,7 @@
 			}),
 			this.addEntry(dt + 'checkbox off disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -990,7 +990,7 @@
 			}),
 			this.addEntry(dt + 'checkbox on disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#676767;strokeWidth=2;');
 				part1.vertex = true;
@@ -1005,7 +1005,7 @@
 			}),
 			this.addEntry(dt + 'checkbox off focused pressed dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#ffffff;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1020,7 +1020,7 @@
 			}),
 			this.addEntry(dt + 'checkbox off disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1035,7 +1035,7 @@
 			}),
 			this.addEntry(dt + 'radio button on focused pressed light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#009587;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#009587;fillColor=#009587;strokeWidth=2;');
 				part1.vertex = true;
@@ -1050,7 +1050,7 @@
 			}),
 			this.addEntry(dt + 'radio button on disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=#B0B0B0;strokeWidth=2;');
 				part1.vertex = true;
@@ -1065,7 +1065,7 @@
 			}),
 			this.addEntry(dt + 'radio button off focused pressed light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1080,7 +1080,7 @@
 			}),
 			this.addEntry(dt + 'radio button off disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1095,7 +1095,7 @@
 			}),
 			this.addEntry(dt + 'radio button on disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#676767;fillColor=#676767;strokeWidth=2;');
 				part1.vertex = true;
@@ -1110,7 +1110,7 @@
 			}),
 			this.addEntry(dt + 'radio button off focused pressed dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#ffffff;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1125,7 +1125,7 @@
 			}),
 			this.addEntry(dt + 'radio button off disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
 				bg1.vertex = true;
 				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;');
 				part1.vertex = true;
@@ -1164,7 +1164,7 @@
 	Sidebar.prototype.addGMDLSlidersPalette = function(expand)
 	{
 		var s = "dashed=0;shape=";
-		var s2 = "dashed=0;shape=mxgraph.gmdl.";
+		var s2 = "dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.gmdl.";
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library slider ';
 		var sb = this;

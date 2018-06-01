@@ -226,6 +226,7 @@ errorSavingFileUnknown=Fejl ved autorisering med Google's servere. Genindlæs si
 errorSavingFileForbidden=Fejl ved lagring af fil. Utilstrækkelige adgangsrettigheder.
 errorSavingFileNameConflict=Kunne ikke gemme diagram. Nuværende side indeholder allerede en fil med navnet '{1}'.
 errorSavingFileNotFound=Fejl ved lagring af fil. Filen blev ikke fundet.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Din session er afsluttet. Gør venligst <a target='_blank' href='{1}'>{2}</a> og kom tilbage til denne tab for at prøve at gemme igen.
 errorSendingFeedback=Fejl ved afsendelse af feedback.
 errorUpdatingPreview=Fejl ved opdatering af preview.

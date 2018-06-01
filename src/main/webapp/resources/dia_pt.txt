@@ -226,6 +226,7 @@ errorSavingFileUnknown=Erro ao autorizar com os servidores do Google. Por favor,
 errorSavingFileForbidden=Erro ao guardar o ficheiro. Direitos de acesso insuficientes.
 errorSavingFileNameConflict=Não foi possível salvar o diagrama. A página atual já contem ficheiro com nome '{1}'.
 errorSavingFileNotFound=Erro ao guardar o ficheiro. Ficheiro não encontrado.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Sua sessão foi terminada. Por favor <a target='_blank' href='{1}'>{2}</a> e retorne a esta guia para tentar salvar novamente.
 errorSendingFeedback=Erro ao enviar feedback.
 errorUpdatingPreview=Erro actualização antevisão.

@@ -226,6 +226,7 @@ errorSavingFileUnknown=Pagkakamali sa pagpapahintulot sa mga server ng Google.  
 errorSavingFileForbidden=Pagkakamali sa pag-save ng file.  Hindi sapat ang karapatan sa pag akses.
 errorSavingFileNameConflict=Pagkakamali sa pagpalit ng pangalan ng file.  Hindi sapat ang karapatan sa pag akses.
 errorSavingFileNotFound=Pagkakamali sa pag-save ng file.  Ang file ay hindi nahanap.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Pagkakamali sa pagpalit ng pangalan ng file.  Hindi sapat ang karapatan sa pag akses.
 errorSendingFeedback=Pagkakamali sa pag-send ng kumento.
 errorUpdatingPreview=Pagkakamali sa pag-update ng paunang tingin.

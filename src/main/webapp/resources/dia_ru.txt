@@ -226,6 +226,7 @@ errorSavingFileUnknown=Ошибка авторизации на сервере G
 errorSavingFileForbidden=Ошибка сохранения файла. Не хватает прав доступа.
 errorSavingFileNameConflict=Невозможно сохранить диаграмму. Страница уже содержит файл с названием '{1}'.
 errorSavingFileNotFound=Ошибка при сохранении файла. Файл не найден.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Ваша сессия истекла. Для сохранения, пожалуйста, <a target='_blank' href='{1}'>{2}</a> и вернитесь на эту закладку.
 errorSendingFeedback=Ошибка при отправке сообщения обратной связи.
 errorUpdatingPreview=Ошибка при обновлении предпросмотра.

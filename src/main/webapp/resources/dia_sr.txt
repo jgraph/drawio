@@ -226,6 +226,7 @@ errorSavingFileUnknown=Greška pri autorizaciji sa Google serverom. Molimo vas, 
 errorSavingFileForbidden=Greška pri snimanju. Nedovoljna prava pristupa.
 errorSavingFileNameConflict=Dijagram nije sačuvan. Trenutna stranica već sadrži dijagram pod nazivom {1}
 errorSavingFileNotFound=Greška pri snimanju. Datoteka nije pronađena.
+errorSavingFileReadOnlyMode=Dijagram ne može biti sačuvan dok traje zabrana upisa.
 errorSavingFileSessionTimeout=Vaša sesija je istekla. Molimo <a target='_blank' href='{1}'>prijavite se</a> i vratite se na ovu karticu da pokušate ponovo da sačuvate.
 errorSendingFeedback=Greška pri slanju povratne informacije.
 errorUpdatingPreview=Greška pri osvežavanju pregleda

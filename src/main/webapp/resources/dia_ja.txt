@@ -226,6 +226,7 @@ errorSavingFileUnknown=Googleサーバーの認証エラーです。再トライ
 errorSavingFileForbidden=ファイル保存エラー。アクセス権が不十分。
 errorSavingFileNameConflict=ダイアグラムを保存できませんでした。現在のページに既にファイルが含まれています'{1}'.
 errorSavingFileNotFound=ファイル保存エラー。ファイルが見つかりません。
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=あなたのセッションは終了しました。どうぞ <a target='_blank' href='{1}'>{2}</a> このタブに戻ってもう一度保存を試みてください。
 errorSendingFeedback=エラーのフィードバックを送信中。
 errorUpdatingPreview=エラー更新プレビュー。

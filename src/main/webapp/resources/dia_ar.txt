@@ -226,6 +226,7 @@ errorSavingFileUnknown=‫خطأ في الترخيص في خوادم Google. ا�
 errorSavingFileForbidden=‫خطأ في حفظ الملف. أذونات غير كافية.‬
 errorSavingFileNameConflict=Could not save diagram. Current page already contains file named '{1}'.
 errorSavingFileNotFound=‫خطأ في حفظ الملف. تعذر إيجاد الملف.‬
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Your session has ended. Please <a target='_blank' href='{1}'>{2}</a> and return to this tab to try to save again.
 errorSendingFeedback=‫خطأ في إرسال التعليق.‬
 errorUpdatingPreview=Error updating preview.

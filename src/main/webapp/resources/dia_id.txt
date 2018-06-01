@@ -226,6 +226,7 @@ errorSavingFileUnknown=Galat otorisasi dengan peladen Google. Harap segarkan hal
 errorSavingFileForbidden=Galat menyimpan berkas. Hak akses tidak cukup.
 errorSavingFileNameConflict=Tidak dapat menyimpan diagram. Halaman saat ini telah berisi berkas dengan nama '{1}'.
 errorSavingFileNotFound=Galat menyimpan berkas. Berkas tidak ditemukan.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Sesi Anda telah berakhir. Harap <a target='_blank' href='{1}'>{2}</a> dan kembali ke tab ini untuk mencoba menyimpan sekali lagi.
 errorSendingFeedback=Galat mengirim umpan balik.
 errorUpdatingPreview=Galat memperbarui pratinjau.

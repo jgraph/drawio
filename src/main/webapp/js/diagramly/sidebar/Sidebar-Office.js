@@ -17,8 +17,8 @@
 	
 	Sidebar.prototype.addOfficeCloudsPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;shape=mxgraph.office.clouds.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;shape=mxgraph.office.clouds.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;align=center;shape=mxgraph.office.clouds.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;align=center;shape=mxgraph.office.clouds.';
 
 		// Space savers
 		var sb = this;
@@ -69,8 +69,8 @@
 
 	Sidebar.prototype.addOfficeCommunicationsPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.communications.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.communications.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.communications.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.communications.';
 
 		// Space savers
 		var sb = this;
@@ -160,8 +160,6 @@
 					w * 60, h * 57, '', 'Remote Move Request', null, null, this.getTagsForStencil(gn, 'remote move request', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'response_group;',
 					w * 58, h * 54, '', 'Response Group', null, null, this.getTagsForStencil(gn, 'response group', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'response_group_service;',
-//					w * 58, h * 54, '', 'Response Group Service', null, null, this.getTagsForStencil(gn, 'response group service', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'room_mailbox;',
 					w * 60, h * 57, '', 'Room Mailbox', null, null, this.getTagsForStencil(gn, 'room mailbox', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'shared_mailbox;',
@@ -237,8 +235,8 @@
 
 	Sidebar.prototype.addOfficeConceptsPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.concepts.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.concepts.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.';
 
 		// Space savers
 		var sb = this;
@@ -543,8 +541,8 @@
 
 	Sidebar.prototype.addOfficeDatabasesPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.databases.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.databases.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.databases.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.databases.';
 
 		// Space savers
 		var sb = this;
@@ -659,8 +657,8 @@
 	
 	Sidebar.prototype.addOfficeDevicesPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.devices.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.devices.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.devices.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.devices.';
 
 		// Space savers
 		var sb = this;
@@ -785,8 +783,8 @@
 	
 	Sidebar.prototype.addOfficeSecurityPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.security.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.security.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.';
 
 		// Space savers
 		var sb = this;
@@ -915,8 +913,8 @@
 	
 	Sidebar.prototype.addOfficeServersPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.servers.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.servers.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.servers.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.servers.';
 
 		// Space savers
 		var sb = this;
@@ -1135,8 +1133,8 @@
 	
 	Sidebar.prototype.addOfficeServicesPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.services.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.services.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.services.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.services.';
 
 		// Space savers
 		var sb = this;
@@ -1213,8 +1211,8 @@
 	
 	Sidebar.prototype.addOfficeSitesPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.sites.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.sites.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.sites.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.sites.';
 
 		// Space savers
 		var sb = this;
@@ -1283,8 +1281,8 @@
 	
 	Sidebar.prototype.addOfficeUsersPalette = function()
 	{
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.users.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shape=mxgraph.office.users.';
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.';
 
 		// Space savers
 		var sb = this;
@@ -1328,8 +1326,6 @@
 					w * 63, h * 55, '', 'Outlook User', null, null, this.getTagsForStencil(gn, 'outlook user', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'response_group;',
 					w * 58, h * 54, '', 'Response Group', null, null, this.getTagsForStencil(gn, 'response group', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'response_group_service;',
-//					w * 58, h * 54, '', 'Response Group Service', null, null, this.getTagsForStencil(gn, 'response group service', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'role_group;',
 					w * 59, h * 56, '', 'Role Group', null, null, this.getTagsForStencil(gn, 'role group', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'skype_commercial_user;',

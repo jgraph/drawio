@@ -226,6 +226,7 @@ errorSavingFileUnknown=Erreur d'autorisation avec les serveurs de Google. Veuill
 errorSavingFileForbidden=Erreur lors de l'enregistrement du fichier. Droits d'accès insuffisants.
 errorSavingFileNameConflict=Le diagramme n'a pas pu être enregistré. La page actuellement ouverte contient déjà un fichier nommé '{1}'.
 errorSavingFileNotFound=Erreur lors de l'enregistrement du fichier. Le fichier est introuvable.
+errorSavingFileReadOnlyMode=Could not save diagram while read-only mode is active.
 errorSavingFileSessionTimeout=Votre session a été fermée. Veuillez <a target='_blank' href='{1}'>{2}</a> et revenir à cet onglet pour tenter d'enregistrer à nouveau.
 errorSendingFeedback=Erreur lors de l'envoi du commentaire.
 errorUpdatingPreview=Erreur lors de la mise à jour de l'aperçu.

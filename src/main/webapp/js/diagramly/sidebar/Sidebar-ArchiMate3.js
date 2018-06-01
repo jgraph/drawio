@@ -77,6 +77,7 @@
 	Sidebar.prototype.addArchimate3BusinessPalette = function()
 	{
 		var am2 = 'html=1;whiteSpace=wrap;fillColor=#ffff99;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am3 = 'html=1;whiteSpace=wrap;fillColor=#ffff99;strokeColor=#000000;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -90,7 +91,7 @@
 		[
 			this.createVertexTemplateEntry(am2 + 'application;appType=actor;archiType=square;', 
 					w * 150, h * 75, '', 'Business Actor', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'actor;', 
+			this.createVertexTemplateEntry(am3 + 'actor;', 
 					w * 50, h * 95, '', 'Actor', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' ')),
 			this.createVertexTemplateEntry(am2 + 'application;appType=role;archiType=square;', 
 					w * 150, h * 75, '', 'Business Role', null, null, this.getTagsForStencil(gn, '', dt + 'role').join(' ')),
