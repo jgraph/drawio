@@ -1,3 +1,12 @@
+02-JUN-2018: 8.7.3
+
+- Fixes overridden layout menu
+- Uses mxGraph 3.9.7 beta 1
+
+01-JUN-2018: 8.7.2
+
+- Changes to Confluence Cloud image servlet
+
 01-JUN-2018: 8.7.1
 
 - Moves import CSV to insert menu

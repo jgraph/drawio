@@ -2059,7 +2059,7 @@
 		{
 			this.addMenuItems(menu, ['insertText', 'insertRectangle', '-', 'insertEllipse', 'insertRhombus', '-', 'insertLink', 'insertImage'], parent);
 			menu.addSeparator(parent);
-			this.addSubmenu('layout', menu, parent);
+			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 			menu.addSeparator(parent);
 			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
 			menu.addItem(mxResources.get('csv') + '...', null, function()
@@ -2068,7 +2068,7 @@
 			}, parent);
 		})));
 
-		this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
+		this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			addInsertMenuItems(menu, parent, ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree',
 				'verticalTree', 'radialTree', '-', 'organic', 'circle']);

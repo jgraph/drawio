@@ -5711,7 +5711,7 @@
 		    if (this.crossOriginImages)
 	    	{
 			    img.crossOrigin = 'anonymous';
-		    }	
+		    }
 		    
 		    img.onload = function()
 		    {
