@@ -63,7 +63,7 @@ public class ProxyServlet extends HttpServlet
 			dom = "";
 		}
 
-		if (dom != null && urlParam != null)
+		if (dom != null && urlParam != null && (urlParam.startsWith("http://") || urlParam.startsWith("https://")))
 		{
 			request.setCharacterEncoding("UTF-8");
 			response.setCharacterEncoding("UTF-8");
