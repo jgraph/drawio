@@ -1,3 +1,7 @@
+03-JUN-2018: 8.7.4
+
+- Fixes possible SSRF in proxy servlet
+
 02-JUN-2018: 8.7.3
 
 - Fixes overridden layout menu
