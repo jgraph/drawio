@@ -1105,7 +1105,7 @@
 				{
 					var pg = page - Math.ceil((len - count / 4) / count);
 	
-					mxUtils.get(ICONSEARCH_PATH + '?v=2&q=' + encodeURIComponent(searchTerms) +
+					mxUtils.get(ICONSEARCH_PATH + '?q=' + encodeURIComponent(searchTerms) +
 						'&p=' + pg + '&c=' + count, mxUtils.bind(this, function(req)
 					{
 						try

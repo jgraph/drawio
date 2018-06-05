@@ -1,3 +1,8 @@
+05-JUN-2018: 8.7.5
+
+- Uses mxGraph 3.9.7 beta 2
+- Uses mxgraph-core 3.9.6
+
 03-JUN-2018: 8.7.4
 
 - Fixes possible SSRF in proxy servlet

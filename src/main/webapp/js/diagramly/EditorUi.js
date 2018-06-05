@@ -507,7 +507,8 @@
 		    	{
 		    		// Gets compressed data from mxgraph element in HTML document
 					var doc = mxUtils.parseXml(data);
-					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
+					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null ||
+						this.diagramContainer.style.visibility == 'hidden');
 					result = (node != null) ? mxUtils.getXml(node) : '';
 		    	}
 			}
@@ -8441,29 +8442,29 @@
 									}
 									else
 									{
-									    	var data = null;
-									    	
-									    	if (mxUtils.indexOf(provider.types, 'text/uri-list') >= 0)
-									    	{
-									    		var data = evt.dataTransfer.getData('text/uri-list');
-									    	}
-									    	else
-									    	{
-									    		data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ? provider.getData('text/html') : null;
-									    	}
+								    	var data = null;
+								    	
+								    	if (mxUtils.indexOf(provider.types, 'text/uri-list') >= 0)
+								    	{
+								    		var data = evt.dataTransfer.getData('text/uri-list');
+								    	}
+								    	else
+								    	{
+								    		data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ? provider.getData('text/html') : null;
+								    	}
 										
 										if (data != null && data.length > 0)
 										{
 											var div = document.createElement('div');
-									    		div.innerHTML = data;
-			
-									    		// Extracts single image
-									    		var imgs = div.getElementsByTagName('img');
-									    		
-									    		if (imgs.length > 0)
-									    		{
-									    			data = imgs[0].getAttribute('src');
-									    		}
+								    		div.innerHTML = data;
+		
+								    		// Extracts single image
+								    		var imgs = div.getElementsByTagName('img');
+								    		
+								    		if (imgs.length > 0)
+								    		{
+								    			data = imgs[0].getAttribute('src');
+								    		}
 										}
 										else if (mxUtils.indexOf(provider.types, 'text/plain') >= 0)
 										{
@@ -8485,12 +8486,12 @@
 										}
 										else if (!this.isOffline() && this.isRemoteFileFormat(data))
 										{
-								    			new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
+								    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
 											{
-									    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
-									    			{
-									    				this.openLocalFile(req.getText(), null, true);
-									    			}
+								    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
+								    			{
+								    				this.openLocalFile(req.getText(), null, true);
+								    			}
 											}));
 										}
 										else if (/^https?:\/\//.test(data))
