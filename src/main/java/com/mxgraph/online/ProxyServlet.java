@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class ProxyServlet extends HttpServlet
 {
-
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -39,7 +38,7 @@ public class ProxyServlet extends HttpServlet
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		String urlParam = request.getParameter("url");
-		
+
 		// build the UML source from the compressed request parameter
 		String ua = request.getHeader("User-Agent");
 		String ref = request.getHeader("referer");
@@ -53,17 +52,20 @@ public class ProxyServlet extends HttpServlet
 		else if (ref != null && ref.toLowerCase()
 				.matches("https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
 		{
-			dom = ref.toLowerCase().substring(0, ref.indexOf(".quipelements.com/") + 17);
+			dom = ref.toLowerCase().substring(0,
+					ref.indexOf(".quipelements.com/") + 17);
 		}
 		// Enables Confluence/Jira proxy via referer or hardcoded user-agent (for old versions)
 		// UA refers to old FF on macOS so low risk and fixes requests from existing servers
-		else if ((ref != null && ref.equals("draw.io Proxy Confluence Server")) ||
-				(ua != null && ua.equals("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0")))
+		else if ((ref != null && ref.equals("draw.io Proxy Confluence Server"))
+				|| (ua != null && ua.equals(
+						"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0")))
 		{
 			dom = "";
 		}
 
-		if (dom != null && urlParam != null && (urlParam.startsWith("http://") || urlParam.startsWith("https://")))
+		if (dom != null && urlParam != null && (urlParam.startsWith("http://")
+				|| urlParam.startsWith("https://")))
 		{
 			request.setCharacterEncoding("UTF-8");
 			response.setCharacterEncoding("UTF-8");
@@ -74,10 +76,7 @@ public class ProxyServlet extends HttpServlet
 			{
 				URL url = new URL(urlParam);
 				URLConnection connection = url.openConnection();
-				
-				response.setHeader("Pragma", "no-cache"); // HTTP 1.0
-				response.setHeader("Cache-control", "private, no-cache, no-store");
-				response.setHeader("Expires", "0");
+				response.setHeader("Cache-Control", "private, max-age=86400");
 
 				if (dom != null && dom.length() > 0)
 				{
@@ -85,62 +84,71 @@ public class ProxyServlet extends HttpServlet
 				}
 
 				connection.setRequestProperty("User-Agent", "draw.io");
-				
+
 				// Status code pass-through and follow redirects
 				if (connection instanceof HttpURLConnection)
 				{
-					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
-					
+					((HttpURLConnection) connection)
+							.setInstanceFollowRedirects(true);
+
 					// Workaround for 451 response from Iconfinder CDN
-					int status = ((HttpURLConnection) connection).getResponseCode();
+					int status = ((HttpURLConnection) connection)
+							.getResponseCode();
 					int counter = 0;
-					
+
 					// Follows a maximum of 2 redirects 
-					while (counter++ < 2 && (status == HttpURLConnection.HTTP_MOVED_PERM ||
-						   status == HttpURLConnection.HTTP_MOVED_TEMP))
+					while (counter++ < 2
+							&& (status == HttpURLConnection.HTTP_MOVED_PERM
+									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
 						url = new URL(connection.getHeaderField("Location"));
 						connection = url.openConnection();
-						((HttpURLConnection) connection).setInstanceFollowRedirects(true);
-						
+						((HttpURLConnection) connection)
+								.setInstanceFollowRedirects(true);
+
 						// Workaround for 451 response from Iconfinder CDN
 						connection.setRequestProperty("User-Agent", "draw.io");
-						status = ((HttpURLConnection) connection).getResponseCode();
+						status = ((HttpURLConnection) connection)
+								.getResponseCode();
 					}
-					
+
 					response.setStatus(status);
 				}
-				
+
 				String base64 = request.getParameter("base64");
-				
+
 				if (connection != null)
 				{
+					response.setContentType("application/octet-stream");
+
 					if (base64 != null && base64.equals("1"))
 					{
 						int BUFFER_SIZE = 3 * 1024;
-						
-						try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream(), BUFFER_SIZE); )
+
+						try (BufferedInputStream in = new BufferedInputStream(
+								connection.getInputStream(), BUFFER_SIZE);)
 						{
-						    StringBuilder result = new StringBuilder();
-						    byte[] chunk = new byte[BUFFER_SIZE];
-						    int len = 0;
-						    while ( (len = in.read(chunk)) == BUFFER_SIZE )
-						    {
-						         result.append(mxBase64.encodeToString(chunk, false));
-						    }
-						    
-						    if ( len > 0 )
-						    {
-						         chunk = Arrays.copyOf(chunk,len);
-						         result.append(mxBase64.encodeToString(chunk, false));
-						    }
+							StringBuilder result = new StringBuilder();
+							byte[] chunk = new byte[BUFFER_SIZE];
+							int len = 0;
+							while ((len = in.read(chunk)) == BUFFER_SIZE)
+							{
+								result.append(
+										mxBase64.encodeToString(chunk, false));
+							}
+
+							if (len > 0)
+							{
+								chunk = Arrays.copyOf(chunk, len);
+								result.append(
+										mxBase64.encodeToString(chunk, false));
+							}
 
 							out.write(result.toString().getBytes());
 						}
 					}
 					else
 					{
-						response.setContentType(connection.getContentType());
 						Utils.copy(connection.getInputStream(), out);
 					}
 				}
@@ -150,7 +158,8 @@ public class ProxyServlet extends HttpServlet
 			}
 			catch (Exception e)
 			{
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.setStatus(
+						HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				e.printStackTrace();
 			}
 		}

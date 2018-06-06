@@ -989,6 +989,7 @@ Sidebar.prototype.addBasicPalette = function(dir)
  */
 Sidebar.prototype.addMiscPalette = function(expand)
 {
+	var sb = this;
 	var lineTags = 'line lines connector connectors connection connections arrow arrows '
 	
 	var fns = [
@@ -1077,7 +1078,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 			symbol.vertex = true;
 			cell.insert(symbol);
 	    	
-	    		return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Shape Group');
+    		return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Shape Group');
 		}),
 	 	this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;top=0;bottom=1;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),

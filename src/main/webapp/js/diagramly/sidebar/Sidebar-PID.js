@@ -3,7 +3,7 @@
 	// Adds P&ID shapes
 	Sidebar.prototype.addPidInstrumentsPalette = function()
 	{
-		var s = 'html=1;align=center;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
+		var s = 'html=1;outlineConnect=0;align=center;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
 		var gn = 'mxgraph.pid2inst';
 		var dt = 'pid process instrumentation engineering instrument engineering ';
 
@@ -91,7 +91,7 @@
 	
 	Sidebar.prototype.addPidValvesPalette = function()
 	{
-		var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
+		var s = 'dashed=0;outlineConnect=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
 		var sv = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.valve;valveType=";
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.";
 		var gn = 'mxgraph.pid2valves';
@@ -150,7 +150,7 @@
 	
 	Sidebar.prototype.addPidCompressorsPalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.compressors.";
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;outlineConnect=0;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.compressors.";
 		var gn = 'mxgraph.pid.compressors';
 		var dt = 'pid process instrumentation engineering ';
 		
@@ -179,7 +179,7 @@
 			
 	Sidebar.prototype.addPidEnginesPalette = function()
 	{
-		var s = "dashed=0;align=center;html=1;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.engines.";
+		var s = "dashed=0;outlineConnect=0;align=center;html=1;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.engines.";
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.engines.";
 		var gn = 'mxgraph.pid.engines';
 		var dt = 'pid process instrumentation engine motor ';
@@ -199,7 +199,7 @@
 			
 	Sidebar.prototype.addPidFiltersPalette = function()
 	{
-		var s = "html=1;dashed=0;align=center;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.filters.";
+		var s = "html=1;dashed=0;outlineConnect=0;align=center;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.filters.";
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.filters.";
 		var gn = 'mxgraph.pid.filters';
 		var dt = 'pid process instrumentation filter ';
@@ -243,7 +243,7 @@
 			
 	Sidebar.prototype.addPidFlowSensorsPalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.flow_sensors.";
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;outlineConnect=0;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.flow_sensors.";
 		var gn = 'mxgraph.pid.flow_sensors';
 		var dt = 'process instrumentation sensor ';
 		
@@ -286,7 +286,7 @@
 			
 	Sidebar.prototype.addPidPipingPalette = function()
 	{
-		var s = "html=1;dashed=0;align=center;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.piping.";
+		var s = "html=1;dashed=0;outlineConnect=0;align=center;" + mxConstants.STYLE_SHAPE + "=mxgraph.pid.piping.";
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.piping.";
 		var gn = 'mxgraph.pid.piping';
 		var dt = 'process instrumentation piping ';
@@ -341,8 +341,8 @@
 			
 	Sidebar.prototype.addPidMiscPalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.misc.";
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;outlineConnect=0;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;outlineConnect=0;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.misc.";
 		var gn = 'mxgraph.pid.misc';
 		var dt = 'process instrumentation ';
 		
