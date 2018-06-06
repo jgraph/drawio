@@ -4,7 +4,7 @@
 	Sidebar.prototype.addWebIconsPalette = function()
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.webicons.";
+		var s = 'dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.webicons.";
 		var gn = 'mxgraph.webicons';
 		var dt = 'web icons icon';
 		var w = 0.2;
@@ -369,7 +369,7 @@
 	Sidebar.prototype.addWebLogosPalette = function()
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.weblogos.";
+		var s = 'dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.weblogos.";
 		var gn = 'mxgraph.weblogos';
 		var dt = 'web logos logo';
 		var w = 0.2;

@@ -6,7 +6,7 @@
 		var h = 50;
 		var sb = this;
 		var s0 = 'fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;';
-		var s = 'html=1;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.';
+		var s = 'html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.';
 		var s1 = 'fontColor=#0066CC;';
 		var gn = 'mxgraph.networks';
 		var dt = 'computer network ';

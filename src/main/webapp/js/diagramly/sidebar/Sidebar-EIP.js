@@ -4,8 +4,8 @@
 	Sidebar.prototype.addEipMessageConstructionPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=";
-		var s2 = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
-		var s3 = "strokeWidth=3;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
+		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
+		var s3 = "strokeWidth=3;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message construction ';
 		var sb = this;
@@ -80,7 +80,7 @@
 	Sidebar.prototype.addEipMessageRoutingPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=rect;fillColor=#fffbc0;strokeColor=#000000;";
-		var s2 = "strokeWidth=2;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#000000;shape=mxgraph.eip.";
+		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#000000;shape=mxgraph.eip.";
 		var s3 = "edgeStyle=none;endArrow=none;dashed=0;html=1;strokeWidth=2;";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message routing ';
@@ -122,7 +122,7 @@
 
 	Sidebar.prototype.addEipMessageTransformationPalette = function(expand)
 	{
-		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#000000;shape=mxgraph.eip.";
+		var s = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#000000;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message transformation ';
 
@@ -144,8 +144,8 @@
 	Sidebar.prototype.addEipMessagingChannelsPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;html=1;shape=";
-		var s2 = "strokeWidth=2;strokeColor=#000000;dashed=0;align=center;html=1;fontSize=8;shape=mxgraph.eip.";
-		var s3 = "strokeWidth=1;strokeColor=#000000;dashed=0;align=center;html=1;fontSize=8;shape=mxgraph.eip.";
+		var s2 = "strokeWidth=2;outlineConnect=0;strokeColor=#000000;dashed=0;align=center;html=1;fontSize=8;shape=mxgraph.eip.";
+		var s3 = "strokeWidth=1;outlineConnect=0;strokeColor=#000000;dashed=0;align=center;html=1;fontSize=8;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging channel message ';
 		var sb = this;
@@ -182,7 +182,7 @@
 
 	Sidebar.prototype.addEipMessagingEndpointsPalette = function(expand)
 	{
-		var s = "dashed=0;strokeWidth=2;strokeColor=#000000;html=1;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
+		var s = "dashed=0;outlineConnect=0;strokeWidth=2;strokeColor=#000000;html=1;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var s2 = 'fillColor=#c0f5a9;' + s;
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging endpoint ';
@@ -213,9 +213,9 @@
 	Sidebar.prototype.addEipMessagingSystemsPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=";
-		var s2 = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
+		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
 		var s3 = "strokeWidth=1;dashed=0;align=center;fontSize=8;shape=";
-		var s4 = "strokeWidth=1;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
+		var s4 = "strokeWidth=1;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging system ';
 		var sb = this;
@@ -316,7 +316,7 @@
 
 	Sidebar.prototype.addEipSystemManagementPalette = function(expand)
 	{
-		var s2 = "strokeWidth=2;dashed=0;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
+		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern system management ';
 		

@@ -848,7 +848,7 @@ EditorUi.initMinimalTheme = function()
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'editDiagram', 'formatSql', '-', 'insertPage'], parent);
+            ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'formatSql', 'editDiagram'], parent);
         })));
         
         mxResources.parse('insertLayout=' + mxResources.get('layout'));

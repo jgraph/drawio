@@ -535,13 +535,19 @@ DriveClient.prototype.updateUser = function(success, error, remember)
 	this.ui.loadUrl(url, mxUtils.bind(this, function(data)
 	{
     	var info = JSON.parse(data);
-    	this.setUser(new DrawioUser(info.id, info.email, info.name, info.picture, info.locale));
-    	this.setUserId(info.id, remember);
+    	
+    	// Requests more information about the user (email address is sometimes not in info)
+    	this.executeRequest(gapi.client.drive.about.get(), mxUtils.bind(this, function(resp)
+    	{
+    		this.setUser(new DrawioUser(info.id, resp.user.emailAddress, resp.user.displayName,
+    				(resp.user.picture != null) ? resp.user.picture.url : null, info.locale));
+        	this.setUserId(info.id, remember);
 
-		if (success != null)
-		{
-			success();
-		}
+    		if (success != null)
+			{
+				success();
+			}
+    	}), error);
 	}), error);
 };
 
