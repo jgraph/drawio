@@ -1323,6 +1323,11 @@ EditorUi.prototype.initClipboard = function()
 /**
  * Initializes the infinite canvas.
  */
+EditorUi.prototype.lazyZoomDelay = 20;
+
+/**
+ * Initializes the infinite canvas.
+ */
 EditorUi.prototype.initCanvas = function()
 {
 	// Initial page layout view, scrollBuffer and timer-based scrolling
@@ -2003,7 +2008,7 @@ EditorUi.prototype.initCanvas = function()
             
             this.cumulativeZoomFactor = 1;
             this.updateZoomTimeout = null;
-        }), 20);
+        }), this.lazyZoomDelay);
 	};
 	
 	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up)

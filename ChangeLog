@@ -1,3 +1,7 @@
+11-JUN-2018: 8.7.7
+
+- Fixes editing nested links in Firefox after Gliffy import [7098]
+
 06-JUN-2018: 8.7.6
 
 - Fixes proxy servlet response headers
