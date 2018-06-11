@@ -363,28 +363,28 @@ Actions.prototype.init = function()
 					}
 					
 					var pt = graph.getFreeInsertPoint();
-	            		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
-		            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
-		            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
-		            	    	'spacing=10;'));
-	            	    linkCell.vertex = true;
-	
-	            	    graph.setLinkForCell(linkCell, link);
-	            	    graph.cellSizeUpdated(linkCell, true);
+            		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
+	            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
+	            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
+	            	    	'spacing=10;'));
+            	    linkCell.vertex = true;
 
-	            		graph.getModel().beginUpdate();
-	            		try
-	            	    {
-	            	    		linkCell = graph.addCell(linkCell);
-	            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [linkCell]));
-	            	    }
-	            		finally
-	            		{
-	            			graph.getModel().endUpdate();
-	            		}
-	            		
-	            	    graph.setSelectionCell(linkCell);
-	            	    graph.scrollCellToVisible(graph.getSelectionCell());
+            	    graph.setLinkForCell(linkCell, link);
+            	    graph.cellSizeUpdated(linkCell, true);
+
+            		graph.getModel().beginUpdate();
+            		try
+            	    {
+            	    		linkCell = graph.addCell(linkCell);
+            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [linkCell]));
+            	    }
+            		finally
+            		{
+            			graph.getModel().endUpdate();
+            		}
+            		
+            	    graph.setSelectionCell(linkCell);
+            	    graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			});
 		}
@@ -399,8 +399,21 @@ Actions.prototype.init = function()
 			{
 				var link = graph.getParentByName(graph.getSelectedElement(), 'A', graph.cellEditor.textarea);
 				var oldValue = '';
-				
-				if (link != null)
+
+				// Workaround for FF returning the outermost selected element after double
+				// click on a DOM hierarchy with a link inside (not as topmost element)
+				if (link == null)
+				{
+					link = graph.cellEditor.textarea;
+					
+					while (link != null && link.nodeName != 'A' &&
+						link.childNodes.length == 1)
+					{
+						link = link.firstChild;
+					}
+				}
+
+				if (link != null && link.nodeName == 'A')
 				{
 					oldValue = link.getAttribute('href') || '';
 				}
@@ -409,11 +422,11 @@ Actions.prototype.init = function()
 				
 				ui.showLinkDialog(oldValue, mxResources.get('apply'), mxUtils.bind(this, function(value)
 				{
-			    		graph.cellEditor.restoreSelection(selState);
-	
-			    		if (value != null)
-			    		{
-			    			graph.insertLink(value);
+		    		graph.cellEditor.restoreSelection(selState);
+
+		    		if (value != null)
+		    		{
+		    			graph.insertLink(value);
 					}
 				}));
 			}
@@ -1111,26 +1124,26 @@ Actions.prototype.init = function()
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
 			var title = mxResources.get('image') + ' (' + mxResources.get('url') + '):';
-		    	var state = graph.getView().getState(graph.getSelectionCell());
-		    	var value = '';
-		    	
-		    	if (state != null)
-		    	{
-		    		value = state.style[mxConstants.STYLE_IMAGE] || value;
-		    	}
-		    	
-		    	var selectionState = graph.cellEditor.saveSelection();
-		    	
-		    	ui.showImageDialog(title, value, function(newValue, w, h)
+	    	var state = graph.getView().getState(graph.getSelectionCell());
+	    	var value = '';
+	    	
+	    	if (state != null)
+	    	{
+	    		value = state.style[mxConstants.STYLE_IMAGE] || value;
+	    	}
+	    	
+	    	var selectionState = graph.cellEditor.saveSelection();
+	    	
+	    	ui.showImageDialog(title, value, function(newValue, w, h)
 			{
-		    		// Inserts image into HTML text
-		    		if (graph.cellEditor.isContentEditing())
-		    		{
-		    			graph.cellEditor.restoreSelection(selectionState);
-		    			graph.insertImage(newValue, w, h);
-		    		}
-		    		else
-		    		{
+	    		// Inserts image into HTML text
+	    		if (graph.cellEditor.isContentEditing())
+	    		{
+	    			graph.cellEditor.restoreSelection(selectionState);
+	    			graph.insertImage(newValue, w, h);
+	    		}
+	    		else
+	    		{
 					var cells = graph.getSelectionCells();
 					
 					if (newValue != null && (newValue.length > 0 || cells.length > 0))
@@ -1138,62 +1151,62 @@ Actions.prototype.init = function()
 						var select = null;
 						
 						graph.getModel().beginUpdate();
-				        	try
+			        	try
+			        	{
+			        		// Inserts new cell if no cell is selected
+			    			if (cells.length == 0)
+			    			{
+			    				var pt = graph.getFreeInsertPoint();
+			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
+			    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
+			    				select = cells;
+		            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
+			    			}
+			    			
+			        		graph.setCellStyles(mxConstants.STYLE_IMAGE, (newValue.length > 0) ? newValue : null, cells);
+			        		
+			        		// Sets shape only if not already shape with image (label or image)
+			        		var state = graph.view.getState(cells[0]);
+			        		var style = (state != null) ? state.style : graph.getCellStyle(cells[0]);
+			        		
+			        		if (style[mxConstants.STYLE_SHAPE] != 'image' && style[mxConstants.STYLE_SHAPE] != 'label')
+			        		{
+			        			graph.setCellStyles(mxConstants.STYLE_SHAPE, 'image', cells);
+			        		}
+			        		else if (newValue.length == 0)
+			        		{
+			        			graph.setCellStyles(mxConstants.STYLE_SHAPE, null, cells);
+			        		}
+				        	
+				        	if (graph.getSelectionCount() == 1)
 				        	{
-				        		// Inserts new cell if no cell is selected
-				    			if (cells.length == 0)
-				    			{
-				    				var pt = graph.getFreeInsertPoint();
-				    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
-				    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
-				    				select = cells;
-			            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
-				    			}
-				    			
-				        		graph.setCellStyles(mxConstants.STYLE_IMAGE, (newValue.length > 0) ? newValue : null, cells);
-				        		
-				        		// Sets shape only if not already shape with image (label or image)
-				        		var state = graph.view.getState(cells[0]);
-				        		var style = (state != null) ? state.style : graph.getCellStyle(cells[0]);
-				        		
-				        		if (style[mxConstants.STYLE_SHAPE] != 'image' && style[mxConstants.STYLE_SHAPE] != 'label')
-				        		{
-				        			graph.setCellStyles(mxConstants.STYLE_SHAPE, 'image', cells);
-				        		}
-				        		else if (newValue.length == 0)
-				        		{
-				        			graph.setCellStyles(mxConstants.STYLE_SHAPE, null, cells);
-				        		}
-					        	
-					        	if (graph.getSelectionCount() == 1)
+					        	if (w != null && h != null)
 					        	{
-						        	if (w != null && h != null)
-						        	{
-						        		var cell = cells[0];
-						        		var geo = graph.getModel().getGeometry(cell);
-						        		
-						        		if (geo != null)
-						        		{
-						        			geo = geo.clone();
-							        		geo.width = w;
-							        		geo.height = h;
-							        		graph.getModel().setGeometry(cell, geo);
-						        		}
-						        	}
+					        		var cell = cells[0];
+					        		var geo = graph.getModel().getGeometry(cell);
+					        		
+					        		if (geo != null)
+					        		{
+					        			geo = geo.clone();
+						        		geo.width = w;
+						        		geo.height = h;
+						        		graph.getModel().setGeometry(cell, geo);
+					        		}
 					        	}
 				        	}
-				        	finally
-				        	{
-				        		graph.getModel().endUpdate();
-				        	}
-				        	
-				        	if (select != null)
-				        	{
-				        		graph.setSelectionCells(select);
-				        		graph.scrollCellToVisible(select[0]);
-				        	}
+			        	}
+			        	finally
+			        	{
+			        		graph.getModel().endUpdate();
+			        	}
+			        	
+			        	if (select != null)
+			        	{
+			        		graph.setSelectionCells(select);
+			        		graph.scrollCellToVisible(select[0]);
+			        	}
 					}
-		    		}
+		    	}
 			}, graph.cellEditor.isContentEditing(), !graph.cellEditor.isContentEditing());
 		}
 	}).isEnabled = isGraphEnabled;

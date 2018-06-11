@@ -17,7 +17,8 @@
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
-	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname);
+	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname) &&
+		window.location.hostname != 'support.draw.io';
 
 	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
@@ -7659,6 +7660,7 @@
 						}
 						
 						textInput.parentNode.removeChild(textInput);
+						mxUtils.clearSelection();
 					}
 				}), 0);
 			}));

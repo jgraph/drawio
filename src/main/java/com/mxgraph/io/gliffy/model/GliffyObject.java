@@ -286,18 +286,27 @@ public class GliffyObject implements PostDeserializable
 		return graphic.getText().getHtml();
 	}
 
+	/**
+	 * Returns the first link child associated with a cell.
+	 * @return
+	 */
 	public String getLink()
 	{
-		if(children == null || children.isEmpty())
+		if (children == null || children.isEmpty())
+		{
 			return null;
+		}
 			
 		Iterator<GliffyObject> it = children.iterator();
 		
-		while(it.hasNext()) 
+		while (it.hasNext()) 
 		{
 			GliffyObject child = it.next();
-			if(child.isLink())
+
+			if (child.isLink())
+			{
 				return child.graphic.getLink().href;
+			}
 		}
 
 		return null;
