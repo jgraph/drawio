@@ -3128,7 +3128,8 @@
 			
 			// Workaround for mxXmlRequest.simulate no longer working in Safari
 			// if this is used (ie PNG export broken after XML export in Safari).
-			var useDownload = !mxClient.IS_SF && typeof a.download !== 'undefined';
+			// Same applies to Pale Moon browser too
+			var useDownload = !(mxClient.IS_SF || mxClient.IS_PM) && typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
 			if (mxClient.IS_GC)
