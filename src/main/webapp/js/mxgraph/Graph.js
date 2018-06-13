@@ -6170,7 +6170,7 @@ if (typeof mxVertexHandler != 'undefined')
 			var a = document.createElement('a');
 			a.setAttribute('href', this.getAbsoluteUrl(link));
 			
-			if (!this.isCustomLink(link))
+			if (link != null && !this.isCustomLink(link))
 			{
 				a.setAttribute('title', link);
 			}
