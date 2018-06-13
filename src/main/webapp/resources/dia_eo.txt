@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Pri draw.io
 accessDenied=Access Denied
+action=Action
 actualSize=Actual Size
 add=Aldoni
 addedFile=Added {1}
@@ -338,6 +339,7 @@ horizontalTree=Horizontal Tree
 howTranslate=How good is the translation in your language?
 html=HTML
 htmlText=HTML Text
+id=ID
 iframe=IFrame
 ignore=Ignore
 image=Bildo

@@ -3126,9 +3126,10 @@
 		{
 			var a = document.createElement('a');
 			
-			// Workaround for mxXmlRequest.simulate no longer working in Safari
-			// if this is used (ie PNG export broken after XML export in Safari).
-			var useDownload = !mxClient.IS_SF && typeof a.download !== 'undefined';
+			// Workaround for mxXmlRequest.simulate no longer working in Safari/PaleMoon
+			// if this is used (ie PNG export broken after XML export in Safari/PaleMoon).
+			var useDownload = !mxClient.IS_SF && navigator.userAgent.indexOf("PaleMoon/") < 0 &&
+				typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
 			if (mxClient.IS_GC)
@@ -7255,24 +7256,15 @@
 		var ui = this;
 		var graph = this.editor.graph;
 		
-		function pageLinkClicked(href)
+		// Custom link handling and link titles need UI for page IDs
+		graph.getLinkTitle = function(href)
 		{
-			var comma = href.indexOf(',');
-			
-			if (comma > 0)
-			{
-				var page = ui.getPageById(href.substring(comma + 1));
-				
-				if (page)
-				{
-					ui.selectPage(page)
-				}
-			}
+			return ui.getLinkTitle(href);
 		};
-		
-		graph.addListener('pageLinkClicked', function(sender, evt)
+
+		graph.addListener('customLinkClicked', function(sender, evt)
 		{
-			pageLinkClicked(evt.getProperty('href'));
+			ui.handleCustomLink(evt.getProperty('href'));
 		});
 		
 		// Sets help link for placeholders
@@ -7333,10 +7325,11 @@
 					}
 				}
 			
-				if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+				if (href != null && graph.isCustomLink(href) &&
+					(mxEvent.isTouchEvent(evt) ||
 					!mxEvent.isPopupTrigger(evt)))
 				{
-					pageLinkClicked(href);
+					ui.handleCustomLink(href);
 					mxEvent.consume(evt);
 				}
 				
@@ -7397,34 +7390,18 @@
 		
 		graph.createLinkForHint = function(href, label)
 		{
-			var pageLink = graph.isPageLink(href);
-			
-			if (pageLink)
+			if (graph.isCustomLink(href))
 			{
-				var comma = href.indexOf(',');
-
-				if (comma > 0)
-				{
-					var page = ui.getPageById(href.substring(comma + 1));
-	
-					if (page != null)
-					{
-						label = page.getName();
-					}
-					else
-					{
-						label = mxResources.get('pageNotFound');
-					}
-				}
+				label = graph.getLinkTitle(href);
 			}
 
 			var a = graphCreateLinkForHint.call(this, href, label);
 			
-			if (pageLink)
+			if (graph.isCustomLink(href))
 			{
 				mxEvent.addListener(a, 'click', function(evt)
 				{
-					pageLinkClicked(href);
+					ui.handleCustomLink(href);
 					mxEvent.consume(evt);
 				});
 			}
@@ -7438,13 +7415,14 @@
 		{
 			var href = elt.getAttribute('href');
 			
-			if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+			if (href != null && graph.isCustomLink(href) &&
+				(mxEvent.isTouchEvent(evt) ||
 				!mxEvent.isPopupTrigger(evt)))
 			{
 				// Active links are moved to the hint
 				if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)))
 				{
-					pageLinkClicked(href);
+					ui.handleCustomLink(href);
 					
 					// Resets rubberband after click on locked cell
 					graph.getRubberband().reset();
@@ -8088,6 +8066,60 @@
 		}
 		
 		this.installSettings();
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getLinkTitle = function(href)
+	{
+		var title = Graph.prototype.getLinkTitle.apply(this, arguments);
+
+		if (href.substring(0, 13) == 'data:page/id,')
+		{
+			var comma = href.indexOf(',');
+	
+			if (comma > 0)
+			{
+				var page = this.getPageById(href.substring(comma + 1));
+	
+				if (page != null)
+				{
+					title = page.getName();
+				}
+				else
+				{
+					title = mxResources.get('pageNotFound');
+				}
+			}
+		}
+		else if (href.substring(0, 5) == 'data:')
+		{
+			title = mxResources.get('action');
+		}
+		
+		return title;
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.handleCustomLink = function(href)
+	{
+		if (href.substring(0, 13) == 'data:page/id,')
+		{
+			var comma = href.indexOf(',');
+			var page = this.getPageById(href.substring(comma + 1));
+			
+			if (page)
+			{
+				this.selectPage(page)
+			}
+		}
+		else
+		{
+			this.editor.graph.handleCustomLink(href);
+		}
 	};
 	
 	/**

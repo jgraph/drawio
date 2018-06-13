@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Despre draw.io
 accessDenied=Acces interzis
+action=Action
 actualSize=Dimensiunea reală
 add=Adaugă
 addedFile=Adăugat {1}
@@ -338,6 +339,7 @@ horizontalTree=Arbore orizontal
 howTranslate=Cât de bună este traducerea în limba dumneavoastră?
 html=HTML
 htmlText=Text HTML
+id=ID
 iframe=IFrame
 ignore=Ignoră
 image=Imagine

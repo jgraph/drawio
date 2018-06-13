@@ -1430,6 +1430,15 @@ var EditDataDialog = function(ui, cell)
 	    }
 	});
 	
+	var text = document.createElement('input');
+	text.style.width = '280px';
+	text.style.textAlign = 'center';
+	text.setAttribute('type', 'text');
+	text.setAttribute('readOnly', 'true');
+	text.setAttribute('value', cell.getId());
+	
+	form.addField(mxResources.get('id') + ':', text);
+	
 	for (var i = 0; i < temp.length; i++)
 	{
 		addTextArea(count, temp[i].name, temp[i].value);
@@ -2200,6 +2209,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			ldiv.style.borderColor = '#c3c3c3';
 			ldiv.style.borderStyle = 'solid';
 			ldiv.style.whiteSpace = 'nowrap';
+			ldiv.setAttribute('title', mxResources.get('id') + ': ' + child.getId());
 			
 			var left = document.createElement('div');
 			left.style.display = 'inline-block';

@@ -437,18 +437,28 @@
 					clone.style.borderColor = 'transparent';
 					clone.style.width = '456px';
 	
-					var html = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="https://www.draw.io/styles/grapheditor.css">' +
-						'</head><body style="background:#ffffff;font-family:Helvetica,Arial;">' +
-						title2.outerHTML + clone.outerHTML + '</body></html>';
-	
-					clone.style.position = 'absolute';
-					window.document.body.appendChild(clone);
-					var h = clone.clientHeight + 18;
-					clone.parentNode.removeChild(clone);
+					var parser = new DOMParser();
+					var doc = parser.parseFromString('<body style="background:#ffffff;font-family:Helvetica,Arial;">' +
+							title2.outerHTML + clone.outerHTML + '</body>', 'text/html');
 					
-		    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
-		    			this.editorUi.editor.graph.compress(html))).simulate(document, '_blank');
-	
+					this.editorUi.convertImages(doc.documentElement, mxUtils.bind(this, function(body)
+					{
+						var html = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" ' +
+							'href="https://www.draw.io/styles/grapheditor.css"></head>' +
+							mxUtils.getXml(body) + '</html>';
+		
+						clone.style.position = 'absolute';
+						window.document.body.appendChild(clone);
+						var h = clone.clientHeight + 18;
+						clone.parentNode.removeChild(clone);
+						
+						this.editorUi.confirm('Image data created', mxUtils.bind(this, function()
+						{
+				    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
+					    			this.editorUi.editor.graph.compress(html))).simulate(document, '_blank');
+						}), null, mxResources.get('save'), mxResources.get('cancel'));
+					}));
+					
 					return;
 				}
 				

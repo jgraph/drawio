@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=draw.io 정보
 accessDenied=접근거부
+action=Action
 actualSize=실제 크기
 add=추가
 addedFile=추가된 {1}
@@ -338,6 +339,7 @@ horizontalTree=수평 트리 그림
 howTranslate=귀하의 언어로 번역된 내용들이 얼마나 이해하기 쉽습니까?
 html=HTML
 htmlText=HTML 텍스트
+id=ID
 iframe=IFrame
 ignore=무시
 image=이미지

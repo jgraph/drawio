@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Tietoa draw.io:sta
 accessDenied=Pääsy kielletty
+action=Action
 actualSize=Oikea koko
 add=Lisää
 addedFile=Lisätty tiedosto
@@ -338,6 +339,7 @@ horizontalTree=Vaakasuora puu
 howTranslate=Kuinka hyvin sovellus on käännetty kielellesi?
 html=HTML
 htmlText=HTML teksti
+id=ID
 iframe=IFrame
 ignore=Sivuuta
 image=Kuva

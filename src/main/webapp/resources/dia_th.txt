@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=เกี่ยวกับ draw.io
 accessDenied=ปฏิเสธการเข้าถึง
+action=Action
 actualSize=ขนาดปกติ
 add=เพิ่ม
 addedFile=เพิ่ม  {1} แล้ว
@@ -338,6 +339,7 @@ horizontalTree=แผนผังต้นไม้ในแนวนอน
 howTranslate=How good is the translation in your language?
 html=HTML
 htmlText=ข้อความ HTML
+id=ID
 iframe=IFrame
 ignore=ละเลย
 image=รูปภาพ

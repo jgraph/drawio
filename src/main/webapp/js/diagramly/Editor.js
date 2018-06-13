@@ -1373,11 +1373,61 @@
 	};
 
 	/**
-	 * Adds support for page links.
+	 * Adds support for data:action/json,array of actions where array of actions
+	 * is a JSON array with each action handled in handleCustomLinkAction below.
+	 * An example action is:
+	 * 
+	 * data:action/json,{"actions":[{"toggle": {"cells": ["3", "4"]}}]}
 	 */
-	Graph.prototype.isPageLink = function(href)
+	Graph.prototype.handleCustomLink = function(href)
 	{
-		return href != null && href.substring(0, 10) == 'data:page/';
+		if (href.substring(0, 17) == 'data:action/json,')
+		{
+    		this.model.beginUpdate();
+    		try
+    		{
+				var action = JSON.parse(href.substring(17));
+
+				if (action.actions != null)
+				{
+					for (var i = 0; i < action.actions.length; i++)
+					{
+						this.handleCustomLinkAction(action.actions[i]);
+					}
+				}
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Error in ' + href + ': ' + e);
+				}
+    		}
+    		finally
+    		{
+    			this.model.endUpdate();
+    		}
+		}
+	};
+
+	/**
+	 * Handles each action in the action array of a custom link. This code
+	 * handles toggle actions for cell IDs.
+	 */
+	Graph.prototype.handleCustomLinkAction = function(action)
+	{
+		if (action.toggle != null && action.toggle.cells != null)
+		{
+			for (var i = 0; i < action.toggle.cells.length; i++)
+			{
+				var cell = this.model.getCell(action.toggle.cells[i]);
+				
+				if (cell != null)
+				{
+					this.model.setVisible(cell, !this.model.isVisible(cell))
+				}
+			}
+		}
 	};
 	
 	/**

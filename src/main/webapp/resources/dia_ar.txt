@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=‫عن تطبيق draw.io‬
 accessDenied=Access Denied
+action=Action
 actualSize=‫الحجم الحقيقي‬
 add=‫إضافة‬
 addedFile=Added {1}
@@ -338,6 +339,7 @@ horizontalTree=‫شجرة أفقية‬
 howTranslate=How good is the translation in your language?
 html=HTML
 htmlText=‫نص HTML‬
+id=ID
 iframe=IFrame
 ignore=‫تجاهل‬
 image=‫صورة‬

@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Tungkol sa draw.io
 accessDenied=Tinanggihan ang pagpasok
+action=Action
 actualSize=Aktwal na sukat
 add=Magdagdag
 addedFile=Idinagdag
@@ -338,6 +339,7 @@ horizontalTree=Pahalang na istruktura
 howTranslate=Gaano kahusay ang pagsalin sa iyong linggwahe?
 html=HTML
 htmlText=Teksto ng HTML
+id=ID
 iframe=iFrame
 ignore=Balewalain
 image=Imahe

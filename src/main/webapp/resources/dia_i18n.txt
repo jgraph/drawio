@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=aboutDrawio
 accessDenied=accessDenied
+action=action
 actualSize=actualSize
 add=add
 addedFile=addedFile
@@ -338,6 +339,7 @@ horizontalTree=horizontalTree
 howTranslate=howTranslate
 html=html
 htmlText=htmlText
+id=id
 iframe=iframe
 ignore=ignore
 image=image

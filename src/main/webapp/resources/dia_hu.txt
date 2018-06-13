@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Draw.io névjegy
 accessDenied=Hozzáférés elutasítva
+action=Action
 actualSize=Aktuális méret
 add=Hozzáad
 addedFile={1} hozzáadva
@@ -338,6 +339,7 @@ horizontalTree=Függőleges fa
 howTranslate=Milyen a fordítás minősége az ön nyelvén?
 html=HTML
 htmlText=HTML szöveg
+id=ID
 iframe=IFrame
 ignore=Mellőz
 image=Kép

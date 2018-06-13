@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Σχετικά με το draw.io
 accessDenied=Απαγόρευση εισόδου
+action=Action
 actualSize=Πραγματικό Μέγεθος
 add=Προσθήκη
 addedFile=Προστέθηκε {1}
@@ -338,6 +339,7 @@ horizontalTree=Οριζόντιο δέντρο
 howTranslate=Πόσο καλή είναι η μετάφραση στη γλώσσα σας;
 html=HTML
 htmlText=HTML κείμενο
+id=ID
 iframe=IFrame
 ignore=Αγνοήστε
 image=Εικόνα

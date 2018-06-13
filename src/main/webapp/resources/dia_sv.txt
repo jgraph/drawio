@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Om draw.io
 accessDenied=Åtkomst nekad
+action=Action
 actualSize=Verklig storlek
 add=Lägg till
 addedFile=Tillagd
@@ -338,6 +339,7 @@ horizontalTree=Horisontellt träd
 howTranslate=Hur bra är översättningen till ditt språk?
 html=HTML
 htmlText=HTML text
+id=ID
 iframe=iFrame
 ignore=Ignorera
 image=Bild
