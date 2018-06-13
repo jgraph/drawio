@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=За draw.io
 accessDenied=Достъпът отказан
+action=Action
 actualSize=Действителен размер
 add=Добавяне
 addedFile=Добавен {1}
@@ -338,6 +339,7 @@ horizontalTree=Хоризонтално дърво
 howTranslate=Колко е добър преводът на Вашия език?
 html=HTML
 htmlText=HTML текст
+id=ID
 iframe=IFrame
 ignore=Игнориране
 image=Изображение

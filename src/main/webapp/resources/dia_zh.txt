@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=关于draw.io
 accessDenied=访问被拒
+action=Action
 actualSize=实际尺寸
 add=添加
 addedFile=已添加 {1}
@@ -338,6 +339,7 @@ horizontalTree=水平树状
 howTranslate=按您的母语水平评判，该翻译如何？
 html=HTML
 htmlText=HTML文本
+id=ID
 iframe=IFrame
 ignore=忽略
 image=图片

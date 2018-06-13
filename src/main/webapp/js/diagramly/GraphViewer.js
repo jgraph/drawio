@@ -1156,17 +1156,20 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 				}, 0);
 			}
 		}
-		else if (href != null && graph.isPageLink(href) && (mxEvent.isTouchEvent(evt) ||
+		else if (href != null && graph.isCustomLink(href) && (mxEvent.isTouchEvent(evt) ||
 				!mxEvent.isPopupTrigger(evt)))
 		{
-			var comma = href.indexOf(',');
-			
-			if (comma > 0)
+			if (href.substring(0, 13) == 'data:page/id,')
 			{
-				var id = href.substring(comma + 1);
-				this.selectPageById(id);
-				mxEvent.consume(evt);
+				var comma = href.indexOf(',');
+				this.selectPageById(href.substring(comma + 1));
 			}
+			else
+			{
+				graph.handleCustomLink(href);
+			}
+			
+			mxEvent.consume(evt);
 		}
 	}), mxUtils.bind(this, function(evt)
 	{

@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=‫אודות Draw.io‬
 accessDenied=‫הגישה דחתה‬
+action=Action
 actualSize=‫גודל אמיתי‬
 add=‫הוסף‬
 addedFile=‫נוסף {1}‬
@@ -338,6 +339,7 @@ horizontalTree=‫עץ אופקי‬
 howTranslate=‫מה רמת התרגום לשפה שלך?‬
 html=HTML
 htmlText=‫טקסט HTML‬
+id=ID
 iframe=IFrame
 ignore=‫התעלם‬
 image=‫תמונה‬

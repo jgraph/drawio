@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=О сервисе draw.io
 accessDenied=Доступ запрещён
+action=Action
 actualSize=Фактический размер
 add=Добавить
 addedFile=Добавлено {1}
@@ -338,6 +339,7 @@ horizontalTree=Горизонтальное дерево
 howTranslate=Насколько хорошо приложение переведено на ваш язык?
 html=HTML
 htmlText=HTML текст
+id=ID
 iframe=IFrame
 ignore=Игнорировать
 image=Изображение

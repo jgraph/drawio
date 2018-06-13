@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=draw.ioについて
 accessDenied=アクセス拒否されました
+action=Action
 actualSize=実寸
 add=追加する
 addedFile=追加された {1}
@@ -338,6 +339,7 @@ horizontalTree=横向きツリー図
 howTranslate=あなたの翻訳レベルはいかがですか？
 html=HTML
 htmlText=HTMLテキスト
+id=ID
 iframe=iFrame
 ignore=無視する
 image=イメージ

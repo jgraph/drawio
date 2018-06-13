@@ -2,6 +2,7 @@
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
 aboutDrawio=Tentang draw.io
 accessDenied=Akses Ditolak
+action=Action
 actualSize=Ukuran Aktual
 add=Tambahkan
 addedFile=Ditambahkan
@@ -338,6 +339,7 @@ horizontalTree=Pohon Horizontal
 howTranslate=Seberapa baik terjemahan ini dalam bahasa Anda?
 html=HTML
 htmlText=Teks HTML
+id=ID
 iframe=IFrame
 ignore=Abaikan
 image=Gambar

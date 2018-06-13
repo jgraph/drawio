@@ -4454,7 +4454,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	
 	if (showPages && editorUi.pages != null)
 	{
-		if (initialValue != null && editorUi.editor.graph.isPageLink(initialValue))
+		if (initialValue != null && initialValue.substring(0, 13) == 'data:page/id,')
 		{
 			pageRadio.setAttribute('checked', 'checked');
 			pageRadio.defaultChecked = true;

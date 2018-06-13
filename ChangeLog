@@ -1,3 +1,11 @@
+13-JUN-2018: 8.7.8
+
+- Fixes scroll wheel zoom while panning
+- Fixes print of white text in Chrome
+- Adds cell ID in metadata dialog
+- Adds support for custom links
+- Uses mxGraph 3.9.7 beta 3
+
 11-JUN-2018: 8.7.7
 
 - Fixes editing nested links in Firefox after Gliffy import [7098]

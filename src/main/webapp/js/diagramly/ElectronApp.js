@@ -118,7 +118,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		var a = graphCreateLinkForHint.call(this, href, label);
 		
-		if (!this.isPageLink(href))
+		if (!this.isCustomLink(href))
 		{
 			// KNOWN: Event with gesture handler mouseUp the middle click opens a framed window
 			mxEvent.addListener(a, 'click', mxUtils.bind(this, function(evt)
