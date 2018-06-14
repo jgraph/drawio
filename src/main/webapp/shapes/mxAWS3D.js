@@ -8194,7 +8194,6 @@ mxShapeAws3dLambda.prototype.background = function(c, x, y, w, h, strokeWidth)
 	c.setStrokeWidth(strokeWidth);
 	c.save();
 	c.save();
-	c.save();
 	c.setStrokeWidth(2 * strokeWidth);
 	c.setStrokeColor('#292929');
 	c.setLineJoin('round');

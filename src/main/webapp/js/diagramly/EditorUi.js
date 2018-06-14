@@ -7390,14 +7390,14 @@
 		
 		graph.createLinkForHint = function(href, label)
 		{
-			if (graph.isCustomLink(href))
+			if (href != null && graph.isCustomLink(href))
 			{
 				label = graph.getLinkTitle(href);
 			}
 
 			var a = graphCreateLinkForHint.call(this, href, label);
 			
-			if (graph.isCustomLink(href))
+			if (href != null && graph.isCustomLink(href))
 			{
 				mxEvent.addListener(a, 'click', function(evt)
 				{
