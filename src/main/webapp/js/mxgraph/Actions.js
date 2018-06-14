@@ -383,7 +383,7 @@ Actions.prototype.init = function()
 				
 				// Workaround for FF returning the outermost selected element after double
 				// click on a DOM hierarchy with a link inside (but not as topmost element)
-				if (link == null)
+				if (link == null && elt != null && elt.getElementsByTagName != null)
 				{
 					// Finds all links in the selected DOM and uses the link
 					// where the selection text matches its text content
