@@ -377,19 +377,25 @@ Actions.prototype.init = function()
 		{
 			if (graph.cellEditor.isContentEditing())
 			{
-				var link = graph.getParentByName(graph.getSelectedElement(), 'A', graph.cellEditor.textarea);
+				var elt = graph.getSelectedElement();
+				var link = graph.getParentByName(elt, 'A', graph.cellEditor.textarea);
 				var oldValue = '';
-
+				
 				// Workaround for FF returning the outermost selected element after double
-				// click on a DOM hierarchy with a link inside (not as topmost element)
+				// click on a DOM hierarchy with a link inside (but not as topmost element)
 				if (link == null)
 				{
-					link = graph.cellEditor.textarea;
+					// Finds all links in the selected DOM and uses the link
+					// where the selection text matches its text content
+					var links = elt.getElementsByTagName('a');
 					
-					while (link != null && link.nodeName != 'A' &&
-						link.childNodes.length == 1)
+					for (var i = 0; i < links.length && link == null; i++)
 					{
-						link = link.firstChild;
+						if (links[i].textContent == elt.textContent)
+						{
+							graph.selectNode(links[i]);
+							link = links[i];
+						}
 					}
 				}
 

@@ -1,3 +1,7 @@
+14-JUN-2018: 8.8.0
+
+- Fixes label link detection cases in Firefox
+
 13-JUN-2018: 8.7.10
 
 - Fixes possible NPE in Electron
