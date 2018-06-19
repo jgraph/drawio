@@ -102,6 +102,7 @@
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
 				<file name="Sidebar-Advanced.js" />
+				<file name="Sidebar-AlliedTelesys.js" />
 				<file name="Sidebar-Android.js" />
 				<file name="Sidebar-ArchiMate.js" />
 				<file name="Sidebar-ArchiMate3.js" />

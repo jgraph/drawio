@@ -1404,10 +1404,11 @@ var EditDataDialog = function(ui, cell)
 	};
 	
 	var temp = [];
+	var isLayer = graph.getModel().getParent(cell) == graph.getModel().getRoot();
 
 	for (var i = 0; i < attrs.length; i++)
 	{
-		if (attrs[i].nodeName != 'label' && attrs[i].nodeName != 'placeholders')
+		if ((isLayer || attrs[i].nodeName != 'label') && attrs[i].nodeName != 'placeholders')
 		{
 			temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
 		}
@@ -1429,15 +1430,20 @@ var EditDataDialog = function(ui, cell)
 	    		return 0;
 	    }
 	});
+
+	var id = EditDataDialog.getDisplayIdForCell(ui, cell);
 	
-	var text = document.createElement('input');
-	text.style.width = '280px';
-	text.style.textAlign = 'center';
-	text.setAttribute('type', 'text');
-	text.setAttribute('readOnly', 'true');
-	text.setAttribute('value', cell.getId());
-	
-	form.addField(mxResources.get('id') + ':', text);
+	if (id != null)
+	{	
+		var text = document.createElement('input');
+		text.style.width = '280px';
+		text.style.textAlign = 'center';
+		text.setAttribute('type', 'text');
+		text.setAttribute('readOnly', 'true');
+		text.setAttribute('value', id);
+		
+		form.addField(mxResources.get('id') + ':', text);
+	}
 	
 	for (var i = 0; i < temp.length; i++)
 	{
@@ -1660,6 +1666,21 @@ var EditDataDialog = function(ui, cell)
 
 	div.appendChild(buttons);
 	this.container = div;
+};
+
+/**
+ * Optional help link.
+ */
+EditDataDialog.getDisplayIdForCell = function(ui, cell)
+{
+	var id = null;
+	
+	if (ui.editor.graph.getModel().getParent(cell) != null)
+	{
+		id = cell.getId();
+	}
+	
+	return id;
 };
 
 /**
@@ -2083,31 +2104,15 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	ldiv.appendChild(insertLink);
 	
-	var renameLink = link.cloneNode();
-	renameLink.innerHTML = '<div class="geSprite geSprite-dots" style="display:inline-block;"></div>';
-	renameLink.setAttribute('title', mxResources.get('rename'));
-	
-	function renameLayer(layer)
-	{
-		if (graph.isEnabled() && layer != null)
-		{
-			var dlg = new FilenameDialog(editorUi, layer.value || mxResources.get('background'), mxResources.get('rename'), mxUtils.bind(this, function(newValue)
-			{
-				if (newValue != null)
-				{
-					graph.getModel().setValue(layer, newValue);
-				}
-			}), mxResources.get('enterName'));
-			editorUi.showDialog(dlg.container, 300, 100, true, true);
-			dlg.init();
-		}
-	};
-	
-	mxEvent.addListener(renameLink, 'click', function(evt)
+	var dataLink = link.cloneNode();
+	dataLink.innerHTML = '<div class="geSprite geSprite-dots" style="display:inline-block;"></div>';
+	dataLink.setAttribute('title', mxResources.get('rename'));
+
+	mxEvent.addListener(dataLink, 'click', function(evt)
 	{
 		if (graph.isEnabled())
 		{
-			renameLayer(selectionLayer);
+			editorUi.showDataDialog(selectionLayer);
 		}
 		
 		mxEvent.consume(evt);
@@ -2115,10 +2120,27 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	if (!graph.isEnabled())
 	{
-		renameLink.className = 'geButton mxDisabled';
+		dataLink.className = 'geButton mxDisabled';
 	}
+
+	ldiv.appendChild(dataLink);
 	
-	ldiv.appendChild(renameLink);
+	function renameLayer(layer)
+	{
+		if (graph.isEnabled() && layer != null)
+		{
+			var label = graph.convertValueToString(layer);
+			var dlg = new FilenameDialog(editorUi, label || mxResources.get('background'), mxResources.get('rename'), mxUtils.bind(this, function(newValue)
+			{
+				if (newValue != null)
+				{
+					graph.cellLabelChanged(layer, newValue);
+				}
+			}), mxResources.get('enterName'));
+			editorUi.showDialog(dlg.container, 300, 100, true, true);
+			dlg.init();
+		}
+	};
 	
 	var duplicateLink = link.cloneNode();
 	duplicateLink.innerHTML = '<div class="geSprite geSprite-duplicate" style="display:inline-block;"></div>';
@@ -2132,7 +2154,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			try
 			{
 				newCell = graph.cloneCells([selectionLayer])[0];
-				newCell.value = mxResources.get('untitledLayer');
+				graph.cellLabelChanged(newCell, mxResources.get('untitledLayer'));
 				newCell.setVisible(true);
 				newCell = graph.addCell(newCell, graph.model.root);
 				graph.setDefaultParent(newCell);
@@ -2209,7 +2231,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			ldiv.style.borderColor = '#c3c3c3';
 			ldiv.style.borderStyle = 'solid';
 			ldiv.style.whiteSpace = 'nowrap';
-			ldiv.setAttribute('title', mxResources.get('id') + ': ' + child.getId());
+			ldiv.setAttribute('title', label);
 			
 			var left = document.createElement('div');
 			left.style.display = 'inline-block';
@@ -2283,8 +2305,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 					graph.getModel().beginUpdate();
 					try
 					{
-				    		value = (mxUtils.getValue(style, 'locked', '0') == '1') ? null : '1';
-				    		graph.setCellStyles('locked', value, [child]);
+			    		value = (mxUtils.getValue(style, 'locked', '0') == '1') ? null : '1';
+			    		graph.setCellStyles('locked', value, [child]);
 					}
 					finally
 					{
@@ -2442,14 +2464,16 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		{
 			(mxUtils.bind(this, function(child)
 			{
-				addLayer(i, child.value || mxResources.get('background'), child, child);
+				addLayer(i, graph.convertValueToString(child) ||
+					mxResources.get('background'), child, child);
 			}))(graph.model.getChildAt(graph.model.root, i));
 		}
 		
-		removeLink.setAttribute('title', mxResources.get('removeIt', [selectionLayer.value || mxResources.get('background')]));
-		insertLink.setAttribute('title', mxResources.get('moveSelectionTo', [selectionLayer.value || mxResources.get('background')]));
-		duplicateLink.setAttribute('title', mxResources.get('duplicateIt', [selectionLayer.value || mxResources.get('background')]));
-		renameLink.setAttribute('title', mxResources.get('renameIt', [selectionLayer.value || mxResources.get('background')]));
+		var label = graph.convertValueToString(selectionLayer) || mxResources.get('background');
+		removeLink.setAttribute('title', mxResources.get('removeIt', [label]));
+		insertLink.setAttribute('title', mxResources.get('moveSelectionTo', [label]));
+		duplicateLink.setAttribute('title', mxResources.get('duplicateIt', [label]));
+		dataLink.setAttribute('title', mxResources.get('editData'));
 		
 		if (graph.isSelectionEmpty())
 		{

@@ -642,7 +642,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 					{
 						if (this.isCustomLink(link))
 						{
-							this.customLinkClicked(cell, link);
+							this.customLinkClicked(link);
 						}
 						else
 						{
@@ -1187,9 +1187,10 @@ Graph.prototype.isCustomLink = function(href)
 /**
  * Adds support for page links.
  */
-Graph.prototype.customLinkClicked = function(cell, href)
+Graph.prototype.customLinkClicked = function(link)
 {
-	this.fireEvent(new mxEventObject('customLinkClicked', 'cell', cell, 'href', href));
+	console.log('customLinkClicked not implemented');
+	// Hook for subclassers
 };
 
 /**
@@ -1612,7 +1613,7 @@ Graph.prototype.createLayersDialog = function()
 	
 	for (var i = 0; i < childCount; i++)
 	{
-		(function(layer)
+		(mxUtils.bind(this, function(layer)
 		{
 			var span = document.createElement('div');
 			span.style.overflow = 'hidden';
@@ -1631,7 +1632,8 @@ Graph.prototype.createLayersDialog = function()
 			}
 			
 			span.appendChild(cb);
-			var title = layer.value || (mxResources.get('background') || 'Background');
+			
+			var title = this.convertValueToString(layer) || (mxResources.get('background') || 'Background');
 			span.setAttribute('title', title);
 			mxUtils.write(span, title);
 			div.appendChild(span);
@@ -1649,7 +1651,7 @@ Graph.prototype.createLayersDialog = function()
 				
 				model.setVisible(layer, cb.checked);
 			});
-		}(model.getChildAt(model.root, i)));
+		})(model.getChildAt(model.root, i)));
 	}
 	
 	return div;

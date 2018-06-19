@@ -4410,7 +4410,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
-	linkInput.style.width = '400px';
+	linkInput.style.width = '440px';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
 	linkInput.style.backgroundPosition = '100% 50%';
@@ -4450,7 +4450,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	pageRadio.setAttribute('name', 'current-linkdialog');
 
 	var pageSelect = document.createElement('select');
-	pageSelect.style.width = '380px';
+	pageSelect.style.width = '420px';
 	
 	if (showPages && editorUi.pages != null)
 	{
@@ -4466,7 +4466,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 			urlRadio.defaultChecked = true;
 		}
 		
-		linkInput.style.width = '380px';
+		linkInput.style.width = '420px';
 		inner.appendChild(urlRadio);
 		inner.appendChild(linkInput);
 		inner.appendChild(cross);
@@ -4633,6 +4633,20 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	if (editorUi.editor.cancelFirst)
 	{
 		btns.appendChild(cancelBtn);
+	}
+	
+	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	{
+		editorUi.openLink('https://desk.draw.io/solution/articles/16000080137');
+	});
+	helpBtn.style.verticalAlign = 'middle';
+	helpBtn.className = 'geBtn';
+	
+	btns.appendChild(helpBtn);
+
+	if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
+	{
+		helpBtn.style.display = 'none';
 	}
 	
 	LinkDialog.selectedDocs = null;
@@ -6271,58 +6285,12 @@ var TagsWindow = function(editorUi, x, y, w, h)
 
 	function searchCells(cells)
 	{
-		cells = (cells != null) ? cells : graph.model.getDescendants(graph.model.getRoot());
-		var tagList = searchInput.value.split(' ');
-		var result = [];
-		
-		for (var i = 0; i < cells.length; i++)
-		{
-			if (graph.model.isVertex(cells[i]) || graph.model.isEdge(cells[i]))
-			{
-				var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
-					mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
-				var match = true;
-
-				if (tags.length > 0)
-				{
-					var tmp = tags.toLowerCase().split(' ');
-					
-					for (var j = 0; j < tagList.length && match; j++)
-					{
-						var tag = mxUtils.trim(tagList[j]).toLowerCase();
-						
-						match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
-					}
-				}
-				else
-				{
-					match = mxUtils.trim(searchInput.value).length == 0;
-				}
-				
-				if (match)
-				{
-					result.push(cells[i]);
-				}
-			}
-		}
-		
-		return result;
+		return graph.getCellsForTags(searchInput.value.split(' '), cells, propertyName);
 	};
 
 	function setCellsVisible(cells, visible)
-	{	
-		graph.model.beginUpdate();
-		try
-		{
-			for (var i = 0; i < cells.length; i++)
-			{
-				graph.model.setVisible(cells[i], visible);
-			}
-		}
-		finally
-		{
-			graph.model.endUpdate();
-		}
+	{
+		graph.setCellsVisible(cells, visible);
 	};
 	
 	mxUtils.br(div);

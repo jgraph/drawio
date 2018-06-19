@@ -7256,16 +7256,24 @@
 		var ui = this;
 		var graph = this.editor.graph;
 		
-		// Custom link handling and link titles need UI for page IDs
+		// Redirects custom link title via UI for page links
 		graph.getLinkTitle = function(href)
 		{
 			return ui.getLinkTitle(href);
 		};
-
-		graph.addListener('customLinkClicked', function(sender, evt)
+		
+		// Redirects custom link via UI for page link handling
+		graph.customLinkClicked = function(link)
 		{
-			ui.handleCustomLink(evt.getProperty('href'));
-		});
+			try
+			{
+				ui.handleCustomLink(link);
+			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
+		};
 		
 		// Sets help link for placeholders
 		if (!this.isOffline() && typeof window.EditDataDialog !== 'undefined')
@@ -7324,12 +7332,12 @@
 						href = source.getAttribute('href');
 					}
 				}
-			
+
 				if (href != null && graph.isCustomLink(href) &&
 					(mxEvent.isTouchEvent(evt) ||
 					!mxEvent.isPopupTrigger(evt)))
 				{
-					ui.handleCustomLink(href);
+					graph.customLinkClicked(href);
 					mxEvent.consume(evt);
 				}
 				
@@ -7401,7 +7409,7 @@
 			{
 				mxEvent.addListener(a, 'click', function(evt)
 				{
-					ui.handleCustomLink(href);
+					graph.customLinkClicked(href);
 					mxEvent.consume(evt);
 				});
 			}
@@ -7422,7 +7430,7 @@
 				// Active links are moved to the hint
 				if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)))
 				{
-					ui.handleCustomLink(href);
+					graph.customLinkClicked(href);
 					
 					// Resets rubberband after click on locked cell
 					graph.getRubberband().reset();
@@ -10311,7 +10319,7 @@
 	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
-		this.showDialog(dlg.container, 440, 130, true, true);
+		this.showDialog(dlg.container, 480, 130, true, true);
 		dlg.init();
 	};
 
