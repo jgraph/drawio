@@ -28,6 +28,7 @@ mxscript(geBasePath +'/Dialogs.js');
 // Loads main classes
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Advanced.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AlliedTelesys.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Android.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ArchiMate.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ArchiMate3.js');

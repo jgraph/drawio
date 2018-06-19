@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 62.1 46.1" style="enable-background:new 0 0 62.1 46.1;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#626366;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+	.st1{fill:#B0B2B5;}
+	.st2{fill:#BBBDBF;}
+	.st3{fill:#B3B5B7;}
+	.st4{fill:#898B8E;}
+	.st5{fill:#FEFEFE;}
+	.st6{fill:#231F20;}
+	.st7{fill:#626366;}
+	.st8{fill:none;stroke:#DFE0DF;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+<title>icon-EFTPOS</title>
+<desc>Created with Sketch.</desc>
+<g id="Page-1">
+	<g id="Desktop" transform="translate(-1022.000000, -90.000000)">
+		<g id="icon-EFTPOS" transform="translate(1023.000000, 91.000000)">
+			<g id="Group-9" transform="translate(0.000000, 0.099100)">
+				<polygon id="Stroke-1" class="st0" points="48.3,22.301 21.3,6.401 32.6,0.401 59.6,16.201 				"/>
+				<polygon id="Stroke-3" class="st0" points="27.5,37.901 0.5,22.101 21.3,6.401 48.3,22.301 				"/>
+				<polygon id="Stroke-5" class="st0" points="27.5,43.501 0.5,27.701 0.5,22.101 27.5,37.901 				"/>
+				<polygon id="Stroke-7" class="st0" points="59.6,16.201 59.6,26.401 27.5,43.501 27.5,37.901 48.3,22.301 				"/>
+			</g>
+			<g id="Group-111" transform="translate(0.000000, 0.099100)">
+				<polygon id="Fill-45" class="st1" points="48.3,22.301 21.3,6.401 32.6,0.401 59.6,16.201 				"/>
+				<polygon id="Fill-47" class="st2" points="27.5,37.901 0.5,22.101 21.3,6.401 48.3,22.301 				"/>
+				<polygon id="Fill-49" class="st3" points="27.5,43.501 0.5,27.701 0.5,22.101 27.5,37.901 				"/>
+				<polygon id="Fill-51" class="st4" points="59.6,16.201 59.6,26.401 27.5,43.501 27.5,37.901 48.3,22.301 				"/>
+				<polygon id="Fill-53" class="st5" points="19.8,13.101 24.7,9.601 29.6,12.301 24.7,15.701 				"/>
+				<polygon id="Fill-55" class="st6" points="29.6,13.401 24.8,16.801 24.7,15.801 29.6,12.301 				"/>
+				<polygon id="Fill-57" class="st7" points="19.8,13.101 24.7,15.801 24.8,16.801 19.9,14.101 				"/>
+				<polygon id="Fill-59" class="st5" points="26.2,16.701 31,13.301 35.9,16.001 31,19.401 				"/>
+				<polygon id="Fill-61" class="st6" points="36,17.001 31.1,20.501 31,19.401 35.9,16.001 				"/>
+				<polygon id="Fill-63" class="st7" points="26.2,16.801 31,19.401 31.1,20.501 26.2,17.801 				"/>
+				<polygon id="Fill-65" class="st5" points="32.5,20.301 37.3,16.901 42.2,19.601 37.3,23.001 				"/>
+				<polygon id="Fill-67" class="st6" points="42.2,20.601 37.4,24.101 37.3,23.001 42.2,19.601 				"/>
+				<polygon id="Fill-69" class="st7" points="32.5,20.401 37.3,23.001 37.4,24.101 32.5,21.401 				"/>
+				<polyline id="Stroke-71" class="st8" points="1,22.301 27.5,37.901 27.5,43.101 				"/>
+				<path id="Fill-73" class="st7" d="M24.2,6.601c0.2,0.1,8.5-4.6,8.5-4.6s23.7,14,23.6,14s-8.4,4.5-8.4,4.5L24.2,6.601z"/>
+				<polygon id="Fill-75" class="st5" points="13.5,17.901 18.3,14.501 23.2,17.101 18.3,20.601 				"/>
+				<polygon id="Fill-77" class="st6" points="23.2,18.201 18.4,21.601 18.3,20.601 23.2,17.201 				"/>
+				<polygon id="Fill-79" class="st7" points="13.5,17.901 18.3,20.601 18.4,21.601 13.5,19.001 				"/>
+				<polygon id="Fill-81" class="st5" points="19.8,21.601 24.6,18.201 29.5,20.801 24.7,24.301 				"/>
+				<polygon id="Fill-83" class="st6" points="29.6,21.901 24.7,25.301 24.7,24.301 29.5,20.801 				"/>
+				<polygon id="Fill-85" class="st7" points="19.8,21.601 24.7,24.301 24.7,25.301 19.8,22.601 				"/>
+				<polygon id="Fill-87" class="st5" points="26.1,25.201 30.9,21.701 35.8,24.401 30.9,27.801 				"/>
+				<polygon id="Fill-89" class="st6" points="35.8,25.501 31,28.901 30.9,27.901 35.8,24.401 				"/>
+				<polygon id="Fill-91" class="st7" points="26.1,25.201 30.9,27.901 31,28.901 26.1,26.201 				"/>
+				<polygon id="Fill-93" class="st5" points="6.9,22.401 11.8,19.001 16.7,21.601 11.8,25.101 				"/>
+				<polygon id="Fill-95" class="st6" points="16.7,22.701 11.8,26.101 11.8,25.101 16.6,21.701 				"/>
+				<polygon id="Fill-97" class="st7" points="6.9,22.401 11.8,25.101 11.8,26.101 7,23.501 				"/>
+				<polygon id="Fill-99" class="st5" points="13.2,26.101 18.1,22.601 23,25.301 18.1,28.701 				"/>
+				<polygon id="Fill-101" class="st6" points="23,26.401 18.2,29.801 18.1,28.801 23,25.301 				"/>
+				<polygon id="Fill-103" class="st7" points="13.2,26.101 18.1,28.801 18.2,29.801 13.3,27.101 				"/>
+				<polygon id="Fill-105" class="st5" points="19.5,29.701 24.4,26.201 29.3,28.901 24.4,32.301 				"/>
+				<polygon id="Fill-107" class="st6" points="29.3,29.901 24.4,33.401 24.4,32.401 29.3,28.901 				"/>
+				<polygon id="Fill-109" class="st7" points="19.5,29.701 24.4,32.401 24.4,33.401 19.6,30.701 				"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

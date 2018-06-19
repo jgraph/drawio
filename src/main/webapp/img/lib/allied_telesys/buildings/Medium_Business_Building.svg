@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1"
+	 id="Layer_1" inkscape:version="0.92.3 (2405546, 2018-03-11)" sodipodi:docname="Medium_Business_Building4.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 90.411 116.551"
+	 style="enable-background:new 0 0 90.411 116.551;" xml:space="preserve">
+<style type="text/css">
+	.st0{filter:url(#Adobe_OpacityMaskFilter);}
+	.st1{fill:#FFFFFF;}
+	.st2{mask:url(#mask-2_2_);fill:#447CA8;}
+	.st3{filter:url(#Adobe_OpacityMaskFilter_1_);}
+	.st4{mask:url(#mask-6_2_);fill:#1C5A84;}
+	.st5{fill:#276E9F;}
+	.st6{fill:#19557D;}
+	.st7{filter:url(#Adobe_OpacityMaskFilter_2_);}
+	.st8{mask:url(#mask-8_2_);fill:#4D7EA6;}
+	.st9{fill:#1F608C;}
+	.st10{fill:#FEFEFE;}
+	.st11{fill:#D6DEE6;}
+</style>
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1" gridtolerance="10" guidetolerance="10" id="namedview143" inkscape:current-layer="Layer_1" inkscape:cx="127.82604" inkscape:cy="74.291954" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="1017" inkscape:window-maximized="1" inkscape:window-width="1920" inkscape:window-x="-8" inkscape:window-y="-8" inkscape:zoom="8.0683761" objecttolerance="10" pagecolor="#ffffff" showgrid="false">
+	</sodipodi:namedview>
+<title  id="title4">icon-med-business</title>
+<desc  id="desc6">Created with Sketch.</desc>
+<defs>
+	<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="0.559" y="0" width="41.986" height="21.893">
+		<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+	</filter>
+</defs>
+<mask maskUnits="userSpaceOnUse" x="0.559" y="0" width="41.986" height="21.893" id="mask-2_2_">
+	<g id="g14_1_" class="st0">
+		<path id="path-1_2_" class="st1" d="M41.334,0.1C27.743,7.314,14.151,14.53,0.558,21.744c0.317-0.168,0.743-0.131,1.211,0.15
+			L42.546,0.25C42.262,0.08,41.994,0,41.756,0C41.601,0,41.459,0.034,41.334,0.1"/>
+	</g>
+</mask>
+<path id="Fill-1" class="st2" d="M41.855,0.003l-0.004,0.002C41.659-0.013,41.484,0.02,41.334,0.1L0.559,21.743
+	c0.151-0.08,0.327-0.113,0.521-0.096c0.21,0.019,0.444,0.1,0.689,0.246L42.545,0.251C42.301,0.103,42.067,0.023,41.855,0.003z"/>
+<defs>
+	<filter id="Adobe_OpacityMaskFilter_1_" filterUnits="userSpaceOnUse" x="47.731" y="90.39" width="42.679" height="25.822">
+		<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+	</filter>
+</defs>
+<mask maskUnits="userSpaceOnUse" x="47.731" y="90.39" width="42.679" height="25.822" id="mask-6_2_">
+	<g id="g34_1_" class="st3">
+		<path id="path-5_2_" class="st1" d="M49.634,112.034c0.002,2.102-0.731,3.556-1.902,4.178
+			c13.591-7.215,27.183-14.43,40.775-21.645c1.172-0.622,1.904-2.075,1.903-4.176"/>
+	</g>
+</mask>
+<path id="Fill-8" class="st4" d="M49.634,112.034L90.41,90.39c0.001,2.102-0.732,3.555-1.903,4.177l-40.776,21.645
+	C48.903,115.59,49.635,114.137,49.634,112.034"/>
+<polygon id="Fill-11" class="st5" points="1.769,21.895 47.818,49.563 88.593,27.919 42.545,0.251 "/>
+<polygon id="Fill-12" class="st6" points="90.411,90.391 90.411,31.119 49.591,52.764 49.634,112.034 "/>
+<defs>
+	<filter id="Adobe_OpacityMaskFilter_2_" filterUnits="userSpaceOnUse" x="47.818" y="27.919" width="42.549" height="24.844">
+		<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+	</filter>
+</defs>
+<mask maskUnits="userSpaceOnUse" x="47.818" y="27.919" width="42.549" height="24.844" id="mask-8_2_">
+	<g id="g46_1_" class="st7">
+		<path id="path-7_2_" class="st1" d="M47.818,49.563c0.979,0.588,1.772,2.021,1.773,3.201l40.775-21.645
+			c0-1.179-0.793-2.611-1.773-3.2"/>
+	</g>
+</mask>
+<path id="Fill-13" inkscape:connector-curvature="0" inkscape:label="" sodipodi:nodetypes="ccccc" class="st8" d="M88.594,27.919
+	L47.818,49.563c1.119,0.772,1.682,2.001,1.773,3.199l40.775-21.645C90.367,29.763,89.587,28.708,88.594,27.919z"/>
+<path id="Fill-41" class="st9" d="M47.818,49.563c0.979,0.588,1.772,2.021,1.772,3.2l0.044,59.271
+	c0.003,4.013-2.669,5.66-5.967,3.678L6.019,93.091c-3.298-1.982-5.975-6.842-5.978-10.856L0,22.965
+	c-0.001-1.179,0.791-1.659,1.769-1.071L47.818,49.563z"/>
+<path id="Fill-43" class="st10" d="M46.138,71.74l-8.69-5.222V53.665l8.69,5.221V71.74z M46.138,90.87l-8.69-5.222V72.797
+	l8.69,5.221V90.87z M46.138,109.606l-8.69-5.22V91.533l8.69,5.222V109.606z M34.497,64.745l-8.692-5.222V46.669l8.692,5.223V64.745z
+	 M34.497,83.876l-8.692-5.224V65.801l8.692,5.223V83.876z M14.82,72.052V59.2l8.695,5.225v12.852L14.82,72.052z M11.814,51.116
+	l-8.693-5.224V33.039l8.693,5.223V51.116z M11.814,70.246l-8.693-5.224V52.171l8.693,5.223V70.246z M11.475,88.779l-8.691-5.223
+	V70.704l8.691,5.223V88.779z M14.82,40.068l8.695,5.225v12.854l-8.695-5.224V40.068z M15.945,98.69V79.367l7.284,4.377v19.321
+	L15.945,98.69z M25.21,104.256V84.933l7.07,4.249v19.323L25.21,104.256z"/>
+<path id="Fill-44" class="st11" d="M38.742,55.729l6.667,4.019l-0.015,8.242c0,0-0.406-4.831-3.24-8.531
+	C39.554,56.069,38.742,55.729,38.742,55.729"/>
+<path id="Fill-46" class="st11" d="M4.323,34.981l6.666,4.018l-0.016,8.241c0,0-0.406-4.83-3.242-8.53
+	C5.132,35.319,4.323,34.981,4.323,34.981"/>
+<path id="Fill-48" class="st11" d="M38.712,74.718l6.667,4.019l-0.016,8.247c0,0-0.404-4.832-3.239-8.532
+	C39.524,75.058,38.712,74.718,38.712,74.718"/>
+<path id="Fill-50" class="st11" d="M27.11,48.717l6.667,4.019l-0.016,8.241c0,0-0.405-4.829-3.238-8.528
+	C27.922,49.057,27.11,48.717,27.11,48.717"/>
+<path id="Fill-52" class="st11" d="M27.08,67.706l6.667,4.019l-0.016,8.247c0,0-0.405-4.833-3.238-8.532
+	C27.891,68.046,27.08,67.706,27.08,67.706"/>
+<path id="Fill-54" class="st11" d="M16.139,42.103l6.67,4.021l-0.016,8.241c0,0-0.409-4.831-3.243-8.531
+	C16.949,42.443,16.139,42.103,16.139,42.103"/>
+<path id="Fill-56" class="st11" d="M16.108,61.092l6.669,4.021l-0.016,8.246c0,0-0.408-4.833-3.241-8.534
+	C16.918,61.432,16.108,61.092,16.108,61.092"/>
+<path id="Fill-58" class="st11" d="M4.293,53.97l6.666,4.019l-0.016,8.247c0,0-0.406-4.833-3.241-8.535
+	C5.102,54.309,4.293,53.97,4.293,53.97"/>
+<path id="Fill-60" class="st11" d="M38.683,93.661l6.667,4.02l-0.016,8.245c0,0-0.404-4.832-3.24-8.532
+	C39.494,94.004,38.683,93.661,38.683,93.661"/>
+<path id="Fill-62" class="st11" d="M4.053,72.787l6.666,4.019l-0.016,8.244c0,0-0.407-4.832-3.237-8.531
+	C4.863,73.128,4.053,72.787,4.053,72.787"/>
+</svg>

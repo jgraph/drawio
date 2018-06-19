@@ -244,7 +244,22 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					translate: this.graph.view.translate.clone(),
 					scale: this.graph.view.scale
 				};
-
+				
+				var self = this;
+				
+				this.graph.customLinkClicked = function(href)
+				{
+					if (href.substring(0, 13) == 'data:page/id,')
+					{
+						var comma = href.indexOf(',');
+						self.selectPageById(href.substring(comma + 1));
+					}
+					else
+					{
+						this.handleCustomLink(href);
+					}
+				};
+				
 				if (this.graphConfig.toolbar != null)
 				{
 					this.addToolbar();
@@ -1156,19 +1171,10 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 				}, 0);
 			}
 		}
-		else if (href != null && graph.isCustomLink(href) && (mxEvent.isTouchEvent(evt) ||
-				!mxEvent.isPopupTrigger(evt)))
+		else if (href != null && ui == null && graph.isCustomLink(href) &&
+			(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)))
 		{
-			if (href.substring(0, 13) == 'data:page/id,')
-			{
-				var comma = href.indexOf(',');
-				this.selectPageById(href.substring(comma + 1));
-			}
-			else
-			{
-				graph.handleCustomLink(href);
-			}
-			
+			graph.customLinkClicked(href);
 			mxEvent.consume(evt);
 		}
 	}), mxUtils.bind(this, function(evt)

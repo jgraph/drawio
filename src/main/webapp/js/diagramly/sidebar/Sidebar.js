@@ -41,6 +41,11 @@
 	/**
 	 * 
 	 */
+	Sidebar.prototype.allied_telesys = ['Buildings', 'Computer and Terminals', 'Media Converters', 'Security', 'Storage', 'Switch', 'Wireless'];
+
+	/**
+	 * 
+	 */
 	Sidebar.prototype.gcp = ['Cards', 'Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
 	/**
 	 *
@@ -129,6 +134,7 @@
 	                                   {id: 'bpmn', prefix: 'bpmn', libs: [''/*prefix is library*/, 'Gateways', 'Events']},
 	                                   {id: 'clipart', prefix: null, libs: ['computer', 'finance', 'clipart', 'networking', 'people', 'telco']},
 	                                   {id: 'ibm', prefix: 'ibm', libs: Sidebar.prototype.ibm},
+	                                   {id: 'allied_telesys', prefix: 'allied_telesys', libs: Sidebar.prototype.allied_telesys},
 	                                   {id: 'eip', prefix: 'eip', libs: Sidebar.prototype.eip},
 	                                   {id: 'mockups', prefix: 'mockup', libs: ['Buttons', 'Containers', 'Forms', 'Graphics', 'Markup', 'Misc', 'Navigation', 'Text']},
 	                                   {id: 'pid2', prefix: 'pid2', libs: ['Agitators', 'Apparatus Elements', 'Centrifuges', 'Compressors', 'Compressors ISO', 'Crushers Grinding', 
@@ -353,6 +359,7 @@
             			{title: mxResources.get('networking'),
             			entries: [{title: mxResources.get('aws'), id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
             			// TODO: Add isometric containers  		                          
+            					  {title: 'Allied Telesys', id: 'allied_telesys', image: IMAGE_PATH + '/sidebar-allied_telesys.png'},
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
@@ -689,6 +696,7 @@
 		this.addOfficePalette();
 		this.addVeeamPalette();
 		this.addIBMPalette();
+		this.addAlliedTelesysPalette();
 		this.addSitemapPalette();
 
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',

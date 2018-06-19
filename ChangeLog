@@ -1,3 +1,11 @@
+19-JUN-2018: 8.8.2
+
+- Adds Allied Telesys sidebar
+- Removes clipart from default cache
+- Adds copy/paste size in Arrange panel
+- Adds support for tags in link actions
+- Adds support for custom link actions
+
 14-JUN-2018: 8.8.1
 
 - Adds detection of object type in link action

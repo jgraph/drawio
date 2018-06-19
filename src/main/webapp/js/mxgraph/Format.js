@@ -1536,11 +1536,53 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			ui.actions.get('ungroup').funct();
 		})
 		
-		btn.setAttribute('title', mxResources.get('ungroup') + ' (' + this.editorUi.actions.get('ungroup').shortcut + ')');
+		btn.setAttribute('title', mxResources.get('ungroup') + ' (' +
+			this.editorUi.actions.get('ungroup').shortcut + ')');
 		btn.style.width = '202px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 		count++;
+	}
+	
+	if (ss.vertices.length > 0)
+	{
+		if (count > 0)
+		{
+			mxUtils.br(div);
+			count = 0;
+		}
+		
+		var btn = mxUtils.button(mxResources.get('copySize'), function(evt)
+		{
+			ui.actions.get('copySize').funct();
+		});
+		
+		btn.setAttribute('title', mxResources.get('copySize') + ' (' +
+			this.editorUi.actions.get('copySize').shortcut + ')');
+		btn.style.width = '202px';
+		btn.style.marginBottom = '2px';
+
+		div.appendChild(btn);
+		count++;
+		
+		if (ui.copiedSize != null)
+		{
+			var btn2 = mxUtils.button(mxResources.get('pasteSize'), function(evt)
+			{
+				ui.actions.get('pasteSize').funct();
+			});
+			
+			btn2.setAttribute('title', mxResources.get('pasteSize') + ' (' +
+				this.editorUi.actions.get('pasteSize').shortcut + ')');
+			
+			div.appendChild(btn2);
+			count++;
+			
+			btn.style.width = '100px';
+			btn.style.marginBottom = '2px';
+			btn2.style.width = '100px';
+			btn2.style.marginBottom = '2px';
+		}
 	}
 	
 	if (graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell) &&

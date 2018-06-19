@@ -1252,7 +1252,7 @@ var com;
                                         	{
                                             	shapeName_1 = "";
                                         	}
-                                            shapeName_1 = JSON.stringify(shapeName_1);
+                                            shapeName_1 = JSON.stringify(mxUtils.htmlEntities(shapeName_1));
                                             /* append */ (function (sb) { return sb.str = sb.str.concat(shapeName_1); })(shapes_1);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat("}"); })(shapes_1);
                                             comma_1 = ",";
