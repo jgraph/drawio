@@ -1036,7 +1036,10 @@ Graph.prototype.defaultThemes = {};
 /**
  * Base URL for relative links.
  */
-Graph.prototype.baseUrl = ((window != window.top) ? document.referrer : document.location.toString()).split('#')[0];
+Graph.prototype.baseUrl = (urlParams['base'] != null) ?
+	decodeURIComponent(urlParams['base']) :
+	(((window != window.top) ? document.referrer :
+	document.location.toString()).split('#')[0]);
 
 /**
  * Specifies if the label should be edited after an insert.

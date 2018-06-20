@@ -18,7 +18,7 @@ Draw.loadPlugin(function(ui) {
 	var graph = ui.editor.graph;
 	
 	// Made for chromeless mode
-	if (!ui.editor.chromeless)
+	if (!ui.editor.isChromelessView())
 	{
 		div.style.top = '100px';
 		div.style.right = '260px';

@@ -7,14 +7,11 @@
  * 
  * Documentation:
  * 
- * https://support.draw.io/questions/9666655/how-to-use-the-voice-plugin
+ * https://desk.draw.io/support/solutions/articles/16000042372
  * 
  * TODO: Use grammer https://msdn.microsoft.com/en-us/library/ee800145.aspx
  */
 Draw.loadPlugin(function(ui) {
-	
-	var micImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5UlEQVR4Xr3SMYrCQBTGcSfIQiAgRIS9hOANBCurPUAuIAp7A7FVsFkIbLGYA9gKtoKNYG3jll5AFNKG518YMD6SISD4wY9J4MvkMYwRkZqOMSZkifGFe1b4pnvW3TqK8oMo14twxUgXPRSlDxU7TcUNPqATlG7wCi93cA2Iq2x7l7IJsgofB6UTiEjKklFqsabQSdFA5jqDAzrYQGeNNv5d9yDBEAME6NreFmP8Yuma4A8hFpiLSFNAYYYYn0jwCIUnxMcER4h1whS+7hseXKcu9ifGeQ+qeO8GjN7DPve+Q6+oewPhmE63Qfsb6AAAAABJRU5ErkJggg==';
-	
 	// Speech recognition never supported without synthesis 
 	if (!('speechSynthesis' in window))
 	{
@@ -29,13 +26,14 @@ Draw.loadPlugin(function(ui) {
 	}
 	
 	// Do no use in chromeless mode
-	if (ui.editor.chromeless || ui.menubar == null)
+	if (ui.editor.isChromelessView())
 	{
 		return;
 	}
 
 	// Mic PNG image
 	var outputImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpBNDU1RDkxODcxREIxMUU0OTU3Qjg3REYyOTYxQzc0QiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpBNDU1RDkxOTcxREIxMUU0OTU3Qjg3REYyOTYxQzc0QiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkE0NTVEOTE2NzFEQjExRTQ5NTdCODdERjI5NjFDNzRCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkE0NTVEOTE3NzFEQjExRTQ5NTdCODdERjI5NjFDNzRCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+QsVUnQAAAX5JREFUeNqck00oRFEUx+eNyYSFUj7KgpfPBUlJWZgFw3IWihpRFpZia4e1hZSlNDsLopSNfBTFQqSwkKmZ5SA2ylfq+Z3pXL15ehlu/fqf9849555777mW4ziBfEZ9rd2InEEsmU4dmP/WHxKEkT1oglaSZOR/0DvRssIVUOQKjEASsxoGoQDmjT/oDUaOdRUzbkASrsMdzMIwSe2cBASXIjtQpyvHYQvzGeLQDkOwDG8w8p2A4GJEJre5Vk5DFBbZ7yG6D+PYL3oW0WwCgh/Re4i4t8PEE2QOxqikDN2AbuwQKr4WU4E4S3wOfw1CWtktFEI5ZDTu5y34DMvPIQl24dTHL9f2CRfQAB/wAFXwlE3gOO990Im95GmcLmQGEpyHTB6AI2xJKL4r7xYmYdX1betpT0kzoT1yhdhyY71aeW4rcyNySJswTVWXWkklcq5N1AETsCAuqkn9+hZ09RXoh1e4hm2CR//7mJqlB8xjCgXyHzXaDzETLONLgAEAxwd5e6Mz+S4AAAAASUVORK5CYII=';
+	var micImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5UlEQVR4Xr3SMYrCQBTGcSfIQiAgRIS9hOANBCurPUAuIAp7A7FVsFkIbLGYA9gKtoKNYG3jll5AFNKG518YMD6SISD4wY9J4MvkMYwRkZqOMSZkifGFe1b4pnvW3TqK8oMo14twxUgXPRSlDxU7TcUNPqATlG7wCi93cA2Iq2x7l7IJsgofB6UTiEjKklFqsabQSdFA5jqDAzrYQGeNNv5d9yDBEAME6NreFmP8Yuma4A8hFpiLSFNAYYYYn0jwCIUnxMcER4h1whS+7hseXKcu9ifGeQ+qeO8GjN7DPve+Q6+oewPhmE63Qfsb6AAAAABJRU5ErkJggg==';
 	
 	// True if we're on ChromOs
 	var chromeOs = /\bCrOS\b/.test(navigator.userAgent);
@@ -123,21 +121,54 @@ Draw.loadPlugin(function(ui) {
 		
 		return ui.voiceButton;
 	};
-
+	
 	var td = getOrCreateVoiceButton(ui);
 	
 	if (td != null)
 	{
-		// Installs listener for start/stop listen
-		mxEvent.addListener(td, 'click', function(evt)
+		mxEvent.addGestureListeners(td, function(evt)
 		{
-			if (speechSynthesis.speaking)
-			{
-				speechSynthesis.cancel();
-			}
+			ui.editor.graph.popupMenuHandler.hideMenu();
 			
-			App.listen(true);
+			if (ui.menubar == null && mxEvent.isPopupTrigger(evt))
+			{
+				ui.editor.graph.popupMenuHandler.hideMenu();
+				var menu = new mxPopupMenu(ui.menus.get('voice').funct);
+				menu.div.className += ' geMenubarMenu';
+				menu.smartSeparators = true;
+				menu.showDisabled = true;
+				menu.autoExpand = true;
+				
+				// Disables autoexpand and destroys menu when hidden
+				menu.hideMenu = mxUtils.bind(this, function()
+				{
+					mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+					menu.destroy();
+				});
+		
+				var offset = mxUtils.getOffset(td);
+				menu.popup(offset.x, offset.y + td.offsetHeight, null, evt);
+				
+				// Allows hiding by clicking on document
+				ui.setCurrentMenu(menu);
+				mxEvent.consume(evt);
+			}
+		}, null, function(evt)
+		{
+			if (!mxEvent.isPopupTrigger(evt))
+			{
+				if (speechSynthesis.speaking)
+				{
+					speechSynthesis.cancel();
+				}
+				
+				App.listen(true);
+			}
+
+			mxEvent.consume(evt);
 		});
+		
+		mxEvent.disableContextMenu(td);
 	}
 	
 	function setPluginInstalled(value)
@@ -229,7 +260,7 @@ Draw.loadPlugin(function(ui) {
 	
     ui.actions.addAction('speechHelp', function()
     {
-    	window.open('https://support.draw.io/questions/9666655/how-to-use-the-voice-plugin');
+    	window.open('https://desk.draw.io/support/solutions/articles/16000042372');
     });
 
     // Hijacks the settings for storing current voice
@@ -291,21 +322,30 @@ Draw.loadPlugin(function(ui) {
     {
     	// Hides UI
     	speechOutputEnabled = false;
-    	menu.style.display = 'none';
     	td.style.display = 'none';
+    	
+    	if (menu != null)
+    	{
+    		menu.style.display = 'none';
+    	}
     });
-	
-	var menu = ui.menubar.addMenu('Voice', function(menu, parent)
+    
+	ui.menus.put('voice', new Menu(function(menu, parent)
 	{
-		ui.menus.addSubmenu('voiceType', menu, parent);
+    	ui.menus.addSubmenu('voiceType', menu, parent);
 		ui.menus.addMenuItems(menu, ['-', 'speechOutput', 'speechHint', '-', 'speechListen',
-		                             'speechListenContinuous', '-', 'speechInstalled',
-		                             'speechHelp', '-', 'speechQuit']);
-	});
-	
-	// Inserts voice menu before help menu
-	var menu = menu.parentNode.insertBefore(menu, menu.previousSibling.previousSibling.previousSibling);
-	
+            'speechListenContinuous', '-', 'speechInstalled',
+            'speechHelp', '-', 'speechQuit']);
+	}));
+
+    if (ui.menubar != null)
+    {
+		var menu = ui.menubar.addMenu('Voice', ui.menus.get('voice').funct);
+		
+		// Inserts voice menu before help menu
+		menu.parentNode.insertBefore(menu, menu.previousSibling.previousSibling.previousSibling);
+    }
+		
 	function insertShape(shape, done)
 	{
 		var searchTerm = mxUtils.trim(shape);
@@ -809,7 +849,7 @@ Draw.loadPlugin(function(ui) {
 			}
 			else if (tokens[0] == 'help')
 			{
-				var wnd = window.open('https://support.draw.io/questions/9666655/how-to-use-the-voice-plugin');
+				var wnd = ui.openLink('https://desk.draw.io/support/solutions/articles/16000042372');
 				
 				if (wnd == null)
 				{
@@ -823,18 +863,8 @@ Draw.loadPlugin(function(ui) {
 					
 					if (searchTerm !=  null && searchTerm.length > 0)
 					{
-						var form = document.createElement('div');
-						form.style.display = 'inline';
-						form.innerHTML = ':<form style="display:inline;margin-left:8px;" id="rw_search_form"' +
-							'target="_blank" method="get" action="https://support.draw.io/dosearchsite.action">' +
-							'<input id="rw_search_query" type="text" name="queryString" size="25"></form>';
-						
-						var realForm = form.getElementsByTagName('form')[0]
-						var input = form.getElementsByTagName('input')[0];
-						
-						input.setAttribute('value', searchTerm);
-						realForm.submit();
-						
+						ui.openLink('https://desk.draw.io/support/search/solutions?term=' +
+								encodeURIComponent(searchTerm));
 						App.say(command);
 					}
 				}

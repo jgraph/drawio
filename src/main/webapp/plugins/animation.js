@@ -515,7 +515,7 @@ Draw.loadPlugin(function(editorUi)
 	};
 	
 	// Autostart in chromeless mode
-	if (editorUi.editor.chromeless)
+	if (editorUi.editor.isChromelessView())
 	{
 		function startAnimation()
 		{

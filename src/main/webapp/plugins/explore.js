@@ -353,7 +353,7 @@ Draw.loadPlugin(function(ui)
 	});
 	
 	// Click handler for chromeless mode
-	if (ui.editor.chromeless)
+	if (ui.editor.isChromelessView())
 	{
 		ui.editor.graph.click = function(me)
 		{
