@@ -1916,12 +1916,12 @@
 
 		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
 		{
-			editorUi.openLink('https://www.draw.io/app')
+			editorUi.openLink('https://app.draw.io/')
 		}));
 		
 		editorUi.actions.put('download', new Action(mxResources.get('download') + '...', function()
 		{
-			editorUi.openLink('https://download.draw.io')
+			editorUi.openLink('https://get.draw.io/')
 		}));
 
 		this.editorUi.actions.addAction('share...', mxUtils.bind(this, function()

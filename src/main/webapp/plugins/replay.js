@@ -14,7 +14,7 @@ Draw.loadPlugin(function(ui) {
 		return model.getCell(id);
 	};
 	
-	if (ui.editor.chromeless)
+	if (ui.editor.isChromelessView())
 	{
 		function decodeChanges(delta)
 		{

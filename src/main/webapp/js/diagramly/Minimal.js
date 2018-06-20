@@ -311,7 +311,8 @@ EditorUi.initMinimalTheme = function()
     HoverIcons.prototype.inactiveOpacity = 25;
     Format.prototype.showCloseButton = false;
 	EditorUi.prototype.closableScratchpad = false;
-    EditorUi.prototype.footerHeight = 0;
+    EditorUi.prototype.toolbarHeight = 46;
+	EditorUi.prototype.footerHeight = 0;
 	Graph.prototype.editAfterInsert = true;
 
     /**
@@ -336,7 +337,6 @@ EditorUi.initMinimalTheme = function()
     EditorUi.prototype.refresh = function(sizeDidChange)
     {
         editorUiRefresh.apply(this, arguments);
-        this.diagramContainer.style.top = '47px';
     	
         if (this.tabContainer != null)
         {
@@ -529,11 +529,12 @@ EditorUi.initMinimalTheme = function()
         else if (graph.isSelectionEmpty() && graph.isEnabled())
         {
             menu.addSeparator();
+            this.addMenuItems(menu, ['editData'], null, evt);
+        	menu.addSeparator();
             this.addSubmenu('insert', menu);
             this.addSubmenu('layout', menu);
             menu.addSeparator();
-            this.addSubmenu('options', menu);
-
+            this.addSubmenu('view', menu, null, mxResources.get('options'));
             this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
         }
         else if (graph.isEnabled())
@@ -707,7 +708,7 @@ EditorUi.initMinimalTheme = function()
 
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-        	ui.menus.addSubmenu('preferences', menu, parent);
+        	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
 			menu.addSeparator(parent);
 
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
@@ -819,7 +820,8 @@ EditorUi.initMinimalTheme = function()
 
         var langMenu = this.get('language');
 
-        this.put('preferences', new Menu(mxUtils.bind(this, function(menu, parent)
+        // Overrides extras for plugins but label it preferences
+        this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			if (urlParams['embed'] != '1')
 			{
@@ -892,8 +894,9 @@ EditorUi.initMinimalTheme = function()
                 }
             }
         })));
-        
-        this.put('options', new Menu(mxUtils.bind(this, function(menu, parent)
+
+        // Overrides view for plugins but label it options
+        this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
             	'copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting'], parent);
