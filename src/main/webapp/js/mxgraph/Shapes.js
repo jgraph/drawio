@@ -395,12 +395,30 @@
 	};
 
 	mxCellRenderer.registerShape('document', DocumentShape);
+
+	var cylinderGetCylinderSize = mxCylinder.prototype.getCylinderSize;
+	
+	mxCylinder.prototype.getCylinderSize = function(x, y, w, h)
+	{
+		var size = mxUtils.getValue(this.style, 'size');
+		
+		if (size != null)
+		{
+			return h * Math.max(0, Math.min(1, size));
+		}
+		else
+		{
+			return cylinderGetCylinderSize.apply(this, arguments);
+		}
+	};
 	
 	mxCylinder.prototype.getLabelMargins = function(rect)
 	{
 		if (mxUtils.getValue(this.style, 'boundedLbl', false))
 		{
-			return new mxRectangle(0, Math.min(this.maxHeight * this.scale, rect.height * 0.3), 0, 0);
+			var size = mxUtils.getValue(this.style, 'size', 0.15) * 2;
+			
+			return new mxRectangle(0, Math.min(this.maxHeight * this.scale, rect.height * size), 0, 0);
 		}
 		
 		return null;

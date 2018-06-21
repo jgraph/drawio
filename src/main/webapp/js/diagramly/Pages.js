@@ -37,7 +37,7 @@ function DiagramPage(node)
 		
 		this.node.setAttribute('id', guid());
 	}
-}
+};
 
 /**
  * Holds the diagram node for the page.
@@ -1365,7 +1365,8 @@ EditorUi.prototype.createPageMenu = function(page, label)
 //Registers codec for ChangePage
 (function()
 {
-	var codec = new mxObjectCodec(new ChangePage(), ['ui', 'relatedPage', 'index', 'neverShown']);
+	var codec = new mxObjectCodec(new ChangePage(), ['ui', 'relatedPage',
+		'index', 'neverShown', 'page', 'previousPage']);
 	
 	codec.afterEncode = function(enc, obj, node)
 	{
@@ -1386,7 +1387,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 	
 	codec.beforeDecode = function(dec, node, obj)
 	{
-		  obj.ui = dec.ui;
+		obj.ui = dec.ui;
 	    obj.relatedPage = obj.ui.getPageById(node.getAttribute('relatedPage'));
 	    
 	    if (obj.relatedPage == null)

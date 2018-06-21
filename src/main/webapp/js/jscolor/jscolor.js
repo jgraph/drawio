@@ -695,9 +695,9 @@ var jscolor = {
 				case 0: var padImg = 'hs.png'; break;
 				case 1: var padImg = 'hv.png'; break;
 			}
-			p.padM.style.backgroundImage = "url('"+jscolor.getDir()+"cross.gif')";
+			p.padM.style.backgroundImage = "url(data:image/gif;base64,R0lGODlhDwAPAKEBAAAAAP///////////yH5BAEKAAIALAAAAAAPAA8AAAIklB8Qx53b4otSUWcvyiz4/4AeQJbmKY4p1HHapBlwPL/uVRsFADs=)";
 			p.padM.style.backgroundRepeat = "no-repeat";
-			p.sldM.style.backgroundImage = "url('"+jscolor.getDir()+"arrow.gif')";
+			p.sldM.style.backgroundImage = "url(data:image/gif;base64,R0lGODlhBwALAKECAAAAAP///6g8eKg8eCH5BAEKAAIALAAAAAAHAAsAAAITTIQYcLnsgGxvijrxqdQq6DRJAQA7)";
 			p.sldM.style.backgroundRepeat = "no-repeat";
 			p.pad.style.backgroundImage = "url('"+jscolor.getDir()+padImg+"')";
 			p.pad.style.backgroundRepeat = "no-repeat";
@@ -895,8 +895,6 @@ var jscolor = {
 			case 0: jscolor.requireImage('hs.png'); break;
 			case 1: jscolor.requireImage('hv.png'); break;
 		}
-		jscolor.requireImage('cross.gif');
-		jscolor.requireImage('arrow.gif');
 
 		this.importColor();
 	}

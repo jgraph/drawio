@@ -1335,6 +1335,8 @@ var EditDataDialog = function(ui, cell)
 	var names = [];
 	var texts = [];
 	var count = 0;
+
+	var id = EditDataDialog.getDisplayIdForCell(ui, cell);
 	
 	// FIXME: Fix remove button for quirks mode
 	var addRemoveButton = function(text, name)
@@ -1373,7 +1375,7 @@ var EditDataDialog = function(ui, cell)
 					if (names[j] == name)
 					{
 						texts[j] = null;
-						form.table.deleteRow(count);
+						form.table.deleteRow(count + ((id != null) ? 1 : 0));
 						
 						break;
 					}
@@ -1431,8 +1433,6 @@ var EditDataDialog = function(ui, cell)
 	    }
 	});
 
-	var id = EditDataDialog.getDisplayIdForCell(ui, cell);
-	
 	if (id != null)
 	{	
 		var text = document.createElement('input');
