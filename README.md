@@ -2,7 +2,7 @@
 
 About
 -----
-[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project.
+[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project. Also try our open source [offline](https://app.draw.io) and [desktop](https://get.draw.io) versions.
 
 draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
 
