@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 06/20/2018 01:56 PM
+# 06/21/2018 04:02 PM
 
 app.html
 index.html?offline=1
@@ -50,9 +50,7 @@ images/glyphicons_google.png
 images/glyphicons_facebook.png
 images/glyphicons_twitter.png
 images/glyphicons_github.png
-images/arrow.gif
 images/hs.png
-images/cross.gif
 
 # Redirect app to app.html which redirects to index.html?offline=1
 # this is required to get the URL parameters into the index page.

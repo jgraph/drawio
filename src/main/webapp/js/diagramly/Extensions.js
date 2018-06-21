@@ -6,14 +6,15 @@
 (function()
 {
 	// Global import transformation
+	var defaultFontSize = '11';
 	var scale = 0.6;
 	var dx = 0;
 	var dy = 0;
 	
 	var arcSize = 6;
-	var edgeStyle = 'html=1;';
+	var edgeStyle = 'html=1;jettySize=18;';
 	var vertexStyle = 'html=1;whiteSpace=wrap;';
-	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;';
+	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;';
 	
 	var c = "fillColor=#036897;strokeColor=#ffffff";
 	var s = "shape=mxgraph.";
@@ -30,7 +31,6 @@
 	
 //	stencils with hardcoded default rounding (having absolute rounding of arcSize=8 without declaring anything)
 	var hardDefRound = [
-		'ProcessBlock',
 		'UMLActivationBlock'
 	];
 
@@ -152,17 +152,17 @@
 			'DocumentBlock': 'shape=document',
 			'MultiDocumentBlock': s + 'flowchart.multi-document',
 			'ManualInputBlock': 'shape=manualInput;size=15',
-			'PreparationBlock': 'shape=hexagon',
-			'DataBlock': 'shape=parallelogram',
-			'DataBlockNew': 'shape=parallelogram',
-			'DatabaseBlock': 'shape=cylinder',
-			'DirectAccessStorageBlock': s + 'flowchart.direct_data',
+			'PreparationBlock': 'shape=hexagon;perimeter=hexagonPerimeter2',
+			'DataBlock': 'shape=parallelogram;perimeter=parallelogramPerimeter;anchorPointDirection=0',
+			'DataBlockNew': 'shape=parallelogram;perimeter=parallelogramPerimeter;anchorPointDirection=0',
+			'DatabaseBlock': 'shape=cylinder;size=0.1;anchorPointDirection=0;boundedLbl=1;',
+			'DirectAccessStorageBlock': 'shape=cylinder;direction=south;size=0.1;anchorPointDirection=0;boundedLbl=1;',
 			'InternalStorageBlock': 'shape=internalStorage;dx=10;dy=10',
 			'PaperTapeBlock': 'shape=tape;size=0.2',
-			'ManualOperationBlockNew': 'shape=trapezoid;flipV=1',
+			'ManualOperationBlockNew': 'shape=trapezoid;perimeter=trapezoidPerimeter;anchorPointDirection=0;flipV=1',
 			'DelayBlock': 'shape=delay',
 			'StoredDataBlock': 'shape=dataStorage',
-			'MergeBlock': 'triangle;direction=south',
+			'MergeBlock': 'triangle;direction=south;anchorPointDirection=0',
 			'ConnectorBlock': 'ellipse',
 			'OrBlock': s + 'flowchart.summing_function',
 			'SummingJunctionBlock': s + 'flowchart.or',
@@ -184,10 +184,10 @@
 //			'BraceBlockRotated' NA
 //			'BracketBlockRotated' NA
 //Geometric shapes
-			'IsoscelesTriangleBlock': 'triangle;direction=north',
+			'IsoscelesTriangleBlock': 'triangle;direction=north;anchorPointDirection=0',
 			'RightTriangleBlock': s + 'basic.orthogonal_triangle',
 			'PentagonBlock': s + 'basic.pentagon',
-			'HexagonBlock': 'shape=hexagon',
+			'HexagonBlock': 'shape=hexagon;perimeter=hexagonPerimeter2',
 			'OctagonBlock': s + 'basic.octagon',
 			'CrossBlock': 'shape=cross;size=0.6',
 			'CloudBlock': 'ellipse;shape=cloud',
@@ -288,7 +288,7 @@
 			'MindMapIsoscelesTriangleBlock' : 'shape=triangle;direction=north',
 			'MindMapDiamondBlock' : 'shape=rhombus',
 			'MindMapPentagonBlock' : s + 'basic.pentagon',
-			'MindMapHexagonBlock' : 'shape=hexagon',
+			'MindMapHexagonBlock' : 'shape=hexagon;perimeter=hexagonPerimeter2',
 			'MindMapOctagonBlock' : s + 'basic.octagon',
 			'MindMapCrossBlock' : s + 'basic.cross2;dx=20',
 //Entity Relationship
@@ -449,7 +449,7 @@
 			'VSMProductionKanbanBatchBlock' : cs,
 			'VSMWithdrawalKanbanBlock' : s + 'lean_mapping.withdrawal_kanban',
 //			'VSMWithdrawalKanbanBatchBlock' NA
-			'VSMSignalKanbanBlock' : 'shape=triangle;direction=south',
+			'VSMSignalKanbanBlock' : 'shape=triangle;direction=south;anchorPointDirection=0',
 			'VSMKanbanPostBlock' : s + 'lean_mapping.kanban_post',
 //Arrows
 			'VSMShipmentArrow': 'shape=singleArrow;arrowWidth=0.5;arrowSize=0.13',
@@ -1696,7 +1696,7 @@
 //Piping
 			'PEOneToMany' : cs, //TODO
 			'PEMultilines' : cs, //TODO
-			'PEMidArrow' : 'shape=triangle',
+			'PEMidArrow' : 'shape=triangle;anchorPointDirection=0',
 			'PEButtWeld' : s + 'sysml.x',
 			'PETopToTop' : s + 'pid.vessels.container,_tank,_cistern',
 //			'PESonicSignal' NA
@@ -1705,7 +1705,7 @@
 //			'PEHydraulicSignalLine' NA
 			'PEMechanicalLink' : 'shape=ellipse',
 			'PESolderedSolvent' : 'shape=ellipse',
-			'PEDoubleContainment' : 'shape=hexagon',
+			'PEDoubleContainment' : 'shape=hexagon;perimeter=hexagonPerimeter2',
 			'PEFlange' : s + 'pid.piping.double_flange',
 			'PEFlange2' : s + 'pid.piping.flange_in;flipH=1',
 			'PEEndCap' : s + 'pid.piping.cap',
@@ -1720,7 +1720,7 @@
 //			'PEFlameArrester2' NA
 			'PEDetonationArrester' : s + 'pid.piping.detonation_arrestor',
 //			'PEDrainSilencer' NA
-			'PETriangleSeparator' : 'shape=triangle;direction=west',
+			'PETriangleSeparator' : 'shape=triangle;direction=west;anchorPointDirection=0',
 //			'PETriangleSeparator2' NA
 			'PETundish' : s + 'ios7.misc.left',
 			'PEOpenVent' : s + 'pid.vessels.vent_(bent)',
@@ -2306,6 +2306,7 @@
 					if (currM.v != null)
 					{
 						isV = true;
+						
 						return 'fontSize=' + Math.round(currM.v * scale) + ';';
 					}
 				}
@@ -2315,7 +2316,7 @@
 		
 		if (isV == 0)
 		{
-			return 'fontSize=10;';
+			return 'fontSize=' + defaultFontSize + ';';
 		}
 		
 		return '';
@@ -2490,18 +2491,21 @@
 			{
 				var currM = m[i];
 				
-				if (currM.n == 'il')
+				if (currM.v != null)
 				{
-					if (currM.v != null)
+					if (currM.n == 'il')
 					{
 						return 'spacingLeft=' + currM.v * 0.6 + ';';
 					}
-				}
-				else if (currM.n == 's' && getTextAlignment(properties) != 'align=center;')
-				{
-					if (currM.v != null)
+					else
 					{
-						return 'spacingLeft=' + currM.v * 0.6 + ';';
+						var align = getTextAlignment(properties);
+					
+						if (currM.n == 's' && align != 'align=center;' && align != '')
+						{
+							// TODO: Fix condition to apply this only when necessary
+							//return 'spacingLeft=' + currM.v * 0.6 + ';';
+						}
 					}
 				}
 					
@@ -2630,7 +2634,7 @@
 	
 	function getStrokeColor(properties, action)
 	{
-		if (!hardStroke.includes(action.Class))
+		if (mxUtils.indexOf(hardStroke, action.Class) < 0)
 		{
 			if (properties.LineWidth == 0)
 			{
@@ -2655,13 +2659,14 @@
 	function getOpacity(properties, action)
 	{
 		var style = '';
+		var incl = mxUtils.indexOf(hardOpacity, action.Class) >= 0;
 		
-		if (!hardOpacity.includes(action.Class))
+		if (!incl)
 		{
 			style += createStyle(mxConstants.STYLE_OPACITY, properties.Opacity, '100');
 		}
 
-		if (typeof properties.LineColor === 'string' && !hardOpacity.includes(action.Class))
+		if (typeof properties.LineColor === 'string' && !incl)
 		{
 			if (properties.LineColor.length > 7)
 			{
@@ -2670,7 +2675,7 @@
 			}
 		}
 		
-		if (typeof properties.FillColor === 'string' && !hardOpacity.includes(action.Class))
+		if (typeof properties.FillColor === 'string' && !incl)
 		{
 			if (properties.FillColor.length > 7)
 			{
@@ -2682,19 +2687,22 @@
 		return style;
 	}
 
-	function getRounded(properties, action)
+	function getRounded(properties, action, cell)
 	{
-		//rounding check
-		if (properties.Rounding != null && !hardRound.includes(action.Class))
+		if (!cell.edge)
 		{
-			if (properties.Rounding > 0)
+			//rounding check
+			if (properties.Rounding != null && mxUtils.indexOf(hardRound, action.Class) < 0)
 			{
-				return 'rounded=1;absoluteArcSize=1;arcSize=' + properties.Rounding * 0.6 + ';';
+				if (properties.Rounding > 0)
+				{
+					return 'rounded=1;absoluteArcSize=1;arcSize=' + properties.Rounding * 0.6 + ';';
+				}
 			}
-		}
-		else if (properties.Rounding == null && hardDefRound.includes(action.Class))
-		{
-			return 'rounded=1;absoluteArcSize=1;arcSize=8;'
+			else if (properties.Rounding == null && mxUtils.indexOf(hardDefRound, action.Class) >= 0)
+			{
+				return 'rounded=1;absoluteArcSize=1;arcSize=8;';
+			}
 		}
 		
 		return '';
@@ -2716,14 +2724,14 @@
 				deg += 90;
 				cell.geometry.rotate90();
 			}
-			else if (rccw.includes(action.Class))
+			else if (mxUtils.indexOf(rccw, action.Class) >= 0)
 			{
 				deg -= 90;
 				cell.geometry.rotate90();
 				cell.geometry.rotate90();
 				cell.geometry.rotate90();
 			}
-			else if (rcw2.includes(action.Class))
+			else if (mxUtils.indexOf(rcw2, action.Class) >= 0)
 			{
 				deg += 180;
 				cell.geometry.rotate90();
@@ -2775,7 +2783,7 @@
 		// Gradients and fill color
 		if (properties.FillColor != null)
 		{
-			if (!hardFill.includes(action.Class))
+			if (mxUtils.indexOf(hardFill, action.Class) < 0)
 			{
 				if (typeof properties.FillColor === 'object')
 				{
@@ -2843,11 +2851,11 @@
 		
 		if (a != null)
 		{
-			var s = styleMap[a.Class] + ';';
+			var s = styleMap[a.Class];
 			
 			if (s != null)
 			{
-				cell.style += s;
+				cell.style += s + ';';
 			}
 //			else if (a.Class != null)
 			{
@@ -2874,7 +2882,7 @@
 								getTextVerticalAlignment(p) + 
 								getStrokeColor(p, a) + 
 								getOpacity(p, a) + 
-								getRounded(p, a) +
+								getRounded(p, a, cell) +
 								getRotation(p, a, cell) + 
 								getFlipH(p) + 
 								getFlipV(p) +
@@ -2887,7 +2895,14 @@
 				// Edge style
 				if (cell.edge)
 				{
-					cell.style += 'rounded=1;arcSize=' + arcSize + ';';
+					if (p.Rounding != null)
+					{
+						cell.style += 'rounded=1;arcSize=' + p.Rounding + ';';
+					}
+					else
+					{
+						cell.style += 'rounded=0;';
+					}
 					
 					if (p.Shape != 'diagonal')
 					{
@@ -3042,14 +3057,14 @@
 			{
 				cell.style += ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' +
 					((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';' +
-					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=0;';
+					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=1;';
 			}
 		}
 	};
 
 	var hideObj = function(key, groups, hidden)
 	{
-		if (!hidden.includes(key))
+		if (mxUtils.indexOf(hidden, key) < 0)
 		{
 			hidden.push(key);
 		}
@@ -3097,7 +3112,7 @@
 					
 					if (obj.Hidden == true && obj.Members != null)
 					{
-						if (!hidden.includes(key))
+						if (mxUtils.indexOf(hidden, key) < 0)
 						{
 							hidden.push(key);
 						}
@@ -3118,7 +3133,7 @@
 					var obj = g.Blocks[key];
 					obj.id = key;
 					
-					if (!hidden.includes(key))
+					if (mxUtils.indexOf(hidden, key) < 0)
 					{
 						var created = false;
 						
@@ -3218,7 +3233,7 @@
 			{
 				for (var key in g.Lines)
 				{
-					if (!hidden.includes(key))
+					if (mxUtils.indexOf(hidden, key) < 0)
 					{
 						var obj = g.Lines[key];
 					    addLine(obj, obj);
@@ -3401,7 +3416,7 @@
 									getTextVerticalAlignment(p["Lane_" + i]) + 
 									getStrokeColor(p, a) + 
 									getOpacity(p, a) + 
-									getRounded(p, a) +
+									getRounded(p, a, lane[i]) +
 									getRotation(p, a, lane[i]) + 
 									getFlipH(p) + 
 									getFlipV(p) +
@@ -4126,7 +4141,7 @@
 				v.style += 'strokeColor=none;' +
 					getFillColor(p, a) +
 					getOpacity(p, a) + 
-					getRounded(p, a) +
+					getRounded(p, a, v) +
 					getLabelStyle(p.Search);
 				
 				v.value = convertText(p.Search);
@@ -5274,7 +5289,7 @@
 			case 'BPMNChoreography' :
 				break;
 			case 'BPMNConversation' :
-				v.style += 'shape=hexagon;' +
+				v.style += 'shape=hexagon;perimeter=hexagonPerimeter2;' +
 					getFillColor(p, a) +
 					getStrokeColor(p, a) +
 					getOpacity(p, a) + 
@@ -6143,15 +6158,15 @@
 							break;
 						case 'EICommandMessageBlock' :
 							item2[i].value = 'C';
-							item2[i].style += 'fontStyle=1;fontSize=10;';
+							item2[i].style += 'fontStyle=1;fontSize=' + defaultFontSize + ';';
 							break;
 						case 'EIDocumentMessageBlock' :
 							item2[i].value = 'D';
-							item2[i].style += 'fontStyle=1;fontSize=10;';
+							item2[i].style += 'fontStyle=1;fontSize=' + defaultFontSize + ';';
 							break;
 						case 'EIEventMessageBlock' :
 							item2[i].value = 'E';
-							item2[i].style += 'fontStyle=1;fontSize=10;';
+							item2[i].style += 'fontStyle=1;fontSize=' + defaultFontSize + ';';
 							break;
 					}
 
@@ -6360,7 +6375,7 @@
 					getStrokeStyle(p);
 
 				item2.value = 'A';
-				item2.style += 'fontStyle=1;fontSize=10;';
+				item2.style += 'fontStyle=1;fontSize=' + defaultFontSize + ';';
 
 				edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;part=1;');
 		    	edge1.geometry.relative = true;
@@ -6393,7 +6408,7 @@
 					getStrokeStyle(p);
 
 				item4.value = 'B';
-				item4.style += 'fontStyle=1;fontSize=10;';
+				item4.style += 'fontStyle=1;fontSize=' + defaultFontSize + ';';
 
 				edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;part=1;');
 		    	edge2.geometry.relative = true;
@@ -6436,21 +6451,21 @@
 				
 				v.value = convertText(p.Text);
 				
-				var item1 = new mxCell('1', new mxGeometry(w * 0.2, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=10;part=1;');
+				var item1 = new mxCell('1', new mxGeometry(w * 0.2, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=' + defaultFontSize + ';part=1;');
 				item1.vertex = true;
 				v.insert(item1);
 				item1.style += 
 					getStrokeColor(p, a) + 
 					getStrokeWidth(p);
 				
-				var item2 = new mxCell('2', new mxGeometry(w * 0.45, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=10;part=1;');
+				var item2 = new mxCell('2', new mxGeometry(w * 0.45, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=' + defaultFontSize + ';part=1;');
 				item2.vertex = true;
 				v.insert(item2);
 				item2.style += 
 					getStrokeColor(p, a) + 
 					getStrokeWidth(p);
 				
-				var item3 = new mxCell('3', new mxGeometry(w * 0.7, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=10;part=1;');
+				var item3 = new mxCell('3', new mxGeometry(w * 0.7, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fontSize=' + defaultFontSize + ';part=1;');
 				item3.vertex = true;
 				v.insert(item3);
 				item3.style += 
@@ -7031,7 +7046,7 @@
 						v.style += 'shape=mxgraph.pid.vessels.pressurized_vessel;';
 						break;
 					case 2 :
-						v.style += 'shape=hexagon;size=0.10;direction=south;';
+						v.style += 'shape=hexagon;perimeter=hexagonPerimeter2;size=0.10;direction=south;';
 						break;
 				}
 				
@@ -7098,7 +7113,7 @@
 					getShadow(p) +
 					getStrokeStyle(p);
 				
-				var item1 = new mxCell('', new mxGeometry(0, h * 0.2, w, h * 0.6), 'part=1;shape=trapezoid;direction=south;');
+				var item1 = new mxCell('', new mxGeometry(0, h * 0.2, w, h * 0.6), 'part=1;shape=trapezoid;perimeter=trapezoidPerimeter;direction=south;');
 				item1.vertex = true;
 				v.insert(item1);
 				item1.style += st; 
@@ -7167,7 +7182,7 @@
 				
 				v.value = convertText(p.Text);
 				
-				var item1 = new mxCell('', new mxGeometry(w * 0.2, h * 0.2, w * 0.6, h * 0.6), 'part=1;shape=trapezoid;direction=south;');
+				var item1 = new mxCell('', new mxGeometry(w * 0.2, h * 0.2, w * 0.6, h * 0.6), 'part=1;shape=trapezoid;perimeter=trapezoidPerimeter;direction=south;');
 				item1.vertex = true;
 				v.insert(item1);
 				item1.style += st; 
@@ -7613,7 +7628,7 @@
 						item1[i].value = convertText(p['Panel_' + (i + 1)]);
 					}
 
-					if (!item1[i].style.includes(';align='))
+					if (item1[i].style.indexOf(';align=') < 0)
 					{
 						item1[i].style += 'align=left;spacingLeft=5;';
 					}
@@ -7690,7 +7705,7 @@
 				item4.style += 
 					getLabelStyle(p['Content_1']);
 				
-				if (!item4.style.includes(';align='))
+				if (item4.style.indexOf(';align=') < 0)
 				{
 					item4.style += 'align=left;spacingLeft=5;';
 				}
@@ -7760,7 +7775,7 @@
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
 					}
 
-					if (!item2[i].style.includes(';align='))
+					if (item2[i].style.indexOf(';align=') < 0)
 					{
 						item2[i].style += 'align=left;spacingLeft=2;';
 					}
@@ -7887,7 +7902,7 @@
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
 					}
 
-					if (!item2[i].style.includes(';align='))
+					if (item2[i].style.indexOf(';align=') < 0)
 					{
 						item2[i].style += 'align=left;spacingLeft=2;';
 					}
@@ -8015,7 +8030,7 @@
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
 					}
 
-					if (!item2[i].style.includes(';align='))
+					if (item2[i].style.indexOf(';align=') < 0)
 					{
 						item2[i].style += 'align=left;spacingLeft=2;';
 					}

@@ -515,7 +515,7 @@ EditorUi.initMinimalTheme = function()
         
         if (graph.getSelectionCount() == 1)
         {
-            this.addMenuItems(menu, ['editTooltip', '-'], null, evt);
+            this.addMenuItems(menu, ['-', 'editTooltip', 'editStyle', '-'], null, evt);
 
             if (graph.isCellFoldable(graph.getSelectionCell()))
             {

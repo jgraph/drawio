@@ -2471,11 +2471,10 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		{
 			this.editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
 		}
-	}),
-	preview, 0, 0, this.editorUi.editor.graph.autoscroll, true, true);
+	}), preview, 0, 0, graph.autoscroll, true, true);
 	
 	// Stops dragging if cancel is pressed
-	this.editorUi.editor.graph.addListener(mxEvent.ESCAPE, function(sender, evt)
+	graph.addListener(mxEvent.ESCAPE, function(sender, evt)
 	{
 		if (dragSource.isActive())
 		{
@@ -3161,33 +3160,53 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 Sidebar.prototype.addClickHandler = function(elt, ds, cells)
 {
 	var graph = this.editorUi.editor.graph;
+	var oldMouseDown = ds.mouseDown;
+	var oldMouseMove = ds.mouseMove;
 	var oldMouseUp = ds.mouseUp;
+	var tol = graph.tolerance;
 	var first = null;
+	var sb = this;
 	
-	mxEvent.addGestureListeners(elt, function(evt)
+	ds.mouseDown =function(evt)
 	{
+		oldMouseDown.apply(this, arguments);
 		first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-	});
-	
-	ds.mouseUp = mxUtils.bind(this, function(evt)
-	{
-		if (!mxEvent.isPopupTrigger(evt) && this.currentGraph == null && first != null)
+		
+		if (this.dragElement != null)
 		{
-			var tol = graph.tolerance;
-			
-			if (Math.abs(first.x - mxEvent.getClientX(evt)) <= tol &&
-				Math.abs(first.y - mxEvent.getClientY(evt)) <= tol)
-			{
-				this.itemClicked(cells, ds, evt, elt);
-			}
+			this.dragElement.style.display = 'none';
+			mxUtils.setOpacity(elt, 50);
+		}
+	};
+	
+	ds.mouseMove = function(evt)
+	{
+		if (this.dragElement != null && this.dragElement.style.display == 'none' &&
+			first != null && (Math.abs(first.x - mxEvent.getClientX(evt)) > tol ||
+			Math.abs(first.y - mxEvent.getClientY(evt)) > tol))
+		{
+			this.dragElement.style.display = '';
+			mxUtils.setOpacity(elt, 100);
+		}
+		
+		oldMouseMove.apply(this, arguments);
+	};
+	
+	ds.mouseUp = function(evt)
+	{
+		if (!mxEvent.isPopupTrigger(evt) && this.currentGraph == null &&
+			this.dragElement != null && this.dragElement.style.display == 'none')
+		{
+			sb.itemClicked(cells, ds, evt, elt);
 		}
 
 		oldMouseUp.apply(ds, arguments);
+		mxUtils.setOpacity(elt, 100);
 		first = null;
 		
 		// Blocks tooltips on this element after single click
-		this.currentElt = elt;
-	});
+		sb.currentElt = elt;
+	};
 };
 
 /**
