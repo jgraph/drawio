@@ -10687,9 +10687,9 @@
 		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('tags').setEnabled(active && (file == null || !file.isRestricted()));
-		this.actions.get('find').setEnabled(enabled);
-		this.actions.get('layers').setEnabled(enabled);
-		this.actions.get('outline').setEnabled(enabled);
+		this.actions.get('find').setEnabled(this.diagramContainer.style.visibility != 'hidden');
+		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
+		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());

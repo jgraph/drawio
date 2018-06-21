@@ -80,6 +80,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		menusInit.apply(this, arguments);
 
 		var editorUi = this.editorUi;
+
+		editorUi.actions.put('offline', new Action(mxResources.get('online') + '...', function()
+		{
+			editorUi.openLink('https://www.draw.io/')
+		}));
 		
 		// Replaces file menu to replace openFrom menu with open and rename downloadAs to export
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -88,27 +93,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.addSubmenu('exportAs', menu, parent);
 			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
-			this.addSubmenu('publish', menu, parent);
 			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['newLibrary', 'openLibrary', '-', 'pageSetup',
 				'print', '-', 'close'], parent);
 			// LATER: Find API for application.quit
-		})));
-		
-		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			this.addSubmenu('theme', menu, parent);
-			menu.addSeparator(parent);
-			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
-
-			if (typeof(MathJax) !== 'undefined')
-			{
-				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
-			}
-			
-			this.addMenuItems(menu, ['autosave', '-', 'createShape', 'editDiagram', '-',
-				'plugins', 'tags', '-', 'online'], parent);
 		})));
 	};
 	
