@@ -750,7 +750,16 @@ EditorUi.initMinimalTheme = function()
 				menu.addSeparator(parent);
 			}
 			
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags', '-'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find'], parent);
+			
+			var item = this.addMenuItem(menu, 'tags', parent);
+			
+			if (!ui.isOffline() || mxClient.IS_CHROMEAPP)
+			{
+				ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+			}
+			
+			menu.addSeparator(parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)
@@ -813,9 +822,13 @@ EditorUi.initMinimalTheme = function()
         	exportAsMenu.funct(menu, parent);
             menu.addSeparator(parent);
             ui.menus.addSubmenu('embed', menu, parent);
-            // Publish menu contains only one element by default...
-            //ui.menus.addSubmenu('publish', menu, parent); 
-            ui.menus.addMenuItems(menu, ['publishLink'], parent);
+            
+    		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+    		{
+	            // Publish menu contains only one element by default...
+	            //ui.menus.addSubmenu('publish', menu, parent); 
+	            ui.menus.addMenuItems(menu, ['publishLink'], parent);
+    		}
         })));
 
         var langMenu = this.get('language');
@@ -834,17 +847,22 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			menu.addSeparator(parent);
-			
-            ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'pageScale'], parent);
+			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'pageScale'], parent);
             
-			if (urlParams['embed'] != '1' && isLocalStorage)
+			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'search', 'scratchpad', '-', 'showStartScreen'], parent);
 			}
-
-			if (!ui.isOfflineApp() && urlParams['embed'] != '1')
+			
+			if (!ui.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
 			{
-				ui.menus.addMenuItems(menu, ['-', 'plugins'], parent);
+				menu.addSeparator(parent);
+				var item = ui.menus.addMenuItem(menu, 'plugins', parent);
+				
+				if (!ui.isOffline())
+				{
+					ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
+				}
 			}
         })));
 

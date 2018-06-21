@@ -1,3 +1,8 @@
+21-JUN-2018: 8.8.6
+
+- Improves detection of gliffy macro in conf cloud
+- Fixes inconsistent menus
+
 21-JUN-2018: 8.8.5
 
 - Fixes delete property in data dialog

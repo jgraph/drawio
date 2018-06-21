@@ -886,12 +886,13 @@
 
 				this.addMenuItems(menu, ['support', '-'], parent);
 				
-				if (!editorUi.isOffline() && !navigator.standalone && urlParams['embed'] != '1')
+				if (!editorUi.isOffline() && !EditorUi.isElectronApp &&
+					!navigator.standalone && urlParams['embed'] != '1')
 				{
 					this.addMenuItems(menu, ['download'], parent);
 				}
 				
-				if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
+				if (!navigator.standalone && urlParams['embed'] != '1')
 				{
 					this.addMenuItems(menu, ['offline'], parent);
 				}
@@ -2529,18 +2530,29 @@
 
 			menu.addSeparator(parent);
 			
-			if (urlParams['embed'] != '1' && isLocalStorage)
+			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
 				this.addMenuItems(menu, ['showStartScreen'], parent);
 			}
 
-			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1')
+			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
 			{
-				this.addMenuItem(menu, 'plugins', parent);
+				var item = this.addMenuItem(menu, 'plugins', parent);
+				
+				if (!editorUi.isOffline())
+				{
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
+				}
 			}
 
 			menu.addSeparator(parent);
-			this.addMenuItem(menu, 'tags', parent);
+			
+			var item = this.addMenuItem(menu, 'tags', parent);
+			
+			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+			{
+				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+			}
 		})));
 
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
