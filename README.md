@@ -17,14 +17,6 @@ A development guide is being started on the GitHub project wiki. There is a [dra
 
 The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
 
-Building
---------
-From project directory,
-```bash
-cd etc/build/
-ant war
-```
-This will create a war under build directory.
 
 Docker
 ------
