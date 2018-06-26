@@ -9,7 +9,10 @@ Draw.loadPlugin(function(ui)
 	// Adds action
 	ui.actions.addAction('extractText', function()
 	{
-		mxUtils.popup(ui.editor.graph.getIndexableText());
+		var dlg = new EmbedDialog(ui, ui.editor.graph.getIndexableText(),
+			null, null, null, 'Extracted Text:');
+		ui.showDialog(dlg.container, 440, 240, true, true);
+		dlg.init();
 	});
 	
 	var menu = ui.menus.get('extras');

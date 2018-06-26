@@ -2164,26 +2164,29 @@ App.prototype.start = function()
 							
 							if (urlParams['splash'] == '0' && (id == null || id.length == 0))
 							{
-								var draft = this.getDraft();
-								var fileData = (draft != null) ? draft.data : this.getFileData();
-								var prev = Editor.useLocalStorage;
-								this.createFile(this.defaultFilename, fileData, null, null, null, null, null, true);
-								Editor.useLocalStorage = prev;
-								
-								// Draft was used so the user should save the file
-								if (draft != null)
+								if (!mxClient.IS_CHROMEAPP)
 								{
-									var file = this.getCurrentFile();
+									var draft = this.getDraft();
+									var fileData = (draft != null) ? draft.data : this.getFileData();
+									var prev = Editor.useLocalStorage;
+									this.createFile(this.defaultFilename, fileData, null, null, null, null, null, true);
+									Editor.useLocalStorage = prev;
 									
-									if (file != null)
+									// Draft was used so the user should save the file
+									if (draft != null)
 									{
-										file.addUnsavedStatus();
+										var file = this.getCurrentFile();
+										
+										if (file != null)
+										{
+											file.addUnsavedStatus();
+										}
 									}
 								}
 							}
 							else
 							{
-								this.loadFile(this.getDiagramId());
+								this.loadFile(id);
 							}
 						}
 					}
@@ -2364,7 +2367,7 @@ App.prototype.showSplash = function(force)
 			this.showSplash();
 		}));
 	}
-	else if (this.mode == null || force)
+	else if (!mxClient.IS_CHROMEAPP && (this.mode == null || force))
 	{
 		var rowLimit = (serviceCount == 4) ? 2 : 3;
 		

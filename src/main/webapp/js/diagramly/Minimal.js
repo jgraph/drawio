@@ -696,7 +696,7 @@ EditorUi.initMinimalTheme = function()
         	toggleFormat(ui);
         }));
         
-        if (EditorUi.enablePlantUml)
+        if (EditorUi.enablePlantUml && !ui.isOffline())
         {
 	        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
 	        {
@@ -868,7 +868,7 @@ EditorUi.initMinimalTheme = function()
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'formatSql', 'editDiagram'], parent);
+            ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
         
         mxResources.parse('insertLayout=' + mxResources.get('layout'));
