@@ -1,3 +1,11 @@
+26-JUN-2018: 8.8.7
+
+- Fixes custom content view in Confluence Cloud
+- Disables click sidebar collapse
+- Uses inline window for text plugin
+- Adds showStartScreen in Chrome App
+- Disables plantUML when offline
+
 21-JUN-2018: 8.8.6
 
 - Improves detection of gliffy macro in conf cloud

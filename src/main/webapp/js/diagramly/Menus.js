@@ -420,7 +420,7 @@
 			action.isEnabled = isGraphEnabled;
 		}
 		
-		if (isLocalStorage)
+		if (isLocalStorage || mxClient.IS_CHROMEAPP)
 		{
 			var action = editorUi.actions.addAction('showStartScreen', function()
 			{
@@ -1957,7 +1957,7 @@
 
 		var addInsertItem = function(menu, parent, title, method)
 		{
-			if (method != 'plantUml' || EditorUi.enablePlantUml)
+			if (method != 'plantUml' || (EditorUi.enablePlantUml && !editorUi.isOffline()))
 			{
 				menu.addItem(title, null, mxUtils.bind(this, function()
 				{

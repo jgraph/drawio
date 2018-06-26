@@ -244,7 +244,6 @@ function setCurrentXml(data, filename)
 // Enables offline mode
 if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealth'] == '1' || urlParams['local'] == '1')
 {
-	urlParams['analytics'] = '0';
 	urlParams['picker'] = '0';
 	urlParams['gapi'] = '0';
 	urlParams['db'] = '0';

@@ -1486,12 +1486,14 @@
 			cells = this.getCellsForAction(action.select);
 			this.setSelectionCells(cells);
 		}
-		
-		if (action.scroll != null)
+
+		if (action.highlight != null)
 		{
-			cells = this.getCellsForAction(action.scroll);
+			cells = this.getCellsForAction(action.highlight);
+			this.highlightCells(cells, action.highlight.color,
+				action.highlight.duration, action.highlight.opacity);
 		}
-		
+
 		if (action.toggle != null)
 		{
 			this.toggleCells(this.getCellsForAction(action.toggle));
@@ -1507,13 +1509,11 @@
 			this.setCellsVisible(this.getCellsForAction(action.hide), false);
 		}
 
-		if (action.highlight != null)
+		if (action.scroll != null)
 		{
-			cells = this.getCellsForAction(action.highlight);
-			this.highlightCells(cells, action.highlight.color,
-				action.highlight.duration, action.highlight.opacity);
+			cells = this.getCellsForAction(action.scroll);
 		}
-
+		
 		if (cells.length > 0)
 		{
 			this.scrollCellToVisible(cells[0]);

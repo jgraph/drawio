@@ -960,7 +960,7 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 /**
  * Constructs a new embed dialog
  */
-var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title)
 {
 	var div = document.createElement('div');
 	var maxSize = 500000;
@@ -970,8 +970,15 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	// Checks if result is a link
 	var validUrl = /^https?:\/\//.test(result) || /^mailto:\/\//.test(result);
 
-	mxUtils.write(div, mxResources.get((result.length < maxSize) ?
-		((validUrl) ? 'link' : 'mainEmbedNotice') : 'preview') + ':');
+	if (title != null)
+	{
+		mxUtils.write(div, title);
+	}
+	else
+	{
+		mxUtils.write(div, mxResources.get((result.length < maxSize) ?
+			((validUrl) ? 'link' : 'mainEmbedNotice') : 'preview') + ':');
+	}
 	mxUtils.br(div);
 	
 	var size = document.createElement('div');
