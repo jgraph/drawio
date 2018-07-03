@@ -1,2 +1,4 @@
-/bin/
-node_modules/
+bin
+build
+classes
+node_modules

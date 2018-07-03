@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="no"?>
+<svg contentScriptType="text/ecmascript" width="65.5" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full"
+    zoomAndPan="magnify" contentStyleType="text/css" height="65.5" viewBox="0 -0.1 65.5 65.4" preserveAspectRatio="none meet"
+    xmlns="http://www.w3.org/2000/svg" version="1.0">
+    <defs>
+        <style>.cls-1{fill:url(#linear-gradient);}.cls-2{fill:#2684ff;}.cls-3{fill:#0052cc;}</style>
+        <linearGradient x1="28.121" gradientUnits="userSpaceOnUse" x2="11.239" y1="35.051" y2="64.292" id="linear-gradient">
+            <stop stop-color="#0052cc" offset="0"/>
+            <stop stop-color="#2684ff" offset="0.923"/>
+        </linearGradient>
+    </defs>
+    <title>Atlassian-horizontal-blue-rgb</title>
+    <path class="cls-1" d="M 19.463167 30.115 a 1.856 1.856 0.0 0 0 -3.157 0.343 L 0.30916667 62.442 a 1.912 1.912 0.0 0 
+        0 1.71 2.767 H 24.294167 a 1.843 1.843 0.0 0 0 1.71 -1.057 C 30.809168 54.223 27.897167 39.126 19.463167 30.115 
+        z"/>
+    <path class="cls-2" d="M 31.196167 1.024 a 42.188 42.188 0.0 0 0 -2.463 41.65 L 39.472164 64.152 a 1.912 1.912 0.0 0 
+        0 1.71 1.057 H 63.453167 a 1.912 1.912 0.0 0 0 1.71 -2.767 S 35.201164 2.511 34.448166 1.012 A 1.806 1.806 0.0 0 
+        0 31.196167 1.024 z"/>
+</svg>

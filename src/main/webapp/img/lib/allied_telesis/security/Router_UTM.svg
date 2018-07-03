@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1"
+	 id="Layer_1" inkscape:version="0.92.3 (2405546, 2018-03-11)" sodipodi:docname="Router_UTM2.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 92.702 65.41"
+	 style="enable-background:new 0 0 92.702 65.41;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#626366;stroke-width:2.409;stroke-linejoin:round;}
+	.st1{fill:#A4A6A9;stroke:#626366;stroke-width:2.409;stroke-linejoin:round;}
+	.st2{fill:#BBBDBF;}
+	.st3{fill:#A4A6A9;}
+	.st4{fill:#E21B23;}
+	.st5{fill:#B3B5B7;}
+	.st6{fill:#FEFEFE;}
+	.st7{fill:#96989B;}
+	.st8{fill:none;stroke:#DFE0DF;stroke-width:0.637;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1" gridtolerance="10" guidetolerance="10" id="namedview1249" inkscape:current-layer="Layer_1" inkscape:cx="33.023101" inkscape:cy="38.681074" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="1017" inkscape:window-maximized="1" inkscape:window-width="1920" inkscape:window-x="-8" inkscape:window-y="-8" inkscape:zoom="8" objecttolerance="10" pagecolor="#ffffff" showgrid="false">
+	</sodipodi:namedview>
+<title  id="title4">icon-router-UTM</title>
+<desc  id="desc6">Created with Sketch.</desc>
+<polygon id="Stroke-87" class="st0" points="54.344,54.008 91.467,34.175 91.497,43.141 54.373,62.973 "/>
+<path id="Stroke-47" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccc" class="st0" d="M1.722,21.132L38.847,1.3
+	c0.294-0.158,0.689-0.126,1.127,0.135L2.85,21.267C2.413,21.007,2.017,20.974,1.722,21.132z"/>
+<path id="Stroke-83" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccc" class="st1" d="M90.98,44.278L53.856,64.11
+	c0.32-0.171,0.52-0.566,0.518-1.138L91.498,43.14C91.5,43.713,91.3,44.107,90.98,44.278z"/>
+<polygon id="Stroke-85" class="st0" points="89.809,31.2 52.685,51.033 2.85,21.268 39.974,1.435 "/>
+<path id="Stroke-196" inkscape:connector-curvature="0" class="st0" d="M52.685,51.032l37.124-19.833
+	c0.907,0.542,1.655,1.884,1.658,2.976L54.344,54.008C54.34,52.915,53.592,51.574,52.685,51.032z"/>
+<path id="Stroke-198" class="st0" d="M52.685,51.032c0.907,0.542,1.655,1.883,1.659,2.976l0.029,8.964
+	c0.004,1.099-0.738,1.544-1.645,1.002L2.893,34.21c-0.913-0.545-1.655-1.877-1.658-2.976l-0.03-8.965
+	C1.2,21.177,1.937,20.722,2.85,21.267L52.685,51.032z"/>
+<polygon id="Fill-281" class="st2" points="89.809,31.2 52.685,51.033 2.85,21.268 39.974,1.435 "/>
+<polygon id="Fill-282" class="st3" points="54.344,54.008 91.467,34.175 91.497,43.141 54.373,62.973 "/>
+<path id="Fill-283" inkscape:connector-curvature="0" class="st2" d="M52.685,51.032l37.124-19.833
+	c0.907,0.542,1.655,1.884,1.658,2.976L54.344,54.008C54.34,52.915,53.592,51.574,52.685,51.032"/>
+<path id="Fill-391" class="st4" d="M52.685,51.032c1.653,0.982,1.656,1.906,1.659,2.976l0.029,8.964
+	c0.004,1.099-0.738,1.544-1.645,1.002L2.893,34.21c-0.913-0.545-1.655-1.877-1.658-2.976l-0.03-8.965
+	C1.2,21.177,1.937,20.722,2.85,21.267L52.685,51.032z"/>
+<path id="Fill-393" class="st5" d="M52.403,53.523c1.39,1.062,1.717,1.399,1.725,3.521l0.019,6.063
+	c0.003,0.879-0.492,1.626-1.645,1.002L5.696,36.032c-0.731-0.436-1.324-1.501-1.328-2.38L4.344,26.48
+	c-0.003-0.874,0.586-1.238,1.318-0.802L52.403,53.523z"/>
+<polygon id="Fill-397" class="st6" points="19.293,38.238 7.827,31.39 7.82,28.693 19.285,35.54 "/>
+<polygon id="Fill-399" class="st6" points="19.261,42.316 7.798,35.47 7.791,32.771 19.254,39.616 "/>
+<polygon id="Fill-401" class="st6" points="27.68,47.499 21.851,44.009 21.826,37.96 27.648,41.449 "/>
+<polygon id="Fill-403" class="st6" points="50.107,60.456 47.192,58.711 47.18,55.686 50.091,57.431 "/>
+<polygon id="Fill-405" class="st6" points="44.276,57.474 40.079,54.961 40.06,50.606 44.252,53.118 "/>
+<path id="Fill-407" class="st4" d="M47.747,17.571l-8.397,4.268c-4.903,2.492-8.882,1.994-11.659,0.345
+	c-2.942-1.747-3.07-4.023,1.508-6.35l8.418-4.279l2.526,1.5l-8.505,4.323c-2.126,1.081-2.352,2.358-0.897,3.222
+	c1.336,0.794,3.589,1.008,6.235-0.338l8.246-4.191L47.747,17.571z"/>
+<polygon id="Fill-409" class="st4" points="56.369,25.681 52.701,23.502 40.617,29.645 38.091,28.146 50.176,22.003 46.507,19.824 
+	49.22,18.446 59.082,24.302 "/>
+<polygon id="Fill-411" class="st4" points="69.316,30.382 71.513,31.687 56.716,39.208 54.192,37.709 63.435,33.01 56.06,33.748 
+	55.673,33.519 57.584,29.535 48.341,34.234 45.816,32.735 60.613,25.212 62.811,26.517 60.574,31.239 "/>
+<path id="Stroke-83-4" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccc" class="st3" d="M90.98,44.278L53.856,64.11
+	c0.32-0.171,0.52-0.566,0.518-1.138L91.498,43.14C91.5,43.713,91.3,44.107,90.98,44.278z"/>
+<path id="Stroke-47-5" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccc" class="st7" d="M1.722,21.132L38.847,1.3
+	c0.294-0.158,0.689-0.126,1.127,0.135L2.85,21.267C2.413,21.007,2.017,20.974,1.722,21.132z"/>
+<path id="Stroke-395" class="st8" d="M1.204,22.27c-0.212-2.125,2.858-0.413,2.858-0.413l48.867,29.187
+	c-0.119-0.114,0.354,0.211,0.894,0.866c0.523,0.633,0.478,1.639,0.478,1.639l0.103,8.716c0,0,0.251,1.074-0.823,1.651"/>
+</svg>

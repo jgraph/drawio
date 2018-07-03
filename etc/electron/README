@@ -1,4 +1,0 @@
-1. Go to this directory
-2. Run "npm install" once
-3. Execute "export NODE_ENV=development" for dev mode
-4. Run "npm start" to start the client

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script>
+		var isLocalStorage = false;
+		var mxLoadStylesheets = false;
+	</script>
+	<!-- CSS for print output is needed for using current window -->
+	<style type="text/css">
+		@media print {
+		  table.mxPageSelector { display: none; }
+		  hr.mxPageBreak { display: none; }
+		}
+		@media screen {
+		  table.mxPageSelector { position: fixed; right: 10px; top: 10px;font-family: Arial; font-size:10pt; border: solid 1px darkgray;background: white; border-collapse:collapse; }
+		  table.mxPageSelector td { border: solid 1px gray; padding:4px; }
+		  body.mxPage { background: gray; }
+		}
+	</style>
+	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
+    <script src="js/app.min.js"></script>
+	<script>
+		Editor.initMath();
+	
+		function render(data)
+		{
+			var graph = new Graph(document.getElementById('graph'));
+			data.border = parseInt(data.border) || 0;
+			data.w = parseFloat(data.w) || 0;
+			data.h = parseFloat(data.h) || 0;
+			data.scale = parseFloat(data.scale) || 1;
+
+			// Parses XML
+			var xmlDoc = mxUtils.parseXml(data.xml);
+			var diagrams = null;
+			var from = 0;
+			
+			// Handles mxfile
+			if (xmlDoc.documentElement.nodeName == 'mxfile')
+			{
+				diagrams = xmlDoc.documentElement.getElementsByTagName('diagram');
+				
+				if (diagrams.length > 0)
+				{
+					from = Math.max(0, Math.min(parseInt(data.from) || from, diagrams.length - 1));
+					var diagramNode = diagrams[from];
+					
+					if (diagramNode != null)
+					{
+				        xmlDoc = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagramNode)));
+					}
+				}
+			}
+	        
+	        /**
+			 * Implements %page% and %pagenumber% placeholders
+			 */
+			var graphGetGlobalVariable = graph.getGlobalVariable;
+			
+			graph.getGlobalVariable = function(name)
+			{
+				if (name == 'page')
+				{
+					return (diagrams == null) ? 'Page-1' :
+						(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
+				}
+				else if (name == 'pagenumber')
+				{
+					return from + 1;
+				}
+				
+				return graphGetGlobalVariable.apply(this, arguments);
+			};
+
+			// Enables math typesetting
+			var math = xmlDoc.documentElement.getAttribute('math') == '1';
+			
+			if (math)
+			{
+				mxClient.NO_FO = true;
+			}
+
+			// Configure graph
+			graph.foldingEnabled = false;
+			graph.setEnabled(false);
+			
+			// Sets background image
+			var bgImg = xmlDoc.documentElement.getAttribute('backgroundImage');
+
+			if (bgImg != null)
+			{
+				bgImg = JSON.parse(bgImg);
+				graph.setBackgroundImage(new mxImage(bgImg.src, bgImg.width, bgImg.height));
+			}
+			
+			// Parses XML into graph
+			var codec = new mxCodec(xmlDoc);
+			codec.decode(xmlDoc.documentElement, graph.getModel());
+
+			// Loads background color
+			var bg = (data.bg != null && data.bg.length > 0) ? data.bg : xmlDoc.documentElement.getAttribute('background');
+
+			// Normalizes values for transparent backgrounds
+			if (bg == 'none' || bg == '')
+			{
+				bg = null;
+			}
+			
+			// Checks if export format supports transparent backgrounds
+			if (bg == null && data.format != 'gif' && data.format != 'png')
+			{
+				bg = '#ffffff';
+			}
+
+			// Sets background color on page
+			if (bg != null)
+			{
+				document.body.style.backgroundColor = bg;
+			}
+
+			// Sets initial value for PDF page background
+			graph.pdfPageVisible = false;
+			
+			// Handles PDF output where the output should match the page format if the page is visible
+			if (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0)
+			{
+				var pw = xmlDoc.documentElement.getAttribute('pageWidth');
+				var ph = xmlDoc.documentElement.getAttribute('pageHeight');
+				graph.pdfPageVisible = true;
+				
+				if (pw != null && ph != null)
+				{
+					graph.pageFormat = new mxRectangle(0, 0, parseFloat(pw), parseFloat(ph));
+				}
+				
+				var ps = xmlDoc.documentElement.getAttribute('pageScale');
+				
+				if (ps != null)
+				{
+					graph.pageScale = ps;
+				}
+				
+				graph.getPageSize = function()
+				{
+					return new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
+							this.pageFormat.height * this.pageScale);
+				};
+				
+				graph.getPageLayout = function()
+				{
+					var size = this.getPageSize();
+					var bounds = this.getGraphBounds();
+					
+					if (bounds.width == 0 || bounds.height == 0)
+					{
+						return new mxRectangle(0, 0, 1, 1);
+					}
+					else
+					{
+						// Computes untransformed graph bounds
+						var x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
+						var y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
+						var w = Math.floor(bounds.width / this.view.scale);
+						var h = Math.floor(bounds.height / this.view.scale);
+						
+						var x0 = Math.floor(x / size.width);
+						var y0 = Math.floor(y / size.height);
+						var w0 = Math.ceil((x + w) / size.width) - x0;
+						var h0 = Math.ceil((y + h) / size.height) - y0;
+						
+						return new mxRectangle(x0, y0, w0, h0);
+					}
+				};
+
+				// Fits the number of background pages to the graph
+				graph.view.getBackgroundPageBounds = function()
+				{
+					var layout = this.graph.getPageLayout();
+					var page = this.graph.getPageSize();
+					
+					return new mxRectangle(this.scale * (this.translate.x + layout.x * page.width),
+							this.scale * (this.translate.y + layout.y * page.height),
+							this.scale * layout.width * page.width,
+							this.scale * layout.height * page.height);
+				};
+			}
+
+			if (!graph.pdfPageVisible)
+			{
+				var b = graph.getGraphBounds();
+				
+				// Floor is needed to keep rendering crisp
+				if (data.w > 0 && data.h > 0)
+				{
+					var s = Math.min(data.w / b.width, data.h / b.height);
+					graph.view.scaleAndTranslate(s,
+						Math.floor(data.border / s - b.x),
+						Math.floor(data.border / s - b.y));
+				}
+				else
+				{
+					graph.view.scaleAndTranslate(data.scale, Math.floor(data.border - b.x),
+						Math.floor(data.border - b.y));
+				}
+			}
+			else
+			{
+				// Disables border for PDF page export
+				data.border = 0;
+				
+				// Moves to first page in page layout
+				var layout = graph.getPageLayout();
+				var page = graph.getPageSize();
+				var dx = layout.x * page.width;
+				var dy = layout.y * page.height;
+				
+				if (dx != 0 || dy != 0)
+				{
+					graph.view.setTranslate(Math.floor(-dx), Math.floor(-dy));
+				}
+			}
+			
+			// Gets the diagram bounds and sets the document size
+			var bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
+			bounds.width = Math.ceil(bounds.width + data.border);
+			bounds.height = Math.ceil(bounds.height + data.border);
+			
+			// Waits for all images to finish loading
+			var cache = new Object();
+			var waitCounter = 1;
+			
+			// Decrements waitCounter and invokes callback when finished
+			function decrementWaitCounter()
+			{
+				if (--waitCounter < 1)
+				{
+					var doneDiv = document.createElement("div");
+					doneDiv.id = 'LoadingComplete';
+					doneDiv.style.display = 'none';
+					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
+					document.body.appendChild(doneDiv);
+				}
+			};
+			
+			function waitForImages(tagName, attributeName)
+			{
+				var imgs = document.body.getElementsByTagName(tagName);
+				waitCounter += imgs.length;
+
+				for (var i = 0; i < imgs.length; i++)
+				{
+					// No load events for image elements in Phantom using indirection instead
+					var src = imgs[i].getAttribute(attributeName);
+					
+					if (src != null && src.length > 0 && cache[src] == null)
+					{
+						cache[src] = new Image();
+						cache[src].onload = decrementWaitCounter;
+						cache[src].onerror = decrementWaitCounter;
+						cache[src].src = src;
+					}
+					else
+					{
+						decrementWaitCounter();
+					}
+				}
+			};
+			
+			// Includes images in SVG and HTML labels
+			waitForImages('image', 'xlink:href');
+			waitForImages('img', 'src');
+			
+			// Waits for MathJax.Hub to become available to register
+			// wait counter callback asynchronously after math render
+			var editorDoMathJaxRender = Editor.doMathJaxRender;
+			
+			Editor.doMathJaxRender = function(container)
+			{
+				editorDoMathJaxRender.apply(this, arguments);
+				
+				window.setTimeout(function()
+				{
+					window.MathJax.Hub.Queue(function ()
+					{
+						decrementWaitCounter();
+					});
+				}, 0);
+			};
+			
+			// Adds async MathJax rendering task
+			function renderMath(elt)
+			{
+				if (math && Editor.MathJaxRender != null)
+				{
+					waitCounter++;
+					Editor.MathJaxRender(elt);
+				}
+			};
+
+			// Converts the graph to a vertical sequence of pages for PDF export
+			if (graph.pdfPageVisible)
+			{
+				var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
+				var scale = 1 / graph.pageScale;
+				var autoOrigin = false;
+				var border = 0;
+
+				// Negative coordinates are cropped or shifted if page visible
+				var gb = graph.getGraphBounds();
+				var x0 = 0;
+				var y0 = 0;
+		
+				// Applies print scale
+				pf = mxRectangle.fromRectangle(pf);
+				pf.width = Math.ceil(pf.width);
+				pf.height = Math.ceil(pf.height);
+				
+				// Starts at first visible page
+				var layout = graph.getPageLayout();
+				x0 -= layout.x * pf.width;
+				y0 -= layout.y * pf.height;
+				
+				var preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
+				preview.printBackgroundImage = true;
+				preview.autoOrigin = autoOrigin;
+				preview.backgroundColor = bg;
+
+				// Renders print output into this document and removes the graph container
+				preview.open(null, window);
+				graph.container.parentNode.removeChild(graph.container);
+
+				// Adds shadow
+				// NOTE: Shadow rasterizes output
+				/*if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				{
+					var svgs = document.getElementsByTagName('svg');
+					
+					for (var i = 0; i < svgs.length; i++)
+					{
+						var svg = svgs[i];
+
+						var filter = graph.addSvgShadow(svg, null, true);
+						filter.setAttribute('id', 'shadow-' + i);
+						svg.appendChild(filter);
+						svg.setAttribute('filter', 'url(#' + 'shadow-' + i + ')');
+					}
+					
+					border = 7;
+				}*/
+				
+				bounds = new mxRectangle(0, 0, pf.width, pf.height);
+				renderMath(document.body);
+			}
+			else
+			{
+				// Adds shadow
+				// NOTE: PDF shadow rasterizes output so it's disabled
+				if (data.format != 'pdf' && mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
+				{
+					graph.addSvgShadow(graph.view.canvas.ownerSVGElement, null, true);
+					graph.setShadowVisible(true);
+					bounds.width += 7;
+					bounds.height += 7;
+				}
+				
+				renderMath(graph.container);
+				document.body.style.width = Math.ceil(bounds.x + bounds.width) + 'px';
+				document.body.style.height = Math.ceil(bounds.y + bounds.height) + 'px';
+			}
+			
+			// Immediate return if not waiting for any content
+			decrementWaitCounter();
+		};
+	</script>
+</head>
+<body style="margin:0px;">
+	<div id="graph" style="width:100%;height:100%;"></div>
+</body>
+</html>

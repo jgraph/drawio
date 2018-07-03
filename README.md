@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jgraph/draw.io.png?branch=master)](https://travis-ci.org/jgraph/draw.io)
+[![Build Status](https://travis-ci.org/jgraph/drawio.svg?branch=master)](https://travis-ci.org/jgraph/drawio)
 
 About
 -----
@@ -17,22 +17,12 @@ A development guide is being started on the GitHub project wiki. There is a [dra
 
 The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
 
-
-Docker
-------
-After successful build, from the project directory run
-```bash
-docker build -t draw .
-docker run -d -p 8888:8080 draw
-```
-Now the app will be accessible at http://localhost:8888/draw/?https=0
-
 Running
 -------
-The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
+The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations).
 
 The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
 
 Supported Browsers
 ------------------
-draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 7.1.x, 8.0.x, 9.1.x and 10.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 10.x and 9.x) and Edge 23+.
+draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 9.1.x, 10.1.x and 11.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 23+.
