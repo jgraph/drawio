@@ -889,6 +889,9 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 			return me;
 		};
 	}
+	
+	//Create a unique offset object for each graph instance.
+	this.currentTranslate = new mxPoint(0, 0);
 };
 
 /**
@@ -1104,6 +1107,282 @@ Graph.prototype.init = function(container)
 	
 	this.initLayoutManager();
 };
+
+/**
+ * Implements zoom and offset via CSS transforms. This is currently only used
+ * in read-only as there are fewer issues with the mxCellState not being scaled
+ * and translated.
+ * 
+ * KNOWN ISSUES TO FIX:
+ * - Apply CSS transforms to HTML labels in IE11
+ */
+(function()
+{
+	/**
+	 * Uses CSS transforms for scale and translate.
+	 */
+	Graph.prototype.useCssTransforms = false;
+
+	/**
+	 * Contains the scale.
+	 */
+	Graph.prototype.currentScale = 1;
+
+	/**
+	 * Contains the offset.
+	 */
+	Graph.prototype.currentTranslate = new mxPoint(0, 0);
+
+	/**
+	 * Only foreignObject supported for now (no IE11).
+	 */
+	Graph.prototype.isCssTransformsSupported = function()
+	{
+		return this.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO;
+	};
+
+	/**
+	 * Function: getCellAt
+	 * 
+	 * Overrides to transform incoming coordinates.
+	 */
+	Graph.prototype.getCellAt = function(x, y, parent, vertices, edges, ignoreFn)
+	{
+		if (this.useCssTransforms)
+		{
+			x /= this.currentScale - this.currentTranslate.x;
+			y /= this.currentScale - this.currentTranslate.y;
+		}
+		
+		return mxGraph.prototype.getCellAt.apply(this, arguments);
+	};
+
+	/**
+	 * Function: repaint
+	 * 
+	 * Updates the highlight after a change of the model or view.
+	 */
+	mxCellHighlight.prototype.getStrokeWidth = function(state)
+	{
+		var s = this.strokeWidth;
+		
+		if (this.graph.useCssTransforms)
+		{
+			s /= this.graph.currentScale;
+		}
+
+		return s;
+	};
+
+	/**
+	 * Function: getGraphBounds
+	 * 
+	 * Overrides getGraphBounds to use bounding box from SVG.
+	 */
+	mxGraphView.prototype.getGraphBounds = function()
+	{
+		var b = this.graphBounds;
+		
+		if (this.graph.useCssTransforms)
+		{
+			var t = this.graph.currentTranslate;
+			var s = this.graph.currentScale;
+
+			b = new mxRectangle(
+				(b.x + t.x) * s, (b.y + t.y) * s,
+				b.width * s, b.height * s);
+		}
+
+		return b;
+	};
+	
+	/**
+	 * Function: viewStateChanged
+	 * 
+	 * Overrides to bypass full cell tree validation.
+	 * TODO: Check if this improves performance
+	 */
+	mxGraphView.prototype.viewStateChanged = function()
+	{
+		if (this.graph.useCssTransforms)
+		{
+			this.validate();
+			this.graph.sizeDidChange();
+		}
+		else
+		{
+			this.revalidate();
+			this.graph.sizeDidChange();
+		}
+	};
+
+	/**
+	 * Function: validate
+	 * 
+	 * Overrides validate to normalize validation view state and pass
+	 * current state to CSS transform.
+	 */
+	var graphViewValidate = mxGraphView.prototype.validate;
+	
+	mxGraphView.prototype.validate = function(cell)
+	{
+		if (this.graph.useCssTransforms)
+		{
+			this.graph.currentScale = this.scale;
+			this.graph.currentTranslate.x = this.translate.x;
+			this.graph.currentTranslate.y = this.translate.y;
+			
+			this.scale = 1;
+			this.translate.x = 0;
+			this.translate.y = 0;
+		}
+		
+		graphViewValidate.apply(this, arguments);
+		
+		if (this.graph.useCssTransforms)
+		{
+			this.graph.updateCssTransform();
+			
+			this.scale = this.graph.currentScale;
+			this.translate.x = this.graph.currentTranslate.x;
+			this.translate.y = this.graph.currentTranslate.y;
+		}
+	};
+
+	/**
+	 * Function: updateCssTransform
+	 * 
+	 * Zooms out of the graph by <zoomFactor>.
+	 */
+	Graph.prototype.updateCssTransform = function()
+	{
+		var temp = this.view.getDrawPane();
+		
+		if (temp != null)
+		{
+			var g = this.view.getDrawPane().parentNode;
+			var prev = g.getAttribute('transform');
+			g.setAttribute('transformOrigin', '0 0');
+			g.setAttribute('transform', 'scale(' + this.currentScale + ',' + this.currentScale + ')' +
+				'translate(' + this.currentTranslate.x + ',' + this.currentTranslate.y + ')');
+
+			// Applies workarounds only if translate has changed
+			if (prev != g.getAttribute('transform'))
+			{
+				try
+				{
+					// Applies transform to labels outside of the SVG DOM
+					// Excluded via isCssTransformsSupported
+//					if (mxClient.NO_FO)
+//					{
+//						var transform = 'scale(' + this.currentScale + ')' + 'translate(' +
+//							this.currentTranslate.x + 'px,' + this.currentTranslate.y + 'px)';
+//							
+//						this.view.states.visit(mxUtils.bind(this, function(cell, state)
+//						{
+//							if (state.text != null && state.text.node != null)
+//							{
+//								// Stores initial CSS transform that is used for the label alignment
+//								if (state.text.originalTransform == null)
+//								{
+//									state.text.originalTransform = state.text.node.style.transform;
+//								}
+//								
+//								state.text.node.style.transform = transform + state.text.originalTransform;
+//							}
+//						}));
+//					}
+					// Workaround for https://bugs.webkit.org/show_bug.cgi?id=93358 in WebKit
+					// Adding an absolute position DIV before the SVG seems to mitigate the problem.
+					if (mxClient.IS_GC)
+					{
+						if (this.mathEnabled && (this.webKitForceRepaintNode == null ||
+							this.webKitForceRepaintNode.parentNode == null) &&
+							this.container.firstChild.nodeName == 'svg')
+						{
+							this.webKitForceRepaintNode = document.createElement('div');
+							this.webKitForceRepaintNode.style.cssText = 'position:absolute;';
+							g.ownerSVGElement.parentNode.insertBefore(this.webKitForceRepaintNode, g.ownerSVGElement);
+						}
+						else if (this.webKitForceRepaintNode != null && (!this.mathEnabled ||
+								(this.container.firstChild.nodeName != 'svg' &&
+								this.container.firstChild != this.webKitForceRepaintNode)))
+						{
+							if (this.webKitForceRepaintNode.parentNode != null)
+							{
+								this.webKitForceRepaintNode.parentNode.removeChild(this.webKitForceRepaintNode);
+							}
+							
+							this.webKitForceRepaintNode = null;
+						}
+					}
+					// Workaround for https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/4320441/
+					else if (mxClient.IS_EDGE)
+					{
+						// Recommended workaround is to do this on all
+						// foreignObjects, but this seems to be faster
+						var val = g.style.display;
+						g.style.display = 'none';
+						g.getBBox();
+						g.style.display = val;
+					}
+				}
+				catch (e)
+				{
+					// ignore
+					console.log('err', e);
+				}
+			}
+		}
+	};
+	
+	var graphViewValidateBackgroundPage = mxGraphView.prototype.validateBackgroundPage;
+	
+	mxGraphView.prototype.validateBackgroundPage = function()
+	{
+		var useCssTranforms = this.graph.useCssTransforms, scale = this.scale, 
+			translate = this.translate;
+		
+		if (useCssTranforms)
+		{
+			this.scale = this.graph.currentScale;
+			this.translate = this.graph.currentTranslate;
+		}
+		
+		graphViewValidateBackgroundPage.apply(this, arguments);
+		
+		if (useCssTranforms)
+		{
+			this.scale = scale;
+			this.translate = translate;
+		}
+	};
+
+	var graphUpdatePageBreaks = mxGraph.prototype.updatePageBreaks;
+	
+	mxGraph.prototype.updatePageBreaks = function(visible, width, height)
+	{
+		var useCssTranforms = this.useCssTransforms, scale = this.view.scale, 
+			translate = this.view.translate;
+	
+		if (useCssTranforms)
+		{
+			this.view.scale = 1;
+			this.view.translate = new mxPoint(0, 0);
+			this.useCssTransforms = false;
+		}
+		
+		graphUpdatePageBreaks.apply(this, arguments);
+		
+		if (useCssTranforms)
+		{
+			this.view.scale = scale;
+			this.view.translate = translate;
+			this.useCssTransforms = true;
+		}
+	};
+	
+})();
 
 /**
  * Sets the XML node for the current diagram.
@@ -1396,7 +1675,8 @@ Graph.prototype.isReplacePlaceholders = function(cell)
  */
 Graph.prototype.isZoomWheelEvent = function(evt)
 {
-	return mxEvent.isAltDown(evt) || (mxEvent.isControlDown(evt) && !mxClient.IS_MAC);
+	return mxEvent.isAltDown(evt) || (mxEvent.isMetaDown(evt) && mxClient.IS_MAC) ||
+		(mxEvent.isControlDown(evt) && !mxClient.IS_MAC);
 };
 
 /**
@@ -2549,7 +2829,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 			{
 				if (temp[i].name != 'link' || !this.isCustomLink(temp[i].value))
 				{
-					tip += ((temp[i].name != 'link') ? temp[i].name + ':' : '') +
+					tip += ((temp[i].name != 'link') ? '<b>' + temp[i].name + ':</b> ' : '') +
 						mxUtils.htmlEntities(temp[i].value) + '\n';
 				}
 			}
@@ -2557,6 +2837,11 @@ Graph.prototype.getTooltipForCell = function(cell)
 			if (tip.length > 0)
 			{
 				tip = tip.substring(0, tip.length - 1);
+				
+				if (mxClient.IS_SVG)
+				{
+					tip = '<div style="max-width:360px;">' + tip + '</div>';
+				}
 			}
 		}
 	}
@@ -5789,178 +6074,200 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp, ignoreSelection, showText, imgExport)
 		{
-			scale = (scale != null) ? scale : 1;
-			border = (border != null) ? border : 0;
-			crisp = (crisp != null) ? crisp : true;
-			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
-			showText = (showText != null) ? showText : true;
-
-			var bounds = (ignoreSelection || nocrop) ?
-					this.getGraphBounds() : this.getBoundingBox(this.getSelectionCells());
-
-			if (bounds == null)
+			//Disable Css Transforms if it is used
+			var origUseCssTrans = this.useCssTransforms;
+			
+			if (origUseCssTrans) 
 			{
-				throw Error(mxResources.get('drawingEmpty'));
+				this.useCssTransforms = false;
+				this.view.revalidate();
+				this.sizeDidChange();
 			}
 
-			var vs = this.view.scale;
-			
-			// Prepares SVG document that holds the output
-			var svgDoc = mxUtils.createXmlDocument();
-			var root = (svgDoc.createElementNS != null) ?
-		    		svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') : svgDoc.createElement('svg');
-		    
-			if (background != null)
+			try 
 			{
-				if (root.style != null)
+				scale = (scale != null) ? scale : 1;
+				border = (border != null) ? border : 0;
+				crisp = (crisp != null) ? crisp : true;
+				ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+				showText = (showText != null) ? showText : true;
+	
+				var bounds = (ignoreSelection || nocrop) ?
+						this.getGraphBounds() : this.getBoundingBox(this.getSelectionCells());
+	
+				if (bounds == null)
 				{
-					root.style.backgroundColor = background;
+					throw Error(mxResources.get('drawingEmpty'));
+				}
+	
+				var vs = this.view.scale;
+				
+				// Prepares SVG document that holds the output
+				var svgDoc = mxUtils.createXmlDocument();
+				var root = (svgDoc.createElementNS != null) ?
+			    		svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') : svgDoc.createElement('svg');
+			    
+				if (background != null)
+				{
+					if (root.style != null)
+					{
+						root.style.backgroundColor = background;
+					}
+					else
+					{
+						root.setAttribute('style', 'background-color:' + background);
+					}
+				}
+			    
+				if (svgDoc.createElementNS == null)
+				{
+			    	root.setAttribute('xmlns', mxConstants.NS_SVG);
+			    	root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
 				}
 				else
 				{
-					root.setAttribute('style', 'background-color:' + background);
+					// KNOWN: Ignored in IE9-11, adds namespace for each image element instead. No workaround.
+					root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', mxConstants.NS_XLINK);
 				}
-			}
-		    
-			if (svgDoc.createElementNS == null)
-			{
-		    	root.setAttribute('xmlns', mxConstants.NS_SVG);
-		    	root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
-			}
-			else
-			{
-				// KNOWN: Ignored in IE9-11, adds namespace for each image element instead. No workaround.
-				root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', mxConstants.NS_XLINK);
-			}
-			
-			var s = scale / vs;
-			root.setAttribute('width', Math.max(1, Math.ceil(bounds.width * s) + 2 * border) + 'px');
-			root.setAttribute('height', Math.max(1, Math.ceil(bounds.height * s) + 2 * border) + 'px');
-			root.setAttribute('version', '1.1');
-			
-		    // Adds group for anti-aliasing via transform
-			var node = root;
-			
-			if (crisp)
-			{
-				var group = (svgDoc.createElementNS != null) ?
-						svgDoc.createElementNS(mxConstants.NS_SVG, 'g') : svgDoc.createElement('g');
-				group.setAttribute('transform', 'translate(0.5,0.5)');
-				root.appendChild(group);
-				svgDoc.appendChild(root);
-				node = group;
-			}
-			else
-			{
-				svgDoc.appendChild(root);
-			}
-		
-		    // Renders graph. Offset will be multiplied with state's scale when painting state.
-			// TextOffset only seems to affect FF output but used everywhere for consistency.
-			var svgCanvas = this.createSvgCanvas(node);
-			svgCanvas.foOffset = (crisp) ? -0.5 : 0;
-			svgCanvas.textOffset = (crisp) ? -0.5 : 0;
-			svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
-			svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
-			
-			// Convert HTML entities
-			var htmlConverter = document.createElement('textarea');
-			
-			// Adds simple text fallback for viewers with no support for foreignObjects
-			var createAlternateContent = svgCanvas.createAlternateContent;
-			svgCanvas.createAlternateContent = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
-			{
-				var s = this.state;
-
-				// Assumes a max character width of 0.2em
-				if (this.foAltText != null && (w == 0 || (s.fontSize != 0 && str.length < (w * 5) / s.fontSize)))
+				
+				var s = scale / vs;
+				root.setAttribute('width', Math.max(1, Math.ceil(bounds.width * s) + 2 * border) + 'px');
+				root.setAttribute('height', Math.max(1, Math.ceil(bounds.height * s) + 2 * border) + 'px');
+				root.setAttribute('version', '1.1');
+				
+			    // Adds group for anti-aliasing via transform
+				var node = root;
+				
+				if (crisp)
 				{
-					var alt = this.createElement('text');
-					alt.setAttribute('x', Math.round(w / 2));
-					alt.setAttribute('y', Math.round((h + s.fontSize) / 2));
-					alt.setAttribute('fill', s.fontColor || 'black');
-					alt.setAttribute('text-anchor', 'middle');
-					alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
-					alt.setAttribute('font-family', s.fontFamily);
-					
-					if ((s.fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
+					var group = (svgDoc.createElementNS != null) ?
+							svgDoc.createElementNS(mxConstants.NS_SVG, 'g') : svgDoc.createElement('g');
+					group.setAttribute('transform', 'translate(0.5,0.5)');
+					root.appendChild(group);
+					svgDoc.appendChild(root);
+					node = group;
+				}
+				else
+				{
+					svgDoc.appendChild(root);
+				}
+			
+			    // Renders graph. Offset will be multiplied with state's scale when painting state.
+				// TextOffset only seems to affect FF output but used everywhere for consistency.
+				var svgCanvas = this.createSvgCanvas(node);
+				svgCanvas.foOffset = (crisp) ? -0.5 : 0;
+				svgCanvas.textOffset = (crisp) ? -0.5 : 0;
+				svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
+				svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
+				
+				// Convert HTML entities
+				var htmlConverter = document.createElement('textarea');
+				
+				// Adds simple text fallback for viewers with no support for foreignObjects
+				var createAlternateContent = svgCanvas.createAlternateContent;
+				svgCanvas.createAlternateContent = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
+				{
+					var s = this.state;
+	
+					// Assumes a max character width of 0.2em
+					if (this.foAltText != null && (w == 0 || (s.fontSize != 0 && str.length < (w * 5) / s.fontSize)))
 					{
-						alt.setAttribute('font-weight', 'bold');
-					}
-					
-					if ((s.fontStyle & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC)
-					{
-						alt.setAttribute('font-style', 'italic');
-					}
-					
-					if ((s.fontStyle & mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE)
-					{
-						alt.setAttribute('text-decoration', 'underline');
-					}
-					
-					try
-					{
-						htmlConverter.innerHTML = str;
-						alt.textContent = htmlConverter.value;
+						var alt = this.createElement('text');
+						alt.setAttribute('x', Math.round(w / 2));
+						alt.setAttribute('y', Math.round((h + s.fontSize) / 2));
+						alt.setAttribute('fill', s.fontColor || 'black');
+						alt.setAttribute('text-anchor', 'middle');
+						alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
+						alt.setAttribute('font-family', s.fontFamily);
 						
-						return alt;
+						if ((s.fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
+						{
+							alt.setAttribute('font-weight', 'bold');
+						}
+						
+						if ((s.fontStyle & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC)
+						{
+							alt.setAttribute('font-style', 'italic');
+						}
+						
+						if ((s.fontStyle & mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE)
+						{
+							alt.setAttribute('text-decoration', 'underline');
+						}
+						
+						try
+						{
+							htmlConverter.innerHTML = str;
+							alt.textContent = htmlConverter.value;
+							
+							return alt;
+						}
+						catch (e)
+						{
+							return createAlternateContent.apply(this, arguments);
+						}
 					}
-					catch (e)
+					else
 					{
 						return createAlternateContent.apply(this, arguments);
 					}
-				}
-				else
-				{
-					return createAlternateContent.apply(this, arguments);
-				}
-			};
-			
-			// Paints background image
-			var bgImg = this.backgroundImage;
-			
-			if (bgImg != null)
-			{
-				var s2 = vs / scale;
-				var tr = this.view.translate;
-				var tmp = new mxRectangle(tr.x * s2, tr.y * s2, bgImg.width * s2, bgImg.height * s2);
+				};
 				
-				// Checks if visible
-				if (mxUtils.intersects(bounds, tmp))
+				// Paints background image
+				var bgImg = this.backgroundImage;
+				
+				if (bgImg != null)
 				{
-					svgCanvas.image(tr.x, tr.y, bgImg.width, bgImg.height, bgImg.src, true);
+					var s2 = vs / scale;
+					var tr = this.view.translate;
+					var tmp = new mxRectangle(tr.x * s2, tr.y * s2, bgImg.width * s2, bgImg.height * s2);
+					
+					// Checks if visible
+					if (mxUtils.intersects(bounds, tmp))
+					{
+						svgCanvas.image(tr.x, tr.y, bgImg.width, bgImg.height, bgImg.src, true);
+					}
+				}
+				
+				svgCanvas.scale(s);
+				svgCanvas.textEnabled = showText;
+				
+				imgExport = (imgExport != null) ? imgExport : this.createSvgImageExport();
+				var imgExportDrawCellState = imgExport.drawCellState;
+				
+				// Implements ignoreSelection flag
+				imgExport.drawCellState = function(state, canvas)
+				{
+					var graph = state.view.graph;
+					var selected = graph.isCellSelected(state.cell);
+					var parent = graph.model.getParent(state.cell);
+					
+					// Checks if parent cell is selected
+					while (!ignoreSelection && !selected && parent != null)
+					{
+						selected = graph.isCellSelected(parent);
+						parent = graph.model.getParent(parent);
+					}
+					
+					if (ignoreSelection || selected)
+					{
+						imgExportDrawCellState.apply(this, arguments);
+					}
+				};
+	
+				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
+			
+				return root;
+			}
+			finally
+			{
+				if (origUseCssTrans) 
+				{
+					this.useCssTransforms = true;
+					this.view.revalidate();
+					this.sizeDidChange();
 				}
 			}
-			
-			svgCanvas.scale(s);
-			svgCanvas.textEnabled = showText;
-			
-			imgExport = (imgExport != null) ? imgExport : this.createSvgImageExport();
-			var imgExportDrawCellState = imgExport.drawCellState;
-			
-			// Implements ignoreSelection flag
-			imgExport.drawCellState = function(state, canvas)
-			{
-				var graph = state.view.graph;
-				var selected = graph.isCellSelected(state.cell);
-				var parent = graph.model.getParent(state.cell);
-				
-				// Checks if parent cell is selected
-				while (!ignoreSelection && !selected && parent != null)
-				{
-					selected = graph.isCellSelected(parent);
-					parent = graph.model.getParent(parent);
-				}
-				
-				if (ignoreSelection || selected)
-				{
-					imgExportDrawCellState.apply(this, arguments);
-				}
-			};
-
-			imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
-		
-			return root;
 		};
 		
 		/**

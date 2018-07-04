@@ -217,7 +217,11 @@
 	EditorUi.prototype.setLocalData = function(key, data, fn)
 	{
 		localStorage.setItem(key, data);
-		fn();
+		
+		if (fn != null)
+		{
+			fn();
+		}
 	};
 	
 	/**
@@ -1671,7 +1675,8 @@
 				this.fname.innerHTML = '';
 				this.fname.setAttribute('title', mxResources.get('rename'));
 			}
-	
+
+			this.editor.setStatus('');
 			this.updateUi();
 			this.showSplash();
 		});
@@ -3017,7 +3022,7 @@
 	 */
 
 	/**
-	 * 
+	 * See fixme in convertMath for client-side image generation with math.
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
@@ -3433,6 +3438,7 @@
 			   	   	    img.style.maxWidth = '140px';
 			   	   	    img.style.maxHeight = '140px';
 			   	   	    img.style.cursor = 'pointer';
+			   	   	    img.style.backgroundColor = 'white';
 			   	   	    
 			   	   	    img.setAttribute('title', mxResources.get('openInNewWindow'));
 			   	   	    img.setAttribute('border', '0');
@@ -4890,64 +4896,29 @@
 	 */
 	EditorUi.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
 	{
-		// FIXME: Only horizontal dash in output so better no conversion at all
-		/*if (false && graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
 		{
-			// Workaround for lost gradients in Chrome after remove from DOM
-			var elts = svgRoot.getElementsByTagName('*');
-			
-			for (var i = 0; i < elts.length; i++)
-			{
-				if (elts[i].getAttribute('id') != null)
-				{
-					elts[i].setAttribute('id', 'mxTemporaryPrefix-' + elts[i].getAttribute('id'));
-				}
-			}
-
-			// Temporarily attaches to DOM for rendering
-			svgRoot.style.visibility = 'hidden';
-			document.body.appendChild(svgRoot);
+	      	// Temporarily attaches to DOM for rendering
+			// FIXME: If adding svgRoot to body, the text
+			// value of the math is appended, if not
+			// added to DOM then LaTeX does not work.
+			// This must be fixed to enable client-side export
+			// if math is enabled.
+//			document.body.appendChild(svgRoot);
 			Editor.MathJaxRender(svgRoot);
-			
-			MathJax.Hub.Queue(mxUtils.bind(this, function ()
+	      
+			window.setTimeout(mxUtils.bind(this, function()
 			{
-				// Removes from DOM
-				svgRoot.parentNode.removeChild(svgRoot);
-				svgRoot.style.visibility = '';
-				
-				// Restores original IDs
-				for (var i = 0; i < elts.length; i++)
+				MathJax.Hub.Queue(mxUtils.bind(this, function ()
 				{
-					if (elts[i].getAttribute('id') != null)
-					{
-						elts[i].setAttribute('id', elts[i].getAttribute('id').substring('mxTemporaryPrefix-'.length));
-					}
-				}
-				
-				// Keeping scale but moving translate only works for image export which
-				// is fine since we do not want the SVG export to contain a workaround.
-				// See https://github.com/mathjax/MathJax/issues/279
-				if (fixPosition && navigator.userAgent.indexOf('AppleWebKit/') >= 0)
-				{
-					var fo = svgRoot.getElementsByTagName('foreignObject');
+					// Removes from DOM
+//					svgRoot.parentNode.removeChild(svgRoot);
 					
-					for (var i = 0; i < fo.length; i++)
-					{
-						var tr = fo[i].parentNode.parentNode.getAttribute('transform');
-						var translate  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec(tr);
-					
-						fo[i].setAttribute('x', Math.round(translate[1]));
-						fo[i].setAttribute('y', Math.round(translate[2]));
-						
-						// Must use translate for crisp rendering
-						fo[i].parentNode.parentNode.setAttribute('transform', 'translate(0.5,0.5)' + tr.substring(tr.indexOf(')') + 1));
-					}
-				}
-				
-				callback();
-			}));
+					callback();
+				}));
+			}), 0);
 		}
-		else*/
+		else
 		{
 			callback();
 		}

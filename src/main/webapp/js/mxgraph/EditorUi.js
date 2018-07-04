@@ -14,7 +14,16 @@ EditorUi = function(editor, container, lightbox)
 	
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
+	graph.useCssTransforms =
+		this.editor.isChromelessView() &&
+		graph.isCssTransformsSupported();
 
+	// Faster scrollwheel zoom is possible with CSS transforms
+	if (graph.useCssTransforms)
+	{
+		this.lazyZoomDelay = 0;
+	}
+	
 	// Pre-fetches submenu image or replaces with embedded image if supported
 	if (mxClient.IS_SVG)
 	{
@@ -1713,11 +1722,15 @@ EditorUi.prototype.initCanvas = function()
 	
 			this.addChromelessToolbarItems(addButton);
 	
-			if (this.editor.editButtonLink != null)
+			if (this.editor.editButtonLink != null || this.editor.editButtonFunc != null)
 			{
 				addButton(mxUtils.bind(this, function(evt)
 				{
-					if (this.editor.editButtonLink == '_blank')
+					if (this.editor.editButtonFunc != null) 
+					{
+						this.editor.editButtonFunc();
+					} 
+					else if (this.editor.editButtonLink == '_blank')
 					{
 						this.editor.editAsNew(this.getEditBlankXml());
 					}

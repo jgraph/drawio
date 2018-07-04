@@ -1,3 +1,11 @@
+04-JUL-2018: 8.9.0
+
+- Faster preview in Chrome, Firefox and Edge (beta)
+- Adds responsive menubar in minimal UI
+- Add tickets and webcola plugins
+- Adds #C configuration switch
+- Uses mxGraph 3.9.8 beta 1
+
 26-JUN-2018: 8.8.7
 
 - Fixes custom content view in Confluence Cloud

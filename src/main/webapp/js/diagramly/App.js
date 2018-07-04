@@ -12,7 +12,9 @@
  */
 App = function(editor, container, lightbox)
 {
-	EditorUi.call(this, editor, container, (lightbox != null) ? lightbox : (urlParams['lightbox'] == '1' || uiTheme == 'min'));
+	EditorUi.call(this, editor, container, (lightbox != null) ? lightbox :
+		(urlParams['lightbox'] == '1' || (uiTheme == 'min' &&
+		urlParams['chrome'] != '0')));
 	
 	// Pre-fetches images
 	if (mxClient.IS_SVG)
@@ -199,7 +201,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
 	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
 	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js',
-	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js'};
+	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
+	'tickets': '/plugins/tickets.js', 'webcola': '/plugins/webcola/webcola.js'};
 
 /**
  * Function: authorize
@@ -434,6 +437,30 @@ App.main = function(callback, createUi)
 			}
 		};
 	}
+	
+	// Adds configuration
+	if (window.location.hash != null && window.location.hash.substring(0, 2) == '#C')
+	{
+		try
+		{
+			var config = JSON.parse(decodeURIComponent(
+					window.location.hash.substring(2)));
+			Editor.configure(config, true);
+			
+			if (config.open != null)
+			{
+				window.location.hash = config.open;
+			}
+			else
+			{
+				window.location.hash = '';
+			}
+		}
+		catch (e)
+		{
+			console.log(e);
+		}
+	}
 
 	if (window.mxscript != null)
 	{
@@ -568,7 +595,9 @@ App.main = function(callback, createUi)
 			}
 	
 			// Main
-			var ui = (createUi != null) ? createUi() : new App(new Editor(urlParams['chrome'] == '0' || uiTheme == 'min', null, null, null, urlParams['chrome'] != '0'));
+			var ui = (createUi != null) ? createUi() : new App(new Editor(
+					urlParams['chrome'] == '0' || uiTheme == 'min',
+					null, null, null, urlParams['chrome'] != '0'));
 			
 			if (window.mxscript != null)
 			{

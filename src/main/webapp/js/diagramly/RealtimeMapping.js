@@ -210,7 +210,9 @@ RealtimeMapping.prototype.initGraph = function()
 	if (this.isActive())
 	{
 		this.activate(true);
-		mxClient.NO_FO = (this.graph.mathEnabled) ? true : Editor.prototype.originalNoForeignObject;
+		mxClient.NO_FO = (this.graph.mathEnabled &&
+			!this.graph.useCssTransforms) ? true :
+			Editor.prototype.originalNoForeignObject;
 
 		// TODO: Fixes math offset - why?
 		this.ui.editor.graph.sizeDidChange();

@@ -3522,6 +3522,11 @@
 					}
 					
 					var fn = handleFactory[name];
+					
+					if (fn == null && this.state.shape != null && this.state.shape.isRoundable())
+					{
+						fn = handleFactory[mxConstants.SHAPE_RECTANGLE];
+					}
 				
 					if (fn != null)
 					{
