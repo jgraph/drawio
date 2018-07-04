@@ -165,16 +165,29 @@
 	Editor.shadowOptionEnabled = true;
 
 	/**
+	 * Reference to the config object passed to <configure>.
+	 */
+	Editor.config = null;
+
+	/**
+	 * Reference to the version of the last config object in
+	 * <configure>. If this is different to the last version in
+	 * mxSettings.parse, then the settings are reset.
+	 */
+	Editor.configVersion = null;
+
+	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
 	 * 
 	 * For defaultVertexStyle, defaultEdgeStyle and defaultLibraries, this must be called before
 	 * mxSettings.load via global config variable window.mxLoadSettings = false.
 	 */
-	Editor.configure = function(config)
+	Editor.configure = function(config, untrusted)
 	{
 		if (config != null)
 		{
+			Editor.config = config;
 			Editor.configVersion = config.version;
 			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
@@ -260,7 +273,7 @@
 			  	Editor.prototype.fontCss = config.fontCss;
 			}
 			
-			if (config.plugins != null)
+			if (config.plugins != null && !untrusted)
 			{
 				// Required for callback
 				App.initPluginCallback();
@@ -367,7 +380,8 @@
 					this.graph.setBackgroundImage(null);
 				}
 				
-				mxClient.NO_FO = (this.graph.mathEnabled) ? true : this.originalNoForeignObject;
+				mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
+					!this.graph.useCssTransforms) ? true : this.originalNoForeignObject;
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
 			}
 	
@@ -567,6 +581,12 @@
 	
 	/**
 	 * Overrides reset graph.
+	 * 
+	 * math-fo=1 enables foreignObjects for MathJax.
+	 * 
+	 * FIXME:
+	 * - Editor shows no math without page view
+	 * - Lightbox zooming breaks math
 	 */
 	var editorResetGraph = Editor.prototype.resetGraph;	
 	Editor.prototype.resetGraph = function()
@@ -574,20 +594,22 @@
 		this.graph.mathEnabled = (urlParams['math'] == '1');
 		this.graph.view.x0 = null;
 		this.graph.view.y0 = null;
-		mxClient.NO_FO = (this.graph.mathEnabled) ? true : this.originalNoForeignObject;
+		mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
+			!this.graph.useCssTransforms) ? true :
+			this.originalNoForeignObject;
 		editorResetGraph.apply(this, arguments);
 	};
 
 	/**
 	 * Math support.
 	 */
-	Editor.prototype.originalNoForeignObject = mxClient.NO_FO;
-
 	var editorUpdateGraphComponents = Editor.prototype.updateGraphComponents;
 	Editor.prototype.updateGraphComponents = function()
 	{
 		editorUpdateGraphComponents.apply(this, arguments);
-		mxClient.NO_FO = (this.graph.mathEnabled && Editor.MathJaxRender != null) ? true : this.originalNoForeignObject;
+		mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
+			!this.graph.useCssTransforms && Editor.MathJaxRender != null) ? true :
+			this.originalNoForeignObject;
 	};
 		
 	/**
@@ -1402,6 +1424,17 @@
 	};
 
 	/**
+	 * Safari has problems with math typesetting inside foreignObjects.
+	 */
+	var graphIsCssTransformsSupported = Graph.prototype.isCssTransformsSupported;
+	
+	Graph.prototype.isCssTransformsSupported = function()
+	{
+		// FIXME: Safari only disabled due to mathjax rendering errors
+		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
+	};
+
+	/**
 	 * Sets default style (used in editor.get/setGraphXml below)
 	 */
 	var graphLoadStylesheet = Graph.prototype.loadStylesheet;
@@ -2176,7 +2209,7 @@
 		
 		// Buttons
 		var buttons = document.createElement('div');
-		buttons.style.cssText = 'text-align:right;margin:62px 0 0 0;';
+		buttons.style.cssText = 'text-align:right;margin:48px 0 0 0;';
 		
 		// Overall scale for print-out to account for print borders in dialogs etc
 		function preview(print)

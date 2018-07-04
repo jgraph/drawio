@@ -100,7 +100,20 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			{
 				this.graph = new Graph(container);
 				this.graph.transparentBackground = false;
+				this.graph.useCssTransforms = this.graph.isCssTransformsSupported();
 				
+			    // Required for Math workaround in Graph.updateCssTransform
+			    if (mxClient.IS_SVG && this.graph.useCssTransforms &&
+			    	this.graph.view.getDrawPane() != null)
+			    {
+			        var root = this.graph.view.getDrawPane().ownerSVGElement;
+			        
+			        if (root != null)
+			        {
+			            root.style.position = 'absolute';
+			        }
+			    }
+			    
 				if (this.graphConfig.move)
 				{
 					this.graph.isMoveCellsEvent = function(evt)
@@ -948,7 +961,7 @@ GraphViewer.prototype.addToolbar = function()
 			if (this.zoomEnabled)
 			{
 				addButton(mxUtils.bind(this, function()
-				{ 
+				{
 					this.graph.zoomOut();
 				}), Editor.zoomOutImage, mxResources.get('zoomOut') || 'Zoom Out');
 
@@ -1336,6 +1349,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 	if (document.documentMode == null || document.documentMode >= 10)
 	{
 		Editor.prototype.editButtonLink = this.graphConfig.edit;
+		Editor.prototype.editButtonFunc = this.graphConfig.editFunc;
 	}
 	
 	EditorUi.prototype.updateActionStates = function() {};

@@ -184,7 +184,9 @@ Draw.loadPlugin(function(ui)
 	menu.funct = function(menu, parent)
 	{
 		oldFunct.apply(this, arguments);
-		this.addSubmenu('viewerMenu', menu, parent);
+		
+		menu.addSeparator(parent);
+		ui.menus.addSubmenu('viewerMenu', menu, parent);
 	};
 	
 	// Returns modified macro data to client

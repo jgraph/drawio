@@ -1177,15 +1177,22 @@ Menubar.prototype.hideMenu = function()
 /**
  * Adds a submenu to this menubar.
  */
-Menubar.prototype.addMenu = function(label, funct)
+Menubar.prototype.addMenu = function(label, funct, before)
 {
 	var elt = document.createElement('a');
 	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
-
 	this.addMenuHandler(elt, funct);
-	this.container.appendChild(elt);
+	
+    if (before != null)
+    {
+    	this.container.insertBefore(elt, before);
+    }
+    else
+    {
+    	this.container.appendChild(elt);
+    }
 	
 	return elt;
 };

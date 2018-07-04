@@ -3,18 +3,18 @@
  */
 Draw.loadPlugin(function(ui)
 {
-	mxscript("js/diagramly/plugins/webcola/cola.min.js");
-	mxscript("js/diagramly/plugins/webcola/mxWebColaAdaptor.js");
-	mxscript("js/diagramly/plugins/webcola/mxWebColaLayout.js");
+	mxscript("plugins/webcola/cola.min.js", null, null, null, true);
+	mxscript("plugins/webcola/mxWebColaAdaptor.js", null, null, null, true);
+	mxscript("plugins/webcola/mxWebColaLayout.js", null, null, null, true);
 	
 	// Adds resource for action
 	mxResources.parse('webColaLayout=WebCola Layout...');
 
 	// Adds action
-	ui.actions.addAction('Apply WebCola layout', function()
+	ui.actions.addAction('webColaLayout', function()
 	{
 		var graph = ui.editor.graph;
-		var layout = mxWebColaLayout(graph);
+		var layout = new mxWebColaLayout(graph);
 		var parent = graph.getDefaultParent(); 
 		layout.execute(parent);
 	});
@@ -26,6 +26,9 @@ Draw.loadPlugin(function(ui)
 	{
 		oldFunct.apply(this, arguments);
 		
-		ui.menus.addMenuItems(menu, ['-', 'webColaLayout'], parent);
+		if (typeof window.mxWebColaLayout === 'function')
+		{
+			ui.menus.addMenuItems(menu, ['-', 'webColaLayout'], parent);
+		}
 	};
 });

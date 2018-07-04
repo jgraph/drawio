@@ -384,6 +384,9 @@ Editor.prototype.resetGraph = function()
 	this.graph.background = this.graph.defaultGraphBackground;
 	this.graph.pageScale = mxGraph.prototype.pageScale;
 	this.graph.pageFormat = mxGraph.prototype.pageFormat;
+	this.graph.currentScale = 1;
+	this.graph.currentTranslate.x = 0;
+	this.graph.currentTranslate.y = 0;
 	this.updateGraphComponents();
 	this.graph.view.setScale(1);
 };
@@ -739,10 +742,12 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll)
 	var w0 = w;
 	var h0 = h;
 	
-	var dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
+	// clientHeight check is attempted fix for print dialog offset in viewer lightbox
+	var dh = (document.documentElement.clientHeight > 0) ? document.documentElement.clientHeight :
+		Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight);
 	var left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-
+	
 	// Keeps window size inside available space
 	if (!mxClient.IS_QUIRKS)
 	{
