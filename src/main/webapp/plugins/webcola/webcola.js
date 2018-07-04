@@ -13,6 +13,8 @@ Draw.loadPlugin(function(ui)
 	// Adds action
 	ui.actions.addAction('webColaLayout', function()
 	{
+		// TODO: set mxWebColaAdaptor's doAnimations to the value of editorUi.allowAnimation
+		// TODO: don't record all animation steps as undo states
 		var graph = ui.editor.graph;
 		var layout = new mxWebColaLayout(graph);
 		var parent = graph.getDefaultParent(); 
