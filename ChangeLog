@@ -1,3 +1,8 @@
+04-JUL-2018: 8.9.1
+
+- Fixes initial scroll offset in minimal UI
+- Fixes possible invalid height for viewer
+
 04-JUL-2018: 8.9.0
 
 - Faster preview in Chrome, Firefox and Edge (beta)

@@ -340,7 +340,7 @@ EditorUi.initMinimalTheme = function()
         {
         	// Makes room for view zoom menu
         	this.tabContainer.style.right = '70px';
-        	this.diagramContainer.style.bottom = (this.tabContainer.style.visibility != 'hidden') ? '30px' : '0px';
+        	this.diagramContainer.style.bottom = '30px';
         }
     	
     	editorUiUpdateTabContainer.apply(this, arguments);

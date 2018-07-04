@@ -102,7 +102,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.graph.transparentBackground = false;
 				this.graph.useCssTransforms = this.graph.isCssTransformsSupported();
 				
-			    // Required for Math workaround in Graph.updateCssTransform
+			    // Required for Math workaround in Graph.updateCssTransform and
+				// relative is needed for auto size of offsetParent
 			    if (mxClient.IS_SVG && this.graph.useCssTransforms &&
 			    	this.graph.view.getDrawPane() != null)
 			    {
@@ -110,7 +111,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			        
 			        if (root != null)
 			        {
-			            root.style.position = 'absolute';
+			            root.style.position = 'relative';
 			        }
 			    }
 			    

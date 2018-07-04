@@ -23,7 +23,7 @@
  * graph - <mxGraph> that contains the cells.
  *
  **/
-function mxWebColaLayout(graph, layoutType)
+function mxWebColaLayout(graph)
 /**
  * Constructs a WebCola-based layout
  * @param graph <mxGraph> that contains the cells.
@@ -31,13 +31,10 @@ function mxWebColaLayout(graph, layoutType)
  */
 {
   mxGraphLayout.call(this, graph);
-  this.layoutType = layoutType;
 };
 
 mxWebColaLayout.prototype = new mxGraphLayout();
 mxWebColaLayout.prototype.constructor = mxWebColaLayout;
-
-mxWebColaLayout.prototype.layoutType = null;
 
 mxWebColaLayout.prototype.execute = function(parent)
   /**
