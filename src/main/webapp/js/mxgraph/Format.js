@@ -3169,37 +3169,37 @@ TextFormatPanel.prototype.addFont = function(container)
 		
 		var btns = [
 		        this.editorUi.toolbar.addButton('geSprite-insertcolumnbefore', mxResources.get('insertColumnBefore'),
-				function()
+	     		mxUtils.bind(this, function()
 				{
 					try
 					{
-				        	if (currentTable != null)
-				        	{
-				        		graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0));
-				        	}
+				       	if (currentTable != null)
+				       	{
+				       		graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0));
+				       	}
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel),
+				}), tablePanel),
 				this.editorUi.toolbar.addButton('geSprite-insertcolumnafter', mxResources.get('insertColumnAfter'),
-				function()
+				mxUtils.bind(this, function()
 				{
 					try
 					{
 						if (currentTable != null)
-				        	{
-								graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1));
-				        	}
+				       	{
+							graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1));
+				       	}
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel),
+				}), tablePanel),
 				this.editorUi.toolbar.addButton('geSprite-deletecolumn', mxResources.get('deleteColumn'),
-				function()
+				mxUtils.bind(this, function()
 				{
 					try
 					{
@@ -3210,11 +3210,11 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel),
+				}), tablePanel),
 				this.editorUi.toolbar.addButton('geSprite-insertrowbefore', mxResources.get('insertRowBefore'),
-				function()
+				mxUtils.bind(this, function()
 				{
 					try
 					{
@@ -3225,11 +3225,11 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel),
+				}), tablePanel),
 				this.editorUi.toolbar.addButton('geSprite-insertrowafter', mxResources.get('insertRowAfter'),
-				function()
+				mxUtils.bind(this, function()
 				{
 					try
 					{
@@ -3240,11 +3240,11 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel),
+				}), tablePanel),
 				this.editorUi.toolbar.addButton('geSprite-deleterow', mxResources.get('deleteRow'),
-				function()
+				mxUtils.bind(this, function()
 				{
 					try
 					{
@@ -3255,9 +3255,9 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 					catch (e)
 					{
-						alert(e);
+						this.editorUi.handleError(e);
 					}
-				}, tablePanel)];
+				}), tablePanel)];
 		this.styleButtons(btns);
 		btns[2].style.marginRight = '9px';
 		

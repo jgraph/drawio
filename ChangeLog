@@ -1,3 +1,10 @@
+06-JUL-2018: 8.9.2
+
+- Enables tags dialog in read-only files
+- Fixes cell detection in fast preview
+- Fixes improved shape search index
+- Fixes undo for webcola plugin
+
 04-JUL-2018: 8.9.1
 
 - Fixes initial scroll offset in minimal UI

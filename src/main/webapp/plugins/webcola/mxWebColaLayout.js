@@ -23,7 +23,7 @@
  * graph - <mxGraph> that contains the cells.
  *
  **/
-function mxWebColaLayout(graph)
+function mxWebColaLayout(graph, layoutType)
 /**
  * Constructs a WebCola-based layout
  * @param graph <mxGraph> that contains the cells.
@@ -31,10 +31,14 @@ function mxWebColaLayout(graph)
  */
 {
   mxGraphLayout.call(this, graph);
+  this.layoutType = layoutType;
+  this.originalGeometries = new mxDictionary();
 };
 
 mxWebColaLayout.prototype = new mxGraphLayout();
 mxWebColaLayout.prototype.constructor = mxWebColaLayout;
+
+mxWebColaLayout.prototype.layoutType = null;
 
 mxWebColaLayout.prototype.execute = function(parent)
   /**
@@ -43,14 +47,17 @@ mxWebColaLayout.prototype.execute = function(parent)
    */
 {
   var movableVertices = this.getReachableVertices(parent);
-  this.layout = new mxWebColaAdaptor(this.graph, [600, 600], movableVertices);
-  var self = this;
-  var update = function () {
-    console.log("mxColaLayout: update");
-    self.updateGraph();
-  };
+  var ps = this.graph.getPageSize();
+  this.layout = new mxWebColaAdaptor(this.graph, (this.graph.pageVisible) ?
+		  [ps.width, ps.height] : [800, 800], movableVertices);
+  var initial = true;
+  var update = function (isUndoable) {
+    // console.log("mxColaLayout: update");
+    this.updateGraph(isUndoable, initial);
+    initial = false;
+  }.bind(this);
   this.layout.updatePositions = update;
-  this.resetGraph(this.graph);
+  //this.resetGraph(this.graph);
   var finalLayout = this.computePositions(this.layout);
 };
 
@@ -99,21 +106,29 @@ mxWebColaLayout.prototype.resetGraph = function(graph)
   var model = graph.getModel();
   var cells = model.cells;
   var view = graph.getView();
-  for (var id in cells)
+  model.beginUpdate();
+  try
   {
-    var cell = cells[id];
-    var state = view.getState(cell);
-    var bounds = view.getBoundingBox(state, true);
-    var isFirst = true;
-    if (cell.isVertex()) {
-      var geometry = model.getGeometry(cell);
-      if (geometry != null && typeof geometry != "undefined")
-      {
-        geometry = geometry.clone();
-        geometry.offset = null;
-        model.setGeometry(cell, geometry);
-      }
-    }
+	  for (var id in cells)
+	  {
+	    var cell = cells[id];
+	    var state = view.getState(cell);
+	    var bounds = view.getBoundingBox(state, true);
+	    var isFirst = true;
+	    if (cell.isVertex()) {
+	      var geometry = model.getGeometry(cell);
+	      if (geometry != null && typeof geometry != "undefined")
+	      {
+	        geometry = geometry.clone();
+	        geometry.offset = null;
+	        model.setGeometry(cell, geometry);
+	      }
+	    }
+	  }
+  }
+  finally
+  {
+	  model.endUpdate();
   }
 }
 
@@ -184,19 +199,23 @@ mxWebColaLayout.prototype.adjustChildOffsets = function(model, groupCell)
 {
   if (groupCell.children == null || groupCell.children.length == 0)
     return;
+  
   var groupBounds = model.getGeometry(groupCell);
   var offsetX = groupBounds.x;
   var offsetY = groupBounds.y;
   var cellsToVisit = [];
   cellsToVisit = cellsToVisit.concat(groupCell.children);
+  
   while (cellsToVisit.length > 0)
   {
     var child = cellsToVisit.shift();
+    
     if (child.isVertex())
     {
       if (this.layout.isLeafOrCollapsed(child))
       {
         var geometry = model.getGeometry(child);
+        
         if (geometry != null && typeof geometry != "undefined")
         {
           geometry = geometry.clone();
@@ -213,12 +232,11 @@ mxWebColaLayout.prototype.adjustChildOffsets = function(model, groupCell)
   }
 }
 
-mxWebColaLayout.prototype.updateGraph = function()
+mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = false)
   /**
    * Updates graph based on layout's vertex/group positions
    */
 {
-  console.log("updating graph");
   // find X, Y ranges first
   var minX = 1000000;
   var maxX = -1000000;
@@ -240,34 +258,70 @@ mxWebColaLayout.prototype.updateGraph = function()
   var spanY = maxY - minY;
 
   var model = this.graph.getModel();
-  model.beginUpdate();
+  if (isUndoable)
+  {
+    model.beginUpdate();
+  }
   try
   {
     var cells = model.cells;
     var view = this.graph.getView();
+    
     // scan leaves and edges
     for (var id in cells)
     {
       var cell = cells[id];
       var state = view.getState(cell);
       var bounds = view.getBoundingBox(state, true);
+      
       if (cell.isVertex() && this.layout.isLeafOrCollapsed(cell))
       {
         var nodeId = this.layout.cellToNode[id];
+        
         if (typeof nodeId == "undefined")
           continue;
+        
         var node = this.layout.adaptor._nodes[nodeId];
         var geometry = model.getGeometry(cell);
-        if (geometry != null && typeof geometry != "undefined")
+        
+        if (geometry != null)
         {
-          geometry = geometry.clone();
+        	// First run creates a temporary geometry that can
+        	// be changed in-place to update the view and keeps
+        	// a copy of the original geometry to use in the
+        	// final undoable edit to force a change event
+          if (initial)
+          {
+        	this.originalGeometries.put(cell, geometry);
+            geometry = geometry.clone();
+            
+    	    if (model.isVertex(cell))
+    	    {
+   		        geometry.offset = null;
+    	    }
+          }
+          
           geometry.x = node.x - minX;
           geometry.y = node.y - minY;
-          model.setGeometry(cell, geometry);
+          
+          if (isUndoable)
+          {
+        	  // Restores original geometry for the change to be detected
+          	cell.geometry = this.originalGeometries.get(cell);
+            model.setGeometry(cell, geometry);
+          }
+          else if (initial)
+          {
+        	  cell.geometry = geometry;
+          }
+          else
+          {
+            this.graph.view.invalidate(cell, true, true);
+          }
         }
         else
         {
-          alert("vertex cell id:" + id + " has no geometry!");
+          console.log("ERROR: vertex cell id:" + id + " has no geometry!");
         }
       }
       else if (cell.isEdge())
@@ -294,7 +348,14 @@ mxWebColaLayout.prototype.updateGraph = function()
   }
   finally
   {
-    model.endUpdate();
+    if (isUndoable)
+    {
+      model.endUpdate();
+    }
+    else
+    {
+      this.graph.view.validate();
+    }
+    // console.log("Updated graph, undoable=" + isUndoable + " undo level=" + this.graph.model.updateLevel);
   }
-
 }

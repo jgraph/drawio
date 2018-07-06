@@ -194,6 +194,7 @@ Draw.loadPlugin(function(ui)
 	{
 		if (config != null && (!spin || ui.spinner.spin(document.body, mxResources.get('loading') + '...')))
 		{
+			var validate = false;
 			var pending = 0;
 			
 			graph.view.states.visit(function(id, state)
@@ -215,15 +216,23 @@ Draw.loadPlugin(function(ui)
 							if (updateStyle(state.cell, ticket) |
 								updateData(state.cell, ticket))
 							{
-								state.style = null;
 								graph.view.invalidate(state.cell, true, false);
-								graph.view.validate(state.cell);
+								state.style = null;
+								validate = true;
 							}
 						}
 						
-						if (spin && pending == 0)
+						if (pending == 0)
 						{
-							ui.spinner.stop();
+							if (spin)
+							{
+								ui.spinner.stop();
+							}
+							
+							if (validate)
+							{
+								graph.view.validate();
+							}
 						}
 					})
 				}
