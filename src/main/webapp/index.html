@@ -103,6 +103,10 @@
 				}
 			})();
 		}
+
+		if (urlParams['window']) {
+			window.name = urlParams['window'];
+		}
 		
 		/**
 		 * Adds meta tags with application name (depends on offline URL parameter)
