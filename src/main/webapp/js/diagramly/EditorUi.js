@@ -10663,7 +10663,7 @@
 		this.actions.get('makeCopy').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
-		this.actions.get('tags').setEnabled(active && (file == null || !file.isRestricted()));
+		this.actions.get('tags').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('find').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');

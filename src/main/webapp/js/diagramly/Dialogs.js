@@ -6323,6 +6323,13 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		{
 			graph.setSelectionCells(cells);
 		}
+		else
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				graph.highlightCell(cells[i]);
+			}
+		}
 	});
 	
 	showBtn.setAttribute('title', mxResources.get('show'));

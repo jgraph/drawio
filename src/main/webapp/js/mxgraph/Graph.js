@@ -1144,18 +1144,69 @@ Graph.prototype.init = function(container)
 	/**
 	 * Function: getCellAt
 	 * 
-	 * Overrides to transform incoming coordinates.
+	 * Needs to modify original method for recursive call.
 	 */
 	Graph.prototype.getCellAt = function(x, y, parent, vertices, edges, ignoreFn)
 	{
 		if (this.useCssTransforms)
 		{
-			x /= this.currentScale - this.currentTranslate.x;
-			y /= this.currentScale - this.currentTranslate.y;
+			x = x / this.currentScale - this.currentTranslate.x;
+			y = y / this.currentScale - this.currentTranslate.y;
 		}
 		
-		return mxGraph.prototype.getCellAt.apply(this, arguments);
+		return this.getScaledCellAt.apply(this, arguments);
 	};
+
+	/**
+	 * Function: getScaledCellAt
+	 * 
+	 * Overridden for recursion.
+	 */
+	Graph.prototype.getScaledCellAt = function(x, y, parent, vertices, edges, ignoreFn)
+	{
+		vertices = (vertices != null) ? vertices : true;
+		edges = (edges != null) ? edges : true;
+
+		if (parent == null)
+		{
+			parent = this.getCurrentRoot();
+			
+			if (parent == null)
+			{
+				parent = this.getModel().getRoot();
+			}
+		}
+
+		if (parent != null)
+		{
+			var childCount = this.model.getChildCount(parent);
+			
+			for (var i = childCount - 1; i >= 0; i--)
+			{
+				var cell = this.model.getChildAt(parent, i);
+				var result = this.getScaledCellAt(x, y, cell, vertices, edges, ignoreFn);
+				
+				if (result != null)
+				{
+					return result;
+				}
+				else if (this.isCellVisible(cell) && (edges && this.model.isEdge(cell) ||
+					vertices && this.model.isVertex(cell)))
+				{
+					var state = this.view.getState(cell);
+
+					if (state != null && (ignoreFn == null || !ignoreFn(state, x, y)) &&
+						this.intersects(state, x, y))
+					{
+						return cell;
+					}
+				}
+			}
+		}
+		
+		return null;
+	};
+
 
 	/**
 	 * Function: repaint
@@ -6363,7 +6414,16 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.insertRow = function(table, index)
 		{
 			var bd = table.tBodies[0];
-			var cols = (bd.rows.length > 0) ? bd.rows[0].cells.length : 1;
+			var cells = bd.rows[0].cells;
+			var cols = 0;
+			
+			// Counts columns including colspans
+			for (var i = 0; i < cells.length; i++)
+			{
+				var colspan = cells[i].getAttribute('colspan');
+				cols = (colspan != null) ? parseInt(colspan) : 1;
+			}
+			
 			var row = bd.insertRow(index);
 			
 			for (var i = 0; i < cols; i++)

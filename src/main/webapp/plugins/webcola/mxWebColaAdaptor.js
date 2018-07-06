@@ -106,7 +106,7 @@ mxWebColaAdaptor.prototype.defaultValues = {
   keepRunning: false // overrides all other options for a forces-all-the-time mode
 };
 
-mxWebColaAdaptor.prototype.updatePositions = function()
+mxWebColaAdaptor.prototype.updatePositions = function(isUndoable)
   /**
    * Default method for updating positions
    * Should be overridden by the caller/user of the adaptor
@@ -143,7 +143,7 @@ mxWebColaAdaptor.prototype.step = function (colaAdaptor)
 {
   if ('doAnimations' in this.options && this.options.doAnimations)
   {
-    this.updatePositions();
+    this.updatePositions(false);
   }
 }
 
@@ -226,7 +226,7 @@ mxWebColaAdaptor.prototype.run = function()
         case END:
         {
           console.log("colaAdaptor: end");
-          layout.updatePositions();
+          layout.updatePositions(true);
           if (!options.keepRunning)
           {
             layout.finish();
@@ -272,8 +272,6 @@ mxWebColaAdaptor.prototype.run = function()
   return this.adaptor;
 }
 
-// module.exports = defaultValues;
-
 function getScreenConstraints(layout, width, height)
 /**
  * Returns a set of constraints covering limits of screen
@@ -318,6 +316,20 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
   var inactiveToActiveMap = activeMaps.inactiveToActiveMap;
   var cells = graph.getModel().cells;
   var view = graph.getView();
+  
+  // Ignores cells that have no states
+  var tmp = {};
+  
+  for (var id in cells)
+  {
+	  if (view.getState(cells[id]) != null)
+	  {
+		  tmp[id] = cells[id];
+	  }
+  }
+  
+  cells = tmp;
+  
   var nodeCells = {};
   var linkCells = {};
   var cellIds = {};
