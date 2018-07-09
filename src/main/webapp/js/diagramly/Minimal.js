@@ -522,8 +522,8 @@ EditorUi.initMinimalTheme = function()
             {
                 this.addMenuItems(menu, (graph.isCellCollapsed(cell)) ? ['expand'] : ['collapse'], null, evt);
             }
-
-            this.addMenuItems(menu, ['lockUnlock', 'enterGroup'], null, evt);
+            
+            this.addMenuItems(menu, ['collapsible', '-', 'lockUnlock', 'enterGroup'], null, evt);
             menu.addSeparator();
             this.addSubmenu('layout', menu);
         }

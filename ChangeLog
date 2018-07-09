@@ -1,3 +1,10 @@
+09-JUL-2018: 8.9.3
+
+- Fixes rounded style option for containers
+- Moves webcola plugin to layout menu
+- Fixes minor errors in print preview
+- Uses mxGraph 3.9.9 beta 1
+
 06-JUL-2018: 8.9.2
 
 - Enables tags dialog in read-only files

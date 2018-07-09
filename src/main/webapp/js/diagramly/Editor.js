@@ -306,6 +306,11 @@
 	};
 
 	/**
+	 * Whether foreignObjects can be used for math rendering.
+	 */
+	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
+
+	/**
 	 * Executes the first step for connecting to Google Drive.
 	 */
 	Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURIComponent(urlParams['edit']) : null;
@@ -380,7 +385,7 @@
 					this.graph.setBackgroundImage(null);
 				}
 				
-				mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
+				mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
 					!this.graph.useCssTransforms) ? true : this.originalNoForeignObject;
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
 			}
@@ -581,12 +586,6 @@
 	
 	/**
 	 * Overrides reset graph.
-	 * 
-	 * math-fo=1 enables foreignObjects for MathJax.
-	 * 
-	 * FIXME:
-	 * - Editor shows no math without page view
-	 * - Lightbox zooming breaks math
 	 */
 	var editorResetGraph = Editor.prototype.resetGraph;	
 	Editor.prototype.resetGraph = function()
@@ -594,9 +593,8 @@
 		this.graph.mathEnabled = (urlParams['math'] == '1');
 		this.graph.view.x0 = null;
 		this.graph.view.y0 = null;
-		mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
-			!this.graph.useCssTransforms) ? true :
-			this.originalNoForeignObject;
+		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
+			!this.graph.useCssTransforms) ? true : this.originalNoForeignObject;
 		editorResetGraph.apply(this, arguments);
 	};
 
@@ -607,7 +605,7 @@
 	Editor.prototype.updateGraphComponents = function()
 	{
 		editorUpdateGraphComponents.apply(this, arguments);
-		mxClient.NO_FO = ((this.graph.mathEnabled && urlParams['math-fo'] != '1') &&
+		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
 			!this.graph.useCssTransforms && Editor.MathJaxRender != null) ? true :
 			this.originalNoForeignObject;
 	};
@@ -1434,6 +1432,46 @@
 		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
 	};
 
+	/**
+	 * Adds workaround for math rendering in Chrome.
+	 * 
+	 * Workaround for https://bugs.webkit.org/show_bug.cgi?id=93358 in WebKit
+	 * 
+	 * Adding an absolute position DIV before the SVG seems to mitigate the problem.
+	 */
+	var graphViewValidateBackgroundPage = mxGraphView.prototype.validateBackgroundPage;
+	
+	mxGraphView.prototype.validateBackgroundPage = function()
+	{
+		graphViewValidateBackgroundPage.apply(this, arguments);
+		
+		if (mxClient.IS_GC && this.getDrawPane() != null)
+		{
+			var g = this.getDrawPane().parentNode;
+			
+			if (this.graph.mathEnabled && !mxClient.NO_FO &&
+				(this.webKitForceRepaintNode == null ||
+				this.webKitForceRepaintNode.parentNode == null) &&
+				this.graph.container.firstChild.nodeName == 'svg')
+			{
+				this.webKitForceRepaintNode = document.createElement('div');
+				this.webKitForceRepaintNode.style.cssText = 'position:absolute;';
+				g.ownerSVGElement.parentNode.insertBefore(this.webKitForceRepaintNode, g.ownerSVGElement);
+			}
+			else if (this.webKitForceRepaintNode != null && (!this.graph.mathEnabled ||
+					(this.graph.container.firstChild.nodeName != 'svg' &&
+					this.graph.container.firstChild != this.webKitForceRepaintNode)))
+			{
+				if (this.webKitForceRepaintNode.parentNode != null)
+				{
+					this.webKitForceRepaintNode.parentNode.removeChild(this.webKitForceRepaintNode);
+				}
+				
+				this.webKitForceRepaintNode = null;
+			}
+		}
+	};
+	
 	/**
 	 * Sets default style (used in editor.get/setGraphXml below)
 	 */
@@ -2453,6 +2491,7 @@
 		
 				doc.writeln('<script type="text/x-mathjax-config">');
 				doc.writeln('MathJax.Hub.Config({');
+				doc.writeln('showMathMenu: false,');
 				doc.writeln('messageStyle: "none",');
 				doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
 				doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');

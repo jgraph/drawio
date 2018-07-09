@@ -1343,32 +1343,8 @@ Graph.prototype.init = function(container)
 //							}
 //						}));
 //					}
-					// Workaround for https://bugs.webkit.org/show_bug.cgi?id=93358 in WebKit
-					// Adding an absolute position DIV before the SVG seems to mitigate the problem.
-					if (mxClient.IS_GC)
-					{
-						if (this.mathEnabled && (this.webKitForceRepaintNode == null ||
-							this.webKitForceRepaintNode.parentNode == null) &&
-							this.container.firstChild.nodeName == 'svg')
-						{
-							this.webKitForceRepaintNode = document.createElement('div');
-							this.webKitForceRepaintNode.style.cssText = 'position:absolute;';
-							g.ownerSVGElement.parentNode.insertBefore(this.webKitForceRepaintNode, g.ownerSVGElement);
-						}
-						else if (this.webKitForceRepaintNode != null && (!this.mathEnabled ||
-								(this.container.firstChild.nodeName != 'svg' &&
-								this.container.firstChild != this.webKitForceRepaintNode)))
-						{
-							if (this.webKitForceRepaintNode.parentNode != null)
-							{
-								this.webKitForceRepaintNode.parentNode.removeChild(this.webKitForceRepaintNode);
-							}
-							
-							this.webKitForceRepaintNode = null;
-						}
-					}
 					// Workaround for https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/4320441/
-					else if (mxClient.IS_EDGE)
+					if (mxClient.IS_EDGE)
 					{
 						// Recommended workaround is to do this on all
 						// foreignObjects, but this seems to be faster

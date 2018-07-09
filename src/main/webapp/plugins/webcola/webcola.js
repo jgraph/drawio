@@ -21,16 +21,20 @@ Draw.loadPlugin(function(ui)
 		layout.execute(parent);
 	});
 	
-	var menu = ui.menus.get('extras');
-	var oldFunct = menu.funct;
+	var menu = ui.menus.get('layout');
 	
-	menu.funct = function(menu, parent)
+	if (menu != null)
 	{
-		oldFunct.apply(this, arguments);
+		var oldFunct = menu.funct;
 		
-		if (typeof window.mxWebColaLayout === 'function')
+		menu.funct = function(menu, parent)
 		{
-			ui.menus.addMenuItems(menu, ['-', 'webColaLayout'], parent);
-		}
-	};
+			oldFunct.apply(this, arguments);
+			
+			if (typeof window.mxWebColaLayout === 'function')
+			{
+				ui.menus.addMenuItems(menu, ['-', 'webColaLayout'], parent);
+			}
+		};
+	}
 });

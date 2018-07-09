@@ -372,7 +372,7 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
   {
     var cell = cells[id];
     var state = view.getState(cell);
-    if (cell.isEdge())
+    if (cell.isEdge() && cell.getTerminal(true) != null && cell.getTerminal(false) != null)
     {
       // attach edges to lowest active vertex corresponding to each of their terminals
       var terminal_id1 = inactiveToActiveMap[cell.source.id];
@@ -493,7 +493,7 @@ mxWebColaAdaptor.prototype.createLink = function(sourceId, targetId, cellIds)
   link.source = cellIds[sourceId];
   link.target = cellIds[targetId];
   link.weight = 0.9;
-  link.length = 100; // TODO: replace with Graph.prototype.defaultEdgeLength; once integrated in draw.io
+  link.length = Graph.prototype.defaultEdgeLength;
   return link;
 }
 
