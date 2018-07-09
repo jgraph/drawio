@@ -486,6 +486,7 @@ App.main = function(callback, createUi)
 		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
 		{
 			var plugins = mxSettings.getPlugins();
+			var pluginsLoaded = {};
 			var temp = urlParams['p'];
 			App.initPluginCallback();
 
@@ -506,8 +507,9 @@ App.main = function(callback, createUi)
 				{
 					var url = App.pluginRegistry[t[i]];
 					
-					if (url != null)
+					if (url != null && pluginsLoaded[url] == null)
 					{
+						pluginsLoaded[url] = true;
 						mxscript(drawDevUrl + url);
 					}
 					else if (window.console != null)
@@ -543,7 +545,11 @@ App.main = function(callback, createUi)
 					{
 						try
 						{
-							mxscript(plugins[i]);
+							if (pluginsLoaded[plugins[i]] == null)
+							{
+								pluginsLoaded[url] = true;
+								mxscript(plugins[i]);
+							}
 						}
 						catch (e)
 						{
