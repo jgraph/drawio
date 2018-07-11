@@ -14,9 +14,6 @@ EditorUi = function(editor, container, lightbox)
 	
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
-	graph.useCssTransforms =
-		this.editor.isChromelessView() &&
-		graph.isCssTransformsSupported();
 
 	// Faster scrollwheel zoom is possible with CSS transforms
 	if (graph.useCssTransforms)

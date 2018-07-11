@@ -182,15 +182,26 @@ mxWebColaLayout.prototype.getGroupBounds = function(model, groupCell)
       }
     }
   }
+  var width = maxX - minX;
+  var height = maxY - minY;
+  // at last look if the group has geometry already and use it as basic range
+  var groupGeometry = model.getGeometry(groupCell);
+  if (groupGeometry != null)
+  {
+    minX = Math.min(groupGeometry.x, minX);
+    minY = Math.min(groupGeometry.y, minY);
+    width = Math.max(groupGeometry.width, width);
+    height = Math.max(groupGeometry.height, height);
+  }
   var bounds = model.getGeometry(groupCell).clone();
   bounds.x = minX;
   bounds.y = minY;
-  bounds.width = maxX - minX;
-  bounds.height = maxY - minY;
+  bounds.width = width;
+  bounds.height = height;
   return bounds;
 }
 
-mxWebColaLayout.prototype.adjustChildOffsets = function(model, groupCell)
+mxWebColaLayout.prototype.adjustChildOffsets = function(model, groupCell, isUndoable, isInitial)
   /**
    * Adjusts offset of child vertices to be relative to parent groups
    * @param model graph model
@@ -218,10 +229,10 @@ mxWebColaLayout.prototype.adjustChildOffsets = function(model, groupCell)
         
         if (geometry != null && typeof geometry != "undefined")
         {
-          geometry = geometry.clone();
+//          geometry = geometry.clone();
           geometry.x = geometry.x - offsetX;
           geometry.y = geometry.y - offsetY;
-          model.setGeometry(child, geometry);
+//          model.setGeometry(child, geometry);
         }
       }
       else
@@ -243,11 +254,12 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
   var minY = 1000000;
   var maxY = -1000000;
 
+  // finding limits by scanning top-left corners of shapes
   for (var i = 0; i < this.layout.adaptor._nodes.length; i++)
   {
     var node = this.layout.adaptor._nodes[i];
-    var x = node.x;
-    var y = node.y;
+    var x = node.bounds.x;
+    var y = node.bounds.y;
     minX = Math.min(minX, x);
     minY = Math.min(minY, y);
     maxX = Math.max(maxX, x);
@@ -286,33 +298,34 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
         
         if (geometry != null)
         {
-        	// First run creates a temporary geometry that can
-        	// be changed in-place to update the view and keeps
-        	// a copy of the original geometry to use in the
-        	// final undoable edit to force a change event
+          // First run creates a temporary geometry that can
+        	  // be changed in-place to update the view and keeps
+        	  // a copy of the original geometry to use in the
+        	  // final undoable edit to force a change event
           if (initial)
           {
-        	this.originalGeometries.put(cell, geometry);
+            this.originalGeometries.put(cell, geometry);
             geometry = geometry.clone();
             
-    	    if (model.isVertex(cell))
-    	    {
-   		        geometry.offset = null;
-    	    }
+    	        if (model.isVertex(cell))
+    	        {
+   		      geometry.offset = null;
+    	        }
           }
           
-          geometry.x = node.x - minX;
-          geometry.y = node.y - minY;
+          // anchor top-left corners at (0, 0)
+          geometry.x = node.bounds.x - minX;
+          geometry.y = node.bounds.y - minY;
           
           if (isUndoable)
           {
-        	  // Restores original geometry for the change to be detected
+        	    // Restores original geometry for the change to be detected
           	cell.geometry = this.originalGeometries.get(cell);
             model.setGeometry(cell, geometry);
           }
           else if (initial)
           {
-        	  cell.geometry = geometry;
+        	    cell.geometry = geometry;
           }
           else
           {
@@ -338,10 +351,33 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
       if (cell.isVertex() && !this.layout.isLeafOrCollapsed(cell))
       {
         var bounds = this.getGroupBounds(model, cell);
+        var geometry = model.getGeometry(cell);
         if (bounds != null && typeof bounds != "undefined")
         {
-          model.setGeometry(cell, bounds);
-          this.adjustChildOffsets(model, cell);
+          if (initial)
+          {
+            this.originalGeometries.put(cell, geometry);
+            geometry = geometry.clone();
+            
+    	        if (model.isVertex(cell))
+    	        {
+   		      geometry.offset = null;
+    	        }
+          }
+        	  if (isUndoable)
+          {
+        		cell.geometry = this.originalGeometries.get(cell);
+            model.setGeometry(cell, bounds);
+          }
+        	  else if (initial)
+    		  {
+    		    cell.geometry = bounds;
+    		  }
+        	  else
+          {
+        		this.graph.view.invalidate(cell, true, true);
+          }
+          this.adjustChildOffsets(model, cell, isUndoable, initial);
         }
       }
     }
@@ -356,6 +392,5 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
     {
       this.graph.view.validate();
     }
-    // console.log("Updated graph, undoable=" + isUndoable + " undo level=" + this.graph.model.updateLevel);
   }
 }

@@ -306,9 +306,9 @@
 	};
 
 	/**
-	 * Whether foreignObjects can be used for math rendering.
+	 * This should not be enabled if reflows are required for math rendering.
 	 */
-	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
+	Editor.prototype.useForeignObjectForMath = false;
 
 	/**
 	 * Executes the first step for connecting to Google Drive.
@@ -385,8 +385,14 @@
 					this.graph.setBackgroundImage(null);
 				}
 				
-				mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
-					!this.graph.useCssTransforms) ? true : this.originalNoForeignObject;
+				mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath)) ?
+					true : this.originalNoForeignObject;
+				
+				this.graph.useCssTransforms = !mxClient.NO_FO &&
+					this.isChromelessView() &&
+					this.graph.isCssTransformsSupported();
+				this.graph.updateCssTransform();
+
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
 			}
 	
@@ -593,8 +599,14 @@
 		this.graph.mathEnabled = (urlParams['math'] == '1');
 		this.graph.view.x0 = null;
 		this.graph.view.y0 = null;
-		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
-			!this.graph.useCssTransforms) ? true : this.originalNoForeignObject;
+		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath)) ?
+			true : this.originalNoForeignObject;
+		
+		this.graph.useCssTransforms = !mxClient.NO_FO &&
+			this.isChromelessView() &&
+			this.graph.isCssTransformsSupported();
+		this.graph.updateCssTransform();
+		
 		editorResetGraph.apply(this, arguments);
 	};
 
@@ -606,8 +618,12 @@
 	{
 		editorUpdateGraphComponents.apply(this, arguments);
 		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
-			!this.graph.useCssTransforms && Editor.MathJaxRender != null) ? true :
-			this.originalNoForeignObject;
+			Editor.MathJaxRender != null) ? true : this.originalNoForeignObject;
+		
+		this.graph.useCssTransforms = !mxClient.NO_FO &&
+			this.isChromelessView() &&
+			this.graph.isCssTransformsSupported();
+		this.graph.updateCssTransform();
 	};
 		
 	/**
