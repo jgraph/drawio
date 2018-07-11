@@ -100,21 +100,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			{
 				this.graph = new Graph(container);
 				this.graph.transparentBackground = false;
-				this.graph.useCssTransforms = this.graph.isCssTransformsSupported();
 				
-			    // Required for Math workaround in Graph.updateCssTransform and
-				// relative is needed for auto size of offsetParent
-			    if (mxClient.IS_SVG && this.graph.useCssTransforms &&
-			    	this.graph.view.getDrawPane() != null)
-			    {
-			        var root = this.graph.view.getDrawPane().ownerSVGElement;
-			        
-			        if (root != null)
-			        {
-			            root.style.position = 'relative';
-			        }
-			    }
-			    
 				if (this.graphConfig.move)
 				{
 					this.graph.isMoveCellsEvent = function(evt)

@@ -380,7 +380,10 @@ EditorUi.prototype.initPages = function()
 				// clear the queue we have to refresh after typeset
 				MathJax.Hub.Queue(mxUtils.bind(this, function()
 				{
-					this.editor.graph.refresh();
+					if (this.editor != null)
+					{
+						this.editor.graph.refresh();
+					}
 				}));
 			}
 		}
