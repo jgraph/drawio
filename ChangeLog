@@ -1,3 +1,9 @@
+13-JUL-2018: 8.9.5
+
+- Fixes clipping for MathJax print preview in Safari
+- Uses mxGraph 3.9.9 beta 3
+- Fixes minor memory leak
+
 11-JUL-2018: 8.9.4
 
 - Removes foreignObjects for MathJax

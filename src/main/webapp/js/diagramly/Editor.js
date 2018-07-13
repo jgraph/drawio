@@ -2363,11 +2363,17 @@
 						
 						pv.renderPage = function(w, h, dx, dy, content, pageNumber)
 						{
+							var prev = mxClient.NO_FO;
+							mxClient.NO_FO = (this.graph.mathEnabled && !this.useForeignObjectForMath) ?
+									true : this.originalNoForeignObject;
+							
 							var result = printPreviewRenderPage.apply(this, arguments);
+
+							mxClient.NO_FO = prev;
 							
 							if (this.graph.mathEnabled)
 							{
-								this.mathEnabled = true;
+								this.mathEnabled = this.mathEnabled || true;
 							}
 							else
 							{
