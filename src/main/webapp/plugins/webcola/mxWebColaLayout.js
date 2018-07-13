@@ -309,7 +309,14 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
             
     	        if (model.isVertex(cell))
     	        {
-   		      geometry.offset = null;
+  	        	  if (this.layout.isInZeroConnectedGroup(cell))
+	        	  {
+	        		geometry.offset = geometry.offset.clone();
+	        	  }
+	        	  else
+	          {
+		        geometry.offset = null;
+	          }
     	        }
           }
           
@@ -361,7 +368,14 @@ mxWebColaLayout.prototype.updateGraph = function(isUndoable = false, initial = f
             
     	        if (model.isVertex(cell))
     	        {
-   		      geometry.offset = null;
+    	        	  if (this.layout.isInZeroConnectedGroup(cell))
+    	        	  {
+    	        		geometry.offset = geometry.offset.clone();
+    	        	  }
+    	        	  else
+    	          {
+   		        geometry.offset = null;
+    	          }
     	        }
           }
         	  if (isUndoable)

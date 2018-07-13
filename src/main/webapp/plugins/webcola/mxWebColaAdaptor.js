@@ -28,7 +28,7 @@ var doNothing = function()
 
 function mxWebColaAdaptor(graph, dimension, movableVertices, options)
 /**
- * Conatructs a WebCola adaptor for mxGraph
+ * Constructs a WebCola adaptor for mxGraph
  * @param graph mxGraph instance
  * @param dimension array containing [width, height] of drawing canvas in points
  * @param movableVertices set containing IDs of vertices that are movable; if undefined all vertices are movable
@@ -42,6 +42,11 @@ function mxWebColaAdaptor(graph, dimension, movableVertices, options)
   {
     this.dimension = [600, 600];
   }
+  // compute vertex/group degrees from incidence
+  this.vertexDegrees = new mxDictionary();
+  this.groupDegrees = new mxDictionary();
+  this.computeVertexDegrees();
+  // convert draw.io graph to WebCola's nodes/links
   var layoutResult = this.graphToLayout(graph, movableVertices);
   this.nodes = layoutResult.nodes;
   this.links = layoutResult.links;
@@ -491,6 +496,14 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
 };
 
 mxWebColaAdaptor.prototype.createLink = function(sourceId, targetId, cellIds)
+/**
+ * Creates a default version of a WebCola link/edge
+ * @param sourceId ID of the edge's source vertex cell
+ * @param targetId ID of the edge's target vertex cell
+ * @param cellIds cell ID to WebCola's node ID mapping
+ * @returns a WebCola link corresponding to the edge [sourceId, targetId] 
+ * in WebCola node IDs
+ */
 {
   var link = {};
   link.source = cellIds[sourceId];
@@ -498,6 +511,111 @@ mxWebColaAdaptor.prototype.createLink = function(sourceId, targetId, cellIds)
   link.weight = 0.5;
   link.length = Graph.prototype.defaultEdgeLength;
   return link;
+}
+
+mxWebColaAdaptor.prototype.computeVertexDegrees = function()
+/**
+ * Computes group vertex and vertex degrees. Useful to stop layouting for groups
+ * with no internal, incoming or outgoing edges.
+ */
+{
+  var model = this.graph.getModel();
+  var cells = model.cells;
+  
+  // compute individual vertex degrees
+  for (var id in cells)
+  {
+    var cell = cells[id];
+    if (cell.isEdge())
+    {
+    	  // scan all edges, ignore other types
+    	  var sourceId = cell.source.id;
+    	  var targetId = cell.target.id;
+    	  var source = cells[sourceId];
+    	  var target = cells[targetId];
+    	  
+    	  if (sourceId == targetId)
+      {
+    		 // self-loops are irrelevant
+         continue;    		  
+    	  }
+    	  
+    	  var sourceDegree = this.vertexDegrees.get(source);
+    	  if (typeof sourceDegree == "undefined")
+      {
+    		sourceDegree = 0;
+      }
+    	  sourceDegree++;
+    	  this.vertexDegrees.put(source, sourceDegree);
+
+    	  var targetDegree = this.vertexDegrees.get(target);
+    	  if (typeof targetDegree == "undefined")
+      {
+    		  targetDegree = 0;
+      }
+    	  targetDegree++;
+    	  this.vertexDegrees.put(target, targetDegree);
+    }
+  }
+  // compute sub-group degree, i.e. sum of all degrees of children
+  // algorithm goes through all vertices, then for each vertex it goes on its material
+  // path to root and adds its contribution to all vertices on this path
+  // this should for each vertex place exactly the sum of degrees of all its vertices
+  // and itself, nothing less, nothing more
+  for (var id in cells)
+  {
+    var cell = cells[id];
+    if (cell.isVertex())
+    {
+    	  // scan all vertices, ignore other types
+    	  var vertexDegree = this.vertexDegrees.get(cell);
+    	  if (typeof vertexDegree == "undefined")
+    	  {
+    		vertexDegree = 0;
+    	  }
+      var parent = cell;
+    	  while (parent != null && typeof parent != "undefined")
+	  {
+	    	var groupDegree = this.groupDegrees.get(parent);
+	    	if (typeof groupDegree == "undefined")
+	    	{
+	      groupDegree = 0;
+	    }
+	    groupDegree += vertexDegree;
+        this.groupDegrees.put(parent, groupDegree);
+        parent = parent.parent;
+      }
+    }
+  }
+}
+
+mxWebColaAdaptor.prototype.isZeroConnected = function(groupCell)
+/**
+ * Indicates if all group cell's vertices have no incidental edges
+ * @params groupCell group cell
+ * @returns true if the group cell doesn't contain any vertices with edges
+ */
+{
+  var groupDegree = this.groupDegrees.get(groupCell);
+  console.log("Group " + groupCell.id + " degree: " + groupDegree);
+  if (typeof groupDegree != "undefined" && groupDegree > 0)
+  {
+	return false;
+  }
+  return true;
+}
+
+mxWebColaAdaptor.prototype.isInZeroConnectedGroup = function(cell)
+{
+  var parent = cell.parent;
+  if (parent == null || typeof parent == "undefined")
+  {
+	return this.isZeroConnected(cell);
+  }
+  else
+  {
+	return this.isZeroConnected(parent);
+  }
 }
 
 mxWebColaAdaptor.prototype.isLeafOrCollapsed = function(cell)
@@ -513,6 +631,17 @@ mxWebColaAdaptor.prototype.isLeafOrCollapsed = function(cell)
   {
     return true;
   }
+  if (this.isZeroConnected(cell))
+  {
+	return true;
+  }
+  /*
+  if (!cell.isCollapsed() && cell.children != null && cell.children.length > 0 && this.graph.getEdges(cell, null, true, true, true, true).length == 0)
+  {
+	console.log("cell " + cell.id + " is 0-connected.");
+	return true;
+  }
+  */
   return false;
 }
 
