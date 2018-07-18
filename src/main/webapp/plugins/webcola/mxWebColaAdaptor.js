@@ -526,7 +526,7 @@ mxWebColaAdaptor.prototype.computeVertexDegrees = function()
   for (var id in cells)
   {
     var cell = cells[id];
-    if (cell.isEdge())
+    if (cell.isEdge() && cell.source != null && cell.target != null)
     {
     	  // scan all edges, ignore other types
     	  var sourceId = cell.source.id;

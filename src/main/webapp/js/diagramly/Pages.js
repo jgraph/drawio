@@ -177,6 +177,12 @@ SelectPage.prototype.execute = function()
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;
 		
+		if (page.model != null)
+		{
+			// Updates internal structures of offpage model
+			page.model.rootChanged(page.root);
+		}
+		
 		// Transitions for switching pages
 //		var curIndex = mxUtils.indexOf(this.ui.pages, page);
 //		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', null);

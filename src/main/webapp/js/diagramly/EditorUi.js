@@ -5754,6 +5754,9 @@
 						{
 							for (var i = 0; i < diagrams.length; i++)
 							{
+								// Imported pages must obtain a new ID
+								diagrams[i].removeAttribute('id');
+								
 								var page = this.updatePageRoot(new DiagramPage(diagrams[i]));
 								var index = this.pages.length;
 								
@@ -7623,7 +7626,12 @@
 						}
 						
 						textInput.parentNode.removeChild(textInput);
-						mxUtils.clearSelection();
+						
+						// Workaround for lost cursor in focused element
+						if (this.dialog == null)
+						{
+							mxUtils.clearSelection();
+						}
 					}
 				}), 0);
 			}));
@@ -7642,6 +7650,7 @@
 			{
 				if (graph.isEnabled())
 				{
+					mxClipboard.copy(graph);
 					this.copyCells(textInput, true);
 					clearInput();
 				}

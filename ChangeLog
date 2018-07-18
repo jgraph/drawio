@@ -1,3 +1,13 @@
+18-JUL-2018: 8.9.6
+
+- Fixes vertical offset for text editing with small fonts
+- Fixes repaint of placeholders in text for custom shapes
+- Fixes lost cursor after certain keyboard shortcuts
+- Fixes clipboard state after cut keyboard shortcut
+- Fixes minor issues for Confluence Cloud
+- Adds draft state for Trello attachments
+- Uses mxGraph 3.9.9 beta 4
+
 13-JUL-2018: 8.9.5
 
 - Fixes clipping for MathJax print preview in Safari

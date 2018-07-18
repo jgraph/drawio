@@ -114,6 +114,7 @@ collapsible=‫قابل‬
 comic=Comic
 comment=‫نظر‬
 commentsNotes=‫نظرات/نکات‬
+compress=Compress
 connect=‫متصل شدن‬
 connecting=‫در حال اتصال‬
 connectWithDrive=‫اتصال از طریق گوگل درایو‬
@@ -189,6 +190,8 @@ dropbox=‫دراپ باکس‬
 duplicate=‫نسخه یکسان‬
 duplicateIt=‫نسخه یکسان {1}‬
 divider=‫جدا کننده‬
+dx=Dx
+dy=Dy
 east=‫شرق‬
 edit=‫ویرایش‬
 editData=‫ویرایش داده‌ها‬
@@ -547,6 +550,7 @@ realtimeTimeout=‫به نظر می رسد که در حالت آفلاین تغ�
 redo=‫دوباره انجام دادن‬
 refresh=‫ریفرش‬
 regularExpression=‫بیان معمول‬
+relative=Relative
 relativeUrlNotAllowed=Relative URL not allowed
 rememberMe=‫مرا به خاطر بسپار‬
 rememberThisSetting=‫این تنظیمات را به خاطر بسپار‬
