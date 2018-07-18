@@ -33,6 +33,7 @@
 .geDiagramContainer {
 	background-color:#ffffff;
 	border: 1px solid #e5e5e5;
+	font-size:0px;
 	outline:none;
 }
 .geMenubar, .geToolbar {
@@ -57,6 +58,7 @@
 	box-shadow: 1px 1px 2px 0px #ddd;
 	opacity:0.8;
 	filter:alpha(opacity=80);
+	font-size:9pt;
 }
 .geStatusAlert {
 	white-space:nowrap;

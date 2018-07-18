@@ -7237,18 +7237,39 @@ var EditGeometryDialog = function(editorUi, vertices)
 	var right = document.createElement('td');
 	table.style.paddingLeft = '6px';
 	
+	mxUtils.write(left, mxResources.get('relative') + ':');
+	
+	var relInput = document.createElement('input');
+	relInput.setAttribute('type', 'checkbox');
+	
+	if (geo != null && geo.relative)
+	{
+		relInput.setAttribute('checked', 'checked');
+		relInput.defaultChecked = true;
+	}
+	
+	this.init = function()
+	{
+		relInput.focus();
+	};
+
+	right.appendChild(relInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
 	mxUtils.write(left, mxResources.get('left') + ':');
 	
 	var xInput = document.createElement('input');
 	xInput.setAttribute('type', 'text');
 	xInput.style.width = '100px';
 	xInput.value = (geo != null) ? geo.x : '';
-	
-	this.init = function()
-	{
-		xInput.focus();
-		xInput.select();
-	};
 
 	right.appendChild(xInput);
 
@@ -7269,6 +7290,42 @@ var EditGeometryDialog = function(editorUi, vertices)
 	yInput.value = (geo != null) ? geo.y : '';
 
 	right.appendChild(yInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('dx') + ':');
+	
+	var dxInput = document.createElement('input');
+	dxInput.setAttribute('type', 'text');
+	dxInput.style.width = '100px';
+	dxInput.value = (geo != null && geo.offset != null) ? geo.offset.x : '';
+
+	right.appendChild(dxInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('dy') + ':');
+	
+	var dyInput = document.createElement('input');
+	dyInput.setAttribute('type', 'text');
+	dyInput.style.width = '100px';
+	dyInput.value = (geo != null && geo.offset != null) ? geo.offset.y : '';
+
+	right.appendChild(dyInput);
 
 	row.appendChild(left);
 	row.appendChild(right);
@@ -7338,6 +7395,8 @@ var EditGeometryDialog = function(editorUi, vertices)
 		editorUi.hideDialog();
 	});
 	
+	cancelBtn.className = 'geBtn';
+	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
@@ -7355,6 +7414,8 @@ var EditGeometryDialog = function(editorUi, vertices)
 				
 					if (graph.isCellMovable(vertices[i]))
 					{
+						g.relative = relInput.checked;
+						
 						if (mxUtils.trim(xInput.value).length > 0)
 						{
 							g.x = Number(xInput.value);
@@ -7363,6 +7424,26 @@ var EditGeometryDialog = function(editorUi, vertices)
 						if (mxUtils.trim(yInput.value).length > 0)
 						{
 							g.y = Number(yInput.value);
+						}
+						
+						if (mxUtils.trim(dxInput.value).length > 0)
+						{
+							if (g.offset == null)
+							{
+								g.offset = new mxPoint();
+							}
+							
+							g.offset.x = Number(dxInput.value);
+						}
+						
+						if (mxUtils.trim(dyInput.value).length > 0)
+						{
+							if (g.offset == null)
+							{
+								g.offset = new mxPoint();
+							}
+							
+							g.offset.y = Number(dyInput.value);
 						}
 					}
 					
@@ -7393,7 +7474,9 @@ var EditGeometryDialog = function(editorUi, vertices)
 			graph.getModel().endUpdate();
 		}
 	});
-
+	
+	applyBtn.className = 'geBtn gePrimaryBtn';
+	
 	mxEvent.addListener(div, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)

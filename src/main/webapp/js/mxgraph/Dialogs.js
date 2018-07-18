@@ -629,7 +629,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	if (addButtons != null)
 	{
-		addButtons(td);
+		addButtons(td, nameInput);
 	}
 	
 	if (fn != null)
