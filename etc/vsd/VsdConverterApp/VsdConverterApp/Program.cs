@@ -92,7 +92,17 @@ namespace VsdConverterApp
                 //Now convert these vsd file pathes to vsdx
                 Console.WriteLine("{0} - Converting ...", clientNum);
 
-                String[] files = allData.Split('\n');
+                String[] info = allData.Split('\n');
+
+                if (info.Length < 3)
+                    throw new Exception("Invalid number of arguments");
+
+                String[] files = new String[info.Length - 2];
+                for (var o = 2; o < info.Length; o++)
+                    files[o - 2] = info[o];
+
+                String srcExt = info[0];
+                String dstExt = info[1];
 
                 //Using COM to call visio to convert the files
                 Type VisioType = Type.GetTypeFromProgID("Visio.InvisibleApp");
@@ -104,8 +114,8 @@ namespace VsdConverterApp
                 {
                     if (file.Length > 0)
                     {
-                        var doc = VisioInst.Documents.Open(file + ".vsd");
-                        doc.SaveAs(file + ".vsdx");
+                        var doc = VisioInst.Documents.Open(file + srcExt);
+                        doc.SaveAs(file + dstExt);
                         doc.Close();
                     }
                 }

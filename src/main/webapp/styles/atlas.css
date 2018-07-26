@@ -11,6 +11,18 @@
 	border-radius:3px;
 	background-image: linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%);
 }
+body .geBigButton {
+	background-color:#0052cc;
+	background-image:none;
+}
+body .geBigButton:hover {
+	background-color:#0065ff;
+	background-image: none;
+}
+body .geBigButton:active {
+	background-color:#0747a6;
+	background-image:none;
+}
 body > .geToolbarContainer .geLabel, body > .geToolbarContainer .geButton {
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
@@ -139,7 +151,7 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	padding:8px 0px 8px 16px !important;
 }
 .geMenubarContainer * {
-	color: #ffffff !important;
+	color: #DEEBFF !important;
 }
 .geMenubarContainer .geStatus {
 	color: rgb(179, 179, 179) !important;
@@ -161,7 +173,7 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	padding: 7px !important;
 }
 .geMenubarContainer .geItem:hover {
-	background-color: rgb(59, 115, 175);
+	background-color: rgba(9, 30, 66, 0.48);
 }
 .geToolbarContainer .geLabel {
 	margin:0px;
@@ -178,7 +190,7 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	transition: none;
 }
 .geMenubarContainer {
-	background-color: #205081 !important;
+	background-color: #0049B0 !important;
 	background-repeat: repeat-x;
 	color: rgb(255, 255, 255);
 	font-size: 13px;

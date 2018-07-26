@@ -189,7 +189,6 @@ Actions.prototype.init = function()
 		}
 	}, null, null, 'Alt+Shit+V');
 	
-	
 	function deleteCells(includeEdges)
 	{
 		// Cancels interactive operations
@@ -357,7 +356,7 @@ Actions.prototype.init = function()
 			ui.showLinkDialog(value, mxResources.get('apply'), function(link)
 			{
 				link = mxUtils.trim(link);
-    				graph.setLinkForCell(cell, (link.length > 0) ? link : null);
+    			graph.setLinkForCell(cell, (link.length > 0) ? link : null);
 			});
 		}
 	}, null, null, 'Alt+Shift+L');
@@ -1031,7 +1030,7 @@ Actions.prototype.init = function()
 			var model = graph.getModel();
 			
 	    	var dlg = new TextareaDialog(this.editorUi, mxResources.get('editStyle') + ':',
-	    			model.getStyle(cells[0]) || '', function(newValue)
+	    		model.getStyle(cells[0]) || '', function(newValue)
 			{
 	    		if (newValue != null)
 				{

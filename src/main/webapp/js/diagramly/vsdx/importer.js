@@ -11773,7 +11773,7 @@ com.mxgraph.io.mxVsdxCodec.parsererrorNS_$LI$();
 
 EditorUi.prototype.doImportVisio = function(file, done, onerror)
 {
-	if (file.name != null && /(\.vssx)($|\?)/i.test(file.name))
+	if (file.name != null && /(\.vssx?)($|\?)/i.test(file.name))
 	{
 		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done);
 	}

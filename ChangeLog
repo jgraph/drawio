@@ -1,3 +1,18 @@
+26-JUL-2018: 8.9.9
+
+- Adds support for hierarchies in CSV import
+- Uses mxGraph 3.9.9 beta 6
+
+23-JUL-2018: 8.9.8
+
+- Changes PlantUML autosize parameter to default to true
+- Improves error handling, imports
+- Uses mxGraph 3.9.9 beta 5
+
+18-JUL-2018: 8.9.7
+
+- Uses new PlantUML version
+
 18-JUL-2018: 8.9.6
 
 - Fixes vertical offset for text editing with small fonts

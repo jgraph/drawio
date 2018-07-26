@@ -109,7 +109,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.veeam = ['2D', '3D'];
+	Sidebar.prototype.veeam = ['Data Center', 'Misc', 'Software', 'Storage', 'UsersStatus', 'VASComponents', 'Backup Replication', 'Products', 'VMs and Tape', '2D', '3D'];
 
 	/**
 	 * 

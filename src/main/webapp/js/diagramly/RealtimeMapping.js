@@ -347,13 +347,13 @@ RealtimeMapping.prototype.initRealtime = function()
 			this.diagramMap.set('shadowVisible', (vs != null && vs.shadowVisible) ? '1' : '0');
 			this.diagramMap.set('foldingEnabled', (vs != null && !vs.foldingEnabled) ? '0' : '1');
 			this.diagramMap.set('mathEnabled', (vs != null && vs.mathEnabled) ? '1' : '0');
-			this.diagramMap.set('pageScale', this.graph.pageScale);
+			this.diagramMap.set('pageScale', (vs != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 			this.diagramMap.set('pageVisible', (vs != null && !vs.pageVisible) ? '0' : '1');
 			this.diagramMap.set('pageFormat', pf.width + ',' + pf.height);
-			this.diagramMap.set('backgroundImage', (vs != null && vs.backgroundImage != null) ?
-				JSON.stringify(vs.backgroundImage) : '');
-			this.diagramMap.set('backgroundColor', (vs != null && vs.background != null) ?
-				this.graph.background : '');
+			this.diagramMap.set('backgroundImage', (vs != null &&
+				vs.backgroundImage != null) ? JSON.stringify(vs.backgroundImage) : '');
+			this.diagramMap.set('backgroundColor', (vs != null &&
+				vs.background != null) ? vs.background : '');
 		}
 		
 		this.root.set('modifiedDate', new Date().getTime());
