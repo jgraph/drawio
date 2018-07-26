@@ -9,7 +9,32 @@ VsdConverter:
 AST.net web application that provides *.vsd files conversion service and acts as a client to the previous TCP server.
 
 ========================================
-Running the conversion site:
+Running the conversion site without Hyper-V:
+
+1- Run VsdConverterApp TCP sever
+2- Deploy VsdConverter to IIS manually
+
+2.1- Install IIS and enable ASP.NET
+	2.1.a Open Control Panel, Programs and Features, Turn Windows features on or off.
+	2.1.b Expand Internet Information Services, World Wide Web Services, and Application Development Features.
+	2.1.c Make sure that ASP.NET 4.7 is selected.
+2.2- After installing IIS, run IIS Manager to make sure that the .NET Framework version 4 is assigned to the default application pool.
+	2.2.a Press WINDOWS+R to open the Run dialog box.
+	2.2.b Enter "inetmgr", and then click OK.
+	2.2.c In the Connections pane, expand the server node and select Application Pools. In the Application Pools pane, if DefaultAppPool is assigned to the .NET framework version 4, skip to (2.3).
+	2.2.d In the Application Pools pane, click DefaultAppPool, and then in the Actions pane click Basic Settings.
+	2.2.e In the Edit Application Pool dialog box, change .NET Framework version to .NET Framework v4.0.30319 and click OK.
+	2.2.f IIS is now ready for you to publish a web application to it.
+2.3- Create the deployment files from Visual Studio (Build-> Publish VsdConverter) and select folder deploy
+2.4- Upload the folder (zipped) & the TCP server App (VsdConverterApp) to Google Drive and download it from the server
+2.5- Unpack the files to IIS app in C:\VsdConverter && exe to VsdConverterLocalSrv
+2.6- In folder: C:\inetpub\wwwroot\VsdConverter_deploy
+	2.6.a create folder: App_Data
+	2.6.b Open Properties of App_Data -> Security -> Edit
+	2.6.c Give full control to Users: IIS_IUSRS
+2.7- Website is ready 
+========================================
+Running the conversion site with Hyper-V:
 
 1- Run VsdConverterApp TCP sever
 2- Deploy VsdConverter to IIS (manually or using Web Deployment Tool).

@@ -181,21 +181,26 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 						var fs = require('fs');
 
 						fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
+				        {
+			        		if (e)
+			        		{
+			        			editorUi.spinner.stop();
+			        			editorUi.handleError(e);
+			        		}
+			        		else
 				        	{
-				        		if (e)
-				        		{
-				        			editorUi.spinner.stop();
-				        			editorUi.handleError(e);
-				        		}
-				        		else
-				        		{
 								try
 								{
-									if (data.substring(0, 26) == '{"state":"{\\"Properties\\":')
+									if (editorUi.isLucidChartData(data))
 									{
-										editorUi.importLucidChart(data, 0, 0, null, function()
+										editorUi.convertLucidChart(data, function(xml)
 										{
 											editorUi.spinner.stop();
+											graph.setSelectionCells(editorUi.importXml(xml));
+										}, function(e)
+										{
+											editorUi.spinner.stop();
+											editorUi.handleError(e);
 										});
 									}
 									else if  (/(\.vsdx)($|\?)/i.test(path))
@@ -203,7 +208,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 										editorUi.importVisio(editorUi.base64ToBlob(data, 'application/octet-stream'), function(xml)
 										{
 											editorUi.spinner.stop();
-											editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xml, 0, 0, true));
+											graph.setSelectionCells(editorUi.importXml(xml));
 										});
 									}
 									else if (!editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, path))
@@ -217,7 +222,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 												
 												if (xhr.status >= 200 && xhr.status <= 299)
 												{
-													editorUi.editor.graph.setSelectionCells(editorUi.insertTextAt(xhr.responseText, 0, 0, true));
+													graph.setSelectionCells(editorUi.importXml(xhr.responseText));
 												}
 											}
 										}), path);
@@ -235,40 +240,40 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 											}
 										}
 										else if (/\.svg$/i.test(path))
-							    			{
-												// LATER: Use importXml without throwing exception if no data
-							    				// Checks if SVG contains content attribute
-						    					var root = mxUtils.parseXml(data);
-					    						var svgs = root.getElementsByTagName('svg');
-					    						
-					    						if (svgs.length > 0)
+						    			{
+											// LATER: Use importXml without throwing exception if no data
+						    				// Checks if SVG contains content attribute
+					    					var root = mxUtils.parseXml(data);
+				    						var svgs = root.getElementsByTagName('svg');
+				    						
+				    						if (svgs.length > 0)
+					    					{
+				    							var svgRoot = svgs[0];
+						    					var cont = svgRoot.getAttribute('content');
+		
+						    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
 						    					{
-					    							var svgRoot = svgs[0];
-							    					var cont = svgRoot.getAttribute('content');
-			
-							    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
-							    					{
-							    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
-							    					}
-							    					
-							    					if (cont != null && cont.charAt(0) == '%')
-							    					{
-							    						cont = decodeURIComponent(cont);
-							    					}
-			
-							    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
-							    						cont.substring(0, 14) === '<mxGraphModel '))
-							    					{
-							    						asImage = false;
-							    						data = cont;
-							    					}
-							    					else
-							    					{
-							    						asImage = true;
-							    						data = btoa(data);
-							    					}
+						    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
 						    					}
-							    			}
+						    					
+						    					if (cont != null && cont.charAt(0) == '%')
+						    					{
+						    						cont = decodeURIComponent(cont);
+						    					}
+		
+						    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
+						    						cont.substring(0, 14) === '<mxGraphModel '))
+						    					{
+						    						asImage = false;
+						    						data = cont;
+						    					}
+						    					else
+						    					{
+						    						asImage = true;
+						    						data = btoa(data);
+						    					}
+					    					}
+						    			}
 										
 										if (asImage)
 										{
@@ -315,8 +320,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 									editorUi.spinner.stop();
 									editorUi.handleError(e);
 								}
-				        		}
-				        	}));
+			        		}
+			        	}));
 					}
 		        }
 			}
@@ -331,10 +336,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			{
 				oldNew();
 			}
-			else {
+			else
+			{
 				const ipc = require('electron').ipcRenderer
 				ipc.sendSync('winman', {action: 'newfile', opt: {width: 1600}})
-
 			}
 		}), null, null, Editor.ctrlKey + '+N');
 		

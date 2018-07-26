@@ -459,7 +459,7 @@
 			if (vertices.length > 0)
 			{
 				var dlg = new EditGeometryDialog(editorUi, vertices);
-				editorUi.showDialog(dlg.container, 190, 250, true, true);
+				editorUi.showDialog(dlg.container, 200, 250, true, true);
 				dlg.init();
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+M');

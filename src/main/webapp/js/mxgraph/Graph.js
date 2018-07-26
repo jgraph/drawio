@@ -1506,8 +1506,7 @@ Graph.prototype.isCustomLink = function(href)
  */
 Graph.prototype.customLinkClicked = function(link)
 {
-	console.log('customLinkClicked not implemented');
-	// Hook for subclassers
+	return false;
 };
 
 /**
@@ -5936,6 +5935,52 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				document.execCommand('unlink', false);
 			}
+			else if (mxClient.IS_FF)
+			{
+				// Workaround for Firefox that adds a new link and removes
+				// the href from the inner link if its parent is a span is
+				// to remove all inner links inside the new outer link
+				var tmp = this.cellEditor.textarea.getElementsByTagName('a');
+				var oldLinks = [];
+				
+				for (var i = 0; i < tmp.length; i++)
+				{
+					oldLinks.push(tmp[i]);
+				}
+				
+				document.execCommand('createlink', false, mxUtils.trim(value));
+				
+				// Finds the new link element
+				var newLinks = this.cellEditor.textarea.getElementsByTagName('a');
+				
+				if (newLinks.length == oldLinks.length + 1)
+				{
+					// Inverse order in favor of appended links
+					for (var i = newLinks.length - 1; i >= 0; i--)
+					{
+						if (newLinks[i] != oldLinks[i - 1])
+						{
+							// Removes all inner links from the new link and
+							// moves the children to the inner link parent
+							var tmp = newLinks[i].getElementsByTagName('a');
+							
+							while (tmp.length > 0)
+							{
+								var parent = tmp[0].parentNode;
+								
+								while (tmp[0].firstChild != null)
+								{
+									parent.insertBefore(tmp[0].firstChild, tmp[0]);
+								}
+								
+								parent.removeChild(tmp[0]);
+							}
+							
+							break;
+						}
+					}
+				}
+			}
 			else
 			{
 				// LATER: Fix inserting link/image in IE8/quirks after focus lost
@@ -6550,15 +6595,36 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.createLinkForHint = function(link, label)
 		{
-			label = (label != null) ? label : link;
+			link = (link != null) ? link : 'javascript:void(0);';
+
+			if (label == null || label.length == 0)
+			{
+				if (this.isCustomLink(link))
+				{
+					label = this.getLinkTitle(link);
+				}
+				else
+				{
+					label = link;
+				}
+			}
+
+			// Helper function to shorten strings
+			function short(str, max)
+			{
+				if (str.length > max)
+				{
+					str = str.substring(0, Math.round(max / 2)) + '...' +
+						str.substring(str.length - Math.round(max / 4));
+				}
+				
+				return str;
+			};
 			
 			var a = document.createElement('a');
 			a.setAttribute('href', this.getAbsoluteUrl(link));
-			
-			if (link != null && !this.isCustomLink(link))
-			{
-				a.setAttribute('title', link);
-			}
+			a.setAttribute('title', short((this.isCustomLink(link)) ?
+				this.getLinkTitle(link) : link, 80));
 			
 			if (this.linkTarget != null)
 			{
@@ -6566,16 +6632,17 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			// Adds shortened label to link
-			var max = 40;
-			var head = 26;
-			var tail = 10;
+			mxUtils.write(a, short(label, 40));
 			
-			if (label.length > max)
+			// Handles custom links
+			if (this.isCustomLink(link))
 			{
-				label = label.substring(0, head) + '...' + label.substring(label.length - tail);
+				mxEvent.addListener(a, 'click', mxUtils.bind(this, function(evt)
+				{
+					this.customLinkClicked(link);
+					mxEvent.consume(evt);
+				}));
 			}
-
-			mxUtils.write(a, label);
 			
 			return a;
 		};
@@ -8143,8 +8210,8 @@ if (typeof mxVertexHandler != 'undefined')
 						var div = document.createElement('div');
 						div.style.marginTop = (link != null || i > 0) ? '6px' : '0px';
 						div.appendChild(this.graph.createLinkForHint(
-								links[i].getAttribute('href'),
-								mxUtils.getTextContent(links[i])));
+							links[i].getAttribute('href'),
+							mxUtils.getTextContent(links[i])));
 						
 						this.linkHint.appendChild(div);
 					}

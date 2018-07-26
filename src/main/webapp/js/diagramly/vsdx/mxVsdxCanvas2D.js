@@ -730,6 +730,14 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			str = mxUtils.getOuterHtml(str);
 		}
 
+		//This is the case with edges
+		if (w == 0 && h == 0)
+		{
+			var strSize = mxUtils.getSizeForString(str, that.cellState.style["fontSize"], that.cellState.style["fontFamily"]);
+			w = strSize.width * 1.2;
+			h = strSize.height * 1.2;
+		}
+		
 		//TODO support HTML text formatting and remaining attributes
 		if (format == 'html')
     	{
@@ -866,14 +874,15 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			{
 				if (ch[i].nodeType == 3) 
 				{ //#text
+					var fontStyle = that.cellState.style["fontStyle"];
 					var styleMap = {
 						fontColor: pStyle['fontColor'] || that.cellState.style["fontColor"],
 						fontSize: pStyle['fontSize'] || that.cellState.style["fontSize"],
 						fontFamily: pStyle['fontFamily'] || that.cellState.style["fontFamily"],
 						align: pStyle['align'] || that.cellState.style["align"],
-						bold: pStyle['bold'],
-						italic: pStyle['italic'],
-						underline: pStyle['underline']
+						bold: pStyle['bold'] || (fontStyle & 1),
+						italic: pStyle['italic'] || (fontStyle & 2),
+						underline: pStyle['underline'] || (fontStyle & 4)
 					};
 					createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
 				} 

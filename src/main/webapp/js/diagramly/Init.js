@@ -9,7 +9,7 @@ window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE'
 
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
-window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml2';
+window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml3';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';

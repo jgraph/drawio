@@ -1354,7 +1354,7 @@
     		}
 		});
 		
-		if (desc.url != null)
+		if (desc.url != null && desc.url.length > 0)
 		{
             var realUrl = desc.url;
             
@@ -1377,7 +1377,7 @@
 		}
 		else
 		{
-			loadData(desc.data);
+			loadData('');
 		}
 	};
 	
@@ -2558,7 +2558,7 @@
 									}
 								});
 								
-								if (file != null && img != null && ((/(\.vsdx?)($|\?)/i.test(img)) || /(\.vssx)($|\?)/i.test(img)))
+								if (file != null && img != null && ((/(\.vsdx?)($|\?)/i.test(img)) || /(\.vssx?)($|\?)/i.test(img)))
 								{
 									this.importVisio(file, function(xml)
 									{
@@ -2914,14 +2914,6 @@
 							mxUtils.htmlEntities(mxResources.get('tryOpeningViaThisPage')) + '</a>';
 					}
 				}
-				else if (e.code == App.ERROR_TIMEOUT)
-				{
-					msg = mxUtils.htmlEntities(mxResources.get('timeout'));
-				}
-				else if (e.code == App.ERROR_BUSY)
-				{
-					msg = mxUtils.htmlEntities(mxResources.get('busy'));
-				}
 				else if (e.message != null)
 				{
 					msg = mxUtils.htmlEntities(e.message);
@@ -2929,6 +2921,17 @@
 				else if (e.response != null && e.response.error != null)
 				{
 					msg = mxUtils.htmlEntities(e.response.error);
+				}
+				else if (window.App !== 'undefined')
+				{
+					if (e.code == App.ERROR_TIMEOUT)
+					{
+						msg = mxUtils.htmlEntities(mxResources.get('timeout'));
+					}
+					else if (e.code == App.ERROR_BUSY)
+					{
+						msg = mxUtils.htmlEntities(mxResources.get('busy'));
+					}
 				}
 			}
 	
@@ -5813,7 +5816,7 @@
 			
 			if (this.doImportVisio)
 			{
-				if (/(\.vsd)($|\?)/i.test(filename) && VSD_CONVERT_URL != null) 
+				if ((/(\.vsd)($|\?)/i.test(filename) || /(\.vss)($|\?)/i.test(filename)) && VSD_CONVERT_URL != null) 
 				{
 					var formData = new FormData();
 					formData.append('file1', file, filename);
@@ -5830,6 +5833,8 @@
 							{
 								try
 								{
+									//add back the file name
+									xhr.response.name = filename;
 									this.doImportVisio(xhr.response, done, onerror);
 								}
 								catch (e)
@@ -5907,34 +5912,32 @@
 	/**
 	 * Imports the given Lucidchart data.
 	 */
-	EditorUi.prototype.importLucidChart = function(data, dx, dy, crop, done)
+	EditorUi.prototype.convertLucidChart = function(data, success, error)
 	{
 		var delayed = mxUtils.bind(this, function()
 		{
 			this.loadingExtensions = false;
 			
 			// Checks for signature method
-			if (this.pasteLucidChart)
+			if (typeof window.LucidImporter !== 'undefined')
 			{
 				try
 				{
-					this.insertLucidChart(data, dx, dy, crop, done);
+					success(LucidImporter.importState(JSON.parse(data)));
 				}
 				catch (e)
 				{
-					this.handleError(e);
+					error(e);
 				}
-				finally 
-				{
-			    	if (done != null)
-			    	{
-			    		done();
-			    	}
-				}
+			}
+			else
+			{
+				error({message: mxResources.get('serviceUnavailableOrBlocked')});
 			}
 		});
 		
-		if (!this.pasteLucidChart && !this.loadingExtensions && !this.isOffline())
+		if (typeof window.LucidImporter === 'undefined' &&
+			!this.loadingExtensions && !this.isOffline())
 		{
 			this.loadingExtensions = true;
 			
@@ -5949,80 +5952,11 @@
 		}
 		else
 		{
-			// Must be async for cell selection
+			// Async needed for selection
 			window.setTimeout(delayed, 0);
 		}
 	};
-	
-	/**
-	 * Automatic loading for lucidchart import.
-	 */
-	EditorUi.prototype.insertLucidChart = function(data, dx, dy, crop, done)
-	{
-		var state = JSON.parse(data);
-		
-		// Extracts and sorts all pages
-		var pages = [];
 
-		if (state.state != null)
-		{
-			state = JSON.parse(state.state);
-			
-			for (var id in state.Pages)
-			{
-				pages.push(state.Pages[id]);
-			}
-			
-			pages.sort(function(a, b)
-			{
-			    if (a.Properties.Order < b.Properties.Order)
-			    {
-			    	return -1;
-			    }
-			    else if (a.Properties.Order > b.Properties.Order)
-			    {
-			    	return 1;
-			    }
-			    else
-			    {
-			    	return 0;
-			    }
-			});
-		}
-		else
-		{
-			pages.push(state);
-		}
-		
-		if (pages.length > 0)
-		{
-	    	this.editor.graph.getModel().beginUpdate();
-	    	
-	    	try
-	    	{
-				this.pasteLucidChart(pages[0], dx, dy, crop);
-				
-				// If pages are enabled add more pages
-				if (this.pages != null)
-				{
-					var current = this.currentPage;
-					
-					for (var i = 1; i < pages.length; i++)
-					{
-						this.insertPage();
-						this.pasteLucidChart(pages[i]);
-					}
-					
-					this.selectPage(current);
-				}
-	    	}
-	    	finally
-	    	{
-	    		this.editor.graph.getModel().endUpdate();
-	    	}
-		}
-	};
-	
 	/**
 	 * Imports the given XML into the existing diagram.
 	 * TODO: Make this function asynchronous
@@ -6042,7 +5976,8 @@
 				{
 					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
 					{
-						this.editor.graph.setSelectionCells(this.insertTextAt(xhr.responseText, dx, dy, true));
+						this.editor.graph.setSelectionCells(this.insertTextAt(
+							xhr.responseText, dx, dy, true));
 					}
 				}));
 				
@@ -6050,7 +5985,8 @@
 				return [];
 			}
 			// Handles special case of data URI which requires async loading for finding size
-			else if (text.substring(0, 5) == 'data:' || (!this.isOffline() && (asImage || (/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(text))))
+			else if (text.substring(0, 5) == 'data:' || (!this.isOffline() &&
+				(asImage || (/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(text))))
 			{
 				var graph = this.editor.graph;
 				
@@ -6150,9 +6086,16 @@
 				}
 				else if (text.length > 0)
 				{
-					if (text.substring(0, 26) == '{"state":"{\\"Properties\\":')
+					if (this.isLucidChartData(text))
 					{
-						this.importLucidChart(text, dx, dy, crop);
+						this.convertLucidChart(text, mxUtils.bind(this, function(xml)
+						{
+							this.editor.graph.setSelectionCells(
+								this.importXml(xml, dx, dy, crop));
+						}), mxUtils.bind(this, function(e)
+						{
+							this.handleError(e);
+						}));
 					}
 					else
 					{
@@ -6247,6 +6190,14 @@
 	EditorUi.prototype.isRemoteFileFormat = function(data, filename)
 	{
 		return /(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data);
+	};
+	
+	/**
+	 * Returns true for Gliffy or GraphML data or .vsdx filenames.
+	 */
+	EditorUi.prototype.isLucidChartData = function(data)
+	{
+		return data != null && data.substring(0, 26) == '{"state":"{\\"Properties\\":';
 	};
 
 	/**
@@ -6411,7 +6362,7 @@
                 }
             }));
         }
-		else if (file != null && filename != null && ((/(\.vsdx?)($|\?)/i.test(filename)) || /(\.vssx)($|\?)/i.test(filename)))
+		else if (file != null && filename != null && ((/(\.vsdx?)($|\?)/i.test(filename)) || /(\.vssx?)($|\?)/i.test(filename)))
 		{
 			//  LATER: done and async are a hack before making this asynchronous
 			async = true;
@@ -6439,7 +6390,7 @@
 				}
 			}), filename);
 		}
-		else if (!/(\.vsd)($|\?)/i.test(filename))
+		else if (!/(\.vsd)($|\?)/i.test(filename) && !/(\.vss)($|\?)/i.test(filename))
 		{
 			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
 		}
@@ -6537,7 +6488,7 @@
 					this.spinner.stop();
 					this.loadLibrary(new LocalLibrary(this, data, filename));
 	    			
-	    				return null;
+	    			return null;
 				}
 				else
 				{
@@ -6807,26 +6758,26 @@
 						    		}
 						    		else
 						    		{
-									fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
-									{
-										barrier(index, function()
-					    	    				{
-					    		    				return cells;
-					    	    				});
-									});
+										fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+										{
+											barrier(index, function()
+				    	    				{
+				    		    				return cells;
+				    	    				});
+										});
 						    		}
 							}
 						});
 						
 						// Handles special cases
-						if (/(\.vsdx?)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name))
+						if (/(\.vsdx?)($|\?)/i.test(file.name) || /(\.vssx?)($|\?)/i.test(file.name))
 						{
 							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 							{
 								barrier(index, function()
-			    	    				{
-			    		    				return cells;
-			    	    				});
+	    	    				{
+	    		    				return cells;
+	    	    				});
 							}, file);
 						}
 						else if (file.type.substring(0, 5) == 'image')
@@ -7227,6 +7178,8 @@
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()
 	{
+		mxStencilRegistry.allowEval = !this.isOfflineApp();
+		
 		// Must be set before UI is created in superclass
 		if (typeof window.mxSettings !== 'undefined')
 		{
@@ -7245,14 +7198,19 @@
 		// Redirects custom link via UI for page link handling
 		graph.customLinkClicked = function(link)
 		{
+			var done = false;
+			
 			try
 			{
 				ui.handleCustomLink(link);
+				done = true;
 			}
 			catch (e)
 			{
 				ui.handleError(e);
 			}
+			
+			return done;
 		};
 		
 		// Sets help link for placeholders
@@ -7315,9 +7273,9 @@
 
 				if (href != null && graph.isCustomLink(href) &&
 					(mxEvent.isTouchEvent(evt) ||
-					!mxEvent.isPopupTrigger(evt)))
+					!mxEvent.isPopupTrigger(evt)) &&
+					graph.customLinkClicked(href))
 				{
-					graph.customLinkClicked(href);
 					mxEvent.consume(evt);
 				}
 				
@@ -7374,29 +7332,6 @@
 			return graphGetGlobalVariable.apply(this, arguments);
 		};
 
-		var graphCreateLinkForHint = graph.createLinkForHint;
-		
-		graph.createLinkForHint = function(href, label)
-		{
-			if (href != null && graph.isCustomLink(href))
-			{
-				label = graph.getLinkTitle(href);
-			}
-
-			var a = graphCreateLinkForHint.call(this, href, label);
-			
-			if (href != null && graph.isCustomLink(href))
-			{
-				mxEvent.addListener(a, 'click', function(evt)
-				{
-					graph.customLinkClicked(href);
-					mxEvent.consume(evt);
-				});
-			}
-			
-			return a;
-		};
-		
 		var graphLabelLinkClicked = graph.labelLinkClicked;
 		
 		graph.labelLinkClicked = function(state, elt, evt)
@@ -8109,6 +8044,11 @@
 			{
 				this.selectPage(page)
 			}
+			else
+			{
+				// Needs fallback for missing resource in case of viewer lightbox
+				throw new Error(mxResources.get('pageNotFound') || 'Page not found');
+			}
 		}
 		else
 		{
@@ -8283,7 +8223,14 @@
 				
 				if (content != null && content.length > 0)
 				{
-					this.importLucidChart(content, 0, 0);
+					this.convertLucidChart(content, mxUtils.bind(this, function(xml)
+					{
+						this.editor.graph.setSelectionCells(this.importXml(xml, 0, 0));
+					}), mxUtils.bind(this, function(e)
+					{
+						this.handleError(e);
+					}));
+			
 					mxEvent.consume(evt);
 				}
 			}
@@ -8431,8 +8378,8 @@
 				{
 					if (dropElt != null)
 				    {
-					    	dropElt.parentNode.removeChild(dropElt);
-					    	dropElt = null;
+					    dropElt.parentNode.removeChild(dropElt);
+					    dropElt = null;
 				    }
 					
 					if (this.editor.graph.isEnabled() || urlParams['embed'] != '1')
@@ -8687,7 +8634,7 @@
 								}
 							});
 							
-							if  (/(\.vsdx?)($|\?)/i.test(name) || /(\.vssx)($|\?)/i.test(name))
+							if  (/(\.vsdx?)($|\?)/i.test(name) || /(\.vssx?)($|\?)/i.test(name))
 							{
 								this.importVisio(file, mxUtils.bind(this, function(xml)
 								{
@@ -8717,7 +8664,7 @@
 									}
 								}));
 							}
-							else if (data.substring(0, 26) == '{"state":"{\\"Properties\\":')
+							else if (this.isLucidChartData(data))
 							{
 								if (/(\.json)$/i.test(name))
 								{
@@ -8725,11 +8672,14 @@
 								}
 
 								// LATER: Add import step that produces cells and use callback
-								this.openLocalFile(this.emptyDiagramXml, name, temp);
-								this.importLucidChart(data, 0, 0, null, mxUtils.bind(this, function()
+								this.convertLucidChart(data, mxUtils.bind(this, function(xml)
 								{
-									this.editor.undoManager.clear();
 									this.spinner.stop();
+									this.openLocalFile(xml, name, temp);
+								}), mxUtils.bind(this, function(e)
+								{
+									this.spinner.stop();
+									this.handleError(e);
 								}));
 							}
 							else if (e.target.result.substring(0, 10) == '<mxlibrary')
@@ -8834,8 +8784,15 @@
 				window.openFile.setData(data, name);
 				window.openWindow(this.getUrl(), null, mxUtils.bind(this, function()
 				{
-					this.confirm(mxResources.get('allChangesLost'), null, fn,
-						mxResources.get('cancel'), mxResources.get('discardChanges'));
+					if (currentFile != null && currentFile.isModified())
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, fn,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+					else
+					{
+						fn();
+					}
 				}));
 			}
 		}
@@ -9766,7 +9723,9 @@
         		
         		// Default values
         		var style = null;
+        		var parentstyle = null;
         		var identity = null;
+        		var parent = null;
         		var namespace = '';
         		var width = 'auto';
         		var height = 'auto';
@@ -9851,9 +9810,17 @@
 		    				{
 		    					style = value;
 		    				}
+		    				else if (key == 'parentstyle')
+		    				{
+		    					parentstyle = value;
+		    				}
 		    				else if (key == 'identity' && value.length > 0 && value != '-')
 		    				{
 		    					identity = value;
+		    				}
+		    				else if (key == 'parent' && value.length > 0 && value != '-')
+		    				{
+		    					parent = value;
 		    				}
 		    				else if (key == 'namespace' && value.length > 0 && value != '-')
 		    				{
@@ -9909,17 +9876,22 @@
         		
     			var keys = this.editor.csvToArray(lines[index]);
     			
-    			// Converts name of identity to index of column
+    			// Converts name of identity and parent to indexes of column
     			var identityIndex = null;
+    			var parentIndex = null;
     			
-    			if (identity != null)
+    			if (identity != null || parent != null)
     			{
     				for (var i = 0; i < keys.length; i++)
 		    		{
     					if (identity == keys[i])
     					{
     						identityIndex = i;
-    						break;
+    					}
+    					
+    					if (parent == keys[i])
+    					{
+    						parentIndex = i;
     					}
 		    		}
     			}
@@ -9964,7 +9936,7 @@
 								cell.vertex = true;
 								cell.id = id;
 	    					}
-						
+	    					
 							for (var j = 0; j < values.length; j++)
 					    	{
 								graph.setAttributeForCell(cell, keys[j], values[j]);
@@ -10022,8 +9994,19 @@
 								
 								y += cell.geometry.height + nodespacing;
 							}
-	
-							cells.push(graph.addCell(cell));
+							
+	    					var parent = (parentIndex != null) ? graph.model.getCell(
+	    						namespace + values[parentIndex]) : null;
+	    					
+	    					if (parent != null)
+	    					{
+	    						parent.style = graph.replacePlaceholders(parent, parentstyle);
+	    						graph.addCell(cell, parent);
+	    					}
+	    					else
+	    					{
+	    						cells.push(graph.addCell(cell));
+	    					}
 		    			}
 		    		}
 	    			
@@ -10095,7 +10078,7 @@
 					{
 						edgeLayout.execute(graph.getDefaultParent());
 						
-    	    				// Aligns cells to grid and/or rounds positions
+    	    			// Aligns cells to grid and/or rounds positions
 						for (var i = 0; i < cells.length; i++)
 	    				{
 							var geo = graph.getCellGeometry(cells[i]);

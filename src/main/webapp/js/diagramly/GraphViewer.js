@@ -178,14 +178,19 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.selectPageById = function(id)
 				{
+					var found = false;
+					
 					for (var i = 0; i < this.diagrams.length; i++)
 					{
 						if (this.diagrams[i].getAttribute('id') == id)
 						{
 							this.selectPage(i);
+							found = true;
 							break;
 						}
 					}
+					
+					return found;
 				};
 				
 				var update = mxUtils.bind(this, function()
@@ -249,15 +254,24 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.graph.customLinkClicked = function(href)
 				{
+					var done = true;
+					
 					if (href.substring(0, 13) == 'data:page/id,')
 					{
 						var comma = href.indexOf(',');
-						self.selectPageById(href.substring(comma + 1));
+						
+						if (!self.selectPageById(href.substring(comma + 1)))
+						{
+							done = false;
+							alert(mxResources.get('pageNotFound') || 'Page not found');
+						}
 					}
 					else
 					{
 						this.handleCustomLink(href);
 					}
+					
+					return done;
 				};
 				
 				if (this.graphConfig.toolbar != null)
@@ -1172,9 +1186,9 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 			}
 		}
 		else if (href != null && ui == null && graph.isCustomLink(href) &&
-			(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)))
+			(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)) &&
+			graph.customLinkClicked(href))
 		{
-			graph.customLinkClicked(href);
 			mxEvent.consume(evt);
 		}
 	}), mxUtils.bind(this, function(evt)

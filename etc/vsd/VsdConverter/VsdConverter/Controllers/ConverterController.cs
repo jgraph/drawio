@@ -88,7 +88,9 @@ namespace VsdConverter.Controllers
             {
                 // Read the form data and return an async task.
                 await Request.Content.ReadAsMultipartAsync(provider);
-                
+                String srcExt = "", dstExt = "";
+
+                //We assume one type for all files, otherwise, conversion will fail
                 foreach (var file in provider.FileData)
                 {
                     string actualFileName = file.Headers.ContentDisposition.FileName;
@@ -98,6 +100,17 @@ namespace VsdConverter.Controllers
                         actualNames.Add(actualFileName);
 
                         System.IO.File.Move(file.LocalFileName, file.LocalFileName + ".vsd");
+                        srcExt = ".vsd";
+                        dstExt = ".vsdx";
+                    }
+                    else if (actualFileName.EndsWith(".vss\""))
+                    {
+                        convertedFiles.Add(file.LocalFileName);
+                        actualNames.Add(actualFileName);
+
+                        System.IO.File.Move(file.LocalFileName, file.LocalFileName + ".vss");
+                        srcExt = ".vss";
+                        dstExt = ".vssx";
                     }
                     else
                     {
@@ -106,12 +119,14 @@ namespace VsdConverter.Controllers
                 }
 
                 StringBuilder allFiles = new StringBuilder();
-                String newLine = "";
+                allFiles.Append(srcExt);
+                allFiles.Append("\n");
+                allFiles.Append(dstExt);
+
                 for (int i = 0; i < convertedFiles.Count; i++)
                 {
-                    allFiles.Append(newLine);
+                    allFiles.Append("\n");
                     allFiles.Append(convertedFiles[i]);
-                    newLine = "\n";
                 }
 
                 //Ask the TCP Converter Server to do the job
@@ -127,19 +142,19 @@ namespace VsdConverter.Controllers
                 {
                     var pushStreamContent = new PushStreamContent((stream, content, context) =>
                     {
-                        FileStream fs = new FileStream(convertedFiles[0] + ".vsdx", FileMode.Open);
+                        FileStream fs = new FileStream(convertedFiles[0] + dstExt, FileMode.Open);
                         fs.CopyTo(stream);
                         fs.Close();
                         stream.Close(); // After save we close the stream to signal that we are done writing.
 
-                        System.IO.File.Delete(convertedFiles[0] + ".vsd");
-                        System.IO.File.Delete(convertedFiles[0] + ".vsdx");
+                        System.IO.File.Delete(convertedFiles[0] + srcExt);
+                        System.IO.File.Delete(convertedFiles[0] + dstExt);
                     }, "application/x-visio");
 
                     HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK) { Content = pushStreamContent };
                     response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
                     {
-                        FileName = Path.GetFileNameWithoutExtension(actualNames[0].Replace('"', ' ')) + ".vsdx"
+                        FileName = Path.GetFileNameWithoutExtension(actualNames[0].Replace('"', ' ')) + dstExt
                     };
                     response.Content.Headers.Add("Access-Control-Allow-Origin", "*");
                     return response;
@@ -152,8 +167,8 @@ namespace VsdConverter.Controllers
                         {
                             var name = Path.GetFileNameWithoutExtension(actualNames[i].Replace('"', ' '));
                             var file = convertedFiles[i];
-                            var e = zipFile.AddFile(file + ".vsdx");
-                            e.FileName = name + ".vsdx";
+                            var e = zipFile.AddFile(file + dstExt);
+                            e.FileName = name + dstExt;
                         }
 
                         var pushStreamContent = new PushStreamContent((stream, content, context) =>
@@ -163,8 +178,8 @@ namespace VsdConverter.Controllers
 
                             foreach (string file in convertedFiles)
                             {
-                                System.IO.File.Delete(file + ".vsd");
-                                System.IO.File.Delete(file + ".vsdx");
+                                System.IO.File.Delete(file + srcExt);
+                                System.IO.File.Delete(file + dstExt);
                             }
                         }, "application/zip");
 

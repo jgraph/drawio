@@ -556,6 +556,7 @@ Graph.prototype.setViewState = function(state)
 		this.scrollbars = this.defaultScrollbars;
 		this.graphHandler.guidesEnabled = true;
 		this.foldingEnabled = true;
+		this.setShadowVisible(false, false);
 		this.defaultParent = null;
 		this.setTooltips(true);
 		this.setConnectable(true);
@@ -1324,6 +1325,13 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		editorUiRefresh.apply(this, arguments);
 		this.updateTabContainer();
 	}
+})();
+
+//Overrides ChangePageSetup codec to exclude page
+(function()
+{
+	var codec = mxCodecRegistry.getCodec(ChangePageSetup);
+	codec.exclude.push('page');
 })();
 
 //Registers codec for MovePage

@@ -3,6 +3,7 @@
  * 
  * TODO: Move to dynamic loading minimized plugin.
  */
+LucidImporter = {};
 (function()
 {
 	// Global import transformation
@@ -3087,11 +3088,8 @@
 		return hidden;
 	};
 	
-	EditorUi.prototype.pasteLucidChart = function(g, dx, dy, crop)
+	function importLucidPage(graph, g, dx, dy, crop, noSelection)
 	{
-		// Creates a new graph, inserts cells and returns XML for insert
-		var graph = this.editor.graph;
-		
 		graph.getModel().beginUpdate();
 		try
 		{
@@ -3257,22 +3255,87 @@
 				}
 			}
 
-			graph.setSelectionCells(select);
+			if (!noSelection)
+				graph.setSelectionCells(select);
 		}
 		finally
 		{
 			graph.getModel().endUpdate();
 		}
 		
-		if (!graph.isSelectionEmpty())
+	};
+
+	function createGraph()
+	{
+		//TODO Set the graph defaults
+		var graph = new Graph();
+        graph.setExtendParents(false);
+        graph.setExtendParentsOnAdd(false);
+        graph.setConstrainChildren(false);
+        graph.setHtmlLabels(true);
+        graph.getModel().maintainEdgeParent = false;
+        return graph;
+	};
+	
+	LucidImporter.importState = function(state)
+	{
+		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
+		
+		// Extracts and sorts all pages
+		var pages = [];
+
+		if (state.state != null)
 		{
-			graph.scrollCellToVisible(graph.getSelectionCell());
+			state = JSON.parse(state.state);
 			
-			if (this.hoverIcons != null)
+			for (var id in state.Pages)
 			{
-				this.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
+				pages.push(state.Pages[id]);
 			}
+			
+			pages.sort(function(a, b)
+			{
+			    if (a.Properties.Order < b.Properties.Order)
+			    {
+			    	return -1;
+			    }
+			    else if (a.Properties.Order > b.Properties.Order)
+			    {
+			    	return 1;
+			    }
+			    else
+			    {
+			    	return 0;
+			    }
+			});
 		}
+		else
+		{
+			pages.push(state);
+		}
+		
+		var graph = createGraph();
+		var codec = new mxCodec();
+		
+		for (var i = 0; i < pages.length; i++)
+		{
+            xml.push('<diagram');
+            
+            if (pages[i].Properties != null && pages[i].Properties.Title != null)
+            {
+            	xml.push(' name="' + mxUtils.htmlEntities(pages[i].Properties.Title) + '"');
+            }
+            
+			importLucidPage(graph, pages[i], null, null, null, true);
+            var node = codec.encode(graph.getModel());
+            graph.getModel().clear();
+
+            xml.push('>' + Graph.prototype.compress(mxUtils.getXml(node)) + '</diagram>');
+		}
+		
+		xml.push('</mxfile>');
+		
+		return xml.join('');
 	};
 
 	function addRouterEdge(x, y, edge, select, graph, cells, v, cell)

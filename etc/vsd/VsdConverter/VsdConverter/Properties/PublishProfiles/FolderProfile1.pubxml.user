@@ -10,70 +10,70 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   </PropertyGroup>
   <ItemGroup>
     <File Include="ApplicationInsights.config">
-      <publishTime>12/28/2017 15:07:25</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/HelpPage.css">
-      <publishTime>12/28/2017 15:07:22</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/Api.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/ApiGroup.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/CollectionModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/ComplexTypeModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/DictionaryModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/EnumTypeModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/HelpPageApiModel.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/ImageSample.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/InvalidSample.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/KeyValuePairModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/ModelDescriptionLink.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/Parameters.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/Samples.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/SimpleTypeModelDescription.cshtml">
-      <publishTime>12/28/2017 15:07:20</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/DisplayTemplates/TextSample.cshtml">
-      <publishTime>12/28/2017 15:07:19</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/Index.cshtml">
-      <publishTime>12/28/2017 15:07:19</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Help/ResourceModel.cshtml">
-      <publishTime>12/28/2017 15:07:19</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Shared/_Layout.cshtml">
-      <publishTime>12/28/2017 15:07:19</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/Web.config">
-      <publishTime>03/30/2018 14:53:40</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Areas/HelpPage/Views/_ViewStart.cshtml">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="bin/Antlr3.Runtime.dll">
       <publishTime>02/22/2013 08:43:40</publishTime>
@@ -82,7 +82,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/22/2013 08:43:40</publishTime>
     </File>
     <File Include="bin/ApplicationInsights.config">
-      <publishTime>12/28/2017 15:07:25</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="bin/Ionic.Zip.dll">
       <publishTime>11/22/2017 14:06:00</publishTime>
@@ -304,82 +304,82 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/VsdConverter.dll">
-      <publishTime>03/31/2018 17:49:17</publishTime>
+      <publishTime>07/24/2018 15:54:46</publishTime>
     </File>
     <File Include="bin/VsdConverter.pdb">
-      <publishTime>03/31/2018 17:49:17</publishTime>
+      <publishTime>07/24/2018 15:54:46</publishTime>
     </File>
     <File Include="bin/WebGrease.dll">
       <publishTime>09/10/2013 17:28:38</publishTime>
     </File>
     <File Include="Content/bootstrap.css">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Content/bootstrap.min.css">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="favicon.ico">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="fonts/glyphicons-halflings-regular.eot">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="fonts/glyphicons-halflings-regular.svg">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="fonts/glyphicons-halflings-regular.ttf">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="fonts/glyphicons-halflings-regular.woff">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Global.asax">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/bootstrap.min.js">
-      <publishTime>12/28/2017 15:07:10</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/jquery-1.10.2.js">
-      <publishTime>12/28/2017 15:07:14</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/jquery-1.10.2.min.js">
-      <publishTime>12/28/2017 15:07:14</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/jquery-1.10.2.min.map">
-      <publishTime>12/28/2017 15:07:14</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/modernizr-2.6.2.js">
-      <publishTime>12/28/2017 15:07:22</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/respond.js">
-      <publishTime>12/28/2017 15:07:24</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Scripts/respond.min.js">
-      <publishTime>12/28/2017 15:07:24</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
-      <publishTime>03/30/2018 15:59:48</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Views/Shared/Error.cshtml">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Views/Web.config">
-      <publishTime>03/30/2018 14:53:40</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Views/_ViewStart.cshtml">
-      <publishTime>12/28/2017 15:07:03</publishTime>
+      <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>03/31/2018 17:49:18</publishTime>
+      <publishTime>07/24/2018 15:54:47</publishTime>
     </File>
   </ItemGroup>
 </Project>
