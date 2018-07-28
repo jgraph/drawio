@@ -2986,7 +2986,7 @@ App.prototype.saveFile = function(forceDialog)
 								name.indexOf('.') < 0, /(\.svg)$/i.test(name),
 								/(\.html)$/i.test(name)), null, mode, done,
 								this.mode == null, folderId);
-						}), mode !== App.MODE_GITHUB);
+						}));
 					}
 					else if (mode != null)
 					{

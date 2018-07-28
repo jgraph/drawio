@@ -1,6 +1,12 @@
+28-JUL-2018: 9.0.0
+
+- Disables persisted default styles
+- Fixes inserting files to GitHub
+
 26-JUL-2018: 8.9.9
 
 - Adds support for hierarchies in CSV import
+- Updates colors for Atlas theme
 - Uses mxGraph 3.9.9 beta 6
 
 23-JUL-2018: 8.9.8
