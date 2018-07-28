@@ -122,6 +122,16 @@
 	 * Restores app defaults for UI
 	 */
 	EditorUi.prototype.closableScratchpad = true;
+
+	/**
+	 * Specifies if current edge style should be persisted. Default is false.
+	 */
+	EditorUi.prototype.persistCurrentEdgeStyle = false;
+
+	/**
+	 * Specifies if current vertex style should be persisted. Default is false.
+	 */
+	EditorUi.prototype.persistCurrentVertexStyle = false;
 	
 	/**
 	 * Capability check for canvas export
@@ -5797,7 +5807,15 @@
 		
 		return cells;
 	};
-
+	
+	/**
+	 * Returns true for VSD and VSS files.
+	 */
+	EditorUi.prototype.isRemoteVisioFormat = function(filename)
+	{
+		return /(\.vsd)($|\?)/i.test(filename) || /(\.vss)($|\?)/i.test(filename);
+	};
+	
 	/**
 	 * Imports the given Visio file
 	 */
@@ -5816,7 +5834,7 @@
 			
 			if (this.doImportVisio)
 			{
-				if ((/(\.vsd)($|\?)/i.test(filename) || /(\.vss)($|\?)/i.test(filename)) && VSD_CONVERT_URL != null) 
+				if (this.isRemoteVisioFormat(filename) && VSD_CONVERT_URL != null) 
 				{
 					var formData = new FormData();
 					formData.append('file1', file, filename);
@@ -6185,7 +6203,7 @@
 	};
 	
 	/**
-	 * Returns true for Gliffy or GraphML data or .vsdx filenames.
+	 * Returns true for Gliffy data.
 	 */
 	EditorUi.prototype.isRemoteFileFormat = function(data, filename)
 	{
@@ -6635,10 +6653,8 @@
 	
 										    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 										    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-	
-										    						var cells = fn(data, file.type, x + index * gs, y + index * gs,
-												    					Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)),
-												    					file.name, resizeImages);
+										    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
+										    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
 										    						
 										    						// Hack to fix width and height asynchronously
 										    						if (isNaN(w) || isNaN(h))
@@ -7211,6 +7227,26 @@
 			}
 			
 			return done;
+		};
+		
+		// Extends clear default style to clear persisted settings
+		var clearDefaultStyle = this.clearDefaultStyle;
+		
+		this.clearDefaultStyle = function()
+		{
+			clearDefaultStyle.apply(this, arguments);
+			
+			if (!this.persistCurrentEdgeStyle)
+			{
+				mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
+				mxSettings.save();
+			}
+			
+			if (!this.persistCurrentVertexStyle)
+			{
+				mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
+				mxSettings.save();
+			}
 		};
 		
 		// Sets help link for placeholders
@@ -8085,9 +8121,17 @@
 			
 			this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
-				mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
-				mxSettings.save();
+				if (this.persistCurrentEdgeStyle)
+				{
+					mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
+					mxSettings.save();
+				}
+				
+				if (this.persistCurrentVertexStyle)
+				{
+					mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
+					mxSettings.save();
+				}
 			}));
 
 			/**

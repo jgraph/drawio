@@ -27,7 +27,7 @@
 			this.createVertexTemplateEntry(s2 + 'donut;dx=25;', w, h, '', 'Donut', null, null, this.getTagsForStencil(gn, 'donut', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'drop', w * 0.7, h, '', 'Drop', null, null, this.getTagsForStencil(gn, 'drop', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'flash', w * 0.6, h, '', 'Flash', null, null, this.getTagsForStencil(gn, 'flash', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'half_circle', w, h * 0.5, '', 'Half Circle', null, null, this.getTagsForStencil(gn, 'half_circle', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'half_circle', w, h * 0.5, '', 'Half Circle', null, null, this.getTagsForStencil(gn, 'half_circle', dt + ' semicircle').join(' ')),
 			this.createVertexTemplateEntry(s2 + 'heart', w, h, '', 'Heart', null, null, this.getTagsForStencil(gn, 'heart', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'isocube;isoAngle=15;', w, h, '', 'Isometric Cube', null, null, this.getTagsForStencil(gn, 'isometric cube', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'loud_callout', w, h * 0.6, '', 'Loud Callout', null, null, this.getTagsForStencil(gn, 'loud_callout', dt).join(' ')),
