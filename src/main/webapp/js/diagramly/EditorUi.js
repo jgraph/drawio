@@ -5976,6 +5976,29 @@
 	};
 
 	/**
+	 * Inserts the given text as a preformatted HTML text.
+	 */
+	EditorUi.prototype.insertAsPreText = function(text, x, y)
+	{
+		var graph = this.editor.graph;
+		var cell = null;
+		
+		graph.getModel().beginUpdate();
+		try
+		{
+			cell = graph.insertVertex(null, null, '<pre>' + text + '</pre>',
+				x, y, 1, 1, 'text;html=1;align=center;verticalAlign=middle;');
+			graph.updateCellSize(cell, true);
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
+
+		return cell;
+	};
+
+	/**
 	 * Imports the given XML into the existing diagram.
 	 * TODO: Make this function asynchronous
 	 */
@@ -7194,7 +7217,7 @@
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()
 	{
-		mxStencilRegistry.allowEval = !this.isOfflineApp();
+		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
 		
 		// Must be set before UI is created in superclass
 		if (typeof window.mxSettings !== 'undefined')

@@ -23,7 +23,7 @@ EditorUi.initMinimalTheme = function()
            'div.geDialog { border-radius: 5px; }' +
            'html body div.geDialog button.geBigButton { color: #fff !important; }' +
            '.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
-           '.mxWindow .geColorBtn, .geDialog .geColorBtn { background: none !important; }' +
+           'html body .mxWindow .geColorBtn, html body .geDialog .geColorBtn { background: none; }' +
            'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: #353535 !important; border-color: rgb(216, 216, 216); }' +
            'div.diagramContainer button.geBtn, .mxWindow button.geBtn, .geDialog button.geBtn { min-width:72px; font-weight: 600; background: none; }' +
            'div.diagramContainer button.geBtn:hover, .mxWindow button.geBtn:hover, .geDialog button.geBtn:hover { box-shadow: none; border-color: rgb(216, 216, 216); }' +

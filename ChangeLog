@@ -1,3 +1,7 @@
+31-JUL-2018: 9.0.1
+
+- Fixes insert to GitHub with URL parameter
+
 28-JUL-2018: 9.0.0
 
 - Disables persisted default styles

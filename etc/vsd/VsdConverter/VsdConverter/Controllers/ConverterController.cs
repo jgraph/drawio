@@ -72,7 +72,7 @@ namespace VsdConverter.Controllers
             //TODO is this secure or it only returns the header?
             String origin = Request.GetCorsRequestContext().Origin;
 
-            if (!origin.EndsWith("draw.io") && !origin.EndsWith("jgraph.com"))
+            if (!origin.EndsWith(".draw.io") && !origin.EndsWith(".jgraph.com") && !origin.EndsWith(".quipelements.com"))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }

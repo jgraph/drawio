@@ -613,11 +613,6 @@
 						-clones[1].geometry.height - spacing;
 				}
 				
-				if (dir == mxConstants.DIRECTION_WEST)
-				{
-					clones[1].geometry.x = cell.geometry.x + cell.geometry.width - clones[1].geometry.width; 
-				}
-				
 				if (graph.view.currentRoot != parent)
 				{
 					clones[1].geometry.x -= pgeo.x;
