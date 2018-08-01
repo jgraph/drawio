@@ -299,6 +299,10 @@
 	};
 	mxUtils.extend(CardShape, mxActor);
 	CardShape.prototype.size = 30;
+	CardShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	CardShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
@@ -431,6 +435,10 @@
 	};
 	mxUtils.extend(ParallelogramShape, mxActor);
 	ParallelogramShape.prototype.size = 0.2;
+	ParallelogramShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	ParallelogramShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -449,6 +457,10 @@
 	};
 	mxUtils.extend(TrapezoidShape, mxActor);
 	TrapezoidShape.prototype.size = 0.2;
+	TrapezoidShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	TrapezoidShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dx = w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -856,6 +868,10 @@
 		return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(
 			this.style, 'size', this.size)) * this.scale);
 	};
+	CalloutShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	CalloutShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
@@ -880,6 +896,10 @@
 	mxUtils.extend(StepShape, mxActor);
 	StepShape.prototype.size = 0.2;
 	StepShape.prototype.fixedSize = 20;
+	StepShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	StepShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
@@ -900,6 +920,10 @@
 	};
 	mxUtils.extend(HexagonShape, mxHexagon);
 	HexagonShape.prototype.size = 0.25;
+	HexagonShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	HexagonShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s =  w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -1929,6 +1953,10 @@
 	};
 	mxUtils.extend(ManualInputShape, mxActor);
 	ManualInputShape.prototype.size = 30;
+	ManualInputShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	ManualInputShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)));
@@ -2167,6 +2195,10 @@
 	};
 	mxUtils.extend(LoopLimitShape, mxActor);
 	LoopLimitShape.prototype.size = 20;
+	LoopLimitShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	LoopLimitShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.min(w / 2, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -2185,6 +2217,10 @@
 	};
 	mxUtils.extend(OffPageConnectorShape, mxActor);
 	OffPageConnectorShape.prototype.size = 3 / 8;
+	OffPageConnectorShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	OffPageConnectorShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
