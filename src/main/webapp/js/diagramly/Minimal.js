@@ -755,14 +755,7 @@ EditorUi.initMinimalTheme = function()
 				menu.addSeparator(parent);
 			}
 			
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find'], parent);
-			
-			var item = this.addMenuItem(menu, 'tags', parent);
-			
-			if (!ui.isOffline() || mxClient.IS_CHROMEAPP)
-			{
-				ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
-			}
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)
@@ -860,12 +853,7 @@ EditorUi.initMinimalTheme = function()
 			if (!ui.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
 			{
 				menu.addSeparator(parent);
-	        	var item = ui.menus.addMenuItem(menu, 'plugins', parent);
-				
-				if (!ui.isOffline())
-				{
-					ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
-				}
+	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
         })));
         

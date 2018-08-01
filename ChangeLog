@@ -1,3 +1,10 @@
+01-AUG-2018: 9.0.2
+
+- Adds missing rounded format option
+- Fixes tolerance for connect arrows
+- Uses mxGraph 3.9.9 beta 7
+- Fixes docker build
+
 31-JUL-2018: 9.0.1
 
 - Fixes insert to GitHub with URL parameter

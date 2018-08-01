@@ -2538,22 +2538,11 @@
 
 			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
 			{
-				var item = this.addMenuItem(menu, 'plugins', parent);
-				
-				if (!editorUi.isOffline())
-				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
-				}
+				this.addMenuItem(menu, 'plugins', parent);
 			}
 
 			menu.addSeparator(parent);
-			
-			var item = this.addMenuItem(menu, 'tags', parent);
-			
-			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
-			{
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
-			}
+			this.addMenuItem(menu, 'tags', parent);
 		})));
 
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
