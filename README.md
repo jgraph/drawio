@@ -19,7 +19,7 @@ The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of
 
 Running
 -------
-One to run draw.io is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations). Another way is to use the Dockerfile in [/etc/docker](etc/docker/) or to download [draw.io Desktop](https://get.draw.io).
+One way to run draw.io is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations). Another way is to use the Dockerfile in [/etc/docker](etc/docker/) or to download [draw.io Desktop](https://get.draw.io).
 
 The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
 
