@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 50 47.299999"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="Batch_TaskVM.svg"
+   width="50"
+   height="47.299999"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata2482"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs2480" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview2478"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="6.0104076"
+   inkscape:cx="-13.057923"
+   inkscape:cy="5.0192516"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<path
+   d="M 32.4,37.7 H 31.2 19.4 18.8 c 1.6,5.8 -0.6,6.6 -10.2,6.6 v 3 h 12.2 8.9 11.5 v -3 c -9.5,0 -10.4,-0.8 -8.8,-6.6"
+   id="path2457"
+   inkscape:connector-curvature="0"
+   style="fill:#7a7a7a" />
+<path
+   d="M 47,0 H 2.7 C 1.2,0 0,1.4 0,2.9 v 32 c 0,1.5 1.2,2.8 2.7,2.8 H 47 c 1.5,0 3,-1.3 3,-2.8 V 2.9 C 50,1.4 48.5,0 47,0 M 46.2,3.9 V 33.8 H 3.8 V 3.9 L 46.2,3.8 Z"
+   id="path2459"
+   inkscape:connector-curvature="0"
+   style="fill:#a0a1a2" />
+<polygon
+   points="3.8,4.6 46.2,4.5 46.2,34.5 3.8,34.5 "
+   id="polygon2461"
+   style="fill:#59b4d9"
+   transform="translate(0,-0.7)" />
+<path
+   d="m 3.8,33.8 v 0 V 3.9 L 42.5,3.8 47,0 c 0,0 0,0 0,0 H 2.7 C 1.2,0 0,1.4 0,2.9 v 32 c 0,1.5 1.2,2.8 2.7,2.8 H 3.8 L 8.4,33.9 H 3.8 Z"
+   id="path2463"
+   inkscape:connector-curvature="0"
+   style="opacity:0.2;fill:#ffffff" />
+<polygon
+   points="3.8,4.6 42.5,4.5 42.5,4.5 3.8,4.6 3.8,34.5 "
+   id="polygon2465"
+   style="fill:#59b4d9"
+   transform="translate(0,-0.7)" />
+<rect
+   x="8.6999998"
+   y="44.299999"
+   width="32.700001"
+   height="3"
+   id="rect2467"
+   style="fill:#a0a1a2" />
+<path
+   d="M 8.6,12.6 8.1,12.1 C 8,12 8,11.8 8.1,11.6 l 1.4,-1.2 c 0,-0.1 0.1,-0.1 0.2,-0.1 0.1,0 0.2,0 0.2,0.1 l 3.7,4 6.4,-8.1 c 0.1,-0.1 0.2,-0.1 0.3,-0.1 0.1,0 0.1,0 0.2,0.1 l 1.5,1 c 0.1,0.1 0.1,0.1 0.1,0.2 0,0.1 0,0.2 -0.1,0.2 l -8.3,10.5 z"
+   id="path2469"
+   inkscape:connector-curvature="0"
+   style="fill:#ffffff" />
+<rect
+   x="22"
+   y="12.6"
+   width="20"
+   height="3.3"
+   id="rect2471"
+   style="opacity:0.6;fill:#ffffff" />
+<path
+   d="M 8.6,25.7 8.1,25.2 C 8,25.1 8,24.9 8.1,24.7 l 1.4,-1.2 c 0.1,-0.1 0.1,-0.1 0.2,-0.1 0.1,0 0.2,0 0.2,0.1 l 3.7,4 6.4,-8.1 c 0.1,-0.1 0.2,-0.1 0.3,-0.1 0.1,0 0.1,0 0.2,0.1 l 1.5,1.1 c 0.1,0.1 0.1,0.1 0.1,0.2 0,0.1 0,0.2 -0.1,0.2 l -8.2,10.4 z"
+   id="path2473"
+   inkscape:connector-curvature="0"
+   style="fill:#ffffff" />
+<rect
+   x="22"
+   y="25.699999"
+   width="20"
+   height="3.3"
+   id="rect2475"
+   style="opacity:0.6;fill:#ffffff" />
+</svg>

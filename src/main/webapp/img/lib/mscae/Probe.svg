@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="45"
+   height="50"
+   viewBox="0 0 45 50"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="Probe.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata2503"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs2501" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview2499"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="12.020815"
+   inkscape:cx="16.24408"
+   inkscape:cy="23.070155"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<polygon
+   points="19.7,50 30.3,50 27.1,21.8 22.9,21.8 "
+   id="polygon2490"
+   style="fill:#59b4d9"
+   transform="translate(-2.5)" />
+<path
+   d="M 37.8,22.5 C 37.8,14 31,7.1 22.5,7.1 14,7.1 7.2,14 7.2,22.5 c 0,5.6 3,10.5 7.6,13.2 0.5,-0.8 0.9,-1.6 1.3,-2.3 -3.7,-2.2 -6.2,-6.2 -6.2,-10.9 0,-7 5.7,-12.7 12.7,-12.7 7,0 12.7,5.7 12.7,12.7 0,4.6 -2.5,8.7 -6.2,10.9 0.4,0.7 0.9,1.5 1.3,2.3 4.4,-2.7 7.4,-7.6 7.4,-13.2"
+   id="path2492"
+   inkscape:connector-curvature="0"
+   style="opacity:0.5;fill:#3e3e3e" />
+<path
+   d="m 11.2,41.9 c 0.4,-0.8 0.9,-1.6 1.3,-2.4 C 6.6,36.1 2.7,29.7 2.7,22.4 2.7,11.6 11.6,2.7 22.5,2.7 c 10.9,0 19.8,8.9 19.8,19.8 0,7.3 -4,13.6 -9.8,17.1 0.4,0.8 0.9,1.6 1.3,2.4 C 40.5,38.1 45,30.9 45,22.6 45,10.1 34.9,0 22.5,0 10.1,0 0,10.1 0,22.5 0,30.7 4.6,38 11.2,41.9"
+   id="path2494"
+   inkscape:connector-curvature="0"
+   style="opacity:0.2;fill:#3e3e3e" />
+<circle
+   cx="22.5"
+   cy="22.6"
+   r="6.8000002"
+   id="circle2496"
+   style="fill:#0072c6" />
+</svg>

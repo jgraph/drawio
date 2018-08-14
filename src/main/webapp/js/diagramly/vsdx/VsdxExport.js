@@ -390,7 +390,7 @@ function VsdxExport(editorUi)
 
 	function createEdge(cell, graph, xmlDoc, parentHeight, isChild)
 	{
-		var state = graph.view.getState(cell);
+		var state = graph.view.getState(cell, true);
 		
 		if (state == null)
 		{
@@ -555,7 +555,7 @@ function VsdxExport(editorUi)
 	
 				var shape = createShape(vsdxId, geo, xmlDoc, parentHeight, isChild);
 				
-				var state = graph.view.getState(cell);
+				var state = graph.view.getState(cell, true);
 
 				applyMxCellStyle(state, shape, xmlDoc);
 				

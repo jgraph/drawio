@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="50"
+   height="50"
+   viewBox="0 0 50 50"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="OutboundRule.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata955"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs953" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview951"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="12.020815"
+   inkscape:cx="27.131474"
+   inkscape:cy="20.248727"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<path
+   d="M 47.6,31.8 H 16.8 c -1.3,0 -2.4,-1.1 -2.4,-2.1 0,-1 1.1,-1.9 2.4,-1.9 h 30.8 c 1.4,0 2.4,0.8 2.4,1.9 0,1 -1.1,2.1 -2.4,2.1 z"
+   id="path940"
+   inkscape:connector-curvature="0"
+   style="fill:#a0a1a2" />
+<path
+   d="M 47.6,47.4 H 16.8 c -1.3,0 -2.4,-1.1 -2.4,-2.1 0,-1 1.1,-1.9 2.4,-1.9 h 30.8 c 1.3,0 2.4,0.8 2.4,1.9 0,1 -1.1,2.1 -2.4,2.1 z"
+   id="path942"
+   inkscape:connector-curvature="0"
+   style="fill:#a0a1a2" />
+<polygon
+   points="2.2,27.4 2.2,27.4 2.2,27.4 5.7,30.9 12.8,23.9 12.8,23.9 12.8,23.9 14.5,25.7 14.5,25.7 14.5,25.7 5.7,34.4 0.5,29.2 "
+   id="polygon944"
+   style="fill:#b8d432"
+   transform="translate(-0.5)" />
+<polygon
+   points="2.2,43 2.2,43 2.2,43 5.7,46.5 12.8,39.5 12.8,39.5 12.8,39.5 14.5,41.2 14.5,41.2 14.5,41.2 5.7,50 0.5,44.7 "
+   id="polygon946"
+   style="fill:#b8d432"
+   transform="translate(-0.5)" />
+<polygon
+   points="16.6,8.8 24.9,0 33.2,8.8 33.2,12.3 26.4,5.8 26.4,19.4 23.5,19.4 23.5,5.8 16.6,12.4 "
+   id="polygon948"
+   style="fill:#0072c6"
+   transform="translate(-0.5)" />
+</svg>

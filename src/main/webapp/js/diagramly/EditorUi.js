@@ -9319,6 +9319,36 @@
 				{
 					this.recentReadyCallback(data.list, data.errorMsg);
 				}
+				else if (data.action == 'textContent')
+				{
+					this.editor.graph.setEnabled(false);
+					var graph = this.editor.graph;
+						
+					var allPagesTxt = '';
+					
+					if (this.pages != null)
+					{
+						for (var i = 0; i < this.pages.length; i++)
+						{
+							var pageGraph = graph;
+							
+							if (this.currentPage != this.pages[i])
+							{
+								pageGraph = this.createTemporaryGraph(graph.getStylesheet());
+								pageGraph.model.setRoot(this.pages[i].root);								
+							}
+							allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
+						}
+					}
+					else
+					{
+						allPagesTxt = graph.getIndexableText();
+					}
+					
+					this.editor.graph.setEnabled(true);
+					parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
+					return;
+				}
 				else if (data.action == 'status')
 				{
 					if (data.messageKey != null)

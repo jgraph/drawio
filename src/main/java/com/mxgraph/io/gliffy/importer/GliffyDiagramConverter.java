@@ -604,12 +604,12 @@ public class GliffyDiagramConverter
 		String link = null;
 
 		Graphic graphic = gliffyObject.getGraphic();
-		String mxShapeName = StencilTranslator.translate(gliffyObject.uid,
+		String translatedStyle = StencilTranslator.translate(gliffyObject.uid,
 				graphic != null && graphic.getShape() != null ? graphic.getShape().tid : null);
 
 		if (gliffyObject.isGroup())
 		{
-			if (graphic == null || mxShapeName == null)
+			if (graphic == null || translatedStyle == null)
 				style.append("group;");
 
 			cell.setVertex(true);
@@ -629,9 +629,9 @@ public class GliffyDiagramConverter
 
 				cell.setVertex(true);
 
-				if (mxShapeName != null)
+				if (translatedStyle != null)
 				{
-					style.append("shape=").append(mxShapeName).append(";");
+					style.append("shape=").append(translatedStyle).append(";");
 				}
 
 				if (style.lastIndexOf("shadow=") == -1)

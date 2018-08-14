@@ -11,6 +11,7 @@ window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE'
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml3';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
+//window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "http://localhost:5000/convertEMF";
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -136,7 +137,7 @@ if (window.mxLanguages == null)
 window.uiTheme = window.uiTheme || (function() 
 {
 	var ui = urlParams['ui'];
-	
+
 	// Known issue: No JSON object at this point in quirks in IE8
 	if (ui == null && typeof JSON !== 'undefined')
 	{
@@ -160,6 +161,24 @@ window.uiTheme = window.uiTheme || (function()
 			}
 		}
 	}
+	
+	// Uses minimal theme on small screens
+//	try
+//	{
+//		if (ui == null)
+//		{
+//	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+//	
+//	        if (iw <= 414)
+//	        {
+//	        	ui = 'min';
+//	        }
+//		}
+//	}
+//	catch (e)
+//	{
+//		// ignore
+//	}
 	
 	return ui;
 })();

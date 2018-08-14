@@ -4,7 +4,7 @@
 EditorUi.initMinimalTheme = function()
 {
 	// Disabled in lightbox and chromeless mode
-	if (urlParams['lightbox'] == '1' || urlParams['chrome'] == '0')
+	if (urlParams['lightbox'] == '1' || urlParams['chrome'] == '0' || typeof window.Format === 'undefined' || typeof window.Menus === 'undefined')
 	{
 		return;
 	}
@@ -1284,7 +1284,7 @@ EditorUi.initMinimalTheme = function()
 	        createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct, null, mxResources.get('delete'), ui.actions.get('delete'),
 	        		(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==' : null)]);
 	        
-	        if (iw >= 480)
+	        if (iw >= 411)
 	        {
 	        	var undoAction = ui.actions.get('undo');
 	        	var redoAction = ui.actions.get('redo');
@@ -1296,7 +1296,7 @@ EditorUi.initMinimalTheme = function()
 		
 		        createGroup([undoElt, redoElt]);
 	
-		        if (iw >= 560)
+		        if (iw >= 480)
 		        {
 		        	var zoomInAction = ui.actions.get('zoomIn');
 		        	var zoomOutAction = ui.actions.get('zoomOut');
@@ -1328,7 +1328,8 @@ EditorUi.initMinimalTheme = function()
 	        
 	        var langMenu = ui.menus.get('language');
 
-			if (langMenu != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && iw >= 480)
+			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
+				!EditorUi.isElectronApp && iw >= 540)
 			{
 				var elt = menuObj.addMenu('', langMenu.funct);
 				elt.setAttribute('title', mxResources.get('language'));

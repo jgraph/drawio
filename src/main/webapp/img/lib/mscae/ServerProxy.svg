@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   height="50"
+   width="40"
+   viewBox="0 0 40 50"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="ServerProxy.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata5441"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs5439" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview5437"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="17"
+   inkscape:cx="18"
+   inkscape:cy="25"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<g
+   id="g5430"
+   transform="translate(-7)">
+	<path
+   d="m 36.4,47.5 c 0,1.4 -1.1,2.5 -2.5,2.5 H 9.5 C 8.1,50 7,48.9 7,47.5 V 2.5 C 7,1.1 8.1,0 9.5,0 h 24.3 c 1.4,0 2.5,1.1 2.5,2.5 v 45 z"
+   id="path5416"
+   inkscape:connector-curvature="0"
+   style="fill:#3e3e3e" />
+	<path
+   d="m 11.3,27 c 0,-1.8 1.4,-3.2 3.2,-3.2 h 14.6 c 1.8,0 3.2,1.4 3.2,3.2 v 0 c 0,1.8 -1.4,3.2 -3.2,3.2 H 14.5 c -1.8,0 -3.2,-1.4 -3.2,-3.2 z"
+   id="path5418"
+   inkscape:connector-curvature="0"
+   style="fill:#1e1e1e" />
+	<circle
+   cx="14.6"
+   cy="27"
+   r="2.0999999"
+   id="circle5420"
+   style="fill:#b8d432" />
+	<path
+   d="m 11.3,17.5 c 0,-1.8 1.4,-3.2 3.2,-3.2 h 14.6 c 1.8,0 3.2,1.4 3.2,3.2 v 0 c 0,1.8 -1.4,3.2 -3.2,3.2 H 14.5 c -1.8,0 -3.2,-1.4 -3.2,-3.2 z"
+   id="path5422"
+   inkscape:connector-curvature="0"
+   style="fill:#1e1e1e" />
+	<circle
+   cx="14.6"
+   cy="17.5"
+   r="2.0999999"
+   id="circle5424"
+   style="fill:#b8d432" />
+	<path
+   d="m 11.3,8.1 c 0,-1.8 1.4,-3.2 3.2,-3.2 h 14.6 c 1.8,0 3.2,1.4 3.2,3.2 v 0 c 0,1.8 -1.4,3.2 -3.2,3.2 H 14.5 c -1.8,0 -3.2,-1.5 -3.2,-3.2 z"
+   id="path5426"
+   inkscape:connector-curvature="0"
+   style="fill:#1e1e1e" />
+	<circle
+   cx="14.6"
+   cy="8.1000004"
+   r="2.0999999"
+   id="circle5428"
+   style="fill:#b8d432" />
+</g>
+<polygon
+   points="41.2,27.5 47,33.5 41.2,39.4 37.7,39.4 42,34.8 26.4,34.8 26.4,32.1 42,32.1 37.7,27.5 "
+   id="polygon5432"
+   style="fill:#59b4d9"
+   transform="translate(-7)" />
+<polygon
+   points="32.2,50 26.4,44.1 32.1,38.1 35.6,38.1 31.3,42.7 47,42.7 47,45.4 31.3,45.4 35.7,50 "
+   id="polygon5434"
+   style="fill:#59b4d9"
+   transform="translate(-7)" />
+</svg>

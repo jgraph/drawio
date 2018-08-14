@@ -1535,6 +1535,7 @@ EditorUi.prototype.initCanvas = function()
 			pageInfo.style.verticalAlign = 'top';
 			pageInfo.style.fontFamily = 'Helvetica,Arial';
 			pageInfo.style.marginTop = '8px';
+			pageInfo.style.fontSize = '14px';
 			pageInfo.style.color = '#ffffff';
 			this.chromelessToolbar.appendChild(pageInfo);
 			

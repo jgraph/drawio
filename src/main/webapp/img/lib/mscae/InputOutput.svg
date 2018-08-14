@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="50"
+   height="32.889"
+   viewBox="0 0 50 32.889"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="InputOutput.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata4725"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs4723" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview4721"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="12.020815"
+   inkscape:cx="22.149236"
+   inkscape:cy="7.5559978"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<polygon
+   points="16.789,18.256 23.333,24.978 16.822,31.667 12.844,31.667 17.7,26.511 0,26.511 0,23.411 17.7,23.411 12.811,18.256 "
+   id="polygon4712"
+   style="fill:#804998"
+   transform="translate(0,-8)" />
+<polygon
+   points="43.456,18.256 50,24.978 43.489,31.667 39.511,31.667 44.367,26.511 26.667,26.511 26.667,23.411 44.367,23.411 39.478,18.256 "
+   id="polygon4714"
+   style="fill:#59b4d9"
+   transform="translate(0,-8)" />
+<polygon
+   points="5.556,30.556 10,30.556 10,36.444 32.222,36.444 32.222,30.556 36.667,30.556 36.667,40.889 5.556,40.889 "
+   id="polygon4716"
+   style="fill:#a0a1a2"
+   transform="translate(0,-8)" />
+<polygon
+   points="32.222,12.444 10,12.444 10,19.444 5.556,19.444 5.556,8 36.667,8 36.667,19.444 32.222,19.444 "
+   id="polygon4718"
+   style="fill:#a0a1a2"
+   transform="translate(0,-8)" />
+</svg>
