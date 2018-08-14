@@ -11,6 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,6 +27,17 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class ProxyServlet extends HttpServlet
 {
+	private static final Logger log = Logger
+			.getLogger(HttpServlet.class.getName());
+	
+	private static final String[] setValues = new String[]
+			{"image/svg+xml", "image/png", "application/vnd.jgraph.mxfile.realtime", "image/jpeg",
+			 "application/xml", "image/x-wmf", "image/gif", "image/webp", "text/plain",
+			 "application/x-font-ttf", "application/x-font-truetype", "application/x-font-opentype",
+			 "application/font-woff", "application/font-woff2", "application/vnd.ms-fontobject",
+			 "application/font-sfnt"};
+	private static final Set<String> allowedContent = new HashSet<String>(Arrays.asList(setValues));
+
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -38,13 +53,21 @@ public class ProxyServlet extends HttpServlet
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		String urlParam = request.getParameter("url");
-
+		
 		// build the UML source from the compressed request parameter
 		String ua = request.getHeader("User-Agent");
 		String ref = request.getHeader("referer");
-		String dom = null;
+		boolean contentTypeAllowed = false;
+		boolean urlAllowed = true;
+		
+		String dom = "";
 
-		if (ref != null && ref.toLowerCase()
+		if (urlParam != null && urlParam.toLowerCase().contains("://metadata.google.internal/"))
+		{
+			urlAllowed = false;
+			log.log(Level.CONFIG, "proxy request to metadata.google.internal");
+		}
+		else if (ref != null && ref.toLowerCase()
 				.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
 		{
 			dom = ref.toLowerCase().substring(0, ref.indexOf(".draw.io/") + 8);
@@ -64,7 +87,7 @@ public class ProxyServlet extends HttpServlet
 			dom = "";
 		}
 
-		if (dom != null && urlParam != null && (urlParam.startsWith("http://")
+		if (urlAllowed && dom != null && urlParam != null && (urlParam.startsWith("http://")
 				|| urlParam.startsWith("https://")))
 		{
 			request.setCharacterEncoding("UTF-8");
@@ -119,6 +142,34 @@ public class ProxyServlet extends HttpServlet
 
 				if (connection != null)
 				{
+					String contentType = connection.getContentType();
+					
+					if (contentType != null && allowedContent.contains(contentType))
+					{
+						contentTypeAllowed = true;
+					}
+
+					urlAllowed = false;
+					boolean validateHtml = false;
+
+					if (!contentTypeAllowed)
+					{
+						if (urlParam != null && urlParam.toLowerCase().startsWith("https://trello-attachments.s3.amazonaws.com/"))
+						{
+							urlAllowed = true;
+						}
+					}
+
+					if (!contentTypeAllowed && !urlAllowed)
+					{
+						if (contentType != null && contentType.equals("text/html"))
+						{
+							validateHtml = true;
+						}
+
+						log.log(Level.CONFIG, "proxyContent=" + contentType);
+					}
+
 					response.setContentType("application/octet-stream");
 
 					if (base64 != null && base64.equals("1"))

@@ -1714,14 +1714,31 @@
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var item = menu.addItem(mxResources.get('kennedy'), null, function()
+			var theme = mxSettings.getUi();
+
+			var item = menu.addItem(mxResources.get('automatic'), null, function()
 			{
 				mxSettings.setUi('');
 				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
+			
+			if (theme != 'kennedy' && theme != 'atlas' &&
+				theme != 'dark' && theme != 'min')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
 
-			if (uiTheme != 'atlas' && uiTheme != 'dark' && uiTheme != 'min')
+			menu.addSeparator(parent);
+			
+			item = menu.addItem(mxResources.get('kennedy'), null, function()
+			{
+				mxSettings.setUi('kennedy');
+				mxSettings.save();
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			}, parent);
+
+			if (theme == 'kennedy')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1733,7 +1750,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'min')
+			if (theme == 'min')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1745,7 +1762,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'atlas')
+			if (theme == 'atlas')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1757,7 +1774,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'dark')
+			if (theme == 'dark')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}

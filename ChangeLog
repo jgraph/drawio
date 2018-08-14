@@ -1,3 +1,13 @@
+14-AUG-2018: 9.0.5
+
+- Fixes NPE in VSDX export
+- Improves vsdx import layer support
+- Improves GraphML import support
+
+10-AUG-2018: 9.0.4
+
+- Add filter to proxy servlet
+
 01-AUG-2018: 9.0.2
 
 - Adds missing rounded format option

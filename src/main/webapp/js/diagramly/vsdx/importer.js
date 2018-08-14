@@ -37,6 +37,8 @@ var com;
                      * Stores the parents of the shapes imported.
                      */
                     this.parentsMap = ({});
+                    
+                    this.layersMap = ({});
                     /**
                      * Set to true if you want to display spline debug data
                      */
@@ -114,6 +116,40 @@ var com;
 
                     return cp ;
                 }
+                
+                mxVsdxCodec.prototype.scaleGraph = function(graph, scale) 
+                {
+                    if (scale !== 1) {
+                        var model = graph.getModel();
+                        {
+                            for (var id in model.cells) {
+                                var c = model.cells[id];
+                                {
+                                    var geo = model.getGeometry(c);
+                                    if (geo != null) {
+                                        this.scaleRect(geo, scale);
+                                        this.scaleRect(geo.alternateBounds, scale);
+                                        if (model.isEdge(c)) {
+                                        	this.scalePoint(geo.sourcePoint, scale);
+                                        	this.scalePoint(geo.targetPoint, scale);
+                                        	this.scalePoint(geo.offset, scale);
+                                            var points = geo.points;
+                                            if (points != null) {
+                                                for (var index125 = 0; index125 < points.length; index125++) {
+                                                    var p = points[index125];
+                                                    {
+                                                    	this.scalePoint(p, scale);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                
                 /**
                  * Parses the input VSDX format and uses the information to populate
                  * the specified graph.
@@ -168,36 +204,7 @@ var com;
 	                                        graph_1.addCell(backCell, graph_1.getModel().getRoot(), 0, null, null);
 	                                        this_1.importPage(backPage, graph_1, graph_1.getDefaultParent());
 	                                    }
-	                                    var scale = page_1.getPageScale() / page_1.getDrawingScale();
-	                                    if (scale !== 1) {
-	                                        var model = graph_1.getModel();
-	                                        {
-	                                            for (var id in model.cells) {
-	                                                var c = model.cells[id];
-	                                                {
-	                                                    var geo = model.getGeometry(c);
-	                                                    if (geo != null) {
-	                                                        this_1.scaleRect(geo, scale);
-	                                                        this_1.scaleRect(geo.alternateBounds, scale);
-	                                                        if (model.isEdge(c)) {
-	                                                            this_1.scalePoint(geo.sourcePoint, scale);
-	                                                            this_1.scalePoint(geo.targetPoint, scale);
-	                                                            this_1.scalePoint(geo.offset, scale);
-	                                                            var points = geo.points;
-	                                                            if (points != null) {
-	                                                                for (var index125 = 0; index125 < points.length; index125++) {
-	                                                                    var p = points[index125];
-	                                                                    {
-	                                                                        this_1.scalePoint(p, scale);
-	                                                                    }
-	                                                                }
-	                                                            }
-	                                                        }
-	                                                    }
-	                                                }
-	                                            }
-	                                        }
-	                                    }
+	                                    this_1.scaleGraph(graph_1, page_1.getPageScale() / page_1.getDrawingScale());
 	                                    graph_1.getModel().endUpdate();
 	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_START); })(xmlBuilder);
 	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.processPage(graph_1, page_1)); })(xmlBuilder);
@@ -309,30 +316,62 @@ var com;
 	                            else if (name.indexOf(mxVsdxCodec.vsdxPlaceholder + "/media") === 0)//binary files
 	                           	{
 	                            	filesCount++;
-	                            	if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".emf")) {
-	                            		if (JSZip.support.uint8array) 
+	                            	if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".emf")) 
+	                            	{
+                            			var emfDone = function()
+                            			{
+                            				processedFiles++;
+                            				
+		        	                    	doneCheck();
+                            			}
+                            			
+	                            		if (JSZip.support.blob && window.EMF_CONVERT_URL) 
 	                            		{
-			                            	zipEntry.async("uint8array").then(function (emfData) 
+	                            			zipEntry.async("blob").then(function (emfBlob)
 			           	                  	{
-		                                        var imageFound = false;
-		                                        var base64Str = "";
-		                                        for (var i = 0; i < emfData.length - 8; i++) {
-		                                            if (_this.isPng(emfData, i) || _this.isJpg(emfData, i)) {
-		                                            	base64Str = com.mxgraph.online.mxBase64.encodeToString(emfData, i);
-		                                                imageFound = true;
-		                                                break;
-		                                            }
-		                                        }
-		                                        ;
-		                                        if (imageFound) {
-		    	                                    /* put */ (mediaData[filename] = base64Str);
-		                                        }
-			
-			        	                    	processedFiles++;
-		
-			        	                    	doneCheck();
-			           	                   	});
+	                            				//send to emf conversion service
+	                        					var formData = new FormData();
+	                        					formData.append('img', emfBlob, name);
+
+	                        					var xhr = new XMLHttpRequest();
+	                        					xhr.open('POST', EMF_CONVERT_URL);
+	                        					xhr.responseType = 'blob';
+	                        					
+	                        					xhr.onreadystatechange = mxUtils.bind(this, function()
+	                        					{
+	                        						if (xhr.readyState == 4)
+	                        						{	
+	                        							if (xhr.status >= 200 && xhr.status <= 299)
+	                        							{
+	                        								try
+	                        								{
+	                        									var reader = new FileReader();
+	                        									reader.readAsDataURL(xhr.response); 
+	                        									reader.onloadend = function() {
+	                        									    mediaData[filename] = reader.result.substr(22); //data:image/png;base64, is 23 character
+		                        									emfDone();
+	                        									}
+	                        								}
+	                        								catch (e)
+	                        								{
+	                        									console.log(e);
+	                        									emfDone();
+	                        								}
+	                        							}
+	                        							else
+	                        							{
+	                        								emfDone();
+	                        							}
+	                        						}
+	                        					});
+	                        					
+	                        					xhr.send(formData);
+			           	                  	});
 	                            		}
+	                            		else
+                            			{
+	                            			emfDone();
+                            			}
 	                            	}
 	                            	else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
 	                            		if (JSZip.support.uint8array) 
@@ -427,12 +466,6 @@ var com;
                     
                     output += Graph.prototype.compress(modelString);
                     return output;
-                };
-                /*private*/ mxVsdxCodec.prototype.isJpg = function (emfData, i) {
-                    return emfData[i] === (255 | 0) && emfData[i + 1] === (216 | 0) && emfData[i + 2] === (255 | 0);
-                };
-                /*private*/ mxVsdxCodec.prototype.isPng = function (emfData, i) {
-                    return emfData[i] === (137 | 0) && emfData[i + 1] === (80 | 0) && emfData[i + 2] === (78 | 0) && emfData[i + 3] === (71 | 0) && emfData[i + 4] === (13 | 0) && emfData[i + 5] === (10 | 0) && emfData[i + 6] === (26 | 0) && emfData[i + 7] === (10 | 0);
                 };
                 /**
                  * Scale a point in place
@@ -541,6 +574,31 @@ var com;
                  * @return {number}
                  */
                 mxVsdxCodec.prototype.importPage = function (page, graph, parent) {
+                	//add page layers
+                	var layers = page.getLayers();
+                	this.layersMap[0] = graph.getDefaultParent();
+                	
+                	if (layers.length > 1)
+            		{
+                		for (var k = 1; k < layers.length; k++)
+	            		{
+                			var layer = layers[k];
+                			var layerCell = new mxCell();		
+                			layerCell.setVisible(layer.Visible == 1);
+
+                			if (layer.Lock == 1)
+                			{
+                				layerCell.setStyle("locked=1;");
+                			}
+                			
+                			//TODO handlle color and other properties
+                			layerCell.setValue(layer.Name);
+                			
+                			this.layersMap[k] = layerCell;
+                    		graph.addCell(layerCell, graph.model.root, k);
+	            		}
+            		}
+                	//add shapes
                     var shapes = page.getShapes();
                     var entries = (function (a) { var i = 0; return { next: function () { return i < a.length ? a[i++] : null; }, hasNext: function () { return i < a.length; } }; })(/* entrySet */ (function (m) { if (m.entries == null)
                         m.entries = []; return m.entries; })(shapes));
@@ -548,7 +606,9 @@ var com;
                     var pageId = page.getId();
                     while ((entries.hasNext())) {
                         var entry = entries.next();
-                        this.addShape(graph, entry.getValue(), parent, pageId, pageHeight);
+                        var shape = entry.getValue();
+                        var p = this.layersMap[shape.layerMember];
+                        this.addShape(graph, shape, p? p : parent, pageId, pageHeight);
                     }
                     ;
                     var connects = page.getConnects();
@@ -1209,6 +1269,29 @@ var com;
                                         var shapeGraph = this_1.createMxGraph();
                                         var shapeElem = master.getMasterShape().getShape();
                                         var shape = new com.mxgraph.io.vsdx.VsdxShape(page, shapeElem, !page.isEdge(shapeElem), masterShapes, null, this_1.vsdxModel);
+                                        
+                                        var scale = 1;
+                                        
+                                        if (master.pageSheet != null)
+                                    	{
+                                        	 var dScaleV = 1, pScaleV = 1;
+                                        	 var dScale = master.pageSheet["DrawingScale"];
+                                             
+                                        	 if (dScale != null) 
+                                             {
+                                        		 dScaleV = parseFloat(dScale.getAttribute("V"));
+                                             }
+                                             
+                                        	 var pScale = master.pageSheet["PageScale"];
+                                             
+                                        	 if (pScale != null) 
+                                             {
+                                        		 pScaleV = parseFloat(pScale.getAttribute("V"));
+                                             }
+                                        	 
+                                        	 scale = pScaleV / dScaleV;
+                                    	}
+                                        
                                         var cell = null;
                                         if (shape.isVertex()) {
                                             /* clear */ this_1.edgeShapeMap.entries = [];
@@ -1234,6 +1317,7 @@ var com;
                                             cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
                                         }
                                         if (cell != null) {
+                                        	this_1.scaleGraph(shapeGraph, scale);
                                             var geo_1 = this_1.normalizeGeo(cell);
                                             this_1.sanitiseGraph(shapeGraph);
                                             if (shapeGraph.getModel().getChildCount(shapeGraph.getDefaultParent()) === 0)
@@ -2524,7 +2608,17 @@ var com;
                                     }
                                     ;
                                 }
-                            }
+                            } 
+                            else if (child.nodeType == 1 && child.nodeName == "PageSheet")
+                        	{
+                            	this.pageSheet = {};
+                            	var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(child, "Cell");
+                                
+                            	for (var i = 0; i < cells.length; i++) 
+                                {
+                                    this.pageSheet[cells[i].getAttribute("N")] = cells[i];
+                                }
+                        	}
                             child = child.nextSibling;
                         }
                         ;
@@ -2975,6 +3069,7 @@ var com;
                         this.cellElements = ({});
                         this.model = model;
                         this.pageElement = pageElem;
+                        this.layers = [];
                         var backGround = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.BACKGROUND);
                         this.__isBackground = (backGround != null && (function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -2998,6 +3093,30 @@ var com;
                                     var n = cellElem.getAttribute("N");
                                     /* put */ (this.cellElements[n] = cellElem);
                                 }
+                            }
+                            
+                            var sections = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(pageSheet, "Section");
+                            for (var i134 = 0; i134 < sections.length; i134++) 
+                            {
+                            	var secElem = sections[i134];
+                            	var n = secElem.getAttribute("N");
+                            	
+                            	if (n == "Layer")
+                        		{
+                            		 var layers = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(secElem, "Row");
+                            		 
+                            		 for (var i135 = 0; i135 < layers.length; i135++)
+                        			 {
+                            			 var layerAtts = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(layers[i135], "Cell");
+                            			 var layerObj = {};
+                            			 
+                            			 for (var i136 = 0; i136 < layerAtts.length; i136++)
+                            			 {
+                            				 layerObj[layerAtts[i136].getAttribute("N")] = layerAtts[i136].getAttribute("V");
+                            			 }
+                            			 this.layers[parseInt(layers[i135].getAttribute("IX"))] = layerObj;
+                        			 }
+                        		}
                             }
                         }
                         this.parseNodes(pageElem, model, "pages");
@@ -3276,6 +3395,9 @@ var com;
                     };
                     mxVsdxPage.prototype.getShapes = function () {
                         return this.shapes;
+                    };
+                    mxVsdxPage.prototype.getLayers = function () {
+                        return this.layers;
                     };
                     mxVsdxPage.prototype.getConnects = function () {
                         return this.connects;
@@ -8338,7 +8460,7 @@ var com;
                             else {
                                 return o1 === o2;
                             } })(iType, "MetaFile")) {
-                                compression = "x-wmf";
+                                compression = "png"; //we convert emf files to png
                             }
                             else if ((function (o1, o2) { if (o1 && o1.equals) {
                                 return o1.equals(o2);
@@ -8351,7 +8473,7 @@ var com;
                             else {
                                 return o1 === o2;
                             } })(iType, "EnhMetaFile")) {
-                                compression = "x-emf";
+                                compression = "png"; //we convert emf files to png
                             }
                             else {
                                 return;
@@ -8405,15 +8527,6 @@ var com;
 	                                                    /* put */ (this.imageData["iData"] = iData);
 	                                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".bmp")) {
 	                                                        compression = "jpg";
-	                                                    }
-	                                                    else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".emf")) {
-	                                                        compression = (function (str, searchString, position) {
-	                                                            if (position === void 0) { position = 0; }
-	                                                            return str.substr(position, searchString.length) === searchString;
-	                                                        })(iData, "iVBORw0K") ? "png" : ((function (str, searchString, position) {
-	                                                            if (position === void 0) { position = 0; }
-	                                                            return str.substr(position, searchString.length) === searchString;
-	                                                        })(iData, "/9j/") ? "jpg" : compression);
 	                                                    }
 	                                                    /* put */ (this.imageData["iType"] = compression);
                                                 	}
@@ -9167,6 +9280,7 @@ var com;
                         }
                         _this.vertex = vertex || (_this.childShapes != null && !(function (m) { if (m.entries == null)
                             m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1));
+                        _this.layerMember = _this.getValue(_this.getCellElement$java_lang_String("LayerMember"));
                         return _this;
                     }
                     VsdxShape.__static_initialize = function () { if (!VsdxShape.__static_initialized) {

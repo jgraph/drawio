@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   height="48.799999"
+   width="50"
+   viewBox="0 0 50 48.799999"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="RDMA.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata3459"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs3457" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview3455"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="12.020815"
+   inkscape:cx="25.048731"
+   inkscape:cy="18.853803"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<rect
+   x="15.9"
+   y="0"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3420"
+   style="fill:#fcd116" />
+<rect
+   x="24.4"
+   y="0"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3422"
+   style="fill:#fcd116" />
+<rect
+   x="33"
+   y="0"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3424"
+   style="fill:#fcd116" />
+<rect
+   x="41.5"
+   y="0"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3426"
+   style="fill:#fcd116" />
+<rect
+   x="33"
+   y="18"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3428"
+   style="fill:#fcd116" />
+<rect
+   x="41.5"
+   y="18"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3430"
+   style="fill:#fcd116" />
+<rect
+   x="3.5999999"
+   y="26.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3432"
+   style="fill:#fcd116" />
+<rect
+   x="12.1"
+   y="26.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3434"
+   style="fill:#fcd116" />
+<rect
+   x="3.5999999"
+   y="44.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3436"
+   style="fill:#fcd116" />
+<rect
+   x="12.1"
+   y="44.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3438"
+   style="fill:#fcd116" />
+<rect
+   x="20.6"
+   y="44.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3440"
+   style="fill:#fcd116" />
+<rect
+   x="29.1"
+   y="44.5"
+   width="3.9000001"
+   height="4.3000002"
+   id="rect3442"
+   style="fill:#fcd116" />
+<g
+   id="g3450">
+	<g
+   id="g3448">
+		<polygon
+   points="22.4,8.2 24.4,6.2 26.5,8.2 31.7,13.4 32.5,14.3 32.5,15.5 32.5,18 50,18 50,4.3 12.4,4.3 12.4,18 16.4,18 16.4,15.5 16.4,14.3 17.2,13.4 "
+   id="polygon3444"
+   style="fill:#7fba00" />
+		<polygon
+   points="26.5,39.9 24.4,42 22.4,39.9 17.2,34.8 16.4,33.9 16.4,32.7 16.4,30.8 0,30.8 0,44.5 37.6,44.5 37.6,30.8 32.5,30.8 32.5,32.7 32.5,33.9 31.7,34.8 "
+   id="polygon3446"
+   style="fill:#7fba00" />
+	</g>
+</g>
+<polygon
+   points="22.7,17.2 22.7,31 19.3,27.5 19.3,32.7 24.4,37.9 29.6,32.7 29.6,27.5 26.2,31 26.2,17.2 29.6,20.6 29.6,15.5 24.4,10.3 19.3,15.5 19.3,20.6 "
+   id="polygon3452"
+   style="fill:#0072c6" />
+</svg>

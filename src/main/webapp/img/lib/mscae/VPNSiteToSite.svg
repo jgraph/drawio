@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   height="47"
+   width="42"
+   viewBox="0 0 42 47"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="VPNSiteToSite.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata2716"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs2714" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview2712"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="17"
+   inkscape:cx="21"
+   inkscape:cy="24"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<path
+   d="M 30,44.5 C 30,45.9 28.9,47 27.5,47 H 2.5 C 1.1,47 0,45.9 0,44.5 V 2.5 C 0,1.1 1.1,0 2.5,0 H 27.4 C 28.9,0 30,1.1 30,2.5 Z"
+   id="path2683"
+   inkscape:connector-curvature="0"
+   style="fill:#a0a1a2" />
+<rect
+   x="4"
+   y="5"
+   width="6"
+   height="7"
+   id="rect2685"
+   style="fill:#0072c6" />
+<rect
+   x="12"
+   y="5"
+   width="6"
+   height="7"
+   id="rect2687"
+   style="fill:#0072c6" />
+<rect
+   x="20"
+   y="5"
+   width="6"
+   height="7"
+   id="rect2689"
+   style="fill:#0072c6" />
+<rect
+   x="4"
+   y="16"
+   width="6"
+   height="7"
+   id="rect2691"
+   style="fill:#0072c6" />
+<rect
+   x="12"
+   y="16"
+   width="6"
+   height="7"
+   id="rect2693"
+   style="fill:#0072c6" />
+<rect
+   x="4"
+   y="27"
+   width="6"
+   height="7"
+   id="rect2695"
+   style="fill:#0072c6" />
+<rect
+   x="12"
+   y="27"
+   width="6"
+   height="7"
+   id="rect2697"
+   style="fill:#0072c6" />
+<rect
+   x="20"
+   y="27"
+   width="6"
+   height="7"
+   id="rect2699"
+   style="fill:#777777" />
+<path
+   d="m 42,44.5 c 0,1.4 -1.1,2.5 -2.5,2.5 h -17 C 21.1,47 20,45.9 20,44.5 v -28 C 20,15.1 21.1,14 22.5,14 h 16.9 c 1.4,0 2.5,1.1 2.5,2.5 v 28 z"
+   id="path2701"
+   inkscape:connector-curvature="0"
+   style="fill:#7a7a7a" />
+<rect
+   x="24"
+   y="19"
+   width="6"
+   height="7"
+   id="rect2703"
+   style="fill:#59b4d9" />
+<rect
+   x="32"
+   y="19"
+   width="6"
+   height="7"
+   id="rect2705"
+   style="fill:#59b4d9" />
+<rect
+   x="24"
+   y="30"
+   width="6"
+   height="7"
+   id="rect2707"
+   style="fill:#59b4d9" />
+<rect
+   x="32"
+   y="30"
+   width="6"
+   height="7"
+   id="rect2709"
+   style="fill:#59b4d9" />
+</svg>
