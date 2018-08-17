@@ -47,6 +47,12 @@
 	 * 
 	 */
 	Sidebar.prototype.gcp = ['Cards', 'Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
+	
+	/**
+	 * 
+	 */
+	Sidebar.prototype.gcp2 = ['Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards'];
+	
 	/**
 	 *
 	 */
@@ -127,7 +133,7 @@
 	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']}, {id: 'uml'}, {id: 'search'}, {id: 'er'},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
-	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'sitemap'},
+	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'sitemap'}, 
 	                                   
 	                                   {id: 'mscae', prefix: 'mscae', libs: ['Cloud', 'Enterprise', 'General', 'General Symbols', 'Intune', 'OMS', 'OpsManager', 'Other', 'System Center', 'Virtual Machine', 'Deprecated', 'Cloud Color', 'Deprecated Color']},
 	                                   
@@ -142,6 +148,7 @@
 	                                        	                          'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels']},
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
            	                           {id: 'gcp', prefix: 'gcp', libs: Sidebar.prototype.gcp},
+           	                           {id: 'gcp2', prefix: 'gcp2', libs: Sidebar.prototype.gcp2},
            	                           {id: 'rack', prefix: 'rack', libs: Sidebar.prototype.rack},
            	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
@@ -366,7 +373,7 @@
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
             			          {title: 'Cisco Safe', id: 'cisco_safe', image: IMAGE_PATH + '/sidebar-cisco_safe.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
-            			          {title: 'Google Cloud Platform', id: 'gcp', image: IMAGE_PATH + '/sidebar-gcp.png'},
+            			          {title: 'Google Cloud Platform', id: 'gcp2', image: IMAGE_PATH + '/sidebar-gcp2.png'},
             			          {title: 'IBM', id: 'ibm', image: IMAGE_PATH + '/sidebar-ibm.png'},
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
             			          {title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
@@ -705,6 +712,7 @@
 		this.addIBMPalette();
 		this.addAlliedTelesisPalette();
 		this.addSitemapPalette();
+		this.addGCP2Palette();
 
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;');
@@ -807,20 +815,6 @@
 				';html=1;fillColor=#000000;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
 		}
 		
-		for (var i = 0; i < gcp.length; i++)
-		{
-			if (gcp[i].toLowerCase() === 'cards')
-			{
-				this.addGoogleCloudPlatformCardsPalette();
-			}
-			else
-			{
-				this.addStencilPalette('gcp' + gcp[i], 'GCP / ' + gcp[i],
-						dir + '/gcp/' + gcp[i].toLowerCase().replace(/ /g, '_') + '.xml',
-						';html=1;outlineConnect=0;fillColor=#4387FD;gradientColor=#4683EA;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
-			}
-		}
-
 		for (var i = 0; i < rack.length; i++)
 		{
 			if (rack[i].toLowerCase() === 'general')
