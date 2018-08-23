@@ -1,6 +1,5 @@
 (function()
 {
-	// Adds mockup shapes
 	Sidebar.prototype.addVeeamPalette = function()
 	{
 		this.addVeeamDataCenterPalette();

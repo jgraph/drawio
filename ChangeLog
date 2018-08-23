@@ -1,3 +1,12 @@
+23-AUG-2018: 9.0.8
+
+- Fixes XSS vulnerability in Trello Power-Up
+- Fixes GCP service cards icon set
+
+22-AUG-2018: 9.0.7
+
+- Add expanded product and service cards to GCP icon set
+
 17-AUG-2018: 9.0.6
 
 - Changes to GCP icon set
