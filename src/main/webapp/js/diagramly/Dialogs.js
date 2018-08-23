@@ -2711,28 +2711,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename')) + ':');
 	}
 	
-	var ext = '.xml';
-	
-	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
-	{
-		ext = editorUi.drive.extension;
-	}
-	else if (editorUi.mode == App.MODE_DROPBOX && editorUi.dropbox != null)
-	{
-		ext = editorUi.dropbox.extension;
-	}
-	else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
-	{
-		ext = editorUi.oneDrive.extension;
-	}
-	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
-	{
-		ext = editorUi.gitHub.extension;
-	}
-	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
-	{
-		ext = editorUi.trello.extension;
-	}
+	var ext = '.dio';
 	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
@@ -3674,32 +3653,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			if (title.lastIndexOf('.') < 0 && (!showButtons || idx < 0))
 			{
 				newMode = (newMode != null) ? newMode : serviceSelect.value;
-				var ext = '';
-				
-				if (newMode == App.MODE_GOOGLE)
-				{
-					ext = editorUi.drive.extension;
-				}
-				else if (newMode == App.MODE_GITHUB)
-				{
-					ext = editorUi.gitHub.extension;
-				}
-				else if (newMode == App.MODE_TRELLO)
-				{
-					ext = editorUi.trello.extension;
-				}
-				else if (newMode == App.MODE_DROPBOX)
-				{
-					ext = editorUi.dropbox.extension;
-				}
-				else if (newMode == App.MODE_ONEDRIVE)
-				{
-					ext = editorUi.oneDrive.extension;
-				}
-				else if (newMode == App.MODE_DEVICE)
-				{
-					ext = '.xml';
-				}
+				var ext = 'dio';
 				
 				if (idx >= 0)
 				{
