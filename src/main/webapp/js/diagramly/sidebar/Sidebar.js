@@ -21,7 +21,7 @@
 	/**
 	 * Aliases for IDs in the libs parameter.
 	 */
-	Sidebar.prototype.libAliases = {'aws2': 'aws3'};
+	Sidebar.prototype.libAliases = {'aws2': 'aws3', 'gcp' : 'gcp2'};
 	
 	/**
 	 * 
@@ -51,7 +51,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.gcp2 = ['Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards'];
+	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards'];
 	
 	/**
 	 *
