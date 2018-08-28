@@ -1450,7 +1450,7 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 /**
  * Returns the size of the page format scaled with the page size.
  */
-Graph.prototype.openLink = function(href, target)
+Graph.prototype.openLink = function(href, target, allowOpener)
 {
 	var result = window;
 	
@@ -1479,6 +1479,11 @@ Graph.prototype.openLink = function(href, target)
 		else
 		{
 			result = window.open(href, target);
+			
+			if (result != null && !allowOpener)
+			{
+				result.opener = null;
+			}
 		}
 	}
 	
@@ -5626,6 +5631,7 @@ if (typeof mxVertexHandler != 'undefined')
 						
 						if (href != null)
 						{
+							links[i].setAttribute('rel', 'nofollow noopener noreferrer');
 							links[i].setAttribute('href', href);
 							
 							if (beforeClick != null)
@@ -6624,6 +6630,7 @@ if (typeof mxVertexHandler != 'undefined')
 			};
 			
 			var a = document.createElement('a');
+			a.setAttribute('rel', 'nofollow noopener noreferrer');
 			a.setAttribute('href', this.getAbsoluteUrl(link));
 			a.setAttribute('title', short((this.isCustomLink(link)) ?
 				this.getLinkTitle(link) : link, 80));

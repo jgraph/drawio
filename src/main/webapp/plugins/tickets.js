@@ -102,7 +102,10 @@ Draw.loadPlugin(function(ui)
 
 	function isDeskLink(link)
 	{
-		return config != null && link.substring(0, deskDomain.length) == deskDomain;
+		var dl = deskDomain.length;
+		
+		return config != null && link.substring(0, dl) == deskDomain &&
+			link.substring(dl, dl + 18) == '/helpdesk/tickets/';
 	};
 	
 	function getIdForDeskLink(link)

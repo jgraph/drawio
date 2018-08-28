@@ -5,6 +5,7 @@
 		this.addGCP2PathsPalette();
 		this.addGCP2ZonesPalette();
 		this.addGCP2ServiceCardsPalette();
+		this.addGCP2UserDeviceCardsPalette();
 		this.addGCP2ComputePalette();
 		this.addGCP2APIPlatformEcosystemsPalette();
 		this.addGCP2IdentitySecurityPalette();
@@ -160,7 +161,101 @@
 			    bg.insert(zone12Cell);
 
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Project Zone / Cloud Service Provider');
-			})
+			}),
+			
+		    this.createVertexTemplateEntry('fillColor=#4DA1F5;strokeColor=none;shadow=1;gradientColor=none;fontSize=14;align=left;spacingLeft=50;fontColor=#ffffff;', 
+		    		1000, 40, 'Architecture: App Engine and Cloud Endpoints', 'Title bar', null, null, this.getTagsForStencil(gn, '', dt + 'title bar').join(' ')),
+		    this.createVertexTemplateEntry('fillColor=#ffffff;strokeColor=none;shadow=0;gradientColor=none;fontSize=11;align=left;spacing=10;fontColor=#;9E9E9E;verticalAlign=top;spacingTop=100;',
+		    		300, 350, 'Use this note to call out\nor clarify parts of a diagram', 'Note', null, null, this.getTagsForStencil(gn, '', dt + 'note').join(' ')),
+		    		
+			this.addEntry(dt + 'project', function()
+		   	{
+			    var bg = new mxCell('<b>Google </b>Cloud Platform', new mxGeometry(0, 0, 650, 350), 
+			    		'fillColor=#F6F6F6;strokeColor=none;shadow=0;gradientColor=none;fontSize=14;align=left;spacing=10;fontColor=#717171;9E9E9E;verticalAlign=top;spacingTop=-4;fontStyle=0;spacingLeft=40;html=1;');
+		    	bg.vertex = true;
+		    	
+			    var zone1Cell = new mxCell('', 
+			    		new mxGeometry(0, 0, 23, 20), 
+			    		'shape=mxgraph.gcp2.google_cloud_platform;fillColor=#F6F6F6;strokeColor=none;shadow=0;gradientColor=none;');
+			    zone1Cell.geometry.relative = true;
+			    zone1Cell.geometry.offset = new mxPoint(20, 10);
+			    zone1Cell.vertex = true;
+		    	bg.insert(zone1Cell);
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Project Zone');
+			}),
+
+			this.addEntry(dt + 'markers', function()
+		   	{
+				s = 'shape=ellipse;fillColor=#ffffff;strokeColor=#BDBDBD;strokeWidth=2;shadow=0;gradientColor=none;fontColor=#757575;align=center;html=1;fontStyle=1;spacingTop=-1;';
+				
+			    var icon1 = new mxCell('1', new mxGeometry(0, 0, 20, 20), s);
+			    icon1.vertex = true;
+			    var icon2 = new mxCell('2', new mxGeometry(40, 0, 20, 20), s);
+			    icon2.vertex = true;
+			    var icon3 = new mxCell('3', new mxGeometry(80, 0, 20, 20), s);
+			    icon3.vertex = true;
+			    var icon4 = new mxCell('4', new mxGeometry(120, 0, 20, 20), s);
+			    icon4.vertex = true;
+			    var icon5 = new mxCell('5', new mxGeometry(160, 0, 20, 20), s);
+			    icon5.vertex = true;
+			    var icon6 = new mxCell('6', new mxGeometry(200, 0, 20, 20), s);
+			    icon6.vertex = true;
+			    var icon7 = new mxCell('7', new mxGeometry(240, 0, 20, 20), s);
+			    icon7.vertex = true;
+			    var label1 = new mxCell('Markers to be used with the legend', new mxGeometry(0, 20, 260, 30), 
+			    		'strokeColor=none;fillColor=none;fontColor=#757575;align=left;html=1;fontStyle=0;fontSize=11;');
+			    label1.vertex = true;
+
+			   	return sb.createVertexTemplateFromCells([icon1, icon2, icon3, icon4, icon5, icon6, icon7, label1], 260, 50, 'Markers');
+			}),
+
+			this.addEntry(dt + 'markers', function()
+		   	{
+				var s = 'strokeColor=none;fillColor=none;fontColor=#757575;align=left;html=1;fontStyle=0;spacingLeft=5;fontSize=11;verticalAlign=top;whiteSpace=wrap;spacingRight=5;';
+				
+			    var bg = new mxCell('', new mxGeometry(0, 0, 600, 70), 
+	    			'fillColor=#ffffff;strokeColor=#BDBDBD;strokeWidth=1;shadow=0;gradientColor=none;');
+			    bg.vertex = true;
+				
+			    var label1 = new mxCell('1 Commit code', new mxGeometry(0, 0, 200, 30), s);
+			    label1.geometry.relative = true;
+			    label1.vertex = true;
+			    bg.insert(label1);
+			    
+			    var label2 = new mxCell('2 Detect code change', new mxGeometry(0, 0, 200, 30), s);
+			    label2.geometry.relative = true;
+			    label2.geometry.offset = new mxPoint(0, 30);
+			    label2.vertex = true;
+			    bg.insert(label2);
+			    
+			    var label3 = new mxCell('3 Build immutable image', new mxGeometry(0, 0, 200, 30), s);
+			    label3.geometry.relative = true;
+			    label3.geometry.offset = new mxPoint(200, 0);
+			    label3.vertex = true;
+			    bg.insert(label3);
+			    
+			    var label4 = new mxCell('4 Launch test instance from image', new mxGeometry(0, 0, 200, 30), s);
+			    label4.geometry.relative = true;
+			    label4.geometry.offset = new mxPoint(200, 30);
+			    label4.vertex = true;
+			    bg.insert(label4);
+			    
+			    var label5 = new mxCell('5 Run tests', new mxGeometry(0, 0, 200, 30), s);
+			    label5.geometry.relative = true;
+			    label5.geometry.offset = new mxPoint(400, 0);
+			    label5.vertex = true;
+			    bg.insert(label5);
+			    
+			    var label6 = new mxCell('6 Perform rolling update of image to autoscaler', new mxGeometry(0, 0, 200, 30), s);
+			    label6.geometry.relative = true;
+			    label6.geometry.offset = new mxPoint(400, 30);
+			    label6.vertex = true;
+			    bg.insert(label6);
+			    
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Markers');
+			}),
+
 	 	];
 		
 		this.addPalette('gcp2Zones', 'GCP / Zones', false, mxUtils.bind(this, function(content)
@@ -518,6 +613,45 @@
 		}));
 	};
 	
+	Sidebar.prototype.addGCP2UserDeviceCardsPalette = function()
+	{
+		var dt = 'gcp google cloud platform user and device cards';
+		var fns = [];
+
+		this.addGCP2UserDeviceCard('Application', 'application', 1, 0.8, 0, dt + 'application', fns);
+		this.addGCP2UserDeviceCard('Beacon', 'beacon', 0.73, 1, 0, dt + 'beacon', fns);
+		this.addGCP2UserDeviceCard('Circuit-Board', 'circuit_board', 1, 0.9, 15, dt + 'circuit board', fns);
+		this.addGCP2UserDeviceCard('Database', 'database', 1, 0.9, 0, dt + 'database db', fns);
+		this.addGCP2UserDeviceCard('Desktop', 'desktop', 1, 0.9, 0, dt + 'desktop', fns);
+		this.addGCP2UserDeviceCard('Desktop and Mobile', 'desktop_and_mobile', 1, 0.66, 15, dt + 'desktop and mobile', fns);
+		this.addGCP2UserDeviceCard('Game', 'game', 1, 0.54, 0, dt + 'game', fns);
+		this.addGCP2UserDeviceCard('Gateway', 'gateway_icon', 1, 0.44, 0, dt + 'gateway icon', fns);
+		this.addGCP2UserDeviceCard('Laptop', 'laptop', 1, 0.66, 0, dt + 'laptop', fns);
+		this.addGCP2UserDeviceCard('Lightbulb', 'lightbulb', 0.7, 1, 0, dt + 'lighbulb', fns);
+		this.addGCP2UserDeviceCard('List', 'list', 0.89, 1, 0, dt + 'list', fns);
+		this.addGCP2UserDeviceCard('Live', 'live', 0.74, 1, 0, dt + 'live', fns);
+		this.addGCP2UserDeviceCard('Local-Compute', 'compute_engine_icon', 1, 0.89, 15, dt + 'local compute', fns);
+		this.addGCP2UserDeviceCard('Mobile Devices', 'mobile_devices', 1, 0.73, 15, dt + 'mobile devices', fns);
+		this.addGCP2UserDeviceCard('Payment', 'payment', 1, 0.8, 0, dt + 'payment', fns);
+		this.addGCP2UserDeviceCard('Phone', 'phone', 0.64, 1, 0, dt + 'phone', fns);
+		this.addGCP2UserDeviceCard('Record', 'record', 1, 0.66, 0, dt + 'record', fns);
+		this.addGCP2UserDeviceCard('Report', 'report', 1, 1, 0, dt + 'report', fns);
+		this.addGCP2UserDeviceCard('Retail', 'retail', 1, 0.89, 0, dt + 'retail', fns);
+		this.addGCP2UserDeviceCard('Speaker', 'speaker', 0.7, 1, 0, dt + 'speaker', fns);
+		this.addGCP2UserDeviceCard('Storage', 'storage', 1, 0.8, 0, dt + 'storage', fns);
+		this.addGCP2UserDeviceCard('Stream', 'stream', 1, 0.82, 0, dt + 'stream', fns);
+		this.addGCP2UserDeviceCard('Users', 'users', 1, 0.63, 0, dt + 'users', fns);
+		this.addGCP2UserDeviceCard('Webcam', 'webcam', 0.5, 1, 0, dt + 'webcam', fns);
+		
+		this.addPalette('gcp2User Device Cards', 'GCP / User and Device Cards', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
 	Sidebar.prototype.addGCP2CardSet = function(label, icon, w1, w2, dt, fns)
 	{
 		var sb = this;
@@ -772,4 +906,27 @@
 			);
 	};
 
+	Sidebar.prototype.addGCP2UserDeviceCard = function(label, icon, scaleX, scaleY, h1, dt, fns)
+	{
+		var sb = this;
+		var s = 'dashed=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var label1 = label.replace('\n', ' ');
+		var label1 = label1.replace('- ', '-');
+
+		fns.push(
+			this.addEntry(dt, function()
+		   	{
+			    var bg = new mxCell(label, new mxGeometry(0, 0, 70, 85  + h1), 
+			    		'strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;rounded=1;absoluteArcSize=1;arcSize=2;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=bottom;spacingLeft=0;fontColor=#999999;fontSize=12;whiteSpace=wrap;spacingBottom=2;');
+		    	bg.vertex = true;
+			    var icon1 = new mxCell('', new mxGeometry(0.5, 0, 50 * scaleX, 50 * scaleY), s + icon + ';part=1;');
+			    icon1.geometry.relative = true;
+			    icon1.geometry.offset = new mxPoint(- scaleX * 25, 10 + (1 - scaleY) * 25);
+		    	icon1.vertex = true;
+		    	bg.insert(icon1);
+		    	
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, label1);
+			})
+		);
+	};
 })();

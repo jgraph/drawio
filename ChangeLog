@@ -1,3 +1,9 @@
+27-AUG-2018: 9.0.9
+
+- Uses mxGraph 3.9.9 beta 8
+- Adds new color palette
+- GCP stencil updates
+
 23-AUG-2018: 9.0.8
 
 - Fixes XSS vulnerability in Trello Power-Up

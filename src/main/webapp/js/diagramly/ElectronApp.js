@@ -171,10 +171,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
-			        	var path = paths[0];
-			        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
-			        	var encoding = (asImage || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
-			        		'base64' : 'utf-8';
+		        	var path = paths[0];
+		        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
+		        	var encoding = (asImage || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
+		        		'base64' : 'utf-8';
 
 					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 					{
@@ -634,10 +634,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 				this.fileObject.type = 'utf-8';
 				fn();
-			}
-	        else if (error != null)
-			{
-				error();
 			}
 		}
 		else

@@ -202,10 +202,10 @@
 	/**
 	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.openLink = function(url, target)
+	EditorUi.prototype.openLink = function(url, target, allowOpener)
 	{
 		// LATER: Replace this with direct calls to graph
-		return this.editor.graph.openLink(url, target);
+		return this.editor.graph.openLink(url, target, allowOpener);
 	};
 
 	/**
