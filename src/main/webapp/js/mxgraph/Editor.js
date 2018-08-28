@@ -337,7 +337,7 @@ Editor.prototype.editAsNew = function(xml, title)
 			}
 
 			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p +
-				((p.length > 0) ? '&' : '?') + 'client=1'));
+				((p.length > 0) ? '&' : '?') + 'client=1'), null, true);
 		}
 		else
 		{

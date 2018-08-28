@@ -88,6 +88,9 @@ html body .geDialog, html body div.mxWindow {
 	box-shadow:none;
 	color:#cccccc;
 }
+html body .geActivePage {
+	border-bottom: 3px solid #DF6C0C !important;
+}
 .geHint {
 	-webkit-box-shadow: 1px 1px 1px 0px #ccc;
 	-moz-box-shadow: 1px 1px 1px 0px #ccc;

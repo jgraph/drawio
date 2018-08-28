@@ -716,3 +716,44 @@ html td.mxWindowTitle {
  	color:rgb(112, 112, 112);
  	padding:4px;
 }
+
+.propHeader, .propRow {
+	border: 1px solid #e9e9e9;	
+}
+
+.propHeader>.propHeaderCell {
+    border-top: 0;
+    border-bottom: 0;
+    text-align: left;
+	width: 50%;
+}
+
+.propHeader>.propHeaderCell:first-child {
+    border-left: none;
+}
+
+.propHeader>.propHeaderCell:last-child {
+    border-right: none;
+}
+
+.propHeader {
+    background: #e5e5e5;
+    color: black;
+}
+
+.propRowCell {
+    border-left: 1px solid #f3f3f3;
+    width: 50%;
+}
+
+.propRow>.propRowCell {
+    background: #fff;
+}
+
+.propRowAtl>.propRowCell {
+    background: #fcfcfc;
+}
+
+.propEditor input:invalid {
+  border: 1px solid red;
+}

@@ -3868,7 +3868,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 			pre();
 		}
 		
-		editorUi.openLink(url);
+		editorUi.openLink(url, null, true);
 	});
 	wndBtn.className = 'geBtn gePrimaryBtn';
 	wndBtn.style.width = replaceBtn.style.width;

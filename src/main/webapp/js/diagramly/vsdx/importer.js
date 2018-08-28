@@ -823,6 +823,14 @@ var com;
                         }
                         ;
                     }
+                    
+                    /* put */ (function (m, k, v) { if (m.entries == null)
+                    m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                    if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+                        m.entries[i].value = v;
+                        return;
+                    } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, shape.getId()), group);
+                    
                     return group;
                 };
                 mxVsdxCodec.rotatedEdgePoint = function (pt, rotation, cx, cy) {
