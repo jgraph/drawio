@@ -2976,7 +2976,7 @@ App.prototype.saveFile = function(forceDialog)
 						
 						// Do not use a filename to use undefined mode
 						window.openFile.setData(this.getFileData(true));
-						this.openLink(this.getUrl(window.location.pathname));
+						this.openLink(this.getUrl(window.location.pathname), null, true);
 					}
 					else if (prev != mode)
 					{

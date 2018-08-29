@@ -163,22 +163,22 @@ window.uiTheme = window.uiTheme || (function()
 	}
 	
 	// Uses minimal theme on small screens
-//	try
-//	{
-//		if (ui == null)
-//		{
-//	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-//	
-//	        if (iw <= 414)
-//	        {
-//	        	ui = 'min';
-//	        }
-//		}
-//	}
-//	catch (e)
-//	{
-//		// ignore
-//	}
+	try
+	{
+		if (ui == null)
+		{
+	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+	        if (iw <= 414)
+	        {
+	        	ui = 'min';
+	        }
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
 	
 	return ui;
 })();
