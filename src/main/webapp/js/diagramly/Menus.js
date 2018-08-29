@@ -399,7 +399,7 @@
 				var filename = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
 				editorUi.openLink(window.location.protocol + '//' + window.location.host + '/?create=drawdata&' +
 						((editorUi.mode == App.MODE_DROPBOX) ? 'mode=dropbox&' : '') +
-						'title=' + encodeURIComponent(filename));
+						'title=' + encodeURIComponent(filename), null, true);
 			}
 		});
 
@@ -889,12 +889,12 @@
 				if (!editorUi.isOffline() && !EditorUi.isElectronApp &&
 					!navigator.standalone && urlParams['embed'] != '1')
 				{
-					this.addMenuItems(menu, ['download'], parent);
+					this.addMenuItems(menu, ['downloadDesktop'], parent);
 				}
 				
 				if (!navigator.standalone && urlParams['embed'] != '1')
 				{
-					this.addMenuItems(menu, ['offline'], parent);
+					this.addMenuItems(menu, ['useOffline'], parent);
 				}
 				
 				this.addMenuItems(menu, ['-', 'about'], parent);
@@ -1932,12 +1932,12 @@
 			this.addMenuItems(menu, ['publishLink'], parent);
 		})));
 
-		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
+		editorUi.actions.put('useOffline', new Action(mxResources.get('useOffline') + '...', function()
 		{
 			editorUi.openLink('https://app.draw.io/')
 		}));
 		
-		editorUi.actions.put('download', new Action(mxResources.get('download') + '...', function()
+		editorUi.actions.put('downloadDesktop', new Action(mxResources.get('downloadDesktop') + '...', function()
 		{
 			editorUi.openLink('https://get.draw.io/')
 		}));
@@ -2630,10 +2630,10 @@
 				else
 				{
 					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-', 'rename'], parent);
-					
+
 					if (editorUi.isOfflineApp())
 					{
-						if (!editorUi.isOffline())
+						if (navigator.onLine && urlParams['stealth'] != '1')
 						{
 							this.addMenuItems(menu, ['upload'], parent);
 						}

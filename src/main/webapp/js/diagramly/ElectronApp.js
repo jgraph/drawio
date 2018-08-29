@@ -81,7 +81,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 		var editorUi = this.editorUi;
 
-		editorUi.actions.put('offline', new Action(mxResources.get('online') + '...', function()
+		editorUi.actions.put('useOffline', new Action(mxResources.get('useOffline') + '...', function()
 		{
 			editorUi.openLink('https://www.draw.io/')
 		}));
