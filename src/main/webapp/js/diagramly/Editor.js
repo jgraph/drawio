@@ -1017,6 +1017,33 @@
 			{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
 			{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
 
+		StyleFormatPanel.prototype.findCommonProperties = function(cell, properties, addAll)
+		{
+			if (properties == null) return;
+			
+			var view = this.editorUi.editor.graph.view;
+			var state = view.getState(cell);
+			
+			if (state != null)
+			{
+				var custProperties = state.shape.customProperties;
+				
+				for (var i = 0; custProperties && i < custProperties.length; i++)
+				{
+					var p = custProperties[i];
+					
+					if (addAll)
+					{
+						properties[p.name] = p;
+					}
+					else if (properties[p.name] == null || (properties[p.name] != null && properties[p.name].type != p.type))
+					{
+						delete properties[p.name];
+					}
+				}
+			}
+		};
+		
 		/**
 		 * Adds predefiend styles.
 		 */
@@ -1035,7 +1062,24 @@
 			styleFormatPanelInit.apply(this, arguments);
 
 			if (urlParams['properties'] == '1')
-				this.container.appendChild(this.addProperties(this.createPanel(), sstate));
+			{
+				var properties = {};
+				var vertices = sstate.vertices;
+				var edges = sstate.edges;
+				
+				for (var i = 0; i < vertices.length; i++) 
+				{
+					this.findCommonProperties(vertices[i], properties, i == 0);
+				}
+				
+				for (var i = 0; i < edges.length; i++) 
+				{
+					this.findCommonProperties(edges[i], properties, vertices.length == 0 && i == 0);
+				}
+
+				if (Object.getOwnPropertyNames(properties).length > 0)
+					this.container.appendChild(this.addProperties(this.createPanel(), properties, sstate));
+			}
 		};
 
 		/**
@@ -1075,7 +1119,7 @@
 		/**
 		 * Create Properties Panel
 		 */
-		StyleFormatPanel.prototype.addProperties = function(div, state)
+		StyleFormatPanel.prototype.addProperties = function(div, properties, state)
 		{
 			var that = this;
 			var graph = this.editorUi.editor.graph;
@@ -1147,13 +1191,13 @@
 				return input;
 			};
 			
-			function createPropertyRow(pName, pDiplayName, pValue, pType, isOdd)
+			function createPropertyRow(pName, pDiplayName, pValue, pType, pEnumList, isOdd)
 			{
 				var row = document.createElement('tr');
 				row.className = "propRow" + (isOdd? "Alt" : "");
 				var td = document.createElement('td');
 				td.className = "propRowCell";
-				td.innerHTML = mxUtils.htmlEntities(pDiplayName);
+				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
 				row.appendChild(td);
 				td = document.createElement('td');
 				td.className = "propRowCell";
@@ -1166,15 +1210,15 @@
 				{
 					td.appendChild(createCheckbox(pName, pValue));
 				}
-				else if (pType.type == "enum")
+				else if (pType == "enum")
 				{
-					for (var i = 0; i < pType.options.length; i++)
+					for (var i = 0; i < pEnumList.length; i++)
 					{
-						var op = pType.options[i];
+						var op = pEnumList[i];
 						
 						if (op.val == pValue)
 						{
-							td.innerHTML = mxUtils.htmlEntities(op.dispName);
+							td.innerHTML = mxUtils.htmlEntities(mxResources.get(op.dispName, null, op.dispName));
 							break;
 						}
 					}
@@ -1184,16 +1228,16 @@
 						var select = document.createElement('select');
 						setElementPos(td, select);
 
-						for (var i = 0; i < pType.options.length; i++)
+						for (var i = 0; i < pEnumList.length; i++)
 						{
-							var op = pType.options[i];
+							var op = pEnumList[i];
 							var opElem = document.createElement('option');
 							opElem.value = mxUtils.htmlEntities(op.val);
-							opElem.innerHTML = mxUtils.htmlEntities(op.dispName);
+							opElem.innerHTML = mxUtils.htmlEntities(mxResources.get(op.dispName, null, op.dispName));
 							select.appendChild(opElem);
 						}
 						
-						select.value = mxUtils.htmlEntities(pValue);
+						select.value = pValue;
 						
 						document.body.appendChild(select);
 						
@@ -1204,15 +1248,16 @@
 						
 						mxEvent.addListener(select, 'change', function()
 						{
-							applyStyleVal(pName, select.value);
-							td.innerHTML = mxUtils.htmlEntities(select.value);
+							var newVal = mxUtils.htmlEntities(select.value);
+							applyStyleVal(pName, newVal);
+							td.innerHTML = newVal;
 						});
 						select.focus();
 					}));
 				}
 				else
 				{
-					td.innerHTML = mxUtils.htmlEntities(pValue);
+					td.innerHTML = pValue;
 					mxEvent.addListener(td, 'click', mxUtils.bind(that, function()
 					{
 						var input = document.createElement('input');
@@ -1233,9 +1278,9 @@
 						
 						function setInputVal()
 						{
-							var newVal = pType == "int"? parseInt(input.value) + '' : input.value;
+							var newVal = mxUtils.htmlEntities(pType == "int"? parseInt(input.value) + '' : input.value);
 							applyStyleVal(pName, newVal);
-							td.innerHTML = mxUtils.htmlEntities(newVal);
+							td.innerHTML = newVal;
 						}
 						
 						mxEvent.addListener(input, 'change', setInputVal);
@@ -1279,36 +1324,12 @@
 			grid.appendChild(hrow);
 			
 			var isOdd = false;
-			for (var key in state.style)
+			for (var key in properties)
 			{
-				var pValue = state.style[key];
-				
-				//skip non-common properties (which are	set to empty string)
-				if (pValue == "") continue;
-				
-				var type = "string";
+				var pValue = mxUtils.htmlEntities(state.style[key]);
+				var prop = properties[key];
 
-				if (typeof pValue == "string" && pValue.indexOf("#") == 0 && pValue.length == 7)
-				{
-					type = "color";
-				}
-				else if (pValue == '1')
-				{
-					type = 'bool';
-				}
-				else if (parseInt(pValue) == parseFloat(pValue))
-				{
-					type = "int";
-				}
-				else if (isFinite(parseFloat(pValue)))
-				{
-					type = "float";
-				}
-				else if (pValue == 'middle')
-				{
-					type = {type: 'enum', options: [{val: 'middle', dispName: 'Middle'}, {val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]};
-				}
-				grid.appendChild(createPropertyRow(key, key.charAt(0).toUpperCase() + key.substr(1), pValue, type, isOdd));
+				grid.appendChild(createPropertyRow(key, prop.dispName, pValue, prop.type, prop.enumList, isOdd));
 				isOdd = !isOdd;
 			}
 			

@@ -747,7 +747,7 @@
 		// Space savers
 		var sb = this;
 		var gn = 'mxgraph.veeam.3d';
-		var dt = 'veeam 3d three dimension vmware virtual machine ';
+		var dt = 'veeam 3d vmware virtual machine ';
 		
 		var w = 2.0;
 		var h = 2.0;
