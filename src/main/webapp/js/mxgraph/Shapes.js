@@ -1750,7 +1750,7 @@
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
 	
-	// Lollipop Shape
+	// Provided Interface Shape (aka Lollipop)
 	function LollipopShape()
 	{
 		mxShape.call(this);
@@ -1774,7 +1774,7 @@
 
 	mxCellRenderer.registerShape('lollipop', LollipopShape);
 
-	// Lollipop Shape
+	// Required Interface Shape
 	function RequiresShape()
 	{
 		mxShape.call(this);
@@ -1803,6 +1803,52 @@
 	};
 
 	mxCellRenderer.registerShape('requires', RequiresShape);
+
+	// Required Interface Shape
+	function RequiredInterfaceShape()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(RequiredInterfaceShape, mxShape);
+	
+	RequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+
+		c.begin();
+		c.moveTo(0, 0);
+		c.quadTo(w, 0, w, h / 2);
+		c.quadTo(w, h, 0, h);
+		c.end();
+		c.stroke();
+	};
+
+	mxCellRenderer.registerShape('requiredInterface', RequiredInterfaceShape);
+
+	// Provided and Required Interface Shape
+	function ProvidedRequiredInterfaceShape()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(ProvidedRequiredInterfaceShape, mxShape);
+	ProvidedRequiredInterfaceShape.prototype.inset = 2;
+	ProvidedRequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		var inset = parseFloat(mxUtils.getValue(this.style, 'inset', this.inset)) + this.strokewidth;
+		c.translate(x, y);
+
+		c.ellipse(0, inset, w - 2 * inset, h - 2 * inset);
+		c.fillAndStroke();
+		
+		c.begin();
+		c.moveTo(w / 2, 0);
+		c.quadTo(w, 0, w, h / 2);
+		c.quadTo(w, h, w / 2, h);
+		c.end();
+		c.stroke();
+	};
+
+	mxCellRenderer.registerShape('providedRequiredInterface', ProvidedRequiredInterfaceShape);
 	
 	// Component shape
 	function ComponentShape()
@@ -3912,4 +3958,8 @@
 	  	                             new mxConnectionConstraint(new mxPoint(1, 0.5), false),
 	  	                             new mxConnectionConstraint(new mxPoint(0.7, 0.1), false),
 	  	                             new mxConnectionConstraint(new mxPoint(0.7, 0.9), false)];
+	RequiredInterfaceShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+          new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
+	ProvidedRequiredInterfaceShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+        new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
 })();

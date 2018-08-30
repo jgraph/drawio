@@ -38,6 +38,17 @@ function mxBpmnShape(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxBpmnShape, mxShape);
 
+mxBpmnShape.prototype.customProperties = [
+	{name: 'fillColor', dispName: 'Fill Color', type: 'color'},
+	{name: 'rounded', dispName: 'Rounded', type: 'bool'},
+	{name: 'strokeWidth', dispName: 'Stroke Width', type: 'int'},
+	{name: 'floatVal', dispName: 'Float Value', type: 'float'},
+	{name: 'fontFamily', dispName: 'Font Family', type: 'string'},
+	{name: 'verticalAlign', dispName: 'Vertical Align', type: 'enum', 
+		enumList: [{val: 'middle', dispName: 'Middle'}, {val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]
+	},
+];
+
 mxBpmnShape.prototype.eventTypeEnum = { 
 		START_STANDARD : 'standard', 
 		EVENT_SP_INT : 'eventInt', 
