@@ -1,3 +1,7 @@
+31-AUG-2018: 9.1.2
+
+- Allows empty referer for proxy requests
+
 30-AUG-2018: 9.1.1
 
 - Simpler provided/required interface shapes

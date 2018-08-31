@@ -184,7 +184,11 @@ app.on('ready', e =>
     
     win.webContents.on('did-finish-load', function()
     {
-        win.webContents.send('args-obj', program)
+        win.webContents.send('args-obj', program);
+        
+        win.webContents.setZoomFactor(1);
+        win.webContents.setVisualZoomLevelLimits(1, 1);
+        win.webContents.setLayoutZoomLevelLimits(0, 0);
     });
 	
 	let template = [{

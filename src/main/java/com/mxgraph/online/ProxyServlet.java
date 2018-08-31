@@ -71,81 +71,67 @@ public class ProxyServlet extends HttpServlet
 				request.setCharacterEncoding("UTF-8");
 				response.setCharacterEncoding("UTF-8");
 
-				if (dom != null)
+				URL url = new URL(urlParam);
+				URLConnection connection = url.openConnection();
+				OutputStream out = response.getOutputStream();
+				response.setHeader("Cache-Control",
+						"private, max-age=86400");
+
+				// Workaround for 451 response from Iconfinder CDN
+				connection.setRequestProperty("User-Agent", "draw.io");
+
+				if (dom != null && dom.length() > 0)
 				{
-					URL url = new URL(urlParam);
-					URLConnection connection = url.openConnection();
-					OutputStream out = response.getOutputStream();
-					response.setHeader("Cache-Control",
-							"private, max-age=86400");
+					response.addHeader("Access-Control-Allow-Origin", dom);
+				}
 
-					// Workaround for 451 response from Iconfinder CDN
-					connection.setRequestProperty("User-Agent", "draw.io");
+				// Status code pass-through and follow redirects
+				if (connection instanceof HttpURLConnection)
+				{
+					((HttpURLConnection) connection)
+							.setInstanceFollowRedirects(true);
+					int status = ((HttpURLConnection) connection)
+							.getResponseCode();
+					int counter = 0;
 
-					if (dom.length() > 0)
+					// Follows a maximum of 2 redirects 
+					while (counter++ < 2
+							&& (status == HttpURLConnection.HTTP_MOVED_PERM
+									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
-						response.addHeader("Access-Control-Allow-Origin", dom);
-					}
-
-					// Status code pass-through and follow redirects
-					if (connection instanceof HttpURLConnection)
-					{
+						url = new URL(
+								connection.getHeaderField("Location"));
+						connection = url.openConnection();
 						((HttpURLConnection) connection)
 								.setInstanceFollowRedirects(true);
-						int status = ((HttpURLConnection) connection)
+
+						// Workaround for 451 response from Iconfinder CDN
+						connection.setRequestProperty("User-Agent",
+								"draw.io");
+						status = ((HttpURLConnection) connection)
 								.getResponseCode();
-						int counter = 0;
-
-						// Follows a maximum of 2 redirects 
-						while (counter++ < 2
-								&& (status == HttpURLConnection.HTTP_MOVED_PERM
-										|| status == HttpURLConnection.HTTP_MOVED_TEMP))
-						{
-							url = new URL(
-									connection.getHeaderField("Location"));
-							connection = url.openConnection();
-							((HttpURLConnection) connection)
-									.setInstanceFollowRedirects(true);
-
-							// Workaround for 451 response from Iconfinder CDN
-							connection.setRequestProperty("User-Agent",
-									"draw.io");
-							status = ((HttpURLConnection) connection)
-									.getResponseCode();
-						}
-
-						response.setStatus(status);
-
-						// Copies input stream to output stream
-						InputStream is = connection.getInputStream();
-						byte[] head = (contentAlwaysAllowed(urlParam))
-								? emptyBytes
-								: Utils.checkStreamContent(is);
-						response.setContentType("application/octet-stream");
-						String base64 = request.getParameter("base64");
-						copyResponse(is, out, head,
-								base64 != null && base64.equals("1"));
 					}
 
-					out.flush();
-					out.close();
+					response.setStatus(status);
 
-					log.log(Level.FINEST, "processed proxy request: url="
-							+ ((urlParam != null) ? urlParam : "[null]")
-							+ ", referer=" + ((ref != null) ? ref : "[null]")
-							+ ", user agent=" + ((ua != null) ? ua : "[null]"));
+					// Copies input stream to output stream
+					InputStream is = connection.getInputStream();
+					byte[] head = (contentAlwaysAllowed(urlParam))
+							? emptyBytes
+							: Utils.checkStreamContent(is);
+					response.setContentType("application/octet-stream");
+					String base64 = request.getParameter("base64");
+					copyResponse(is, out, head,
+							base64 != null && base64.equals("1"));
 				}
-				else
-				{
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					log.log(Level.SEVERE,
-							"proxy request with invalid referer: url="
-									+ ((urlParam != null) ? urlParam : "[null]")
-									+ ", referer="
-									+ ((ref != null) ? ref : "[null]")
-									+ ", user agent="
-									+ ((ua != null) ? ua : "[null]"));
-				}
+
+				out.flush();
+				out.close();
+
+				log.log(Level.FINEST, "processed proxy request: url="
+						+ ((urlParam != null) ? urlParam : "[null]")
+						+ ", referer=" + ((ref != null) ? ref : "[null]")
+						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
 			}
 			catch (UnknownHostException | FileNotFoundException e)
 			{
