@@ -1,0 +1,540 @@
+<html>
+<head>
+	<style type="text/css">
+		.templateDlg {
+			width: 987px;
+			height: 712px;
+		}
+		.templateDlg ::-webkit-scrollbar {
+		    width:12px;
+		    height:12px;
+		}
+		.templateDlg ::-webkit-scrollbar-track {
+			background:whiteSmoke;
+			-webkit-box-shadow:inset 0 0 4px rgba(0,0,0,0.1);
+		}
+		.templateDlg ::-webkit-scrollbar-thumb {
+			background:#c5c5c5;
+		    border-radius:10px;
+			border:whiteSmoke solid 3px;
+		}
+		.templateDlg ::-webkit-scrollbar-thumb:hover {
+			background:#b5b5b5;
+		}
+		
+		.tempDlgHeader {
+			box-sizing: border-box;
+			height: 62px;
+			width: 100%;
+			border: 1px solid #CCCCCC;
+			border-radius: 5px 5px 0 0;
+			background-color: #F5F5F5;
+		}
+		.headerLogo {
+			height: 34px;
+			margin: 14px 14px 14px 20px;
+		}
+		.searchBox {
+		    color:#888888;
+		    background:url("/images/icon-search.svg") no-repeat;
+			background-color: #FFFFFF;
+			background-position: 15px;
+			height: 40px;
+			width: 40%;
+			max-width: 400px;
+			border: 1px solid #CCCCCC;
+			border-radius: 3px;
+		    float:right;
+		    font-family:Arial,Helvetica,sans-serif;
+		    font-size:15px;
+		    line-height:36px;
+		    margin: 11px 36px 0 0;
+		    outline:medium none;
+		    padding:0 0 0 36px;
+		    text-shadow:1px 1px 0 white;
+		}
+		.templatesList {
+			box-sizing: border-box;
+			float: left;
+			height: calc(100% - 118px);
+			width: 20%;
+			border: 1px solid #CCCCCC;
+			background-color: #FFFFFF;
+			display: inline-block;
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		.tempDlgContent {
+			box-sizing: border-box;
+			float: right;
+			height: calc(100% - 118px);
+			width: 80%;
+			border: 1px solid #CCCCCC;
+			background-color: #FFFFFF;
+			display: inline-block;
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		.tempDlgFooter {
+			box-sizing: border-box;
+			height: 52px;
+			width: 100%;
+			border: 1px solid #CCCCCC;
+			border-radius: 0 0 5px 5px;
+			background-color: #F5F5F5;
+			text-align: right;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			padding-top: 11px;
+		}
+		.createBtn {
+			display: inline-block;
+			width: 67px;
+		    border-radius: 3px;
+		    background-color: #3D72AD;
+		    padding: 6px;
+		    text-align: center;
+		    color: #fff;
+		    cursor: pointer;
+		}
+		.cancelBtn {
+			display: inline-block;
+			width: 67px;
+		    padding: 6px;
+		    text-align: center;
+		    color: #3D72AD;
+		    cursor: pointer;
+		}
+		.cancelBtn:active, .createBtn:active, .showAllBtn:active {
+			transform: translateY(2px);
+		}
+		.newDiagramlbl {
+			height: 17px;
+			color: #333333;
+			font-family: Helvetica;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 17px;
+			padding: 25px 0 0 20px;
+			cursor: pointer;
+		}
+		.hLine {
+			height: 1px;
+			width: calc(100% - 22px);
+			background-color: #CCCCCC;
+			margin: 20px 0 0 11px;
+		}
+		.templatesLbl {
+			height: 17px;
+			color: #6D6D6D;
+			font-family: Helvetica;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 17px;
+			text-transform: uppercase;
+			margin: 20px 0 3px 20px;
+		}
+		.templateCatLink {
+			height: 17px;
+			color: #3D72AD;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			margin: 12px 0 0 20px;
+			cursor: pointer;
+		}
+		.newDiagramCat {
+			height: 280px;
+			width: 100%;
+			background-color: #555555;
+		}
+		.newDiagramCatLbl {
+			height: 17px;
+			color: #FFFFFF;
+			font-family: Helvetica;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 17px;
+			padding: 25px 0 0 20px;
+			text-transform: uppercase;
+		}
+		.newDiagramCatList {
+			width: 100%;
+			height: 190px;
+			padding-left: 9px;
+			box-sizing: border-box;
+			overflow-y: auto;
+			overflow-x: hidden; 
+		}
+		.newDiagramCatFooter {
+			width: 100%;
+		}
+		.showAllBtn {
+			width: 78px;
+			border: 1px solid #777777;
+			border-radius: 3px;
+			cursor: pointer;
+			text-align: center;
+			color: #DDDDDD;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			padding: 4px;
+			float: right;
+			margin-right: 30px;
+		}
+		.newDiagramCatItem {
+			height: 155px;
+			width: 134px;
+			padding: 18px 6px 0 9px;
+			display: inline-block;
+		}
+		
+		.newDiagramCatItemImg {
+			box-sizing: border-box;
+			height: 134px;
+			width: 134px;
+			border: 1px solid #CCCCCC;
+			border-radius: 3px;
+			background-color: #FFFFFF;
+			display:table-cell;
+			vertical-align:middle;
+			text-align:center;
+			cursor: pointer;
+		}
+
+		.newDiagramCatItemActive {
+			border: 4px solid #3D72AD;
+		}
+		
+		.newDiagramCatItemLbl {
+			height: 17px;
+			width: 100%;
+			color: #FFFFFF;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			text-align: center;
+			padding-top: 4px;
+			cursor: pointer;
+		}
+		
+		.diagramsList {
+			box-sizing: border-box;
+			width: 100%;
+			min-height: calc(100% - 280px);
+			padding-left: 9px;
+			box-sizing: border-box;
+			background-color: #E5E5E5;
+		}
+		
+		.diagramsListHeader {
+			width: 100%;
+		    height: 45px;
+			padding: 18px 20px 0 11px;
+			box-sizing: border-box;
+		}
+		.diagramsListTitle {
+			box-sizing: border-box;
+			height: 17px;
+			color: #666666;
+			font-family: Helvetica;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 17px;
+			text-transform: uppercase;
+			padding-top: 5px;
+			display: inline-block;
+		}
+		.diagramsListBtns {
+			float: right;
+			margin-top: -9px;
+		}		
+		.radioBtn {
+			box-sizing: border-box;
+			border: 1px solid #CCCCCC;
+			border-radius: 3px;
+			background-color: #555555;
+			display: inline-block;
+			color: #FFFFFF;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			text-align: center;
+			padding: 4px;
+			cursor: pointer;
+		}
+		.radioBtnActive {
+			background-color: #FFFFFF;
+			color: #333333;
+		}
+		.radioBtnLarge {
+			height: 27px;
+			width: 120px;
+		}
+		/* TODO is there a better way for these buttons */
+		.radioBtnSmall {
+			position: relative;
+			top: 9px;
+			height: 27px;
+			width: 27px;
+		}
+		.radioBtnSmall img {
+			position: absolute;
+			top: 6px;
+			left: 6px;
+			height: 13px;
+			width: 13px;
+		}
+		.spacer {
+		    display: inline-block;
+			width: 10px;
+		}
+		.diagramTile {
+			height: 152px;
+			width: 130px;
+			padding: 20px 7px 0 10px;
+			display: inline-block;
+			position: relative;
+		}
+		
+		.diagramTileImg {
+			box-sizing: border-box;
+			height: 130px;
+			width: 130px;
+			border: 1px solid #CCCCCC;
+			border-radius: 3px;
+			background-color: #FFFFFF;
+			display:table-cell;
+			vertical-align:middle;
+			text-align:center;
+		}
+		
+		.diagramTileImg img{
+			max-width: 90%;
+		    max-height: 90%;
+		    cursor: pointer;
+		}
+		
+		.diagramTileActive {
+			border: 4px solid #3D72AD;
+		}
+		
+		.diagramTileLbl {
+			height: 17px;
+			width: 100%;
+			color: #333333;
+			font-family: Helvetica;
+			font-size: 14px;
+			line-height: 17px;
+			text-align: center;
+			padding-top: 5px;
+			cursor: pointer;
+		}
+		.diagramPreviewBtn {
+			position: absolute;
+			top: 28px;
+			right: 15px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+<div class="templateDlg">
+	<div class="tempDlgHeader">
+		<img src="/images/draw.io-logo.svg" class="headerLogo">
+		<input type="search" class="searchBox" placeholder="Search">
+	</div>
+	<div class="templatesList">
+		<div class="newDiagramlbl">New Diagram</div>
+		<div class="hLine"></div>
+		<div class="templatesLbl">Templates</div>
+		<div class="templateCatLink">Business</div>
+		<div class="templateCatLink">Charts</div>
+		<div class="templateCatLink">Engineering</div>
+		<div class="templateCatLink">Flowcharts</div>
+		<div class="templateCatLink">Mincmaps</div>
+		<div class="templateCatLink">Mockups</div>
+		<div class="templateCatLink">Business</div>
+		<div class="templateCatLink">Charts</div>
+		<div class="templateCatLink">Engineering</div>
+		<div class="templateCatLink">Flowcharts</div>
+		<div class="templateCatLink">Mincmaps</div>
+		<div class="templateCatLink">Mockups</div>
+		<div class="templateCatLink">Business</div>
+		<div class="templateCatLink">Charts</div>
+		<div class="templateCatLink">Engineering</div>
+		<div class="templateCatLink">Flowcharts</div>
+		<div class="templateCatLink">Mincmaps</div>
+		<div class="templateCatLink">Mockups</div>
+		<div class="templateCatLink">Business</div>
+		<div class="templateCatLink">Charts</div>
+		<div class="templateCatLink">Engineering</div>
+		<div class="templateCatLink">Flowcharts</div>
+		<div class="templateCatLink">Mincmaps</div>
+		<div class="templateCatLink">Mockups</div>
+		<div class="templateCatLink">Business</div>
+		<div class="templateCatLink">Charts</div>
+		<div class="templateCatLink">Engineering</div>
+		<div class="templateCatLink">Flowcharts</div>
+		<div class="templateCatLink">Mincmaps</div>
+		<div class="templateCatLink">Mockups</div>
+	</div>
+	<div class="tempDlgContent">
+		<div class="newDiagramCat">
+			<div class="newDiagramCatLbl">New Diagram</div>
+			<div class="newDiagramCatList">
+				<div class="newDiagramCatItem">
+					<div class="newDiagramCatItemImg newDiagramCatItemActive">
+						<img src="/images/icon-plus.svg">
+					</div>
+					<div class="newDiagramCatItemLbl">
+						Basic
+					</div>
+				</div>
+				<div class="newDiagramCatItem">
+					<div class="newDiagramCatItemImg">
+						<img src="/images/icon-flowchart.svg">
+					</div>
+					<div class="newDiagramCatItemLbl">
+						Flowchart
+					</div>
+				</div>
+				<div class="newDiagramCatItem">
+					<div class="newDiagramCatItemImg">
+						<img src="/images/icon-uml-erd.svg">
+					</div>
+					<div class="newDiagramCatItemLbl">
+						UML &amp; ERD
+					</div>
+				</div>
+				<div class="newDiagramCatItem">
+					<div class="newDiagramCatItemImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="newDiagramCatItemLbl">
+						Network
+					</div>
+				</div>
+				<div class="newDiagramCatItem">
+					<div class="newDiagramCatItemImg">
+						<img src="/images/icon-mind-map.svg">
+					</div>
+					<div class="newDiagramCatItemLbl">
+						Mind map
+					</div>
+				</div>
+			</div>
+			<div class="newDiagramCatFooter">
+				<div class="showAllBtn">+ Show all</div>
+			</div>
+		</div>
+		<div class="diagramsList">
+			<div class="diagramsListHeader">
+				<div class="diagramsListTitle">All Recent Diagrams</div>
+				<div class="diagramsListBtns">
+					<div class="radioBtn radioBtnActive radioBtnLarge">
+						<img src="/images/my-diagrams.svg"> My diagrams
+					</div><div class="radioBtn radioBtnLarge">
+						<img src="/images/all-diagrams.svg"> All diagrams
+					</div><div class="spacer"> </div><div class="radioBtn radioBtnSmall">
+						<img src="/images/tiles.svg">
+					</div><div class="radioBtn radioBtnActive radioBtnSmall">
+						<img src="/images/list.svg">
+					</div>
+				</div>
+			</div>
+			<div class="diagramsTiles">
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/google-drive-connector-atlas.png">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/osa_drive-harddisk.png">
+					</div>
+					<div class="diagramTileLbl">
+						Network Diagram
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg diagramTileActive">
+						<img src="/images/youtube.png">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/sidebar-webIcons.png">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+				<div class="diagramTile">
+					<div class="diagramTileImg">
+						<img src="/images/icon-network.svg">
+					</div>
+					<div class="diagramTileLbl">
+						Network
+					</div>
+					<img src="/images/icon-search.svg" class="diagramPreviewBtn">
+				</div>
+			</div>
+		</div>
+	</div>
+	<br style="clear:both;"/>
+	<div class="tempDlgFooter">
+		<div class="createBtn">Create</div>
+		<div class="cancelBtn">Cancel</div>
+	</div>
+</div>
+</body>
+</html>

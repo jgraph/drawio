@@ -809,6 +809,209 @@
 		};
 	}
 
+	var AddCustomPropertyDialog = function(editorUi, callback)
+	{
+		var row, td;
+		
+		var table = document.createElement('table');
+		var tbody = document.createElement('tbody');
+		table.setAttribute('cellpadding', (mxClient.IS_SF) ? '0' : '2');
+		
+		row = document.createElement('tr');
+		
+		td = document.createElement('td');
+		td.style.fontSize = '10pt';
+		td.style.width = '100px';
+		mxUtils.write(td, mxResources.get('name', null, 'Name') + ':');
+		
+		row.appendChild(td);
+		
+		var nameInput = document.createElement('input');
+		nameInput.style.width = '180px';
+
+		td = document.createElement('td');
+		td.appendChild(nameInput);
+		row.appendChild(td);
+		
+		tbody.appendChild(row);
+			
+		row = document.createElement('tr');
+		
+		td = document.createElement('td');
+		td.style.fontSize = '10pt';
+		mxUtils.write(td, mxResources.get('type', null, 'Type') + ':');
+		
+		row.appendChild(td);
+		
+		var typeSelect = document.createElement('select');
+		typeSelect.style.width = '180px';
+
+		var boolOption = document.createElement('option');
+		boolOption.setAttribute('value', 'bool');
+		mxUtils.write(boolOption, mxResources.get('bool', null, 'Boolean'));
+		typeSelect.appendChild(boolOption);
+		
+		var clrOption = document.createElement('option');
+		clrOption.setAttribute('value', 'color');
+		mxUtils.write(clrOption, mxResources.get('color', null, 'Color'));
+		typeSelect.appendChild(clrOption);
+		
+		var enumOption = document.createElement('option');
+		enumOption.setAttribute('value', 'enum');
+		mxUtils.write(enumOption, mxResources.get('enum', null, 'Enumeration'));
+		typeSelect.appendChild(enumOption);
+
+		var floatOption = document.createElement('option');
+		floatOption.setAttribute('value', 'float');
+		mxUtils.write(floatOption, mxResources.get('float', null, 'Float'));
+		typeSelect.appendChild(floatOption);
+
+		var intOption = document.createElement('option');
+		intOption.setAttribute('value', 'int');
+		mxUtils.write(intOption, mxResources.get('int', null, 'Int'));
+		typeSelect.appendChild(intOption);
+		
+		var strOption = document.createElement('option');
+		strOption.setAttribute('value', 'string');
+		mxUtils.write(strOption, mxResources.get('string', null, 'String'));
+		typeSelect.appendChild(strOption);
+
+		td = document.createElement('td');
+		td.appendChild(typeSelect);
+		row.appendChild(td);
+		
+		tbody.appendChild(row);
+		
+		row = document.createElement('tr');
+
+		td = document.createElement('td');
+		td.style.fontSize = '10pt';
+		mxUtils.write(td, mxResources.get('dispName', null, 'Display Name') + ':');
+		
+		row.appendChild(td);
+		
+		var dispNameInput = document.createElement('input');
+		dispNameInput.style.width = '180px';
+
+		td = document.createElement('td');
+		td.appendChild(dispNameInput);
+		row.appendChild(td);
+
+		tbody.appendChild(row);
+
+		var listRow = document.createElement('tr');
+
+		td = document.createElement('td');
+		td.style.fontSize = '10pt';
+		mxUtils.write(td, mxResources.get('enumList', null, 'Enum List') + ' (csv):');
+		
+		listRow.appendChild(td);
+		
+		var enumListInput = document.createElement('input');
+		enumListInput.style.width = '180px';
+
+		td = document.createElement('td');
+		td.appendChild(enumListInput);
+		listRow.appendChild(td);
+
+		listRow.style.display = 'none';
+		tbody.appendChild(listRow);
+		
+		table.appendChild(tbody);
+		
+		function typeChanged()
+		{
+			if (typeSelect.value === 'enum')
+			{
+				listRow.style.display = '';
+				this.container.parentNode.style.height = "150px";
+				
+			}
+			else
+			{
+				listRow.style.display = 'none';
+				this.container.parentNode.style.height = "130px";
+			}
+		};
+		
+		mxEvent.addListener(typeSelect, 'change', mxUtils.bind(this, typeChanged));
+
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.setAttribute('align', 'right');
+		td.style.paddingTop = '22px';
+		td.colSpan = 2;
+		
+		var addBtn = mxUtils.button(mxResources.get('add', null, 'Add'), mxUtils.bind(this, function()
+		{
+	    	var name = nameInput.value;
+
+	    	if (name == "")
+    		{
+	    		nameInput.style.border = "1px solid red";
+	    		return;
+    		}
+	    	
+			var type = typeSelect.value;
+	    	var dispName = dispNameInput.value;
+
+	    	if (dispName == "")
+    		{
+	    		dispNameInput.style.border = "1px solid red";
+	    		return;
+    		}
+
+	    	var enumList = enumListInput.value;
+			
+	    	if (enumList == "" && type == "enum")
+    		{
+	    		enumListInput.style.border = "1px solid red";
+	    		return;
+	    		
+    		}
+	    	
+			if (enumList != null)
+			{
+				enumList = enumList.split(',');
+				
+				for (var i = 0; i < enumList.length; i++)
+				{
+					enumList[i] = enumList[i].trim();
+				}
+			}
+			
+			if (callback)
+			{
+				callback(editorUi, name, type, dispName, enumList);
+				editorUi.hideDialog();
+			}
+		}));
+		addBtn.className = 'geBtn gePrimaryBtn';
+		
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+		{
+			editorUi.hideDialog();
+		});
+		cancelBtn.className = 'geBtn';
+		
+		if (editorUi.editor.cancelFirst)
+		{
+			td.appendChild(cancelBtn);
+			td.appendChild(addBtn);
+		}
+		else
+		{
+			td.appendChild(addBtn);
+			td.appendChild(cancelBtn);
+		}
+
+		row.appendChild(td);
+		tbody.appendChild(row);
+		table.appendChild(tbody);
+		this.container = table;
+	};
+
+	
 	// Overridden to add edit shape option
 	if (window.StyleFormatPanel != null)
 	{
@@ -1021,13 +1224,8 @@
 		{
 			if (properties == null) return;
 			
-			var view = this.editorUi.editor.graph.view;
-			var state = view.getState(cell);
-			
-			if (state != null)
+			var handleCustomProp = function(custProperties)
 			{
-				var custProperties = state.shape.customProperties;
-				
 				for (var i = 0; custProperties && i < custProperties.length; i++)
 				{
 					var p = custProperties[i];
@@ -1041,6 +1239,25 @@
 						delete properties[p.name];
 					}
 				}
+			};
+			
+			var view = this.editorUi.editor.graph.view;
+			var state = view.getState(cell);
+			
+			if (state != null)
+			{
+				handleCustomProp(state.shape.customProperties);
+			}
+			
+			var userCustomProp = cell.getAttribute('customProperties');
+			
+			if (userCustomProp != null)
+			{
+				try
+				{
+					handleCustomProp(JSON.parse(userCustomProp));
+				}
+				catch(e){}
 			}
 		};
 		
@@ -1089,6 +1306,8 @@
 		
 		StyleFormatPanel.prototype.addStyleOps = function(div)
 		{
+			var graph = this.editorUi.editor.graph;
+			
 			var btn = mxUtils.button(mxResources.get('copyStyle'), mxUtils.bind(this, function(evt)
 			{
 				this.editorUi.actions.get('copyStyle').funct();
@@ -1113,7 +1332,61 @@
 			div.appendChild(btn);
 			mxUtils.br(div);
 			
-			return styleFormatPanelAddStyleOps.apply(this, arguments);
+			styleFormatPanelAddStyleOps.apply(this, arguments);
+			
+			mxUtils.br(div);
+			
+			var btn = mxUtils.button(mxResources.get('addProperty', null, 'Add Property'), mxUtils.bind(this, function(evt)
+			{
+				this.editorUi.showDialog(new AddCustomPropertyDialog(this.editorUi, function(ui, name, type, dispName, enumList)
+				{
+					var property = {name: name, type: type, dispName: dispName}
+					
+					if (type == "enum")
+					{
+						var list = [];
+						for (var i = 0; i < enumList.length; i++)
+						{
+							list.push({val: enumList[i], dispName: enumList[i]});
+						}
+						property.enumList = list;
+					}
+					
+					var cells = graph.getSelectionCells();
+					
+					for (var i = 0; i < cells.length; i++)
+					{
+						var curProps = cells[i].getAttribute('customProperties');
+						
+						if (curProps)
+						{
+							try
+							{
+								curProps = JSON.parse(curProps);
+							}
+							catch(e)
+							{
+								curProps = [];
+							}
+						}
+						else
+						{
+							curProps = [];
+						}
+						
+						curProps.push(property);
+						
+						graph.setAttributeForCell(cells[i], 'customProperties', JSON.stringify(curProps));
+					}
+				}).container, 300, 130, true, true);
+			}));
+			
+			btn.setAttribute('title', mxResources.get('addProperty', null, 'Add Property'));
+			btn.style.width = '202px';
+			btn.style.marginTop = '2px';
+			div.appendChild(btn);
+			
+			return div;
 		};
 
 		/**

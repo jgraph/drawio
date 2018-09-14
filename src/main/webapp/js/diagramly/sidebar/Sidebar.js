@@ -51,7 +51,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards', 'User Device Cards'];
+	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards', 'User Device Cards', 'Product Cards'];
 	
 	/**
 	 *
