@@ -67,6 +67,18 @@ public class Graphic
 
 		public float opacity;
 
+		/**
+		 * @return true if there is no_fill string found in this element
+		 */
+		public boolean isNoFill()
+		{
+			if (tid != null)
+			{
+				return tid.contains("no_fill");
+			}
+			return false;
+		}
+
 	}
 
 	public static class GliffyImage extends GliffyShape

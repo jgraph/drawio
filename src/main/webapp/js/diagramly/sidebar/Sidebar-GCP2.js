@@ -18,12 +18,13 @@
 		this.addGCP2NetworkingPalette();
 		this.addGCP2DeveloperToolsPalette();
 		this.addGCP2ExpandedProductCardsPalette();
+		this.addGCP2ProductCardsPalette();
 	};
 	
 	Sidebar.prototype.addGCP2PathsPalette = function()
 	{
 		var s = 'edgeStyle=orthogonalEdgeStyle;fontSize=12;html=1;endArrow=blockThin;endFill=1;rounded=0;strokeWidth=2;endSize=4;startSize=4;';
-		var dt = 'gcp google cloud platform path';
+		var dt = 'gcp google cloud platform path ';
 		var fns = [];
 		
 		var fns = [
@@ -47,8 +48,8 @@
 	Sidebar.prototype.addGCP2ZonesPalette = function()
 	{
 		var sb = this;
-		var s = 'rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=none;gradientColor=none;shadow=0;dashed=0;strokeColor=none;fontSize=12;fontColor=#9E9E9E;align=left;verticalAlign=top;spacing=10;spacingTop=-4;';
-		var dt = 'gcp google cloud platform zone';
+		var s = 'rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=none;gradientColor=none;shadow=0;dashed=0;fontSize=12;fontColor=#9E9E9E;align=left;verticalAlign=top;spacing=10;spacingTop=-4;';
+		var dt = 'gcp google cloud platform zone ';
 		var gn = 'mxgraph.gcp2.zones';
 		var fns = [];
 		
@@ -269,7 +270,7 @@
 	
 	Sidebar.prototype.addGCP2ServiceCardsPalette = function()
 	{
-		var dt = 'gcp google cloud platform service cards';
+		var dt = 'gcp google cloud platform service cards ';
 		var fns = [];
 		
 		this.addGCP2ServiceCard('Gateway', 'gateway', 100, 44, dt + 'gateway', fns);
@@ -301,7 +302,7 @@
 		this.addGCP2ServiceCard('Blank One Line', 'blank', 140, 44, dt + 'blank one line', fns);
 
 		fns.push(
-			this.addEntry('blank one line', function()
+			this.addEntry(dt + 'blank one line', function()
 		   	{
 			    var bg = new mxCell('Blank One Line', new mxGeometry(0, 0, 100, 44), 'dashed=0;strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;labelPosition=center;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;fontColor=#000000;fontSize=12;');
 		    	bg.vertex = true;
@@ -313,7 +314,7 @@
 		this.addGCP2ServiceCard('Blank Two\n\& Three Line', 'blank', 120, 44, dt + 'blank two and three line', fns);
 
 		fns.push(
-			this.addEntry('blank two and three line', function()
+			this.addEntry(dt + 'blank two and three line', function()
 		   	{
 			    var bg = new mxCell('Blank Two\n\& Three Line', new mxGeometry(0, 0, 90, 44), 'dashed=0;strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;labelPosition=center;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;fontColor=#000000;fontSize=12;');
 		    	bg.vertex = true;
@@ -333,7 +334,7 @@
 	
 	Sidebar.prototype.addGCP2ComputePalette = function()
 	{
-		var dt = 'gcp google cloud platform compute';
+		var dt = 'gcp google cloud platform compute ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Compute\nEngine', 'compute_engine', 110, 160, dt + 'compute engine', fns);
@@ -354,7 +355,7 @@
 	
 	Sidebar.prototype.addGCP2APIPlatformEcosystemsPalette = function()
 	{
-		var dt = 'gcp google cloud platform api ecosystems';
+		var dt = 'gcp google cloud platform api ecosystems ';
 		var fns = [];
 		
 		this.addGCP2CardSet('API\nAnalytics', 'api_analytics', 110, 140, dt + 'api analytics application programming interface', fns);
@@ -375,7 +376,7 @@
 	
 	Sidebar.prototype.addGCP2IdentitySecurityPalette = function()
 	{
-		var dt = 'gcp google cloud platform identity security';
+		var dt = 'gcp google cloud platform identity security ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nIAM', 'cloud_iam', 100, 120, dt + 'cloud iam', fns);
@@ -398,7 +399,7 @@
 
 	Sidebar.prototype.addGCP2BigDataPalette = function()
 	{
-		var dt = 'gcp google cloud platform big data';
+		var dt = 'gcp google cloud platform big data ';
 		var fns = [];
 		
 		this.addGCP2CardSet('BigQuery', 'bigquery', 120, 120, dt + 'bigquery', fns);
@@ -421,7 +422,7 @@
 	
 	Sidebar.prototype.addGCP2DataTransferPalette = function()
 	{
-		var dt = 'gcp google cloud platform data transfer';
+		var dt = 'gcp google cloud platform data transfer ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Transfer\nAppliance', 'transfer_appliance', 120, 170, dt + 'appliance', fns);
@@ -437,7 +438,7 @@
 	
 	Sidebar.prototype.addGCP2CloudAIPalette = function()
 	{
-		var dt = 'gcp google cloud platform ai artificial intelligence';
+		var dt = 'gcp google cloud platform ai artificial intelligence ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud Machine\nLearning', 'cloud_machine_learning', 150, 200, dt + 'cloud machine learning', fns);
@@ -460,7 +461,7 @@
 	
 	Sidebar.prototype.addGCP2InternetOfThingsPalette = function()
 	{
-		var dt = 'gcp google cloud platform iot internet of things';
+		var dt = 'gcp google cloud platform iot internet of things ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nIoT Core', 'cloud_iot_core', 110, 150, dt + 'core', fns);
@@ -476,7 +477,7 @@
 	
 	Sidebar.prototype.addGCP2StorageDatabasesPalette = function()
 	{
-		var dt = 'gcp google cloud platform storage databases';
+		var dt = 'gcp google cloud platform storage databases ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nStorage', 'cloud_storage', 110, 140, dt, fns);
@@ -499,7 +500,7 @@
 	
 	Sidebar.prototype.addGCP2ManagementToolsPalette = function()
 	{
-		var dt = 'gcp google cloud platform management tools';
+		var dt = 'gcp google cloud platform management tools ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Stackdriver', 'stackdriver', 130, 130, dt + 'stackdriver', fns);
@@ -527,7 +528,7 @@
 	
 	Sidebar.prototype.addGCP2NetworkingPalette = function()
 	{
-		var dt = 'gcp google cloud platform networking';
+		var dt = 'gcp google cloud platform networking ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Virtual\nPrivate Cloud', 'virtual_private_cloud', 140, 180, dt + 'virtual private', fns);
@@ -557,7 +558,7 @@
 	
 	Sidebar.prototype.addGCP2DeveloperToolsPalette = function()
 	{
-		var dt = 'gcp google cloud platform dev developer tools';
+		var dt = 'gcp google cloud platform dev developer tools ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nSDK', 'placeholder', 100, 120, dt + 'sdk software development kit', fns);
@@ -585,7 +586,7 @@
 	
 	Sidebar.prototype.addGCP2ExpandedProductCardsPalette = function()
 	{
-		var dt = 'gcp google cloud platform expanded product cards';
+		var dt = 'gcp google cloud platform expanded product cards ';
 		var fns = [];
 		
 		this.addGCP2ExpandedProductCardSet('Compute Engine', 'compute_engine', 150, dt + 'compute engine', fns);
@@ -615,7 +616,7 @@
 	
 	Sidebar.prototype.addGCP2UserDeviceCardsPalette = function()
 	{
-		var dt = 'gcp google cloud platform user and device cards';
+		var dt = 'gcp google cloud platform user and device cards ';
 		var fns = [];
 
 		this.addGCP2UserDeviceCard('Application', 'application', 1, 0.8, 0, dt + 'application', fns);
@@ -652,10 +653,42 @@
 		}));
 	};
 	
+	
+	Sidebar.prototype.addGCP2ProductCardsPalette = function()
+	{
+		var dt = 'gcp google cloud platform product ';
+		var fns = [];
+		
+		this.addGCP2ProductCardSet('Kubernetes', 'kubernetes_logo', 1, 0.97, 130, 130, dt + 'kubernetes', fns);
+		this.addGCP2ProductCardSet('TensorFlow', 'tensorflow_logo', 0.94, 1, 130, 130, dt + 'tensorflow', fns);
+		this.addGCP2ProductCardSet('Forseti\nSecurity', 'forseti_logo', 0.98, 1, 110, 150, dt + 'forseti', fns);
+		this.addGCP2ProductCardSet('Istio', 'istio_logo', 0.67, 1, 80, 90, dt + 'forseti', fns);
+		this.addGCP2ProductCardSet('Firebase', 'firebase', 0.72, 1, 100, 100, dt + 'firebase', fns);
+		this.addGCP2ProductCardSet('Fastly', 'fastly', 1, 0.39, 100, 100, dt + 'fastly', fns);
+		this.addGCP2ProductCardSet('AdMob', 'admob', 1, 1, 110, 110, dt + 'admob', fns);
+		this.addGCP2ProductCardSet('Google Play\nGame Services', 'google_play_game_service', 1, 0.69, 150, 220, dt + 'google play game services', fns);
+		this.addGCP2ProductCardSet('Campaign\nManager', 'campaign_manager', 1, 1, 120, 170, dt + 'campaign manager', fns);
+		this.addGCP2ProductCardSet('Google\nAnalytics', 'google_analytics', 1, 1, 120, 160, dt + 'google analytics', fns);
+		this.addGCP2ProductCardSet('Google\nAds', 'google_ads', 1, 1, 100, 130, dt + 'google ads', fns);
+		this.addGCP2ProductCardSet('Avere Physical\nAppliance', 'avere', 1, 0.33, 150, 200, dt + 'avere physical appliance', fns);
+		this.addGCP2ProductCardSet('Google\nAnalytics 360', 'google_analytics_360', 1, 0.98, 140, 180, dt + 'google analytics 360', fns);
+		this.addGCP2ProductCardSet('Google Ad\nManager', 'google_ad_manager', 1, 1, 120, 170, dt + 'google ad manager', fns);
+
+		this.addPalette('gcp2Product Cards', 'GCP / Product Cards', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	
+	
 	Sidebar.prototype.addGCP2CardSet = function(label, icon, w1, w2, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -705,10 +738,64 @@
 		);
 	};
 	
+	Sidebar.prototype.addGCP2ProductCardSet = function(label, icon, scaleX, scaleY, w1, w2, dt, fns)
+	{
+		var sb = this;
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var label1 = label.replace('\n', ' ');
+		var label1 = label1.replace('- ', '-');
+
+		fns.push(
+			this.addEntry(dt, function()
+		   	{
+			    var bg = new mxCell('', new mxGeometry(0, 0, w1, 60), 'strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;rounded=1;absoluteArcSize=1;arcSize=2;');
+		    	bg.vertex = true;
+			    var icon1 = new mxCell(label, new mxGeometry(0, 0, 45 * scaleX, 45 * scaleY), s + icon + ';part=1;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;fontColor=#999999;fontSize=12;');
+			    icon1.geometry.relative = true;
+			    icon1.geometry.offset = new mxPoint(5, 7 + (1 - scaleY) * 22.5);
+		    	icon1.vertex = true;
+
+		    	bg.insert(icon1);
+		    	
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, label1);
+			})
+		);
+		
+		fns.push(
+			this.addEntry(dt, function()
+		   	{
+			    var bg = new mxCell('', new mxGeometry(0, 0, w2, 60), 'strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;rounded=1;absoluteArcSize=1;arcSize=2;');
+		    	bg.vertex = true;
+			    var icon1 = new mxCell('<font color="#000000">Name</font><br>' + label1, new mxGeometry(0, 0, 45 * scaleX, 45 * scaleY), s + icon + ';part=1;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;fontColor=#999999;fontSize=12;');
+			    icon1.geometry.relative = true;
+			    icon1.geometry.offset = new mxPoint(5, 7 + (1 - scaleY) * 22.5);
+		    	icon1.vertex = true;
+		    	bg.insert(icon1);
+		    	
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, label1);
+			})			
+		);
+			
+		fns.push(
+			this.addEntry(dt, function()
+		   	{
+			    var bg = new mxCell('', new mxGeometry(0, 0, w2 + 8, 68), 'shape=mxgraph.gcp2.doubleRect;strokeColor=#dddddd;fillColor=#ffffff;shadow=1;strokeWidth=1;');
+		    	bg.vertex = true;
+			    var icon1 = new mxCell('<font color="#000000">Name</font><br>' + label1, new mxGeometry(0, 0, 45 * scaleX, 45 * scaleY), s + icon + ';part=1;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;fontColor=#999999;fontSize=12;');
+			    icon1.geometry.relative = true;
+			    icon1.geometry.offset = new mxPoint(5, 7 + (1 - scaleY) * 22.5);
+		    	icon1.vertex = true;
+		    	bg.insert(icon1);
+		    	
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, label1);
+			})
+		);
+	};
+	
 	Sidebar.prototype.addGCP2ServiceCard = function(label, icon, w, h, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -731,7 +818,7 @@
 	Sidebar.prototype.addGCP2ExpandedProductCardSet = function(label, icon, w, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -771,7 +858,7 @@
 	Sidebar.prototype.addGCP2ExpandedMachineCard = function(label, mainIcon, aspectX, aspectY, capacityLabel, machineNum1, machineIcon, machineNum2, storageIcon, storageNum, additionalModifierIcon, w, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -847,7 +934,7 @@
 			    	bg.vertex = true;
 			    	
 				    var mainTitleCell = new mxCell('<font color="#000000">' + label1 + '</font><hr>' + capacityLabel, 
-				    		new mxGeometry(0, 0, w, 50), 'text;part=1;html=1;align=left;verticalAlign=top;spacingLeft=35;fontColor=#999999;fontSize=11;resizeWidth=1;');
+				    		new mxGeometry(0, 0, w, 50), 'text;connectable=0;part=1;html=1;align=left;verticalAlign=top;spacingLeft=35;fontColor=#999999;fontSize=11;resizeWidth=1;');
 				    mainTitleCell.geometry.relative = true;
 				    mainTitleCell.vertex = true;
 			    	bg.insert(mainTitleCell);
@@ -867,14 +954,14 @@
 			    	bg.insert(machineCell);
 				    
 				    var machineNum1Cell = new mxCell(machineNum1, 
-				    		new mxGeometry(0, 0, 18, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 18, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    machineNum1Cell.geometry.relative = true;
 				    machineNum1Cell.geometry.offset = new mxPoint(24, 69);
 				    machineNum1Cell.vertex = true;
 			    	bg.insert(machineNum1Cell);
 				    
 				    var machineNum2Cell = new mxCell(machineNum2, 
-				    		new mxGeometry(0, 0, 18, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 18, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    machineNum2Cell.geometry.relative = true;
 				    machineNum2Cell.geometry.offset = new mxPoint(50, 69);
 				    machineNum2Cell.vertex = true;
@@ -888,7 +975,7 @@
 			    	bg.insert(storageCell);
 				    
 				    var storageNumCell = new mxCell('123', 
-				    		new mxGeometry(0, 0, 25, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 25, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    storageNumCell.geometry.relative = true;
 				    storageNumCell.geometry.offset = new mxPoint(81, 69);
 				    storageNumCell.vertex = true;
@@ -909,7 +996,7 @@
 	Sidebar.prototype.addGCP2UserDeviceCard = function(label, icon, scaleX, scaleY, h1, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 

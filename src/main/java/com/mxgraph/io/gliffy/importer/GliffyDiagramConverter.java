@@ -651,7 +651,15 @@ public class GliffyDiagramConverter
 
 				if (style.lastIndexOf("fillColor") == -1)
 				{
-					style.append("fillColor=" + shape.fillColor).append(";");
+					if (shape.isNoFill())
+					{
+						style.append("fillColor=none;");
+
+					}
+					else
+					{
+						style.append("fillColor=" + shape.fillColor).append(";");
+					}
 
 					if (shape.fillColor.equals("none"))
 					{
@@ -659,7 +667,7 @@ public class GliffyDiagramConverter
 					}
 
 				}
-				if (style.lastIndexOf("strokeColor") == -1)
+				if (style.lastIndexOf("strokeColor") == -1 && !shape.isNoFill())
 				{
 					String strokeClr = gliffyObject.isUseFillColor4StrokeColor() ? shape.fillColor : shape.strokeColor;
 					style.append("strokeColor=" + strokeClr).append(";");
