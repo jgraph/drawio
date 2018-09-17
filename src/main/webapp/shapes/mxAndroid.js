@@ -894,6 +894,11 @@ function mxShapeAndroidProgressBar(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeAndroidProgressBar, mxShape);
 
+mxShapeAndroidProgressBar.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Left Bar Length', type: 'float'},
+	{name: 'dx2', dispName: 'Middle Bar Length', type: 'float'}
+];
+
 mxShapeAndroidProgressBar.prototype.cst = {
 		PROGRESS_BAR : 'mxgraph.android.progressBar'
 };
@@ -992,6 +997,10 @@ function mxShapeAndroidProgressScrubberDisabled(bounds, fill, stroke, strokewidt
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberDisabled, mxShape);
 
+mxShapeAndroidProgressScrubberDisabled.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float'}
+];
+
 mxShapeAndroidProgressScrubberDisabled.prototype.cst = {
 		PROGRESS_SCRUBBER_DISABLED : 'mxgraph.android.progressScrubberDisabled'
 };
@@ -1072,6 +1081,10 @@ function mxShapeAndroidProgressScrubberFocused(bounds, fill, stroke, strokewidth
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberFocused, mxShape);
+
+mxShapeAndroidProgressScrubberFocused.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float'}
+];
 
 mxShapeAndroidProgressScrubberFocused.prototype.cst = {
 		PROGRESS_SCRUBBER_FOCUSED : 'mxgraph.android.progressScrubberFocused'
@@ -1160,6 +1173,10 @@ function mxShapeAndroidProgressScrubberPressed(bounds, fill, stroke, strokewidth
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberPressed, mxShape);
+
+mxShapeAndroidProgressScrubberPressed.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float'}
+];
 
 mxShapeAndroidProgressScrubberPressed.prototype.cst = {
 		PROGRESS_SCRUBBER_PRESSED : 'mxgraph.android.progressScrubberPressed'
@@ -1250,6 +1267,10 @@ function mxShapeAndroidQuickscroll2(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeAndroidQuickscroll2, mxShape);
 
+mxShapeAndroidQuickscroll2.prototype.customProperties = [
+	{name: 'dy', dispName: 'Handle Position', type: 'float'}
+];
+
 mxShapeAndroidQuickscroll2.prototype.cst = {
 		QUICKSCROLL : 'mxgraph.android.quickscroll2'
 };
@@ -1335,6 +1356,10 @@ function mxShapeAndroidQuickscroll3(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeAndroidQuickscroll3, mxShape);
+
+mxShapeAndroidQuickscroll3.prototype.customProperties = [
+	{name: 'dy', dispName: 'Handle Position', type: 'float'}
+];
 
 mxShapeAndroidQuickscroll3.prototype.cst = {
 		QUICKSCROLL : 'mxgraph.android.quickscroll3'

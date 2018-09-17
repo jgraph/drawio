@@ -616,4 +616,12 @@ public class GliffyObject implements PostDeserializable
 	{
 		return FILLCLR_IS_STROKECLR_SHAPES.contains(uid != null? uid : (graphic != null && graphic.getShape() != null ? graphic.getShape().tid : null));
 	}
+
+	/**
+	 * @return true If gliffyObject is Frame then always stick text on top left corner.
+	 */
+	public boolean containsTextBracket()
+	{
+		return uid != null ? uid.contains("com.gliffy.shape.uml.uml_v2.activity.frame") : false;
+	}
 }
