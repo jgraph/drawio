@@ -4,6 +4,20 @@
  */
 (function()
 {
+	// Getting feedback for new connect arrows
+	(function()
+	{
+		if (urlParams['arrows'] == 'new')
+		{
+			var fill = '#29b6f2';
+		    HoverIcons.prototype.triangleUp = Graph.createSvgImage(18, 38, '<path d="m 6 36 L 12 36 L 12 12 L 18 12 L 9 1 L 1 12 L 6 12 z" stroke="#fff" fill="' + fill + '"/>');
+		    HoverIcons.prototype.triangleRight = Graph.createSvgImage(36, 18, '<path d="m 1 6 L 24 6 L 24 1 L 36 9 L 24 18 L 24 12 L 1 12 z" stroke="#fff" fill="' + fill + '"/>');
+		    HoverIcons.prototype.triangleDown = Graph.createSvgImage(18, 36, '<path d="m 6 1 L 6 24 L 1 24 L 9 36 L 18 24 L 12 24 L 12 1 z" stroke="#fff" fill="' + fill + '"/>');
+		    HoverIcons.prototype.triangleLeft = Graph.createSvgImage(38, 18, '<path d="m 1 9 L 12 1 L 12 6 L 36 6 L 36 12 L 12 12 L 12 18 z" stroke="#fff" fill="' + fill + '"/>');
+		    HoverIcons.prototype.roundDrop = Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="' + fill + '"/>');
+		}
+	})();
+	
 	/**
 	 * Specifies the app name. Default is document.title.
 	 */
@@ -1010,7 +1024,6 @@
 		table.appendChild(tbody);
 		this.container = table;
 	};
-
 	
 	// Overridden to add edit shape option
 	if (window.StyleFormatPanel != null)
@@ -1195,6 +1208,38 @@
 	        
 			return div;
 		};
+
+		/**
+		 * Configures custom properties for mx2 based shapes
+		 */
+
+		mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties = [
+	        {name: 'top', dispName: 'Top Line', type: 'boolean'},
+	        {name: 'bottom', dispName: 'Bottom Line', type: 'boolean'},
+	        {name: 'left', dispName: 'Left Line', type: 'boolean'},
+	        {name: 'right', dispName: 'Right Line', type: 'boolean'}
+	      ];
+		
+		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
+	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
+	        {name: 'swimlaneFillColor', dispName: 'Lane Color', type: 'color'}
+	      ];
+		
+		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
+	        {name: 'margin', dispName: 'Indent', type: 'float'}
+	      ];
+		
+		mxCellRenderer.defaultShapes['ext'].prototype.customProperties = [
+	        {name: 'margin', dispName: 'Indent', type: 'float'}
+	      ];
+		
+		mxCellRenderer.defaultShapes['rhombus'].prototype.customProperties = [
+	        {name: 'margin', dispName: 'Indent', type: 'float'}
+	      ];
+		
+		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Fold Size', type: 'float'}
+	      ];
 		
 		/**
 		 * Configures global color schemes.

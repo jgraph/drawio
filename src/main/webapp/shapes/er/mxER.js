@@ -1392,6 +1392,10 @@ function mxShapeERRRect(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeERRRect, mxShape);
 
+mxShapeERRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Rounding Size', type: 'float'},
+];
+
 mxShapeERRRect.prototype.cst = {
 		RRECT : 'mxgraph.er.rrect',
 		R_SIZE : 'rSize'

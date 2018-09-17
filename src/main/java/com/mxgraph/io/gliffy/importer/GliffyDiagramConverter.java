@@ -961,7 +961,16 @@ public class GliffyDiagramConverter
 
 				cell.setValue(textObject.getText());
 				gliffyObject.adjustTextPos(textObject);
-				style.append(textObject == gliffyObject ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
+				// If gliffyObject is Frame then always stick text on top left corner.
+				if (gliffyObject.containsTextBracket())
+				{
+					fixFrameTextBorder(gliffyObject, style);
+					style.append(txt.getStyle(0, 0).replaceAll("verticalAlign=middle", "verticalAlign=top"));
+				}
+				else
+				{
+					style.append(textObject == gliffyObject ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
+				}
 			}
 		}
 
@@ -985,5 +994,20 @@ public class GliffyDiagramConverter
 		gliffyObject.mxObject = cell;
 
 		return cell;
+	}
+
+	/**
+	 * Update borders of Text bracket in Frame objects.
+	 * 
+	 * @param gliffyObject the GliffyObject
+	 * @param style the StringBuilder with our style
+	 */
+	private void fixFrameTextBorder(GliffyObject gliffyObject, StringBuilder style)
+	{
+		String wrongValue = "labelX=32"; // hard-coded 32 from gliffyTranslation.properties needs to be replaced
+		String correctValue = "labelX=" + gliffyObject.getTextObject().width * 1.1f; // 10% more to bracket width, looks nicer on UI
+		int start = style.indexOf(wrongValue);
+		int end = start + wrongValue.length();
+		style.replace(start, end, correctValue);
 	}
 }

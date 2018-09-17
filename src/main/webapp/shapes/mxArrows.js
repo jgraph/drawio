@@ -26,6 +26,12 @@ function mxShapeArrows2Arrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2Arrow, mxActor);
 
+mxShapeArrows2Arrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'}
+];
+
 mxShapeArrows2Arrow.prototype.cst = {
 		ARROW : 'mxgraph.arrows2.arrow'
 };
@@ -176,6 +182,11 @@ mxShapeArrows2TwoWayArrow.prototype.cst = {
 		TWO_WAY_ARROW : 'mxgraph.arrows2.twoWayArrow'
 };
 
+mxShapeArrows2TwoWayArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -284,6 +295,13 @@ function mxShapeArrows2StylisedArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2StylisedArrow, mxActor);
 
+mxShapeArrows2StylisedArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'},
+	{name: 'feather', dispName: 'Feather', type: 'float'},
+];
+
 mxShapeArrows2StylisedArrow.prototype.cst = {
 		STYLISED_ARROW : 'mxgraph.arrows2.stylisedArrow'
 };
@@ -389,6 +407,13 @@ mxShapeArrows2SharpArrow.prototype.cst = {
 		SHARP_ARROW : 'mxgraph.arrows2.sharpArrow'
 };
 
+mxShapeArrows2SharpArrow.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Arrowhead Arrow Width', type: 'float'},
+	{name: 'dy1', dispName: 'Arrow Arrow Width', type: 'float'},
+	{name: 'dx2', dispName: 'Arrowhead Angle', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -402,7 +427,6 @@ mxShapeArrows2SharpArrow.prototype.paintVertexShape = function(c, x, y, w, h)
 	var dx1 = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx1', this.dx1))));
 	var dx2 = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx2', this.dx2))));
 	var notch = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'notch', this.notch))));
-
 	var dx1a = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx1', this.dx1))));
 	var dy1a = h * 0.5 * Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dy1', this.dy1))));
 
@@ -500,6 +524,15 @@ function mxShapeArrows2SharpArrow2(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeArrows2SharpArrow2, mxActor);
+
+mxShapeArrows2SharpArrow2.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Arrowhead Arrow Width', type: 'float'},
+	{name: 'dy1', dispName: 'Arrow Width', type: 'float'},
+	{name: 'dx2', dispName: 'Arrowhead Angle', type: 'float'},
+	{name: 'dx3', dispName: 'Arrowhead Edge X', type: 'float'},
+	{name: 'dy3', dispName: 'Arrowhead Edge Y', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'}
+];
 
 mxShapeArrows2SharpArrow2.prototype.cst = {
 		SHARP_ARROW2 : 'mxgraph.arrows2.sharpArrow2'
@@ -625,6 +658,13 @@ function mxShapeArrows2CalloutArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2CalloutArrow, mxActor);
 
+mxShapeArrows2CalloutArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'}
+];
+
 mxShapeArrows2CalloutArrow.prototype.cst = {
 		CALLOUT_ARROW : 'mxgraph.arrows2.calloutArrow'
 };
@@ -731,6 +771,14 @@ function mxShapeArrows2BendArrow(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeArrows2BendArrow, mxActor);
+
+mxShapeArrows2BendArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'},
+	{name: 'rounded', dispName: 'Rounded', type: 'boolean'}
+];
 
 mxShapeArrows2BendArrow.prototype.cst = {
 		BEND_ARROW : 'mxgraph.arrows2.bendArrow'
@@ -860,6 +908,13 @@ function mxShapeArrows2BendDoubleArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2BendDoubleArrow, mxActor);
 
+mxShapeArrows2BendDoubleArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'},
+	{name: 'rounded', dispName: 'Rounded', type: 'boolean'}
+];
+
 mxShapeArrows2BendDoubleArrow.prototype.cst = {
 		BEND_DOUBLE_ARROW : 'mxgraph.arrows2.bendDoubleArrow'
 };
@@ -975,6 +1030,13 @@ function mxShapeArrows2CalloutDoubleArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2CalloutDoubleArrow, mxActor);
 
+mxShapeArrows2CalloutDoubleArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'}
+];
+
 mxShapeArrows2CalloutDoubleArrow.prototype.cst = {
 		CALLOUT_DOUBLE_ARROW : 'mxgraph.arrows2.calloutDoubleArrow'
 };
@@ -1088,6 +1150,13 @@ function mxShapeArrows2CalloutQuadArrow(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeArrows2CalloutQuadArrow, mxActor);
+
+mxShapeArrows2CalloutQuadArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
 
 mxShapeArrows2CalloutQuadArrow.prototype.cst = {
 		CALLOUT_QUAD_ARROW : 'mxgraph.arrows2.calloutQuadArrow'
@@ -1218,6 +1287,14 @@ function mxShapeArrows2CalloutDouble90Arrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2CalloutDouble90Arrow, mxActor);
 
+mxShapeArrows2CalloutDouble90Arrow.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy1', dispName: 'Arrow Width', type: 'float'},
+	{name: 'dx2', dispName: 'Callout Width', type: 'float'},
+	{name: 'dy2', dispName: 'Callout Height', type: 'float'},
+	{name: 'arrowHead', dispName: 'ArrowHead Width', type: 'float'}
+];
+
 mxShapeArrows2CalloutDouble90Arrow.prototype.cst = {
 		CALLOUT_DOUBLE_90_ARROW : 'mxgraph.arrows2.calloutDouble90Arrow'
 };
@@ -1335,6 +1412,12 @@ function mxShapeArrows2QuadArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2QuadArrow, mxActor);
 
+mxShapeArrows2QuadArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
+
 mxShapeArrows2QuadArrow.prototype.cst = {
 		QUAD_ARROW : 'mxgraph.arrows2.quadArrow'
 };
@@ -1441,6 +1524,12 @@ function mxShapeArrows2TriadArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2TriadArrow, mxActor);
 
+mxShapeArrows2TriadArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
+
 mxShapeArrows2TriadArrow.prototype.cst = {
 		TRIAD_ARROW : 'mxgraph.arrows2.triadArrow'
 };
@@ -1540,6 +1629,15 @@ function mxShapeArrows2TailedArrow(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeArrows2TailedArrow, mxActor);
+
+mxShapeArrows2TailedArrow.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy1', dispName: 'Arrow Width', type: 'float'},
+	{name: 'dx2', dispName: 'Tail Length', type: 'float'},
+	{name: 'dy2', dispName: 'Tail Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
 
 mxShapeArrows2TailedArrow.prototype.cst = {
 		TAILED_ARROW : 'mxgraph.arrows2.tailedArrow'
@@ -1673,6 +1771,15 @@ function mxShapeArrows2TailedNotchedArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2TailedNotchedArrow, mxActor);
 
+mxShapeArrows2TailedNotchedArrow.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy1', dispName: 'Arrow Width', type: 'float'},
+	{name: 'dx2', dispName: 'Tail Length', type: 'float'},
+	{name: 'dy2', dispName: 'Tail Width', type: 'float'},
+	{name: 'notch', dispName: 'Notch', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
+
 mxShapeArrows2TailedNotchedArrow.prototype.cst = {
 		TAILED_NOTCHED_ARROW : 'mxgraph.arrows2.tailedNotchedArrow'
 };
@@ -1804,6 +1911,12 @@ function mxShapeArrows2StripedArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2StripedArrow, mxActor);
 
+mxShapeArrows2StripedArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'notch', dispName: 'Stripes Length', type: 'float'}
+];
+
 mxShapeArrows2StripedArrow.prototype.cst = {
 		STRIPED_ARROW : 'mxgraph.arrows2.stripedArrow'
 };
@@ -1901,6 +2014,12 @@ function mxShapeArrows2JumpInArrow(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeArrows2JumpInArrow, mxActor);
 
+mxShapeArrows2JumpInArrow.prototype.customProperties = [
+	{name: 'dx', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
+
 mxShapeArrows2JumpInArrow.prototype.cst = {
 		JUMP_IN_ARROW : 'mxgraph.arrows2.jumpInArrow'
 };
@@ -1987,6 +2106,12 @@ function mxShapeArrows2UTurnArrow(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeArrows2UTurnArrow, mxActor);
+
+mxShapeArrows2UTurnArrow.prototype.customProperties = [
+	{name: 'dx2', dispName: 'Arrowhead Length', type: 'float'},
+	{name: 'dy', dispName: 'Arrow Width', type: 'float'},
+	{name: 'arrowHead', dispName: 'Arrowhead Width', type: 'float'}
+];
 
 mxShapeArrows2UTurnArrow.prototype.cst = {
 		U_TURN_ARROW : 'mxgraph.arrows2.uTurnArrow'

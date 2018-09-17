@@ -1050,6 +1050,11 @@ Graph.prototype.baseUrl = (urlParams['base'] != null) ?
 Graph.prototype.editAfterInsert = false;
 
 /**
+ * Defines the built-in properties to be ignored in tooltips.
+ */
+Graph.prototype.builtInProperties = ['label', 'tooltip', 'placeholders', 'placeholder'];
+
+/**
  * Installs child layout styles.
  */
 Graph.prototype.init = function(container)
@@ -2828,7 +2833,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 		}
 		else
 		{
-			var ignored = ['label', 'tooltip', 'placeholders', 'placeholder'];
+			var ignored = this.builtInProperties;
 			var attrs = cell.value.attributes;
 			var temp = [];
 

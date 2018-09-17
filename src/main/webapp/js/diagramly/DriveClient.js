@@ -1262,11 +1262,11 @@ DriveClient.prototype.pickFolder = function(fn)
 {
 	// Picker is initialized once and points to this function
 	// which is overridden each time to the picker is shown
-	this.folderPickerCallback = fn;
-	
-	if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
+	var showPicker = mxUtils.bind(this, function()
 	{
-		var showPicker = mxUtils.bind(this, function()
+		this.folderPickerCallback = fn;
+
+		if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
 		{
 			this.execute(mxUtils.bind(this, function()
 			{
@@ -1331,37 +1331,30 @@ DriveClient.prototype.pickFolder = function(fn)
 				        .setTitle(mxResources.get('pickFolder'))
 				        .setCallback(mxUtils.bind(this, function(data)
 				        {
-					        	if (data.action == google.picker.Action.PICKED ||
-					        		data.action == google.picker.Action.CANCEL)
-					        	{
-					        		mxEvent.removeListener(document, 'click', exit);
-					        	}
-					        	
-					        	if (data.action == google.picker.Action.CANCEL)
-					        	{
-					        		this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
-					        		{
-					        			this.folderPickerCallback(data);
-					        		}), mxUtils.bind(this, function()
-					        		{
-					        			this.folderPickerCallback({action: google.picker.Action.PICKED,
-					        				docs: [{type: 'folder', id: 'root'}]});
-					        		}), mxResources.get('cancel'), mxResources.get('ok'));
-					        	}
-					        	else
-					        	{
-					        		this.folderPickerCallback(data);
-					        	}
+				        	if (data.action == google.picker.Action.PICKED ||
+				        		data.action == google.picker.Action.CANCEL)
+				        	{
+				        		mxEvent.removeListener(document, 'click', exit);
+				        	}
+				        	
+			        		this.folderPickerCallback(data);
 				        })).build();
 				}
 	
 				mxEvent.addListener(document, 'click', exit);
 				this[name].setVisible(true);
 			}));
-		});
+		}
+	});
 		
+	this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+	{
+		this.folderPickerCallback({action: google.picker.Action.PICKED,
+			docs: [{type: 'folder', id: 'root'}]});
+	}), mxUtils.bind(this, function()
+	{
 		showPicker();
-	}
+	}), mxResources.get('yes'), mxResources.get('no'));
 };
 
 /**
