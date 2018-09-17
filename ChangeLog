@@ -1,3 +1,7 @@
+17-SEP-2018: 9.1.5
+
+- Fixes folder picker callback
+
 17-SEP-2018: 9.1.4
 
 - Adds root option before Google folder dialog
