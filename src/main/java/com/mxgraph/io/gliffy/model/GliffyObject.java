@@ -208,6 +208,7 @@ public class GliffyObject implements PostDeserializable
 		SHAPES_COORD_FIX.put("com.gliffy.shape.uml.uml_v2.deployment.device_node", new double[]{0, -10, 10, 10});
 		SHAPES_COORD_FIX.put("com.gliffy.shape.uml.uml_v2.deployment.execution_environment_node", new double[]{0, -10, 10, 10});
 		SHAPES_COORD_FIX.put("com.gliffy.shape.flowchart.flowchart_v1.default.data_storage", new double[]{0, 0, 0.115, 0});
+		SHAPES_COORD_FIX.put("com.gliffy.shape.flowchart.flowchart_v1.default.database", new double[]{0, 0, 0, 0.15});
 		//these shapes cannot be resized (width is fixed) in Gliffy 
 		SHAPES_COORD_FIX.put("com.gliffy.stencil.entity_lifeline.uml_v2", new double[]{10, 0, -20, 0});
 		SHAPES_COORD_FIX.put("com.gliffy.stencil.boundary_lifeline.uml_v2", new double[]{35, 0, -70, 0});
