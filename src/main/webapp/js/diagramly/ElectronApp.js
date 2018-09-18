@@ -671,10 +671,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.fileObject.type = 'utf-8';
 			this.save(false, success, error);
 		}
-        else if (error != null)
-		{
-			error();
-		}
 	};
 
 	App.prototype.saveFile = function(forceDialog)

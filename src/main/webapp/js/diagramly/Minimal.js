@@ -265,28 +265,9 @@ EditorUi.initMinimalTheme = function()
     mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
     mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
     mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
-    mxVertexHandler.prototype.handleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/>');
-    mxEdgeHandler.prototype.handleImage = mxVertexHandler.prototype.handleImage;
-    mxEdgeHandler.prototype.terminalHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><circle cx="8" cy="8" r="3" stroke="' + stroke + '" fill="' + fill + '"/>');
-    mxEdgeHandler.prototype.fixedHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><path d="m 6 6 L 10 10 M 6 10 L 10 6" stroke="' + stroke + '"/>');
     mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
-    HoverIcons.prototype.triangleUp = Graph.createSvgImage(18, 38, '<path d="m 6 36 L 12 36 L 12 12 L 18 12 L 9 1 L 1 12 L 6 12 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleRight = Graph.createSvgImage(36, 18, '<path d="m 1 6 L 24 6 L 24 1 L 36 9 L 24 18 L 24 12 L 1 12 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleDown = Graph.createSvgImage(18, 36, '<path d="m 6 1 L 6 24 L 1 24 L 9 36 L 18 24 L 12 24 L 12 1 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleLeft = Graph.createSvgImage(38, 18, '<path d="m 1 9 L 12 1 L 12 6 L 36 6 L 36 12 L 12 12 L 12 18 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.roundDrop = Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="' + fill + '"/>');
     HoverIcons.prototype.arrowSpacing = 0;
     mxOutline.prototype.sizerImage = null;
-
-    if (window.Sidebar != null)
-    {
-        Sidebar.prototype.triangleUp = HoverIcons.prototype.triangleUp;
-        Sidebar.prototype.triangleRight = HoverIcons.prototype.triangleRight;
-        Sidebar.prototype.triangleDown = HoverIcons.prototype.triangleDown;
-        Sidebar.prototype.triangleLeft = HoverIcons.prototype.triangleLeft;
-        Sidebar.prototype.refreshTarget = HoverIcons.prototype.refreshTarget;
-        Sidebar.prototype.roundDrop = HoverIcons.prototype.roundDrop;
-    }
     
     mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
     mxConstants.EDGE_SELECTION_COLOR = '#C0C0C0';
