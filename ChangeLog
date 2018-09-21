@@ -1,3 +1,8 @@
+21-SEP-2018: 9.1.8
+
+- Fixes minor constraint check bug for new connections
+- Uses mxGraph 3.9.10
+
 21-SEP-2018: 9.1.7
 
 - Adds flow plugin
