@@ -600,9 +600,8 @@ function VsdxExport(editorUi)
 
         var root = createElt(xmlDoc, that.XMLNS, "PageContents");
         
-        // LATER: Fix NS1, NS2... namespaces in IE11-
-        root.setAttribute("xmlns:r", that.XMLNS_R);
-        root.setAttribute("xml:space", that.XML_SPACE);
+        root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', that.XMLNS);
+        root.setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:r", that.XMLNS_R);
         
         var shapes = createElt(xmlDoc, that.XMLNS, "Shapes");
         root.appendChild(shapes);
@@ -689,8 +688,8 @@ function VsdxExport(editorUi)
 		var pagesRelsXmlDoc = mxUtils.createXmlDocument();
 	
 		var pagesRoot = createElt(pagesXmlDoc, that.XMLNS, "Pages");
-		pagesRoot.setAttribute("xmlns:r", that.XMLNS_R);
-		pagesRoot.setAttribute("xml:space", that.XML_SPACE);
+		pagesRoot.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', that.XMLNS);
+		pagesRoot.setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:r", that.XMLNS_R);
 
 		var pagesRelsRoot = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationships");
 		
@@ -713,7 +712,7 @@ function VsdxExport(editorUi)
 			pageSheet.appendChild(createCellElem("DrawingScale", 1, pagesXmlDoc));
 		
 			var relE = createElt(pagesXmlDoc, that.XMLNS,"Rel");
-			relE.setAttribute("r:id", "rId" + i);
+			relE.setAttributeNS(that.XMLNS_R, "r:id", "rId" + i);
 
 			//Layer (not needed!, it works without it)
 			var layerSec = createElt(pagesXmlDoc, that.XMLNS, "Section");

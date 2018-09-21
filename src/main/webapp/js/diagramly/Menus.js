@@ -1464,9 +1464,7 @@
 				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
 
-			// LATER: Fix namespace prefix (NS1, NS2..) in XML
-			// serializer for VSDX export in IE11 and earlier
-			if (!mxClient.IS_IE11 && !mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
+			if (!mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
@@ -2553,7 +2551,7 @@
 				this.addMenuItems(menu, ['showStartScreen'], parent);
 			}
 
-			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
+			if (!editorUi.isOfflineApp() && isLocalStorage)
 			{
 				this.addMenuItem(menu, 'plugins', parent);
 			}

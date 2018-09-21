@@ -1,3 +1,11 @@
+21-SEP-2018: 9.1.7
+
+- Adds flow plugin
+- Uses mxGraph 3.9.9
+- Adds metro color palette
+- Fixes VSDX export in IE11
+- Adds plugins menu in embed mode
+
 18-SEP-2018: 9.1.6
 
 - Updates connection arrows and handle colors

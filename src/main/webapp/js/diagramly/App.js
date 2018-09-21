@@ -202,7 +202,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
 	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js',
 	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
-	'tickets': '/plugins/tickets.js', 'webcola': '/plugins/webcola/webcola.js'};
+	'tickets': '/plugins/tickets.js', 'flow': '/plugins/flow.js',
+	'webcola': '/plugins/webcola/webcola.js'};
 
 /**
  * Function: authorize

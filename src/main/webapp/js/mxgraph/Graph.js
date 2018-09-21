@@ -4584,7 +4584,7 @@ if (typeof mxVertexHandler != 'undefined')
 		mxConstants.LABEL_HANDLE_FILLCOLOR = '#cee7ff';
 		mxConstants.GUIDE_COLOR = '#0088cf';
 		mxConstants.HIGHLIGHT_OPACITY = 30;
-		mxConstants.HIGHLIGHT_SIZE = 8;
+	    mxConstants.HIGHLIGHT_SIZE = 5;
 		
 		// Enables snapping to off-grid terminals for edge waypoints
 		mxEdgeHandler.prototype.snapToTerminals = true;

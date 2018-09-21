@@ -721,6 +721,10 @@ html td.mxWindowTitle {
 	border: 1px solid #e9e9e9;	
 }
 
+.propRowDark {
+	border: 1px solid #4472C4;
+}
+
 .propHeader>.propHeaderCell {
     border-top: 0;
     border-bottom: 0;
@@ -750,10 +754,23 @@ html td.mxWindowTitle {
     background: #fff;
 }
 
-.propRowAtl>.propRowCell {
+.propRowAlt>.propRowCell {
     background: #fcfcfc;
+}
+
+.propRowDark>.propRowCell {
+    background: #fff;
+    color: #305496;
+    font-weight: bold;
+}
+
+.propRowDarkAlt>.propRowCell {
+    background: #D9E1F2;
+    color: #305496;
+    font-weight: bold;
 }
 
 .propEditor input:invalid {
   border: 1px solid red;
 }
+
