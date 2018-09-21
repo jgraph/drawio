@@ -77,7 +77,7 @@ Draw.loadPlugin(function(ui)
 		{
 			if (ui.editor.graph.model.isEdge(me.getCell()))
 			{
-				toggleFlow(me.getCell());
+				toggleFlow([me.getCell()]);
 			}
 		};
 	}
