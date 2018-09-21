@@ -194,8 +194,9 @@ public class GliffyDiagramConverter
 			mxCell startTerminal = getTerminalCell(obj, true);
 			mxCell endTerminal = getTerminalCell(obj, false);
 
-			drawioDiagram.addCell(obj.getMxObject(), parent, null, startTerminal, endTerminal);
-
+			obj.getMxObject().setTerminal(startTerminal, true);
+			obj.getMxObject().setTerminal(endTerminal, false);
+			
 			setWaypoints(obj, startTerminal, endTerminal);
 		}
 	}
@@ -808,7 +809,7 @@ public class GliffyDiagramConverter
 			{
 				GliffySvg svg = graphic.Svg;
 				cell.setVertex(true);
-				style.append("shape=image;aspect=fixed;");
+				style.append("shape=image;imageAspect=0;");
 				Resource res = gliffyDiagram.embeddedResources.get(svg.embeddedResourceId);
 
 				style.append("image=data:image/svg+xml,").append(res.getBase64EncodedData()).append(";");

@@ -266,7 +266,6 @@ EditorUi.initMinimalTheme = function()
     mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
     mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
     mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
-    HoverIcons.prototype.arrowSpacing = 0;
     mxOutline.prototype.sizerImage = null;
     
     mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
@@ -278,7 +277,6 @@ EditorUi.initMinimalTheme = function()
 
     mxConstants.HIGHLIGHT_STROKEWIDTH = 5;
     mxConstants.HIGHLIGHT_OPACITY = 35;
-    mxConstants.HIGHLIGHT_SIZE = 5;
     mxConstants.OUTLINE_COLOR = '#29b6f2';
     mxConstants.OUTLINE_HANDLE_FILLCOLOR = '#29b6f2';
     mxConstants.OUTLINE_HANDLE_STROKECOLOR = '#fff';
@@ -846,7 +844,7 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addMenuItems(menu, ['-', 'search', 'scratchpad', '-', 'showStartScreen'], parent);
 			}
 
-			if (!ui.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
+			if (!ui.isOfflineApp() && isLocalStorage)
 			{
 				menu.addSeparator(parent);
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
