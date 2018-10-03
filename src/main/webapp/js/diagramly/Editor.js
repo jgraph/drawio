@@ -1198,34 +1198,289 @@
 		/**
 		 * Configures custom properties for mx2 based shapes
 		 */
+		DiagramFormatPanel.prototype.addCommonVertexProperties = function(p)
+		{
+	        p.push({type: 'separator'});
+	        p.push({name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100});
+	        p.push({name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100});
+	        p.push({name: 'overflow', dispName: 'Text Overflow', defVal: 'visible', type: 'enum',
+	        	enumList: [{val: 'visible', dispName: 'Visible'}, {val: 'hidden', dispName: 'Hidden'}, {val: 'fill', dispName: 'Fill'}, {val: 'width', dispName: 'Width'}]
+	        });
+	        p.push({name: 'noLabel', dispName: 'Hide Label', type: 'bool', defVal: false});
+	        p.push({name: 'labelPadding', dispName: 'Label Padding', type: 'float', defVal: 0});
+	        p.push({name: 'direction', dispName: 'Direction', type: 'enum', defVal: 'east',
+	        	enumList: [{val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+	        });
+	        p.push({name: 'portConstraint', dispName: 'Port Constraint', type: 'enum', defVal: 'none',
+	        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+	        });
+	        p.push({name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false});
+	        p.push({name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false});
+	        p.push({name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false});
+	        p.push({name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false});
+	        p.push({name: 'editable', dispName: 'Editable', type: 'bool', defVal: true});
+	        p.push({name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false});
+	        p.push({name: 'movable', dispName: 'Movable', type: 'bool', defVal: true});
+	        p.push({name: 'resizable', dispName: 'Resizable', type: 'bool', defVal: true});
+	        p.push({name: 'resizeWidth', dispName: 'Resize Width', type: 'bool', defVal: false});
+	        p.push({name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false});
+	        p.push({name: 'rotatable', dispName: 'Rotatable', type: 'bool', defVal: true});
+	        p.push({name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true});
+	        p.push({name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true});
+		};
 
-		mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties = [
-	        {name: 'top', dispName: 'Top Line', type: 'bool', defVal: 1},
-	        {name: 'bottom', dispName: 'Bottom Line', type: 'bool', defVal: 1},
-	        {name: 'left', dispName: 'Left Line', type: 'bool', defVal: 1},
-	        {name: 'right', dispName: 'Right Line', type: 'bool', defVal: 1}
+		DiagramFormatPanel.prototype.addCommonEdgeProperties = function(p)
+		{
+	        p.push({type: 'separator'});
+	        p.push({name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE});
+	        p.push({name: 'targetPortConstraint', dispName: 'Target Port Constraint', type: 'enum', defVal: 'none',
+	        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+	        });
+	        p.push({name: 'sourcePortConstraint', dispName: 'Source Port Constraint', type: 'enum', defVal: 'none',
+	        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+	        });
+	        p.push({name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100});
+	        p.push({name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100});
+	        p.push({name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true});
+	        p.push({name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true});
+	        p.push({name: 'sourcePerimeterSpacing', dispName: 'Source Perimeter Spacing', type: 'float', defVal: 0});
+	        p.push({name: 'targetPerimeterSpacing', dispName: 'Target Perimeter Spacing', type: 'float', defVal: 0});
+	        p.push({name: 'perimeterSpacing', dispName: 'Perimeter Spacing', type: 'float', defVal: 0});
+	        p.push({name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true});
+	        p.push({name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false});
+	        p.push({name: 'editable', dispName: 'Editable', type: 'bool', defVal: true});
+	        p.push({name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false});
+	        p.push({name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true});
+	        p.push({name: 'movable', dispName: 'Movable', type: 'bool', defVal: true});
+	        p.push({name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true});
+	        p.push({name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true});
+	        p.push({name: 'loopStyle', dispName: 'Loop Style', type: 'bool', defVal: true});
+		};
+
+		mxCellRenderer.prototype.defaultVertexShape.prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'absoluteArcSize', dispName: 'Abs. Arc Size', type: 'bool', defVal: false}
 	      ];
-		
-		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
-	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
-	        {name: 'swimlaneFillColor', dispName: 'Lane Color', type: 'color'}
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.prototype.defaultVertexShape.prototype.customProperties);
+
+		mxCellRenderer.prototype.defaultEdgeShape.prototype.customProperties = [
 	      ];
-		
-		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
-	        {name: 'margin', dispName: 'Indent', type: 'float'}
-	      ];
-		
-		mxCellRenderer.defaultShapes['ext'].prototype.customProperties = [
-	        {name: 'margin', dispName: 'Indent', type: 'float'}
-	      ];
-		
+		DiagramFormatPanel.prototype.addCommonEdgeProperties(mxCellRenderer.prototype.defaultEdgeShape.prototype.customProperties);
+
+		mxCellRenderer.defaultShapes['link'].prototype.customProperties = [
+	        {name: 'width', dispName: 'Width', type: 'float', min:0, defVal: 4}
+		];
+		DiagramFormatPanel.prototype.addCommonEdgeProperties(mxCellRenderer.defaultShapes['link'].prototype.customProperties);
+
+		mxCellRenderer.defaultShapes['flexArrow'].prototype.customProperties = [
+	        {name: 'width', dispName: 'Width', type: 'float', min:0, defVal: 10},
+	        {name: 'startWidth', dispName: 'Start Width', type: 'float', min:0, defVal: 20},
+	        {name: 'endWidth', dispName: 'End Width', type: 'float', min:0, defVal: 20}
+		];
+		DiagramFormatPanel.prototype.addCommonEdgeProperties(mxCellRenderer.defaultShapes['flexArrow'].prototype.customProperties);
+
+		mxCellRenderer.defaultShapes['ellipse'].prototype.customProperties = [];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['ellipse'].prototype.customProperties);
+
+		mxCellRenderer.defaultShapes['process'].prototype.customProperties = [
+			{name: 'size', dispName: 'Indent', type: 'float', min: 0, max: 0.5, defVal: 0.1}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['process'].prototype.customProperties);
+
 		mxCellRenderer.defaultShapes['rhombus'].prototype.customProperties = [
-	        {name: 'margin', dispName: 'Indent', type: 'float'}
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, max: 50, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'double', dispName: 'Double', type: 'bool', defVal: false}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['rhombus'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties = [
+	        {name: 'top', dispName: 'Top Line', type: 'bool', defVal: true},
+	        {name: 'bottom', dispName: 'Bottom Line', type: 'bool', defVal: true},
+	        {name: 'left', dispName: 'Left Line', type: 'bool', defVal: true},
+	        {name: 'right', dispName: 'Right Line', type: 'bool', defVal: true}
 	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['parallelogram'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.2}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['parallelogram'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['hexagon'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.25}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['hexagon'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['triangle'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['triangle'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['document'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', defVal: 0.3, min:0, max:1}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['document'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['internalStorage'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'dx', dispName: 'Left Line', type: 'float', min:0, defVal: 20},
+	        {name: 'dy', dispName: 'Top Line', type: 'float', min:0, defVal: 20}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['internalStorage'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['cube'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['cube'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Notch Size', type: 'float', min:0, defVal:20},
+	        {name: 'fixedSize', dispName: 'Fixed Size', type: 'bool', defVal:true}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['step'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['trapezoid'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.2}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['trapezoid'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['tape'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, max:1, defVal:0.4 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['tape'].prototype.customProperties);
 		
 		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Fold Size', type: 'float'}
+	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30}
 	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['note'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['card'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'size', dispName: 'Cutoff Size', type: 'float', min:0, defVal: 30}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['card'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['callout'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        {name: 'base', dispName: 'Callout Width', type: 'float', min:0, defVal: 20},
+	        {name: 'size', dispName: 'Callout Length', type: 'float', min:0, defVal: 30},
+	        {name: 'position', dispName: 'Callout Position', type: 'float', min:0, max:1, defVal: 0.5},
+	        {name: 'position2', dispName: 'Callout Tip Position', type: 'float', min:0, max:1, defVal: 0.5},
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['callout'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['folder'].prototype.customProperties = [
+	        {name: 'tabWidth', dispName: 'Tab Width', type: 'float'},
+	        {name: 'tabHeight', dispName: 'Tab Height', type: 'float'},
+	        {name: 'tabPosition', dispName: 'Tap Position', type: 'enum',
+	        	enumList: [{val: 'left', dispName: 'Left'}, {val: 'right', dispName: 'Right'}]
+	        }
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['folder'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
+	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
+	        {name: 'swimlaneFillColor', dispName: 'Lane Color', type: 'color'},
+	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
+	        {name: 'margin', dispName: 'Indent', type: 'float', min:0, defVal:4}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['ext'].prototype.customProperties = [
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
+			{name: 'double', dispName: 'Double', type: 'bool', defVal: false},
+	        {name: 'margin', dispName: 'Indent', type: 'float', min: 0, defVal:0}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['ext'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['curlyBracket'].prototype.customProperties = [
+			{name: 'rounded', dispName: 'Rounded', type: 'bool', defVal: true},
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, max: 1, defVal: 0.5}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['curlyBracket'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['image'].prototype.customProperties = [
+			{name: 'imageAspect', dispName: 'Fixed Image Aspect', type: 'bool', defVal:true}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['image'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['label'].prototype.customProperties = [
+			{name: 'imageAspect', dispName: 'Fixed Image Aspect', type: 'bool', defVal:true},
+			{name: 'imageAlign', dispName: 'Image Align', type: 'enum',
+				enumList: [{val: 'left', dispName: 'Left'}, {val: 'center', dispName: 'Center'}, {val: 'right', dispName: 'Right'}], defVal: 'left'},
+			{name: 'imageVerticalAlign', dispName: 'Image Vertical Align', type: 'enum',
+				enumList: [{val: 'top', dispName: 'Top'}, {val: 'middle', dispName: 'Middle'}, {val: 'bottom', dispName: 'Bottom'}], defVal: 'middle'},
+	        {name: 'imageWidth', dispName: 'Image Width', type: 'float', min:0, defVal: 24},
+	        {name: 'imageHeight', dispName: 'Image Height', type: 'float', min:0, defVal: 24},
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 12},
+	        {name: 'absoluteArcSize', dispName: 'Abs. Arc Size', type: 'bool', defVal: false}
+	      ];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['label'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['dataStorage'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, max:1, defVal:0.1 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['dataStorage'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['manualInput'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:30 },
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 20}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['manualInput'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['loopLimit'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 },
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 20}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['loopLimit'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['offPageConnector'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:38 },
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 20}
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['offPageConnector'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['display'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min: 0, max: 1, defVal: 0.25 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['display'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['singleArrow'].prototype.customProperties = [
+	        {name: 'arrowWidth', dispName: 'Arrow Width', type: 'float', min: 0, max: 1, defVal: 0.3 },
+	        {name: 'arrowSize', dispName: 'Arrowhead Length', type: 'float', min: 0, max: 1, defVal: 0.2 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['singleArrow'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['doubleArrow'].prototype.customProperties = [
+	        {name: 'arrowWidth', dispName: 'Arrow Width', type: 'float', min: 0, max: 1, defVal: 0.3 },
+	        {name: 'arrowSize', dispName: 'Arrowhead Length', type: 'float', min: 0, max: 1, defVal: 0.2 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['doubleArrow'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['cross'].prototype.customProperties = [
+	        {name: 'size', dispName: 'Size', type: 'float', min: 0, max: 1, defVal: 0.2 }
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['cross'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['corner'].prototype.customProperties = [
+	        {name: 'dx', dispName: 'Width1', type: 'float', min: 0, defVal: 20 },
+	        {name: 'dy', dispName: 'Width2', type: 'float', min: 0, defVal: 20 },
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['corner'].prototype.customProperties);
+		
+		mxCellRenderer.defaultShapes['tee'].prototype.customProperties = [
+	        {name: 'dx', dispName: 'Width1', type: 'float', min: 0, defVal: 20 },
+	        {name: 'dy', dispName: 'Width2', type: 'float', min: 0, defVal: 20 },
+		];
+		DiagramFormatPanel.prototype.addCommonVertexProperties(mxCellRenderer.defaultShapes['tee'].prototype.customProperties);
 		
 		/**
 		 * Configures global color schemes.
@@ -1285,6 +1540,14 @@
 			
 			if (state != null)
 			{
+				//Add common properties to all xml stencils shapes
+				if (state.shape != null && state.shape.stencil != null && !state.shape.customPropAdded)
+				{
+					state.shape.customPropAdded = true;
+					state.shape.customProperties = state.shape.customProperties || [];
+					DiagramFormatPanel.prototype.addCommonVertexProperties(state.shape.customProperties);
+				}
+				
 				handleCustomProp(state.shape.customProperties);
 			}
 			
@@ -1394,6 +1657,9 @@
 				graph.getModel().beginUpdate();
 				try
 				{
+					var changedProps = [];
+					var changedVals = [];
+
 					if (prop.index != null)
 					{
 						var allVals = [];
@@ -1431,14 +1697,44 @@
 						if (prop.countProperty != null)
 						{
 							graph.setCellStyles(prop.countProperty, allVals.length, graph.getSelectionCells());
-							that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [prop.countProperty],
-									'values', [allVals.length], 'cells', graph.getSelectionCells()));
+							
+							changedProps.push(prop.countProperty);
+							changedVals.push(allVals.length);
 						}
 					}
 
 					graph.setCellStyles(pName, newVal, graph.getSelectionCells());
-					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [pName],
-							'values', [newVal], 'cells', graph.getSelectionCells()));
+					changedProps.push(pName);
+					changedVals.push(newVal);
+					
+					if (prop.dependentProps != null)
+					{
+						for (var i = 0; i < prop.dependentProps.length; i++)
+						{
+							var defVal = prop.dependentPropsDefVal[i];
+							var vals = prop.dependentPropsVals[i];
+							
+							if (vals.length > newVal)
+							{
+								vals = vals.slice(0, newVal);
+							}
+							else
+							{
+								for (var j = vals.length; j < newVal; j++)
+								{
+									vals.push(defVal);
+								}
+							}
+							
+							vals = vals.join(',');
+							graph.setCellStyles(prop.dependentProps[i], vals, graph.getSelectionCells());
+							changedProps.push(prop.dependentProps[i]);
+							changedVals.push(vals);
+						}
+					}
+					
+					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', changedProps,
+						'values', changedVals, 'cells', graph.getSelectionCells()));
 				}
 				finally
 				{
@@ -1540,7 +1836,7 @@
 					{
 						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : "");
 					}
-						
+					
 					secondLevel.push({name: pName, values: vals, type: subType, defVal: defVal, parentRow: myRow, flipBkg: flipBkg, size: size});
 				}
 				
@@ -1684,8 +1980,12 @@
 							document.body.removeChild(input);
 						});
 						
+						var dontSet = false;
+						
 						function setInputVal()
 						{
+							if (dontSet) return;
+							
 							var inputVal = input.value;
 							
 							if (prop.min != null && inputVal < prop.min)
@@ -1712,6 +2012,7 @@
 								
 								try
 								{
+									dontSet = true;
 									document.body.removeChild(input);
 								}
 								catch(e){}
@@ -1776,7 +2077,23 @@
 				}
 				else if (prop.type == 'staticArr') //if dynamic values are needed, a more elegant technique is needed to replace such values
 				{
-					prop.size = parseInt(state.style[prop.sizeProperty]) || 0;
+					prop.size = parseInt(state.style[prop.sizeProperty] || properties[prop.sizeProperty].defVal) || 0;
+				}
+				else if (prop.dependentProps != null)
+				{
+					var dependentProps = prop.dependentProps;
+					var dependentPropsVals = [];
+					var dependentPropsDefVal = [];
+					
+					for (var i = 0; i < dependentProps.length; i++)
+					{
+						var propVal = state.style[dependentProps[i]];
+						dependentPropsDefVal.push(properties[dependentProps[i]].subDefVal);
+						dependentPropsVals.push(propVal != null? propVal.split(',') : []);
+					}
+					
+					prop.dependentPropsDefVal = dependentPropsDefVal;
+					prop.dependentPropsVals = dependentPropsVals;
 				}
 				
 				grid.appendChild(createPropertyRow(key, pValue, prop, isOdd, flipBkg));

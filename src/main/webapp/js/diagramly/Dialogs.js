@@ -8455,3 +8455,826 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	this.okButton = okBtn;
 	this.container = div;
 };
+
+var TemplatesDialog = function()
+{
+	var dialogSkeleton = 
+	'<div class="tempDlgHeader">' + 
+		'<img src="/images/draw.io-logo.svg" class="headerLogo">' +
+		'<input type="search" class="searchBox" placeholder="'+ mxResources.get('search', null, 'Search') +'">' +
+	'</div>' +
+	'<div class="templatesList">' +
+		'<div class="newDiagramlbl">'+ mxResources.get('newDiagram', null, 'New Diagram') + '</div>' +
+		'<div class="hLine"></div>' +
+		'<div class="templatesLbl">'+ mxResources.get('templates', null, 'Templates') + '</div>' +
+	'</div>' +
+	'<div class="tempDlgContent">' +
+		'<div class="newDiagramCat">' +
+			'<div class="newDiagramCatLbl">'+ mxResources.get('newDiagram', null, 'New Diagram') +'</div>' +
+			'<div class="newDiagramCatList">' +
+			'</div>' + 
+			'<div class="newDiagramCatFooter">' + 
+				'<div class="showAllBtn">'+ mxResources.get('showAll', null, '+ Show all') +'</div>' +
+			'</div>' +
+		'</div>' + 
+		'<div class="diagramsList">' +
+			'<div class="diagramsListHeader">' +
+				'<div class="diagramsListTitle"></div>' +
+				'<div class="diagramsListBtns">' +
+					'<div class="radioBtn radioBtnLarge" data-id="myDiagramsBtn">' +
+						'<img src="/images/my-diagrams.svg" class="myDiagramsBtnImg"> <span>'+ mxResources.get('myDiagrams', null, 'My diagrams') + '</span>' +
+					'</div><div class="radioBtn radioBtnLarge radioBtnActive" data-id="allDiagramsBtn">' +
+						'<img src="/images/all-diagrams-sel.svg" class="allDiagramsBtnImg"> <span>'+ mxResources.get('allDiagrams', null, 'All diagrams') + '</span>' +
+					'</div><div class="spacer"> </div><div class="radioBtn radioBtnSmall radioBtnActive" data-id="tilesBtn">' +
+						'<img src="/images/tiles-sel.svg" class="tilesBtnImg">' +
+					'</div><div class="radioBtn radioBtnSmall" data-id="listBtn">' +
+						'<img src="/images/list.svg" class="listBtnImg">' +
+					'</div>' +
+				'</div>' +
+			'</div>' +
+			'<div class="diagramsTiles">' +
+			'</div>'+
+		'</div>' +
+	'</div>' +
+	'<br style="clear:both;"/>' +
+	'<div class="tempDlgFooter">' +
+		'<span class="linkToDiagram linkToDiagramHint">&#x1F6C8; ' + mxResources.get('linkToDiagramHint', null, 'Add a link to this diagram. The diagram can only be edited from the page that owns it.') + '</span>' +
+		'<button class="linkToDiagram linkToDiagramBtn">'+ mxResources.get('linkToDiagram', null, 'Link to Diagram') + '</button>' +
+		'<div class="createBtn">'+ mxResources.get('create', null, 'Create') + '</div>' +
+		'<div class="cancelBtn">'+ mxResources.get('cancel', null, 'Cancel') + '</div>' +
+	'</div>';
+	
+	var div = document.createElement('div');
+	div.innerHTML = dialogSkeleton;
+	div.className = "templateDlg";
+	//override default dialog size based on screen size if needed
+	var ww = window.innerWidth;
+	var wh = window.innerHeight;
+	var dw = 987, dh = 712;
+	
+	if (ww * 0.9 < dw)
+	{
+		dw = Math.max(ww * 0.9, 600);
+		div.style.width = dw + "px";
+	}
+
+	if (wh * 0.9 < dh)
+	{
+		dh = Math.max(wh * 0.9, 300);
+		div.style.height = dh + "px";
+	}
+
+	this.width = dw;
+	this.height = dh;
+	this.container = div;
+};
+
+TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
+		templateFile, newDiagramCatsFile, username, recentDocsCallback, searchDocsCallback,
+		openExtDocCallback, linkToDiagramCallback)
+{
+	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
+	newDiagramCatsFile = (newDiagramCatsFile != null) ? newDiagramCatsFile : NEW_DIAGRAM_CATS_PATH + '/index.xml';
+
+	var dlgDiv = this.container;
+	var callInitiated = false;
+	var cancelPendingCall = false;
+	var currentEntry = null;
+	var currentItem = null;
+	var currentItemInfo = null;
+	var showingAll = false;
+	var isGetAll = true;
+	var showAsList = false;
+	var curDiagList = [];
+	var lastSearchStr;
+	var categorySelected = true;
+	var showAllBtn = dlgDiv.querySelector(".showAllBtn");
+	var diagramsTiles = dlgDiv.querySelector('.diagramsTiles');
+	var diagramsListTitle = dlgDiv.querySelector('.diagramsListTitle');
+	var diagramsListBtns = dlgDiv.querySelector('.diagramsListBtns');
+	var tempDlgContent = dlgDiv.querySelector('.tempDlgContent');
+	var diagramsList = dlgDiv.querySelector('.diagramsList');
+	var newDiagramCat = dlgDiv.querySelector('.newDiagramCat');
+	var newDiagramCatList = dlgDiv.querySelector(".newDiagramCatList");
+	var createBtn = dlgDiv.querySelector('.createBtn');
+	var spinner = new Spinner({
+		lines: 12, // The number of lines to draw
+		length: 10, // The length of each line
+		width: 5, // The line thickness
+		radius: 10, // The radius of the inner circle
+		rotate: 0, // The rotation offset
+		color: '#000', // #rgb or #rrggbb
+		speed: 1.5, // Rounds per second
+		trail: 60, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		top: '50px',
+		zIndex: 2e9 // The z-index (defaults to 2000000000)
+	});
+	
+	function deselectTempCat()
+	{
+		if (currentEntry != null)
+		{
+			currentEntry.style.fontWeight = 'normal';
+			currentEntry.style.textDecoration = 'none';
+			currentEntry = null;
+		}
+	};
+	
+	mxEvent.addListener(dlgDiv.querySelector('.newDiagramlbl'), 'click', function()
+	{
+		deselectTempCat();
+		newDiagramCat.style.display = '';
+		diagramsList.style.minHeight = 'calc(100% - 280px)';
+		getRecentDocs(isGetAll);
+	});
+	
+	function radioClick(btn, btnImgId, btnImgFile, otherBtnId, otherBtnImgId, otherBtnImgFile, isLarge)
+	{
+		if (btn.className.indexOf('radioBtnActive') > -1)
+		{
+			return false;
+		}
+		else
+		{
+			btn.className += ' radioBtnActive';
+			dlgDiv.querySelector('.radioBtn[data-id='+ otherBtnId +']').className = "radioBtn " + (isLarge? "radioBtnLarge" : "radioBtnSmall");
+			dlgDiv.querySelector('.'+ btnImgId).src = "/images/"+ btnImgFile +"-sel.svg";
+			dlgDiv.querySelector('.'+ otherBtnImgId).src = "/images/"+ otherBtnImgFile +".svg";
+			return true;
+		}
+	};
+	
+	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=allDiagramsBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'allDiagramsBtnImg', 'all-diagrams', 'myDiagramsBtn', 'myDiagramsBtnImg', 'my-diagrams', true))
+		{
+			isGetAll = true;
+			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
+		}
+	});
+
+	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=myDiagramsBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'myDiagramsBtnImg', 'my-diagrams', 'allDiagramsBtn', 'allDiagramsBtnImg', 'all-diagrams', true))
+		{
+			isGetAll = false;
+			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
+		}
+	});
+	
+	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=listBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'listBtnImg', 'list', 'tilesBtn', 'tilesBtnImg', 'tiles', false))
+		{
+			showAsList = true;
+			fillDiagramsList(curDiagList, false, showAsList);
+		}
+	});
+	
+	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=tilesBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'tilesBtnImg', 'tiles', 'listBtn', 'listBtnImg', 'list', false))
+		{
+			showAsList = false;
+			fillDiagramsList(curDiagList, false, showAsList);
+		}
+	});
+	
+	function createPreview(diagram)
+	{
+		var imgUrl = diagram.prevImgUrl || diagram.imgUrl || (TEMPLATE_PATH + '/' + diagram.url.substring(0, diagram.url.length - 4) + '.png');
+		var mask = document.createElement('div');
+		mask.className = "dialogMask";
+		dlgDiv.appendChild(mask);
+		var prevBox = document.createElement('div');
+		prevBox.className = "diagramPreviewBox";
+		var img = document.createElement('img');
+		img.src = imgUrl;
+		prevBox.appendChild(img);
+		var closeBtn = document.createElement('img');
+		closeBtn.src = "/images/close.png";
+		closeBtn.className = "previewCloseBtn";
+		closeBtn.setAttribute('title', mxResources.get("close"));
+		prevBox.appendChild(closeBtn);
+		var scrollTop = tempDlgContent.scrollTop;
+		
+		function closeBox(evt)
+		{
+			tempDlgContent.removeChild(prevBox);
+			dlgDiv.removeChild(mask);
+			tempDlgContent.scrollTop = scrollTop;
+		};
+
+		mxEvent.addListener(closeBtn, 'click', closeBox);
+		mxEvent.addListener(mask, 'click', closeBox);
+		tempDlgContent.appendChild(prevBox);
+		tempDlgContent.scrollTop = 0;
+		//for centering the image
+		prevBox.style.lineHeight = prevBox.clientHeight + "px";
+	};
+	
+	function swapActiveItem(newItem, activeCls, itemInfo)
+	{
+		if (currentItem != null)
+		{
+			var classes = currentItem.className.split(" ");
+
+			for (var i = 0; i < classes.length; i++)
+			{
+				if (classes[i].indexOf("Active") > -1)
+				{
+					classes.splice(i, 1);
+					break;
+				}
+			}
+			
+			currentItem.className = classes.join(" ");
+		}
+		
+		if (newItem != null)
+		{
+			currentItem = newItem;
+			currentItem.className += " " + activeCls;
+			currentItemInfo = itemInfo;
+			categorySelected = itemInfo.isCategory;
+			//activate create button
+			createBtn.className = "createBtn";
+		}
+		else 
+		{
+			currentItem = null;
+			currentItemInfo = null;
+			//disable create button
+			createBtn.className = "createBtn createBtnDisabled";
+		}
+	};
+	
+	function handleDialogOK(linkToDiagram)
+	{
+		if (currentItemInfo != null)
+		{
+			var itemInfo = currentItemInfo;
+			//disable create button
+			currentItemInfo = null;
+			createBtn.className = "createBtn createBtnDisabled createBtnBusy";
+			
+			if (itemInfo.isExternal)
+			{
+				if (linkToDiagram == true)
+				{
+					linkToDiagramCallback(itemInfo.url, itemInfo, "nameInput.value");
+				}
+				else 
+				{
+					openExtDocCallback(itemInfo.url, itemInfo, "nameInput.value");
+				}
+				
+				editorUi.hideDialog(true);
+			}
+			else
+			{
+				mxUtils.get(TEMPLATE_PATH + '/' + itemInfo.url, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+						callback(req.getText(), "nameInput.value");
+						editorUi.hideDialog(true);
+					}
+					else
+					{
+						//TODO Handle errors	
+					}
+				}));
+			}
+		}
+	};
+	
+	function showLinkToDiagram(isShown)
+	{
+		var linkDisplay = isShown? '' : 'none';
+		
+		dlgDiv.querySelectorAll(".linkToDiagram").forEach(function(elem)
+		{
+			elem.style.display = linkDisplay;
+		});
+	};
+	
+	function fillDiagramsList(diagrams, isTemplate, asList)
+	{
+		function setSubmitBtnLbl() 
+		{
+			if (isTemplate)
+			{
+				createBtn.innerHTML = mxResources.get('create');
+			}
+			else
+			{
+				createBtn.innerHTML = mxResources.get('copy');
+			}
+			
+			showLinkToDiagram (!isTemplate);
+		};
+		
+		diagramsTiles.innerHTML = '';
+		swapActiveItem();
+		curDiagList = diagrams;
+		var grid = null;
+		
+		if (asList)
+		{
+			grid = document.createElement('table');
+			grid.className = 'diagramsListGrid';
+			//create header row
+			var hrow = document.createElement('tr');
+			var th = document.createElement('th');
+			th.style.width = "50%";
+			th.innerHTML = mxResources.get('diagram', null, 'Diagram');
+			hrow.appendChild(th);
+			th = document.createElement('th');
+			th.style.width = "25%";
+			th.innerHTML = mxResources.get('changedBy', null, 'Changed By');
+			hrow.appendChild(th);
+			th = document.createElement('th');
+			th.style.width = "25%";
+			th.innerHTML = mxResources.get('lastModifiedOn', null, 'Last modified on');
+			hrow.appendChild(th);
+			grid.appendChild(hrow);
+			diagramsTiles.appendChild(grid);
+		}
+		
+		//TODO support paging
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			diagrams[i].isExternal = !isTemplate;
+			var url = diagrams[i].url;
+			var title = mxUtils.htmlEntities(diagrams[i].title);
+			var tooltip = diagrams[i].tooltip || diagrams[i].title;
+			var imgUrl = diagrams[i].imgUrl;
+			var changedBy = mxUtils.htmlEntities(diagrams[i].changedBy || "");
+			var lastModifiedOn = mxUtils.htmlEntities(diagrams[i].lastModifiedOn || "");
+			
+			if (!imgUrl)
+			{
+				imgUrl = TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png';
+			}
+			
+			var titleLimit = asList? 50 : 15;
+					
+			if (title != null && title.length > titleLimit)
+			{
+				title = title.substring(0, titleLimit) + '&hellip;';
+			}
+			
+			if (asList)
+			{
+				var row = document.createElement('tr');
+				var td = document.createElement('td');
+				var prevImg = document.createElement('img');
+				prevImg.src = "/images/icon-search.svg";
+				prevImg.className = "diagramListPreviewBtn";
+				prevImg.setAttribute('title', mxResources.get("preview"));
+				td.appendChild(prevImg);
+				var titleSpan = document.createElement('span');
+				titleSpan.className = "diagramTitle";
+				titleSpan.innerHTML = title;
+				td.appendChild(titleSpan);
+				row.appendChild(td);
+				td = document.createElement('td');
+				td.innerHTML = changedBy;
+				row.appendChild(td);
+				td = document.createElement('td');
+				td.innerHTML = lastModifiedOn;
+				row.appendChild(td);
+				grid.appendChild(row);
+				
+				if (currentItem == null)
+				{
+					setSubmitBtnLbl();
+					swapActiveItem(row, "diagramsListGridActive", diagrams[i]);
+				}
+				
+				(function(diagram2, row2)
+				{
+					mxEvent.addListener(row, 'click', function()
+					{
+						if (currentItem != row2)
+						{
+							setSubmitBtnLbl();
+							swapActiveItem(row2, "diagramsListGridActive", diagram2);
+						}
+					});
+					
+					mxEvent.addListener(row, 'dblclick', handleDialogOK);
+					
+					mxEvent.addListener(prevImg, 'click', function()
+					{
+						createPreview(diagram2);
+					});
+				})(diagrams[i], row);
+			}
+			else
+			{
+				var tile = document.createElement('div');
+				tile.className = "diagramTile";
+				tile.setAttribute('title', tooltip);
+				
+				if (currentItem == null)
+				{
+					setSubmitBtnLbl();
+					swapActiveItem(tile, "diagramTileActive", diagrams[i]);
+				}
+				
+				var imgDiv = document.createElement('div');
+				imgDiv.className = "diagramTileImg diagramTileImgLoading";
+				var img = document.createElement('img');
+				img.style.display = "none";
+				
+				(function(img2, imgDiv2)
+				{
+					img.onload = function() 
+					{
+						imgDiv2.className = "diagramTileImg";
+						img2.style.display = "";	
+					}
+					
+					img.onerror = function()
+					{
+						imgDiv2.className = "diagramTileImg diagramTileImgError";
+					}
+				})(img, imgDiv);
+				
+				img.src = imgUrl;
+				imgDiv.appendChild(img);
+				tile.appendChild(imgDiv);
+	
+				var lblDiv = document.createElement('div');
+				lblDiv.className = "diagramTileLbl";
+				lblDiv.innerHTML = title != null? title : "";
+				tile.appendChild(lblDiv);
+				
+				var prevImg = document.createElement('img');
+				prevImg.src = "/images/icon-search.svg";
+				prevImg.className = "diagramPreviewBtn";
+				prevImg.setAttribute('title', mxResources.get("preview"));
+				tile.appendChild(prevImg);
+				
+				(function(diagram2, tile2)
+				{
+					mxEvent.addListener(tile, 'click', function()
+					{
+						if (currentItem != tile2)
+						{
+							setSubmitBtnLbl();
+							swapActiveItem(tile2, "diagramTileActive", diagram2);
+						}
+					});
+					
+					mxEvent.addListener(tile, 'dblclick', handleDialogOK);
+					
+					mxEvent.addListener(prevImg, 'click', function()
+					{
+						createPreview(diagram2);
+					});
+				})(diagrams[i], tile);
+				
+				diagramsTiles.appendChild(tile);
+			}
+		}
+	};
+	
+	function fillNewDiagramCats(newDiagramCats, showAll) 
+	{
+		newDiagramCatList.innerHTML = "";
+		swapActiveItem();
+		var catCount = !showAll && newDiagramCats.length > 5 ? 5 : newDiagramCats.length;
+		
+		for (var i = 0; i < catCount; i++)
+		{
+			var cat = newDiagramCats[i];
+			cat.isCategory = true;
+			var entry = document.createElement('div');
+			var label = mxResources.get(cat.title);
+			
+			if (label == null)
+			{
+				label = cat.title.substring(0, 1).toUpperCase() + cat.title.substring(1);
+			}
+			
+			entry.className = 'newDiagramCatItem';
+			entry.setAttribute('title', label);
+			
+			label = mxUtils.htmlEntities(label);
+			
+			if (label.length > 15)
+			{
+				label = label.substring(0, 15) + '&hellip;';
+			}
+
+			if (currentItem == null)
+			{
+				createBtn.innerHTML = mxResources.get('create');
+				showLinkToDiagram();
+				swapActiveItem(entry, "newDiagramCatItemActive", cat);
+			}
+			
+			var imgDiv = document.createElement('div');
+			imgDiv.className = "newDiagramCatItemImg";
+			var img = document.createElement('img');
+			img.src = NEW_DIAGRAM_CATS_PATH + '/' + cat.img;
+			imgDiv.appendChild(img);
+			entry.appendChild(imgDiv);
+
+			var lblDiv = document.createElement('div');
+			lblDiv.className = "newDiagramCatItemLbl";
+			lblDiv.innerHTML = label;
+			entry.appendChild(lblDiv);
+			
+			newDiagramCatList.appendChild(entry);
+
+			(function(cat2, entry2)
+			{
+				mxEvent.addListener(entry, 'click', function()
+				{
+					if (currentItem != entry2)
+					{
+						createBtn.innerHTML = mxResources.get('create');
+						showLinkToDiagram();
+						swapActiveItem(entry2, "newDiagramCatItemActive", cat2);
+					}
+				});
+				
+				mxEvent.addListener(entry, 'dblclick', handleDialogOK);
+			})(cat, entry);
+		}
+		
+		showAllBtn.style.display = newDiagramCats.length < 5 ? "none" : "";
+	};
+	
+	mxEvent.addListener(showAllBtn, 'click', function()
+	{
+		if (showingAll)
+		{
+			newDiagramCat.style.height = "280px";
+			newDiagramCatList.style.height = "190px";
+			showAllBtn.innerHTML = mxResources.get('showAll', null, '+ Show all');
+			fillNewDiagramCats(newDiagramCats);
+		}
+		else 
+		{
+			newDiagramCat.style.height = "440px";
+			newDiagramCatList.style.height = "355px";
+			showAllBtn.innerHTML = mxResources.get('showLess', null, '- Show less');
+			fillNewDiagramCats(newDiagramCats, true);
+		}
+
+		showingAll = !showingAll;
+	});
+	
+	function fillTemplatesList(categories)
+	{
+		var list = dlgDiv.querySelector(".templatesList");
+		
+		for (var cat in categories)
+		{
+			var entry = document.createElement('div');
+			var label = mxResources.get(cat);
+			var templateList = categories[cat];
+			
+			if (label == null)
+			{
+				label = cat.substring(0, 1).toUpperCase() + cat.substring(1);
+			}
+			
+			entry.className = 'templateCatLink';
+			entry.setAttribute('title', label + ' (' + templateList.length + ')');
+			
+			label = mxUtils.htmlEntities(label);
+			
+			if (label.length > 15)
+			{
+				label = label.substring(0, 15) + '&hellip;';
+			}
+					
+			entry.innerHTML = label + ' (' + templateList.length + ')';
+			
+			list.appendChild(entry);
+
+			(function(cat2, label2, entry2)
+			{
+				mxEvent.addListener(entry, 'click', function()
+				{
+					if (currentEntry != entry2)
+					{
+						if (currentEntry != null)
+						{
+							currentEntry.style.fontWeight = 'normal';
+							currentEntry.style.textDecoration = 'none';
+						}
+						else
+						{
+							newDiagramCat.style.display = 'none';
+							diagramsList.style.minHeight = '100%';
+						}
+						
+						currentEntry = entry2;
+						currentEntry.style.fontWeight = 'bold';
+						currentEntry.style.textDecoration = 'underline';
+						
+						tempDlgContent.scrollTop = 0;
+						
+						if (callInitiated)
+						{
+							cancelPendingCall = true;
+						}
+
+						diagramsListTitle.innerHTML = label2;
+						diagramsListBtns.style.display = 'none';
+						fillDiagramsList(categories[cat2], true);
+					}
+				});
+			})(cat, label, entry);
+		}
+	};
+	
+	var indexLoaded = false, indexLoaded2 = false;
+	var categories = {};
+	var newDiagramCats = [];
+	var categoryCount = 1;
+	
+	mxUtils.get(templateFile, function(req)
+	{
+		// Workaround for index loaded 3 times in iOS offline mode
+		if (!indexLoaded)
+		{
+			indexLoaded = true;
+			var tmpDoc = req.getXml();
+			var node = tmpDoc.documentElement.firstChild;
+
+			while (node != null)
+			{
+				if (typeof(node.getAttribute) !== 'undefined')
+				{
+					var url = node.getAttribute('url');
+					
+					if (url != null)
+					{
+						var slash = url.indexOf('/');
+						var category = url.substring(0, slash);
+						
+						var list = categories[category];
+						
+						if (list == null)
+						{
+							categoryCount++;
+							list = [];
+							categories[category] = list;
+						}
+						
+						list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+							title: node.getAttribute('title'), tooltip: node.getAttribute('url'), imgUrl: node.getAttribute('imgUrl')});
+					}
+				}
+				
+				node = node.nextSibling;
+			}
+			
+			fillTemplatesList(categories);
+		}
+	});
+	
+	mxUtils.get(newDiagramCatsFile, function(req)
+	{
+		// Workaround for index loaded 3 times in iOS offline mode
+		if (!indexLoaded2)
+		{
+			indexLoaded2 = true;
+			var tmpDoc = req.getXml();
+			var node = tmpDoc.documentElement.firstChild;
+
+			while (node != null)
+			{
+				if (typeof(node.getAttribute) !== 'undefined')
+				{
+					var title = node.getAttribute('title');
+					
+					if (title != null)
+					{
+						newDiagramCats.push({img: node.getAttribute('img'), libs: node.getAttribute('libs'),
+							title: node.getAttribute('title')});
+					}
+				}
+				
+				node = node.nextSibling;
+			}
+			
+			fillNewDiagramCats(newDiagramCats);
+		}
+	});
+	
+	var extDiagramsCallback = function(list, errorMsg)
+	{
+		diagramsListBtns.style.display = '';
+		spinner.stop();
+
+		callInitiated = false;
+		
+		if (cancelPendingCall)
+		{
+			cancelPendingCall = false;
+			return;
+		}
+		
+		if (errorMsg)
+		{
+			diagramsTiles.innerHTML = errorMsg;
+		}
+		else if (list.length == 0)
+		{
+			diagramsTiles.innerHTML = mxResources.get('noDiagrams', null, 'No Diagrams Found');
+		}
+		else
+		{
+			fillDiagramsList(list, false, showAsList);
+		}
+	};
+	
+	function getRecentDocs(getAll)
+	{
+		if (recentDocsCallback)
+		{
+			tempDlgContent.scrollTop = 0;
+			diagramsTiles.innerHTML = '';
+			spinner.spin(diagramsTiles);
+			cancelPendingCall = false;
+			callInitiated = true;
+			diagramsListTitle.innerHTML = mxResources.get('recentDiag', null, 'Recent Diagrams');
+			lastSearchStr = null;
+			recentDocsCallback(extDiagramsCallback, getAll? null : username);
+		}
+	};
+	
+	getRecentDocs(isGetAll);
+
+	var delayTimer = null;
+	
+	function doSearch(searchStr)
+	{
+		deselectTempCat();
+		tempDlgContent.scrollTop = 0;
+		diagramsTiles.innerHTML = '';
+		spinner.spin(diagramsTiles);
+		cancelPendingCall = false;
+		callInitiated = true;
+		delayTimer = null;
+		diagramsListTitle.innerHTML = mxResources.get('searchResults', null, 'Search Results') + 
+								' "' + mxUtils.htmlEntities(searchStr) + '"';
+		searchDocsCallback(searchStr, extDiagramsCallback, isGetAll? null : username);
+		lastSearchStr = searchStr;
+	};
+	
+	//TODO use request id to allow only last request to show results
+	if (searchDocsCallback)
+	{
+		//Use keyup to detect delete and backspace
+		mxEvent.addListener(dlgDiv.querySelector(".searchBox"), 'keyup', function(evt)
+		{
+			var searchInout = this;
+			
+			if (delayTimer != null)
+			{
+				clearTimeout(delayTimer);
+			}
+			
+			if (evt.keyCode == 13)
+			{
+				doSearch(searchInout.value);
+			}
+			else
+			{
+				delayTimer = setTimeout(function()
+				{
+					doSearch(searchInout.value);	
+				}, 500);
+			}
+		});
+	}
+	
+	mxEvent.addListener(createBtn, 'click', handleDialogOK);
+	
+	mxEvent.addListener(dlgDiv.querySelector(".linkToDiagramBtn"), 'click', function(evt)
+	{
+		handleDialogOK(true);
+	});
+
+	mxEvent.addListener(dlgDiv.querySelector('.cancelBtn'), 'click', function()
+	{
+		if (cancelCallback != null)
+		{
+			cancelCallback();
+		}
+		
+		editorUi.hideDialog(true);
+	});
+};

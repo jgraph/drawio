@@ -2558,6 +2558,57 @@
 
 			menu.addSeparator(parent);
 			this.addMenuItem(menu, 'tags', parent);
+			
+			if (urlParams['newTempDlg'] == '1')
+			{
+				editorUi.actions.addAction('templates', function()
+				{
+					var tempDlg = new TemplatesDialog();
+					editorUi.showDialog(tempDlg.container, tempDlg.width, tempDlg.height, true, false, null, false, true);
+					tempDlg.init(editorUi, function(xml){console.log(xml)}, null,
+							null, null, "user", function(callback, username)
+					{
+						setTimeout(function(){
+							username? callback([
+								{url: '123', title: 'Test 1Test 1Test 1Test 1Test 1Test 1Test 11Test 1Test 11Test 1Test 1dgdsgdfg fdg dfgdfg dfg dfg'},
+								{url: '123', title: 'Test 2', imgUrl: 'https://www.google.com.eg/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'},
+								{url: '123', title: 'Test 3', changedBy: 'Ashraf Teleb', lastModifiedOn: 'Yesterday'},
+								{url: '123', title: 'Test 4'},
+								{url: '123', title: 'Test 5'},
+								{url: '123', title: 'Test 6'}
+							]) : callback([
+								{url: '123', title: 'Test 4', imgUrl: 'https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg'},
+								{url: '123', title: 'Test 5'},
+								{url: '123', title: 'Test 6'},
+								{url: '123', title: 'Test 1Test 1Test 1Test 1Test 1Test 1Test 11Test 1Test 11Test 1Test 1dgdsgdfg fdg dfgdfg dfg dfg'},
+								{url: '123', title: 'Test 2', imgUrl: 'https://www.google.com.eg/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'},
+								{url: '123', title: 'Test 3', changedBy: 'Ashraf Teleb', lastModifiedOn: 'Yesterday'}
+							]);
+							console.log(username);
+						}, 1000);
+					}, function(str, callback, username)
+					{
+						setTimeout(function(){
+							callback(username? [
+								{url: '123', title: str +'Test 1Test 1Test 1Test 1Test 1Test 1Test 1'},
+								{url: '123', title: str +'Test 2'},
+								{url: '123', title: str +'Test 3'},
+								{url: '123', title: str +'Test 4'},
+								{url: '123', title: str +'Test 5'},
+								{url: '123', title: str +'Test 6'}
+							]: [
+								{url: '123', title: str +'Test 5'},
+								{url: '123', title: str +'Test 6'},
+								{url: '123', title: str +'Test 1Test 1Test 1Test 1Test 1Test 1Test 1'},
+								{url: '123', title: str +'Test 2'},
+								{url: '123', title: str +'Test 3'},
+								{url: '123', title: str +'Test 4'}
+							]);
+						}, 2000);						
+					}, null);
+				});
+				this.addMenuItem(menu, 'templates', parent);
+			}
 		})));
 
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
