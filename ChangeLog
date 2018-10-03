@@ -1,3 +1,7 @@
+03-OCT-2018: 9.2.1
+
+- Ignores mode in Google Drive fallback
+
 03-OCT-2018: 9.2.0
 
 - Configurable ui and plugins for Confluence Cloud 

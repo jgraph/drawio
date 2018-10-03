@@ -3537,9 +3537,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success)
 						
 						var fallback = mxUtils.bind(this, function()
 						{
+							this.spinner.stop();
+							
 							if (this.drive != null)
 							{
-								this.spinner.stop();
 								this.loadFile('G' + url.substring(31, url.lastIndexOf('&ex')), sameWindow, success);
 								
 								return true;
