@@ -7826,7 +7826,7 @@
 		}
 		
 		// Adds an element to edit the style in the footer in test mode
-		if (urlParams['test'] == '1')
+		if (urlParams['styledev'] == '1')
 		{
 			var footer = document.getElementById('geFooter');
 

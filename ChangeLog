@@ -1,3 +1,11 @@
+03-OCT-2018: 9.2.0
+
+- Configurable ui and plugins for Confluence Cloud 
+- Fixes fallback for public Google Drive URLs
+- Adds configure=1 URL parameter and protocol
+- Ctrl+Shift connect sets source constraint
+- Removes #C configuration switch
+
 21-SEP-2018: 9.1.8
 
 - Fixes minor constraint check bug for new connections

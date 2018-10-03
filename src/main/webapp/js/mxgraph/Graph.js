@@ -2285,11 +2285,6 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		
 		if (edge != null)
 		{
-			// Uses elbow edges with vertical or horizontal direction
-//			var elbowValue = (direction == mxConstants.DIRECTION_NORTH || direction == mxConstants.DIRECTION_SOUTH) ? 'vertical' : 'horizontal';
-//			edge.style = mxUtils.setStyle(edge.style, 'edgeStyle', 'elbowEdgeStyle');
-//			edge.style = mxUtils.setStyle(edge.style, 'elbow', elbowValue);
-//			edge.style = mxUtils.setStyle(edge.style, 'sourcePortConstraint', direction);
 			result.push(edge);
 		}
 		
@@ -3438,18 +3433,16 @@ HoverIcons.prototype.drag = function(evt, x, y)
 			handler.setHandlesVisible(false);
 		}
 		
-		// Uses elbow edges with vertical or horizontal direction
-//		var direction = this.getDirection();
-//		var es = this.graph.connectionHandler.edgeState;
-//		es.cell.style = mxUtils.setStyle(es.cell.style, 'sourcePortConstraint', direction);
-//		es.style['sourcePortConstraint'] = direction;
-//		var elbowValue = (direction == mxConstants.DIRECTION_NORTH || direction == mxConstants.DIRECTION_SOUTH) ? 'vertical' : 'horizontal';
-//		
-//		var es = this.graph.connectionHandler.edgeState;
-//		es.style['edgeStyle'] = 'elbowEdgeStyle';
-//		es.style['elbow'] = elbowValue;
-//		es.cell.style = mxUtils.setStyle(es.cell.style, 'edgeStyle', es.style['edgeStyle']);
-//		es.cell.style = mxUtils.setStyle(es.cell.style, 'elbow', es.style['elbow']);
+		// Ctrl+shift drag sets source constraint
+		var es = this.graph.connectionHandler.edgeState;
+
+		if (evt != null && mxEvent.isShiftDown(evt) && mxEvent.isControlDown(evt) && es != null &&
+			mxUtils.getValue(es.style, mxConstants.STYLE_EDGE, null) === 'orthogonalEdgeStyle')
+		{
+			var direction = this.getDirection();
+			es.cell.style = mxUtils.setStyle(es.cell.style, 'sourcePortConstraint', direction);
+			es.style['sourcePortConstraint'] = direction;
+		}
 	}
 };
 
