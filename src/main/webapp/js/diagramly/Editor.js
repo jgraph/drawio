@@ -2561,6 +2561,41 @@
 	};
 
 	/**
+	 * Adds support for vars URL parameter.
+	 */
+	var graphGetGlobalVariable = Graph.prototype.getGlobalVariable;
+	
+	Graph.prototype.getGlobalVariable = function(name)
+	{
+		var val = graphGetGlobalVariable.apply(this, arguments);
+		
+		if (val == null)
+		{
+			if (this.globalUrlVars == null && urlParams['vars'] != null)
+			{
+				try
+				{
+					this.globalUrlVars = JSON.parse(decodeURIComponent(urlParams['vars']));
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.log('Error in vars URL parameter: ' + e);
+					}
+				}
+			}
+			
+			if (this.globalUrlVars != null)
+			{
+				val = this.globalUrlVars[name];
+			}
+		}
+		
+		return val;
+	};
+
+	/**
 	 * Adds workaround for math rendering in Chrome.
 	 * 
 	 * Workaround for https://bugs.webkit.org/show_bug.cgi?id=93358 in WebKit
