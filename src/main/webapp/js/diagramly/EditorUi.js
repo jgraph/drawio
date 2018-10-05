@@ -9122,13 +9122,17 @@
 			
 			var data = evt.data;
 			
-			function extractDiagramXml(data)
+			var extractDiagramXml = mxUtils.bind(this, function(data)
 			{
 				if (data != null && typeof data.charAt === 'function' && data.charAt(0) != '<')
 				{
 					try
-					{	
-						if (data.substring(0, 26) == 'data:image/svg+xml;base64,')
+					{
+						if (data.substring(0, 22) == 'data:image/png;base64,')
+						{
+							data = this.extractGraphModelFromPng(data);
+						}
+						else if (data.substring(0, 26) == 'data:image/svg+xml;base64,')
 						{
 							data = atob(data.substring(26));
 						}
@@ -9156,7 +9160,7 @@
 				}
 				
 				return data;
-			};
+			});
 
 			if (urlParams['proto'] == 'json')
 			{
@@ -9206,17 +9210,7 @@
 				}
 				else if (data.action == 'draft')
 				{
-					var tmp = null;
-					
-					if (data.xml.substring(0, 22) == 'data:image/png;base64,')
-					{
-						tmp = this.extractGraphModelFromPng(data.xml);
-					}
-					else
-					{
-						tmp = extractDiagramXml(data.xml);
-					}
-					
+					var tmp = extractDiagramXml(data.xml);
 					this.spinner.stop();
 					
 					var dlg = new DraftDialog(this, mxResources.get('draftFound', [data.name || this.defaultFilename]),
@@ -9623,10 +9617,6 @@
 					{
 						data = this.extractGraphModelFromPng(data.xmlpng);
 					}
-					else if (data.xml != null && data.xml.substring(0, 22) == 'data:image/png;base64,')
-					{
-						data = this.extractGraphModelFromPng(data.xml);
-					}
 					else
 					{
 						data = data.xml;
@@ -9641,71 +9631,113 @@
 				}
 			}
 			
-			data = extractDiagramXml(data);
-			
-			ignoreChange = true;
-			try
+			var doLoad = mxUtils.bind(this, function(data, evt)
 			{
-				fn(data, evt);
-			}
-			catch (e)
-			{
-				this.handleError(e);
-			}
-			ignoreChange = false;
-			
-			if (urlParams['modified'] != null)
-			{
-				this.editor.setStatus('');
-			}
-			
-			var getData = mxUtils.bind(this, function()
-			{
-				return (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
-					this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
-			});;
-			
-			lastData = getData();
-
-			if (autosave && changeListener == null)
-			{
-				changeListener = mxUtils.bind(this, function(sender, eventObject)
+				ignoreChange = true;
+				try
 				{
-					var data = getData();
-
-					if (data != lastData && !ignoreChange)
-					{
-						var msg = this.createLoadMessage('autosave');
-						msg.xml = data;
-						data = JSON.stringify(msg);
-						
-						var parent = window.opener || window.parent;
-						parent.postMessage(data, '*');
-					}
-					
-					lastData = data;
-				});
+					fn(data, evt);
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+				ignoreChange = false;
 				
-				this.editor.graph.model.addListener(mxEvent.CHANGE, changeListener);
+				if (urlParams['modified'] != null)
+				{
+					this.editor.setStatus('');
+				}
+				
+				var getData = mxUtils.bind(this, function()
+				{
+					return (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
+						this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
+				});;
+				
+				lastData = getData();
 
-				// Some options trigger autosave
-				this.editor.graph.addListener('gridSizeChanged', changeListener);
-				this.editor.graph.addListener('shadowVisibleChanged', changeListener);
-				this.addListener('pageFormatChanged', changeListener);
-				this.addListener('pageScaleChanged', changeListener);
-				this.addListener('backgroundColorChanged', changeListener);
-				this.addListener('backgroundImageChanged', changeListener);
-				this.addListener('foldingEnabledChanged', changeListener);
-				this.addListener('mathEnabledChanged', changeListener);
-				this.addListener('gridEnabledChanged', changeListener);
-				this.addListener('guidesEnabledChanged', changeListener);
-				this.addListener('pageViewChanged', changeListener);
-			}
+				if (autosave && changeListener == null)
+				{
+					changeListener = mxUtils.bind(this, function(sender, eventObject)
+					{
+						var data = getData();
+
+						if (data != lastData && !ignoreChange)
+						{
+							var msg = this.createLoadMessage('autosave');
+							msg.xml = data;
+							data = JSON.stringify(msg);
+							
+							var parent = window.opener || window.parent;
+							parent.postMessage(data, '*');
+						}
+						
+						lastData = data;
+					});
+					
+					this.editor.graph.model.addListener(mxEvent.CHANGE, changeListener);
+
+					// Some options trigger autosave
+					this.editor.graph.addListener('gridSizeChanged', changeListener);
+					this.editor.graph.addListener('shadowVisibleChanged', changeListener);
+					this.addListener('pageFormatChanged', changeListener);
+					this.addListener('pageScaleChanged', changeListener);
+					this.addListener('backgroundColorChanged', changeListener);
+					this.addListener('backgroundImageChanged', changeListener);
+					this.addListener('foldingEnabledChanged', changeListener);
+					this.addListener('mathEnabledChanged', changeListener);
+					this.addListener('gridEnabledChanged', changeListener);
+					this.addListener('guidesEnabledChanged', changeListener);
+					this.addListener('pageViewChanged', changeListener);
+				}
+				
+				// Sends the bounds of the graph to the host after parsing
+				if (urlParams['returnbounds'] == '1' || urlParams['proto'] == 'json')
+				{
+					parent.postMessage(JSON.stringify(this.createLoadMessage('load')), '*');
+				}
+			});
 			
-			// Sends the bounds of the graph to the host after parsing
-			if (urlParams['returnbounds'] == '1' || urlParams['proto'] == 'json')
+			if (data != null && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
 			{
-				parent.postMessage(JSON.stringify(this.createLoadMessage('load')), '*');
+				// Checks VND binary magic number in base64
+				var filename = (data.substring(34, 45) == '0M8R4KGxGuE') ? 'raw.vsd' : 'raw.vsdx';
+				
+				this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
+				{
+					doLoad(xml, evt);
+				}, mxUtils.bind(this, function(e)
+				{
+					this.handleError(e);
+				}), filename);
+			}
+			else if (data != null && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
+			{
+				// Asynchronous parsing via server
+				this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+				{
+					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
+						xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					{
+						doLoad(xhr.responseText, evt);
+					}
+				}), '');
+			}
+			else if (data != null && this.isLucidChartData(data))
+			{
+				this.convertLucidChart(data, mxUtils.bind(this, function(xml)
+				{
+					doLoad(xml);
+				}), mxUtils.bind(this, function(e)
+				{
+					this.handleError(e);
+				}));
+			}
+			else
+			{
+				data = extractDiagramXml(data);
+				doLoad(data, evt);
 			}
 		}));
 		

@@ -1,3 +1,9 @@
+05-OCT-2018: 9.2.2
+
+- Embed mode loads all supported formats
+- Uses mxGraph 3.9.10 beta 2
+- Adds vars URL parameter
+
 03-OCT-2018: 9.2.1
 
 - Ignores mode in Google Drive fallback
@@ -13,7 +19,7 @@
 21-SEP-2018: 9.1.8
 
 - Fixes minor constraint check bug for new connections
-- Uses mxGraph 3.9.10
+- Uses mxGraph 3.9.10 beta 1
 
 21-SEP-2018: 9.1.7
 
