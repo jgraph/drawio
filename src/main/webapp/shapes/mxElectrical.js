@@ -27,6 +27,8 @@ mxShapeElectricalTestPoint.prototype.cst = {
 		SHAPE_TEST_POINT : 'mxgraph.electrical.transmission.testPoint'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -83,6 +85,8 @@ mxUtils.extend(mxShapeElectricalStraightBus, mxShape);
 mxShapeElectricalStraightBus.prototype.cst = {
 		SHAPE_STRAIGHT_BUS : 'mxgraph.electrical.transmission.straightBus'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -148,6 +152,11 @@ mxUtils.extend(mxShapeElectricalTwoLineBusElbow, mxShape);
 mxShapeElectricalTwoLineBusElbow.prototype.cst = {
 		SHAPE_TWO_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.twoLineBusElbow'
 };
+
+(
+		mxShapeElectricalTwoLineBusElbow.prototype.customProperties = [
+			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:25}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -220,6 +229,11 @@ mxUtils.extend(mxShapeElectricalThreeLineBusElbow, mxShape);
 mxShapeElectricalThreeLineBusElbow.prototype.cst = {
 		SHAPE_THREE_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.threeLineBusElbow'
 };
+
+(
+		mxShapeElectricalThreeLineBusElbow.prototype.customProperties = [
+			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:30}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -298,6 +312,11 @@ mxUtils.extend(mxShapeElectricalFourLineBusElbow, mxShape);
 mxShapeElectricalFourLineBusElbow.prototype.cst = {
 		SHAPE_FOUR_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.fourLineBusElbow'
 };
+
+(
+		mxShapeElectricalFourLineBusElbow.prototype.customProperties = [
+			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:75}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -381,6 +400,11 @@ mxUtils.extend(mxShapeElectricalEightLineBusElbow, mxShape);
 mxShapeElectricalEightLineBusElbow.prototype.cst = {
 		SHAPE_EIGHT_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.eightLineBusElbow'
 };
+
+(
+		mxShapeElectricalEightLineBusElbow.prototype.customProperties = [
+			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:180}
+		]);
 
 /**
 * Function: paintVertexShape

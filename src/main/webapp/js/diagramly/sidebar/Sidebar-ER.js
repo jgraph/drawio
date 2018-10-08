@@ -167,14 +167,14 @@
 			this.createVertexTemplateEntry('shape=rhombus;double=1;strokeWidth=2;fontSize=17;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Has', 'Has', null, null, dt + 'has'),
 	   	 	this.addEntry(dt + 'hierarchy', function()
 	   		{
-			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'html=1;strokeWidth=2;shape=mxgraph.er.rrect;rSize=5;fontSize=14;');
+			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;strokeWidth=2;arcSize=10;fontSize=14;');
 			   	cell.vertex = true;
 			   	
 			   	var cell1 = new mxCell('main', new mxGeometry(0, 0, 50, 100), 'html=1;strokeWidth=2;shape=mxgraph.er.anchor;fontSize=14;whiteSpace=wrap;');
 			   	cell1.vertex = true;
 			   	cell.insert(cell1);
 			   	
-			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'html=1;strokeWidth=2;shape=mxgraph.er.rrect;rSize=5;fontSize=14;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
+			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'rounded=1;absoluteArcSize=1;html=1;strokeWidth=2;arcSize=10;fontSize=14;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
 			   	cell2.vertex = true;
 			   	cell.insert(cell2);
 				

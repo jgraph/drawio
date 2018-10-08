@@ -107,7 +107,7 @@
 					'Orders', null, null, this.getTagsForStencil(gn, 'orders', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'batched_kanban;', w * 2, h * 0.8, '', 'Batched Kanban', null, null, this.getTagsForStencil(gn, 'batched_kanban', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'control_center;', w * 0.8, h * 0.8, '', 'Control Center', null, null, this.getTagsForStencil(gn, 'control_center', dt).join(' ')),
-		    this.createEdgeTemplateEntry('arrow;html=1;', 100, 100, '', 'Shipments', null, this.getTagsForStencil(gn, 'arrow', dt).join(' ')),
+		    this.createEdgeTemplateEntry('shape=flexArrow;html=1;', 100, 100, '', 'Shipments', null, this.getTagsForStencil(gn, 'arrow', dt).join(' ')),
 		    this.createEdgeTemplateEntry('shape=mxgraph.lean_mapping.manual_info_flow_edge;html=1;', 100, 100, 'Daily', 'Manual Information', null, this.getTagsForStencil(gn, 'manual_info_flow_edge', dt).join(' ')),
 		    this.createEdgeTemplateEntry('shape=mxgraph.lean_mapping.electronic_info_flow_edge;html=1;', 100, 100, 'Monthly', 'Electronic Information', null, this.getTagsForStencil(gn, 'electronic_info_flow_edge', dt).join(' '))
 		];

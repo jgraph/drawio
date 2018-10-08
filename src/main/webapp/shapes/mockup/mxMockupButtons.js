@@ -34,6 +34,13 @@ mxShapeMockupMultiButton.prototype.cst = {
 		CHEVRON : 'chevron'
 };
 
+(
+		mxShapeMockupMultiButton.prototype.customProperties = [
+			{name: 'buttonStyle', dispName: 'Style', type: 'enum', defVal:'round',
+				enumList: [{val: 'round', dispName: 'Round'}, {val: 'chevron', dispName: 'Chevron'}]
+			}
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -134,6 +141,13 @@ mxShapeMockupButton.prototype.cst = {
 		ROUND : 'round',
 		CHEVRON : 'chevron'
 };
+
+(
+		mxShapeMockupButton.prototype.customProperties = [
+			{name: 'buttonStyle', dispName: 'Style', type: 'enum', defVal:'round', 
+				enumList: [{val: 'round', dispName: 'Round'}, {val: 'chevron', dispName: 'Chevron'}]
+			}
+		]);
 
 /**
  * Function: paintVertexShape
@@ -656,6 +670,13 @@ mxShapeMockupOnOffButton.prototype.cst = {
 		TEXT_SIZE : 'textSize'
 };
 
+(
+		mxShapeMockupOnOffButton.prototype.customProperties = [
+			{name: 'buttonState', dispName: 'Button State', type: 'enum',
+				enumList: [{val: 'on', dispName: 'On'}, {val: 'off', dispName: 'Off'}]
+			}
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -740,6 +761,11 @@ mxShapeMockupRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeMockupRRect.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -777,6 +803,11 @@ mxShapeMockupAnchor.prototype.cst = {
 		ANCHOR : 'mxgraph.mockup.anchor'
 };
 
+(
+		mxShapeMockupAnchor.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -812,6 +843,11 @@ mxShapeMockupTopButton.prototype.cst = {
 		TOP_BUTTON : 'mxgraph.mockup.topButton',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeMockupTopButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -862,6 +898,11 @@ mxShapeMockupBottomButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeMockupBottomButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -911,6 +952,11 @@ mxShapeMockupRightButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeMockupRightButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -959,6 +1005,11 @@ mxShapeMockupLeftButton.prototype.cst = {
 		LEFT_BUTTON : 'mxgraph.mockup.leftButton',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeMockupLeftButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape

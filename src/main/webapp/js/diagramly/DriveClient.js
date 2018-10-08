@@ -645,8 +645,8 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 			{
 				var binary = /\.png$/i.test(resp.title);
 				
-				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.vsdx?$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
+				// Handles .vsdx, .vsd, .vdx, Gliffy and PNG+XML files by creating a temporary file
+				if (/\.v(dx|sdx?)$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
 					(!this.ui.useCanvasForExport && binary))
 				{
 					var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;

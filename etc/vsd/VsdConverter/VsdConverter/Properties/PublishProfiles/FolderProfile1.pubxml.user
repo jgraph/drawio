@@ -304,10 +304,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/VsdConverter.dll">
-      <publishTime>07/24/2018 15:54:46</publishTime>
+      <publishTime>10/05/2018 11:26:51</publishTime>
     </File>
     <File Include="bin/VsdConverter.pdb">
-      <publishTime>07/24/2018 15:54:46</publishTime>
+      <publishTime>10/05/2018 11:26:51</publishTime>
     </File>
     <File Include="bin/WebGrease.dll">
       <publishTime>09/10/2013 17:28:38</publishTime>
@@ -379,7 +379,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/20/2018 13:27:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/24/2018 15:54:47</publishTime>
+      <publishTime>10/05/2018 09:59:10</publishTime>
     </File>
   </ItemGroup>
 </Project>

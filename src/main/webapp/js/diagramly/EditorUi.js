@@ -2568,7 +2568,7 @@
 									}
 								});
 								
-								if (file != null && img != null && ((/(\.vsdx?)($|\?)/i.test(img)) || /(\.vssx?)($|\?)/i.test(img)))
+								if (file != null && img != null && ((/(\.v(dx|sdx?))($|\?)/i.test(img)) || /(\.vs(x|sx?))($|\?)/i.test(img)))
 								{
 									this.importVisio(file, function(xml)
 									{
@@ -5809,11 +5809,11 @@
 	};
 	
 	/**
-	 * Returns true for VSD and VSS files.
+	 * Returns true for VSD, VDX and VSS, VSX files.
 	 */
 	EditorUi.prototype.isRemoteVisioFormat = function(filename)
 	{
-		return /(\.vsd)($|\?)/i.test(filename) || /(\.vss)($|\?)/i.test(filename);
+		return /(\.v(sd|dx))($|\?)/i.test(filename) || /(\.vs(s|x))($|\?)/i.test(filename);
 	};
 	
 	/**
@@ -6283,7 +6283,7 @@
 			
 			window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
 			{
-				if (filename != null && Graph.fileSupport && /(\.vsdx?)($|\?)/i.test(filename))
+				if (filename != null && Graph.fileSupport && /(\.v(dx|sdx?))($|\?)/i.test(filename))
 				{
 					// "Not a UTF 8 file" when opening VSDX in IE so this is never called
 					var file = new Blob([xml], {type: 'application/octet-stream'})
@@ -6403,7 +6403,7 @@
                 }
             }));
         }
-		else if (file != null && filename != null && ((/(\.vsdx?)($|\?)/i.test(filename)) || /(\.vssx?)($|\?)/i.test(filename)))
+		else if (file != null && filename != null && ((/(\.v(dx|sdx?))($|\?)/i.test(filename)) || /(\.vs(x|sx?))($|\?)/i.test(filename)))
 		{
 			//  LATER: done and async are a hack before making this asynchronous
 			async = true;
@@ -6431,7 +6431,7 @@
 				}
 			}), filename);
 		}
-		else if (!/(\.vsd)($|\?)/i.test(filename) && !/(\.vss)($|\?)/i.test(filename))
+		else if (!/(\.v(sd|dx))($|\?)/i.test(filename) && !/(\.vs(s|x))($|\?)/i.test(filename))
 		{
 			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
 		}
@@ -6809,7 +6809,7 @@
 						});
 						
 						// Handles special cases
-						if (/(\.vsdx?)($|\?)/i.test(file.name) || /(\.vssx?)($|\?)/i.test(file.name))
+						if (/(\.v(dx|sdx?))($|\?)/i.test(file.name) || /(\.vs(x|sx?))($|\?)/i.test(file.name))
 						{
 							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 							{
@@ -8701,7 +8701,7 @@
 								}
 							});
 							
-							if  (/(\.vsdx?)($|\?)/i.test(name) || /(\.vssx?)($|\?)/i.test(name))
+							if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
 							{
 								this.importVisio(file, mxUtils.bind(this, function(xml)
 								{
@@ -9699,7 +9699,7 @@
 				}
 			});
 			
-			if (data != null && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
+			if (data != null && typeof data.substring === 'function' && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
 			{
 				// Checks VND binary magic number in base64
 				var filename = (data.substring(34, 45) == '0M8R4KGxGuE') ? 'raw.vsd' : 'raw.vsdx';
@@ -9712,7 +9712,7 @@
 					this.handleError(e);
 				}), filename);
 			}
-			else if (data != null && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
+			else if (data != null && typeof data.substring === 'function' && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
 			{
 				// Asynchronous parsing via server
 				this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
@@ -9724,7 +9724,7 @@
 					}
 				}), '');
 			}
-			else if (data != null && this.isLucidChartData(data))
+			else if (data != null && typeof data.substring === 'function' && this.isLucidChartData(data))
 			{
 				this.convertLucidChart(data, mxUtils.bind(this, function(xml)
 				{
@@ -9862,6 +9862,7 @@
         		var top = null;
         		var edgespacing = 40;
         		var nodespacing = 40;
+        		var levelspacing = 100;
         		var padding = 0;
         		
         		var graph = this.editor.graph;
@@ -9994,6 +9995,10 @@
 		    				else if (key == 'nodespacing')
 		    				{
 		    					nodespacing = parseFloat(value);
+		    				}
+		    				else if (key == 'levelspacing')
+		    				{
+		    					levelspacing = parseFloat(value);
 		    				}
 		    				else if (key == 'layout')
 		    				{
@@ -10275,6 +10280,8 @@
 		    			var flowLayout = new mxHierarchicalLayout(graph,
 		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
 		    			flowLayout.intraCellSpacing = nodespacing;
+		    			flowLayout.parallelEdgeSpacing = edgespacing;
+		    			flowLayout.interRankCellSpacing = levelspacing;
 		    			flowLayout.disableEdgeStyle = false;
 		    			
 		        		this.executeLayout(function()

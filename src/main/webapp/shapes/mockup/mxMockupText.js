@@ -292,6 +292,18 @@ mxShapeMockupCallout.prototype.cst = {
 		SHAPE_CALLOUT : 'mxgraph.mockup.text.callout'
 };
 
+(
+		mxShapeMockupCallout.prototype.customProperties = [
+			{name: 'callDir', dispName: 'Direction', type: 'enum',
+				enumList:[{val: 'NW', dispName:'North-West'},
+					      {val: 'NE', dispName:'North-East'},
+					      {val: 'SE', dispName:'South-East'},
+					      {val: 'SW', dispName:'South-West'}]},
+			{name: 'callStyle', dispName: 'Style', type: 'enum',
+				enumList:[{val: 'line', dispName:'Line'},
+					      {val: 'rect', dispName:'Rectangle'}]}
+		]);
+
 /**
  * Function: paintVertexShape
  * 

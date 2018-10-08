@@ -28,6 +28,11 @@ mxShapeBootstrapRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeBootstrapRRect.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -68,6 +73,11 @@ mxShapeBootstrapTopButton.prototype.cst = {
 		TOP_BUTTON : 'mxgraph.bootstrap.topButton',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeBootstrapTopButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -118,6 +128,11 @@ mxShapeBootstrapBottomButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeBootstrapBottomButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -166,6 +181,11 @@ mxShapeBootstrapRightButton.prototype.cst = {
 		RIGHT_BUTTON : 'mxgraph.bootstrap.rightButton',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeBootstrapRightButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -216,6 +236,11 @@ mxShapeBootstrapLeftButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeBootstrapLeftButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -262,8 +287,9 @@ mxUtils.extend(mxShapeBootstrapLeftButtonStriped, mxShape);
 
 mxShapeBootstrapLeftButtonStriped.prototype.cst = {
 		LEFT_BUTTON_STRIPED : 'mxgraph.bootstrap.leftButtonStriped'
-//		R_SIZE : 'rSize'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -274,7 +300,6 @@ mxShapeBootstrapLeftButtonStriped.prototype.paintVertexShape = function(c, x, y,
 {
 	c.translate(x, y);
 
-//	var rSize = parseInt(mxUtils.getValue(this.style, mxShapeBootstrapLeftButtonStriped.prototype.cst.R_SIZE, '10'));
 	rSize = 5;
 	c.begin();
 	c.moveTo(w, 0);
@@ -376,6 +401,8 @@ mxShapeBootstrapRoundedButton.prototype.cst = {
 		ROUNDED_BUTTON : 'mxgraph.bootstrap.roundedButton'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -437,6 +464,8 @@ mxShapeBootstrapArrow.prototype.cst = {
 		ARROW : 'mxgraph.bootstrap.arrow'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -480,8 +509,13 @@ mxUtils.extend(mxShapeBootstrapTabTop, mxShape);
 mxShapeBootstrapTabTop.prototype.cst = {
 		TAB_TOP : 'mxgraph.bootstrap.tabTop',
 		R_SIZE  : 'rSize'
-			
 };
+
+(
+		mxShapeBootstrapTabTop.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
+		]);
+
 
 /**
 * Function: paintVertexShape
@@ -542,8 +576,12 @@ mxUtils.extend(mxShapeBootstrapImage, mxShape);
 mxShapeBootstrapImage.prototype.cst = {
 		IMAGE : 'mxgraph.bootstrap.image',
 		R_SIZE  : 'rSize'
-			
 };
+
+(
+		mxShapeBootstrapImage.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -613,6 +651,8 @@ mxShapeBootstrapCheckbox.prototype.cst = {
 		CHECKBOX : 'mxgraph.bootstrap.checkbox'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -659,6 +699,8 @@ mxShapeBootstrapRadioButton.prototype.cst = {
 		RADIO_BUTTON : 'mxgraph.bootstrap.radioButton'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -702,6 +744,8 @@ mxUtils.extend(mxShapeBootstrapHorLines, mxShape);
 mxShapeBootstrapHorLines.prototype.cst = {
 		HOR_LINES : 'mxgraph.bootstrap.horLines'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -748,6 +792,8 @@ mxUtils.extend(mxShapeBootstrapUserTwo, mxShape);
 mxShapeBootstrapUserTwo.prototype.cst = {
 		USER2 : 'mxgraph.bootstrap.user2'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -811,6 +857,17 @@ mxShapeBootstrapRating.prototype.cst = {
 		GRADE : 'grade'
 };
 
+(
+		mxShapeBootstrapRating.prototype.customProperties = [
+			{name: 'ratingStyle', dispName: 'Rating Style', type: 'enum', 
+				enumList: [{val: 'heart', dispName: 'Heart'}, 
+				   {val: 'star', dispName: 'Star'}]
+			},
+			{name: 'ratingScale', dispName: 'Rating Scale', type: 'int', min:1, defVal:5}, 
+			{name: 'emptyFillColor', dispName: 'Inactive Color', type: 'color', defVal:'none'},
+			{name: 'grade', dispName: 'Grade', type: 'int', min:1, defVal:3} 
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -849,11 +906,21 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2 + h * 0.519, h * 0.947);
-			c.curveTo(i * h * 1.2 + h * 0.558, h * 0.908, i * h * 1.5 + h * 0.778, h * 0.682, i * h * 1.5 + h * 0.916, h * 0.54);
-			c.curveTo(i * h * 1.2 + h * 1.039, h * 0.414, i * h * 1.5 + h * 1.036, h * 0.229, i * h * 1.5 + h * 0.924, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.812, 0, i * h * 1.5 + h * 0.631, 0, i * h * 1.5 + h * 0.519, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.408, 0, i * h * 1.5 + h * 0.227, 0, i * h * 1.5 + h * 0.115, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.03, h * 0.229, i * h * 1.5, h * 0.414, i * h * 1.5 + h * 0.123, h * 0.54);
+			c.curveTo(i * h * 1.2 + h * 0.558, h * 0.908, 
+					  i * h * 1.2 + h * 0.778, h * 0.682, 
+					  i * h * 1.2 + h * 0.916, h * 0.54);
+			c.curveTo(i * h * 1.2 + h * 1.039, h * 0.414, 
+					  i * h * 1.2 + h * 1.036, h * 0.229, 
+					  i * h * 1.2 + h * 0.924, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.812, 0, 
+					  i * h * 1.2 + h * 0.631, 0, 
+					  i * h * 1.2 + h * 0.519, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.408, 0, 
+					  i * h * 1.2 + h * 0.227, 0, 
+					  i * h * 1.2 + h * 0.115, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.03, h * 0.229, 
+					  i * h * 1.2, h * 0.414, 
+					  i * h * 1.2 + h * 0.123, h * 0.54);
 			c.close();
 			c.fillAndStroke();
 		}
@@ -887,11 +954,21 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2 + h * 0.519, h * 0.947);
-			c.curveTo(i * h * 1.2 + h * 0.558, h * 0.908, i * h * 1.5 + h * 0.778, h * 0.682, i * h * 1.5 + h * 0.916, h * 0.54);
-			c.curveTo(i * h * 1.2 + h * 1.039, h * 0.414, i * h * 1.5 + h * 1.036, h * 0.229, i * h * 1.5 + h * 0.924, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.812, 0, i * h * 1.5 + h * 0.631, 0, i * h * 1.5 + h * 0.519, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.408, 0, i * h * 1.5 + h * 0.227, 0, i * h * 1.5 + h * 0.115, h * 0.115);
-			c.curveTo(i * h * 1.2 + h * 0.03, h * 0.229, i * h * 1.5, h * 0.414, i * h * 1.5 + h * 0.123, h * 0.54);
+			c.curveTo(i * h * 1.2 + h * 0.558, h * 0.908, 
+					  i * h * 1.2 + h * 0.778, h * 0.682, 
+					  i * h * 1.2 + h * 0.916, h * 0.54);
+			c.curveTo(i * h * 1.2 + h * 1.039, h * 0.414, 
+					  i * h * 1.2 + h * 1.036, h * 0.229, 
+					  i * h * 1.2 + h * 0.924, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.812, 0, 
+					  i * h * 1.2 + h * 0.631, 0, 
+					  i * h * 1.2 + h * 0.519, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.408, 0, 
+					  i * h * 1.2 + h * 0.227, 0, 
+					  i * h * 1.2 + h * 0.115, h * 0.115);
+			c.curveTo(i * h * 1.2 + h * 0.03, h * 0.229, 
+					  i * h * 1.2, h * 0.414, 
+					  i * h * 1.2 + h * 0.123, h * 0.54);
 			c.close();
 			c.fillAndStroke();
 		}
@@ -920,6 +997,7 @@ mxUtils.extend(mxShapeBoostrapAnchor, mxShape);
 mxShapeBoostrapAnchor.prototype.cst = {
 		ANCHOR : 'mxgraph.bootstrap.anchor'
 };
+
 
 /**
 * Function: paintVertexShape

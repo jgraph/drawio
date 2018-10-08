@@ -23,36 +23,37 @@ function mxAtlassianJiraIssue(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxAtlassianJiraIssue, mxRectangleShape);
 
-mxAtlassianJiraIssue.prototype.customProperties = [
-	{name: 'issueType', dispName: 'Issue Type', type: 'enum', 
-		enumList: [{val: 'story', dispName: 'Story'}, 
-				   {val: 'task', dispName: 'Task'}, 
-				   {val: 'subTask', dispName: 'Sub-Task'}, 
-				   {val: 'feature', dispName: 'Feature'}, 
-				   {val: 'bug', dispName: 'Bug'}, 
-				   {val: 'techTask', dispName: 'Tech Task'}, 
-				   {val: 'epic', dispName: 'Epic'}, 
-				   {val: 'improvement', dispName: 'Improvement'}, 
-				   {val: 'fault', dispName: 'Fault'}, 
-				   {val: 'change', dispName: 'Change'}, 
-				   {val: 'access', dispName: 'Access'}, 
-				   {val: 'purchase', dispName: 'Purchase'}, 
-				   {val: 'itHelp', dispName: 'IT Help'}] 
-	},
-	{name: 'issuePriority', dispName: 'Issue Priority', type: 'enum', 
-		enumList: [{val: 'blocker', dispName: 'Blocker'}, 
-				   {val: 'critical', dispName: 'Critical'}, 
-				   {val: 'major', dispName: 'Major'}, 
-				   {val: 'minor', dispName: 'Minor'}, 
-				   {val: 'trivial', dispName: 'Trivial'}] 
-	},
-	{name: 'issueStatus', dispName: 'Issue Status', type: 'enum', 
-		enumList: [{val: 'todo', dispName: 'TODO'}, 
-				   {val: 'inProgress', dispName: 'In Progress'}, 
-				   {val: 'inReview', dispName: 'In Review'}, 
-				   {val: 'done', dispName: 'Done'}] 
-	}
-];
+(
+		mxAtlassianJiraIssue.prototype.customProperties = [
+			{name: 'issueType', dispName: 'Issue Type', type: 'enum', 
+				enumList: [{val: 'story', dispName: 'Story'}, 
+						   {val: 'task', dispName: 'Task'}, 
+						   {val: 'subTask', dispName: 'Sub-Task'}, 
+						   {val: 'feature', dispName: 'Feature'}, 
+						   {val: 'bug', dispName: 'Bug'}, 
+						   {val: 'techTask', dispName: 'Tech Task'}, 
+						   {val: 'epic', dispName: 'Epic'}, 
+						   {val: 'improvement', dispName: 'Improvement'}, 
+						   {val: 'fault', dispName: 'Fault'}, 
+						   {val: 'change', dispName: 'Change'}, 
+						   {val: 'access', dispName: 'Access'}, 
+						   {val: 'purchase', dispName: 'Purchase'}, 
+						   {val: 'itHelp', dispName: 'IT Help'}] 
+			},
+			{name: 'issuePriority', dispName: 'Issue Priority', type: 'enum', 
+				enumList: [{val: 'blocker', dispName: 'Blocker'}, 
+						   {val: 'critical', dispName: 'Critical'}, 
+						   {val: 'major', dispName: 'Major'}, 
+						   {val: 'minor', dispName: 'Minor'}, 
+						   {val: 'trivial', dispName: 'Trivial'}] 
+			},
+			{name: 'issueStatus', dispName: 'Issue Status', type: 'enum', 
+				enumList: [{val: 'todo', dispName: 'TODO'}, 
+						   {val: 'inProgress', dispName: 'In Progress'}, 
+						   {val: 'inReview', dispName: 'In Review'}, 
+						   {val: 'done', dispName: 'Done'}] 
+			}
+		]);
 
 mxAtlassianJiraIssue.prototype.cst = {ISSUE : 'mxgraph.atlassian.issue'};
 

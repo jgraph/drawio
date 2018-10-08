@@ -95,8 +95,8 @@ function mxShapeBasicRectCallout(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicRectCallout, mxActor);
 
 mxShapeBasicRectCallout.prototype.customProperties = [
-	{name: 'dx', dispName: 'Callout Position', type: 'float'},
-	{name: 'dy', dispName: 'Callout Size', type: 'float'}
+	{name: 'dx', dispName: 'Callout Position', type: 'float', min:0, defVal:30},
+	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15}
 ];
 
 mxShapeBasicRectCallout.prototype.cst = {RECT_CALLOUT : 'mxgraph.basic.rectCallout'};
@@ -184,6 +184,12 @@ mxShapeBasicRoundRectCallout.prototype.cst = {ROUND_RECT_CALLOUT : 'mxgraph.basi
 
 mxShapeBasicRoundRectCallout.prototype.getLabelMargins = mxShapeBasicRectCallout.prototype.getLabelMargins;
 
+mxShapeBasicRoundRectCallout.prototype.customProperties = [
+	{name: 'size', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
+	{name: 'dx', dispName: 'Callout Position', type: 'float', min:0, defVal:30},
+	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -269,7 +275,7 @@ function mxShapeBasicWave(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicWave, mxActor);
 
 mxShapeBasicWave.prototype.customProperties = [
-	{name: 'dy', dispName: 'Wave Size', type: 'float'}
+	{name: 'dy', dispName: 'Wave Size', type: 'float', min:0, max:1, defVal: 0.3}
 ];
 
 mxShapeBasicWave.prototype.cst = {WAVE : 'mxgraph.basic.wave2'};
@@ -340,7 +346,7 @@ function mxShapeBasicOctagon(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicOctagon, mxActor);
 
 mxShapeBasicOctagon.prototype.customProperties = [
-	{name: 'dx', dispName: 'Cutoff Size', type: 'float'}
+	{name: 'dx', dispName: 'Cutoff Size', type: 'float', min:0, defVal:15}
 ];
 
 mxShapeBasicOctagon.prototype.cst = {OCTAGON : 'mxgraph.basic.octagon2'};
@@ -412,7 +418,7 @@ function mxShapeBasicIsoCube(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicIsoCube, mxActor);
 
 mxShapeBasicIsoCube.prototype.customProperties = [
-	{name: 'isoAngle', dispName: 'Perspective Angle', type: 'float'}
+	{name: 'isoAngle', dispName: 'Perspective Angle', type: 'float', min:0, defVal:15}
 ];
 
 mxShapeBasicIsoCube.prototype.cst = {ISO_CUBE : 'mxgraph.basic.isocube'};
@@ -492,7 +498,7 @@ function mxShapeBasicTriangleAcute(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicTriangleAcute, mxActor);
 
 mxShapeBasicTriangleAcute.prototype.customProperties = [
-	{name: 'dx', dispName: 'Top', type: 'float'}
+	{name: 'dx', dispName: 'Top', type: 'float', min:0, max:1, defVal:0.5}
 ];
 
 mxShapeBasicTriangleAcute.prototype.cst = {ACUTE_TRIANGLE : 'mxgraph.basic.acute_triangle'};
@@ -557,7 +563,7 @@ function mxShapeBasicTriangleObtuse(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicTriangleObtuse, mxActor);
 
 mxShapeBasicTriangleObtuse.prototype.customProperties = [
-	{name: 'dx', dispName: 'Bottom', type: 'float'}
+	{name: 'dx', dispName: 'Bottom', type: 'float', min:0, max:1, defVal:0.25}
 ];
 
 mxShapeBasicTriangleObtuse.prototype.cst = {OBTUSE_TRIANGLE : 'mxgraph.basic.obtuse_triangle'};
@@ -678,8 +684,8 @@ function mxShapeBasicCone2(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicCone2, mxActor);
 
 mxShapeBasicCone2.prototype.customProperties = [
-	{name: 'dx', dispName: 'Top', type: 'float'},
-	{name: 'dy', dispName: 'Bottom', type: 'float'}
+	{name: 'dx', dispName: 'Top', type: 'float', min:0, max:1, defVal:0.5},
+	{name: 'dy', dispName: 'Bottom', type: 'float', min:0, max:1, defVal:0.9}
 ];
 
 mxShapeBasicCone2.prototype.cst = {CONE2 : 'mxgraph.basic.cone2'};
@@ -773,10 +779,10 @@ function mxShapeBasicPyramid(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicPyramid, mxActor);
 
 mxShapeBasicPyramid.prototype.customProperties = [
-	{name: 'dx1', dispName: 'Top', type: 'float'},
-	{name: 'dx2', dispName: 'Bottom', type: 'float'},
-	{name: 'dy1', dispName: 'Perspective Left', type: 'float'},
-	{name: 'dy2', dispName: 'Perspective Right', type: 'float'}
+	{name: 'dx1', dispName: 'Top', type: 'float', min:0, max:1, defVal:0.4},
+	{name: 'dx2', dispName: 'Bottom', type: 'float', min:0, max:1, defVal:0.6},
+	{name: 'dy1', dispName: 'Perspective Left', type: 'float', min:0, max:1, defVal:0.9},
+	{name: 'dy2', dispName: 'Perspective Right', type: 'float', min:0, max:1, defVal:0.8}
 ];
 
 mxShapeBasicPyramid.prototype.cst = {PYRAMID : 'mxgraph.basic.pyramid'};
@@ -888,7 +894,7 @@ function mxShapeBasic4PointStar2(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasic4PointStar2, mxActor);
 
 mxShapeBasic4PointStar2.prototype.customProperties = [
-	{name: 'dx', dispName: 'Thickness', type: 'float'}
+	{name: 'dx', dispName: 'Thickness', type: 'float', min:0, max:1, defVal:0.8}
 ];
 
 mxShapeBasic4PointStar2.prototype.cst = {FOUR_POINT_STAR_2 : 'mxgraph.basic.4_point_star_2'};
@@ -958,7 +964,7 @@ function mxShapeBasicDiagSnipRect(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicDiagSnipRect, mxActor);
 
 mxShapeBasicDiagSnipRect.prototype.customProperties = [
-	{name: 'dx', dispName: 'Snip', type: 'float'},
+	{name: 'dx', dispName: 'Snip', type: 'float', min:0, deVal:6},
 ];
 
 mxShapeBasicDiagSnipRect.prototype.cst = {DIAG_SNIP_RECT : 'mxgraph.basic.diag_snip_rect'};
@@ -1029,7 +1035,7 @@ function mxShapeBasicDiagRoundRect(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicDiagRoundRect, mxActor);
 
 mxShapeBasicDiagRoundRect.prototype.customProperties = [
-	{name: 'dx', dispName: 'Rounding Size', type: 'float'},
+	{name: 'dx', dispName: 'Rounding Size', type: 'float', min:0, defVal:6},
 ];
 
 mxShapeBasicDiagRoundRect.prototype.cst = {DIAG_ROUND_RECT : 'mxgraph.basic.diag_round_rect'};
@@ -1100,7 +1106,7 @@ function mxShapeBasicCornerRoundRect(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicCornerRoundRect, mxActor);
 
 mxShapeBasicCornerRoundRect.prototype.customProperties = [
-	{name: 'dx', dispName: 'Rounding Size', type: 'float'},
+	{name: 'dx', dispName: 'Rounding Size', type: 'float', min:0, defVal:6},
 ];
 
 mxShapeBasicCornerRoundRect.prototype.cst = {CORNER_ROUND_RECT : 'mxgraph.basic.corner_round_rect'};
@@ -1170,7 +1176,7 @@ function mxShapeBasicPlaque(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicPlaque, mxActor);
 
 mxShapeBasicPlaque.prototype.customProperties = [
-	{name: 'dx', dispName: 'Cutoff Size', type: 'float'},
+	{name: 'dx', dispName: 'Cutoff Size', type: 'float', min:0, defVal:6},
 ];
 
 mxShapeBasicPlaque.prototype.cst = {PLAQUE : 'mxgraph.basic.plaque'};
@@ -1242,7 +1248,7 @@ function mxShapeBasicFrame(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicFrame, mxActor);
 
 mxShapeBasicFrame.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'},
+	{name: 'dx', dispName: 'Width', type: 'float', min:0, defVal:10},
 ];
 
 mxShapeBasicFrame.prototype.cst = {FRAME : 'mxgraph.basic.frame'};
@@ -1315,7 +1321,7 @@ function mxShapeBasicPlaqueFrame(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicPlaqueFrame, mxActor);
 
 mxShapeBasicPlaqueFrame.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'},
+	{name: 'dx', dispName: 'Width', type: 'float', mix:0, defVal:10},
 ];
 
 mxShapeBasicPlaqueFrame.prototype.cst = {PLAQUE_FRAME : 'mxgraph.basic.plaque_frame'};
@@ -1399,7 +1405,7 @@ function mxShapeBasicRoundedFrame(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicRoundedFrame, mxActor);
 
 mxShapeBasicRoundedFrame.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'},
+	{name: 'dx', dispName: 'Width', type: 'float', min:0, defVal:10},
 ];
 
 mxShapeBasicRoundedFrame.prototype.cst = {ROUNDED_FRAME : 'mxgraph.basic.rounded_frame'};
@@ -1483,7 +1489,7 @@ function mxShapeBasicFrameCorner(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicFrameCorner, mxActor);
 
 mxShapeBasicFrameCorner.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'},
+	{name: 'dx', dispName: 'Width', type: 'float', min:0, defVal:10},
 ];
 
 mxShapeBasicFrameCorner.prototype.cst = {FRAME_CORNER : 'mxgraph.basic.frame_corner'};
@@ -1553,7 +1559,7 @@ function mxShapeBasicDiagStripe(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicDiagStripe, mxActor);
 
 mxShapeBasicDiagStripe.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'},
+	{name: 'dx', dispName: 'Width', type: 'float', mix:0, defVal:10},
 ];
 
 mxShapeBasicDiagStripe.prototype.cst = {DIAG_STRIPE : 'mxgraph.basic.diag_stripe'};
@@ -1621,7 +1627,7 @@ function mxShapeBasicDonut(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicDonut, mxActor);
 
 mxShapeBasicDonut.prototype.customProperties = [
-	{name: 'dx', dispName: 'Width', type: 'float'}
+	{name: 'dx', dispName: 'Width', type: 'float', min:0, defVal:25}
 ];
 
 mxShapeBasicDonut.prototype.cst = {DONUT : 'mxgraph.basic.donut'};
@@ -1696,7 +1702,7 @@ function mxShapeBasicLayeredRect(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicLayeredRect, mxActor);
 
 mxShapeBasicLayeredRect.prototype.customProperties = [
-	{name: 'dx', dispName: 'Layer Distance', type: 'float'}
+	{name: 'dx', dispName: 'Layer Distance', type: 'float', mix:0, defVal:10}
 ];
 
 mxShapeBasicLayeredRect.prototype.cst = {LAYERED_RECT : 'mxgraph.basic.layered_rect'};
@@ -1780,7 +1786,7 @@ function mxShapeBasicButton(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicButton, mxActor);
 
 mxShapeBasicButton.prototype.customProperties = [
-	{name: 'dx', dispName: 'Button Height', type: 'float'}
+	{name: 'dx', dispName: 'Button Height', type: 'float', min:0, defVal:10}
 ];
 
 mxShapeBasicButton.prototype.cst = {BUTTON : 'mxgraph.basic.button'};
@@ -1893,7 +1899,7 @@ function mxShapeBasicShadedButton(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicShadedButton, mxActor);
 
 mxShapeBasicShadedButton.prototype.customProperties = [
-	{name: 'dx', dispName: 'Button Height', type: 'float'}
+	{name: 'dx', dispName: 'Button Height', type: 'float', min:0, defVal:10}
 ];
 
 mxShapeBasicShadedButton.prototype.cst = {SHADED_BUTTON : 'mxgraph.basic.shaded_button'};
@@ -2004,8 +2010,8 @@ function mxShapeBasicPie(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicPie, mxActor);
 
 mxShapeBasicPie.prototype.customProperties = [
-	{name: 'startAngle', dispName: 'Start Angle', type: 'float'},
-	{name: 'endAngle', dispName: 'End Angle', type: 'float'}
+	{name: 'startAngle', dispName: 'Start Angle', type: 'float', min:0, max:1, defVal: 0.2},
+	{name: 'endAngle', dispName: 'End Angle', type: 'float', min:0, max:1, defVal: 0.9}
 ];
 
 mxShapeBasicPie.prototype.cst = {PIE : 'mxgraph.basic.pie'};
@@ -2126,8 +2132,8 @@ function mxShapeBasicArc(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicArc, mxActor);
 
 mxShapeBasicArc.prototype.customProperties = [
-	{name: 'startAngle', dispName: 'Start Angle', type: 'float'},
-	{name: 'endAngle', dispName: 'End Angle', type: 'float'}
+	{name: 'startAngle', dispName: 'Start Angle', type: 'float', min:0, max:1, defVal: 0.3},
+	{name: 'endAngle', dispName: 'End Angle', type: 'float', min:0, max:1, defVal:0.1}
 ];
 
 mxShapeBasicArc.prototype.cst = {ARC : 'mxgraph.basic.arc'};
@@ -2247,9 +2253,9 @@ function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicPartConcEllipse, mxActor);
 
 mxShapeBasicPartConcEllipse.prototype.customProperties = [
-	{name: 'startAngle', dispName: 'Start Angle', type: 'float'},
-	{name: 'endAngle', dispName: 'End Angle', type: 'float'},
-	{name: 'arcWidth', dispName: 'Arc Width', type: 'float'}
+	{name: 'startAngle', dispName: 'Start Angle', type: 'float', min:0, max:1, defVal:0.25},
+	{name: 'endAngle', dispName: 'End Angle', type: 'float', min:0, max:1, defVal:0.1},
+	{name: 'arcWidth', dispName: 'Arc Width', type: 'float', min:0, max:1, defVal:0.5}
 ];
 
 mxShapeBasicPartConcEllipse.prototype.cst = {PART_CONC_ELLIPSE : 'mxgraph.basic.partConcEllipse'};
@@ -2609,7 +2615,7 @@ function mxShapeBasicThreeCornerRoundRect(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeBasicThreeCornerRoundRect, mxActor);
 
 mxShapeBasicThreeCornerRoundRect.prototype.customProperties = [
-	{name: 'dx', dispName: 'Rounding Size', type: 'float'},
+	{name: 'dx', dispName: 'Rounding Size', type: 'float', min:0, defVal:6}
 ];
 
 mxShapeBasicThreeCornerRoundRect.prototype.cst = {THREE_CORNER_ROUND_RECT : 'mxgraph.basic.three_corner_round_rect'};

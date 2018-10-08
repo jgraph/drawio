@@ -27,6 +27,8 @@ mxShapeGCP2DoubleRect.prototype.cst = {
 		SHAPE_DOUBLE_RECT : 'mxgraph.gcp2.doubleRect'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 

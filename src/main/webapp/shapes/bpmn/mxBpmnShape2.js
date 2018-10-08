@@ -38,6 +38,44 @@ function mxBpmnShape(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxBpmnShape, mxShape);
 
+
+(
+		mxBpmnShape.prototype.customProperties = [
+			{name: 'symbol', dispName: 'Event', type: 'enum', defVal:'general', 
+				enumList: [{val: 'general', dispName: 'General'}, 
+						   {val: 'message', dispName: 'Message'}, 
+						   {val: 'timer', dispName: 'Timer'}, 
+						   {val: 'escalation', dispName: 'Escalation'}, 
+						   {val: 'conditional', dispName: 'Conditional'}, 
+						   {val: 'link', dispName: 'Link'}, 
+						   {val: 'error', dispName: 'Error'}, 
+						   {val: 'cancel', dispName: 'Cancel'}, 
+						   {val: 'compensation', dispName: 'Compensation'}, 
+						   {val: 'signal', dispName: 'Signal'}, 
+						   {val: 'multiple', dispName: 'Multiple'}, 
+						   {val: 'parallelMultiple', dispName: 'Parallel Multiple'}, 
+						   {val: 'terminate', dispName: 'Terminate'}, 
+						   {val: 'exclusiveGw', dispName: 'Exclusive Gw'}, 
+						   {val: 'parallelGw', dispName: 'Parallel Gw'}, 
+						   {val: 'complexGw', dispName: 'Complex Gw'}]
+			},
+			{name: 'outline', dispName: 'Event Type', type: 'enum', defVal:'standard', 
+				enumList: [{val: 'standard', dispName: 'Standard'}, 
+						   {val: 'eventInt', dispName: 'Interrupting'}, 
+						   {val: 'eventNonint', dispName: 'Non-Interrupting'}, 
+						   {val: 'catching', dispName: 'Catching'}, 
+						   {val: 'boundInt', dispName: 'Bound Interrupting'}, 
+						   {val: 'boundNonint', dispName: 'Bound Non-Interrupting'}, 
+						   {val: 'throwing', dispName: 'Throwing'}, 
+						   {val: 'end', dispName: 'End'}, 
+						   {val: 'none', dispName: 'None'}]
+			},
+			{name: 'background', dispName: 'Background', type: 'enum', defVal:'none',
+				enumList: [{val: 'gateway', dispName: 'Gateway'}, 
+						   {val: 'none', dispName: 'None'}]
+			}
+		]);
+
 mxBpmnShape.prototype.eventTypeEnum = { 
 		START_STANDARD : 'standard', 
 		EVENT_SP_INT : 'eventInt', 
