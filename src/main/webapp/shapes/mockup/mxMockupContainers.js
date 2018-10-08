@@ -35,6 +35,16 @@ mxShapeMockupVideoPlayer.prototype.cst = {
 		BAR_HEIGHT : 'barHeight'
 };
 
+(
+		mxShapeMockupVideoPlayer.prototype.customProperties = [
+			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+			{name: 'textColor', dispName: 'Text Color', type: 'color'},
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'},
+			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, max:100, defVal:20},
+			{name: 'barHeight', dispName: 'Video Bar Height', type: 'float', min:0, defVal:30} 
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -422,6 +432,12 @@ mxShapeMockupBrowserWindow.prototype.cst = {
 
 };
 
+(
+		mxShapeMockupBrowserWindow.prototype.customProperties = [
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'}
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -617,6 +633,11 @@ mxShapeMockupUserMale.prototype.cst = {
 		SHAPE_MALE_USER : 'mxgraph.mockup.containers.userMale'
 };
 
+(
+		mxShapeMockupUserMale.prototype.customProperties = [
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -811,6 +832,11 @@ mxShapeMockupUserFemale.prototype.cst = {
 		STROKE_COLOR2 : 'strokeColor2',
 		SHAPE_FEMALE_USER : 'mxgraph.mockup.containers.userFemale'
 };
+
+(
+		mxShapeMockupUserFemale.prototype.customProperties = [
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+		]);
 
 /**
  * Function: paintVertexShape
@@ -1087,6 +1113,12 @@ mxShapeMockupWindow.prototype.cst = {
 		STROKE_COLOR3 : 'strokeColor3',
 		SHAPE_WINDOW : 'mxgraph.mockup.containers.window'
 };
+
+(
+		mxShapeMockupWindow.prototype.customProperties = [
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'}
+		]);
 
 /**
  * Function: paintVertexShape
@@ -1788,6 +1820,11 @@ mxShapeMockupContainersRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeMockupContainersRRect.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -1861,6 +1898,11 @@ mxShapeMockupContrainersTopButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+(
+		mxShapeMockupContrainersTopButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -1909,6 +1951,11 @@ mxShapeMockupContainersLeftButton.prototype.cst = {
 		LEFT_BUTTON : 'mxgraph.mockup.containers.leftButton',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeMockupContainersLeftButton.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
+		]);
 
 /**
 * Function: paintVertexShape
@@ -1962,6 +2009,16 @@ mxShapeMockupContainersMarginRect.prototype.cst = {
 		MARGIN_BOTTOM : 'rectMarginBottom',
 		MARGIN_RIGHT : 'rectMarginRight'
 };
+
+(
+		mxShapeMockupContainersMarginRect.prototype.customProperties = [
+			{name: 'rectMargin', dispName: 'Global Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginTop', dispName: 'Top Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginLeft', dispName: 'Left Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginBottom', dispName: 'Bottom Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginRight', dispName: 'Right Margin', type: 'float', min:0, defVal:0}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -2025,6 +2082,16 @@ mxShapeMockupContainersMarginRect2.prototype.cst = {
 		MARGIN_BOTTOM : 'rectMarginBottom',
 		MARGIN_RIGHT : 'rectMarginRight'
 };
+
+(
+		mxShapeMockupContainersMarginRect2.prototype.customProperties = [
+			{name: 'rectMargin', dispName: 'Global Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginTop', dispName: 'Top Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginLeft', dispName: 'Left Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginBottom', dispName: 'Bottom Margin', type: 'float', min:0, defVal:0},
+			{name: 'rectMarginRight', dispName: 'Right Margin', type: 'float', min:0, defVal:0}
+		]);
+
 /**
 * Function: paintVertexShape
 * 

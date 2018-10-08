@@ -143,6 +143,14 @@ mxShapeMockupStepBar.prototype.cst = {
 		TEXT_COLOR2 : 'textColor2'
 };
 
+(
+		mxShapeMockupStepBar.prototype.customProperties = [
+			{name: 'mainText', dispName: 'Text', type: 'string'},
+			{name: 'textSize', dispName: 'Text Size', type: 'float'},
+			{name: 'textColor', dispName: 'Text Color', type: 'color'},
+			{name: 'textColor2', dispName: 'Text2 Color', type: 'color'}
+		]);
+
 /**
  * Function: paintVertexShape
  * 
@@ -192,11 +200,11 @@ mxShapeMockupStepBar.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		if (i >= selectedButton)
 		{
-			c.setFontColor(fontColor);
+			c.setFontColor(currColor);
 		}
 		else
 		{
-			c.setFontColor(bgColor);
+			c.setFontColor(fontColor);
 		}
 
 		currWidth = currWidth + labelOffset;
@@ -246,8 +254,6 @@ mxShapeMockupStepBar.prototype.stepLineBg = function(c, w, h, buttonNum, buttonW
 	c.rect(startX, midY - size * 0.2, endX - startX, size * 0.4);
 	c.fillAndStroke();
 };
-
-
 
 mxShapeMockupStepBar.prototype.stepLineFg = function(c, w, h, buttonNum, buttonWidths, labelOffset, minW, bgColor, doneColor, currColor, fontSize, trueW, selectedButton)
 {
@@ -462,6 +468,13 @@ mxShapeMockupScrollBar.prototype.cst = {
 		STROKE_COLOR2 : 'strokeColor2',
 		BAR_POS : 'barPos'
 };
+
+(
+		mxShapeMockupScrollBar.prototype.customProperties = [
+			{name: 'barPos', dispName: 'Handle Position', type: 'float'},
+			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -678,6 +691,13 @@ mxShapeMockupMapNavigator.prototype.cst = {
 		STROKE_COLOR2 : 'strokeColor2',
 		STROKE_COLOR3 : 'strokeColor3'
 };
+
+(
+		mxShapeMockupMapNavigator.prototype.customProperties = [
+			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'}
+		]);
 
 /**
 * Function: paintVertexShape

@@ -62,6 +62,44 @@ mxArchiMate3Application.prototype.cst = {
 		TYPE_OCT : 'oct'
 };
 
+(
+		mxArchiMate3Application.prototype.customProperties = [
+			{name: 'archiType', dispName: 'Type', type: 'enum', 
+				enumList: [{val: 'square', dispName: 'Square'}, {val: 'rounded', dispName: 'Rounded'}, {val: 'oct', dispName: 'Octagonal'}]
+			},
+			{name: 'appType', dispName: 'App Type', type: 'enum', 
+				enumList: [{val: 'comp', dispName: 'Component'}, 
+						   {val: 'collab', dispName: 'Collaboration'}, 
+						   {val: 'interface', dispName: 'Interface'}, 
+						   {val: 'interface2', dispName: 'Interface2'}, 
+						   {val: 'func', dispName: 'Function'}, 
+						   {val: 'interaction', dispName: 'Interaction'}, 
+						   {val: 'serv', dispName: 'Service'}, 
+						   {val: 'event', dispName: 'Event'}, 
+						   {val: 'event2', dispName: 'Event2'}, 
+						   {val: 'node', dispName: 'Node'}, 
+						   {val: 'netw', dispName: 'Network'}, 
+						   {val: 'commPath', dispName: 'Comm Path'}, 
+						   {val: 'actor', dispName: 'Actor'}, 
+						   {val: 'assess', dispName: 'Assessment'}, 
+						   {val: 'goal', dispName: 'Goal'}, 
+						   {val: 'outcome', dispName: 'Outcome'}, 
+						   {val: 'role', dispName: 'Role'}, 
+						   {val: 'proc', dispName: 'Process'}, 
+						   {val: 'driver', dispName: 'Driver'}, 
+						   {val: 'principle', dispName: 'Principle'}, 
+						   {val: 'requirement', dispName: 'Requirement'}, 
+						   {val: 'constraint', dispName: 'Constraint'}, 
+						   {val: 'resource', dispName: 'Resource'}, 
+						   {val: 'capability', dispName: 'Capability'}, 
+						   {val: 'course', dispName: 'Course'}, 
+						   {val: 'material', dispName: 'Material'}, 
+						   {val: 'distribution', dispName: 'Distribution'}, 
+						   {val: 'sysSw', dispName: 'System Sw'}, 
+						   {val: 'artifact', dispName: 'Artifact'}, 
+						   {val: 'path', dispName: 'Path'}]
+}]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -455,6 +493,8 @@ mxArchiMate3Component.prototype.cst = {
 		COMPONENT : 'mxgraph.archimate3.component'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -505,6 +545,8 @@ mxArchiMate3Collaboration.prototype.cst = {
 		COLLABORATION : 'mxgraph.archimate3.collaboration'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -550,6 +592,8 @@ mxUtils.extend(mxArchiMate3Interface, mxShape);
 mxArchiMate3Interface.prototype.cst = {
 		INTERFACE : 'mxgraph.archimate3.interface'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -599,6 +643,8 @@ mxUtils.extend(mxArchiMate3Process, mxShape);
 mxArchiMate3Process.prototype.cst = {
 		PROCESS : 'mxgraph.archimate3.process'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -652,6 +698,8 @@ mxArchiMate3Function.prototype.cst = {
 		FUNCTION : 'mxgraph.archimate3.function'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -703,6 +751,8 @@ mxArchiMate3Interaction.prototype.cst = {
 		INTERACTION : 'mxgraph.archimate3.interaction'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -753,6 +803,8 @@ mxArchiMate3Service.prototype.cst = {
 		SERVICE : 'mxgraph.archimate3.service'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -802,6 +854,8 @@ mxArchiMate3Requirement.prototype.cst = {
 		REQUIREMENT : 'mxgraph.archimate3.requirement'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -850,6 +904,8 @@ mxUtils.extend(mxArchiMate3Constraint, mxShape);
 mxArchiMate3Constraint.prototype.cst = {
 		CONSTRAINT : 'mxgraph.archimate3.constraint'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -902,6 +958,8 @@ mxArchiMate3Event.prototype.cst = {
 		EVENT : 'mxgraph.archimate3.event'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -952,6 +1010,8 @@ mxArchiMate3Event2.prototype.cst = {
 		EVENT2 : 'mxgraph.archimate3.event2'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1000,6 +1060,8 @@ mxUtils.extend(mxArchiMate3Actor, mxShape);
 mxArchiMate3Actor.prototype.cst = {
 		ACTOR : 'mxgraph.archimate3.actor'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1055,6 +1117,8 @@ mxArchiMate3Role.prototype.cst = {
 		ROLE : 'mxgraph.archimate3.role'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1105,6 +1169,8 @@ mxUtils.extend(mxArchiMate3BusinessObject, mxShape);
 mxArchiMate3BusinessObject.prototype.cst = {
 		BUSINESS_OBJECT : 'mxgraph.archimate3.businessObject'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1161,6 +1227,8 @@ mxUtils.extend(mxArchiMate3Contract, mxShape);
 mxArchiMate3Contract.prototype.cst = {
 		CONTRACT : 'mxgraph.archimate3.contract'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1227,6 +1295,8 @@ mxArchiMate3Product.prototype.cst = {
 		PRODUCT : 'mxgraph.archimate3.product'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1284,6 +1354,8 @@ mxArchiMate3Representation.prototype.cst = {
 		REPRESENTATION : 'mxgraph.archimate3.representation'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1339,6 +1411,8 @@ mxArchiMate3Deliverable.prototype.cst = {
 		DELIVERABLE : 'mxgraph.archimate3.deliverable'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1387,6 +1461,8 @@ mxUtils.extend(mxArchiMate3Location, mxShape);
 mxArchiMate3Location.prototype.cst = {
 		LOCATION : 'mxgraph.archimate3.location'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1448,6 +1524,8 @@ mxUtils.extend(mxArchiMate3Gap, mxShape);
 mxArchiMate3Gap.prototype.cst = {
 		GAP : 'mxgraph.archimate3.gap'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1524,6 +1602,8 @@ mxArchiMate3Tech.prototype.cst = {
 		EQUIPMENT : 'equipment',
 		SYS_SW : 'sysSw'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1716,6 +1796,8 @@ mxArchiMate3Distribution.prototype.cst = {
 		DISTRIBUTION : 'mxgraph.archimate3.distribution'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1773,6 +1855,8 @@ mxUtils.extend(mxArchiMate3Resource, mxShape);
 mxArchiMate3Resource.prototype.cst = {
 		RESOURCE : 'mxgraph.archimate3.resource'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1840,6 +1924,8 @@ mxArchiMate3Capability.prototype.cst = {
 		CAPABILITY : 'mxgraph.archimate3.capability'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1901,6 +1987,8 @@ mxArchiMate3Course.prototype.cst = {
 		COURSE : 'mxgraph.archimate3.course'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1960,6 +2048,8 @@ mxArchiMate3Node.prototype.cst = {
 		NODE : 'mxgraph.archimate3.node'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2016,6 +2106,8 @@ mxArchiMate3Device.prototype.cst = {
 		DEVICE : 'mxgraph.archimate3.device'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2067,6 +2159,8 @@ mxArchiMate3SysSw.prototype.cst = {
 		SYS_SW : 'mxgraph.archimate3.sysSw'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2113,6 +2207,8 @@ mxUtils.extend(mxArchiMate3Artifact, mxShape);
 mxArchiMate3Artifact.prototype.cst = {
 		ARTIFACT : 'mxgraph.archimate3.artifact'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2170,6 +2266,8 @@ mxArchiMate3CommNetw.prototype.cst = {
 		COMM_NETW : 'mxgraph.archimate3.commNetw'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2221,6 +2319,8 @@ mxUtils.extend(mxArchiMate3Path, mxShape);
 mxArchiMate3Path.prototype.cst = {
 		PATH : 'mxgraph.archimate3.path'
 };
+
+
 
 /**
 * Function: paintVertexShape

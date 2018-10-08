@@ -27,6 +27,8 @@ mxShapeEipMessageExpiration.prototype.cst = {
 		SHAPE_MESS_EXP : 'mxgraph.eip.messExp'
 };
 
+
+
 /**
  * Function: paintVertexShape
  * 
@@ -76,6 +78,8 @@ mxUtils.extend(mxShapeEipReturnAddress, mxShape);
 mxShapeEipReturnAddress.prototype.cst = {
 		SHAPE_RET_ADDR : 'mxgraph.eip.retAddr'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -146,6 +150,8 @@ mxShapeEipAnchor.prototype.cst = {
 		SHAPE_ANCHOR : 'mxgraph.eip.anchor'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -180,6 +186,8 @@ mxUtils.extend(mxShapeEipMessageChannel, mxShape);
 mxShapeEipMessageChannel.prototype.cst = {
 		SHAPE_MESSAGE_CHANNEL : 'mxgraph.eip.messageChannel'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -284,6 +292,8 @@ mxUtils.extend(mxShapeEipDatatypeChannel, mxShape);
 mxShapeEipDatatypeChannel.prototype.cst = {
 		SHAPE_DATATYPE_CHANNEL : 'mxgraph.eip.dataChannel'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -398,6 +408,8 @@ mxUtils.extend(mxShapeEipDeadLetterChannel, mxShape);
 mxShapeEipDeadLetterChannel.prototype.cst = {
 		SHAPE_DEAD_LETTER_CHANNEL : 'mxgraph.eip.deadLetterChannel'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -523,6 +535,8 @@ mxUtils.extend(mxShapeEipInvalidMessageChannel, mxShape);
 mxShapeEipInvalidMessageChannel.prototype.cst = {
 		SHAPE_INVALID_MESSAGE_CHANNEL : 'mxgraph.eip.invalidMessageChannel'
 };
+
+
 
 /**
 * Function: paintVertexShape

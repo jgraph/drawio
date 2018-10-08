@@ -94,6 +94,17 @@ mxArchiMateBusiness.prototype.cst = {
 		SERVICE : 'service'
 };
 
+(
+		mxArchiMateBusiness.prototype.customProperties = [
+			{name: 'busType', dispName: 'Business Type', type: 'enum', 
+				enumList: [{val: 'process', dispName: 'Process'}, 
+						   {val: 'function', dispName: 'Function'}, 
+						   {val: 'interaction', dispName: 'Interaction'}, 
+						   {val: 'event', dispName: 'Event'}, 
+						   {val: 'service', dispName: 'Service'}]
+			}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -393,6 +404,28 @@ mxArchiMateApplication.prototype.cst = {
 		COLLABORATION : 'collab'
 };
 
+
+(
+		mxArchiMateApplication.prototype.customProperties = [
+			{name: 'appType', dispName: 'App Type', type: 'enum', 
+				enumList: [{val: 'comp', dispName: 'Component'}, 
+						   {val: 'interface', dispName: 'Interface'}, 
+						   {val: 'interface2', dispName: 'Interface2'}, 
+						   {val: 'function', dispName: 'Function'}, 
+						   {val: 'interaction', dispName: 'Interaction'}, 
+						   {val: 'service', dispName: 'Service'}, 
+						   {val: 'node', dispName: 'Node'}, 
+						   {val: 'network', dispName: 'Network'}, 
+						   {val: 'commPath', dispName: 'Comm Path'}, 
+						   {val: 'artifact', dispName: 'Artifact'}, 
+						   {val: 'sysSw', dispName: 'System Sw'}, 
+						   {val: 'path', dispName: 'Path'},
+						   {val: 'actor', dispName: 'Actor'}, 
+						   {val: 'role', dispName: 'Role'}, 
+						   {val: 'collab', dispName: 'Collaboration'}]
+			}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -626,16 +659,6 @@ mxArchiMateApplication.prototype.foreground = function(c, x, y, w, h)
 		c.ellipse(w * 0.6, 0, w * 0.4, h);
 		c.stroke();
 	}
-//	else if (type === mxArchiMateApplication.prototype.cst.COLLABORATION)
-//	{
-//		c.translate(0, 3);
-//		h = h - 6;
-//
-//		c.ellipse(0, 0, w * 0.6, h);
-//		c.stroke();
-//		c.ellipse(w * 0.4, 0, w * 0.6, h);
-//		c.stroke();
-//	}
 };
 
 mxCellRenderer.registerShape(mxArchiMateApplication.prototype.cst.APPLICATION, mxArchiMateApplication);
@@ -666,6 +689,14 @@ mxArchiMateTech.prototype.cst = {
 		DEVICE : 'device',
 		PLATEAU : 'plateau'
 };
+
+(
+		mxArchiMateTech.prototype.customProperties = [
+			{name: 'techType', dispName: 'Tech Type', type: 'enum', 
+				enumList: [{val: 'device', dispName: 'Device'}, 
+						   {val: 'plateau', dispName: 'Plateau'}]
+			}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -765,6 +796,19 @@ mxArchiMateMotivational.prototype.cst = {
 		CONSTRAINT : 'const',
 		PRINCIPLE : 'princ'
 };
+
+(
+		mxArchiMateMotivational.prototype.customProperties = [
+			{name: 'motivType', dispName: 'Motivational Type', type: 'enum', 
+				enumList: [{val: 'stake', dispName: 'Stake'}, 
+						   {val: 'driver', dispName: 'Driver'},
+						   {val: 'assess', dispName: 'Assessment'},
+						   {val: 'goal', dispName: 'Goal'},
+						   {val: 'req', dispName: 'Requirement'},
+						   {val: 'const', dispName: 'Constraint'},
+						   {val: 'princ', dispName: 'Principle'}]
+			}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -917,7 +961,7 @@ mxArchiMateMotivational.prototype.foreground = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxArchiMateMotivational.prototype.cst.MOTIV, mxArchiMateMotivational);
 
 //**********************************************************************************************************************************************************
-//Representation
+//Gap
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -939,6 +983,8 @@ mxUtils.extend(mxArchiMateGap, mxShape);
 mxArchiMateGap.prototype.cst = {
 		GAP : 'mxgraph.archimate.gap'
 };
+
+
 
 /**
 * Function: paintVertexShape

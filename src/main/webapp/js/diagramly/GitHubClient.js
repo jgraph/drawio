@@ -346,7 +346,7 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 	var binary = /\.png$/i.test(path);
 	
 	// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-	if (!checkExists && (/\.vsdx?$/i.test(path) || /\.gliffy$/i.test(path) ||
+	if (!checkExists && (/\.v(dx|sdx?)$/i.test(path) || /\.gliffy$/i.test(path) ||
 		(!this.ui.useCanvasForExport && binary)))
 	{
 		// Should never be null

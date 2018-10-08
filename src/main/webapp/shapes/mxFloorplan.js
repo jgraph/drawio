@@ -28,6 +28,11 @@ mxFloorplanWall.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
+(
+		mxFloorplanWall.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -72,6 +77,11 @@ mxFloorplanWallCorner.prototype.cst = {
 		WALL_CORNER : 'mxgraph.floorplan.wallCorner',
 		WALL_THICKNESS : "wallThickness"
 };
+
+(
+		mxFloorplanWallCorner.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -125,6 +135,11 @@ mxFloorplanWallU.prototype.cst = {
 		WALL_U : 'mxgraph.floorplan.wallU',
 		WALL_THICKNESS : "wallThickness"
 };
+
+(
+		mxFloorplanWallU.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -180,6 +195,11 @@ mxFloorplanRoom.prototype.cst = {
 		ROOM : 'mxgraph.floorplan.room',
 		WALL_THICKNESS : "wallThickness"
 };
+
+(
+		mxFloorplanRoom.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -237,6 +257,11 @@ mxFloorplanWindow.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
+(
+		mxFloorplanWindow.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
+
 /**
 * Function: paintVertexShape
 * 
@@ -285,6 +310,11 @@ mxUtils.extend(mxFloorplanDimension, mxShape);
 mxFloorplanDimension.prototype.cst = {
 		DIMENSION : 'mxgraph.floorplan.dimension'
 };
+
+(
+		mxFloorplanDimension.prototype.customProperties = [
+			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+		]);
 
 /**
 * Function: paintVertexShape
@@ -341,6 +371,8 @@ mxFloorplanDimensionBottom.prototype.cst = {
 		DIMENSION : 'mxgraph.floorplan.dimensionBottom'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -396,6 +428,8 @@ mxFloorplanStairs.prototype.cst = {
 		STAIRS : 'mxgraph.floorplan.stairs'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -437,78 +471,80 @@ mxFloorplanStairs.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxFloorplanStairs.prototype.cst.STAIRS, mxFloorplanStairs);
 
-//**********************************************************************************************************************************************************
-//Stairs Double
-//**********************************************************************************************************************************************************
-/**
-* Extends mxShape.
-*/
-function mxFloorplanStairsRest(bounds, fill, stroke, strokewidth)
-{
-	mxShape.call(this);
-	this.bounds = bounds;
-	this.fill = fill;
-	this.stroke = stroke;
-	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
-
-/**
-* Extends mxShape.
-*/
-mxUtils.extend(mxFloorplanStairsRest, mxShape);
-
-mxFloorplanStairsRest.prototype.cst = {
-		STAIRS : 'mxgraph.floorplan.stairsRest'
-};
-
-/**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
-mxFloorplanStairsRest.prototype.paintVertexShape = function(c, x, y, w, h)
-{
-	c.translate(x, y);
-	var minW = Math.max(w, 50, h);
-	var minH = Math.min(w, h);
-	this.background(c, x, y, minW, h);
-};
-
-mxFloorplanStairsRest.prototype.background = function(c, x, y, w, h)
-{
-	c.rect(0, 0, w, h);
-	c.fillAndStroke();
-	
-	var step = 25;
-	c.setShadow(false);
-	
-	c.begin();
-	
-	for (var i = 25; i < w - h * 0.5; i = i + step)
-	{
-		c.moveTo(i, 0);
-		c.lineTo(i, h);
-	}
-	
-	c.stroke();
-	
-	c.begin();
-	c.moveTo(0, h * 0.5);
-	c.lineTo(w, h * 0.5);
-	
-	c.moveTo(w, 0);
-	c.lineTo(w - h * 0.5, h * 0.5);
-	c.lineTo(w, h);
-	
-	c.moveTo(w - h * 0.5, 0);
-	c.lineTo(w - h * 0.5, h);
-	
-	c.moveTo(0, h * 0.5);
-	c.lineTo(w, h * 0.5);
-	c.stroke();
-};
-
-mxCellRenderer.registerShape(mxFloorplanStairsRest.prototype.cst.STAIRS, mxFloorplanStairsRest);
+////**********************************************************************************************************************************************************
+////Stairs Double
+////**********************************************************************************************************************************************************
+///**
+//* Extends mxShape.
+//*/
+//function mxFloorplanStairsRest(bounds, fill, stroke, strokewidth)
+//{
+//	mxShape.call(this);
+//	this.bounds = bounds;
+//	this.fill = fill;
+//	this.stroke = stroke;
+//	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+//};
+//
+///**
+//* Extends mxShape.
+//*/
+//mxUtils.extend(mxFloorplanStairsRest, mxShape);
+//
+//mxFloorplanStairsRest.prototype.cst = {
+//		STAIRS : 'mxgraph.floorplan.stairsRest'
+//};
+//
+//
+//
+///**
+//* Function: paintVertexShape
+//* 
+//* Paints the vertex shape.
+//*/
+//mxFloorplanStairsRest.prototype.paintVertexShape = function(c, x, y, w, h)
+//{
+//	c.translate(x, y);
+//	var minW = Math.max(w, 50, h);
+//	var minH = Math.min(w, h);
+//	this.background(c, x, y, minW, h);
+//};
+//
+//mxFloorplanStairsRest.prototype.background = function(c, x, y, w, h)
+//{
+//	c.rect(0, 0, w, h);
+//	c.fillAndStroke();
+//	
+//	var step = 25;
+//	c.setShadow(false);
+//	
+//	c.begin();
+//	
+//	for (var i = 25; i < w - h * 0.5; i = i + step)
+//	{
+//		c.moveTo(i, 0);
+//		c.lineTo(i, h);
+//	}
+//	
+//	c.stroke();
+//	
+//	c.begin();
+//	c.moveTo(0, h * 0.5);
+//	c.lineTo(w, h * 0.5);
+//	
+//	c.moveTo(w, 0);
+//	c.lineTo(w - h * 0.5, h * 0.5);
+//	c.lineTo(w, h);
+//	
+//	c.moveTo(w - h * 0.5, 0);
+//	c.lineTo(w - h * 0.5, h);
+//	
+//	c.moveTo(0, h * 0.5);
+//	c.lineTo(w, h * 0.5);
+//	c.stroke();
+//};
+//
+//mxCellRenderer.registerShape(mxFloorplanStairsRest.prototype.cst.STAIRS, mxFloorplanStairsRest);
 
 //**********************************************************************************************************************************************************
 //Stairs
@@ -533,6 +569,8 @@ mxUtils.extend(mxFloorplanStairsRest, mxShape);
 mxFloorplanStairsRest.prototype.cst = {
 		STAIRS : 'mxgraph.floorplan.stairsRest'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -607,6 +645,8 @@ mxFloorplanDoorLeft.prototype.cst = {
 		DOOR_LEFT : 'mxgraph.floorplan.doorLeft'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -656,6 +696,8 @@ mxFloorplanDoorRight.prototype.cst = {
 		DOOR_RIGHT : 'mxgraph.floorplan.doorRight'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -704,6 +746,8 @@ mxUtils.extend(mxFloorplanDoorDouble, mxShape);
 mxFloorplanDoorDouble.prototype.cst = {
 		DOOR_DOUBLE : 'mxgraph.floorplan.doorDouble'
 };
+
+
 
 /**
 * Function: paintVertexShape

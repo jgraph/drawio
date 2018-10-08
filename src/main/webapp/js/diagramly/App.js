@@ -4451,8 +4451,8 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		gitHubUrl = true;
 	}
 	
-	// Workaround for wrong binary response with VSD(X) files
-	if (/\.vsdx?$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
+	// Workaround for wrong binary response with VSD(X) & VDX files
+	if (/\.v(dx|sdx?)$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
 		typeof new XMLHttpRequest().responseType === 'string')
 	{
 		var req = new XMLHttpRequest();

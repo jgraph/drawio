@@ -27,6 +27,8 @@ mxShapeNetworksBus.prototype.cst = {
 		SHAPE_BUS : 'mxgraph.networks.bus'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -72,6 +74,8 @@ function mxShapeNetworksCommLinkEdge()
 };
 
 mxUtils.extend(mxShapeNetworksCommLinkEdge, mxArrow);
+
+
 
 mxShapeNetworksCommLinkEdge.prototype.paintEdgeShape = function(c, pts)
 {

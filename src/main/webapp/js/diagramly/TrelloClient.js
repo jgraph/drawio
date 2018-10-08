@@ -123,7 +123,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
 				// and make sure that only a proxy technique can work!
 				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.vsdx?$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+				if (/\.v(dx|sdx?)$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
 					(!this.ui.useCanvasForExport && binary))
 				{
 					this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,

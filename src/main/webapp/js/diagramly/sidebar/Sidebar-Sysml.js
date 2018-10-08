@@ -801,16 +801,16 @@
 			this.addDataEntry(dt + 'item flow property', 140, 180, 'Item Flow (Item Property)',
 				'1ZXfb5swEMf/Gj8uIpBGew3J2pdumpQ+bI8OXMCqsZl9SaB//c7YkFDardLSSntA8n3vB/bnfMCSddXcGV6XX3UOkiVfWLI2WqNfVc0apGRxJHKWbFgcR/Sw+PYV77zzRjU3oPAtCbFPOHJ5AK+AKliyIo0WQgGLlyxO5hFLUh9qsZUhtMSKNryZk8+WvHZq1RTuLDPb2krOBEJ1K/WJAvZa4TakuoQ9yRthyNoG66HtKugDbTw9lZS7rXnmpBOVJI1LUSgyMzobmGFDRzAIzavn76Rw+DvQFaBpKSQkLDye6CRyLL30OUgliKIMRZZB49bbxVDozJYWAe/LqJMJ6gu2aJT12B8MV7YS1gqt3on4tzFxoT4QeLiPURuC42kDBu3aHVhMOoDa/HLrDrxfP0cOeQE9RqVpIJL0ogs9IuN3moLKV8Y4/n0wNAJ/kBnNboL1M+QSMdNeuJzpfOdZc+8ecbb6YDIYjS5yUwCOrtgbumFAchTHcfV/YXszYVtPUBqw4onvOjN6maOEvcNo6SIKVdx31qabEHfrRMblKkSidldU8h3I79oKdOMy5PfB98/cO42oqz4v5dljYfRB5WsttTn3rBsd8QT+3d0xMq0UZBh2P3xX/zYMiz8Ow6eQcfVuLD+6G2Ow/21DrtQPMs+/8M43+sP/Bg=='),
 
-		    this.createVertexTemplateEntry(s + 'itemFlow;fontStyle=1;flowDir=N;flowType=in;whiteSpace=wrap;align=center;', 
+		    this.createVertexTemplateEntry(s + 'itemFlow;fontStyle=1;flowDir=n;flowType=in;whiteSpace=wrap;align=center;', 
 		    		200, 80, 'eng:Engine', 'Item Flow North In', null, null, this.getTagsForStencil(gn, '', dt + 'item flow north in').join(' ')),
-		    this.createVertexTemplateEntry(s + 'itemFlow;fontStyle=1;flowDir=E;flowType=out;whiteSpace=wrap;align=center;', 
+		    this.createVertexTemplateEntry(s + 'itemFlow;fontStyle=1;flowDir=e;flowType=out;whiteSpace=wrap;align=center;', 
 		    		200, 80, 'eng:Engine', 'Item Flow East Out', null, null, this.getTagsForStencil(gn, '', dt + 'item flow east out').join(' ')),
 		    		
 			this.addEntry(dt + 'item flow', function()
 		    {
-			    var cardCell = new mxCell('eng: engine',	new mxGeometry(40, 0, 100, 60), s + 'itemFlow;fontStyle=1;strokeWidth=1;flowDir=E;flowType=none;spacingRight=20;whiteSpace=wrap;align=center;');
+			    var cardCell = new mxCell('eng: engine',	new mxGeometry(40, 0, 100, 60), s + 'itemFlow;fontStyle=1;strokeWidth=1;flowDir=e;flowType=none;spacingRight=20;whiteSpace=wrap;align=center;');
 			   	cardCell.vertex = true;
-			   	var cardCell2 = new mxCell('trns: Translation', new mxGeometry(260, 0, 140, 60), s + 'itemFlow;strokeWidth=1;fontStyle=1;flowDir=W;flowType=none;spacingLeft=15;whiteSpace=wrap;align=center;');
+			   	var cardCell2 = new mxCell('trns: Translation', new mxGeometry(260, 0, 140, 60), s + 'itemFlow;strokeWidth=1;fontStyle=1;flowDir=w;flowType=none;spacingLeft=15;whiteSpace=wrap;align=center;');
 			   	cardCell2.vertex = true;
 		    	var assoc1 = new mxCell('Torque', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=top;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;');
 		    	assoc1.geometry.relative = true;

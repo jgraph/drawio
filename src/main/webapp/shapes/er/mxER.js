@@ -1392,14 +1392,15 @@ function mxShapeERRRect(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeERRRect, mxShape);
 
-mxShapeERRRect.prototype.customProperties = [
-	{name: 'rSize', dispName: 'Rounding Size', type: 'float'},
-];
-
 mxShapeERRRect.prototype.cst = {
 		RRECT : 'mxgraph.er.rrect',
 		R_SIZE : 'rSize'
 };
+
+(
+		mxShapeERRRect.prototype.customProperties = [
+			{name: 'rSize', dispName: 'Rounding Size', type: 'float'},
+		]);
 
 /**
 * Function: paintVertexShape
@@ -1452,6 +1453,8 @@ mxUtils.extend(mxShapeERAnchor, mxShape);
 mxShapeERAnchor.prototype.cst = {
 		ANCHOR : 'mxgraph.er.anchor'
 };
+
+
 
 /**
 * Function: paintVertexShape

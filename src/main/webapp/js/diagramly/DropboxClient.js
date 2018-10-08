@@ -296,7 +296,7 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	var binary = /\.png$/i.test(path);
 
-	if (/^https:\/\//i.test(path) || /\.vsdx?$/i.test(path) || /\.gliffy$/i.test(path) ||
+	if (/^https:\/\//i.test(path) || /\.v(dx|sdx?)$/i.test(path) || /\.gliffy$/i.test(path) ||
 		(!this.ui.useCanvasForExport && binary))
 	{
 		var fn = mxUtils.bind(this, function()

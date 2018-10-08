@@ -1,3 +1,8 @@
+08-OCT-2018: 9.2.3
+
+- Adds shape properties panel (beta)
+- Uses mxGraph 3.9.10
+
 05-OCT-2018: 9.2.2
 
 - Embed mode loads all supported formats

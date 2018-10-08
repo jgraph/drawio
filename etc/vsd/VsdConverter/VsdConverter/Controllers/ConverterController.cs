@@ -112,6 +112,24 @@ namespace VsdConverter.Controllers
                         srcExt = ".vss";
                         dstExt = ".vssx";
                     }
+                    else if (actualFileName.EndsWith(".vdx\""))
+                    {
+                        convertedFiles.Add(file.LocalFileName);
+                        actualNames.Add(actualFileName);
+
+                        System.IO.File.Move(file.LocalFileName, file.LocalFileName + ".vdx");
+                        srcExt = ".vdx";
+                        dstExt = ".vsdx";
+                    }
+                    else if (actualFileName.EndsWith(".vsx\""))
+                    {
+                        convertedFiles.Add(file.LocalFileName);
+                        actualNames.Add(actualFileName);
+
+                        System.IO.File.Move(file.LocalFileName, file.LocalFileName + ".vsx");
+                        srcExt = ".vsx";
+                        dstExt = ".vssx";
+                    }
                     else
                     {
                         files.Add(file.LocalFileName);

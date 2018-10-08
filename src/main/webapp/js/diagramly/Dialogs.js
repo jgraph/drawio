@@ -4187,7 +4187,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    	{
 		    		linkInput.value = image;
 		    	});
-		    	editorUi.showDialog(dlg.container, 200, 180, true, true);
+		    	editorUi.showDialog(dlg.container, 200, 185, true, true);
 			dlg.init();
 		});
 		
