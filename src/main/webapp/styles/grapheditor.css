@@ -725,86 +725,86 @@ html td.mxWindowTitle {
  	padding:4px;
 }
 
-.propHeader, .propRow {
+.gePropHeader, .gePropRow {
 	border: 1px solid #e9e9e9;	
 }
 
-.propRowDark {
+.gePropRowDark {
 	border: 1px solid #4472C4;
 }
 
-.propHeader>.propHeaderCell {
+.gePropHeader>.gePropHeaderCell {
     border-top: 0;
     border-bottom: 0;
     text-align: left;
 	width: 50%;
 }
 
-.propHeader>.propHeaderCell:first-child {
+.gePropHeader>.gePropHeaderCell:first-child {
     border-left: none;
 }
 
-.propHeader>.propHeaderCell:last-child {
+.gePropHeader>.gePropHeaderCell:last-child {
     border-right: none;
 }
 
-.propHeader {
+.gePropHeader {
     background: #e5e5e5;
     color: black;
 }
 
-.propRowCell {
+.gePropRowCell {
     border-left: 1px solid #f3f3f3;
     width: 50%;
 }
 
-.propRow>.propRowCell {
+.gePropRow>.gePropRowCell {
     background: #fff;
 }
 
-.propRowAlt>.propRowCell {
+.gePropRowAlt>.gePropRowCell {
     background: #fcfcfc;
 }
 
-.propRowDark>.propRowCell {
+.gePropRowDark>.gePropRowCell {
     background: #fff;
     color: #305496;
     font-weight: bold;
 }
 
-.propRowDarkAlt>.propRowCell {
+.gePropRowDarkAlt>.gePropRowCell {
     background: #D9E1F2;
     color: #305496;
     font-weight: bold;
 }
 
-.propEditor input:invalid {
+.gePropEditor input:invalid {
   border: 1px solid red;
 }
 
 /* Templates dialog css */
-.templateDlg {
+.geTemplateDlg {
 	width: 987px;
 	height: 712px;
 }
-.templateDlg ::-webkit-scrollbar {
+.geTemplateDlg ::-webkit-scrollbar {
     width:12px;
     height:12px;
 }
-.templateDlg ::-webkit-scrollbar-track {
+.geTemplateDlg ::-webkit-scrollbar-track {
 	background:whiteSmoke;
 	-webkit-box-shadow:inset 0 0 4px rgba(0,0,0,0.1);
 }
-.templateDlg ::-webkit-scrollbar-thumb {
+.geTemplateDlg ::-webkit-scrollbar-thumb {
 	background:#c5c5c5;
     border-radius:10px;
 	border:whiteSmoke solid 3px;
 }
-.templateDlg ::-webkit-scrollbar-thumb:hover {
+.geTemplateDlg ::-webkit-scrollbar-thumb:hover {
 	background:#b5b5b5;
 }
 
-.tempDlgHeader {
+.geTempDlgHeader {
 	box-sizing: border-box;
 	height: 62px;
 	width: 100%;
@@ -812,11 +812,11 @@ html td.mxWindowTitle {
 	border-radius: 5px 5px 0 0;
 	background-color: #F5F5F5;
 }
-.headerLogo {
+.geTempDlgHeaderLogo {
 	height: 34px;
 	margin: 14px 14px 14px 20px;
 }
-.searchBox {
+.geTempDlgSearchBox {
     color:#888888;
     background:url("/images/icon-search.svg") no-repeat;
 	background-color: #FFFFFF;
@@ -835,7 +835,7 @@ html td.mxWindowTitle {
     padding:0 0 0 36px;
     text-shadow:1px 1px 0 white;
 }
-.templatesList {
+.geTemplatesList {
 	box-sizing: border-box;
 	float: left;
 	height: calc(100% - 118px);
@@ -846,7 +846,7 @@ html td.mxWindowTitle {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-.tempDlgContent {
+.geTempDlgContent {
 	box-sizing: border-box;
 	float: right;
 	height: calc(100% - 118px);
@@ -858,7 +858,7 @@ html td.mxWindowTitle {
 	overflow-y: auto;
 	position: relative;
 }
-.tempDlgFooter {
+.geTempDlgFooter {
 	box-sizing: border-box;
 	height: 52px;
 	width: 100%;
@@ -871,7 +871,7 @@ html td.mxWindowTitle {
 	line-height: 17px;
 	padding-top: 11px;
 }
-.createBtn {
+.geTempDlgCreateBtn {
 	display: inline-block;
 	width: 67px;
     border-radius: 3px;
@@ -881,7 +881,7 @@ html td.mxWindowTitle {
     color: #fff;
     cursor: pointer;
 }
-.cancelBtn {
+.geTempDlgCancelBtn {
 	display: inline-block;
 	width: 67px;
     padding: 6px;
@@ -889,24 +889,24 @@ html td.mxWindowTitle {
     color: #3D72AD;
     cursor: pointer;
 }
-.cancelBtn:active, .createBtn:active, .showAllBtn:active {
+.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active, .geTempDlgShowAllBtn:active {
 	transform: translateY(2px);
 }
-.createBtnDisabled {
+.geTempDlgCreateBtnDisabled {
     background-color: #9fbddd;
 }
-.createBtnDisabled:active {
+.geTempDlgCreateBtnDisabled:active {
     transform: translateY(0px);
 }
 
-.createBtnBusy {
+.geTempDlgCreateBtnBusy {
 	background-image: url(/images/aui-wait.gif);
     background-repeat: no-repeat;
     background-position: 62px 7px;
 }
 
 
-.newDiagramlbl {
+.geTempDlgNewDiagramlbl {
 	height: 17px;
 	color: #333333;
 	font-family: Helvetica;
@@ -916,13 +916,13 @@ html td.mxWindowTitle {
 	padding: 25px 0 0 20px;
 	cursor: pointer;
 }
-.hLine {
+.geTempDlgHLine {
 	height: 1px;
 	width: calc(100% - 22px);
 	background-color: #CCCCCC;
 	margin: 20px 0 0 11px;
 }
-.templatesLbl {
+.geTemplatesLbl {
 	height: 17px;
 	color: #6D6D6D;
 	font-family: Helvetica;
@@ -932,7 +932,7 @@ html td.mxWindowTitle {
 	text-transform: uppercase;
 	margin: 20px 0 3px 20px;
 }
-.templateCatLink {
+.geTemplateCatLink {
 	height: 17px;
 	color: #3D72AD;
 	font-family: Helvetica;
@@ -941,12 +941,12 @@ html td.mxWindowTitle {
 	margin: 12px 0 0 20px;
 	cursor: pointer;
 }
-.newDiagramCat {
+.geTempDlgNewDiagramCat {
 	height: 280px;
 	width: 100%;
 	background-color: #555555;
 }
-.newDiagramCatLbl {
+.geTempDlgNewDiagramCatLbl {
 	height: 17px;
 	color: #FFFFFF;
 	font-family: Helvetica;
@@ -956,7 +956,7 @@ html td.mxWindowTitle {
 	padding: 25px 0 0 20px;
 	text-transform: uppercase;
 }
-.newDiagramCatList {
+.geTempDlgNewDiagramCatList {
 	width: 100%;
 	height: 190px;
 	padding-left: 9px;
@@ -964,10 +964,10 @@ html td.mxWindowTitle {
 	overflow-y: auto;
 	overflow-x: hidden; 
 }
-.newDiagramCatFooter {
+.geTempDlgNewDiagramCatFooter {
 	width: 100%;
 }
-.showAllBtn {
+.geTempDlgShowAllBtn {
 	width: 78px;
 	border: 1px solid #777777;
 	border-radius: 3px;
@@ -981,14 +981,14 @@ html td.mxWindowTitle {
 	float: right;
 	margin-right: 30px;
 }
-.newDiagramCatItem {
+.geTempDlgNewDiagramCatItem {
 	height: 155px;
 	width: 134px;
 	padding: 18px 6px 0 9px;
 	display: inline-block;
 }
 
-.newDiagramCatItemImg {
+.geTempDlgNewDiagramCatItemImg {
 	box-sizing: border-box;
 	height: 134px;
 	width: 134px;
@@ -1001,11 +1001,11 @@ html td.mxWindowTitle {
 	cursor: pointer;
 }
 
-.newDiagramCatItemActive > .newDiagramCatItemImg {
+.geTempDlgNewDiagramCatItemActive > .geTempDlgNewDiagramCatItemImg {
 	border: 4px solid #3D72AD;
 }
 
-.newDiagramCatItemLbl {
+.geTempDlgNewDiagramCatItemLbl {
 	height: 17px;
 	width: 100%;
 	color: #FFFFFF;
@@ -1017,7 +1017,7 @@ html td.mxWindowTitle {
 	cursor: pointer;
 }
 
-.diagramsList {
+.geTempDlgDiagramsList {
 	box-sizing: border-box;
 	width: 100%;
 	min-height: calc(100% - 280px);
@@ -1026,13 +1026,13 @@ html td.mxWindowTitle {
 	background-color: #E5E5E5;
 }
 
-.diagramsListHeader {
+.geTempDlgDiagramsListHeader {
 	width: 100%;
     height: 45px;
 	padding: 18px 20px 0 11px;
 	box-sizing: border-box;
 }
-.diagramsListTitle {
+.geTempDlgDiagramsListTitle {
 	box-sizing: border-box;
 	height: 17px;
 	color: #666666;
@@ -1044,11 +1044,11 @@ html td.mxWindowTitle {
 	padding-top: 5px;
 	display: inline-block;
 }
-.diagramsListBtns {
+.geTempDlgDiagramsListBtns {
 	float: right;
 	margin-top: -9px;
 }		
-.radioBtn {
+.geTempDlgRadioBtn {
 	box-sizing: border-box;
 	border: 1px solid #CCCCCC;
 	border-radius: 3px;
@@ -1062,34 +1062,34 @@ html td.mxWindowTitle {
 	padding: 4px;
 	cursor: pointer;
 }
-.radioBtnActive {
+.geTempDlgRadioBtnActive {
 	background-color: #FFFFFF;
 	color: #333333;
 }
-.radioBtnLarge {
+.geTempDlgRadioBtnLarge {
 	height: 27px;
 	width: 120px;
 }
 /* TODO is there a better way for these buttons */
-.radioBtnSmall {
+.geTempDlgRadioBtnSmall {
 	position: relative;
 	top: 9px;
 	height: 27px;
 	width: 27px;
 }
-.radioBtnSmall img {
+.geTempDlgRadioBtnSmall img {
 	position: absolute;
 	top: 6px;
 	left: 6px;
 	height: 13px;
 	width: 13px;
 }
-.spacer {
+.geTempDlgSpacer {
     display: inline-block;
 	width: 10px;
 }
 
-.diagramsListGrid {
+.geTempDlgDiagramsListGrid {
 	width: 100%;
 	white-space: nowrap;
 	font-size: 13px;
@@ -1098,11 +1098,11 @@ html td.mxWindowTitle {
     border-spacing: 0;
 }
 
-.diagramsListGrid tr {
+.geTempDlgDiagramsListGrid tr {
 	height: 40px;
 }
 
-.diagramsListGrid th {
+.geTempDlgDiagramsListGrid th {
 	background-color: #E5E5E5;
 	color: #8E8E8E;
 	font-weight: bold;
@@ -1112,7 +1112,7 @@ html td.mxWindowTitle {
 	font-size: 14px;
 }
 
-.diagramsListGrid td {
+.geTempDlgDiagramsListGrid td {
 	background-color: #FFFFFF;
 	color: #888888;
 	padding: 5px;
@@ -1120,30 +1120,30 @@ html td.mxWindowTitle {
 	overflow: hidden;
 }
 
-.diagramsListGridActive td {
+.geTempDlgDiagramsListGridActive td {
 	border-bottom: 2px solid #3D72AD;
 	border-top: 2px solid #3D72AD;
 }
 
-.diagramsListGridActive td:first-child  {
+.geTempDlgDiagramsListGridActive td:first-child  {
 	border-left: 2px solid #3D72AD;
 }
 
-.diagramsListGridActive td:last-child  {
+.geTempDlgDiagramsListGridActive td:last-child  {
 	border-right: 2px solid #3D72AD;
 }
 
-.diagramTitle {
+.geTempDlgDiagramTitle {
 	font-weight: bold;
 	color: #666666 !important;
 }
 
-.diagramsTiles {
+.geTempDlgDiagramsTiles {
 	position: relative;
 	min-height: 100px;
 }
 
-.diagramTile {
+.geTempDlgDiagramTile {
 	height: 152px;
 	width: 130px;
 	padding: 20px 7px 0 10px;
@@ -1151,7 +1151,7 @@ html td.mxWindowTitle {
 	position: relative;
 }
 
-.diagramTileImg {
+.geTempDlgDiagramTileImg {
 	box-sizing: border-box;
 	height: 130px;
 	width: 130px;
@@ -1163,30 +1163,30 @@ html td.mxWindowTitle {
 	text-align:center;
 }
 
-.diagramTileImgLoading {
+.geTempDlgDiagramTileImgLoading {
 	background-image: url(/images/aui-wait.gif);
     background-repeat: no-repeat;
     background-position: center;
 }
 
-.diagramTileImgError {
+.geTempDlgDiagramTileImgError {
 	background-image: url(/images/broken.png);
     background-repeat: no-repeat;
     background-position: center;
     background-color: #be3730;
 }
 
-.diagramTileImg img{
+.geTempDlgDiagramTileImg img{
 	max-width: 117px;
     max-height: 117px;
     cursor: pointer;
 }
 
-.diagramTileActive > .diagramTileImg{
+.geTempDlgDiagramTileActive > .geTempDlgDiagramTileImg{
 	border: 4px solid #3D72AD;
 }
 
-.diagramTileLbl {
+.geTempDlgDiagramTileLbl {
 	height: 17px;
 	width: 100%;
 	color: #333333;
@@ -1198,20 +1198,20 @@ html td.mxWindowTitle {
 	cursor: pointer;
 }
 
-.diagramPreviewBtn {
+.geTempDlgDiagramPreviewBtn {
 	position: absolute;
 	top: 28px;
 	right: 15px;
 	cursor: pointer;
 }
 
-.diagramListPreviewBtn {
+.geTempDlgDiagramListPreviewBtn {
 	cursor: pointer;
 	padding-left: 5px;
 	padding-right: 15px;
 }
 
-.diagramPreviewBox {
+.geTempDlgDiagramPreviewBox {
 	position: absolute;
     top: 3%;
     left: 10%;
@@ -1227,7 +1227,7 @@ html td.mxWindowTitle {
     z-index: 2;
 }
 
-.dialogMask {
+.geTempDlgDialogMask {
 	position: absolute;
     top: 0;
     left: 0;
@@ -1236,24 +1236,24 @@ html td.mxWindowTitle {
     z-index: 1;
 }
 
-.diagramPreviewBox img {
+.geTempDlgDiagramPreviewBox img {
 	max-width: 95%;
     max-height: 95%;
     vertical-align: middle;
 }
 
-.previewCloseBtn {
+.geTempDlgPreviewCloseBtn {
 	position: absolute;
 	top: 5px;
 	right: 5px;
 	cursor: pointer;
 }
 
-.linkToDiagramHint {
+.geTempDlgLinkToDiagramHint {
 	color: #555;
 }
 
-.linkToDiagramBtn {
+.geTempDlgLinkToDiagramBtn {
 	color: #555;
     margin: 0 10px 0 10px;
     height: 27px;

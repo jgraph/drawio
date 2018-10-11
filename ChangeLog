@@ -1,3 +1,9 @@
+11-OCT-2018: 9.2.4
+
+- Adds font, customFonts and -ColorSchemes config options
+- Adds open page in Confluence Cloud lightbox toolbar
+- Fixes property editing in minimal UI
+
 08-OCT-2018: 9.2.3
 
 - Adds shape properties panel (beta)

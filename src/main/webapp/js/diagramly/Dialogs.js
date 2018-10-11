@@ -8459,54 +8459,54 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 var TemplatesDialog = function()
 {
 	var dialogSkeleton = 
-	'<div class="tempDlgHeader">' + 
-		'<img src="/images/draw.io-logo.svg" class="headerLogo">' +
-		'<input type="search" class="searchBox" placeholder="'+ mxResources.get('search', null, 'Search') +'">' +
+	'<div class="geTempDlgHeader">' + 
+		'<img src="/images/draw.io-logo.svg" class="geTempDlgHeaderLogo">' +
+		'<input type="search" class="geTempDlgSearchBox" placeholder="'+ mxResources.get('search', null, 'Search') +'">' +
 	'</div>' +
-	'<div class="templatesList">' +
-		'<div class="newDiagramlbl">'+ mxResources.get('newDiagram', null, 'New Diagram') + '</div>' +
-		'<div class="hLine"></div>' +
-		'<div class="templatesLbl">'+ mxResources.get('templates', null, 'Templates') + '</div>' +
+	'<div class="geTemplatesList">' +
+		'<div class="geTempDlgNewDiagramlbl">'+ mxResources.get('newDiagram', null, 'New Diagram') + '</div>' +
+		'<div class="geTempDlgHLine"></div>' +
+		'<div class="geTemplatesLbl">'+ mxResources.get('templates', null, 'Templates') + '</div>' +
 	'</div>' +
-	'<div class="tempDlgContent">' +
-		'<div class="newDiagramCat">' +
-			'<div class="newDiagramCatLbl">'+ mxResources.get('newDiagram', null, 'New Diagram') +'</div>' +
-			'<div class="newDiagramCatList">' +
+	'<div class="geTempDlgContent">' +
+		'<div class="geTempDlgNewDiagramCat">' +
+			'<div class="geTempDlgNewDiagramCatLbl">'+ mxResources.get('newDiagram', null, 'New Diagram') +'</div>' +
+			'<div class="geTempDlgNewDiagramCatList">' +
 			'</div>' + 
-			'<div class="newDiagramCatFooter">' + 
-				'<div class="showAllBtn">'+ mxResources.get('showAll', null, '+ Show all') +'</div>' +
+			'<div class="geTempDlgNewDiagramCatFooter">' + 
+				'<div class="geTempDlgShowAllBtn">'+ mxResources.get('showAll', null, '+ Show all') +'</div>' +
 			'</div>' +
 		'</div>' + 
-		'<div class="diagramsList">' +
-			'<div class="diagramsListHeader">' +
-				'<div class="diagramsListTitle"></div>' +
-				'<div class="diagramsListBtns">' +
-					'<div class="radioBtn radioBtnLarge" data-id="myDiagramsBtn">' +
-						'<img src="/images/my-diagrams.svg" class="myDiagramsBtnImg"> <span>'+ mxResources.get('myDiagrams', null, 'My diagrams') + '</span>' +
-					'</div><div class="radioBtn radioBtnLarge radioBtnActive" data-id="allDiagramsBtn">' +
-						'<img src="/images/all-diagrams-sel.svg" class="allDiagramsBtnImg"> <span>'+ mxResources.get('allDiagrams', null, 'All diagrams') + '</span>' +
-					'</div><div class="spacer"> </div><div class="radioBtn radioBtnSmall radioBtnActive" data-id="tilesBtn">' +
-						'<img src="/images/tiles-sel.svg" class="tilesBtnImg">' +
-					'</div><div class="radioBtn radioBtnSmall" data-id="listBtn">' +
-						'<img src="/images/list.svg" class="listBtnImg">' +
+		'<div class="geTempDlgDiagramsList">' +
+			'<div class="geTempDlgDiagramsListHeader">' +
+				'<div class="geTempDlgDiagramsListTitle"></div>' +
+				'<div class="geTempDlgDiagramsListBtns">' +
+					'<div class="geTempDlgRadioBtn geTempDlgRadioBtnLarge" data-id="myDiagramsBtn">' +
+						'<img src="/images/my-diagrams.svg" class="geTempDlgMyDiagramsBtnImg"> <span>'+ mxResources.get('myDiagrams', null, 'My diagrams') + '</span>' +
+					'</div><div class="geTempDlgRadioBtn geTempDlgRadioBtnLarge geTempDlgRadioBtnActive" data-id="allDiagramsBtn">' +
+						'<img src="/images/all-diagrams-sel.svg" class="geTempDlgAllDiagramsBtnImg"> <span>'+ mxResources.get('allDiagrams', null, 'All diagrams') + '</span>' +
+					'</div><div class="geTempDlgSpacer"> </div><div class="geTempDlgRadioBtn geTempDlgRadioBtnSmall geTempDlgRadioBtnActive" data-id="tilesBtn">' +
+						'<img src="/images/tiles-sel.svg" class="geTempDlgTilesBtnImg">' +
+					'</div><div class="geTempDlgRadioBtn geTempDlgRadioBtnSmall" data-id="listBtn">' +
+						'<img src="/images/list.svg" class="geTempDlgListBtnImg">' +
 					'</div>' +
 				'</div>' +
 			'</div>' +
-			'<div class="diagramsTiles">' +
+			'<div class="geTempDlgDiagramsTiles">' +
 			'</div>'+
 		'</div>' +
 	'</div>' +
 	'<br style="clear:both;"/>' +
-	'<div class="tempDlgFooter">' +
-		'<span class="linkToDiagram linkToDiagramHint">&#x1F6C8; ' + mxResources.get('linkToDiagramHint', null, 'Add a link to this diagram. The diagram can only be edited from the page that owns it.') + '</span>' +
-		'<button class="linkToDiagram linkToDiagramBtn">'+ mxResources.get('linkToDiagram', null, 'Link to Diagram') + '</button>' +
-		'<div class="createBtn">'+ mxResources.get('create', null, 'Create') + '</div>' +
-		'<div class="cancelBtn">'+ mxResources.get('cancel', null, 'Cancel') + '</div>' +
+	'<div class="geTempDlgFooter">' +
+		'<span class="geTempDlgLinkToDiagram geTempDlgLinkToDiagramHint">&#x1F6C8; ' + mxResources.get('linkToDiagramHint', null, 'Add a link to this diagram. The diagram can only be edited from the page that owns it.') + '</span>' +
+		'<button class="geTempDlgLinkToDiagram geTempDlgLinkToDiagramBtn">'+ mxResources.get('linkToDiagram', null, 'Link to Diagram') + '</button>' +
+		'<div class="geTempDlgCreateBtn">'+ mxResources.get('create', null, 'Create') + '</div>' +
+		'<div class="geTempDlgCancelBtn">'+ mxResources.get('cancel', null, 'Cancel') + '</div>' +
 	'</div>';
 	
 	var div = document.createElement('div');
 	div.innerHTML = dialogSkeleton;
-	div.className = "templateDlg";
+	div.className = "geTemplateDlg";
 	//override default dialog size based on screen size if needed
 	var ww = window.innerWidth;
 	var wh = window.innerHeight;
@@ -8548,15 +8548,15 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	var curDiagList = [];
 	var lastSearchStr;
 	var categorySelected = true;
-	var showAllBtn = dlgDiv.querySelector(".showAllBtn");
-	var diagramsTiles = dlgDiv.querySelector('.diagramsTiles');
-	var diagramsListTitle = dlgDiv.querySelector('.diagramsListTitle');
-	var diagramsListBtns = dlgDiv.querySelector('.diagramsListBtns');
-	var tempDlgContent = dlgDiv.querySelector('.tempDlgContent');
-	var diagramsList = dlgDiv.querySelector('.diagramsList');
-	var newDiagramCat = dlgDiv.querySelector('.newDiagramCat');
-	var newDiagramCatList = dlgDiv.querySelector(".newDiagramCatList");
-	var createBtn = dlgDiv.querySelector('.createBtn');
+	var showAllBtn = dlgDiv.querySelector(".geTempDlgShowAllBtn");
+	var diagramsTiles = dlgDiv.querySelector('.geTempDlgDiagramsTiles');
+	var diagramsListTitle = dlgDiv.querySelector('.geTempDlgDiagramsListTitle');
+	var diagramsListBtns = dlgDiv.querySelector('.geTempDlgDiagramsListBtns');
+	var tempDlgContent = dlgDiv.querySelector('.geTempDlgContent');
+	var diagramsList = dlgDiv.querySelector('.geTempDlgDiagramsList');
+	var newDiagramCat = dlgDiv.querySelector('.geTempDlgNewDiagramCat');
+	var newDiagramCatList = dlgDiv.querySelector(".geTempDlgNewDiagramCatList");
+	var createBtn = dlgDiv.querySelector('.geTempDlgCreateBtn');
 	var spinner = new Spinner({
 		lines: 12, // The number of lines to draw
 		length: 10, // The length of each line
@@ -8582,7 +8582,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		}
 	};
 	
-	mxEvent.addListener(dlgDiv.querySelector('.newDiagramlbl'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgNewDiagramlbl'), 'click', function()
 	{
 		deselectTempCat();
 		newDiagramCat.style.display = '';
@@ -8592,50 +8592,51 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	
 	function radioClick(btn, btnImgId, btnImgFile, otherBtnId, otherBtnImgId, otherBtnImgFile, isLarge)
 	{
-		if (btn.className.indexOf('radioBtnActive') > -1)
+		if (btn.className.indexOf('geTempDlgRadioBtnActive') > -1)
 		{
 			return false;
 		}
 		else
 		{
-			btn.className += ' radioBtnActive';
-			dlgDiv.querySelector('.radioBtn[data-id='+ otherBtnId +']').className = "radioBtn " + (isLarge? "radioBtnLarge" : "radioBtnSmall");
+			btn.className += ' geTempDlgRadioBtnActive';
+			dlgDiv.querySelector('.geTempDlgRadioBtn[data-id='+ otherBtnId +']').className = "geTempDlgRadioBtn " + 
+											(isLarge? "geTempDlgRadioBtnLarge" : "geTempDlgRadioBtnSmall");
 			dlgDiv.querySelector('.'+ btnImgId).src = "/images/"+ btnImgFile +"-sel.svg";
 			dlgDiv.querySelector('.'+ otherBtnImgId).src = "/images/"+ otherBtnImgFile +".svg";
 			return true;
 		}
 	};
 	
-	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=allDiagramsBtn]'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=allDiagramsBtn]'), 'click', function()
 	{
-		if (radioClick(this, 'allDiagramsBtnImg', 'all-diagrams', 'myDiagramsBtn', 'myDiagramsBtnImg', 'my-diagrams', true))
+		if (radioClick(this, 'geTempDlgAllDiagramsBtnImg', 'all-diagrams', 'myDiagramsBtn', 'geTempDlgMyDiagramsBtnImg', 'my-diagrams', true))
 		{
 			isGetAll = true;
 			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
 		}
 	});
 
-	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=myDiagramsBtn]'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=myDiagramsBtn]'), 'click', function()
 	{
-		if (radioClick(this, 'myDiagramsBtnImg', 'my-diagrams', 'allDiagramsBtn', 'allDiagramsBtnImg', 'all-diagrams', true))
+		if (radioClick(this, 'geTempDlgMyDiagramsBtnImg', 'my-diagrams', 'allDiagramsBtn', 'geTempDlgAllDiagramsBtnImg', 'all-diagrams', true))
 		{
 			isGetAll = false;
 			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
 		}
 	});
 	
-	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=listBtn]'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=listBtn]'), 'click', function()
 	{
-		if (radioClick(this, 'listBtnImg', 'list', 'tilesBtn', 'tilesBtnImg', 'tiles', false))
+		if (radioClick(this, 'geTempDlgListBtnImg', 'list', 'tilesBtn', 'geTempDlgTilesBtnImg', 'tiles', false))
 		{
 			showAsList = true;
 			fillDiagramsList(curDiagList, false, showAsList);
 		}
 	});
 	
-	mxEvent.addListener(dlgDiv.querySelector('.radioBtn[data-id=tilesBtn]'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=tilesBtn]'), 'click', function()
 	{
-		if (radioClick(this, 'tilesBtnImg', 'tiles', 'listBtn', 'listBtnImg', 'list', false))
+		if (radioClick(this, 'geTempDlgTilesBtnImg', 'tiles', 'listBtn', 'geTempDlgListBtnImg', 'list', false))
 		{
 			showAsList = false;
 			fillDiagramsList(curDiagList, false, showAsList);
@@ -8646,16 +8647,16 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	{
 		var imgUrl = diagram.prevImgUrl || diagram.imgUrl || (TEMPLATE_PATH + '/' + diagram.url.substring(0, diagram.url.length - 4) + '.png');
 		var mask = document.createElement('div');
-		mask.className = "dialogMask";
+		mask.className = "geTempDlgDialogMask";
 		dlgDiv.appendChild(mask);
 		var prevBox = document.createElement('div');
-		prevBox.className = "diagramPreviewBox";
+		prevBox.className = "geTempDlgDiagramPreviewBox";
 		var img = document.createElement('img');
 		img.src = imgUrl;
 		prevBox.appendChild(img);
 		var closeBtn = document.createElement('img');
 		closeBtn.src = "/images/close.png";
-		closeBtn.className = "previewCloseBtn";
+		closeBtn.className = "geTempDlgPreviewCloseBtn";
 		closeBtn.setAttribute('title', mxResources.get("close"));
 		prevBox.appendChild(closeBtn);
 		var scrollTop = tempDlgContent.scrollTop;
@@ -8700,14 +8701,14 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			currentItemInfo = itemInfo;
 			categorySelected = itemInfo.isCategory;
 			//activate create button
-			createBtn.className = "createBtn";
+			createBtn.className = "geTempDlgCreateBtn";
 		}
 		else 
 		{
 			currentItem = null;
 			currentItemInfo = null;
 			//disable create button
-			createBtn.className = "createBtn createBtnDisabled";
+			createBtn.className = "geTempDlgCreateBtn geTempDlgCreateBtnDisabled";
 		}
 	};
 	
@@ -8718,7 +8719,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			var itemInfo = currentItemInfo;
 			//disable create button
 			currentItemInfo = null;
-			createBtn.className = "createBtn createBtnDisabled createBtnBusy";
+			createBtn.className = "geTempDlgCreateBtn geTempDlgCreateBtnDisabled geTempDlgCreateBtnBusy";
 			
 			if (itemInfo.isExternal)
 			{
@@ -8754,11 +8755,12 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	function showLinkToDiagram(isShown)
 	{
 		var linkDisplay = isShown? '' : 'none';
+		var elems = dlgDiv.querySelectorAll(".geTempDlgLinkToDiagram");
 		
-		dlgDiv.querySelectorAll(".linkToDiagram").forEach(function(elem)
+		for(var i = 0; i < elems.length; i++)
 		{
-			elem.style.display = linkDisplay;
-		});
+			elems[i].style.display = linkDisplay;
+		}
 	};
 	
 	function fillDiagramsList(diagrams, isTemplate, asList)
@@ -8785,7 +8787,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		if (asList)
 		{
 			grid = document.createElement('table');
-			grid.className = 'diagramsListGrid';
+			grid.className = 'geTempDlgDiagramsListGrid';
 			//create header row
 			var hrow = document.createElement('tr');
 			var th = document.createElement('th');
@@ -8833,11 +8835,11 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				var td = document.createElement('td');
 				var prevImg = document.createElement('img');
 				prevImg.src = "/images/icon-search.svg";
-				prevImg.className = "diagramListPreviewBtn";
+				prevImg.className = "geTempDlgDiagramListPreviewBtn";
 				prevImg.setAttribute('title', mxResources.get("preview"));
 				td.appendChild(prevImg);
 				var titleSpan = document.createElement('span');
-				titleSpan.className = "diagramTitle";
+				titleSpan.className = "geTempDlgDiagramTitle";
 				titleSpan.innerHTML = title;
 				td.appendChild(titleSpan);
 				row.appendChild(td);
@@ -8852,7 +8854,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				if (currentItem == null)
 				{
 					setSubmitBtnLbl();
-					swapActiveItem(row, "diagramsListGridActive", diagrams[i]);
+					swapActiveItem(row, "geTempDlgDiagramsListGridActive", diagrams[i]);
 				}
 				
 				(function(diagram2, row2)
@@ -8862,7 +8864,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 						if (currentItem != row2)
 						{
 							setSubmitBtnLbl();
-							swapActiveItem(row2, "diagramsListGridActive", diagram2);
+							swapActiveItem(row2, "geTempDlgDiagramsListGridActive", diagram2);
 						}
 					});
 					
@@ -8877,17 +8879,17 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			else
 			{
 				var tile = document.createElement('div');
-				tile.className = "diagramTile";
+				tile.className = "geTempDlgDiagramTile";
 				tile.setAttribute('title', tooltip);
 				
 				if (currentItem == null)
 				{
 					setSubmitBtnLbl();
-					swapActiveItem(tile, "diagramTileActive", diagrams[i]);
+					swapActiveItem(tile, "geTempDlgDiagramTileActive", diagrams[i]);
 				}
 				
 				var imgDiv = document.createElement('div');
-				imgDiv.className = "diagramTileImg diagramTileImgLoading";
+				imgDiv.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgLoading";
 				var img = document.createElement('img');
 				img.style.display = "none";
 				
@@ -8895,13 +8897,13 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				{
 					img.onload = function() 
 					{
-						imgDiv2.className = "diagramTileImg";
+						imgDiv2.className = "geTempDlgDiagramTileImg";
 						img2.style.display = "";	
 					}
 					
 					img.onerror = function()
 					{
-						imgDiv2.className = "diagramTileImg diagramTileImgError";
+						imgDiv2.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgError";
 					}
 				})(img, imgDiv);
 				
@@ -8910,13 +8912,13 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				tile.appendChild(imgDiv);
 	
 				var lblDiv = document.createElement('div');
-				lblDiv.className = "diagramTileLbl";
+				lblDiv.className = "geTempDlgDiagramTileLbl";
 				lblDiv.innerHTML = title != null? title : "";
 				tile.appendChild(lblDiv);
 				
 				var prevImg = document.createElement('img');
 				prevImg.src = "/images/icon-search.svg";
-				prevImg.className = "diagramPreviewBtn";
+				prevImg.className = "geTempDlgDiagramPreviewBtn";
 				prevImg.setAttribute('title', mxResources.get("preview"));
 				tile.appendChild(prevImg);
 				
@@ -8927,7 +8929,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 						if (currentItem != tile2)
 						{
 							setSubmitBtnLbl();
-							swapActiveItem(tile2, "diagramTileActive", diagram2);
+							swapActiveItem(tile2, "geTempDlgDiagramTileActive", diagram2);
 						}
 					});
 					
@@ -8962,7 +8964,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				label = cat.title.substring(0, 1).toUpperCase() + cat.title.substring(1);
 			}
 			
-			entry.className = 'newDiagramCatItem';
+			entry.className = 'geTempDlgNewDiagramCatItem';
 			entry.setAttribute('title', label);
 			
 			label = mxUtils.htmlEntities(label);
@@ -8976,18 +8978,18 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			{
 				createBtn.innerHTML = mxResources.get('create');
 				showLinkToDiagram();
-				swapActiveItem(entry, "newDiagramCatItemActive", cat);
+				swapActiveItem(entry, "geTempDlgNewDiagramCatItemActive", cat);
 			}
 			
 			var imgDiv = document.createElement('div');
-			imgDiv.className = "newDiagramCatItemImg";
+			imgDiv.className = "geTempDlgNewDiagramCatItemImg";
 			var img = document.createElement('img');
 			img.src = NEW_DIAGRAM_CATS_PATH + '/' + cat.img;
 			imgDiv.appendChild(img);
 			entry.appendChild(imgDiv);
 
 			var lblDiv = document.createElement('div');
-			lblDiv.className = "newDiagramCatItemLbl";
+			lblDiv.className = "geTempDlgNewDiagramCatItemLbl";
 			lblDiv.innerHTML = label;
 			entry.appendChild(lblDiv);
 			
@@ -9001,7 +9003,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 					{
 						createBtn.innerHTML = mxResources.get('create');
 						showLinkToDiagram();
-						swapActiveItem(entry2, "newDiagramCatItemActive", cat2);
+						swapActiveItem(entry2, "geTempDlgNewDiagramCatItemActive", cat2);
 					}
 				});
 				
@@ -9034,7 +9036,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	
 	function fillTemplatesList(categories)
 	{
-		var list = dlgDiv.querySelector(".templatesList");
+		var list = dlgDiv.querySelector(".geTemplatesList");
 		
 		for (var cat in categories)
 		{
@@ -9047,7 +9049,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				label = cat.substring(0, 1).toUpperCase() + cat.substring(1);
 			}
 			
-			entry.className = 'templateCatLink';
+			entry.className = 'geTemplateCatLink';
 			entry.setAttribute('title', label + ' (' + templateList.length + ')');
 			
 			label = mxUtils.htmlEntities(label);
@@ -9238,7 +9240,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	if (searchDocsCallback)
 	{
 		//Use keyup to detect delete and backspace
-		mxEvent.addListener(dlgDiv.querySelector(".searchBox"), 'keyup', function(evt)
+		mxEvent.addListener(dlgDiv.querySelector(".geTempDlgSearchBox"), 'keyup', function(evt)
 		{
 			var searchInout = this;
 			
@@ -9263,12 +9265,12 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 	
 	mxEvent.addListener(createBtn, 'click', handleDialogOK);
 	
-	mxEvent.addListener(dlgDiv.querySelector(".linkToDiagramBtn"), 'click', function(evt)
+	mxEvent.addListener(dlgDiv.querySelector(".geTempDlgLinkToDiagramBtn"), 'click', function(evt)
 	{
 		handleDialogOK(true);
 	});
 
-	mxEvent.addListener(dlgDiv.querySelector('.cancelBtn'), 'click', function()
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgCancelBtn'), 'click', function()
 	{
 		if (cancelCallback != null)
 		{

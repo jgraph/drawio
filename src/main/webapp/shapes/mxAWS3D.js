@@ -27,8 +27,6 @@ mxShapeAws3dArrowNE.prototype.cst = {
 		ARROW_NE : 'mxgraph.aws3d.arrowNE'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -131,8 +129,6 @@ mxShapeAws3dArrowSW.prototype.cst = {
 		ARROW_SW : 'mxgraph.aws3d.arrowSW'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -182,8 +178,6 @@ mxUtils.extend(mxShapeAws3dArrowNW, mxShape);
 mxShapeAws3dArrowNW.prototype.cst = {
 		ARROW_NW : 'mxgraph.aws3d.arrowNW'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -235,8 +229,6 @@ mxShapeAws3dArrowlessNE.prototype.cst = {
 		ARROWLESS_NE : 'mxgraph.aws3d.arrowlessNE'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -283,8 +275,6 @@ mxUtils.extend(mxShapeAws3dDashedEdgeDouble, mxShape);
 mxShapeAws3dDashedEdgeDouble.prototype.cst = {
 		DASHED_EDGE_DOUBLE : 'mxgraph.aws3d.dashedEdgeDouble'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -348,8 +338,6 @@ mxShapeAws3dDashedArrowlessEdge.prototype.cst = {
 		DASHED_ARROWLESS_EDGE : 'mxgraph.aws3d.dashedArrowlessEdge'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -395,8 +383,6 @@ mxUtils.extend(mxShapeAws3dDashedEdge, mxShape);
 mxShapeAws3dDashedEdge.prototype.cst = {
 		DASHED_EDGE : 'mxgraph.aws3d.dashedEdge'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -454,8 +440,6 @@ mxShapeAws3dFlatEdge.prototype.cst = {
 		FLAT_EDGE : 'mxgraph.aws3d.flatEdge'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -503,8 +487,6 @@ mxUtils.extend(mxShapeAws3dFlatDoubleEdge, mxShape);
 mxShapeAws3dFlatDoubleEdge.prototype.cst = {
 		FLAT_DOUBLE_EDGE : 'mxgraph.aws3d.flatDoubleEdge'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -568,8 +550,6 @@ mxShapeAws3dAMI.prototype.cst = {
 		SHADING_COLORS : 'shadingCols' 
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -609,7 +589,6 @@ mxShapeAws3dAMI.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w * 0.4, h);
 	c.close();
 	c.fillAndStroke();
-	
 	
 	c.restore();
 	c.setFillColor('#000000');
@@ -755,8 +734,6 @@ mxShapeAws3dSnapshot.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -895,8 +872,6 @@ mxShapeAws3dApplication.prototype.cst = {
 		APPLICATION : 'mxgraph.aws3d.application',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -1041,8 +1016,6 @@ mxShapeAws3dApplicationServer.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1185,8 +1158,6 @@ mxShapeAws3dCloudFront.prototype.cst = {
 		CLOUDFRONT : 'mxgraph.aws3d.cloudfront',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -1447,8 +1418,6 @@ mxShapeAws3dDataCenter.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1589,8 +1558,6 @@ mxShapeAws3dDataServer.prototype.cst = {
 		SHADINC_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1722,8 +1689,6 @@ mxShapeAws3dElasticLoadBalancing.prototype.cst = {
 		ELASTIC_LOAD_BALANCING : 'mxgraph.aws3d.elasticLoadBalancing',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -1919,8 +1884,6 @@ mxShapeAws3dInstance.prototype.cst = {
 		SHADIG_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -2064,8 +2027,6 @@ mxShapeAws3dInternetGateway.prototype.cst = {
 		INTERNET_GATEWAY : 'mxgraph.aws3d.internetGateway',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -2288,8 +2249,6 @@ mxUtils.extend(mxShapeAws3dOracleDataCenter, mxShape);
 mxShapeAws3dOracleDataCenter.prototype.cst = {
 		ORACLE_DATA_CENTER : 'mxgraph.aws3d.oracleDataCenter'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -2636,8 +2595,6 @@ mxShapeAws3dOracleDatabaseServer.prototype.cst = {
 		ORACLE_DB_SERVER : 'mxgraph.aws3d.oracleDbServer'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -2979,8 +2936,6 @@ mxShapeAws3dRdsMaster.prototype.cst = {
 		SHADIG_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -3145,8 +3100,6 @@ mxShapeAws3dRds.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -3302,8 +3255,6 @@ mxShapeAws3dRoute53.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -3456,8 +3407,6 @@ mxShapeAws3dS3Bucket.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -3575,8 +3524,6 @@ mxShapeAws3dS3.prototype.cst = {
 		S3 : 'mxgraph.aws3d.s3',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -3733,8 +3680,6 @@ mxShapeAws3dSimpleDB.prototype.cst = {
 		SIMPLE_DB : 'mxgraph.aws3d.simpleDb',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -3911,8 +3856,6 @@ mxShapeAws3dSqs.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -4081,8 +4024,6 @@ mxShapeAws3dVpcGateway.prototype.cst = {
 		VPC_GATEWAY : 'mxgraph.aws3d.vpcGateway',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -4313,8 +4254,6 @@ mxShapeAws3dWebServer.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -4457,8 +4396,6 @@ mxShapeAws3dDynamoDB.prototype.cst = {
 		DYNAMO_DB : 'mxgraph.aws3d.dynamoDb',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -4702,8 +4639,6 @@ mxShapeAws3dElasticMapReduce.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -4911,8 +4846,6 @@ mxShapeAws3dRdsSlave.prototype.cst = {
 		RDS_SLAVE : 'mxgraph.aws3d.rdsSlave'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -5086,8 +5019,6 @@ mxShapeAws3dAMI2.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -5241,8 +5172,6 @@ mxShapeAws3dEbs.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -5376,8 +5305,6 @@ mxUtils.extend(mxShapeAws3dOracleServer, mxShape);
 mxShapeAws3dOracleServer.prototype.cst = {
 		ORACLE_SERVER : 'mxgraph.aws3d.oracleServer'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -5717,8 +5644,6 @@ mxShapeAws3dSecureConnection.prototype.cst = {
 		SECURE_CONNECTION : 'mxgraph.aws3d.secureConnection'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -5812,8 +5737,6 @@ mxShapeAws3dEmailService.prototype.cst = {
 		EMAIL_SERVICE : 'mxgraph.aws3d.email_service',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -6026,8 +5949,6 @@ mxShapeAws3dWorker.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -6222,8 +6143,6 @@ mxShapeAws3dApplication2.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -6366,8 +6285,6 @@ mxShapeAws3dElasticBeanstalk.prototype.cst = {
 		ELASTIC_BEANSTALK : 'mxgraph.aws3d.elasticBeanstalk',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -6590,8 +6507,6 @@ mxShapeAws3dSimpleDB2.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -6786,8 +6701,6 @@ mxShapeAws3dWorkflowService.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -6966,8 +6879,6 @@ mxShapeAws3dDecider.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -7007,7 +6918,6 @@ mxShapeAws3dDecider.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w * 0.5027, h);
 	c.close();
 	c.fillAndStroke();
-	
 	
 	c.restore();
 	c.setFillColor('#000000');
@@ -7130,8 +7040,6 @@ mxShapeAws3dSearchEngine.prototype.cst = {
 		SEARCH_ENGINE : 'mxgraph.aws3d.searchEngine',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -7340,8 +7248,6 @@ mxShapeAws3dSecurityTokenService.prototype.cst = {
 		SECURITY_TOKEN_SERVICE : 'mxgraph.aws3d.securityTokenService',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -7581,8 +7487,6 @@ mxShapeAws3dGlacier.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -7731,8 +7635,6 @@ mxShapeAws3dCustomerGateway.prototype.cst = {
 		CUSTOMER_GATEWAY : 'mxgraph.aws3d.customerGateway',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -7984,8 +7886,6 @@ mxShapeAws3dRedshift.prototype.cst = {
 		REDSHIFT : 'mxgraph.aws3d.redshift',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -8266,8 +8166,6 @@ mxShapeAws3dLambda.prototype.cst = {
 		SHADING_COLORS : 'shadingCols'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -8447,8 +8345,6 @@ mxShapeAws3dEbs2.prototype.cst = {
 		EBS2 : 'mxgraph.aws3d.ebs2',
 		SHADING_COLORS : 'shadingCols'
 };
-
-
 
 /**
 * Function: paintVertexShape

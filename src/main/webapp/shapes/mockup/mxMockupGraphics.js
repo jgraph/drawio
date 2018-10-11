@@ -31,13 +31,12 @@ mxShapeMockupBarChart.prototype.cst = {
 		SHAPE_BAR_CHART : 'mxgraph.mockup.graphics.barChart'
 };
 
-(
-		mxShapeMockupBarChart.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'},
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
-			{name: 'fillColor3', dispName: 'Fill3 Color', type: 'color'}
-		]);
+mxShapeMockupBarChart.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'},
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Fill3 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -133,13 +132,12 @@ mxShapeMockupColumnChart.prototype.cst = {
 		SHAPE_COLUMN_CHART : 'mxgraph.mockup.graphics.columnChart'
 };
 
-(
-		mxShapeMockupColumnChart.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Bar Stroke Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Coord System Color', type: 'color'},
-			{name: 'fillColor2', dispName: 'Bar1 Color', type: 'color'},
-			{name: 'fillColor3', dispName: 'Bar2 Color', type: 'color'}
-		]);
+mxShapeMockupColumnChart.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Bar Stroke Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Coord System Color', type: 'color'},
+	{name: 'fillColor2', dispName: 'Bar1 Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Bar2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -235,12 +233,11 @@ mxShapeMockupLineChart.prototype.cst = {
 		SHAPE_LINE_CHART : 'mxgraph.mockup.graphics.lineChart'
 };
 
-(
-		mxShapeMockupLineChart.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Coord. System Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Line1 Color', type: 'color'},
-			{name: 'strokeColor4', dispName: 'Line2 Color', type: 'color'},
-		]);
+mxShapeMockupLineChart.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Coord. System Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Line1 Color', type: 'color'},
+	{name: 'strokeColor4', dispName: 'Line2 Color', type: 'color'},
+];
 
 /**
  * Function: paintVertexShape
@@ -332,12 +329,11 @@ mxShapeMockupPieChart.prototype.cst = {
 		SHAPE_PIE_CHART : 'mxgraph.mockup.graphics.pieChart'
 };
 
-(
-		mxShapeMockupPieChart.prototype.customProperties = [
-			{name: 'partsCount', dispName: 'partsCount', type: 'int', defVal: 4, dependentProps: ['partColors', 'parts']},
-			{name: 'partColors', dispName: 'Part Colors', type: 'staticArr', subType: 'color', sizeProperty: 'partsCount', subDefVal: '#FFFFFF'},
-			{name: 'parts', dispName: 'Part Sizes', type: 'staticArr', subType: 'int', sizeProperty: 'partsCount', subDefVal: '10'},
-		]);
+mxShapeMockupPieChart.prototype.customProperties = [
+	{name: 'partsCount', dispName: 'partsCount', type: 'int', defVal: 4, dependentProps: ['partColors', 'parts']},
+	{name: 'partColors', dispName: 'Part Colors', type: 'staticArr', subType: 'color', sizeProperty: 'partsCount', subDefVal: '#FFFFFF'},
+	{name: 'parts', dispName: 'Part Sizes', type: 'staticArr', subType: 'int', sizeProperty: 'partsCount', subDefVal: '10'},
+];
 
 /**
  * Function: paintVertexShape
@@ -527,13 +523,12 @@ mxShapeMockupBubbleChart.prototype.cst = {
 		SHAPE_BUBBLE_CHART : 'mxgraph.mockup.graphics.bubbleChart'
 };
 
-(
-		mxShapeMockupBubbleChart.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Bubble Stroke Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Coord. System Color', type: 'color'},
-			{name: 'fillColor2', dispName: 'Bubble1 Color', type: 'color'},
-			{name: 'fillColor3', dispName: 'Bubble2 Color', type: 'color'}
-		]);
+mxShapeMockupBubbleChart.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Bubble Stroke Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Coord. System Color', type: 'color'},
+	{name: 'fillColor2', dispName: 'Bubble1 Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Bubble2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -655,12 +650,11 @@ mxShapeMockupGauge.prototype.cst = {
 		SHAPE_GAUGE : 'mxgraph.mockup.graphics.gauge'
 };
 
-(
-		mxShapeMockupGauge.prototype.customProperties = [
-			{name: 'scaleColors', dispName: 'Scale Colors', type: 'String'},
-			{name: 'needleColor', dispName: 'Needle Color', type: 'color'},
-			{name: 'gaugePos', dispName: 'Needle Position', type: 'float', min:0, max:100, defVal:25}
-		]);
+mxShapeMockupGauge.prototype.customProperties = [
+	{name: 'scaleColors', dispName: 'Scale Colors', type: 'String'},
+	{name: 'needleColor', dispName: 'Needle Color', type: 'color'},
+	{name: 'gaugePos', dispName: 'Needle Position', type: 'float', min:0, max:100, defVal:25}
+];
 
 /**
  * Function: paintVertexShape
@@ -818,12 +812,11 @@ mxShapeMockupPlotChart.prototype.cst = {
 		SHAPE_PLOT_CHART : 'mxgraph.mockup.graphics.plotChart'
 };
 
-(
-		mxShapeMockupPlotChart.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Bubble Stroke Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Coord. System Color', type: 'color'},
-			{name: 'fillColor2', dispName: 'Shapes Color', type: 'string'}
-		]);
+mxShapeMockupPlotChart.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Bubble Stroke Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Coord. System Color', type: 'color'},
+	{name: 'fillColor2', dispName: 'Shapes Color', type: 'string'}
+];
 
 /**
  * Function: paintVertexShape
@@ -1220,10 +1213,9 @@ mxShapeMockupGraphicsRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeMockupGraphicsRRect.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
-		]);
+mxShapeMockupGraphicsRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
+];
 
 /**
 * Function: paintVertexShape

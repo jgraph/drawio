@@ -1397,10 +1397,9 @@ mxShapeERRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeERRRect.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Rounding Size', type: 'float'},
-		]);
+mxShapeERRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Rounding Size', type: 'float'},
+];
 
 /**
 * Function: paintVertexShape

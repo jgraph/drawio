@@ -894,11 +894,10 @@ function mxShapeAndroidProgressBar(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeAndroidProgressBar, mxShape);
 
-(
-		mxShapeAndroidProgressBar.prototype.customProperties = [
-			{name: 'dx1', dispName: 'Middle Bar Length', type: 'float', min:0, max:1, defVal:0.8},
-			{name: 'dx2', dispName: 'Left Bar Length', type: 'float', min:0, max:1, defVal:0.6}
-		]);
+mxShapeAndroidProgressBar.prototype.customProperties = [
+	{name: 'dx1', dispName: 'Middle Bar Length', type: 'float', min:0, max:1, defVal:0.8},
+	{name: 'dx2', dispName: 'Left Bar Length', type: 'float', min:0, max:1, defVal:0.6}
+];
 
 mxShapeAndroidProgressBar.prototype.cst = {
 		PROGRESS_BAR : 'mxgraph.android.progressBar'
@@ -998,10 +997,9 @@ function mxShapeAndroidProgressScrubberDisabled(bounds, fill, stroke, strokewidt
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberDisabled, mxShape);
 
-(
-		mxShapeAndroidProgressScrubberDisabled.prototype.customProperties = [
-			{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
-		]);
+mxShapeAndroidProgressScrubberDisabled.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
+];
 
 mxShapeAndroidProgressScrubberDisabled.prototype.cst = {
 		PROGRESS_SCRUBBER_DISABLED : 'mxgraph.android.progressScrubberDisabled'
@@ -1084,10 +1082,9 @@ function mxShapeAndroidProgressScrubberFocused(bounds, fill, stroke, strokewidth
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberFocused, mxShape);
 
-(
-		mxShapeAndroidProgressScrubberFocused.prototype.customProperties = [
-			{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
-		]);
+mxShapeAndroidProgressScrubberFocused.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
+];
 
 mxShapeAndroidProgressScrubberFocused.prototype.cst = {
 		PROGRESS_SCRUBBER_FOCUSED : 'mxgraph.android.progressScrubberFocused'
@@ -1177,10 +1174,9 @@ function mxShapeAndroidProgressScrubberPressed(bounds, fill, stroke, strokewidth
 */
 mxUtils.extend(mxShapeAndroidProgressScrubberPressed, mxShape);
 
-(
-		mxShapeAndroidProgressScrubberPressed.prototype.customProperties = [
-			{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
-		]);
+mxShapeAndroidProgressScrubberPressed.prototype.customProperties = [
+	{name: 'dx', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.3}
+];
 
 mxShapeAndroidProgressScrubberPressed.prototype.cst = {
 		PROGRESS_SCRUBBER_PRESSED : 'mxgraph.android.progressScrubberPressed'
@@ -1271,10 +1267,9 @@ function mxShapeAndroidQuickscroll2(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeAndroidQuickscroll2, mxShape);
 
-(
-		mxShapeAndroidQuickscroll2.prototype.customProperties = [
-			{name: 'dy', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.5}
-		]);
+mxShapeAndroidQuickscroll2.prototype.customProperties = [
+	{name: 'dy', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.5}
+];
 
 mxShapeAndroidQuickscroll2.prototype.cst = {
 		QUICKSCROLL : 'mxgraph.android.quickscroll2'
@@ -1362,10 +1357,9 @@ function mxShapeAndroidQuickscroll3(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeAndroidQuickscroll3, mxShape);
 
-(
-		mxShapeAndroidQuickscroll3.prototype.customProperties = [
-			{name: 'dy', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.5}
-		]);
+mxShapeAndroidQuickscroll3.prototype.customProperties = [
+	{name: 'dy', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:0.5}
+];
 
 mxShapeAndroidQuickscroll3.prototype.cst = {
 		QUICKSCROLL : 'mxgraph.android.quickscroll3'

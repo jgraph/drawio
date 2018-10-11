@@ -28,10 +28,9 @@ mxFloorplanWall.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
-(
-		mxFloorplanWall.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanWall.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -78,10 +77,9 @@ mxFloorplanWallCorner.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
-(
-		mxFloorplanWallCorner.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanWallCorner.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -136,10 +134,9 @@ mxFloorplanWallU.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
-(
-		mxFloorplanWallU.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanWallU.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -196,10 +193,9 @@ mxFloorplanRoom.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
-(
-		mxFloorplanRoom.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanRoom.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -257,10 +253,9 @@ mxFloorplanWindow.prototype.cst = {
 		WALL_THICKNESS : "wallThickness"
 };
 
-(
-		mxFloorplanWindow.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanWindow.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -311,10 +306,9 @@ mxFloorplanDimension.prototype.cst = {
 		DIMENSION : 'mxgraph.floorplan.dimension'
 };
 
-(
-		mxFloorplanDimension.prototype.customProperties = [
-			{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
-		]);
+mxFloorplanDimension.prototype.customProperties = [
+	{name:'wallThickness', dispName:'Thickness', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -371,8 +365,6 @@ mxFloorplanDimensionBottom.prototype.cst = {
 		DIMENSION : 'mxgraph.floorplan.dimensionBottom'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -427,8 +419,6 @@ mxUtils.extend(mxFloorplanStairs, mxShape);
 mxFloorplanStairs.prototype.cst = {
 		STAIRS : 'mxgraph.floorplan.stairs'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -570,8 +560,6 @@ mxFloorplanStairsRest.prototype.cst = {
 		STAIRS : 'mxgraph.floorplan.stairsRest'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -645,8 +633,6 @@ mxFloorplanDoorLeft.prototype.cst = {
 		DOOR_LEFT : 'mxgraph.floorplan.doorLeft'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -695,8 +681,6 @@ mxUtils.extend(mxFloorplanDoorRight, mxShape);
 mxFloorplanDoorRight.prototype.cst = {
 		DOOR_RIGHT : 'mxgraph.floorplan.doorRight'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -747,8 +731,6 @@ mxFloorplanDoorDouble.prototype.cst = {
 		DOOR_DOUBLE : 'mxgraph.floorplan.doorDouble'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -779,4 +761,3 @@ mxFloorplanDoorDouble.prototype.background = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxFloorplanDoorDouble.prototype.cst.DOOR_DOUBLE, mxFloorplanDoorDouble);
-

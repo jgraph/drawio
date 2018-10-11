@@ -143,13 +143,12 @@ mxShapeMockupStepBar.prototype.cst = {
 		TEXT_COLOR2 : 'textColor2'
 };
 
-(
-		mxShapeMockupStepBar.prototype.customProperties = [
-			{name: 'mainText', dispName: 'Text', type: 'string'},
-			{name: 'textSize', dispName: 'Text Size', type: 'float'},
-			{name: 'textColor', dispName: 'Text Color', type: 'color'},
-			{name: 'textColor2', dispName: 'Text2 Color', type: 'color'}
-		]);
+mxShapeMockupStepBar.prototype.customProperties = [
+	{name: 'mainText', dispName: 'Text', type: 'string'},
+	{name: 'textSize', dispName: 'Text Size', type: 'float'},
+	{name: 'textColor', dispName: 'Text Color', type: 'color'},
+	{name: 'textColor2', dispName: 'Text2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -469,12 +468,11 @@ mxShapeMockupScrollBar.prototype.cst = {
 		BAR_POS : 'barPos'
 };
 
-(
-		mxShapeMockupScrollBar.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float'},
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
-			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
-		]);
+mxShapeMockupScrollBar.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float'},
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+];
 
 /**
 * Function: paintVertexShape
@@ -692,12 +690,11 @@ mxShapeMockupMapNavigator.prototype.cst = {
 		STROKE_COLOR3 : 'strokeColor3'
 };
 
-(
-		mxShapeMockupMapNavigator.prototype.customProperties = [
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
-			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
-			{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'}
-		]);
+mxShapeMockupMapNavigator.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Stroke3 Color', type: 'color'}
+];
 
 /**
 * Function: paintVertexShape

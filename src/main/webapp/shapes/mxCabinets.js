@@ -28,10 +28,9 @@ mxCabinetsCabinet.prototype.cst = {
 		CABINET : 'mxgraph.cabinets.cabinet'
 };
 
-(
-		mxCabinetsCabinet.prototype.customProperties = [
-			{name: 'hasStand', dispName:'Has Stand', type:'bool', defVal:true}
-		]);
+mxCabinetsCabinet.prototype.customProperties = [
+	{name: 'hasStand', dispName:'Has Stand', type:'bool', defVal:true}
+];
 
 /**
 * Function: paintVertexShape

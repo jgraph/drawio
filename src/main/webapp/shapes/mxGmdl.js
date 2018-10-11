@@ -27,8 +27,6 @@ mxShapeGmdlPlayer.prototype.cst = {
 		SHAPE_PLAYER : 'mxgraph.gmdl.player'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -97,11 +95,10 @@ mxShapeGmdlSwitch.prototype.cst = {
 		STATE_OFF : 'off'
 };
 
-(
-		mxShapeGmdlSwitch.prototype.customProperties = [
-			{name:'switchState', dispName:'State', type:'enum', defVal:'on',
-				enumList:[{val:'on', dispName: 'On'}, {val:'off', dispName: 'Off'}]}
-		]);
+mxShapeGmdlSwitch.prototype.customProperties = [
+	{name:'switchState', dispName:'State', type:'enum', defVal:'on',
+		enumList:[{val:'on', dispName: 'On'}, {val:'off', dispName: 'Off'}]}
+];
 
 /**
 * Function: paintVertexShape
@@ -195,14 +192,13 @@ mxShapeGmdlMarginRect.prototype.cst = {
 		MARGIN_RIGHT : 'rectMarginRight'
 };
 
-(
-		mxShapeGmdlMarginRect.prototype.customProperties = [
-			{name:'rectMargin', dispName:'Margin', type:'float', min:0, defVal:0},
-			{name:'rectMarginTop', dispName:'Margin Top', type:'float', defVal:0},
-			{name:'rectMarginLeft', dispName:'Margin Left', type:'float', defVal:0},
-			{name:'rectMarginBottom', dispName:'Margin Bottom', type:'float', defVal:0},
-			{name:'rectMarginRight', dispName:'Margin Right', type:'float', defVal:0}
-		]);
+mxShapeGmdlMarginRect.prototype.customProperties = [
+	{name:'rectMargin', dispName:'Margin', type:'float', min:0, defVal:0},
+	{name:'rectMarginTop', dispName:'Margin Top', type:'float', defVal:0},
+	{name:'rectMarginLeft', dispName:'Margin Left', type:'float', defVal:0},
+	{name:'rectMarginBottom', dispName:'Margin Bottom', type:'float', defVal:0},
+	{name:'rectMarginRight', dispName:'Margin Right', type:'float', defVal:0}
+];
 
 /**
 * Function: paintVertexShape
@@ -264,10 +260,9 @@ mxShapeGmdlSliderNormal.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderNormal.prototype.customProperties = [
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
-		]);
+mxShapeGmdlSliderNormal.prototype.customProperties = [
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -323,11 +318,10 @@ mxShapeGmdlSlider2.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSlider2.prototype.customProperties = [
-			{name:'barPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
-		]);
+mxShapeGmdlSlider2.prototype.customProperties = [
+	{name:'barPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -413,11 +407,10 @@ mxShapeGmdlSliderFocused.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderFocused.prototype.customProperties = [
-			{name:'barPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
-		]);
+mxShapeGmdlSliderFocused.prototype.customProperties = [
+	{name:'barPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -446,7 +439,6 @@ mxShapeGmdlSliderFocused.prototype.background = function(c, x, y, w, h)
 	c.moveTo(0, h * 0.5);
 	c.lineTo(w, h * 0.5);
 	c.fillAndStroke();
-	
 
 	c.restore();
 	c.begin();
@@ -512,11 +504,10 @@ mxShapeGmdlSliderDisabled.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderDisabled.prototype.customProperties = [
-			{name:'hPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
-		]);
+mxShapeGmdlSliderDisabled.prototype.customProperties = [
+	{name:'hPos', dispName:'Handle Position', type:'float', min:0, defVal:40},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -589,11 +580,10 @@ mxShapeGmdlSliderDisabled2.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderDisabled2.prototype.customProperties = [
-			{name:'hPos', dispName:'Handle Position', type:'float', min:0, defVal:'40'},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
-		]);
+mxShapeGmdlSliderDisabled2.prototype.customProperties = [
+	{name:'hPos', dispName:'Handle Position', type:'float', min:0, defVal:'40'},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
+];
 
 /**
 * Function: paintVertexShape
@@ -682,11 +672,10 @@ mxShapeGmdlSliderDiscrete.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderDiscrete.prototype.customProperties = [
-			{name:'barPos', dispName:'Handle Position', type:'int', min:0, defVal:'40'},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
-		]);
+mxShapeGmdlSliderDiscrete.prototype.customProperties = [
+	{name:'barPos', dispName:'Handle Position', type:'int', min:0, defVal:'40'},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
+];
 
 /**
 * Function: paintVertexShape
@@ -782,11 +771,10 @@ mxShapeGmdlSliderDiscreteDots.prototype.cst = {
 		HANDLE_SIZE : 'handleSize'
 };
 
-(
-		mxShapeGmdlSliderDiscreteDots.prototype.customProperties = [
-			{name:'barPos', dispName:'Handle Position', type:'int', min:0, defVal:'40'},
-			{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
-		]);
+mxShapeGmdlSliderDiscreteDots.prototype.customProperties = [
+	{name:'barPos', dispName:'Handle Position', type:'int', min:0, defVal:'40'},
+	{name:'handleSize', dispName:'Handle Size', type:'float', min:0, defVal:'10'}
+];
 
 /**
 * Function: paintVertexShape
@@ -915,10 +903,9 @@ mxShapeGmdlProgressBar.prototype.cst = {
 		PROGRESS_BAR : 'mxgraph.gmdl.progressBar'
 };
 
-(
-		mxShapeGmdlProgressBar.prototype.customProperties = [
-			{name:'dx1', dispName:'Handle Position', type:'int', min:0, defVal:0.8}
-		]);
+mxShapeGmdlProgressBar.prototype.customProperties = [
+	{name:'dx1', dispName:'Handle Position', type:'int', min:0, defVal:0.8}
+];
 
 /**
 * Function: paintVertexShape
