@@ -32,6 +32,16 @@ mxShapePidDiscInst.prototype.cst = {
 		LOCAL : 'local'
 };
 
+mxShapePidDiscInst.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+		]}
+];
+
 /**
  * Function: paintVertexShape
  * 
@@ -122,6 +132,16 @@ mxShapePidSharedCont.prototype.cst = {
 		INACCESSIBLE : 'inaccessible',
 		LOCAL : 'local'
 };
+
+mxShapePidSharedCont.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+		]}
+];
 
 /**
 * Function: paintVertexShape
@@ -216,6 +236,16 @@ mxShapePidCompFunc.prototype.cst = {
 		INACCESSIBLE : 'inaccessible',
 		LOCAL : 'local'
 };
+
+mxShapePidCompFunc.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+		]}
+];
 
 /**
 * Function: paintVertexShape
@@ -314,6 +344,16 @@ mxShapePidProgLogCont.prototype.cst = {
 		INACCESSIBLE : 'inaccessible',
 		LOCAL : 'local'
 };
+
+mxShapePidProgLogCont.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+		]}
+];
 
 /**
 * Function: paintVertexShape
@@ -418,6 +458,23 @@ mxShapePidIndicator.prototype.cst = {
 		FUNCTION : 'func',
 		PLC : 'plc'
 };
+
+mxShapePidIndicator.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+	]},
+	{name: 'indType', dispName: 'Type', type: 'enum', defVal:'inst',
+		enumList: [
+			{val:'inst', dispName:'Instrument'},
+			{val:'ctrl', dispName:'Control'},
+			{val:'func', dispName:'Function'},
+			{val:'plc', dispName:'PLC'}
+	]}
+];
 
 /**
 * Function: paintVertexShape
@@ -549,6 +606,16 @@ mxShapePidLogic.prototype.cst = {
 		INACCESSIBLE : 'inaccessible',
 		LOCAL : 'local'
 };
+
+mxShapePidLogic.prototype.customProperties = [
+	{name: 'mounting', dispName: 'Mounting', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'field', dispName:'Field'},
+			{val:'room', dispName:'Room'},
+			{val:'inaccessible', dispName:'Inaccessible'},
+			{val:'local', dispName:'Local'}
+	]}
+];
 
 /**
 * Function: paintVertexShape

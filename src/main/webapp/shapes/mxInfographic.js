@@ -25,10 +25,9 @@ mxUtils.extend(mxShapeInfographicNumEntryVert, mxActor);
 
 mxShapeInfographicNumEntryVert.prototype.cst = {NUM_ENTRY_VERT : 'mxgraph.infographic.numberedEntryVert'};
 
-(
-		mxShapeInfographicNumEntryVert.prototype.customProperties = [
-			{name:'dy', dispName:'Circle Size', min:0, defVal: 25}
-		]);
+mxShapeInfographicNumEntryVert.prototype.customProperties = [
+	{name:'dy', dispName:'Circle Size', min:0, defVal: 25}
+];
 
 /**
 * Function: paintVertexShape
@@ -103,12 +102,11 @@ mxUtils.extend(mxShapeInfographicBendingArch, mxActor);
 
 mxShapeInfographicBendingArch.prototype.cst = {BENDING_ARCH : 'mxgraph.infographic.bendingArch'};
 
-(
-		mxShapeInfographicBendingArch.prototype.customProperties = [
-			{name:'startAngle', dispName:'Start Angle', min:0, max:1, defVal: 0.75},
-			{name:'endAngle', dispName:'End Angle', min:0, max:1, defVal: 0.25},
-			{name:'arcWidth', dispName:'Arc Width', min:0, max:1, defVal: 0.25}
-		]);
+mxShapeInfographicBendingArch.prototype.customProperties = [
+	{name:'startAngle', dispName:'Start Angle', min:0, max:1, defVal: 0.75},
+	{name:'endAngle', dispName:'End Angle', min:0, max:1, defVal: 0.25},
+	{name:'arcWidth', dispName:'Arc Width', min:0, max:1, defVal: 0.25}
+];
 
 /**
 * Function: paintVertexShape
@@ -252,10 +250,9 @@ mxUtils.extend(mxShapeInfographicParallelogram, mxActor);
 
 mxShapeInfographicParallelogram.prototype.cst = {PARALLELOGRAM : 'mxgraph.infographic.parallelogram'};
 
-(
-		mxShapeInfographicParallelogram.prototype.customProperties = [
-			{name:'dx', dispName:'Angle', min:0, defVal: 15}
-		]);
+mxShapeInfographicParallelogram.prototype.customProperties = [
+	{name:'dx', dispName:'Angle', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -320,11 +317,10 @@ mxUtils.extend(mxShapeInfographicRibbonRolled, mxActor);
 
 mxShapeInfographicRibbonRolled.prototype.cst = {RIBBON_ROLLED : 'mxgraph.infographic.ribbonRolled'};
 
-(
-		mxShapeInfographicRibbonRolled.prototype.customProperties = [
-			{name:'dx', dispName:'Roll Length', min:0, defVal: 185},
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
-		]);
+mxShapeInfographicRibbonRolled.prototype.customProperties = [
+	{name:'dx', dispName:'Roll Length', min:0, defVal: 185},
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -423,11 +419,10 @@ mxUtils.extend(mxShapeInfographicRibbonDoubleFolded, mxActor);
 
 mxShapeInfographicRibbonDoubleFolded.prototype.cst = {RIBBON_DOUBLE_FOLDED : 'mxgraph.infographic.ribbonDoubleFolded'};
 
-(
-		mxShapeInfographicRibbonDoubleFolded.prototype.customProperties = [
-			{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
-		]);
+mxShapeInfographicRibbonDoubleFolded.prototype.customProperties = [
+	{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -479,7 +474,6 @@ mxShapeInfographicRibbonDoubleFolded.prototype.paintVertexShape = function(c, x,
 	c.lineTo(0, h - dy);
 	c.close();
 	c.stroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicRibbonDoubleFolded.prototype.cst.RIBBON_DOUBLE_FOLDED, mxShapeInfographicRibbonDoubleFolded);
@@ -528,12 +522,11 @@ mxUtils.extend(mxShapeInfographicRibbonFrontFolded, mxActor);
 
 mxShapeInfographicRibbonFrontFolded.prototype.cst = {RIBBON_FRONT_FOLDED : 'mxgraph.infographic.ribbonFrontFolded'};
 
-(
-		mxShapeInfographicRibbonFrontFolded.prototype.customProperties = [
-			{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
-			{name:'notch', dispName:'Notch', min:0, defVal: 15}
-		]);
+mxShapeInfographicRibbonFrontFolded.prototype.customProperties = [
+	{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
+	{name:'notch', dispName:'Notch', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -580,7 +573,6 @@ mxShapeInfographicRibbonFrontFolded.prototype.paintVertexShape = function(c, x, 
 	c.lineTo(0, h);
 	c.close();
 	c.stroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicRibbonFrontFolded.prototype.cst.RIBBON_FRONT_FOLDED, mxShapeInfographicRibbonFrontFolded);
@@ -613,7 +605,6 @@ Graph.handleFactory[mxShapeInfographicRibbonFrontFolded.prototype.cst.RIBBON_FRO
 	});
 			
 	handles.push(handle2);
-	
 
 	return handles;
 };
@@ -643,12 +634,11 @@ mxUtils.extend(mxShapeInfographicRibbonBackFolded, mxActor);
 
 mxShapeInfographicRibbonBackFolded.prototype.cst = {RIBBON_BACK_FOLDED : 'mxgraph.infographic.ribbonBackFolded'};
 
-(
-		mxShapeInfographicRibbonBackFolded.prototype.customProperties = [
-			{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
-			{name:'notch', dispName:'Notch', min:0, defVal: 15}
-		]);
+mxShapeInfographicRibbonBackFolded.prototype.customProperties = [
+	{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
+	{name:'notch', dispName:'Notch', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -694,7 +684,6 @@ mxShapeInfographicRibbonBackFolded.prototype.paintVertexShape = function(c, x, y
 	c.lineTo(0, h);
 	c.close();
 	c.stroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicRibbonBackFolded.prototype.cst.RIBBON_BACK_FOLDED, mxShapeInfographicRibbonBackFolded);
@@ -756,12 +745,11 @@ mxUtils.extend(mxShapeInfographicBanner, mxActor);
 
 mxShapeInfographicBanner.prototype.cst = {BANNER : 'mxgraph.infographic.banner'};
 
-(
-		mxShapeInfographicBanner.prototype.customProperties = [
-			{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
-			{name:'notch', dispName:'Notch', min:0, defVal: 15}
-		]);
+mxShapeInfographicBanner.prototype.customProperties = [
+	{name:'dx', dispName:'Fold Length', min:0, defVal: 25},
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15},
+	{name:'notch', dispName:'Notch', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -829,7 +817,6 @@ mxShapeInfographicBanner.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w - dx - 2 * dy, h);
 	c.close();
 	c.fill();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicBanner.prototype.cst.BANNER, mxShapeInfographicBanner);
@@ -890,10 +877,9 @@ mxUtils.extend(mxShapeInfographicCircularCallout, mxActor);
 
 mxShapeInfographicCircularCallout.prototype.cst = {CIRCULAR_CALLOUT : 'mxgraph.infographic.circularCallout'};
 
-(
-		mxShapeInfographicCircularCallout.prototype.customProperties = [
-			{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
-		]);
+mxShapeInfographicCircularCallout.prototype.customProperties = [
+	{name:'dy', dispName:'Ribbon Width', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -923,7 +909,6 @@ mxShapeInfographicCircularCallout.prototype.paintVertexShape = function(c, x, y,
 	c.arcTo(rx, ry, 0, 0, 0, w * 0.5, h * 0.5 - ry);
 	c.close();
 	c.fillAndStroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicCircularCallout.prototype.cst.CIRCULAR_CALLOUT, mxShapeInfographicCircularCallout);
@@ -966,8 +951,6 @@ function mxShapeInfographicShadedTriangle(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeInfographicShadedTriangle, mxActor);
 
 mxShapeInfographicShadedTriangle.prototype.cst = {SHADED_TRIANGLE : 'mxgraph.infographic.shadedTriangle'};
-
-
 
 /**
 * Function: paintVertexShape
@@ -1012,7 +995,6 @@ mxShapeInfographicShadedTriangle.prototype.paintVertexShape = function(c, x, y, 
 	c.lineTo(w, h);
 	c.close();
 	c.stroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicShadedTriangle.prototype.cst.SHADED_TRIANGLE, mxShapeInfographicShadedTriangle);
@@ -1040,8 +1022,6 @@ function mxShapeInfographicShadedPyramid(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeInfographicShadedPyramid, mxActor);
 
 mxShapeInfographicShadedPyramid.prototype.cst = {SHADED_PYRAMID : 'mxgraph.infographic.shadedPyramid'};
-
-
 
 /**
 * Function: paintVertexShape
@@ -1116,8 +1096,6 @@ function mxShapeInfographicPyramidStep(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeInfographicPyramidStep, mxActor);
 
 mxShapeInfographicPyramidStep.prototype.cst = {PYRAMID_STEP : 'mxgraph.infographic.pyramidStep'};
-
-
 
 /**
 * Function: paintVertexShape
@@ -1197,8 +1175,6 @@ mxUtils.extend(mxShapeInfographicCylinder, mxActor);
 
 mxShapeInfographicCylinder.prototype.cst = {CYLINDER : 'mxgraph.infographic.cylinder'};
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1266,8 +1242,6 @@ function mxShapeInfographicCircularCallout2(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeInfographicCircularCallout2, mxActor);
 
 mxShapeInfographicCircularCallout2.prototype.cst = {CIRCULAR_CALLOUT_2 : 'mxgraph.infographic.circularCallout2'};
-
-
 
 /**
 * Function: paintVertexShape
@@ -1383,12 +1357,11 @@ mxUtils.extend(mxShapeInfographicBannerSingleFold, mxActor);
 
 mxShapeInfographicBannerSingleFold.prototype.cst = {BANNER_SINGLE_FOLD : 'mxgraph.infographic.bannerSingleFold'};
 
-(
-		mxShapeInfographicBannerSingleFold.prototype.customProperties = [
-			{name:'dx', dispName: 'Fold Length', type:'float', defVal:32, min:0},
-			{name:'dy', dispName: 'Banner Width', type:'float', defVal:17, min:0},
-			{name:'notch', dispName: 'Notch', type:'float', defVal:15, min:0}
-		]);
+mxShapeInfographicBannerSingleFold.prototype.customProperties = [
+	{name:'dx', dispName: 'Fold Length', type:'float', defVal:32, min:0},
+	{name:'dy', dispName: 'Banner Width', type:'float', defVal:17, min:0},
+	{name:'notch', dispName: 'Notch', type:'float', defVal:15, min:0}
+];
 
 /**
 * Function: paintVertexShape
@@ -1406,7 +1379,6 @@ mxShapeInfographicBannerSingleFold.prototype.paintVertexShape = function(c, x, y
 	dx = Math.min(w - 2 * dy, dx);
 
 	var dx2 = Math.max(0, Math.min(w - dx - 2 * dy, parseFloat(mxUtils.getValue(this.style, 'dx2', this.dx2))));
-//	c.lineTo(w - dx - 2 * dy, h);
 
 	notch = Math.min(dx, notch);
 	
@@ -1536,10 +1508,9 @@ mxUtils.extend(mxShapeBasicShadedCube, mxActor);
 
 mxShapeBasicShadedCube.prototype.cst = {SHADED_CUBE : 'mxgraph.infographic.shadedCube'};
 
-(
-		mxShapeBasicShadedCube.prototype.customProperties = [
-			{name:'isoAngle', dispName: 'Perspective', type:'float', defVal:15, min:0}
-		]);
+mxShapeBasicShadedCube.prototype.customProperties = [
+	{name:'isoAngle', dispName: 'Perspective', type:'float', defVal:15, min:0}
+];
 
 /**
 * Function: paintVertexShape
@@ -1630,12 +1601,11 @@ mxUtils.extend(mxShapeBasicPartConcEllipse, mxActor);
 
 mxShapeBasicPartConcEllipse.prototype.cst = {PART_CONC_ELLIPSE : 'mxgraph.infographic.partConcEllipse'};
 
-(
-		mxShapeBasicPartConcEllipse.prototype.customProperties = [
-			{name:'startAngle', dispName:'Start Angle', min:0, max:1, defVal: 0.25},
-			{name:'endAngle', dispName:'End Angle', min:0, max:1, defVal: 0.1},
-			{name:'arcWidth', dispName:'Arc Width', min:0, max:1, defVal: 0.5}
-		]);
+mxShapeBasicPartConcEllipse.prototype.customProperties = [
+	{name:'startAngle', dispName:'Start Angle', min:0, max:1, defVal: 0.25},
+	{name:'endAngle', dispName:'End Angle', min:0, max:1, defVal: 0.1},
+	{name:'arcWidth', dispName:'Arc Width', min:0, max:1, defVal: 0.5}
+];
 
 /**
 * Function: paintVertexShape
@@ -1707,7 +1677,6 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.arcTo(rx2, ry2, 0, bigArc, 1, innerStartX, innerStartY);
 	c.close();
 	c.fill();
-
 	
 	var rx = w * 0.5;
 	var ry = h * 0.5;
@@ -1733,8 +1702,6 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.arcTo(rx3, ry3, 0, 0, 0, rx, h * 0.5 - ry3);
 	c.close();
 	c.fill();
-	
-
 };
 
 mxCellRenderer.registerShape(mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE, mxShapeBasicPartConcEllipse);
@@ -1826,12 +1793,11 @@ mxUtils.extend(mxShapeInfographicBannerHalfFold, mxActor);
 
 mxShapeInfographicBannerHalfFold.prototype.cst = {BANNER_HALF_FOLD : 'mxgraph.infographic.bannerHalfFold'};
 
-(
-		mxShapeInfographicBannerHalfFold.prototype.customProperties = [
-			{name:'dx', dispName:'Banner Width', min:0, defVal: 40},
-			{name:'dx2', dispName:'Spike Size', min:0, defVal: 20},
-			{name:'notch', dispName:'Notch Size', min:0, defVal: 15}
-		]);
+mxShapeInfographicBannerHalfFold.prototype.customProperties = [
+	{name:'dx', dispName:'Banner Width', min:0, defVal: 40},
+	{name:'dx2', dispName:'Spike Size', min:0, defVal: 20},
+	{name:'notch', dispName:'Notch Size', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -1885,7 +1851,6 @@ mxShapeInfographicBannerHalfFold.prototype.paintVertexShape = function(c, x, y, 
 	c.lineTo(0, dx * 0.5);
 	c.close();
 	c.stroke();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicBannerHalfFold.prototype.cst.BANNER_HALF_FOLD, mxShapeInfographicBannerHalfFold);
@@ -1958,10 +1923,9 @@ mxUtils.extend(mxShapeInfographicCircularDial, mxActor);
 
 mxShapeInfographicCircularDial.prototype.cst = {CIRCULAR_DIAL : 'mxgraph.infographic.circularDial'};
 
-(
-		mxShapeInfographicCircularDial.prototype.customProperties = [
-			{name:'dy', dispName:'Hole Size', min:0, defVal: 15}
-		]);
+mxShapeInfographicCircularDial.prototype.customProperties = [
+	{name:'dy', dispName:'Hole Size', min:0, defVal: 15}
+];
 
 /**
 * Function: paintVertexShape
@@ -2048,11 +2012,10 @@ mxUtils.extend(mxShapeInfographicRibbonSimple, mxActor);
 
 mxShapeInfographicRibbonSimple.prototype.cst = {RIBBON_SIMPLE : 'mxgraph.infographic.ribbonSimple'};
 
-(
-		mxShapeInfographicRibbonSimple.prototype.customProperties = [
-			{name:'notch1', dispName:'Notch Size', min:0, defVal: 20},
-			{name:'notch2', dispName:'Spike Size', min:0, defVal: 20}
-		]);
+mxShapeInfographicRibbonSimple.prototype.customProperties = [
+	{name:'notch1', dispName:'Notch Size', min:0, defVal: 20},
+	{name:'notch2', dispName:'Spike Size', min:0, defVal: 20}
+];
 
 /**
 * Function: paintVertexShape
@@ -2104,7 +2067,6 @@ Graph.handleFactory[mxShapeInfographicRibbonSimple.prototype.cst.RIBBON_SIMPLE] 
 	});
 			
 	handles.push(handle2);
-	
 
 	return handles;
 };
@@ -2133,11 +2095,10 @@ mxUtils.extend(mxShapeInfographicBarCallout, mxActor);
 
 mxShapeInfographicBarCallout.prototype.cst = {BAR_CALLOUT : 'mxgraph.infographic.barCallout'};
 
-(
-		mxShapeInfographicBarCallout.prototype.customProperties = [
-			{name:'dx', dispName:'Callout Position', min:0, defVal: 100},
-			{name:'dy', dispName:'Callout Size', min:0, defVal: 30}
-		]);
+mxShapeInfographicBarCallout.prototype.customProperties = [
+	{name:'dx', dispName:'Callout Position', min:0, defVal: 100},
+	{name:'dy', dispName:'Callout Size', min:0, defVal: 30}
+];
 
 /**
 * Function: paintVertexShape
@@ -2211,11 +2172,10 @@ mxUtils.extend(mxShapeInfographicFlag, mxActor);
 
 mxShapeInfographicFlag.prototype.cst = {FLAG : 'mxgraph.infographic.flag'};
 
-(
-		mxShapeInfographicFlag.prototype.customProperties = [
-			{name:'dx', dispName:'Pole Width', min:0, defVal: 30},
-			{name:'dy', dispName:'Spike Size', min:0, defVal: 20}
-		]);
+mxShapeInfographicFlag.prototype.customProperties = [
+	{name:'dx', dispName:'Pole Width', min:0, defVal: 30},
+	{name:'dy', dispName:'Spike Size', min:0, defVal: 20}
+];
 
 /**
 * Function: paintVertexShape
@@ -2250,7 +2210,6 @@ mxShapeInfographicFlag.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(0, h - dy);
 	c.close();
 	c.fill();
-	
 };
 
 mxCellRenderer.registerShape(mxShapeInfographicFlag.prototype.cst.FLAG, mxShapeInfographicFlag);

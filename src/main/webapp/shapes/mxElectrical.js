@@ -27,8 +27,6 @@ mxShapeElectricalTestPoint.prototype.cst = {
 		SHAPE_TEST_POINT : 'mxgraph.electrical.transmission.testPoint'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -153,10 +151,9 @@ mxShapeElectricalTwoLineBusElbow.prototype.cst = {
 		SHAPE_TWO_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.twoLineBusElbow'
 };
 
-(
-		mxShapeElectricalTwoLineBusElbow.prototype.customProperties = [
-			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:25}
-		]);
+mxShapeElectricalTwoLineBusElbow.prototype.customProperties = [
+	{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:25}
+];
 
 /**
 * Function: paintVertexShape
@@ -230,10 +227,9 @@ mxShapeElectricalThreeLineBusElbow.prototype.cst = {
 		SHAPE_THREE_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.threeLineBusElbow'
 };
 
-(
-		mxShapeElectricalThreeLineBusElbow.prototype.customProperties = [
-			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:30}
-		]);
+mxShapeElectricalThreeLineBusElbow.prototype.customProperties = [
+	{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:30}
+];
 
 /**
 * Function: paintVertexShape
@@ -313,10 +309,9 @@ mxShapeElectricalFourLineBusElbow.prototype.cst = {
 		SHAPE_FOUR_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.fourLineBusElbow'
 };
 
-(
-		mxShapeElectricalFourLineBusElbow.prototype.customProperties = [
-			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:75}
-		]);
+mxShapeElectricalFourLineBusElbow.prototype.customProperties = [
+	{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:75}
+];
 
 /**
 * Function: paintVertexShape
@@ -401,10 +396,9 @@ mxShapeElectricalEightLineBusElbow.prototype.cst = {
 		SHAPE_EIGHT_LINE_BUS_ELBOW : 'mxgraph.electrical.transmission.eightLineBusElbow'
 };
 
-(
-		mxShapeElectricalEightLineBusElbow.prototype.customProperties = [
-			{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:180}
-		]);
+mxShapeElectricalEightLineBusElbow.prototype.customProperties = [
+	{name:'notch', dispName:'Spacing', type:'float', min:0, defVal:180}
+];
 
 /**
 * Function: paintVertexShape

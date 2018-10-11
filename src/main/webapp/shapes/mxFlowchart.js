@@ -25,10 +25,9 @@ mxUtils.extend(mxShapeFlowchartDocument2, mxActor);
 
 mxShapeFlowchartDocument2.prototype.cst = {DOCUMENT2 : 'mxgraph.flowchart.document2'};
 
-(
-		mxShapeFlowchartDocument2.prototype.customProperties = [
-			{name: 'size', dispName: 'Wave Size', type: 'float', min:0, max:1, defVal:0.25},
-		]);
+mxShapeFlowchartDocument2.prototype.customProperties = [
+	{name: 'size', dispName: 'Wave Size', type: 'float', min:0, max:1, defVal:0.25},
+];
 
 /**
 * Function: paintVertexShape
@@ -76,4 +75,3 @@ Graph.handleFactory[mxShapeFlowchartDocument2.prototype.cst.DOCUMENT2] = functio
 			
 	return handles;
 };
-

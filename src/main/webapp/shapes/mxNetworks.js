@@ -27,8 +27,6 @@ mxShapeNetworksBus.prototype.cst = {
 		SHAPE_BUS : 'mxgraph.networks.bus'
 };
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -75,8 +73,6 @@ function mxShapeNetworksCommLinkEdge()
 
 mxUtils.extend(mxShapeNetworksCommLinkEdge, mxArrow);
 
-
-
 mxShapeNetworksCommLinkEdge.prototype.paintEdgeShape = function(c, pts)
 {
 	// Base vector (between end points)
@@ -122,4 +118,3 @@ mxShapeNetworksCommLinkEdge.prototype.paintEdgeShape = function(c, pts)
 
 //Registers the comm link edge
 mxCellRenderer.registerShape('mxgraph.networks.comm_link_edge', mxShapeNetworksCommLinkEdge);
-

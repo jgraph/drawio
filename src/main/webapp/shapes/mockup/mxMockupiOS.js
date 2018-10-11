@@ -108,16 +108,15 @@ function mxShapeMockupiPhone(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiPhone, mxShape);
 
-(
-		mxShapeMockupiPhone.prototype.customProperties = [
-			{name: 'bgStyle', dispName: 'Background', type: 'enum', 
-				enumList: [{val: 'bgGreen', dispName: 'Green'}, 
-					       {val: 'bgWhite', dispName: 'White'}, 
-					       {val: 'bgGray', dispName: 'Gray'}, 
-					       {val: 'bgFlat', dispName: 'Flat'}, 
-					       {val: 'bgMap', dispName: 'Map'}, 
-					       {val: 'bgStriped', dispName: 'Striped'}]}
-		]);
+mxShapeMockupiPhone.prototype.customProperties = [
+	{name: 'bgStyle', dispName: 'Background', type: 'enum', 
+		enumList: [{val: 'bgGreen', dispName: 'Green'}, 
+			       {val: 'bgWhite', dispName: 'White'}, 
+			       {val: 'bgGray', dispName: 'Gray'}, 
+			       {val: 'bgFlat', dispName: 'Flat'}, 
+			       {val: 'bgMap', dispName: 'Map'}, 
+			       {val: 'bgStriped', dispName: 'Striped'}]}
+];
 
 /**
  * Function: paintVertexShape
@@ -1174,13 +1173,12 @@ function mxShapeMockupiButtonBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiButtonBar, mxShape);
 
-(
-		mxShapeMockupiButtonBar.prototype.customProperties = [
-			{name: 'buttonText', dispName: 'Labels', type: 'string'},
-			{name: 'textColor', dispName: 'Text Color', type: 'color'},
-			{name: 'textColor2', dispName: 'Text2 Color', type: 'color'},
-			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
-		]);
+mxShapeMockupiButtonBar.prototype.customProperties = [
+	{name: 'buttonText', dispName: 'Labels', type: 'string'},
+	{name: 'textColor', dispName: 'Text Color', type: 'color'},
+	{name: 'textColor2', dispName: 'Text2 Color', type: 'color'},
+	{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -2434,11 +2432,10 @@ function mxShapeMockupiOnOffButton(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiOnOffButton, mxShape);
 
-(
-		mxShapeMockupiOnOffButton.prototype.customProperties = [
-			{ name: 'buttonState', dispName: 'State', type: 'enum',
-				enumList: [{val: 'on', dispName: 'On'}, {val: 'off', dispName: 'Off'}]}
-		]);
+mxShapeMockupiOnOffButton.prototype.customProperties = [
+	{ name: 'buttonState', dispName: 'State', type: 'enum',
+		enumList: [{val: 'on', dispName: 'On'}, {val: 'off', dispName: 'Off'}]}
+];
 
 /**
  * Function: paintVertexShape
@@ -3898,14 +3895,13 @@ function mxShapeMockupiLocationBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiLocationBar, mxShape);
 
-(
-		mxShapeMockupiLocationBar.prototype.customProperties = [
-			{name: 'buttonText', dispName: 'Text', type: 'string'},
-			{name: 'barPos', dispName: 'Callout Position', type: 'float', min:0, defVal:80},
-			{name: 'pointerPos', dispName: 'Callout Orientation', type: 'enum',
-				enumList: [{val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]
-			}
-		]);
+mxShapeMockupiLocationBar.prototype.customProperties = [
+	{name: 'buttonText', dispName: 'Text', type: 'string'},
+	{name: 'barPos', dispName: 'Callout Position', type: 'float', min:0, defVal:80},
+	{name: 'pointerPos', dispName: 'Callout Orientation', type: 'enum',
+		enumList: [{val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]
+	}
+];
 
 /**
  * Function: paintVertexShape
@@ -4368,14 +4364,13 @@ function mxShapeMockupiOption(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiOption, mxShape);
 
-(
-		mxShapeMockupiOption.prototype.customProperties = [
-			{name: 'buttonText', dispName: 'Text', type: 'string'},
-			{name: 'barPos', dispName: 'Callout Position', type: 'float', min:0, defVal:80},
-			{name: 'pointerPos', dispName: 'Callout Orientation', type: 'enum',
-				enumList: [{val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]
-			}
-		]);
+mxShapeMockupiOption.prototype.customProperties = [
+	{name: 'buttonText', dispName: 'Text', type: 'string'},
+	{name: 'barPos', dispName: 'Callout Position', type: 'float', min:0, defVal:80},
+	{name: 'pointerPos', dispName: 'Callout Orientation', type: 'enum',
+		enumList: [{val: 'bottom', dispName: 'Bottom'}, {val: 'top', dispName: 'Top'}]
+	}
+];
 
 /**
  * Function: paintVertexShape
@@ -4553,13 +4548,12 @@ function mxShapeMockupiHorButtonBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiHorButtonBar, mxShape);
 
-(
-		mxShapeMockupiHorButtonBar.prototype.customProperties = [
-			{name: 'buttonText', dispName: 'Labels', type: 'string'},
-			{name: 'textColor', dispName: 'Text Color', type: 'color'},
-			{name: 'textColor2', dispName: 'Text2 Color', type: 'color'},
-			{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
-		]);
+mxShapeMockupiHorButtonBar.prototype.customProperties = [
+	{name: 'buttonText', dispName: 'Labels', type: 'string'},
+	{name: 'textColor', dispName: 'Text Color', type: 'color'},
+	{name: 'textColor2', dispName: 'Text2 Color', type: 'color'},
+	{name: 'strokeColor2', dispName: 'Stroke2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -4769,11 +4763,10 @@ function mxShapeMockupiPin(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiPin, mxShape);
 
-(
-		mxShapeMockupiPin.prototype.customProperties = [
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
-			{name: 'fillColor3', dispName: 'Fill3 Color', type: 'color'}
-		]);
+mxShapeMockupiPin.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Fill3 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -4830,10 +4823,9 @@ function mxShapeMockupiVideoControls(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiVideoControls, mxShape);
 
-(
-		mxShapeMockupiVideoControls.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20}
-]);
+mxShapeMockupiVideoControls.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20}
+];
 
 /**
  * Function: paintVertexShape
@@ -5092,10 +5084,9 @@ function mxShapeMockupiSlider(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiSlider, mxShape);
 
-(
-		mxShapeMockupiSlider.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20},
-		]);
+mxShapeMockupiSlider.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20},
+];
 
 /**
  * Function: paintVertexShape
@@ -5177,10 +5168,9 @@ function mxShapeMockupiProgressBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiProgressBar, mxShape);
 
-(
-		mxShapeMockupiProgressBar.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:40},
-		]);
+mxShapeMockupiProgressBar.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:40},
+];
 
 /**
  * Function: paintVertexShape
@@ -5256,10 +5246,9 @@ function mxShapeMockupiCloudProgressBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiCloudProgressBar, mxShape);
 
-(
-		mxShapeMockupiCloudProgressBar.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20},
-		]);
+mxShapeMockupiCloudProgressBar.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:20},
+];
 
 /**
  * Function: paintVertexShape
@@ -5330,10 +5319,9 @@ function mxShapeMockupiDownloadBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiDownloadBar, mxShape);
 
-(
-		mxShapeMockupiDownloadBar.prototype.customProperties = [
-			{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:30},
-		]);
+mxShapeMockupiDownloadBar.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:30},
+];
 
 /**
  * Function: paintVertexShape
@@ -5474,10 +5462,9 @@ function mxShapeMockupiIconGrid(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiIconGrid, mxShape);
 
-(
-		mxShapeMockupiIconGrid.prototype.customProperties = [
-			{name: 'gridSize', dispName: 'Grid Size', type: 'string'},
-		]);
+mxShapeMockupiIconGrid.prototype.customProperties = [
+	{name: 'gridSize', dispName: 'Grid Size', type: 'string'},
+];
 
 /**
  * Function: paintVertexShape
@@ -5852,12 +5839,11 @@ function mxShapeMockupiPad(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeMockupiPad, mxShape);
 
-(
-		mxShapeMockupiPad.prototype.customProperties = [
-			{name: 'bgStyle', dispName: 'Background', type: 'enum', 
-				enumList: [{val: 'bgGreen', dispName: 'Green'}, {val: 'bgWhite', dispName: 'White'}, {val: 'bgGray', dispName: 'Gray'}, {val: 'bgFlat', dispName: 'Flat'}, {val: 'bgMap', dispName: 'Map'}, {val: 'bgStriped', dispName: 'Striped'}]
-			}
-		]);
+mxShapeMockupiPad.prototype.customProperties = [
+	{name: 'bgStyle', dispName: 'Background', type: 'enum', 
+		enumList: [{val: 'bgGreen', dispName: 'Green'}, {val: 'bgWhite', dispName: 'White'}, {val: 'bgGray', dispName: 'Gray'}, {val: 'bgFlat', dispName: 'Flat'}, {val: 'bgMap', dispName: 'Map'}, {val: 'bgStriped', dispName: 'Striped'}]
+	}
+];
 
 /**
  * Function: paintVertexShape
@@ -6432,10 +6418,9 @@ mxShapeMockupRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeMockupRRect.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
-		]);
+mxShapeMockupRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
+];
 
 /**
 * Function: paintVertexShape
@@ -6478,10 +6463,9 @@ mxShapeIosTopButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeIosTopButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
-		]);
+mxShapeIosTopButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
+];
 
 /**
 * Function: paintVertexShape
@@ -6532,10 +6516,9 @@ mxShapeIosBottomButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeIosBottomButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
-		]);
+mxShapeIosBottomButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
+];
 
 /**
 * Function: paintVertexShape

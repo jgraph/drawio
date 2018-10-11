@@ -266,8 +266,14 @@
 			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
+			StyleFormatPanel.prototype.customColorSchemes = config.customColorSchemes || StyleFormatPanel.prototype.customColorSchemes;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
+			
+			if (config.customFonts)
+			{
+				Menus.prototype.defaultFonts = config.customFonts.concat(Menus.prototype.defaultFonts);
+			}
 			
 			// Custom CSS injected directly into the page
 			if (config.css != null)
@@ -1360,7 +1366,6 @@
 		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
 	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
-	        {name: 'swimlaneFillColor', dispName: 'Lane Color', type: 'color'},
 	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true}
 	    ];
 		
@@ -1386,9 +1391,13 @@
 		mxCellRenderer.defaultShapes['label'].prototype.customProperties = [
 			{name: 'imageAspect', dispName: 'Fixed Image Aspect', type: 'bool', defVal:true},
 			{name: 'imageAlign', dispName: 'Image Align', type: 'enum',
-				enumList: [{val: 'left', dispName: 'Left'}, {val: 'center', dispName: 'Center'}, {val: 'right', dispName: 'Right'}], defVal: 'left'},
+				enumList: [{val: 'left', dispName: 'Left'}, 
+						   {val: 'center', dispName: 'Center'}, 
+						   {val: 'right', dispName: 'Right'}], defVal: 'left'},
 			{name: 'imageVerticalAlign', dispName: 'Image Vertical Align', type: 'enum',
-				enumList: [{val: 'top', dispName: 'Top'}, {val: 'middle', dispName: 'Middle'}, {val: 'bottom', dispName: 'Bottom'}], defVal: 'middle'},
+				enumList: [{val: 'top', dispName: 'Top'}, 
+					       {val: 'middle', dispName: 'Middle'}, 
+					       {val: 'bottom', dispName: 'Bottom'}], defVal: 'middle'},
 	        {name: 'imageWidth', dispName: 'Image Width', type: 'float', min:0, defVal: 24},
 	        {name: 'imageHeight', dispName: 'Image Height', type: 'float', min:0, defVal: 24},
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 12},
@@ -1461,18 +1470,18 @@
 		/**
 		 * Configures global color schemes.
 		 */
-		StyleFormatPanel.prototype.defaultColorSchemes = [[null, {fill: '#f5f5f5', stroke: '#666666'},
+		StyleFormatPanel.prototype.defaultColorSchemes = [[null, {fill: '#f5f5f5', stroke: '#666666', font: '#333333'},
 			{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
 			{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
 			{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
-			[{fill: '#60a917', stroke: '#60a917'}, {fill: '#008a00', stroke: '#008a00'},
-			{fill: '#1ba1e2', stroke: '#1ba1e2'}, {fill: '#0050ef', stroke: '#0050ef'},
-			{fill: '#6a00ff', stroke: '#6a00ff'}, {fill: '#aa00ff', stroke: '#aa00ff'},
-			{fill: '#d80073', stroke: '#d80073'}, {fill: '#a20025', stroke: '#a20025'}],
-			[{fill: '#e51400', stroke: '#e51400'}, {fill: '#fa6800', stroke: '#fa6800'},
-			{fill: '#f0a30a', stroke: '#f0a30a'}, {fill: '#e3c800', stroke: '#e3c800'},
-			{fill: '#6d8764', stroke: '#6d8764'}, {fill: '#647687', stroke: '#647687'},
-			{fill: '#76608a', stroke: '#76608a'}, {fill: '#a0522d', stroke: '#a0522d'}],
+			[{fill: '#60a917', stroke: '#60a917', font: '#ffffff'}, {fill: '#008a00', stroke: '#008a00', font: '#ffffff'},
+			{fill: '#1ba1e2', stroke: '#1ba1e2', font: '#ffffff'}, {fill: '#0050ef', stroke: '#0050ef', font: '#ffffff'},
+			{fill: '#6a00ff', stroke: '#6a00ff', font: '#ffffff'}, {fill: '#aa00ff', stroke: '#aa00ff', font: '#ffffff'},
+			{fill: '#d80073', stroke: '#d80073', font: '#ffffff'}, {fill: '#a20025', stroke: '#a20025', font: '#ffffff'}],
+			[{fill: '#e51400', stroke: '#e51400', font: '#ffffff'}, {fill: '#fa6800', stroke: '#fa6800', font: '#ffffff'},
+			{fill: '#f0a30a', stroke: '#f0a30a', font: '#ffffff'}, {fill: '#e3c800', stroke: '#e3c800', font: '#ffffff'},
+			{fill: '#6d8764', stroke: '#6d8764', font: '#ffffff'}, {fill: '#647687', stroke: '#647687', font: '#ffffff'},
+			{fill: '#76608a', stroke: '#76608a', font: '#ffffff'}, {fill: '#a0522d', stroke: '#a0522d', font: '#ffffff'}],
 			[null, {fill: mxConstants.NONE, stroke: '#36393d'},
 			{fill: '#fad7ac', stroke: '#b46504'}, {fill: '#fad9d5', stroke: '#ae4132'},
 			{fill: '#b0e3e6', stroke: '#0e8088'}, {fill: '#b1ddf0', stroke: '#10739e'},
@@ -1489,6 +1498,11 @@
 			{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
 			{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
 			{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
+		
+		/**
+		 * Configures custom color schemes.
+		 */
+		StyleFormatPanel.prototype.customColorSchemes = null;
 
 		StyleFormatPanel.prototype.findCommonProperties = function(cell, properties, addAll)
 		{
@@ -1751,10 +1765,11 @@
 			
 			function setElementPos(td, elem, adjustHeight)
 			{
+				var divPos = mxUtils.getOffset(div, true);
 				var pos = mxUtils.getOffset(td, true);
 				elem.style.position = 'absolute';
-				elem.style.left = pos.x + 'px';
-				elem.style.top = pos.y + 'px';
+				elem.style.left = (pos.x - divPos.x) + 'px';
+				elem.style.top = (pos.y - divPos.y) + 'px';
 				elem.style.width = td.offsetWidth + 'px';
 				elem.style.height = (td.offsetHeight - (adjustHeight? 4 : 0)) + 'px';
 				elem.style.zIndex = 5;
@@ -1868,7 +1883,7 @@
 				var pDiplayName = prop.dispName;
 				var pType = prop.type;
 				var row = document.createElement('tr');
-				row.className = "propRow" + (flipBkg? 'Dark' : '') + (isOdd? "Alt" : "") + " propNonHeaderRow";
+				row.className = "gePropRow" + (flipBkg? 'Dark' : '') + (isOdd? "Alt" : "") + " gePropNonHeaderRow";
 				row.setAttribute('data-pName', pName);
 				row.setAttribute('data-pValue', pValue);
 				var rightAlig = false;
@@ -1881,7 +1896,7 @@
 				}
 				
 				var td = document.createElement('td');
-				td.className = "propRowCell";
+				td.className = "gePropRowCell";
 				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
 				
 				if (rightAlig)
@@ -1891,7 +1906,7 @@
 					
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.className = "propRowCell";
+				td.className = "gePropRowCell";
 				
 				if (pType == "color")
 				{
@@ -1932,7 +1947,7 @@
 						
 						select.value = pValue;
 						
-						document.body.appendChild(select);
+						div.appendChild(select);
 						
 						mxEvent.addListener(select, 'change', function()
 						{
@@ -1946,7 +1961,7 @@
 						//FF calls blur on focus! so set the event after focusing (not with selects but to be safe)
 						mxEvent.addListener(select, 'blur', function()
 						{
-							document.body.removeChild(select);
+							div.removeChild(select);
 						});
 					}));
 				}
@@ -1966,7 +1981,7 @@
 						var input = document.createElement('input');
 						setElementPos(td, input, true);
 						input.value = pValue;
-						input.className = "propEditor";
+						input.className = "gePropEditor";
 						
 						if (pType == "int" || pType == "float")
 						{
@@ -1984,7 +1999,7 @@
 							}
 						}
 						
-						document.body.appendChild(input);
+						div.appendChild(input);
 
 						var dontSet = false;
 						
@@ -2019,7 +2034,7 @@
 								try
 								{
 									dontSet = true;
-									document.body.removeChild(input);
+									div.removeChild(input);
 								}
 								catch(e){}
 							}
@@ -2029,7 +2044,7 @@
 						
 						//FF calls blur on focus! so set the event after focusing
 						mxEvent.addListener(input, 'blur', function(){
-							document.body.removeChild(input);
+							div.removeChild(input);
 						});
 					}));
 				}
@@ -2062,9 +2077,9 @@
 			grid.style.width = '100%';
 			//create header row
 			var hrow = document.createElement('tr');
-			hrow.className = "propHeader";
+			hrow.className = "gePropHeader";
 			var th = document.createElement('th');
-			th.className = "propHeaderCell";
+			th.className = "gePropHeaderCell";
 			var collapseImg = document.createElement('img');
 			collapseImg.src = Sidebar.prototype.expandedImage;
 			th.appendChild(collapseImg);
@@ -2073,7 +2088,7 @@
 			
 			var onFold = function()
 			{
-				var rows = grid.querySelectorAll(".propNonHeaderRow");
+				var rows = grid.querySelectorAll(".gePropNonHeaderRow");
 				var display;
 				
 				if (!that.editorUi.propertiesCollapsed)
@@ -2100,7 +2115,7 @@
 			});
 			hrow.appendChild(th);
 			th = document.createElement('th');
-			th.className = "propHeaderCell";
+			th.className = "gePropHeaderCell";
 			th.innerHTML = mxResources.get('value', null, 'Value');
 			hrow.appendChild(th);
 			grid.appendChild(hrow);
@@ -2202,20 +2217,40 @@
 								{
 									style = mxUtils.removeStylename(style, stylenames[j]);
 								}
+
+								var defaults = (graph.getModel().isVertex(cells[i])) ? graph.defaultVertexStyle : graph.defaultEdgeStyle;
 								
 								if (colorset != null)
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill']);
-									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke']);
-									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient']);
+									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
+										mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
+									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
+										mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
+										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+									
+									if (graph.getModel().isVertex(cells[i]))
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
+									}
 								}
 								else
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, '#ffffff');
-									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, '#000000');
-									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
+									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,
+										mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, '#ffffff'));
+									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR,
+										mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, '#000000'));
+									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR,
+										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+									
+									if (graph.getModel().isVertex(cells[i]))
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR,
+											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
+									}
 								}
-								
+
 								graph.getModel().setStyle(cells[i], style);
 							}
 						}
@@ -2251,16 +2286,21 @@
 							btn.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
 						}
 						else
-						{					
-							btn.style.backgroundColor = colorset['fill'];
+						{
+							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
+								mxConstants.STYLE_FILLCOLOR, '#ffffff');
 						}
 						
-						btn.style.border = '1px solid ' + colorset['stroke'];
+						btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
+							mxConstants.STYLE_STROKECOLOR, '#000000'));
 					}
 					else
 					{
-						btn.style.backgroundColor = '#ffffff';
-						btn.style.border = '1px solid #000000';
+						var bg = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_FILLCOLOR, '#ffffff');
+						var bd = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_STROKECOLOR, '#000000');
+						
+						btn.style.backgroundColor = bg;
+						btn.style.border = '1px solid ' + bd;
 					}
 					
 					picker.appendChild(btn);
@@ -2282,6 +2322,11 @@
 			if (this.editorUi.currentScheme == null)
 			{
 				this.editorUi.currentScheme = 0;
+			}
+			
+			if (this.customColorSchemes != null)
+			{
+				this.defaultColorSchemes = this.customColorSchemes.concat(this.defaultColorSchemes);
 			}
 
 			var left = document.createElement('div');

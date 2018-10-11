@@ -31,6 +31,15 @@ mxShapePidFan.prototype.cst = {
 		RADIAL : 'radial'
 };
 
+mxShapePidFan.prototype.customProperties = [
+	{name: 'fanType', dispName: 'Type', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'common', dispName:'Common'},
+			{val:'axial', dispName:'Axial'},
+			{val:'radial', dispName:'Radial'}
+	]}
+];
+
 /**
  * Function: paintVertexShape
  * 
@@ -129,6 +138,20 @@ mxShapePidColumn.prototype.cst = {
 		NOZZLE : 'nozzle',
 		TRAY : 'tray'
 };
+
+mxShapePidColumn.prototype.customProperties = [
+	{name: 'columnType', dispName: 'Type', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'common', dispName:'Common'},
+			{val:'fixed', dispName:'Fixed'},
+			{val:'fluid', dispName:'Fluid'},
+			{val:'baffle', dispName:'Baffle'},
+			{val:'valve', dispName:'Valve'},
+			{val:'bubble', dispName:'Bubble'},
+			{val:'nozzle', dispName:'Nozzle'},
+			{val:'tray', dispName:'Tray'}
+	]}
+];
 
 /**
  * Function: paintVertexShape

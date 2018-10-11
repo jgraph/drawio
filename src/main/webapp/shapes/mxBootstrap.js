@@ -28,10 +28,9 @@ mxShapeBootstrapRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeBootstrapRRect.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
-		]);
+mxShapeBootstrapRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -74,10 +73,9 @@ mxShapeBootstrapTopButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeBootstrapTopButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
-		]);
+mxShapeBootstrapTopButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -128,10 +126,9 @@ mxShapeBootstrapBottomButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeBootstrapBottomButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
-		]);
+mxShapeBootstrapBottomButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -182,10 +179,9 @@ mxShapeBootstrapRightButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeBootstrapRightButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
-		]);
+mxShapeBootstrapRightButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -236,10 +232,9 @@ mxShapeBootstrapLeftButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeBootstrapLeftButton.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
-		]);
+mxShapeBootstrapLeftButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape
@@ -511,11 +506,9 @@ mxShapeBootstrapTabTop.prototype.cst = {
 		R_SIZE  : 'rSize'
 };
 
-(
-		mxShapeBootstrapTabTop.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
-		]);
-
+mxShapeBootstrapTabTop.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
+];
 
 /**
 * Function: paintVertexShape
@@ -578,10 +571,9 @@ mxShapeBootstrapImage.prototype.cst = {
 		R_SIZE  : 'rSize'
 };
 
-(
-		mxShapeBootstrapImage.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
-		]);
+mxShapeBootstrapImage.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:5}
+];
 
 /**
 * Function: paintVertexShape
@@ -857,16 +849,15 @@ mxShapeBootstrapRating.prototype.cst = {
 		GRADE : 'grade'
 };
 
-(
-		mxShapeBootstrapRating.prototype.customProperties = [
-			{name: 'ratingStyle', dispName: 'Rating Style', type: 'enum', 
-				enumList: [{val: 'heart', dispName: 'Heart'}, 
-				   {val: 'star', dispName: 'Star'}]
-			},
-			{name: 'ratingScale', dispName: 'Rating Scale', type: 'int', min:1, defVal:5}, 
-			{name: 'emptyFillColor', dispName: 'Inactive Color', type: 'color', defVal:'none'},
-			{name: 'grade', dispName: 'Grade', type: 'int', min:1, defVal:3} 
-		]);
+mxShapeBootstrapRating.prototype.customProperties = [
+	{name: 'ratingStyle', dispName: 'Rating Style', type: 'enum', 
+		enumList: [{val: 'heart', dispName: 'Heart'}, 
+		   {val: 'star', dispName: 'Star'}]
+	},
+	{name: 'ratingScale', dispName: 'Rating Scale', type: 'int', min:1, defVal:5}, 
+	{name: 'emptyFillColor', dispName: 'Inactive Color', type: 'color', defVal:'none'},
+	{name: 'grade', dispName: 'Grade', type: 'int', min:1, defVal:3} 
+];
 
 /**
 * Function: paintVertexShape

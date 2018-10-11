@@ -277,10 +277,9 @@ mxShapeMockupColorPicker.prototype.cst = {
 		SHAPE_COLOR_PICKER : 'mxgraph.mockup.forms.colorPicker'
 };
 
-(
-		mxShapeMockupColorPicker.prototype.customProperties = [
-			{name: 'chosenColor', dispName: 'Current Color', type: 'color'}
-		]);
+mxShapeMockupColorPicker.prototype.customProperties = [
+	{name: 'chosenColor', dispName: 'Current Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -354,10 +353,9 @@ mxShapeMockupComboBox.prototype.cst = {
 		SHAPE_COMBO_BOX : 'mxgraph.mockup.forms.comboBox'
 };
 
-(
-		mxShapeMockupComboBox.prototype.customProperties = [
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'}
-		]);
+mxShapeMockupComboBox.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -459,18 +457,17 @@ mxShapeMockupSpinner.prototype.cst = {
 		SHAPE_SPINNER : 'mxgraph.mockup.forms.spinner'
 };
 
-(
-		mxShapeMockupSpinner.prototype.customProperties = [
-			{name: 'spinLayout', dispName: 'Layout', type: 'enum', 
-				enumList: [{val: 'right', dispName: 'Right'}, {val: 'left', dispName: 'Left'}, {val: 'top', dispName: 'Top'}, {val: 'bottom', dispName: 'Bottom'}, {val: 'vertical', dispName: 'Vertical'}, {val: 'horizontal', dispName: 'Horizontal'}]
-			},
-			{name: 'spinStyle', dispName: 'Spinner Style', type: 'enum', 
-				enumList: [{val: 'merged', dispName: 'Merged'}, {val: 'normal', dispName: 'Normal'}]
-			},
-			{name: 'adjStyle', dispName: 'Button Style', type: 'enum', 
-				enumList: [{val: 'triangle', dispName: 'Triangle'}, {val: 'plusMinus', dispName: '+/-'}, {val: 'arrow', dispName: 'Arrow'}]
-			}
-		]);
+mxShapeMockupSpinner.prototype.customProperties = [
+	{name: 'spinLayout', dispName: 'Layout', type: 'enum', 
+		enumList: [{val: 'right', dispName: 'Right'}, {val: 'left', dispName: 'Left'}, {val: 'top', dispName: 'Top'}, {val: 'bottom', dispName: 'Bottom'}, {val: 'vertical', dispName: 'Vertical'}, {val: 'horizontal', dispName: 'Horizontal'}]
+	},
+	{name: 'spinStyle', dispName: 'Spinner Style', type: 'enum', 
+		enumList: [{val: 'merged', dispName: 'Merged'}, {val: 'normal', dispName: 'Normal'}]
+	},
+	{name: 'adjStyle', dispName: 'Button Style', type: 'enum', 
+		enumList: [{val: 'triangle', dispName: 'Triangle'}, {val: 'plusMinus', dispName: '+/-'}, {val: 'arrow', dispName: 'Arrow'}]
+	}
+];
 
 /**
  * Function: paintVertexShape
@@ -1172,17 +1169,16 @@ mxShapeMockupHorSlider.prototype.cst = {
 		SHAPE_HOR_SLIDER : 'mxgraph.mockup.forms.horSlider'
 };
 
-(
-		mxShapeMockupHorSlider.prototype.customProperties = [
-			{name: 'sliderStyle', dispName: 'Slider Style', type: 'enum', 
-				enumList: [{val: 'basic', dispName: 'Basic'}, {val: 'fancy', dispName: 'Fancy'}]
-			},
-			{name: 'handleStyle', dispName: 'Handle Style', type: 'enum', 
-				enumList: [{val: 'triangle', dispName: 'Triangle'}, {val: 'circle', dispName: 'Circle'}, {val: 'handle', dispName: 'Handle'}]
-			},
-			{name: 'sliderPos', dispName: 'Handle Position', type: 'float'},
-			{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
-		]);
+mxShapeMockupHorSlider.prototype.customProperties = [
+	{name: 'sliderStyle', dispName: 'Slider Style', type: 'enum', 
+		enumList: [{val: 'basic', dispName: 'Basic'}, {val: 'fancy', dispName: 'Fancy'}]
+	},
+	{name: 'handleStyle', dispName: 'Handle Style', type: 'enum', 
+		enumList: [{val: 'triangle', dispName: 'Triangle'}, {val: 'circle', dispName: 'Circle'}, {val: 'handle', dispName: 'Handle'}]
+	},
+	{name: 'sliderPos', dispName: 'Handle Position', type: 'float'},
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+];
 
 /**
  * Function: paintVertexShape
@@ -1829,10 +1825,9 @@ mxShapeMockupSearchBox.prototype.cst = {
 		SHAPE_SEARCH_BOX : 'mxgraph.mockup.forms.searchBox'
 };
 
-(
-		mxShapeMockupSearchBox.prototype.customProperties = [
-			{name: 'strokeColor2', dispName: 'Icon Color', type: 'color'},
-		]);
+mxShapeMockupSearchBox.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Icon Color', type: 'color'},
+];
 
 /**
  * Function: paintVertexShape
@@ -2366,10 +2361,9 @@ mxShapeMockupFormsRRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
-(
-		mxShapeMockupFormsRRect.prototype.customProperties = [
-			{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
-		]);
+mxShapeMockupFormsRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10},
+];
 
 /**
 * Function: paintVertexShape

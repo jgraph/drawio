@@ -134,10 +134,9 @@ mxShapeSysMLPackage.prototype.cst = {
 		LABEL_X : 'labelX'
 };
 
-(
-		mxShapeSysMLPackage.prototype.customProperties = [
-			{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
-		]);
+mxShapeSysMLPackage.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
 
 /**
 * Function: paintVertexShape
@@ -219,10 +218,9 @@ mxShapeSysMLPackage2.prototype.cst = {
 		LABEL_X : 'labelX'
 };
 
-(
-		mxShapeSysMLPackage2.prototype.customProperties = [
-			{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
-		]);
+mxShapeSysMLPackage2.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
 
 /**
 * Function: paintVertexShape
@@ -589,21 +587,19 @@ mxShapeSysMLItemFlow.prototype.cst = {
 		FLOW_TYPE : 'flowType'
 };
 
-(
-		mxShapeSysMLItemFlow.prototype.customProperties = [
-			{name: 'flowDir', dispName: 'Flow Direction', type: 'enum',
-				enumList:[
-					{val:'n', dispName:'North'},
-					{val:'s', dispName:'South'},
-					{val:'e', dispName:'East'},
-					{val:'w', dispName:'West'}
-				]},
-				{name: 'flowType', dispName: 'Flow Type', type: 'enum',
-					enumList:[
-						{val:'in', dispName:'In'},
-						{val:'out', dispName:'Out'}
-				]}
-]);
+mxShapeSysMLItemFlow.prototype.customProperties = [
+	{name: 'flowDir', dispName: 'Flow Direction', type: 'enum',
+		enumList:[
+			{val:'n', dispName:'North'},
+			{val:'s', dispName:'South'},
+			{val:'e', dispName:'East'},
+			{val:'w', dispName:'West'}
+		]},
+		{name: 'flowType', dispName: 'Flow Type', type: 'enum',
+			enumList:[
+				{val:'in', dispName:'In'},
+				{val:'out', dispName:'Out'}
+]}];
 
 /**
 * Function: paintVertexShape

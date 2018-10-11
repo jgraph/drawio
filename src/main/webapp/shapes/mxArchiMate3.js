@@ -62,43 +62,44 @@ mxArchiMate3Application.prototype.cst = {
 		TYPE_OCT : 'oct'
 };
 
-(
-		mxArchiMate3Application.prototype.customProperties = [
-			{name: 'archiType', dispName: 'Type', type: 'enum', 
-				enumList: [{val: 'square', dispName: 'Square'}, {val: 'rounded', dispName: 'Rounded'}, {val: 'oct', dispName: 'Octagonal'}]
-			},
-			{name: 'appType', dispName: 'App Type', type: 'enum', 
-				enumList: [{val: 'comp', dispName: 'Component'}, 
-						   {val: 'collab', dispName: 'Collaboration'}, 
-						   {val: 'interface', dispName: 'Interface'}, 
-						   {val: 'interface2', dispName: 'Interface2'}, 
-						   {val: 'func', dispName: 'Function'}, 
-						   {val: 'interaction', dispName: 'Interaction'}, 
-						   {val: 'serv', dispName: 'Service'}, 
-						   {val: 'event', dispName: 'Event'}, 
-						   {val: 'event2', dispName: 'Event2'}, 
-						   {val: 'node', dispName: 'Node'}, 
-						   {val: 'netw', dispName: 'Network'}, 
-						   {val: 'commPath', dispName: 'Comm Path'}, 
-						   {val: 'actor', dispName: 'Actor'}, 
-						   {val: 'assess', dispName: 'Assessment'}, 
-						   {val: 'goal', dispName: 'Goal'}, 
-						   {val: 'outcome', dispName: 'Outcome'}, 
-						   {val: 'role', dispName: 'Role'}, 
-						   {val: 'proc', dispName: 'Process'}, 
-						   {val: 'driver', dispName: 'Driver'}, 
-						   {val: 'principle', dispName: 'Principle'}, 
-						   {val: 'requirement', dispName: 'Requirement'}, 
-						   {val: 'constraint', dispName: 'Constraint'}, 
-						   {val: 'resource', dispName: 'Resource'}, 
-						   {val: 'capability', dispName: 'Capability'}, 
-						   {val: 'course', dispName: 'Course'}, 
-						   {val: 'material', dispName: 'Material'}, 
-						   {val: 'distribution', dispName: 'Distribution'}, 
-						   {val: 'sysSw', dispName: 'System Sw'}, 
-						   {val: 'artifact', dispName: 'Artifact'}, 
-						   {val: 'path', dispName: 'Path'}]
-}]);
+mxArchiMate3Application.prototype.customProperties = [
+	{name: 'archiType', dispName: 'Type', type: 'enum', 
+		enumList: [{val: 'square', dispName: 'Square'}, 
+			       {val: 'rounded', dispName: 'Rounded'}, 
+			       {val: 'oct', dispName: 'Octagonal'}]
+	},
+	{name: 'appType', dispName: 'App Type', type: 'enum', 
+		enumList: [{val: 'comp', dispName: 'Component'}, 
+				   {val: 'collab', dispName: 'Collaboration'}, 
+				   {val: 'interface', dispName: 'Interface'}, 
+				   {val: 'interface2', dispName: 'Interface2'}, 
+				   {val: 'func', dispName: 'Function'}, 
+				   {val: 'interaction', dispName: 'Interaction'}, 
+				   {val: 'serv', dispName: 'Service'}, 
+				   {val: 'event', dispName: 'Event'}, 
+				   {val: 'event2', dispName: 'Event2'}, 
+				   {val: 'node', dispName: 'Node'}, 
+				   {val: 'netw', dispName: 'Network'}, 
+				   {val: 'commPath', dispName: 'Comm Path'}, 
+				   {val: 'actor', dispName: 'Actor'}, 
+				   {val: 'assess', dispName: 'Assessment'}, 
+				   {val: 'goal', dispName: 'Goal'}, 
+				   {val: 'outcome', dispName: 'Outcome'}, 
+				   {val: 'role', dispName: 'Role'}, 
+				   {val: 'proc', dispName: 'Process'}, 
+				   {val: 'driver', dispName: 'Driver'}, 
+				   {val: 'principle', dispName: 'Principle'}, 
+				   {val: 'requirement', dispName: 'Requirement'}, 
+				   {val: 'constraint', dispName: 'Constraint'}, 
+				   {val: 'resource', dispName: 'Resource'}, 
+				   {val: 'capability', dispName: 'Capability'}, 
+				   {val: 'course', dispName: 'Course'}, 
+				   {val: 'material', dispName: 'Material'}, 
+				   {val: 'distribution', dispName: 'Distribution'}, 
+				   {val: 'sysSw', dispName: 'System Sw'}, 
+				   {val: 'artifact', dispName: 'Artifact'}, 
+				   {val: 'path', dispName: 'Path'}]
+}];
 
 /**
 * Function: paintVertexShape

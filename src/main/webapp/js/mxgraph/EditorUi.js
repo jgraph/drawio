@@ -1741,6 +1741,15 @@ EditorUi.prototype.initCanvas = function()
 				}), Editor.editLargeImage, mxResources.get('edit'));
 			}
 			
+			if (this.lightboxToolbarActions != null)
+			{
+				for (var i = 0; i < this.lightboxToolbarActions.length; i++)
+				{
+					var lbAction = this.lightboxToolbarActions[i];
+					addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
+				}
+			}
+			
 			if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))
 			{
 				addButton(mxUtils.bind(this, function(evt)

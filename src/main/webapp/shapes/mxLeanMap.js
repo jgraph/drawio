@@ -23,8 +23,6 @@ function mxLeanBoatShipment(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxLeanBoatShipment, mxShape);
 
-
-
 /**
  * Function: paintVertexShape
  * 
@@ -78,8 +76,6 @@ function mxLeanSafetyStock(bounds, fill, stroke, strokewidth)
  * Extends mxShape.
  */
 mxUtils.extend(mxLeanSafetyStock, mxShape);
-
-
 
 /**
  * Function: paintVertexShape
@@ -151,8 +147,6 @@ function mxLeanDataBox(bounds, fill, stroke, strokewidth)
  * Extends mxShape.
  */
 mxUtils.extend(mxLeanDataBox, mxShape);
-
-
 
 /**
  * Function: paintVertexShape
@@ -233,8 +227,6 @@ function mxLeanCustomerSupplier(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxLeanCustomerSupplier, mxShape);
 
-
-
 /**
  * Function: paintVertexShape
  * 
@@ -301,8 +293,6 @@ function mxLeanDedicatedProcess(bounds, fill, stroke, strokewidth)
  * Extends mxShape.
  */
 mxUtils.extend(mxLeanDedicatedProcess, mxShape);
-
-
 
 /**
  * Function: paintVertexShape
@@ -374,8 +364,6 @@ function mxLeanSharedProcess(bounds, fill, stroke, strokewidth)
  * Extends mxShape.
  */
 mxUtils.extend(mxLeanSharedProcess, mxShape);
-
-
 
 /**
  * Function: paintVertexShape
@@ -479,8 +467,6 @@ function mxLeanWorkcell(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanWorkcell, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -542,8 +528,6 @@ function mxLeanInventoryBox(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanInventoryBox, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -607,8 +591,6 @@ function mxLeanPushArrow(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanPushArrow, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -695,8 +677,6 @@ function mxLeanSupermarket(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanSupermarket, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -759,8 +739,6 @@ function mxLeanMaterialPull(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanMaterialPull, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -814,8 +792,6 @@ function mxLeanFifoLane(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanFifoLane, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -892,8 +868,6 @@ function mxLeanTruckShipment(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanTruckShipment, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -961,8 +935,6 @@ function mxLeanProductionControl(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanProductionControl, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1016,8 +988,6 @@ function mxLeanFifoSequence(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanFifoSequence, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1088,8 +1058,6 @@ function mxLeanProductionKanban(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanProductionKanban, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1147,8 +1115,6 @@ function mxLeanWithdrawalKanban(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanWithdrawalKanban, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1229,8 +1195,6 @@ function mxLeanSignalKanban(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanSignalKanban, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1287,8 +1251,6 @@ function mxLeanSequencedPullBall(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanSequencedPullBall, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1340,8 +1302,6 @@ function mxLeanRailShipment(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanRailShipment, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1413,8 +1373,6 @@ function mxLeanWarehouse(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanWarehouse, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1482,8 +1440,6 @@ function mxLeanTimeline(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanTimeline, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1561,8 +1517,6 @@ function mxLeanCrossDock(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanCrossDock, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1659,8 +1613,6 @@ function mxLeanOrders(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanOrders, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1714,12 +1666,6 @@ mxLeanOrders.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.moveTo(w * 0.0556, 0);
 	c.lineTo(w * 0.9556, 0);
 	c.stroke();
-	
-//	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
-//	c.setFontSize(Math.min(h * 0.5, w * 0.2));
-//	c.setFontColor(strokeColor);
-//	c.setFontStyle(mxConstants.FONT_BOLD);
-//	c.text(w * 0.5, h * 0.78, 0, 0, 'IN', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.orders', mxLeanOrders);
@@ -1762,8 +1708,6 @@ function mxLeanBatchedKanban(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxLeanBatchedKanban, mxShape);
-
-
 
 /**
 * Function: paintVertexShape
@@ -1845,8 +1789,6 @@ function mxLeanControlCenter(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxLeanControlCenter, mxShape);
 
-
-
 /**
 * Function: paintVertexShape
 * 
@@ -1889,8 +1831,6 @@ function mxLeanElectronicInfoShape()
 };
 
 mxUtils.extend(mxLeanElectronicInfoShape, mxArrow);
-
-
 
 mxLeanElectronicInfoShape.prototype.paintEdgeShape = function(c, pts)
 {
@@ -1953,8 +1893,6 @@ function mxLeanManualInfoShape()
 
 mxUtils.extend(mxLeanManualInfoShape, mxArrow);
 
-
-
 mxLeanManualInfoShape.prototype.paintEdgeShape = function(c, pts)
 {
 	// Base vector (between end points)
@@ -2014,8 +1952,6 @@ mxUtils.extend(mxShapeLeanTimeline, mxShape);
 mxShapeLeanTimeline.prototype.cst = {
 		SHAPE_TIMELINE : 'mxgraph.lean_mapping.timeline2'
 };
-
-
 
 /**
 * Function: paintVertexShape
@@ -2260,4 +2196,4 @@ Graph.handleFactory[mxShapeLeanTimeline.prototype.cst.SHAPE_TIMELINE] = function
 	handles.push(handle6);
 
 	return handles;
-}
+};

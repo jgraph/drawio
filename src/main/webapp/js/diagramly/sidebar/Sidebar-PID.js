@@ -3,7 +3,8 @@
 	// Adds P&ID shapes
 	Sidebar.prototype.addPidInstrumentsPalette = function()
 	{
-		var s = 'html=1;outlineConnect=0;align=center;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
+		var s = 'html=1;outlineConnect=0;align=center;dashed=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
+		var s2 = 'html=1;outlineConnect=0;align=center;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
 		var gn = 'mxgraph.pid2inst';
 		var dt = 'pid process instrumentation engineering instrument engineering ';
 
@@ -74,16 +75,16 @@
 					50, 50, '<table cellpadding="4" cellspacing="0" border="0" style="font-size:1em;width:100%;height:100%;">' +
 		    		'<tr><td>TI</td></tr><tr><td>##</td></table> ', 'Logic (local panel)', null, null, this.getTagsForStencil(gn, 'logic', dt + 'local panel').join(' ')),
 
-			this.createVertexTemplateEntry(s + 'inst.indicator;mounting=room;overflow=fill;indType=inst', 50, 100,  
+			this.createVertexTemplateEntry(s2 + 'inst.indicator;mounting=room;overflow=fill;indType=inst', 50, 100,  
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr><td align="center" height="25">TI</td></tr><tr><td align="center" height="25">##</td></tr><tr><td align="center" valign="bottom"></td></tr></table>', 
 					'Indicator (Instrument)', null, null, this.getTagsForStencil(gn, 'indicator', dt + 'indicator').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.indicator;mounting=room;overflow=fill;indType=ctrl', 50, 100,  
+			this.createVertexTemplateEntry(s2 + 'inst.indicator;mounting=room;overflow=fill;indType=ctrl', 50, 100,  
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr><td align="center" height="25">TI</td></tr><tr><td align="center" height="25">##</td></tr><tr><td align="center" valign="bottom"></td></tr></table>', 
 					'Indicator (Control)', null, null, this.getTagsForStencil(gn, 'indicator', dt + 'indicator control').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.indicator;mounting=room;overflow=fill;indType=func', 50, 100,  
+			this.createVertexTemplateEntry(s2 + 'inst.indicator;mounting=room;overflow=fill;indType=func', 50, 100,  
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr><td align="center" height="25">TI</td></tr><tr><td align="center" height="25">##</td></tr><tr><td align="center" valign="bottom"></td></tr></table>', 
 					'Indicator (Function)', null, null, this.getTagsForStencil(gn, 'indicator', dt + 'indicator function').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.indicator;mounting=room;overflow=fill;indType=plc', 50, 100,  
+			this.createVertexTemplateEntry(s2 + 'inst.indicator;mounting=room;overflow=fill;indType=plc', 50, 100,  
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr><td align="center" height="25">TI</td></tr><tr><td align="center" height="25">##</td></tr><tr><td align="center" valign="bottom"></td></tr></table>', 
 					'Indicator (PLC)', null, null, this.getTagsForStencil(gn, 'indicator', dt + 'indicator plc programmable logic control').join(' '))
 		]);
