@@ -19,7 +19,12 @@
 	 */
 	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname) &&
 		window.location.hostname != 'support.draw.io';
-
+	
+	/**
+	 * Specifies the URL for the templates index file.
+	 */
+	EditorUi.templateFile = TEMPLATE_PATH + '/index.xml';
+	
 	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
 	 * NOTE: This must also be enabled on the server-side.
@@ -123,16 +128,6 @@
 	 */
 	EditorUi.prototype.closableScratchpad = true;
 
-	/**
-	 * Specifies if current edge style should be persisted. Default is false.
-	 */
-	EditorUi.prototype.persistCurrentEdgeStyle = false;
-
-	/**
-	 * Specifies if current vertex style should be persisted. Default is false.
-	 */
-	EditorUi.prototype.persistCurrentVertexStyle = false;
-	
 	/**
 	 * Capability check for canvas export
 	 */
@@ -2091,35 +2086,7 @@
 			}
 			else
 			{
-				for (var i = 0; i < imgs.length; i++)
-				{
-					var img = imgs[i];
-					var data = img.data;
-		
-					if (data != null)
-					{
-						data = this.convertDataUri(data);
-						var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
-						
-						if (img.aspect == 'fixed')
-						{
-							s += 'aspect=fixed;'
-						}
-						
-						content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
-							data, img.w, img.h, '', img.title || '', false, false, true));
-					}
-					else if (img.xml != null)
-					{
-						var cells = this.stringToCells(this.editor.graph.decompress(img.xml));
-						
-						if (cells.length > 0)
-						{
-							content.appendChild(this.sidebar.createVertexTemplateFromCells(
-								cells, img.w, img.h, img.title || '', true, false, true));
-						}
-					}
-				}
+				this.addLibraryEntries(imgs, content);
 			}
 		});
 
@@ -2666,6 +2633,53 @@
 		title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 	};
 
+	/**
+	 * Adds the library entries to the given DOM node.
+	 */
+	EditorUi.prototype.addLibraryEntries = function(imgs, content)
+	{
+		for (var i = 0; i < imgs.length; i++)
+		{
+			var img = imgs[i];
+			var data = img.data;
+
+			if (data != null)
+			{
+				data = this.convertDataUri(data);
+				var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
+				
+				if (img.aspect == 'fixed')
+				{
+					s += 'aspect=fixed;'
+				}
+				
+				content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
+					data, img.w, img.h, '', img.title || '', false, false, true));
+			}
+			else if (img.xml != null)
+			{
+				var cells = this.stringToCells(this.editor.graph.decompress(img.xml));
+				
+				if (cells.length > 0)
+				{
+					content.appendChild(this.sidebar.createVertexTemplateFromCells(
+						cells, img.w, img.h, img.title || '', true, false, true));
+				}
+			}
+		}
+	};
+
+	/**
+	 * Extracts the resource for the current language from the given multi language
+	 * resource object of the form {es: "...", de: "...", main: "..."} where the keys
+	 * are country codes and main defines the fallback if no resource for the current
+	 * country code exists.
+	 */
+	EditorUi.prototype.getResource = function(obj)
+	{
+		return (obj != null) ? (obj[mxLanguage] || obj.main) : null;
+	};
+	
 	/**
 	 * EditorUi Overrides
 	 */
@@ -7258,18 +7272,6 @@
 		this.clearDefaultStyle = function()
 		{
 			clearDefaultStyle.apply(this, arguments);
-			
-			if (!this.persistCurrentEdgeStyle)
-			{
-				mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
-				mxSettings.save();
-			}
-			
-			if (!this.persistCurrentVertexStyle)
-			{
-				mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
-				mxSettings.save();
-			}
 		};
 		
 		// Sets help link for placeholders
@@ -8133,29 +8135,8 @@
 			// Gets recent colors from settings
 			ColorDialog.recentColors = mxSettings.getRecentColors();
 
-			/**
-			 * Persists current edge style.
-			 */
-			this.editor.graph.currentEdgeStyle = mxSettings.getCurrentEdgeStyle();
-			this.editor.graph.currentVertexStyle = mxSettings.getCurrentVertexStyle();
-			
 			// Updates UI to reflect current edge style
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
-			
-			this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
-			{
-				if (this.persistCurrentEdgeStyle)
-				{
-					mxSettings.setCurrentEdgeStyle(this.editor.graph.currentEdgeStyle);
-					mxSettings.save();
-				}
-				
-				if (this.persistCurrentVertexStyle)
-				{
-					mxSettings.setCurrentVertexStyle(this.editor.graph.currentVertexStyle);
-					mxSettings.save();
-				}
-			}));
 
 			/**
 			 * Persists copy on connect switch.

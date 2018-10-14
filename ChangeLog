@@ -1,3 +1,10 @@
+14-OCT-2018: 9.2.5
+
+- Adds customPresetColors, override config option
+- Adds enabledLibraries, libraries config option
+- Adds templateFile config option
+- Uses mxGraph 3.9.11 beta 1
+
 11-OCT-2018: 9.2.4
 
 - Adds font, customFonts and -ColorSchemes config options
