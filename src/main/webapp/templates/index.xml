@@ -30,7 +30,6 @@
 <template url="flowcharts/flowchart_1.xml" libs="general;flowchart"/>
 <template url="flowcharts/flowchart_2.xml" libs="general;flowchart"/>
 <template url="flowcharts/workflow_1.xml" libs="general;flowchart"/>
-
 <template url="gcp/backup_and_archive_api_hosting.xml" libs="gcp2"/>
 <template url="gcp/backup_and_archive_disaster_recovery_cold_standby_server.xml" libs="gcp2"/>
 <template url="gcp/backup_and_archive_disaster_recovery_warm_static_site.xml" libs="gcp2"/>
@@ -86,7 +85,6 @@
 <template url="gcp/websites_mobile_site_hosting.xml" libs="gcp2"/>
 <template url="gcp/websites_multiple_network_interfaces.xml" libs="gcp2"/>
 <template url="gcp/websites_static_hosting.xml" libs="gcp2"/>
-		
 <template url="layout/blog_wireframe.xml" libs="general;mockups"/>
 <template url="layout/bootstrap.xml" libs="general;bootstrap"/>
 <template url="layout/wireframe_1.xml" libs="general;mockups"/>

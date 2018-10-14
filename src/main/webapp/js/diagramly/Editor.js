@@ -69,6 +69,9 @@
 	 */
 	Editor.enableCustomProperties = true;
 
+	/**
+	 * Common properties for all edges.
+	 */
 	Editor.commonEdgeProperties = [
         {type: 'separator'},
         {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
@@ -95,7 +98,10 @@
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'loopStyle', dispName: 'Loop Style', type: 'bool', defVal: true}
 	];
-	
+
+	/**
+	 * Common properties for all vertices.
+	 */
 	Editor.commonVertexProperties = [
         {type: 'separator'},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
@@ -266,13 +272,30 @@
 			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
-			StyleFormatPanel.prototype.customColorSchemes = config.customColorSchemes || StyleFormatPanel.prototype.customColorSchemes;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
 			
+			if (config.templateFile != null)
+			{
+				EditorUi.templateFile = config.templateFile;
+			}
+			
 			if (config.customFonts)
 			{
-				Menus.prototype.defaultFonts = config.customFonts.concat(Menus.prototype.defaultFonts);
+				Menus.prototype.defaultFonts = config.customFonts.
+					concat(Menus.prototype.defaultFonts);
+			}
+			
+			if (config.customPresetColors)
+			{
+				ColorDialog.prototype.presetColors = config.customPresetColors.
+					concat(ColorDialog.prototype.presetColors);
+			}
+			
+			if (config.customColorSchemes != null)
+			{
+				StyleFormatPanel.prototype.defaultColorSchemes = config.customColorSchemes.
+					concat(StyleFormatPanel.prototype.defaultColorSchemes);
 			}
 			
 			// Custom CSS injected directly into the page
@@ -284,6 +307,18 @@
 				
 				var t = document.getElementsByTagName('script')[0];
 			  	t.parentNode.insertBefore(s, t);
+			}
+			
+			// Configures the custom libraries
+			if (config.libraries != null)
+			{
+				Sidebar.prototype.customLibraries = config.libraries;
+			}
+			
+			// Defines the enabled built-in libraries.
+			if (config.enabledLibraries != null)
+			{
+				Sidebar.prototype.enabledLibraries = config.enabledLibraries;
 			}
 			
 			// Overrides default libraries
@@ -1948,12 +1983,12 @@
 						select.value = pValue;
 						
 						div.appendChild(select);
-						
+
 						mxEvent.addListener(select, 'change', function()
 						{
 							var newVal = mxUtils.htmlEntities(select.value);
 							applyStyleVal(pName, newVal, prop);
-							td.innerHTML = newVal;
+							//set value triggers a redraw of the panel which removes the select and updates the row
 						});
 			
 						select.focus();
@@ -2001,12 +2036,8 @@
 						
 						div.appendChild(input);
 
-						var dontSet = false;
-						
 						function setInputVal()
 						{
-							if (dontSet) return;
-							
 							var inputVal = input.value;
 							
 							if (prop.min != null && inputVal < prop.min)
@@ -2021,7 +2052,6 @@
 							var newVal = mxUtils.htmlEntities((pType == "int"? parseInt(inputVal) : inputVal) + '');
 							
 							applyStyleVal(pName, newVal, prop);
-							td.innerHTML = newVal;
 						}
 						
 						mxEvent.addListener(input, 'change', setInputVal);
@@ -2030,13 +2060,7 @@
 							if (e.keyCode == 13) 
 							{
 								setInputVal();
-								
-								try
-								{
-									dontSet = true;
-									div.removeChild(input);
-								}
-								catch(e){}
+								//set value triggers a redraw of the panel which removes the input
 							}
 						});
 						
@@ -2100,6 +2124,22 @@
 				{
 					collapseImg.src = Sidebar.prototype.collapsedImage;
 					display = 'none';
+					
+					for (var e = div.childNodes.length - 1; e >= 0 ; e--)
+					{
+						//Blur can be executed concurrently with this method and the element is removed before removing it here
+						try
+						{
+							var child = div.childNodes[e]; 
+							var nodeName = child.nodeName.toUpperCase();
+							
+							if (nodeName == 'INPUT' || nodeName == 'SELECT')
+							{
+								div.removeChild(child);
+							}
+						}
+						catch(ex){}
+					}
 				}
 				
 				for (var r = 0; r < rows.length; r++)
@@ -2322,11 +2362,6 @@
 			if (this.editorUi.currentScheme == null)
 			{
 				this.editorUi.currentScheme = 0;
-			}
-			
-			if (this.customColorSchemes != null)
-			{
-				this.defaultColorSchemes = this.customColorSchemes.concat(this.defaultColorSchemes);
 			}
 
 			var left = document.createElement('div');

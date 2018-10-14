@@ -2649,7 +2649,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
 	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
 	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
-	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
+	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
 	outer.style.height = '100%';
@@ -2775,7 +2775,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		while (i0 < templates.length && (first || mxUtils.mod(i0, 30) != 0))
 		{
 			var tmp = templates[i0++];
-			addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title, tmp.select, tmp.imgUrl, tmp.info, tmp.onClick);
+			addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
+				tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview);
 			first = false;
 		}
 	};
@@ -3025,7 +3026,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.border = rightHighlightBorder;
 	};
 
-	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick)
+	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview)
 	{
 		var elt = document.createElement('div');
 		elt.className = 'geTemplate';
@@ -3057,9 +3058,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else if (url != null && url.length > 0)
 		{
-			var png = url.substring(0, url.length - 4) + '.png';
+			var png = preview || (TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png');
 			
-			elt.style.backgroundImage = 'url(' + TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png)';
+			elt.style.backgroundImage = 'url(' + png + ')';
 			elt.style.backgroundPosition = 'center center';
 			elt.style.backgroundRepeat = 'no-repeat';
 			
@@ -3070,8 +3071,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				createButton.setAttribute('disabled', 'disabled');
 				elt.style.backgroundColor = 'transparent';
 				elt.style.border = '1px solid transparent';
+				var realUrl = url;
 				
-				mxUtils.get(TEMPLATE_PATH + '/' + url, mxUtils.bind(this, function(req)
+				if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+				{
+					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+				}
+				
+				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 				{
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
@@ -3206,8 +3213,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		outer.appendChild(list);
 		outer.appendChild(div);
 		var indexLoaded = false;
+		var realUrl = templateFile;
 		
-		mxUtils.get(templateFile, function(req)
+		if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+		{
+			realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+		}
+		
+		mxUtils.get(realUrl, function(req)
 		{
 			// Workaround for index loaded 3 times in iOS offline mode
 			if (!indexLoaded)
@@ -3224,8 +3237,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						
 						if (url != null)
 						{
-							var slash = url.indexOf('/');
-							var category = url.substring(0, slash);
+							var category = node.getAttribute('section');
+							
+							if (category == null)
+							{
+								var slash = url.indexOf('/');
+								category = url.substring(0, slash);
+							}
 							
 							var list = categories[category];
 							
@@ -3237,7 +3255,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							}
 							
 							list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-								title: node.getAttribute('title'), tooltip: node.getAttribute('url')});
+								title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
+								preview: node.getAttribute('preview')});
 						}
 					}
 					
@@ -6390,7 +6409,58 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 {
 	entries = (entries != null) ? entries : editorUi.sidebar.entries;
 	var div = document.createElement('div');
-
+	var newEntries = [];
+	
+	// Adds custom sections first
+	if (editorUi.sidebar.customLibraries != null)
+	{
+		for (var i = 0; i < editorUi.sidebar.customLibraries.length; i++)
+		{
+			var section = editorUi.sidebar.customLibraries[i];
+			var tmp = {title: editorUi.getResource(section.title), entries: []};
+			
+			for (var j = 0; j < section.entries.length; j++)
+			{
+				var entry = section.entries[j];
+				tmp.entries.push({id: entry.id, title:
+					editorUi.getResource(entry.title),
+					desc: editorUi.getResource(entry.desc),
+					image: entry.preview});
+			}
+			
+			newEntries.push(tmp);
+		}
+	}
+	
+	// Adds built-in sections and filter entries
+	for (var i = 0; i < entries.length; i++)
+	{
+		if (editorUi.sidebar.enabledLibraries == null)
+		{
+			newEntries.push(entries[i]);
+		}
+		else
+		{
+			var tmp = {title: entries[i].title, entries: []};
+			
+			for (var j = 0; j < entries[i].entries.length; j++)
+			{
+				if (mxUtils.indexOf(editorUi.sidebar.enabledLibraries,
+					entries[i].entries[j].id) >= 0)
+				{
+					tmp.entries.push(entries[i].entries[j]);
+				}
+			}
+			
+			if (tmp.entries.length > 0)
+			{
+				newEntries.push(tmp);
+			}
+		}
+	}
+	
+	entries = newEntries;
+	
 	if (expanded)
 	{
 		var hd = document.createElement('div');
@@ -6480,17 +6550,35 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 						{
 							if (evt == null || mxEvent.getSource(evt).nodeName != 'INPUT')
 							{
+								preview.style.textAlign = 'center';
+								preview.style.padding = '0px';
+								preview.style.color = '';
+								preview.innerHTML = '';
+								
+								if (entry.desc != null)
+								{
+									var pre = document.createElement('pre');
+									pre.style.boxSizing = 'border-box';
+									pre.style.fontFamily = 'inherit';
+									pre.style.margin = '20px';
+									pre.style.right = '0px';
+									pre.style.textAlign = 'left';
+									mxUtils.write(pre, entry.desc);
+									preview.appendChild(pre);
+								}
+								
 								if (entry.imageCallback != null)
 								{
 									entry.imageCallback(preview);
 								}
 								else if (entry.image != null)
 								{
-									preview.innerHTML = '<img border="0" src="' + entry.image + '"/>';
+									preview.innerHTML += '<img border="0" src="' + entry.image + '"/>';
 								}
-								else
+								else if (entry.desc == null)
 								{
-									preview.innerHTML = '<br>';
+									preview.style.padding = '20px';
+									preview.style.color = 'rgb(179, 179, 179)';
 									mxUtils.write(preview, mxResources.get('noPreview'));
 								}
 								

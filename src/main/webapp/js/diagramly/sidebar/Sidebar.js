@@ -128,6 +128,19 @@
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
+	 * Description of custom libraries, see https://desk.draw.io/a/solutions/articles/16000058316
+	 */
+	Sidebar.prototype.customLibraries = null;
+	
+	/**
+	 * Array of strings for the built-in libraries to be enabled in the more shapes dialog. Null means all,
+	 * empty array means none, possible keys are listed for the libs parameter at
+	 * 
+	 * https://desk.draw.io/support/solutions/articles/16000042546
+	 */
+	Sidebar.prototype.enabledLibraries = null;
+
+	/**
 	 *
 	 */
 	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']}, {id: 'uml'}, {id: 'search'}, {id: 'er'},
@@ -302,6 +315,36 @@
 				{
 					return elts[0].style.display != 'none';
 				}
+				
+				break;
+			}
+		}
+		
+		if (this.customLibraries != null)
+		{
+			for (var i = 0; i < this.customLibraries.length; i++)
+			{
+				var section = this.customLibraries[i];
+				
+				for (var j = 0; j < section.entries.length; j++)
+				{
+					var entry = section.entries[j];
+					
+					if (entry.id == key)
+					{
+						if (entry.libs != null && entry.libs.length > 0)
+						{
+							var elts = this.palettes[entry.id + '.0'];
+							
+							if (elts != null)
+							{
+								return elts[0].style.display != 'none';
+							}
+						}
+					
+						break;
+					}
+				}
 			}
 		}
 		
@@ -331,6 +374,31 @@
 				this.showPalettes(this.configuration[i].prefix || '',
 					this.configuration[i].libs || [this.configuration[i].id],
 					mxUtils.indexOf(tmp, this.configuration[i].id) >= 0);
+			}
+		}
+		
+		if (this.customLibraries != null)
+		{
+			for (var i = 0; i < this.customLibraries.length; i++)
+			{
+				var section = this.customLibraries[i];
+				
+				for (var j = 0; j < section.entries.length; j++)
+				{
+					var entry = section.entries[j];
+					
+					if (entry.libs != null && entry.libs.length > 0)
+					{
+						var libs = [];
+						
+						for (var k = 0; k < entry.libs.length; k++)
+						{
+							libs.push(entry.id + '.' + k);
+						}
+						
+						this.showPalettes('', libs, mxUtils.indexOf(tmp, entry.id) >= 0);
+					}
+				}
 			}
 		}
 		
@@ -686,7 +754,91 @@
 		}
 
 		this.addSearchPalette(true);
-		this.addGeneralPalette(true);
+		
+		// Adds custom sections first
+		if (this.customLibraries != null)
+		{
+			for (var i = 0; i < this.customLibraries.length; i++)
+			{
+				var section = this.customLibraries[i];
+				
+				for (var j = 0; j < section.entries.length; j++)
+				{
+					var entry = section.entries[j];
+					
+					for (var k = 0; k < entry.libs.length; k++)
+					{
+						(mxUtils.bind(this, function(lib)
+						{
+							this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
+								false, mxUtils.bind(this, function(content, title)
+							{
+								var dataLoaded = mxUtils.bind(this, function(images)
+								{
+									this.editorUi.addLibraryEntries(images, content);
+								});
+								
+								var showError = mxUtils.bind(this, function(err)
+								{
+									content.innerHTML = '';
+									var div = document.createElement('div');
+									div.style.color = 'rgb(179, 179, 179)';
+									div.style.textAlign = 'center';
+									div.style.paddingTop = '6px';
+									mxUtils.write(div, err);
+									content.appendChild(div);
+								});
+								
+								if (lib.data)
+								{
+									dataLoaded(lib.data);
+								}
+								else
+								{
+									content.style.display = 'none';
+									title.innerHTML = '';
+									mxUtils.write(title, mxResources.get('loading') + '...');
+									var url = lib.url;
+									
+									if (!this.editorUi.isCorsEnabledForUrl(url))
+									{
+										url = PROXY_URL + '?url=' + encodeURIComponent(url);
+									}
+									
+									this.editorUi.loadUrl(url, mxUtils.bind(this, function(data)
+									{
+										content.style.display = 'block';
+										title.innerHTML = '';
+										mxUtils.write(title, this.editorUi.getResource(lib.title));
+
+										try
+										{
+											var doc = mxUtils.parseXml(data);
+											
+											if (doc.documentElement.nodeName == 'mxlibrary')
+											{
+												var images = JSON.parse(mxUtils.getTextContent(doc.documentElement));
+												dataLoaded(images);
+											}
+											else
+											{
+												showError(mxResources.get('notALibraryFile'));
+											}
+										}
+										catch (e)
+										{
+											showError(mxResources.get('error') + ': ' + e.message);
+										}
+									}));
+								}
+							}));
+						}))(entry.libs[k]);
+					}
+				}
+			}
+		}
+		
+		this.addGeneralPalette(this.customLibraries == null);
 		this.addMiscPalette(false);
 		this.addAdvancedPalette(false);
 		this.addUmlPalette(false);

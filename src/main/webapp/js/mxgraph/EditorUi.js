@@ -3331,6 +3331,8 @@ EditorUi.prototype.pickColor = function(color, apply)
 {
 	var graph = this.editor.graph;
 	var selState = graph.cellEditor.saveSelection();
+	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
+		Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
 	var dlg = new ColorDialog(this, color || 'none', function(color)
 	{
@@ -3340,7 +3342,7 @@ EditorUi.prototype.pickColor = function(color, apply)
 	{
 		graph.cellEditor.restoreSelection(selState);
 	});
-	this.showDialog(dlg.container, 230, 430, true, false);
+	this.showDialog(dlg.container, 230, h, true, false);
 	dlg.init();
 };
 

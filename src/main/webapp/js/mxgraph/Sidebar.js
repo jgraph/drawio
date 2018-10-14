@@ -3402,13 +3402,14 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 					
 					window.setTimeout(function()
 					{
-						var fo = mxClient.NO_FO;
-						mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-						funct(content);
-						mxClient.NO_FO = fo;
 						content.style.display = 'block';
 						title.style.cursor = '';
 						title.innerHTML = prev;
+
+						var fo = mxClient.NO_FO;
+						mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
+						funct(content, title);
+						mxClient.NO_FO = fo;
 					}, 0);
 				}
 				else

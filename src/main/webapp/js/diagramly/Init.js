@@ -4,6 +4,9 @@ window.urlParams = window.urlParams || {};
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
 
+// Disables loading settings in configured mode
+window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
+
 // Checks for SVG support
 window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9);
 

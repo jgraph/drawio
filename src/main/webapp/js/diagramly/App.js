@@ -456,87 +456,7 @@ App.main = function(callback, createUi)
 			frame.setAttribute('src', 'offline.html');
 			document.body.appendChild(frame);
 		}
-		
-		/**
-		 * Loading plugins.
-		 */
-		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
-		{
-			var plugins = mxSettings.getPlugins();
-			var pluginsLoaded = {};
-			var temp = urlParams['p'];
-			App.initPluginCallback();
 
-			if (temp != null)
-			{
-				// Used to request draw.io sources in dev mode
-				var drawDevUrl = '';
-
-				if (urlParams['drawdev'] == '1')
-				{
-					drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
-				}
-				
-				// Mapping from key to URL in App.plugins
-				var t = temp.split(';');
-				
-				for (var i = 0; i < t.length; i++)
-				{
-					var url = App.pluginRegistry[t[i]];
-					
-					if (url != null && pluginsLoaded[url] == null)
-					{
-						pluginsLoaded[url] = true;
-						mxscript(drawDevUrl + url);
-					}
-					else if (window.console != null)
-					{
-						console.log('Unknown plugin:', t[i]);
-					}
-				}
-			}
-			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
-			{
-				mxscript(App.FOOTER_PLUGIN_URL, null, null, null, mxClient.IS_SVG);
-			}
-			
-			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
-			{
-				// Loading plugins inside the asynchronous block below stops the page from loading so a 
-				// hardcoded message for the warning dialog is used since the resources are loadd below
-				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
-				var tmp = window.location.protocol + '//' + window.location.host;
-				var local = true;
-				
-				for (var i = 0; i < plugins.length && local; i++)
-				{
-					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
-					{
-						local = false;
-					}
-				}
-				
-				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
-				{
-					for (var i = 0; i < plugins.length; i++)
-					{
-						try
-						{
-							if (pluginsLoaded[plugins[i]] == null)
-							{
-								pluginsLoaded[url] = true;
-								mxscript(plugins[i]);
-							}
-						}
-						catch (e)
-						{
-							// ignore
-						}
-					}
-				}
-			}
-		}
-		
 		// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
 		// Special case: Cannot load in asynchronous code below
 		if (typeof window.DriveClient === 'function' &&
@@ -673,28 +593,90 @@ App.main = function(callback, createUi)
 			};
 		});
 	};
-	
-	function doConfigure(config)
-	{
-		try
-		{
-			var config = JSON.parse(decodeURIComponent(
-					window.location.hash.substring(2)));
-			Editor.configure(config, true);
-			
-			if (config.open != null)
-			{
-				window.location.hash = config.open;
-			}
-		}
-		catch (e)
-		{
-			console.log(e);
-		}
-	};
-	
+
 	function doMain()
 	{
+		
+		/**
+		 * Loading plugins.
+		 */
+		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
+		{
+			var plugins = mxSettings.getPlugins();
+			var pluginsLoaded = {};
+			var temp = urlParams['p'];
+			App.initPluginCallback();
+
+			if (temp != null)
+			{
+				// Used to request draw.io sources in dev mode
+				var drawDevUrl = '';
+
+				if (urlParams['drawdev'] == '1')
+				{
+					drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
+				}
+				
+				// Mapping from key to URL in App.plugins
+				var t = temp.split(';');
+				
+				for (var i = 0; i < t.length; i++)
+				{
+					var url = App.pluginRegistry[t[i]];
+					
+					if (url != null && pluginsLoaded[url] == null)
+					{
+						pluginsLoaded[url] = true;
+						mxscript(drawDevUrl + url);
+					}
+					else if (window.console != null)
+					{
+						console.log('Unknown plugin:', t[i]);
+					}
+				}
+			}
+			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
+			{
+				mxscript(App.FOOTER_PLUGIN_URL, null, null, null, mxClient.IS_SVG);
+			}
+			
+			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
+			{
+				// Loading plugins inside the asynchronous block below stops the page from loading so a 
+				// hardcoded message for the warning dialog is used since the resources are loadd below
+				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
+				var tmp = window.location.protocol + '//' + window.location.host;
+				var local = true;
+				
+				for (var i = 0; i < plugins.length && local; i++)
+				{
+					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
+					{
+						local = false;
+					}
+				}
+				
+				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
+				{
+					for (var i = 0; i < plugins.length; i++)
+					{
+						try
+						{
+							if (pluginsLoaded[plugins[i]] == null)
+							{
+								pluginsLoaded[url] = true;
+								mxscript(plugins[i]);
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+					}
+				}
+			}
+		}
+		
 		// Adds required resources (disables loading of fallback properties, this can only
 		// be used if we know that all keys are defined in the language specific file)
 		mxResources.loadDefaultBundle = false;
@@ -719,6 +701,7 @@ App.main = function(callback, createUi)
 					{
 						mxEvent.removeListener(window, 'message', configHandler);					
 						Editor.configure(data.config, true);
+						mxSettings.load();
 						doMain();
 					}
 				}

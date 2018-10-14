@@ -10,7 +10,7 @@ var mxSettings =
 	/**
 	 * Defines current version of settings.
 	 */
-	currentVersion: 16,
+	currentVersion: 17,
 	
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
 	
@@ -136,22 +136,6 @@ var mxSettings =
 	{
 		mxSettings.settings.formatWidth = formatWidth;
 	},
-	getCurrentEdgeStyle: function()
-	{
-		return mxSettings.settings.currentEdgeStyle;
-	},
-	setCurrentEdgeStyle: function(value)
-	{
-		mxSettings.settings.currentEdgeStyle = value;
-	},
-	getCurrentVertexStyle: function()
-	{
-		return mxSettings.settings.currentVertexStyle;
-	},
-	setCurrentVertexStyle: function(value)
-	{
-		mxSettings.settings.currentVertexStyle = value;
-	},
 	isCreateTarget: function()
 	{
 		return mxSettings.settings.createTarget;
@@ -179,8 +163,6 @@ var mxSettings =
 			plugins: [],
 			recentColors: [],
 			formatWidth: mxSettings.defaultFormatWidth,
-			currentEdgeStyle: Graph.prototype.defaultEdgeStyle,
-			currentVertexStyle: Graph.prototype.defaultVertexStyle,
 			createTarget: false,
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
@@ -228,7 +210,8 @@ var mxSettings =
 		{
 			var temp = JSON.parse(value);
 			
-			if (temp.configVersion != Editor.configVersion)
+			if ((Editor.config != null && Editor.config.override) ||
+				temp.configVersion != Editor.configVersion)
 			{
 				mxSettings.settings = null;
 			}
@@ -269,22 +252,6 @@ var mxSettings =
 				if (mxSettings.settings.lastAlert != null)
 				{
 					delete mxSettings.settings.lastAlert;
-				}
-				
-				if (mxSettings.settings.currentEdgeStyle == null)
-				{
-					mxSettings.settings.currentEdgeStyle = Graph.prototype.defaultEdgeStyle;
-				}
-				else if (mxSettings.settings.version <= 10)
-				{
-					// Adds new defaults for jetty size and loop routing
-					mxSettings.settings.currentEdgeStyle['orthogonalLoop'] = 1;
-					mxSettings.settings.currentEdgeStyle['jettySize'] = 'auto';
-				}
-				
-				if (mxSettings.settings.currentVertexStyle == null)
-				{
-					mxSettings.settings.currentVertexStyle = Graph.prototype.defaultVertexStyle;
 				}
 				
 				if (mxSettings.settings.createTarget == null)
