@@ -3077,6 +3077,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				{
 					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 				}
+				else
+				{
+					realUrl = TEMPLATE_PATH + '/' + realUrl;
+				}
 				
 				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 				{
@@ -8621,7 +8625,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		templateFile, newDiagramCatsFile, username, recentDocsCallback, searchDocsCallback,
 		openExtDocCallback, linkToDiagramCallback)
 {
-	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
+	templateFile = (templateFile != null) ? templateFile : (TEMPLATE_PATH + '/index.xml');
 	newDiagramCatsFile = (newDiagramCatsFile != null) ? newDiagramCatsFile : NEW_DIAGRAM_CATS_PATH + '/index.xml';
 
 	var dlgDiv = this.container;
