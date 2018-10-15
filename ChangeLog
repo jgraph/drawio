@@ -1,3 +1,7 @@
+15-OCT-2018: 9.2.7
+
+- Fixes local templates path
+
 14-OCT-2018: 9.2.6
 
 - Fixes possible NPE during delayed loading of plugins
