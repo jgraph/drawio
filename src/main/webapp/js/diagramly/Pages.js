@@ -1381,6 +1381,15 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		return node;
 	};
 	
+	codec.afterDecode = function(dec, node, obj)
+	{
+		var tmp = obj.oldIndex;
+		obj.oldIndex = obj.newIndex;
+		obj.newIndex = tmp;
+		
+	    return obj;
+	};
+	
 	mxCodecRegistry.register(codec);
 })();
 

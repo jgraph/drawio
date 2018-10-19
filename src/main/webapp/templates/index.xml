@@ -74,7 +74,7 @@
 <template url="gcp/media_live_streaming.xml" libs="gcp2"/>
 <template url="gcp/media_rendering.xml" libs="gcp2"/>
 <template url="gcp/media_transcoding.xml" libs="gcp2"/>
-<template url="gcp/reatil_beacons_and_targeted_marketing.xml" libs="gcp2"/>
+<template url="gcp/retail_beacons_and_targeted_marketing.xml" libs="gcp2"/>
 <template url="gcp/retail_fraud_detection.xml" libs="gcp2"/>
 <template url="gcp/retail_pci.xml" libs="gcp2"/>
 <template url="gcp/retail_real_time_inventory.xml" libs="gcp2"/>

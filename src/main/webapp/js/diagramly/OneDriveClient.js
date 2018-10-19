@@ -297,6 +297,36 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 	}
 };
 
+OneDriveClient.prototype.getItemRef = function(id)
+{
+	var idParts = id.split('/');
+	
+	if (idParts.length > 1)
+	{
+		return {driveId: idParts[0], id: idParts[1]};
+	}
+	else
+	{
+		return {id: id};
+	}
+};
+
+OneDriveClient.prototype.getItemURL = function(id, relative)
+{
+	var idParts = id.split('/');
+	
+	if (idParts.length > 1)
+	{
+		var driveId = idParts[0];
+		var itemId = idParts[1];
+		return (relative? '' : this.baseUrl) + '/drives/' + driveId + '/items/' + itemId;
+	}
+	else
+	{
+		return (relative? '' : this.baseUrl) + '/me/drive/items/' + id;
+	}
+};
+
 /**
  * Checks if the client is authorized and calls the next step.
  */
@@ -312,7 +342,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 
-	this.executeRequest(this.baseUrl + '/me/drive/items/' + id, mxUtils.bind(this, function(req)
+	this.executeRequest(this.getItemURL(id), mxUtils.bind(this, function(req)
 	{
 		if (req.getStatus() >= 200 && req.getStatus() <= 299)
 		{
@@ -404,12 +434,11 @@ OneDriveClient.prototype.renameFile = function(file, filename, success, error)
 	if (file != null && filename != null)
 	{
 		// TODO: How to force overwrite file with same name?
-		this.checkExists(file.meta.parentReference.id, filename, false, mxUtils.bind(this, function(checked)
+		this.checkExists(file.getParentId(), filename, false, mxUtils.bind(this, function(checked)
 		{
 			if (checked)
 			{
-				var url = this.baseUrl + '/me/drive/items/' + file.meta.id;
-				this.writeFile(url, JSON.stringify({name: filename}), 'PATCH', 'application/json', success, error);
+				this.writeFile(this.getItemURL(file.getId()), JSON.stringify({name: filename}), 'PATCH', 'application/json', success, error);
 			}
 			else
 			{
@@ -427,8 +456,18 @@ OneDriveClient.prototype.renameFile = function(file, filename, success, error)
  */
 OneDriveClient.prototype.moveFile = function(id, folderId, success, error)
 {
-	var url = this.baseUrl + '/me/drive/items/' + id;
-	this.writeFile(url, JSON.stringify({parentReference: {id: folderId}}), 'PATCH', 'application/json', success, error);
+	//check that the source and destination are on the same drive
+	var folderInfo = this.getItemRef(folderId);
+	var fileInfo = this.getItemRef(id);
+	
+	if (folderInfo.driveId != fileInfo.driveId)
+	{
+		error({message: mxResources.get('cannotMoveOneDrive', null, 'Moving a file between accounts is not supported yet.')});
+	}
+	else 
+	{
+		this.writeFile(this.getItemURL(id), JSON.stringify({parentReference: folderInfo}), 'PATCH', 'application/json', success, error);
+	}
 };
 
 /**
@@ -456,7 +495,13 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 	{
 		if (checked)
 		{
-			var folder = (folderId != null) ? '/me/drive/items/' + folderId : '/me/drive/root';
+			var folder = '/me/drive/root';
+			
+			if (folderId != null)
+			{
+				folder = this.getItemURL(folderId, true);
+			}
+			
 			var url = this.baseUrl + folder + '/children/' + filename + '/content';
 			
 			this.writeFile(url, data, 'PUT', null, mxUtils.bind(this, function(meta)
@@ -486,7 +531,12 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
  */
 OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, fn)
 {
-	var folder = (parentId != null) ? '/me/drive/items/' + parentId : '/me/drive/root';
+	var folder = '/me/drive/root';
+	
+	if (parentId != null) 
+	{
+		folder = this.getItemURL(parentId, true);
+	}
 	
 	this.executeRequest(this.baseUrl + folder + '/children/' + filename, mxUtils.bind(this, function(req)
 	{
@@ -534,7 +584,7 @@ OneDriveClient.prototype.saveFile = function(file, success, error)
 {
 	var fn = mxUtils.bind(this, function(data)
 	{
-		var url = this.baseUrl + '/me/drive/items/' + file.meta.id + '/content/';
+		var url = this.getItemURL(file.getId()) + '/content/';
 		this.writeFile(url, data, 'PUT', null, success, error);
 	});
 	
@@ -578,6 +628,9 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				// Space deletes content type header. Specification says "text/plain"
 				// should work but returns an 415 Unsupported Media Type error
 				request.setRequestHeader('Content-Type', contentType || ' ');
+				//TODO This header is needed for moving a file between two different drives. 
+				//		Note: the response is empty when this header is used, also the server may take some time to really execute the request (i.e. async) 
+				//request.setRequestHeader('Prefer', 'respond-async');
 				request.setRequestHeader('Authorization', 'Bearer ' + this.token);
 			});
 			
@@ -707,7 +760,8 @@ OneDriveClient.prototype.pickFolder = function(fn)
 		openInNewWindow: true,
 		advanced:
 		{
-			'redirectUri': this.redirectUri
+			'redirectUri': this.redirectUri,
+			'queryParameters': 'select=id,name,parentReference'
 		},
 		success: mxUtils.bind(this, function(files)
 		{
@@ -743,7 +797,8 @@ OneDriveClient.prototype.pickFile = function(fn)
 		multiSelect: false,
 		advanced:
 		{
-			'redirectUri': this.redirectUri
+			'redirectUri': this.redirectUri,
+			'queryParameters': 'select=id,name,parentReference' //We can also get @microsoft.graph.downloadUrl within this request but it will break the normal process
 		},
 		success: mxUtils.bind(this, function(files)
 		{
@@ -751,7 +806,7 @@ OneDriveClient.prototype.pickFile = function(fn)
 			{
 				// KNOWN: Token should be per I/O operation
 				this.token = files.accessToken;
-				fn(files.value[0].id, files);
+				fn(OneDriveFile.prototype.getIdOf(files.value[0]), files);
 			}
 		}),
 		cancel: function()
