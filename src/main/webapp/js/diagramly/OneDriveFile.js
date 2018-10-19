@@ -12,6 +12,22 @@ OneDriveFile = function(ui, data, meta)
 //Extends mxEventSource
 mxUtils.extend(OneDriveFile, DrawioFile);
 
+OneDriveFile.prototype.getIdOf = function(itemObj, parent)
+{
+	//TODO driveId is most probably always there. No need to check if it exists. Also, after some time, the code that check the old id format won't be needed 
+	return (itemObj.parentReference.driveId? itemObj.parentReference.driveId + '/' : '') + (parent? itemObj.parentReference.id : itemObj.id);
+};
+
+OneDriveFile.prototype.getId = function()
+{
+	return this.getIdOf(this.meta);
+};
+
+OneDriveFile.prototype.getParentId = function()
+{
+	return this.getIdOf(this.meta, true);
+};
+
 /**
  * Translates this point by the given vector.
  * 
@@ -20,7 +36,7 @@ mxUtils.extend(OneDriveFile, DrawioFile);
  */
 OneDriveFile.prototype.getHash = function()
 {
-	return 'W' + encodeURIComponent(this.meta.id);
+	return 'W' + encodeURIComponent(this.getId());
 };
 
 /**
@@ -241,7 +257,7 @@ OneDriveFile.prototype.rename = function(title, success, error)
  */
 OneDriveFile.prototype.move = function(folderId, success, error)
 {
-	this.ui.oneDrive.moveFile(this.meta.id, folderId, mxUtils.bind(this, function(meta)
+	this.ui.oneDrive.moveFile(this.getId(), folderId, mxUtils.bind(this, function(meta)
 	{
 		this.meta = meta;
 		this.descriptorChanged();

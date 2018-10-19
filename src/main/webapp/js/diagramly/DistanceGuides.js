@@ -22,25 +22,22 @@ mxGuide.prototype.move_orig = mxGuide.prototype.move;
 mxGuide.prototype.move = function (bounds, delta, gridEnabled)
 {
     var point = mxGuide.prototype.move_orig.call(this, bounds, delta, gridEnabled);
-
-    var guide = this;
-    var newState = new mxCellState();
-    var tt = this.getGuideTolerance();
-    var scale = this.graph.getView().scale;
-    var isShift = this.isShiftDown;
-
-    newState.x = bounds.x + this.graph.snap(delta.x / scale) * scale;
-    newState.y = bounds.y + this.graph.snap(delta.y / scale) * scale;
-    newState.width = bounds.width;
-    newState.height = bounds.height;
-
-    var verticalCells = [];
-    var horizontalCells = [];
     var yShift = point.y;
     var xShift = point.x;
-    
+
     if (this.states != null && bounds != null && delta != null) 
     {
+      var guide = this;
+	  var newState = new mxCellState();
+	  var scale = this.graph.getView().scale;
+	  var tolerance = 5;
+	
+	  newState.x = bounds.x + xShift;
+	  newState.y = bounds.y + yShift;
+	  newState.width = bounds.width;
+	  newState.height = bounds.height;
+	  var verticalCells = [];
+	  var horizontalCells = [];
       var selCells = this.graph.getSelectionCells();
       
       //although states are defined as cellState, it has some mxRectangles!
@@ -72,7 +69,7 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
 	    		  else if ((newState.y >= state.y && newState.y <= (state.y + state.height))
 			            || (state.y >= newState.y && state.y <= (newState.y + newState.height))) 
 	    		  {
-		            horizontalCells.push(state)
+		            horizontalCells.push(state);
 		          }
 			  }
 		  }
@@ -81,78 +78,73 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
       var eqCy = 0;
       var eqCx = 0;
       var dy = 0.0;
+      var fixedDy = 0.0;
       var dx = 0.0;
+      var fixedDx = 0.0;
       var shift = 5 * scale;
-      var vPoints = [];
       
       if (verticalCells.length > 1) 
       {
-        if (!isShift) 
-        {
-          verticalCells.push(newState)
-        }
+        verticalCells.push(newState);
         
         verticalCells.sort(function(s1, s2)
 		{
           return s1.y - s2.y;
         });
         
-        var firstX = 0;
-        
         for (var i = 0; i < verticalCells.length - 1; i++)
   	  	{
             var s1 = verticalCells[i];
             var s2 = verticalCells[i + 1];
+            var isMovingOne = newState == s1 || newState == s2;
             
-            if (firstX == 0) firstX = s1.x + s1.width;
+            var curDy = s2.y - s1.y - s1.height;
             
-            vPoints.push(new mxPoint(firstX, s1.y + s1.height + shift));
-            vPoints.push(new mxPoint(firstX, s2.y - shift));
+            if (!isMovingOne)
+        	{
+            	fixedDy = curDy;
+        	}
             
-            if (dy == 0.0) 
+            if (eqCy == 0) 
             {
-              dy = s1.y + s1.height - s2.y;
+              dy = curDy;
               eqCy = 1;
             }
-            else if (Math.abs(dy - (s1.y + s1.height - s2.y)) < tt) 
+            else if (Math.abs(dy - curDy) <= (isMovingOne? tolerance : 0)) 
             {
               eqCy += 1;
             }
         }
       }
       
-      var hPoints = [];
-      
       if (horizontalCells.length > 1) 
       {
-        if (!isShift) 
-        {
-          horizontalCells.push(newState)
-        }
+        horizontalCells.push(newState)
         
         horizontalCells.sort(function(s1, s2)
 		{
           return s1.x - s2.x;
         });
 
-        var firstY = 0;
-        
         for (var i = 0; i < horizontalCells.length - 1; i++)
   	  	{
             var s1 = horizontalCells[i];
             var s2 = horizontalCells[i + 1];
+            var isMovingOne = newState == s1 || newState == s2;
             
-            if (firstY == 0) firstY = s1.y + s1.height;
-
-            hPoints.push(new mxPoint(s1.x + s1.width + shift, firstY));
-            hPoints.push(new mxPoint(s2.x - shift, firstY));
+            var curDx = s2.x - s1.x - s1.width;
             
-            if (dx == 0.0) 
+            if (!isMovingOne)
+        	{
+            	fixedDx = curDx;
+        	}
+            
+            if (eqCx == 0) 
             {
-              dx = s1.x + s1.width - s2.x;
+              dx = curDx;
               eqCx = 1;
             }
-            else if (Math.abs(dx - (s1.x + s1.width - s2.x)) < tt) 
+            else if (Math.abs(dx - curDx) <= (isMovingOne? tolerance : 0)) 
             {
               eqCx += 1;
             }
@@ -198,54 +190,53 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
         }
       };
 
-      var adjustXShift = function () 
-      {
-        var startState = horizontalCells.shift();
-        var startDx = newState.x - startState.x;
-        var endState = horizontalCells.pop();
-        var endDx = newState.x - endState.x;
-        
-        if (Math.sign(startDx) == Math.sign(endDx)) 
-        {
-          if (Math.sign(startDx) < 0) 
-          {
-            var newX = startState.x - Math.abs(dx) - bounds.width;
-            xShift = newX - bounds.x;
-          }
-          else 
-          {
-            var newX = endState.x + endState.width + Math.abs(dx);
-            xShift = newX - bounds.x;
-          }
-        }
-      }
-      
-      var adjustYShift = function()
-      {
-        var startState = verticalCells.shift();
-        var startDy = newState.y - startState.y;
-        var endState = verticalCells.pop();
-        var endDy = newState.y - endState.y;
-        
-        if (Math.sign(startDy) == Math.sign(endDy)) 
-        {
-          if (startDy.signum < 0) 
-          {
-            var newY = startState.y - Math.abs(dy) - bounds.height;
-            yShift = newY - bounds.y;
-          }
-          else 
-          {
-            var newY = endState.y + endState.height + Math.abs(dy);
-            yShift = newY - bounds.y;
-          }
-        }
-      };
-      
       if (eqCx > 1 && eqCx == horizontalCells.length - 1) 
       {
         var guidesArr = [];
         var curArr = guide.guidesArrHor;
+        var hPoints = [];
+        var newX = 0;
+        
+        //If the newState (moving cell) is the first one, use the next one for x coordinate such that the guide doesn't move with the cell
+        var firstI = horizontalCells[0] == newState? 1 : 0;
+        var firstY = horizontalCells[firstI].y + horizontalCells[firstI].height;
+
+        if (fixedDx > 0)
+		{
+            for (var i = 0; i < horizontalCells.length - 1; i++)
+      	  	{
+                var s1 = horizontalCells[i];
+                var s2 = horizontalCells[i + 1];
+                
+        		if (newState == s1)
+    			{
+        			newX = s2.x - s1.width - fixedDx;
+        			hPoints.push(new mxPoint(newX + s1.width + shift, firstY));
+                    hPoints.push(new mxPoint(s2.x - shift, firstY));
+    			}
+        		else if (newState == s2)
+    			{
+        			hPoints.push(new mxPoint(s1.x + s1.width + shift, firstY));
+        			newX = s1.x + s1.width + fixedDx;
+        			hPoints.push(new mxPoint(newX - shift, firstY));
+    			}
+        		else
+    			{
+        			hPoints.push(new mxPoint(s1.x + s1.width + shift, firstY));
+                    hPoints.push(new mxPoint(s2.x - shift, firstY));
+    			}
+            }
+		}
+        else //this is the case when there are 3 cells and the middle one is moving
+    	{
+        	var s1 = horizontalCells[0];
+            var s3 = horizontalCells[2];
+			newX = s1.x + s1.width + (s3.x - s1.x - s1.width - newState.width) / 2;
+			hPoints.push(new mxPoint(s1.x + s1.width + shift, firstY));
+            hPoints.push(new mxPoint(newX - shift, firstY));
+			hPoints.push(new mxPoint(newX + newState.width + shift, firstY));
+            hPoints.push(new mxPoint(s3.x - shift, firstY));
+    	}
         
         for (var i = 0; i < hPoints.length; i += 2) 
         {
@@ -258,35 +249,7 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
         }
         guide.guidesArrHor = guidesArr;
         
-        if (isShift) 
-        {
-          adjustXShift();
-        }
-      }
-      else if (isShift && horizontalCells.length == 2) 
-      {
-        adjustXShift();
-      }
-      else if (isShift && horizontalCells.length > 0) 
-      { //center align
-        var minX = Number.MAX_VALUE;
-        var closestCell = horizontalCells[0];
-        
-        for (var i = 0; i < horizontalCells.length; i++) 
-        {
-        	var cell = horizontalCells[i];
-            var dx = Math.abs(cell.x - newState.x);
-            
-            if (dx < minX) 
-            {
-              minX = dx;
-              closestCell = cell;
-            }
-        }
-        
-        var cy = closestCell.getCenterY();
-        var newY = cy - bounds.height/2;
-        yShift = newY - bounds.y;
+        xShift = newX - bounds.x;
       }
       else if (guide.guidesArrHor != null) 
       {
@@ -300,7 +263,50 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
       {
         var guidesArr = [];
         var curArr = guide.guidesArrVer;
+        var vPoints = [];
+        var newY = 0;
         
+        //If the newState (moving cell) is the first one, use the next one for x coordinate such that the guide doesn't move with the cell
+        var firstI = verticalCells[0] == newState? 1 : 0;
+        var firstX = verticalCells[firstI].x + verticalCells[firstI].width;
+
+        if (fixedDy > 0)
+		{
+	        for (var i = 0; i < verticalCells.length - 1; i++)
+	  	  	{
+	        	var s1 = verticalCells[i];
+	            var s2 = verticalCells[i + 1];
+	            
+        		if (newState == s1)
+    			{
+        			newY = s2.y - s1.height - fixedDy;
+        			vPoints.push(new mxPoint(firstX, newY + s1.height + shift));
+					vPoints.push(new mxPoint(firstX, s2.y - shift));
+    			}
+        		else if (newState == s2)
+    			{
+					vPoints.push(new mxPoint(firstX, s1.y + s1.height + shift));
+        			newY = s1.y + s1.height + fixedDy;
+        			vPoints.push(new mxPoint(firstX, newY - shift));
+    			}
+        		else
+    			{
+					vPoints.push(new mxPoint(firstX, s1.y + s1.height + shift));
+					vPoints.push(new mxPoint(firstX, s2.y - shift));
+    			}
+    		}
+		}
+    	else //this is the case when there are 3 cells and the middle one is moving
+		{
+        	var s1 = verticalCells[0];
+            var s3 = verticalCells[2];
+			newY = s1.y + s1.height + (s3.y - s1.y - s1.height - newState.height) / 2;
+			vPoints.push(new mxPoint(firstX, s1.y + s1.height + shift));
+			vPoints.push(new mxPoint(firstX, newY - shift));
+			vPoints.push(new mxPoint(firstX, newY + newState.height + shift));
+			vPoints.push(new mxPoint(firstX, s3.y - shift));
+		}
+
         for (i = 0; i < vPoints.length; i += 2)
         {
           var p1 = vPoints[i];
@@ -313,36 +319,8 @@ mxGuide.prototype.move = function (bounds, delta, gridEnabled)
         
         guide.guidesArrVer = guidesArr;
         
-        if (isShift) 
-        {
-          adjustYShift();
-        }
+        yShift = newY - bounds.y;
       } 
-      else if (isShift && verticalCells.length == 2) 
-      {
-        adjustYShift();
-      }
-      else if (isShift && verticalCells.length > 0) 
-      { //center align
-        var minY = Number.MAX_VALUE;
-        var closestCell = verticalCells[0];
-        
-        for (var i = 0; i < verticalCells.length; i++) 
-        {
-        	var cell = verticalCells[i];
-            var dy = Math.abs(cell.y - newState.y);
-            
-            if (dy < minY) 
-            {
-                minY = dy;
-                closestCell = cell;
-            }
-        }
-        
-        var cx = closestCell.getCenterX();
-        var newX = cx - bounds.width/2;
-        xShift = newX - bounds.x;
-      }
       else if (guide.guidesArrVer != null)
       {
     	  for (var i = 0; i < guide.guidesArrVer.length; i++) 
@@ -404,11 +382,4 @@ mxGuide.prototype.destroy = function()
     	}
     	this.guidesArrHor = null;
     }
-};
-
-mxGuide.prototype.isEnabledForEvent_orig =  mxGuide.prototype.isEnabledForEvent;
-mxGuide.prototype.isEnabledForEvent = function (evt)
-{
-    this.isShiftDown = mxEvent.isShiftDown(evt);
-    return mxGuide.prototype.isEnabledForEvent_orig.call(this, evt);
 };

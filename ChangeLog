@@ -1,3 +1,12 @@
+19-OCT-2018: 9.2.9
+
+- Adds OneDrive for Business and Sharepoint integration
+
+19-OCT-2018: 9.2.8
+
+- Improves various Gliffy import issues
+- Fixes inverted MovePage state after decoding
+
 15-OCT-2018: 9.2.7
 
 - Fixes local templates path

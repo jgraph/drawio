@@ -36,8 +36,6 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	
 	private boolean forceTopPaddingShift = false;
 	
-	private static Pattern pattern = Pattern.compile("<p(.*?)<\\/p>");
-	
 	private static Pattern spanPattern = Pattern.compile("<span style=\"(.*?)\">");
 
 	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
@@ -139,50 +137,46 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 	private String replaceParagraphWithDiv(String html)
 	{
-		Matcher m = pattern.matcher(html);
-		StringBuilder sb = new StringBuilder();
+		Matcher m = spanPattern.matcher(html);
+		StringBuilder modHtml = new StringBuilder(); 
+		int last = 0;
+		
 		while (m.find())
 		{
-			// Adds line-height:0 to empty spans with no line-height
-			// to match quirks mode sizing in standards mode
-			sb.append("<div");
-			String str = m.group(1);
-			Matcher m2 = spanPattern.matcher(str);
-			int last = 0;
+			String span = html.substring(last, m.end());
+			String style = m.group(1);
 			
-			while (m2.find())
+			if (style != null)
 			{
-				String span = str.substring(last, m2.end());
-				String style = m2.group(1);
+				// Adds line-height:0 to empty spans with no line-height
+				// to match quirks mode sizing in standards mode
+				Matcher m2 = lineHeight.matcher(style);
 				
-				if (style != null)
+				if (!m2.find())
 				{
-					Matcher m3 = lineHeight.matcher(style);
-					
-					if (!m3.find())
+					if (html.substring(m.end(), m.end() + 5).equalsIgnoreCase("<span"))
 					{
-						if (str.substring(m2.end(), m2.end() + 5).equalsIgnoreCase("<span"))
-						{
-							span = span.substring(0, m2.end(1) - last) + " line-height: 0;" + span.substring(m2.end(1) - last);
-						}
-						else
-						{
-							// Overrides line-height with default value in child span elements
-							span = span.substring(0, m2.end(1) - last) + " line-height: normal;" + span.substring(m2.end(1) - last);
-						}
+						span = span.substring(0, m.end(1) - last) + " line-height: 0;" + span.substring(m.end(1) - last);
+					}
+					else
+					{
+						// Overrides line-height with default value in child span elements
+						span = span.substring(0, m.end(1) - last) + " line-height: normal;" + span.substring(m.end(1) - last);
 					}
 				}
-
-				last = m2.end();
-				sb.append(span);
 			}
-			
 
-			sb.append(str.substring(last));
-			sb.append("</div>");
+			last = m.end();
+			modHtml.append(span);
 		}
-
-		return sb.length() > 0 ? sb.toString() : html;
+		
+		if (modHtml.length() > 0)
+		{
+			modHtml.append(html.substring(last));
+			html = modHtml.toString();
+		}
+		
+		return html.replace("<p ", "<div ").replace("<p>", "<div>").replace("</p>", "</div>");
 	}
 
 	/**

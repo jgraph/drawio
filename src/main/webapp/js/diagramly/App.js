@@ -4158,7 +4158,7 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 			
 			if (files != null && files.value != null && files.value.length > 0)
 			{
-				folderId = files.value[0].id;
+				folderId = OneDriveFile.prototype.getIdOf(files.value[0]);
         		fn(folderId);
 			}
 		}));
