@@ -130,7 +130,7 @@
 	/**
 	 * Description of custom libraries, see https://desk.draw.io/a/solutions/articles/16000058316
 	 */
-	Sidebar.prototype.customLibraries = null;
+	Sidebar.prototype.customEntries = null;
 	
 	/**
 	 * Array of strings for the built-in libraries to be enabled in the more shapes dialog. Null means all,
@@ -320,11 +320,11 @@
 			}
 		}
 		
-		if (this.customLibraries != null)
+		if (this.customEntries != null)
 		{
-			for (var i = 0; i < this.customLibraries.length; i++)
+			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customLibraries[i];
+				var section = this.customEntries[i];
 				
 				for (var j = 0; j < section.entries.length; j++)
 				{
@@ -377,11 +377,11 @@
 			}
 		}
 		
-		if (this.customLibraries != null)
+		if (this.customEntries != null)
 		{
-			for (var i = 0; i < this.customLibraries.length; i++)
+			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customLibraries[i];
+				var section = this.customEntries[i];
 				
 				for (var j = 0; j < section.entries.length; j++)
 				{
@@ -756,11 +756,11 @@
 		this.addSearchPalette(true);
 		
 		// Adds custom sections first
-		if (this.customLibraries != null)
+		if (this.customEntries != null)
 		{
-			for (var i = 0; i < this.customLibraries.length; i++)
+			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customLibraries[i];
+				var section = this.customEntries[i];
 				
 				for (var j = 0; j < section.entries.length; j++)
 				{
@@ -838,7 +838,7 @@
 			}
 		}
 		
-		this.addGeneralPalette(this.customLibraries == null);
+		this.addGeneralPalette(this.customEntries == null);
 		this.addMiscPalette(false);
 		this.addAdvancedPalette(false);
 		this.addUmlPalette(false);

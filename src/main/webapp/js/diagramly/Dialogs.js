@@ -6416,11 +6416,11 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	var newEntries = [];
 	
 	// Adds custom sections first
-	if (editorUi.sidebar.customLibraries != null)
+	if (editorUi.sidebar.customEntries != null)
 	{
-		for (var i = 0; i < editorUi.sidebar.customLibraries.length; i++)
+		for (var i = 0; i < editorUi.sidebar.customEntries.length; i++)
 		{
-			var section = editorUi.sidebar.customLibraries[i];
+			var section = editorUi.sidebar.customEntries[i];
 			var tmp = {title: editorUi.getResource(section.title), entries: []};
 			
 			for (var j = 0; j < section.entries.length; j++)

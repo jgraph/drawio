@@ -1,3 +1,9 @@
+22-OCT-2018: 9.3.0
+
+- Adds write permission in OneDrive client
+- Adds link option in SVG export dialog
+- Adds link to save status message
+
 19-OCT-2018: 9.2.9
 
 - Adds OneDrive for Business and Sharepoint integration

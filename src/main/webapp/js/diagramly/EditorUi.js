@@ -3635,7 +3635,8 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages, border, noCrop, currentPage)
+	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
+		editable, embedImages, border, noCrop, currentPage, linkTarget)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -3661,6 +3662,27 @@
 			if (addShadow)
 			{
 				this.editor.graph.addSvgShadow(svgRoot);
+			}
+			
+			// Opens links in new window
+			if (linkTarget == 'blank')
+			{
+				var links = svgRoot.getElementsByTagName('a');
+				
+				for (var i = 0; i < links.length; i++)
+				{
+					var href = links[i].getAttribute('href');
+					
+					if (href == null)
+					{
+						href = links[i].getAttribute('xlink:href');
+					}
+					
+					if (href != null && /^https?:\/\//.test(href))
+					{
+						links[i].setAttribute('target', '_blank');
+					}
+				}
 			}
 			
 			var filename = this.getBaseFilename() + '.svg';
@@ -4470,7 +4492,7 @@
 		mxUtils.write(hd, title);
 		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 		div.appendChild(hd);
-		
+
 		mxUtils.write(div, mxResources.get('zoom') + ':');
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('type', 'text');
@@ -4559,7 +4581,7 @@
 		
 		if (!hasPages)
 		{
-			allPages.style.visibility = 'hidden';
+			allPages.style.display = 'none';
 		}
 	
 		mxEvent.addListener(include, 'change', function()
@@ -4579,13 +4601,39 @@
 			allPages.setAttribute('disabled', 'disabled');
 		}
 		
+		var linkSelect = document.createElement('select');
+		linkSelect.style.maxWidth = '260px';
+		linkSelect.style.marginLeft = '8px';
+		linkSelect.style.marginRight = '10px';
+		linkSelect.className = 'geBtn';
+
+		var selfOption = document.createElement('option');
+		selfOption.setAttribute('value', 'self');
+		mxUtils.write(selfOption, mxResources.get('automatic'));
+		linkSelect.appendChild(selfOption);
+		
+		var blankOption = document.createElement('option');
+		blankOption.setAttribute('value', 'blank');
+		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
+		linkSelect.appendChild(blankOption);
+		
+		if (format == 'svg')
+		{
+			mxUtils.write(div, mxResources.get('links') + ':');
+			div.appendChild(linkSelect);
+			mxUtils.br(div);
+			mxUtils.br(div);
+			height += 26;
+		}
+		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			this.lastExportBorder = borderInput.value;
 			this.lastExportZoom = zoomInput.value;
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked);
+				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
+				linkSelect.value);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true);
 		zoomInput.focus();
