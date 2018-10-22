@@ -312,7 +312,7 @@
 			// Configures the custom libraries
 			if (config.libraries != null)
 			{
-				Sidebar.prototype.customLibraries = config.libraries;
+				Sidebar.prototype.customEntries = config.libraries;
 			}
 			
 			// Defines the enabled built-in libraries.

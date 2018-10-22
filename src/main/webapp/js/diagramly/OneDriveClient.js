@@ -23,7 +23,7 @@ OneDriveClient.prototype.clientId = (window.location.hostname == 'test.draw.io')
 /**
  * OAuth 2.0 scopes for installing Drive Apps.
  */
-OneDriveClient.prototype.scopes = 'user.read';
+OneDriveClient.prototype.scopes = 'user.read files.readwrite.all';
 
 /**
  * OAuth 2.0 scopes for installing Drive Apps.

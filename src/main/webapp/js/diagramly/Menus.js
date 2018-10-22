@@ -96,15 +96,15 @@
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 				'https://support.draw.io/display/DO/Exporting+Files',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-					addShadow, editable, embedImages, border, cropImage, currentPage)
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+					editable, embedImages, border, cropImage, currentPage, linkTarget)
 				{
 					var val = parseInt(scale);
 					
 					if (!isNaN(val) && val > 0)
 					{
-					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-					   		addShadow, editable, embedImages, border, !cropImage, currentPage);
+					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+					   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
 					}
 				}), true, null, 'svg');
 		}));

@@ -317,7 +317,7 @@ DrawioFile.prototype.open = function()
 					// Does not update status if another autosave was scheduled
 					if (this.autosaveThread == null && this.ui.getCurrentFile() == this && !this.isModified())
 					{
-						this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+						this.addAllSavedStatus();
 					}
 				}), mxUtils.bind(this, function(resp)
 				{
@@ -348,6 +348,40 @@ DrawioFile.prototype.open = function()
 	this.ui.addListener('gridEnabledChanged', this.changeListener);
 	this.ui.addListener('guidesEnabledChanged', this.changeListener);
 	this.ui.addListener('pageViewChanged', this.changeListener);
+};
+
+/**
+ * Returns the location as a new object.
+ * @type mx.Point
+ */
+DrawioFile.prototype.addAllSavedStatus = function()
+{
+	var file = this.ui.getCurrentFile();
+	
+	if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
+	{
+		
+		this.ui.editor.setStatus('<span title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
+			'" style="text-decoration:underline;cursor:pointer;">' +
+			mxUtils.htmlEntities(mxResources.get('allChangesSaved')) + '</span>');
+		
+		if (this.ui.statusContainer != null)
+		{
+			var links = this.ui.statusContainer.getElementsByTagName('span');
+			
+			if (links.length > 0)
+			{
+				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
+				{
+					this.ui.actions.get('revisionHistory').funct();
+				}));
+			}
+		}
+	}
+	else
+	{
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+	}
 };
 
 /**
