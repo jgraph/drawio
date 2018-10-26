@@ -3657,32 +3657,13 @@
 			
 			// Sets or disables alternate text for foreignObjects. Disabling is needed
 			// because PhantomJS seems to ignore switch statements and paint all text.
-			var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null, ignoreSelection);
+			var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
+				ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
+				((linkTarget == 'self') ? '_top' : null));
 			
 			if (addShadow)
 			{
 				this.editor.graph.addSvgShadow(svgRoot);
-			}
-			
-			// Opens links in new window
-			if (linkTarget == 'blank')
-			{
-				var links = svgRoot.getElementsByTagName('a');
-				
-				for (var i = 0; i < links.length; i++)
-				{
-					var href = links[i].getAttribute('href');
-					
-					if (href == null)
-					{
-						href = links[i].getAttribute('xlink:href');
-					}
-					
-					if (href != null && /^https?:\/\//.test(href))
-					{
-						links[i].setAttribute('target', '_blank');
-					}
-				}
 			}
 			
 			var filename = this.getBaseFilename() + '.svg';
@@ -4006,19 +3987,13 @@
 			}
 		}
 		
-		if (allPages && this.pages != null && this.currentPage != null)
+		if (allPages)
 		{
-			for (var i = 0; i < this.pages.length; i++)
+			var index = this.getSelectedPageIndex();
+			
+			if (index > 0)
 			{
-				if (this.pages[i] == this.currentPage)
-				{
-					if (i > 0)
-					{
-						params.push('page=' + i);
-					}
-					
-					break;
-				}
+				params.push('page=' + index);
 			}
 		}
 		
@@ -4607,16 +4582,22 @@
 		linkSelect.style.marginRight = '10px';
 		linkSelect.className = 'geBtn';
 
-		var selfOption = document.createElement('option');
-		selfOption.setAttribute('value', 'self');
-		mxUtils.write(selfOption, mxResources.get('automatic'));
-		linkSelect.appendChild(selfOption);
-		
+
+		var autoOption = document.createElement('option');
+		autoOption.setAttribute('value', 'auto');
+		mxUtils.write(autoOption, mxResources.get('automatic'));
+		linkSelect.appendChild(autoOption);
+
 		var blankOption = document.createElement('option');
 		blankOption.setAttribute('value', 'blank');
 		mxUtils.write(blankOption, mxResources.get('openInNewWindow'));
 		linkSelect.appendChild(blankOption);
-		
+
+		var selfOption = document.createElement('option');
+		selfOption.setAttribute('value', 'self');
+		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
+		linkSelect.appendChild(selfOption);
+
 		if (format == 'svg')
 		{
 			mxUtils.write(div, mxResources.get('links') + ':');
@@ -6783,6 +6764,13 @@
 								    				}));
 						    					}
 					    					}
+				    						else
+				    						{
+					    						barrier(index, mxUtils.bind(this, function()
+							    				{
+							    					return null;
+							    				}));
+				    						}
 						    			}
 						    			else
 						    			{
@@ -9112,7 +9100,8 @@
 		var graph = this.editor.graph;
 		
 		return {event: eventName, pageVisible: graph.pageVisible, translate: graph.view.translate,
-			scale: graph.view.scale, page: graph.view.getBackgroundPageBounds(), bounds: graph.getGraphBounds()};
+			bounds: graph.getGraphBounds(), currentPage: this.getSelectedPageIndex(),
+			scale: graph.view.scale, page: graph.view.getBackgroundPageBounds()};
 	};
 	
 	/**

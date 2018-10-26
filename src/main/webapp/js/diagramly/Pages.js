@@ -256,6 +256,29 @@ ChangePage.prototype.execute = function()
 };
 
 /**
+ * Returns the index of the selected page.
+ */
+EditorUi.prototype.getSelectedPageIndex = function()
+{
+	var result = null;
+	
+	if (this.pages != null && this.currentPage != null)
+	{
+		for (var i = 0; i < this.pages.length; i++)
+		{
+			if (this.pages[i] == this.currentPage)
+			{
+				result = i;
+				
+				break;
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.getPageById = function(id)
@@ -419,9 +442,9 @@ EditorUi.prototype.initPages = function()
 Graph.prototype.createViewState = function(node)
 {
 	var pv = node.getAttribute('page');
-	var ps = node.getAttribute('pageScale');
-	var pw = node.getAttribute('pageWidth');
-	var ph = node.getAttribute('pageHeight');
+	var ps = parseFloat(node.getAttribute('pageScale'));
+	var pw = parseFloat(node.getAttribute('pageWidth'));
+	var ph = parseFloat(node.getAttribute('pageHeight'));
 	var bg = node.getAttribute('background');
 	var temp = node.getAttribute('backgroundImage');
 	var bgImg = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
@@ -436,9 +459,8 @@ Graph.prototype.createViewState = function(node)
 		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
 		background: (bg != null && bg.length > 0) ? bg : this.defaultGraphBackground,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
-		pageScale: (ps != null) ? ps : mxGraph.prototype.pageScale,
-		pageFormat: (pw != null && ph != null) ?  new mxRectangle(0, 0,
-				parseFloat(pw), parseFloat(ph)) : this.pageFormat,
+		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
+		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, pw) : this.pageFormat,
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
@@ -464,7 +486,7 @@ Graph.prototype.saveViewState = function(vs, node)
 	node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
 	node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
 		(vs != null && vs.pageVisible)) ? '1' : '0');
-	node.setAttribute('pageScale', (vs != null) ? vs.pageScale : mxGraph.prototype.pageScale);
+	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
 	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
 	

@@ -112,3 +112,12 @@ html body .geActivePage {
 .geHsplit:hover, .geVsplit:hover {
 	background-color:#b5b5b5;
 }
+html body .geStatusAlert {
+	background-color:#a20025;
+	border:1px solid #bd002b;
+	color:#fff !important;
+}
+html body .geStatusAlert:hover {
+	background-color:#a20025;
+	border-color:#bd002b;
+}

@@ -89,6 +89,7 @@
         {name: 'targetPerimeterSpacing', dispName: 'Target Perimeter Spacing', type: 'float', defVal: 0},
         {name: 'perimeterSpacing', dispName: 'Perimeter Spacing', type: 'float', defVal: 0},
         {name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true},
+        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
@@ -118,6 +119,7 @@
         	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
         {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
+        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},

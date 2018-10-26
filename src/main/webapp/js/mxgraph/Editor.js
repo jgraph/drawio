@@ -410,9 +410,9 @@ Editor.prototype.readGraphState = function(node)
 		this.graph.cellRenderer.forceControlClickHandler = this.graph.foldingEnabled;
 	}
 	
-	var ps = node.getAttribute('pageScale');
+	var ps = parseFloat(node.getAttribute('pageScale'));
 	
-	if (ps != null)
+	if (!isNaN(ps) && ps > 0)
 	{
 		this.graph.pageScale = ps;
 	}
@@ -442,12 +442,12 @@ Editor.prototype.readGraphState = function(node)
 	this.graph.pageBreaksVisible = this.graph.pageVisible; 
 	this.graph.preferPageSize = this.graph.pageBreaksVisible;
 	
-	var pw = node.getAttribute('pageWidth');
-	var ph = node.getAttribute('pageHeight');
+	var pw = parseFloat(node.getAttribute('pageWidth'));
+	var ph = parseFloat(node.getAttribute('pageHeight'));
 	
-	if (pw != null && ph != null)
+	if (!isNaN(pw) && !isNaN(ph))
 	{
-		this.graph.pageFormat = new mxRectangle(0, 0, parseFloat(pw), parseFloat(ph));
+		this.graph.pageFormat = new mxRectangle(0, 0, pw, ph);
 	}
 
 	// Loads the persistent state settings
@@ -1647,12 +1647,16 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			customDiv.style.display = '';
 		}
 		
-		if (isNaN(parseFloat(widthInput.value)))
+		var wi = parseFloat(widthInput.value);
+		
+		if (isNaN(wi) || wi <= 0)
 		{
 			widthInput.value = pageFormat.width / 100;
 		}
-
-		if (isNaN(parseFloat(heightInput.value)))
+		
+		var hi = parseFloat(heightInput.value);
+		
+		if (isNaN(hi) || hi <= 0)
 		{
 			heightInput.value = pageFormat.height / 100;
 		}

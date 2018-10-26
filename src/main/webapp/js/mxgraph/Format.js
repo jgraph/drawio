@@ -2099,7 +2099,11 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 		{
 			var value = parseFloat(input.value);
 
-			if (value != initialValue)
+			if (isNaN(value)) 
+			{
+				input.value = initialValue + ' pt';
+			}
+			else if (value != initialValue)
 			{
 				graph.getModel().beginUpdate();
 				try
@@ -2129,10 +2133,6 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 				
 				initialValue = value;
 				input.value = value + ' pt';
-			}
-			else if (isNaN(value)) 
-			{
-				input.value = initialValue + ' pt';
 			}
 		}
 		

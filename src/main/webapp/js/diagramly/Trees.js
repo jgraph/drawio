@@ -9,7 +9,8 @@
 	 */
 	var moveImage =  (!mxClient.IS_SVG) ? IMAGE_PATH + '/move.png' :
 		'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAASFBMVEUAAAAAAAB/f3/9/f319fUfHx/7+/s+Pj69vb0AAAAAAAAAAAAAAAAAAAAAAAAAAAB2dnZ1dXUAAAAAAAAVFRX///8ZGRkGBgbOcI1hAAAAE3RSTlMA+vr9/f38+fb1893Bo00u+/tFvPJUBQAAAIRJREFUGNM0jEcSxCAQAxlydGqD///TNWxZBx1aXVIrWysplbapL3sFxgDq/idXBnHgBPK1nIxwc55vCXl6dRFtrV6svs/A/UjsPcpzA5tqyByD92HqQlMFh45BG6ND1DiKSoPDdm96N77bg5F+wyaEqRGb8ZiOwHQqdg9hehszcLAEIQB2lQ4p/sEpnAAAAABJRU5ErkJggg==';
-
+	EditorUi.prototype.altShiftActions[68] = 'selectDescendants'; // Alt+Shift+D
+	
 	/**
 	 * Overrides folding based on treeFolding style.
 	 */
@@ -264,7 +265,7 @@
 						
 				graph.setSelectionCells(subtree);
 			}
-		}, null, null, 'Alt+Shift+T');
+		}, null, null, 'Alt+Shift+D');
 			
 		/**
 		 * Overriddes
@@ -940,7 +941,7 @@
 			}
 		};
 	
-		// Overrides keyboard shortcuts
+		// Overrides keyboard shortcuts inside tree containers
 		var altShiftActions = {88: ui.actions.get('selectChildren'), // Alt+Shift+X
 				84: ui.actions.get('selectSubtree'), // Alt+Shift+T
 				80: ui.actions.get('selectParent'), // Alt+Shift+P
