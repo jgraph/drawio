@@ -1,3 +1,11 @@
+26-OCT-2018: 9.3.1
+
+- Adds current page index to JSON protocol
+- Adds viewBox, target _top for SVG export
+- Fixes selectDescendants keystroke
+- Minor fixes for dark mode styles
+- Uses mxGraph 3.9.11 beta 2
+
 22-OCT-2018: 9.3.0
 
 - Adds write permission in OneDrive client

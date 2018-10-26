@@ -956,6 +956,13 @@ Graph.prototype.linkPolicy = (urlParams['target'] == 'frame') ? 'blank' : (urlPa
 Graph.prototype.linkTarget = (urlParams['target'] == 'frame') ? '_self' : '_blank';
 
 /**
+ * Value to the rel attribute of links. Default is 'nofollow noopener noreferrer'.
+ * NOTE: There are security implications when this is changed and if noopener is removed,
+ * then <openLink> must be overridden to allow for the opener to be set by default.
+ */
+Graph.prototype.linkRelation = 'nofollow noopener noreferrer';
+
+/**
  * Scrollbars are enabled on non-touch devices (not including Firefox because touch events
  * cannot be detected in Firefox, see above).
  */
@@ -5639,7 +5646,7 @@ if (typeof mxVertexHandler != 'undefined')
 						
 						if (href != null)
 						{
-							links[i].setAttribute('rel', 'nofollow noopener noreferrer');
+							links[i].setAttribute('rel', this.linkRelation);
 							links[i].setAttribute('href', href);
 							
 							if (beforeClick != null)
@@ -6197,7 +6204,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 * @param {number} dx X-coordinate of the translation.
 		 * @param {number} dy Y-coordinate of the translation.
 		 */
-		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp, ignoreSelection, showText, imgExport)
+		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
+			ignoreSelection, showText, imgExport, linkTarget)
 		{
 			//Disable Css Transforms if it is used
 			var origUseCssTrans = this.useCssTransforms;
@@ -6256,34 +6264,23 @@ if (typeof mxVertexHandler != 'undefined')
 				}
 				
 				var s = scale / vs;
-				root.setAttribute('width', Math.max(1, Math.ceil(bounds.width * s) + 2 * border) + 'px');
-				root.setAttribute('height', Math.max(1, Math.ceil(bounds.height * s) + 2 * border) + 'px');
+				var w = Math.max(1, Math.ceil(bounds.width * s) + 2 * border);
+				var h = Math.max(1, Math.ceil(bounds.height * s) + 2 * border);
+
 				root.setAttribute('version', '1.1');
-				
-			    // Adds group for anti-aliasing via transform
-				var node = root;
-				
-				if (crisp)
-				{
-					var group = (svgDoc.createElementNS != null) ?
-							svgDoc.createElementNS(mxConstants.NS_SVG, 'g') : svgDoc.createElement('g');
-					group.setAttribute('transform', 'translate(0.5,0.5)');
-					root.appendChild(group);
-					svgDoc.appendChild(root);
-					node = group;
-				}
-				else
-				{
-					svgDoc.appendChild(root);
-				}
+				root.setAttribute('width', w + 'px');
+				root.setAttribute('height', h + 'px');
+				root.setAttribute('viewBox', ((crisp) ? '-0.5 -0.5' : '0 0') + ' ' + w + ' ' + h);
+				svgDoc.appendChild(root);
 			
 			    // Renders graph. Offset will be multiplied with state's scale when painting state.
 				// TextOffset only seems to affect FF output but used everywhere for consistency.
-				var svgCanvas = this.createSvgCanvas(node);
+				var svgCanvas = this.createSvgCanvas(root);
 				svgCanvas.foOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.textOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
-				svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs), Math.floor((border / scale - bounds.y) / vs));
+				svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs),
+					Math.floor((border / scale - bounds.y) / vs));
 				
 				// Convert HTML entities
 				var htmlConverter = document.createElement('textarea');
@@ -6381,6 +6378,11 @@ if (typeof mxVertexHandler != 'undefined')
 				};
 	
 				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
+				
+				if (linkTarget != null)
+				{
+					this.updateLinkTargets(root, linkTarget);
+				}
 			
 				return root;
 			}
@@ -6391,6 +6393,29 @@ if (typeof mxVertexHandler != 'undefined')
 					this.useCssTransforms = true;
 					this.view.revalidate();
 					this.sizeDidChange();
+				}
+			}
+		};
+		
+		/**
+		 * Hook for creating the canvas used in getSvg.
+		 */
+		Graph.prototype.updateLinkTargets = function(node, target)
+		{
+			var links = node.getElementsByTagName('a');
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				var href = links[i].getAttribute('href');
+				
+				if (href == null)
+				{
+					href = links[i].getAttribute('xlink:href');
+				}
+				
+				if (href != null && /^https?:\/\//.test(href))
+				{
+					links[i].setAttribute('target', target);
 				}
 			}
 		};
@@ -6638,7 +6663,7 @@ if (typeof mxVertexHandler != 'undefined')
 			};
 			
 			var a = document.createElement('a');
-			a.setAttribute('rel', 'nofollow noopener noreferrer');
+			a.setAttribute('rel', this.linkRelation);
 			a.setAttribute('href', this.getAbsoluteUrl(link));
 			a.setAttribute('title', short((this.isCustomLink(link)) ?
 				this.getLinkTitle(link) : link, 80));

@@ -3,16 +3,89 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Timers;
+using System.IO;
 
 namespace VsdConverterApp
 {
     class Program
     {
+        //IIS timeout is 2 minutes so if the processing is taking more than one minute, kill it
+        static int MAX_VISIO_PROCESSING_TIME = 2 * 60;
+        //Dangling files are not as harmful as processes, so let them live for 10 minutes
+        static int MAX_FILE_AGE = 10 * 60; 
+        //TODO this should be in a config or passed from the ASP.net server
+        static string FILES_PATH = @"C:\VsdConverter\App_Data";
+
+        private static void CleanupTimerHandler(object source, ElapsedEventArgs e)
+        {
+            //Hanging visio instances cleanup
+            foreach (Process p in Process.GetProcesses())
+            {
+                try
+                {
+                    if (p.ProcessName.ToLower().IndexOf("visio") >= 0)
+                    {
+                        if ((DateTime.Now - p.StartTime).TotalSeconds > MAX_VISIO_PROCESSING_TIME)
+                        {
+                            try
+                            {
+                                p.Kill();
+                            }
+                            catch(Exception ex)
+                            {   
+                                //In case we don't have permissions to kill the process, proceed with remaining processes
+                                Console.WriteLine(ex.Message);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            //Handling undeleted files
+            try
+            {
+                string[] fileEntries = Directory.GetFiles(FILES_PATH);
+                foreach (string fileName in fileEntries)
+                {
+                    if ((DateTime.Now - File.GetCreationTime(fileName)).TotalSeconds > MAX_FILE_AGE)
+                    {
+                        try
+                        {
+                            File.Delete(fileName);
+                        }
+                        catch (Exception ex)
+                        {   
+                            //Usually file is being used, but above killing of visio should prevent that
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
         static void Main(string[] args)
         {
             TcpListener server = null;
             try
             {
+                Timer cleanupTimer = new Timer();
+                cleanupTimer.Elapsed += new ElapsedEventHandler(CleanupTimerHandler);
+                // Set the Interval to 1 min.
+                cleanupTimer.Interval = 60000;
+                cleanupTimer.Enabled = true;
+
                 // Set the TcpListener on port 13000.
                 Int32 port = 12355;
                 IPAddress localAddr = IPAddress.Parse("127.0.0.1");
@@ -33,7 +106,7 @@ namespace VsdConverterApp
                     // You could also user server.AcceptSocket() here.
                     TcpClient client = server.AcceptTcpClient();
                     int clientNum = clientsCounter;
-                    Console.WriteLine("New Client {0} Connected!", clientNum);
+                    Console.WriteLine("New Client {0} Connected at {1}!", clientNum, DateTime.Now);
 
                     //Process this client asynch
                     Task.Run(() => ProcessRequest(client, clientNum));
@@ -87,7 +160,7 @@ namespace VsdConverterApp
 
 
                 String allData = data.ToString();
-                Console.WriteLine("{0} - Received: {1}", clientNum, allData);
+                Console.WriteLine("{0} - Received: {1} at {2}", clientNum, allData, DateTime.Now);
 
                 //Now convert these vsd file pathes to vsdx
                 Console.WriteLine("{0} - Converting ...", clientNum);
@@ -127,16 +200,16 @@ namespace VsdConverterApp
 
                 // Send back a response.
                 stream.Write(msg, 0, msg.Length);
-                Console.WriteLine("{0} - Sent: Done", clientNum);
+                Console.WriteLine("{0} - Sent: Done at {1}", clientNum, DateTime.Now);
             }
             catch (SocketException e)
             {
-                Console.WriteLine("{0} - SocketException: {1}", clientNum, e);
+                Console.WriteLine("{0} - {1}: SocketException: {2}", clientNum, DateTime.Now, e);
                 //the socket has errors so most probably we cannot send back to the client
             }
             catch (Exception any)
             {
-                Console.WriteLine("{0} - Exception: {1}", clientNum, any);
+                Console.WriteLine("{0} - {1}: Exception: {2}", clientNum, DateTime.Now, any);
 
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes("Error");
 

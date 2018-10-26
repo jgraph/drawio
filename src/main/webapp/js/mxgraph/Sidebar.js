@@ -1147,7 +1147,7 @@ Sidebar.prototype.createAdvancedShapes = function()
 		{
 			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
 		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;' +
-		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 			cell.vertex = true;
 			cell.insert(sb.cloneCell(field, 'Item 1'));
 			cell.insert(sb.cloneCell(field, 'Item 2'));
@@ -1186,7 +1186,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	 	this.addEntry(dt + 'object instance', function()
 		{
 			var cell = new mxCell('Classname', new mxGeometry(0, 0, 160, 90),
-		    	'swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+		    	'swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 			cell.vertex = true;
 			cell.insert(field.clone());
 			cell.insert(divider.clone());
@@ -1197,7 +1197,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.addEntry(dt + 'section subsection', function()
 		{
 			var cell = new mxCell('Classname', new mxGeometry(0, 0, 140, 110),
-		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 			cell.vertex = true;
 			cell.insert(field.clone());
 			cell.insert(field.clone());
@@ -1342,7 +1342,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.addEntry('uml activity state', function()
 		{
 			var cell = new mxCell('Activity', new mxGeometry(0, 0, 120, 40),
-				'rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffc0;strokeColor=#ff0000;');
+				'rounded=1;whiteSpace=wrap;html=1;arcSize=40;fontColor=#000000;fillColor=#ffffc0;strokeColor=#ff0000;');
 			cell.vertex = true;
 			
 			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;');
@@ -1357,10 +1357,10 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.addEntry('uml activity composite state', function()
 		{
 			var cell = new mxCell('Composite State', new mxGeometry(0, 0, 160, 60),
-					'swimlane;html=1;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeLast=1;container=0;collapsible=0;rounded=1;arcSize=30;strokeColor=#ff0000;fillColor=#ffffc0;swimlaneFillColor=#ffffc0;');
+					'swimlane;html=1;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeLast=1;container=0;fontColor=#000000;collapsible=0;rounded=1;arcSize=30;strokeColor=#ff0000;fillColor=#ffffc0;swimlaneFillColor=#ffffc0;');
 			cell.vertex = true;
 			
-			var cell1 = new mxCell('Subtitle', new mxGeometry(0, 0, 200, 26), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;');
+			var cell1 = new mxCell('Subtitle', new mxGeometry(0, 0, 200, 26), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;fontColor=#000000;');
 			cell1.vertex = true;
 			cell.insert(cell1);
 			
@@ -1697,7 +1697,7 @@ Sidebar.prototype.addBpmnPalette = function(dir, expand)
 			return sb.createVertexTemplateFromCells([cell], 135, 80, 'Attached Timer Event 2');
 		}),
 		this.createVertexTemplateEntry('swimlane;html=1;horizontal=0;startSize=20;', 320, 240, 'Pool', 'Pool', null, null, 'bpmn pool'),
-		this.createVertexTemplateEntry('swimlane;html=1;horizontal=0;swimlaneFillColor=white;swimlaneLine=0;', 300, 120, 'Lane', 'Lane', null, null, 'bpmn lane'),
+		this.createVertexTemplateEntry('swimlane;html=1;horizontal=0;swimlaneLine=0;', 300, 120, 'Lane', 'Lane', null, null, 'bpmn lane'),
 	 	this.createVertexTemplateEntry('shape=hexagon;html=1;whiteSpace=wrap;perimeter=hexagonPerimeter;rounded=0;', 60, 50, '', 'Conversation', null, null, 'bpmn conversation'),
 	 	this.createVertexTemplateEntry('shape=hexagon;html=1;whiteSpace=wrap;perimeter=hexagonPerimeter;strokeWidth=4;rounded=0;', 60, 50, '', 'Call Conversation', null, null, 'bpmn call conversation'),
 		this.addEntry('bpmn subconversation sub conversation sub-conversation', function()
