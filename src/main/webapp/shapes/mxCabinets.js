@@ -16,7 +16,7 @@ function mxCabinetsCabinet(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -75,7 +75,7 @@ mxCabinetsCabinet.prototype.foreground = function(c, x, y, w, h)
 	{
 		c.rect(0, h - wallTh, w, wallTh);
 		c.fillAndStroke();
-	};
+	}
 };
 
 mxCellRenderer.registerShape(mxCabinetsCabinet.prototype.cst.CABINET, mxCabinetsCabinet);
@@ -93,7 +93,7 @@ function mxCabinetsCoverPlate(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -154,7 +154,7 @@ function mxCabinetsDimension(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -211,7 +211,7 @@ function mxCabinetsDimensionBottom(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

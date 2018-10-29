@@ -76,7 +76,7 @@ function Sidebar(editorUi, container)
 	{
 		new Image().src = IMAGE_PATH + '/tooltip.png';
 	}
-};
+}
 
 /**
  * Adds all palettes to the sidebar.
@@ -2545,7 +2545,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		arrow.style.cursor = 'crosshair';
 		
 		return arrow;
-	};
+	}
 
 	var currentTargetState = null;
 	var currentStateHandle = null;
@@ -2580,7 +2580,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 		
 		return bounds;
-	};
+	}
 	
 	// Hides guides and preview if target is active
 	var dsCreatePreviewElement = dragSource.createPreviewElement;

@@ -111,7 +111,7 @@ Menus.prototype.init = function()
 				graph.cellEditor.textarea.focus();
 	      		document.execCommand('formatBlock', false, '<' + tag + '>');
 			}), parent);
-		};
+		}
 		
 		addItem(mxResources.get('normal'), 'p');
 		
@@ -566,7 +566,7 @@ Menus.prototype.addInsertTableItem = function(menu)
 		html.push('</table>');
 		
 		return html.join('');
-	};
+	}
 	
 	// Show table size dialog
 	var elt2 = menu.addItem('', null, mxUtils.bind(this, function(evt)
@@ -639,7 +639,7 @@ Menus.prototype.addInsertTableItem = function(menu)
 		}
 		
 		return table2;
-	};
+	}
 
 	function extendPicker(picker, rows, cols)
 	{
@@ -672,7 +672,7 @@ Menus.prototype.addInsertTableItem = function(menu)
 				}
 			}
 		}
-	};
+	}
 	
 	elt2.firstChild.innerHTML = '';
 	var picker = createPicker(5, 5);
@@ -1166,7 +1166,7 @@ function Menubar(editorUi, container)
 {
 	this.editorUi = editorUi;
 	this.container = container;
-};
+}
 
 /**
  * Adds the menubar elements.
@@ -1275,7 +1275,7 @@ function Menu(funct, enabled)
 	mxEventSource.call(this);
 	this.funct = funct;
 	this.enabled = (enabled != null) ? enabled : true;
-};
+}
 
 // Menu inherits from mxEventSource
 mxUtils.extend(Menu, mxEventSource);

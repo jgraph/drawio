@@ -101,7 +101,7 @@ function mxShapeMockupiPhone(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -661,7 +661,7 @@ function mxShapeMockupiBgFlat(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -701,7 +701,7 @@ function mxShapeMockupiBgStriped(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -768,7 +768,7 @@ function mxShapeMockupiBgMap(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1166,7 +1166,7 @@ function mxShapeMockupiButtonBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1389,7 +1389,7 @@ function mxShapeMockupiAppBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1533,7 +1533,7 @@ function mxShapeMockupiTopBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1625,7 +1625,7 @@ function mxShapeMockupiTopBar2(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1715,7 +1715,7 @@ function mxShapeMockupiTopBarLocked(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1811,7 +1811,7 @@ function mxShapeMockupiButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1867,7 +1867,7 @@ function mxShapeMockupiButtonBack(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1933,7 +1933,7 @@ function mxShapeMockupiButtonForward(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1999,7 +1999,7 @@ function mxShapeMockupiPrevNextButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2070,7 +2070,7 @@ function mxShapeMockupiTextInput(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2122,7 +2122,7 @@ function mxShapeMockupiRadioGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2233,7 +2233,7 @@ function mxShapeMockupiCheckboxGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2348,7 +2348,7 @@ function mxShapeMockupiComboBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2425,7 +2425,7 @@ function mxShapeMockupiOnOffButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2519,7 +2519,7 @@ function mxShapeMockupiAlertBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2606,7 +2606,7 @@ function mxShapeMockupiDialogBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2697,7 +2697,7 @@ function mxShapeMockupiLockButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2769,7 +2769,7 @@ function mxShapeMockupiArrowIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2828,7 +2828,7 @@ function mxShapeMockupiDeleteIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2886,7 +2886,7 @@ function mxShapeMockupiAddIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2946,7 +2946,7 @@ function mxShapeMockupiInfoIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3025,7 +3025,7 @@ function mxShapeMockupiSortFindIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3099,7 +3099,7 @@ function mxShapeMockupiCheckIcon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3158,7 +3158,7 @@ function mxShapeMockupiKeybLetters(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3372,7 +3372,7 @@ function mxShapeMockupiKeybNumbers(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3568,7 +3568,7 @@ function mxShapeMockupiKeybSymbols(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3763,7 +3763,7 @@ function mxShapeMockupiDeleteApp(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3823,7 +3823,7 @@ function mxShapeMockupiDirection(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -3888,7 +3888,7 @@ function mxShapeMockupiLocationBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4018,7 +4018,7 @@ function mxShapeMockupiCallDialog(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4210,7 +4210,7 @@ function mxShapeMockupiCallButtons(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4357,7 +4357,7 @@ function mxShapeMockupiOption(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4468,7 +4468,7 @@ function mxShapeMockupiAlphaList(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4541,7 +4541,7 @@ function mxShapeMockupiHorButtonBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4756,7 +4756,7 @@ function mxShapeMockupiPin(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -4816,7 +4816,7 @@ function mxShapeMockupiVideoControls(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5001,7 +5001,7 @@ function mxShapeMockupiURLBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5077,7 +5077,7 @@ function mxShapeMockupiSlider(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5161,7 +5161,7 @@ function mxShapeMockupiProgressBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5239,7 +5239,7 @@ function mxShapeMockupiCloudProgressBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5312,7 +5312,7 @@ function mxShapeMockupiDownloadBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5400,7 +5400,7 @@ function mxShapeMockupiScreenNameBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5455,7 +5455,7 @@ function mxShapeMockupiIconGrid(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5535,7 +5535,7 @@ function mxShapeMockupiCopy(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5611,7 +5611,7 @@ function mxShapeMockupiCopyArea(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5731,7 +5731,7 @@ function mxShapeMockupiHomePageControl(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5784,7 +5784,7 @@ function mxShapeMockupiPageControl(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -5832,7 +5832,7 @@ function mxShapeMockupiPad(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -6406,7 +6406,7 @@ function mxShapeMockupRRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -6451,7 +6451,7 @@ function mxShapeIosTopButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -6504,7 +6504,7 @@ function mxShapeIosBottomButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -6554,7 +6554,7 @@ function mxShapeIosAnchor(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
-};
+}
 
 /**
 * Extends mxShape.
@@ -6589,7 +6589,7 @@ function mxShapeIosCheckbox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -6633,7 +6633,7 @@ function mxShapeMockupFancyRRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

@@ -16,7 +16,7 @@ function mxShapeElectricalTestPoint(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -73,7 +73,7 @@ function mxShapeElectricalStraightBus(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -140,7 +140,7 @@ function mxShapeElectricalTwoLineBusElbow(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -216,7 +216,7 @@ function mxShapeElectricalThreeLineBusElbow(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -298,7 +298,7 @@ function mxShapeElectricalFourLineBusElbow(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -385,7 +385,7 @@ function mxShapeElectricalEightLineBusElbow(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.

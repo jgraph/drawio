@@ -16,7 +16,7 @@ function mxShapePidDiscInst(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -117,7 +117,7 @@ function mxShapePidSharedCont(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -221,7 +221,7 @@ function mxShapePidCompFunc(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -329,7 +329,7 @@ function mxShapePidProgLogCont(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -438,7 +438,7 @@ function mxShapePidIndicator(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -591,7 +591,7 @@ function mxShapePidLogic(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

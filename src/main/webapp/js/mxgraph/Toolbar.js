@@ -21,7 +21,7 @@ function Toolbar(editorUi, container)
 	});
 
 	mxEvent.addGestureListeners(document, this.gestureHandler);
-};
+}
 
 /**
  * Image for the dropdown arrow.

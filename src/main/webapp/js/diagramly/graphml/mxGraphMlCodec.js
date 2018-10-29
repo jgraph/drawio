@@ -1,7 +1,7 @@
 function mxGraphMlCodec()
 {
 	this.cachedRefObj = {};
-};
+}
 
 
 mxGraphMlCodec.prototype.refRegexp = /^\{y\:GraphMLReference\s+(\d+)\}$/;
@@ -2610,7 +2610,7 @@ mxGraphMlCodec.prototype.getDirectChildNamedElements = function (parent, name) {
             /* add */ (result.push(child) > 0);
         }
     }
-    ;
+    
     return result;
 };
 
@@ -2620,7 +2620,7 @@ mxGraphMlCodec.prototype.getDirectFirstChildNamedElements = function (parent, na
             return child;
         }
     }
-    ;
+    
     return null;
 };
 
@@ -2636,7 +2636,7 @@ mxGraphMlCodec.prototype.getDirectChildElements = function (parent) {
             /* add */ (result.push(child) > 0);
         }
     }
-    ;
+    
     return result;
 };
 /**
@@ -2650,7 +2650,7 @@ mxGraphMlCodec.prototype.getDirectFirstChildElement = function (parent) {
             return child;
         }
     }
-    ;
+    
     return null;
 };
 

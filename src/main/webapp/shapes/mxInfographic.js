@@ -16,7 +16,7 @@ function mxShapeInfographicNumEntryVert(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -93,7 +93,7 @@ function mxShapeInfographicBendingArch(bounds, fill, stroke, strokewidth)
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
 	this.arcWidth = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -241,7 +241,7 @@ function mxShapeInfographicParallelogram(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 10;
-};
+}
 
 /**
 * Extends mxShape.
@@ -308,7 +308,7 @@ function mxShapeInfographicRibbonRolled(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 185;
 	this.dy = 15;
-};
+}
 
 /**
 * Extends mxShape.
@@ -410,7 +410,7 @@ function mxShapeInfographicRibbonDoubleFolded(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 25;
 	this.dy = 15;
-};
+}
 
 /**
 * Extends mxShape.
@@ -513,7 +513,7 @@ function mxShapeInfographicRibbonFrontFolded(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.dy = 0.5;
 	this.notch = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -625,7 +625,7 @@ function mxShapeInfographicRibbonBackFolded(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.dy = 0.5;
 	this.notch = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -736,7 +736,7 @@ function mxShapeInfographicBanner(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.dy = 0.5;
 	this.notch = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -868,7 +868,7 @@ function mxShapeInfographicCircularCallout(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -943,7 +943,7 @@ function mxShapeInfographicShadedTriangle(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1014,7 +1014,7 @@ function mxShapeInfographicShadedPyramid(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1088,7 +1088,7 @@ function mxShapeInfographicPyramidStep(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1166,7 +1166,7 @@ function mxShapeInfographicCylinder(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1234,7 +1234,7 @@ function mxShapeInfographicCircularCallout2(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1348,7 +1348,7 @@ function mxShapeInfographicBannerSingleFold(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx2 = 0.5;
 	this.notch = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1499,7 +1499,7 @@ function mxShapeBasicShadedCube(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.isoAngle = 15;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1592,7 +1592,7 @@ function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
 	this.arcWidth = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1784,7 +1784,7 @@ function mxShapeInfographicBannerHalfFold(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.dx2 = 0.5;
 	this.notch = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1914,7 +1914,7 @@ function mxShapeInfographicCircularDial(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2003,7 +2003,7 @@ function mxShapeInfographicRibbonSimple(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.notch1 = 0.5;
 	this.notch2 = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2086,7 +2086,7 @@ function mxShapeInfographicBarCallout(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2163,7 +2163,7 @@ function mxShapeInfographicFlag(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.

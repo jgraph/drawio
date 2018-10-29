@@ -245,7 +245,7 @@
 			function fn()
 			{
 				editorUi.fileLoaded(null);
-			};
+			}
 			
 			if (currentFile != null && currentFile.isModified())
 			{
@@ -1588,7 +1588,7 @@
 						}, service == editorUi.drive);
 					}
 				}, true);
-			};
+			}
 		
 			if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
 			{

@@ -69,7 +69,7 @@ Draw.loadPlugin(function(editorUi)
 		}
 
 		editorUi.addEmbedButtons();
-	};
+	}
 
 	// Waits for Trello client
 	if (editorUi.trello == null)

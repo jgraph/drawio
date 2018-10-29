@@ -53,7 +53,7 @@ function mxShapeIOS7AppBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -158,7 +158,7 @@ function mxShapeIOS7OnOffButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -238,7 +238,7 @@ function mxShapeIOS7Slider(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.barPos = 80;
-};
+}
 
 /**
 * Extends mxShape.
@@ -312,7 +312,7 @@ function mxShapeIOS7DownloadBar(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.barPos = 80;
-};
+}
 
 /**
 * Extends mxShape.
@@ -391,7 +391,7 @@ function mxShapeIOS7Icon(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -438,7 +438,7 @@ function mxShapeIOS7horButtonBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -642,7 +642,7 @@ function mxShapeIOS7pageControl(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -691,7 +691,7 @@ function mxShapeIOS7iconGrid(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -740,7 +740,7 @@ function mxShapeIOS7phone(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -796,7 +796,7 @@ function mxShapeIOS7searchBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -863,7 +863,7 @@ function mxShapeIOS7URL(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -936,7 +936,7 @@ function mxShapeIOS7Actiondialog(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1003,7 +1003,7 @@ function mxShapeIOS7Anchor(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1038,7 +1038,7 @@ function mxShapeIOS7RRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1083,7 +1083,7 @@ function mxShapeIOS7LeftButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1136,7 +1136,7 @@ function mxShapeIOS7RightButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1189,7 +1189,7 @@ function mxShapeIOS7TopButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1242,7 +1242,7 @@ function mxShapeIOS7BottomButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1295,7 +1295,7 @@ function mxShapeIOS7HorLines(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1341,7 +1341,7 @@ function mxShapeIOS7MarginRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1418,7 +1418,7 @@ function mxShapeIOS7Callout(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1483,7 +1483,7 @@ function mxShapeIOS7SelectBar(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.dx2 = 70;
 	this.size = 10;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1639,7 +1639,7 @@ function mxShapeIOS7Slider2(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

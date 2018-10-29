@@ -175,7 +175,7 @@ Draw.loadPlugin(function(ui)
 
 				load(graph, cell);
 			}
-		};
+		}
 
 		// Loads the links for the given cell into the given graph
 		// by requesting the respective data in the server-side
@@ -284,7 +284,7 @@ Draw.loadPlugin(function(ui)
 					graph.getModel().endUpdate();
 				}
 			}
-		};
+		}
 
 		// Gets the edges from the source cell and adds the targets
 		function rootChanged(graph, cell)
@@ -341,10 +341,10 @@ Draw.loadPlugin(function(ui)
 			}
 			
 			return clones;
-		};
+		}
 		
 		main(container);
-	};
+	}
 	
 	// Adds action
 	ui.actions.addAction('exploreFromHere', function()

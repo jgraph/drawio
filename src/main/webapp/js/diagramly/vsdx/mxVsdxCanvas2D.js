@@ -11,7 +11,7 @@
 function mxVsdxCanvas2D()
 {
 	mxAbstractCanvas2D.call(this);
-};
+}
 
 /**
  * Extends mxAbstractCanvas2D

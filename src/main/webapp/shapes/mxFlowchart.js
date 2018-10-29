@@ -16,7 +16,7 @@ function mxShapeFlowchartDocument2(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.size = 0.5;
-};
+}
 
 /**
 * Extends mxShape.

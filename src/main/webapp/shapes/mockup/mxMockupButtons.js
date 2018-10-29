@@ -16,7 +16,7 @@ function mxShapeMockupMultiButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -124,7 +124,7 @@ function mxShapeMockupButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -222,7 +222,7 @@ function mxShapeMockupHorButtonBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -439,7 +439,7 @@ function mxShapeMockupVerButtonBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -650,7 +650,7 @@ function mxShapeMockupOnOffButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -746,7 +746,7 @@ function mxShapeMockupRRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -788,7 +788,7 @@ function mxShapeMockupAnchor(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
-};
+}
 
 /**
 * Extends mxShape.
@@ -827,7 +827,7 @@ function mxShapeMockupTopButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -880,7 +880,7 @@ function mxShapeMockupBottomButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -933,7 +933,7 @@ function mxShapeMockupRightButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -986,7 +986,7 @@ function mxShapeMockupLeftButton(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

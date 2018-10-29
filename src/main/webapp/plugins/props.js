@@ -74,7 +74,7 @@ Draw.loadPlugin(function(ui) {
 				}
 			}
 		}
-	};
+	}
 
 	/**
 	 * Creates the textfield for the given property.
@@ -131,7 +131,7 @@ Draw.loadPlugin(function(ui) {
 			// explicitely where we do the graph.focus above.
 			mxEvent.addListener(input, 'blur', applyHandler);
 		}
-	};
+	}
 	
 	graph.click = function(me)
 	{

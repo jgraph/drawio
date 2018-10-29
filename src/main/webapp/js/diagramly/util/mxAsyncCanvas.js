@@ -11,7 +11,7 @@ function mxAsyncCanvas(htmlCanvas)
 	this.htmlCanvas = htmlCanvas;
 	htmlCanvas.images = htmlCanvas.images || [];
 	htmlCanvas.subCanvas = htmlCanvas.subCanvas || [];
-};
+}
 
 /**
  * Extends mxAbstractCanvas2D

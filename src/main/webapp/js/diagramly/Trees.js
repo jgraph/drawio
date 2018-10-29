@@ -108,7 +108,7 @@
 		function isTreeVertex(cell)
 		{
 			return model.isVertex(cell) && hasTreeParent(cell);
-		};
+		}
 	
 		function hasTreeParent(cell)
 		{
@@ -126,7 +126,7 @@
 			}
 			
 			return result;
-		};
+		}
 	
 		function hasLayoutParent(cell)
 		{
@@ -144,7 +144,7 @@
 			}
 			
 			return result;
-		};
+		}
 		
 		var uiCreatePopupMenu = ui.menus.createPopupMenu;
 		ui.menus.createPopupMenu = function(menu, cell, evt)
@@ -586,7 +586,7 @@
 			}
 			
 			return mxConstants.DIRECTION_EAST;
-		};
+		}
 		
 		function addSibling(cell, after)
 		{
@@ -723,7 +723,7 @@
 			{
 				graph.model.endUpdate();
 			}
-		};
+		}
 	
 		function addParent(cell)
 		{
@@ -790,7 +790,7 @@
 			{
 				graph.model.endUpdate();
 			}
-		};
+		}
 	
 		function addChild(cell)
 		{
@@ -863,7 +863,7 @@
 			{
 				graph.model.endUpdate();
 			}
-		};
+		}
 		
 		function getOrderedTargets(cell, horizontal, ref)
 		{
@@ -893,7 +893,7 @@
 			}
 			
 			return targets;
-		};
+		}
 		
 		function selectCell(cell, direction)
 		{
@@ -939,7 +939,7 @@
 					}
 				}	
 			}
-		};
+		}
 	
 		// Overrides keyboard shortcuts inside tree containers
 		var altShiftActions = {88: ui.actions.get('selectChildren'), // Alt+Shift+X

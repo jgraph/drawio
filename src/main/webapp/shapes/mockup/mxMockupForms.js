@@ -16,7 +16,7 @@ function mxShapeMockupCheckboxGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -143,7 +143,7 @@ function mxShapeMockupRadioGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -265,7 +265,7 @@ function mxShapeMockupColorPicker(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -338,7 +338,7 @@ function mxShapeMockupComboBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -428,7 +428,7 @@ function mxShapeMockupSpinner(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -984,7 +984,7 @@ function mxShapeMockupMenuBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1149,7 +1149,7 @@ function mxShapeMockupHorSlider(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1302,7 +1302,7 @@ function mxShapeMockupListBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1432,7 +1432,7 @@ function mxShapeMockupPwField(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1492,7 +1492,7 @@ function mxShapeMockupSplitter(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1566,7 +1566,7 @@ function mxShapeMockupWedgeBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1810,7 +1810,7 @@ function mxShapeMockupSearchBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1884,7 +1884,7 @@ function mxShapeMockupSignIn(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1998,7 +1998,7 @@ function mxShapeMockupCalendar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2222,7 +2222,7 @@ function mxShapeMockupEmailForm(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -2349,7 +2349,7 @@ function mxShapeMockupFormsRRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2391,7 +2391,7 @@ function mxShapeMockupFormsAnchor(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2426,7 +2426,7 @@ function mxShapeMockupFormsCheckbox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2471,7 +2471,7 @@ function mxShapeMockupFormsURect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

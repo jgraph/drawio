@@ -16,7 +16,7 @@ function mxAtlassianJiraIssue(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.

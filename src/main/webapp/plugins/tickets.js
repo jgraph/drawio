@@ -70,7 +70,7 @@ Draw.loadPlugin(function(ui)
 		}
 
 		document.body.removeChild(div);
-	};
+	}
 	
 	if (urlParams['tickets-config'] != null)
 	{
@@ -107,12 +107,12 @@ Draw.loadPlugin(function(ui)
 		return config != null && link.substring(0, dl) == deskDomain &&
 			(link.substring(dl, dl + 18) == '/helpdesk/tickets/' ||
 			link.substring(dl, dl + 11) == '/a/tickets/');
-	};
+	}
 	
 	function getIdForDeskLink(link)
 	{
 		return link.substring(link.lastIndexOf('/') + 1);
-	};
+	}
 	
 	function getDeskTicket(id, fn)
 	{
@@ -138,7 +138,7 @@ Draw.loadPlugin(function(ui)
 		};
 
 		xhr.send();
-	};
+	}
 	
 	function updateStyle(cell, ticket)
 	{
@@ -154,7 +154,7 @@ Draw.loadPlugin(function(ui)
 		cell.style = mxUtils.setStyle(cell.style, 'issuePriority', priority);
 		
 		return prev != cell.style;
-	};
+	}
 	
 	function updateData(cell, ticket)
 	{
@@ -175,7 +175,7 @@ Draw.loadPlugin(function(ui)
 			{
 				return false;
 			}
-		};
+		}
 		
 		changed = setAttr('abstract', ticket.description_text.substring(0, 600)) |
 			setAttr('email_config_id', ticket.email_config_id) |
@@ -192,7 +192,7 @@ Draw.loadPlugin(function(ui)
 		}
 
 		return changed;
-	};
+	}
 	
 	function updateTickets(spin)
 	{
@@ -247,7 +247,7 @@ Draw.loadPlugin(function(ui)
 				ui.spinner.stop();
 			}
 		}
-	};
+	}
 	
 	function getCellForLink(link)
 	{
@@ -260,7 +260,7 @@ Draw.loadPlugin(function(ui)
 				return cell;
 			}
 		}
-	};
+	}
 
 	// Adds resource for action
 	mxResources.parse('updateTickets=Update Tickets...');

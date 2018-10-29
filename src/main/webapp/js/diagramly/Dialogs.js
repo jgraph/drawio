@@ -196,7 +196,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 					fn();
 				}
 			});
-		};
+		}
 		
 		// Supports lazy loading
 		if (clientName != null && editorUi[clientName] == null)
@@ -260,7 +260,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			mxUtils.br(buttons);
 			count = 0;
 		}
-	};
+	}
 
 	var hd = document.createElement('p');
 	hd.style.fontSize = '16pt';
@@ -641,7 +641,7 @@ var SplashDialog = function(editorUi)
 			});
 			
 			buttons.appendChild(link);
-		};
+		}
 		
 		if (editorUi.mode == App.MODE_GOOGLE && driveUser != null)
 		{
@@ -1354,7 +1354,7 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 		{
 			gadgetInput.value = '';
 		}
-	};
+	}
 	
 	mxEvent.addListener(panCheckBox, 'change', update);
 	mxEvent.addListener(zoomCheckBox, 'change', update);
@@ -2099,7 +2099,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					return encode64(graph.bytesToString(
 						pako.deflateRaw(unescape(
 						encodeURIComponent(s)))));
-				};
+				}
 
 				var xhr = new XMLHttpRequest();
 				xhr.open('GET', plantUmlServerUrl + compress(text), true);
@@ -2363,7 +2363,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				}
 				
 				return vertex;
-			};
+			}
 			
 			for (var i = 0; i < lines.length; i++)
 			{
@@ -2442,7 +2442,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				container.parentNode.removeChild(container);
 			}
 		}
-	};
+	}
 	
 	var div = document.createElement('div');
 	div.style.textAlign = 'right';
@@ -2545,7 +2545,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 		{
 			return ';Example:\na->b\nb->edge label->c\nc->a\n';
 		}
-	};
+	}
 	
 	var defaultValue = getDefaultValue();
 	textarea.value = defaultValue;
@@ -2572,13 +2572,13 @@ var ParseDialog = function(editorUi, title, defaultType)
 				reader.onload = function(e) { textarea.value = e.target.result; };
 				reader.readAsText(file);
     		}
-		};
+		}
 		
 		function handleDragOver(evt)
 		{
 			evt.stopPropagation();
 			evt.preventDefault();
-		};
+		}
 
 		// Setup the dnd listeners.
 		textarea.addEventListener('dragover', handleDragOver, false);
@@ -2779,7 +2779,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview);
 			first = false;
 		}
-	};
+	}
 
 	var createButton = mxUtils.button(mxResources.get('create'), function()
 	{
@@ -2985,7 +2985,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					editorUi.stateArg.folderId == null);
 			}
 		}
-	};
+	}
 	
 	var div = document.createElement('div');
 	div.style.border = '1px solid #d3d3d3';
@@ -3024,7 +3024,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		selectedElt.style.backgroundColor = rightHighlight;
 		selectedElt.style.border = rightHighlightBorder;
-	};
+	}
 
 	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview)
 	{
@@ -3131,7 +3131,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 
 		div.appendChild(elt);
-	};
+	}
 
 	var categories = {};
 	var categoryCount = 1;
@@ -3515,7 +3515,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				change(mode);
 				create(mode);
 			});
-		};
+		}
 		
 		// Supports lazy loading
 		if (clientName != null && editorUi[clientName] == null)
@@ -3574,7 +3574,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			mxUtils.br(buttons);
 			count = 0;
 		}
-	};
+	}
 
 	if (!showButtons)
 	{
@@ -3732,7 +3732,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				nameInput.value = fn + ext;
 			}
 		}
-	};
+	}
 
 	var btns = document.createElement('div');
 	btns.style.marginTop = (showButtons) ? '26px' : '38px';
@@ -3786,7 +3786,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		{
 			editorUi.hideDialog();
 			createFn(title, mode);
-		};
+		}
 	}
 	
 	if (cancelFn == null)
@@ -4635,7 +4635,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 		btn.style.verticalAlign = 'middle';
 		btn.appendChild(img);
 		btns.appendChild(btn);
-	};
+	}
 
 	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && editorUi.drive != null)
 	{
@@ -5501,7 +5501,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							fileInfo.innerHTML = '';
 							mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
 						}
-					};
+					}
 					
 					mxEvent.addListener(row, 'click', function(evt)
 					{
@@ -5822,7 +5822,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 				graph.fit(8);
 				graph.center();
 			}
-		};
+		}
 			
 		function parseDiagram(diagramNode)
 		{
@@ -5833,7 +5833,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 			}
 			
 			return diagramNode;
-		};
+		}
 
 		mxEvent.addListener(pageSelect, 'change', function(evt)
 		{
@@ -5994,7 +5994,7 @@ var FindWindow = function(ui, x, y, w, h)
 		}
 		
 		return false;
-	};
+	}
 	
 	function search()
 	{
@@ -6072,7 +6072,7 @@ var FindWindow = function(ui, x, y, w, h)
 		}
 		
 		return search.length == 0 || firstMatch != null;
-	};
+	}
 
 	mxUtils.br(div);
 
@@ -6223,12 +6223,12 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	function searchCells(cells)
 	{
 		return graph.getCellsForTags(searchInput.value.split(' '), cells, propertyName);
-	};
+	}
 
 	function setCellsVisible(cells, visible)
 	{
 		graph.setCellsVisible(cells, visible);
-	};
+	}
 	
 	mxUtils.br(div);
 
@@ -7614,7 +7614,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		}
 		
 		return result;
-	};
+	}
 	
 	var stopEditing = null;
 	var stopWrapper = function(evt)
@@ -7808,7 +7808,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						{
 							label.style.color = '';
 						}
-					};
+					}
 					
 					mxEvent.addListener(label, 'keydown', function(evt)
 					{
@@ -8006,7 +8006,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		}
 		
 		return null;
-	};
+	}
 	
 	if (initialImages != null)
 	{
@@ -8041,7 +8041,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		evt.dataTransfer.dropEffect = (dragSourceIndex != null) ? 'move' : 'copy';
 		evt.stopPropagation();
 		evt.preventDefault();
-	};
+	}
 	
 	var createImportHandler = function(evt)
 	{
@@ -8127,7 +8127,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    
 	    evt.stopPropagation();
 	    evt.preventDefault();
-	};
+	}
 	
 	mxEvent.addListener(div, 'dragover', dragOver);
 	mxEvent.addListener(div, 'drop', dropHandler);
@@ -8672,7 +8672,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			currentEntry.style.textDecoration = 'none';
 			currentEntry = null;
 		}
-	};
+	}
 	
 	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgNewDiagramlbl'), 'click', function()
 	{
@@ -8697,7 +8697,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			dlgDiv.querySelector('.'+ otherBtnImgId).src = "/images/"+ otherBtnImgFile +".svg";
 			return true;
 		}
-	};
+	}
 	
 	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=allDiagramsBtn]'), 'click', function()
 	{
@@ -8758,7 +8758,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			tempDlgContent.removeChild(prevBox);
 			dlgDiv.removeChild(mask);
 			tempDlgContent.scrollTop = scrollTop;
-		};
+		}
 
 		mxEvent.addListener(closeBtn, 'click', closeBox);
 		mxEvent.addListener(mask, 'click', closeBox);
@@ -8766,7 +8766,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		tempDlgContent.scrollTop = 0;
 		//for centering the image
 		prevBox.style.lineHeight = prevBox.clientHeight + "px";
-	};
+	}
 	
 	function swapActiveItem(newItem, activeCls, itemInfo)
 	{
@@ -8802,7 +8802,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			//disable create button
 			createBtn.className = "geTempDlgCreateBtn geTempDlgCreateBtnDisabled";
 		}
-	};
+	}
 	
 	function handleDialogOK(linkToDiagram)
 	{
@@ -8842,7 +8842,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				}));
 			}
 		}
-	};
+	}
 	
 	function showLinkToDiagram(isShown)
 	{
@@ -8853,7 +8853,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		{
 			elems[i].style.display = linkDisplay;
 		}
-	};
+	}
 	
 	function fillDiagramsList(diagrams, isTemplate, asList)
 	{
@@ -8869,7 +8869,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			}
 			
 			showLinkToDiagram (!isTemplate);
-		};
+		}
 		
 		diagramsTiles.innerHTML = '';
 		swapActiveItem();
@@ -9036,7 +9036,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				diagramsTiles.appendChild(tile);
 			}
 		}
-	};
+	}
 	
 	function fillNewDiagramCats(newDiagramCats, showAll) 
 	{
@@ -9104,7 +9104,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		}
 		
 		showAllBtn.style.display = newDiagramCats.length < 5 ? "none" : "";
-	};
+	}
 	
 	mxEvent.addListener(showAllBtn, 'click', function()
 	{
@@ -9190,7 +9190,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 				});
 			})(cat, label, entry);
 		}
-	};
+	}
 	
 	var indexLoaded = false, indexLoaded2 = false;
 	var categories = {};
@@ -9307,7 +9307,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 			lastSearchStr = null;
 			recentDocsCallback(extDiagramsCallback, getAll? null : username);
 		}
-	};
+	}
 	
 	getRecentDocs(isGetAll);
 
@@ -9326,7 +9326,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 								' "' + mxUtils.htmlEntities(searchStr) + '"';
 		searchDocsCallback(searchStr, extDiagramsCallback, isGetAll? null : username);
 		lastSearchStr = searchStr;
-	};
+	}
 	
 	//TODO use request id to allow only last request to show results
 	if (searchDocsCallback)

@@ -45,7 +45,7 @@ Draw.loadPlugin(function(editorUi)
 		}
 		
 		return result.join('');
-	};
+	}
 	
 	function replaceTextContent(elt)
 	{
@@ -64,7 +64,7 @@ Draw.loadPlugin(function(editorUi)
 				tmp = tmp.nextSibling;
 			}
 		}
-	};
+	}
 
 	
 	function anonymizeHtml(html)
@@ -74,7 +74,7 @@ Draw.loadPlugin(function(editorUi)
 		replaceTextContent(div);
 		
 		return div.innerHTML;
-	};
+	}
 
 	// Adds action
 	editorUi.actions.addAction('anonymizeCurrentPage', function()

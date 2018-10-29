@@ -9,7 +9,7 @@ function Actions(editorUi)
 	this.editorUi = editorUi;
 	this.actions = new Object();
 	this.init();
-};
+}
 
 /**
  * Adds the default actions.
@@ -218,7 +218,7 @@ Actions.prototype.init = function()
 				graph.setSelectionCells(select);
 			}
 		}
-	};
+	}
 	
 	this.addAction('delete', function(evt)
 	{
@@ -1354,7 +1354,7 @@ function Action(label, funct, enabled, iconCls, shortcut)
 	this.iconCls = iconCls;
 	this.shortcut = shortcut;
 	this.visible = true;
-};
+}
 
 // Action inherits from mxEventSource
 mxUtils.extend(Action, mxEventSource);

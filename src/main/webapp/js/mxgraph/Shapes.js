@@ -11,7 +11,7 @@
 	function CubeShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(CubeShape, mxCylinder);
 	CubeShape.prototype.size = 20;
 	CubeShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
@@ -61,7 +61,7 @@
 	function IsoRectangleShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(IsoRectangleShape, mxActor);
 	IsoRectangleShape.prototype.size = 20;
 	IsoRectangleShape.prototype.redrawPath = function(path, x, y, w, h)
@@ -84,7 +84,7 @@
 	function IsoCubeShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(IsoCubeShape, mxCylinder);
 	IsoCubeShape.prototype.size = 20;
 	IsoCubeShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
@@ -120,7 +120,7 @@
 	function DataStoreShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(DataStoreShape, mxCylinder);
 
 	DataStoreShape.prototype.redrawPath = function(c, x, y, w, h, isForeground)
@@ -185,7 +185,7 @@
 	function NoteShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(NoteShape, mxCylinder);
 	NoteShape.prototype.size = 30;
 	NoteShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
@@ -218,7 +218,7 @@
 	function SwitchShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(SwitchShape, mxActor);
 	SwitchShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -237,7 +237,7 @@
 	function FolderShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(FolderShape, mxCylinder);
 	FolderShape.prototype.tabWidth = 60;
 	FolderShape.prototype.tabHeight = 20;
@@ -296,7 +296,7 @@
 	function CardShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CardShape, mxActor);
 	CardShape.prototype.size = 30;
 	CardShape.prototype.isRoundable = function()
@@ -318,7 +318,7 @@
 	function TapeShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(TapeShape, mxActor);
 	TapeShape.prototype.size = 0.4;
 	TapeShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -370,7 +370,7 @@
 	function DocumentShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(DocumentShape, mxActor);
 	DocumentShape.prototype.size = 0.3;
 	DocumentShape.prototype.getLabelMargins = function(rect)
@@ -432,7 +432,7 @@
 	function ParallelogramShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(ParallelogramShape, mxActor);
 	ParallelogramShape.prototype.size = 0.2;
 	ParallelogramShape.prototype.isRoundable = function()
@@ -454,7 +454,7 @@
 	function TrapezoidShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(TrapezoidShape, mxActor);
 	TrapezoidShape.prototype.size = 0.2;
 	TrapezoidShape.prototype.isRoundable = function()
@@ -475,7 +475,7 @@
 	function CurlyBracketShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CurlyBracketShape, mxActor);
 	CurlyBracketShape.prototype.size = 0.5;
 	CurlyBracketShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -495,7 +495,7 @@
 	function ParallelMarkerShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(ParallelMarkerShape, mxActor);
 	ParallelMarkerShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -542,7 +542,7 @@
 		
 		this.originalArcTo = this.canvas.arcTo;
 		this.canvas.arcTo = mxUtils.bind(this, HandJiggle.prototype.arcTo);
-	};
+	}
 	
 	HandJiggle.prototype.moveTo = function(endX, endY)
 	{
@@ -776,7 +776,7 @@
 	function ProcessShape()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(ProcessShape, mxRectangleShape);
 	ProcessShape.prototype.size = 0.1;
 	ProcessShape.prototype.isHtmlAllowed = function()
@@ -841,7 +841,7 @@
 	function TransparentShape()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(TransparentShape, mxRectangleShape);
 	TransparentShape.prototype.paintBackground = function(c, x, y, w, h)
 	{
@@ -857,7 +857,7 @@
 	function CalloutShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CalloutShape, mxHexagon);
 	CalloutShape.prototype.size = 30;
 	CalloutShape.prototype.position = 0.5;
@@ -892,7 +892,7 @@
 	function StepShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(StepShape, mxActor);
 	StepShape.prototype.size = 0.2;
 	StepShape.prototype.fixedSize = 20;
@@ -917,7 +917,7 @@
 	function HexagonShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(HexagonShape, mxHexagon);
 	HexagonShape.prototype.size = 0.25;
 	HexagonShape.prototype.isRoundable = function()
@@ -938,7 +938,7 @@
 	function PlusShape()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(PlusShape, mxRectangleShape);
 	PlusShape.prototype.isHtmlAllowed = function()
 	{
@@ -1003,7 +1003,7 @@
 	function ExtendedShape()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(ExtendedShape, mxRectangleShape);
 	ExtendedShape.prototype.isHtmlAllowed = function()
 	{
@@ -1124,7 +1124,7 @@
 	function MessageShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(MessageShape, mxCylinder);
 	MessageShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
 	{
@@ -1151,7 +1151,7 @@
 	function UmlActorShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlActorShape, mxShape);
 	UmlActorShape.prototype.paintBackground = function(c, x, y, w, h)
 	{
@@ -1188,7 +1188,7 @@
 	function UmlBoundaryShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlBoundaryShape, mxShape);
 	UmlBoundaryShape.prototype.getLabelMargins = function(rect)
 	{
@@ -1224,7 +1224,7 @@
 	function UmlEntityShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(UmlEntityShape, mxEllipse);
 	UmlEntityShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -1243,7 +1243,7 @@
 	function UmlDestroyShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlDestroyShape, mxShape);
 	UmlDestroyShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -1264,7 +1264,7 @@
 	function UmlControlShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlControlShape, mxShape);
 	UmlControlShape.prototype.getLabelBounds = function(rect)
 	{
@@ -1302,7 +1302,7 @@
 	function UmlLifeline()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlLifeline, mxRectangleShape);
 	UmlLifeline.prototype.size = 40;
 	UmlLifeline.prototype.isHtmlAllowed = function()
@@ -1361,7 +1361,7 @@
 	function UmlFrame()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(UmlFrame, mxShape);
 	UmlFrame.prototype.width = 60;
 	UmlFrame.prototype.height = 30;
@@ -1754,7 +1754,7 @@
 	function LollipopShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(LollipopShape, mxShape);
 	LollipopShape.prototype.size = 10;
 	LollipopShape.prototype.paintBackground = function(c, x, y, w, h)
@@ -1778,7 +1778,7 @@
 	function RequiresShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(RequiresShape, mxShape);
 	RequiresShape.prototype.size = 10;
 	RequiresShape.prototype.inset = 2;
@@ -1808,7 +1808,7 @@
 	function RequiredInterfaceShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(RequiredInterfaceShape, mxShape);
 	
 	RequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
@@ -1829,7 +1829,7 @@
 	function ProvidedRequiredInterfaceShape()
 	{
 		mxShape.call(this);
-	};
+	}
 	mxUtils.extend(ProvidedRequiredInterfaceShape, mxShape);
 	ProvidedRequiredInterfaceShape.prototype.inset = 2;
 	ProvidedRequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
@@ -1854,7 +1854,7 @@
 	function ComponentShape()
 	{
 		mxCylinder.call(this);
-	};
+	}
 	mxUtils.extend(ComponentShape, mxCylinder);
 	ComponentShape.prototype.jettyWidth = 32;
 	ComponentShape.prototype.jettyHeight = 12;
@@ -1904,7 +1904,7 @@
 	function StateShape()
 	{
 		mxDoubleEllipse.call(this);
-	};
+	}
 	mxUtils.extend(StateShape, mxDoubleEllipse);
 	StateShape.prototype.outerStroke = true;
 	StateShape.prototype.paintVertexShape = function(c, x, y, w, h)
@@ -1931,7 +1931,7 @@
 	function StartStateShape()
 	{
 		StateShape.call(this);
-	};
+	}
 	mxUtils.extend(StartStateShape, StateShape);
 	StartStateShape.prototype.outerStroke = false;
 	
@@ -1942,7 +1942,7 @@
 	{
 		mxArrowConnector.call(this);
 		this.spacing = 0;
-	};
+	}
 	mxUtils.extend(LinkShape, mxArrowConnector);
 	LinkShape.prototype.defaultWidth = 4;
 	
@@ -1969,7 +1969,7 @@
 	{
 		mxArrowConnector.call(this);
 		this.spacing = 0;
-	};
+	}
 	mxUtils.extend(FlexArrowShape, mxArrowConnector);
 	FlexArrowShape.prototype.defaultWidth = 10;
 	FlexArrowShape.prototype.defaultArrowWidth = 20;
@@ -1981,7 +1981,7 @@
 
 	FlexArrowShape.prototype.getEndArrowWidth = function()
 	{
-		return this.getEdgeWidth() + mxUtils.getNumber(this.style, 'endWidth', this.defaultArrowWidth);;
+		return this.getEdgeWidth() + mxUtils.getNumber(this.style, 'endWidth', this.defaultArrowWidth);
 	};
 
 	FlexArrowShape.prototype.getEdgeWidth = function()
@@ -1996,7 +1996,7 @@
 	function ManualInputShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(ManualInputShape, mxActor);
 	ManualInputShape.prototype.size = 30;
 	ManualInputShape.prototype.isRoundable = function()
@@ -2018,7 +2018,7 @@
 	function InternalStorageShape()
 	{
 		mxRectangleShape.call(this);
-	};
+	}
 	mxUtils.extend(InternalStorageShape, mxRectangleShape);
 	InternalStorageShape.prototype.dx = 20;
 	InternalStorageShape.prototype.dy = 20;
@@ -2060,7 +2060,7 @@
 	function CornerShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CornerShape, mxActor);
 	CornerShape.prototype.dx = 20;
 	CornerShape.prototype.dy = 20;
@@ -2084,7 +2084,7 @@
 	function CrossbarShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CrossbarShape, mxActor);
 	
 	CrossbarShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -2108,7 +2108,7 @@
 	function TeeShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(TeeShape, mxActor);
 	TeeShape.prototype.dx = 20;
 	TeeShape.prototype.dy = 20;
@@ -2134,7 +2134,7 @@
 	function SingleArrowShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(SingleArrowShape, mxActor);
 	SingleArrowShape.prototype.arrowWidth = 0.3;
 	SingleArrowShape.prototype.arrowSize = 0.2;
@@ -2158,7 +2158,7 @@
 	function DoubleArrowShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(DoubleArrowShape, mxActor);
 	DoubleArrowShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -2181,7 +2181,7 @@
 	function DataStorageShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(DataStorageShape, mxActor);
 	DataStorageShape.prototype.size = 0.1;
 	DataStorageShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -2203,7 +2203,7 @@
 	function OrShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(OrShape, mxActor);
 	OrShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -2220,7 +2220,7 @@
 	function XorShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(XorShape, mxActor);
 	XorShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -2238,7 +2238,7 @@
 	function LoopLimitShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(LoopLimitShape, mxActor);
 	LoopLimitShape.prototype.size = 20;
 	LoopLimitShape.prototype.isRoundable = function()
@@ -2260,7 +2260,7 @@
 	function OffPageConnectorShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(OffPageConnectorShape, mxActor);
 	OffPageConnectorShape.prototype.size = 3 / 8;
 	OffPageConnectorShape.prototype.isRoundable = function()
@@ -2282,7 +2282,7 @@
 	function TapeDataShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(TapeDataShape, mxEllipse);
 	TapeDataShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2301,7 +2301,7 @@
 	function OrEllipseShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(OrEllipseShape, mxEllipse);
 	OrEllipseShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2327,7 +2327,7 @@
 	function SumEllipseShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(SumEllipseShape, mxEllipse);
 	SumEllipseShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2354,7 +2354,7 @@
 	function SortShape()
 	{
 		mxRhombus.call(this);
-	};
+	}
 	mxUtils.extend(SortShape, mxRhombus);
 	SortShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2374,7 +2374,7 @@
 	function CollateShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(CollateShape, mxEllipse);
 	CollateShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2399,7 +2399,7 @@
 	function DimensionShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(DimensionShape, mxEllipse);
 	DimensionShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2434,7 +2434,7 @@
 	function PartialRectangleShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(PartialRectangleShape, mxEllipse);
 	PartialRectangleShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2497,7 +2497,7 @@
 	function LineEllipseShape()
 	{
 		mxEllipse.call(this);
-	};
+	}
 	mxUtils.extend(LineEllipseShape, mxEllipse);
 	LineEllipseShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -2527,7 +2527,7 @@
 	function DelayShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(DelayShape, mxActor);
 	DelayShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
@@ -2547,7 +2547,7 @@
 	function CrossShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(CrossShape, mxActor);
 	CrossShape.prototype.size = 0.2;
 	CrossShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -2581,7 +2581,7 @@
 	function DisplayShape()
 	{
 		mxActor.call(this);
-	};
+	}
 	mxUtils.extend(DisplayShape, mxActor);
 	DisplayShape.prototype.size = 0.25;
 	DisplayShape.prototype.redrawPath = function(c, x, y, w, h)
@@ -2605,7 +2605,7 @@
 	function FilledEdge()
 	{
 		mxConnector.call(this);
-	};
+	}
 	mxUtils.extend(FilledEdge, mxConnector);
 	
 	FilledEdge.prototype.origPaintEdgeShape = FilledEdge.prototype.paintEdgeShape;
@@ -2722,7 +2722,7 @@
 				c.stroke();
 			}
 		};
-	};
+	}
 	
 	mxMarker.addMarker('circle', circleMarker);
 	mxMarker.addMarker('circlePlus', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
@@ -2820,7 +2820,7 @@
 				c.stroke();
 			};
 		}
-	};
+	}
 	
 	mxMarker.addMarker('openAsync', createOpenAsyncArrow(2));
 	
@@ -2903,7 +2903,7 @@
 			}
 			
 			return handle;
-		};
+		}
 		
 		function createArcHandle(state, yOffset)
 		{
@@ -2954,7 +2954,7 @@
 				
 				return handles;
 			};
-		};
+		}
 		
 		function createTrapezoidHandleFunction(max)
 		{
@@ -2977,7 +2977,7 @@
 				
 				return handles;
 			};
-		};
+		}
 		
 		function createDisplayHandleFunction(defaultValue, allowArcHandle, max, redrawEdges, fixedDefaultValue)
 		{
@@ -3011,7 +3011,7 @@
 				
 				return handles;
 			};
-		};
+		}
 		
 		function createCubeHandleFunction(factor, defaultValue, allowArcHandle)
 		{
@@ -3036,7 +3036,7 @@
 				
 				return handles;
 			};
-		};
+		}
 		
 		function createArrowHandleFunction(maxSize)
 		{
@@ -3054,7 +3054,7 @@
 					this.state.style['arrowSize'] = Math.max(0, Math.min(maxSize, (bounds.x + bounds.width - pt.x) / (bounds.width)));
 				})];
 			};
-		};
+		}
 		
 		function createEdgeHandle(state, keys, start, getPosition, setPosition)
 		{
@@ -3095,7 +3095,7 @@
 
 				setPosition.call(this, dist, dx / dist, dy / dist, p0, p1, pt, me);
 			});
-		};
+		}
 		
 		function createEdgeWidthHandle(state, start, spacing)
 		{
@@ -3109,7 +3109,7 @@
 				var w = Math.sqrt(mxUtils.ptSegDistSq(p0.x, p0.y, p1.x, p1.y, pt.x, pt.y));					
 				state.style['width'] = Math.round(w * 2) / state.view.scale - spacing;
 			});
-		};
+		}
 		
 		function ptLineDistance(x1, y1, x2, y2, x0, y0)
 		{
@@ -3739,7 +3739,7 @@
 					last = new mxPoint(last.x + a1 * h, last.y + a2 * h);
 					result.push(last);
 				}
-			};
+			}
 
 			if (pt == null)
 			{

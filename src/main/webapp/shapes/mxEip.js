@@ -16,7 +16,7 @@ function mxShapeEipMessageExpiration(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -66,7 +66,7 @@ function mxShapeEipReturnAddress(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -135,7 +135,7 @@ function mxShapeEipAnchor(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -170,7 +170,7 @@ function mxShapeEipMessageChannel(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -274,7 +274,7 @@ function mxShapeEipDatatypeChannel(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -326,7 +326,7 @@ mxShapeEipDatatypeChannel.prototype.foreground = function(c, x, y, w, h)
 	{
 		c.rect(i * 20, h * 0.5 - 5, 10, 10);
 		c.fillAndStroke();
-	};
+	}
 };
 
 mxCellRenderer.registerShape(mxShapeEipDatatypeChannel.prototype.cst.SHAPE_DATATYPE_CHANNEL, mxShapeEipDatatypeChannel);
@@ -388,7 +388,7 @@ function mxShapeEipDeadLetterChannel(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -513,7 +513,7 @@ function mxShapeEipInvalidMessageChannel(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

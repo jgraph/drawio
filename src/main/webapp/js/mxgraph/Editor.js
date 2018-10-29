@@ -874,7 +874,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	this.container = div;
 	
 	editorUi.editor.fireEvent(new mxEventObject('showDialog'));
-};
+}
 
 /**
  * 
@@ -1130,7 +1130,7 @@ PrintDialog.prototype.create = function(editorUi)
 		{
 			PrintDialog.printPreview(preview);
 		}
-	};
+	}
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -1307,7 +1307,7 @@ var PageSetupDialog = function(editorUi)
 			backgroundButton.style.backgroundColor = newBackgroundColor;
 			backgroundButton.style.backgroundImage = '';
 		}
-	};
+	}
 	
 	updateBackgroundColor();
 
@@ -1372,7 +1372,7 @@ var PageSetupDialog = function(editorUi)
 			changeImageLink.style.fontSize = '11px';
 			changeImageLink.innerHTML = newBackgroundImage.src.substring(0, 42) + '...';
 		}
-	};
+	}
 	
 	mxEvent.addListener(changeImageLink, 'click', function(evt)
 	{
@@ -1618,7 +1618,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 				customDiv.style.display = 'none';
 			}
 		}
-	};
+	}
 	
 	listener();
 

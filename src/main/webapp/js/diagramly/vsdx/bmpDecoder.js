@@ -49,7 +49,7 @@ BmpDecoder.prototype.parseHeader = function() {
 
   if(this.bitPP === 16 && this.is_with_alpha){
     this.bitPP = 15
-  };
+  }
   if (this.bitPP < 15) {
     var len = this.colors === 0 ? 1 << this.bitPP : this.colors;
     this.palette = new Array(len);

@@ -20,7 +20,7 @@ function mxRackContainer(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -64,7 +64,7 @@ mxRackContainer.prototype.paintVertexShape = function(c, x, y, w, h)
 	else
 	{
 		c.translate(x, y);
-	};
+	}
 
 	this.background(c, w, h, fontSize);
 	c.setShadow(false);
@@ -73,7 +73,7 @@ mxRackContainer.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (displayNumbers !== mxRackContainer.prototype.cst.OFF && w > 18 + fontSize * 2)
 	{
 		this.sideText(c, w, h, fontSize);
-	};
+	}
 };
 
 mxRackContainer.prototype.background = function(c, w, h, fontSize)
@@ -131,7 +131,7 @@ mxRackContainer.prototype.sideText = function(c, w, h, fontSize)
 	{
 		c.moveTo(-2 * fontSize, 21 + i * mxRackContainer.unitSize);
 		c.lineTo(0, 21 + i * mxRackContainer.unitSize);
-	};
+	}
 
 	c.stroke();
 };
@@ -146,7 +146,7 @@ function mxRackPlate(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -206,7 +206,7 @@ function mxRackHorCableDuct(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -266,7 +266,7 @@ function mxRackHorRoutingBank(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -330,7 +330,7 @@ function mxRackNeatPatch(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -377,7 +377,7 @@ function mxRackShelf(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -418,7 +418,7 @@ function mxRackRackNumbering(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -473,15 +473,15 @@ mxRackRackNumbering.prototype.sideText = function(c, w, h, unitNum, unitH, fontS
 		for (var i = 0; i < unitNum; i++)
 		{
 			c.text(fontSize, unitH * 0.5 + i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-		};
+		}
 	}
 	else
 	{
 		for (var i = 0; i < unitNum; i++)
 		{
 			c.text(fontSize, h - unitH * 0.5 - i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-		};
-	};
+		}
+	}
 
 	c.setStrokeColor('#dddddd');
 
@@ -491,7 +491,7 @@ mxRackRackNumbering.prototype.sideText = function(c, w, h, unitNum, unitH, fontS
 	{
 		c.moveTo(0, i * unitH);
 		c.lineTo(fontSize * 3, i * unitH);
-	};
+	}
 
 	c.stroke();
 };
@@ -509,7 +509,7 @@ function mxRackRackCabinet(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -550,7 +550,7 @@ mxRackRackCabinet.prototype.paintVertexShape = function(c, x, y, w, h)
 	else
 	{
 		c.translate(x, y);
-	};
+	}
 
 	var h = unitNum * unitH + 42;
 	this.background(c, w, h, fontSize);
@@ -560,7 +560,7 @@ mxRackRackCabinet.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (numDis === mxRackRackCabinet.prototype.cst.ON)
 	{
 		this.sideText(c, w, h, unitNum, unitH, fontSize);
-	};
+	}
 };
 
 mxRackRackCabinet.prototype.background = function(c, w, h, fontSize)
@@ -603,15 +603,15 @@ mxRackRackCabinet.prototype.sideText = function(c, w, h, unitNum, unitH, fontSiz
 		for (var i = 0; i < unitNum; i++)
 		{
 			c.text(-fontSize, 21 + unitH * 0.5 + i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-		};
+		}
 	}
 	else
 	{
 		for (var i = 0; i < unitNum; i++)
 		{
 			c.text(-fontSize, h - 21 - unitH * 0.5 - i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-		};
-	};
+		}
+	}
 
 	c.setStrokeColor('#dddddd');
 
@@ -621,7 +621,7 @@ mxRackRackCabinet.prototype.sideText = function(c, w, h, unitNum, unitH, fontSiz
 	{
 		c.moveTo(-2 * fontSize, 21 + i * unitH);
 		c.lineTo(0, 21 + i * unitH);
-	};
+	}
 
 	c.stroke();
 };
@@ -639,7 +639,7 @@ function mxRackHorCableDuct1U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -711,7 +711,7 @@ function mxRackHorCableDuct2U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -783,7 +783,7 @@ function mxRackHorRoutingBank1U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -845,7 +845,7 @@ function mxRackHorRoutingBank2U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -922,7 +922,7 @@ function mxRackNeatPatch2U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -975,7 +975,7 @@ function mxRackShelf1U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1022,7 +1022,7 @@ function mxRackShelf2U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1069,7 +1069,7 @@ function mxRackShelf4U(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1121,7 +1121,7 @@ function mxRackChannelBase(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -1181,7 +1181,7 @@ function mxRackCabinetLeg(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

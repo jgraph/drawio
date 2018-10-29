@@ -16,7 +16,7 @@ function mxShapeAndroidTabBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -179,7 +179,7 @@ function mxShapeAndroidPhone(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -235,7 +235,7 @@ function mxShapeAndroidStatusBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -332,7 +332,7 @@ function mxShapeAndroidCheckboxGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -454,7 +454,7 @@ function mxShapeAndroidRadioGroup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -573,7 +573,7 @@ function mxShapeAndroidMenuBar(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -657,7 +657,7 @@ function mxShapeAndroidTextSelHandles(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -714,7 +714,7 @@ function mxShapeAndroidIndeterminateSpinner(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -765,7 +765,7 @@ function mxShapeAndroidAnchor(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
-};
+}
 
 /**
 * Extends mxShape.
@@ -800,7 +800,7 @@ function mxShapeAndroidRRect(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -841,7 +841,7 @@ function mxShapeAndroidCheckbox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -887,7 +887,7 @@ function mxShapeAndroidProgressBar(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx1 = 0.8;
 	this.dx2 = 0.6;
-};
+}
 
 /**
 * Extends mxShape.
@@ -990,7 +990,7 @@ function mxShapeAndroidProgressScrubberDisabled(bounds, fill, stroke, strokewidt
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.3;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1075,7 +1075,7 @@ function mxShapeAndroidProgressScrubberFocused(bounds, fill, stroke, strokewidth
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.3;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1167,7 +1167,7 @@ function mxShapeAndroidProgressScrubberPressed(bounds, fill, stroke, strokewidth
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.3;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1260,7 +1260,7 @@ function mxShapeAndroidQuickscroll2(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1350,7 +1350,7 @@ function mxShapeAndroidQuickscroll3(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1422,7 +1422,7 @@ function mxShapeAndroidScrollbars2(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1469,7 +1469,7 @@ function mxShapeAndroidSpinner2(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
