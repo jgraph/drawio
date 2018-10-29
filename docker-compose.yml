@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  drawio:
+    build:
+      context: .
+      dockerfile: etc/docker/Dockerfile
+    image: drawio
+    container_name: drawio
+    restart: always
+    ports:
+      - 8888:8080
