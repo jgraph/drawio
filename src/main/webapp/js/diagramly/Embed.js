@@ -76,7 +76,7 @@
 			script.src = 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 			document.getElementsByTagName('head')[0].appendChild(script);
 		}
-	};
+	}
 	
 	function addMathJaxGraph(graph)
 	{
@@ -98,7 +98,7 @@
 				MathJax.Hub.Queue(['Typeset', MathJax.Hub, graph.container]);
 			}
 		});
-	};
+	}
 	
 	// Handles relative images
 	mxGraph.prototype.getImageFromBundles = function(key)
@@ -495,7 +495,7 @@
 								}
 							}
 						}
-					};
+					}
 					
 					// Load from URL via url attribute
 					var url = configNode.getAttribute('url');
@@ -703,7 +703,7 @@
 						buttons.appendChild(btn);
 						
 						return btn;
-					};
+					}
 													
 					var zoom = configNode.getAttribute('zoom');
 					
@@ -766,14 +766,14 @@
 						buttons.style.top = (container.offsetTop + bs.y) + 'px';
 						buttons.style.left = (container.offsetLeft + bs.x) + 'px';
 						buttons.style.visibility = 'visible';
-					};
+					}
 					
 					if (!mxClient.IS_POINTER && !mxClient.IS_TOUCH)
 					{
 						function hide()
 						{
 							buttons.style.visibility = 'hidden';
-						};
+						}
 						
 						mxEvent.addListener(container, 'mouseover', show);
 						mxEvent.addListener(buttons, 'mouseover', show);
@@ -815,7 +815,7 @@
 			mxClient.NO_FO = originalNoFo;
 			
 			return graph;
-		};
+		}
 		
 		if (typeof(mxClientOnLoad) == 'function')
 		{

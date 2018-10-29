@@ -2229,7 +2229,7 @@ LucidImporter = {};
 		}
 		
 		return (text2 != null) ? text2 : ''; 
-	};
+	}
 		
 	function getAction(obj)
 	{
@@ -2239,7 +2239,7 @@ LucidImporter = {};
 		}
 		
 		return obj;
-	};
+	}
 		
 	function getTextM(properties)
 	{
@@ -2956,7 +2956,7 @@ LucidImporter = {};
 				}
 			}
 		}
-	};
+	}
 	
 	function createVertex(obj)
 	{
@@ -2974,7 +2974,7 @@ LucidImporter = {};
 	    updateCell(v, obj);
 
 	    return v;
-	};
+	}
 	
 	function createEdge(obj)
 	{
@@ -3033,7 +3033,7 @@ LucidImporter = {};
 		e.insert(lab);
 		
 		return e;
-	};
+	}
 	
 	function createStyle(key, prop, defaultValue, fn)
 	{
@@ -3048,7 +3048,7 @@ LucidImporter = {};
 		}
 		
 		return '';
-	};
+	}
 
 	function updateEndpoint(cell, endpoint, source)
 	{
@@ -3061,7 +3061,7 @@ LucidImporter = {};
 					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=1;';
 			}
 		}
-	};
+	}
 
 	var hideObj = function(key, groups, hidden)
 	{
@@ -3208,7 +3208,7 @@ LucidImporter = {};
 				}
 				
 				select.push(graph.addCell(e, null, null, src, trg));
-			};
+			}
 			
 			// Inserts cells in ZOrder and connects edges via lookup
 			for (var i = 0; i < queue.length; i++)
@@ -3263,7 +3263,7 @@ LucidImporter = {};
 			graph.getModel().endUpdate();
 		}
 		
-	};
+	}
 
 	function createGraph()
 	{
@@ -3275,7 +3275,7 @@ LucidImporter = {};
         graph.setHtmlLabels(true);
         graph.getModel().maintainEdgeParent = false;
         return graph;
-	};
+	}
 	
 	LucidImporter.importState = function(state)
 	{
@@ -3350,7 +3350,7 @@ LucidImporter = {};
 		dummy.insertEdge(e, true);
 		cells.push(e);
 		select.push(graph.addCell(e, null, null, null, null));
-	};
+	}
    	
 	function addFloatingEdge(x1, y1, x2, y2, edge, select, graph, cells, v)
 	{
@@ -3369,7 +3369,7 @@ LucidImporter = {};
 		dummy2.insertEdge(e, false);
 		cells.push(e);
 		select.push(graph.addCell(e, null, null, null, null));
-	};
+	}
    	
 	function addCompositeShape(obj, select, graph)
 	{
@@ -9313,5 +9313,5 @@ LucidImporter = {};
 		}
 
 	    return v;
-	};
+	}
 })();

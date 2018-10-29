@@ -33,7 +33,7 @@ function mxWebColaLayout(graph, layoutType)
   mxGraphLayout.call(this, graph);
   this.layoutType = layoutType;
   this.originalGeometries = new mxDictionary();
-};
+}
 
 mxWebColaLayout.prototype = new mxGraphLayout();
 mxWebColaLayout.prototype.constructor = mxWebColaLayout;

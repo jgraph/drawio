@@ -23,7 +23,7 @@ function DiagramPage(node)
 	{
 		this.node.setAttribute('id', Editor.guid());
 	}
-};
+}
 
 /**
  * Holds the diagram node for the page.
@@ -143,7 +143,7 @@ function SelectPage(ui, page)
 		this.neverShown = page.viewState == null;
 		this.ui.updatePageRoot(page);
 	}
-};
+}
 
 /**
  * Executes selection of a new page.
@@ -225,7 +225,7 @@ function ChangePage(ui, page, select, index)
 	this.relatedPage = page;
 	this.index = index;
 	this.previousIndex = null;
-};
+}
 
 mxUtils.extend(ChangePage, SelectPage);
 

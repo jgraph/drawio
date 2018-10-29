@@ -903,5 +903,5 @@ else
   function doRendering(callback)
   {
     callback();
-  };
+  }
 }

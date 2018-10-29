@@ -16,7 +16,7 @@ function mxLeanBoatShipment(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -70,7 +70,7 @@ function mxLeanSafetyStock(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -141,7 +141,7 @@ function mxLeanDataBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -220,7 +220,7 @@ function mxLeanCustomerSupplier(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -287,7 +287,7 @@ function mxLeanDedicatedProcess(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -358,7 +358,7 @@ function mxLeanSharedProcess(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxShape.
@@ -421,7 +421,7 @@ mxLeanSharedProcess.prototype.foreground = function(c, w, h, fontSize)
 				c.lineTo(endX, endY);
 			}
 		}
-	};
+	}
 
 	c.stroke();
 };
@@ -460,7 +460,7 @@ function mxLeanWorkcell(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -522,7 +522,7 @@ function mxLeanInventoryBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -585,7 +585,7 @@ function mxLeanPushArrow(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -670,7 +670,7 @@ function mxLeanSupermarket(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -732,7 +732,7 @@ function mxLeanMaterialPull(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -786,7 +786,7 @@ function mxLeanFifoLane(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -861,7 +861,7 @@ function mxLeanTruckShipment(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -928,7 +928,7 @@ function mxLeanProductionControl(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -982,7 +982,7 @@ function mxLeanFifoSequence(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1051,7 +1051,7 @@ function mxLeanProductionKanban(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1109,7 +1109,7 @@ function mxLeanWithdrawalKanban(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1188,7 +1188,7 @@ function mxLeanSignalKanban(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1244,7 +1244,7 @@ function mxLeanSequencedPullBall(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1296,7 +1296,7 @@ function mxLeanRailShipment(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1366,7 +1366,7 @@ function mxLeanWarehouse(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1434,7 +1434,7 @@ function mxLeanTimeline(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1460,7 +1460,7 @@ mxLeanTimeline.prototype.paintVertexShape = function(c, x, y, w, h)
 		var currTime = parseFloat(shapeInfo[i]); 
 		times.push(currTime);
 		totalTime = totalTime + currTime;
-	};
+	}
 	
 	var scaleX = w / totalTime;
 	var names = new Array();
@@ -1468,7 +1468,7 @@ mxLeanTimeline.prototype.paintVertexShape = function(c, x, y, w, h)
 	for (var i = 1; i < shapeInfo.length; i = i + 2)
 	{
 		names.push(shapeInfo[i]);
-	};
+	}
 	
 	c.begin();
 	var currX = 0;
@@ -1491,7 +1491,7 @@ mxLeanTimeline.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(currX, h);
 			c.text(currX - currTime * 0.5, fontSize * 0.75, 0, 0, names[i], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 		}
-	};
+	}
 	
 	c.stroke();
 };
@@ -1511,7 +1511,7 @@ function mxLeanCrossDock(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1606,7 +1606,7 @@ function mxLeanOrders(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1702,7 +1702,7 @@ function mxLeanBatchedKanban(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1782,7 +1782,7 @@ function mxLeanControlCenter(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1828,7 +1828,7 @@ mxLeanControlCenter.prototype.constraints = [
 function mxLeanElectronicInfoShape()
 {
 	mxArrow.call(this);
-};
+}
 
 mxUtils.extend(mxLeanElectronicInfoShape, mxArrow);
 
@@ -1889,7 +1889,7 @@ mxCellRenderer.registerShape('mxgraph.lean_mapping.electronic_info_flow_edge', m
 function mxLeanManualInfoShape()
 {
 	mxArrow.call(this);
-};
+}
 
 mxUtils.extend(mxLeanManualInfoShape, mxArrow);
 
@@ -1942,7 +1942,7 @@ function mxShapeLeanTimeline(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

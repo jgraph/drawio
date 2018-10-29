@@ -138,7 +138,7 @@ EditorUi.initMinimalTheme = function()
         {
             ui.formatWindow.window.fit();
         }
-	};
+	}
 
 	function toggleShapes(ui)
 	{
@@ -255,7 +255,7 @@ EditorUi.initMinimalTheme = function()
         {
             ui.sidebarWindow.window.fit();
         }
-	};
+	}
 	
     // Changes colors for some UI elements
     var fill = '#29b6f2';
@@ -986,7 +986,7 @@ EditorUi.initMinimalTheme = function()
             } 
 
             return elt;
-        };
+        }
         
         function addMenuItem(label, fn, small, tooltip, action, img)
         {
@@ -1061,14 +1061,14 @@ EditorUi.initMinimalTheme = function()
                         mxUtils.setOpacity(btn, (img != null) ? 10 : 20);
                         btn.style.cursor = 'default';
                     }
-                };
+                }
                 
                 action.addListener('stateChanged', updateState);
                 updateState();
             }
             
             return btn;
-        };
+        }
         
         function createGroup(btns)
         {
@@ -1102,7 +1102,7 @@ EditorUi.initMinimalTheme = function()
             }
             
             return btnGroup;
-        };
+        }
 
 		ui.statusContainer = ui.createStatusContainer();
 		ui.statusContainer.style.position = 'relative';
@@ -1140,7 +1140,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				menubar.removeAttribute('title');
 			}
-		};
+		}
 		
 		// Connects the status bar to the editor status
 		ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
@@ -1347,7 +1347,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				ui.buttonContainer.style.right = '14px';
 			}
-        };
+        }
         
         refreshMenu();
         

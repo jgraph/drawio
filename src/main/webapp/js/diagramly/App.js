@@ -674,7 +674,7 @@ App.main = function(callback, createUi)
 						mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
 			};
 		});
-	};
+	}
 
 	function doMain()
 	{
@@ -683,7 +683,7 @@ App.main = function(callback, createUi)
 		mxResources.loadDefaultBundle = false;
 		doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
 			mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
-	};
+	}
 
 	// Sends load event if configuration is requested and waits for configure action
 	if (urlParams['configure'] == '1')
@@ -2267,7 +2267,7 @@ App.prototype.start = function()
 					if (this.spinner.spin(document.body, mxResources.get('reconnecting')))
 					{
 						window.location.search = this.getSearch(['create', 'title']);
-					};
+					}
 				});
 	
 				var showCreateDialog = mxUtils.bind(this, function(xml)

@@ -154,7 +154,7 @@ Draw.loadPlugin(function(ui)
 		// Selects new cells and scrolls into view
 		graph.setSelectionCells(cells);
 		graph.scrollCellToVisible(graph.getSelectionCell());
-	};
+	}
 
 	// Adds action
 	ui.actions.addAction('importFreemind...', function()

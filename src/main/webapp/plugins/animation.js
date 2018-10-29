@@ -62,7 +62,7 @@ Draw.loadPlugin(function(editorUi)
 		}
 		
 		return nodes;
-	};
+	}
 	
 	function fadeIn(nodes)
 	{
@@ -83,7 +83,7 @@ Draw.loadPlugin(function(editorUi)
 				}
 			}, 0);
 		}
-	};
+	}
 	
 	function fadeOut(nodes)
 	{
@@ -104,7 +104,7 @@ Draw.loadPlugin(function(editorUi)
 				}
 			}, 0);
 		}
-	};
+	}
 	
 	function createEdgeAnimation(state)
 	{
@@ -150,7 +150,7 @@ Draw.loadPlugin(function(editorUi)
 				}
 			}
 		};
-	};
+	}
 	
 	function createVertexAnimation(state)
 	{
@@ -192,7 +192,7 @@ Draw.loadPlugin(function(editorUi)
 				}
 			}
 		};
-	};
+	}
 
 	function animateCells(graph, cells, steps, delay)
 	{
@@ -244,7 +244,7 @@ Draw.loadPlugin(function(editorUi)
 		
 		var thread = window.setInterval(animate, delay);
 		animate();
-	};
+	}
 	
 	function mapCell(cell, clone, mapping)
 	{
@@ -259,7 +259,7 @@ Draw.loadPlugin(function(editorUi)
 		}
 		
 		return mapping;
-	};
+	}
 	
 	var allowedToRun = false;
 	var running = false;
@@ -267,7 +267,7 @@ Draw.loadPlugin(function(editorUi)
 	function stop()
 	{
 		allowedToRun = false;
-	};
+	}
 	
 	function run(graph, steps, loop)
 	{
@@ -363,11 +363,11 @@ Draw.loadPlugin(function(editorUi)
 						run(graph, steps, loop);
 					}
 				}
-			};
+			}
 	
 			next();
 		}
-	};
+	}
 	
 	/**
 	 * 
@@ -534,7 +534,7 @@ Draw.loadPlugin(function(editorUi)
 			}
 			
 			return result;
-		};
+		}
 		
 		// Wait for file to be loaded if no animation data is present
 		if (!startAnimation())

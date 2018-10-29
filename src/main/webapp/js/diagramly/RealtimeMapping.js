@@ -23,7 +23,7 @@ function RealtimeMapping(driveRealtime, diagramMap, page)
 	this.root = this.driveRealtime.root;
 	this.graph = this.driveRealtime.graph;
 	this.rtModel = this.driveRealtime.rtModel;
-};
+}
 
 /**
  * Specifies the key of the root element in the model. Default is root.

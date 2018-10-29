@@ -588,8 +588,8 @@ var jscolor = {
 			p.padM.onmousedown = function(e) {
 				// if the slider is at the bottom, move it up
 				switch(modeID) {
-					case 0: if (THIS.hsv[2] === 0) { THIS.fromHSV(null, null, 1.0); }; break;
-					case 1: if (THIS.hsv[1] === 0) { THIS.fromHSV(null, 1.0, null); }; break;
+					case 0: if (THIS.hsv[2] === 0) { THIS.fromHSV(null, null, 1.0); } break;
+					case 1: if (THIS.hsv[1] === 0) { THIS.fromHSV(null, 1.0, null); } break;
 				}
 				holdPad=true;
 				setPad(e);

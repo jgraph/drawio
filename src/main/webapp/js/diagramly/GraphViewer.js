@@ -907,7 +907,7 @@ GraphViewer.prototype.addToolbar = function()
 		buttonCount++;
 		
 		return a;
-	};
+	}
 
 	var layersDialog = null;
 	var layersDialogEntered = false;

@@ -70,7 +70,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		table.style.marginBottom = '8px';
 		
 		return table;
-	};
+	}
 	
 	function addPresets(presets, rowLength, defaultColor, addResetOption)
 	{
@@ -163,7 +163,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		center.appendChild(table);
 		
 		return table;
-	};
+	}
 
 	div.appendChild(input);
 	mxUtils.br(div);
@@ -710,13 +710,13 @@ var EditDiagramDialog = function(editorUi)
 		    {
 		    	textarea.value = editorUi.extractGraphModelFromEvent(evt);
 		    }
-		};
+		}
 		
 		function handleDragOver(evt)
 		{
 			evt.stopPropagation();
 			evt.preventDefault();
-		};
+		}
 
 		// Setup the dnd listeners.
 		textarea.addEventListener('dragover', handleDragOver, false);
@@ -1071,7 +1071,7 @@ var ExportDialog = function(editorUi)
 		{
 			transparentCheckbox.setAttribute('disabled', 'disabled');
 		}
-	};
+	}
 	
 	mxEvent.addListener(imageFormatSelect, 'change', formatChanged);
 	formatChanged();
@@ -1095,7 +1095,7 @@ var ExportDialog = function(editorUi)
 		{
 			heightInput.style.backgroundColor = '';
 		}
-	};
+	}
 
 	mxEvent.addListener(zoomInput, 'change', function()
 	{
@@ -1592,7 +1592,7 @@ var EditDataDialog = function(ui, cell)
 		{
 			addBtn.setAttribute('disabled', 'disabled');
 		}
-	};
+	}
 
 	mxEvent.addListener(nameInput, 'keyup', updateAddBtn);
 	
@@ -1906,7 +1906,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		outline.outline.pageScale = graph.pageScale;
 		outline.outline.pageFormat = graph.pageFormat;
 		outline.outline.pageVisible = graph.pageVisible;
-		outline.outline.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;;
+		outline.outline.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
 		
 		var current = mxUtils.getCurrentStyle(graph.container);
 		div.style.backgroundColor = current.backgroundColor;
@@ -1917,7 +1917,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		}
 		
 		outline.outline.refresh();
-	};
+	}
 
 	outline.init(div);
 
@@ -2140,7 +2140,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			editorUi.showDialog(dlg.container, 300, 100, true, true);
 			dlg.init();
 		}
-	};
+	}
 	
 	var duplicateLink = link.cloneNode();
 	duplicateLink.innerHTML = '<div class="geSprite geSprite-duplicate" style="display:inline-block;"></div>';
@@ -2457,7 +2457,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			}
 			
 			listDiv.appendChild(ldiv);
-		};
+		}
 		
 		// Cannot be moved or deleted
 		for (var i = layerCount - 1; i >= 0; i--)
@@ -2479,7 +2479,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		{
 			insertLink.className = 'geButton mxDisabled';
 		}
-	};
+	}
 
 	refresh();
 	graph.model.addListener(mxEvent.CHANGE, function()

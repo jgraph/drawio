@@ -16,7 +16,7 @@ function mxShapeNetworksBus(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -69,7 +69,7 @@ mxCellRenderer.registerShape(mxShapeNetworksBus.prototype.cst.SHAPE_BUS, mxShape
 function mxShapeNetworksCommLinkEdge()
 {
 	mxArrow.call(this);
-};
+}
 
 mxUtils.extend(mxShapeNetworksCommLinkEdge, mxArrow);
 

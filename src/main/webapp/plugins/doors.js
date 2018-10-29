@@ -13,7 +13,7 @@ function mxDoorsMockup(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxSwimlane.
@@ -49,7 +49,7 @@ function mxDoorsMockupVerticalStackContainer(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
  * Extends mxSwimlane.
@@ -68,7 +68,7 @@ function mxDoorsMockupDecoratedLabel(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -195,7 +195,7 @@ mxDoorsMockup.prototype.drawIcon = function(c, x, y, w, h, iconStroke, iconFill,
 	else if (iconId == 15)
 	{
 		this.drawFileIcon(c, w * 0.11, 0, w * 0.78, h);
-	};
+	}
 	
 	c.restore();
 };
@@ -422,7 +422,7 @@ function mxDoorsMockupListbox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxSwimlane.
@@ -572,7 +572,7 @@ function mxDoorsMockupComboBox(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -677,7 +677,7 @@ function mxDoorsMockupSpinner(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -786,7 +786,7 @@ function mxDoorsMockupTabItem(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.

@@ -101,7 +101,7 @@ function ChatWindow(editorUi, title, content, x, y, width, height, realtime)
 			this.updateChatArea(map.get(evt.property));
 		}));
 	}
-};
+}
 
 ChatWindow.prototype.window = null;
 ChatWindow.prototype.doc = null;

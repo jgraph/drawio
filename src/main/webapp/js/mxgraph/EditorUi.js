@@ -3250,14 +3250,14 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 				last = null;
 			}
 		}
-	};
+	}
 	
 	function dropHandler(evt)
 	{
 		moveHandler(evt);
 		initial = null;
 		start = null;
-	};
+	}
 	
 	mxEvent.addGestureListeners(elt, function(evt)
 	{
@@ -3911,7 +3911,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, 200);
-	};
+	}
 	
 	// Overridden to handle special alt+shift+cursor keyboard shortcuts
 	var directions = {37: mxConstants.DIRECTION_WEST, 38: mxConstants.DIRECTION_NORTH,

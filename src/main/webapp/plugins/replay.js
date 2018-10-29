@@ -39,7 +39,7 @@ Draw.loadPlugin(function(ui) {
 			}
 			
 			return changes;
-		};
+		}
 
 		function createUndoableEdit(changes)
 		{
@@ -56,7 +56,7 @@ Draw.loadPlugin(function(ui) {
 			};
 			
 			return edit;
-		};
+		}
 
 		function processDelta(delta)
 		{
@@ -74,7 +74,7 @@ Draw.loadPlugin(function(ui) {
 				
 				ui.chromelessResize();
 			}
-		};
+		}
 		
 		var replayData = urlParams['replay-data'];
 		var delay = parseInt(urlParams['delay-delay'] || 1000);
@@ -99,7 +99,7 @@ Draw.loadPlugin(function(ui) {
 						nextStep();
 					}, delay);
 				}
-			};
+			}
 			
 			nextStep();
 		}

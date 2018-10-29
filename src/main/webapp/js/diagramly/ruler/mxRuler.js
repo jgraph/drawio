@@ -210,7 +210,7 @@ var mxRuler = function(graph, container, isVertical)
             timeout = setTimeout(later, wait);
             if (callNow) func.apply(context, args);
         };
-    };
+    }
 
     function createHint()
     {
@@ -220,7 +220,7 @@ var mxRuler = function(graph, container, isVertical)
         hint.style.position = 'absolute';
 
         return hint;
-    };
+    }
 
     graph.graphHandler.updateHint = function(me)
     {

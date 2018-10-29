@@ -16,7 +16,7 @@ function mxShapeBasicCross(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -87,7 +87,7 @@ function mxShapeBasicRectCallout(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -173,7 +173,7 @@ function mxShapeBasicRoundRectCallout(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.size = 10;
-};
+}
 
 /**
 * Extends mxShape.
@@ -267,7 +267,7 @@ function mxShapeBasicWave(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -338,7 +338,7 @@ function mxShapeBasicOctagon(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -410,7 +410,7 @@ function mxShapeBasicIsoCube(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.isoAngle = 15;
-};
+}
 
 /**
 * Extends mxShape.
@@ -490,7 +490,7 @@ function mxShapeBasicTriangleAcute(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -555,7 +555,7 @@ function mxShapeBasicTriangleObtuse(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -619,7 +619,7 @@ function mxShapeBasicDrop(bounds, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-};
+}
 
 /**
 * Extends mxShape.
@@ -676,7 +676,7 @@ function mxShapeBasicCone2(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
 	this.dy = 0.9;
-};
+}
 
 /**
 * Extends mxShape.
@@ -771,7 +771,7 @@ function mxShapeBasicPyramid(bounds, fill, stroke, strokewidth)
 	this.dx2 = 0.6;
 	this.dy1 = 0.9;
 	this.dy2 = 0.8;
-};
+}
 
 /**
 * Extends mxShape.
@@ -886,7 +886,7 @@ function mxShapeBasic4PointStar2(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.8;
-};
+}
 
 /**
 * Extends mxShape.
@@ -956,7 +956,7 @@ function mxShapeBasicDiagSnipRect(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1027,7 +1027,7 @@ function mxShapeBasicDiagRoundRect(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1098,7 +1098,7 @@ function mxShapeBasicCornerRoundRect(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1168,7 +1168,7 @@ function mxShapeBasicPlaque(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1240,7 +1240,7 @@ function mxShapeBasicFrame(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1313,7 +1313,7 @@ function mxShapeBasicPlaqueFrame(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1397,7 +1397,7 @@ function mxShapeBasicRoundedFrame(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1481,7 +1481,7 @@ function mxShapeBasicFrameCorner(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1551,7 +1551,7 @@ function mxShapeBasicDiagStripe(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1619,7 +1619,7 @@ function mxShapeBasicDonut(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1694,7 +1694,7 @@ function mxShapeBasicLayeredRect(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1778,7 +1778,7 @@ function mxShapeBasicButton(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1891,7 +1891,7 @@ function mxShapeBasicShadedButton(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2002,7 +2002,7 @@ function mxShapeBasicPie(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2124,7 +2124,7 @@ function mxShapeBasicArc(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2245,7 +2245,7 @@ function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
 	this.arcWidth = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2392,7 +2392,7 @@ function mxShapeBasicNumEntryVert(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2465,7 +2465,7 @@ function mxShapeBasicBendingArch(bounds, fill, stroke, strokewidth)
 	this.startAngle = 0.25;
 	this.endAngle = 0.75;
 	this.arcWidth = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2607,7 +2607,7 @@ function mxShapeBasicThreeCornerRoundRect(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2683,7 +2683,7 @@ function mxShapeBasicRect2(bounds, fill, stroke, strokewidth)
 	this.absoluteCornerSize = true;
 	this.indent = 2;
 	this.rectOutline = 'single';
-};
+}
 
 /**
 * Extends mxShape.

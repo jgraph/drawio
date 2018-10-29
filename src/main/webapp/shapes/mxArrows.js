@@ -19,7 +19,7 @@ function mxShapeArrows2Arrow(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -171,7 +171,7 @@ function mxShapeArrows2TwoWayArrow(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
 	this.dx = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -288,7 +288,7 @@ function mxShapeArrows2StylisedArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.feather = 0.5;
-};
+}
 
 /**
 * Extends mxShape.
@@ -396,7 +396,7 @@ function mxShapeArrows2SharpArrow(bounds, fill, stroke, strokewidth)
 	this.dx1 = 0.5;
 	this.dx2 = 0.5;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -518,7 +518,7 @@ function mxShapeArrows2SharpArrow2(bounds, fill, stroke, strokewidth)
 	this.dx3 = 0.5;
 
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -651,7 +651,7 @@ function mxShapeArrows2CalloutArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -765,7 +765,7 @@ function mxShapeArrows2BendArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 40;
-};
+}
 
 /**
 * Extends mxShape.
@@ -901,7 +901,7 @@ function mxShapeArrows2BendDoubleArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 40;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1023,7 +1023,7 @@ function mxShapeArrows2CalloutDoubleArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1144,7 +1144,7 @@ function mxShapeArrows2CalloutQuadArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1280,7 +1280,7 @@ function mxShapeArrows2CalloutDouble90Arrow(bounds, fill, stroke, strokewidth)
 	this.dx2 = 0;
 	this.dy2 = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1405,7 +1405,7 @@ function mxShapeArrows2QuadArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1517,7 +1517,7 @@ function mxShapeArrows2TriadArrow(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1623,7 +1623,7 @@ function mxShapeArrows2TailedArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1764,7 +1764,7 @@ function mxShapeArrows2TailedNotchedArrow(bounds, fill, stroke, strokewidth)
 	this.dx = 0.5;
 	this.notch = 0;
 	this.arrowHead = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -1904,7 +1904,7 @@ function mxShapeArrows2StripedArrow(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.notch = 0;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2007,7 +2007,7 @@ function mxShapeArrows2JumpInArrow(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.arrowHead = 40;
-};
+}
 
 /**
 * Extends mxShape.
@@ -2100,7 +2100,7 @@ function mxShapeArrows2UTurnArrow(bounds, fill, stroke, strokewidth)
 	this.dy = 0.5;
 	this.dx = 0.5;
 	this.arrowHead = 40;
-};
+}
 
 /**
 * Extends mxShape.

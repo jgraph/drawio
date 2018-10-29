@@ -61,7 +61,7 @@ function DriveRealtime(file, doc)
 	});
 	
 	this.ui.editor.addListener('autosaveChanged', this.autosaveChangeListener);
-};
+}
 
 /**
  * Specifies the key of the root element in the model. Default is root.
@@ -373,7 +373,7 @@ DriveRealtime.prototype.start = function()
 		}
 
 		// Sets the current page
-		this.ui.currentPage = this.ui.pages[Math.max(0, Math.min(this.ui.pages.length - 1, urlParams['page'] || 0))];;
+		this.ui.currentPage = this.ui.pages[Math.max(0, Math.min(this.ui.pages.length - 1, urlParams['page'] || 0))];
 		
 		// Initializes graphs and mappings
 		for (var i = 0; i < this.ui.pages.length; i++)

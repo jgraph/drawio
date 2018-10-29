@@ -408,7 +408,7 @@
 			pos += count;
 			
 			return d.substring(start, pos);
-		};
+		}
 		
 		// Reads unsigned long 32 bit big endian
 		function _freadint(d)
@@ -417,7 +417,7 @@
 			
 			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
 				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
-		};
+		}
 		
 		// Checks signature
 		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
@@ -1408,7 +1408,7 @@
 			});
 			
 			return overlay;
-		};
+		}
 		
 		if (xml != null && xml.length > 0)
 		{
@@ -3909,7 +3909,7 @@
 				'border:1px solid black;background-color:' + linkColor :
 				'background-position:center center;background-repeat:no-repeat;' +
 				'background-image:url(\'' + Dialog.prototype.closeImage + '\')') + ';"></div>';
-		};
+		}
 		
 		linkButton = mxUtils.button('', mxUtils.bind(this, function(evt)
 		{
@@ -4731,7 +4731,7 @@
 			}
 			
 			fn('<img src="' + dataUri + '"' + atts + ((css != '') ? ' style="' + css + '"' : '') + onclick + '/>');
-		};
+		}
 		
 		if (this.isExportToCanvas())
 		{
@@ -5251,7 +5251,7 @@
             function trimString(str)
             {
                 return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-            };
+            }
             
             var finish = mxUtils.bind(this, function()
             {
@@ -5548,7 +5548,7 @@
 		function inc()
 		{
 			counter++;
-		};
+		}
 		
 		function dec()
 		{
@@ -5558,7 +5558,7 @@
 			{
 				callback(svgRoot);
 			}
-		};
+		}
 
 		var cache = imageCache || new Object();
 		
@@ -7091,7 +7091,7 @@
 			pos += count;
 			
 			return d.substring(start, pos);
-		};
+		}
 		
 		// Reads unsigned long 32 bit big endian
 		function _freadint(d)
@@ -7100,13 +7100,13 @@
 			
 			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
 				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
-		};
+		}
 		
 		function writeInt(num)
 		{
 			return String.fromCharCode((num >> 24) & 0x000000ff, (num >> 16) & 0x000000ff,
 				(num >> 8) & 0x000000ff, num & 0x000000ff);
-		};
+		}
 		
 		// Checks signature
 		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
@@ -7636,7 +7636,7 @@
 					textInput.focus();
 					document.execCommand('selectAll', false, null);
 				}, 0);
-			};
+			}
 			
 			mxEvent.addListener(document, 'keyup', mxUtils.bind(this, function(evt)
 			{
@@ -7714,7 +7714,7 @@
 
 				return isSelectionAllowed2.apply(this, arguments);
 			};
-		};
+		}
 
 		var y = Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight || 0) / 2;
 		var x = document.body.clientWidth / 2 - 2;
@@ -8934,7 +8934,7 @@
 					basenames[name] = true;
 				}
 			}
-		};
+		}
 		
 		var graph = this.editor.graph;
 		var style = graph.getCellStyle(cell);
@@ -9671,7 +9671,7 @@
 				{
 					return (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
 						this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
-				});;
+				});
 				
 				lastData = getData();
 

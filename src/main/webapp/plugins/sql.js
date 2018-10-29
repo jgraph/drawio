@@ -116,7 +116,7 @@ Draw.loadPlugin(function(ui) {
 
         rowCell = rowCell;
 
-    };
+    }
 
     function ParseMySQLForeignKey(name, currentTableModel) {
         var referencesIndex = name.toLowerCase().indexOf("references");
@@ -150,7 +150,7 @@ Draw.loadPlugin(function(ui) {
 
         //Add ForeignKey Destination
         foreignKeyList.push(foreignKeyDestinationModel);
-    };
+    }
 
     function ParseSQLServerForeignKey(name, currentTableModel) {
         var referencesIndex = name.toLowerCase().indexOf("references");
@@ -206,7 +206,7 @@ Draw.loadPlugin(function(ui) {
             //Add ForeignKey Destination
             foreignKeyList.push(foreignKeyDestinationModel);
         }
-    };
+    }
 
     function ProcessPrimaryKey() {
 
@@ -263,7 +263,7 @@ Draw.loadPlugin(function(ui) {
         foreignKey.IsDestination = (isDestination !== undefined && isDestination !== null) ? isDestination : false;
 
         return foreignKey;
-    };
+    }
 
     function CreatePrimaryKey(primaryKeyName, primaryKeyTableName) {
         var primaryKey = new PrimaryKeyModel;
@@ -272,7 +272,7 @@ Draw.loadPlugin(function(ui) {
         primaryKey.PrimaryKeyName = primaryKeyName;
 
         return primaryKey;
-    };
+    }
 
     function CreateProperty(name, tableName, foreignKey, isPrimaryKey) {
         var property = new PropertyModel;
@@ -285,7 +285,7 @@ Draw.loadPlugin(function(ui) {
         property.IsPrimaryKey = isPrimaryKey;
 
         return property;
-    };
+    }
 
     function CreateTable(name) {
         var table = new TableModel;
@@ -296,7 +296,7 @@ Draw.loadPlugin(function(ui) {
         exportedTables++;
 
         return table;
-    };
+    }
 
     function ParseSQLServerName(name, property) {
         name = name.replace('[dbo].[', '');
@@ -328,7 +328,7 @@ Draw.loadPlugin(function(ui) {
         name = name.replace(' ', '');
 
         return name;
-    };
+    }
 
     function ParseTableName(name) {
         if (name.charAt(name.length - 1) === '(') {
@@ -340,7 +340,7 @@ Draw.loadPlugin(function(ui) {
         }
 
         return name;
-    };
+    }
 
     function parseSql(text, type) {
         var lines = text.split('\n');
@@ -542,7 +542,7 @@ Draw.loadPlugin(function(ui) {
 
         //Create Table in UI
         CreateTableUI();
-    };
+    }
 
     function CreateTableUI() {
 
@@ -590,7 +590,7 @@ Draw.loadPlugin(function(ui) {
         }
 
         wnd.setVisible(false);
-    };
+    }
 
     mxUtils.br(div);
 

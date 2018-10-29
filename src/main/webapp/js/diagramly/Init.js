@@ -196,7 +196,7 @@ function setCurrentXml(data, filename)
 	{
 		window.parent.openFile.setData(data, filename);
 	}
-};
+}
 
 /**
  * Overrides splash URL parameter via local storage

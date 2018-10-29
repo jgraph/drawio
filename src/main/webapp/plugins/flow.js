@@ -57,7 +57,7 @@ Draw.loadPlugin(function(ui)
 				}
 			}
 		}
-	};
+	}
 	
 	// Adds action
 	ui.actions.addAction('toggleFlow', function()

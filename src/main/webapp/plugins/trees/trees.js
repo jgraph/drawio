@@ -41,7 +41,7 @@ Draw.loadPlugin(function(ui)
 		}
 		
 		return result;
-	};
+	}
 
 	var uiCreatePopupMenu = ui.menus.createPopupMenu;
 	ui.menus.createPopupMenu = function(menu, cell, evt)
@@ -495,7 +495,7 @@ Draw.loadPlugin(function(ui)
 		}
 		
 		return mxConstants.DIRECTION_EAST;
-	};
+	}
 	
 	function addSibling(cell, after)
 	{
@@ -629,7 +629,7 @@ Draw.loadPlugin(function(ui)
 		{
 			graph.model.endUpdate();
 		}
-	};
+	}
 
 	function addParent(cell)
 	{
@@ -688,7 +688,7 @@ Draw.loadPlugin(function(ui)
 		{
 			graph.model.endUpdate();
 		}
-	};
+	}
 
 	function addChild(cell)
 	{
@@ -749,7 +749,7 @@ Draw.loadPlugin(function(ui)
 		{
 			graph.model.endUpdate();
 		}
-	};
+	}
 	
 	function getOrderedTargets(cell, horizontal, ref)
 	{
@@ -779,7 +779,7 @@ Draw.loadPlugin(function(ui)
 		}
 		
 		return targets;
-	};
+	}
 	
 	function selectCell(cell, direction)
 	{
@@ -825,7 +825,7 @@ Draw.loadPlugin(function(ui)
 				}
 			}	
 		}
-	};
+	}
 
 	// Overrides keyboard shortcuts
 	var altShiftActions = {88: ui.actions.get('selectChildren'), // Alt+Shift+X
@@ -1146,7 +1146,7 @@ Draw.loadPlugin(function(ui)
 		
 		state.view.graph.container.appendChild(img);
 		this.images.push(img);
-	};
+	}
 	
 	mxIconSet.prototype.destroy = function()
 	{

@@ -2137,7 +2137,7 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 		}
 		
 		mxEvent.consume(evt);
-	};
+	}
 
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);
@@ -2199,7 +2199,7 @@ ArrangePanel.prototype.addEdgeGeometryHandler = function(input, fn)
         }
 
         mxEvent.consume(evt);
-    };
+    }
 
     mxEvent.addListener(input, 'blur', update);
     mxEvent.addListener(input, 'change', update);
@@ -2254,7 +2254,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 
 		width.value = value + ' pt';
 		mxEvent.consume(evt);
-	};
+	}
 
 	mxEvent.addListener(width, 'blur', widthUpdate);
 	mxEvent.addListener(width, 'change', widthUpdate);
@@ -2812,7 +2812,7 @@ TextFormatPanel.prototype.addFont = function(container)
 						}
 					}
 				}
-			};
+			}
 			
 			// Wraps text node or mixed selection with leading text in a font element
 			if (container == graph.cellEditor.textarea ||
@@ -2872,7 +2872,7 @@ TextFormatPanel.prototype.addFont = function(container)
 			    }
 			    
 			    return false;
-			};
+			}
 			
 			if (par != null && isOrContains(graph.cellEditor.textarea, par))
 			{
@@ -3402,7 +3402,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			elt.style.backgroundImage = (selected) ? 'linear-gradient(#c5ecff 0px,#87d4fb 100%)' : '';
 		}
-	};
+	}
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
@@ -3574,7 +3574,7 @@ TextFormatPanel.prototype.addFont = function(container)
 								return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
 										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
 							}
-						};
+						}
 						
 						function getAbsoluteFontSize(fontSize)
 						{
@@ -3887,7 +3887,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 			  ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
 			  ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
 			  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
-		};
+		}
 		
 		var addStyleRule = mxUtils.bind(this, function(rule, key, label)
 		{
@@ -4275,7 +4275,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		input.value = value + ' pt';
 		mxEvent.consume(evt);
-	};
+	}
 
 	function altUpdate(evt)
 	{
@@ -4292,7 +4292,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		altInput.value = value + ' pt';
 		mxEvent.consume(evt);
-	};
+	}
 
 	var stepper = this.createStepper(input, update, 1, 9);
 	stepper.style.display = input.style.display;
@@ -4722,7 +4722,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			}
 			
 			return markerDiv;
-		};
+		}
 		
 		var sourceDiv = updateArrow(mxUtils.getValue(ss.style, mxConstants.STYLE_STARTARROW, null),
 				mxUtils.getValue(ss.style, 'startFill', '1'), lineStart, 'start');
@@ -5292,7 +5292,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 
 		input.value = value + ' pt';
 		mxEvent.consume(evt);
-	};
+	}
 
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);

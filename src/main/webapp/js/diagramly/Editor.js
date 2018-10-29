@@ -1040,7 +1040,7 @@
 				listRow.style.display = 'none';
 				this.container.parentNode.style.height = "130px";
 			}
-		};
+		}
 		
 		mxEvent.addListener(typeSelect, 'change', mxUtils.bind(this, typeChanged));
 
@@ -1708,7 +1708,7 @@
 			function insertAfter(newElem, curElem)
 			{
 				curElem.parentNode.insertBefore(newElem, curElem.nextSibling);
-			};
+			}
 			
 			function applyStyleVal(pName, newVal, prop, delIndex)
 			{
@@ -1810,7 +1810,7 @@
 				elem.style.width = td.offsetWidth + 'px';
 				elem.style.height = (td.offsetHeight - (adjustHeight? 4 : 0)) + 'px';
 				elem.style.zIndex = 5;
-			};
+			}
 			
 			function createColorBtn(pName, pValue, prop)
 			{
@@ -1837,7 +1837,7 @@
 				
 				btn.appendChild(clrDiv);
 				return btn;
-			};
+			}
 			
 			function createDynArrList(pName, pValue, subType, defVal, countProperty, myRow, flipBkg)
 			{
@@ -1881,7 +1881,7 @@
 				btn.className = 'geColorBtn';
 				
 				return btn;
-			};
+			}
 			
 			function createStaticArrList(pName, pValue, subType, defVal, size, myRow, flipBkg)
 			{
@@ -1900,7 +1900,7 @@
 				}
 				
 				return document.createElement('div'); //empty cell
-			};
+			}
 			
 			function createCheckbox(pName, pValue, prop)
 			{
@@ -1913,7 +1913,7 @@
 					applyStyleVal(pName, input.checked? '1' : '0', prop);
 				});
 				return input;
-			};
+			}
 			
 			function createPropertyRow(pName, pValue, prop, isOdd, flipBkg)
 			{
@@ -2094,7 +2094,7 @@
 				
 				row.appendChild(td);
 				return row;
-			};
+			}
 			
 			div.style.position = 'relative';
 			div.style.padding = '0';
@@ -2346,7 +2346,7 @@
 					}
 					
 					picker.appendChild(btn);
-				};
+				}
 				
 				picker.innerHTML = '';
 				
@@ -2359,7 +2359,7 @@
 					
 					addButton(colorsets[i]);
 				}
-			};
+			}
 
 			if (this.editorUi.currentScheme == null)
 			{
@@ -2403,7 +2403,7 @@
 				{
 					elt.style.opacity = '0.5';
 				});
-			};
+			}
 			
 			addHoverState(left);
 			addHoverState(right);
@@ -2562,7 +2562,7 @@
 			{
 				mouseEvent = mxUtils.clone(evt);
 			}
-		};
+		}
 		
 		mxEvent.addListener(this.container, 'mouseenter', setMouseEvent);
 		mxEvent.addListener(this.container, 'mousemove', setMouseEvent);
@@ -3328,7 +3328,7 @@
 		{
 			pagesToInput.value = Math.max(1, Math.min(pageCount, Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
 			pagesFromInput.value = Math.max(1, Math.min(pageCount, Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
-		};
+		}
 		
 		mxEvent.addListener(pagesFromInput, 'change', validatePageRange);
 		mxEvent.addListener(pagesToInput, 'change', validatePageRange);
@@ -3635,7 +3635,7 @@
 				}
 				
 				return pv;
-			};
+			}
 			
 			var pagesFrom = pagesFromInput.value;
 			var pagesTo = pagesToInput.value;
@@ -3783,7 +3783,7 @@
 			{
 				PrintDialog.printPreview(pv);
 			}
-		};
+		}
 		
 		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 		{

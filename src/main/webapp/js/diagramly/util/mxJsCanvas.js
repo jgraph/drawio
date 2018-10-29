@@ -28,7 +28,7 @@ function mxJsCanvas(canvas)
 	
 	this.images = this.images == null ? [] : this.images;
 	this.subCanvas = this.subCanvas == null ? [] : this.subCanvas;
-};
+}
 
 /**
  * Extends mxAbstractCanvas2D
@@ -569,7 +569,7 @@ mxJsCanvas.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 
 		ctx.drawImage(image, x, y, w, h);
 		ctx.restore();
-	};
+	}
 	
 	if (image != null && image.height > 0 && image.width > 0)
 	{
