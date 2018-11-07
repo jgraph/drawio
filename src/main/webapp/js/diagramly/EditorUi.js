@@ -684,6 +684,7 @@
 				else
 				{
 					var diagramNode = node.ownerDocument.createElement('diagram');
+					diagramNode.setAttribute('id', Editor.guid());
 					mxUtils.setTextContent(diagramNode, data);
 					
 					fileNode = node.ownerDocument.createElement('mxfile');
@@ -773,9 +774,7 @@
 					
 						// Uses the graph state from the realtime model
 						mapping.writeRealtimeToNode(temp);					
-		
-						var data = this.editor.graph.compress(this.editor.graph.zapGremlins(mxUtils.getXml(temp)));
-						mxUtils.setTextContent(this.pages[i].node, data);
+						mxUtils.setTextContent(this.pages[i].node, this.editor.graph.compressNode(temp));
 						
 						// Marks the page as up-to-date
 						mapping.needsUpdate = false;
@@ -1628,6 +1627,49 @@
 		}
 		
 		return doc;
+	};
+	
+	/**
+	 * Constructs a filename for a copy of the given file.
+	 */
+	EditorUi.prototype.getCopyFilename = function(file, timestamp)
+	{
+		var title = (file != null && file.getTitle() != null) ?
+			file.getTitle() : this.defaultFilename;
+		
+		// Handles extension
+		var extension = '';
+		var dot = title.lastIndexOf('.');
+		
+		if (dot >= 0)
+		{
+			extension = title.substring(dot);
+			title = title.substring(0, dot);
+		}
+		
+		if (timestamp)
+		{
+			function getFormattedTime()
+			{
+			    var today = new Date();
+			    var y = today.getFullYear();
+			    // JavaScript months are 0-based.
+			    var m = today.getMonth() + 1;
+			    var d = today.getDate();
+			    var h = today.getHours();
+			    var mi = today.getMinutes();
+			    var s = today.getSeconds();
+			    
+			    return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s;
+			}
+			
+			var ts = new Date();
+			title += '-' + getFormattedTime();
+		}
+		
+		title = mxResources.get('copyOf', [title]) + extension;
+		
+		return title;
 	};
 	
 	/**
@@ -5820,6 +5862,7 @@
 								if (page.getName() == null)
 								{
 									page.setName(mxResources.get('pageWithNumber', [index + 1]));
+									page.needsUpdate = true;
 								}
 								
 								graph.model.execute(new ChangePage(this, page, page, index));

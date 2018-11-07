@@ -386,6 +386,27 @@
 		{
 			editorUi.actions.get('save').funct();
 		}, null, null, Editor.ctrlKey + '+S');
+		
+		editorUi.actions.addAction('refresh', function()
+		{
+			var currentFile = editorUi.getCurrentFile();
+			
+			function fn()
+			{
+				currentFile.setModified(false);
+				editorUi.loadFile(currentFile.getHash(), true);
+			};
+			
+			if (currentFile != null && currentFile.isModified())
+			{
+				editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
+					mxResources.get('cancel'), mxResources.get('discardChanges'));
+			}
+			else
+			{
+				fn();
+			}
+		}, null, null, 'Alt+Shift+R');
 
 		editorUi.actions.addAction('upload...', function()
 		{
@@ -945,7 +966,9 @@
 					var b = graph.getGraphBounds();
 					var tr = graph.view.translate;
 					var s = graph.view.scale;
-					graph.insertVertex(parent, null, '', b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s, 'fillColor=none;strokeColor=red;');
+					graph.insertVertex(graph.getDefaultParent(), null, '',
+						b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s,
+						'fillColor=none;strokeColor=red;');
 				}));
 
 				mxResources.parse('createSidebarEntry=Create sidebar entry');
@@ -1830,20 +1853,8 @@
 			
 			if (file != null)
 			{
-				var title = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
-				
-				// Handles extension
-				var extension = '';
-				var dot = title.lastIndexOf('.');
-				
-				if (dot >= 0)
-				{
-					extension = title.substring(dot);
-					title = title.substring(0, dot);
-				}
-				
-				title = mxResources.get('copyOf', [title]) + extension;
-				
+				var title = editorUi.getCopyFilename(file);
+
 				if (file.constructor == DriveFile)
 				{
 					var dlg = new CreateDialog(editorUi, title, mxUtils.bind(this, function(newTitle, mode)
@@ -1860,18 +1871,18 @@
 							{
 								if (editorUi.spinner.spin(document.body, mxResources.get('saving')))
 								{
-									// Makes sure the latest XML is in the file
-									file.save(false, mxUtils.bind(this, function()
+									// Saveas does not update the file descriptor in Google Drive
+									file.saveAs(newTitle, mxUtils.bind(this, function(resp)
 									{
-										// Saveas does not update the file descriptor in Google Drive
-										file.saveAs(newTitle, mxUtils.bind(this, function(resp)
+										// Replaces file descriptor in-place and saves
+										file.desc = resp;
+										
+										// Makes sure the latest XML is in the file
+										file.save(false, mxUtils.bind(this, function()
 										{
 											editorUi.spinner.stop();
-											var url = editorUi.getUrl();
-											window.openWindow(url + '#G' + resp.id, null, mxUtils.bind(this, function()
-											{
-												window.location.hash = 'G' + resp.id;
-											}));
+											file.setModified(false);
+											file.addAllSavedStatus();
 										}), mxUtils.bind(this, function(resp)
 										{
 											editorUi.handleError(resp);
@@ -1884,7 +1895,7 @@
 							}
 							else
 							{
-								this.editorUi.createFile(newTitle, this.editorUi.getFileData(true), null, mode);
+								editorUi.createFile(newTitle, editorUi.getFileData(true), null, mode);
 							}
 						}
 					}), mxUtils.bind(this, function()
@@ -2648,7 +2659,7 @@
 					
 					if (file.realtime == null)
 					{
-						this.addMenuItems(menu, ['save', 'share', '-'], parent);
+						this.addMenuItems(menu, ['save', 'share', '-', 'refresh', '-'], parent);
 					}
 					else
 					{

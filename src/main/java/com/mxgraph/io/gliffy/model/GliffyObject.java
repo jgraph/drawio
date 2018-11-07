@@ -284,7 +284,10 @@ public class GliffyObject implements PostDeserializable
 
 	public String getText()
 	{
-		return graphic.getText().getHtml();
+		GliffyText text = graphic.getText();
+		//TODO These values are hurestics based on analyzing many files. 6 is a range from 2 to 6 so used the maximum
+		int widthDiff = "none".equals(text.overflow)? -3 : 6;
+		return "<div style='width: "+ (width + widthDiff) +"px;height: "+ height +"px;word-break: break-word;'>" + text.getHtml() + "</div>";
 	}
 
 	/**

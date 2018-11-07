@@ -694,9 +694,10 @@ EditorUi.initMinimalTheme = function()
 
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {
+			var file = ui.getCurrentFile();
         	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
 			menu.addSeparator(parent);
-
+			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
@@ -721,16 +722,18 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
-
-			var file = ui.getCurrentFile();
 			
 			if (file != null && file.constructor == DriveFile)
 			{
 				ui.menus.addMenuItems(menu, ['-', 'share'], parent);
-
+				
 				if (file.realtime != null)
 				{
 					ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
+				}
+				else
+				{
+					ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
 				}
 				
 				menu.addSeparator(parent);
