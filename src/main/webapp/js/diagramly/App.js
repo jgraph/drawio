@@ -187,6 +187,16 @@ App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
 App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
 
 /**
+ * Switch to disable Google realtime. If true this will convert existing realtime files.
+ */
+App.GOOGLE_REALTIME = urlParams['google-realtime'] != '0';
+
+/**
+ * Switch to disable Google realtime. If true this will convert existing realtime files.
+ */
+App.GOOGLE_APIS = 'client,drive-share' + ((App.GOOGLE_REALTIME) ? ',drive-realtime' : ''); 
+
+/**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://desk.draw.io/solution/articles/16000042546
  */
@@ -400,6 +410,7 @@ App.getStoredMode = function()
  */
 App.main = function(callback, createUi)
 {
+	var sessionId = Editor.guid();
 	var lastErrorMessage = null;
 	
 	// Changes top level error handling
@@ -420,16 +431,19 @@ App.main = function(callback, createUi)
 				else if (message != null && message.indexOf('DocumentClosedError') < 0)
 				{
 					lastErrorMessage = message;
-					var img = new Image();
 					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
 						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
 						'CONFIG' : 'SEVERE';
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-			    		img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-			    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
-			    			':lnum:' + encodeURIComponent(linenumber) + 
-			    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
-			    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+
+					var img = new Image();
+					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+		    			'&msg=clientError:' + encodeURIComponent(message) +
+		    			':url:' + encodeURIComponent(window.location.href) +
+		    			':lnum:' + encodeURIComponent(linenumber) + 
+		    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '') +
+		    			'&sid=' + sessionId;
 				}
 			}
 			catch (err)
@@ -438,7 +452,7 @@ App.main = function(callback, createUi)
 			}
 		};
 	}
-
+	
 	if (window.mxscript != null)
 	{
 		/**
@@ -960,10 +974,10 @@ App.prototype.init = function()
 				
 				if (window.DrawGapiClientCallback != null)
 				{
-					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:' + App.GOOGLE_APIS, mxUtils.bind(this, function(resp)
 					{
 						// Starts the app without the Google Option if the API fails to load
-						if (gapi.drive != null && gapi.drive.realtime != null)
+						if (gapi.client != null)
 						{
 							gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
 							{
@@ -1751,7 +1765,7 @@ App.prototype.appIconClicked = function(evt)
 		
 		if (mode == App.MODE_GOOGLE)
 		{
-			if (file.desc != null && file.desc.parents.length > 0)
+			if (file.desc != null && file.desc.parents != null && file.desc.parents.length > 0)
 			{
 				// Opens containing folder
 				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
@@ -1901,13 +1915,13 @@ App.prototype.loadGapi = function(then)
 {
 	if (typeof gapi !== 'undefined')
 	{
-		gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:client,drive-realtime,drive-share', mxUtils.bind(this, function(resp)
+		gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:' + App.GOOGLE_APIS, mxUtils.bind(this, function(resp)
 		{
 			// Starts the app without the Google Option if the API fails to load
-			if (gapi.drive == null || gapi.drive.realtime == null)
+			if (gapi.client == null)
 			{
-				this.mode = null;
 				this.drive = null;
+				this.mode = null;
 				then();
 			}
 			else
@@ -1919,8 +1933,8 @@ App.prototype.loadGapi = function(then)
 					{
 						if (gapi.client.drive == null)
 						{
-							this.mode = null;
 							this.drive = null;
+							this.mode = null;
 						}
 						
 						then();
@@ -1998,6 +2012,26 @@ App.prototype.load = function()
 		{
 			this.loadGapi(function() {});
 		}
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+App.prototype.showRefreshDialog = function(title, message)
+{
+	if (!this.showingRefreshDialog)
+	{
+		this.showingRefreshDialog = true;
+
+		this.showError(title || mxResources.get('error'),
+			message || mxResources.get('redirectToNewApp'),
+			mxResources.get('refresh'), mxUtils.bind(this, function()
+		{
+			this.spinner.spin(document.body, mxResources.get('connecting'));
+			this.editor.graph.setEnabled(false);
+			window.location.reload();
+		}));
 	}
 };
 
@@ -4104,6 +4138,11 @@ App.prototype.save = function(name, done)
 		
 		var error = mxUtils.bind(this, function(resp)
 		{
+			if (this.getCurrentFile() == file && file.isModified())
+			{
+				file.addUnsavedStatus();
+			}
+			
 			// Spinner is paused and resumed in handleError
 			this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
 		});

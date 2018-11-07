@@ -120,6 +120,15 @@
         },
         {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
+        	enumList: [{val: 'none', dispName: 'None'},
+        			{val: 'rectanglePerimeter', dispName: 'Rectangle'}, {val: 'ellipsePerimeter', dispName: 'Ellipse'},
+        			{val: 'rhombusPerimeter', dispName: 'Rhombus'}, {val: 'trianglePerimeter', dispName: 'Triangle'},
+        			{val: 'hexagonPerimeter2', dispName: 'Hexagon'}, {val: 'lifelinePerimeter', dispName: 'Lifeline'},
+        			{val: 'orthogonalPerimeter', dispName: 'Orthogonal'}, {val: 'backbonePerimeter', dispName: 'Backbone'},
+        			{val: 'calloutPerimeter', dispName: 'Callout'}, {val: 'parallelogramPerimeter', dispName: 'Parallelogram'},
+        			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
+        },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
@@ -2020,7 +2029,7 @@
 						input.value = pValue;
 						input.className = "gePropEditor";
 						
-						if (pType == "int" || pType == "float")
+						if ((pType == "int" || pType == "float") && !prop.allowAuto)
 						{
 							input.type = "number";
 							input.step = pType == "int"? "1" : "any";
@@ -2041,6 +2050,21 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
+							inputVal = inputVal.length == 0 && pType != "string"? 0 : inputVal;
+							
+							if (prop.allowAuto)
+							{
+								if (inputVal.trim().toLowerCase() == "auto")
+								{
+									inputVal = "auto";
+									pType = "string";
+								}
+								else
+								{
+									inputVal = parseFloat(inputVal);
+									inputVal = isNaN(inputVal)? 0 : inputVal;
+								}
+							}
 							
 							if (prop.min != null && inputVal < prop.min)
 							{

@@ -25,27 +25,28 @@ DrawioFile = function(ui, data)
 mxUtils.extend(DrawioFile, mxEventSource);
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 1500.
+ * Specifies the delay between the last change and the autosave.
  */
 DrawioFile.prototype.autosaveDelay = 1500;
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 30000.
+ * Specifies the maximum delay before an autosave is forced even if the graph
+ * is being changed.
  */
 DrawioFile.prototype.maxAutosaveDelay = 30000;
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Contains the thread for the next autosave.
  */
 DrawioFile.prototype.autosaveThread = null;
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 500.
+ * Stores the timestamp for hte last autosave.
  */
 DrawioFile.prototype.lastAutosave = null;
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 1500.
+ * Stores the modified state.
  */
 DrawioFile.prototype.modified = false;
 
@@ -297,40 +298,20 @@ DrawioFile.prototype.getData = function()
  */
 DrawioFile.prototype.open = function()
 {
-	this.ui.setFileData(this.getData());
+	var data = this.getData();
+	
+	if (data != null)
+	{
+		this.ui.setFileData(data);
+	}
 	
 	this.changeListener = mxUtils.bind(this, function(sender, eventObject)
 	{
 		var edit = (eventObject != null) ? eventObject.getProperty('edit') : null;
 		
-		if (this.changeListenerEnabled && this.isEditable() &&
-			(edit == null || !edit.ignoreEdit))
+		if (this.changeListenerEnabled && this.isEditable() && (edit == null || !edit.ignoreEdit))
 		{
-			this.setModified(true);
-			
-			if (this.isAutosave())
-			{
-				this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
-				
-				this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
-				{
-					// Does not update status if another autosave was scheduled
-					if (this.autosaveThread == null && this.ui.getCurrentFile() == this && !this.isModified())
-					{
-						this.addAllSavedStatus();
-					}
-				}), mxUtils.bind(this, function(resp)
-				{
-					if (this.ui.getCurrentFile() == this)
-					{
-						this.addUnsavedStatus(resp);
-					}
-				}));
-			}
-			else
-			{
-				this.addUnsavedStatus();
-			}
+			this.fileChanged();
 		}
 	});
 	
@@ -360,22 +341,17 @@ DrawioFile.prototype.addAllSavedStatus = function()
 	
 	if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
 	{
-		
-		this.ui.editor.setStatus('<span title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
+		this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
 			'" style="text-decoration:underline;cursor:pointer;">' +
-			mxUtils.htmlEntities(mxResources.get('allChangesSaved')) + '</span>');
+			mxUtils.htmlEntities(mxResources.get('allChangesSaved')) + '</div>');
+		var links = (this.ui.statusContainer != null) ? this.ui.statusContainer.getElementsByTagName('div') : null;
 		
-		if (this.ui.statusContainer != null)
+		if (links.length > 0)
 		{
-			var links = this.ui.statusContainer.getElementsByTagName('span');
-			
-			if (links.length > 0)
+			mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 			{
-				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
-				{
-					this.ui.actions.get('revisionHistory').funct();
-				}));
-			}
+				this.ui.actions.get('revisionHistory').funct();
+			}));
 		}
 	}
 	else
@@ -387,13 +363,45 @@ DrawioFile.prototype.addAllSavedStatus = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DrawioFile.prototype.fileChanged = function()
+{
+	this.setModified(true);
+	
+	if (this.isAutosave())
+	{
+		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		
+		this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
+		{
+			// Does not update status if another autosave was scheduled
+			if (this.autosaveThread == null && this.ui.getCurrentFile() == this && !this.isModified())
+			{
+				this.addAllSavedStatus();
+			}
+		}), mxUtils.bind(this, function(resp)
+		{
+			if (this.ui.getCurrentFile() == this)
+			{
+				this.addUnsavedStatus(resp);
+			}
+		}));
+	}
+	else
+	{
+		this.addUnsavedStatus();
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DrawioFile.prototype.addUnsavedStatus = function(err)
 {
 	if (err instanceof Error && err.message != null)
 	{
 		this.ui.editor.setStatus('<div class="geStatusAlert" style="overflow:hidden;">' +
-				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
-				' (' + mxUtils.htmlEntities(err.message) + ')</div>');
+			mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
+			' (' + mxUtils.htmlEntities(err.message) + ')</div>');
 	}
 	else
 	{
@@ -415,17 +423,19 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) + '</div>');
 		
 		// Installs click handler for saving
-		if (this.ui.statusContainer != null)
+		var links = (this.ui.statusContainer != null) ? this.ui.statusContainer.getElementsByTagName('div') : null;
+		
+		if (links != null && links.length > 0)
 		{
-			var links = this.ui.statusContainer.getElementsByTagName('div');
-			
-			if (links.length > 0)
+			mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 			{
-				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
-				{
-					this.ui.actions.get((this.ui.mode == null) ? 'saveAs' : 'save').funct();
-				}));
-			}
+				this.ui.actions.get((this.ui.mode == null) ? 'saveAs' : 'save').funct();
+			}));
+		}
+		else
+		{
+			this.ui.editor.setStatus('<div class="geStatusAlert" style="overflow:hidden;">' +
+				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) + '</div>');
 		}
 	}
 };
@@ -442,12 +452,16 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 	
 	var tmp = (new Date().getTime() - this.lastAutosave < maxDelay) ? delay : 0;
 	this.clearAutosave();
-	
+
 	// Starts new timer or executes immediately if not unsaved for maxDelay
-	this.autosaveThread = window.setTimeout(mxUtils.bind(this, function()
+	var thread = window.setTimeout(mxUtils.bind(this, function()
 	{
-		this.autosaveThread = null;
 		this.lastAutosave = null;
+		
+		if (this.autosaveThead == thread)
+		{
+			this.autosaveThread = null;
+		}
 		
 		// Workaround for duplicate save if UI is blocking
 		// after save while pending autosave triggers
@@ -478,12 +492,19 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 		}
 		else
 		{
+			if (!this.isModified())
+			{
+				this.ui.editor.setStatus('');
+			}
+			
 			if (success != null)
 			{
 				success(null);
 			}
 		}
 	}), tmp);
+	
+	this.autosaveThread = thread;
 };
 
 /**

@@ -629,7 +629,7 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 				{
 					resume = this.ui.spinner.pause();
 					
-					var dlg = new ErrorDialog(this.ui, mxResources.get('errorSavingFile'),
+					var dlg = new ErrorDialog(this.ui, mxResources.get('externalChanges'),
 						mxResources.get('fileChangedOverwrite'), mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
 							error();

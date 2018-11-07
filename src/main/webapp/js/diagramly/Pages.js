@@ -460,7 +460,7 @@ Graph.prototype.createViewState = function(node)
 		background: (bg != null && bg.length > 0) ? bg : this.defaultGraphBackground,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
-		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, pw) : this.pageFormat,
+		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : mxSettings.getPageFormat(),
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
@@ -496,8 +496,10 @@ Graph.prototype.saveViewState = function(vs, node)
 		node.setAttribute('pageHeight', pf.height);
 	}
 	
-	node.setAttribute('background', (vs != null && vs.background != null) ?
-		vs.background : this.defaultGraphBackground);
+	if (vs != null && vs.background != null)
+	{
+		node.setAttribute('background', vs.background);
+	}
 
 	if (vs != null && vs.backgroundImage != null)
 	{

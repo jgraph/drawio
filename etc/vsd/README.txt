@@ -36,7 +36,7 @@ Running the conversion site without Hyper-V:
 ========================================
 Running the conversion site with Hyper-V:
 
-1- Run VsdConverterApp TCP sever
+1- Run VsdConverterApp TCP sever (Also disable QuickEdit Mode: Property > Options > Edit Options > QuickEdit Mode)
 2- Deploy VsdConverter to IIS (manually or using Web Deployment Tool).
 
 In details (Ignore Hyper-V steps if it is running directly on the server):

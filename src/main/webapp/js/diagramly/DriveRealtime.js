@@ -25,7 +25,7 @@ function DriveRealtime(file, doc)
 
 	this.ui.allowAnimation = false;
 	this.codec = new mxCodec();
-	
+
 	this.disconnectListener = mxUtils.bind(this, function()
 	{
 		// LATER: How to reload realtime document without refreshing the page
@@ -181,6 +181,20 @@ DriveRealtime.prototype.start = function()
 		this.log('reset realtime');
 	}
 
+	// Forces a refresh if realtime was disabled on the file
+	this.root.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, mxUtils.bind(this, function(evt)
+	{
+		if (evt.property == 'realtimeConverted')
+		{
+			this.ui.showRefreshDialog();
+		}
+	}));
+	
+	if (this.root.has('realtimeConverted'))
+	{
+		this.ui.showRefreshDialog();
+	}
+
 	var prefix = this.createPrefix();
 	this.model.prefix = prefix + '-';
 	this.ui.editor.resetGraph();
@@ -265,9 +279,14 @@ DriveRealtime.prototype.start = function()
 			// Dummy node, should be XML node if used
 			this.page = new DiagramPage(document.createElement('diagram'));
 			this.page.mapping = new RealtimeMapping(this, this.diagramMap, this.page);
-			this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
-			this.diagramMap.set('id', this.page.getId());
-			this.page.setName(this.diagramMap.get('name'));
+			
+			if (this.file.isEditable())
+			{
+				this.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+				this.diagramMap.set('id', this.page.getId());
+			}
+			
+			this.page.setName(this.diagramMap.get('name') || mxResources.get('pageWithNumber', [1]));
 			this.page.mapping.init();
 		}
 		else
@@ -282,10 +301,17 @@ DriveRealtime.prototype.start = function()
 			page.mapping = new RealtimeMapping(this, diagramMap, page);
 			this.ui.currentPage = page;
 
-			if (this.file.isEditable() && !page.mapping.diagramMap.has('name'))
+			if (this.file.isEditable())
 			{
-				page.mapping.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
-				page.mapping.diagramMap.set('id', page.getId());
+				if (!page.mapping.diagramMap.has('name'))
+				{
+					page.mapping.diagramMap.set('name', mxResources.get('pageWithNumber', [1]));
+				}
+				
+				if (!page.mapping.diagramMap.has('id'))
+				{
+					page.mapping.diagramMap.set('id', page.getId());
+				}
 			}
 			
 			page.setName(page.mapping.diagramMap.get('name') || mxResources.get('pageWithNumber', [1]));
@@ -872,6 +898,7 @@ DriveRealtime.prototype.installPageSelectListener = function()
 			if (this.file.isEditable())
 			{
 				page.mapping.diagramMap.set('name', page.getName());
+				page.mapping.diagramMap.set('id', page.getId());
 			}
 		}
 	});
@@ -922,6 +949,12 @@ DriveRealtime.prototype.installPageSelectListener = function()
 					page.mapping = new RealtimeMapping(this, evt.values[i], page);
 					page.setName(page.mapping.diagramMap.get('name') || mxResources.get('pageWithNumber',
 						[this.ui.pages.length + 1]));
+					
+					if (page.mapping.diagramMap.has('id'))
+					{
+						page.node.setAttribute('id', page.mapping.diagramMap.get('id'));
+					}
+					
 					this.ui.pages.splice(evt.index + i, 0, page);
 					page.mapping.init();
 				}

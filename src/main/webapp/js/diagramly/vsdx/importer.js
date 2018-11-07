@@ -1287,14 +1287,14 @@ var com;
                                              
                                         	 if (dScale != null) 
                                              {
-                                        		 dScaleV = parseFloat(dScale.getAttribute("V"));
+                                        		 dScaleV = parseFloat(dScale.getAttribute("V")) || 1;
                                              }
                                              
                                         	 var pScale = master.pageSheet["PageScale"];
                                              
                                         	 if (pScale != null) 
                                              {
-                                        		 pScaleV = parseFloat(pScale.getAttribute("V"));
+                                        		 pScaleV = parseFloat(pScale.getAttribute("V")) || 1;
                                              }
                                         	 
                                         	 scale = pScaleV / dScaleV;
@@ -1533,7 +1533,7 @@ var com;
                         }
                         /*private*/ RowFactory.getIndex = function (elem) {
                             try {
-                                return parseInt(elem.getAttribute("IX"));
+                                return parseInt(elem.getAttribute("IX")) || 1;
                             }
                             catch (e) {
                                 return 1;
@@ -2142,7 +2142,7 @@ var com;
                     }
                     mxVsdxGeometry.prototype.getIndex$org_w3c_dom_Element = function (elem) {
                         try {
-                            return parseInt(elem.getAttribute("IX"));
+                            return parseInt(elem.getAttribute("IX")) || 0;
                         }
                         catch (e) {
                             return 0;
@@ -8609,7 +8609,7 @@ var com;
                                             var cell = cells[index158];
                                             {
                                                 n = cell.getAttribute("N");
-                                                var v = cell.getAttribute("V");
+                                                var v = cell.getAttribute("V") || cell.textContent || "";
                                                 switch ((n)) {
                                                     case "Value":
                                                         value = v;
@@ -10688,9 +10688,9 @@ var com;
                             var yS = "-0.4";
                             if (control != null) {
                                 xEl = control.getElementsByTagName(com.mxgraph.io.vsdx.mxVsdxConstants.X).item(0);
-                                xS = xEl.getAttribute("F");
+                                xS = xEl.getAttribute("F") || "";
                                 yEl = control.getElementsByTagName(com.mxgraph.io.vsdx.mxVsdxConstants.Y).item(0);
-                                yS = yEl.getAttribute("F");
+                                yS = yEl.getAttribute("F") || "";
                             }
                             var geometry_4 = vertex.getGeometry();
                             xS = xS.split("Width/2+").join("");
@@ -11080,7 +11080,7 @@ var com;
                                 var firstNURBS = firstGeom.getElementsByTagName(com.mxgraph.io.vsdx.mxVsdxConstants.NURBS_TO).item(0);
                                 var firstE = firstNURBS.getElementsByTagName("E").item(0);
                                 if (firstE != null) {
-                                    var f = firstE.getAttribute("F");
+                                    var f = firstE.getAttribute("F") || "";
                                     f = f.replace(new RegExp("NURBS\\(", 'g'), "");
                                     f = f.replace(new RegExp("\\)", 'g'), "");
                                     f = f.replace(new RegExp(",", 'g'), " ");

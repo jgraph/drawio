@@ -1,3 +1,12 @@
+06-NOV-2018: 9.3.4
+
+- Improves sanity check for Google Drive files
+- Uses mxGraph 3.9.11 beta 4
+
+02-NOV-2018: 9.3.2
+
+- Adds sanity check for Google Drive files
+
 26-OCT-2018: 9.3.1
 
 - Adds current page index to JSON protocol

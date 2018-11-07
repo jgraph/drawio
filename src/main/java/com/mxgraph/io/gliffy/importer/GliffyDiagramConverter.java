@@ -811,7 +811,8 @@ public class GliffyDiagramConverter
 				cell.setVertex(true);
 				style.append("shape=image;imageAspect=0;");
 				Resource res = gliffyDiagram.embeddedResources.get(svg.embeddedResourceId);
-
+				SVGImporterUtils svgUtils = new SVGImporterUtils();
+				res.data = svgUtils.setViewBox(res.data);
 				style.append("image=data:image/svg+xml,").append(res.getBase64EncodedData()).append(";");
 			}
 		}
