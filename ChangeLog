@@ -1,3 +1,13 @@
+09-NOV-2018: 9.4.1
+
+- Fixes links to revision history from status
+- Hides static page text in embed mode
+- Enables import from device on iOS
+
+08-NOV-2018: 9.4.0
+
+- Disables Google realtime on 11/12/2018 at 9:00am (UTC)
+
 06-NOV-2018: 9.3.4
 
 - Improves sanity check for Google Drive files

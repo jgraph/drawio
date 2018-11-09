@@ -779,7 +779,16 @@ EditorUi.initMinimalTheme = function()
 			
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['createRevision', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
+				if (file.realtime == null)
+				{
+					ui.menus.addMenuItems(menu, ['save'], parent);
+				}
+				else
+				{
+					ui.menus.addMenuItems(menu, ['createRevision'], parent);
+				}
+				
+				ui.menus.addMenuItems(menu, ['makeCopy', '-', 'rename', 'moveToFolder'], parent);
 			}
 			else
 			{
@@ -798,12 +807,12 @@ EditorUi.initMinimalTheme = function()
 				}
 			}
 
+			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
+			
 			if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 			}
-			
-			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
         })));
         
         // Augments the existing export menu
