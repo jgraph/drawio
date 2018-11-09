@@ -1664,7 +1664,7 @@
 			}
 			
 			var ts = new Date();
-			title += '-' + getFormattedTime();
+			title += ' ' + getFormattedTime();
 		}
 		
 		title = mxResources.get('copyOf', [title]) + extension;
@@ -1848,7 +1848,7 @@
 					else if (oldFile != null)
 					{
 						// Workaround for close realtime model is to reload the file from scratch
-						if (oldFile.constructor == DriveFile)
+						if (oldFile.constructor == DriveFile && oldFile.realtime != null)
 						{
 							this.loadFile(oldFile.getHash());
 						}
@@ -1899,6 +1899,30 @@
 			{
 	    			// ignore
 			}
+		}
+	};
+
+	/**
+	 * Debug output.
+	 */
+	EditorUi.prototype.sendReport = function(data, maxLength)
+	{
+		maxLength = (maxLength != null) ? maxLength : 3000000;
+		
+		try
+		{
+			if (data.length > maxLength)
+			{
+				data = data.substring(0, maxLength) + '\n...[SHORTENED]'
+			}
+			
+			mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
+				'&url=' + encodeURIComponent(window.location.href) +
+				'&data=' + encodeURIComponent(data));
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 
@@ -3119,7 +3143,7 @@
    	    // Checks if output is invalid or empty
    	    if (data.length <= 6 || data == canvas.cloneNode(false).toDataURL('image/' + format))
    	    {
-   	    		throw {message: 'Invalid image'};
+   	    	throw {message: 'Invalid image'};
    	    }
    	    
    	    if (xml != null)

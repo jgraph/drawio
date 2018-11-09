@@ -572,7 +572,7 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 	{
 		this.executeRequest(gapi.client.drive.files.copy({'fileId': id,
 			'fields': this.allFields, 'supportsTeamDrives': true,
-			'resource': {'title' : title}}), success, error);
+			'resource': {'title': title}}), success, error);
 	}
 };
 
@@ -713,11 +713,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 						{
 							if (this.isGoogleRealtimeMimeType(resp.mimeType))
 							{
-								this.convertRealtimeFile(resp, mxUtils.bind(this, function(file)
-								{
-									this.notifyRealtimeConverted(file);
-									success(file);
-								}), error);
+								this.convertRealtimeFile(resp, success, error);
 							}
 							else
 							{
@@ -735,12 +731,20 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 										doc.getModel().getRoot().isEmpty() || (doc.getModel().getRoot().has('cells') &&
 										!doc.getModel().getRoot().has(DriveRealtime.prototype.diagramsKey)))
 						    		{
-						    			this.getXmlFile(resp, doc, success, error);
+										this.getXmlFile(resp, doc, success, error);
 						    		}
 						    		else
 						    		{
-						        		// XML not required here since the realtime model is not empty
-						    			success(new DriveFile(this.ui, null, resp, doc));
+						        		// Uses JSON or XML data if flagged
+						    			if (doc.getModel().getRoot().has('realtimeConverted'))
+										{
+						    				doc.close();
+											this.convertRealtimeFile(resp, success, error);
+										}
+										else
+										{
+							    			success(new DriveFile(this.ui, null, resp, doc));
+										}
 						    		}
 								}
 								catch (e)
@@ -784,7 +788,7 @@ DriveClient.prototype.getRealtimeData = function(id, success, error, retryCount)
 		}
 		else if (error != null)
 		{
-			error();
+			error({message: 'realtime.get returned invalid data for ' + id});
 		}
 	}), mxUtils.bind(this, function(resp)
 	{
@@ -795,11 +799,14 @@ DriveClient.prototype.getRealtimeData = function(id, success, error, retryCount)
 		
 		if (retryCount < 3)
 		{
-			this.getRealtimeData(id, success, error, retryCount + 1);
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.getRealtimeData(id, success, error, retryCount + 1);
+			}), (retryCount + 1) * 100);
 		}
 		else if (error != null)
 		{
-			error();
+			error({message: 'realtime.get failed for ' + id});
 		}
 	}));
 };
@@ -895,7 +902,28 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 					}
 					else
 					{
-						// TODO: Import PNG
+						// Checks if the file contains XML data which can happen when we insert
+						// the file and then don't post-process it when loaded into the UI which
+						// is required for creating the images for .PNG and .SVG files.
+						try
+						{
+							var temp = atob(data.substring(index + 1));
+							
+							if (temp != null && (temp.substring(0, 8) === '<mxfile ' ||
+								temp.substring(0, 14) === '<mxGraphModel ' ||
+								temp.substring(0, 14) === '<mxGraphModel>'))
+	    					{
+								data = temp;
+	    					}
+							else
+							{
+								// TODO: Import as PNG
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
 					}
 				}
 			}
@@ -904,7 +932,7 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 	
 			// Checks if mime-type needs to be updated if the file is editable and no viewer app
 			if (App.GOOGLE_REALTIME && !ignoreMime && this.appId != '850530949725' && file.isEditable() &&
-				resp.mimeType != this.mimeType)
+				resp.mimeType != this.mimeType && resp.mimeType != this.xmlMimeType)
 			{
 				// Overwrites mime-type (only mutable on update when uploading new content)
 				this.saveFile(file, true, mxUtils.bind(this, function(resp)
@@ -949,6 +977,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		// Adds optional thumbnail to upload request
 		var doSave = mxUtils.bind(this, function(thumb, thumbMime, keepExisting)
 		{
+			var prevDesc = null;
+			var pinned = false;
 			var meta =
 			{
 				'mimeType': file.desc.mimeType,
@@ -956,11 +986,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			};
 			
 			// Overrides old mime type and creates a revision
-			if (!App.GOOGLE_REALTIME && file.realtime == null &&
-				this.isGoogleRealtimeMimeType(file.desc.mimeType))
+			if (file.realtime == null && this.isGoogleRealtimeMimeType(file.desc.mimeType))
 			{
+				prevDesc = file.desc;
 				meta.mimeType = this.xmlMimeType;
 				revision = true;
+				pinned = true;
 			}
 			
 			// Inserts a channel ID
@@ -998,13 +1029,42 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			}
 
 			// Updates saveDelay on drive file
-			var wrapper = function()
+			var wrapper = mxUtils.bind(this, function()
 			{
 		    	file.saveDelay = new Date().getTime() - t0;
 		    	success.apply(this, arguments);
-			};
+
+		    	if (prevDesc != null)
+				{
+		    		// Pins previous revision
+					this.executeRequest(gapi.client.drive.revisions.get(
+					{
+						'fileId': prevDesc.id,
+					    'revisionId': prevDesc.headRevisionId,
+					    'supportsTeamDrives': true
+					}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
+					{
+						resp.pinned = true;
+						
+						this.executeRequest(gapi.client.drive.revisions.update(
+			    		{
+		    		      'fileId': prevDesc.id,
+		    		      'revisionId': prevDesc.headRevisionId,
+		    		      'resource': resp
+		    		    }));
+					})));
+					
+					// Logs conversion
+					this.ui.logEvent({category: 'RT-CONVERT',
+						action: 'from-' + prevDesc.id + '.' +
+						prevDesc.headRevisionId + '-to-' +
+						file.desc.id + '.' + file.desc.headRevisionId + '-' +
+						file.convertedFrom,
+						label: (this.user != null) ? this.user.id : 'unknown-user'});
+				}
+			});
 			
-			var fn = mxUtils.bind(this, function(data, binary)
+			var doExecuteRequest = mxUtils.bind(this, function(data, binary)
 			{
 				if (properties != null)
 				{
@@ -1016,21 +1076,21 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 					file.realtime == null) ? file.desc.etag : null;
 				
 				this.executeRequest(this.createUploadRequest(file.getId(), meta,
-					data, revision || (file.desc.mimeType != this.mimeType &&
-					file.desc.mimeType != this.libraryMimeType), binary, etag),
-					wrapper, error);
+					data, revision || (file.desc.mimeType != this.xmlMimeType &&
+					file.desc.mimeType != this.mimeType && file.desc.mimeType !=
+					this.libraryMimeType), binary, etag, pinned), wrapper, error);
 			});
 			
 			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle()))
 			{
 				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 				{
-					fn(data, true);
+					doExecuteRequest(data, true);
 				}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
 			}
 			else
 			{
-				fn(file.getData(), false);
+				doExecuteRequest(file.getData(), false);
 			}
 		});
 		
@@ -1107,13 +1167,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 /**
  * Sends a message to all collaborators and stores the head revision ID.
  */
-DriveClient.prototype.notifyRealtimeConverted = function(file)
+DriveClient.prototype.notifyRealtimeConverted = function(desc)
 {
 	try
 	{
 		if (gapi.drive.realtime != null)
 		{
-			gapi.drive.realtime.load(file.getId(), mxUtils.bind(this, function(doc)
+			gapi.drive.realtime.load(desc.id, mxUtils.bind(this, function(doc)
 			{
 				try
 				{
@@ -1121,7 +1181,7 @@ DriveClient.prototype.notifyRealtimeConverted = function(file)
 						doc.getModel().getRoot() != null)
 					{
 						doc.getModel().getRoot().set('realtimeConverted',
-							file.desc.headRevisionId);
+							desc.headRevisionId);
 					}
 				}
 				catch (e)
@@ -1186,7 +1246,7 @@ DriveClient.prototype.redirectToNewApp = function(error, fileId)
 		this.redirectDialogShowing = true;
 		
 		var url = window.location.protocol + '//' + this.newAppHostname + '/' + this.ui.getSearch(
-			['create', 'title', 'mode', 'url', 'drive', 'splash']) + '#G' + fileId;
+			['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']) + '#G' + fileId;
 		
 		if (error != null)
 		{
@@ -1284,7 +1344,7 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.createUploadRequest = function(id, metadata, data, revision, binary, etag)
+DriveClient.prototype.createUploadRequest = function(id, metadata, data, revision, binary, etag, pinned)
 {
 	binary = (binary != null) ? binary : false;
 	var bd = '-------314159265358979323846';
@@ -1313,6 +1373,11 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	if (!revision)
 	{
 		reqObj.params['newRevision'] = false;
+	}
+	
+	if (pinned)
+	{
+		reqObj.params['pinned'] = true;
 	}
 	
 	reqObj.params['supportsTeamDrives'] = true;
@@ -1685,26 +1750,55 @@ DriveClient.prototype.getRealtimeAge = function(desc, json)
  */
 DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
 {
+	var xmlSuccess = mxUtils.bind(this, function(file)
+	{
+		file.convertedFrom = 'xml';
+		success(file);
+	});
+	
+	var jsonSuccess = mxUtils.bind(this, function(file)
+	{
+		file.convertedFrom = 'json';
+		success(file);
+	});
+
 	this.getRealtimeData(desc.id, mxUtils.bind(this, function(json)
 	{
-		var age = this.getRealtimeAge(desc, json);
-		
-		// Uses the newer of the two
-		if (age < 0)
+		try
 		{
-			var node = this.convertJsonToXml(json);
-			console.log('converted realtime model', age, json, node);
-			success(new DriveFile(this.ui, mxUtils.getXml(node), desc));
+			var age = this.getRealtimeAge(desc, json);
+			this.notifyRealtimeConverted(desc);
+			
+			// Uses realtime if newer or less than 5 minutes old
+			if (age < 300000)
+			{
+				jsonSuccess(new DriveFile(this.ui, mxUtils.getXml(
+					this.convertJsonToXml(json)), desc));
+			}
+			else
+			{
+				this.getXmlFile(desc, null, xmlSuccess, mxUtils.bind(this, function()
+				{
+					try
+					{
+						jsonSuccess(new DriveFile(this.ui, mxUtils.getXml(
+							this.convertJsonToXml(json)), desc));
+
+					}
+					catch (e)
+					{
+						this.getXmlFile(desc, null, xmlSuccess, error);
+					}
+				}));
+			}
 		}
-		else
+		catch (e)
 		{
-			console.log('using newer XML file', age, json);
-			this.getXmlFile(desc, null, success, error);
+			this.getXmlFile(desc, null, xmlSuccess, error);
 		}
 	}), mxUtils.bind(this, function()
 	{
-		console.log('no realtime data, using XML file');
-		this.getXmlFile(desc, null, success, error);
+		this.getXmlFile(desc, null, xmlSuccess, error);
 	}));
 };
 
@@ -1791,7 +1885,7 @@ DriveClient.prototype.decodeJsonPage = function(json, node, uncompressed)
 			else
 			{
 				// Workaround for missing page ID in JSON
-				this.node.setAttribute('id', Editor.guid());
+				node.setAttribute('id', Editor.guid());
 			}
 		
 			if (json.name != null)

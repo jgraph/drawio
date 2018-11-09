@@ -84,7 +84,7 @@ DriveFile.prototype.getPublicUrl = function(fn)
  */
 DriveFile.prototype.isAutosaveOptional = function()
 {
-	return true;
+	return this.realtime == null;
 };
 
 /**
@@ -453,7 +453,17 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 		{
 			this.showingConflictDialog = false;
 			this.changeListenerEnabled = prev;
-			this.makeCopy(retry, error, true);
+			
+			if (this.isRestricted())
+			{
+				this.ui.editor.editAsNew(this.ui.getFileData(true));
+				resume();
+				error();
+			}
+			else
+			{
+				this.makeCopy(retry, error, true);
+			}
 		}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
 		{
 			this.showingConflictDialog = false;
@@ -472,91 +482,17 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 		// Adds important notice to dialog
 		if (this.ui.dialog != null && this.ui.dialog.container != null)
 		{
-			var alert = document.createElement('a');
-			alert.className = 'geStatusAlert';
-			alert.style.display = 'block';
-			alert.style.position = 'absolute';
-			alert.style.cursor = 'pointer';
-			alert.style.bottom = '0';
-			alert.style.padding = '8px 0 8px 0';
-			alert.style.marginBottom = '26px';
+			var alert = this.ui.createRealtimeNotice();
 			alert.style.left = '0';
 			alert.style.right = '0';
-			alert.style.textAlign = 'center';
 			alert.style.borderRadius = '0';
 			alert.style.borderLeftStyle = 'none';
 			alert.style.borderRightStyle = 'none';
-			alert.style.textDecoration = 'none';
-			alert.style.fontWeight = 'bold';
-			
-			alert.setAttribute('href', 'https://desk.draw.io/support/solutions/articles/16000087215');
-			alert.setAttribute('target', '_blank');
-			mxUtils.write(alert, mxResources.get('collaborativeEditingNotice'));
-			
+			alert.style.marginBottom = '26px';
+			alert.style.padding = '8px 0 8px 0';
+
 			this.ui.dialog.container.appendChild(alert);
 		}
-	}
-};
-
-/**
- * Checks the conversion of the realtime model for this file.
- */
-DriveFile.prototype.checkConvert = function()
-{
-	var doCheck = mxUtils.bind(this, function(json)
-	{
-		try
-		{
-			if (this.ui.getCurrentFile() == this && !this.isModified())
-			{
-				this.ui.drive.getXmlFile(this.desc, null, mxUtils.bind(this, function(file)
-				{
-					try
-					{
-						var data = file.getData();
-						var node = (data != null) ? mxUtils.parseXml(data).documentElement : null;
-						
-						if (node != null)
-						{
-							var tmp = this.ui.editor.extractGraphModel(node, true);
-							
-							if (tmp != null)
-							{
-								node = tmp;
-							}
-						}
-						
-						if (this.runCheck != null)
-						{
-							this.runCheck(json, node, data);
-						}
-					}
-					catch (e)
-					{
-						this.log('CATCH-PARSEFILE-' + e.stack);
-						this.runCheck(json, null, 'CATCH-PARSEFILE-' + e.stack);
-					}
-				}), mxUtils.bind(this, function(err)
-				{
-					this.log('ERROR-GETFILE');
-					this.runCheck(json, null, 'ERROR-GETFILE');
-				}), true);
-			}
-		}
-		catch (e)
-		{
-			this.log('CATCH-GETFILE-' + e.stack);
-			this.runCheck(json, null, 'CATCH-GETFILE-' + e.stack);
-		}
-	});
-	
-	try
-	{
-		this.ui.drive.getRealtimeData(this.desc.id, doCheck, doCheck);
-	}
-	catch (e)
-	{
-		this.log('CATCH-GETJSON-' + e.stack, true);
 	}
 };
 
@@ -708,7 +644,7 @@ DriveFile.prototype.log = function(msg, sendReport)
 		
 		if (sendReport)
 		{
-			this.report('Realtime Log Report ' + new Date() +
+			this.ui.sendReport('Realtime Log Report ' + new Date() +
 				'\n\nDescription: ' + JSON.stringify({version: this.ui.JSON_CHECK,
 					title: this.desc.title, editable: this.desc.editable,
 					copyable: this.desc.copyable, labels: this.desc.labels, id: this.desc.id,
@@ -717,38 +653,6 @@ DriveFile.prototype.log = function(msg, sendReport)
 					mimeType: this.desc.mimeType}) +
 				'\n\nMessage:\n' + msg);
 		}
-	}
-	catch (e)
-	{
-		// ignore
-	}
-};
-
-/**
- * Debug output.
- */
-DriveFile.prototype.report = function(data)
-{
-	try
-	{
-		if (data.length > 3000000)
-		{
-			data = data.substring(0, 3000000) + '\n...[REPORT SHORTENED]'
-		}
-		
-		this.debug(data);
-		
-		mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
-			'&url=' + encodeURIComponent(window.location.href) +
-			'&data=' + encodeURIComponent(data),
-			mxUtils.bind(this, function(req)
-			{
-				this.debug('report sent');
-			}),
-			mxUtils.bind(this, function()
-			{
-				this.debug('report failed');
-			}));
 	}
 	catch (e)
 	{

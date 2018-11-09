@@ -187,14 +187,16 @@ App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
 App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
 
 /**
- * Switch to disable Google realtime. If true this will convert existing realtime files.
+ * Switch to disable Google realtime starting on 11/12/2018 at 9:00am (UTC).
  */
-App.GOOGLE_REALTIME = urlParams['google-realtime'] != '0';
+App.GOOGLE_REALTIME = urlParams['google-realtime'] != '0' && new Date().getTime() < 1542013200000;
 
 /**
- * Switch to disable Google realtime. If true this will convert existing realtime files.
+ * Google APIs to load. The realtime API is needed to notify collaborators of conversion
+ * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
-App.GOOGLE_APIS = 'client,drive-share' + ((App.GOOGLE_REALTIME) ? ',drive-realtime' : ''); 
+App.GOOGLE_APIS = 'client,drive-share,drive-realtime';
+//App.GOOGLE_APIS = 'client,drive-share' + ((App.GOOGLE_REALTIME) ? ',drive-realtime' : ''); 
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
@@ -451,6 +453,19 @@ App.main = function(callback, createUi)
 				// do nothing
 			}
 		};
+	}
+	
+	/**
+	 * Removes info text in embed mode
+	 */
+	if (urlParams['embed'] == '1')
+	{
+		var geInfo = document.getElementById('geInfo');
+		
+		if (geInfo != null)
+		{
+			geInfo.parentNode.removeChild(geInfo);
+		}
 	}
 	
 	if (window.mxscript != null)
@@ -1158,40 +1173,44 @@ App.prototype.checkLicense = function()
 			domain = email.substring(at + 1);
 			email = this.crc32(email.substring(0, at)) + '@' + domain;
 		}
-		
+
 		// Timestamp is workaround for cached response in certain environments
 		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) + 
 				'&ds=' + encodeURIComponent(driveUser.displayName) + '&lc=' + encodeURIComponent(driveUser.locale) + 
 				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
-				var registered = false;
-				var exp = null;
-				
-				try
-				{
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
-					{
-						var value = req.getText();
-						registered = true;
-						
-						if (value.length > 0)
-						{
-							var lic = JSON.parse(value);
-							
-							if (lic != null)
-							{
-								exp = this.handleLicense(lic, domain);
-							}
-						}
-					}
-				}
-				catch (e)
-				{
-					// ignore
-				}
+// NOTE: RESPONSE IS IGNORED TO SHOW TEMPORARY WARNING NOTICE BELOW!
+//				var registered = false;
+//				var exp = null;
+//				
+//				try
+//				{
+//					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+//					{
+//						var value = req.getText();
+//						registered = true;
+//						
+//						if (value.length > 0)
+//						{
+//							var lic = JSON.parse(value);
+//							
+//							if (lic != null)
+//							{
+//								exp = this.handleLicense(lic, domain);
+//							}
+//						}
+//					}
+//				}
+//				catch (e)
+//				{
+//					// ignore
+//				}
 			}));
 	}
+	
+	// NOTE: RESPONSE ABOVE IS IGNORED TO SHOW TEMPORARY WARNING NOTICE!
+	this.showFooterRealtimeNotice();
 };
 
 /**
@@ -1250,6 +1269,50 @@ App.prototype.handleLicense = function(lic, domain)
 	}
 	
 	return expiry;
+};
+
+/**
+ * Returns true if the current domain is for the new drive app.
+ */
+App.prototype.showFooterRealtimeNotice = function()
+{
+	var footer = document.getElementById('geFooter');
+	
+	if (footer != null)
+	{
+		var alert = this.createRealtimeNotice();
+		alert.style.zIndex = '1';
+		alert.style.padding = '18px 0 14px 0';
+		alert.style.width = 'auto';
+		alert.style.top = '0px';
+		alert.style.left = '0px';
+		alert.style.right = '170px';
+
+		footer.appendChild(alert);
+	}
+};
+
+/**
+ * Returns true if the current domain is for the new drive app.
+ */
+App.prototype.createRealtimeNotice = function()
+{
+	var alert = document.createElement('a');
+	alert.className = 'geStatusAlert';
+	alert.style.display = 'block';
+	alert.style.position = 'absolute';
+	alert.style.overflow = 'hidden';
+	alert.style.cursor = 'pointer';
+	alert.style.bottom = '0';
+	alert.style.textAlign = 'center';
+	alert.style.textDecoration = 'none';
+	alert.style.fontWeight = 'bold';
+	
+	alert.setAttribute('href', 'https://desk.draw.io/support/solutions/articles/16000087215');
+	alert.setAttribute('target', '_blank');
+	mxUtils.write(alert, mxResources.get('collaborativeEditingNotice'));
+	
+	return alert;
 };
 
 /**
@@ -2024,14 +2087,29 @@ App.prototype.showRefreshDialog = function(title, message)
 	{
 		this.showingRefreshDialog = true;
 
-		this.showError(title || mxResources.get('error'),
+		this.showError(title || mxResources.get('externalChanges'),
 			message || mxResources.get('redirectToNewApp'),
 			mxResources.get('refresh'), mxUtils.bind(this, function()
 		{
 			this.spinner.spin(document.body, mxResources.get('connecting'));
 			this.editor.graph.setEnabled(false);
 			window.location.reload();
-		}));
+		}), null, null, null, null, null, 340, 180);
+		
+		// Adds important notice to dialog
+		if (this.dialog != null && this.dialog.container != null)
+		{
+			var alert = this.createRealtimeNotice();
+			alert.style.left = '0';
+			alert.style.right = '0';
+			alert.style.borderRadius = '0';
+			alert.style.borderLeftStyle = 'none';
+			alert.style.borderRightStyle = 'none';
+			alert.style.marginBottom = '26px';
+			alert.style.padding = '8px 0 8px 0';
+
+			this.dialog.container.appendChild(alert);
+		}
 	}
 };
 
@@ -2968,7 +3046,7 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 /**
  * Adds the label menu items to the given menu and parent.
  */
-App.prototype.saveFile = function(forceDialog)
+App.prototype.saveFile = function(forceDialog, success)
 {
 	var file = this.getCurrentFile();
 	
@@ -2979,15 +3057,23 @@ App.prototype.saveFile = function(forceDialog)
 		{
 			this.removeDraft();
 			
-			// Workaround for possible status update while save as dialog is showing
-			// is to show no saved status for device files
-			if (file.getMode() != App.MODE_DEVICE)
+			if (this.getCurrentFile() != file && !file.isModified())
 			{
-				this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+				// Workaround for possible status update while save as dialog is showing
+				// is to show no saved status for device files
+				if (file.getMode() != App.MODE_DEVICE)
+				{
+					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+				}
+				else
+				{
+					this.editor.setStatus('');
+				}
 			}
-			else
+			
+			if (success != null)
 			{
-				this.editor.setStatus('');
+				success();
 			}
 		});
 		
@@ -3351,7 +3437,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				
 				if (replace)
 				{
-					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+					file.addAllSavedStatus();
 				}
 				
 				if (libs != null)
@@ -3407,7 +3493,8 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 		
 		// Updates data in memory for local files and save is implicit
 		// via start of realtime for DriveFiles
-		if (file.constructor == LocalFile || file.constructor == DriveFile)
+		if (file.constructor == LocalFile || (file.constructor == DriveFile &&
+			file.realtime != null))
 		{
 			fn();
 		}
@@ -4097,7 +4184,7 @@ App.prototype.save = function(name, done)
 	var file = this.getCurrentFile();
 	var msg = mxResources.get('saving');
 	
-	if (file != null && file.constructor == DriveFile)
+	if (file != null && file.constructor == DriveFile && file.realtime != null)
 	{
 		msg = mxResources.get('createRevision');
 	}
@@ -4126,7 +4213,7 @@ App.prototype.save = function(name, done)
 				}
 				else
 				{
-					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+					file.addAllSavedStatus();
 				}
 			}
 			

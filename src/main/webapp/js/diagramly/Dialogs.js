@@ -2413,6 +2413,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 					layout.disableEdgeStyle = false;
 					layout.forceConstant = 120;
 					layout.execute(graph.getDefaultParent());
+					
+					var edgeLayout = new mxParallelEdgeLayout(graph);
+					edgeLayout.spacing = 20;
+					edgeLayout.execute(graph.getDefaultParent());
 				}
 				finally
 				{
@@ -3104,8 +3108,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%"><tr><td align="center" valign="middle">' +
-				mxResources.get(title) + '</td></tr></table>';
+			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;"><tr>' +
+				'<td align="center" valign="middle">' + mxResources.get(title) + '</td></tr></table>';
 			
 			if (select)
 			{
@@ -5255,7 +5259,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		}
 	});
 	
-	var newBtn = mxUtils.button(mxResources.get('openInNewWindow'), function()
+	var newBtn = mxUtils.button(mxResources.get('open'), function()
 	{
 		if (currentDoc != null)
 		{
@@ -5468,9 +5472,18 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 								parseGraphModel(node);
 							}
 							
+							var shortUser = item.lastModifyingUserName;
+							
+							if (shortUser != null && shortUser.length > 20)
+							{
+								shortUser = shortUser.substring(0, 20) + '...';
+							}
+							
 							fileInfo.innerHTML = '';
-							mxUtils.write(fileInfo, ts.toLocaleDateString() + ' ' +
-									ts.toLocaleTimeString());
+							mxUtils.write(fileInfo, ((shortUser != null) ?
+								(shortUser + ' ') : '') + ts.toLocaleDateString() +
+								' ' + ts.toLocaleTimeString());
+							
 							fileInfo.setAttribute('title', row.getAttribute('title'));
 							zoomInBtn.removeAttribute('disabled');
 							zoomOutBtn.removeAttribute('disabled');

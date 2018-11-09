@@ -344,11 +344,11 @@
 							{
 								item.getXml = function(success, error)
 								{
-									// Workaround for vanished head revision is to use current head revision from descriptor
-									// TODO: Allow team drives
-									editorUi.drive.executeRequest(gapi.client.drive.revisions.get({'fileId': file.getId(),
-										'revisionId': (resp.items[resp.items.length - 1] === item) ?
-										file.desc.headRevisionId : item.id}), function(resp)
+									editorUi.drive.executeRequest(gapi.client.drive.revisions.get(
+									{
+										'fileId': file.getId(),
+										'revisionId': item.id
+									}), function(resp)
 									{
 										editorUi.drive.getXmlFile(resp, null, function(file2)
 							   			{
@@ -1695,13 +1695,10 @@
 				}, parent);
 			}
 
-			if (!mxClient.IS_IOS)
+			menu.addItem(mxResources.get('device') + '...', null, function()
 			{
-				menu.addItem(mxResources.get('device') + '...', null, function()
-				{
-					editorUi.importLocalFile(true);
-				}, parent);
-			}
+				editorUi.importLocalFile(true);
+			}, parent);
 
 			if (!editorUi.isOffline())
 			{
@@ -2724,7 +2721,7 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				if (file != null && file.constructor == DriveFile)
+				if (file != null && file.constructor == DriveFile && file.realtime != null)
 				{
 					this.addMenuItems(menu, ['createRevision'], parent);
 				}

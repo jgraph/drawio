@@ -337,9 +337,7 @@ DrawioFile.prototype.open = function()
  */
 DrawioFile.prototype.addAllSavedStatus = function()
 {
-	var file = this.ui.getCurrentFile();
-	
-	if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
+	if (this.constructor == DriveFile || this.constructor == DropboxFile)
 	{
 		this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
 			'" style="text-decoration:underline;cursor:pointer;">' +
