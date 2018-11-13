@@ -131,7 +131,7 @@ MovePage.prototype.execute = function()
  *
  * Constructs a change of the current root in the given view.
  */
-function SelectPage(ui, page)
+function SelectPage(ui, page, viewState)
 {
 	this.ui = ui;
 	this.page = page;
@@ -142,6 +142,12 @@ function SelectPage(ui, page)
 	{
 		this.neverShown = page.viewState == null;
 		this.ui.updatePageRoot(page);
+		
+		if (viewState != null)
+		{
+			page.viewState = viewState;
+			this.neverShown = false;
+		}
 	}
 };
 
@@ -659,7 +665,7 @@ EditorUi.prototype.updatePageRoot = function(page)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.selectPage = function(page, quiet)
+EditorUi.prototype.selectPage = function(page, quiet, viewState)
 {
 	if (this.editor.graph.isEditing())
 	{
@@ -674,8 +680,8 @@ EditorUi.prototype.selectPage = function(page, quiet)
 	
 	// Special flag to bypass autosave for this edit
 	edit.ignoreEdit = true;
-	
-	var change = new SelectPage(this, page);
+
+	var change = new SelectPage(this, page, viewState);
 	change.execute();
 	edit.add(change);
 	edit.notify();

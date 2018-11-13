@@ -1873,6 +1873,240 @@
 	};
 	
 	/**
+	 * Returns true if there is an ongoing interaction with the user, such as text editing, resizing,
+	 * moving, connecting, drag and drop from sidebar, rubberband selection or when a dialog is showing.
+	 */
+	EditorUi.prototype.isActive = function()
+	{
+		return this.editor.graph.isEditing() || this.editor.graph.isMouseDown || this.dialog != null;
+	};
+	
+	/**
+	 * Invokes the given function when <isActive> returns false.
+	 */
+	EditorUi.prototype.runWhenIdle = function(fn)
+	{
+		var runIt = function()
+		{
+			if (window.requestAnimationFrame != null)
+			{
+				window.requestAnimationFrame(fn);	
+			}
+			else
+			{
+				fn();
+			}
+		};
+		
+		if (!this.isActive())
+		{
+			runIt();
+		}
+		else
+		{
+			var invoke = mxUtils.bind(this, function()
+			{
+				if (!this.isActive())
+				{
+					this.editor.graph.removeMouseListener(mouseListener);
+					this.editor.removeListener('hideDialog', invoke);
+					this.editor.graph.removeListener(invoke);
+					
+					runIt();
+				}
+			});
+			
+			var mouseListener = 
+			{
+				mouseDown: function() {},
+			    mouseMove: function() {},
+			    mouseUp: invoke
+			};
+			
+			this.editor.graph.addListener(mxEvent.EDITING_STOPPED, invoke);
+			this.editor.graph.addListener(mxEvent.ESCAPE, invoke);
+			this.editor.graph.addMouseListener(mouseListener);
+			this.editor.addListener('hideDialog', invoke);
+		}
+	};
+	
+	/**
+	 * Creates a hash value for the current file.
+	 */
+	EditorUi.prototype.getCurrentFileHashValue = function()
+	{
+		return this.hashValue((this.pages != null) ? this.pages : this.editor.graph.model.root, function(obj, key, isXmlNode)
+		{
+			if (isXmlNode)
+			{
+				return obj.getAttribute(key);
+			}
+			else if (obj.constructor === mxCell && (key === 'source' || key === 'target'))
+			{
+				var cell = obj[key];
+				
+				return (cell != null && cell.id != null) ? cell.id : null;
+			}
+			else if (key !== 'mxObjectId' && key !== 'mxTransient' &&
+				(obj.constructor !== mxCell || (key !== 'parent' && key !== 'rtCell')) &&
+				(obj.constructor !== DiagramPage || key === 'root'))
+			{
+				return obj[key];
+			}
+			else
+			{
+				return null;
+			}
+		});
+	};
+	
+	/**
+	 * Creates a hash value for the given object. Replacer returns the value of the
+	 * property or attribute for the given object or XML node.
+	 */
+	EditorUi.prototype.hashValue = function(obj, replacer)
+	{
+		var hash = 0;
+		
+		// Checks for XML nodes
+		if (typeof obj === 'object' && typeof obj.nodeType === 'number' &&
+			typeof obj.nodeName === 'string' && typeof obj.getAttribute === 'function')
+		{
+			if (obj.nodeName != null)
+			{
+				hash = hash ^ this.hashValue(obj.nodeName, replacer);
+			}
+			
+			for (var i = 0; i < obj.attributes.length; i++)
+			{
+				var key = obj.attributes[i].name;
+				var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
+
+				if (value != null)
+				{
+					hash = hash ^ this.hashValue(key, replacer) ^
+						this.hashValue(value, replacer);
+				}
+			}
+			
+			for (var i = 0; i < obj.children.length; i++)
+			{
+				hash = hash ^ this.hashValue(obj.children[i], replacer);
+			}
+		}
+		else if (typeof obj === 'object' || typeof obj === 'array')
+    	{
+			for (var key in obj)
+		    {
+				var value = (replacer != null) ? replacer(obj, key) : obj[key];
+				
+				if (value != null && key == 'rtCell')
+				{
+					console.log('here', replacer, obj, key,
+						obj.constructor !== mxCell, key !== 'rtCell');
+					value = null;
+				}
+				
+				if (value != null)
+				{
+					hash = hash ^ this.hashValue(String(key), replacer) ^
+						this.hashValue(value, replacer);
+				}
+		    }
+    	}
+		else if (obj != null && typeof obj !== 'function')
+		{
+			var str = String(obj);
+			var temp = 0;
+			
+			for (var i = 0; i < str.length; i++)
+			{
+		    	temp  = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
+			}
+		    
+			hash = hash ^ temp;
+		}
+		
+	    return hash;
+	};
+
+	/**
+	 * Gets a file node that is comparable with a remote file node
+	 * so that using isEqualNode returns true if the files can be
+	 * considered equal.
+	 */
+	EditorUi.prototype.getComparableFile = function(node)
+	{
+		// Removes all attributes from the mxfile
+		while (node.attributes.length > 0)
+		{
+			node.removeAttribute(node.attributes[0].name);
+		}
+
+		// Removes all diagram IDs since those can be missing in
+		// realtime but will be added on the fly
+		var diagrams = node.getElementsByTagName('diagram');
+		
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			diagrams[i].removeAttribute('name');
+			diagrams[i].removeAttribute('id');
+
+			// Uncompress diagram data for structural comparison
+			var tmp = this.ui.editor.graph.decompress(mxUtils.getTextContent(diagrams[i]));
+			
+			if (tmp != null && tmp.length > 0)
+			{
+				while (diagrams[i].firstChild != null)
+				{
+					diagrams[i].removeChild(diagrams[i].firstChild);
+				}
+
+				diagrams[i].appendChild(mxUtils.parseXml(tmp).documentElement);
+			}
+		}
+		
+		// Some attributes have been initialized using different defaults
+		// in the UI compared to realtime so they must be ignored
+		var models = node.getElementsByTagName('mxGraphModel');
+		
+		for (var i = 0; i < models.length; i++)
+		{
+			while (models[i].attributes.length > 0)
+			{
+				models[i].removeAttribute(models[i].attributes[0].name);
+			}
+		}
+		
+		return node;
+	};
+
+	/**
+	 * Removes all labels, user objects and styles from the given node in-place.
+	 */
+	EditorUi.prototype.anonymizeNode = function(node)
+	{
+		if (node != null)
+		{
+			var nodes = node.getElementsByTagName('mxCell');
+		
+			for (var i = 0; i < nodes.length; i++)
+			{
+				nodes[i].removeAttribute('style');
+				nodes[i].removeAttribute('value');
+				
+				if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName == 'UserObject' &&
+					nodes[i].parentNode.parentNode != null)
+				{
+					nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
+				}
+			}
+		}
+		
+		return node;
+	};
+
+	/**
 	 * Adds empty implementation
 	 */
 	EditorUi.prototype.descriptorChanged = function()
@@ -3729,7 +3963,7 @@
 			
 			if (addShadow)
 			{
-				this.editor.graph.addSvgShadow(svgRoot);
+				this.editor.graph.addSvgShadow(svgRoot, svgRoot);
 			}
 			
 			var filename = this.getBaseFilename() + '.svg';
@@ -5449,7 +5683,8 @@
 			bg = this.editor.graph.defaultPageBackgroundColor;
 		}
 		
-		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection), mxUtils.bind(this, function(svgRoot)
+		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+			mxUtils.bind(this, function(svgRoot)
 		{
 			var img = new Image();
 			
@@ -5522,7 +5757,7 @@
 			{
 				if (addShadow)
 				{
-					this.editor.graph.addSvgShadow(svgRoot);
+					this.editor.graph.addSvgShadow(svgRoot, svgRoot);
 				}
 				
 				var done = mxUtils.bind(this, function()
@@ -7556,6 +7791,11 @@
 		    this.keyHandler.bindAction(75, true, 'insertRectangle'); // Ctrl+K
 		    this.keyHandler.bindAction(75, true, 'insertEllipse', true); // Ctrl+Shift+K
 			
+		    if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+			{
+		    	this.altShiftActions[82] = 'refresh'; // Alt+Shift+R
+			}
+		    
 			// Handles copy paste of images from clipboard
 			if (!mxClient.IS_IE)
 			{

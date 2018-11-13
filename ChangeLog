@@ -1,3 +1,15 @@
+12-NOV-2018: 9.4.2
+
+- Fixes undoable edit when expanding Advanced sidebar
+- Fixes handling of initial default background color
+- Fixes shadow in client-side image and SVG export
+- Adds realtime import and export in test mode
+- Adds refresh menu item for all file types
+- Removes static page text in lightbox mode
+- Fixes keyboard shortcut for refresh file
+- Restores view state after refresh file
+- Adds distance guides
+
 09-NOV-2018: 9.4.1
 
 - Fixes links to revision history from status

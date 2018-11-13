@@ -634,11 +634,11 @@ DriveClient.prototype.getLibrary = function(id, success, error)
 /**
  * Loads the descriptorf for the given file ID.
  */
-DriveClient.prototype.loadDescriptor = function(id, success, error)
+DriveClient.prototype.loadDescriptor = function(id, success, error, fields)
 {
 	this.executeRequest(gapi.client.drive.files.get({'fileId': id,
-		'fields': this.allFields, 'supportsTeamDrives': true}),
-		success, error);
+		'fields': (fields != null) ? fields : this.allFields,
+		'supportsTeamDrives': true}), success, error);
 };
 
 /**

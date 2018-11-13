@@ -458,7 +458,7 @@ App.main = function(callback, createUi)
 	/**
 	 * Removes info text in embed mode
 	 */
-	if (urlParams['embed'] == '1')
+	if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
 	{
 		var geInfo = document.getElementById('geInfo');
 		
@@ -2091,6 +2091,13 @@ App.prototype.showRefreshDialog = function(title, message)
 			message || mxResources.get('redirectToNewApp'),
 			mxResources.get('refresh'), mxUtils.bind(this, function()
 		{
+			var file = this.getCurrentFile();
+			
+			if (file != null)
+			{
+				file.setModified(false);
+			}
+				
 			this.spinner.spin(document.body, mxResources.get('connecting'));
 			this.editor.graph.setEnabled(false);
 			window.location.reload();
@@ -3509,6 +3516,63 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				this.handleError(resp);
 			}));
 		}
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+App.prototype.refreshFile = function(then)
+{
+	var file = this.getCurrentFile();
+	
+	if (file != null)
+	{
+		var selection = this.editor.graph.getSelectionCells();
+		var viewState = this.editor.graph.getViewState();
+		var page = this.currentPage;
+		
+		this.loadFile(file.getHash(), true, null, mxUtils.bind(this, function()
+		{
+			this.restoreViewState(page, viewState, selection);
+			
+			if (then != null)
+			{
+				then();
+			}
+		}));
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+App.prototype.restoreViewState = function(page, viewState, selection)
+{
+	var newPage = (page != null) ? this.getPageById(page.getId()) : null;
+	var graph = this.editor.graph;
+	
+	if (newPage != null && this.currentPage != null && this.pages != null)
+	{
+		if (newPage != this.currentPage)
+		{
+			this.selectPage(newPage, true, viewState);
+		}
+		else
+		{
+			// TODO: Pass viewState to setGraphXml
+			graph.setViewState(viewState);
+			this.editor.updateGraphComponents();
+			graph.view.revalidate();
+			graph.sizeDidChange();
+		}
+
+		graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + viewState.scrollLeft;
+		graph.container.scrollTop = graph.view.translate.y * graph.view.scale + viewState.scrollTop;
+		graph.restoreSelection(selection);
 	}
 };
 
