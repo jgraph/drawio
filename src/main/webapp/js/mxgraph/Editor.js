@@ -459,7 +459,7 @@ Editor.prototype.readGraphState = function(node)
 	}
 	else
 	{
-		this.graph.background = this.graph.defaultGraphBackground;
+		this.graph.background = null;
 	}
 };
 

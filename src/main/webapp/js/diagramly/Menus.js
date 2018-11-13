@@ -394,7 +394,7 @@
 			function fn()
 			{
 				currentFile.setModified(false);
-				editorUi.loadFile(currentFile.getHash(), true);
+				editorUi.refreshFile();
 			};
 			
 			if (currentFile != null && currentFile.isModified())
@@ -1048,7 +1048,8 @@
 
 				mxResources.parse('testShowRtModel=Show RT model');
 				mxResources.parse('testDebugRtModel=Debug RT model');
-				mxResources.parse('testDownloadRtModel=Download RT model');
+				mxResources.parse('testDownloadRtModel=Export RT model');
+				mxResources.parse('testImportRtModel=Import RT model');
 				
 				this.editorUi.actions.addAction('testShowRtModel', mxUtils.bind(this, function()
 				{
@@ -1065,16 +1066,16 @@
 					gapi.drive.realtime.debug();
 				}));
 				
-				this.editorUi.actions.addAction('testDownloadRtModel', mxUtils.bind(this, function()
+				this.editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
 				{
 					var file = this.editorUi.getCurrentFile();
 					
-					if (file != null && file.realtime != null &&
+					if (file != null && file.constructor == DriveFile &&
 						editorUi.spinner.spin(document.body, mxResources.get('export')))
 					{
 						// LATER: Download full model dump with history
 						var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-								file.getHash().substring(1) + '/realtime', null, 'GET');
+								file.getId() + '/realtime?supportsTeamDrives=true', null, 'GET');
 
 						// Adds auth token
 						req.setRequestHeaders = function(request)
@@ -1090,7 +1091,12 @@
 							
 							if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
-								editorUi.saveLocalFile(req.getText(), 'realtime.txt', 'text/plain');
+								editorUi.saveLocalFile(req.getText(), 'json-' + file.getId()+'.txt', 'text/plain');
+							}
+							else
+							{
+								editorUi.handleError({message: mxResources.get('fileNotFound')},
+									mxResources.get('errorLoadingFile'));
 							}
 						});
 					}
@@ -1100,6 +1106,45 @@
 				{
 					this.addMenuItems(menu, ['-', 'testShowRtModel', 'testDebugRtModel', 'testDownloadRtModel'], parent);
 				}
+				else if (this.editorUi.getCurrentFile() != null && this.editorUi.getCurrentFile().constructor == DriveFile)
+				{
+					this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
+				}
+				else
+				{
+					menu.addSeparator(parent);
+				}
+
+				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
+				{
+					var input = document.createElement('input');
+					input.setAttribute('type', 'file');
+					
+					mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+					{
+						if (input.files != null)
+						{
+							var reader = new FileReader();
+							
+							reader.onload = mxUtils.bind(this, function(e)
+							{
+								try
+								{
+									editorUi.openLocalFile(mxUtils.getXml(editorUi.drive.convertJsonToXml(
+										JSON.parse(e.target.result).data)), input.files[0].name, true);
+								}
+								catch (err)
+								{
+									editorUi.handleError(err, mxResources.get('errorLoadingFile'));
+								}
+							});
+							
+							reader.readAsText(input.files[0]);
+						}
+					}));
+			
+					input.click();
+				});
 				
 				mxResources.parse('testShowConsole=Show Console');
 				this.editorUi.actions.addAction('testShowConsole', function()
@@ -2686,7 +2731,14 @@
 				}
 				else
 				{
-					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-', 'rename'], parent);
+					this.addMenuItems(menu, ['-', 'save', 'saveAs'], parent);
+					
+					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+					{
+						this.addMenuItems(menu, ['-', 'refresh'], parent);	
+					}
+					
+					this.addMenuItems(menu, ['-', 'rename'], parent);
 
 					if (editorUi.isOfflineApp())
 					{

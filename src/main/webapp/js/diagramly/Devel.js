@@ -109,6 +109,7 @@ mxscript(drawDevUrl + 'js/diagramly/Menus.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
+mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
 
 // Vsdx/vssx support
@@ -120,12 +121,6 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
 // mxRuler
 mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
-
-//EquiSpaced Guides
-if (urlParams['distanceGuides'] == '1')
-{
-	mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
-}
 
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');

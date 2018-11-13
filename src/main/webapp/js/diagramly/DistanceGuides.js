@@ -17,7 +17,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//TODO integrate this code in mxGuide
+//TODO integrate this code in mxGuide (Especially as this is now affecting the other guides)
 (function()
 {
 	var guideMove = mxGuide.prototype.move;
@@ -34,7 +34,7 @@
 	      var guide = this;
 		  var newState = new mxCellState();
 		  var scale = this.graph.getView().scale;
-		  var tolerance = gridEnabled? Math.max(2 * this.getGuideTolerance(), 5) : 5;
+		  var tolerance = Math.max(2, this.getGuideTolerance() / 2);
 		
 		  newState.x = bounds.x + xShift;
 		  newState.y = bounds.y + yShift;
@@ -445,19 +445,37 @@
 	      }
 	    }
 	    
-    	//TODO force other guides not to change the point!
 	    if (hasHorGuides || hasVerGuides)
     	{
 	    	var eqPoint = new mxPoint(xShift, yShift);
-	    	guideMove.call(this, bounds, eqPoint, gridEnabled, clone);
+	    	var newPoint = guideMove.call(this, bounds, eqPoint, gridEnabled, clone);
 	    	
-	    	//if other guides changed the calculated point, hide the guides
-//	    	if ((hasHorGuides && newPoint.x != xShift) || (hasVerGuides && newPoint.y != yShift))
-//    		{
-//		    	hideEqGuides(true, true);
-//    		}
-//	    	return newPoint;
-	    	//Discard other guides modifications and return our point! Not the best (correct?) solution
+	    	//Adjust our point to match non-conflicting other guides
+	    	if (hasHorGuides && !hasVerGuides) 
+			{
+	    		eqPoint.y = newPoint.y;
+			}
+	    	else if (hasVerGuides && !hasHorGuides) 
+			{
+	    		eqPoint.x = newPoint.x;
+			}
+
+    		//Hide other guide if this guide overrides them
+    		if (newPoint.y != eqPoint.y)
+    		{
+    			if (this.guideY != null && this.guideY.node != null)
+    			{
+    				this.guideY.node.style.visibility = 'hidden';
+    			}
+    		}	
+    		if (newPoint.x != eqPoint.x)
+    		{
+    			if (this.guideX != null && this.guideX.node != null)
+    			{
+    				this.guideX.node.style.visibility = 'hidden';
+    			}
+    		}	
+
 	    	return eqPoint;
     	}
 	    else

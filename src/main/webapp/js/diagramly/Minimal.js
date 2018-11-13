@@ -738,6 +738,10 @@ EditorUi.initMinimalTheme = function()
 				
 				menu.addSeparator(parent);
 			}
+			else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+			{
+				ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
+			}
 			
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
 			

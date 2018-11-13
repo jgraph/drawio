@@ -447,7 +447,20 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 		var prev = this.changeListenerEnabled;
 		this.changeListenerEnabled = false;
 		this.showingConflictDialog = true;
-
+		
+		var logAction = mxUtils.bind(this, function(action)
+		{
+			try
+			{
+				this.ui.logEvent({category: 'RT-CONFLICT-DLG',
+					action: action, label: this.getId()});
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		});
+		
 		this.ui.showError(mxResources.get('externalChanges'), mxResources.get('fileChangedOverwrite'),
 			mxResources.get('makeCopy'), mxUtils.bind(this, function()
 		{
@@ -464,12 +477,15 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 			{
 				this.makeCopy(retry, error, true);
 			}
+			
+			logAction('makeCopy');
 		}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
 		{
 			this.showingConflictDialog = false;
 			this.changeListenerEnabled = prev;
 			resume();
 			retry();
+			logAction('overwrite');
 		}), mxResources.get('cancel'), mxUtils.bind(this, function()
 		{
 			this.showingConflictDialog = false;
@@ -477,6 +493,7 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 			this.ui.hideDialog();
 			resume();
 			error();
+			logAction('cancel');
 		}), 360, 180);
 		
 		// Adds important notice to dialog
@@ -493,169 +510,5 @@ DriveFile.prototype.showConflictDialog = function(retry, error)
 
 			this.ui.dialog.container.appendChild(alert);
 		}
-	}
-};
-
-/**
- * Removes all attributes that are irrelevant for structural diff.
- */
-DriveFile.prototype.getComparableFile = function(node)
-{
-	// Removes all attributes from the mxfile
-	while (node.attributes.length > 0)
-	{
-		node.removeAttribute(node.attributes[0].name);
-	}
-
-	// Removes all diagram IDs since those can be missing in
-	// realtime but will be added on the fly
-	var diagrams = node.getElementsByTagName('diagram');
-	
-	for (var i = 0; i < diagrams.length; i++)
-	{
-		diagrams[i].removeAttribute('name');
-		diagrams[i].removeAttribute('id');
-
-		// Uncompress diagram data for structural comparison
-		var tmp = this.ui.editor.graph.decompress(mxUtils.getTextContent(diagrams[i]));
-		
-		if (tmp != null && tmp.length > 0)
-		{
-			while (diagrams[i].firstChild != null)
-			{
-				diagrams[i].removeChild(diagrams[i].firstChild);
-			}
-
-			diagrams[i].appendChild(mxUtils.parseXml(tmp).documentElement);
-		}
-	}
-	
-	// Some attributes have been initialized using different defaults
-	// in the UI compared to realtime so they must be ignored
-	var models = node.getElementsByTagName('mxGraphModel');
-	
-	for (var i = 0; i < models.length; i++)
-	{
-		while (models[i].attributes.length > 0)
-		{
-			models[i].removeAttribute(models[i].attributes[0].name);
-		}
-	}
-	
-	return node;
-};
-
-/**
- * Removes all labels, user objects and styles from the given node.
- */
-DriveFile.prototype.getAnonymizedXml = function(node)
-{
-	if (node != null)
-	{
-		var nodes = node.getElementsByTagName('mxCell');
-	
-		for (var i = 0; i < nodes.length; i++)
-		{
-			nodes[i].removeAttribute('style');
-			nodes[i].removeAttribute('value');
-			
-			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName == 'UserObject' &&
-				nodes[i].parentNode.parentNode != null)
-			{
-				nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
-			}
-		}
-		
-		return mxUtils.getPrettyXml(node);;
-	}
-	else
-	{
-		return 'null';
-	}
-};
-
-/**
- * Removes all labels, user objects and styles from the given JSON.
- */
-DriveFile.prototype.getAnonymizedJson = function(json)
-{
-	if (json != null)
-	{
-		var diagrams = json.value.diagrams.value;
-		
-		for (var i = 0; i < diagrams.length; i++)
-		{
-			if (diagrams[i].value != null && diagrams[i].value.root != null)
-			{
-				this.anonymizeJsonCell(diagrams[i].value.root.value);
-			}
-		}
-		
-		return JSON.stringify(json);
-	}
-	else
-	{
-		return 'null';
-	}
-};
-
-/**
- * Returns the location as a new object.
- */
-DriveFile.prototype.anonymizeJsonCell = function(json)
-{
-	if (json != null)
-	{
-		delete json.xmlValue;
-		delete json.value;
-		delete json.style;
-		
-		if (json.children != null && json.children.value != null)
-		{
-			for (var i = 0; i < json.children.value.length; i++)
-			{
-				this.anonymizeJsonCell(json.children.value[i].value);
-			}
-		}
-	}
-};
-
-/**
- * Debug output.
- */
-DriveFile.prototype.debug = function()
-{
-	if (window.console != null && urlParams['test'] == '1')
-	{
-		console.log.apply(console, arguments);
-	}
-};
-
-/**
- * Debug output.
- */
-DriveFile.prototype.log = function(msg, sendReport)
-{
-	this.debug(msg);
-	
-	try
-	{
-		this.ui.logEvent({category: this.ui.JSON_CHECK, action: msg, label: this.desc.id});
-		
-		if (sendReport)
-		{
-			this.ui.sendReport('Realtime Log Report ' + new Date() +
-				'\n\nDescription: ' + JSON.stringify({version: this.ui.JSON_CHECK,
-					title: this.desc.title, editable: this.desc.editable,
-					copyable: this.desc.copyable, labels: this.desc.labels, id: this.desc.id,
-					userPermission: this.desc.userPermission, fileSize: this.desc.fileSize,
-					fileExtension: this.desc.fileExtension, modifiedDate: this.desc.modifiedDate,
-					mimeType: this.desc.mimeType}) +
-				'\n\nMessage:\n' + msg);
-		}
-	}
-	catch (e)
-	{
-		// ignore
 	}
 };
