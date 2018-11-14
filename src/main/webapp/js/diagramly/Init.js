@@ -111,7 +111,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'ko' : '한국어',
 	'ja' : '日本語',
 	'zh' : '中文（简体）',
-	'zh-tw' : '中文（繁体）'
+	'zh-tw' : '中文（繁體）'
 };
 
 if (typeof window.mxBasePath === 'undefined')
