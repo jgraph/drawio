@@ -110,8 +110,8 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'th' : 'ไทย',
 	'ko' : '한국어',
 	'ja' : '日本語',
-	'zh' : '中文（中国）',
-	'zh-tw' : '中文（台灣）'
+	'zh' : '中文（简体）',
+	'zh-tw' : '中文（繁體）'
 };
 
 if (typeof window.mxBasePath === 'undefined')
