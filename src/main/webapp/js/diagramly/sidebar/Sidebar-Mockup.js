@@ -137,9 +137,6 @@
 			this.createVertexTemplateEntry(s + 'containers.videoPlayer;' + skcl6 + 'strokeColor2=#008cff;strokeColor3=#c4c4c4;textColor=#666666;' + flclf + 'fillColor2=#008cff;barHeight=30;barPos=20;',
 										300, 200, '', 'Video Player', null, null, this.getTagsForStencil(gn, 'videoPlayer', dt).join(' ')),
 										
-			this.addDataEntry(dt + 'accordion', 100, 220, 'Accordion',
-				'1VZdb4IwFP01fZwprbo96zaflizZw54buEBjoaStCvv1u0BFnLKYbS5IQtJ77kdvzz00EL7MypURRfqiI1CEPxG+NFq7dpWVS1CKMCojwh8JYxRfwp4HvEHjpYUwkLtLElibsBVqAy3SAtZVygPWGb2Gdxm5FIGA8IVNRaR3aFA0ImFTiLwhlExyXIe4PRgEUpepQ1ZRl8zKpD7uJNPhelNMQp07IXMwdmIMhNj1wrzJD/AVY6nUUittmmZ43Dx1taarnmfePOjxJwLjoBxkpYE8JSvQGThTYcjOn7KOoC1zNAWZpD5tTycVtgWSLvdAMi48z+c55yecr4zeFAgFYyMf3d4M7r19jvImzjcdfBlarnM4mZcHDVis3j/dRcNjPxzevMUMKOHkFo7q/2ag08GBju5rutZA+8kjn6rf4lVL3JnR6rjMPkPHsQV3ooKusYuEMRsUBr8tYXTX7nfCwDhKH8Lz13PnuUl1zNgV1DEfVMf0ttQxxmujOkr4J5nc/cUtgubh/68N7/8efgI='),
-
 			this.addEntry(dt + 'accordion', function()
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 100, 220), s2 + 'containers.rrect;rSize=0;fillColor=#ffffff;strokeColor=#666666;');
@@ -169,7 +166,7 @@
 				
 			this.addEntry(dt + 'browser window', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 550, 380), s2 + 'containers.browserWindow;rSize=0;fillColor=#ffffff;strokeColor=#666666;mainText=,;recursiveResize=0;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 550, 380), s2 + 'containers.browserWindow;rSize=0;fillColor=#ffffff;strokeColor=#666666;strokeColor2=#008cff;strokeColor3=#c4c4c4;mainText=,;recursiveResize=0;');
 			   	bg.vertex = true;
 			   	var button1 = new mxCell('Page 1', new mxGeometry(60, 12, 110, 26), s2 + 'containers.anchor;fontSize=17;fontColor=#666666;align=left;');
 			   	button1.vertex = true;
@@ -749,6 +746,8 @@
 				'<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" style="font-size:1em;">' +
 				'<tr height="0%"><td width="25%">Layer 1</td><td width="25%">Layer 2</td><td width="25%" style="color:#008cff;">Layer 3</td><td width="25%">Layer 4</td></tr><tr height="100%"><td/></tr></table>', 
 				'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=Layer 1,Layer 2,+Layer 3,Layer 4;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 
+				300, 50, '', 'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.coverFlow;strokeColor=#999999;fillColor=#ffffff;',
 				400, 200, '', 'Cover Flow', null, null, this.getTagsForStencil(gn, 'coverFlow', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.scrollBar;fillColor=#ffffff;' + skcl9 + 'barPos=20;fillColor2=#99ddff;strokeColor2=none;',

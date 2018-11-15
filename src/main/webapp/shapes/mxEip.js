@@ -620,4 +620,3 @@ mxShapeEipInvalidMessageChannel.prototype.constraints = [
                                                      new mxConnectionConstraint(new mxPoint(0.9, 1), true),
                                                      new mxConnectionConstraint(new mxPoint(0.95, 1), true)
                                                      ];
-

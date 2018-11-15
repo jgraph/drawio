@@ -468,7 +468,7 @@
 		 this.createVertexTemplateEntry(s + 'drawio2;fillColor=#1A5BA3',
 				 w * 261, h * 354, '', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'drawio3;fillColor=#1A5BA3;fontSize=15;fontColor=#1A5BA3;fontStyle=1',
-				 w * 261, h * 261, 'draw<font color="#f08707">.io</font>', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
+				 w * 261, h * 261, 'draw.<font color="#f08707">io</font>', 'Draw.io', null, null, this.getTagsForStencil(gn, 'drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dribbble;fillColor=#EB548D',
 				 w * 337, h * 336, '', 'Dribbble', null, null, this.getTagsForStencil(gn, 'dribbble', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dropbox;fillColor=#0287EA',

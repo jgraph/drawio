@@ -21,21 +21,7 @@ function DiagramPage(node)
 	if ((this.node.hasAttribute == null && this.node.getAttribute('id') == null) ||
 		(this.node.hasAttribute != null && !this.node.hasAttribute('id')))
 	{
-		// Make global if used anywhere else
-		function guid()
-		{
-		  function s4()
-		  {
-		    return Math.floor((1 + Math.random()) * 0x10000)
-		      .toString(16)
-		      .substring(1);
-		  }
-		  
-		  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-		    s4() + '-' + s4() + s4() + s4();
-		};
-		
-		this.node.setAttribute('id', guid());
+		this.node.setAttribute('id', Editor.guid());
 	}
 };
 
@@ -103,8 +89,9 @@ RenamePage.prototype.execute = function()
 {
 	var tmp = this.page.getName();
 	this.page.setName(this.previous);
+	this.name = this.previous;
 	this.previous = tmp;
-
+	
 	// Required to update page name in placeholders
 	this.ui.editor.graph.updatePlaceholders();
 	this.ui.editor.fireEvent(new mxEventObject('pageRenamed'));
@@ -144,7 +131,7 @@ MovePage.prototype.execute = function()
  *
  * Constructs a change of the current root in the given view.
  */
-function SelectPage(ui, page)
+function SelectPage(ui, page, viewState)
 {
 	this.ui = ui;
 	this.page = page;
@@ -155,6 +142,12 @@ function SelectPage(ui, page)
 	{
 		this.neverShown = page.viewState == null;
 		this.ui.updatePageRoot(page);
+		
+		if (viewState != null)
+		{
+			page.viewState = viewState;
+			this.neverShown = false;
+		}
 	}
 };
 
@@ -176,6 +169,12 @@ SelectPage.prototype.execute = function()
 		mxUtils.setTextContent(page.node, data);
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;
+		
+		if (page.model != null)
+		{
+			// Updates internal structures of offpage model
+			page.model.rootChanged(page.root);
+		}
 		
 		// Transitions for switching pages
 //		var curIndex = mxUtils.indexOf(this.ui.pages, page);
@@ -260,6 +259,29 @@ ChangePage.prototype.execute = function()
 	}
 
 	SelectPage.prototype.execute.apply(this, arguments);
+};
+
+/**
+ * Returns the index of the selected page.
+ */
+EditorUi.prototype.getSelectedPageIndex = function()
+{
+	var result = null;
+	
+	if (this.pages != null && this.currentPage != null)
+	{
+		for (var i = 0; i < this.pages.length; i++)
+		{
+			if (this.pages[i] == this.currentPage)
+			{
+				result = i;
+				
+				break;
+			}
+		}
+	}
+	
+	return result;
 };
 
 /**
@@ -380,7 +402,10 @@ EditorUi.prototype.initPages = function()
 				// clear the queue we have to refresh after typeset
 				MathJax.Hub.Queue(mxUtils.bind(this, function()
 				{
-					this.editor.graph.refresh();
+					if (this.editor != null)
+					{
+						this.editor.graph.refresh();
+					}
 				}));
 			}
 		}
@@ -423,9 +448,9 @@ EditorUi.prototype.initPages = function()
 Graph.prototype.createViewState = function(node)
 {
 	var pv = node.getAttribute('page');
-	var ps = node.getAttribute('pageScale');
-	var pw = node.getAttribute('pageWidth');
-	var ph = node.getAttribute('pageHeight');
+	var ps = parseFloat(node.getAttribute('pageScale'));
+	var pw = parseFloat(node.getAttribute('pageWidth'));
+	var ph = parseFloat(node.getAttribute('pageHeight'));
 	var bg = node.getAttribute('background');
 	var temp = node.getAttribute('backgroundImage');
 	var bgImg = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
@@ -440,9 +465,8 @@ Graph.prototype.createViewState = function(node)
 		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
 		background: (bg != null && bg.length > 0) ? bg : this.defaultGraphBackground,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
-		pageScale: (ps != null) ? ps : mxGraph.prototype.pageScale,
-		pageFormat: (pw != null && ph != null) ?  new mxRectangle(0, 0,
-				parseFloat(pw), parseFloat(ph)) : this.pageFormat,
+		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
+		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : mxSettings.getPageFormat(),
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
@@ -452,6 +476,44 @@ Graph.prototype.createViewState = function(node)
 		scrollbars: this.defaultScrollbars,
 		scale: 1
 	};
+};
+
+/**
+ * Writes the graph properties from the realtime model to the given mxGraphModel node.
+ */
+Graph.prototype.saveViewState = function(vs, node)
+{
+	node.setAttribute('grid', (vs == null || vs.gridEnabled) ? '1' : '0');
+	node.setAttribute('gridSize', (vs != null) ? vs.gridSize : mxGraph.prototype.gridSize);
+	node.setAttribute('guides', (vs == null || vs.guidesEnabled) ? '1' : '0');
+	node.setAttribute('tooltips', (vs == null || vs.tooltips) ? '1' : '0');
+	node.setAttribute('connect', (vs == null || vs.connect) ? '1' : '0');
+	node.setAttribute('arrows', (vs == null || vs.arrows) ? '1' : '0');
+	node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
+	node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
+		(vs != null && vs.pageVisible)) ? '1' : '0');
+	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
+	
+	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
+	
+	if (pf != null)
+	{
+		node.setAttribute('pageWidth', pf.width);
+		node.setAttribute('pageHeight', pf.height);
+	}
+	
+	if (vs != null && vs.background != null)
+	{
+		node.setAttribute('background', vs.background);
+	}
+
+	if (vs != null && vs.backgroundImage != null)
+	{
+		node.setAttribute('backgroundImage', JSON.stringify(vs.backgroundImage));
+	}
+
+	node.setAttribute('math', (vs != null && vs.mathEnabled) ? '1' : '0');
+	node.setAttribute('shadow', (vs != null && vs.shadowVisible) ? '1' : '0');
 };
 
 /**
@@ -509,20 +571,30 @@ Graph.prototype.setViewState = function(state)
 		this.backgroundImage = state.backgroundImage;
 		this.pageScale = state.pageScale;
 		this.pageFormat = state.pageFormat;
-		this.view.scale = state.scale;
 		this.view.currentRoot = state.currentRoot;
 		this.defaultParent = state.defaultParent;
 		this.connectionArrowsEnabled = state.arrows;
 		this.setTooltips(state.tooltips);
 		this.setConnectable(state.connect);
+
+		if (state.scale != null)
+		{
+			this.view.scale = state.scale;
+		}
+		else
+		{
+			this.view.scale = 1;
+		}
 		
 		// Checks if current root or default parent have been removed
-		if (!this.model.contains(this.view.currentRoot))
+		if (this.view.currentRoot != null &&
+			!this.model.contains(this.view.currentRoot))
 		{
 			this.view.currentRoot = null;
 		}
 		
-		if (!this.model.contains(this.defaultParent))
+		if (this.defaultParent != null &&
+			!this.model.contains(this.defaultParent))
 		{
 			this.setDefaultParent(null);
 			this.selectUnlockedLayer();
@@ -547,6 +619,7 @@ Graph.prototype.setViewState = function(state)
 		this.scrollbars = this.defaultScrollbars;
 		this.graphHandler.guidesEnabled = true;
 		this.foldingEnabled = true;
+		this.setShadowVisible(false, false);
 		this.defaultParent = null;
 		this.setTooltips(true);
 		this.setConnectable(true);
@@ -592,7 +665,7 @@ EditorUi.prototype.updatePageRoot = function(page)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.selectPage = function(page, quiet)
+EditorUi.prototype.selectPage = function(page, quiet, viewState)
 {
 	if (this.editor.graph.isEditing())
 	{
@@ -607,8 +680,8 @@ EditorUi.prototype.selectPage = function(page, quiet)
 	
 	// Special flag to bypass autosave for this edit
 	edit.ignoreEdit = true;
-	
-	var change = new SelectPage(this, page);
+
+	var change = new SelectPage(this, page, viewState);
 	change.execute();
 	edit.add(change);
 	edit.notify();
@@ -781,7 +854,9 @@ EditorUi.prototype.duplicatePage = function(page, name)
 		// Resets zoom and scrollbar positions
 		newPage.viewState.scale = 1;
 		newPage.viewState.scrollLeft = null;
-		newPage.viewState.scrollRight = null;
+		newPage.viewState.scrollTop = null;
+		newPage.viewState.currentRoot = null;
+		newPage.viewState.defaultParent = null;
 		newPage.setName(name);
 		
 		newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
@@ -1317,6 +1392,13 @@ EditorUi.prototype.createPageMenu = function(page, label)
 	}
 })();
 
+//Overrides ChangePageSetup codec to exclude page
+(function()
+{
+	var codec = mxCodecRegistry.getCodec(ChangePageSetup);
+	codec.exclude.push('page');
+})();
+
 //Registers codec for MovePage
 (function()
 {
@@ -1324,9 +1406,18 @@ EditorUi.prototype.createPageMenu = function(page, label)
 	
 	codec.beforeDecode = function(dec, node, obj)
 	{
-		  obj.ui = dec.ui;
+		obj.ui = dec.ui;
 		  
-		  return node;
+		return node;
+	};
+	
+	codec.afterDecode = function(dec, node, obj)
+	{
+		var tmp = obj.oldIndex;
+		obj.oldIndex = obj.newIndex;
+		obj.newIndex = tmp;
+		
+	    return obj;
 	};
 	
 	mxCodecRegistry.register(codec);
@@ -1335,26 +1426,20 @@ EditorUi.prototype.createPageMenu = function(page, label)
 //Registers codec for RenamePage
 (function()
 {
-	var codec = new mxObjectCodec(new RenamePage(), ['ui', 'page', 'previous']);
-	
-	codec.afterEncode = function(enc, obj, node)
-	{
-	    node.setAttribute('page', obj.page.getId())
-	    
-	    return node;
-	};
+	var codec = new mxObjectCodec(new RenamePage(), ['ui', 'page']);
 	
 	codec.beforeDecode = function(dec, node, obj)
 	{
-		  obj.ui = dec.ui;
-		  
-		  return node;
+		obj.ui = dec.ui;
+	  
+		return node;
 	};
 	
 	codec.afterDecode = function(dec, node, obj)
 	{
-	    obj.page = dec.ui.getPageById(node.getAttribute('page'));
+	    var tmp = obj.previous;
 	    obj.previous = obj.name;
+	    obj.name = tmp;
 	    
 	    return obj;
 	};
@@ -1368,80 +1453,100 @@ EditorUi.prototype.createPageMenu = function(page, label)
 	var codec = new mxObjectCodec(new ChangePage(), ['ui', 'relatedPage',
 		'index', 'neverShown', 'page', 'previousPage']);
 	
+	var viewStateIgnored = ['defaultParent', 'currentRoot', 'scrollLeft',
+		'scrollTop', 'scale', 'translate', 'lastPasteXml', 'pasteCounter'];
+	
 	codec.afterEncode = function(enc, obj, node)
 	{
-	    node.setAttribute('relatedPage', obj.relatedPage.getId())
+		node.setAttribute('relatedPage', obj.relatedPage.getId())
 	    
-	    if (obj.index == null)
-	    {
-	        node.setAttribute('name', obj.relatedPage.getName());
+		if (obj.index == null)
+		{
+			node.setAttribute('name', obj.relatedPage.getName());
+
+			if (obj.relatedPage.viewState != null)
+			{
+	        	node.setAttribute('viewState', JSON.stringify(
+	        		obj.relatedPage.viewState, function(key, value)
+	        	{
+	        		return (mxUtils.indexOf(viewStateIgnored, key) < 0) ? value : undefined;
+	        	}));
+			}
 	        
-	        if (obj.relatedPage.root != null)
-	        {
-	            enc.encodeCell(obj.relatedPage.root, node);
-	        }
+			if (obj.relatedPage.root != null)
+			{
+				enc.encodeCell(obj.relatedPage.root, node);
+			}
 	    }
 	    
 	    return node;
 	};
-	
+
 	codec.beforeDecode = function(dec, node, obj)
 	{
 		obj.ui = dec.ui;
-	    obj.relatedPage = obj.ui.getPageById(node.getAttribute('relatedPage'));
+		obj.relatedPage = obj.ui.getPageById(node.getAttribute('relatedPage'));
 	    
-	    if (obj.relatedPage == null)
-	    {
-	        var temp = document.createElement('diagram');
-	        temp.setAttribute('id', node.getAttribute('relatedPage'));
-	        temp.setAttribute('name', node.getAttribute('name'));
-	        obj.relatedPage = new DiagramPage(temp);
-	        
+		if (obj.relatedPage == null)
+		{
+			var temp = node.ownerDocument.createElement('diagram');
+			temp.setAttribute('id', node.getAttribute('relatedPage'));
+			temp.setAttribute('name', node.getAttribute('name'));
+			obj.relatedPage = new DiagramPage(temp);
+
+			var vs = node.getAttribute('viewState');
+
+			if (vs != null)
+			{
+				obj.relatedPage.viewState = JSON.parse(vs);
+				node.removeAttribute('viewState');
+			}
+
 	        // Makes sure the original node isn't modified
-	        node = node.cloneNode(true);
-	        var tmp = node.firstChild;
-	        
-	        if (tmp != null)
-	        {
-	            obj.relatedPage.root = dec.decodeCell(tmp, false);
-	
-	            var tmp2 = tmp.nextSibling;
-	            tmp.parentNode.removeChild(tmp);
-	            tmp = tmp2;
-	            
-	            while (tmp != null)
-	            {
-	                tmp2 = tmp.nextSibling;
-	                
-	                if (tmp.nodeType == mxConstants.NODETYPE_ELEMENT)
-	                {
-	                    // Ignores all existing cells because those do not need to
-	                    // be re-inserted into the model. Since the encoded version
-	                    // of these cells contains the new parent, this would leave
-	                    // to an inconsistent state on the model (ie. a parent
-	                    // change without a call to parentForCellChanged).
-	                    var id = tmp.getAttribute('id');
-	                    
-	                    if (dec.lookup(id) == null)
-	                    {
-	                        dec.decodeCell(tmp);
-	                    }
-	                }
-	                
-	                tmp.parentNode.removeChild(tmp);
-	                tmp = tmp2;
-	            }
-	        }
-	    }
-	    
-	    return node;
+			node = node.cloneNode(true);
+			var tmp = node.firstChild;
+
+			if (tmp != null)
+			{
+				obj.relatedPage.root = dec.decodeCell(tmp, false);
+
+				var tmp2 = tmp.nextSibling;
+				tmp.parentNode.removeChild(tmp);
+				tmp = tmp2;
+
+				while (tmp != null)
+				{
+					tmp2 = tmp.nextSibling;
+
+					if (tmp.nodeType == mxConstants.NODETYPE_ELEMENT)
+					{
+						// Ignores all existing cells because those do not need to
+						// be re-inserted into the model. Since the encoded version
+						// of these cells contains the new parent, this would leave
+						// to an inconsistent state on the model (ie. a parent
+						// change without a call to parentForCellChanged).
+						var id = tmp.getAttribute('id');
+
+						if (dec.lookup(id) == null)
+						{
+							dec.decodeCell(tmp);
+						}
+					}
+
+					tmp.parentNode.removeChild(tmp);
+					tmp = tmp2;
+				}
+			}
+		}
+
+		return node;
 	};
-	
+
 	codec.afterDecode = function(dec, node, obj)
 	{
-	    obj.index = obj.previousIndex;
-	    
-	    return obj;
+		obj.index = obj.previousIndex;
+
+		return obj;
 	};
 	
 	mxCodecRegistry.register(codec);

@@ -60,6 +60,10 @@ function mxShapeIOS7AppBar(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxShapeIOS7AppBar, mxShape);
 
+mxShapeIOS7AppBar.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill Color 2', type: 'color'}
+];
+
 /**
  * Function: paintVertexShape
  * 
@@ -161,6 +165,15 @@ function mxShapeIOS7OnOffButton(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeIOS7OnOffButton, mxShape);
 
+mxShapeIOS7OnOffButton.prototype.customProperties = [
+	{name: 'buttonState', dispName: 'Button State', type: 'enum',
+		enumList: [{val: 'on', dispName: 'On'},
+				   {val: 'off', dispName: 'Off'}]
+	},
+	{name: 'strokeColor2', dispName: 'Stroke Color 2', type: 'color'},
+	{name: 'fillColor2', dispName: 'Fill Color 2', type: 'color'},
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -231,6 +244,8 @@ function mxShapeIOS7Slider(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeIOS7Slider, mxShape);
+
+
 
 /**
 * Function: paintVertexShape
@@ -303,6 +318,11 @@ function mxShapeIOS7DownloadBar(bounds, fill, stroke, strokewidth)
 * Extends mxShape.
 */
 mxUtils.extend(mxShapeIOS7DownloadBar, mxShape);
+
+mxShapeIOS7DownloadBar.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:30},
+	{name: 'strokeColor2', dispName: 'Stroke Color 2', type: 'color'}
+];
 
 /**
 * Function: paintVertexShape
@@ -678,6 +698,10 @@ function mxShapeIOS7iconGrid(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeIOS7iconGrid, mxShape);
 
+mxShapeIOS7iconGrid.prototype.customProperties = [
+	{name: 'gridSize', dispName: 'Grid Size', type: 'String'},
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -1026,6 +1050,10 @@ mxShapeIOS7RRect.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+mxShapeIOS7RRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:3}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -1066,6 +1094,10 @@ mxShapeIOS7LeftButton.prototype.cst = {
 		LEFT_BUTTON : 'mxgraph.ios7ui.leftButton',
 		R_SIZE : 'rSize'
 };
+
+mxShapeIOS7LeftButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:3}
+];
 
 /**
 * Function: paintVertexShape
@@ -1116,6 +1148,10 @@ mxShapeIOS7RightButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+mxShapeIOS7RightButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:3}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -1165,6 +1201,10 @@ mxShapeIOS7TopButton.prototype.cst = {
 		R_SIZE : 'rSize'
 };
 
+mxShapeIOS7TopButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:3}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -1190,7 +1230,7 @@ mxShapeIOS7TopButton.prototype.paintVertexShape = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxShapeIOS7TopButton.prototype.cst.TOP_BUTTON, mxShapeIOS7TopButton);
 
 //**********************************************************************************************************************************************************
-//Top Button
+//Bottom Button
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -1213,6 +1253,10 @@ mxShapeIOS7BottomButton.prototype.cst = {
 		BOTTOM_BUTTON : 'mxgraph.ios7ui.bottomButton',
 		R_SIZE : 'rSize'
 };
+
+mxShapeIOS7BottomButton.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:3},
+];
 
 /**
 * Function: paintVertexShape
@@ -1304,6 +1348,16 @@ function mxShapeIOS7MarginRect(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeIOS7MarginRect, mxShape);
 
+mxShapeIOS7MarginRect.prototype.customProperties = [
+	{name: 'rx', dispName: 'Hor. Rounding Size', type: 'float', min:0, defVal:3},
+	{name: 'ry', dispName: 'Ver. Rounding Size', type: 'float', min:0, defVal:3},
+	{name: 'rectMargin', dispName: 'Global Margin', type: 'float', min:0, defVal:5},
+	{name: 'rectMarginTop', dispName: 'Top Margin', type: 'float', min:0, defVal:0},
+	{name: 'rectMarginLeft', dispName: 'Left Margin', type: 'float', min:0, defVal:0},
+	{name: 'rectMarginBottom', dispName: 'Bottom Margin', type: 'float', min:0, defVal:0},
+	{name: 'rectMarginRight', dispName: 'Right Margin', type: 'float', min:0, defVal:0}
+];
+
 mxShapeIOS7MarginRect.prototype.cst = {
 		SHAPE_MARGIN_RECT : 'mxgraph.ios7ui.marginRect',
 		MARGIN : 'rectMargin',
@@ -1374,6 +1428,7 @@ mxUtils.extend(mxShapeIOS7Callout, mxShape);
 mxShapeIOS7Callout.prototype.cst = {
 		SHAPE_CALLOUT : 'mxgraph.ios7ui.callout'
 };
+
 /**
 * Function: paintVertexShape
 * 
@@ -1438,6 +1493,13 @@ mxUtils.extend(mxShapeIOS7SelectBar, mxActor);
 mxShapeIOS7SelectBar.prototype.cst = {
 		SELECT_BAR : 'mxgraph.ios7ui.selectBar'
 };
+
+mxShapeIOS7SelectBar.prototype.customProperties = [
+	{name: 'dx', dispName: 'Callout Position', type: 'float', min:0, defVal:120},
+	{name: 'dx2', dispName: 'Field Size', type: 'float', min:0, defVal: 75},
+	{name: 'size', dispName: 'Rounding size', type: 'float', min:0, defVal:5},
+	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:5}
+];
 
 /**
 * Function: paintVertexShape
@@ -1569,7 +1631,7 @@ Graph.handleFactory[mxShapeIOS7SelectBar.prototype.cst.SELECT_BAR] = function(st
 /**
 * Extends mxShape.
 */
-mxShapeIOS7SelectBar
+//mxShapeIOS7SelectBar
 function mxShapeIOS7Slider2(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -1589,6 +1651,11 @@ mxShapeIOS7Slider2.prototype.cst = {
 		BAR_POS : 'barPos',
 		HANDLE_SIZE : 'handleSize'
 };
+
+mxShapeIOS7Slider2.prototype.customProperties = [
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, max:1, defVal:20},
+	{name: 'handleSize', dispName: 'Handle Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape

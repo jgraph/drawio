@@ -875,6 +875,8 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 Menus.prototype.pickColor = function(key, cmd, defaultValue)
 {
 	var graph = this.editorUi.editor.graph;
+	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
+			Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
 	if (cmd != null && graph.cellEditor.isContentEditing())
 	{
@@ -889,7 +891,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		{
 			graph.cellEditor.restoreSelection(selState);
 		});
-		this.editorUi.showDialog(dlg.container, 230, 430, true, true);
+		this.editorUi.showDialog(dlg.container, 230, h, true, true);
 		dlg.init();
 	}
 	else
@@ -919,7 +921,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 			this.colorDialog.picker.fromString(color);
 		}
 	
-		this.editorUi.showDialog(this.colorDialog.container, 230, 430, true, true);
+		this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
 		this.colorDialog.init();
 	}
 };
@@ -1177,15 +1179,22 @@ Menubar.prototype.hideMenu = function()
 /**
  * Adds a submenu to this menubar.
  */
-Menubar.prototype.addMenu = function(label, funct)
+Menubar.prototype.addMenu = function(label, funct, before)
 {
 	var elt = document.createElement('a');
 	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
-
 	this.addMenuHandler(elt, funct);
-	this.container.appendChild(elt);
+	
+    if (before != null)
+    {
+    	this.container.insertBefore(elt, before);
+    }
+    else
+    {
+    	this.container.appendChild(elt);
+    }
 	
 	return elt;
 };

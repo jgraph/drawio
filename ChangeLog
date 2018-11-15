@@ -1,3 +1,267 @@
+12-NOV-2018: 9.4.2
+
+- Fixes undoable edit when expanding Advanced sidebar
+- Fixes handling of initial default background color
+- Fixes shadow in client-side image and SVG export
+- Adds realtime import and export in test mode
+- Adds refresh menu item for all file types
+- Removes static page text in lightbox mode
+- Fixes keyboard shortcut for refresh file
+- Restores view state after refresh file
+- Adds distance guides
+
+09-NOV-2018: 9.4.1
+
+- Fixes links to revision history from status
+- Hides static page text in embed mode
+- Enables import from device on iOS
+
+08-NOV-2018: 9.4.0
+
+- Disables Google realtime on 11/12/2018 at 9:00am (UTC)
+
+06-NOV-2018: 9.3.4
+
+- Improves sanity check for Google Drive files
+- Uses mxGraph 3.9.11 beta 4
+
+02-NOV-2018: 9.3.2
+
+- Adds sanity check for Google Drive files
+
+26-OCT-2018: 9.3.1
+
+- Adds current page index to JSON protocol
+- Adds viewBox, target _top for SVG export
+- Fixes selectDescendants keystroke
+- Minor fixes for dark mode styles
+- Uses mxGraph 3.9.11 beta 2
+
+22-OCT-2018: 9.3.0
+
+- Adds write permission in OneDrive client
+- Adds link option in SVG export dialog
+- Adds link to save status message
+
+19-OCT-2018: 9.2.9
+
+- Adds OneDrive for Business and Sharepoint integration
+
+19-OCT-2018: 9.2.8
+
+- Improves various Gliffy import issues
+- Fixes inverted MovePage state after decoding
+
+15-OCT-2018: 9.2.7
+
+- Fixes local templates path
+
+14-OCT-2018: 9.2.6
+
+- Fixes possible NPE during delayed loading of plugins
+
+14-OCT-2018: 9.2.5
+
+- Adds customPresetColors, override config option
+- Adds enabledLibraries, libraries config option
+- Adds templateFile config option
+- Uses mxGraph 3.9.11 beta 1
+
+11-OCT-2018: 9.2.4
+
+- Adds font, customFonts and -ColorSchemes config options
+- Adds open page in Confluence Cloud lightbox toolbar
+- Fixes property editing in minimal UI
+
+08-OCT-2018: 9.2.3
+
+- Adds shape properties panel (beta)
+- Uses mxGraph 3.9.10
+
+05-OCT-2018: 9.2.2
+
+- Embed mode loads all supported formats
+- Uses mxGraph 3.9.10 beta 2
+- Adds vars URL parameter
+
+03-OCT-2018: 9.2.1
+
+- Ignores mode in Google Drive fallback
+
+03-OCT-2018: 9.2.0
+
+- Configurable ui and plugins for Confluence Cloud 
+- Fixes fallback for public Google Drive URLs
+- Adds configure=1 URL parameter and protocol
+- Ctrl+Shift connect sets source constraint
+- Removes #C configuration switch
+
+21-SEP-2018: 9.1.8
+
+- Fixes minor constraint check bug for new connections
+- Uses mxGraph 3.9.10 beta 1
+
+21-SEP-2018: 9.1.7
+
+- Adds flow plugin
+- Uses mxGraph 3.9.9
+- Adds metro color palette
+- Fixes VSDX export in IE11
+- Adds plugins menu in embed mode
+
+18-SEP-2018: 9.1.6
+
+- Updates connection arrows and handle colors
+
+17-SEP-2018: 9.1.5
+
+- Fixes folder picker callback
+
+17-SEP-2018: 9.1.4
+
+- Adds root option before Google folder dialog
+- Adds arrows=new URL parameter for feedback
+- Adds data-attributes in svgdata plugin
+
+12-SEP-2018: 9.1.3
+
+- Improvements to GCP stencils
+- Fixes Gliffy import of UML frames
+
+31-AUG-2018: 9.1.2
+
+- Allows empty referer for proxy requests
+
+30-AUG-2018: 9.1.1
+
+- Simpler provided/required interface shapes
+- Fixes comic style for filled swimlanes
+- Fixes preview for general sidebar
+- Uses mxGraph 3.9.9 beta 9
+
+29-AUG-2018: 9.1.0
+
+- Adds content inspection in proxy server
+- Uses minimal UI for small screens
+
+27-AUG-2018: 9.0.9
+
+- Uses mxGraph 3.9.9 beta 8
+- Adds new color palette
+- GCP stencil updates
+
+23-AUG-2018: 9.0.8
+
+- Fixes XSS vulnerability in Trello Power-Up
+- Fixes GCP service cards icon set
+
+22-AUG-2018: 9.0.7
+
+- Add expanded product and service cards to GCP icon set
+
+17-AUG-2018: 9.0.6
+
+- Changes to GCP icon set
+
+14-AUG-2018: 9.0.5
+
+- Fixes NPE in VSDX export
+- Improves vsdx import layer support
+- Improves GraphML import support
+
+10-AUG-2018: 9.0.4
+
+- Add filter to proxy servlet
+
+01-AUG-2018: 9.0.2
+
+- Adds missing rounded format option
+- Fixes tolerance for connect arrows
+- Uses mxGraph 3.9.9 beta 7
+- Fixes docker build
+
+31-JUL-2018: 9.0.1
+
+- Fixes insert to GitHub with URL parameter
+
+28-JUL-2018: 9.0.0
+
+- Disables persisted default styles
+- Fixes inserting files to GitHub
+
+26-JUL-2018: 8.9.9
+
+- Adds support for hierarchies in CSV import
+- Updates colors for Atlas theme
+- Uses mxGraph 3.9.9 beta 6
+
+23-JUL-2018: 8.9.8
+
+- Changes PlantUML autosize parameter to default to true
+- Improves error handling, imports
+- Uses mxGraph 3.9.9 beta 5
+
+18-JUL-2018: 8.9.7
+
+- Uses new PlantUML version
+
+18-JUL-2018: 8.9.6
+
+- Fixes vertical offset for text editing with small fonts
+- Fixes repaint of placeholders in text for custom shapes
+- Fixes lost cursor after certain keyboard shortcuts
+- Fixes clipboard state after cut keyboard shortcut
+- Fixes minor issues for Confluence Cloud
+- Adds draft state for Trello attachments
+- Uses mxGraph 3.9.9 beta 4
+
+13-JUL-2018: 8.9.5
+
+- Fixes clipping for MathJax print preview in Safari
+- Uses mxGraph 3.9.9 beta 3
+- Fixes minor memory leak
+
+11-JUL-2018: 8.9.4
+
+- Removes foreignObjects for MathJax
+- Fixes adding rows to tables
+- Uses mxGraph 3.9.9 beta 2
+
+09-JUL-2018: 8.9.3
+
+- Fixes rounded style option for containers
+- Moves webcola plugin to layout menu
+- Fixes minor errors in print preview
+- Uses mxGraph 3.9.9 beta 1
+
+06-JUL-2018: 8.9.2
+
+- Enables tags dialog in read-only files
+- Fixes cell detection in fast preview
+- Fixes improved shape search index
+- Fixes undo for webcola plugin
+
+04-JUL-2018: 8.9.1
+
+- Fixes initial scroll offset in minimal UI
+- Fixes possible invalid height for viewer
+
+04-JUL-2018: 8.9.0
+
+- Faster preview in Chrome, Firefox and Edge (beta)
+- Adds responsive menubar in minimal UI
+- Add tickets and webcola plugins
+- Adds #C configuration switch
+- Uses mxGraph 3.9.8 beta 1
+
+26-JUN-2018: 8.8.7
+
+- Fixes custom content view in Confluence Cloud
+- Disables click sidebar collapse
+- Uses inline window for text plugin
+- Adds showStartScreen in Chrome App
+- Disables plantUML when offline
+
 21-JUN-2018: 8.8.6
 
 - Improves detection of gliffy macro in conf cloud

@@ -299,6 +299,10 @@
 	};
 	mxUtils.extend(CardShape, mxActor);
 	CardShape.prototype.size = 30;
+	CardShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	CardShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
@@ -431,6 +435,10 @@
 	};
 	mxUtils.extend(ParallelogramShape, mxActor);
 	ParallelogramShape.prototype.size = 0.2;
+	ParallelogramShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	ParallelogramShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -449,6 +457,10 @@
 	};
 	mxUtils.extend(TrapezoidShape, mxActor);
 	TrapezoidShape.prototype.size = 0.2;
+	TrapezoidShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	TrapezoidShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dx = w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -856,6 +868,10 @@
 		return new mxRectangle(0, 0, 0, parseFloat(mxUtils.getValue(
 			this.style, 'size', this.size)) * this.scale);
 	};
+	CalloutShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	CalloutShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
@@ -880,6 +896,10 @@
 	mxUtils.extend(StepShape, mxActor);
 	StepShape.prototype.size = 0.2;
 	StepShape.prototype.fixedSize = 20;
+	StepShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	StepShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
@@ -900,6 +920,10 @@
 	};
 	mxUtils.extend(HexagonShape, mxHexagon);
 	HexagonShape.prototype.size = 0.25;
+	HexagonShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	HexagonShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s =  w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -1726,7 +1750,7 @@
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
 	
-	// Lollipop Shape
+	// Provided Interface Shape (aka Lollipop)
 	function LollipopShape()
 	{
 		mxShape.call(this);
@@ -1750,7 +1774,7 @@
 
 	mxCellRenderer.registerShape('lollipop', LollipopShape);
 
-	// Lollipop Shape
+	// Required Interface Shape
 	function RequiresShape()
 	{
 		mxShape.call(this);
@@ -1779,6 +1803,52 @@
 	};
 
 	mxCellRenderer.registerShape('requires', RequiresShape);
+
+	// Required Interface Shape
+	function RequiredInterfaceShape()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(RequiredInterfaceShape, mxShape);
+	
+	RequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+
+		c.begin();
+		c.moveTo(0, 0);
+		c.quadTo(w, 0, w, h / 2);
+		c.quadTo(w, h, 0, h);
+		c.end();
+		c.stroke();
+	};
+
+	mxCellRenderer.registerShape('requiredInterface', RequiredInterfaceShape);
+
+	// Provided and Required Interface Shape
+	function ProvidedRequiredInterfaceShape()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(ProvidedRequiredInterfaceShape, mxShape);
+	ProvidedRequiredInterfaceShape.prototype.inset = 2;
+	ProvidedRequiredInterfaceShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		var inset = parseFloat(mxUtils.getValue(this.style, 'inset', this.inset)) + this.strokewidth;
+		c.translate(x, y);
+
+		c.ellipse(0, inset, w - 2 * inset, h - 2 * inset);
+		c.fillAndStroke();
+		
+		c.begin();
+		c.moveTo(w / 2, 0);
+		c.quadTo(w, 0, w, h / 2);
+		c.quadTo(w, h, w / 2, h);
+		c.end();
+		c.stroke();
+	};
+
+	mxCellRenderer.registerShape('providedRequiredInterface', ProvidedRequiredInterfaceShape);
 	
 	// Component shape
 	function ComponentShape()
@@ -1929,6 +1999,10 @@
 	};
 	mxUtils.extend(ManualInputShape, mxActor);
 	ManualInputShape.prototype.size = 30;
+	ManualInputShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	ManualInputShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)));
@@ -2167,6 +2241,10 @@
 	};
 	mxUtils.extend(LoopLimitShape, mxActor);
 	LoopLimitShape.prototype.size = 20;
+	LoopLimitShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	LoopLimitShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = Math.min(w / 2, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -2185,6 +2263,10 @@
 	};
 	mxUtils.extend(OffPageConnectorShape, mxActor);
 	OffPageConnectorShape.prototype.size = 3 / 8;
+	OffPageConnectorShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
 	OffPageConnectorShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var s = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
@@ -3522,6 +3604,11 @@
 					}
 					
 					var fn = handleFactory[name];
+					
+					if (fn == null && this.state.shape != null && this.state.shape.isRoundable())
+					{
+						fn = handleFactory[mxConstants.SHAPE_RECTANGLE];
+					}
 				
 					if (fn != null)
 					{
@@ -3871,4 +3958,8 @@
 	  	                             new mxConnectionConstraint(new mxPoint(1, 0.5), false),
 	  	                             new mxConnectionConstraint(new mxPoint(0.7, 0.1), false),
 	  	                             new mxConnectionConstraint(new mxPoint(0.7, 0.9), false)];
+	RequiredInterfaceShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+          new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
+	ProvidedRequiredInterfaceShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+        new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
 })();

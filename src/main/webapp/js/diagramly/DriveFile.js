@@ -18,6 +18,11 @@ DriveFile = function(ui, data, desc, doc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
+ * Delay for last save in ms.
+ */
+DriveFile.prototype.saveDelay = 0;
+
+/**
  * Returns true if copy, export and print are not allowed for this file.
  */
 DriveFile.prototype.isRestricted = function()
@@ -27,9 +32,12 @@ DriveFile.prototype.isRestricted = function()
 };
 
 /**
- * Delay for last save in ms.
+ * Adds the listener for automatically saving the diagram for local changes.
  */
-DriveFile.prototype.saveDelay = 0;
+DriveFile.prototype.isConflict = function(err)
+{
+	return err != null && err.error != null && err.error.code == 412;
+};
 
 /**
  * Translates this point by the given vector.
@@ -76,7 +84,7 @@ DriveFile.prototype.getPublicUrl = function(fn)
  */
 DriveFile.prototype.isAutosaveOptional = function()
 {
-	return true;
+	return this.realtime == null;
 };
 
 /**
@@ -87,7 +95,7 @@ DriveFile.prototype.isAutosaveOptional = function()
  */
 DriveFile.prototype.isAutosave = function()
 {
-	return this.ui.editor.autosave || this.isAutosaveRevision();
+	return this.ui.editor.autosave || (this.realtime != null && this.isAutosaveRevision());
 };
 
 /**
@@ -103,8 +111,10 @@ DriveFile.prototype.isAutosaveNow = function()
 
 		return isNaN(backup) || isNaN(modified) || backup < modified;
 	}
-	
-	return true;
+	else
+	{
+		return true;
+	}
 };
 
 /**
@@ -146,11 +156,11 @@ DriveFile.prototype.isMovable = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveFile.prototype.save = function(revision, success, error, unloading)
+DriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
 	DrawioFile.prototype.save.apply(this, arguments);
 	
-	this.saveFile(null, revision, success, error, unloading);
+	this.saveFile(null, revision, success, error, unloading, overwrite);
 };
 
 /**
@@ -159,7 +169,7 @@ DriveFile.prototype.save = function(revision, success, error, unloading)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveFile.prototype.saveFile = function(title, revision, success, error, unloading)
+DriveFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
 	if (!this.isEditable())
 	{
@@ -170,58 +180,118 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 	}
 	else if (!this.savingFile)
 	{
-		this.savingFile = true;
-		
-		// Makes sure no changes get lost while the file is saved
 		var prevModified = this.isModified;
 		var modified = this.isModified();
-		this.setModified(false);
 		
-		this.ui.drive.saveFile(this, revision, mxUtils.bind(this, function(resp)
+		// Makes sure no changes get lost while the file is saved
+		this.setModified(false);
+
+		// Waits for success for modified state to be visible
+		this.isModified = function()
 		{
-			this.savingFile = false;
-			this.isModified = prevModified;
-			
-			// Handles special case where resp is false eg
-			// if the old file was converted to realtime
-			if (resp != false)
-			{
-				if (revision)
-				{
-					this.lastAutosaveRevision = new Date().getTime();
-				}
-				
-				this.desc = resp;
-				this.contentChanged();
-				
-				if (success != null)
-				{
-					success(resp);
-				}
-			}
-			else
-			{
-				this.setModified(modified || this.isModified());
-				
-				if (error != null)
-				{
-					error();
-				}
-			}
-		}), mxUtils.bind(this, function(resp)
+			return true;
+		};
+		
+		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 		{
-			this.savingFile = false;
-			this.isModified = prevModified;
-			this.setModified(modified || this.isModified());
+			this.savingFile = true;
 			
-			if (error != null)
+			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp)
 			{
-				error(resp);
-			}
-		}), unloading, unloading);
+				this.isModified = prevModified;
+				this.savingFile = false;
+				
+				// Handles special case where resp is false eg
+				// if the old file was converted to realtime
+				if (resp != false)
+				{
+					if (revision)
+					{
+						this.lastAutosaveRevision = new Date().getTime();
+					}
+					
+					this.desc = resp;
+					this.contentChanged();
+					
+					if (success != null)
+					{
+						success(resp);
+					}
+				}
+				else
+				{
+					this.setModified(modified || this.isModified());
+					
+					if (error != null)
+					{
+						error(resp);
+					}
+				}
+			}), mxUtils.bind(this, function(err)
+			{
+				var doError = mxUtils.bind(this, function()
+				{
+					this.setModified(modified || this.isModified());
+					this.isModified = prevModified;
+					this.savingFile = false;
+					
+					if (error != null)
+					{
+						error(err);
+					}
+				});
+				
+				if (this.isConflict(err))
+				{
+					this.showConflictDialog(function()
+					{
+						// Overwrites and creates revision
+						doSave(true, true);
+					}, function()
+					{
+						err = null;
+						doError();
+					});
+				}
+				else
+				{
+					doError();
+				}
+			}), unloading, unloading, realOverwrite);
+		});
+		
+		doSave(overwrite, revision);
 	}
 };
 
+/**
+ * Shows a conflict dialog to the user.
+ */
+DriveFile.prototype.makeCopy = function(success, error, timestamp)
+{
+	if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
+	{
+		// Uses copyFile internally which is a remote REST call with the advantage of keeping
+		// the parents of the file in-place, but copies the remote file contents so needs to
+		// be updated as soon as we have the ID.
+		this.saveAs(this.ui.getCopyFilename(this, timestamp), mxUtils.bind(this, function(resp)
+		{
+			// Replaces the descriptor to and writes the file
+			this.ui.spinner.stop();
+			this.desc = resp;
+			success();
+			this.setModified(false);
+		}), mxUtils.bind(this, function()
+		{
+			this.ui.spinner.stop();
+			
+			if (error != null)
+			{
+				error();
+			}
+		}));
+	}
+};
 
 /**
  * Translates this point by the given vector.
@@ -362,5 +432,83 @@ DriveFile.prototype.close = function(unloading)
 	{
 		this.realtime.destroy(unloading);
 		this.realtime = null;
+	}
+};
+
+/**
+ * Shows a conflict dialog to the user.
+ */
+DriveFile.prototype.showConflictDialog = function(retry, error)
+{
+	if (!this.showingConflictDialog)
+	{
+		var resume = (this.ui.spinner != null && this.ui.spinner.pause != null) ?
+			this.ui.spinner.pause() : function() {};
+		var prev = this.changeListenerEnabled;
+		this.changeListenerEnabled = false;
+		this.showingConflictDialog = true;
+		
+		var logAction = mxUtils.bind(this, function(action)
+		{
+			try
+			{
+				this.ui.logEvent({category: 'RT-CONFLICT-DLG',
+					action: action, label: this.getId()});
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		});
+		
+		this.ui.showError(mxResources.get('externalChanges'), mxResources.get('fileChangedOverwrite'),
+			mxResources.get('makeCopy'), mxUtils.bind(this, function()
+		{
+			this.showingConflictDialog = false;
+			this.changeListenerEnabled = prev;
+			
+			if (this.isRestricted())
+			{
+				this.ui.editor.editAsNew(this.ui.getFileData(true));
+				resume();
+				error();
+			}
+			else
+			{
+				this.makeCopy(retry, error, true);
+			}
+			
+			logAction('makeCopy');
+		}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
+		{
+			this.showingConflictDialog = false;
+			this.changeListenerEnabled = prev;
+			resume();
+			retry();
+			logAction('overwrite');
+		}), mxResources.get('cancel'), mxUtils.bind(this, function()
+		{
+			this.showingConflictDialog = false;
+			this.changeListenerEnabled = prev;
+			this.ui.hideDialog();
+			resume();
+			error();
+			logAction('cancel');
+		}), 360, 180);
+		
+		// Adds important notice to dialog
+		if (this.ui.dialog != null && this.ui.dialog.container != null)
+		{
+			var alert = this.ui.createRealtimeNotice();
+			alert.style.left = '0';
+			alert.style.right = '0';
+			alert.style.borderRadius = '0';
+			alert.style.borderLeftStyle = 'none';
+			alert.style.borderRightStyle = 'none';
+			alert.style.marginBottom = '26px';
+			alert.style.padding = '8px 0 8px 0';
+
+			this.ui.dialog.container.appendChild(alert);
+		}
 	}
 };

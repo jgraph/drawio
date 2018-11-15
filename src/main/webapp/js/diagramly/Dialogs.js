@@ -624,7 +624,7 @@ var SplashDialog = function(editorUi)
 			
 			var link = document.createElement('a');
 			link.setAttribute('href', 'javascript:void(0)');
-			link.style.display = 'block';
+			link.style.display = 'inline-block';
 			link.style.marginTop = '6px';
 			mxUtils.write(link, mxResources.get('signOut'));
 
@@ -649,7 +649,7 @@ var SplashDialog = function(editorUi)
 			
 			var link = document.createElement('a');
 			link.setAttribute('href', 'javascript:void(0)');
-			link.style.display = 'block';
+			link.style.display = 'inline-block';
 			link.style.marginTop = '6px';
 			mxUtils.write(link, mxResources.get('changeUser') + ' (' + driveUser.displayName + ')');
 
@@ -721,9 +721,10 @@ var SplashDialog = function(editorUi)
 			});
 		}
 		
+		mxUtils.br(buttons);
 		var link = document.createElement('a');
 		link.setAttribute('href', 'javascript:void(0)');
-		link.style.display = 'block';
+		link.style.display = 'inline-block';
 		link.style.marginTop = '8px';
 		mxUtils.write(link, mxResources.get('notUsingService', [storage]));
 		
@@ -853,114 +854,9 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 };
 
 /**
- * 
- */
-var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, buttonText2, fn2, hide, buttonText3, fn3)
-{
-	hide = (hide != null) ? hide : true;
-	
-	var div = document.createElement('div');
-	div.style.textAlign = 'center';
-
-	if (title != null)
-	{
-		var hd = document.createElement('div');
-		hd.style.padding = '0px';
-		hd.style.margin = '0px';
-		hd.style.fontSize = '18px';
-		hd.style.paddingBottom = '16px';
-		hd.style.marginBottom = '16px';
-		hd.style.borderBottom = '1px solid #c0c0c0';
-		hd.style.color = 'gray';
-		mxUtils.write(hd, title);
-		div.appendChild(hd);
-	}
-
-	var p2 = document.createElement('div');
-	p2.style.padding = '6px';
-	p2.innerHTML = message;
-	div.appendChild(p2);
-	
-	var btns = document.createElement('div');
-	btns.style.marginTop = '16px';
-	btns.style.textAlign = 'center';
-	
-	if (retry != null)
-	{
-		var retryBtn = mxUtils.button(mxResources.get('tryAgain'), function()
-		{
-			editorUi.hideDialog();
-			retry();
-		});
-		retryBtn.className = 'geBtn';
-		btns.appendChild(retryBtn);
-		
-		btns.style.textAlign = 'center';
-	}
-	
-	if (buttonText3 != null)
-	{
-		var btn3 = mxUtils.button(buttonText3, function()
-		{
-			if (fn3 != null)
-			{
-				fn3();
-			}
-		});
-		
-		btn3.className = 'geBtn';
-		btns.appendChild(btn3);
-	}
-	
-	var btn = mxUtils.button(buttonText, function()
-	{
-		if (hide)
-		{
-			editorUi.hideDialog();
-		}
-		
-		if (fn != null)
-		{
-			fn();
-		}
-	});
-	
-	btn.className = 'geBtn';
-	btns.appendChild(btn);
-
-	if (buttonText2 != null)
-	{
-		var mainBtn = mxUtils.button(buttonText2, function()
-		{
-			if (hide)
-			{
-				editorUi.hideDialog();
-			}
-			
-			if (fn2 != null)
-			{
-				fn2();
-			}
-		});
-		
-		mainBtn.className = 'geBtn gePrimaryBtn';
-		btns.appendChild(mainBtn);
-	}
-
-	this.init = function()
-	{
-		btn.focus();
-	};
-	
-	div.appendChild(btns);
-
-	this.container = div;
-};
-
-/**
  * Constructs a new embed dialog
  */
-var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title)
 {
 	var div = document.createElement('div');
 	var maxSize = 500000;
@@ -970,8 +866,15 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn)
 	// Checks if result is a link
 	var validUrl = /^https?:\/\//.test(result) || /^mailto:\/\//.test(result);
 
-	mxUtils.write(div, mxResources.get((result.length < maxSize) ?
-		((validUrl) ? 'link' : 'mainEmbedNotice') : 'preview') + ':');
+	if (title != null)
+	{
+		mxUtils.write(div, title);
+	}
+	else
+	{
+		mxUtils.write(div, mxResources.get((result.length < maxSize) ?
+			((validUrl) ? 'link' : 'mainEmbedNotice') : 'preview') + ':');
+	}
 	mxUtils.br(div);
 	
 	var size = document.createElement('div');
@@ -2110,170 +2013,183 @@ var ParseDialog = function(editorUi, title, defaultType)
 		{
 			var plantUmlServerUrl = (type == 'plantUmlTxt') ? PLANT_URL + '/txt/' :
 				((type == 'plantUmlPng') ? PLANT_URL + '/png/' : PLANT_URL + '/svg/');
-	    	var graph = editorUi.editor.graph;
-	    	
-	    	// TODO: Change server to return base64 & accept POST request
-	    	if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-	    	{
-    			function encode64(data) {
-				r = "";
-				for (i=0; i<data.length; i+=3) {
-			 		if (i+2==data.length) {
-						r +=append3bytes(data.charCodeAt(i), data.charCodeAt(i+1), 0);
-					} else if (i+1==data.length) {
-						r += append3bytes(data.charCodeAt(i), 0, 0);
-					} else {
-						r += append3bytes(data.charCodeAt(i), data.charCodeAt(i+1),
-							data.charCodeAt(i+2));
-					}
-				}
-				return r;
-			}
-			
-			function append3bytes(b1, b2, b3)
+			var graph = editorUi.editor.graph;
+
+			// TODO: Change server to return base64 and accept POST request
+			if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
 			{
-				c1 = b1 >> 2;
-				c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
-				c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
-				c4 = b3 & 0x3F;
-				r = "";
-				r += encode6bit(c1 & 0x3F);
-				r += encode6bit(c2 & 0x3F);
-				r += encode6bit(c3 & 0x3F);
-				r += encode6bit(c4 & 0x3F);
-				return r;
-			}
-			
-			function encode6bit(b)
-			{
-				if (b < 10) {
-			 		return String.fromCharCode(48 + b);
-				}
-				b -= 10;
-				if (b < 26) {
-			 		return String.fromCharCode(65 + b);
-				}
-				b -= 26;
-				if (b < 26) {
-			 		return String.fromCharCode(97 + b);
-				}
-				b -= 26;
-				if (b == 0) {
-			 		return '-';
-				}
-				if (b == 1) {
-			 		return '_';
-				}
-				return '?';
-			}
-		
-			// TODO: Remove unescape, use btoa for compatibility with graph.compress
-			function compress(s)
-			{
-				return encode64(graph.bytesToString(pako.deflateRaw(unescape(encodeURIComponent(s)))));
-			};
-		
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', plantUmlServerUrl + compress(text), true);
-			
-			if (type != 'plantUmlTxt')
-			{
-				xhr.responseType = 'blob';
-			}
-			
-			xhr.onload = function(e) 
-			{
-			  if (this.status >= 200 && this.status < 300)
-			  {
-				if (type == 'plantUmlTxt')
+				function encode64(data)
 				{
-					editorUi.spinner.stop();
+					r = "";
 					
-		    			graph.getModel().beginUpdate();
-					try
+					for (i = 0; i < data.length; i += 3)
 					{
-			    			cell = graph.insertVertex(null, null, '<pre>' + this.response + '</pre>',
-			    				insertPoint.x, insertPoint.y, 1, 1, 'text;html=1;overflow=fill;');
-			    			graph.updateCellSize(cell, true);
-					}
-					finally
-					{
-						graph.getModel().endUpdate();
+						if (i + 2 == data.length)
+						{
+							r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
+						}
+						else if (i + 1 == data.length)
+						{
+							r += append3bytes(data.charCodeAt(i), 0, 0);
+						}
+						else
+						{
+							r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1),
+								data.charCodeAt(i + 2));
+						}
 					}
 					
-					graph.setSelectionCell(cell);
-		           	graph.scrollCellToVisible(graph.getSelectionCell());
+					return r;
 				}
-				else
+
+				function append3bytes(b1, b2, b3)
 				{
-				    var reader = new FileReader();
-				    reader.readAsDataURL(this.response);
-				    
-				    reader.onload = function(e) 
-				    {
-					    	var img = new Image();
-					    	
-					    	img.onload = function()
-					    	{
-					    		editorUi.spinner.stop();
-					    		var w = img.width;
-					    		var h = img.height;
-					    		
-					    		// Workaround for 0 image size in IE11
-					    		if (w == 0 && h == 0)
-					    		{
-						    		var data = e.target.result;
-						    		var comma = data.indexOf(',');
-			    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-			    					var root = mxUtils.parseXml(svgText);
-		    						var svgs = root.getElementsByTagName('svg');
-		    						
-		    						if (svgs.length > 0)
-		    						{
-		    							w = parseFloat(svgs[0].getAttribute('width'));
-		    							h = parseFloat(svgs[0].getAttribute('height'));
-		    						}
-					    		}
-					    		
-					    		graph.getModel().beginUpdate();
-							try
-							{
-					    			cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
-									w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
-									'image=' + editorUi.convertDataUri(e.target.result) + ';');
-							}
-							finally
-							{
-								graph.getModel().endUpdate();
-							}
-							
-							graph.setSelectionCell(cell);
-				           	graph.scrollCellToVisible(graph.getSelectionCell());
-					    	};
-					    	
-					    	img.src = e.target.result;
-				    };
-				    
-				    reader.onerror = function(e)
-				    {
-				    		editorUi.handleError(e);
-				    };
+					c1 = b1 >> 2;
+					c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+					c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+					c4 = b3 & 0x3F;
+					r = "";
+					r += encode6bit(c1 & 0x3F);
+					r += encode6bit(c2 & 0x3F);
+					r += encode6bit(c3 & 0x3F);
+					r += encode6bit(c4 & 0x3F);
+					
+					return r;
 				}
-			  }
-			  else 
-			  {
-				  editorUi.spinner.stop();
-				  editorUi.handleError(e);
-			  }
-			};
-			
-			xhr.onerror = function(e)
-			{
-				editorUi.handleError(e);
-			};
-			 
-			xhr.send();
-    	  }
+
+				function encode6bit(b)
+				{
+					if (b < 10)
+					{
+						return String.fromCharCode(48 + b);
+					}
+					
+					b -= 10;
+					
+					if (b < 26)
+					{
+						return String.fromCharCode(65 + b);
+					}
+					
+					b -= 26;
+					
+					if (b < 26)
+					{
+						return String.fromCharCode(97 + b);
+					}
+					
+					b -= 26;
+					
+					if (b == 0)
+					{
+						return '-';
+					}
+					
+					if (b == 1)
+					{
+						return '_';
+					}
+					
+					return '?';
+				}
+
+				// TODO: Remove unescape, use btoa for compatibility with graph.compress
+				function compress(s)
+				{
+					return encode64(graph.bytesToString(
+						pako.deflateRaw(unescape(
+						encodeURIComponent(s)))));
+				};
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', plantUmlServerUrl + compress(text), true);
+
+				if (type != 'plantUmlTxt')
+				{
+					xhr.responseType = 'blob';
+				}
+
+				xhr.onload = function(e)
+				{
+					if (this.status >= 200 && this.status < 300)
+					{
+						if (type == 'plantUmlTxt')
+						{
+							editorUi.spinner.stop();
+							graph.setSelectionCell(editorUi.insertAsPreText(
+								this.response, insertPoint.x, insertPoint.y));
+							graph.scrollCellToVisible(graph.getSelectionCell());
+						}
+						else
+						{
+							var reader = new FileReader();
+							reader.readAsDataURL(this.response);
+
+							reader.onloadend = function(e)
+							{
+								var img = new Image();
+
+								img.onload = function()
+								{
+									editorUi.spinner.stop();
+									var w = img.width;
+									var h = img.height;
+
+									// Workaround for 0 image size in IE11
+									if (w == 0 && h == 0)
+									{
+										var data = reader.result;
+										var comma = data.indexOf(',');
+										var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+										var root = mxUtils.parseXml(svgText);
+										var svgs = root.getElementsByTagName('svg');
+
+										if (svgs.length > 0)
+										{
+											w = parseFloat(svgs[0].getAttribute('width'));
+											h = parseFloat(svgs[0].getAttribute('height'));
+										}
+									}
+
+									graph.getModel().beginUpdate();
+									try
+									{
+										cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
+											w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
+											'image=' + editorUi.convertDataUri(reader.result) + ';');
+									}
+									finally
+									{
+										graph.getModel().endUpdate();
+									}
+
+									graph.setSelectionCell(cell);
+									graph.scrollCellToVisible(graph.getSelectionCell());
+								};
+
+								img.src = reader.result;
+							};
+
+							reader.onerror = function(e)
+							{
+								editorUi.handleError(e);
+							};
+						}
+					}
+					else
+					{
+						editorUi.spinner.stop();
+						editorUi.handleError(e);
+					}
+				};
+
+				xhr.onerror = function(e)
+				{
+					editorUi.handleError(e);
+				};
+
+				xhr.send();
+			}
 		}
 		else if (type == 'table')
 		{
@@ -2497,6 +2413,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 					layout.disableEdgeStyle = false;
 					layout.forceConstant = 120;
 					layout.execute(graph.getDefaultParent());
+					
+					var edgeLayout = new mxParallelEdgeLayout(graph);
+					edgeLayout.spacing = 20;
+					edgeLayout.execute(graph.getDefaultParent());
 				}
 				finally
 				{
@@ -2733,7 +2653,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
 	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
 	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
-	templateFile = (templateFile != null) ? templateFile : TEMPLATE_PATH + '/index.xml';
+	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
 	outer.style.height = '100%';
@@ -2859,7 +2779,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		while (i0 < templates.length && (first || mxUtils.mod(i0, 30) != 0))
 		{
 			var tmp = templates[i0++];
-			addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title, tmp.select, tmp.imgUrl, tmp.info, tmp.onClick);
+			addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
+				tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview);
 			first = false;
 		}
 	};
@@ -3056,18 +2977,16 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				
 			if (title != null && title.length > 0)
 			{
-				var tempMode = (editorUi.mode == App.MODE_ONEDRIVE || editorUi.mode == App.MODE_TRELLO ||
-					(editorUi.mode == App.MODE_GOOGLE && (editorUi.stateArg == null ||
-					editorUi.stateArg.folderId == null))) ? editorUi.mode : null;
-				
-				editorUi.pickFolder(tempMode, function(folderId)
+				editorUi.pickFolder(editorUi.mode, function(folderId)
 				{
 					editorUi.createFile(title, templateXml, (templateLibs != null &&
 						templateLibs.length > 0) ? templateLibs : null, null, function()
 					{
 						editorUi.hideDialog();
 					}, null, folderId);
-				});
+				}, editorUi.mode != App.MODE_GOOGLE ||
+					editorUi.stateArg == null ||
+					editorUi.stateArg.folderId == null);
 			}
 		}
 	};
@@ -3111,7 +3030,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.border = rightHighlightBorder;
 	};
 
-	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick)
+	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview)
 	{
 		var elt = document.createElement('div');
 		elt.className = 'geTemplate';
@@ -3143,9 +3062,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else if (url != null && url.length > 0)
 		{
-			var png = url.substring(0, url.length - 4) + '.png';
+			var png = preview || (TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png');
 			
-			elt.style.backgroundImage = 'url(' + TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png)';
+			elt.style.backgroundImage = 'url(' + png + ')';
 			elt.style.backgroundPosition = 'center center';
 			elt.style.backgroundRepeat = 'no-repeat';
 			
@@ -3156,8 +3075,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				createButton.setAttribute('disabled', 'disabled');
 				elt.style.backgroundColor = 'transparent';
 				elt.style.border = '1px solid transparent';
+				var realUrl = url;
 				
-				mxUtils.get(TEMPLATE_PATH + '/' + url, mxUtils.bind(this, function(req)
+				if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+				{
+					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+				}
+				else
+				{
+					realUrl = TEMPLATE_PATH + '/' + realUrl;
+				}
+				
+				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 				{
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
@@ -3179,8 +3108,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%"><tr><td align="center" valign="middle">' +
-				mxResources.get(title) + '</td></tr></table>';
+			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;"><tr>' +
+				'<td align="center" valign="middle">' + mxResources.get(title) + '</td></tr></table>';
 			
 			if (select)
 			{
@@ -3292,8 +3221,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		outer.appendChild(list);
 		outer.appendChild(div);
 		var indexLoaded = false;
+		var realUrl = templateFile;
 		
-		mxUtils.get(templateFile, function(req)
+		if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+		{
+			realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+		}
+		
+		mxUtils.get(realUrl, function(req)
 		{
 			// Workaround for index loaded 3 times in iOS offline mode
 			if (!indexLoaded)
@@ -3310,8 +3245,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						
 						if (url != null)
 						{
-							var slash = url.indexOf('/');
-							var category = url.substring(0, slash);
+							var category = node.getAttribute('section');
+							
+							if (category == null)
+							{
+								var slash = url.indexOf('/');
+								category = url.substring(0, slash);
+							}
 							
 							var list = categories[category];
 							
@@ -3323,7 +3263,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							}
 							
 							list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-								title: node.getAttribute('title'), tooltip: node.getAttribute('url')});
+								title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
+								preview: node.getAttribute('preview')});
 						}
 					}
 					
@@ -3954,7 +3895,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 			pre();
 		}
 		
-		editorUi.openLink(url);
+		editorUi.openLink(url, null, true);
 	});
 	wndBtn.className = 'geBtn gePrimaryBtn';
 	wndBtn.style.width = replaceBtn.style.width;
@@ -4273,7 +4214,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    	{
 		    		linkInput.value = image;
 		    	});
-		    	editorUi.showDialog(dlg.container, 200, 180, true, true);
+		    	editorUi.showDialog(dlg.container, 200, 185, true, true);
 			dlg.init();
 		});
 		
@@ -5318,7 +5259,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		}
 	});
 	
-	var newBtn = mxUtils.button(mxResources.get('openInNewWindow'), function()
+	var newBtn = mxUtils.button(mxResources.get('open'), function()
 	{
 		if (currentDoc != null)
 		{
@@ -5531,9 +5472,18 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 								parseGraphModel(node);
 							}
 							
+							var shortUser = item.lastModifyingUserName;
+							
+							if (shortUser != null && shortUser.length > 20)
+							{
+								shortUser = shortUser.substring(0, 20) + '...';
+							}
+							
 							fileInfo.innerHTML = '';
-							mxUtils.write(fileInfo, ts.toLocaleDateString() + ' ' +
-									ts.toLocaleTimeString());
+							mxUtils.write(fileInfo, ((shortUser != null) ?
+								(shortUser + ' ') : '') + ts.toLocaleDateString() +
+								' ' + ts.toLocaleTimeString());
+							
 							fileInfo.setAttribute('title', row.getAttribute('title'));
 							zoomInBtn.removeAttribute('disabled');
 							zoomOutBtn.removeAttribute('disabled');
@@ -6316,6 +6266,13 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		{
 			graph.setSelectionCells(cells);
 		}
+		else
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				graph.highlightCell(cells[i]);
+			}
+		}
 	});
 	
 	showBtn.setAttribute('title', mxResources.get('show'));
@@ -6469,7 +6426,58 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 {
 	entries = (entries != null) ? entries : editorUi.sidebar.entries;
 	var div = document.createElement('div');
-
+	var newEntries = [];
+	
+	// Adds custom sections first
+	if (editorUi.sidebar.customEntries != null)
+	{
+		for (var i = 0; i < editorUi.sidebar.customEntries.length; i++)
+		{
+			var section = editorUi.sidebar.customEntries[i];
+			var tmp = {title: editorUi.getResource(section.title), entries: []};
+			
+			for (var j = 0; j < section.entries.length; j++)
+			{
+				var entry = section.entries[j];
+				tmp.entries.push({id: entry.id, title:
+					editorUi.getResource(entry.title),
+					desc: editorUi.getResource(entry.desc),
+					image: entry.preview});
+			}
+			
+			newEntries.push(tmp);
+		}
+	}
+	
+	// Adds built-in sections and filter entries
+	for (var i = 0; i < entries.length; i++)
+	{
+		if (editorUi.sidebar.enabledLibraries == null)
+		{
+			newEntries.push(entries[i]);
+		}
+		else
+		{
+			var tmp = {title: entries[i].title, entries: []};
+			
+			for (var j = 0; j < entries[i].entries.length; j++)
+			{
+				if (mxUtils.indexOf(editorUi.sidebar.enabledLibraries,
+					entries[i].entries[j].id) >= 0)
+				{
+					tmp.entries.push(entries[i].entries[j]);
+				}
+			}
+			
+			if (tmp.entries.length > 0)
+			{
+				newEntries.push(tmp);
+			}
+		}
+	}
+	
+	entries = newEntries;
+	
 	if (expanded)
 	{
 		var hd = document.createElement('div');
@@ -6559,17 +6567,35 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 						{
 							if (evt == null || mxEvent.getSource(evt).nodeName != 'INPUT')
 							{
+								preview.style.textAlign = 'center';
+								preview.style.padding = '0px';
+								preview.style.color = '';
+								preview.innerHTML = '';
+								
+								if (entry.desc != null)
+								{
+									var pre = document.createElement('pre');
+									pre.style.boxSizing = 'border-box';
+									pre.style.fontFamily = 'inherit';
+									pre.style.margin = '20px';
+									pre.style.right = '0px';
+									pre.style.textAlign = 'left';
+									mxUtils.write(pre, entry.desc);
+									preview.appendChild(pre);
+								}
+								
 								if (entry.imageCallback != null)
 								{
 									entry.imageCallback(preview);
 								}
 								else if (entry.image != null)
 								{
-									preview.innerHTML = '<img border="0" src="' + entry.image + '"/>';
+									preview.innerHTML += '<img border="0" src="' + entry.image + '"/>';
 								}
-								else
+								else if (entry.desc == null)
 								{
-									preview.innerHTML = '<br>';
+									preview.style.padding = '20px';
+									preview.style.color = 'rgb(179, 179, 179)';
 									mxUtils.write(preview, mxResources.get('noPreview'));
 								}
 								
@@ -7223,18 +7249,39 @@ var EditGeometryDialog = function(editorUi, vertices)
 	var right = document.createElement('td');
 	table.style.paddingLeft = '6px';
 	
+	mxUtils.write(left, mxResources.get('relative') + ':');
+	
+	var relInput = document.createElement('input');
+	relInput.setAttribute('type', 'checkbox');
+	
+	if (geo != null && geo.relative)
+	{
+		relInput.setAttribute('checked', 'checked');
+		relInput.defaultChecked = true;
+	}
+	
+	this.init = function()
+	{
+		relInput.focus();
+	};
+
+	right.appendChild(relInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
 	mxUtils.write(left, mxResources.get('left') + ':');
 	
 	var xInput = document.createElement('input');
 	xInput.setAttribute('type', 'text');
 	xInput.style.width = '100px';
 	xInput.value = (geo != null) ? geo.x : '';
-	
-	this.init = function()
-	{
-		xInput.focus();
-		xInput.select();
-	};
 
 	right.appendChild(xInput);
 
@@ -7255,6 +7302,42 @@ var EditGeometryDialog = function(editorUi, vertices)
 	yInput.value = (geo != null) ? geo.y : '';
 
 	right.appendChild(yInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('dx') + ':');
+	
+	var dxInput = document.createElement('input');
+	dxInput.setAttribute('type', 'text');
+	dxInput.style.width = '100px';
+	dxInput.value = (geo != null && geo.offset != null) ? geo.offset.x : '';
+
+	right.appendChild(dxInput);
+
+	row.appendChild(left);
+	row.appendChild(right);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	left = document.createElement('td');
+	right = document.createElement('td');
+	
+	mxUtils.write(left, mxResources.get('dy') + ':');
+	
+	var dyInput = document.createElement('input');
+	dyInput.setAttribute('type', 'text');
+	dyInput.style.width = '100px';
+	dyInput.value = (geo != null && geo.offset != null) ? geo.offset.y : '';
+
+	right.appendChild(dyInput);
 
 	row.appendChild(left);
 	row.appendChild(right);
@@ -7324,6 +7407,8 @@ var EditGeometryDialog = function(editorUi, vertices)
 		editorUi.hideDialog();
 	});
 	
+	cancelBtn.className = 'geBtn';
+	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
@@ -7341,6 +7426,8 @@ var EditGeometryDialog = function(editorUi, vertices)
 				
 					if (graph.isCellMovable(vertices[i]))
 					{
+						g.relative = relInput.checked;
+						
 						if (mxUtils.trim(xInput.value).length > 0)
 						{
 							g.x = Number(xInput.value);
@@ -7349,6 +7436,26 @@ var EditGeometryDialog = function(editorUi, vertices)
 						if (mxUtils.trim(yInput.value).length > 0)
 						{
 							g.y = Number(yInput.value);
+						}
+						
+						if (mxUtils.trim(dxInput.value).length > 0)
+						{
+							if (g.offset == null)
+							{
+								g.offset = new mxPoint();
+							}
+							
+							g.offset.x = Number(dxInput.value);
+						}
+						
+						if (mxUtils.trim(dyInput.value).length > 0)
+						{
+							if (g.offset == null)
+							{
+								g.offset = new mxPoint();
+							}
+							
+							g.offset.y = Number(dyInput.value);
 						}
 					}
 					
@@ -7379,7 +7486,9 @@ var EditGeometryDialog = function(editorUi, vertices)
 			graph.getModel().endUpdate();
 		}
 	});
-
+	
+	applyBtn.className = 'geBtn gePrimaryBtn';
+	
 	mxEvent.addListener(div, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)
@@ -8450,4 +8559,829 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	this.cancelBtn = cancelBtn;
 	this.okButton = okBtn;
 	this.container = div;
+};
+
+var TemplatesDialog = function()
+{
+	var dialogSkeleton = 
+	'<div class="geTempDlgHeader">' + 
+		'<img src="/images/draw.io-logo.svg" class="geTempDlgHeaderLogo">' +
+		'<input type="search" class="geTempDlgSearchBox" placeholder="'+ mxResources.get('search', null, 'Search') +'">' +
+	'</div>' +
+	'<div class="geTemplatesList">' +
+		'<div class="geTempDlgNewDiagramlbl">'+ mxResources.get('newDiagram', null, 'New Diagram') + '</div>' +
+		'<div class="geTempDlgHLine"></div>' +
+		'<div class="geTemplatesLbl">'+ mxResources.get('templates', null, 'Templates') + '</div>' +
+	'</div>' +
+	'<div class="geTempDlgContent">' +
+		'<div class="geTempDlgNewDiagramCat">' +
+			'<div class="geTempDlgNewDiagramCatLbl">'+ mxResources.get('newDiagram', null, 'New Diagram') +'</div>' +
+			'<div class="geTempDlgNewDiagramCatList">' +
+			'</div>' + 
+			'<div class="geTempDlgNewDiagramCatFooter">' + 
+				'<div class="geTempDlgShowAllBtn">'+ mxResources.get('showAll', null, '+ Show all') +'</div>' +
+			'</div>' +
+		'</div>' + 
+		'<div class="geTempDlgDiagramsList">' +
+			'<div class="geTempDlgDiagramsListHeader">' +
+				'<div class="geTempDlgDiagramsListTitle"></div>' +
+				'<div class="geTempDlgDiagramsListBtns">' +
+					'<div class="geTempDlgRadioBtn geTempDlgRadioBtnLarge" data-id="myDiagramsBtn">' +
+						'<img src="/images/my-diagrams.svg" class="geTempDlgMyDiagramsBtnImg"> <span>'+ mxResources.get('myDiagrams', null, 'My diagrams') + '</span>' +
+					'</div><div class="geTempDlgRadioBtn geTempDlgRadioBtnLarge geTempDlgRadioBtnActive" data-id="allDiagramsBtn">' +
+						'<img src="/images/all-diagrams-sel.svg" class="geTempDlgAllDiagramsBtnImg"> <span>'+ mxResources.get('allDiagrams', null, 'All diagrams') + '</span>' +
+					'</div><div class="geTempDlgSpacer"> </div><div class="geTempDlgRadioBtn geTempDlgRadioBtnSmall geTempDlgRadioBtnActive" data-id="tilesBtn">' +
+						'<img src="/images/tiles-sel.svg" class="geTempDlgTilesBtnImg">' +
+					'</div><div class="geTempDlgRadioBtn geTempDlgRadioBtnSmall" data-id="listBtn">' +
+						'<img src="/images/list.svg" class="geTempDlgListBtnImg">' +
+					'</div>' +
+				'</div>' +
+			'</div>' +
+			'<div class="geTempDlgDiagramsTiles">' +
+			'</div>'+
+		'</div>' +
+	'</div>' +
+	'<br style="clear:both;"/>' +
+	'<div class="geTempDlgFooter">' +
+		'<span class="geTempDlgLinkToDiagram geTempDlgLinkToDiagramHint">&#x1F6C8; ' + mxResources.get('linkToDiagramHint', null, 'Add a link to this diagram. The diagram can only be edited from the page that owns it.') + '</span>' +
+		'<button class="geTempDlgLinkToDiagram geTempDlgLinkToDiagramBtn">'+ mxResources.get('linkToDiagram', null, 'Link to Diagram') + '</button>' +
+		'<div class="geTempDlgCreateBtn">'+ mxResources.get('create', null, 'Create') + '</div>' +
+		'<div class="geTempDlgCancelBtn">'+ mxResources.get('cancel', null, 'Cancel') + '</div>' +
+	'</div>';
+	
+	var div = document.createElement('div');
+	div.innerHTML = dialogSkeleton;
+	div.className = "geTemplateDlg";
+	//override default dialog size based on screen size if needed
+	var ww = window.innerWidth;
+	var wh = window.innerHeight;
+	var dw = 987, dh = 712;
+	
+	if (ww * 0.9 < dw)
+	{
+		dw = Math.max(ww * 0.9, 600);
+		div.style.width = dw + "px";
+	}
+
+	if (wh * 0.9 < dh)
+	{
+		dh = Math.max(wh * 0.9, 300);
+		div.style.height = dh + "px";
+	}
+
+	this.width = dw;
+	this.height = dh;
+	this.container = div;
+};
+
+TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
+		templateFile, newDiagramCatsFile, username, recentDocsCallback, searchDocsCallback,
+		openExtDocCallback, linkToDiagramCallback)
+{
+	templateFile = (templateFile != null) ? templateFile : (TEMPLATE_PATH + '/index.xml');
+	newDiagramCatsFile = (newDiagramCatsFile != null) ? newDiagramCatsFile : NEW_DIAGRAM_CATS_PATH + '/index.xml';
+
+	var dlgDiv = this.container;
+	var callInitiated = false;
+	var cancelPendingCall = false;
+	var currentEntry = null;
+	var currentItem = null;
+	var currentItemInfo = null;
+	var showingAll = false;
+	var isGetAll = true;
+	var showAsList = false;
+	var curDiagList = [];
+	var lastSearchStr;
+	var categorySelected = true;
+	var showAllBtn = dlgDiv.querySelector(".geTempDlgShowAllBtn");
+	var diagramsTiles = dlgDiv.querySelector('.geTempDlgDiagramsTiles');
+	var diagramsListTitle = dlgDiv.querySelector('.geTempDlgDiagramsListTitle');
+	var diagramsListBtns = dlgDiv.querySelector('.geTempDlgDiagramsListBtns');
+	var tempDlgContent = dlgDiv.querySelector('.geTempDlgContent');
+	var diagramsList = dlgDiv.querySelector('.geTempDlgDiagramsList');
+	var newDiagramCat = dlgDiv.querySelector('.geTempDlgNewDiagramCat');
+	var newDiagramCatList = dlgDiv.querySelector(".geTempDlgNewDiagramCatList");
+	var createBtn = dlgDiv.querySelector('.geTempDlgCreateBtn');
+	var spinner = new Spinner({
+		lines: 12, // The number of lines to draw
+		length: 10, // The length of each line
+		width: 5, // The line thickness
+		radius: 10, // The radius of the inner circle
+		rotate: 0, // The rotation offset
+		color: '#000', // #rgb or #rrggbb
+		speed: 1.5, // Rounds per second
+		trail: 60, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		top: '50px',
+		zIndex: 2e9 // The z-index (defaults to 2000000000)
+	});
+	
+	function deselectTempCat()
+	{
+		if (currentEntry != null)
+		{
+			currentEntry.style.fontWeight = 'normal';
+			currentEntry.style.textDecoration = 'none';
+			currentEntry = null;
+		}
+	};
+	
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgNewDiagramlbl'), 'click', function()
+	{
+		deselectTempCat();
+		newDiagramCat.style.display = '';
+		diagramsList.style.minHeight = 'calc(100% - 280px)';
+		getRecentDocs(isGetAll);
+	});
+	
+	function radioClick(btn, btnImgId, btnImgFile, otherBtnId, otherBtnImgId, otherBtnImgFile, isLarge)
+	{
+		if (btn.className.indexOf('geTempDlgRadioBtnActive') > -1)
+		{
+			return false;
+		}
+		else
+		{
+			btn.className += ' geTempDlgRadioBtnActive';
+			dlgDiv.querySelector('.geTempDlgRadioBtn[data-id='+ otherBtnId +']').className = "geTempDlgRadioBtn " + 
+											(isLarge? "geTempDlgRadioBtnLarge" : "geTempDlgRadioBtnSmall");
+			dlgDiv.querySelector('.'+ btnImgId).src = "/images/"+ btnImgFile +"-sel.svg";
+			dlgDiv.querySelector('.'+ otherBtnImgId).src = "/images/"+ otherBtnImgFile +".svg";
+			return true;
+		}
+	};
+	
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=allDiagramsBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'geTempDlgAllDiagramsBtnImg', 'all-diagrams', 'myDiagramsBtn', 'geTempDlgMyDiagramsBtnImg', 'my-diagrams', true))
+		{
+			isGetAll = true;
+			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
+		}
+	});
+
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=myDiagramsBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'geTempDlgMyDiagramsBtnImg', 'my-diagrams', 'allDiagramsBtn', 'geTempDlgAllDiagramsBtnImg', 'all-diagrams', true))
+		{
+			isGetAll = false;
+			lastSearchStr == null? getRecentDocs(isGetAll) : doSearch(lastSearchStr);
+		}
+	});
+	
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=listBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'geTempDlgListBtnImg', 'list', 'tilesBtn', 'geTempDlgTilesBtnImg', 'tiles', false))
+		{
+			showAsList = true;
+			fillDiagramsList(curDiagList, false, showAsList);
+		}
+	});
+	
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgRadioBtn[data-id=tilesBtn]'), 'click', function()
+	{
+		if (radioClick(this, 'geTempDlgTilesBtnImg', 'tiles', 'listBtn', 'geTempDlgListBtnImg', 'list', false))
+		{
+			showAsList = false;
+			fillDiagramsList(curDiagList, false, showAsList);
+		}
+	});
+	
+	function createPreview(diagram)
+	{
+		var imgUrl = diagram.prevImgUrl || diagram.imgUrl || (TEMPLATE_PATH + '/' + diagram.url.substring(0, diagram.url.length - 4) + '.png');
+		var mask = document.createElement('div');
+		mask.className = "geTempDlgDialogMask";
+		dlgDiv.appendChild(mask);
+		var prevBox = document.createElement('div');
+		prevBox.className = "geTempDlgDiagramPreviewBox";
+		var img = document.createElement('img');
+		img.src = imgUrl;
+		prevBox.appendChild(img);
+		var closeBtn = document.createElement('img');
+		closeBtn.src = "/images/close.png";
+		closeBtn.className = "geTempDlgPreviewCloseBtn";
+		closeBtn.setAttribute('title', mxResources.get("close"));
+		prevBox.appendChild(closeBtn);
+		var scrollTop = tempDlgContent.scrollTop;
+		
+		function closeBox(evt)
+		{
+			tempDlgContent.removeChild(prevBox);
+			dlgDiv.removeChild(mask);
+			tempDlgContent.scrollTop = scrollTop;
+		};
+
+		mxEvent.addListener(closeBtn, 'click', closeBox);
+		mxEvent.addListener(mask, 'click', closeBox);
+		tempDlgContent.appendChild(prevBox);
+		tempDlgContent.scrollTop = 0;
+		//for centering the image
+		prevBox.style.lineHeight = prevBox.clientHeight + "px";
+	};
+	
+	function swapActiveItem(newItem, activeCls, itemInfo)
+	{
+		if (currentItem != null)
+		{
+			var classes = currentItem.className.split(" ");
+
+			for (var i = 0; i < classes.length; i++)
+			{
+				if (classes[i].indexOf("Active") > -1)
+				{
+					classes.splice(i, 1);
+					break;
+				}
+			}
+			
+			currentItem.className = classes.join(" ");
+		}
+		
+		if (newItem != null)
+		{
+			currentItem = newItem;
+			currentItem.className += " " + activeCls;
+			currentItemInfo = itemInfo;
+			categorySelected = itemInfo.isCategory;
+			//activate create button
+			createBtn.className = "geTempDlgCreateBtn";
+		}
+		else 
+		{
+			currentItem = null;
+			currentItemInfo = null;
+			//disable create button
+			createBtn.className = "geTempDlgCreateBtn geTempDlgCreateBtnDisabled";
+		}
+	};
+	
+	function handleDialogOK(linkToDiagram)
+	{
+		if (currentItemInfo != null)
+		{
+			var itemInfo = currentItemInfo;
+			//disable create button
+			currentItemInfo = null;
+			createBtn.className = "geTempDlgCreateBtn geTempDlgCreateBtnDisabled geTempDlgCreateBtnBusy";
+			
+			if (itemInfo.isExternal)
+			{
+				if (linkToDiagram == true)
+				{
+					linkToDiagramCallback(itemInfo.url, itemInfo, "nameInput.value");
+				}
+				else 
+				{
+					openExtDocCallback(itemInfo.url, itemInfo, "nameInput.value");
+				}
+				
+				editorUi.hideDialog(true);
+			}
+			else
+			{
+				mxUtils.get(TEMPLATE_PATH + '/' + itemInfo.url, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+						callback(req.getText(), "nameInput.value");
+						editorUi.hideDialog(true);
+					}
+					else
+					{
+						//TODO Handle errors	
+					}
+				}));
+			}
+		}
+	};
+	
+	function showLinkToDiagram(isShown)
+	{
+		var linkDisplay = isShown? '' : 'none';
+		var elems = dlgDiv.querySelectorAll(".geTempDlgLinkToDiagram");
+		
+		for(var i = 0; i < elems.length; i++)
+		{
+			elems[i].style.display = linkDisplay;
+		}
+	};
+	
+	function fillDiagramsList(diagrams, isTemplate, asList)
+	{
+		function setSubmitBtnLbl() 
+		{
+			if (isTemplate)
+			{
+				createBtn.innerHTML = mxResources.get('create');
+			}
+			else
+			{
+				createBtn.innerHTML = mxResources.get('copy');
+			}
+			
+			showLinkToDiagram (!isTemplate);
+		};
+		
+		diagramsTiles.innerHTML = '';
+		swapActiveItem();
+		curDiagList = diagrams;
+		var grid = null;
+		
+		if (asList)
+		{
+			grid = document.createElement('table');
+			grid.className = 'geTempDlgDiagramsListGrid';
+			//create header row
+			var hrow = document.createElement('tr');
+			var th = document.createElement('th');
+			th.style.width = "50%";
+			th.innerHTML = mxResources.get('diagram', null, 'Diagram');
+			hrow.appendChild(th);
+			th = document.createElement('th');
+			th.style.width = "25%";
+			th.innerHTML = mxResources.get('changedBy', null, 'Changed By');
+			hrow.appendChild(th);
+			th = document.createElement('th');
+			th.style.width = "25%";
+			th.innerHTML = mxResources.get('lastModifiedOn', null, 'Last modified on');
+			hrow.appendChild(th);
+			grid.appendChild(hrow);
+			diagramsTiles.appendChild(grid);
+		}
+		
+		//TODO support paging
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			diagrams[i].isExternal = !isTemplate;
+			var url = diagrams[i].url;
+			var title = mxUtils.htmlEntities(diagrams[i].title);
+			var tooltip = diagrams[i].tooltip || diagrams[i].title;
+			var imgUrl = diagrams[i].imgUrl;
+			var changedBy = mxUtils.htmlEntities(diagrams[i].changedBy || "");
+			var lastModifiedOn = mxUtils.htmlEntities(diagrams[i].lastModifiedOn || "");
+			
+			if (!imgUrl)
+			{
+				imgUrl = TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png';
+			}
+			
+			var titleLimit = asList? 50 : 15;
+					
+			if (title != null && title.length > titleLimit)
+			{
+				title = title.substring(0, titleLimit) + '&hellip;';
+			}
+			
+			if (asList)
+			{
+				var row = document.createElement('tr');
+				var td = document.createElement('td');
+				var prevImg = document.createElement('img');
+				prevImg.src = "/images/icon-search.svg";
+				prevImg.className = "geTempDlgDiagramListPreviewBtn";
+				prevImg.setAttribute('title', mxResources.get("preview"));
+				td.appendChild(prevImg);
+				var titleSpan = document.createElement('span');
+				titleSpan.className = "geTempDlgDiagramTitle";
+				titleSpan.innerHTML = title;
+				td.appendChild(titleSpan);
+				row.appendChild(td);
+				td = document.createElement('td');
+				td.innerHTML = changedBy;
+				row.appendChild(td);
+				td = document.createElement('td');
+				td.innerHTML = lastModifiedOn;
+				row.appendChild(td);
+				grid.appendChild(row);
+				
+				if (currentItem == null)
+				{
+					setSubmitBtnLbl();
+					swapActiveItem(row, "geTempDlgDiagramsListGridActive", diagrams[i]);
+				}
+				
+				(function(diagram2, row2)
+				{
+					mxEvent.addListener(row, 'click', function()
+					{
+						if (currentItem != row2)
+						{
+							setSubmitBtnLbl();
+							swapActiveItem(row2, "geTempDlgDiagramsListGridActive", diagram2);
+						}
+					});
+					
+					mxEvent.addListener(row, 'dblclick', handleDialogOK);
+					
+					mxEvent.addListener(prevImg, 'click', function()
+					{
+						createPreview(diagram2);
+					});
+				})(diagrams[i], row);
+			}
+			else
+			{
+				var tile = document.createElement('div');
+				tile.className = "geTempDlgDiagramTile";
+				tile.setAttribute('title', tooltip);
+				
+				if (currentItem == null)
+				{
+					setSubmitBtnLbl();
+					swapActiveItem(tile, "geTempDlgDiagramTileActive", diagrams[i]);
+				}
+				
+				var imgDiv = document.createElement('div');
+				imgDiv.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgLoading";
+				var img = document.createElement('img');
+				img.style.display = "none";
+				
+				(function(img2, imgDiv2)
+				{
+					img.onload = function() 
+					{
+						imgDiv2.className = "geTempDlgDiagramTileImg";
+						img2.style.display = "";	
+					}
+					
+					img.onerror = function()
+					{
+						imgDiv2.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgError";
+					}
+				})(img, imgDiv);
+				
+				img.src = imgUrl;
+				imgDiv.appendChild(img);
+				tile.appendChild(imgDiv);
+	
+				var lblDiv = document.createElement('div');
+				lblDiv.className = "geTempDlgDiagramTileLbl";
+				lblDiv.innerHTML = title != null? title : "";
+				tile.appendChild(lblDiv);
+				
+				var prevImg = document.createElement('img');
+				prevImg.src = "/images/icon-search.svg";
+				prevImg.className = "geTempDlgDiagramPreviewBtn";
+				prevImg.setAttribute('title', mxResources.get("preview"));
+				tile.appendChild(prevImg);
+				
+				(function(diagram2, tile2)
+				{
+					mxEvent.addListener(tile, 'click', function()
+					{
+						if (currentItem != tile2)
+						{
+							setSubmitBtnLbl();
+							swapActiveItem(tile2, "geTempDlgDiagramTileActive", diagram2);
+						}
+					});
+					
+					mxEvent.addListener(tile, 'dblclick', handleDialogOK);
+					
+					mxEvent.addListener(prevImg, 'click', function()
+					{
+						createPreview(diagram2);
+					});
+				})(diagrams[i], tile);
+				
+				diagramsTiles.appendChild(tile);
+			}
+		}
+	};
+	
+	function fillNewDiagramCats(newDiagramCats, showAll) 
+	{
+		newDiagramCatList.innerHTML = "";
+		swapActiveItem();
+		var catCount = !showAll && newDiagramCats.length > 5 ? 5 : newDiagramCats.length;
+		
+		for (var i = 0; i < catCount; i++)
+		{
+			var cat = newDiagramCats[i];
+			cat.isCategory = true;
+			var entry = document.createElement('div');
+			var label = mxResources.get(cat.title);
+			
+			if (label == null)
+			{
+				label = cat.title.substring(0, 1).toUpperCase() + cat.title.substring(1);
+			}
+			
+			entry.className = 'geTempDlgNewDiagramCatItem';
+			entry.setAttribute('title', label);
+			
+			label = mxUtils.htmlEntities(label);
+			
+			if (label.length > 15)
+			{
+				label = label.substring(0, 15) + '&hellip;';
+			}
+
+			if (currentItem == null)
+			{
+				createBtn.innerHTML = mxResources.get('create');
+				showLinkToDiagram();
+				swapActiveItem(entry, "geTempDlgNewDiagramCatItemActive", cat);
+			}
+			
+			var imgDiv = document.createElement('div');
+			imgDiv.className = "geTempDlgNewDiagramCatItemImg";
+			var img = document.createElement('img');
+			img.src = NEW_DIAGRAM_CATS_PATH + '/' + cat.img;
+			imgDiv.appendChild(img);
+			entry.appendChild(imgDiv);
+
+			var lblDiv = document.createElement('div');
+			lblDiv.className = "geTempDlgNewDiagramCatItemLbl";
+			lblDiv.innerHTML = label;
+			entry.appendChild(lblDiv);
+			
+			newDiagramCatList.appendChild(entry);
+
+			(function(cat2, entry2)
+			{
+				mxEvent.addListener(entry, 'click', function()
+				{
+					if (currentItem != entry2)
+					{
+						createBtn.innerHTML = mxResources.get('create');
+						showLinkToDiagram();
+						swapActiveItem(entry2, "geTempDlgNewDiagramCatItemActive", cat2);
+					}
+				});
+				
+				mxEvent.addListener(entry, 'dblclick', handleDialogOK);
+			})(cat, entry);
+		}
+		
+		showAllBtn.style.display = newDiagramCats.length < 5 ? "none" : "";
+	};
+	
+	mxEvent.addListener(showAllBtn, 'click', function()
+	{
+		if (showingAll)
+		{
+			newDiagramCat.style.height = "280px";
+			newDiagramCatList.style.height = "190px";
+			showAllBtn.innerHTML = mxResources.get('showAll', null, '+ Show all');
+			fillNewDiagramCats(newDiagramCats);
+		}
+		else 
+		{
+			newDiagramCat.style.height = "440px";
+			newDiagramCatList.style.height = "355px";
+			showAllBtn.innerHTML = mxResources.get('showLess', null, '- Show less');
+			fillNewDiagramCats(newDiagramCats, true);
+		}
+
+		showingAll = !showingAll;
+	});
+	
+	function fillTemplatesList(categories)
+	{
+		var list = dlgDiv.querySelector(".geTemplatesList");
+		
+		for (var cat in categories)
+		{
+			var entry = document.createElement('div');
+			var label = mxResources.get(cat);
+			var templateList = categories[cat];
+			
+			if (label == null)
+			{
+				label = cat.substring(0, 1).toUpperCase() + cat.substring(1);
+			}
+			
+			entry.className = 'geTemplateCatLink';
+			entry.setAttribute('title', label + ' (' + templateList.length + ')');
+			
+			label = mxUtils.htmlEntities(label);
+			
+			if (label.length > 15)
+			{
+				label = label.substring(0, 15) + '&hellip;';
+			}
+					
+			entry.innerHTML = label + ' (' + templateList.length + ')';
+			
+			list.appendChild(entry);
+
+			(function(cat2, label2, entry2)
+			{
+				mxEvent.addListener(entry, 'click', function()
+				{
+					if (currentEntry != entry2)
+					{
+						if (currentEntry != null)
+						{
+							currentEntry.style.fontWeight = 'normal';
+							currentEntry.style.textDecoration = 'none';
+						}
+						else
+						{
+							newDiagramCat.style.display = 'none';
+							diagramsList.style.minHeight = '100%';
+						}
+						
+						currentEntry = entry2;
+						currentEntry.style.fontWeight = 'bold';
+						currentEntry.style.textDecoration = 'underline';
+						
+						tempDlgContent.scrollTop = 0;
+						
+						if (callInitiated)
+						{
+							cancelPendingCall = true;
+						}
+
+						diagramsListTitle.innerHTML = label2;
+						diagramsListBtns.style.display = 'none';
+						fillDiagramsList(categories[cat2], true);
+					}
+				});
+			})(cat, label, entry);
+		}
+	};
+	
+	var indexLoaded = false, indexLoaded2 = false;
+	var categories = {};
+	var newDiagramCats = [];
+	var categoryCount = 1;
+	
+	mxUtils.get(templateFile, function(req)
+	{
+		// Workaround for index loaded 3 times in iOS offline mode
+		if (!indexLoaded)
+		{
+			indexLoaded = true;
+			var tmpDoc = req.getXml();
+			var node = tmpDoc.documentElement.firstChild;
+
+			while (node != null)
+			{
+				if (typeof(node.getAttribute) !== 'undefined')
+				{
+					var url = node.getAttribute('url');
+					
+					if (url != null)
+					{
+						var slash = url.indexOf('/');
+						var category = url.substring(0, slash);
+						
+						var list = categories[category];
+						
+						if (list == null)
+						{
+							categoryCount++;
+							list = [];
+							categories[category] = list;
+						}
+						
+						list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+							title: node.getAttribute('title'), tooltip: node.getAttribute('url'), imgUrl: node.getAttribute('imgUrl')});
+					}
+				}
+				
+				node = node.nextSibling;
+			}
+			
+			fillTemplatesList(categories);
+		}
+	});
+	
+	mxUtils.get(newDiagramCatsFile, function(req)
+	{
+		// Workaround for index loaded 3 times in iOS offline mode
+		if (!indexLoaded2)
+		{
+			indexLoaded2 = true;
+			var tmpDoc = req.getXml();
+			var node = tmpDoc.documentElement.firstChild;
+
+			while (node != null)
+			{
+				if (typeof(node.getAttribute) !== 'undefined')
+				{
+					var title = node.getAttribute('title');
+					
+					if (title != null)
+					{
+						newDiagramCats.push({img: node.getAttribute('img'), libs: node.getAttribute('libs'),
+							title: node.getAttribute('title')});
+					}
+				}
+				
+				node = node.nextSibling;
+			}
+			
+			fillNewDiagramCats(newDiagramCats);
+		}
+	});
+	
+	var extDiagramsCallback = function(list, errorMsg)
+	{
+		diagramsListBtns.style.display = '';
+		spinner.stop();
+
+		callInitiated = false;
+		
+		if (cancelPendingCall)
+		{
+			cancelPendingCall = false;
+			return;
+		}
+		
+		if (errorMsg)
+		{
+			diagramsTiles.innerHTML = errorMsg;
+		}
+		else if (list.length == 0)
+		{
+			diagramsTiles.innerHTML = mxResources.get('noDiagrams', null, 'No Diagrams Found');
+		}
+		else
+		{
+			fillDiagramsList(list, false, showAsList);
+		}
+	};
+	
+	function getRecentDocs(getAll)
+	{
+		if (recentDocsCallback)
+		{
+			tempDlgContent.scrollTop = 0;
+			diagramsTiles.innerHTML = '';
+			spinner.spin(diagramsTiles);
+			cancelPendingCall = false;
+			callInitiated = true;
+			diagramsListTitle.innerHTML = mxResources.get('recentDiag', null, 'Recent Diagrams');
+			lastSearchStr = null;
+			recentDocsCallback(extDiagramsCallback, getAll? null : username);
+		}
+	};
+	
+	getRecentDocs(isGetAll);
+
+	var delayTimer = null;
+	
+	function doSearch(searchStr)
+	{
+		deselectTempCat();
+		tempDlgContent.scrollTop = 0;
+		diagramsTiles.innerHTML = '';
+		spinner.spin(diagramsTiles);
+		cancelPendingCall = false;
+		callInitiated = true;
+		delayTimer = null;
+		diagramsListTitle.innerHTML = mxResources.get('searchResults', null, 'Search Results') + 
+								' "' + mxUtils.htmlEntities(searchStr) + '"';
+		searchDocsCallback(searchStr, extDiagramsCallback, isGetAll? null : username);
+		lastSearchStr = searchStr;
+	};
+	
+	//TODO use request id to allow only last request to show results
+	if (searchDocsCallback)
+	{
+		//Use keyup to detect delete and backspace
+		mxEvent.addListener(dlgDiv.querySelector(".geTempDlgSearchBox"), 'keyup', function(evt)
+		{
+			var searchInout = this;
+			
+			if (delayTimer != null)
+			{
+				clearTimeout(delayTimer);
+			}
+			
+			if (evt.keyCode == 13)
+			{
+				doSearch(searchInout.value);
+			}
+			else
+			{
+				delayTimer = setTimeout(function()
+				{
+					doSearch(searchInout.value);	
+				}, 500);
+			}
+		});
+	}
+	
+	mxEvent.addListener(createBtn, 'click', handleDialogOK);
+	
+	mxEvent.addListener(dlgDiv.querySelector(".geTempDlgLinkToDiagramBtn"), 'click', function(evt)
+	{
+		handleDialogOK(true);
+	});
+
+	mxEvent.addListener(dlgDiv.querySelector('.geTempDlgCancelBtn'), 'click', function()
+	{
+		if (cancelCallback != null)
+		{
+			cancelCallback();
+		}
+		
+		editorUi.hideDialog(true);
+	});
 };

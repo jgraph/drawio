@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="49.995998"
+   height="47"
+   viewBox="0 0 49.995998 47"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="Commits.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata6296"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs6294" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1851"
+   inkscape:window-height="1008"
+   id="namedview6292"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="6.0104076"
+   inkscape:cx="34.97816"
+   inkscape:cy="11.417732"
+   inkscape:window-x="1930"
+   inkscape:window-y="0"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="Layer_1" />
+<polygon
+   points="17.167,12.251 25.496,3.5 33.833,12.22 33.833,15.762 26.968,9.256 26.968,20.854 24.069,20.854 24.069,9.256 17.167,15.804 "
+   id="polygon6281"
+   style="fill:#59b4d9"
+   transform="translate(-0.5,-3.5)" />
+<path
+   d="M 48.148,22 H 1.853 C 0.833,22 0,22.832 0,23.853 V 28 41 45.147 C 0,46.168 0.836,47 1.848,47 h 46.295 c 1.02,0 1.853,-0.832 1.853,-1.853 V 41 28 23.853 C 49.996,22.832 49.16,22 48.148,22 Z m -1.92,21.01 H 3.728 V 26 h 42.5 z"
+   id="path6283"
+   inkscape:connector-curvature="0"
+   style="fill:#59b4d9" />
+<rect
+   x="20.646"
+   y="30.675999"
+   width="8.323"
+   height="8.3240004"
+   id="rect6285"
+   style="fill:#59b4d9" />
+<rect
+   x="33.063999"
+   y="30.675999"
+   width="8.3199997"
+   height="8.3240004"
+   id="rect6287"
+   style="fill:#59b4d9" />
+<rect
+   x="8.2290001"
+   y="30.675999"
+   width="8.3240004"
+   height="8.3240004"
+   id="rect6289"
+   style="fill:#59b4d9" />
+</svg>

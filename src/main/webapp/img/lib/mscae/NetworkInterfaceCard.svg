@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 17.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="44.706001"
+   height="50"
+   viewBox="0 0 44.706001 50"
+   enable-background="new 0 0 50 50"
+   xml:space="preserve"
+   sodipodi:docname="NetworkInterfaceCard.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata6682"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs6680" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview6678"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="17"
+   inkscape:cx="22"
+   inkscape:cy="25"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<rect
+   x="0"
+   width="40.205002"
+   height="50"
+   id="rect6655"
+   y="0"
+   style="fill:#7fba00" />
+<rect
+   x="16.190001"
+   y="4.915"
+   width="18.921"
+   height="11.888"
+   id="rect6657" />
+<rect
+   x="40.205002"
+   y="3.846"
+   width="4.5009999"
+   height="8.5769997"
+   id="rect6659"
+   style="fill:#fcd116" />
+<rect
+   x="40.205002"
+   y="16.084"
+   width="4.5009999"
+   height="22.825001"
+   id="rect6661"
+   style="fill:#fcd116" />
+<rect
+   x="17.809"
+   y="31.718"
+   width="3.243"
+   height="13.391"
+   id="rect6663" />
+<rect
+   x="12.565"
+   y="31.718"
+   width="3.243"
+   height="13.391"
+   id="rect6665" />
+<polygon
+   points="11.492,11.908 19.734,11.908 19.734,14.006 13.59,14.006 13.59,35.267 17.636,35.267 17.636,37.365 11.492,37.365 "
+   id="polygon6667"
+   style="opacity:0.2"
+   transform="translate(-3)" />
+<polygon
+   points="7.296,7.713 20.783,7.713 20.783,9.811 9.394,9.811 9.394,40.512 15.538,40.512 15.538,42.61 7.296,42.61 "
+   id="polygon6669"
+   style="opacity:0.2"
+   transform="translate(-3)" />
+<polygon
+   points="27.058,22.834 31.798,22.834 31.798,15.035 33.896,15.035 33.896,24.932 29.156,24.932 29.156,38.046 33.12,38.046 33.12,40.144 27.058,40.144 "
+   id="polygon6671"
+   style="opacity:0.2"
+   transform="translate(-3)" />
+<path
+   d="m 20.003,24.11 c 0,1.343 -1.089,2.431 -2.431,2.431 v 0 c -1.343,0 -2.431,-1.089 -2.431,-2.431 v 0 c 0,-1.343 1.089,-2.431 2.431,-2.431 v 0 c 1.343,-10e-4 2.431,1.088 2.431,2.431 z"
+   id="path6673"
+   inkscape:connector-curvature="0"
+   style="fill:#e5e5e5" />
+<rect
+   x="29.846001"
+   y="32.342999"
+   width="4.322"
+   height="12.365"
+   id="rect6675"
+   style="fill:#e5e5e5" />
+</svg>

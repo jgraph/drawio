@@ -37,6 +37,12 @@ Draw.loadPlugin(function(ui) {
 			else if (mxUtils.isNode(state.cell.value))
 			{
 				g.setAttribute('content', mxUtils.getXml(state.cell.value));
+				
+				for (var i = 0; i < state.cell.value.attributes.length; i++)
+				{
+					var attrib = state.cell.value.attributes[i];
+					g.setAttribute('data-' + attrib.name, attrib.value);
+				}
 			}
 			
 			// Restores previous root

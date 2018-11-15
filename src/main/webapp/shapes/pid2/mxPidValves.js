@@ -64,6 +64,49 @@ mxShapePidValve.prototype.cst = {
 		BALL : 'ball'
 };
 
+mxShapePidValve.prototype.customProperties = [
+	{name: 'defState', dispName: 'Default State', type: 'enum', defVal:'open',
+		enumList: [
+			{val:'closed', dispName:'Closed'},
+			{val:'open', dispName:'Open'}
+	]},
+	{name: 'actuator', dispName: 'Actuator', type: 'enum', defVal:'man',
+		enumList: [
+			{val:'man', dispName:'Manual'},
+			{val:'diaph', dispName:'Diphragm'},
+			{val:'balDiaph', dispName:'Balanced Diaphragm'},
+			{val:'motor', dispName:'Motor'},
+			{val:'none', dispName:'None'},
+			{val:'spring', dispName:'Spring'},
+			{val:'pilot', dispName:'Pilot'},
+			{val:'powered', dispName:'Powered'},
+			{val:'solenoid', dispName:'Solenoid'},
+			{val:'solenoidManRes', dispName:'Solenoid w/ Manual Reset'},
+			{val:'singActing', dispName:'Single Acting'},
+			{val:'dblActing', dispName:'Double Acting'},
+			{val:'pilotCyl', dispName:'Pilot Cylinder'},
+			{val:'digital', dispName:'Digital'},
+			{val:'weight', dispName:'Weight'},
+			{val:'key', dispName:'Key'},
+			{val:'elHyd', dispName:'Electro-Hidraulic'}
+	]},
+	{name: 'valveType', dispName: 'Type', type: 'enum', defVal:'gate',
+		enumList: [
+			{val:'butterfly', dispName:'Butterfly'},
+			{val:'check', dispName:'check'},
+			{val:'gate', dispName:'Gate'},
+			{val:'globe', dispName:'Globe'},
+			{val:'needle', dispName:'Needle'},
+			{val:'plug', dispName:'Plug'},
+			{val:'selfDrain', dispName:'Self Draining'},
+			{val:'angle', dispName:'Angle'},
+			{val:'angleGlobe', dispName:'Angle Globe'},
+			{val:'threeWay', dispName:'Three Way'},
+//			{val:'angBlow', dispName:'Angle Blowdown'},
+			{val:'ball', dispName:'Ball'}
+	]},
+];
+
 /**
  * Function: paintVertexShape
  * 

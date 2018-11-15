@@ -15,6 +15,12 @@ EditorUi = function(editor, container, lightbox)
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
 
+	// Faster scrollwheel zoom is possible with CSS transforms
+	if (graph.useCssTransforms)
+	{
+		this.lazyZoomDelay = 0;
+	}
+	
 	// Pre-fetches submenu image or replaces with embedded image if supported
 	if (mxClient.IS_SVG)
 	{
@@ -976,11 +982,6 @@ EditorUi.prototype.footerHeight = 28;
 EditorUi.prototype.sidebarFooterHeight = 34;
 
 /**
- * Specifies the link for the edit button in chromeless mode.
- */
-EditorUi.prototype.editButtonLink = null;
-
-/**
  * Specifies the position of the horizontal split bar. Default is 208 or 118 for
  * screen widths <= 640px.
  */
@@ -1000,6 +1001,11 @@ EditorUi.prototype.lightboxMaxFitScale = 2;
  * Specifies if animations are allowed in <executeLayout>. Default is true.
  */
 EditorUi.prototype.lightboxVerticalDivider = 4;
+
+/**
+ * Specifies if single click on horizontal split should collapse sidebar. Default is false.
+ */
+EditorUi.prototype.hsplitClickEnabled = false;
 
 /**
  * Installs the listeners to update the action states.
@@ -1529,6 +1535,7 @@ EditorUi.prototype.initCanvas = function()
 			pageInfo.style.verticalAlign = 'top';
 			pageInfo.style.fontFamily = 'Helvetica,Arial';
 			pageInfo.style.marginTop = '8px';
+			pageInfo.style.fontSize = '14px';
 			pageInfo.style.color = '#ffffff';
 			this.chromelessToolbar.appendChild(pageInfo);
 			
@@ -1713,11 +1720,15 @@ EditorUi.prototype.initCanvas = function()
 	
 			this.addChromelessToolbarItems(addButton);
 	
-			if (this.editor.editButtonLink != null)
+			if (this.editor.editButtonLink != null || this.editor.editButtonFunc != null)
 			{
 				addButton(mxUtils.bind(this, function(evt)
 				{
-					if (this.editor.editButtonLink == '_blank')
+					if (this.editor.editButtonFunc != null) 
+					{
+						this.editor.editButtonFunc();
+					} 
+					else if (this.editor.editButtonLink == '_blank')
 					{
 						this.editor.editAsNew(this.getEditBlankXml());
 					}
@@ -1728,6 +1739,15 @@ EditorUi.prototype.initCanvas = function()
 					
 					mxEvent.consume(evt);
 				}), Editor.editLargeImage, mxResources.get('edit'));
+			}
+			
+			if (this.lightboxToolbarActions != null)
+			{
+				for (var i = 0; i < this.lightboxToolbarActions.length; i++)
+				{
+					var lbAction = this.lightboxToolbarActions[i];
+					addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
+				}
 			}
 			
 			if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))
@@ -3247,16 +3267,16 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 		mxEvent.consume(evt);
 	});
 	
-	mxEvent.addListener(elt, 'click', function(evt)
+	mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 	{
-		if (!ignoreClick)
+		if (!ignoreClick && this.hsplitClickEnabled)
 		{
 			var next = (last != null) ? last - dx : 0;
 			last = getValue();
 			onChange(next);
 			mxEvent.consume(evt);
 		}
-	});
+	}));
 
 	mxEvent.addGestureListeners(document, null, moveHandler, dropHandler);
 	
@@ -3269,7 +3289,7 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3278,7 +3298,7 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent);
 	this.dialogs.push(this.dialog);
 };
 
@@ -3311,6 +3331,8 @@ EditorUi.prototype.pickColor = function(color, apply)
 {
 	var graph = this.editor.graph;
 	var selState = graph.cellEditor.saveSelection();
+	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
+		Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
 	var dlg = new ColorDialog(this, color || 'none', function(color)
 	{
@@ -3320,7 +3342,7 @@ EditorUi.prototype.pickColor = function(color, apply)
 	{
 		graph.cellEditor.restoreSelection(selState);
 	});
-	this.showDialog(dlg.container, 230, 430, true, false);
+	this.showDialog(dlg.container, 230, h, true, false);
 	dlg.init();
 };
 
@@ -3710,6 +3732,16 @@ EditorUi.prototype.createOutline = function(wnd)
 	return outline;
 };
 
+// Alt+Shift+Keycode mapping to action
+EditorUi.prototype.altShiftActions = {67: 'clearWaypoints', // Alt+Shift+C
+  65: 'connectionArrows', // Alt+Shift+A
+  76: 'editLink', // Alt+Shift+L
+  80: 'connectionPoints', // Alt+Shift+P
+  84: 'editTooltip', // Alt+Shift+T
+  86: 'pasteSize', // Alt+Shift+V
+  88: 'copySize' // Alt+Shift+X
+};
+
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
@@ -3887,16 +3919,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	
 	var keyHandlerGetFunction = keyHandler.getFunction;
 
-	// Alt+Shift+Keycode mapping to action
-	var altShiftActions = {67: this.actions.get('clearWaypoints'), // Alt+Shift+C
-						  65: this.actions.get('connectionArrows'), // Alt+Shift+A
-						  76: this.actions.get('editLink'), // Alt+Shift+L
-						  80: this.actions.get('connectionPoints'), // Alt+Shift+P
-						  84: this.actions.get('editTooltip'), // Alt+Shift+T
-						  86: this.actions.get('pasteSize'), // Alt+Shift+V
-						  88: this.actions.get('copySize') // Alt+Shift+X
-	};
-	
 	mxKeyHandler.prototype.getFunction = function(evt)
 	{
 		if (graph.isEnabled())
@@ -3904,7 +3926,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			// TODO: Add alt modified state in core API, here are some specific cases
 			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
 			{
-				var action = altShiftActions[evt.keyCode];
+				var action = editorUi.actions.get(editorUi.altShiftActions[evt.keyCode]);
 
 				if (action != null)
 				{

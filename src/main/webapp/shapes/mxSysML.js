@@ -18,6 +18,8 @@ mxShapeSysMLComposite.prototype.isHtmlAllowed = function()
 	return false;
 };
 	
+
+
 mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 {
 	if (this.style != null)
@@ -132,6 +134,10 @@ mxShapeSysMLPackage.prototype.cst = {
 		LABEL_X : 'labelX'
 };
 
+mxShapeSysMLPackage.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -211,6 +217,10 @@ mxShapeSysMLPackage2.prototype.cst = {
 		PACKAGE2 : 'mxgraph.sysml.package2',
 		LABEL_X : 'labelX'
 };
+
+mxShapeSysMLPackage2.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
 
 /**
 * Function: paintVertexShape
@@ -293,6 +303,8 @@ mxShapeSysMLNone.prototype.cst = {
 		NONE : 'mxgraph.sysml.none'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -327,6 +339,8 @@ mxUtils.extend(mxShapeSysMLRect, mxShape);
 mxShapeSysMLRect.prototype.cst = {
 		RECT : 'mxgraph.sysml.rect'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -365,6 +379,8 @@ mxShapeSysMLPortOne.prototype.cst = {
 		PORT1 : 'mxgraph.sysml.port1'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -402,6 +418,8 @@ mxShapeSysMLPortTwo.prototype.cst = {
 		PORT2 : 'mxgraph.sysml.port2'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -438,6 +456,8 @@ mxUtils.extend(mxShapeSysMLPortThree, mxShape);
 mxShapeSysMLPortThree.prototype.cst = {
 		PORT3 : 'mxgraph.sysml.port3'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -519,6 +539,8 @@ mxShapeSysMLPortFour.prototype.cst = {
 		PORT4 : 'mxgraph.sysml.port4'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -564,6 +586,20 @@ mxShapeSysMLItemFlow.prototype.cst = {
 		FLOW_DIR : 'flowDir',
 		FLOW_TYPE : 'flowType'
 };
+
+mxShapeSysMLItemFlow.prototype.customProperties = [
+	{name: 'flowDir', dispName: 'Flow Direction', type: 'enum',
+		enumList:[
+			{val:'n', dispName:'North'},
+			{val:'s', dispName:'South'},
+			{val:'e', dispName:'East'},
+			{val:'w', dispName:'West'}
+		]},
+		{name: 'flowType', dispName: 'Flow Type', type: 'enum',
+			enumList:[
+				{val:'in', dispName:'In'},
+				{val:'out', dispName:'Out'}
+]}];
 
 /**
 * Function: paintVertexShape
@@ -730,6 +766,8 @@ mxShapeSysMLItemFlowLeft.prototype.cst = {
 		ITEM_FLOW_LEFT : 'mxgraph.sysml.itemFlowLeft'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -782,6 +820,8 @@ mxShapeSysMLItemFlowRight.prototype.cst = {
 		ITEM_FLOW_RIGHT : 'mxgraph.sysml.itemFlowRight'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -833,6 +873,8 @@ mxUtils.extend(mxShapeSysMLNestedPort, mxShape);
 mxShapeSysMLNestedPort.prototype.cst = {
 		NESTED_PORT : 'mxgraph.sysml.nestedPort'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -937,6 +979,8 @@ mxShapeSysMLParametricDiagram.prototype.cst = {
 		PARAM_DGM : 'mxgraph.sysml.paramDgm'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -984,6 +1028,8 @@ mxShapeSysMLConstraintProperty.prototype.cst = {
 		CONS_PROP : 'mxgraph.sysml.consProp'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1030,6 +1076,8 @@ mxUtils.extend(mxShapeSysMLCallBehaviorAction, mxShape);
 mxShapeSysMLCallBehaviorAction.prototype.cst = {
 		CALL_BEH_ACT : 'mxgraph.sysml.callBehAct'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1087,6 +1135,8 @@ mxShapeSysMLAcceptEventAction.prototype.cst = {
 		ACC_EVENT : 'mxgraph.sysml.accEvent'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1130,6 +1180,8 @@ mxShapeSysMLTimeEvent.prototype.cst = {
 		TIME_EVENT : 'mxgraph.sysml.timeEvent'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1171,6 +1223,8 @@ mxUtils.extend(mxShapeSysMLSendSignalAction, mxShape);
 mxShapeSysMLSendSignalAction.prototype.cst = {
 		SEND_SIG_ACT : 'mxgraph.sysml.sendSigAct'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1215,6 +1269,8 @@ mxShapeSysMLActivityFinal.prototype.cst = {
 		ACT_FINAL : 'mxgraph.sysml.actFinal'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1257,6 +1313,8 @@ mxUtils.extend(mxShapeSysMLActivityParameterNode, mxShape);
 mxShapeSysMLActivityParameterNode.prototype.cst = {
 		ACT_PARAM_NODE : 'mxgraph.sysml.actParamNode'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1332,6 +1390,8 @@ mxShapeSysMLControlOperator.prototype.cst = {
 		CONT_OPER : 'mxgraph.sysml.contOper'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1395,6 +1455,8 @@ mxShapeSysMLFlowFinal.prototype.cst = {
 		FLOW_FINAL : 'mxgraph.sysml.flowFinal'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1443,6 +1505,8 @@ mxShapeSysMLIsControl.prototype.cst = {
 		IS_CONTROL : 'mxgraph.sysml.isControl'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1485,6 +1549,8 @@ mxUtils.extend(mxShapeSysMLIsStream, mxShape);
 mxShapeSysMLIsStream.prototype.cst = {
 		IS_STREAM : 'mxgraph.sysml.isStream'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1536,6 +1602,8 @@ mxUtils.extend(mxShapeSysMLIsActStream, mxShape);
 mxShapeSysMLIsActStream.prototype.cst = {
 		IS_ACT_STREAM : 'mxgraph.sysml.isActStream'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1597,6 +1665,8 @@ mxShapeSysMLParameterSet.prototype.cst = {
 		PARAM_SET : 'mxgraph.sysml.paramSet'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1650,6 +1720,8 @@ mxUtils.extend(mxShapeSysMLParameterActivitySet, mxShape);
 mxShapeSysMLParameterActivitySet.prototype.cst = {
 		PARAM_ACT_SET : 'mxgraph.sysml.paramActSet'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1727,6 +1799,8 @@ mxShapeSysMLProbability.prototype.cst = {
 		PROBABILITY : 'mxgraph.sysml.probability'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1780,6 +1854,8 @@ mxUtils.extend(mxShapeSysMLActivityProbability, mxShape);
 mxShapeSysMLActivityProbability.prototype.cst = {
 		ACT_PROB : 'mxgraph.sysml.actProb'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1857,6 +1933,8 @@ mxShapeSysMLObjectFlowRight.prototype.cst = {
 		OBJ_FLOW_R : 'mxgraph.sysml.objFlowR'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1898,6 +1976,8 @@ mxShapeSysMLObjectFlowLeft.prototype.cst = {
 		OBJ_FLOW_L : 'mxgraph.sysml.objFlowL'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1938,6 +2018,8 @@ mxUtils.extend(mxShapeSysMLActivityPartition, mxShape);
 mxShapeSysMLActivityPartition.prototype.cst = {
 		ACT_PART : 'mxgraph.sysml.actPart'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1982,6 +2064,8 @@ mxUtils.extend(mxShapeSysMLContinuation, mxShape);
 mxShapeSysMLContinuation.prototype.cst = {
 		CONT : 'mxgraph.sysml.cont'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2043,6 +2127,8 @@ mxUtils.extend(mxShapeSysMLCoregion, mxShape);
 mxShapeSysMLCoregion.prototype.cst = {
 		COREGION : 'mxgraph.sysml.coregion'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2114,6 +2200,8 @@ mxUtils.extend(mxShapeSysMLDimension, mxShape);
 mxShapeSysMLDimension.prototype.cst = {
 		DIMENSION : 'mxgraph.sysml.dimension'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2214,6 +2302,8 @@ mxShapeSysMLCompositeState.prototype.cst = {
 		COMP_STATE : 'mxgraph.sysml.compState'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2260,6 +2350,8 @@ mxUtils.extend(mxShapeSysMLRegion, mxShape);
 mxShapeSysMLRegion.prototype.cst = {
 		REGION : 'mxgraph.sysml.region'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2324,6 +2416,8 @@ mxShapeSysMLSimpleState.prototype.cst = {
 		SIMPLE_STATE : 'mxgraph.sysml.simpleState'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2377,6 +2471,8 @@ mxUtils.extend(mxShapeSysMLStateMachine, mxShape);
 mxShapeSysMLStateMachine.prototype.cst = {
 		STATE_MACHINE : 'mxgraph.sysml.stateMachine'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2435,6 +2531,8 @@ mxShapeSysMLX.prototype.cst = {
 		X : 'mxgraph.sysml.x'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2477,6 +2575,8 @@ mxUtils.extend(mxShapeSysMLSubmachineState, mxShape);
 mxShapeSysMLSubmachineState.prototype.cst = {
 		SUBMACHINE_STATE : 'mxgraph.sysml.submState'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2534,6 +2634,8 @@ mxUtils.extend(mxShapeSysMLUseCaseExtensionPoints, mxShape);
 mxShapeSysMLUseCaseExtensionPoints.prototype.cst = {
 		USE_CASE_EXT_PT : 'mxgraph.sysml.useCaseExtPt'
 };
+
+
 
 /**
 * Function: paintVertexShape

@@ -96,15 +96,15 @@
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 				'https://support.draw.io/display/DO/Exporting+Files',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-					addShadow, editable, embedImages, border, cropImage, currentPage)
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+					editable, embedImages, border, cropImage, currentPage, linkTarget)
 				{
 					var val = parseInt(scale);
 					
 					if (!isNaN(val) && val > 0)
 					{
-					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-					   		addShadow, editable, embedImages, border, !cropImage, currentPage);
+					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+					   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
 					}
 				}), true, null, 'svg');
 		}));
@@ -344,11 +344,11 @@
 							{
 								item.getXml = function(success, error)
 								{
-									// Workaround for vanished head revision is to use current head revision from descriptor
-									// TODO: Allow team drives
-									editorUi.drive.executeRequest(gapi.client.drive.revisions.get({'fileId': file.getId(),
-										'revisionId': (resp.items[resp.items.length - 1] === item) ?
-										file.desc.headRevisionId : item.id}), function(resp)
+									editorUi.drive.executeRequest(gapi.client.drive.revisions.get(
+									{
+										'fileId': file.getId(),
+										'revisionId': item.id
+									}), function(resp)
 									{
 										editorUi.drive.getXmlFile(resp, null, function(file2)
 							   			{
@@ -386,6 +386,27 @@
 		{
 			editorUi.actions.get('save').funct();
 		}, null, null, Editor.ctrlKey + '+S');
+		
+		editorUi.actions.addAction('refresh', function()
+		{
+			var currentFile = editorUi.getCurrentFile();
+			
+			function fn()
+			{
+				currentFile.setModified(false);
+				editorUi.refreshFile();
+			};
+			
+			if (currentFile != null && currentFile.isModified())
+			{
+				editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
+					mxResources.get('cancel'), mxResources.get('discardChanges'));
+			}
+			else
+			{
+				fn();
+			}
+		}, null, null, 'Alt+Shift+R');
 
 		editorUi.actions.addAction('upload...', function()
 		{
@@ -399,7 +420,7 @@
 				var filename = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
 				editorUi.openLink(window.location.protocol + '//' + window.location.host + '/?create=drawdata&' +
 						((editorUi.mode == App.MODE_DROPBOX) ? 'mode=dropbox&' : '') +
-						'title=' + encodeURIComponent(filename));
+						'title=' + encodeURIComponent(filename), null, true);
 			}
 		});
 
@@ -420,7 +441,7 @@
 			action.isEnabled = isGraphEnabled;
 		}
 		
-		if (isLocalStorage)
+		if (isLocalStorage || mxClient.IS_CHROMEAPP)
 		{
 			var action = editorUi.actions.addAction('showStartScreen', function()
 			{
@@ -459,7 +480,7 @@
 			if (vertices.length > 0)
 			{
 				var dlg = new EditGeometryDialog(editorUi, vertices);
-				editorUi.showDialog(dlg.container, 180, 180, true, true);
+				editorUi.showDialog(dlg.container, 200, 250, true, true);
 				dlg.init();
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+M');
@@ -889,12 +910,12 @@
 				if (!editorUi.isOffline() && !EditorUi.isElectronApp &&
 					!navigator.standalone && urlParams['embed'] != '1')
 				{
-					this.addMenuItems(menu, ['download'], parent);
+					this.addMenuItems(menu, ['downloadDesktop'], parent);
 				}
 				
 				if (!navigator.standalone && urlParams['embed'] != '1')
 				{
-					this.addMenuItems(menu, ['offline'], parent);
+					this.addMenuItems(menu, ['useOffline'], parent);
 				}
 				
 				this.addMenuItems(menu, ['-', 'about'], parent);
@@ -945,7 +966,9 @@
 					var b = graph.getGraphBounds();
 					var tr = graph.view.translate;
 					var s = graph.view.scale;
-					graph.insertVertex(parent, null, '', b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s, 'fillColor=none;strokeColor=red;');
+					graph.insertVertex(graph.getDefaultParent(), null, '',
+						b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s,
+						'fillColor=none;strokeColor=red;');
 				}));
 
 				mxResources.parse('createSidebarEntry=Create sidebar entry');
@@ -1025,7 +1048,8 @@
 
 				mxResources.parse('testShowRtModel=Show RT model');
 				mxResources.parse('testDebugRtModel=Debug RT model');
-				mxResources.parse('testDownloadRtModel=Download RT model');
+				mxResources.parse('testDownloadRtModel=Export RT model');
+				mxResources.parse('testImportRtModel=Import RT model');
 				
 				this.editorUi.actions.addAction('testShowRtModel', mxUtils.bind(this, function()
 				{
@@ -1042,16 +1066,16 @@
 					gapi.drive.realtime.debug();
 				}));
 				
-				this.editorUi.actions.addAction('testDownloadRtModel', mxUtils.bind(this, function()
+				this.editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
 				{
 					var file = this.editorUi.getCurrentFile();
 					
-					if (file != null && file.realtime != null &&
+					if (file != null && file.constructor == DriveFile &&
 						editorUi.spinner.spin(document.body, mxResources.get('export')))
 					{
 						// LATER: Download full model dump with history
 						var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-								file.getHash().substring(1) + '/realtime', null, 'GET');
+								file.getId() + '/realtime?supportsTeamDrives=true', null, 'GET');
 
 						// Adds auth token
 						req.setRequestHeaders = function(request)
@@ -1067,7 +1091,12 @@
 							
 							if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
-								editorUi.saveLocalFile(req.getText(), 'realtime.txt', 'text/plain');
+								editorUi.saveLocalFile(req.getText(), 'json-' + file.getId()+'.txt', 'text/plain');
+							}
+							else
+							{
+								editorUi.handleError({message: mxResources.get('fileNotFound')},
+									mxResources.get('errorLoadingFile'));
 							}
 						});
 					}
@@ -1077,6 +1106,45 @@
 				{
 					this.addMenuItems(menu, ['-', 'testShowRtModel', 'testDebugRtModel', 'testDownloadRtModel'], parent);
 				}
+				else if (this.editorUi.getCurrentFile() != null && this.editorUi.getCurrentFile().constructor == DriveFile)
+				{
+					this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
+				}
+				else
+				{
+					menu.addSeparator(parent);
+				}
+
+				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
+				{
+					var input = document.createElement('input');
+					input.setAttribute('type', 'file');
+					
+					mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+					{
+						if (input.files != null)
+						{
+							var reader = new FileReader();
+							
+							reader.onload = mxUtils.bind(this, function(e)
+							{
+								try
+								{
+									editorUi.openLocalFile(mxUtils.getXml(editorUi.drive.convertJsonToXml(
+										JSON.parse(e.target.result).data)), input.files[0].name, true);
+								}
+								catch (err)
+								{
+									editorUi.handleError(err, mxResources.get('errorLoadingFile'));
+								}
+							});
+							
+							reader.readAsText(input.files[0]);
+						}
+					}));
+			
+					input.click();
+				});
 				
 				mxResources.parse('testShowConsole=Show Console');
 				this.editorUi.actions.addAction('testShowConsole', function()
@@ -1464,9 +1532,7 @@
 				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
 
-			// LATER: Fix namespace prefix (NS1, NS2..) in XML
-			// serializer for VSDX export in IE11 and earlier
-			if (!mxClient.IS_IE11 && !mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
+			if (!mxClient.IS_IE && (typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
@@ -1674,13 +1740,10 @@
 				}, parent);
 			}
 
-			if (!mxClient.IS_IOS)
+			menu.addItem(mxResources.get('device') + '...', null, function()
 			{
-				menu.addItem(mxResources.get('device') + '...', null, function()
-				{
-					editorUi.importLocalFile(true);
-				}, parent);
-			}
+				editorUi.importLocalFile(true);
+			}, parent);
 
 			if (!editorUi.isOffline())
 			{
@@ -1714,14 +1777,31 @@
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var item = menu.addItem(mxResources.get('kennedy'), null, function()
+			var theme = mxSettings.getUi();
+
+			var item = menu.addItem(mxResources.get('automatic'), null, function()
 			{
 				mxSettings.setUi('');
 				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
+			
+			if (theme != 'kennedy' && theme != 'atlas' &&
+				theme != 'dark' && theme != 'min')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
 
-			if (uiTheme != 'atlas' && uiTheme != 'dark' && uiTheme != 'min')
+			menu.addSeparator(parent);
+			
+			item = menu.addItem(mxResources.get('kennedy'), null, function()
+			{
+				mxSettings.setUi('kennedy');
+				mxSettings.save();
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			}, parent);
+
+			if (theme == 'kennedy')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1733,7 +1813,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'min')
+			if (theme == 'min')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1745,7 +1825,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'atlas')
+			if (theme == 'atlas')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1757,7 +1837,7 @@
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
-			if (uiTheme == 'dark')
+			if (theme == 'dark')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -1815,20 +1895,8 @@
 			
 			if (file != null)
 			{
-				var title = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
-				
-				// Handles extension
-				var extension = '';
-				var dot = title.lastIndexOf('.');
-				
-				if (dot >= 0)
-				{
-					extension = title.substring(dot);
-					title = title.substring(0, dot);
-				}
-				
-				title = mxResources.get('copyOf', [title]) + extension;
-				
+				var title = editorUi.getCopyFilename(file);
+
 				if (file.constructor == DriveFile)
 				{
 					var dlg = new CreateDialog(editorUi, title, mxUtils.bind(this, function(newTitle, mode)
@@ -1845,18 +1913,18 @@
 							{
 								if (editorUi.spinner.spin(document.body, mxResources.get('saving')))
 								{
-									// Makes sure the latest XML is in the file
-									file.save(false, mxUtils.bind(this, function()
+									// Saveas does not update the file descriptor in Google Drive
+									file.saveAs(newTitle, mxUtils.bind(this, function(resp)
 									{
-										// Saveas does not update the file descriptor in Google Drive
-										file.saveAs(newTitle, mxUtils.bind(this, function(resp)
+										// Replaces file descriptor in-place and saves
+										file.desc = resp;
+										
+										// Makes sure the latest XML is in the file
+										file.save(false, mxUtils.bind(this, function()
 										{
 											editorUi.spinner.stop();
-											var url = editorUi.getUrl();
-											window.openWindow(url + '#G' + resp.id, null, mxUtils.bind(this, function()
-											{
-												window.location.hash = 'G' + resp.id;
-											}));
+											file.setModified(false);
+											file.addAllSavedStatus();
 										}), mxUtils.bind(this, function(resp)
 										{
 											editorUi.handleError(resp);
@@ -1869,7 +1937,7 @@
 							}
 							else
 							{
-								this.editorUi.createFile(newTitle, this.editorUi.getFileData(true), null, mode);
+								editorUi.createFile(newTitle, editorUi.getFileData(true), null, mode);
 							}
 						}
 					}), mxUtils.bind(this, function()
@@ -1915,12 +1983,12 @@
 			this.addMenuItems(menu, ['publishLink'], parent);
 		})));
 
-		editorUi.actions.put('offline', new Action(mxResources.get('offline') + '...', function()
+		editorUi.actions.put('useOffline', new Action(mxResources.get('useOffline') + '...', function()
 		{
 			editorUi.openLink('https://app.draw.io/')
 		}));
 		
-		editorUi.actions.put('download', new Action(mxResources.get('download') + '...', function()
+		editorUi.actions.put('downloadDesktop', new Action(mxResources.get('downloadDesktop') + '...', function()
 		{
 			editorUi.openLink('https://get.draw.io/')
 		}));
@@ -1957,7 +2025,7 @@
 
 		var addInsertItem = function(menu, parent, title, method)
 		{
-			if (method != 'plantUml' || EditorUi.enablePlantUml)
+			if (method != 'plantUml' || (EditorUi.enablePlantUml && !editorUi.isOffline()))
 			{
 				menu.addItem(title, null, mxUtils.bind(this, function()
 				{
@@ -2466,12 +2534,13 @@
 			}));
 		}
 			
-		// Overrides edit menu to add find
+		// Overrides edit menu to add find and editGeometry
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
 									 'find', '-',
-			                         'editData', 'editTooltip', 'editStyle', '-', 'edit', '-', 'editLink', 'openLink', '-',
+			                         'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
+			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 		})));
 		
@@ -2535,23 +2604,63 @@
 				this.addMenuItems(menu, ['showStartScreen'], parent);
 			}
 
-			if (!editorUi.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
+			if (!editorUi.isOfflineApp() && isLocalStorage)
 			{
-				var item = this.addMenuItem(menu, 'plugins', parent);
-				
-				if (!editorUi.isOffline())
-				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
-				}
+				this.addMenuItem(menu, 'plugins', parent);
 			}
 
 			menu.addSeparator(parent);
+			this.addMenuItem(menu, 'tags', parent);
 			
-			var item = this.addMenuItem(menu, 'tags', parent);
-			
-			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+			if (urlParams['newTempDlg'] == '1')
 			{
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+				editorUi.actions.addAction('templates', function()
+				{
+					var tempDlg = new TemplatesDialog();
+					editorUi.showDialog(tempDlg.container, tempDlg.width, tempDlg.height, true, false, null, false, true);
+					tempDlg.init(editorUi, function(xml){console.log(xml)}, null,
+							null, null, "user", function(callback, username)
+					{
+						setTimeout(function(){
+							username? callback([
+								{url: '123', title: 'Test 1Test 1Test 1Test 1Test 1Test 1Test 11Test 1Test 11Test 1Test 1dgdsgdfg fdg dfgdfg dfg dfg'},
+								{url: '123', title: 'Test 2', imgUrl: 'https://www.google.com.eg/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'},
+								{url: '123', title: 'Test 3', changedBy: 'Ashraf Teleb', lastModifiedOn: 'Yesterday'},
+								{url: '123', title: 'Test 4'},
+								{url: '123', title: 'Test 5'},
+								{url: '123', title: 'Test 6'}
+							]) : callback([
+								{url: '123', title: 'Test 4', imgUrl: 'https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg'},
+								{url: '123', title: 'Test 5'},
+								{url: '123', title: 'Test 6'},
+								{url: '123', title: 'Test 1Test 1Test 1Test 1Test 1Test 1Test 11Test 1Test 11Test 1Test 1dgdsgdfg fdg dfgdfg dfg dfg'},
+								{url: '123', title: 'Test 2', imgUrl: 'https://www.google.com.eg/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'},
+								{url: '123', title: 'Test 3', changedBy: 'Ashraf Teleb', lastModifiedOn: 'Yesterday'}
+							]);
+							console.log(username);
+						}, 1000);
+					}, function(str, callback, username)
+					{
+						setTimeout(function(){
+							callback(username? [
+								{url: '123', title: str +'Test 1Test 1Test 1Test 1Test 1Test 1Test 1'},
+								{url: '123', title: str +'Test 2'},
+								{url: '123', title: str +'Test 3'},
+								{url: '123', title: str +'Test 4'},
+								{url: '123', title: str +'Test 5'},
+								{url: '123', title: str +'Test 6'}
+							]: [
+								{url: '123', title: str +'Test 5'},
+								{url: '123', title: str +'Test 6'},
+								{url: '123', title: str +'Test 1Test 1Test 1Test 1Test 1Test 1Test 1'},
+								{url: '123', title: str +'Test 2'},
+								{url: '123', title: str +'Test 3'},
+								{url: '123', title: str +'Test 4'}
+							]);
+						}, 2000);						
+					}, null);
+				});
+				this.addMenuItem(menu, 'templates', parent);
 			}
 		})));
 
@@ -2592,7 +2701,7 @@
 					
 					if (file.realtime == null)
 					{
-						this.addMenuItems(menu, ['save', 'share', '-'], parent);
+						this.addMenuItems(menu, ['save', 'share', '-', 'refresh', '-'], parent);
 					}
 					else
 					{
@@ -2622,11 +2731,18 @@
 				}
 				else
 				{
-					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-', 'rename'], parent);
+					this.addMenuItems(menu, ['-', 'save', 'saveAs'], parent);
 					
+					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+					{
+						this.addMenuItems(menu, ['-', 'refresh'], parent);	
+					}
+					
+					this.addMenuItems(menu, ['-', 'rename'], parent);
+
 					if (editorUi.isOfflineApp())
 					{
-						if (!editorUi.isOffline())
+						if (navigator.onLine && urlParams['stealth'] != '1')
 						{
 							this.addMenuItems(menu, ['upload'], parent);
 						}
@@ -2657,7 +2773,7 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				if (file != null && file.constructor == DriveFile)
+				if (file != null && file.constructor == DriveFile && file.realtime != null)
 				{
 					this.addMenuItems(menu, ['createRevision'], parent);
 				}

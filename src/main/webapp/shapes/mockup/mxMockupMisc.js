@@ -31,6 +31,13 @@ mxShapeMockupPlaybackControls.prototype.cst = {
 		STROKE_COLOR3 : 'strokeColor3'
 };
 
+mxShapeMockupPlaybackControls.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Outline Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Symbol Color', type: 'color'},
+	{name: 'strokeColor2', dispName: 'Outline Stroke Color', type: 'color'},
+	{name: 'strokeColor3', dispName: 'Symbol Stroke Color', type: 'color'}
+];
+
 /**
  * Function: paintVertexShape
  * 
@@ -185,6 +192,11 @@ mxShapeMockupProgressBar.prototype.cst = {
 		BAR_POS : 'barPos',
 		FILL_COLOR2 : 'fillColor2'
 };
+
+mxShapeMockupProgressBar.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Outline Color', type: 'color'},
+	{name: 'barPos', dispName: 'Handle Position', type: 'float', min:0, defVal:80}
+];
 
 /**
  * Function: paintVertexShape
@@ -344,6 +356,15 @@ mxShapeMockupRating.prototype.cst = {
 		EMPTY_FILL_COLOR : 'emptyFillColor',
 		GRADE : 'grade'
 };
+
+mxShapeMockupRating.prototype.customProperties = [
+	{name: 'ratingStyle', dispName: 'Style', type: 'enum',
+		enumList: [{val: 'heart', dispName: 'Heart'}, {val: 'star', dispName: 'Star'}]
+	},
+	{name: 'ratingScale', dispName: 'Max. Rating', type: 'int'},
+	{name: 'grade', dispName: 'Current Rating', type: 'int'},
+	{name: 'emptyFillColor', dispName: 'Fill2 Color', type: 'color'}
+];
 
 /**
  * Function: paintVertexShape
@@ -506,6 +527,11 @@ mxShapeMockupVolumeSlider.prototype.cst = {
 		BAR_POS : 'barPos',
 		FILL_COLOR2 : 'fillColor2'
 };
+
+mxShapeMockupVolumeSlider.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'barPos', dispName: 'Handle Position', type: 'float'}
+];
 
 /**
  * Function: paintVertexShape
@@ -1171,10 +1197,17 @@ mxUtils.extend(mxShapeMockupRuler2, mxShape);
 mxShapeMockupRuler2.prototype.cst = {
 		SHAPE_RULER : 'mxgraph.mockup.misc.ruler2',
 		ORIENTATION : 'rulerOrient',
-		UNIT_SIZE : 'unitSize',
+		UNIT_SIZE : 'dx',
 		FACE_UP : 'up',
 		FACE_DOWN : 'down'
 };
+
+mxShapeMockupRuler2.prototype.customProperties = [
+	{name: 'rulerOrient', dispName: 'Orientation', defVal:'up', type: 'enum',
+		enumList: [{val: 'up', dispName: 'Up'}, {val: 'down', dispName: 'Down'}]
+	},
+	{name: 'dx', dispName: 'Unit Size', type: 'float', min:0, defVal:100}
+];
 
 /**
 * Function: paintVertexShape
@@ -1187,7 +1220,7 @@ mxShapeMockupRuler2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	this.background(c, w, h);
 	c.setShadow(false);
-	this.foreground(c, w, h);
+	this.foreground(c, x, y, w, h);
 };
 
 mxShapeMockupRuler2.prototype.background = function(c, w, h)
@@ -1196,12 +1229,13 @@ mxShapeMockupRuler2.prototype.background = function(c, w, h)
 	c.fillAndStroke();
 };
 
-mxShapeMockupRuler2.prototype.foreground = function(c, w, h)
+mxShapeMockupRuler2.prototype.foreground = function(c, x, y, w, h)
 {
 	var facing = mxUtils.getValue(this.style, mxShapeMockupRuler2.prototype.cst.ORIENTATION, mxShapeMockupRuler2.prototype.cst.FACE_DOWN);
 	var fontColor = mxUtils.getValue(this.style, mxConstants.STYLE_FONTCOLOR, '#000000');
 	var dx = mxUtils.getValue(this.style, 'dx', '100');
 	var unitSize = dx / 10;
+	this.state.style['spacingLeft'] = Math.round(1000 * Math.max(0, Math.min(w, dx))) / 1000 - 4;
 	
 	unitSize = Math.max(unitSize, 1);
 	
@@ -1324,13 +1358,11 @@ Graph.handleFactory[mxShapeMockupRuler2.prototype.cst.SHAPE_RULER] = function(st
 				{
 					this.state.style['spacingBottom'] = 10;
 					this.state.style['spacingTop'] = 0;
-					console.log('down');
 				}
 				else
 				{
 					this.state.style['spacingBottom'] = 0;
 					this.state.style['spacingTop'] = 10;
-					console.log('up');
 				}
 					
 				this.state.style['spacingRight'] = 0;
@@ -1529,6 +1561,11 @@ mxShapeMockupPin.prototype.cst = {
 		FILL_COLOR3 : 'fillColor3'
 };
 
+mxShapeMockupPin.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Fill2 Color', type: 'color'},
+	{name: 'fillColor3', dispName: 'Fill3 Color', type: 'color'}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -1588,6 +1625,10 @@ mxShapeMockupMiscRRect.prototype.cst = {
 		RRECT : 'mxgraph.mockup.misc.rrect',
 		R_SIZE : 'rSize'
 };
+
+mxShapeMockupMiscRRect.prototype.customProperties = [
+	{name: 'rSize', dispName: 'Arc Size', type: 'float', min:0, defVal:10}
+];
 
 /**
 * Function: paintVertexShape

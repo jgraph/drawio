@@ -28,6 +28,10 @@ mxCabinetsCabinet.prototype.cst = {
 		CABINET : 'mxgraph.cabinets.cabinet'
 };
 
+mxCabinetsCabinet.prototype.customProperties = [
+	{name: 'hasStand', dispName:'Has Stand', type:'bool', defVal:true}
+];
+
 /**
 * Function: paintVertexShape
 * 
@@ -100,6 +104,8 @@ mxCabinetsCoverPlate.prototype.cst = {
 		COVER_PLATE : 'mxgraph.cabinets.coverPlate'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -159,6 +165,8 @@ mxCabinetsDimension.prototype.cst = {
 		DIMENSION : 'mxgraph.cabinets.dimension'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -213,6 +221,8 @@ mxUtils.extend(mxCabinetsDimensionBottom, mxShape);
 mxCabinetsDimensionBottom.prototype.cst = {
 		DIMENSION : 'mxgraph.cabinets.dimensionBottom'
 };
+
+
 
 /**
 * Function: paintVertexShape

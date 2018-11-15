@@ -629,7 +629,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	if (addButtons != null)
 	{
-		addButtons(td);
+		addButtons(td, nameInput);
 	}
 	
 	if (fn != null)
@@ -773,14 +773,8 @@ var EditDiagramDialog = function(editorUi)
 		
 		if (select.value == 'new')
 		{
-			window.openFile = new OpenFile(function()
-			{
-				editorUi.hideDialog();
-				window.openFile = null;
-			});
-			
-			window.openFile.setData(data, null);
-			editorUi.editor.graph.openLink(editorUi.getUrl());
+			editorUi.hideDialog();
+			editorUi.editor.editAsNew(data);
 		}
 		else if (select.value == 'replace')
 		{

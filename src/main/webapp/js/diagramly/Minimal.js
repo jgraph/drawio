@@ -3,9 +3,11 @@
  */
 EditorUi.initMinimalTheme = function()
 {
-	// Disabled in lightbox mode
-	if (urlParams['lightbox'] == '1' || urlParams['chrome'] == '0')
+	// Disabled in lightbox and chromeless mode
+	if (urlParams['lightbox'] == '1' || urlParams['chrome'] == '0' || typeof window.Format === 'undefined' || typeof window.Menus === 'undefined')
 	{
+		window.uiTheme = null;
+		
 		return;
 	}
 	
@@ -23,7 +25,7 @@ EditorUi.initMinimalTheme = function()
            'div.geDialog { border-radius: 5px; }' +
            'html body div.geDialog button.geBigButton { color: #fff !important; }' +
            '.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
-           '.mxWindow .geColorBtn, .geDialog .geColorBtn { background: none !important; }' +
+           'html body .mxWindow .geColorBtn, html body .geDialog .geColorBtn { background: none; }' +
            'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: #353535 !important; border-color: rgb(216, 216, 216); }' +
            'div.diagramContainer button.geBtn, .mxWindow button.geBtn, .geDialog button.geBtn { min-width:72px; font-weight: 600; background: none; }' +
            'div.diagramContainer button.geBtn:hover, .mxWindow button.geBtn:hover, .geDialog button.geBtn:hover { box-shadow: none; border-color: rgb(216, 216, 216); }' +
@@ -116,7 +118,7 @@ EditorUi.initMinimalTheme = function()
 	    {
 	        ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
 	           Math.max(20, ui.diagramContainer.clientWidth - 240 - 12), 56,
-	           240, Math.min(546, graph.container.clientHeight - 10), function(container)
+	           240, Math.min(550, graph.container.clientHeight - 10), function(container)
 	        {
 	            var format = ui.createFormat(container);
 	            format.init();
@@ -263,28 +265,8 @@ EditorUi.initMinimalTheme = function()
     mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
     mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
     mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
-    mxVertexHandler.prototype.handleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/>');
-    mxEdgeHandler.prototype.handleImage = mxVertexHandler.prototype.handleImage;
-    mxEdgeHandler.prototype.terminalHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><circle cx="8" cy="8" r="3" stroke="' + stroke + '" fill="' + fill + '"/>');
-    mxEdgeHandler.prototype.fixedHandleImage = Graph.createSvgImage(16, 16, '<circle cx="8" cy="8" r="5" stroke="' + stroke + '" fill="' + fill + '"/><path d="m 6 6 L 10 10 M 6 10 L 10 6" stroke="' + stroke + '"/>');
     mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
-    HoverIcons.prototype.triangleUp = Graph.createSvgImage(18, 38, '<path d="m 6 36 L 12 36 L 12 12 L 18 12 L 9 1 L 1 12 L 6 12 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleRight = Graph.createSvgImage(36, 18, '<path d="m 1 6 L 24 6 L 24 1 L 36 9 L 24 18 L 24 12 L 1 12 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleDown = Graph.createSvgImage(18, 36, '<path d="m 6 1 L 6 24 L 1 24 L 9 36 L 18 24 L 12 24 L 12 1 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.triangleLeft = Graph.createSvgImage(38, 18, '<path d="m 1 9 L 12 1 L 12 6 L 36 6 L 36 12 L 12 12 L 12 18 z" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.roundDrop = Graph.createSvgImage(26, 26, '<circle cx="13" cy="13" r="12" stroke="#fff" fill="' + fill + '"/>');
-    HoverIcons.prototype.arrowSpacing = 0;
     mxOutline.prototype.sizerImage = null;
-
-    if (window.Sidebar != null)
-    {
-        Sidebar.prototype.triangleUp = HoverIcons.prototype.triangleUp;
-        Sidebar.prototype.triangleRight = HoverIcons.prototype.triangleRight;
-        Sidebar.prototype.triangleDown = HoverIcons.prototype.triangleDown;
-        Sidebar.prototype.triangleLeft = HoverIcons.prototype.triangleLeft;
-        Sidebar.prototype.refreshTarget = HoverIcons.prototype.refreshTarget;
-        Sidebar.prototype.roundDrop = HoverIcons.prototype.roundDrop;
-    }
     
     mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
     mxConstants.EDGE_SELECTION_COLOR = '#C0C0C0';
@@ -295,7 +277,6 @@ EditorUi.initMinimalTheme = function()
 
     mxConstants.HIGHLIGHT_STROKEWIDTH = 5;
     mxConstants.HIGHLIGHT_OPACITY = 35;
-    mxConstants.HIGHLIGHT_SIZE = 5;
     mxConstants.OUTLINE_COLOR = '#29b6f2';
     mxConstants.OUTLINE_HANDLE_FILLCOLOR = '#29b6f2';
     mxConstants.OUTLINE_HANDLE_STROKECOLOR = '#fff';
@@ -332,19 +313,20 @@ EditorUi.initMinimalTheme = function()
     };
     
     // Overridden to ignore tabContainer height for diagramContainer
-    var editorUiRefresh = EditorUi.prototype.refresh;
-
-    EditorUi.prototype.refresh = function(sizeDidChange)
+    var editorUiUpdateTabContainer = EditorUi.prototype.updateTabContainer;
+    
+    EditorUi.prototype.updateTabContainer = function()
     {
-        editorUiRefresh.apply(this, arguments);
-    	
-        if (this.tabContainer != null)
+    	if (this.tabContainer != null)
         {
         	// Makes room for view zoom menu
         	this.tabContainer.style.right = '70px';
+        	this.diagramContainer.style.bottom = '30px';
         }
+    	
+    	editorUiUpdateTabContainer.apply(this, arguments);
     };
-    
+
     // Overridden to update save menu state
 	/**
 	 * Updates action states depending on the selection.
@@ -515,14 +497,14 @@ EditorUi.initMinimalTheme = function()
         
         if (graph.getSelectionCount() == 1)
         {
-            this.addMenuItems(menu, ['-', 'editTooltip', 'editStyle', '-'], null, evt);
+            this.addMenuItems(menu, ['editTooltip', '-', 'editStyle', 'editGeometry', '-'], null, evt);
 
             if (graph.isCellFoldable(graph.getSelectionCell()))
             {
                 this.addMenuItems(menu, (graph.isCellCollapsed(cell)) ? ['expand'] : ['collapse'], null, evt);
             }
-
-            this.addMenuItems(menu, ['lockUnlock', 'enterGroup'], null, evt);
+            
+            this.addMenuItems(menu, ['collapsible', '-', 'lockUnlock', 'enterGroup'], null, evt);
             menu.addSeparator();
             this.addSubmenu('layout', menu);
         }
@@ -550,6 +532,10 @@ EditorUi.initMinimalTheme = function()
         {
         	this.formatWindow.window.setVisible((forceHide) ?
                false : !this.formatWindow.window.isVisible());
+        }
+        else
+        {
+        	toggleFormat(this);
         }
     };
 
@@ -696,7 +682,7 @@ EditorUi.initMinimalTheme = function()
         	toggleFormat(ui);
         }));
         
-        if (EditorUi.enablePlantUml)
+        if (EditorUi.enablePlantUml && !ui.isOffline())
         {
 	        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
 	        {
@@ -708,9 +694,10 @@ EditorUi.initMinimalTheme = function()
 
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {
+			var file = ui.getCurrentFile();
         	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
 			menu.addSeparator(parent);
-
+			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
@@ -735,31 +722,28 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
-
-			var file = ui.getCurrentFile();
 			
 			if (file != null && file.constructor == DriveFile)
 			{
 				ui.menus.addMenuItems(menu, ['-', 'share'], parent);
-
+				
 				if (file.realtime != null)
 				{
 					ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
 				}
+				else
+				{
+					ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
+				}
 				
 				menu.addSeparator(parent);
 			}
-			
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find'], parent);
-			
-			var item = this.addMenuItem(menu, 'tags', parent);
-			
-			if (!ui.isOffline() || mxClient.IS_CHROMEAPP)
+			else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 			{
-				ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000046966');
+				ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
 			}
 			
-			menu.addSeparator(parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)
@@ -799,19 +783,40 @@ EditorUi.initMinimalTheme = function()
 			
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['createRevision', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
+				if (file.realtime == null)
+				{
+					ui.menus.addMenuItems(menu, ['save'], parent);
+				}
+				else
+				{
+					ui.menus.addMenuItems(menu, ['createRevision'], parent);
+				}
+				
+				ui.menus.addMenuItems(menu, ['makeCopy', '-', 'rename', 'moveToFolder'], parent);
 			}
 			else
 			{
-				ui.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename', 'makeCopy'], parent);
+				ui.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename'], parent);
+				
+				if (ui.isOfflineApp())
+				{
+					if (navigator.onLine && urlParams['stealth'] != '1')
+					{
+						this.addMenuItems(menu, ['upload'], parent);
+					}
+				}
+				else
+				{
+					ui.menus.addMenuItems(menu, ['makeCopy'], parent);
+				}
 			}
 
+			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
+			
 			if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 			}
-			
-			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
         })));
         
         // Augments the existing export menu
@@ -820,20 +825,21 @@ EditorUi.initMinimalTheme = function()
         this.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
         {
         	exportAsMenu.funct(menu, parent);
-            menu.addSeparator(parent);
-            ui.menus.addSubmenu('embed', menu, parent);
-            
+
     		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
     		{
 	            // Publish menu contains only one element by default...
 	            //ui.menus.addSubmenu('publish', menu, parent); 
 	            ui.menus.addMenuItems(menu, ['publishLink'], parent);
     		}
+    		
+            menu.addSeparator(parent);
+            ui.menus.addSubmenu('embed', menu, parent);
         })));
 
         var langMenu = this.get('language');
 
-        // Overrides extras for plugins but label it preferences
+        // Extras menu is labelled preferences but keeps ID for extensions
         this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			if (urlParams['embed'] != '1')
@@ -847,28 +853,23 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			menu.addSeparator(parent);
-			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'pageScale'], parent);
+			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips'], parent);
             
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'search', 'scratchpad', '-', 'showStartScreen'], parent);
 			}
-			
-			if (!ui.isOfflineApp() && urlParams['embed'] != '1' && isLocalStorage)
+
+			if (!ui.isOfflineApp() && isLocalStorage)
 			{
 				menu.addSeparator(parent);
-				var item = ui.menus.addMenuItem(menu, 'plugins', parent);
-				
-				if (!ui.isOffline())
-				{
-					ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000056430');
-				}
+	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
         })));
-
+        
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['importText', 'createShape', 'plantUml', '-', 'importCsv', 'formatSql', 'editDiagram'], parent);
+            ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
         
         mxResources.parse('insertLayout=' + mxResources.get('layout'));
@@ -878,7 +879,16 @@ EditorUi.initMinimalTheme = function()
         {
             ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-', 'insertText',
                                          'insertLink', '-', 'insertImage'], parent);
-            ui.menus.addSubmenu('importFrom', menu, parent);
+            
+            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+            {
+            	ui.menus.addMenuItems(menu, ['import'], parent);
+            }
+            else
+            {
+            	ui.menus.addSubmenu('importFrom', menu, parent);
+            }
+            
             menu.addSeparator(parent);
             ui.menus.addSubmenu('insertLayout', menu, parent);
             ui.menus.addSubmenu('insertAdvanced', menu, parent);
@@ -916,8 +926,15 @@ EditorUi.initMinimalTheme = function()
         // Overrides view for plugins but label it options
         this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
-            	'copyConnect', 'collapseExpand', '-', 'mathematicalTypesetting'], parent);
+            ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-'], parent);
+            
+			if (typeof(MathJax) !== 'undefined')
+			{
+				var item = ui.menus.addMenuItem(menu, 'mathematicalTypesetting', parent);
+				ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+			}
+			
+            ui.menus.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'pageScale'], parent);
         })));
 	};
 	
@@ -942,6 +959,7 @@ EditorUi.initMinimalTheme = function()
         var menubar = document.createElement('div');
         menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
         
+        var before = null;
         var menuObj = new Menubar(ui, menubar);
         
         function addMenu(id, small, img, opacity)
@@ -952,7 +970,7 @@ EditorUi.initMinimalTheme = function()
             {
                 // Allows extensions of menu.functid
                 menu.funct.apply(this, arguments);
-            }));
+            }), before);
             
             elt.className = 'geMenuItem';
             elt.style.display = 'inline-block';
@@ -998,7 +1016,15 @@ EditorUi.initMinimalTheme = function()
             btn.style.position = 'relative';
             btn.style.verticalAlign = 'top';
             btn.style.top = '0px';
-            menubar.appendChild(btn);
+            
+            if (ui.statusContainer != null)
+            {
+            	menubar.insertBefore(btn, ui.statusContainer);
+            }
+            else
+            {
+            	menubar.appendChild(btn);
+            }
             
             if (img != null)
             {
@@ -1082,70 +1108,18 @@ EditorUi.initMinimalTheme = function()
             	}
             }
 
-            menubar.appendChild(btnGroup);
+            if (ui.statusContainer != null)
+            {
+            	menubar.insertBefore(btnGroup, ui.statusContainer);
+            }
+            else
+            {
+            	menubar.appendChild(btnGroup);
+            }
             
             return btnGroup;
         };
-        
-        var small = iw < 900;
- 
-        if (!small)
-        {
-        	addMenu('diagram');
-        }
-        
-        createGroup([((small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo-gray.svg', 100) : null),
-        		addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null, mxResources.get('shapes'), ui.actions.get('image'),
-        			(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+' : null),
-                     addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
-                    		 mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
-                    (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==' : null)]);
-        var elt = addMenu('insert', true, (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==' : null, 40);
-        createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct, null, mxResources.get('delete'), ui.actions.get('delete'),
-        		(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==' : null)]);
-        
-        if (iw >= 480)
-        {
-        	var undoAction = ui.actions.get('undo');
-        	var redoAction = ui.actions.get('redo');
-        	
-	        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction,
-	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIuNSA4Yy0yLjY1IDAtNS4wNS45OS02LjkgMi42TDIgN3Y5aDlsLTMuNjItMy42MmMxLjM5LTEuMTYgMy4xNi0xLjg4IDUuMTItMS44OCAzLjU0IDAgNi41NSAyLjMxIDcuNiA1LjVsMi4zNy0uNzhDMjEuMDggMTEuMDMgMTcuMTUgOCAxMi41IDh6Ii8+PC9zdmc+');
-	        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction,
-	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
-	
-	        createGroup([undoElt, redoElt]);
 
-	        if (iw >= 560)
-	        {
-	        	var zoomInAction = ui.actions.get('zoomIn');
-	        	var zoomOutAction = ui.actions.get('zoomOut');
-	        	var resetViewAction = ui.actions.get('resetView');
-	        	
-		        createGroup([addMenuItem('', function()
-		        {
-		            graph.popupMenuHandler.hideMenu();
-		
-		        	var scale = graph.view.scale;
-		            var tx = graph.view.translate.x;
-		            var ty = graph.view.translate.y;
-		
-		        	ui.actions.get('resetView').funct();
-		        	
-		            // Toggle scale if nothing has changed
-		            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
-		            {
-		            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
-		            }
-		        }, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction,
-		        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyA1djRoMlY1aDRWM0g1Yy0xLjEgMC0yIC45LTIgMnptMiAxMEgzdjRjMCAxLjEuOSAyIDIgMmg0di0ySDV2LTR6bTE0IDRoLTR2Mmg0YzEuMSAwIDItLjkgMi0ydi00aC0ydjR6bTAtMTZoLTR2Mmg0djRoMlY1YzAtMS4xLS45LTItMi0yeiIvPjwvc3ZnPg=='),
-		        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)', zoomInAction,
-		       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHptMi41LTRoLTJ2Mkg5di0ySDdWOWgyVjdoMXYyaDJ2MXoiLz48L3N2Zz4=') : null,
-		        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction,
-		        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHpNNyA5aDV2MUg3eiIvPjwvc3ZnPg==') : null]);
-	        }
-        }
-        
 		ui.statusContainer = ui.createStatusContainer();
 		ui.statusContainer.style.position = 'relative';
 		ui.statusContainer.style.maxWidth = '';
@@ -1209,40 +1183,19 @@ EditorUi.initMinimalTheme = function()
 		// Container for the user element
 		ui.menubarContainer = ui.buttonContainer;
 
-        var langMenu = this.menus.get('language');
-
-		if (langMenu != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && iw >= 480)
-		{
-			var elt = menuObj.addMenu('', langMenu.funct);
-			elt.setAttribute('title', mxResources.get('language'));
-			
-			elt.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==)';
-        	elt.style.backgroundPosition = 'center center';
-        	elt.style.backgroundRepeat = 'no-repeat';
-        	elt.style.backgroundSize = '24px 24px';
-			elt.style.position = 'absolute';
-        	elt.style.height = '24px';
-        	elt.style.width = '24px';
-			elt.style.zIndex = '1';
-			elt.style.top = '11px';
-			elt.style.right = '14px';
-			mxUtils.setOpacity(elt, 30);
-			
-			menubar.appendChild(elt);
-		}
-			
         ui.tabContainer = document.createElement('div');
         ui.tabContainer.style.cssText = 'position:absolute;left:0px;right:0px;bottom:0px;height:30px;white-space:nowrap;' +
-            'border-bottom:1px solid lightgray;background-color:#ffffff;border-top:1px solid lightgray;margin-bottom:-2px;';
+            'border-bottom:1px solid lightgray;background-color:#ffffff;border-top:1px solid lightgray;margin-bottom:-2px;' +
+            'visibility:hidden;';
 
         var previousParent = ui.diagramContainer.parentNode;
 
         var wrapper = document.createElement('div');
         wrapper.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;overflow:hidden;';
         ui.diagramContainer.style.top = '47px';
-        ui.diagramContainer.style.bottom = '30px';
-		
+
         var viewZoomMenu = ui.menus.get('viewZoom');
+        var viewZoomMenuElt = null;
 		
 		if (viewZoomMenu != null)
 		{
@@ -1253,6 +1206,7 @@ EditorUi.initMinimalTheme = function()
         	elt.style.backgroundImage = 'url(' + mxWindow.prototype.minimizeImage + ')';
         	elt.style.backgroundPosition = 'right 6px center';
         	elt.style.backgroundRepeat = 'no-repeat';
+			elt.style.backgroundColor = '#ffffff';
         	elt.style.paddingRight = '10px';
 			elt.style.display = 'block';
 			elt.style.position = 'absolute';
@@ -1261,6 +1215,7 @@ EditorUi.initMinimalTheme = function()
 			elt.style.right = '0px';
 			elt.style.bottom = '0px';
 			elt.style.overflow = 'hidden';
+			elt.style.visibility = 'hidden';
 			elt.style.textAlign = 'center';
 			elt.style.color = '#000';
 			elt.style.fontSize = '12px';
@@ -1292,6 +1247,7 @@ EditorUi.initMinimalTheme = function()
 	    		if (this.tabContainer != null)
 	    		{
 	    			elt.style.visibility = this.tabContainer.style.visibility;
+    	        	this.diagramContainer.style.bottom = (this.tabContainer.style.visibility != 'hidden') ? '30px' : '0px';
 	    		}
 	    	};
 		}
@@ -1302,8 +1258,119 @@ EditorUi.initMinimalTheme = function()
         previousParent.appendChild(wrapper);
         ui.updateTabContainer();
         
+        function refreshMenu()
+        {
+        	// Removes all existing menu items
+        	var node = menubar.firstChild;
+        	
+        	while (node != null)
+        	{
+        		var temp = node.nextSibling;
+        		
+        		if (node.className == 'geMenuItem' || node.className == 'geItem')
+        		{
+        			node.parentNode.removeChild(node);
+        		}
+        		
+        		node = temp;
+        	}
+        	
+        	before = menubar.firstChild;
+	        iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	        var small = iw < 900;
+	 
+	        if (!small)
+	        {
+	        	addMenu('diagram');
+	        }
+	        
+	        createGroup([((small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo-gray.svg', 100) : null),
+	        		addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null, mxResources.get('shapes'), ui.actions.get('image'),
+	        			(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+' : null),
+	                     addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
+	                    		 mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
+	                    (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==' : null)]);
+	        var elt = addMenu('insert', true, (small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==' : null, 40);
+	        createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct, null, mxResources.get('delete'), ui.actions.get('delete'),
+	        		(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==' : null)]);
+	        
+	        if (iw >= 411)
+	        {
+	        	var undoAction = ui.actions.get('undo');
+	        	var redoAction = ui.actions.get('redo');
+	        	
+		        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction,
+		       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIuNSA4Yy0yLjY1IDAtNS4wNS45OS02LjkgMi42TDIgN3Y5aDlsLTMuNjItMy42MmMxLjM5LTEuMTYgMy4xNi0xLjg4IDUuMTItMS44OCAzLjU0IDAgNi41NSAyLjMxIDcuNiA1LjVsMi4zNy0uNzhDMjEuMDggMTEuMDMgMTcuMTUgOCAxMi41IDh6Ii8+PC9zdmc+');
+		        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction,
+		       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
+		
+		        createGroup([undoElt, redoElt]);
+	
+		        if (iw >= 480)
+		        {
+		        	var zoomInAction = ui.actions.get('zoomIn');
+		        	var zoomOutAction = ui.actions.get('zoomOut');
+		        	var resetViewAction = ui.actions.get('resetView');
+		        	
+			        createGroup([addMenuItem('', function()
+			        {
+			            graph.popupMenuHandler.hideMenu();
+			
+			        	var scale = graph.view.scale;
+			            var tx = graph.view.translate.x;
+			            var ty = graph.view.translate.y;
+			
+			        	ui.actions.get('resetView').funct();
+			        	
+			            // Toggle scale if nothing has changed
+			            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
+			            {
+			            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
+			            }
+			        }, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction,
+			        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyA1djRoMlY1aDRWM0g1Yy0xLjEgMC0yIC45LTIgMnptMiAxMEgzdjRjMCAxLjEuOSAyIDIgMmg0di0ySDV2LTR6bTE0IDRoLTR2Mmg0YzEuMSAwIDItLjkgMi0ydi00aC0ydjR6bTAtMTZoLTR2Mmg0djRoMlY1YzAtMS4xLS45LTItMi0yeiIvPjwvc3ZnPg=='),
+			        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)', zoomInAction,
+			       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHptMi41LTRoLTJ2Mkg5di0ySDdWOWgyVjdoMXYyaDJ2MXoiLz48L3N2Zz4=') : null,
+			        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction,
+			        	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHpNNyA5aDV2MUg3eiIvPjwvc3ZnPg==') : null]);
+		        }
+	        }
+	        
+	        var langMenu = ui.menus.get('language');
+
+			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
+				!EditorUi.isElectronApp && iw >= 540)
+			{
+				var elt = menuObj.addMenu('', langMenu.funct);
+				elt.setAttribute('title', mxResources.get('language'));
+				
+				elt.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==)';
+	        	elt.style.backgroundPosition = 'center center';
+	        	elt.style.backgroundRepeat = 'no-repeat';
+	        	elt.style.backgroundSize = '24px 24px';
+				elt.style.position = 'absolute';
+	        	elt.style.height = '24px';
+	        	elt.style.width = '24px';
+				elt.style.zIndex = '1';
+				elt.style.top = '11px';
+				elt.style.right = '14px';
+				mxUtils.setOpacity(elt, 30);
+				
+				menubar.appendChild(elt);
+				ui.buttonContainer.style.right = '40px';
+			}
+			else
+			{
+				ui.buttonContainer.style.right = '14px';
+			}
+        };
+        
+        refreshMenu();
+        
         mxEvent.addListener(window, 'resize', function()
 		{
+        	refreshMenu();
+        	
             if (ui.sidebarWindow != null)
             {
                 ui.sidebarWindow.window.fit();

@@ -4,13 +4,17 @@ window.urlParams = window.urlParams || {};
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
 
+// Disables loading settings in configured mode
+window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
+
 // Checks for SVG support
 window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9);
 
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
-window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml2';
+window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml3';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
+//window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "http://localhost:5000/convertEMF";
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -22,6 +26,7 @@ window.GRAPH_IMAGE_PATH = window.GRAPH_IMAGE_PATH || 'img';
 window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || ((navigator.userAgent.indexOf('MSIE') >= 0 ||
 	urlParams['dev']) && window.location.protocol != 'file:' ? 'iconSearch' : 'https://www.draw.io/iconSearch');
 window.TEMPLATE_PATH = window.TEMPLATE_PATH || 'templates';
+window.NEW_DIAGRAM_CATS_PATH = window.NEW_DIAGRAM_CATS_PATH || 'newDiagramCats';
 
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
@@ -136,7 +141,7 @@ if (window.mxLanguages == null)
 window.uiTheme = window.uiTheme || (function() 
 {
 	var ui = urlParams['ui'];
-	
+
 	// Known issue: No JSON object at this point in quirks in IE8
 	if (ui == null && typeof JSON !== 'undefined')
 	{
@@ -159,6 +164,24 @@ window.uiTheme = window.uiTheme || (function()
 				isLocalStorage = false;
 			}
 		}
+	}
+	
+	// Uses minimal theme on small screens
+	try
+	{
+		if (ui == null)
+		{
+	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+	        if (iw <= 414)
+	        {
+	        	ui = 'min';
+	        }
+		}
+	}
+	catch (e)
+	{
+		// ignore
 	}
 	
 	return ui;
@@ -244,7 +267,6 @@ function setCurrentXml(data, filename)
 // Enables offline mode
 if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealth'] == '1' || urlParams['local'] == '1')
 {
-	urlParams['analytics'] = '0';
 	urlParams['picker'] = '0';
 	urlParams['gapi'] = '0';
 	urlParams['db'] = '0';
