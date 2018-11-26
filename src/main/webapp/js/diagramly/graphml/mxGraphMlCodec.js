@@ -7,116 +7,128 @@ function mxGraphMlCodec()
 mxGraphMlCodec.prototype.refRegexp = /^\{y\:GraphMLReference\s+(\d+)\}$/;
 mxGraphMlCodec.prototype.staticRegexp = /^\{x\:Static\s+(.+)\.(.+)\}$/;
 
-mxGraphMlCodec.prototype.decode = function (xml, callback)
+mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
 {
-	var doc = mxUtils.parseXml(xml);
-	
-	var graphs = this.getDirectChildNamedElements(doc.documentElement, mxGraphMlConstants.GRAPH);
-	
-	this.initializeKeys(doc.documentElement);
-	
-	var mxFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
-	for (var i = 0; i < graphs.length; i++)
+	try
 	{
-		var pageElement = graphs[i];
-
-		var graph = this.createMxGraph();
-		var model = graph.getModel();
+		var doc = mxUtils.parseXml(xml);
 		
-        model.beginUpdate();
-        try 
-        {
-	        this.nodesMap = {};
-	    	this.edges = [];
-	        this.importGraph(pageElement, graph, graph.getDefaultParent());
+		var graphs = this.getDirectChildNamedElements(doc.documentElement, mxGraphMlConstants.GRAPH);
+		
+		this.initializeKeys(doc.documentElement);
+		
+		var mxFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
+		for (var i = 0; i < graphs.length; i++)
+		{
+			var pageElement = graphs[i];
+	
+			var graph = this.createMxGraph();
+			var model = graph.getModel();
+			
+	        model.beginUpdate();
+	        try 
+	        {
+		        this.nodesMap = {};
+		    	this.edges = [];
+		        this.importGraph(pageElement, graph, graph.getDefaultParent());
+		    	
+		    	for (var i = 0; i < this.edges.length; i++)
+				{
+		    		var edgesObj = this.edges[i];
+		    		var edges = edgesObj.edges;
+		    		var parent = edgesObj.parent;
+		    		var dx = edgesObj.dx, dy = edgesObj.dy;
+		
+			    	for (var j = 0; j < edges.length; j++)
+			    	{
+			    		this.importEdge(edges[j], graph, parent, dx, dy);
+			    	}
+				}
+	        }
+	        catch(e)
+	        {
+	        	console.log(e);
+	        	throw e;
+	        }
+	        finally
+	        {
+	        	model.endUpdate();
+	        }
 	    	
-	    	for (var i = 0; i < this.edges.length; i++)
-			{
-	    		var edgesObj = this.edges[i];
-	    		var edges = edgesObj.edges;
-	    		var parent = edgesObj.parent;
-	    		var dx = edgesObj.dx, dy = edgesObj.dy;
-	
-		    	for (var j = 0; j < edges.length; j++)
-		    	{
-		    		this.importEdge(edges[j], graph, parent, dx, dy);
-		    	}
-			}
-        }
-        catch(e)
-        {
-        	console.log(e);
-        }
-        finally
-        {
-        	model.endUpdate();
-        }
-    	
-    	//update edges' labels to convert their labels relative coordinate to ours
-        model.beginUpdate();
-        try 
-        {
-        	var cells = graph.getModel().cells;
-        	var tr = graph.view.translate;
-        	
-        	for (var id in cells)
-    		{
-        		var edge = cells[id];
-        		
-        		if (edge.edge && edge.getChildCount() > 0)
-    			{
-        			for (var i = 0; i < edge.getChildCount(); i++)
-    				{
-        				var cell = edge.children[i];
-                		var geo = cell.geometry;
-                		
-                		if (!geo.adjustIt) continue;
-                		
-	        			var state = graph.view.getState(edge);
-	        			var abdPs = state.absolutePoints;
-	        			var p0 = abdPs[0];
-	        			var pe = abdPs[abdPs.length - 1];
-	        			
-	        			var ratio = geo.x;
-	        			var dist = geo.y;
-	        			var dx = pe.x - p0.x
-	        			var dy = pe.y - p0.y
-	 
-	        			var x = p0.x + ratio * dx;
-	        			var y = p0.y + ratio * dy;
-	        			
-	        			var d = Math.sqrt(dx*dx + dy*dy);
-	        			dx /= d;
-	        			dy /= d;
-	        			
-	        			x -= dist * dy;
-	        			y += dist * dx;
-	        			
-	        			var np = graph.view.getRelativePoint(state, x, y);
-	        			geo.x = np.x;
-	        			geo.y = np.y;
-	    			}
+	    	//update edges' labels to convert their labels relative coordinate to ours
+	        model.beginUpdate();
+	        try 
+	        {
+	        	var cells = graph.getModel().cells;
+	        	var tr = graph.view.translate;
+	        	
+	        	for (var id in cells)
+	    		{
+	        		var edge = cells[id];
+	        		
+	        		if (edge.edge && edge.getChildCount() > 0)
+	    			{
+	        			for (var i = 0; i < edge.getChildCount(); i++)
+	    				{
+	        				var cell = edge.children[i];
+	                		var geo = cell.geometry;
+	                		
+	                		if (!geo.adjustIt) continue;
+	                		
+		        			var state = graph.view.getState(edge);
+		        			var abdPs = state.absolutePoints;
+		        			var p0 = abdPs[0];
+		        			var pe = abdPs[abdPs.length - 1];
+		        			
+		        			var ratio = geo.x;
+		        			var dist = geo.y;
+		        			var dx = pe.x - p0.x
+		        			var dy = pe.y - p0.y
+		 
+		        			var x = p0.x + ratio * dx;
+		        			var y = p0.y + ratio * dy;
+		        			
+		        			var d = Math.sqrt(dx*dx + dy*dy);
+		        			dx /= d;
+		        			dy /= d;
+		        			
+		        			x -= dist * dy;
+		        			y += dist * dx;
+		        			
+		        			var np = graph.view.getRelativePoint(state, x, y);
+		        			geo.x = np.x;
+		        			geo.y = np.y;
+		    			}
+		    		}
 	    		}
-    		}
-        }
-        catch(e)
-        {
-        	console.log(e);
-        }
-        finally
-        {
-        	model.endUpdate();
-        }
-    	
-        mxFile += this.processPage(graph, i+1);
-	}
-
-	mxFile += "</mxfile>";
+	        }
+	        catch(e)
+	        {
+	        	console.log(e);
+	        	throw e;
+	        }
+	        finally
+	        {
+	        	model.endUpdate();
+	        }
+	    	
+	        mxFile += this.processPage(graph, i+1);
+		}
 	
-	if (callback)
-	{
-		callback(mxFile);
+		mxFile += "</mxfile>";
+		
+		if (callback)
+		{
+			callback(mxFile);
+		}
 	}
+    catch(e)
+    {
+    	if (onError) 
+    	{
+    		onError(e);
+    	}
+    }
 };
 
 mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
@@ -965,7 +977,6 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		"yjs:ShapeNodeStyle": styleCommonMap,
 		"demostyle:FlowchartNodeStyle": styleCommonMap,
 		"demostyle:AssetNodeStyle": assetNodesStyle,
-		"demostyle:DemoGroupStyle": styleCommonMap,
 		"bpmn:ActivityNodeStyle": bpmnActivityStyle,
 		"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
 		"bpmn:ConversationNodeStyle": bpmnConversationStyle,
@@ -3108,11 +3119,16 @@ var mxGraphMlConstants =
 	
 	Y_LABEL: "y:Label",
 	
-	TEXT: "Text",
-	
 	LAYOUTPARAMETER: "LayoutParameter",
 	
 	YJS_DEFAULTLABELSTYLE: "yjs:DefaultLabelStyle",
 	
 	MEMBER: "Member"
 };
+
+
+EditorUi.prototype.doImportGraphML = function(xmlData, done, onerror)
+{
+	new mxGraphMlCodec().decode(xmlData, done, onerror);
+};
+

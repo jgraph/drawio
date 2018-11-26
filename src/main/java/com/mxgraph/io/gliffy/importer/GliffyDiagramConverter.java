@@ -942,6 +942,14 @@ public class GliffyDiagramConverter
 				}
 				else
 				{
+					if (gliffyObject.isGroup())
+					{
+						for (GliffyObject childObject : gliffyObject.children)
+						{
+							rotateGroupedObject(gliffyObject, childObject);
+						}
+
+					}
 					style.append("rotation=" + gliffyObject.rotation + ";");
 				}
 			}
@@ -998,6 +1006,28 @@ public class GliffyDiagramConverter
 		return cell;
 	}
 
+	/**
+	 * Rotate objects inside Group
+	 * 
+	 * @param group
+	 * @param childObject
+	 */
+	private void rotateGroupedObject(GliffyObject group, GliffyObject childObject)
+	{
+		mxPoint pivot = new mxPoint(group.width / 2 - childObject.width / 2, group.height / 2 - childObject.height / 2);
+		mxPoint temp = new mxPoint(childObject.x, childObject.y);
+		if (group.rotation != 0)
+		{
+			double rads = Math.toRadians(group.rotation);
+			double cos = Math.cos(rads);
+			double sin = Math.sin(rads);
+			temp = mxUtils.getRotatedPoint(temp, cos, sin, pivot);
+			childObject.x = (float) temp.getX();
+			childObject.y = (float) temp.getY();
+			childObject.rotation += group.rotation;
+		}
+	}
+	
 	/**
 	 * Update borders of Text bracket in Frame objects.
 	 * 

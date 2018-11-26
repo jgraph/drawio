@@ -1167,7 +1167,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 /**
  * Sends a message to all collaborators and stores the head revision ID.
  */
-DriveClient.prototype.notifyRealtimeConverted = function(desc)
+DriveClient.prototype.notifyRealtimeConverted = function(desc, age)
 {
 	try
 	{
@@ -1181,7 +1181,7 @@ DriveClient.prototype.notifyRealtimeConverted = function(desc)
 						doc.getModel().getRoot() != null)
 					{
 						doc.getModel().getRoot().set('realtimeConverted',
-							desc.headRevisionId);
+							'rev=' + desc.headRevisionId + ' age=' + age);
 					}
 				}
 				catch (e)
@@ -1354,10 +1354,10 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	
 	var headers = {'Content-Type' : 'multipart/mixed; boundary="' + bd + '"'};
 	
-	if (etag != null)
-	{
-		headers['If-Match'] = etag;
-	}
+//	if (etag != null)
+//	{
+//		headers['If-Match'] = etag;
+//	}
 
 	var reqObj = 
 	{
@@ -1767,7 +1767,7 @@ DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
 		try
 		{
 			var age = this.getRealtimeAge(desc, json);
-			this.notifyRealtimeConverted(desc);
+			this.notifyRealtimeConverted(desc, age);
 			
 			// Uses realtime if newer or less than 5 minutes old
 			if (age < 300000)

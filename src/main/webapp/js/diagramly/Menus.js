@@ -194,6 +194,7 @@
 			}
 			else
 			{
+				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
 				var div = document.createElement('div');
 				div.style.whiteSpace = 'nowrap';
 				
@@ -202,34 +203,55 @@
 				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
 				div.appendChild(hd);
 				
-				var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
-					false, graph.isSelectionEmpty());
-				var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
-					!graph.pageVisible || !editorUi.pdfPageExport,
-					!editorUi.pdfPageExport);
-				crop.style.marginBottom = '16px';
-				
-				// Crop is only enabled if selection only is selected
-				if (!editorUi.pdfPageExport)
+				var cropEnableFn = function()
 				{
-					mxEvent.addListener(selection, 'change', function()
+					if (allPages != this && this.checked)
 					{
-						if (selection.checked)
-						{
-							crop.removeAttribute('disabled');
-						}
-						else
-						{
-							crop.setAttribute('disabled', 'disabled');
-						}
-					});	
+						crop.removeAttribute('disabled');
+					}
+					else
+					{
+						crop.setAttribute('disabled', 'disabled');
+						crop.checked = false;
+					}
+				};
+				
+				var dlgH = 146;
+				
+				if (editorUi.pdfPageExport && !noPages)
+				{
+					var allPages = editorUi.addRadiobox(div, 'pages', mxResources.get('allPages'), true);
+					var currentPage = editorUi.addRadiobox(div, 'pages', mxResources.get('currentPage', null, 'Current Page'), false);
+					var selection = editorUi.addRadiobox(div, 'pages', mxResources.get('selectionOnly'), false, graph.isSelectionEmpty());
+					var crop = editorUi.addCheckbox(div, mxResources.get('crop'), false, true);
+					
+					mxEvent.addListener(allPages, 'change', cropEnableFn);
+					mxEvent.addListener(currentPage, 'change', cropEnableFn);
+					mxEvent.addListener(selection, 'change', cropEnableFn);
+					dlgH = 205;
 				}
+				else
+				{
+					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
+							false, graph.isSelectionEmpty());
+					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
+							!graph.pageVisible || !editorUi.pdfPageExport,
+							!editorUi.pdfPageExport);
+					
+					// Crop is only enabled if selection only is selected
+					if (!editorUi.pdfPageExport)
+					{
+						mxEvent.addListener(selection, 'change', cropEnableFn);	
+					}
+				}
+				
+				crop.style.marginBottom = '16px';
 				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('pdf', null, null, !selection.checked, null, !crop.checked);
+					editorUi.downloadFile('pdf', null, null, !selection.checked, noPages? true : !allPages.checked, !crop.checked);
 				}), null, mxResources.get('export'));
-				editorUi.showDialog(dlg.container, 300, 146, true, true);
+				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
 			}
 		}));
 		
@@ -1068,37 +1090,47 @@
 				
 				this.editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
 				{
-					var file = this.editorUi.getCurrentFile();
-					
-					if (file != null && file.constructor == DriveFile &&
-						editorUi.spinner.spin(document.body, mxResources.get('export')))
+					if (editorUi.drive == null)
 					{
-						// LATER: Download full model dump with history
-						var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-								file.getId() + '/realtime?supportsTeamDrives=true', null, 'GET');
-
-						// Adds auth token
-						req.setRequestHeaders = function(request)
+						editorUi.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+					}
+					else
+					{
+						editorUi.drive.execute(mxUtils.bind(this, function()
 						{
-							mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
-							var token = gapi.auth.getToken().access_token;
-							request.setRequestHeader('authorization', 'Bearer ' + token);	
-						};
-						
-						req.send(function(req)
-						{
-							editorUi.spinner.stop();
+							var fileId =prompt('File ID', '');
 							
-							if (req.getStatus() >= 200 && req.getStatus() <= 299)
+							if (fileId != null && fileId.length > 0 &&
+								editorUi.spinner.spin(document.body, mxResources.get('export')))
 							{
-								editorUi.saveLocalFile(req.getText(), 'json-' + file.getId()+'.txt', 'text/plain');
+								// LATER: Download full model dump with history
+								var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
+										fileId + '/realtime?supportsTeamDrives=true', null, 'GET');
+		
+								// Adds auth token
+								req.setRequestHeaders = function(request)
+								{
+									mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
+									var token = gapi.auth.getToken().access_token;
+									request.setRequestHeader('authorization', 'Bearer ' + token);	
+								};
+								
+								req.send(function(req)
+								{
+									editorUi.spinner.stop();
+									
+									if (req.getStatus() >= 200 && req.getStatus() <= 299)
+									{
+										editorUi.saveLocalFile(req.getText(), 'json-' + fileId +'.txt', 'text/plain');
+									}
+									else
+									{
+										editorUi.handleError({message: mxResources.get('fileNotFound')},
+											mxResources.get('errorLoadingFile'));
+									}
+								});
 							}
-							else
-							{
-								editorUi.handleError({message: mxResources.get('fileNotFound')},
-									mxResources.get('errorLoadingFile'));
-							}
-						});
+						}));
 					}
 				}));
 
@@ -1106,15 +1138,9 @@
 				{
 					this.addMenuItems(menu, ['-', 'testShowRtModel', 'testDebugRtModel', 'testDownloadRtModel'], parent);
 				}
-				else if (this.editorUi.getCurrentFile() != null && this.editorUi.getCurrentFile().constructor == DriveFile)
-				{
-					this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
-				}
-				else
-				{
-					menu.addSeparator(parent);
-				}
 
+				this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
+				
 				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
 				{
 					var input = document.createElement('input');
@@ -1145,7 +1171,7 @@
 			
 					input.click();
 				});
-				
+
 				mxResources.parse('testShowConsole=Show Console');
 				this.editorUi.actions.addAction('testShowConsole', function()
 				{

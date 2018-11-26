@@ -19,6 +19,9 @@ DrawioFile = function(ui, data)
 	 * @default 0
 	 */
 	this.data = data || '';
+
+	// Keeps a copy of the initial data for the shadow document
+	this.initialData = data;
 };
 
 //Extends mxEventSource

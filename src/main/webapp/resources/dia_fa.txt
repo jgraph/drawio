@@ -99,6 +99,7 @@ draftFound=‫پیش نویس '{1}' یافت شد. آن را به داخل وی�
 dragAndDropNotSupported=‫حرکت و کشیدن و انداختن برای تصاویر امکانپذیر نیست. آیا می خواهید بجای آن تصاویر را وارد کنید؟‬
 dropboxCharsNotAllowed=‫کاراکترهای زیر مجاز نمی باشند: \ / : ? * " |‬
 check=‫بررسی کردن‬
+checksum=Checksum
 circle=‫حلقه‬
 cisco=Cisco
 classic=‫کلاسیک‬
@@ -254,8 +255,10 @@ feedback=‫نظر‬
 feedbackSent=‫نظرات با موفقیت ارسال شد.‬
 floorplans=‫طرح کف‬
 file=‫فایل‬
-fileChangedOverwrite=‫فایل تغییر داده شده است. این تغییرات بر روی نسخه فعلی ذخیره شود؟ ‬
+fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
+fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=‫ذخیره بر روی نسخه فعلی‬
+synchronize=Synchronize
 filename=‫نام فایل‬
 fileExists=‫فایل از قبل وجود دارد‬
 fileNearlyFullSeeFaq=‫فایل تقریبا پر است، لطفا به قسمت FAQ مراجعه کنید‬

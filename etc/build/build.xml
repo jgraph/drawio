@@ -111,6 +111,7 @@
 				<file name="Sidebar-AWS.js" />
 				<file name="Sidebar-AWS3.js" />
 				<file name="Sidebar-AWS3D.js" />
+				<file name="Sidebar-AWS4.js" />
 				<file name="Sidebar-Azure.js" />
 				<file name="Sidebar-Basic.js" />
 				<file name="Sidebar-Bootstrap.js" />
@@ -289,6 +290,9 @@
 				<file name="mxVsdxCanvas2D.js" />
 				<file name="bmpDecoder.js" />
 				<file name="importer.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/graphml">
+				<file name="mxGraphMlCodec.js" />
 			</sources>
 		</jscomp>
 		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">

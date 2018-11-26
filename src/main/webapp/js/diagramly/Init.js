@@ -14,7 +14,7 @@ window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE'
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml3';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
-//window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "http://localhost:5000/convertEMF";
+window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2png/convertEMF";
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -110,8 +110,8 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'th' : 'ไทย',
 	'ko' : '한국어',
 	'ja' : '日本語',
-	'zh' : '中文（简体）',
-	'zh-tw' : '中文（繁體）'
+	'zh' : '简体中文',
+	'zh-tw' : '繁體中文'
 };
 
 if (typeof window.mxBasePath === 'undefined')
