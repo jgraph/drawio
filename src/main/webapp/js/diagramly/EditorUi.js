@@ -547,6 +547,8 @@
 				var replaceStrLen = replaceString.length;
 				data = data.slice(0, index) + replaceString + data.slice(index + replaceStrLen - 1, data.length);
 			}
+			
+			data = this.editor.graph.zapGremlins(data);
 		}
 		
 		return data;
@@ -981,60 +983,78 @@
 
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
 
-		// Some nodes must be extracted here to find the mxfile node
-		// LATER: Remove duplicate call to extractGraphModel in overridden setGraphXml
-		var tmp = (node != null) ? this.editor.extractGraphModel(node, true) : null;
+		// Checks for parser errors
+		var errors = node.getElementsByTagName('parsererror');
 		
-		if (tmp != null)
+		if (errors.length > 0)
 		{
-			node = tmp;
-		}
-
-		if (node != null && node.nodeName == 'mxfile')
-		{
-			var nodes = node.getElementsByTagName('diagram');
-
-			if (urlParams['pages'] != '0' || nodes.length > 1 ||
-				(nodes.length == 1 && nodes[0].hasAttribute('name')))
+			var cause = mxResources.get('invalidOrMissingFile');
+			var divs = errors[0].getElementsByTagName('div');
+			
+			if (divs.length > 0)
 			{
-				this.fileNode = node;
-				this.pages = [];
-				
-				// Wraps page nodes
-				for (var i = 0; i < nodes.length; i++)
+				cause = mxUtils.getTextContent(divs[0]);
+			}
+			
+			throw new Error(cause);
+		}
+		else
+		{
+			// Some nodes must be extracted here to find the mxfile node
+			// LATER: Remove duplicate call to extractGraphModel in overridden setGraphXml
+			var tmp = (node != null) ? this.editor.extractGraphModel(node, true) : null;
+			
+			if (tmp != null)
+			{
+				node = tmp;
+			}
+	
+			if (node != null && node.nodeName == 'mxfile')
+			{
+				var nodes = node.getElementsByTagName('diagram');
+	
+				if (urlParams['pages'] != '0' || nodes.length > 1 ||
+					(nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
-					var page = new DiagramPage(nodes[i]);
+					this.fileNode = node;
+					this.pages = [];
 					
-					// Checks for invalid page names
-					if (page.getName() == null)
+					// Wraps page nodes
+					for (var i = 0; i < nodes.length; i++)
 					{
-						page.setName(mxResources.get('pageWithNumber', [i + 1]));
+						var page = new DiagramPage(nodes[i]);
+						
+						// Checks for invalid page names
+						if (page.getName() == null)
+						{
+							page.setName(mxResources.get('pageWithNumber', [i + 1]));
+						}
+						
+						this.pages.push(page);
 					}
 					
-					this.pages.push(page);
+					this.currentPage = this.pages[Math.max(0, Math.min(this.pages.length - 1, urlParams['page'] || 0))];
+					node = this.currentPage.node;
 				}
-				
-				this.currentPage = this.pages[Math.max(0, Math.min(this.pages.length - 1, urlParams['page'] || 0))];
-				node = this.currentPage.node;
 			}
-		}
-		
-		// Creates tabbed file structure if enforced by URL
-		if (urlParams['pages'] != '0' && this.fileNode == null && node != null)
-		{
-			this.fileNode = node.ownerDocument.createElement('mxfile');
-			this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
-			this.currentPage.setName(mxResources.get('pageWithNumber', [1]));
-	 	 	this.pages = [this.currentPage];
-		}
-		
-		// Avoids scroll offset when switching page
-		this.editor.setGraphXml(node);
-		
-		// Avoids duplicate parsing of the XML stored in the node
-		if (this.currentPage != null)
-		{
-			this.currentPage.root = this.editor.graph.model.root;
+			
+			// Creates tabbed file structure if enforced by URL
+			if (urlParams['pages'] != '0' && this.fileNode == null && node != null)
+			{
+				this.fileNode = node.ownerDocument.createElement('mxfile');
+				this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
+				this.currentPage.setName(mxResources.get('pageWithNumber', [1]));
+		 	 	this.pages = [this.currentPage];
+			}
+			
+			// Avoids scroll offset when switching page
+			this.editor.setGraphXml(node);
+			
+			// Avoids duplicate parsing of the XML stored in the node
+			if (this.currentPage != null)
+			{
+				this.currentPage.root = this.editor.graph.model.root;
+			}
 		}
 	};
 
@@ -1172,7 +1192,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1196,15 +1216,16 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
 		
-		// Exports only current page for PDF since it does not contain file data, but for
-		// the other formats with XML included we need to send the complete data and use
+		// Exports only current page for images that does not contain file data, but for
+		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
 		// the from/to URL parameters to specify the page to be exported.
-		var data = this.getFileData(true, null, null, null, ignoreSelection, format != 'xmlpng');
+		var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
 		var range = '';
+		var allPages = '';
 		
 		if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
 		{
@@ -1213,6 +1234,11 @@
 		
 		var embed = '0';
        	
+		if (format == 'pdf' && currentPage == false)
+		{
+			allPages = '&allPages=1';
+		}
+		
        	if (format == 'xmlpng')
        	{
        		embed = '1';
@@ -1239,7 +1265,7 @@
 			bg = mxConstants.NONE;
 		}
        	
-		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range +
+		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range + allPages +
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
@@ -1742,6 +1768,7 @@
 				// DescriptorChanged updates the enabled state of the graph
 				this.setGraphEnabled(true);
 				this.setMode(file.getMode());
+				// this.editor.graph.model.prefix = Editor.guid() + '-';
 				this.editor.undoManager.clear();
 				this.descriptorChanged();
 				this.updateUi();
@@ -2002,8 +2029,6 @@
 				
 				if (value != null && key == 'rtCell')
 				{
-					console.log('here', replacer, obj, key,
-						obj.constructor !== mxCell, key !== 'rtCell');
 					value = null;
 				}
 				
@@ -2028,82 +2053,6 @@
 		}
 		
 	    return hash;
-	};
-
-	/**
-	 * Gets a file node that is comparable with a remote file node
-	 * so that using isEqualNode returns true if the files can be
-	 * considered equal.
-	 */
-	EditorUi.prototype.getComparableFile = function(node)
-	{
-		// Removes all attributes from the mxfile
-		while (node.attributes.length > 0)
-		{
-			node.removeAttribute(node.attributes[0].name);
-		}
-
-		// Removes all diagram IDs since those can be missing in
-		// realtime but will be added on the fly
-		var diagrams = node.getElementsByTagName('diagram');
-		
-		for (var i = 0; i < diagrams.length; i++)
-		{
-			diagrams[i].removeAttribute('name');
-			diagrams[i].removeAttribute('id');
-
-			// Uncompress diagram data for structural comparison
-			var tmp = this.ui.editor.graph.decompress(mxUtils.getTextContent(diagrams[i]));
-			
-			if (tmp != null && tmp.length > 0)
-			{
-				while (diagrams[i].firstChild != null)
-				{
-					diagrams[i].removeChild(diagrams[i].firstChild);
-				}
-
-				diagrams[i].appendChild(mxUtils.parseXml(tmp).documentElement);
-			}
-		}
-		
-		// Some attributes have been initialized using different defaults
-		// in the UI compared to realtime so they must be ignored
-		var models = node.getElementsByTagName('mxGraphModel');
-		
-		for (var i = 0; i < models.length; i++)
-		{
-			while (models[i].attributes.length > 0)
-			{
-				models[i].removeAttribute(models[i].attributes[0].name);
-			}
-		}
-		
-		return node;
-	};
-
-	/**
-	 * Removes all labels, user objects and styles from the given node in-place.
-	 */
-	EditorUi.prototype.anonymizeNode = function(node)
-	{
-		if (node != null)
-		{
-			var nodes = node.getElementsByTagName('mxCell');
-		
-			for (var i = 0; i < nodes.length; i++)
-			{
-				nodes[i].removeAttribute('style');
-				nodes[i].removeAttribute('value');
-				
-				if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName == 'UserObject' &&
-					nodes[i].parentNode.parentNode != null)
-				{
-					nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
-				}
-			}
-		}
-		
-		return node;
 	};
 
 	/**
@@ -4023,17 +3972,29 @@
 		}
 	};
 	
+	EditorUi.prototype.addRadiobox = function(div, radioGroupName, label, checked, disabled, disableNewline, visible)
+	{
+		return this.addCheckbox(div, label, checked, disabled, disableNewline, visible, true, radioGroupName);
+	}
+	
 	/**
 	 * 
 	 */
-	EditorUi.prototype.addCheckbox = function(div, label, checked, disabled, disableNewline, visible)
+	EditorUi.prototype.addCheckbox = function(div, label, checked, disabled, disableNewline, visible, asRadio, radioGroupName)
 	{
 		visible = (visible != null) ? visible : true;
 		
 		var cb = document.createElement('input');
 		cb.style.marginRight = '8px';
 		cb.style.marginTop = '16px';
-		cb.setAttribute('type', 'checkbox');
+		cb.setAttribute('type', asRadio? 'radio' : 'checkbox');
+		var id = "cb" + Math.random();
+		cb.id = id;
+		
+		if (radioGroupName != null)
+		{
+			cb.setAttribute('name', radioGroupName);
+		}
 		
 		if (checked)
 		{
@@ -4050,23 +4011,15 @@
 		{
 			div.appendChild(cb);
 			
-			var span = document.createElement('span');
-			mxUtils.write(span, label);
-			div.appendChild(span);
+			var lbl = document.createElement('label');
+			mxUtils.write(lbl, label);
+			lbl.setAttribute('for', id);
+			div.appendChild(lbl);
 
 			if (!disableNewline)
 			{
 				mxUtils.br(div);
 			}
-			
-			mxEvent.addListener(span, 'click', mxUtils.bind(this, function(evt)
-			{
-				if (cb.getAttribute('disabled') != 'disabled')
-				{
-					cb.checked = !cb.checked;
-					mxEvent.consume(evt);
-				}
-			}));
 		}
 		
 		return cb;
@@ -6239,6 +6192,46 @@
 		}
 	};
 
+	
+	/**
+	 * Imports the given GraphML (yEd) file
+	 */
+	EditorUi.prototype.importGraphML = function(xmlData, done, onerror)
+	{
+		onerror = (onerror != null) ? onerror : mxUtils.bind(this, function(e)
+		{
+			this.handleError(e);
+		});
+		
+		var delayed = mxUtils.bind(this, function()
+		{
+			this.loadingExtensions = false;
+			
+			if (this.doImportGraphML)
+			{
+				
+				try
+				{
+					this.doImportGraphML(xmlData, done, onerror);
+				}
+				catch (e)
+				{
+					onerror(e);
+				}
+			}
+		});
+		
+		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline())
+		{
+			this.loadingExtensions = true;
+			mxscript('js/extensions.min.js', delayed);
+		}
+		else
+		{
+			delayed();
+		}
+	};	
+	
 	/**
 	 * Export the diagram to VSDX
 	 */
@@ -6579,7 +6572,7 @@
 	};
 	
 	/**
-	 * Returns true for Gliffy or GraphML data or .vsdx filenames.
+	 * Returns true for Gliffy
 	 */
 	EditorUi.prototype.isLucidChartData = function(data)
 	{
@@ -6736,17 +6729,11 @@
 					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
-		else if (/(\.*<graphml )/.test(data) && typeof window.mxGraphMlCodec !== 'undefined') 
+		else if (/(\.*<graphml )/.test(data)) 
         {
-            new mxGraphMlCodec().decode(data, mxUtils.bind(this, function(xml)
-            {
-                var importedCells = this.importXml(xml, dx, dy, crop);
-                
-                if (done != null)
-                {
-                    done(importedCells);
-                }
-            }));
+			async = true;
+
+			this.importGraphML(data, handleResult);
         }
 		else if (file != null && filename != null && ((/(\.v(dx|sdx?))($|\?)/i.test(filename)) || /(\.vs(x|sx?))($|\?)/i.test(filename)))
 		{
@@ -9028,6 +9015,14 @@
 							if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
 							{
 								this.importVisio(file, mxUtils.bind(this, function(xml)
+								{
+									this.spinner.stop();
+									handleResult(xml);
+								}));
+							}
+							else if (/(\.*<graphml )/.test(data)) 
+							{
+								this.importGraphML(data, mxUtils.bind(this, function(xml)
 								{
 									this.spinner.stop();
 									handleResult(xml);

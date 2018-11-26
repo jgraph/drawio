@@ -1,3 +1,20 @@
+21-NOV-2018: 9.4.6
+
+- Fixes corrupted chars in XML from JSON backup import
+
+20-NOV-2018: 9.4.5
+
+- Adds 2018 AWS icons
+- Uses mxGraph 3.9.11 beta 5
+
+16-NOV-2018: 9.4.4
+
+- Adds GraphML import
+
+15-NOV-2018: 9.4.3
+
+- Internal release
+
 12-NOV-2018: 9.4.2
 
 - Fixes undoable edit when expanding Advanced sidebar

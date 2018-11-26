@@ -2,7 +2,7 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-DriveFile = function(ui, data, desc, doc)
+DriveFile = function(ui, data, desc, doc, noSync)
 {
 	DrawioFile.call(this, ui, data);
 	
@@ -12,7 +12,20 @@ DriveFile = function(ui, data, desc, doc)
 	{
 		this.realtime = new DriveRealtime(this, doc);
 	}
+	else if (!noSync && DriveFile.SYNC_TYPE != 'none')
+	{
+		this.sync = null; // new FileSync(this);
+	}
 };
+
+/**
+ * Global switch for realtime collaboration type to use:
+ * 
+ * - 'none' means to let the user overwrite/discard changes or create a copy of the file.
+ * - 'sync' means to synchronize changes using a status message and merge remote changes.
+ * - 'realtime' means merging changes in realtime.
+ */
+DriveFile.SYNC_TYPE = 'none';
 
 //Extends mxEventSource
 mxUtils.extend(DriveFile, DrawioFile);
@@ -95,8 +108,21 @@ DriveFile.prototype.isAutosaveOptional = function()
  */
 DriveFile.prototype.isAutosave = function()
 {
-	return this.ui.editor.autosave || (this.realtime != null && this.isAutosaveRevision());
+	return (this.sync == null || !this.sync.inConflictState) &&
+		(this.ui.editor.autosave || (this.realtime != null &&
+		this.isAutosaveRevision()));
 };
+
+/**
+ * Overridden to bypass unsaved status message.
+ */
+DriveFile.prototype.addUnsavedStatus = function(err)
+{
+	if (this.sync == null || !this.sync.inConflictState)
+	{
+		DrawioFile.prototype.addUnsavedStatus.apply(this, arguments);
+	}
+}
 
 /**
  * Returns true if an autosave is required at the time of execution.
@@ -180,6 +206,9 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 	}
 	else if (!this.savingFile)
 	{
+		// Creates ID and secret for file sync cache entry
+		var cacheId = Editor.guid();
+		var secret = Editor.s4() + Editor.s4() + Editor.s4() + Editor.s4() + Editor.s4();
 		var prevModified = this.isModified;
 		var modified = this.isModified();
 		
@@ -195,6 +224,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 		{
 			this.savingFile = true;
+			var snapshot = this.data;
 			
 			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp)
 			{
@@ -212,6 +242,11 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					
 					this.desc = resp;
 					this.contentChanged();
+					
+					if (this.sync != null)
+					{
+						this.sync.fileSaved(cacheId, secret, snapshot);
+					}
 					
 					if (success != null)
 					{
@@ -235,13 +270,17 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					this.isModified = prevModified;
 					this.savingFile = false;
 					
-					if (error != null)
+					if (this.sync != null && this.isConflict(err))
+					{
+						this.sync.fileConflict(success, error);
+					}
+					else if (error != null)
 					{
 						error(err);
 					}
 				});
 				
-				if (this.isConflict(err))
+				if (DriveFile.SYNC_TYPE == 'none' && this.isConflict(err))
 				{
 					this.showConflictDialog(function()
 					{
@@ -257,7 +296,8 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 				{
 					doError();
 				}
-			}), unloading, unloading, realOverwrite);
+			}), unloading, unloading, realOverwrite, (this.sync != null) ?
+				this.sync.createProperties(cacheId, secret) : null);
 		});
 		
 		doSave(overwrite, revision);
@@ -417,6 +457,11 @@ DriveFile.prototype.open = function()
 	else
 	{
 		DrawioFile.prototype.open.apply(this, arguments);
+		
+		if (this.sync != null)
+		{
+			this.sync.start();
+		}
 	}
 };
 
@@ -432,6 +477,12 @@ DriveFile.prototype.close = function(unloading)
 	{
 		this.realtime.destroy(unloading);
 		this.realtime = null;
+	}
+
+	if (this.sync != null)
+	{
+		this.sync.destroy(unloading);
+		this.sync = null;
 	}
 };
 

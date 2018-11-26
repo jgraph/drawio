@@ -37,6 +37,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Atlassian.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3D.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Bootstrap.js');
@@ -80,6 +81,8 @@ mxscript(drawDevUrl + 'js/diagramly/Dialogs.js');
 mxscript(drawDevUrl + 'js/diagramly/Editor.js');
 mxscript(drawDevUrl + 'js/diagramly/EditorUi.js');
 mxscript(drawDevUrl + 'js/diagramly/Settings.js');
+mxscript(drawDevUrl + 'js/diagramly/FileSync.js');
+mxscript(drawDevUrl + 'js/diagramly/DiffSync.js');
 
 // Excluded in base.min.js
 mxscript(drawDevUrl + 'js/diagramly/DrawioClient.js');
@@ -124,3 +127,9 @@ mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
 
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
+
+//Table Layout
+if (urlParams['tableLayout'] == '1')
+{
+  mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
+}

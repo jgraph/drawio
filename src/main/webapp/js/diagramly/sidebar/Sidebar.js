@@ -108,6 +108,13 @@
 	                          'Management Tools', 'Messaging', 'Migration', 'Mobile Services', 'Networking and Content Delivery', 'On Demand Workforce', 'SDKs', 'Security Identity and Compliance', 'Storage'];
 	
 	/**
+	 *
+	 */
+	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups Light', 'Groups Dark', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Business Productivity', 'Compute', 'Customer Engagement',
+							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Development', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Tools',
+							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
+	
+	/**
 	 * 
 	 */
 	Sidebar.prototype.office = ['Clouds', 'Communications', 'Concepts', 'Databases', 'Devices', 'Security', 'Servers', 'Services', 'Sites', 'Users'];
@@ -166,6 +173,7 @@
            	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
            	                           {id: 'aws3', prefix: 'aws3', libs: Sidebar.prototype.aws3},
+           	                           {id: 'aws4', prefix: 'aws4', libs: Sidebar.prototype.aws4},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
@@ -432,8 +440,9 @@
             			          {title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
             			          {title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
-            			entries: [{title: mxResources.get('aws'), id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
+            			entries: [{title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
             			// TODO: Add isometric containers  		                          
+            				      {title: 'AWS18', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
             					  {title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
@@ -851,6 +860,7 @@
 		this.addMSCAEPalette();
 		this.addBpmnPalette(dir, false);
 		this.addAWS3Palette();
+		this.addAWS4Palette();
 		this.addAWS3DPalette();
 		this.addLeanMappingPalette();
 		this.addIos7Palette();
