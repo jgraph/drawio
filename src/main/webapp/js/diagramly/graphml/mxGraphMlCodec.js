@@ -877,8 +877,8 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		"arcSize": 10,
 		"glass": "1",
 		"shadow": "1",
-		"strokeColor": "none",
-		"rotation": -90 //TODO requires rotation!
+		"strokeColor": "none"
+		//,"rotation": -90 //TODO requires rotation!
 	};
 	shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
 	
@@ -1920,7 +1920,7 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
 		else if (desktopEdgeObj)
 		{
 			this.addEdgeStyle(edge, dataObj, style);
-			var absPoints = this.addEdgePath(edge, desktopEdgeObj["y:Path"], style);
+			var absPoints = this.addEdgePath(edge, desktopEdgeObj["y:Path"], style, dx, dy);
 			
 			if (desktopEdgeObj["y:EdgeLabel"])
 				this.addLabels(edge, desktopEdgeObj["y:EdgeLabel"], style, graph, absPoints);
@@ -1984,7 +1984,7 @@ mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy)
 	}
 };
 
-mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style) 
+mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy) 
 {
 	var absPoints = [];
 	if (pathObj)
@@ -1997,11 +1997,11 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 		{
 			style["exitX"] = (srcX + srcGeo.width/2) / srcGeo.width;
 			style["exitY"] = (srcY + srcGeo.height/2) / srcGeo.height;
-			absPoints.push(new mxPoint(srcGeo.x + style["exitX"] * srcGeo.width, srcGeo.y + style["exitY"] * srcGeo.height));
+			absPoints.push(new mxPoint(srcGeo.x + style["exitX"] * srcGeo.width - dx, srcGeo.y + style["exitY"] * srcGeo.height - dy));
 		}
 		else 
 		{
-			absPoints.push(new mxPoint(srcGeo.x + srcGeo.width/2, srcGeo.y + srcGeo.height/2));
+			absPoints.push(new mxPoint(srcGeo.x + srcGeo.width/2 - dx, srcGeo.y + srcGeo.height/2 - dy));
 		}
 
 		var endP = null;
@@ -2010,11 +2010,11 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 		{
 			style["entryX"] = (trgX + trgGeo.width/2) / trgGeo.width;
 			style["entryY"] = (trgY + trgGeo.height/2) / trgGeo.height;
-			endP = new mxPoint(trgGeo.x + style["entryX"] * trgGeo.width, trgGeo.y + style["entryY"] * trgGeo.height);
+			endP = new mxPoint(trgGeo.x + style["entryX"] * trgGeo.width - dx, trgGeo.y + style["entryY"] * trgGeo.height - dy);
 		}
 		else 
 		{
-			endP = new mxPoint(trgGeo.x + trgGeo.width/2, trgGeo.y + trgGeo.height/2);
+			endP = new mxPoint(trgGeo.x + trgGeo.width/2 - dx, trgGeo.y + trgGeo.height/2 - dy);
 		}
 
 		var list = pathObj["y:Point"];
@@ -2030,7 +2030,7 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 			
 			for (var i = 0; i < list.length; i++) 
 			{
-				var p = new mxPoint(parseFloat(list[i].x), parseFloat(list[i].y))
+				var p = new mxPoint(parseFloat(list[i].x) - dx, parseFloat(list[i].y) - dy)
 				points.push(p);
 				absPoints.push(p);
 			}
@@ -2729,7 +2729,7 @@ var mxGraphMlArrowsMap =
 var mxGraphMlShapesMap =
 {
 	"star5": "mxgraph.basic.star;flipV=1", //TODO This is not close enough!
-	"star6": "mxgraph.basic.6_point_star;rotation=30", //TODO requires rotation!
+	"star6": "mxgraph.basic.6_point_star",//;rotation=30", //TODO requires rotation!
 	"star8": "mxgraph.basic.8_point_star",
 	"sheared_rectangle": "parallelogram",
 	"sheared_rectangle2": "parallelogram;flipH=1",
@@ -2742,8 +2742,8 @@ var mxGraphMlShapesMap =
 	"fat_arrow2": "step;perimeter=stepPerimeter;flipH=1",
 	"trapez": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
 	"trapez2": "trapezoid;perimeter=trapezoidPerimeter",
-	"triangle": "triangle;rotation=-90", //TODO requires rotation!
-	"triangle2": "triangle;rotation=90", //TODO requires rotation!
+	"triangle": "triangle",//;rotation=-90", //TODO requires rotation!
+	"triangle2": "triangle",//;rotation=90", //TODO requires rotation!
 	"rectangle": "rect",
 	"rectangle3d": "", //TODO create this shape
 	"roundrectangle": "rect;rounded=1;arcsize=30",
@@ -2758,10 +2758,10 @@ var mxGraphMlShapesMap =
 	"bevelnodewithshadow": "rect;glass=1;shadow=1",
 	"bevelnode2": "rect;glass=1;rounded=1;arcsize=30",
 	"bevelnode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1",
-	"shinyplatenode": "rect;glass=1;rotation=-90",//TODO requires rotation!
-	"shinyplatenodewithshadow": "rect;glass=1;shadow=1;rotation=-90",//TODO requires rotation!
-	"shinyplatenode2": "rect;glass=1;rounded=1;arcsize=30;rotation=-90",//TODO requires rotation!
-	"shinyplatenode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1;rotation=-90",//TODO requires rotation!
+	"shinyplatenode": "rect;glass=1",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenodewithshadow": "rect;glass=1;shadow=1",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenode2": "rect;glass=1;rounded=1;arcsize=30",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1",//;rotation=-90",//TODO requires rotation!
 	//Table
 //	"yed_table_node
 	//flowchart
@@ -2941,11 +2941,11 @@ var mxGraphMlShapesMap =
 	"com.yworks.sbgn.nucleicacidfeature": "", //TODO create this shape!
 	"com.yworks.sbgn.perturbingagent": "", //TODO create this shape!
 	"com.yworks.sbgn.phenotype": "hexagon;perimeter=hexagonPerimeter2;size=0.2",
-	"com.yworks.sbgn.emptyset": "lineEllipse;line=vertical;perimeter=ellipsePerimeter;rotation=45", //TODO create this shape!
+	"com.yworks.sbgn.emptyset": "lineEllipse;line=vertical;perimeter=ellipsePerimeter",//;rotation=45", //TODO create this shape!
 	"com.yworks.sbgn.submap": "",  //TODO create this shape!
 	"com.yworks.sbgn.unitofinformation": "",  //TODO create this shape!
 	"com.yworks.sbgn.statevariable": "mxgraph.flowchart.terminator",
-	"com.yworks.sbgn.tag": "offPageConnector;rotation=90;size=0.25", //TODO create this shape without rotation!
+	"com.yworks.sbgn.tag": "offPageConnector;size=0.25", //;rotation=90", //TODO create this shape without rotation!
 	"com.yworks.sbgn.process": "rect",
 	"com.yworks.sbgn.operator": "ellipse",
 

@@ -45,7 +45,7 @@
 	
 	Sidebar.prototype.addAWS4ArrowsPalette = function(gn, sb)
 	{
-		var dt = 'aws group amazon web service arrows';
+		var dt = 'aws amazon web service arrows';
 		
 		this.addPaletteFunctions('aws4Arrows', 'AWS / Arrows', false,
 		[
@@ -72,7 +72,7 @@
 
 	Sidebar.prototype.addAWS4GeneralResourcesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service general resources';
+		var dt = 'aws amazon web service general resources';
 		
 		this.addPaletteFunctions('aws4General Resources', 'AWS / General Resources', false,
 		[
@@ -119,7 +119,7 @@
 
 	Sidebar.prototype.addAWS4IllustrationsPalette = function(n3, gn, sb)
 	{
-		var dt = 'aws group amazon web service illustrations';
+		var dt = 'aws amazon web service illustrations';
 		
 		this.addPaletteFunctions('aws4Illustrations', 'AWS / Illustrations', false,
 		[
@@ -138,7 +138,7 @@
 
 	Sidebar.prototype.addAWS4GroupsLightPalette = function(n4, gn, sb)
 	{
-		var dt = 'aws group amazon web service groups group light';
+		var dt = 'aws amazon web service groups group light';
 		
 		this.addPaletteFunctions('aws4Groups Light', 'AWS / Groups (light)', false,
 		[
@@ -204,7 +204,7 @@
 
 	Sidebar.prototype.addAWS4AnalyticsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service analytics';
+		var dt = 'aws amazon web service analytics';
 		
 		this.addPaletteFunctions('aws4Analytics', 'AWS / Analytics', false,
 		[
@@ -258,7 +258,7 @@
 
 	Sidebar.prototype.addAWS4ApplicationIntegrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service application integration';
+		var dt = 'aws amazon web service application integration';
 		
 		this.addPaletteFunctions('aws4Application Integration', 'AWS / Application Integration', false,
 		[
@@ -288,7 +288,7 @@
 
 	Sidebar.prototype.addAWS4ARVRPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service ar vr augmented virtual reality';
+		var dt = 'aws amazon web service ar vr augmented virtual reality';
 		
 		this.addPaletteFunctions('aws4AR VR', 'AWS / AR & VR', false,
 		[
@@ -299,7 +299,7 @@
 
 	Sidebar.prototype.addAWS4CostManagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service cost management';
+		var dt = 'aws amazon web service cost management';
 		
 		this.addPaletteFunctions('aws4Cost Management', 'AWS / Cost Management', false,
 		[
@@ -316,7 +316,7 @@
 
 	Sidebar.prototype.addAWS4BusinessProductivityPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service business productivity';
+		var dt = 'aws amazon web service business productivity';
 		
 		this.addPaletteFunctions('aws4Business Productivity', 'AWS / Business Productivity', false,
 		[
@@ -327,7 +327,7 @@
 
 	Sidebar.prototype.addAWS4ComputePalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service compute';
+		var dt = 'aws amazon web service compute';
 		
 		this.addPaletteFunctions('aws4Compute', 'AWS / Compute', false,
 		[
@@ -403,7 +403,7 @@
 
 	Sidebar.prototype.addAWS4CustomerEngagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service customer engagement';
+		var dt = 'aws amazon web service customer engagement';
 		
 		this.addPaletteFunctions('aws4Customer Engagement', 'AWS / Customer Engagement', false,
 		[
@@ -421,7 +421,7 @@
 
 	Sidebar.prototype.addAWS4DatabasePalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service db database';
+		var dt = 'aws amazon web service db database';
 		
 		this.addPaletteFunctions('aws4Database', 'AWS / Database', false,
 		[
@@ -495,7 +495,7 @@
 
 	Sidebar.prototype.addAWS4DesktopAppStreamingPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service db database';
+		var dt = 'aws amazon web service db database';
 		
 		this.addPaletteFunctions('aws4Desktop App Streaming', 'AWS / Desktop & App Streaming', false,
 		[
@@ -506,7 +506,7 @@
 
 	Sidebar.prototype.addAWS4DeveloperToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service dev developer tools';
+		var dt = 'aws amazon web service dev developer tools';
 		
 		this.addPaletteFunctions('aws4Developer Tools', 'AWS / Developer Tools', false,
 		[
@@ -533,7 +533,7 @@
 
 	Sidebar.prototype.addAWS4GameDevelopmentPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service game development';
+		var dt = 'aws amazon web service game development';
 		
 		this.addPaletteFunctions('aws4Game Development', 'AWS / Game Development', false,
 		[
@@ -544,7 +544,7 @@
 
 	Sidebar.prototype.addAWS4InternetOfThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service internet of things iot';
+		var dt = 'aws amazon web service internet of things iot';
 		
 		this.addPaletteFunctions('aws4Internet of Things', 'AWS / Internet of Things', false,
 		[
@@ -569,7 +569,7 @@
 
 	Sidebar.prototype.addAWS4IOTThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service internet of things iot';
+		var dt = 'aws amazon web service internet of things iot';
 		
 		this.addPaletteFunctions('aws4IoT Things', 'AWS / IoT Things', false,
 		[
@@ -612,7 +612,7 @@
 
 	Sidebar.prototype.addAWS4IOTResourcesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service internet of things iot resources';
+		var dt = 'aws amazon web service internet of things iot resources';
 		
 		this.addPaletteFunctions('aws4IoT Resources', 'AWS / IoT Resources', false,
 		[
@@ -669,7 +669,7 @@
 
 	Sidebar.prototype.addAWS4MachineLearningPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service machine learning';
+		var dt = 'aws amazon web service machine learning';
 		
 		this.addPaletteFunctions('aws4Machine Learning', 'AWS / Machine Learning', false,
 		[
@@ -700,7 +700,7 @@
 
 	Sidebar.prototype.addAWS4ManagementToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service management tools';
+		var dt = 'aws amazon web service management tools';
 		
 		this.addPaletteFunctions('aws4Management Tools', 'AWS / Management Tools', false,
 		[
@@ -796,7 +796,7 @@
 
 	Sidebar.prototype.addAWS4MediaServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service media services';
+		var dt = 'aws amazon web service media services';
 		
 		this.addPaletteFunctions('aws4Media Services', 'AWS / Media Services', false,
 		[
@@ -819,7 +819,7 @@
 
 	Sidebar.prototype.addAWS4MigrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service migration';
+		var dt = 'aws amazon web service migration';
 		
 		this.addPaletteFunctions('aws4Migration', 'AWS / Migration', false,
 		[
@@ -842,7 +842,7 @@
 
 	Sidebar.prototype.addAWS4MobileServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service mobile services';
+		var dt = 'aws amazon web service mobile services';
 		
 		this.addPaletteFunctions('aws4Mobile Services', 'AWS / Mobile Services', false,
 		[
@@ -861,7 +861,7 @@
 
 	Sidebar.prototype.addAWS4NetworkContentDeliveryPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service netowrk content delivery';
+		var dt = 'aws amazon web service netowrk content delivery';
 		
 		this.addPaletteFunctions('aws4Network Content Delivery', 'AWS / Network & Content Delivery', false,
 		[
@@ -917,7 +917,7 @@
 
 	Sidebar.prototype.addAWS4SecurityIdentityCompliancePalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service security identity compliance';
+		var dt = 'aws amazon web service security identity compliance';
 		
 		this.addPaletteFunctions('aws4Security Identity Compliance', 'AWS / Security, Identity & Compliance', false,
 		[
@@ -981,7 +981,7 @@
 
 	Sidebar.prototype.addAWS4StoragePalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws group amazon web service storage';
+		var dt = 'aws amazon web service storage';
 		
 		this.addPaletteFunctions('aws4Storage', 'AWS / Storage', false,
 		[

@@ -255,6 +255,7 @@ feedback=feedback
 feedbackSent=feedbackSent
 floorplans=floorplans
 file=file
+fileChangedOverwriteDialog=fileChangedOverwriteDialog
 fileChangedSyncDialog=fileChangedSyncDialog
 fileChangedSync=fileChangedSync
 overwrite=overwrite

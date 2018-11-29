@@ -255,6 +255,7 @@ feedback=‫משוב‬
 feedbackSent=‫המשוב נשלח בהצלחה.‬
 floorplans=‫תכניות קומה‬
 file=‫קובץ‬
+fileChangedOverwriteDialog=‫נערכו שינויים בקובץ. להחליף את השינויים?‬
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=‫להחליף‬

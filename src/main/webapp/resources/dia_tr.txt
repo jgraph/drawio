@@ -255,6 +255,7 @@ feedback=Geri-bildirim
 feedbackSent=Geri-bildirim başarıyla gönderildi.
 floorplans=Kat planları
 file=Dosya
+fileChangedOverwriteDialog=Dosya değiştirildi. Değişiklikleri yinelemek ister misiniz?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Yinele

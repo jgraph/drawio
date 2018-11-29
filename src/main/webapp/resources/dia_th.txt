@@ -255,6 +255,7 @@ feedback=ผลตอบรับ
 feedbackSent=การส่งผลตอบรับเสร็จสมบูรณ์
 floorplans=แปลนอาคาร
 file=ไฟล์
+fileChangedOverwriteDialog=มีการเปลี่ยนแปลงไฟล์แล้ว ต้องการเปลี่ยนแปลงทับหรือไม่
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=เขียนทับ

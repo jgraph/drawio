@@ -32,7 +32,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service analytics';
+		var dt = 'aws amazon web service analytics';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Analytics', 'AWS / Analytics', false,
@@ -89,7 +89,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service app application services';
+		var dt = 'aws amazon web service app application services';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Application Services', 'AWS / Application Services', false,
@@ -114,7 +114,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service ai artificial intelligence';
+		var dt = 'aws amazon web service ai artificial intelligence';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Artificial Intelligence', 'AWS / Artificial Intelligence', false,
@@ -135,7 +135,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service business productivity';
+		var dt = 'aws amazon web service business productivity';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Business Productivity', 'AWS / Business Productivity', false,
@@ -154,7 +154,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service compute';
+		var dt = 'aws amazon web service compute';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Compute', 'AWS / Compute', false,
@@ -261,7 +261,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service contact center';
+		var dt = 'aws amazon web service contact center';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Contact Center', 'AWS / Contact Center', false,
@@ -276,7 +276,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service db database';
+		var dt = 'aws amazon web service db database';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Database', 'AWS / Database', false,
@@ -351,7 +351,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service desktop app streaming application';
+		var dt = 'aws amazon web service desktop app streaming application';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Desktop and App Streaming', 'AWS / Desktop and App Streaming', false,
@@ -368,7 +368,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service dev developer tools';
+		var dt = 'aws amazon web service dev developer tools';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Developer Tools', 'AWS / Developer Tools', false,
@@ -393,7 +393,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service game development';
+		var dt = 'aws amazon web service game development';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Game Development', 'AWS / Game Development', false,
@@ -408,7 +408,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service general';
+		var dt = 'aws amazon web service general';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3General', 'AWS / General', false,
@@ -545,7 +545,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service iot internet of things';
+		var dt = 'aws amazon web service iot internet of things';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Internet of Things', 'AWS / Internet of Things', false,
@@ -644,7 +644,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service management tools';
+		var dt = 'aws amazon web service management tools';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Management Tools', 'AWS / Management Tools', false,
@@ -731,7 +731,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service messaging';
+		var dt = 'aws amazon web service messaging';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Messaging', 'AWS / Messaging', false,
@@ -764,7 +764,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service migration';
+		var dt = 'aws amazon web service migration';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Migration', 'AWS / Migration', false,
@@ -791,7 +791,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service mobile services';
+		var dt = 'aws amazon web service mobile services';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Mobile Services', 'AWS / Mobile Services', false,
@@ -816,7 +816,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service network and content delivery';
+		var dt = 'aws amazon web service network and content delivery';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Networking and Content Delivery', 'AWS / Network and Content Delivery', false,
@@ -877,7 +877,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service on demand workforce';
+		var dt = 'aws amazon web service on demand workforce';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3On Demand Workforce', 'AWS / On-Demand Workforce', false,
@@ -900,7 +900,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service sdk software development kit';
+		var dt = 'aws amazon web service sdk software development kit';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3SDKs', 'AWS / SDK', false,
@@ -941,7 +941,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service security and identity compliance';
+		var dt = 'aws amazon web service security and identity compliance';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Security Identity and Compliance', 'AWS / Security Identity and Compliance', false,
@@ -1004,7 +1004,7 @@
 		var sb = this;
 		var n = 'outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws3.";
 		var gn = 'mxgraph.aws3';
-		var dt = 'aws group amazon web service storage';
+		var dt = 'aws amazon web service storage';
 		var s = 1.5; //scale
 		
 		this.addPaletteFunctions('aws3Storage', 'AWS / Storage', false,

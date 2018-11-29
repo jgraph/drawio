@@ -255,6 +255,7 @@ feedback=Κριτική
 feedbackSent= Η κριτική απεστάλη επιτυχώς.
 floorplans=Κατόψεις
 file=Αρχείο
+fileChangedOverwriteDialog=Το αρχείο τροποποιήθηκε. Θέλετε να αντικατασταθούν οι αλλαγές;
 fileChangedSyncDialog=Το αρχείο τροποποιήθηκε. Θέλετε να αντικατασταθούν οι αλλαγές;
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Αντικατάσταση

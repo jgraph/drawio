@@ -255,6 +255,7 @@ feedback=‫نظر‬
 feedbackSent=‫نظرات با موفقیت ارسال شد.‬
 floorplans=‫طرح کف‬
 file=‫فایل‬
+fileChangedOverwriteDialog=‫فایل تغییر داده شده است. این تغییرات بر روی نسخه فعلی ذخیره شود؟ ‬
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=‫ذخیره بر روی نسخه فعلی‬

@@ -255,6 +255,7 @@ feedback=Opinió
 feedbackSent=S'ha enviat la seva opinió correctament.
 floorplans=Plànols
 file=Fitxer
+fileChangedOverwriteDialog=El fitxer s'ha modificat. Sobreescriure els canvis?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Sobreescriure

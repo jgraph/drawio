@@ -255,6 +255,7 @@ feedback=Povratna informacija
 feedbackSent=Povratna informacija uspješno poslata.
 floorplans=Tlocrt
 file=Fajl
+fileChangedOverwriteDialog=Fajl izmjenjen. Piši preko izmjena. 
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Piši preko
