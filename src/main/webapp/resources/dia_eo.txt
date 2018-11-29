@@ -255,6 +255,7 @@ feedback=Feedback
 feedbackSent=Feedback successfully sent.
 floorplans=Floorplans
 file=Dosiero
+fileChangedOverwriteDialog=The file has been modified. Do you want to save the file and overwrite those changes?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Overwrite

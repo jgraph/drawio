@@ -255,6 +255,7 @@ feedback=Tagasiside
 feedbackSent=Tagasiside edukalt saadetud.
 floorplans=Plaanid
 file=Fail
+fileChangedOverwriteDialog=Faili muudeti. Kirjutab muudatused üle?
 fileChangedSyncDialog=Faili on muudetud. Kas soovid need muudatused ühildada?
 fileChangedSync=Faili on muudetud. Kliki siin et muudatused ühildada.
 overwrite=Kirjuta üle

@@ -255,6 +255,7 @@ feedback=Feedback
 feedbackSent=Su opinión ha sido enviada exitosamente.
 floorplans=Planos
 file=Archivo
+fileChangedOverwriteDialog=El archivo fue cambiado. ¿Sobrescribir los cambios?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Sobrescribir

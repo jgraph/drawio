@@ -255,6 +255,7 @@ feedback=Обратна връзка
 feedbackSent=Обратната връзка е изпратена успешно.
 floorplans=План на помещенията
 file=Файл
+fileChangedOverwriteDialog=Файлът беше променен. Презаписване на промените?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Презаписване

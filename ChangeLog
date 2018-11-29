@@ -1,3 +1,10 @@
+28-NOV-2018: 9.4.7
+
+- Adds multiple page PDF export option
+- GraphML import improvements
+- Adds addition IBM cloud stencils
+- Adds Data Flow Diagram stencils
+
 21-NOV-2018: 9.4.6
 
 - Fixes corrupted chars in XML from JSON backup import

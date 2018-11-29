@@ -255,6 +255,7 @@ feedback=Opmerkingen
 feedbackSent=Opmerkingen verstuurd.
 floorplans=Plattegronden
 file=Bestand
+fileChangedOverwriteDialog=Bestand is gewijzigd. Wijzigingen overschrijven?
 fileChangedSyncDialog=Het bestand is gewijzigd. Wilt u deze aanpassingen synchroniseren?
 fileChangedSync=Het bestand is gewijzigd. Wilt u deze aanpassingen synchroniseren?
 overwrite=Overschrijven

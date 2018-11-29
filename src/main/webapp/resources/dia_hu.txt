@@ -255,6 +255,7 @@ feedback=Visszajelzés
 feedbackSent=Visszajelzés sikeresen elküldve.
 floorplans=Alaprajzok
 file=Fájl
+fileChangedOverwriteDialog=A fájl megváltozott. Átírja a változásokat?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Átír

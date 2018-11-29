@@ -255,6 +255,7 @@ feedback=Feedback
 feedbackSent=Feedback enviado com sucesso.
 floorplans=Plantas
 file=Ficheiro
+fileChangedOverwriteDialog=Ficheiro foi modificado. Sobrepor modificações?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Sobrepor

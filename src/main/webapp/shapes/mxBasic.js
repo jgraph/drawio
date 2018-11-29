@@ -2690,7 +2690,7 @@ function mxShapeBasicRect2(bounds, fill, stroke, strokewidth)
 */
 mxUtils.extend(mxShapeBasicRect2, mxActor);
 
-mxShapeBasicRect2.prototype.cst = {DIAG_ROUND_RECT : 'mxgraph.basic.rect'};
+mxShapeBasicRect2.prototype.cst = {RECT2 : 'mxgraph.basic.rect'};
 
 mxShapeBasicRect2.prototype.customProperties = [
 	{name: 'rectStyle', dispName: 'Style', type: 'enum', defVal:'square',
@@ -2711,6 +2711,14 @@ mxShapeBasicRect2.prototype.customProperties = [
 			{val:'frame', dispName:'Frame'}
 		]},
 	{name: 'fillColor2', dispName:'Inside Fill Color', type:'color', defVal:'none'},
+	{name: 'gradientColor2', dispName:'Inside Gradient Color', type:'color', defVal:'none'},
+	{name: 'gradientDirection2', dispName: 'Inside Gradient Direction', type: 'enum', defVal:'south',
+		enumList:[
+			{val:'south', dispName:'South'},
+			{val:'west', dispName:'West'},
+			{val:'north', dispName:'North'},
+			{val:'east', dispName:'East'}
+	]},
 	{name: 'top', dispName:'Top Line', type:'bool', defVal:true},
 	{name: 'right', dispName:'Right', type:'bool', defVal:true},
 	{name: 'bottom', dispName:'Bottom Line', type:'bool', defVal:true},
@@ -2800,6 +2808,9 @@ mxShapeBasicRect2.prototype.paintVertexShape = function(c, x, y, w, h)
 	var bottomLeftStyle = mxUtils.getValue(this.style, 'bottomLeftStyle', 'default');
 	var fillColor = mxUtils.getValue(this.style, 'fillColor', 'none');
 	var fillColor2 = mxUtils.getValue(this.style, 'fillColor2', 'none');
+	var gradientColor2 = mxUtils.getValue(this.style, 'gradientColor2', 'none');
+	var gdir2 = mxUtils.getValue(this.style, 'gradientDirection2', 'south');
+	var opacity = mxUtils.getValue(this.style, 'opacity', '100');
 	
 	if ((top || right || bottom || left) && rectOutline != 'frame')
 	{
@@ -2850,6 +2861,21 @@ mxShapeBasicRect2.prototype.paintVertexShape = function(c, x, y, w, h)
 		//inner fill
 		var fillColor2 = mxUtils.getValue(this.style, 'fillColor2', 'none');
 		c.setFillColor(fillColor2);
+		var op1 = opacity;
+		var op2 = opacity;
+		
+		if (fillColor2 == 'none')
+		{
+			op1 = 0;
+		}
+		
+		if (gradientColor2 == 'none')
+		{
+			op2 = 0;
+		}
+		
+		
+		c.setGradient(fillColor2, gradientColor2, 0, 0, w, h, gdir2, op1, op2);
 		
 		c.begin();
 
@@ -4122,7 +4148,7 @@ mxShapeBasicRect2.prototype.paintFolds = function(c, x, y, w, h, rectStyle, topL
 	}
 };
 
-mxCellRenderer.registerShape(mxShapeBasicRect2.prototype.cst.DIAG_ROUND_RECT, mxShapeBasicRect2);
+mxCellRenderer.registerShape(mxShapeBasicRect2.prototype.cst.RECT2, mxShapeBasicRect2);
 
 mxShapeBasicRect2.prototype.constraints = null;
 

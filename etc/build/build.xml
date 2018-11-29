@@ -119,6 +119,7 @@
 				<file name="Sidebar-Cabinet.js" />
 				<file name="Sidebar-CiscoSafe.js" />
 				<file name="Sidebar-Citrix.js" />
+				<file name="Sidebar-DFD.js" />
 				<file name="Sidebar-EIP.js" />
 				<file name="Sidebar-Electrical.js" />
 				<file name="Sidebar-ER.js" />

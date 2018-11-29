@@ -255,6 +255,7 @@ feedback=Commentaire
 feedbackSent=Commentaire envoyé.
 floorplans=Plans de sol
 file=Fichier
+fileChangedOverwriteDialog=Le fichier a été modifié. Ecraser les changements ?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Ecraser

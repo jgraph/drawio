@@ -255,6 +255,7 @@ feedback=Feedback
 feedbackSent=Feedback inviato con successo
 floorplans=Piantine
 file=File
+fileChangedOverwriteDialog=Il file è stato cambiato. Vuoi sovrascrivere le modifiche?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Sovrascrivi

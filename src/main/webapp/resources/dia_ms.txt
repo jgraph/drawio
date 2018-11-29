@@ -255,6 +255,7 @@ feedback=Maklum balas
 feedbackSent=Maklum balas berjaya dihantar.
 floorplans=Pelan lantai
 file=Fail
+fileChangedOverwriteDialog=Fail telah diubah. Tulis ganti perubahan?
 fileChangedSyncDialog=The file has been modified. Do you want to synchronize those changes?
 fileChangedSync=The file has been modified. Click here to synchronize.
 overwrite=Tulis ganti
