@@ -393,7 +393,7 @@ public class GliffyDiagramConverter
 				double rads = Math.toRadians(object.rotation);
 				double cos = Math.cos(rads);
 				double sin = Math.sin(rads);
-				waypoint = Utils.getRotatedPoint(waypoint, cos, sin, pivot);
+				waypoint = mxUtils.getRotatedPoint(waypoint, cos, sin, pivot);
 			}
 
 			mxPoints.add(waypoint);

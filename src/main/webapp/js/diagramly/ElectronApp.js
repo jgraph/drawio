@@ -455,7 +455,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			{
 				var library = new LocalLibrary(this, data, fileEntry.name);
 				library.fileObject = fileEntry;
-				library.stat = stat;
 				this.loadLibrary(library);
 			}
 			catch (e)
@@ -478,8 +477,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
         {
 			this.readGraphFile(fn, mxUtils.bind(this, function(err)
 			{
-				this.ui.handleError(err);
+				this.handleError(err);
 			}), paths[0]);
+        }
+        else
+        {
+        	this.spinner.stop();
         }
 	};
 
@@ -660,7 +663,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	LocalFile.prototype.isConflict = function(stat)
 	{
-		return stat.mtimeMs != this.stat.mtimeMs;
+		return stat != null && this.stat != null && stat.mtimeMs != this.stat.mtimeMs;
 	};
 	
 	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
@@ -733,7 +736,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					{
 						fs.stat(this.fileObject.path, mxUtils.bind(this, function(err, stat)
 						{
-							if (stat != null && this.isConflict(stat))
+							if (this.isConflict(stat))
 							{
 								this.inConflictState = true;
 								errorWrapper();
@@ -779,6 +782,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					this.fileObject.type = 'utf-8';
 					fn();
 				}
+		        else
+		        {
+	            	this.ui.spinner.stop();
+		        }
 			}
 			else
 			{
