@@ -17,9 +17,94 @@
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
-	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname) &&
+	EditorUi.enableLogging = urlParams['stealth'] != '1' &&
+		/.*\.draw\.io$/.test(window.location.hostname) &&
 		window.location.hostname != 'support.draw.io';
 	
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.lastErrorMessage = null;
+	
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.logError = function(message, url, linenumber, colno, err)
+	{
+		if (EditorUi.enableLogging)
+		{
+			try
+			{
+				if (message == EditorUi.lastErrorMessage || (message != null && url != null &&
+					((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+				{
+					// TODO log external domain script failure "Script error." is
+					// reported when the error occurs in a script that is hosted
+					// on a domain other than the domain of the current page
+				}
+				// DocumentClosedError seems to be an FF bug an can be ignored for now
+				else if (message != null && message.indexOf('DocumentClosedError') < 0)
+				{
+					EditorUi.lastErrorMessage = message;
+					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
+						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
+						'CONFIG' : 'SEVERE';
+					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+
+					var img = new Image();
+					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+		    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+				}
+			}
+			catch (err)
+			{
+				// do nothing
+			}
+		}
+	};
+	
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.logEvent = function(data)
+	{
+		if (EditorUi.enableLogging)
+		{
+			try
+			{
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+				var img = new Image();
+				img.src = logDomain + '/images/1x1.png?' +
+						'v=' + encodeURIComponent(EditorUi.VERSION) +
+						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
+	    	}
+			catch (e)
+			{
+	    			// ignore
+			}
+		}
+	};
+
+	/**
+	 * Adds the listener for automatically saving the diagram for local changes.
+	 */
+	EditorUi.debug = function()
+	{
+		if (window.console != null && urlParams['test'] == '1')
+		{
+			var args = [new Date().toISOString()];
+			
+			for (var i = 0; i < arguments.length; i++)
+		    {
+				args.push(arguments[i]);
+		    }
+		    
+			console.log.apply(console, args);
+		}
+	};
+
 	/**
 	 * Specifies the URL for the templates index file.
 	 */
@@ -336,7 +421,12 @@
 						mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
 					}
 					
-					status.innerHTML = label + '...';
+					if (label.substring(label.length - 3, label.length) != '...')
+					{
+						label = label + '...';
+					}
+					
+					status.innerHTML = label;
 					container.appendChild(status);
 					spinner.status = status;
 					
@@ -696,10 +786,19 @@
 			
 			if (!compact)
 			{
-				fileNode.setAttribute('userAgent', navigator.userAgent);
+				// Removes old metadata
+				fileNode.removeAttribute('userAgent');
+				fileNode.removeAttribute('version');
+				fileNode.removeAttribute('editor');
+				fileNode.removeAttribute('type');
+				
+				// Adds new metadata
+				fileNode.setAttribute('modified', new Date().toISOString());
+				fileNode.setAttribute('host', window.location.hostname);
+				fileNode.setAttribute('agent', navigator.userAgent);
 				fileNode.setAttribute('version', EditorUi.VERSION);
-				fileNode.setAttribute('editor', 'www.draw.io');
-		
+				fileNode.setAttribute('etag', Editor.guid());
+				
 				var md = (file != null) ? file.getMode() : this.mode;
 				
 				if (md != null)
@@ -775,11 +874,22 @@
 						var temp = enc.encode(mapping.graphModel);
 					
 						// Uses the graph state from the realtime model
-						mapping.writeRealtimeToNode(temp);					
+						mapping.writeRealtimeToNode(temp);
 						mxUtils.setTextContent(this.pages[i].node, this.editor.graph.compressNode(temp));
 						
 						// Marks the page as up-to-date
 						mapping.needsUpdate = false;
+					}
+					else if (this.currentPage != this.pages[i] && this.pages[i].needsUpdate)
+					{
+						var enc = new mxCodec(mxUtils.createXmlDocument());
+						var temp = enc.encode(new mxGraphModel(this.pages[i].root));
+						this.editor.graph.saveViewState(this.pages[i].viewState, temp);
+						mxUtils.setTextContent(this.pages[i].node,
+							this.editor.graph.compressNode(temp));
+						
+						// Marks the page as up-to-date
+						delete this.pages[i].needsUpdate;
 					}
 					
 					node.appendChild(this.pages[i].node);
@@ -788,6 +898,49 @@
 		}
 		
 		return node;
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.synchronizeCurrentFile = function(forceReload)
+	{
+		var currentFile = this.getCurrentFile();
+		
+		if (currentFile != null)
+		{
+			if (currentFile.savingFile)
+			{
+				this.handleError({message: mxResources.get('busy')});
+			}
+			else if (!forceReload && currentFile.invalidChecksum)
+			{
+				currentFile.handleFileError(null, true);
+			}
+			else if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
+			{
+				currentFile.clearAutosave();
+				this.editor.setStatus('');
+				
+				if (forceReload)
+				{
+					currentFile.reloadFile();
+				}
+				else
+				{
+					currentFile.synchronizeFile(mxUtils.bind(this, function()
+					{
+						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
+					}), mxUtils.bind(this, function(err)
+					{
+						currentFile.handleFileError(err, true);
+					}));
+				}
+			}
+		}
 	};
 	
 	/**
@@ -1022,6 +1175,13 @@
 					// Wraps page nodes
 					for (var i = 0; i < nodes.length; i++)
 					{
+						// Adds page ID based on page order to match
+						// remote IDs given if IDs are missing here
+						if (nodes[i].getAttribute('id') == null)
+						{
+							nodes[i].setAttribute('id', i);
+						}
+						
 						var page = new DiagramPage(nodes[i]);
 						
 						// Checks for invalid page names
@@ -1420,6 +1580,7 @@
 	EditorUi.prototype.updateDiagram = function(xml)
 	{
 		var doc = null;
+		var ui = this;
 		
 		function createOverlay(desc)
 		{
@@ -1429,7 +1590,7 @@
 			// Installs a handler for clicks on the overlay
 			overlay.addListener(mxEvent.CLICK, function(sender, evt)
 			{
-				editorUi.alert(desc.tooltip);
+				ui.alert(desc.tooltip);
 			});
 			
 			return overlay;
@@ -1768,7 +1929,7 @@
 				// DescriptorChanged updates the enabled state of the graph
 				this.setGraphEnabled(true);
 				this.setMode(file.getMode());
-				// this.editor.graph.model.prefix = Editor.guid() + '-';
+				this.editor.graph.model.prefix = Editor.guid() + '-';
 				this.editor.undoManager.clear();
 				this.descriptorChanged();
 				this.updateUi();
@@ -1814,10 +1975,12 @@
 
 				if (!this.isOffline() && file.getMode() != null)
 				{
-					this.logEvent({category: 'File', action: 'open', label: file.getMode()})
+					EditorUi.logEvent({category: 'File', action: 'open', label:
+						file.getMode() + '.' + file.getSize()})
 				}
 				
-				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
+				if (this.editor.editable && this.mode == file.getMode() &&
+					file.getMode() != App.MODE_DEVICE && file.getMode() != null)
 				{
 					try
 					{
@@ -1849,19 +2012,19 @@
 				
 				if (EditorUi.enableLogging && !this.isOffline())
 				{
-			        	try
-			        	{
+		        	try
+		        	{
 						var img = new Image();
 						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-				    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
-			    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-			    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
-			        	}
-			        	catch (e)
-			        	{
-			        		// ignore
-			        	}
+				    	img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
+				   			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
+			    			((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
+			    			((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+		        	}
+		        	catch (e)
+		        	{
+		        		// ignore
+		        	}
 				}
 				
 				// Asynchronous handling of errors
@@ -1960,31 +2123,28 @@
 	/**
 	 * Creates a hash value for the current file.
 	 */
-	EditorUi.prototype.getCurrentFileHashValue = function()
+	EditorUi.prototype.getHashValueForPages = function(pages)
 	{
-		return this.hashValue((this.pages != null) ? this.pages : this.editor.graph.model.root, function(obj, key, isXmlNode)
+		// FIXME: Workaround for object hash too detailed
+		var hash = 0;
+		var model = new mxGraphModel();
+		var codec = new mxCodec();
+		
+		for (var i = 0; i < pages.length; i++)
 		{
-			if (isXmlNode)
-			{
-				return obj.getAttribute(key);
-			}
-			else if (obj.constructor === mxCell && (key === 'source' || key === 'target'))
-			{
-				var cell = obj[key];
-				
-				return (cell != null && cell.id != null) ? cell.id : null;
-			}
-			else if (key !== 'mxObjectId' && key !== 'mxTransient' &&
-				(obj.constructor !== mxCell || (key !== 'parent' && key !== 'rtCell')) &&
-				(obj.constructor !== DiagramPage || key === 'root'))
-			{
-				return obj[key];
-			}
-			else
-			{
-				return null;
-			}
-		});
+			this.updatePageRoot(pages[i]);
+			var diagram = pages[i].node.cloneNode(false);
+			
+			// Model is only a holder for the root
+			model.root = pages[i].root;
+			var xmlNode = codec.encode(model);
+			this.editor.graph.saveViewState(pages[i].viewState, xmlNode, true);
+			diagram.appendChild(xmlNode);
+			
+			hash = ((hash << 5) - hash + this.hashValue(diagram)) << 0;
+		}
+		
+		return hash;
 	};
 	
 	/**
@@ -2018,27 +2178,9 @@
 			
 			for (var i = 0; i < obj.children.length; i++)
 			{
-				hash = hash ^ this.hashValue(obj.children[i], replacer);
+				hash = ((hash << 5) - hash + this.hashValue(obj.children[i], replacer)) << 0;
 			}
 		}
-		else if (typeof obj === 'object' || typeof obj === 'array')
-    	{
-			for (var key in obj)
-		    {
-				var value = (replacer != null) ? replacer(obj, key) : obj[key];
-				
-				if (value != null && key == 'rtCell')
-				{
-					value = null;
-				}
-				
-				if (value != null)
-				{
-					hash = hash ^ this.hashValue(String(key), replacer) ^
-						this.hashValue(value, replacer);
-				}
-		    }
-    	}
 		else if (obj != null && typeof obj !== 'function')
 		{
 			var str = String(obj);
@@ -2062,46 +2204,27 @@
 	{
 		// empty
 	};
-	
-	/**
-	 * Updates action states depending on the selection.
-	 */
-	EditorUi.prototype.logEvent = function(data)
-	{
-		if (EditorUi.enableLogging)
-		{
-			try
-			{
-				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				var img = new Image();
-				img.src = logDomain + '/images/1x1.png?' +
-						'v=' + encodeURIComponent(EditorUi.VERSION) +
-						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
-	    	}
-			catch (e)
-			{
-	    			// ignore
-			}
-		}
-	};
 
 	/**
 	 * Debug output.
 	 */
 	EditorUi.prototype.sendReport = function(data, maxLength)
 	{
-		maxLength = (maxLength != null) ? maxLength : 3000000;
-		
 		try
 		{
-			if (data.length > maxLength)
+			if (!this.isOffline())
 			{
-				data = data.substring(0, maxLength) + '\n...[SHORTENED]'
+				maxLength = (maxLength != null) ? maxLength : 3000000;
+
+				if (data.length > maxLength)
+				{
+					data = data.substring(0, maxLength) + '\n...[SHORTENED]'
+				}
+				
+				mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
+					'&url=' + encodeURIComponent(window.location.href) +
+					'&data=' + encodeURIComponent(data));
 			}
-			
-			mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
-				'&url=' + encodeURIComponent(window.location.href) +
-				'&data=' + encodeURIComponent(data));
 		}
 		catch (e)
 		{
@@ -2110,23 +2233,14 @@
 	};
 
 	/**
-	 * Updates action states depending on the selection.
+	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.restoreLibraries = function()
-	{
-		// hook for subclassers
-	};
+	EditorUi.prototype.restoreLibraries = function() { };
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
-	{
-		// hook for subclassers
-	};
+	EditorUi.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn) { };
 	
 	/**
 	 * 
@@ -3009,7 +3123,6 @@
 			Dialog.backdropColor = '#2a2a2a';
 	    		Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
-			Graph.prototype.defaultGraphBackground = null;
 			Graph.prototype.defaultPageBorderColor = '#505759';
 		    Graph.prototype.svgShadowColor = '#e0e0e0';
 		    Graph.prototype.svgShadowOpacity = '0.6';
@@ -3366,6 +3479,22 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
+	EditorUi.prototype.showTextDialog = function(title, text)
+	{
+    	var dlg = new TextareaDialog(this, title, text, null, null, mxResources.get('close'));
+    	dlg.textarea.style.width = '600px';
+    	dlg.textarea.style.height = '380px';
+		this.showDialog(dlg.container, 620, 460, true, true);
+		dlg.init();
+		document.execCommand('selectall', false, null);
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
 	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
 		// Newer versions of IE
@@ -3395,13 +3524,7 @@
 		}
 		else if (mxClient.IS_IOS)
 		{
-			// Poor man's saveAs in iOS via context menu of selected output
-		    	var dlg = new TextareaDialog(this, filename + ':', data, null, null, mxResources.get('close'));
-		    	dlg.textarea.style.width = '600px';
-		    	dlg.textarea.style.height = '380px';
-				this.showDialog(dlg.container, 620, 460, true, true);
-				dlg.init();
-				document.execCommand('selectall', false, null);
+			this.showTextDialog(filename + ':', data);
 		}
 		else
 		{
@@ -3988,7 +4111,7 @@
 		cb.style.marginRight = '8px';
 		cb.style.marginTop = '16px';
 		cb.setAttribute('type', asRadio? 'radio' : 'checkbox');
-		var id = "cb" + Math.random();
+		var id = 'cb' + Math.random();
 		cb.id = id;
 		
 		if (radioGroupName != null)
@@ -4741,8 +4864,9 @@
 		div.appendChild(borderInput);
 		mxUtils.br(div);
 		
+		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
-			graph.background == mxConstants.NONE || graph.background == null, null, null, format != 'jpeg');
+			defaultTransparent, null, null, format != 'jpeg');
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
 			false, graph.isSelectionEmpty());
 
@@ -6074,7 +6198,6 @@
 								if (page.getName() == null)
 								{
 									page.setName(mxResources.get('pageWithNumber', [index + 1]));
-									page.needsUpdate = true;
 								}
 								
 								graph.model.execute(new ChangePage(this, page, page, index));
@@ -6192,7 +6315,6 @@
 		}
 	};
 
-	
 	/**
 	 * Imports the given GraphML (yEd) file
 	 */
@@ -7780,7 +7902,7 @@
 			
 		    if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 			{
-		    	this.altShiftActions[82] = 'refresh'; // Alt+Shift+R
+		    	this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
 			}
 		    
 			// Handles copy paste of images from clipboard
@@ -8376,9 +8498,25 @@
 			    evt.preventDefault();
 			}), false);
 		}
-
-		this.initPages();
 		
+		this.initPages();
+
+		// Installs listener for fixing references in undo history in
+		// collaborative editing where terminals may have vanished
+	    // Undo/Redo listener to update edit's references before executing undo/redo
+	    this.editUpdateListener = mxUtils.bind(this, function(sender, evt)
+	    {
+	    	var edit = evt.getProperty('edit');
+	    	    
+	    	if (edit != null)
+	    	{
+	    		this.updateEditReferences(edit);
+	    	}
+	    });
+	    
+	    this.editor.undoManager.addListener(mxEvent.BEFORE_UNDO, this.editUpdateListener);
+	    this.editor.undoManager.addListener(mxEvent.BEFORE_REDO, this.editUpdateListener);
+
 		// Embedded mode
 		if (urlParams['embed'] == '1')
 		{
@@ -11130,6 +11268,12 @@
 
 	EditorUi.prototype.destroy = function()
 	{
+		if (this.editUpdateListener)
+		{
+			this.editor.undoManager.removeListener(this.editUpdateListener);	
+			this.editUpdateListener = null;
+		}
+
 		if (this.exportDialog != null)
 		{
 			this.exportDialog.parentNode.removeChild(this.exportDialog);
@@ -11187,5 +11331,86 @@
 			}
 		};
 	}
+
+	/*********************************************************************************************
+	 * This section is a fix for undo/redo edits having stale 1st- and 2nd-order references      *
+	 * The code might be reworked or even thrown out when a conceptually nicer solution is found *
+	 *********************************************************************************************/
+
+	/**
+	 * Updates all references in all edits and their changes in order to correspond to current model
+	 */
+	EditorUi.prototype.updateEditReferences = function(edit)
+	{
+	    var tempCodec = new mxCodec();
+	    tempCodec.ui = this;
+
+        for (var i = 0; i < edit.changes.length; i++)
+        {
+            var change = edit.changes[i];
+            
+            if (change != null && change.constructor == mxChildChange)
+            {
+                if (change.child != null)
+                {
+                    var child = change.child;
+                    
+                    if (child.source != null)
+                    {
+                        var modelSource = this.getFutureCellForEdit(change.model, edit, child.source.id);
+                        
+                        if (modelSource != child.source)
+                        {
+                            child.source = modelSource
+                        }
+                    }
+                    
+                    if (child.target != null)
+                    {
+                        var modelTarget = this.getFutureCellForEdit(change.model, edit, child.target.id);
+
+                        if (modelTarget != child.target)
+                        {
+                            child.target = modelTarget
+                        }
+                    }
+                }
+            }
+        }
+	};
+
+	/**
+	 * Looks ahead in edit's changes to see if the last child change containing ID is one that creates a cell, then returns it.
+	 * If cell already exists in a model, returns it first.
+	 */
+	EditorUi.prototype.getFutureCellForEdit = function(model, edit, id)
+	{
+		var result = model.getCell(id);
+		if (result == null)
+		{
+			// scan changes backwards
+			for (var i = edit.changes.length - 1; i >= 0; i--)
+			{
+				var change = edit.changes[i];
+				
+				if (change.constructor == mxChildChange)
+				{
+					// found a child change introducing a cell with sought ID?
+					if (change.child != null && change.child.id == id)
+					{
+						// is cell not being deleted?
+						if (change.previous != null)
+						{
+							result = change.child;
+						}
+						
+						// stop scan in any case, at the end of the edit the cell will either added or deleted
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	};
 
 })();

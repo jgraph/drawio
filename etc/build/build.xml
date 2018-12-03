@@ -258,7 +258,9 @@
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
 				<file name="Settings.js" />
+				<file name="DrawioFileSync.js" />
 				<file name="App.js" />
 				<file name="Menus.js" />
 				<file name="Pages.js" />
@@ -275,6 +277,7 @@
 		<concat destfile="${basedir}/base.min.js" fixlastline="yes" append="no">
 			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
@@ -313,7 +316,9 @@
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
 				<file name="Settings.js" />
+				<file name="DrawioFileSync.js" />
 			</sources>
 				
 			<sources dir="${basedir}">
@@ -361,6 +366,7 @@
 		<concat destfile="${war.dir}/js/app.min.js" fixlastline="yes" append="no">
 			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>

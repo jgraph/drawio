@@ -165,11 +165,11 @@ ChatWindow.prototype.collaboratorListener = function(evt)
 	
 	if (evt.type == gapi.drive.realtime.EventType.COLLABORATOR_JOINED)
 	{
-		msg = '<span style="color : ' + evt.collaborator.color + ';">&#x25B2</span>' + '<i>' + mxResources.get('chatJoined', [evt.collaborator.displayName]) + '</i>';
+		msg = '<span style="color : ' + evt.collaborator.color + ';">&#x25B2</span>' + '<i>' + mxResources.get('userJoined', [evt.collaborator.displayName]) + '</i>';
 	}
 	else if (evt.type == gapi.drive.realtime.EventType.COLLABORATOR_LEFT)
 	{
-		msg = '<span style="color : ' + evt.collaborator.color + ';">&#x25BC</span>' + '<i>' + mxResources.get('chatLeft', [evt.collaborator.displayName]) + '</i>';
+		msg = '<span style="color : ' + evt.collaborator.color + ';">&#x25BC</span>' + '<i>' + mxResources.get('userLeft', [evt.collaborator.displayName]) + '</i>';
 	}
 	else
 	{

@@ -1208,7 +1208,7 @@ DriveRealtime.prototype.installGraphModelListener = function()
 								mxUtils.htmlEntities(mxResources.get('noResponse')) +
 								' <a href="https://desk.draw.io/support/solutions/articles/16000076743" target="_blank"><img border="0" ' +
 								'title="' + mxUtils.htmlEntities(mxResources.get('help')) + '" valign="bottom" src="' +
-								Editor.helpImage + '"/></a></div>');
+								Editor.helpImage + '" style="opacity:0.5;width:16px;height:16px;"/></a></div>');
 						}	
 						
 						this.isAliveThread = window.setTimeout(mxUtils.bind(this, function()
@@ -1253,48 +1253,25 @@ DriveRealtime.prototype.timeoutError = function()
 	}
 	else if (this.connected && !this.timeoutErrorShowing)
 	{
-		// Checks if we're actually online by retrieving an image
-		var img = new Image();
+		// LATER: How to reload realtime document without refreshing the page
+		this.timeoutErrorShowing = true;
 		
-		img.onload = mxUtils.bind(this, function()
+		this.ui.showError(mxResources.get('timeout'), mxResources.get('realtimeTimeout'), mxResources.get('discardChangesAndReconnect'), mxUtils.bind(this, function()
 		{
-			try
-			{
-				var email = this.ui.drive.getUser().email || 'Unknown email';
-				var desc = this.file.desc;
-	
-				this.ui.logEvent({category: 'Disconnected', action: email, label: {id: desc.id, editable: desc.editable,
-					copyable: desc.copyable, labels: desc.labels, capabilities: desc.capabilities, fileSize: desc.fileSize,
-					teamDriveId: desc.teamDriveId, fileExtension: desc.fileExtension, mimeType: desc.mimeType,
-					explicitlyTrashed: desc.explicitlyTrashed, autosave: this.ui.editor.autosave}});
-			}
-			catch (e)
-			{
-				// ignore
-			}
-
-			// LATER: How to reload realtime document without refreshing the page
-			this.timeoutErrorShowing = true;
-			
-			this.ui.showError(mxResources.get('timeout'), mxResources.get('realtimeTimeout'), mxResources.get('discardChangesAndReconnect'), mxUtils.bind(this, function()
-			{
-				this.ui.spinner.spin(document.body, mxResources.get('connecting'));
-				this.file.setModified(false);
-				window.location.reload();
-			}), null, mxResources.get('ignore'), mxUtils.bind(this, function()
-			{
-				this.showDisconnectedStatus();
-				this.timeoutErrorShowing = false;
-				this.realtimeHeartbeat *= 2;
-				this.connected = false;
-				this.saving = false;
-			}), mxResources.get('help'), mxUtils.bind(this, function()
-			{
-				this.ui.openLink('https://desk.draw.io/support/solutions/articles/16000076743');
-			}), 480, 150);
-		});
-		
-		img.src = IMAGE_PATH + '/1x1.png?t=' + new Date().getTime();
+			this.ui.spinner.spin(document.body, mxResources.get('connecting'));
+			this.file.setModified(false);
+			window.location.reload();
+		}), null, mxResources.get('ignore'), mxUtils.bind(this, function()
+		{
+			this.showDisconnectedStatus();
+			this.timeoutErrorShowing = false;
+			this.realtimeHeartbeat *= 2;
+			this.connected = false;
+			this.saving = false;
+		}), mxResources.get('help'), mxUtils.bind(this, function()
+		{
+			this.ui.openLink('https://desk.draw.io/support/solutions/articles/16000076743');
+		}), 480, 150);
 	}	
 };
 
@@ -1306,7 +1283,7 @@ DriveRealtime.prototype.showDisconnectedStatus = function()
 	this.ui.editor.setStatus('<div class="geStatusAlert geBlink">' + mxUtils.htmlEntities(mxResources.get('disconnected')) +
 			' <a href="https://desk.draw.io/support/solutions/articles/16000076743" target="_blank">' +
 			'<img border="0" title="' + mxUtils.htmlEntities(mxResources.get('help')) + '" valign="bottom" src="' +
-			Editor.helpImage + '"/></a></div>');
+			Editor.helpImage + '" style="opacity:0.5;width:16px;height:16px;"/></a></div>');
 };
 
 /**

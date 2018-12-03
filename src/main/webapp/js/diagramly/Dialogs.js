@@ -35,6 +35,9 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		help.style.color = 'gray';
 		
 		var icon = document.createElement('img');
+		mxUtils.setOpacity(icon, 50);
+		icon.style.height = '16px';
+		icon.style.width = '16px';
 		icon.setAttribute('border', '0');
 		icon.setAttribute('valign', 'bottom');
 		icon.setAttribute('src', Editor.helpImage);
@@ -453,6 +456,9 @@ var SplashDialog = function(editorUi)
 		help.style.color = 'gray';
 
 		var icon = document.createElement('img');
+		mxUtils.setOpacity(icon, 50);
+		icon.style.height = '16px';
+		icon.style.width = '16px';
 		icon.setAttribute('border', '0');
 		icon.setAttribute('valign', 'bottom');
 		icon.setAttribute('src', Editor.helpImage);
@@ -5032,6 +5038,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	div.appendChild(container);
 
 	var graph = new Graph(container);
+	graph.setTooltips(false);
 	graph.setEnabled(false);
 	graph.setPanning(true);
 	graph.panningHandler.ignoreCell = true;
@@ -5269,7 +5276,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 			});
 			
 			window.openFile.setData(mxUtils.getXml(currentDoc.documentElement));
-			window.openWindow(editorUi.getUrl());
+			editorUi.openLink(editorUi.getUrl(), null, true);
 		}
 	});
 	newBtn.className = 'geBtn';
@@ -5284,7 +5291,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	{
 		if (currentRev != null)
 		{
-			editorUi.openLink(currentRev.getUrl());
+			editorUi.openLink(currentRev.getUrl(pageSelect.selectedIndex));
 		}
 	});
 	showBtn.className = 'geBtn gePrimaryBtn';
@@ -5982,6 +5989,12 @@ var FindWindow = function(ui, x, y, w, h)
 	div.appendChild(regexInput);
 	
 	mxUtils.write(div, mxResources.get('regularExpression'));
+
+    var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000088250');
+    help.style.position = 'relative';
+    help.style.marginLeft = '6px';
+    help.style.top = '-1px';
+    div.appendChild(help);
 
 	var tmp = document.createElement('div');
 	

@@ -187,9 +187,19 @@ App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
 App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
 
 /**
- * Specifies the ID for the pusher project.
+ * Specifies the key for the pusher project.
  */
-App.PUSHER_ID = 'fd30ee6d04a388192212';
+App.PUSHER_KEY = '1e756b07a690c5bdb054';
+
+/**
+ * Specifies the key for the pusher project.
+ */
+App.PUSHER_CLUSTER = 'eu';
+
+/**
+ * Specifies the URL for the pusher API.
+ */
+App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
 
 /**
  * Switch to disable Google realtime starting on 11/12/2018 at 9:00am (UTC).
@@ -220,7 +230,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js',
 	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
 	'tickets': '/plugins/tickets.js', 'flow': '/plugins/flow.js',
-	'webcola': '/plugins/webcola/webcola.js'};
+	'webcola': '/plugins/webcola/webcola.js', 'rnd': '/plugins/random.js',
+	'page': '/plugins/page.js'};
 
 /**
  * Function: authorize
@@ -417,52 +428,13 @@ App.getStoredMode = function()
  */
 App.main = function(callback, createUi)
 {
-	var sessionId = Editor.guid();
-	var lastErrorMessage = null;
-	
-	// Changes top level error handling
-	if (EditorUi.enableLogging)
+	// Logs uncaught errors
+	window.onerror = function(message, url, linenumber, colno, err)
 	{
-		window.onerror = function(message, url, linenumber, colno, err)
-		{
-			try
-			{
-				if (message == lastErrorMessage || (message != null && url != null &&
-					((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
-				{
-					// TODO log external domain script failure "Script error." is
-					// reported when the error occurs in a script that is hosted
-					// on a domain other than the domain of the current page
-				}
-				// DocumentClosedError seems to be an FF bug an can be ignored for now
-				else if (message != null && message.indexOf('DocumentClosedError') < 0)
-				{
-					lastErrorMessage = message;
-					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
-						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-						'CONFIG' : 'SEVERE';
-					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-
-					var img = new Image();
-					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-		    			'&msg=clientError:' + encodeURIComponent(message) +
-		    			':url:' + encodeURIComponent(window.location.href) +
-		    			':lnum:' + encodeURIComponent(linenumber) + 
-		    			((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
-		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '') +
-		    			'&sid=' + sessionId;
-				}
-			}
-			catch (err)
-			{
-				// do nothing
-			}
-		};
-	}
+		EditorUi.logError(message, url, linenumber, colno, err);
+	};
 	
-	/**
-	 * Removes info text in embed mode
-	 */
+	// Removes info text in embed mode
 	if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
 	{
 		var geInfo = document.getElementById('geInfo');
@@ -475,9 +447,7 @@ App.main = function(callback, createUi)
 	
 	if (window.mxscript != null)
 	{
-		/**
-		 * Injects offline dependencies
-		 */
+		// Injects offline dependencies
 		if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
 		{
 			mxscript('js/shapes.min.js');
@@ -491,9 +461,14 @@ App.main = function(callback, createUi)
 			document.body.appendChild(frame);
 		}
 		
-		/**
-		 * Loading plugins.
-		 */
+		// Loads Pusher API
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto')
+		{
+			// TODO: Check if async loading is fast enough
+			mxscript(App.PUSHER_URL);
+		}
+		
+		// Loads plugins
 		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
 		{
 			// mxSettings is not yet initialized in configure mode, redirect parameter
@@ -690,11 +665,12 @@ App.main = function(callback, createUi)
 			 */
 			if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
 			{
-				mxLog.show();
-				mxLog.debug('Started in ' + (new Date().getTime() - t0.getTime()) + 'ms');
-				mxLog.debug('Export:', EXPORT_URL);
-				mxLog.debug('Development mode:', (urlParams['dev'] == '1') ? 'active' : 'inactive');
-				mxLog.debug('Test mode:', (urlParams['test'] == '1') ? 'active' : 'inactive');
+				EditorUi.debug('Started in ' + (new Date().getTime() - t0.getTime()) + 'ms');
+				
+				if (urlParams['export'] != null)
+				{
+					EditorUi.debug('Export:', EXPORT_URL);
+				}
 			}
 		}, function(xhr)
 		{
@@ -939,7 +915,20 @@ App.prototype.init = function()
 
 		initTrelloClient();
 	}
-
+	
+	// TEMPORARY REALTIME NOTICE FOR AFFECTED FILE TYPES
+	this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && (file.constructor == DriveFile ||
+			file.constructor == OneDriveFile ||
+			file.constructor == GitHubFile))
+		{
+			this.showFooterRealtimeNotice();
+		}
+	}));
+	
 	/**
 	 * Creates drive client with all required libraries are available.
 	 */
@@ -1165,12 +1154,10 @@ App.prototype.getPusher = function()
 {
 	if (this.pusher == null && typeof window.Pusher === 'function')
 	{
-		//Pusher.logToConsole = true;
-		
-		this.pusher = new Pusher(App.PUSHER_ID,
+		this.pusher = new Pusher(App.PUSHER_KEY,
 		{
-			encrypted: true,
-			cluster: 'eu'
+			cluster: App.PUSHER_CLUSTER,
+			encrypted: true
 		});
 	}
 	
@@ -1204,7 +1191,7 @@ App.prototype.checkLicense = function()
 				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
-// NOTE: RESPONSE IS IGNORED TO SHOW TEMPORARY WARNING NOTICE BELOW!
+// NOTE: RESPONSE IS IGNORED TO SHOW TEMPORARY REALTIME NOTICE
 //				var registered = false;
 //				var exp = null;
 //				
@@ -1232,9 +1219,6 @@ App.prototype.checkLicense = function()
 //				}
 			}));
 	}
-	
-	// NOTE: RESPONSE ABOVE IS IGNORED TO SHOW TEMPORARY WARNING NOTICE!
-	this.showFooterRealtimeNotice();
 };
 
 /**
@@ -1302,7 +1286,7 @@ App.prototype.showFooterRealtimeNotice = function()
 {
 	var footer = document.getElementById('geFooter');
 	
-	if (footer != null)
+	if (footer != null && this.footerAlert == null)
 	{
 		var alert = this.createRealtimeNotice();
 		alert.style.zIndex = '1';
@@ -1313,6 +1297,7 @@ App.prototype.showFooterRealtimeNotice = function()
 		alert.style.right = '170px';
 
 		footer.appendChild(alert);
+		this.footerAlert = alert;
 	}
 };
 
@@ -1432,7 +1417,7 @@ App.prototype.addRecent = function(entry)
 		if (recent != null)
 		{
 			recent.unshift(entry);
-			recent = recent.slice(0, 5);
+			recent = recent.slice(0, 10);
 			localStorage.setItem('.recent', JSON.stringify(recent));
 		}
 	}
@@ -3549,63 +3534,6 @@ App.prototype.fileCreated = function(file, libs, replace, done)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.refreshFile = function(then)
-{
-	var file = this.getCurrentFile();
-	
-	if (file != null)
-	{
-		var selection = this.editor.graph.getSelectionCells();
-		var viewState = this.editor.graph.getViewState();
-		var page = this.currentPage;
-		
-		this.loadFile(file.getHash(), true, null, mxUtils.bind(this, function()
-		{
-			this.restoreViewState(page, viewState, selection);
-			
-			if (then != null)
-			{
-				then();
-			}
-		}));
-	}
-};
-
-/**
- * Adds the listener for automatically saving the diagram for local changes.
- */
-App.prototype.restoreViewState = function(page, viewState, selection)
-{
-	var newPage = (page != null) ? this.getPageById(page.getId()) : null;
-	var graph = this.editor.graph;
-	
-	if (newPage != null && this.currentPage != null && this.pages != null)
-	{
-		if (newPage != this.currentPage)
-		{
-			this.selectPage(newPage, true, viewState);
-		}
-		else
-		{
-			// TODO: Pass viewState to setGraphXml
-			graph.setViewState(viewState);
-			this.editor.updateGraphComponents();
-			graph.view.revalidate();
-			graph.sizeDidChange();
-		}
-
-		graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + viewState.scrollLeft;
-		graph.container.scrollTop = graph.view.translate.y * graph.view.scale + viewState.scrollTop;
-		graph.restoreSelection(selection);
-	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
 App.prototype.loadFile = function(id, sameWindow, file, success)
 {
 	this.hideDialog();
@@ -3849,7 +3777,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success)
 				else
 				{
 					id = decodeURIComponent(id.substring(1));
-					
+
 					peer.getFile(id, mxUtils.bind(this, function(file)
 					{
 						this.spinner.stop();
@@ -3981,9 +3909,13 @@ App.prototype.restoreLibraries = function()
 		}
 		
 		// Ignores this library next time
-		var ignore = mxUtils.bind(this, function(id)
+		var ignore = mxUtils.bind(this, function(id, keep)
 		{
-			mxSettings.removeCustomLibrary(id);	
+			if (!keep)
+			{
+				mxSettings.removeCustomLibrary(id);
+			}
+			
 			delete this.pendingLibraries[id];
 		});
 				
@@ -4037,9 +3969,9 @@ App.prototype.restoreLibraries = function()
 								checkDone();
 							});
 							
-							var onerror = mxUtils.bind(this, function()
+							var onerror = mxUtils.bind(this, function(keep)
 							{
-								ignore(id);
+								ignore(id, keep);
 								waiting--;
 								checkDone();
 							});
@@ -4186,8 +4118,7 @@ App.prototype.restoreLibraries = function()
 								}
 								else
 								{
-									delete this.pendingLibraries[id];
-									onerror();
+									onerror(true);
 								}
 							}
 						}
@@ -4221,9 +4152,49 @@ App.prototype.updateButtonContainer = function()
 	{
 		var file = this.getCurrentFile();
 		
+		// Synchronize
+		if (file != null && DrawioFile.SYNC != 'none')
+		{
+			var visible = ((DrawioFile.SYNC == 'manual' ||
+				(file.sync != null && !file.sync.enabled &&
+				uiTheme != 'min')) &&
+				(file.constructor == DriveFile ||
+				file.constructor == OneDriveFile)) ||
+				file.constructor == GitHubFile ||
+				EditorUi.isElectronApp;
+			
+			if (this.syncButton == null && visible)
+			{
+				this.syncButton = document.createElement('div');
+				this.syncButton.className = 'geBtn gePrimaryBtn';
+				this.syncButton.style.display = 'inline-block';
+				this.syncButton.style.padding = '0 10px 0 10px';
+				this.syncButton.style.marginTop = '-4px';
+				this.syncButton.style.height = '28px';
+				this.syncButton.style.lineHeight = '28px';
+				this.syncButton.style.minWidth = '0px';
+				this.syncButton.style.cssFloat = 'left';
+				this.syncButton.setAttribute('title', mxResources.get('synchronize') + ' (Alt+Shift+S)');
+				
+				mxUtils.write(this.syncButton, mxResources.get('synchronize'));
+				
+				mxEvent.addListener(this.syncButton, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('synchronize').funct();
+				}));
+				
+				this.buttonContainer.appendChild(this.syncButton);
+			}
+			else if (this.syncButton != null && !visible)
+			{
+				this.syncButton.parentNode.removeChild(this.syncButton);
+				this.syncButton = null;
+			}
+		}
+		
+		// Share
 		if (file != null && file.constructor == DriveFile)
 		{
-			// Adds Share button
 			if (this.shareButton == null)
 			{
 				this.shareButton = document.createElement('div');
@@ -4235,6 +4206,7 @@ App.prototype.updateButtonContainer = function()
 				this.shareButton.style.lineHeight = '28px';
 				this.shareButton.style.minWidth = '0px';
 				this.shareButton.style.cssFloat = 'right';
+				this.shareButton.setAttribute('title', mxResources.get('share'));
 				
 				var icon = document.createElement('img');
 				icon.setAttribute('src', this.shareImage);
@@ -4251,7 +4223,7 @@ App.prototype.updateButtonContainer = function()
 				}));
 				
 				this.buttonContainer.appendChild(this.shareButton);
-			} 
+			}
 		}
 		else if (this.shareButton != null)
 		{
@@ -4286,49 +4258,35 @@ App.prototype.save = function(name, done)
 			this.editor.graph.stopEditing();
 		}
 		
-		var success = mxUtils.bind(this, function(resp)
+		var success = mxUtils.bind(this, function()
 		{
-			this.spinner.stop();
-			
-			if (this.getCurrentFile() == file)
-			{
-				if (file.isModified())
-				{
-					if (!file.isAutosave())
-					{
-						file.addUnsavedStatus();
-					}
-				}
-				else
-				{
-					file.addAllSavedStatus();
-				}
-			}
-			
+			file.handleFileSuccess(true);
+
 			if (done != null)
 			{
 				done();
 			}
 		});
 		
-		var error = mxUtils.bind(this, function(resp)
+		var error = mxUtils.bind(this, function(err)
 		{
-			if (this.getCurrentFile() == file && file.isModified())
-			{
-				file.addUnsavedStatus();
-			}
-			
-			// Spinner is paused and resumed in handleError
-			this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+			file.handleFileError(err, true);
 		});
 		
-		if (name == file.getTitle())
+		try
 		{
-			file.save(true, success, error);
+			if (name == file.getTitle())
+			{
+				file.save(true, success, error);
+			}
+			else
+			{
+				file.saveAs(name, success, error)
+			}
 		}
-		else
+		catch (err)
 		{
-			file.saveAs(name, success, error)
+			file.handleFileError(err, true);
 		}
 	}
 };
@@ -4546,7 +4504,15 @@ App.prototype.descriptorChanged = function()
 			this.fname.setAttribute('title', filename + ' - ' + mxResources.get('rename'));
 		}
 		
-		this.editor.graph.setEnabled(file.isEditable());
+		var graph = this.editor.graph;
+		var editable = file.isEditable() && !file.invalidChecksum;
+		
+		if (graph.isEnabled() && !editable)
+		{
+			graph.reset();
+		}
+		
+		graph.setEnabled(editable);
 		
 		// Ignores title and hash for revisions
 		if (urlParams['rev'] == null)

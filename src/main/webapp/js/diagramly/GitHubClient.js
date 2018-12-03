@@ -366,8 +366,10 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 	}
 	else
 	{
+		// Adds random parameter to bypass cache
+		var rnd = '&t=' + new Date().getTime();
 		var req = new mxXmlRequest(this.baseUrl + '/repos/' + org + '/' + repo +
-			'/contents/' + path + '?ref=' + ref, null, 'GET');
+			'/contents/' + path + '?ref=' + ref + rnd, null, 'GET');
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
@@ -607,55 +609,28 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-GitHubClient.prototype.saveFile = function(file, success, error)
+GitHubClient.prototype.saveFile = function(file, success, error, overwrite, message)
 {
 	var org = file.meta.org;
 	var repo = file.meta.repo;
 	var ref = file.meta.ref;
 	var path = file.meta.path;
 	
-	this.showCommitDialog(file.meta.name, file.meta.sha == null || file.meta.isNew, mxUtils.bind(this, function(message)
+	var fn = mxUtils.bind(this, function(sha, data)
 	{
-		var fn = mxUtils.bind(this, function(sha, data)
+		this.writeFile(org, repo, ref, path, message, data, sha,
+			mxUtils.bind(this, function(req)
 		{
-			this.writeFile(org, repo, ref, path, message, data, sha, mxUtils.bind(this, function(req)
-			{
-				delete file.meta.isNew;
-				success(JSON.parse(req.getText()));
-			}), mxUtils.bind(this, function(err)
-			{
-				// Handles special conflict case where overwrite needs an update of the sha
-				if (err != null && err.status == 409)
-				{
-					resume = this.ui.spinner.pause();
-					
-					var dlg = new ErrorDialog(this.ui, mxResources.get('externalChanges'),
-						mxResources.get('fileChangedOverwrite'), mxResources.get('cancel'), mxUtils.bind(this, function()
-						{
-							error();
-						}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
-						{
-							resume();
-							
-							// Gets the latest sha and tries again
-							this.getFile(org + '/' + repo + '/' + ref + '/' + path, mxUtils.bind(this, function(tempFile)
-							{
-								fn(tempFile.meta.sha, data);
-							}), mxUtils.bind(this, function()
-							{
-								fn(null, data);
-							}));
-						}));
-					this.ui.showDialog(dlg.container, 340, 150, true, false);
-					dlg.init();
-				}
-				else
-				{
-					error(err);
-				}
-			}));
-		});
-		
+			delete file.meta.isNew;
+			success(JSON.parse(req.getText()));
+		}), mxUtils.bind(this, function(err)
+		{
+			error(err);
+		}));
+	});
+	
+	var fn2 = mxUtils.bind(this, function()
+	{
 		if (this.ui.useCanvasForExport && /(\.png)$/i.test(path))
 		{
 			this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
@@ -667,10 +642,22 @@ GitHubClient.prototype.saveFile = function(file, success, error)
 		{
 			fn(file.meta.sha, Base64.encode(file.getData()));
 		}
-	}), mxUtils.bind(this, function()
+	});
+	
+	// TODO: Get only sha not content for overwrite
+	if (overwrite)
 	{
-		error();
-	}));
+		this.getFile(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path,
+			mxUtils.bind(this, function(tempFile)
+		{
+			file.meta.sha = tempFile.meta.sha;
+			fn2();
+		}), error);	
+	}
+	else
+	{
+		fn2();
+	}
 };
 
 /**

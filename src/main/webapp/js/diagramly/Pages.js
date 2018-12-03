@@ -17,9 +17,7 @@ function DiagramPage(node)
 {
 	this.node = node;
 	
-	// Create GUID for page (first part is workaround for old versions of IE)
-	if ((this.node.hasAttribute == null && this.node.getAttribute('id') == null) ||
-		(this.node.hasAttribute != null && !this.node.hasAttribute('id')))
+	if (this.getId() == null)
 	{
 		this.node.setAttribute('id', Editor.guid());
 	}
@@ -443,6 +441,35 @@ EditorUi.prototype.initPages = function()
 };
 
 /**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+EditorUi.prototype.restoreViewState = function(page, viewState, selection)
+{
+	var newPage = (page != null) ? this.getPageById(page.getId()) : null;
+	var graph = this.editor.graph;
+	
+	if (newPage != null && this.currentPage != null && this.pages != null)
+	{
+		if (newPage != this.currentPage)
+		{
+			this.selectPage(newPage, true, viewState);
+		}
+		else
+		{
+			// TODO: Pass viewState to setGraphXml
+			graph.setViewState(viewState);
+			this.editor.updateGraphComponents();
+			graph.view.revalidate();
+			graph.sizeDidChange();
+		}
+
+		graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + viewState.scrollLeft;
+		graph.container.scrollTop = graph.view.translate.y * graph.view.scale + viewState.scrollTop;
+		graph.restoreSelection(selection);
+	}
+};
+
+/**
  * Overrides setDefaultParent
  */
 Graph.prototype.createViewState = function(node)
@@ -463,7 +490,7 @@ Graph.prototype.createViewState = function(node)
 		foldingEnabled: node.getAttribute('fold') != '0',
 		shadowVisible: node.getAttribute('shadow') == '1',
 		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
-		background: (bg != null && bg.length > 0) ? bg : this.defaultGraphBackground,
+		background: (bg != null && bg.length > 0) ? bg : null,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
 		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : mxSettings.getPageFormat(),
@@ -481,17 +508,21 @@ Graph.prototype.createViewState = function(node)
 /**
  * Writes the graph properties from the realtime model to the given mxGraphModel node.
  */
-Graph.prototype.saveViewState = function(vs, node)
+Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 {
-	node.setAttribute('grid', (vs == null || vs.gridEnabled) ? '1' : '0');
-	node.setAttribute('gridSize', (vs != null) ? vs.gridSize : mxGraph.prototype.gridSize);
-	node.setAttribute('guides', (vs == null || vs.guidesEnabled) ? '1' : '0');
-	node.setAttribute('tooltips', (vs == null || vs.tooltips) ? '1' : '0');
-	node.setAttribute('connect', (vs == null || vs.connect) ? '1' : '0');
-	node.setAttribute('arrows', (vs == null || vs.arrows) ? '1' : '0');
+	if (!ignoreTransient)
+	{
+		node.setAttribute('grid', (vs == null || vs.gridEnabled) ? '1' : '0');
+		node.setAttribute('gridSize', (vs != null) ? vs.gridSize : mxGraph.prototype.gridSize);
+		node.setAttribute('guides', (vs == null || vs.guidesEnabled) ? '1' : '0');
+		node.setAttribute('tooltips', (vs == null || vs.tooltips) ? '1' : '0');
+		node.setAttribute('connect', (vs == null || vs.connect) ? '1' : '0');
+		node.setAttribute('arrows', (vs == null || vs.arrows) ? '1' : '0');
+		node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
+			(vs != null && vs.pageVisible)) ? '1' : '0');
+	}
+
 	node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
-	node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
-		(vs != null && vs.pageVisible)) ? '1' : '0');
 	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
 	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
@@ -614,7 +645,7 @@ Graph.prototype.setViewState = function(state)
 		this.pageScale = mxGraph.prototype.pageScale;
 		this.pageFormat = mxSettings.getPageFormat();
 		this.pageVisible = this.defaultPageVisible;
-		this.background = this.defaultGraphBackground;
+		this.background = null;
 		this.backgroundImage = null;
 		this.scrollbars = this.defaultScrollbars;
 		this.graphHandler.guidesEnabled = true;
@@ -656,6 +687,23 @@ EditorUi.prototype.updatePageRoot = function(page)
 		{
 			// Initializes page object with new empty root
 			page.root = this.editor.graph.model.createRoot();
+		}
+	}
+	else if (page.viewState == null)
+	{
+		if (page.graphModelNode == null)
+		{
+			var node = this.editor.extractGraphModel(page.node);
+			
+			if (node != null)
+			{
+				page.graphModelNode = node;
+			}
+		}
+		
+		if (page.graphModelNode != null)
+		{
+			page.viewState = this.editor.graph.createViewState(page.graphModelNode);	
 		}
 	}
 	
@@ -1264,7 +1312,8 @@ EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled)
 {
 	var tab = this.createTab(hoverEnabled);
 	var name = page.getName();
-	tab.setAttribute('title', name);
+	var id = page.getId();
+	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : ''));
 	mxUtils.write(tab, name);
 	tab.style.maxWidth = tabWidth + 'px';
 	tab.style.width = tabWidth + 'px';

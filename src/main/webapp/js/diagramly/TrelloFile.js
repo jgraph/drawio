@@ -54,6 +54,14 @@ TrelloFile.prototype.isRenamable = function()
 };
 
 /**
+ * Specifies if notify events should be ignored.
+ */
+TrelloFile.prototype.getSize = function()
+{
+	return this.meta.bytes;
+};
+
+/**
  * 
  */
 TrelloFile.prototype.save = function(revision, success, error)
