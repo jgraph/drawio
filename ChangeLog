@@ -1,3 +1,7 @@
+03-DEC-2018: 9.5.4
+
+- Fixes possible NPE in Desktop app
+
 03-DEC-2018: 9.5.3
 
 - Uses mxGraph 3.9.11 beta 7
