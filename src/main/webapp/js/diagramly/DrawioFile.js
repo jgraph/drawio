@@ -318,7 +318,7 @@ DrawioFile.prototype.reloadFile = function(success)
 	{
 		this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
 		{
-			this.handleFileError();
+			this.handleFileSuccess(DrawioFile.SYNC == 'manual');
 		}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
 	}
 	else
@@ -1315,7 +1315,7 @@ DrawioFile.prototype.fileChanged = function()
 	else if ((!this.isAutosaveOptional() || !this.ui.editor.autosave) &&
 		!this.inConflictState)
 	{
-		this.handleFileError();
+		this.addUnsavedStatus();
 	}
 };
 

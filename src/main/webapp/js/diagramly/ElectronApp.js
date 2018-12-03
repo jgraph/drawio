@@ -540,12 +540,22 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 	LocalFile.prototype.getLatestVersion = function(success, error)
 	{
-		this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
+		if (this.fileObject == null)
 		{
-			var file = new LocalFile(this, data, '');
-			file.stat = stat;
-			success(file);
-		}), error, this.fileObject.path);
+			if (error != null)
+			{
+				error({message: mxResources.get('fileNotFound')});
+			}
+		}
+		else
+		{
+			this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
+			{
+				var file = new LocalFile(this, data, '');
+				file.stat = stat;
+				success(file);
+			}), error, this.fileObject.path);
+		}
 	};
 	
 	// Call save as for copy
@@ -570,54 +580,61 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	LocalFile.prototype.reloadFile = function(success)
 	{
-		this.ui.spinner.stop();
-		
-		var fn = mxUtils.bind(this, function()
+		if (this.fileObject == null)
 		{
-			this.setModified(false);
-			var page = this.ui.currentPage;
-			var viewState = this.ui.editor.graph.getViewState();
-			var selection = this.ui.editor.graph.getSelectionCells();
-			
-			if (this.ui.spinner.spin(document.body, mxResources.get('loading')))
-			{
-				this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
-				{
-					this.ui.spinner.stop();
-					
-					var file = new LocalFile(this.ui, data, '');
-					file.fileObject = fileEntry;
-					file.stat = stat;
-					
-					this.ui.fileLoaded(file);
-					this.ui.restoreViewState(page, viewState, selection);
-	
-					if (this.backupPatch != null)
-					{
-						this.patch([this.backupPatch]);
-					}
-					
-					if (success != null)
-					{
-						success();
-					}
-				}), mxUtils.bind(this, function(err)
-				{
-					this.ui.handleFileError(err);
-				}), this.fileObject.path);
-			}
-		});
-
-		if (this.isModified() && this.backupPatch == null)
-		{
-			this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
-			{
-				this.handleFileError();
-			}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
+			this.ui.handleError({message: mxResources.get('fileNotFound')});
 		}
 		else
 		{
-			fn();
+			this.ui.spinner.stop();
+			
+			var fn = mxUtils.bind(this, function()
+			{
+				this.setModified(false);
+				var page = this.ui.currentPage;
+				var viewState = this.ui.editor.graph.getViewState();
+				var selection = this.ui.editor.graph.getSelectionCells();
+				
+				if (this.ui.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
+					{
+						this.ui.spinner.stop();
+						
+						var file = new LocalFile(this.ui, data, '');
+						file.fileObject = fileEntry;
+						file.stat = stat;
+						
+						this.ui.fileLoaded(file);
+						this.ui.restoreViewState(page, viewState, selection);
+		
+						if (this.backupPatch != null)
+						{
+							this.patch([this.backupPatch]);
+						}
+						
+						if (success != null)
+						{
+							success();
+						}
+					}), mxUtils.bind(this, function(err)
+					{
+						this.ui.handleFileError(err);
+					}), this.fileObject.path);
+				}
+			});
+	
+			if (this.isModified() && this.backupPatch == null)
+			{
+				this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
+				{
+					this.handleFileSuccess(DrawioFile.SYNC == 'manual');
+				}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
+			}
+			else
+			{
+				fn();
+			}
 		}
 	};
 
@@ -934,6 +951,19 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				doSave();
 			}
 		}
+	};
+	
+	
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
+	EditorUi.prototype.updateActionStates = function()
+	{
+		editorUiUpdateActionStates.apply(this, arguments);
+
+		var file = this.getCurrentFile();
+		this.actions.get('synchronize').setEnabled(file != null && file.fileObject != null);
 	};
 	
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)

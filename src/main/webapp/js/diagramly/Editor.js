@@ -1337,7 +1337,7 @@
 	                }
 	            });
 	            
-	            option.style.paddingTop = '0px';
+	            option.style.paddingTop = '5px';
 	            div.appendChild(option);
 	            
 	            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');

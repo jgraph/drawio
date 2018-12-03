@@ -1,6 +1,11 @@
+03-DEC-2018: 9.5.5
+
+- Adds unsaved status for new files in Desktop
+- Fixes minor CSS issues
+
 03-DEC-2018: 9.5.4
 
-- Fixes possible NPE in Desktop app
+- Fixes possible NPE in Desktop
 
 03-DEC-2018: 9.5.3
 
