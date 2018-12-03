@@ -1270,7 +1270,7 @@
 		// Logs search terms for improving search results
 		if (!this.editorUi.isOffline() && page == 0)
 		{
-			this.editorUi.logEvent({category: 'Sidebar', action: 'search', label: searchTerms});
+			EditorUi.logEvent({category: 'Shape', action: 'search', label: searchTerms});
 		}
 		
 		if (ICONSEARCH_PATH != null)

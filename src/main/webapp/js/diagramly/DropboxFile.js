@@ -18,9 +18,20 @@ mxUtils.extend(DropboxFile, DrawioFile);
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+DropboxFile.prototype.getId = function()
+{
+	return this.stat.path_display.substring(1);
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DropboxFile.prototype.getHash = function()
 {
-	return 'D' + encodeURIComponent(this.stat.path_display.substring(1));
+	return 'D' + encodeURIComponent(this.getId());
 };
 
 /**
@@ -62,6 +73,84 @@ DropboxFile.prototype.getTitle = function()
 DropboxFile.prototype.isRenamable = function()
 {
 	return true;
+};
+
+/**
+ * Specifies if notify events should be ignored.
+ */
+DropboxFile.prototype.getSize = function()
+{
+	return this.stat.size;
+};
+
+/**
+ * Hook for subclassers.
+ */
+DropboxFile.prototype.isRevisionHistorySupported = function()
+{
+	return true;
+};
+
+/**
+ * Hook for subclassers.
+ */
+DropboxFile.prototype.getRevisions = function(success, error)
+{
+	var promise = this.ui.dropbox.client.filesListRevisions({path: this.stat.path_lower, limit: 100});
+	
+	promise.then(mxUtils.bind(this, function(resp)
+	{
+		try
+		{
+			var revs = [];
+			
+			for (var i = resp.entries.length - 1; i >= 0; i--)
+			{
+				(mxUtils.bind(this, function(stat)
+				{
+					revs.push({modifiedDate: stat.client_modified, fileSize: stat.size,
+						getXml: mxUtils.bind(this, function(itemSuccess, itemError)
+					{
+						this.ui.dropbox.readFile({path: this.stat.path_lower, rev: stat.rev},
+							itemSuccess, itemError);
+					}), getUrl: mxUtils.bind(this, function(page)
+					{
+						return this.ui.getUrl(window.location.pathname + '?rev=' +
+							stat.rev + '&chrome=0&nav=1&layers=1&edit=_blank' + ((page != null) ?
+							'&page=' + page : '')) + window.location.hash;
+					})});
+				}))(resp.entries[i]);
+			}
+			
+			success(revs);
+		}
+		catch (e)
+		{
+			error(e);
+		}
+	}));
+	
+	// Workaround for IE8/9 support with catch function
+	promise['catch'](function(err)
+	{
+		error(err);
+	});
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DropboxFile.prototype.getLatestVersion = function(success, error)
+{
+	this.ui.dropbox.getFile(this.getId(), success, error);
+};
+
+/**
+* Updates the descriptor of this file with the one from the given file.
+*/
+DropboxFile.prototype.updateDescriptor = function(newFile)
+{
+	this.stat = newFile.stat;
 };
 
 /**

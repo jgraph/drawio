@@ -374,6 +374,7 @@ EditorUi.initMinimalTheme = function()
         	elt.style.backgroundSize = '24px 24px';
         	elt.style.height = '24px';
         	elt.style.width = '24px';
+        	elt.style.cssFloat = 'right';
         	mxUtils.setOpacity(elt, 30);
         	elt.setAttribute('title', mxResources.get('changeUser'));
 		}
@@ -398,7 +399,21 @@ EditorUi.initMinimalTheme = function()
         	elt.style.height = '24px';
         	elt.style.width = '24px';
         	mxUtils.setOpacity(elt, 30);
-        	elt.setAttribute('title', mxResources.get('share'));
+		}
+    	
+    	if (this.syncButton != null)
+		{
+    		var elt = this.syncButton;
+    		elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;';
+    		elt.className = '';
+    		elt.innerHTML = '';
+			elt.style.backgroundImage = 'url(' + Editor.syncImage + ')';
+        	elt.style.backgroundPosition = 'center center';
+        	elt.style.backgroundRepeat = 'no-repeat';
+        	elt.style.backgroundSize = '24px 24px';
+        	elt.style.height = '24px';
+        	elt.style.width = '24px';
+        	mxUtils.setOpacity(elt, 30);
 		}
     };
     
@@ -700,7 +715,7 @@ EditorUi.initMinimalTheme = function()
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
-				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-'], parent);
+				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'synchronize', '-', 'save', 'saveAs', '-'], parent);
 			}
 			else if (urlParams['embed'] == '1')
 			{
@@ -717,32 +732,37 @@ EditorUi.initMinimalTheme = function()
 			{
 	        	ui.menus.addMenuItems(menu, ['new'], parent);
 				ui.menus.addSubmenu('openFrom', menu, parent);
+			
+				if (isLocalStorage)
+				{
+					this.addSubmenu('openRecent', menu, parent);
+				}
+				
+				menu.addSeparator(parent);
+				
+				if (file != null && file.constructor == DriveFile)
+				{
+					ui.menus.addMenuItems(menu, ['share'], parent);
+					
+					if (file.realtime != null)
+					{
+						ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
+					}
+				}
+				
+				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+					file != null && file.constructor != LocalFile &&
+					file.realtime == null)
+				{
+					ui.menus.addMenuItems(menu, ['synchronize'], parent);
+				}
+				
 				menu.addSeparator(parent);
 				ui.menus.addSubmenu('save', menu, parent);
 			}
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
-			
-			if (file != null && file.constructor == DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['-', 'share'], parent);
-				
-				if (file.realtime != null)
-				{
-					ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
-				}
-				else
-				{
-					ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
-				}
-				
-				menu.addSeparator(parent);
-			}
-			else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-			{
-				ui.menus.addMenuItems(menu, ['-', 'refresh'], parent);
-			}
-			
+
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
@@ -762,20 +782,6 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addMenuItems(menu, ['-', 'close']);
 			}
         })));
-
-		if (isLocalStorage)
-		{
-			var openFromMenu = this.get('openFrom');
-			var oldFunct = openFromMenu.funct;
-			
-			openFromMenu.funct = function(menu, parent)
-			{
-				oldFunct.apply(this, arguments);
-				
-				menu.addSeparator(parent);
-				ui.menus.addSubmenu('openRecent', menu, parent);
-			};
-		}
 
 		this.put('save', new Menu(mxUtils.bind(this, function(menu, parent)
         {
@@ -813,7 +819,7 @@ EditorUi.initMinimalTheme = function()
 
 			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
 			
-			if (file != null && (file.constructor == DriveFile || file.constructor == DropboxFile))
+			if (file != null && file.isRevisionHistorySupported())
 			{
 				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 			}
@@ -865,6 +871,9 @@ EditorUi.initMinimalTheme = function()
 				menu.addSeparator(parent);
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
+			
+			// Adds trailing separator in case new plugin entries are added
+			menu.addSeparator(parent);
         })));
         
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1344,7 +1353,7 @@ EditorUi.initMinimalTheme = function()
 				var elt = menuObj.addMenu('', langMenu.funct);
 				elt.setAttribute('title', mxResources.get('language'));
 				
-				elt.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==)';
+				elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 	        	elt.style.backgroundPosition = 'center center';
 	        	elt.style.backgroundRepeat = 'no-repeat';
 	        	elt.style.backgroundSize = '24px 24px';

@@ -40,6 +40,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
 
+	private static Pattern textAlignToDrawIO = Pattern.compile("style=\"text-align:\\s?(left|center|right);\"");
+
 	private static Pattern lineHeight = Pattern.compile(".*(line-height: .*px;).*", Pattern.DOTALL);
 
 	public GliffyText()
@@ -49,6 +51,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	public void postDeserialize() 
 	{
 		halign = getHorizontalTextAlignment();
+		setDrawIoFormatForTextAlignment();
 		replaceParagraphWithDiv();
 	}
 
@@ -185,13 +188,22 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	private String getHorizontalTextAlignment()
 	{
 		Matcher m = textAlign.matcher(html);
-
 		if (m.matches())
 		{
 			return m.group(2);
 		}
 
 		return null;
+	}
+
+	/**
+	 * Replaces all occurrences of style="text-align: {position}" with align="{position}"
+	 * This enables per-line horizontal alignment in all browsers
+	 */
+	private void setDrawIoFormatForTextAlignment()
+	{
+		Matcher m = textAlignToDrawIO.matcher(html);
+		html = m.replaceAll("align=\"$1\"");
 	}
 
 	public void setHalign(String halign) 

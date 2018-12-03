@@ -3563,16 +3563,25 @@ TextFormatPanel.prototype.addFont = function(container)
 							node = graph.cellEditor.textarea.firstChild;
 						}
 						
-						function getRelativeLineHeight(fontSize, lineHeight, elt)
+						function getRelativeLineHeight(fontSize, css, elt)
 						{
-							if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+							if (css != null)
 							{
-								return parseInt(elt.style.lineHeight) / 100;
+								var lineHeight = css.lineHeight
+								
+								if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+								{
+									return parseInt(elt.style.lineHeight) / 100;
+								}
+								else
+								{
+									return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
+											parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								}
 							}
 							else
 							{
-								return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
-										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								return '';
 							}
 						};
 						
@@ -3588,10 +3597,9 @@ TextFormatPanel.prototype.addFont = function(container)
 							}
 						}
 						
-						//var realCss = mxUtils.getCurrentStyle(selectedElement);
 						var css = mxUtils.getCurrentStyle(node);
 						var fontSize = getAbsoluteFontSize(css.fontSize);
-						var lineHeight = getRelativeLineHeight(fontSize, css.lineHeight, node);
+						var lineHeight = getRelativeLineHeight(fontSize, css, node);
 
 						// Finds common font size
 						var elts = node.getElementsByTagName('*');
@@ -3607,7 +3615,7 @@ TextFormatPanel.prototype.addFont = function(container)
 								{
 									temp = mxUtils.getCurrentStyle(elts[i]);
 									fontSize = Math.max(getAbsoluteFontSize(temp.fontSize), fontSize);
-									var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
+									var lh = getRelativeLineHeight(fontSize, temp, elts[i]);
 									
 									if (lh != lineHeight || isNaN(lh))
 									{

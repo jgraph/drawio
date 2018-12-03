@@ -57,13 +57,13 @@
 				  {
 		    		  if (((newState.x >= state.x && newState.x <= (state.x + state.width))
 		    	              || (state.x >= newState.x && state.x <= (newState.x + newState.width))) 
-		    	              && (newState.y > state.y + state.height || newState.y + newState.height < state.y))
+		    	              && (newState.y > state.y + state.height + 4|| newState.y + newState.height + 4 < state.y)) // + 4 to avoid having dy = 0 considered which cause a bug with 3 cells case
 		    		  {
 			            verticalCells.push(state);
 			          }
 		    		  else if (((newState.y >= state.y && newState.y <= (state.y + state.height))
 				            || (state.y >= newState.y && state.y <= (newState.y + newState.height))) 
-				            && (newState.x > state.x + state.width || newState.x + newState.width < state.x))
+				            && (newState.x > state.x + state.width + 4 || newState.x + newState.width + 4 < state.x)) // + 4 to avoid having dy = 0 considered which cause a bug with 3 cells case
 		    		  {
 			            horizontalCells.push(state);
 			          }

@@ -42,6 +42,16 @@
   </servlet-mapping>
   <servlet>
     <description/>
+    <display-name>CacheServlet</display-name>
+    <servlet-name>CacheServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.CacheServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CacheServlet</servlet-name>
+    <url-pattern>/cache</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
     <display-name>EmbedServlet</display-name>
     <servlet-name>EmbedServlet</servlet-name>
     <servlet-class>com.mxgraph.online.EmbedServlet</servlet-class>

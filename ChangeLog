@@ -1,3 +1,23 @@
+03-DEC-2018: 9.5.3
+
+- Uses mxGraph 3.9.11 beta 7
+
+02-DEC-2018: 9.5.2
+
+- Fixes caching issue with GitHub file sync
+
+30-NOV-2018: 9.5.1
+
+- Fixes Gliffy import alignment issue
+- Fixes properties panel focus issue
+
+30-NOV-2018: 9.5.0
+
+- Fixes tolerance for distance guides
+- Adds collaborative editing (beta)
+- Restores libraries after login
+- Uses mxGraph 3.9.11 beta 6
+
 28-NOV-2018: 9.4.7
 
 - Adds multiple page PDF export option

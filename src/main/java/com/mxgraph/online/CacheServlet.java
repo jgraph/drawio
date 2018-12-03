@@ -5,14 +5,18 @@
 package com.mxgraph.online;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -23,6 +27,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.memcache.Stats;
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.pusher.rest.Pusher;
 
@@ -32,15 +39,41 @@ import com.pusher.rest.Pusher;
 @SuppressWarnings("serial")
 public class CacheServlet extends HttpServlet
 {
-	protected static int expirationDelta = 300;
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static final String PUSHER_CONFIG_FILE_PATH = "/WEB-INF/pusher.properties";
 
-	protected static Cache cache;
-
-	protected static Pusher pusher = new Pusher("528601",
-			"fd30ee6d04a388192212", "b6f57ca802122304055f");
-
-	protected static DateFormat dateFormat = new SimpleDateFormat(
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static final DateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss.SSS");
+
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static final boolean debugOutput = false;
+
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static final int expirationDelta = 300;
+
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static final int maxCacheSize = 1000000;
+
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static Pusher pusher = null;
+
+	/**
+	 * Path component under war/ to locate iconfinder_key file.
+	 */
+	protected static Cache cache;
 
 	static
 	{
@@ -49,6 +82,8 @@ public class CacheServlet extends HttpServlet
 			CacheFactory cacheFactory = CacheManager.getInstance()
 					.getCacheFactory();
 			Map<Object, Object> properties = new HashMap<>();
+			properties.put(MemcacheService.SetPolicy.ADD_ONLY_IF_NOT_PRESENT,
+					true);
 			properties.put(GCacheFactory.EXPIRATION_DELTA, expirationDelta);
 			cache = cacheFactory.createCache(properties);
 		}
@@ -56,9 +91,6 @@ public class CacheServlet extends HttpServlet
 		{
 			e.printStackTrace();
 		}
-
-		pusher.setCluster("eu");
-		pusher.setEncrypted(true);
 	}
 
 	/**
@@ -67,6 +99,43 @@ public class CacheServlet extends HttpServlet
 	public CacheServlet()
 	{
 		super();
+	};
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected Pusher getPusher() throws IOException
+	{
+		//log.log(severityLevel, "CLIENT-LOG:" + message);
+
+		if (pusher == null)
+		{
+			InputStream input = null;
+
+			try
+			{
+				input = getServletContext()
+						.getResourceAsStream(PUSHER_CONFIG_FILE_PATH);
+
+				// load a properties file
+				Properties prop = new Properties();
+				prop.load(input);
+
+				pusher = new Pusher(prop.getProperty("app_id"),
+						prop.getProperty("key"), prop.getProperty("secret"));
+				pusher.setCluster(prop.getProperty("cluster"));
+				pusher.setEncrypted(true);
+			}
+			finally
+			{
+				if (input != null)
+				{
+					input.close();
+				}
+			}
+		}
+
+		return pusher;
 	}
 
 	/**
@@ -88,42 +157,42 @@ public class CacheServlet extends HttpServlet
 			if (stats)
 			{
 				response.setContentType("text/plain");
+
+				Stats s = MemcacheServiceFactory.getMemcacheService()
+						.getStatistics();
 				writer.println("timestamp: " + new Date().toString());
-				writer.println("cache size: " + cache.size());
+				writer.println("hit count: " + s.getHitCount());
+				writer.println("miss count: " + s.getMissCount());
+				writer.println("item count: " + s.getItemCount());
+				writer.println("total item bytes: " + s.getTotalItemBytes());
+				writer.println("bytes returned for hits: "
+						+ s.getBytesReturnedForHits());
+				writer.println("max time without access: "
+						+ s.getMaxTimeWithoutAccess());
+
 				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else
 			{
+				response.addHeader("Access-Control-Allow-Origin",
+						ref.toLowerCase().substring(0,
+								ref.indexOf(".draw.io/") + 8));
+
 				// Disables wire-compression
 				response.setContentType("application/octet-stream");
-				String temp = request.getParameter("keys");
 				String id = request.getParameter("id");
 
-				if (id != null && temp != null)
+				if (id != null)
 				{
-					String[] keys = temp.split(";");
-					List<String> values = new ArrayList<String>(keys.length);
-
-					for (String key : keys)
+					try
 					{
-						String fullKey = id + ":" + key;
-
-						if (cache.containsKey(fullKey))
-						{
-							values.add(cache.get(fullKey).toString());
-						}
-						else
-						{
-							values.clear();
-							break;
-						}
+						writer.print(getPatches(id, request));
+						response.setStatus(HttpServletResponse.SC_OK);
 					}
-
-					writer.print("[" + String.join(",", values) + "]");
-					System.out.println("keys: " + temp + " bytes: "
-							+ (String.join("", values).length()
-									- values.size() * 2));
-					response.setStatus(HttpServletResponse.SC_OK);
+					catch (UnauthorizedException e)
+					{
+						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					}
 				}
 				else
 				{
@@ -143,6 +212,63 @@ public class CacheServlet extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	protected String getPatches(String id, HttpServletRequest request)
+			throws UnauthorizedException
+	{
+		String from = request.getParameter("from");
+		String to = request.getParameter("to");
+		String secret = request.getParameter("secret");
+		String data = "[]";
+
+		if (from != null && to != null)
+		{
+			List<String> values = new ArrayList<String>();
+			HashSet<String> seen = new HashSet<String>();
+			String current = from;
+
+			while (!seen.contains(current))
+			{
+				CacheEntry entry = (CacheEntry) cache.get(id + ":" + current);
+
+				if (entry != null)
+				{
+					seen.add(current);
+					current = entry.getEtag();
+					values.add("\"" + entry.getData() + "\"");
+
+					if (current.equals(to))
+					{
+						// Compares secret
+						if (entry.getSecret() != null
+								&& !entry.getSecret().equals(secret))
+						{
+							throw new UnauthorizedException();
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					values.clear();
+					break;
+				}
+			}
+
+			data = "[" + String.join(",", values) + "]";
+		}
+
+		debug("getPatches id=" + id + " from=" + from + " to=" + to + " data="
+				+ data);
+
+		return data;
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
@@ -151,38 +277,142 @@ public class CacheServlet extends HttpServlet
 		if (ref != null && ref.toLowerCase()
 				.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
 		{
-			String key = request.getParameter("key");
-			String value = request.getParameter("value");
+			String id = request.getParameter("id");
 
-			if (key != null)
+			if (id != null)
 			{
-				int index = key.indexOf(":");
+				response.addHeader("Access-Control-Allow-Origin",
+						ref.toLowerCase().substring(0,
+								ref.indexOf(".draw.io/") + 8));
 
-				// Puts diff in cache
-				if (value != null && value.length() < 1000000 &&
-					!cache.containsKey(key))
-				{
-					cache.put(key, value);
-				}
+				sendMessage(id, request);
+				addPatch(id, request);
 
-				// Send notification to clients
-				String msg = request.getParameter("msg");
-				String id = (index > 0) ? key.substring(0, index) : key;
+				PrintWriter writer = response.getWriter();
+				writer.println("<ok/>");
+				writer.flush();
+				writer.close();
 
-				pusher.trigger(id, "changed", (msg != null) ? msg : "");
-				System.out.println("key: " + key + " bytes: "
-						+ ((value != null) ? value.length() : 0) + " msg: "
-						+ msg);
-				System.out.println(dateFormat.format(new Date()) + ":DEBUG:"
-						+ ((value != null) ? value : "null"));
+				response.setStatus(HttpServletResponse.SC_OK);
 			}
-
-			response.setStatus(HttpServletResponse.SC_OK);
+			else
+			{
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
 		}
 		else
 		{
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void addPatch(String id, HttpServletRequest request)
+	{
+		String data = request.getParameter("data");
+		String secret = request.getParameter("secret");
+		String from = request.getParameter("from");
+		String to = request.getParameter("to");
+
+		if (from != null && to != null && data != null
+				&& data.length() < maxCacheSize)
+		{
+			cache.put(id + ":" + from, new CacheEntry(to, data, secret));
+			debug("addPatch id=" + id + " from=" + from + " to=" + to + " data="
+					+ data);
+		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void sendMessage(String id, HttpServletRequest request)
+			throws IOException
+	{
+		String msg = request.getParameter("msg");
+
+		if (msg != null)
+		{
+			String sid = request.getParameter("sid");
+			getPusher().trigger(id, "changed", msg, sid);
+			debug("sendMessage id=" + id + " msg=" + msg);
+		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void debug(String msg)
+	{
+		if (debugOutput)
+		{
+			System.out.println(msg);
+		}
+	}
+
+	/**
+	 * Cache entry definition.
+	 */
+	public static class CacheEntry implements Serializable
+	{
+		/**
+		 * Holds the etag.
+		 */
+		private String etag;
+
+		/**
+		 * Holds the data.
+		 */
+		private String data;
+
+		/**
+		 * Holds the optional secret.
+		 */
+		private String secret;
+
+		/**
+		 * Returns the etag.
+		 */
+		public String getEtag()
+		{
+			return etag;
+		}
+
+		/**
+		 * Returns the data.
+		 */
+		public String getData()
+		{
+			return data;
+		}
+
+		/**
+		 * Returns the data.
+		 */
+		public String getSecret()
+		{
+			return secret;
+		}
+
+		/**
+		 * Constructs a new cache entry.
+		 */
+		public CacheEntry(String etag, String data, String secret)
+		{
+			this.etag = etag;
+			this.data = data;
+			this.secret = secret;
+		}
+
+	}
+
+	/**
+	 * Cache entry definition.
+	 */
+	public static class UnauthorizedException extends Exception
+	{
 	}
 
 }

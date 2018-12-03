@@ -62,6 +62,48 @@
 				return graphGetGlobalVariable.apply(this, arguments);
 			};
 			
+			/**
+			 * Disables custom links on shapes.
+			 */
+			var graphGetLinkForCell = graph.getLinkForCell;
+			
+			graph.getLinkForCell = function(cell)
+			{
+				var link = graphGetLinkForCell.apply(this, arguments);
+				
+				if (link != null && this.isCustomLink(link))
+				{
+					link = null;
+				}
+				
+				return link;
+			};
+			
+			/**
+			 * Disables custom links in labels.
+			 */
+			var cellRendererRedrawLabelShape = graph.cellRenderer.redrawLabelShape;
+			
+			graph.cellRenderer.redrawLabelShape = function(shape)
+			{
+				cellRendererRedrawLabelShape.apply(this, arguments);
+				
+				if (shape.node != null)
+				{
+					var links = shape.node.getElementsByTagName('a');
+
+					for (var i = 0; i < links.length; i++)
+					{
+						var href = links[i].getAttribute('href');
+						
+						if (graph.isCustomLink(href))
+						{
+							links[i].setAttribute('href', '#');
+						}
+					}	
+				}
+			};
+			
 			var preview = null;
 			var waitCounter = 1;
 			var bounds;

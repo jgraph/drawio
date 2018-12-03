@@ -4,9 +4,7 @@
  */
 DriveLibrary = function(ui, data, desc)
 {
-	DriveFile.call(this, ui, data);
-	
-	this.desc = desc;
+	DriveFile.call(this, ui, data, desc);
 };
 
 //Extends mxEventSource

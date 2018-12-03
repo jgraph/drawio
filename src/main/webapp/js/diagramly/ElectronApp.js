@@ -89,7 +89,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		// Replaces file menu to replace openFrom menu with open and rename downloadAs to export
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import'], parent);
+			this.addMenuItems(menu, ['new', 'open', '-', 'synchronize', '-', 'save', 'saveAs', '-', 'import'], parent);
 			this.addSubmenu('exportAs', menu, parent);
 			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
@@ -372,10 +372,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		{
 			var path = paths[0];
 			
-			var success = mxUtils.bind(this, function(fileEntry, data)
+			var success = mxUtils.bind(this, function(fileEntry, data, stat)
 			{
 				var file = new LocalFile(this, data, '');
 				file.fileObject = fileEntry;
+				file.stat = stat;
 				this.fileLoaded(file);
 			});
 			
@@ -419,10 +420,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		var doPickFile = mxUtils.bind(this, function()
 		{
-			this.chooseFileEntry(mxUtils.bind(this, function(fileEntry, data)
+			this.chooseFileEntry(mxUtils.bind(this, function(fileEntry, data, stat)
 			{
 				var file = new LocalFile(this, data, '');
 				file.fileObject = fileEntry;
+				file.stat = stat;
 				this.fileLoaded(file);
 			}));
 		});
@@ -447,12 +449,13 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	 */
 	App.prototype.pickLibrary = function(mode)
 	{
-		this.chooseFileEntry(mxUtils.bind(this, function(fileEntry, data)
+		this.chooseFileEntry(mxUtils.bind(this, function(fileEntry, data, stat)
 		{
 			try
 			{
 				var library = new LocalLibrary(this, data, fileEntry.name);
 				library.fileObject = fileEntry;
+				library.stat = stat;
 				this.loadLibrary(library);
 			}
 			catch (e)
@@ -473,7 +476,10 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	           
         if (paths !== undefined && paths[0] != null)
         {
-			this.readGraphFile(fn, this.handleError.bind(this), paths[0]);
+			this.readGraphFile(fn, mxUtils.bind(this, function(err)
+			{
+				this.ui.handleError(err);
+			}), paths[0]);
         }
 	};
 
@@ -496,14 +502,25 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				{
 					// Detecting png by extension. Would need https://github.com/mscdex/mmmagic
 					// to do it by inspection
-					data = this.extractGraphModelFromPng(data, true);
+					data = this.extractGraphModelFromPng('data:image/png;base64,' + data);
 				}
 
 				var fileEntry = new Object();
 				fileEntry.path = path;
 				fileEntry.name = path.replace(/^.*[\\\/]/, '');
 				fileEntry.type = encoding;
-				fn(fileEntry, data);
+
+				fs.stat(path, function(err, stat)
+				{
+					if (err)
+					{
+						fnErr(err);
+					}
+					else
+					{
+						fn(fileEntry, data, stat);
+					}
+				});
 			}
 		}));
 	};
@@ -517,6 +534,89 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	};
 
 	mxUtils.extend(LocalFile, LocalFileCtor);
+
+	LocalFile.prototype.getLatestVersion = function(success, error)
+	{
+		this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
+		{
+			var file = new LocalFile(this, data, '');
+			file.stat = stat;
+			success(file);
+		}), error, this.fileObject.path);
+	};
+	
+	// Call save as for copy
+	LocalFile.prototype.copyFile = function(success, error)
+	{
+		this.saveAs(this.ui.getCopyFilename(this), success, error);
+	};
+
+	// Copy stat from source file on success
+	LocalFile.prototype.mergeFile = function(file, success, error)
+	{
+		DrawioFile.prototype.mergeFile.call(this, file, mxUtils.bind(this, function()
+		{
+			this.stat = file.stat;
+			
+			if (success != null)
+			{
+				success();
+			}
+		}), error);
+	};
+	
+	LocalFile.prototype.reloadFile = function(success)
+	{
+		this.ui.spinner.stop();
+		
+		var fn = mxUtils.bind(this, function()
+		{
+			this.setModified(false);
+			var page = this.ui.currentPage;
+			var viewState = this.ui.editor.graph.getViewState();
+			var selection = this.ui.editor.graph.getSelectionCells();
+			
+			if (this.ui.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
+				{
+					this.ui.spinner.stop();
+					
+					var file = new LocalFile(this.ui, data, '');
+					file.fileObject = fileEntry;
+					file.stat = stat;
+					
+					this.ui.fileLoaded(file);
+					this.ui.restoreViewState(page, viewState, selection);
+	
+					if (this.backupPatch != null)
+					{
+						this.patch([this.backupPatch]);
+					}
+					
+					if (success != null)
+					{
+						success();
+					}
+				}), mxUtils.bind(this, function(err)
+				{
+					this.ui.handleFileError(err);
+				}), this.fileObject.path);
+			}
+		});
+
+		if (this.isModified() && this.backupPatch == null)
+		{
+			this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
+			{
+				this.handleFileError();
+			}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
+		}
+		else
+		{
+			fn();
+		}
+	};
 
 	LocalFile.prototype.isAutosave = function()
 	{
@@ -546,100 +646,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	// Restores default implementation of open with autosave
 	LocalFile.prototype.open = DrawioFile.prototype.open;
 
-	LocalFile.prototype.save = function(revision, success, error)
+	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 	{
 		DrawioFile.prototype.save.apply(this, arguments);
 		
-		this.saveFile(revision, success, error);
-	};
-	
-	LocalFile.prototype.saveFile = function(revision, success, error)
-	{
-		var fn = mxUtils.bind(this, function()
-		{
-			var doSave = mxUtils.bind(this, function(data, enc)
-			{
-				if (!this.savingFile)
-				{
-					this.savingFile = true;
-					
-					// Makes sure no changes get lost while the file is saved
-					var prevModified = this.isModified;
-					var modified = this.isModified();
-					this.setModified(false);
-					var fs = require('fs');
-					
-					fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding, mxUtils.bind(this, function (e)
-				    {
-		        		if (e)
-		        		{
-		        			this.savingFile = false;
-							this.isModified = prevModified;
-							this.setModified(modified || this.isModified());
-							
-							if (error != null)
-							{
-		        				error();
-							}
-		        		}
-		        		else
-		        		{
-							this.savingFile = false;
-							this.isModified = prevModified;
-							this.contentChanged();
-							this.lastData = data;
-							
-							if (success != null)
-							{
-								success();
-							}
-		        		}
-		        	}));
-				}
-				else
-				{
-					// TODO, already saving. Need a better error
-					if (error != null)
-					{
-        				error();
-					}
-				}
-			});
-
-			if (!/(\.png)$/i.test(this.fileObject.name))
-			{
-				doSave(this.getData());
-			}
-			else
-			{
-				this.ui.getEmbeddedPng(function(data)
-				{
-					doSave(atob(data), 'binary');
-				}, error);
-			}
-		});
-		
-		if (this.fileObject == null)
-		{
-			const electron = require('electron');
-			var remote = electron.remote;
-			var dialog = remote.dialog;
-
-			var path = dialog.showSaveDialog({defaultPath: this.title});
-
-	        if (path != null)
-	        {
-				this.fileObject = new Object();
-				this.fileObject.path = path;
-				this.fileObject.name = path.replace(/^.*[\\\/]/, '');
-				this.fileObject.type = 'utf-8';
-				fn();
-			}
-		}
-		else
-		{
-			fn();
-		}
+		this.saveFile(revision, success, error, unloading, overwrite);
 	};
 
 	LocalLibrary.prototype.save = function(revision, success, error)
@@ -647,6 +658,135 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		LocalFile.prototype.saveFile.apply(this, arguments);
 	};
 	
+	LocalFile.prototype.isConflict = function(stat)
+	{
+		return stat.mtimeMs != this.stat.mtimeMs;
+	};
+	
+	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
+	{
+		if (!this.savingFile)
+		{
+			var fn = mxUtils.bind(this, function()
+			{
+				var doSave = mxUtils.bind(this, function(data, enc)
+				{
+					// Makes sure no changes get lost while the file is saved
+					var prevModified = this.isModified;
+					var modified = this.isModified();
+					this.setModified(false);
+					this.savingFile = true;
+					var fs = require('fs');
+					
+					var errorWrapper = mxUtils.bind(this, function()
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setModified(modified || this.isModified());
+						
+						if (error != null)
+						{
+	        				error();
+						}
+					});
+					
+					var writeFile = mxUtils.bind(this, function()
+					{
+						fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding,
+							mxUtils.bind(this, function (e)
+					    {
+			        		if (e)
+			        		{
+			        			errorWrapper();
+			        		}
+			        		else
+			        		{
+								fs.stat(this.fileObject.path, mxUtils.bind(this, function(e2, stat2)
+								{
+									if (e2)
+					        		{
+					        			errorWrapper();
+					        		}
+									else
+									{
+										this.savingFile = false;
+										this.isModified = prevModified;
+										this.stat = stat2;
+										this.contentChanged();
+										this.fileSaved(data);
+										
+										if (success != null)
+										{
+											success();
+										}
+									}
+								}));
+			        		}
+			        	}));
+					});
+					
+					if (overwrite)
+					{
+						writeFile();
+					}
+					else
+					{
+						fs.stat(this.fileObject.path, mxUtils.bind(this, function(err, stat)
+						{
+							if (stat != null && this.isConflict(stat))
+							{
+								this.inConflictState = true;
+								errorWrapper();
+							}
+							else if (err != null && err.code !== 'ENOENT')
+							{
+								errorWrapper();
+							}
+							else
+							{
+								writeFile();
+							}
+						}));
+					}
+				});
+	
+				if (!/(\.png)$/i.test(this.fileObject.name))
+				{
+					doSave(this.getData());
+				}
+				else
+				{
+					this.ui.getEmbeddedPng(function(data)
+					{
+						doSave(atob(data), 'binary');
+					}, error);
+				}
+			});
+			
+			if (this.fileObject == null)
+			{
+				const electron = require('electron');
+				var remote = electron.remote;
+				var dialog = remote.dialog;
+	
+				var path = dialog.showSaveDialog({defaultPath: this.title});
+	
+		        if (path != null)
+		        {
+					this.fileObject = new Object();
+					this.fileObject.path = path;
+					this.fileObject.name = path.replace(/^.*[\\\/]/, '');
+					this.fileObject.type = 'utf-8';
+					fn();
+				}
+			}
+			else
+			{
+				fn();
+			}
+		}
+	};
+
 	LocalFile.prototype.saveAs = function(title, success, error)
 	{
 		const electron = require('electron');
@@ -669,10 +809,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.fileObject.path = path;
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
+			
 			this.save(false, success, error);
 		}
 	};
-
+	
 	App.prototype.saveFile = function(forceDialog)
 	{
 		var file = this.getCurrentFile();
@@ -681,26 +822,22 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		{
 			if (!forceDialog && file.getTitle() != null)
 			{
-				file.save(true, mxUtils.bind(this, function(resp)
+				file.save(true, mxUtils.bind(this, function()
 				{
-					this.spinner.stop();
-					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
-				}), mxUtils.bind(this, function(resp)
+					file.handleFileSuccess(true);
+				}), mxUtils.bind(this, function(err)
 				{
-					this.editor.setStatus('');
-					this.handleError(resp, mxResources.get('errorSavingFile'));
+					file.handleFileError(err, true);
 				}));
 			}
 			else
 			{
-				file.saveAs(null, mxUtils.bind(this, function(resp)
+				file.saveAs(null, mxUtils.bind(this, function()
 				{
-					this.spinner.stop();
-					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
-				}), mxUtils.bind(this, function(resp)
+					file.handleFileSuccess(true);
+				}), mxUtils.bind(this, function(err)
 				{
-					this.editor.setStatus('');
-					this.handleError(resp, mxResources.get('errorSavingFile'));
+					file.handleFileError(err, true);
 				}));
 			}
 		}
