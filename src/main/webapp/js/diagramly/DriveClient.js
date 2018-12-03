@@ -566,8 +566,18 @@ DriveClient.prototype.updateUser = function(success, error, remember)
     	// Requests more information about the user (email address is sometimes not in info)
     	this.executeRequest(gapi.client.drive.about.get(), mxUtils.bind(this, function(resp)
     	{
-    		this.setUser(new DrawioUser(info.id, resp.user.emailAddress, resp.user.displayName,
-    				(resp.user.picture != null) ? resp.user.picture.url : null, info.locale));
+    		var email = mxResources.get('notAvailable');
+    		var name = email;
+    		var pic = null;
+    		
+    		if (resp != null && resp.user != null)
+    		{
+    			email = resp.user.emailAddress;
+    			name = resp.user.displayName;
+    			pic = (resp.user.picture != null) ? resp.user.picture.url : null;
+    		}
+    		
+    		this.setUser(new DrawioUser(info.id, email, name, pic, info.locale));
         	this.setUserId(info.id, remember);
 
     		if (success != null)

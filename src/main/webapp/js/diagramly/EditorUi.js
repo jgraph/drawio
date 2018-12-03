@@ -927,7 +927,10 @@
 				
 				if (forceReload)
 				{
-					currentFile.reloadFile();
+					currentFile.reloadFile(mxUtils.bind(this, function()
+					{
+						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
+					}));
 				}
 				else
 				{
@@ -4111,7 +4114,7 @@
 		cb.style.marginRight = '8px';
 		cb.style.marginTop = '16px';
 		cb.setAttribute('type', asRadio? 'radio' : 'checkbox');
-		var id = 'cb' + Math.random();
+		var id = 'geCheckbox-' + Editor.guid();
 		cb.id = id;
 		
 		if (radioGroupName != null)

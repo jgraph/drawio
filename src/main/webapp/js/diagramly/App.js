@@ -4530,6 +4530,8 @@ App.prototype.descriptorChanged = function()
 			}
 		}
 	}
+	
+	this.updateUi();
 };
 
 /**
