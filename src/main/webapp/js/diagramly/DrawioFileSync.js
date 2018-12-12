@@ -178,10 +178,14 @@ DrawioFileSync.prototype.start = function()
  */
 DrawioFileSync.prototype.isConnected = function()
 {
-	var state = (this.pusher != null && this.pusher.connection != null) ? this.pusher.connection.state : null;
-	var connected = state == 'initialized' || state == 'connecting' || state == 'connected';
-	
-	return connected;
+	if (this.pusher != null && this.pusher.connection != null)
+	{
+		return this.pusher.connection.state == 'connected';
+	}
+	else
+	{
+		return false;
+	}
 };
 
 /**
@@ -229,7 +233,6 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		if (this.collaboratorsElement == null)
 		{
 			var elt = document.createElement('a');
-			elt.setAttribute('href', 'javascript:void(0);');
 			elt.className = 'geButton';
 			elt.style.position = 'absolute';
 			elt.style.display = 'inline-block';
@@ -247,7 +250,14 @@ DrawioFileSync.prototype.updateOnlineState = function()
 	    	elt.style.opacity = '0.6';
 			elt.style.width = '16px';
 			elt.style.height = '16px';
-
+			
+			// Prevents focus
+		    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	        	mxUtils.bind(this, function(evt)
+	    	{
+				evt.preventDefault();
+			}));
+			
 			addClickHandler(elt);
 			this.ui.toolbarContainer.appendChild(elt);
 			this.collaboratorsElement = elt;
@@ -256,10 +266,28 @@ DrawioFileSync.prototype.updateOnlineState = function()
 	
 	if (this.collaboratorsElement != null)
 	{
-		this.collaboratorsElement.setAttribute('title', mxResources.get((!this.enabled) ? 'disconnected' :
-			((!this.ui.isOffline() && this.isConnected()) ? 'online' : 'offline')));
+		var status = '';
+		
+		if (!this.enabled)
+		{
+			status = mxResources.get('disconnected');
+		}
+		else if (this.file.invalidChecksum)
+		{
+			status = mxResources.get('error') + ': ' + mxResources.get('checksum');
+		}
+		else if (!this.ui.isOffline() || !this.isConnected())
+		{
+			status = mxResources.get('offline');
+		}
+		else
+		{
+			status = mxResources.get('online');
+		}
+		
+		this.collaboratorsElement.setAttribute('title', status);
 		this.collaboratorsElement.style.backgroundImage = 'url(' + ((!this.enabled) ? Editor.syncDisabledImage :
-			((!this.ui.isOffline() && this.isConnected()) ?
+			((!this.ui.isOffline() && this.isConnected() && !this.file.invalidChecksum) ?
 			Editor.syncImage : Editor.syncProblemImage)) + ')';
 	}
 };
@@ -752,7 +780,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
 		EditorUi.debug('Sync.merge', [this], 'from', this.file.getCurrentEtag(), 'to', etag,
 			'attempt', this.catchupRetryCount, 'diffs', patches, 'checksum', checksum);
-		
+
 		// Compares the checksum
 		if (checksum != null && checksum != current)
 		{
@@ -773,6 +801,9 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 	}
 	catch (e)
 	{
+		this.file.inConflictState = true;
+		this.file.invalidChecksum = true;
+		
 		if (window.console != null && urlParams['test'] == '1')
 		{
 			console.log(e);
@@ -784,12 +815,17 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		}
 		
 		// Reports errors during beta phase
+		var user = this.file.getCurrentUser();
+		var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
+		
 		this.ui.sendReport('Error in merge:\n' +
 			new Date().toISOString() + '\n' +
-			'Sync=' + DrawioFile.SYNC + '\n' +
-			'Id=' + this.file.getId() + '\n' +
+			'Client=' + this.clientId + '\n' +
+			'User=' + uid + '\n' +
+			'File=' + this.file.getId() + '\n' +
 			'Mode=' + this.file.getMode() + '\n' +
 			'Size=' + this.file.getSize() + '\n' +
+			'Sync=' + DrawioFile.SYNC + '\n' +
 			'Stack:\n' + e.stack);
 	}
 };
@@ -801,16 +837,21 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 DrawioFileSync.prototype.descriptorChanged = function(etag)
 {
 	this.lastModified = this.file.getLastModifiedDate();
-	var msg = this.objectToString(this.createMessage({a: 'desc',
-		m: this.lastModified.getTime()}));
-	var etag = this.file.getCurrentEtag();
-	var data = this.objectToString({});
 	
-	mxUtils.post(this.cacheUrl, this.getIdParameters() +
-		'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(etag) +
-		'&msg=' + encodeURIComponent(msg) + '&data=' + encodeURIComponent(data));
-	this.bytesSent += data.length;
-	this.msgSent++;
+	if (this.isConnected())
+	{
+		var msg = this.objectToString(this.createMessage({a: 'desc',
+			m: this.lastModified.getTime()}));
+		var current = this.file.getCurrentEtag();
+		var data = this.objectToString({});
+
+		mxUtils.post(this.cacheUrl, this.getIdParameters() +
+			'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
+			'&msg=' + encodeURIComponent(msg) + '&data=' + encodeURIComponent(data));
+		this.bytesSent += data.length;
+		this.msgSent++;
+	}
+	
 	this.updateStatus();
 };
 
@@ -853,8 +894,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc)
 	this.lastModified = this.file.getLastModifiedDate();
 	this.resetUpdateStatusThread();
 	this.catchupRetryCount = 0;
-
-	if (this.channelId != null && !this.file.inConflictState && !this.redirectDialogShowing)
+	
+	if (this.isConnected() && !this.file.inConflictState && !this.redirectDialogShowing)
 	{
 		// Computes diff and checksum
 		var shadow = (this.file.shadowPages != null) ?
@@ -948,19 +989,22 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
  */
 DrawioFileSync.prototype.destroy = function()
 {
-	var user = this.file.getCurrentUser();
-	var leave = {a: 'leave'};
-	
-	if (user != null)
+	if (this.isConnected())
 	{
-		leave.name = user.displayName;
-		leave.uid = user.id;
-	}
-	
-	mxUtils.post(this.cacheUrl, this.getIdParameters() +
-		'&msg=' + encodeURIComponent(this.objectToString(
-		this.createMessage(leave))));
+		var user = this.file.getCurrentUser();
+		var leave = {a: 'leave'};
+		
+		if (user != null)
+		{
+			leave.name = user.displayName;
+			leave.uid = user.id;
+		}
+		
+		mxUtils.post(this.cacheUrl, this.getIdParameters() +
+			'&msg=' + encodeURIComponent(this.objectToString(
+			this.createMessage(leave))));
 		this.msgSent++;
+	}
 
 	if (this.changeListener != null && this.channel != null)
 	{

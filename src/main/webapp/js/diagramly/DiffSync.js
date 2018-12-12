@@ -24,6 +24,34 @@ EditorUi.prototype.viewStateWhitelist = ['background', 'backgroundImage', 'foldi
 	'pageScale', 'mathEnabled', 'shadowVisible', 'pageFormat'];
 
 /**
+ * Removes any values, styles and geometries from the given XML node.
+ */
+EditorUi.prototype.anonymizeNode = function(node)
+{
+	var nodes = node.getElementsByTagName('mxCell');
+	
+	for (var i = 0; i < nodes.length; i++)
+	{
+		nodes[i].removeAttribute('value');
+		nodes[i].removeAttribute('style');
+		
+		if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
+			nodes[i].parentNode.parentNode != null)
+		{
+			nodes[i].setAttribute('id', nodes[i].parentNode.getAttribute('id'));
+			nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
+		}
+	}
+	
+	var geos = node.getElementsByTagName('mxGeometry');
+	
+	while (geos.length > 0)
+	{
+		geos[0].parentNode.removeChild(geos[0]);
+	}
+};
+
+/**
  * Removes all labels, user objects and styles from the given node in-place.
  */
 EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
@@ -56,8 +84,6 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 		}
 	}
 
-	var newFirstPage = null;
-	
 	if (diff[EditorUi.DIFF_INSERT] != null)
 	{
 		for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
@@ -107,40 +133,40 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 		
 		if (ins != null)
 		{
-			var diagram = mxUtils.parseXml(ins.data).documentElement;
-			var newPage = new DiagramPage(diagram);
-			this.updatePageRoot(newPage);
+			delete inserted[id];
+			insertPage(ins);
+		}
+	});
+	
+	var insertPage = mxUtils.bind(this, function(ins)
+	{
+		var diagram = mxUtils.parseXml(ins.data).documentElement;
+		var newPage = new DiagramPage(diagram);
+		this.updatePageRoot(newPage);
+		var page = lookup[newPage.getId()]; 
+		
+		if (page == null)
+		{
+			addPage(newPage);
+		}
+		else
+		{
+			// Updates root if page already in UI
+			page.root = newPage.root;
 
-			// Ignores insert if page already in UI
-			var page = lookup[newPage.getId()]; 
-			
-			if (page == null)
+			if (this.currentPage == page)
 			{
-				addPage(newPage);
+				this.editor.graph.model.setRoot(page.root);
 			}
-			else
+			else if (markPages)
 			{
-				// FIXME: Update index if previous has changed
-				page.root = newPage.root;
-
-				if (this.currentPage == page)
-				{
-					this.editor.graph.model.setRoot(page.root);
-				}
-				else if (markPages)
-				{
-					page.needsUpdate = true;
-				}
+				page.needsUpdate = true;
 			}
 		}
 	});
 	
 	addPage();
-	
-	// compute correct page order
-	var pageOrder = this.getPageOrder(diff[EditorUi.DIFF_UPDATE], diff[EditorUi.DIFF_INSERT], diff[EditorUi.DIFF_REMOVE], pages);
 
-	// Phase 1: run page patches; all pages should be patched/inserted/deleted afterwards; order might be wrong in the end  
 	for (var i = 0; i < pages.length; i++)
 	{
 		if (!removed[pages[i].getId()])
@@ -159,17 +185,25 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 			}
 		}
 	}
+	
+	// Handles orphaned moved pages
+	for (var id in moved)
+	{
+		addPage(lookup[moved[id]]);
+		delete moved[id];
+	}
+	
+	// Handles orphaned inserted pages
+	for (var id in inserted)
+	{
+		insertPage(inserted[id]);
+		delete inserted[id];
+	}
 
 	// Always needs at least one page
 	if (newPages.length == 0)
 	{
 		newPages.push(this.createPage());
-	}
-	
-	// Phase 2: Make sure order of pages is correct
-	if (urlParams['reorder-pages'] == '1')
-	{
-		newPages = this.reorderPages(pageOrder, newPages);
 	}
 	
 	return newPages;
@@ -202,6 +236,73 @@ EditorUi.prototype.patchViewState = function(page, diff)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
+EditorUi.prototype.createParentLookup = function(model, diff)
+{
+	var parentLookup = {};
+	
+	function getLookup(id)
+	{
+		var result = parentLookup[id];
+		
+		if (result == null)
+		{
+			result = {inserted: [], moved: {}};
+			parentLookup[id] = result;
+		}
+		
+		return result;
+	};
+	
+	if (diff[EditorUi.DIFF_INSERT] != null)
+	{
+		for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
+		{
+			var temp = diff[EditorUi.DIFF_INSERT][i];
+			var par = (temp.parent != null) ? temp.parent : '';
+			var prev = (temp.previous != null) ? temp.previous : '';
+			getLookup(par).inserted[prev] = temp;
+		}
+	}
+	
+	if (diff[EditorUi.DIFF_UPDATE] != null)
+	{
+		for (var id in diff[EditorUi.DIFF_UPDATE])
+		{
+			var temp = diff[EditorUi.DIFF_UPDATE][id];
+			
+			if (temp.previous != null)
+			{
+				var par = temp.parent;
+				
+				if (par == null)
+				{
+					var cell = model.getCell(id);
+					
+					if (cell != null)
+					{
+						var parent = model.getParent(cell);
+						
+						if (parent != null)
+						{
+							par = parent.getId();
+						}
+					} 
+				}
+				
+				if (par != null)
+				{
+					getLookup(par).moved[temp.previous] = id;
+				}
+			}
+		}
+	}
+	
+	return parentLookup;
+};
+
+/**
+ * Removes all labels, user objects and styles from the given node in-place.
+ */
 EditorUi.prototype.patchPage = function(page, diff, markPage, shadowPage)
 {
 	this.updatePageRoot(page);
@@ -210,121 +311,42 @@ EditorUi.prototype.patchPage = function(page, diff, markPage, shadowPage)
 	{
 		var model = (page == this.currentPage) ? this.editor.graph.model : new mxGraphModel(page.root);
 		var shadowModel = (shadowPage != null) ? new mxGraphModel(shadowPage.root) : null;
-		
+		var parentLookup = this.createParentLookup(model, diff);
+
 		model.beginUpdate();
 		try
 		{
-			if (diff[EditorUi.DIFF_INSERT] != null)
+			// Handles new root cells
+			var temp = parentLookup[''];
+			var cellDiff = (temp != null && temp.inserted != null) ? temp.inserted[''] : null;
+			var root = null;
+			
+			if (cellDiff != null)
 			{
-				var previous = {};
-				var lookup = {};
-				var cells = [];
+				root = this.getCellForJson(cellDiff);
+			}
+			
+			// Handles cells becoming root (very unlikely but possible)
+			if (root == null)
+			{
+				var id = (temp != null && temp.moved != null) ? temp.moved[''] : null;
 				
-				var doLookup = mxUtils.bind(this, function(id)
+				if (id != null)
 				{
-					if (id == null)
-					{
-						return null;
-					}
-					else
-					{
-						// Ignores insert if cell already in model
-						var cell = model.getCell(id);
-						
-						if (cell != null)
-						{
-							// FIXME: Update index if previous has changed
-							return cell;
-						}
-						else
-						{
-							var entry = lookup[id];
-							
-							if (entry != null)
-							{
-								return entry.cell;
-							}
-							
-							return null;
-						}
-					}
-				});
-				
-				var addCell = mxUtils.bind(this, function(cell, json)
-				{
-					if (json.parent == null)
-					{
-						model.setRoot(cell);
-						page.root = cell;
-					}
-					else
-					{
-						var parent = doLookup(json.parent);
-						
-						if (parent != null)
-						{
-							if (json.previous == null)
-							{
-								model.add(parent, cell, 0);
-							}
-							else
-							{
-								var prev = doLookup(json.previous);
-								var index = parent.getIndex(prev);
-								
-								if (index >= 0)
-								{
-									model.add(parent, cell, index + 1);
-								}
-							}
-						}
-					}
-					
-					var next = previous[cell.getId()];
-					
-					if (next != null)
-					{
-						var nextCell = lookup[next];
-						
-						if (nextCell != null)
-						{
-							addCell(nextCell.cell, nextCell.json);
-						}
-					}
-				});
-				
-				for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
-				{
-					var cell = this.getCellForJson(diff[EditorUi.DIFF_INSERT][i]);
-					lookup[cell.getId()] = {cell: cell, json: diff[EditorUi.DIFF_INSERT][i]};
-					previous[diff[EditorUi.DIFF_INSERT][i].previous] = cell.getId();
-					cells.push({cell: cell, json: diff[EditorUi.DIFF_INSERT][i]});
-				}
-				
-				for (var i = 0; i < cells.length; i++)
-				{
-					addCell(cells[i].cell, cells[i].json);
-				}
-				
-				for (var i = 0; i < cells.length; i++)
-				{
-					model.setTerminal(cells[i].cell, doLookup(cells[i].json.source), true);
-					model.setTerminal(cells[i].cell, doLookup(cells[i].json.target), false);
+					root = model.getCell(id);
 				}
 			}
-	
-			if (diff[EditorUi.DIFF_UPDATE] != null)
+			
+			if (root != null)
 			{
-				// reorder Ids to guarantee expected order of shapes
-				var orderedIds = this.arrangeChanges(diff[EditorUi.DIFF_UPDATE]);
-				
-				for (var i = 0; i < orderedIds.length; i++)
-				{
-				  var id = orderedIds[i];
-				  this.patchCell(model, diff[EditorUi.DIFF_UPDATE], id, shadowModel);
-				}
+				model.setRoot(root);
+				page.root = root;
 			}
+			
+			// Applies structural changes to the cell hierarchy
+			this.patchCellRecursive(page, model, model.root, parentLookup, diff, shadowModel);
 
+			// Removes cells
 			if (diff[EditorUi.DIFF_REMOVE] != null)
 			{
 				for (var i = 0; i < diff[EditorUi.DIFF_REMOVE].length; i++)
@@ -334,6 +356,32 @@ EditorUi.prototype.patchPage = function(page, diff, markPage, shadowPage)
 					if (cell != null)
 					{
 						model.remove(cell);
+					}
+				}
+			}
+
+			// Applies patches and changes terminals
+			if (diff[EditorUi.DIFF_UPDATE] != null)
+			{
+				for (var id in diff[EditorUi.DIFF_UPDATE])
+				{
+					this.patchCell(model, model.getCell(id), diff[EditorUi.DIFF_UPDATE][id],
+						(shadowModel != null) ? shadowModel.getCell(id) : null);
+				}
+			}
+
+			// Sets terminals for inserted cells
+			if (diff[EditorUi.DIFF_INSERT] != null)
+			{
+				for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
+				{
+					var cellDiff = diff[EditorUi.DIFF_INSERT][i];
+					var cell = model.getCell(cellDiff.id);
+					
+					if (cell != null)
+					{
+						model.setTerminal(cell, model.getCell(cellDiff.source), true);
+						model.setTerminal(cell, model.getCell(cellDiff.target), false);
 					}
 				}
 			}
@@ -353,13 +401,80 @@ EditorUi.prototype.patchPage = function(page, diff, markPage, shadowPage)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchCell = function(model, diff, id, shadowModel)
+EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup, diff, shadowModel)
 {
-	var shadowCell = (shadowModel != null) ? shadowModel.getCell(id) : null;
-	var cell = model.getCell(id);
-	var json = diff[id];
+	var temp = parentLookup[cell.getId()];
+	var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
+	var moved = (temp != null && temp.moved != null) ? temp.moved : {};
+	var children = (cell.children != null) ? cell.children.slice() : [];
+	var processed = {};
+	var index = 0;
+	
+	var addCell = mxUtils.bind(this, function(child, doInsert)
+	{
+		var id = (child != null) ? child.getId() : '';
+		
+		if (child != null)
+		{
+			if (doInsert)
+			{
+				model.add(cell, child, index);
+			}
 
-	// TODO: Add helper function or check mxUtils.isNode
+			index++;
+			this.patchCellRecursive(page, model, child,
+				parentLookup, diff, shadowModel);
+		}
+
+		var mov = moved[id];
+		
+		if (mov != null)
+		{
+			addCell(model.getCell(mov), true);
+			processed[mov] = true;
+			delete moved[id];
+		}
+		
+		var ins = inserted[id];
+		
+		if (ins != null)
+		{
+			addCell(this.getCellForJson(ins), true);
+			delete inserted[id];
+		}
+	});
+	
+	addCell();
+	
+	for (var i = 0; i < children.length; i++)
+	{
+		if (processed[children[i].getId()] == null &&
+			moved[children[i].getId()] == null)
+		{
+			addCell(children[i], false);
+		}
+	}
+
+	// Handles orphaned moved pages
+	for (var id in moved)
+	{
+		addCell(model.getCell(moved[id]), true);
+		delete moved[id];
+	}
+
+	// Handles orphaned inserted pages
+	for (var id in inserted)
+	{
+		addCell(this.getCellForJson(inserted[id]), true);
+		delete inserted[id];
+	}
+};
+
+/**
+ * Removes all labels, user objects and styles from the given node in-place.
+ */
+EditorUi.prototype.patchCell = function(model, cell, diff, shadowCell)
+{
 	function isNode(value)
 	{
 		return value != null && typeof value === 'object' && typeof value.nodeType === 'number' &&
@@ -383,100 +498,61 @@ EditorUi.prototype.patchCell = function(model, diff, id, shadowModel)
 		return false;
 	};
 	
-	if (cell != null && json != null)
+	if (cell != null && diff != null)
 	{
 		var codec = new mxCodec();
 		
 		// Last write wins for value and style
-		if (json.value != null)
+		if (diff.value != null)
 		{
 			if (!isLocalValueChanged())
 			{
-				model.setValue(cell, json.value);
+				model.setValue(cell, diff.value);
 			}
 		}
-		else if (json.xmlValue != null)
+		else if (diff.xmlValue != null)
 		{
 			if (!isLocalValueChanged())
 			{
-				model.setValue(cell, mxUtils.parseXml(json.xmlValue).documentElement);
+				model.setValue(cell, mxUtils.parseXml(diff.xmlValue).documentElement);
 			}
 		}
 		
-		if (json.style != null && !(shadowCell != null && shadowCell.style != null &&
+		if (diff.style != null && !(shadowCell != null && shadowCell.style != null &&
 			cell.style != null && cell.style != shadowCell.style))
 		{
-			model.setStyle(cell, json.style);
+			model.setStyle(cell, diff.style);
 		}
 
-		if (json.visible != null)
+		if (diff.visible != null)
 		{
-			model.setVisible(cell, json.visible == 1);
+			model.setVisible(cell, diff.visible == 1);
 		}
 
-		if (json.collapsed != null)
+		if (diff.collapsed != null)
 		{
-			model.setCollapsed(cell, json.collapsed == 1);
+			model.setCollapsed(cell, diff.collapsed == 1);
 		}
 
-		if (json.connectable != null)
+		if (diff.connectable != null)
 		{
 			// Changes connectable state in-place
-			cell.connectable = json.connectable == 1;
+			cell.connectable = diff.connectable == 1;
 		}
 		
-		if (json.geometry != null)
+		if (diff.geometry != null)
 		{
-			model.setGeometry(cell, codec.decode(mxUtils.parseXml(json.geometry).documentElement));
+			model.setGeometry(cell, codec.decode(mxUtils.parseXml(diff.geometry).documentElement));
 		}
 		
-		if (json.source != null)
+		if (diff.source != null)
 		{
-			model.setTerminal(cell, model.getCell(json.source), true);
+			model.setTerminal(cell, model.getCell(diff.source), true);
 		}
 		
-		if (json.target != null)
+		if (diff.target != null)
 		{
-			model.setTerminal(cell, model.getCell(json.target), false);
-		}
-		
-		if (json.parent != null)
-		{
-			var parent = model.getCell(json.parent);
-
-			if (json.previous == '')
-			{
-				model.add(parent, cell, 0);
-			}
-			else
-			{
-				var prev = model.getCell(json.previous);
-				var index = parent.getIndex(prev);
-				
-				if (index >= 0 || parent != cell.parent)
-				{
-					model.add(parent, cell, index + 1);
-				}
-			}
-		}
-		else if (json.previous != null)
-		{
-			var parent = cell.parent;
-
-			if (json.previous == '')
-			{
-				model.add(parent, cell, 0);
-			}
-			else
-			{
-				var prev = model.getCell(json.previous);
-				var index = parent.getIndex(prev);
-				
-				if (index >= 0 || parent != cell.parent)
-				{
-					model.add(parent, cell, index + 1);
-				}
-			}
+			model.setTerminal(cell, model.getCell(diff.target), false);
 		}
 	}
 };
@@ -519,7 +595,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 	
 	for (var i = 0; i < newPages.length; i++)
 	{
-		lookup[newPages[i].getId()] = {'page': newPages[i], 'prev': prev};
+		lookup[newPages[i].getId()] = {'page': newPages[i], 'prev': prev/*, 'index': i*/};
 		prev = newPages[i];
 	}
 
@@ -559,6 +635,8 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 				prev.getId() != newPage.prev.getId()))
 			{
 				pageDiff['previous'] = (newPage.prev != null) ? newPage.prev.getId() : '';
+				// LATER: If previous has vanished this could be used to add the intent
+				//pageDiff['index'] = newPage.index;
 			}
 			
 			if (oldPages[i].getName() != newPage.page.getName())
@@ -609,10 +687,10 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
+EditorUi.prototype.createCellLookup = function(cell, prev, index, lookup)
 {
 	lookup = (lookup != null) ? lookup : {};
-	lookup[cell.getId()] = {'cell': cell, 'prev': prev};
+	lookup[cell.getId()] = {'cell': cell, 'prev': prev/*, 'index': index*/};
 	
 	var childCount = cell.getChildCount();
 	prev = null;
@@ -620,7 +698,7 @@ EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
 	for (var i = 0; i < childCount; i++)
 	{
 		var child = cell.getChildAt(i);
-		this.createCellLookup(child, prev, lookup);
+		this.createCellLookup(child, prev, i, lookup);
 		prev = child;
 	}
 	
@@ -650,6 +728,8 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 			prev.getId() != newCell.prev.getId())))
 		{
 			temp['previous'] = (newCell.prev != null) ? newCell.prev.getId() : '';
+			// LATER: If previous has vanished this could be used to add the intent
+			//temp['index'] = newCell.index;
 		}
 		
 		if (Object.keys(temp).length > 0)
@@ -680,11 +760,9 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
 	this.updatePageRoot(newPage);
 
 	var removed = [];
-	var inserted = [];
-	var lookup = this.createCellLookup(newPage.root);
-
+	var lookup = this.createCellLookup(newPage.root, null, 0);
 	var diff = this.diffCellRecursive(oldPage.root, null, lookup, diff, removed);
-	var codec = new mxCodec();
+	var inserted = [];
 
 	for (var id in lookup)
 	{
@@ -733,7 +811,7 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 		{
 			var key = this.viewStateWhitelist[i];
 			
-			// TODO: Check if normalization is needed for
+			// LATER: Check if normalization is needed for
 			// attribute order to compare JSON output
 			var old = JSON.stringify(source[key]);
 			var now = JSON.stringify(target[key]);
@@ -782,14 +860,14 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 		edge: (cell.edge) ? 1 : 0};
 	var codec = new mxCodec();
 
-	if (previous != null)
-	{
-		result['previous'] = previous.getId();
-	}
-
 	if (cell.parent != null)
 	{
 		result['parent'] = cell.parent.getId();
+	}
+
+	if (previous != null)
+	{
+		result['previous'] = previous.getId();
 	}
 
 	if (cell.source != null)
@@ -850,10 +928,11 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 {
 	var diff = {};
 
-	if (oldCell.parent != null && newCell.parent != null &&
-		oldCell.parent.getId() != newCell.parent.getId())
+	if (((oldCell.parent != null) ? newCell.parent == null : newCell.parent != null) ||
+		(oldCell.parent != null && newCell.parent != null &&
+		oldCell.parent.getId() != newCell.parent.getId()))
 	{
-		diff['parent'] = newCell.parent.getId();
+		diff['parent'] = (newCell.parent != null) ? newCell.parent.getId() : '';
 	}
 	
 	if (((oldCell.source != null) ? newCell.source == null : newCell.source != null) ||
@@ -897,7 +976,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	
 	if (oldCell.style != newCell.style)
 	{
-		// TODO: Split into keys and do fine-grained diff
+		// LATER: Split into keys and do fine-grained diff
 		diff['style'] = newCell.style;
 	}
 	
@@ -952,227 +1031,3 @@ EditorUi.prototype.isObjectEqual = function(source, target, proto)
 		return JSON.stringify(source, replacer) == JSON.stringify(target, replacer);
 	}
 };
-
-/**
- * Arranges diff changes so that they are executed preserving correct order of nodes
- */
-EditorUi.prototype.arrangeChanges = function(changes)
-{
-	var chains = {};
-	var nodes = {};
-	var processedNodes = {};
-	var toExplore = [];
-	
-	// first, put all changed nodes as heads of their own chains
-	for (var id in changes)
-	{
-		var chainNode = {id: id, item: changes[id], previous: null, next: null};
-		chains[id] = chainNode;
-		nodes[id] = chainNode;
-		toExplore.push(id);
-	}
-	
-	// now go through all chain heads and link them to their previous nodes
-	for (var i = 0; i < toExplore.length; i++)
-	{
-		var id = toExplore[i];
-		var node = chains[id];
-		var item = node.item;
-		
-		// does the node have a previous item its position depends on?
-		if (item.previous != '')
-		{
-			// link node and its previous together in a single chain
-			var previousNode = nodes[item.previous];
-			if (previousNode != null)
-			{
-			    previousNode.next = node;
-				node.previous = previousNode;
-				// delete node as a chain head
-                delete chains[id];
-			}
-		}
-	}
-	
-	// now all nodes should be in their own chains with correct precedence; get order
-	result = [];
-	
-	// scan all chains starting from head
-	for (var headId in chains)
-	{
-		result.push(headId);
-		var node = chains[headId];
-		while (node.next != null)
-		{
-			node = node.next;
-			result.push(node.id);
-		}
-	}
-	
-	return result;
-};
-
-/**
- * Returns a correct page order after applying diffs
- */
-EditorUi.prototype.getPageOrder = function(changes, inserts, removes, pages)
-{
-	var previousNodes = {};
-	var nextNodes = {};
-	var initialPositions = {};
-	var firstNode = pages[0].getId();
-	var lastNode = pages[pages.length - 1].getId();
-	// setup previous/next relationship from initial pages
-	var numberOfPages = pages.length;
-	for (var i = 0; i < numberOfPages; i++)
-	{
-		var page = pages[i];
-		if (i > 0)
-		{
-		    previousNodes[page.getId()] = pages[i - 1].getId();
-		}
-		else
-		{
-			previousNodes[page.getId()] = null;
-		}
-		if (i < numberOfPages - 1)
-		{
-			nextNodes[page.getId()] = pages[i + 1].getId();
-		}
-		else
-		{
-			nextNodes[page.getId()] = null;
-		}
-		initialPositions[i] = page.getId();
-	}
-	
-	// process diff
-	
-	// first, apply removals
-	if (removes != null)
-	{
-		for (var id in removes)
-		{
-			var previousId = previousNodes[id];
-			var nextId = nextNodes[id];
-			if (previousId != null && previousId != '')
-			{
-				nextNodes[nextId] = previousId;
-			}
-			if (nextId != null)
-			{
-				previousNodes[nextId] = previousId;
-			}
-			if (previous == '')
-			{
-				firstNode = id;
-			}
-			if (id == lastNode)
-			{
-				lastNode = previousNodes[id];
-			}
-			delete previousNodes[id];
-			delete nextNodes[id];
-			numberOfPages--;
-		}
-	}
-	
-	// second, apply inserts
-	if (inserts != null)
-	{
-		for (var k in inserts)
-		{
-			var node = inserts[k]; // please consider adding ID to insert, otherwise the whole diagram XML has to be parsed
-			var diagram = mxUtils.parseXml(node.data).documentElement;
-			var id = diagram.attributes.id.nodeValue;
-			var previous = node.previous;
-			previousNodes[id] = previous;
-			if (previous != '')
-			{
-				// set next node of previous node to new node
-				nextNodes[previous] = id;
-			}
-			else
-			{
-				firstNode = id;
-			}
-			if (lastNode == previous)
-			{
-				lastNode = id;
-			}
-			numberOfPages++;
-		}
-	}
-	
-	// at last, apply diff changes
-	if (changes != null)
-	{
-		for (var id in changes)
-		{
-			var node = changes[id];
-			var previous = node.previous;
-			previousNodes[id] = previous;
-			if (previous != '')
-			{
-				nextNodes[previous] = id;
-			}
-			else
-			{
-				firstNode = id;
-			}
-		}
-	}
-	// get new positions
-	var finalPositions = {};
-	var id = firstNode;
-	var k = 0;
-	while (k < numberOfPages)
-	{
-		finalPositions[k] = id;
-		id = nextNodes[id];
-		k++;
-	}
-	// find position differences
-	var order = [];
-	var differences = [];
-	for (var i = 0; i < numberOfPages; i++)
-	{
-		if (finalPositions[i] != initialPositions[i])
-		{
-			differences.push(finalPositions[i]);
-		}
-		order.push(finalPositions[i]);
-	}
-	return order;
-};
-
-/**
- * Reorders pages to a given order (which is just a list of IDs in correct order sequence)
- */
-EditorUi.prototype.reorderPages = function(order, pages)
-{
-	var getPageById = function(id, pages)
-	{
-		for (var i = 0; i < pages.length; i++)
-		{
-			if (pages[i].getId() == id)
-			{
-				return pages[i];
-			}
-		}
-		return null;
-	}
-
-	result = [];
-	for (var i = 0; i < order.length; i++)
-	{
-		var page = getPageById(order[i], pages);
-		if (page.getId() != pages[i].getId())
-		{
-			console.log("page " + i + " changed to " + page.getId() + " from " + pages[i].getId());
-		}
-		result.push(page);
-	}
-	return result;
-};
-

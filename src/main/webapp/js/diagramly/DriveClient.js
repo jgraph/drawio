@@ -370,7 +370,7 @@ DriveClient.prototype.executeRequest = function(req, success, error)
 				else
 				{
 					// Errors for put request are in data instead of errors
-					var data = (resp.error != null) ? ((resp.error.data != null) ?
+					var data = (resp != null && resp.error != null) ? ((resp.error.data != null) ?
 						resp.error.data : resp.error.errors) : null;
 					var reason = (data != null && data.length > 0) ? data[0].reason : null; 
 					
@@ -853,33 +853,6 @@ DriveClient.prototype.loadRealtime = function(resp, success, error)
 	{
 		this.redirectToNewApp(error, resp.id);
 	}
-	// Checks if we're in viewer app or if the file is writeable if it needs to be converted
-	else if (this.appId != '850530949725' && (resp.editable || (resp.mimeType != 'application/mxe' &&
-		resp.mimeType != 'application/vnd.jgraph.mxfile')) && gapi.drive.realtime != null)
-	{
-		var fn = mxUtils.bind(this, function()
-		{
-			var acceptResponse = true;
-			
-			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-			{
-				acceptResponse = false;
-				error({code: App.ERROR_TIMEOUT, retry: fn});
-			}), this.ui.timeout);
-	
-			gapi.drive.realtime.load(resp.id, mxUtils.bind(this, function(doc)
-			{
-		    	window.clearTimeout(timeoutThread);
-		    	
-		    	if (acceptResponse)
-		    	{
-		    		success(doc);
-		    	}
-			}));
-		});
-		
-		fn();
-	}
 	// Shows the file as read-only without conversion
 	else
 	{
@@ -976,8 +949,9 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 				success(file);
 			}
 		}
-	}), error, (resp.mimeType.substring(0, 6) == 'image/' && resp.mimeType.substring(0, 9) != 'image/svg') ||
-		/\.png$/i.test(resp.title) || /\.jpe?g$/i.test(resp.title));
+	}), error, (resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
+		resp.mimeType.substring(0, 9) != 'image/svg') || /\.png$/i.test(resp.title) ||
+		/\.jpe?g$/i.test(resp.title));
 };
 
 /**
@@ -1016,7 +990,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			};
 			
 			// Overrides old mime type and creates a revision
-			if (file.realtime == null && this.isGoogleRealtimeMimeType(file.desc.mimeType))
+			if (this.isGoogleRealtimeMimeType(file.desc.mimeType))
 			{
 				meta.mimeType = this.xmlMimeType;
 				prevDesc = file.desc;
@@ -1113,8 +1087,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 				
 				// Used to check if file was changed externally
 				var etag = (!overwrite && file.constructor == DriveFile &&
-					file.realtime == null && (DrawioFile.SYNC == 'manual' ||
-					DrawioFile.SYNC == 'auto')) ? file.getCurrentEtag() : null;
+					(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
+					file.getCurrentEtag() : null;
 				var retryCount = 0;
 				
 				var executeSave = mxUtils.bind(this, function(realOverwrite)
@@ -1196,8 +1170,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		{
 			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-				(file.realtime != null && !file.realtime.connected) || !this.ui.getThumbnail(this.thumbnailWidth,
-				mxUtils.bind(this, function(canvas)
+				!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 				{
 					// Callback for getThumbnail
 					var thumb = null;
@@ -1230,7 +1203,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 				})))
 			{
 				// If-branch
-				doSave(null, null, file.constructor != DriveLibrary && (file.realtime == null || file.realtime.connected));
+				doSave(null, null, file.constructor != DriveLibrary);
 			}
 		});
 		
@@ -1257,39 +1230,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		{
 			error({message: mxResources.get('readOnly')});
 		}
-	}
-};
-
-/**
- * Sends a message to all collaborators and stores the head revision ID.
- */
-DriveClient.prototype.notifyRealtimeConverted = function(desc, age)
-{
-	try
-	{
-		if (gapi.drive.realtime != null)
-		{
-			gapi.drive.realtime.load(desc.id, mxUtils.bind(this, function(doc)
-			{
-				try
-				{
-					if (doc != null && doc.getModel() != null &&
-						doc.getModel().getRoot() != null)
-					{
-						doc.getModel().getRoot().set('realtimeConverted',
-							'rev=' + desc.headRevisionId + ' age=' + age);
-					}
-				}
-				catch (e)
-				{
-					// ignore
-				}
-			}));
-		}
-	}
-	catch (e)
-	{
-		// ignore
 	}
 };
 
@@ -1869,7 +1809,6 @@ DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
 		try
 		{
 			var age = this.getRealtimeAge(desc, json);
-			this.notifyRealtimeConverted(desc, age);
 			
 			// Uses realtime if newer or less than 5 minutes old
 			if (age < 300000)

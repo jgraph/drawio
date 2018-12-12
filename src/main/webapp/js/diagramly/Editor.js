@@ -1631,7 +1631,7 @@
 			var view = this.editorUi.editor.graph.view;
 			var state = view.getState(cell);
 			
-			if (state != null)
+			if (state != null && state.shape != null)
 			{
 				//Add common properties to all shapes
 				if (!state.shape.commonCustomPropAdded)
@@ -2667,56 +2667,59 @@
 			var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
 			
 			// mxRackContainer may be undefined as it is dynamically loaded at render time
-			if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
+			if (style != null)
 			{
-				var rackLayout = new mxStackLayout(this.graph, false);
-				
-				rackLayout.setChildGeometry = function(child, geo)
+				if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
 				{
-					var unitSize = 20;
-					geo.height = Math.max(geo.height, unitSize);
+					var rackLayout = new mxStackLayout(this.graph, false);
 					
-					if (geo.height / unitSize > 1)
+					rackLayout.setChildGeometry = function(child, geo)
 					{
-						var mod = geo.height % unitSize;
-						geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
-					}
-			
-					this.graph.getModel().setGeometry(child, geo);
-				};
-			
-				rackLayout.fill = true;
-				rackLayout.unitSize = mxRackContainer.unitSize | 20;
-				rackLayout.marginLeft = style['marginLeft'] || 0;
-				rackLayout.marginRight = style['marginRight'] || 0;
-				rackLayout.marginTop = style['marginTop'] || 0;
-				rackLayout.marginBottom = style['marginBottom'] || 0;
-				rackLayout.resizeParent = false;
+						var unitSize = 20;
+						geo.height = Math.max(geo.height, unitSize);
+						
+						if (geo.height / unitSize > 1)
+						{
+							var mod = geo.height % unitSize;
+							geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
+						}
 				
-				return rackLayout;
+						this.graph.getModel().setGeometry(child, geo);
+					};
+				
+					rackLayout.fill = true;
+					rackLayout.unitSize = mxRackContainer.unitSize | 20;
+					rackLayout.marginLeft = style['marginLeft'] || 0;
+					rackLayout.marginRight = style['marginRight'] || 0;
+					rackLayout.marginTop = style['marginTop'] || 0;
+					rackLayout.marginBottom = style['marginBottom'] || 0;
+					rackLayout.resizeParent = false;
+					
+					return rackLayout;
+				}
+				else if (typeof(mxTableLayout) != 'undefined' && style['childLayout'] == 'tableLayout')
+		        {
+		            var tableLayout = new mxTableLayout(this.graph);
+		            tableLayout.rows = style['tableRows'] || 2;
+		            tableLayout.columns = style['tableColumns'] || 2;
+		            tableLayout.colPercentages = style['colPercentages'];
+		            tableLayout.rowPercentages = style['rowPercentages'];
+		            tableLayout.equalColumns = mxUtils.getValue(style, 'equalColumns', tableLayout.colPercentages? '0' : '1') == '1';
+		            tableLayout.equalRows = mxUtils.getValue(style, 'equalRows', tableLayout.rowPercentages? '0' : '1') == '1';
+		            tableLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+		            tableLayout.border = style['tableBorder'] || tableLayout.border;
+		            tableLayout.marginLeft = style['marginLeft'] || 0;
+		            tableLayout.marginRight = style['marginRight'] || 0;
+		            tableLayout.marginTop = style['marginTop'] || 0;
+		            tableLayout.marginBottom = style['marginBottom'] || 0;
+		            tableLayout.autoAddCol = mxUtils.getValue(style, 'autoAddCol', '0') == '1';
+		            tableLayout.autoAddRow = mxUtils.getValue(style, 'autoAddRow', tableLayout.autoAddCol? '0' : '1') == '1';
+		            tableLayout.colWidths = style['colWidths'] || "100";
+		            tableLayout.rowHeights = style['rowHeights'] || "50";
+		            
+		            return tableLayout;
+		        }
 			}
-			else if (typeof(mxTableLayout) != 'undefined' && style['childLayout'] == 'tableLayout')
-	        {
-	            var tableLayout = new mxTableLayout(this.graph);
-	            tableLayout.rows = style['tableRows'] || 2;
-	            tableLayout.columns = style['tableColumns'] || 2;
-	            tableLayout.colPercentages = style['colPercentages'];
-	            tableLayout.rowPercentages = style['rowPercentages'];
-	            tableLayout.equalColumns = mxUtils.getValue(style, 'equalColumns', tableLayout.colPercentages? '0' : '1') == '1';
-	            tableLayout.equalRows = mxUtils.getValue(style, 'equalRows', tableLayout.rowPercentages? '0' : '1') == '1';
-	            tableLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-	            tableLayout.border = style['tableBorder'] || tableLayout.border;
-	            tableLayout.marginLeft = style['marginLeft'] || 0;
-	            tableLayout.marginRight = style['marginRight'] || 0;
-	            tableLayout.marginTop = style['marginTop'] || 0;
-	            tableLayout.marginBottom = style['marginBottom'] || 0;
-	            tableLayout.autoAddCol = mxUtils.getValue(style, 'autoAddCol', '0') == '1';
-	            tableLayout.autoAddRow = mxUtils.getValue(style, 'autoAddRow', tableLayout.autoAddCol? '0' : '1') == '1';
-	            tableLayout.colWidths = style['colWidths'] || "100";
-	            tableLayout.rowHeights = style['rowHeights'] || "50";
-	            
-	            return tableLayout;
-	        }
 			
 			return layoutManagerGetLayout.apply(this, arguments);
 		}

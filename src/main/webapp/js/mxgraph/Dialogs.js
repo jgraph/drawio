@@ -2150,7 +2150,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			graph.model.beginUpdate();
 			try
 			{
-				newCell = graph.cloneCells([selectionLayer])[0];
+				newCell = graph.cloneCell(selectionLayer);
 				graph.cellLabelChanged(newCell, mxResources.get('untitledLayer'));
 				newCell.setVisible(true);
 				newCell = graph.addCell(newCell, graph.model.root);

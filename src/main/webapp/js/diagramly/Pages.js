@@ -771,6 +771,11 @@ EditorUi.prototype.insertPage = function(page, index)
 {
 	if (this.editor.graph.isEnabled())
 	{
+		if (this.editor.graph.isEditing())
+		{
+			this.editor.graph.stopEditing(false);
+		}
+		
 		page = (page != null) ? page : this.createPage();
 		index = (index != null) ? index : this.pages.length;
 		
@@ -833,6 +838,11 @@ EditorUi.prototype.removePage = function(page)
 	
 	if (graph.isEnabled())
 	{
+		if (this.editor.graph.isEditing())
+		{
+			this.editor.graph.stopEditing(false);
+		}
+		
 		graph.model.beginUpdate();
 		try
 		{
@@ -896,7 +906,7 @@ EditorUi.prototype.duplicatePage = function(page, name)
 		node.removeAttribute('id');
 		
 		var newPage = new DiagramPage(node);
-		newPage.root = graph.cloneCells([graph.model.root])[0];
+		newPage.root = graph.cloneCell(graph.model.root);
 		newPage.viewState = graph.getViewState();
 		
 		// Resets zoom and scrollbar positions

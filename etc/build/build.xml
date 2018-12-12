@@ -333,8 +333,6 @@
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="DrawioClient.js" />
 				<file name="DrawioUser.js" />
-				<file name="DriveRealtime.js" />
-				<file name="RealtimeMapping.js" />
 				<file name="DriveFile.js" />
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
@@ -350,7 +348,6 @@
 				<file name="TrelloFile.js" />
 				<file name="TrelloLibrary.js" />
 				<file name="TrelloClient.js" />
-				<file name="ChatWindow.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/diagramly">

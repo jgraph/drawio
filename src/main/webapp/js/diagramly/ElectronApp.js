@@ -619,7 +619,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 						}
 					}), mxUtils.bind(this, function(err)
 					{
-						this.ui.handleFileError(err);
+						this.handleFileError(err);
 					}), this.fileObject.path);
 				}
 			});

@@ -419,7 +419,8 @@
 			 				'align', 'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
 		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
 		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
-		                    'endSize', 'startStill', 'startArrow', 'startSize', 'arcSize'];
+		                    'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
+		                    'arcSize'];
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{
@@ -741,16 +742,32 @@
 							elt.style.width = '16px';
 							elt.style.paddingTop = '2px';
 							elt.style.paddingLeft = '4px';
-							elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
 							elt.style.zIndex = '1';
 							elt.style.position = 'absolute';
 							elt.style.top = '2px';
 							elt.style.right = '17px';
 							elt.style.display = 'block';
+							elt.style.cursor = 'pointer';
 							
 							if (!mxClient.IS_VML)
 							{
-								mxUtils.setOpacity(elt, 60);
+								var icon = document.createElement('div');
+								icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+								icon.style.backgroundPosition = 'center center';
+								icon.style.backgroundRepeat = 'no-repeat';
+								icon.style.backgroundSize = '19px 19px';
+								icon.style.position = 'absolute';
+								icon.style.height = '19px';
+								icon.style.width = '19px';
+								icon.style.marginTop = '2px';
+								icon.style.zIndex = '1';
+								elt.appendChild(icon);
+								
+								mxUtils.setOpacity(elt, 40);
+							}
+							else
+							{
+								elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
 							}
 							
 							document.body.appendChild(elt);
@@ -975,25 +992,8 @@
 					
 				this.addMenuItems(menu, ['testXmlImageExport'], parent);
 
-				mxResources.parse('testShowRtModel=Show RT model');
-				mxResources.parse('testDebugRtModel=Debug RT model');
 				mxResources.parse('testDownloadRtModel=Export RT model');
 				mxResources.parse('testImportRtModel=Import RT model');
-				
-				this.editorUi.actions.addAction('testShowRtModel', mxUtils.bind(this, function()
-				{
-					if (this.editorUi.getCurrentFile() != null && this.editorUi.getCurrentFile().realtime != null)
-					{
-						console.log('bytesUsed', this.editorUi.getCurrentFile().realtime.rtModel.bytesUsed);
-						console.log('root', this.editorUi.getCurrentFile().realtime.dumpRoot());
-						this.editorUi.getCurrentFile().realtime.check();
-					}
-				}));
-				
-				this.editorUi.actions.addAction('testDebugRtModel', mxUtils.bind(this, function()
-				{
-					gapi.drive.realtime.debug();
-				}));
 				
 				this.editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
 				{
@@ -1040,11 +1040,6 @@
 						}));
 					}
 				}));
-
-				if (this.editorUi.getCurrentFile() != null && this.editorUi.getCurrentFile().realtime != null)
-				{
-					this.addMenuItems(menu, ['-', 'testShowRtModel', 'testDebugRtModel', 'testDownloadRtModel'], parent);
-				}
 
 				this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
 				
@@ -1479,8 +1474,6 @@
 			}
 		})));
 
-		this.editorUi.actions.addAction('chatWindowTitle...', mxUtils.bind(this.editorUi, this.editorUi.toggleChat));
-		
 		this.put('importFrom', new Menu(function(menu, parent)
 		{
 			var doImportFile = mxUtils.bind(this, function(data, mime, filename)
@@ -2635,25 +2628,13 @@
 						this.addMenuItems(menu, ['exportOptionsDisabled'], parent);
 					}
 					
-					if (file.realtime == null)
+					this.addMenuItems(menu, ['save', '-', 'share'], parent);
+					
+					var item = this.addMenuItem(menu, 'synchronize', parent);
+					
+					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 					{
-						this.addMenuItems(menu, ['save', '-', 'share'], parent);
-						
-						var item = this.addMenuItem(menu, 'synchronize', parent);
-						
-						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
-						{
-							this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
-						}
-					}
-					else
-					{
-						if (!file.isAutosave())
-						{
-							this.addMenuItems(menu, ['save'], parent);
-						}
-						
-						this.addMenuItems(menu, ['share', 'chatWindowTitle', '-'], parent);
+						this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
 					}
 					
 					menu.addSeparator(parent);
@@ -2725,11 +2706,6 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				if (file != null && file.constructor == DriveFile && file.realtime != null)
-				{
-					this.addMenuItems(menu, ['createRevision'], parent);
-				}
-
 				this.addMenuItems(menu, ['-', 'pageSetup'], parent);
 				
 				// Cannot use print in standalone mode on iOS as we cannot open new windows

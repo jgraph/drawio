@@ -410,7 +410,112 @@
 /**
  * Main
  */
-App.main();
+App.main(function(ui)
+{
+	// Instruments model.cloneCells
+	var lastReport = 0;
+	
+	// Checks the array for nulls and duplicates
+	ui.editor.graph.model.cloneCells = function(cells, includeChildren, mapping)
+	{
+		try
+		{
+			var rep = [];
+			var dups = 0;
+			var nils = 0;
+			var lookup = {};
+			
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (cells[i] == null)
+				{
+					nils++;
+				}
+				else
+				{
+					var id = mxObjectIdentity.get(cells[i]);
+					
+					if (lookup[id] != null)
+					{
+						dups++;
+						
+						rep.push('Checking duplicate:', id, 'Equal:', lookup[id] == cells[i]);
+					}
+					else
+					{
+						lookup[id] = cells[i];
+					}
+				}
+			}
+			
+			if (nils > 0 || dups > 0)
+			{
+				var now = new Date().getTime();
+				
+				// Do not send too many reports
+				if (now - lastReport > 30000)
+				{
+					var codec = new mxCodec();
+					var model = new mxGraphModel();
+					var parent = model.getChildAt(model.getRoot(), 0);
+					
+					for (var i = 0; i < cells.length; i++)
+					{
+						model.add(parent, cells[i]);
+					}
+
+					var node = codec.encode(model);
+					
+					// To avoid NPE with an old version of app.min
+					if (ui.anonymizeNode != null)
+					{
+						ui.anonymizeNode(node);
+					}
+					else
+					{
+						// Get structural info for analysis
+						var nodes = node.getElementsByTagName('mxCell');
+					
+						for (var i = 0; i < nodes.length; i++)
+						{
+							nodes[i].removeAttribute('value');
+							nodes[i].removeAttribute('style');
+							
+							if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
+								nodes[i].parentNode.parentNode != null)
+							{
+								nodes[i].setAttribute('id', nodes[i].parentNode.getAttribute('id'));
+								nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
+							}
+						}
+						
+						var geos = node.getElementsByTagName('mxGeometry');
+						
+						while (geos.length > 0)
+						{
+							geos[0].parentNode.removeChild(geos[0]);
+						}
+					}
+					
+					ui.sendReport(dups + ' duplicates and ' +
+						nils + ' nulls in ' + cells.length + ':\n' +
+						new Error().stack + '\n\n' + 
+						mxUtils.getPrettyXml(node) + '\n' +
+						rep.join('\n') + '\n' +
+						'Agent: ' + navigator.userAgent);
+				}
+				
+				lastReport = now;
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
+		return mxGraphModel.prototype.cloneCells.apply(this, arguments);
+	};
+});
 </script>
 </body>
 </html>

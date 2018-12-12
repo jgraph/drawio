@@ -930,6 +930,9 @@
 					currentFile.reloadFile(mxUtils.bind(this, function()
 					{
 						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
+					}), mxUtils.bind(this, function(err)
+					{
+						currentFile.handleFileError(err, true);
 					}));
 				}
 				else
@@ -1140,9 +1143,9 @@
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
 
 		// Checks for parser errors
-		var errors = node.getElementsByTagName('parsererror');
+		var errors = (node != null) ? node.getElementsByTagName('parsererror') : null;
 		
-		if (errors.length > 0)
+		if (errors != null && errors.length > 0)
 		{
 			var cause = mxResources.get('invalidOrMissingFile');
 			var divs = errors[0].getElementsByTagName('div');
@@ -1938,17 +1941,14 @@
 				this.updateUi();
 				
 				// Realtime files have a valid status message
-				if (file.realtime == null)
+				if (!file.isEditable())
 				{
-					if (!file.isEditable())
-					{
-						this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
-							mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
-					}
-					else
-					{
-						this.editor.setStatus('');
-					}
+					this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
+						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
+				}
+				else
+				{
+					this.editor.setStatus('');
 				}
 	
 				if (!this.editor.isChromelessView() || this.editor.editable)
@@ -2040,15 +2040,7 @@
 					}
 					else if (oldFile != null)
 					{
-						// Workaround for close realtime model is to reload the file from scratch
-						if (oldFile.constructor == DriveFile && oldFile.realtime != null)
-						{
-							this.loadFile(oldFile.getHash());
-						}
-						else
-						{
-							this.fileLoaded(oldFile);
-						}
+						this.fileLoaded(oldFile);
 					}
 					else
 					{
@@ -2128,7 +2120,7 @@
 	 */
 	EditorUi.prototype.getHashValueForPages = function(pages)
 	{
-		// FIXME: Workaround for object hash too detailed
+		// TODO: Avoid encoding to XML to make it faster
 		var hash = 0;
 		var model = new mxGraphModel();
 		var codec = new mxCodec();
@@ -2167,21 +2159,27 @@
 				hash = hash ^ this.hashValue(obj.nodeName, replacer);
 			}
 			
-			for (var i = 0; i < obj.attributes.length; i++)
+			if (obj.attributes != null)
 			{
-				var key = obj.attributes[i].name;
-				var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
-
-				if (value != null)
+				for (var i = 0; i < obj.attributes.length; i++)
 				{
-					hash = hash ^ this.hashValue(key, replacer) ^
-						this.hashValue(value, replacer);
+					var key = obj.attributes[i].name;
+					var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
+	
+					if (value != null)
+					{
+						hash = hash ^ (this.hashValue(key, replacer) +
+							this.hashValue(value, replacer));
+					}
 				}
 			}
 			
-			for (var i = 0; i < obj.children.length; i++)
+			if (obj.childNodes != null)
 			{
-				hash = ((hash << 5) - hash + this.hashValue(obj.children[i], replacer)) << 0;
+				for (var i = 0; i < obj.childNodes.length; i++)
+				{
+					hash = ((hash << 5) - hash + this.hashValue(obj.childNodes[i], replacer)) << 0;
+				}
 			}
 		}
 		else if (obj != null && typeof obj !== 'function')
@@ -3237,13 +3235,19 @@
 		div.style.borderWidth = '3px';
 
 		var elt2 = document.createElement('a');
-		elt2.setAttribute('href', 'javascript:void(0);');
 		elt2.className = 'geTitle';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
 
 		mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
 
+		// Prevents focus
+		mxEvent.addListener(elt2, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+			mxUtils.bind(this, function(evt)
+		{
+			evt.preventDefault();
+		}));
+		
 		mxEvent.addListener(elt2, 'click', mxUtils.bind(this, function(evt)
 		{
 			this.actions.get('shapes').funct();
@@ -3285,13 +3289,7 @@
 					};
 				}
 				
-				if (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' && typeof(gapi.drive.realtime) != 'undefined' &&
-					e.type == gapi.drive.realtime.ErrorType.FORBIDDEN)
-				{
-					msg = mxUtils.htmlEntities(mxResources.get('forbidden'));
-				}
-				else if (e.code == 404 || e.status == 404 || (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' &&
-						typeof(gapi.drive.realtime) != 'undefined' && e.type == gapi.drive.realtime.ErrorType.NOT_FOUND))
+				if (e.code == 404 || e.status == 404)
 				{
 					msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
 					var id = window.location.hash;
