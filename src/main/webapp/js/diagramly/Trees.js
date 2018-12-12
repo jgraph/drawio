@@ -374,7 +374,7 @@
 							
 							if (newEdges.length == 0 && edges.length > 0)
 							{
-								var clone = this.cloneCells([edges[0]])[0];
+								var clone = this.cloneCell(edges[0]);
 								this.addEdge(clone, graph.getDefaultParent(),
 									this.model.getTerminal(edges[0], true), result[i]);
 							}
@@ -482,7 +482,7 @@
 											temp = graph.model.getTerminal(edges[0], true);
 										}
 										
-										var clone = this.cloneCells([edges[0]])[0];
+										var clone = this.cloneCell(edges[0]);
 										this.addEdge(clone, graph.getDefaultParent(), temp, result[i]);
 									}
 								}

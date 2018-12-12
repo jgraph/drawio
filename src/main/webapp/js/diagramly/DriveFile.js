@@ -2,16 +2,11 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-DriveFile = function(ui, data, desc, doc)
+DriveFile = function(ui, data, desc)
 {
 	DrawioFile.call(this, ui, data);
 	
 	this.desc = desc;
-
-	if (doc != null && doc.getModel() != null && doc.getModel().getRoot() != null)
-	{
-		this.realtime = new DriveRealtime(this, doc);
-	}
 };
 
 //Extends mxEventSource
@@ -105,49 +100,7 @@ DriveFile.prototype.getPublicUrl = function(fn)
  */
 DriveFile.prototype.isAutosaveOptional = function()
 {
-	return this.realtime == null;
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-DriveFile.prototype.isAutosave = function()
-{
-	return !this.inConflictState && (this.ui.editor.autosave ||
-		(this.realtime != null && this.isAutosaveRevision()));
-};
-
-/**
- * Returns true if an autosave is required at the time of execution.
- * This implementation returns true.
- */
-DriveFile.prototype.isAutosaveNow = function()
-{
-	if (this.realtime != null && this.realtime.root != null)
-	{
-		var backup = parseInt(this.realtime.root.get('backupDate'));
-		var modified = parseInt(this.realtime.root.get('modifiedDate'));
-
-		return isNaN(backup) || isNaN(modified) || backup < modified;
-	}
-	else
-	{
-		return true;
-	}
-};
-
-/**
- * Hooks for subclassers after the autosave has completed.
- */
-DriveFile.prototype.autosaveCompleted = function()
-{
-	if (this.realtime != null && this.realtime.root != null)
-	{
-		this.realtime.root.set('backupDate', new Date().getTime());
-	}
+	return true;
 };
 
 /**
@@ -452,31 +405,8 @@ DriveFile.prototype.getId = function()
  */
 DriveFile.prototype.isEditable = function()
 {
-	var editable = DrawioFile.prototype.isEditable.apply(this, arguments);
-	
-	if (this.realtime != null)
-	{
-		return editable && !this.realtime.rtModel.isReadOnly;
-	}
-	else
-	{
-		return editable && this.desc.editable;
-	}
-};
-
-/**
- * Returns the location as a new object.
- */
-DriveFile.prototype.open = function()
-{
-	if (this.realtime != null)
-	{
-		this.realtime.start();
-	}
-	else
-	{
-		DrawioFile.prototype.open.apply(this, arguments);
-	}
+	return DrawioFile.prototype.isEditable.apply(this, arguments) &&
+		this.desc.editable;
 };
 
 /**
@@ -633,19 +563,4 @@ DriveFile.prototype.loadPatchDescriptor = function(success, error)
 DriveFile.prototype.loadDescriptor = function(success, error)
 {
 	this.ui.drive.loadDescriptor(this.getId(), success, error);
-};
-
-/**
- * Returns the location as a new object.
- */
-DriveFile.prototype.close = function(unloading)
-{
-	unloading = (unloading != null) ? unloading : false;
-	DrawioFile.prototype.close.apply(this, arguments);
-	
-	if (this.realtime != null)
-	{
-		this.realtime.destroy(unloading);
-		this.realtime = null;
-	}
 };

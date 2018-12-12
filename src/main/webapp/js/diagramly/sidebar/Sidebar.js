@@ -1382,7 +1382,7 @@
 		
 		if (cells != null && graph.getSelectionCount() == 1 && graph.getModel().isVertex(cells[0]))
 		{
-			var target = graph.cloneCells(cells)[0];
+			var target = graph.cloneCell(cells[0]);
 			
 			// Inserts cell as target of selected edge if not connected
 			if (graph.getModel().isEdge(graph.getSelectionCell()) && graph.getModel().getTerminal(graph.getSelectionCell(), false) == null &&

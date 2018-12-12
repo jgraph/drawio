@@ -181,7 +181,7 @@ EditorUi.initMinimalTheme = function()
 	                }));
 
 	                elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;width:50%;' +
-	                	'height:24px;bottom:0px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
+	                	'height:24px;bottom:0px;text-align:center;cursor:pointer;padding:6px 0 0 0;cusor:pointer;';
 	                elt.className = 'geTitle';
 		            container.appendChild(elt);
 	                
@@ -745,16 +745,10 @@ EditorUi.initMinimalTheme = function()
 				if (file != null && file.constructor == DriveFile)
 				{
 					ui.menus.addMenuItems(menu, ['share'], parent);
-					
-					if (file.realtime != null)
-					{
-						ui.menus.addMenuItems(menu, ['chatWindowTitle'], parent);
-					}
 				}
 				
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-					file != null && file.constructor != LocalFile &&
-					file.realtime == null)
+					file != null && file.constructor != LocalFile)
 				{
 					ui.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
@@ -791,16 +785,7 @@ EditorUi.initMinimalTheme = function()
 			
 			if (file != null && file.constructor == DriveFile)
 			{
-				if (file.realtime == null)
-				{
-					ui.menus.addMenuItems(menu, ['save'], parent);
-				}
-				else
-				{
-					ui.menus.addMenuItems(menu, ['createRevision'], parent);
-				}
-				
-				ui.menus.addMenuItems(menu, ['makeCopy', '-', 'rename', 'moveToFolder'], parent);
+				ui.menus.addMenuItems(menu, ['save', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
 			}
 			else
 			{
@@ -991,6 +976,7 @@ EditorUi.initMinimalTheme = function()
             elt.style.height = '30px';
             elt.style.paddingTop = '6px';
             elt.style.paddingBottom = '6px';
+            elt.style.cursor = 'pointer';
             elt.setAttribute('title', mxResources.get(id));
             ui.menus.menuCreated(menu, elt, 'geMenuItem');
             
@@ -1018,7 +1004,6 @@ EditorUi.initMinimalTheme = function()
         function addMenuItem(label, fn, small, tooltip, action, img)
         {
             var btn = document.createElement('a');
-            btn.setAttribute('href', 'javascript:void(0)');
             btn.className = 'geMenuItem';
             btn.style.display = 'inline-block';
             btn.style.boxSizing = 'border-box';
@@ -1050,6 +1035,13 @@ EditorUi.initMinimalTheme = function()
                 mxUtils.write(btn, label);
             }
             
+    		// Prevents focus
+            mxEvent.addListener(btn, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+            	mxUtils.bind(this, function(evt)
+    		{
+    			evt.preventDefault();
+    		}));
+            
             mxEvent.addListener(btn, 'click', function(evt)
             {
             	if (btn.getAttribute('disabled') != 'disabled')
@@ -1080,7 +1072,7 @@ EditorUi.initMinimalTheme = function()
                     {
                         btn.removeAttribute('disabled');
                         mxUtils.setOpacity(btn, (img != null) ? 40 : 100);
-                        btn.style.cursor = '';
+                        btn.style.cursor = 'pointer';
                     }
                     else
                     {

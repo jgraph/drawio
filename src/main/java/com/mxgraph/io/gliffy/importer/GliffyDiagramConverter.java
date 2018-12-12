@@ -888,7 +888,7 @@ public class GliffyDiagramConverter
 				gLane.mxObject = mxLane;
 			}
 		}
-		else if (gliffyObject.isMindmap())
+		else if (gliffyObject.isMindmap() && gliffyObject.children != null && !gliffyObject.children.isEmpty())
 		{
 			GliffyObject rectangle = gliffyObject.children.get(0);
 

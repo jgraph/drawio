@@ -1,3 +1,31 @@
+11-DEC-2018: 9.6.1
+
+- Adds source-/targetPerimeterSpacing to default style
+- Fixes font style button states in Edge, FF and IE
+- Removes Google realtime API
+- Fixes focus handling on iOS
+
+10-DEC-2018: 9.6.0
+
+- Fixes for collaborative editing (beta)
+- Fixes minor bugs
+
+06-DEC-2018: 9.5.9
+
+- Uses PlantUML build 4
+
+04-DEC-2018: 9.5.8
+
+- Fixes focus handling in format panel
+
+04-DEC-2018: 9.5.7
+
+- Removes dummy href attributes
+
+04-DEC-2018: 9.5.6
+
+- Uses mxGraph 3.9.11 beta 8
+
 03-DEC-2018: 9.5.5
 
 - Adds unsaved status for new files in Desktop

@@ -210,8 +210,7 @@ App.GOOGLE_REALTIME = urlParams['google-realtime'] != '0' && new Date().getTime(
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
-App.GOOGLE_APIS = 'client,drive-share,drive-realtime';
-//App.GOOGLE_APIS = 'client,drive-share' + ((App.GOOGLE_REALTIME) ? ',drive-realtime' : ''); 
+App.GOOGLE_APIS = 'client,drive-share'; 
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
@@ -674,7 +673,7 @@ App.main = function(callback, createUi)
 			}
 		}, function(xhr)
 		{
-			document.getElementById('geStatus').innerHTML = 'Error loading page. <a href="javascript:void(0);">Please try refreshing.</a>';
+			document.getElementById('geStatus').innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
 			
 			// Tries reload with default resources in case any language resources were not available
 			document.getElementById('geStatus').getElementsByTagName('a')[0].onclick = function()
@@ -990,8 +989,6 @@ App.prototype.init = function()
 						{
 							gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
 							{
-								this.defineCustomObjects();
-								
 								// Needed to avoid popup blocking for non-immediate authentication
 								gapi.auth.init(mxUtils.bind(this, function()
 								{
@@ -1331,7 +1328,7 @@ App.prototype.getEditBlankXml = function()
 {
 	var file = this.getCurrentFile();
 	
-	if (file != null && this.editor.isChromelessView() && this.editor.graph.isLightboxView() && file.realtime == null)
+	if (file != null && this.editor.isChromelessView() && this.editor.graph.isLightboxView())
 	{
 		return file.getData();
 	}
@@ -1506,8 +1503,7 @@ App.prototype.onBeforeUnload = function()
 			{
 				return mxResources.get('ensureDataSaved');
 			}
-			else if ((file.constructor != DriveFile || file.realtime == null ||
-					file.realtime.saving) && file.isModified())
+			else if (file.isModified())
 			{
 				return mxResources.get('allChangesLost');
 			}
@@ -2151,7 +2147,6 @@ App.prototype.showAlert = function(message)
 		close.style.textAlign = 'right';
 		close.style.marginTop = '20px';
 		close.style.display = 'block';
-		close.setAttribute('href', 'javascript:void(0);');
 		close.setAttribute('title', mxResources.get('close'));
 		close.innerHTML = mxResources.get('close');
 		div.appendChild(close);
@@ -2378,12 +2373,6 @@ App.prototype.start = function()
 				}
 			});
 	
-			// Defines custom classes for realtime in Google Drive
-			if (this.drive != null)
-			{
-				this.defineCustomObjects();
-			}
-			
 			var value = decodeURIComponent(urlParams['create'] || '');
 			
 			if ((window.location.hash == null || window.location.hash.length <= 1) &&
@@ -2644,40 +2633,6 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
 	
 	return img;
 };
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.defineCustomObjects = function()
-{
-	if (gapi.drive.realtime != null && gapi.drive.realtime.custom != null)
-	{
-		gapi.drive.realtime.custom.registerType(mxRtCell, 'Cell');
-		
-		mxRtCell.prototype.cellId = gapi.drive.realtime.custom.collaborativeField('cellId');
-		mxRtCell.prototype.type = gapi.drive.realtime.custom.collaborativeField('type');
-		mxRtCell.prototype.value = gapi.drive.realtime.custom.collaborativeField('value');
-		mxRtCell.prototype.xmlValue = gapi.drive.realtime.custom.collaborativeField('xmlValue');
-		mxRtCell.prototype.style = gapi.drive.realtime.custom.collaborativeField('style');
-		mxRtCell.prototype.geometry = gapi.drive.realtime.custom.collaborativeField('geometry');
-		mxRtCell.prototype.visible = gapi.drive.realtime.custom.collaborativeField('visible');
-		mxRtCell.prototype.collapsed = gapi.drive.realtime.custom.collaborativeField('collapsed');
-		mxRtCell.prototype.connectable = gapi.drive.realtime.custom.collaborativeField('connectable');
-		mxRtCell.prototype.parent = gapi.drive.realtime.custom.collaborativeField('parent');
-		mxRtCell.prototype.children = gapi.drive.realtime.custom.collaborativeField('children');
-		mxRtCell.prototype.source = gapi.drive.realtime.custom.collaborativeField('source');
-		mxRtCell.prototype.target = gapi.drive.realtime.custom.collaborativeField('target');
-	}
-};
-
-mxRtCell = function() {};
-
-// Ignores rtCell property in codec and cloning
-mxCodecRegistry.getCodec(mxCell).exclude.push('rtCell');
-mxCell.prototype.mxTransient.push('rtCell');
 
 /**
  * Translates this point by the given vector.
@@ -3507,10 +3462,8 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 			}
 		});
 		
-		// Updates data in memory for local files and save is implicit
-		// via start of realtime for DriveFiles
-		if (file.constructor == LocalFile || (file.constructor == DriveFile &&
-			file.realtime != null))
+		// Updates data in memory for local files
+		if (file.constructor == LocalFile)
 		{
 			fn();
 		}
@@ -4244,11 +4197,6 @@ App.prototype.save = function(name, done)
 	var file = this.getCurrentFile();
 	var msg = mxResources.get('saving');
 	
-	if (file != null && file.constructor == DriveFile && file.realtime != null)
-	{
-		msg = mxResources.get('createRevision');
-	}
-	
 	if (file != null && this.spinner.spin(document.body, msg))
 	{
 		this.editor.setStatus('');
@@ -4532,29 +4480,6 @@ App.prototype.descriptorChanged = function()
 	}
 	
 	this.updateUi();
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.toggleChat = function()
-{
-	var file = this.getCurrentFile();
-	
-	if (file != null)
-	{
-		if (file.chatWindow == null)
-		{
-			var cwLeft = document.body.offsetWidth - 300;
-			file.chatWindow = new ChatWindow(this, mxResources.get('chatWindowTitle'), document.getElementById('geChat'), cwLeft , 80, 250, 350, file.realtime);
-			file.chatWindow.window.setVisible(false);
-		}
-		
-		file.chatWindow.window.setVisible(!file.chatWindow.window.isVisible());
-	}
 };
 
 /**
@@ -4842,7 +4767,6 @@ App.prototype.updateHeader = function()
 		this.fnameWrapper.style.textOverflow = 'ellipsis';
 		
 		this.fname = document.createElement('a');
-		this.fname.setAttribute('href', 'javascript:void(0);');
 		this.fname.setAttribute('title', mxResources.get('rename'));
 		this.fname.className = 'geItem';
 		this.fname.style.padding = '2px 8px 2px 8px';
@@ -4850,12 +4774,24 @@ App.prototype.updateHeader = function()
 		this.fname.style.fontSize = '18px';
 		this.fname.style.whiteSpace = 'nowrap';
 		
+		// Prevents focus
+        mxEvent.addListener(this.fname, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
+        {
+			evt.preventDefault();
+		}));
+		
 		mxEvent.addListener(this.fname, 'click', mxUtils.bind(this, function(evt)
 		{
 			var file = this.getCurrentFile();
 			
 			if (file != null && file.isRenamable())
 			{
+				if (this.editor.graph.isEditing())
+				{
+					this.editor.graph.stopEditing();
+				}
+
 				this.actions.get('rename').funct();
 			}
 			
@@ -4880,7 +4816,6 @@ App.prototype.updateHeader = function()
 		 * Adds format panel toggle.
 		 */
 		this.toggleFormatElement = document.createElement('a');
-		this.toggleFormatElement.setAttribute('href', 'javascript:void(0);');
 		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
@@ -4899,7 +4834,14 @@ App.prototype.updateHeader = function()
 		{
 			this.toggleFormatElement.style.filter = 'invert(100%)';
 		}
-
+		
+		// Prevents focus
+	    mxEvent.addListener(this.toggleFormatElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
+    	{
+			evt.preventDefault();
+		}));
+		
 		mxEvent.addListener(this.toggleFormatElement, 'click', mxUtils.bind(this, function(evt)
 		{
 			this.actions.get('formatPanel').funct();
@@ -4922,7 +4864,6 @@ App.prototype.updateHeader = function()
 		toggleFormatPanel();
 
 		this.fullscreenElement = document.createElement('a');
-		this.fullscreenElement.setAttribute('href', 'javascript:void(0);');
 		this.fullscreenElement.setAttribute('title', mxResources.get('fullscreen'));
 		this.fullscreenElement.style.position = 'absolute';
 		this.fullscreenElement.style.display = 'inline-block';
@@ -4937,6 +4878,13 @@ App.prototype.updateHeader = function()
 		this.fullscreenElement.style.backgroundRepeat = 'no-repeat';
 		this.fullscreenElement.style.backgroundImage = 'url(\'' + this.fullscreenImage + '\')';
 		this.toolbarContainer.appendChild(this.fullscreenElement);
+		
+		// Prevents focus
+		mxEvent.addListener(this.fullscreenElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
+    	{
+			evt.preventDefault();
+		}));
 		
 		var initialPosition = this.hsplitPosition;
 		var collapsed = false;
@@ -4977,7 +4925,6 @@ App.prototype.updateHeader = function()
 		if (urlParams['embed'] != '1')
 		{
 			this.toggleElement = document.createElement('a');
-			this.toggleElement.setAttribute('href', 'javascript:void(0);');
 			this.toggleElement.setAttribute('title', mxResources.get('collapseExpand'));
 			this.toggleElement.className = 'geButton';
 			this.toggleElement.style.position = 'absolute';
@@ -5000,6 +4947,13 @@ App.prototype.updateHeader = function()
 				this.toggleElement.style.filter = 'invert(100%)';
 			}
 			
+			// Prevents focus
+			mxEvent.addListener(this.toggleElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	        	mxUtils.bind(this, function(evt)
+	    	{
+				evt.preventDefault();
+			}));
+	
 			// Toggles compact mode
 			mxEvent.addListener(this.toggleElement, 'click', mxUtils.bind(this, function(evt)
 			{
@@ -5085,7 +5039,6 @@ App.prototype.updateUserElement = function()
 		if (this.userElement == null)
 		{
 			this.userElement = document.createElement('a');
-			this.userElement.setAttribute('href', 'javascript:void(0);');
 			this.userElement.className = 'geItem';
 			this.userElement.style.position = 'absolute';
 			this.userElement.style.fontSize = '8pt';
@@ -5102,6 +5055,13 @@ App.prototype.updateUserElement = function()
 			
 			this.menubarContainer.appendChild(this.userElement);
 
+			// Prevents focus
+			mxEvent.addListener(this.userElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	        	mxUtils.bind(this, function(evt)
+	    	{
+				evt.preventDefault();
+			}));
+			
 			mxEvent.addListener(this.userElement, 'click', mxUtils.bind(this, function(evt)
 			{
 				if (this.userPanel == null)
@@ -5112,7 +5072,8 @@ App.prototype.updateUserElement = function()
 					div.style.top = (this.userElement.clientTop + this.userElement.clientHeight + 6) + 'px';
 					div.style.right = '36px';
 					div.style.padding = '0px';
-
+					div.style.cursor = 'default';
+					
 					this.userPanel = div;
 				}
 				

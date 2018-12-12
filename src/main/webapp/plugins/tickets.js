@@ -102,11 +102,18 @@ Draw.loadPlugin(function(ui)
 
 	function isDeskLink(link)
 	{
-		var dl = deskDomain.length;
-		
-		return config != null && link.substring(0, dl) == deskDomain &&
-			(link.substring(dl, dl + 18) == '/helpdesk/tickets/' ||
-			link.substring(dl, dl + 11) == '/a/tickets/');
+		if (deskDomain != null)
+		{
+			var dl = deskDomain.length;
+			
+			return config != null && link.substring(0, dl) == deskDomain &&
+				(link.substring(dl, dl + 18) == '/helpdesk/tickets/' ||
+				link.substring(dl, dl + 11) == '/a/tickets/');
+		}
+		else
+		{
+			return false;
+		}
 	};
 	
 	function getIdForDeskLink(link)

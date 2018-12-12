@@ -96,7 +96,7 @@
 					{
 						var href = links[i].getAttribute('href');
 						
-						if (graph.isCustomLink(href))
+						if (href != null && graph.isCustomLink(href))
 						{
 							links[i].setAttribute('href', '#');
 						}
