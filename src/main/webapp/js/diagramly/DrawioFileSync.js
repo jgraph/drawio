@@ -72,42 +72,7 @@ DrawioFileSync.prototype.maxCacheReadyRetries = 2;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.bytesSent = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.bytesReceived = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.msgReceived = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.msgSent = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.cacheHits = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.cacheMiss = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.conflicts = 0;
-
-/**
- * Specifies if descriptor change events should be ignored.
- */
-DrawioFileSync.prototype.timeouts = 0;
+DrawioFileSync.prototype.cacheReadyDelay = 400;
 
 /**
  * Adds all listeners.
@@ -145,8 +110,12 @@ DrawioFileSync.prototype.start = function()
 			{
 				this.channel = this.pusher.subscribe(this.channelId);
 				this.key = this.file.getChannelKey();
-				this.startTime = new Date();
 				this.updateOnlineState();
+
+				if (this.file.stats.start == null)
+				{
+					this.file.stats.start = new Date().toISOString();
+				}
 				
 				EditorUi.debug('Sync.start', [this]);
 				
@@ -324,11 +293,6 @@ DrawioFileSync.prototype.updateStatus = function()
 			}
 
 			var label = mxResources.get('lastChange', [str]);
-			var stats = (urlParams['test'] != '1') ? '' :
-				' (timeouts=' + this.timeouts + ' conflicts=' + this.conflicts +
-				' received=' + this.bytesReceived + ' sent=' + this.bytesSent +
-				' msgRecv=' + this.msgReceived + ' msgSent=' + this.msgSent +
-				' hits=' + this.cacheHits + ' miss=' + this.cacheMiss + ')';
 			
 			this.ui.editor.setStatus('<div style="display:inline-block;">' + mxUtils.htmlEntities(label)  + '</div>' +
 				((msg != null) ? ' (' + msg + ')' : '') +
@@ -344,7 +308,7 @@ DrawioFileSync.prototype.updateStatus = function()
 				{
 					links[0].style.cursor = 'pointer';
 					links[0].style.textDecoration = 'underline';
-					links[0].setAttribute('title', mxResources.get('revisionHistory') + stats);
+					links[0].setAttribute('title', mxResources.get('revisionHistory'));
 					
 					mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 					{
@@ -353,7 +317,7 @@ DrawioFileSync.prototype.updateStatus = function()
 				}
 				else
 				{
-					links[0].setAttribute('title', label + stats);
+					links[0].setAttribute('title', label);
 				}
 			}
 			
@@ -419,7 +383,7 @@ DrawioFileSync.prototype.installListeners = function()
 					'&msg=' + encodeURIComponent(this.objectToString(
 					this.createMessage(join))));
 				this.announced = true;
-				this.msgSent++;
+				this.file.stats.msgSent++;
 			}
 		});
 		
@@ -430,7 +394,7 @@ DrawioFileSync.prototype.installListeners = function()
     {
 		this.changeListener = mxUtils.bind(this, function(data)
 		{
-			this.msgReceived++;
+			this.file.stats.msgReceived++;
 
 			if (this.enabled && !this.file.inConflictState &&
 				!this.redirectDialogShowing)
@@ -491,7 +455,12 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 	}
 	else if (data.a == 'join' || data.a == 'leave')
 	{
-		if (window.console && data.name != null)
+		if (data.a == 'join')
+		{
+			this.file.stats.joined++;
+		}
+		
+		if (data.name != null)
 		{
 			this.lastMessage = mxResources.get((data.a == 'join') ?
 				'userJoined' : 'userLeft', [data.name]);
@@ -634,7 +603,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 					((secret != null) ? '&secret=' + encodeURIComponent(secret) : ''),
 					mxUtils.bind(this, function(req)
 				{
-					this.bytesReceived += req.getText().length;	
+					this.file.stats.bytesReceived += req.getText().length;	
 					
 					if (abort == null || !abort())
 					{
@@ -689,7 +658,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 						{
 							if (temp.length > 0)
 							{
-								this.cacheHits++;
+								this.file.stats.cacheHits++;
 								this.merge(temp, checksum, etag, success, error);
 							}
 							// Retries if cache entry was not yet there
@@ -701,7 +670,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 							}
 							else
 							{
-								this.cacheMiss++;
+								this.file.stats.cacheMiss++;
 								this.reload(success, error, abort);
 							}
 						}
@@ -784,7 +753,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		// Compares the checksum
 		if (checksum != null && checksum != current)
 		{
-			this.file.checksumError(error, 'merge');
+			this.file.stats.mergeChecksumErrors++;
+			this.file.checksumError(error);
 		}
 		else
 		{
@@ -814,11 +784,11 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			error(e);
 		}
 		
-		// Reports errors during beta phase
+		// Beta test error reports
 		var user = this.file.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
 		
-		this.ui.sendReport('Error in merge:\n' +
+		EditorUi.sendReport('Error in merge:\n' +
 			new Date().toISOString() + '\n' +
 			'Client=' + this.clientId + '\n' +
 			'User=' + uid + '\n' +
@@ -848,8 +818,8 @@ DrawioFileSync.prototype.descriptorChanged = function(etag)
 		mxUtils.post(this.cacheUrl, this.getIdParameters() +
 			'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
 			'&msg=' + encodeURIComponent(msg) + '&data=' + encodeURIComponent(data));
-		this.bytesSent += data.length;
-		this.msgSent++;
+		this.file.stats.bytesSent += data.length;
+		this.file.stats.msgSent++;
 	}
 	
 	this.updateStatus();
@@ -889,7 +859,7 @@ DrawioFileSync.prototype.stringToObject = function(data)
  * Invokes after a file was saved to add cache entry (which in turn notifies
  * collaborators).
  */
-DrawioFileSync.prototype.fileSaved = function(pages, lastDesc)
+DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 {
 	this.lastModified = this.file.getLastModifiedDate();
 	this.resetUpdateStatusThread();
@@ -914,16 +884,38 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc)
 		mxUtils.post(this.cacheUrl, this.getIdParameters() +
 			'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
 			'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
-			((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : ''));
-		EditorUi.debug('Sync.fileSaved', [this], 'from', etag, 'to', current, data.length, 'bytes',
-			'diff', diff, 'checksum', checksum);
-		this.bytesSent += data.length;
-		this.msgSent++;
+			((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : ''),
+			mxUtils.bind(this, function(req)
+			{
+				if (req.getStatus() >= 200 && req.getStatus() <= 299)
+				{
+					if (success != null)
+					{
+						success();
+					}
+				}
+				else if (error != null)
+				{
+					error({message: req.getStatus()});
+				}
+			}));
+		EditorUi.debug('Sync.fileSaved', [this], 'from', etag, 'to', current,
+			data.length, 'bytes', 'diff', diff, 'checksum', checksum);
+		this.file.stats.bytesSent += data.length;
+		this.file.stats.msgSent++;
 	}
-	else if (this.channelId == null)
+	else
 	{
-		// Checks channel ID and starts sync
-		this.start();
+		if (this.channelId == null)
+		{
+			// Checks channel ID and starts sync
+			this.start();
+		}
+		
+		if (success != null)
+		{
+			success();
+		}
 	}
 };
 
@@ -959,7 +951,7 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 	
 	if (this.catchupRetryCount < this.maxCatchupRetries)
 	{
-		this.conflicts++;
+		this.file.stats.conflicts++;
 		
 		if (desc != null)
 		{
@@ -975,7 +967,7 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 	else
 	{
 		this.catchupRetryCount = 0;
-		this.timeouts++;
+		this.file.stats.timeouts++;
 		
 		if (error != null)
 		{
@@ -1003,7 +995,7 @@ DrawioFileSync.prototype.destroy = function()
 		mxUtils.post(this.cacheUrl, this.getIdParameters() +
 			'&msg=' + encodeURIComponent(this.objectToString(
 			this.createMessage(leave))));
-		this.msgSent++;
+		this.file.stats.msgSent++;
 	}
 
 	if (this.changeListener != null && this.channel != null)
@@ -1046,28 +1038,5 @@ DrawioFileSync.prototype.destroy = function()
 	{
 		this.collaboratorsElement.parentNode.removeChild(this.collaboratorsElement);
 		this.collaboratorsElement = null;
-	}
-	
-	// Logs diffsync stats during beta phase
-	try
-	{	
-		if (!this.ui.isOffline())
-		{
-			var uptime = Math.round(((this.startTime != null) ? new Date() - this.startTime : 0) / 1000);
-			
-			EditorUi.logEvent({category: 'DiffSync-Stats', action: DrawioFile.SYNC,
-				label: 'id.' + this.file.getId() + '.mode.' + this.file.getMode() +
-				'.channel.' + this.channelId + '.size.' + this.file.getSize() +
-				'.timeouts.' + this.timeouts + '.conflicts.' + this.conflicts +
-				'.received.' + this.bytesReceived + '.sent.' + this.bytesSent +
-				'.msgRecv.' + this.msgReceived + '.msgSent.' + this.msgSent +
-				'.hits.' + this.cacheHits + '.miss.' + this.cacheMiss +
-				'.uptime.' + uptime + '.checksum.' +
-				this.file.invalidChecksum});
-		}
-	}
-	catch (e)
-	{
-		// ignore
 	}
 };

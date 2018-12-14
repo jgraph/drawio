@@ -4812,7 +4812,7 @@ if (typeof mxVertexHandler != 'undefined')
 				dec.decode(node, this.getStylesheet());
 			}
 		};
-		
+
 		/**
 		 * 
 		 */
@@ -4821,68 +4821,62 @@ if (typeof mxVertexHandler != 'undefined')
 			dx = (dx != null) ? dx : 0;
 			dy = (dy != null) ? dy : 0;
 			
-			var cells = []
-			var model = new mxGraphModel();
 			var codec = new mxCodec(node.ownerDocument);
-			codec.decode(node, model);
+			var tempModel = new mxGraphModel();
+			codec.decode(node, tempModel);
+			var cells = []
 			
-			var childCount = model.getChildCount(model.getRoot());
-			var targetChildCount = this.model.getChildCount(this.model.getRoot());
+			// Clones cells to remove invalid edges
+			var layers = tempModel.getChildren(this.cloneCell(
+				tempModel.root, this.isCloneInvalidEdges()));
 			
-			// Merges into active layer if one layer is pasted
-			this.model.beginUpdate();
-			try
+			if (layers != null)
 			{
-				// Mapping for multiple calls to cloneCells with the same set of cells
-				var mapping = new Object();
-				
-				// Populates the mapping to fix lookups for forward refs from edges
-				// to cells in parents that are cloned later in the loop below
-// 				this.cloneCells([model.root], this.isCloneInvalidEdges(), mapping);
-
-				for (var i = 0; i < childCount; i++)
+				// Uses copy as layers are removed from array inside loop
+				layers = layers.slice();
+	
+				this.model.beginUpdate();
+				try
 				{
-					var parent = model.getChildAt(model.getRoot(), i);
-					
-					// Adds cells to existing layer if not locked
-					if (childCount == 1 && !this.isCellLocked(this.getDefaultParent()))
+					// Merges into unlocked current layer if one layer is pasted
+					if (layers.length == 1 && !this.isCellLocked(this.getDefaultParent()))
 					{
-						var children = model.getChildren(parent);
-						cells = cells.concat(this.importCells(children, dx, dy, this.getDefaultParent(), null, mapping));
+						cells = this.moveCells(tempModel.getChildren(layers[0]),
+							dx, dy, false, this.getDefaultParent());
 					}
 					else
 					{
-						// Delta is non cascading, needs separate move for layers
-						parent = this.importCells([parent], 0, 0, this.model.getRoot(), null, mapping)[0];
-						var children = this.model.getChildren(parent);
-						this.moveCells(children, dx, dy);
-						cells = cells.concat(children);
+						for (var i = 0; i < layers.length; i++)
+						{
+							cells = cells.concat(this.model.getChildren(this.moveCells(
+								[layers[i]], dx, dy, false, this.model.getRoot())[0]));
+						}
+					}
+					
+					if (crop)
+					{
+						if (this.isGridEnabled())
+						{
+							dx = this.snap(dx);
+							dy = this.snap(dy);
+						}
+						
+						var bounds = this.getBoundingBoxFromGeometry(cells, true);
+						
+						if (bounds != null)
+						{
+							this.moveCells(cells, dx - bounds.x, dy - bounds.y);
+						}
 					}
 				}
-				
-				if (crop)
+				finally
 				{
-					if (this.isGridEnabled())
-					{
-						dx = this.snap(dx);
-						dy = this.snap(dy);
-					}
-					
-					var bounds = this.getBoundingBoxFromGeometry(cells, true);
-					
-					if (bounds != null)
-					{
-						this.moveCells(cells, dx - bounds.x, dy - bounds.y);
-					}
+					this.model.endUpdate();
 				}
-			}
-			finally
-			{
-				this.model.endUpdate();
 			}
 			
 			return cells;
-		}
+		};
 		
 		/**
 		 * Overrides method to provide connection constraints for shapes.

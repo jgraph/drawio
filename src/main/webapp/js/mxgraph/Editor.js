@@ -628,7 +628,7 @@ Editor.prototype.createUndoManager = function()
 		
 		for (var i = 0; i < cand.length; i++)
 		{
-			if ((model.isVertex(cand[i]) || model.isEdge(cand[i])) && graph.view.getState(cand[i]) != null)
+			if (graph.view.getState(cand[i]) != null)
 			{
 				cells.push(cand[i]);
 			}

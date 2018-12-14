@@ -88,6 +88,33 @@
 	};
 
 	/**
+	 * Sending error reports.
+	 */
+	EditorUi.sendReport = function(data, maxLength)
+	{
+		try
+		{
+			if (EditorUi.enableLogging)
+			{
+				maxLength = (maxLength != null) ? maxLength : 3000000;
+
+				if (data.length > maxLength)
+				{
+					data = data.substring(0, maxLength) + '\n...[SHORTENED]'
+				}
+				
+				mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
+					'&url=' + encodeURIComponent(window.location.href) +
+					'&data=' + encodeURIComponent(data));
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	};
+
+	/**
 	 * Adds the listener for automatically saving the diagram for local changes.
 	 */
 	EditorUi.debug = function()
@@ -2204,33 +2231,6 @@
 	EditorUi.prototype.descriptorChanged = function()
 	{
 		// empty
-	};
-
-	/**
-	 * Debug output.
-	 */
-	EditorUi.prototype.sendReport = function(data, maxLength)
-	{
-		try
-		{
-			if (!this.isOffline())
-			{
-				maxLength = (maxLength != null) ? maxLength : 3000000;
-
-				if (data.length > maxLength)
-				{
-					data = data.substring(0, maxLength) + '\n...[SHORTENED]'
-				}
-				
-				mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
-					'&url=' + encodeURIComponent(window.location.href) +
-					'&data=' + encodeURIComponent(data));
-			}
-		}
-		catch (e)
-		{
-			// ignore
-		}
 	};
 
 	/**
