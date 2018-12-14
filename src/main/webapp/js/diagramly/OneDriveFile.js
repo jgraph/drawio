@@ -337,12 +337,13 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 					this.savingFile = false;
 					this.meta = meta;
 					this.contentChanged();
-					this.fileSaved(savedData, lastDesc);
-
-					if (success != null)
+					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 					{
-						success();
-					}
+						if (success != null)
+						{
+							success();
+						}
+					}), error);
 				}),
 				mxUtils.bind(this, function(err, req)
 				{

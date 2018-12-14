@@ -3770,7 +3770,7 @@
 						var bg = null;
 						var bgImage = null;
 						
-						if (page.viewState == null && page.mapping == null)
+						if (page.viewState == null)
 						{
 							// Workaround to extract view state from XML node
 							// This changes the state of the page and parses
@@ -3787,15 +3787,6 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
-						}
-						else if (page.mapping != null && page.mapping.diagramMap != null)
-						{
-							// Default pageVisible in realtime is true
-							mathEnabled = page.mapping.diagramMap.get('mathEnabled') != '0';
-							bg = page.mapping.diagramMap.get('background');
-							
-							var temp = page.mapping.diagramMap.get('backgroundImage');
-							bgImage = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
 						}
 					
 						tempGraph.background = bg;

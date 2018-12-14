@@ -1,3 +1,15 @@
+14-DEC-2018: 9.6.4
+
+- Uses mxGraph 3.9.12
+
+13-DEC-2018: 9.6.3
+
+- Uses mxGraph 3.9.11 beta 10
+
+12-DEC-2018: 9.6.2
+
+- Uses mxGraph 3.9.11 beta 9
+
 11-DEC-2018: 9.6.1
 
 - Adds source-/targetPerimeterSpacing to default style

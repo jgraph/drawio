@@ -114,6 +114,29 @@ DrawioFile.prototype.invalidChecksum = false;
 /**
  * Specifies if notify events should be ignored.
  */
+DrawioFile.prototype.reportEnabled = true;
+
+/**
+ * Specifies if notify events should be ignored.
+ */
+DrawioFile.prototype.stats = {
+	reloads: 0, /* number of times the files was reloaded */
+	checksumErrors: 0, /* number of checksum errors in mergeFile */
+	mergeChecksumErrors: 0, /* number of checksum errors in merge */
+	bytesSent: 0, /* number of bytes send in messages */
+	bytesReceived: 0, /* number of bytes received in messages */
+	msgReceived: 0, /* number of messages received */
+	msgSent: 0, /* number of messages sent */
+	cacheHits: 0, /* number of times the cache returned patches */
+	cacheMiss: 0, /* number of times we have given up to read the cache */
+	conflicts: 0, /* number of write conflicts when saving a file */
+	timeouts: 0, /* number of time we have given up to retry after a write conflict */
+	joined: 0 /* number of join messages received */
+};
+
+/**
+ * Specifies if notify events should be ignored.
+ */
 DrawioFile.prototype.getSize = function()
 {
 	return (this.data != null) ? this.data.length : 0;
@@ -209,7 +232,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		
 		if (checksum != current)
 		{
-			this.checksumError(error, 'mergeFile');
+			this.stats.checksumErrors++;
+			this.checksumError(error);
 		}
 		else
 		{
@@ -241,11 +265,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			error(e);
 		}
 
-		// Reports errors during beta phase
+		// Beta test error reports
 		var user = this.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
 
-		this.ui.sendReport('Error in mergeFile:\n' +
+		EditorUi.sendReport('Error in mergeFile:\n' +
 			new Date().toISOString() + '\n' +
 			'User=' + uid + '\n' +
 			'File=' + this.getId() + '\n' +
@@ -259,7 +283,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.checksumError = function(error, source)
+DrawioFile.prototype.checksumError = function(error)
 {
 	this.inConflictState = true;
 	this.invalidChecksum = true;
@@ -274,20 +298,6 @@ DrawioFile.prototype.checksumError = function(error, source)
 	{
 		error();
 	}
-	
-	// Reports checksum errors during beta phase
-	var user = this.getCurrentUser();
-	var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
-
-	this.ui.sendReport('Checksum error in ' + source + ':\n' +
-		new Date().toISOString() + '\n' +
-		((this.sync != null) ? ('Client=' +
-			this.sync.clientId + '\n') : '') +
-		'User=' + uid + '\n' +
-		'File=' + this.getId() + '\n' +
-		'Mode=' + this.getMode() + '\n' +
-		'Size=' + this.getSize() + '\n' +
-		'Sync=' + DrawioFile.SYNC);
 };
 
 /**
@@ -305,6 +315,8 @@ DrawioFile.prototype.reloadFile = function(success, error)
 			var page = this.ui.currentPage;
 			var viewState = this.ui.editor.graph.getViewState();
 			var selection = this.ui.editor.graph.getSelectionCells();
+			this.reportEnabled = false;
+			this.stats.reloads++;
 			
 			this.ui.loadFile(this.getHash(), true, null, mxUtils.bind(this, function()
 			{
@@ -313,6 +325,14 @@ DrawioFile.prototype.reloadFile = function(success, error)
 				if (this.backupPatch != null)
 				{
 					this.patch([this.backupPatch]);
+				}
+				
+				// Carry-over
+				var file = this.ui.getCurrentFile();
+				
+				if (file != null)
+				{
+					file.stats = this.stats;
 				}
 				
 				if (success != null)
@@ -1338,7 +1358,7 @@ DrawioFile.prototype.fileChanged = function()
 /**
  * Invokes sync and updates shadow document.
  */
-DrawioFile.prototype.fileSaved = function(savedData, lastDesc)
+DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
 	this.inConflictState = false;
 	
@@ -1346,12 +1366,17 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc)
 	{
 		this.shadowData = savedData;
 		this.shadowPages = null;
+		
+		if (success != null)
+		{
+			success();
+		}
 	}
 	else
 	{
 		var savedPages = this.ui.getPagesForNode(
 			mxUtils.parseXml(savedData).documentElement);
-		this.sync.fileSaved(savedPages, lastDesc);
+		this.sync.fileSaved(savedPages, lastDesc, success, error);
 		this.shadowPages = savedPages;
 	}
 };
@@ -1531,6 +1556,29 @@ DrawioFile.prototype.removeListeners = function()
  */
 DrawioFile.prototype.destroy = function()
 {
+	// Beta test error reports
+	try
+	{
+		if (this.reportEnabled && DrawioFile.SYNC != 'none')
+		{
+			var user = this.getCurrentUser();
+			var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
+			
+			EditorUi.sendReport('Sync Stats ' +
+				new Date().toISOString() + ':\n\n' +
+				'File=' + this.getId() + '\n' +
+				'User=' + uid + '\n' +
+				((this.sync != null) ? (this.sync.clientId + '\n') : '') +
+				'Size=' + this.getSize() + '\n' +
+				'Sync=' + DrawioFile.SYNC + '\n\n' +
+				'Stats=' + JSON.stringify(this.stats, null, 4));
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+
 	this.clearAutosave();
 	this.removeListeners();
 
