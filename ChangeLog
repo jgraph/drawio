@@ -1,3 +1,20 @@
+17-DEC-2018: 10.0.1
+
+- Fixes Google auth for OneDrive files
+
+17-DEC-2018: 10.0.0
+
+- Enables collaborative editing
+- Hides footer
+
+16-DEC-2018: 9.6.6
+
+- Adds darker stroke colors for metro palettes
+
+15-DEC-2018: 9.6.5
+
+- Fixes for collaborative editing (beta)
+
 14-DEC-2018: 9.6.4
 
 - Uses mxGraph 3.9.12

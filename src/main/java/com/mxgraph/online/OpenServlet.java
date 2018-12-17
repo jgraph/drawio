@@ -146,21 +146,24 @@ public class OpenServlet extends HttpServlet
 					xml = extractXmlFromPng(
 							upfile.getBytes(Utils.CHARSET_FOR_URL_ENCODING));
 				}
-				else if (ENABLE_GRAPHML_SUPPORT && upfile.matches(graphMlRegex))
+				else if (upfile != null)
 				{
-					// Creates a graph that contains a model but does not validate
-					// since that is not needed for the model and not allowed on GAE
-					mxGraph graph = new mxGraphHeadless();
-
-					mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
-					xml = mxXmlUtils
-							.getXml(new mxCodec().encode(graph.getModel()));
-				}
-				else if (ENABLE_GLIFFY_SUPPORT && upfile.matches(gliffyRegex))
-				{
-					GliffyDiagramConverter converter = new GliffyDiagramConverter(
-							upfile);
-					xml = converter.getGraphXml();
+					if (ENABLE_GRAPHML_SUPPORT && upfile.matches(graphMlRegex))
+					{
+						// Creates a graph that contains a model but does not validate
+						// since that is not needed for the model and not allowed on GAE
+						mxGraph graph = new mxGraphHeadless();
+	
+						mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
+						xml = mxXmlUtils
+								.getXml(new mxCodec().encode(graph.getModel()));
+					}
+					else if (ENABLE_GLIFFY_SUPPORT && upfile.matches(gliffyRegex))
+					{
+						GliffyDiagramConverter converter = new GliffyDiagramConverter(
+								upfile);
+						xml = converter.getGraphXml();
+					}
 				}
 
 				// Fallback to old data parameter

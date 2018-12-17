@@ -48,11 +48,6 @@ Format.prototype.init = function()
 	
 	this.update = mxUtils.bind(this, function(sender, evt)
 	{
-		if (this.editorUi.currentMenu != null)
-		{
-			this.editorUi.hideCurrentMenu();
-		}
-		
 		this.clearSelectionState();
 		this.refresh();
 	});

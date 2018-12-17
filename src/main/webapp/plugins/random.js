@@ -3,20 +3,24 @@
  */
 Draw.loadPlugin(function(ui)
 {
+	var defaultDelay = 2000;
+	var defaultMax = 50;
+	var graph = ui.editor.graph;
+
 	// Adds resource for action
 	mxResources.parse('randomLabel=Random Label...');
-
+	
 	// Adds action
 	ui.actions.addAction('randomLabel', function()
 	{
-		var graph = ui.editor.graph;
 		var cells = graph.getSelectionCells().slice();
 		
 		if (cells.length > 0)
 		{
+			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
+			var max = parseInt(prompt('Cycles', defaultMax));
 			var counter = 0;
-			var max = 50; //parseInt(prompt('Cycles', '50'));
-			
+
 			function schedule()
 			{
 				var jitter = 1 + 0.3 * (Math.random() - 0.5);
@@ -28,11 +32,26 @@ Draw.loadPlugin(function(ui)
 						graph.labelChanged(cells[i], 'Test ' + Math.round(Math.random() * 100));
 					}
 					
-					if (counter++ < max && ui.dialog == null)
+					if (ui.dialog != null)
 					{
-						schedule();
+						console.log('randomLabel halted');
 					}
-				}, 3500 * jitter);
+					else
+					{
+						ui.saveFile(null, function()
+						{
+							if (counter++ < max && ui.dialog == null)
+							{
+								console.log('randomLabel', counter);
+								schedule();
+							}
+							else
+							{
+								console.log('randomLabel halted');
+							}
+						});
+					}
+				}, delay * jitter);
 			}
 			
 			schedule();
@@ -49,16 +68,13 @@ Draw.loadPlugin(function(ui)
 	// Adds action
 	ui.actions.addAction('swapChildren', function()
 	{
-		var graph = ui.editor.graph;
 		var cells = graph.getSelectionCells().slice();
 		
 		if (cells.length > 1)
 		{
-
+			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
+			var max = parseInt(prompt('Cycles', defaultMax));
 			var counter = 0;
-//			var max = 1;
-			var max = parseInt(prompt('Cycles', '100'));
-			
 			
 			function schedule()
 			{
@@ -117,11 +133,26 @@ Draw.loadPlugin(function(ui)
 						}
 					}
 					
-					if (counter++ < max && ui.dialog == null)
+					if (ui.dialog != null)
 					{
-						schedule();
+						console.log('swapChildren halted');
 					}
-				}, 15000 * jitter);
+					else
+					{
+						ui.saveFile(null, function()
+						{
+							if (counter++ < max && ui.dialog == null)
+							{
+								console.log('swapChildren', counter);
+								schedule();
+							}
+							else
+							{
+								console.log('swapChildren halted');
+							}
+						});
+					}
+				}, delay * jitter);
 			}
 			
 			schedule();
@@ -138,15 +169,13 @@ Draw.loadPlugin(function(ui)
 	// Adds action
 	ui.actions.addAction('reorderChildren', function()
 	{
-		var graph = ui.editor.graph;
 		var cells = graph.getSelectionCells().slice();
 		
 		if (cells.length > 0)
 		{
-
+			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
+			var max = parseInt(prompt('Cycles', defaultMax));
 			var counter = 0;
-//			var max = 1;
-			var max = parseInt(prompt('Cycles', '100'));
 			
 			function schedule()
 			{
@@ -181,11 +210,26 @@ Draw.loadPlugin(function(ui)
 						}
 					}
 					
-					if (counter++ < max && ui.dialog == null)
+					if (ui.dialog != null)
 					{
-						schedule();
+						console.log('reorderChildren halted');
 					}
-				}, 5000 * jitter);
+					else
+					{
+						ui.saveFile(null, function()
+						{
+							if (counter++ < max && ui.dialog == null)
+							{
+								console.log('reorderChildren', counter);
+								schedule();
+							}
+							else
+							{
+								console.log('reorderChildren halted');
+							}
+						});
+					}
+				}, delay * jitter);
 			}
 			
 			schedule();
