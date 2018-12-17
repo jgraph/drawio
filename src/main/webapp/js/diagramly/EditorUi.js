@@ -31,7 +31,11 @@
 	 */
 	EditorUi.logError = function(message, url, linenumber, colno, err)
 	{
-		if (EditorUi.enableLogging)
+		if (urlParams['dev'] == '1')
+		{
+			EditorUi.debug('logError', message, url, linenumber, colno, err);
+		}
+		else if (EditorUi.enableLogging)
 		{
 			try
 			{
@@ -70,7 +74,11 @@
 	 */
 	EditorUi.logEvent = function(data)
 	{
-		if (EditorUi.enableLogging)
+		if (urlParams['dev'] == '1')
+		{
+			EditorUi.debug('logEvent', data);
+		}
+		else if (EditorUi.enableLogging)
 		{
 			try
 			{
@@ -92,9 +100,13 @@
 	 */
 	EditorUi.sendReport = function(data, maxLength)
 	{
-		try
+		if (urlParams['dev'] == '1')
 		{
-			if (EditorUi.enableLogging)
+			EditorUi.debug('sendReport', data);
+		}
+		else if (EditorUi.enableLogging)
+		{
+			try
 			{
 				maxLength = (maxLength != null) ? maxLength : 3000000;
 
@@ -107,10 +119,10 @@
 					'&url=' + encodeURIComponent(window.location.href) +
 					'&data=' + encodeURIComponent(data));
 			}
-		}
-		catch (e)
-		{
-			// ignore
+			catch (e)
+			{
+				// ignore
+			}
 		}
 	};
 
@@ -892,22 +904,7 @@
 				// Restores order of pages
 				for (var i = 0; i < this.pages.length; i++)
 				{
-					var mapping = this.pages[i].mapping;
-					
-					// Updates XML of all pages for realtime
-					if (this.currentPage != this.pages[i] && mapping != null && mapping.needsUpdate)
-					{
-						var enc = new mxCodec(mxUtils.createXmlDocument());
-						var temp = enc.encode(mapping.graphModel);
-					
-						// Uses the graph state from the realtime model
-						mapping.writeRealtimeToNode(temp);
-						mxUtils.setTextContent(this.pages[i].node, this.editor.graph.compressNode(temp));
-						
-						// Marks the page as up-to-date
-						mapping.needsUpdate = false;
-					}
-					else if (this.currentPage != this.pages[i] && this.pages[i].needsUpdate)
+					if (this.currentPage != this.pages[i] && this.pages[i].needsUpdate)
 					{
 						var enc = new mxCodec(mxUtils.createXmlDocument());
 						var temp = enc.encode(new mxGraphModel(this.pages[i].root));
@@ -922,6 +919,103 @@
 					node.appendChild(this.pages[i].node);
 				}
 			}
+		}
+		
+		return node;
+	};
+
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizePatch = function(patch)
+	{
+		delete patch[EditorUi.DIFF_INSERT];
+		delete patch[EditorUi.DIFF_REMOVE];
+		
+		if (patch[EditorUi.DIFF_UPDATE] != null)
+		{
+			for (var pageId in patch[EditorUi.DIFF_UPDATE])
+			{
+				var diff = patch[EditorUi.DIFF_UPDATE][pageId];
+				delete diff.name;
+				delete diff.view;
+				
+				if (diff.cells != null)
+				{
+					function anonymizeCellDiffs(key)
+					{
+						var cellDiffs = diff.cells[key];
+						
+						if (cellDiffs != null)
+						{
+							for (var cellId in cellDiffs)
+							{
+								delete cellDiffs[cellId].value;
+								delete cellDiffs[cellId].style;
+								delete cellDiffs[cellId].geometry;
+	
+								if (Object.keys(cellDiffs[cellId]).length == 0)
+								{
+									delete cellDiffs[cellId];
+								}
+							}
+							
+							if (Object.keys(cellDiffs).length == 0)
+							{
+								delete diff.cells[key];
+							}
+						}
+					};
+					
+					anonymizeCellDiffs(EditorUi.DIFF_INSERT);
+					anonymizeCellDiffs(EditorUi.DIFF_UPDATE);
+					
+					if (Object.keys(diff.cells).length == 0)
+					{
+						delete diff.cells;
+					}
+				}
+	
+				if (Object.keys(diff).length == 0)
+				{
+					delete patch[EditorUi.DIFF_UPDATE][pageId];
+				}
+			}
+			
+			if (Object.keys(patch[EditorUi.DIFF_UPDATE]).length == 0)
+			{
+				delete patch[EditorUi.DIFF_UPDATE];
+			}
+		}
+			
+		return patch;
+	};
+
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizeNode = function(node)
+	{
+		var nodes = node.getElementsByTagName('mxCell');
+		
+		for (var i = 0; i < nodes.length; i++)
+		{
+			nodes[i].removeAttribute('value');
+			nodes[i].removeAttribute('style');
+			
+			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
+				nodes[i].parentNode.parentNode != null)
+			{
+				nodes[i].setAttribute('id', nodes[i].parentNode.getAttribute('id'));
+				nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
+			}
+		}
+		
+		var geos = node.getElementsByTagName('mxGeometry');
+		
+		while (geos.length > 0)
+		{
+			geos[0].parentNode.removeChild(geos[0]);
 		}
 		
 		return node;
@@ -3047,9 +3141,11 @@
 	/**
 	 * EditorUi Overrides
 	 */
+	EditorUi.prototype.footerHeight = 0;
+	
     if (urlParams['offline'] == '1' || EditorUi.isElectronApp)
     {
-		EditorUi.prototype.footerHeight = 4;
+		//EditorUi.prototype.footerHeight = 4;
     }
     else
     {
@@ -3059,7 +3155,7 @@
     		Sidebar.prototype.thumbHeight = 64;
 		}
 
-		EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
+		//EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
 		
 		// Fetches footer from page
 		EditorUi.prototype.createFooter = function()
@@ -3068,28 +3164,28 @@
 			
 			if (footer != null)
 			{
-				footer.style.visibility = 'visible';
-				
-				// Adds button to hide the footer
-				var img = document.createElement('img');
-				img.setAttribute('border', '0');
-				img.setAttribute('src', Dialog.prototype.closeImage);
-				img.setAttribute('title', mxResources.get('hide'));
-				footer.appendChild(img)
-
-				if (mxClient.IS_QUIRKS)
-				{
-					img.style.position = 'relative';
-					img.style.styleFloat = 'right';
-					img.style.top = '-30px';
-					img.style.left = '164px';
-					img.style.cursor = 'pointer';
-				}
-				
-				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-				{
-					this.hideFooter();
-				}));
+//				footer.style.visibility = 'hidden';
+//				
+//				// Adds button to hide the footer
+//				var img = document.createElement('img');
+//				img.setAttribute('border', '0');
+//				img.setAttribute('src', Dialog.prototype.closeImage);
+//				img.setAttribute('title', mxResources.get('hide'));
+//				footer.appendChild(img)
+//
+//				if (mxClient.IS_QUIRKS)
+//				{
+//					img.style.position = 'relative';
+//					img.style.styleFloat = 'right';
+//					img.style.top = '-30px';
+//					img.style.left = '164px';
+//					img.style.cursor = 'pointer';
+//				}
+//				
+//				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+//				{
+//					this.hideFooter();
+//				}));
 			}
 
 			return footer;
@@ -3150,14 +3246,14 @@
      */
     EditorUi.prototype.hideFooter = function()
     {
-	    	var footer = document.getElementById('geFooter');
-		    	
-	    	if (footer != null)
-	    	{
-	    		this.footerHeight = 0;
-	    		footer.style.display = 'none';
-	    		this.refresh();
-	    	}
+    	var footer = document.getElementById('geFooter');
+	    	
+    	if (footer != null)
+    	{
+    		this.footerHeight = 0;
+    		footer.style.display = 'none';
+    		this.refresh();
+    	}
     };
 
     /**

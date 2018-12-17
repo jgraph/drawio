@@ -914,20 +914,7 @@ App.prototype.init = function()
 
 		initTrelloClient();
 	}
-	
-	// TEMPORARY REALTIME NOTICE FOR AFFECTED FILE TYPES
-	this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
-	{
-		var file = this.getCurrentFile();
-		
-		if (file != null && (file.constructor == DriveFile ||
-			file.constructor == OneDriveFile ||
-			file.constructor == GitHubFile))
-		{
-			this.showFooterRealtimeNotice();
-		}
-	}));
-	
+
 	/**
 	 * Creates drive client with all required libraries are available.
 	 */
@@ -963,7 +950,7 @@ App.prototype.init = function()
 								if (td != null)
 								{
 									td.innerHTML = '<a href="https://support.draw.io/display/DO/2014/11/27/Switching+application+in+Google+Drive" ' +
-										'target="_blank" title="IMPORTANT NOTICE" >IMPORTANT NOTICE</a>';
+										'target="_blank" title="IMPORTANT NOTICE">IMPORTANT NOTICE</a>';
 								}
 							}
 						}));
@@ -1188,7 +1175,7 @@ App.prototype.checkLicense = function()
 				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
-// NOTE: RESPONSE IS IGNORED TO SHOW TEMPORARY REALTIME NOTICE
+// NOTE: RESPONSE IS IGNORED SINCE FOOTER IS HIDDEN
 //				var registered = false;
 //				var exp = null;
 //				
@@ -1277,51 +1264,6 @@ App.prototype.handleLicense = function(lic, domain)
 };
 
 /**
- * Returns true if the current domain is for the new drive app.
- */
-App.prototype.showFooterRealtimeNotice = function()
-{
-	var footer = document.getElementById('geFooter');
-	
-	if (footer != null && this.footerAlert == null)
-	{
-		var alert = this.createRealtimeNotice();
-		alert.style.zIndex = '1';
-		alert.style.padding = '18px 0 14px 0';
-		alert.style.width = 'auto';
-		alert.style.top = '0px';
-		alert.style.left = '0px';
-		alert.style.right = '170px';
-
-		footer.appendChild(alert);
-		this.footerAlert = alert;
-	}
-};
-
-/**
- * Returns true if the current domain is for the new drive app.
- */
-App.prototype.createRealtimeNotice = function()
-{
-	var alert = document.createElement('a');
-	alert.className = 'geStatusAlert';
-	alert.style.display = 'block';
-	alert.style.position = 'absolute';
-	alert.style.overflow = 'hidden';
-	alert.style.cursor = 'pointer';
-	alert.style.bottom = '0';
-	alert.style.textAlign = 'center';
-	alert.style.textDecoration = 'none';
-	alert.style.fontWeight = 'bold';
-	
-	alert.setAttribute('href', 'https://desk.draw.io/support/solutions/articles/16000087215');
-	alert.setAttribute('target', '_blank');
-	mxUtils.write(alert, mxResources.get('collaborativeEditingNotice'));
-	
-	return alert;
-};
-
-/**
  * 
  */
 App.prototype.getEditBlankXml = function()
@@ -1346,8 +1288,9 @@ App.prototype.updateActionStates = function()
 	EditorUi.prototype.updateActionStates.apply(this, arguments);
 
 	var file = this.getCurrentFile();
-	this.actions.get('revisionHistory').setEnabled(file != null && ((file.constructor == DriveFile &&
-			file.isEditable()) || file.constructor == DropboxFile));
+	this.actions.get('revisionHistory').setEnabled(file != null &&
+		((file.constructor == DriveFile && file.isEditable()) ||
+		file.constructor == DropboxFile));
 };
 
 /**
@@ -1357,7 +1300,8 @@ App.prototype.updateDraft = function()
 {
 	if (isLocalStorage && localStorage != null)
 	{
-		localStorage.setItem('.draft', JSON.stringify({modified: new Date().getTime(), data: this.getFileData()}));
+		localStorage.setItem('.draft', JSON.stringify({modified:
+			new Date().getTime(), data: this.getFileData()}));
 	}
 };
 
@@ -4106,7 +4050,8 @@ App.prototype.updateButtonContainer = function()
 		var file = this.getCurrentFile();
 		
 		// Synchronize
-		if (file != null && DrawioFile.SYNC != 'none')
+		if (file != null && (DrawioFile.SYNC == 'manual' ||
+			DrawioFile.SYNC == 'auto'))
 		{
 			var visible = ((DrawioFile.SYNC == 'manual' ||
 				(file.sync != null && !file.sync.enabled &&

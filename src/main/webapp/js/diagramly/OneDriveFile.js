@@ -47,6 +47,14 @@ OneDriveFile.prototype.getIdOf = function(itemObj, parent)
 };
 
 /**
+ * Gets the channel ID for sync messages.
+ */
+OneDriveFile.prototype.getChannelId = function()
+{
+	return 'W-' + DrawioFile.prototype.getChannelId.apply(this, arguments);
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.

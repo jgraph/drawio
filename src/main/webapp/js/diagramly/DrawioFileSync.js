@@ -62,7 +62,7 @@ DrawioFileSync.prototype.catchupRetryCount = 0;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.maxCatchupRetries = 12;
+DrawioFileSync.prototype.maxCatchupRetries = 15;
 
 /**
  * Specifies if descriptor change events should be ignored.
@@ -72,7 +72,7 @@ DrawioFileSync.prototype.maxCacheReadyRetries = 2;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.cacheReadyDelay = 400;
+DrawioFileSync.prototype.cacheReadyDelay = 500;
 
 /**
  * Adds all listeners.
@@ -121,9 +121,16 @@ DrawioFileSync.prototype.start = function()
 				
 				if (!this.ui.isOffline())
 				{
-					EditorUi.logEvent({category: 'DiffSync-Start', action: DrawioFile.SYNC,
-						label: 'id.' + this.file.getId() + '.mode.' + this.file.getMode() +
-						'.size.' + this.file.getSize() + '.channel.' + this.channelId});
+					var user = this.file.getCurrentUser();
+					var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+				
+					EditorUi.logEvent({category: 'RT-START-' + DrawioFile.SYNC,
+						action: 'file-' + this.file.getId() +
+						'-mode-' + this.file.getMode() +
+						'-size-' +this.file.getSize() +
+						'-user-' + uid +
+						'-client-' + this.clientId,
+						label: this.file.stats.start});
 				}
 			}
 			catch (e)
@@ -344,10 +351,7 @@ DrawioFileSync.prototype.resetUpdateStatusThread = function()
 	{
 		this.updateStatusThread = window.setInterval(mxUtils.bind(this, function()
 		{
-			this.ui.drive.checkToken(mxUtils.bind(this, function()
-			{
-				this.updateStatus();
-			}));
+			this.updateStatus();
 		}), this.updateStatusInterval);
 	}
 };
@@ -748,13 +752,14 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		
 		var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
 		EditorUi.debug('Sync.merge', [this], 'from', this.file.getCurrentEtag(), 'to', etag,
-			'attempt', this.catchupRetryCount, 'diffs', patches, 'checksum', checksum);
+			'attempt', this.catchupRetryCount, 'diffs', patches, 'checksum',
+			checksum == current, checksum);
 
 		// Compares the checksum
 		if (checksum != null && checksum != current)
 		{
 			this.file.stats.mergeChecksumErrors++;
-			this.file.checksumError(error);
+			this.file.checksumError(error, patches);
 		}
 		else
 		{
@@ -784,19 +789,23 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			error(e);
 		}
 		
-		// Beta test error reports
-		var user = this.file.getCurrentUser();
-		var uid = (user != null) ? this.ui.hashValue(user.id) : 'no user';
-		
-		EditorUi.sendReport('Error in merge:\n' +
-			new Date().toISOString() + '\n' +
-			'Client=' + this.clientId + '\n' +
-			'User=' + uid + '\n' +
-			'File=' + this.file.getId() + '\n' +
-			'Mode=' + this.file.getMode() + '\n' +
-			'Size=' + this.file.getSize() + '\n' +
-			'Sync=' + DrawioFile.SYNC + '\n' +
-			'Stack:\n' + e.stack);
+		try
+		{
+			var user = this.file.getCurrentUser();
+			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+	
+			EditorUi.sendReport('Error in merge ' + new Date().toISOString() + ':\n\n' +
+				'File=' + this.file.getId() + '\n' +
+				'Client=' + this.clientId + '\n' +
+				'User=' + uid + '\n' +
+				'Size=' + this.file.getSize() + '\n' +
+				'Sync=' + DrawioFile.SYNC + '\n\n' +
+				'Stack:\n' + e.stack);
+		}
+		catch (e2)
+		{
+			// ignore
+		}
 	}
 };
 
