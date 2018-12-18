@@ -62,6 +62,12 @@ html body .gePrimaryBtn {
 	border-color:#cccccc !important;
 	color:#cccccc !important;
 }
+.gePropHeader, .gePropRow, .gePropRowDark, .gePropRowCell, .gePropRow>.gePropRowCell, .gePropRowAlt>.gePropRowCell, .gePropRowDark>.gePropRowCell, .gePropRowDarkAlt>.gePropRowCell {
+	background:#2a2a2a !important;
+	border-color:#2a2a2a !important;
+	color:#cccccc !important;
+	font-weight:normal !important;
+}
 html body .geBtn:hover {
 	background:#000000 !important;
 }

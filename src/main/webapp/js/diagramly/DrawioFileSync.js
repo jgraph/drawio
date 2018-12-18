@@ -8,9 +8,62 @@ DrawioFileSync = function(file)
 {
 	mxEventSource.call(this);
 
+	this.lastActivity = new Date();
 	this.clientId = Editor.guid();
 	this.ui = file.ui;
 	this.file = file;
+
+    // Listens to online state changes
+	this.onlineListener = mxUtils.bind(this, function()
+	{
+		this.updateOnlineState();
+
+		if (this.channelId != null && this.isConnected())
+		{
+			this.fileChangedNotify();
+		}
+	});
+    
+	mxEvent.addListener(window, 'online', this.onlineListener);
+	
+    // Listens to visible state changes
+	this.visibleListener = mxUtils.bind(this, function()
+	{
+		if (document.visibilityState == 'hidden')
+		{
+			if (this.isConnected() && !this.paused)
+			{
+				this.stop();
+			}
+		}
+		else if (this.channelId == null)
+		{
+			this.start(this.paused);
+		}
+	});
+    
+	mxEvent.addListener(document, 'visibilitychange', this.visibleListener);
+	
+    // Listens to visible state changes
+	this.activityListener = mxUtils.bind(this, function(evt)
+	{
+		this.lastActivity = new Date();
+		
+		if (this.channelId == null)
+		{
+			this.start(this.paused);
+		}
+	});
+
+	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
+	mxEvent.addListener(document, 'keypress', this.activityListener);
+	mxEvent.addListener(window, 'focus', this.activityListener);
+	
+	if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
+	{
+		mxEvent.addListener(document, 'touchstart', this.activityListener);
+		mxEvent.addListener(document, 'touchmove', this.activityListener);	
+	}
 };
 
 /**
@@ -75,77 +128,103 @@ DrawioFileSync.prototype.maxCacheReadyRetries = 2;
 DrawioFileSync.prototype.cacheReadyDelay = 500;
 
 /**
+ * Specifies if notifications should be sent and received for changes.
+ */
+DrawioFileSync.prototype.paused = false;
+
+/**
+ * Inactivity timeout is 1 hour.
+ */
+DrawioFileSync.prototype.inactivityTimeoutSeconds = 3600;
+
+/**
+ * Specifies if notifications should be sent and received for changes.
+ */
+DrawioFileSync.prototype.lastActivity = null;
+
+/**
  * Adds all listeners.
  */
-DrawioFileSync.prototype.start = function()
+DrawioFileSync.prototype.start = function(resumed)
 {
-	this.lastModified = this.file.getLastModifiedDate();
-	this.channelId = this.file.getChannelId();
-	
-	if (this.channelId != null) 
+	if (document.visibilityState != 'hidden')
 	{
-		this.pusher = this.ui.getPusher();
+		this.lastModified = this.file.getLastModifiedDate();
+		this.channelId = this.file.getChannelId();
 		
-		if (this.pusher != null)
+		if (this.channelId != null) 
 		{
-			try
-			{
-				// Error listener must be installed before trying to create channel
-				this.pusherErrorListener = mxUtils.bind(this, function(err)
-				{
-					if (err.error.data.code === 4004)
-					{
-						EditorUi.logError('Error: Pusher Limit', null, this.file.getId());
-					}
-				});
-	
-				this.pusher.connection.bind('error', this.pusherErrorListener);
-			}
-			catch (e)
-			{
-				// ignore
-			}
+			this.pusher = this.ui.getPusher();
 			
-			try
+			if (this.pusher != null)
 			{
-				this.channel = this.pusher.subscribe(this.channelId);
-				this.key = this.file.getChannelKey();
+				try
+				{
+					// Error listener must be installed before trying to create channel
+					this.pusherErrorListener = mxUtils.bind(this, function(err)
+					{
+						if (err.error.data.code === 4004)
+						{
+							EditorUi.logError('Error: Pusher Limit', null, this.file.getId());
+						}
+					});
+		
+					this.pusher.connection.bind('error', this.pusherErrorListener);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				
+				try
+				{
+					this.pusher.connect();
+					this.channel = this.pusher.subscribe(this.channelId);
+					this.key = this.file.getChannelKey();
+					this.lastActivity = new Date();
+					this.paused = false;
+					
+					if (resumed)
+					{
+						this.fileChangedNotify();
+					}
+					
+					if (this.file.stats.start == null)
+					{
+						this.file.stats.start = new Date().toISOString();
+					}
+					
+					EditorUi.debug('Sync.start', [this], resumed);
+					
+					if (!this.ui.isOffline() && !resumed)
+					{
+						var user = this.file.getCurrentUser();
+						var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+					
+						EditorUi.logEvent({category: 'RT-START-' + DrawioFile.SYNC,
+							action: 'file-' + this.file.getId() +
+							'-mode-' + this.file.getMode() +
+							'-size-' +this.file.getSize() +
+							'-user-' + uid +
+							'-client-' + this.clientId,
+							label: this.file.stats.start});
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+	
+			this.installListeners();
+		    
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.resetUpdateStatusThread();
 				this.updateOnlineState();
-
-				if (this.file.stats.start == null)
-				{
-					this.file.stats.start = new Date().toISOString();
-				}
-				
-				EditorUi.debug('Sync.start', [this]);
-				
-				if (!this.ui.isOffline())
-				{
-					var user = this.file.getCurrentUser();
-					var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
-				
-					EditorUi.logEvent({category: 'RT-START-' + DrawioFile.SYNC,
-						action: 'file-' + this.file.getId() +
-						'-mode-' + this.file.getMode() +
-						'-size-' +this.file.getSize() +
-						'-user-' + uid +
-						'-client-' + this.clientId,
-						label: this.file.stats.start});
-				}
-			}
-			catch (e)
-			{
-				// ignore
-			}
+				this.updateStatus();
+			}, 0));
 		}
-
-		this.installListeners();
-	    
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			this.resetUpdateStatusThread();
-			this.updateStatus();
-		}, 0));
 	}
 };
 
@@ -174,9 +253,9 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 		{
 			this.enabled = !this.enabled;
-			this.updateOnlineState();
 			this.ui.updateButtonContainer();
 			this.resetUpdateStatusThread();
+			this.updateOnlineState();
 			this.updateStatus();
 			
 			if (!this.file.inConflictState && this.enabled)
@@ -190,14 +269,14 @@ DrawioFileSync.prototype.updateOnlineState = function()
 	{
 		if (this.collaboratorsElement == null)
 		{
-			var elt = document.createElement('div');
-    		elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;';
-        	elt.style.backgroundPosition = 'center center';
+			var elt = document.createElement('a');
+    		elt.className = 'geToolbarButton';
+			elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;float:left;';
+    		elt.style.backgroundPosition = 'center center';
         	elt.style.backgroundRepeat = 'no-repeat';
         	elt.style.backgroundSize = '24px 24px';
         	elt.style.height = '24px';
         	elt.style.width = '24px';
-        	mxUtils.setOpacity(elt, 30);
         	
         	addClickHandler(elt);
         	this.ui.buttonContainer.appendChild(elt);
@@ -223,9 +302,14 @@ DrawioFileSync.prototype.updateOnlineState = function()
 	    	elt.style.backgroundPosition = 'center center';
 	    	elt.style.backgroundRepeat = 'no-repeat';
 	    	elt.style.backgroundSize = '16px 16px';
-	    	elt.style.opacity = '0.6';
 			elt.style.width = '16px';
 			elt.style.height = '16px';
+	    	mxUtils.setOpacity(elt, 60);
+	    	
+			if (uiTheme == 'dark')
+			{
+				elt.style.filter = 'invert(100%)';
+			}
 			
 			// Prevents focus
 		    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
@@ -252,7 +336,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		{
 			status = mxResources.get('error') + ': ' + mxResources.get('checksum');
 		}
-		else if (!this.ui.isOffline() || !this.isConnected())
+		else if (this.ui.isOffline() || !this.isConnected())
 		{
 			status = mxResources.get('offline');
 		}
@@ -274,6 +358,13 @@ DrawioFileSync.prototype.updateOnlineState = function()
  */
 DrawioFileSync.prototype.updateStatus = function()
 {
+	if (!this.paused && this.isConnected() && this.lastActivity != null &&
+		(new Date().getTime() - this.lastActivity.getTime()) / 1000 >
+		this.inactivityTimeoutSeconds)
+	{
+		this.stop();
+	}
+	
 	if (!this.file.isModified() && !this.file.inConflictState &&
 		this.file.autosaveThread == null && !this.file.savingFile &&
 		!this.redirectDialogShowing)
@@ -364,7 +455,7 @@ DrawioFileSync.prototype.installListeners = function()
 	// Ignores old messages
 	var lastModifiedDate = null;
 
-	if (this.pusher)
+	if (this.pusher != null)
 	{
 	    // Listens to remote model changes
 		this.connectionListener = mxUtils.bind(this, function()
@@ -399,6 +490,7 @@ DrawioFileSync.prototype.installListeners = function()
 		this.changeListener = mxUtils.bind(this, function(data)
 		{
 			this.file.stats.msgReceived++;
+			this.lastActivity = new Date();
 
 			if (this.enabled && !this.file.inConflictState &&
 				!this.redirectDialogShowing)
@@ -434,15 +526,6 @@ DrawioFileSync.prototype.installListeners = function()
 		
     	this.channel.bind('changed', this.changeListener);
     }
-    
-    // Listens to online state changes
-	this.onlineListener = mxUtils.bind(this, function()
-	{
-		this.updateOnlineState();
-		this.fileChangedNotify();
-	});
-    
-	mxEvent.addListener(window, 'online', this.onlineListener);
 };
 
 /**
@@ -796,6 +879,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 	
 			EditorUi.sendReport('Error in merge ' + new Date().toISOString() + ':\n\n' +
 				'File=' + this.file.getId() + '\n' +
+				'Mode=' + this.file.getMode() + '\n' +
 				'Client=' + this.clientId + '\n' +
 				'User=' + uid + '\n' +
 				'Size=' + this.file.getSize() + '\n' +
@@ -988,6 +1072,58 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DrawioFileSync.prototype.stop = function()
+{
+	EditorUi.debug('Sync.stop', [this]);
+
+	if (this.changeListener != null && this.channel != null)
+	{
+		this.channel.unbind('changed', this.changeListener);
+		this.changeListener = null;
+	}
+
+	if (this.connectionListener != null)
+	{
+		if (this.pusher != null && this.pusher.connection != null)
+		{
+			this.pusher.connection.unbind('state_change', this.connectionListener);
+		}
+		
+		this.connectionListener = null;
+	}
+
+	if (this.pusherErrorListener != null)
+	{
+		if (this.pusher != null && this.pusher.connection != null)
+		{
+			this.pusher.connection.unbind('error', this.pusherErrorListener);
+		}
+		
+		this.pusherErrorListener = null;
+	}
+
+	if (this.pusher != null && this.channel != null && this.channelId != null) 
+	{
+		// See https://github.com/pusher/pusher-js/issues/75
+		//this.pusher.unsubscribe(this.channelId);
+		this.channel = null;
+	}
+	
+	if (this.pusher != null)
+	{
+		this.pusher.disconnect();
+	}
+	
+	this.channelId = null;
+	this.pusher = null;
+	this.paused = true;
+	this.updateOnlineState();
+	this.updateStatus();
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DrawioFileSync.prototype.destroy = function()
 {
 	if (this.isConnected())
@@ -1006,30 +1142,8 @@ DrawioFileSync.prototype.destroy = function()
 			this.createMessage(leave))));
 		this.file.stats.msgSent++;
 	}
-
-	if (this.changeListener != null && this.channel != null)
-	{
-		this.channel.unbind('changed', this.changeListener);
-		this.changeListener = null;
-	}
-
-	if (this.connectionListener != null && this.pusher != null)
-	{
-		this.pusher.connection.unbind('state_change', this.connectionListener);
-		this.connectionListener = null;
-	}
-
-	if (this.pusherErrorListener != null && this.pusher != null)
-	{
-		this.pusher.connection.unbind('error', this.pusherErrorListener);
-		this.pusherErrorListener = null;
-	}
-
-	if (this.pusher != null && this.channel != null && this.channelId != null) 
-	{
-		this.pusher.unsubscribe(this.channelId);
-		this.channel = null;
-	}
+	
+	this.stop();
 
 	if (this.updateStatusThread != null)
 	{
@@ -1041,6 +1155,27 @@ DrawioFileSync.prototype.destroy = function()
 	{
 		mxEvent.removeListener(window, 'online', this.onlineListener);
 		this.onlineListener = null;
+	}
+
+	if (this.visibleListener != null)
+	{
+		mxEvent.removeListener(document, 'visibilitychange', this.visibleListener);
+		this.visibleListener = null;
+	}
+
+	if (this.activityListener != null)
+	{
+		mxEvent.removeListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
+		mxEvent.removeListener(document, 'keypress', this.activityListener);
+		mxEvent.removeListener(window, 'focus', this.activityListener);
+		
+		if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
+		{
+			mxEvent.removeListener(document, 'touchstart', this.activityListener);
+			mxEvent.removeListener(document, 'touchmove', this.activityListener);	
+		}
+		
+		this.activityListener = null;
 	}
 	
 	if (this.collaboratorsElement != null)
