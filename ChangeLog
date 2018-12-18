@@ -1,3 +1,12 @@
+18-DEC-2018: 10.0.3
+
+- Disables sync in Chrome OS
+- Fixes CSS issues
+
+17-DEC-2018: 10.0.2
+
+- Adds inactivity timeout for collaborative editing
+
 17-DEC-2018: 10.0.1
 
 - Fixes Google auth for OneDrive files

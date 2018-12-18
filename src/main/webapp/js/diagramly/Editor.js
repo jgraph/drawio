@@ -30,6 +30,16 @@
 	Editor.globeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==';
 
 	/**
+	 * 
+	 */
+	Editor.userImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+';
+
+	/**
+	 * 
+	 */
+	Editor.shareImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTggMTYuMDhjLS43NiAwLTEuNDQuMy0xLjk2Ljc3TDguOTEgMTIuN2MuMDUtLjIzLjA5LS40Ni4wOS0uN3MtLjA0LS40Ny0uMDktLjdsNy4wNS00LjExYy41NC41IDEuMjUuODEgMi4wNC44MSAxLjY2IDAgMy0xLjM0IDMtM3MtMS4zNC0zLTMtMy0zIDEuMzQtMyAzYzAgLjI0LjA0LjQ3LjA5LjdMOC4wNCA5LjgxQzcuNSA5LjMxIDYuNzkgOSA2IDljLTEuNjYgMC0zIDEuMzQtMyAzczEuMzQgMyAzIDNjLjc5IDAgMS41LS4zMSAyLjA0LS44MWw3LjEyIDQuMTZjLS4wNS4yMS0uMDguNDMtLjA4LjY1IDAgMS42MSAxLjMxIDIuOTIgMi45MiAyLjkyIDEuNjEgMCAyLjkyLTEuMzEgMi45Mi0yLjkycy0xLjMxLTIuOTItMi45Mi0yLjkyeiIvPjwvc3ZnPg==';
+
+	/**
 	 *
 	 */
 	Editor.syncImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNFYxTDggNWw0IDRWNmMzLjMxIDAgNiAyLjY5IDYgNiAwIDEuMDEtLjI1IDEuOTctLjcgMi44bDEuNDYgMS40NkMxOS41NCAxNS4wMyAyMCAxMy41NyAyMCAxMmMwLTQuNDItMy41OC04LTgtOHptMCAxNGMtMy4zMSAwLTYtMi42OS02LTYgMC0xLjAxLjI1LTEuOTcuNy0yLjhMNS4yNCA3Ljc0QzQuNDYgOC45NyA0IDEwLjQzIDQgMTJjMCA0LjQyIDMuNTggOCA4IDh2M2w0LTQtNC00djN6Ii8+PC9zdmc+';
@@ -1862,18 +1872,18 @@
 			
 			function createColorBtn(pName, pValue, prop)
 			{
-				var clrDiv = document.createElement("div");
+				var clrDiv = document.createElement('div');
 				clrDiv.style.width = '32px';
 				clrDiv.style.height = '4px';
-				clrDiv.style.margin = "2px";
-				clrDiv.style.border = "1px solid black";
-				clrDiv.style.background = !pValue || pValue == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
+				clrDiv.style.margin = '2px';
+				clrDiv.style.border = '1px solid black';
+				clrDiv.style.background = !pValue || pValue == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
 
 				btn = mxUtils.button('', mxUtils.bind(that, function(evt)
 				{
 					this.editorUi.pickColor(pValue, function(color)
 					{
-						clrDiv.style.background = color == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
+						clrDiv.style.background = color == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
 						applyStyleVal(pName, color, prop);
 					});
 					mxEvent.consume(evt);
@@ -1917,7 +1927,7 @@
 					}
 					
 					var newProp = {type: subType, parentRow: myRow, index: index, isDeletable: true, defVal: defVal, countProperty: countProperty};
-					var arrItem = createPropertyRow(pName, "", newProp, index % 2 == 0, flipBkg);
+					var arrItem = createPropertyRow(pName, '', newProp, index % 2 == 0, flipBkg);
 					applyStyleVal(pName, defVal, newProp);
 					insertAfter(arrItem, beforeElem);
 					
@@ -1941,7 +1951,7 @@
 					
 					for (var i = 0; i < size; i++) 
 					{
-						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : "");
+						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : '');
 					}
 					
 					secondLevel.push({name: pName, values: vals, type: subType, defVal: defVal, parentRow: myRow, flipBkg: flipBkg, size: size});
@@ -1953,7 +1963,7 @@
 			function createCheckbox(pName, pValue, prop)
 			{
 				var input = document.createElement('input');
-				input.type = "checkbox";
+				input.type = 'checkbox';
 				input.checked = pValue == '1';
 				
 				mxEvent.addListener(input, 'change', function() 
@@ -1968,7 +1978,7 @@
 				var pDiplayName = prop.dispName;
 				var pType = prop.type;
 				var row = document.createElement('tr');
-				row.className = "gePropRow" + (flipBkg? 'Dark' : '') + (isOdd? "Alt" : "") + " gePropNonHeaderRow";
+				row.className = 'gePropRow' + (flipBkg? 'Dark' : '') + (isOdd? 'Alt' : '') + ' gePropNonHeaderRow';
 				row.setAttribute('data-pName', pName);
 				row.setAttribute('data-pValue', pValue);
 				var rightAlig = false;
@@ -1976,32 +1986,32 @@
 				if (prop.index != null)
 				{
 					row.setAttribute('data-index', prop.index);
-					pDiplayName = (pDiplayName != null? pDiplayName : "") + "[" + prop.index + "]";
+					pDiplayName = (pDiplayName != null? pDiplayName : '') + '[' + prop.index + ']';
 					rightAlig = true;
 				}
 				
 				var td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
 				
 				if (rightAlig)
 				{
-					td.style.textAlign = "right";
+					td.style.textAlign = 'right';
 				}
 					
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				
-				if (pType == "color")
+				if (pType == 'color')
 				{
 					td.appendChild(createColorBtn(pName, pValue, prop));
 				}
-				else if (pType == "bool" || pType == "boolean")
+				else if (pType == 'bool' || pType == 'boolean')
 				{
 					td.appendChild(createCheckbox(pName, pValue, prop));
 				}
-				else if (pType == "enum")
+				else if (pType == 'enum')
 				{
 					var pEnumList = prop.enumList;
 					
@@ -2066,12 +2076,12 @@
 						var input = document.createElement('input');
 						setElementPos(td, input, true);
 						input.value = pValue;
-						input.className = "gePropEditor";
+						input.className = 'gePropEditor';
 						
-						if ((pType == "int" || pType == "float") && !prop.allowAuto)
+						if ((pType == 'int' || pType == 'float') && !prop.allowAuto)
 						{
-							input.type = "number";
-							input.step = pType == "int"? "1" : "any";
+							input.type = 'number';
+							input.step = pType == 'int'? '1' : 'any';
 							
 							if (prop.min != null)
 							{
@@ -2089,14 +2099,14 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
-							inputVal = inputVal.length == 0 && pType != "string"? 0 : inputVal;
+							inputVal = inputVal.length == 0 && pType != 'string'? 0 : inputVal;
 							
 							if (prop.allowAuto)
 							{
-								if (inputVal.trim().toLowerCase() == "auto")
+								if (inputVal.trim().toLowerCase() == 'auto')
 								{
-									inputVal = "auto";
-									pType = "string";
+									inputVal = 'auto';
+									pType = 'string';
 								}
 								else
 								{
@@ -2114,7 +2124,7 @@
 								inputVal = prop.max;
 							}
 
-							var newVal = mxUtils.htmlEntities((pType == "int"? parseInt(inputVal) : inputVal) + '');
+							var newVal = mxUtils.htmlEntities((pType == 'int'? parseInt(inputVal) : inputVal) + '');
 							
 							applyStyleVal(pName, newVal, prop);
 						}
@@ -2143,7 +2153,7 @@
 					var delBtn = mxUtils.button('-', mxUtils.bind(that, function(evt)
 					{
 						//delete the node by refreshing the properties
-						applyStyleVal(pName, "", prop, prop.index);
+						applyStyleVal(pName, '', prop, prop.index);
 						
 						mxEvent.consume(evt);
 					}));
@@ -2166,18 +2176,18 @@
 			grid.style.width = '100%';
 			//create header row
 			var hrow = document.createElement('tr');
-			hrow.className = "gePropHeader";
+			hrow.className = 'gePropHeader';
 			var th = document.createElement('th');
-			th.className = "gePropHeaderCell";
+			th.className = 'gePropHeaderCell';
 			var collapseImg = document.createElement('img');
 			collapseImg.src = Sidebar.prototype.expandedImage;
 			th.appendChild(collapseImg);
-			mxUtils.write(th, mxResources.get('property', null, 'Property'));
+			mxUtils.write(th, mxResources.get('property'));
 			hrow.style.cursor = 'pointer';
 			
 			var onFold = function()
 			{
-				var rows = grid.querySelectorAll(".gePropNonHeaderRow");
+				var rows = grid.querySelectorAll('.gePropNonHeaderRow');
 				var display;
 				
 				if (!that.editorUi.propertiesCollapsed)
@@ -2220,8 +2230,8 @@
 			});
 			hrow.appendChild(th);
 			th = document.createElement('th');
-			th.className = "gePropHeaderCell";
-			th.innerHTML = mxResources.get('value', null, 'Value');
+			th.className = 'gePropHeaderCell';
+			th.innerHTML = mxResources.get('value');
 			hrow.appendChild(th);
 			grid.appendChild(hrow);
 			
@@ -2232,7 +2242,7 @@
 			{
 				var prop = properties[key];
 				
-				if (typeof(prop.isVisible) == "function")
+				if (typeof(prop.isVisible) == 'function')
 				{
 					if (!prop.isVisible(state)) continue;
 				}
@@ -2289,7 +2299,8 @@
 			onFold();
 			
 			return div;
-		}		
+		};
+		
 		/**
 		 * Creates the buttons for the predefined styles.
 		 */

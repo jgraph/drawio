@@ -762,8 +762,12 @@
 								icon.style.marginTop = '2px';
 								icon.style.zIndex = '1';
 								elt.appendChild(icon);
-								
 								mxUtils.setOpacity(elt, 40);
+								
+								if (uiTheme == 'dark')
+								{
+									elt.style.filter = 'invert(100%)';
+								}
 							}
 							else
 							{

@@ -25,7 +25,12 @@
 	 * Switch to disable logging for mode and search terms.
 	 */
 	EditorUi.lastErrorMessage = null;
-	
+
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.ignoredAnonymizedChars = '\n\t`~!@#$%^&*()_+{}|:"<>?-=[]\;\'.\/,\n\t';
+
 	/**
 	 * Updates action states depending on the selection.
 	 */
@@ -923,7 +928,48 @@
 		
 		return node;
 	};
-
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizeString = function(text)
+	{
+		var result = [];
+		
+		for (var i = 0; i < text.length; i++)
+		{
+			var c = text.charAt(i);
+			
+			if (EditorUi.ignoredAnonymizedChars.indexOf(c) >= 0)
+			{
+				result.push(c);
+			}
+			else if (!isNaN(parseInt(c)))
+			{
+				result.push(Math.round(Math.random() * 9));
+			}
+			else if (c.toLowerCase() != c)
+			{
+				result.push(String.fromCharCode(65 + Math.round(Math.random() * 25)));
+			}
+			else if (c.toUpperCase() != c)
+			{
+				result.push(String.fromCharCode(97 + Math.round(Math.random() * 25)));
+			}
+			else if (/\s/.test(c))
+			{
+				/* any whitespace */
+				result.push(' ');
+			}
+			else
+			{
+				result.push('?');
+			}
+		}
+		
+		return result.join('');
+	};
+	
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
@@ -942,7 +988,7 @@
 				
 				if (diff.cells != null)
 				{
-					function anonymizeCellDiffs(key)
+					var anonymizeCellDiffs = mxUtils.bind(this, function(key)
 					{
 						var cellDiffs = diff.cells[key];
 						
@@ -950,10 +996,24 @@
 						{
 							for (var cellId in cellDiffs)
 							{
-								delete cellDiffs[cellId].value;
-								delete cellDiffs[cellId].style;
-								delete cellDiffs[cellId].geometry;
-	
+								if (cellDiffs[cellId].value != null)
+								{
+									cellDiffs[cellId].value = this.anonymizeString(
+										cellDiffs[cellId].value);
+								}
+								
+								if (cellDiffs[cellId].style != null)
+								{
+									cellDiffs[cellId].style = this.anonymizeString(
+										cellDiffs[cellId].style);
+								}
+								
+								if (cellDiffs[cellId].geometry != null)
+								{
+									cellDiffs[cellId].geometry = this.anonymizeString(
+										cellDiffs[cellId].geometry);
+								}
+								
 								if (Object.keys(cellDiffs[cellId]).length == 0)
 								{
 									delete cellDiffs[cellId];
@@ -965,7 +1025,7 @@
 								delete diff.cells[key];
 							}
 						}
-					};
+					});
 					
 					anonymizeCellDiffs(EditorUi.DIFF_INSERT);
 					anonymizeCellDiffs(EditorUi.DIFF_UPDATE);

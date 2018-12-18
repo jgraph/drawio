@@ -273,6 +273,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 	
 			EditorUi.sendReport('Error in mergeFile ' + new Date().toISOString() + ':\n\n' +
 				'File=' + this.getId() + '\n' +
+				'Mode=' + this.getMode() + '\n' +
 				((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
 				'User=' + uid + '\n' +
 				'Size=' + this.getSize() + '\n' +
@@ -332,14 +333,22 @@ DrawioFile.prototype.checksumError = function(error, patches)
 		var user = this.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 
+		if (this.stats.start != null)
+		{
+			this.stats.uptime = Math.round((new Date().getTime() -
+				new Date(this.stats.start).getTime()) / 1000);
+		}
+	
 		EditorUi.sendReport('Checksum Error ' + new Date().toISOString() + ':\n\n' +
 			'File=' + this.getId() + '\n' +
+			'Mode=' + this.getMode() + '\n' +
 			((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
 			'User=' + uid + '\n' +
 			'Size=' + this.getSize() + '\n' +
 			'Sync=' + DrawioFile.SYNC + '\n\n' +
 			'Data:\n' + mxUtils.getPrettyXml(file) + '\n' +
-			'Patches:\n' + JSON.stringify(patches, null, 2));
+			'Patches:\n' + JSON.stringify(patches, null, 2) + '\n\n' +
+			'Stats:\n' + JSON.stringify(this.stats, null, 2));
 	}
 	catch (e)
 	{
@@ -508,8 +517,8 @@ DrawioFile.prototype.patch = function(patches, shadow)
 			graph.model.endUpdate();
 	
 			// Checks if current page was removed
-			if (this.ui.pages.length > 0 && mxUtils.indexOf(
-				this.ui.pages, this.ui.currentPage) < 0)
+			if (this.ui.pages != null && this.ui.pages.length > 0 &&
+				mxUtils.indexOf(this.ui.pages, this.ui.currentPage) < 0)
 			{
 				this.ui.selectPage(this.ui.pages[0], true);
 			}
