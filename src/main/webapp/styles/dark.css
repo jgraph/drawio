@@ -1,5 +1,11 @@
-html body .geDiagramContainer, html body div.geMenubarContainer, html body div.mxPopupMenu,  html body td.mxPopupMenuIcon, html body .geFormatContainer {
+html body .geDiagramContainer, html body div.geMenubarContainer, html body div.mxPopupMenu, html body td.mxPopupMenuIcon, html body .geFormatContainer, html body div.geMenubarContainer .geStatus:hover {
 	background-color:#2a2a2a;
+}
+html body .geSidebarContainer {
+	border-top: 1px solid #505759;
+}
+html body .geMenubarContainer .geItem:active {
+	opacity: 0.7;
 }
 html body .geFooterContainer, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter {
 	background:#2a2a2a;

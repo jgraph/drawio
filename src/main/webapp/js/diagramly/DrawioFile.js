@@ -120,6 +120,7 @@ DrawioFile.prototype.reportEnabled = true;
  * Specifies if notify events should be ignored.
  */
 DrawioFile.prototype.stats = {
+	joined: 0, /* number of join messages received */
 	reloads: 0, /* number of times the files was reloaded */
 	checksumErrors: 0, /* number of checksum errors in mergeFile */
 	mergeChecksumErrors: 0, /* number of checksum errors in merge */
@@ -130,8 +131,7 @@ DrawioFile.prototype.stats = {
 	cacheHits: 0, /* number of times the cache returned patches */
 	cacheMiss: 0, /* number of times we have given up to read the cache */
 	conflicts: 0, /* number of write conflicts when saving a file */
-	timeouts: 0, /* number of time we have given up to retry after a write conflict */
-	joined: 0 /* number of join messages received */
+	timeouts: 0 /* number of time we have given up to retry after a write conflict */
 };
 
 /**
@@ -272,8 +272,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 	
 			EditorUi.sendReport('Error in mergeFile ' + new Date().toISOString() + ':\n\n' +
-				'File=' + this.getId() + '\n' +
-				'Mode=' + this.getMode() + '\n' +
+				'File=' + this.getId() + ' (' + this.getMode() + ')\n' +
 				((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
 				'User=' + uid + '\n' +
 				'Size=' + this.getSize() + '\n' +
@@ -340,15 +339,14 @@ DrawioFile.prototype.checksumError = function(error, patches)
 		}
 	
 		EditorUi.sendReport('Checksum Error ' + new Date().toISOString() + ':\n\n' +
-			'File=' + this.getId() + '\n' +
-			'Mode=' + this.getMode() + '\n' +
+			'File=' + this.getId() + ' (' + this.getMode() + ')\n' +
 			((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
 			'User=' + uid + '\n' +
 			'Size=' + this.getSize() + '\n' +
 			'Sync=' + DrawioFile.SYNC + '\n\n' +
+			'Stats:\n' + JSON.stringify(this.stats, null, 2) + '\n' +
 			'Data:\n' + mxUtils.getPrettyXml(file) + '\n' +
-			'Patches:\n' + JSON.stringify(patches, null, 2) + '\n\n' +
-			'Stats:\n' + JSON.stringify(this.stats, null, 2));
+			'Patches:\n' + JSON.stringify(patches, null, 2));
 	}
 	catch (e)
 	{

@@ -27,6 +27,7 @@ images/delete.png
 images/droptarget.png
 images/help.png
 images/download.png
+images/drawlogo.svg
 images/drawlogo-gray.svg
 images/drawlogo-text-bottom.svg
 images/logo-flat.png

@@ -188,7 +188,7 @@ EditorUi = function(editor, container, lightbox)
 		}
 		else if (!mxEvent.isConsumed(evt) && evt.keyCode == 27 /* Escape */)
 		{
-			this.hideDialog();
+			this.hideDialog(null, true);
 		}
 	});
    	
@@ -3291,7 +3291,7 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3300,19 +3300,25 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize);
 	this.dialogs.push(this.dialog);
 };
 
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.hideDialog = function(cancel)
+EditorUi.prototype.hideDialog = function(cancel, isEsc)
 {
 	if (this.dialogs != null && this.dialogs.length > 0)
 	{
 		var dlg = this.dialogs.pop();
-		dlg.close(cancel);
+		
+		if (dlg.close(cancel, isEsc) == false) 
+		{
+			//add the dialog back if dialog closing is cancelled
+			this.dialogs.push(dlg);
+			return;
+		}
 		
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 

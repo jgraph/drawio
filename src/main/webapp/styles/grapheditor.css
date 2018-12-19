@@ -267,13 +267,13 @@
 	border:1px solid transparent;
 	cursor:pointer;
 	opacity:0.6;
-	filter:alpha(opacity=60);
+	_filter:alpha(opacity=60);
 }
 .geToolbarContainer .geButton:hover {
 	border:1px solid gray;
 	border-radius:2px;
 	opacity:1;
-	filter:none !important;
+	_filter:none !important;
 }
 .geToolbarContainer .geButton:active {
 	border:1px solid black;
