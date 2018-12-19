@@ -393,7 +393,7 @@ DrawioFileSync.prototype.updateStatus = function()
 			var label = mxResources.get('lastChange', [str]);
 			
 			this.ui.editor.setStatus('<div style="display:inline-block;">' + mxUtils.htmlEntities(label)  + '</div>' +
-				((msg != null) ? ' (' + msg + ')' : '') +
+				((msg != null) ? ' <span style="opacity:0;">(' + msg + ')</span>' : '') +
 				(this.file.isEditable() ? '' : '<div class="geStatusAlert" style="margin-left:8px;display:inline-block;">' +
 					mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>') +
 				(this.isConnected() ? '' : '<div class="geStatusAlert geBlink" style="margin-left:8px;display:inline-block;">' +
@@ -417,6 +417,26 @@ DrawioFileSync.prototype.updateStatus = function()
 				{
 					links[0].setAttribute('title', label);
 				}
+			}
+			
+			// Fades in/out last message
+			var spans = this.ui.statusContainer.getElementsByTagName('span');
+			
+			if (spans.length > 0)
+			{
+				var temp = spans[0];
+				mxUtils.setPrefixedStyle(temp.style, 'transition', 'all 0.2s ease');
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					mxUtils.setOpacity(temp, 100);
+					mxUtils.setPrefixedStyle(temp.style, 'transition', 'all 1s ease');
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setOpacity(temp, 0);
+					}), this.updateStatusInterval / 2);
+				}), 0);
 			}
 			
 			this.resetUpdateStatusThread();
@@ -551,6 +571,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 		{
 			this.lastMessage = mxResources.get((data.a == 'join') ?
 				'userJoined' : 'userLeft', [data.name]);
+			this.resetUpdateStatusThread();
 			this.updateStatus();
 		}
 	}
@@ -878,8 +899,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 	
 			EditorUi.sendReport('Error in merge ' + new Date().toISOString() + ':\n\n' +
-				'File=' + this.file.getId() + '\n' +
-				'Mode=' + this.file.getMode() + '\n' +
+				'File=' + this.file.getId() + ' (' + this.file.getMode() + ')\n' +
 				'Client=' + this.clientId + '\n' +
 				'User=' + uid + '\n' +
 				'Size=' + this.file.getSize() + '\n' +

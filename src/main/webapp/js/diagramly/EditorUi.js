@@ -975,8 +975,24 @@
 	 */
 	EditorUi.prototype.anonymizePatch = function(patch)
 	{
-		delete patch[EditorUi.DIFF_INSERT];
-		delete patch[EditorUi.DIFF_REMOVE];
+		if (patch[EditorUi.DIFF_INSERT] != null)
+		{
+			for (var i = 0; i < patch[EditorUi.DIFF_INSERT].length; i++)
+			{
+				try
+				{
+					var data = patch[EditorUi.DIFF_INSERT][i].data;
+					var doc = mxUtils.parseXml(data);
+					var clone = doc.documentElement.cloneNode(false);
+					clone.removeAttribute('name');
+					patch[EditorUi.DIFF_INSERT][i].data = mxUtils.getXml(clone);
+				}
+				catch (e)
+				{
+					patch[EditorUi.DIFF_INSERT][i].data = e.message;
+				}
+			}
+		}
 		
 		if (patch[EditorUi.DIFF_UPDATE] != null)
 		{
