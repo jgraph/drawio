@@ -848,30 +848,28 @@ EditorUi.prototype.removePage = function(page)
 		{
 			var next = this.currentPage;
 			
-			if (next == page)
+			if (next == page && this.pages.length > 1)
 			{
-				if (this.pages.length > 1)
+				var tmp = mxUtils.indexOf(this.pages, page);
+				
+				if (tmp == this.pages.length - 1)
 				{
-					var tmp = mxUtils.indexOf(this.pages, page);
-					
-					if (tmp == this.pages.length - 1)
-					{
-						tmp--;
-					}
-					else
-					{
-						tmp++;
-					}
-					
-					next = this.pages[tmp];
+					tmp--;
 				}
 				else
 				{
-					// Removes label with incorrect page number to force
-					// default page name which is OK for a single page
-					next = this.insertPage();
-					graph.model.execute(new RenamePage(this, next, mxResources.get('pageWithNumber', [1])));
+					tmp++;
 				}
+				
+				next = this.pages[tmp];
+			}
+			else if (this.pages.length <= 1)
+			{
+				// Removes label with incorrect page number to force
+				// default page name which is OK for a single page
+				next = this.insertPage();
+				graph.model.execute(new RenamePage(this, next,
+					mxResources.get('pageWithNumber', [1])));
 			}
 			
 			// Uses model to fire event to trigger autosave

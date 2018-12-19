@@ -337,16 +337,31 @@ DrawioFile.prototype.checksumError = function(error, patches)
 			this.stats.uptime = Math.round((new Date().getTime() -
 				new Date(this.stats.start).getTime()) / 1000);
 		}
-	
+		
+		var data = mxUtils.getPrettyXml(file);
+		
+		if (data != null && data.length > 10000)
+		{
+			data = this.ui.editor.graph.compress(data) + '\n';
+		}
+
+		var json = JSON.stringify(patches, null, 2);
+		
+		if (json != null && json.length > 10000)
+		{
+			json = this.ui.editor.graph.compress(json);
+		}
+		
 		EditorUi.sendReport('Checksum Error ' + new Date().toISOString() + ':\n\n' +
 			'File=' + this.getId() + ' (' + this.getMode() + ')\n' +
 			((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
 			'User=' + uid + '\n' +
 			'Size=' + this.getSize() + '\n' +
 			'Sync=' + DrawioFile.SYNC + '\n\n' +
-			'Stats:\n' + JSON.stringify(this.stats, null, 2) + '\n' +
-			'Data:\n' + mxUtils.getPrettyXml(file) + '\n' +
-			'Patches:\n' + JSON.stringify(patches, null, 2));
+			'Stats:\n' + JSON.stringify(this.stats, null, 2) + '\n\n' +
+			'Data:\n' + data + '\n' +
+			'Patches:\n' + json + '\n\n' +
+			'Stack:\n' + new Error().stack);
 	}
 	catch (e)
 	{
@@ -507,7 +522,7 @@ DrawioFile.prototype.patch = function(patches, shadow)
 			for (var i = 0; i < patches.length; i++)
 			{
 				this.ui.pages = this.ui.patchPages(this.ui.pages,
-					patches[i], true, shadow);
+					patches[i], true, shadow, this.isModified());
 			}
 		}
 		finally

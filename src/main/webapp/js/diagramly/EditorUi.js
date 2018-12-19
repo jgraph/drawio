@@ -1753,7 +1753,7 @@
             
             if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
             {
-                realUrl = PROXY_URL + '?url=' + encodeURIComponent(desc.url);
+                realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
             }
 
             // LATER: Remove cache-control header
@@ -3405,11 +3405,12 @@
 		div.style.position = 'absolute';
 		div.style.overflow = 'hidden';
 		div.style.borderWidth = '3px';
-
+		
 		var elt2 = document.createElement('a');
 		elt2.className = 'geTitle';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
+		elt2.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
 
 		mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
 

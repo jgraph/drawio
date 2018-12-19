@@ -31,7 +31,7 @@ EditorUi.prototype.viewStateWhitelist = ['background', 'backgroundImage', 'foldi
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
+EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow, updateEdgeParents)
 {
 	var shadowLookup = {};
 	var newPages = [];
@@ -46,11 +46,6 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 		{
 			shadowLookup[shadow[i].getId()] = shadow[i];
 		}
-	}
-	
-	for (var i = 0; i < pages.length; i++)
-	{
-		lookup[pages[i].getId()] = pages[i];
 	}
 	
 	if (diff[EditorUi.DIFF_REMOVE] != null)
@@ -82,30 +77,38 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 		}
 	}
 	
-	// Restores existing order
-	var prev = '';
-	
-	for (var i = 0; i < pages.length; i++)
-	{
-		var pageId = pages[i].getId();
+	// Restores existing order and creates lookup
+  	if (pages != null)
+  	{
+		var prev = '';
 		
-		if (moved[prev] == null && !removed[pages[i].getId()] &&
-			(diff[EditorUi.DIFF_UPDATE] == null ||
-			diff[EditorUi.DIFF_UPDATE][pageId] == null ||
-			diff[EditorUi.DIFF_UPDATE][pageId].previous == null))
+		for (var i = 0; i < pages.length; i++)
 		{
-			moved[prev] = pageId;
+			var pageId = pages[i].getId();
+			lookup[pageId] = pages[i];
+			
+			if (moved[prev] == null && !removed[pageId] &&
+				(diff[EditorUi.DIFF_UPDATE] == null ||
+				diff[EditorUi.DIFF_UPDATE][pageId] == null ||
+				diff[EditorUi.DIFF_UPDATE][pageId].previous == null))
+			{
+				moved[prev] = pageId;
+			}
+			
+			prev = pageId;
 		}
-		
-		prev = pageId;
-	}
+  	}
+  	
+  	// FIXME: Workaround for possible duplicate pages
+  	var added = {};
 	
 	var addPage = mxUtils.bind(this, function(page)
 	{
 		var id = (page != null) ? page.getId() : '';
 		
-		if (page != null)
+		if (page != null && !added[id])
 		{
+			added[id] = true;
 			newPages.push(page);
 			var pageDiff = (diff[EditorUi.DIFF_UPDATE] != null) ?
 					diff[EditorUi.DIFF_UPDATE][id] : null;
@@ -126,7 +129,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow)
 				
 				if (pageDiff.cells != null)
 				{
-					this.patchPage(page, pageDiff.cells, shadowLookup[page.getId()]);
+					this.patchPage(page, pageDiff.cells, shadowLookup[page.getId()], updateEdgeParents);
 				}
 				
 				if (markPages && (pageDiff.cells != null ||
@@ -300,7 +303,7 @@ EditorUi.prototype.createParentLookup = function(model, diff)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchPage = function(page, diff, shadowPage)
+EditorUi.prototype.patchPage = function(page, diff, shadowPage, updateEdgeParents)
 {
 	var model = (page == this.currentPage) ? this.editor.graph.model : new mxGraphModel(page.root);
 	var shadowModel = (shadowPage != null) ? new mxGraphModel(shadowPage.root) : null;
@@ -309,6 +312,11 @@ EditorUi.prototype.patchPage = function(page, diff, shadowPage)
 	model.beginUpdate();
 	try
 	{
+		// Disables update of edge parents during update to avoid interference with
+		// remote updated edge parents
+		var prev = model.maintainEdgeParent;
+		model.maintainEdgeParent = false;
+
 		// Handles new root cells
 		var temp = parentLookup[''];
 		var cellDiff = (temp != null && temp.inserted != null) ? temp.inserted[''] : null;
@@ -377,6 +385,15 @@ EditorUi.prototype.patchPage = function(page, diff, shadowPage)
 					model.setTerminal(cell, model.getCell(cellDiff.target), false);
 				}
 			}
+		}
+
+		// Only updates edge parents if there are possible changes which is the case
+		// for patching the local pages in the case where the file was modified
+		model.maintainEdgeParent = prev;
+		
+		if (updateEdgeParents)
+		{
+			model.updateEdgeParents(model.root);
 		}
 	}
 	finally
@@ -527,6 +544,18 @@ EditorUi.prototype.patchCell = function(model, cell, diff, shadowCell)
 			model.setCollapsed(cell, diff.collapsed == 1);
 		}
 
+		if (diff.vertex != null)
+		{
+			// Changes vertex state in-place
+			cell.vertex = diff.vertex == 1;
+		}
+
+		if (diff.edge != null)
+		{
+			// Changes edge state in-place
+			cell.edge = diff.edge == 1;
+		}
+		
 		if (diff.connectable != null)
 		{
 			// Changes connectable state in-place
@@ -989,6 +1018,16 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	if (oldCell.collapsed != newCell.collapsed)
 	{
 		diff['collapsed'] = (newCell.collapsed) ? 1 : 0;
+	}
+
+	if (oldCell.vertex != newCell.vertex)
+	{
+		diff['vertex'] = (newCell.vertex) ? 1 : 0;
+	}
+	
+	if (oldCell.edge != newCell.edge)
+	{
+		diff['edge'] = (newCell.edge) ? 1 : 0;
 	}
 
 	if (oldCell.connectable != newCell.connectable)
