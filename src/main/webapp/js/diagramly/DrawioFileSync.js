@@ -841,41 +841,56 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			
 		// Creates a patch for backup if the checksum fails
 		this.file.backupPatch = (this.file.isModified()) ?
-			this.ui.diffPages(this.file.shadowPages, this.ui.pages) : null;
-		
-		// Patches the current document
-		this.file.patch(patches, (DrawioFile.LAST_WRITE_WINS &&
-			this.file.isEditable() && this.file.isModified()) ?
-			this.file.shadowPages : null);
-		
-		// Patches the shadow document
-		for (var i = 0; i < patches.length; i++)
-		{
-			this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
-		}
-		
-		var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
-		EditorUi.debug('Sync.merge', [this], 'from', this.file.getCurrentEtag(), 'to', etag,
-			'attempt', this.catchupRetryCount, 'diffs', patches, 'checksum',
-			checksum == current, checksum);
+			this.ui.diffPages(this.file.shadowPages,
+			this.ui.pages) : null;
 
-		// Compares the checksum
-		if (checksum != null && checksum != current)
+		if (!this.file.ignorePatches(patches))
 		{
-			this.file.stats.mergeChecksumErrors++;
-			this.file.checksumError(error, patches);
-		}
-		else
-		{
-			this.file.invalidChecksum = false;
-			this.file.inConflictState = false;
-			this.file.backupPatch = null;
-			this.file.setCurrentEtag(etag);
-			
-			if (success != null)
+			// Patches the shadow document
+			for (var i = 0; i < patches.length; i++)
 			{
-				success();
+				this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
 			}
+			
+			var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
+			
+			if (urlParams['test'] == '1')
+			{
+				EditorUi.debug('Sync.merge', [this],
+					'from', this.file.getCurrentEtag(), 'to', etag,
+					'patches', patches, 'backup', this.file.backupPatch,
+					'attempt', this.catchupRetryCount,
+					'checksum', checksum == current, checksum);
+			}
+			
+			// Compares the checksum
+			if (checksum != null && checksum != current)
+			{
+				this.file.stats.mergeChecksumErrors++;
+				this.file.checksumError(error, patches,
+					'checksum: ' + checksum +
+					'\ncurrent: ' + current);
+				
+				// Abnormal termination
+				return;
+			}
+			else
+			{
+				// Patches the current document
+				this.file.patch(patches,
+					(DrawioFile.LAST_WRITE_WINS) ?
+					this.file.backupPatch : null);
+			}
+		}
+
+		this.file.invalidChecksum = false;
+		this.file.inConflictState = false;
+		this.file.setCurrentEtag(etag);
+		this.file.backupPatch = null;
+		
+		if (success != null)
+		{
+			success();
 		}
 	}
 	catch (e)
@@ -999,32 +1014,42 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 			'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
 			((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : ''),
 			mxUtils.bind(this, function(req)
+		{
+			this.file.shadowPages = pages;
+			
+			if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			{
-				if (req.getStatus() >= 200 && req.getStatus() <= 299)
+				if (success != null)
 				{
-					if (success != null)
-					{
-						success();
-					}
+					success();
 				}
-				else if (error != null)
-				{
-					error({message: req.getStatus()});
-				}
-			}));
-		EditorUi.debug('Sync.fileSaved', [this], 'from', etag, 'to', current,
-			data.length, 'bytes', 'diff', diff, 'checksum', checksum);
+			}
+			else if (error != null)
+			{
+				error({message: req.getStatus()});
+			}
+		}));
+
+		if (urlParams['test'] == '1')
+		{
+			EditorUi.debug('Sync.fileSaved', [this],
+				'from', etag, 'to', current, data.length,
+				'bytes', 'diff', diff, 'checksum', checksum);
+		}
+		
 		this.file.stats.bytesSent += data.length;
 		this.file.stats.msgSent++;
 	}
 	else
 	{
+		this.file.shadowPages = pages;
+		
 		if (this.channelId == null)
 		{
 			// Checks channel ID and starts sync
 			this.start();
 		}
-		
+
 		if (success != null)
 		{
 			success();

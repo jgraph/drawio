@@ -2070,11 +2070,12 @@
 	 */
 	EditorUi.prototype.fileLoaded = function(file)
 	{
+		var oldFile = this.getCurrentFile();
+		this.fileLoadedError = null;
+		this.setCurrentFile(null);
 		var result = false;
 		this.hideDialog();
-		var oldFile = this.getCurrentFile();
-		this.setCurrentFile(null);
-	
+		
 		if (oldFile != null)
 		{
 			oldFile.removeListener(this.descriptorChangedListener);
@@ -2143,6 +2144,17 @@
 					this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
 				}
+				// Handles modified state after error of loading new file
+				else if (file.isModified())
+				{
+					file.addUnsavedStatus();
+					
+					// Restores unsaved data
+					if (file.backupPatch != null)
+					{
+						file.patch([file.backupPatch]);
+					}
+				}
 				else
 				{
 					this.editor.setStatus('');
@@ -2204,6 +2216,8 @@
 			}
 			catch (e)
 			{
+				this.fileLoadedError = e;
+				
 				// Makes sure the file does not save the invalid UI model and overwrites anything important
 				if (window.console != null)
 				{
@@ -2243,7 +2257,7 @@
 					{
 						noFile();
 					}
-				}));
+				}), true);
 			}
 		}
 		else
@@ -3438,7 +3452,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3495,7 +3509,8 @@
 				}
 			}
 	
-			this.showError(title, msg, btn, fn, retry);
+			this.showError(title, msg, btn, fn, retry, null, null, null, null,
+				null, null, null, (invokeFnOnClose) ? fn : null);
 		}
 		else if (fn != null)
 		{
@@ -3509,10 +3524,10 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide)
+	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
 	{
 		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'), fn, retry, btn2, fn2, hide, btn3, fn3);
-		this.showDialog(dlg.container, w || 340, h || 150, true, false);
+		this.showDialog(dlg.container, w || 340, h || 150, true, false, onClose);
 		dlg.init();
 	};
 	

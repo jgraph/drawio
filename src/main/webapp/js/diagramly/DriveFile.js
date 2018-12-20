@@ -446,7 +446,7 @@ DriveFile.prototype.getRevisions = function(success, error)
 						'revisionId': item.id
 					}), mxUtils.bind(this, function(resp)
 					{
-						this.ui.drive.getXmlFile(resp, null, mxUtils.bind(this, function(file)
+						this.ui.drive.getXmlFile(resp, mxUtils.bind(this, function(file)
 			   			{
 							itemSuccess(file.getData());
 			   			}), itemError);

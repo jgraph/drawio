@@ -129,7 +129,7 @@ EditorUi.initMinimalTheme = function()
 	    {
 	        ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
 	           Math.max(20, ui.diagramContainer.clientWidth - 240 - 12), 56,
-	           240, Math.min(560, graph.container.clientHeight - 10), function(container)
+	           240, Math.min(566, graph.container.clientHeight - 10), function(container)
 	        {
 	            var format = ui.createFormat(container);
 	            format.init();

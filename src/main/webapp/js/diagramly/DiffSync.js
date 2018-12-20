@@ -31,23 +31,23 @@ EditorUi.prototype.viewStateWhitelist = ['background', 'backgroundImage', 'foldi
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow, updateEdgeParents)
+EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updateEdgeParents)
 {
-	var shadowLookup = {};
+	var resolverLookup = {};
 	var newPages = [];
 	var inserted = {};
 	var removed = {};
 	var lookup = {};
 	var moved = {};
 	
-  	if (shadow != null)
+  	if (resolver != null && resolver[EditorUi.DIFF_UPDATE] != null)
 	{
-		for (var i = 0; i < shadow.length; i++)
-		{
-			shadowLookup[shadow[i].getId()] = shadow[i];
+  		for (var id in resolver[EditorUi.DIFF_UPDATE])
+  		{
+  			resolverLookup[id] = resolver[EditorUi.DIFF_UPDATE][id];
 		}
 	}
-	
+
 	if (diff[EditorUi.DIFF_REMOVE] != null)
 	{
 		for (var i = 0; i < diff[EditorUi.DIFF_REMOVE].length; i++)
@@ -129,7 +129,9 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, shadow, updateE
 				
 				if (pageDiff.cells != null)
 				{
-					this.patchPage(page, pageDiff.cells, shadowLookup[page.getId()], updateEdgeParents);
+					this.patchPage(page, pageDiff.cells,
+						resolverLookup[page.getId()],
+						updateEdgeParents);
 				}
 				
 				if (markPages && (pageDiff.cells != null ||
@@ -303,19 +305,27 @@ EditorUi.prototype.createParentLookup = function(model, diff)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchPage = function(page, diff, shadowPage, updateEdgeParents)
+EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 {
 	var model = (page == this.currentPage) ? this.editor.graph.model : new mxGraphModel(page.root);
-	var shadowModel = (shadowPage != null) ? new mxGraphModel(shadowPage.root) : null;
 	var parentLookup = this.createParentLookup(model, diff);
 
 	model.beginUpdate();
 	try
 	{
-		// Disables update of edge parents during update to avoid interference with
-		// remote updated edge parents
-		var prev = model.maintainEdgeParent;
-		model.maintainEdgeParent = false;
+		// Disables or delays update of edge parents to after patch
+		var prev = model.updateEdgeParent;
+		var dict = new mxDictionary();
+		var pendingUpdates = [];
+		
+		model.updateEdgeParent = function(edge, root)
+		{
+			if (!dict.get(edge) && updateEdgeParents)
+			{
+				dict.put(edge, true);
+				pendingUpdates.push(edge);
+			}
+		};
 
 		// Handles new root cells
 		var temp = parentLookup[''];
@@ -359,15 +369,19 @@ EditorUi.prototype.patchPage = function(page, diff, shadowPage, updateEdgeParent
 		}
 		
 		// Patches cell structure
-		this.patchCellRecursive(page, model, model.root, parentLookup, diff, shadowModel);
+		this.patchCellRecursive(page, model, model.root, parentLookup, diff);
 
 		// Applies patches and changes terminals after all cells are inserted
 		if (diff[EditorUi.DIFF_UPDATE] != null)
 		{
+			var res = (resolver != null && resolver.cells != null) ? 
+				resolver.cells[EditorUi.DIFF_UPDATE] : null;
+			
 			for (var id in diff[EditorUi.DIFF_UPDATE])
 			{
-				this.patchCell(model, model.getCell(id), diff[EditorUi.DIFF_UPDATE][id],
-					(shadowModel != null) ? shadowModel.getCell(id) : null);
+				this.patchCell(model, model.getCell(id),
+					diff[EditorUi.DIFF_UPDATE][id],
+					(res != null) ? res[id] : null);
 			}
 		}
 
@@ -387,13 +401,18 @@ EditorUi.prototype.patchPage = function(page, diff, shadowPage, updateEdgeParent
 			}
 		}
 
-		// Only updates edge parents if there are possible changes which is the case
-		// for patching the local pages in the case where the file was modified
-		model.maintainEdgeParent = prev;
+		// Updates edge parents after all patches have been applied
+		model.updateEdgeParent = prev;
 		
-		if (updateEdgeParents)
+		if (updateEdgeParents && pendingUpdates.length > 0)
 		{
-			model.updateEdgeParents(model.root);
+			for (var i = 0; i < pendingUpdates.length; i++)
+			{
+				if (model.contains(pendingUpdates[i]))
+				{
+					model.updateEdgeParent(pendingUpdates[i]);
+				}
+			}
 		}
 	}
 	finally
@@ -405,7 +424,7 @@ EditorUi.prototype.patchPage = function(page, diff, shadowPage, updateEdgeParent
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup, diff, shadowModel)
+EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup, diff)
 {
 	var temp = parentLookup[cell.getId()];
 	var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
@@ -443,8 +462,8 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 				model.add(cell, child, index);
 			}
 
-			this.patchCellRecursive(page, model, child,
-				parentLookup, diff, shadowModel);
+			this.patchCellRecursive(page, model,
+				child, parentLookup, diff);
 			index++;
 		}
 
@@ -485,51 +504,26 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.patchCell = function(model, cell, diff, shadowCell)
+EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 {
-	function isNode(value)
-	{
-		return value != null && typeof value === 'object' && typeof value.nodeType === 'number' &&
-			typeof value.nodeName === 'string' && typeof value.getAttribute === 'function';
-	};
-	
-	function isLocalValueChanged()
-	{
-		if (shadowCell != null && shadowCell.value != null && cell.value != null)
-		{
-			if (isNode(cell.value) && isNode(shadowCell.value))
-			{
-				return !cell.value.isEqualNode(shadowCell.value);
-			}
-			else if (cell.value != shadowCell.value)
-			{
-				return cell.value != '';
-			}
-		}
-		
-		return false;
-	};
-	
 	if (cell != null && diff != null)
 	{
-		// Last write wins for value and style
-		if (diff.value != null)
+		// Last write wins for value except if label is empty
+		if (resolve == null || (resolve.xmlValue == null &&
+			(resolve.value == null || resolve.value == '')))
 		{
-			if (!isLocalValueChanged())
+			if (diff.value != null)
 			{
 				model.setValue(cell, diff.value);
 			}
-		}
-		else if (diff.xmlValue != null)
-		{
-			if (!isLocalValueChanged())
+			else if (diff.xmlValue != null)
 			{
 				model.setValue(cell, mxUtils.parseXml(diff.xmlValue).documentElement);
 			}
 		}
 		
-		if (diff.style != null && !(shadowCell != null && shadowCell.style != null &&
-			cell.style != null && cell.style != shadowCell.style))
+		// Last write wins for style
+		if ((resolve == null || resolve.style == null) && diff.style != null)
 		{
 			model.setStyle(cell, diff.style);
 		}
