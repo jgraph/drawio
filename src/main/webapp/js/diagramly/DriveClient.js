@@ -711,7 +711,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 			'revisionId': urlParams['rev'], 'supportsTeamDrives': true}),
 			mxUtils.bind(this, function(resp)
 			{
-   				this.getXmlFile(resp, null, success, error);
+   				this.getXmlFile(resp, success, error);
 			}), error);
 	}
 	else
@@ -735,54 +735,18 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 					if (readXml || readLibrary || resp.mimeType == this.libraryMimeType ||
 						resp.mimeType == this.xmlMimeType)
 					{
-						this.getXmlFile(resp, null, success, error, true, readLibrary);
+						this.getXmlFile(resp, success, error, true, readLibrary);
 					}
 					else
 					{
-						if (!App.GOOGLE_REALTIME)
+						if (this.isGoogleRealtimeMimeType(resp.mimeType))
 						{
-							if (this.isGoogleRealtimeMimeType(resp.mimeType))
-							{
-								this.convertRealtimeFile(resp, success, error);
-							}
-							else
-							{
-								this.getXmlFile(resp, null, success, error);
-							}
+							this.convertRealtimeFile(resp, success, error);
 						}
 						else
 						{
-							this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-						    {
-								try
-								{
-									// Converts XML files to realtime including old realtime model
-									if (doc == null || doc.getModel() == null || doc.getModel().getRoot() == null ||
-										doc.getModel().getRoot().isEmpty() || (doc.getModel().getRoot().has('cells') &&
-										!doc.getModel().getRoot().has(DriveRealtime.prototype.diagramsKey)))
-						    		{
-										this.getXmlFile(resp, doc, success, error);
-						    		}
-						    		else
-						    		{
-						        		// Uses JSON or XML data if flagged
-						    			if (doc.getModel().getRoot().has('realtimeConverted'))
-										{
-						    				doc.close();
-											this.convertRealtimeFile(resp, success, error);
-										}
-										else
-										{
-							    			success(new DriveFile(this.ui, null, resp, doc));
-										}
-						    		}
-								}
-								catch (e)
-								{
-									error(e);
-								}
-						    }), error);
-					    }
+							this.getXmlFile(resp, success, error);
+						}
 					}
 				}
 			}
@@ -865,7 +829,7 @@ DriveClient.prototype.loadRealtime = function(resp, success, error)
  * used for import via getFile. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
  */
-DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMime, readLibrary)
+DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, readLibrary)
 {
 	var token = gapi.auth.getToken().access_token;
 	var url = resp.downloadUrl + '&access_token=' + token;
@@ -931,23 +895,7 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
 				}
 			}
 			
-			var file = new DriveFile(this.ui, data, resp, doc);
-	
-			// Checks if mime-type needs to be updated if the file is editable and no viewer app
-			if (App.GOOGLE_REALTIME && !ignoreMime && this.appId != '850530949725' && file.isEditable() &&
-				resp.mimeType != this.mimeType && resp.mimeType != this.xmlMimeType)
-			{
-				// Overwrites mime-type (only mutable on update when uploading new content)
-				this.saveFile(file, true, mxUtils.bind(this, function(resp)
-				{
-					file.desc = resp;
-					success(file);
-				}), error, true);
-			}
-			else
-			{
-				success(file);
-			}
+			success(new DriveFile(this.ui, data, resp));
 		}
 	}), error, (resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
 		resp.mimeType.substring(0, 9) != 'image/svg') || /\.png$/i.test(resp.title) ||
@@ -1323,10 +1271,9 @@ DriveClient.prototype.redirectToNewApp = function(error, fileId)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary, allowRealtime)
+DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary)
 {
-	mimeType = (mimeType != null) ? mimeType : ((App.GOOGLE_REALTIME) ? this.mimeType : this.xmlMimeType);
-	allowRealtime = (allowRealtime != null) ? allowRealtime : true;
+	mimeType = (mimeType != null) ? mimeType : this.xmlMimeType;
 	
 	var metadata =
 	{
@@ -1352,26 +1299,6 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 			{
 				error({message: mxResources.get('errorSavingFile')});
 			}
-		}
-		else if (App.GOOGLE_REALTIME && allowRealtime &&
-			this.isGoogleRealtimeMimeType(resp.mimeType))
-		{
-			this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-		    {
-				if (this.user != null)
-				{
-					var file = new DriveFile(this.ui, data, resp, doc);
-				
-					// Avoids creating a new revision on first autosave of new files
-					file.lastAutosaveRevision = new Date().getTime();
-					
-		    		success(file);
-				}
-				else if (error != null)
-				{
-					error({message: mxResources.get('loggedOut')});
-				}
-		    }), error, false);
 		}
 		else
 		{
@@ -1818,7 +1745,7 @@ DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
 			}
 			else
 			{
-				this.getXmlFile(desc, null, xmlSuccess, mxUtils.bind(this, function()
+				this.getXmlFile(desc, xmlSuccess, mxUtils.bind(this, function()
 				{
 					try
 					{
@@ -1828,18 +1755,18 @@ DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
 					}
 					catch (e)
 					{
-						this.getXmlFile(desc, null, xmlSuccess, error);
+						this.getXmlFile(desc, xmlSuccess, error);
 					}
 				}));
 			}
 		}
 		catch (e)
 		{
-			this.getXmlFile(desc, null, xmlSuccess, error);
+			this.getXmlFile(desc, xmlSuccess, error);
 		}
 	}), mxUtils.bind(this, function()
 	{
-		this.getXmlFile(desc, null, xmlSuccess, error);
+		this.getXmlFile(desc, xmlSuccess, error);
 	}));
 };
 

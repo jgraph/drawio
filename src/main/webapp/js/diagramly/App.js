@@ -202,11 +202,6 @@ App.PUSHER_CLUSTER = 'eu';
 App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
 
 /**
- * Switch to disable Google realtime starting on 11/12/2018 at 9:00am (UTC).
- */
-App.GOOGLE_REALTIME = urlParams['google-realtime'] != '0' && new Date().getTime() < 1542013200000;
-
-/**
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
@@ -3431,7 +3426,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.loadFile = function(id, sameWindow, file, success)
+App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
 	this.hideDialog();
 	
@@ -3716,7 +3711,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success)
 	
 	var fn = mxUtils.bind(this, function()
 	{
-		if (currentFile == null || !currentFile.isModified())
+		if (force || currentFile == null || !currentFile.isModified())
 		{
 			fn2();
 		}
@@ -4309,7 +4304,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 			{
 				this.spinner.stop();
 				this.handleError(resp);
-			}), mimeType, base64Encoded, false);
+			}), mimeType, base64Encoded);
 		}
 	}
 	else if (mode == App.MODE_ONEDRIVE)
