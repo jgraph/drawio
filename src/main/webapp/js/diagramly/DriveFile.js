@@ -191,11 +191,12 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					this.autosaveDelay = Math.min(6000,
 						Math.max(this.saveDelay + 500,
 						DrawioFile.prototype.autosaveDelay));
-
 					this.desc = resp;
-					this.contentChanged();
+					
 					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 					{
+						this.contentChanged();
+						
 						if (success != null)
 						{
 							success(resp);

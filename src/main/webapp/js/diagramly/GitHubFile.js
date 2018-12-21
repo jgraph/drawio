@@ -236,10 +236,11 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 					this.meta.sha = commit.content.sha;
 					this.meta.html_url = commit.content.html_url;
 					this.meta.download_url = commit.content.download_url;
-					
-					this.contentChanged();
+
 					this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
 					{
+						this.contentChanged();
+						
 						if (success != null)
 						{
 							success();

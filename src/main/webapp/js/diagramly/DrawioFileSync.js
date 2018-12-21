@@ -838,7 +838,16 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.shadowPages = (this.file.shadowPages != null) ?
 			this.file.shadowPages : this.ui.getPagesForNode(
 			mxUtils.parseXml(this.file.shadowData).documentElement)
-			
+		
+		// Should never happen
+		if (this.file.shadowPages == null || this.file.shadowPages.length == 0)
+		{
+			this.file.sendErrorReport(
+				'Shadowpages is null or empty in merge',
+				'Shadow: ' + (this.file.shadowPages != null) +
+				'\nShadowData: ' + (this.file.shadowData != null));
+		}
+		
 		// Creates a patch for backup if the checksum fails
 		this.file.backupPatch = (this.file.isModified()) ?
 			this.ui.diffPages(this.file.shadowPages,
@@ -868,8 +877,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			{
 				this.file.stats.mergeChecksumErrors++;
 				this.file.checksumError(error, patches,
-					'checksum: ' + checksum +
-					'\ncurrent: ' + current);
+					'Checksum: ' + checksum +
+					'\nCurrent: ' + current);
 				
 				// Abnormal termination
 				return;

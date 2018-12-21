@@ -1,3 +1,8 @@
+21-DEC-2018: 10.0.7
+
+- Fixes checksum handling in desktop
+- Uses mxGraph 3.9.13 beta 1
+
 20-DEC-2018: 10.0.6
 
 - Performance fixes for collaborative editing

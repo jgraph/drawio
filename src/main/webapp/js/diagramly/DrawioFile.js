@@ -214,9 +214,10 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		if (shadow == null || shadow.length == 0)
 		{
 			this.sendErrorReport(
-				'Shadow is null or empty',
-				'shadowPages: ' + (this.shadowPages != null) +
-				'\nshadowData: ' + (this.shadowData != null));
+				'Shadow is null or empty in mergeFile',
+				'Shadow: ' + (shadow != null) +
+				'\nShadowPages: ' + (this.shadowPages != null) +
+				'\nShadowData: ' + (this.shadowData != null));
 		}
 	
 		// Loads new document as shadow document
@@ -248,10 +249,18 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			
 			if (checksum != null && checksum != current)
 			{
+				var data = this.getAnonymizedXmlForPages(patchedShadow);
+				
+				if (data != null && data.length > 10000)
+				{
+					data = this.ui.editor.graph.compress(data) + '\n';
+				}
+				
 				this.stats.checksumErrors++;
 				this.checksumError(error, patches,
-					'checksum: ' + checksum +
-					'\ncurrent: ' + current);
+					'Checksum: ' + checksum +
+					'\nCurrent: ' + current +
+					'\nPatchedShadow:\n' + data);
 				
 				// Abnormal termination
 				return;
@@ -313,6 +322,39 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
+{
+	var enc = new mxCodec(mxUtils.createXmlDocument());
+	var file = enc.document.createElement('mxfile');
+	
+	if (pages != null)
+	{
+		for (var i = 0; i < pages.length; i++)
+		{
+			var temp = this.ui.anonymizeNode(enc.encode(
+				new mxGraphModel(pages[i].root)));
+			temp.setAttribute('id', pages[i].getId());
+			
+			if (pages[i].getName() != null)
+			{
+				temp.setAttribute('name', this.ui.anonymizeString(pages[i].getName()));
+			}
+
+			if (pages[i].viewState)
+			{
+				this.ui.editor.graph.saveViewState(pages[i].viewState, temp);
+			}
+			
+			file.appendChild(temp);
+		}
+	}
+
+	return mxUtils.getPrettyXml(file);
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DrawioFile.prototype.checksumError = function(error, patches, details)
 {
 	this.inConflictState = true;
@@ -339,21 +381,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 			}
 		}
 
-		var enc = new mxCodec(mxUtils.createXmlDocument());
-		var file = enc.document.createElement('mxfile');
-		
-		if (this.shadowPages != null)
-		{
-			for (var i = 0; i < this.shadowPages.length; i++)
-			{
-				var temp = this.ui.anonymizeNode(enc.encode(
-					new mxGraphModel(this.shadowPages[i].root)));
-				temp.setAttribute('id', this.shadowPages[i].getId());
-				file.appendChild(temp);
-			}
-		}
-
-		var data = mxUtils.getPrettyXml(file);
+		var data = this.getAnonymizedXmlForPages(this.shadowPages);
 		
 		if (data != null && data.length > 10000)
 		{
@@ -369,7 +397,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 		
 		this.sendErrorReport(
 			'Checksum Error',
-			((details != null) ? (details + '\n') : '') +
+			((details != null) ? (details + '\n\n') : '') +
 			'Data:\n' + data +
 			'\nPatches:\n' + json);
 	}
@@ -405,11 +433,10 @@ DrawioFile.prototype.sendErrorReport = function(title, details)
 		}
 		
 		var stack = new Error().stack;
-		var lf = stack.indexOf('\n');
 		
-		if (lf > 0)
+		if (stack != null)
 		{
-			stack = stack.substring(lf + 1);
+			stack = stack.split('\n').slice(3).join('\n');
 		}
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
@@ -649,11 +676,25 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 {
 	if (!this.isEditable())
 	{
-		throw new Error(mxResources.get('readOnly'));
+		if (error != null)
+		{
+			error({message: mxResources.get('readOnly')});
+		}
+		else
+		{
+			throw new Error(mxResources.get('readOnly'));
+		}
 	}
-	else if (this.invalidChecksum)
+	else if (!overwrite && this.invalidChecksum)
 	{
-		throw new Error(mxResources.get('checksum'));
+		if (error != null)
+		{
+			error({message: mxResources.get('checksum')});
+		}
+		else
+		{
+			throw new Error(mxResources.get('checksum'));
+		}
 	}
 	else
 	{
@@ -1223,6 +1264,7 @@ DrawioFile.prototype.showRefreshDialog = function(success, error)
 DrawioFile.prototype.showCopyDialog = function(success, error, overwrite)
 {
 	this.inConflictState = false;
+	this.invalidChecksum = false;
 	this.addUnsavedStatus();
 	
 	this.ui.showError(mxResources.get('externalChanges'),
@@ -1501,6 +1543,7 @@ DrawioFile.prototype.fileChanged = function()
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
 	this.inConflictState = false;
+	this.invalidChecksum = false;
 	
 	if (this.sync == null)
 	{

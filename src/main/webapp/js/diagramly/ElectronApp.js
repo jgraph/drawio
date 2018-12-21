@@ -731,14 +731,18 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 									{
 										this.savingFile = false;
 										this.isModified = prevModified;
+										var lastDesc = this.stat;
 										this.stat = stat2;
-										this.contentChanged();
-										this.fileSaved(data);
 										
-										if (success != null)
+										this.fileSaved(data, lastDesc, mxUtils.bind(this, function()
 										{
-											success();
-										}
+											this.contentChanged();
+											
+											if (success != null)
+											{
+												success();
+											}
+										}), error);
 									}
 								}));
 			        		}
@@ -834,7 +838,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
 			
-			this.save(false, success, error);
+			this.save(false, success, error, null, true);
 		}
 	};
 	
@@ -1028,7 +1032,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					{
 						this.handleError({message: mxResources.get('errorSavingFile')});
 					}
-	        		}));
+	        	}));
 			}
 		}), 0);
 	};

@@ -984,7 +984,12 @@
 					var data = patch[EditorUi.DIFF_INSERT][i].data;
 					var doc = mxUtils.parseXml(data);
 					var clone = doc.documentElement.cloneNode(false);
-					clone.removeAttribute('name');
+					
+					if (clone.getAttribute('name') != null)
+					{
+						clone.setAttribute('name', this.anonymizeString(clone.getAttribute('name')));
+					}
+					
 					patch[EditorUi.DIFF_INSERT][i].data = mxUtils.getXml(clone);
 				}
 				catch (e)
@@ -999,8 +1004,16 @@
 			for (var pageId in patch[EditorUi.DIFF_UPDATE])
 			{
 				var diff = patch[EditorUi.DIFF_UPDATE][pageId];
-				delete diff.name;
-				delete diff.view;
+				
+				if (diff.name != null)
+				{
+					diff.name = this.anonymizeString(diff.name);
+				}
+				
+				if (diff.view != null)
+				{
+					diff.view = this.anonymizeString(diff.view);
+				}
 				
 				if (diff.cells != null)
 				{
@@ -1076,8 +1089,15 @@
 		
 		for (var i = 0; i < nodes.length; i++)
 		{
-			nodes[i].removeAttribute('value');
-			nodes[i].removeAttribute('style');
+			if (nodes[i].getAttribute('value') != null)
+			{
+				nodes[i].setAttribute('value', this.anonymizeString(nodes[i].getAttribute('value')));
+			}
+			
+			if (nodes[i].getAttribute('style') != null)
+			{
+				nodes[i].setAttribute('style', this.anonymizeString(nodes[i].getAttribute('style')));
+			}
 			
 			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
 				nodes[i].parentNode.parentNode != null)
@@ -3476,15 +3496,30 @@
 					};
 				}
 				
-				if (e.code == 404 || e.status == 404)
+				if (e.code == 404 || e.status == 404 || e.code == 403)
 				{
-					msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
+					if (e.code == 403)
+					{
+						if (e.message != null)
+						{
+							msg = mxUtils.htmlEntities(e.message);
+						}
+						else
+						{
+							msg = mxUtils.htmlEntities(mxResources.get('accessDenied'));
+						}
+					}
+					else
+					{
+						msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
+					}
+					
 					var id = window.location.hash;
 					
 					if (id != null && id.substring(0, 2) == '#G')
 					{
 						id = id.substring(2);
-						msg += ' <a href="https://drive.google.com/open?id=' + id + '" target="_blank">' +
+						msg += '<br><a href="https://drive.google.com/open?id=' + id + '" target="_blank">' +
 							mxUtils.htmlEntities(mxResources.get('tryOpeningViaThisPage')) + '</a>';
 					}
 				}
@@ -3526,8 +3561,11 @@
 	 */
 	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
 	{
-		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'), fn, retry, btn2, fn2, hide, btn3, fn3);
-		this.showDialog(dlg.container, w || 340, h || 150, true, false, onClose);
+		var height = (msg != null && msg.length > 120) ? 180 : 150;
+		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'),
+			fn, retry, btn2, fn2, hide, btn3, fn3);
+		this.showDialog(dlg.container, w || 340, h || ((msg != null && msg.length > 120) ?
+			180 : 150), true, false, onClose);
 		dlg.init();
 	};
 	
@@ -11270,6 +11308,10 @@
 		this.actions.get('zoomIn').setEnabled(active);
 		this.actions.get('zoomOut').setEnabled(active);
 		this.actions.get('resetView').setEnabled(active);
+		
+		// Updates undo history states
+		this.actions.get('undo').setEnabled(this.canUndo() && editable);
+		this.actions.get('redo').setEnabled(this.canUndo() && editable);
 	
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);
