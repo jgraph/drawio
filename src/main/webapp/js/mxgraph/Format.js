@@ -365,6 +365,13 @@ Format.prototype.refresh = function()
 	label.style.width = '100%';
 	this.container.appendChild(div);
 	
+	// Prevents text selection
+    mxEvent.addListener(label, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        mxUtils.bind(this, function(evt)
+	{
+		evt.preventDefault();
+	}));
+	
 	if (graph.isSelectionEmpty())
 	{
 		mxUtils.write(label, mxResources.get('diagram'));
@@ -451,6 +458,13 @@ Format.prototype.refresh = function()
 			
 			mxEvent.addListener(elt, 'click', clickHandler);
 			
+			// Prevents text selection
+		    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	        	mxUtils.bind(this, function(evt)
+	    	{
+				evt.preventDefault();
+			}));
+			
 			if (index == ((containsLabel) ? this.labelIndex : this.currentIndex))
 			{
 				// Invokes handler directly as a workaround for no click on DIV in KHTML.
@@ -462,6 +476,7 @@ Format.prototype.refresh = function()
 
 		label.style.backgroundColor = this.inactiveTabBackgroundColor;
 		label.style.borderLeftWidth = '1px';
+		label.style.cursor = 'pointer';
 		label.style.width = (containsLabel) ? '50%' : '33.3%';
 		label.style.width = (containsLabel) ? '50%' : '33.3%';
 		var label2 = label.cloneNode(false);
@@ -3563,22 +3578,33 @@ TextFormatPanel.prototype.addFont = function(container)
 							node = graph.cellEditor.textarea.firstChild;
 						}
 						
-						function getRelativeLineHeight(fontSize, lineHeight, elt)
+						function getRelativeLineHeight(fontSize, css, elt)
 						{
-							if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+							if (elt.style != null && css != null)
 							{
-								return parseInt(elt.style.lineHeight) / 100;
+								var lineHeight = css.lineHeight
+								
+								if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+								{
+									return parseInt(elt.style.lineHeight) / 100;
+								}
+								else
+								{
+									return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
+											parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								}
 							}
 							else
 							{
-								return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
-										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								return '';
 							}
 						};
 						
-						function getAbsoluteFontSize(fontSize)
+						function getAbsoluteFontSize(css)
 						{
-							if (fontSize.substring(fontSize.length - 2) == 'px')
+							var fontSize = (css != null) ? css.fontSize : null;
+								
+							if (fontSize != null && fontSize.substring(fontSize.length - 2) == 'px')
 							{
 								return parseFloat(fontSize);
 							}
@@ -3586,12 +3612,11 @@ TextFormatPanel.prototype.addFont = function(container)
 							{
 								return mxConstants.DEFAULT_FONTSIZE;
 							}
-						}
+						};
 						
-						//var realCss = mxUtils.getCurrentStyle(selectedElement);
 						var css = mxUtils.getCurrentStyle(node);
-						var fontSize = getAbsoluteFontSize(css.fontSize);
-						var lineHeight = getRelativeLineHeight(fontSize, css.lineHeight, node);
+						var fontSize = getAbsoluteFontSize(css);
+						var lineHeight = getRelativeLineHeight(fontSize, css, node);
 
 						// Finds common font size
 						var elts = node.getElementsByTagName('*');
@@ -3606,8 +3631,8 @@ TextFormatPanel.prototype.addFont = function(container)
 								if (selection.containsNode(elts[i], true))
 								{
 									temp = mxUtils.getCurrentStyle(elts[i]);
-									fontSize = Math.max(getAbsoluteFontSize(temp.fontSize), fontSize);
-									var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
+									fontSize = Math.max(getAbsoluteFontSize(temp), fontSize);
+									var lh = getRelativeLineHeight(fontSize, temp, elts[i]);
 									
 									if (lh != lineHeight || isNaN(lh))
 									{
@@ -3617,17 +3642,61 @@ TextFormatPanel.prototype.addFont = function(container)
 							}
 						}
 						
+						function hasParentOrOnlyChild(name)
+						{
+							if (graph.getParentByName(node, name, graph.cellEditor.textarea) != null)
+							{
+								return true;
+							}
+							else
+							{
+								var child = node;
+								
+								while (child != null && child.childNodes.length == 1)
+								{
+									child = child.childNodes[0];
+									
+									if (child.nodeName == name)
+									{
+										return true;
+									}
+								}
+							}
+							
+							return false;
+						};
+						
+						function isEqualOrPrefixed(str, value)
+						{
+							if (str != null && value != null)
+							{
+								if (str == value)
+								{
+									return true;
+								}
+								else if (str.length > value.length + 1)
+								{
+									return str.substring(str.length - value.length - 1, str.length) == '-' + value;
+								}
+							}
+							
+							return false;
+						};
+						
 						if (css != null)
 						{
-							setSelected(fontStyleItems[0], css.fontWeight == 'bold' || graph.getParentByName(node, 'B', graph.cellEditor.textarea) != null);
-							setSelected(fontStyleItems[1], css.fontStyle == 'italic' || graph.getParentByName(node, 'I', graph.cellEditor.textarea) != null);
-							setSelected(fontStyleItems[2], graph.getParentByName(node, 'U', graph.cellEditor.textarea) != null);
-							setSelected(left, css.textAlign == 'left');
-							setSelected(center, css.textAlign == 'center');
-							setSelected(right, css.textAlign == 'right');
-							setSelected(full, css.textAlign == 'justify');
-							setSelected(sup, graph.getParentByName(node, 'SUP', graph.cellEditor.textarea) != null);
-							setSelected(sub, graph.getParentByName(node, 'SUB', graph.cellEditor.textarea) != null);
+							setSelected(fontStyleItems[0], css.fontWeight == 'bold' ||
+								css.fontWeight > 400 || hasParentOrOnlyChild('B') ||
+								hasParentOrOnlyChild('STRONG'));
+							setSelected(fontStyleItems[1], css.fontStyle == 'italic' ||
+								hasParentOrOnlyChild('I') || hasParentOrOnlyChild('EM'));
+							setSelected(fontStyleItems[2], hasParentOrOnlyChild('U'));
+							setSelected(left, isEqualOrPrefixed(css.textAlign, 'left'));
+							setSelected(center, isEqualOrPrefixed(css.textAlign, 'center'));
+							setSelected(right, isEqualOrPrefixed(css.textAlign, 'right'));
+							setSelected(full, isEqualOrPrefixed(css.textAlign, 'justify'));
+							setSelected(sup, hasParentOrOnlyChild('SUP'));
+							setSelected(sub, hasParentOrOnlyChild('SUB'));
 							
 							currentTable = graph.getParentByName(node, 'TABLE', graph.cellEditor.textarea);
 							tableRow = (currentTable == null) ? null : graph.getParentByName(node, 'TR', currentTable);
@@ -3738,7 +3807,12 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 		};
 		
-		mxEvent.addListener(graph.cellEditor.textarea, 'input', updateCssHandler)
+		if (mxClient.IS_FF || mxClient.IS_EDGE || mxClient.IS_IE || mxClient.IS_IE11)
+		{
+			mxEvent.addListener(graph.cellEditor.textarea, 'DOMSubtreeModified', updateCssHandler);
+		}
+		
+		mxEvent.addListener(graph.cellEditor.textarea, 'input', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'touchend', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'mouseup', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'keyup', updateCssHandler);

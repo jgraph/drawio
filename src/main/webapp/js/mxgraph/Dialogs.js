@@ -1631,10 +1631,13 @@ var EditDataDialog = function(ui, cell)
 			link.setAttribute('href', EditDataDialog.placeholderHelpLink);
 			link.setAttribute('title', mxResources.get('help'));
 			link.setAttribute('target', '_blank');
-			link.style.marginLeft = '10px';
+			link.style.marginLeft = '8px';
 			link.style.cursor = 'help';
 			
 			var icon = document.createElement('img');
+			mxUtils.setOpacity(icon, 50);
+			icon.style.height = '16px';
+			icon.style.width = '16px';
 			icon.setAttribute('border', '0');
 			icon.setAttribute('valign', 'middle');
 			icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
@@ -2147,7 +2150,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			graph.model.beginUpdate();
 			try
 			{
-				newCell = graph.cloneCells([selectionLayer])[0];
+				newCell = graph.cloneCell(selectionLayer);
 				graph.cellLabelChanged(newCell, mxResources.get('untitledLayer'));
 				newCell.setVisible(true);
 				newCell = graph.addCell(newCell, graph.model.root);

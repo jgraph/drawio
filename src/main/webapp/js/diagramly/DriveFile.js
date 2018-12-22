@@ -2,16 +2,11 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-DriveFile = function(ui, data, desc, doc)
+DriveFile = function(ui, data, desc)
 {
 	DrawioFile.call(this, ui, data);
 	
 	this.desc = desc;
-
-	if (doc != null && doc.getModel() != null && doc.getModel().getRoot() != null)
-	{
-		this.realtime = new DriveRealtime(this, doc);
-	}
 };
 
 //Extends mxEventSource
@@ -21,6 +16,19 @@ mxUtils.extend(DriveFile, DrawioFile);
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
+
+/**
+ * Delay for last save in ms.
+ */
+DriveFile.prototype.allChangesSavedKey = 'allChangesSavedInDrive';
+
+/**
+ * Specifies if notify events should be ignored.
+ */
+DriveFile.prototype.getSize = function()
+{
+	return this.desc.fileSize;
+};
 
 /**
  * Returns true if copy, export and print are not allowed for this file.
@@ -37,6 +45,14 @@ DriveFile.prototype.isRestricted = function()
 DriveFile.prototype.isConflict = function(err)
 {
 	return err != null && err.error != null && err.error.code == 412;
+};
+
+/**
+ * Returns the current etag.
+ */
+DriveFile.prototype.getCurrentUser = function()
+{
+	return (this.ui.drive != null) ? this.ui.drive.user : null;
 };
 
 /**
@@ -84,48 +100,7 @@ DriveFile.prototype.getPublicUrl = function(fn)
  */
 DriveFile.prototype.isAutosaveOptional = function()
 {
-	return this.realtime == null;
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-DriveFile.prototype.isAutosave = function()
-{
-	return this.ui.editor.autosave || (this.realtime != null && this.isAutosaveRevision());
-};
-
-/**
- * Returns true if an autosave is required at the time of execution.
- * This implementation returns true.
- */
-DriveFile.prototype.isAutosaveNow = function()
-{
-	if (this.realtime != null && this.realtime.root != null)
-	{
-		var backup = parseInt(this.realtime.root.get('backupDate'));
-		var modified = parseInt(this.realtime.root.get('modifiedDate'));
-
-		return isNaN(backup) || isNaN(modified) || backup < modified;
-	}
-	else
-	{
-		return true;
-	}
-};
-
-/**
- * Hooks for subclassers after the autosave has completed.
- */
-DriveFile.prototype.autosaveCompleted = function()
-{
-	if (this.realtime != null && this.realtime.root != null)
-	{
-		this.realtime.root.set('backupDate', new Date().getTime());
-	}
+	return true;
 };
 
 /**
@@ -180,22 +155,24 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 	}
 	else if (!this.savingFile)
 	{
-		var prevModified = this.isModified;
-		var modified = this.isModified();
-		
-		// Makes sure no changes get lost while the file is saved
-		this.setModified(false);
-
-		// Waits for success for modified state to be visible
-		this.isModified = function()
-		{
-			return true;
-		};
-		
 		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 		{
-			this.savingFile = true;
+			var savedData = this.data;
+			var lastDesc = this.desc;
 			
+			// Makes sure no changes get lost while the file is saved
+			var modified = this.isModified();
+			this.setModified(false);
+			this.savingFile = true;
+
+			// Waits for success for modified state to be visible
+			var prevModified = this.isModified;
+			
+			this.isModified = function()
+			{
+				return true;
+			};
+
 			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp)
 			{
 				this.isModified = prevModified;
@@ -209,14 +186,22 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					{
 						this.lastAutosaveRevision = new Date().getTime();
 					}
-					
+
+					// Adaptive autosave delay
+					this.autosaveDelay = Math.min(6000,
+						Math.max(this.saveDelay + 500,
+						DrawioFile.prototype.autosaveDelay));
 					this.desc = resp;
-					this.contentChanged();
 					
-					if (success != null)
+					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 					{
-						success(resp);
-					}
+						this.contentChanged();
+						
+						if (success != null)
+						{
+							success(resp);
+						}
+					}), error);
 				}
 				else
 				{
@@ -227,35 +212,46 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 						error(resp);
 					}
 				}
-			}), mxUtils.bind(this, function(err)
+			}), mxUtils.bind(this, function(err, desc)
 			{
-				var doError = mxUtils.bind(this, function()
-				{
-					this.setModified(modified || this.isModified());
-					this.isModified = prevModified;
-					this.savingFile = false;
-					
-					if (error != null)
-					{
-						error(err);
-					}
-				});
-				
+				this.savingFile = false;
+				this.isModified = prevModified;
+				this.setModified(modified || this.isModified());
+			
 				if (this.isConflict(err))
 				{
-					this.showConflictDialog(function()
+					this.inConflictState = true;
+					
+					if (this.sync != null)
 					{
-						// Overwrites and creates revision
-						doSave(true, true);
-					}, function()
+						this.savingFile = true;
+						
+						this.sync.fileConflict(desc, mxUtils.bind(this, function()
+						{
+							// Adds random cool-off
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								this.updateFileData();
+								doSave(realOverwrite, true);
+							}), 100 + Math.random() * 500);
+						}), mxUtils.bind(this, function()
+						{
+							this.savingFile = false;
+							
+							if (error != null)
+							{
+								error();
+							}
+						}));
+					}
+					else if (error != null)
 					{
-						err = null;
-						doError();
-					});
+						error();
+					}
 				}
-				else
+				else if (error != null)
 				{
-					doError();
+					error(err);
 				}
 			}), unloading, unloading, realOverwrite);
 		});
@@ -276,11 +272,16 @@ DriveFile.prototype.makeCopy = function(success, error, timestamp)
 		// be updated as soon as we have the ID.
 		this.saveAs(this.ui.getCopyFilename(this, timestamp), mxUtils.bind(this, function(resp)
 		{
-			// Replaces the descriptor to and writes the file
-			this.ui.spinner.stop();
 			this.desc = resp;
-			success();
+			this.ui.spinner.stop();
 			this.setModified(false);
+			
+			this.backupPatch = null;
+			this.invalidChecksum = false;
+			this.inConflictState = false;
+			
+			this.descriptorChanged();
+			success();
 		}), mxUtils.bind(this, function()
 		{
 			this.ui.spinner.stop();
@@ -312,21 +313,34 @@ DriveFile.prototype.saveAs = function(filename, success, error)
  */
 DriveFile.prototype.rename = function(title, success, error)
 {
-	this.ui.drive.renameFile(this.getId(), title, mxUtils.bind(this, function(resp)
+	var etag = this.getCurrentEtag();
+	
+	this.ui.drive.renameFile(this.getId(), title, mxUtils.bind(this, function(desc)
 	{
 		if (!this.hasSameExtension(title, this.getTitle()))
 		{
-			this.desc = resp;
+			this.desc = desc;
+
+			if (this.sync != null)
+			{
+				this.sync.descriptorChanged(etag);
+			}
+			
 			this.save(true, success, error);
 		}
 		else
 		{
-			this.desc = resp;
+			this.desc = desc;
 			this.descriptorChanged();
+			
+			if (this.sync != null)
+			{
+				this.sync.descriptorChanged(etag);
+			}
 			
 			if (success != null)
 			{
-				success(resp);
+				success(desc);
 			}
 		}
 	}), error);
@@ -393,122 +407,162 @@ DriveFile.prototype.getId = function()
  */
 DriveFile.prototype.isEditable = function()
 {
-	var editable = DrawioFile.prototype.isEditable.apply(this, arguments);
-	
-	if (this.realtime != null)
-	{
-		return editable && !this.realtime.rtModel.isReadOnly;
-	}
-	else
-	{
-		return editable && this.desc.editable;
-	}
+	return DrawioFile.prototype.isEditable.apply(this, arguments) &&
+		this.desc.editable;
 };
 
 /**
- * Returns the location as a new object.
+ * Hook for subclassers.
  */
-DriveFile.prototype.open = function()
+DriveFile.prototype.isSyncSupported = function()
 {
-	if (this.realtime != null)
-	{
-		this.realtime.start();
-	}
-	else
-	{
-		DrawioFile.prototype.open.apply(this, arguments);
-	}
+	return true;
 };
 
 /**
- * Returns the location as a new object.
+ * Hook for subclassers.
  */
-DriveFile.prototype.close = function(unloading)
+DriveFile.prototype.isRevisionHistorySupported = function()
 {
-	unloading = (unloading != null) ? unloading : false;
-	DrawioFile.prototype.close.apply(this, arguments);
-	
-	if (this.realtime != null)
-	{
-		this.realtime.destroy(unloading);
-		this.realtime = null;
-	}
+	return true;
 };
 
 /**
- * Shows a conflict dialog to the user.
+ * Hook for subclassers.
  */
-DriveFile.prototype.showConflictDialog = function(retry, error)
+DriveFile.prototype.getRevisions = function(success, error)
 {
-	if (!this.showingConflictDialog)
+	this.ui.drive.executeRequest(gapi.client.drive.revisions.list({'fileId': this.getId()}),
+		mxUtils.bind(this, function(resp)
 	{
-		var resume = (this.ui.spinner != null && this.ui.spinner.pause != null) ?
-			this.ui.spinner.pause() : function() {};
-		var prev = this.changeListenerEnabled;
-		this.changeListenerEnabled = false;
-		this.showingConflictDialog = true;
-		
-		var logAction = mxUtils.bind(this, function(action)
+		for (var i = 0; i < resp.items.length; i++)
 		{
-			try
+			(mxUtils.bind(this, function(item)
 			{
-				this.ui.logEvent({category: 'RT-CONFLICT-DLG',
-					action: action, label: this.getId()});
-			}
-			catch (e)
-			{
-				// ignore
-			}
-		});
-		
-		this.ui.showError(mxResources.get('externalChanges'), mxResources.get('fileChangedOverwrite'),
-			mxResources.get('makeCopy'), mxUtils.bind(this, function()
-		{
-			this.showingConflictDialog = false;
-			this.changeListenerEnabled = prev;
-			
-			if (this.isRestricted())
-			{
-				this.ui.editor.editAsNew(this.ui.getFileData(true));
-				resume();
-				error();
-			}
-			else
-			{
-				this.makeCopy(retry, error, true);
-			}
-			
-			logAction('makeCopy');
-		}), null, mxResources.get('overwrite'), mxUtils.bind(this, function()
-		{
-			this.showingConflictDialog = false;
-			this.changeListenerEnabled = prev;
-			resume();
-			retry();
-			logAction('overwrite');
-		}), mxResources.get('cancel'), mxUtils.bind(this, function()
-		{
-			this.showingConflictDialog = false;
-			this.changeListenerEnabled = prev;
-			this.ui.hideDialog();
-			resume();
-			error();
-			logAction('cancel');
-		}), 360, 180);
-		
-		// Adds important notice to dialog
-		if (this.ui.dialog != null && this.ui.dialog.container != null)
-		{
-			var alert = this.ui.createRealtimeNotice();
-			alert.style.left = '0';
-			alert.style.right = '0';
-			alert.style.borderRadius = '0';
-			alert.style.borderLeftStyle = 'none';
-			alert.style.borderRightStyle = 'none';
-			alert.style.marginBottom = '26px';
-			alert.style.padding = '8px 0 8px 0';
-
-			this.ui.dialog.container.appendChild(alert);
+				item.getXml = mxUtils.bind(this, function(itemSuccess, itemError)
+				{
+					this.ui.drive.executeRequest(gapi.client.drive.revisions.get(
+					{
+						'fileId': this.getId(),
+						'revisionId': item.id
+					}), mxUtils.bind(this, function(resp)
+					{
+						this.ui.drive.getXmlFile(resp, mxUtils.bind(this, function(file)
+			   			{
+							itemSuccess(file.getData());
+			   			}), itemError);
+					}), itemError);
+				});
+				
+				item.getUrl = mxUtils.bind(this, function(page)
+				{
+					return this.ui.getUrl(window.location.pathname + '?rev=' + item.id +
+						'&chrome=0&nav=1&layers=1&edit=_blank' + ((page != null) ?
+						'&page=' + page : '')) + window.location.hash;
+				});
+			}))(resp.items[i]);
 		}
+		
+		success(resp.items);
+	}), error);
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DriveFile.prototype.getLatestVersion = function(success, error)
+{
+	this.ui.drive.getFile(this.getId(), success, error, true);
+};
+
+/**
+ * Adds all listeners.
+ */
+DriveFile.prototype.getChannelId = function()
+{
+	var chan = this.ui.drive.getCustomProperty(this.desc, 'channel');
+	
+	if (chan != null)
+	{
+		chan = 'G-' + this.getId() + '.' + chan;
 	}
+	
+	return chan;
+};
+
+/**
+ * Gets the channel ID from the given descriptor.
+ */
+DriveFile.prototype.getChannelKey = function()
+{
+	return this.ui.drive.getCustomProperty(this.desc, 'key');
+};
+
+/**
+ * Adds all listeners.
+ */
+DriveFile.prototype.getLastModifiedDate = function()
+{
+	return new Date(this.desc.modifiedDate);
+};
+
+/**
+ * Adds all listeners.
+ */
+DriveFile.prototype.getDescriptor = function()
+{
+	return this.desc;
+};
+
+/**
+* Updates the descriptor of this file with the one from the given file.
+*/
+DriveFile.prototype.setDescriptor = function(desc)
+{
+	this.desc = desc;
+};
+
+/**
+ * Returns the etag from the given descriptor.
+ */
+DriveFile.prototype.getDescriptorSecret = function(desc)
+{
+	return this.ui.drive.getCustomProperty(desc, 'secret');
+};
+
+/**
+ * Adds all listeners.
+ */
+DriveFile.prototype.getDescriptorEtag = function(desc)
+{
+	return desc.etag;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DriveFile.prototype.setDescriptorEtag = function(desc, etag)
+{
+	desc.etag = etag;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DriveFile.prototype.loadPatchDescriptor = function(success, error)
+{
+	this.ui.drive.executeRequest(gapi.client.drive.files.get({'fileId': this.getId(),
+		'fields': this.ui.drive.catchupFields, 'supportsTeamDrives': true}),
+		mxUtils.bind(this, function(desc)
+	{
+		success(desc);
+	}), error);
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DriveFile.prototype.loadDescriptor = function(success, error)
+{
+	this.ui.drive.loadDescriptor(this.getId(), success, error);
 };

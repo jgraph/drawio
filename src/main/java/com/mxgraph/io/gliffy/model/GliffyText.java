@@ -40,6 +40,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 	private static Pattern textAlign = Pattern.compile(".*(text-align: ?(left|center|right);).*", Pattern.DOTALL);
 
+	private static Pattern textAlignToDrawIO = Pattern.compile("style=\"text-align:\\s?(left|center|right);\"");
+
 	private static Pattern lineHeight = Pattern.compile(".*(line-height: .*px;).*", Pattern.DOTALL);
 
 	public GliffyText()
@@ -49,7 +51,8 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	public void postDeserialize() 
 	{
 		halign = getHorizontalTextAlignment();
-		html = replaceParagraphWithDiv(html);
+		setDrawIoFormatForTextAlignment();
+		replaceParagraphWithDiv();
 	}
 
 	public String getHtml()
@@ -68,22 +71,20 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 		//I hate magic numbers, but -7 seams to fix all text top padding when valign is not middle 
 		int topPaddingShift = 7;
-		
+
 		//vertical label position
 		if (vposition.equals("above"))
 		{
-			sb.append("verticalLabelPosition=top;").append(
-					"verticalAlign=bottom;");
+			sb.append("verticalLabelPosition=top;").append("verticalAlign=bottom;");
 		}
 		else if (vposition.equals("below"))
 		{
-			sb.append("verticalLabelPosition=bottom;").append(
-					"verticalAlign=top;");
+			sb.append("verticalLabelPosition=bottom;").append("verticalAlign=top;");
 		}
 		else if (vposition.equals("none"))
 		{
 			sb.append("verticalAlign=").append(valign).append(";");
-			
+
 			if (!forceTopPaddingShift && "middle".equals(valign))
 				topPaddingShift = 0;
 		}
@@ -121,7 +122,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 
 		sb.append("spacingLeft=").append(paddingLeft + x).append(";");
 		sb.append("spacingRight=").append(paddingRight).append(";");
-		
+
 		if (forceTopPaddingShift || !"middle".equals(valign))
 		{
 			sb.append("spacingTop=").append(paddingTop - topPaddingShift + y).append(";");
@@ -131,11 +132,11 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 		//We should wrap only if overflow is none. (TODO better support left & right overflow) 
 		if ("none".equals(overflow))
 			sb.append("whiteSpace=wrap;");
-		
+
 		return sb.toString();
 	}
 
-	private String replaceParagraphWithDiv(String html)
+	private void replaceParagraphWithDiv()
 	{
 		Matcher m = spanPattern.matcher(html);
 		StringBuilder modHtml = new StringBuilder(); 
@@ -176,7 +177,7 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 			html = modHtml.toString();
 		}
 		
-		return html.replace("<p ", "<div ").replace("<p>", "<div>").replace("</p>", "</div>");
+		html = html.replace("<p ", "<div ").replace("<p>", "<div>").replace("</p>", "</div>");
 	}
 
 	/**
@@ -187,14 +188,22 @@ public class GliffyText implements PostDeserializer.PostDeserializable
 	private String getHorizontalTextAlignment()
 	{
 		Matcher m = textAlign.matcher(html);
-
 		if (m.matches())
 		{
-			html = html.replaceAll("text-align: ?\\w*;", "");
 			return m.group(2);
 		}
 
 		return null;
+	}
+
+	/**
+	 * Replaces all occurrences of style="text-align: {position}" with align="{position}"
+	 * This enables per-line horizontal alignment in all browsers
+	 */
+	private void setDrawIoFormatForTextAlignment()
+	{
+		Matcher m = textAlignToDrawIO.matcher(html);
+		html = m.replaceAll("align=\"$1\"");
 	}
 
 	public void setHalign(String halign) 

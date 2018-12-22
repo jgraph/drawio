@@ -25,6 +25,36 @@
 	Editor.spinImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/spin.gif' : 'data:image/gif;base64,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';
 
 	/**
+	 * 
+	 */
+	Editor.globeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==';
+
+	/**
+	 * 
+	 */
+	Editor.userImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+';
+
+	/**
+	 * 
+	 */
+	Editor.shareImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTggMTYuMDhjLS43NiAwLTEuNDQuMy0xLjk2Ljc3TDguOTEgMTIuN2MuMDUtLjIzLjA5LS40Ni4wOS0uN3MtLjA0LS40Ny0uMDktLjdsNy4wNS00LjExYy41NC41IDEuMjUuODEgMi4wNC44MSAxLjY2IDAgMy0xLjM0IDMtM3MtMS4zNC0zLTMtMy0zIDEuMzQtMyAzYzAgLjI0LjA0LjQ3LjA5LjdMOC4wNCA5LjgxQzcuNSA5LjMxIDYuNzkgOSA2IDljLTEuNjYgMC0zIDEuMzQtMyAzczEuMzQgMyAzIDNjLjc5IDAgMS41LS4zMSAyLjA0LS44MWw3LjEyIDQuMTZjLS4wNS4yMS0uMDguNDMtLjA4LjY1IDAgMS42MSAxLjMxIDIuOTIgMi45MiAyLjkyIDEuNjEgMCAyLjkyLTEuMzEgMi45Mi0yLjkycy0xLjMxLTIuOTItMi45Mi0yLjkyeiIvPjwvc3ZnPg==';
+
+	/**
+	 *
+	 */
+	Editor.syncImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNFYxTDggNWw0IDRWNmMzLjMxIDAgNiAyLjY5IDYgNiAwIDEuMDEtLjI1IDEuOTctLjcgMi44bDEuNDYgMS40NkMxOS41NCAxNS4wMyAyMCAxMy41NyAyMCAxMmMwLTQuNDItMy41OC04LTgtOHptMCAxNGMtMy4zMSAwLTYtMi42OS02LTYgMC0xLjAxLjI1LTEuOTcuNy0yLjhMNS4yNCA3Ljc0QzQuNDYgOC45NyA0IDEwLjQzIDQgMTJjMCA0LjQyIDMuNTggOCA4IDh2M2w0LTQtNC00djN6Ii8+PC9zdmc+';
+
+	/**
+	 *
+	 */
+	Editor.syncDisabledImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTAgNi4zNVY0LjI2Yy0uOC4yMS0xLjU1LjU0LTIuMjMuOTZsMS40NiAxLjQ2Yy4yNS0uMTIuNS0uMjQuNzctLjMzem0tNy4xNC0uOTRsMi4zNiAyLjM2QzQuNDUgOC45OSA0IDEwLjQ0IDQgMTJjMCAyLjIxLjkxIDQuMiAyLjM2IDUuNjRMNCAyMGg2di02bC0yLjI0IDIuMjRDNi42OCAxNS4xNSA2IDEzLjY2IDYgMTJjMC0xIC4yNS0xLjk0LjY4LTIuNzdsOC4wOCA4LjA4Yy0uMjUuMTMtLjUuMjUtLjc3LjM0djIuMDljLjgtLjIxIDEuNTUtLjU0IDIuMjMtLjk2bDIuMzYgMi4zNiAxLjI3LTEuMjdMNC4xNCA0LjE0IDIuODYgNS40MXpNMjAgNGgtNnY2bDIuMjQtMi4yNEMxNy4zMiA4Ljg1IDE4IDEwLjM0IDE4IDEyYzAgMS0uMjUgMS45NC0uNjggMi43N2wxLjQ2IDEuNDZDMTkuNTUgMTUuMDEgMjAgMTMuNTYgMjAgMTJjMC0yLjIxLS45MS00LjItMi4zNi01LjY0TDIwIDR6Ii8+PC9zdmc+';
+
+	/**
+	 *
+	 */
+	Editor.syncProblemImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyAxMmMwIDIuMjEuOTEgNC4yIDIuMzYgNS42NEwzIDIwaDZ2LTZsLTIuMjQgMi4yNEM1LjY4IDE1LjE1IDUgMTMuNjYgNSAxMmMwLTIuNjEgMS42Ny00LjgzIDQtNS42NVY0LjI2QzUuNTUgNS4xNSAzIDguMjcgMyAxMnptOCA1aDJ2LTJoLTJ2MnpNMjEgNGgtNnY2bDIuMjQtMi4yNEMxOC4zMiA4Ljg1IDE5IDEwLjM0IDE5IDEyYzAgMi42MS0xLjY3IDQuODMtNCA1LjY1djIuMDljMy40NS0uODkgNi00LjAxIDYtNy43NCAwLTIuMjEtLjkxLTQuMi0yLjM2LTUuNjRMMjEgNHptLTEwIDloMlY3aC0ydjZ6Ii8+PC9zdmc+';
+	
+	/**
 	 * Used in the GraphViewer lightbox.
 	 */
 	Editor.tweetImage = IMAGE_PATH + '/tweet.png';
@@ -91,6 +121,10 @@
         {name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
+        }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
@@ -130,8 +164,15 @@
         			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
+        }},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
+        {name: 'container', dispName: 'Container', type: 'bool', defVal: false},
+        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true},
+        {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -411,24 +452,31 @@
 			}
 		}
 	};
-	
-	/**
-	 * Generates a unique ID of the given length
-	 */
-	Editor.s4 = function()
-	{
-	    return Math.floor((1 + Math.random()) * 0x10000)
-	    	.toString(16)
-	    	.substring(1);
-	};
 
 	/**
 	 * Generates a unique ID of the given length
 	 */
-	Editor.guid = function()
+	Editor.GUID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_';
+
+	/**
+	 * Generates a unique ID of the given length
+	 */
+	Editor.GUID_LENGTH = 20;
+	
+	/**
+	 * Generates a unique ID of the given length
+	 */
+	Editor.guid = function(length)
 	{
-	  return Editor.s4() + Editor.s4() + '-' + Editor.s4() + '-' + Editor.s4() + '-' +
-	  	Editor.s4() + '-' + Editor.s4() + Editor.s4() + Editor.s4();
+		var len = (length != null) ? length : Editor.GUID_LENGTH;
+		var rtn = [];
+	  
+		for (var i = 0; i < len; i++)
+		{
+			rtn.push(Editor.GUID_ALPHABET.charAt(Math.floor(Math.random() * Editor.GUID_ALPHABET.length)));
+		}
+
+		return rtn.join('');
 	};
 	
 	/**
@@ -1243,7 +1291,7 @@
 			if (graph.isEnabled())
 			{
 				var file = ui.getCurrentFile();
-	
+
 				if (file != null && file.isAutosaveOptional())
 				{
 					var opt = this.createOption(mxResources.get('autosave'), function()
@@ -1299,12 +1347,13 @@
 	                }
 	            });
 	            
-	            option.style.paddingTop = '0px';
+	            option.style.paddingTop = '5px';
 	            div.appendChild(option);
 	            
 	            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');
 	            help.style.position = 'relative';
-	            help.style.top = '4px';
+	            help.style.marginLeft = '6px';
+	            help.style.top = '2px';
 	            option.appendChild(help);
 	        }
 	        
@@ -1520,14 +1569,14 @@
 			{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
 			{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
 			{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
-			[{fill: '#60a917', stroke: '#60a917', font: '#ffffff'}, {fill: '#008a00', stroke: '#008a00', font: '#ffffff'},
-			{fill: '#1ba1e2', stroke: '#1ba1e2', font: '#ffffff'}, {fill: '#0050ef', stroke: '#0050ef', font: '#ffffff'},
-			{fill: '#6a00ff', stroke: '#6a00ff', font: '#ffffff'}, {fill: '#aa00ff', stroke: '#aa00ff', font: '#ffffff'},
-			{fill: '#d80073', stroke: '#d80073', font: '#ffffff'}, {fill: '#a20025', stroke: '#a20025', font: '#ffffff'}],
-			[{fill: '#e51400', stroke: '#e51400', font: '#ffffff'}, {fill: '#fa6800', stroke: '#fa6800', font: '#ffffff'},
-			{fill: '#f0a30a', stroke: '#f0a30a', font: '#ffffff'}, {fill: '#e3c800', stroke: '#e3c800', font: '#ffffff'},
-			{fill: '#6d8764', stroke: '#6d8764', font: '#ffffff'}, {fill: '#647687', stroke: '#647687', font: '#ffffff'},
-			{fill: '#76608a', stroke: '#76608a', font: '#ffffff'}, {fill: '#a0522d', stroke: '#a0522d', font: '#ffffff'}],
+			[{fill: '#60a917', stroke: '#2D7600', font: '#ffffff'}, {fill: '#008a00', stroke: '#005700', font: '#ffffff'},
+			{fill: '#1ba1e2', stroke: '#006EAF', font: '#ffffff'}, {fill: '#0050ef', stroke: '#001DBC', font: '#ffffff'},
+			{fill: '#6a00ff', stroke: '#3700CC', font: '#ffffff'}, {fill: '#aa00ff', stroke: '#7700CC', font: '#ffffff'},
+			{fill: '#d80073', stroke: '#A50040', font: '#ffffff'}, {fill: '#a20025', stroke: '#6F0000', font: '#ffffff'}],
+			[{fill: '#e51400', stroke: '#B20000', font: '#ffffff'}, {fill: '#fa6800', stroke: '#C73500', font: '#ffffff'},
+			{fill: '#f0a30a', stroke: '#BD7000', font: '#ffffff'}, {fill: '#e3c800', stroke: '#B09500', font: '#ffffff'},
+			{fill: '#6d8764', stroke: '#3A5431', font: '#ffffff'}, {fill: '#647687', stroke: '#314354', font: '#ffffff'},
+			{fill: '#76608a', stroke: '#432D57', font: '#ffffff'}, {fill: '#a0522d', stroke: '#6D1F00', font: '#ffffff'}],
 			[null, {fill: mxConstants.NONE, stroke: '#36393d'},
 			{fill: '#fad7ac', stroke: '#b46504'}, {fill: '#fad9d5', stroke: '#ae4132'},
 			{fill: '#b0e3e6', stroke: '#0e8088'}, {fill: '#b1ddf0', stroke: '#10739e'},
@@ -1592,7 +1641,7 @@
 			var view = this.editorUi.editor.graph.view;
 			var state = view.getState(cell);
 			
-			if (state != null)
+			if (state != null && state.shape != null)
 			{
 				//Add common properties to all shapes
 				if (!state.shape.commonCustomPropAdded)
@@ -1823,18 +1872,18 @@
 			
 			function createColorBtn(pName, pValue, prop)
 			{
-				var clrDiv = document.createElement("div");
+				var clrDiv = document.createElement('div');
 				clrDiv.style.width = '32px';
 				clrDiv.style.height = '4px';
-				clrDiv.style.margin = "2px";
-				clrDiv.style.border = "1px solid black";
-				clrDiv.style.background = !pValue || pValue == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
+				clrDiv.style.margin = '2px';
+				clrDiv.style.border = '1px solid black';
+				clrDiv.style.background = !pValue || pValue == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
 
 				btn = mxUtils.button('', mxUtils.bind(that, function(evt)
 				{
 					this.editorUi.pickColor(pValue, function(color)
 					{
-						clrDiv.style.background = color == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
+						clrDiv.style.background = color == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
 						applyStyleVal(pName, color, prop);
 					});
 					mxEvent.consume(evt);
@@ -1878,7 +1927,7 @@
 					}
 					
 					var newProp = {type: subType, parentRow: myRow, index: index, isDeletable: true, defVal: defVal, countProperty: countProperty};
-					var arrItem = createPropertyRow(pName, "", newProp, index % 2 == 0, flipBkg);
+					var arrItem = createPropertyRow(pName, '', newProp, index % 2 == 0, flipBkg);
 					applyStyleVal(pName, defVal, newProp);
 					insertAfter(arrItem, beforeElem);
 					
@@ -1902,7 +1951,7 @@
 					
 					for (var i = 0; i < size; i++) 
 					{
-						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : "");
+						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : '');
 					}
 					
 					secondLevel.push({name: pName, values: vals, type: subType, defVal: defVal, parentRow: myRow, flipBkg: flipBkg, size: size});
@@ -1914,7 +1963,7 @@
 			function createCheckbox(pName, pValue, prop)
 			{
 				var input = document.createElement('input');
-				input.type = "checkbox";
+				input.type = 'checkbox';
 				input.checked = pValue == '1';
 				
 				mxEvent.addListener(input, 'change', function() 
@@ -1929,7 +1978,7 @@
 				var pDiplayName = prop.dispName;
 				var pType = prop.type;
 				var row = document.createElement('tr');
-				row.className = "gePropRow" + (flipBkg? 'Dark' : '') + (isOdd? "Alt" : "") + " gePropNonHeaderRow";
+				row.className = 'gePropRow' + (flipBkg? 'Dark' : '') + (isOdd? 'Alt' : '') + ' gePropNonHeaderRow';
 				row.setAttribute('data-pName', pName);
 				row.setAttribute('data-pValue', pValue);
 				var rightAlig = false;
@@ -1937,32 +1986,32 @@
 				if (prop.index != null)
 				{
 					row.setAttribute('data-index', prop.index);
-					pDiplayName = (pDiplayName != null? pDiplayName : "") + "[" + prop.index + "]";
+					pDiplayName = (pDiplayName != null? pDiplayName : '') + '[' + prop.index + ']';
 					rightAlig = true;
 				}
 				
 				var td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
 				
 				if (rightAlig)
 				{
-					td.style.textAlign = "right";
+					td.style.textAlign = 'right';
 				}
 					
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				
-				if (pType == "color")
+				if (pType == 'color')
 				{
 					td.appendChild(createColorBtn(pName, pValue, prop));
 				}
-				else if (pType == "bool" || pType == "boolean")
+				else if (pType == 'bool' || pType == 'boolean')
 				{
 					td.appendChild(createCheckbox(pName, pValue, prop));
 				}
-				else if (pType == "enum")
+				else if (pType == 'enum')
 				{
 					var pEnumList = prop.enumList;
 					
@@ -2027,12 +2076,12 @@
 						var input = document.createElement('input');
 						setElementPos(td, input, true);
 						input.value = pValue;
-						input.className = "gePropEditor";
+						input.className = 'gePropEditor';
 						
-						if ((pType == "int" || pType == "float") && !prop.allowAuto)
+						if ((pType == 'int' || pType == 'float') && !prop.allowAuto)
 						{
-							input.type = "number";
-							input.step = pType == "int"? "1" : "any";
+							input.type = 'number';
+							input.step = pType == 'int'? '1' : 'any';
 							
 							if (prop.min != null)
 							{
@@ -2050,14 +2099,14 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
-							inputVal = inputVal.length == 0 && pType != "string"? 0 : inputVal;
+							inputVal = inputVal.length == 0 && pType != 'string'? 0 : inputVal;
 							
 							if (prop.allowAuto)
 							{
-								if (inputVal.trim().toLowerCase() == "auto")
+								if (inputVal.trim().toLowerCase() == 'auto')
 								{
-									inputVal = "auto";
-									pType = "string";
+									inputVal = 'auto';
+									pType = 'string';
 								}
 								else
 								{
@@ -2075,12 +2124,11 @@
 								inputVal = prop.max;
 							}
 
-							var newVal = mxUtils.htmlEntities((pType == "int"? parseInt(inputVal) : inputVal) + '');
+							var newVal = mxUtils.htmlEntities((pType == 'int'? parseInt(inputVal) : inputVal) + '');
 							
 							applyStyleVal(pName, newVal, prop);
 						}
 						
-						mxEvent.addListener(input, 'change', setInputVal);
 						mxEvent.addListener(input, 'keypress', function(e)
 						{
 							if (e.keyCode == 13) 
@@ -2093,8 +2141,9 @@
 						input.focus();
 						
 						//FF calls blur on focus! so set the event after focusing
-						mxEvent.addListener(input, 'blur', function(){
-							div.removeChild(input);
+						mxEvent.addListener(input, 'blur', function() 
+						{
+							setInputVal();
 						});
 					}));
 				}
@@ -2104,7 +2153,7 @@
 					var delBtn = mxUtils.button('-', mxUtils.bind(that, function(evt)
 					{
 						//delete the node by refreshing the properties
-						applyStyleVal(pName, "", prop, prop.index);
+						applyStyleVal(pName, '', prop, prop.index);
 						
 						mxEvent.consume(evt);
 					}));
@@ -2127,18 +2176,18 @@
 			grid.style.width = '100%';
 			//create header row
 			var hrow = document.createElement('tr');
-			hrow.className = "gePropHeader";
+			hrow.className = 'gePropHeader';
 			var th = document.createElement('th');
-			th.className = "gePropHeaderCell";
+			th.className = 'gePropHeaderCell';
 			var collapseImg = document.createElement('img');
 			collapseImg.src = Sidebar.prototype.expandedImage;
 			th.appendChild(collapseImg);
-			mxUtils.write(th, mxResources.get('property', null, 'Property'));
+			mxUtils.write(th, mxResources.get('property'));
 			hrow.style.cursor = 'pointer';
 			
 			var onFold = function()
 			{
-				var rows = grid.querySelectorAll(".gePropNonHeaderRow");
+				var rows = grid.querySelectorAll('.gePropNonHeaderRow');
 				var display;
 				
 				if (!that.editorUi.propertiesCollapsed)
@@ -2181,8 +2230,8 @@
 			});
 			hrow.appendChild(th);
 			th = document.createElement('th');
-			th.className = "gePropHeaderCell";
-			th.innerHTML = mxResources.get('value', null, 'Value');
+			th.className = 'gePropHeaderCell';
+			th.innerHTML = mxResources.get('value');
 			hrow.appendChild(th);
 			grid.appendChild(hrow);
 			
@@ -2192,6 +2241,12 @@
 			for (var key in properties)
 			{
 				var prop = properties[key];
+				
+				if (typeof(prop.isVisible) == 'function')
+				{
+					if (!prop.isVisible(state)) continue;
+				}
+				
 				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined
 
 				if (prop.type == 'separator')
@@ -2244,7 +2299,8 @@
 			onFold();
 			
 			return div;
-		}		
+		};
+		
 		/**
 		 * Creates the buttons for the predefined styles.
 		 */
@@ -2622,33 +2678,58 @@
 			var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
 			
 			// mxRackContainer may be undefined as it is dynamically loaded at render time
-			if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
+			if (style != null)
 			{
-				var rackLayout = new mxStackLayout(this.graph, false);
-				
-				rackLayout.setChildGeometry = function(child, geo)
+				if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
 				{
-					var unitSize = 20;
-					geo.height = Math.max(geo.height, unitSize);
+					var rackLayout = new mxStackLayout(this.graph, false);
 					
-					if (geo.height / unitSize > 1)
+					rackLayout.setChildGeometry = function(child, geo)
 					{
-						var mod = geo.height % unitSize;
-						geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
-					}
-			
-					this.graph.getModel().setGeometry(child, geo);
-				};
-			
-				rackLayout.fill = true;
-				rackLayout.unitSize = mxRackContainer.unitSize | 20;
-				rackLayout.marginLeft = style['marginLeft'] || 0;
-				rackLayout.marginRight = style['marginRight'] || 0;
-				rackLayout.marginTop = style['marginTop'] || 0;
-				rackLayout.marginBottom = style['marginBottom'] || 0;
-				rackLayout.resizeParent = false;
+						var unitSize = 20;
+						geo.height = Math.max(geo.height, unitSize);
+						
+						if (geo.height / unitSize > 1)
+						{
+							var mod = geo.height % unitSize;
+							geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
+						}
 				
-				return rackLayout;
+						this.graph.getModel().setGeometry(child, geo);
+					};
+				
+					rackLayout.fill = true;
+					rackLayout.unitSize = mxRackContainer.unitSize | 20;
+					rackLayout.marginLeft = style['marginLeft'] || 0;
+					rackLayout.marginRight = style['marginRight'] || 0;
+					rackLayout.marginTop = style['marginTop'] || 0;
+					rackLayout.marginBottom = style['marginBottom'] || 0;
+					rackLayout.resizeParent = false;
+					
+					return rackLayout;
+				}
+				else if (typeof(mxTableLayout) != 'undefined' && style['childLayout'] == 'tableLayout')
+		        {
+		            var tableLayout = new mxTableLayout(this.graph);
+		            tableLayout.rows = style['tableRows'] || 2;
+		            tableLayout.columns = style['tableColumns'] || 2;
+		            tableLayout.colPercentages = style['colPercentages'];
+		            tableLayout.rowPercentages = style['rowPercentages'];
+		            tableLayout.equalColumns = mxUtils.getValue(style, 'equalColumns', tableLayout.colPercentages? '0' : '1') == '1';
+		            tableLayout.equalRows = mxUtils.getValue(style, 'equalRows', tableLayout.rowPercentages? '0' : '1') == '1';
+		            tableLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+		            tableLayout.border = style['tableBorder'] || tableLayout.border;
+		            tableLayout.marginLeft = style['marginLeft'] || 0;
+		            tableLayout.marginRight = style['marginRight'] || 0;
+		            tableLayout.marginTop = style['marginTop'] || 0;
+		            tableLayout.marginBottom = style['marginBottom'] || 0;
+		            tableLayout.autoAddCol = mxUtils.getValue(style, 'autoAddCol', '0') == '1';
+		            tableLayout.autoAddRow = mxUtils.getValue(style, 'autoAddRow', tableLayout.autoAddCol? '0' : '1') == '1';
+		            tableLayout.colWidths = style['colWidths'] || "100";
+		            tableLayout.rowHeights = style['rowHeights'] || "50";
+		            
+		            return tableLayout;
+		        }
 			}
 			
 			return layoutManagerGetLayout.apply(this, arguments);
@@ -3198,6 +3279,7 @@
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
 	mxStencilRegistry.libraries['flowchart'] = [SHAPES_PATH + '/mxFlowchart.js', STENCIL_PATH + '/flowchart.xml'];
 	mxStencilRegistry.libraries['ios'] = [SHAPES_PATH + '/mockup/mxMockupiOS.js'];
@@ -3209,6 +3291,7 @@
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
 	mxStencilRegistry.libraries['electrical/transmission'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/transmission.xml'];
+//	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
 	mxStencilRegistry.libraries['infographic'] = [SHAPES_PATH + '/mxInfographic.js'];
 	mxStencilRegistry.libraries['mockup/buttons'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
 	mxStencilRegistry.libraries['mockup/containers'] = [SHAPES_PATH + '/mockup/mxMockupContainers.js'];
@@ -3229,6 +3312,7 @@
 	mxStencilRegistry.libraries['eip'] = [SHAPES_PATH + '/mxEip.js', STENCIL_PATH + '/eip.xml'];
 	mxStencilRegistry.libraries['networks'] = [SHAPES_PATH + '/mxNetworks.js', STENCIL_PATH + '/networks.xml'];
 	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
+	mxStencilRegistry.libraries['aws4'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['veeam'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];
 	mxStencilRegistry.libraries['pid2misc'] = [SHAPES_PATH + '/pid2/mxPidMisc.js', STENCIL_PATH + '/pid/misc.xml'];
@@ -3697,7 +3781,7 @@
 						var bg = null;
 						var bgImage = null;
 						
-						if (page.viewState == null && page.mapping == null)
+						if (page.viewState == null)
 						{
 							// Workaround to extract view state from XML node
 							// This changes the state of the page and parses
@@ -3714,15 +3798,6 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
-						}
-						else if (page.mapping != null && page.mapping.diagramMap != null)
-						{
-							// Default pageVisible in realtime is true
-							mathEnabled = page.mapping.diagramMap.get('mathEnabled') != '0';
-							bg = page.mapping.diagramMap.get('background');
-							
-							var temp = page.mapping.diagramMap.get('backgroundImage');
-							bgImage = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
 						}
 					
 						tempGraph.background = bg;
@@ -3896,9 +3971,9 @@
                 }
                 
                 if (this.shadowVisible != null)
-                	{
-                		this.page.viewState.shadowVisible = this.shadowVisible;
-                	}
+            	{
+            		this.page.viewState.shadowVisible = this.shadowVisible;
+            	}
             }   
         }
         else
@@ -3913,7 +3988,7 @@
 
             if (this.shadowVisible != null && this.shadowVisible != this.ui.editor.graph.shadowVisible)
             {
-            		this.ui.editor.graph.setShadowVisible(this.shadowVisible);
+            	this.ui.editor.graph.setShadowVisible(this.shadowVisible);
                 this.shadowVisible = !this.shadowVisible;
             }
         }

@@ -108,8 +108,11 @@ Menus.prototype.init = function()
 			return menu.addItem(label, null, mxUtils.bind(this, function()
 			{
 				// TODO: Check if visible
-				graph.cellEditor.textarea.focus();
-	      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				if (graph.cellEditor.textarea != null)
+				{
+					graph.cellEditor.textarea.focus();
+		      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				}
 			}), parent);
 		};
 		
@@ -1182,7 +1185,6 @@ Menubar.prototype.hideMenu = function()
 Menubar.prototype.addMenu = function(label, funct, before)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
 	this.addMenuHandler(elt, funct);
@@ -1244,13 +1246,15 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 				clickHandler(evt);
 			}
 		}));
-
-		// Hides menu if already showing
-		mxEvent.addListener(elt, 'mousedown', mxUtils.bind(this, function()
+		
+		// Hides menu if already showing and prevents focus
+        mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
 		{
 			show = this.currentElt != elt;
+			evt.preventDefault();
 		}));
-		
+
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 		{
 			clickHandler(evt);

@@ -232,6 +232,17 @@ StorageFile.prototype.open = function()
 };
 
 /**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+StorageFile.prototype.getLatestVersion = function(success, error)
+{
+	this.ui.getLocalData(this.title, mxUtils.bind(this, function(data)
+	{
+		success(new StorageFile(this.ui, data, this.title));
+	}));
+};
+
+/**
  * Stops any pending autosaves and removes all listeners.
  */
 StorageFile.prototype.destroy = function()

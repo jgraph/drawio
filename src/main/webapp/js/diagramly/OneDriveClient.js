@@ -373,36 +373,36 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 		    	
 				    	if (acceptResponse)
 				    	{
-						var index = (binary) ? data.lastIndexOf(',') : -1;
-						var file = null;
-
-						if (index > 0)
-						{
-							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
-							
-							if (xml != null && xml.length > 0)
+							var index = (binary) ? data.lastIndexOf(',') : -1;
+							var file = null;
+	
+							if (index > 0)
 							{
-								data = xml;
+								var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+								
+								if (xml != null && xml.length > 0)
+								{
+									data = xml;
+								}
+								else
+								{
+									// Imports as PNG image
+									file = new LocalFile(this.ui, data, meta.name, true);
+								}
+							}
+							
+							if (file != null)
+							{
+								success(file);
+							}
+							else if (asLibrary)
+							{
+								success(new OneDriveLibrary(this.ui, data, meta));
 							}
 							else
 							{
-								// Imports as PNG image
-								file = new LocalFile(this.ui, data, meta.name, true);
+								success(new OneDriveFile(this.ui, data, meta));
 							}
-						}
-						
-						if (file != null)
-						{
-							success(file);
-						}
-						else if (asLibrary)
-						{
-							success(new OneDriveLibrary(this.ui, data, meta));
-						}
-						else
-						{
-							success(new OneDriveFile(this.ui, data, meta));
-						}
 				    	}
 	    			}), mxUtils.bind(this, function(req)
 				{
@@ -580,12 +580,12 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-OneDriveClient.prototype.saveFile = function(file, success, error)
+OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 {
 	var fn = mxUtils.bind(this, function(data)
 	{
 		var url = this.getItemURL(file.getId()) + '/content/';
-		this.writeFile(url, data, 'PUT', null, success, error);
+		this.writeFile(url, data, 'PUT', null, success, error, etag);
 	});
 	
 	if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
@@ -607,7 +607,7 @@ OneDriveClient.prototype.saveFile = function(file, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-OneDriveClient.prototype.writeFile = function(url, data, method, contentType, success, error)
+OneDriveClient.prototype.writeFile = function(url, data, method, contentType, success, error, etag)
 {
 	if (url != null && data != null)
 	{
@@ -622,7 +622,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 			}), this.ui.timeout);
 
 			var req = new mxXmlRequest(url, data, method);
-	
+			
 			req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 			{
 				// Space deletes content type header. Specification says "text/plain"
@@ -632,6 +632,11 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				//		Note: the response is empty when this header is used, also the server may take some time to really execute the request (i.e. async) 
 				//request.setRequestHeader('Prefer', 'respond-async');
 				request.setRequestHeader('Authorization', 'Bearer ' + this.token);
+				
+				if (etag != null)
+				{
+					request.setRequestHeader('If-Match', etag);
+				}
 			});
 			
 			req.send(mxUtils.bind(this, function(req)
@@ -670,7 +675,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 					}
 					else
 					{
-						error(this.parseRequestText(req));
+						error(this.parseRequestText(req), req);
 					}
 		    	}
 			}), mxUtils.bind(this, function(req)

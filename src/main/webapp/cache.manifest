@@ -1,7 +1,7 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 11/13/2018 08:35 AM
+# 12/21/2018 04:07 PM
 
 app.html
 index.html?offline=1
@@ -32,6 +32,7 @@ images/delete.png
 images/droptarget.png
 images/help.png
 images/download.png
+images/drawlogo.svg
 images/drawlogo-gray.svg
 images/drawlogo-text-bottom.svg
 images/logo-flat.png

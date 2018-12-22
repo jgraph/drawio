@@ -957,8 +957,8 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 			
 		    return this.createEdgeTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Curve');
 	 	})),
-	 	this.createEdgeTemplateEntry('shape=flexArrow;endArrow=classic;startArrow=classic;html=1;fillColor=#ffffff;', 50, 50, '', 'Bidirectional Arrow', null, lineTags + 'bidirectional'),
-	 	this.createEdgeTemplateEntry('shape=flexArrow;endArrow=classic;html=1;fillColor=#ffffff;', 50, 50, '', 'Arrow', null, lineTags + 'directional directed'),
+	 	this.createEdgeTemplateEntry('shape=flexArrow;endArrow=classic;startArrow=classic;html=1;', 50, 50, '', 'Bidirectional Arrow', null, lineTags + 'bidirectional'),
+	 	this.createEdgeTemplateEntry('shape=flexArrow;endArrow=classic;html=1;', 50, 50, '', 'Arrow', null, lineTags + 'directional directed'),
 	 	this.createEdgeTemplateEntry('shape=link;html=1;', 50, 50, '', 'Link', null, lineTags + 'link'),
 	 	this.createEdgeTemplateEntry('endArrow=none;dashed=1;html=1;', 50, 50, '', 'Dashed Line', null, lineTags + 'dashed undirected no'),
 	 	this.createEdgeTemplateEntry('endArrow=none;html=1;', 50, 50, '', 'Line', null, lineTags + 'simple undirected plain blank no'),
@@ -1781,7 +1781,6 @@ Sidebar.prototype.addBpmnPalette = function(dir, expand)
 Sidebar.prototype.createTitle = function(label)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.setAttribute('title', mxResources.get('sidebarTooltip'));
 	elt.className = 'geTitle';
 	mxUtils.write(elt, label);
@@ -1877,7 +1876,6 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height, allowCellsInserted)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	elt.style.overflow = 'hidden';
 	var border = (mxClient.IS_QUIRKS) ? 8 + 2 * this.thumbPadding : 2 * this.thumbBorder;
@@ -3362,7 +3360,7 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
     // Keeps references to the DOM nodes
     if (id != null)
     {
-    		this.palettes[id] = [elt, outer];
+    	this.palettes[id] = [elt, outer];
     }
     
     return div;
@@ -3431,6 +3429,13 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 		}
 		
 		mxEvent.consume(evt);
+	}));
+	
+	// Prevents focus
+    mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+    	mxUtils.bind(this, function(evt)
+	{
+		evt.preventDefault();
 	}));
 };
 

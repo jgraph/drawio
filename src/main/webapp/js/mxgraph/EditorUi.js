@@ -188,7 +188,7 @@ EditorUi = function(editor, container, lightbox)
 		}
 		else if (!mxEvent.isConsumed(evt) && evt.keyCode == 27 /* Escape */)
 		{
-			this.hideDialog();
+			this.hideDialog(null, true);
 		}
 	});
    	
@@ -489,7 +489,9 @@ EditorUi = function(editor, container, lightbox)
 		'endFill', 'endSize', 'jettySize', 'orthogonalLoop'];
 	
 	// Keys that are ignored together (if one appears all are ignored)
-	var keyGroups = [['startArrow', 'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'jettySize', 'orthogonalLoop'],
+	var keyGroups = [['startArrow', 'startFill', 'startSize', 'sourcePerimeterSpacing',
+					'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing',
+					'jettySize', 'orthogonalLoop'],
 	                 ['strokeColor', 'strokeWidth'],
 	                 ['fillColor', 'gradientColor'],
 	                 valueStyles,
@@ -2619,7 +2621,7 @@ ChangePageSetup.prototype.execute = function()
 
     if (this.foldingEnabled != null && this.foldingEnabled != this.ui.editor.graph.foldingEnabled)
     {
-    		this.ui.setFoldingEnabled(this.foldingEnabled);
+    	this.ui.setFoldingEnabled(this.foldingEnabled);
         this.foldingEnabled = !this.foldingEnabled;
     }
 };
@@ -2887,7 +2889,6 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	}
 	
 	var effHsplitPosition = Math.max(0, Math.min(this.hsplitPosition, w - this.splitSize - 20));
-
 	var tmp = 0;
 	
 	if (this.menubar != null)
@@ -2932,6 +2933,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	this.hsplit.style.top = this.sidebarContainer.style.top;
 	this.hsplit.style.bottom = (this.footerHeight + off) + 'px';
 	this.hsplit.style.left = effHsplitPosition + 'px';
+	this.footerContainer.style.display = (this.footerHeight == 0) ? 'none' : '';
 	
 	if (this.tabContainer != null)
 	{
@@ -3289,7 +3291,7 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3298,19 +3300,25 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize);
 	this.dialogs.push(this.dialog);
 };
 
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.hideDialog = function(cancel)
+EditorUi.prototype.hideDialog = function(cancel, isEsc)
 {
 	if (this.dialogs != null && this.dialogs.length > 0)
 	{
 		var dlg = this.dialogs.pop();
-		dlg.close(cancel);
+		
+		if (dlg.close(cancel, isEsc) == false) 
+		{
+			//add the dialog back if dialog closing is cancelled
+			this.dialogs.push(dlg);
+			return;
+		}
 		
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 

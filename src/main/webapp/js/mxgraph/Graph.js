@@ -60,6 +60,12 @@ mxGraphView.prototype.gridColor = '#e0e0e0';
 // Alternative text for unsupported foreignObjects
 mxSvgCanvas2D.prototype.foAltText = '[Not supported by viewer]';
 
+// Hook for custom constraints
+mxShape.prototype.getConstraints = function(style)
+{
+	return null;
+};
+
 /**
  * Constructs a new graph instance. Note that the constructor does not take a
  * container because the graph instance is needed for creating the UI, which
@@ -990,11 +996,6 @@ Graph.prototype.defaultPageBackgroundColor = '#ffffff';
 Graph.prototype.defaultPageBorderColor = '#ffffff';
 
 /**
- * 
- */
-Graph.prototype.defaultGraphBackground = '#ffffff';
-
-/**
  * Specifies the size of the size for "tiles" to be used for a graph with
  * scrollbars but no visible background page. A good value is large
  * enough to reduce the number of repaints that is caused for auto-
@@ -1570,51 +1571,54 @@ Graph.prototype.initLayoutManager = function()
 		var state = this.graph.view.getState(cell);
 		var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
 		
-		if (style['childLayout'] == 'stackLayout')
+		if (style != null)
 		{
-			var stackLayout = new mxStackLayout(this.graph, true);
-			stackLayout.resizeParentMax = mxUtils.getValue(style, 'resizeParentMax', '1') == '1';
-			stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
-			stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
-			stackLayout.spacing = style['stackSpacing'] || stackLayout.spacing;
-			stackLayout.border = style['stackBorder'] || stackLayout.border;
-			stackLayout.marginLeft = style['marginLeft'] || 0;
-			stackLayout.marginRight = style['marginRight'] || 0;
-			stackLayout.marginTop = style['marginTop'] || 0;
-			stackLayout.marginBottom = style['marginBottom'] || 0;
-			stackLayout.fill = true;
-			
-			return stackLayout;
-		}
-		else if (style['childLayout'] == 'treeLayout')
-		{
-			var treeLayout = new mxCompactTreeLayout(this.graph);
-			treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
-			treeLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
-			treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
-			treeLayout.maintainParentLocation = true;
-			treeLayout.edgeRouting = false;
-			treeLayout.resetEdges = false;
-			
-			return treeLayout;
-		}
-		else if (style['childLayout'] == 'flowLayout')
-		{
-			var flowLayout = new mxHierarchicalLayout(this.graph, mxUtils.getValue(style,
-					'flowOrientation', mxConstants.DIRECTION_EAST));
-			flowLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			flowLayout.parentBorder = mxUtils.getValue(style, 'parentPadding', 20);
-			flowLayout.maintainParentLocation = true;
-			
-			// Special undocumented styles for changing the hierarchical
-			flowLayout.intraCellSpacing = mxUtils.getValue(style, 'intraCellSpacing', mxHierarchicalLayout.prototype.intraCellSpacing);
-			flowLayout.interRankCellSpacing = mxUtils.getValue(style, 'interRankCellSpacing', mxHierarchicalLayout.prototype.interRankCellSpacing);
-			flowLayout.interHierarchySpacing = mxUtils.getValue(style, 'interHierarchySpacing', mxHierarchicalLayout.prototype.interHierarchySpacing);
-			flowLayout.parallelEdgeSpacing = mxUtils.getValue(style, 'parallelEdgeSpacing', mxHierarchicalLayout.prototype.parallelEdgeSpacing);
-			
-			return flowLayout;
+			if (style['childLayout'] == 'stackLayout')
+			{
+				var stackLayout = new mxStackLayout(this.graph, true);
+				stackLayout.resizeParentMax = mxUtils.getValue(style, 'resizeParentMax', '1') == '1';
+				stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
+				stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
+				stackLayout.spacing = style['stackSpacing'] || stackLayout.spacing;
+				stackLayout.border = style['stackBorder'] || stackLayout.border;
+				stackLayout.marginLeft = style['marginLeft'] || 0;
+				stackLayout.marginRight = style['marginRight'] || 0;
+				stackLayout.marginTop = style['marginTop'] || 0;
+				stackLayout.marginBottom = style['marginBottom'] || 0;
+				stackLayout.fill = true;
+				
+				return stackLayout;
+			}
+			else if (style['childLayout'] == 'treeLayout')
+			{
+				var treeLayout = new mxCompactTreeLayout(this.graph);
+				treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
+				treeLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
+				treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
+				treeLayout.maintainParentLocation = true;
+				treeLayout.edgeRouting = false;
+				treeLayout.resetEdges = false;
+				
+				return treeLayout;
+			}
+			else if (style['childLayout'] == 'flowLayout')
+			{
+				var flowLayout = new mxHierarchicalLayout(this.graph, mxUtils.getValue(style,
+						'flowOrientation', mxConstants.DIRECTION_EAST));
+				flowLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				flowLayout.parentBorder = mxUtils.getValue(style, 'parentPadding', 20);
+				flowLayout.maintainParentLocation = true;
+				
+				// Special undocumented styles for changing the hierarchical
+				flowLayout.intraCellSpacing = mxUtils.getValue(style, 'intraCellSpacing', mxHierarchicalLayout.prototype.intraCellSpacing);
+				flowLayout.interRankCellSpacing = mxUtils.getValue(style, 'interRankCellSpacing', mxHierarchicalLayout.prototype.interRankCellSpacing);
+				flowLayout.interHierarchySpacing = mxUtils.getValue(style, 'interHierarchySpacing', mxHierarchicalLayout.prototype.interHierarchySpacing);
+				flowLayout.parallelEdgeSpacing = mxUtils.getValue(style, 'parallelEdgeSpacing', mxHierarchicalLayout.prototype.parallelEdgeSpacing);
+				
+				return flowLayout;
+			}
 		}
 		
 		return null;
@@ -4808,7 +4812,7 @@ if (typeof mxVertexHandler != 'undefined')
 				dec.decode(node, this.getStylesheet());
 			}
 		};
-		
+
 		/**
 		 * 
 		 */
@@ -4817,68 +4821,62 @@ if (typeof mxVertexHandler != 'undefined')
 			dx = (dx != null) ? dx : 0;
 			dy = (dy != null) ? dy : 0;
 			
-			var cells = []
-			var model = new mxGraphModel();
 			var codec = new mxCodec(node.ownerDocument);
-			codec.decode(node, model);
+			var tempModel = new mxGraphModel();
+			codec.decode(node, tempModel);
+			var cells = []
 			
-			var childCount = model.getChildCount(model.getRoot());
-			var targetChildCount = this.model.getChildCount(this.model.getRoot());
+			// Clones cells to remove invalid edges
+			var layers = tempModel.getChildren(this.cloneCell(
+				tempModel.root, this.isCloneInvalidEdges()));
 			
-			// Merges into active layer if one layer is pasted
-			this.model.beginUpdate();
-			try
+			if (layers != null)
 			{
-				// Mapping for multiple calls to cloneCells with the same set of cells
-				var mapping = new Object();
-				
-				// Populates the mapping to fix lookups for forward refs from edges
-				// to cells in parents that are cloned later in the loop below
-// 				this.cloneCells([model.root], this.isCloneInvalidEdges(), mapping);
-
-				for (var i = 0; i < childCount; i++)
+				// Uses copy as layers are removed from array inside loop
+				layers = layers.slice();
+	
+				this.model.beginUpdate();
+				try
 				{
-					var parent = model.getChildAt(model.getRoot(), i);
-					
-					// Adds cells to existing layer if not locked
-					if (childCount == 1 && !this.isCellLocked(this.getDefaultParent()))
+					// Merges into unlocked current layer if one layer is pasted
+					if (layers.length == 1 && !this.isCellLocked(this.getDefaultParent()))
 					{
-						var children = model.getChildren(parent);
-						cells = cells.concat(this.importCells(children, dx, dy, this.getDefaultParent(), null, mapping));
+						cells = this.moveCells(tempModel.getChildren(layers[0]),
+							dx, dy, false, this.getDefaultParent());
 					}
 					else
 					{
-						// Delta is non cascading, needs separate move for layers
-						parent = this.importCells([parent], 0, 0, this.model.getRoot(), null, mapping)[0];
-						var children = this.model.getChildren(parent);
-						this.moveCells(children, dx, dy);
-						cells = cells.concat(children);
+						for (var i = 0; i < layers.length; i++)
+						{
+							cells = cells.concat(this.model.getChildren(this.moveCells(
+								[layers[i]], dx, dy, false, this.model.getRoot())[0]));
+						}
+					}
+					
+					if (crop)
+					{
+						if (this.isGridEnabled())
+						{
+							dx = this.snap(dx);
+							dy = this.snap(dy);
+						}
+						
+						var bounds = this.getBoundingBoxFromGeometry(cells, true);
+						
+						if (bounds != null)
+						{
+							this.moveCells(cells, dx - bounds.x, dy - bounds.y);
+						}
 					}
 				}
-				
-				if (crop)
+				finally
 				{
-					if (this.isGridEnabled())
-					{
-						dx = this.snap(dx);
-						dy = this.snap(dy);
-					}
-					
-					var bounds = this.getBoundingBoxFromGeometry(cells, true);
-					
-					if (bounds != null)
-					{
-						this.moveCells(cells, dx - bounds.x, dy - bounds.y);
-					}
+					this.model.endUpdate();
 				}
-			}
-			finally
-			{
-				this.model.endUpdate();
 			}
 			
 			return cells;
-		}
+		};
 		
 		/**
 		 * Overrides method to provide connection constraints for shapes.
@@ -4887,34 +4885,40 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			if (terminal != null)
 			{
-				var constraints = mxUtils.getValue(terminal.style, 'points', null);
+				var constraints = (terminal.shape != null) ? terminal.shape.getConstraints(terminal.style) : null;
 				
 				if (constraints != null)
 				{
-					// Requires an array of arrays with x, y (0..1) and an optional
-					// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
-					var result = [];
-					
-					try
-					{
-						var c = JSON.parse(constraints);
-						
-						for (var i = 0; i < c.length; i++)
-						{
-							var tmp = c[i];
-							result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-					
-					return result;
+					return constraints;
 				}
 				else
 				{
-					if (terminal.shape != null)
+					constraints = mxUtils.getValue(terminal.style, 'points', null);
+					
+					if (constraints != null)
+					{
+						// Requires an array of arrays with x, y (0..1) and an optional
+						// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
+						var result = [];
+						
+						try
+						{
+							var c = JSON.parse(constraints);
+							
+							for (var i = 0; i < c.length; i++)
+							{
+								var tmp = c[i];
+								result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+						
+						return result;
+					}
+					else if (terminal.shape != null)
 					{
 						if (terminal.shape.stencil != null)
 						{
@@ -5918,7 +5922,7 @@ if (typeof mxVertexHandler != 'undefined')
 			model.beginUpdate();
 			try
 			{
-				var clones = this.cloneCells(cells, false);
+				var clones = this.cloneCells(cells, false, null, true);
 				
 				for (var i = 0; i < cells.length; i++)
 				{
@@ -6417,11 +6421,7 @@ if (typeof mxVertexHandler != 'undefined')
 				};
 	
 				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
-				
-				if (linkTarget != null)
-				{
-					this.updateLinkTargets(root, linkTarget);
-				}
+				this.updateSvgLinks(root, linkTarget, true);
 			
 				return root;
 			}
@@ -6439,7 +6439,7 @@ if (typeof mxVertexHandler != 'undefined')
 		/**
 		 * Hook for creating the canvas used in getSvg.
 		 */
-		Graph.prototype.updateLinkTargets = function(node, target)
+		Graph.prototype.updateSvgLinks = function(node, target, removeCustom)
 		{
 			var links = node.getElementsByTagName('a');
 			
@@ -6452,9 +6452,16 @@ if (typeof mxVertexHandler != 'undefined')
 					href = links[i].getAttribute('xlink:href');
 				}
 				
-				if (href != null && /^https?:\/\//.test(href))
+				if (href != null)
 				{
-					links[i].setAttribute('target', target);
+					if (target != null && /^https?:\/\//.test(href))
+					{
+						links[i].setAttribute('target', target);
+					}
+					else if (removeCustom && this.isCustomLink(href))
+					{
+						links[i].setAttribute('href', 'javascript:void(0);');
+					}
 				}
 			}
 		};

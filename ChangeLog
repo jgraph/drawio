@@ -1,3 +1,140 @@
+21-DEC-2018: 10.0.7
+
+- Fixes checksum handling in desktop
+- Uses mxGraph 3.9.13 beta 1
+
+20-DEC-2018: 10.0.6
+
+- Performance fixes for collaborative editing
+- Fixes collaboration conflict errors
+
+19-DEC-2018: 10.0.5
+
+- Fixes for collaborative editing
+
+19-DEC-2018: 10.0.4
+
+- Fixes for night mode and responsive UI
+
+18-DEC-2018: 10.0.3
+
+- Disables sync in Chrome OS
+- Fixes CSS issues
+
+17-DEC-2018: 10.0.2
+
+- Adds inactivity timeout for collaborative editing
+
+17-DEC-2018: 10.0.1
+
+- Fixes Google auth for OneDrive files
+
+17-DEC-2018: 10.0.0
+
+- Enables collaborative editing
+- Hides footer
+
+16-DEC-2018: 9.6.6
+
+- Adds darker stroke colors for metro palettes
+
+15-DEC-2018: 9.6.5
+
+- Fixes for collaborative editing (beta)
+
+14-DEC-2018: 9.6.4
+
+- Uses mxGraph 3.9.12
+
+13-DEC-2018: 9.6.3
+
+- Uses mxGraph 3.9.11 beta 10
+
+12-DEC-2018: 9.6.2
+
+- Uses mxGraph 3.9.11 beta 9
+
+11-DEC-2018: 9.6.1
+
+- Adds source-/targetPerimeterSpacing to default style
+- Fixes font style button states in Edge, FF and IE
+- Removes Google realtime API
+- Fixes focus handling on iOS
+
+10-DEC-2018: 9.6.0
+
+- Fixes for collaborative editing (beta)
+- Fixes minor bugs
+
+06-DEC-2018: 9.5.9
+
+- Uses PlantUML build 4
+
+04-DEC-2018: 9.5.8
+
+- Fixes focus handling in format panel
+
+04-DEC-2018: 9.5.7
+
+- Removes dummy href attributes
+
+04-DEC-2018: 9.5.6
+
+- Uses mxGraph 3.9.11 beta 8
+
+03-DEC-2018: 9.5.5
+
+- Adds unsaved status for new files in Desktop
+- Fixes minor CSS issues
+
+03-DEC-2018: 9.5.4
+
+- Fixes possible NPE in Desktop
+
+03-DEC-2018: 9.5.3
+
+- Uses mxGraph 3.9.11 beta 7
+
+02-DEC-2018: 9.5.2
+
+- Fixes caching issue with GitHub file sync
+
+30-NOV-2018: 9.5.1
+
+- Fixes Gliffy import alignment issue
+- Fixes properties panel focus issue
+
+30-NOV-2018: 9.5.0
+
+- Fixes tolerance for distance guides
+- Adds collaborative editing (beta)
+- Restores libraries after login
+- Uses mxGraph 3.9.11 beta 6
+
+28-NOV-2018: 9.4.7
+
+- Adds multiple page PDF export option
+- GraphML import improvements
+- Adds addition IBM cloud stencils
+- Adds Data Flow Diagram stencils
+
+21-NOV-2018: 9.4.6
+
+- Fixes corrupted chars in XML from JSON backup import
+
+20-NOV-2018: 9.4.5
+
+- Adds 2018 AWS icons
+- Uses mxGraph 3.9.11 beta 5
+
+16-NOV-2018: 9.4.4
+
+- Adds GraphML import
+
+15-NOV-2018: 9.4.3
+
+- Internal release
+
 12-NOV-2018: 9.4.2
 
 - Fixes undoable edit when expanding Advanced sidebar

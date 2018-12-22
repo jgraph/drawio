@@ -36,7 +36,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users'];
+	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users', 'VPC'];
 
 	/**
 	 * 
@@ -108,6 +108,13 @@
 	                          'Management Tools', 'Messaging', 'Migration', 'Mobile Services', 'Networking and Content Delivery', 'On Demand Workforce', 'SDKs', 'Security Identity and Compliance', 'Storage'];
 	
 	/**
+	 *
+	 */
+	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups Light', 'Groups Dark', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Business Productivity', 'Compute', 'Customer Engagement',
+							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Development', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Tools',
+							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
+	
+	/**
 	 * 
 	 */
 	Sidebar.prototype.office = ['Clouds', 'Communications', 'Concepts', 'Databases', 'Devices', 'Security', 'Servers', 'Services', 'Sites', 'Users'];
@@ -146,7 +153,8 @@
 	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']}, {id: 'uml'}, {id: 'search'}, {id: 'er'},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
-	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'sitemap'}, 
+	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, 
+	                                   {id: 'sitemap'}, {id: 'dfd'},
 	                                   
 	                                   {id: 'mscae', prefix: 'mscae', libs: ['Cloud', 'Enterprise', 'General', 'General Symbols', 'Intune', 'OMS', 'OpsManager', 'Other', 'System Center', 'Virtual Machine', 'Deprecated', 'Cloud Color', 'Deprecated Color']},
 	                                   
@@ -166,6 +174,7 @@
            	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
            	                           {id: 'aws3', prefix: 'aws3', libs: Sidebar.prototype.aws3},
+           	                           {id: 'aws4', prefix: 'aws4', libs: Sidebar.prototype.aws4},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
@@ -426,14 +435,16 @@
             			entries: [{title: mxResources.get('android'), id: 'android', image: IMAGE_PATH + '/sidebar-android.png'},
             					  {title: 'Atlassian', id: 'atlassian', image: IMAGE_PATH + '/sidebar-atlassian.png'},
             			          {title: mxResources.get('bootstrap'), id: 'bootstrap', image: IMAGE_PATH + '/sidebar-bootstrap.png'},
+            			          {title: 'Data Flow Diagram', id: 'dfd', image: IMAGE_PATH + '/sidebar-dfd.png'},
             			          {title: mxResources.get('entityRelation'), id: 'er', image: IMAGE_PATH + '/sidebar-er.png'},
             			          {title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
             			          {title: mxResources.get('mockups'), id: 'mockups', image: IMAGE_PATH + '/sidebar-mockups.png'},
             			          {title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
             			          {title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
-            			entries: [{title: mxResources.get('aws'), id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
+            			entries: [{title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
             			// TODO: Add isometric containers  		                          
+            				      {title: 'AWS18', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
             					  {title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
@@ -845,12 +856,14 @@
 		this.addErPalette();
 		this.addBasicPalette();
 		this.addFlowchartPalette();
+		this.addDFDPalette();
 		this.addNetworkPalette();
 		this.addAzurePalette();
 		this.addCitrixPalette();
 		this.addMSCAEPalette();
 		this.addBpmnPalette(dir, false);
 		this.addAWS3Palette();
+		this.addAWS4Palette();
 		this.addAWS3DPalette();
 		this.addLeanMappingPalette();
 		this.addIos7Palette();
@@ -1257,7 +1270,7 @@
 		// Logs search terms for improving search results
 		if (!this.editorUi.isOffline() && page == 0)
 		{
-			this.editorUi.logEvent({category: 'Sidebar', action: 'search', label: searchTerms});
+			EditorUi.logEvent({category: 'Shape', action: 'search', label: searchTerms});
 		}
 		
 		if (ICONSEARCH_PATH != null)
@@ -1369,7 +1382,7 @@
 		
 		if (cells != null && graph.getSelectionCount() == 1 && graph.getModel().isVertex(cells[0]))
 		{
-			var target = graph.cloneCells(cells)[0];
+			var target = graph.cloneCell(cells[0]);
 			
 			// Inserts cell as target of selected edge if not connected
 			if (graph.getModel().isEdge(graph.getSelectionCell()) && graph.getModel().getTerminal(graph.getSelectionCell(), false) == null &&

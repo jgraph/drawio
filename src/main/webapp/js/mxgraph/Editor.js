@@ -100,7 +100,7 @@ Editor.useLocalStorage = typeof(Storage) != 'undefined' && mxClient.IS_IOS;
 /**
  * Images below are for lightbox and embedding toolbars.
  */
-Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAXVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC5BxTwAAAAH3RSTlMAlUF8boNQIE0LBgOgkGlHNSwqFIx/dGVUOjApmV9ezNACSAAAAIVJREFUGNNtjNsOgzAMQ5NeoVcKDAZs+//PXLKI8YKlWvaRU7jXuFpb9qsbdK05XILUiE8JHQox1Pv3OgFUzf1AGqWqUg+QBwLF0YAeegBlCNgRWOpB5vUfTCmeoHQ/wNdy0jLH/cM+b+wLTw4n/7ACEmHVVy8h6qy8V7MNcGowWpsNbvUFcGUEdSi1s/oAAAAASUVORK5CYII=' :
+Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDB6Ii8+PHBhdGggZD0iTTExIDE4aDJ2LTJoLTJ2MnptMS0xNkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6bTAtMTRjLTIuMjEgMC00IDEuNzktNCA0aDJjMC0xLjEuOS0yIDItMnMyIC45IDIgMmMwIDItMyAxLjc1LTMgNWgyYzAtMi4yNSAzLTIuNSAzLTUgMC0yLjIxLTEuNzktNC00LTR6Ii8+PC9zdmc+' :
 	IMAGE_PATH + '/help.png';
 
 /**
@@ -381,7 +381,7 @@ Editor.prototype.resetGraph = function()
 	this.graph.pageVisible = this.graph.defaultPageVisible;
 	this.graph.pageBreaksVisible = this.graph.pageVisible; 
 	this.graph.preferPageSize = this.graph.pageBreaksVisible;
-	this.graph.background = this.graph.defaultGraphBackground;
+	this.graph.background = null;
 	this.graph.pageScale = mxGraph.prototype.pageScale;
 	this.graph.pageFormat = mxGraph.prototype.pageFormat;
 	this.graph.currentScale = 1;
@@ -628,7 +628,7 @@ Editor.prototype.createUndoManager = function()
 		
 		for (var i = 0; i < cand.length; i++)
 		{
-			if ((model.isVertex(cand[i]) || model.isEdge(cand[i])) && graph.view.getState(cand[i]) != null)
+			if (graph.view.getState(cand[i]) != null)
 			{
 				cells.push(cand[i]);
 			}
@@ -725,7 +725,7 @@ OpenFile.prototype.cancel = function(cancel)
 /**
  * Basic dialogs that are available in the viewer (print dialog).
  */
-function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent)
+function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize)
 {
 	var dx = 0;
 	
@@ -838,6 +838,17 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	
 	this.resizeListener = mxUtils.bind(this, function()
 	{
+		if (onResize != null)
+		{
+			var newWH = onResize();
+			
+			if (newWH != null)
+			{
+				w0 = w = newWH.w;
+				h0 = h = newWH.h;
+			}
+		}
+		
 		dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
 		this.bg.style.height = dh + 'px';
 		
@@ -927,11 +938,15 @@ Dialog.prototype.getPosition = function(left, top)
 /**
  * Removes the dialog from the DOM.
  */
-Dialog.prototype.close = function(cancel)
+Dialog.prototype.close = function(cancel, isEsc)
 {
 	if (this.onDialogClose != null)
 	{
-		this.onDialogClose(cancel);
+		if (this.onDialogClose(cancel, isEsc) == false)
+		{
+			return false;
+		}
+		
 		this.onDialogClose = null;
 	}
 	
