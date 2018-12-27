@@ -113,7 +113,7 @@
 		{
 			try
 			{
-				maxLength = (maxLength != null) ? maxLength : 3000000;
+				maxLength = (maxLength != null) ? maxLength : 50000;
 
 				if (data.length > maxLength)
 				{
@@ -1008,11 +1008,6 @@
 				if (diff.name != null)
 				{
 					diff.name = this.anonymizeString(diff.name);
-				}
-				
-				if (diff.view != null)
-				{
-					diff.view = this.anonymizeString(diff.view);
 				}
 				
 				if (diff.cells != null)
@@ -2360,6 +2355,10 @@
 		{
 			this.updatePageRoot(pages[i]);
 			var diagram = pages[i].node.cloneNode(false);
+			
+			// FIXME: Check why names can be null in newer files
+			// ignore in hash and do not diff null names for now
+			diagram.removeAttribute('name');
 			
 			// Model is only a holder for the root
 			model.root = pages[i].root;
@@ -11573,9 +11572,6 @@
 	 */
 	EditorUi.prototype.updateEditReferences = function(edit)
 	{
-	    var tempCodec = new mxCodec();
-	    tempCodec.ui = this;
-
         for (var i = 0; i < edit.changes.length; i++)
         {
             var change = edit.changes[i];
@@ -11586,7 +11582,7 @@
                 {
                     var child = change.child;
                     
-                    if (child.source != null)
+                    if (child.source != null && child.source.id != null)
                     {
                         var modelSource = this.getFutureCellForEdit(change.model, edit, child.source.id);
                         
@@ -11596,7 +11592,7 @@
                         }
                     }
                     
-                    if (child.target != null)
+                    if (child.target != null && child.target.id != null)
                     {
                         var modelTarget = this.getFutureCellForEdit(change.model, edit, child.target.id);
 
@@ -11617,30 +11613,33 @@
 	EditorUi.prototype.getFutureCellForEdit = function(model, edit, id)
 	{
 		var result = model.getCell(id);
+		
 		if (result == null)
 		{
-			// scan changes backwards
+			// Scans changes backwards
 			for (var i = edit.changes.length - 1; i >= 0; i--)
 			{
 				var change = edit.changes[i];
 				
 				if (change.constructor == mxChildChange)
 				{
-					// found a child change introducing a cell with sought ID?
+					// Checks if child is being added in this change
 					if (change.child != null && change.child.id == id)
 					{
-						// is cell not being deleted?
-						if (change.previous != null)
+						// Checks if cell is being removed
+						if (model.contains(change.previous))
 						{
 							result = change.child;
 						}
 						
-						// stop scan in any case, at the end of the edit the cell will either added or deleted
+						// Stops scan in any case, at the end of the edit
+						// the cell will be either added or deleted
 						break;
 					}
 				}
 			}
 		}
+		
 		return result;
 	};
 

@@ -328,6 +328,7 @@ googleDocs=Google dokumenti
 googleDrive=Google Drive
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=Google Sites
 gradient=Gradijent
 gradientColor=Boja gradijenta

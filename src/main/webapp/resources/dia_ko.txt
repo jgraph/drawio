@@ -328,6 +328,7 @@ googleDocs=구글 문서
 googleDrive=구글 드라이브
 googleGadget=구글 가젯
 googlePlus=구글 플러스
+googleSlides=Google Slides
 googleSites=구글 사이트
 gradient=그라데이션
 gradientColor=색

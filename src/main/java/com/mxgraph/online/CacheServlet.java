@@ -144,68 +144,77 @@ public class CacheServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		String qs = request.getQueryString();
-		String ref = request.getHeader("referer");
-		boolean stats = qs != null && qs.equals("stats");
-
-		if (stats || (ref != null && ref.toLowerCase()
-				.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*")))
+		try
 		{
-			PrintWriter writer = response.getWriter();
-			response.setCharacterEncoding("UTF-8");
+			String qs = request.getQueryString();
+			String ref = request.getHeader("referer");
+			boolean stats = qs != null && qs.equals("stats");
 
-			if (stats)
+			if (stats || (ref != null && ref.toLowerCase()
+					.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*")))
 			{
-				response.setContentType("text/plain");
+				PrintWriter writer = response.getWriter();
+				response.setCharacterEncoding("UTF-8");
 
-				Stats s = MemcacheServiceFactory.getMemcacheService()
-						.getStatistics();
-				writer.println("timestamp: " + new Date().toString());
-				writer.println("hit count: " + s.getHitCount());
-				writer.println("miss count: " + s.getMissCount());
-				writer.println("item count: " + s.getItemCount());
-				writer.println("total item bytes: " + s.getTotalItemBytes());
-				writer.println("bytes returned for hits: "
-						+ s.getBytesReturnedForHits());
-				writer.println("max time without access: "
-						+ s.getMaxTimeWithoutAccess());
-
-				response.setStatus(HttpServletResponse.SC_OK);
-			}
-			else
-			{
-				response.addHeader("Access-Control-Allow-Origin",
-						ref.toLowerCase().substring(0,
-								ref.indexOf(".draw.io/") + 8));
-
-				// Disables wire-compression
-				response.setContentType("application/octet-stream");
-				String id = request.getParameter("id");
-
-				if (id != null)
+				if (stats)
 				{
-					try
-					{
-						writer.print(getPatches(id, request));
-						response.setStatus(HttpServletResponse.SC_OK);
-					}
-					catch (UnauthorizedException e)
-					{
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					}
+					response.setContentType("text/plain");
+
+					Stats s = MemcacheServiceFactory.getMemcacheService()
+							.getStatistics();
+					writer.println("timestamp: " + new Date().toString());
+					writer.println("hit count: " + s.getHitCount());
+					writer.println("miss count: " + s.getMissCount());
+					writer.println("item count: " + s.getItemCount());
+					writer.println(
+							"total item bytes: " + s.getTotalItemBytes());
+					writer.println("bytes returned for hits: "
+							+ s.getBytesReturnedForHits());
+					writer.println("max time without access: "
+							+ s.getMaxTimeWithoutAccess());
+
+					response.setStatus(HttpServletResponse.SC_OK);
 				}
 				else
 				{
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				}
-			}
+					response.addHeader("Access-Control-Allow-Origin",
+							ref.toLowerCase().substring(0,
+									ref.indexOf(".draw.io/") + 8));
 
-			writer.flush();
-			writer.close();
+					// Disables wire-compression
+					response.setContentType("application/octet-stream");
+					String id = request.getParameter("id");
+
+					if (id != null)
+					{
+						try
+						{
+							writer.print(getPatches(id, request));
+							response.setStatus(HttpServletResponse.SC_OK);
+						}
+						catch (UnauthorizedException e)
+						{
+							response.setStatus(
+									HttpServletResponse.SC_UNAUTHORIZED);
+						}
+					}
+					else
+					{
+						response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					}
+				}
+
+				writer.flush();
+				writer.close();
+			}
+			else
+			{
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			}
 		}
-		else
+		catch (Exception e)
 		{
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}
 
@@ -272,37 +281,44 @@ public class CacheServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		String ref = request.getHeader("referer");
-
-		if (ref != null && ref.toLowerCase()
-				.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
+		try
 		{
-			String id = request.getParameter("id");
+			String ref = request.getHeader("referer");
 
-			if (id != null)
+			if (ref != null && ref.toLowerCase()
+					.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
 			{
-				response.addHeader("Access-Control-Allow-Origin",
-						ref.toLowerCase().substring(0,
-								ref.indexOf(".draw.io/") + 8));
+				String id = request.getParameter("id");
 
-				sendMessage(id, request);
-				addPatch(id, request);
+				if (id != null)
+				{
+					response.addHeader("Access-Control-Allow-Origin",
+							ref.toLowerCase().substring(0,
+									ref.indexOf(".draw.io/") + 8));
 
-				PrintWriter writer = response.getWriter();
-				writer.println("<ok/>");
-				writer.flush();
-				writer.close();
+					sendMessage(id, request);
+					addPatch(id, request);
 
-				response.setStatus(HttpServletResponse.SC_OK);
+					PrintWriter writer = response.getWriter();
+					writer.println("<ok/>");
+					writer.flush();
+					writer.close();
+
+					response.setStatus(HttpServletResponse.SC_OK);
+				}
+				else
+				{
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				}
 			}
 			else
 			{
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			}
 		}
-		else
+		catch (Exception e)
 		{
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}
 

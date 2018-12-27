@@ -1319,7 +1319,7 @@ EditorUi.prototype.createPageInsertTab = function()
 EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled)
 {
 	var tab = this.createTab(hoverEnabled);
-	var name = page.getName();
+	var name = page.getName() || mxResources.get('untitled');
 	var id = page.getId();
 	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : ''));
 	mxUtils.write(tab, name);
