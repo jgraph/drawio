@@ -563,19 +563,21 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		this.saveAs(this.ui.getCopyFilename(this), success, error);
 	};
-
-	// Copy stat from source file on success
-	LocalFile.prototype.mergeFile = function(file, success, error)
+	
+	/**
+	 * Adds all listeners.
+	 */
+	LocalFile.prototype.getDescriptor = function()
 	{
-		DrawioFile.prototype.mergeFile.call(this, file, mxUtils.bind(this, function()
-		{
-			this.stat = file.stat;
-			
-			if (success != null)
-			{
-				success();
-			}
-		}), error);
+		return this.stat;
+	};
+
+	/**
+	* Updates the descriptor of this file with the one from the given file.
+	*/
+	LocalFile.prototype.setDescriptor = function(stat)
+	{
+		this.stat = stat;
 	};
 	
 	LocalFile.prototype.reloadFile = function(success)
@@ -640,12 +642,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 	LocalFile.prototype.isAutosave = function()
 	{
-		return this.ui.editor.autosave && this.fileObject != null;
+		return this.fileObject != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
 	};
 	
 	LocalFile.prototype.isAutosaveOptional = function()
 	{
-		return true;
+		return this.fileObject != null;
 	};
 	
 	LocalLibrary.prototype.isAutosave = function()
@@ -967,7 +969,13 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		editorUiUpdateActionStates.apply(this, arguments);
 
 		var file = this.getCurrentFile();
-		this.actions.get('synchronize').setEnabled(file != null && file.fileObject != null);
+		var syncEnabled = file != null && file.fileObject != null;
+		this.actions.get('synchronize').setEnabled(syncEnabled);
+		
+		if (this.syncButton != null)
+		{
+			this.syncButton.style.display = (syncEnabled) ? '' : 'none';
+		}
 	};
 	
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)

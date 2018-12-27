@@ -4864,7 +4864,8 @@ var FeedbackDialog = function(editorUi)
 	
 	var sendButton = mxUtils.button(mxResources.get('sendMessage'), function()
 	{
-		var diagram = ((cb.checked) ? '\nDiagram:\n' + editorUi.getFileData() : '') +
+		var diagram = textarea.value +
+			((cb.checked) ? '\nDiagram:\n' + mxUtils.getXml(editorUi.getXmlFileData()) : '') +
 			'\nBrowser:\n' + navigator.userAgent;
 		
 		if (diagram.length > FeedbackDialog.maxAttachmentSize)
@@ -4881,7 +4882,7 @@ var FeedbackDialog = function(editorUi)
 				mxUtils.post(postUrl, 'email=' + encodeURIComponent(email.value) +
 						'&version=' + encodeURIComponent(EditorUi.VERSION) +
 						'&url=' + encodeURIComponent(window.location.href) +
-						'&body=' + encodeURIComponent('Feedback:\n' + textarea.value + diagram),
+						'&body=' + encodeURIComponent('Feedback:\n' + diagram),
 					function(req)
 					{
 						editorUi.spinner.stop();

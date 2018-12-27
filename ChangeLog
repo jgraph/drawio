@@ -1,3 +1,14 @@
+27-DEC-2018: 10.0.9
+
+- Fixes sync for unsaved files in Desktop
+- Adds Google Slides to Embed menu
+- Ignores page names in checksum
+- Fixes handling of lost pages
+
+21-DEC-2018: 10.0.8
+
+- Ignores undefined page names in diffsync
+
 21-DEC-2018: 10.0.7
 
 - Fixes checksum handling in desktop

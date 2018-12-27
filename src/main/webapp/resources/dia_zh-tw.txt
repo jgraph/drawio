@@ -328,6 +328,7 @@ googleDocs=Google 文件
 googleDrive=Google 雲端硬碟
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=Google 協作平台
 gradient=漸層
 gradientColor=顏色

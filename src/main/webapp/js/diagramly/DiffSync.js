@@ -202,12 +202,6 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 		delete inserted[id];
 	}
 
-	// Always needs at least one page
-	if (newPages.length == 0)
-	{
-		newPages.push(this.createPage());
-	}
-	
 	return newPages;
 };
 
@@ -606,6 +600,9 @@ EditorUi.prototype.getPagesForNode = function(node)
  */
 EditorUi.prototype.diffPages = function(oldPages, newPages)
 {
+	var graph = this.editor.graph;
+	var inserted = [];
+	var removed = [];
 	var result = {};
 	var lookup = {};
 	var diff = {};
@@ -617,9 +614,6 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 		prev = newPages[i];
 	}
 
-	var removed = [];
-	var inserted = [];
-	var diff = {};
 	prev = null;
 	
 	for (var i = 0; i < oldPages.length; i++)
@@ -633,33 +627,36 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 		}
 		else
 		{
-			var pageDiff = {};
 			var temp = this.diffPage(oldPages[i], newPage.page);
+			var pageDiff = {};
 			
 			if (Object.keys(temp).length > 0)
 			{
-				pageDiff['cells'] = temp;
+				pageDiff.cells = temp;
 			}
 			
 			var view = this.diffViewState(oldPages[i], newPage.page);
 			
 			if (Object.keys(view).length > 0)
 			{
-				pageDiff['view'] = view;
+				pageDiff.view = view;
 			}
 			
 			if (((newPage.prev != null) ? prev == null : prev != null) ||
 				(prev != null && newPage.prev != null &&
 				prev.getId() != newPage.prev.getId()))
 			{
-				pageDiff['previous'] = (newPage.prev != null) ? newPage.prev.getId() : '';
+				pageDiff.previous = (newPage.prev != null) ? newPage.prev.getId() : '';
 				// LATER: If previous has vanished this could be used to add the intent
 				//pageDiff['index'] = newPage.index;
 			}
 			
-			if (oldPages[i].getName() != newPage.page.getName())
+			// FIXME: Check why names can be null in newer files
+			// ignore in hash and do not diff null names for now
+			if (newPage.page.getName() != null &&
+				oldPages[i].getName() != newPage.page.getName())
 			{
-				pageDiff['name'] = newPage.page.getName();
+				pageDiff.name = newPage.page.getName();
 			}
 			
 			if (Object.keys(pageDiff).length > 0)
@@ -672,8 +669,6 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 		prev = oldPages[i];
 	}
 	
-	var graph = this.editor.graph;
-	
 	for (var id in lookup)
 	{
 		var newPage = lookup[id];
@@ -681,7 +676,12 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 			previous: (newPage.prev != null) ?
 			newPage.prev.getId() : ''});
 	}
-
+	
+	if (Object.keys(diff).length > 0)
+	{
+		result[EditorUi.DIFF_UPDATE] = diff;
+	}
+	
 	if (removed.length > 0)
 	{
 		result[EditorUi.DIFF_REMOVE] = removed;
@@ -691,12 +691,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 	{
 		result[EditorUi.DIFF_INSERT] = inserted;
 	}
-	
-	if (Object.keys(diff).length > 0)
-	{
-		result[EditorUi.DIFF_UPDATE] = diff;
-	}
-	
+
 	return result;
 };
 
@@ -772,21 +767,26 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
  */
 EditorUi.prototype.diffPage = function(oldPage, newPage)
 {
+	var inserted = [];
+	var removed = [];
+	var result = {};
+
 	this.updatePageRoot(oldPage);
 	this.updatePageRoot(newPage);
 
-	var removed = [];
 	var lookup = this.createCellLookup(newPage.root, null, 0);
 	var diff = this.diffCellRecursive(oldPage.root, null, lookup, diff, removed);
-	var inserted = [];
 
 	for (var id in lookup)
 	{
 		var newCell = lookup[id];
 		inserted.push(this.getJsonForCell(newCell.cell, newCell.prev));
 	}
-	
-	var result = {};
+
+	if (Object.keys(diff).length > 0)
+	{
+		result[EditorUi.DIFF_UPDATE] = diff;
+	}
 	
 	if (removed.length > 0)
 	{
@@ -797,12 +797,7 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
 	{
 		result[EditorUi.DIFF_INSERT] = inserted;
 	}
-	
-	if (Object.keys(diff).length > 0)
-	{
-		result[EditorUi.DIFF_UPDATE] = diff;
-	}
-	
+
 	return result;
 };
 
@@ -813,14 +808,13 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 {
 	var source = oldPage.viewState;
 	var target = newPage.viewState;
+	var result = {};
 	
 	if (newPage == this.currentPage)
 	{
 		target = this.editor.graph.getViewState();
 	}
-	
-	var result = {};
-	
+
 	if (source != null && target != null)
 	{
 		for (var i = 0; i < this.viewStateWhitelist.length; i++)
@@ -828,11 +822,11 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 			var key = this.viewStateWhitelist[i];
 			
 			// LATER: Check if normalization is needed for
-			// attribute order to compare JSON output
+			// object attribute order to compare JSON
 			var old = JSON.stringify(source[key]);
 			var now = JSON.stringify(target[key]);
 			
-			if (now != old)
+			if (old != now)
 			{
 				result[key] = now;
 			}
@@ -883,50 +877,50 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 	{
 		result.edge = 1;
 	}
-	
+
+	if (!cell.connectable)
+	{
+		result.connectable = 0;
+	}
+
 	if (cell.parent != null)
 	{
-		result['parent'] = cell.parent.getId();
+		result.parent = cell.parent.getId();
 	}
 
 	if (previous != null)
 	{
-		result['previous'] = previous.getId();
+		result.previous = previous.getId();
 	}
 
 	if (cell.source != null)
 	{
-		result['source'] = cell.source.getId();
+		result.source = cell.source.getId();
 	}
 
 	if (cell.target != null)
 	{
-		result['target'] = cell.target.getId();
+		result.target = cell.target.getId();
 	}
 
 	if (cell.style != null)
 	{
-		result['style'] = cell.style;
+		result.style = cell.style;
 	}
 
 	if (cell.geometry != null)
 	{
-		result['geometry'] = mxUtils.getXml(this.codec.encode(cell.geometry));
-	}
-
-	if (!cell.connectable)
-	{
-		result['connectable'] = 0;
+		result.geometry = mxUtils.getXml(this.codec.encode(cell.geometry));
 	}
 
 	if (cell.collapsed)
 	{
-		result['collapsed'] = 1;
+		result.collapsed = 1;
 	}
 
 	if (!cell.visible)
 	{
-		result['visible'] = 0;
+		result.visible = 0;
 	}
 
 	if (cell.value != null)
@@ -934,11 +928,11 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 		if (typeof cell.value === 'object' && typeof cell.value.nodeType === 'number' &&
 			typeof cell.value.nodeName === 'string' && typeof cell.value.getAttribute === 'function')
 		{
-			result['xmlValue'] = mxUtils.getXml(cell.value);
+			result.xmlValue = mxUtils.getXml(cell.value);
 		}
 		else
 		{
-			result['value'] = cell.value;
+			result.value = cell.value;
 		}
 	}
 	
@@ -952,25 +946,40 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 {
 	var diff = {};
 
+	if (oldCell.vertex != newCell.vertex)
+	{
+		diff.vertex = (newCell.vertex) ? 1 : 0;
+	}
+	
+	if (oldCell.edge != newCell.edge)
+	{
+		diff.edge = (newCell.edge) ? 1 : 0;
+	}
+
+	if (oldCell.connectable != newCell.connectable)
+	{
+		diff.connectable = (newCell.connectable) ? 1 : 0;
+	}
+	
 	if (((oldCell.parent != null) ? newCell.parent == null : newCell.parent != null) ||
 		(oldCell.parent != null && newCell.parent != null &&
 		oldCell.parent.getId() != newCell.parent.getId()))
 	{
-		diff['parent'] = (newCell.parent != null) ? newCell.parent.getId() : '';
+		diff.parent = (newCell.parent != null) ? newCell.parent.getId() : '';
 	}
 	
 	if (((oldCell.source != null) ? newCell.source == null : newCell.source != null) ||
 		(oldCell.source != null && newCell.source != null &&
 		oldCell.source.getId() != newCell.source.getId()))
 	{
-		diff['source'] = (newCell.source != null) ? newCell.source.getId() : '';
+		diff.source = (newCell.source != null) ? newCell.source.getId() : '';
 	}
 	
 	if (((oldCell.target != null) ? newCell.target == null : newCell.target != null) ||
 		(oldCell.target != null && newCell.target != null &&
 		oldCell.target.getId() != newCell.target.getId()))
 	{
-		diff['target'] = (newCell.target != null) ? newCell.target.getId() : '';
+		diff.target = (newCell.target != null) ? newCell.target.getId() : '';
 	}
 	
 	function isNode(value)
@@ -983,56 +992,41 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	{
 		if (!oldCell.value.isEqualNode(newCell.value))
 		{
-			diff['xmlValue'] = mxUtils.getXml(newCell.value);
+			diff.xmlValue = mxUtils.getXml(newCell.value);
 		}
 	}
 	else if (oldCell.value != newCell.value)
 	{
 		if (isNode(newCell.value))
 		{
-			diff['xmlValue'] = mxUtils.getXml(newCell.value);
+			diff.xmlValue = mxUtils.getXml(newCell.value);
 		}
 		else
 		{
-			diff['value'] = (newCell.value != null) ? newCell.value : '';
+			diff.value = (newCell.value != null) ? newCell.value : '';
 		}
 	}
 	
 	if (oldCell.style != newCell.style)
 	{
 		// LATER: Split into keys and do fine-grained diff
-		diff['style'] = newCell.style;
+		diff.style = newCell.style;
 	}
 	
 	if (oldCell.visible != newCell.visible)
 	{
-		diff['visible'] = (newCell.visible) ? 1 : 0;
+		diff.visible = (newCell.visible) ? 1 : 0;
 	}
 	
 	if (oldCell.collapsed != newCell.collapsed)
 	{
-		diff['collapsed'] = (newCell.collapsed) ? 1 : 0;
+		diff.collapsed = (newCell.collapsed) ? 1 : 0;
 	}
 
-	if (oldCell.vertex != newCell.vertex)
-	{
-		diff['vertex'] = (newCell.vertex) ? 1 : 0;
-	}
-	
-	if (oldCell.edge != newCell.edge)
-	{
-		diff['edge'] = (newCell.edge) ? 1 : 0;
-	}
-
-	if (oldCell.connectable != newCell.connectable)
-	{
-		diff['connectable'] = (newCell.connectable) ? 1 : 0;
-	}
-	
 	// FIXME: Proto only needed because source.geometry has no constructor (wrong type?)
 	if (!this.isObjectEqual(oldCell.geometry, newCell.geometry, new mxGeometry()))
 	{
-		diff['geometry'] = mxUtils.getXml(this.codec.encode(newCell.geometry));
+		diff.geometry = mxUtils.getXml(this.codec.encode(newCell.geometry));
 	}
 	
 	return diff;

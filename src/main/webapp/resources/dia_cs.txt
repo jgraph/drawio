@@ -328,6 +328,7 @@ googleDocs=Google dokumenty
 googleDrive=Google Disk 
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=Google Stránky
 gradient=Barevný přechod
 gradientColor=Barva

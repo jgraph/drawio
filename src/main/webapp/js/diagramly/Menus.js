@@ -937,9 +937,28 @@
 				this.addMenuItems(menu, ['-', 'createSidebarEntry', 'showBoundingBox'], parent);
 
 				// For testing local XML export
+				mxResources.parse('testChecksum=Checksum');
+				
+				editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
+				{
+					if (editorUi.pages != null)
+					{
+						mxLog.show();
+						mxLog.debug(editorUi.pages.length + ' page(s) checksum=' +
+							editorUi.getHashValueForPages(editorUi.pages));
+					}
+					else
+					{
+						editorUi.alert('No pages');
+					}
+				}));
+					
+				this.addMenuItems(menu, ['-', 'testChecksum'], parent);
+				
+				// For testing local XML export
 				mxResources.parse('testXmlImageExport=XML Image Export');
 				
-				this.editorUi.actions.addAction('testXmlImageExport', mxUtils.bind(this, function()
+				editorUi.actions.addAction('testXmlImageExport', mxUtils.bind(this, function()
 				{
 					var bg = '#ffffff';
 					var scale = 1;
@@ -1077,8 +1096,9 @@
 			
 					input.click();
 				});
-
+				
 				mxResources.parse('testShowConsole=Show Console');
+				
 				this.editorUi.actions.addAction('testShowConsole', function()
 				{
 					if (!mxLog.isVisible())
@@ -1092,6 +1112,7 @@
 					
 					mxLog.window.div.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
 				});
+				
 				this.addMenuItems(menu, ['-', 'testShowConsole']);
 			}
 		})));
@@ -1314,6 +1335,11 @@
 		editorUi.actions.addAction('googleDocs...', function()
 		{
 			editorUi.openLink('http://docsaddon.draw.io');
+		});
+
+		editorUi.actions.addAction('googleSlides...', function()
+		{
+			editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-diagrams-for-slide/fpkolkefenbkgmffbllajompdnifgfdb');
 		});
 
 		editorUi.actions.addAction('googleSites...', function()
@@ -1949,7 +1975,7 @@
 
 			if (!editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['-', 'googleSites', 'googleDocs'], parent);
+				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', 'googleSites'], parent);
 			}
 		})));
 

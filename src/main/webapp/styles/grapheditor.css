@@ -131,6 +131,9 @@
 	background-image: linear-gradient(#f8f8f8 0px,#f1f1f1 100%);
 	color: #111;
 }
+.geBtn:active, .geStatus:active {
+	opacity: .7;
+}
 .geBtn:disabled {
 	opacity: .5;
 }
@@ -449,14 +452,12 @@ div.mxWindow .geButton {
 	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d5d5d5', Positive='true');
 	z-index: 2;
 }
-
 .geTransDialog {
 	position:absolute;
 	overflow:hidden;
 	padding:30px;
 	z-index: 2;
 }
-
 .geDialogClose {
 	position:absolute;
 	width:9px;

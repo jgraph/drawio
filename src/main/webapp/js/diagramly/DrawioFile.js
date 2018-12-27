@@ -209,16 +209,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		var shadow = (this.shadowPages != null) ? this.shadowPages :
 			this.ui.getPagesForNode(mxUtils.parseXml(
 			this.shadowData).documentElement);
-		
-		// Should never happen
-		if (shadow == null || shadow.length == 0)
-		{
-			this.sendErrorReport(
-				'Shadow is null or empty in mergeFile',
-				'Shadow: ' + (shadow != null) +
-				'\nShadowPages: ' + (this.shadowPages != null) +
-				'\nShadowData: ' + (this.shadowData != null));
-		}
+		this.checkShadow(shadow);
 	
 		// Loads new document as shadow document
 		this.shadowPages = this.ui.getPagesForNode(
@@ -236,8 +227,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		if (!this.ignorePatches(patches))
 		{
 			// Patching previous shadow to verify checksum
-			var patchedShadow = this.ui.patchPages(shadow, patches[0]);
-			var checksum = this.ui.getHashValueForPages(patchedShadow);
+			var patched = this.ui.patchPages(shadow, patches[0]);
+			var checksum = this.ui.getHashValueForPages(patched);
 			var current = this.ui.getHashValueForPages(this.shadowPages);
 			
 			if (urlParams['test'] == '1')
@@ -249,18 +240,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			
 			if (checksum != null && checksum != current)
 			{
-				var data = this.getAnonymizedXmlForPages(patchedShadow);
+				var data = this.compressReportData(this.getAnonymizedXmlForPages(patched));
 				
-				if (data != null && data.length > 10000)
-				{
-					data = this.ui.editor.graph.compress(data) + '\n';
-				}
-				
-				this.stats.checksumErrors++;
 				this.checksumError(error, patches,
 					'Checksum: ' + checksum +
 					'\nCurrent: ' + current +
-					'\nPatchedShadow:\n' + data);
+					'\nPatched:\n' + data);
 				
 				// Abnormal termination
 				return;
@@ -270,6 +255,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 				this.patch(patches,
 					(DrawioFile.LAST_WRITE_WINS) ?
 					this.backupPatch : null);
+				this.checkPages();
 			}
 		}
 
@@ -353,10 +339,58 @@ DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
 };
 
 /**
+ * Checks if the file is empty.
+ */
+DrawioFile.prototype.checkPages = function()
+{
+	if (this.ui.getCurrentFile() == this && (this.ui.pages == null ||
+		this.ui.pages.length == 0))
+	{
+		this.sendErrorReport(
+			'Pages is null or empty',
+			'ShadowPages: ' + (this.shadowPages != null) +
+			'\nShadowData: ' + (this.shadowData != null));
+	}
+};
+
+/**
+ * Checks if the given shadow is valid.
+ */
+DrawioFile.prototype.checkShadow = function(shadow)
+{
+	if (shadow == null || shadow.length == 0)
+	{
+		this.sendErrorReport(
+			'Shadow is null or empty',
+			'Shadow: ' + ((shadow != null) ? shadow.length : 0) +
+			'\nShadowPages: ' + ((this.shadowPages != null) ?
+				this.shadowPages.length : 0) +
+			'\nShadowData: ' + ((this.shadowData != null) ?
+				this.shadowData.length : 0));
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DrawioFile.prototype.compressReportData = function(data, max)
+{
+	max = (max != null) ? max : 10000;
+	
+	if (data != null && data.length > max)
+	{
+		data = this.ui.editor.graph.compress(data) + '\n';
+	}
+	
+	return data;
+};
+
+/**
  * Adds the listener for automatically saving the diagram for local changes.
  */
 DrawioFile.prototype.checksumError = function(error, patches, details)
 {
+	this.stats.checksumErrors++;
 	this.inConflictState = true;
 	this.invalidChecksum = true;
 	this.descriptorChanged();
@@ -381,25 +415,17 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 			}
 		}
 
-		var data = this.getAnonymizedXmlForPages(this.shadowPages);
-		
-		if (data != null && data.length > 10000)
-		{
-			data = this.ui.editor.graph.compress(data) + '\n';
-		}
-
-		var json = JSON.stringify(patches, null, 2);
-		
-		if (json != null && json.length > 10000)
-		{
-			json = this.ui.editor.graph.compress(json);
-		}
+		var data = this.compressReportData(
+			this.getAnonymizedXmlForPages(
+			this.shadowPages));
+		var json = this.compressReportData(
+			JSON.stringify(patches, null, 2));
 		
 		this.sendErrorReport(
 			'Checksum Error',
-			((details != null) ? (details + '\n\n') : '') +
-			'Data:\n' + data +
-			'\nPatches:\n' + json);
+			'Patches:\n' + json)
+			((details != null) ? (+ '\n' + details) : '') +
+			'\nData:\n' + data;
 	}
 	catch (e)
 	{
@@ -433,11 +459,6 @@ DrawioFile.prototype.sendErrorReport = function(title, details)
 		}
 		
 		var stack = new Error().stack;
-		
-		if (stack != null)
-		{
-			stack = stack.split('\n').slice(3).join('\n');
-		}
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
 			'\n\nBrowser=' + navigator.userAgent +
@@ -613,22 +634,27 @@ DrawioFile.prototype.patch = function(patches, resolver)
 			this.ui.pages = this.ui.patchPages(this.ui.pages,
 				patches[i], true, resolver, this.isModified());
 		}
+		
+		// Always needs at least one page
+		if (this.ui.pages.length == 0)
+		{
+			this.ui.pages.push(this.ui.createPage());
+		}
+
+		// Checks if current page was removed
+		if (mxUtils.indexOf(this.ui.pages, this.ui.currentPage) < 0)
+		{
+			this.ui.selectPage(this.ui.pages[0], true);
+		}
 	}
 	finally
 	{
 		graph.model.endUpdate();
-
-		// Checks if current page was removed
-		if (this.ui.pages != null && this.ui.pages.length > 0 &&
-			mxUtils.indexOf(this.ui.pages, this.ui.currentPage) < 0)
-		{
-			this.ui.selectPage(this.ui.pages[0], true);
-		}
 	
 		// Restores previous state
+		graph.container.style.visibility = '';
 		graph.cellRenderer.redraw = redraw;
 		this.changeListenerEnabled = prev;
-		graph.container.style.visibility = '';
 	
 		// Restores history state
 		undoMgr.history = history;
@@ -897,6 +923,9 @@ DrawioFile.prototype.open = function()
 		
 		// Updates shadow in case any page IDs have been updated
 		this.shadowData = mxUtils.getXml(this.ui.getXmlFileData());
+		this.stats.openTimestamp = new Date().toISOString();
+		this.stats.openShadowLength = (this.shadowData != null) ?
+			this.shadowData.length : 0;
 	}
 
 	this.installListeners();
@@ -1544,6 +1573,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
 	this.inConflictState = false;
 	this.invalidChecksum = false;
+	this.checkPages();
 	
 	if (this.sync == null)
 	{
