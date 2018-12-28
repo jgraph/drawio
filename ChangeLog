@@ -1,3 +1,7 @@
+28-DEC-2018: 10.0.10
+
+- Fixes for error logging
+
 27-DEC-2018: 10.0.9
 
 - Fixes sync for unsaved files in Desktop
