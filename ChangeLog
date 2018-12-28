@@ -1,3 +1,7 @@
+28-DEC-2018: 10.0.12
+
+- Fixes possible select of deleted page
+
 28-DEC-2018: 10.0.11
 
 - Adds parameter check for connect apps

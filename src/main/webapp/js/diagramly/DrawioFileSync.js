@@ -125,7 +125,7 @@ DrawioFileSync.prototype.maxCacheReadyRetries = 2;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.cacheReadyDelay = 500;
+DrawioFileSync.prototype.cacheReadyDelay = 600;
 
 /**
  * Specifies if notifications should be sent and received for changes.
