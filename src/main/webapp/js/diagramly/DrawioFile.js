@@ -360,26 +360,36 @@ DrawioFile.prototype.checkShadow = function(shadow)
 {
 	if (shadow == null || shadow.length == 0)
 	{
+		var data = (this.shadowData == null) ? 'null' :
+			this.compressReportData(
+			this.ui.anonymizeString(
+			this.shadowData),
+			null, 1000);
+		
 		this.sendErrorReport(
 			'Shadow is null or empty',
 			'Shadow: ' + ((shadow != null) ? shadow.length : 0) +
 			'\nShadowPages: ' + ((this.shadowPages != null) ?
 				this.shadowPages.length : 0) +
-			'\nShadowData: ' + ((this.shadowData != null) ?
-				this.shadowData.length : 0));
+			'\nShadowData: ' + data);
 	}
 };
 
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.compressReportData = function(data, max)
+DrawioFile.prototype.compressReportData = function(data, limit, max)
 {
-	max = (max != null) ? max : 10000;
-	
-	if (data != null && data.length > max)
+	limit = (limit != null) ? limit : 10000;
+
+	if (data != null && data.length > limit)
 	{
 		data = this.ui.editor.graph.compress(data) + '\n';
+	}
+	
+	if (max != null && data != null && data.length > max)
+	{
+		data = data.substring(0, max) + '[...]';
 	}
 	
 	return data;
@@ -423,9 +433,9 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 		
 		this.sendErrorReport(
 			'Checksum Error',
-			'Patches:\n' + json)
-			((details != null) ? (+ '\n' + details) : '') +
-			'\nData:\n' + data;
+			'Patches:\n' + json +
+			((details != null) ? ('\n\n' + details) : '') +
+			'\n\nData:\n' + data);
 	}
 	catch (e)
 	{
