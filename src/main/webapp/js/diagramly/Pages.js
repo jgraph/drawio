@@ -835,8 +835,9 @@ EditorUi.prototype.createPageName = function()
 EditorUi.prototype.removePage = function(page)
 {
 	var graph = this.editor.graph;
+	var tmp = mxUtils.indexOf(this.pages, page);
 	
-	if (graph.isEnabled())
+	if (graph.isEnabled() && tmp >= 0)
 	{
 		if (this.editor.graph.isEditing())
 		{
@@ -850,8 +851,6 @@ EditorUi.prototype.removePage = function(page)
 			
 			if (next == page && this.pages.length > 1)
 			{
-				var tmp = mxUtils.indexOf(this.pages, page);
-				
 				if (tmp == this.pages.length - 1)
 				{
 					tmp--;

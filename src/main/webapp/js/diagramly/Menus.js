@@ -1339,7 +1339,7 @@
 
 		editorUi.actions.addAction('googleSlides...', function()
 		{
-			editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-diagrams-for-slide/fpkolkefenbkgmffbllajompdnifgfdb');
+			editorUi.openLink('https://slidesaddon.draw.io');
 		});
 
 		editorUi.actions.addAction('googleSites...', function()
