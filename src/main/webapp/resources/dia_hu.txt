@@ -328,6 +328,7 @@ googleDocs=Google Dokumentumok
 googleDrive=Google Drive
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=Google Oldalak
 gradient=Gradiens
 gradientColor=Gradiens szín

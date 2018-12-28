@@ -328,6 +328,7 @@ googleDocs=googleDocs
 googleDrive=googleDrive
 googleGadget=googleGadget
 googlePlus=googlePlus
+googleSlides=googleSlides
 googleSites=googleSites
 gradient=gradient
 gradientColor=gradientColor

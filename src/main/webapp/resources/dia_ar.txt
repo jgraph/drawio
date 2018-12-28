@@ -328,6 +328,7 @@ googleDocs=‫وثائق Google‬
 googleDrive=Google Drive
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=‫مواقع Google‬
 gradient=‫التدرج‬
 gradientColor=‫اللون‬

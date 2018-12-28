@@ -4420,6 +4420,11 @@ App.prototype.descriptorChanged = function()
 	}
 	
 	this.updateUi();
+
+	if (this.format != null)
+	{
+		this.format.refresh();
+	}
 };
 
 /**

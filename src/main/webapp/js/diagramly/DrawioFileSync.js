@@ -72,7 +72,7 @@ DrawioFileSync = function(file)
  * be incremented if new messages are added or the format is changed.
  * This must be numeric to compare older vs newer protocol versions.
  */
-DrawioFileSync.PROTOCOL = 1;
+DrawioFileSync.PROTOCOL = 2;
 
 //Extends mxEventSource
 mxUtils.extend(DrawioFileSync, mxEventSource);
@@ -838,15 +838,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.shadowPages = (this.file.shadowPages != null) ?
 			this.file.shadowPages : this.ui.getPagesForNode(
 			mxUtils.parseXml(this.file.shadowData).documentElement)
-		
-		// Should never happen
-		if (this.file.shadowPages == null || this.file.shadowPages.length == 0)
-		{
-			this.file.sendErrorReport(
-				'Shadowpages is null or empty in merge',
-				'Shadow: ' + (this.file.shadowPages != null) +
-				'\nShadowData: ' + (this.file.shadowData != null));
-		}
+		this.file.checkShadow(this.file.shadowPages);
 		
 		// Creates a patch for backup if the checksum fails
 		this.file.backupPatch = (this.file.isModified()) ?
@@ -875,7 +867,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
-				this.file.stats.mergeChecksumErrors++;
 				this.file.checksumError(error, patches,
 					'Checksum: ' + checksum +
 					'\nCurrent: ' + current);
@@ -896,6 +887,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.inConflictState = false;
 		this.file.setCurrentEtag(etag);
 		this.file.backupPatch = null;
+		this.file.checkPages();
 		
 		if (success != null)
 		{

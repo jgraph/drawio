@@ -328,6 +328,7 @@ googleDocs=Google Docs
 googleDrive=Google Drive
 googleGadget=Google Gadget
 googlePlus=Google+
+googleSlides=Google Slides
 googleSites=Google Sites
 gradient=Verlauf
 gradientColor=Farbe
