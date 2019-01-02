@@ -371,47 +371,53 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 				{
 					window.clearTimeout(timeoutThread);
 		    	
-				    	if (acceptResponse)
-				    	{
-							var index = (binary) ? data.lastIndexOf(',') : -1;
-							var file = null;
-	
-							if (index > 0)
-							{
-								var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
-								
-								if (xml != null && xml.length > 0)
-								{
-									data = xml;
-								}
-								else
-								{
-									// Imports as PNG image
-									file = new LocalFile(this.ui, data, meta.name, true);
-								}
-							}
+			    	if (acceptResponse)
+			    	{
+						var index = (binary) ? data.lastIndexOf(',') : -1;
+						var file = null;
+
+						if (index > 0)
+						{
+							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
 							
-							if (file != null)
+							if (xml != null && xml.length > 0)
 							{
-								success(file);
-							}
-							else if (asLibrary)
-							{
-								success(new OneDriveLibrary(this.ui, data, meta));
+								data = xml;
 							}
 							else
 							{
-								success(new OneDriveFile(this.ui, data, meta));
+								// Imports as PNG image
+								file = new LocalFile(this.ui, data, meta.name, true);
 							}
-				    	}
-	    			}), mxUtils.bind(this, function(req)
+						}
+						// Checks for base64 encoded mxfile
+						else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
+						{
+							var temp = data.substring(22);
+							data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
+						}
+						
+						if (file != null)
+						{
+							success(file);
+						}
+						else if (asLibrary)
+						{
+							success(new OneDriveLibrary(this.ui, data, meta));
+						}
+						else
+						{
+							success(new OneDriveFile(this.ui, data, meta));
+						}
+			    	}
+    			}), mxUtils.bind(this, function(req)
 				{
 					window.clearTimeout(timeoutThread);
 			    	
-				    	if (acceptResponse)
-				    	{
-						error(this.parseRequestText(req));
-				    	}
+			    	if (acceptResponse)
+			    	{
+			    		error(this.parseRequestText(req));
+			    	}
 				}), binary || (meta.file != null && meta.file.mimeType != null &&
 					meta.file.mimeType.substring(0, 6) == 'image/'));
 			}

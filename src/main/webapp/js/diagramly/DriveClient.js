@@ -894,6 +894,12 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 					}
 				}
 			}
+			// Checks for base64 encoded mxfile
+			else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
+			{
+				var temp = data.substring(22);
+				data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
+			}
 			
 			success(new DriveFile(this.ui, data, resp));
 		}
