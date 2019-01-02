@@ -163,7 +163,8 @@ DrawioFileSync.prototype.start = function(resumed)
 					// Error listener must be installed before trying to create channel
 					this.pusherErrorListener = mxUtils.bind(this, function(err)
 					{
-						if (err.error.data.code === 4004)
+						if (err.error != null && err.error.data != null &&
+							err.error.data.code === 4004)
 						{
 							EditorUi.logError('Error: Pusher Limit', null, this.file.getId());
 						}
@@ -704,7 +705,15 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 		
 		var doCatchup = mxUtils.bind(this, function()
 		{
-			if (abort == null || !abort())
+			// Ignores patch if shadow has changed
+			if (current != this.file.getCurrentEtag())
+			{
+				if (success != null)
+				{
+					success();
+				}
+			}
+			else if (abort == null || !abort())
 			{
 				mxUtils.get(this.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
 					'&from=' + encodeURIComponent(current) + '&to=' + encodeURIComponent(etag) +
@@ -713,7 +722,15 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 				{
 					this.file.stats.bytesReceived += req.getText().length;	
 					
-					if (abort == null || !abort())
+					// Ignores patch if shadow has changed
+					if (current != this.file.getCurrentEtag())
+					{
+						if (success != null)
+						{
+							success();
+						}
+					}
+					else if (abort == null || !abort())
 					{
 						var checksum = null;
 						var temp = [];
@@ -859,7 +876,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			{
 				EditorUi.debug('Sync.merge', [this],
 					'from', this.file.getCurrentEtag(), 'to', etag,
-					'patches', patches, 'backup', this.file.backupPatch,
+					'backup', this.file.backupPatch,
+					'patches', patches,
 					'attempt', this.catchupRetryCount,
 					'checksum', checksum == current, checksum);
 			}
@@ -899,11 +917,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.inConflictState = true;
 		this.file.invalidChecksum = true;
 		
-		if (window.console != null && urlParams['test'] == '1')
-		{
-			console.log(e);
-		}
-
 		if (error != null)
 		{
 			error(e);
@@ -911,16 +924,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		
 		try
 		{
-			var user = this.file.getCurrentUser();
-			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
-	
-			EditorUi.sendReport('Error in merge ' + new Date().toISOString() + ':\n\n' +
-				'File=' + this.file.getId() + ' (' + this.file.getMode() + ')\n' +
-				'Client=' + this.clientId + '\n' +
-				'User=' + uid + '\n' +
-				'Size=' + this.file.getSize() + '\n' +
-				'Sync=' + DrawioFile.SYNC + '\n\n' +
-				'Stack:\n' + e.stack);
+			this.file.sendErrorReport('Error in merge', null, e);
 		}
 		catch (e2)
 		{
@@ -994,6 +998,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 	this.resetUpdateStatusThread();
 	this.catchupRetryCount = 0;
 	
+	console.log('fileSaved');
+	
 	if (this.isConnected() && !this.file.inConflictState && !this.redirectDialogShowing)
 	{
 		// Computes diff and checksum
@@ -1009,15 +1015,14 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 		var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
 		var etag = this.file.getDescriptorEtag(lastDesc);
 		var current = this.file.getCurrentEtag();
-
+		this.file.shadowPages = pages;
+		
 		mxUtils.post(this.cacheUrl, this.getIdParameters() +
 			'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
 			'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
 			((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : ''),
 			mxUtils.bind(this, function(req)
 		{
-			this.file.shadowPages = pages;
-			
 			if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			{
 				if (success != null)

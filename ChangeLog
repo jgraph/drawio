@@ -1,3 +1,19 @@
+02-JAN-2019: 10.0.16
+
+- Handles shadow change during catchup
+
+01-JAN-2019: 10.0.15
+
+- Fixes error logging
+
+01-JAN-2019: 10.0.14
+
+- Fixes possible timing issue
+
+29-DEC-2018: 10.0.13
+
+- Improved error handling for collaborative editing
+
 28-DEC-2018: 10.0.12
 
 - Fixes possible select of deleted page
