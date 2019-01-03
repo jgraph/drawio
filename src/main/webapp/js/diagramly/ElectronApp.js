@@ -693,6 +693,8 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			{
 				var doSave = mxUtils.bind(this, function(data, enc)
 				{
+					var savedData = this.data;
+					
 					// Makes sure no changes get lost while the file is saved
 					var prevModified = this.isModified;
 					var modified = this.isModified();
@@ -736,7 +738,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 										var lastDesc = this.stat;
 										this.stat = stat2;
 										
-										this.fileSaved(data, lastDesc, mxUtils.bind(this, function()
+										this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 										{
 											this.contentChanged();
 											

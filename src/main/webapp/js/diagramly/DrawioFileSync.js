@@ -864,6 +864,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 
 		if (!this.file.ignorePatches(patches))
 		{
+			this.file.stats.merges++;
+			
 			// Patches the shadow document
 			for (var i = 0; i < patches.length; i++)
 			{
@@ -997,8 +999,6 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 	this.lastModified = this.file.getLastModifiedDate();
 	this.resetUpdateStatusThread();
 	this.catchupRetryCount = 0;
-	
-	console.log('fileSaved');
 	
 	if (this.isConnected() && !this.file.inConflictState && !this.redirectDialogShowing)
 	{

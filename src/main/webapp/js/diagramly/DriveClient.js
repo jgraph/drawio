@@ -13,19 +13,9 @@ DriveClient = function(editorUi)
 	
 	// New mime type for XML files
 	this.xmlMimeType = 'application/vnd.jgraph.mxfile';
-
-	if (this.ui.editor.isChromelessView() && urlParams['rt'] != '1')
-	{
-		// Workaround for Google Drive requiring the user to click on the file in the
-		// drive UI when not using this scope (user other scope with rt=1 URL param)
-		this.appId = '850530949725';
-		this.clientId = '850530949725.apps.googleusercontent.com';
-		this.scopes = ['https://www.googleapis.com/auth/drive.readonly', 'openid'];
-		
-		// Only used for writing files which is disabled in viewer app
-		this.mimeType = 'all_types_supported';
-	}
-	else if (this.ui.isDriveDomain())
+	
+	// Reading files now possible with no initial click in drive
+	if (this.ui.isDriveDomain())
 	{
 		this.appId = '671128082532';
 		this.clientId = '671128082532.apps.googleusercontent.com';
@@ -388,7 +378,8 @@ DriveClient.prototype.executeRequest = function(req, success, error)
 						(resp.error.code == 403 && reason != 'rateLimitExceeded')))
 					{
 						// Shows an error if we're authenticated but the server still doesn't allow it
-						if (resp.error.code == 403 && this.user != null)
+						if ((resp.error.code == 403 && this.user != null) ||
+							(resp.error.code == 401 && this.user != null && reason == 'authError'))
 						{
 							if (error != null)
 							{

@@ -856,6 +856,11 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 		btns.style.marginTop = '16px';
 	}
 
+	this.init = function()
+	{
+		okBtn.focus();
+	};
+	
 	this.container = div;
 };
 
@@ -3287,7 +3292,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	mxEvent.addListener(nameInput, 'keypress', function(e)
 	{
-		if (e.keyCode == 13)
+		if (editorUi.dialog.container.firstChild == outer &&
+			e.keyCode == 13)
 		{
 			create();
 		}
@@ -4810,20 +4816,26 @@ var AboutDialog = function(editorUi)
 		img.style.height = '219px';
 		img.setAttribute('src', IMAGE_PATH + '/logo-flat.png');
 	}
-
+	
+	if (uiTheme == 'dark')
+	{
+		img.style.filter = 'grayscale(100%) invert(100%)';
+	}
+	
 	div.appendChild(img);
 	mxUtils.br(div);
 	
+	var clr = (uiTheme == 'dark') ? '#cccccc' : '#505050';
 	var v = document.createElement('small');
 	v.innerHTML = 'v ' + EditorUi.VERSION;
-	v.style.color = '#505050';
+	v.style.color = clr;
 	div.appendChild(v);
 	
 	mxUtils.br(div);
 	mxUtils.br(div);
 
 	var small = document.createElement('small');
-	small.style.color = '#505050';
+	small.style.color = clr;
 	small.innerHTML = '&copy; 2005-2018 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
 	div.appendChild(small);
 	

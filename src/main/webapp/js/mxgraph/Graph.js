@@ -3749,10 +3749,14 @@ HoverIcons.prototype.getState = function(state)
 	if (state != null)
 	{
 		var cell = state.cell;
-
-		// Uses connectable parent vertex if child is not connectable
-		if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
+		
+		if (!this.graph.getModel().contains(cell))
 		{
+			return null;
+		}
+		else if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
+		{
+			// Uses connectable parent vertex if child is not connectable
 			var parent = this.graph.getModel().getParent(cell);
 			
 			if (this.graph.getModel().isVertex(parent) && this.graph.isCellConnectable(parent))

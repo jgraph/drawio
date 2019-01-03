@@ -1971,6 +1971,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
  */
 var LayersWindow = function(editorUi, x, y, w, h)
 {
+	console.log('dialog.bg', Dialog.backdropColor);
 	var graph = editorUi.editor.graph;
 	
 	var div = document.createElement('div');
@@ -1984,7 +1985,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#dcdcdc' : '#e5e5e5';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#dcdcdc' : Dialog.backdropColor;
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -2223,7 +2224,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			ldiv.style.padding = '4px';
 			ldiv.style.height = '22px';
 			ldiv.style.display = 'block';
-			ldiv.style.backgroundColor = 'whiteSmoke';
+			ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
 			ldiv.style.borderWidth = '0px 0px 1px 0px';
 			ldiv.style.borderColor = '#c3c3c3';
 			ldiv.style.borderStyle = 'solid';
@@ -2436,7 +2437,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			if (graph.getDefaultParent() == child)
 			{
-				ldiv.style.background = '#e6eff8';
+				ldiv.style.background =  (Dialog.backdropColor == 'white') ? '#e6eff8' : '#505759';
 				ldiv.style.fontWeight = (graph.isEnabled()) ? 'bold' : '';
 				selectionLayer = child;
 			}
