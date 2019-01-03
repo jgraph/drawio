@@ -3591,7 +3591,7 @@
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		
-		this.showDialog(new ConfirmDialog(this, msg, function()
+		var dlg = new ConfirmDialog(this, msg, function()
 		{
 			resume();
 			
@@ -3607,7 +3607,9 @@
 			{
 				cancelFn();
 			}
-		}, okLabel, cancelLabel).container, 340, 90, true, false);	
+		}, okLabel, cancelLabel);
+		this.showDialog(dlg.container, 340, 90, true, false);
+		dlg.init();
 	};
 
 	/**
@@ -11310,7 +11312,7 @@
 		
 		// Updates undo history states
 		this.actions.get('undo').setEnabled(this.canUndo() && editable);
-		this.actions.get('redo').setEnabled(this.canUndo() && editable);
+		this.actions.get('redo').setEnabled(this.canRedo() && editable);
 	
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);

@@ -120,6 +120,7 @@ DrawioFile.prototype.reportEnabled = true;
  * Specifies if notify events should be ignored.
  */
 DrawioFile.prototype.stats = {
+	merges: 0, /* number of calls to merge */
 	joined: 0, /* number of join messages received */
 	reloads: 0, /* number of times the file was reloaded */
 	checksumErrors: 0, /* number of checksum errors */
@@ -413,7 +414,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 
 		var data = this.compressReportData(
 			this.getAnonymizedXmlForPages(
-			this.shadowPages));
+			this.shadowPages), 20000);
 		var json = this.compressReportData(
 			JSON.stringify(patches, null, 2));
 		
@@ -458,7 +459,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
 			'\n\nBrowser=' + navigator.userAgent +
-			'\nFile=' + this.getId() + ' (' + this.getMode() + ')' +
+			'\nFile=' + this.ui.hashValue(this.getId()) + ' (' + this.getMode() + ')' +
 			((this.sync != null) ? ('\nClient=' + this.sync.clientId) : '') +
 			'\nUser=' + uid +
 			'\nExt=' + ext +
@@ -919,9 +920,6 @@ DrawioFile.prototype.open = function()
 		
 		// Updates shadow in case any page IDs have been updated
 		this.shadowData = mxUtils.getXml(this.ui.getXmlFileData());
-		this.stats.openTimestamp = new Date().toISOString();
-		this.stats.openShadowLength = (this.shadowData != null) ?
-			this.shadowData.length : 0;
 	}
 
 	this.installListeners();
@@ -982,7 +980,9 @@ DrawioFile.prototype.loadPatchDescriptor = function(success, error)
  */
 DrawioFile.prototype.startSync = function()
 {
-	if (DrawioFile.SYNC == 'auto' && urlParams['stealth'] != '1')
+	if ((DrawioFile.SYNC == 'auto' && urlParams['stealth'] != '1') &&
+		(urlParams['rt'] == '1' || !this.ui.editor.chromeless ||
+		this.ui.editor.editable))
 	{
 		this.sync = new DrawioFileSync(this);
 		this.sync.start();
