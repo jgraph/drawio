@@ -120,14 +120,14 @@ DrawioFile.prototype.reportEnabled = true;
  * Specifies if notify events should be ignored.
  */
 DrawioFile.prototype.stats = {
-	merges: 0, /* number of calls to merge */
 	joined: 0, /* number of join messages received */
-	reloads: 0, /* number of times the file was reloaded */
+	merged: 0, /* number of calls to merge */
+	reload: 0, /* number of times the file was reloaded */
 	checksumErrors: 0, /* number of checksum errors */
 	bytesSent: 0, /* number of bytes send in messages */
 	bytesReceived: 0, /* number of bytes received in messages */
-	msgReceived: 0, /* number of messages received */
 	msgSent: 0, /* number of messages sent */
+	msgReceived: 0, /* number of messages received */
 	cacheHits: 0, /* number of times the cache returned patches */
 	cacheMiss: 0, /* number of times we have given up to read the cache */
 	conflicts: 0, /* number of write conflicts when saving a file */
@@ -308,14 +308,9 @@ DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
 				new mxGraphModel(pages[i].root)));
 			temp.setAttribute('id', pages[i].getId());
 			
-			if (pages[i].getName() != null)
-			{
-				temp.setAttribute('name', this.ui.anonymizeString(pages[i].getName()));
-			}
-
 			if (pages[i].viewState)
 			{
-				this.ui.editor.graph.saveViewState(pages[i].viewState, temp);
+				this.ui.editor.graph.saveViewState(pages[i].viewState, temp, true);
 			}
 			
 			file.appendChild(temp);
@@ -486,7 +481,7 @@ DrawioFile.prototype.reloadFile = function(success, error)
 		
 		var fn = mxUtils.bind(this, function()
 		{
-			this.stats.reloads++;
+			this.stats.reload++;
 			this.reportEnabled = false;
 			
 			// Restores view state and current page
@@ -1243,7 +1238,7 @@ DrawioFile.prototype.addConflictStatus = function(fn, message)
 	}
 	else
 	{
-		fn()
+		this.ui.alert(mxUtils.htmlEntities(mxResources.get('fileChangedSync')), fn);
 	}
 };
 
@@ -1264,24 +1259,34 @@ DrawioFile.prototype.setConflictStatus = function(message)
  */
 DrawioFile.prototype.showRefreshDialog = function(success, error)
 {
-	// Allows for escape key to be pressed while dialog is showing
-	this.addConflictStatus(mxUtils.bind(this, function()
+	if (this.ui.editor.isChromelessView() && !this.ui.editor.editable)
 	{
-		this.showRefreshDialog(success, error);
-	}));
-	
-	this.ui.showError(mxResources.get('error') + ' (' + mxResources.get('checksum') + ')',
-		mxResources.get('fileChangedSyncDialog'),
-		mxResources.get('makeCopy'), mxUtils.bind(this, function()
+		this.ui.alert(mxResources.get('fileChangedSync'), mxUtils.bind(this, function()
+		{
+			this.reloadFile(success, error);
+		}));
+	}
+	else
 	{
-		this.copyFile(success, error);
-	}), null, mxResources.get('synchronize'), mxUtils.bind(this, function()
-	{
-		this.reloadFile(success, error);
-	}), mxResources.get('cancel'), mxUtils.bind(this, function()
-	{
-		this.ui.hideDialog();
-	}), 360, 150);
+		// Allows for escape key to be pressed while dialog is showing
+		this.addConflictStatus(mxUtils.bind(this, function()
+		{
+			this.showRefreshDialog(success, error);
+		}));
+		
+		this.ui.showError(mxResources.get('error') + ' (' + mxResources.get('checksum') + ')',
+			mxResources.get('fileChangedSyncDialog'),
+			mxResources.get('makeCopy'), mxUtils.bind(this, function()
+		{
+			this.copyFile(success, error);
+		}), null, mxResources.get('synchronize'), mxUtils.bind(this, function()
+		{
+			this.reloadFile(success, error);
+		}), mxResources.get('cancel'), mxUtils.bind(this, function()
+		{
+			this.ui.hideDialog();
+		}), 360, 150);
+	}
 };
 
 /**

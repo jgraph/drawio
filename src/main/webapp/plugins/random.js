@@ -363,7 +363,7 @@ Draw.loadPlugin(function(ui)
 
 					if (ui.dialog != null)
 					{
-						console.log('swapChildren halted');
+						console.log('placeChildren halted');
 					}
 					else
 					{
@@ -371,12 +371,12 @@ Draw.loadPlugin(function(ui)
 						{
 							if (counter++ < max && ui.dialog == null)
 							{
-								console.log('swapChildren', counter);
+								console.log('placeChildren', counter);
 								schedule();
 							}
 							else
 							{
-								console.log('swapChildren halted');
+								console.log('placeChildren halted');
 							}
 						});
 					}

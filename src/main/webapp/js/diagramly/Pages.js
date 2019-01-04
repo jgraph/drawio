@@ -520,9 +520,11 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 		node.setAttribute('arrows', (vs == null || vs.arrows) ? '1' : '0');
 		node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
 			(vs != null && vs.pageVisible)) ? '1' : '0');
+		
+		// Ignores fold to avoid checksum errors for lightbox mode
+		node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
 	}
 
-	node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
 	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
 	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();

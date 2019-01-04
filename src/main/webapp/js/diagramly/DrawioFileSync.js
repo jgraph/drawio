@@ -522,7 +522,7 @@ DrawioFileSync.prototype.installListeners = function()
 					
 					if (msg != null)
 					{
-						EditorUi.debug('Sync.message', [this], msg);
+						EditorUi.debug('Sync.message', [this], msg, data.length, 'bytes');
 
 						// Handles protocol mismatch
 						if (msg.v > DrawioFileSync.PROTOCOL)
@@ -864,7 +864,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 
 		if (!this.file.ignorePatches(patches))
 		{
-			this.file.stats.merges++;
+			this.file.stats.merged++;
 			
 			// Patches the shadow document
 			for (var i = 0; i < patches.length; i++)
