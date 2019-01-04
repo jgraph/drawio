@@ -1274,6 +1274,8 @@ EditorUi.initMinimalTheme = function()
         previousParent.appendChild(wrapper);
         ui.updateTabContainer();
         
+        var langMenuElt = null;
+        
         function refreshMenu()
         {
         	// Removes all existing menu items
@@ -1359,22 +1361,26 @@ EditorUi.initMinimalTheme = function()
 			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
 				!EditorUi.isElectronApp && iw >= 540)
 			{
-				var elt = menuObj.addMenu('', langMenu.funct);
-				elt.setAttribute('title', mxResources.get('language'));
-				elt.className = 'geToolbarButton';
-				elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-	        	elt.style.backgroundPosition = 'center center';
-	        	elt.style.backgroundRepeat = 'no-repeat';
-	        	elt.style.backgroundSize = '24px 24px';
-				elt.style.position = 'absolute';
-	        	elt.style.height = '24px';
-	        	elt.style.width = '24px';
-				elt.style.zIndex = '1';
-				elt.style.top = '11px';
-				elt.style.right = '14px';
-				elt.style.cursor = 'pointer';
+				if (langMenuElt == null)
+				{
+					var elt = menuObj.addMenu('', langMenu.funct);
+					elt.setAttribute('title', mxResources.get('language'));
+					elt.className = 'geToolbarButton';
+					elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+		        	elt.style.backgroundPosition = 'center center';
+		        	elt.style.backgroundRepeat = 'no-repeat';
+		        	elt.style.backgroundSize = '24px 24px';
+					elt.style.position = 'absolute';
+		        	elt.style.height = '24px';
+		        	elt.style.width = '24px';
+					elt.style.zIndex = '1';
+					elt.style.top = '11px';
+					elt.style.right = '14px';
+					elt.style.cursor = 'pointer';
+					menubar.appendChild(elt);
+					langMenuElt = elt;
+				}
 				
-				menubar.appendChild(elt);
 				ui.buttonContainer.style.right = '40px';
 			}
 			else
