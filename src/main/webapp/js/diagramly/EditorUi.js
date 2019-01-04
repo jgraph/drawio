@@ -1022,14 +1022,14 @@
 							{
 								if (cellDiffs[cellId].value != null)
 								{
-									cellDiffs[cellId].value = this.anonymizeString(
-										cellDiffs[cellId].value);
+									cellDiffs[cellId].value =  '[' +
+										cellDiffs[cellId].value.length + ']';
 								}
 								
 								if (cellDiffs[cellId].style != null)
 								{
-									cellDiffs[cellId].style = this.anonymizeString(
-										cellDiffs[cellId].style);
+									cellDiffs[cellId].style = '[' +
+										cellDiffs[cellId].style.length + ']';
 								}
 								
 								if (cellDiffs[cellId].geometry != null)
@@ -1078,6 +1078,32 @@
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
+	EditorUi.prototype.anonymizeAttributes = function(node)
+	{
+		if (node.attributes != null)
+		{
+			for (var i = 0; i < node.attributes.length; i++)
+			{
+				if (node.attributes[i].name != 'as')
+				{
+					node.setAttribute(node.attributes[i].name,
+						this.anonymizeString(node.attributes[i].value));
+				}
+			}
+		}
+		
+		if (node.childNodes != null)
+		{
+			for (var i = 0; i < node.childNodes.length; i++)
+			{
+				this.anonymizeAttributes(node.childNodes[i]);
+			}
+		}
+	};
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
 	EditorUi.prototype.anonymizeNode = function(node)
 	{
 		var nodes = node.getElementsByTagName('mxCell');
@@ -1086,12 +1112,12 @@
 		{
 			if (nodes[i].getAttribute('value') != null)
 			{
-				nodes[i].setAttribute('value', this.anonymizeString(nodes[i].getAttribute('value')));
+				nodes[i].setAttribute('value', '[' + nodes[i].getAttribute('value').length + ']');
 			}
 			
 			if (nodes[i].getAttribute('style') != null)
 			{
-				nodes[i].setAttribute('style', this.anonymizeString(nodes[i].getAttribute('style')));
+				nodes[i].setAttribute('style', '[' + nodes[i].getAttribute('style').length + ']');
 			}
 			
 			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
@@ -1104,9 +1130,9 @@
 		
 		var geos = node.getElementsByTagName('mxGeometry');
 		
-		while (geos.length > 0)
+		for (var i = 0; i < geos.length; i++)
 		{
-			geos[0].parentNode.removeChild(geos[0]);
+			this.anonymizeAttributes(geos[i]);
 		}
 		
 		return node;
@@ -2344,12 +2370,18 @@
 	/**
 	 * Creates a hash value for the current file.
 	 */
-	EditorUi.prototype.getHashValueForPages = function(pages)
+	EditorUi.prototype.getHashValueForPages = function(pages, details)
 	{
 		// TODO: Avoid encoding to XML to make it faster
 		var hash = 0;
 		var model = new mxGraphModel();
 		var codec = new mxCodec();
+
+		if (details != null)
+		{
+			details.cellCount = 0;
+			details.nodeCount = 0;
+		}
 		
 		for (var i = 0; i < pages.length; i++)
 		{
@@ -2365,6 +2397,12 @@
 			var xmlNode = codec.encode(model);
 			this.editor.graph.saveViewState(pages[i].viewState, xmlNode, true);
 			diagram.appendChild(xmlNode);
+			
+			if (details != null)
+			{
+				details.nodeCount += diagram.getElementsByTagName('mxCell').length;
+				details.cellCount += model.getDescendants(model.root).length;
+			}
 			
 			hash = ((hash << 5) - hash + this.hashValue(diagram)) << 0;
 		}

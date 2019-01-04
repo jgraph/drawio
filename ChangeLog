@@ -1,3 +1,11 @@
+04-JAN-2019: 10.0.20
+
+- Adds debug output for checksum errors
+
+04-JAN-2019: 10.0.19
+
+- Adds debug output for checksum errors
+
 04-JAN-2019: 10.0.18
 
 - Fixes checksum errors in lightbox mode

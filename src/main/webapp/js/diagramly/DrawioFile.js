@@ -415,8 +415,8 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 		
 		this.sendErrorReport(
 			'Checksum Error',
-			'Patches:\n' + json +
-			((details != null) ? ('\n\n' + details) : '') +
+			((details != null) ? (details) : '') +
+			'\n\nPatches:\n' + json +
 			'\n\nData:\n' + data);
 	}
 	catch (e)
