@@ -733,6 +733,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 					else if (abort == null || !abort())
 					{
 						var checksum = null;
+						var details = [];
 						var temp = [];
 				
 						if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
@@ -759,6 +760,12 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 										{
 											checksum = value.d.checksum;
 											temp.push(value.d.patch);
+											
+											if (value.d.details != null)
+											{
+												value.d.details.checksum = checksum;
+												details.push(JSON.stringify(value.d.details));
+											}
 										}
 										else
 										{
@@ -784,7 +791,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 							if (temp.length > 0)
 							{
 								this.file.stats.cacheHits++;
-								this.merge(temp, checksum, etag, success, error);
+								this.merge(temp, checksum, etag, success, error, details);
 							}
 							// Retries if cache entry was not yet there
 							else if (cacheReadyRetryCount <= this.maxCacheReadyRetries &&
@@ -847,7 +854,7 @@ DrawioFileSync.prototype.reload = function(success, error, abort)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, error)
+DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, error, details)
 {
 	try
 	{
@@ -872,15 +879,18 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 				this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
 			}
 			
-			var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
+			var currentDetails = {};
+			var current = (checksum != null) ? this.ui.getHashValueForPages(
+				this.file.shadowPages, currentDetails) : null;
 			
 			if (urlParams['test'] == '1')
 			{
 				EditorUi.debug('Sync.merge', [this],
 					'from', this.file.getCurrentEtag(), 'to', etag,
 					'backup', this.file.backupPatch,
-					'patches', patches,
 					'attempt', this.catchupRetryCount,
+					'details', details,
+					'patches', patches,
 					'checksum', checksum == current, checksum);
 			}
 			
@@ -889,7 +899,11 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			{
 				this.file.checksumError(error, patches,
 					'Checksum: ' + checksum +
-					'\nCurrent: ' + current);
+					((details != null && details.length > 0) ? ('\nDetails: ' +
+						details.join(', ')) : '') +
+					'\nCurrent: ' + current +
+					((currentDetails != null) ? ('\nCurrent Details: ' +
+						JSON.stringify(currentDetails)) : ''));
 				
 				// Abnormal termination
 				return;
@@ -1006,11 +1020,12 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 		var shadow = (this.file.shadowPages != null) ?
 			this.file.shadowPages : this.ui.getPagesForNode(
 			mxUtils.parseXml(this.file.shadowData).documentElement)
-		var checksum = this.ui.getHashValueForPages(pages);
+		var details = {v: EditorUi.VERSION, t: new Date().toISOString(), ua: navigator.userAgent};
+		var checksum = this.ui.getHashValueForPages(pages, details);
 		var diff = this.ui.diffPages(shadow, pages);
 		
 		// Data is stored in cache and message is sent to all listeners
-		var data = this.objectToString(this.createMessage({patch: diff, checksum: checksum}));
+		var data = this.objectToString(this.createMessage({patch: diff, checksum: checksum, details: details}));
 		var msg = this.objectToString(this.createMessage({m: this.lastModified.getTime()}));
 		var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
 		var etag = this.file.getDescriptorEtag(lastDesc);
