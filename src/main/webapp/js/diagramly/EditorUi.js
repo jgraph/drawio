@@ -1022,7 +1022,7 @@
 							{
 								if (cellDiffs[cellId].value != null)
 								{
-									cellDiffs[cellId].value =  '[' +
+									cellDiffs[cellId].value = '[' +
 										cellDiffs[cellId].value.length + ']';
 								}
 								
@@ -1034,8 +1034,8 @@
 								
 								if (cellDiffs[cellId].geometry != null)
 								{
-									cellDiffs[cellId].geometry = this.anonymizeString(
-										cellDiffs[cellId].geometry);
+									cellDiffs[cellId].geometry = '[' +
+										cellDiffs[cellId].geometry.length + ']';
 								}
 								
 								if (Object.keys(cellDiffs[cellId]).length == 0)
@@ -2408,7 +2408,20 @@
 				details.cellCount += model.getDescendants(model.root).length;
 			}
 			
-			hash = ((hash << 5) - hash + this.hashValue(diagram, null, details)) << 0;
+			hash = ((hash << 5) - hash + this.hashValue(diagram, function(obj, key, value, isXml)
+			{
+				// Ignores JS machine rounding errors in known numeric attributes
+				// eg. 412.33333333333326 (Webkit/FF) == 412.33333333333325 (Edge/IE11)
+				if (isXml && (obj.nodeName == 'mxGeometry' || obj.nodeName == 'mxPoint') &&
+					(key == 'x' || key == 'y' || key == 'width' || key == 'height'))
+				{
+					return Math.round(value);
+				}
+				else
+				{
+					return value;
+				}
+			}, details)) << 0;
 		}
 		
 		return hash;
@@ -2428,7 +2441,7 @@
 		{
 			if (obj.nodeName != null)
 			{
-				hash = hash ^ this.hashValue(obj.nodeName, replacer);
+				hash = hash ^ this.hashValue(obj.nodeName, replacer, details);
 			}
 			
 			if (obj.attributes != null)
@@ -2441,7 +2454,7 @@
 				for (var i = 0; i < obj.attributes.length; i++)
 				{
 					var key = obj.attributes[i].name;
-					var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
+					var value = (replacer != null) ? replacer(obj, key, obj.attributes[i].value, true) : obj.attributes[i].value;
 	
 					if (value != null)
 					{
@@ -2472,7 +2485,7 @@
 			
 			for (var i = 0; i < str.length; i++)
 			{
-		    	temp  = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
+		    	temp = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
 			}
 		    
 			hash = hash ^ temp;
