@@ -1358,16 +1358,30 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		
 		var redirect = mxUtils.bind(this, function()
 		{
-			this.ui.spinner.spin(document.body, mxResources.get('loading'));
-			this.redirectDialogShowing = false;
-			
-			if (window.location.href == url)
+			var fn = mxUtils.bind(this, function()
 			{
-				window.location.reload();
+				this.redirectDialogShowing = false;
+				
+				if (window.location.href == url)
+				{
+					window.location.reload();
+				}
+				else
+				{
+					window.location.href = url;
+				}
+			});
+			
+			if (this.isModified())
+			{
+				this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
+				{
+					this.redirectDialogShowing = false;
+				}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
 			}
 			else
 			{
-				window.location.href = url;
+				fn();
 			}
 		});
 		
@@ -1574,25 +1588,47 @@ DrawioFile.prototype.fileChanged = function()
  */
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
-	this.inConflictState = false;
-	this.invalidChecksum = false;
-	this.checkPages();
-	
-	if (this.sync == null)
+	try
 	{
-		this.shadowData = savedData;
-		this.shadowPages = null;
+		this.inConflictState = false;
+		this.invalidChecksum = false;
+		this.checkPages();
 		
-		if (success != null)
+		if (this.sync == null)
 		{
-			success();
+			this.shadowData = savedData;
+			this.shadowPages = null;
+			
+			if (success != null)
+			{
+				success();
+			}
+		}
+		else
+		{
+			this.sync.fileSaved(this.ui.getPagesForNode(
+				mxUtils.parseXml(savedData).documentElement),
+				lastDesc, success, error);
 		}
 	}
-	else
+	catch (e)
 	{
-		this.sync.fileSaved(this.ui.getPagesForNode(
-			mxUtils.parseXml(savedData).documentElement),
-			lastDesc, success, error);
+		this.inConflictState = true;
+		this.invalidChecksum = true;
+		
+		if (error != null)
+		{
+			error(e);
+		}
+
+		try
+		{
+			this.sendErrorReport('Error in fileSaved', null, e);
+		}
+		catch (e2)
+		{
+			// ignore
+		}
 	}
 };
 
