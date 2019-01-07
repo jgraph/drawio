@@ -186,6 +186,16 @@
     <servlet-name>LogServlet</servlet-name>
     <url-pattern>/log</url-pattern>
   </servlet-mapping>
+    <servlet>
+    <description/>
+    <display-name>MSGraphAuthServlet</display-name>
+    <servlet-name>MSGraphAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.MSGraphAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MSGraphAuthServlet</servlet-name>
+    <url-pattern>/microsoft</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>

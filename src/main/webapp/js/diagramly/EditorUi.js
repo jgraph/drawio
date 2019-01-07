@@ -1022,20 +1022,20 @@
 							{
 								if (cellDiffs[cellId].value != null)
 								{
-									cellDiffs[cellId].value = this.anonymizeString(
-										cellDiffs[cellId].value);
+									cellDiffs[cellId].value = '[' +
+										cellDiffs[cellId].value.length + ']';
 								}
 								
 								if (cellDiffs[cellId].style != null)
 								{
-									cellDiffs[cellId].style = this.anonymizeString(
-										cellDiffs[cellId].style);
+									cellDiffs[cellId].style = '[' +
+										cellDiffs[cellId].style.length + ']';
 								}
 								
 								if (cellDiffs[cellId].geometry != null)
 								{
-									cellDiffs[cellId].geometry = this.anonymizeString(
-										cellDiffs[cellId].geometry);
+									cellDiffs[cellId].geometry = '[' +
+										cellDiffs[cellId].geometry.length + ']';
 								}
 								
 								if (Object.keys(cellDiffs[cellId]).length == 0)
@@ -1078,6 +1078,32 @@
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
+	EditorUi.prototype.anonymizeAttributes = function(node)
+	{
+		if (node.attributes != null)
+		{
+			for (var i = 0; i < node.attributes.length; i++)
+			{
+				if (node.attributes[i].name != 'as')
+				{
+					node.setAttribute(node.attributes[i].name,
+						this.anonymizeString(node.attributes[i].value));
+				}
+			}
+		}
+		
+		if (node.childNodes != null)
+		{
+			for (var i = 0; i < node.childNodes.length; i++)
+			{
+				this.anonymizeAttributes(node.childNodes[i]);
+			}
+		}
+	};
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
 	EditorUi.prototype.anonymizeNode = function(node)
 	{
 		var nodes = node.getElementsByTagName('mxCell');
@@ -1086,12 +1112,12 @@
 		{
 			if (nodes[i].getAttribute('value') != null)
 			{
-				nodes[i].setAttribute('value', this.anonymizeString(nodes[i].getAttribute('value')));
+				nodes[i].setAttribute('value', '[' + nodes[i].getAttribute('value').length + ']');
 			}
 			
 			if (nodes[i].getAttribute('style') != null)
 			{
-				nodes[i].setAttribute('style', this.anonymizeString(nodes[i].getAttribute('style')));
+				nodes[i].setAttribute('style', '[' + nodes[i].getAttribute('style').length + ']');
 			}
 			
 			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
@@ -1104,9 +1130,9 @@
 		
 		var geos = node.getElementsByTagName('mxGeometry');
 		
-		while (geos.length > 0)
+		for (var i = 0; i < geos.length; i++)
 		{
-			geos[0].parentNode.removeChild(geos[0]);
+			this.anonymizeAttributes(geos[i]);
 		}
 		
 		return node;
@@ -2344,12 +2370,21 @@
 	/**
 	 * Creates a hash value for the current file.
 	 */
-	EditorUi.prototype.getHashValueForPages = function(pages)
+	EditorUi.prototype.getHashValueForPages = function(pages, details)
 	{
 		// TODO: Avoid encoding to XML to make it faster
 		var hash = 0;
 		var model = new mxGraphModel();
 		var codec = new mxCodec();
+
+		if (details != null)
+		{
+			details.byteCount = 0;
+			details.attrCount = 0;
+			details.eltCount = 0;
+			details.nodeCount = 0;
+			details.cellCount = 0;
+		}
 		
 		for (var i = 0; i < pages.length; i++)
 		{
@@ -2366,7 +2401,27 @@
 			this.editor.graph.saveViewState(pages[i].viewState, xmlNode, true);
 			diagram.appendChild(xmlNode);
 			
-			hash = ((hash << 5) - hash + this.hashValue(diagram)) << 0;
+			if (details != null)
+			{
+				details.eltCount += diagram.getElementsByTagName('*').length;
+				details.nodeCount += diagram.getElementsByTagName('mxCell').length;
+				details.cellCount += model.getDescendants(model.root).length;
+			}
+			
+			hash = ((hash << 5) - hash + this.hashValue(diagram, function(obj, key, value, isXml)
+			{
+				// Ignores JS machine rounding errors in known numeric attributes
+				// eg. 412.33333333333326 (Webkit/FF) == 412.33333333333325 (Edge/IE11)
+				if (isXml && (obj.nodeName == 'mxGeometry' || obj.nodeName == 'mxPoint') &&
+					(key == 'x' || key == 'y' || key == 'width' || key == 'height'))
+				{
+					return Math.round(value);
+				}
+				else
+				{
+					return value;
+				}
+			}, details)) << 0;
 		}
 		
 		return hash;
@@ -2376,7 +2431,7 @@
 	 * Creates a hash value for the given object. Replacer returns the value of the
 	 * property or attribute for the given object or XML node.
 	 */
-	EditorUi.prototype.hashValue = function(obj, replacer)
+	EditorUi.prototype.hashValue = function(obj, replacer, details)
 	{
 		var hash = 0;
 		
@@ -2386,20 +2441,25 @@
 		{
 			if (obj.nodeName != null)
 			{
-				hash = hash ^ this.hashValue(obj.nodeName, replacer);
+				hash = hash ^ this.hashValue(obj.nodeName, replacer, details);
 			}
 			
 			if (obj.attributes != null)
 			{
+				if (details != null)
+				{
+					details.attrCount += obj.attributes.length;
+				}
+				
 				for (var i = 0; i < obj.attributes.length; i++)
 				{
 					var key = obj.attributes[i].name;
-					var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
+					var value = (replacer != null) ? replacer(obj, key, obj.attributes[i].value, true) : obj.attributes[i].value;
 	
 					if (value != null)
 					{
-						hash = hash ^ (this.hashValue(key, replacer) +
-							this.hashValue(value, replacer));
+						hash = hash ^ (this.hashValue(key, replacer, details) +
+							this.hashValue(value, replacer, details));
 					}
 				}
 			}
@@ -2408,7 +2468,8 @@
 			{
 				for (var i = 0; i < obj.childNodes.length; i++)
 				{
-					hash = ((hash << 5) - hash + this.hashValue(obj.childNodes[i], replacer)) << 0;
+					hash = ((hash << 5) - hash + this.hashValue(
+						obj.childNodes[i], replacer, details)) << 0;
 				}
 			}
 		}
@@ -2416,10 +2477,15 @@
 		{
 			var str = String(obj);
 			var temp = 0;
+
+			if (details != null)
+			{
+				details.byteCount += str.length;
+			}
 			
 			for (var i = 0; i < str.length; i++)
 			{
-		    	temp  = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
+		    	temp = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
 			}
 		    
 			hash = hash ^ temp;
@@ -3591,7 +3657,7 @@
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		
-		this.showDialog(new ConfirmDialog(this, msg, function()
+		var dlg = new ConfirmDialog(this, msg, function()
 		{
 			resume();
 			
@@ -3607,7 +3673,9 @@
 			{
 				cancelFn();
 			}
-		}, okLabel, cancelLabel).container, 340, 90, true, false);	
+		}, okLabel, cancelLabel);
+		this.showDialog(dlg.container, 340, 90, true, false);
+		dlg.init();
 	};
 
 	/**
@@ -11310,7 +11378,7 @@
 		
 		// Updates undo history states
 		this.actions.get('undo').setEnabled(this.canUndo() && editable);
-		this.actions.get('redo').setEnabled(this.canUndo() && editable);
+		this.actions.get('redo').setEnabled(this.canRedo() && editable);
 	
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);

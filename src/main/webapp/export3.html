@@ -249,7 +249,7 @@
 					graph.getPageSize = function()
 					{
 						return new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
-								this.pageFormat.height * this.pageScale);
+							this.pageFormat.height * this.pageScale);
 					};
 					
 					graph.getPageLayout = function()
@@ -285,9 +285,9 @@
 						var page = this.graph.getPageSize();
 						
 						return new mxRectangle(this.scale * (this.translate.x + layout.x * page.width),
-								this.scale * (this.translate.y + layout.y * page.height),
-								this.scale * layout.width * page.width,
-								this.scale * layout.height * page.height);
+							this.scale * (this.translate.y + layout.y * page.height),
+							this.scale * layout.width * page.width,
+							this.scale * layout.height * page.height);
 					};
 				}
 	
@@ -300,13 +300,14 @@
 					{
 						var s = Math.min(data.w / b.width, data.h / b.height);
 						graph.view.scaleAndTranslate(s,
-							Math.floor(data.border / s - b.x),
-							Math.floor(data.border / s - b.y));
+							Math.floor(data.border / s - Math.floor(b.x)),
+							Math.floor(data.border / s - Math.floor(b.y)));
 					}
 					else
 					{
-						graph.view.scaleAndTranslate(data.scale, Math.floor(data.border - b.x),
-							Math.floor(data.border - b.y));
+						graph.view.scaleAndTranslate(data.scale,
+							Math.floor(data.border - Math.floor(b.x)),
+							Math.floor(data.border - Math.floor(b.y)));
 					}
 				}
 				else
@@ -354,7 +355,8 @@
 					x0 -= layout.x * pf.width;
 					y0 -= layout.y * pf.height;
 					
-					if (preview == null) {
+					if (preview == null)
+					{
 						preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 						preview.printBackgroundImage = true;
 						preview.autoOrigin = autoOrigin;

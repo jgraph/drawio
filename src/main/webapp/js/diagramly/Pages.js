@@ -520,9 +520,11 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 		node.setAttribute('arrows', (vs == null || vs.arrows) ? '1' : '0');
 		node.setAttribute('page', ((vs == null && this.defaultPageVisible ) ||
 			(vs != null && vs.pageVisible)) ? '1' : '0');
+		
+		// Ignores fold to avoid checksum errors for lightbox mode
+		node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
 	}
 
-	node.setAttribute('fold', (vs == null || vs.foldingEnabled) ? '1' : '0');
 	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
 	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
@@ -835,8 +837,9 @@ EditorUi.prototype.createPageName = function()
 EditorUi.prototype.removePage = function(page)
 {
 	var graph = this.editor.graph;
+	var tmp = mxUtils.indexOf(this.pages, page);
 	
-	if (graph.isEnabled())
+	if (graph.isEnabled() && tmp >= 0)
 	{
 		if (this.editor.graph.isEditing())
 		{
@@ -850,8 +853,6 @@ EditorUi.prototype.removePage = function(page)
 			
 			if (next == page && this.pages.length > 1)
 			{
-				var tmp = mxUtils.indexOf(this.pages, page);
-				
 				if (tmp == this.pages.length - 1)
 				{
 					tmp--;

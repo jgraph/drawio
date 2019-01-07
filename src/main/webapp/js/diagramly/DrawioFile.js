@@ -121,13 +121,13 @@ DrawioFile.prototype.reportEnabled = true;
  */
 DrawioFile.prototype.stats = {
 	joined: 0, /* number of join messages received */
-	reloads: 0, /* number of times the files was reloaded */
-	checksumErrors: 0, /* number of checksum errors in mergeFile */
-	mergeChecksumErrors: 0, /* number of checksum errors in merge */
+	merged: 0, /* number of calls to merge */
+	reload: 0, /* number of times the file was reloaded */
+	checksumErrors: 0, /* number of checksum errors */
 	bytesSent: 0, /* number of bytes send in messages */
 	bytesReceived: 0, /* number of bytes received in messages */
-	msgReceived: 0, /* number of messages received */
 	msgSent: 0, /* number of messages sent */
+	msgReceived: 0, /* number of messages received */
 	cacheHits: 0, /* number of times the cache returned patches */
 	cacheMiss: 0, /* number of times we have given up to read the cache */
 	conflicts: 0, /* number of write conflicts when saving a file */
@@ -234,7 +234,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			if (urlParams['test'] == '1')
 			{
 				EditorUi.debug('File.mergeFile', [this],
-					'patches', patches, 'backup', this.backupPatch,
+					'backup', this.backupPatch,
+					'patches', patches,
 					'checksum', current == checksum, checksum);
 			}
 			
@@ -275,11 +276,6 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		this.inConflictState = true;
 		this.invalidChecksum = true;
 		
-		if (window.console != null && urlParams['test'] == '1')
-		{
-			console.log(e);
-		}
-
 		if (error != null)
 		{
 			error(e);
@@ -287,16 +283,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 
 		try
 		{
-			var user = this.getCurrentUser();
-			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
-	
-			EditorUi.sendReport('Error in mergeFile ' + new Date().toISOString() + ':\n\n' +
-				'File=' + this.getId() + ' (' + this.getMode() + ')\n' +
-				((this.sync != null) ? ('Client=' + this.sync.clientId + '\n') : '') +
-				'User=' + uid + '\n' +
-				'Size=' + this.getSize() + '\n' +
-				'Sync=' + DrawioFile.SYNC + '\n\n' +
-				'Stack:\n' + e.stack);
+			this.sendErrorReport('Error in mergeFile', null, e);
 		}
 		catch (e2)
 		{
@@ -321,14 +308,9 @@ DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
 				new mxGraphModel(pages[i].root)));
 			temp.setAttribute('id', pages[i].getId());
 			
-			if (pages[i].getName() != null)
-			{
-				temp.setAttribute('name', this.ui.anonymizeString(pages[i].getName()));
-			}
-
 			if (pages[i].viewState)
 			{
-				this.ui.editor.graph.saveViewState(pages[i].viewState, temp);
+				this.ui.editor.graph.saveViewState(pages[i].viewState, temp, true);
 			}
 			
 			file.appendChild(temp);
@@ -368,9 +350,9 @@ DrawioFile.prototype.checkShadow = function(shadow)
 		
 		this.sendErrorReport(
 			'Shadow is null or empty',
-			'Shadow: ' + ((shadow != null) ? shadow.length : 0) +
+			'Shadow: ' + ((shadow != null) ? shadow.length : 'null') +
 			'\nShadowPages: ' + ((this.shadowPages != null) ?
-				this.shadowPages.length : 0) +
+				this.shadowPages.length : 'null') +
 			'\nShadowData: ' + data);
 	}
 };
@@ -427,14 +409,14 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 
 		var data = this.compressReportData(
 			this.getAnonymizedXmlForPages(
-			this.shadowPages));
+			this.shadowPages), 20000);
 		var json = this.compressReportData(
 			JSON.stringify(patches, null, 2));
 		
 		this.sendErrorReport(
 			'Checksum Error',
-			'Patches:\n' + json +
-			((details != null) ? ('\n\n' + details) : '') +
+			((details != null) ? (details) : '') +
+			'\n\nPatches:\n' + json +
 			'\n\nData:\n' + data);
 	}
 	catch (e)
@@ -446,7 +428,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.sendErrorReport = function(title, details)
+DrawioFile.prototype.sendErrorReport = function(title, details, error)
 {
 	try
 	{
@@ -468,18 +450,18 @@ DrawioFile.prototype.sendErrorReport = function(title, details)
 			ext = filename.substring(dot);
 		}
 		
-		var stack = new Error().stack;
+		var stack = (error != null) ? error.stack : new Error().stack;
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
 			'\n\nBrowser=' + navigator.userAgent +
-			'\nFile=' + this.getId() + ' (' + this.getMode() + ')' +
+			'\nFile=' + this.ui.hashValue(this.getId()) + ' (' + this.getMode() + ')' +
 			((this.sync != null) ? ('\nClient=' + this.sync.clientId) : '') +
 			'\nUser=' + uid +
 			'\nExt=' + ext +
 			'\nSize=' + this.getSize() +
 			'\nSync=' + DrawioFile.SYNC +
 			'\n\nStats:\n' + JSON.stringify(this.stats, null, 2) +
-			((details != null) ? ('\n\n' + details) : '') + 
+			((details != null) ? ('\n\n' + details) : '') +
 			'\n\nStack:\n' + stack);
 	}
 	catch (e)
@@ -499,7 +481,7 @@ DrawioFile.prototype.reloadFile = function(success, error)
 		
 		var fn = mxUtils.bind(this, function()
 		{
-			this.stats.reloads++;
+			this.stats.reload++;
 			this.reportEnabled = false;
 			
 			// Restores view state and current page
@@ -933,9 +915,6 @@ DrawioFile.prototype.open = function()
 		
 		// Updates shadow in case any page IDs have been updated
 		this.shadowData = mxUtils.getXml(this.ui.getXmlFileData());
-		this.stats.openTimestamp = new Date().toISOString();
-		this.stats.openShadowLength = (this.shadowData != null) ?
-			this.shadowData.length : 0;
 	}
 
 	this.installListeners();
@@ -996,7 +975,9 @@ DrawioFile.prototype.loadPatchDescriptor = function(success, error)
  */
 DrawioFile.prototype.startSync = function()
 {
-	if (DrawioFile.SYNC == 'auto' && urlParams['stealth'] != '1')
+	if ((DrawioFile.SYNC == 'auto' && urlParams['stealth'] != '1') &&
+		(urlParams['rt'] == '1' || !this.ui.editor.chromeless ||
+		this.ui.editor.editable))
 	{
 		this.sync = new DrawioFileSync(this);
 		this.sync.start();
@@ -1141,15 +1122,16 @@ DrawioFile.prototype.installListeners = function()
  * Returns the location as a new object.
  * @type mx.Point
  */
-DrawioFile.prototype.addAllSavedStatus = function()
+DrawioFile.prototype.addAllSavedStatus = function(status)
 {
 	if (this.ui.statusContainer != null)
 	{
+		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
+		
 		if (this.constructor == DriveFile || this.constructor == DropboxFile)
 		{
 			this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
-				'" style="text-decoration:underline;cursor:pointer;">' +
-				mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey)) + '</div>');
+				'" style="text-decoration:underline;cursor:pointer;">' + status + '</div>');
 			var links = this.ui.statusContainer.getElementsByTagName('div');
 			
 			if (links.length > 0)
@@ -1162,7 +1144,7 @@ DrawioFile.prototype.addAllSavedStatus = function()
 		}
 		else
 		{
-			this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey)));
+			this.ui.editor.setStatus(status);
 		}
 	}
 };
@@ -1256,7 +1238,7 @@ DrawioFile.prototype.addConflictStatus = function(fn, message)
 	}
 	else
 	{
-		fn()
+		this.ui.alert(mxUtils.htmlEntities(mxResources.get('fileChangedSync')), fn);
 	}
 };
 
@@ -1277,24 +1259,34 @@ DrawioFile.prototype.setConflictStatus = function(message)
  */
 DrawioFile.prototype.showRefreshDialog = function(success, error)
 {
-	// Allows for escape key to be pressed while dialog is showing
-	this.addConflictStatus(mxUtils.bind(this, function()
+	if (this.ui.editor.isChromelessView() && !this.ui.editor.editable)
 	{
-		this.showRefreshDialog(success, error);
-	}));
-	
-	this.ui.showError(mxResources.get('error') + ' (' + mxResources.get('checksum') + ')',
-		mxResources.get('fileChangedSyncDialog'),
-		mxResources.get('makeCopy'), mxUtils.bind(this, function()
+		this.ui.alert(mxResources.get('fileChangedSync'), mxUtils.bind(this, function()
+		{
+			this.reloadFile(success, error);
+		}));
+	}
+	else
 	{
-		this.copyFile(success, error);
-	}), null, mxResources.get('synchronize'), mxUtils.bind(this, function()
-	{
-		this.reloadFile(success, error);
-	}), mxResources.get('cancel'), mxUtils.bind(this, function()
-	{
-		this.ui.hideDialog();
-	}), 360, 150);
+		// Allows for escape key to be pressed while dialog is showing
+		this.addConflictStatus(mxUtils.bind(this, function()
+		{
+			this.showRefreshDialog(success, error);
+		}));
+		
+		this.ui.showError(mxResources.get('error') + ' (' + mxResources.get('checksum') + ')',
+			mxResources.get('fileChangedSyncDialog'),
+			mxResources.get('makeCopy'), mxUtils.bind(this, function()
+		{
+			this.copyFile(success, error);
+		}), null, mxResources.get('synchronize'), mxUtils.bind(this, function()
+		{
+			this.reloadFile(success, error);
+		}), mxResources.get('cancel'), mxUtils.bind(this, function()
+		{
+			this.ui.hideDialog();
+		}), 360, 150);
+	}
 };
 
 /**
@@ -1366,16 +1358,30 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		
 		var redirect = mxUtils.bind(this, function()
 		{
-			this.ui.spinner.spin(document.body, mxResources.get('loading'));
-			this.redirectDialogShowing = false;
-			
-			if (window.location.href == url)
+			var fn = mxUtils.bind(this, function()
 			{
-				window.location.reload();
+				this.redirectDialogShowing = false;
+				
+				if (window.location.href == url)
+				{
+					window.location.reload();
+				}
+				else
+				{
+					window.location.href = url;
+				}
+			});
+			
+			if (this.isModified())
+			{
+				this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
+				{
+					this.redirectDialogShowing = false;
+				}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
 			}
 			else
 			{
-				window.location.href = url;
+				fn();
 			}
 		});
 		
@@ -1411,19 +1417,20 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 		{
 			this.fileChanged();
 		}
-		else if (this.sync != null)
-		{
-			this.sync.updateStatus();
-			
-			if (this.sync.remoteFileChanged)
-			{
-				this.sync.remoteFileChanged = false;
-				this.sync.fileChangedNotify();
-			}
-		}
 		else if (saved)
 		{
 			this.addAllSavedStatus();
+
+			if (this.sync != null)
+			{
+				this.sync.resetUpdateStatusThread();
+				
+				if (this.sync.remoteFileChanged)
+				{
+					this.sync.remoteFileChanged = false;
+					this.sync.fileChangedNotify();
+				}
+			}
 		}
 		else
 		{
@@ -1555,7 +1562,7 @@ DrawioFile.prototype.fileChanged = function()
 	
 	if (this.isAutosave())
 	{
-		this.ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 		
 		this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
 		{
@@ -1581,25 +1588,47 @@ DrawioFile.prototype.fileChanged = function()
  */
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
-	this.inConflictState = false;
-	this.invalidChecksum = false;
-	this.checkPages();
-	
-	if (this.sync == null)
+	try
 	{
-		this.shadowData = savedData;
-		this.shadowPages = null;
+		this.inConflictState = false;
+		this.invalidChecksum = false;
+		this.checkPages();
 		
-		if (success != null)
+		if (this.sync == null)
 		{
-			success();
+			this.shadowData = savedData;
+			this.shadowPages = null;
+			
+			if (success != null)
+			{
+				success();
+			}
+		}
+		else
+		{
+			this.sync.fileSaved(this.ui.getPagesForNode(
+				mxUtils.parseXml(savedData).documentElement),
+				lastDesc, success, error);
 		}
 	}
-	else
+	catch (e)
 	{
-		this.sync.fileSaved(this.ui.getPagesForNode(
-			mxUtils.parseXml(savedData).documentElement),
-			lastDesc, success, error);
+		this.inConflictState = true;
+		this.invalidChecksum = true;
+		
+		if (error != null)
+		{
+			error(e);
+		}
+
+		try
+		{
+			this.sendErrorReport('Error in fileSaved', null, e);
+		}
+		catch (e2)
+		{
+			// ignore
+		}
 	}
 };
 

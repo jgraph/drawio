@@ -400,7 +400,12 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibra
 	
 	if (data.encoding === 'base64')
 	{
-		if (/\.jpe?g$/i.test(data.name))
+		// Checks for base64 encoded mxfile
+		if (content.substring(0, 10) == 'PG14ZmlsZS')
+		{
+			content = (window.atob && !mxClient.IS_SF) ? atob(content) : Base64.decode(content);
+		}
+		else if (/\.jpe?g$/i.test(data.name))
 		{
 			content = 'data:image/jpeg;base64,' + content;
 		}

@@ -1,3 +1,55 @@
+05-JAN-2019: 10.0.22
+
+- Adds initial change check in sync protocol
+- Ignores numeric JS errors in checksum
+- Fixes pending sync on inactive window
+
+04-JAN-2019: 10.0.21
+
+- Adds debug output for checksum errors
+
+04-JAN-2019: 10.0.20
+
+- Adds debug output for checksum errors
+
+04-JAN-2019: 10.0.19
+
+- Adds debug output for checksum errors
+
+04-JAN-2019: 10.0.18
+
+- Fixes checksum errors in lightbox mode
+
+03-JAN-2019: 10.0.17
+
+- Fixes sync for PNG files in desktop app
+- Fixes handling of auth error in Drive
+- Uses main app ID for Drive viewer
+- Fixes clipping in Google add-ons
+- Uses mxGraph 3.9.13 beta 2
+- Fixes redo button state
+- Removes debug output
+
+02-JAN-2019: 10.0.16
+
+- Handles shadow change during catchup
+
+01-JAN-2019: 10.0.15
+
+- Fixes error logging
+
+01-JAN-2019: 10.0.14
+
+- Fixes possible timing issue
+
+29-DEC-2018: 10.0.13
+
+- Improved error handling for collaborative editing
+
+28-DEC-2018: 10.0.12
+
+- Fixes possible select of deleted page
+
 28-DEC-2018: 10.0.11
 
 - Adds parameter check for connect apps
