@@ -2687,7 +2687,7 @@ Graph.prototype.isCellConnectable = function(cell)
 	var state = this.view.getState(cell);
 	var style = (state != null) ? state.style : this.getCellStyle(cell);
 	
-	return (style['connectable'] != null) ? style['connectable']  != '0' :
+	return (style['connectable'] != null) ? style['connectable'] != '0' :
 		mxGraph.prototype.isCellConnectable.apply(this, arguments);
 };
 
@@ -3750,13 +3750,9 @@ HoverIcons.prototype.getState = function(state)
 	{
 		var cell = state.cell;
 		
-		if (!this.graph.getModel().contains(cell))
+		// Uses connectable parent vertex if child is not connectable
+		if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
 		{
-			return null;
-		}
-		else if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
-		{
-			// Uses connectable parent vertex if child is not connectable
 			var parent = this.graph.getModel().getParent(cell);
 			
 			if (this.graph.getModel().isVertex(parent) && this.graph.isCellConnectable(parent))
