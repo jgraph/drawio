@@ -29,9 +29,12 @@ EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: tru
 	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true};
 
 /**
- * Contains all known cell properties that should be ignored in generic diff sync.
+ * Contains all known cell properties that should be ignored for a generic cell diff.
  */
-EditorUi.prototype.cellPrototype = new mxCell();
+EditorUi.prototype.cellProperties = {id: true, value: true, xmlValue: true, vertex: true, edge: true,
+	visible: true, collapsed: true, connectable: true, parent: true, children: true, previous: true,
+	source: true, target: true, edges: true, geometry: true, style: true,
+	mxObjectIdentity: true, mxTransient: true};
 
 /**
  * Removes all labels, user objects and styles from the given node in-place.
@@ -573,7 +576,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		
 		for (var key in diff)
 		{
-			if (!(key in this.cellPrototype))
+			if (!this.cellProperties[key])
 			{
 				cell[key] = diff[key];
 			}
@@ -867,7 +870,7 @@ EditorUi.prototype.getCellForJson = function(json)
 	
 	for (var key in json)
 	{
-		if (!(key in this.cellPrototype))
+		if (!this.cellProperties[key])
 		{
 			cell[key] = json[key];
 		}
@@ -953,7 +956,8 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 	
 	for (var key in cell)
 	{
-		if (key != 'mxObjectId' && !(key in this.cellPrototype))
+		if (!this.cellProperties[key] &&
+			typeof cell[key] !== 'function')
 		{
 			result[key] = cell[key];
 		}
@@ -1053,11 +1057,11 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	}
 	
 	// Compares all keys from oldCell to newCell and uses null in the diff
-	// to force the attribute to be removed in the receinving client
+	// to force the attribute to be removed in the receiving client
 	for (var key in oldCell)
 	{
-		if (key != 'mxObjectId' && !(key in this.cellPrototype) &&
-			oldCell[key] != newCell[key])
+		if (!this.cellProperties[key] && typeof oldCell[key] !== 'function' &&
+			typeof newCell[key] !== 'function' && oldCell[key] != newCell[key])
 		{
 			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
 		}
@@ -1067,8 +1071,8 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	for (var key in newCell)
 	{
 		if (!(key in oldCell) &&
-			key != 'mxObjectId' && !(key in this.cellPrototype) &&
-			oldCell[key] != newCell[key])
+			!this.cellProperties[key] && typeof oldCell[key] !== 'function' &&
+			typeof newCell[key] !== 'function' && oldCell[key] != newCell[key])
 		{
 			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
 		}

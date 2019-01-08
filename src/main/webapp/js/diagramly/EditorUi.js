@@ -2417,6 +2417,11 @@
 				{
 					return Math.round(value);
 				}
+				// Workaround for previous in patch written to mxCell in 10.0.23
+				else if (isXml && obj.nodeName == 'mxCell' && key == 'previous')
+				{
+					return null;
+				}
 				else
 				{
 					return value;

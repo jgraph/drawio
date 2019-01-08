@@ -1,3 +1,11 @@
+08-JAN-2019: 10.0.25
+
+- Ignores previous attribute in checksum
+
+08-JAN-2019: 10.0.24
+
+- Fixes critical bug with collaborative editing
+
 08-JAN-2019: 10.0.23
 
 - Adds debug output for checksum errors
