@@ -791,11 +791,12 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 								!failed && req.getStatus() != 401)
 							{
 								cacheReadyRetryCount++;
+								this.file.stats.cacheMiss++;
 								window.setTimeout(doCatchup, (cacheReadyRetryCount + 1) * this.cacheReadyDelay);
 							}
 							else
 							{
-								this.file.stats.cacheMiss++;
+								this.file.stats.cacheFail++;
 								this.reload(success, error, abort);
 							}
 						}
@@ -885,8 +886,13 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
+				var from = this.ui.hashValue(this.file.getCurrentEtag());
+				var to = this.ui.hashValue(etag);
+				
 				this.file.checksumError(error, patches,
 					'Checksum: ' + checksum +
+					'\nFrom: ' + from +
+					'\nTo: ' + to +
 					((details != null && details.length > 0) ? ('\nDetails: ' +
 						details.join(', ')) : '') +
 					'\nCurrent: ' + current +
@@ -1017,11 +1023,16 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 			var diff = this.ui.diffPages(shadow, pages);
 			
 			// Data is stored in cache and message is sent to all listeners
+			var etag = this.file.getDescriptorEtag(lastDesc);
+			var current = this.file.getCurrentEtag();
+			
+			details.from = this.ui.hashValue(etag);
+			details.to = this.ui.hashValue(current);
+			
 			var data = this.objectToString(this.createMessage({patch: diff, checksum: checksum, details: details}));
 			var msg = this.objectToString(this.createMessage({m: this.lastModified.getTime()}));
 			var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
-			var etag = this.file.getDescriptorEtag(lastDesc);
-			var current = this.file.getCurrentEtag();
+
 			this.file.stats.bytesSent += data.length;
 			this.file.stats.msgSent++;
 	

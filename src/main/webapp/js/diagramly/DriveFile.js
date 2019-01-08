@@ -263,6 +263,34 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 /**
  * Shows a conflict dialog to the user.
  */
+DriveFile.prototype.copyFile = function(success, error)
+{
+	if (!this.isRestricted())
+	{
+		this.makeCopy(mxUtils.bind(this, function()
+		{
+			if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
+			{
+				try
+				{
+					this.save(true, success, error)
+				}
+				catch (e)
+				{
+					error(e);
+				}
+			}
+		}), error, true);
+	}
+	else
+	{
+		DrawioFile.prototype.copyFile.apply(this, arguments);
+	}	
+};
+
+/**
+ * Shows a conflict dialog to the user.
+ */
 DriveFile.prototype.makeCopy = function(success, error, timestamp)
 {
 	if (this.ui.spinner.spin(document.body, mxResources.get('saving')))

@@ -23,10 +23,15 @@ EditorUi.DIFF_UPDATE = 'u';
 EditorUi.prototype.codec = new mxCodec();
 
 /**
- * Removes all labels, user objects and styles from the given node in-place.
+ * Contains all view state properties that should not be ignored in diff sync.
  */
-EditorUi.prototype.viewStateWhitelist = ['background', 'backgroundImage', 'foldingEnabled',
-	'pageScale', 'mathEnabled', 'shadowVisible', 'pageFormat'];
+EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: true, shadowVisible: true,
+	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true};
+
+/**
+ * Contains all known cell properties that should be ignored in generic diff sync.
+ */
+EditorUi.prototype.cellPrototype = new mxCell();
 
 /**
  * Removes all labels, user objects and styles from the given node in-place.
@@ -565,6 +570,14 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		{
 			model.setTerminal(cell, model.getCell(diff.target), false);
 		}
+		
+		for (var key in diff)
+		{
+			if (!(key in this.cellPrototype))
+			{
+				cell[key] = diff[key];
+			}
+		}
 	}
 };
 
@@ -610,7 +623,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 	
 	for (var i = 0; i < newPages.length; i++)
 	{
-		lookup[newPages[i].getId()] = {'page': newPages[i], 'prev': prev/*, 'index': i*/};
+		lookup[newPages[i].getId()] = {page: newPages[i], prev: prev};
 		prev = newPages[i];
 	}
 
@@ -647,8 +660,6 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 				prev.getId() != newPage.prev.getId()))
 			{
 				pageDiff.previous = (newPage.prev != null) ? newPage.prev.getId() : '';
-				// LATER: If previous has vanished this could be used to add the intent
-				//pageDiff['index'] = newPage.index;
 			}
 			
 			// FIXME: Check why names can be null in newer files
@@ -698,10 +709,10 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.createCellLookup = function(cell, prev, index, lookup)
+EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
 {
 	lookup = (lookup != null) ? lookup : {};
-	lookup[cell.getId()] = {'cell': cell, 'prev': prev/*, 'index': index*/};
+	lookup[cell.getId()] = {cell: cell, prev: prev};
 	
 	var childCount = cell.getChildCount();
 	prev = null;
@@ -709,7 +720,7 @@ EditorUi.prototype.createCellLookup = function(cell, prev, index, lookup)
 	for (var i = 0; i < childCount; i++)
 	{
 		var child = cell.getChildAt(i);
-		this.createCellLookup(child, prev, i, lookup);
+		this.createCellLookup(child, prev, lookup);
 		prev = child;
 	}
 	
@@ -738,9 +749,7 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 			(prev != null && newCell.prev != null &&
 			prev.getId() != newCell.prev.getId())))
 		{
-			temp['previous'] = (newCell.prev != null) ? newCell.prev.getId() : '';
-			// LATER: If previous has vanished this could be used to add the intent
-			//temp['index'] = newCell.index;
+			temp.previous = (newCell.prev != null) ? newCell.prev.getId() : '';
 		}
 		
 		if (Object.keys(temp).length > 0)
@@ -774,7 +783,7 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
 	this.updatePageRoot(oldPage);
 	this.updatePageRoot(newPage);
 
-	var lookup = this.createCellLookup(newPage.root, null, 0);
+	var lookup = this.createCellLookup(newPage.root);
 	var diff = this.diffCellRecursive(oldPage.root, null, lookup, diff, removed);
 
 	for (var id in lookup)
@@ -817,10 +826,8 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 
 	if (source != null && target != null)
 	{
-		for (var i = 0; i < this.viewStateWhitelist.length; i++)
+		for (var key in this.viewStateProperties)
 		{
-			var key = this.viewStateWhitelist[i];
-			
 			// LATER: Check if normalization is needed for
 			// object attribute order to compare JSON
 			var old = JSON.stringify(source[key]);
@@ -858,6 +865,14 @@ EditorUi.prototype.getCellForJson = function(json)
 	cell.edge = json.edge == 1;
 	cell.id = json.id;
 	
+	for (var key in json)
+	{
+		if (!(key in this.cellPrototype))
+		{
+			cell[key] = json[key];
+		}
+	}
+
 	return cell;
 };
 
@@ -936,6 +951,14 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 		}
 	}
 	
+	for (var key in cell)
+	{
+		if (key != 'mxObjectId' && !(key in this.cellPrototype))
+		{
+			result[key] = cell[key];
+		}
+	}
+
 	return result;
 };
 
@@ -1027,6 +1050,28 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	if (!this.isObjectEqual(oldCell.geometry, newCell.geometry, new mxGeometry()))
 	{
 		diff.geometry = mxUtils.getXml(this.codec.encode(newCell.geometry));
+	}
+	
+	// Compares all keys from oldCell to newCell and uses null in the diff
+	// to force the attribute to be removed in the receinving client
+	for (var key in oldCell)
+	{
+		if (key != 'mxObjectId' && !(key in this.cellPrototype) &&
+			oldCell[key] != newCell[key])
+		{
+			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
+		}
+	}
+	
+	// Compares the remaining keys in newCell with oldCell
+	for (var key in newCell)
+	{
+		if (!(key in oldCell) &&
+			key != 'mxObjectId' && !(key in this.cellPrototype) &&
+			oldCell[key] != newCell[key])
+		{
+			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
+		}
 	}
 	
 	return diff;

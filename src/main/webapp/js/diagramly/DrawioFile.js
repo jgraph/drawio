@@ -129,7 +129,8 @@ DrawioFile.prototype.stats = {
 	msgSent: 0, /* number of messages sent */
 	msgReceived: 0, /* number of messages received */
 	cacheHits: 0, /* number of times the cache returned patches */
-	cacheMiss: 0, /* number of times we have given up to read the cache */
+	cacheMiss: 0, /* number of times we have missed a cache entry */
+	cacheFail: 0, /* number of times we have failed to read the cache */
 	conflicts: 0, /* number of write conflicts when saving a file */
 	timeouts: 0 /* number of time we have given up to retry after a write conflict */
 };
@@ -228,8 +229,10 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 		{
 			// Patching previous shadow to verify checksum
 			var patched = this.ui.patchPages(shadow, patches[0]);
-			var checksum = this.ui.getHashValueForPages(patched);
-			var current = this.ui.getHashValueForPages(this.shadowPages);
+			var patchedDetails = {};
+			var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
+			var currentDetails = {};
+			var current = this.ui.getHashValueForPages(this.shadowPages, currentDetails);
 			
 			if (urlParams['test'] == '1')
 			{
@@ -245,7 +248,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 				
 				this.checksumError(error, patches,
 					'Checksum: ' + checksum +
+					((patchedDetails != null) ? ('\nDetails: ' +
+						JSON.stringify(patchedDetails)) : '') +
 					'\nCurrent: ' + current +
+					((currentDetails != null) ? ('\nCurrent Details: ' +
+						JSON.stringify(currentDetails)) : '') +
 					'\nPatched:\n' + data);
 				
 				// Abnormal termination
@@ -346,7 +353,7 @@ DrawioFile.prototype.checkShadow = function(shadow)
 			this.compressReportData(
 			this.ui.anonymizeString(
 			this.shadowData),
-			null, 1000);
+			null, 5000);
 		
 		this.sendErrorReport(
 			'Shadow is null or empty',
@@ -454,8 +461,9 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
 			'\n\nBrowser=' + navigator.userAgent +
+			'\nPlugins=' + ((mxSettings.settings != null) ? mxSettings.getPlugins() : 'null') +
 			'\nFile=' + this.ui.hashValue(this.getId()) + ' (' + this.getMode() + ')' +
-			((this.sync != null) ? ('\nClient=' + this.sync.clientId) : '') +
+			'\nClient=' + ((this.sync != null) ? (this.sync.clientId) : 'null') +
 			'\nUser=' + uid +
 			'\nExt=' + ext +
 			'\nSize=' + this.getSize() +
@@ -542,28 +550,8 @@ DrawioFile.prototype.reloadFile = function(success, error)
  */
 DrawioFile.prototype.copyFile = function(success, error)
 {
-	if (this.constructor == DriveFile && !this.isRestricted())
-	{
-		this.makeCopy(mxUtils.bind(this, function()
-		{
-			if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
-			{
-				try
-				{
-					this.save(true, success, error)
-				}
-				catch (e)
-				{
-					error(e);
-				}
-			}
-		}), error, true);
-	}
-	else
-	{
-		this.ui.editor.editAsNew(this.ui.getFileData(true),
-			this.ui.getCopyFilename(this));
-	}	
+	this.ui.editor.editAsNew(this.ui.getFileData(true),
+		this.ui.getCopyFilename(this));
 };
 
 /**
@@ -1128,7 +1116,7 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 	{
 		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
 		
-		if (this.constructor == DriveFile || this.constructor == DropboxFile)
+		if (this.isRevisionHistorySupported())
 		{
 			this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(mxResources.get('revisionHistory')) +
 				'" style="text-decoration:underline;cursor:pointer;">' + status + '</div>');
@@ -1307,23 +1295,7 @@ DrawioFile.prototype.showCopyDialog = function(success, error, overwrite)
 		mxResources.get('cancel'), mxUtils.bind(this, function()
 	{
 		this.ui.hideDialog();
-	}), 360, (this.constructor == DriveFile) ? 180 : 150);
-	
-	// Adds important notice to dialog
-	if (this.ui.dialog != null && this.ui.dialog.container != null &&
-		this.constructor == DriveFile)
-	{
-		var alert = this.ui.createRealtimeNotice();
-		alert.style.left = '0';
-		alert.style.right = '0';
-		alert.style.borderRadius = '0';
-		alert.style.borderLeftStyle = 'none';
-		alert.style.borderRightStyle = 'none';
-		alert.style.marginBottom = '26px';
-		alert.style.padding = '8px 0 8px 0';
-
-		this.ui.dialog.container.appendChild(alert);
-	}
+	}), 360, 150);
 };
 
 /**
@@ -1372,7 +1344,7 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 				}
 			});
 			
-			if (this.isModified())
+			if (error == null && this.isModified())
 			{
 				this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
 				{
@@ -1387,15 +1359,22 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		
 		if (error != null)
 		{
-			this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
+			if (this.isModified())
 			{
-				this.redirectDialogShowing = false;
-				
-				if (error != null)
+				this.ui.confirm(mxResources.get('redirectToNewApp'), mxUtils.bind(this, function()
 				{
+					this.redirectDialogShowing = false;
 					error();
-				}
-			}));
+				}), redirect, mxResources.get('cancel'), mxResources.get('discardChanges'));
+			}
+			else
+			{
+				this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
+				{
+					this.redirectDialogShowing = false;
+					error();
+				}));
+			}
 		}
 		else
 		{
