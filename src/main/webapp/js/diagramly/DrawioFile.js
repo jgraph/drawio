@@ -387,7 +387,7 @@ DrawioFile.prototype.compressReportData = function(data, limit, max)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.checksumError = function(error, patches, details)
+DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 {
 	this.stats.checksumErrors++;
 	this.inConflictState = true;
@@ -413,18 +413,46 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 				this.ui.anonymizePatch(patches[i]);
 			}
 		}
-
-		var data = this.compressReportData(
-			this.getAnonymizedXmlForPages(
-			this.shadowPages), 20000);
-		var json = this.compressReportData(
-			JSON.stringify(patches, null, 2));
 		
-		this.sendErrorReport(
-			'Checksum Error',
-			((details != null) ? (details) : '') +
-			'\n\nPatches:\n' + json +
-			'\n\nData:\n' + data);
+		var fn = mxUtils.bind(this, function(file)
+		{
+			var data = this.compressReportData(
+				this.getAnonymizedXmlForPages(
+				this.shadowPages), 25000);
+			var json = this.compressReportData(
+				JSON.stringify(patches, null, 2));
+			var remote = (file != null) ? this.compressReportData(
+				this.getAnonymizedXmlForPages(
+				this.ui.getPagesForNode(
+				mxUtils.parseXml(file.data).documentElement)), 25000) : 'n/a';
+			
+			this.sendErrorReport(
+				'Checksum Error',
+				((details != null) ? (details) : '') +
+				'\n\nPatches:\n' + json +
+				'\n\nLocal:\n' + data +
+				((remote != null) ? ('\nRemote:\n' + remote) : ''),
+				null, 70000);
+		});
+
+		if (etag == null)
+		{
+			fn(null);
+		}
+		else
+		{
+			this.getLatestVersion(mxUtils.bind(this, function(file)
+			{
+				if (file != null && file.getCurrentEtag() == etag)
+				{
+					fn(file);
+				}
+				else
+				{
+					fn(null);
+				}
+			}), function() {});
+		}
 	}
 	catch (e)
 	{
@@ -435,7 +463,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.sendErrorReport = function(title, details, error)
+DrawioFile.prototype.sendErrorReport = function(title, details, error, max)
 {
 	try
 	{
@@ -470,7 +498,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 			'\nSync=' + DrawioFile.SYNC +
 			'\n\nStats:\n' + JSON.stringify(this.stats, null, 2) +
 			((details != null) ? ('\n\n' + details) : '') +
-			'\n\nStack:\n' + stack);
+			'\n\nStack:\n' + stack, max);
 	}
 	catch (e)
 	{

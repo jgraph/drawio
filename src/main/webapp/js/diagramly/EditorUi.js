@@ -10810,7 +10810,13 @@
 		    		{
     	    			var values = this.editor.csvToArray(lines[i]);
     	    			
-	    				if (values.length == keys.length)
+    	    			if (values == null)
+    	    			{
+    	    				var short = (lines[i].length > 40) ? lines[i].substring(0, 40) + '...' : lines[i];
+    	    				
+    	    				throw new Error(i + ' (' + short + ') ' + mxResources.get('containsValidationErrors'));
+    	    			}
+    	    			else if (values.length == keys.length)
 		    			{
 	    					var cell = null;
 	    					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
