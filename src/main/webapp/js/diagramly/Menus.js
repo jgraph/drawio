@@ -941,16 +941,30 @@
 				
 				editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
 				{
-					if (editorUi.pages != null)
+			    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
+			    		function(newValue)
 					{
-						mxLog.show();
-						mxLog.debug(editorUi.pages.length + ' page(s) checksum=' +
-							editorUi.getHashValueForPages(editorUi.pages));
-					}
-					else
-					{
-						editorUi.alert('No pages');
-					}
+						if (newValue.length > 0)
+						{
+							try
+							{
+								var pages = editorUi.getPagesForNode(mxUtils.parseXml(
+									newValue).documentElement, 'mxGraphModel');
+								var checksum = editorUi.getHashValueForPages(pages);
+								console.log('checksum', pages, checksum);
+							}
+							catch (e)
+							{
+								editorUi.handleError(e);
+								console.error(e);
+							}
+						}
+					});
+			    	
+			    	dlg.textarea.style.width = '600px';
+			    	dlg.textarea.style.height = '380px';
+					editorUi.showDialog(dlg.container, 620, 460, true, true);
+					dlg.init();
 				}));
 					
 				this.addMenuItems(menu, ['-', 'testChecksum'], parent);

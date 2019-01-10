@@ -1,3 +1,8 @@
+10-JAN-2019: 10.0.30
+
+- Ignores page width in checksum
+- Uses mxGraph 3.9.13 beta 6
+
 10-JAN-2019: 10.0.29
 
 - Improved error handling for CSV import

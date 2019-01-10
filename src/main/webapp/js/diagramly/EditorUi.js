@@ -2395,6 +2395,9 @@
 			// ignore in hash and do not diff null names for now
 			diagram.removeAttribute('name');
 			
+			// Rounding errors in pageWidth possible so ignore
+			diagram.removeAttribute('pageWidth');
+			
 			// Model is only a holder for the root
 			model.root = pages[i].root;
 			var xmlNode = codec.encode(model);
