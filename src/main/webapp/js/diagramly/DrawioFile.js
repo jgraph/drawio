@@ -414,6 +414,9 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 			}
 		}
 		
+		// To avoid async stack
+		var err = new Error();
+		
 		var fn = mxUtils.bind(this, function(file)
 		{
 			var data = this.compressReportData(
@@ -432,7 +435,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 				'\n\nPatches:\n' + json +
 				'\n\nLocal:\n' + data +
 				((remote != null) ? ('\nRemote:\n' + remote) : ''),
-				null, 70000);
+				err, 70000);
 		});
 
 		if (etag == null)

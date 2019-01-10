@@ -589,7 +589,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
  * so that using isEqualNode returns true if the files can be
  * considered equal.
  */
-EditorUi.prototype.getPagesForNode = function(node)
+EditorUi.prototype.getPagesForNode = function(node, nodeName)
 {
 	var tmp = this.editor.extractGraphModel(node, true);
 	
@@ -598,7 +598,7 @@ EditorUi.prototype.getPagesForNode = function(node)
 		node = tmp;
 	}
 
-	var diagrams = node.getElementsByTagName('diagram');
+	var diagrams = node.getElementsByTagName(nodeName || 'diagram');
 	var pages = [];
 	
 	for (var i = 0; i < diagrams.length; i++)
