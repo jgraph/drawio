@@ -1,3 +1,8 @@
+10-JAN-2019: 10.0.29
+
+- Improved error handling for CSV import
+- Uses mxGraph 3.9.13 beta 5
+
 10-JAN-2019: 10.0.28
 
 - Uses mxGraph 3.9.13 beta 4

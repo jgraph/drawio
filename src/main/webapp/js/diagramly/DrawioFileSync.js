@@ -897,7 +897,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 						details.join(', ')) : '') +
 					'\nCurrent: ' + current +
 					((currentDetails != null) ? ('\nCurrent Details: ' +
-						JSON.stringify(currentDetails)) : ''));
+						JSON.stringify(currentDetails)) : ''), etag);
 				
 				// Abnormal termination
 				return;
