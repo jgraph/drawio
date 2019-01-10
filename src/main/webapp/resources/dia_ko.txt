@@ -456,6 +456,7 @@ new=새로 만들기
 newLibrary=새로운 라이브러리
 nextPage=다음 페이지
 no=아니
+noPickFolder=No, pick folder
 noAttachments=첨부파일 없음
 noColor=색 없음
 noFiles=파일 없음

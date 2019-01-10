@@ -456,6 +456,7 @@ new=新增
 newLibrary=新增圖庫
 nextPage=下一頁
 no=沒有
+noPickFolder=No, pick folder
 noAttachments=未找到附件
 noColor=無顏色
 noFiles=無檔案

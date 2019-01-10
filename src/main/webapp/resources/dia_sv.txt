@@ -456,6 +456,7 @@ new=Ny
 newLibrary=Nytt bibliotek
 nextPage=Nästa sida
 no=Nej
+noPickFolder=No, pick folder
 noAttachments=Inga bilagor hittades
 noColor=Ingen färg
 noFiles=Inga filer

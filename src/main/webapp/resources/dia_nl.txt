@@ -456,6 +456,7 @@ new=Nieuw
 newLibrary=Nieuwe bibliotheek
 nextPage=Volgende pagina
 no=Nee
+noPickFolder=No, pick folder
 noAttachments=Geen bijlagen gevonden
 noColor=Geen kleur
 noFiles=Geen bestanden

@@ -456,6 +456,7 @@ new=Nou
 newLibrary=Biblioteca nova
 nextPage=Pàgina següent
 no=No
+noPickFolder=No, pick folder
 noAttachments=No s'han trobat arxius adjunts
 noColor=Sense color
 noFiles=No hi ha fitxers

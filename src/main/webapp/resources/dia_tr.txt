@@ -456,6 +456,7 @@ new=Yeni
 newLibrary=Yeni kitaplık
 nextPage=Bir sonraki sayfa
 no=Yok hayır
+noPickFolder=No, pick folder
 noAttachments=Ekler bulunmamakta
 noColor=Renk yok
 noFiles=Dosya yok

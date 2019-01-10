@@ -456,6 +456,7 @@ new=Mới
 newLibrary=Thư viện mới
 nextPage=Trang tiếp theo
 no=Không
+noPickFolder=No, pick folder
 noAttachments=Không tìm thấy phần đính kèm
 noColor=Không có màu
 noFiles=Không có tập tin

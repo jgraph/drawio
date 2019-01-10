@@ -456,6 +456,7 @@ new=Nou
 newLibrary=Librărie nouă
 nextPage=Următoarea pagina
 no=Nu
+noPickFolder=No, pick folder
 noAttachments=Nu au fost găsite atașamente.
 noColor=Fără culoare
 noFiles=Nu există fișiere

@@ -1568,7 +1568,7 @@ DriveClient.prototype.pickFolder = function(fn)
 	}), mxUtils.bind(this, function()
 	{
 		showPicker();
-	}), mxResources.get('yes'), mxResources.get('no'));
+	}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...');
 };
 
 /**

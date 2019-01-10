@@ -456,6 +456,7 @@ new=Bago
 newLibrary=Bagong Library
 nextPage=Sunod na pahina
 no=Hindi
+noPickFolder=No, pick folder
 noAttachments=Walang nahanap na mga kalakip
 noColor=Walang kulay
 noFiles=Walang mga file

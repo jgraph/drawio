@@ -456,6 +456,7 @@ new=ใหม่
 newLibrary=ที่จัดเก็บเอกสารใหม่
 nextPage=หน้าถัดไป
 no=ไม่
+noPickFolder=No, pick folder
 noAttachments=ไม่พบสิ่งที่แนบมา
 noColor=ไม่มีสี
 noFiles=ไม่มีไฟล์

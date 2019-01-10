@@ -456,6 +456,7 @@ new=Új
 newLibrary=Új könyvtár
 nextPage=Következő oldal
 no=Nem
+noPickFolder=No, pick folder
 noAttachments=Melléklet nem találva
 noColor=Szín nélkül
 noFiles=Fájlok nélkül

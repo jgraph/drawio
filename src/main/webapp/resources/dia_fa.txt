@@ -456,6 +456,7 @@ new=‫جدید‬
 newLibrary=‫کتابخانه جدید‬
 nextPage=‫صفحه بعدی‬
 no=‫نه‬
+noPickFolder=No, pick folder
 noAttachments=‫پیوستی یافت نشد‬
 noColor=‫بدون رنگ‬
 noFiles=‫فایلی وجود ندارد‬

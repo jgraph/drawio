@@ -456,6 +456,7 @@ new=Создать
 newLibrary=Новая библиотека
 nextPage=Следующая страница
 no=нет
+noPickFolder=No, pick folder
 noAttachments=Вложения не найдены
 noColor=Нет цвета
 noFiles=Нет файлов

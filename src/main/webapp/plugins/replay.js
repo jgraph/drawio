@@ -6,76 +6,78 @@
 Draw.loadPlugin(function(ui) {
 
 	var graph = ui.editor.graph;
-	var codec = new mxCodec();
 	var model = graph.model;
 	
-	codec.lookup = function(id)
+	function decodeChanges(delta, direct)
 	{
-		return model.getCell(id);
+		var codec2 = new mxCodec(delta.ownerDocument);
+		codec2.lookup = function(id)
+		{
+			return model.getCell(id);
+		};
+		
+		var changeNode = (direct) ? delta.firstChild : delta.firstChild.firstChild;
+		var changes = [];
+		
+		while (changeNode != null)
+		{
+			var change = codec2.decode(changeNode);
+			
+			change.model = model;
+			change.execute();
+			changes.push(change);
+			
+			changeNode = changeNode.nextSibling;
+		}
+		
+		return changes;
 	};
-	
-	if (ui.editor.isChromelessView())
+
+	function createUndoableEdit(changes)
 	{
-		function decodeChanges(delta)
+		var edit = new mxUndoableEdit(model);
+		edit.changes = changes;
+		
+		edit.notify = function()
 		{
-			var codec2 = new mxCodec(delta.ownerDocument);
-			codec2.lookup = function(id)
-			{
-				return model.getCell(id);
-			};
-			
-			var changeNode = delta.firstChild.firstChild;
-			var changes = [];
-			
-			while (changeNode != null)
-			{
-				var change = codec2.decode(changeNode);
-				
-				change.model = model;
-				change.execute();
-				changes.push(change);
-				
-				changeNode = changeNode.nextSibling;
-			}
-			
-			return changes;
+			// LATER: Remove changes property (deprecated)
+			edit.source.fireEvent(new mxEventObject(mxEvent.CHANGE,
+				'edit', edit, 'changes', edit.changes));
+			edit.source.fireEvent(new mxEventObject(mxEvent.NOTIFY,
+				'edit', edit, 'changes', edit.changes));
 		};
+		
+		return edit;
+	};
 
-		function createUndoableEdit(changes)
+	function processDelta(delta, direct)
+	{
+		var changes = decodeChanges(delta, direct);
+		
+		if (changes.length > 0)
 		{
-			var edit = new mxUndoableEdit(model);
-			edit.changes = changes;
-			
-			edit.notify = function()
-			{
-				// LATER: Remove changes property (deprecated)
-				edit.source.fireEvent(new mxEventObject(mxEvent.CHANGE,
-					'edit', edit, 'changes', edit.changes));
-				edit.source.fireEvent(new mxEventObject(mxEvent.NOTIFY,
-					'edit', edit, 'changes', edit.changes));
-			};
-			
-			return edit;
-		};
-
-		function processDelta(delta)
-		{
-			var changes = decodeChanges(delta);
-			
-			if (changes.length > 0)
-			{
-				var edit = createUndoableEdit(changes);
+			var edit = createUndoableEdit(changes);
 				
+			if (ui.chromelessResize)
+			{
 				// No notify event here to avoid the edit from being encoded and transmitted
 				// LATER: Remove changes property (deprecated)
 				model.fireEvent(new mxEventObject(mxEvent.CHANGE,
 					'edit', edit, 'changes', changes));
 				model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
-				
 				ui.chromelessResize();
 			}
-		};
+			else
+			{
+				edit.notify();
+			}
+		}
 		
+		return edit;
+	};
+
+	if (ui.editor.isChromelessView())
+	{
 		var replayData = urlParams['replay-data'];
 		var delay = parseInt(urlParams['delay-delay'] || 1000);
 		
@@ -107,6 +109,12 @@ Draw.loadPlugin(function(ui) {
 	else
 	{
 		var tape = null;
+		var codec = new mxCodec();
+		
+		codec.lookup = function(id)
+		{
+			return model.getCell(id);
+		};
 
 		model.addListener(mxEvent.CHANGE, function(sender, evt)
 	    {
@@ -120,10 +128,10 @@ Draw.loadPlugin(function(ui) {
 	    	}
 	    });
 		
-		// Extends View menu
 		mxResources.parse('record=Record');
+		mxResources.parse('replay=Replay');
 	
-	    // Adds action
+	    // Adds actions
 	    var action = ui.actions.addAction('record...', function()
 	    {
 	    	if (tape == null)
@@ -154,8 +162,109 @@ Draw.loadPlugin(function(ui) {
 	    	}
 	    });
 		
-	    action.setToggleAction(true);
-		action.setSelectedCallback(function() { return tape != null; });
+	    ui.actions.addAction('replay...', function()
+	    {
+	    	var dlg = new TextareaDialog(ui, 'Changes [JSON export, compressed edits or <edit>..</edit>]:', '',
+	    		function(newValue)
+			{
+				if (newValue.length > 0)
+				{
+					try
+					{
+						var current = null;
+						
+						if (newValue.charAt(0) == '{')
+						{
+							var temp = JSON.parse(newValue);
+							current = temp.current;
+							newValue = temp.edits;
+						}
+						
+						if (newValue.charAt(0) != '<')
+						{
+							newValue = graph.decompress(newValue);
+						}
+						
+						if (newValue.charAt(0) == '[')
+						{
+							newValue = JSON.parse(newValue);
+							console.log(JSON.stringify(newValue, null, 2));
+							var pageId = null;
+							var temp = [];
+							
+							for (var i = 0; i < newValue.length; i++)
+							{
+								if (pageId == null)
+								{
+									pageId = newValue[i].pageid;
+								}
+								
+								if (pageId == newValue[i].pageid)
+								{
+									temp.push(newValue[i].data);
+								}
+								else
+								{
+									mxLog.debug('edit ignored for page ' + newValue[i].pageid);
+									mxLog.show();
+								}
+							}
+							
+							newValue = temp.join('');
+						}
+						
+						var edits = mxUtils.parseXml('<edits>' + newValue + '</edits>');
+						var edit = edits.documentElement.firstChild;
+						
+						function step()
+						{
+							console.log(processDelta(edit, true));
+							edit = edit.nextSibling;
+							
+							return edit != null;
+						}
+						
+						if (ui.buttonContainer != null)
+						{
+							console.log(mxUtils.getPrettyXml(edit));
+
+							var button = mxUtils.button('Step', function()
+							{
+								if (!step())
+								{
+									button.parentNode.removeChild(button);
+								}
+								else
+								{
+									console.log(mxUtils.getPrettyXml(edit));
+								}
+							});
+							
+							button.className = 'geBtn gePrimaryBtn';
+							
+							ui.buttonContainer.appendChild(button);
+						}
+						else
+						{
+							while (step())
+							{
+								// repeat
+							}
+						}
+					}
+					catch (e)
+					{
+						ui.handleError(e);
+						console.error(e);
+					}
+				}
+			});
+	    	
+	    	dlg.textarea.style.width = '600px';
+	    	dlg.textarea.style.height = '380px';
+			ui.showDialog(dlg.container, 620, 460, true, true);
+			dlg.init();
+	    });
 	    
 		var menu = ui.menus.get('extras');
 		var oldFunct = menu.funct;
@@ -164,7 +273,7 @@ Draw.loadPlugin(function(ui) {
 		{
 			oldFunct.apply(this, arguments);
 			
-			ui.menus.addMenuItems(menu, ['-', 'record'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'record', 'replay'], parent);
 		};
 	}
 });

@@ -456,6 +456,7 @@ new=Nový
 newLibrary=Nová knihovna
 nextPage=Další stránka
 no=Ne
+noPickFolder=No, pick folder
 noAttachments=Žádné přílohy nenalezeny
 noColor=Bez barvy
 noFiles=Žádné soubory

@@ -954,6 +954,45 @@
 				}));
 					
 				this.addMenuItems(menu, ['-', 'testChecksum'], parent);
+
+				mxResources.parse('testDiff=Diff');
+				
+				editorUi.actions.addAction('testDiff', mxUtils.bind(this, function()
+				{
+					if (editorUi.pages != null)
+					{
+				    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
+				    		function(newValue)
+						{
+							if (newValue.length > 0)
+							{
+								try
+								{
+									console.log(JSON.stringify(editorUi.diffPages(editorUi.pages,
+										editorUi.getPagesForNode(mxUtils.parseXml(newValue).
+										documentElement)), null, 2));
+
+								}
+								catch (e)
+								{
+									editorUi.handleError(e);
+									console.error(e);
+								}
+							}
+						});
+				    	
+				    	dlg.textarea.style.width = '600px';
+				    	dlg.textarea.style.height = '380px';
+						editorUi.showDialog(dlg.container, 620, 460, true, true);
+						dlg.init();
+					}
+					else
+					{
+						editorUi.alert('No pages');
+					}
+				}));
+					
+				this.addMenuItems(menu, ['testDiff', '-'], parent);
 				
 				// For testing local XML export
 				mxResources.parse('testXmlImageExport=XML Image Export');

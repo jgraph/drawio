@@ -456,6 +456,7 @@ new=Novo 
 newLibrary=Nova biblioteca
 nextPage=Página seguinte
 no=Não
+noPickFolder=No, pick folder
 noAttachments=Nenhum anexo encontrado
 noColor=Sem cor
 noFiles=Nenhum ficheiro

@@ -456,6 +456,7 @@ new=Νέο
 newLibrary=Νέα βιβλιοθήκη
 nextPage=Επόμενη Σελίδα
 no=Οχι
+noPickFolder=No, pick folder
 noAttachments=Δεν βρέθηκαν συνημμένα αρχεία
 noColor=Χωρίς χρώμα
 noFiles=Δεν υπάρχει αρχείο
