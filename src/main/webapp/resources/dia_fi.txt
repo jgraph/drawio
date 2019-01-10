@@ -456,6 +456,7 @@ new=Uusi
 newLibrary=Uusi kokoelma
 nextPage=Seuraava sivu
 no=Ei
+noPickFolder=No, pick folder
 noAttachments=Ei löytynyt liitteitä
 noColor=Ei väriä
 noFiles=Ei tiedostoja

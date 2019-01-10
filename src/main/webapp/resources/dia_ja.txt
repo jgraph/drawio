@@ -456,6 +456,7 @@ new=新規作成
 newLibrary=新規ライブラリ
 nextPage=次のページ
 no=いいえ
+noPickFolder=No, pick folder
 noAttachments=添付ファイルが見つかりません
 noColor=色なし
 noFiles=ファイルなし

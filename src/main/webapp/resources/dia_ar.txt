@@ -456,6 +456,7 @@ new=‫جديد‬
 newLibrary=‫مكتبة جديدة‬
 nextPage=Next Page
 no=‫لا‬
+noPickFolder=No, pick folder
 noAttachments=No attachments found
 noColor=‫لا يوجد لون‬
 noFiles=‫لا يوجد ملفات‬

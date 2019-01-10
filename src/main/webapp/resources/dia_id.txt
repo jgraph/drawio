@@ -456,6 +456,7 @@ new=Baru
 newLibrary=Pustaka Baru
 nextPage=Halaman Berikutnya
 no=Tidak
+noPickFolder=No, pick folder
 noAttachments=Tidak ada lampiran yang ditemukan
 noColor=Tanpa Warna
 noFiles=Tidak Ada Berkas

@@ -456,6 +456,7 @@ new=‫חדש‬
 newLibrary=‫ספרייה חדשה‬
 nextPage=‫הדף הבא‬
 no=‫לא‬
+noPickFolder=No, pick folder
 noAttachments=‫לא נמצאו קבצים מצורפים‬
 noColor=‫ללא צבע‬
 noFiles=‫ללא קבצים‬

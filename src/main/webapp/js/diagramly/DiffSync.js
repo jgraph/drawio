@@ -34,7 +34,7 @@ EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: tru
 EditorUi.prototype.cellProperties = {id: true, value: true, xmlValue: true, vertex: true, edge: true,
 	visible: true, collapsed: true, connectable: true, parent: true, children: true, previous: true,
 	source: true, target: true, edges: true, geometry: true, style: true,
-	mxObjectIdentity: true, mxTransient: true};
+	mxObjectId: true, mxTransient: true};
 
 /**
  * Removes all labels, user objects and styles from the given node in-place.

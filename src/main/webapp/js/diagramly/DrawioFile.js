@@ -441,6 +441,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 	{
 		var user = this.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+		var cid = (this.sync != null) ? this.sync.clientId : 'no sync';
 	
 		if (this.stats.start != null)
 		{
@@ -450,7 +451,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 	
 		var filename = this.getTitle();
 		var dot = filename.lastIndexOf('.');
-		var ext = 'none';
+		var ext = 'xml';
 		
 		if (dot > 0)
 		{
@@ -461,12 +462,11 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error)
 		
 		EditorUi.sendReport(title + ' ' + new Date().toISOString() + ':' +
 			'\n\nBrowser=' + navigator.userAgent +
-			'\nPlugins=' + ((mxSettings.settings != null) ? mxSettings.getPlugins() : 'null') +
 			'\nFile=' + this.ui.hashValue(this.getId()) + ' (' + this.getMode() + ')' +
-			'\nClient=' + ((this.sync != null) ? (this.sync.clientId) : 'null') +
-			'\nUser=' + uid +
-			'\nExt=' + ext +
-			'\nSize=' + this.getSize() +
+			((this.isModified()) ? ' modified' : '') +
+			'\nSize/Type=' + this.getSize() + ' (' + ext + ')' +
+			'\nUser=' + uid + ' (' + cid + ')' +
+			'\nPlugins=' + ((mxSettings.settings != null) ? mxSettings.getPlugins() : 'null') +
 			'\nSync=' + DrawioFile.SYNC +
 			'\n\nStats:\n' + JSON.stringify(this.stats, null, 2) +
 			((details != null) ? ('\n\n' + details) : '') +

@@ -456,6 +456,7 @@ new=Nova
 newLibrary=New Library
 nextPage=Next Page
 no=Ne
+noPickFolder=No, pick folder
 noAttachments=No attachments found
 noColor=No Color
 noFiles=No Files

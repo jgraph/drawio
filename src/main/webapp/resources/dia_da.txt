@@ -456,6 +456,7 @@ new=Nyt
 newLibrary=Nyt bibliotek
 nextPage=Næste side
 no=Ingen
+noPickFolder=No, pick folder
 noAttachments=Intet fundet vedhæftet
 noColor=Ingen farve
 noFiles=Ingen filer

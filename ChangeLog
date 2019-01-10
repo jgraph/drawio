@@ -1,3 +1,16 @@
+10-JAN-2019: 10.0.28
+
+- Uses mxGraph 3.9.13 beta 4
+- Fixes root folder dialog
+
+10-JAN-2019: 10.0.27
+
+- Ignores mxObjectId in diffsync
+
+09-JAN-2019: 10.0.26
+
+- Uses mxGraph 3.9.13 beta 3
+
 08-JAN-2019: 10.0.25
 
 - Ignores previous attribute in checksum

@@ -456,6 +456,7 @@ new=Uus
 newLibrary=Uus raamatukogu
 nextPage=Järgmine lehekülg
 no=Ei
+noPickFolder=No, pick folder
 noAttachments=Manuseid ei leitud
 noColor=Ilma värvita
 noFiles=Ilma failideta

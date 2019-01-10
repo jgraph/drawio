@@ -456,6 +456,7 @@ new=Ново
 newLibrary=Нова библиотека
 nextPage=Следваща страница
 no=Не
+noPickFolder=No, pick folder
 noAttachments=Не са намерени прикачени файлове
 noColor=Без цвят
 noFiles=Без файлове

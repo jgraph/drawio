@@ -456,6 +456,7 @@ new=Novo
 newLibrary=Nova biblioteka
 nextPage=Sljedeća stranica
 no=Ne
+noPickFolder=No, pick folder
 noAttachments=Nisu pronađeni prilozi
 noColor=Bez boje
 noFiles=Nema fajlova
