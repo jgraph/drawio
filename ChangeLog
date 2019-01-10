@@ -1,3 +1,9 @@
+11-JAN-2019: 10.0.31
+
+- Fixes critical bug for cell lookups
+- Ignores page size in checksum
+- Uses mxGraph 3.9.13 beta 7
+
 10-JAN-2019: 10.0.30
 
 - Ignores page width in checksum

@@ -871,75 +871,114 @@
 				
 				this.addMenuItems(menu, ['-', 'about'], parent);
 			}
-
+			
+			if (urlParams['test'] == '1')
+			{
+				menu.addSeparator(parent);
+				this.addSubmenu('testDevelop', menu, parent);
+			}
+			
 			if (urlParams['ruler'] == '1')
 			{
 				mxResources.parse('rulerInch=Ruler unit: Inches');
 
-				this.editorUi.actions.addAction('rulerInch', mxUtils.bind(this, function()
+				editorUi.actions.addAction('rulerInch', mxUtils.bind(this, function()
 				{
-					this.editorUi.vRuler.setUnit(mxRuler.prototype.INCHES);
-					this.editorUi.hRuler.setUnit(mxRuler.prototype.INCHES);
-					this.editorUi.vRuler.drawRuler(true);
-					this.editorUi.hRuler.drawRuler(true);
+					editorUi.vRuler.setUnit(mxRuler.prototype.INCHES);
+					editorUi.hRuler.setUnit(mxRuler.prototype.INCHES);
+					editorUi.vRuler.drawRuler(true);
+					editorUi.hRuler.drawRuler(true);
 				}));
 
 				mxResources.parse('rulerCM=Ruler unit: CMs');
 
-				this.editorUi.actions.addAction('rulerCM', mxUtils.bind(this, function()
+				editorUi.actions.addAction('rulerCM', mxUtils.bind(this, function()
 				{
-					this.editorUi.vRuler.setUnit(mxRuler.prototype.CENTIMETER);
-					this.editorUi.hRuler.setUnit(mxRuler.prototype.CENTIMETER);
-					this.editorUi.vRuler.drawRuler(true);
-					this.editorUi.hRuler.drawRuler(true);
+					editorUi.vRuler.setUnit(mxRuler.prototype.CENTIMETER);
+					editorUi.hRuler.setUnit(mxRuler.prototype.CENTIMETER);
+					editorUi.vRuler.drawRuler(true);
+					editorUi.hRuler.drawRuler(true);
 				}));
 
 				mxResources.parse('rulerPixel=Ruler unit: Pixels');
 
-				this.editorUi.actions.addAction('rulerPixel', mxUtils.bind(this, function()
+				editorUi.actions.addAction('rulerPixel', mxUtils.bind(this, function()
 				{
-					this.editorUi.vRuler.setUnit(mxRuler.prototype.PIXELS);
-					this.editorUi.hRuler.setUnit(mxRuler.prototype.PIXELS);
-					this.editorUi.vRuler.drawRuler(true);
-					this.editorUi.hRuler.drawRuler(true);
+					editorUi.vRuler.setUnit(mxRuler.prototype.PIXELS);
+					editorUi.hRuler.setUnit(mxRuler.prototype.PIXELS);
+					editorUi.vRuler.drawRuler(true);
+					editorUi.hRuler.drawRuler(true);
 				}));
 
 				this.addMenuItems(menu, ['-', 'rulerInch', 'rulerCM', 'rulerPixel'], parent);
 			}
-			
-			if (urlParams['test'] == '1')
+		})));
+		
+		// Only visible in test mode
+		if (urlParams['test'] == '1')
+		{
+			mxResources.parse('testDevelop=Develop');
+			mxResources.parse('showBoundingBox=Show bounding box');
+			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
+			mxResources.parse('testChecksum=Checksum');
+			mxResources.parse('testDiff=Diff');
+			mxResources.parse('testInspect=Inspect');
+			mxResources.parse('testShowConsole=Show Console');
+			mxResources.parse('testXmlImageExport=XML Image Export');
+			mxResources.parse('testDownloadRtModel=Export RT model');
+			mxResources.parse('testImportRtModel=Import RT model');
+
+			editorUi.actions.addAction('createSidebarEntry', mxUtils.bind(this, function()
 			{
-				// For showing the bounding box
-				mxResources.parse('showBoundingBox=Show bounding box');
-				
-				this.editorUi.actions.addAction('showBoundingBox', mxUtils.bind(this, function()
+				if (!graph.isSelectionEmpty())
 				{
-					var b = graph.getGraphBounds();
-					var tr = graph.view.translate;
-					var s = graph.view.scale;
-					graph.insertVertex(graph.getDefaultParent(), null, '',
-						b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s,
-						'fillColor=none;strokeColor=red;');
-				}));
-
-				mxResources.parse('createSidebarEntry=Create Sidebar Entry');
-				
-				this.editorUi.actions.addAction('createSidebarEntry', mxUtils.bind(this, function()
+					editorUi.showTextDialog('Create Sidebar Entry', 'sb.createVertexTemplateFromData(\'' +
+						graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
+						'\', width, height, \'Title\');');
+				}
+			}));
+	
+			editorUi.actions.addAction('showBoundingBox', mxUtils.bind(this, function()
+			{
+				var b = graph.getGraphBounds();
+				var tr = graph.view.translate;
+				var s = graph.view.scale;
+				graph.insertVertex(graph.getDefaultParent(), null, '',
+					b.x / s - tr.x, b.y / s - tr.y, b.width / s, b.height / s,
+					'fillColor=none;strokeColor=red;');
+			}));
+	
+			editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
+			{
+		    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
+		    		function(newValue)
 				{
-					if (!graph.isSelectionEmpty())
+					if (newValue.length > 0)
 					{
-						editorUi.showTextDialog('Create Sidebar Entry', 'sb.createVertexTemplateFromData(\'' +
-							graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
-							'\', width, height, \'Title\');');
+						try
+						{
+							var pages = editorUi.getPagesForNode(mxUtils.parseXml(
+								newValue).documentElement, 'mxGraphModel');
+							var checksum = editorUi.getHashValueForPages(pages);
+							console.log('checksum', pages, checksum);
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);
+							console.error(e);
+						}
 					}
-				}));
-
-				this.addMenuItems(menu, ['-', 'createSidebarEntry', 'showBoundingBox'], parent);
-
-				// For testing local XML export
-				mxResources.parse('testChecksum=Checksum');
-				
-				editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
+				});
+		    	
+		    	dlg.textarea.style.width = '600px';
+		    	dlg.textarea.style.height = '380px';
+				editorUi.showDialog(dlg.container, 620, 460, true, true);
+				dlg.init();
+			}));
+	
+			editorUi.actions.addAction('testDiff', mxUtils.bind(this, function()
+			{
+				if (editorUi.pages != null)
 				{
 			    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
 			    		function(newValue)
@@ -948,10 +987,10 @@
 						{
 							try
 							{
-								var pages = editorUi.getPagesForNode(mxUtils.parseXml(
-									newValue).documentElement, 'mxGraphModel');
-								var checksum = editorUi.getHashValueForPages(pages);
-								console.log('checksum', pages, checksum);
+								console.log(JSON.stringify(editorUi.diffPages(editorUi.pages,
+									editorUi.getPagesForNode(mxUtils.parseXml(newValue).
+									documentElement)), null, 2));
+	
 							}
 							catch (e)
 							{
@@ -965,160 +1004,139 @@
 			    	dlg.textarea.style.height = '380px';
 					editorUi.showDialog(dlg.container, 620, 460, true, true);
 					dlg.init();
-				}));
-					
-				this.addMenuItems(menu, ['-', 'testChecksum'], parent);
-
-				mxResources.parse('testDiff=Diff');
-				
-				editorUi.actions.addAction('testDiff', mxUtils.bind(this, function()
+				}
+				else
 				{
-					if (editorUi.pages != null)
+					editorUi.alert('No pages');
+				}
+			}));
+	
+			editorUi.actions.addAction('testInspect', mxUtils.bind(this, function()
+			{
+				console.log(editorUi, graph.getModel());
+			}));
+			
+			editorUi.actions.addAction('testXmlImageExport', mxUtils.bind(this, function()
+			{
+				var bg = '#ffffff';
+				var scale = 1;
+				var b = 1;
+				
+				var imgExport = new mxImageExport();
+				var bounds = graph.getGraphBounds();
+				var vs = graph.view.scale;
+				
+	        	// New image export
+				var xmlDoc = mxUtils.createXmlDocument();
+				var root = xmlDoc.createElement('output');
+				xmlDoc.appendChild(root);
+				
+			    // Renders graph. Offset will be multiplied with state's scale when painting state.
+				var xmlCanvas = new mxXmlCanvas2D(root);
+				xmlCanvas.translate(Math.floor((b / scale - bounds.x) / vs), Math.floor((b / scale - bounds.y) / vs));
+				xmlCanvas.scale(scale / vs);
+				
+				var stateCounter = 0;
+				
+				var canvasSave = xmlCanvas.save;
+				xmlCanvas.save = function()
+				{
+					stateCounter++;
+					canvasSave.apply(this, arguments);
+				};
+				
+				var canvasRestore = xmlCanvas.restore;
+				xmlCanvas.restore = function()
+				{
+					stateCounter--;
+					canvasRestore.apply(this, arguments);
+				};
+				
+				var exportDrawShape = imgExport.drawShape;
+				imgExport.drawShape = function(state)
+				{
+					mxLog.debug('entering shape', state, stateCounter);
+					exportDrawShape.apply(this, arguments);
+					mxLog.debug('leaving shape', state, stateCounter);
+				};
+				
+			    imgExport.drawState(graph.getView().getState(graph.model.root), xmlCanvas);
+			    
+				// Puts request data together
+				var w = Math.ceil(bounds.width * scale / vs + 2 * b);
+				var h = Math.ceil(bounds.height * scale / vs + 2 * b);
+				
+				mxLog.show();
+				mxLog.debug(mxUtils.getXml(root));
+				mxLog.debug('stateCounter', stateCounter);
+			}));
+			
+			editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
+			{
+				if (editorUi.drive == null)
+				{
+					editorUi.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+				}
+				else
+				{
+					editorUi.drive.execute(mxUtils.bind(this, function()
 					{
-				    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
-				    		function(newValue)
+						var fileId =prompt('File ID', '');
+						
+						if (fileId != null && fileId.length > 0 &&
+							editorUi.spinner.spin(document.body, mxResources.get('export')))
 						{
-							if (newValue.length > 0)
+							// LATER: Download full model dump with history
+							var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
+									fileId + '/realtime?supportsTeamDrives=true', null, 'GET');
+	
+							// Adds auth token
+							req.setRequestHeaders = function(request)
 							{
-								try
-								{
-									console.log(JSON.stringify(editorUi.diffPages(editorUi.pages,
-										editorUi.getPagesForNode(mxUtils.parseXml(newValue).
-										documentElement)), null, 2));
-
-								}
-								catch (e)
-								{
-									editorUi.handleError(e);
-									console.error(e);
-								}
-							}
-						});
-				    	
-				    	dlg.textarea.style.width = '600px';
-				    	dlg.textarea.style.height = '380px';
-						editorUi.showDialog(dlg.container, 620, 460, true, true);
-						dlg.init();
-					}
-					else
-					{
-						editorUi.alert('No pages');
-					}
-				}));
-					
-				this.addMenuItems(menu, ['testDiff', '-'], parent);
-				
-				// For testing local XML export
-				mxResources.parse('testXmlImageExport=XML Image Export');
-				
-				editorUi.actions.addAction('testXmlImageExport', mxUtils.bind(this, function()
-				{
-					var bg = '#ffffff';
-					var scale = 1;
-					var b = 1;
-					
-					var imgExport = new mxImageExport();
-					var bounds = graph.getGraphBounds();
-					var vs = graph.view.scale;
-					
-		        	// New image export
-					var xmlDoc = mxUtils.createXmlDocument();
-					var root = xmlDoc.createElement('output');
-					xmlDoc.appendChild(root);
-					
-				    // Renders graph. Offset will be multiplied with state's scale when painting state.
-					var xmlCanvas = new mxXmlCanvas2D(root);
-					xmlCanvas.translate(Math.floor((b / scale - bounds.x) / vs), Math.floor((b / scale - bounds.y) / vs));
-					xmlCanvas.scale(scale / vs);
-					
-					var stateCounter = 0;
-					
-					var canvasSave = xmlCanvas.save;
-					xmlCanvas.save = function()
-					{
-						stateCounter++;
-						canvasSave.apply(this, arguments);
-					};
-					
-					var canvasRestore = xmlCanvas.restore;
-					xmlCanvas.restore = function()
-					{
-						stateCounter--;
-						canvasRestore.apply(this, arguments);
-					};
-					
-					var exportDrawShape = imgExport.drawShape;
-					imgExport.drawShape = function(state)
-					{
-						mxLog.debug('entering shape', state, stateCounter);
-						exportDrawShape.apply(this, arguments);
-						mxLog.debug('leaving shape', state, stateCounter);
-					};
-					
-				    imgExport.drawState(graph.getView().getState(graph.model.root), xmlCanvas);
-				    
-					// Puts request data together
-					var w = Math.ceil(bounds.width * scale / vs + 2 * b);
-					var h = Math.ceil(bounds.height * scale / vs + 2 * b);
-					
-					mxLog.show();
-					mxLog.debug(mxUtils.getXml(root));
-					mxLog.debug('stateCounter', stateCounter);
-				}));
-					
-				this.addMenuItems(menu, ['testXmlImageExport'], parent);
-
-				mxResources.parse('testDownloadRtModel=Export RT model');
-				mxResources.parse('testImportRtModel=Import RT model');
-				
-				this.editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
-				{
-					if (editorUi.drive == null)
-					{
-						editorUi.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
-					}
-					else
-					{
-						editorUi.drive.execute(mxUtils.bind(this, function()
-						{
-							var fileId =prompt('File ID', '');
+								mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
+								var token = gapi.auth.getToken().access_token;
+								request.setRequestHeader('authorization', 'Bearer ' + token);	
+							};
 							
-							if (fileId != null && fileId.length > 0 &&
-								editorUi.spinner.spin(document.body, mxResources.get('export')))
+							req.send(function(req)
 							{
-								// LATER: Download full model dump with history
-								var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-										fileId + '/realtime?supportsTeamDrives=true', null, 'GET');
-		
-								// Adds auth token
-								req.setRequestHeaders = function(request)
-								{
-									mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
-									var token = gapi.auth.getToken().access_token;
-									request.setRequestHeader('authorization', 'Bearer ' + token);	
-								};
+								editorUi.spinner.stop();
 								
-								req.send(function(req)
+								if (req.getStatus() >= 200 && req.getStatus() <= 299)
 								{
-									editorUi.spinner.stop();
-									
-									if (req.getStatus() >= 200 && req.getStatus() <= 299)
-									{
-										editorUi.saveLocalFile(req.getText(), 'json-' + fileId +'.txt', 'text/plain');
-									}
-									else
-									{
-										editorUi.handleError({message: mxResources.get('fileNotFound')},
-											mxResources.get('errorLoadingFile'));
-									}
-								});
-							}
-						}));
-					}
-				}));
-
-				this.addMenuItems(menu, ['-', 'testDownloadRtModel'], parent);
+									editorUi.saveLocalFile(req.getText(), 'json-' + fileId +'.txt', 'text/plain');
+								}
+								else
+								{
+									editorUi.handleError({message: mxResources.get('fileNotFound')},
+										mxResources.get('errorLoadingFile'));
+								}
+							});
+						}
+					}));
+				}
+			}));
+	
+			editorUi.actions.addAction('testShowConsole', function()
+			{
+				if (!mxLog.isVisible())
+				{
+					mxLog.show();
+				}
+				else
+				{
+					mxLog.window.fit();
+				}
 				
+				mxLog.window.div.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
+			});
+			
+			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
+			{
+				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
+					'testChecksum', 'testDiff', '-', 'testInspect', '-',
+					'testXmlImageExport', '-', 'testDownloadRtModel'], parent);
+
 				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
 				{
 					var input = document.createElement('input');
@@ -1148,27 +1166,11 @@
 					}));
 			
 					input.click();
-				});
-				
-				mxResources.parse('testShowConsole=Show Console');
-				
-				this.editorUi.actions.addAction('testShowConsole', function()
-				{
-					if (!mxLog.isVisible())
-					{
-						mxLog.show();
-					}
-					else
-					{
-						mxLog.window.fit();
-					}
-					
-					mxLog.window.div.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
-				});
-				
-				this.addMenuItems(menu, ['-', 'testShowConsole']);
-			}
-		})));
+				}, parent);
+		
+				this.addMenuItems(menu, ['-', 'testShowConsole'], parent);
+			})));
+		}
 
 		editorUi.actions.addAction('shapes...', function()
 		{
