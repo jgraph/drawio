@@ -14,30 +14,66 @@
 	};
 	mxUtils.extend(CubeShape, mxCylinder);
 	CubeShape.prototype.size = 20;
-	CubeShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
+	CubeShape.prototype.darkOpacity = 0;
+	CubeShape.prototype.darkOpacity2 = 0;
+	
+	CubeShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
+		var op = Math.max(-1, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'darkOpacity', this.darkOpacity))));
+		var op2 = Math.max(-1, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'darkOpacity2', this.darkOpacity2))));
+		c.translate(x, y);
+		
+		c.begin();
+		c.moveTo(0, 0);
+		c.lineTo(w - s, 0);
+		c.lineTo(w, s);
+		c.lineTo(w, h);
+		c.lineTo(s, h);
+		c.lineTo(0, h - s);
+		c.lineTo(0, 0);
+		c.close();
+		c.end();
+		c.fillAndStroke();
+		
+		if (!this.outline)
+		{
+			c.setShadow(false);
+	
+			if (op != 0)
+			{
+				c.setFillAlpha(Math.abs(op));
+				c.setFillColor((op < 0) ? '#FFFFFF' : '#000000');
+				c.begin();
+				c.moveTo(0, 0);
+				c.lineTo(w - s, 0);
+				c.lineTo(w, s);
+				c.lineTo(s, s);
+				c.close();
+				c.fill();
+			}
 
-		if (isForeground)
-		{
-			path.moveTo(s, h);
-			path.lineTo(s, s);
-			path.lineTo(0, 0);
-			path.moveTo(s, s);
-			path.lineTo(w, s);
-			path.end();
-		}
-		else
-		{
-			path.moveTo(0, 0);
-			path.lineTo(w - s, 0);
-			path.lineTo(w, s);
-			path.lineTo(w, h);
-			path.lineTo(s, h);
-			path.lineTo(0, h - s);
-			path.lineTo(0, 0);
-			path.close();
-			path.end();
+			if (op2 != 0)
+			{
+				c.setFillAlpha(Math.abs(op2));
+				c.setFillColor((op2 < 0) ? '#FFFFFF' : '#000000');
+				c.begin();
+				c.moveTo(0, 0);
+				c.lineTo(s, s);
+				c.lineTo(s, h);
+				c.lineTo(0, h - s);
+				c.close();
+				c.fill();
+			}
+			
+			c.begin();
+			c.moveTo(s, h);
+			c.lineTo(s, s);
+			c.lineTo(0, 0);
+			c.moveTo(s, s);
+			c.lineTo(w, s);
+			c.end();
+			c.stroke();
 		}
 	};
 	CubeShape.prototype.getLabelMargins = function(rect)
@@ -188,27 +224,47 @@
 	};
 	mxUtils.extend(NoteShape, mxCylinder);
 	NoteShape.prototype.size = 30;
-	NoteShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
+	NoteShape.prototype.darkOpacity = 0;
+	
+	NoteShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
-
-		if (isForeground)
+		var op = Math.max(-1, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'darkOpacity', this.darkOpacity))));
+		c.translate(x, y);
+		
+		c.begin();
+		c.moveTo(0, 0);
+		c.lineTo(w - s, 0);
+		c.lineTo(w, s);
+		c.lineTo(w, h);
+		c.lineTo(0, h);
+		c.lineTo(0, 0);
+		c.close();
+		c.end();
+		c.fillAndStroke();
+		
+		if (!this.outline)
 		{
-			path.moveTo(w - s, 0);
-			path.lineTo(w - s, s);
-			path.lineTo(w, s);
-			path.end();
-		}
-		else
-		{
-			path.moveTo(0, 0);
-			path.lineTo(w - s, 0);
-			path.lineTo(w, s);
-			path.lineTo(w, h);
-			path.lineTo(0, h);
-			path.lineTo(0, 0);
-			path.close();
-			path.end();
+			c.setShadow(false);
+	
+			if (op != 0)
+			{
+				c.setFillAlpha(Math.abs(op));
+				c.setFillColor((op < 0) ? '#FFFFFF' : '#000000');
+				c.begin();
+				c.moveTo(w - s, 0);
+				c.lineTo(w - s, s);
+				c.lineTo(w, s);
+				c.close();
+				c.fill();
+			}
+			
+			c.begin();
+			c.moveTo(w - s, 0);
+			c.lineTo(w - s, s);
+			c.lineTo(w, s);
+			c.end();
+			c.stroke();
 		}
 	};
 

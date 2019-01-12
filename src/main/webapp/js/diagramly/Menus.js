@@ -950,7 +950,10 @@
 	
 			editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
 			{
-		    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
+				var xml = (editorUi.pages != null && editorUi.getCurrentFile() != null) ?
+					editorUi.getCurrentFile().getAnonymizedXmlForPages(editorUi.pages) : '';
+
+		    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', xml,
 		    		function(newValue)
 				{
 					if (newValue.length > 0)
@@ -2272,7 +2275,7 @@
 				}, parent);
 			}
 			
-			if (!mxClient.IS_IOS)
+			//if (!mxClient.IS_IOS)
 			{
 				menu.addItem(mxResources.get('device') + '...', null, function()
 				{
@@ -2393,7 +2396,7 @@
 					}, parent);
 				}
 				
-				if (!mxClient.IS_IOS)
+				//if (!mxClient.IS_IOS)
 				{
 					menu.addItem(mxResources.get('device') + '...', null, function()
 					{
@@ -2485,7 +2488,7 @@
 					}, parent);
 				}
 				
-				if (!mxClient.IS_IOS)
+				//if (!mxClient.IS_IOS)
 				{
 					menu.addItem(mxResources.get('device') + '...', null, function()
 					{

@@ -171,7 +171,7 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 /**
 * Adds the listener for automatically saving the diagram for local changes.
 */
-DrawioFile.prototype.updateFile = function(success, error, abort)
+DrawioFile.prototype.updateFile = function(success, error, abort, shadow)
 {
 	this.getLatestVersion(mxUtils.bind(this, function(latestFile)
 	{
@@ -181,7 +181,7 @@ DrawioFile.prototype.updateFile = function(success, error, abort)
 			{
 				if (latestFile != null)
 				{
-					this.mergeFile(latestFile, success, error);
+					this.mergeFile(latestFile, success, error, shadow);
 				}
 				else
 				{
@@ -202,7 +202,7 @@ DrawioFile.prototype.updateFile = function(success, error, abort)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.mergeFile = function(file, success, error)
+DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 {
 	try
 	{
@@ -223,7 +223,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error)
 			this.ui.pages) : null;
 		
 		// Patches the current document
-		var patches = [this.ui.diffPages(shadow, this.shadowPages)];
+		var patches = [this.ui.diffPages((diffShadow != null) ?
+			diffShadow : shadow, this.shadowPages)];
 
 		if (!this.ignorePatches(patches))
 		{
@@ -311,8 +312,13 @@ DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
 	{
 		for (var i = 0; i < pages.length; i++)
 		{
-			var temp = this.ui.anonymizeNode(enc.encode(
-				new mxGraphModel(pages[i].root)));
+			var temp = enc.encode(new mxGraphModel(pages[i].root));
+			
+			if (urlParams['dev'] != '1')
+			{
+				temp = this.ui.anonymizeNode(temp);
+			}
+			
 			temp.setAttribute('id', pages[i].getId());
 			
 			if (pages[i].viewState)
@@ -419,9 +425,6 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 		
 		var fn = mxUtils.bind(this, function(file)
 		{
-			var data = this.compressReportData(
-				this.getAnonymizedXmlForPages(
-				this.shadowPages), 25000);
 			var json = this.compressReportData(
 				JSON.stringify(patches, null, 2));
 			var remote = (file != null) ? this.compressReportData(
@@ -433,8 +436,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 				'Checksum Error',
 				((details != null) ? (details) : '') +
 				'\n\nPatches:\n' + json +
-				'\n\nLocal:\n' + data +
-				((remote != null) ? ('\nRemote:\n' + remote) : ''),
+				((remote != null) ? ('\n\nRemote:\n' + remote) : ''),
 				err, 70000);
 		});
 
@@ -470,6 +472,9 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error, max)
 {
 	try
 	{
+		var data = this.compressReportData(
+			this.getAnonymizedXmlForPages(
+			this.shadowPages), 25000);
 		var user = this.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 		var cid = (this.sync != null) ? this.sync.clientId : 'no sync';
@@ -501,6 +506,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error, max)
 			'\nSync=' + DrawioFile.SYNC +
 			'\n\nStats:\n' + JSON.stringify(this.stats, null, 2) +
 			((details != null) ? ('\n\n' + details) : '') +
+			'\n\nLocal:\n' + data +
 			'\n\nStack:\n' + stack, max);
 	}
 	catch (e)

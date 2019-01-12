@@ -4897,8 +4897,8 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					if (constraints != null)
 					{
-						// Requires an array of arrays with x, y (0..1) and an optional
-						// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
+						// Requires an array of arrays with x, y (0..1), an optional
+						// [perimeter (0 or 1), dx, and dy] eg. points=[[0,0,1,-10,10],[0,1,0],[1,1]]
 						var result = [];
 						
 						try
@@ -4908,7 +4908,8 @@ if (typeof mxVertexHandler != 'undefined')
 							for (var i = 0; i < c.length; i++)
 							{
 								var tmp = c[i];
-								result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
+								result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true,
+										null, (tmp.length > 3) ? tmp[3] : 0, (tmp.length > 4) ? tmp[4] : 0));
 							}
 						}
 						catch (e)

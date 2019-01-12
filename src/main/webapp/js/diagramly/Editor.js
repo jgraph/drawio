@@ -1416,7 +1416,9 @@
 		];
 		
 		mxCellRenderer.defaultShapes['cube'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 }
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 },
+	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
+	        {name: 'darkOpacity2', dispName: 'Dark Opacity 2', type: 'float', min:-1, max:1, defVal:0 }
 		];
 		
 		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
@@ -1434,7 +1436,8 @@
 		];
 		
 		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30}
+	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30},
+	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
 	    ];
 		
 		mxCellRenderer.defaultShapes['card'].prototype.customProperties = [

@@ -68,7 +68,7 @@ DrawioFileSync = function(file)
  * be incremented if new messages are added or the format is changed.
  * This must be numeric to compare older vs newer protocol versions.
  */
-DrawioFileSync.PROTOCOL = 4;
+DrawioFileSync.PROTOCOL = 5;
 
 //Extends mxEventSource
 mxUtils.extend(DrawioFileSync, mxEventSource);
@@ -784,7 +784,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 							if (temp.length > 0)
 							{
 								this.file.stats.cacheHits++;
-								this.merge(temp, checksum, etag, success, error, details);
+								this.merge(temp, checksum, etag, success, error, abort, details);
 							}
 							// Retries if cache entry was not yet there
 							else if (cacheReadyRetryCount <= this.maxCacheReadyRetries &&
@@ -819,7 +819,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.reload = function(success, error, abort)
+DrawioFileSync.prototype.reload = function(success, error, abort, shadow)
 {
 	this.file.updateFile(mxUtils.bind(this, function()
 	{
@@ -837,13 +837,13 @@ DrawioFileSync.prototype.reload = function(success, error, abort)
 		{
 			error(err);
 		}
-	}), abort);
+	}), abort, shadow);
 };
 
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, error, details)
+DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, error, abort, details)
 {
 	try
 	{
@@ -890,14 +890,19 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 				var to = this.ui.hashValue(etag);
 				
 				this.file.checksumError(error, patches,
-					'Checksum: ' + checksum +
-					'\nFrom: ' + from +
+					'From: ' + from +
 					'\nTo: ' + to +
 					((details != null && details.length > 0) ? ('\nDetails: ' +
 						details.join(', ')) : '') +
+					'\nChecksum: ' + checksum +
 					'\nCurrent: ' + current +
 					((currentDetails != null) ? ('\nCurrent Details: ' +
 						JSON.stringify(currentDetails)) : ''), etag);
+
+				// Uses current state as shadow to compute diff since
+				// shadowPages has been modified in-place above
+				// LATER: Check if fallback to reload is possible
+//				this.reload(success, error, abort, this.ui.pages);
 				
 				// Abnormal termination
 				return;
@@ -934,7 +939,9 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		
 		try
 		{
-			this.file.sendErrorReport('Error in merge', null, e);
+			this.file.sendErrorReport('Error in merge',
+				'Patches:\n' + this.file.compressReportData(
+					JSON.stringify(patches, null, 2)), e);
 		}
 		catch (e2)
 		{

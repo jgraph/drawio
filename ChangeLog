@@ -1,3 +1,19 @@
+12-JAN-2019: 10.0.34
+
+- Fixes save dialog icon CSS flow
+
+12-JAN-2019: 10.0.33
+
+- Adds support for strikeThrough style (beta)
+- Adds dark opacity styles for note and cube
+- Enables device storage on iOS
+
+11-JAN-2019: 10.0.32
+
+- Adds page view in format panel for read-only files
+- Minor fixes for collaborative editing
+- Uses mxGraph 3.9.13 beta 8
+
 11-JAN-2019: 10.0.31
 
 - Fixes critical bug for cell lookups

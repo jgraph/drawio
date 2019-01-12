@@ -169,6 +169,7 @@ EditorUi.initMinimalTheme = function()
 	            div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
 	                'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
 	            div.className = 'geTitle';
+	            div.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
 	            mxUtils.write(div, mxResources.get('moreShapes'));
 	            container.appendChild(div);
 	            
@@ -901,6 +902,8 @@ EditorUi.initMinimalTheme = function()
             menu.addSeparator(parent);
             ui.menus.addSubmenu('insertLayout', menu, parent);
             ui.menus.addSubmenu('insertAdvanced', menu, parent);
+            menu.addSeparator(parent);
+			menu.addItem(mxResources.get('more') + '...', null, ui.actions.get('toggleShapes').funct, parent);
         })));
 
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',

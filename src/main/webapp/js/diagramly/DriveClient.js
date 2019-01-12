@@ -1073,9 +1073,22 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 										executeSave(true);
 										
 										// Logs overwrite
-										EditorUi.logError('Warning: Stale Etag Overwrite',
-											null, file.desc.id + '.' + file.desc.headRevisionId,
-											(this.user != null) ? this.user.id : 'unknown');
+										try
+										{
+											EditorUi.sendReport('Warning: Stale Etag Overwrite ' +
+												new Date().toISOString() + ':' +
+												'\n\nBrowser=' + navigator.userAgent +
+												'\nFile=' + this.ui.hashValue(file.getId()) +
+												'\nUser=' + ((this.user != null) ?
+												this.ui.hashValue(this.user.id) : 'unknown'));
+											EditorUi.logError('Warning: Stale Etag Overwrite',
+												null, file.desc.id + '.' + file.desc.headRevisionId,
+												(this.user != null) ? this.user.id : 'unknown');
+										}
+										catch (e)
+										{
+											// ignore
+										}
 									}
 								}
 								else if (error != null)
@@ -1568,7 +1581,7 @@ DriveClient.prototype.pickFolder = function(fn)
 	}), mxUtils.bind(this, function()
 	{
 		showPicker();
-	}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...');
+	}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
 };
 
 /**
