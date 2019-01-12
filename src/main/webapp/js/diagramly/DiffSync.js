@@ -428,78 +428,81 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
  */
 EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup, diff)
 {
-	var temp = parentLookup[cell.getId()];
-	var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
-	var moved = (temp != null && temp.moved != null) ? temp.moved : {};
-	var index = 0;
-	
-	// Restores existing order
-	var childCount = model.getChildCount(cell);
-	var prev = '';
-	
-	for (var i = 0; i < childCount; i++)
+	if (cell != null)
 	{
-		var cellId = model.getChildAt(cell, i).getId();
+		var temp = parentLookup[cell.getId()];
+		var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
+		var moved = (temp != null && temp.moved != null) ? temp.moved : {};
+		var index = 0;
 		
-		if (moved[prev] == null &&
-			(diff[EditorUi.DIFF_UPDATE] == null ||
-			diff[EditorUi.DIFF_UPDATE][cellId] == null ||
-			(diff[EditorUi.DIFF_UPDATE][cellId].previous == null &&
-			diff[EditorUi.DIFF_UPDATE][cellId].parent == null)))
+		// Restores existing order
+		var childCount = model.getChildCount(cell);
+		var prev = '';
+		
+		for (var i = 0; i < childCount; i++)
 		{
-			moved[prev] = cellId;
-		}
-		
-		prev = cellId;
-	}
-
-	var addCell = mxUtils.bind(this, function(child)
-	{
-		var id = (child != null) ? child.getId() : '';
-		
-		if (child != null)
-		{
-			if (model.getChildAt(cell, index) != child)
+			var cellId = model.getChildAt(cell, i).getId();
+			
+			if (moved[prev] == null &&
+				(diff[EditorUi.DIFF_UPDATE] == null ||
+				diff[EditorUi.DIFF_UPDATE][cellId] == null ||
+				(diff[EditorUi.DIFF_UPDATE][cellId].previous == null &&
+				diff[EditorUi.DIFF_UPDATE][cellId].parent == null)))
 			{
-				model.add(cell, child, index);
+				moved[prev] = cellId;
 			}
-
-			this.patchCellRecursive(page, model,
-				child, parentLookup, diff);
-			index++;
+			
+			prev = cellId;
 		}
-
-		var mov = moved[id];
-		
-		if (mov != null)
-		{
-			delete moved[id];
-			addCell(model.getCell(mov));
-		}
-		
-		var ins = inserted[id];
-		
-		if (ins != null)
-		{
-			delete inserted[id];
-			addCell(this.getCellForJson(ins));
-		}
-	});
 	
-	addCell();
-
-	// Handles orphaned moved pages
-	for (var id in moved)
-	{
-		addCell(model.getCell(moved[id]));
-		delete moved[id];
-	}
-
-	// Handles orphaned inserted pages
-	for (var id in inserted)
-	{
-		addCell(this.getCellForJson(inserted[id]));
-		delete inserted[id];
+		var addCell = mxUtils.bind(this, function(child)
+		{
+			var id = (child != null) ? child.getId() : '';
+			
+			if (child != null)
+			{
+				if (model.getChildAt(cell, index) != child)
+				{
+					model.add(cell, child, index);
+				}
+	
+				this.patchCellRecursive(page, model,
+					child, parentLookup, diff);
+				index++;
+			}
+	
+			var mov = moved[id];
+			
+			if (mov != null)
+			{
+				delete moved[id];
+				addCell(model.getCell(mov));
+			}
+			
+			var ins = inserted[id];
+			
+			if (ins != null)
+			{
+				delete inserted[id];
+				addCell(this.getCellForJson(ins));
+			}
+		});
+		
+		addCell();
+	
+		// Handles orphaned moved pages
+		for (var id in moved)
+		{
+			addCell(model.getCell(moved[id]));
+			delete moved[id];
+		}
+	
+		// Handles orphaned inserted pages
+		for (var id in inserted)
+		{
+			addCell(this.getCellForJson(inserted[id]));
+			delete inserted[id];
+		}
 	}
 };
 
@@ -514,7 +517,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		if (resolve == null || (resolve.xmlValue == null &&
 			(resolve.value == null || resolve.value == '')))
 		{
-			if (diff.value != null)
+			if ('value' in diff)
 			{
 				model.setValue(cell, diff.value);
 			}
@@ -1030,7 +1033,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 		}
 		else
 		{
-			diff.value = (newCell.value != null) ? newCell.value : '';
+			diff.value = (newCell.value != null) ? newCell.value : null;
 		}
 	}
 	

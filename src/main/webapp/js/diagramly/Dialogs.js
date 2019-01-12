@@ -285,7 +285,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 	}
 
-	if (!mxClient.IS_IOS || urlParams['storage'] == 'device')
+	if (/*!mxClient.IS_IOS || */urlParams['storage'] == 'device')
 	{
 		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
 	}
@@ -3673,7 +3673,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	}
 	
 	if (!Editor.useLocalStorage || urlParams['storage'] == 'device' ||
-		(editorUi.getCurrentFile() != null && !mxClient.IS_IOS))
+		(editorUi.getCurrentFile() != null/* && !mxClient.IS_IOS*/))
 	{
 		var deviceOption = document.createElement('option');
 		deviceOption.setAttribute('value', App.MODE_DEVICE);
@@ -3830,7 +3830,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		btns.appendChild(openBtn);
 	}
 	
-	if (!mxClient.IS_IOS || !showButtons)
+	if (/*!mxClient.IS_IOS || */!showButtons)
 	{
 		var createBtn = mxUtils.button(btnLabel || mxResources.get('create'), function()
 		{
@@ -4836,7 +4836,7 @@ var AboutDialog = function(editorUi)
 
 	var small = document.createElement('small');
 	small.style.color = clr;
-	small.innerHTML = '&copy; 2005-2018 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
+	small.innerHTML = '&copy; 2005-2019 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
 	div.appendChild(small);
 	
 	mxEvent.addListener(div, 'click', function(e)

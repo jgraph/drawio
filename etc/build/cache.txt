@@ -1,5 +1,6 @@
 app.html
 index.html?offline=1
+index.html?offline=1&ui=min
 index.html?offline=1&https=0
 offline.html
 open.html

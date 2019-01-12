@@ -2164,6 +2164,12 @@
 		{
 			try
 			{
+				// Workaround for delayed scroll repaint with min UI in Safari
+				if (mxClient.IS_SF && uiTheme == 'min')
+				{
+					this.diagramContainer.style.visibility = '';
+				}
+				
 				// Order is significant, current file needed for correct
 				// file format for initial save after starting realtime
 				this.setCurrentFile(file);
@@ -2383,7 +2389,6 @@
 			details.attrCount = 0;
 			details.eltCount = 0;
 			details.nodeCount = 0;
-			details.cellCount = 0;
 		}
 		
 		for (var i = 0; i < pages.length; i++)
@@ -2409,7 +2414,6 @@
 			{
 				details.eltCount += diagram.getElementsByTagName('*').length;
 				details.nodeCount += diagram.getElementsByTagName('mxCell').length;
-				details.cellCount += model.getDescendants(model.root).length;
 			}
 			
 			hash = ((hash << 5) - hash + this.hashValue(diagram, function(obj, key, value, isXml)
@@ -3662,7 +3666,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel)
+	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel, closable)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		
@@ -3683,7 +3687,7 @@
 				cancelFn();
 			}
 		}, okLabel, cancelLabel);
-		this.showDialog(dlg.container, 340, 90, true, false);
+		this.showDialog(dlg.container, 340, 90, true, closable);
 		dlg.init();
 	};
 
@@ -3825,10 +3829,10 @@
 				win.close();
 			}
 		}
-		else if (mxClient.IS_IOS)
-		{
-			this.showTextDialog(filename + ':', data);
-		}
+//		else if (mxClient.IS_IOS)
+//		{
+//			this.showTextDialog(filename + ':', data);
+//		}
 		else
 		{
 			var a = document.createElement('a');
@@ -4007,7 +4011,7 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
 			null, count > 1, (count > 4 && (!allowBrowser || count < 6)) ? 3 : 4, data, mimeType, base64Encoded);
-		var noServices = (mxClient.IS_IOS) ? 0 : 1;
+		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
@@ -4277,7 +4281,7 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
 			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
-		var noServices = (mxClient.IS_IOS) ? 0 : 1;
+		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
@@ -11339,7 +11343,7 @@
 			serviceCount++
 		}
 		
-		if (!mxClient.IS_IOS)
+		//if (!mxClient.IS_IOS)
 		{
 			serviceCount++
 		}

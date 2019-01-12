@@ -1,10 +1,11 @@
 CACHE MANIFEST
 
 # THIS FILE WAS GENERATED. DO NOT MODIFY!
-# 01/10/2019 11:39 PM
+# 01/12/2019 08:41 PM
 
 app.html
 index.html?offline=1
+index.html?offline=1&ui=min
 index.html?offline=1&https=0
 offline.html
 open.html
