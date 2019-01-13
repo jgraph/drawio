@@ -253,6 +253,11 @@
 	EditorUi.prototype.formatEnabled = urlParams['format'] != '0';
 
 	/**
+	 * Whether template action should be shown in insert menu.
+	 */
+	EditorUi.prototype.insertTemplateEnabled = true;
+	
+	/**
 	 * Restores app defaults for UI
 	 */
 	EditorUi.prototype.closableScratchpad = true;
@@ -11338,12 +11343,11 @@
 			serviceCount++
 		}
 		
-		if (allowBrowser && isLocalStorage && (urlParams['browser'] == '1' || mxClient.IS_IOS))
+		if (allowBrowser && isLocalStorage && urlParams['browser'] == '1')
 		{
 			serviceCount++
 		}
-		
-		//if (!mxClient.IS_IOS)
+		else
 		{
 			serviceCount++
 		}
