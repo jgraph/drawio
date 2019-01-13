@@ -285,10 +285,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 	}
 
-	if (/*!mxClient.IS_IOS || */urlParams['storage'] == 'device')
-	{
-		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
-	}
+	addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
 	
 	if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
 	{
@@ -2657,7 +2654,7 @@ var ParseDialog = function(editorUi, title, defaultType)
  */
 var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback,
 		leftHighlight, rightHighlight, rightHighlightBorder, itemPadding, templateFile,
-		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport)
+		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport, createButtonLabel)
 {
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
@@ -2799,7 +2796,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	};
 
-	var createButton = mxUtils.button(mxResources.get('create'), function()
+	var createButton = mxUtils.button(createButtonLabel || mxResources.get('create'), function()
 	{
 		createButton.setAttribute('disabled', 'disabled');
 		create();

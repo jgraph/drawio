@@ -536,11 +536,9 @@ EditorUi.initMinimalTheme = function()
         {
             menu.addSeparator();
             this.addMenuItems(menu, ['editData'], null, evt);
-        	menu.addSeparator();
-            this.addSubmenu('insert', menu);
-            this.addSubmenu('layout', menu);
             menu.addSeparator();
             this.addSubmenu('view', menu, null, mxResources.get('options'));
+            this.addSubmenu('layout', menu);
             this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
         }
         else if (graph.isEnabled())
@@ -650,14 +648,7 @@ EditorUi.initMinimalTheme = function()
         var ui = this.editorUi;
         var graph = ui.editor.graph;
         
-        ui.actions.get('insertText').label = mxResources.get('text');
-        ui.actions.get('insertText').label = mxResources.get('text');
         ui.actions.get('editDiagram').label = mxResources.get('formatXml') + '...';
-        ui.actions.get('insertRectangle').label = mxResources.get('rectangle');
-        ui.actions.get('insertEllipse').label = mxResources.get('ellipse');
-        ui.actions.get('insertRhombus').label = mxResources.get('rhombus');
-        ui.actions.get('insertImage').label = mxResources.get('image') + '...';
-        ui.actions.get('insertLink').label = mxResources.get('link') + '...';
         ui.actions.get('createShape').label = mxResources.get('shape') + '...';
         ui.actions.get('outline').label = mxResources.get('outline') + '...';
         ui.actions.get('layers').label = mxResources.get('layers') + '...';
@@ -887,8 +878,18 @@ EditorUi.initMinimalTheme = function()
         
         this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-', 'insertText',
-                                         'insertLink', '-', 'insertImage'], parent);
+            ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
+            	'insertText', 'insertLink', '-', 'insertImage'], parent);
+            
+            if (ui.insertTemplateEnabled && !ui.isOffline())
+			{
+                ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
+			}
+            
+            menu.addSeparator(parent);
+            ui.menus.addSubmenu('insertLayout', menu, parent);
+            ui.menus.addSubmenu('insertAdvanced', menu, parent);
+            menu.addSeparator(parent);
             
             if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
             {
@@ -898,12 +899,6 @@ EditorUi.initMinimalTheme = function()
             {
             	ui.menus.addSubmenu('importFrom', menu, parent);
             }
-            
-            menu.addSeparator(parent);
-            ui.menus.addSubmenu('insertLayout', menu, parent);
-            ui.menus.addSubmenu('insertAdvanced', menu, parent);
-            menu.addSeparator(parent);
-			menu.addItem(mxResources.get('more') + '...', null, ui.actions.get('toggleShapes').funct, parent);
         })));
 
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',

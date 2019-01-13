@@ -111,7 +111,24 @@
 					}
 				}), true, null, 'svg');
 		}));
+		
+		editorUi.actions.put('insertTemplate', new Action(mxResources.get('template') + '...', function()
+		{
+			var dlg = new NewDialog(editorUi, null, false, function(xml)
+			{
+				editorUi.hideDialog();
+				
+				if (xml != null)
+				{
+					graph.setSelectionCells(editorUi.importXml(xml));
+					graph.scrollCellToVisible(graph.getSelectionCell());
+				}
+			}, null, null, null, null, null, null, null, null, null, null,
+				false, mxResources.get('insert'));
 
+			editorUi.showDialog(dlg.container, 620, 440, true, true);
+		}));
+		
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()
 		{
 			var div = document.createElement('div');
@@ -1562,7 +1579,7 @@
 			}
 		})));
 
-		this.put('importFrom', new Menu(function(menu, parent)
+		this.put('importFrom', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var doImportFile = mxUtils.bind(this, function(data, mime, filename)
 			{
@@ -1787,7 +1804,7 @@
 					dlg.init();
 				}, parent);
 			}
-		})).isEnabled = isGraphEnabled;
+		}))).isEnabled = isGraphEnabled;
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -2090,38 +2107,56 @@
 	    	return cell;
 		};
 		
-		editorUi.actions.addAction('insertText', function()
+		
+		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
+				{
+					editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
+						'https://support.draw.io/display/DO/Exporting+Files',
+						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+							editable, embedImages, border, cropImage, currentPage, linkTarget)
+						{
+							var val = parseInt(scale);
+							
+							if (!isNaN(val) && val > 0)
+							{
+							   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+							   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
+							}
+						}), true, null, 'svg');
+				}));
+		
+		editorUi.actions.put('insertText', new Action(mxResources.get('text'), function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;' +
     				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;'));
 			}
-		}, null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
+		}), null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
 		
-		editorUi.actions.addAction('insertRectangle', function()
+		editorUi.actions.put('insertRectangle', new Action(mxResources.get('rectangle'), function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;');
 			}
-		}, null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
-		
-		editorUi.actions.addAction('insertEllipse', function()
+		}), null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
+
+		editorUi.actions.put('insertEllipse', new Action(mxResources.get('ellipse'), function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;');
 			}
-		}, null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
+		}), null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
 		
-		editorUi.actions.addAction('insertRhombus', function()
+		editorUi.actions.put('insertRhombus', new Action(mxResources.get('rhombus'), function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;');
 			}
-		}).isEnabled = isGraphEnabled;
+		})).isEnabled = isGraphEnabled;
 		
 		var addInsertMenuItems = mxUtils.bind(this, function(menu, parent, methods)
 		{
@@ -2140,8 +2175,14 @@
 
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['insertText', 'insertRectangle', '-', 'insertEllipse', 'insertRhombus', '-', 'insertLink', 'insertImage'], parent);
-			menu.addSeparator(parent);
+			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
+				'insertText', 'insertLink', '-', 'insertImage'], parent);
+
+			if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
+			{
+				this.addMenuItems(menu, ['insertTemplate', '-'], parent);
+			}
+			
 			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 			menu.addSeparator(parent);
 			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
