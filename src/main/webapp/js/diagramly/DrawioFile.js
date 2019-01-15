@@ -20,6 +20,28 @@ DrawioFile = function(ui, data)
 	 */
 	this.data = data || '';
 	this.shadowData = this.data;
+	
+	// Creates the stats object
+	this.stats = {
+		joined: 0, /* number of join messages received */
+		merged: 0, /* number of calls to merge */
+		opened: 0, /* number of calls to open */
+		closed: 0, /* number of calls to close */
+		destroyed: 0, /* number of calls to close */
+		fileMerged: 0, /* number of calls to mergeFile */
+		fileSaved: 0, /* number of calls to fileSaved */
+		reload: 0, /* number of times the file was reloaded */
+		checksumErrors: 0, /* number of checksum errors */
+		bytesSent: 0, /* number of bytes send in messages */
+		bytesReceived: 0, /* number of bytes received in messages */
+		msgSent: 0, /* number of messages sent */
+		msgReceived: 0, /* number of messages received */
+		cacheHits: 0, /* number of times the cache returned patches */
+		cacheMiss: 0, /* number of times we have missed a cache entry */
+		cacheFail: 0, /* number of times we have failed to read the cache */
+		conflicts: 0, /* number of write conflicts when saving a file */
+		timeouts: 0 /* number of time we have given up to retry after a write conflict */
+	};
 };
 
 /**
@@ -119,25 +141,6 @@ DrawioFile.prototype.reportEnabled = true;
 /**
  * Specifies if notify events should be ignored.
  */
-DrawioFile.prototype.stats = {
-	joined: 0, /* number of join messages received */
-	merged: 0, /* number of calls to merge */
-	reload: 0, /* number of times the file was reloaded */
-	checksumErrors: 0, /* number of checksum errors */
-	bytesSent: 0, /* number of bytes send in messages */
-	bytesReceived: 0, /* number of bytes received in messages */
-	msgSent: 0, /* number of messages sent */
-	msgReceived: 0, /* number of messages received */
-	cacheHits: 0, /* number of times the cache returned patches */
-	cacheMiss: 0, /* number of times we have missed a cache entry */
-	cacheFail: 0, /* number of times we have failed to read the cache */
-	conflicts: 0, /* number of write conflicts when saving a file */
-	timeouts: 0 /* number of time we have given up to retry after a write conflict */
-};
-
-/**
- * Specifies if notify events should be ignored.
- */
 DrawioFile.prototype.getSize = function()
 {
 	return (this.data != null) ? this.data.length : 0;
@@ -173,30 +176,54 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 */
 DrawioFile.prototype.updateFile = function(success, error, abort, shadow)
 {
-	this.getLatestVersion(mxUtils.bind(this, function(latestFile)
+	if (this.ui.getCurrentFile() != this)
 	{
-		try
+		if (error != null)
 		{
-			if (abort == null || !abort())
+			error(e);
+		}
+	}
+	else if (abort == null || !abort())
+	{
+		this.getLatestVersion(mxUtils.bind(this, function(latestFile)
+		{
+			try
 			{
-				if (latestFile != null)
+				if (this.ui.getCurrentFile() != this)
 				{
-					this.mergeFile(latestFile, success, error, shadow);
+					if (error != null)
+					{
+						error(e);
+					}
 				}
-				else
+				else if (abort == null || !abort())
 				{
-					this.reloadFile(success, error);
+					if (this.ui.getCurrentFile() == this)
+					{
+						if (latestFile != null)
+						{
+							this.mergeFile(latestFile, success, error, shadow);
+						}
+						else
+						{
+							this.reloadFile(success, error);
+						}
+					}
+					else if (error != null)
+					{
+						error(e);
+					}
 				}
 			}
-		}
-		catch (e)
-		{
-			if (error != null)
+			catch (e)
 			{
-				error(e);
+				if (error != null)
+				{
+					error(e);
+				}
 			}
-		}
-	}), error);
+		}), error);
+	}
 };
 
 /**
@@ -206,6 +233,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 {
 	try
 	{
+		this.stats.fileMerged++;
+				
 		// Takes copy of current shadow document
 		var shadow = (this.shadowPages != null) ? this.shadowPages :
 			this.ui.getPagesForNode(mxUtils.parseXml(
@@ -248,9 +277,9 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				var data = this.compressReportData(this.getAnonymizedXmlForPages(patched));
 				
 				this.checksumError(error, patches,
-					'Checksum: ' + checksum +
-					((patchedDetails != null) ? ('\nDetails: ' +
+					((patchedDetails != null) ? ('Details: ' +
 						JSON.stringify(patchedDetails)) : '') +
+					'\nChecksum: ' + checksum +
 					'\nCurrent: ' + current +
 					((currentDetails != null) ? ('\nCurrent Details: ' +
 						JSON.stringify(currentDetails)) : '') +
@@ -932,6 +961,7 @@ DrawioFile.prototype.getData = function()
  */
 DrawioFile.prototype.open = function()
 {
+	this.stats.opened++;
 	var data = this.getData();
 	
 	if (data != null)
@@ -939,7 +969,12 @@ DrawioFile.prototype.open = function()
 		this.ui.setFileData(data);
 		
 		// Updates shadow in case any page IDs have been updated
-		this.shadowData = mxUtils.getXml(this.ui.getXmlFileData());
+		// only if the file has not been modified and reopened
+		if (!this.isModified())
+		{
+			this.shadowData = mxUtils.getXml(this.ui.getXmlFileData());
+			this.shadowPages = null;
+		}
 	}
 
 	this.installListeners();
@@ -1004,7 +1039,11 @@ DrawioFile.prototype.startSync = function()
 		(urlParams['rt'] == '1' || !this.ui.editor.chromeless ||
 		this.ui.editor.editable))
 	{
-		this.sync = new DrawioFileSync(this);
+		if (this.sync == null)
+		{
+			this.sync = new DrawioFileSync(this);
+		}
+		
 		this.sync.start();
 	}
 };
@@ -1606,6 +1645,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
 	try
 	{
+		this.stats.fileSaved++;
 		this.inConflictState = false;
 		this.invalidChecksum = false;
 		this.checkPages();
@@ -1639,7 +1679,9 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 
 		try
 		{
-			this.sendErrorReport('Error in fileSaved', null, e);
+			this.sendErrorReport('Error in fileSaved',
+				'SavedData:\n' + this.compressReportData(
+				this.ui.anonymizeString(savedData), 25000), e);
 		}
 		catch (e2)
 		{
@@ -1779,6 +1821,9 @@ DrawioFile.prototype.contentChanged = function()
  */
 DrawioFile.prototype.close = function(unloading)
 {
+	this.updateFileData();
+	this.stats.closed++;
+	
 	if (this.isAutosave() && this.isModified())
 	{
 		this.save(this.isAutosaveRevision(), null, null, unloading);
@@ -1823,6 +1868,8 @@ DrawioFile.prototype.removeListeners = function()
  */
 DrawioFile.prototype.destroy = function()
 {
+	this.stats.destroyed++;
+	
 	try
 	{
 		if (!this.ui.isOffline() && this.reportEnabled &&

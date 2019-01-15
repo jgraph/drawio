@@ -2633,8 +2633,8 @@ App.prototype.pickFile = function(mode)
 				}
 				
 				this.fileLoaded((mode == App.MODE_BROWSER) ?
-						new StorageFile(this, xml, filename) :
-						new LocalFile(this, xml, filename));
+					new StorageFile(this, xml, filename) :
+					new LocalFile(this, xml, filename));
 			}));
 			
 			// Extends dialog close to show splash screen

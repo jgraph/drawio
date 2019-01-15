@@ -537,8 +537,8 @@ EditorUi.initMinimalTheme = function()
             menu.addSeparator();
             this.addMenuItems(menu, ['editData'], null, evt);
             menu.addSeparator();
-            this.addSubmenu('view', menu, null, mxResources.get('options'));
             this.addSubmenu('layout', menu);
+            this.addSubmenu('view', menu, null, mxResources.get('options'));
             this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
         }
         else if (graph.isEnabled())

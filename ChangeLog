@@ -1,3 +1,19 @@
+15-JAN-2019: 10.0.38
+
+- Fixes inconsistency in collaborative editing
+- Handles possible call stack errors
+- Uses mxGraph 3.9.13 beta 10
+- Adds IC shapes
+
+14-JAN-2019: 10.0.37
+
+- Improves error logging
+
+14-JAN-2019: 10.0.36
+
+- Uses mxGraph 3.9.13 beta 9
+- Adds debug output
+
 13-JAN-2019: 10.0.35
 
 - Fixes device option in splash

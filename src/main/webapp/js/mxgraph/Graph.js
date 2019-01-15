@@ -61,7 +61,7 @@ mxGraphView.prototype.gridColor = '#e0e0e0';
 mxSvgCanvas2D.prototype.foAltText = '[Not supported by viewer]';
 
 // Hook for custom constraints
-mxShape.prototype.getConstraints = function(style)
+mxShape.prototype.getConstraints = function(style, w, h)
 {
 	return null;
 };
@@ -4885,7 +4885,24 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			if (terminal != null)
 			{
-				var constraints = (terminal.shape != null) ? terminal.shape.getConstraints(terminal.style) : null;
+				var constraints = null;
+				
+				if (terminal.shape != null)
+				{
+					var dir = terminal.shape.direction;
+					var bounds = terminal.shape.bounds;
+					var scale = terminal.shape.scale;
+					var w = bounds.width / scale, h = bounds.height / scale;
+					
+					if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
+					{
+						var tmp = w;
+						w = h;
+						h = tmp;
+					}
+					
+					constraints = terminal.shape.getConstraints(terminal.style, w, h);
+				}				
 				
 				if (constraints != null)
 				{

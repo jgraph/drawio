@@ -9416,137 +9416,144 @@
 				
 					reader.onload = mxUtils.bind(this, function(e)
 					{
-						var data = e.target.result;
-						var name = file.name;
-						
-						if (name != null && name.length > 0)
+						try
 						{
-							if (!this.useCanvasForExport && /(\.png)$/i.test(name))
-							{
-								name = name.substring(0, name.length - 4) + '.xml';
-							}
+							var data = e.target.result;
+							var name = file.name;
 							
-							var handleResult = mxUtils.bind(this, function(xml)
+							if (name != null && name.length > 0)
 							{
-								var dot = name.lastIndexOf('.');
-								
-								if (dot >= 0)
+								if (!this.useCanvasForExport && /(\.png)$/i.test(name))
 								{
-									name = name.substring(0, name.lastIndexOf('.')) + '.xml';
-								}
-								else
-								{
-									name = name + '.xml';
+									name = name.substring(0, name.length - 4) + '.xml';
 								}
 								
-								if (xml.substring(0, 10) == '<mxlibrary')
+								var handleResult = mxUtils.bind(this, function(xml)
 								{
+									var dot = name.lastIndexOf('.');
+									
+									if (dot >= 0)
+									{
+										name = name.substring(0, name.lastIndexOf('.')) + '.xml';
+									}
+									else
+									{
+										name = name + '.xml';
+									}
+									
+									if (xml.substring(0, 10) == '<mxlibrary')
+									{
+										// Creates new temporary file if library is dropped in splash screen
+										if (this.getCurrentFile() == null && urlParams['embed'] != '1')
+										{
+											this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
+										}
+									
+					    				try
+						    			{
+					    					this.loadLibrary(new LocalLibrary(this, xml, name));
+						    			}
+					    				catch (e)
+						    			{
+						    				this.handleError(e, mxResources.get('errorLoadingFile'));
+						    			}
+									}
+									else
+									{
+										this.openLocalFile(xml, name, temp);
+									}
+								});
+								
+								if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
+								{
+									this.importVisio(file, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}));
+								}
+								else if (/(\.*<graphml )/.test(data)) 
+								{
+									this.importGraphML(data, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}));
+								}
+								else if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload &&
+									this.isRemoteFileFormat(data, name))
+								{
+									this.parseFile(file, mxUtils.bind(this, function(xhr)
+									{
+										if (xhr.readyState == 4)
+										{
+											this.spinner.stop();
+											
+											if (xhr.status >= 200 && xhr.status <= 299)
+											{
+												handleResult(xhr.responseText);
+											}
+											else
+											{
+												this.handleError({message: mxResources.get((xhr.status == 413) ?
+				            						'drawingTooLarge' : 'invalidOrMissingFile')},
+				            						mxResources.get('errorLoadingFile'));
+											}
+										}
+									}));
+								}
+								else if (this.isLucidChartData(data))
+								{
+									if (/(\.json)$/i.test(name))
+									{
+										name = name.substring(0, name.length - 5) + '.xml';
+									}
+	
+									// LATER: Add import step that produces cells and use callback
+									this.convertLucidChart(data, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										this.openLocalFile(xml, name, temp);
+									}), mxUtils.bind(this, function(e)
+									{
+										this.spinner.stop();
+										this.handleError(e);
+									}));
+								}
+								else if (e.target.result.substring(0, 10) == '<mxlibrary')
+				    			{
+									this.spinner.stop();
+									
 									// Creates new temporary file if library is dropped in splash screen
 									if (this.getCurrentFile() == null && urlParams['embed'] != '1')
 									{
 										this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 									}
-								
+									
 				    				try
 					    			{
-				    					this.loadLibrary(new LocalLibrary(this, xml, name));
+					    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
 					    			}
-				    				catch (e)
+					    			catch (e)
 					    			{
 					    				this.handleError(e, mxResources.get('errorLoadingFile'));
 					    			}
-								}
+				    			}
 								else
 								{
-									this.openLocalFile(xml, name, temp);
-								}
-							});
-							
-							if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
-							{
-								this.importVisio(file, mxUtils.bind(this, function(xml)
-								{
-									this.spinner.stop();
-									handleResult(xml);
-								}));
-							}
-							else if (/(\.*<graphml )/.test(data)) 
-							{
-								this.importGraphML(data, mxUtils.bind(this, function(xml)
-								{
-									this.spinner.stop();
-									handleResult(xml);
-								}));
-							}
-							else if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload &&
-								this.isRemoteFileFormat(data, name))
-							{
-								this.parseFile(file, mxUtils.bind(this, function(xhr)
-								{
-									if (xhr.readyState == 4)
+									if (file.type.substring(0, 9) == 'image/png')
 									{
-										this.spinner.stop();
-										
-										if (xhr.status >= 200 && xhr.status <= 299)
-										{
-											handleResult(xhr.responseText);
-										}
-										else
-										{
-											this.handleError({message: mxResources.get((xhr.status == 413) ?
-			            						'drawingTooLarge' : 'invalidOrMissingFile')},
-			            						mxResources.get('errorLoadingFile'));
-										}
+										data = this.extractGraphModelFromPng(data);
 									}
-								}));
-							}
-							else if (this.isLucidChartData(data))
-							{
-								if (/(\.json)$/i.test(name))
-								{
-									name = name.substring(0, name.length - 5) + '.xml';
-								}
-
-								// LATER: Add import step that produces cells and use callback
-								this.convertLucidChart(data, mxUtils.bind(this, function(xml)
-								{
+									
 									this.spinner.stop();
-									this.openLocalFile(xml, name, temp);
-								}), mxUtils.bind(this, function(e)
-								{
-									this.spinner.stop();
-									this.handleError(e);
-								}));
-							}
-							else if (e.target.result.substring(0, 10) == '<mxlibrary')
-			    			{
-								this.spinner.stop();
-								
-								// Creates new temporary file if library is dropped in splash screen
-								if (this.getCurrentFile() == null && urlParams['embed'] != '1')
-								{
-									this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
+									this.openLocalFile(data, name, temp);
 								}
-								
-			    				try
-				    			{
-				    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
-				    			}
-				    			catch (e)
-				    			{
-				    				this.handleError(e, mxResources.get('errorLoadingFile'));
-				    			}
-			    			}
-							else
-							{
-								if (file.type.substring(0, 9) == 'image/png')
-								{
-									data = this.extractGraphModelFromPng(data);
-								}
-								
-								this.spinner.stop();
-								this.openLocalFile(data, name, temp);
 							}
+						}
+						catch (e)
+						{
+							this.handleError(e);
 						}
 					});
 					
@@ -9631,6 +9638,10 @@
 					}
 				}));
 			}
+		}
+		else
+		{
+			throw new Error(mxResources.get('notADiagramFile'));
 		}
 	};
 	
