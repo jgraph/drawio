@@ -477,6 +477,11 @@ App.main = function(callback, createUi)
 				// Mapping from key to URL in App.plugins
 				var t = temp.split(';');
 				
+				if (typeof window.drawDevUrl == 'undefined')
+				{
+					drawDevUrl = '';
+				}
+
 				for (var i = 0; i < t.length; i++)
 				{
 					var url = App.pluginRegistry[t[i]];
@@ -484,7 +489,15 @@ App.main = function(callback, createUi)
 					if (url != null && pluginsLoaded[url] == null)
 					{
 						pluginsLoaded[url] = true;
-						mxscript(drawDevUrl + url);
+						
+						if (typeof window.drawDevUrl === 'undefined')
+						{
+							mxscript(url);	
+						}
+						else
+						{
+							mxscript(drawDevUrl + url);
+						}
 					}
 					else if (window.console != null)
 					{

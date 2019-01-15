@@ -1188,7 +1188,7 @@ DrawioFile.prototype.installListeners = function()
  */
 DrawioFile.prototype.addAllSavedStatus = function(status)
 {
-	if (this.ui.statusContainer != null)
+	if (this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
 	{
 		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
 		
@@ -1218,7 +1218,7 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
  */
 DrawioFile.prototype.addUnsavedStatus = function(err)
 {
-	if (!this.inConflictState && this.ui.statusContainer != null)
+	if (!this.inConflictState && this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
 	{
 		if (err instanceof Error && err.message != null && err.message != '')
 		{

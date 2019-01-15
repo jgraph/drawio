@@ -1,3 +1,11 @@
+15-JAN-2019: 10.0.41
+
+- Adds ignored page size in checksum
+
+15-JAN-2019: 10.0.40
+
+- Fixes possible use of undefined variable
+
 15-JAN-2019: 10.0.39
 
 - Fixes shadow change check
