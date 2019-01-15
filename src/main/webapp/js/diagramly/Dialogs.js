@@ -2775,7 +2775,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 
 	var hasTabs = false;
-	
 	var i0 = 0;
 	
 	// Dynamic loading
@@ -2795,7 +2794,22 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 		}
 	};
-
+	
+	var spinner = new Spinner({
+		lines: 12, // The number of lines to draw
+		length: 10, // The length of each line
+		width: 5, // The line thickness
+		radius: 10, // The radius of the inner circle
+		rotate: 0, // The rotation offset
+		color: '#000', // #rgb or #rrggbb
+		speed: 1.5, // Rounds per second
+		trail: 60, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		top: '40%',
+		zIndex: 2e9 // The z-index (defaults to 2000000000)
+	});
+	
 	var createButton = mxUtils.button(createButtonLabel || mxResources.get('create'), function()
 	{
 		createButton.setAttribute('disabled', 'disabled');
@@ -2864,29 +2878,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			div.scrollTop = 0;
 			div.innerHTML = '';
-			
-			var spinner = new Spinner({
-				lines: 12, // The number of lines to draw
-				length: 10, // The length of each line
-				width: 5, // The line thickness
-				radius: 10, // The radius of the inner circle
-				rotate: 0, // The rotation offset
-				color: '#000', // #rgb or #rrggbb
-				speed: 1.5, // Rounds per second
-				trail: 60, // Afterglow percentage
-				shadow: false, // Whether to render a shadow
-				hwaccel: false, // Whether to use hardware acceleration
-				top: '40%',
-				zIndex: 2e9 // The z-index (defaults to 2000000000)
-			});
 			spinner.spin(div);
-			
 			i0 = 0;
 
-			var callback = function(list, errorMsg) 
+			var callback2 = function(list, errorMsg) 
 			{
 				spinner.stop();
-				
 				templates = list;
 				
 				if (errorMsg)
@@ -2905,9 +2902,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 			
 			if (isSearch)
-				searchDocsCallback(searchInput.value, callback);
+			{
+				searchDocsCallback(searchInput.value, callback2);
+			}
 			else
-				recentDocsCallback(callback);
+			{
+				recentDocsCallback(callback2);
+			}
 		}
 		
 		if (recentDocsCallback)
@@ -3097,8 +3098,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					realUrl = TEMPLATE_PATH + '/' + realUrl;
 				}
 				
+				spinner.spin(div);
+				
 				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 				{
+					spinner.stop();
+					
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
 						selectElement(elt, req.getText(), libs);

@@ -356,7 +356,10 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			page.root = root;
 		}
 
-		// Removes cells
+		// Inserts and updates previous and parent (hierarchy update)
+		this.patchCellRecursive(page, model, model.root, parentLookup, diff);
+
+		// Removes cells after parents have been updated above
 		if (diff[EditorUi.DIFF_REMOVE] != null)
 		{
 			for (var i = 0; i < diff[EditorUi.DIFF_REMOVE].length; i++)
@@ -370,10 +373,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 		
-		// Patches cell structure
-		this.patchCellRecursive(page, model, model.root, parentLookup, diff);
-
-		// Applies patches and changes terminals after all cells are inserted
+		// Updates cell states and terminals
 		if (diff[EditorUi.DIFF_UPDATE] != null)
 		{
 			var res = (resolver != null && resolver.cells != null) ? 
@@ -387,7 +387,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 
-		// Sets terminals for inserted cells after all cells are inserted
+		// Updates terminals for inserted cells
 		if (diff[EditorUi.DIFF_INSERT] != null)
 		{
 			for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
@@ -403,7 +403,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 
-		// Updates edge parents after all patches have been applied
+		// Delayed update of edge parents
 		model.updateEdgeParent = prev;
 		
 		if (updateEdgeParents && pendingUpdates.length > 0)
