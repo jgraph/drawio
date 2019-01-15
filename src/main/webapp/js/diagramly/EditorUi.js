@@ -2405,14 +2405,15 @@
 			// ignore in hash and do not diff null names for now
 			diagram.removeAttribute('name');
 			
-			// Local defaults may be different in files so ignore
-			diagram.removeAttribute('pageWidth');
-			diagram.removeAttribute('pageHeight');
-			
 			// Model is only a holder for the root
 			model.root = pages[i].root;
 			var xmlNode = codec.encode(model);
 			this.editor.graph.saveViewState(pages[i].viewState, xmlNode, true);
+			
+			// Local defaults may be different in files so ignore
+			xmlNode.removeAttribute('pageWidth');
+			xmlNode.removeAttribute('pageHeight');
+			
 			diagram.appendChild(xmlNode);
 			
 			if (details != null)

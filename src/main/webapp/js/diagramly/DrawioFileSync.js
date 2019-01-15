@@ -150,7 +150,7 @@ DrawioFileSync = function(file)
  * be incremented if new messages are added or the format is changed.
  * This must be numeric to compare older vs newer protocol versions.
  */
-DrawioFileSync.PROTOCOL = 5;
+DrawioFileSync.PROTOCOL = 6;
 
 //Extends mxEventSource
 mxUtils.extend(DrawioFileSync, mxEventSource);
