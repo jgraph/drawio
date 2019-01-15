@@ -716,7 +716,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 		var doCatchup = mxUtils.bind(this, function()
 		{
 			// Ignores patch if shadow has changed
-			if (current == etag)
+			if (current != this.file.getCurrentEtag())
 			{
 				if (success != null)
 				{
@@ -741,7 +741,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 					this.file.stats.bytesReceived += req.getText().length;	
 					
 					// Ignores patch if shadow has changed
-					if (current == etag)
+					if (current != this.file.getCurrentEtag())
 					{
 						if (success != null)
 						{
@@ -922,6 +922,9 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 				var from = this.ui.hashValue(this.file.getCurrentEtag());
 				var to = this.ui.hashValue(etag);
 				
+				currentDetails.inConflictState = this.file.inConflictState;
+				currentDetails.invalidChecksum = this.file.invalidChecksum;
+				
 				this.file.checksumError(error, patches,
 					'From: ' + from +
 					'\nTo: ' + to +
@@ -1063,9 +1066,6 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 			var details = {v: EditorUi.VERSION, t: new Date().toISOString(), ua: navigator.userAgent};
 			var checksum = this.ui.getHashValueForPages(pages, details);
 			var diff = this.ui.diffPages(shadow, pages);
-
-			// Debugging
-			details.lastChecksum = this.ui.getHashValueForPages(shadow);
 			
 			// Data is stored in cache and message is sent to all listeners
 			var etag = this.file.getDescriptorEtag(lastDesc);
