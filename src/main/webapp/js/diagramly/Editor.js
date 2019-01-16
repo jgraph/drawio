@@ -4019,7 +4019,11 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 		hd.style.marginBottom = '16px';
 		hd.style.borderBottom = '1px solid #c0c0c0';
 		hd.style.color = 'gray';
+		hd.style.whiteSpace = 'nowrap';
+		hd.style.textOverflow = 'ellipsis';
+		hd.style.overflow = 'hidden';
 		mxUtils.write(hd, title);
+		hd.setAttribute('title', title);
 		div.appendChild(hd);
 	}
 

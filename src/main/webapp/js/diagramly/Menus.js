@@ -977,10 +977,34 @@
 					{
 						try
 						{
-							var pages = editorUi.getPagesForNode(mxUtils.parseXml(
-								newValue).documentElement, 'mxGraphModel');
+							var doc = mxUtils.parseXml(newValue);
+							var pages = editorUi.getPagesForNode(doc.documentElement, 'mxGraphModel');
 							var checksum = editorUi.getHashValueForPages(pages);
 							console.log('checksum', pages, checksum);
+							
+							// Checks for duplicates
+							var all = doc.getElementsByTagName('*');
+							var allIds = {};
+							var dups = {};
+							
+							for (var i = 0; i < all.length; i++)
+							{
+								var el = all[i];
+								
+								if (allIds[el.id] == null)
+								{
+									allIds[el.id] = el.id;
+								}
+								else
+								{
+									dups[el.id] = el.id;
+								}
+							}
+							
+							if (dups.length > 0)
+							{
+								console.log('duplicates', dups);
+							}
 						}
 						catch (e)
 						{
