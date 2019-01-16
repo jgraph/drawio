@@ -937,7 +937,7 @@
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
-	EditorUi.prototype.anonymizeString = function(text)
+	EditorUi.prototype.anonymizeString = function(text, zeros)
 	{
 		var result = [];
 		
@@ -951,7 +951,7 @@
 			}
 			else if (!isNaN(parseInt(c)))
 			{
-				result.push(Math.round(Math.random() * 9));
+				result.push((zeros) ? '0' : Math.round(Math.random() * 9));
 			}
 			else if (c.toLowerCase() != c)
 			{
@@ -1083,7 +1083,7 @@
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
-	EditorUi.prototype.anonymizeAttributes = function(node)
+	EditorUi.prototype.anonymizeAttributes = function(node, zeros)
 	{
 		if (node.attributes != null)
 		{
@@ -1092,7 +1092,7 @@
 				if (node.attributes[i].name != 'as')
 				{
 					node.setAttribute(node.attributes[i].name,
-						this.anonymizeString(node.attributes[i].value));
+						this.anonymizeString(node.attributes[i].value, zeros));
 				}
 			}
 		}
@@ -1101,7 +1101,7 @@
 		{
 			for (var i = 0; i < node.childNodes.length; i++)
 			{
-				this.anonymizeAttributes(node.childNodes[i]);
+				this.anonymizeAttributes(node.childNodes[i], zeros);
 			}
 		}
 	};
@@ -1109,7 +1109,7 @@
 	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
-	EditorUi.prototype.anonymizeNode = function(node)
+	EditorUi.prototype.anonymizeNode = function(node, zeros)
 	{
 		var nodes = node.getElementsByTagName('mxCell');
 		
@@ -1137,7 +1137,7 @@
 		
 		for (var i = 0; i < geos.length; i++)
 		{
-			this.anonymizeAttributes(geos[i]);
+			this.anonymizeAttributes(geos[i], zeros);
 		}
 		
 		return node;
@@ -2455,7 +2455,7 @@
 		var hash = 0;
 		
 		// Checks for XML nodes
-		if (typeof obj === 'object' && typeof obj.nodeType === 'number' &&
+		if (obj != null && typeof obj === 'object' && typeof obj.nodeType === 'number' &&
 			typeof obj.nodeName === 'string' && typeof obj.getAttribute === 'function')
 		{
 			if (obj.nodeName != null)

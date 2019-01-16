@@ -1,3 +1,12 @@
+16-JAN-2019: 10.0.43
+
+- Fixes possible NPE in hashValue
+
+16-JAN-2019: 10.0.42
+
+- Fixes handling of invalid files
+- Uses mxGraph 3.9.13 beta 11
+
 15-JAN-2019: 10.0.41
 
 - Adds ignored page size in checksum

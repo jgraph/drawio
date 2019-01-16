@@ -477,11 +477,6 @@ App.main = function(callback, createUi)
 				// Mapping from key to URL in App.plugins
 				var t = temp.split(';');
 				
-				if (typeof window.drawDevUrl == 'undefined')
-				{
-					drawDevUrl = '';
-				}
-
 				for (var i = 0; i < t.length; i++)
 				{
 					var url = App.pluginRegistry[t[i]];

@@ -1191,7 +1191,8 @@ EditorUi.initMinimalTheme = function()
 		menubar.appendChild(ui.statusContainer);
 
 		ui.buttonContainer = document.createElement('div');
-		ui.buttonContainer.style.cssText = 'position:absolute;right:40px;top:12px;white-space:nowrap;';
+		ui.buttonContainer.style.cssText = 'position:absolute;right:0px;padding-right:34px;top:10px;' +
+			'white-space:nowrap;padding-top:2px;background-color:inherit;';
 		menubar.appendChild(ui.buttonContainer);
 		
 		// Container for the user element
@@ -1293,7 +1294,7 @@ EditorUi.initMinimalTheme = function()
         	
         	before = menubar.firstChild;
 	        iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	        var small = iw < 900;
+	        var small = iw < 1000;
 	 
 	        if (!small)
 	        {
@@ -1357,7 +1358,7 @@ EditorUi.initMinimalTheme = function()
 	        var langMenu = ui.menus.get('language');
 
 			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
-				!EditorUi.isElectronApp && iw >= 540)
+				!EditorUi.isElectronApp && iw >= 600)
 			{
 				if (langMenuElt == null)
 				{
@@ -1373,17 +1374,23 @@ EditorUi.initMinimalTheme = function()
 		        	elt.style.width = '24px';
 					elt.style.zIndex = '1';
 					elt.style.top = '11px';
-					elt.style.right = '14px';
+					elt.style.right = '8px';
 					elt.style.cursor = 'pointer';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
 				}
 				
-				ui.buttonContainer.style.right = '40px';
+				ui.buttonContainer.style.paddingRight = '34px';
 			}
 			else
 			{
-				ui.buttonContainer.style.right = '14px';
+				ui.buttonContainer.style.paddingRight = '4px';
+				
+				if (langMenuElt != null)
+				{
+					langMenuElt.parentNode.removeChild(langMenuElt);
+					langMenuElt = null;
+				}
 			}
         };
         

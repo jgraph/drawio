@@ -717,30 +717,37 @@ EditorUi.prototype.updatePageRoot = function(page)
  */
 EditorUi.prototype.selectPage = function(page, quiet, viewState)
 {
-	if (this.editor.graph.isEditing())
+	try
 	{
-		this.editor.graph.stopEditing(false);
+		if (this.editor.graph.isEditing())
+		{
+			this.editor.graph.stopEditing(false);
+		}
+		
+		quiet = (quiet != null) ? quiet : false;
+		this.editor.graph.isMouseDown = false;
+		this.editor.graph.reset();
+		
+		var edit = this.editor.graph.model.createUndoableEdit();
+		
+		// Special flag to bypass autosave for this edit
+		edit.ignoreEdit = true;
+	
+		var change = new SelectPage(this, page, viewState);
+		change.execute();
+		edit.add(change);
+		edit.notify();
+		
+		this.editor.graph.tooltipHandler.hide();
+		
+		if (!quiet)
+		{
+			this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+		}
 	}
-	
-	quiet = (quiet != null) ? quiet : false;
-	this.editor.graph.isMouseDown = false;
-	this.editor.graph.reset();
-	
-	var edit = this.editor.graph.model.createUndoableEdit();
-	
-	// Special flag to bypass autosave for this edit
-	edit.ignoreEdit = true;
-
-	var change = new SelectPage(this, page, viewState);
-	change.execute();
-	edit.add(change);
-	edit.notify();
-	
-	this.editor.graph.tooltipHandler.hide();
-	
-	if (!quiet)
+	catch (e)
 	{
-		this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+		this.handleError(e);
 	}
 };
 
@@ -836,50 +843,57 @@ EditorUi.prototype.createPageName = function()
  */
 EditorUi.prototype.removePage = function(page)
 {
-	var graph = this.editor.graph;
-	var tmp = mxUtils.indexOf(this.pages, page);
-	
-	if (graph.isEnabled() && tmp >= 0)
+	try
 	{
-		if (this.editor.graph.isEditing())
-		{
-			this.editor.graph.stopEditing(false);
-		}
+		var graph = this.editor.graph;
+		var tmp = mxUtils.indexOf(this.pages, page);
 		
-		graph.model.beginUpdate();
-		try
+		if (graph.isEnabled() && tmp >= 0)
 		{
-			var next = this.currentPage;
-			
-			if (next == page && this.pages.length > 1)
+			if (this.editor.graph.isEditing())
 			{
-				if (tmp == this.pages.length - 1)
+				this.editor.graph.stopEditing(false);
+			}
+			
+			graph.model.beginUpdate();
+			try
+			{
+				var next = this.currentPage;
+				
+				if (next == page && this.pages.length > 1)
 				{
-					tmp--;
+					if (tmp == this.pages.length - 1)
+					{
+						tmp--;
+					}
+					else
+					{
+						tmp++;
+					}
+					
+					next = this.pages[tmp];
 				}
-				else
+				else if (this.pages.length <= 1)
 				{
-					tmp++;
+					// Removes label with incorrect page number to force
+					// default page name which is OK for a single page
+					next = this.insertPage();
+					graph.model.execute(new RenamePage(this, next,
+						mxResources.get('pageWithNumber', [1])));
 				}
 				
-				next = this.pages[tmp];
+				// Uses model to fire event to trigger autosave
+				graph.model.execute(new ChangePage(this, page, next));
 			}
-			else if (this.pages.length <= 1)
+			finally
 			{
-				// Removes label with incorrect page number to force
-				// default page name which is OK for a single page
-				next = this.insertPage();
-				graph.model.execute(new RenamePage(this, next,
-					mxResources.get('pageWithNumber', [1])));
+				graph.model.endUpdate();
 			}
-			
-			// Uses model to fire event to trigger autosave
-			graph.model.execute(new ChangePage(this, page, next));
 		}
-		finally
-		{
-			graph.model.endUpdate();
-		}
+	}
+	catch (e)
+	{
+		this.handleError(e);
 	}
 	
 	return page;
