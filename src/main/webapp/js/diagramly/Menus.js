@@ -937,7 +937,7 @@
 			mxResources.parse('testDevelop=Develop');
 			mxResources.parse('showBoundingBox=Show bounding box');
 			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
-			mxResources.parse('testChecksum=Checksum');
+			mxResources.parse('testCheckFile=Check File');
 			mxResources.parse('testDiff=Diff');
 			mxResources.parse('testInspect=Inspect');
 			mxResources.parse('testShowConsole=Show Console');
@@ -965,7 +965,7 @@
 					'fillColor=none;strokeColor=red;');
 			}));
 	
-			editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
+			editorUi.actions.addAction('testCheckFile', mxUtils.bind(this, function()
 			{
 				var xml = (editorUi.pages != null && editorUi.getCurrentFile() != null) ?
 					editorUi.getCurrentFile().getAnonymizedXmlForPages(editorUi.pages) : '';
@@ -977,33 +977,52 @@
 					{
 						try
 						{
+							if (newValue.charAt(0) != '<')
+							{
+								newValue = graph.decompress(newValue);
+								console.log('xml', newValue);
+							}
+							
 							var doc = mxUtils.parseXml(newValue);
 							var pages = editorUi.getPagesForNode(doc.documentElement, 'mxGraphModel');
-							var checksum = editorUi.getHashValueForPages(pages);
-							console.log('checksum', pages, checksum);
 							
-							// Checks for duplicates
-							var all = doc.getElementsByTagName('*');
-							var allIds = {};
-							var dups = {};
-							
-							for (var i = 0; i < all.length; i++)
+							if (pages != null && pages.length > 0)
 							{
-								var el = all[i];
+								var checksum = editorUi.getHashValueForPages(pages);
+								console.log('checksum', pages, checksum);
+							}
+							else
+							{
+								// Checks for duplicates
+								var all = doc.getElementsByTagName('*');
+								var allIds = {};
+								var dups = {};
 								
-								if (allIds[el.id] == null)
+								for (var i = 0; i < all.length; i++)
 								{
-									allIds[el.id] = el.id;
+									var el = all[i];
+									
+									if (el.id != null)
+									{
+										if (allIds[el.id] == null)
+										{
+											allIds[el.id] = el.id;
+										}
+										else
+										{
+											dups[el.id] = el.id;
+										}
+									}
+								}
+								
+								if (Object.keys(dups).length > 0)
+								{
+									console.log('duplicates', dups);
 								}
 								else
 								{
-									dups[el.id] = el.id;
+									console.log('no duplicates');
 								}
-							}
-							
-							if (dups.length > 0)
-							{
-								console.log('duplicates', dups);
 							}
 						}
 						catch (e)
@@ -1178,7 +1197,7 @@
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
-					'testChecksum', 'testDiff', '-', 'testInspect', '-',
+					'testCheckFile', 'testDiff', '-', 'testInspect', '-',
 					'testXmlImageExport', '-', 'testDownloadRtModel'], parent);
 
 				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
@@ -2029,7 +2048,7 @@
 	        				editorUi.handleError(resp);
 	        			}));
 	            	}
-				}));
+				}), null, true);
 			}
 		}));
 		

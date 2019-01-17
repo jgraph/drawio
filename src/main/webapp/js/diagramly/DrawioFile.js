@@ -28,6 +28,7 @@ DrawioFile = function(ui, data)
 		lastMerge: 0, /* details of the last successful merge */
 		lastMergeTime: 0, /* timestamp of the last call to merge */
 		lastOpenTime: 0, /* timestamp of the last call to open */
+		lastIgnored: 0, /* timestamp of the last ignored mergeFile */
 		shadowState: 0, /* current etag hash for shadow */
 		opened: 0, /* number of calls to open */
 		closed: 0, /* number of calls to close */
@@ -245,68 +246,93 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 		this.checkPages(shadow, 'mergeFile init');
 	
 		// Loads new document as shadow document
-		this.shadowPages = this.ui.getPagesForNode(
+		var pages = this.ui.getPagesForNode(
 			mxUtils.parseXml(file.data).
 			documentElement)
-					
-		// Creates a patch for backup if the checksum fails
-		this.backupPatch = (this.isModified()) ?
-			this.ui.diffPages(shadow,
-			this.ui.pages) : null;
-		
-		// Patches the current document
-		var patches = [this.ui.diffPages((diffShadow != null) ?
-			diffShadow : shadow, this.shadowPages)];
-
-		if (!this.ignorePatches(patches))
+			
+		if (pages != null && pages.length > 0)
 		{
-			// Patching previous shadow to verify checksum
-			var patched = this.ui.patchPages(shadow, patches[0]);
-			this.stats.shadowState = this.ui.hashValue(file.getCurrentEtag());
-			this.checkPages(patched, 'mergeFile patched');
+			this.shadowPages = pages;
+
+			// Creates a patch for backup if the checksum fails
+			this.backupPatch = (this.isModified()) ?
+				this.ui.diffPages(shadow,
+				this.ui.pages) : null;
 			
-			var patchedDetails = {};
-			var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
-			var currentDetails = {};
-			var current = this.ui.getHashValueForPages(this.shadowPages, currentDetails);
-			
-			if (urlParams['test'] == '1')
+			// Patches the current document
+			var patches = [this.ui.diffPages((diffShadow != null) ?
+				diffShadow : shadow, this.shadowPages)];
+	
+			if (!this.ignorePatches(patches))
 			{
-				EditorUi.debug('File.mergeFile', [this],
-					'backup', this.backupPatch,
-					'patches', patches,
-					'checksum', current == checksum, checksum);
-			}
-			
-			if (checksum != null && checksum != current)
-			{
-				var data = this.compressReportData(this.getAnonymizedXmlForPages(patched));
+				// Patching previous shadow to verify checksum
+				var patched = this.ui.patchPages(shadow, patches[0]);
+				this.stats.shadowState = this.ui.hashValue(file.getCurrentEtag());
+				this.checkPages(patched, 'mergeFile patched');
 				
-				this.checksumError(error, patches,
-					((patchedDetails != null) ? ('Details: ' +
-						JSON.stringify(patchedDetails)) : '') +
-					'\nChecksum: ' + checksum +
-					'\nCurrent: ' + current +
-					((currentDetails != null) ? ('\nCurrent Details: ' +
-						JSON.stringify(currentDetails)) : '') +
-					'\nPatched:\n' + data);
+				var patchedDetails = {};
+				var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
+				var currentDetails = {};
+				var current = this.ui.getHashValueForPages(this.shadowPages, currentDetails);
 				
-				// Abnormal termination
-				return;
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('File.mergeFile', [this],
+						'backup', this.backupPatch,
+						'patches', patches,
+						'checksum', current == checksum, checksum);
+				}
+				
+				if (checksum != null && checksum != current)
+				{
+					var data = this.compressReportData(this.getAnonymizedXmlForPages(patched));
+					
+					this.checksumError(error, patches,
+						((patchedDetails != null) ? ('Details: ' +
+							JSON.stringify(patchedDetails)) : '') +
+						'\nChecksum: ' + checksum +
+						'\nCurrent: ' + current +
+						((currentDetails != null) ? ('\nCurrent Details: ' +
+							JSON.stringify(currentDetails)) : '') +
+						'\nPatched:\n' + data);
+					
+					// Abnormal termination
+					return;
+				}
+				else
+				{
+					this.patch(patches,
+						(DrawioFile.LAST_WRITE_WINS) ?
+						this.backupPatch : null);
+					this.checkPages(this.ui.pages, 'mergeFile done');
+				}
 			}
 			else
 			{
-				this.patch(patches,
-					(DrawioFile.LAST_WRITE_WINS) ?
-					this.backupPatch : null);
-				this.checkPages(this.ui.pages, 'mergeFile done');
+				this.stats.shadowState = this.ui.hashValue(file.getCurrentEtag());
 			}
 		}
 		else
 		{
-			this.stats.shadowState = this.ui.hashValue(file.getCurrentEtag());
+			try
+			{
+				// Report only once per session
+				if (this.stats.lastIgnored == 0)
+				{
+					this.sendErrorReport('Ignored empty pages in mergeFile',
+						'File Data: ' + this.compressReportData(
+						this.ui.anonymizeString(file.data),
+						null, 500));
+				}
+				
+				this.stats.lastIgnored = new Date().toISOString();
+			}
+			catch (e2)
+			{
+				// ignore
+			}
 		}
-
+	
 		this.invalidChecksum = false;
 		this.inConflictState = false;
 		this.setDescriptor(file.getDescriptor());
@@ -462,7 +488,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag)
 				'Checksum Error',
 				((details != null) ? (details) : '') +
 				'\n\nPatches:\n' + json +
-				((remote != null) ? ('\n\nHeadRevision:\n' + remote) : ''),
+				((remote != null) ? ('\n\nMaster:\n' + remote) : ''),
 				err, 70000);
 		});
 
@@ -1690,8 +1716,8 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 		try
 		{
 			this.sendErrorReport('Error in fileSaved',
-				'SavedData:\n' + this.compressReportData(
-				this.ui.anonymizeString(savedData), 5000), e);
+				'Saved Data:\n' + this.compressReportData(
+				this.ui.anonymizeString(savedData), null, 500), e);
 		}
 		catch (e2)
 		{

@@ -3825,8 +3825,54 @@
 
 	// Defines connection points for all shapes
 	IsoRectangleShape.prototype.constraints = [];
-	IsoCubeShape.prototype.constraints = [];
-	CalloutShape.prototype.constraints = [];
+	
+	IsoCubeShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var tan30 = Math.tan(mxUtils.toRadians(30));
+		var tan30Dx = (0.5 - tan30) / 2;
+		var m = Math.min(w, h / (0.5 + tan30));
+		var dx = (w - m) / 2;
+		var dy = (h - m) / 2;
+
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, dy + 0.25 * m));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx + 0.5 * m, dy + m * tan30Dx));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx + m, dy + 0.25 * m));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx + m, dy + 0.75 * m));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx + 0.5 * m, dy + (1 - tan30Dx) * m));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, dy + 0.75 * m));
+
+		return (constr);
+	};
+
+	CalloutShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+		var s = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'position', this.position))));
+		var dx2 = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'position2', this.position2))));
+		var base = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'base', this.base))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h - s) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, h - s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx2, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - s) * 0.5));
+		
+		if (w >= s * 2)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		}
+
+		return (constr);
+	};
+	
 	mxRectangleShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
 	                                          new mxConnectionConstraint(new mxPoint(0.5, 0), true),
 	                                          new mxConnectionConstraint(new mxPoint(0.75, 0), true),
@@ -3847,9 +3893,76 @@
 	mxImageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxSwimlane.prototype.constraints = mxRectangleShape.prototype.constraints;
 	PlusShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	NoteShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	CardShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	CubeShape.prototype.constraints = mxRectangleShape.prototype.constraints;
+
+	NoteShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - s) * 0.5, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - s, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - s * 0.5, s * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h + s) * 0.5 ));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		
+		if (w >= s * 2)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		}
+
+		return (constr);
+	};
+	
+	CardShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + s) * 0.5, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s * 0.5, s * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h + s) * 0.5 ));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		
+		if (w >= s * 2)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		}
+
+		return (constr);
+	};
+	
+	CubeShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var s = Math.max(0, Math.min(w, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size)))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - s) * 0.5, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - s, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - s * 0.5, s * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h + s) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + s) * 0.5, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s * 0.5, h - s * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - s) * 0.5));
+		
+		return (constr);
+	};
+	
 	FolderShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	InternalStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	DataStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
@@ -3859,7 +3972,25 @@
 	LineEllipseShape.prototype.constraints = mxEllipse.prototype.constraints;
 	ManualInputShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	DelayShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	DisplayShape.prototype.constraints = mxRectangleShape.prototype.constraints;
+
+	DisplayShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var dx = Math.min(w, h / 2);
+		var s = Math.min(w - dx, Math.max(0, parseFloat(mxUtils.getValue(this.style, 'size', this.size))) * w);
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (s + w - dx) * 0.5, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (s + w - dx) * 0.5, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s, h));
+		
+		return (constr);
+	};
+	
 	LoopLimitShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	OffPageConnectorShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxCylinder.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.15, 0.05), false),
@@ -3981,8 +4112,56 @@
 	        	            		 new mxConnectionConstraint(new mxPoint(1, 0.5), true),
 	        	            		 new mxConnectionConstraint(new mxPoint(1, 0.75), true)];
 	mxArrow.prototype.constraints = null;
-	TeeShape.prototype.constraints = null;
-	CornerShape.prototype.constraints = null;
+
+	TeeShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+		var w2 = Math.abs(w - dx) / 2;
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, dy * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.75 + dx * 0.25, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + dx) * 0.5, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + dx) * 0.5, (h + dy) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + dx) * 0.5, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, (h + dy) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.25 - dx * 0.25, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, dy * 0.5));
+		
+		return (constr);
+	};
+
+	CornerShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
+		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, dy * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + dx) * 0.5, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, (h + dy) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx * 0.5, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+		
+		return (constr);
+	};
+
 	CrossbarShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0), false),
         new mxConnectionConstraint(new mxPoint(0, 0.5), false),
         new mxConnectionConstraint(new mxPoint(0, 1), false),
@@ -3993,14 +4172,84 @@
         new mxConnectionConstraint(new mxPoint(1, 0.5), false),
         new mxConnectionConstraint(new mxPoint(1, 1), false)];
 
-	SingleArrowShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
-	                                    new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
-	DoubleArrowShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
-	  	                                    new mxConnectionConstraint(new mxPoint(1, 0.5), false)];
-	CrossShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.5), false),
-	                                    new mxConnectionConstraint(new mxPoint(1, 0.5), false),
-	                                    new mxConnectionConstraint(new mxPoint(0.5, 0), false),
-	                                    new mxConnectionConstraint(new mxPoint(0.5, 1), false)];
+	SingleArrowShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var aw = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arrowWidth', this.arrowWidth))));
+		var as = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arrowSize', this.arrowSize))));
+		var at = (h - aw) / 2;
+		var ab = at + aw;
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, at));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - as) * 0.5, at));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - as, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - as, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - as) * 0.5, h - at));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - at));
+		
+		return (constr);
+	};
+	
+	DoubleArrowShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var aw = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arrowWidth', SingleArrowShape.prototype.arrowWidth))));
+		var as = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'arrowSize', SingleArrowShape.prototype.arrowSize))));
+		var at = (h - aw) / 2;
+		var ab = at + aw;
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, as, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.5, at));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - as, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - as, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.5, h - at));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, as, h));
+		
+		return (constr);
+	};
+	
+	CrossShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var m = Math.min(h, w);
+		var size = Math.max(0, Math.min(m, m * parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var t = (h - size) / 2;
+		var b = t + size;
+		var l = (w - size) / 2;
+		var r = l + size;
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, t * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, t * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, h - t * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, h - t * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + r) * 0.5, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + r) * 0.5, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l * 0.5, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l * 0.5, b));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, l, t));
+
+		return (constr);
+	};
+	
 	UmlLifeline.prototype.constraints = null;
 	OrShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0, 0.25), false),
 	  	                             new mxConnectionConstraint(new mxPoint(0, 0.5), false),
