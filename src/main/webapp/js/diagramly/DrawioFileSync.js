@@ -1100,7 +1100,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 	{
 		this.start();
 
-		if (this.channelId != null)
+		if (this.channelId != null && this.isConnected())
 		{
 			// Computes diff and checksum
 			var shadow = (this.file.shadowPages != null) ?

@@ -167,9 +167,10 @@ App.DROPBOX_URL = 'js/dropbox/Dropbox-sdk.min.js';
 App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * OneDrive Client JS (file/folder picker). This is a slightly modified version to allow using accessTokens
+ * But it doesn't work for IE11, so we fallback to the original one
  */
-App.ONEDRIVE_URL = 'https://js.live.net/v7.2/OneDrive.js';
+App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : 'js/onedrive/OneDrive.js';
 
 /**
  * Trello URL
@@ -4184,7 +4185,7 @@ App.prototype.save = function(name, done)
  * if a valid folder was chosen for a mode that supports it. No callback
  * is made if no folder was chosen for a mode that supports it.
  */
-App.prototype.pickFolder = function(mode, fn, enabled)
+App.prototype.pickFolder = function(mode, fn, enabled, direct)
 {
 	enabled = (enabled != null) ? enabled : true;
 	var resume = this.spinner.pause();
@@ -4221,7 +4222,7 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 				folderId = OneDriveFile.prototype.getIdOf(files.value[0]);
         		fn(folderId);
 			}
-		}));
+		}), direct);
 	}
 	else if (enabled && mode == App.MODE_GITHUB && this.gitHub != null)
 	{

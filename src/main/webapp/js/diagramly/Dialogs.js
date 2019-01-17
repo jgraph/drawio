@@ -193,6 +193,16 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 						fn();
 					}));
 				}
+				else if (mode == App.MODE_ONEDRIVE && editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
+				{
+					// Tries immediate authentication
+					editorUi.oneDrive.checkToken(mxUtils.bind(this, function()
+					{
+						editorUi.spinner.stop();
+						editorUi.setMode(mode, cb.checked);
+						fn();
+					}));
+				}
 				else
 				{
 					editorUi.setMode(mode, cb.checked);
@@ -234,9 +244,9 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				}
 			}, 30000);
 			
-			editorUi.addListener('clientLoaded', mxUtils.bind(this, function()
+			editorUi.addListener('clientLoaded', mxUtils.bind(this, function(sender, evt)
 			{
-				if (editorUi[clientName] != null)
+				if (editorUi[clientName] != null && evt.getProperty('client') == editorUi[clientName])
 				{
 					window.clearTimeout(timeout);
 					mxUtils.setOpacity(label, 100);
@@ -9410,4 +9420,70 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 		
 		editorUi.hideDialog(true);
 	});
+};
+
+
+/**
+ * Constructs a new popup opener button dialog.
+ */
+var BtnDialog = function(editorUi, peer, btnLbl, fn)
+{
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+	
+	var hd = document.createElement('p');
+	hd.style.fontSize = '16pt';
+	hd.style.padding = '0px';
+	hd.style.margin = '0px';
+	hd.style.color = 'gray';
+	
+	mxUtils.write(hd, mxResources.get('done'));
+	
+	var service = 'Unknown';
+	
+	var img = document.createElement('img');
+	img.setAttribute('border', '0');
+	img.setAttribute('align', 'absmiddle');
+	img.style.marginRight = '10px';
+
+	if (peer == editorUi.drive)
+	{
+		service = mxResources.get('googleDrive');
+		img.src = IMAGE_PATH + '/google-drive-logo-white.svg';
+	}
+	else if (peer == editorUi.dropbox)
+	{
+		service = mxResources.get('dropbox');
+		img.src = IMAGE_PATH + '/dropbox-logo-white.svg';
+	}
+	else if (peer == editorUi.oneDrive)
+	{
+		service = mxResources.get('oneDrive');
+		img.src = IMAGE_PATH + '/onedrive-logo-white.svg';
+	}
+	else if (peer == editorUi.gitHub)
+	{
+		service = mxResources.get('github');
+		img.src = IMAGE_PATH + '/github-logo-white.svg';
+	}
+	else if (peer == editorUi.trello)
+	{
+		service = mxResources.get('trello');
+		img.src = IMAGE_PATH + '/trello-logo-white.svg';
+	}
+	
+	var p = document.createElement('p');
+	mxUtils.write(p, mxResources.get('authorizedIn', [service], 'You are now authorized in {1}'));
+
+	var button = mxUtils.button(btnLbl, fn);
+
+	button.insertBefore(img, button.firstChild);
+	button.style.marginTop = '6px';
+	button.className = 'geBigButton';
+
+	div.appendChild(hd);
+	div.appendChild(p);
+	div.appendChild(button);
+	
+	this.container = div;
 };

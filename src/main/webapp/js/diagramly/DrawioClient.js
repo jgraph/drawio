@@ -49,6 +49,7 @@ DrawioClient.prototype.clearPersistentToken = function()
 	if (isLocalStorage)
 	{
 		localStorage.removeItem('.' + this.cookieName);
+		sessionStorage.removeItem('.' + this.cookieName);
 	}
 	else if (typeof(Storage) != 'undefined')
 	{
@@ -61,13 +62,18 @@ DrawioClient.prototype.clearPersistentToken = function()
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-DrawioClient.prototype.getPersistentToken = function()
+DrawioClient.prototype.getPersistentToken = function(trySessionStorage)
 {
 	var token = null;
 	
 	if (isLocalStorage)
 	{
 		token = localStorage.getItem('.' + this.cookieName);
+		
+		if (token == null && trySessionStorage)
+		{
+			token = sessionStorage.getItem('.' + this.cookieName);
+		}
 	}
 	
 	if (token == null && typeof(Storage) != 'undefined')
@@ -110,19 +116,26 @@ DrawioClient.prototype.getPersistentToken = function()
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-DrawioClient.prototype.setPersistentToken = function(token)
+DrawioClient.prototype.setPersistentToken = function(token, sessionOnly)
 {
 	if (token != null)
 	{
 		if (isLocalStorage)
 		{
-			localStorage.setItem('.' + this.cookieName, token);
+			if (sessionOnly)
+			{
+				sessionStorage.setItem('.' + this.cookieName, token);
+			}
+			else 
+			{
+				localStorage.setItem('.' + this.cookieName, token);
+			}
 		}
 		else if (typeof(Storage) != 'undefined')
 		{
 			var expiration = new Date();
 			expiration.setYear(expiration.getFullYear() + 10);
-			var cookie = this.cookieName + '=' + token +'; path=/; expires=' + expiration.toUTCString();
+			var cookie = this.cookieName + '=' + token + '; path=/' + (sessionOnly? '' : '; expires=' + expiration.toUTCString());
 	
 			if (document.location.protocol.toLowerCase() == 'https')
 			{

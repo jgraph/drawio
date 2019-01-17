@@ -6533,10 +6533,12 @@
 		{
 			if (!noErrorHandling)
 			{
-				this.handleError(e, mxResources.get('invalidOrMissingFile'));
+				this.handleError(e);
 			}
-			
-			throw e;
+			else
+			{
+				throw e;
+			}
 		}
 		
 		return cells;
@@ -6680,7 +6682,12 @@
 			{
 				try
 				{
-					new VsdxExport(this).exportCurrentDiagrams();
+					var expSuccess = new VsdxExport(this).exportCurrentDiagrams();
+					
+					if (!expSuccess)
+					{
+						this.handleError({message: mxResources.get('unknownError')});
+					}
 				}
 				catch (e)
 				{
