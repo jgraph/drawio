@@ -28,7 +28,7 @@ mxUtils.extend(OneDriveClient, DrawioClient);
  * existing thumbnail with the placeholder only once.
  */
 OneDriveClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ?
-		'c36dee60-2c6d-4b5f-b552-a7d21798ea52' : '45c10911-200f-4e27-a666-9e9fca147395';
+	'2e598409-107f-4b59-89ca-d7723c8e00a4' : '45c10911-200f-4e27-a666-9e9fca147395';
 
 /**
  * OAuth 2.0 scopes for installing Drive Apps.
@@ -746,7 +746,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
 				acceptResponse = false;
-				error({code: App.ERROR_TIMEOUT, retry: fn});
+				error({code: App.ERROR_TIMEOUT, retry: doExecute});
 			}), this.ui.timeout);
 
 			var req = new mxXmlRequest(url, data, method);

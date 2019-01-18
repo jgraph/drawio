@@ -1,3 +1,11 @@
+18-JAN-2019: 10.1.2
+
+- Adds debug output
+
+18-JAN-2019: 10.1.1
+
+- Fixes possible NPEs
+
 17-JAN-2019: 10.1.0
 
 - Adds auth token refresh for OneDrive

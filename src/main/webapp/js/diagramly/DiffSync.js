@@ -604,10 +604,22 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 	var diagrams = node.getElementsByTagName(nodeName || 'diagram');
 	var pages = [];
 	
-	for (var i = 0; i < diagrams.length; i++)
+	if (diagrams.length > 0)
 	{
-		var page = new DiagramPage(diagrams[i]);
-		this.updatePageRoot(page);
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			var page = new DiagramPage(diagrams[i]);
+			this.updatePageRoot(page);
+			pages.push(page);
+		}
+	}
+	else if (node.nodeName == 'mxGraphModel')
+	{
+		var graph = this.editor.graph;
+		var page = new DiagramPage(node.ownerDocument.createElement('diagram'));
+		page.setName(mxResources.get('pageWithNumber', [1]));
+		mxUtils.setTextContent(page.node, graph.compress(
+			graph.zapGremlins(mxUtils.getXml(node))));
 		pages.push(page);
 	}
 	

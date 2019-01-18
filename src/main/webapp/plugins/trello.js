@@ -3,6 +3,12 @@
  */
 Draw.loadPlugin(function(editorUi)
 {
+	// Trello plugin only works in embed mode
+	if (editorUi.actions.get('exit') == null)
+	{
+		return;
+	}
+	
 	// Overridden to redirect modified check to file
 	editorUi.actions.get('exit').funct = function()
 	{
