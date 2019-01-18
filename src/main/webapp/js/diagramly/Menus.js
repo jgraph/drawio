@@ -980,6 +980,7 @@
 							if (newValue.charAt(0) != '<')
 							{
 								newValue = graph.decompress(newValue);
+								mxLog.debug('See console for uncompressed XML');
 								console.log('xml', newValue);
 							}
 							
@@ -988,42 +989,55 @@
 							
 							if (pages != null && pages.length > 0)
 							{
-								var checksum = editorUi.getHashValueForPages(pages);
-								console.log('checksum', pages, checksum);
+								try
+								{
+									var checksum = editorUi.getHashValueForPages(pages);
+									mxLog.debug('Checksum: ', checksum);
+								}
+								catch (e)
+								{
+									mxLog.debug('Error: ', e.message);
+								}
 							}
 							else
 							{
-								// Checks for duplicates
-								var all = doc.getElementsByTagName('*');
-								var allIds = {};
-								var dups = {};
+								mxLog.debug('No pages found for checksum');
+							}
+
+							// Checks for duplicates
+							var all = doc.getElementsByTagName('*');
+							var allIds = {};
+							var dups = {};
+							
+							for (var i = 0; i < all.length; i++)
+							{
+								var el = all[i];
 								
-								for (var i = 0; i < all.length; i++)
+								if (el.id != null && el.id.length > 0)
 								{
-									var el = all[i];
-									
-									if (el.id != null)
+									if (allIds[el.id] == null)
 									{
-										if (allIds[el.id] == null)
-										{
-											allIds[el.id] = el.id;
-										}
-										else
-										{
-											dups[el.id] = el.id;
-										}
+										allIds[el.id] = el.id;
+									}
+									else
+									{
+										dups[el.id] = el.id;
 									}
 								}
-								
-								if (Object.keys(dups).length > 0)
-								{
-									console.log('duplicates', dups);
-								}
-								else
-								{
-									console.log('no duplicates');
-								}
 							}
+							
+							if (Object.keys(dups).length > 0)
+							{
+								var log = Object.keys(dups).length + ' Duplicates: ' + Object.keys(dups).join(', ');
+								mxLog.debug(log + ' (see console)');
+								console.log(log);
+							}
+							else
+							{
+								mxLog.debug('No duplicates');
+							}
+							
+							mxLog.show();
 						}
 						catch (e)
 						{

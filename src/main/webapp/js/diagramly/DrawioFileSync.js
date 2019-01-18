@@ -914,8 +914,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.shadowPages = (this.file.shadowPages != null) ?
 			this.file.shadowPages : this.ui.getPagesForNode(
 			mxUtils.parseXml(this.file.shadowData).documentElement)
-		this.file.checkPages(this.file.shadowPages, 'merge init');
-		
+
 		// Creates a patch for backup if the checksum fails
 		this.file.backupPatch = (this.file.isModified()) ?
 			this.ui.diffPages(this.file.shadowPages,
@@ -930,7 +929,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			}
 			
 			this.file.stats.shadowState = this.ui.hashValue(etag);
-			this.file.checkPages(this.file.shadowPages, 'merge patched');
 			var currentDetails = {};
 			var current = (checksum != null) ? this.ui.getHashValueForPages(
 				this.file.shadowPages, currentDetails) : null;
@@ -992,7 +990,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 		this.file.inConflictState = false;
 		this.file.setCurrentEtag(etag);
 		this.file.backupPatch = null;
-		this.file.checkPages(this.ui.pages, 'merge done');
 		
 		if (success != null)
 		{
@@ -1143,6 +1140,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 	}
 	
 	this.file.shadowPages = pages;
+	this.file.stats.emptyPrefix = this.file.stats.emptyPrefix ||
+		this.ui.editor.graph.model.prefix.length == 0;
 	
 	if (success != null)
 	{
