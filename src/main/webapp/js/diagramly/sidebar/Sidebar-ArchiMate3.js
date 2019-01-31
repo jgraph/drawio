@@ -377,9 +377,9 @@
 		[
 			this.createVertexTemplateEntry(am2 + 'application;appType=resource;archiType=square;', 
 					w * 150, h * 75, '', 'Resource', null, null, this.getTagsForStencil(gn, '', dt + 'resource').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=rounded;', 
 					w * 150, h * 75, '', 'Capability', null, null, this.getTagsForStencil(gn, '', dt + 'capability').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=rounded;', 
 					w * 150, h * 75, '', 'Course of Action', null, null, this.getTagsForStencil(gn, '', dt + 'course action').join(' '))
 		];
 			
