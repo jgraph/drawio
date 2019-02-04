@@ -173,7 +173,7 @@ mxShapeArrows2Arrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, h - dy));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Two Way Arrow
@@ -310,7 +310,7 @@ mxShapeArrows2TwoWayArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, h - dy));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Stylised Arrow
@@ -440,7 +440,7 @@ mxShapeArrows2StylisedArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, h - (dy + feather) * 0.5));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Sharp Arrow
@@ -557,8 +557,7 @@ Graph.handleFactory[mxShapeArrows2SharpArrow.prototype.cst.SHARP_ARROW] = functi
 	handles.push(handle3);
 	
 	return handles;
-
-}
+};
 
 mxShapeArrows2SharpArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -590,7 +589,7 @@ mxShapeArrows2SharpArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx1) * 0.5, h - dy1));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Sharp Arrow2
@@ -722,7 +721,7 @@ Graph.handleFactory[mxShapeArrows2SharpArrow2.prototype.cst.SHARP_ARROW2] = func
 	handles.push(handle4);
 
 	return handles;
-}
+};
 
 mxShapeArrows2SharpArrow2.prototype.getConstraints = function(style, w, h)
 {
@@ -750,7 +749,7 @@ mxShapeArrows2SharpArrow2.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx1) * 0.5, h - dy1));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Callout Arrow
@@ -864,7 +863,7 @@ Graph.handleFactory[mxShapeArrows2CalloutArrow.prototype.cst.CALLOUT_ARROW] = fu
 	handles.push(handle3);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2CalloutArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -891,7 +890,7 @@ mxShapeArrows2CalloutArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, (notch + w - dx) * 0.5, dy));
 
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Bend Arrow
@@ -1028,7 +1027,7 @@ Graph.handleFactory[mxShapeArrows2BendArrow.prototype.cst.BEND_ARROW] = function
 	handles.push(handle3);
 
 	return handles;
-}
+};
 
 mxShapeArrows2BendArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1064,7 +1063,7 @@ mxShapeArrows2BendArrow.prototype.getConstraints = function(style, w, h)
 	}
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Bend Double Arrow
@@ -1186,8 +1185,7 @@ Graph.handleFactory[mxShapeArrows2BendDoubleArrow.prototype.cst.BEND_DOUBLE_ARRO
 	handles.push(handle2);
 
 	return handles;
-
-}
+};
 
 mxShapeArrows2BendDoubleArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1223,7 +1221,7 @@ mxShapeArrows2BendDoubleArrow.prototype.getConstraints = function(style, w, h)
 	}
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Callout Double Arrow
@@ -1344,7 +1342,7 @@ Graph.handleFactory[mxShapeArrows2CalloutDoubleArrow.prototype.cst.CALLOUT_DOUBL
 	handles.push(handle3);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2CalloutDoubleArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1372,7 +1370,7 @@ mxShapeArrows2CalloutDoubleArrow.prototype.getConstraints = function(style, w, h
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w * 0.5 + dx - notch) * 0.5, h * 0.5 + dy));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Callout Quad Arrow
@@ -1507,7 +1505,7 @@ Graph.handleFactory[mxShapeArrows2CalloutQuadArrow.prototype.cst.CALLOUT_QUAD_AR
 	handles.push(handle3);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2CalloutQuadArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1551,7 +1549,7 @@ mxShapeArrows2CalloutQuadArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.5 + dy, h * 0.25 - (notch - dx) * 0.5));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Callout Double 90 Arrow
@@ -1677,7 +1675,7 @@ Graph.handleFactory[mxShapeArrows2CalloutDouble90Arrow.prototype.cst.CALLOUT_DOU
 	handles.push(handle3);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2CalloutDouble90Arrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1705,7 +1703,7 @@ mxShapeArrows2CalloutDouble90Arrow.prototype.getConstraints = function(style, w,
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, dy2));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Quad Arrow
@@ -1818,7 +1816,7 @@ Graph.handleFactory[mxShapeArrows2QuadArrow.prototype.cst.QUAD_ARROW] = function
 	handles.push(handle2);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2QuadArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1849,7 +1847,7 @@ mxShapeArrows2QuadArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (dy - dx) * 0.5 + w * 0.75, h * 0.5 + dy));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Triad Arrow
@@ -1954,7 +1952,7 @@ Graph.handleFactory[mxShapeArrows2TriadArrow.prototype.cst.TRIAD_ARROW] = functi
 	handles.push(handle2);
 	
 	return handles;
-}
+};
 
 mxShapeArrows2TriadArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -1981,7 +1979,7 @@ mxShapeArrows2TriadArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.5 + arrowHead * 0.5 - dy, (dx + h - arrowHead + dy) * 0.5));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Tailed Arrow
@@ -2121,7 +2119,7 @@ Graph.handleFactory[mxShapeArrows2TailedArrow.prototype.cst.TAILED_ARROW] = func
 	handles.push(handle4);
 
 	return handles;
-}
+};
 
 mxShapeArrows2TailedArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -2151,7 +2149,7 @@ mxShapeArrows2TailedArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Tailed Arrow with Notch
@@ -2291,7 +2289,7 @@ Graph.handleFactory[mxShapeArrows2TailedNotchedArrow.prototype.cst.TAILED_NOTCHE
 	handles.push(handle4);
 
 	return handles;
-}
+};
 
 mxShapeArrows2TailedNotchedArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -2321,7 +2319,7 @@ mxShapeArrows2TailedNotchedArrow.prototype.getConstraints = function(style, w, h
 	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Striped Arrow
@@ -2422,8 +2420,7 @@ Graph.handleFactory[mxShapeArrows2StripedArrow.prototype.cst.STRIPED_ARROW] = fu
 	handles.push(handle2);
 	
 	return handles;
-
-}
+};
 
 mxShapeArrows2StripedArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -2444,7 +2441,7 @@ mxShapeArrows2StripedArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, h - dy));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //Jump-In Arrow
@@ -2537,7 +2534,7 @@ Graph.handleFactory[mxShapeArrows2JumpInArrow.prototype.cst.JUMP_IN_ARROW] = fun
 	handles.push(handle2);
 
 	return handles;
-}
+};
 
 mxShapeArrows2JumpInArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -2552,7 +2549,7 @@ mxShapeArrows2JumpInArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx, arrowHead));
 	
 	return (constr);
-}
+};
 
 //**********************************************************************************************************************************************************
 //U Turn Arrow
@@ -2668,7 +2665,7 @@ Graph.handleFactory[mxShapeArrows2UTurnArrow.prototype.cst.U_TURN_ARROW] = funct
 	handles.push(handle3);
 
 	return handles;
-}
+};
 
 mxShapeArrows2UTurnArrow.prototype.getConstraints = function(style, w, h)
 {
@@ -2691,5 +2688,4 @@ mxShapeArrows2UTurnArrow.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, arrowHead - 2 * dy, (h + arrowHead * 0.5 - dy) * 0.5));
 	
 	return (constr);
-}
-
+};

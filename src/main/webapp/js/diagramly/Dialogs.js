@@ -17,7 +17,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	
 	if (elt != null)
 	{
-		elt.style.bottom = parseInt(bottom) - 2 + 'px';
+		elt.style.bottom = parseInt(bottom) - 3 + 'px';
 	}
 	
 	if (!editorUi.isOffline() && editorUi.getServiceCount() > 1)
@@ -444,7 +444,13 @@ var SplashDialog = function(editorUi)
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
 	
-	editorUi.addLanguageMenu(div, true);
+	var elt = editorUi.addLanguageMenu(div, true);
+	
+	if (elt != null)
+	{
+		elt.style.bottom = '19px';
+	}
+	
 	var help = null;
 	var serviceCount = editorUi.getServiceCount();
 	
@@ -739,7 +745,7 @@ var SplashDialog = function(editorUi)
 		link.setAttribute('href', 'javascript:void(0)');
 		link.style.display = 'inline-block';
 		link.style.marginTop = '8px';
-		mxUtils.write(link, mxResources.get('notUsingService', [storage]));
+		mxUtils.write(link, mxResources.get('changeStorage'));
 		
 		mxEvent.addListener(link, 'click', function()
 		{
@@ -993,11 +999,19 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 				else
 				{
 					var wnd = window.open();
-					var doc = wnd.document;
-					doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
+					var doc = (wnd != null) ? wnd.document : null;
+					
+					if (doc != null)
+					{
+						doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
 							'</title><meta charset="utf-8"></head>' +
 							'<body>' + result + '</body></html>');
-					doc.close();
+						doc.close();
+					}
+					else
+					{
+						editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
+					}
 				}
 			}
 		});
@@ -3412,7 +3426,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
  * Constructs a dialog for creating new files from a template URL.
  */
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-		allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded)
+	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
@@ -3842,6 +3856,17 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		btns.appendChild(openBtn);
 	}
 	
+	if (CreateDialog.showDownloadButton)
+	{
+		var downloadButton = mxUtils.button(mxResources.get('download'), function()
+		{
+			create('download');
+		});
+		
+		downloadButton.className = 'geBtn';
+		btns.appendChild(downloadButton);
+	}
+	
 	if (/*!mxClient.IS_IOS || */!showButtons)
 	{
 		var createBtn = mxUtils.button(btnLabel || mxResources.get('create'), function()
@@ -3876,6 +3901,11 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 
 	this.container = div;
 };
+
+/**
+ * 
+ */
+CreateDialog.showDownloadButton = true;
 
 /**
  * Constructs a new popup dialog.

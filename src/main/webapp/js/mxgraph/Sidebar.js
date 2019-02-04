@@ -449,7 +449,7 @@ Sidebar.prototype.addEntry = function(tags, fn)
 
 		var doAddEntry = mxUtils.bind(this, function(tag)
 		{
-			if (tag.length > 1)
+			if (tag != null && tag.length > 1)
 			{
 				var entry = this.taglist[tag];
 				
@@ -755,9 +755,13 @@ Sidebar.prototype.addSearchPalette = function(expand)
 							results = (results != null) ? results : [];
 							active = false;
 							page++;
-							center.parentNode.removeChild(center);
 							this.insertSearchHint(div, searchTerm, count, page, results, len, more, terms);
 
+							if (center.parentNode != null)
+							{
+								center.parentNode.removeChild(center);
+							}
+							
 							for (var i = 0; i < results.length; i++)
 							{
 								var elt = results[i]();
@@ -2082,7 +2086,7 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 							}
 						}
 	
-						if (allowCellsInserted)
+						if (allowCellsInserted && (evt == null || !mxEvent.isShiftDown(evt)))
 						{
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
 						}
@@ -2244,7 +2248,10 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 					graph.createCurrentEdgeStyle()));
 			}
 			
-			graph.fireEvent(new mxEventObject('cellsInserted', 'cells', targets));
+			if (evt == null || !mxEvent.isShiftDown(evt))
+			{
+				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', targets));
+			}
 		}
 		catch (e)
 		{
@@ -3118,28 +3125,25 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 	graph.container.focus();
 	
 	// Alt+Click inserts and connects
-	if (mxEvent.isAltDown(evt))
+	if (mxEvent.isAltDown(evt) && graph.getSelectionCount() == 1 && graph.model.isVertex(graph.getSelectionCell()))
 	{
-		if (graph.getSelectionCount() == 1 && graph.model.isVertex(graph.getSelectionCell()))
+		var firstVertex = null;
+		
+		for (var i = 0; i < cells.length && firstVertex == null; i++)
 		{
-			var firstVertex = null;
-			
-			for (var i = 0; i < cells.length && firstVertex == null; i++)
+			if (graph.model.isVertex(cells[i]))
 			{
-				if (graph.model.isVertex(cells[i]))
-				{
-					firstVertex = i;
-				}
+				firstVertex = i;
 			}
-			
-			if (firstVertex != null)
-			{
-				graph.setSelectionCells(this.dropAndConnect(graph.getSelectionCell(), cells, (mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt)) ?
-					(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH) : 
-					(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_EAST : mxConstants.DIRECTION_SOUTH),
-					firstVertex, evt));
-				graph.scrollCellToVisible(graph.getSelectionCell());
-			}
+		}
+		
+		if (firstVertex != null)
+		{
+			graph.setSelectionCells(this.dropAndConnect(graph.getSelectionCell(), cells, (mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt)) ?
+				(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH) : 
+				(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_EAST : mxConstants.DIRECTION_SOUTH),
+				firstVertex, evt));
+			graph.scrollCellToVisible(graph.getSelectionCell());
 		}
 	}
 	// Shift+Click updates shape
@@ -3152,7 +3156,7 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 	{
 		var pt = graph.getFreeInsertPoint();
 		
-		if (mxEvent.isShiftDown(evt))
+		if (mxEvent.isAltDown(evt))
 		{
 			var bounds = graph.getGraphBounds();
 			var tr = graph.view.translate;

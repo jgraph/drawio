@@ -1,3 +1,30 @@
+04-FEB-2019: 10.1.7
+
+- Adds auto-resolution for Google add-ons
+- Fixes minimum height for empty viewer
+- Fixes shadow in SVG export/embed
+- Fixes possible 404 in GitHub
+
+29-JAN-2019: 10.1.6
+
+- Removes alert for link errors
+- Removes sync button
+
+28-JAN-2019: 10.1.5
+
+- Uses mxGraph 3.9.13 beta 14
+
+25-JAN-2019: 10.1.4
+
+- Adds download button in save dialog
+- Adds shift to ignore current style
+- Uses mxGraph 3.9.13 beta 13
+
+21-JAN-2019: 10.1.3
+
+- Fixes possible NPEs
+- Uses mxGraph 3.9.13 beta 12
+
 18-JAN-2019: 10.1.2
 
 - Adds debug output

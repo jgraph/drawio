@@ -669,15 +669,20 @@ App.main = function(callback, createUi)
 			}
 		}, function(xhr)
 		{
-			document.getElementById('geStatus').innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
+			var st = document.getElementById('geStatus');
 			
-			// Tries reload with default resources in case any language resources were not available
-			document.getElementById('geStatus').getElementsByTagName('a')[0].onclick = function()
+			if (st != null)
 			{
-				mxLanguage = 'en';
-				doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-						mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
-			};
+				st.innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
+				
+				// Tries reload with default resources in case any language resources were not available
+				st.getElementsByTagName('a')[0].onclick = function()
+				{
+					mxLanguage = 'en';
+					doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+							mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
+				};
+			}
 		});
 	};
 
@@ -1062,6 +1067,28 @@ App.prototype.init = function()
 		{
 			this.mode = App.mode;
 		}
+		
+		// Checks if the cache is alive
+		var acceptResponse = true;
+		
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			acceptResponse = false;
+			EditorUi.logEvent({category: 'Cache', action: 'alive', label: 408});
+		}), this.timeout);
+		
+		var t0 = new Date().getTime();
+		
+		mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
+		{
+			window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				EditorUi.logEvent({category: 'Cache', action: 'alive', label:
+					req.getStatus() + '.' + (new Date().getTime() - t0)});
+			}
+		}));
 	}
 	else if (this.menubar != null)
 	{
@@ -1103,7 +1130,6 @@ App.prototype.init = function()
 		
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
 	}
-
 };
 
 /**
@@ -1711,25 +1737,11 @@ App.prototype.createBackground = function()
 		{
 			Editor.useLocalStorage = this.mode == App.MODE_BROWSER;
 		}
-		
-		if (remember)
-		{
-			if (isLocalStorage)
-			{
-				localStorage.setItem('.mode', mode);
-			}
-			else if (typeof(Storage) != 'undefined')
-			{
-				var expiry = new Date();
-				expiry.setYear(expiry.getFullYear() + 1);
-				document.cookie = 'MODE=' + mode + '; expires=' + expiry.toUTCString();
-			}
-		}
-		
+
 		if (this.appIcon != null)
 		{
 			var file = this.getCurrentFile();
-			var mode = (file != null) ? file.getMode() : null;
+			mode = (file != null) ? file.getMode() : mode;
 			
 			if (mode == App.MODE_GOOGLE)
 			{
@@ -1750,6 +1762,27 @@ App.prototype.createBackground = function()
 			{
 				this.appIcon.removeAttribute('title');
 				this.appIcon.style.cursor = 'default';
+			}
+		}
+		
+		if (remember)
+		{
+			try
+			{
+				if (isLocalStorage)
+				{
+					localStorage.setItem('.mode', mode);
+				}
+				else if (typeof(Storage) != 'undefined')
+				{
+					var expiry = new Date();
+					expiry.setYear(expiry.getFullYear() + 1);
+					document.cookie = 'MODE=' + mode + '; expires=' + expiry.toUTCString();
+				}
+			}
+			catch (e)
+			{
+				// ignore possible access denied
 			}
 		}
 	};
@@ -3036,9 +3069,9 @@ App.prototype.saveFile = function(forceDialog, success)
 						this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 						{
 							this.createFile(name, this.getFileData(/(\.xml)$/i.test(name) ||
-								name.indexOf('.') < 0, /(\.svg)$/i.test(name),
-								/(\.html)$/i.test(name)), null, mode, done,
-								this.mode == null, folderId);
+								name.indexOf('.') < 0 || /(\.drawio)$/i.test(name),
+								/(\.svg)$/i.test(name), /(\.html)$/i.test(name)),
+								null, mode, done, this.mode == null, folderId);
 						}));
 					}
 					else if (mode != null)
@@ -3604,7 +3637,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 								}
 
 								if (ext === '.svg' || ext === '.xml' ||
-									ext === '.html' || ext === '.png')
+									ext === '.html' || ext === '.png'  ||
+									ext === '.drawio')
 								{
 									filename = tmp + ext;
 								}
@@ -4044,47 +4078,6 @@ App.prototype.updateButtonContainer = function()
 	if (this.buttonContainer != null)
 	{
 		var file = this.getCurrentFile();
-		
-		// Synchronize
-		if (file != null && (DrawioFile.SYNC == 'manual' ||
-			DrawioFile.SYNC == 'auto'))
-		{
-			var visible = ((DrawioFile.SYNC == 'manual' ||
-				(file.sync != null && !file.sync.enabled &&
-				uiTheme != 'min')) &&
-				(file.constructor == DriveFile ||
-				file.constructor == OneDriveFile)) ||
-				file.constructor == GitHubFile ||
-				EditorUi.isElectronApp;
-			
-			if (this.syncButton == null && visible)
-			{
-				this.syncButton = document.createElement('div');
-				this.syncButton.className = 'geBtn gePrimaryBtn';
-				this.syncButton.style.display = 'inline-block';
-				this.syncButton.style.padding = '0 10px 0 10px';
-				this.syncButton.style.marginTop = '-4px';
-				this.syncButton.style.height = '28px';
-				this.syncButton.style.lineHeight = '28px';
-				this.syncButton.style.minWidth = '0px';
-				this.syncButton.style.cssFloat = 'left';
-				this.syncButton.setAttribute('title', mxResources.get('synchronize') + ' (Alt+Shift+S)');
-				
-				mxUtils.write(this.syncButton, mxResources.get('synchronize'));
-				
-				mxEvent.addListener(this.syncButton, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('synchronize').funct();
-				}));
-				
-				this.buttonContainer.appendChild(this.syncButton);
-			}
-			else if (this.syncButton != null && !visible)
-			{
-				this.syncButton.parentNode.removeChild(this.syncButton);
-				this.syncButton = null;
-			}
-		}
 		
 		// Share
 		if (file != null && file.constructor == DriveFile)

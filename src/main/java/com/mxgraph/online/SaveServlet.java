@@ -205,6 +205,21 @@ public class SaveServlet extends HttpServlet
 				{
 					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				}
+
+				long mem = Runtime.getRuntime().totalMemory()
+						- Runtime.getRuntime().freeMemory();
+
+				log.fine("save: ip=" + request.getRemoteAddr() + " ref=\""
+						+ request.getHeader("Referer") + "\" in="
+						+ request.getContentLength() + " enc="
+						+ ((enc != null) ? enc.length() : "[none]") + " xml="
+						+ ((xml != null) ? xml.length() : "[none]") + " dt="
+						+ request.getContentLength() + " mem=" + mem + " dt="
+						+ (System.currentTimeMillis() - t0));
+			}
+			catch (OutOfMemoryError e)
+			{
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -212,16 +227,6 @@ public class SaveServlet extends HttpServlet
 						+ System.getProperty("line.separator")
 						+ "Original stack trace : " + e.getMessage());
 			}
-			long mem = Runtime.getRuntime().totalMemory()
-					- Runtime.getRuntime().freeMemory();
-
-			log.fine("save: ip=" + request.getRemoteAddr() + " ref=\""
-					+ request.getHeader("Referer") + "\" in="
-					+ request.getContentLength() + " enc="
-					+ ((enc != null) ? enc.length() : "[none]") + " xml="
-					+ ((xml != null) ? xml.length() : "[none]") + " dt="
-					+ request.getContentLength() + " mem=" + mem + " dt="
-					+ (System.currentTimeMillis() - t0));
 		}
 		else
 		{

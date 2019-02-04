@@ -190,12 +190,10 @@ SelectPage.prototype.execute = function()
 		page = this.ui.currentPage;
 	
 		// Switches the root cell and sets the view state
+		graph.model.prefix = Editor.guid() + '-';
 		graph.model.rootChanged(page.root);
 		graph.setViewState(page.viewState);
-				
-		// Fires event to setting view state from realtime
-		editor.fireEvent(new mxEventObject('setViewState', 'change', this));
-		
+
 		// Handles grid state in chromeless mode which is stored in Editor instance
 		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.isChromelessView() ||
 			urlParams['grid'] == '1');
@@ -665,6 +663,7 @@ Graph.prototype.setViewState = function(state)
 	// Implicit settings
 	this.pageBreaksVisible = this.pageVisible; 
 	this.preferPageSize = this.pageVisible;
+	this.fireEvent(new mxEventObject('viewStateChanged', 'state', state));
 };
 
 /**
@@ -904,33 +903,41 @@ EditorUi.prototype.removePage = function(page)
  */
 EditorUi.prototype.duplicatePage = function(page, name)
 {
-	var graph = this.editor.graph;
 	var newPage = null;
 	
-	if (graph.isEnabled())
+	try
 	{
-		if (graph.isEditing())
+		var graph = this.editor.graph;
+		
+		if (graph.isEnabled())
 		{
-			graph.stopEditing();
+			if (graph.isEditing())
+			{
+				graph.stopEditing();
+			}
+			
+			// Clones the current page and takes a snapshot of the graph model and view state
+			var node = page.node.cloneNode(false);
+			node.removeAttribute('id');
+			
+			var newPage = new DiagramPage(node);
+			newPage.root = graph.cloneCell(graph.model.root);
+			newPage.viewState = graph.getViewState();
+			
+			// Resets zoom and scrollbar positions
+			newPage.viewState.scale = 1;
+			newPage.viewState.scrollLeft = null;
+			newPage.viewState.scrollTop = null;
+			newPage.viewState.currentRoot = null;
+			newPage.viewState.defaultParent = null;
+			newPage.setName(name);
+			
+			newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
 		}
-		
-		// Clones the current page and takes a snapshot of the graph model and view state
-		var node = page.node.cloneNode(false);
-		node.removeAttribute('id');
-		
-		var newPage = new DiagramPage(node);
-		newPage.root = graph.cloneCell(graph.model.root);
-		newPage.viewState = graph.getViewState();
-		
-		// Resets zoom and scrollbar positions
-		newPage.viewState.scale = 1;
-		newPage.viewState.scrollLeft = null;
-		newPage.viewState.scrollTop = null;
-		newPage.viewState.currentRoot = null;
-		newPage.viewState.defaultParent = null;
-		newPage.setName(name);
-		
-		newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
+	}
+	catch (e)
+	{
+		this.handleError(e);
 	}
 	
 	return newPage;

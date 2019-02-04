@@ -3205,12 +3205,33 @@
 		
 		if (!createOnly)
 		{
-			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.shadowId + ')');
+			group = (group != null) ? group : svgRoot.getElementsByTagName('g')[0];
 			
-			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+			if (group != null)
 			{
-				svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
-				svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
+				group.setAttribute('filter', 'url(#' + this.shadowId + ')');
+				
+				if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+				{
+					svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
+					svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
+					
+					// Updates viewbox if one exists
+					var vb = svgRoot.getAttribute('viewBox');
+					
+					if (vb != null && vb.length > 0)
+					{
+						var tokens = vb.split(' ');
+						
+						if (tokens.length > 3)
+						{
+							w = parseFloat(tokens[2]) + 6;
+							h = parseFloat(tokens[3]) + 6;
+							
+							svgRoot.setAttribute('viewBox', tokens[0] + ' ' + tokens[1] + ' ' + w + ' ' + h);
+						}
+					}
+				}
 			}
 		}
 		
@@ -3844,47 +3865,54 @@
 				pv = printGraph(graph);
 			}
 			
-			if (pv.mathEnabled)
+			if (pv == null)
 			{
-				var doc = pv.wnd.document;
-		
-				doc.writeln('<script type="text/x-mathjax-config">');
-				doc.writeln('MathJax.Hub.Config({');
-				doc.writeln('showMathMenu: false,');
-				doc.writeln('messageStyle: "none",');
-				doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
-				doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-				doc.writeln('"HTML-CSS": {');
-				doc.writeln('imageFont: null');
-				doc.writeln('},');
-				doc.writeln('TeX: {');
-				doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
-				doc.writeln('},');
-				doc.writeln('tex2jax: {');
-				doc.writeln('	ignoreClass: "geDisableMathJax"');
-			  	doc.writeln('},');
-			  	doc.writeln('asciimath2jax: {');
-				doc.writeln('	ignoreClass: "geDisableMathJax"');
-			  	doc.writeln('}');
-				doc.writeln('});');
-				
-				// Adds asynchronous printing when MathJax finished rendering
-				if (print)
+				editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
+			}
+			else
+			{
+				if (pv.mathEnabled)
 				{
-					doc.writeln('MathJax.Hub.Queue(function () {');
-					doc.writeln('window.print();');
+					var doc = pv.wnd.document;
+			
+					doc.writeln('<script type="text/x-mathjax-config">');
+					doc.writeln('MathJax.Hub.Config({');
+					doc.writeln('showMathMenu: false,');
+					doc.writeln('messageStyle: "none",');
+					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
+					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
+					doc.writeln('"HTML-CSS": {');
+					doc.writeln('imageFont: null');
+					doc.writeln('},');
+					doc.writeln('TeX: {');
+					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
+					doc.writeln('},');
+					doc.writeln('tex2jax: {');
+					doc.writeln('	ignoreClass: "geDisableMathJax"');
+				  	doc.writeln('},');
+				  	doc.writeln('asciimath2jax: {');
+					doc.writeln('	ignoreClass: "geDisableMathJax"');
+				  	doc.writeln('}');
 					doc.writeln('});');
+					
+					// Adds asynchronous printing when MathJax finished rendering
+					if (print)
+					{
+						doc.writeln('MathJax.Hub.Queue(function () {');
+						doc.writeln('window.print();');
+						doc.writeln('});');
+					}
+					
+					doc.writeln('</script>');
+					doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
 				}
 				
-				doc.writeln('</script>');
-				doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
-			}
-			
-			pv.closeDocument();
-			
-			if (!pv.mathEnabled && print)
-			{
-				PrintDialog.printPreview(pv);
+				pv.closeDocument();
+				
+				if (!pv.mathEnabled && print)
+				{
+					PrintDialog.printPreview(pv);
+				}
 			}
 		};
 		

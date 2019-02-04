@@ -19,7 +19,7 @@ EditorUi.initMinimalTheme = function()
        style.type = 'text/css';
        style.innerHTML = '* { -webkit-font-smoothing: antialiased; }' +
        	   'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
-       	   'html body table.mxWindow td.mxWindowPane div.mxWindowPane * { font-size:9pt; }' +
+       	   'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
            'html body a.geMenuItem { opacity: 0.75; }' +
@@ -118,6 +118,21 @@ EditorUi.initMinimalTheme = function()
 	            mxWindow.prototype.setLocation.apply(this, arguments);
 	        }
 	    };
+	    
+	    // Workaround for text selection starting in Safari
+	    // when dragging shapes outside of window
+	    if (mxClient.IS_SF)
+	    {
+		    this.window.div.onselectstart = mxUtils.bind(this, function(evt)
+		    {
+				if (evt == null)
+				{
+					evt = window.event;
+				}
+				
+				return (evt != null && editorUi.isSelectionAllowed(evt));
+			});
+	    }
 	};
 
 	function toggleFormat(ui)
@@ -404,20 +419,6 @@ EditorUi.initMinimalTheme = function()
     		elt.className = 'geToolbarButton';
     		elt.innerHTML = '';
 			elt.style.backgroundImage = 'url(' + Editor.shareImage + ')';
-        	elt.style.backgroundPosition = 'center center';
-        	elt.style.backgroundRepeat = 'no-repeat';
-        	elt.style.backgroundSize = '24px 24px';
-        	elt.style.height = '24px';
-        	elt.style.width = '24px';
-		}
-    	
-    	if (this.syncButton != null)
-		{
-    		var elt = this.syncButton;
-    		elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;';
-    		elt.className = 'geToolbarButton';
-    		elt.innerHTML = '';
-			elt.style.backgroundImage = 'url(' + Editor.syncImage + ')';
         	elt.style.backgroundPosition = 'center center';
         	elt.style.backgroundRepeat = 'no-repeat';
         	elt.style.backgroundSize = '24px 24px';
@@ -956,7 +957,12 @@ EditorUi.initMinimalTheme = function()
         div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
         div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
         this.sidebar = this.createSidebar(div);
-
+        
+        if (urlParams['clibs'])
+        {
+        	toggleShapes(this);
+        }
+        
         // Needed for creating elements in Format panel
         var ui = this;
         var graph = ui.editor.graph;
@@ -1091,7 +1097,7 @@ EditorUi.initMinimalTheme = function()
                 action.addListener('stateChanged', updateState);
                 updateState();
             }
-            
+           
             return btn;
         };
         

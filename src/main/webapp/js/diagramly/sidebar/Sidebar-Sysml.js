@@ -689,16 +689,14 @@
 			this.addEntry(dt + 'port', function()
 		    {
 				var s = 'html=1;shape=mxgraph.sysml.';
-		    	var cardCell = new mxCell('Transmission', new mxGeometry(0, 0, 160, 60), s + 'port1;fontStyle=1;whiteSpace=wrap;align=center;');
+		    	var cardCell = new mxCell('Transmission', new mxGeometry(0, 0, 160, 60), s + 'port1;fontStyle=1;whiteSpace=wrap;align=center;points=[[0,0.5,0],[1,0.5,0]];');
 		    	cardCell.vertex = true;
-		    	var label1 = new mxCell('p1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10;');
+		    	var label1 = new mxCell('p1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;points=[[0,0.5,0]];html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10;part=1;');
 		    	label1.geometry.relative = false;
-		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
-		    	var label2 = new mxCell('p2', new mxGeometry(140, 20, 20, 20), inh + 'shape=rect;html=1;resizable=1;labelBackgroundColor=none;fontSize=10;');
+		    	var label2 = new mxCell('p2', new mxGeometry(140, 20, 20, 20), inh + 'shape=rect;points=[[1,0.5,0]];html=1;resizable=1;labelBackgroundColor=none;fontSize=10;part=1;');
 		    	label2.geometry.relative = false;
-		    	label2.setConnectable(false);
 		    	label2.vertex = true;
 		    	cardCell.insert(label2);
 			    
@@ -709,14 +707,12 @@
 		    {
 		    	var cardCell = new mxCell('Transmission', new mxGeometry(0, 0, 200, 60), s + 'port2;fontStyle=1;spacingRight=20;whiteSpace=wrap;align=center;');
 		    	cardCell.vertex = true;
-		    	var label1 = new mxCell('p1 : ~T1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;html=1;resizable=1;align=right;verticalAlign=bottom;labelPositin=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10');
+		    	var label1 = new mxCell('p1 : ~T1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;points=[[0,0.5,0]];html=1;resizable=1;align=right;verticalAlign=bottom;labelPositin=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10;part=1;');
 		    	label1.geometry.relative = false;
-		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
-		    	var label2 = new mxCell('p2 : ~T2', new mxGeometry(140, 20, 60, 20), inh + 'shape=rect;html=1;resizable=1;labelBackgroundColor=none;fontSize=10');
+		    	var label2 = new mxCell('p2 : ~T2', new mxGeometry(140, 20, 60, 20), inh + 'shape=rect;points=[[1,0.5,0]];html=1;resizable=1;labelBackgroundColor=none;fontSize=10;part=1;');
 		    	label2.geometry.relative = false;
-		    	label2.setConnectable(false);
 		    	label2.vertex = true;
 		    	cardCell.insert(label2);
 			    
@@ -741,9 +737,8 @@
 		    {
 		    	var cardCell = new mxCell('Transmission', new mxGeometry(0, 0, 160, 60), s + 'port1;fontStyle=1;whiteSpace=wrap;align=center;');
 		    	cardCell.vertex = true;
-		    	var label1 = new mxCell('&lt;&lt;proxy&gt;&gt;\np1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10');
+		    	var label1 = new mxCell('&lt;&lt;proxy&gt;&gt;\np1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;points=[[0,0.5,0]];html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10;part=1;');
 		    	label1.geometry.relative = false;
-		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
 			    
@@ -754,9 +749,8 @@
 		    {
 		    	var cardCell = new mxCell('Transmission', new mxGeometry(0, 0, 160, 60), s + 'port1;fontStyle=1;whiteSpace=wrap;align=center;');
 		    	cardCell.vertex = true;
-		    	var label1 = new mxCell('&lt;&lt;full&gt;&gt;\np1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10');
+		    	var label1 = new mxCell('&lt;&lt;full&gt;&gt;\np1', new mxGeometry(0, 20, 20, 20), inh + 'shape=rect;points=[[0,0.5,0]];html=1;resizable=1;align=right;verticalAlign=bottom;labelPosition=left;verticalLabelPosition=top;labelBackgroundColor=none;fontSize=10;paart=1;');
 		    	label1.geometry.relative = false;
-		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
 			    
@@ -1090,7 +1084,7 @@
 			this.addDataEntry(dt + 'fork node', 200, 80, 'Fork Node',
 				'7ZZNb4JAEIZ/DXdYrPZq0XppExMPPa8yhU2XHbKMn7++Czt+QDQ1RpMeJCHZfeeD2feBhCBOis3EyjL/xBR0EI+DOLGI5FfFJgGtAxGqNIhHgRChuwPxfiEaNdGwlBYMXVMgfMFK6iV4xQsVbTULVS7Lemlh4Vq+5VS4KUeRW34rrRPUaJvEOGwup6/AklpI/SHnoKdYKVJoXM4cibA4SRhqlZnCj0pYugiP4+KwuXikRuLzTAALILt1KVzQ9ycO1yql3Es9r+Sgspx7vHKWrPw+O/Q5uuUWbNh58+K/zYM0gxlvQc9xPT4Kp1Y2MbfO0aodGpK6Fk06tLbRDZq6wuLSpFA/vva5Imlpn4ElmEaz+ANffPZ4nzVTu3qESBw8ridrOVzh0i6g9VpcYboFLUmt2q3OmcqlU1Suowi3TKaDwc2aAXFSh8ThqVfB6d0fzv61baNh47touhhcxb+DwF+MCJkCQ4keBuXlCeVWKPHDoPSfUG6F8vIwKIMnlFuhDO4FxW2Pf2I+/fRH7Rc='),
 			    
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;illColor=#000000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlignment=top;', 
+		    this.createVertexTemplateEntry('shape=ellipse;html=1;illColor=#000000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlignment=top;perimeter=ellipsePerimeter;', 
 		    		40, 40, '', 'Initial Node', null, null, this.getTagsForStencil(gn, '', dt + 'initial node').join(' ')),
 			this.addDataEntry(dt + 'join node', 200, 80, 'Join Node',
 				'7ZZNb8IwDIZ/Ta6oNBvsugLjskmTdtg5tKbNltZVahjs189NMigfk5AAaQcqVXLs1076PjlUyFG5mlpVFy+YgRFyIuTIIpKPytUIjBFxpDMhxyKOI35F/PRHte+qUa0sVHRKQ+wblsoswGfEMPlAXTU1pJzo9XpiOPaihtYmiJpC1W1oIeVtkoJKPvm4z+FcGzNCg9YJZeQezi/Bkk6VeVYzMK/YaNJYsWaGRFiywLSFRKWfucVFlXVmzN3TmfFodN72EtacDV/ANVj96YJLBQumgCWQXbPkt0EOfMuXzqjwuTufKUDnRRjy4L2MVOPX+WbQ1mEOgsnHDZeHhu+bC1kOb2EJZoZfk22ia7WrcVyg1d9YkeJC4syDdrPWdaiyR2udCmtgz5KGLH7Ce/hO6TVv+rvdrB9v7GzPsGNmgwubws6lOcFfC0aRXu6OOmZfaH3lm0dbLnEUHF8HJnsASNkcKDTtMdic4iQsd5fH8ntbnenK0h6IDpoKKzhAdwjKTfl3qAKa/tXQ3N/QnIdGXg3N4IbmPDT3V0MzvKE5D83wUmh4uf2f8/Lu794P'),
@@ -1594,7 +1588,7 @@
 		var sb = this;
 		
 		var fns = [
-			this.createVertexTemplateEntry('shape=ellipse;html=1;strokeWidth=3;fontStyle=1;whiteSpace=wrap;align=center;', 
+			this.createVertexTemplateEntry('shape=ellipse;html=1;strokeWidth=3;fontStyle=1;whiteSpace=wrap;align=center;perimeter=ellipsePerimeter;', 
 					120, 60, 'UseCaseName', 'Use Case', null, null, this.getTagsForStencil(gn, '', dt + 'use case').join(' ')),
 
 			this.addEntry(dt + '', function()

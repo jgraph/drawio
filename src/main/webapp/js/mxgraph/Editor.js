@@ -276,6 +276,11 @@ Editor.prototype.appName = document.title;
 Editor.prototype.editBlankUrl = window.location.protocol + '//' + window.location.host + '/';
 
 /**
+ * Default value for the graph container overflow style.
+ */
+Editor.prototype.defaultGraphOverflow = 'hidden';
+
+/**
  * Initializes the environment.
  */
 Editor.prototype.init = function() { };
@@ -575,7 +580,7 @@ Editor.prototype.updateGraphComponents = function()
 	if (graph.container != null)
 	{
 		graph.view.validateBackground();
-		graph.container.style.overflow = (graph.scrollbars) ? 'auto' : 'hidden';
+		graph.container.style.overflow = (graph.scrollbars) ? 'auto' : this.defaultGraphOverflow;
 		
 		this.fireEvent(new mxEventObject('updateGraphComponents'));
 	}
@@ -743,9 +748,9 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var h0 = h;
 	
 	// clientHeight check is attempted fix for print dialog offset in viewer lightbox
-	var dh = (document.documentElement.clientHeight > 0) ? document.documentElement.clientHeight :
-		Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight);
-	var left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
+	var ds = mxUtils.getDocumentSize();
+	var dh = ds.height;
+	var left = Math.max(1, Math.round((ds.width - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 	
 	// Keeps window size inside available space
@@ -754,7 +759,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		elt.style.maxHeight = '100%';
 	}
 	
-	w = Math.min(w, document.body.scrollWidth - 64);
+	w = (document.body != null) ? Math.min(w, document.body.scrollWidth - 64) : w;
 	h = Math.min(h, dh - 64);
 	
 	// Increments zIndex to put subdialogs and background over existing dialogs and background
@@ -849,12 +854,13 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 			}
 		}
 		
-		dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
+		var ds = mxUtils.getDocumentSize();
+		dh = ds.height;
 		this.bg.style.height = dh + 'px';
 		
-		left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
+		left = Math.max(1, Math.round((ds.width - w - 64) / 2));
 		top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-		w = Math.min(w0, document.body.scrollWidth - 64);
+		w = (document.body != null) ? Math.min(w0, document.body.scrollWidth - 64) : w0;
 		h = Math.min(h0, dh - 64);
 		
 		var pos = this.getPosition(left, top, w, h);
