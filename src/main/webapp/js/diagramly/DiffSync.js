@@ -454,11 +454,22 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 			
 			prev = cellId;
 		}
-	
-		var addCell = mxUtils.bind(this, function(child)
+		
+		var addCell = mxUtils.bind(this, function(child, insert)
 		{
 			var id = (child != null) ? child.getId() : '';
 			
+			// Ignores the insert if the cell is already in the model
+			if (child != null && insert)
+			{
+				var ex = model.getCell(id);
+				
+				if (ex != null && ex != child)
+				{
+					child = null;
+				}
+			}
+
 			if (child != null)
 			{
 				if (model.getChildAt(cell, index) != child)
@@ -470,13 +481,30 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 					child, parentLookup, diff);
 				index++;
 			}
-	
+			
+			return id;
+		});
+		
+		// Uses stack to avoid recursion for children
+		var children = [null];
+		
+		while (children.length > 0)
+		{
+			var entry = children.shift();
+			var child = (entry != null) ? entry.child : null;
+			var insert = (entry != null) ? entry.insert : false;
+			var id = addCell(child, insert);
+			
+			// Move and insert are mutually exclusive per predecessor
+			// since an insert changes the predecessor of existing cells
+			// and is therefore ignored in the loop above where the order
+			// for existing cells is added to the moved object
 			var mov = moved[id];
 			
 			if (mov != null)
 			{
 				delete moved[id];
-				addCell(model.getCell(mov));
+				children.push({child: model.getCell(mov)});
 			}
 			
 			var ins = inserted[id];
@@ -484,24 +512,29 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 			if (ins != null)
 			{
 				delete inserted[id];
-				addCell(this.getCellForJson(ins));
+				children.push({child: this.getCellForJson(ins), insert: true});
 			}
-		});
-		
-		addCell();
-	
-		// Handles orphaned moved pages
-		for (var id in moved)
-		{
-			addCell(model.getCell(moved[id]));
-			delete moved[id];
-		}
-	
-		// Handles orphaned inserted pages
-		for (var id in inserted)
-		{
-			addCell(this.getCellForJson(inserted[id]));
-			delete inserted[id];
+			
+			// Orphaned moves and inserts are operations where the previous cell vanished
+			// in the local model so their position in the child array cannot be determined.
+			// In this case those cells are appended. Dependencies between orphans are
+			// maintained because for-in loops enumerate the IDs in order of insertion.
+			if (children.length == 0)
+			{
+				// Handles orphaned moved pages
+				for (var id in moved)
+				{
+					children.push({child: model.getCell(moved[id])});
+					delete moved[id];
+				}
+			
+				// Handles orphaned inserted pages
+				for (var id in inserted)
+				{
+					children.push({child: this.getCellForJson(inserted[id]), insert: true});
+					delete inserted[id];
+				}
+			}
 		}
 	}
 };
@@ -1068,7 +1101,12 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	// FIXME: Proto only needed because source.geometry has no constructor (wrong type?)
 	if (!this.isObjectEqual(oldCell.geometry, newCell.geometry, new mxGeometry()))
 	{
-		diff.geometry = mxUtils.getXml(this.codec.encode(newCell.geometry));
+		var node = this.codec.encode(newCell.geometry);
+		
+		if (node != null)
+		{
+			diff.geometry = mxUtils.getXml(node);
+		}
 	}
 	
 	// Compares all keys from oldCell to newCell and uses null in the diff

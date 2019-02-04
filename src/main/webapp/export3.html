@@ -25,6 +25,14 @@
 	
 		function render(data)
 		{
+			var autoScale = false;
+			
+			if (data.scale == 'auto')
+			{
+				autoScale = true;
+				data.scale = 1;
+			}
+			
 			var graph = new Graph(document.getElementById('graph'));
 			data.border = parseInt(data.border) || 0;
 			data.w = parseFloat(data.w) || 0;
@@ -177,7 +185,6 @@
 
 			function renderPage()
 			{
-				
 				// Enables math typesetting
 				math |= xmlDoc.documentElement.getAttribute('math') == '1';
 				
@@ -305,7 +312,25 @@
 					}
 					else
 					{
-						graph.view.scaleAndTranslate(data.scale,
+						var s = data.scale;
+						
+						if (autoScale)
+						{
+							if (b.width < 800 & b.height < 1200)
+							{
+								s = 4;
+							}
+							else if (b.width < 1600 & b.height < 2400)
+							{
+								s = 3;
+							}
+							else if (b.width < 3200 && b.height < 4800)
+							{
+								s = 2;
+							}
+						}
+						
+						graph.view.scaleAndTranslate(s,
 							Math.floor(data.border - Math.floor(b.x)),
 							Math.floor(data.border - Math.floor(b.y)));
 					}

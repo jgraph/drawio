@@ -53,6 +53,22 @@ mxShapeEipMessageExpiration.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeEipMessageExpiration.prototype.cst.SHAPE_MESS_EXP, mxShapeEipMessageExpiration);
 
+mxShapeEipMessageExpiration.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Return Address
 //**********************************************************************************************************************************************************
@@ -121,6 +137,30 @@ mxShapeEipReturnAddress.prototype.foreground = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeEipReturnAddress.prototype.cst.SHAPE_RET_ADDR, mxShapeEipReturnAddress);
+
+mxShapeEipReturnAddress.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Anchor
@@ -218,48 +258,26 @@ mxShapeEipMessageChannel.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeEipMessageChannel.prototype.cst.SHAPE_MESSAGE_CHANNEL, mxShapeEipMessageChannel);
 
-mxShapeEipMessageChannel.prototype.constraints = [
-                                                   new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-                                                   new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.05, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.1, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.15, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.2, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.3, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.35, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.4, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.45, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.55, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.6, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.65, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.7, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.8, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.85, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.9, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.95, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.05, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.1, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.15, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.2, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.3, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.35, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.4, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.45, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.55, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.6, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.65, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.7, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.8, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.85, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.9, 1), true),
-                                                   new mxConnectionConstraint(new mxPoint(0.95, 1), true)
-                                                   ];
+
+mxShapeEipMessageChannel.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 2.7, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, -2.7, 0));
+
+	var currW = 10;
+	
+	while (currW < w)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
+		
+		currW = currW + 10;
+	}
+	
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Datatype Channel
@@ -331,49 +349,25 @@ mxShapeEipDatatypeChannel.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeEipDatatypeChannel.prototype.cst.SHAPE_DATATYPE_CHANNEL, mxShapeEipDatatypeChannel);
 
-mxShapeEipDatatypeChannel.prototype.constraints = [
-                                            new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-                                            new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-                                            new mxConnectionConstraint(new mxPoint(0.05, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.1, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.15, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.2, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.3, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.35, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.4, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.45, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.55, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.6, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.65, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.7, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.8, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.85, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.9, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.95, 0), true),
-                                            new mxConnectionConstraint(new mxPoint(0.05, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.1, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.15, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.2, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.3, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.35, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.4, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.45, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.55, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.6, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.65, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.7, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.8, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.85, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.9, 1), true),
-                                            new mxConnectionConstraint(new mxPoint(0.95, 1), true)
-                                            ];
+mxShapeEipDatatypeChannel.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
 
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 2.7, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, -2.7, 0));
+
+	var currW = 10;
+	
+	while (currW < w)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
+		
+		currW = currW + 10;
+	}
+	
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Dead Letter Channel
@@ -457,48 +451,25 @@ mxShapeEipDeadLetterChannel.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeEipDeadLetterChannel.prototype.cst.SHAPE_DEAD_LETTER_CHANNEL, mxShapeEipDeadLetterChannel);
 
-mxShapeEipDeadLetterChannel.prototype.constraints = [
-                                                  new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-                                                  new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.05, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.1, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.15, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.2, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.3, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.35, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.4, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.45, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.55, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.6, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.65, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.7, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.8, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.85, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.9, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.95, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.05, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.1, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.15, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.2, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.3, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.35, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.4, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.45, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.55, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.6, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.65, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.7, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.8, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.85, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.9, 1), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.95, 1), true)
-                                                  ];
+mxShapeEipDeadLetterChannel.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 2.7, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, -2.7, 0));
+
+	var currW = 10;
+	
+	while (currW < w)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
+		
+		currW = currW + 10;
+	}
+	
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Invalid Message Channel
@@ -578,45 +549,22 @@ mxShapeEipInvalidMessageChannel.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeEipInvalidMessageChannel.prototype.cst.SHAPE_INVALID_MESSAGE_CHANNEL, mxShapeEipInvalidMessageChannel);
 
-mxShapeEipInvalidMessageChannel.prototype.constraints = [
-                                                     new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-                                                     new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.05, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.1, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.15, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.2, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.3, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.35, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.4, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.45, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.55, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.6, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.65, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.7, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.8, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.85, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.9, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.95, 0), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.05, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.1, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.15, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.2, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.3, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.35, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.4, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.45, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.55, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.6, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.65, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.7, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.75, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.8, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.85, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.9, 1), true),
-                                                     new mxConnectionConstraint(new mxPoint(0.95, 1), true)
-                                                     ];
+mxShapeEipInvalidMessageChannel.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 2.7, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, -2.7, 0));
+
+	var currW = 10;
+	
+	while (currW < w)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
+		
+		currW = currW + 10;
+	}
+	
+	return (constr);
+};

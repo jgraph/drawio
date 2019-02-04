@@ -120,7 +120,7 @@
 				
 				if (xml != null)
 				{
-					graph.setSelectionCells(editorUi.importXml(xml));
+					graph.setSelectionCells(editorUi.importXml(xml, 20, 20, true));
 					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			}, null, null, null, null, null, null, null, null, null, null,
@@ -1005,36 +1005,111 @@
 							}
 
 							// Checks for duplicates
-							var all = doc.getElementsByTagName('*');
-							var allIds = {};
-							var dups = {};
-							
-							for (var i = 0; i < all.length; i++)
+							function checkModel(node)
 							{
-								var el = all[i];
+								var pageId = node.parentNode.id;
+								var all = node.childNodes;
+								var allIds = {};
+								var childs = {};
+								var root = null;
+								var dups = {};
 								
-								if (el.id != null && el.id.length > 0)
+								for (var i = 0; i < all.length; i++)
 								{
-									if (allIds[el.id] == null)
+									var el = all[i];
+									
+									if (el.id != null && el.id.length > 0)
 									{
-										allIds[el.id] = el.id;
+										if (allIds[el.id] == null)
+										{
+											allIds[el.id] = el.id;
+											var pid = el.getAttribute('parent');
+											
+											if (pid == null)
+											{
+												if (root != null)
+												{
+													mxLog.debug(pageId + ': Multiple roots: ' + el.id);
+												}
+												else
+												{
+													root = el.id;
+												}
+											}
+											else
+											{
+												if (childs[pid] == null)
+												{
+													childs[pid] = [];
+												}
+												
+												childs[pid].push(el.id);
+											}
+										}
+										else
+										{
+											dups[el.id] = el.id;
+										}
+									}
+								}
+								
+								if (Object.keys(dups).length > 0)
+								{
+									var log = pageId + ': ' + Object.keys(dups).length + ' Duplicates: ' + Object.keys(dups).join(', ');
+									mxLog.debug(log + ' (see console)');
+								}
+								else
+								{
+									mxLog.debug(pageId + ': Checked');
+								}
+								
+								// Checks tree for cycles
+								var visited = {};
+								
+								function visit(id)
+								{
+									if (visited[id] == null)
+									{
+										visited[id] = true;
+										
+										if (childs[id] != null)
+										{
+											while (childs[id].length > 0)
+											{
+												var temp = childs[id].pop();
+												visit(temp);
+											}
+											
+											delete childs[id];
+										}
 									}
 									else
 									{
-										dups[el.id] = el.id;
+										mxLog.debug(pageId + ': Visited: ' + id);
+									}
+								};
+								
+								if (root == null)
+								{
+									mxLog.debug(pageId + ': No root');
+								}
+								else
+								{
+									visit(root);
+									
+									if (Object.keys(visited).length != Object.keys(allIds).length)
+									{
+										mxLog.debug(pageId + ': Invalid tree: (see console)');
+										console.log(pageId + ': Invalid tree', childs);
 									}
 								}
-							}
+							};
 							
-							if (Object.keys(dups).length > 0)
+							var roots = doc.getElementsByTagName('root');
+							
+							for (var i = 0; i < roots.length; i++)
 							{
-								var log = Object.keys(dups).length + ' Duplicates: ' + Object.keys(dups).join(', ');
-								mxLog.debug(log + ' (see console)');
-								console.log(log);
-							}
-							else
-							{
-								mxLog.debug('No duplicates');
+								checkModel(roots[i]);
 							}
 							
 							mxLog.show();
@@ -1296,54 +1371,61 @@
 								{
 									var wnd = window.open();
 									var doc = wnd.document;
-							
-									if (document.compatMode === 'CSS1Compat')
+									
+									if (doc != null)
 									{
-										doc.writeln('<!DOCTYPE html>');
-									}
-									
-									doc.writeln('<html>');
-									doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-										'</title><meta charset="utf-8"></head>');
-									doc.writeln('<body>');
-									doc.writeln(html);
-									
-									var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
-									
-									if (direct)
-									{
-										doc.writeln(scriptTag);
-									}
-									
-									doc.writeln('</body>');
-									doc.writeln('</html>');
-									doc.close();
-									
-									// Adds script tag after closing page and delay to fix timing issues
-									if (!direct)
-									{
-										var info = wnd.document.createElement('div');
-										info.marginLeft = '26px';
-										info.marginTop = '26px';
-										mxUtils.write(info, mxResources.get('updatingDocument'));
-
-										var img = wnd.document.createElement('img');
-										img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
-											'/' + IMAGE_PATH + '/spin.gif');
-										img.style.marginLeft = '6px';
-										info.appendChild(img);
-										
-										wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
-										
-										window.setTimeout(function()
+										if (document.compatMode === 'CSS1Compat')
 										{
-											var script = document.createElement('script');
-											script.type = 'text/javascript';
-											script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
-											doc.body.appendChild(script);
+											doc.writeln('<!DOCTYPE html>');
+										}
+										
+										doc.writeln('<html>');
+										doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
+											'</title><meta charset="utf-8"></head>');
+										doc.writeln('<body>');
+										doc.writeln(html);
+										
+										var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
+										
+										if (direct)
+										{
+											doc.writeln(scriptTag);
+										}
+										
+										doc.writeln('</body>');
+										doc.writeln('</html>');
+										doc.close();
+										
+										// Adds script tag after closing page and delay to fix timing issues
+										if (!direct)
+										{
+											var info = wnd.document.createElement('div');
+											info.marginLeft = '26px';
+											info.marginTop = '26px';
+											mxUtils.write(info, mxResources.get('updatingDocument'));
+	
+											var img = wnd.document.createElement('img');
+											img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
+												'/' + IMAGE_PATH + '/spin.gif');
+											img.style.marginLeft = '6px';
+											info.appendChild(img);
 											
-											info.parentNode.removeChild(info);
-										}, 20);
+											wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
+											
+											window.setTimeout(function()
+											{
+												var script = document.createElement('script');
+												script.type = 'text/javascript';
+												script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
+												doc.body.appendChild(script);
+												
+												info.parentNode.removeChild(info);
+											}, 20);
+										}
+									}
+									else
+									{
+										editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
 									}
 								});
 								editorUi.showDialog(dlg.container, 440, 240, true, true);
@@ -2105,9 +2187,9 @@
 				this.addMenuItems(menu, ['embedIframe'], parent);
 			}
 
-			if (!editorUi.isOffline())
+			if (urlParams['embed'] != '1' && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', 'googleSites'], parent);
+				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides'], parent);
 			}
 		})));
 

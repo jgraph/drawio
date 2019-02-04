@@ -828,7 +828,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		
 		// Adds default extension
 		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
-			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename)))
+			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename) && !/(\.drawio)$/i.test(filename)))
 		{
 			filename += '.xml';
 		}
@@ -973,11 +973,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		var file = this.getCurrentFile();
 		var syncEnabled = file != null && file.fileObject != null;
 		this.actions.get('synchronize').setEnabled(syncEnabled);
-		
-		if (this.syncButton != null)
-		{
-			this.syncButton.style.display = (syncEnabled) ? '' : 'none';
-		}
 	};
 	
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser)

@@ -5,7 +5,7 @@
 		var d = 60;
 		var dt = 'allied telesis';
 		var sb = this;
-		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;image;image=img/lib/allied_telesis/';
+		var s = 'points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image;image=img/lib/allied_telesis/';
 
 		// Adds Allied Telesis shapes
 		this.addAlliedTelesisBuildingsPalette(d, dt, sb, s);

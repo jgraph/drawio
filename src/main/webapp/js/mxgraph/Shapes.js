@@ -3963,7 +3963,47 @@
 		return (constr);
 	};
 	
-	FolderShape.prototype.constraints = mxRectangleShape.prototype.constraints;
+	FolderShape.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'tabWidth', this.tabWidth))));
+		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'tabHeight', this.tabHeight))));
+		var tp = mxUtils.getValue(this.style, 'tabPosition', this.tabPosition);
+
+		if (tp == 'left')
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx * 0.5, 0));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, 0));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, dx, dy));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w + dx) * 0.5, dy));
+		}
+		else
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx * 0.5, 0));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx, 0));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - dx, dy));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - dx) * 0.5, dy));
+		}
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h - dy) * 0.25 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h - dy) * 0.5 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, (h - dy) * 0.75 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - dy) * 0.25 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - dy) * 0.5 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - dy) * 0.75 + dy));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+
+		return (constr);
+	}
+
 	InternalStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	DataStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	TapeDataShape.prototype.constraints = mxEllipse.prototype.constraints;

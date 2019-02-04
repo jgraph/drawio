@@ -196,6 +196,8 @@ public class GliffyObject implements PostDeserializable
 		//It is a group but we have one similar
 		//GROUP_SHAPES.add("com.gliffy.shape.ui.ui_v3.forms_controls.audio_controls");
 		
+		GROUP_SHAPES.add("com.gliffy.shape.uml.uml_v2.sequence.recursive_message");
+		
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.main_topic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.subtopic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.child_node");
@@ -628,4 +630,30 @@ public class GliffyObject implements PostDeserializable
 	{
 		return uid != null ? uid.contains("com.gliffy.shape.uml.uml_v2.activity.frame") : false;
 	}
+	
+	/**
+	 * @return
+	 */
+	public String getUmlSequenceCombinedFragmentText() 
+	{
+		if("com.gliffy.shape.uml.uml_v2.sequence.interaction_use".equals(uid))
+		{
+			return "ref";
+		}
+		if("com.gliffy.shape.uml.uml_v2.sequence.opt_combined_fragment".equals(uid)) 
+		{
+			return "opt";
+		}
+		if("com.gliffy.shape.uml.uml_v2.sequence.loop_combined_fragment".equals(uid)) 
+		{
+			return "loop";
+		}
+		if("com.gliffy.shape.uml.uml_v2.sequence.alt_combined_fragment".equals(uid)) 
+		{
+			return "alt";
+		}
+		
+		return null;
+	}
+
 }

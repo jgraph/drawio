@@ -319,7 +319,6 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 				var etag = (!overwrite && this.constructor == OneDriveFile &&
 						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
 						this.getCurrentEtag() : null;
-				var savedData = this.data;
 				var lastDesc = this.meta;
 				
 				// Makes sure no changes get lost while the file is saved
@@ -339,7 +338,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 				
 				prepare();
 				
-				this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta)
+				this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
 				{
 					this.isModified = prevModified;
 					this.savingFile = false;

@@ -444,7 +444,6 @@ Actions.prototype.init = function()
 					{
 						if (links[i].textContent == elt.textContent)
 						{
-							graph.selectNode(links[i]);
 							link = links[i];
 						}
 					}
@@ -453,6 +452,7 @@ Actions.prototype.init = function()
 				if (link != null && link.nodeName == 'A')
 				{
 					oldValue = link.getAttribute('href') || '';
+					graph.selectNode(link);
 				}
 				
 				var selState = graph.cellEditor.saveSelection();

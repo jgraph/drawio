@@ -110,6 +110,7 @@
 <template url="network/ibm_microservices.xml" libs="general;ibm"/>
 <template url="network/ibm_private_cloud.xml" libs="general;ibm"/>
 <template url="network/ibm_vcenter_server_platform.xml" libs="general;ibm"/>
+<template url="network/ibm_vpc_architecture.xml" libs="general;ibm"/>
 <template url="network/internet.xml" libs="general;network"/>
 <template url="network/lan.xml" libs="general;network"/>
 <template url="network/telecomm.xml" libs="general;network"/>

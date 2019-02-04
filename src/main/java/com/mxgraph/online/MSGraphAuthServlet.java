@@ -154,7 +154,6 @@ public class MSGraphAuthServlet extends HttpServlet
 		String code = request.getParameter("code");
 		String refreshToken = request.getParameter("refresh_token");
 		updateKeys();
-		
 		String secret, client, redirectUri;
 		
 		if ("127.0.0.1".equals(request.getServerName()))
@@ -225,11 +224,10 @@ public class MSGraphAuthServlet extends HttpServlet
 				//Call the opener callback function directly with the given json
 				if (!jsonResponse)
 				{
-					res.append("<!DOCTYPE html><html><head><script>");
-					res.append("if (window.opener != null && window.opener.onOneDriveCallback != null)"); 
-					res.append("{");
-					res.append("	window.opener.onOneDriveCallback("); //The following is a json containing access_token and redresh_token
+					res.append("<!DOCTYPE html><html><head><script src=\"https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js\" type=\"text/javascript\"></script><script>");
+					res.append("var authInfo = ");  //The following is a json containing access_token and redresh_token
 				}
+				
 				
 				while ((inputLine = in.readLine()) != null)
 				{
@@ -239,7 +237,12 @@ public class MSGraphAuthServlet extends HttpServlet
 	
 				if (!jsonResponse)
 				{
-					res.append("	, window);");
+					res.append(";");					
+					res.append("if (window.opener != null && window.opener.onOneDriveCallback != null)"); 
+					res.append("{");
+					res.append("	window.opener.onOneDriveCallback(authInfo, window);");
+					res.append("} else {");
+					res.append("	Office.initialize = function () { Office.context.ui.messageParent(JSON.stringify(authInfo));}");
 					res.append("}");
 					res.append("</script></head><body></body></html>");
 				}

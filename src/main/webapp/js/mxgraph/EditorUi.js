@@ -63,7 +63,7 @@ EditorUi = function(editor, container, lightbox)
 			evt = window.event;
 		}
 		
-		return (this.isSelectionAllowed(evt) || graph.isEditing());
+		return graph.isEditing() || (evt != null && this.isSelectionAllowed(evt));
 	});
 
 	// Disables text selection while not editing and no dialog visible
@@ -95,18 +95,21 @@ EditorUi = function(editor, container, lightbox)
 		// Allows context menu for links in hints
 		var linkHandler = function(evt)
 		{
-			var source = mxEvent.getSource(evt);
-			
-			if (source.nodeName == 'A')
+			if (evt != null)
 			{
-				while (source != null)
+				var source = mxEvent.getSource(evt);
+				
+				if (source.nodeName == 'A')
 				{
-					if (source.className == 'geHint')
+					while (source != null)
 					{
-						return true;
+						if (source.className == 'geHint')
+						{
+							return true;
+						}
+						
+						source = source.parentNode;
 					}
-					
-					source = source.parentNode;
 				}
 			}
 			
@@ -2114,11 +2117,14 @@ EditorUi.prototype.addChromelessClickHandler = function()
  */
 EditorUi.prototype.toggleFormatPanel = function(forceHide)
 {
-	this.formatWidth = (forceHide || this.formatWidth > 0) ? 0 : 240;
-	this.formatContainer.style.display = (forceHide || this.formatWidth > 0) ? '' : 'none';
-	this.refresh();
-	this.format.refresh();
-	this.fireEvent(new mxEventObject('formatWidthChanged'));
+	if (this.format != null)
+	{
+		this.formatWidth = (forceHide || this.formatWidth > 0) ? 0 : 240;
+		this.formatContainer.style.display = (forceHide || this.formatWidth > 0) ? '' : 'none';
+		this.refresh();
+		this.format.refresh();
+		this.fireEvent(new mxEventObject('formatWidthChanged'));
+	}
 };
 
 /**

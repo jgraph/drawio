@@ -215,6 +215,12 @@ public class OpenServlet extends HttpServlet
 						"window.parent.showOpenAlert(window.parent.mxResources.get('drawingTooLarge'));");
 			}
 		}
+		catch (OutOfMemoryError e)
+		{
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			writeScript(writer,
+					"window.parent.showOpenAlert('Out of memory');");
+		}
 		catch (Exception e)
 		{
 			StringWriter errors = new StringWriter();

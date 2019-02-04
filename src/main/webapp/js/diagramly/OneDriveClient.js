@@ -355,7 +355,7 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 		{
 			acceptResponse = false;
-			error({code: App.ERROR_TIMEOUT, retry: fn});
+			error({code: App.ERROR_TIMEOUT, retry: doExecute});
 		}), this.ui.timeout);
 
 		this.get(url, mxUtils.bind(this, function(req)
@@ -710,10 +710,15 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
  */
 OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 {
+	var savedData = file.getData();
+	
 	var fn = mxUtils.bind(this, function(data)
 	{
 		var url = this.getItemURL(file.getId()) + '/content/';
-		this.writeFile(url, data, 'PUT', null, success, error, etag);
+		this.writeFile(url, data, 'PUT', null, mxUtils.bind(this, function(resp)
+		{
+			success(resp, savedData);
+		}), error, etag);
 	});
 	
 	if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
@@ -721,11 +726,11 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 		this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 		{
 			fn(this.ui.base64ToBlob(data, 'image/png'));
-		}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+		}), error, (this.ui.getCurrentFile() != file) ? savedData : null);
 	}
 	else
 	{
-		fn(file.getData());
+		fn(savedData);
 	}
 };
 
@@ -907,7 +912,7 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 			{
 				fn({value: [{id: 'root', name: 'root', parentReference: {driveId: 'me'}}]});
 				
-			}), openSaveDlg, mxResources.get('yes'), mxResources.get('no'));
+			}), openSaveDlg, mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
 		}
 		
 		if (this.user == null)
