@@ -36,9 +36,24 @@ mxShapeAws4ProductIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
 
+	var opacity = mxUtils.getValue(this.style, 'opacity', '100');
+	var op1 = opacity;
+	var op2 = opacity;
+	
+	if (fillColor == 'none')
+	{
+		op1 = 0;
+	}
+	
+	if (gradientColor == 'none')
+	{
+		op2 = 0;
+	}
+
 	var ind = 1;
 	var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
 	c.setFillColor(strokeColor);
+	c.setGradient(fillColor, fillColor, 0, 0, w, h, gradientDir, op1, op2);	
 
 	c.begin();
 	c.moveTo(0, 0);
@@ -50,7 +65,11 @@ mxShapeAws4ProductIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	c.setShadow(false);
 	var fillColor = mxUtils.getValue(this.state.style, 'fillColor', '#ffffff');
+	var gradientColor = mxUtils.getValue(this.state.style, 'gradientColor', fillColor);
+	var gradientDir = mxUtils.getValue(this.state.style, 'gradientDirection', 'south');
+	
 	c.setFillColor(fillColor);
+	c.setGradient(fillColor, gradientColor, 0, 0, w, h, gradientDir, op1, op2);	
 
 	c.begin();
 	c.moveTo(ind, ind);

@@ -973,11 +973,19 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 				var to = this.ui.hashValue(etag);
 				
 				this.file.sendErrorReport('Error in merge',
-					'From: ' + from +
-					'\nTo: ' + to +
+					'From: ' + from + '\nTo: ' + to +
 					'\nChecksum: ' + checksum +
 					'\nPatches:\n' + this.file.compressReportData(
 						JSON.stringify(patches, null, 2)), e);
+			}
+			else
+			{
+				var user = this.file.getCurrentUser();
+				var uid = (user != null) ? user.id : 'unknown';
+				
+				EditorUi.logError('Error in merge', null,
+					this.file.getMode() + '.' +
+					this.file.getId(), uid, e);
 			}
 		}
 		catch (e2)

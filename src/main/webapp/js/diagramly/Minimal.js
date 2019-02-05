@@ -958,7 +958,7 @@ EditorUi.initMinimalTheme = function()
         div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
         this.sidebar = this.createSidebar(div);
         
-        if (urlParams['clibs'])
+        if (urlParams['clibs'] != null || urlParams['libs'] != null)
         {
         	toggleShapes(this);
         }

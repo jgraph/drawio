@@ -343,9 +343,21 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 
 		try
 		{
-			if (this.errorReportsEnabled && reportError)
+			if (reportError)
 			{
-				this.sendErrorReport('Error in mergeFile', null, e);
+				if (this.errorReportsEnabled)
+				{
+					this.sendErrorReport('Error in mergeFile', null, e);
+				}
+				else
+				{
+					var user = this.getCurrentUser();
+					var uid = (user != null) ? user.id : 'unknown';
+					
+					EditorUi.logError('Error in mergeFile', null,
+						this.getMode() + '.' + this.getId(),
+						uid, e);
+				}
 			}
 		}
 		catch (e2)
@@ -474,6 +486,14 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 					}
 				}), function() {});
 			}
+		}
+		else
+		{
+			var user = this.getCurrentUser();
+			var uid = (user != null) ? user.id : 'unknown';
+			
+			EditorUi.logError('Checksum Error in ' + functionName, null,
+				this.getMode() + '.' + this.getId(), uid);
 		}
 	}
 	catch (e)
@@ -1672,6 +1692,15 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 			if (this.errorReportsEnabled)
 			{
 				this.sendErrorReport('Error in fileSaved', null, e);
+			}
+			else
+			{
+				var user = this.getCurrentUser();
+				var uid = (user != null) ? user.id : 'unknown';
+				
+				EditorUi.logError('Error in fileSaved', null,
+					this.getMode() + '.' + this.getId(),
+					uid, e);
 			}
 		}
 		catch (e2)
