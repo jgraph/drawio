@@ -1143,6 +1143,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		{
 			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
+				(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 				!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 				{
 					// Callback for getThumbnail

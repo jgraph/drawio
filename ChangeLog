@@ -1,3 +1,8 @@
+05-FEB-2019: 10.1.8
+
+- Fixes property focus after save
+- Updated AWS 2019 icon colors
+
 04-FEB-2019: 10.1.7
 
 - Adds auto-resolution for Google add-ons
