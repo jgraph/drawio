@@ -52,6 +52,7 @@ attachments=Anexos
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Plano de fundo
 backgroundColor=Cor do plano de fundo
 backgroundImage=Imagem do plano de fundo

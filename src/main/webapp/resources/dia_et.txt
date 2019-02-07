@@ -52,6 +52,7 @@ attachments=Manused
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Taust
 backgroundColor=Taustavärv
 backgroundImage=Taustapilt

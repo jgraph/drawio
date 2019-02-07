@@ -52,6 +52,7 @@ attachments=Prilozi
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Pozadina
 backgroundColor=Boja pozadine
 backgroundImage=Slika pozadine

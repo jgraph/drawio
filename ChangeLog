@@ -1,3 +1,7 @@
+07-FEB-2019: 10.1.9
+
+- Renames load event for configuration to configure
+
 05-FEB-2019: 10.1.8
 
 - Fixes property focus after save

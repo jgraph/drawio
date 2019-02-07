@@ -52,6 +52,7 @@ attachments=Atașamente
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Fundal
 backgroundColor=Culoare de fundal
 backgroundImage=Imagine de fundal

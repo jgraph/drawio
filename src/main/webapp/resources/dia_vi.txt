@@ -52,6 +52,7 @@ attachments=Đính kèm
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Nền
 backgroundColor=Màu nền
 backgroundImage=Ảnh nền

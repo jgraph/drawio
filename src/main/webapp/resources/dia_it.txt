@@ -52,6 +52,7 @@ attachments=Allegati
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Sfondo
 backgroundColor=Colore sfondo
 backgroundImage=Immagine di sfondo

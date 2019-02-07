@@ -52,6 +52,7 @@ attachments=첨부파일
 aws=AWS
 aws3d=AWS 3D
 azure=하늘색
+back=Back
 background=배경
 backgroundColor=배경색
 backgroundImage=배경 이미지

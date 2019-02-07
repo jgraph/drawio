@@ -52,6 +52,7 @@ attachments=Lampiran
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Latar belakang
 backgroundColor=Warna Latar Belakang
 backgroundImage=Imej Latar Belakang

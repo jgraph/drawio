@@ -52,6 +52,7 @@ attachments=Bijlagen
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Achtergrond
 backgroundColor=Achtergrondkleur
 backgroundImage=Achtergrondafbeelding

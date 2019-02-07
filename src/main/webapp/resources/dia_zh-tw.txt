@@ -52,6 +52,7 @@ attachments=附件
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=背景
 backgroundColor=背景顏色
 backgroundImage=背景圖片

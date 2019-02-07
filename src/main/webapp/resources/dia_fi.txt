@@ -52,6 +52,7 @@ attachments=Liitteet
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Tausta
 backgroundColor=Taustaväri
 backgroundImage=Taustakuva

@@ -52,6 +52,7 @@ attachments=Ekler
 aws=AWS
 aws3d=AWS 3 Boyutlu
 azure=Azure
+back=Back
 background=Arkaplan
 backgroundColor=Arkaplan rengi
 backgroundImage=Arkaplan resmi

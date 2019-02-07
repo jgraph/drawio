@@ -52,6 +52,7 @@ attachments=Вкладення
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Фон
 backgroundColor=Колір фону
 backgroundImage=Фонове зображення

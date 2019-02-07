@@ -735,7 +735,7 @@ App.main = function(callback, createUi)
 		
 		// Receives XML message from opener and puts it into the graph
 		mxEvent.addListener(window, 'message', configHandler);
-		op.postMessage(JSON.stringify({event: 'load'}), '*');
+		op.postMessage(JSON.stringify({event: 'configure'}), '*');
 	}
 	else
 	{

@@ -52,6 +52,7 @@ attachments=Vedhæftede
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Baggrund
 backgroundColor=Baggrundsfarve
 backgroundImage=Baggrundsbillede

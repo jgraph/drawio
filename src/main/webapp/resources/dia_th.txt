@@ -52,6 +52,7 @@ attachments=สิ่งที่แนบมา
 aws=AWS
 aws3d=AWS สามมิติ
 azure=สีฟ้า
+back=Back
 background=พื้นหลัง
 backgroundColor=สีพื้นหลัง
 backgroundImage=รูปภาพพื้นหลัง
