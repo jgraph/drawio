@@ -52,6 +52,7 @@ attachments=Melléklet
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Háttér
 backgroundColor=Háttérszín
 backgroundImage=Háttér kép

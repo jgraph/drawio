@@ -52,6 +52,7 @@ attachments=‫پیوست ها‬
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=‫پس‌زمینه‬
 backgroundColor=‫رنگ پس‌زمینه‬
 backgroundImage=‫تصویر پس‌زمینه‬

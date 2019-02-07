@@ -52,6 +52,7 @@ attachments=Συνημμένα
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Φόντο
 backgroundColor=Χρώμα φόντου
 backgroundImage=Εικόνα φόντου

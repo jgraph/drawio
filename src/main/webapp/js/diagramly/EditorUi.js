@@ -64,9 +64,10 @@
 						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
 						'CONFIG' : 'SEVERE';
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+					err = (err != null) ? err : new Error(message);
 
 					var img = new Image();
-					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent('10.1.8') +
 		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
 		    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
 		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
@@ -9043,7 +9044,9 @@
 				{
 					this.convertLucidChart(content, mxUtils.bind(this, function(xml)
 					{
-						this.editor.graph.setSelectionCells(this.importXml(xml, 0, 0));
+						var graph = this.editor.graph;
+						graph.setSelectionCells(this.importXml(xml, 0, 0));
+						graph.scrollCellToVisible(graph.getSelectionCell());
 					}), mxUtils.bind(this, function(e)
 					{
 						this.handleError(e);

@@ -52,6 +52,7 @@ attachments=Vedlegg
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Bakgrunn
 backgroundColor=Bakgrunnsfarge
 backgroundImage=Bakgrunnsbilde

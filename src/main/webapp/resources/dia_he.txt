@@ -52,6 +52,7 @@ attachments=‫קבצים מצורפים‬
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=‫רקע‬
 backgroundColor=‫צבע רקע‬
 backgroundImage=‫תמונת רקע‬

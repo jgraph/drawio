@@ -1537,7 +1537,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					window.location.href = toolbarConfig.backBtn.url;
 					mxEvent.consume(evt);
-				}), Editor.backLargeImage, mxResources.get('goback', null, 'Go Back'));
+				}), Editor.backLargeImage, mxResources.get('back', null, 'Back'));
 			}
 			
 			var prevButton = addButton(mxUtils.bind(this, function(evt)

@@ -52,6 +52,7 @@ attachments=Lampiran
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Latar
 backgroundColor=Warna Latar
 backgroundImage=Gambar Latar

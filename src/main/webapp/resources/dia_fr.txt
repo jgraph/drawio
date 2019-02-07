@@ -52,6 +52,7 @@ attachments=Pièces jointes
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=Arrière-plan
 backgroundColor=Couleur d'arrière-plan
 backgroundImage=Image d'arrière-plan

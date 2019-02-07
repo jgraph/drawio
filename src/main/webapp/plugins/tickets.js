@@ -4,15 +4,11 @@
  * 
  * Drag freshdesk tickets into the diagram. Domain must match deskDomain.freshdesk.com.
  * 
- * Supported URL parameters:
- * - tickets-config=URI encoded JSON
- * 
- * Alternatively, to avoid logging of the URL parameter with the API key, a ticketsConfig object
- * can be added in Editor.configure (ie. via #C hash property), eg. 
+ * Use #C to configure the client as follows:
  * 
  * https://www.draw.io/?p=tickets#C%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%7D
  * 
- * Use an additional "open" variable in the config JSON to open a file after parsing the config, eg.
+ * Use an additional "open" variable in the config JSON to open a file after parsing as follows:
  * 
  * ...#C%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%2C"open"%3A"ID_WITH_PREFIX"%7D
  * 
@@ -72,32 +68,27 @@ Draw.loadPlugin(function(ui)
 		document.body.removeChild(div);
 	};
 	
-	if (urlParams['tickets-config'] != null)
+	if (window.location.hash != null && window.location.hash.substring(0, 2) == '#C')
 	{
-		config = JSON.parse(decodeURIComponent(urlParams['tickets-config']));
-	}
-	
-	if (config == null && Editor.config != null && Editor.config.ticketsConfig != null)
-	{
-		config = Editor.config.ticketsConfig;
-	}
-	
-	if (config != null)
-	{
-		ui.setLocalData('.tickets-config', JSON.stringify(config));
-		configure();
-	}
-	else
-	{
-		ui.getLocalData('.tickets-config', mxUtils.bind(this, function(value)
+		try
 		{
-			if (value != null)
+			var temp = JSON.parse(decodeURIComponent(
+				window.location.hash.substring(2)));
+			
+			if (temp != null && temp.ticketsConfig != null)
 			{
-				config = JSON.parse(value);
+				config = temp.ticketsConfig;
 				configure();
-				updateTickets();
+				ui.fileLoaded(new LocalFile(ui, ui.emptyDiagramXml, this.defaultFilename, true));
+				ui.editor.setStatus('Drag tickets from <a href="' + deskDomain +
+					'/a/tickets/filters/all_tickets" target="_blank">' +
+					deskDomain + '</a>');
 			}
-		}));
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
 	}
 
 	function isDeskLink(link)
@@ -131,17 +122,17 @@ Draw.loadPlugin(function(ui)
 		{
 			if (xhr.status >= 200 && xhr.status <= 299)
 			{
-				fn(JSON.parse(xhr.responseText));
+				fn(JSON.parse(xhr.responseText), xhr);
 			}
 			else
 			{
-				fn();
+				fn(null, xhr);
 			}
 		};
 		
 		xhr.onerror = function ()
 		{
-			fn();
+			fn(null, xhr);
 		};
 
 		xhr.send();
@@ -217,7 +208,7 @@ Draw.loadPlugin(function(ui)
 					var id = getIdForDeskLink(link);
 					pending++;
 					
-					getDeskTicket(id, function(ticket)
+					getDeskTicket(id, function(ticket, req)
 					{
 						pending--;
 						
@@ -321,7 +312,7 @@ Draw.loadPlugin(function(ui)
 				// Creates new shape
 				var id = getIdForDeskLink(text);
 				
-				getDeskTicket(id, function(ticket)
+				getDeskTicket(id, function(ticket, req)
 				{
 					ui.spinner.stop();
 					
@@ -370,7 +361,7 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.handleError({message: mxResources.get('unknownError')});
+						ui.handleError({message: mxResources.get('error') + ' ' + req.getStatus()});
 					}
 				});
 			}

@@ -52,6 +52,7 @@ attachments=Mga kalakip
 aws=AWS
 aws3d=AWS 3D
 azure=Azure
+back=Back
 background=likuran
 backgroundColor=Kulay ng likuran
 backgroundImage=Imahe ng likuran
