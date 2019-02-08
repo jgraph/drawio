@@ -67,7 +67,7 @@
 					err = (err != null) ? err : new Error(message);
 
 					var img = new Image();
-					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent('10.1.8') +
+					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
 		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
 		    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
 		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');

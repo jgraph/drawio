@@ -1,3 +1,7 @@
+08-FEB-2019: 10.2.0
+
+- Adds vsd(x) and gliffy support in GDrive Connector
+
 07-FEB-2019: 10.1.9
 
 - Renames load event for configuration to configure
