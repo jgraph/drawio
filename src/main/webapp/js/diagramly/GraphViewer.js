@@ -96,6 +96,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.initialWidth = (container != null) ? container.style.width : null;
 	this.widthIsEmpty = (this.initialWidth != null) ? this.initialWidth == '' : true;
 	this.currentPage = parseInt(this.graphConfig.page) || 0;
+	this.pageId = this.graphConfig.pageId;
 	this.editor = null;
 
 	if (this.graphConfig['toolbar-position'] == 'inline')
@@ -168,6 +169,19 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					
 					if (diagrams.length > 0)
 					{
+						//Find the page index if the pageId is provided
+						if (this.pageId != null)
+						{
+							for (var i = 0; i < diagrams.length; i++)
+							{
+								if (this.pageId == diagrams[i].getAttribute('id'))
+								{
+									this.currentPage = i;
+									break;
+								}
+							}
+						}
+						
 						var graphGetGlobalVariable = this.graph.getGlobalVariable;
 						var self = this;
 						

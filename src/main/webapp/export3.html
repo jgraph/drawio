@@ -441,10 +441,25 @@
 				//Parameters to and all pages should not be sent with formats other than PDF with page view enabled
 				if (!data.allPages)
 				{
-					from = Math.max(0, Math.min(parseInt(data.from) || from, diagrams.length - 1));
-					to = parseInt(data.to);
-					//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
-					to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
+					if (data.pageId != null)
+					{
+						for (var i = 0; i < diagrams.length; i++)
+						{
+							if (data.pageId == diagrams[i].getAttribute('id'))
+							{
+								from = i;
+								to = i;
+								break;
+							}
+						}
+					}
+					else
+					{
+						from = Math.max(0, Math.min(parseInt(data.from) || from, diagrams.length - 1));
+						to = parseInt(data.to);
+						//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
+						to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
+					}
 				}
 					
 				for (var i = from; i <= to; i++) 
