@@ -1,3 +1,21 @@
+18-FEB-2019: 10.2.4
+
+- Adds Microsoft Office add-ins
+- Adds open URL parameter
+
+15-FEB-2019: 10.2.3
+
+- Adds interactive help for file name input fields
+- Fixes handling of revisions for PNG files in Drive
+- Adds shift click for Drive file details on app icon
+- Adds Embed, Live image for public PNG files on Drive and GitHub
+- Uses mxGraph 3.9.13 beta 15
+
+11-FEB-2019: 10.2.2
+
+- Adds refresh, new window in Confluence Cloud connector toolbars
+- App icon links to file preview for Google Drive
+
 09-FEB-2019: 10.2.1
 
 - Fixes loading of configuration for confluence cloud

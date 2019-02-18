@@ -466,19 +466,16 @@ DriveFile.prototype.getRevisions = function(success, error)
 		{
 			(mxUtils.bind(this, function(item)
 			{
+				// Redirects title to originalFilename to
+				// match expected descriptor interface
+				item.title = item.originalFilename;
+				
 				item.getXml = mxUtils.bind(this, function(itemSuccess, itemError)
 				{
-					this.ui.drive.executeRequest(gapi.client.drive.revisions.get(
-					{
-						'fileId': this.getId(),
-						'revisionId': item.id
-					}), mxUtils.bind(this, function(resp)
-					{
-						this.ui.drive.getXmlFile(resp, mxUtils.bind(this, function(file)
-			   			{
-							itemSuccess(file.getData());
-			   			}), itemError);
-					}), itemError);
+					this.ui.drive.getXmlFile(item, mxUtils.bind(this, function(file)
+		   			{
+						itemSuccess(file.getData());
+		   			}), itemError);
 				});
 				
 				item.getUrl = mxUtils.bind(this, function(page)

@@ -702,6 +702,10 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 			'revisionId': urlParams['rev'], 'supportsTeamDrives': true}),
 			mxUtils.bind(this, function(resp)
 			{
+				// Redirects title to originalFilename to
+				// match expected descriptor interface
+				resp.title = resp.originalFilename;
+
    				this.getXmlFile(resp, success, error);
 			}), error);
 	}
@@ -1501,7 +1505,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.pickFolder = function(fn)
+DriveClient.prototype.pickFolder = function(fn, force)
 {
 	this.folderPickerCallback = fn;
 
@@ -1590,14 +1594,21 @@ DriveClient.prototype.pickFolder = function(fn)
 		}
 	});
 	
-	this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
-	{
-		this.folderPickerCallback({action: google.picker.Action.PICKED,
-			docs: [{type: 'folder', id: 'root'}]});
-	}), mxUtils.bind(this, function()
+	if (force)
 	{
 		showPicker();
-	}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+	}
+	else
+	{
+		this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+		{
+			this.folderPickerCallback({action: google.picker.Action.PICKED,
+				docs: [{type: 'folder', id: 'root'}]});
+		}), mxUtils.bind(this, function()
+		{
+			showPicker();
+		}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+	}
 };
 
 /**

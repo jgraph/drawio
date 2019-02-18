@@ -8,7 +8,15 @@
 	 * Specifies the app name. Default is document.title.
 	 */
 	Editor.prototype.appName = 'draw.io';
-
+	
+	/**
+	 * Known extensions for own files.
+	 */
+	Editor.prototype.fileExtensions = [
+		{ext: 'html', title: 'filetypeHtml'},
+		{ext: 'png', title: 'filetypePng'},
+		{ext: 'svg', title: 'filetypeSvg'}];
+	
 	/**
 	 * Used in the GraphViewer lightbox.
 	 */
@@ -309,6 +317,8 @@
 	 */
 	Editor.configVersion = null;
 
+	Editor.prototype.timeout = 25000;
+	
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
@@ -928,12 +938,742 @@
 	    if (/,\s*$/.test(text)) a.push('');
 	    return a;
 	};
-	
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Returns true if the given URL is known to have CORS headers.
+	 */
+	Editor.prototype.isCorsEnabledForUrl = function(url)
+	{
+		if (urlParams['cors'] != null && this.corsRegExp == null)
+		{
+			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
+		}
+		
+		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
+			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
+			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
+			url.substring(0, 19) === 'https://rawgit.com/' ||
+			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
+			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
+			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts all images in the SVG output to data URIs for immediate rendering
+	 */
+	Editor.prototype.createImageUrlConverter = function()
+	{
+		var converter = new mxUrlConverter();
+		converter.updateBaseUrl();
+
+		// Extends convert to avoid CORS using an image proxy server where needed
+		var convert = converter.convert;
+		var self = this;
+		
+		converter.convert = function(src)
+		{
+			if (src != null)
+			{
+				var remote = src.substring(0, 7) == 'http://' || src.substring(0, 8) == 'https://';
+				
+				if (remote && !navigator.onLine)
+				{
+					src = EditorUi.prototype.svgBrokenImage.src; //TODO move it to Editor?
+				}
+				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl &&
+						(!EditorUi.prototype.crossOriginImages || !self.isCorsEnabledForUrl(src))) //TODO move it to Editor?
+				{
+					src = PROXY_URL + '?url=' + encodeURIComponent(src);
+				}
+				else if (src.substring(0, 19) != 'chrome-extension://')
+				{
+					src = convert.apply(this, arguments);
+				}
+			}
+			
+			return src;
+		};
+		
+		return converter;
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * 
+	 */
+	Editor.prototype.createSvgDataUri = function(svg)
+	{
+		return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * 
+	 */
+	Editor.prototype.convertImageToDataUri = function(url, callback)
+	{
+		if (/(\.svg)$/i.test(url))
+		{
+			mxUtils.get(url, mxUtils.bind(this, function(req)
+			{
+				callback(this.createSvgDataUri(req.getText()));
+			}),
+			function()
+			{
+				callback(EditorUi.prototype.svgBrokenImage.src);
+			});
+		}
+		else
+		{
+		    var img = new Image();
+		    var self = this;
+		    
+		    if (EditorUi.prototype.crossOriginImages)
+	    	{
+			    img.crossOrigin = 'anonymous';
+		    }
+		    
+		    img.onload = function()
+		    {
+		        var canvas = document.createElement('canvas');
+		        var ctx = canvas.getContext('2d');
+		        canvas.height = img.height;
+		        canvas.width = img.width;
+		        ctx.drawImage(img, 0, 0);
+		        
+		        try
+		        {
+	        		callback(canvas.toDataURL());
+		        }
+		        catch (e)
+		        {
+	        		callback(EditorUi.prototype.svgBrokenImage.src);
+		        }
+		    };
+		    
+		    img.onerror = function()
+		    {
+	    		callback(EditorUi.prototype.svgBrokenImage.src);
+		    };
+		    
+		    img.src = url;
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts all images in the SVG output to data URIs for immediate rendering
+	 */
+	Editor.prototype.convertImages = function(svgRoot, callback, imageCache, converter)
+	{
+		// Converts images to data URLs for immediate painting
+		if (converter == null)
+		{
+			converter = this.createImageUrlConverter();
+		}
+		
+		// Barrier for asynchronous image loading
+		var counter = 0;
+		
+		function inc()
+		{
+			counter++;
+		};
+		
+		function dec()
+		{
+			counter--;
+			
+			if (counter == 0)
+			{
+				callback(svgRoot);
+			}
+		};
+
+		var cache = imageCache || new Object();
+		
+		var convertImages = mxUtils.bind(this, function(tagName, srcAttr)
+		{
+			var images = svgRoot.getElementsByTagName(tagName);
+			
+			for (var i = 0; i < images.length; i++)
+			{
+				(mxUtils.bind(this, function(img)
+				{
+					var src = converter.convert(img.getAttribute(srcAttr));
+		        	
+					// Data URIs are pass-through
+					if (src != null && src.substring(0, 5) != 'data:')
+					{
+						var tmp = cache[src];
+						
+						if (tmp == null)
+						{
+							inc();
+							
+							this.convertImageToDataUri(src, function(uri)
+							{
+								if (uri != null)
+								{
+									cache[src] = uri;
+									img.setAttribute(srcAttr, uri);
+								}
+								
+								dec();
+							});
+						}
+						else
+						{
+							img.setAttribute(srcAttr, tmp);
+						}
+					}
+					else if (src != null)
+					{
+						img.setAttribute(srcAttr, src);
+					}
+				}))(images[i]);
+			}
+		});
+		
+		// Converts all known image tags in output
+		// LATER: Add support for images in CSS
+		convertImages('image', 'xlink:href');
+		convertImages('img', 'src');
+		
+		// All from cache or no images
+		if (counter == 0)
+		{
+			callback(svgRoot);
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Base64 encodes the given string. This method seems to be more
+	 * robust for encoding PNG from binary AJAX responses.
+	 */
+	Editor.prototype.base64Encode = function(str)
+	{
+	    var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	    var out = "", i = 0, len = str.length, c1, c2, c3;
+	    
+	    while (i < len)
+	    {
+	        c1 = str.charCodeAt(i++) & 0xff;
+	        
+	        if (i == len)
+	        {
+	            out += CHARS.charAt(c1 >> 2);
+	            out += CHARS.charAt((c1 & 0x3) << 4);
+	            out += "==";
+	            break;
+	        }
+	        
+	        c2 = str.charCodeAt(i++);
+	        
+	        if (i == len)
+	        {
+	            out += CHARS.charAt(c1 >> 2);
+	            out += CHARS.charAt(((c1 & 0x3)<< 4) | ((c2 & 0xF0) >> 4));
+	            out += CHARS.charAt((c2 & 0xF) << 2);
+	            out += "=";
+	            break;
+	        }
+	        
+	        c3 = str.charCodeAt(i++);
+	        out += CHARS.charAt(c1 >> 2);
+	        out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+	        out += CHARS.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+	        out += CHARS.charAt(c3 & 0x3F);
+	    }
+	    
+	    return out;
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Checks if the client is authorized and calls the next step.
+	 */
+	Editor.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	{
+		try
+		{
+			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			retry = (retry != null) ? retry : true;
+			
+			var fn = mxUtils.bind(this, function()
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+				    	if (success != null)
+				    	{
+					    	var data = req.getText();
+					    	
+				    		// Returns PNG as base64 encoded data URI
+							if (binary)
+							{
+								// NOTE: This requires BinaryToArray VB script in the page
+								if ((document.documentMode == 9 || document.documentMode == 10) &&
+									typeof window.mxUtilsBinaryToArray !== 'undefined')
+								{
+									var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
+									var tmp = new Array(bin.length);
+									
+									for (var i = 0; i < bin.length; i++)
+									{
+										tmp[i] = String.fromCharCode(bin[i]);
+									}
+									
+									data = tmp.join('');
+								}
+								
+								// LATER: Could be JPG but modern browsers
+								// ignore the mime type in the data URI
+								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
+								data = dataUriPrefix + this.base64Encode(data);
+							}
+				    		
+				    		success(data);
+				    	}
+					}
+					else if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN}, req);
+			    	}
+				}), function()
+				{
+			    	if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN});
+			    	}
+				}, binary, this.timeout, function()
+			    {
+				    if (retry && error != null)
+					{
+						error({code: App.ERROR_TIMEOUT, retry: fn});
+					}
+			    });
+			});
+			
+			fn();
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * For the fontCSS to be applied when rendering images on canvas, the actual
+	 * font data must be made available via a data URI encoding of the file.
+	 */
+    Editor.prototype.loadFonts = function(then)
+    {
+        if (this.fontCss != null && this.resolvedFontCss == null)
+        {
+            var parts = this.fontCss.split('url(');
+            var waiting = 0;
+            var fonts = {};
+
+            // Strips leading and trailing quotes and spaces
+            function trimString(str)
+            {
+                return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+            };
+            
+            var finish = mxUtils.bind(this, function()
+            {
+                if (waiting == 0)
+                {
+                    // Constructs string
+                    var result = [parts[0]];
+                    
+                    for (var j = 1; j < parts.length; j++)
+                    {
+                        var idx = parts[j].indexOf(')');
+                        result.push('url("');
+                        result.push(fonts[trimString(parts[j].substring(0, idx))]);
+                        result.push('"' + parts[j].substring(idx));
+                    }
+                    
+                    this.resolvedFontCss = result.join('');
+                    then();
+                }
+            });
+            
+            if (parts.length > 0)
+            {
+                for (var i = 1; i < parts.length; i++)
+                {
+                    var idx = parts[i].indexOf(')');
+                    var format = null;
+                    
+                    // Checks if there is a format directive
+                    var fmtIdx = parts[i].indexOf('format(', idx);
+                    
+                    if (fmtIdx > 0)
+                    {
+                        format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                    }
+    
+                    (mxUtils.bind(this, function(url)
+                    {
+                        if (fonts[url] == null)
+                        {
+                            // Mark font es being fetched and fetch it
+                            fonts[url] = url;
+                            waiting++;
+                            
+                            var mime = 'application/x-font-ttf';
+                            
+                            // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+                            if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
+                            {
+                                mime = 'image/svg+xml';
+                            }
+                            else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
+                            {
+                                mime = 'application/x-font-opentype';
+                            }
+                            else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff';
+                            }
+                            else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff2';
+                            }
+                            else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
+                            {
+                                mime = 'application/vnd.ms-fontobject';
+                            }
+                            else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-sfnt';
+                            }
+                            
+                            var realUrl = url;
+                            
+                            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+                            {
+                                realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+                            }
+
+                            // LATER: Remove cache-control header
+                            this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+                            {
+                                fonts[url] = uri;
+                                waiting--;
+                                finish();
+                            }), mxUtils.bind(this, function(err)
+                            {
+                                // LATER: handle error
+                                waiting--;
+                                finish();
+                            }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+                        }
+                    }))(trimString(parts[i].substring(0, idx)), format);
+                }
+            }
+        }
+        else
+        {
+            then();
+        }
+    };
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts math in the given SVG
+	 */
+	Editor.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	{
+		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		{
+	      	// Temporarily attaches to DOM for rendering
+			// FIXME: If adding svgRoot to body, the text
+			// value of the math is appended, if not
+			// added to DOM then LaTeX does not work.
+			// This must be fixed to enable client-side export
+			// if math is enabled.
+//			document.body.appendChild(svgRoot);
+			Editor.MathJaxRender(svgRoot);
+	      
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				MathJax.Hub.Queue(mxUtils.bind(this, function ()
+				{
+					// Removes from DOM
+//					svgRoot.parentNode.removeChild(svgRoot);
+					
+					callback();
+				}));
+			}), 0);
+		}
+		else
+		{
+			callback();
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * See fixme in convertMath for client-side image generation with math.
+	 */
+	Editor.prototype.isExportToCanvas = function()
+	{
+		return mxClient.IS_CHROMEAPP || (!this.graph.mathEnabled && this.useCanvasForExport);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 *
+	 */
+	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
+	{
+		limitHeight = (limitHeight != null) ? limitHeight : true;
+		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+		graph = (graph != null) ? graph : this.graph;
+		border = (border != null) ? border : 0;
+		
+		var bg = (transparentBackground) ? null : graph.background;
+		
+		if (bg == mxConstants.NONE)
+		{
+			bg = null;
+		}
+		
+		if (bg == null)
+		{
+			bg = background;
+		}
+		
+		// Handles special case where background is null but transparent is false
+		if (bg == null && transparentBackground == false)
+		{
+			bg = this.graph.defaultPageBackgroundColor;
+		}
+		
+		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+			mxUtils.bind(this, function(svgRoot)
+		{
+			var img = new Image();
+			
+			img.onload = mxUtils.bind(this, function()
+			{
+		   		try
+		   		{
+		   			var canvas = document.createElement('canvas');
+					var w = parseInt(svgRoot.getAttribute('width'));
+					var h = parseInt(svgRoot.getAttribute('height'));
+					scale = (scale != null) ? scale : 1;
+					
+					if (width != null)
+					{
+						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+					}
+					
+					w = Math.ceil(scale * w) + 2 * border;
+					h = Math.ceil(scale * h) + 2 * border;
+					
+					canvas.setAttribute('width', w);
+			   		canvas.setAttribute('height', h);
+			   		var ctx = canvas.getContext('2d');
+			   		
+			   		if (bg != null)
+			   		{
+			   			ctx.beginPath();
+						ctx.rect(0, 0, w, h);
+						ctx.fillStyle = bg;
+						ctx.fill();
+			   		}
+
+			   		ctx.scale(scale, scale);
+			   		
+			   		// Workaround for broken data URI images in Safari on first export
+			   		if (mxClient.IS_SF)
+			   		{			   		
+						window.setTimeout(function()
+						{
+							ctx.drawImage(img, border / scale, border / scale);
+							callback(canvas);
+						}, 0);
+			   		}
+			   		else
+			   		{
+			   			ctx.drawImage(img, border / scale, border / scale);
+			   			callback(canvas);
+			   		}
+		   		}
+		   		catch (e)
+		   		{
+		   			if (error != null)
+					{
+						error(e);
+					}
+		   		}
+			});
+			
+			img.onerror = function(e)
+			{
+				//console.log('img', e, img.src);
+				
+				if (error != null)
+				{
+					error(e);
+				}
+			};
+
+			try
+			{
+				if (addShadow)
+				{
+					this.graph.addSvgShadow(svgRoot);
+				}
+				
+				var done = mxUtils.bind(this, function()
+				{
+					if (this.resolvedFontCss != null)
+					{
+						var st = document.createElement('style');
+						st.setAttribute('type', 'text/css');
+						st.innerHTML = this.resolvedFontCss;
+						
+						// Must be in defs section for FF to work
+						var defs = svgRoot.getElementsByTagName('defs');
+						defs[0].appendChild(st);
+					}
+					
+					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					{
+						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+					}));
+				});
+				
+				this.loadFonts(done);
+			}
+			catch (e)
+			{
+				//console.log('src', e, img.src);
+				
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), imageCache, converter);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Adds the given text to the compressed or non-compressed text chunk.
+	 */
+	Editor.prototype.writeGraphModelToPng = function(data, type, key, value, error)
+	{
+		var base64 = data.substring(data.indexOf(',') + 1);
+		var f = (window.atob) ? atob(base64) : Base64.decode(base64, true);
+		var pos = 0;
+		
+		function fread(d, count)
+		{
+			var start = pos;
+			pos += count;
+			
+			return d.substring(start, pos);
+		};
+		
+		// Reads unsigned long 32 bit big endian
+		function _freadint(d)
+		{
+			var bytes = fread(d, 4);
+			
+			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+		};
+		
+		function writeInt(num)
+		{
+			return String.fromCharCode((num >> 24) & 0x000000ff, (num >> 16) & 0x000000ff,
+				(num >> 8) & 0x000000ff, num & 0x000000ff);
+		};
+		
+		// Checks signature
+		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		// Reads header chunk
+		fread(f,4);
+		
+		if (fread(f,4) != 'IHDR')
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		fread(f, 17);
+		var result = f.substring(0, pos);
+		
+		do
+		{
+			var n = _freadint(f);
+			var chunk = fread(f,4);
+			
+			if (chunk == 'IDAT')
+			{
+				result = f.substring(0, pos - 8);
+				
+				var chunkData = key + String.fromCharCode(0) +
+					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+					value;
+				
+				// FIXME: Wrong crc
+				var crc = 0xffffffff;
+				crc = EditorUi.prototype.updateCRC(crc, type, 0, 4); //TODO move code to Editor?
+				crc = EditorUi.prototype.updateCRC(crc, chunkData, 0, chunkData.length);
+				
+				result += writeInt(chunkData.length) + type + chunkData + writeInt(crc ^ 0xffffffff);
+				result += f.substring(pos - 8, f.length);
+				
+				break;
+			}
+			
+			result += f.substring(pos - 8, pos - 4 + n);
+			fread(f,n);
+			fread(f,4);
+		}
+		while (n);
+		
+		return 'data:image/png;base64,' + ((window.btoa) ? btoa(result) : Base64.encode(result, true));
+	}
+
 	/**
 	 * Adds persistence for recent colors
 	 */
 	if (window.ColorDialog)
 	{
+		FilenameDialog.filenameHelpLink = 'https://desk.draw.io/support/solutions/articles/16000091426'; 
+		
 		var colorDialogAddRecentColor = ColorDialog.addRecentColor;
 		
 		ColorDialog.addRecentColor = function(color, max)
@@ -4026,6 +4766,44 @@
             }
         }
     };
+    
+    /**
+	 * Capability check for canvas export
+	 */
+	Editor.prototype.useCanvasForExport = false;
+		
+	try
+	{
+		var canvas = document.createElement('canvas');
+		var img = new Image();
+		
+		// LATER: Capability check should not be async
+		img.onload = function()
+		{
+			try
+			{
+		   		var ctx = canvas.getContext('2d');
+		   		ctx.drawImage(img, 0, 0);
+
+		   		// Works in Chrome, Firefox, Edge, Safari and Opera
+				var result = canvas.toDataURL('image/png');
+				Editor.prototype.useCanvasForExport = result != null && result.length > 6;
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		};
+
+		// Checks if SVG with foreignObject can be exported
+		var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1px" height="1px" version="1.1"><foreignObject pointer-events="all" width="1" height="1"><div xmlns="http://www.w3.org/1999/xhtml"></div></foreignObject></svg>';
+		img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+	}
+	catch (e)
+	{
+		// ignore
+	}
+	
 })();
 
 /**

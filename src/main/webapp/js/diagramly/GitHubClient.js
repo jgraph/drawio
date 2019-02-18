@@ -740,6 +740,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
 	div.style.overflow = 'auto';
+	div.style.lineHeight = '1.2em';
 	div.style.height = '194px';
 	content.appendChild(div);
 

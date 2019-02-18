@@ -1765,23 +1765,7 @@ EditorUi.prototype.initCanvas = function()
 					addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
 				}
 			}
-			
-			if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))
-			{
-				addButton(mxUtils.bind(this, function(evt)
-				{
-					if (urlParams['close'] == '1')
-					{
-						window.close();
-					}
-					else
-					{
-						this.destroy();
-						mxEvent.consume(evt);
-					}
-				}), Editor.closeLargeImage, mxResources.get('close') + ' (Escape)');
-			}
-	
+
 			if (toolbarConfig.refreshBtn != null)
 			{
 				addButton(mxUtils.bind(this, function(evt)
@@ -1798,7 +1782,42 @@ EditorUi.prototype.initCanvas = function()
 					mxEvent.consume(evt);
 				}), Editor.refreshLargeImage, mxResources.get('refresh', null, 'Refresh'));
 			}
+
+			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
+			{
+				addButton(mxUtils.bind(this, function(evt)
+				{
+					if (toolbarConfig.fullscreenBtn.url)
+					{
+						graph.openLink(toolbarConfig.fullscreenBtn.url);
+					}
+					else
+					{
+						graph.openLink(window.location.href);
+					}
+					
+					mxEvent.consume(evt);
+				}), Editor.fullscreenLargeImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
+			}
 			
+			if ((toolbarConfig.closeBtn && window.self === window.top) ||
+				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body)))
+			
+			{
+				addButton(mxUtils.bind(this, function(evt)
+				{
+					if (urlParams['close'] == '1' || toolbarConfig.closeBtn)
+					{
+						window.close();
+					}
+					else
+					{
+						this.destroy();
+						mxEvent.consume(evt);
+					}
+				}), Editor.closeLargeImage, mxResources.get('close') + ' (Escape)');
+			}
+	
 			// Initial state invisible
 			this.chromelessToolbar.style.display = 'none';
 			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transform', 'translate(-50%,0)');
