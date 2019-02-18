@@ -61,7 +61,7 @@ mxGraphView.prototype.gridColor = '#e0e0e0';
 mxSvgCanvas2D.prototype.foAltText = '[Not supported by viewer]';
 
 // Hook for custom constraints
-mxShape.prototype.getConstraints = function(style, w, h)
+mxShape.prototype.getConstraints = function(style)
 {
 	return null;
 };
@@ -115,7 +115,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		var state = this.view.getState(cell);
 		var style = (state != null) ? state.style : this.getCellStyle(cell);
 		
-		return (style != null) ? (style['html'] == '1' || style[mxConstants.STYLE_WHITE_SPACE] == 'wrap') : false;
+		return style['html'] == '1' || style[mxConstants.STYLE_WHITE_SPACE] == 'wrap';
 	};
 	
 	// Implements a listener for hover and click handling on edges
@@ -1493,16 +1493,9 @@ Graph.prototype.openLink = function(href, target, allowOpener)
 		{
 			result = window.open(href, target);
 			
-			try
+			if (result != null && !allowOpener)
 			{
-				if (result != null && !allowOpener)
-				{
-					result.opener = null;
-				}
-			}
-			catch (e)
-			{
-				// ignores permission denied
+				result.opener = null;
 			}
 		}
 	}
@@ -2160,7 +2153,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	var dx = t.x * s;
 	var dy = t.y * s;
 	
-	if (parentState != null && this.model.isVertex(parentState.cell))
+	if (this.model.isVertex(parentState.cell))
 	{
 		dx = parentState.x;
 		dy = parentState.y;
@@ -2694,7 +2687,7 @@ Graph.prototype.isCellConnectable = function(cell)
 	var state = this.view.getState(cell);
 	var style = (state != null) ? state.style : this.getCellStyle(cell);
 	
-	return (style != null && style['connectable'] != null) ? style['connectable'] != '0' :
+	return (style['connectable'] != null) ? style['connectable']  != '0' :
 		mxGraph.prototype.isCellConnectable.apply(this, arguments);
 };
 
@@ -3759,34 +3752,26 @@ HoverIcons.prototype.getState = function(state)
 		
 		if (!this.graph.getModel().contains(cell))
 		{
-			state = null;
+			return null;
 		}
-		else
+		else if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
 		{
 			// Uses connectable parent vertex if child is not connectable
-			if (this.graph.getModel().isVertex(cell) && !this.graph.isCellConnectable(cell))
-			{
-				var parent = this.graph.getModel().getParent(cell);
-				
-				if (this.graph.getModel().isVertex(parent) && this.graph.isCellConnectable(parent))
-				{
-					cell = parent;
-				}
-			}
+			var parent = this.graph.getModel().getParent(cell);
 			
-			// Ignores locked cells and edges
-			if (this.graph.isCellLocked(cell) || this.graph.model.isEdge(cell))
+			if (this.graph.getModel().isVertex(parent) && this.graph.isCellConnectable(parent))
 			{
-				cell = null;
-			}
-			
-			state = this.graph.view.getState(cell);
-			
-			if (state != null && state.style == null)
-			{
-				state = null;
+				cell = parent;
 			}
 		}
+		
+		// Ignores locked cells and edges
+		if (this.graph.isCellLocked(cell) || this.graph.model.isEdge(cell))
+		{
+			cell = null;
+		}
+		
+		state = this.graph.view.getState(cell);
 	}
 	
 	return state;
@@ -3921,7 +3906,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 		
 		// Adds to the list of edges that may intersect with later edges
 		if (state != null && this.graph.model.isEdge(state.cell) &&
-			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1)
+			state.style[mxConstants.STYLE_CURVED] != 1)
 		{
 			// LATER: Reuse jumps for valid edges
 			this.validEdges.push(state);
@@ -4904,59 +4889,52 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			if (terminal != null)
 			{
-				var constraints = mxUtils.getValue(terminal.style, 'points', null);
+				var constraints = (terminal.shape != null) ? terminal.shape.getConstraints(terminal.style) : null;
 				
 				if (constraints != null)
 				{
-					// Requires an array of arrays with x, y (0..1), an optional
-					// [perimeter (0 or 1), dx, and dy] eg. points=[[0,0,1,-10,10],[0,1,0],[1,1]]
-					var result = [];
-					
-					try
-					{
-						var c = JSON.parse(constraints);
-						
-						for (var i = 0; i < c.length; i++)
-						{
-							var tmp = c[i];
-							result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true,
-									null, (tmp.length > 3) ? tmp[3] : 0, (tmp.length > 4) ? tmp[4] : 0));
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-					
-					return result;
+					return constraints;
 				}
-				else if (terminal.shape != null)
+				else
 				{
-					var dir = terminal.shape.direction;
-					var bounds = terminal.shape.bounds;
-					var scale = terminal.shape.scale;
-					var w = bounds.width / scale, h = bounds.height / scale;
-					
-					if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
-					{
-						var tmp = w;
-						w = h;
-						h = tmp;
-					}
-					
-					constraints = terminal.shape.getConstraints(terminal.style, w, h);
+					constraints = mxUtils.getValue(terminal.style, 'points', null);
 					
 					if (constraints != null)
 					{
-						return constraints;
+						// Requires an array of arrays with x, y (0..1) and an optional
+						// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
+						var result = [];
+						
+						try
+						{
+							var c = JSON.parse(constraints);
+							
+							for (var i = 0; i < c.length; i++)
+							{
+								var tmp = c[i];
+								result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+						
+						return result;
 					}
-					else if (terminal.shape.stencil != null && terminal.shape.stencil.constraints != null)
+					else if (terminal.shape != null)
 					{
-						return terminal.shape.stencil.constraints;
-					}
-					else if (terminal.shape.constraints != null)
-					{
-						return terminal.shape.constraints;
+						if (terminal.shape.stencil != null)
+						{
+							if (terminal.shape.stencil != null)
+							{
+								return terminal.shape.stencil.constraints;
+							}
+						}
+						else if (terminal.shape.constraints != null)
+						{
+							return terminal.shape.constraints;
+						}
 					}
 				}
 			}
@@ -5983,7 +5961,7 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.insertImage = function(newValue, w, h)
 		{
 			// To find the new image, we create a list of all existing links first
-			if (newValue != null && this.cellEditor.textarea != null)
+			if (newValue != null)
 			{
 				var tmp = this.cellEditor.textarea.getElementsByTagName('img');
 				var oldImages = [];
@@ -6023,63 +6001,60 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.insertLink = function(value)
 		{
-			if (this.cellEditor.textarea != null)
+			if (value.length == 0)
 			{
-				if (value.length == 0)
+				document.execCommand('unlink', false);
+			}
+			else if (mxClient.IS_FF)
+			{
+				// Workaround for Firefox that adds a new link and removes
+				// the href from the inner link if its parent is a span is
+				// to remove all inner links inside the new outer link
+				var tmp = this.cellEditor.textarea.getElementsByTagName('a');
+				var oldLinks = [];
+				
+				for (var i = 0; i < tmp.length; i++)
 				{
-					document.execCommand('unlink', false);
+					oldLinks.push(tmp[i]);
 				}
-				else if (mxClient.IS_FF)
+				
+				document.execCommand('createlink', false, mxUtils.trim(value));
+				
+				// Finds the new link element
+				var newLinks = this.cellEditor.textarea.getElementsByTagName('a');
+				
+				if (newLinks.length == oldLinks.length + 1)
 				{
-					// Workaround for Firefox that adds a new link and removes
-					// the href from the inner link if its parent is a span is
-					// to remove all inner links inside the new outer link
-					var tmp = this.cellEditor.textarea.getElementsByTagName('a');
-					var oldLinks = [];
-					
-					for (var i = 0; i < tmp.length; i++)
+					// Inverse order in favor of appended links
+					for (var i = newLinks.length - 1; i >= 0; i--)
 					{
-						oldLinks.push(tmp[i]);
-					}
-					
-					document.execCommand('createlink', false, mxUtils.trim(value));
-					
-					// Finds the new link element
-					var newLinks = this.cellEditor.textarea.getElementsByTagName('a');
-					
-					if (newLinks.length == oldLinks.length + 1)
-					{
-						// Inverse order in favor of appended links
-						for (var i = newLinks.length - 1; i >= 0; i--)
+						if (newLinks[i] != oldLinks[i - 1])
 						{
-							if (newLinks[i] != oldLinks[i - 1])
+							// Removes all inner links from the new link and
+							// moves the children to the inner link parent
+							var tmp = newLinks[i].getElementsByTagName('a');
+							
+							while (tmp.length > 0)
 							{
-								// Removes all inner links from the new link and
-								// moves the children to the inner link parent
-								var tmp = newLinks[i].getElementsByTagName('a');
+								var parent = tmp[0].parentNode;
 								
-								while (tmp.length > 0)
+								while (tmp[0].firstChild != null)
 								{
-									var parent = tmp[0].parentNode;
-									
-									while (tmp[0].firstChild != null)
-									{
-										parent.insertBefore(tmp[0].firstChild, tmp[0]);
-									}
-									
-									parent.removeChild(tmp[0]);
+									parent.insertBefore(tmp[0].firstChild, tmp[0]);
 								}
 								
-								break;
+								parent.removeChild(tmp[0]);
 							}
+							
+							break;
 						}
 					}
 				}
-				else
-				{
-					// LATER: Fix inserting link/image in IE8/quirks after focus lost
-					document.execCommand('createlink', false, mxUtils.trim(value));
-				}
+			}
+			else
+			{
+				// LATER: Fix inserting link/image in IE8/quirks after focus lost
+				document.execCommand('createlink', false, mxUtils.trim(value));
 			}
 		};
 		
@@ -6310,7 +6285,7 @@ if (typeof mxVertexHandler != 'undefined')
 				// Prepares SVG document that holds the output
 				var svgDoc = mxUtils.createXmlDocument();
 				var root = (svgDoc.createElementNS != null) ?
-			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') : svgDoc.createElement('svg');
+			    		svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') : svgDoc.createElement('svg');
 			    
 				if (background != null)
 				{
@@ -6347,11 +6322,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			    // Renders graph. Offset will be multiplied with state's scale when painting state.
 				// TextOffset only seems to affect FF output but used everywhere for consistency.
-				var group = (svgDoc.createElementNS != null) ?
-			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'g') : svgDoc.createElement('g');
-			    root.appendChild(group);
-
-				var svgCanvas = this.createSvgCanvas(group);
+				var svgCanvas = this.createSvgCanvas(root);
 				svgCanvas.foOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.textOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
@@ -7142,110 +7113,106 @@ if (typeof mxVertexHandler != 'undefined')
 		mxCellEditor.prototype.toggleViewMode = function()
 		{
 			var state = this.graph.view.getState(this.editingCell);
+			var nl2Br = state != null && mxUtils.getValue(state.style, 'nl2Br', '1') != '0';
+			var tmp = this.saveSelection();
 			
-			if (state != null)
+			if (!this.codeViewMode)
 			{
-				var nl2Br = state != null && mxUtils.getValue(state.style, 'nl2Br', '1') != '0';
-				var tmp = this.saveSelection();
-				
-				if (!this.codeViewMode)
+				// Clears the initial empty label on the first keystroke
+				if (this.clearOnChange && this.textarea.innerHTML == this.getEmptyLabelText())
 				{
-					// Clears the initial empty label on the first keystroke
-					if (this.clearOnChange && this.textarea.innerHTML == this.getEmptyLabelText())
-					{
-						this.clearOnChange = false;
-						this.textarea.innerHTML = '';
-					}
-					
-					// Removes newlines from HTML and converts breaks to newlines
-					// to match the HTML output in plain text
-					var content = mxUtils.htmlEntities(this.textarea.innerHTML);
-		
-				    // Workaround for trailing line breaks being ignored in the editor
-					if (!mxClient.IS_QUIRKS && document.documentMode != 8)
-					{
-						content = mxUtils.replaceTrailingNewlines(content, '<div><br></div>');
-					}
-					
-				    content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
-					this.textarea.className = 'mxCellEditor mxPlainTextEditor';
-					
-					var size = mxConstants.DEFAULT_FONTSIZE;
-					
-					this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
-					this.textarea.style.fontSize = Math.round(size) + 'px';
-					this.textarea.style.textDecoration = '';
-					this.textarea.style.fontWeight = 'normal';
-					this.textarea.style.fontStyle = '';
-					this.textarea.style.fontFamily = mxConstants.DEFAULT_FONTFAMILY;
-					this.textarea.style.textAlign = 'left';
-					
-					// Adds padding to make cursor visible with borders
-					this.textarea.style.padding = '2px';
-					
-					if (this.textarea.innerHTML != content)
-					{
-						this.textarea.innerHTML = content;
-					}
-		
-					this.codeViewMode = true;
-				}
-				else
-				{
-					var content = mxUtils.extractTextWithWhitespace(this.textarea.childNodes);
-				    
-					// Strips trailing line break
-				    if (content.length > 0 && content.charAt(content.length - 1) == '\n')
-				    {
-				    	content = content.substring(0, content.length - 1);
-				    }
-				    
-					content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '<br/>') : content, true)
-					this.textarea.className = 'mxCellEditor geContentEditable';
-					
-					var size = mxUtils.getValue(state.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
-					var family = mxUtils.getValue(state.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY);
-					var align = mxUtils.getValue(state.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
-					var bold = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
-							mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD;
-					var italic = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
-							mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC;
-					var uline = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
-							mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE;
-					
-					this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
-					this.textarea.style.fontSize = Math.round(size) + 'px';
-					this.textarea.style.textDecoration = (uline) ? 'underline' : '';
-					this.textarea.style.fontWeight = (bold) ? 'bold' : 'normal';
-					this.textarea.style.fontStyle = (italic) ? 'italic' : '';
-					this.textarea.style.fontFamily = family;
-					this.textarea.style.textAlign = align;
-					this.textarea.style.padding = '0px';
-					
-					if (this.textarea.innerHTML != content)
-					{
-						this.textarea.innerHTML = content;
-						
-						if (this.textarea.innerHTML.length == 0)
-						{
-							this.textarea.innerHTML = this.getEmptyLabelText();
-							this.clearOnChange = this.textarea.innerHTML.length > 0;
-						}
-					}
-		
-					this.codeViewMode = false;
+					this.clearOnChange = false;
+					this.textarea.innerHTML = '';
 				}
 				
-				this.textarea.focus();
-			
-				if (this.switchSelectionState != null)
+				// Removes newlines from HTML and converts breaks to newlines
+				// to match the HTML output in plain text
+				var content = mxUtils.htmlEntities(this.textarea.innerHTML);
+	
+			    // Workaround for trailing line breaks being ignored in the editor
+				if (!mxClient.IS_QUIRKS && document.documentMode != 8)
 				{
-					this.restoreSelection(this.switchSelectionState);
+					content = mxUtils.replaceTrailingNewlines(content, '<div><br></div>');
 				}
 				
-				this.switchSelectionState = tmp;
-				this.resize();
+			    content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
+				this.textarea.className = 'mxCellEditor mxPlainTextEditor';
+				
+				var size = mxConstants.DEFAULT_FONTSIZE;
+				
+				this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
+				this.textarea.style.fontSize = Math.round(size) + 'px';
+				this.textarea.style.textDecoration = '';
+				this.textarea.style.fontWeight = 'normal';
+				this.textarea.style.fontStyle = '';
+				this.textarea.style.fontFamily = mxConstants.DEFAULT_FONTFAMILY;
+				this.textarea.style.textAlign = 'left';
+				
+				// Adds padding to make cursor visible with borders
+				this.textarea.style.padding = '2px';
+				
+				if (this.textarea.innerHTML != content)
+				{
+					this.textarea.innerHTML = content;
+				}
+	
+				this.codeViewMode = true;
 			}
+			else
+			{
+				var content = mxUtils.extractTextWithWhitespace(this.textarea.childNodes);
+			    
+				// Strips trailing line break
+			    if (content.length > 0 && content.charAt(content.length - 1) == '\n')
+			    {
+			    	content = content.substring(0, content.length - 1);
+			    }
+			    
+				content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '<br/>') : content, true)
+				this.textarea.className = 'mxCellEditor geContentEditable';
+				
+				var size = mxUtils.getValue(state.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
+				var family = mxUtils.getValue(state.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY);
+				var align = mxUtils.getValue(state.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+				var bold = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
+						mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD;
+				var italic = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
+						mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC;
+				var uline = (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
+						mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE;
+				
+				this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
+				this.textarea.style.fontSize = Math.round(size) + 'px';
+				this.textarea.style.textDecoration = (uline) ? 'underline' : '';
+				this.textarea.style.fontWeight = (bold) ? 'bold' : 'normal';
+				this.textarea.style.fontStyle = (italic) ? 'italic' : '';
+				this.textarea.style.fontFamily = family;
+				this.textarea.style.textAlign = align;
+				this.textarea.style.padding = '0px';
+				
+				if (this.textarea.innerHTML != content)
+				{
+					this.textarea.innerHTML = content;
+					
+					if (this.textarea.innerHTML.length == 0)
+					{
+						this.textarea.innerHTML = this.getEmptyLabelText();
+						this.clearOnChange = this.textarea.innerHTML.length > 0;
+					}
+				}
+	
+				this.codeViewMode = false;
+			}
+			
+			this.textarea.focus();
+		
+			if (this.switchSelectionState != null)
+			{
+				this.restoreSelection(this.switchSelectionState);
+			}
+			
+			this.switchSelectionState = tmp;
+			this.resize();
 		};
 		
 		var mxCellEditorResize = mxCellEditor.prototype.resize;

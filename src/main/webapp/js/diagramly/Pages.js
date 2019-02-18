@@ -190,10 +190,12 @@ SelectPage.prototype.execute = function()
 		page = this.ui.currentPage;
 	
 		// Switches the root cell and sets the view state
-		graph.model.prefix = Editor.guid() + '-';
 		graph.model.rootChanged(page.root);
 		graph.setViewState(page.viewState);
-
+				
+		// Fires event to setting view state from realtime
+		editor.fireEvent(new mxEventObject('setViewState', 'change', this));
+		
 		// Handles grid state in chromeless mode which is stored in Editor instance
 		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.isChromelessView() ||
 			urlParams['grid'] == '1');
@@ -663,7 +665,6 @@ Graph.prototype.setViewState = function(state)
 	// Implicit settings
 	this.pageBreaksVisible = this.pageVisible; 
 	this.preferPageSize = this.pageVisible;
-	this.fireEvent(new mxEventObject('viewStateChanged', 'state', state));
 };
 
 /**
@@ -716,37 +717,30 @@ EditorUi.prototype.updatePageRoot = function(page)
  */
 EditorUi.prototype.selectPage = function(page, quiet, viewState)
 {
-	try
+	if (this.editor.graph.isEditing())
 	{
-		if (this.editor.graph.isEditing())
-		{
-			this.editor.graph.stopEditing(false);
-		}
-		
-		quiet = (quiet != null) ? quiet : false;
-		this.editor.graph.isMouseDown = false;
-		this.editor.graph.reset();
-		
-		var edit = this.editor.graph.model.createUndoableEdit();
-		
-		// Special flag to bypass autosave for this edit
-		edit.ignoreEdit = true;
-	
-		var change = new SelectPage(this, page, viewState);
-		change.execute();
-		edit.add(change);
-		edit.notify();
-		
-		this.editor.graph.tooltipHandler.hide();
-		
-		if (!quiet)
-		{
-			this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
-		}
+		this.editor.graph.stopEditing(false);
 	}
-	catch (e)
+	
+	quiet = (quiet != null) ? quiet : false;
+	this.editor.graph.isMouseDown = false;
+	this.editor.graph.reset();
+	
+	var edit = this.editor.graph.model.createUndoableEdit();
+	
+	// Special flag to bypass autosave for this edit
+	edit.ignoreEdit = true;
+
+	var change = new SelectPage(this, page, viewState);
+	change.execute();
+	edit.add(change);
+	edit.notify();
+	
+	this.editor.graph.tooltipHandler.hide();
+	
+	if (!quiet)
 	{
-		this.handleError(e);
+		this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
 	}
 };
 
@@ -842,57 +836,50 @@ EditorUi.prototype.createPageName = function()
  */
 EditorUi.prototype.removePage = function(page)
 {
-	try
+	var graph = this.editor.graph;
+	var tmp = mxUtils.indexOf(this.pages, page);
+	
+	if (graph.isEnabled() && tmp >= 0)
 	{
-		var graph = this.editor.graph;
-		var tmp = mxUtils.indexOf(this.pages, page);
-		
-		if (graph.isEnabled() && tmp >= 0)
+		if (this.editor.graph.isEditing())
 		{
-			if (this.editor.graph.isEditing())
+			this.editor.graph.stopEditing(false);
+		}
+		
+		graph.model.beginUpdate();
+		try
+		{
+			var next = this.currentPage;
+			
+			if (next == page && this.pages.length > 1)
 			{
-				this.editor.graph.stopEditing(false);
+				if (tmp == this.pages.length - 1)
+				{
+					tmp--;
+				}
+				else
+				{
+					tmp++;
+				}
+				
+				next = this.pages[tmp];
+			}
+			else if (this.pages.length <= 1)
+			{
+				// Removes label with incorrect page number to force
+				// default page name which is OK for a single page
+				next = this.insertPage();
+				graph.model.execute(new RenamePage(this, next,
+					mxResources.get('pageWithNumber', [1])));
 			}
 			
-			graph.model.beginUpdate();
-			try
-			{
-				var next = this.currentPage;
-				
-				if (next == page && this.pages.length > 1)
-				{
-					if (tmp == this.pages.length - 1)
-					{
-						tmp--;
-					}
-					else
-					{
-						tmp++;
-					}
-					
-					next = this.pages[tmp];
-				}
-				else if (this.pages.length <= 1)
-				{
-					// Removes label with incorrect page number to force
-					// default page name which is OK for a single page
-					next = this.insertPage();
-					graph.model.execute(new RenamePage(this, next,
-						mxResources.get('pageWithNumber', [1])));
-				}
-				
-				// Uses model to fire event to trigger autosave
-				graph.model.execute(new ChangePage(this, page, next));
-			}
-			finally
-			{
-				graph.model.endUpdate();
-			}
+			// Uses model to fire event to trigger autosave
+			graph.model.execute(new ChangePage(this, page, next));
 		}
-	}
-	catch (e)
-	{
-		this.handleError(e);
+		finally
+		{
+			graph.model.endUpdate();
+		}
 	}
 	
 	return page;
@@ -903,41 +890,33 @@ EditorUi.prototype.removePage = function(page)
  */
 EditorUi.prototype.duplicatePage = function(page, name)
 {
+	var graph = this.editor.graph;
 	var newPage = null;
 	
-	try
+	if (graph.isEnabled())
 	{
-		var graph = this.editor.graph;
-		
-		if (graph.isEnabled())
+		if (graph.isEditing())
 		{
-			if (graph.isEditing())
-			{
-				graph.stopEditing();
-			}
-			
-			// Clones the current page and takes a snapshot of the graph model and view state
-			var node = page.node.cloneNode(false);
-			node.removeAttribute('id');
-			
-			var newPage = new DiagramPage(node);
-			newPage.root = graph.cloneCell(graph.model.root);
-			newPage.viewState = graph.getViewState();
-			
-			// Resets zoom and scrollbar positions
-			newPage.viewState.scale = 1;
-			newPage.viewState.scrollLeft = null;
-			newPage.viewState.scrollTop = null;
-			newPage.viewState.currentRoot = null;
-			newPage.viewState.defaultParent = null;
-			newPage.setName(name);
-			
-			newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
+			graph.stopEditing();
 		}
-	}
-	catch (e)
-	{
-		this.handleError(e);
+		
+		// Clones the current page and takes a snapshot of the graph model and view state
+		var node = page.node.cloneNode(false);
+		node.removeAttribute('id');
+		
+		var newPage = new DiagramPage(node);
+		newPage.root = graph.cloneCell(graph.model.root);
+		newPage.viewState = graph.getViewState();
+		
+		// Resets zoom and scrollbar positions
+		newPage.viewState.scale = 1;
+		newPage.viewState.scrollLeft = null;
+		newPage.viewState.scrollTop = null;
+		newPage.viewState.currentRoot = null;
+		newPage.viewState.defaultParent = null;
+		newPage.setName(name);
+		
+		newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
 	}
 	
 	return newPage;

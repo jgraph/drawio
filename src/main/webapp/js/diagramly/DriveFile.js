@@ -157,6 +157,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 	{
 		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 		{
+			var savedData = this.data;
 			var lastDesc = this.desc;
 			
 			// Makes sure no changes get lost while the file is saved
@@ -172,7 +173,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 				return true;
 			};
 
-			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
+			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp)
 			{
 				this.isModified = prevModified;
 				this.savingFile = false;
@@ -257,34 +258,6 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		
 		doSave(overwrite, revision);
 	}
-};
-
-/**
- * Shows a conflict dialog to the user.
- */
-DriveFile.prototype.copyFile = function(success, error)
-{
-	if (!this.isRestricted())
-	{
-		this.makeCopy(mxUtils.bind(this, function()
-		{
-			if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
-			{
-				try
-				{
-					this.save(true, success, error)
-				}
-				catch (e)
-				{
-					error(e);
-				}
-			}
-		}), error, true);
-	}
-	else
-	{
-		DrawioFile.prototype.copyFile.apply(this, arguments);
-	}	
 };
 
 /**

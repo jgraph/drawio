@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.apphosting.api.DeadlineExceededException;
 import com.mxgraph.online.Utils.UnsupportedContentException;
 
 /**
@@ -133,10 +132,6 @@ public class ProxyServlet extends HttpServlet
 						+ ((urlParam != null) ? urlParam : "[null]")
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
 						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
-			}
-			catch (DeadlineExceededException e)
-			{
-				response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
 			}
 			catch (UnknownHostException | FileNotFoundException e)
 			{

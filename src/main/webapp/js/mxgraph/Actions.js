@@ -360,15 +360,7 @@ Actions.prototype.init = function()
 			});
 		}
 	}, null, null, 'Alt+Shift+L');
-	this.put('insertImage', new Action(mxResources.get('image') + '...', function()
-	{
-		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
-		{
-			graph.clearSelection();
-			ui.actions.get('image').funct();
-		}
-	})).isEnabled = isGraphEnabled;
-	this.put('insertLink', new Action(mxResources.get('link') + '...', function()
+	this.addAction('insertLink...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
@@ -419,7 +411,7 @@ Actions.prototype.init = function()
 				}
 			});
 		}
-	})).isEnabled = isGraphEnabled;
+	}).isEnabled = isGraphEnabled;
 	this.addAction('link...', mxUtils.bind(this, function()
 	{
 		var graph = ui.editor.graph;
@@ -444,6 +436,7 @@ Actions.prototype.init = function()
 					{
 						if (links[i].textContent == elt.textContent)
 						{
+							graph.selectNode(links[i]);
 							link = links[i];
 						}
 					}
@@ -452,7 +445,6 @@ Actions.prototype.init = function()
 				if (link != null && link.nodeName == 'A')
 				{
 					oldValue = link.getAttribute('href') || '';
-					graph.selectNode(link);
 				}
 				
 				var selState = graph.cellEditor.saveSelection();
@@ -1245,6 +1237,14 @@ Actions.prototype.init = function()
 					}
 		    	}
 			}, graph.cellEditor.isContentEditing(), !graph.cellEditor.isContentEditing());
+		}
+	}).isEnabled = isGraphEnabled;
+	this.addAction('insertImage...', function()
+	{
+		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+		{
+			graph.clearSelection();
+			ui.actions.get('image').funct();
 		}
 	}).isEnabled = isGraphEnabled;
 	action = this.addAction('layers', mxUtils.bind(this, function()

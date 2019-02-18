@@ -216,7 +216,7 @@ var com;
 	                    //console.log(xmlBuilder.str);
 	                    if (callback) 
 	                    {
-                     		callback(xmlBuilder.str);
+	                    		callback(xmlBuilder.str);
 	                    }
                     };
 
@@ -1261,7 +1261,7 @@ var com;
                     _this.RESPONSE_HEADER = "";
                     return _this;
                 }
-                mxVssxCodec.prototype.decodeVssx = function (file, callback, charset, onerror) {
+                mxVssxCodec.prototype.decodeVssx = function (file, callback, charset) {
                 	var _this = this;
                     var library = { str: "<mxlibrary>[", toString: function () { return this.str; } };
                     this.decodeVsdx(file, function(shapesInPages) 
@@ -1366,21 +1366,7 @@ var com;
                         /* append */ (function (sb) { return sb.str = sb.str.concat("]</mxlibrary>"); })(library);
                         if (callback)
                     	{
-	                    	try
-	                    	{
-	                    		callback(library.str);
-	                    	}
-	                    	catch(e)
-	                    	{
-	                    		if (onerror != null) 
-	                    		{
-	                    			onerror(e);
-	                    		}
-	                    		else
-	                    		{
-	                    			callback("");
-	                    		}
-	                    	}
+                        	callback(library.str);
                     	}
                     }, charset);
                 };
@@ -11914,7 +11900,7 @@ EditorUi.prototype.doImportVisio = function(file, done, onerror)
 {
 	if (file.name != null && /(\.vs(x|sx?))($|\?)/i.test(file.name))
 	{
-		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done, null, onerror);
+		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done);
 	}
 	else
 	{

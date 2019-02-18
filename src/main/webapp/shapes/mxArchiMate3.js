@@ -470,49 +470,6 @@ mxArchiMate3Application.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Application.prototype.cst.APPLICATION, mxArchiMate3Application);
 
-mxArchiMate3Application.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var archiType = mxUtils.getValue(this.style, mxArchiMate3Application.prototype.cst.ARCHI_TYPE, 'square');
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	if (archiType === 'rounded')
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -2.9, 2.9));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -2.9, -2.9));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 2.9, -2.9));
-	}
-	else if ((archiType === 'oct') && w >= 20 && h >= 20)
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 5, 5));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -5, 5));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -5, -5));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 5, -5));
-	}
-	else
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	}
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Component
 //**********************************************************************************************************************************************************
@@ -536,6 +493,8 @@ mxUtils.extend(mxArchiMate3Component, mxShape);
 mxArchiMate3Component.prototype.cst = {
 		COMPONENT : 'mxgraph.archimate3.component'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -563,23 +522,6 @@ mxArchiMate3Component.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Component.prototype.cst.COMPONENT, mxArchiMate3Component);
 
-mxArchiMate3Component.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.625, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.625, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.325), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.675), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Collaboration
 //**********************************************************************************************************************************************************
@@ -604,6 +546,8 @@ mxArchiMate3Collaboration.prototype.cst = {
 		COLLABORATION : 'mxgraph.archimate3.collaboration'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -625,26 +569,6 @@ mxArchiMate3Collaboration.prototype.background = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxArchiMate3Collaboration.prototype.cst.COLLABORATION, mxArchiMate3Collaboration);
-
-mxArchiMate3Collaboration.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.11, 0.11), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.125), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.89, 0.11), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.11, 0.89), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.875), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.89, 0.89), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.3, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.7, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.3, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.7, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-
-	return (constr);
-};
 
 //**********************************************************************************************************************************************************
 //Interface
@@ -669,6 +593,8 @@ mxUtils.extend(mxArchiMate3Interface, mxShape);
 mxArchiMate3Interface.prototype.cst = {
 		INTERFACE : 'mxgraph.archimate3.interface'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -695,18 +621,6 @@ mxArchiMate3Interface.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Interface.prototype.cst.INTERFACE, mxArchiMate3Interface);
 
-mxArchiMate3Interface.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Process
 //**********************************************************************************************************************************************************
@@ -730,6 +644,8 @@ mxUtils.extend(mxArchiMate3Process, mxShape);
 mxArchiMate3Process.prototype.cst = {
 		PROCESS : 'mxgraph.archimate3.process'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -759,24 +675,6 @@ mxArchiMate3Process.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Process.prototype.cst.PROCESS, mxArchiMate3Process);
 
-mxArchiMate3Process.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.3), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.3, 0.3), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.6, 0.3), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.6, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.6, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.6, 0.7), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.3, 0.7), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.7), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Function
 //**********************************************************************************************************************************************************
@@ -800,6 +698,8 @@ mxUtils.extend(mxArchiMate3Function, mxShape);
 mxArchiMate3Function.prototype.cst = {
 		FUNCTION : 'mxgraph.archimate3.function'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -828,22 +728,6 @@ mxArchiMate3Function.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Function.prototype.cst.FUNCTION, mxArchiMate3Function);
 
-mxArchiMate3Function.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.2), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.6), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.8), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.6), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.2), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Interaction
 //**********************************************************************************************************************************************************
@@ -867,6 +751,8 @@ mxUtils.extend(mxArchiMate3Interaction, mxShape);
 mxArchiMate3Interaction.prototype.cst = {
 		INTERACTION : 'mxgraph.archimate3.interaction'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -894,22 +780,6 @@ mxArchiMate3Interaction.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Interaction.prototype.cst.INTERACTION, mxArchiMate3Interaction);
 
-mxArchiMate3Interaction.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.86, 0.14), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.86, 0.86), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.14, 0.86), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.14, 0.14), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Service
 //**********************************************************************************************************************************************************
@@ -934,6 +804,8 @@ mxArchiMate3Service.prototype.cst = {
 		SERVICE : 'mxgraph.archimate3.service'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -948,41 +820,16 @@ mxArchiMate3Service.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxArchiMate3Service.prototype.background = function(c, x, y, w, h)
 {
-	var w1 = Math.max(w - h * 0.5, w * 0.5);
-	var w2 = Math.min(h * 0.5, w * 0.5);
-	
 	c.begin();
-	c.moveTo(w1, 0);
-	c.arcTo(h * 0.5, h * 0.5, 0, 0, 1, w1, h);
-	c.lineTo(w2, h);
-	c.arcTo(h * 0.5, h * 0.5, 0, 0, 1, w2, 0);
+	c.moveTo(w - h * 0.5, 0);
+	c.arcTo(h * 0.5, h * 0.5, 0, 0, 1, w - h * 0.5, h);
+	c.lineTo(h * 0.5, h);
+	c.arcTo(h * 0.5, h * 0.5, 0, 0, 1, h * 0.5, 0);
 	c.close();
 	c.fillAndStroke();
 };
 
 mxCellRenderer.registerShape(mxArchiMate3Service.prototype.cst.SERVICE, mxArchiMate3Service);
-
-mxArchiMate3Service.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var w1 = Math.max(w - h * 0.5, w * 0.5);
-	var w2 = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w1, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w1, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w2, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w2, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w1 + h * 0.355, h * 0.145));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w1 + h * 0.5, h * 0.5));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w1 + h * 0.355, h * 0.855));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w2 - h * 0.355, h * 0.145));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w2 - h * 0.5, h * 0.5));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w2 - h * 0.355, h * 0.855));
-
-	return (constr);
-};
 
 //**********************************************************************************************************************************************************
 //Requirement
@@ -1007,6 +854,8 @@ mxUtils.extend(mxArchiMate3Requirement, mxShape);
 mxArchiMate3Requirement.prototype.cst = {
 		REQUIREMENT : 'mxgraph.archimate3.requirement'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1033,28 +882,6 @@ mxArchiMate3Requirement.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Requirement.prototype.cst.REQUIREMENT, mxArchiMate3Requirement);
 
-mxArchiMate3Requirement.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.9375, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.875, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8125, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.0625, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.125, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.1875, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Constraint
 //**********************************************************************************************************************************************************
@@ -1078,6 +905,8 @@ mxUtils.extend(mxArchiMate3Constraint, mxShape);
 mxArchiMate3Constraint.prototype.cst = {
 		CONSTRAINT : 'mxgraph.archimate3.constraint'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1106,28 +935,6 @@ mxArchiMate3Constraint.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Constraint.prototype.cst.CONSTRAINT, mxArchiMate3Constraint);
 
-mxArchiMate3Constraint.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.9375, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.875, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8125, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.0625, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.125, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.1875, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Event
 //**********************************************************************************************************************************************************
@@ -1151,6 +958,8 @@ mxUtils.extend(mxArchiMate3Event, mxShape);
 mxArchiMate3Event.prototype.cst = {
 		EVENT : 'mxgraph.archimate3.event'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1178,24 +987,6 @@ mxArchiMate3Event.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Event.prototype.cst.EVENT, mxArchiMate3Event);
 
-mxArchiMate3Event.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var w1 = Math.max(w - h * 0.5, w * 0.5);
-	var w2 = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - h * 0.5, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - h * 0.5, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, h * 0.5, h * 0.5));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - h * 0.5) * 0.5, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - h * 0.5) * 0.5, h));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Event 2
 //**********************************************************************************************************************************************************
@@ -1219,6 +1010,8 @@ mxUtils.extend(mxArchiMate3Event2, mxShape);
 mxArchiMate3Event2.prototype.cst = {
 		EVENT2 : 'mxgraph.archimate3.event2'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1269,6 +1062,8 @@ mxArchiMate3Actor.prototype.cst = {
 		ACTOR : 'mxgraph.archimate3.actor'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1299,21 +1094,6 @@ mxArchiMate3Actor.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Actor.prototype.cst.ACTOR, mxArchiMate3Actor);
 
-mxArchiMate3Actor.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.2, 0.15), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8, 0.15), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.45), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.45), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Role
 //**********************************************************************************************************************************************************
@@ -1337,6 +1117,8 @@ mxUtils.extend(mxArchiMate3Role, mxShape);
 mxArchiMate3Role.prototype.cst = {
 		ROLE : 'mxgraph.archimate3.role'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1365,22 +1147,6 @@ mxArchiMate3Role.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Role.prototype.cst.ROLE, mxArchiMate3Role);
 
-mxArchiMate3Role.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.2, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.2, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Business Object
 //**********************************************************************************************************************************************************
@@ -1404,6 +1170,8 @@ mxUtils.extend(mxArchiMate3BusinessObject, mxShape);
 mxArchiMate3BusinessObject.prototype.cst = {
 		BUSINESS_OBJECT : 'mxgraph.archimate3.businessObject'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1437,30 +1205,6 @@ mxArchiMate3BusinessObject.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3BusinessObject.prototype.cst.BUSINESS_OBJECT, mxArchiMate3BusinessObject);
 
-mxArchiMate3BusinessObject.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Contract
 //**********************************************************************************************************************************************************
@@ -1484,6 +1228,8 @@ mxUtils.extend(mxArchiMate3Contract, mxShape);
 mxArchiMate3Contract.prototype.cst = {
 		CONTRACT : 'mxgraph.archimate3.contract'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1526,30 +1272,6 @@ mxArchiMate3Contract.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Contract.prototype.cst.CONTRACT, mxArchiMate3Contract);
 
-mxArchiMate3Contract.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Product
 //**********************************************************************************************************************************************************
@@ -1573,6 +1295,8 @@ mxUtils.extend(mxArchiMate3Product, mxShape);
 mxArchiMate3Product.prototype.cst = {
 		PRODUCT : 'mxgraph.archimate3.product'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1607,30 +1331,6 @@ mxArchiMate3Product.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Product.prototype.cst.PRODUCT, mxArchiMate3Product);
 
-mxArchiMate3Product.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Representation
 //**********************************************************************************************************************************************************
@@ -1654,6 +1354,8 @@ mxUtils.extend(mxArchiMate3Representation, mxShape);
 mxArchiMate3Representation.prototype.cst = {
 		REPRESENTATION : 'mxgraph.archimate3.representation'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1686,30 +1388,6 @@ mxArchiMate3Representation.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Representation.prototype.cst.REPRESENTATION, mxArchiMate3Representation);
 
-mxArchiMate3Representation.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.745), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.955), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Deliverable
 //**********************************************************************************************************************************************************
@@ -1733,6 +1411,8 @@ mxUtils.extend(mxArchiMate3Deliverable, mxShape);
 mxArchiMate3Deliverable.prototype.cst = {
 		DELIVERABLE : 'mxgraph.archimate3.deliverable'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1759,30 +1439,6 @@ mxArchiMate3Deliverable.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Deliverable.prototype.cst.DELIVERABLE, mxArchiMate3Deliverable);
 
-mxArchiMate3Deliverable.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.745), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.955), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Location
 //**********************************************************************************************************************************************************
@@ -1806,6 +1462,8 @@ mxUtils.extend(mxArchiMate3Location, mxShape);
 mxArchiMate3Location.prototype.cst = {
 		LOCATION : 'mxgraph.archimate3.location'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -1868,6 +1526,8 @@ mxArchiMate3Gap.prototype.cst = {
 		GAP : 'mxgraph.archimate3.gap'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -1914,30 +1574,6 @@ mxArchiMate3Gap.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Gap.prototype.cst.GAP, mxArchiMate3Gap);
 
-mxArchiMate3Gap.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.745), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.955), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.85), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Tech
 //**********************************************************************************************************************************************************
@@ -1967,6 +1603,8 @@ mxArchiMate3Tech.prototype.cst = {
 		EQUIPMENT : 'equipment',
 		SYS_SW : 'sysSw'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2135,32 +1773,6 @@ mxArchiMate3Tech.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Tech.prototype.cst.TECH, mxArchiMate3Tech);
 
-mxArchiMate3Tech.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 10, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, 0, -10));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -10, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, 10));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Distribution
 //**********************************************************************************************************************************************************
@@ -2184,6 +1796,8 @@ mxUtils.extend(mxArchiMate3Distribution, mxShape);
 mxArchiMate3Distribution.prototype.cst = {
 		DISTRIBUTION : 'mxgraph.archimate3.distribution'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2219,23 +1833,6 @@ mxArchiMate3Distribution.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Distribution.prototype.cst.DISTRIBUTION, mxArchiMate3Distribution);
 
-mxArchiMate3Distribution.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.2, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.8, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.2, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Resource
 //**********************************************************************************************************************************************************
@@ -2259,6 +1856,8 @@ mxUtils.extend(mxArchiMate3Resource, mxShape);
 mxArchiMate3Resource.prototype.cst = {
 		RESOURCE : 'mxgraph.archimate3.resource'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2326,6 +1925,8 @@ mxArchiMate3Capability.prototype.cst = {
 		CAPABILITY : 'mxgraph.archimate3.capability'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2387,6 +1988,8 @@ mxArchiMate3Course.prototype.cst = {
 		COURSE : 'mxgraph.archimate3.course'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2446,6 +2049,8 @@ mxArchiMate3Node.prototype.cst = {
 		NODE : 'mxgraph.archimate3.node'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2478,32 +2083,6 @@ mxArchiMate3Node.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Node.prototype.cst.NODE, mxArchiMate3Node);
 
-mxArchiMate3Node.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Device
 //**********************************************************************************************************************************************************
@@ -2527,6 +2106,8 @@ mxUtils.extend(mxArchiMate3Device, mxShape);
 mxArchiMate3Device.prototype.cst = {
 		DEVICE : 'mxgraph.archimate3.device'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2555,30 +2136,6 @@ mxArchiMate3Device.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Device.prototype.cst.DEVICE, mxArchiMate3Device);
 
-mxArchiMate3Device.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0.03, 0.03), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.97, 0.03), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //System Software
 //**********************************************************************************************************************************************************
@@ -2602,6 +2159,8 @@ mxUtils.extend(mxArchiMate3SysSw, mxShape);
 mxArchiMate3SysSw.prototype.cst = {
 		SYS_SW : 'mxgraph.archimate3.sysSw'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2650,6 +2209,8 @@ mxArchiMate3Artifact.prototype.cst = {
 		ARTIFACT : 'mxgraph.archimate3.artifact'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -2682,30 +2243,6 @@ mxArchiMate3Artifact.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3Artifact.prototype.cst.ARTIFACT, mxArchiMate3Artifact);
 
-mxArchiMate3Artifact.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.7, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.85, 0.11), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.22), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Communication Network
 //**********************************************************************************************************************************************************
@@ -2729,6 +2266,8 @@ mxUtils.extend(mxArchiMate3CommNetw, mxShape);
 mxArchiMate3CommNetw.prototype.cst = {
 		COMM_NETW : 'mxgraph.archimate3.commNetw'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2758,16 +2297,6 @@ mxArchiMate3CommNetw.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMate3CommNetw.prototype.cst.COMM_NETW, mxArchiMate3CommNetw);
 
-mxArchiMate3CommNetw.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-
-	return (constr);
-};
-
 //**********************************************************************************************************************************************************
 //Path
 //**********************************************************************************************************************************************************
@@ -2791,6 +2320,8 @@ mxUtils.extend(mxArchiMate3Path, mxShape);
 mxArchiMate3Path.prototype.cst = {
 		PATH : 'mxgraph.archimate3.path'
 };
+
+
 
 /**
 * Function: paintVertexShape
@@ -2823,13 +2354,3 @@ mxArchiMate3Path.prototype.background = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxArchiMate3Path.prototype.cst.PATH, mxArchiMate3Path);
-
-mxArchiMate3Path.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-
-	return (constr);
-};

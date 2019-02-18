@@ -392,7 +392,7 @@ function VsdxExport(editorUi)
 	{
 		var state = graph.view.getState(cell, true);
 		
-		if (state == null || state.absolutePoints == null || state.cellBounds == null)
+		if (state == null)
 		{
 			return null;
 		}
@@ -531,23 +531,16 @@ function VsdxExport(editorUi)
 				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo, true);
 				cell.treatAsSingle = false;
 				cell.setGeometry(geo);
-				
-				if (subShape != null)
-				{
-					gShapes.appendChild(subShape);
-				}
+				gShapes.appendChild(subShape);
 				
 				//add group children
-				for (var i = 0; i < cell.getChildCount(); i++)
+				for (var i = 0; i < cell.children.length; i++)
 				{
 					var child = cell.children[i];
 					
 					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo, true);
 					
-					if (subShape != null)
-					{
-						gShapes.appendChild(subShape);
-					}
+					gShapes.appendChild(subShape);
 				}
 				
 				shape.appendChild(gShapes);
@@ -896,7 +889,6 @@ function VsdxExport(editorUi)
 		catch(e) 
 		{
 			console.log(e);
-			editorUi.spinner.stop();
 			return false;
 		}
 	};	

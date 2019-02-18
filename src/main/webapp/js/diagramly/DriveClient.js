@@ -828,88 +828,74 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 	// Loads XML to initialize realtime document if realtime is empty
 	this.ui.loadUrl(url, mxUtils.bind(this, function(data)
 	{
-		try
+		if (data == null)
 		{
-			if (data == null)
+			// TODO: Optional redirect to legacy if link is for old file
+			error({message: mxResources.get('invalidOrMissingFile')});
+		}
+		else if (resp.mimeType == this.libraryMimeType || readLibrary)
+		{
+			if (resp.mimeType == this.libraryMimeType && !readLibrary)
 			{
-				// TODO: Optional redirect to legacy if link is for old file
-				error({message: mxResources.get('invalidOrMissingFile')});
-			}
-			else if (resp.mimeType == this.libraryMimeType || readLibrary)
-			{
-				if (resp.mimeType == this.libraryMimeType && !readLibrary)
-				{
-					error({message: mxResources.get('notADiagramFile')});
-				}
-				else
-				{
-					success(new DriveLibrary(this.ui, data, resp));
-				}
+				error({message: mxResources.get('notADiagramFile')});
 			}
 			else
 			{
-				if (/\.png$/i.test(resp.title))
+				success(new DriveLibrary(this.ui, data, resp));
+			}
+		}
+		else
+		{
+			if (/\.png$/i.test(resp.title))
+			{
+				var index = data.lastIndexOf(',');
+
+				if (index > 0)
 				{
-					var index = data.lastIndexOf(',');
-	
-					if (index > 0)
+					var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+					
+					if (xml != null && xml.length > 0)
 					{
-						var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
-						
-						if (xml != null && xml.length > 0)
+						data = xml;
+					}
+					else
+					{
+						// Checks if the file contains XML data which can happen when we insert
+						// the file and then don't post-process it when loaded into the UI which
+						// is required for creating the images for .PNG and .SVG files.
+						try
 						{
-							data = xml;
+							var temp = atob(data.substring(index + 1));
+							
+							if (temp != null && (temp.substring(0, 8) === '<mxfile ' ||
+								temp.substring(0, 14) === '<mxGraphModel ' ||
+								temp.substring(0, 14) === '<mxGraphModel>'))
+	    					{
+								data = temp;
+	    					}
+							else
+							{
+								// TODO: Import as PNG
+							}
 						}
-						else
+						catch (e)
 						{
-							// Checks if the file contains XML data which can happen when we insert
-							// the file and then don't post-process it when loaded into the UI which
-							// is required for creating the images for .PNG and .SVG files.
-							try
-							{
-								var temp = atob(data.substring(index + 1));
-								
-								if (temp != null && (temp.substring(0, 8) === '<mxfile ' ||
-									temp.substring(0, 14) === '<mxGraphModel ' ||
-									temp.substring(0, 14) === '<mxGraphModel>'))
-		    					{
-									data = temp;
-		    					}
-								else
-								{
-									// TODO: Import as PNG
-								}
-							}
-							catch (e)
-							{
-								// ignore
-							}
+							// ignore
 						}
 					}
 				}
-				// Checks for base64 encoded mxfile
-				else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
-				{
-					var temp = data.substring(22);
-					data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
-				}
-				
-				success(new DriveFile(this.ui, data, resp));
 			}
-		}
-		catch (e)
-		{
-			if (error != null)
+			// Checks for base64 encoded mxfile
+			else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
 			{
-				error(e);
+				var temp = data.substring(22);
+				data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
 			}
-			else
-			{
-				throw e;
-			}
+			
+			success(new DriveFile(this.ui, data, resp));
 		}
-	}), error, ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
-		resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
+	}), error, (resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
+		resp.mimeType.substring(0, 9) != 'image/svg') || /\.png$/i.test(resp.title) ||
 		/\.jpe?g$/i.test(resp.title));
 };
 
@@ -1003,13 +989,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 				}
 			}
 
-			var savedData = file.getData();
-			
 			// Updates saveDelay on drive file
-			var wrapper = mxUtils.bind(this, function(resp)
+			var wrapper = mxUtils.bind(this, function()
 			{
 		    	file.saveDelay = new Date().getTime() - t0;
-		    	success(resp, savedData);
+		    	success.apply(this, arguments);
 
 		    	if (prevDesc != null)
 				{
@@ -1038,7 +1022,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 						label: (this.user != null) ? this.user.id : 'unknown-user'});
 				}
 			});
-
+			
 			var doExecuteRequest = mxUtils.bind(this, function(data, binary)
 			{
 				if (properties != null)
@@ -1089,21 +1073,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 										executeSave(true);
 										
 										// Logs overwrite
-										try
-										{
-											EditorUi.sendReport('Warning: Stale Etag Overwrite ' +
-												new Date().toISOString() + ':' +
-												'\n\nBrowser=' + navigator.userAgent +
-												'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
-												'\nUser=' + ((this.user != null) ? this.user.id : 'unknown'));
-											EditorUi.logError('Warning: Stale Etag Overwrite',
-												null, file.desc.id + '.' + file.desc.headRevisionId,
-												(this.user != null) ? this.user.id : 'unknown');
-										}
-										catch (e)
-										{
-											// ignore
-										}
+										EditorUi.logError('Warning: Stale Etag Overwrite',
+											null, file.desc.id + '.' + file.desc.headRevisionId,
+											(this.user != null) ? this.user.id : 'unknown');
 									}
 								}
 								else if (error != null)
@@ -1123,17 +1095,17 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 				
 				executeSave(false);
 			});
-
+			
 			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle()))
 			{
 				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 				{
 					doExecuteRequest(data, true);
-				}), error, (this.ui.getCurrentFile() != file) ? savedData : null);
+				}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
 			}
 			else
 			{
-				doExecuteRequest(savedData, false);
+				doExecuteRequest(file.getData(), false);
 			}
 		});
 		
@@ -1143,7 +1115,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		{
 			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-				(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 				!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 				{
 					// Callback for getThumbnail
@@ -1597,7 +1568,7 @@ DriveClient.prototype.pickFolder = function(fn)
 	}), mxUtils.bind(this, function()
 	{
 		showPicker();
-	}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+	}), mxResources.get('yes'), mxResources.get('no'));
 };
 
 /**

@@ -153,7 +153,6 @@
         	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
         {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
-        {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
         	enumList: [{val: 'none', dispName: 'None'},
@@ -1417,9 +1416,7 @@
 		];
 		
 		mxCellRenderer.defaultShapes['cube'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 },
-	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
-	        {name: 'darkOpacity2', dispName: 'Dark Opacity 2', type: 'float', min:-1, max:1, defVal:0 }
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 }
 		];
 		
 		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
@@ -1437,8 +1434,7 @@
 		];
 		
 		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30},
-	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
+	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30}
 	    ];
 		
 		mxCellRenderer.defaultShapes['card'].prototype.customProperties = [
@@ -3206,33 +3202,12 @@
 		
 		if (!createOnly)
 		{
-			group = (group != null) ? group : svgRoot.getElementsByTagName('g')[0];
+			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.shadowId + ')');
 			
-			if (group != null)
+			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
 			{
-				group.setAttribute('filter', 'url(#' + this.shadowId + ')');
-				
-				if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
-				{
-					svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
-					svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
-					
-					// Updates viewbox if one exists
-					var vb = svgRoot.getAttribute('viewBox');
-					
-					if (vb != null && vb.length > 0)
-					{
-						var tokens = vb.split(' ');
-						
-						if (tokens.length > 3)
-						{
-							w = parseFloat(tokens[2]) + 6;
-							h = parseFloat(tokens[3]) + 6;
-							
-							svgRoot.setAttribute('viewBox', tokens[0] + ' ' + tokens[1] + ' ' + w + ' ' + h);
-						}
-					}
-				}
+				svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
+				svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
 			}
 		}
 		
@@ -3316,8 +3291,7 @@
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
 	mxStencilRegistry.libraries['electrical/transmission'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/transmission.xml'];
-	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
-	mxStencilRegistry.libraries['electrical/abstract'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/abstract.xml'];
+//	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
 	mxStencilRegistry.libraries['infographic'] = [SHAPES_PATH + '/mxInfographic.js'];
 	mxStencilRegistry.libraries['mockup/buttons'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
 	mxStencilRegistry.libraries['mockup/containers'] = [SHAPES_PATH + '/mockup/mxMockupContainers.js'];
@@ -3866,54 +3840,47 @@
 				pv = printGraph(graph);
 			}
 			
-			if (pv == null)
+			if (pv.mathEnabled)
 			{
-				editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
-			}
-			else
-			{
-				if (pv.mathEnabled)
+				var doc = pv.wnd.document;
+		
+				doc.writeln('<script type="text/x-mathjax-config">');
+				doc.writeln('MathJax.Hub.Config({');
+				doc.writeln('showMathMenu: false,');
+				doc.writeln('messageStyle: "none",');
+				doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
+				doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
+				doc.writeln('"HTML-CSS": {');
+				doc.writeln('imageFont: null');
+				doc.writeln('},');
+				doc.writeln('TeX: {');
+				doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
+				doc.writeln('},');
+				doc.writeln('tex2jax: {');
+				doc.writeln('	ignoreClass: "geDisableMathJax"');
+			  	doc.writeln('},');
+			  	doc.writeln('asciimath2jax: {');
+				doc.writeln('	ignoreClass: "geDisableMathJax"');
+			  	doc.writeln('}');
+				doc.writeln('});');
+				
+				// Adds asynchronous printing when MathJax finished rendering
+				if (print)
 				{
-					var doc = pv.wnd.document;
-			
-					doc.writeln('<script type="text/x-mathjax-config">');
-					doc.writeln('MathJax.Hub.Config({');
-					doc.writeln('showMathMenu: false,');
-					doc.writeln('messageStyle: "none",');
-					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
-					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-					doc.writeln('"HTML-CSS": {');
-					doc.writeln('imageFont: null');
-					doc.writeln('},');
-					doc.writeln('TeX: {');
-					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
-					doc.writeln('},');
-					doc.writeln('tex2jax: {');
-					doc.writeln('	ignoreClass: "geDisableMathJax"');
-				  	doc.writeln('},');
-				  	doc.writeln('asciimath2jax: {');
-					doc.writeln('	ignoreClass: "geDisableMathJax"');
-				  	doc.writeln('}');
+					doc.writeln('MathJax.Hub.Queue(function () {');
+					doc.writeln('window.print();');
 					doc.writeln('});');
-					
-					// Adds asynchronous printing when MathJax finished rendering
-					if (print)
-					{
-						doc.writeln('MathJax.Hub.Queue(function () {');
-						doc.writeln('window.print();');
-						doc.writeln('});');
-					}
-					
-					doc.writeln('</script>');
-					doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
 				}
 				
-				pv.closeDocument();
-				
-				if (!pv.mathEnabled && print)
-				{
-					PrintDialog.printPreview(pv);
-				}
+				doc.writeln('</script>');
+				doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
+			}
+			
+			pv.closeDocument();
+			
+			if (!pv.mathEnabled && print)
+			{
+				PrintDialog.printPreview(pv);
 			}
 		};
 		
@@ -4048,11 +4015,7 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 		hd.style.marginBottom = '16px';
 		hd.style.borderBottom = '1px solid #c0c0c0';
 		hd.style.color = 'gray';
-		hd.style.whiteSpace = 'nowrap';
-		hd.style.textOverflow = 'ellipsis';
-		hd.style.overflow = 'hidden';
 		mxUtils.write(hd, title);
-		hd.setAttribute('title', title);
 		div.appendChild(hd);
 	}
 

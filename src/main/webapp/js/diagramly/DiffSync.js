@@ -23,18 +23,10 @@ EditorUi.DIFF_UPDATE = 'u';
 EditorUi.prototype.codec = new mxCodec();
 
 /**
- * Contains all view state properties that should not be ignored in diff sync.
+ * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: true, shadowVisible: true,
-	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true};
-
-/**
- * Contains all known cell properties that should be ignored for a generic cell diff.
- */
-EditorUi.prototype.cellProperties = {id: true, value: true, xmlValue: true, vertex: true, edge: true,
-	visible: true, collapsed: true, connectable: true, parent: true, children: true, previous: true,
-	source: true, target: true, edges: true, geometry: true, style: true,
-	mxObjectId: true, mxTransient: true};
+EditorUi.prototype.viewStateWhitelist = ['background', 'backgroundImage', 'foldingEnabled',
+	'pageScale', 'mathEnabled', 'shadowVisible', 'pageFormat'];
 
 /**
  * Removes all labels, user objects and styles from the given node in-place.
@@ -356,10 +348,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			page.root = root;
 		}
 
-		// Inserts and updates previous and parent (hierarchy update)
-		this.patchCellRecursive(page, model, model.root, parentLookup, diff);
-
-		// Removes cells after parents have been updated above
+		// Removes cells
 		if (diff[EditorUi.DIFF_REMOVE] != null)
 		{
 			for (var i = 0; i < diff[EditorUi.DIFF_REMOVE].length; i++)
@@ -373,7 +362,10 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 		
-		// Updates cell states and terminals
+		// Patches cell structure
+		this.patchCellRecursive(page, model, model.root, parentLookup, diff);
+
+		// Applies patches and changes terminals after all cells are inserted
 		if (diff[EditorUi.DIFF_UPDATE] != null)
 		{
 			var res = (resolver != null && resolver.cells != null) ? 
@@ -387,7 +379,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 
-		// Updates terminals for inserted cells
+		// Sets terminals for inserted cells after all cells are inserted
 		if (diff[EditorUi.DIFF_INSERT] != null)
 		{
 			for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
@@ -403,7 +395,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 			}
 		}
 
-		// Delayed update of edge parents
+		// Updates edge parents after all patches have been applied
 		model.updateEdgeParent = prev;
 		
 		if (updateEdgeParents && pendingUpdates.length > 0)
@@ -428,114 +420,78 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
  */
 EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup, diff)
 {
-	if (cell != null)
+	var temp = parentLookup[cell.getId()];
+	var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
+	var moved = (temp != null && temp.moved != null) ? temp.moved : {};
+	var index = 0;
+	
+	// Restores existing order
+	var childCount = model.getChildCount(cell);
+	var prev = '';
+	
+	for (var i = 0; i < childCount; i++)
 	{
-		var temp = parentLookup[cell.getId()];
-		var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
-		var moved = (temp != null && temp.moved != null) ? temp.moved : {};
-		var index = 0;
+		var cellId = model.getChildAt(cell, i).getId();
 		
-		// Restores existing order
-		var childCount = model.getChildCount(cell);
-		var prev = '';
-		
-		for (var i = 0; i < childCount; i++)
+		if (moved[prev] == null &&
+			(diff[EditorUi.DIFF_UPDATE] == null ||
+			diff[EditorUi.DIFF_UPDATE][cellId] == null ||
+			(diff[EditorUi.DIFF_UPDATE][cellId].previous == null &&
+			diff[EditorUi.DIFF_UPDATE][cellId].parent == null)))
 		{
-			var cellId = model.getChildAt(cell, i).getId();
-			
-			if (moved[prev] == null &&
-				(diff[EditorUi.DIFF_UPDATE] == null ||
-				diff[EditorUi.DIFF_UPDATE][cellId] == null ||
-				(diff[EditorUi.DIFF_UPDATE][cellId].previous == null &&
-				diff[EditorUi.DIFF_UPDATE][cellId].parent == null)))
-			{
-				moved[prev] = cellId;
-			}
-			
-			prev = cellId;
+			moved[prev] = cellId;
 		}
 		
-		var addCell = mxUtils.bind(this, function(child, insert)
+		prev = cellId;
+	}
+
+	var addCell = mxUtils.bind(this, function(child)
+	{
+		var id = (child != null) ? child.getId() : '';
+		
+		if (child != null)
 		{
-			var id = (child != null) ? child.getId() : '';
-			
-			// Ignores the insert if the cell is already in the model
-			if (child != null && insert)
+			if (model.getChildAt(cell, index) != child)
 			{
-				var ex = model.getCell(id);
-				
-				if (ex != null && ex != child)
-				{
-					child = null;
-				}
+				model.add(cell, child, index);
 			}
 
-			if (child != null)
-			{
-				if (model.getChildAt(cell, index) != child)
-				{
-					model.add(cell, child, index);
-				}
-	
-				this.patchCellRecursive(page, model,
-					child, parentLookup, diff);
-				index++;
-			}
-			
-			return id;
-		});
-		
-		// Uses stack to avoid recursion for children
-		var children = [null];
-		
-		while (children.length > 0)
-		{
-			var entry = children.shift();
-			var child = (entry != null) ? entry.child : null;
-			var insert = (entry != null) ? entry.insert : false;
-			var id = addCell(child, insert);
-			
-			// Move and insert are mutually exclusive per predecessor
-			// since an insert changes the predecessor of existing cells
-			// and is therefore ignored in the loop above where the order
-			// for existing cells is added to the moved object
-			var mov = moved[id];
-			
-			if (mov != null)
-			{
-				delete moved[id];
-				children.push({child: model.getCell(mov)});
-			}
-			
-			var ins = inserted[id];
-			
-			if (ins != null)
-			{
-				delete inserted[id];
-				children.push({child: this.getCellForJson(ins), insert: true});
-			}
-			
-			// Orphaned moves and inserts are operations where the previous cell vanished
-			// in the local model so their position in the child array cannot be determined.
-			// In this case those cells are appended. Dependencies between orphans are
-			// maintained because for-in loops enumerate the IDs in order of insertion.
-			if (children.length == 0)
-			{
-				// Handles orphaned moved pages
-				for (var id in moved)
-				{
-					children.push({child: model.getCell(moved[id])});
-					delete moved[id];
-				}
-			
-				// Handles orphaned inserted pages
-				for (var id in inserted)
-				{
-					children.push({child: this.getCellForJson(inserted[id]), insert: true});
-					delete inserted[id];
-				}
-			}
+			this.patchCellRecursive(page, model,
+				child, parentLookup, diff);
+			index++;
 		}
+
+		var mov = moved[id];
+		
+		if (mov != null)
+		{
+			delete moved[id];
+			addCell(model.getCell(mov));
+		}
+		
+		var ins = inserted[id];
+		
+		if (ins != null)
+		{
+			delete inserted[id];
+			addCell(this.getCellForJson(ins));
+		}
+	});
+	
+	addCell();
+
+	// Handles orphaned moved pages
+	for (var id in moved)
+	{
+		addCell(model.getCell(moved[id]));
+		delete moved[id];
+	}
+
+	// Handles orphaned inserted pages
+	for (var id in inserted)
+	{
+		addCell(this.getCellForJson(inserted[id]));
+		delete inserted[id];
 	}
 };
 
@@ -550,7 +506,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		if (resolve == null || (resolve.xmlValue == null &&
 			(resolve.value == null || resolve.value == '')))
 		{
-			if ('value' in diff)
+			if (diff.value != null)
 			{
 				model.setValue(cell, diff.value);
 			}
@@ -609,14 +565,6 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		{
 			model.setTerminal(cell, model.getCell(diff.target), false);
 		}
-		
-		for (var key in diff)
-		{
-			if (!this.cellProperties[key])
-			{
-				cell[key] = diff[key];
-			}
-		}
 	}
 };
 
@@ -625,7 +573,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
  * so that using isEqualNode returns true if the files can be
  * considered equal.
  */
-EditorUi.prototype.getPagesForNode = function(node, nodeName)
+EditorUi.prototype.getPagesForNode = function(node)
 {
 	var tmp = this.editor.extractGraphModel(node, true);
 	
@@ -634,25 +582,13 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 		node = tmp;
 	}
 
-	var diagrams = node.getElementsByTagName(nodeName || 'diagram');
+	var diagrams = node.getElementsByTagName('diagram');
 	var pages = [];
 	
-	if (diagrams.length > 0)
+	for (var i = 0; i < diagrams.length; i++)
 	{
-		for (var i = 0; i < diagrams.length; i++)
-		{
-			var page = new DiagramPage(diagrams[i]);
-			this.updatePageRoot(page);
-			pages.push(page);
-		}
-	}
-	else if (node.nodeName == 'mxGraphModel')
-	{
-		var graph = this.editor.graph;
-		var page = new DiagramPage(node.ownerDocument.createElement('diagram'));
-		page.setName(mxResources.get('pageWithNumber', [1]));
-		mxUtils.setTextContent(page.node, graph.compress(
-			graph.zapGremlins(mxUtils.getXml(node))));
+		var page = new DiagramPage(diagrams[i]);
+		this.updatePageRoot(page);
 		pages.push(page);
 	}
 	
@@ -674,7 +610,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 	
 	for (var i = 0; i < newPages.length; i++)
 	{
-		lookup[newPages[i].getId()] = {page: newPages[i], prev: prev};
+		lookup[newPages[i].getId()] = {'page': newPages[i], 'prev': prev/*, 'index': i*/};
 		prev = newPages[i];
 	}
 
@@ -711,6 +647,8 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 				prev.getId() != newPage.prev.getId()))
 			{
 				pageDiff.previous = (newPage.prev != null) ? newPage.prev.getId() : '';
+				// LATER: If previous has vanished this could be used to add the intent
+				//pageDiff['index'] = newPage.index;
 			}
 			
 			// FIXME: Check why names can be null in newer files
@@ -760,10 +698,10 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
+EditorUi.prototype.createCellLookup = function(cell, prev, index, lookup)
 {
 	lookup = (lookup != null) ? lookup : {};
-	lookup[cell.getId()] = {cell: cell, prev: prev};
+	lookup[cell.getId()] = {'cell': cell, 'prev': prev/*, 'index': index*/};
 	
 	var childCount = cell.getChildCount();
 	prev = null;
@@ -771,7 +709,7 @@ EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
 	for (var i = 0; i < childCount; i++)
 	{
 		var child = cell.getChildAt(i);
-		this.createCellLookup(child, prev, lookup);
+		this.createCellLookup(child, prev, i, lookup);
 		prev = child;
 	}
 	
@@ -800,7 +738,9 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 			(prev != null && newCell.prev != null &&
 			prev.getId() != newCell.prev.getId())))
 		{
-			temp.previous = (newCell.prev != null) ? newCell.prev.getId() : '';
+			temp['previous'] = (newCell.prev != null) ? newCell.prev.getId() : '';
+			// LATER: If previous has vanished this could be used to add the intent
+			//temp['index'] = newCell.index;
 		}
 		
 		if (Object.keys(temp).length > 0)
@@ -834,7 +774,7 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
 	this.updatePageRoot(oldPage);
 	this.updatePageRoot(newPage);
 
-	var lookup = this.createCellLookup(newPage.root);
+	var lookup = this.createCellLookup(newPage.root, null, 0);
 	var diff = this.diffCellRecursive(oldPage.root, null, lookup, diff, removed);
 
 	for (var id in lookup)
@@ -877,8 +817,10 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 
 	if (source != null && target != null)
 	{
-		for (var key in this.viewStateProperties)
+		for (var i = 0; i < this.viewStateWhitelist.length; i++)
 		{
+			var key = this.viewStateWhitelist[i];
+			
 			// LATER: Check if normalization is needed for
 			// object attribute order to compare JSON
 			var old = JSON.stringify(source[key]);
@@ -916,14 +858,6 @@ EditorUi.prototype.getCellForJson = function(json)
 	cell.edge = json.edge == 1;
 	cell.id = json.id;
 	
-	for (var key in json)
-	{
-		if (!this.cellProperties[key])
-		{
-			cell[key] = json[key];
-		}
-	}
-
 	return cell;
 };
 
@@ -1002,15 +936,6 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
 		}
 	}
 	
-	for (var key in cell)
-	{
-		if (!this.cellProperties[key] &&
-			typeof cell[key] !== 'function')
-		{
-			result[key] = cell[key];
-		}
-	}
-
 	return result;
 };
 
@@ -1078,7 +1003,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 		}
 		else
 		{
-			diff.value = (newCell.value != null) ? newCell.value : null;
+			diff.value = (newCell.value != null) ? newCell.value : '';
 		}
 	}
 	
@@ -1101,34 +1026,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	// FIXME: Proto only needed because source.geometry has no constructor (wrong type?)
 	if (!this.isObjectEqual(oldCell.geometry, newCell.geometry, new mxGeometry()))
 	{
-		var node = this.codec.encode(newCell.geometry);
-		
-		if (node != null)
-		{
-			diff.geometry = mxUtils.getXml(node);
-		}
-	}
-	
-	// Compares all keys from oldCell to newCell and uses null in the diff
-	// to force the attribute to be removed in the receiving client
-	for (var key in oldCell)
-	{
-		if (!this.cellProperties[key] && typeof oldCell[key] !== 'function' &&
-			typeof newCell[key] !== 'function' && oldCell[key] != newCell[key])
-		{
-			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
-		}
-	}
-	
-	// Compares the remaining keys in newCell with oldCell
-	for (var key in newCell)
-	{
-		if (!(key in oldCell) &&
-			!this.cellProperties[key] && typeof oldCell[key] !== 'function' &&
-			typeof newCell[key] !== 'function' && oldCell[key] != newCell[key])
-		{
-			diff[key] = (newCell[key] === undefined) ? null : newCell[key];
-		}
+		diff.geometry = mxUtils.getXml(this.codec.encode(newCell.geometry));
 	}
 	
 	return diff;

@@ -35,42 +35,19 @@ mxShapeDFDStart.prototype.paintVertexShape = function(c, x, y, w, h)
 	var r = Math.min(h * 0.5, w * 0.5);
 	
 	c.begin();
-	c.moveTo(w - r, h * 0.5 - r);
+	c.moveTo(w - r, 0);
 	c.arcTo(r, r, 0, 0, 1, w, h * 0.5);
-	c.arcTo(r, r, 0, 0, 1, w - r, h * 0.5 + r);
-	c.lineTo(r, h * 0.5 + r);
+	c.arcTo(r, r, 0, 0, 1, w - r, h);
+	c.lineTo(r, h);
 	c.arcTo(r, r, 0, 0, 1, 0, h * 0.5);
-	c.arcTo(r, r, 0, 0, 1, r, h * 0.5 - r);
+	c.arcTo(r, r, 0, 0, 1, r, 0);
 	c.close();
 	c.fillAndStroke();
 };
 
 mxCellRenderer.registerShape(mxShapeDFDStart.prototype.cst.START, mxShapeDFDStart);
 
-mxShapeDFDStart.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var r = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.5), false, null, 0, -r));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.5), false, null, 0, r));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.293, h * 0.5 - r * 0.707));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.293, h * 0.5 - r * 0.707));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.293, h * 0.5 + r * 0.707));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.293, h * 0.5 + r * 0.707));
-	
-	if (w >= 4 * h)
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-	}
-
-	return (constr);
-}
+mxShapeDFDStart.prototype.constraints = null;
 
 //**********************************************************************************************************************************************************
 //Archive
@@ -102,6 +79,7 @@ mxShapeDFDArchive.prototype.cst = {ARCHIVE : 'mxgraph.dfd.archive'};
 mxShapeDFDArchive.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
+	var r = Math.min(h * 0.5, w * 0.5);
 	
 	c.begin();
 	c.moveTo(0,0);
@@ -120,25 +98,7 @@ mxShapeDFDArchive.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeDFDArchive.prototype.cst.ARCHIVE, mxShapeDFDArchive);
 
-mxShapeDFDArchive.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.875, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.625, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.375, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.125, 0.25), false));
-
-	return (constr);
-}
+mxShapeDFDArchive.prototype.constraints = null;
 
 //**********************************************************************************************************************************************************
 //Check2
@@ -194,38 +154,7 @@ mxShapeDFDCheck2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeDFDCheck2.prototype.cst.CHECK2, mxShapeDFDCheck2);
 
-mxShapeDFDCheck2.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var size = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, size * 0.5, h * 0.25));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - size * 0.5, h * 0.25));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, size * 0.5, h * 0.75));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - size * 0.5, h * 0.75));
-
-	if (w > h)
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, size, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - size, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, size, h));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - size, h));
-	}
-
-	if(size * 4 <= w)
-	{
-		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
-	}
-
-	return (constr);
-}
+mxShapeDFDCheck2.prototype.constraints = null;
 
 //**********************************************************************************************************************************************************
 //Data Store with ID
@@ -360,32 +289,7 @@ mxShapeDFDExternalEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeDFDExternalEntity.prototype.cst.EXTERNAL_ENTITY, mxShapeDFDExternalEntity);
 
-mxShapeDFDExternalEntity.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var size = 10;
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.25, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.5, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.75, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - size, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, size, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.25 + size, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.5 + size, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, (w - size) * 0.75 + size, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, size));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, size + (h - size) * 0.25));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, size + (h - size) * 0.5));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, size + (h - size) * 0.75));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - size) * 0.25));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - size) * 0.5));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - size) * 0.75));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - size));
-
-	return (constr);
-}
+mxShapeDFDExternalEntity.prototype.constraints = null;
 
 //**********************************************************************************************************************************************************
 //Loop
@@ -430,18 +334,5 @@ mxShapeDFDLoop.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeDFDLoop.prototype.cst.LOOP, mxShapeDFDLoop);
 
-mxShapeDFDLoop.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var r = Math.min(h * 0.8, w * 0.8);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.25, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.25, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.25, 0));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.25, h));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-
-	return (constr);
-}
+mxShapeDFDLoop.prototype.constraints = null;
 

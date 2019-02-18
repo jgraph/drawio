@@ -149,9 +149,8 @@ public class CacheServlet extends HttpServlet
 			String qs = request.getQueryString();
 			String ref = request.getHeader("referer");
 			boolean stats = qs != null && qs.equals("stats");
-			boolean alive = qs != null && qs.equals("alive");
 
-			if (stats || alive || (ref != null && ref.toLowerCase()
+			if (stats || (ref != null && ref.toLowerCase()
 					.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*")))
 			{
 				PrintWriter writer = response.getWriter();
@@ -182,33 +181,26 @@ public class CacheServlet extends HttpServlet
 							ref.toLowerCase().substring(0,
 									ref.indexOf(".draw.io/") + 8));
 
-					if (alive)
+					// Disables wire-compression
+					response.setContentType("application/octet-stream");
+					String id = request.getParameter("id");
+
+					if (id != null)
 					{
-						response.setStatus(HttpServletResponse.SC_OK);
+						try
+						{
+							writer.print(getPatches(id, request));
+							response.setStatus(HttpServletResponse.SC_OK);
+						}
+						catch (UnauthorizedException e)
+						{
+							response.setStatus(
+									HttpServletResponse.SC_UNAUTHORIZED);
+						}
 					}
 					else
 					{
-						// Disables wire-compression
-						response.setContentType("application/octet-stream");
-						String id = request.getParameter("id");
-	
-						if (id != null)
-						{
-							try
-							{
-								writer.print(getPatches(id, request));
-								response.setStatus(HttpServletResponse.SC_OK);
-							}
-							catch (UnauthorizedException e)
-							{
-								response.setStatus(
-										HttpServletResponse.SC_UNAUTHORIZED);
-							}
-						}
-						else
-						{
-							response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-						}
+						response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 					}
 				}
 
