@@ -120,7 +120,10 @@
 				
 				if (xml != null)
 				{
-					graph.setSelectionCells(editorUi.importXml(xml, 20, 20, true));
+					var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
+					graph.setSelectionCells(editorUi.importXml(xml,
+						Math.max(insertPoint.x, 20),
+						Math.max(insertPoint.y, 20), true));
 					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			}, null, null, null, null, null, null, null, null, null, null,
@@ -1438,7 +1441,9 @@
 		
 		editorUi.actions.put('liveImage', new Action('Live image...', function()
 		{
-			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			var current = editorUi.getCurrentFile();
+			
+			if (current != null && editorUi.spinner.spin(document.body, mxResources.get('loading')))
 			{
 				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 				{
@@ -1446,8 +1451,8 @@
 					
 					if (url != null)
 					{
-						var encUrl = encodeURIComponent(url);
-						var dlg = new EmbedDialog(editorUi, EXPORT_URL + '?format=png&url=' + encUrl, 0);
+						var dlg = new EmbedDialog(editorUi, '<img src="' + ((current.constructor != DriveFile) ?
+							url : 'https://drive.google.com/uc?id=' + current.getId()) + '"/>');
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					}
@@ -2023,7 +2028,8 @@
 				
 				var dlg = new FilenameDialog(this.editorUi, filename, mxResources.get('rename'), mxUtils.bind(this, function(title)
 				{
-					if (title != null && title.length > 0 && file != null && this.editorUi.spinner.spin(document.body, mxResources.get('renaming')))
+					if (title != null && title.length > 0 && file != null && title != file.getTitle() &&
+						this.editorUi.spinner.spin(document.body, mxResources.get('renaming')))
 					{
 						// Delete old file, save new file in dropbox if autosize is enabled
 						file.rename(title, mxUtils.bind(this, function(resp)
@@ -2046,8 +2052,8 @@
 					editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
 					
 					return false;
-				});
-				this.editorUi.showDialog(dlg.container, 300, 80, true, true);
+				}, null, null, null, null, editorUi.editor.fileExtensions);
+				this.editorUi.showDialog(dlg.container, 340, 90, true, true);
 				dlg.init();
 			}
 		}));
@@ -2114,7 +2120,8 @@
 					{
 						editorUi.hideDialog();
 					}), mxResources.get('makeCopy'), mxResources.get('create'), null,
-						null, null, null, true);
+						null, null, null, true, null, null, null, null,
+						editorUi.editor.fileExtensions);
 					editorUi.showDialog(dlg.container, 420, 380, true, true);
 					dlg.init();
 				}
@@ -2132,6 +2139,20 @@
 			
 			if (file.getMode() == App.MODE_GOOGLE || file.getMode() == App.MODE_ONEDRIVE)
 			{
+				var isInRoot = false;
+				
+				if (file.getMode() == App.MODE_GOOGLE && file.desc.parents != null)
+				{
+					for (var i = 0; i < file.desc.parents.length; i++)
+					{
+						if (file.desc.parents[i].isRoot)
+						{
+							isInRoot = true;
+							break;
+						}
+					}
+				}
+				
 				editorUi.pickFolder(file.getMode(), mxUtils.bind(this, function(folderId)
 				{
 	            	if (editorUi.spinner.spin(document.body, mxResources.get('moving')))
@@ -2144,7 +2165,7 @@
 	        				editorUi.handleError(resp);
 	        			}));
 	            	}
-				}), null, true);
+				}), null, true, isInRoot);
 			}
 		}));
 		
@@ -2175,7 +2196,10 @@
 
 		this.put('embed', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (urlParams['test'] == '1')
+			var file = editorUi.getCurrentFile();
+			
+			if (file != null && (file.getMode() == App.MODE_GOOGLE ||
+				file.getMode() == App.MODE_GITHUB) && /(\.png)$/i.test(file.getTitle()))
 			{
 				this.addMenuItems(menu, ['liveImage', '-'], parent);
 			}

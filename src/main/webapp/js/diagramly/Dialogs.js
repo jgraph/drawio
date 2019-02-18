@@ -2772,7 +2772,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
-	nameInput.style.marginRight = '20px';
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.width = (compact) ? '220px' : '430px';
 	
@@ -2796,6 +2795,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	if (showName)
 	{
 		header.appendChild(nameInput);
+		
+		if (editorUi.editor.fileExtensions != null)
+		{
+			var hint = FilenameDialog.createTypeHint(
+					editorUi, nameInput, editorUi.editor.fileExtensions);
+			hint.style.marginTop = '12px';
+			
+			header.appendChild(hint);
+		}
 	}
 
 	var hasTabs = false;
@@ -3426,7 +3434,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
  * Constructs a dialog for creating new files from a template URL.
  */
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded)
+	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
@@ -3452,7 +3460,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	nameInput.style.width = '280px';
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.marginBottom = '20px';
-	
+		
 	this.init = function()
 	{
 		nameInput.focus();
@@ -3468,6 +3476,11 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	};
 
 	div.appendChild(nameInput);
+
+	if (hints != null)
+	{
+		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
+	}
 	
 	if (data != null && mimeType != null && mimeType.substring(0, 6) == 'image/')
 	{
@@ -5246,10 +5259,9 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	{
 		if (currentDoc != null)
 		{
-    		var file = editorUi.getCurrentFile();
-    		var filename = (file != null && file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
     		var data = mxUtils.getXml(currentDoc.documentElement);
-
+			var filename = editorUi.getBaseFilename() + '.xml';
+    		
 	    	if (editorUi.isLocalFileSave())
 	    	{
 	    		editorUi.saveLocalFile(data, filename, 'text/xml');
@@ -5319,7 +5331,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		}
 	});
 	
-	var newBtn = mxUtils.button(mxResources.get('open'), function()
+	var newBtn = mxUtils.button(mxResources.get('edit'), function()
 	{
 		if (currentDoc != null)
 		{
@@ -6636,6 +6648,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 						var option = listEntry.cloneNode(false);
 						option.style.cursor = 'pointer';
 						option.style.padding = '4px 0px 4px 20px';
+						option.setAttribute('title', entry.title + ' (' + entry.id + ')');
 						
 						var checkbox = document.createElement('input');
 						checkbox.setAttribute('type', 'checkbox');

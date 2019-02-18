@@ -1830,10 +1830,15 @@ App.prototype.appIconClicked = function(evt)
 		
 		if (mode == App.MODE_GOOGLE)
 		{
-			if (file.desc != null && file.desc.parents != null && file.desc.parents.length > 0)
+			if (file != null && file.desc != null && file.desc.parents != null &&
+				file.desc.parents.length > 0 && !mxEvent.isShiftDown(evt))
 			{
 				// Opens containing folder
 				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
+			}
+			else if (file != null && file.getId() != null)
+			{
+				this.openLink('https://drive.google.com/open?id=' + file.getId());
 			}
 			else
 			{
@@ -2049,6 +2054,13 @@ App.prototype.load = function()
 			}
 			else
 			{
+				// Fallback for cases where the hash property is not available
+				if ((window.location.hash == null || window.location.hash.length <= 1) &&
+					urlParams['open'] != null)
+				{
+					window.location.hash = urlParams['open'];
+				}
+				
 				// Asynchronous or disabled loading of client
 				if (this.drive == null)
 				{
@@ -2427,8 +2439,9 @@ App.prototype.start = function()
 										null, mode, null, true, folderId);
 								}));
 							}
-						}), null, null, null, null, urlParams['browser'] == '1', null, null, true, rowLimit);
-						this.showDialog(dlg.container, 380, (serviceCount > rowLimit) ? 390 : 270,
+						}), null, null, null, null, urlParams['browser'] == '1', null, null, true, rowLimit,
+							null, null, null, this.editor.fileExtensions);
+						this.showDialog(dlg.container, 400, (serviceCount > rowLimit) ? 390 : 270,
 							true, false, mxUtils.bind(this, function(cancel)
 						{
 							if (cancel && this.getCurrentFile() == null)
@@ -3109,7 +3122,8 @@ App.prototype.saveFile = function(forceDialog, success)
 			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
 				(this.isOffline()) ? null :
 				'https://desk.draw.io/support/solutions/articles/16000042485',
-				true, rowLimit);
+				true, rowLimit, null, null, null, this.editor.fileExtensions);
+			
 			this.showDialog(dlg.container, 460, (serviceCount > rowLimit) ? 390 : 270, true, true);
 			dlg.init();
 		}
@@ -3167,7 +3181,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 		}
 		else
 		{
-			if (/(\.png)($|\?)/i.test(url))
+			if (/(\.png)($|\?)/i.test(filterFn))
 			{
 				data = this.extractGraphModelFromPng(data);
 			}
@@ -4247,7 +4261,7 @@ App.prototype.save = function(name, done)
  * if a valid folder was chosen for a mode that supports it. No callback
  * is made if no folder was chosen for a mode that supports it.
  */
-App.prototype.pickFolder = function(mode, fn, enabled, direct)
+App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 {
 	enabled = (enabled != null) ? enabled : true;
 	var resume = this.spinner.pause();
@@ -4270,7 +4284,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct)
 				
 				fn(folderId);
 			}
-		}));
+		}), force);
 	}
 	else if (enabled && mode == App.MODE_ONEDRIVE && this.oneDrive != null)
 	{
@@ -4349,19 +4363,14 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 //					{
 //						mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 //						{
-//							if (resp != null && resp.parents != null && resp.parents.length > 0)
+//							if (resp != null && resp.id != null)
 //							{
-//								var id = resp.parents[0].id;
-//								
-//								if (id != null)
-//								{
-//									window.open('https://drive.google.com/drive/folders/' + id);
-//								}
+//								window.open('https://drive.google.com/open?id=' + resp.id);
 //							}
 //						}));
 //					}
 //				}
-					
+				
 				this.spinner.stop();
 			}), mxUtils.bind(this, function(resp)
 			{
