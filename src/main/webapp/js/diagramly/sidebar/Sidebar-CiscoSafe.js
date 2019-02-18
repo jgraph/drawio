@@ -13,7 +13,8 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.architecture.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];shape=mxgraph.cisco_safe.architecture.';
 		var gn = 'mxgraph.cisco_safe.architecture';
 		var dt = 'cisco safe architecture';
 
@@ -94,7 +95,8 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#28A8E0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.capability.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#28A8E0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + 
+			'points=[[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.855,0],[0.145,0.855,0],[0.5,0,0], [1,0.5,0], [0.5,1,0],[0,0.5,0]];align=center;shape=mxgraph.cisco_safe.capability.';
 		var gn = 'mxgraph.cisco_safe.capability';
 		var dt = 'cisco safe capability';
 
@@ -219,7 +221,9 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.design.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+			'points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.5,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.5,0],[0.125,0.25,0],[0.125,0.75,0],[0.875,0.25,0],[0.875,0.75,0]];shape=mxgraph.cisco_safe.design.';
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.design.';
 		var gn = 'mxgraph.cisco_safe.design';
 		var dt = 'cisco safe design';
 
@@ -233,9 +237,9 @@
 					w, h * 0.9, '', 'ACI Leaf Switch', null, null, this.getTagsForStencil(gn, 'aci leaf switch', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'aci_spine_switch;', 
 					w, h * 0.9, '', 'ACI Spine Switch', null, null, this.getTagsForStencil(gn, 'aci spine switch', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'actor_1;', 
+			this.createVertexTemplateEntry(s2 + 'actor_1;', 
 					w * 0.47, h, '', 'Actor (female)', null, null, this.getTagsForStencil(gn, 'actor female', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'actor_2;', 
+			this.createVertexTemplateEntry(s2 + 'actor_2;', 
 					w * 0.38, h, '', 'Actor (male)', null, null, this.getTagsForStencil(gn, 'actor male', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'adaptive_security_appliance;', 
 					w, h * 0.9, '', 'Adaptive Security Appliance', null, null, this.getTagsForStencil(gn, 'adaptive security appliance', dt).join(' ')),

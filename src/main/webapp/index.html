@@ -26,7 +26,6 @@
 		 *
 		 * - dev=1: For developers only
 		 * - test=1: For developers only
-		 * - drawdev=1: For developers only
 		 * - export=URL for export: For developers only
 		 * - ignoremime=1: For developers only (see DriveClient.js). Use Cmd-S to override mime.
 		 * - createindex=1: For developers only (see etc/build/README)
@@ -318,12 +317,7 @@
 			var mxBasePath = mxDevUrl + '/javascript/src';
 			
 			// Used to request draw.io sources in dev mode
-			var drawDevUrl = '';
-
-			if (urlParams['drawdev'] == '1')
-			{
-				drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
-			}
+			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
 			
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
 			mxscript(geBasePath + '/Init.js');

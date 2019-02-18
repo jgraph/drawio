@@ -1096,6 +1096,16 @@ mxLeanProductionKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.production_kanban', mxLeanProductionKanban);
 
+mxLeanProductionKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 25));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Withdrawal Kanban
 //**********************************************************************************************************************************************************
@@ -1175,6 +1185,16 @@ mxLeanWithdrawalKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.withdrawal_kanban', mxLeanWithdrawalKanban);
 
+mxLeanWithdrawalKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 25));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Signal Kanban
 //**********************************************************************************************************************************************************
@@ -1230,6 +1250,16 @@ mxLeanSignalKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.signal_kanban', mxLeanSignalKanban);
+
+mxLeanSignalKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 15));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Sequenced Pull Ball

@@ -209,7 +209,29 @@ GitHubClient.prototype.authenticate = function(success, error)
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-GitHubClient.prototype.executeRequest = function(req, success, error)
+GitHubClient.prototype.getErrorMessage = function(req, defaultText)
+{
+	try
+	{
+		var temp = JSON.parse(req.getText());
+		
+		if (temp != null && temp.message != null)
+		{
+			defaultText = temp.message;
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+	
+	return defaultText;
+};
+
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
+GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotFound)
 {
 	var doExecute = mxUtils.bind(this, function(failOnAuth)
 	{
@@ -234,7 +256,8 @@ GitHubClient.prototype.executeRequest = function(req, success, error)
 			
 			if (acceptResponse)
 			{
-				if (req.getStatus() >= 200 && req.getStatus() <= 299)
+				if ((req.getStatus() >= 200 && req.getStatus() <= 299) ||
+					(ignoreNotFound && req.getStatus() == 404))
 				{
 					success(req);
 				}
@@ -280,7 +303,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error)
 				}
 				else if (req.getStatus() === 404)
 				{
-					error({message: mxResources.get('fileNotFound')});
+					error({message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
 				}
 				else if (req.getStatus() === 409)
 				{
@@ -289,7 +312,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error)
 				}
 				else
 				{
-					error({message: mxResources.get('error') + ' ' + req.getStatus()});
+					error({message: this.getErrorMessage(req, mxResources.get('error') + ' ' + req.getStatus())});
 				}
 			}
 		}), error);
@@ -874,7 +897,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					listFiles(false);
 				}
 			}
-		}), error);
+		}), error, true);
 	});
 	
 	// Adds paging for repos and branches (files limited to 1000 by API)

@@ -167,9 +167,10 @@ App.DROPBOX_URL = 'js/dropbox/Dropbox-sdk.min.js';
 App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * OneDrive Client JS (file/folder picker). This is a slightly modified version to allow using accessTokens
+ * But it doesn't work for IE11, so we fallback to the original one
  */
-App.ONEDRIVE_URL = 'https://js.live.net/v7.2/OneDrive.js';
+App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : 'js/onedrive/OneDrive.js';
 
 /**
  * Trello URL
@@ -439,6 +440,13 @@ App.main = function(callback, createUi)
 		}
 	}
 	
+	// Redirects to the latest AWS icons
+	if (document.referrer != null && urlParams['libs'] == 'aws3' &&
+		document.referrer.substring(0, 42) == 'https://aws.amazon.com/architecture/icons/')
+	{
+		urlParams['libs'] = 'aws4';
+	}
+	
 	if (window.mxscript != null)
 	{
 		// Injects offline dependencies
@@ -474,30 +482,47 @@ App.main = function(callback, createUi)
 
 			if (temp != null)
 			{
-				// Used to request draw.io sources in dev mode
-				var drawDevUrl = '';
-
-				if (urlParams['drawdev'] == '1')
-				{
-					drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
-				}
-				
 				// Mapping from key to URL in App.plugins
 				var t = temp.split(';');
 				
 				for (var i = 0; i < t.length; i++)
 				{
-					var url = App.pluginRegistry[t[i]];
+					if (t[i] != null && t[i].length > 0)
+					{
+						try
+						{
+							var url = App.pluginRegistry[t[i]];
+							
+							if (url != null)
+							{
+								if (pluginsLoaded[url] == null)
+								{
+									pluginsLoaded[url] = true;
+									
+									if (typeof window.drawDevUrl === 'undefined')
+									{
+										mxscript(url);
+									}
+									else
+									{
+										mxscript(drawDevUrl + url);
+									}
+								}
+							}
+							else if (window.console != null)
+							{
+								console.log('Unknown plugin:', t[i]);
+							}
+						}
+						catch (e)
+						{
+							if (window.console != null)
+							{
+								console.log('Error loading plugin:', t[i], e);
+							}
+						}
+					}
 					
-					if (url != null && pluginsLoaded[url] == null)
-					{
-						pluginsLoaded[url] = true;
-						mxscript(drawDevUrl + url);
-					}
-					else if (window.console != null)
-					{
-						console.log('Unknown plugin:', t[i]);
-					}
 				}
 			}
 			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
@@ -668,15 +693,20 @@ App.main = function(callback, createUi)
 			}
 		}, function(xhr)
 		{
-			document.getElementById('geStatus').innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
+			var st = document.getElementById('geStatus');
 			
-			// Tries reload with default resources in case any language resources were not available
-			document.getElementById('geStatus').getElementsByTagName('a')[0].onclick = function()
+			if (st != null)
 			{
-				mxLanguage = 'en';
-				doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-						mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
-			};
+				st.innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
+				
+				// Tries reload with default resources in case any language resources were not available
+				st.getElementsByTagName('a')[0].onclick = function()
+				{
+					mxLanguage = 'en';
+					doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+							mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
+				};
+			}
 		});
 	};
 
@@ -722,7 +752,7 @@ App.main = function(callback, createUi)
 		
 		// Receives XML message from opener and puts it into the graph
 		mxEvent.addListener(window, 'message', configHandler);
-		op.postMessage(JSON.stringify({event: 'load'}), '*');
+		op.postMessage(JSON.stringify({event: 'configure'}), '*');
 	}
 	else
 	{
@@ -1061,6 +1091,28 @@ App.prototype.init = function()
 		{
 			this.mode = App.mode;
 		}
+		
+		// Checks if the cache is alive
+		var acceptResponse = true;
+		
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			acceptResponse = false;
+			EditorUi.logEvent({category: 'Cache', action: 'alive', label: 408});
+		}), this.timeout);
+		
+		var t0 = new Date().getTime();
+		
+		mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
+		{
+			window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				EditorUi.logEvent({category: 'Cache', action: 'alive', label:
+					req.getStatus() + '.' + (new Date().getTime() - t0)});
+			}
+		}));
 	}
 	else if (this.menubar != null)
 	{
@@ -1102,7 +1154,6 @@ App.prototype.init = function()
 		
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
 	}
-
 };
 
 /**
@@ -1710,25 +1761,11 @@ App.prototype.createBackground = function()
 		{
 			Editor.useLocalStorage = this.mode == App.MODE_BROWSER;
 		}
-		
-		if (remember)
-		{
-			if (isLocalStorage)
-			{
-				localStorage.setItem('.mode', mode);
-			}
-			else if (typeof(Storage) != 'undefined')
-			{
-				var expiry = new Date();
-				expiry.setYear(expiry.getFullYear() + 1);
-				document.cookie = 'MODE=' + mode + '; expires=' + expiry.toUTCString();
-			}
-		}
-		
+
 		if (this.appIcon != null)
 		{
 			var file = this.getCurrentFile();
-			var mode = (file != null) ? file.getMode() : null;
+			mode = (file != null) ? file.getMode() : mode;
 			
 			if (mode == App.MODE_GOOGLE)
 			{
@@ -1749,6 +1786,27 @@ App.prototype.createBackground = function()
 			{
 				this.appIcon.removeAttribute('title');
 				this.appIcon.style.cursor = 'default';
+			}
+		}
+		
+		if (remember)
+		{
+			try
+			{
+				if (isLocalStorage)
+				{
+					localStorage.setItem('.mode', mode);
+				}
+				else if (typeof(Storage) != 'undefined')
+				{
+					var expiry = new Date();
+					expiry.setYear(expiry.getFullYear() + 1);
+					document.cookie = 'MODE=' + mode + '; expires=' + expiry.toUTCString();
+				}
+			}
+			catch (e)
+			{
+				// ignore possible access denied
 			}
 		}
 	};
@@ -2641,8 +2699,8 @@ App.prototype.pickFile = function(mode)
 				}
 				
 				this.fileLoaded((mode == App.MODE_BROWSER) ?
-						new StorageFile(this, xml, filename) :
-						new LocalFile(this, xml, filename));
+					new StorageFile(this, xml, filename) :
+					new LocalFile(this, xml, filename));
 			}));
 			
 			// Extends dialog close to show splash screen
@@ -3035,9 +3093,9 @@ App.prototype.saveFile = function(forceDialog, success)
 						this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 						{
 							this.createFile(name, this.getFileData(/(\.xml)$/i.test(name) ||
-								name.indexOf('.') < 0, /(\.svg)$/i.test(name),
-								/(\.html)$/i.test(name)), null, mode, done,
-								this.mode == null, folderId);
+								name.indexOf('.') < 0 || /(\.drawio)$/i.test(name),
+								/(\.svg)$/i.test(name), /(\.html)$/i.test(name)),
+								null, mode, done, this.mode == null, folderId);
 						}));
 					}
 					else if (mode != null)
@@ -3064,7 +3122,7 @@ App.prototype.saveFile = function(forceDialog, success)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.loadTemplate = function(url, onload, onerror)
+App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 {
 	var realUrl = url;
 	
@@ -3073,17 +3131,19 @@ App.prototype.loadTemplate = function(url, onload, onerror)
 		var nocache = 't=' + new Date().getTime();
 		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
 	}
+
+	var filterFn = (templateFilename != null) ? templateFilename : url;
 	
 	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
 	{
-		if (/(\.vsdx)($|\?)/i.test(url))
+		if (/(\.v(dx|sdx?))($|\?)/i.test(filterFn))
 		{
 			this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
 			{
 				onload(xml);
-			}, onerror, url);
+			}, onerror, filterFn);
 		}
-		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
+		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
 		{
 			// Asynchronous parsing via server
 			this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
@@ -3114,7 +3174,7 @@ App.prototype.loadTemplate = function(url, onload, onerror)
 			
 			onload(data);
 		}
-	}), onerror, /(\.png)($|\?)/i.test(url) || /(\.vsdx)($|\?)/i.test(url));
+	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn));
 };
 
 /**
@@ -3542,7 +3602,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				
 				var doFallback = mxUtils.bind(this, function()
 				{
-					// Fallback for non-public Google Drive diagrams
+					// Fallback for non-public Google Drive files
 					if (url.substring(0, 31) == 'https://drive.google.com/uc?id=' &&
 						(this.drive != null || typeof window.DriveClient === 'function'))
 					{
@@ -3554,7 +3614,27 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							
 							if (this.drive != null)
 							{
-								this.loadFile('G' + url.substring(31, url.lastIndexOf('&ex')), sameWindow, success);
+								var tempId = url.substring(31, url.lastIndexOf('&ex'));
+								
+								this.loadFile('G' + tempId, sameWindow, null, mxUtils.bind(this, function()
+								{
+									var currentFile = this.getCurrentFile();
+									
+									if (currentFile != null && this.editor.chromeless && !this.editor.editable)
+									{
+										currentFile.getHash = function()
+										{
+											return 'G' + tempId;
+										};
+										
+										window.location.hash = '#' + currentFile.getHash();
+									}
+									
+									if (success != null)
+									{
+										success();
+									}
+								}));
 								
 								return true;
 							}
@@ -3603,7 +3683,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 								}
 
 								if (ext === '.svg' || ext === '.xml' ||
-									ext === '.html' || ext === '.png')
+									ext === '.html' || ext === '.png'  ||
+									ext === '.drawio')
 								{
 									filename = tmp + ext;
 								}
@@ -3630,7 +3711,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						this.handleError({message: mxResources.get('fileNotFound')},
 							mxResources.get('errorLoadingFile'));
 					}
-				}));
+				}), (urlParams['template-filename'] != null) ?
+					decodeURIComponent(urlParams['template-filename']) : null);
 			}
 			else
 			{
@@ -3662,18 +3744,40 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				{
 					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')}, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
 					{
-						var file = this.getCurrentFile();
-						window.location.hash = (file != null) ? file.getHash() : '';
+						var currentFile = this.getCurrentFile();
+						window.location.hash = (currentFile != null) ? currentFile.getHash() : '';
 					}));
 				}
 				else
 				{
+					var peerChar = id.charAt(0);
 					id = decodeURIComponent(id.substring(1));
 
 					peer.getFile(id, mxUtils.bind(this, function(file)
 					{
 						this.spinner.stop();
 						this.fileLoaded(file);
+						var currentFile = this.getCurrentFile();
+						
+						// Keeps ID event for converted files in chromeless mode for refresh to work
+						if (currentFile == null)
+						{
+							window.location.hash = '';
+							this.showSplash();
+						}
+						else if (this.editor.chromeless && !this.editor.editable)
+						{
+							currentFile.getHash = function()
+							{
+								return peerChar + id;
+							};
+							
+							window.location.hash = '#' + currentFile.getHash();
+						}
+						else
+						{
+							window.location.hash = currentFile.getHash();
+						}
 
 						if (success != null)
 						{
@@ -3689,16 +3793,16 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						
 						this.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null, mxUtils.bind(this, function()
 						{
-							var file = this.getCurrentFile();
+							var currentFile = this.getCurrentFile();
 							
-							if (file == null)
+							if (currentFile == null)
 							{
 								window.location.hash = '';
 								this.showSplash();
 							}
 							else
 							{
-								window.location.hash = file.getHash();	
+								window.location.hash = '#' + currentFile.getHash();	
 							}
 						}));
 					}));
@@ -4044,47 +4148,6 @@ App.prototype.updateButtonContainer = function()
 	{
 		var file = this.getCurrentFile();
 		
-		// Synchronize
-		if (file != null && (DrawioFile.SYNC == 'manual' ||
-			DrawioFile.SYNC == 'auto'))
-		{
-			var visible = ((DrawioFile.SYNC == 'manual' ||
-				(file.sync != null && !file.sync.enabled &&
-				uiTheme != 'min')) &&
-				(file.constructor == DriveFile ||
-				file.constructor == OneDriveFile)) ||
-				file.constructor == GitHubFile ||
-				EditorUi.isElectronApp;
-			
-			if (this.syncButton == null && visible)
-			{
-				this.syncButton = document.createElement('div');
-				this.syncButton.className = 'geBtn gePrimaryBtn';
-				this.syncButton.style.display = 'inline-block';
-				this.syncButton.style.padding = '0 10px 0 10px';
-				this.syncButton.style.marginTop = '-4px';
-				this.syncButton.style.height = '28px';
-				this.syncButton.style.lineHeight = '28px';
-				this.syncButton.style.minWidth = '0px';
-				this.syncButton.style.cssFloat = 'left';
-				this.syncButton.setAttribute('title', mxResources.get('synchronize') + ' (Alt+Shift+S)');
-				
-				mxUtils.write(this.syncButton, mxResources.get('synchronize'));
-				
-				mxEvent.addListener(this.syncButton, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('synchronize').funct();
-				}));
-				
-				this.buttonContainer.appendChild(this.syncButton);
-			}
-			else if (this.syncButton != null && !visible)
-			{
-				this.syncButton.parentNode.removeChild(this.syncButton);
-				this.syncButton = null;
-			}
-		}
-		
 		// Share
 		if (file != null && file.constructor == DriveFile)
 		{
@@ -4184,7 +4247,7 @@ App.prototype.save = function(name, done)
  * if a valid folder was chosen for a mode that supports it. No callback
  * is made if no folder was chosen for a mode that supports it.
  */
-App.prototype.pickFolder = function(mode, fn, enabled)
+App.prototype.pickFolder = function(mode, fn, enabled, direct)
 {
 	enabled = (enabled != null) ? enabled : true;
 	var resume = this.spinner.pause();
@@ -4221,7 +4284,7 @@ App.prototype.pickFolder = function(mode, fn, enabled)
 				folderId = OneDriveFile.prototype.getIdOf(files.value[0]);
         		fn(folderId);
 			}
-		}));
+		}), direct);
 	}
 	else if (enabled && mode == App.MODE_GITHUB && this.gitHub != null)
 	{
@@ -4421,7 +4484,7 @@ App.prototype.descriptorChanged = function()
 	
 	this.updateUi();
 
-	if (this.format != null)
+	if (this.format != null && this.editor.graph.isSelectionEmpty())
 	{
 		this.format.refresh();
 	}
@@ -4501,24 +4564,33 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 
 		req.onload = mxUtils.bind(this, function()
 		{
-			var blob = null;
-			
-			if (gitHubUrl)
+			if (req.status >= 200 && req.status <= 299)
 			{
-				var file = JSON.parse(req.responseText);
-				blob = this.base64ToBlob(file.content, 'application/octet-stream');
+				var blob = null;
+				
+				if (gitHubUrl)
+				{
+					var file = JSON.parse(req.responseText);
+					blob = this.base64ToBlob(file.content, 'application/octet-stream');
+				}
+				else
+				{
+					blob = new Blob([req.response], {type: 'application/octet-stream'});
+				}
+				
+				this.importVisio(blob, mxUtils.bind(this, function(xml)
+				{
+					success(new LocalFile(this, xml, name, true));
+				}), error, filename)
 			}
-			else
+			else if (error != null)
 			{
-				blob = new Blob([req.response], {type: 'application/octet-stream'});
+				error({message: mxResources.get('errorLoadingFile')});
 			}
-			
-			this.importVisio(blob, mxUtils.bind(this, function(xml)
-			{
-				success(new LocalFile(this, xml, name, true));
-			}), error, filename)
 		});
 
+		req.onerror = error;
+		
 		req.send();
 	}
 	else

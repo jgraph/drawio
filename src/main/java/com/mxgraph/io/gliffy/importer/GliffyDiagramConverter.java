@@ -692,6 +692,13 @@ public class GliffyDiagramConverter
 					//Gliffy's subroutine maps to drawio process, whose inner boundary, unlike subroutine's, is relative to it's width so here we set it to 10px
 					style.append("size=" + 10 / gliffyObject.width).append(";");
 				}
+				
+				String fragmentText;
+				if((fragmentText = gliffyObject.getUmlSequenceCombinedFragmentText()) != null) 
+				{
+					cell.setValue(fragmentText);
+					gliffyObject.children.remove(0);
+				}
 			}
 			else if (gliffyObject.isLine())
 			{

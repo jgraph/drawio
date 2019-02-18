@@ -232,7 +232,7 @@
 					w * 150, h * 75, '', 'Driver', null, null, this.getTagsForStencil(gn, '', dt + 'driver').join(' ')),
 			this.createVertexTemplateEntry(am2 + 'application;appType=assess;archiType=oct;', 
 					w * 150, h * 75, '', 'Assesment', null, null, this.getTagsForStencil(gn, '', dt + 'assessment').join(' ')),
-			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;', 
+			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;perimeter=ellipsePerimeter;', 
 					w * 150, h * 75, '', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' ')),
 			this.createVertexTemplateEntry('shape=cloud;html=1;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;', 
 					w * 150, h * 75, '', 'Meaning', null, null, this.getTagsForStencil(gn, '', dt + 'meaning').join(' ')),
@@ -377,9 +377,9 @@
 		[
 			this.createVertexTemplateEntry(am2 + 'application;appType=resource;archiType=square;', 
 					w * 150, h * 75, '', 'Resource', null, null, this.getTagsForStencil(gn, '', dt + 'resource').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=rounded;', 
 					w * 150, h * 75, '', 'Capability', null, null, this.getTagsForStencil(gn, '', dt + 'capability').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=rounded;', 
 					w * 150, h * 75, '', 'Course of Action', null, null, this.getTagsForStencil(gn, '', dt + 'course action').join(' '))
 		];
 			

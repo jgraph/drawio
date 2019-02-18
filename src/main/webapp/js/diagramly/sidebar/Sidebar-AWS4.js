@@ -7,10 +7,11 @@
 		var w = 80 * s;
 		var h = 100 * s;
 		var w2 = 60 * s;
-		var n = 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;fillColor=#232F3E;dashed=0;verticalLabelPosition=middle;verticalAlign=bottom;align=center;html=1;whiteSpace=wrap;fontSize=10;fontStyle=1;spacing=3;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
-		var n2 = 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#232F3E;fillColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var pts = 'points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];';
+		var n = pts + 'outlineConnect=0;fontColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=middle;verticalAlign=bottom;align=center;html=1;whiteSpace=wrap;fontSize=10;fontStyle=1;spacing=3;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n2 = pts + 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n3 = 'outlineConnect=0;gradientColor=none;fontColor=#545B64;strokeColor=none;fillColor=#879196;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
-		var n4 = 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n4 = pts + 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var gn = 'mxgraph.aws4';
 		var sb = this;
 
@@ -205,6 +206,8 @@
 	Sidebar.prototype.addAWS4AnalyticsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service analytics';
+		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
+		n2 = 'strokeColor=#5A30B5;' + n2;
 		
 		this.addPaletteFunctions('aws4Analytics', 'AWS / Analytics', false,
 		[
@@ -259,6 +262,8 @@
 	Sidebar.prototype.addAWS4ApplicationIntegrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service application integration';
+		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
+		n2 = 'strokeColor=#BC1356;' + n2;
 		
 		this.addPaletteFunctions('aws4Application Integration', 'AWS / Application Integration', false,
 		[
@@ -289,6 +294,8 @@
 	Sidebar.prototype.addAWS4ARVRPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service ar vr augmented virtual reality';
+		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
+		n2 = 'strokeColor=#BC1356;' + n2;
 		
 		this.addPaletteFunctions('aws4AR VR', 'AWS / AR & VR', false,
 		[
@@ -300,6 +307,8 @@
 	Sidebar.prototype.addAWS4CostManagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service cost management';
+		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
+		n2 = 'strokeColor=#277116;' + n2;
 		
 		this.addPaletteFunctions('aws4Cost Management', 'AWS / Cost Management', false,
 		[
@@ -317,6 +326,8 @@
 	Sidebar.prototype.addAWS4BusinessProductivityPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service business productivity';
+		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
+		n2 = 'strokeColor=#C7131F;' + n2;
 		
 		this.addPaletteFunctions('aws4Business Productivity', 'AWS / Business Productivity', false,
 		[
@@ -328,6 +339,8 @@
 	Sidebar.prototype.addAWS4ComputePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service compute';
+		n = 'gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;' + n;
+		n2 = 'strokeColor=#D05C17;' + n2;
 		
 		this.addPaletteFunctions('aws4Compute', 'AWS / Compute', false,
 		[
@@ -404,6 +417,8 @@
 	Sidebar.prototype.addAWS4CustomerEngagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service customer engagement';
+		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
+		n2 = 'strokeColor=#3334B9;' + n2;
 		
 		this.addPaletteFunctions('aws4Customer Engagement', 'AWS / Customer Engagement', false,
 		[
@@ -422,6 +437,8 @@
 	Sidebar.prototype.addAWS4DatabasePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service db database';
+		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
+		n2 = 'strokeColor=#3334B9;' + n2;
 		
 		this.addPaletteFunctions('aws4Database', 'AWS / Database', false,
 		[
@@ -496,6 +513,8 @@
 	Sidebar.prototype.addAWS4DesktopAppStreamingPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service db database';
+		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
+		n2 = 'strokeColor=#116D5B;' + n2;
 		
 		this.addPaletteFunctions('aws4Desktop App Streaming', 'AWS / Desktop & App Streaming', false,
 		[
@@ -507,6 +526,8 @@
 	Sidebar.prototype.addAWS4DeveloperToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service dev developer tools';
+		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
+		n2 = 'strokeColor=#3334B9;' + n2;
 		
 		this.addPaletteFunctions('aws4Developer Tools', 'AWS / Developer Tools', false,
 		[
@@ -534,6 +555,8 @@
 	Sidebar.prototype.addAWS4GameDevelopmentPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service game development';
+		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
+		n2 = 'strokeColor=#5A30B5;' + n2;
 		
 		this.addPaletteFunctions('aws4Game Development', 'AWS / Game Development', false,
 		[
@@ -545,6 +568,8 @@
 	Sidebar.prototype.addAWS4InternetOfThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot';
+		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
+		n2 = 'strokeColor=#277116;' + n2;
 		
 		this.addPaletteFunctions('aws4Internet of Things', 'AWS / Internet of Things', false,
 		[
@@ -570,6 +595,8 @@
 	Sidebar.prototype.addAWS4IOTThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot';
+		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
+		n2 = 'strokeColor=#277116;' + n2;
 		
 		this.addPaletteFunctions('aws4IoT Things', 'AWS / IoT Things', false,
 		[
@@ -613,6 +640,8 @@
 	Sidebar.prototype.addAWS4IOTResourcesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot resources';
+		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
+		n2 = 'strokeColor=#277116;' + n2;
 		
 		this.addPaletteFunctions('aws4IoT Resources', 'AWS / IoT Resources', false,
 		[
@@ -670,6 +699,8 @@
 	Sidebar.prototype.addAWS4MachineLearningPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service machine learning';
+		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
+		n2 = 'strokeColor=#116D5B;' + n2;
 		
 		this.addPaletteFunctions('aws4Machine Learning', 'AWS / Machine Learning', false,
 		[
@@ -701,6 +732,8 @@
 	Sidebar.prototype.addAWS4ManagementToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service management tools';
+		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
+		n2 = 'strokeColor=#BC1356;' + n2;
 		
 		this.addPaletteFunctions('aws4Management Tools', 'AWS / Management Tools', false,
 		[
@@ -797,6 +830,8 @@
 	Sidebar.prototype.addAWS4MediaServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service media services';
+		n = 'gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;' + n;
+		n2 = 'strokeColor=#D05C17;' + n2;
 		
 		this.addPaletteFunctions('aws4Media Services', 'AWS / Media Services', false,
 		[
@@ -820,6 +855,8 @@
 	Sidebar.prototype.addAWS4MigrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service migration';
+		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
+		n2 = 'strokeColor=#116D5B;' + n2;
 		
 		this.addPaletteFunctions('aws4Migration', 'AWS / Migration', false,
 		[
@@ -843,6 +880,8 @@
 	Sidebar.prototype.addAWS4MobileServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service mobile services';
+		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
+		n2 = 'strokeColor=#C7131F;' + n2;
 		
 		this.addPaletteFunctions('aws4Mobile Services', 'AWS / Mobile Services', false,
 		[
@@ -862,6 +901,8 @@
 	Sidebar.prototype.addAWS4NetworkContentDeliveryPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service netowrk content delivery';
+		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
+		n2 = 'strokeColor=#5A30B5;' + n2;
 		
 		this.addPaletteFunctions('aws4Network Content Delivery', 'AWS / Network & Content Delivery', false,
 		[
@@ -918,6 +959,8 @@
 	Sidebar.prototype.addAWS4SecurityIdentityCompliancePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service security identity compliance';
+		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
+		n2 = 'strokeColor=#C7131F;' + n2;
 		
 		this.addPaletteFunctions('aws4Security Identity Compliance', 'AWS / Security, Identity & Compliance', false,
 		[
@@ -982,6 +1025,8 @@
 	Sidebar.prototype.addAWS4StoragePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service storage';
+		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
+		n2 = 'strokeColor=#277116;' + n2;
 		
 		this.addPaletteFunctions('aws4Storage', 'AWS / Storage', false,
 		[
