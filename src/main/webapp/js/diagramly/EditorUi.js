@@ -142,16 +142,23 @@
 	 */
 	EditorUi.debug = function()
 	{
-		if (window.console != null && urlParams['test'] == '1')
+		try
 		{
-			var args = [new Date().toISOString()];
-			
-			for (var i = 0; i < arguments.length; i++)
-		    {
-				args.push(arguments[i]);
-		    }
-		    
-			console.log.apply(console, args);
+			if (window.console != null && urlParams['test'] == '1')
+			{
+				var args = [new Date().toISOString()];
+				
+				for (var i = 0; i < arguments.length; i++)
+			    {
+					args.push(arguments[i]);
+			    }
+			    
+				console.log.apply(console, args);
+			}
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 
@@ -3577,8 +3584,15 @@
 					if (id != null && id.substring(0, 2) == '#G')
 					{
 						id = id.substring(2);
-						msg += '<br><a href="https://drive.google.com/open?id=' + id + '" target="_blank">' +
-							mxUtils.htmlEntities(mxResources.get('tryOpeningViaThisPage')) + '</a>';
+						
+						// Special case where the button must have a different label and function
+						this.showError(title, msg, mxResources.get('cancel'), null, retry,
+							mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
+							{
+								this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+							}), null, null, 380);
+								
+						return;
 					}
 				}
 				else if (e.message != null)

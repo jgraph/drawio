@@ -99,12 +99,6 @@
 		var spacing = 10;
 		var level = 40;
 	
-		// Adds resources for actions
-		mxResources.parse('selectChildren=Select Children');
-		mxResources.parse('selectSiblings=Select Siblings');
-		mxResources.parse('selectDescendants=Select Descendants');
-		mxResources.parse('selectParent=Select Parent');
-	
 		function isTreeVertex(cell)
 		{
 			return model.isVertex(cell) && hasTreeParent(cell);

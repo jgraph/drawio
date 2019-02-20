@@ -1567,6 +1567,30 @@ Graph.prototype.isRelativeUrl = function(url)
 };
 
 /**
+ * 
+ */
+Graph.prototype.getAbsoluteUrl = function(url)
+{
+	if (url != null && this.isRelativeUrl(url))
+	{
+		if (url.charAt(0) == '#')
+		{
+			url = this.baseUrl + url;
+		}
+		else if (url.charAt(0) == '/')
+		{
+			url = this.domainUrl + url;
+		}
+		else
+		{
+			url = this.domainPathUrl + url;
+		}
+	}
+	
+	return url;
+};
+
+/**
  * Installs automatic layout via styles
  */
 Graph.prototype.initLayoutManager = function()
@@ -5671,30 +5695,6 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			return label;
-		};
-
-		/**
-		 * 
-		 */
-		Graph.prototype.getAbsoluteUrl = function(url)
-		{
-			if (url != null && this.isRelativeUrl(url))
-			{
-				if (url.charAt(0) == '#')
-				{
-					url = this.baseUrl + url;
-				}
-				else if (url.charAt(0) == '/')
-				{
-					url = this.domainUrl + url;
-				}
-				else
-				{
-					url = this.domainPathUrl + url;
-				}
-			}
-			
-			return url;
 		};
 
 		/**

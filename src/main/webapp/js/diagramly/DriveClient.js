@@ -1723,13 +1723,80 @@ DriveClient.prototype.pickLibrary = function(fn)
  */
 DriveClient.prototype.showPermissions = function(id)
 {
-	this.checkToken(mxUtils.bind(this, function()
+	var fallback = mxUtils.bind(this, function()
 	{
-		var shareClient = new gapi.drive.share.ShareClient(this.appId);
-		shareClient.setOAuthToken(gapi.auth.getToken().access_token);
-		shareClient.setItemIds([id]);
-		shareClient.showSettingsDialog();
-	}));
+		var dlg = new ConfirmDialog(this.ui, mxResources.get('googleSharingNotAvailable'), mxUtils.bind(this, function()
+		{
+			this.ui.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+		}), null, mxResources.get('open'), null, null, null, null, IMAGE_PATH + '/google-share.png');
+		this.ui.showDialog(dlg.container, 360, 190, true, true);
+		dlg.init();
+	});
+	
+	if (this.sharingFailed)
+	{
+		fallback();
+	}
+	else
+	{
+		this.checkToken(mxUtils.bind(this, function()
+		{
+			var shareClient = new gapi.drive.share.ShareClient(this.appId);
+			shareClient.setOAuthToken(gapi.auth.getToken().access_token);
+			shareClient.setItemIds([id]);
+			shareClient.showSettingsDialog();
+			
+			// Workaround for https://stackoverflow.com/questions/54753169 is to check
+			// if "sharing is unavailable" is showing and invoke a fallback dialog
+			if ('MutationObserver' in window)
+			{
+				if (this.sharingObserver != null)
+				{
+					this.sharingObserver.disconnect();
+					this.sharingObserver = null;
+				}
+
+				// Tries again even if observer was still around as the user may have
+				// closed the dialog while waiting. TODO: Find condition to disconnect
+				// observer when dialog is closed (use removedNodes?).
+				this.sharingObserver = new MutationObserver(mxUtils.bind(this, function(mutations)
+				{
+					var done = false;
+					
+					for (var i = 0; i < mutations.length; i++)
+					{
+						for (var j = 0; j < mutations[i].addedNodes.length; j++)
+						{
+							var child = mutations[i].addedNodes[j];
+
+							if (child.nodeName == 'BUTTON' && child.getAttribute('name') == 'ok' &&
+				        		child.parentNode != null && child.parentNode.parentNode != null &&
+				        		child.parentNode.parentNode.getAttribute('role') == 'dialog')
+				        	{
+			        			this.sharingFailed = true;
+				        		child.click();
+			        			fallback();
+			        			done = true;
+				        	}
+				        	else if (child.nodeName == 'DIV' && child.className == 'shr-q-shr-r-shr-xb')
+				        	{
+				        		done = true;
+				        	}
+				        }
+				    }
+					
+					if (done)
+					{
+		        		this.sharingObserver.disconnect();
+	        			this.sharingObserver = null;
+					}
+					
+				}));
+				
+				this.sharingObserver.observe(document, {childList: true, subtree: true});
+			}
+		}));
+	}
 };
 
 /**

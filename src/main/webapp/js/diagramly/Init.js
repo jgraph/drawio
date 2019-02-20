@@ -287,3 +287,10 @@ if (urlParams['lightbox'] == '1')
 {
 	urlParams['chrome'] = '0';
 }
+
+// Fallback for cases where the hash property is not available
+if ((window.location.hash == null || window.location.hash.length <= 1) &&
+	urlParams['open'] != null)
+{
+	window.location.hash = urlParams['open'];
+}

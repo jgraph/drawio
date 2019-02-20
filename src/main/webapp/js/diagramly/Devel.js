@@ -39,6 +39,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3D.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4b.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Bootstrap.js');

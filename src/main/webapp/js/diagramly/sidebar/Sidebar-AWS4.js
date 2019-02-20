@@ -7,11 +7,10 @@
 		var w = 80 * s;
 		var h = 100 * s;
 		var w2 = 60 * s;
-		var pts = 'points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];';
-		var n = pts + 'outlineConnect=0;fontColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=middle;verticalAlign=bottom;align=center;html=1;whiteSpace=wrap;fontSize=10;fontStyle=1;spacing=3;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
-		var n2 = pts + 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;fillColor=#232F3E;dashed=0;verticalLabelPosition=middle;verticalAlign=bottom;align=center;html=1;whiteSpace=wrap;fontSize=10;fontStyle=1;spacing=3;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n2 = 'outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#232F3E;fillColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n3 = 'outlineConnect=0;gradientColor=none;fontColor=#545B64;strokeColor=none;fillColor=#879196;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
-		var n4 = pts + 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n4 = 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var gn = 'mxgraph.aws4';
 		var sb = this;
 
@@ -48,7 +47,7 @@
 	{
 		var dt = 'aws amazon web service arrows';
 		
-		this.addPaletteFunctions('aws4Arrows', 'AWS / Arrows', false,
+		this.addPaletteFunctions('aws4Arrows', 'AWS18 / Arrows', false,
 		[
 			this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=block;startFill=1;strokeColor=#545B64;rounded=0;', 
 					100, 0, '', 'Default (left)', null, this.getTagsForStencil(gn, '', dt + 'default left').join(' ')),
@@ -75,7 +74,7 @@
 	{
 		var dt = 'aws amazon web service general resources';
 		
-		this.addPaletteFunctions('aws4General Resources', 'AWS / General Resources', false,
+		this.addPaletteFunctions('aws4General Resources', 'AWS18 / General Resources', false,
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.aws_cloud;',
 					 w2, w2, 'AWS Cloud', null, null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
@@ -122,7 +121,7 @@
 	{
 		var dt = 'aws amazon web service illustrations';
 		
-		this.addPaletteFunctions('aws4Illustrations', 'AWS / Illustrations', false,
+		this.addPaletteFunctions('aws4Illustrations', 'AWS18 / Illustrations', false,
 		[
 			 this.createVertexTemplateEntry(n3 + 'illustration_users;',
 					 100, 100, 'users', null, null, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
@@ -141,7 +140,7 @@
 	{
 		var dt = 'aws amazon web service groups group light';
 		
-		this.addPaletteFunctions('aws4Groups Light', 'AWS / Groups (light)', false,
+		this.addPaletteFunctions('aws4Groups Light', 'AWS18 / Groups (light)', false,
 		[
 			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_aws_cloud;strokeColor=#AAB7B8;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;',
 					 130, 130, 'AWS Cloud', 'AWS Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
@@ -172,9 +171,9 @@
 
 	Sidebar.prototype.addAWS4GroupsDarkPalette = function(n4, gn, sb)
 	{
-		var dt = 'aws group amazon web service groups group dark';
+		var dt = 'aws amazon web service groups group dark';
 		
-		this.addPaletteFunctions('aws4Groups Dark', 'AWS / Groups (dark)', false,
+		this.addPaletteFunctions('aws4Groups Dark', 'AWS18 / Groups (dark)', false,
 		[
 			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_aws_cloud;strokeColor=#858B94;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#858B94;dashed=0;',
 					 130, 130, 'AWS Cloud', 'AWS Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
@@ -206,10 +205,8 @@
 	Sidebar.prototype.addAWS4AnalyticsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service analytics';
-		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
-		n2 = 'strokeColor=#5A30B5;' + n2;
 		
-		this.addPaletteFunctions('aws4Analytics', 'AWS / Analytics', false,
+		this.addPaletteFunctions('aws4Analytics', 'AWS18 / Analytics', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.athena;',
 					 w, h + 10, 'Amazon Athena', null, null, null, this.getTagsForStencil(gn, 'athena', dt).join(' ')),
@@ -262,10 +259,8 @@
 	Sidebar.prototype.addAWS4ApplicationIntegrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service application integration';
-		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
-		n2 = 'strokeColor=#BC1356;' + n2;
 		
-		this.addPaletteFunctions('aws4Application Integration', 'AWS / Application Integration', false,
+		this.addPaletteFunctions('aws4Application Integration', 'AWS18 / Application Integration', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.step_functions;',
 					 w, h + 10, 'AWS Step Functions', null, null, null, this.getTagsForStencil(gn, 'step functions', dt).join(' ')),
@@ -294,10 +289,8 @@
 	Sidebar.prototype.addAWS4ARVRPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service ar vr augmented virtual reality';
-		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
-		n2 = 'strokeColor=#BC1356;' + n2;
 		
-		this.addPaletteFunctions('aws4AR VR', 'AWS / AR & VR', false,
+		this.addPaletteFunctions('aws4AR VR', 'AWS18 / AR & VR', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.sumerian;',
 					 w, h + 10, 'Amazon Sumerian', null, null, null, this.getTagsForStencil(gn, 'sumerian', dt).join(' '))
@@ -307,10 +300,8 @@
 	Sidebar.prototype.addAWS4CostManagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service cost management';
-		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
-		n2 = 'strokeColor=#277116;' + n2;
 		
-		this.addPaletteFunctions('aws4Cost Management', 'AWS / Cost Management', false,
+		this.addPaletteFunctions('aws4Cost Management', 'AWS18 / Cost Management', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.cost_explorer;',
 					 w, h + 10, 'AWS Cost Explorer', null, null, null, this.getTagsForStencil(gn, 'cost explorer', dt).join(' ')),
@@ -326,10 +317,8 @@
 	Sidebar.prototype.addAWS4BusinessProductivityPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service business productivity';
-		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
-		n2 = 'strokeColor=#C7131F;' + n2;
 		
-		this.addPaletteFunctions('aws4Business Productivity', 'AWS / Business Productivity', false,
+		this.addPaletteFunctions('aws4Business Productivity', 'AWS18 / Business Productivity', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.alexa_for_business;',
 					 w, h + 10, 'Alexa for Business', null, null, null, this.getTagsForStencil(gn, 'alexa for business', dt).join(' '))
@@ -339,10 +328,8 @@
 	Sidebar.prototype.addAWS4ComputePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service compute';
-		n = 'gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;' + n;
-		n2 = 'strokeColor=#D05C17;' + n2;
 		
-		this.addPaletteFunctions('aws4Compute', 'AWS / Compute', false,
+		this.addPaletteFunctions('aws4Compute', 'AWS18 / Compute', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.ec2;',
 					 w, h, 'Amazon EC2', null, null, null, this.getTagsForStencil(gn, 'ec2', dt).join(' ')),
@@ -417,10 +404,8 @@
 	Sidebar.prototype.addAWS4CustomerEngagementPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service customer engagement';
-		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
-		n2 = 'strokeColor=#3334B9;' + n2;
 		
-		this.addPaletteFunctions('aws4Customer Engagement', 'AWS / Customer Engagement', false,
+		this.addPaletteFunctions('aws4Customer Engagement', 'AWS18 / Customer Engagement', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.connect;',
 					 w, h + 10, 'Amazon Connect', null, null, null, this.getTagsForStencil(gn, 'connect', dt).join(' ')),
@@ -437,10 +422,8 @@
 	Sidebar.prototype.addAWS4DatabasePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service db database';
-		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
-		n2 = 'strokeColor=#3334B9;' + n2;
 		
-		this.addPaletteFunctions('aws4Database', 'AWS / Database', false,
+		this.addPaletteFunctions('aws4Database', 'AWS18 / Database', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.aurora;',
 					 w, h + 10, 'Amazon\nAurora', null, null, null, this.getTagsForStencil(gn, 'aurora', dt).join(' ')),
@@ -513,10 +496,8 @@
 	Sidebar.prototype.addAWS4DesktopAppStreamingPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service db database';
-		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
-		n2 = 'strokeColor=#116D5B;' + n2;
 		
-		this.addPaletteFunctions('aws4Desktop App Streaming', 'AWS / Desktop & App Streaming', false,
+		this.addPaletteFunctions('aws4Desktop App Streaming', 'AWS18 / Desktop & App Streaming', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.appstream_20;',
 					 w, h + 10, 'Amazon AppStream 2.0', null, null, null, this.getTagsForStencil(gn, 'appstream', dt).join(' '))
@@ -526,10 +507,8 @@
 	Sidebar.prototype.addAWS4DeveloperToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service dev developer tools';
-		n = 'gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;' + n;
-		n2 = 'strokeColor=#3334B9;' + n2;
 		
-		this.addPaletteFunctions('aws4Developer Tools', 'AWS / Developer Tools', false,
+		this.addPaletteFunctions('aws4Developer Tools', 'AWS18 / Developer Tools', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.codestar;',
 					 w, h, 'AWS CodeStar', null, null, null, this.getTagsForStencil(gn, 'codestar', dt).join(' ')),
@@ -555,10 +534,8 @@
 	Sidebar.prototype.addAWS4GameDevelopmentPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service game development';
-		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
-		n2 = 'strokeColor=#5A30B5;' + n2;
 		
-		this.addPaletteFunctions('aws4Game Development', 'AWS / Game Development', false,
+		this.addPaletteFunctions('aws4Game Development', 'AWS18 / Game Development', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.gamelift;',
 					 w, h + 10, 'Amazon GameLift', null, null, null, this.getTagsForStencil(gn, 'gamelift', dt).join(' '))
@@ -568,10 +545,8 @@
 	Sidebar.prototype.addAWS4InternetOfThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot';
-		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
-		n2 = 'strokeColor=#277116;' + n2;
 		
-		this.addPaletteFunctions('aws4Internet of Things', 'AWS / Internet of Things', false,
+		this.addPaletteFunctions('aws4Internet of Things', 'AWS18 / Internet of Things', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.iot_core;',
 					 w, h + 10, 'Amazon IoT Core', null, null, null, this.getTagsForStencil(gn, 'core', dt).join(' ')),
@@ -595,10 +570,8 @@
 	Sidebar.prototype.addAWS4IOTThingsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot';
-		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
-		n2 = 'strokeColor=#277116;' + n2;
 		
-		this.addPaletteFunctions('aws4IoT Things', 'AWS / IoT Things', false,
+		this.addPaletteFunctions('aws4IoT Things', 'AWS18 / IoT Things', false,
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.bank;',
 					 w2, w2, 'Bank', null, null, null, this.getTagsForStencil(gn, 'bank', dt).join(' ')),
@@ -640,10 +613,8 @@
 	Sidebar.prototype.addAWS4IOTResourcesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service internet of things iot resources';
-		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
-		n2 = 'strokeColor=#277116;' + n2;
 		
-		this.addPaletteFunctions('aws4IoT Resources', 'AWS / IoT Resources', false,
+		this.addPaletteFunctions('aws4IoT Resources', 'AWS18 / IoT Resources', false,
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.action;',
 					 w2, w2, 'Action', null, null, null, this.getTagsForStencil(gn, 'action', dt).join(' ')),
@@ -699,10 +670,8 @@
 	Sidebar.prototype.addAWS4MachineLearningPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service machine learning';
-		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
-		n2 = 'strokeColor=#116D5B;' + n2;
 		
-		this.addPaletteFunctions('aws4Machine Learning', 'AWS / Machine Learning', false,
+		this.addPaletteFunctions('aws4Machine Learning', 'AWS18 / Machine Learning', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.sagemaker;',
 					 w, h + 10, 'Amazon SageMaker', null, null, null, this.getTagsForStencil(gn, 'sagemaker', dt).join(' ')),
@@ -732,10 +701,8 @@
 	Sidebar.prototype.addAWS4ManagementToolsPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service management tools';
-		n = 'gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;' + n;
-		n2 = 'strokeColor=#BC1356;' + n2;
 		
-		this.addPaletteFunctions('aws4Management Tools', 'AWS / Management Tools', false,
+		this.addPaletteFunctions('aws4Management Tools', 'AWS18 / Management Tools', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.cloudwatch;',
 					 w, h + 10, 'Amazon CloudWatch', null, null, null, this.getTagsForStencil(gn, 'cloudwatch', dt).join(' ')),
@@ -830,10 +797,8 @@
 	Sidebar.prototype.addAWS4MediaServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service media services';
-		n = 'gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;' + n;
-		n2 = 'strokeColor=#D05C17;' + n2;
 		
-		this.addPaletteFunctions('aws4Media Services', 'AWS / Media Services', false,
+		this.addPaletteFunctions('aws4Media Services', 'AWS18 / Media Services', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.elastic_transcoder;',
 					 w, h + 10, 'Amazon Elastic Transcoder', null, null, null, this.getTagsForStencil(gn, 'elastic transcoder', dt).join(' ')),
@@ -855,10 +820,8 @@
 	Sidebar.prototype.addAWS4MigrationPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service migration';
-		n = 'gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;' + n;
-		n2 = 'strokeColor=#116D5B;' + n2;
 		
-		this.addPaletteFunctions('aws4Migration', 'AWS / Migration', false,
+		this.addPaletteFunctions('aws4Migration', 'AWS18 / Migration', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.migration_hub;',
 					 w, h + 10, 'AWS Migration Hub', null, null, null, this.getTagsForStencil(gn, 'migration hub', dt).join(' ')),
@@ -880,10 +843,8 @@
 	Sidebar.prototype.addAWS4MobileServicesPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service mobile services';
-		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
-		n2 = 'strokeColor=#C7131F;' + n2;
 		
-		this.addPaletteFunctions('aws4Mobile Services', 'AWS / Mobile Services', false,
+		this.addPaletteFunctions('aws4Mobile Services', 'AWS18 / Mobile Services', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.appsync;',
 					 w, h, 'AWS AppSync', null, null, null, this.getTagsForStencil(gn, 'appsync', dt).join(' ')),
@@ -901,10 +862,8 @@
 	Sidebar.prototype.addAWS4NetworkContentDeliveryPalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service netowrk content delivery';
-		n = 'gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;' + n;
-		n2 = 'strokeColor=#5A30B5;' + n2;
 		
-		this.addPaletteFunctions('aws4Network Content Delivery', 'AWS / Network & Content Delivery', false,
+		this.addPaletteFunctions('aws4Network Content Delivery', 'AWS18 / Network & Content Delivery', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.vpc;',
 					 w, h, 'Amazon VPC', null, null, null, this.getTagsForStencil(gn, 'vpc virtual private cloud', dt).join(' ')),
@@ -959,10 +918,8 @@
 	Sidebar.prototype.addAWS4SecurityIdentityCompliancePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service security identity compliance';
-		n = 'gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;' + n;
-		n2 = 'strokeColor=#C7131F;' + n2;
 		
-		this.addPaletteFunctions('aws4Security Identity Compliance', 'AWS / Security, Identity & Compliance', false,
+		this.addPaletteFunctions('aws4Security Identity Compliance', 'AWS18 / Security, Identity & Compliance', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.identity_and_access_management;',
 					 w, h + 20, 'AWS Identity and Access Management', null, null, null, this.getTagsForStencil(gn, 'identity and access management', dt).join(' ')),
@@ -1025,10 +982,8 @@
 	Sidebar.prototype.addAWS4StoragePalette = function(w, h, w2, n, n2, gn, sb)
 	{
 		var dt = 'aws amazon web service storage';
-		n = 'gradientColor=#60A337;gradientDirection=north;fillColor=#277116;' + n;
-		n2 = 'strokeColor=#277116;' + n2;
 		
-		this.addPaletteFunctions('aws4Storage', 'AWS / Storage', false,
+		this.addPaletteFunctions('aws4Storage', 'AWS18 / Storage', false,
 		[
 			 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.s3;',
 					 w, h, 'Amazon S3', null, null, null, this.getTagsForStencil(gn, 's3', dt).join(' ')),

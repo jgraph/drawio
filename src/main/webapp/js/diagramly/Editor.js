@@ -4079,6 +4079,7 @@
 	mxStencilRegistry.libraries['networks'] = [SHAPES_PATH + '/mxNetworks.js', STENCIL_PATH + '/networks.xml'];
 	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
 	mxStencilRegistry.libraries['aws4'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
+	mxStencilRegistry.libraries['aws4b'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['veeam'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];
 	mxStencilRegistry.libraries['pid2misc'] = [SHAPES_PATH + '/pid2/mxPidMisc.js', STENCIL_PATH + '/pid/misc.xml'];
@@ -4823,7 +4824,7 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 		hd.style.margin = '0px';
 		hd.style.fontSize = '18px';
 		hd.style.paddingBottom = '16px';
-		hd.style.marginBottom = '16px';
+		hd.style.marginBottom = '10px';
 		hd.style.borderBottom = '1px solid #c0c0c0';
 		hd.style.color = 'gray';
 		hd.style.whiteSpace = 'nowrap';
@@ -4835,12 +4836,13 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 	}
 
 	var p2 = document.createElement('div');
+	p2.style.lineHeight = '1.2em';
 	p2.style.padding = '6px';
 	p2.innerHTML = message;
 	div.appendChild(p2);
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '16px';
+	btns.style.marginTop = '12px';
 	btns.style.textAlign = 'center';
 	
 	if (retry != null)
