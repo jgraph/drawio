@@ -765,7 +765,7 @@ var SplashDialog = function(editorUi)
 /**
  * 
  */
-var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption)
+var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption, imgSrc)
 {
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
@@ -774,6 +774,7 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	p2.style.padding = '6px';
 	p2.style.overflow = 'auto';
 	p2.style.maxHeight = '44px';
+	p2.style.lineHeight = '1.2em';
 	
 	if (mxClient.IS_QUIRKS)
 	{
@@ -782,6 +783,16 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	
 	mxUtils.write(p2, message);
 	div.appendChild(p2);
+	
+	if (imgSrc != null)
+	{
+		var p3 = document.createElement('div');
+		p3.style.padding = '6px 0 6px 0';
+		var img = document.createElement('img');
+		img.setAttribute('src', imgSrc);
+		p3.appendChild(img);
+		div.appendChild(p3);
+	}
 	
 	var btns = document.createElement('div');
 	btns.style.textAlign = 'center';
@@ -866,7 +877,7 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	}
 	else
 	{
-		btns.style.marginTop = '16px';
+		btns.style.marginTop = '12px';
 	}
 
 	this.init = function()

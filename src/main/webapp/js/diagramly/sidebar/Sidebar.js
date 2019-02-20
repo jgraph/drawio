@@ -112,8 +112,14 @@
 	 */
 	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups Light', 'Groups Dark', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Business Productivity', 'Compute', 'Customer Engagement',
 							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Development', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Tools',
-							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
-	
+							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];	
+	/**
+	 *
+	 */
+	Sidebar.prototype.aws4b = ['Arrows', 'General Resources', 'Illustrations', 'Groups', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Blockchain', 
+							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Engagement',
+							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
+							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
 	/**
 	 * 
 	 */
@@ -175,6 +181,7 @@
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
            	                           {id: 'aws3', prefix: 'aws3', libs: Sidebar.prototype.aws3},
            	                           {id: 'aws4', prefix: 'aws4', libs: Sidebar.prototype.aws4},
+           	                           {id: 'aws4b', prefix: 'aws4b', libs: Sidebar.prototype.aws4b},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
@@ -444,7 +451,8 @@
             			{title: mxResources.get('networking'),
             			entries: [{title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
             			// TODO: Add isometric containers  		                          
-            				      {title: 'AWS19', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
+							      {title: 'AWS18', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
+							      {title: 'AWS19', id: 'aws4b', image: IMAGE_PATH + '/sidebar-aws4.png'},
             					  {title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
@@ -864,6 +872,7 @@
 		this.addBpmnPalette(dir, false);
 		this.addAWS3Palette();
 		this.addAWS4Palette();
+		this.addAWS4bPalette();
 		this.addAWS3DPalette();
 		this.addLeanMappingPalette();
 		this.addIos7Palette();

@@ -1,3 +1,9 @@
+20-FEB-2019: 10.2.5
+
+- Adds fallback for unavailable sharing in Google Drive
+- Fixes possible timing issues with open URL parameter
+- Fixes link handling in legacy embedded diagrams
+
 18-FEB-2019: 10.2.4
 
 - Adds Microsoft Office add-ins

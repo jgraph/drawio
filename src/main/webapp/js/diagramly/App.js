@@ -2054,13 +2054,6 @@ App.prototype.load = function()
 			}
 			else
 			{
-				// Fallback for cases where the hash property is not available
-				if ((window.location.hash == null || window.location.hash.length <= 1) &&
-					urlParams['open'] != null)
-				{
-					window.location.hash = urlParams['open'];
-				}
-				
 				// Asynchronous or disabled loading of client
 				if (this.drive == null)
 				{
