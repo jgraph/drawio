@@ -21992,6 +21992,96 @@
         <fillstroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="35" name="group private subnet" strokewidth="inherit" w="35">
+    <connections/>
+    <foreground>
+        <fillcolor color="#147eba"/>
+        <rect h="35" w="35" x="0" y="0"/>
+        <fillstroke/>
+        <fillcolor color="#fff"/>
+        <path>
+            <move x="17.51" y="17.83"/>
+            <arc large-arc-flag="0" rx="2.38" ry="2.38" sweep-flag="0" x="17.01" x-axis-rotation="0" y="22.54"/>
+            <line x="17.01" y="25.83"/>
+            <line x="18.01" y="25.83"/>
+            <line x="18.01" y="22.54"/>
+            <arc large-arc-flag="0" rx="2.38" ry="2.38" sweep-flag="0" x="17.51" x-axis-rotation="0" y="17.83"/>
+            <close/>
+            <move x="17.51" y="21.59"/>
+            <arc large-arc-flag="1" rx="1.38" ry="1.38" sweep-flag="1" x="18.89" x-axis-rotation="0" y="20.21"/>
+            <arc large-arc-flag="0" rx="1.38" ry="1.38" sweep-flag="1" x="17.51" x-axis-rotation="0" y="21.59"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="22.72" y="14.3"/>
+            <line x="22.72" y="11.63"/>
+            <arc large-arc-flag="1" rx="5.22" ry="5.22" sweep-flag="0" x="12.28" x-axis-rotation="0" y="11.63"/>
+            <line x="12.28" y="14.3"/>
+            <line x="9.14" y="14.3"/>
+            <line x="9.14" y="28.59"/>
+            <line x="25.86" y="28.59"/>
+            <line x="25.86" y="14.3"/>
+            <close/>
+            <move x="13.28" y="11.63"/>
+            <arc large-arc-flag="1" rx="4.22" ry="4.22" sweep-flag="1" x="21.72" x-axis-rotation="0" y="11.63"/>
+            <line x="21.72" y="14.3"/>
+            <line x="13.28" y="14.3"/>
+            <close/>
+            <move x="24.86" y="27.63"/>
+            <line x="10.14" y="27.63"/>
+            <line x="10.14" y="15.3"/>
+            <line x="24.86" y="15.3"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="35" name="group public subnet" strokewidth="inherit" w="35">
+    <connections/>
+    <foreground>
+        <fillcolor color="#248814"/>
+        <rect h="35" w="35" x="0" y="0"/>
+        <fillstroke/>
+        <fillcolor color="#fff"/>
+        <path>
+            <move x="17.51" y="17.83"/>
+            <arc large-arc-flag="0" rx="2.38" ry="2.38" sweep-flag="0" x="17.01" x-axis-rotation="0" y="22.54"/>
+            <line x="17.01" y="25.83"/>
+            <line x="18.01" y="25.83"/>
+            <line x="18.01" y="22.54"/>
+            <arc large-arc-flag="0" rx="2.38" ry="2.38" sweep-flag="0" x="17.51" x-axis-rotation="0" y="17.83"/>
+            <close/>
+            <move x="17.51" y="21.59"/>
+            <arc large-arc-flag="1" rx="1.38" ry="1.38" sweep-flag="1" x="18.89" x-axis-rotation="0" y="20.21"/>
+            <arc large-arc-flag="0" rx="1.38" ry="1.38" sweep-flag="1" x="17.51" x-axis-rotation="0" y="21.59"/>
+            <close/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="22.72" y="14.3"/>
+            <line x="22.72" y="11.63"/>
+            <arc large-arc-flag="1" rx="5.22" ry="5.22" sweep-flag="0" x="12.28" x-axis-rotation="0" y="11.63"/>
+            <line x="12.28" y="14.3"/>
+            <line x="9.14" y="14.3"/>
+            <line x="9.14" y="28.59"/>
+            <line x="25.86" y="28.59"/>
+            <line x="25.86" y="14.3"/>
+            <close/>
+            <move x="13.28" y="11.63"/>
+            <arc large-arc-flag="1" rx="4.22" ry="4.22" sweep-flag="1" x="21.72" x-axis-rotation="0" y="11.63"/>
+            <line x="21.72" y="14.3"/>
+            <line x="13.28" y="14.3"/>
+            <close/>
+            <move x="24.86" y="27.63"/>
+            <line x="10.14" y="27.63"/>
+            <line x="10.14" y="15.3"/>
+            <line x="24.86" y="15.3"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="fixed" h="377.95" name="group region" strokewidth="inherit" w="377.95">
     <connections/>
     <foreground>
