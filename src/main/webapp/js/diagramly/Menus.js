@@ -2749,6 +2749,16 @@
 						dlg.init();
 					}, parent);
 				}
+				
+				if (urlParams['confLib'] == '1')
+				{
+					menu.addSeparator(parent);
+					
+					menu.addItem(mxResources.get('confCloud', null, 'Confluence Cloud') + '...', null, function()
+					{
+						editorUi.showRemotelyStoredLibrary(mxResources.get('confCloudLibs', null, 'Confluence Cloud Libraries'));
+					}, parent);
+				}
 			}));
 		}
 			

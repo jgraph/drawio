@@ -154,6 +154,18 @@ Draw.loadPlugin(function(ui)
 		return prev != cell.style;
 	};
 	
+	function shortString(s, max)
+	{
+		if (s.length > max)
+		{
+			return s.substring(0, max) + '...';
+		}
+		else
+		{
+			return s;
+		}
+	}
+	
 	function updateData(cell, ticket)
 	{
 		var changed = false;
@@ -175,7 +187,7 @@ Draw.loadPlugin(function(ui)
 			}
 		};
 		
-		changed = setAttr('abstract', ticket.description_text.substring(0, 600)) |
+		changed = setAttr('abstract', shortString(ticket.description_text, 600)) |
 			setAttr('email_config_id', ticket.email_config_id) |
 			setAttr('requester_id', ticket.requester_id) |
 			setAttr('group_id', ticket.group_id) |
@@ -324,7 +336,7 @@ Draw.loadPlugin(function(ui)
 				    	try
 				    	{
 				    		cell = graph.insertVertex(graph.getDefaultParent(), null,
-				    			'%subject%\n\n<b>Updated:</b> %updated_at% ' +
+				    			'%title%\n\n<b>Updated:</b> %updated_at% ' +
 				    			'(<a href="' + deskDomain + '/contacts/%requester_id%">From</a>)',
 								graph.snap(dx), graph.snap(dy), 200, 50,
 								'html=1;whiteSpace=wrap;overflow=hidden;shape=mxgraph.atlassian.issue;' +
@@ -332,6 +344,7 @@ Draw.loadPlugin(function(ui)
 								'strokeColor=#A8ADB0;fillColor=#EEEEEE;backgroundOutline=1;');
 				    		
 				    		graph.setLinkForCell(cell, text);
+				    		cell.value.setAttribute('title', shortString(ticket.subject, 40));
 				    		cell.value.setAttribute('subject', ticket.subject);
 							cell.value.setAttribute('placeholders', '1');
 							cell.value.setAttribute('ticket_id', id);
@@ -361,7 +374,18 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.handleError({message: mxResources.get('error') + ' ' + req.getStatus()});
+						var err = req.status
+						
+						try
+						{
+							err = JSON.parse(req.responseText);
+						}
+						catch (e)
+						{
+							// ignore
+						}
+						
+						ui.handleError({message: err.message});
 					}
 				});
 			}

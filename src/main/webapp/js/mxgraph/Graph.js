@@ -4813,6 +4813,26 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				style += 'jumpSize=' + this.currentEdgeStyle['jumpSize'] + ';';
 			}
+
+			// Overrides the global default to match the default edge style
+			if (this.currentEdgeStyle['orthogonalLoop'] != null)
+			{
+				style += 'orthogonalLoop=' + this.currentEdgeStyle['orthogonalLoop'] + ';';
+			}
+			else if (Graph.prototype.defaultEdgeStyle['orthogonalLoop'] != null)
+			{
+				style += 'orthogonalLoop=' + Graph.prototype.defaultEdgeStyle['orthogonalLoop'] + ';';
+			}
+
+			// Overrides the global default to match the default edge style
+			if (this.currentEdgeStyle['jettySize'] != null)
+			{
+				style += 'jettySize=' + this.currentEdgeStyle['jettySize'] + ';';
+			}
+			else if (Graph.prototype.defaultEdgeStyle['jettySize'] != null)
+			{
+				style += 'jettySize=' + Graph.prototype.defaultEdgeStyle['jettySize'] + ';';
+			}
 			
 			// Special logic for custom property of elbowEdgeStyle
 			if (this.currentEdgeStyle['edgeStyle'] == 'elbowEdgeStyle' && this.currentEdgeStyle['elbow'] != null)

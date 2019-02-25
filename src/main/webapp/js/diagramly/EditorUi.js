@@ -3373,7 +3373,7 @@
     		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
 			Dialog.backdropColor = '#2a2a2a';
-	    		Graph.prototype.defaultThemeName = 'darkTheme';
+	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultPageBorderColor = '#505759';
 		    Graph.prototype.svgShadowColor = '#e0e0e0';
@@ -6063,7 +6063,7 @@
 		// Handles special case where background is null but transparent is false
 		if (bg == null && transparentBackground == false)
 		{
-			bg = this.editor.graph.defaultPageBackgroundColor;
+			bg = '#ffffff';
 		}
 		
 		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
@@ -10066,15 +10066,17 @@
 					}), null, null, null, null, null, null, null, 
 					enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
 					{
-						this.recentReadyCallback = recentReadyCallback;
-						
-						parent.postMessage(JSON.stringify({event: 'recentDocs'}), '*');
+						this.remoteInvoke(parent, 'getRecentDiagrams', null, null, recentReadyCallback, function()
+						{
+							recentReadyCallback(null, 'Network Error!');
+						});
 					}) : null, 
 					enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
 					{
-						this.searchReadyCallback = searchReadyCallback;
-						
-						parent.postMessage(JSON.stringify({event: 'searchDocs', searchStr: searchStr}), '*');
+						this.remoteInvoke(parent, 'searchDiagrams', [searchStr], null, searchReadyCallback, function()
+						{
+							searchReadyCallback(null, 'Network Error!');
+						});
 					}) : null, 
 					function(url, info, name) 
 					{
@@ -10093,41 +10095,10 @@
 					
 					return;
 				}
-				else if (data.action == 'searchDocsList')
-				{
-					this.searchReadyCallback(data.list, data.errorMsg);
-				}
-				else if (data.action == 'recentDocsList')
-				{
-					this.recentReadyCallback(data.list, data.errorMsg);
-				}
 				else if (data.action == 'textContent')
 				{
-					this.editor.graph.setEnabled(false);
-					var graph = this.editor.graph;
-						
-					var allPagesTxt = '';
-					
-					if (this.pages != null)
-					{
-						for (var i = 0; i < this.pages.length; i++)
-						{
-							var pageGraph = graph;
-							
-							if (this.currentPage != this.pages[i])
-							{
-								pageGraph = this.createTemporaryGraph(graph.getStylesheet());
-								pageGraph.model.setRoot(this.pages[i].root);								
-							}
-							allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
-						}
-					}
-					else
-					{
-						allPagesTxt = graph.getIndexableText();
-					}
-					
-					this.editor.graph.setEnabled(true);
+					//TODO Remove this message and use remove invokation instead
+					var allPagesTxt = this.getDiagramTextContent();
 					parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
 					return;
 				}
@@ -10409,6 +10380,14 @@
 					{
 						data = data.xml;
 					}
+				}
+				else if (data.action == 'remoteInvoke') 
+				{
+					this.handleRemoteInvoke(data, parent);
+				}
+				else if (data.action == 'remoteInvokeResponse')
+				{
+					this.handleRemoteInvokeResponse(data);
 				}
 				else
 				{
@@ -11752,4 +11731,224 @@
 		return result;
 	};
 
+	EditorUi.prototype.getDiagramTextContent = function()
+	{
+		this.editor.graph.setEnabled(false);
+		var graph = this.editor.graph;
+			
+		var allPagesTxt = '';
+		
+		if (this.pages != null)
+		{
+			for (var i = 0; i < this.pages.length; i++)
+			{
+				var pageGraph = graph;
+				
+				if (this.currentPage != this.pages[i])
+				{
+					pageGraph = this.createTemporaryGraph(graph.getStylesheet());
+					pageGraph.model.setRoot(this.pages[i].root);								
+				}
+				allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
+			}
+		}
+		else
+		{
+			allPagesTxt = graph.getIndexableText();
+		}
+		
+		this.editor.graph.setEnabled(true);
+		return allPagesTxt;
+	};
+	
+	EditorUi.prototype.showRemotelyStoredLibrary = function(title)
+	{
+		var selectedLibs = {};
+		var div = document.createElement('div');
+		div.style.whiteSpace = 'nowrap';
+		var graph = this.editor.graph;
+		
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxUtils.htmlEntities(title));
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+		div.appendChild(hd);
+
+		var libsSection = document.createElement('div');
+		libsSection.style.cssText = 'border:1px solid lightGray;overflow: auto;height:300px';
+
+		libsSection.innerHTML = '<img src="/images/spin.gif">';
+		var parent = window.opener || window.parent;
+		
+		this.remoteInvoke(parent, 'getCustomLibraries', null, null, function(libsList)
+		{
+			libsSection.innerHTML = '';
+			
+			for (var i = 0; i < libsList.length; i++)
+			{
+				var libCheck = this.addCheckbox(libsSection, libsList[i].title); //TODO check already loaded libs via config
+//				checked, disabled, disableNewline, visible, asRadio, radioGroupName
+				(function(lib, check)
+				{
+					mxEvent.addListener(check, 'change', function()
+					{
+						if (this.checked)
+						{
+							selectedLibs[lib.id] = lib;
+						}
+						else
+						{
+							delete selectedLibs[lib.id];
+						}
+					});
+				})(libsList[i], libCheck)
+			}
+		}, function()
+		{
+			this.handleError(null, mxResources.get('errorGettingConfLibs', null, 'An error occured while getting Confluence libraries list'));
+		});
+
+		div.appendChild(libsSection);
+		
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			this.spinner.spin(document.body, mxResources.get('loading'));
+			var pendingLibs = 0;
+			
+			for (var id in selectedLibs)
+			{
+				pendingLibs++;
+				
+				(mxUtils.bind(this, function(lib)
+				{
+					this.remoteInvoke(parent, 'getFileContent', [lib.downloadUrl], null, mxUtils.bind(this, function(libContent)
+					{
+						pendingLibs--;
+						
+						if (pendingLibs == 0) this.spinner.stop();
+						
+						try
+						{
+							this.loadLibrary(new LocalLibrary(this, libContent, lib.title));
+						}
+						catch (e)
+						{
+							this.handleError(e, mxResources.get('errorLoadingFile'));
+						}
+					}), mxUtils.bind(this, function()
+					{
+						pendingLibs--;
+						
+						if (pendingLibs == 0) this.spinner.stop();
+						
+						this.handleError(null, mxResources.get('errorLoadingFile'));
+					}));
+				}))(selectedLibs[id]);
+			}
+			
+			if (pendingLibs == 0) this.spinner.stop();
+		}));
+		this.showDialog(dlg.container, 340, 375, true, true);
+	};
+	
+	//Remote invokation, currently limited to functions in EditorUi (and its sub objects) for security reasons
+	//White-listed functions and some info about it
+	EditorUi.prototype.remoteInvokableFns = {
+		getDiagramTextContent: {isAsync: false}
+	};
+	
+	EditorUi.prototype.remoteInvokeCallbacks = [];
+
+	EditorUi.prototype.handleRemoteInvokeResponse = function(msg)
+	{
+		var msgMarkers = msg.msgMarkers;
+		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
+		
+		if (msg.error)
+		{
+			if (callback.error) callback.error(msg.error.errResp);
+		}
+		else if (callback.callback)
+		{
+			callback.callback.apply(this, msg.resp);
+		}
+		
+		this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
+	};
+
+	EditorUi.prototype.remoteInvoke = function(remoteWin, remoteFn, remoteFnArgs, msgMarkers, callback, error)
+	{
+		msgMarkers = msgMarkers || {};
+		msgMarkers.callbackId = this.remoteInvokeCallbacks.length;
+		this.remoteInvokeCallbacks.push({callback: callback, error: error});
+		remoteWin.postMessage(JSON.stringify({event: 'remoteInvoke', funtionName: remoteFn, functionArgs: remoteFnArgs, msgMarkers: msgMarkers}), '*');
+	};
+
+	EditorUi.prototype.handleRemoteInvoke = function(msg, remoteWin)
+	{
+		function sendResponse(resp, error)
+		{
+			var respMsg = {event: 'remoteInvokeResponse', msgMarkers: msg.msgMarkers};
+			
+			if (error != null)
+			{
+				respMsg.error = {errResp: error};
+			}
+			else if (resp != null) 
+			{
+				respMsg.resp = resp;
+			}
+			
+			remoteWin.postMessage(JSON.stringify(respMsg), '*');
+		}
+		
+		try
+		{
+			//Remote invoke are allowed to call functions in AC
+			var funtionName = msg.funtionName;
+			var functionInfo = this.remoteInvokableFns[funtionName];
+			
+			if (functionInfo != null && typeof this[funtionName] === 'function')
+			{
+				var functionArgs = msg.functionArgs;
+				
+				//Confirm functionArgs are not null and is array, otherwise, discard it
+				if (!Array.isArray(functionArgs))
+				{
+					functionArgs = [];
+				}
+				
+				//for functions with callbacks (async) we assume last two arguments are success, error
+				if (functionInfo.isAsync)
+				{
+					//success
+					functionArgs.push(function() 
+					{
+						sendResponse(Array.prototype.slice.apply(arguments));
+					});
+					
+					//error
+					functionArgs.push(function(err) 
+					{
+						sendResponse(null, err || 'Unkown Error');
+					});
+					
+					this[funtionName].apply(this, functionArgs);
+				}
+				else
+				{
+					var resp = this[funtionName].apply(this, functionArgs);
+					
+					sendResponse([resp]);
+				}
+			}
+			else
+			{
+				sendResponse(null, 'Invalid Call: ' + funtionName + ' is not found.');
+			}
+		}
+		catch(e)
+		{
+			sendResponse(null, 'Invalid Call: An error occured, ' + e.message);
+		}
+	};
 })();

@@ -52,7 +52,7 @@
 		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 		
 		<delete file="${basedir}/Graph-Stylesheet.js"/>
-		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes['default-style2'] = mxUtils.parseXml('</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
     		</concat>

@@ -139,7 +139,8 @@
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
-        {name: 'loopStyle', dispName: 'Loop Style', type: 'bool', defVal: true}
+        {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
+        {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false}
 	];
 
 	/**
@@ -2205,7 +2206,8 @@
 		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
 	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
-	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true}
+	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true},
+	        {name: 'separatorColor', dispName: 'Separator Color', type: 'color', defVal: null},
 	    ];
 		
 		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
@@ -3478,6 +3480,36 @@
 			
 			return layoutManagerGetLayout.apply(this, arguments);
 		}
+	};
+
+	/**
+	 * Temporarily overrides stylesheet during image export in dark mode.
+	 */
+	var graphGetSvg = Graph.prototype.getSvg;
+	
+	Graph.prototype.getSvg = function()
+	{
+		var temp = null;
+		
+		if (this.themes != null && this.defaultThemeName == 'darkTheme')
+		{
+			temp = this.stylesheet;
+			this.stylesheet = new mxStylesheet();
+			var node = this.themes['default-style2'];
+			var dec = new mxCodec(node.ownerDocument);
+			dec.decode(node, this.getStylesheet());
+			this.refresh();
+		}
+		
+		var result = graphGetSvg.apply(this, arguments);
+		
+		if (temp != null)
+		{
+			this.stylesheet = temp;
+			this.refresh();
+		}
+		
+		return result;
 	};
 
 	/**
