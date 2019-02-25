@@ -46,7 +46,6 @@ function createWindow (opt = {})
 			'od': 0,
 			'gh': 0,
 			'tr': 0,
-			'analytics': 0,
 			'picker': 0,
 			'mode': 'device',
 			'browser': 0,

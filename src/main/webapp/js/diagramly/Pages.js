@@ -221,12 +221,13 @@ SelectPage.prototype.execute = function()
 /**
  * 
  */
-function ChangePage(ui, page, select, index)
+function ChangePage(ui, page, select, index, noSelect)
 {
 	SelectPage.call(this, ui, select);
 	this.relatedPage = page;
 	this.index = index;
 	this.previousIndex = null;
+	this.noSelect = noSelect;
 };
 
 mxUtils.extend(ChangePage, SelectPage);
@@ -253,8 +254,11 @@ ChangePage.prototype.execute = function()
 		this.ui.pages.splice(this.index, 0, this.relatedPage);
 		this.index = null;
 	}
-
-	SelectPage.prototype.execute.apply(this, arguments);
+	
+	if (!this.noSelect)
+	{
+		SelectPage.prototype.execute.apply(this, arguments);
+	}
 };
 
 /**

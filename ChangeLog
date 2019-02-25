@@ -1,3 +1,8 @@
+25-FEB-2019: 10.2.8
+
+- Fixes import of multiple pages into empty file
+- Fixes macro shortcut handling in Confluence cloud
+
 25-FEB-2019: 10.2.7
 
 - Adds orthogonal loop, no jump property for edges
