@@ -6473,26 +6473,36 @@
 	
 			if (xml != null && xml.length > 0)
 			{
-				var doc = mxUtils.parseXml(xml);
-				
-				// Checks for mxfile with multiple pages
-				var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
-				
-				if (node != null && node.nodeName == 'mxfile' && this.pages != null)
+				// Adds pages
+				graph.model.beginUpdate();
+				try
 				{
-					var diagrams = node.getElementsByTagName('diagram');
-
-					if (diagrams.length == 1)
+					var doc = mxUtils.parseXml(xml);
+					
+					// Checks for mxfile with multiple pages
+					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
+					
+					if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 					{
-						node = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
-					}
-					else if (diagrams.length > 1)
-					{
-						// Adds pages
-						graph.model.beginUpdate();
-						try
+						var diagrams = node.getElementsByTagName('diagram');
+	
+						if (diagrams.length == 1)
 						{
-							for (var i = 0; i < diagrams.length; i++)
+							node = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
+						}
+						else if (diagrams.length > 1)
+						{
+							var i0 = 0;
+							
+							// Adds first page to current page if current page is only page and empty
+							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
+							{
+								node = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
+								crop = false;
+								i0 = 1;
+							}
+
+							for (var i = i0; i < diagrams.length; i++)
 							{
 								// Imported pages must obtain a new ID
 								diagrams[i].removeAttribute('id');
@@ -6506,19 +6516,19 @@
 									page.setName(mxResources.get('pageWithNumber', [index + 1]));
 								}
 								
-								graph.model.execute(new ChangePage(this, page, page, index));
+								graph.model.execute(new ChangePage(this, page, page, index, true));
 							}
 						}
-						finally
-						{
-							graph.model.endUpdate();
-						}
+					}
+					
+					if (node != null && node.nodeName === 'mxGraphModel')
+					{
+						cells = graph.importGraphModel(node, dx, dy, crop);
 					}
 				}
-				
-				if (node != null && node.nodeName === 'mxGraphModel')
+				finally
 				{
-					cells = graph.importGraphModel(node, dx, dy, crop);
+					graph.model.endUpdate();
 				}
 			}
 		}
