@@ -1,3 +1,15 @@
+25-FEB-2019: 10.2.7
+
+- Adds orthogonal loop, no jump property for edges
+- Fixes default stylesheet for export in dark mode
+- Fixes events for transparent swimlane titles
+- Uses mxGraph 3.9.13 beta 16
+
+22-FEB-2019: 10.2.6
+
+- Adds page ID export for Confluence Cloud
+- Fixes colored AWS19 icons library ID
+
 20-FEB-2019: 10.2.5
 
 - Adds fallback for unavailable sharing in Google Drive

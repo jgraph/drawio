@@ -489,12 +489,11 @@ EditorUi = function(editor, container, lightbox)
 	
 	// Keys that always update the current edge style regardless of selection
 	var alwaysEdgeStyles = ['edgeStyle', 'startArrow', 'startFill', 'startSize', 'endArrow',
-		'endFill', 'endSize', 'jettySize', 'orthogonalLoop'];
+		'endFill', 'endSize'];
 	
 	// Keys that are ignored together (if one appears all are ignored)
 	var keyGroups = [['startArrow', 'startFill', 'startSize', 'sourcePerimeterSpacing',
-					'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing',
-					'jettySize', 'orthogonalLoop'],
+					'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing'],
 	                 ['strokeColor', 'strokeWidth'],
 	                 ['fillColor', 'gradientColor'],
 	                 valueStyles,
@@ -607,6 +606,7 @@ EditorUi = function(editor, container, lightbox)
 							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
 							{
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
+								console.log('here', key, styleValue);
 							}
 						}
 					}

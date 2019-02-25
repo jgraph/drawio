@@ -596,17 +596,19 @@ App.main = function(callback, createUi)
 		// Prefetches asynchronous requests so that below code runs synchronous
 		// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
 		// is compiled into JS in the build process and is only needed for local development.
-		mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle, (uiTheme == 'dark') ? STYLE_PATH + '/dark-default.xml' : STYLE_PATH + '/default.xml'], function(xhr)
+		mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
+			STYLE_PATH + '/default.xml', STYLE_PATH + '/dark-default.xml'], function(xhr)
 		{
 			// Adds bundle text to resources
 			mxResources.parse(xhr[0].getText());
 			
 			// Prepares themes with mapping from old default-style to old XML file
-			if (xhr.length > 1)
+			if (xhr.length > 2)
 			{
-	 			Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement();
+				Graph.prototype.defaultThemes['default-style2'] = xhr[1].getDocumentElement();
+	 			Graph.prototype.defaultThemes['darkTheme'] = xhr[2].getDocumentElement();
 			}
-	
+			
 			// Main
 			var ui = (createUi != null) ? createUi() : new App(new Editor(
 					urlParams['chrome'] == '0' || uiTheme == 'min',
