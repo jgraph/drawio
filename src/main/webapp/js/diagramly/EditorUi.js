@@ -7795,7 +7795,7 @@
 	
 		for (var n = 0; n < len; n++)
 		{
-			c = EditorUi.prototype.crcTable[(c ^ data[off + n]) & 0xff] ^ (c >>> 8);
+			c = EditorUi.prototype.crcTable[(c ^ data.charCodeAt(off + n)) & 0xff] ^ (c >>> 8);
 		}
 	
 		return c;
@@ -7886,7 +7886,6 @@
 					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
 					value;
 				
-				// FIXME: Wrong crc
 				var crc = 0xffffffff;
 				crc = this.updateCRC(crc, type, 0, 4);
 				crc = this.updateCRC(crc, chunkData, 0, chunkData.length);

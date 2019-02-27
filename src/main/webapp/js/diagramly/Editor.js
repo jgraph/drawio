@@ -1648,7 +1648,6 @@
 					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
 					value;
 				
-				// FIXME: Wrong crc
 				var crc = 0xffffffff;
 				crc = EditorUi.prototype.updateCRC(crc, type, 0, 4); //TODO move code to Editor?
 				crc = EditorUi.prototype.updateCRC(crc, chunkData, 0, chunkData.length);
