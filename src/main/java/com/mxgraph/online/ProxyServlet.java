@@ -75,8 +75,7 @@ public class ProxyServlet extends HttpServlet
 				URL url = new URL(urlParam);
 				URLConnection connection = url.openConnection();
 				OutputStream out = response.getOutputStream();
-				response.setHeader("Cache-Control",
-						"private, max-age=86400");
+				response.setHeader("Cache-Control", "private, max-age=86400");
 
 				// Workaround for 451 response from Iconfinder CDN
 				connection.setRequestProperty("User-Agent", "draw.io");
@@ -100,15 +99,13 @@ public class ProxyServlet extends HttpServlet
 							&& (status == HttpURLConnection.HTTP_MOVED_PERM
 									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
-						url = new URL(
-								connection.getHeaderField("Location"));
+						url = new URL(connection.getHeaderField("Location"));
 						connection = url.openConnection();
 						((HttpURLConnection) connection)
 								.setInstanceFollowRedirects(true);
 
 						// Workaround for 451 response from Iconfinder CDN
-						connection.setRequestProperty("User-Agent",
-								"draw.io");
+						connection.setRequestProperty("User-Agent", "draw.io");
 						status = ((HttpURLConnection) connection)
 								.getResponseCode();
 					}
@@ -117,8 +114,7 @@ public class ProxyServlet extends HttpServlet
 
 					// Copies input stream to output stream
 					InputStream is = connection.getInputStream();
-					byte[] head = (contentAlwaysAllowed(urlParam))
-							? emptyBytes
+					byte[] head = (contentAlwaysAllowed(urlParam)) ? emptyBytes
 							: Utils.checkStreamContent(is);
 					response.setContentType("application/octet-stream");
 					String base64 = request.getParameter("base64");
@@ -225,7 +221,8 @@ public class ProxyServlet extends HttpServlet
 	public boolean contentAlwaysAllowed(String url)
 	{
 		return url.toLowerCase()
-				.startsWith("https://trello-attachments.s3.amazonaws.com/");
+				.startsWith("https://trello-attachments.s3.amazonaws.com/")
+				|| url.toLowerCase().startsWith("https://docs.google.com/");
 	}
 
 	/**

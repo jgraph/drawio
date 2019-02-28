@@ -182,7 +182,8 @@ mxShapeAws4Group.prototype.cst = {
 mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
-
+	var grStroke = mxUtils.getValue(this.state.style, 'grStroke', '1');
+	
 	var size = 25;
 
 	c.begin();
@@ -191,7 +192,15 @@ mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w, h);
 	c.lineTo(0, h);
 	c.close();
-	c.fillAndStroke();
+
+	if (grStroke == '1')
+	{
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.fill();
+	}
 
 	c.setShadow(false);
 

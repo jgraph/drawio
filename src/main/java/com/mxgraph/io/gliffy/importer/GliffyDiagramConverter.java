@@ -824,7 +824,7 @@ public class GliffyDiagramConverter
 			}
 		}
 		// swimlanes have children without uid so their children are converted here ad hoc
-		else if (gliffyObject.isSwimlane())
+		else if (gliffyObject.isSwimlane() && gliffyObject.children != null && gliffyObject.children.size() > 0)
 		{
 			cell.setVertex(true);
 			style.append(StencilTranslator.translate(gliffyObject.uid, null)).append(";");

@@ -38,6 +38,14 @@
 			data.w = parseFloat(data.w) || 0;
 			data.h = parseFloat(data.h) || 0;
 			data.scale = parseFloat(data.scale) || 1;
+			
+			var extras = null;
+			
+			try
+			{
+				extras = JSON.parse(data.extras);
+			} 
+			catch(e){}
 
 			// Parses XML
 			var xmlDoc = mxUtils.parseXml(data.xml);
@@ -208,7 +216,8 @@
 				
 				// Parses XML into graph
 				var codec = new mxCodec(xmlDoc);
-				codec.decode(xmlDoc.documentElement, graph.getModel());
+				var model = graph.getModel();
+				codec.decode(xmlDoc.documentElement, model);
 	
 				// Loads background color
 				var bg = (data.bg != null && data.bg.length > 0) ? data.bg : xmlDoc.documentElement.getAttribute('background');
@@ -230,7 +239,29 @@
 				{
 					document.body.style.backgroundColor = bg;
 				}
-	
+
+				//handle layers
+				if (extras != null && extras.layers != null)
+				{
+					var childCount = model.getChildCount(model.root);
+					
+					// Hides all layers
+					for (var i = 0; i < childCount; i++)
+					{
+						model.setVisible(model.getChildAt(model.root, i), false);
+					}
+					
+					for (var i = 0; i < extras.layers.length; i++)
+					{
+						var layer = model.getChildAt(model.root, extras.layers[i]);
+						
+						if (layer != null)
+						{
+							model.setVisible(layer, true);
+						}
+					}
+				}
+				
 				// Sets initial value for PDF page background
 				graph.pdfPageVisible = false;
 				

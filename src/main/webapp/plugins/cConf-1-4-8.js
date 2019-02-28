@@ -19,6 +19,11 @@ Draw.loadPlugin(function(ui)
 				if (data.macroData != null) 
 				{
 					macroData = data.macroData;
+
+					if (ui.format != null)
+					{
+						ui.format.refresh();
+					}
 				}
 				
 				macroData.diagramDisplayName = data.title;
@@ -29,99 +34,6 @@ Draw.loadPlugin(function(ui)
 			data = null;
 		}
 	}));
-	
-	// Creates actions
-	var action = ui.actions.put('viewerToolbarTop', new Action(mxResources.get('top'), function()
-	{
-		macroData.tbstyle = 'top';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.tbstyle != 'inline' && macroData.tbstyle != 'hidden' });
-	
-	action = ui.actions.put('viewerToolbarMiddle', new Action(mxResources.get('embed'), function()
-	{
-		macroData.tbstyle = 'inline';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.tbstyle == 'inline'; });
-	
-	action = ui.actions.put('viewerToolbarHidden', new Action(mxResources.get('hidden'), function()
-	{
-		macroData.tbstyle = 'hidden';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.tbstyle == 'hidden'; });
-	
-	action = ui.actions.put('viewerLightbox', new Action(mxResources.get('lightbox'), function()
-	{
-		macroData.lbox = (macroData.lbox != '0') ? '0' : '1';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.lbox != '0'; });
-
-	action = ui.actions.put('linksAuto', new Action(mxResources.get('automatic'), function()
-	{
-		macroData.links = 'auto';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.links != 'blank' && macroData.links != 'self'; });
-	
-	action = ui.actions.put('linksBlank', new Action(mxResources.get('openInNewWindow'), function()
-	{
-		macroData.links = 'blank';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.links == 'blank'; });
-	
-	action = ui.actions.put('linksSelf', new Action(mxResources.get('openInThisWindow'), function()
-	{
-		macroData.links = 'self';
-	}));
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return macroData.links == 'self'; });
-
-	action = ui.actions.put('viewerZoom', new Action(mxResources.get('zoom') + '...', function()
-	{
-		var dlg = new FilenameDialog(ui, (parseFloat(macroData.zoom || 1) * 100) + '%',
-			mxResources.get('apply'), function(newValue)
-		{
-			if (newValue != null)
-			{
-				var val = parseInt(newValue);
-				
-				if (!isNaN(val))
-				{
-					macroData.zoom = val / 100;			
-				}
-			}
-		}, mxResources.get('zoom'));
-		ui.showDialog(dlg.container, 300, 80, true, true);
-		dlg.init();
-	}));
-	
-	// Creates viewer toolbar menu
-	mxResources.parse('viewerMenu=Viewer');
-	mxResources.parse('viewerToolbar=Toolbar');
-	mxResources.parse('viewerLightbox=Lightbox');
-	mxResources.parse('viewerLinks=Links');
-	
-	ui.menus.put('viewerMenu', new Menu(mxUtils.bind(this, function(menu, parent)
-	{
-		ui.menus.addMenuItems(menu, ['viewerLightbox', 'viewerZoom', '-'], parent);
-		ui.menus.addSubmenu('viewerToolbar', menu, parent);
-		ui.menus.addSubmenu('viewerLinks', menu, parent);
-	})));
-
-	ui.menus.put('viewerToolbar', new Menu(mxUtils.bind(this, function(menu, parent)
-	{
-		ui.menus.addMenuItems(menu, ['viewerToolbarTop', 'viewerToolbarMiddle',
-			'viewerToolbarHidden'], parent);
-	})));
-
-	ui.menus.put('viewerLinks', new Menu(mxUtils.bind(this, function(menu, parent)
-	{
-		ui.menus.addMenuItems(menu, ['linksAuto', 'linksBlank', 'linksSelf'], parent);
-	})));
 
 	var renameAction = ui.actions.get("rename"); 
 
@@ -176,19 +88,7 @@ Draw.loadPlugin(function(ui)
 		ui.showDialog(dlg.container, 300, 80, true, true);
 		dlg.init();
 	}
-	
-	// Adds Viewer menu at bottom of Extras menu
-	var menu = ui.menus.get('extras');
-	var oldFunct = menu.funct;
-	
-	menu.funct = function(menu, parent)
-	{
-		oldFunct.apply(this, arguments);
-		
-		menu.addSeparator(parent);
-		ui.menus.addSubmenu('viewerMenu', menu, parent);
-	};
-	
+
 	// Returns modified macro data to client
 	var uiCreateLoadMessage = ui.createLoadMessage;
 	
@@ -203,36 +103,143 @@ Draw.loadPlugin(function(ui)
 
 		return msg;
 	};
+
+	// Adds new section for confluence cloud
+	var diagramFormatPanelInit = DiagramFormatPanel.prototype.init;
 	
-	var lic = urlParams['lic'];
-	
-	if (lic != null && lic == 'active')
+	DiagramFormatPanel.prototype.init = function()
 	{
-		ui.hideFooter();
-	}
-	else
+		this.container.appendChild(this.addViewerOptions(this.createPanel()));
+		
+		diagramFormatPanelInit.apply(this, arguments);
+	};
+
+	// Adds viewer config to style options and refreshes
+	DiagramFormatPanel.prototype.addViewerOptions = function(div)
 	{
-		// Display footer and alter it
-		var td = document.getElementById('geFooterItem2');
-		
-		if (td != null)
-		{
-			td.innerHTML = '<a title="faq" href="/wiki/plugins/servlet/upm" target="_blank">' +
-			'<img border="0" align="absmiddle" style="margin-top:-4px;"/>Please license draw.io to enable all functionality</a>';
-		}
-		
-		td = document.getElementById('geFooterItem1');	
+		var ui = this.editorUi;
+		var editor = ui.editor;
+		var graph = editor.graph;
 	
-		if (td != null)
+		div.appendChild(this.createTitle(mxResources.get('viewerSettings')));	
+		
+		// Viewer simple
+		div.appendChild(this.createOption(mxResources.get('simpleViewer'), function()
 		{
-			td.parentNode.removeChild(td);
+			return macroData.simple == '1';
+		}, function(checked)
+		{
+			macroData.simple = (checked) ? '1' : '0';
+		}));
+
+		// Viewer lightbox
+		div.appendChild(this.createOption(mxResources.get('lightbox'), function()
+		{
+			return macroData.lbox != '0';
+		}, function(checked)
+		{
+			macroData.lbox = (checked) ? '1' : '0';
+		}));
+
+		// Toolbar
+		var stylePanel = this.createPanel();
+		stylePanel.style.position = 'relative';
+		stylePanel.style.borderWidth = '0px';
+		stylePanel.style.marginLeft = '0px';
+		stylePanel.style.paddingTop = '8px';
+		stylePanel.style.paddingBottom = '4px';
+		stylePanel.style.fontWeight = 'normal';
+		stylePanel.className = 'geToolbarContainer';
+
+		mxUtils.write(stylePanel, mxResources.get('toolbar'));
+		
+		// Adds toolbar options
+		var tbSelect = document.createElement('select');
+		tbSelect.style.position = 'absolute';
+		tbSelect.style.right = '20px';
+		tbSelect.style.width = '97px';
+		tbSelect.style.marginTop = '-2px';
+
+		var opts = [{value: 'top', title: mxResources.get('top')},
+			{value: 'inline', title: mxResources.get('embed')},
+			{value: 'hidden', title: mxResources.get('hidden')}]
+
+		for (var i = 0; i < opts.length; i++)
+		{
+			var tbOption = document.createElement('option');
+			tbOption.setAttribute('value', opts[i].value);
+			mxUtils.write(tbOption, opts[i].title);
+			tbSelect.appendChild(tbOption);
+		}
+
+		tbSelect.value = macroData.tbstyle || 'top';
+		stylePanel.appendChild(tbSelect);
+		div.appendChild(stylePanel);
+		
+		mxEvent.addListener(tbSelect, 'change', function(evt)
+		{
+			macroData.tbstyle = tbSelect.value;
+			mxEvent.consume(evt);
+		});
+
+		// Links
+		stylePanel = stylePanel.cloneNode(false);
+		stylePanel.style.paddingTop = '4px';
+		mxUtils.write(stylePanel, mxResources.get('links'));
+		
+		// Adds links options
+		var linksSelect = document.createElement('select');
+		linksSelect.style.position = 'absolute';
+		linksSelect.style.right = '20px';
+		linksSelect.style.width = '97px';
+		linksSelect.style.marginTop = '-2px';
+
+		var opts = [{value: 'auto', title: mxResources.get('automatic')},
+			{value: 'blank', title: mxResources.get('openInNewWindow')},
+			{value: 'self', title: mxResources.get('openInThisWindow')}]
+
+		for (var i = 0; i < opts.length; i++)
+		{
+			var linkOption = document.createElement('option');
+			linkOption.setAttribute('value', opts[i].value);
+			mxUtils.write(linkOption, opts[i].title);
+			linksSelect.appendChild(linkOption);
 		}
 		
-		td = document.getElementById('geFooterItem3');
-	
-		if (td != null)
+		linksSelect.value = macroData.links || 'auto';
+		stylePanel.appendChild(linksSelect);
+		div.appendChild(stylePanel);
+		
+		mxEvent.addListener(linksSelect, 'change', function(evt)
 		{
-			td.parentNode.removeChild(td);
-		}
+			macroData.links = linksSelect.value;
+			mxEvent.consume(evt);
+		});
+
+		// Zoom
+		var zoomOpt = this.createRelativeOption(mxResources.get('zoom'), null, null, function(input)
+		{
+			var value = (input.value == '') ? 100 : parseInt(input.value);
+			value = Math.max(0, (isNaN(value)) ? 100 : value);
+			input.value = value + ' %';
+			macroData.zoom = value / 100;
+		}, function(input)
+		{
+			input.value = (parseFloat(macroData.zoom || 1) * 100) + '%';
+		});
+		
+		zoomOpt.style.fontWeight = 'normal';
+		zoomOpt.style.paddingBottom = '6px';
+		zoomOpt.style.paddingTop = '6px';
+		zoomOpt.style.border = 'none';
+		
+		div.appendChild(zoomOpt);
+		
+		return div;
+	};
+	
+	if (ui.format != null)
+	{
+		ui.format.refresh();
 	}
 });
