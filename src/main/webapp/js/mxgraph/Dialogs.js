@@ -2157,13 +2157,52 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	ldiv.appendChild(removeLink);
 
 	var insertLink = link.cloneNode();
+	insertLink.setAttribute('title', mxUtils.trim(mxResources.get('moveSelectionTo', [''])));
 	insertLink.innerHTML = '<div class="geSprite geSprite-insert" style="display:inline-block;"></div>';
 	
 	mxEvent.addListener(insertLink, 'click', function(evt)
 	{
 		if (graph.isEnabled() && !graph.isSelectionEmpty())
 		{
-			graph.moveCells(graph.getSelectionCells(), 0, 0, false, selectionLayer);
+			editorUi.editor.graph.popupMenuHandler.hideMenu();
+			
+			var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
+			{
+				for (var i = layerCount - 1; i >= 0; i--)
+				{
+					(mxUtils.bind(this, function(child)
+					{
+						var item = menu.addItem(graph.convertValueToString(child) ||
+								mxResources.get('background'), null, mxUtils.bind(this, function()
+						{
+							graph.moveCells(graph.getSelectionCells(), 0, 0, false, child);
+						}), parent);
+						
+						if (graph.getSelectionCount() == 1 && graph.model.isAncestor(child, graph.getSelectionCell()))
+						{
+							menu.addCheckmark(item, Editor.checkmarkImage);
+						}
+						
+					}))(graph.model.getChildAt(graph.model.root, i));
+				}
+			}));
+			menu.div.className += ' geMenubarMenu';
+			menu.smartSeparators = true;
+			menu.showDisabled = true;
+			menu.autoExpand = true;
+			
+			// Disables autoexpand and destroys menu when hidden
+			menu.hideMenu = mxUtils.bind(this, function()
+			{
+				mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+				menu.destroy();
+			});
+	
+			var offset = mxUtils.getOffset(insertLink);
+			menu.popup(offset.x, offset.y + insertLink.offsetHeight, null, evt);
+			
+			// Allows hiding by clicking on document
+			editorUi.setCurrentMenu(menu);
 		}
 	});
 
@@ -2536,10 +2575,9 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		
 		var label = graph.convertValueToString(selectionLayer) || mxResources.get('background');
 		removeLink.setAttribute('title', mxResources.get('removeIt', [label]));
-		insertLink.setAttribute('title', mxResources.get('moveSelectionTo', [label]));
 		duplicateLink.setAttribute('title', mxResources.get('duplicateIt', [label]));
 		dataLink.setAttribute('title', mxResources.get('editData'));
-		
+
 		if (graph.isSelectionEmpty())
 		{
 			insertLink.className = 'geButton mxDisabled';

@@ -16,6 +16,18 @@ App = function(editor, container, lightbox)
 		(urlParams['lightbox'] == '1' || (uiTheme == 'min' &&
 		urlParams['chrome'] != '0')));
 	
+	// Logs unloading of window with modifications for Google Drive file
+	window.onunload = mxUtils.bind(this, function()
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
+		{
+			EditorUi.logEvent({category: 'Unload-Modified', action: file.getId(), label:
+				(this.drive.user != null) ? this.drive.user.id : 'unknown-user'});	
+		}
+	});
+	
 	// Pre-fetches images
 	if (mxClient.IS_SVG)
 	{

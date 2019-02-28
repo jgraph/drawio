@@ -525,7 +525,6 @@
 		{
 			if (editorUi.isExportToCanvas())
 			{
-				// TODO: Enable include option if CRC is fixed
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
@@ -538,7 +537,7 @@
 						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
 						   		addShadow, editable, border, !cropImage, currentPage);
 						}
-					}), true, false, 'png');
+					}), true, true, 'png');
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{

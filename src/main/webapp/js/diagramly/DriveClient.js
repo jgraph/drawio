@@ -928,6 +928,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 	if (file.isEditable())
 	{
 		var t0 = new Date().getTime();
+		var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
 		noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
 
 		// NOTE: Unloading arg is currently ignored, saving during unload/beforeUnload is not possible using
@@ -1041,6 +1042,34 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 						'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
 						label: (this.user != null) ? this.user.id : 'unknown-user'});
 				}
+		    	
+		    	// Checks if modified date is newer to verify if save has worked
+		    	try
+		    	{
+			    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
+						'fields': 'modifiedDate', 'supportsTeamDrives': true}), 
+						mxUtils.bind(this, function(resp2)
+					{
+						var delta = new Date(resp2.modifiedDate).getTime() - t0; 
+							
+						if (delta <= 0)
+						{
+							EditorUi.sendReport('Warning: Wrong Modified Time:' +
+									'\n\nBrowser=' + navigator.userAgent +
+									'\nDelta=' + delta +
+									'\nFile=' + file.desc.id +
+									'\nRevision=' + file.desc.headRevisionId +
+									'\nUser=' + ((this.user != null) ? this.user.id : 'unknown'));
+							EditorUi.logError('Warning: Wrong Modified Time:',
+								null, file.desc.id + '.' + file.desc.headRevisionId,
+								(this.user != null) ? this.user.id : 'unknown');
+						}
+					}));
+		    	}
+		    	catch (e)
+		    	{
+		    		// ignore
+		    	}
 			});
 
 			var doExecuteRequest = mxUtils.bind(this, function(data, binary)
@@ -1049,7 +1078,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 				{
 					meta.properties = properties;
 				}
-				
+
 				// Used to check if file was changed externally
 				var etag = (!overwrite && file.constructor == DriveFile &&
 					(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
@@ -1125,10 +1154,50 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 					}));
 				});
 				
-				executeSave(false);
+				// Uses saved PNG data for thumbnail
+				if (saveAsPng && thumb == null)
+				{
+					var img = new Image();
+					
+					img.onload = mxUtils.bind(this, function()
+					{
+				    	try
+				    	{
+							var s = this.thumbnailWidth / img.width;
+							
+							var canvas = document.createElement('canvas');
+						    canvas.width = this.thumbnailWidth;
+						    canvas.height = Math.floor(img.height * s);
+			
+						    var ctx = canvas.getContext('2d');
+						    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+						    
+						    var temp = canvas.toDataURL();
+						    temp = temp.substring(temp.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+						    
+						    meta.thumbnail =
+							{
+								'image': temp,
+								'mimeType': 'image/png'
+							};
+						    
+						    executeSave(false);
+				    	}
+				    	catch (e)
+				    	{
+				    		executeSave(false)
+				    	}
+					});
+					
+					img.src = 'data:image/png;base64,' + data;
+				}
+				else
+				{
+					executeSave(false);
+				}
 			});
 
-			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle()))
+			if (saveAsPng)
 			{
 				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 				{
@@ -1146,7 +1215,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		var fn = mxUtils.bind(this, function()
 		{
 			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
-			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
+			if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
 				(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 				!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 				{

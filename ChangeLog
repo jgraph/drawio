@@ -1,3 +1,11 @@
+28-FEB-2019: 10.2.9
+
+- Moves Confluence Cloud viewer settings to format panel
+- Allows all content from docs.google.com via proxy
+- Adds menu for moving selection to other layers
+- Adds simple viewer option for Confluence Cloud
+- Fixes bad CRC in PNG exports
+
 25-FEB-2019: 10.2.8
 
 - Fixes import of multiple pages into empty file
