@@ -413,7 +413,7 @@ DrawioFile.prototype.compressReportData = function(data, limit, max)
 	}
 	else if (data != null && data.length > limit)
 	{
-		data = this.ui.editor.graph.compress(data) + '\n';
+		data = Graph.compress(data) + '\n';
 	}
 
 	return data;
@@ -1066,7 +1066,7 @@ DrawioFile.prototype.isConflict = function()
 DrawioFile.prototype.getChannelId = function()
 {
 	// Slash, space and plus replaced with underscore
-	return this.ui.editor.graph.compress(this.getHash()).replace(/[\/ +]/g, '_');
+	return Graph.compress(this.getHash()).replace(/[\/ +]/g, '_');
 };
 
 /**
@@ -1242,6 +1242,17 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 	//			}
 	//		}
 			var msg = this.getErrorMessage(err);
+
+			if (msg == null && this.lastSaved != null)
+			{
+				var str = this.ui.timeSince(new Date(this.lastSaved));
+				
+				// Only show if more than a minute ago
+				if (str != null)
+				{
+					msg = mxResources.get('lastSaved', [str]);
+				}
+			}
 			
 			if (msg != null && msg.length > 60)
 			{
@@ -1653,6 +1664,8 @@ DrawioFile.prototype.fileChanged = function()
  */
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
+	this.lastSaved = new Date();
+	
 	try
 	{
 		this.stats.saved++;

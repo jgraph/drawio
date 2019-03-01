@@ -209,7 +209,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.selectPage = function(number)
 				{
 					this.currentPage = mxUtils.mod(number, this.diagrams.length);
-					this.updateGraphXml(mxUtils.parseXml(this.graph.decompress(mxUtils.getTextContent(
+					this.updateGraphXml(mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(
 						this.diagrams[this.currentPage]))).documentElement);
 				};
 				

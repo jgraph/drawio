@@ -928,6 +928,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 	if (file.isEditable())
 	{
 		var t0 = new Date().getTime();
+		var mod0 = file.desc.modifiedDate;
+		var head0 = file.desc.headRevisionId;
+		var size0 = file.desc.fileSize;
 		var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
 		noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
 
@@ -1013,63 +1016,58 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			// Updates saveDelay on drive file
 			var wrapper = mxUtils.bind(this, function(resp)
 			{
-		    	file.saveDelay = new Date().getTime() - t0;
-		    	success(resp, savedData);
-
-		    	if (prevDesc != null)
+		    	// Workaround for cases where we get a success back but the file
+		    	// was possibly not saved is to check the new modified date and
+		    	// compare it to the last known modified date. If it hasn't
+		    	// changed or is before the last date something went wrong.
+		    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
+					'fields': 'modifiedDate,headRevisionId,fileSize', 'supportsTeamDrives': true}), 
+					mxUtils.bind(this, function(resp2)
 				{
-		    		// Pins previous revision
-					this.executeRequest(gapi.client.drive.revisions.get(
+			    	file.saveDelay = new Date().getTime() - t0;
+					var delta = new Date(resp2.modifiedDate).getTime() - new Date(mod0).getTime();
+			    	
+					if (delta <= 0)
 					{
-						'fileId': prevDesc.id,
-					    'revisionId': prevDesc.headRevisionId,
-					    'supportsTeamDrives': true
-					}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
-					{
-						resp.pinned = true;
+						error({message: mxResources.get('saveNotConfirmed')});
 						
-						this.executeRequest(gapi.client.drive.revisions.update(
-			    		{
-		    		      'fileId': prevDesc.id,
-		    		      'revisionId': prevDesc.headRevisionId,
-		    		      'resource': resp
-		    		    }));
-					})));
-					
-					// Logs conversion
-					EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
-						action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
-						'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
-						label: (this.user != null) ? this.user.id : 'unknown-user'});
-				}
-		    	
-		    	// Checks if modified date is newer to verify if save has worked
-		    	try
-		    	{
-			    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
-						'fields': 'modifiedDate', 'supportsTeamDrives': true}), 
-						mxUtils.bind(this, function(resp2)
+						EditorUi.logEvent({category: 'UNCONFIRMED-SAVE-GOOGLE',
+							action: 'file-' + file.desc.id + '-old-' + head0 + '.' + size0 +
+							'-new-' + resp2.headRevisionId + '.' + resp2.fileSize + '-delta-' + delta,
+							label: (this.user != null) ? this.user.id : 'unknown-user'});
+					}
+					else
 					{
-						var delta = new Date(resp2.modifiedDate).getTime() - t0; 
-							
-						if (delta <= 0)
+				    	success(resp, savedData);
+
+				    	if (prevDesc != null)
 						{
-							EditorUi.sendReport('Warning: Wrong Modified Time:' +
-									'\n\nBrowser=' + navigator.userAgent +
-									'\nDelta=' + delta +
-									'\nFile=' + file.desc.id +
-									'\nRevision=' + file.desc.headRevisionId +
-									'\nUser=' + ((this.user != null) ? this.user.id : 'unknown'));
-							EditorUi.logError('Warning: Wrong Modified Time:',
-								null, file.desc.id + '.' + file.desc.headRevisionId,
-								(this.user != null) ? this.user.id : 'unknown');
+				    		// Pins previous revision
+							this.executeRequest(gapi.client.drive.revisions.get(
+							{
+								'fileId': prevDesc.id,
+							    'revisionId': prevDesc.headRevisionId,
+							    'supportsTeamDrives': true
+							}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
+							{
+								resp.pinned = true;
+								
+								this.executeRequest(gapi.client.drive.revisions.update(
+					    		{
+				    		      'fileId': prevDesc.id,
+				    		      'revisionId': prevDesc.headRevisionId,
+				    		      'resource': resp
+				    		    }));
+							})));
+							
+							// Logs conversion
+							EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
+								action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
+								'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
+								label: (this.user != null) ? this.user.id : 'unknown-user'});
 						}
-					}));
-		    	}
-		    	catch (e)
-		    	{
-		    		// ignore
-		    	}
+					}
+				}));
 			});
 
 			var doExecuteRequest = mxUtils.bind(this, function(data, binary)
@@ -2015,7 +2013,7 @@ DriveClient.prototype.decodeJsonPage = function(json, node, uncompressed)
 			}
 			else
 			{
-				mxUtils.setTextContent(node, this.ui.editor.graph.compressNode(modelNode));
+				mxUtils.setTextContent(node, Graph.compressNode(modelNode));
 			}
 	
 			// Adds attributes to diagram node

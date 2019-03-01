@@ -923,7 +923,7 @@ Graph.lineJumpsEnabled = true;
 Graph.defaultJumpSize = 6;
 
 /**
- * Helper function (requires atob).
+ * Helper function for creating SVG data URI.
  */
 Graph.createSvgImage = function(w, h, data)
 {
@@ -933,6 +933,103 @@ Graph.createSvgImage = function(w, h, data)
         'version="1.1">' + data + '</svg>'));
 
     return new mxImage('data:image/svg+xml;base64,' + ((window.btoa) ? btoa(tmp) : Base64.encode(tmp, true)), w, h)
+};
+
+/**
+ * Removes all illegal control characters with ASCII code <32 except TAB, LF
+ * and CR.
+ */
+Graph.zapGremlins = function(text)
+{
+	var checked = [];
+	
+	for (var i = 0; i < text.length; i++)
+	{
+		var code = text.charCodeAt(i);
+		
+		// Removes all control chars except TAB, LF and CR
+		if (code >= 32 || code == 9 || code == 10 || code == 13)
+		{
+			checked.push(text.charAt(i));
+		}
+	}
+	
+	return checked.join('');
+};
+
+/**
+ * Turns the given string into an array.
+ */
+Graph.stringToBytes = function(str)
+{
+	var arr = new Array(str.length);
+
+    for (var i = 0; i < str.length; i++)
+    {
+        arr[i] = str.charCodeAt(i);
+    }
+    
+    return arr;
+};
+
+/**
+ * Turns the given array into a string.
+ */
+Graph.bytesToString = function(arr)
+{
+	var result = new Array(arr.length);
+
+    for (var i = 0; i < arr.length; i++)
+    {
+    	result[i] = String.fromCharCode(arr[i]);
+    }
+    
+    return result.join('');
+};
+
+/**
+ * Returns a base64 encoded version of the compressed outer XML of the given node.
+ */
+Graph.compressNode = function(node)
+{
+	return Graph.compress(Graph.zapGremlins(mxUtils.getXml(node)));
+};
+
+/**
+ * Returns a base64 encoded version of the compressed string.
+ */
+Graph.compress = function(data, deflate)
+{
+	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+	{
+		return data;
+	}
+	else
+	{
+   		var tmp = Graph.bytesToString((deflate) ? pako.deflate(encodeURIComponent(data)) :
+   			pako.deflateRaw(encodeURIComponent(data)));
+   		
+   		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
+	}
+};
+
+/**
+ * Returns a decompressed version of the base64 encoded string.
+ */
+Graph.decompress = function(data, inflate)
+{
+   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+	{
+		return data;
+	}
+	else
+	{
+		var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
+		
+		return Graph.zapGremlins(decodeURIComponent(
+			Graph.bytesToString((inflate) ? pako.inflate(tmp) :
+				pako.inflateRaw(tmp))));
+	}
 };
 
 /**
@@ -2961,14 +3058,7 @@ Graph.prototype.getTooltipForCell = function(cell)
  */
 Graph.prototype.stringToBytes = function(str)
 {
-	var arr = new Array(str.length);
-
-    for (var i = 0; i < str.length; i++)
-    {
-        arr[i] = str.charCodeAt(i);
-    }
-    
-    return arr;
+	return Graph.stringToBytes(str);
 };
 
 /**
@@ -2976,14 +3066,7 @@ Graph.prototype.stringToBytes = function(str)
  */
 Graph.prototype.bytesToString = function(arr)
 {
-	var result = new Array(arr.length);
-
-    for (var i = 0; i < arr.length; i++)
-    {
-    	result[i] = String.fromCharCode(arr[i]);
-    }
-    
-    return result.join('');
+	return Graph.bytesToString(arr);
 };
 
 /**
@@ -2991,64 +3074,31 @@ Graph.prototype.bytesToString = function(arr)
  */
 Graph.prototype.compressNode = function(node)
 {
-	return this.compress(this.zapGremlins(mxUtils.getXml(node)));
+	return Graph.compressNode(node);
 };
 
 /**
  * Returns a base64 encoded version of the compressed string.
  */
-Graph.prototype.compress = function(data)
+Graph.prototype.compress = function(data, deflate)
 {
-	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
-	{
-		return data;
-	}
-	else
-	{
-   		var tmp = this.bytesToString(pako.deflateRaw(encodeURIComponent(data)));
-   		
-   		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
-	}
+	return Graph.compress(data, deflate);
 };
 
 /**
  * Returns a decompressed version of the base64 encoded string.
  */
-Graph.prototype.decompress = function(data)
+Graph.prototype.decompress = function(data, inflate)
 {
-   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
-	{
-		return data;
-	}
-	else
-	{
-		var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
-		
-		return this.zapGremlins(decodeURIComponent(
-			this.bytesToString(pako.inflateRaw(tmp))));
-	}
+	return Graph.decompress(data, inflate);
 };
 
 /**
- * Removes all illegal control characters with ASCII code <32 except TAB, LF
- * and CR.
+ * Redirects to Graph.zapGremlins.
  */
 Graph.prototype.zapGremlins = function(text)
 {
-	var checked = [];
-	
-	for (var i = 0; i < text.length; i++)
-	{
-		var code = text.charCodeAt(i);
-		
-		// Removes all control chars except TAB, LF and CR
-		if (code >= 32 || code == 9 || code == 10 || code == 13)
-		{
-			checked.push(text.charAt(i));
-		}
-	}
-	
-	return checked.join('');
+	return Graph.zapGremlins(text);
 };
 
 /**
@@ -4361,7 +4411,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 	    		try
 	    		{
 	    			var stencil = shape.substring(8, shape.length - 1);
-	    			var doc = mxUtils.parseXml(state.view.graph.decompress(stencil));
+	    			var doc = mxUtils.parseXml(Graph.decompress(stencil));
 	    			
 	    			return new mxShape(new mxStencil(doc.documentElement));
 	    		}
@@ -5355,7 +5405,7 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.cellLabelChanged = function(cell, value, autoSize)
 		{
 			// Removes all illegal control characters in user input
-			value = this.zapGremlins(value);
+			value = Graph.zapGremlins(value);
 
 			this.model.beginUpdate();
 			try

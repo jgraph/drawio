@@ -163,7 +163,7 @@ SelectPage.prototype.execute = function()
 		var graph = editor.graph;
 		
 		// Stores current diagram state in the page
-		var data = editor.graph.compress(graph.zapGremlins(mxUtils.getXml(editor.getGraphXml(true))));
+		var data = Graph.compressNode(editor.getGraphXml(true));
 		mxUtils.setTextContent(page.node, data);
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;

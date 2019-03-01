@@ -255,6 +255,8 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
 				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
@@ -313,6 +315,8 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
 				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />

@@ -457,7 +457,7 @@ var com;
                         output += "<diagram name=\"" + pageName_1 + "\">";
                     }
                     
-                    output += Graph.prototype.compress(modelString);
+                    output += Graph.compress(modelString);
                     return output;
                 };
                 /**
@@ -10805,7 +10805,7 @@ var com;
                                     return result;
                                 }
                                 
-                                var enc = Graph.prototype.compress(parsedGeom);
+                                var enc = Graph.compress(parsedGeom);
                                 /* put */ (result[mxConstants.STYLE_SHAPE] = "stencil(" + enc + ")");
                             }
                             catch (e) {

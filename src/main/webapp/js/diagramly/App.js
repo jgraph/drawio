@@ -3147,7 +3147,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 {
 	var realUrl = url;
 	
-	if (!this.isCorsEnabledForUrl(realUrl))
+	if (!this.editor.isCorsEnabledForUrl(realUrl))
 	{
 		var nocache = 't=' + new Date().getTime();
 		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
@@ -3581,8 +3581,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				
 				try
 				{
-					this.loadDescriptor(JSON.parse(
-						this.editor.graph.decompress(id.substring(1))),
+					this.loadDescriptor(JSON.parse(Graph.decompress(id.substring(1))),
 						success, mxUtils.bind(this, function(e)
 					{
 						this.handleError(e, mxResources.get('errorLoadingFile'));
@@ -3601,7 +3600,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				
 				if (data.charAt(0) != '<')
 				{
-					data = this.editor.graph.decompress(data);
+					data = Graph.decompress(data);
 				}
 				
 				var tempFile = new LocalFile(this, data, (urlParams['title'] != null) ?
@@ -4039,7 +4038,7 @@ App.prototype.restoreLibraries = function()
 								{
 									var realUrl = url;
 									
-									if (!this.isCorsEnabledForUrl(realUrl))
+									if (!this.editor.isCorsEnabledForUrl(realUrl))
 									{
 										var nocache = 't=' + new Date().getTime();
 										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
@@ -4062,6 +4061,42 @@ App.prototype.restoreLibraries = function()
 												}
 											}
 											else
+											{
+												onerror();
+											}
+										}), function()
+										{
+											onerror();
+										});
+									}
+									catch (e)
+									{
+										onerror();
+									}
+								}
+							}
+							else if (service == 'R')
+							{
+								var libDesc = decodeURIComponent(id.substring(1));
+								
+								if (!this.isOffline())
+								{
+									try
+									{
+										libDesc = JSON.parse(libDesc);
+										var libObj = {
+											id: libDesc[0], 
+					               			title: libDesc[1], 
+					               			downloadUrl: libDesc[2]
+										}
+										
+										this.remoteInvoke('getFileContent', [libObj.downloadUrl], null, mxUtils.bind(this, function(libContent)
+										{
+											try
+											{
+												onload(new RemoteLibrary(this, libContent, libObj));
+											}
+											catch (e)
 											{
 												onerror();
 											}

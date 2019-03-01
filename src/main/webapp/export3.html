@@ -497,7 +497,7 @@
 				{
 					if (diagrams[i] != null)
 					{
-						xmlDoc = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[i])));
+						xmlDoc = mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(diagrams[i])));
 						graph.getModel().clear();
 						from = i;
 						renderPage();

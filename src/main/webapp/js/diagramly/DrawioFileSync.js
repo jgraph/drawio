@@ -1026,7 +1026,7 @@ DrawioFileSync.prototype.descriptorChanged = function(etag)
  */
 DrawioFileSync.prototype.objectToString = function(obj)
 {
-	var data = this.ui.editor.graph.compress(JSON.stringify(obj));
+	var data = Graph.compress(JSON.stringify(obj));
 	
 	if (this.key != null && typeof CryptoJS !== 'undefined')
 	{
@@ -1047,7 +1047,7 @@ DrawioFileSync.prototype.stringToObject = function(data)
 		data = CryptoJS.AES.decrypt(data, this.key).toString(CryptoJS.enc.Utf8);
 	}
 	
-	return JSON.parse(this.ui.editor.graph.decompress(data));
+	return JSON.parse(Graph.decompress(data));
 };
 
 /**

@@ -493,7 +493,7 @@
 		// Adds tags from compressed text file for improved searches
 		if (this.tagIndex != null)
 		{
-			this.addTagIndex(this.editorUi.editor.graph.decompress(this.tagIndex));
+			this.addTagIndex(Graph.decompress(this.tagIndex));
 			this.tagIndex = null;
 		}
 		
@@ -563,7 +563,7 @@
 						this.editorUi.confirm('Image data created', mxUtils.bind(this, function()
 						{
 				    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
-					    			this.editorUi.editor.graph.compress(html))).simulate(document, '_blank');
+				    			Graph.compress(html))).simulate(document, '_blank');
 						}), null, mxResources.get('save'), mxResources.get('cancel'));
 					}));
 					
@@ -819,7 +819,7 @@
 									mxUtils.write(title, mxResources.get('loading') + '...');
 									var url = lib.url;
 									
-									if (!this.editorUi.isCorsEnabledForUrl(url))
+									if (!this.editorUi.editor.isCorsEnabledForUrl(url))
 									{
 										url = PROXY_URL + '?url=' + encodeURIComponent(url);
 									}
@@ -1271,7 +1271,7 @@
 		// Lazy-load indices
 		if (this.searchFileData != null)
 		{
-			this.addSearchFileData(mxUtils.parseXml(this.editorUi.editor.graph.decompress(this.searchFileData)).documentElement);
+			this.addSearchFileData(mxUtils.parseXml(Graph.decompress(this.searchFileData)).documentElement);
 			
 			this.searchFileData = null;
 		}

@@ -703,7 +703,7 @@
 					if (divs2.length > 0)
 					{
 						var data = mxUtils.getTextContent(divs2[0]);
-		        		data = this.graph.decompress(data);
+		        		data = Graph.decompress(data);
 		        		
 		        		if (data.length > 0)
 		        		{
@@ -759,7 +759,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = this.graph.decompress(mxUtils.getTextContent(diagramNode));
+				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
 				
 				if (tmp != null && tmp.length > 0)
 				{

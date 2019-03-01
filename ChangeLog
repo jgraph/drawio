@@ -1,3 +1,9 @@
+01-MAR-2019: 10.3.0
+
+- Adds validation step for Google file saving
+- Adds last saved delay to status bar
+- Adds page-id URL parameter
+
 28-FEB-2019: 10.2.9
 
 - Moves Confluence Cloud viewer settings to format panel
