@@ -3486,7 +3486,7 @@ EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 
 			if (data != null)
 			{
-				data = this.editor.graph.zapGremlins(mxUtils.trim(data));
+				data = Graph.zapGremlins(mxUtils.trim(data));
 				
 				// Tries parsing as HTML document with embedded XML
 				var xml =  this.extractGraphModelFromHtml(data);

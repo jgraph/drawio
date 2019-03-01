@@ -170,7 +170,7 @@
 				}
 				else
 				{
-					xml = graph.decompress(xml);
+					xml = Graph.decompress(xml);
 				}
 				
 				var xmlDocument = mxUtils.parseXml(xml);
@@ -185,7 +185,7 @@
 					if (diagrams.length > 0)
 					{
 						xml = mxUtils.getTextContent(diagrams[0]);
-						xml = graph.decompress(xml);
+						xml = Graph.decompress(xml);
 						xmlDocument = mxUtils.parseXml(xml);
 					}
 				}
@@ -536,7 +536,7 @@
 							    				if (divs2.length > 0)
 							    				{
 							    					var data = mxUtils.getTextContent(divs2[0]);
-							    	        		data = graph.decompress(data);
+							    	        		data = Graph.decompress(data);
 							    	        		
 							    	        		if (data.length > 0)
 							    	        		{
@@ -572,7 +572,7 @@
 							    			
 							    			if (diagrams.length > 0)
 							    			{
-							    				data = graph.decompress(mxUtils.getTextContent(diagrams[0]));
+							    				data = Graph.decompress(mxUtils.getTextContent(diagrams[0]));
 							    				newDocument = mxUtils.parseXml(data);
 							    			}
 							    		}

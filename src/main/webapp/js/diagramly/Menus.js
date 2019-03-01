@@ -952,7 +952,7 @@
 				if (!graph.isSelectionEmpty())
 				{
 					editorUi.showTextDialog('Create Sidebar Entry', 'sb.createVertexTemplateFromData(\'' +
-						graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
+						Graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
 						'\', width, height, \'Title\');');
 				}
 			}));
@@ -981,7 +981,7 @@
 						{
 							if (newValue.charAt(0) != '<')
 							{
-								newValue = graph.decompress(newValue);
+								newValue = Graph.decompress(newValue);
 								mxLog.debug('See console for uncompressed XML');
 								console.log('xml', newValue);
 							}
@@ -2711,7 +2711,7 @@
 							{
 								var realUrl = fileUrl;
 								
-								if (!editorUi.isCorsEnabledForUrl(fileUrl))
+								if (!editorUi.editor.isCorsEnabledForUrl(fileUrl))
 								{
 									realUrl = PROXY_URL + '?url=' + encodeURIComponent(fileUrl);
 								}

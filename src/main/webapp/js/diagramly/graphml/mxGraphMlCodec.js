@@ -2601,7 +2601,7 @@ mxGraphMlCodec.prototype.processPage = function (graph, pageIndex)
     var modelString = mxUtils.getXml(node);
     
     var output = "<diagram name=\"Page " + pageIndex + "\">";
-    output += Graph.prototype.compress(modelString);
+    output += Graph.compress(modelString);
     output += "</diagram>";
     return output;
 

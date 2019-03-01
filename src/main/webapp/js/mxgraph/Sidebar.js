@@ -3258,7 +3258,7 @@ Sidebar.prototype.createVertexTemplate = function(style, width, height, value, t
  */
 Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel, showTitle, allowCellsInserted)
 {
-	var doc = mxUtils.parseXml(this.graph.decompress(data));
+	var doc = mxUtils.parseXml(Graph.decompress(data));
 	var codec = new mxCodec(doc);
 
 	var model = new mxGraphModel();
@@ -3275,7 +3275,7 @@ Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, t
 Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted)
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
-	//console.trace('xml', this.graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
+	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted);
 };
 

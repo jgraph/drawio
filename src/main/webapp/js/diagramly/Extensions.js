@@ -3336,7 +3336,7 @@ LucidImporter = {};
             var node = codec.encode(graph.getModel());
             graph.getModel().clear();
 
-            xml.push('>' + Graph.prototype.compress(mxUtils.getXml(node)) + '</diagram>');
+            xml.push('>' + Graph.compress(mxUtils.getXml(node)) + '</diagram>');
 		}
 		
 		xml.push('</mxfile>');

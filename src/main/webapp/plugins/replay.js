@@ -83,7 +83,7 @@ Draw.loadPlugin(function(ui) {
 		
 		if (replayData != null)
 		{
-			var xmlDoc = mxUtils.parseXml(graph.decompress(replayData));
+			var xmlDoc = mxUtils.parseXml(Graph.decompress(replayData));
 			// LATER: Avoid duplicate parsing
 			ui.fileLoaded(new LocalFile(ui, mxUtils.getXml(xmlDoc.documentElement.firstChild.firstChild)));
 
@@ -151,8 +151,8 @@ Draw.loadPlugin(function(ui) {
 					if (newValue != null)
 					{
 						var dlg = new EmbedDialog(ui, 'https://www.draw.io/?p=replay&lightbox=1&replay-delay=' +
-								parseFloat(newValue) + '&replay-data=' + graph.compress('<recording>' +
-								tmp.join('') + '</recording>'));
+							parseFloat(newValue) + '&replay-data=' + Graph.compress('<recording>' +
+							tmp.join('') + '</recording>'));
 						ui.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					}
@@ -182,7 +182,7 @@ Draw.loadPlugin(function(ui) {
 						
 						if (newValue.charAt(0) != '<')
 						{
-							newValue = graph.decompress(newValue);
+							newValue = Graph.decompress(newValue);
 						}
 						
 						if (newValue.charAt(0) == '[')

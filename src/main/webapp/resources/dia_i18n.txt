@@ -803,3 +803,5 @@ selectChildren=selectChildren
 selectSiblings=selectSiblings
 selectParent=selectParent
 selectDescendants=selectDescendants
+saveNotConfirmed=saveNotConfirmed
+lastSaved=lastSaved

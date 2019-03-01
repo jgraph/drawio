@@ -2139,7 +2139,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				// TODO: Remove unescape, use btoa for compatibility with graph.compress
 				function compress(s)
 				{
-					return encode64(graph.bytesToString(
+					return encode64(Graph.bytesToString(
 						pako.deflateRaw(unescape(
 						encodeURIComponent(s)))));
 				};
@@ -3132,7 +3132,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				elt.style.border = '1px solid transparent';
 				var realUrl = url;
 				
-				if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+				if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
 				{
 					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 				}
@@ -3282,7 +3282,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var indexLoaded = false;
 		var realUrl = templateFile;
 		
-		if (/^https?:\/\//.test(realUrl) && !editorUi.isCorsEnabledForUrl(realUrl))
+		if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
 		{
 			realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 		}
@@ -5280,7 +5280,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	    	else
 	    	{
 	    		var param = (typeof(pako) === 'undefined') ? '&xml=' + encodeURIComponent(data) :
-	    			'&data=' + encodeURIComponent(editorUi.editor.graph.compress(data));
+	    			'&data=' + encodeURIComponent(Graph.compress(data));
 	    		new mxXmlRequest(SAVE_URL, 'filename=' + encodeURIComponent(filename) +
 	    			'&format=xml' + param).simulate(document, '_blank');
 	    	}
@@ -5497,7 +5497,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							{
 								if (diagramNode != null)
 								{
-									diagramNode = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
+									diagramNode = parseGraphModel(mxUtils.parseXml(Graph.decompress(
 								        	mxUtils.getTextContent(diagramNode))).documentElement);
 								}
 								
@@ -5941,7 +5941,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 		{
 			if (diagramNode != null)
 			{
-				diagramNode = parseGraphModel(mxUtils.parseXml(editorUi.editor.graph.decompress(
+				diagramNode = parseGraphModel(mxUtils.parseXml(Graph.decompress(
 			        	mxUtils.getTextContent(diagramNode))).documentElement);
 			}
 			
@@ -7816,7 +7816,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					}
 					else if (img != null)
 					{
-						var cells = editorUi.stringToCells(editorUi.editor.graph.decompress(img.xml));
+						var cells = editorUi.stringToCells(Graph.decompress(img.xml));
 						
 						if (cells.length > 0)
 						{
@@ -8102,7 +8102,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						for (var i = 0; i < pages.length; i++)
 						{
 							var temp = mxUtils.getTextContent(pages[i]);
-							var cells = editorUi.stringToCells(editorUi.editor.graph.decompress(temp));
+							var cells = editorUi.stringToCells(Graph.decompress(temp));
 							var size = editorUi.editor.graph.getBoundingBoxFromGeometry(cells);
 							addButton(null, null, 0, 0, 0, 0, {xml: temp, w: size.width, h: size.height});
 						}
@@ -8536,7 +8536,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 			if (!hide || isNew || newValue != stencil)
 			{
 				// Transform XML value to be used in cell style
-				newValue = editorUi.editor.graph.compress(newValue);
+				newValue = Graph.compress(newValue);
 				
 				targetGraph.getModel().beginUpdate();
 				try
