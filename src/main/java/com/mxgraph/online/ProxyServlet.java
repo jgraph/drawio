@@ -5,6 +5,7 @@
 package com.mxgraph.online;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -179,23 +179,17 @@ public class ProxyServlet extends HttpServlet
 			try (BufferedInputStream in = new BufferedInputStream(is,
 					BUFFER_SIZE))
 			{
-				StringBuilder result = new StringBuilder();
-				result.append(mxBase64.encodeToString(head, false));
-				byte[] chunk = new byte[BUFFER_SIZE];
-				int len = 0;
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+			    byte[] buffer = new byte[0xFFFF];
 
-				while ((len = in.read(chunk)) == BUFFER_SIZE)
-				{
-					result.append(mxBase64.encodeToString(chunk, false));
-				}
+				os.write(head, 0, head.length);
+				
+			    for (int len = is.read(buffer); len != -1; len = is.read(buffer))
+			    { 
+			        os.write(buffer, 0, len);
+			    }
 
-				if (len > 0)
-				{
-					chunk = Arrays.copyOf(chunk, len);
-					result.append(mxBase64.encodeToString(chunk, false));
-				}
-
-				out.write(result.toString().getBytes());
+				out.write(mxBase64.encodeToString(os.toByteArray(), false).getBytes());
 			}
 		}
 		else
