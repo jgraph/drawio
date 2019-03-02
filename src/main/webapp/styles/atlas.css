@@ -202,7 +202,7 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	padding:0px 10px 0px 10px !important;
 	margin-left:0px !important;
 }
-.geToolbarContainer {
+.geToolbarContainer *:not(.geFormatContainer *) {
 	font-size: 13px;
 	color: rgb(153, 153, 153);
 	background-color: rgb(238, 238, 238);

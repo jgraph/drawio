@@ -1922,6 +1922,17 @@ App.prototype.getDiagramId = function()
 		id = id.substring(1);
 	}
 	
+	// Workaround for Trello client appending data after hash
+	if (id != null && id.length > 1 && id.charAt(0) == 'T')
+	{
+		var idx = id.indexOf('#');
+		
+		if (idx > 0)
+		{
+			id = id.substring(0, idx);
+		}
+	}
+	
 	return id;
 };
 
@@ -2225,6 +2236,9 @@ App.prototype.start = function()
 				{
 					var id = this.getDiagramId();
 					var file = this.getCurrentFile();
+
+					console.log('hashchange', id, file.getHash());
+
 					
 					if (file == null || file.getHash() != id)
 					{
@@ -3138,6 +3152,28 @@ App.prototype.saveFile = function(forceDialog, success)
 };
 
 /**
+ * Returns true if the given binary data is a Visio file.
+ */
+App.prototype.isVisioData = function(data)
+{
+	return data.length > 8 && (data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+		data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
+		data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+		data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x04) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+		data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06);
+};
+
+/**
+ * Returns true if the given binary data is a PNG file.
+ */
+App.prototype.isPngData = function(data)
+{
+	return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
+		data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
+		data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -3145,57 +3181,70 @@ App.prototype.saveFile = function(forceDialog, success)
  */
 App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 {
+	var base64 = false;
 	var realUrl = url;
 	
 	if (!this.editor.isCorsEnabledForUrl(realUrl))
 	{
+		// Always uses base64 response to check magic numbers for file type
 		var nocache = 't=' + new Date().getTime();
-		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
+		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&base64=1&' + nocache;
+		base64 = true;
 	}
 
 	var filterFn = (templateFilename != null) ? templateFilename : url;
 	
-	this.loadUrl(realUrl, mxUtils.bind(this, function(data)
+	this.loadUrl(realUrl, mxUtils.bind(this, function(responseData)
 	{
-		if (/(\.v(dx|sdx?))($|\?)/i.test(filterFn))
+		try
 		{
-			this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
-			{
-				onload(xml);
-			}, onerror, filterFn);
-		}
-		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
-		{
-			// Asynchronous parsing via server
-			this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
-			{
-				if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
-					xhr.responseText.substring(0, 13) == '<mxGraphModel')
-				{
-					onload(xhr.responseText);
-				}
-			}), url);
-		}
-		else if (this.isLucidChartData(data))
-		{
-			this.convertLucidChart(data, mxUtils.bind(this, function(xml)
-			{
-				onload(xml);
-			}), mxUtils.bind(this, function(e)
-			{
-				onerror(e);
-			}));
-		}
-		else
-		{
-			if (/(\.png)($|\?)/i.test(filterFn))
-			{
-				data = this.extractGraphModelFromPng(data);
-			}
+			var data = (!base64) ? responseData : ((window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ?
+				atob(responseData) : Base64.decode(responseData));
 			
-			onload(data);
+			if (/(\.v(dx|sdx?))($|\?)/i.test(filterFn) || this.isVisioData(data))
+			{
+				this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
+				{
+					onload(xml);
+				}, onerror, filterFn);
+			}
+			else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
+			{
+				// Asynchronous parsing via server
+				this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+				{
+					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
+						xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					{
+						onload(xhr.responseText);
+					}
+				}), url);
+			}
+			else if (this.isLucidChartData(data))
+			{
+				this.convertLucidChart(data, mxUtils.bind(this, function(xml)
+				{
+					onload(xml);
+				}), mxUtils.bind(this, function(e)
+				{
+					onerror(e);
+				}));
+			}
+			else
+			{
+				if (/(\.png)($|\?)/i.test(filterFn) || this.isPngData(data))
+				{
+					data = this.extractGraphModelFromPng(responseData);
+				}
+				
+				onload(data);
+			}
 		}
-	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn));
+		catch (e)
+		{
+			onerror(e);
+		}
+	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn), null, null, base64);
 };
 
 /**
@@ -3718,7 +3767,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							return id;
 						};
 						
-						if (!this.fileLoaded(tempFile))
+						if (!this.fileLoaded(tempFile, true))
 						{
 							doFallback();
 						}
@@ -4641,7 +4690,6 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		});
 
 		req.onerror = error;
-		
 		req.send();
 	}
 	else

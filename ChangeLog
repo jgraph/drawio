@@ -1,3 +1,8 @@
+02-MAR-2019: 10.3.1
+
+- Fixes loading spinner for Trello
+- Uses magic numbers for templates
+
 01-MAR-2019: 10.3.0
 
 - Adds validation step for Google file saving

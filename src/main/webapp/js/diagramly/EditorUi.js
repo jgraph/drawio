@@ -2137,7 +2137,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.fileLoaded = function(file)
+	EditorUi.prototype.fileLoaded = function(file, noDialogs)
 	{
 		var oldFile = this.getCurrentFile();
 		this.fileLoadedError = null;
@@ -2171,7 +2171,7 @@
 			this.setBackgroundImage(null);
 					
 			// Avoids empty hash with no value
-			if (window.location.hash != null && window.location.hash.length > 0)
+			if (!noDialogs && window.location.hash != null && window.location.hash.length > 0)
 			{
 				window.location.hash = '';
 			}
@@ -2185,7 +2185,11 @@
 
 			this.editor.setStatus('');
 			this.updateUi();
-			this.showSplash();
+			
+			if (!noDialogs)
+			{
+				this.showSplash();
+			}
 		});
 	
 		if (file != null)
@@ -2319,7 +2323,7 @@
 				}
 				
 				// Asynchronous handling of errors
-				this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+				var fn = mxUtils.bind(this, function()
 				{
 					// Removes URL parameter and reloads the page
 					if (urlParams['url'] != null && this.spinner.spin(document.body, mxResources.get('reconnecting')))
@@ -2334,7 +2338,16 @@
 					{
 						noFile();
 					}
-				}), true);
+				});
+				
+				if (!noDialogs)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true);
+				}
+				else
+				{
+					fn();
+				}
 			}
 		}
 		else
@@ -6306,12 +6319,12 @@
 	/**
 	 * Checks if the client is authorized and calls the next step.
 	 */
-	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary)
 	{
 		try
 		{
-			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
-				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			var binary = !noBinary && (forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url));
 			retry = (retry != null) ? retry : true;
 			
 			var fn = mxUtils.bind(this, function()
