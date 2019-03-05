@@ -25,7 +25,7 @@ Format.prototype.showCloseButton = true;
 /**
  * Background color for inactive tabs.
  */
-Format.prototype.inactiveTabBackgroundColor = '#d7d7d7';
+Format.prototype.inactiveTabBackgroundColor = '#f1f3f4';
 
 /**
  * Background color for inactive tabs.
@@ -354,14 +354,16 @@ Format.prototype.refresh = function()
 	div.style.cursor = 'default';
 	
 	var label = document.createElement('div');
-	label.style.border = '1px solid #c0c0c0';
-	label.style.borderWidth = '0px 0px 1px 0px';
+	label.className = 'geFormatSection';
 	label.style.textAlign = 'center';
 	label.style.fontWeight = 'bold';
-	label.style.overflow = 'hidden';
-	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.paddingTop = '8px';
+	label.style.fontSize = '14px';
+	label.style.borderWidth = '0px 0px 1px 1px';
+	label.style.borderStyle = 'solid';
+	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.height = (mxClient.IS_QUIRKS) ? '34px' : '25px';
+	label.style.overflow = 'hidden';
 	label.style.width = '100%';
 	this.container.appendChild(div);
 	
@@ -697,8 +699,8 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 BaseFormatPanel.prototype.createPanel = function()
 {
 	var div = document.createElement('div');
+	div.className = 'geFormatSection';
 	div.style.padding = '12px 0px 12px 18px';
-	div.style.borderBottom = '1px solid #c0c0c0';
 	
 	return div;
 };

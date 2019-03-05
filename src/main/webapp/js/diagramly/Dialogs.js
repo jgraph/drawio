@@ -3711,7 +3711,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
 
-		if (editorUi.trello != null)
+		if (typeof window.TrelloClient === 'function')
 		{
 			var trelloOption = document.createElement('option');
 			trelloOption.setAttribute('value', App.MODE_TRELLO);

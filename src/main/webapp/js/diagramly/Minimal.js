@@ -348,7 +348,7 @@ EditorUi.initMinimalTheme = function()
         {
         	// Makes room for view zoom menu
         	this.tabContainer.style.right = '70px';
-        	this.diagramContainer.style.bottom = '30px';
+        	this.diagramContainer.style.bottom = this.tabContainerHeight + 'px';
         }
     	
     	editorUiUpdateTabContainer.apply(this, arguments);
@@ -1242,10 +1242,11 @@ EditorUi.initMinimalTheme = function()
 			elt.style.fontSize = '12px';
 			elt.style.color = '#707070';
 			elt.style.width = '59px';
+			elt.style.cursor = 'pointer';
 			elt.style.borderTop = '1px solid lightgray';
 			elt.style.borderLeft = '1px solid lightgray';
-			elt.style.height = (parseInt(ui.tabContainer.style.height) - 1) + 'px';
-			elt.style.lineHeight = (parseInt(ui.tabContainer.style.height) + 1) + 'px';
+			elt.style.height = (parseInt(ui.tabContainerHeight) - 1) + 'px';
+			elt.style.lineHeight = (parseInt(ui.tabContainerHeight) + 1) + 'px';
 			wrapper.appendChild(elt);
 	        
 	    	// Updates the label if the scale changes
@@ -1268,7 +1269,8 @@ EditorUi.initMinimalTheme = function()
 	    		if (this.tabContainer != null)
 	    		{
 	    			elt.style.visibility = this.tabContainer.style.visibility;
-    	        	this.diagramContainer.style.bottom = (this.tabContainer.style.visibility != 'hidden') ? '30px' : '0px';
+    	        	this.diagramContainer.style.bottom = (this.tabContainer.style.visibility != 'hidden') ?
+    	        		this.tabContainerHeight + 'px' : '0px';
 	    		}
 	    	};
 		}

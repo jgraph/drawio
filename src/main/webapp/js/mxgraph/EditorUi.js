@@ -972,9 +972,9 @@ EditorUi.prototype.formatEnabled = true;
 EditorUi.prototype.formatWidth = 240;
 
 /**
- * Specifies the height of the toolbar. Default is 36.
+ * Specifies the height of the toolbar. Default is 40.
  */
-EditorUi.prototype.toolbarHeight = 34;
+EditorUi.prototype.toolbarHeight = 40;
 
 /**
  * Specifies the height of the footer. Default is 28.
@@ -987,10 +987,10 @@ EditorUi.prototype.footerHeight = 28;
 EditorUi.prototype.sidebarFooterHeight = 34;
 
 /**
- * Specifies the position of the horizontal split bar. Default is 208 or 118 for
+ * Specifies the position of the horizontal split bar. Default is 240 or 118 for
  * screen widths <= 640px.
  */
-EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : 208;
+EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : 240;
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.

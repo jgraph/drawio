@@ -262,6 +262,11 @@ ChangePage.prototype.execute = function()
 };
 
 /**
+ * Specifies the height of the tab container. Default is 38.
+ */
+EditorUi.prototype.tabContainerHeight = 38;
+
+/**
  * Returns the index of the selected page.
  */
 EditorUi.prototype.getSelectedPageIndex = function()
@@ -338,7 +343,7 @@ EditorUi.prototype.initPages = function()
 			}
 			else
 			{
-				this.tabContainer.style.height = '30px';
+				this.tabContainer.style.height = this.tabContainerHeight + 'px';
 			}
 			
 			if (prevHeight != this.tabContainer.style.height)
@@ -984,7 +989,7 @@ EditorUi.prototype.movePage = function(oldIndex, newIndex)
 EditorUi.prototype.createTabContainer = function()
 {
 	var div = document.createElement('div');
-	div.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#dcdcdc';
+	div.className = 'geTabContainer';
 	div.style.position = 'absolute';
 	div.style.whiteSpace = 'nowrap';
 	div.style.overflow = 'hidden';
@@ -1008,7 +1013,7 @@ EditorUi.prototype.updateTabContainer = function()
 		wrapper.style.height = this.tabContainer.style.height;
 		wrapper.style.whiteSpace = 'nowrap';
 		wrapper.style.overflow = 'hidden';
-		wrapper.style.fontSize = '12px';
+		wrapper.style.fontSize = '13px';
 		
 		// Allows for negative left margin of first tab
 		wrapper.style.marginLeft = '30px';
@@ -1027,9 +1032,7 @@ EditorUi.prototype.updateTabContainer = function()
 				if (this.pages[index] == this.currentPage)
 				{
 					tab.className = 'geActivePage';
-					tab.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#eeeeee';
-					tab.style.fontWeight = 'bold';
-					tab.style.borderTopStyle = 'none';
+					tab.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#fff';
 				}
 				else
 				{
@@ -1178,11 +1181,13 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 	tab.style.boxSizing = 'border-box';
 	tab.style.position = 'relative';
 	tab.style.overflow = 'hidden';
+	tab.style.textAlign = 'center';
 	tab.style.marginLeft = '-1px';
 	tab.style.height = this.tabContainer.clientHeight + 'px';
-	tab.style.padding = '8px 4px 8px 4px';
-	tab.style.border = (uiTheme == 'dark') ? '1px solid #505759' : '1px solid #c0c0c0';
-	tab.style.borderBottomStyle = 'solid';
+	tab.style.padding = '12px 4px 8px 4px';
+	tab.style.border = (uiTheme == 'dark') ? '1px solid #505759' : '1px solid #e8eaed';
+	tab.style.borderTopStyle = 'none';
+	tab.style.borderBottomStyle = 'none';
 	tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
 	tab.style.cursor = 'move';
 	tab.style.color = 'gray';
@@ -1193,7 +1198,7 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 		{
 			if (!this.editor.graph.isMouseDown)
 			{
-				tab.style.backgroundColor = (uiTheme == 'dark') ? 'black' : '#d3d3d3';
+				tab.style.backgroundColor = (uiTheme == 'dark') ? 'black' : '#e8eaed';
 				mxEvent.consume(evt);
 			}
 		}));
@@ -1214,10 +1219,10 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 EditorUi.prototype.createControlTab = function(paddingTop, html)
 {
 	var tab = this.createTab(true);
+	tab.style.lineHeight = this.tabContainerHeight + 'px';
 	tab.style.paddingTop = paddingTop + 'px';
 	tab.style.cursor = 'pointer';
 	tab.style.width = '30px';
-	tab.style.lineHeight = '30px';
 	tab.innerHTML = html;
 
 	if (tab.firstChild != null && tab.firstChild.style != null)
@@ -1233,9 +1238,10 @@ EditorUi.prototype.createControlTab = function(paddingTop, html)
  */
 EditorUi.prototype.createPageMenuTab = function()
 {
-	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" style="display:inline-block;width:21px;height:21px;"></div>');
+	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" style="display:inline-block;margin-top:5px;width:21px;height:21px;"></div>');
 	tab.setAttribute('title', mxResources.get('pages'));
 	tab.style.position = 'absolute';
+	tab.style.marginLeft = '0px';
 	tab.style.top = '0px';
 	tab.style.left = '1px';
 	

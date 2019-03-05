@@ -110,7 +110,7 @@ DriveClient.prototype.oldAppHostname = 'legacy.draw.io';
 /**
  * Executes the first step for connecting to Google Drive.
  */
-DriveClient.prototype.extension = '.html';
+DriveClient.prototype.extension = '.drawio';
 
 /**
  * Interval for updating the access token.

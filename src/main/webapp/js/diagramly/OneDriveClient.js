@@ -50,7 +50,7 @@ OneDriveClient.prototype.endpointHint = OneDriveClient.prototype.defEndpointHint
 /**
  * Executes the first step for connecting to Google Drive.
  */
-OneDriveClient.prototype.extension = '.html';
+OneDriveClient.prototype.extension = '.drawio';
 
 /**
  * Executes the first step for connecting to Google Drive.

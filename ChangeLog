@@ -1,3 +1,12 @@
+05-MAR-2019: 10.3.3
+
+- Changes default extension to .drawio
+- Updated UI styles
+
+04-MAR-2019: 10.3.2
+
+- Fixes Confluence Cloud Direct Edit Saving
+
 02-MAR-2019: 10.3.1
 
 - Fixes loading spinner for Trello
