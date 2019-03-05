@@ -854,14 +854,14 @@ App.loadPlugins = function(plugins, useInclude)
 				}
 				else if (window.console != null)
 				{
-					console.log('Unknown plugin:', t[i]);
+					console.log('Unknown plugin:', plugins[i]);
 				}
 			}
 			catch (e)
 			{
 				if (window.console != null)
 				{
-					console.log('Error loading plugin:', t[i], e);
+					console.log('Error loading plugin:', plugins[i], e);
 				}
 			}
 		}
