@@ -13,6 +13,11 @@ DriveFile = function(ui, data, desc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
+ * Slower autosave delay to avoid rate limite exceeded.
+ */
+DriveFile.prototype.autosaveDelay = 2000;
+
+/**
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
@@ -187,9 +192,9 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					}
 
 					// Adaptive autosave delay
-					this.autosaveDelay = Math.min(6000,
+					this.autosaveDelay = Math.min(8000,
 						Math.max(this.saveDelay + 500,
-						DrawioFile.prototype.autosaveDelay));
+						DriveFile.prototype.autosaveDelay));
 					this.desc = resp;
 					
 					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
