@@ -1020,24 +1020,25 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		    	// was possibly not saved is to check the new modified date and
 		    	// compare it to the last known modified date. If it hasn't
 		    	// changed or is before the last date something went wrong.
-		    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
-					'fields': 'modifiedDate,headRevisionId,fileSize', 'supportsTeamDrives': true}), 
-					mxUtils.bind(this, function(resp2)
-				{
-			    	file.saveDelay = new Date().getTime() - t0;
-					var delta = new Date(resp2.modifiedDate).getTime() - new Date(mod0).getTime();
-			    	
-					if (delta <= 0)
-					{
-						error({message: mxResources.get('saveNotConfirmed')});
-						
-						EditorUi.logEvent({category: 'UNCONFIRMED-SAVE-GOOGLE',
-							action: 'file-' + file.desc.id + '-old-' + head0 + '.' + size0 +
-							'-new-' + resp2.headRevisionId + '.' + resp2.fileSize + '-delta-' + delta,
-							label: (this.user != null) ? this.user.id : 'unknown-user'});
-					}
-					else
-					{
+				// NOTE: Commented out due to peak in 403 rate limit errors / 5-MAR-2019
+//		    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
+//					'fields': 'modifiedDate,headRevisionId,fileSize', 'supportsTeamDrives': true}), 
+//					mxUtils.bind(this, function(resp2)
+//				{
+//			    	var delta = new Date(resp2.modifiedDate).getTime() - new Date(mod0).getTime();
+//			    	
+//					if (delta <= 0)
+//					{
+//						error({message: mxResources.get('saveNotConfirmed')});
+//						
+//						EditorUi.logEvent({category: 'UNCONFIRMED-SAVE-GOOGLE',
+//							action: 'file-' + file.desc.id + '-old-' + head0 + '.' + size0 +
+//							'-new-' + resp2.headRevisionId + '.' + resp2.fileSize + '-delta-' + delta,
+//							label: (this.user != null) ? this.user.id : 'unknown-user'});
+//					}
+//					else
+//					{
+						file.saveDelay = new Date().getTime() - t0;
 				    	success(resp, savedData);
 
 				    	if (prevDesc != null)
@@ -1066,8 +1067,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 								'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
 								label: (this.user != null) ? this.user.id : 'unknown-user'});
 						}
-					}
-				}));
+//					}
+//				}));
 			});
 
 			var doExecuteRequest = mxUtils.bind(this, function(data, binary)

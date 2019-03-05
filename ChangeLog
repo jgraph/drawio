@@ -1,3 +1,7 @@
+05-MAR-2019: 10.3.5
+
+- Reduces possible number 403 errors in Drive
+
 05-MAR-2019: 10.3.4
 
 - Fixes possible NPE in plugin error handler
