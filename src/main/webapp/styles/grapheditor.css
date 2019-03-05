@@ -1,19 +1,24 @@
 .geEditor {
-	font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
-	font-size:10pt;
+	font-family:Roboto,Helvetica,Arial,sans-serif;
+	font-size:14px;
 	border:none;
 	margin:0px;
 }
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }
+.geEditor div.mxTooltip {
+	background: whiteSmoke;
+	border-color: lightGray;
+	font-size: 11px;
+	color: black;
+	padding:6px;
+}
 .geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
 	cursor:pointer !important;
 }
 .geBackgroundPage {
-  	-webkit-box-shadow:0px 0px 3px 0px #d9d9d9;
-	-moz-box-shadow:0px 0px 3px 0px #d9d9d9;
-  	box-shadow:0px 0px 3px 0px #d9d9d9;
+  	box-shadow:0px 0px 2px 1px #e9e9e9;
 }
 .geSidebarContainer a, .geMenubarContainer a, .geToolbar a {
 	color:#000000;
@@ -25,14 +30,20 @@
 	cursor:default;
 }
 .geFormatContainer {
-	background-color: whiteSmoke !important;
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
+	overflow-x:hidden !important;
+	overflow-y:auto !important;
 	font-size:12px;
+	border-left:1px solid #dadce0;
+}
+.geSidebarFooter {
+	border-top:1px solid #dadce0;
+}
+.geFormatSection {
+	border-bottom:1px solid #dadce0;
+	border-color:#dadce0;
 }
 .geDiagramContainer {
 	background-color:#ffffff;
-	border: 1px solid #e5e5e5;
 	font-size:0px;
 	outline:none;
 }
@@ -112,8 +123,9 @@
 	border: 1px solid #d8d8d8;
 	color: #333;
 	cursor: default;
-	font-size: 11px;
-	font-weight: bold;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing:0.25px;
 	height: 29px;
 	line-height: 27px;
 	margin: 0 0 0 8px;
@@ -204,6 +216,10 @@
 	font-weight:700;
 	text-decoration:none;
 }
+.geActivePage {
+	font-weight:bold;
+	color:#188038 !important;
+}
 .geMenubarContainer {
 	background-color:#ffffff;
 }
@@ -216,7 +232,10 @@
 	cursor:default;
 }
 .geMenubarContainer .geItem:hover {
-	background:#eeeeee;
+	background: #f1f3f4;
+}
+.geMenubarContainer .geItem:active {
+	background: #e8f0fe;
 }
 .mxDisabled:hover {
 	background:inherit !important;
@@ -230,12 +249,8 @@
 .geMenubar a.geStatus:hover {
 	background:transparent;
 }
-.geMenubarMenu {
-	border:1px solid #d5d5d5 !important;
-}
 .geToolbarContainer {
-	background:whiteSmoke;
-	border-bottom:1px solid #e0e0e0;
+	border-bottom:1px solid #dadce0;
 }
 .geSidebarContainer .geToolbarContainer {
 	background:transparent;
@@ -246,20 +261,21 @@
 	overflow:hidden;
 }
 .geToolbar {
-	padding:1px 0px 0px 6px;
-	border-top:1px solid #e0e0e0;
+	padding:1px 0px 0px 4px;
+	border-top:1px solid #dadce0;
 	-webkit-box-shadow: inset 0 1px 0 0 #fff;
 	-moz-box-shadow: inset 0 1px 0 0 #fff;
 	box-shadow: inset 0 1px 0 0 #fff;
+	padding-top:5px;
 }
 .geToolbarContainer .geSeparator {
 	float:left;
 	width:1px;
-	height:34px;
+	height:20px;
 	background:#e5e5e5;
 	margin-left:6px;
 	margin-right:6px;
-	margin-top:-2px;
+	margin-top:4px;
 }
 .geToolbarContainer .geButton {
 	float:left;
@@ -273,13 +289,12 @@
 	_filter:alpha(opacity=60);
 }
 .geToolbarContainer .geButton:hover {
-	border:1px solid gray;
-	border-radius:2px;
 	opacity:1;
 	_filter:none !important;
+	background: #f1f3f4;
 }
 .geToolbarContainer .geButton:active {
-	border:1px solid black;
+	background: #e8f0fe;
 }
 div.mxWindow .geButton {
 	margin: -1px 2px 2px 2px;
@@ -295,13 +310,12 @@ div.mxWindow .geButton {
 	filter:alpha(opacity=60);
 }
 .geToolbarContainer .geLabel:hover {
-	border:1px solid gray;
-	border-radius:2px;
+	background: #f1f3f4;
 	opacity:0.9;
 	filter:alpha(opacity=90) !important;
 }
 .geToolbarContainer .geLabel:active {
-	border:1px solid black;
+	background: #e8f0fe;
 	opacity:1;
 	filter:none !important;
 }
@@ -310,47 +324,50 @@ div.mxWindow .geButton {
 	opacity:0.2 !important;
 	filter:alpha(opacity=20) !important;
 }
-.geToolbarMenu {
-	border:3px solid #e0e0e0 !important;
-	-webkit-box-shadow:none !important;
-	-moz-box-shadow:none !important;
-	box-shadow:none !important;
-	filter:none !important;
-}
 .geDiagramBackdrop {
-	background-color: #ebebeb;
+	background-color: #f8f9fa;
 }
 .geSidebarContainer {
 	background:#ffffff;
 	overflow:hidden;
 	position:absolute;
-	border-top:1px solid #e5e5e5;
 	overflow:auto;
 }
+.geTabContainer {
+	border-top:1px solid #e5e5e5;
+	background-color:#f1f3f4;
+}
 .geSidebar {
-	background:whiteSmoke;
 	border-bottom:1px solid #e5e5e5;
-	padding:5px;
-	_padding:1px;
+	padding:8px;
+	_padding:4px;
 	padding-bottom:12px;
 	overflow:hidden;
 }
 .geSidebarContainer .geTitle {
 	display:block;
-	font-size:9pt;
+	font-size:13px;
 	border-bottom:1px solid #e5e5e5;
-	font-weight:normal;
-	padding:6px 0px 6px 14px;
+	font-weight:500;
+	padding:8px 0px 8px 14px;
 	margin:0px;
 	cursor:default;
-	background:#eeeeee;
 	white-space:nowrap;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	line-height:1.4em;
 }
 .geSidebarContainer .geTitle:hover {
-	background:#e5e5e5;
+	background-color:#f1f3f4;
+}
+.geSidebarContainer .geDropTarget {
+	border-radius:10px;
+	border:2px dotted #e5e5e5;
+	text-align:center;
+	padding:6px;
+	margin:6px;
+	color:#d0d0d0;
+	fontSize:13px;
 }
 .geTitle img {
 	opacity:0.5;
@@ -372,12 +389,10 @@ div.mxWindow .geButton {
 	display:inline-block;
 	background-repeat:no-repeat;
 	background-position:50% 50%;
-	border:1px solid transparent;
-	border-radius:2px;
 	cursor: move;
 }
 .geSidebar .geItem:hover {
-	border:1px solid gray !important;
+	background-color:#f1f3f4;
 }
 .geItem {
 	vertical-align: top;
@@ -387,11 +402,8 @@ div.mxWindow .geButton {
 	position:absolute;
 	background:white;
 	overflow:hidden;
-	border:1px solid gray;
-	border-radius:8px;
-	-webkit-box-shadow:0px 0px 2px 2px #d5d5d5;
-	-moz-box-shadow:0px 0px 2px 2px #d5d5d5;
-	box-shadow:0px 0px 2px 2px #d5d5d5;
+	box-shadow:0 2px 6px 2px rgba(60,64,67,.15);
+	border-radius:6px;
 	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d5d5d5', Positive='true');
 }
 .geFooterContainer {
@@ -421,7 +433,6 @@ div.mxWindow .geButton {
 }
 .geHsplit {
 	cursor:col-resize;
-	background-color:#e5e5e5;
 	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHBAMAAADdS/HjAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAHUlEQVQImWMQEGAQFWUQFmYQF2cQEmIQE2MQEQEACy4BF67hpEwAAAAASUVORK5CYII=);
 	_background-image:url('thumb_vertical.png');
 	background-repeat:no-repeat;
@@ -430,14 +441,21 @@ div.mxWindow .geButton {
 .geVsplit {
 	font-size:1pt;
 	cursor:row-resize;
-	background-color:#e5e5e5;
 	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAEBAMAAACw6DhOAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAFElEQVQImWNgNVdzYBAUFBRggLMAEzYBy29kEPgAAAAASUVORK5CYII=);
 	_background-image:url('thumb_horz.png');
 	background-repeat:no-repeat;
 	background-position:center center;
 }
+.geHsplit {
+	border-left:1px solid #e5e5e5;
+	border-right:1px solid #e5e5e5;
+}
+.geVSplit {
+	border-top:1px solid #e5e5e5;
+	border-bottom:1px solid #e5e5e5;
+}
 .geHsplit:hover, .geVsplit:hover {
-	background-color:#d5d5d5;
+	background-color:#f1f3f4;
 }
 .geDialog {
 	position:absolute;
@@ -668,14 +686,11 @@ td.mxPopupMenuIcon div {
 	width:16px;
 	height:16px;
 }
-html div.mxPopupMenu {
-	-webkit-box-shadow:2px 2px 3px #d5d5d5;
-	-moz-box-shadow:2px 2px 3px #d5d5d5;
-	box-shadow:2px 2px 3px #d5d5d5;
-	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d0d0d0', Positive='true');
+.geEditor div.mxPopupMenu {
+	box-shadow:0 2px 6px 2px rgba(60,64,67,.15);
 	background:white;
-	position:absolute;
-	border:3px solid #e7e7e7;
+	border-radius:4px;
+	border:none;
 	padding:3px;
 }
 html table.mxPopupMenu {

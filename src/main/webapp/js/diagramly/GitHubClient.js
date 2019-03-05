@@ -25,7 +25,7 @@ GitHubClient.prototype.scope = 'repo';
 /**
  * Default extension for new files.
  */
-GitHubClient.prototype.extension = '.xml';
+GitHubClient.prototype.extension = '.drawio';
 
 /**
  * Base URL for API calls.

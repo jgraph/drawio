@@ -2310,7 +2310,7 @@
 		/**
 		 * Configures global color schemes.
 		 */
-		StyleFormatPanel.prototype.defaultColorSchemes = [[null, {fill: '#f5f5f5', stroke: '#666666', font: '#333333'},
+		StyleFormatPanel.prototype.defaultColorSchemes = [[{fill: '', stroke: ''}, {fill: '#f5f5f5', stroke: '#666666', font: '#333333'},
 			{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
 			{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
 			{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
@@ -2322,11 +2322,11 @@
 			{fill: '#f0a30a', stroke: '#BD7000', font: '#ffffff'}, {fill: '#e3c800', stroke: '#B09500', font: '#ffffff'},
 			{fill: '#6d8764', stroke: '#3A5431', font: '#ffffff'}, {fill: '#647687', stroke: '#314354', font: '#ffffff'},
 			{fill: '#76608a', stroke: '#432D57', font: '#ffffff'}, {fill: '#a0522d', stroke: '#6D1F00', font: '#ffffff'}],
-			[null, {fill: mxConstants.NONE, stroke: '#36393d'},
+			[{fill: '', stroke: ''}, {fill: mxConstants.NONE, stroke: ''},
 			{fill: '#fad7ac', stroke: '#b46504'}, {fill: '#fad9d5', stroke: '#ae4132'},
 			{fill: '#b0e3e6', stroke: '#0e8088'}, {fill: '#b1ddf0', stroke: '#10739e'},
 			{fill: '#d0cee2', stroke: '#56517e'}, {fill: '#bac8d3', stroke: '#23445d'}],
-		    [null,
+		    [{fill: '', stroke: ''},
 			{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
 			{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
 			{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
@@ -2334,7 +2334,7 @@
 			{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
 			{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
 			{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
-			[null, {fill: '#eeeeee', stroke: '#36393d'},
+			[{fill: '', stroke: ''}, {fill: '#eeeeee', stroke: '#36393d'},
 			{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
 			{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
 			{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
@@ -3089,12 +3089,28 @@
 								
 								if (colorset != null)
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
-										mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
-									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
-										mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
 									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
 										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+								
+									if (colorset['fill'] == '')
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,null);
+									}
+									else
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
+									}
+									
+									if (colorset['stroke'] == '')
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
+									}
+									else
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+									}
 									
 									if (graph.getModel().isVertex(cells[i]))
 									{
@@ -3152,14 +3168,31 @@
 						{
 							btn.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
 						}
+						else if (colorset['fill'] == '')
+						{
+							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
 						}
 						
-						btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
-							mxConstants.STYLE_STROKECOLOR, '#000000'));
+						if (colorset['stroke'] == mxConstants.NONE)
+						{
+							btn.style.border = '1px solid transparent';
+						}
+						else if (colorset['stroke'] == '')
+						{
+							btn.style.border = '1px solid ' + mxUtils.getValue(graph.defaultVertexStyle, 
+								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff');
+						}
+						else
+						{
+							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
+									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff'));
+						}
 					}
 					else
 					{

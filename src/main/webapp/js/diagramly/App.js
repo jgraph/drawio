@@ -238,7 +238,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
 	'tickets': '/plugins/tickets.js', 'flow': '/plugins/flow.js',
 	'webcola': '/plugins/webcola/webcola.js', 'rnd': '/plugins/random.js',
-	'page': '/plugins/page.js'};
+	'page': '/plugins/page.js', 'gd': '/plugins/googledrive.js'};
 
 /**
  * Function: authorize
@@ -488,58 +488,13 @@ App.main = function(callback, createUi)
 			// mxSettings is not yet initialized in configure mode, redirect parameter
 			// to p URL parameter in caller for plugins in embed mode
 			var plugins = (mxSettings.settings != null) ? mxSettings.getPlugins() : null;
-			var pluginsLoaded = {};
 			var temp = urlParams['p'];
 			App.initPluginCallback();
 
 			if (temp != null)
 			{
 				// Mapping from key to URL in App.plugins
-				var t = temp.split(';');
-				
-				for (var i = 0; i < t.length; i++)
-				{
-					if (t[i] != null && t[i].length > 0)
-					{
-						try
-						{
-							var url = App.pluginRegistry[t[i]];
-							
-							if (url != null)
-							{
-								if (pluginsLoaded[url] == null)
-								{
-									pluginsLoaded[url] = true;
-									
-									if (typeof window.drawDevUrl === 'undefined')
-									{
-										mxscript(url);
-									}
-									else
-									{
-										mxscript(drawDevUrl + url);
-									}
-								}
-							}
-							else if (window.console != null)
-							{
-								console.log('Unknown plugin:', t[i]);
-							}
-						}
-						catch (e)
-						{
-							if (window.console != null)
-							{
-								console.log('Error loading plugin:', t[i], e);
-							}
-						}
-					}
-					
-				}
-			}
-			else if (urlParams['chrome'] != '0' && !EditorUi.isElectronApp)
-			{
-				mxscript(App.FOOTER_PLUGIN_URL, null, null, null, mxClient.IS_SVG);
+				App.loadPlugins(temp.split(';'));
 			}
 			
 			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
@@ -564,9 +519,9 @@ App.main = function(callback, createUi)
 					{
 						try
 						{
-							if (pluginsLoaded[plugins[i]] == null)
+							if (App.pluginsLoaded[plugins[i]] == null)
 							{
-								pluginsLoaded[url] = true;
+								App.pluginsLoaded[plugins[i]] = true;
 								mxscript(plugins[i]);
 							}
 						}
@@ -846,6 +801,70 @@ App.initPluginCallback = function()
 		{
 			App.DrawPlugins.push(callback);
 		};
+	}
+};
+
+/**
+ * 
+ */
+App.pluginsLoaded = {};
+
+/**
+ * Queue for loading plugins and wait for UI instance
+ */
+App.loadPlugins = function(plugins, useInclude)
+{
+	for (var i = 0; i < plugins.length; i++)
+	{
+		if (plugins[i] != null && plugins[i].length > 0)
+		{
+			try
+			{
+				var url = App.pluginRegistry[plugins[i]];
+				
+				if (url != null)
+				{
+					if (App.pluginsLoaded[url] == null)
+					{
+						App.pluginsLoaded[url] = true;
+						
+						if (typeof window.drawDevUrl === 'undefined')
+						{
+							if (useInclude)
+							{
+								mxinclude(url);
+							}
+							else
+							{
+								mxscript(url);
+							}
+						}
+						else
+						{
+							if (useInclude)
+							{
+								mxinclude(url);
+							}
+							else
+							{
+								mxscript(drawDevUrl + url);
+							}
+						}
+					}
+				}
+				else if (window.console != null)
+				{
+					console.log('Unknown plugin:', t[i]);
+				}
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Error loading plugin:', t[i], e);
+				}
+			}
+		}
 	}
 };
 
@@ -1235,32 +1254,27 @@ App.prototype.checkLicense = function()
 				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
-// NOTE: RESPONSE IS IGNORED SINCE FOOTER IS HIDDEN
-//				var registered = false;
-//				var exp = null;
-//				
-//				try
-//				{
-//					if (req.getStatus() >= 200 && req.getStatus() <= 299)
-//					{
-//						var value = req.getText();
-//						registered = true;
-//						
-//						if (value.length > 0)
-//						{
-//							var lic = JSON.parse(value);
-//							
-//							if (lic != null)
-//							{
-//								exp = this.handleLicense(lic, domain);
-//							}
-//						}
-//					}
-//				}
-//				catch (e)
-//				{
-//					// ignore
-//				}
+				try
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+						var value = req.getText();
+						
+						if (value.length > 0)
+						{
+							var lic = JSON.parse(value);
+							
+							if (lic != null)
+							{
+								this.handleLicense(lic, domain);
+							}
+						}
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}));
 	}
 };
@@ -1270,57 +1284,10 @@ App.prototype.checkLicense = function()
  */
 App.prototype.handleLicense = function(lic, domain)
 {
-	var footer = document.getElementById('geFooter');
-	var expiry = null;
-
-	if (footer != null && lic != null)
+	if (lic != null && lic.plugins != null)
 	{
-		expiry = lic.expiry;
-		
-		if (lic.footer != null)
-		{
-			footer.innerHTML = decodeURIComponent(lic.footer);
-		}
-		else
-		{
-			this.hideFooter();
-		
-			if (expiry != null && expiry != 'never')
-			{
-				var exp = new Date(Date.parse(expiry));
-				var diff = Math.round((exp - Date.now()) / (1000 * 60 * 60 * 24));
-		
-				if (diff < 90)
-				{
-		    		var link = 'https://support.draw.io/display/DKB/draw.io+footer+state+that+license+is+expiring+on+Google+For+Work+account?domain=' + encodeURIComponent(domain);
-		    		footer.style.height = '100%';
-		    		footer.style.margin = '0px';
-		    		footer.style.display = '';
-		    		
-		    		if (diff < 0)
-		    		{
-			    		this.footerHeight = 80;
-		    			footer.innerHTML = '<table height="100%"><tr><td valign="middle" align="center" class="geStatusAlert geBlink">' +
-		    				'<a href="' + link + '" style="padding-top:16px;" target="_blank">' + 
-		    				'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="top" style="margin-right:6px">' +
-		    				mxResources.get('licenseHasExpired', [domain, exp.toLocaleDateString()]) + '</a></td></tr></table>';
-		    		}
-		    		else
-		    		{
-			    		this.footerHeight = 46;
-		    			footer.innerHTML = '<table height="100%"><tr><td valign="middle" align="center" class="geStatusAlert">' +
-		    				'<a href="' + link + '" target="_blank">' +
-		    				'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="top" style="margin-right:6px">' +
-		    				mxResources.get('licenseWillExpire', [domain, exp.toLocaleDateString()]) + '</a></td></tr></table>';
-		    		}
-		    		
-		    		this.refresh();
-				}
-			}
-		}
+		App.loadPlugins(lic.plugins.split(';'), true);
 	}
-	
-	return expiry;
 };
 
 /**
@@ -2234,12 +2201,10 @@ App.prototype.start = function()
 			{
 				try
 				{
+					this.hideDialog();
 					var id = this.getDiagramId();
 					var file = this.getCurrentFile();
 
-					console.log('hashchange', id, file.getHash());
-
-					
 					if (file == null || file.getHash() != id)
 					{
 						this.loadFile(id, true);
@@ -4810,8 +4775,14 @@ App.prototype.updateHeader = function()
 		this.appIcon.style.display = 'block';
 		this.appIcon.style.position = 'absolute';
 		this.appIcon.style.width = '40px';
-		this.appIcon.style.backgroundColor = '#f18808';
-		this.appIcon.style.height = this.menubarHeight + 'px';
+		this.appIcon.style.height = (this.menubarHeight - 16) + 'px';
+		this.appIcon.style.margin = '8px 0px 8px 8px';
+		this.appIcon.style.borderRadius = '4px';
+		
+		if (uiTheme != 'dark')
+		{
+			this.appIcon.style.backgroundColor = '#f08705';
+		}
 		
 		mxEvent.disableContextMenu(this.appIcon);
 		
@@ -4924,8 +4895,6 @@ App.prototype.updateHeader = function()
 			this.menubar.container.style.paddingLeft = '52px';
 			this.menubar.container.style.boxSizing = 'border-box';
 			this.menubar.container.style.top = '29px';
-			
-			this.toolbar.container.style.paddingLeft = '56px';
 		}
 		
 		/**
@@ -4935,8 +4904,8 @@ App.prototype.updateHeader = function()
 		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
-		this.toggleFormatElement.style.top = '5px';
-		this.toggleFormatElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '26px' : '10px';
+		this.toggleFormatElement.style.top = '8px';
+		this.toggleFormatElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '30px' : '10px';
 		this.toggleFormatElement.style.padding = '2px';
 		this.toggleFormatElement.style.fontSize = '14px';
 		this.toggleFormatElement.className = (uiTheme != 'atlas') ? 'geButton' : '';
@@ -4983,8 +4952,8 @@ App.prototype.updateHeader = function()
 		this.fullscreenElement.setAttribute('title', mxResources.get('fullscreen'));
 		this.fullscreenElement.style.position = 'absolute';
 		this.fullscreenElement.style.display = 'inline-block';
-		this.fullscreenElement.style.top = '5px';
-		this.fullscreenElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '42px' : '26px';
+		this.fullscreenElement.style.top = '8px';
+		this.fullscreenElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '50px' : '30px';
 		this.fullscreenElement.style.padding = '2px';
 		this.fullscreenElement.style.fontSize = '14px';
 		this.fullscreenElement.className = (uiTheme != 'atlas') ? 'geButton' : '';
@@ -5001,6 +4970,13 @@ App.prototype.updateHeader = function()
     	{
 			evt.preventDefault();
 		}));
+		
+		// Some style changes in Atlas theme
+		if (uiTheme == 'atlas')
+		{
+			mxUtils.setOpacity(this.toggleFormatElement, 70);
+			mxUtils.setOpacity(this.fullscreenElement, 70);
+		}
 		
 		var initialPosition = this.hsplitPosition;
 		var collapsed = false;
@@ -5023,18 +4999,7 @@ App.prototype.updateHeader = function()
 			collapsed = !collapsed;
 			mxEvent.consume(evt);
 		}));
-		
-		// Some style changes in Atlas theme
-		if (uiTheme == 'atlas')
-		{
-			mxUtils.setOpacity(this.toggleFormatElement, 70);
-			mxUtils.setOpacity(this.fullscreenElement, 70);
-			this.toggleFormatElement.style.right = '6px';
-			this.fullscreenElement.style.right = '22px';
-			this.toggleFormatElement.style.top = '8px';
-			this.fullscreenElement.style.top = '8px';
-		}
-		
+
 		/**
 		 * Adds compact UI toggle.
 		 */
@@ -5048,7 +5013,7 @@ App.prototype.updateHeader = function()
 			this.toggleElement.style.width = '16px';
 			this.toggleElement.style.height = '16px';
 			this.toggleElement.style.color = '#666';
-			this.toggleElement.style.top = '5px';
+			this.toggleElement.style.top = '8px';
 			this.toggleElement.style.right = '10px';
 			this.toggleElement.style.padding = '2px';
 			this.toggleElement.style.fontSize = '14px';
@@ -5106,7 +5071,6 @@ App.prototype.toggleCompactMode = function(forceHide)
 		this.menubar.container.style.paddingTop = '';
 		this.menubar.container.style.paddingBottom = '';
 		this.menubar.container.style.top = '29px';
-		this.toolbar.container.style.paddingLeft = '56px';
 		this.buttonContainer.style.visibility = 'visible';
 		this.appIcon.style.display = 'block';
 		this.fnameWrapper.style.display = 'block';
@@ -5122,7 +5086,6 @@ App.prototype.toggleCompactMode = function(forceHide)
 		this.menubar.container.style.paddingTop = '0px';
 		this.menubar.container.style.paddingBottom = '0px';
 		this.menubar.container.style.top = '0px';
-		this.toolbar.container.style.paddingLeft = '4px';
 		this.buttonContainer.style.visibility = 'hidden';
 		this.appIcon.style.display = 'none';
 		this.fnameWrapper.style.display = 'none';

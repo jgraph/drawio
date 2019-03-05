@@ -207,7 +207,7 @@
 	/**
 	 * Allows for two buttons in the sidebar footer.
 	 */
-	EditorUi.prototype.sidebarFooterHeight = 36;
+	EditorUi.prototype.sidebarFooterHeight = 38;
 
 	/**
 	 * Specifies the default custom shape style.
@@ -2706,11 +2706,7 @@
 				if (dropTarget == null)
 				{
 					dropTarget = document.createElement('div');
-					mxUtils.setPrefixedStyle(dropTarget.style, 'borderRadius', '6px');
-					dropTarget.style.border = '3px dotted lightGray';
-					dropTarget.style.textAlign = 'center';
-					dropTarget.style.padding = '8px';
-					dropTarget.style.color = '#B3B3B3';
+					dropTarget.className = 'geDropTarget';
 					mxUtils.write(dropTarget, mxResources.get('dragElementsHere'));
 				}
 				
@@ -2968,25 +2964,13 @@
 				mxEvent.consume(evt);
 			});
 			
-			// Defines inactive border state
-			contentDiv.style.border = '3px solid transparent';
-			
 			// Adds drop handler from graph
 			mxEvent.addGestureListeners(contentDiv, function(){}, mxUtils.bind(this, function(evt)
 			{
 				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler.shape != null)
 				{
 					graph.graphHandler.shape.node.style.visibility = 'hidden';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					else
-					{
-						contentDiv.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					
+					contentDiv.style.backgroundColor = '#f1f3f4';
 					contentDiv.style.cursor = 'copy';
 					graph.panningManager.stop();
 					graph.autoScroll = false;
@@ -3007,13 +2991,7 @@
 			{
 				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler != null)
 				{
-					contentDiv.style.border = '3px solid transparent';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
-					
+					contentDiv.style.backgroundColor = '';
 					contentDiv.style.cursor = 'default';
 					this.sidebar.showTooltips = true;
 					graph.panningManager.stop();
@@ -3031,7 +3009,7 @@
 				if (graph.isMouseDown && graph.graphHandler.shape != null)
 				{
 					graph.graphHandler.shape.node.style.visibility = 'visible';
-					contentDiv.style.border = '3px solid transparent';
+					contentDiv.style.backgroundColor = '';
 					contentDiv.style.cursor = '';
 					graph.autoScroll = true;
 					
@@ -3044,11 +3022,6 @@
 					{
 						graph.graphHandler.hint.style.visibility = 'visible';	
 					}
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
 				}
 			}));
 			
@@ -3057,15 +3030,7 @@
 			{
 				mxEvent.addListener(contentDiv, 'dragover', mxUtils.bind(this, function(evt)
 				{
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					else
-					{
-						contentDiv.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					
+					contentDiv.style.backgroundColor = '#f1f3f4';
 					evt.dataTransfer.dropEffect = 'copy';
 					contentDiv.style.cursor = 'copy';
 					this.sidebar.hideTooltip();
@@ -3075,13 +3040,8 @@
 				
 				mxEvent.addListener(contentDiv, 'drop', mxUtils.bind(this, function(evt)
 				{
-					contentDiv.style.border = '3px solid transparent';
 					contentDiv.style.cursor = '';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
+					contentDiv.style.backgroundColor = '';
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {	
@@ -3209,16 +3169,8 @@
 	
 				mxEvent.addListener(contentDiv, 'dragleave', function(evt)
 				{
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
-					else
-					{
-						contentDiv.style.border = '3px solid transparent';
-						contentDiv.style.cursor = '';
-					}
-	
+					contentDiv.style.cursor = '';
+					contentDiv.style.backgroundColor = '';
 					evt.stopPropagation();
 					evt.preventDefault();
 				});
@@ -3381,11 +3333,6 @@
     		Editor.prototype.initialTopSpacing = 3;
     		EditorUi.prototype.menubarHeight = 41;
     		EditorUi.prototype.toolbarHeight = 38;
-    		EditorUi.prototype.hsplitPosition = 188;
-    		Sidebar.prototype.thumbWidth = 46;
-    		Sidebar.prototype.thumbHeight = 46;
-    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
-    		Sidebar.prototype.thumbBorder = 2;
     	}
     	else if (uiTheme == 'dark')
     	{
@@ -3519,13 +3466,13 @@
 	 */
 	EditorUi.prototype.createSidebarFooterContainer = function()
 	{
-		var div =  this.createDiv('geSidebarContainer');
+		var div =  this.createDiv('geSidebarContainer geSidebarFooter');
 		div.style.position = 'absolute';
 		div.style.overflow = 'hidden';
-		div.style.borderWidth = '3px';
 		
 		var elt2 = document.createElement('a');
 		elt2.className = 'geTitle';
+		elt2.style.color = '#188038';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
 		elt2.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
@@ -3600,7 +3547,9 @@
 					
 					var id = window.location.hash;
 					
-					if (id != null && id.substring(0, 2) == '#G')
+					if (id != null && id.substring(0, 2) == '#G' && resp != null && resp.error != null &&
+						resp.error.errors != null && resp.error.errors.length > 0 &&
+						resp.error.errors[0].reason == 'fileAccess')
 					{
 						id = id.substring(2);
 						
