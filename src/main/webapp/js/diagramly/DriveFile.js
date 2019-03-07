@@ -13,11 +13,6 @@ DriveFile = function(ui, data, desc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
- * Slower autosave delay to avoid rate limite exceeded.
- */
-DriveFile.prototype.autosaveDelay = 2000;
-
-/**
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
@@ -151,116 +146,176 @@ DriveFile.prototype.save = function(revision, success, error, unloading, overwri
  */
 DriveFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
-	if (!this.isEditable())
+	try
 	{
-		if (success != null)
+		if (!this.isEditable())
 		{
-			success();
+			if (success != null)
+			{
+				success();
+			}
 		}
-	}
-	else if (!this.savingFile)
-	{
-		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
+		else if (!this.savingFile)
 		{
-			var lastDesc = this.desc;
-			
-			// Makes sure no changes get lost while the file is saved
-			var modified = this.isModified();
-			this.setModified(false);
-			this.savingFile = true;
-
-			// Waits for success for modified state to be visible
-			var prevModified = this.isModified;
-			
-			this.isModified = function()
+			var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 			{
-				return true;
-			};
-
-			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
-			{
-				this.isModified = prevModified;
-				this.savingFile = false;
-				
-				// Handles special case where resp is false eg
-				// if the old file was converted to realtime
-				if (resp != false)
+				try
 				{
-					if (revision)
-					{
-						this.lastAutosaveRevision = new Date().getTime();
-					}
-
-					// Adaptive autosave delay
-					this.autosaveDelay = Math.min(8000,
-						Math.max(this.saveDelay + 500,
-						DriveFile.prototype.autosaveDelay));
-					this.desc = resp;
+					var lastDesc = this.desc;
 					
-					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
-					{
-						this.contentChanged();
-						
-						if (success != null)
-						{
-							success(resp);
-						}
-					}), error);
-				}
-				else
-				{
-					this.setModified(modified || this.isModified());
+					// Makes sure no changes get lost while the file is saved
+					var modified = this.isModified();
+					this.setModified(false);
+					this.savingFile = true;
+		
+					// Waits for success for modified state to be visible
+					var prevModified = this.isModified;
 					
-					if (error != null)
+					this.isModified = function()
 					{
-						error(resp);
-					}
-				}
-			}), mxUtils.bind(this, function(err, desc)
-			{
-				this.savingFile = false;
-				this.isModified = prevModified;
-				this.setModified(modified || this.isModified());
-			
-				if (this.isConflict(err))
-				{
-					this.inConflictState = true;
-					
-					if (this.sync != null)
+						return true;
+					};
+		
+					this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
 					{
-						this.savingFile = true;
-						
-						this.sync.fileConflict(desc, mxUtils.bind(this, function()
+						try
 						{
-							// Adds random cool-off
-							window.setTimeout(mxUtils.bind(this, function()
-							{
-								this.updateFileData();
-								doSave(realOverwrite, true);
-							}), 100 + Math.random() * 500);
-						}), mxUtils.bind(this, function()
-						{
+							this.isModified = prevModified;
 							this.savingFile = false;
+							
+							// Handles special case where resp is false eg
+							// if the old file was converted to realtime
+							if (resp != false)
+							{
+								if (revision)
+								{
+									this.lastAutosaveRevision = new Date().getTime();
+								}
+			
+								// Adaptive autosave delay
+								this.autosaveDelay = Math.min(8000,
+									Math.max(this.saveDelay + 500,
+									DriveFile.prototype.autosaveDelay));
+								this.desc = resp;
+								
+								this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+								{
+									this.contentChanged();
+									
+									if (success != null)
+									{
+										success(resp);
+									}
+								}), error);
+							}
+							else
+							{
+								this.setModified(modified || this.isModified());
+								
+								if (error != null)
+								{
+									error(resp);
+								}
+							}
+						}
+						catch (e)
+						{
+							this.setModified(modified || this.isModified());
 							
 							if (error != null)
 							{
-								error();
+								error(e);
 							}
-						}));
-					}
-					else if (error != null)
+							else
+							{
+								throw e;
+							}
+						}
+					}), mxUtils.bind(this, function(err, desc)
 					{
-						error();
+						try
+						{
+							this.savingFile = false;
+							this.isModified = prevModified;
+							this.setModified(modified || this.isModified());
+						
+							if (this.isConflict(err))
+							{
+								this.inConflictState = true;
+								
+								if (this.sync != null)
+								{
+									this.savingFile = true;
+									
+									this.sync.fileConflict(desc, mxUtils.bind(this, function()
+									{
+										// Adds random cool-off
+										window.setTimeout(mxUtils.bind(this, function()
+										{
+											this.updateFileData();
+											doSave(realOverwrite, true);
+										}), 100 + Math.random() * 500);
+									}), mxUtils.bind(this, function()
+									{
+										this.savingFile = false;
+										
+										if (error != null)
+										{
+											error();
+										}
+									}));
+								}
+								else if (error != null)
+								{
+									error();
+								}
+							}
+							else if (error != null)
+							{
+								error(err);
+							}
+						}
+						catch (e)
+						{
+							this.setModified(modified || this.isModified());
+							
+							if (error != null)
+							{
+								error(e);
+							}
+							else
+							{
+								throw e;
+							}
+						}
+					}), unloading, unloading, realOverwrite);
+				}
+				catch (e)
+				{
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
 					}
 				}
-				else if (error != null)
-				{
-					error(err);
-				}
-			}), unloading, unloading, realOverwrite);
-		});
-		
-		doSave(overwrite, revision);
+			});
+			
+			doSave(overwrite, revision);
+		}
+	}
+	catch (e)
+	{
+		if (error != null)
+		{
+			error(e);
+		}
+		else
+		{
+			throw e;
+		}
 	}
 };
 

@@ -1883,7 +1883,7 @@
 			
 			if (editorUi.gitHub != null)
 			{
-				menu.addItem(mxResources.get('gh') + '...', null, function()
+				menu.addItem(mxResources.get('github') + '...', null, function()
 				{
 					pickFileFromService(editorUi.gitHub);
 				}, parent);
@@ -2185,11 +2185,18 @@
 
 		this.editorUi.actions.addAction('share...', mxUtils.bind(this, function()
 		{
-			var file = this.editorUi.getCurrentFile();
-			
-			if (file != null)
+			try
 			{
-				this.editorUi.drive.showPermissions(file.getId());
+				var file = editorUi.getCurrentFile();
+				
+				if (file != null)
+				{
+					editorUi.drive.showPermissions(file.getId());
+				}
+			}
+			catch (e)
+			{
+				editorUi.handleError(e);
 			}
 		}));
 

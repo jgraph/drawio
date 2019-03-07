@@ -17,16 +17,19 @@ App = function(editor, container, lightbox)
 		urlParams['chrome'] != '0')));
 	
 	// Logs unloading of window with modifications for Google Drive file
-	window.onunload = mxUtils.bind(this, function()
+	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
-		var file = this.getCurrentFile();
-		
-		if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
+		window.onunload = mxUtils.bind(this, function()
 		{
-			EditorUi.logEvent({category: 'Unload-Modified', action: file.getId(), label:
-				(this.drive.user != null) ? this.drive.user.id : 'unknown-user'});	
-		}
-	});
+			var file = this.getCurrentFile();
+			
+			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
+			{
+				EditorUi.logEvent({category: 'Unload-Modified', action: file.getId(), label:
+					(this.drive.user != null) ? this.drive.user.id : 'unknown-user'});	
+			}
+		});
+	}
 	
 	// Pre-fetches images
 	if (mxClient.IS_SVG)
@@ -1125,27 +1128,30 @@ App.prototype.init = function()
 			this.mode = App.mode;
 		}
 		
-		// Checks if the cache is alive
-		var acceptResponse = true;
-		
-		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 		{
-			acceptResponse = false;
-			EditorUi.logEvent({category: 'Cache', action: 'alive', label: 408});
-		}), this.timeout);
-		
-		var t0 = new Date().getTime();
-		
-		mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
-		{
-			window.clearTimeout(timeoutThread);
+			// Checks if the cache is alive
+			var acceptResponse = true;
 			
-			if (acceptResponse)
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				EditorUi.logEvent({category: 'Cache', action: 'alive', label:
-					req.getStatus() + '.' + (new Date().getTime() - t0)});
-			}
-		}));
+				acceptResponse = false;
+				EditorUi.logEvent({category: 'Cache', action: 'alive', label: 408});
+			}), this.timeout);
+			
+			var t0 = new Date().getTime();
+			
+			mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
+			{
+				window.clearTimeout(timeoutThread);
+				
+				if (acceptResponse)
+				{
+					EditorUi.logEvent({category: 'Cache', action: 'alive', label:
+						req.getStatus() + '.' + (new Date().getTime() - t0)});
+				}
+			}));
+		}
 	}
 	else if (this.menubar != null)
 	{
@@ -2060,7 +2066,22 @@ App.prototype.load = function()
 				{
 					this.loadGapi(mxUtils.bind(this, function()
 					{
-						this.start();
+						if (urlParams['convert-realtime'] == '1')
+						{
+							this.spinner.stop();
+							
+							this.confirm('You are about to convert realtime files', mxUtils.bind(this, function()
+							{
+								this.drive.convertRealtimeFiles();
+							}), mxUtils.bind(this, function()
+							{
+								this.start();
+							}));
+						}
+						else
+						{
+							this.start();
+						}
 					}));
 				}
 			}
@@ -2638,85 +2659,92 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
  */
 App.prototype.pickFile = function(mode)
 {
-	mode = (mode != null) ? mode : this.mode;
-	
-	if (mode == App.MODE_GOOGLE)
+	try
 	{
-		if (this.drive != null && typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+		mode = (mode != null) ? mode : this.mode;
+		
+		if (mode == App.MODE_GOOGLE)
 		{
-			this.drive.pickFile();
+			if (this.drive != null && typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
+			{
+				this.drive.pickFile();
+			}
+			else
+			{
+				this.openLink('https://drive.google.com');
+			}
 		}
 		else
 		{
-			this.openLink('https://drive.google.com');
+			var peer = this.getPeerForMode(mode);
+			
+			if (peer != null)
+			{
+				peer.pickFile();
+			}
+			// input.click does not work in IE on Windows 7
+			else if (mode == App.MODE_DEVICE && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
+				navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+			{
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+				
+				mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+				{
+					if (input.files != null)
+					{
+						this.openFiles(input.files);
+					}
+				}));
+		
+				input.click();
+			}
+			else
+			{
+				this.hideDialog();
+				window.openNew = this.getCurrentFile() != null && !this.isDiagramEmpty();
+				window.baseUrl = this.getUrl();
+				window.openKey = 'open';
+				var prevValue = Editor.useLocalStorage;
+				Editor.useLocalStorage = (mode == App.MODE_BROWSER);
+				this.openFile();
+				
+				// Installs local handler for opened files in same window
+				window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+				{
+					// Replaces PNG with XML extension
+					var dot = !this.useCanvasForExport && filename.substring(filename.length - 4) == '.png';
+					
+					if (dot)
+					{
+						filename = filename.substring(0, filename.length - 4) + '.xml';
+					}
+					
+					this.fileLoaded((mode == App.MODE_BROWSER) ?
+						new StorageFile(this, xml, filename) :
+						new LocalFile(this, xml, filename));
+				}));
+				
+				// Extends dialog close to show splash screen
+				var dlg = this.dialog;
+				var dlgClose = dlg.close;
+				
+				this.dialog.close = mxUtils.bind(this, function(cancel)
+				{
+					Editor.useLocalStorage = prevValue;
+					dlgClose.apply(dlg, arguments);
+		
+					if (this.getCurrentFile() == null)
+					{
+						this.showSplash();
+					}
+				});
+			}
 		}
 	}
-	else
+	catch (e)
 	{
-		var peer = this.getPeerForMode(mode);
-		
-		if (peer != null)
-		{
-			peer.pickFile();
-		}
-		// input.click does not work in IE on Windows 7
-		else if (mode == App.MODE_DEVICE && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
-			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
-		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
-			{
-				if (input.files != null)
-				{
-					this.openFiles(input.files);
-				}
-			}));
-	
-			input.click();
-		}
-		else
-		{
-			this.hideDialog();
-			window.openNew = this.getCurrentFile() != null && !this.isDiagramEmpty();
-			window.baseUrl = this.getUrl();
-			window.openKey = 'open';
-			var prevValue = Editor.useLocalStorage;
-			Editor.useLocalStorage = (mode == App.MODE_BROWSER);
-			this.openFile();
-			
-			// Installs local handler for opened files in same window
-			window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
-			{
-				// Replaces PNG with XML extension
-				var dot = !this.useCanvasForExport && filename.substring(filename.length - 4) == '.png';
-				
-				if (dot)
-				{
-					filename = filename.substring(0, filename.length - 4) + '.xml';
-				}
-				
-				this.fileLoaded((mode == App.MODE_BROWSER) ?
-					new StorageFile(this, xml, filename) :
-					new LocalFile(this, xml, filename));
-			}));
-			
-			// Extends dialog close to show splash screen
-			var dlg = this.dialog;
-			var dlgClose = dlg.close;
-			
-			this.dialog.close = mxUtils.bind(this, function(cancel)
-			{
-				Editor.useLocalStorage = prevValue;
-				dlgClose.apply(dlg, arguments);
-	
-				if (this.getCurrentFile() == null)
-				{
-					this.showSplash();
-				}
-			});
-		}
+		this.handleError(e);
 	}
 };
 
@@ -2858,155 +2886,162 @@ App.prototype.pickLibrary = function(mode)
  */
 App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
 {
-	mode = (mode != null) ? mode : this.mode;
-	noSpin = (noSpin != null) ? noSpin : false;
-	noReload = (noReload != null) ? noReload : false;
-	var xml = this.createLibraryDataFromImages(images);
-	
-	var error = mxUtils.bind(this, function(resp)
+	try
 	{
-		this.spinner.stop();
+		mode = (mode != null) ? mode : this.mode;
+		noSpin = (noSpin != null) ? noSpin : false;
+		noReload = (noReload != null) ? noReload : false;
+		var xml = this.createLibraryDataFromImages(images);
 		
-		if (fn != null)
+		var error = mxUtils.bind(this, function(resp)
 		{
-			fn();
+			this.spinner.stop();
+			
+			if (fn != null)
+			{
+				fn();
+			}
+			
+			this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+		});
+	
+		// Handles special case for local libraries
+		if (file == null && mode == App.MODE_DEVICE)
+		{
+			file = new LocalLibrary(this, xml, name);
 		}
 		
-		this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
-	});
-
-	// Handles special case for local libraries
-	if (file == null && mode == App.MODE_DEVICE)
-	{
-		file = new LocalLibrary(this, xml, name);
-	}
-	
-	if (file == null)
-	{
-		this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+		if (file == null)
 		{
-			if (mode == App.MODE_GOOGLE && this.drive != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+			this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 			{
-				this.drive.insertFile(name, xml, folderId, mxUtils.bind(this, function(newFile)
+				if (mode == App.MODE_GOOGLE && this.drive != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
-					this.spinner.stop();
-					this.hideDialog(true);
-					this.libraryLoaded(newFile, images);
-				}), error, this.drive.libraryMimeType);
-			}
-			else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-			{
-				this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-				{
-					this.spinner.stop();
-					this.hideDialog(true);
-					this.libraryLoaded(newFile, images);
-				}), error, folderId);
-			}
-			else if (mode == App.MODE_TRELLO && this.trello != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-			{
-				this.trello.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-				{
-					this.spinner.stop();
-					this.hideDialog(true);
-					this.libraryLoaded(newFile, images);
-				}), error, folderId);
-			}
-			else if (mode == App.MODE_DROPBOX && this.dropbox != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-			{
-				this.dropbox.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-				{
-					this.spinner.stop();
-					this.hideDialog(true);
-					this.libraryLoaded(newFile, images);
-				}), error, folderId);
-			}
-			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-			{
-				this.oneDrive.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-				{
-					this.spinner.stop();
-					this.hideDialog(true);
-					this.libraryLoaded(newFile, images);
-				}), error, folderId);
-			}
-			else if (mode == App.MODE_BROWSER)
-			{
-				var fn = mxUtils.bind(this, function()
-				{
-					var file = new StorageLibrary(this, xml, name);
-					
-					// Inserts data into local storage
-					file.saveFile(name, false, mxUtils.bind(this, function()
+					this.drive.insertFile(name, xml, folderId, mxUtils.bind(this, function(newFile)
 					{
+						this.spinner.stop();
 						this.hideDialog(true);
-						this.libraryLoaded(file, images);
-					}), error);
-				});
-				
-				if (localStorage.getItem(name) == null)
+						this.libraryLoaded(newFile, images);
+					}), error, this.drive.libraryMimeType);
+				}
+				else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
-					fn();
+					this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_TRELLO && this.trello != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.trello.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_DROPBOX && this.dropbox != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.dropbox.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.oneDrive.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_BROWSER)
+				{
+					var fn = mxUtils.bind(this, function()
+					{
+						var file = new StorageLibrary(this, xml, name);
+						
+						// Inserts data into local storage
+						file.saveFile(name, false, mxUtils.bind(this, function()
+						{
+							this.hideDialog(true);
+							this.libraryLoaded(file, images);
+						}), error);
+					});
+					
+					if (localStorage.getItem(name) == null)
+					{
+						fn();
+					}
+					else
+					{
+						this.confirm(mxResources.get('replaceIt', [name]), fn);
+					}
 				}
 				else
 				{
-					this.confirm(mxResources.get('replaceIt', [name]), fn);
+					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
 				}
+			}));
+		}
+		else if (noSpin || this.spinner.spin(document.body, mxResources.get('saving')))
+		{
+			file.setData(xml);
+			
+			var doSave = mxUtils.bind(this, function()
+			{
+				file.save(true, mxUtils.bind(this, function(resp)
+				{
+					this.spinner.stop();
+					this.hideDialog(true);
+					
+					if (!noReload)
+					{
+						this.libraryLoaded(file, images);
+					}
+					
+					if (fn != null)
+					{
+						fn();
+					}
+				}), error);
+			});
+			
+			if (name != file.getTitle())
+			{
+				var oldHash = file.getHash();
+				
+				file.rename(name, mxUtils.bind(this, function(resp)
+				{
+					// Change hash in stored settings
+					if (file.constructor != LocalLibrary && oldHash != file.getHash())
+					{
+						mxSettings.removeCustomLibrary(oldHash);
+						mxSettings.addCustomLibrary(file.getHash());
+					}
+	
+					// Workaround for library files changing hash so
+					// the old library cannot be removed from the
+					// sidebar using the updated file in libraryLoaded
+					this.removeLibrarySidebar(oldHash);
+	
+					doSave();
+				}), error)
 			}
 			else
 			{
-				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
-			}
-		}));
-	}
-	else if (noSpin || this.spinner.spin(document.body, mxResources.get('saving')))
-	{
-		file.setData(xml);
-		
-		var doSave = mxUtils.bind(this, function()
-		{
-			file.save(true, mxUtils.bind(this, function(resp)
-			{
-				this.spinner.stop();
-				this.hideDialog(true);
-				
-				if (!noReload)
-				{
-					this.libraryLoaded(file, images);
-				}
-				
-				if (fn != null)
-				{
-					fn();
-				}
-			}), error);
-		});
-		
-		if (name != file.getTitle())
-		{
-			var oldHash = file.getHash();
-			
-			file.rename(name, mxUtils.bind(this, function(resp)
-			{
-				// Change hash in stored settings
-				if (file.constructor != LocalLibrary && oldHash != file.getHash())
-				{
-					mxSettings.removeCustomLibrary(oldHash);
-					mxSettings.addCustomLibrary(file.getHash());
-				}
-
-				// Workaround for library files changing hash so
-				// the old library cannot be removed from the
-				// sidebar using the updated file in libraryLoaded
-				this.removeLibrarySidebar(oldHash);
-
 				doSave();
-			}), error)
+			}
 		}
-		else
-		{
-			doSave();
-		}
+	}
+	catch (e)
+	{
+		this.handleError(e);
 	}
 };
 

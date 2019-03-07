@@ -488,7 +488,8 @@
 						mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
 					}
 					
-					if (label.substring(label.length - 3, label.length) != '...')
+					if (label.substring(label.length - 3, label.length) != '...' &&
+						label.charAt(label.length - 1) != '!')
 					{
 						label = label + '...';
 					}
@@ -5696,77 +5697,87 @@
 	 */
 	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData)
 	{
-		var graph = this.editor.graph;
-		var diagramData = null;
-		
-		// Exports PNG for given optional data
-		if (optionalData != null && optionalData.length > 0)
+		try
 		{
-			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-			document.body.appendChild(graph.container);
-			this.decodeNodeIntoGraph(this.editor.extractGraphModel(
-				mxUtils.parseXml(optionalData).documentElement, true), graph);
-			diagramData = optionalData;
-		}
-		// Exports PNG for first page while other page is showing
-		else if (this.pages != null && this.currentPage != this.pages[0])
-		{
-			graph = this.createTemporaryGraph(graph.getStylesheet());
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			var page = this.pages[0];
-	
-			graph.getGlobalVariable = function(name)
+			var graph = this.editor.graph;
+			var diagramData = null;
+			
+			// Exports PNG for given optional data
+			if (optionalData != null && optionalData.length > 0)
 			{
-				if (name == 'page')
+				graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+				document.body.appendChild(graph.container);
+				this.decodeNodeIntoGraph(this.editor.extractGraphModel(
+					mxUtils.parseXml(optionalData).documentElement, true), graph);
+				diagramData = optionalData;
+			}
+			// Exports PNG for first page while other page is showing
+			else if (this.pages != null && this.currentPage != this.pages[0])
+			{
+				graph = this.createTemporaryGraph(graph.getStylesheet());
+				var graphGetGlobalVariable = graph.getGlobalVariable;
+				var page = this.pages[0];
+		
+				graph.getGlobalVariable = function(name)
 				{
-					return page.getName();
-				}
-				else if (name == 'pagenumber')
-				{
-					return 1;
-				}
-				
-				return graphGetGlobalVariable.apply(this, arguments);
-			};
+					if (name == 'page')
+					{
+						return page.getName();
+					}
+					else if (name == 'pagenumber')
+					{
+						return 1;
+					}
+					
+					return graphGetGlobalVariable.apply(this, arguments);
+				};
+		
+				document.body.appendChild(graph.container);
+				graph.model.setRoot(page.root);
+			}
+		
+		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
+		   	{
+		   		try
+		   		{
+		   			if (diagramData == null)
+		   			{
+		   				diagramData = this.getFileData(true);
+		   			}
+		   			
+		   	   	    var data = canvas.toDataURL('image/png');
+	   	   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
+	   	   	   			atob(Graph.compress(diagramData)));
+	   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
 	
-			document.body.appendChild(graph.container);
-			graph.model.setRoot(page.root);
-		}
-	
-	   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
-	   	{
-	   		try
-	   		{
-	   			if (diagramData == null)
-	   			{
-	   				diagramData = this.getFileData(true);
-	   			}
-	   			
-	   	   	    var data = canvas.toDataURL('image/png');
-   	   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
-   	   	   			atob(Graph.compress(diagramData)));
-   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
-
-				// Removes temporary graph from DOM
-   	   	   		if (graph != this.editor.graph)
-				{
-					graph.container.parentNode.removeChild(graph.container);
-				}
-	   		}
-	   		catch (e)
-	   		{
-	   			if (error != null)
+					// Removes temporary graph from DOM
+	   	   	   		if (graph != this.editor.graph)
+					{
+						graph.container.parentNode.removeChild(graph.container);
+					}
+		   		}
+		   		catch (e)
+		   		{
+		   			if (error != null)
+		   			{
+		   				error(e);
+		   			}
+		   		}
+		   	}), null, null, null, mxUtils.bind(this, function(e)
+		   	{
+		   		if (error != null)
 	   			{
 	   				error(e);
 	   			}
-	   		}
-	   	}), null, null, null, mxUtils.bind(this, function(e)
-	   	{
-	   		if (error != null)
-   			{
-   				error(e);
-   			}
-	   	}), null, null, null, null, graph.shadowVisible, null, graph);
+		   	}), null, null, null, null, graph.shadowVisible, null, graph);
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+		}
 	}
 	
 	/**

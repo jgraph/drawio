@@ -3701,7 +3701,7 @@ EditorUi.prototype.showDataDialog = function(cell)
 	if (cell != null)
 	{
 		var dlg = new EditDataDialog(this, cell);
-		this.showDialog(dlg.container, 340, 340, true, false, null, false);
+		this.showDialog(dlg.container, 480, 420, true, false, null, false);
 		dlg.init();
 	}
 };

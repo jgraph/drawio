@@ -948,7 +948,7 @@ Graph.zapGremlins = function(text)
 		var code = text.charCodeAt(i);
 		
 		// Removes all control chars except TAB, LF and CR
-		if (code >= 32 || code == 9 || code == 10 || code == 13)
+		if ((code >= 32 || code == 9 || code == 10 || code == 13) && code != 0xFFFF)
 		{
 			checked.push(text.charAt(i));
 		}
