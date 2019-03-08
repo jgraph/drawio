@@ -1073,7 +1073,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			var t0 = new Date().getTime();
 			var mod0 = file.desc.modifiedDate;
 			var head0 = file.desc.headRevisionId;
-			var size0 = file.desc.fileSize;
 			var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
 			noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
 	
@@ -1163,59 +1162,65 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 					{
 						try
 						{
-					    	// Workaround for cases where we get a success back but the file
-					    	// was possibly not saved is to check the new modified date and
-					    	// compare it to the last known modified date. If it hasn't
-					    	// changed or is before the last date something went wrong.
-							// NOTE: Commented out due to peak in 403 rate limit errors / 5-MAR-2019
-			//		    	this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
-			//					'fields': 'modifiedDate,headRevisionId,fileSize', 'supportsTeamDrives': true}), 
-			//					mxUtils.bind(this, function(resp2)
-			//				{
-			//			    	var delta = new Date(resp2.modifiedDate).getTime() - new Date(mod0).getTime();
-			//			    	
-			//					if (delta <= 0)
-			//					{
-			//						error({message: mxResources.get('saveNotConfirmed')});
-			//						
-			//						EditorUi.logEvent({category: 'UNCONFIRMED-SAVE-GOOGLE',
-			//							action: 'file-' + file.desc.id + '-old-' + head0 + '.' + size0 +
-			//							'-new-' + resp2.headRevisionId + '.' + resp2.fileSize + '-delta-' + delta,
-			//							label: (this.user != null) ? this.user.id : 'unknown-user'});
-			//					}
-			//					else
-			//					{
-									file.saveDelay = new Date().getTime() - t0;
-							    	success(resp, savedData);
-			
-							    	if (prevDesc != null)
+							file.saveDelay = new Date().getTime() - t0;
+							
+							// Checks if modified time is in the future and head revision has changed
+							var delta = new Date(resp.modifiedDate).getTime() - new Date(mod0).getTime();
+							
+							if (delta <= 0 || (revision && head0 == resp.headRevisionId))
+							{
+								error({message: mxResources.get('errorSavingFile')});
+								
+								// Logs failed save
+								try
+								{
+									EditorUi.sendReport('Critical: Error saving to Google Drive ' +
+										new Date().toISOString() + ':' +
+										'\n\nBrowser=' + navigator.userAgent +
+										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
+										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+										'\nOld Rev=' + head0 + ' ' + mod0 +
+										'\nNew Rev=' + resp.headRevisionId + ' ' + resp.modifiedDate);
+									EditorUi.logError('Critical: Error saving to Google Drive',
+										null, file.desc.id + '.' + file.desc.headRevisionId,
+										(this.user != null) ? this.user.id : 'unknown');
+								}
+								catch (e)
+								{
+									// ignore
+								}
+							}
+							else
+							{
+						    	success(resp, savedData);
+		
+						    	if (prevDesc != null)
+								{
+						    		// Pins previous revision
+									this.executeRequest(gapi.client.drive.revisions.get(
 									{
-							    		// Pins previous revision
-										this.executeRequest(gapi.client.drive.revisions.get(
-										{
-											'fileId': prevDesc.id,
-										    'revisionId': prevDesc.headRevisionId,
-										    'supportsTeamDrives': true
-										}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
-										{
-											resp.pinned = true;
-											
-											this.executeRequest(gapi.client.drive.revisions.update(
-								    		{
-							    		      'fileId': prevDesc.id,
-							    		      'revisionId': prevDesc.headRevisionId,
-							    		      'resource': resp
-							    		    }));
-										})));
+										'fileId': prevDesc.id,
+									    'revisionId': prevDesc.headRevisionId,
+									    'supportsTeamDrives': true
+									}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
+									{
+										resp.pinned = true;
 										
-										// Logs conversion
-										EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
-											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
-											'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
-											label: (this.user != null) ? this.user.id : 'unknown-user'});
-									}
-			//					}
-			//				}));
+										this.executeRequest(gapi.client.drive.revisions.update(
+							    		{
+						    		      'fileId': prevDesc.id,
+						    		      'revisionId': prevDesc.headRevisionId,
+						    		      'resource': resp
+						    		    }));
+									})));
+									
+									// Logs conversion
+									EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
+										action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
+										'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
+										label: (this.user != null) ? this.user.id : 'unknown-user'});
+								}
+							}
 						}
 						catch (e)
 						{

@@ -803,5 +803,4 @@ selectChildren=Kindknoten markieren
 selectSiblings=Geschwisterknoten markieren
 selectParent=Vaterknoten markieren
 selectDescendants=Untergeordnete Knoten markieren
-saveNotConfirmed=Speichern nicht bestätigt
 lastSaved=Zuletzt gespeichert vor {1}

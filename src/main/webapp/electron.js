@@ -71,7 +71,7 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			contents.executeJavaScript('if(global.__emt_isModified!=null){global.__emt_isModified()}', true,
+			contents.executeJavaScript('if(typeof global.__emt_isModified === \'function\'){global.__emt_isModified()}', true,
 				isModified =>
 				{
 					console.log('__emt_isModified', isModified)

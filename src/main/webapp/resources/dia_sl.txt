@@ -803,5 +803,4 @@ selectChildren=Select Children
 selectSiblings=Select Siblings
 selectParent=Select Parent
 selectDescendants=Select Descendants
-saveNotConfirmed=Save not confirmed
 lastSaved=Last saved {1} ago
