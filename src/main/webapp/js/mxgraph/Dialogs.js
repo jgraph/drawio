@@ -1483,22 +1483,22 @@ var EditDataDialog = function(ui, cell)
 	{
 	    if (a.name < b.name)
 	    {
-	    		return -1;
+	    	return -1;
 	    }
 	    else if (a.name > b.name)
 	    {
-	    		return 1;
+	    	return 1;
 	    }
 	    else
 	    {
-	    		return 0;
+	    	return 0;
 	    }
 	});
 
 	if (id != null)
 	{	
 		var text = document.createElement('input');
-		text.style.width = '280px';
+		text.style.width = '420px';
 		text.style.textAlign = 'center';
 		text.setAttribute('type', 'text');
 		text.setAttribute('readOnly', 'true');
@@ -1524,7 +1524,7 @@ var EditDataDialog = function(ui, cell)
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('placeholder', mxResources.get('enterPropertyName'));
 	nameInput.setAttribute('type', 'text');
-	nameInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '18' : '22');
+	nameInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '36' : '40');
 	nameInput.style.marginLeft = '2px';
 
 	newProp.appendChild(nameInput);
