@@ -120,9 +120,10 @@ DrawioFile.prototype.changeListenerEnabled = true;
 DrawioFile.prototype.lastAutosaveRevision = null;
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 1000.
+ * Sets the delay between revisions when using autosave. Default is 0 which
+ * creates a revision on every autosave.
  */
-DrawioFile.prototype.maxAutosaveRevisionDelay = 1800000;
+DrawioFile.prototype.maxAutosaveRevisionDelay = 0;
 
 /**
  * Specifies if notify events should be ignored.

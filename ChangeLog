@@ -1,3 +1,8 @@
+08-MAR-2019: 10.3.7
+
+- Creates revision for every autosave in Google Drive
+- Fixes new Confluence editor issues
+
 07-MAR-2019: 10.3.6
 
 - Improves error handling for Google Drive

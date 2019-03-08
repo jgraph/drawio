@@ -2515,6 +2515,12 @@ DriveClient.prototype.convertRealtimeFiles = function()
 														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
 														doNextPage();
 													}));
+												}), mxUtils.bind(this, function(e)
+												{
+													var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
+													failed++;
+													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+													doNextPage();
 												}));
 											}
 											else
