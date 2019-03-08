@@ -1564,44 +1564,44 @@ Graph.prototype.openLink = function(href, target, allowOpener)
 {
 	var result = window;
 	
-	// Workaround for blocking in same iframe
-	if (target == '_self' && window != window.top)
+	try
 	{
-		window.location.href = href;
-	}
-	else
-	{
-		// Avoids page reload for anchors (workaround for IE but used everywhere)
-		if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
-			href.charAt(this.baseUrl.length) == '#' &&
-			target == '_top' && window == window.top)
+		// Workaround for blocking in same iframe
+		if (target == '_self' && window != window.top)
 		{
-			var hash = href.split('#')[1];
-
-			// Forces navigation if on same hash
-			if (window.location.hash == '#' + hash)
-			{
-				window.location.hash = '';
-			}
-			
-			window.location.hash = hash;
+			window.location.href = href;
 		}
 		else
 		{
-			result = window.open(href, target);
-			
-			try
+			// Avoids page reload for anchors (workaround for IE but used everywhere)
+			if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
+				href.charAt(this.baseUrl.length) == '#' &&
+				target == '_top' && window == window.top)
 			{
+				var hash = href.split('#')[1];
+	
+				// Forces navigation if on same hash
+				if (window.location.hash == '#' + hash)
+				{
+					window.location.hash = '';
+				}
+				
+				window.location.hash = hash;
+			}
+			else
+			{
+				result = window.open(href, target);
+	
 				if (result != null && !allowOpener)
 				{
 					result.opener = null;
 				}
 			}
-			catch (e)
-			{
-				// ignores permission denied
-			}
 		}
+	}
+	catch (e)
+	{
+		// ignores permission denied
 	}
 	
 	return result;

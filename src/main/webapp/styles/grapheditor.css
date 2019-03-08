@@ -220,7 +220,7 @@
 	font-weight:bold;
 	color:#188038 !important;
 }
-.geMenubarContainer {
+.geMenubarContainer, .geToolbarContainer, .geHsplit, .geVsplit {
 	background-color:#ffffff;
 }
 .geMenubar {
