@@ -2389,6 +2389,22 @@ DriveClient.prototype.jsonToCell = function(val, codec)
 };
 
 /**
+ * Invokes the given function if the user has writeable realtime files
+ * that must be converted.
+ */
+DriveClient.prototype.checkRealtimeFiles = function(fn)
+{
+	this.executeRequest(gapi.client.drive.files.list({'maxResults': 1, 'q': 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'',
+		'includeTeamDriveItems': true, 'supportsTeamDrives': true}), mxUtils.bind(this, function(res)
+	{
+		if (res != null && (res.nextPageToken != null || (res.items != null && res.items.length > 0)))
+		{
+			fn();
+		}
+	}));
+};
+
+/**
  * Converts all old realtime files. Invoke this using
  * https://www.draw.io/?mode=google&convert-realtime=1
  */
@@ -2411,58 +2427,62 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	{
 		this.checkToken(mxUtils.bind(this, function()
 		{
-			if (this.user != null)
+			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
+			var convertDelay = 15000;
+			var convertedIds = {};
+			var converted = 0;
+			var failed = 0;
+			var counter = 0;
+			var total = 0;
+			
+			var done = mxUtils.bind(this, function()
 			{
-				var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
-				var convertDelay = 15000;
-				var convertedIds = {};
-				var converted = 0;
-				var failed = 0;
-				var counter = 0;
-				var total = 0;
+				this.ui.spinner.stop();
+				print('<br>Conversion complete. Successfully converted ' + converted + ' file(s).', true);
 				
-				var done = mxUtils.bind(this, function()
+				if (failed > 0)
 				{
-					this.ui.spinner.stop();
-					print('<br>Conversion complete. Successfully converted ' + converted + ' file(s).', true);
-					
-					if (failed > 0)
-					{
-						print(' Failed to convert ' + failed + ' file(s).<br><br><b>ACTION REQUIRED:</b><br><ul><li>Click ' +
-							'<a target="_blank" href="https://drive.google.com/drive/u/0/search?q=type:application/vnd.jgraph.mxfile.realtime">here</a> ' +
-							'to list all affected files</li><li>Open each file in turn by right-clicking the file and selecting open with draw.io</li>' +
-							'<li>Open each file in turn. When loaded, select File->Save</li></ul>');	
-					}
-					else
-					{
-						print('<br><br>This window can now be closed.')
-					}
-				});
-				
-				var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
-				
-				this.executeRequest(gapi.client.drive.files.list(totals), mxUtils.bind(this, function(res)
+					print(' Failed to convert ' + failed + ' file(s).<br><br><b>ACTION REQUIRED:</b><br><ul><li>Click ' +
+						'<a target="_blank" href="https://drive.google.com/drive/u/0/search?q=type:application/vnd.jgraph.mxfile.realtime">here</a> ' +
+						'to list all affected files</li><li>Open each file in turn by right-clicking the file and selecting open with draw.io</li>' +
+						'<li>Open each file in turn. When loaded, select File->Save</li></ul>');	
+				}
+				else
 				{
-					this.ui.spinner.stop();
-					total = (res != null && res.items != null) ? res.items.length : 0;
-					
-					if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
+					print('<br><br>This window can now be closed.')
+				}
+			});
+			
+			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
+			
+			this.executeRequest(gapi.client.drive.files.list(totals), mxUtils.bind(this, function(res)
+			{
+				this.ui.spinner.stop();
+				total = (res != null && res.items != null) ? res.items.length : 0;
+				
+				if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
+				{
+					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * convertDelay) / 60000) + ' minute(s). <b>Please do not close this window!</b><br>');
+
+					// Does not show picker if there are no folders in the root
+					var nextPage = mxUtils.bind(this, function(token, delay)
 					{
-						print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * convertDelay) / 60000) + ' minute(s). <b>Please do not close this window!</b><br>');
-	
-						// Does not show picker if there are no folders in the root
-						var nextPage = mxUtils.bind(this, function(token, delay)
+						var query = {'maxResults': 1, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
+						
+						if (token != null)
 						{
-							var query = {'maxResults': 1, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
-							
-							if (token != null)
+							query.pageToken = token;
+						}
+						
+						this.executeRequest(gapi.client.drive.files.list(query), mxUtils.bind(this, function(res)
+						{
+							var doNextPage = mxUtils.bind(this, function()
 							{
-								query.pageToken = token;
-							}
-							
-							this.executeRequest(gapi.client.drive.files.list(query), mxUtils.bind(this, function(res)
-							{
-								var doNextPage = mxUtils.bind(this, function()
+								if (res.nextPageToken != null)
+								{
+									nextPage(res.nextPageToken);
+								}
+								else
 								{
 									if (res.nextPageToken != null)
 									{
@@ -2470,88 +2490,76 @@ DriveClient.prototype.convertRealtimeFiles = function()
 									}
 									else
 									{
-										if (res.nextPageToken != null)
-										{
-											nextPage(res.nextPageToken);
-										}
-										else
-										{
-											done();
-										}
+										done();
 									}
-								});
-								
-								if (res != null && (res.items == null || res.items.length == 0) &&
-									res.nextPageToken != null)
-								{
-									// Next page can still contain results, see
-									// https://stackoverflow.com/questions/23741845
-									nextPage(res.nextPageToken, 10000);
 								}
-								else if (res != null && res.items != null && res.items.length > 0)
+							});
+							
+							if (res != null && (res.items == null || res.items.length == 0) &&
+								res.nextPageToken != null)
+							{
+								// Next page can still contain results, see
+								// https://stackoverflow.com/questions/23741845
+								nextPage(res.nextPageToken, 10000);
+							}
+							else if (res != null && res.items != null && res.items.length > 0)
+							{
+								var fileId = res.items[0].id;
+								this.ui.spinner.stop();
+								counter++;
+								
+								if (this.ui.spinner.spin(document.body, 'Converting file ' + counter + ' of ' + total))
 								{
-									var fileId = res.items[0].id;
-									this.ui.spinner.stop();
-									counter++;
-									
-									if (this.ui.spinner.spin(document.body, 'Converting file ' + counter + ' of ' + total))
+									print('Converting ' + counter + ' of ' + total + ': "' + mxUtils.htmlEntities(res.items[0].title) +
+										'" (' + fileId + ')... ', true);
+		
+									window.setTimeout(mxUtils.bind(this, function()
 									{
-										print('Converting ' + counter + ' of ' + total + ': "' + mxUtils.htmlEntities(res.items[0].title) +
-											'" (' + fileId + ')... ', true);
-			
-										window.setTimeout(mxUtils.bind(this, function()
+										// Exits if same file is returned twice
+										if (convertedIds[fileId] == null)
 										{
-											// Exits if same file is returned twice
-											if (convertedIds[fileId] == null)
+											convertedIds[fileId] = true;
+				
+											this.getFile(fileId, mxUtils.bind(this, function(file)
 											{
-												convertedIds[fileId] = true;
-					
-												this.getFile(fileId, mxUtils.bind(this, function(file)
+												this.saveFile(file, null, mxUtils.bind(this, function()
 												{
-													this.saveFile(file, null, mxUtils.bind(this, function()
-													{
-														converted++;
-														print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
-														doNextPage();
-													}), mxUtils.bind(this, function(err)
-													{
-														var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
-														failed++;
-														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
-														doNextPage();
-													}));
-												}), mxUtils.bind(this, function(e)
+													converted++;
+													print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+													doNextPage();
+												}), mxUtils.bind(this, function(err)
 												{
 													var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
 													failed++;
 													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
 													doNextPage();
 												}));
-											}
-											else
+											}), mxUtils.bind(this, function(e)
 											{
-												this.ui.spinner.stop();
-												print('Search returned duplicate file ' + fileId + '. Exiting.<br><br>This window can now be closed.');
-											}
-										}), (delay != null) ? delay : convertDelay)
-									}
+												var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
+												failed++;
+												print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+												doNextPage();
+											}));
+										}
+										else
+										{
+											this.ui.spinner.stop();
+											print('Search returned duplicate file ' + fileId + '. Exiting.<br><br>This window can now be closed.');
+										}
+									}), (delay != null) ? delay : convertDelay)
 								}
-								else
-								{
-									done();
-								}
-							}));
-						});
-						
-						nextPage();
-					}
-				}));
-			}
-			else
-			{
-				this.ui.spinner.stop();
-				print('Not logged in. Exiting.<br><br>This window can now be closed.');
-			}
+							}
+							else
+							{
+								done();
+							}
+						}));
+					});
+					
+					nextPage();
+				}
+			}));
 		}));
 	}
 	else
