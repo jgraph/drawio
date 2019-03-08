@@ -10329,6 +10329,7 @@
 						{
 							this.buttonContainer.style.paddingRight = '12px';
 							this.buttonContainer.style.paddingTop = '12px';
+							this.buttonContainer.style.right = '25px';
 						}
 						else if (uiTheme != 'min')
 						{

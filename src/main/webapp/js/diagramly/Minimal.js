@@ -1381,9 +1381,9 @@ EditorUi.initMinimalTheme = function()
 		        	elt.style.height = '24px';
 		        	elt.style.width = '24px';
 					elt.style.zIndex = '1';
-					elt.style.top = '11px';
 					elt.style.right = '8px';
 					elt.style.cursor = 'pointer';
+					elt.style.top = (urlParams['embed'] == '1') ? '13px' : '11px';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
 				}

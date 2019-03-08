@@ -1,3 +1,8 @@
+08-MAR-2019: 10.3.9
+
+- Adds warning for Google Drive legacy files
+- Adds language menu in Atlas theme
+
 08-MAR-2019: 10.3.8
 
 - Fixes possible NPEs

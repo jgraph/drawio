@@ -743,63 +743,74 @@
 			})));
 
 			// Extends the menubar with the language menu
-			if (uiTheme != 'atlas')
+			var menusCreateMenuBar = Menus.prototype.createMenubar;
+			Menus.prototype.createMenubar = function(container)
 			{
-				var menusCreateMenuBar = Menus.prototype.createMenubar;
-				Menus.prototype.createMenubar = function(container)
+				var menubar = menusCreateMenuBar.apply(this, arguments);
+				
+				if (menubar != null)
 				{
-					var menubar = menusCreateMenuBar.apply(this, arguments);
+					var langMenu = this.get('language');
 					
-					if (menubar != null)
+					if (langMenu != null)
 					{
-						var langMenu = this.get('language');
+						var elt = menubar.addMenu('', langMenu.funct);
+						elt.setAttribute('title', mxResources.get('language'));
+						elt.style.width = '16px';
+						elt.style.paddingTop = '2px';
+						elt.style.paddingLeft = '4px';
+						elt.style.zIndex = '1';
+						elt.style.position = 'absolute';
+						elt.style.display = 'block';
+						elt.style.cursor = 'pointer';
+						elt.style.right = '17px';
 						
-						if (langMenu != null)
+						if (uiTheme == 'atlas')
 						{
-							var elt = menubar.addMenu('', langMenu.funct);
-							elt.setAttribute('title', mxResources.get('language'));
-							elt.style.width = '16px';
-							elt.style.paddingTop = '2px';
-							elt.style.paddingLeft = '4px';
-							elt.style.zIndex = '1';
-							elt.style.position = 'absolute';
-							elt.style.top = '2px';
-							elt.style.right = '17px';
-							elt.style.display = 'block';
-							elt.style.cursor = 'pointer';
-							
-							if (!mxClient.IS_VML)
-							{
-								var icon = document.createElement('div');
-								icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-								icon.style.backgroundPosition = 'center center';
-								icon.style.backgroundRepeat = 'no-repeat';
-								icon.style.backgroundSize = '19px 19px';
-								icon.style.position = 'absolute';
-								icon.style.height = '19px';
-								icon.style.width = '19px';
-								icon.style.marginTop = '2px';
-								icon.style.zIndex = '1';
-								elt.appendChild(icon);
-								mxUtils.setOpacity(elt, 40);
-								
-								if (uiTheme == 'dark')
-								{
-									elt.style.filter = 'invert(100%)';
-								}
-							}
-							else
-							{
-								elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
-							}
-							
-							document.body.appendChild(elt);
+							elt.style.top = '6px';
+							elt.style.right = '15px';
 						}
+						else if (uiTheme == 'min')
+						{
+							elt.style.top = '2px';
+						}
+						else
+						{
+							elt.style.top = '0px';
+						}
+						
+						if (!mxClient.IS_VML)
+						{
+							var icon = document.createElement('div');
+							icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+							icon.style.backgroundPosition = 'center center';
+							icon.style.backgroundRepeat = 'no-repeat';
+							icon.style.backgroundSize = '19px 19px';
+							icon.style.position = 'absolute';
+							icon.style.height = '19px';
+							icon.style.width = '19px';
+							icon.style.marginTop = '2px';
+							icon.style.zIndex = '1';
+							elt.appendChild(icon);
+							mxUtils.setOpacity(elt, 40);
+							
+							if (uiTheme == 'atlas' || uiTheme == 'dark')
+							{
+								elt.style.opacity = '0.85';
+								elt.style.filter = 'invert(100%)';
+							}
+						}
+						else
+						{
+							elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
+						}
+						
+						document.body.appendChild(elt);
 					}
-	
-					return menubar;
-				};
-			}
+				}
+
+				return menubar;
+			};
 		}
 		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -2789,7 +2800,7 @@
 			{
 				var item = this.addMenuItem(menu, 'scratchpad', parent);
 				
-				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 				{
 					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367');
 				}
@@ -2821,7 +2832,11 @@
 			if (typeof(MathJax) !== 'undefined')
 			{
 				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+				
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+				{
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+				}
 			}
 			
 			if (urlParams['embed'] != '1')
@@ -2940,7 +2955,7 @@
 					
 					var item = this.addMenuItem(menu, 'synchronize', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 					{
 						this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
 					}
@@ -2971,7 +2986,7 @@
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);
 						
-						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 						{
 							this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
 						}
