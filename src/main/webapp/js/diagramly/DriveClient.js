@@ -2457,7 +2457,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				
 				try
 				{
-					EditorUi.sendReport('Convert Realtime Files Report ' +
+					EditorUi.sendReport('Convert Realtime Report ' +
 						new Date().toISOString() + ':' +
 						'\n\nBrowser=' + navigator.userAgent +
 						'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
