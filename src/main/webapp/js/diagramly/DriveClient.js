@@ -2557,7 +2557,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 												
 												if (acceptResponse)
 												{
-													if (file.convertFrom == 'json')
+													if (file.convertedFrom == 'json')
 													{
 														fromJson++;
 													}
