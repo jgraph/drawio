@@ -1215,26 +1215,33 @@ PrintDialog.prototype.create = function(editorUi)
  */
 PrintDialog.printPreview = function(preview)
 {
-	if (preview.wnd != null)
+	try
 	{
-		var printFn = function()
+		if (preview.wnd != null)
 		{
-			preview.wnd.focus();
-			preview.wnd.print();
-			preview.wnd.close();
-		};
-		
-		// Workaround for Google Chrome which needs a bit of a
-		// delay in order to render the SVG contents
-		// Needs testing in production
-		if (mxClient.IS_GC)
-		{
-			window.setTimeout(printFn, 500);
+			var printFn = function()
+			{
+				preview.wnd.focus();
+				preview.wnd.print();
+				preview.wnd.close();
+			};
+			
+			// Workaround for Google Chrome which needs a bit of a
+			// delay in order to render the SVG contents
+			// Needs testing in production
+			if (mxClient.IS_GC)
+			{
+				window.setTimeout(printFn, 500);
+			}
+			else
+			{
+				printFn();
+			}
 		}
-		else
-		{
-			printFn();
-		}
+	}
+	catch (e)
+	{
+		// ignores possible Access Denied
 	}
 };
 
