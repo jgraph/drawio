@@ -1677,7 +1677,7 @@ EditorUi.prototype.initCanvas = function()
 				}
 				
 				this.chromelessToolbar.style.display = '';
-				mxUtils.setOpacity(this.chromelessToolbar, opacity || 30);
+				mxUtils.setOpacity(this.chromelessToolbar, opacity || 30);
 			});
 	
 			if (urlParams['layers'] == '1')

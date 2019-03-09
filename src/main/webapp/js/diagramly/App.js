@@ -771,11 +771,6 @@ App.prototype.formatHideImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/format-hide.
 App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAABpJREFUCNdjgAAbGxAy4AEh5gNwBBGByoIBAIueBd12TUjqAAAAAElFTkSuQmCC';
 
 /**
- * Executes the first step for connecting to Google Drive.
- */
-App.prototype.timeout = 25000;
-
-/**
  * Overriden UI settings depending on mode.
  */
 if (urlParams['embed'] != '1')

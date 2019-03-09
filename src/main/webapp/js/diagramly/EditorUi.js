@@ -205,6 +205,11 @@
 	EditorUi.prototype.mode = null;
 
 	/**
+	 * General timeout is 25 seconds.
+	 */
+	EditorUi.prototype.timeout = 25000;
+
+	/**
 	 * Allows for two buttons in the sidebar footer.
 	 */
 	EditorUi.prototype.sidebarFooterHeight = 38;
@@ -11531,7 +11536,7 @@
 		var graph = this.editor.graph;
 		var active = this.isDiagramActive();
 		var file = this.getCurrentFile();
-		var enabled = file != null || urlParams['embed'] == '1';
+		var enabled = file != null || urlParams['embed'] == '1';
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -11552,7 +11557,7 @@
 		this.actions.get('find').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');
-		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
+		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		

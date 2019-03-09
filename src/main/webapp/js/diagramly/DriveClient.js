@@ -2421,7 +2421,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 		output.scrollTop = output.scrollHeight;
 	});
 	
-	print('draw.io is searching files to be converted...');
+	print('draw.io (' + EditorUi.VERSION + ') is searching files to be converted...');
 	
 	if (this.ui.spinner.spin(document.body, 'Searching files...'))
 	{
@@ -2431,8 +2431,11 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var convertDelay = 15000;
 			var convertedIds = {};
 			var converted = 0;
+			var fromJson = 0;
+			var fromXml = 0;
+			var loadFail = 0;
+			var saveFail = 0;
 			var failed = 0;
-			var counter = 0;
 			var total = 0;
 			
 			var done = mxUtils.bind(this, function()
@@ -2451,6 +2454,21 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				{
 					print('<br><br>This window can now be closed.')
 				}
+				
+				try
+				{
+					EditorUi.sendReport('Convert Realtime Files Report ' +
+						new Date().toISOString() + ':' +
+						'\n\nBrowser=' + navigator.userAgent +
+						'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+						'\nFound=' + total  + ' (Backup: ' + fromXml + ', Realtime: ' + fromJson + ')' +
+						'\nConverted=' + converted +
+						'\nFailed=' + failed  + ' (Load: ' + loadFail + ', Save: ' + saveFail + ')');
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			});
 			
 			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
@@ -2463,6 +2481,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
 				{
 					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * convertDelay) / 60000) + ' minute(s). <b>Please do not close this window!</b><br>');
+					var counter = 0;
 
 					// Does not show picker if there are no folders in the root
 					var nextPage = mxUtils.bind(this, function(token, delay)
@@ -2519,27 +2538,82 @@ DriveClient.prototype.convertRealtimeFiles = function()
 										if (convertedIds[fileId] == null)
 										{
 											convertedIds[fileId] = true;
-				
+											
+											var acceptResponse = true;
+											
+											var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+											{
+												acceptResponse = false;
+												
+												failed++;
+												loadFail++;
+												print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+												doNextPage();
+											}), this.ui.timeout);
+											
 											this.getFile(fileId, mxUtils.bind(this, function(file)
 											{
-												this.saveFile(file, null, mxUtils.bind(this, function()
+												window.clearTimeout(timeoutThread);
+												
+												if (acceptResponse)
 												{
-													converted++;
-													print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
-													doNextPage();
-												}), mxUtils.bind(this, function(err)
+													if (file.convertFrom == 'json')
+													{
+														fromJson++;
+													}
+													else
+													{
+														fromXml++;
+													}
+													
+													acceptResponse = true;
+													
+													timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+													{
+														acceptResponse = false;
+														
+														failed++;
+														saveFail++;
+														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+														doNextPage();
+													}), this.ui.timeout);
+
+													this.saveFile(file, null, mxUtils.bind(this, function()
+													{
+														window.clearTimeout(timeoutThread);
+														
+														if (acceptResponse)
+														{
+															converted++;
+															print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+															doNextPage();
+														}
+													}), mxUtils.bind(this, function(err)
+													{
+														window.clearTimeout(timeoutThread);
+														
+														if (acceptResponse)
+														{
+															var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
+															failed++;
+															saveFail++;
+															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+															doNextPage();
+														}
+													}));
+												}
+											}), mxUtils.bind(this, function(err)
+											{
+												window.clearTimeout(timeoutThread);
+												
+												if (acceptResponse)
 												{
 													var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
 													failed++;
+													loadFail++;
 													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
 													doNextPage();
-												}));
-											}), mxUtils.bind(this, function(e)
-											{
-												var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
-												failed++;
-												print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
-												doNextPage();
+												}
 											}));
 										}
 										else
