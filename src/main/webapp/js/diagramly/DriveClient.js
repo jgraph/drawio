@@ -2427,13 +2427,16 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	{
 		this.checkToken(mxUtils.bind(this, function()
 		{
+			var day = new Date().getDay();
+			var isWeekend = (day === 6) || (day === 0);
 			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
-			var convertDelay = 15000;
+			var convertDelay = (isWeekend) ? 2000 : 15000;
 			var convertedIds = {};
 			var converted = 0;
 			var fromJson = 0;
 			var fromXml = 0;
 			var loadFail = 0;
+			var invalid = 0;
 			var saveFail = 0;
 			var failed = 0;
 			var total = 0;
@@ -2463,13 +2466,20 @@ DriveClient.prototype.convertRealtimeFiles = function()
 						'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
 						'\nFound=' + total  + ' (Backup: ' + fromXml + ', Realtime: ' + fromJson + ')' +
 						'\nConverted=' + converted +
-						'\nFailed=' + failed  + ' (Load: ' + loadFail + ', Save: ' + saveFail + ')');
+						'\nFailed=' + failed  + ' (Load: ' + loadFail + ', Save: ' +
+							saveFail + ', Invalid: ' + invalid + ')');
 				}
 				catch (e)
 				{
 					// ignore
 				}
 			});
+			
+			var getMessage = function(err)
+			{
+				return (err == null) ? '' : ((err.message != null) ? err.message : ((err.error != null &&
+					err.error.message != null) ? err.error.message : ''));
+			};
 			
 			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
 			
@@ -2480,7 +2490,8 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				
 				if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
 				{
-					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * convertDelay) / 60000) + ' minute(s). <b>Please do not close this window!</b><br>');
+					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * (convertDelay + 3000)) / 60000) +
+						' minute(s). <b>Please do not close this window!</b><br>');
 					var counter = 0;
 
 					// Does not show picker if there are no folders in the root
@@ -2557,50 +2568,60 @@ DriveClient.prototype.convertRealtimeFiles = function()
 												
 												if (acceptResponse)
 												{
-													if (file.convertedFrom == 'json')
+													if (file.constructor == DriveFile)
 													{
-														fromJson++;
+														if (file.convertedFrom == 'json')
+														{
+															fromJson++;
+														}
+														else
+														{
+															fromXml++;
+														}
+														
+														acceptResponse = true;
+														
+														timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+														{
+															acceptResponse = false;
+															
+															failed++;
+															saveFail++;
+															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+															doNextPage();
+														}), this.ui.timeout);
+	
+														this.saveFile(file, null, mxUtils.bind(this, function()
+														{
+															window.clearTimeout(timeoutThread);
+															
+															if (acceptResponse)
+															{
+																converted++;
+																print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+																doNextPage();
+															}
+														}), mxUtils.bind(this, function(err)
+														{
+															window.clearTimeout(timeoutThread);
+															
+															if (acceptResponse)
+															{
+																var msg = getMessage(err);
+																failed++;
+																saveFail++;
+																print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+																doNextPage();
+															}
+														}));
 													}
 													else
 													{
-														fromXml++;
-													}
-													
-													acceptResponse = true;
-													
-													timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-													{
-														acceptResponse = false;
-														
 														failed++;
-														saveFail++;
-														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+														invalid++;
+														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Invalid file');
 														doNextPage();
-													}), this.ui.timeout);
-
-													this.saveFile(file, null, mxUtils.bind(this, function()
-													{
-														window.clearTimeout(timeoutThread);
-														
-														if (acceptResponse)
-														{
-															converted++;
-															print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
-															doNextPage();
-														}
-													}), mxUtils.bind(this, function(err)
-													{
-														window.clearTimeout(timeoutThread);
-														
-														if (acceptResponse)
-														{
-															var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
-															failed++;
-															saveFail++;
-															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
-															doNextPage();
-														}
-													}));
+													}
 												}
 											}), mxUtils.bind(this, function(err)
 											{
@@ -2608,7 +2629,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 												
 												if (acceptResponse)
 												{
-													var msg = (err != null && err.error != null && err.error.message != null) ? err.error.message : '';
+													var msg = getMessage(err);
 													failed++;
 													loadFail++;
 													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);

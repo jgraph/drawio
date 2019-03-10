@@ -1117,7 +1117,8 @@ DrawioFileSync.prototype.getIdParameters = function()
 {
 	var result = 'id=' + this.channelId;
 	
-	if (this.pusher != null && this.pusher.connection != null)
+	if (this.pusher != null && this.pusher.connection != null &&
+		this.pusher.connection.socket_id != null)
 	{
 		result += '&sid=' + this.pusher.connection.socket_id;
 	}
