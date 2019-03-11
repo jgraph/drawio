@@ -1068,7 +1068,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 	
 	try
 	{
-		if (file.isEditable())
+		if (file.isEditable() && file.desc != null)
 		{
 			var t0 = new Date().getTime();
 			var mod0 = file.desc.modifiedDate;
@@ -1215,10 +1215,30 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 									})));
 									
 									// Logs conversion
-									EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
-										action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
-										'-to-' + file.desc.id + '.' + file.desc.headRevisionId + '-',
+									try
+									{
+										EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
+											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
+											'-to-' + file.desc.id + '.' + file.desc.headRevisionId,
+											label: (this.user != null) ? this.user.id : 'unknown-user'});
+									}
+									catch (e)
+									{
+										// ignore
+									}
+								}
+						    	
+								// Logs successful save
+								try
+								{
+									EditorUi.logEvent({category: 'SAVE-GOOGLE-' + file.desc.id,
+										action: 'from-' + head0 + '.' + mod0 +
+										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate,
 										label: (this.user != null) ? this.user.id : 'unknown-user'});
+								}
+								catch (e)
+								{
+									// ignore
 								}
 							}
 						}
@@ -2414,6 +2434,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	output.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;padding:8px;' +
 		'background:#ffffff;z-index:2;overflow:auto;white-space:nowrap;line-height:1.5em;';
 	document.body.appendChild(output);
+	var t0 = Date.now();
 	
 	var print = mxUtils.bind(this, function(msg, noBr)
 	{
@@ -2460,6 +2481,8 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				
 				try
 				{
+					var dt = Date.now() - t0;
+					
 					EditorUi.sendReport('Convert Realtime Report ' +
 						new Date().toISOString() + ':' +
 						'\n\nBrowser=' + navigator.userAgent +
@@ -2467,7 +2490,8 @@ DriveClient.prototype.convertRealtimeFiles = function()
 						'\nFound=' + total  + ' (Backup: ' + fromXml + ', Realtime: ' + fromJson + ')' +
 						'\nConverted=' + converted +
 						'\nFailed=' + failed  + ' (Load: ' + loadFail + ', Save: ' +
-							saveFail + ', Invalid: ' + invalid + ')');
+							saveFail + ', Invalid: ' + invalid + ')' +
+						'\ndt=' + Math.round(dt / 1000) + ' sec(s)');
 				}
 				catch (e)
 				{

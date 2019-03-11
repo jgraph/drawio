@@ -888,8 +888,7 @@
 
 				this.addMenuItems(menu, ['support', '-'], parent);
 				
-				if (!editorUi.isOffline() && !EditorUi.isElectronApp &&
-					!navigator.standalone && urlParams['embed'] != '1')
+				if (!EditorUi.isElectronApp && !navigator.standalone && urlParams['embed'] != '1')
 				{
 					this.addMenuItems(menu, ['downloadDesktop'], parent);
 				}
