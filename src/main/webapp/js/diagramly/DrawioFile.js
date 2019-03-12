@@ -1036,6 +1036,14 @@ DrawioFile.prototype.loadPatchDescriptor = function(success, error)
 };
 
 /**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DrawioFile.prototype.patchDescriptor = function(desc, patch)
+{
+	this.setDescriptorEtag(desc, this.getDescriptorEtag(patch));
+};
+
+/**
  * Creates a starts the synchronization.
  */
 DrawioFile.prototype.startSync = function()
