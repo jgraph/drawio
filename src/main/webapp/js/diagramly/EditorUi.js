@@ -653,6 +653,28 @@
 	};
 
 	/**
+	 * Returns true if the given binary data is a Visio file.
+	 */
+	EditorUi.prototype.isVisioData = function(data)
+	{
+		return data.length > 8 && (data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
+			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x04) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06);
+	};
+
+	/**
+	 * Returns true if the given binary data is a PNG file.
+	 */
+	EditorUi.prototype.isPngData = function(data)
+	{
+		return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
+			data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
+			data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
+	};
+
+	/**
 	 * Extracts the mxfile from the given HTML data from a data transfer event.
 	 */
 	var editorUiExtractGraphModelFromHtml = EditorUi.prototype.extractGraphModelFromHtml;
@@ -7954,19 +7976,33 @@
 	 */
 	EditorUi.prototype.loadImage = function(uri, onload, onerror)
 	{
-		var img = new Image();
-		
-		img.onload = function()
+		try
 		{
-			onload(img);
+			var img = new Image();
+			
+			img.onload = function()
+			{
+				onload(img);
+			}
+			
+			if (onerror != null)
+			{
+				img.onerror = onerror;
+			}
+			
+			img.src = uri;
 		}
-		
-		if (onerror != null)
+		catch (e)
 		{
-			img.onerror = onerror;
+			if (onerror != null)
+			{
+				onerror(e);
+			}
+			else
+			{
+				throw e;
+			}
 		}
-		
-		img.src = uri;
 	};
 
 	// Initializes the user interface

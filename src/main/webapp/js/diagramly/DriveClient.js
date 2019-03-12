@@ -61,7 +61,7 @@ DriveClient.prototype.allFields = 'kind,id,parents,headRevisionId,etag,title,mim
  * 
  * TODO: Limit to etag and ekey property only
  */
-DriveClient.prototype.catchupFields = 'etag,properties(key,value)';
+DriveClient.prototype.catchupFields = 'etag,headRevisionId,modifiedDate,properties(key,value)';
 
 /**
  * Specifies if thumbnails should be enabled. Default is true.
@@ -789,6 +789,11 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 				// Redirects title to originalFilename to
 				// match expected descriptor interface
 				resp.title = resp.originalFilename;
+				
+				// Uses ID of file instead of revision ID in descriptor
+				// to avoid a change of the document hash property
+				resp.headRevisionId = resp.id;
+				resp.id = id;
 
    				this.getXmlFile(resp, success, error);
 			}), error);
@@ -952,10 +957,12 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 				}
 				else
 				{
+					var importFile = false;
+					
 					if (/\.png$/i.test(resp.title))
 					{
 						var index = data.lastIndexOf(',');
-		
+						
 						if (index > 0)
 						{
 							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
@@ -971,22 +978,24 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 								// is required for creating the images for .PNG and .SVG files.
 								try
 								{
-									var temp = atob(data.substring(index + 1));
+									var xml = data.substring(index + 1);
+									var temp = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ?
+										atob(xml) : Base64.decode(xml);
+									var node = this.ui.editor.extractGraphModel(
+										mxUtils.parseXml(temp).documentElement, true);
 									
-									if (temp != null && (temp.substring(0, 8) === '<mxfile ' ||
-										temp.substring(0, 14) === '<mxGraphModel ' ||
-										temp.substring(0, 14) === '<mxGraphModel>'))
-			    					{
-										data = temp;
-			    					}
+									if (node == null || node.getElementsByTagName('parsererror').length > 0)
+									{
+										importFile = true;
+									}
 									else
 									{
-										// TODO: Import as PNG
+										data = temp;
 									}
 								}
 								catch (e)
 								{
-									// ignore
+									importFile = true;
 								}
 							}
 						}
@@ -998,7 +1007,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 						data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
 					}
 					
-					success(new DriveFile(this.ui, data, resp));
+					success((importFile) ? new LocalFile(this.ui, data, resp.title, true) : new DriveFile(this.ui, data, resp));
 				}
 			}
 			catch (e)
@@ -2451,7 +2460,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var day = new Date().getDay();
 			var isWeekend = (day === 6) || (day === 0);
 			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
-			var convertDelay = (isWeekend) ? 2000 : 15000;
+			var convertDelay = (isWeekend) ? 1000 : 5000;
 			var convertedIds = {};
 			var converted = 0;
 			var fromJson = 0;
@@ -2483,15 +2492,14 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				{
 					var dt = Date.now() - t0;
 					
-					EditorUi.sendReport('Convert Realtime Report ' +
-						new Date().toISOString() + ':' +
-						'\n\nBrowser=' + navigator.userAgent +
-						'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
-						'\nFound=' + total  + ' (Backup: ' + fromXml + ', Realtime: ' + fromJson + ')' +
-						'\nConverted=' + converted +
-						'\nFailed=' + failed  + ' (Load: ' + loadFail + ', Save: ' +
-							saveFail + ', Invalid: ' + invalid + ')' +
-						'\ndt=' + Math.round(dt / 1000) + ' sec(s)');
+					// Logs conversion
+					EditorUi.logEvent({category: 'AUTO-CONVERT',
+						action: 'total-' + total + '-xml-' + fromXml +
+						'-json-' + fromJson + '-done-' + converted +
+						'-fail-' + failed + '-load-' + loadFail +
+						'-save-' + saveFail + '-invalid-' + invalid +
+						'-dt-' + Math.round(dt / 1000),
+						label: (this.user != null) ? this.user.id : 'unknown-user'});
 				}
 				catch (e)
 				{
@@ -2622,7 +2630,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 															if (acceptResponse)
 															{
 																converted++;
-																print('<img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+																print('OK <img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
 																doNextPage();
 															}
 														}), mxUtils.bind(this, function(err)

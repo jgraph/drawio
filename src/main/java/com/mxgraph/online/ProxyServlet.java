@@ -67,14 +67,14 @@ public class ProxyServlet extends HttpServlet
 			String ua = request.getHeader("User-Agent");
 			String dom = getCorsDomain(ref, ua);
 
-			try
+			try(OutputStream out = response.getOutputStream())
 			{
 				request.setCharacterEncoding("UTF-8");
 				response.setCharacterEncoding("UTF-8");
 
 				URL url = new URL(urlParam);
 				URLConnection connection = url.openConnection();
-				OutputStream out = response.getOutputStream();
+				
 				response.setHeader("Cache-Control", "private, max-age=86400");
 
 				// Workaround for 451 response from Iconfinder CDN
@@ -123,7 +123,6 @@ public class ProxyServlet extends HttpServlet
 				}
 
 				out.flush();
-				out.close();
 
 				log.log(Level.FINEST, "processed proxy request: url="
 						+ ((urlParam != null) ? urlParam : "[null]")

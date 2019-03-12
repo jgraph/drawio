@@ -646,6 +646,17 @@ DriveFile.prototype.loadPatchDescriptor = function(success, error)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DriveFile.prototype.patchDescriptor = function(desc, patch)
+{
+	DrawioFile.prototype.patchDescriptor.apply(this, arguments);
+	
+	desc.headRevisionId = patch.headRevisionId;
+	desc.modifiedDate = patch.modifiedDate;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DriveFile.prototype.loadDescriptor = function(success, error)
 {
 	this.ui.drive.loadDescriptor(this.getId(), success, error);
