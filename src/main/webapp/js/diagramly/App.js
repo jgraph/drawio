@@ -3223,7 +3223,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 			
 			if (/(\.v(dx|sdx?))($|\?)/i.test(filterFn) || this.isVisioData(data))
 			{
-				this.importVisio(this.base64ToBlob(data.substring(data.indexOf(',') + 1)), function(xml)
+				this.importVisio(this.base64ToBlob(responseData.substring(responseData.indexOf(',') + 1)), function(xml)
 				{
 					onload(xml);
 				}, onerror, filterFn);
