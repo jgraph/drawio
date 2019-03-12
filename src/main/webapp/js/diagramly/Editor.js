@@ -940,7 +940,6 @@
 	    return a;
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Returns true if the given URL is known to have CORS headers.
 	 */
@@ -955,6 +954,7 @@
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
+			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
 			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
