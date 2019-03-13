@@ -1044,10 +1044,37 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.saveFile = function(file, revision, success, error, noCheck, unloading, overwrite, properties)
+DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties)
 {
+	var error = mxUtils.bind(this, function(e)
+	{
+		if (errFn != null)
+		{
+			errFn(e);
+		}
+		else
+		{
+			throw e;
+		}
+		
+		// Logs failed save
+		try
+		{
+			EditorUi.logEvent({category: 'FAIL-SAVE-GOOGLE-' + file.desc.id  + '.' +
+				file.desc.headRevisionId + '.' + file.desc.modifiedDate,
+				action: 'error-' + file.getErrorMessage(e),
+				label: (this.user != null) ? this.user.id : 'unknown-user'});
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	});
+	
 	var criticalError = mxUtils.bind(this, function(e)
 	{
+		error(e);
+
 		try
 		{
 			EditorUi.logError(e.message, null, null, e);
@@ -1064,15 +1091,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 		{
 			// ignore
 		}
-
-		if (error != null)
-		{
-			error(e);
-		}
-		else
-		{
-			throw e;
-		}
 	});
 	
 	try
@@ -1084,7 +1102,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 			var head0 = file.desc.headRevisionId;
 			var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
 			noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
-	
+			
 			// NOTE: Unloading arg is currently ignored, saving during unload/beforeUnload is not possible using
 			// asynchronous code, which is needed to create the thumbnail, or asynchronous requests which is the only
 			// way to execute the gapi request below.
@@ -1240,10 +1258,10 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 								// Logs successful save
 								try
 								{
-									EditorUi.logEvent({category: 'SAVE-GOOGLE-' + file.desc.id,
-										action: 'from-' + head0 + '.' + mod0 +
-										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate,
-										label: (this.user != null) ? this.user.id : 'unknown-user'});
+									EditorUi.logEvent({category: 'SAVE-GOOGLE-' + file.desc.id +
+										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
+										'.' + resp.modifiedDate, label: (this.user != null) ?
+										this.user.id : 'unknown-user'});
 								}
 								catch (e)
 								{
@@ -1322,7 +1340,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, error, noChec
 																		'\n\nBrowser=' + navigator.userAgent +
 																		'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
 																		'\nUser=' + ((this.user != null) ? this.user.id : 'unknown'));
-																	EditorUi.logError('Warning: Stale Etag Overwrite',
+																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.desc.id,
 																		null, file.desc.id + '.' + file.desc.headRevisionId,
 																		(this.user != null) ? this.user.id : 'unknown');
 																}
@@ -2460,7 +2478,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var day = new Date().getDay();
 			var isWeekend = (day === 6) || (day === 0);
 			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
-			var convertDelay = (isWeekend) ? 1000 : 5000;
+			var convertDelay = (isWeekend) ? 1000 : 2000;
 			var convertedIds = {};
 			var converted = 0;
 			var fromJson = 0;

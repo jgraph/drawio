@@ -263,9 +263,10 @@ OneDriveFile.prototype.getLastModifiedDate = function()
  */
 OneDriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	DrawioFile.prototype.save.apply(this, arguments);
-	
-	this.saveFile(this.getTitle(), false, success, error, unloading, overwrite);
+	DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+	{
+		this.saveFile(this.getTitle(), false, success, error, unloading, overwrite);
+	}), error, unloading, overwrite]);
 };
 
 /**

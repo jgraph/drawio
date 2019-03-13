@@ -25,8 +25,11 @@ App = function(editor, container, lightbox)
 			
 			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
 			{
-				EditorUi.logEvent({category: 'Unload-Modified', action: file.getId(), label:
-					(this.drive.user != null) ? this.drive.user.id : 'unknown-user'});	
+				EditorUi.logEvent({category: 'DISCARD-SAVE-GOOGLE-' + file.getId() + '.' +
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
+					action: 'time-' + new Date().toISOString() + '-saved-' +
+					((file.lastSaved != null) ? file.lastSaved.toISOString() : 'never'),
+					label: (this.drive.user != null) ? this.drive.user.id : 'unknown-user'});
 			}
 		});
 	}
@@ -65,7 +68,27 @@ App = function(editor, container, lightbox)
 			pre();
 		}
 	});
+
+	// Handles cloning errors when copying cells
+	var clipboardCopy = mxClipboard.copy;
+	var self = this;
 	
+	mxClipboard.copy = function(graph, cells)
+	{
+		var result = null;
+		
+		try
+		{
+			result = clipboardCopy.apply(this, arguments);
+		}
+		catch (e)
+		{
+			self.handleError(e);
+		}
+		
+		return result;
+	},
+
 	// Initial state for toolbar items is disabled
 	this.updateDocumentTitle();
 	this.updateUi();
@@ -1020,49 +1043,43 @@ App.prototype.init = function()
 						
 						this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 						{
-							var day = new Date().getDay();
-							var isWeekend = (day === 6) || (day === 0);
+							var footer = document.createElement('div');
+							footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
+								'white-space:nowrap;left:50%;bottom:2px;';
+							footer.className = 'geStatusAlert';
 							
-							if (isWeekend || Math.random() > 0.6)
+							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+							mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
+							footer.style.whiteSpace = 'nowrap';
+							footer.innerHTML = '<a href="https://desk.draw.io/support/solutions/articles/16000092210" ' +
+								'target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
+								'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;" valign="middle"/>&nbsp;' +
+								'You need to take action to convert legacy files. Click here.&nbsp;' +
+								'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-left:2px;" valign="middle"/></a>';
+							
+							var img = document.createElement('img');
+							
+							img.setAttribute('src', Dialog.prototype.closeImage);
+							img.setAttribute('title', mxResources.get('close'));
+							img.style.position = 'absolute';
+							img.style.cursor = 'pointer';
+							img.style.right = '10px';
+							img.style.top = '12px';
+
+							footer.appendChild(img);
+
+							mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
 							{
-								var footer = document.createElement('div');
-								footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
-									'white-space:nowrap;left:50%;bottom:2px;';
-								footer.className = 'geStatusAlert';
-								
-								mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-								mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
-								footer.style.whiteSpace = 'nowrap';
-								footer.innerHTML = '<a href="https://desk.draw.io/support/solutions/articles/16000092210" ' +
-									'target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;" valign="middle"/>&nbsp;' +
-									'You need to take action to convert legacy files. Click here.&nbsp;' +
-									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-left:2px;" valign="middle"/></a>';
-								
-								var img = document.createElement('img');
-								
-								img.setAttribute('src', Dialog.prototype.closeImage);
-								img.setAttribute('title', mxResources.get('close'));
-								img.style.position = 'absolute';
-								img.style.cursor = 'pointer';
-								img.style.right = '10px';
-								img.style.top = '12px';
-	
-								footer.appendChild(img);
-	
-								mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-								{
-									footer.parentNode.removeChild(footer);
-									this.hideFooter();
-								}));
-								
-								document.body.appendChild(footer);
-								
-								window.setTimeout(mxUtils.bind(this, function()
-								{
-									mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-								}), 1500);
-							}
+								footer.parentNode.removeChild(footer);
+								this.hideFooter();
+							}));
+							
+							document.body.appendChild(footer);
+							
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+							}), 1500);
 						}));
 					}))
 					

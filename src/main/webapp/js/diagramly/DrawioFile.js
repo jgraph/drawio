@@ -120,10 +120,10 @@ DrawioFile.prototype.changeListenerEnabled = true;
 DrawioFile.prototype.lastAutosaveRevision = null;
 
 /**
- * Sets the delay between revisions when using autosave. Default is 0 which
- * creates a revision on every autosave.
+ * Sets the delay between revisions when using autosave. Default is 300000
+ * ie 5 mins. Set this to 0 to create a revision on every autosave.
  */
-DrawioFile.prototype.maxAutosaveRevisionDelay = 0;
+DrawioFile.prototype.maxAutosaveRevisionDelay = 300000;
 
 /**
  * Specifies if notify events should be ignored.
@@ -461,12 +461,9 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 					this.ui.getPagesForNode(
 					mxUtils.parseXml(file.data).documentElement)), 25000) : 'n/a';
 				
-				this.sendErrorReport(
-					'Checksum Error in ' + functionName,
-					((details != null) ? (details) : '') +
-					'\n\nPatches:\n' + json +
-					((remote != null) ? ('\n\nRemote:\n' + remote) : ''),
-					null, 70000);
+				this.sendErrorReport('Checksum Error in ' + functionName + ' ' + this.getId(),
+					((details != null) ? (details) : '') +  '\n\nPatches:\n' + json +
+					((remote != null) ? ('\n\nRemote:\n' + remote) : ''), null, 70000);
 			});
 	
 			if (etag == null)
@@ -734,7 +731,6 @@ DrawioFile.prototype.patch = function(patches, resolver)
 				}
 				else
 				{
-					
 					graph.view.validate();
 				}
 				
@@ -751,32 +747,51 @@ DrawioFile.prototype.patch = function(patches, resolver)
  */
 DrawioFile.prototype.save = function(revision, success, error, unloading, overwrite, manual)
 {
-	if (!this.isEditable())
+	try
 	{
-		if (error != null)
+		if (!this.isEditable())
 		{
-			error({message: mxResources.get('readOnly')});
+			if (error != null)
+			{
+				error({message: mxResources.get('readOnly')});
+			}
+			else
+			{
+				throw new Error(mxResources.get('readOnly'));
+			}
+		}
+		else if (!overwrite && this.invalidChecksum)
+		{
+			if (error != null)
+			{
+				error({message: mxResources.get('checksum')});
+			}
+			else
+			{
+				throw new Error(mxResources.get('checksum'));
+			}
 		}
 		else
 		{
-			throw new Error(mxResources.get('readOnly'));
+			this.updateFileData();
+			this.clearAutosave();
+			
+			if (success != null)
+			{
+				success();
+			}
 		}
 	}
-	else if (!overwrite && this.invalidChecksum)
+	catch (e)
 	{
 		if (error != null)
 		{
-			error({message: mxResources.get('checksum')});
+			error(e);
 		}
 		else
 		{
-			throw new Error(mxResources.get('checksum'));
+			throw e;
 		}
-	}
-	else
-	{
-		this.updateFileData();
-		this.clearAutosave();
 	}
 };
 

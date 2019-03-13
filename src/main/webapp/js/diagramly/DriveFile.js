@@ -133,9 +133,10 @@ DriveFile.prototype.isMovable = function()
  */
 DriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	DrawioFile.prototype.save.apply(this, arguments);
-	
-	this.saveFile(null, revision, success, error, unloading, overwrite);
+	DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+	{
+		this.saveFile(null, revision, success, error, unloading, overwrite);
+	}), error, unloading, overwrite]);
 };
 
 /**
