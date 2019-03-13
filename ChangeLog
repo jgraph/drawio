@@ -1,3 +1,9 @@
+13-MAR-2019: 10.4.5
+
+- Fixes bug in Confluence cloud
+- Fixes error handling
+- Improves logging
+
 12-MAR-2019: 10.4.4
 
 - Adds blob.core.windows.net to known CORS urls
