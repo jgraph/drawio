@@ -90,6 +90,22 @@ DrawioFile.prototype.autosaveThread = null;
 DrawioFile.prototype.lastAutosave = null;
 
 /**
+ * Stores the timestamp for hte last autosave.
+ */
+DrawioFile.prototype.lastSaved = null;
+
+/**
+ * Stores the timestamp for hte last autosave.
+ */
+DrawioFile.prototype.lastWarned = null;
+
+/**
+ * Interal to show dialog for unsaved data with autosave.
+ * Default is 600000 (10 minutes).
+ */
+DrawioFile.prototype.warnInterval = 600000;
+
+/**
  * Stores the modified state.
  */
 DrawioFile.prototype.modified = false;
@@ -490,8 +506,19 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			var user = this.getCurrentUser();
 			var uid = (user != null) ? user.id : 'unknown';
 			
-			EditorUi.logError('Checksum Error in ' + functionName, null,
-				this.getMode() + '.' + this.getId(), uid);
+			EditorUi.logError('Checksum Error in ' + functionName + ' ' + this.getId(),
+				null, this.getMode() + '.' + this.getId(), uid);
+			
+			// Logs checksum error for file
+			try
+			{
+				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + this.getHash(),
+					action: functionName, label: uid});
+			}
+			catch (e)
+			{
+				// ignore
+			}
 		}
 	}
 	catch (e)
@@ -1576,6 +1603,42 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 					mxUtils.htmlEntities(mxResources.get('error')) +
 					((msg != null) ? ' (' + mxUtils.htmlEntities(msg) + ')' : '') + '</div>');
 			}
+			else if (this.isModified() && !manual && this.isAutosave())
+			{
+				if (this.lastWarned == null)
+				{
+					this.lastWarned = Date.now();
+				}
+				else if (Date.now() - this.lastWarned > this.warnInterval)
+				{
+					var msg = '';
+					
+					if (this.lastSaved != null)
+					{
+						var str = this.ui.timeSince(new Date(this.lastSaved));
+					
+						// Only show if more than a minute ago
+						if (str != null)
+						{
+							msg = mxResources.get('lastSaved', [str]);
+						}
+					}
+					
+					this.ui.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
+						mxUtils.bind(this, function()
+						{
+							this.lastWarned = Date.now();
+							this.ui.hideDialog();
+							EditorUi.logEvent({category: 'IGNORE-WARN-SAVE-FILE-' + this.getHash(), action: 'ignore'});
+						}), null, mxResources.get('save'), mxUtils.bind(this, function()
+						{
+							this.lastWarned = Date.now();
+							this.ui.actions.get((this.ui.mode == null || !this.isEditable()) ?
+								'saveAs' : 'save').funct();
+							EditorUi.logEvent({category: 'SAVE-WARN-SAVE-FILE-' + this.getHash(), action: 'save'});
+						}), null, null, 360, 120);
+				}
+			}
 		}
 	}
 };
@@ -1936,7 +1999,7 @@ DrawioFile.prototype.destroy = function()
 			var user = this.getCurrentUser();
 			var uid = (user != null) ? user.id : 'unknown';
 		
-			EditorUi.logEvent({category: 'RT-END-' + DrawioFile.SYNC,
+			EditorUi.logEvent({category: DrawioFile.SYNC + '-DESTROY-FILE-' + DrawioFile.SYNC,
 				action: 'file-' + this.getId() +
 				'-mode-' + this.getMode() +
 				'-size-' + this.getSize() +

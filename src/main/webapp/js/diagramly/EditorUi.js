@@ -3370,10 +3370,6 @@
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultPageBorderColor = '#505759';
-		    Graph.prototype.svgShadowColor = '#e0e0e0';
-		    Graph.prototype.svgShadowOpacity = '0.6';
-		    Graph.prototype.svgShadowSize = '0.8';
-		    Graph.prototype.svgShadowBlur = '1.4';
 			Format.prototype.inactiveTabBackgroundColor = 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';

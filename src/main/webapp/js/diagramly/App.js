@@ -25,7 +25,7 @@ App = function(editor, container, lightbox)
 			
 			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
 			{
-				EditorUi.logEvent({category: 'DISCARD-SAVE-GOOGLE-' + file.getId() + '.' +
+				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '.' +
 					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
 					action: 'time-' + new Date().toISOString() + '-saved-' +
 					((file.lastSaved != null) ? file.lastSaved.toISOString() : 'never'),
@@ -1195,7 +1195,7 @@ App.prototype.init = function()
 			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
 				acceptResponse = false;
-				EditorUi.logEvent({category: 'Cache', action: 'alive', label: 408});
+				EditorUi.logEvent({category: 'TIMEOUT-CACHE-CHECK', action: 'timeout', label: 408});
 			}), this.timeout);
 			
 			var t0 = new Date().getTime();
@@ -1206,7 +1206,7 @@ App.prototype.init = function()
 				
 				if (acceptResponse)
 				{
-					EditorUi.logEvent({category: 'Cache', action: 'alive', label:
+					EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
 						req.getStatus() + '.' + (new Date().getTime() - t0)});
 				}
 			}));
@@ -2128,14 +2128,7 @@ App.prototype.load = function()
 						if (urlParams['convert-realtime'] == '1')
 						{
 							this.spinner.stop();
-							
-							this.confirm('You are about to convert realtime files', mxUtils.bind(this, function()
-							{
-								this.drive.convertRealtimeFiles();
-							}), mxUtils.bind(this, function()
-							{
-								this.start();
-							}));
+							this.drive.convertRealtimeFiles();
 						}
 						else
 						{

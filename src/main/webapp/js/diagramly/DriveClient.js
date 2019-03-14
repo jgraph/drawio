@@ -1060,10 +1060,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		// Logs failed save
 		try
 		{
-			EditorUi.logEvent({category: 'FAIL-SAVE-GOOGLE-' + file.desc.id  + '.' +
-				file.desc.headRevisionId + '.' + file.desc.modifiedDate,
-				action: 'error-' + file.getErrorMessage(e),
-				label: (this.user != null) ? this.user.id : 'unknown-user'});
+			if (!file.isConflict(e))
+			{
+				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash()  + '.' +
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
+					action: 'error-' + file.getErrorMessage(e),
+					label: (this.user != null) ? this.user.id : 'unknown-user'});
+			}
 		}
 		catch (e)
 		{
@@ -1098,6 +1101,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		if (file.isEditable() && file.desc != null)
 		{
 			var t0 = new Date().getTime();
+			var etag0 = file.desc.etag;
 			var mod0 = file.desc.modifiedDate;
 			var head0 = file.desc.headRevisionId;
 			var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
@@ -1194,7 +1198,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							// Checks if modified time is in the future and head revision has changed
 							var delta = new Date(resp.modifiedDate).getTime() - new Date(mod0).getTime();
 							
-							if (delta <= 0 || (revision && head0 == resp.headRevisionId))
+							if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 							{
 								error({message: mxResources.get('errorSavingFile')});
 								
@@ -1206,10 +1210,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										'\n\nBrowser=' + navigator.userAgent +
 										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
 										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
-										'\nOld Rev=' + head0 + ' ' + mod0 +
-										'\nNew Rev=' + resp.headRevisionId + ' ' + resp.modifiedDate);
-									EditorUi.logError('Critical: Error saving to Google Drive',
-										null, file.desc.id + '.' + file.desc.headRevisionId,
+										'\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' + this.ui.hashValue(etag0) +
+										'\nNew=' + resp.headRevisionId + ' ' + resp.modifiedDate + '  etag-hash=' + this.ui.hashValue(resp.etag))
+									EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
+										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
+										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' + this.ui.hashValue(resp.etag),
 										(this.user != null) ? this.user.id : 'unknown');
 								}
 								catch (e)
@@ -1244,7 +1249,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									// Logs conversion
 									try
 									{
-										EditorUi.logEvent({category: 'RT-CONVERT-' + file.convertedFrom,
+										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
 											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
 											'-to-' + file.desc.id + '.' + file.desc.headRevisionId,
 											label: (this.user != null) ? this.user.id : 'unknown-user'});
@@ -1258,7 +1263,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								// Logs successful save
 								try
 								{
-									EditorUi.logEvent({category: 'SAVE-GOOGLE-' + file.desc.id +
+									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
 										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
 										'.' + resp.modifiedDate, label: (this.user != null) ?
 										this.user.id : 'unknown-user'});
@@ -1274,7 +1279,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							criticalError(e);
 						}
 					});
-		
+					
 					var doExecuteRequest = mxUtils.bind(this, function(data, binary)
 					{
 						try
@@ -1335,11 +1340,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																// Logs overwrite
 																try
 																{
-																	EditorUi.sendReport('Warning: Stale Etag Overwrite ' +
-																		new Date().toISOString() + ':' +
-																		'\n\nBrowser=' + navigator.userAgent +
-																		'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
-																		'\nUser=' + ((this.user != null) ? this.user.id : 'unknown'));
 																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.desc.id,
 																		null, file.desc.id + '.' + file.desc.headRevisionId,
 																		(this.user != null) ? this.user.id : 'unknown');
@@ -2475,10 +2475,8 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	{
 		this.checkToken(mxUtils.bind(this, function()
 		{
-			var day = new Date().getDay();
-			var isWeekend = (day === 6) || (day === 0);
 			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
-			var convertDelay = (isWeekend) ? 1000 : 2000;
+			var convertDelay = 2000;
 			var convertedIds = {};
 			var converted = 0;
 			var fromJson = 0;
@@ -2488,6 +2486,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var saveFail = 0;
 			var failed = 0;
 			var total = 0;
+			var queryFail = 0;
 			
 			var done = mxUtils.bind(this, function()
 			{
@@ -2530,14 +2529,9 @@ DriveClient.prototype.convertRealtimeFiles = function()
 				return (err == null) ? '' : ((err.message != null) ? err.message : ((err.error != null &&
 					err.error.message != null) ? err.error.message : ''));
 			};
-			
-			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
-			
-			this.executeRequest(gapi.client.drive.files.list(totals), mxUtils.bind(this, function(res)
+
+			var doConvert = mxUtils.bind(this, function()
 			{
-				this.ui.spinner.stop();
-				total = (res != null && res.items != null) ? res.items.length : 0;
-				
 				if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
 				{
 					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * (convertDelay + 3000)) / 60000) +
@@ -2554,15 +2548,21 @@ DriveClient.prototype.convertRealtimeFiles = function()
 							query.pageToken = token;
 						}
 						
+						var acceptResponse = true;
+						
+						var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							acceptResponse = false;
+							nextPage(token, delay);
+						}), this.ui.timeout);
+						
 						this.executeRequest(gapi.client.drive.files.list(query), mxUtils.bind(this, function(res)
 						{
-							var doNextPage = mxUtils.bind(this, function()
+							window.clearTimeout(timeoutThread);
+							
+							if (acceptResponse)
 							{
-								if (res.nextPageToken != null)
-								{
-									nextPage(res.nextPageToken);
-								}
-								else
+								var doNextPage = mxUtils.bind(this, function()
 								{
 									if (res.nextPageToken != null)
 									{
@@ -2572,139 +2572,187 @@ DriveClient.prototype.convertRealtimeFiles = function()
 									{
 										done();
 									}
-								}
-							});
-							
-							if (res != null && (res.items == null || res.items.length == 0) &&
-								res.nextPageToken != null)
-							{
-								// Next page can still contain results, see
-								// https://stackoverflow.com/questions/23741845
-								nextPage(res.nextPageToken, 10000);
-							}
-							else if (res != null && res.items != null && res.items.length > 0)
-							{
-								var fileId = res.items[0].id;
-								this.ui.spinner.stop();
-								counter++;
+								});
 								
-								if (this.ui.spinner.spin(document.body, 'Converting file ' + counter + ' of ' + total))
+								if (res != null && res.error != null)
 								{
-									print('Converting ' + counter + ' of ' + total + ': "' + mxUtils.htmlEntities(res.items[0].title) +
-										'" (' + fileId + ')... ', true);
-		
-									window.setTimeout(mxUtils.bind(this, function()
+									queryFail++;
+									
+									if (queryFail < 4)
 									{
-										// Exits if same file is returned twice
-										if (convertedIds[fileId] == null)
+										nextPage(token, delay);
+									}
+									else
+									{
+										this.ui.spinner.stop();
+										print('Query for next file failed multiple times. Exiting.<br><br>This window can now be closed.');
+									}
+								}
+								else if (res != null && (res.items == null || res.items.length == 0) &&
+									res.nextPageToken != null)
+								{
+									// Next page can still contain results, see
+									// https://stackoverflow.com/questions/23741845
+									nextPage(res.nextPageToken, 10000);
+								}
+								else if (res != null && res.items != null && res.items.length > 0)
+								{
+									var fileId = res.items[0].id;
+									this.ui.spinner.stop();
+									counter++;
+									
+									if (this.ui.spinner.spin(document.body, 'Converting file ' + counter + ' of ' + total))
+									{
+										print('Converting ' + counter + ' of ' + total + ': "' + mxUtils.htmlEntities(res.items[0].title) +
+											'" (<a href="https://drive.google.com/open?id=' + fileId + '" target="_blank">' + fileId + '</a>)... ', true);
+			
+										window.setTimeout(mxUtils.bind(this, function()
 										{
-											convertedIds[fileId] = true;
-											
-											var acceptResponse = true;
-											
-											var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+											// Exits if same file is returned twice
+											if (convertedIds[fileId] == null)
 											{
-												acceptResponse = false;
+												convertedIds[fileId] = true;
 												
-												failed++;
-												loadFail++;
-												print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
-												doNextPage();
-											}), this.ui.timeout);
-											
-											this.getFile(fileId, mxUtils.bind(this, function(file)
-											{
-												window.clearTimeout(timeoutThread);
+												acceptResponse = true;
 												
-												if (acceptResponse)
+												timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 												{
-													if (file.constructor == DriveFile)
+													acceptResponse = false;
+													
+													failed++;
+													loadFail++;
+													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+													doNextPage();
+												}), this.ui.timeout);
+												
+												this.getFile(fileId, mxUtils.bind(this, function(file)
+												{
+													window.clearTimeout(timeoutThread);
+													
+													if (acceptResponse)
 													{
-														if (file.convertedFrom == 'json')
+														if (file.constructor == DriveFile)
 														{
-															fromJson++;
+															if (file.convertedFrom == 'json')
+															{
+																fromJson++;
+															}
+															else
+															{
+																fromXml++;
+															}
+															
+															acceptResponse = true;
+															
+															timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+															{
+																acceptResponse = false;
+																
+																failed++;
+																saveFail++;
+																print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+																doNextPage();
+															}), this.ui.timeout);
+		
+															this.saveFile(file, null, mxUtils.bind(this, function()
+															{
+																window.clearTimeout(timeoutThread);
+																
+																if (acceptResponse)
+																{
+																	converted++;
+																	print('OK <img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+																	doNextPage();
+																}
+															}), mxUtils.bind(this, function(err)
+															{
+																window.clearTimeout(timeoutThread);
+																
+																if (acceptResponse)
+																{
+																	var msg = getMessage(err);
+																	failed++;
+																	saveFail++;
+																	print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+																	doNextPage();
+																}
+															}));
 														}
 														else
 														{
-															fromXml++;
-														}
-														
-														acceptResponse = true;
-														
-														timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-														{
-															acceptResponse = false;
-															
 															failed++;
-															saveFail++;
-															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+															invalid++;
+															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Invalid file');
 															doNextPage();
-														}), this.ui.timeout);
-	
-														this.saveFile(file, null, mxUtils.bind(this, function()
-														{
-															window.clearTimeout(timeoutThread);
-															
-															if (acceptResponse)
-															{
-																converted++;
-																print('OK <img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
-																doNextPage();
-															}
-														}), mxUtils.bind(this, function(err)
-														{
-															window.clearTimeout(timeoutThread);
-															
-															if (acceptResponse)
-															{
-																var msg = getMessage(err);
-																failed++;
-																saveFail++;
-																print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
-																doNextPage();
-															}
-														}));
+														}
 													}
-													else
+												}), mxUtils.bind(this, function(err)
+												{
+													window.clearTimeout(timeoutThread);
+													
+													if (acceptResponse)
 													{
+														var msg = getMessage(err);
 														failed++;
-														invalid++;
-														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Invalid file');
+														loadFail++;
+														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
 														doNextPage();
 													}
-												}
-											}), mxUtils.bind(this, function(err)
+												}));
+											}
+											else
 											{
-												window.clearTimeout(timeoutThread);
-												
-												if (acceptResponse)
-												{
-													var msg = getMessage(err);
-													failed++;
-													loadFail++;
-													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
-													doNextPage();
-												}
-											}));
-										}
-										else
-										{
-											this.ui.spinner.stop();
-											print('Search returned duplicate file ' + fileId + '. Exiting.<br><br>This window can now be closed.');
-										}
-									}), (delay != null) ? delay : convertDelay)
+												this.ui.spinner.stop();
+												print('Search returned duplicate file ' + fileId + '. Exiting.<br><br>This window can now be closed.');
+											}
+										}), (delay != null) ? delay : convertDelay)
+									}
 								}
-							}
-							else
-							{
-								done();
+								else
+								{
+									done();
+								}
 							}
 						}));
 					});
 					
 					nextPage();
 				}
-			}));
+			});
+			
+			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
+			
+			var count = mxUtils.bind(this, function(token)
+			{
+				if (token != null)
+				{
+					totals.pageToken = token;
+				}
+				
+				this.executeRequest(gapi.client.drive.files.list(totals), mxUtils.bind(this, function(res)
+				{
+					total += (res != null && res.items != null) ? res.items.length : 0;
+					
+					if (res.nextPageToken != null)
+					{
+						count(res.nextPageToken);
+					}
+					else
+					{
+						this.ui.spinner.stop();
+						
+						this.ui.confirm('You are about to convert ' + total + ' file(s)', mxUtils.bind(this, function()
+						{
+							doConvert();
+						}), mxUtils.bind(this, function()
+						{
+							print('Cancelled by user.<br><br>This window can now be closed.');
+						}));
+					}
+				}));
+			});
+			
+			count();
 		}));
 	}
 	else
