@@ -840,7 +840,7 @@
 						this.editorUi.openLink('https://desk.draw.io/support/search/solutions?term=' +
 							encodeURIComponent(term));
 						input.value = '';
-						EditorUi.logEvent({category: 'Help', action: 'search', label: term});
+						EditorUi.logEvent({category: 'SEARCH-HELP', action: 'search', label: term});
 						
 						if (this.editorUi.menubar != null)
 						{

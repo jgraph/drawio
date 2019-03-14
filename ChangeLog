@@ -1,3 +1,10 @@
+14-MAR-2019: 10.4.6
+
+- Adds warning dialog for failed autosave after 10 minutes
+- Improves error logging in Google Drive client
+- Improves error handling for auto conversion
+- Fixes shadow for PNG export in dark mode
+
 13-MAR-2019: 10.4.5
 
 - Fixes bug in Confluence cloud

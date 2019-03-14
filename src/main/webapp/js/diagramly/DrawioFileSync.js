@@ -942,6 +942,17 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 				this.file.patch(patches,
 					(DrawioFile.LAST_WRITE_WINS) ?
 					this.file.backupPatch : null);
+				
+				// Logs successull patch
+				try
+				{
+					EditorUi.logEvent({category: 'PATCH-SYNC-FILE-' + this.file.getHash(),
+						action: 'DrawioFileSync.merge', label: this.clientId});
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
 		}
 
@@ -1099,6 +1110,17 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 				EditorUi.debug('Sync.fileSaved', [this],
 					'from', etag, 'to', current, data.length,
 					'bytes', 'diff', diff, 'checksum', checksum);
+			}
+			
+			// Logs successull diff
+			try
+			{
+				EditorUi.logEvent({category: 'DIFF-SYNC-FILE-' + this.file.getHash(),
+					action: 'DrawioFileSync.fileSaved', label: this.clientId});
+			}
+			catch (e)
+			{
+				// ignore
 			}
 		}
 	}
