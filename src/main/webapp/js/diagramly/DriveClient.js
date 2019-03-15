@@ -2441,7 +2441,7 @@ DriveClient.prototype.jsonToCell = function(val, codec)
  */
 DriveClient.prototype.checkRealtimeFiles = function(fn)
 {
-	var email = (this.user.email != null) ? this.user.email : null;
+	var email = (this.user != null && this.user.email != null) ? this.user.email : null;
 	
 	this.executeRequest(gapi.client.drive.files.list({'maxResults': 1, 'q':
 		'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
@@ -2491,7 +2491,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var total = 0;
 			var queryFail = 0;
 
-			var email = (this.user.email != null) ? this.user.email : null;
+			var email = (this.user != null && this.user.email != null) ? this.user.email : null;
 			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
 				((email != null) ? ' and \'' + email + '\' in writers' : '');
 

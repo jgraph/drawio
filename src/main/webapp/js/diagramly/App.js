@@ -1041,7 +1041,8 @@ App.prototype.init = function()
 						this.restoreLibraries();
 						this.checkLicense();
 						
-						if (!isLocalStorage || mxSettings.settings == null || mxSettings.settings.closeRealtimeWarning == null)
+						if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
+							mxSettings.settings.closeRealtimeWarning == null))
 						{
 							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 							{
