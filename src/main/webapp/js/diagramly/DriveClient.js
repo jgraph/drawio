@@ -1065,7 +1065,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash()  + '.' +
 					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
 					action: 'error-' + file.getErrorMessage(e),
-					label: (this.user != null) ? this.user.id : 'unknown-user'});
+					label: (this.user != null) ? this.user.id : 'unknown-user'} +
+					'.' + ((file.sync != null) ? file.sync.clientId : 'nosync'));
 			}
 		}
 		catch (e)
@@ -1087,6 +1088,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				'\n\nBrowser=' + navigator.userAgent +
 				'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
 				'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+				 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
 				'\nMessage=' + e.message +
 				'\n\nStack:\n' + e.stack);
 		}
@@ -1210,6 +1212,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										'\n\nBrowser=' + navigator.userAgent +
 										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
 										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+										 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
 										'\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' + this.ui.hashValue(etag0) +
 										'\nNew=' + resp.headRevisionId + ' ' + resp.modifiedDate + '  etag-hash=' + this.ui.hashValue(resp.etag))
 									EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
@@ -1252,7 +1255,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
 											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
 											'-to-' + file.desc.id + '.' + file.desc.headRevisionId,
-											label: (this.user != null) ? this.user.id : 'unknown-user'});
+											label: (this.user != null) ? this.user.id : 'unknown-user' +
+												'.' + ((file.sync != null) ? file.sync.clientId : 'nosync')});
 									}
 									catch (e)
 									{
@@ -1265,8 +1269,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								{
 									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
 										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
-										'.' + resp.modifiedDate, label: (this.user != null) ?
-										this.user.id : 'unknown-user'});
+										'.' + resp.modifiedDate, label: ((this.user != null) ?
+										this.user.id : 'unknown-user') + '.' + ((file.sync != null) ?
+										file.sync.clientId : 'nosync')});
 								}
 								catch (e)
 								{
@@ -1340,9 +1345,10 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																// Logs overwrite
 																try
 																{
-																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.desc.id,
+																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
 																		null, file.desc.id + '.' + file.desc.headRevisionId,
-																		(this.user != null) ? this.user.id : 'unknown');
+																		(this.user != null) ? this.user.id : 'unknown' +
+																		'.' + ((file.sync != null) ? file.sync.clientId : 'nosync'));
 																}
 																catch (e)
 																{

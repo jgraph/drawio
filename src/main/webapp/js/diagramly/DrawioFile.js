@@ -477,7 +477,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 					this.ui.getPagesForNode(
 					mxUtils.parseXml(file.data).documentElement)), 25000) : 'n/a';
 				
-				this.sendErrorReport('Checksum Error in ' + functionName + ' ' + this.getId(),
+				this.sendErrorReport('Checksum Error in ' + functionName + ' ' + this.getHash(),
 					((details != null) ? (details) : '') +  '\n\nPatches:\n' + json +
 					((remote != null) ? ('\n\nRemote:\n' + remote) : ''), null, 70000);
 			});
@@ -507,13 +507,15 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			var uid = (user != null) ? user.id : 'unknown';
 			
 			EditorUi.logError('Checksum Error in ' + functionName + ' ' + this.getId(),
-				null, this.getMode() + '.' + this.getId(), uid);
+				null, this.getMode() + '.' + this.getId(), uid + '.' +
+				((this.sync != null) ? this.sync.clientId : 'nosync'));
 			
 			// Logs checksum error for file
 			try
 			{
 				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + this.getHash(),
-					action: functionName, label: uid});
+					action: functionName, label:  uid + '.' +
+					((this.sync != null) ? this.sync.clientId : 'nosync')});
 			}
 			catch (e)
 			{
