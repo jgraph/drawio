@@ -1,3 +1,10 @@
+15-MAR-2019: 10.4.7
+
+- Realtime warning can be permanently closed
+- Ignores read-only files in auto conversion
+- Adds new issue viewer for Jira cloud
+- Fixes Atlas theme in Safari
+
 14-MAR-2019: 10.4.6
 
 - Adds warning dialog for failed autosave after 10 minutes

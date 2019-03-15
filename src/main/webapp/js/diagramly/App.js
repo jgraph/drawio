@@ -1041,46 +1041,56 @@ App.prototype.init = function()
 						this.restoreLibraries();
 						this.checkLicense();
 						
-						this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
+						if (!isLocalStorage || mxSettings.settings == null || mxSettings.settings.closeRealtimeWarning == null)
 						{
-							var footer = document.createElement('div');
-							footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
-								'white-space:nowrap;left:50%;bottom:2px;';
-							footer.className = 'geStatusAlert';
-							
-							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-							mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
-							footer.style.whiteSpace = 'nowrap';
-							footer.innerHTML = '<a href="https://desk.draw.io/support/solutions/articles/16000092210" ' +
-								'target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-								'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;" valign="middle"/>&nbsp;' +
-								'You need to take action to convert legacy files. Click here.&nbsp;' +
-								'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-left:2px;" valign="middle"/></a>';
-							
-							var img = document.createElement('img');
-							
-							img.setAttribute('src', Dialog.prototype.closeImage);
-							img.setAttribute('title', mxResources.get('close'));
-							img.style.position = 'absolute';
-							img.style.cursor = 'pointer';
-							img.style.right = '10px';
-							img.style.top = '12px';
-
-							footer.appendChild(img);
-
-							mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 							{
-								footer.parentNode.removeChild(footer);
-								this.hideFooter();
+								var footer = document.createElement('div');
+								footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
+									'white-space:nowrap;left:50%;bottom:2px;';
+								footer.className = 'geStatusAlert';
+								
+								mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+								mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
+								footer.style.whiteSpace = 'nowrap';
+								footer.innerHTML = '<a href="https://desk.draw.io/support/solutions/articles/16000092210" ' +
+									'target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
+									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;" valign="middle"/>&nbsp;' +
+									'You need to take action to convert legacy files. Click here.&nbsp;' +
+									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-left:2px;" valign="middle"/></a>';
+								
+								var img = document.createElement('img');
+								
+								img.setAttribute('src', Dialog.prototype.closeImage);
+								img.setAttribute('title', mxResources.get('close'));
+								img.style.position = 'absolute';
+								img.style.cursor = 'pointer';
+								img.style.right = '10px';
+								img.style.top = '12px';
+	
+								footer.appendChild(img);
+	
+								mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+								{
+									footer.parentNode.removeChild(footer);
+									this.hideFooter();
+
+									// Close permanently
+									if (isLocalStorage && mxSettings.settings != null)
+									{
+										mxSettings.settings.closeRealtimeWarning = Date.now();
+										mxSettings.save();
+									}
+								}));
+								
+								document.body.appendChild(footer);
+								
+								window.setTimeout(mxUtils.bind(this, function()
+								{
+									mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+								}), 1500);
 							}));
-							
-							document.body.appendChild(footer);
-							
-							window.setTimeout(mxUtils.bind(this, function()
-							{
-								mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-							}), 1500);
-						}));
+						}
 					}))
 					
 					// Notifies listeners of new client
@@ -1241,9 +1251,13 @@ App.prototype.init = function()
 		this.icon = document.createElement('img');
 		this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
 		this.icon.setAttribute('title', mxResources.get('draw.io'));
-		this.icon.style.paddingTop = '11px';
-		this.icon.style.marginLeft = '4px';
-		this.icon.style.marginRight = '6px';
+		this.icon.style.padding = '6px';
+		this.icon.style.cursor = 'pointer';
+		
+		mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.appIconClicked(evt);
+		}));
 		
 		if (mxClient.IS_QUIRKS)
 		{
@@ -5186,9 +5200,8 @@ App.prototype.updateUserElement = function()
 			this.userElement.className = 'geItem';
 			this.userElement.style.position = 'absolute';
 			this.userElement.style.fontSize = '8pt';
-			this.userElement.style.top = '4px';
+			this.userElement.style.top = (uiTheme == 'atlas') ? '8px' : '2px';
 			this.userElement.style.right = '30px';
-			this.userElement.style.color = '#666';
 			this.userElement.style.margin = '4px';
 			this.userElement.style.padding = '2px';
 			this.userElement.style.paddingRight = '16px';
@@ -5268,9 +5281,7 @@ App.prototype.updateUserElement = function()
 								'<small>' + mxResources.get('googleDrive') + '</small></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
-							div.style.padding = '12px';
-							div.style.background = 'whiteSmoke';
-							div.style.borderTop = '1px solid #e0e0e0';
+							div.style.paddingBottom = '12px';
 							div.style.whiteSpace = 'nowrap';
 
 							// LATER: Cannot change user while file is open since close will not work with new
@@ -5342,9 +5353,7 @@ App.prototype.updateUserElement = function()
 								'</td></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
-							div.style.padding = '12px';
-							div.style.background = 'whiteSmoke';
-							div.style.borderTop = '1px solid #e0e0e0';
+							div.style.paddingBottom = '12px';
 							div.style.whiteSpace = 'nowrap';
 							
 							if (logout != null)
@@ -5490,6 +5499,23 @@ App.prototype.updateUserElement = function()
 						
 						this.userPanel.appendChild(div);
 					}
+					
+					var div = document.createElement('div');
+					div.style.textAlign = 'center';
+					div.style.padding = '12px';
+					div.style.background = 'whiteSmoke';
+					div.style.borderTop = '1px solid #e0e0e0';
+					div.style.whiteSpace = 'nowrap';
+					
+					var btn = mxUtils.button(mxResources.get('close'), mxUtils.bind(this, function()
+					{
+						if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
+						{
+							this.userPanel.parentNode.removeChild(this.userPanel);
+						}
+					}));
+					div.appendChild(btn);
+					this.userPanel.appendChild(div);
 
 					document.body.appendChild(this.userPanel);
 				}
