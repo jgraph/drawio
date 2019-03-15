@@ -2441,7 +2441,11 @@ DriveClient.prototype.jsonToCell = function(val, codec)
  */
 DriveClient.prototype.checkRealtimeFiles = function(fn)
 {
-	this.executeRequest(gapi.client.drive.files.list({'maxResults': 1, 'q': 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'',
+	var email = (this.user.email != null) ? this.user.email : null;
+	
+	this.executeRequest(gapi.client.drive.files.list({'maxResults': 1, 'q':
+		'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
+		((email != null) ? ' and \'' + email + '\' in writers' : ''),
 		'includeTeamDriveItems': true, 'supportsTeamDrives': true}), mxUtils.bind(this, function(res)
 	{
 		if (res != null && (res.nextPageToken != null || (res.items != null && res.items.length > 0)))
@@ -2475,7 +2479,6 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	{
 		this.checkToken(mxUtils.bind(this, function()
 		{
-			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'';
 			var convertDelay = 2000;
 			var convertedIds = {};
 			var converted = 0;
@@ -2487,7 +2490,11 @@ DriveClient.prototype.convertRealtimeFiles = function()
 			var failed = 0;
 			var total = 0;
 			var queryFail = 0;
-			
+
+			var email = (this.user.email != null) ? this.user.email : null;
+			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
+				((email != null) ? ' and \'' + email + '\' in writers' : '');
+
 			var done = mxUtils.bind(this, function()
 			{
 				this.ui.spinner.stop();

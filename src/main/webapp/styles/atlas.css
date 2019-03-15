@@ -48,16 +48,12 @@ body > .geToolbarContainer > .geToolbar .geSeparator {
 .geSidebarContainer .geToolbarContainer .geButton {
 	padding:0px 2px 4px 2px;
 }
-.geToolbarContainer .geButton {
-	margin:0px -1px 0px 0px !important;
-	height:20px;
-}
 .geToolbarContainer .geLabel {
 	height:18px;
 	_height:31px;
 }
-.geStatus .geStatusAlert {
-	color:#ffffff;
+html body .geStatus .geStatusAlert {
+	color:#ffffff !important;
 	font-size:12px;
 	border:none;
 	border-radius:6px;
@@ -69,12 +65,12 @@ body > .geToolbarContainer > .geToolbar .geSeparator {
 	box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 1px 1px 0px;
 	margin-top:-5px;
 }
-.geStatus .geStatusAlert:hover {
+html body .geStatus .geStatusAlert:hover {
     background-color: #2d6ca2;
     background-image: linear-gradient(rgb(90, 148, 211) 0px, rgb(54, 115, 181) 100%);
 }
-.geStatus .geStatusMessage {
-	color:#ffffff;
+html body .geStatus .geStatusMessage {
+	color:#ffffff !important;
 	font-size:12px;
 	border:none;
 	border-radius:6px;
@@ -86,24 +82,22 @@ body > .geToolbarContainer > .geToolbar .geSeparator {
 	box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 1px 1px 0px;
 	margin-top:-5px;
 }
-.geStatus .geStatusMessage:hover {
+html body .geStatus .geStatusMessage:hover {
     background-color: #2d6ca2;
     background-image: linear-gradient(rgb(90, 148, 211) 0px, rgb(54, 115, 181) 100%);
 }
-div.mxWindow .geToolbarContainer {
+html body div.mxWindow .geToolbarContainer {
 	font-size:11px !important;	
 	color: #000000 !important;
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
 	box-shadow: none !important;
-	
 	border-width: 0px 0px 1px !important;
 	border-color: rgb(195, 195, 195) !important;
 	border-style: solid !important;
-	
 	border-bottom:1px solid #e0e0e0;
 }
-div.mxWindow .geButton, .mxWindow .geLabel {
+html body div.mxWindow .geButton, .mxWindow .geLabel {
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
 	box-shadow: none !important;
@@ -131,6 +125,10 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	background-image: none !important;
 	border:1px solid black;
 }
+body > .geToolbarContainer .geButton {
+	margin:0px -1px 0px 0px !important;
+	height:20px;
+}
 .geToolbarContainer .geButton:hover, .geToolbarContainer .geLabel:hover {
 	background-image: linear-gradient(rgb(255, 255, 255) 0px, rgb(247, 247, 247) 100%) !important;
 	border:1px solid rgb(153, 153, 153) !important;
@@ -142,39 +140,27 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	border:1px solid rgb(153, 153, 153) !important;
 	z-index:2;
 }
-.geSidebarTooltip, .geSidebarTooltipImage {
+html body .geSidebarTooltip, .geSidebarTooltipImage {
 	z-index:2;
 }
-.geSidebarContainer .geTitle {
+html body .geSidebarContainer .geTitle {
 	font-size:13px;
-	padding:8px 0px 8px 16px !important;
+	padding:8px 0px 8px 16px;
 }
-.geMenubarContainer * {
-	color: #DEEBFF !important;
+html body .geMenubarContainer * {
+	color: #DEEBFF;
 }
-.geMenubarContainer .geStatus {
-	color: rgb(179, 179, 179) !important;
+html body .geMenubarContainer .geStatus {
+	color: rgb(179, 179, 179);
 }
-.geMenubarContainer a {
-	margin-top: 0px !important;
-}
-.geMenubar .geItem, .geMenubarContainer .geItem {
-	background-repeat: no-repeat !important;
-	background-position: 100% 50% !important;
-	padding:12px !important;
-	margin:0px !important;
-	margin-left:2px !important;
-	margin-right:2px !important;
-	font-size:14px;
-}
-.geMenubarContainer .geBigButton {
-	margin-top: 4px !important;
-	padding: 7px !important;
+html body .geMenubarContainer .geBigButton {
+	margin-top: 4px;
+	padding: 7px;
 }
 .geMenubarContainer .geItem:hover {
 	background-color: rgba(9, 30, 66, 0.48);
 }
-.geToolbarContainer .geLabel {
+html body .geToolbarContainer .geLabel {
 	margin:0px;
 	padding:6px 20px 4px 10px !important;
 }
@@ -188,56 +174,41 @@ div.mxWindow .geButton:active, .mxWindow .geLabel:active {
 	-ms-transition: none;
 	transition: none;
 }
-.geMenubarContainer {
-	background-color: #0049B0 !important;
-	background-repeat: repeat-x;
-	color: rgb(255, 255, 255);
-	font-size: 13px;
-	padding: 0px !important;
-	margin: 0px !important;
-}
-.geMenubar {
+html body .geMenubarContainer {
+	background-color: #0049B0;
+	color: #ffffff;
 	font-size: 14px;
-	padding:0px 10px 0px 10px !important;
-	margin-left:0px !important;
+	padding-top:6px;
 }
-.geToolbarContainer *:not(.geFormatContainer *) {
-	font-size: 13px;
-	color: rgb(153, 153, 153);
-	background-color: rgb(238, 238, 238);
-	background-image: linear-gradient(top, rgb(245, 245, 245) 0px, rgb(238, 238, 238) 100%);
-	background-repeat: repeat-x;
-	border:1px solid rgb(229, 229, 229) !important;
-	-webkit-box-shadow: rgb(136, 136, 136) 0px 1px 5px 0px !important;
-	-moz-box-shadow: rgb(136, 136, 136) 0px 1px 5px 0px !important;
-	box-shadow: rgb(136, 136, 136) 0px 1px 5px 0px !important;
-	padding: 0px;
-	margin: 0px;
+html body .geMenubar > .geItem {
+	padding-left:14px;
+	padding-right:15px;
 }
-.geSidebarContainer .geToolbarContainer {
-	-webkit-box-shadow: none !important;
-	-moz-box-shadow: none !important;
-	box-shadow: none !important;
-	border:none !important;
+html body .geSidebarContainer .geToolbarContainer {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	border:none;
 }
-.geSidebarContainer .geToolbarContainer .geButton {
+html body .geSidebarContainer .geToolbarContainer .geButton {
 	margin:2px !important;
+	height:20px !important;
 }
-.geSidebarContainer .geToolbarContainer .geLabel {
+html body .geSidebarContainer .geToolbarContainer .geLabel {
 	margin:2px !important;
 	padding:4px !important;
 }
-.geToolbar {
-	margin:0px !important;
-	padding:8px 10px 0px 10px !important;
+html body .geToolbar {
+	margin:0px;
+	padding:8px 10px 0px 10px;
 	-webkit-box-shadow:none;
 	-moz-box-shadow:none;
 	box-shadow:none;
 	border:none;
 }
-.geMenubarContainer .mxDisabled {
-	opacity: 1 !important;
-	color: rgb(179, 179, 179) !important;
+html body .geMenubarContainer .mxDisabled {
+	opacity: 1;
+	color: rgb(179, 179, 179);
 }
 .geDialogTitle {
 	box-sizing:border-box;

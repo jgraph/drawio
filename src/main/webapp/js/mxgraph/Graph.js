@@ -4146,7 +4146,11 @@ HoverIcons.prototype.setCurrentState = function(state)
 								var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 	
 								// Handles intersection between two segments
-								if (pt != null && (Math.abs(pt.x - p2.x) > thresh ||
+								if (pt != null && (Math.abs(pt.x - p0.x) > thresh ||
+									Math.abs(pt.y - p0.y) > thresh) &&
+									(Math.abs(pt.x - p1.x) > thresh ||
+									Math.abs(pt.y - p1.y) > thresh) &&
+									(Math.abs(pt.x - p2.x) > thresh ||
 									Math.abs(pt.y - p2.y) > thresh) &&
 									(Math.abs(pt.x - p3.x) > thresh ||
 									Math.abs(pt.y - p3.y) > thresh))
@@ -4260,8 +4264,16 @@ HoverIcons.prototype.setCurrentState = function(state)
 					{
 						n = new mxPoint(pt.x - last.x, pt.y - last.y);
 						len = Math.sqrt(n.x * n.x + n.y * n.y);
-						n.x = n.x * size / len;
-						n.y = n.y * size / len;
+						
+						if (len > 0)
+						{
+							n.x = n.x * size / len;
+							n.y = n.y * size / len;
+						}
+						else
+						{
+							n = null;
+						}
 					}
 					
 					if (dist > size * size && len > 0)
