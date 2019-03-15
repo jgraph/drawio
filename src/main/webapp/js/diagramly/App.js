@@ -713,6 +713,64 @@ App.main = function(callback, createUi)
 		doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
 			mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
 	};
+	
+	// Optional override for autosaveDelay and defaultEdgeLength
+	try
+	{
+		if (mxSettings.settings != null)
+		{
+			if (mxSettings.settings.autosaveDelay != null)
+			{
+				var val = parseInt(mxSettings.settings.autosaveDelay);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					DrawioFile.prototype.autosaveDelay = val;
+
+					if (window.console != null)
+					{
+						console.log('Setting autosaveDelay to ' + DrawioFile.prototype.autosaveDelay);
+					}
+				}
+				else
+				{
+					if (window.console != null)
+					{
+						console.log('Invalid value for autosaveDelay');
+					}
+				}
+			}
+			
+			if (mxSettings.settings.defaultEdgeLength != null)
+			{
+				var val = parseInt(mxSettings.settings.defaultEdgeLength);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					Graph.prototype.defaultEdgeLength = val;
+		
+					if (window.console != null)
+					{
+						console.log('Setting defaultEdgeLength to ' + Graph.prototype.defaultEdgeLength);
+					}
+				}
+				else
+				{
+					if (window.console != null)
+					{
+						console.log('Invalid value for defaultEdgeLength');
+					}
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		if (window.console != null)
+		{
+			console.error(e);
+		}
+	}
 
 	// Sends load event if configuration is requested and waits for configure action
 	if (urlParams['configure'] == '1')

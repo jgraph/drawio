@@ -123,6 +123,7 @@
 			var preview = null;
 			var waitCounter = 1;
 			var bounds;
+			var pageId;
 			// Waits for all images to finish loading
 			var cache = new Object();
 			var math = false;
@@ -136,6 +137,7 @@
 					doneDiv.id = 'LoadingComplete';
 					doneDiv.style.display = 'none';
 					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
+					doneDiv.setAttribute('page-id', pageId);
 					document.body.appendChild(doneDiv);
 				}
 			};
@@ -347,15 +349,17 @@
 						
 						if (autoScale)
 						{
-							if (b.width < 800 & b.height < 1200)
+							var pageWidth = (extras != null && extras.pageWidth != null) ? extras.pageWidth : 800;
+							
+							if (b.width < pageWidth & b.height < 1.5 * pageWidth)
 							{
 								s = 4;
 							}
-							else if (b.width < 1600 & b.height < 2400)
+							else if (b.width < 2 * pageWidth & b.height < 3 * pageWidth)
 							{
 								s = 3;
 							}
-							else if (b.width < 3200 && b.height < 4800)
+							else if (b.width < 4 * pageWidth && b.height < 6 * pageWidth)
 							{
 								s = 2;
 							}
@@ -497,6 +501,11 @@
 				{
 					if (diagrams[i] != null)
 					{
+						if (pageId == null)
+						{
+							pageId = diagrams[i].getAttribute('id')
+						}
+						
 						xmlDoc = mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(diagrams[i])));
 						graph.getModel().clear();
 						from = i;
