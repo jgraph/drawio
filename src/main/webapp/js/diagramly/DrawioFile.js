@@ -2024,3 +2024,35 @@ DrawioFile.prototype.destroy = function()
 		this.sync = null;
 	}
 };
+
+/**
+ * Get comments of the file
+ */
+DrawioFile.prototype.getComments = function(success, error)
+{
+	success([]); //placeholder
+};
+
+/**
+ * Add a comment to the file
+ */
+DrawioFile.prototype.addComment = function(comment, success, error)
+{
+	success(Date.now()); //placeholder
+};
+
+/**
+ * Can add a reply to a reply
+ */
+DrawioFile.prototype.canReplyToReplies = function()
+{
+	return true;
+};
+
+/**
+ * Get a new comment object
+ */
+DrawioFile.prototype.newComment = function(content, user)
+{
+	return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
+};

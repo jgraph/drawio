@@ -237,6 +237,12 @@
 .geMenubarContainer .geItem:active {
 	background: #e8f0fe;
 }
+.geToolbarButton {
+	opacity: 0.6;
+}
+.geToolbarButton:active {
+	opacity: 0.2;
+}
 .mxDisabled:hover {
 	background:inherit !important;
 }
@@ -1261,4 +1267,166 @@ html td.mxWindowTitle {
     margin: 0 10px 0 10px;
     height: 27px;
     font-size: 14px;
+}
+/* Comments CSS */
+.geCommentsWin {
+	user-select: none;
+	border: 1px solid whiteSmoke;
+	height: 100%;
+	margin-bottom: 10px;
+	overflow: auto;	
+}
+
+.geCommentsToolbar {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: hidden;
+	border-width: 1px 0px 0px 0px;
+	border-color: #c3c3c3;
+	border-style: solid;
+	display: block;
+	white-space: nowrap;
+}
+
+.geCommentsList {
+	position: absolute;
+	overflow: auto;
+	left: 0px;
+	right: 0px;
+	top: 0px;	
+}
+
+.geCommentContainer {
+	position: relative;
+	padding: 12px;
+	margin: 5px;
+	min-height: 50px;
+	display: block;
+	background-color: white;
+	border-width: 0px 0px 1px 0px;
+	border-color: #c3c3c3;
+	border-style: solid;
+	border-radius: 10px;
+	white-space: nowrap;
+	box-shadow: 2px 2px 6px rgba(60,64,67,.15);
+	color: #3C4043;
+}
+
+.geCommentHeader {
+	width: 100%;
+	height: 32px;
+}
+
+.geCommentUserImg {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	float: left;
+	background-color: whitesmoke;
+}
+
+.geCommentHeaderTxt {
+	overflow: hidden;
+	height: 32px;
+	padding-left: 5px;
+}
+
+.geCommentUsername {
+	overflow: hidden;
+	height: 18px;
+	font-size: 15px;
+	font-weight: bold;
+	text-overflow: ellipsis;
+}
+
+.geCommentDate {
+	color: #707070;
+	overflow: hidden;
+	height: 14px;
+	font-size: 11px;
+	text-overflow: ellipsis;
+}
+
+.geCommentDate::first-letter {
+    text-transform: uppercase;
+}
+
+.geCommentTxt {
+	font-size: 14px;
+    padding-top: 5px;
+    white-space: normal;
+    min-height: 12px;
+}
+
+.geCommentEditTxtArea {
+    margin-top: 5px;
+    font-size: 14px !important;
+    min-height: 12px;
+    max-width: 100%;
+    min-width: 100%;
+	width: 100%;
+    box-sizing: border-box;
+}
+
+.geCommentEditBtns {
+	width: 100%;
+    box-sizing: border-box;
+    padding-top: 5px;
+    height: 20px;
+}
+
+.geCommentEditBtn {
+	padding: 3px 8px 3px 8px !important;
+    float: right !important;
+    margin-left: 5px;
+}
+
+.geCommentActions {
+	color: #707070;
+	font-size: 12px;
+}
+
+.geCommentActionsList {
+	list-style-type: disc;
+	margin: 0px;
+	padding: 10px 0 0 0;
+}
+
+.geCommentAction {
+	display: inline-block;
+    padding: 0;
+}
+
+.geCommentAction:before {
+	content: "\2022";
+	padding: 5px;
+} 
+
+.geCommentAction:first-child:before {
+	content: "";
+	padding: 0;
+} 
+
+.geCommentActionLnk {
+	cursor: pointer;
+	color: #707070;
+	text-decoration: none;
+}
+
+.geCommentActionLnk:hover {
+	text-decoration: underline;
+}
+
+.geCheckedBtn {
+	background-color: #ccc;
+    border-top: 1px solid black !important;
+    border-left: 1px solid black !important;
+}
+
+.geCommentBusyImg {
+	position: absolute;
+	top: 5px;
+	right: 5px;
 }

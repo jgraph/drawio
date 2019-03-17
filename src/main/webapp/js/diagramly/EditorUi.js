@@ -3527,7 +3527,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3566,14 +3566,17 @@
 					}
 					else
 					{
-						msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
+						msg = (notFoundMessage != null) ? notFoundMessage :
+							mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
 					}
 					
 					var id = window.location.hash;
 					
 					if (id != null && id.substring(0, 2) == '#G' && resp != null && resp.error != null &&
-						resp.error.errors != null && resp.error.errors.length > 0 &&
-						resp.error.errors[0].reason == 'fileAccess')
+						((resp.error.errors != null && resp.error.errors.length > 0 &&
+						resp.error.errors[0].reason == 'fileAccess') ||
+						(resp.error.data != null && resp.error.data.length > 0 &&
+						resp.error.data[0].reason == 'fileAccess')))
 					{
 						id = id.substring(2);
 						

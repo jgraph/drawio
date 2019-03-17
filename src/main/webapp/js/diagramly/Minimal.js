@@ -765,7 +765,16 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
 
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers'], parent);
+			
+			var file = ui.getCurrentFile();
+			
+			if (file != null && file.constructor == DriveFile)
+			{
+				ui.menus.addMenuItems(menu, ['comments'], parent);
+			}
+			
+			ui.menus.addMenuItems(menu, ['-', 'find', 'tags'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)

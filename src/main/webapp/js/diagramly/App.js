@@ -4356,6 +4356,38 @@ App.prototype.updateButtonContainer = function()
 	{
 		var file = this.getCurrentFile();
 		
+		// Comments
+		if (file != null && file.constructor == DriveFile)
+		{
+			if (this.commentButton == null)
+			{
+				this.commentButton = document.createElement('a');
+				this.commentButton.setAttribute('title', mxResources.get('comments'));
+				this.commentButton.className = 'geToolbarButton';
+				this.commentButton.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;' +
+					'margin-right:4px;float:left;cursor:pointer;width:24px;height:24px;background-size:24px 24px;' +
+					'background-position:center center;background-repeat:no-repeat;background-image:' +
+					'url(' + Editor.commentImage + ');';
+				
+				mxEvent.addListener(this.commentButton, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('comments').funct();
+				}));
+				
+				this.buttonContainer.appendChild(this.commentButton);
+				
+				if (uiTheme == 'dark')
+				{
+					this.commentButton.style.filter = 'invert(100%)';
+				}
+			}
+		}
+		else if (this.commentButton != null)
+		{
+			this.commentButton.parentNode.removeChild(this.commentButton);
+			this.commentButton = null;
+		}
+		
 		// Share
 		if (file != null && file.constructor == DriveFile)
 		{
@@ -5628,6 +5660,31 @@ App.prototype.updateUserElement = function()
 	}
 };
 
+//TODO Use this function to get the currently logged in user
+App.prototype.getCurrentUser = function()
+{
+	var user = null;
+	
+	if (this.drive != null && this.drive.getUser() != null)
+	{
+		user = this.drive.getUser();
+	}
+	else if (this.oneDrive != null && this.oneDrive.getUser() != null)
+	{
+		user = this.oneDrive.getUser();
+	}
+	else if (this.dropbox != null && this.dropbox.getUser() != null)
+	{
+		user = this.dropbox.getUser();
+	}
+	else if (this.gitHub != null && this.gitHub.getUser() != null)
+	{
+		user = this.gitHub.getUser();
+	}
+	//TODO Trello no user issue
+	
+	return user;
+}
 /**
  * Override depends on mxSettings which is not defined in the minified viewer.
  */
