@@ -150,3 +150,9 @@ html body .geStatusAlert:hover {
 	background-color:#a20025;
 	border-color:#bd002b;
 }
+html body .geCommentContainer {
+	background-color: transparent;
+	border-width: 1px;
+	box-shadow: none;
+	color: inherit;
+}

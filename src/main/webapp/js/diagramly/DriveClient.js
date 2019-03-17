@@ -54,7 +54,7 @@ DriveClient.prototype.scopes = (urlParams['photos'] == '1') ?
  * Contains the hostname of the old app.
  */
 DriveClient.prototype.allFields = 'kind,id,parents,headRevisionId,etag,title,mimeType,modifiedDate,' +
-	'editable,copyable,labels,properties,downloadUrl,webContentLink,userPermission,fileSize';
+	'editable,copyable,canComment,labels,properties,downloadUrl,webContentLink,userPermission,fileSize';
 
 /**
  * Fields required for catchin up.

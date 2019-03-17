@@ -89,6 +89,11 @@ mxscript(drawDevUrl + 'js/diagramly/DiffSync.js');
 mxscript(drawDevUrl + 'js/diagramly/Settings.js');
 mxscript(drawDevUrl + 'js/diagramly/DrawioFileSync.js');
 
+
+//Comments
+mxscript(drawDevUrl + 'js/diagramly/DrawioComment.js');
+mxscript(drawDevUrl + 'js/diagramly/DriveComment.js');
+
 // Excluded in base.min.js
 mxscript(drawDevUrl + 'js/diagramly/DrawioClient.js');
 mxscript(drawDevUrl + 'js/diagramly/DrawioUser.js');

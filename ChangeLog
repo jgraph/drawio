@@ -1,3 +1,7 @@
+17-MAR-2019: 10.4.9
+
+- Adds comments for Google Drive (beta)
+
 15-MAR-2019: 10.4.8
 
 - Adds autosaveDelay and defaultEdgeLength to drawio-config

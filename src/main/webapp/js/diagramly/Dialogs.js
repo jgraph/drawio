@@ -5050,7 +5050,7 @@ var FeedbackDialog = function(editorUi)
 	textarea.style.height = '140px';
 	textarea.style.marginTop = '6px';
 	
-	textarea.setAttribute('placeholder', mxResources.get('commentsNotes'));
+	textarea.setAttribute('placeholder', mxResources.get('comments'));
 	
 	div.appendChild(textarea);
 
@@ -9559,4 +9559,692 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	div.appendChild(button);
 	
 	this.container = div;
+};
+
+/**
+ * 
+ */
+var CommentsWindow = function(editorUi, x, y, w, h)
+{
+	var file = editorUi.getCurrentFile();
+	var readOnly = !file.desc.canComment;
+	var canReplyToReplies = !readOnly;
+	var file = editorUi.getCurrentFile();
+	
+	var div = document.createElement('div');
+	div.className = 'geCommentsWin';
+	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+
+	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
+	
+	var listDiv = document.createElement('div');
+	listDiv.className = 'geCommentsList';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
+	div.appendChild(listDiv);
+	
+	var noComments = document.createElement('span');
+	noComments.style.cssText = 'display:none;padding-top:10px;text-align:center;';
+	mxUtils.write(noComments, mxResources.get('noCommentsFound'));
+	
+	var selectionComment = null;
+	
+	var ldiv = document.createElement('div');
+	
+	ldiv.className = 'geToolbarContainer geCommentsToolbar';
+	ldiv.style.height = tbarHeight;
+	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
+	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		ldiv.style.filter = 'none';
+	}
+	
+	var link = document.createElement('a');
+	link.className = 'geButton';
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		link.style.filter = 'none';
+	}
+	
+	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
+	{
+		var commentTxt = cdiv.querySelector('.geCommentTxt');
+		var actionsDiv = cdiv.querySelector('.geCommentActionsList');
+		
+		var textArea = document.createElement('textarea');
+		textArea.className = 'geCommentEditTxtArea';
+		textArea.style.minHeight = commentTxt.offsetHeight + 'px';
+		textArea.value = commentTxt.innerHTML;
+		cdiv.insertBefore(textArea, commentTxt);
+		
+		var btnDiv = document.createElement('div');
+		btnDiv.className = 'geCommentEditBtns';
+		
+		function reset()
+		{
+			cdiv.removeChild(textArea);
+			cdiv.removeChild(btnDiv);
+			actionsDiv.style.display = 'block';
+			commentTxt.style.display = 'block';	
+		};
+		
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+		{
+			if (deleteOnCancel)
+			{
+				cdiv.parentNode.removeChild(cdiv);
+			}
+			else
+			{
+				reset();
+			}
+		});
+		
+		cancelBtn.className = 'geCommentEditBtn';
+		btnDiv.appendChild(cancelBtn);
+		
+		var saveBtn = mxUtils.button(mxResources.get('save'), function()
+		{
+			commentTxt.innerHTML = '';
+			comment.content = textArea.value;
+			mxUtils.write(commentTxt, comment.content);
+			reset();
+			saveCallback(comment);
+		});
+		
+		// Updates modified state and handles placeholder text
+		mxEvent.addListener(textArea, 'keydown', mxUtils.bind(this, function(evt)
+		{
+			if (!mxEvent.isConsumed(evt))
+			{
+				if ((mxEvent.isControlDown(evt) || (mxClient.IS_MAC &&
+					mxEvent.isMetaDown(evt))) && evt.keyCode == 13 /* Ctrl+Enter */)
+				{
+					saveBtn.click();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 27 /* Escape */)
+				{
+					cancelBtn.click();
+					mxEvent.consume(evt);
+				}
+			}
+		}));
+		
+		// Focused to include in viewport before focusin textbox
+		saveBtn.focus();
+		saveBtn.className = 'geCommentEditBtn gePrimaryBtn';
+		btnDiv.appendChild(saveBtn);
+
+		cdiv.insertBefore(btnDiv, commentTxt);
+		actionsDiv.style.display = 'none';
+		commentTxt.style.display = 'none';
+		textArea.focus();
+	};
+	
+	function writeCommentDate(comment, dateDiv)
+	{
+		dateDiv.innerHTML = '';
+		var str = editorUi.timeSince(new Date(comment.modifiedDate));
+		
+		if (str == null)
+		{
+			str = mxResources.get('lessThanAMinute');
+		}
+		
+		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));	
+	};
+	
+	function showBusy(commentDiv)
+	{
+		var busyImg = document.createElement('img');
+		busyImg.className = 'geCommentBusyImg';
+		busyImg.src= '/images/spin.gif';
+		commentDiv.appendChild(busyImg);
+		commentDiv.busyImg = busyImg;
+	};
+	
+	function showError(commentDiv)
+	{
+		commentDiv.style.border = '1px solid red';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+	
+	function showDone(commentDiv)
+	{
+		commentDiv.style.border = '';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+
+	function addComment(comment, parentArr, parent, level, showResolved)
+	{
+		//Skip resolved comments if showResolved is not set
+		if (!showResolved && comment.isResolved)
+		{
+			return;
+		}
+
+		noComments.style.display = 'none';
+		
+		var cdiv = document.createElement('div');
+		cdiv.className = 'geCommentContainer';
+		cdiv.setAttribute('data-commentId', comment.id);
+		cdiv.style.marginLeft = (level * 20 + 5) + 'px';
+
+		if (comment.isResolved && uiTheme != 'dark')
+		{
+			cdiv.style.backgroundColor = 'ghostWhite';
+		}
+		
+		var headerDiv = document.createElement('div');
+		headerDiv.className = 'geCommentHeader';
+		
+		var userImg = document.createElement('img');
+		userImg.className = 'geCommentUserImg';
+		userImg.src = comment.user.pictureUrl || Editor.userImage;
+		headerDiv.appendChild(userImg);
+		
+		var headerTxt = document.createElement('div');
+		headerTxt.className = 'geCommentHeaderTxt';
+		headerDiv.appendChild(headerTxt);
+		
+		var usernameDiv = document.createElement('div');
+		usernameDiv.className = 'geCommentUsername';
+		mxUtils.write(usernameDiv, comment.user.displayName || '');
+		headerTxt.appendChild(usernameDiv);
+		
+		var dateDiv = document.createElement('div');
+		dateDiv.className = 'geCommentDate';
+		dateDiv.setAttribute('data-commentId', comment.id);
+		writeCommentDate(comment, dateDiv);
+		headerTxt.appendChild(dateDiv);
+		cdiv.appendChild(headerDiv);
+		
+		var commentTxtDiv = document.createElement('div');
+		commentTxtDiv.className = 'geCommentTxt';
+		mxUtils.write(commentTxtDiv, comment.content || '');
+		cdiv.appendChild(commentTxtDiv);
+		
+		var actionsDiv = document.createElement('div');
+		actionsDiv.className = 'geCommentActions';
+		var actionsList = document.createElement('ul');
+		actionsList.className = 'geCommentActionsList';
+		actionsDiv.appendChild(actionsList);
+		
+		function addAction(name, evtHandler, hide)
+		{
+			var action = document.createElement('li');
+			action.className = 'geCommentAction';
+			var actionLnk = document.createElement('a');
+			actionLnk.className = 'geCommentActionLnk';
+			mxUtils.write(actionLnk, name);
+			action.appendChild(actionLnk);
+			
+			mxEvent.addListener(actionLnk, 'click', function(evt)
+			{
+				evtHandler(evt, comment);
+				evt.preventDefault();
+				mxEvent.consume(evt);
+			});
+			
+			actionsList.appendChild(action);
+			
+			if (hide) action.style.display = 'none';
+		};
+		
+		function collectReplies()
+		{
+			var replies = [];
+			var pdiv = cdiv;
+			
+			function collectReplies(comment) 
+			{
+				replies.push(pdiv);
+				
+				if (comment.replies != null)
+				{
+					for (var i = 0; i < comment.replies.length; i++) 
+					{
+						pdiv = pdiv.nextSibling;
+						collectReplies(comment.replies[i]); 
+					}
+				}	
+			}
+			
+			collectReplies(comment);
+			
+			return {pdiv: pdiv, replies: replies};
+		};
+		
+		function addReply(initContent, editIt, saveCallback, doResolve, doReopen)
+		{
+			var pdiv = collectReplies().pdiv;
+			
+			var newReply = file.newComment(initContent, editorUi.getCurrentUser());
+			newReply.pCommentId = comment.id;
+			
+			if (comment.replies == null) comment.replies = [];
+			
+			var replyComment = addComment(newReply, comment.replies, pdiv, level + 1);
+
+			function doAddReply()
+			{
+				showBusy(replyComment);
+				
+				comment.addReply(newReply, function(id)
+				{
+					newReply.id = id;
+					comment.replies.push(newReply);
+					showDone(replyComment);
+					
+					if (saveCallback) saveCallback();
+					
+				}, function(err)
+				{
+					doEdit();
+					showError(replyComment);
+					editorUi.handleError(err, null, null, null,
+						mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+				}, doResolve, doReopen);				
+			};
+			
+			function doEdit()
+			{
+				editComment(newReply, replyComment, function(newReply)
+				{
+					doAddReply();
+				}, true);
+			};
+
+			if (editIt)
+			{
+				doEdit();
+			}
+			else
+			{
+				doAddReply();
+			}
+		};
+		
+		if (!readOnly && (level == 0 || canReplyToReplies))
+		{
+			addAction(mxResources.get('reply'), function()
+			{
+				addReply('', true);
+			}, comment.isResolved);
+		}
+		
+		var user = editorUi.getCurrentUser();
+		
+		if (user != null && user.id == comment.user.id && !readOnly)
+		{
+			addAction(mxResources.get('edit'), function()
+			{
+				function doEditComment()
+				{
+					editComment(comment, cdiv, function()
+					{
+						showBusy(cdiv);
+						
+						comment.editComment(comment.content, function()
+						{
+							showDone(cdiv);
+						}, function(err)
+						{
+							showError(cdiv);
+							doEditComment();
+							editorUi.handleError(err, null, null, null,
+								mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+						});
+					});
+				};
+				
+				doEditComment();
+			}, comment.isResolved);
+			
+			addAction(mxResources.get('delete'), function()
+			{
+				editorUi.confirm(mxResources.get('areYouSure'), function()
+				{
+					showBusy(cdiv);
+					
+					comment.deleteComment(function()
+					{
+						var replies = collectReplies(comment).replies;
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							listDiv.removeChild(replies[i]);
+						}
+						
+						for (var i = 0; i < parentArr.length; i++)
+						{
+							if (parentArr[i] == comment) 
+							{
+								parentArr.splice(i, 1);
+								break;
+							}
+						}
+						
+						noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
+					}, function(err)
+					{
+						showError(cdiv);
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				});
+			}, comment.isResolved);
+		}
+		
+		if (!readOnly && level == 0) //Resolve is a top-level action only
+		{
+			function toggleResolve(evt)
+			{
+				function doToggle()
+				{
+					var resolveActionLnk = evt.target;
+					resolveActionLnk.innerHTML = '';
+
+					comment.isResolved = !comment.isResolved;
+					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
+					var actionsDisplay = comment.isResolved? 'none' : '';
+					var replies = collectReplies(comment).replies;
+
+					
+					var color = (uiTheme == 'dark') ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
+					
+					for (var i = 0; i < replies.length; i++)
+					{
+						replies[i].style.backgroundColor = color;
+						
+						var forOpenActions = replies[i].querySelectorAll('.geCommentAction');
+						
+						for (var j = 0; j < forOpenActions.length; j ++) 
+						{
+							if (forOpenActions[j] == resolveActionLnk.parentNode) continue;
+							
+							forOpenActions[j].style.display = actionsDisplay;
+						}
+
+						if (!resolvedChecked)
+						{
+							replies[i].style.display = 'none';
+						}
+					}
+					
+					var divs = listDiv.getElementsByTagName('div');
+					var visibleCount = 0;
+					
+					for (var i = 0; i < divs.length; i++)
+					{
+						if (divs[i].style.display != 'none' && divs[i].parentNode == listDiv)
+						{
+							visibleCount++;
+						}
+					}
+					
+					noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
+				};
+				
+				if (comment.isResolved)
+				{
+					addReply(mxResources.get('reOpened') + ': ', true, doToggle, false, true);
+				}
+				else
+				{
+					addReply(mxResources.get('markedAsResolved'), false, doToggle, true);
+				}
+			};
+			
+			addAction(comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'), toggleResolve);
+		}
+		
+		cdiv.appendChild(actionsDiv);
+		
+		if (parent != null) 
+		{
+			listDiv.insertBefore(cdiv, parent.nextSibling);
+		}
+		else
+		{
+			listDiv.appendChild(cdiv);
+		}
+		
+		for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+		{
+			var reply = comment.replies[i];
+			reply.isResolved = comment.isResolved; //copy isResolved to child comments (replies)
+			addComment(reply, comment.replies, null, level + 1, showResolved);
+		}
+		
+		return cdiv;
+	};
+
+	if (!readOnly)
+	{
+		var addLink = link.cloneNode();
+		addLink.innerHTML = '<div class="geSprite geSprite-plus" style="display:inline-block;"></div>';
+		addLink.setAttribute('title', mxResources.get('create') + '...');
+		
+		mxEvent.addListener(addLink, 'click', function(evt)
+		{
+			var newComment = file.newComment('', editorUi.getCurrentUser());
+			var newCommentDiv = addComment(newComment, comments, null, 0);
+			
+			function doAddComment()
+			{
+				editComment(newComment, newCommentDiv, function(newComment)
+				{
+					showBusy(newCommentDiv);
+					
+					file.addComment(newComment, function(id)
+					{
+						newComment.id = id;
+						comments.push(newComment);
+						showDone(newCommentDiv);
+					}, function(err)
+					{
+						showError(newCommentDiv);
+						doAddComment();
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				}, true);
+			}
+			
+			doAddComment();
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(addLink);
+	}
+
+	var resolvedLink = link.cloneNode();
+	resolvedLink.innerHTML = '<img src="/images/check.png" style="width: 16px; padding: 2px;">';
+	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
+	var resolvedChecked = false;
+	
+	if (uiTheme == 'dark')
+	{
+		resolvedLink.style.filter = 'invert(100%)';
+	}
+	
+	mxEvent.addListener(resolvedLink, 'click', function(evt)
+	{
+		resolvedChecked = !resolvedChecked;
+		
+		this.className = resolvedChecked? 'geButton geCheckedBtn' : 'geButton';
+		refresh();
+		
+		evt.preventDefault();
+		mxEvent.consume(evt);
+	});
+	
+	ldiv.appendChild(resolvedLink);
+	
+	var refreshLink = link.cloneNode();
+	refreshLink.innerHTML = '<img src="/images/update16.png" style="width: 16px; padding: 2px;">';
+	refreshLink.setAttribute('title', mxResources.get('refresh'));
+
+	if (uiTheme == 'dark')
+	{
+		refreshLink.style.filter = 'invert(100%)';
+	}
+	
+	mxEvent.addListener(refreshLink, 'click', function(evt)
+	{
+		refresh();
+		
+		evt.preventDefault();
+		mxEvent.consume(evt);
+	});
+	
+	ldiv.appendChild(refreshLink);
+
+	div.appendChild(ldiv);	
+
+	var comments = [];
+
+	var refresh = mxUtils.bind(this, function()
+	{
+		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="/images/spin.gif" valign="middle"> ' +
+			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
+		
+		file = editorUi.getCurrentFile();
+		
+		canReplyToReplies = file.canReplyToReplies();
+		
+		if (file != null)
+		{
+			file.getComments(function(list)
+			{
+				function sortReplies(replies)
+				{
+					if (replies != null)
+					{
+						//Sort replies old to new
+						replies.sort(function(r1, r2)
+						{
+							return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
+						});
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							sortReplies(replies[i].replies);
+						}						
+					}
+				};
+				
+				//Sort comments old to new
+				list.sort(function(c1, c2)
+				{
+					return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
+				});
+
+				listDiv.innerHTML = '';
+				listDiv.appendChild(noComments);
+				noComments.style.display = 'block';
+				comments = list;
+				
+				for (var i = 0; i < comments.length; i++)
+				{
+					sortReplies(comments[i].replies);
+					addComment(comments[i], comments, null, 0, resolvedChecked);
+				}
+			}, function()
+			{
+				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+			});
+		}
+		else
+		{
+			//TODO if file is null, close the dialog
+			listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+		}
+	});
+
+	refresh();
+	
+	this.refreshComments = refresh;
+
+	//Refresh the modified date of each comment if the window is visible
+	var refreshCommentsTime = mxUtils.bind(this, function()
+	{
+		if (!this.window.isVisible()) return; //only update if it is visible
+		
+		var modDateDivs = listDiv.querySelectorAll('.geCommentDate');
+		var modDateDivsMap = {};
+		
+		for (var i = 0; i < modDateDivs.length; i++)
+		{
+			var div = modDateDivs[i];
+			modDateDivsMap[div.getAttribute('data-commentId')] = div;
+		}
+		
+		function processComment(comment) 
+		{
+			var div = modDateDivsMap[comment.id];
+			
+			if (div == null) return; //resolved comments
+			
+			writeCommentDate(comment, div);
+			
+			for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+			{
+				processComment(comment.replies[i]);
+			}
+		};
+		
+		for (var i = 0; i < comments.length; i++)
+		{
+			processComment(comments[i]);
+		}
+	});
+
+	//Periodically refresh time every one minute
+	setInterval(refreshCommentsTime, 60000);
+	this.refreshCommentsTime = refreshCommentsTime;
+	
+	this.window = new mxWindow(mxResources.get('comments'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 300, 200);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(true);
+	this.window.setClosable(true);
+	this.window.setVisible(true);
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };

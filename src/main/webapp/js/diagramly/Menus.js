@@ -2787,12 +2787,69 @@
 			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 		})));
+
+		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()
+		{
+			if (this.commentsWindow == null)
+			{
+				// LATER: Check outline window for initial placement
+				this.commentsWindow = new CommentsWindow(editorUi, document.body.offsetWidth - 380, 120, 300, 350);
+				//TODO Are these events needed?
+				this.commentsWindow.window.addListener('show', function()
+				{
+					editorUi.fireEvent(new mxEventObject('comments'));
+				});
+				this.commentsWindow.window.addListener('hide', function()
+				{
+					editorUi.fireEvent(new mxEventObject('comments'));
+				});
+				this.commentsWindow.window.setVisible(true);
+				editorUi.fireEvent(new mxEventObject('comments'));
+			}
+			else
+			{
+				this.commentsWindow.window.setVisible(!this.commentsWindow.window.isVisible());
+				this.commentsWindow.refreshCommentsTime();
+			}
+		}));
+		action.setToggleAction(true);
+		action.setSelectedCallback(mxUtils.bind(this, function() { return this.commentsWindow != null && this.commentsWindow.window.isVisible(); }));
+
+		// Destroys comments window to force update or disable if not supported
+		editorUi.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+		{
+			if (this.commentsWindow != null)
+			{
+				this.commentsWindow.destroy();
+				this.commentsWindow = null;
+			}
+		}));
 		
+		// Extends toolbar dropdown to add comments
+		var viewPanelsMenu = this.get('viewPanels');
+		var viewPanelsFunct = viewPanelsMenu.funct;
+		
+		viewPanelsMenu.funct = function(menu, parent)
+		{
+			viewPanelsFunct.apply(this, arguments);
+			
+			var file = editorUi.getCurrentFile();
+			
+			if (file != null && file.constructor == DriveFile)
+			{
+				editorUi.menus.addMenuItems(menu, ['comments'], parent);
+			}
+		};
+
 		// Overrides view menu to add search and scratchpad
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
+			var file = editorUi.getCurrentFile();
+
 			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
-				concat(['outline', 'layers', '-']));
+				concat(['outline', 'layers']).concat((file != null && file.constructor == DriveFile) ?
+				['comments', '-'] : ['-']));
+			
 			this.addMenuItems(menu, ['-', 'search'], parent);
 			
 			if (isLocalStorage || mxClient.IS_CHROMEAPP)

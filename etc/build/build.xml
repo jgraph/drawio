@@ -353,6 +353,8 @@
 				<file name="TrelloFile.js" />
 				<file name="TrelloLibrary.js" />
 				<file name="TrelloClient.js" />
+				<file name="DrawioComment.js" />
+				<file name="DriveComment.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/diagramly">

@@ -662,3 +662,74 @@ DriveFile.prototype.loadDescriptor = function(success, error)
 {
 	this.ui.drive.loadDescriptor(this.getId(), success, error);
 };
+
+/**
+ * Get comments of the file
+ */
+DriveFile.prototype.getComments = function(success, error)
+{
+	var currentUser = this.ui.getCurrentUser();
+	
+	function driveCommentToDrawio(file, gComment, pCommentId)
+	{
+		if (gComment.deleted) return null; //skip deleted comments
+		
+		var comment = new DriveComment(file, gComment.commentId || gComment.replyId, gComment.content, 
+				gComment.modifiedDate, gComment.createdDate, gComment.status == 'resolved',
+				gComment.author.isAuthenticatedUser? currentUser :
+				new DrawioUser(gComment.author.permissionId, gComment.author.emailAddress,
+						gComment.author.displayName, gComment.author.picture.url), pCommentId);
+		
+		for (var i = 0; gComment.replies != null && i < gComment.replies.length; i++)
+		{
+			comment.addReplyDirect(driveCommentToDrawio(file, gComment.replies[i], gComment.commentId));
+		}
+		
+		return comment;
+	};
+	
+	this.ui.drive.executeRequest(gapi.client.drive.comments.list({'fileId': this.getId()}),
+		mxUtils.bind(this, function(resp)
+	{
+		var comments = [];
+		
+		for (var i = 0; i < resp.items.length; i++)
+		{
+			var comment = driveCommentToDrawio(this, resp.items[i]);
+			
+			if (comment != null) comments.push(comment);
+		}
+		
+		success(comments);
+	}), error);
+};
+
+/**
+ * Add a comment to the file
+ */
+DriveFile.prototype.addComment = function(comment, success, error)
+{
+	var body = {'content': comment.content};
+	
+	this.ui.drive.executeRequest(gapi.client.drive.comments.insert({'fileId': this.getId(), 'resource': body}),
+		mxUtils.bind(this, function(resp)
+	{
+		success(resp.commentId); //pass comment id
+	}), error);
+};
+
+/**
+ * Can add a reply to a reply
+ */
+DriveFile.prototype.canReplyToReplies = function()
+{
+	return false;
+};
+
+/**
+ * Get a new comment object
+ */
+DriveFile.prototype.newComment = function(content, user)
+{
+	return new DriveComment(this, null, content, Date.now(), Date.now(), false, user);
+};
