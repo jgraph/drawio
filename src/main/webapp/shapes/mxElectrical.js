@@ -1552,3 +1552,87 @@ mxShapeElectricalMux.prototype.getConstraints = function(style, w, h)
 	return (constr);
 }
 
+//**********************************************************************************************************************************************************
+//Battery stack
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalBatteryStack(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalBatteryStack, mxShape);
+
+mxShapeElectricalBatteryStack.prototype.cst = {
+		SHAPE_BATTERY_STACK : 'mxgraph.electrical.miscellaneous.batteryStack'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalBatteryStack.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+
+	var bw = h * 0.3;
+	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
+	var dashed = mxUtils.getValue(this.style, mxConstants.STYLE_DASHED, '0');
+	
+	var bNum = Math.floor((w - 20) / bw);
+	var startX = (w - bNum * bw) * 0.5;
+
+	if (bNum > 0)
+	{
+		c.begin();
+		c.moveTo(0, h * 0.5);
+		c.lineTo(startX + bw * 0.2, h * 0.5);
+		c.moveTo(w - startX - bw * 0.2, h * 0.5);
+		c.lineTo(w, h * 0.5);
+		c.stroke();
+		
+		var currX = startX;
+		c.setFillColor(strokeColor);
+		
+		for (var i = 0; i < bNum; i++)
+		{
+
+			c.rect(currX + bw * 0.2, h * 0.25, bw * 0.2, h * 0.5);
+			c.fillAndStroke();
+			
+			c.begin();
+			c.moveTo(currX + bw * 0.8, 0);
+			c.lineTo(currX + bw * 0.8, h);
+			c.stroke();
+			
+			if (i > 0)
+			{
+				c.setDashed('1');
+				c.begin();
+				c.moveTo(currX - bw * 0.2, h * 0.5);
+				c.lineTo(currX + bw * 0.2, h * 0.5);
+				c.stroke();
+				c.setDashed(dashed);
+			}
+			
+			currX = currX + bw;
+		}
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalBatteryStack.prototype.cst.SHAPE_BATTERY_STACK, mxShapeElectricalBatteryStack);
+
+mxShapeElectricalBatteryStack.prototype.constraints = [
+    new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+    new mxConnectionConstraint(new mxPoint(1, 0.5), true)
+    ];

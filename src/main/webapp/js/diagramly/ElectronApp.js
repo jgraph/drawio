@@ -830,7 +830,7 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
 			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename) && !/(\.drawio)$/i.test(filename)))
 		{
-			filename += '.xml';
+			filename += '.drawio';
 		}
 		
 		var path = dialog.showSaveDialog({defaultPath: filename});
