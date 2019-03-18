@@ -1728,8 +1728,8 @@ Graph.prototype.initLayoutManager = function()
 
 	this.layoutManager.getLayout = function(cell)
 	{
-		var state = this.graph.view.getState(cell);
-		var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
+		// Workaround for possible invalid style after change and before view validation
+		var style = this.graph.getCellStyle(cell);
 		
 		if (style != null)
 		{
@@ -1784,10 +1784,10 @@ Graph.prototype.initLayoutManager = function()
 		return null;
 	};
 };
-	
-	/**
-	 * Returns the size of the page format scaled with the page size.
-	 */
+
+/**
+ * Returns the size of the page format scaled with the page size.
+ */
 Graph.prototype.getPageSize = function()
 {
 	return (this.pageVisible) ? new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,

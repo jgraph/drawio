@@ -2602,6 +2602,11 @@
 						}
 					}
 					
+					if (typeof(prop.onChange) == 'function')
+					{
+						prop.onChange(graph, newVal);
+					}
+					
 					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', changedProps,
 						'values', changedVals, 'cells', graph.getSelectionCells()));
 				}
@@ -3481,41 +3486,28 @@
 		
 		this.layoutManager.getLayout = function(cell)
 		{
-			var state = this.graph.view.getState(cell);
-			var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
+			// Workaround for possible invalid style after change and before view validation
+			var style = this.graph.getCellStyle(cell);
 			
 			// mxRackContainer may be undefined as it is dynamically loaded at render time
 			if (style != null)
 			{
-				if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
+				if (style['childLayout'] == 'rack')
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
 					
-					rackLayout.setChildGeometry = function(child, geo)
-					{
-						var unitSize = 20;
-						geo.height = Math.max(geo.height, unitSize);
-						
-						if (geo.height / unitSize > 1)
-						{
-							var mod = geo.height % unitSize;
-							geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
-						}
-				
-						this.graph.getModel().setGeometry(child, geo);
-					};
-				
 					rackLayout.fill = true;
-					rackLayout.unitSize = mxRackContainer.unitSize | 20;
+					rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : 20;
 					rackLayout.marginLeft = style['marginLeft'] || 0;
 					rackLayout.marginRight = style['marginRight'] || 0;
 					rackLayout.marginTop = style['marginTop'] || 0;
 					rackLayout.marginBottom = style['marginBottom'] || 0;
+					rackLayout.allowGaps = style['allowGaps'] || 0;
 					rackLayout.resizeParent = false;
 					
 					return rackLayout;
 				}
-				else if (typeof(mxTableLayout) != 'undefined' && style['childLayout'] == 'tableLayout')
+				else if (typeof mxTableLayout !== 'undefined' && style['childLayout'] == 'tableLayout')
 		        {
 		            var tableLayout = new mxTableLayout(this.graph);
 		            tableLayout.rows = style['tableRows'] || 2;
@@ -4148,6 +4140,7 @@
 	mxStencilRegistry.libraries['ios7icons'] = [STENCIL_PATH + '/ios7/icons.xml'];
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
+	mxStencilRegistry.libraries['electrical/miscellaneous'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/miscellaneous.xml'];
 	mxStencilRegistry.libraries['electrical/transmission'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/transmission.xml'];
 	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
 	mxStencilRegistry.libraries['electrical/abstract'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/abstract.xml'];

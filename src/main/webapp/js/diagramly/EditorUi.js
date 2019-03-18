@@ -9445,7 +9445,7 @@
 							{
 								if (!this.useCanvasForExport && /(\.png)$/i.test(name))
 								{
-									name = name.substring(0, name.length - 4) + '.xml';
+									name = name.substring(0, name.length - 4) + '.drawio';
 								}
 								
 								var handleResult = mxUtils.bind(this, function(xml)
@@ -9454,11 +9454,11 @@
 									
 									if (dot >= 0)
 									{
-										name = name.substring(0, name.lastIndexOf('.')) + '.xml';
+										name = name.substring(0, name.lastIndexOf('.')) + '.drawio';
 									}
 									else
 									{
-										name = name + '.xml';
+										name = name + '.drawio';
 									}
 									
 									if (xml.substring(0, 10) == '<mxlibrary')
@@ -9526,7 +9526,7 @@
 								{
 									if (/(\.json)$/i.test(name))
 									{
-										name = name.substring(0, name.length - 5) + '.xml';
+										name = name.substring(0, name.length - 5) + '.drawio';
 									}
 	
 									// LATER: Add import step that produces cells and use callback

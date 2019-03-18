@@ -2095,7 +2095,7 @@ App.prototype.open = function()
 					
 					if (dot > 0)
 					{
-						filename = filename.substring(0, filename.length - 4) + '.xml';
+						filename = filename.substring(0, filename.length - 4) + '.drawio';
 					}
 					
 					this.fileLoaded((mxClient.IS_IOS) ?
@@ -2842,7 +2842,7 @@ App.prototype.pickFile = function(mode)
 					
 					if (dot)
 					{
-						filename = filename.substring(0, filename.length - 4) + '.xml';
+						filename = filename.substring(0, filename.length - 4) + '.drawio';
 					}
 					
 					this.fileLoaded((mode == App.MODE_BROWSER) ?
@@ -3851,7 +3851,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 								
 								if (!this.useCanvasForExport && ext == '.png')
 								{
-									ext = '.xml';
+									ext = '.drawio';
 								}
 
 								if (ext === '.svg' || ext === '.xml' ||

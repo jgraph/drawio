@@ -411,8 +411,8 @@
 					60, 60, '', 'Explosive Squib', null, null, this.getTagsForStencil(gnmess, 'explosive squib', dtmem).join(' ')),
 			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;strokeColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.monocell_battery;', 
 					100, 60, '', 'Accumulator / Monocell Battery', null, null, this.getTagsForStencil(gnmess, 'accumulator monocell battery single cell', dtmem).join(' ')),
-			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;strokeColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.multicell_battery;', 
-					100, 60, '', 'Multicell Battery', null, null, this.getTagsForStencil(gnmess, 'accumulator multicell battery multi multiple cell', dtmem).join(' ')),
+			this.createVertexTemplateEntry(mem + 'batteryStack;', 
+					100, 60, '', 'Battery Stack', null, null, this.getTagsForStencil(gnmess, 'battery stack', dtmess).join(' ')),
 			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;strokeColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.multicell_battery_tapped;', 
 					100, 70, '', 'Multicell Battery Tapped', null, null, this.getTagsForStencil(gnmess, 'accumulator multicell battery tapped multi multiple cell', dtmem).join(' '))
 		]);

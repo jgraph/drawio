@@ -42,7 +42,11 @@ mxRackContainer.prototype.cst =
 mxRackContainer.prototype.customProperties = [
 	{name: 'textColor', dispName: 'Numbers Color', type: 'color'},
 	{name: 'numDisp', dispName: 'Display Numbers', type: 'enum',
-		enumList: [{val: 'off', dispName: 'Off'}, {val: 'ascend', dispName: 'Ascending'}, {val: 'descend', dispName: 'Descending'}]
+		enumList: [{val: 'off', dispName: 'Off'}, {val: 'ascend', dispName: 'Ascending'}, {val: 'descend', dispName: 'Descending'}],
+		onChange: function(graph, newValue)
+		{
+			graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
+		}
 	}
 ];
 

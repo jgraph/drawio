@@ -1,3 +1,9 @@
+18-MAR-2019: 10.5.0
+
+- Uses .drawio extension in desktop app
+- Removes spacers for rack layouts
+- Uses mxGraph 4.0.1 beta 2
+
 17-MAR-2019: 10.4.9
 
 - Adds comments for Google Drive (beta)
