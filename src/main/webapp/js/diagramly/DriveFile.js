@@ -664,6 +664,14 @@ DriveFile.prototype.loadDescriptor = function(success, error)
 };
 
 /**
+ * Are comments supported
+ */
+DriveFile.prototype.commentsSupported = function()
+{
+	return true;
+};
+
+/**
  * Get comments of the file
  */
 DriveFile.prototype.getComments = function(success, error)
@@ -724,6 +732,14 @@ DriveFile.prototype.addComment = function(comment, success, error)
 DriveFile.prototype.canReplyToReplies = function()
 {
 	return false;
+};
+
+/**
+ * Can add comments (The permission to comment to this file)
+ */
+DriveFile.prototype.canComment = function()
+{
+	return this.desc.canComment;
 };
 
 /**

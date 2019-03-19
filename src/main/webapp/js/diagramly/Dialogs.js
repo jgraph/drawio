@@ -6271,6 +6271,8 @@ var FindWindow = function(ui, x, y, w, h)
 	
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{
+		this.window.fit();
+		
 		if (this.window.isVisible())
 		{
 			searchInput.focus();
@@ -6289,6 +6291,36 @@ var FindWindow = function(ui, x, y, w, h)
 			graph.container.focus();
 		}
 	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };
 
 /**
@@ -6418,6 +6450,8 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{
+		this.window.fit();
+		
 		if (this.window.isVisible())
 		{
 			searchInput.focus();
@@ -6436,6 +6470,36 @@ var TagsWindow = function(editorUi, x, y, w, h)
 			graph.container.focus();
 		}
 	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };
 
 /**
@@ -7032,7 +7096,7 @@ var PluginsDialog = function(editorUi)
 				{
 					return function()
 					{
-						editorUi.confirm(window.parent.mxResources.get('delete') + ' "' + plugins[index] + '"?', function()
+						editorUi.confirm(mxResources.get('delete') + ' "' + plugins[index] + '"?', function()
 						{
 							plugins.splice(index, 1);
 							refresh();
@@ -9566,10 +9630,8 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
  */
 var CommentsWindow = function(editorUi, x, y, w, h)
 {
-	var file = editorUi.getCurrentFile();
-	var readOnly = !file.desc.canComment;
-	var canReplyToReplies = !readOnly;
-	var file = editorUi.getCurrentFile();
+	var readOnly = !editorUi.canComment();
+	var canReplyToReplies = editorUi.canReplyToReplies();
 	
 	var div = document.createElement('div');
 	div.className = 'geCommentsWin';
@@ -9609,6 +9671,22 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 		link.style.filter = 'none';
 	}
 	
+	function updateNoComments()
+	{
+		var divs = listDiv.getElementsByTagName('div');
+		var visibleCount = 0;
+		
+		for (var i = 0; i < divs.length; i++)
+		{
+			if (divs[i].style.display != 'none' && divs[i].parentNode == listDiv)
+			{
+				visibleCount++;
+			}
+		}
+		
+		noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
+	};
+	
 	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
 	{
 		var commentTxt = cdiv.querySelector('.geCommentTxt');
@@ -9636,6 +9714,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 			if (deleteOnCancel)
 			{
 				cdiv.parentNode.removeChild(cdiv);
+				updateNoComments();
 			}
 			else
 			{
@@ -9823,7 +9902,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 		{
 			var pdiv = collectReplies().pdiv;
 			
-			var newReply = file.newComment(initContent, editorUi.getCurrentUser());
+			var newReply = editorUi.newComment(initContent, editorUi.getCurrentUser());
 			newReply.pCommentId = comment.id;
 			
 			if (comment.replies == null) comment.replies = [];
@@ -9976,18 +10055,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 						}
 					}
 					
-					var divs = listDiv.getElementsByTagName('div');
-					var visibleCount = 0;
-					
-					for (var i = 0; i < divs.length; i++)
-					{
-						if (divs[i].style.display != 'none' && divs[i].parentNode == listDiv)
-						{
-							visibleCount++;
-						}
-					}
-					
-					noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
+					updateNoComments();
 				};
 				
 				if (comment.isResolved)
@@ -10032,7 +10100,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 		
 		mxEvent.addListener(addLink, 'click', function(evt)
 		{
-			var newComment = file.newComment('', editorUi.getCurrentUser());
+			var newComment = editorUi.newComment('', editorUi.getCurrentUser());
 			var newCommentDiv = addComment(newComment, comments, null, 0);
 			
 			function doAddComment()
@@ -10041,7 +10109,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 				{
 					showBusy(newCommentDiv);
 					
-					file.addComment(newComment, function(id)
+					editorUi.addComment(newComment, function(id)
 					{
 						newComment.id = id;
 						comments.push(newComment);
@@ -10115,13 +10183,11 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="/images/spin.gif" valign="middle"> ' +
 			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
 		
-		file = editorUi.getCurrentFile();
+		canReplyToReplies = editorUi.canReplyToReplies();
 		
-		canReplyToReplies = file.canReplyToReplies();
-		
-		if (file != null)
+		if (editorUi.commentsSupported())
 		{
-			file.getComments(function(list)
+			editorUi.getComments(function(list)
 			{
 				function sortReplies(replies)
 				{
@@ -10163,7 +10229,7 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 		}
 		else
 		{
-			//TODO if file is null, close the dialog
+			//TODO if comments are not supported, close the dialog
 			listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
 		}
 	});
@@ -10217,6 +10283,11 @@ var CommentsWindow = function(editorUi, x, y, w, h)
 	this.window.setResizable(true);
 	this.window.setClosable(true);
 	this.window.setVisible(true);
+	
+	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
 	
 	this.window.setLocation = function(x, y)
 	{

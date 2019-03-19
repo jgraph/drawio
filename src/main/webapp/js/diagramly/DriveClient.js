@@ -1062,14 +1062,20 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		{
 			if (!file.isConflict(e))
 			{
-				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash()  + '.' +
+				var err = 'error-' + (file.getErrorMessage(e) || 'unknown');
+
+				if (e != null && e.error != null && e.error.code != null)
+				{
+					err += '-code-' + e.error.code;
+				}
+				
+				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
 					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
-					action: 'error-' + file.getErrorMessage(e),
-					label: (this.user != null) ? this.user.id : 'unknown-user'} +
-					'.' + ((file.sync != null) ? file.sync.clientId : 'nosync'));
+					action: err, label: ((this.user != null) ? this.user.id : 'unknown-user') +
+					'.' + ((file.sync != null) ? file.sync.clientId : 'nosync')});
 			}
 		}
-		catch (e)
+		catch (ex)
 		{
 			// ignore
 		}
@@ -1202,22 +1208,41 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							
 							if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 							{
-								error({message: mxResources.get('errorSavingFile')});
+								var reasons = [];
+								
+								if (delta <= 0)
+								{
+									reasons.push('invalid modified time');
+								}
+								
+								if (etag0 == resp.etag)
+								{
+									resons.push('stale etag');
+								}
+								
+								if (revision && head0 == resp.headRevisionId)
+								{
+									resons.push('stale revision');
+								}
+								
+								var temp = ': ' + reasons.join(', ');
+								error({message: mxResources.get('errorSavingFile') + temp}, resp);
 								
 								// Logs failed save
 								try
 								{
 									EditorUi.sendReport('Critical: Error saving to Google Drive ' +
-										new Date().toISOString() + ':' +
-										'\n\nBrowser=' + navigator.userAgent +
+										new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
 										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
 										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
 										 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
-										'\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' + this.ui.hashValue(etag0) +
-										'\nNew=' + resp.headRevisionId + ' ' + resp.modifiedDate + '  etag-hash=' + this.ui.hashValue(resp.etag))
+										'\nErrors=' + temp + '\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' +
+										this.ui.hashValue(etag0) + '\nNew=' + resp.headRevisionId + ' ' +
+										resp.modifiedDate + ' etag-hash=' + this.ui.hashValue(resp.etag))
 									EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
 										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
-										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' + this.ui.hashValue(resp.etag),
+										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
+										this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
 										(this.user != null) ? this.user.id : 'unknown');
 								}
 								catch (e)

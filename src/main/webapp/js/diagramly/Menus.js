@@ -2833,9 +2833,7 @@
 		{
 			viewPanelsFunct.apply(this, arguments);
 			
-			var file = editorUi.getCurrentFile();
-			
-			if (file != null && file.constructor == DriveFile)
+			if (editorUi.commentsSupported())
 			{
 				editorUi.menus.addMenuItems(menu, ['comments'], parent);
 			}
@@ -2844,10 +2842,8 @@
 		// Overrides view menu to add search and scratchpad
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var file = editorUi.getCurrentFile();
-
 			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
-				concat(['outline', 'layers']).concat((file != null && file.constructor == DriveFile) ?
+				concat(['outline', 'layers']).concat((editorUi.commentsSupported()) ?
 				['comments', '-'] : ['-']));
 			
 			this.addMenuItems(menu, ['-', 'search'], parent);

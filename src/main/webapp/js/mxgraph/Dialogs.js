@@ -1929,6 +1929,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	
 	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
 	{
+		this.window.fit();
 		outline.suspended = false;
 		outline.outline.refresh();
 		outline.update();
@@ -2609,6 +2610,11 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	this.window.setResizable(true);
 	this.window.setClosable(true);
 	this.window.setVisible(true);
+
+	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
 	
 	// Make refresh available via instance
 	this.refreshLayers = refresh;
