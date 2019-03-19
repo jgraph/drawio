@@ -127,13 +127,37 @@ App = function(editor, container, lightbox)
 					console.log('Plugin Error:', e, App.DrawPlugins[i]);
 				}
 			}
+			finally
+			{
+				App.embedModePluginsCount--;
+				this.initializeEmbedMode();
+			}
 		}
 		
 		// Installs global callback for plugins
 		window.Draw.loadPlugin = mxUtils.bind(this, function(callback)
 		{
-			callback(this);
+			try
+			{
+				callback(this);
+			}
+			finally
+			{
+				App.embedModePluginsCount--;
+				this.initializeEmbedMode();
+			}
 		});
+		
+		//Set a timeout in case a plugin doesn't load quickly or doesn't load at all
+		setTimeout(mxUtils.bind(this, function()
+		{
+			//Force finish loading if its not yet called
+			if (App.embedModePluginsCount > 0)
+			{
+				App.embedModePluginsCount = 0;
+				this.initializeEmbedMode();
+			}
+		}), 5000); //5 sec timeout
 	}
 
 	this.load();
@@ -548,6 +572,7 @@ App.main = function(callback, createUi)
 							if (App.pluginsLoaded[plugins[i]] == null)
 							{
 								App.pluginsLoaded[plugins[i]] = true;
+								App.embedModePluginsCount++;
 								mxscript(plugins[i]);
 							}
 						}
@@ -771,7 +796,7 @@ App.main = function(callback, createUi)
 			console.error(e);
 		}
 	}
-
+	
 	// Sends load event if configuration is requested and waits for configure action
 	if (urlParams['configure'] == '1')
 	{
@@ -887,6 +912,7 @@ App.initPluginCallback = function()
  * 
  */
 App.pluginsLoaded = {};
+App.embedModePluginsCount = 0;
 
 /**
  * Queue for loading plugins and wait for UI instance
@@ -906,6 +932,7 @@ App.loadPlugins = function(plugins, useInclude)
 					if (App.pluginsLoaded[url] == null)
 					{
 						App.pluginsLoaded[url] = true;
+						App.embedModePluginsCount++;
 						
 						if (typeof window.drawDevUrl === 'undefined')
 						{
@@ -944,6 +971,26 @@ App.loadPlugins = function(plugins, useInclude)
 				}
 			}
 		}
+	}
+};
+
+/**
+ * Delay embed mode initialization until all plugins are loaded
+ */
+App.prototype.initializeEmbedMode = function()
+{
+	if (urlParams['embed'] == '1')
+	{
+		if (App.embedModePluginsCount > 0 || this.initEmbedDone)
+		{
+			return; //Wait for plugins to load, or this is a duplicate call due to timeout
+		}
+		else
+		{
+			this.initEmbedDone = true;
+		}
+		
+		EditorUi.prototype.initializeEmbedMode.apply(this, arguments);
 	}
 };
 
@@ -4357,7 +4404,7 @@ App.prototype.updateButtonContainer = function()
 		var file = this.getCurrentFile();
 		
 		// Comments
-		if (file != null && file.constructor == DriveFile)
+		if (this.commentsSupported())
 		{
 			if (this.commentButton == null)
 			{
@@ -4369,6 +4416,12 @@ App.prototype.updateButtonContainer = function()
 					'background-position:center center;background-repeat:no-repeat;background-image:' +
 					'url(' + Editor.commentImage + ');';
 				
+				if (uiTheme == 'atlas')
+				{
+					this.commentButton.style.marginRight = '10px';
+					this.commentButton.style.marginTop = '-3px';
+				}
+				
 				mxEvent.addListener(this.commentButton, 'click', mxUtils.bind(this, function()
 				{
 					this.actions.get('comments').funct();
@@ -4376,7 +4429,7 @@ App.prototype.updateButtonContainer = function()
 				
 				this.buttonContainer.appendChild(this.commentButton);
 				
-				if (uiTheme == 'dark')
+				if (uiTheme == 'dark' || uiTheme == 'atlas')
 				{
 					this.commentButton.style.filter = 'invert(100%)';
 				}

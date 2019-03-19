@@ -767,9 +767,7 @@ EditorUi.initMinimalTheme = function()
 
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers'], parent);
 			
-			var file = ui.getCurrentFile();
-			
-			if (file != null && file.constructor == DriveFile)
+			if (ui.commentsSupported())
 			{
 				ui.menus.addMenuItems(menu, ['comments'], parent);
 			}

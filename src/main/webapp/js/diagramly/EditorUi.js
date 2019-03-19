@@ -10368,7 +10368,7 @@
 						if (uiTheme == 'atlas')
 						{
 							this.buttonContainer.style.paddingRight = '12px';
-							this.buttonContainer.style.paddingTop = '12px';
+							this.buttonContainer.style.paddingTop = '6px';
 							this.buttonContainer.style.right = '25px';
 						}
 						else if (uiTheme != 'min')
@@ -12032,6 +12032,94 @@
 		catch(e)
 		{
 			sendResponse(null, 'Invalid Call: An error occured, ' + e.message);
+		}
+	};
+	
+	/**
+	 *
+	 * Comments: We need these functions as wrapper of File functions in order to facilitate overriding them if comments are needed without having a file
+	 * 			 (e.g. Confluence Plugin)
+	 * 
+	 */
+	
+	/**
+	 * Are comments supported
+	 */
+	EditorUi.prototype.commentsSupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.commentsSupported() : false;
+	};
+
+	/**
+	 * Get comments
+	 */
+	EditorUi.prototype.getComments = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.getComments(success, error);
+		}
+		else 
+		{
+			success([]); //placeholder
+		}
+	};
+
+	/**
+	 * Add a comment
+	 */
+	EditorUi.prototype.addComment = function(comment, success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.addComment(comment, success, error);
+		}
+		else 
+		{
+			success(Date.now()); //placeholder
+		}
+	};
+
+	/**
+	 * Can add a reply to a reply
+	 */
+	EditorUi.prototype.canReplyToReplies = function()
+	{
+		var file = this.getCurrentFile();
+			
+		return file != null? file.canReplyToReplies() : true;
+	};
+
+	/**
+	 * Can add comments (The permission to comment)
+	 */
+	EditorUi.prototype.canComment = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.canComment() : true;
+	};
+
+	/**
+	 * Get a new comment object
+	 */
+	EditorUi.prototype.newComment = function(content, user)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			return file.newComment(content, user)
+		}
+		else 
+		{
+			return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
 		}
 	};
 })();

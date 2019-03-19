@@ -2026,6 +2026,14 @@ DrawioFile.prototype.destroy = function()
 };
 
 /**
+ * Are comments supported
+ */
+DrawioFile.prototype.commentsSupported = function()
+{
+	return false; //The default is false and files that support it must explicitly state that
+};
+
+/**
  * Get comments of the file
  */
 DrawioFile.prototype.getComments = function(success, error)
@@ -2045,6 +2053,14 @@ DrawioFile.prototype.addComment = function(comment, success, error)
  * Can add a reply to a reply
  */
 DrawioFile.prototype.canReplyToReplies = function()
+{
+	return true;
+};
+
+/**
+ * Can add comments (The permission to comment to this file)
+ */
+DrawioFile.prototype.canComment = function()
 {
 	return true;
 };

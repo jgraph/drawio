@@ -40,6 +40,7 @@ mxRackContainer.prototype.cst =
 };
 
 mxRackContainer.prototype.customProperties = [
+	{name: 'fillColor2', dispName: 'Cabinet Color', type: 'color'},
 	{name: 'textColor', dispName: 'Numbers Color', type: 'color'},
 	{name: 'numDisp', dispName: 'Display Numbers', type: 'enum',
 		enumList: [{val: 'off', dispName: 'Off'}, {val: 'ascend', dispName: 'Ascending'}, {val: 'descend', dispName: 'Descending'}],
@@ -59,6 +60,8 @@ mxRackContainer.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	var fontSize = 12;
 	var displayNumbers = mxUtils.getValue(this.style, mxRackContainer.prototype.cst.NUMBER_DISPLAY, mxRackContainer.prototype.cst.DIR_ASC);
+	var fillColor = mxUtils.getValue(this.style, mxConstants.STYLE_FILLCOLOR, '#ffffff');
+	var fillColor2 = mxUtils.getValue(this.style, 'fillColor2', '#f4f4f4');
 
 	if (displayNumbers !== mxRackContainer.prototype.cst.OFF)
 	{
@@ -70,8 +73,10 @@ mxRackContainer.prototype.paintVertexShape = function(c, x, y, w, h)
 		c.translate(x, y);
 	};
 
+	c.setFillColor(fillColor);
 	this.background(c, w, h, fontSize);
 	c.setShadow(false);
+	c.setFillColor(fillColor2);
 	this.foreground(c, w, h, fontSize);
 
 	if (displayNumbers !== mxRackContainer.prototype.cst.OFF && w > 18 + fontSize * 2)
@@ -82,7 +87,6 @@ mxRackContainer.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxRackContainer.prototype.background = function(c, w, h, fontSize)
 {
-	c.setFillColor('#ffffff');
 	c.rect(0, 0, w, h);
 	c.fillAndStroke();
 };
@@ -91,7 +95,6 @@ mxRackContainer.prototype.foreground = function(c, w, h, fontSize)
 {
 	if (w > 18 + fontSize * 2 && h > 42)
 	{
-		c.setFillColor('#f4f4f4');
 		c.rect(0, 0, w, 21);
 		c.fillAndStroke();
 		c.rect(0, h - 21, w, 21);
@@ -126,8 +129,6 @@ mxRackContainer.prototype.sideText = function(c, w, h, fontSize)
 		var displayNumber = (displayNumbers === mxRackContainer.prototype.cst.DIR_DESC) ? (i + 1).toString() : (units - i).toString();
 		c.text(-fontSize, 21 + mxRackContainer.unitSize * 0.5 + i * mxRackContainer.unitSize, 0, 0, displayNumber, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
-
-	c.setStrokeColor('#dddddd');
 
 	c.begin();
 

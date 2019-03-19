@@ -99,6 +99,7 @@ Draw.loadPlugin(function(ui)
 		if (eventName == 'export')
 		{
 			msg.macroData = macroData;
+			msg.comments = confComments;
 		}
 
 		return msg;
@@ -246,4 +247,110 @@ Draw.loadPlugin(function(ui)
 	{
 		ui.format.refresh();
 	}
+	
+	//Comments
+
+	function setModified()
+	{
+		ui.editor.setStatus(mxUtils.htmlEntities(mxResources.get('unsavedChanges')));
+		ui.editor.setModified(true);	
+	};
+	
+	var confUser = null;
+	var confComments = null;
+	
+	ui.getCurrentUser = function()
+	{
+		if (confUser == null)
+		{
+			ui.remoteInvoke('getCurrentUser', null, null, function(user)
+			{
+				confUser = new DrawioUser(user.id, user.email, user.displayName, user.pictureUrl);
+			}, function()
+			{
+				//ignore such that next call we retry
+			});
+			
+			//Return a dummy user until we have the actual user in order for UI to be populated
+			return new DrawioUser(Date.now(), null, 'Anonymous');
+		}
+		
+		return confUser;
+	};
+	
+	
+	ui.commentsSupported = function()
+	{
+		return true;
+	};
+			
+	function confCommentToDrawio(cComment, pCommentId)
+	{
+		var comment = new DrawioComment(null, cComment.id, cComment.content, 
+				cComment.modifiedDate, cComment.createdDate, cComment.isResolved,
+				new DrawioUser(cComment.user.id, cComment.user.email,
+						cComment.user.displayName, cComment.user.pictureUrl), pCommentId);
+		
+		for (var i = 0; cComment.replies != null && i < cComment.replies.length; i++)
+		{
+			comment.addReplyDirect(confCommentToDrawio(cComment.replies[i], cComment.id));
+		}
+		
+		return comment;
+	};
+			
+	ui.getComments = function(success, error)
+	{
+		if (confComments == null)
+		{
+			ui.remoteInvoke('getComments', [macroData.contentId], null, function(comments)
+			{
+				confComments = [];
+				
+				for (var i = 0; i < comments.length; i++)
+				{
+					confComments.push(confCommentToDrawio(comments[i]));
+				}
+				
+				success(confComments);
+			}, error);
+		}
+		else
+		{
+			success(confComments);
+		}
+	};
+
+	ui.addComment = function(comment, success, error)
+	{
+		setModified();
+		success(confUser.id + ':' + Date.now()); 
+	};
+			
+	ui.newComment = function(content, user)
+	{
+		return new DrawioComment(null, null, content, Date.now(), Date.now(), false, user); //remove file information
+	};
+	
+	//In Confluence, comments are part of the file (specifically custom contents), so needs to mark as changed with every change
+	DrawioComment.prototype.addReply = function(reply, success, error, doResolve, doReopen)
+	{
+		setModified();
+		success();
+	};
+
+	DrawioComment.prototype.editComment = function(newContent, success, error)
+	{
+		setModified();
+		success();
+	};
+
+	DrawioComment.prototype.deleteComment = function(success, error)
+	{
+		setModified();
+		success();
+	};
+	
+	//Prefetch current user 
+	ui.getCurrentUser();
 });
