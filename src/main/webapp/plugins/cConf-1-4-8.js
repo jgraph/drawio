@@ -24,6 +24,9 @@ Draw.loadPlugin(function(ui)
 					{
 						ui.format.refresh();
 					}
+					
+					//Prefetch comments
+					ui.getComments(function(){}, function(){});
 				}
 				
 				macroData.diagramDisplayName = data.title;
