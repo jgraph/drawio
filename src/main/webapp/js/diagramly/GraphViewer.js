@@ -208,6 +208,9 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.selectPage = function(number)
 				{
+					if(this.handlingResize)
+						return;
+					
 					this.currentPage = mxUtils.mod(number, this.diagrams.length);
 					this.updateGraphXml(mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(
 						this.diagrams[this.currentPage]))).documentElement);
@@ -532,18 +535,18 @@ GraphViewer.prototype.addSizeHandler = function()
 
 	var lastOffsetWidth = null;
 	var cachedOffsetWidth = null;
-	var handlingResize = false;
+	this.handlingResize = false;
 	
 	// Installs function on instance
-	this.fitGraph = function(maxScale)
+	this.fitGraph = mxUtils.bind(this, function(maxScale)
 	{
 		var cachedOffsetWidth = container.offsetWidth;
 		
 		if (cachedOffsetWidth != lastOffsetWidth)
 		{
-			if (!handlingResize)
+			if (!this.handlingResize)
 			{
-				handlingResize = true;
+				this.handlingResize = true;
 
 				this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
 					((this.allowZoomIn) ? null : 1));
@@ -561,13 +564,13 @@ GraphViewer.prototype.addSizeHandler = function()
 				lastOffsetWidth = cachedOffsetWidth;
 				
 				// Workaround for fit triggering scrollbars triggering doResize (infinite loop)
-				window.setTimeout(function()
+				window.setTimeout(mxUtils.bind(this, function()
 				{
-					handlingResize = false;
-				}, 0);
+					this.handlingResize = false;
+				}), 0);
 			}
 		}
-	};
+	});
 
 	// Fallback for older browsers
 	if (GraphViewer.useResizeSensor)
@@ -608,7 +611,7 @@ GraphViewer.prototype.addSizeHandler = function()
 			{
 				window.clearTimeout(scheduledResize);
 				
-				if (!handlingResize)
+				if (!this.handlingResize)
 				{
 					scheduledResize = window.setTimeout(mxUtils.bind(this, this.fitGraph), 100);
 				}

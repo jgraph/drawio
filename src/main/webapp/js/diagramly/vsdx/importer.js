@@ -8649,9 +8649,11 @@ var com;
                                                     if (position === void 0) { position = 0; }
                                                     return str.substr(position, searchString.length) === searchString;
                                                 })(format, "{{")) {
-                                                    //TODO FIXME find a date formatter (may be https://github.com/noahcooper/SimpleDateFormatJS)
-                                                	//value = new java.text.SimpleDateFormat(/* replaceAll */ format.replace(new RegExp("\\{|\\}", 'g'), "")).format(new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000))));
-                                                	value = new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000))).toString();
+                                                	//Our date format function swaps M/m meaning
+                                                	format = format.replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
+                                                	//Date can be in string date format or a number
+                                                	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
+                                                	value = Graph.prototype.formatDate(date, /* replaceAll */ format.replace(new RegExp("\\{|\\}", 'g'), ""));
                                                 }
                                             }
                                             catch (e) {

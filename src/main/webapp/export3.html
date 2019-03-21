@@ -389,7 +389,7 @@
 				
 				// Gets the diagram bounds and sets the document size
 				bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
-				bounds.width = Math.ceil(bounds.width + data.border);
+				bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
 				bounds.height = Math.ceil(bounds.height + data.border);
 				
 				// Converts the graph to a vertical sequence of pages for PDF export
@@ -407,7 +407,7 @@
 			
 					// Applies print scale
 					pf = mxRectangle.fromRectangle(pf);
-					pf.width = Math.ceil(pf.width);
+					pf.width = Math.ceil(pf.width) + 1; //The 1 extra pixels to prevent cutting the cells on the right edge of the page
 					pf.height = Math.ceil(pf.height);
 					
 					// Starts at first visible page
