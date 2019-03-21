@@ -1296,7 +1296,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
 										'.' + resp.modifiedDate, label: ((this.user != null) ?
 										this.user.id : 'unknown-user') + '.' + ((file.sync != null) ?
-										file.sync.clientId : 'nosync')});
+										(file.sync.clientId + '-chan-' + (file.sync.channelId || 'none')) :
+										'nosync')});
 								}
 								catch (e)
 								{

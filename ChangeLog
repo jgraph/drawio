@@ -1,3 +1,9 @@
+21-MAR-2019: 10.5.3
+
+- Fixes timing issue in graph viewer
+- Fixes date formats in VSDX import
+- Fixes possible cropping for PDF export
+
 20-MAR-2019: 10.5.2
 
 - Fixes bug for comments in Confluence cloud
