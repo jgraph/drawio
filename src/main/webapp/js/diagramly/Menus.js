@@ -2770,9 +2770,9 @@
 				{
 					menu.addSeparator(parent);
 					
-					menu.addItem(mxResources.get('confCloud', null, 'Confluence Cloud') + '...', null, function()
+					menu.addItem(mxResources.get('confluenceCloud') + '...', null, function()
 					{
-						editorUi.showRemotelyStoredLibrary(mxResources.get('confCloudLibs', null, 'Confluence Cloud Libraries'));
+						editorUi.showRemotelyStoredLibrary(mxResources.get('libraries'));
 					}, parent);
 				}
 			}));
@@ -2782,8 +2782,7 @@
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
-									 'find', '-',
-			                         'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
+									 'find', '-', 'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
 			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 		})));

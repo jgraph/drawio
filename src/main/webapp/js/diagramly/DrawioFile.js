@@ -1631,13 +1631,15 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 						{
 							this.lastWarned = Date.now();
 							this.ui.hideDialog();
-							EditorUi.logEvent({category: 'IGNORE-WARN-SAVE-FILE-' + this.getHash(), action: 'ignore'});
+							EditorUi.logEvent({category: 'IGNORE-WARN-SAVE-FILE-' + this.getHash() +
+								'-size-' + this.getSize(), action: 'ignore'});
 						}), null, mxResources.get('save'), mxUtils.bind(this, function()
 						{
 							this.lastWarned = Date.now();
 							this.ui.actions.get((this.ui.mode == null || !this.isEditable()) ?
 								'saveAs' : 'save').funct();
-							EditorUi.logEvent({category: 'SAVE-WARN-SAVE-FILE-' + this.getHash(), action: 'save'});
+							EditorUi.logEvent({category: 'SAVE-WARN-SAVE-FILE-' + this.getHash() +
+								'-size-' + this.getSize(), action: 'save'});
 						}), null, null, 360, 120);
 				}
 			}

@@ -1070,9 +1070,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				}
 				
 				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
-					action: err, label: ((this.user != null) ? this.user.id : 'unknown-user') +
-					'.' + ((file.sync != null) ? file.sync.clientId : 'nosync')});
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size-' + file.getSize(),
+					action: err, label: ((this.user != null) ? this.user.id : 'unknown-user')  + '.' +
+					((file.sync != null) ? (file.sync.clientId + '-chan-' +
+						(file.sync.channelId || 'none')) : '-nosync') +
+					((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
 			}
 		}
 		catch (ex)
@@ -1294,10 +1296,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								{
 									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
 										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
-										'.' + resp.modifiedDate, label: ((this.user != null) ?
-										this.user.id : 'unknown-user') + '.' + ((file.sync != null) ?
-										(file.sync.clientId + '-chan-' + (file.sync.channelId || 'none')) :
-										'nosync')});
+										'.' + resp.modifiedDate + '-size-' + file.getSize(),
+										label: ((this.user != null) ? this.user.id : 'unknown-user') + '.' +
+										((file.sync != null) ? (file.sync.clientId + '-chan-' +
+										(file.sync.channelId || 'none')) : '-nosync') +
+										((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
 								}
 								catch (e)
 								{
@@ -1487,33 +1490,36 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 					{
+						// Callback for getThumbnail
 						try
 						{
-							// Callback for getThumbnail
 							var thumb = null;
-							
-							if (canvas != null)
+
+							try
 							{
-								try
+								if (canvas != null)
 								{
 									// Security errors are possible
 									thumb = canvas.toDataURL('image/png');
 								}
-								catch (e)
+								
+								// Maximum thumbnail size is 2MB
+								if (thumb != null)
 								{
-									// ignore and continue with placeholder
+									if (thumb.length > this.maxThumbnailSize)
+									{
+										thumb = null;
+									}
+									else
+									{
+										// Converts base64 data into required format for Drive (base64url with no prefix)
+										thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+									}
 								}
 							}
-							
-							// Maximum thumbnail size is 2MB
-							if (thumb == null || thumb.length > this.maxThumbnailSize)
+							catch (e)
 							{
 								thumb = null;
-							}
-							else
-							{
-								// Converts base64 data into required format for Drive (base64url with no prefix)
-								thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
 							}
 							
 							doSave(thumb, 'image/png');
