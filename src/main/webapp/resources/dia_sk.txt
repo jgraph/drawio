@@ -814,3 +814,5 @@ markedAsResolved=Marked as resolved
 noCommentsFound=No comments found
 comments=Comments
 timeAgo={1} ago
+confluenceCloud=Confluence Cloud
+libraries=Libraries

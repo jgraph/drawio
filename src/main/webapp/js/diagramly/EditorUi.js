@@ -11822,40 +11822,47 @@
 		}
 		catch(e){}
 
-		
 		this.remoteInvoke('getCustomLibraries', null, null, function(libsList)
 		{
 			libsSection.innerHTML = '';
 			
-			for (var i = 0; i < libsList.length; i++)
+			if (libsList.length == 0)
 			{
-				var lib = libsList[i];
-				
-				if (loadedLibs[lib.id])
+				libsSection.innerHTML = '<div style="text-align:center;padding-top:20px;color:gray;">' +
+					mxUtils.htmlEntities(mxResources.get('noLibraries')) + '</div>';
+			}
+			else
+			{
+				for (var i = 0; i < libsList.length; i++)
 				{
-					selectedLibs[lib.id] = lib;
-				}
-				
-				var libCheck = this.addCheckbox(libsSection, lib.title, loadedLibs[lib.id]); 
-
-				(function(lib2, check)
-				{
-					mxEvent.addListener(check, 'change', function()
+					var lib = libsList[i];
+					
+					if (loadedLibs[lib.id])
 					{
-						if (this.checked)
+						selectedLibs[lib.id] = lib;
+					}
+					
+					var libCheck = this.addCheckbox(libsSection, lib.title, loadedLibs[lib.id]); 
+	
+					(function(lib2, check)
+					{
+						mxEvent.addListener(check, 'change', function()
 						{
-							selectedLibs[lib2.id] = lib2;
-						}
-						else
-						{
-							delete selectedLibs[lib2.id];
-						}
-					});
-				})(lib, libCheck)
+							if (this.checked)
+							{
+								selectedLibs[lib2.id] = lib2;
+							}
+							else
+							{
+								delete selectedLibs[lib2.id];
+							}
+						});
+					})(lib, libCheck)
+				}
 			}
 		}, function()
 		{
-			this.handleError(null, mxResources.get('errorGettingConfLibs', null, 'An error occured while getting Confluence libraries list'));
+			this.handleError(null, mxResources.get('errorLoadingFile'));
 		});
 
 		div.appendChild(libsSection);
@@ -11907,7 +11914,7 @@
 			}
 			
 			if (pendingLibs == 0) this.spinner.stop();
-		}));
+		}), null, null, 'https://desk.draw.io/support/solutions/articles/16000092763');
 		this.showDialog(dlg.container, 340, 375, true, true);
 	};
 	

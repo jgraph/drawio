@@ -26,10 +26,16 @@ App = function(editor, container, lightbox)
 			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
 			{
 				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '.' + file.desc.modifiedDate,
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size-' + file.getSize(),
 					action: 'time-' + new Date().toISOString() + '-saved-' +
-					((file.lastSaved != null) ? file.lastSaved.toISOString() : 'never'),
+					((file.lastSaved != null) ? file.lastSaved.toISOString() : 'never') +
+					((this.editor.autosave) ? '-autosave-on' : '-autosave-off'),
 					label: (this.drive.user != null) ? this.drive.user.id : 'unknown-user'});
+			}
+			else if (file != null && file.isModified())
+			{
+				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash(), action: 'unload',
+					label: ((this.editor.autosave) ? 'autosave-on' : 'autosave-off')});
 			}
 		});
 	}
@@ -1769,12 +1775,19 @@ App.prototype.getThumbnail = function(width, success)
 		{
 		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{
-		   		// Removes temporary graph from DOM
-   	   	    	if (graph != this.editor.graph)
-				{
-					graph.container.parentNode.removeChild(graph.container);
+		   		try
+		   		{
+			   		// Removes temporary graph from DOM
+	   	   	    	if (graph != this.editor.graph && graph.container.parentNode != null)
+					{
+						graph.container.parentNode.removeChild(graph.container);
+					}
 				}
-		   		
+				catch (e)
+				{
+					canvas = null;
+				}
+				
 		   		success(canvas);
 		   	}), width, this.thumbImageCache, '#ffffff', function()
 		   	{
@@ -1854,14 +1867,21 @@ App.prototype.getThumbnail = function(width, success)
 	
 			asynCanvas.finish(mxUtils.bind(this, function()
 			{
-				imgExport.drawState(graph.getView().getState(graph.model.root), htmlCanvas);
-				
-		   		// Removes temporary graph from DOM
-   	   	    	if (graph != this.editor.graph)
+				try
 				{
-					graph.container.parentNode.removeChild(graph.container);
+					imgExport.drawState(graph.getView().getState(graph.model.root), htmlCanvas);
+					
+			   		// Removes temporary graph from DOM
+	   	   	    	if (graph != this.editor.graph && graph.container.parentNode != null)
+					{
+						graph.container.parentNode.removeChild(graph.container);
+					}
 				}
-				
+				catch (e)
+				{
+					canvas = null;
+				}
+
 				success(canvas);
 			}));
 			
@@ -1872,7 +1892,7 @@ App.prototype.getThumbnail = function(width, success)
 	{
 		// ignore and use placeholder
 		// Removes temporary graph from DOM
-  	    if (graph != this.editor.graph)
+  	    if (graph != this.editor.graph && graph.container.parentNode != null)
 		{
 			graph.container.parentNode.removeChild(graph.container);
 		}
