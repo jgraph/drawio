@@ -75,26 +75,6 @@ App = function(editor, container, lightbox)
 		}
 	});
 
-	// Handles cloning errors when copying cells
-	var clipboardCopy = mxClipboard.copy;
-	var self = this;
-	
-	mxClipboard.copy = function(graph, cells)
-	{
-		var result = null;
-		
-		try
-		{
-			result = clipboardCopy.apply(this, arguments);
-		}
-		catch (e)
-		{
-			self.handleError(e);
-		}
-		
-		return result;
-	},
-
 	// Initial state for toolbar items is disabled
 	this.updateDocumentTitle();
 	this.updateUi();

@@ -28,6 +28,8 @@ public class GliffyObject implements PostDeserializable
 	
 	private static Set<String> FILLCLR_IS_STROKECLR_SHAPES = new HashSet<>();
 	
+	public static Set<String> FORCE_CONSTRAINTS_SHAPES = new HashSet<String>();
+	
 	private static Map<String, double[]> SHAPES_COORD_FIX = new HashMap<>();
 
 	public float x;
@@ -201,6 +203,8 @@ public class GliffyObject implements PostDeserializable
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.main_topic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.subtopic");
 		MINDMAP_SHAPES.add("com.gliffy.shape.mindmap.mindmap_v1.default.child_node");
+		
+		FORCE_CONSTRAINTS_SHAPES.add("com.gliffy.shape.uml.uml_v2.class.association");
 
 		//This map is used to change Gliffy coordinates to match mxGraph ones
 		//Format [xShift, yShift, widthShift, heightShift, DONT REPOSITION TEXT] values between ]-1, 1[ means percentage

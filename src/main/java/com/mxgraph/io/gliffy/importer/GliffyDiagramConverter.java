@@ -347,7 +347,7 @@ public class GliffyDiagramConverter
 				temp = mxUtils.getRotatedPoint(temp, Math.cos(rad), Math.sin(rad), new mxPoint(0.5, 0.5));
 			}
 
-			if (!orthogonal || (temp.getX() == 0.5 && temp.getY() == 0.5))
+			if (!orthogonal || (temp.getX() == 0.5 && temp.getY() == 0.5) || GliffyObject.FORCE_CONSTRAINTS_SHAPES.contains(object.uid))
 			{
 				mxCell cell = object.getMxObject();
 				cell.setStyle(cell.getStyle() + ((source) ? "exitX=" : "entryX=") + temp.getX() + ";" + ((source) ? "exitY=" : "entryY=")
