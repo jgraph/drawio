@@ -286,7 +286,12 @@ Draw.loadPlugin(function(ui)
 	{
 		return true;
 	};
-			
+	
+	ui.commentsRefreshNeeded = function()
+	{
+		return false;
+	};
+
 	function confCommentToDrawio(cComment, pCommentId)
 	{
 		var comment = new DrawioComment(null, cComment.id, cComment.content, 

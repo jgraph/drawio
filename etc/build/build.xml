@@ -192,6 +192,8 @@
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
+				<file name="DrawioComment.js" />
+				<file name="DrawioUser.js" />
 			</sources>
 					
 			<sources dir="${basedir}">
