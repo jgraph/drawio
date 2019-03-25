@@ -1,3 +1,8 @@
+25-MAR-2019: 10.5.5
+
+- Improvements for Gliffy import
+- Uses mxGraph 4.0.1 beta 3
+
 22-MAR-2019: 10.5.4
 
 - Adds custom libraries for Confluence cloud

@@ -950,8 +950,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 					var uid = (user != null) ? user.id : 'unknown';
 
 					EditorUi.logEvent({category: 'PATCH-SYNC-FILE-' + this.file.getHash(),
-						action: uid + '-recvd-' + this.file.stats.bytesReceived + '-msgs-' +
-						this.file.stats.msgReceived,
+						action: uid + '-patches-' + patches.length + '-recvd-' +
+						this.file.stats.bytesReceived + '-msgs-' + this.file.stats.msgReceived,
 						label: this.clientId});
 				}
 				catch (e)

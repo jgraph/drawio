@@ -8418,9 +8418,16 @@
 			{
 				if (graph.isEnabled())
 				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput);
-					clearInput();
+					try
+					{
+						mxClipboard.copy(graph);
+						this.copyCells(textInput);
+						clearInput();
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
 				}
 			}));
 			
@@ -8428,9 +8435,16 @@
 			{
 				if (graph.isEnabled())
 				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput, true);
-					clearInput();
+					try
+					{
+						mxClipboard.copy(graph);
+						this.copyCells(textInput, true);
+						clearInput();
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
 				}
 			}));
 			
