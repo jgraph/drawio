@@ -94,8 +94,8 @@ public class ProxyServlet extends HttpServlet
 							.getResponseCode();
 					int counter = 0;
 
-					// Follows a maximum of 2 redirects 
-					while (counter++ < 2
+					// Follows a maximum of 6 redirects 
+					while (counter++ <= 6
 							&& (status == HttpURLConnection.HTTP_MOVED_PERM
 									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
@@ -110,16 +110,27 @@ public class ProxyServlet extends HttpServlet
 								.getResponseCode();
 					}
 
-					response.setStatus(status);
-
-					// Copies input stream to output stream
-					InputStream is = connection.getInputStream();
-					byte[] head = (contentAlwaysAllowed(urlParam)) ? emptyBytes
-							: Utils.checkStreamContent(is);
-					response.setContentType("application/octet-stream");
-					String base64 = request.getParameter("base64");
-					copyResponse(is, out, head,
-							base64 != null && base64.equals("1"));
+					if (status >= 200 && status <= 299)
+					{
+						response.setStatus(status);
+						
+						// Copies input stream to output stream
+						InputStream is = connection.getInputStream();
+						byte[] head = (contentAlwaysAllowed(urlParam)) ? emptyBytes
+								: Utils.checkStreamContent(is);
+						response.setContentType("application/octet-stream");
+						String base64 = request.getParameter("base64");
+						copyResponse(is, out, head,
+								base64 != null && base64.equals("1"));
+					}
+					else
+					{
+						response.setStatus(HttpURLConnection.HTTP_PRECON_FAILED);
+					}
+				}
+				else
+				{
+					response.setStatus(HttpURLConnection.HTTP_UNSUPPORTED_TYPE);
 				}
 
 				out.flush();

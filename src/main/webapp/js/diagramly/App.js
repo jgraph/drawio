@@ -1133,7 +1133,8 @@ App.prototype.init = function()
 						this.checkLicense();
 						
 						if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
-							mxSettings.settings.closeRealtimeWarning == null))
+							mxSettings.settings.closeRealtimeWarning == null) &&
+							(!this.editor.chromeless || this.editor.editable))
 						{
 							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 							{
@@ -1289,7 +1290,8 @@ App.prototype.init = function()
 			this.mode = App.mode;
 		}
 		
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' &&
+			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
 			var acceptResponse = true;
@@ -3917,10 +3919,16 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							return id;
 						};
 						
-						if (!this.fileLoaded(tempFile, true))
+						if (!this.fileLoaded(tempFile, true) && !doFallback())
 						{
-							doFallback();
+							this.handleError({message: mxResources.get('fileNotFound')},
+								mxResources.get('errorLoadingFile'));
 						}
+					}
+					else if (!doFallback())
+					{
+						this.handleError({message: mxResources.get('fileNotFound')},
+							mxResources.get('errorLoadingFile'));
 					}
 				}), mxUtils.bind(this, function()
 				{

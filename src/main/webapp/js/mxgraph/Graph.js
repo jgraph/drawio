@@ -2280,6 +2280,12 @@ Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
  */
 Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt)
 {
+	// Ignores relative edge labels
+	if (source.geometry.relative && this.model.isEdge(source.parent))
+	{
+		return [];
+	}
+	
 	ignoreCellAt = (ignoreCellAt) ? ignoreCellAt : false;
 	
 	var pt = (source.geometry.relative && source.parent.geometry != null) ?
@@ -3909,6 +3915,11 @@ HoverIcons.prototype.update = function(state, x, y)
 	}
 	else
 	{
+		if (state != null && state.cell.geometry.relative && this.graph.model.isEdge(state.cell.parent))
+		{
+			state = null;
+		}
+		
 		var timeOnTarget = null;
 		
 		// Time on target
