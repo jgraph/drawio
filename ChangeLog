@@ -1,3 +1,8 @@
+26-MAR-2019: 10.5.7
+
+- Adds comments in Confluence cloud viewer
+- Improves Google file not found dialog
+
 25-MAR-2019: 10.5.6
 
 - Adds file ID and mime type in GDriveConnector macro editor

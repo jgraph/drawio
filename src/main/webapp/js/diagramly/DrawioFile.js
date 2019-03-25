@@ -2036,6 +2036,22 @@ DrawioFile.prototype.commentsSupported = function()
 };
 
 /**
+ * Show refresh button?
+ */
+DrawioFile.prototype.commentsRefreshNeeded = function()
+{
+	return true;
+};
+
+/**
+ * Show save button?
+ */
+DrawioFile.prototype.commentsSaveNeeded = function()
+{
+	return false;
+};
+
+/**
  * Get comments of the file
  */
 DrawioFile.prototype.getComments = function(success, error)
