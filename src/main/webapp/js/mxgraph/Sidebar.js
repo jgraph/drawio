@@ -740,13 +740,20 @@ Sidebar.prototype.addSearchPalette = function(expand)
 							
 							for (var i = 0; i < results.length; i++)
 							{
-								var elt = results[i]();
-								
-								// Avoids duplicates in results
-								if (hash[elt.innerHTML] == null)
+								try
 								{
-									hash[elt.innerHTML] = '1';
-									div.appendChild(results[i]());
+									var elt = results[i]();
+									
+									// Avoids duplicates in results
+									if (hash[elt.innerHTML] == null)
+									{
+										hash[elt.innerHTML] = '1';
+										div.appendChild(elt);
+									}
+								}
+								catch (e)
+								{
+									// ignore
 								}
 							}
 							
@@ -1786,7 +1793,8 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	var node = null;
 	
 	// For supporting HTML labels in IE9 standards mode the container is cloned instead
-	if (this.graph.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO)
+	if (this.graph.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO &&
+		this.graph.view.getCanvas().ownerSVGElement != null)
 	{
 		node = this.graph.view.getCanvas().ownerSVGElement.cloneNode(true);
 	}

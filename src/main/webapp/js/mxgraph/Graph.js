@@ -3915,7 +3915,8 @@ HoverIcons.prototype.update = function(state, x, y)
 	}
 	else
 	{
-		if (state != null && state.cell.geometry.relative && this.graph.model.isEdge(state.cell.parent))
+		if (state != null && state.cell.geometry != null && state.cell.geometry.relative &&
+			this.graph.model.isEdge(state.cell.parent))
 		{
 			state = null;
 		}
@@ -5079,12 +5080,13 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					return result;
 				}
-				else if (terminal.shape != null)
+				else if (terminal.shape != null && terminal.shape.bounds != null)
 				{
 					var dir = terminal.shape.direction;
 					var bounds = terminal.shape.bounds;
 					var scale = terminal.shape.scale;
-					var w = bounds.width / scale, h = bounds.height / scale;
+					var w = bounds.width / scale;
+					var h = bounds.height / scale;
 					
 					if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
 					{
@@ -5692,23 +5694,16 @@ if (typeof mxVertexHandler != 'undefined')
 					var state = (this.model.isEdge(cell)) ? this.view.getState(cell) : null;
 					var src = mxEvent.getSource(evt);
 					
-					if (this.firstClickState == state && this.firstClickSource == src)
+					if ((this.firstClickState == state && this.firstClickSource == src) &&
+						(state == null || (state.text == null || state.text.node == null ||
+						state.text.boundingBox == null || (!mxUtils.contains(state.text.boundingBox,
+						pt.x, pt.y) && !mxUtils.isAncestorNode(state.text.node, mxEvent.getSource(evt))))) &&
+						((state == null && !this.isCellLocked(this.getDefaultParent())) ||
+						(state != null && !this.isCellLocked(state.cell))) &&
+						(state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
+						(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement)))
 					{
-						if (state == null || (state.text == null || state.text.node == null ||
-							(!mxUtils.contains(state.text.boundingBox, pt.x, pt.y) &&
-							!mxUtils.isAncestorNode(state.text.node, mxEvent.getSource(evt)))))
-						{
-							if ((state == null && !this.isCellLocked(this.getDefaultParent())) ||
-								(state != null && !this.isCellLocked(state.cell)))
-							{
-								// Avoids accidental inserts on background
-								if (state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
-									(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement))
-								{
-									cell = this.addText(pt.x, pt.y, state);
-								}
-							}
-						}
+						cell = this.addText(pt.x, pt.y, state);
 					}
 				}
 			

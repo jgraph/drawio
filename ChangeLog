@@ -1,3 +1,8 @@
+26-MAR-2019: 10.5.8
+
+- Hides icon in Confluence cloud for resolved comments
+- Uses mxGraph 4.0.1 beta 4
+
 26-MAR-2019: 10.5.7
 
 - Adds comments in Confluence cloud viewer
