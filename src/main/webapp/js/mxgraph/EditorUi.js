@@ -418,59 +418,66 @@ EditorUi = function(editor, container, lightbox)
 	// Note: Everything that is not in styles is ignored (styles is augmented below)
 	this.setDefaultStyle = function(cell)
 	{
-		var state = graph.view.getState(cell);
-		
-		if (state != null)
+		try
 		{
-			// Ignores default styles
-			var clone = cell.clone();
-			clone.style = ''
-			var defaultStyle = graph.getCellStyle(clone);
-			var values = [];
-			var keys = [];
-
-			for (var key in state.style)
+			var state = graph.view.getState(cell);
+			
+			if (state != null)
 			{
-				if (defaultStyle[key] != state.style[key])
+				// Ignores default styles
+				var clone = cell.clone();
+				clone.style = ''
+				var defaultStyle = graph.getCellStyle(clone);
+				var values = [];
+				var keys = [];
+	
+				for (var key in state.style)
 				{
-					values.push(state.style[key]);
-					keys.push(key);
+					if (defaultStyle[key] != state.style[key])
+					{
+						values.push(state.style[key]);
+						keys.push(key);
+					}
 				}
+				
+				// Handles special case for value "none"
+				var cellStyle = graph.getModel().getStyle(state.cell);
+				var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
+				
+				for (var i = 0; i < tokens.length; i++)
+				{
+					var tmp = tokens[i];
+			 		var pos = tmp.indexOf('=');
+			 					 		
+			 		if (pos >= 0)
+			 		{
+			 			var key = tmp.substring(0, pos);
+			 			var value = tmp.substring(pos + 1);
+			 			
+			 			if (defaultStyle[key] != null && value == 'none')
+			 			{
+			 				values.push(value);
+			 				keys.push(key);
+			 			}
+			 		}
+				}
+	
+				// Resets current style
+				if (graph.getModel().isEdge(state.cell))
+				{
+					graph.currentEdgeStyle = {};
+				}
+				else
+				{
+					graph.currentVertexStyle = {}
+				}
+	
+				this.fireEvent(new mxEventObject('styleChanged', 'keys', keys, 'values', values, 'cells', [state.cell]));
 			}
-			
-			// Handles special case for value "none"
-			var cellStyle = graph.getModel().getStyle(state.cell);
-			var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
-			
-			for (var i = 0; i < tokens.length; i++)
-			{
-				var tmp = tokens[i];
-		 		var pos = tmp.indexOf('=');
-		 					 		
-		 		if (pos >= 0)
-		 		{
-		 			var key = tmp.substring(0, pos);
-		 			var value = tmp.substring(pos + 1);
-		 			
-		 			if (defaultStyle[key] != null && value == 'none')
-		 			{
-		 				values.push(value);
-		 				keys.push(key);
-		 			}
-		 		}
-			}
-
-			// Resets current style
-			if (graph.getModel().isEdge(state.cell))
-			{
-				graph.currentEdgeStyle = {};
-			}
-			else
-			{
-				graph.currentVertexStyle = {}
-			}
-
-			this.fireEvent(new mxEventObject('styleChanged', 'keys', keys, 'values', values, 'cells', [state.cell]));
+		}
+		catch (e)
+		{
+			this.handleError(e);
 		}
 	};
 	
@@ -606,7 +613,6 @@ EditorUi = function(editor, container, lightbox)
 							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
 							{
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
-								console.log('here', key, styleValue);
 							}
 						}
 					}
