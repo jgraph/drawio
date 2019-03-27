@@ -12191,7 +12191,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 {
 	var readOnly = !editorUi.canComment();
 	var canReplyToReplies = editorUi.canReplyToReplies();
-	
+	var curEdited = null;
+		
 	var div = document.createElement('div');
 	div.className = 'geCommentsWin';
 	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
@@ -12248,13 +12249,15 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	
 	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
 	{
+		curEdited = {div: cdiv, comment: comment, saveCallback: saveCallback, deleteOnCancel: deleteOnCancel};
+		
 		var commentTxt = cdiv.querySelector('.geCommentTxt');
 		var actionsDiv = cdiv.querySelector('.geCommentActionsList');
 		
 		var textArea = document.createElement('textarea');
 		textArea.className = 'geCommentEditTxtArea';
 		textArea.style.minHeight = commentTxt.offsetHeight + 'px';
-		textArea.value = commentTxt.innerHTML;
+		textArea.value = comment.content;
 		cdiv.insertBefore(textArea, commentTxt);
 		
 		var btnDiv = document.createElement('div');
@@ -12279,6 +12282,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			{
 				reset();
 			}
+			
+			curEdited = null;
 		});
 		
 		cancelBtn.className = 'geCommentEditBtn';
@@ -12291,6 +12296,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			mxUtils.write(commentTxt, comment.content);
 			reset();
 			saveCallback(comment);
+			curEdited = null;
 		});
 		
 		// Updates modified state and handles placeholder text
@@ -12648,6 +12654,22 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			addComment(reply, comment.replies, null, level + 1, showResolved);
 		}
 		
+		if (curEdited != null)
+		{
+			if (curEdited.comment.id == comment.id)
+			{
+				var origContent = comment.content;
+				comment.content = curEdited.comment.content;
+				editComment(comment, cdiv, curEdited.saveCallback, curEdited.deleteOnCancel);
+				comment.content = origContent;
+			}
+			else if (curEdited.comment.id == null && curEdited.comment.pCommentId == comment.id)
+			{
+				listDiv.appendChild(curEdited.div);
+				editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+			}
+		}
+
 		return cdiv;
 	};
 
@@ -12764,6 +12786,17 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 
 	var refresh = mxUtils.bind(this, function()
 	{
+		if (curEdited != null)
+		{
+			curEdited.div = curEdited.div.cloneNode(true);
+			var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
+			var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
+			
+			curEdited.comment.content = commentEditTxt.value;
+			commentEditTxt.parentNode.removeChild(commentEditTxt);
+			commentEditBtns.parentNode.removeChild(commentEditBtns);
+		}
+		
 		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="/images/spin.gif" valign="middle"> ' +
 			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
 		
@@ -12806,6 +12839,14 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					sortReplies(comments[i].replies);
 					addComment(comments[i], comments, null, 0, resolvedChecked);
 				}
+				
+				//New comment case
+				if (curEdited != null && curEdited.comment.id == null && curEdited.comment.pCommentId == null)
+				{
+					listDiv.appendChild(curEdited.div);
+					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+				}
+				
 			}, function()
 			{
 				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));

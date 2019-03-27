@@ -1,3 +1,10 @@
+27-MAR-2019: 10.5.9
+
+- Change to connection points and arrows trigger autosave
+- Adds style options for edge labels in Arrange panel
+- Fixes scroll during Alt+mouse wheel in Chrome
+- Uses mxGraph 4.0.1 beta 5
+
 26-MAR-2019: 10.5.8
 
 - Hides icon in Confluence cloud for resolved comments

@@ -1492,6 +1492,20 @@ ArrangePanel.prototype.init = function()
 	}
 	
 	this.container.appendChild(this.addGroupOps(this.createPanel()));
+
+	if (ss.containsLabel)
+	{
+		// Adds functions from hidden style format panel
+		var span = document.createElement('div');
+		span.style.width = '100%';
+		span.style.marginTop = '0px';
+		span.style.fontWeight = 'bold';
+		span.style.padding = '10px 0 0 18px';
+		mxUtils.write(span, mxResources.get('style'));
+		this.container.appendChild(span);
+			
+		new StyleFormatPanel(this.format, this.editorUi, this.container);
+	}
 };
 
 /**
@@ -3868,24 +3882,28 @@ StyleFormatPanel.prototype.init = function()
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
 	
-	if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
-		ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
+	if (!ss.containsLabel)
 	{
-		this.container.appendChild(this.addSvgStyles(this.createPanel()));
+		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
+			ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
+		{
+			this.container.appendChild(this.addSvgStyles(this.createPanel()));
+		}
+		
+		if (!ss.containsImage || ss.style.shape == 'image')
+		{
+			this.container.appendChild(this.addFill(this.createPanel()));
+		}
+	
+		this.container.appendChild(this.addStroke(this.createPanel()));
+		this.container.appendChild(this.addLineJumps(this.createPanel()));
+		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
+		opacityPanel.style.paddingTop = '8px';
+		opacityPanel.style.paddingBottom = '8px';
+		this.container.appendChild(opacityPanel);
+		this.container.appendChild(this.addEffects(this.createPanel()));
 	}
 	
-	if (!ss.containsImage || ss.style.shape == 'image')
-	{
-		this.container.appendChild(this.addFill(this.createPanel()));
-	}
-
-	this.container.appendChild(this.addStroke(this.createPanel()));
-	this.container.appendChild(this.addLineJumps(this.createPanel()));
-	var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
-	opacityPanel.style.paddingTop = '8px';
-	opacityPanel.style.paddingBottom = '8px';
-	this.container.appendChild(opacityPanel);
-	this.container.appendChild(this.addEffects(this.createPanel()));
 	var opsPanel = this.addEditOps(this.createPanel());
 	
 	if (opsPanel.firstChild != null)
