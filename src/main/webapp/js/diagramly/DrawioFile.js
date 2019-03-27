@@ -1236,6 +1236,8 @@ DrawioFile.prototype.installListeners = function()
 		this.ui.addListener('gridEnabledChanged', this.changeListener);
 		this.ui.addListener('guidesEnabledChanged', this.changeListener);
 		this.ui.addListener('pageViewChanged', this.changeListener);
+		this.ui.addListener('connectionPointsChanged', this.changeListener);
+		this.ui.addListener('connectionArrowsChanged', this.changeListener);
 	}
 };
 

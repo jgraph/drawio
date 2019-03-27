@@ -2105,13 +2105,13 @@ EditorUi.prototype.initCanvas = function()
 					graph.lazyZoom(up);
 					mxEvent.consume(evt);
 			
-					return;
+					return false;
 				}
 				
 				source = source.parentNode;
 			}
 		}
-	}));
+	}), graph.container);
 };
 
 /**

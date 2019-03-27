@@ -2441,7 +2441,7 @@
 			// TODO: Update sstate in Format
 			var sstate = this.format.createSelectionState();
 
-			if (sstate.style.shape != 'image')
+			if (sstate.style.shape != 'image' && !sstate.containsLabel)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
