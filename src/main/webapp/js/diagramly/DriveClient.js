@@ -1007,7 +1007,41 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 						data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
 					}
 					
-					success((importFile) ? new LocalFile(this.ui, data, resp.title, true) : new DriveFile(this.ui, data, resp));
+					if (Graph.fileSupport && new XMLHttpRequest().upload && this.ui.isRemoteFileFormat(data, url))
+					{
+						this.ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+						{
+							try
+							{
+								if (xhr.readyState == 4)
+								{
+									if (xhr.status >= 200 && xhr.status <= 299)
+									{
+										success(new LocalFile(this.ui, xhr.responseText, resp.title + this.extension, true));
+									}
+									else if (error != null)
+									{
+										error({message: mxResources.get('errorLoadingFile')});
+									}
+								}
+							}
+							catch (e)
+							{
+								if (error != null)
+								{
+									error(e);
+								}
+								else
+								{
+									throw e;
+								}
+							}
+						}), resp.title);
+					}
+					else
+					{
+						success((importFile) ? new LocalFile(this.ui, data, resp.title, true) : new DriveFile(this.ui, data, resp));
+					}
 				}
 			}
 			catch (e)

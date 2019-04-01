@@ -1,3 +1,10 @@
+01-APR-2019: 10.6.0
+
+- Adds configuration section for Confluence for cloud
+- Free GDrive/OneDrive connector for Confluence cloud
+- Adds show with draw.io option in OneDrive connector
+- Improves handling of files with no extensions in GDrive connector
+
 27-MAR-2019: 10.5.9
 
 - Change to connection points and arrows trigger autosave

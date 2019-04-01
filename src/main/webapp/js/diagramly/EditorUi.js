@@ -10088,6 +10088,7 @@
 					
 					var enableRecentDocs = data.enableRecent == 1;
 					var enableSearchDocs = data.enableSearch == 1;
+					var enableCustomTemp = data.enableCustomTemp == 1;
 					
 					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
 					{
@@ -10128,7 +10129,14 @@
 					{
 						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
 							name: name}), '*');
-					});
+					}, null, null,
+					enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
+					{
+						this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
+						{
+							customTempCallback({}, 0); //ignore error by sending empty templates
+						});
+					}) : null);
 
 					this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 					{
@@ -10665,6 +10673,7 @@
 		{
     		var lines = text.split('\n');
     		var cells = [];
+    		var dups = {};
     		
     		if (lines.length > 0)
     		{
@@ -10889,14 +10898,12 @@
 	    					{
 	    						cell = graph.model.getCell(id);
 	    					}
-
-	    					if (cell == null)
-	    					{
-				    			var cell = new mxCell(label, new mxGeometry(x0, y,
-				    				0, 0), style || 'whiteSpace=wrap;html=1;');
-								cell.vertex = true;
-								cell.id = id;
-	    					}
+	    					
+	    					var exists = cell != null;
+			    			var cell = new mxCell(label, new mxGeometry(x0, y,
+			    				0, 0), style || 'whiteSpace=wrap;html=1;');
+							cell.vertex = true;
+							cell.id = id;
 	    					
 							for (var j = 0; j < values.length; j++)
 					    	{
@@ -10905,11 +10912,14 @@
 							
 							graph.setAttributeForCell(cell, 'placeholders', '1');
 							cell.style = graph.replacePlaceholders(cell, cell.style);
-								
-	    					for (var e = 0; e < edges.length; e++)
-	    					{
-	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-	    					}
+
+							if (!exists)
+							{
+		    					for (var e = 0; e < edges.length; e++)
+		    					{
+		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+		    					}
+							}
 							
 							if (link != null && link != 'link')
 							{
@@ -10956,18 +10966,30 @@
 								y += cell.geometry.height + nodespacing;
 							}
 							
-	    					var parent = (parentIndex != null) ? graph.model.getCell(
-	    						namespace + values[parentIndex]) : null;
-	    					
-	    					if (parent != null)
-	    					{
-	    						parent.style = graph.replacePlaceholders(parent, parentstyle);
-	    						graph.addCell(cell, parent);
-	    					}
-	    					else
-	    					{
-	    						cells.push(graph.addCell(cell));
-	    					}
+							if (!exists)
+							{
+		    					var parent = (parentIndex != null) ? graph.model.getCell(
+		    						namespace + values[parentIndex]) : null;
+		    					
+		    					if (parent != null)
+		    					{
+		    						parent.style = graph.replacePlaceholders(parent, parentstyle);
+		    						graph.addCell(cell, parent);
+		    					}
+		    					else
+		    					{
+		    						cells.push(graph.addCell(cell));
+		    					}
+							}
+							else
+							{
+								if (dups[cell.id] == null)
+								{
+									dups[cell.id] = [];
+								}
+								
+								dups[cell.id].push(cell);
+							}
 		    			}
 		    		}
 	    			
@@ -10981,40 +11003,54 @@
 						for (var i = 0; i < cells.length; i++)
 	    				{
 							var cell = cells[i];
-	
-	    					var tmp = cell.getAttribute(edge.from);
-	    					
-	    					if (tmp != null)
-	    					{
-	    						// Removes attribute
-		    					graph.setAttributeForCell(cell, edge.from, null);
-	    						var refs = tmp.split(',');
+							
+							var insertEdge = mxUtils.bind(this, function(realCell, dataCell, edge)
+							{
+								var tmp = dataCell.getAttribute(edge.from);
 		    					
-		    					for (var j = 0; j < refs.length; j++)
-		        				{
-		    						var ref = lookups[edge.to][refs[j]];
+		    					if (tmp != null)
+		    					{
+		    						// Removes attribute
+			    					graph.setAttributeForCell(dataCell, edge.from, null);
+		    						var refs = tmp.split(',');
 		    						
-		    						if (ref != null)
-		    						{
-		    							var label = edge.label;
-		    							
-		    							if (edge.fromlabel != null)
-		    							{
-		    								label = (cell.getAttribute(edge.fromlabel) || '') + (label || '');
-		    							}
-		    							
-		    							if (edge.tolabel != null)
-		    							{
-		    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-		    							}
-		    							
-		    							select.push(graph.insertEdge(null, null, label || '',
-			    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
-							    			edge.style || graph.createCurrentEdgeStyle()));
-		    							mxUtils.remove((edge.invert) ? cell : ref, roots);
-		    						}
-		        				}
-	    					}
+			    					for (var j = 0; j < refs.length; j++)
+			        				{
+			    						var ref = lookups[edge.to][refs[j]];
+			    						
+			    						if (ref != null)
+			    						{
+			    							var label = edge.label;
+			    							
+			    							if (edge.fromlabel != null)
+			    							{
+			    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+			    							}
+			    							
+			    							if (edge.tolabel != null)
+			    							{
+			    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+			    							}
+			    							
+			    							select.push(graph.insertEdge(null, null, label || '',
+				    							(edge.invert) ? ref : realCell, (edge.invert) ? realCell : ref,
+								    			edge.style || graph.createCurrentEdgeStyle()));
+			    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
+			    						}
+			        				}
+		    					}
+							});
+							
+							insertEdge(cell, cell, edge);
+
+    						// Checks more entries
+    						if (dups[cell.id] != null)
+    						{
+    							for (var j = 0; j < dups[cell.id].length; j++)
+    		    				{
+    								insertEdge(cell, dups[cell.id][j], edge);
+    		    				}
+    						}
 						}
 					}
 						
