@@ -512,7 +512,8 @@ App.main = function(callback, createUi)
 		}
 		
 		// Loads Pusher API
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto')
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto' &&
+			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 		{
 			// TODO: Check if async loading is fast enough
 			mxscript(App.PUSHER_URL);
@@ -1291,6 +1292,7 @@ App.prototype.init = function()
 		}
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' &&
+			urlParams['stealth'] != '1' && urlParams['offline'] != '1' &&
 			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
