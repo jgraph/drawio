@@ -1253,12 +1253,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (etag0 == resp.etag)
 								{
-									resons.push('stale etag');
+									reasons.push('stale etag');
 								}
 								
 								if (revision && head0 == resp.headRevisionId)
 								{
-									resons.push('stale revision');
+									reasons.push('stale revision');
 								}
 								
 								var temp = ': ' + reasons.join(', ');
