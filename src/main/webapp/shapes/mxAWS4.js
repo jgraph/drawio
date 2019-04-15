@@ -135,6 +135,8 @@ mxShapeAws4ResourceIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.close();
 	c.fill();
 
+	c.setShadow(false);
+	
 	var prIcon = mxUtils.getValue(this.state.style, 'resIcon', '');
 	var stencil = mxStencilRegistry.getStencil(prIcon);
 
@@ -186,6 +188,11 @@ mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 	
 	var size = 25;
 
+	if (this.style != null && mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '0')
+	{
+		c.pointerEvents = false;
+	}
+
 	c.begin();
 	c.moveTo(0, 0);
 	c.lineTo(w, 0);
@@ -201,7 +208,8 @@ mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		c.fill();
 	}
-
+	
+	c.pointerEvents = true;
 	c.setShadow(false);
 
 	var grIcon = mxUtils.getValue(this.state.style, 'grIcon', '');

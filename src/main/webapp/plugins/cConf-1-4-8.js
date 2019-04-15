@@ -251,6 +251,178 @@ Draw.loadPlugin(function(ui)
 		ui.format.refresh();
 	}
 	
+	//Adding Link to Confluence Page Anchor
+	
+	var origLinkDialog = LinkDialog;
+	
+	LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
+	{
+		function modFn(link, selDoc)
+		{
+			if (anchorRadio.checked)
+			{
+				fn('data:confluence/anchor,' + anchorInput.value);
+			}
+			else 
+			{
+				fn(link, selDoc);
+			}
+		};
+		
+		origLinkDialog.call(this, editorUi, initialValue, btnLabel, modFn, showPages);
+		
+		var inner = this.container.querySelector('.geTitle');
+		
+		var lbl = document.createElement('div');
+		mxUtils.write(lbl, mxResources.get('confAnchor', null, 'Confluence Page Anchor') + ':');
+		inner.appendChild(lbl);
+		
+		var anchorRadio = document.createElement('input');
+		anchorRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+		anchorRadio.setAttribute('value', 'url');
+		anchorRadio.setAttribute('type', 'radio');
+		anchorRadio.setAttribute('name', 'current-linkdialog');
+		
+		var anchorInput = document.createElement('input');
+		anchorInput.setAttribute('placeholder', mxResources.get('confAnchor', null, 'Confluence Page Anchor'));
+		anchorInput.setAttribute('type', 'text');
+		anchorInput.style.marginTop = '6px';
+		anchorInput.style.width = '420px';
+		anchorInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
+		anchorInput.style.backgroundRepeat = 'no-repeat';
+		anchorInput.style.backgroundPosition = '100% 50%';
+		anchorInput.style.paddingRight = '14px';
+
+		var cross = document.createElement('div');
+		cross.setAttribute('title', mxResources.get('reset'));
+		cross.style.position = 'relative';
+		cross.style.left = '-16px';
+		cross.style.width = '12px';
+		cross.style.height = '14px';
+		cross.style.cursor = 'pointer';
+		
+		// Workaround for inline-block not supported in IE
+		cross.style.display = (mxClient.IS_VML) ? 'inline' : 'inline-block';
+		cross.style.top = ((mxClient.IS_VML) ? 0 : 3) + 'px';
+		
+		// Needed to block event transparency in IE
+		cross.style.background = 'url(\'' + editorUi.editor.transparentImage + '\')';
+
+		mxEvent.addListener(cross, 'click', function()
+		{
+			anchorInput.value = '';
+			anchorInput.focus();
+		});
+		
+		if (initialValue != null && initialValue.substring(0, 23) == 'data:confluence/anchor,')
+		{
+			inner.querySelector('input[type="text"]').value = '';
+			anchorInput.setAttribute('value', initialValue.substring(23));
+			anchorRadio.setAttribute('checked', 'checked');
+			anchorRadio.defaultChecked = true;
+		}
+		
+		mxEvent.addListener(anchorInput, 'focus', function()
+		{
+			anchorRadio.setAttribute('checked', 'checked');
+			anchorRadio.checked = true;
+		});
+		
+		mxEvent.addListener(anchorInput, 'keypress', function(e)
+		{
+			if (e.keyCode == 13 && anchorRadio.checked) //We cannot get other inputs precisely
+			{
+				editorUi.hideDialog();
+				fn('data:confluence/anchor,' + anchorInput.value);
+			}
+		});
+		
+		inner.appendChild(anchorRadio);
+		inner.appendChild(anchorInput);
+		inner.appendChild(cross);
+		
+		var origInit = this.init;
+		
+		this.init = function()
+		{
+			origInit.call(this);
+			
+			if (anchorRadio.checked)
+			{
+				anchorInput.focus();
+			}
+		};
+	};
+
+	mxUtils.extend(LinkDialog, origLinkDialog);
+	
+	ui.showLinkDialog = function(value, btnLabel, fn)
+	{
+		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
+		this.showDialog(dlg.container, 480, 165, true, true);
+		dlg.init();
+	};
+	
+	//Viewer also had to change this in viewer (Graph.prototype.customLinkClicked)
+	var origHandleCustomLink = ui.handleCustomLink;
+	
+	//This code is similar to AC.gotoAnchor but we don't have access to AC here
+	ui.handleCustomLink = function(href)
+	{
+		if (href.substring(0, 23) == 'data:confluence/anchor,')
+		{
+			var anchor = href.substring(23);
+			
+			var newWin = window.open();
+			
+			if (anchor)
+			{
+				ui.remoteInvoke('getPageInfo', [false], null, function(info)
+				{
+					var url = info.url;
+					
+					if (url != null)
+					{
+						//remove any hash
+						var hash = url.indexOf('#');
+						
+						if (hash > -1)
+						{
+							url = url.substring(0, hash);
+						}
+						
+						newWin.location = url + '#' + encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+					}
+				}, function()
+				{
+					throw new Error('Unexpected Error');
+				});
+			}
+			else
+			{
+				throw new Error('Empty Anchor');
+			}
+		}
+		else
+		{
+			origHandleCustomLink.call(ui, href);
+		}
+	};
+	
+	var origGetLinkTitle = ui.getLinkTitle;
+	
+	ui.getLinkTitle = function(href)
+	{
+		if (href.substring(0, 23) == 'data:confluence/anchor,')
+		{
+			return mxResources.get('anchor', null, 'Anchor') + ': ' + href.substring(23);
+		}
+		else
+		{
+			return origGetLinkTitle.call(ui, href);
+		}
+	};
+	
 	//Comments
 
 	function setModified()

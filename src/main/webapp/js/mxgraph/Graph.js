@@ -688,6 +688,11 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 						}
 					}
 				}
+				
+				if (this.isEnabled() && locked)
+				{
+					this.clearSelection();
+				}
 			}
 			else
 			{

@@ -6724,6 +6724,8 @@
 	 */
 	EditorUi.prototype.convertLucidChart = function(data, success, error)
 	{
+		console.log(data);
+		
 		var delayed = mxUtils.bind(this, function()
 		{
 			this.loadingExtensions = false;
@@ -10125,11 +10127,12 @@
 							searchReadyCallback(null, 'Network Error!');
 						});
 					}) : null, 
-					function(url, info, name) 
+					mxUtils.bind(this, function(url, info, name) 
 					{
+						//If binary files are possible, we can get the file content using remote invokation, imported it, and send final mxFile back
 						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
 							name: name}), '*');
-					}, null, null,
+					}), null, null,
 					enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
 					{
 						this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
@@ -10838,7 +10841,12 @@
         			}
         		}
         		
-    			var keys = this.editor.csvToArray(lines[index]);
+        		if (lines[index] == null)
+        		{
+        			throw new Error(mxResources.get('invalidOrMissingFile'));
+        		}
+        		
+        		var keys = this.editor.csvToArray(lines[index]);
     			
     			// Converts name of identity and parent to indexes of column
     			var identityIndex = null;
@@ -10900,19 +10908,32 @@
 	    					}
 	    					
 	    					var exists = cell != null;
-			    			var cell = new mxCell(label, new mxGeometry(x0, y,
+	    					var newCell = new mxCell(label, new mxGeometry(x0, y,
 			    				0, 0), style || 'whiteSpace=wrap;html=1;');
-							cell.vertex = true;
-							cell.id = id;
-	    					
+	    					newCell.vertex = true;
+	    					newCell.id = id;
+							
 							for (var j = 0; j < values.length; j++)
 					    	{
-								graph.setAttributeForCell(cell, keys[j], values[j]);
+								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
 							
-							graph.setAttributeForCell(cell, 'placeholders', '1');
-							cell.style = graph.replacePlaceholders(cell, cell.style);
+							graph.setAttributeForCell(newCell, 'placeholders', '1');
+							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
 
+							if (exists)
+							{
+								graph.model.setGeometry(cell, newCell.geometry);
+								graph.model.setStyle(cell, newCell.style);
+								
+								if (mxUtils.indexOf(cells, cell) < 0)
+								{
+									cells.push(cell);
+								}
+							}
+							
+							cell = newCell;
+	    					
 							if (!exists)
 							{
 		    					for (var e = 0; e < edges.length; e++)
@@ -10983,12 +11004,12 @@
 							}
 							else
 							{
-								if (dups[cell.id] == null)
+								if (dups[id] == null)
 								{
-									dups[cell.id] = [];
+									dups[id] = [];
 								}
 								
-								dups[cell.id].push(cell);
+								dups[id].push(cell);
 							}
 		    			}
 		    		}
@@ -11068,125 +11089,128 @@
 						}
 					}
 					
-					var edgeLayout = new mxParallelEdgeLayout(graph);
-					edgeLayout.spacing = edgespacing;
-			
-					var postProcess = function()
+					if (cells.length > 0)
 					{
-						edgeLayout.execute(graph.getDefaultParent());
+						var edgeLayout = new mxParallelEdgeLayout(graph);
+						edgeLayout.spacing = edgespacing;
+				
+						var postProcess = function()
+						{
+							edgeLayout.execute(graph.getDefaultParent());
+							
+			    			// Aligns cells to grid and/or rounds positions
+							for (var i = 0; i < cells.length; i++)
+		    				{
+								var geo = graph.getCellGeometry(cells[i]);
+								geo.x = Math.round(graph.snap(geo.x));
+								geo.y = Math.round(graph.snap(geo.y));
+								
+								if (width == 'auto')
+								{
+									geo.width = Math.round(graph.snap(geo.width));	
+								}
+								
+								if (height == 'auto')
+								{
+									geo.height = Math.round(graph.snap(geo.height));	
+								}
+		    				}
+						};
 						
-    	    			// Aligns cells to grid and/or rounds positions
-						for (var i = 0; i < cells.length; i++)
-	    				{
-							var geo = graph.getCellGeometry(cells[i]);
-							geo.x = Math.round(graph.snap(geo.x));
-							geo.y = Math.round(graph.snap(geo.y));
-							
-							if (width == 'auto')
-							{
-								geo.width = Math.round(graph.snap(geo.width));	
-							}
-							
-							if (height == 'auto')
-							{
-								geo.height = Math.round(graph.snap(geo.height));	
-							}
-	    				}
-					};
-					
-					if (layout == 'circle')
-					{
-						var circleLayout = new mxCircleLayout(graph);
-	    				circleLayout.resetEdges = false;
-	    				
-	    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
-	    				
-    	    				// Ignore other cells
-	    				circleLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-					
-			    		this.executeLayout(function()
-			    		{
-			    			circleLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-			    		}, true, afterInsert);
-    				
-			    		afterInsert = null;
-					}
-					else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
-							(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
-	    				treeLayout.levelDistance = nodespacing;
-	    				treeLayout.edgeRouting = false;
-	    				treeLayout.resetEdges = false;
-	    				
-	    				this.executeLayout(function()
-	    	    		{
-	    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
-	    	    		}, true, afterInsert);
-	    				
-	    				afterInsert = null;
-	    			}
-	    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
-	    					(layout == 'auto' && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-		    			var flowLayout = new mxHierarchicalLayout(graph,
-		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
-		    			flowLayout.intraCellSpacing = nodespacing;
-		    			flowLayout.parallelEdgeSpacing = edgespacing;
-		    			flowLayout.interRankCellSpacing = levelspacing;
-		    			flowLayout.disableEdgeStyle = false;
-		    			
-		        		this.executeLayout(function()
-		        		{
-		        			flowLayout.execute(graph.getDefaultParent(), select);
-		        			
-		        			// Workaround for flow layout moving cells to origin
-		        			graph.moveCells(select, x0, y0);
-		        		}, true, afterInsert);
+						if (layout == 'circle')
+						{
+							var circleLayout = new mxCircleLayout(graph);
+		    				circleLayout.resetEdges = false;
+		    				
+		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
+		    				
+			    				// Ignore other cells
+		    				circleLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+						
+				    		this.executeLayout(function()
+				    		{
+				    			circleLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+				    		}, true, afterInsert);
+						
+				    		afterInsert = null;
+						}
+						else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
+								(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
 			    			
-		    			afterInsert = null;
-		    		}
-	    			else if (layout == 'organic' || (layout == 'auto' &&
-	    					select.length > cells.length))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var organicLayout = new mxFastOrganicLayout(graph);
-	    				organicLayout.forceConstant = nodespacing * 3;
-	    				organicLayout.resetEdges = false;
-
-	    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
-
-    	    				// Ignore other cells
-	    				organicLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-
-	    				var edgeLayout = new mxParallelEdgeLayout(graph);
-	    				edgeLayout.spacing = edgespacing;
-	    				
-	    	    		this.executeLayout(function()
-	    	    		{
-	    	    			organicLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-	    	    		}, true, afterInsert);
-	    	    		
-	    	    		afterInsert = null;
-	    			}
+		    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
+		    				treeLayout.levelDistance = nodespacing;
+		    				treeLayout.edgeRouting = false;
+		    				treeLayout.resetEdges = false;
+		    				
+		    				this.executeLayout(function()
+		    	    		{
+		    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
+		    	    		}, true, afterInsert);
+		    				
+		    				afterInsert = null;
+		    			}
+		    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
+		    					(layout == 'auto' && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+			    			var flowLayout = new mxHierarchicalLayout(graph,
+			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+			    			flowLayout.intraCellSpacing = nodespacing;
+			    			flowLayout.parallelEdgeSpacing = edgespacing;
+			    			flowLayout.interRankCellSpacing = levelspacing;
+			    			flowLayout.disableEdgeStyle = false;
+			    			
+			        		this.executeLayout(function()
+			        		{
+			        			flowLayout.execute(graph.getDefaultParent(), select);
+			        			
+			        			// Workaround for flow layout moving cells to origin
+			        			graph.moveCells(select, x0, y0);
+			        		}, true, afterInsert);
+				    			
+			    			afterInsert = null;
+			    		}
+		    			else if (layout == 'organic' || (layout == 'auto' &&
+		    					select.length > cells.length))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+		    				var organicLayout = new mxFastOrganicLayout(graph);
+		    				organicLayout.forceConstant = nodespacing * 3;
+		    				organicLayout.resetEdges = false;
+		
+		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
+		
+			    				// Ignore other cells
+		    				organicLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+		
+		    				var edgeLayout = new mxParallelEdgeLayout(graph);
+		    				edgeLayout.spacing = edgespacing;
+		    				
+		    	    		this.executeLayout(function()
+		    	    		{
+		    	    			organicLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+		    	    		}, true, afterInsert);
+		    	    		
+		    	    		afterInsert = null;
+		    			}
+					}
 	    			
 	    			this.hideDialog();
         		}
