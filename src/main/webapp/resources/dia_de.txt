@@ -816,3 +816,4 @@ comments=Kommentare
 timeAgo=Vor {1}
 confluenceCloud=Confluence Cloud
 libraries=Bibliotheken
+confAnchor=Confluence Page Anchor

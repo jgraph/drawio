@@ -435,7 +435,7 @@ var com;
                     });                    
                 };
                 mxVsdxCodec.prototype.createMxGraph = function () {
-                    var graph = new mxGraph();
+                    var graph = new Graph();
                     graph.setExtendParents(false);
                     graph.setExtendParentsOnAdd(false);
                     graph.setConstrainChildren(false);
@@ -454,7 +454,7 @@ var com;
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
                     	//TODO FIXME htmlEntities is not exactly as escapeXml11 but close
                         var pageName_1 = mxUtils.htmlEntities(page.getPageName());
-                        output += "<diagram name=\"" + pageName_1 + "\">";
+                        output += '<diagram name="' + pageName_1 + '" id="' + pageName_1 + '">';
                     }
                     
                     output += Graph.compress(modelString);
@@ -692,6 +692,18 @@ var com;
                                     m.entries[i].value = v;
                                     return;
                                 } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexShapeMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, id), shape);
+                            
+                            var lnkObj = shape.getHyperlink();
+                            
+                            if (lnkObj.extLink)
+                            {
+                            	graph.setLinkForCell(v1, lnkObj.extLink);
+                            }
+                            else if (lnkObj.pageLink)
+                        	{
+                            	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
+                        	}
+                            
                             return v1;
                         }
                         else {
@@ -10141,6 +10153,20 @@ var com;
                             hor = false;
                         }
                         return hor;
+                    };
+                    
+                    /**
+                     * Get hyperlink address or subaddress
+                     */
+                    VsdxShape.prototype.getHyperlink = function () 
+                    {
+                    	var addressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('Address', null, 'Hyperlink');
+                    	var extLink = this.getValue(addressElem, '');
+                    	
+                    	var subAddressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('SubAddress', null, 'Hyperlink');
+                    	var pageLink = this.getValue(subAddressElem, '');
+
+                    	return {extLink: extLink, pageLink: pageLink};
                     };
                     /**
                      * Analyzes the shape and returns a string with the style.

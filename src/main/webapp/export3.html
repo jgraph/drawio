@@ -124,6 +124,7 @@
 			var waitCounter = 1;
 			var bounds;
 			var pageId;
+			var expScale;
 			// Waits for all images to finish loading
 			var cache = new Object();
 			var math = false;
@@ -138,6 +139,7 @@
 					doneDiv.style.display = 'none';
 					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
 					doneDiv.setAttribute('page-id', pageId);
+					doneDiv.setAttribute('scale', expScale);
 					document.body.appendChild(doneDiv);
 				}
 			};
@@ -391,6 +393,7 @@
 				bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
 				bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
 				bounds.height = Math.ceil(bounds.height + data.border);
+				expScale = graph.view.scale || 1;
 				
 				// Converts the graph to a vertical sequence of pages for PDF export
 				if (graph.pdfPageVisible)

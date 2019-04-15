@@ -813,6 +813,76 @@
 			};
 		}
 		
+		editorUi.customLayoutConfig = [{'layout': 'mxHierarchicalLayout',
+			'config':
+			{'orientation': 'west',
+			'intraCellSpacing': 30,
+			'interRankCellSpacing': 100,
+			'interHierarchySpacing': 60,
+			'parallelEdgeSpacing': 10}}];
+		
+		// Adds action
+		editorUi.actions.addAction('runLayout', function()
+		{
+			var graph = editorUi.editor.graph;
+			
+	    	var dlg = new TextareaDialog(editorUi, 'Run Layouts:',
+	    		JSON.stringify(editorUi.customLayoutConfig, null, 2),
+	    		function(newValue)
+			{
+				if (newValue.length > 0)
+				{
+					try
+					{
+						var json = JSON.parse(newValue);
+						
+						for (var i = 0; i < json.length; i++)
+						{
+							var layout = new window[json[i].layout](graph);
+							
+							if (json[i].config != null)
+							{
+								for (var key in json[i].config)
+								{
+									layout[key] = json[i].config[key];
+								}
+							}
+							
+							editorUi.executeLayout(function()
+							{
+								var selectionCells = graph.getSelectionCells();
+								layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ?
+									null : selectionCells);
+							}, i == json.length - 1);
+						}
+						
+						editorUi.customLayoutConfig = json;
+					}
+					catch (e)
+					{
+						editorUi.handleError(e);
+						console.error(e);
+					}
+				}
+			});
+	    	
+	    	dlg.textarea.style.width = '600px';
+	    	dlg.textarea.style.height = '380px';
+			editorUi.showDialog(dlg.container, 620, 460, true, true);
+			dlg.init();
+		});
+		
+		var layoutMenu = this.get('layout');
+		var layoutMenuFunct = layoutMenu.funct;
+		
+		layoutMenu.funct = function(menu, parent)
+		{
+			layoutMenuFunct.apply(this, arguments);
+			
+			menu.addSeparator(parent);
+			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');
+		};
+		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			if (!mxClient.IS_CHROMEAPP && editorUi.isOffline())
