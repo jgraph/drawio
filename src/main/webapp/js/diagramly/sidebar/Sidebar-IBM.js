@@ -5,8 +5,8 @@
 		var d = 60;
 		var dt = 'ibm';
 		var sb = this;
-		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;image;image=img/lib/ibm/';
-
+		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;fontColor=#4277BB;labelBackgroundColor=#ffffff;fontSize=12;spacingTop=3;image;image=img/lib/ibm/';
+		
 		// Adds IBM shapes
 		this.addIBMAnalyticsPalette(d, dt, sb, s);
 		this.addIBMApplicationsPalette(d, dt, sb, s);
@@ -120,22 +120,42 @@
 					 d, d, '', 'Certificate Authority', false, null, this.getTagsForStencil(gn, 'certificate authority', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'client_application.svg;',
 					 d, d, '', 'Client Application', false, null, this.getTagsForStencil(gn, 'client application', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'communication.svg;',
+					 d, d, '', 'Communication', false, null, this.getTagsForStencil(gn, 'communication', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'consensus.svg;',
+					 d, d, '', 'Consensus', false, null, this.getTagsForStencil(gn, 'communication', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'e_cert.svg;',
 					 d, d, '', 'E-Cert', false, null, this.getTagsForStencil(gn, 'ecert e-cert', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'event.svg;',
 					 d, d, '', 'Event', false, null, this.getTagsForStencil(gn, 'event', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'event_listener.svg;',
+					 d, d, '', 'Event Listener', false, null, this.getTagsForStencil(gn, 'event listener', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'existing_enterprise_systems.svg;',
 					 d, d, '', 'Existing Enterprise Systems', false, null, this.getTagsForStencil(gn, 'existing enterprise systems', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'hyperledger_fabric.svg;',
 					 d, d, '', 'Hyperledger Fabric', false, null, this.getTagsForStencil(gn, 'hyperledger fabric', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'identity_access_manager.svg;',
+					 d, d, '', 'Identity & Access Manager', false, null, this.getTagsForStencil(gn, 'identity access manager', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'key_management.svg;',
+					 d * 0.38, d * 0.38, '', 'Key Management', false, null, this.getTagsForStencil(gn, 'key management', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'ledger.svg;',
 					 d, d, '', 'Ledger', false, null, this.getTagsForStencil(gn, 'ledger', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'membership.svg;',
+					 d, d, '', 'Membership', false, null, this.getTagsForStencil(gn, 'membership', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'membership_services_provider_api.svg;',
 					 d, d, '', 'Membership Services Provider API', false, null, this.getTagsForStencil(gn, 'membership services provider api', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'message_bus.svg;',
+					 d, d, '', 'Message Bus', false, null, this.getTagsForStencil(gn, 'message bus', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'node.svg;',
+					 d, d, '', 'Node', false, null, this.getTagsForStencil(gn, 'node', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'services.svg;',
 					 d, d, '', 'Services', false, null, this.getTagsForStencil(gn, 'services', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'smart_contract.svg;',
-					 d, d, '', 'Smart Contract', false, null, this.getTagsForStencil(gn, 'smart contract', dt).join(' '))
+					 d, d, '', 'Smart Contract', false, null, this.getTagsForStencil(gn, 'smart contract', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'transaction_manager.svg;',
+					 d, d, '', 'Transaction Manager', false, null, this.getTagsForStencil(gn, 'transaction manager', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'wallet.svg;',
+					 d, d, '', 'Wallet', false, null, this.getTagsForStencil(gn, 'wallet', dt).join(' '))
 		];
 			   	
    		this.addPalette('ibmBlockchain', 'IBM / Blockchain', false, mxUtils.bind(this, function(content)

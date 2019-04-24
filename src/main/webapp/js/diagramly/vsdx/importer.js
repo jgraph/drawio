@@ -2499,6 +2499,14 @@ var com;
                         return parsedGeom.str;
                     };
                     /*private*/ mxVsdxGeometryList.prototype.processGeo = function (shape, p, parsedGeom, lastGeoStyle, withFill) {
+                    	var rounding = shape.getRounding();
+                    	var roundingStr = '';
+                        
+                        if (rounding > 0)
+                    	{
+                        	roundingStr = ' rounded="1" arcSize="' + (rounding * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor) + '" ';
+                    	}
+                        
                         var _loop_2 = function (index130) {
                             var geo = this_2.geomList[index130];
                             {
@@ -2508,12 +2516,12 @@ var com;
                                 if (!(str_1.length === 0)) {
                                     var geoStyle = this_2.getGeoStyle(geo);
                                     if (lastGeoStyle === -1) {
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else if (lastGeoStyle !== geoStyle) {
                                         this_2.closePath(parsedGeom, lastGeoStyle);
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else {
@@ -10473,7 +10481,7 @@ var com;
                      * The property may to be defined in master shape or line stylesheet.<br/>
                      * @return {boolean} Returns <code>true</code> if the cell is Rounded.
                      */
-                    VsdxShape.prototype.isRounded = function () {
+                    VsdxShape.prototype.getRounding = function () {
                         var val = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.ROUNDING), "0");
                         if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -10483,7 +10491,7 @@ var com;
                         } })("Themed", val)) {
                             val = "0";
                         }
-                        return parseFloat(val) > 0;
+                        return parseFloat(val);
                     };
                     /**
                      * Return if the line has shadow.<br/>
@@ -11038,7 +11046,26 @@ var com;
                         }
                         return false;
                     };
-                    VsdxShape.prototype.isRotatedLabel = function () {
+                    
+                    VsdxShape.prototype.isVerticalLabel = function ()
+                    {
+                    	var txtDir = this.getAttribute('TextDirection', 'V', '');
+                    	
+                    	if (!txtDir && this.masterShape != null)
+                		{
+                    		txtDir = this.masterShape.getAttribute('TextDirection', 'V', '');
+                		}
+                    	
+                    	return txtDir == '1';
+                    };
+                    
+                    VsdxShape.prototype.isRotatedLabel = function () 
+                    {
+                    	if (this.isVerticalLabel()) 
+                    	{
+                    		return true;
+                    	}
+                    		
                         var txtAngleValue = this.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE, "V", "");
                         if (this.masterShape != null) {
                             if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -11273,7 +11300,7 @@ var com;
                         } })(lbkgnd, "")) {
                             /* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
                         }
-                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.isRounded() ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
+                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.getRounding() > 0 ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
                         return this.styleMap;
                     };
                     /**
@@ -11371,6 +11398,13 @@ var com;
                                 (styleMap["whiteSpace"] = "wrap");
                             /* remove */ delete styleMap["shape"];
                             /* remove */ delete styleMap["image"];
+                            
+                            if (this.isVerticalLabel())
+                        	{
+                            	txtAngleV += Math.PI + 0.01; //TODO Added 0.01 since we don't override the parent rotation if labRot is zero. Why?
+                            	styleMap['horizontal'] = '0';
+                        	}
+                            
                             var rotation = this.getRotation();
                             if (txtAngleV !== 0) {
                                 var labRot = 360 - (function (x) { return x * 180 / Math.PI; })(txtAngleV);

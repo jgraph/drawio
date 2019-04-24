@@ -339,7 +339,7 @@
 					 s * 37, s * 42, '', 'Dense Compute Node', null, null, this.getTagsForStencil(gn, 'dense compute node', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'dense_storage_node;fillColor=#2E73B8;gradientColor=none;',
 					 s * 37, s * 42, '', 'Dense Storage Node', null, null, this.getTagsForStencil(gn, 'dense storage node', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'database_migration_workflow_job;fillColor=#2E73B8;gradientColor=none;',
+			 this.createVertexTemplateEntry(n + 'database_migration_workflow_job;fillColor=#2E73B8;gradientColor=none;pointerEvents=1',
 					 s * 31, s * 58, '', 'Database Migration Workflow/Job', null, null, this.getTagsForStencil(gn, 'database migration workflow job', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'database_migration_service;fillColor=#2E73B8;gradientColor=none;',
 					 s * 48, s * 54, '', 'Database Migration Service', null, null, this.getTagsForStencil(gn, 'database migration service', dt).join(' '))
@@ -777,11 +777,11 @@
 					 s * 43, s * 42, '', 'Import/Export', null, null, this.getTagsForStencil(gn, 'Import Export', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'database_migration_service;fillColor=#5294CF;gradientColor=none;',
 					 s * 48, s * 54, '', 'Database Migration Service', null, null, this.getTagsForStencil(gn, 'database migration service', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'database_migration_workflow_job;fillColor=#5294CF;gradientColor=none;',
+			 this.createVertexTemplateEntry(n + 'database_migration_workflow_job;fillColor=#5294CF;gradientColor=none;pointerEvents=1',
 					 s * 31, s * 58, '', 'Database Migration Workflow Job', null, null, this.getTagsForStencil(gn, 'database migration workflow job', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'application_discovery_service;fillColor=#5294CF;gradientColor=none;',
 					 s * 51, s * 62, '', 'Application Discovery Service', null, null, this.getTagsForStencil(gn, 'application discovery service', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'migration_hub_2;fillColor=#ABABAB;gradientColor=none;',
+			 this.createVertexTemplateEntry(n + 'migration_hub_2;fillColor=#ABABAB;gradientColor=none;pointerEvents=1',
 					 s * 76, s * 81, '', 'Migration Hub', null, null, this.getTagsForStencil(gn, 'migration hub', dt).join(' '))
 		]);
 	};
@@ -806,7 +806,7 @@
 					 s * 51, s * 58, '', 'Pinpoint', null, null, this.getTagsForStencil(gn, 'pinpoint', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'device_farm;fillColor=#AD688B;gradientColor=none;',
 					 s * 51, s * 62, '', 'Device Farm', null, null, this.getTagsForStencil(gn, 'device farm', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'mobile_hub;fillColor=#AD688A;gradientColor=#F58435;gradientDirection=west;',
+			 this.createVertexTemplateEntry(n + 'mobile_hub;fillColor=#AD688A;gradientColor=#F58435;gradientDirection=west;pointerEvents=1',
 					 s * 50, s * 54, '', 'Mobile Hub', null, null, this.getTagsForStencil(gn, 'mobile hub', dt).join(' '))
 		]);
 	};
@@ -948,7 +948,7 @@
 		[
 			 this.createVertexTemplateEntry(n + 'inspector;fillColor=#759C3E;gradientColor=none;',
 					 s * 45, s * 54, '', 'Inspector', null, null, this.getTagsForStencil(gn, 'inspector', dt).join(' ')),
-			 this.createVertexTemplateEntry(n + 'macie;fillColor=#34BBC9;gradientColor=none;',
+			 this.createVertexTemplateEntry(n + 'macie;fillColor=#34BBC9;gradientColor=none;pointerEvents=1',
 					 s * 89, s * 36, '', 'Macie', null, null, this.getTagsForStencil(gn, 'macie', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'artifact;fillColor=#759C3E;gradientColor=none;',
 					 s * 50, s * 60, '', 'Artifact', null, null, this.getTagsForStencil(gn, 'artifact', dt).join(' ')),
