@@ -579,6 +579,10 @@ var com;
                         this.importPage(backPage, graph, graph.getDefaultParent());
                     }
                 	
+                	//TODO KNOWN ISSUE: VSDX layers are virtual grouping where parts of a group can be members of a layers while the remaining group members belong to another layer
+                	//					This cannot be done in draw.io currently
+                	//					Also, layers should NOT affect cells order. So, as a best effort solution, layers should be orders such that the cells order is maintained
+                	
                 	//add page layers
                 	var layers = page.getLayers();
                 	this.layersMap[0] = graph.getDefaultParent();
@@ -4090,8 +4094,28 @@ var com;
                             }
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if (retColor != null && (styleVariation & 8) > 0) {
-                            retColor = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if (retColor != null && (styleVariation & 8) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        	var lineHSLClr = lineClr.toHsl();
+                            var fillHSLClr = retColor.toHsl();
+                            
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	retColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()))
+                        	{
+                            	retColor = lineClr;
+                        	}
                         }
                         return retColor;
                     };
@@ -4169,8 +4193,27 @@ var com;
                             lineClr = this.getStyleColor(lineColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 4) > 0) {
-                            lineClr = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 4) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                            var fillHSLClr = fillColor.toHsl();
+                            var lineHSLClr = lineClr.toHsl();
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	lineClr = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()))
+                        	{
+                            	lineClr = fillColor;
+                        	}
                         }
                         return lineClr;
                     };
@@ -4303,18 +4346,43 @@ var com;
                             txtColor = this.getStyleColor(fontColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 2) > 0) {
-                            var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 2) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var txtHSLClr = txtColor.toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var fillHSLClr = fillColor.toHsl();
                             var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var lineHSLClr = lineClr.toHsl();
-                            if (fillHSLClr.getLum() < lineHSLClr.getLum()) {
-                                txtColor = fillColor;
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
                             }
-                            else {
-                                txtColor = lineClr;
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	txtColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
+                            else
+                        	{
+                            	var lineDiff = Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum());
+                            	var fillDiff = Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum());
+                            	var txtDiff = Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum());
+                            	var max = Math.max(lineDiff, fillDiff, txtDiff);
+                            	
+                            	if (max == lineDiff)
+                        		{
+                            		txtColor = lineClr;
+                        		}
+                            	else if (max == fillDiff)
+                        		{
+                            		txtColor = fillColor;
+                        		}
+                        	}
                         }
+                        
                         return txtColor;
                     };
                     mxVsdxTheme.prototype.getFontColor = function (quickStyleVals, fontColors) {
