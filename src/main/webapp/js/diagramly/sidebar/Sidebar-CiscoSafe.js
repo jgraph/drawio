@@ -14,7 +14,7 @@
 		var w = 50;
 		var h = 50;
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];shape=mxgraph.cisco_safe.architecture.';
+		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco_safe.architecture.';
 		var gn = 'mxgraph.cisco_safe.architecture';
 		var dt = 'cisco safe architecture';
 
@@ -96,7 +96,7 @@
 		var w = 50;
 		var h = 50;
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#28A8E0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + 
-			'points=[[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.855,0],[0.145,0.855,0],[0.5,0,0], [1,0.5,0], [0.5,1,0],[0,0.5,0]];align=center;shape=mxgraph.cisco_safe.capability.';
+			'points=[[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.855,0],[0.145,0.855,0],[0.5,0,0], [1,0.5,0], [0.5,1,0],[0,0.5,0]];pointerEvents=1;align=center;shape=mxgraph.cisco_safe.capability.';
 		var gn = 'mxgraph.cisco_safe.capability';
 		var dt = 'cisco safe capability';
 
@@ -221,9 +221,9 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;' + 
 			'points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.5,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.5,0],[0.125,0.25,0],[0.125,0.75,0],[0.875,0.25,0],[0.875,0.75,0]];shape=mxgraph.cisco_safe.design.';
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.design.';
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;pointerEvents=1;shape=mxgraph.cisco_safe.design.';
 		var gn = 'mxgraph.cisco_safe.design';
 		var dt = 'cisco safe design';
 
@@ -336,7 +336,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.cisco_safe.threat.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.threat.';
 		var gn = 'mxgraph.cisco_safe.threat';
 		var dt = 'cisco safe threat';
 

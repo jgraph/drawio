@@ -39,11 +39,11 @@
 			this.createVertexTemplateEntry(s + 'manufacturing_process_shared;spacingTop=-5;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;', w, h * 0.7, 
 					'Process',
 					'Shared Process', null, null, this.getTagsForStencil(gn, 'manufacturing_process_shared', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'work_cell;', w * 0.7, h * 0.6, '', 'Workcell', null, null, this.getTagsForStencil(gn, 'work_cell', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'work_cell;pointerEvents=1;', w * 0.7, h * 0.6, '', 'Workcell', null, null, this.getTagsForStencil(gn, 'work_cell', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'inventory_box;', w, h * 0.9, '', 'Inventory Box', null, null, this.getTagsForStencil(gn, 'inventory_box', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'push_arrow;', w, h * 0.3,'', 'Push Arrow', null, null, this.getTagsForStencil(gn, 'push_arrow', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'supermarket;', w * 0.6, h,'', 'Supermarket', null, null, this.getTagsForStencil(gn, 'supermarket', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'physical_pull;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'fifo_lane;overflow=fill;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;', w, h * 0.5, 
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
 					'<tr><td height="0%">MAX=XX</td></tr>' +
@@ -64,7 +64,7 @@
 		   	
 		   	this.createVertexTemplateEntry(s + 'schedule;whiteSpace=wrap;align=center;', w, h * 0.7, 'Production\nControl', 'Production Control', null, null, this.getTagsForStencil(gn, 'schedule', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'schedule;whiteSpace=wrap;align=center;', w, h * 0.7, 'Other\nInformation', 'Other Information', null, null, this.getTagsForStencil(gn, 'schedule', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'go_see_production_scheduling;', 92, 60, '', 'Go See Production Scheduling', null, null, this.getTagsForStencil(gn, 'go_see_production_scheduling', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'go_see_production_scheduling;pointerEvents=1;', 92, 60, '', 'Go See Production Scheduling', null, null, this.getTagsForStencil(gn, 'go_see_production_scheduling', dt).join(' ')),
 
 			this.addEntry(this.getTagsForStencil(gn, 'kaizen_lightening_burst', dt).join(' '), function()
 			{
@@ -83,8 +83,8 @@
 			this.createVertexTemplateEntry(s + 'mrp_erp;whiteSpace=wrap;', 70, 100, '', 'MRP/ERP', null, null, this.getTagsForStencil(gn, 'mrp_erp', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'operator;', 100, 84, '', 'Operator', null, null, this.getTagsForStencil(gn, 'operator', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'quality_problem;fontSize=24;fontStyle=1;whiteSpace=wrap;align=center;', 80, 100, 'Q', 'Quality Problem', null, null, this.getTagsForStencil(gn, 'quality_problem', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'verbal;', 50, 100, '', 'Verbal Information', null, null, this.getTagsForStencil(gn, 'verbal', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'fifo_sequence_flow;fontStyle=0;fontSize=20;align=center;', w, h * 0.5, 'FIFO', 'FIFO Sequence', null, null, this.getTagsForStencil(gn, 'fifo_sequence_flow', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'verbal;pointerEvents=1;', 50, 100, '', 'Verbal Information', null, null, this.getTagsForStencil(gn, 'verbal', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'fifo_sequence_flow;pointerEvents=1;fontStyle=0;fontSize=20;align=center;', w, h * 0.5, 'FIFO', 'FIFO Sequence', null, null, this.getTagsForStencil(gn, 'fifo_sequence_flow', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'production_kanban;overflow=fill;', w, h, 
 					'<p style="font-size:2em;margin-right:35px;margin-top:13px;text-align:right">P</p>',
 					'Production Kanban', null, null, this.getTagsForStencil(gn, 'production_kanban', dt).join(' ')),

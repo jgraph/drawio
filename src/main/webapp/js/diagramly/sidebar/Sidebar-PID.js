@@ -93,8 +93,8 @@
 	Sidebar.prototype.addPidValvesPalette = function()
 	{
 		var s = 'dashed=0;outlineConnect=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
-		var sv = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.valve;valveType=";
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.";
+		var sv = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.valve;valveType=";
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.";
 		var gn = 'mxgraph.pid2valves';
 		var dt = 'pid process instrumentation engineering ';
 
@@ -170,7 +170,7 @@
 					'</table>',
 					'Centrifugal Compressor - Turbine Driven', null, null, this.getTagsForStencil(gn, 'centrifugal_compressor_-_turbine_driven', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'compressor', 100, 100, '', 'Compressor', null, null, this.getTagsForStencil(gn, 'compressor', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s + 'compressor_and_silencers', 90, 80, '', 'Compressor and Silencers', null, null, this.getTagsForStencil(gn, 'compressor_and_silencers', dt + 'silencer').join(' ')),
+			this.createVertexTemplateEntry(s + 'compressor_and_silencers;pointerEvents=1', 90, 80, '', 'Compressor and Silencers', null, null, this.getTagsForStencil(gn, 'compressor_and_silencers', dt + 'silencer').join(' ')),
 			this.createVertexTemplateEntry(s + 'liquid_ring_compressor', 90, 90, '', 'Liquid Ring Compressor', null, null, this.getTagsForStencil(gn, 'liquid_ring_compressor', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'reciprocating_compressor', 100, 40, '', 'Reciprocating Compressor', null, null, this.getTagsForStencil(gn, 'reciprocating_compressor', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'reciprocating_compressor_2', 50, 65, '', 'Reciprocating Compressor 2', null, null, this.getTagsForStencil(gn, 'reciprocating_compressor_2', dt + '').join(' ')),
@@ -256,7 +256,7 @@
 					50, 50, '', 'Coriolis', null, null, this.getTagsForStencil(gn, 'coriolis', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'flow_nozzle;', 
 					50, 25, '', 'Flow Nozzle', null, null, this.getTagsForStencil(gn, 'flow_nozzle', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'flume;', 
+			this.createVertexTemplateEntry(s + 'flume;pointerEvents=1;', 
 					50, 50, '', 'Flume', null, null, this.getTagsForStencil(gn, 'flume', dt).join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.pid.flow_sensors.magnetic;dashed=0;align=center;html=1;fontSize=25;', 
 					50, 50, 'M', 'Magnetic', null, null, this.getTagsForStencil(gn, 'magnetic', dt).join(' ')),
@@ -304,39 +304,39 @@
 			this.createVertexTemplateEntry(sb + 'damper;', 50, 20, '', 'Damper', null, null, this.getTagsForStencil(gn, 'damper', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'desuper_heater;', 50, 50, 'DS', 'Desuper Heater', null, null, this.getTagsForStencil(gn, 'desuper_heater', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'detonation_arrestor;', 50, 20, 'D', 'Detonation Arrestor', null, null, this.getTagsForStencil(gn, 'detonation_arrestor', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'diverter_valve;', 50, 35, '', 'Diverter Valve', null, null, this.getTagsForStencil(gn, 'diverter_valve', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'double_flange;', 5, 20, '', 'Double Flange', null, null, this.getTagsForStencil(gn, 'double_flange', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'diverter_valve;pointerEvents=1;', 50, 35, '', 'Diverter Valve', null, null, this.getTagsForStencil(gn, 'diverter_valve', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'double_flange;pointerEvents=1;', 5, 20, '', 'Double Flange', null, null, this.getTagsForStencil(gn, 'double_flange', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'duplex_strainer;', 50, 40, '', 'Duplex Strainer', null, null, this.getTagsForStencil(gn, 'duplex_strainer', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'eccentric_reducer;', 20, 15, '', 'Eccentric Reducer', null, null, this.getTagsForStencil(gn, 'eccentric_reducer', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'excess_flow_valve;', 50, 25, '', 'Excess Flow Valve', null, null, this.getTagsForStencil(gn, 'excess_flow_valve', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'exhaust_head;', 50, 40, '', 'Exhaust Head', null, null, this.getTagsForStencil(gn, 'exhaust_head', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'expansion_joint;', 50, 20, '', 'Expansion Joint', null, null, this.getTagsForStencil(gn, 'expansion_joint', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'flame_arrestor;', 50, 20, 'F', 'Flame Arrestor', null, null, this.getTagsForStencil(gn, 'flame_arrestor', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'flange;', 5, 20, '', 'Flange', null, null, this.getTagsForStencil(gn, 'flange', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'flange_in;', 10, 20, '', 'Flange In', null, null, this.getTagsForStencil(gn, 'flange_in', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'flexible_hose;', 50, 25, '', 'Flexible Hose', null, null, this.getTagsForStencil(gn, 'flexible_hose', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'hose_connection;', 20, 20, '', 'Hose Connection', null, null, this.getTagsForStencil(gn, 'hose_connection', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'flange;pointerEvents=1;', 5, 20, '', 'Flange', null, null, this.getTagsForStencil(gn, 'flange', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'flange_in;pointerEvents=1;', 10, 20, '', 'Flange In', null, null, this.getTagsForStencil(gn, 'flange_in', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'flexible_hose;pointerEvents=1;', 50, 25, '', 'Flexible Hose', null, null, this.getTagsForStencil(gn, 'flexible_hose', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'hose_connection;pointerEvents=1;', 20, 20, '', 'Hose Connection', null, null, this.getTagsForStencil(gn, 'hose_connection', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'in-line_mixer;', 50, 10, '', 'In-Line Mixer', null, null, this.getTagsForStencil(gn, 'in-line_mixer', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'in-line_silencer;', 50, 20, 'S', 'In-Line Silencer', null, null, this.getTagsForStencil(gn, 'in-line_silencer', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'open_figure_8_blind;', 20, 80, '', 'Open Figure 8 Blind', null, null, this.getTagsForStencil(gn, 'open_figure_8_blind', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'orifice_(quick_change);', 10, 50, '', 'Orifice (Quick Change)', null, null, this.getTagsForStencil(gn, 'orifice_(quick_change)', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'plug;', 10, 10, '', 'Plug', null, null, this.getTagsForStencil(gn, 'plug', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'pulsation_dampener;', 50, 150, '', 'Pulsation Dampener', null, null, this.getTagsForStencil(gn, 'pulsation_dampener', dt).join(' ')),
-			this.createVertexTemplateEntry(mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;dashed=0;' + mxConstants.STYLE_SHAPE + '=mxgraph.pid.piping.removable_spool;html=1;overflow=fill;', 50, 30, 
+			this.createVertexTemplateEntry(mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + '=mxgraph.pid.piping.removable_spool;html=1;overflow=fill;', 50, 30, 
 					'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;">' +
 					'<tr>' +
 					'<td valign="bottom" align="center">RS</td>' +
 					'</tr>' +
 					'</table>',
 					'Removable Spool', null, null, this.getTagsForStencil(gn, 'removable_spool', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'rotary_valve;', 50, 20, '', 'Rotary Valve', null, null, this.getTagsForStencil(gn, 'rotary_valve', dt).join(' ')),
+			this.createVertexTemplateEntry(sb + 'rotary_valve;pointerEvents=1;', 50, 20, '', 'Rotary Valve', null, null, this.getTagsForStencil(gn, 'rotary_valve', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'spacer;', 20, 60, '', 'Spacer', null, null, this.getTagsForStencil(gn, 'spacer', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'steam_trap;', 50, 50, 'T', 'Steam Trap', null, null, this.getTagsForStencil(gn, 'steam_trap', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 't-type_strainer;', 20, 35, '', 'T-Type Strainer', null, null, this.getTagsForStencil(gn, 't-type_strainer', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'temporary_strainer;', 30, 30, '', 'Temporary Strainer', null, null, this.getTagsForStencil(gn, 'temporary_strainer', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'vent_silencer;', 20, 80, 'S', 'Vent Silencer', null, null, this.getTagsForStencil(gn, 'vent_silencer', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'welded_connection;', 50, 20, '', 'Welded Connection', null, null, this.getTagsForStencil(gn, 'welded_connection', dt).join(' ')),
-			this.createVertexTemplateEntry(sb + 'y-type_strainer;', 50, 35, '', 'Y-Type Strainer', null, null, this.getTagsForStencil(gn, 'y-type_strainer', dt).join(' '))
+			this.createVertexTemplateEntry(sb + 'y-type_strainer;pointerEvents=1;', 50, 35, '', 'Y-Type Strainer', null, null, this.getTagsForStencil(gn, 'y-type_strainer', dt).join(' '))
 		]);
 	};
 			
@@ -429,11 +429,11 @@
 					100, 120, '', 'Cooling Tower (Wet, Natural Draught)', null, null, this.getTagsForStencil(gn, 'cooling_tower_(wet,_natural_draught)', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'cooling_tower_(wet-dry,_natural_draught);', 
 					100, 120, '', 'Cooling Tower (Wet-Dry, Natural Draught)', null, null, this.getTagsForStencil(gn, 'cooling_tower_(wet-dry,_natural_draught)', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'covered_gas_vent;', 
+			this.createVertexTemplateEntry(s2 + 'covered_gas_vent;pointerEvents=1;', 
 					80, 100, '', 'Covered Gas Vent', null, null, this.getTagsForStencil(gn, 'covered_gas_vent', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'crane;', 
 					100, 100, '', 'Crane', null, null, this.getTagsForStencil(gn, 'crane', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'curved_gas_vent;', 
+			this.createVertexTemplateEntry(s2 + 'curved_gas_vent;pointerEvents=1;', 
 					30, 70, '', 'Curved Gas Vent', null, null, this.getTagsForStencil(gn, 'curved_gas_vent', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'cyclone;', 
 					100, 80, '', 'Cyclone', null, null, this.getTagsForStencil(gn, 'cyclone', dt).join(' ')),
@@ -455,7 +455,7 @@
 					100, 100, '', 'Firing System, Burner', null, null, this.getTagsForStencil(gn, 'firing_system,_burner', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'flame_arrestor;', 
 					100, 40, '', 'Flame Arrestor', null, null, this.getTagsForStencil(gn, 'flame_arrestor', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'flexible_pipe;', 
+			this.createVertexTemplateEntry(s2 + 'flexible_pipe;pointerEvents=1;', 
 					60, 16, '', 'Flexible Pipe', null, null, this.getTagsForStencil(gn, 'flexible_pipe', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'forced_flow_air_cooler;', 
 					70, 30, '', 'Forced Flow Air Cooler', null, null, this.getTagsForStencil(gn, 'forced_flow_air_cooler', dt).join(' ')),
@@ -463,17 +463,17 @@
 					140, 100, '', 'Forklift (Manual)', null, null, this.getTagsForStencil(gn, 'forklift_(manual)', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'forklift_(truck);', 
 					140, 100, '', 'Forklift (Truck)', null, null, this.getTagsForStencil(gn, 'forklift_(truck)', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'funnel', 
+			this.createVertexTemplateEntry(s2 + 'funnel;pointerEvents=1;', 
 					40, 80, '', 'Funnel', null, null, this.getTagsForStencil(gn, 'funnel', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'gas_flare;', 
 					60, 100, '', 'Gas Flare', null, null, this.getTagsForStencil(gn, 'gas_flare', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'induced_flow_air_cooler;', 
 					93, 30, '', 'Induced Flow Air Cooler', null, null, this.getTagsForStencil(gn, 'induced_flow_air_cooler', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'industrial_truck;', 
+			this.createVertexTemplateEntry(s2 + 'industrial_truck;pointerEvents=1;', 
 					120, 20, '', 'Industrial Truck', null, null, this.getTagsForStencil(gn, 'industrial_truck', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'lift;', 
 					100, 100, '', 'Lift', null, null, this.getTagsForStencil(gn, 'lift', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'loading_arm;', 
+			this.createVertexTemplateEntry(s2 + 'loading_arm;pointerEvents=1;', 
 					120, 80, '', 'Loading Arm', null, null, this.getTagsForStencil(gn, 'loading_arm', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'mixer;', 
 					80, 100, '', 'Mixer', null, null, this.getTagsForStencil(gn, 'mixer', dt).join(' ')),
@@ -505,7 +505,7 @@
 					105, 60, '', 'Ship', null, null, this.getTagsForStencil(gn, 'ship', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'silencer;', 
 					100, 30, '', 'Silencer', null, null, this.getTagsForStencil(gn, 'silencer', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'spraying_device;', 
+			this.createVertexTemplateEntry(s2 + 'spraying_device;pointerEvents=1;', 
 					60, 20, '', 'Spraying Device', null, null, this.getTagsForStencil(gn, 'spraying_device', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'spray_cooler;', 
 					100, 120, '', 'Spray Cooler', null, null, this.getTagsForStencil(gn, 'spray_cooler', dt).join(' ')),

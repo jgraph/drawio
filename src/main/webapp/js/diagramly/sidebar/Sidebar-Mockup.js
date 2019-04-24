@@ -760,8 +760,8 @@
 				100, 30, '', 'Page Control', null, null, this.getTagsForStencil(gn, 'pageControl', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.mapNavigator;fillColor=#ffffff;fillColor2=#99ddff;strokeColor2=none;strokeColor3=#ffffff;' + skcl9,
 				60, 100, '', 'Map Navigator', null, null, this.getTagsForStencil(gn, 'mapNavigator', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'misc.loading_circle_1;', 90, 90, '', 'Wheel Throbber 1', null, null, this.getTagsForStencil(gn, 'loading_circle_1', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'misc.loading_circle_2;', 90, 90, '', 'Wheel Throbber 2', null, null, this.getTagsForStencil(gn, 'loading_circle_2', dt).join(' '))
+			this.createVertexTemplateEntry(s + 'misc.loading_circle_1;pointerEvents=1', 90, 90, '', 'Wheel Throbber 1', null, null, this.getTagsForStencil(gn, 'loading_circle_1', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'misc.loading_circle_2;pointerEvents=1', 90, 90, '', 'Wheel Throbber 2', null, null, this.getTagsForStencil(gn, 'loading_circle_2', dt).join(' '))
 		];	
 			
 		this.addPalette('mockupNavigation', 'Mockup Navigation', false, mxUtils.bind(this, function(content)

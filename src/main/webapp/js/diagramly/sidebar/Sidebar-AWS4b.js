@@ -123,15 +123,15 @@
 		
 		this.addPaletteFunctions('aws4bIllustrations', 'AWS18 / Illustrations', false,
 		[
-			 this.createVertexTemplateEntry(n3 + 'illustration_users;',
+			 this.createVertexTemplateEntry(n3 + 'illustration_users;pointerEvents=1',
 					 100, 100, 'users', null, null, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
-			 this.createVertexTemplateEntry(n3 + 'illustration_notification;',
+			 this.createVertexTemplateEntry(n3 + 'illustration_notification;pointerEvents=1',
 					 100, 81, 'notification', null, null, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
-			 this.createVertexTemplateEntry(n3 + 'illustration_devices;',
+			 this.createVertexTemplateEntry(n3 + 'illustration_devices;pointerEvents=1',
 					 100, 73, 'devices', null, null, null, this.getTagsForStencil(gn, 'devices', dt).join(' ')),
-			 this.createVertexTemplateEntry(n3 + 'illustration_desktop;',
+			 this.createVertexTemplateEntry(n3 + 'illustration_desktop;pointerEvents=1',
 					 100, 91, 'desktop', null, null, null, this.getTagsForStencil(gn, 'desktop', dt).join(' ')),
-			 this.createVertexTemplateEntry(n3 + 'illustration_office_building;',
+			 this.createVertexTemplateEntry(n3 + 'illustration_office_building;pointerEvents=1',
 					 100, 71, 'office building', null, null, null, this.getTagsForStencil(gn, 'office building', dt).join(' '))
 		]);
 	};

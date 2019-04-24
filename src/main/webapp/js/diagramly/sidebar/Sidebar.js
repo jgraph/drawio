@@ -29,115 +29,62 @@
 	Sidebar.prototype.defaultEntries = 'general;uml;er;bpmn;flowchart;basic;arrows2';
 	
 	/**
-	 * 
+	 * Library definitions 
 	 */
 	Sidebar.prototype.signs = ['Animals', 'Food', 'Healthcare', 'Nature', 'People', 'Safety', 'Science', 'Sports', 'Tech', 'Transportation', 'Travel'];
 
-	/**
-	 * 
-	 */
 	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users', 'VPC'];
 
-	/**
-	 * 
-	 */
+	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users', 'VPC'];
+
 	Sidebar.prototype.allied_telesis = ['Buildings', 'Computer and Terminals', 'Media Converters', 'Security', 'Storage', 'Switch', 'Wireless'];
 
-	/**
-	 * 
-	 */
 	Sidebar.prototype.gcp = ['Cards', 'Big Data', 'Compute', 'Developer Tools', 'Extras', 'Identity and Security', 'Machine Learning', 'Management Tools', 'Networking', 'Storage Databases'];
 	
-	/**
-	 * 
-	 */
 	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Platform and Ecosystems', 'Identity and Security', 'Big Data', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Storage and Databases', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards', 'User Device Cards', 'Product Cards', 'General Icons'];
 	
-	/**
-	 *
-	 */
 	Sidebar.prototype.rack = ['General', 'APC', 'Cisco', 'Dell', 'F5', 'HP', 'IBM', 'Oracle'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.pids = ['Agitators', 'Apparatus Elements', 'Centrifuges', 'Compressors', 'Compressors ISO', 'Crushers Grinding', 
                               'Driers', 'Engines', 'Feeders', 'Filters', 'Fittings', 'Flow Sensors', 'Heat Exchangers', 'Instruments', 'Misc',
                               'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.cisco = ['Buildings', 'Computers and Peripherals', 'Controllers and Modules', 'Directors', 'Hubs and Gateways', 'Misc',
 	                           'Modems and Phones', 'People', 'Routers', 'Security', 'Servers', 'Storage', 'Switches', 'Wireless'];
 	
-	/**
-	 *
-	 */
 	Sidebar.prototype.cisco_safe = ['Architecture', 'Capability', 'Design', 'Threat'];
 	
-	/**
-	 *
-	 */
 	Sidebar.prototype.sysml = ['Model Elements', 'Blocks', 'Ports and Flows', 'Constraint Blocks', 'Activities', 'Interactions', 'State Machines', 
 	                           'Use Cases', 'Allocations', 'Requirements', 'Profiles', 'Stereotypes'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.eip = ['Message Construction', 'Message Routing', 'Message Transformation', 'Messaging Channels', 'Messaging Endpoints', 
 	                         'Messaging Systems', 'System Management'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.gmdl = ['Bottom Navigation', 'Bottom Sheets', 'Buttons', 'Cards', 'Chips', 'Dialogs', 'Dividers', 'Grid Lists', 'Icons', 'Lists', 'Menus', 'Misc', 'Pickers', 
 	                          'Selection Controls', 'Sliders', 'Steppers', 'Tabs', 'Text Fields'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.aws2 = ['Analytics', 'Application Services', 'Compute', 'Database', 'Developer Tools', 'Enterprise Applications', 'Game Development', 'General', 'Internet of Things',  
 	                          'Management Tools', 'Mobile Services', 'Networking', 'On-Demand Workforce', 'SDKs', 'Security and Identity', 'Storage and Content Delivery', 'Groups'];
 
-	/**
-	 *
-	 */
 	Sidebar.prototype.aws3 = ['Analytics', 'Application Services', 'Artificial Intelligence', 'Business Productivity', 'Compute', 'Contact Center', 'Database', 'Desktop and App Streaming', 'Developer Tools', 
 	                          'Game Development', 'General', 'Groups', 'Internet of Things',  
 	                          'Management Tools', 'Messaging', 'Migration', 'Mobile Services', 'Networking and Content Delivery', 'On Demand Workforce', 'SDKs', 'Security Identity and Compliance', 'Storage'];
 	
-	/**
-	 *
-	 */
 	Sidebar.prototype.aws4b = ['Arrows', 'General Resources', 'Illustrations', 'Groups Light', 'Groups Dark', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Business Productivity', 'Compute', 'Customer Engagement',
 							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Development', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Tools',
-							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];	
-	/**
-	 *
-	 */
+							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
+	
 	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Blockchain', 
 							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Engagement',
 							  'Database', 'Desktop App Streaming', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
 							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
-	/**
-	 * 
-	 */
+
 	Sidebar.prototype.office = ['Clouds', 'Communications', 'Concepts', 'Databases', 'Devices', 'Security', 'Servers', 'Services', 'Sites', 'Users'];
 
-	/**
-	 * 
-	 */
 	Sidebar.prototype.veeam = ['Data Center', 'Misc', 'Software', 'Storage', 'UsersStatus', 'VASComponents', 'Backup Replication', 'Products', 'VMs and Tape', '2D', '3D'];
 
-	/**
-	 * 
-	 */
 	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Composite', 'Implementation and Migration', 'Motivation', 'Physical', 'Relationships', 'Strategy', 'Technology'];
 
-	/**
-	 * 
-	 */
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
@@ -168,6 +115,7 @@
 	                                   {id: 'clipart', prefix: null, libs: ['computer', 'finance', 'clipart', 'networking', 'people', 'telco']},
 	                                   {id: 'ibm', prefix: 'ibm', libs: Sidebar.prototype.ibm},
 	                                   {id: 'allied_telesis', prefix: 'allied_telesis', libs: Sidebar.prototype.allied_telesis},
+	                                   {id: 'cumulus', libs: ['cumulus']},
 	                                   {id: 'eip', prefix: 'eip', libs: Sidebar.prototype.eip},
 	                                   {id: 'mockups', prefix: 'mockup', libs: ['Buttons', 'Containers', 'Forms', 'Graphics', 'Markup', 'Misc', 'Navigation', 'Text']},
 	                                   {id: 'pid2', prefix: 'pid2', libs: ['Agitators', 'Apparatus Elements', 'Centrifuges', 'Compressors', 'Compressors ISO', 'Crushers Grinding', 
@@ -449,16 +397,17 @@
             			          {title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
             			          {title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
-            			entries: [{title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
-            			// TODO: Add isometric containers  		                          
+            			entries: [{title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
+            					  {title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
 							      {title: 'AWS18', id: 'aws4b', image: IMAGE_PATH + '/sidebar-aws4.png'},
 							      {title: 'AWS19', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
-            					  {title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
+			            			// TODO: Add isometric containers  		                          
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
             			          {title: 'Cisco Safe', id: 'cisco_safe', image: IMAGE_PATH + '/sidebar-cisco_safe.png'},
+            			          {title: 'Cumulus', id: 'cumulus', image: IMAGE_PATH + '/sidebar-cumulus.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
             			          {title: 'Google Cloud Platform', id: 'gcp2', image: IMAGE_PATH + '/sidebar-gcp2.png'},
             			          {title: 'IBM', id: 'ibm', image: IMAGE_PATH + '/sidebar-ibm.png'},
@@ -860,39 +809,11 @@
 		this.addGeneralPalette(this.customEntries == null);
 		this.addMiscPalette(false);
 		this.addAdvancedPalette(false);
-		this.addUmlPalette(false);
-		this.addErPalette();
 		this.addBasicPalette();
-		this.addFlowchartPalette();
-		this.addDFDPalette();
-		this.addNetworkPalette();
-		this.addAzurePalette();
-		this.addCitrixPalette();
-		this.addMSCAEPalette();
-		this.addBpmnPalette(dir, false);
-		this.addAWS3Palette();
-		this.addAWS4bPalette();
-		this.addAWS4Palette();
-		this.addAWS3DPalette();
-		this.addLeanMappingPalette();
-		this.addIos7Palette();
-		this.addIosPalette();
-		this.addInfographicPalette();
-		this.addAndroidPalette();
-		this.addMockupPalette();
-		this.addElectricalPalette();
-		this.addOfficePalette();
-		this.addVeeamPalette();
-		this.addIBMPalette();
-		this.addAlliedTelesisPalette();
-		this.addSitemapPalette();
-		this.addGCP2Palette();
-
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;');
-		
 		this.addArrows2Palette();
-				
+		
 		this.addImagePalette('computer', 'Clipart / Computer', imgDir
 				+ '/lib/clip_art/computers/', '_128x128.png', ['Antivirus',
 				'Data_Filtering', 'Database', 'Database_Add', 'Database_Minus',
@@ -913,6 +834,7 @@
 	            'Server', 'Server Rack', 'Server Rack Empty', 'Server Rack Partial',
 	            'Server Tower', 'Software', 'Stylus', 'Touch', 'USB Hub',
 	            'Virtual Application', 'Virtual Machine', 'Virus', 'Workstation']);
+		
 		this.addImagePalette('finance', 'Clipart / Finance', imgDir
 				+ '/lib/clip_art/finance/', '_128x128.png', [ 'Arrow_Down',
 				'Arrow_Up', 'Coins', 'Credit_Card', 'Dollar', 'Graph',
@@ -920,6 +842,7 @@
 				'Stock_Down', 'Stock_Up'], ['Arrow_Down', 'Arrow Up',
 	            'Coins', 'Credit Card', 'Dollar', 'Graph', 'Pie Chart',
 	            'Piggy Bank', 'Safe', 'Shopping Basket', 'Stock Down', 'Stock Up']);
+		
 		this.addImagePalette('clipart', 'Clipart / Various', imgDir
 				+ '/lib/clip_art/general/', '_128x128.png', [ 'Battery_0',
 				'Battery_100', 'Battery_50', 'Battery_75', 'Battery_allstates',
@@ -929,6 +852,7 @@
 	            'Battery 75%', 'Battery', 'Bluetooth', 'Globe',
 	            'Empty Folder', 'Full Folder', 'Gear', 'Keys', 'Lock', 'Mousepointer',
 	            'Plug', 'Ships Wheel', 'Star', 'Tire']);
+		
 		this.addImagePalette('networking', 'Clipart / Networking', imgDir
 				+ '/lib/clip_art/networking/', '_128x128.png', ['Bridge',
 				'Certificate', 'Certificate_Off', 'Cloud', 'Cloud_Computer',
@@ -951,6 +875,7 @@
 				  'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
 				  'Router': 'router switch',
 				  'Router_Icon': 'router switch'});
+		
 		this.addImagePalette('people', 'Clipart / People', imgDir
 				+ '/lib/clip_art/people/', '_128x128.png', ['Suit_Man',
 				'Suit_Man_Black', 'Suit_Man_Blue', 'Suit_Man_Green',
@@ -975,6 +900,7 @@
 				'Telesales_Woman_Black', 'Waiter', 'Waiter_Black',
 				'Waiter_Woman', 'Waiter_Woman_Black', 'Worker_Black',
 				'Worker_Man', 'Worker_Woman', 'Worker_Woman_Black']);
+		
 		this.addImagePalette('telco', 'Clipart / Telecommunication', imgDir
 				+ '/lib/clip_art/telecommunication/', '_128x128.png', [
 				'BlackBerry', 'Cellphone', 'HTC_smartphone', 'iPhone',
@@ -982,12 +908,39 @@
 				['BlackBerry', 'Cellphone', 'HTC smartphone', 'iPhone',
 				  'Palm Treo', 'Signaltower off', 'Signaltower on']);
 
-		for (var i = 0; i < signs.length; i++)
+		this.addFlowchartPalette();
+		this.addAndroidPalette();
+		this.addAtlassianPalette();
+		this.addBootstrapPalette();
+		this.addDFDPalette();
+		this.addErPalette();
+		this.addIos7Palette();
+		this.addIosPalette();
+		this.addMockupPalette();
+		this.addSitemapPalette();
+		this.addUmlPalette(false);
+		this.addAlliedTelesisPalette();
+		this.addAWS3Palette();
+		this.addAWS4bPalette();
+		this.addAWS4Palette();
+		this.addAWS3DPalette();
+		this.addAzurePalette();
+		this.addMSCAEPalette();
+		
+		for (var i = 0; i < cisco.length; i++)
 		{
-			this.addStencilPalette('signs' + signs[i], 'Signs / ' + signs[i],
-				dir + '/signs/' + signs[i].toLowerCase() + '.xml',
-				';html=1;fillColor=#000000;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
+			this.addStencilPalette('cisco' + cisco[i], 'Cisco / ' + cisco[i],
+				dir + '/cisco/' + cisco[i].toLowerCase().replace(/ /g, '_') + '.xml',
+				';html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;', null, null, 1.6);
 		}
+
+		this.addCiscoSafePalette();
+		this.addCumulusPalette();
+		this.addCitrixPalette();
+		this.addGCP2Palette();
+		this.addIBMPalette();
+		this.addNetworkPalette();
+		this.addOfficePalette();
 		
 		for (var i = 0; i < rack.length; i++)
 		{
@@ -1007,47 +960,11 @@
 			}
 		}
 
-		for (var i = 0; i < pids.length; i++)
-		{
-			if (pids[i] == 'Instruments')
-			{
-				this.addPidInstrumentsPalette();
-			}
-			else if (pids[i] == 'Misc')
-			{
-				this.addPidMiscPalette();
-			}
-			else if (pids[i] == 'Valves')
-			{
-				this.addPidValvesPalette();
-			}
-			else if (pids[i] == 'Compressors')
-			{
-				this.addPidCompressorsPalette();
-			}
-			else if (pids[i] == 'Engines')
-			{
-				this.addPidEnginesPalette();
-			}
-			else if (pids[i] == 'Filters')
-			{
-				this.addPidFiltersPalette();
-			}
-			else if (pids[i] == 'Flow Sensors')
-			{
-				this.addPidFlowSensorsPalette();
-			}
-			else if (pids[i] == 'Piping')
-			{
-				this.addPidPipingPalette();
-			}
-			else
-			{
-				this.addStencilPalette('pid' + pids[i], 'Proc. Eng. / ' + pids[i],
-					dir + '/pid/' + pids[i].toLowerCase().replace(' ', '_') + '.xml',
-					';html=1;align=center;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;');
-			}
-		}
+		this.addVeeamPalette();
+		this.addArchimate3Palette();
+		this.addArchiMatePalette();
+		this.addBpmnPalette(dir, false);
+		this.addLeanMappingPalette();
 		
 		for (var i = 0; i < sysml.length; i++)
 		{
@@ -1101,6 +1018,9 @@
 			}
 		}
 
+		this.addCabinetsPalette();
+		this.addInfographicPalette();
+		
 		for (var i = 0; i < eip.length; i++)
 		{
 			if (eip[i] == 'Message Construction')
@@ -1133,18 +1053,9 @@
 			}
 		}
 		
-		for (var i = 0; i < cisco.length; i++)
-		{
-			this.addStencilPalette('cisco' + cisco[i], 'Cisco / ' + cisco[i],
-				dir + '/cisco/' + cisco[i].toLowerCase().replace(/ /g, '_') + '.xml',
-				';html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;', null, null, 1.6);
-		}
-
-		this.addCiscoSafePalette();
+		this.addElectricalPalette();
 		this.addFloorplanPalette();
-		this.addAtlassianPalette();
-		this.addBootstrapPalette();
-
+		
 		for (var i = 0; i < gmdl.length; i++)
 		{
 			if (gmdl[i] == 'Bottom Navigation')
@@ -1221,11 +1132,57 @@
 			}
 		}
 
-		this.addCabinetsPalette();
-		this.addArchimate3Palette();
-		this.addArchiMatePalette();
+		for (var i = 0; i < pids.length; i++)
+		{
+			if (pids[i] == 'Instruments')
+			{
+				this.addPidInstrumentsPalette();
+			}
+			else if (pids[i] == 'Misc')
+			{
+				this.addPidMiscPalette();
+			}
+			else if (pids[i] == 'Valves')
+			{
+				this.addPidValvesPalette();
+			}
+			else if (pids[i] == 'Compressors')
+			{
+				this.addPidCompressorsPalette();
+			}
+			else if (pids[i] == 'Engines')
+			{
+				this.addPidEnginesPalette();
+			}
+			else if (pids[i] == 'Filters')
+			{
+				this.addPidFiltersPalette();
+			}
+			else if (pids[i] == 'Flow Sensors')
+			{
+				this.addPidFlowSensorsPalette();
+			}
+			else if (pids[i] == 'Piping')
+			{
+				this.addPidPipingPalette();
+			}
+			else
+			{
+				this.addStencilPalette('pid' + pids[i], 'Proc. Eng. / ' + pids[i],
+					dir + '/pid/' + pids[i].toLowerCase().replace(' ', '_') + '.xml',
+					';html=1;pointerEvents=1;align=center;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;dashed=0;');
+			}
+		}
+		
 		this.addWebIconsPalette();
 		this.addWebLogosPalette();
+				
+		for (var i = 0; i < signs.length; i++)
+		{
+			this.addStencilPalette('signs' + signs[i], 'Signs / ' + signs[i],
+				dir + '/signs/' + signs[i].toLowerCase() + '.xml',
+				';html=1;pointerEvents=1;fillColor=#000000;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
+		}
 		
 		// LATER: Check if conflicts with restore libs after loading file
 		this.showEntries();

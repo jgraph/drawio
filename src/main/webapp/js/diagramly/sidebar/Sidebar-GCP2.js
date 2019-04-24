@@ -272,7 +272,7 @@
 	{
 		var sb = this;
 		var s = 1;
-		var n = 'html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
+		var n = 'pointerEvents=1;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
 		var dt = 'gcp google cloud platform general icons icon ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];

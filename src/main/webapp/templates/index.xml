@@ -104,6 +104,7 @@
 <template url="network/citrix.xml" libs="general;citrix"/>
 <template url="network/enterprise_1.xml" libs="general;citrix"/>
 <template url="network/ibm_bda_reference_architecture.xml" libs="general;ibm"/>
+<template url="network/ibm_blockchain.xml" libs="general;ibm"/>
 <template url="network/ibm_cognitive_conversation.xml" libs="general;ibm"/>
 <template url="network/ibm_cognitive_discovery.xml" libs="general;ibm"/>
 <template url="network/ibm_iot_architecture.xml" libs="general;ibm"/>
