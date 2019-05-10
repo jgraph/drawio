@@ -37,7 +37,7 @@ function createWindow (opt = {})
 	let wurl = url.format(
 	{
 		pathname: __DEV__ ? 'test.draw.io' : 'www.draw.io',
-		protocol: __DEV__ ? 'http' : 'https:',
+		protocol: 'https:',
 		query:
 		{
 			'test': __DEV__ ? 1 : 0,
