@@ -308,12 +308,13 @@
 		{
 			// Used to request grapheditor/mxgraph sources in dev mode
 			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
+			
 			// Used to request draw.io sources in dev mode
 			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
 			
 			if (document.location.protocol == 'file:')
 			{
-				mxDevUrl = '../../mxgraph2';
+				mxDevUrl = '../../../../../mxgraph2';
 				drawDevUrl = './';
 				
 				// Forces includes for dev environment in node.js
