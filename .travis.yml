@@ -1,7 +1,8 @@
 language: java
-install: ant deps
 sudo: false
 before_install:
+- sudo apt-get update
+- sudo apt-get install ant
 - cd etc/build
 script: ant war
 before_deploy:
