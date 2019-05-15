@@ -1,4 +1,5 @@
 language: java
+install: ant deps
 sudo: false
 before_install:
 - cd etc/build
