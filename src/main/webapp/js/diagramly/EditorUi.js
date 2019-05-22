@@ -7057,19 +7057,28 @@
 		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
 			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
 		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+			if (this.importFileInputElt == null) 
 			{
-				if (input.files != null)
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+				
+				mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 				{
-					// Using null for position will disable crop of input file
-					this.importFiles(input.files, null, null, this.maxImageSize);
-				}
-			}));
-
-			input.click();
+					if (input.files != null)
+					{
+						// Using null for position will disable crop of input file
+						this.importFiles(input.files, null, null, this.maxImageSize);
+					}
+					
+					input.value = '';
+				}));
+				
+				input.style.display = 'none';
+				document.body.appendChild(input);
+				this.importFileInputElt = input;
+			}
+			
+			this.importFileInputElt.click();
 		}
 		else
 		{
@@ -12270,6 +12279,47 @@
 		{
 			return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
 		}
+	};
+	
+	//==================================================== End of comments =================================================================
+	
+	/**
+	 * Does revisions history available
+	 */
+	EditorUi.prototype.isRevisionHistorySupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null && file.isRevisionHistorySupported();
+	};
+
+	/**
+	 * Get revisions of current file
+	 */
+	EditorUi.prototype.getRevisions = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.getRevisions)
+		{
+			file.getRevisions(success, error);
+		}
+		else
+		{
+			error({message: mxResources.get('unknownError')});
+		}
+	};
+	
+	/**
+	 * Is revisions history enabled
+	 */
+	EditorUi.prototype.isRevisionHistoryEnabled = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null &&
+				((file.constructor == DriveFile && file.isEditable()) ||
+				file.constructor == DropboxFile);
 	};
 })();
 

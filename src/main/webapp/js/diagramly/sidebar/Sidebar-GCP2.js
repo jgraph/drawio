@@ -20,6 +20,7 @@
 		this.addGCP2ExpandedProductCardsPalette();
 		this.addGCP2ProductCardsPalette();
 		this.addGCP2GeneralIconsPalette();
+		this.addGCP2IconsPalette();
 	};
 	
 	Sidebar.prototype.addGCP2PathsPalette = function()
@@ -272,7 +273,7 @@
 	{
 		var sb = this;
 		var s = 1;
-		var n = 'pointerEvents=1;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
+		var n = 'html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
 		var dt = 'gcp google cloud platform general icons icon ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -635,6 +636,7 @@
 		this.addGCP2CardSet('Cloud Security\nScanner', 'cloud_security_scanner', 140, 190, dt + 'cloud security scanner', fns);
 		this.addGCP2CardSet('Key Management\nService', 'key_management_service', 160, 200, dt + 'key management service', fns);
 		this.addGCP2CardSet('Identity-Aware\nProxy', 'identity_aware_proxy', 140, 180, dt + 'identity aware proxy', fns);
+		this.addGCP2CardSet('Cloud Security\nCommand Center', 'cloud_security_command_center', 160, 240, dt + 'cloud security command center', fns);
 		this.addGCP2CardSet('Security Key\nEnforcement', 'security_key_enforcement', 130, 200, dt + 'security key enforcement', fns);
 		
 		this.addPalette('gcp2Identity and Security', 'GCP / Identity and Security', false, mxUtils.bind(this, function(content)
@@ -658,7 +660,7 @@
 		this.addGCP2CardSet('Cloud\nDataproc', 'cloud_dataproc', 110, 150, dt + 'dataproc', fns);
 		this.addGCP2CardSet('Genomics', 'genomics', 120, 120, dt + 'genomics', fns);
 		this.addGCP2CardSet('Cloud\nDataprep', 'cloud_dataprep', 110, 150, dt + 'dataprep', fns);
-		this.addGCP2CardSet('Data\nStudio', 'data_studio', 100, 130, dt + 'data studio', fns);
+		this.addGCP2CardSet('Cloud\nComposer', 'cloud_composer', 120, 150, dt + 'cloud composer', fns);
 
 		this.addPalette('gcp2Big Data', 'GCP / Big Data', false, mxUtils.bind(this, function(content)
 		{
@@ -698,6 +700,8 @@
 		this.addGCP2CardSet('Jobs\nAPI', 'cloud_jobs_api', 90, 110, dt + 'jobs api application programming interface', fns);
 		this.addGCP2CardSet('Cloud Video\nIntelligence API', 'cloud_video_intelligence_api', 150, 220, dt + 'cloud video intelligence api application programming interface', fns);
 		this.addGCP2CardSet('Advanced\nSolutions Lab', 'advanced_solutions_lab', 140, 200, dt + 'advanced solutions lab', fns);
+//		this.addGCP2CardSet('Cloud\nAutoML', 'cloud_automl', 110, 140, dt + 'automl auto ml', fns);
+//		this.addGCP2CardSet('Cloud\nText-to-Speech', 'cloud_text_to_speech', 110, 140, dt + 'text to speech', fns);
 
 		this.addPalette('gcp2Cloud AI', 'GCP / Cloud AI', false, mxUtils.bind(this, function(content)
 		{
@@ -714,6 +718,7 @@
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nIoT Core', 'cloud_iot_core', 110, 150, dt + 'core', fns);
+		this.addGCP2CardSet('Cloud\nIoT Edge', 'cloud_iot_edge', 110, 150, dt + 'edge', fns);
 
 		this.addPalette('gcp2Internet of Things', 'GCP / Internet of Things', false, mxUtils.bind(this, function(content)
 		{
@@ -932,12 +937,217 @@
 		}));
 	};
 	
-	
+	Sidebar.prototype.addGCP2IconsPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
+		    this.createVertexTemplateEntry(n + 'compute_engine', 
+		    		s * 44, s * 39, 'Compute\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'compute engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'app_engine', 
+		    		s * 44, s * 39, 'App\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'app engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_engine', 
+		    		s * 44, s * 39, 'Kubernetes\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'kubernetes engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'gpu', 
+		    		s * 44, s * 39, 'GPU', null, null, null, this.getTagsForStencil(gn, '', dt + 'gpu graphics processing unit').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_functions', 
+		    		s * 44, s * 39, 'Cloud\nFunctions', null, null, null, this.getTagsForStencil(gn, '', dt + 'functions').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_optimized_os', 
+		    		s * 44, s * 39, 'Container-\nOptimized OS', null, null, null, this.getTagsForStencil(gn, '', dt + 'container optimized os operating system').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_machine_learning', 
+		    		s * 44, s * 39, 'Cloud Machine\nLearning Engine', null, null, null, this.getTagsForStencil(gn, '', dt + 'machine learning engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_vision_api', 
+		    		s * 44, s * 39, 'Cloud\nVision API', null, null, null, this.getTagsForStencil(gn, '', dt + 'vision api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_speech_api', 
+		    		s * 44, s * 39, 'Cloud\nSpeech-to-Text', null, null, null, this.getTagsForStencil(gn, '', dt + 'speech to text').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_video_intelligence_api', 
+		    		s * 44, s * 39, 'Cloud Video\nIntelligence\nAPI', null, null, null, this.getTagsForStencil(gn, '', dt + 'compute engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_automl', 
+		    		s * 44, s * 39, 'Cloud\nAutoML', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_tpu', 
+		    		s * 44, s * 39, 'Cloud TPU', null, null, null, this.getTagsForStencil(gn, '', dt + 'tpu').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_natural_language_api', 
+		    		s * 44, s * 39, 'Cloud Natural\nLanguage API', null, null, null, this.getTagsForStencil(gn, '', dt + 'natural language api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_translation_api', 
+		    		s * 44, s * 39, 'Cloud\nTranslation\nAPI', null, null, null, this.getTagsForStencil(gn, '', dt + 'translation api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_jobs_api', 
+		    		s * 44, s * 39, 'Cloud\nJobs API', null, null, null, this.getTagsForStencil(gn, '', dt + 'jobs api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'advanced_solutions_lab', 
+		    		s * 44, s * 39, 'Advanced\nSolutions Lab', null, null, null, this.getTagsForStencil(gn, '', dt + 'advanced solutions lab').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_text_to_speech', 
+		    		s * 44, s * 39, 'Cloud\nText-to-Speech', null, null, null, this.getTagsForStencil(gn, '', dt + 'text to speech').join(' ')),
+		    this.createVertexTemplateEntry(n + 'dialogflow_enterprise_edition', 
+		    		s * 44, s * 39, 'Dialogflow\nEnterprise\nEdition', null, null, null, this.getTagsForStencil(gn, '', dt + 'dialogflow enterprise edition').join(' ')),
+		    this.createVertexTemplateEntry(n + 'transfer_appliance', 
+		    		s * 44, s * 39, 'Transfer\nAppliance', null, null, null, this.getTagsForStencil(gn, '', dt + 'transfer appliance').join(' ')),
+		    this.createVertexTemplateEntry(n + 'bigquery', 
+		    		s * 44, s * 39, 'BigQuery', null, null, null, this.getTagsForStencil(gn, '', dt + 'bigquery big query').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_dataflow', 
+		    		s * 44, s * 39, 'Cloud\nDataflow', null, null, null, this.getTagsForStencil(gn, '', dt + 'dataflow').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_dataproc', 
+		    		s * 44, s * 39, 'Cloud\nDataproc', null, null, null, this.getTagsForStencil(gn, '', dt + 'dataproc').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_dataprep', 
+		    		s * 44, s * 39, 'Cloud\nDataprep', null, null, null, this.getTagsForStencil(gn, '', dt + 'dataprep').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_datalab', 
+		    		s * 44, s * 39, 'Cloud\nDatalab', null, null, null, this.getTagsForStencil(gn, '', dt + 'datalab').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_pubsub', 
+		    		s * 44, s * 39, 'Cloud\nPub/Sub', null, null, null, this.getTagsForStencil(gn, '', dt + 'pubsub').join(' ')),
+		    this.createVertexTemplateEntry(n + 'genomics', 
+		    		s * 44, s * 39, 'Genomics', null, null, null, this.getTagsForStencil(gn, '', dt + 'genomics').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_composer', 
+		    		s * 44, s * 39, 'Cloud\nComposer', null, null, null, this.getTagsForStencil(gn, '', dt + 'composer').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_iam', 
+		    		s * 44, s * 39, 'Cloud IAM', null, null, null, this.getTagsForStencil(gn, '', dt + 'iam').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_iam', 
+		    		s * 44, s * 39, 'Cloud Resource\nManager', null, null, null, this.getTagsForStencil(gn, '', dt + 'resource manager').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_security_scanner', 
+		    		s * 44, s * 39, 'Cloud Security\nScanner', null, null, null, this.getTagsForStencil(gn, '', dt + 'security scanner').join(' ')),
+		    this.createVertexTemplateEntry(n + 'key_management_service', 
+		    		s * 44, s * 39, 'Key\nManagement\nService', null, null, null, this.getTagsForStencil(gn, '', dt + 'key management service').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_security_command_center', 
+		    		s * 44, s * 39, 'Cloud Security\nCommand\nCenter', null, null, null, this.getTagsForStencil(gn, '', dt + 'security command center').join(' ')),
+		    this.createVertexTemplateEntry(n + 'beyondcorp', 
+		    		s * 44, s * 39, 'BeyondCorp', null, null, null, this.getTagsForStencil(gn, '', dt + 'beyondcorp beyond corp').join(' ')),
+		    this.createVertexTemplateEntry(n + 'data_loss_prevention_api', 
+		    		s * 44, s * 39, 'Data Loss\nPrevention API', null, null, null, this.getTagsForStencil(gn, '', dt + 'data loss prevention api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'identity_aware_proxy', 
+		    		s * 44, s * 39, 'Identity-Aware\nProxy', null, null, null, this.getTagsForStencil(gn, '', dt + 'identity aware proxy').join(' ')),
+		    this.createVertexTemplateEntry(n + 'security_key_enforcement', 
+		    		s * 44, s * 39, 'Security Key\nEnforcement', null, null, null, this.getTagsForStencil(gn, '', dt + 'security key enforcement').join(' ')),
+		    this.createVertexTemplateEntry(n + 'stackdriver', 
+		    		s * 44, s * 39, 'Stackdriver', null, null, null, this.getTagsForStencil(gn, '', dt + 'stackdriver').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_deployment_manager', 
+		    		s * 44, s * 39, 'Monitoring', null, null, null, this.getTagsForStencil(gn, '', dt + 'monitoring').join(' ')),
+		    this.createVertexTemplateEntry(n + 'logging', 
+		    		s * 44, s * 39, 'Logging', null, null, null, this.getTagsForStencil(gn, '', dt + 'logging').join(' ')),
+		    this.createVertexTemplateEntry(n + 'error_reporting', 
+		    		s * 44, s * 39, 'Error\nReporting', null, null, null, this.getTagsForStencil(gn, '', dt + 'error reporting').join(' ')),
+		    this.createVertexTemplateEntry(n + 'trace', 
+		    		s * 44, s * 39, 'Trace', null, null, null, this.getTagsForStencil(gn, '', dt + 'trace').join(' ')),
+		    this.createVertexTemplateEntry(n + 'debugger', 
+		    		s * 44, s * 39, 'Debugger', null, null, null, this.getTagsForStencil(gn, '', dt + 'debugger').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_deployment_manager', 
+		    		s * 44, s * 39, 'Cloud\nDeployment\nManager', null, null, null, this.getTagsForStencil(gn, '', dt + 'deployment manager').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_apis', 
+		    		s * 44, s * 39, 'Cloud\nAPIs', null, null, null, this.getTagsForStencil(gn, '', dt + 'apis api application programming interface interfaces').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud\nConsole', null, null, null, this.getTagsForStencil(gn, '', dt + 'console').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud\nShell', null, null, null, this.getTagsForStencil(gn, '', dt + 'shell').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud Mobile\nApp', null, null, null, this.getTagsForStencil(gn, '', dt + 'mobile app application').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud\nBilling API', null, null, null, this.getTagsForStencil(gn, '', dt + 'billing api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'profiler', 
+		    		s * 44, s * 39, 'Profiler', null, null, null, this.getTagsForStencil(gn, '', dt + 'profiler').join(' ')),
+		    this.createVertexTemplateEntry(n + 'virtual_private_cloud', 
+		    		s * 44, s * 39, 'Virtual\nPrivate Cloud', null, null, null, this.getTagsForStencil(gn, '', dt + 'vpc virtual private').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_load_balancing', 
+		    		s * 44, s * 39, 'Cloud Load\nBalancing', null, null, null, this.getTagsForStencil(gn, '', dt + 'load balancing').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_cdn', 
+		    		s * 44, s * 39, 'Cloud\nCDN', null, null, null, this.getTagsForStencil(gn, '', dt + 'cdn').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_external_ip_addresses', 
+		    		s * 44, s * 39, 'Cloud\nExternal IP\nAddresses', null, null, null, this.getTagsForStencil(gn, '', dt + 'extrernal ip internet protocol address addresses').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_firewall_rules', 
+		    		s * 44, s * 39, 'Cloud\nFirewall Rules', null, null, null, this.getTagsForStencil(gn, '', dt + 'firewall rules rule').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_router', 
+		    		s * 44, s * 39, 'Cloud\nRouter', null, null, null, this.getTagsForStencil(gn, '', dt + 'router').join(' ')),
+		    this.createVertexTemplateEntry(n + 'dedicated_interconnect', 
+		    		s * 44, s * 39, 'Dedicated\nInterconnect', null, null, null, this.getTagsForStencil(gn, '', dt + 'dedicated interconnect').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_dns', 
+		    		s * 44, s * 39, 'Cloud\nDNS', null, null, null, this.getTagsForStencil(gn, '', dt + 'dns domain name server').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_network', 
+		    		s * 44, s * 39, 'Cloud\nNetwork', null, null, null, this.getTagsForStencil(gn, '', dt + 'network').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_routes', 
+		    		s * 44, s * 39, 'Cloud\nRoutes', null, null, null, this.getTagsForStencil(gn, '', dt + 'routes').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_vpn', 
+		    		s * 44, s * 39, 'Cloud VPN', null, null, null, this.getTagsForStencil(gn, '', dt + 'vpn virtual private network').join(' ')),
+		    this.createVertexTemplateEntry(n + 'partner_interconnect', 
+		    		s * 44, s * 39, 'Partner\nInterconnect', null, null, null, this.getTagsForStencil(gn, '', dt + 'partner interconnect').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_armor', 
+		    		s * 44, s * 39, 'Cloud Armor', null, null, null, this.getTagsForStencil(gn, '', dt + 'armor').join(' ')),
+		    this.createVertexTemplateEntry(n + 'standard_network_tier', 
+		    		s * 44, s * 39, 'Standard\nNetwork Tier', null, null, null, this.getTagsForStencil(gn, '', dt + 'standard network tier').join(' ')),
+		    this.createVertexTemplateEntry(n + 'premium_network_tier', 
+		    		s * 44, s * 39, 'Premium\nNetwork Tier', null, null, null, this.getTagsForStencil(gn, '', dt + 'premium network tier').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud SDK', null, null, null, this.getTagsForStencil(gn, '', dt + 'sdk software development kit').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud\nTest Lab', null, null, null, this.getTagsForStencil(gn, '', dt + 'test lab').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud Source\nRepositories', null, null, null, this.getTagsForStencil(gn, '', dt + 'source repositories').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Maven App\nEngine Plugin', null, null, null, this.getTagsForStencil(gn, '', dt + 'maven app engine plugin').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_tools_for_powershell', 
+		    		s * 44, s * 39, 'Cloud\nTools for\nPowerShell', null, null, null, this.getTagsForStencil(gn, '', dt + 'tools for powershell power shell').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_tools_for_powershell', 
+		    		s * 44, s * 39, 'Clout\nTools for\nVisual Studio', null, null, null, this.getTagsForStencil(gn, '', dt + 'tools for visual studio').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_registry', 
+		    		s * 44, s * 39, 'Container\nRegistry', null, null, null, this.getTagsForStencil(gn, '', dt + 'container registry').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud Tools\nfor Eclipse', null, null, null, this.getTagsForStencil(gn, '', dt + 'tools for eclipse').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_tools_for_powershell', 
+		    		s * 44, s * 39, 'IDE Plugins', null, null, null, this.getTagsForStencil(gn, '', dt + 'ide integrated development environment plugins').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Gradle App\nEngine Plugin', null, null, null, this.getTagsForStencil(gn, '', dt + 'gradle app application engine plugin').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_builder', 
+		    		s * 44, s * 39, 'Code Build', null, null, null, this.getTagsForStencil(gn, '', dt + 'code build').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Cloud Tools\nfor IntelliJ', null, null, null, this.getTagsForStencil(gn, '', dt + 'tools for intellij').join(' ')),
+		    this.createVertexTemplateEntry(n + 'api_analytics', 
+		    		s * 44, s * 39, 'API\nAnalytics', null, null, null, this.getTagsForStencil(gn, '', dt + 'api application programming interface analytics').join(' ')),
+		    this.createVertexTemplateEntry(n + 'api_monetization', 
+		    		s * 44, s * 39, 'API\nMonetization', null, null, null, this.getTagsForStencil(gn, '', dt + 'api application programming interface monetization').join(' ')),
+		    this.createVertexTemplateEntry(n + 'apigee_api_platform', 
+		    		s * 44, s * 39, 'Apigee API\nPlatform', null, null, null, this.getTagsForStencil(gn, '', dt + 'apigee api application programming interface platform').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_endpoints', 
+		    		s * 44, s * 39, 'Cloud\nEndpoints', null, null, null, this.getTagsForStencil(gn, '', dt + 'endpoints').join(' ')),
+		    this.createVertexTemplateEntry(n + 'developer_portal', 
+		    		s * 44, s * 39, 'Developer\nPortal', null, null, null, this.getTagsForStencil(gn, '', dt + 'developer portal').join(' ')),
+		    this.createVertexTemplateEntry(n + 'apigee_sense', 
+		    		s * 44, s * 39, 'Apigee\nSense', null, null, null, this.getTagsForStencil(gn, '', dt + 'apigee sense').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_iot_core', 
+		    		s * 44, s * 39, 'Cloud IoT\nCore', null, null, null, this.getTagsForStencil(gn, '', dt + 'iot internet of things core').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_iot_edge', 
+		    		s * 44, s * 39, 'Cloud IoT\nEdge', null, null, null, this.getTagsForStencil(gn, '', dt + 'iot internet of things edge').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_storage', 
+		    		s * 44, s * 39, 'Cloud\nStorage', null, null, null, this.getTagsForStencil(gn, '', dt + 'storage').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_bigtable', 
+		    		s * 44, s * 39, 'Cloud\nBigtable', null, null, null, this.getTagsForStencil(gn, '', dt + 'bigtable').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_datastore', 
+		    		s * 44, s * 39, 'Cloud\nDatastore', null, null, null, this.getTagsForStencil(gn, '', dt + 'datastore').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_memorystore', 
+		    		s * 44, s * 39, 'Cloud\nMemorystore', null, null, null, this.getTagsForStencil(gn, '', dt + 'memorystore').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_sql', 
+		    		s * 44, s * 39, 'Cloud SQL', null, null, null, this.getTagsForStencil(gn, '', dt + 'sql').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_spanner', 
+		    		s * 44, s * 39, 'Cloud\nSpanner', null, null, null, this.getTagsForStencil(gn, '', dt + 'spanner').join(' ')),
+		    this.createVertexTemplateEntry(n + 'persistent_disk', 
+		    		s * 44, s * 39, 'Persistent\nDisk', null, null, null, this.getTagsForStencil(gn, '', dt + 'persistent disk').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_filestore', 
+		    		s * 44, s * 39, 'Cloud\nFilestore', null, null, null, this.getTagsForStencil(gn, '', dt + 'filestore').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_firestore', 
+		    		s * 44, s * 39, 'Cloud\nFirestore', null, null, null, this.getTagsForStencil(gn, '', dt + 'firestore').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons', 'GCP / Icons', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
 	
 	Sidebar.prototype.addGCP2CardSet = function(label, icon, w1, w2, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 

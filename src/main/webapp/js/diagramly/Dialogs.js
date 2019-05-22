@@ -383,20 +383,29 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		
 		mxEvent.addListener(link, 'click', function()
 		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', function()
+			if (editorUi.storageFileInputElt == null) 
 			{
-				if (input.files != null)
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+				
+				mxEvent.addListener(input, 'change', function()
 				{
-					// Using null for position will disable crop of input file
-					editorUi.hideDialog();
-					editorUi.openFiles(input.files, true);
-				}
-			});
-
-			input.click();
+					if (input.files != null)
+					{
+						// Using null for position will disable crop of input file
+						editorUi.hideDialog();
+						editorUi.openFiles(input.files, true);
+					}
+					
+					input.value = '';
+				});
+				
+				input.style.display = 'none';
+				document.body.appendChild(input);
+				editorUi.storageFileInputElt = input;
+			}
+			
+			editorUi.storageFileInputElt.click();
 		});
 		
 		p2.appendChild(link);
@@ -3407,16 +3416,24 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		var importBtn = mxUtils.button(mxResources.get('import'), function()
 		{
-			var fileInput = document.createElement('input');
-			fileInput.setAttribute('multiple', 'multiple');
-			fileInput.setAttribute('type', 'file');
-			
-			mxEvent.addListener(fileInput, 'change', function(evt)
+			if (editorUi.newDlgFileInputElt == null) 
 			{
-				editorUi.openFiles(fileInput.files, true);
-			});
+				var fileInput = document.createElement('input');
+				fileInput.setAttribute('multiple', 'multiple');
+				fileInput.setAttribute('type', 'file');
+				
+				mxEvent.addListener(fileInput, 'change', function(evt)
+				{
+					editorUi.openFiles(fileInput.files, true);
+					fileInput.value = '';
+				});
+				
+				fileInput.style.display = 'none';
+				document.body.appendChild(fileInput);
+				editorUi.newDlgFileInputElt = fileInput;
+			}
 			
-			fileInput.click();
+			editorUi.newDlgFileInputElt.click();
 		});
 				
 		importBtn.className = 'geBtn';
@@ -4239,14 +4256,14 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
         linkInput.focus();
 	};
 
-	if (Graph.fileSupport)
+	if (Graph.fileSupport && document.documentMode == null)
 	{
-		var fileInput = document.createElement('input');
-		fileInput.setAttribute('multiple', 'multiple');
-		fileInput.setAttribute('type', 'file');
-		
-		if (document.documentMode == null)
+		if (editorUi.imgDlgFileInputElt == null)
 		{
+			var fileInput = document.createElement('input');
+			fileInput.setAttribute('multiple', 'multiple');
+			fileInput.setAttribute('type', 'file');
+			
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
 		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
@@ -4267,16 +4284,22 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    			queue[i]();
 		    		}
 		    	}, true);
+		    	
+		    	fileInput.value = '';
 			});
 			
-			var btn = mxUtils.button(mxResources.get('open'), function()
-			{
-				fileInput.click();
-			});
-			btn.className = 'geBtn';
-			
-			btns.appendChild(btn);
+			fileInput.style.display = 'none';
+			document.body.appendChild(fileInput);
+			editorUi.imgDlgFileInputElt = fileInput;
 		}
+		
+		var btn = mxUtils.button(mxResources.get('open'), function()
+		{
+			editorUi.imgDlgFileInputElt.click();
+		});
+		btn.className = 'geBtn';
+		
+		btns.appendChild(btn);
 	}
 
 	// Image cropping (experimental)
@@ -5446,10 +5469,9 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 					row.appendChild(date);
 
 					row.setAttribute('title', ts.toLocaleDateString() + ' ' +
-						ts.toLocaleTimeString() + ' ' +
-						editorUi.formatFileSize(parseInt(item.fileSize)) +
-						((item.lastModifyingUserName != null) ? ' ' +
-						item.lastModifyingUserName : ''));
+						ts.toLocaleTimeString() + 
+						((item.fileSize != null)? ' ' + editorUi.formatFileSize(parseInt(item.fileSize)) : '') +
+						((item.lastModifyingUserName != null) ? ' ' + item.lastModifyingUserName : ''));
 
 					function updateGraph(xml)
 					{
@@ -8357,14 +8379,16 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	btn.className = 'geBtn';
 	btns.appendChild(btn);
 	
-	var fileInput = document.createElement('input');
-	fileInput.setAttribute('multiple', 'multiple');
-	fileInput.setAttribute('type', 'file');
-	
 	if (document.documentMode == null)
 	{
-		mxEvent.addListener(fileInput, 'change', function(evt)
+		if (editorUi.libDlgFileInputElt == null) 
 		{
+			var fileInput = document.createElement('input');
+			fileInput.setAttribute('multiple', 'multiple');
+			fileInput.setAttribute('type', 'file');
+	
+			mxEvent.addListener(fileInput, 'change', function(evt)
+			{
 		    	errorShowed = false;
 					
 		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
@@ -8374,9 +8398,14 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		    		// Resets input to force change event for same file
 		    		fileInput.value = '';
 		    	});
-
-			div.scrollTop = div.scrollHeight;
-		});
+	
+				div.scrollTop = div.scrollHeight;
+			});
+			
+			fileInput.style.display = 'none';
+			document.body.appendChild(fileInput);
+			editorUi.libDlgFileInputElt = fileInput;
+		}
 		
 		var btn = mxUtils.button(mxResources.get('import'), function()
 		{
@@ -8386,7 +8415,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				stopEditing = null;
 			}
 			
-			fileInput.click();
+			editorUi.libDlgFileInputElt.click();
 		});
 		btn.setAttribute('id', 'btnAddImage');
 		btn.className = 'geBtn';

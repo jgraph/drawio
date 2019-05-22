@@ -1489,10 +1489,7 @@ App.prototype.updateActionStates = function()
 {
 	EditorUi.prototype.updateActionStates.apply(this, arguments);
 
-	var file = this.getCurrentFile();
-	this.actions.get('revisionHistory').setEnabled(file != null &&
-		((file.constructor == DriveFile && file.isEditable()) ||
-		file.constructor == DropboxFile));
+	this.actions.get('revisionHistory').setEnabled(this.isRevisionHistoryEnabled());
 };
 
 /**
@@ -2862,18 +2859,27 @@ App.prototype.pickFile = function(mode)
 			else if (mode == App.MODE_DEVICE && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
 				navigator.appVersion.indexOf('Windows NT 6.1') < 0))
 			{
-				var input = document.createElement('input');
-				input.setAttribute('type', 'file');
-				
-				mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+				if (this.openFileInputElt == null) 
 				{
-					if (input.files != null)
+					var input = document.createElement('input');
+					input.setAttribute('type', 'file');
+					
+					mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 					{
-						this.openFiles(input.files);
-					}
-				}));
-		
-				input.click();
+						if (input.files != null)
+						{
+							this.openFiles(input.files);
+						}
+						
+						input.value = '';
+					}));
+					
+					input.style.display = 'none';
+					document.body.appendChild(input);
+					this.openFileInputElt = input;
+				}
+				
+				this.openFileInputElt.click();
 			}
 			else
 			{
@@ -2984,38 +2990,47 @@ App.prototype.pickLibrary = function(mode)
 	}
 	else if (mode == App.MODE_DEVICE && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
 	{
-		var input = document.createElement('input');
-		input.setAttribute('type', 'file');
-		
-		mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+		if (this.libFileInputElt == null) 
 		{
-			if (input.files != null)
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 			{
-				for (var i = 0; i < input.files.length; i++)
+				if (input.files != null)
 				{
-					(mxUtils.bind(this, function(file)
+					for (var i = 0; i < input.files.length; i++)
 					{
-						var reader = new FileReader();
-					
-						reader.onload = mxUtils.bind(this, function(e)
+						(mxUtils.bind(this, function(file)
 						{
-							try
+							var reader = new FileReader();
+						
+							reader.onload = mxUtils.bind(this, function(e)
 							{
-								this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
-							}
-							catch (e)
-							{
-								this.handleError(e, mxResources.get('errorLoadingFile'));
-							}
-						});
-
-						reader.readAsText(file);
-					}))(input.files[i]);
+								try
+								{
+									this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
+								}
+								catch (e)
+								{
+									this.handleError(e, mxResources.get('errorLoadingFile'));
+								}
+							});
+	
+							reader.readAsText(file);
+						}))(input.files[i]);
+					}
 				}
-			}
-		}));
-
-		input.click();
+				
+				input.value = '';
+			}));
+			
+			input.style.display = 'none';
+			document.body.appendChild(input);
+			this.libFileInputElt = input;
+		}
+		
+		this.libFileInputElt.click();
 	}
 	else
 	{

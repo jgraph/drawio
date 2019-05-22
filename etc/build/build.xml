@@ -101,6 +101,7 @@
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
+				<file name="Sidebar-ActiveDirectory.js" />
 				<file name="Sidebar-Advanced.js" />
 				<file name="Sidebar-AlliedTelesis.js" />
 				<file name="Sidebar-Android.js" />
@@ -144,6 +145,7 @@
 				<file name="Sidebar-Sitemap.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-VVD.js" />
 				<file name="Sidebar-WebIcons.js" />
 			</sources>
 		</jscomp>
