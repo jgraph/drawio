@@ -321,18 +321,16 @@
 		
 		editorUi.actions.addAction('revisionHistory...', function()
 		{
-			var file = editorUi.getCurrentFile();
-			
-			if (file == null || !file.isRevisionHistorySupported())
+			if (!editorUi.isRevisionHistorySupported())
 			{
 				editorUi.showError(mxResources.get('error'), mxResources.get('notAvailable'), mxResources.get('ok'));
 			}
 			else if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 			{
-				file.getRevisions(mxUtils.bind(this, function(revs)
+				editorUi.getRevisions(mxUtils.bind(this, function(revs, restoreFn)
 				{
 					editorUi.spinner.stop();
-					var dlg = new RevisionDialog(editorUi, revs);
+					var dlg = new RevisionDialog(editorUi, revs, restoreFn);
 					editorUi.showDialog(dlg.container, 640, 480, true, true);
 					dlg.init();
 				}), mxUtils.bind(this, function(err)
@@ -3052,6 +3050,11 @@
 					this.addSubmenu('openLibraryFrom', menu, parent);
 				}
 				
+				if (editorUi.isRevisionHistorySupported())
+				{
+					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
+				}
+				
 				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', 'save'], parent);
 				
 				if (urlParams['saveAndExit'] == '1')
@@ -3145,7 +3148,7 @@
 				this.addSubmenu('newLibrary', menu, parent);
 				this.addSubmenu('openLibraryFrom', menu, parent);
 				
-				if (file != null && file.isRevisionHistorySupported())
+				if (editorUi.isRevisionHistorySupported())
 				{
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}

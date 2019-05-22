@@ -274,7 +274,7 @@ Draw.loadPlugin(function(ui)
 		var inner = this.container.querySelector('.geTitle');
 		
 		var lbl = document.createElement('div');
-		mxUtils.write(lbl, mxResources.get('confAnchor', null, 'Confluence Page Anchor') + ':');
+		mxUtils.write(lbl, mxResources.get('confAnchor') + ':');
 		inner.appendChild(lbl);
 		
 		var anchorRadio = document.createElement('input');
@@ -284,7 +284,7 @@ Draw.loadPlugin(function(ui)
 		anchorRadio.setAttribute('name', 'current-linkdialog');
 		
 		var anchorInput = document.createElement('input');
-		anchorInput.setAttribute('placeholder', mxResources.get('confAnchor', null, 'Confluence Page Anchor'));
+		anchorInput.setAttribute('placeholder', mxResources.get('confAnchor'));
 		anchorInput.setAttribute('type', 'text');
 		anchorInput.style.marginTop = '6px';
 		anchorInput.style.width = '420px';
@@ -345,7 +345,7 @@ Draw.loadPlugin(function(ui)
 		
 		this.init = function()
 		{
-			origInit.call(this);
+			origInit.apply(this, arguments);
 			
 			if (anchorRadio.checked)
 			{
@@ -405,7 +405,7 @@ Draw.loadPlugin(function(ui)
 		}
 		else
 		{
-			origHandleCustomLink.call(ui, href);
+			origHandleCustomLink.apply(ui, arguments);
 		}
 	};
 	
@@ -415,11 +415,11 @@ Draw.loadPlugin(function(ui)
 	{
 		if (href.substring(0, 23) == 'data:confluence/anchor,')
 		{
-			return mxResources.get('anchor', null, 'Anchor') + ': ' + href.substring(23);
+			return mxResources.get('anchor') + ': ' + href.substring(23);
 		}
 		else
 		{
-			return origGetLinkTitle.call(ui, href);
+			return origGetLinkTitle.apply(ui, arguments);
 		}
 	};
 	
@@ -533,4 +533,52 @@ Draw.loadPlugin(function(ui)
 	
 	//Prefetch current user 
 	ui.getCurrentUser();
+	
+	//======================== Revisions ========================
+	
+	ui.isRevisionHistoryEnabled = function()
+	{
+		return macroData.pageId != null;
+	};
+	
+	ui.isRevisionHistorySupported = function()
+	{
+		return true;
+	};
+
+	/**
+	 * Get revisions of current file
+	 */
+	ui.getRevisions = function(success, error)
+	{
+		function getXml(success, error)
+		{
+			ui.remoteInvoke('getFileContent', [this.downloadUrl], null, success, error);
+		};
+		
+		function restoreFn(xml)
+		{
+			if (ui.spinner.spin(document.body, mxResources.get('restoring')))
+			{
+				ui.replaceFileData(xml);
+				ui.spinner.stop();
+				ui.hideDialog();
+			}
+		};
+		
+		ui.remoteInvoke('getDiagramRevisions', [macroData.diagramName, macroData.pageId], null, function(revisions)
+		{
+			//convert to editor format and add getXml function
+			var revs = [];
+			
+			for (var i = 0; i < revisions.length; i++)
+			{
+				var rev = revisions[i];
+				rev.getXml = mxUtils.bind(rev, getXml);
+				revs.push(rev);
+			}
+			
+			success(revs, restoreFn);
+		}, error);
+	};
 });

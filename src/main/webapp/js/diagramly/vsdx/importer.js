@@ -8824,60 +8824,29 @@ var com;
                     Shape.prototype.hasGeomList = function () {
                         return this.geomList != null && this.geomList.hasGeom();
                     };
+                    
                     /**
-                     * Transform plain text into a HTML list if the Para element referenced by
-                     * pp indicates it.
-                     * @param {string} text Text to be transformed.
-                     * @param {string} pp Reference to a Para element.
-                     * @return {string} Text like a HTML list.
+                     * Check if the paragraph is a list and return the list with its style
+                     * @param {string} pp Reference to a Para element
+                     * @return {string} the opening tag of the list with style or null if no list is found
                      */
-                    Shape.prototype.textToList = function (text, pp) {
-                        if (!(function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(pp, "")) {
+                    Shape.prototype.getPPList = function (pp) 
+                    {
+                    	var ul = null;
+                    	
+                        if (pp != '') 
+                        {
                             var bullet = this.getBullet(pp);
-                            if (!(function (o1, o2) { if (o1 && o1.equals) {
-                                return o1.equals(o2);
-                            }
-                            else {
-                                return o1 === o2;
-                            } })(bullet, "0")) {
-                                var entries = text.split("\n");
-                                
-                                if (!entries[entries.length - 1]) 
-                                {
-                                	entries.pop();
-                                }
-                                
-                                var ret = "";
-                                for (var index159 = 0; index159 < entries.length; index159++) {
-                                    var entry = entries[index159];
-                                    {
-                                        ret += com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(entry, "li");
-                                    }
-                                }
-                                ret = com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "ul");
-                                var styleMap = ({});
-                                if ((function (o1, o2) { if (o1 && o1.equals) {
-                                    return o1.equals(o2);
-                                }
-                                else {
-                                    return o1 === o2;
-                                } })(bullet, "4")) {
-                                    /* put */ (styleMap["list-style-type"] = "square");
-                                }
-                                else {
-                                    /* put */ (styleMap["list-style-type"] = "disc");
-                                }
-                                ret = this.insertAttributes(ret, styleMap);
-                                return ret;
+                            
+                            if (bullet != '0') 
+                            {
+                            	ul = '<ul style="margin: 0;list-style-type: ' + (bullet == '4'? 'square' : 'disc') + '">';
                             }
                         }
-                        return text;
+                        
+                        return ul;
                     };
+                    
                     /**
                      * Returns the paragraph formated according the properties in the last
                      * Para element referenced.
@@ -9855,8 +9824,41 @@ var com;
                      * @param {*} txtChildren
                      */
                     VsdxShape.prototype.getHtmlTextContent = function (txtChildren) {
-                        var ret = "";
+                    	var ret = "";
                         var first = true;
+                        var ulMode = false;
+                        var ulModeFirst = false; 
+                        
+                    	function processLblTxt(text) 
+                        {
+                            text = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(text);
+                            
+                            if (ulModeFirst)
+                        	{
+                            	text = '<li>' + text;
+                            	ulModeFirst = false;
+                        	}
+                            
+                            if (ulMode)
+                        	{
+                        		var entries = text.split('\n');
+                                
+                                if (!entries[entries.length - 1]) 
+                                {
+                                	entries.pop();
+                                	ulModeFirst = true; 
+                                }
+                                
+                                text = entries.join('</li><li>');
+                        	}
+                            else
+                        	{
+                            	text = text.replace(new RegExp('\n', 'g'), '<br/>').replace(new RegExp(com.mxgraph.io.vsdx.Shape.UNICODE_LINE_SEP, 'g'), '<br/>');
+                        	}
+                            
+                            return this.getTextCharFormated(text);
+                        };
+
                         if (txtChildren != null && txtChildren.length > 0) {
                             for (var index = 0; index < txtChildren.length; index++) {
                                 var node = txtChildren.item(index);
@@ -9883,17 +9885,34 @@ var com;
                                 }
                                 else {
                                     return o1 === o2;
-                                } })(node.nodeName, "pp")) {
+                                } })(node.nodeName, "pp")) 
+                                {
                                     var elem = node;
                                     this.pp = this.getIndex(elem);
-                                    if (first) {
+
+                                    if (ulMode)
+                                	{
+                                    	//TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
+                                    	ret += '</li></ul>';
+                                	}
+                                    
+                                    if (first) 
+                                    {
                                         first = false;
                                     }
-                                    else {
+                                    else 
+                                    {
                                         ret += "</p>";
                                     }
+                                    
                                     var para = "<p>";
                                     ret += this.getTextParagraphFormated(para);
+                                    
+                                    var ul = this.getPPList(this.pp);
+                                    
+                                    ulMode = ul != null;
+                                    ulModeFirst = ulMode; 
+                                    ret += ulMode? ul : '';
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
@@ -9911,7 +9930,7 @@ var com;
                                         text = (function (m, k) { return m[k] ? m[k] : null; })(this.masterShape.fields, this.fld);
                                     }
                                     if (text != null)
-                                        ret += this.processLblTxt(text);
+                                        ret += processLblTxt.call(this, text);
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
@@ -9920,22 +9939,23 @@ var com;
                                     return o1 === o2;
                                 } })(node.nodeName, "#text")) {
                                     var text = node.textContent;
-                                    ret += this.processLblTxt(text);
+                                    ret += processLblTxt.call(this, text);
                                 }
                             }
-                            ;
                         }
+                        
+                        if (ulMode)
+                    	{
+                        	//TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
+                        	ret += '</li></ul>';
+                    	}
+                        
                         var end = first ? "" : "</p>";
                         ret += end;
                         com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "div");
                         return ret;
                     };
-                    /*private*/ VsdxShape.prototype.processLblTxt = function (text) {
-                        text = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(text);
-                        text = this.textToList(text, this.pp);
-                        text = text.replace(new RegExp("\n", 'g'), "<br/>").replace(new RegExp(com.mxgraph.io.vsdx.Shape.UNICODE_LINE_SEP_$LI$(), 'g'), "<br/>");
-                        return this.getTextCharFormated(text);
-                    };
+                    
                     /**
                      * Checks if a nameU is for big connectors.
                      * @param {string} nameU NameU attribute.

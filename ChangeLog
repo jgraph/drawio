@@ -1,3 +1,18 @@
+22-MAY-2019: 10.6.8
+
+- Add VMware stencils
+- VSDX import improvements
+
+07-MAY-2019: 10.6.7
+
+- Fixes first input element not firing change event
+
+02-MAY-2019: 10.6.6
+
+- Adds MS Active Directory stencils
+- Improvements to GCP stencils
+- Adds Confluence Cloud translations
+
 24-APR-2019: 10.6.5
 
 - Fixes style variation logic in VSDX import
