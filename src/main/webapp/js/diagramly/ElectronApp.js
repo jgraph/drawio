@@ -717,41 +717,49 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					
 					var writeFile = mxUtils.bind(this, function()
 					{
-						fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding,
-							mxUtils.bind(this, function (e)
-					    {
-			        		if (e)
-			        		{
-			        			errorWrapper();
-			        		}
-			        		else
-			        		{
-								fs.stat(this.fileObject.path, mxUtils.bind(this, function(e2, stat2)
-								{
-									if (e2)
-					        		{
-					        			errorWrapper();
-					        		}
-									else
+						if (data == null || data.length == 0)
+						{
+							this.ui.handleError({message: mxResources.get('errorSavingFile')});
+							errorWrapper();
+						}
+						else
+						{
+							fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding,
+								mxUtils.bind(this, function (e)
+						    {
+				        		if (e)
+				        		{
+				        			errorWrapper();
+				        		}
+				        		else
+				        		{
+									fs.stat(this.fileObject.path, mxUtils.bind(this, function(e2, stat2)
 									{
-										this.savingFile = false;
-										this.isModified = prevModified;
-										var lastDesc = this.stat;
-										this.stat = stat2;
-										
-										this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+										if (e2)
+						        		{
+						        			errorWrapper();
+						        		}
+										else
 										{
-											this.contentChanged();
+											this.savingFile = false;
+											this.isModified = prevModified;
+											var lastDesc = this.stat;
+											this.stat = stat2;
 											
-											if (success != null)
+											this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 											{
-												success();
-											}
-										}), error);
-									}
-								}));
-			        		}
-			        	}));
+												this.contentChanged();
+												
+												if (success != null)
+												{
+													success();
+												}
+											}), error);
+										}
+									}));
+				        		}
+				        	}));
+						}
 					});
 					
 					if (overwrite)
@@ -1022,23 +1030,30 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	        if (path != null)
 	        {
-				var fs = require('fs');
-				resume();
-				
-				var fileObject = new Object();
-				fileObject.path = path;
-				fileObject.name = path.replace(/^.*[\\\/]/, '');
-				fileObject.type = (base64Encoded) ? 'base64' : 'utf-8';
-				
-				fs.writeFile(fileObject.path, data, fileObject.type, mxUtils.bind(this, function (e)
-			    {
-					this.spinner.stop();
+	        	if (data == null || data.length == 0)
+				{
+					this.handleError({message: mxResources.get('errorSavingFile')});
+				}
+				else
+				{
+					var fs = require('fs');
+					resume();
 					
-					if (e)
-					{
-						this.handleError({message: mxResources.get('errorSavingFile')});
-					}
-	        	}));
+					var fileObject = new Object();
+					fileObject.path = path;
+					fileObject.name = path.replace(/^.*[\\\/]/, '');
+					fileObject.type = (base64Encoded) ? 'base64' : 'utf-8';
+					
+					fs.writeFile(fileObject.path, data, fileObject.type, mxUtils.bind(this, function (e)
+				    {
+						this.spinner.stop();
+						
+						if (e)
+						{
+							this.handleError({message: mxResources.get('errorSavingFile')});
+						}
+		        	}));
+				}
 			}
 		}), 0);
 	};
