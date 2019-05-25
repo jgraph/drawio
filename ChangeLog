@@ -1,3 +1,7 @@
+25-MAY-2019: 10.6.9
+
+- Fixes missing VSDX import in stealth mode
+
 22-MAY-2019: 10.6.8
 
 - Add VMware stencils

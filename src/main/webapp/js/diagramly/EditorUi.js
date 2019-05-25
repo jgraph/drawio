@@ -433,9 +433,9 @@
 	/**
 	 * Returns true if no external comms allowed or possible
 	 */
-	EditorUi.prototype.isOffline = function()
+	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
-		return this.isOfflineApp() || !navigator.onLine || urlParams['stealth'] == '1';
+		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && urlParams['stealth'] == '1');
 	};
 
 	/**
@@ -6634,9 +6634,14 @@
 					}
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6673,9 +6678,14 @@
 					onerror(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6711,9 +6721,14 @@
 					this.handleError(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline())
+		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6754,7 +6769,7 @@
 		});
 		
 		if (typeof window.LucidImporter === 'undefined' &&
-			!this.loadingExtensions && !this.isOffline())
+			!this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			

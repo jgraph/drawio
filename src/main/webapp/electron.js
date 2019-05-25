@@ -240,17 +240,12 @@ app.on('ready', e =>
 	          click() { shell.openExternal('https://about.draw.io/support'); }
 			},
 			checkForUpdates,
-	        {
-	          type: 'separator'
-	        },
-	        {
-	          label: 'Quit',
-	          accelerator: 'Command+Q',
-	          click() {
-				cmdQPressed = true;
-				app.quit(); 
-			  }
-	        }
+			{ type: 'separator' },
+	        { role: 'hide' },
+	        { role: 'hideothers' },
+	        { role: 'unhide' },
+	        { type: 'separator' },
+	        { role: 'quit' }
 	      ]
 	    }, {
 	      label: 'Edit',
@@ -283,14 +278,15 @@ app.on('ready', e =>
 	{
 		autoUpdater.checkForUpdates()
 	}
-
-	if (process.platform === 'darwin')
-	{
-		globalShortcut.register('Command+H', () => {
-			app.hide()
-		})
-	}
 })
+
+//Quit from the dock context menu should quit the application directly
+if (process.platform === 'darwin') 
+{
+	app.on('before-quit', function() {
+		cmdQPressed = true;
+	});	
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function ()
@@ -440,4 +436,101 @@ autoUpdater.on('update-available', (a, b) =>
 			store.set('dontCheckUpdates', true)
 		}
 	})
+})
+
+//Pdf export
+const MICRON_TO_PIXEL = 264.58 		//264.58 micron = 1 pixel
+
+ipcMain.on('pdf-export', (event, args) =>
+{
+	var browser = null;
+	
+	try
+	{
+		browser = new BrowserWindow({
+			webPreferences: {
+				nodeIntegration: true
+			},
+			show : false,
+			parent: windowsRegistry[0] //set parent to first opened window. Not very accurate, but useful when all visible windows are closed
+		});
+
+		browser.loadURL(`file://${__dirname}/export3.html`);
+
+		const contents = browser.webContents;
+		
+		contents.on('did-finish-load', function()
+	    {
+			browser.webContents.send('render', {
+				xml: args.xml,
+				format: 'pdf',
+				w: args.w,
+				h: args.h,
+				border: args.border || 0,
+				bg: args.bg,
+				"from": args["from"],
+				to: args.to,
+				pageId: args.pageId,
+				allPages: args.allPages,
+				scale: args.scale || 1,
+				extras: args.extras
+			});
+			
+			ipcMain.once('render-finished', (evt, bounds) =>
+			{
+				var pdfOptions = {pageSize: 'A4'};
+
+				if (bounds != null)
+				{
+					//Chrome generates Pdf files larger than requested pixels size and requires scaling
+					var fixingScale = 0.959;
+	
+					var w = Math.ceil(bounds.width * fixingScale);
+					
+					// +0.1 fixes cases where adding 1px below is not enough
+					// Increase this if more cropped PDFs have extra empty pages
+					var h = Math.ceil(bounds.height * fixingScale + 0.1);
+	
+					//page.setViewport({width: w, height: h});
+					
+					pdfOptions = {
+						printBackground: true,
+						pageSize : {
+							width: w * MICRON_TO_PIXEL,
+							height: (h + 1) * MICRON_TO_PIXEL //the extra pixel to prevent adding an extra empty page						
+						},
+						marginsType: 1 // no margin
+					}
+				}
+				
+				contents.printToPDF(pdfOptions, (error, data) => 
+				{
+					if (error)
+					{
+						event.reply('pdf-export-error', error);
+					}
+					else
+					{
+						event.reply('pdf-export-success', data);
+					}
+				})
+				
+				//Destroy the window after 30 sec which is more than enough (test with 1 sec works)
+				setTimeout(function()
+				{
+					browser.destroy();
+				}, 30000);
+			})
+	    });
+	}
+	catch (e)
+	{
+		if (browser != null)
+		{
+			browser.destroy();
+		}
+
+		event.reply('pdf-export-error', e);
+		console.log('pdf-export-error', e);
+	}
 })
