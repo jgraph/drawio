@@ -18,6 +18,8 @@
 	<meta name="theme-color" content="#d89000">
 	<script type="text/javascript">
 		var mxIsElectron = (window && window.process && window.process.type) || (navigator.userAgent.toLowerCase().indexOf(' electron/') > -1);
+		
+		var mxIsElectron5 = mxIsElectron && parseInt(process.versions.electron) >= 5;
 		/**
 		 * URL Parameters and protocol description are here:
 		 *
@@ -146,9 +148,10 @@
 			addMeta('apple-mobile-web-app-title', name);
 			addMeta('application-name', name);
 
-			if (mxIsElectron)
+			if (mxIsElectron5)
 			{
-				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io; img-src * data:; media-src *; font-src *', 'Content-Security-Policy');
+				//TODO Remove unsafe-eval which requires removing dependency on eval in many parts of the code (stencils, styles, decoder, ...) 
+				addMeta(null, 'default-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; connect-src \'self\' https://*.draw.io; img-src * data:; media-src *; font-src *', 'Content-Security-Policy');
 			}
 		})();
 	</script>

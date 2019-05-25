@@ -21,6 +21,8 @@
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
 	<script>
+		var mxIsElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+	
 		Editor.initMath();
 	
 		function render(data)
@@ -141,6 +143,21 @@
 					doneDiv.setAttribute('page-id', pageId);
 					doneDiv.setAttribute('scale', expScale);
 					document.body.appendChild(doneDiv);
+					
+					//Electron pdf export
+					if (mxIsElectron)
+					{
+						try 
+						{
+							const { ipcRenderer } = require('electron');
+							
+							ipcRenderer.send('render-finished', bounds);
+						}
+						catch(e)
+						{
+							console.log(e);
+						}
+					}
 				}
 			};
 			
@@ -528,6 +545,24 @@
 			// Immediate return if not waiting for any content
 			decrementWaitCounter();
 		};
+		
+		//Electron pdf export
+		if (mxIsElectron)
+		{
+			try 
+			{
+				const { ipcRenderer } = require('electron');
+				
+				ipcRenderer.on('render', (event, arg) => 
+				{
+					render(arg);
+				});
+			}
+			catch(e)
+			{
+				console.log(e);
+			}
+		}
 	</script>
 </head>
 <body style="margin:0px;">

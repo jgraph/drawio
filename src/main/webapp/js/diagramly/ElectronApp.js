@@ -1014,6 +1014,127 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			});
 		}
 	};
+
+	function mxElectronRequest(reqType, reqObj)
+	{
+		this.reqType = reqType;
+		this.reqObj = reqObj;
+	};
+
+	//Extends mxXmlRequest
+	mxUtils.extend(mxElectronRequest, mxXmlRequest);
+	
+	mxElectronRequest.prototype.send = function(callback, error)
+	{
+		const ipcRenderer = require('electron').ipcRenderer;
+		ipcRenderer.send(this.reqType, this.reqObj);
+		
+		ipcRenderer.once(this.reqType + '-success', (event, data) => 
+		{
+			this.response = data;
+			callback();
+		})
+
+		ipcRenderer.once(this.reqType + '-error', (event, err) => 
+		{
+			this.hasError = true;
+			error(err);
+		})
+	};
+	
+	mxElectronRequest.prototype.getStatus = function()
+	{
+		return this.hasError? 500 : 200; 
+	}
+	
+	mxElectronRequest.prototype.getText = function()
+	{
+		return this.response;
+	}
+	
+	if (mxIsElectron5)
+	{
+		//Direct export to pdf
+		var origCreateDownloadRequest = EditorUi.prototype.createDownloadRequest;
+		
+		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
+		{
+			if (format == 'pdf')
+			{
+				var bounds = this.editor.graph.getGraphBounds();
+				
+				// Exports only current page for images that does not contain file data, but for
+				// the other formats with XML included or pdf with all pages, we need to send the complete data and use
+				// the from/to URL parameters to specify the page to be exported.
+				var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
+				var allPages = null;
+				
+				if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
+				{
+					throw {message: mxResources.get('drawingTooLarge')};
+				}
+				
+				if (currentPage == false)
+				{
+					allPages = '1';
+				}
+				
+				var bg = this.editor.graph.background;
+				
+				return new mxElectronRequest('pdf-export', {
+					xml: data,
+					bg: (bg != null) ? bg : mxConstants.NONE,
+					filename: (filename != null) ? filename : null,
+					allPages: allPages
+				});
+			}
+			else
+			{
+				return origCreateDownloadRequest.apply(this, arguments);
+			}
+		};
+		
+		//Export Dialog Pdf case
+		var origExportFile = ExportDialog.exportFile;
+		
+		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
+		{
+			var graph = editorUi.editor.graph;
+			
+			if (format == 'pdf')
+			{
+				var data = editorUi.getFileData(true, null, null, null, null, true);
+	    		var bounds = graph.getGraphBounds();
+				var w = Math.floor(bounds.width * s / graph.view.scale);
+				var h = Math.floor(bounds.height * s / graph.view.scale);
+				
+				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
+				{
+					editorUi.hideDialog();
+					editorUi.saveRequest(name, format,
+						function(newTitle, base64)
+						{
+							return new mxElectronRequest('pdf-export', {
+								xml: data,
+								bg: (bg != null) ? bg : mxConstants.NONE,
+								filename: (newTitle != null) ? newTitle : null,
+								w: w,
+								h: h,
+								border: b
+							}); 
+						});
+				}
+				else
+				{
+					mxUtils.alert(mxResources.get('drawingTooLarge'));
+				}
+			}
+			else
+			{
+				return origExportFile.apply(this, arguments);
+			}
+		};
+	}
 	
 	EditorUi.prototype.saveData = function(filename, format, data, mimeType, base64Encoded)
 	{
