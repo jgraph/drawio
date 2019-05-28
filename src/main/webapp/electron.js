@@ -8,6 +8,8 @@ const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const globalShortcut = electron.globalShortcut;
+const crc = require('crc');
+const zlib = require('zlib');
 const log = require('electron-log')
 const program = require('commander')
 const {autoUpdater} = require("electron-updater")
@@ -440,8 +442,124 @@ autoUpdater.on('update-available', (a, b) =>
 
 //Pdf export
 const MICRON_TO_PIXEL = 264.58 		//264.58 micron = 1 pixel
+const PNG_CHUNK_IDAT = 1229209940;
+const LARGE_IMAGE_AREA = 30000000;
 
-ipcMain.on('pdf-export', (event, args) =>
+//NOTE: Key length must not be longer than 79 bytes (not checked)
+function writePngWithText(origBuff, key, text, compressed, base64encoded)
+{
+	var inOffset = 0;
+	var outOffset = 0;
+	var data = text;
+	var dataLen = key.length + data.length + 1; //we add 1 zeros with non-compressed data
+	
+	//prepare compressed data to get its size
+	if (compressed)
+	{
+		data = zlib.deflateRawSync(encodeURIComponent(text));
+		dataLen = key.length + data.length + 2; //we add 2 zeros with compressed data
+	}
+	
+	var outBuff = Buffer.allocUnsafe(origBuff.length + dataLen + 4); //4 is the header size "zTXt" or "tEXt"
+	
+	try
+	{
+		var magic1 = origBuff.readUInt32BE(inOffset);
+		inOffset += 4;
+		var magic2 = origBuff.readUInt32BE(inOffset);
+		inOffset += 4;
+		
+		if (magic1 != 0x89504e47 && magic2 != 0x0d0a1a0a)
+		{
+			throw new Error("PNGImageDecoder0");
+		}
+		
+		outBuff.writeUInt32BE(magic1, outOffset);
+		outOffset += 4;
+		outBuff.writeUInt32BE(magic2, outOffset);
+		outOffset += 4;
+	}
+	catch (e)
+	{
+		log.error(e.message, {stack: e.stack});
+		throw new Error("PNGImageDecoder1");
+	}
+
+	try
+	{
+		while (inOffset < origBuff.length)
+		{
+			var length = origBuff.readInt32BE(inOffset);
+			inOffset += 4;
+			var type = origBuff.readInt32BE(inOffset)
+			inOffset += 4;
+
+			if (type == PNG_CHUNK_IDAT)
+			{
+				// Insert zTXt chunk before IDAT chunk
+				outBuff.writeInt32BE(dataLen, outOffset);
+				outOffset += 4;
+				
+				var typeSignature = (compressed) ? "zTXt" : "tEXt";
+				outBuff.write(typeSignature, outOffset);
+				
+				outOffset += 4;
+				outBuff.write(key, outOffset);
+				outOffset += key.length;
+				outBuff.writeInt8(0, outOffset);
+				outOffset ++;
+
+				if (compressed)
+				{
+					outBuff.writeInt8(0, outOffset);
+					outOffset ++;
+					data.copy(outBuff, outOffset);
+				}
+				else
+				{
+					outBuff.write(data, outOffset);	
+				}
+				
+				outOffset += data.length;				
+
+				var crcVal = crc.crc32(typeSignature);
+				crc.crc32(data, crcVal);
+
+				// CRC
+				outBuff.writeInt32BE(crcVal ^ 0xffffffff, outOffset);
+				outOffset += 4;
+
+				// Writes the IDAT chunk after the zTXt
+				outBuff.writeInt32BE(length, outOffset);
+				outOffset += 4;
+				outBuff.writeInt32BE(type, outOffset);
+				outOffset += 4;
+
+				origBuff.copy(outBuff, outOffset, inOffset);
+
+				// Encodes the buffer using base64 if requested
+				return base64encoded? outBuff.toString('base64') : outBuff;
+			}
+
+			outBuff.writeInt32BE(length, outOffset);
+			outOffset += 4;
+			outBuff.writeInt32BE(type, outOffset);
+			outOffset += 4;
+
+			origBuff.copy(outBuff, outOffset, inOffset, inOffset + length + 4);// +4 to move past the crc
+			
+			inOffset += length + 4;
+			outOffset += length + 4;
+		}
+	}
+	catch (e)
+	{
+		log.error(e.message, {stack: e.stack});
+		throw e;
+	}
+}
+
+ipcMain.on('export', (event, args) =>
 {
 	var browser = null;
 	
@@ -449,9 +567,13 @@ ipcMain.on('pdf-export', (event, args) =>
 	{
 		browser = new BrowserWindow({
 			webPreferences: {
+				backgroundThrottling: false,
 				nodeIntegration: true
 			},
 			show : false,
+			frame: false,
+			enableLargerThanScreen: true,
+			transparent: args.format == 'png' && (args.bg == null || args.bg == 'none'),
 			parent: windowsRegistry[0] //set parent to first opened window. Not very accurate, but useful when all visible windows are closed
 		});
 
@@ -461,9 +583,9 @@ ipcMain.on('pdf-export', (event, args) =>
 		
 		contents.on('did-finish-load', function()
 	    {
-			browser.webContents.send('render', {
+			contents.send('render', {
 				xml: args.xml,
-				format: 'pdf',
+				format: args.format,
 				w: args.w,
 				h: args.h,
 				border: args.border || 0,
@@ -491,8 +613,6 @@ ipcMain.on('pdf-export', (event, args) =>
 					// Increase this if more cropped PDFs have extra empty pages
 					var h = Math.ceil(bounds.height * fixingScale + 0.1);
 	
-					//page.setViewport({width: w, height: h});
-					
 					pdfOptions = {
 						printBackground: true,
 						pageSize : {
@@ -503,17 +623,59 @@ ipcMain.on('pdf-export', (event, args) =>
 					}
 				}
 				
-				contents.printToPDF(pdfOptions, (error, data) => 
+				var base64encoded = args.base64 == '1';
+				
+				if (args.format == 'png' || args.format == 'jpg' || args.format == 'jpeg')
 				{
-					if (error)
+					browser.setBounds({width: Math.ceil(bounds.width + bounds.x), height: Math.ceil(bounds.height + bounds.y)});
+					
+					//TODO The browser takes sometime to show the graph (also after resize it takes some time to render)
+					//	 	1 sec is most probably enough (for small images, 5 for large ones) BUT not a stable solution
+					setTimeout(function()
 					{
-						event.reply('pdf-export-error', error);
-					}
-					else
+						browser.capturePage().then(function(img)
+						{
+							//Image is double the given bounds, so resize is needed!
+							img = img.resize({width: args.w || Math.ceil(bounds.width + bounds.x), height: args.h || Math.ceil(bounds.height + bounds.y)});
+
+							var data = args.format == 'png'? img.toPNG() : img.toJPEG(90);
+							
+							if (args.embedXml == "1" && args.format == 'png')
+							{
+								data = writePngWithText(data, "mxGraphModel", args.xml, true,
+										base64encoded);
+							}
+							else
+							{
+								if (base64encoded)
+								{
+									data = data.toString('base64');
+								}
+
+								if (data.length == 0)
+								{
+									throw new Error("Invalid image");
+								}
+							}
+							
+							event.reply('export-success', data);
+						});
+					}, bounds.width * bounds.height < LARGE_IMAGE_AREA? 1000 : 5000);
+				}
+				else if (args.format == 'pdf')
+				{
+					contents.printToPDF(pdfOptions, (error, data) => 
 					{
-						event.reply('pdf-export-success', data);
-					}
-				})
+						if (error)
+						{
+							event.reply('export-error', error);
+						}
+						else
+						{
+							event.reply('export-success', data);
+						}
+					})
+				}
 				
 				//Destroy the window after 30 sec which is more than enough (test with 1 sec works)
 				setTimeout(function()
@@ -530,7 +692,7 @@ ipcMain.on('pdf-export', (event, args) =>
 			browser.destroy();
 		}
 
-		event.reply('pdf-export-error', e);
-		console.log('pdf-export-error', e);
+		event.reply('export-error', e);
+		console.log('export-error', e);
 	}
 })

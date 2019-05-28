@@ -1,3 +1,13 @@
+28-MAY-2019: 10.7.0
+
+- Replaces octet-stream with vnd.jgraph.mxfile in Drive
+- Fixes opaque background for server-side PNG export
+- Fixes line jump rendering with child edge labels
+- Fixes loading of large images via Insert dialog
+- Adds support to show/hide layers via tags
+- Adds edge flow to animation plugin
+- Fixes saving of OneDrive libraries
+
 25-MAY-2019: 10.6.9
 
 - Fixes missing VSDX import in stealth mode

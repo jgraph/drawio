@@ -1055,43 +1055,65 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	if (mxIsElectron5)
 	{
 		//Direct export to pdf
-		var origCreateDownloadRequest = EditorUi.prototype.createDownloadRequest;
-		
 		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
 		{
-			if (format == 'pdf')
+			var bounds = this.editor.graph.getGraphBounds();
+			
+			// Exports only current page for images that does not contain file data, but for
+			// the other formats with XML included or pdf with all pages, we need to send the complete data and use
+			// the from/to URL parameters to specify the page to be exported.
+			var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
+			var range = null;
+			var allPages = null;
+			
+			if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
 			{
-				var bounds = this.editor.graph.getGraphBounds();
-				
-				// Exports only current page for images that does not contain file data, but for
-				// the other formats with XML included or pdf with all pages, we need to send the complete data and use
-				// the from/to URL parameters to specify the page to be exported.
-				var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
-				var allPages = null;
-				
-				if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
-				{
-					throw {message: mxResources.get('drawingTooLarge')};
-				}
-				
-				if (currentPage == false)
-				{
-					allPages = '1';
-				}
-				
-				var bg = this.editor.graph.background;
-				
-				return new mxElectronRequest('pdf-export', {
-					xml: data,
-					bg: (bg != null) ? bg : mxConstants.NONE,
-					filename: (filename != null) ? filename : null,
-					allPages: allPages
-				});
+				throw {message: mxResources.get('drawingTooLarge')};
 			}
-			else
+			
+			var embed = '0';
+			
+			if (format == 'pdf' && currentPage == false)
 			{
-				return origCreateDownloadRequest.apply(this, arguments);
+				allPages = '1';
 			}
+			
+			if (format == 'xmlpng')
+	       	{
+	       		embed = '1';
+	       		format = 'png';
+	       		
+	       		// Finds the current page number
+	       		if (this.pages != null && this.currentPage != null)
+	       		{
+	       			for (var i = 0; i < this.pages.length; i++)
+	       			{
+	       				if (this.pages[i] == this.currentPage)
+	       				{
+	       					range = i;
+	       					break;
+	       				}
+	       			}
+	       		}
+	       	}
+			
+			var bg = this.editor.graph.background;
+			
+			if (format == 'png' && transparent)
+			{
+				bg = mxConstants.NONE;
+			}
+			
+			return new mxElectronRequest('export', {
+				format: format,
+				xml: data,
+				from: range,
+				bg: (bg != null) ? bg : mxConstants.NONE,
+				filename: (filename != null) ? filename : null,
+				allPages: allPages,
+				base64: base64,
+				embedXml: embed
+			});
 		};
 		
 		//Export Dialog Pdf case
@@ -1101,7 +1123,11 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		{
 			var graph = editorUi.editor.graph;
 			
-			if (format == 'pdf')
+			if (format == 'xml' || format == 'svg')
+			{
+				return origExportFile.apply(this, arguments);
+			}
+			else
 			{
 				var data = editorUi.getFileData(true, null, null, null, null, true);
 	    		var bounds = graph.getGraphBounds();
@@ -1114,13 +1140,15 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 					editorUi.saveRequest(name, format,
 						function(newTitle, base64)
 						{
-							return new mxElectronRequest('pdf-export', {
+							return new mxElectronRequest('export', {
+								format: format,
 								xml: data,
 								bg: (bg != null) ? bg : mxConstants.NONE,
 								filename: (newTitle != null) ? newTitle : null,
 								w: w,
 								h: h,
-								border: b
+								border: b,
+								base64: (base64 || '0')
 							}); 
 						});
 				}
@@ -1128,10 +1156,6 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 				{
 					mxUtils.alert(mxResources.get('drawingTooLarge'));
 				}
-			}
-			else
-			{
-				return origExportFile.apply(this, arguments);
 			}
 		};
 	}

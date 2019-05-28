@@ -3754,17 +3754,17 @@
 
 		if (action.toggle != null)
 		{
-			this.toggleCells(this.getCellsForAction(action.toggle));
+			this.toggleCells(this.getCellsForAction(action.toggle, true));
 		}
 		
 		if (action.show != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.show), true);
+			this.setCellsVisible(this.getCellsForAction(action.show, true), true);
 		}
 		
 		if (action.hide != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.hide), false);
+			this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
 		}
 
 		if (action.scroll != null)
@@ -3782,10 +3782,10 @@
 	 * Handles each action in the action array of a custom link. This code
 	 * handles toggle actions for cell IDs.
 	 */
-	Graph.prototype.getCellsForAction = function(action)
+	Graph.prototype.getCellsForAction = function(action, includeLayers)
 	{
 		return this.getCellsById(action.cells).concat(
-			this.getCellsForTags(action.tags));
+			this.getCellsForTags(action.tags, null, null, includeLayers));
 	};
 	
 	/**
@@ -3828,7 +3828,7 @@
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
 	 */
-	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName)
+	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName, includeLayers)
 	{
 		var result = [];
 		
@@ -3839,7 +3839,8 @@
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
+				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
+					this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
 					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
 						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';

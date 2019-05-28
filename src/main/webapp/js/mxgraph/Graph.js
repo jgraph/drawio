@@ -4030,10 +4030,11 @@ HoverIcons.prototype.setCurrentState = function(state)
 	
 	mxGraphView.prototype.validateCellState = function(cell, recurse)
 	{
+		recurse = (recurse != null) ? recurse : true;
 		var state = this.getState(cell);
 		
 		// Forces repaint if jumps change on a valid edge
-		if (state != null && this.graph.model.isEdge(state.cell) &&
+		if (state != null && recurse && this.graph.model.isEdge(state.cell) &&
 			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1 &&
 			!state.invalid && this.updateLineJumps(state))
 		{
@@ -4043,7 +4044,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 		state = mxGraphViewValidateCellState.apply(this, arguments);
 		
 		// Adds to the list of edges that may intersect with later edges
-		if (state != null && this.graph.model.isEdge(state.cell) &&
+		if (state != null && recurse && this.graph.model.isEdge(state.cell) &&
 			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1)
 		{
 			// LATER: Reuse jumps for valid edges

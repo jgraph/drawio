@@ -336,6 +336,13 @@ Draw.loadPlugin(function(editorUi)
 											animateCells(graph, [cell]);
 										}
 									}
+				                    else if (tokens[0] == 'flow')
+									{
+					                    if (graph.model.isEdge(cell))
+					                    {
+					                      toggleFlowAnim(graph, [cell], tokens[2]);
+					                    }
+									}
 									else if (tokens[0] == 'hide')
 									{
 										fadeOut(getNodesForCells(graph, [cell]));
@@ -420,60 +427,59 @@ Draw.loadPlugin(function(editorUi)
 		graph.maxFitScale = null;
 		graph.centerZoom = true;
 
-		var fadeInBtn = mxUtils.button('Fade In', function()
-		{
-			var cells = editorUi.editor.graph.getSelectionCells();
-			
-			if (cells.length > 0)
-			{
-				for (var i = 0; i < cells.length; i++)
-				{
-					list.value = list.value + 'show ' + cells[i].id + ' fade\n';
-				}
-				
-				list.value = list.value + 'wait 1000\n';
-			}
-		});
-		td21.appendChild(fadeInBtn);
+	    var buttons = {
+	      'Fade In': 'show CELL fade',
+	      'Wipe In': 'show CELL',
+	      'Fade Out': 'hide CELL',
+	      'Flow On': 'flow CELL start',
+	      'Flow Off': 'flow CELL stop',
+	      'Flow Toggle': 'flow CELL',
+	      'Wait': '', // added by default
+	    }
+	    
+	    var bkeys = Object.keys(buttons);
+	    
+	    for (var i = 0; i < bkeys.length; i++)
+	    {
+	      var wait = 'wait 1000\n';
+	    	  
+	      (function(key)
+	      {
+		      var btn = mxUtils.button(key, function()
+		      {
+		        // we have a cell object
+		        var val = buttons[key]
+		        
+		        if (val.indexOf('CELL') > -1)
+		        {
+		          var cells = editorUi.editor.graph.getSelectionCells();
+		          
+		          if (cells.length > 0)
+		          {
+		            for (var i = 0; i < cells.length; i++)
+		            {
+		              var tmp = val.replace('CELL', cells[i].id)
+		              list.value += tmp + '\n'
+		            }
+		            
+		            list.value += wait
+		          }
+		        }
+		        else
+		        {
+		          if (val)
+		          {
+		            list.value += val + '\n'
+		          }
+		          
+		          list.value += wait
+		        }
 		
-		var animateBtn = mxUtils.button('Wipe In', function()
-		{
-			var cells = editorUi.editor.graph.getSelectionCells();
-			
-			if (cells.length > 0)
-			{
-				for (var i = 0; i < cells.length; i++)
-				{
-					list.value = list.value + 'show ' + cells[i].id + '\n';
-				}
-				
-				list.value = list.value + 'wait 1000\n';
-			}
-		});
-		td21.appendChild(animateBtn);
-		
-		var addBtn = mxUtils.button('Fade Out', function()
-		{
-			var cells = editorUi.editor.graph.getSelectionCells();
-			
-			if (cells.length > 0)
-			{
-				for (var i = 0; i < cells.length; i++)
-				{
-					list.value = list.value + 'hide ' + cells[i].id + '\n';
-				}
+		      });
+		      td21.appendChild(btn);
+	      })(bkeys[i]);
+	    }
 
-				list.value = list.value + 'wait 1000\n';
-			}
-		});
-		td21.appendChild(addBtn);
-		
-		var waitBtn = mxUtils.button('Wait', function()
-		{
-			list.value = list.value + 'wait 1000\n';
-		});
-		td21.appendChild(waitBtn);
-		
 		var runBtn = mxUtils.button('Preview', function()
 		{
 			graph.getModel().clear();
@@ -541,5 +547,84 @@ Draw.loadPlugin(function(editorUi)
 		{
 			editorUi.editor.addListener('fileLoaded', startAnimation);
 		}
+	}
+
+	// Add flow capability
+	function toggleFlowAnim(graph, cells, status)
+	{
+	    if (!status)
+	    {
+	      status = 'toggle'
+	    }
+	    
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (editorUi.editor.graph.model.isEdge(cells[i]))
+			{
+				var state = graph.view.getState(cells[i]);
+				
+				if (state && state.shape != null)
+				{
+					var paths = state.shape.node.getElementsByTagName('path');
+					
+					if (paths.length > 1)
+					{
+						if ((status == 'toggle' && paths[1].getAttribute('class') == 'mxEdgeFlow') || status == 'stop')
+						{
+							paths[1].removeAttribute('class');
+
+							if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+							{
+								paths[1].removeAttribute('stroke-dasharray');
+							}
+						}
+						else if ((status == 'toggle' && paths[1].getAttribute('class') != 'mxEdgeFlow') || status == 'start')
+						{
+							paths[1].setAttribute('class', 'mxEdgeFlow');
+			
+							if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+							{
+								paths[1].setAttribute('stroke-dasharray', '8');
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+  function showCell(graph, cell)
+  {
+    graph.setCellStyles('opacity', '100', cell);
+    graph.setCellStyles('noLabel', null, [cell]);
+		nodes = getNodesForCells(graph, [cell]);
+		if (nodes != null)
+    {
+			for (var i = 0; i < nodes.length; i++)
+      {
+        mxUtils.setPrefixedStyle(nodes[i].style, 'transition', null);
+        nodes[i].style.opacity = '0';
+      }
+    }
+  }
+
+	try
+	{
+		var style = document.createElement('style')
+		style.type = 'text/css';
+		style.innerHTML = ['.mxEdgeFlow {',
+			  'animation: mxEdgeFlow 0.5s linear;',
+			  'animation-iteration-count: infinite;',
+			'}',
+			'@keyframes mxEdgeFlow {',
+			  'to {',
+			    'stroke-dashoffset: -16;',
+			  '}',
+			'}'].join('\n');
+		document.getElementsByTagName('head')[0].appendChild(style);
+	}
+	catch (e)
+	{
+		// ignore
 	}
 });

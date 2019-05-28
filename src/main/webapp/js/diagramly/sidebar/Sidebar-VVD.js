@@ -8,7 +8,7 @@
 		// Space savers
 		var sb = this;
 		var gn = 'mxgraph.vvd';
-		var dt = 'vmware validated diagram';
+		var dt = 'vmware validated design';
 		
 		var w = 50;
 		var h = 50;
@@ -211,7 +211,7 @@
 					w, h, '', 'Wi-Fi', null, null, this.getTagsForStencil(gn, 'wi fi wifi', dt).join(' '))
 		];
 			
-		this.addPalette('vvd', 'VMware Validated Diagram', false, mxUtils.bind(this, function(content)
+		this.addPalette('vvd', 'VMware Validated Design', false, mxUtils.bind(this, function(content)
 				{
 					for (var i = 0; i < fns.length; i++)
 					{
