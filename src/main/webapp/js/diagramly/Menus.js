@@ -130,7 +130,7 @@
 				false, mxResources.get('insert'));
 
 			editorUi.showDialog(dlg.container, 620, 440, true, true);
-		}));
+		})).isEnabled = isGraphEnabled;
 		
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()
 		{
@@ -2321,7 +2321,7 @@
 						// Executed after dialog is added to dom
 						dlg.init();
 					}
-				}), parent);
+				}), parent, null, isGraphEnabled());
 			}
 		};
 		
@@ -2354,23 +2354,22 @@
 	    	return cell;
 		};
 		
-		
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
+		{
+			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
+				'https://support.draw.io/display/DO/Exporting+Files',
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+					editable, embedImages, border, cropImage, currentPage, linkTarget)
 				{
-					editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-						'https://support.draw.io/display/DO/Exporting+Files',
-						mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-							editable, embedImages, border, cropImage, currentPage, linkTarget)
-						{
-							var val = parseInt(scale);
-							
-							if (!isNaN(val) && val > 0)
-							{
-							   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-							   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
-							}
-						}), true, null, 'svg');
-				}));
+					var val = parseInt(scale);
+					
+					if (!isNaN(val) && val > 0)
+					{
+					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+					   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
+					}
+				}), true, null, 'svg');
+		}));
 		
 		editorUi.actions.put('insertText', new Action(mxResources.get('text'), function()
 		{
@@ -2436,7 +2435,7 @@
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{
 				editorUi.showImportCsvDialog();
-			}, parent);
+			}, parent, null, isGraphEnabled());
 		})));
 
 		this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)

@@ -1183,6 +1183,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						revision = true;
 						pinned = true;
 					}
+					// Overrides mime type for unknown file type uploads
+					else if (meta.mimeType == 'application/octet-stream')
+					{
+						meta.mimeType = this.xmlMimeType;
+					}
 					
 					if (file.constructor == DriveFile)
 					{
@@ -1261,8 +1266,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									reasons.push('stale revision');
 								}
 								
-								var temp = ': ' + reasons.join(', ');
-								error({message: mxResources.get('errorSavingFile') + temp}, resp);
+								var temp = reasons.join(', ');
+								error({message: mxResources.get('errorSavingFile') + ': ' + temp}, resp);
 								
 								// Logs failed save
 								try

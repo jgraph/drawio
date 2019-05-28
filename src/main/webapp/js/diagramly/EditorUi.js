@@ -1729,7 +1729,11 @@
 		{
 			bg = mxConstants.NONE;
 		}
-       	
+		else if (!transparent && (bg == null || bg == mxConstants.NONE))
+		{
+			bg = '#ffffff';
+		}
+		
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range + allPages +
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
@@ -7427,219 +7431,219 @@
 							{
 								if (filterFn == null || filterFn(file))
 								{
-							    		if (file.type.substring(0, 6) == 'image/')
-							    		{
-							    			if (file.type.substring(0, 9) == 'image/svg')
-							    			{
-							    				// Checks if SVG contains content attribute
-						    					var data = e.target.result;
-						    					var comma = data.indexOf(',');
-						    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-						    					var root = mxUtils.parseXml(svgText);
-					    						var svgs = root.getElementsByTagName('svg');
-					    						
-					    						if (svgs.length > 0)
-						    					{
-					    							var svgRoot = svgs[0];
-							    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
-			
-							    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
-							    					{
-							    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
-							    					}
-							    					
-							    					if (cont != null && cont.charAt(0) == '%')
-							    					{
-							    						cont = decodeURIComponent(cont);
-							    					}
-			
-							    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
-							    						cont.substring(0, 14) === '<mxGraphModel '))
-							    					{
-							    						barrier(index, mxUtils.bind(this, function()
-									    				{
-									    					return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
-									    				}));
-							    					}
-							    					else
-							    					{
-									    				// SVG needs special handling to add viewbox if missing and
-									    				// find initial size from SVG attributes (only for IE11)
-									    				barrier(index, mxUtils.bind(this, function()
-									    				{
-								    						try
-								    						{
-										    					var prefix = data.substring(0, comma + 1);
-										    					
-										    					// Parses SVG and find width and height
-										    					if (root != null)
-										    					{
-										    						var svgs = root.getElementsByTagName('svg');
-										    						
-										    						if (svgs.length > 0)
-											    					{
-										    							var svgRoot = svgs[0];
-											    						var w = parseFloat(svgRoot.getAttribute('width'));
-											    						var h = parseFloat(svgRoot.getAttribute('height'));
-											    						
-											    						// Check if viewBox attribute already exists
-											    						var vb = svgRoot.getAttribute('viewBox');
-											    						
-											    						if (vb == null || vb.length == 0)
-											    						{
-											    							svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-											    						}
-											    						// Uses width and height from viewbox for
-											    						// missing width and height attributes
-											    						else if (isNaN(w) || isNaN(h))
-											    						{
-											    							var tokens = vb.split(' ');
-											    							
-											    							if (tokens.length > 3)
-											    							{
-											    								w = parseFloat(tokens[2]);
-											    								h = parseFloat(tokens[3]);
-											    							}
-											    						}
+						    		if (file.type.substring(0, 6) == 'image/')
+						    		{
+						    			if (file.type.substring(0, 9) == 'image/svg')
+						    			{
+						    				// Checks if SVG contains content attribute
+					    					var data = e.target.result;
+					    					var comma = data.indexOf(',');
+					    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+					    					var root = mxUtils.parseXml(svgText);
+				    						var svgs = root.getElementsByTagName('svg');
+				    						
+				    						if (svgs.length > 0)
+					    					{
+				    							var svgRoot = svgs[0];
+						    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
 		
-											    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-											    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
-											    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
-											    						
-											    						// Hack to fix width and height asynchronously
-											    						if (isNaN(w) || isNaN(h))
-											    						{
-											    							var img = new Image();
-											    							
-											    							img.onload = mxUtils.bind(this, function()
-											    							{
-											    								w = Math.max(1, img.width);
-											    								h = Math.max(1, img.height);
-											    								
-											    								cells[0].geometry.width = w;
-											    								cells[0].geometry.height = h;
-											    								
-											    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-											    								data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    								
-											    								var semi = data.indexOf(';');
-											    								
-											    								if (semi > 0)
-											    								{
-											    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
-											    								}
-											    								
-											    								graph.setCellStyles('image', data, [cells[0]]);
-											    							});
-											    							
-											    							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    						}
-											    						
-											    						return cells;
-											    					}
-										    					}
-								    						}
-								    						catch (e)
-								    						{
-								    							// ignores any SVG parsing errors
-								    						}
-									    					
-									    					return null;
-									    				}));
-							    					}
+						    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
+						    					{
+						    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
 						    					}
-					    						else
-					    						{
+						    					
+						    					if (cont != null && cont.charAt(0) == '%')
+						    					{
+						    						cont = decodeURIComponent(cont);
+						    					}
+		
+						    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
+						    						cont.substring(0, 14) === '<mxGraphModel '))
+						    					{
 						    						barrier(index, mxUtils.bind(this, function()
 								    				{
+								    					return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
+								    				}));
+						    					}
+						    					else
+						    					{
+								    				// SVG needs special handling to add viewbox if missing and
+								    				// find initial size from SVG attributes (only for IE11)
+								    				barrier(index, mxUtils.bind(this, function()
+								    				{
+							    						try
+							    						{
+									    					var prefix = data.substring(0, comma + 1);
+									    					
+									    					// Parses SVG and find width and height
+									    					if (root != null)
+									    					{
+									    						var svgs = root.getElementsByTagName('svg');
+									    						
+									    						if (svgs.length > 0)
+										    					{
+									    							var svgRoot = svgs[0];
+										    						var w = parseFloat(svgRoot.getAttribute('width'));
+										    						var h = parseFloat(svgRoot.getAttribute('height'));
+										    						
+										    						// Check if viewBox attribute already exists
+										    						var vb = svgRoot.getAttribute('viewBox');
+										    						
+										    						if (vb == null || vb.length == 0)
+										    						{
+										    							svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+										    						}
+										    						// Uses width and height from viewbox for
+										    						// missing width and height attributes
+										    						else if (isNaN(w) || isNaN(h))
+										    						{
+										    							var tokens = vb.split(' ');
+										    							
+										    							if (tokens.length > 3)
+										    							{
+										    								w = parseFloat(tokens[2]);
+										    								h = parseFloat(tokens[3]);
+										    							}
+										    						}
+	
+										    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
+										    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
+										    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
+										    						
+										    						// Hack to fix width and height asynchronously
+										    						if (isNaN(w) || isNaN(h))
+										    						{
+										    							var img = new Image();
+										    							
+										    							img.onload = mxUtils.bind(this, function()
+										    							{
+										    								w = Math.max(1, img.width);
+										    								h = Math.max(1, img.height);
+										    								
+										    								cells[0].geometry.width = w;
+										    								cells[0].geometry.height = h;
+										    								
+										    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+										    								data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    								
+										    								var semi = data.indexOf(';');
+										    								
+										    								if (semi > 0)
+										    								{
+										    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
+										    								}
+										    								
+										    								graph.setCellStyles('image', data, [cells[0]]);
+										    							});
+										    							
+										    							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    						}
+										    						
+										    						return cells;
+										    					}
+									    					}
+							    						}
+							    						catch (e)
+							    						{
+							    							// ignores any SVG parsing errors
+							    						}
+								    					
 								    					return null;
 								    				}));
-					    						}
-							    			}
-							    			else
-							    			{
-							    				// Checks if PNG+XML is available to bypass code below
-							    				var containsModel = false;
-							    				
-							    				if (file.type == 'image/png')
+						    					}
+					    					}
+				    						else
+				    						{
+					    						barrier(index, mxUtils.bind(this, function()
 							    				{
-							    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
-							    					
-							    					if (xml != null && xml.length > 0)
-							    					{
-							    						var img = new Image();
-							    						img.src = e.target.result;
-							    						
-									    				barrier(index, mxUtils.bind(this, function()
+							    					return null;
+							    				}));
+				    						}
+						    			}
+						    			else
+						    			{
+						    				// Checks if PNG+XML is available to bypass code below
+						    				var containsModel = false;
+						    				
+						    				if (file.type == 'image/png')
+						    				{
+						    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
+						    					
+						    					if (xml != null && xml.length > 0)
+						    					{
+						    						var img = new Image();
+						    						img.src = e.target.result;
+						    						
+								    				barrier(index, mxUtils.bind(this, function()
+								    				{
+								    					return fn(xml, 'text/xml', x + index * gs, y + index * gs,
+								    						img.width, img.height, file.name);	
+								    				}));
+						    						
+						    						containsModel = true;
+						    					}
+						    				}
+						    				
+							    			// Additional asynchronous step for finding image size
+						    				if (!containsModel)
+						    				{
+						    					// Cannot load local files in Chrome App
+						    					if (mxClient.IS_CHROMEAPP)
+						    					{
+						    						this.spinner.stop();
+						    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
+						    							mxResources.get('cancel'), mxUtils.bind(this, function()
+					    								{
+					    									// Hides the dialog
+					    								}), null, mxResources.get('ok'), mxUtils.bind(this, function()
+					    								{
+						    								// Redirects to import function
+					    									this.actions.get('import').funct();
+					    								})
+					    							);
+						    					}
+						    					else
+						    					{
+									    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
+									    			{
+									    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
 									    				{
-									    					return fn(xml, 'text/xml', x + index * gs, y + index * gs,
-									    						img.width, img.height, file.name);	
-									    				}));
-							    						
-							    						containsModel = true;
-							    					}
-							    				}
-							    				
-								    			// Additional asynchronous step for finding image size
-							    				if (!containsModel)
-							    				{
-							    					// Cannot load local files in Chrome App
-							    					if (mxClient.IS_CHROMEAPP)
-							    					{
-							    						this.spinner.stop();
-							    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
-							    							mxResources.get('cancel'), mxUtils.bind(this, function()
-						    								{
-						    									// Hides the dialog
-						    								}), null, mxResources.get('ok'), mxUtils.bind(this, function()
-						    								{
-							    								// Redirects to import function
-						    									this.actions.get('import').funct();
-						    								})
-						    							);
-							    					}
-							    					else
-							    					{
-										    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
-										    			{
-										    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
-										    				{
-											    				barrier(index, mxUtils.bind(this, function()
-													    		{
-											    					// Refuses to insert images above a certain size as they kill the app
-											    					if (data2 != null && data2.length < maxBytes)
-											    					{
-												    					var s = (!resizeImages || !this.isResampleImage(e.target.result, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
-													    				
-												    					return fn(data2, file.type, x + index * gs, y + index * gs, Math.round(w2 * s), Math.round(h2 * s), file.name);
-											    					}
-											    					else
-											    					{
-											    						this.handleError({message: mxResources.get('imageTooBig')});
-											    						
-											    						return null;
-											    					}
-													    		}));
-										    				}), resizeImages, maxSize, resampleThreshold);
-										    			}), mxUtils.bind(this, function()
-										    			{
-										    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
-										    			}));
-							    					}
-							    				}
-							    			}
-							    		}
-							    		else
-							    		{
-											fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
-											{
-												barrier(index, function()
-					    	    				{
-					    		    				return cells;
-					    	    				});
-											});
-							    		}
+										    				barrier(index, mxUtils.bind(this, function()
+												    		{
+										    					// Refuses to insert images above a certain size as they kill the app
+										    					if (data2 != null && data2.length < maxBytes)
+										    					{
+											    					var s = (!resizeImages || !this.isResampleImage(e.target.result, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
+												    				
+											    					return fn(data2, file.type, x + index * gs, y + index * gs, Math.round(w2 * s), Math.round(h2 * s), file.name);
+										    					}
+										    					else
+										    					{
+										    						this.handleError({message: mxResources.get('imageTooBig')});
+										    						
+										    						return null;
+										    					}
+												    		}));
+									    				}), resizeImages, maxSize, resampleThreshold);
+									    			}), mxUtils.bind(this, function()
+									    			{
+									    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
+									    			}));
+						    					}
+						    				}
+						    			}
+						    		}
+						    		else
+						    		{
+										fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+										{
+											barrier(index, function()
+				    	    				{
+				    		    				return cells;
+				    	    				});
+										});
+						    		}
 								}
 							});
 							
@@ -7670,6 +7674,16 @@
 		
 		if (largeImages)
 		{
+			// Workaround for lost files array in async code
+			var tmp = [];
+			
+			for (var i = 0; i < files.length; i++)
+			{
+				tmp.push(files[i]);
+			}
+			
+			files = tmp;
+			
 			this.confirmImageResize(function(doResize)
 			{
 				resizeImages = doResize;
@@ -11792,22 +11806,39 @@
 			}
 		    else
 		    {
-		    		var data = editorUi.getFileData(true, null, null, null, null, true);
-		    		var bounds = graph.getGraphBounds();
+		    	var data = editorUi.getFileData(true, null, null, null, null, true);
+		    	var bounds = graph.getGraphBounds();
 				var w = Math.floor(bounds.width * s / graph.view.scale);
 				var h = Math.floor(bounds.height * s / graph.view.scale);
 				
 				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 				{
 					editorUi.hideDialog();
-					editorUi.saveRequest(name, format,
-						function(newTitle, base64)
+					
+					if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
+					{
+						if (format == 'png')
 						{
-							return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
-								((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
-								'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
-								'&border=' + b + '&xml=' + encodeURIComponent(data));
-						});
+							editorUi.exportImage(s, bg == null || bg == 'none', true,
+						   		false, false, b, true, false);
+						}
+						else 
+						{
+							editorUi.exportImage(s, false, true,
+								false, false, b, true, false, 'jpeg');
+						}
+					}
+					else 
+					{
+						editorUi.saveRequest(name, format,
+							function(newTitle, base64)
+							{
+								return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
+									((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
+									'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
+									'&border=' + b + '&xml=' + encodeURIComponent(data));
+							});
+					}
 				}
 				else
 				{

@@ -130,7 +130,7 @@ Draw.loadPlugin(function(ui) {
 		
 		mxResources.parse('record=Record');
 		mxResources.parse('replay=Replay');
-	
+		
 	    // Adds actions
 	    var action = ui.actions.addAction('record...', function()
 	    {
@@ -140,9 +140,11 @@ Draw.loadPlugin(function(ui) {
 		    	var state = codec.document.createElement('state');
 		    	state.appendChild(node);
 		    	tape =[mxUtils.getXml(state)];
+		    	ui.editor.setStatus('Recording started');
 	    	}
 	    	else if (tape != null)
 	    	{
+	    		ui.editor.setStatus('Recording stopped');
 	    		var tmp = tape;
 	    		tape = null;
 
@@ -160,6 +162,8 @@ Draw.loadPlugin(function(ui) {
 				ui.showDialog(dlg.container, 300, 80, true, true);
 				dlg.init();
 	    	}
+	    	
+	    	action.label = (tape != null) ? 'Stop recording' : mxResources.get('record') + '...';
 	    });
 		
 	    ui.actions.addAction('replay...', function()
