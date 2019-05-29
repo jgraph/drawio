@@ -822,8 +822,6 @@
 		// Adds action
 		editorUi.actions.addAction('runLayout', function()
 		{
-			var graph = editorUi.editor.graph;
-			
 	    	var dlg = new TextareaDialog(editorUi, 'Run Layouts:',
 	    		JSON.stringify(editorUi.customLayoutConfig, null, 2),
 	    		function(newValue)
@@ -832,29 +830,9 @@
 				{
 					try
 					{
-						var json = JSON.parse(newValue);
-						
-						for (var i = 0; i < json.length; i++)
-						{
-							var layout = new window[json[i].layout](graph);
-							
-							if (json[i].config != null)
-							{
-								for (var key in json[i].config)
-								{
-									layout[key] = json[i].config[key];
-								}
-							}
-							
-							editorUi.executeLayout(function()
-							{
-								var selectionCells = graph.getSelectionCells();
-								layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ?
-									null : selectionCells);
-							}, i == json.length - 1);
-						}
-						
-						editorUi.customLayoutConfig = json;
+						var layoutList = JSON.parse(newValue);
+						editorUi.executeLayoutList(layoutList)
+						editorUi.customLayoutConfig = layoutList;
 					}
 					catch (e)
 					{

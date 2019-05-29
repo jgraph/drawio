@@ -1092,7 +1092,7 @@ EditorUi.prototype.updateTabContainer = function()
 				}));
 				
 				wrapper.appendChild(tab);
-			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage));
+			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage, i + 1));
 		}
 		
 		this.tabContainer.innerHTML = '';
@@ -1348,12 +1348,12 @@ EditorUi.prototype.createPageInsertTab = function()
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled)
+EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled, pageNumber)
 {
 	var tab = this.createTab(hoverEnabled);
 	var name = page.getName() || mxResources.get('untitled');
 	var id = page.getId();
-	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : ''));
+	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : '') + ' [' + pageNumber + ']');
 	mxUtils.write(tab, name);
 	tab.style.maxWidth = tabWidth + 'px';
 	tab.style.width = tabWidth + 'px';
