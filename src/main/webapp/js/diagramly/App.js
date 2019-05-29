@@ -5296,8 +5296,8 @@ App.prototype.updateHeader = function()
 				this.toolbarContainer.appendChild(this.toggleElement);
 			}
 			
-			// Enable compact mode for small screens
-			if (screen.height <= 740 && typeof this.toggleElement.click !== 'undefined')
+			// Enable compact mode for small screens except for Firefox where the height is wrong
+			if (!mxClient.IS_FF && screen.height <= 740 && typeof this.toggleElement.click !== 'undefined')
 			{
 				window.setTimeout(mxUtils.bind(this, function()
 				{

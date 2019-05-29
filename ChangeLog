@@ -1,3 +1,10 @@
+29-MAY-2019: 10.7.1
+
+- Adds JSON string for layouts in CSV import
+- Fixes zoomed position for data store label
+- Fixes changing of link colors in Firefox
+- Fixes limitations for Google docs add-on
+
 28-MAY-2019: 10.7.0
 
 - Replaces octet-stream with vnd.jgraph.mxfile in Drive

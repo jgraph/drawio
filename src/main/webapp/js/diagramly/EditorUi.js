@@ -10734,8 +10734,37 @@
 		this.importCsvDialog.init();
 	};
 
+
 	/**
-	 * TODO: Move to Editor
+	 * Runs the layout from the given JavaScript array which is of the form [{layout: name, config: obj}, ...]
+	 * where name is the layout constructor name and config contains the properties of the layout instance.
+	 */
+	EditorUi.prototype.executeLayoutList = function(layoutList, done)
+	{
+		var graph = this.editor.graph;
+		var cells = graph.getSelectionCells();
+
+		for (var i = 0; i < layoutList.length; i++)
+		{
+			var layout = new window[layoutList[i].layout](graph);
+			
+			if (layoutList[i].config != null)
+			{
+				for (var key in layoutList[i].config)
+				{
+					layout[key] = layoutList[i].config[key];
+				}
+			}
+			
+			this.executeLayout(function()
+			{
+				layout.execute(graph.getDefaultParent(), cells.length == 0 ? null : cells);
+			}, i == layoutList.length - 1, done);
+		}
+	};
+	
+	/**
+	 *
 	 */
 	EditorUi.prototype.importCsv = function(text, done)
 	{
@@ -11163,7 +11192,10 @@
 				
 						var postProcess = function()
 						{
-							edgeLayout.execute(graph.getDefaultParent());
+							if (edgeLayout.spacing > 0)
+							{
+								edgeLayout.execute(graph.getDefaultParent());
+							}
 							
 			    			// Aligns cells to grid and/or rounds positions
 							for (var i = 0; i < cells.length; i++)
@@ -11184,14 +11216,26 @@
 		    				}
 						};
 						
-						if (layout == 'circle')
+						if (layout.charAt(0) == '[')
+						{
+			    			// Required for layouts to work with new cells
+							var temp = afterInsert;
+			    			graph.view.validate();
+							this.executeLayoutList(JSON.parse(layout), function()
+							{
+								postProcess();
+								temp();
+							});
+							afterInsert = null;
+						}
+						else if (layout == 'circle')
 						{
 							var circleLayout = new mxCircleLayout(graph);
 		    				circleLayout.resetEdges = false;
 		    				
 		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
 		    				
-			    				// Ignore other cells
+			    			// Ignore other cells
 		    				circleLayout.isVertexIgnored = function(vertex)
 		    				{
 		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||

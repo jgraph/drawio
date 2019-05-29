@@ -295,12 +295,13 @@
 		'#\n' +
 		'# levelspacing: 100\n' +
 		'#\n' +
-		'## Spacing between parallel edges. Default is 40.\n' +
+		'## Spacing between parallel edges. Default is 40. Use 0 to disable.\n' +
 		'#\n' +
 		'# edgespacing: 40\n' +
 		'#\n' +
-		'## Name of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
-		'## verticalflow, horizontalflow, organic, circle. Default is auto.\n' +
+		'## Name or JSON of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
+		'## verticalflow, horizontalflow, organic, circle or a JSON string as used in Layout, Apply.\n' +
+		'## Default is auto.\n' +
 		'#\n' +
 		'# layout: auto\n' +
 		'#\n' +

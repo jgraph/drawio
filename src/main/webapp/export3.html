@@ -22,7 +22,8 @@
     <script src="js/app.min.js"></script>
 	<script>
 		var mxIsElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
-	
+		var GOOGLE_APPS_MAX_AREA = 25000000;
+		
 		Editor.initMath();
 	
 		function render(data)
@@ -381,6 +382,13 @@
 							else if (b.width < 4 * pageWidth && b.height < 6 * pageWidth)
 							{
 								s = 2;
+							}
+							
+							//The image cannot exceed 25 MP to be included in Google Apps
+							if (b.width * s * b.height * s > GOOGLE_APPS_MAX_AREA)
+							{
+								//Subtracting 0.01 to prevent any other rounding that can make slightly over 25 MP 
+								s = Math.sqrt(GOOGLE_APPS_MAX_AREA / (b.width * b.height)) - 0.01;
 							}
 						}
 						

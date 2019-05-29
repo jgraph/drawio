@@ -211,8 +211,8 @@
 	};
 	DataStoreShape.prototype.getLabelMargins = function(rect)
 	{
-		return new mxRectangle(0, 2.5 * Math.min(rect.height / 2, Math.round(rect.height / 8) +
-			this.strokewidth - 1) * this.scale, 0, 0);
+		return new mxRectangle(0, 2.5 * Math.min(rect.height / 2,
+			Math.round(rect.height / 8) + this.strokewidth - 1), 0, 0);
 	}
 
 	mxCellRenderer.registerShape('datastore', DataStoreShape);
