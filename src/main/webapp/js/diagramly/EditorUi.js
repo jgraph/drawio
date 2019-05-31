@@ -2305,8 +2305,9 @@
 
 				if (!this.isOffline() && file.getMode() != null)
 				{
-					EditorUi.logEvent({category: 'File', action: 'open', label:
-						file.getMode() + '.' + file.getSize()})
+					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
+						action: 'size-' + file.getSize(),
+						label: ((this.editor.autosave) ? 'autosave-on' : 'autosave-off')});
 				}
 				
 				if (this.editor.editable && this.mode == file.getMode() &&
@@ -8942,6 +8943,26 @@
 		this.installSettings();
 	};
 	
+	// Updates typeset after changes
+	var editorUiInitCanvas = EditorUi.prototype.initCanvas;
+	EditorUi.prototype.initCanvas = function()
+	{
+		editorUiInitCanvas.apply(this, arguments);
+		
+		// Rendering math regardless of scrollbars (no scrollbars blocks firing size event in initCanvas)
+		var graphSizeDidChange = this.editor.graph.sizeDidChange;
+		
+		this.editor.graph.sizeDidChange = function()
+		{
+			graphSizeDidChange.apply(this, arguments);
+
+			if (this.container != null && this.mathEnabled && !this.blockMathRender)
+			{
+				Editor.MathJaxRender(this.container);
+			}
+		};
+	};
+
 	/**
 	 * 
 	 */

@@ -1033,12 +1033,14 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 		{
 			this.response = data;
 			callback();
+			ipcRenderer.send(this.reqType + '-finalize');
 		})
 
 		ipcRenderer.once(this.reqType + '-error', (event, err) => 
 		{
 			this.hasError = true;
 			error(err);
+			ipcRenderer.send(this.reqType + '-finalize');
 		})
 	};
 	

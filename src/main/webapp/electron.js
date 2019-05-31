@@ -42,7 +42,10 @@ function createWindow (opt = {})
 	let mainWindow = new BrowserWindow(options)
 	windowsRegistry.push(mainWindow)
 
-	console.log('createWindow', opt)
+	if (__DEV__) 
+	{
+		console.log('createWindow', opt)
+	}
 
 	let ourl = url.format(
 	{
@@ -79,7 +82,12 @@ function createWindow (opt = {})
 	{
 		const win = event.sender
 		const index = windowsRegistry.indexOf(win)
-		console.log('Window on close', index)
+		
+		if (__DEV__) 
+		{
+			console.log('Window on close', index)
+		}
+		
 		const contents = win.webContents
 
 		if (contents != null)
@@ -87,7 +95,11 @@ function createWindow (opt = {})
 			contents.executeJavaScript('if(typeof global.__emt_isModified === \'function\'){global.__emt_isModified()}', true,
 				isModified =>
 				{
-					console.log('__emt_isModified', isModified)
+					if (__DEV__) 
+					{
+						console.log('__emt_isModified', isModified)
+					}
+					
 					if (isModified)
 					{
 						var choice = dialog.showMessageBox(
@@ -122,7 +134,12 @@ function createWindow (opt = {})
 	mainWindow.on('closed', (event/*:WindowEvent*/) =>
 	{
 		const index = windowsRegistry.indexOf(event.sender)
-		console.log('Window closed idx:%d', index)
+		
+		if (__DEV__) 
+		{
+			console.log('Window closed idx:%d', index)
+		}
+		
 		windowsRegistry.splice(index, 1)
 	})
 	
@@ -143,7 +160,10 @@ app.on('ready', e =>
 	//synchronous
 	ipcMain.on('winman', (event, arg) =>
 	{
-		console.log('ipcMain.on winman', arg)
+		if (__DEV__) 
+		{
+			console.log('ipcMain.on winman', arg)
+		}
 		
 		if (arg.action === 'newfile')
 		{
@@ -162,12 +182,289 @@ app.on('ready', e =>
         argv.unshift(null)
     }
 
-    program
+	var validFormatRegExp = /^(pdf|svg|png|jpeg|jpg)$/;
+	
+	function argsRange(val) 
+	{
+	  return val.split('..').map(Number);
+	}
+
+	program
         .version(app.getVersion())
-        .usage('[options] [file]')
+        .usage('[options] [input file/folder]')
         .option('-c, --create', 'creates a new empty file if no file is passed')
+        .option('-x, --export', 'export the input file/folder based on the given options')
+        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
+        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
+        .option('-f, --format <format>',
+		    'if output file name extension is specified, this option is ignored (file type is determined from output extension)',
+		    validFormatRegExp, 'pdf')
+		.option('-q, --quality <quality>',
+			'output image quality for JPEG (default: 90)', parseInt)
+		.option('-t, --transparent',
+			'set transparent background for PNG')
+		.option('-e, --embed-diagram',
+			'includes a copy of the diagram (for PNG format only)')
+		.option('-b, --border <border>',
+			'sets the border width around the diagram (default: 0)', parseInt)
+		.option('-s, --scale <scale>',
+			'scales the diagram size', parseFloat)
+		.option('-w, --width <width>',
+			'fits the generated image/pdf into the specified width, preserves aspect ratio.', parseInt)
+		.option('-h, --height <height>',
+			'fits the generated image/pdf into the specified height, preserves aspect ratio.', parseInt)
+		.option('--crop',
+			'crops PDF to diagram size')
+		.option('-a, --all-pages',
+			'export all pages (for PDF format only)')
+		.option('-p, --page-index <pageIndex>',
+			'selects a specific page, if not specified and the format is an image, the first page is selected', parseInt)
+		.option('-g, --page-rage <from>..<to>',
+			'selects a page range (for PDF format only)', argsRange)
         .parse(argv)
-        
+
+    //Start export mode?
+    if (program.export)
+	{
+    	var dummyWin = new BrowserWindow({
+			show : false
+		});
+    	
+    	windowsRegistry.push(dummyWin);
+    	
+    	try
+    	{
+	    	//Prepare arguments and confirm it's valid
+	    	var format = null;
+	    	var outType = null;
+	    	
+	    	//Format & Output
+	    	if (program.output)
+			{
+	    		try
+	    		{
+	    			var outStat = fs.statSync(program.output);
+	    			
+	    			if (outStat.isDirectory())
+					{
+	    				outType = {isDir: true};
+					}
+	    			else //If we can get file stat, then it exists
+					{
+	    				throw 'Error: Output file already exists';
+					}
+	    		}
+	    		catch(e) //on error, file doesn't exist and it is not a dir
+	    		{
+	    			outType = {isFile: true};
+	    			
+	    			format = path.extname(program.output).substr(1);
+					
+					if (!validFormatRegExp.test(format))
+					{
+						format = null;
+					}
+	    		}
+			}
+	    	
+	    	if (format == null)
+			{
+	    		format = program.format;
+			}
+	    	
+	    	var from = null, to = null;
+	    	
+	    	if (program.pageIndex != null && program.pageIndex >= 0)
+			{
+	    		from = program.pageIndex;
+			}
+	    	else if (program.pageRage && program.pageRage.length == 2)
+			{
+	    		from = program.pageRage[0] >= 0 ? program.pageRage[0] : null;
+	    		to = program.pageRage[1] >= 0 ? program.pageRage[1] : null;
+			}
+	    	
+			var expArgs = {
+				format: format,
+				w: program.width > 0 ? program.width : null,
+				h: program.height > 0 ? program.height : null,
+				border: program.border > 0 ? program.border : 0,
+				bg: program.transparent ? 'none' : '#ffffff',
+				from: from,
+				to: to,
+				allPages: format == 'pdf' && program.allPages,
+				scale: (program.crop && program.scale == null) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
+				embedXml: program.embedDiagram? '1' : '0',
+				jpegQuality: program.quality
+			};
+
+			var paths = program.args;
+			
+			// If a file is passed 
+			if (paths !== undefined && paths[0] != null)
+			{
+				var inStat = null;
+				
+				try
+				{
+					inStat = fs.statSync(paths[0]);
+				}
+				catch(e)
+				{
+					throw 'Error: input file/directory not found';	
+				}
+				
+				var files = [];
+				
+				function addDirectoryFiles(dir, isRecursive)
+				{
+					fs.readdirSync(dir).forEach(function(file) 
+					{
+						var filePath = path.join(dir, file);
+						stat = fs.statSync(filePath);
+					    
+						if (stat.isFile())
+						{
+							files.push(filePath);
+						}
+						if (stat.isDirectory() && isRecursive)
+					    {
+							addDirectoryFiles(filePath, isRecursive)
+					    }
+					});
+				}
+				
+				if (inStat.isFile())
+				{
+					files.push(paths[0]);
+				}
+				else if (inStat.isDirectory())
+				{
+					addDirectoryFiles(paths[0], program.recursive);
+				}
+
+				if (files.length > 0)
+				{
+					var fileIndex = 0;
+					
+					function processOneFile()
+					{
+						var curFile = files[fileIndex];
+						
+						try
+						{
+							expArgs.xml = fs.readFileSync(curFile, 'utf-8');
+							
+							var mockEvent = {
+								reply: function(msg, data)
+								{
+									try
+									{
+										if (data == null || data.length == 0)
+										{
+											console.error('Error: Export failed: ' + curFile);
+										}
+										else if (msg == 'export-success')
+										{
+											var outFileName = null;
+											
+											if (outType != null)
+											{
+												if (outType.isDir)
+												{
+													outFileName = path.join(program.output, path.basename(curFile, path.extname(curFile))) + '.' + format;
+												}
+												else
+												{
+													outFileName = program.output;
+												}
+											}
+											else if (inStat.isFile())
+											{
+												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0], path.extname(paths[0]))) + '.' + format;
+											}
+											else //dir
+											{
+												outFileName = path.join(path.dirname(curFile), path.basename(curFile, path.extname(curFile))) + '.' + format;
+											}
+											
+											try
+											{
+												fs.writeFileSync(outFileName, data, { flag: 'wx' });
+												console.log(curFile + ' -> ' + outFileName);
+											}
+											catch(e)
+											{
+												console.error('Error writing to file: ' + outFileName);
+											}
+										}
+										else
+										{
+											console.error('Error: ' + data + ': ' + curFile);
+										}
+										
+										fileIndex++;
+										
+										if (fileIndex < files.length)
+										{
+											processOneFile();
+										}
+										else
+										{
+											cmdQPressed = true;
+											dummyWin.destroy();
+										}
+									}
+									finally
+									{
+										mockEvent.finalize();
+									}
+						    	}
+							};
+					    	
+							exportDiagram(mockEvent, expArgs, true);
+						}
+						catch(e)
+						{
+							console.error('Error reading file: ' + curFile);
+							
+							fileIndex++;
+							
+							if (fileIndex < files.length)
+							{	
+								processOneFile();
+							}
+							else
+							{
+								cmdQPressed = true;
+								dummyWin.destroy();
+							}
+						}
+					}
+					
+					processOneFile();
+				}
+				else
+				{
+					throw 'Error: input file/directory not found or directory is empty';
+				}
+			}
+			else
+			{
+				throw 'Error: An input file must be specified';
+			}
+    	}
+    	catch(e)
+    	{
+    		console.error(e);
+    		
+    		cmdQPressed = true;
+			dummyWin.destroy();
+    	}
+    	
+    	return;
+	}
+    
     let win = createWindow()
     
     win.webContents.on('did-finish-load', function()
@@ -293,7 +590,11 @@ if (process.platform === 'darwin')
 // Quit when all windows are closed.
 app.on('window-all-closed', function ()
 {
-	console.log('window-all-closed', windowsRegistry.length)
+	if (__DEV__) 
+	{
+		console.log('window-all-closed', windowsRegistry.length)
+	}
+	
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (cmdQPressed || process.platform !== 'darwin')
@@ -304,7 +605,11 @@ app.on('window-all-closed', function ()
 
 app.on('activate', function ()
 {
-	console.log('app on activate', windowsRegistry.length)
+	if (__DEV__) 
+	{
+		console.log('app on activate', windowsRegistry.length)
+	}
+	
 	// On OS X it's common to re-create a window in the app when the
 	// dock icon is clicked and there are no other windows open.
 	if (windowsRegistry.length === 0)
@@ -559,7 +864,8 @@ function writePngWithText(origBuff, key, text, compressed, base64encoded)
 	}
 }
 
-ipcMain.on('export', (event, args) =>
+//TODO Use canvas to export images if math is not used to speedup export (no capturePage). Requires change to export3.html also
+function exportDiagram(event, args, directFinalize)
 {
 	var browser = null;
 	
@@ -580,7 +886,7 @@ ipcMain.on('export', (event, args) =>
 		browser.loadURL(`file://${__dirname}/export3.html`);
 
 		const contents = browser.webContents;
-		
+
 		contents.on('did-finish-load', function()
 	    {
 			contents.send('render', {
@@ -601,8 +907,14 @@ ipcMain.on('export', (event, args) =>
 			ipcMain.once('render-finished', (evt, bounds) =>
 			{
 				var pdfOptions = {pageSize: 'A4'};
-
-				if (bounds != null)
+				var hasError = false;
+				
+				if (bounds == null || bounds.width < 5 || bounds.height < 5) //very small page size never return from printToPDF
+				{
+					//A workaround to detect errors in the input file or being empty file
+					hasError = true;
+				}
+				else
 				{
 					//Chrome generates Pdf files larger than requested pixels size and requires scaling
 					var fixingScale = 0.959;
@@ -612,12 +924,12 @@ ipcMain.on('export', (event, args) =>
 					// +0.1 fixes cases where adding 1px below is not enough
 					// Increase this if more cropped PDFs have extra empty pages
 					var h = Math.ceil(bounds.height * fixingScale + 0.1);
-	
+					
 					pdfOptions = {
 						printBackground: true,
 						pageSize : {
 							width: w * MICRON_TO_PIXEL,
-							height: (h + 1) * MICRON_TO_PIXEL //the extra pixel to prevent adding an extra empty page						
+							height: (h + 2) * MICRON_TO_PIXEL //the extra 2 pixels to prevent adding an extra empty page						
 						},
 						marginsType: 1 // no margin
 					}
@@ -625,9 +937,30 @@ ipcMain.on('export', (event, args) =>
 				
 				var base64encoded = args.base64 == '1';
 				
-				if (args.format == 'png' || args.format == 'jpg' || args.format == 'jpeg')
+				//Set finalize here since it is call in the reply below
+				function finalize()
 				{
-					browser.setBounds({width: Math.ceil(bounds.width + bounds.x), height: Math.ceil(bounds.height + bounds.y)});
+					browser.destroy();
+				};
+				
+				if (directFinalize === true)
+				{
+					event.finalize = finalize;
+				}
+				else
+				{
+					//Destroy the window after response being received by caller
+					ipcMain.once('export-finalize', finalize);
+				}
+				
+				if (hasError)
+				{
+					event.reply('export-error');
+				}
+				else if (args.format == 'png' || args.format == 'jpg' || args.format == 'jpeg')
+				{
+					var newBounds = {width: Math.ceil(bounds.width + bounds.x), height: Math.ceil(bounds.height + bounds.y)};
+					browser.setBounds(newBounds);
 					
 					//TODO The browser takes sometime to show the graph (also after resize it takes some time to render)
 					//	 	1 sec is most probably enough (for small images, 5 for large ones) BUT not a stable solution
@@ -636,9 +969,9 @@ ipcMain.on('export', (event, args) =>
 						browser.capturePage().then(function(img)
 						{
 							//Image is double the given bounds, so resize is needed!
-							img = img.resize({width: args.w || Math.ceil(bounds.width + bounds.x), height: args.h || Math.ceil(bounds.height + bounds.y)});
+							img = img.resize(newBounds);
 
-							var data = args.format == 'png'? img.toPNG() : img.toJPEG(90);
+							var data = args.format == 'png'? img.toPNG() : img.toJPEG(args.jpegQuality || 90);
 							
 							if (args.embedXml == "1" && args.format == 'png')
 							{
@@ -650,11 +983,6 @@ ipcMain.on('export', (event, args) =>
 								if (base64encoded)
 								{
 									data = data.toString('base64');
-								}
-
-								if (data.length == 0)
-								{
-									throw new Error("Invalid image");
 								}
 							}
 							
@@ -674,15 +1002,22 @@ ipcMain.on('export', (event, args) =>
 						{
 							event.reply('export-success', data);
 						}
-					})
+					});
 				}
-				
-				//Destroy the window after 30 sec which is more than enough (test with 1 sec works)
-				setTimeout(function()
+				else if (args.format == 'svg')
 				{
-					browser.destroy();
-				}, 30000);
-			})
+					contents.send('get-svg-data');
+					
+					ipcMain.once('svg-data', (evt, data) =>
+					{
+						event.reply('export-success', data);
+					});
+				}
+				else
+				{
+					event.reply('export-error', 'Error: Unsupported format');
+				}
+			});
 	    });
 	}
 	catch (e)
@@ -695,4 +1030,6 @@ ipcMain.on('export', (event, args) =>
 		event.reply('export-error', e);
 		console.log('export-error', e);
 	}
-})
+};
+
+ipcMain.on('export', exportDiagram);

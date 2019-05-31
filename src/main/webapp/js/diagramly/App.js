@@ -40,6 +40,19 @@ App = function(editor, container, lightbox)
 		});
 	}
 	
+	// Logs changes to autosave
+	this.editor.addListener('autosaveChanged', mxUtils.bind(this, function()
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			EditorUi.logEvent({category: ((this.editor.autosave) ? 'ON' : 'OFF') +
+				'-AUTOSAVE-FILE-' + file.getHash(), action: 'changed',
+				label: ((this.editor.autosave) ? 'autosave-on' : 'autosave-off')});
+		}
+	}));
+	
 	// Pre-fetches images
 	if (mxClient.IS_SVG)
 	{
@@ -525,6 +538,26 @@ App.main = function(callback, createUi)
 			// mxSettings is not yet initialized in configure mode, redirect parameter
 			// to p URL parameter in caller for plugins in embed mode
 			var plugins = (mxSettings.settings != null) ? mxSettings.getPlugins() : null;
+			
+			// Configured plugins in embed mode with configure=1 URL should be loaded so we
+			// look ahead here and parse the config to fetch the list of custom plugins
+			if (mxSettings.settings == null && isLocalStorage && typeof(JSON) !== 'undefined')
+			{
+				try
+				{
+					var temp = JSON.parse(localStorage.getItem(mxSettings.key));
+					
+					if (temp != null)
+					{
+						plugins = temp.plugins;
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+						
 			var temp = urlParams['p'];
 			App.initPluginCallback();
 
