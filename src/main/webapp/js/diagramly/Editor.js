@@ -901,22 +901,6 @@
 			Editor.mathJaxQueue = [];
 		};
 		
-		// Updates typeset after changes
-		var editorInit = Editor.prototype.init;
-		
-		Editor.prototype.init = function()
-		{
-			editorInit.apply(this, arguments);
-			
-			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
-			{
-				if (this.graph.container != null && this.graph.mathEnabled)
-				{
-					Editor.MathJaxRender(this.graph.container);
-				}
-			}));
-		};
-		
 		var tags = document.getElementsByTagName('script');
 		
 		if (tags != null && tags.length > 0)

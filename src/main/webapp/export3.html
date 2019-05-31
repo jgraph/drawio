@@ -288,7 +288,7 @@
 				graph.pdfPageVisible = false;
 				
 				// Handles PDF output where the output should match the page format if the page is visible
-				if (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0)
+				if (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0 && data.scale == 1)
 				{
 					var pw = xmlDoc.documentElement.getAttribute('pageWidth');
 					var ph = xmlDoc.documentElement.getAttribute('pageHeight');
@@ -356,9 +356,23 @@
 					var b = graph.getGraphBounds();
 					
 					// Floor is needed to keep rendering crisp
-					if (data.w > 0 && data.h > 0)
+					if (data.w > 0 || data.h > 0)
 					{
-						var s = Math.min(data.w / b.width, data.h / b.height);
+						var s = 1;
+						
+						if (data.w > 0 && data.h > 0)
+						{
+							s = Math.min(data.w / b.width, data.h / b.height);
+						}
+						else if (data.w > 0)
+						{
+							s = data.w / b.width;
+						}
+						else
+						{
+							s = data.h / b.height;
+						}
+						
 						graph.view.scaleAndTranslate(s,
 							Math.floor(data.border / s - Math.floor(b.x)),
 							Math.floor(data.border / s - Math.floor(b.y)));
@@ -554,6 +568,46 @@
 			decrementWaitCounter();
 		};
 		
+		//Code taken from https://github.com/languitar/drawio-batch
+		//Must be called after rendering is finished
+		function getSvgData()
+		{
+			// extracts the inline SVG element used for rendering the diagram and puts it into a file with appropriate SVG headers
+
+		    // get the rendered page content as valid SVG
+	        const xmlns = 'http://www.w3.org/2000/xmlns/'
+	        const xlinkns = 'http://www.w3.org/1999/xlink'
+	        const svgns = 'http://www.w3.org/2000/svg'
+
+	        svg = document.getElementsByTagName('svg')[0]
+	        svg.setAttribute('version', '1.1')
+
+	        var defsEl = document.createElement('defs')
+	        svg.insertBefore(defsEl, svg.firstChild)
+
+	        var styleEl = document.createElement('style')
+	        defsEl.appendChild(styleEl)
+	        styleEl.setAttribute('type', 'text/css')
+
+	        // removing attributes so they aren't doubled up
+	        svg.removeAttribute('xmlns')
+	        svg.removeAttribute('xlink')
+
+	        // These are needed for the svg
+	        if (!svg.hasAttributeNS(xmlns, 'xmlns')) {
+	          svg.setAttributeNS(xmlns, 'xmlns', svgns)
+	        }
+
+	        if (!svg.hasAttributeNS(xmlns, 'xmlns:xlink')) {
+	          svg.setAttributeNS(xmlns, 'xmlns:xlink', xlinkns)
+	        }
+
+	        //This page(code) is designed for Chrome (Puppeteer or Electron) which supports this 
+	        var source = (new XMLSerializer()).serializeToString(svg);
+	        
+	        return '<?xml version="1.0" standalone="no"?>\r\n' + source;
+		}
+		
 		//Electron pdf export
 		if (mxIsElectron)
 		{
@@ -564,6 +618,11 @@
 				ipcRenderer.on('render', (event, arg) => 
 				{
 					render(arg);
+				});
+				
+				ipcRenderer.on('get-svg-data', (event, arg) => 
+				{
+					ipcRenderer.send('svg-data', getSvgData());
 				});
 			}
 			catch(e)

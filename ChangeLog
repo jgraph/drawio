@@ -1,3 +1,12 @@
+31-MAY-2019: 10.7.3
+
+- Enabling saving diagrams when the associated custom content is deleted or not found
+
+31-MAY-2019: 10.7.2
+
+- Fixes loading custom plugins in embed mode with configure URL parameter
+- Fixes math rendering with no scrollbars
+
 29-MAY-2019: 10.7.1
 
 - Adds JSON string for layouts in CSV import

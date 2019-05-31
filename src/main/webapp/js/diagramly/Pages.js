@@ -201,7 +201,9 @@ SelectPage.prototype.execute = function()
 		// Updates the display
 		editor.updateGraphComponents();
 		graph.view.validate();
+		graph.blockMathRender = true;
 		graph.sizeDidChange();
+		graph.blockMathRender = false;
 		
 //		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', 'transform 0.2s');
 //		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform', 'translate(0,0)');

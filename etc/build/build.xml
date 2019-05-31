@@ -408,12 +408,8 @@
 	</target>
 
 	<target name="clean" description="Cleans build directories">
-		<delete failonerror="false">
-			<fileset dir="${javac.dir}">
-			</fileset>
-			<fileset dir="${build.dir}">
-			</fileset>
-		</delete>
+		<delete dir="${javac.dir}"/>
+		<delete dir="${build.dir}"/>
 		<delete file="${basedir}/base.min.js"/>
 		<delete file="${basedir}/base-viewer.min.js"/>
 	</target>
