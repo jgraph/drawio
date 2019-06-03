@@ -8956,7 +8956,8 @@
 		{
 			graphSizeDidChange.apply(this, arguments);
 
-			if (this.container != null && this.mathEnabled && !this.blockMathRender)
+			if (this.container != null && this.mathEnabled && !this.blockMathRender &&
+				typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
 			{
 				Editor.MathJaxRender(this.container);
 			}

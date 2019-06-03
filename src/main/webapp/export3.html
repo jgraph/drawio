@@ -50,8 +50,19 @@
 			} 
 			catch(e){}
 
+			//PNG+XML format
+			if (extras != null && extras.isPng)
+			{
+				var pngData = 'data:image/png;base64,' + data.xml;
+				//A hacky way to invoke extractGraphModelFromPng without EditorUi instance
+				data.xml = EditorUi.prototype.extractGraphModelFromPng.call({
+								editor: {graph: {bytesToString: Graph.prototype.bytesToString}}
+							}, pngData);
+			}
+			
 			// Parses XML
 			var xmlDoc = mxUtils.parseXml(data.xml);
+			
 			var diagrams = null;
 			var from = 0;
 			
