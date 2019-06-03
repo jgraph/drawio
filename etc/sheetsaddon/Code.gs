@@ -398,10 +398,15 @@ function fetchImage(id, page, scale, pageId)
 
     if (file != null && file.getSize() > 0)
     {
+    	var isPng = file.getMimeType() == "image/png";
+        
+        var fileData = isPng? Utilities.base64Encode(file.getBlob().getBytes()) : encodeURIComponent(file.getBlob().getDataAsString());
+      
     	var data = {
 		  "format": "png",
           "scale": scale || "1",
-		  "xml": encodeURIComponent(file.getBlob().getDataAsString())
+		  "xml": fileData,
+		  "extras": "{\"isPng\": " + isPng + ", \"isGoogleApp\": true}"
 		};
     
     	if (pageId != null)
