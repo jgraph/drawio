@@ -1,6 +1,6 @@
 window.OPEN_URL = 'https://www.draw.io/open';
 window.TEMPLATE_PATH = 'templates';
-window.DRAW_MATH_URL = 'mathjax/src/main/webapp/current';
+window.DRAW_MATH_URL = 'https://www.draw.io/math';
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 (function()
