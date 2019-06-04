@@ -26,16 +26,19 @@ App = function(editor, container, lightbox)
 			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
 			{
 				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size-' + file.getSize(),
-					action: 'time-' + new Date().toISOString() + '-saved-' +
-					((file.lastSaved != null) ? file.lastSaved.toISOString() : 'never') +
-					((this.editor.autosave) ? '-autosave-on' : '-autosave-off'),
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size_' + file.getSize(),
+					action: 'save_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
+					'-autosave_' + (((this.editor.autosave) ? 'on' : 'off') +
+					'-open_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never')),
 					label: (this.drive.user != null) ? this.drive.user.id : 'unknown-user'});
 			}
 			else if (file != null && file.isModified())
 			{
-				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash(), action: 'unload',
-					label: ((this.editor.autosave) ? 'autosave-on' : 'autosave-off')});
+				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '-size_' + file.getSize(),
+					action: 'save_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
+					'-autosave_' + (((this.editor.autosave) ? 'on' : 'off') +
+					'-open_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never')),
+					label: 'nolabel'});
 			}
 		});
 	}
@@ -49,7 +52,7 @@ App = function(editor, container, lightbox)
 		{
 			EditorUi.logEvent({category: ((this.editor.autosave) ? 'ON' : 'OFF') +
 				'-AUTOSAVE-FILE-' + file.getHash(), action: 'changed',
-				label: ((this.editor.autosave) ? 'autosave-on' : 'autosave-off')});
+				label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
 		}
 	}));
 	
@@ -1344,11 +1347,11 @@ App.prototype.init = function()
 			{
 				window.clearTimeout(timeoutThread);
 				
-				if (acceptResponse)
-				{
-					EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
-						req.getStatus() + '.' + (new Date().getTime() - t0)});
-				}
+//				if (acceptResponse)
+//				{
+//					EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
+//						req.getStatus() + '.' + (new Date().getTime() - t0)});
+//				}
 			}));
 		}
 	}

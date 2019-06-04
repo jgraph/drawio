@@ -13,7 +13,7 @@ window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE'
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml4';
-window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'math';
+window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://www.draw.io/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2png/convertEMF";
 window.SAVE_URL = window.SAVE_URL || 'save';

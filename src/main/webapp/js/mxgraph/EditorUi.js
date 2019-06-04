@@ -2003,6 +2003,11 @@ EditorUi.prototype.initCanvas = function()
 
 				graphSizeDidChange.apply(this, arguments);
 			}
+			else
+			{
+				// Fires event but does not invoke superclass
+				this.fireEvent(new mxEventObject(mxEvent.SIZE, 'bounds', this.getGraphBounds()));
+			}
 		};
 	}
 	

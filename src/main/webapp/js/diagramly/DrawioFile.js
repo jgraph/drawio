@@ -85,25 +85,30 @@ DrawioFile.prototype.maxAutosaveDelay = 30000;
 DrawioFile.prototype.autosaveThread = null;
 
 /**
- * Stores the timestamp for hte last autosave.
+ * Stores the time stamp for the last autosave.
  */
 DrawioFile.prototype.lastAutosave = null;
 
 /**
- * Stores the timestamp for hte last autosave.
+ * Stores the time stamp for the last autosave.
  */
 DrawioFile.prototype.lastSaved = null;
 
 /**
- * Stores the timestamp for hte last autosave.
+ * Stores the time stamp for the last autosave.
  */
 DrawioFile.prototype.lastWarned = null;
 
 /**
- * Interal to show dialog for unsaved data with autosave.
+ * Interval to show dialog for unsaved data with autosave.
  * Default is 600000 (10 minutes).
  */
 DrawioFile.prototype.warnInterval = 600000;
+
+/**
+ * Stores the time stamp when the file was opened.
+ */
+DrawioFile.prototype.opened = null;
 
 /**
  * Stores the modified state.
@@ -1996,28 +2001,28 @@ DrawioFile.prototype.destroy = function()
 {
 	this.stats.destroyed++;
 	
-	try
-	{
-		if (!this.ui.isOffline() && this.reportEnabled &&
-			(DrawioFile.SYNC == 'auto' ||
-			DrawioFile.SYNC == 'manual'))
-		{
-			var user = this.getCurrentUser();
-			var uid = (user != null) ? user.id : 'unknown';
-		
-			EditorUi.logEvent({category: DrawioFile.SYNC + '-DESTROY-FILE-' + DrawioFile.SYNC,
-				action: 'file-' + this.getId() +
-				'-mode-' + this.getMode() +
-				'-size-' + this.getSize() +
-				'-user-' + uid +
-				((this.sync != null) ? ('-client-' + this.sync.clientId ) : ''),
-				label: this.stats});
-		}
-	}
-	catch (e)
-	{
-		// ignore
-	}
+//	try
+//	{
+//		if (!this.ui.isOffline() && this.reportEnabled &&
+//			(DrawioFile.SYNC == 'auto' ||
+//			DrawioFile.SYNC == 'manual'))
+//		{
+//			var user = this.getCurrentUser();
+//			var uid = (user != null) ? user.id : 'unknown';
+//		
+//			EditorUi.logEvent({category: DrawioFile.SYNC + '-DESTROY-FILE-' + DrawioFile.SYNC,
+//				action: 'file-' + this.getId() +
+//				'-mode-' + this.getMode() +
+//				'-size-' + this.getSize() +
+//				'-user-' + uid +
+//				((this.sync != null) ? ('-client-' + this.sync.clientId ) : ''),
+//				label: this.stats});
+//		}
+//	}
+//	catch (e)
+//	{
+//		// ignore
+//	}
 
 	this.clearAutosave();
 	this.removeListeners();
