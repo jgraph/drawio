@@ -208,7 +208,8 @@
 		
 		editorUi.actions.put('exportPdf', new Action(mxResources.get('formatPdf') + '...', function()
 		{
-			if (editorUi.isOffline() || editorUi.printPdfExport)
+			if ((typeof(mxIsElectron5) === 'undefined' || !mxIsElectron5) &&
+				(editorUi.isOffline() || editorUi.printPdfExport))
 			{
 				// Export PDF action for chrome OS (same as print with different dialog title)
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,

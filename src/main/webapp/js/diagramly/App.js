@@ -4372,6 +4372,20 @@ App.prototype.restoreLibraries = function()
 									}
 								}
 							}
+							else if (service == 'S' && this.loadDesktopLib != null)
+							{
+								try
+								{
+									this.loadDesktopLib(decodeURIComponent(id.substring(1)), function(desktopLib)
+									{
+										onload(desktopLib);
+									}, onerror);
+								}
+								catch (e)
+								{
+									onerror();
+								}
+							}
 							else
 							{
 								var peer = null;

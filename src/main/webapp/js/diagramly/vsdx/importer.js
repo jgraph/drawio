@@ -12060,9 +12060,11 @@ com.mxgraph.io.vsdx.mxPropertiesManager.__static_initialize();
 com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder_$LI$();
 com.mxgraph.io.mxVsdxCodec.parsererrorNS_$LI$();
 
-EditorUi.prototype.doImportVisio = function(file, done, onerror)
+EditorUi.prototype.doImportVisio = function(file, done, onerror, filename)
 {
-	if (file.name != null && /(\.vs(x|sx?))($|\?)/i.test(file.name))
+	filename = filename || file.name;
+	
+	if (filename != null && /(\.vs(x|sx?))($|\?)/i.test(filename))
 	{
 		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done, null, onerror);
 	}
