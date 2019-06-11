@@ -6614,9 +6614,7 @@
 							{
 								try
 								{
-									//add back the file name
-									xhr.response.name = filename;
-									this.doImportVisio(xhr.response, done, onerror);
+									this.doImportVisio(xhr.response, done, onerror, filename);
 								}
 								catch (e)
 								{
@@ -6636,7 +6634,7 @@
 				{
 					try
 					{
-						this.doImportVisio(file, done, onerror);
+						this.doImportVisio(file, done, onerror, filename);
 					}
 					catch (e)
 					{

@@ -1,3 +1,8 @@
+11-JUN-2019: 10.7.6
+
+- Removes fallback to print dialog if offline in Electron
+- Fixes broken link if Google Drive is not loading
+
 04-JUN-2019: 10.7.5
 
 - Fixes Math rendering in graph viewer

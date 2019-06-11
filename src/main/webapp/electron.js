@@ -24,6 +24,8 @@ const __DEV__ = process.env.NODE_ENV === 'development'
 		
 let windowsRegistry = []
 let cmdQPressed = false
+let firstWinLoaded = false
+let firstWinFilePath = null
 
 function createWindow (opt = {})
 {
@@ -176,6 +178,7 @@ app.on('ready', e =>
 	})
 	
     let argv = process.argv
+    
     // https://github.com/electron/electron/issues/4690#issuecomment-217435222
     if (process.defaultApp != true)
     {
@@ -219,7 +222,7 @@ app.on('ready', e =>
 			'export all pages (for PDF format only)')
 		.option('-p, --page-index <pageIndex>',
 			'selects a specific page, if not specified and the format is an image, the first page is selected', parseInt)
-		.option('-g, --page-rage <from>..<to>',
+		.option('-g, --page-range <from>..<to>',
 			'selects a page range (for PDF format only)', argsRange)
         .parse(argv)
 
@@ -469,6 +472,20 @@ app.on('ready', e =>
     
     win.webContents.on('did-finish-load', function()
     {
+    	if (firstWinFilePath != null)
+		{
+    		if (program.args != null)
+    		{
+    			program.args.push(firstWinFilePath);
+    		}
+    		else
+			{
+    			program.args = [firstWinFilePath];
+			}
+		}
+    	
+    	firstWinLoaded = true;
+    	
         win.webContents.send('args-obj', program);
         
         win.webContents.setZoomFactor(1);
@@ -618,6 +635,31 @@ app.on('activate', function ()
 	}
 })
 
+app.on('will-finish-launching', function()
+{
+	app.on("open-file", function(event, path) 
+	{
+	    event.preventDefault();
+	    
+	    if (firstWinLoaded)
+	    {
+		    let win = createWindow();
+		    
+		    win.webContents.on('did-finish-load', function()
+		    {
+		        win.webContents.send('args-obj', {args: [path]});
+		        
+		        win.webContents.setZoomFactor(1);
+		        win.webContents.setVisualZoomLevelLimits(1, 1);
+		        win.webContents.setLayoutZoomLevelLimits(0, 0);
+		    });
+	    }
+	    else
+		{
+	    	firstWinFilePath = path
+		}
+	});
+});
 
 autoUpdater.on('error', e => log.error('@error@\n', e))
 
