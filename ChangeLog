@@ -1,3 +1,7 @@
+12-JUN-2019: 10.7.7
+
+- Adds validation of color picker input to fix XSS vulnerability
+
 11-JUN-2019: 10.7.6
 
 - Removes fallback to print dialog if offline in Electron
