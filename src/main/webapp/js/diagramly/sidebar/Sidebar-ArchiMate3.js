@@ -159,8 +159,8 @@
 		
 		var fns =
 		[
-			this.createVertexTemplateEntry(am2 + 'application;appType=actor;archiType=square;', 
-					w * 150, h * 75, '', 'Location', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' ')),
+			this.createVertexTemplateEntry(am2 + 'application;appType=location;archiType=square;', 
+					w * 150, h * 75, '', 'Location', null, null, this.getTagsForStencil(gn, '', dt + 'location').join(' ')),
 			this.createVertexTemplateEntry('shape=folder;spacingTop=10;tabWidth=100;tabHeight=25;tabPosition=left;html=1;dashed=1;', 
 					w * 150, h * 105, '', 'Group', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' '))
 		];

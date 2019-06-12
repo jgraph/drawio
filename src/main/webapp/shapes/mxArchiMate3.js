@@ -30,6 +30,7 @@ mxArchiMate3Application.prototype.cst = {
 		COLLABORATION : 'collab',
 		INTERFACE : 'interface',
 		INTERFACE2 : 'interface2',
+		LOCATION : 'location',
 		FUNCTION : 'func',
 		INTERACTION : 'interaction',
 		SERVICE : 'serv',
@@ -75,6 +76,7 @@ mxArchiMate3Application.prototype.customProperties = [
 				   {val: 'interface2', dispName: 'Interface2'}, 
 				   {val: 'func', dispName: 'Function'}, 
 				   {val: 'interaction', dispName: 'Interaction'}, 
+				   {val: 'location', dispName: 'Location'}, 
 				   {val: 'serv', dispName: 'Service'}, 
 				   {val: 'event', dispName: 'Event'}, 
 				   {val: 'event2', dispName: 'Event2'}, 
@@ -191,6 +193,18 @@ mxArchiMate3Application.prototype.foreground = function(c, x, y, w, h)
 	else if (type === mxArchiMate3Application.prototype.cst.INTERACTION)
 	{
 		mxArchiMate3Interaction.prototype.background(c, x, y, w, h);
+	}
+	else if (type === mxArchiMate3Application.prototype.cst.LOCATION)
+	{
+		c.translate(3, 0);
+		w = w - 6;
+		c.begin();
+		c.moveTo(w * 0.5, h);
+		c.arcTo(w * 0.1775, h * 0.3, 0, 0, 0, w * 0.345, h * 0.7);
+		c.arcTo(w * 0.538, h * 0.364, 0, 0, 1, w * 0.5, 0);
+		c.arcTo(w * 0.538, h * 0.364, 0, 0, 1, w * 0.655, h * 0.7);
+		c.arcTo(w * 0.1775, h * 0.3, 0, 0, 0, w * 0.5, h);
+		c.stroke();
 	}
 	else if (type === mxArchiMate3Application.prototype.cst.SERVICE)
 	{
