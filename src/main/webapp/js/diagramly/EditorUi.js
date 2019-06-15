@@ -170,7 +170,7 @@
 	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
+	EditorUi.cacheUrl = (urlParams['dev'] == '1' || urlParams['localDiffsyncCache'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
 
 	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
@@ -11560,6 +11560,11 @@
 		}
 		
 		if (!splash && (this.gitHub != null))
+		{
+			serviceCount++
+		}
+		
+		if (!splash && (this.gitLab != null))
 		{
 			serviceCount++
 		}

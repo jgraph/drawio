@@ -1946,6 +1946,14 @@
 				}, parent);
 			}
 
+			if (editorUi.gitLab != null)
+			{
+				menu.addItem(mxResources.get('gitlab') + '...', null, function()
+				{
+					pickFileFromService(editorUi.gitLab);
+				}, parent);
+			}
+
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -2516,6 +2524,14 @@
 				}, parent);
 			}
 
+			if (editorUi.gitLab != null)
+			{
+				menu.addItem(mxResources.get('gitlab') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_GITLAB);
+				}, parent);
+			}
+
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -2637,6 +2653,14 @@
 					}, parent);
 				}
 				
+				if (editorUi.gitLab != null)
+				{
+					menu.addItem(mxResources.get('gitlab') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITLAB);
+					}, parent);
+				}
+
 				if (editorUi.trello != null)
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -2726,6 +2750,14 @@
 					menu.addItem(mxResources.get('github') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_GITHUB);
+					}, parent);
+				}
+				
+				if (editorUi.gitLab != null)
+				{
+					menu.addItem(mxResources.get('gitlab') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_GITLAB);
 					}, parent);
 				}
 				
