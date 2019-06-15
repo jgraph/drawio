@@ -532,6 +532,11 @@ var SplashDialog = function(editorUi)
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 		service = mxResources.get('github');
 	}
+	else if (editorUi.mode == App.MODE_GITLAB)
+	{
+		logo.src = IMAGE_PATH + '/gitlab-icon-rgb.svg';
+		service = mxResources.get('gitlab');
+	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
@@ -632,6 +637,10 @@ var SplashDialog = function(editorUi)
 	{
 		storage = mxResources.get('github');
 	}
+	else if (editorUi.mode == App.MODE_GITLAB)
+	{
+		storage = mxResources.get('gitlab');
+	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
 		storage = mxResources.get('trello');
@@ -730,6 +739,14 @@ var SplashDialog = function(editorUi)
 			{
 				editorUi.gitHub.logout();
 				editorUi.openLink('https://www.github.com/logout');
+			});
+		}
+		else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
+		{
+			addLogout(function()
+			{
+				editorUi.gitLab.logout();
+				editorUi.openLink('https://gitlab.com/users/sign_out');
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -2620,6 +2637,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 	}
+	else if (editorUi.mode == App.MODE_GITLAB)
+	{
+		logo.src = IMAGE_PATH + '/gitlab-icon-rgb.svg';
+	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
@@ -2661,6 +2682,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
 	{
 		ext = editorUi.gitHub.extension;
+	}
+	else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
+	{
+		ext = editorUi.gitLab.extension;
 	}
 	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
 	{
@@ -3729,6 +3754,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
 
+		if (editorUi.gitLab != null)
+		{
+			var gitLabOption = document.createElement('option');
+			gitLabOption.setAttribute('value', App.MODE_GITLAB);
+			mxUtils.write(gitLabOption, mxResources.get('gitlab'));
+			serviceSelect.appendChild(gitLabOption);
+			
+			addLogo(IMAGE_PATH + '/gitlab-icon-rgb.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
+		}
+
 		if (typeof window.TrelloClient === 'function')
 		{
 			var trelloOption = document.createElement('option');
@@ -3793,6 +3828,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				else if (newMode == App.MODE_GITHUB)
 				{
 					ext = editorUi.gitHub.extension;
+				}
+				else if (newMode == App.MODE_GITLAB)
+				{
+					ext = editorUi.gitLab.extension;
 				}
 				else if (newMode == App.MODE_TRELLO)
 				{
@@ -4856,6 +4895,28 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					var path = tokens.slice(3, tokens.length).join('/');
 					
 					linkInput.value = 'https://github.com/' + org + '/' +
+						repo + '/blob/' + ref + '/' + path;
+					linkInput.focus();
+				}
+			});
+		});
+	}
+
+	if (editorUi.gitLab != null)
+	{
+		addButton(IMAGE_PATH + '/gitlab-icon-rgb.svg', mxResources.get('gitlab'), function()
+		{
+			editorUi.gitLab.pickFile(function(path)
+			{
+				if (path != null)
+				{
+					var tokens = path.split('/');
+					var org = tokens[0];
+					var repo = tokens[1];
+					var ref = tokens[2];
+					var path = tokens.slice(3, tokens.length).join('/');
+					
+					linkInput.value = 'https://gitlab.com/' + org + '/' +
 						repo + '/blob/' + ref + '/' + path;
 					linkInput.focus();
 				}
@@ -6586,6 +6647,12 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	{
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
+	}
+	else if (peer == editorUi.gitLab)
+	{
+		service = mxResources.get('gitlab');
+		img.src = IMAGE_PATH + '/gitlab-icon-rgb.svg';
+		img.style.width = '32px';
 	}
 	else if (peer == editorUi.trello)
 	{
@@ -9663,6 +9730,11 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	{
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
+	}
+	else if (peer == editorUi.gitLab)
+	{
+		service = mxResources.get('gitlab');
+		img.src = IMAGE_PATH + '/gitlab-icon-rgb.svg';
 	}
 	else if (peer == editorUi.trello)
 	{

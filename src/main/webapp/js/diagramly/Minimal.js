@@ -1160,6 +1160,10 @@ EditorUi.initMinimalTheme = function()
 				{
 					mode = 'gitHub';
 				}
+				else if (mode == 'gitlab')
+				{
+					mode = 'gitLab';
+				}
 				else if (mode == 'onedrive')
 				{
 					mode = 'oneDrive';

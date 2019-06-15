@@ -166,47 +166,52 @@ App = function(editor, container, lightbox)
 };
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Timeout error
  */
 App.ERROR_TIMEOUT = 'timeout';
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Busy error
  */
 App.ERROR_BUSY = 'busy';
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Unknown error
  */
 App.ERROR_UNKNOWN = 'unknown';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Google drive mode
  */
 App.MODE_GOOGLE = 'google';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Dropbox mode
  */
 App.MODE_DROPBOX = 'dropbox';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * OneDrive Mode
  */
 App.MODE_ONEDRIVE = 'onedrive';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Github Mode
  */
 App.MODE_GITHUB = 'github';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Gitlab mode
+ */
+App.MODE_GITLAB = 'gitlab';
+
+/**
+ * Device Mode
  */
 App.MODE_DEVICE = 'device';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Browser Mode
  */
 App.MODE_BROWSER = 'browser';
 
@@ -1096,6 +1101,23 @@ App.prototype.init = function()
 		
 		return footer;
 	});
+
+  /**
+   * Creates gitlab client.
+   */
+  this.gitLab = (!mxClient.IS_IE || document.documentMode == 10 ||
+      mxClient.IS_IE11 || mxClient.IS_EDGE) &&
+      (urlParams['gl'] != '0' && (urlParams['embed'] != '1' ||
+      urlParams['gl'] == '1')) ? new GitLabClient(this) : null;
+  
+  if (this.gitLab != null)
+  {
+    this.gitLab.addListener('userChanged', mxUtils.bind(this, function()
+    {
+      this.updateUserElement();
+      this.restoreLibraries();
+    }))
+  }
 
 	/**
 	 * Lazy-loading for individual backends
@@ -2141,6 +2163,17 @@ App.prototype.appIconClicked = function(evt)
 				this.openLink('https://github.com/');
 			}
 		}
+		else if (mode == App.MODE_GITLAB)
+		{
+			if (file != null && file.constructor == GitLabFile)
+			{
+				this.openLink(file.meta.html_url);
+			}
+			else
+			{
+				this.openLink('https://gitlab.com/');
+			}
+		}
 		else if (mode == App.MODE_DEVICE)
 		{
 			this.openLink('https://get.draw.io/');
@@ -3051,13 +3084,14 @@ App.prototype.pickLibrary = function(mode)
 {
 	mode = (mode != null) ? mode : this.mode;
 	
-	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB || mode == App.MODE_TRELLO)
+	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
 			((mode == App.MODE_GITHUB) ? this.gitHub :
+			((mode == App.MODE_GITLAB) ? this.gitLab :
 			((mode == App.MODE_TRELLO) ? this.trello :
-			this.dropbox)));
+			this.dropbox))));
 		
 		if (peer != null)
 		{
@@ -3232,6 +3266,15 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
 					this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_GITLAB && this.gitLab != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.gitLab.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 					{
 						this.spinner.stop();
 						this.hideDialog(true);
@@ -3544,6 +3587,10 @@ App.prototype.getPeerForMode = function(mode)
 	{
 		return this.gitHub;
 	}
+  else if (mode == App.MODE_GITLAB)
+  {
+    return this.gitLab;
+  }
 	else if (mode == App.MODE_DROPBOX)
 	{
 		return this.dropbox;
@@ -3613,6 +3660,14 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else if (mode == App.MODE_GITHUB && this.gitHub != null)
 			{
 				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
+				{
+					complete();
+					this.fileCreated(file, libs, replace, done);
+				}), error, false, folderId);
+			}
+			else if (mode == App.MODE_GITLAB && this.gitLab != null)
+			{
+				this.gitLab.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
 					this.fileCreated(file, libs, replace, done);
@@ -4078,6 +4133,14 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				if (id.charAt(0) == 'G')
 				{
 					peer = this.drive;
+				}
+				else if (id.charAt(0) == 'A')
+				{
+					peer = this.gitLab;
+				}
+				else if (id.charAt(0) == 'B')
+				{
+					// bitbucket
 				}
 				else if (id.charAt(0) == 'D')
 				{
@@ -4741,6 +4804,14 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 	else if (enabled && mode == App.MODE_GITHUB && this.gitHub != null)
 	{
 		this.gitHub.pickFolder(mxUtils.bind(this, function(folderPath)
+		{
+			resume();
+			fn(folderPath);
+		}));
+	}
+	else if (enabled && mode == App.MODE_GITLAB && this.gitLab != null)
+	{
+		this.gitLab.pickFolder(mxUtils.bind(this, function(folderPath)
 		{
 			resume();
 			fn(folderPath);
@@ -5759,6 +5830,37 @@ App.prototype.updateUserElement = function()
 								this.gitHub.logout();
 							}
 						}), mxResources.get('github'));
+					}
+					
+					if (this.gitLab != null)
+					{
+						addUser(this.gitLab.getUser(), IMAGE_PATH + '/gitlab-icon-rgb.svg', mxUtils.bind(this, function()
+						{
+							var file = this.getCurrentFile();
+
+							if (file != null && file.constructor == GitLabFile)
+							{
+								var doLogout = mxUtils.bind(this, function()
+								{
+									this.gitLab.logout();
+									window.location.hash = '';
+								});
+								
+								if (!file.isModified())
+								{
+									doLogout();
+								}
+								else
+								{
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
+								}
+							}
+							else
+							{
+								this.gitLab.logout();
+							}
+						}), mxResources.get('gitlab'));
 					}
 					
 					//TODO We have no user info from Trello, how we can create a user?

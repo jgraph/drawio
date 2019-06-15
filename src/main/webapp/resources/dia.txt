@@ -328,6 +328,7 @@ gap=Gap
 gcp=GCP
 general=General
 github=GitHub
+gitlab=GitLab
 gliffy=Gliffy
 global=Global
 googleDocs=Google Docs
