@@ -1,3 +1,7 @@
+19-JUN-2019: 10.7.9
+
+- Ignores refs and manage columns in CSV example
+
 19-JUN-2019: 10.7.8
 
 - Fixes double click handling with pen and touch on Windows

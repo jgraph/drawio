@@ -281,7 +281,7 @@
 		'## Comma-separated list of ignored columns for metadata. (These can be\n' +
 		'## used for connections and styles but will not be added as metadata.)\n' +
 		'#\n' +
-		'# ignore: id,image,fill,stroke\n' +
+		'# ignore: id,image,fill,stroke,refs,manager\n' +
 		'#\n' +
 		'## Column to be renamed to link attribute (used as link).\n' +
 		'#\n' +

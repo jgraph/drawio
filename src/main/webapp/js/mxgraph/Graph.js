@@ -5636,7 +5636,7 @@ if (typeof mxVertexHandler != 'undefined')
 				value.setAttribute('label', cell.value || '');
 			}
 			
-			if (attributeValue != null && attributeValue.length > 0)
+			if (attributeValue != null)
 			{
 				value.setAttribute(attributeName, attributeValue);
 			}
