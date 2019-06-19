@@ -388,6 +388,7 @@ insertText=‫إضافة نص‬
 inserting=‫إضافة‬
 invalidFilename=Diagram names must not contain the following characters: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Your license is invalid, please see this <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=‫اسم غير صالح‬
 invalidOrMissingFile=‫ملف غير صالح أو غير موجود‬
 invalidPublicUrl=Invalid public URL

@@ -3648,23 +3648,7 @@
 			fn();
 		}
 	};
-	
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
-	{
-		var height = (msg != null && msg.length > 120) ? 180 : 150;
-		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'),
-			fn, retry, btn2, fn2, hide, btn3, fn3);
-		this.showDialog(dlg.container, w || 340, h || ((msg != null && msg.length > 120) ?
-			180 : 150), true, false, onClose);
-		dlg.init();
-	};
-	
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -6752,8 +6736,6 @@
 	 */
 	EditorUi.prototype.convertLucidChart = function(data, success, error)
 	{
-		console.log(data);
-		
 		var delayed = mxUtils.bind(this, function()
 		{
 			this.loadingExtensions = false;
@@ -7068,7 +7050,9 @@
 	 */
 	EditorUi.prototype.isLucidChartData = function(data)
 	{
-		return data != null && data.substring(0, 26) == '{"state":"{\\"Properties\\":';
+		return data != null && (data.substring(0, 26) ==
+			'{"state":"{\\"Properties\\":' ||
+			data.substring(0, 14) == '{"Properties":');
 	};
 
 	/**

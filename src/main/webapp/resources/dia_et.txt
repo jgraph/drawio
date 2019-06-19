@@ -388,6 +388,7 @@ insertText=Sisesta tekst
 inserting=Sisestamine
 invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke:  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Sinu litsents on kehtete, palun vaata seda <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">lehte</a>.
+invalidInput=Invalid input
 invalidName=Kehtetu nimi
 invalidOrMissingFile=Kehtetu või puuduv fail
 invalidPublicUrl=Kehtetu avalik URL

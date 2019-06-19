@@ -388,6 +388,7 @@ insertText=Inserează text
 inserting=Se inserează
 invalidFilename=Numele diagramelor nu pot să contină următoarele caractere: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Licența dumneavoastră este invalida, vedeți <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nume invalid
 invalidOrMissingFile=Fișier invalid sau inexistent
 invalidPublicUrl=URL public invalid

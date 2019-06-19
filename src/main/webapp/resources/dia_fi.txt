@@ -388,6 +388,7 @@ insertText=Lisää tekstiä
 inserting=Lisätään
 invalidFilename=Kaavioiden nimet eivät saa sisältää seuraavia merkkejä : \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Virheellinen nimi
 invalidOrMissingFile=Epäkelvollinen tai puuttuva tiedosto
 invalidPublicUrl=Epäkelvollinen julkinen URL

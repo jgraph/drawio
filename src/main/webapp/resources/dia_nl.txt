@@ -388,6 +388,7 @@ insertText=Tekst invoegen
 inserting=Invoegen
 invalidFilename=Een Diagramnaam mag niet de volgende tekens bevatten: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">pagina</a>.
+invalidInput=Invalid input
 invalidName=Ongeldige naam
 invalidOrMissingFile=Ongeldig of ontbrekend bestand
 invalidPublicUrl=Ongeldige publieke URL

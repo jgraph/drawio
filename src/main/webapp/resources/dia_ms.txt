@@ -388,6 +388,7 @@ insertText=Masukkan Teks
 inserting=Memasukkan
 invalidFilename=Nama gambarajah tidak boleh mengandungi aksara yang berikut: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lesen anda tidak sah, sila lihat ini <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nama tidak sah
 invalidOrMissingFile=Fail tidak sah atau hilang
 invalidPublicUrl=URL umum tidak sah

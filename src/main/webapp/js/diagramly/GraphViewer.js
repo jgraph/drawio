@@ -115,6 +115,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			var render = mxUtils.bind(this, function()
 			{
 				this.graph = new Graph(container);
+				this.graph.defaultPageBackgroundColor = 'transparent';
 				this.graph.transparentBackground = false;
 				
 				if (this.graphConfig.move)
@@ -1434,7 +1435,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 	
 	// Workaround for lost reference with same ID
 	Graph.prototype.shadowId = 'dropShadow';
-	
+
 	// Disables refresh
 	ui.refresh = function() {};
 	

@@ -388,6 +388,7 @@ insertText=텍스트 삽입
 inserting=삽입중
 invalidFilename=다이어그램 이름에 다음 문자들은 사용될 수 없습니다. \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=라이선스가 유효하지 않습니다. <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">페이지</a>를 확인해 주시기 바랍니다.
+invalidInput=Invalid input
 invalidName=유효하지 않은 이름
 invalidOrMissingFile=유효하지 않거나 분실된 파일
 invalidPublicUrl=유효하지 않은 공개 URL

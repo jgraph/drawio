@@ -4201,13 +4201,11 @@ LucidImporter = {};
 		// Extracts and sorts all pages
 		var pages = [];
 
-		if (state.state != null)
+		function addPages(obj)
 		{
-			state = JSON.parse(state.state);
-			
-			for (var id in state.Pages)
+			for (var id in obj.Pages)
 			{
-				pages.push(state.Pages[id]);
+				pages.push(obj.Pages[id]);
 			}
 			
 			pages.sort(function(a, b)
@@ -4225,6 +4223,15 @@ LucidImporter = {};
 			    	return 0;
 			    }
 			});
+		};
+		
+		if (state.state != null)
+		{
+			addPages(JSON.parse(state.state));
+		}
+		else if (state.Pages != null)
+		{
+			addPages(state);
 		}
 		else
 		{

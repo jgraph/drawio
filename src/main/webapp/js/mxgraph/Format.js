@@ -1034,9 +1034,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	mxUtils.write(span, label);
 	div.appendChild(span);
 	
-	var applying = false;
 	var value = getColorFn();
-
+	var applying = false;
 	var btn = null;
 
 	var apply = function(color, disableUpdate, forceUpdate)
@@ -1044,9 +1043,11 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		if (!applying)
 		{
 			applying = true;
+			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultColor;
 			btn.innerHTML = '<div style="width:' + ((mxClient.IS_QUIRKS) ? '30' : '36') +
 				'px;height:12px;margin:3px;border:1px solid black;background-color:' +
-				((color != null && color != mxConstants.NONE) ? color : defaultColor) + ';"></div>';
+				mxUtils.htmlEntities((color != null && color != mxConstants.NONE) ?
+				color : defaultColor) + ';"></div>';
 			
 			// Fine-tuning in Firefox, quirks mode and IE8 standards
 			if (mxClient.IS_QUIRKS || document.documentMode == 8)

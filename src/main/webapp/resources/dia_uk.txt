@@ -388,6 +388,7 @@ insertText=Вставити текст
 inserting=Вставляю
 invalidFilename=Назва діаграма не повинна мати наступні символи:  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Ваша ліцензія недійсна, будь ласка,прочитайте це <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Недійсне ім'я
 invalidOrMissingFile=Файл недійсний або відсутній
 invalidPublicUrl=Недійсний публічний URL

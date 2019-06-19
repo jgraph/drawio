@@ -388,6 +388,7 @@ insertText=Afegeix text
 inserting=Afegint
 invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { < & + ? = "
 invalidLicenseSeeThisPage=La teva llicència no és vàlida, si us plau mira això <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nom invàlid
 invalidOrMissingFile=Fitxer  no vàlid o desconegut
 invalidPublicUrl=URL públic no vàlid

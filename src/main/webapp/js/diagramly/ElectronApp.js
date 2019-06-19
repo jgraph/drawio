@@ -412,21 +412,30 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		var paths = argsObj.args;
 		
-		// If a file is passed 
-		if (paths !== undefined && paths[0] != null)
+		// If a file is passed
+		if (paths !== undefined && paths[0] != null && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var path = paths[0];
+			this.hideDialog();
 			
-			var success = mxUtils.bind(this, function(fileEntry, data, stat)
+			var success = mxUtils.bind(this, function(fileEntry, data, stat, name)
 			{
-				var file = new LocalFile(this, data, '');
-				file.fileObject = fileEntry;
-				file.stat = stat;
-				this.fileLoaded(file);
+				this.spinner.stop();
+				
+				if (data != null)
+				{
+					var file = new LocalFile(this, data, name || '');
+					file.fileObject = fileEntry;
+					file.stat = stat;
+					
+					this.fileLoaded(file);
+				}
 			});
 			
 			var error = mxUtils.bind(this, function(e)
 			{
+				this.spinner.stop();
+				
 				if (e.code === 'ENOENT')
 				{
 					var title = path.replace(/^.*[\\\/]/, '');
@@ -642,10 +651,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			    			{
 			    				this.handleError(e, mxResources.get('errorLoadingFile'));
 			    			}
+							
+							fn();
 						}
 						else
 						{
-							this.openLocalFile(xml, name);
+							fn(null, xml, null, name);
 						}
 					}), null, name);
 					

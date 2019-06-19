@@ -187,7 +187,7 @@ public class SaveServlet extends HttpServlet
 								"attachment; filename=\"" + filename
 										+ "\"; filename*=UTF-8''" + filename);
 					}
-					else if (mime.equals("image/svg+xml"))
+					else if (mime != null && mime.equals("image/svg+xml"))
 					{
 						response.setContentType("image/svg+xml");
 					}

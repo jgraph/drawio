@@ -388,6 +388,7 @@ insertText=Infoga text
 inserting=Infogar
 invalidFilename=Diagrammet får inte innehålla följande tecken: \ / | : ; { } < > & + ? = 
 invalidLicenseSeeThisPage=Din licens är ogiltig, vänligen se <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>
+invalidInput=Invalid input
 invalidName=Ogiltigt namn 
 invalidOrMissingFile=Ogiltigt eller saknad fil
 invalidPublicUrl=Ogiltigt publik URL

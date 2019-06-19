@@ -388,6 +388,7 @@ insertText=Вмъкване на текст
 inserting=Вмъкване 
 invalidFilename=Диаграмата не трябва да съдържа следните символи: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Вашият лиценз не е валиден. Моля вижте тук <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Невалидно име
 invalidOrMissingFile=Невалиден или липсващ файл
 invalidPublicUrl=Невалиден публичен URL

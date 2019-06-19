@@ -9,3 +9,5 @@ docker run -d -p 8888:8080 draw
 ```
 Now the app will be accessible at `http://localhost:8888/draw/?local=1` (the local URL parameter disables
 the cloud integrations as those require some keys to be changed).
+
+We recommend using [this external Docker draw.io project](https://github.com/fjudith/docker-draw.io), it is somewhat more advanced and better maintained.

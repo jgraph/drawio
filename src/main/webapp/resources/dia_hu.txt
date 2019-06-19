@@ -388,6 +388,7 @@ insertText=Szöveget beszúr
 inserting=Beszúrás
 invalidFilename=A diagram nem tartalmazhatja a következő betűket: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Az engedélye érvénytelen, kérjük tekintse meg ezt <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Érvénytelen név
 invalidOrMissingFile=Érvénytelen vagy hiányzó fájl
 invalidPublicUrl=Érvénytelen nyilvános URL

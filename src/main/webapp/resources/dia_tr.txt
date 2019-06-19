@@ -388,6 +388,7 @@ insertText=Metin ekle
 inserting=Ekleniyor
 invalidFilename=Diyagram adları şu karakterleri içermelidir : \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lisansınız geçersiz, lütfen <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a> a bakınız
+invalidInput=Invalid input
 invalidName=Geçersiz isim
 invalidOrMissingFile=Geçersiz veya olmayan dosya
 invalidPublicUrl=Geçersiz herkese açık URL
