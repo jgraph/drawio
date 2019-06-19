@@ -388,6 +388,7 @@ insertText=Добавить текст
 inserting=Вставка
 invalidFilename=Название диаграммы не может содержать следующие символы: \ / | : ; { < & + ? = "
 invalidLicenseSeeThisPage=Ваша лицензия недействительна. Пожалуйста, посетите эту<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">страницу</a>.
+invalidInput=Invalid input
 invalidName=Некорректное имя
 invalidOrMissingFile=Файл поврежден или отсутствует
 invalidPublicUrl=Некорректная ссылка

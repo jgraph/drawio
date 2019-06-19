@@ -388,6 +388,7 @@ insertText=แทรกข้อความ
 inserting=การแทรก
 invalidFilename=ชื่อแผนภาพจะต้องไม่มีเครื่องหมายเหล่านี้  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=ใบอนุญาตของคุณไม่ถูกต้อง  โปรดดู <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=ชื่อที่ใช้ไม่ได้
 invalidOrMissingFile=ไฟล์ไม่ถูกต้องหรือไฟล์สูญหาย
 invalidPublicUrl=URL สาธารณะไม่ถูกต้อง

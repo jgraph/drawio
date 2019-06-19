@@ -388,6 +388,7 @@ insertText=Εισαγωγή κειμένου
 inserting=Εισάγοντας
 invalidFilename=Το όνομα του διαγράμματος δεν πρέπει να περιέχει τους παρακάτω χρακτήρες: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Η άδεια χρήσης σας δεν είναι έγκυρη, παρακαλώ δείτε αυτό  <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Μη έγκυρο όνομα
 invalidOrMissingFile=Μη έγκυρο ή ανύπαρκτο αρχείο
 invalidPublicUrl=Μη έγκυρο δημόσιο URL

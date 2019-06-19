@@ -388,6 +388,7 @@ insertText=Indsæt tekst
 inserting=Indsætter
 invalidFilename=Diagramnavn må ikke indeholde de følgende tegn: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Din licens er ugyldig, se venligst <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">side</a>.
+invalidInput=Invalid input
 invalidName=Ugyldigt navn
 invalidOrMissingFile=Ugyldig eller manglende fil
 invalidPublicUrl=Ugyldig offentlig URL

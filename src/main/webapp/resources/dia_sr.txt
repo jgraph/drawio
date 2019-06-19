@@ -388,6 +388,7 @@ insertText=Insert Text
 inserting=Umetanje
 invalidFilename=Imena dijagrama ne smeju sadržati sledeće znake : \ / | : ; { < & + ? =
 invalidLicenseSeeThisPage=Your license is invalid, please see this <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Neispravno ime
 invalidOrMissingFile=Neispravan ili nepostojeći dokument
 invalidPublicUrl=Invalid public URL

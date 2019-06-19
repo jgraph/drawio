@@ -388,6 +388,7 @@ insertText=Vložit text
 inserting=Vkládání
 invalidFilename=Jména diagramů nesmí obsahovat tyto znaky: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Vaše licence je neplatná, podívejte se prosím na tuto <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">stránku</a>.
+invalidInput=Invalid input
 invalidName=Neplatný název
 invalidOrMissingFile=Neplatný nebo chybějící soubor
 invalidPublicUrl=neplatné veřejné URL

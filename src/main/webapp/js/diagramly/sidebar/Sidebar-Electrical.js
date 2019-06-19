@@ -91,9 +91,12 @@
 			this.createVertexTemplateEntry(meiecl + 'nor;', 66, 80, '', 'NOR (IEC)', null, null, this.getTagsForStencil(gnmeiecl, 'nor', dtmeiecl).join(' ')),
 			this.createVertexTemplateEntry(meiecl + 'not;', 66, 80, '', 'NOT (IEC)', null, null, this.getTagsForStencil(gnmeiecl, 'xor', dtmeiecl).join(' ')),
 			this.createVertexTemplateEntry(meiecl + 'xor;', 60, 80, '', 'XOR (IEC)', null, null, this.getTagsForStencil(gnmeiecl, 'xor', dtmeiecl).join(' ')),
-			this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;strokeWidth=1;shape=mxgraph.electrical.logic_gates.dual_inline_ic;', 
+			this.createVertexTemplateEntry(
+					'shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;strokeWidth=1;shape=mxgraph.electrical.logic_gates.dual_inline_ic;labelNames=a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t;', 
 					100, 200, 'IC', 'Dual In-Line IC', null, null, this.getTagsForStencil(gnmel, 'dual inline in line ic integrated circuit', dtmel).join(' ')),
-			this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;strokeWidth=1;shape=mxgraph.electrical.logic_gates.qfp_ic;', 
+			this.createVertexTemplateEntry(
+					'shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;strokeWidth=1;shape=mxgraph.electrical.logic_gates.qfp_ic;' + 
+					'labelNames=a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,l1,m1,n1;', 
 					200, 200, 'IC', 'Quad Flat Package IC', null, null, this.getTagsForStencil(gnmel, 'quad flat package qfp ic integrated circuit', dtmel).join(' '))
 		]);
 

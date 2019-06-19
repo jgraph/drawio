@@ -3353,6 +3353,52 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 };
 
 /**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
+{
+	var e = (resp != null && resp.error != null) ? resp.error : resp;
+
+	if (e != null || title != null)
+	{
+		var msg = mxUtils.htmlEntities(mxResources.get('unknownError'));
+		var btn = mxResources.get('ok');
+		title = (title != null) ? title : mxResources.get('error');
+		
+		if (e != null && e.message != null)
+		{
+			msg = mxUtils.htmlEntities(e.message);
+		}
+
+		this.showError(title, msg, btn, fn, null, null, null, null, null,
+			null, null, null, (invokeFnOnClose) ? fn : null);
+	}
+	else if (fn != null)
+	{
+		fn();
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
+{
+	var height = (msg != null && msg.length > 120) ? 180 : 150;
+	var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'),
+		fn, retry, btn2, fn2, hide, btn3, fn3);
+	this.showDialog(dlg.container, w || 340, h || ((msg != null && msg.length > 120) ?
+		180 : 150), true, false, onClose);
+	dlg.init();
+};
+
+/**
  * Displays a print dialog.
  */
 EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize)

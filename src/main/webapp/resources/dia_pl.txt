@@ -388,6 +388,7 @@ insertText=Wstaw tekst
 inserting=Wstawianie
 invalidFilename=Nazwy diagramów nie mogą zawierać następujących znaków: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Twoja licencja jest nieważna, sprawdź <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nieprawidłowa nazwa
 invalidOrMissingFile=Nieprawidłowy lub brakujący plik
 invalidPublicUrl=Nieprawidłowe publiczne hiperłącze

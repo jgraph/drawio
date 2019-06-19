@@ -388,6 +388,7 @@ insertText=Magsingit ng teksto
 inserting=Nagsisingit
 invalidFilename=Ang pangalan ng mga Dayagram ay hindi maaaring magtaglay ng sumusunod na mga simbolo: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Di wastong pangalan
 invalidOrMissingFile=Di wasto o nawawalang File
 invalidPublicUrl=Di wastong pampublikong File

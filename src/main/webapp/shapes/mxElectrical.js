@@ -719,6 +719,13 @@ mxShapeElectricalDualInLineIC.prototype.customProperties = [
 			{val:'w', dispName:'W'}
 		]},
 	{name: 'pinSpacing', dispName: 'Pin Spacing', type: 'float', min:1, defVal:20},
+	{name: 'pinLabelType', dispName: 'Pin Label Type', type: 'enum', defVal:'gen',
+		enumList:[
+			{val:'gen', dispName:'Generated'},
+			{val:'cust', dispName:'Custom'}
+		]},
+	{name: 'labelCount', dispName: 'Number of Labels', type: 'int', defVal: 20, dependentProps: ['labelNames']},
+	{name: 'labelNames', dispName: 'Label Names', type: 'staticArr', subType: 'string', sizeProperty: 'labelCount', subDefVal: 'a'}
 ];
 
 /**
@@ -732,6 +739,8 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 	var fontColor = mxUtils.getValue(this.style, 'fontColor', '#000000');
 	c.setFontColor(fontColor);
 	var startPin = mxUtils.getValue(this.style, 'startPin', 'n');
+	var pinLabelType = mxUtils.getValue(this.style, 'pinLabelType', 'gen');
+	var labelNames = mxUtils.getValue(this.style, 'labelNames', '').toString().split(',');
 
 	c.begin();
 	
@@ -784,8 +793,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 				{
 					var currPinNum = pinsOne + pinCount;
 				}
-				
-				c.text(20, currH, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+
+				if (pinLabelType == 'gen')
+				{
+					c.text(20, currH, 0, 0, currPinNum.toString(), mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (currPinNum - 1 < labelNames.length)
+				{
+					c.text(20, currH, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
 				
 				if (startPin == 'n')
 				{
@@ -796,7 +812,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 					var pc2 = pinsOne - pinCount + 1;
 				}
 				
-				c.text(w - 20, currH, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				if (pinLabelType == 'gen')
+				{
+					c.text(w - 20, currH, 0, 0, pc2.toString(), mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (pc2 - 1 < labelNames.length)
+				{
+					c.text(w - 20, currH, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				
 				currH = currH + pinSpacing;
 				pinCount++;
 			}
@@ -819,7 +843,14 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 					var currPinNum = 2 * pinsOne - pinCount + 1;
 				}
 				
-				c.text(currH, 20, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				if (pinLabelType == 'gen')
+				{
+					c.text(currH, 20, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (currPinNum - 1 < labelNames.length)
+				{
+					c.text(currH, 20, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
 				
 				if (startPin == 'e')
 				{
@@ -830,7 +861,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 					var pc2 = pinCount;
 				}
 				
-				c.text(currH, h - 20, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				if (pinLabelType == 'gen')
+				{
+					c.text(currH, h - 20, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (pc2 - 1 < labelNames.length)
+				{
+					c.text(currH, h - 20, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				
 				currH = currH + pinSpacing;
 				pinCount++;
 			}
@@ -864,8 +903,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 				{
 					var currPinNum = pinsOne + pinCount;
 				}
-				
-				c.text(5, currH + 1, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+
+				if (pinLabelType == 'gen')
+				{
+					c.text(5, currH + 1, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (currPinNum - 1 < labelNames.length)
+				{
+					c.text(5, currH + 1, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
 				
 				if (startPin == 'n')
 				{
@@ -876,7 +922,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 					var pc2 = pinsOne - pinCount + 1;
 				}
 				
-				c.text(w - 5, currH + 1, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				if (pinLabelType == 'gen')
+				{
+					c.text(w - 5, currH + 1, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (pc2 - 1 < labelNames.length)
+				{
+					c.text(w - 5, currH + 1, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+
 				currH = currH + pinSpacing;
 				pinCount++;
 			}
@@ -901,8 +955,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 				{
 					var currPinNum = 2 * pinsOne - pinCount + 1;
 				}
-				
-				c.text(currH, 5, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+
+				if (pinLabelType == 'gen')
+				{
+					c.text(currH, 5, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (currPinNum - 1 < labelNames.length)
+				{
+					c.text(currH, 5, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
 				
 				if (startPin == 'e')
 				{
@@ -913,7 +974,15 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 					var pc2 = pinCount;
 				}
 				
-				c.text(currH, h - 5, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				if (pinLabelType == 'gen')
+				{
+					c.text(currH, h - 5, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+				else if (pc2 - 1 < labelNames.length)
+				{
+					c.text(currH, h - 5, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+				}
+
 				currH = currH + pinSpacing;
 				pinCount++;
 			}
@@ -1032,6 +1101,13 @@ mxShapeElectricalQFPIC.prototype.customProperties = [
 			{val:'se', dispName:'SE'}
 		]},
 	{name: 'pinSpacing', dispName: 'Pin Spacing', type: 'float', min:1, defVal:20},
+	{name: 'pinLabelType', dispName: 'Pin Label Type', type: 'enum', defVal:'gen',
+		enumList:[
+			{val:'gen', dispName:'Generated'},
+			{val:'cust', dispName:'Custom'}
+		]},
+	{name: 'labelCount', dispName: 'Number of Labels', type: 'int', defVal: 40, dependentProps: ['labelNames']},
+	{name: 'labelNames', dispName: 'Label Names', type: 'staticArr', subType: 'string', sizeProperty: 'labelCount', subDefVal: 'a'}
 ];
 
 /**
@@ -1057,6 +1133,8 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	var pinSpacing = parseFloat(mxUtils.getValue(this.style, 'pinSpacing', '20'));
 	var pinStyle = mxUtils.getValue(this.style, 'pinStyle', 'line');
+	var pinLabelType = mxUtils.getValue(this.style, 'pinLabelType', 'gen');
+	var labelNames = mxUtils.getValue(this.style, 'labelNames', '').toString().split(',');
 	var fontSize = parseFloat(mxUtils.getValue(this.style, 'fontSize', '12'));
 	var fontColor = mxUtils.getValue(this.style, 'fontColor', '#000000');
 	c.setFontColor(fontColor);
@@ -1095,7 +1173,14 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var currPinNum = pinsVOne + 2 * pinsHOne + pinCount;
 			}
 
-			c.text(20, currH, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(20, currH, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (currPinNum - 1 < labelNames.length)
+			{
+				c.text(20, currH, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
 			
 			//east pins
 			switch(startPin) {
@@ -1112,7 +1197,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var pc2 = pinsHOne + pinsVOne - pinCount + 1;
 			}
 
-			c.text(w - 20, currH, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(w - 20, currH, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (pc2 - 1 < labelNames.length)
+			{
+				c.text(w - 20, currH, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			
 			currH = currH + pinSpacing;
 			pinCount++;
 		}
@@ -1142,8 +1235,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var currPinNum = pinCount;
 			}
 			
-			c.text(currH, h - 20, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-			
+			if (pinLabelType == 'gen')
+			{
+				c.text(currH, h - 20, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (currPinNum - 1 < labelNames.length)
+			{
+				c.text(currH, h - 20, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+
 			//north pins
 			switch(startPin) {
 			  case 'nw':
@@ -1159,7 +1259,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var pc2 = 2 * pinsHOne + pinsVOne - pinCount + 1;
 			}
 			
-			c.text(currH, 20, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(currH, 20, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (pc2 - 1 < labelNames.length)
+			{
+				c.text(currH, 20, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			
 			currH = currH + pinSpacing;
 			pinCount++;
 		}
@@ -1199,7 +1307,14 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var currPinNum = pinsVOne + 2 * pinsHOne + pinCount;
 			}
 
-			c.text(5, currH + 1, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(5, currH + 1, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (currPinNum - 1 < labelNames.length)
+			{
+				c.text(5, currH + 1, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
 			
 			//east pins
 			switch(startPin) {
@@ -1216,7 +1331,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var pc2 = pinsHOne + pinsVOne - pinCount + 1;
 			}
 
-			c.text(w - 5, currH + 1, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(w - 5, currH + 1, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (pc2 - 1 < labelNames.length)
+			{
+				c.text(w - 5, currH + 1, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+
 			currH = currH + pinSpacing;
 			pinCount++;
 		}
@@ -1249,8 +1372,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var currPinNum = pinCount;
 			}
 			
-			c.text(currH, h - 4, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-			
+			if (pinLabelType == 'gen')
+			{
+				c.text(currH, h - 4, 0, 0, currPinNum.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (currPinNum - 1 < labelNames.length)
+			{
+				c.text(currH, h - 4, 0, 0, labelNames[currPinNum - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+
 			//north pins
 			switch(startPin) {
 			  case 'nw':
@@ -1266,7 +1396,15 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 					var pc2 = 2 * pinsHOne + pinsVOne - pinCount + 1;
 			}
 			
-			c.text(currH, 6, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			if (pinLabelType == 'gen')
+			{
+				c.text(currH, 6, 0, 0, pc2.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+			else if (pc2 - 1 < labelNames.length)
+			{
+				c.text(currH, 6, 0, 0, labelNames[pc2 - 1].toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			}
+
 			currH = currH + pinSpacing;
 			pinCount++;
 		}

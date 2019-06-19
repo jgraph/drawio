@@ -392,7 +392,7 @@ EditorUi.initMinimalTheme = function()
 		if (this.userElement != null)
 		{
 			var elt = this.userElement;
-    		elt.style.cssText = 'display:inline-block;position:relative;margin-right:4px;cursor:pointer;';
+    		elt.style.cssText = 'position:relative;margin-right:4px;cursor:pointer;display:' + elt.style.display;
     		elt.className = 'geToolbarButton';
     		elt.innerHTML = '';
 			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
@@ -403,6 +403,11 @@ EditorUi.initMinimalTheme = function()
         	elt.style.width = '24px';
         	elt.style.cssFloat = 'right';
         	elt.setAttribute('title', mxResources.get('changeUser'));
+        	
+        	if (elt.style.display != 'none')
+        	{
+        		elt.style.display = 'inline-block';
+        	}
 		}
     };
     

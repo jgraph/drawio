@@ -388,6 +388,7 @@ insertText=Chèn văn bản
 inserting=Đang chèn
 invalidFilename=Tên biểu đồ không được chứa những kí tự sau: \ / | : ' { } < > & + ? = "
 invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">trang này</a>.
+invalidInput=Invalid input
 invalidName=Tên không hợp lệ
 invalidOrMissingFile=Tập tin bị thiếu hoặc không hợp lệ
 invalidPublicUrl=Đường dẫn không hợp lệ

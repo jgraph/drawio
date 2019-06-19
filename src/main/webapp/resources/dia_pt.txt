@@ -388,6 +388,7 @@ insertText=Inserir texto
 inserting=A inserir
 invalidFilename=Nomes de diagramas não podem conter os seguintes caracteres:\ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=A sua carta não é válida, por favor veja <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nome inválido
 invalidOrMissingFile=Ficheiro inválido ou em falta
 invalidPublicUrl=URL pública inválida

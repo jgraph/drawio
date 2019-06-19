@@ -388,6 +388,7 @@ insertText=insertText
 inserting=inserting
 invalidFilename=invalidFilename
 invalidLicenseSeeThisPage=invalidLicenseSeeThisPage
+invalidInput=invalidInput
 invalidName=invalidName
 invalidOrMissingFile=invalidOrMissingFile
 invalidPublicUrl=invalidPublicUrl

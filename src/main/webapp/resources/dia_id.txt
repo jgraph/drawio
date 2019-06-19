@@ -388,6 +388,7 @@ insertText=Sisipkan Teks
 inserting=Menyisipkan
 invalidFilename=Nama diagram tidak boleh mengandung karakter berikut: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lisensi Anda tidak valid, harap baca tautan ini <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=Nama tidak valid
 invalidOrMissingFile=Berkas tidak valid atau hilang
 invalidPublicUrl=URL publik tidak valid

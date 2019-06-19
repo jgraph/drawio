@@ -388,6 +388,7 @@ insertText=‫הוספת טקסט‬
 inserting=‫מוסיף‬
 invalidFilename=‫שם הדיאגרמה אינו יכול לכלול את התווים הבאים:  \ / | : ; { } < > & + ? = "‬
 invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>‬
+invalidInput=Invalid input
 invalidName=‫שם לא תקין‬
 invalidOrMissingFile=‫קובץ חסר או לא תקין‬
 invalidPublicUrl=‫כתובת URL ציבורית לא תקינה‬

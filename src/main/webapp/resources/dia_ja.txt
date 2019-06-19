@@ -388,6 +388,7 @@ insertText=テキスト
 inserting=挿入中
 invalidFilename=ダイアグラム名に次の文字を含めることはできません。 \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=あなたの免許証が有効ではない、これを参照してください<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidInput=Invalid input
 invalidName=無効な名前です
 invalidOrMissingFile=無効または不明なファイル
 invalidPublicUrl=無効なパブリック URL
