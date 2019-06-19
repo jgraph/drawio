@@ -629,6 +629,8 @@ public class GliffyDiagramConverter
 				GliffyShape shape = graphic.Shape;
 
 				cell.setVertex(true);
+				
+				boolean isChevron = gliffyObject.uid != null && gliffyObject.uid.contains("chevron");
 
 				if (translatedStyle != null)
 				{
@@ -644,7 +646,7 @@ public class GliffyDiagramConverter
 				{
 					style.append("strokeWidth=" + shape.strokeWidth).append(";");
 
-					if (shape.strokeWidth == 0)
+					if (shape.strokeWidth == 0 && !isChevron)
 					{
 						style.append("strokeColor=none;");
 					}
@@ -652,7 +654,7 @@ public class GliffyDiagramConverter
 
 				if (style.lastIndexOf("fillColor") == -1)
 				{
-					if (shape.isNoFill())
+					if (shape.isNoFill() && !isChevron)
 					{
 						style.append("fillColor=none;");
 
@@ -986,7 +988,8 @@ public class GliffyDiagramConverter
 				}
 				else
 				{
-					style.append(textObject == gliffyObject ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
+					boolean isChevron = gliffyObject.uid != null && gliffyObject.uid.contains("chevron");
+					style.append(textObject == gliffyObject || isChevron ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
 				}
 			}
 		}

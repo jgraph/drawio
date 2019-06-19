@@ -1506,12 +1506,11 @@ var EditDataDialog = function(ui, cell)
 
 	if (id != null)
 	{	
-		var text = document.createElement('input');
-		text.style.width = '420px';
+		var text = document.createElement('div');
+		text.style.width = '100%';
+		text.style.fontSize = '11px';
 		text.style.textAlign = 'center';
-		text.setAttribute('type', 'text');
-		text.setAttribute('readOnly', 'true');
-		text.setAttribute('value', id);
+		mxUtils.write(text, id);
 		
 		form.addField(mxResources.get('id') + ':', text);
 	}

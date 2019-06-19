@@ -4229,7 +4229,7 @@ LucidImporter = {};
 		{
 			addPages(JSON.parse(state.state));
 		}
-		else if (state.Pages != null)
+		else if (state.Page == null && state.Pages != null)
 		{
 			addPages(state);
 		}
