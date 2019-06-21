@@ -151,7 +151,7 @@
 			if (mxIsElectron5)
 			{
 				//TODO Remove unsafe-eval which requires removing dependency on eval in many parts of the code (stencils, styles, decoder, ...) 
-				addMeta(null, 'default-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; connect-src \'self\' https://*.draw.io; img-src * data:; media-src *; font-src *', 'Content-Security-Policy');
+				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io; img-src * data:; media-src *; font-src *', 'Content-Security-Policy');
 			}
 		})();
 	</script>
@@ -362,6 +362,8 @@
 		{
 			mxscript('js/diagramly/DesktopLibrary.js');
 			mxscript('js/diagramly/ElectronApp.js');
+			mxscript('js/stencils.min.js');
+			mxscript('js/shapes.min.js');
 		}
 		
 		// Adds basic error handling
