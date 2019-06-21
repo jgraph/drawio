@@ -3542,6 +3542,21 @@
 	};
 
 	/**
+	 * Cached default stylesheet for image export in dark mode.
+	 */
+	Graph.prototype.getDefaultStylesheet = function()
+	{
+		if (this.defaultStylesheet == null)
+		{
+			var node = this.themes['default-style2'];
+			var dec = new mxCodec(node.ownerDocument);
+			this.defaultStylesheet = dec.decode(node);
+		}
+		
+		return this.defaultStylesheet;
+	};
+	
+	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
@@ -3553,10 +3568,7 @@
 		if (this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
-			this.stylesheet = new mxStylesheet();
-			var node = this.themes['default-style2'];
-			var dec = new mxCodec(node.ownerDocument);
-			dec.decode(node, this.getStylesheet());
+			this.stylesheet = this.getDefaultStylesheet()
 			this.refresh();
 		}
 		

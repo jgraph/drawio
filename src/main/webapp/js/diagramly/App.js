@@ -596,6 +596,12 @@ App.main = function(callback, createUi)
 							{
 								App.pluginsLoaded[plugins[i]] = true;
 								App.embedModePluginsCount++;
+								
+								if (plugins[i].charAt(0) == '/')
+								{
+									plugins[i] = PLUGINS_BASE_PATH + plugins[i];
+								}
+								
 								mxscript(plugins[i]);
 							}
 						}
@@ -1764,12 +1770,21 @@ App.prototype.getThumbnail = function(width, success)
 		
 		// Exports PNG for first page while other page is visible by creating a graph
 		// LATER: Add caching for the graph or SVG while not on first page
-		if (this.pages != null && this.currentPage != this.pages[0])
+		// To avoid refresh during save dark theme uses separate graph instance
+		var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
+		
+		if (this.pages != null && (this.currentPage != this.pages[0] || darkTheme))
 		{
-			graph = this.createTemporaryGraph(graph.getStylesheet());
+			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());
 			var graphGetGlobalVariable = graph.getGlobalVariable;
 			var page = this.pages[0];
-	
+
+			// Avoids override of stylesheet in getSvg for dark mode
+			if (darkTheme)
+			{
+				graph.defaultThemeName = 'default';
+			}
+			
 			graph.getGlobalVariable = function(name)
 			{
 				if (name == 'page')
