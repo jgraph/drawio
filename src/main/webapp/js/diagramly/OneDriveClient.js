@@ -812,47 +812,34 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 			// Workaround for truncated files in OneDrive is to check if file size is correct
 			try
 			{
-				this.executeRequest(url + '?select=size' , mxUtils.bind(this, function(req)
+				// Returns string length in bytes instead of chars
+				function lengthInUtf8Bytes(str)
 				{
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
-					{
-						var exp = (typeof data === 'string') ? data.length : data.size;
-						var temp = JSON.parse(req.getText());
-						var act = (temp != null) ? temp.size : -1;
+					  // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+					  var m = encodeURIComponent(str).match(/%[89ABab]/g);
+					  
+					  return str.length + (m ? m.length : 0);
+				}
+				
+				var exp = (typeof data === 'string') ? lengthInUtf8Bytes(data) : data.size;
 
-						if (exp != act)
-						{
-							// Logs failed save
-							try
-							{
-								var user = this.getUser();
-								
-								EditorUi.sendReport('Critical: Truncated OneDrive File ' +
-									new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
-									'\nFile=' + file.getId() + ' ' + file.meta.file.mimeType +
-									'\nUser=' + ((user != null) ? user.id : 'unknown') +
-									 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
-									'\nError=Save Data Missing\nExpected=' + exp + ' Actual=' + act)
-								EditorUi.logError('Critical: Truncated OneDrive File ' + file.getId(),
-									null, 'expected_' + exp + '-actual_' + act +
-									'-mime_' + file.meta.file.mimeType,
-									((user != null) ? user.id : 'unknown') + '.' +
-									((file.sync != null) ? file.sync.clientId : 'nosync'));
-							}
-							catch (e)
-							{
-								// ignore
-							}
-						}
-					}
-					else
-					{
-						// ignore
-					}
-				}), mxUtils.bind(this, function(req)
+				if (resp != null && resp.size != exp)
 				{
-					// ignore
-				}))
+					// Logs failed save
+					var user = this.getUser();
+					
+					EditorUi.sendReport('Critical: Truncated OneDrive File ' +
+						new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
+						'\nFile=' + file.getId() + ' ' + file.meta.file.mimeType +
+						'\nUser=' + ((user != null) ? user.id : 'unknown') +
+						 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
+						'\nExpected=' + exp + ' Actual=' + resp.size)
+					EditorUi.logError('Critical: Truncated OneDrive File ' + file.getId(),
+						null, 'expected_' + exp + '-actual_' + resp.size +
+						'-mime_' + file.meta.file.mimeType,
+						((user != null) ? user.id : 'unknown') + '.' +
+						((file.sync != null) ? file.sync.clientId : 'nosync'));
+				}
 			}
 			catch (e)
 			{
