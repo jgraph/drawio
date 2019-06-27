@@ -370,7 +370,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		buttons.style.padding = '30px 0px 26px 0px';
 	}
 	
-	if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+	if (Graph.fileSupport)
 	{
 		var link = document.createElement('div');
 		link.style.cursor = 'pointer';
@@ -395,9 +395,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 						// Using null for position will disable crop of input file
 						editorUi.hideDialog();
 						editorUi.openFiles(input.files, true);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
 					}
-					
-					input.value = '';
 				});
 				
 				input.style.display = 'none';
@@ -4260,7 +4263,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
         linkInput.focus();
 	};
 
-	if (Graph.fileSupport && document.documentMode == null)
+	if (Graph.fileSupport)
 	{
 		if (editorUi.imgDlgFileInputElt == null)
 		{
@@ -4270,26 +4273,32 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
-		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
-		    	{
-		    		apply(data);
-		    	}, function()
-		    	{
-		    		// No post processing
-		    	}, function(file)
-		    	{
-		    		// Handles only images
-		    		return file.type.substring(0, 6) == 'image/';
-		    	}, function(queue)
-		    	{
-		    		// Invokes elements of queue in order
-		    		for (var i = 0; i < queue.length; i++)
-		    		{
-		    			queue[i]();
-		    		}
-		    	}, true);
-		    	
-		    	fileInput.value = '';
+				if (fileInput.files != null)
+				{
+					editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
+			    	{
+			    		apply(data);
+			    	}, function()
+			    	{
+			    		// No post processing
+			    	}, function(file)
+			    	{
+			    		// Handles only images
+			    		return file.type.substring(0, 6) == 'image/';
+			    	}, function(queue)
+			    	{
+			    		// Invokes elements of queue in order
+			    		for (var i = 0; i < queue.length; i++)
+			    		{
+			    			queue[i]();
+			    		}
+			    	}, true);
+					
+		    		// Resets input to force change event for same file (type reset required for IE)
+					fileInput.type = '';
+					fileInput.type = 'file';
+					fileInput.value = '';
+				}
 			});
 			
 			fileInput.style.display = 'none';
@@ -4301,8 +4310,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		{
 			editorUi.imgDlgFileInputElt.click();
 		});
+
 		btn.className = 'geBtn';
-		
 		btns.appendChild(btn);
 	}
 
@@ -4312,11 +4321,12 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	{
 		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
 		{
-		    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
-		    	{
-		    		linkInput.value = image;
-		    	});
-		    	editorUi.showDialog(dlg.container, 200, 185, true, true);
+	    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
+	    	{
+	    		linkInput.value = image;
+	    	});
+	    	
+	    	editorUi.showDialog(dlg.container, 200, 185, true, true);
 			dlg.init();
 		});
 		
@@ -4396,6 +4406,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	{
 		apply(linkInput.value);
 	});
+	
 	applyBtn.className = 'geBtn gePrimaryBtn';
 	btns.appendChild(applyBtn);
 	
@@ -7864,6 +7875,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		// Ignores duplicates
 		try
 		{
+			editorUi.spinner.stop();
+			
 			if (mimeType == null || mimeType.substring(0, 6) == 'image/')
 			{
 				if ((data == null && img != null) || entries[data] == null)
@@ -8170,7 +8183,6 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				
 				try
 				{
-					editorUi.spinner.stop();
 					var doc = mxUtils.parseXml(data);
 					
 					if (doc.documentElement.nodeName == 'mxlibrary')
@@ -8268,13 +8280,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if  (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
+			if (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
 			{
 				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
 				{
-					editorUi.spinner.stop();
-		    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-		    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+		    		addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+		    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 				}));
 			}
 			else if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
@@ -8285,13 +8296,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					{
 						editorUi.spinner.stop();
 	    				
-	    					if (xhr.status >= 200 && xhr.status <= 299)
+	    				if (xhr.status >= 200 && xhr.status <= 299)
 						{
 							var xml = xhr.responseText;
-							
-				    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-				    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-				    			div.scrollTop = div.scrollHeight;
+							addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+				    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+							div.scrollTop = div.scrollHeight;
 						}
 					}
 				}));
@@ -8365,6 +8375,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		editorUi.hideDialog(true);
 	});
+	
 	cancelBtn.setAttribute('id', 'btnCancel');
 	cancelBtn.className = 'geBtn';
 	
@@ -8398,7 +8409,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	btn.className = 'geBtn';
 	btns.appendChild(btn);
 	
-	if (document.documentMode == null)
+	if (Graph.fileSupport)
 	{
 		if (editorUi.libDlgFileInputElt == null) 
 		{
@@ -8409,13 +8420,18 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
 		    	errorShowed = false;
-					
+
 		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
 		    	{
-		    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
-	
-		    		// Resets input to force change event for same file
-		    		fileInput.value = '';
+					if (fileInput.files != null)
+					{
+			    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
+		
+			    		// Resets input to force change event for same file (type reset required for IE)
+			    		fileInput.type = '';
+			    		fileInput.type = 'file';
+			    		fileInput.value = '';
+					}
 		    	});
 	
 				div.scrollTop = div.scrollHeight;
@@ -8473,6 +8489,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			}
 		});
 	});
+	
 	btn.setAttribute('id', 'btnAddImageUrl');
 	btn.className = 'geBtn';
 	btns.appendChild(btn);
@@ -8482,6 +8499,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		editorUi.saveLibrary(name, images, file, mode);
 	};
+	
 	var btn = mxUtils.button(mxResources.get('save'),mxUtils.bind(this, function()
 	{
 		if (stopEditing != null)
@@ -8492,6 +8510,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		
 		this.saveBtnClickHandler(nameInput.value, images, file, mode);
 	}));
+	
 	btn.setAttribute('id', 'btnSave');
 	btn.className = 'geBtn gePrimaryBtn';
 	btns.appendChild(btn);

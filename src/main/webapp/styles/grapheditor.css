@@ -224,7 +224,7 @@
 	color:#188038 !important;
 }
 .geMenubarContainer, .geToolbarContainer, .geHsplit, .geVsplit {
-	background-color:#ffffff;
+	background-color:#fbfbfb;
 }
 .geMenubar {
 	padding:0px 2px 0px 2px;
@@ -235,7 +235,7 @@
 	cursor:default;
 }
 .geMenubarContainer .geItem:hover {
-	background: #f1f3f4;
+	background: #e0e0e0;
 }
 .geMenubarContainer .geItem:active {
 	background: #e8f0fe;
@@ -300,7 +300,7 @@
 .geToolbarContainer .geButton:hover {
 	opacity:1;
 	_filter:none !important;
-	background: #f1f3f4;
+	background: #e0e0e0;
 }
 .geToolbarContainer .geButton:active {
 	background: #e8f0fe;
@@ -319,7 +319,7 @@ div.mxWindow .geButton {
 	filter:alpha(opacity=60);
 }
 .geToolbarContainer .geLabel:hover {
-	background: #f1f3f4;
+	background: #e0e0e0;
 	opacity:0.9;
 	filter:alpha(opacity=90) !important;
 }
@@ -337,7 +337,7 @@ div.mxWindow .geButton {
 	background-color: #f8f9fa;
 }
 .geSidebarContainer {
-	background:#ffffff;
+	background:#fbfbfb;
 	overflow:hidden;
 	position:absolute;
 	overflow:auto;
@@ -348,8 +348,10 @@ div.mxWindow .geButton {
 }
 .geSidebar {
 	border-bottom:1px solid #e5e5e5;
-	padding:8px;
-	_padding:4px;
+	padding:6px;
+	padding-left:10px;
+	_padding:2px;
+	_padding-left:6px;
 	padding-bottom:12px;
 	overflow:hidden;
 }
@@ -367,15 +369,15 @@ div.mxWindow .geButton {
 	line-height:1.4em;
 }
 .geSidebarContainer .geTitle:hover {
-	background-color:#f1f3f4;
+	background-color:#e0e0e0;
 }
 .geSidebarContainer .geDropTarget {
 	border-radius:10px;
-	border:2px dotted #e5e5e5;
+	border:2px dotted #b0b0b0;
 	text-align:center;
 	padding:6px;
 	margin:6px;
-	color:#d0d0d0;
+	color:#a0a0a0;
 	fontSize:13px;
 }
 .geTitle img {
@@ -398,10 +400,10 @@ div.mxWindow .geButton {
 	display:inline-block;
 	background-repeat:no-repeat;
 	background-position:50% 50%;
-	cursor: move;
+	border-radius: 8px;
 }
 .geSidebar .geItem:hover {
-	background-color:#f1f3f4;
+	background-color:#e0e0e0;
 }
 .geItem {
 	vertical-align: top;
@@ -409,7 +411,7 @@ div.mxWindow .geButton {
 }
 .geSidebarTooltip {
 	position:absolute;
-	background:white;
+	background:#fbfbfb;
 	overflow:hidden;
 	box-shadow:0 2px 6px 2px rgba(60,64,67,.15);
 	border-radius:6px;
@@ -464,7 +466,7 @@ div.mxWindow .geButton {
 	border-bottom:1px solid #e5e5e5;
 }
 .geHsplit:hover, .geVsplit:hover {
-	background-color:#f1f3f4;
+	background-color:#e0e0e0;
 }
 .geDialog {
 	position:absolute;

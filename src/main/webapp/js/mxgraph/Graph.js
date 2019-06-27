@@ -5618,6 +5618,17 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * Returns the cells in the model (or given array) that have all of the
+		 * given tags in their tags property.
+		 */
+		Graph.prototype.getAttributeForCell = function(cell, attributeName, defaultValue)
+		{
+			return (cell.value != null && typeof cell.value === 'object') ?
+				(cell.value.getAttribute(attributeName) || defaultValue) :
+				defaultValue;
+		};
+
+		/**
 		 * Sets the link for the given cell.
 		 */
 		Graph.prototype.setAttributeForCell = function(cell, attributeName, attributeValue)

@@ -123,21 +123,23 @@
 	Editor.commonEdgeProperties = [
         {type: 'separator'},
         {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
-        {name: 'targetPortConstraint', dispName: 'Target Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'sourcePortConstraint', dispName: 'Source Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'sourcePortConstraint', dispName: 'Source Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'targetPortConstraint', dispName: 'Target Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
+        {name: 'jettySize', dispName: 'Jetty Size', type: 'int', min: 0, defVal: 'auto', allowAuto: true, isVisible: function(state)
+        {
+    		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'orthogonalEdgeStyle';
+        }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
-        {name: 'sourcePerimeterSpacing', dispName: 'Source Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'targetPerimeterSpacing', dispName: 'Target Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'perimeterSpacing', dispName: 'Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true},
-        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
+        {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
+        {name: 'snapToPoint', dispName: 'Snap to Anchor', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
         {
@@ -166,12 +168,12 @@
         {name: 'noLabel', dispName: 'Hide Label', type: 'bool', defVal: false},
         {name: 'labelPadding', dispName: 'Label Padding', type: 'float', defVal: 0},
         {name: 'direction', dispName: 'Direction', type: 'enum', defVal: 'east',
-        	enumList: [{val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraint', dispName: 'Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'portConstraint', dispName: 'Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
+        {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
@@ -3836,7 +3838,7 @@
 		
 		return result;
 	};
-	
+
 	/**
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
@@ -3850,6 +3852,18 @@
 			cells = (cells != null) ? cells : this.model.getDescendants(this.model.getRoot());
 			propertyName = (propertyName != null) ? propertyName : 'tags';
 			
+			var tagCount = 0;
+			var lookup = {};
+			
+			for (var i = 0; i < tagList.length; i++)
+			{
+				if (tagList[i].length > 0)
+				{
+					lookup[tagList[i].toLowerCase()] = true;
+					tagCount++;
+				}
+			}
+			
 			for (var i = 0; i < cells.length; i++)
 			{
 				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
@@ -3857,17 +3871,25 @@
 				{
 					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
 						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
-					var match = true;
+					var match = false;
 	
 					if (tags.length > 0)
 					{
 						var tmp = tags.toLowerCase().split(' ');
 						
-						for (var j = 0; j < tagList.length && match; j++)
+						if (tmp.length >= tagList.length)
 						{
-							var tag = mxUtils.trim(tagList[j]).toLowerCase();
+							var matchCount = 0;
 							
-							match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
+							for (var j = 0; j < tmp.length && (matchCount < tagCount); j++)
+							{
+								if (lookup[tmp[j]] != null)
+								{
+									matchCount++;
+								}
+							}
+							
+							match = matchCount == tagCount;
 						}
 					}
 					else
@@ -3885,7 +3907,7 @@
 		
 		return result;
 	};
-
+	
 	/**
 	 * Shows or hides the given cells.
 	 */
