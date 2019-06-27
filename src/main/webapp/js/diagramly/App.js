@@ -290,7 +290,8 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
 	'tickets': '/plugins/tickets.js', 'flow': '/plugins/flow.js',
 	'webcola': '/plugins/webcola/webcola.js', 'rnd': '/plugins/random.js',
-	'page': '/plugins/page.js', 'gd': '/plugins/googledrive.js'};
+	'page': '/plugins/page.js', 'gd': '/plugins/googledrive.js',
+	'tags': '/plugins/tags.js'};
 
 /**
  * Function: authorize
@@ -1059,6 +1060,41 @@ App.prototype.init = function()
 			this.restoreLibraries();
 		}))
 	}
+	
+	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler)
+	{
+		var footer = document.createElement('div');
+		footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
+			'white-space:nowrap;left:50%;bottom:2px;';
+		footer.className = className;
+
+		var icn = ((className == 'geStatusAlert') ? '<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;margin-left:2px;" valign="middle"/>' : '');
+		
+		mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+		mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
+		footer.style.whiteSpace = 'nowrap';
+		footer.innerHTML = '<a href="' + link +
+			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
+			icn + label + icn + '</a>';
+		
+		var img = document.createElement('img');
+		
+		img.setAttribute('src', Dialog.prototype.closeImage);
+		img.setAttribute('title', mxResources.get('close'));
+		img.style.position = 'absolute';
+		img.style.cursor = 'pointer';
+		img.style.right = '10px';
+		img.style.top = '12px';
+
+		footer.appendChild(img);
+
+		if (closeHandler)
+		{
+			mxEvent.addListener(img, 'click', closeHandler);
+		}
+		
+		return footer;
+	});
 
 	/**
 	 * Lazy-loading for individual backends
@@ -1081,6 +1117,41 @@ App.prototype.init = function()
 				{
 					this.updateUserElement();
 					this.restoreLibraries();
+					
+					if (this.oneDrive.user != null && (!isLocalStorage || mxSettings.settings == null ||
+						mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeFooter == null) &&
+						(!this.editor.chromeless || this.editor.editable) && !this.footerShowing)
+					{
+						var footer = createFooter('Add-in for Microsoft Office now available',
+							'https://appsource.microsoft.com/product/office/wa200000113',
+							'geStatusMessage',
+							mxUtils.bind(this, function()
+							{
+								footer.parentNode.removeChild(footer);
+								this.hideFooter();
+		
+								// Close permanently
+								if (isLocalStorage && mxSettings.settings != null)
+								{
+									mxSettings.settings.closeFooter = Date.now();
+									mxSettings.save();
+								}
+							}));
+
+						document.body.appendChild(footer);
+						this.footerShowing = true;
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+						}), 1500);
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+							this.footerShowing = false;
+						}), 15000);
+					}
 				}));
 				
 				// Notifies listeners of new client
@@ -1182,44 +1253,22 @@ App.prototype.init = function()
 						{
 							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 							{
-								var footer = document.createElement('div');
-								footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
-									'white-space:nowrap;left:50%;bottom:2px;';
-								footer.className = 'geStatusAlert';
-								
-								mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-								mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
-								footer.style.whiteSpace = 'nowrap';
-								footer.innerHTML = '<a href="https://desk.draw.io/support/solutions/articles/16000092210" ' +
-									'target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;" valign="middle"/>&nbsp;' +
-									'You need to take action to convert legacy files. Click here.&nbsp;' +
-									'<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-left:2px;" valign="middle"/></a>';
-								
-								var img = document.createElement('img');
-								
-								img.setAttribute('src', Dialog.prototype.closeImage);
-								img.setAttribute('title', mxResources.get('close'));
-								img.style.position = 'absolute';
-								img.style.cursor = 'pointer';
-								img.style.right = '10px';
-								img.style.top = '12px';
-	
-								footer.appendChild(img);
-	
-								mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-								{
-									footer.parentNode.removeChild(footer);
-									this.hideFooter();
-
-									// Close permanently
-									if (isLocalStorage && mxSettings.settings != null)
+								var footer = createFooter('You need to take action to convert legacy files. Click here.',
+									'https://desk.draw.io/support/solutions/articles/16000092210',
+									'geStatusAlert',
+									mxUtils.bind(this, function()
 									{
-										mxSettings.settings.closeRealtimeWarning = Date.now();
-										mxSettings.save();
-									}
-								}));
-								
+										footer.parentNode.removeChild(footer);
+										this.hideFooter();
+				
+										// Close permanently
+										if (isLocalStorage && mxSettings.settings != null)
+										{
+											mxSettings.settings.closeRealtimeWarning = Date.now();
+											mxSettings.save();
+										}
+									}));
+
 								document.body.appendChild(footer);
 								
 								window.setTimeout(mxUtils.bind(this, function()
@@ -2004,7 +2053,7 @@ App.prototype.createBackground = function()
 			else
 			{
 				this.appIcon.removeAttribute('title');
-				this.appIcon.style.cursor = 'default';
+				this.appIcon.style.cursor = (mode == App.MODE_DEVICE) ? 'pointer' : 'default';
 			}
 		}
 		
@@ -2086,6 +2135,10 @@ App.prototype.appIconClicked = function(evt)
 			{
 				this.openLink('https://github.com/');
 			}
+		}
+		else if (mode == App.MODE_DEVICE)
+		{
+			this.openLink('https://get.draw.io/');
 		}
 	}
 	
@@ -2907,9 +2960,7 @@ App.prototype.pickFile = function(mode)
 			{
 				peer.pickFile();
 			}
-			// input.click does not work in IE on Windows 7
-			else if (mode == App.MODE_DEVICE && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
-				navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+			else if (mode == App.MODE_DEVICE && Graph.fileSupport)
 			{
 				if (this.openFileInputElt == null) 
 				{
@@ -2921,9 +2972,12 @@ App.prototype.pickFile = function(mode)
 						if (input.files != null)
 						{
 							this.openFiles(input.files);
+							
+				    		// Resets input to force change event for same file (type reset required for IE)
+							input.type = '';
+							input.type = 'file';
+				    		input.value = '';
 						}
-						
-						input.value = '';
 					}));
 					
 					input.style.display = 'none';
@@ -3040,7 +3094,7 @@ App.prototype.pickLibrary = function(mode)
 			}));
 		}
 	}
-	else if (mode == App.MODE_DEVICE && Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+	else if (mode == App.MODE_DEVICE && Graph.fileSupport)
 	{
 		if (this.libFileInputElt == null) 
 		{
@@ -3072,9 +3126,12 @@ App.prototype.pickLibrary = function(mode)
 							reader.readAsText(file);
 						}))(input.files[i]);
 					}
+					
+		    		// Resets input to force change event for same file (type reset required for IE)
+					input.type = '';
+					input.type = 'file';
+		    		input.value = '';
 				}
-				
-				input.value = '';
 			}));
 			
 			input.style.display = 'none';
@@ -4072,7 +4129,15 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						{
 							window.location.hash = currentFile.getHash();
 						}
-
+						
+						// Shows a warning if a copy was opened which happens
+						// eg. for .png files in IE as they cannot be written
+						if (file.mode == null)
+						{
+							var status = mxResources.get('browserUnsupportedFiletype');
+							this.editor.setStatus('<div title="'+ status + '" class="geStatusAlert" style="overflow:hidden;">' + status + '</div>');
+						}
+						
 						if (success != null)
 						{
 							success();

@@ -658,34 +658,7 @@ EditorUi.initMinimalTheme = function()
         ui.actions.get('createShape').label = mxResources.get('shape') + '...';
         ui.actions.get('outline').label = mxResources.get('outline') + '...';
         ui.actions.get('layers').label = mxResources.get('layers') + '...';
-        
-        ui.actions.put('importFile', new Action('File...', function()
-        {
-            graph.popupMenuHandler.hideMenu();
-            
-            if (ui.minImpFileInputElt == null) 
-			{
-	            var input = document.createElement('input');
-	            input.setAttribute('type', 'file');
-	            
-	            mxEvent.addListener(input, 'change', function()
-	            {
-	                if (input.files != null)
-	                {
-	                    // Using null for position will disable crop of input file
-	                    ui.importFiles(input.files, null, null, ui.maxImageSize);
-	                }
-	                
-	                input.value = '';
-	            });
-	            
-	            input.style.display = 'none';
-				document.body.appendChild(input);
-				ui.minImpFileInputElt = input;
-			}
-            
-            ui.minImpFileInputElt.click();
-        }));
+
         ui.actions.put('importCsv', new Action(mxResources.get('csv') + '...', function()
         {
             graph.popupMenuHandler.hideMenu();

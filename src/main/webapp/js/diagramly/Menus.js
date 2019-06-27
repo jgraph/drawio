@@ -1607,6 +1607,12 @@
 			});
 		}));
 
+		editorUi.actions.addAction('microsoftOffice...', function()
+		{
+			// TODO Add officeaddin.draw.io
+			editorUi.openLink('https://appsource.microsoft.com/product/office/WA200000113');
+		});
+
 		editorUi.actions.addAction('googleDocs...', function()
 		{
 			editorUi.openLink('http://docsaddon.draw.io');
@@ -2276,7 +2282,7 @@
 
 			if (urlParams['embed'] != '1' && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides'], parent);
+				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', '-', 'microsoftOffice'], parent);
 			}
 		})));
 

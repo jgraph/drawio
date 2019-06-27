@@ -6461,7 +6461,7 @@
 		    img.src = url;
 		}
 	};
-	
+
 	/**
 	 * Handling drag and drop and import.
 	 */
@@ -6489,7 +6489,7 @@
 					
 					// Checks for mxfile with multiple pages
 					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
-					
+
 					if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 					{
 						var diagrams = node.getElementsByTagName('diagram');
@@ -6500,6 +6500,8 @@
 						}
 						else if (diagrams.length > 1)
 						{
+							var mapping = {};
+							var pages = [];
 							var i0 = 0;
 							
 							// Adds first page to current page if current page is only page and empty
@@ -6512,10 +6514,13 @@
 
 							for (var i = i0; i < diagrams.length; i++)
 							{
-								// Imported pages must obtain a new ID
+								// Imported pages must obtain a new ID and
+								// all links to pages must be updated below
+								var oldId = diagrams[i].getAttribute('id')
 								diagrams[i].removeAttribute('id');
 								
 								var page = this.updatePageRoot(new DiagramPage(diagrams[i]));
+								mapping[oldId] = diagrams[i].getAttribute('id');
 								var index = this.pages.length;
 								
 								// Checks for invalid page names
@@ -6525,7 +6530,10 @@
 								}
 								
 								graph.model.execute(new ChangePage(this, page, page, index, true));
+								pages.push(page);
 							}
+							
+							this.updatePageLinks(mapping, pages);
 						}
 					}
 					
@@ -6553,6 +6561,70 @@
 		}
 		
 		return cells;
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinks = function(mapping, pages)
+	{
+		for (var i = 0; i < pages.length; i++)
+		{
+			this.updatePageLinksForCell(mapping, pages[i].root);
+		}
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinksForCell = function(mapping, cell)
+	{
+		var temp = document.createElement('div');
+		var graph = this.editor.graph;
+		var href = graph.getLinkForCell(cell);
+		
+		if (href != null && href.substring(0, 13) == 'data:page/id,')
+		{
+			graph.setLinkForCell(cell, this.updatePageLink(mapping, href));
+		}
+		
+		if (graph.isHtmlLabel(cell))
+		{
+			temp.innerHTML = graph.getLabel(cell);
+			var links = temp.getElementsByTagName('a');
+			var changed = false;
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				href = links[i].getAttribute('href');
+				
+				if (href != null && href.substring(0, 13) == 'data:page/id,')
+				{
+					links[i].setAttribute('href', this.updatePageLink(mapping, href));
+					changed = true;
+				}
+			}
+			
+			if (changed)
+			{
+				graph.labelChanged(cell, temp.innerHTML);
+			}
+		}
+		
+		for (var i = 0; i < graph.model.getChildCount(cell); i++)
+		{
+			this.updatePageLinksForCell(mapping, graph.model.getChildAt(cell, i));
+		}
+	};
+
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLink = function(mapping, href)
+	{
+		var newId = mapping[href.substring(href.indexOf(',') + 1)];
+		
+		return (newId != null) ? 'data:page/id,' + newId : null;
 	};
 	
 	/**
@@ -7060,9 +7132,7 @@
 	 */
 	EditorUi.prototype.importLocalFile = function(device, noSplash)
 	{
-		// input.click does not work in IE on Windows 7
-		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
-			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+		if (device && Graph.fileSupport)
 		{
 			if (this.importFileInputElt == null) 
 			{
@@ -7075,9 +7145,12 @@
 					{
 						// Using null for position will disable crop of input file
 						this.importFiles(input.files, null, null, this.maxImageSize);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
 					}
-					
-					input.value = '';
 				}));
 				
 				input.style.display = 'none';
@@ -7358,7 +7431,7 @@
 			{
 				graph.setSelectionCells(cells);
 			});
-	
+			
 			if (this.spinner.spin(document.body, mxResources.get('loading')))
 			{
 				var count = files.length;
@@ -10312,14 +10385,15 @@
 							   	}), null, null, null, mxUtils.bind(this, function()
 								{
 							   		processUri(null);
-								}), null, null, null, null, null, null, graph);
+								}), null, null, data.scale, null, null, null, graph);
 							}
 							else
 							{
 								// Data from server is base64 encoded to avoid binary XHR
 								// Double encoding for XML arg is needed for UTF8 encoding
 						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
-						       		((data.format == 'xmlpng') ? '1' : '0') + '&base64=1&xml=' +
+						       		((data.format == 'xmlpng') ? '1' : '0') + 
+						       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
 						       		encodeURIComponent(encodeURIComponent(xml)));
 
 								req.send(mxUtils.bind(this, function(req)

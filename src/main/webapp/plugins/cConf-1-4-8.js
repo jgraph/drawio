@@ -145,6 +145,16 @@ Draw.loadPlugin(function(ui)
 			macroData.lbox = (checked) ? '1' : '0';
 		}));
 
+		// High Resolution Preview
+		div.appendChild(this.createOption(mxResources.get('hiResPreview', null, 'High Res Preview'), function()
+		{
+			return (macroData.hiResPreview == null && Editor.config != null && Editor.config.hiResPreview) || macroData.hiResPreview == '1';
+		}, function(checked)
+		{
+			macroData.hiResPreview = (checked) ? '1' : '0';
+			ui.remoteInvoke('setHiResPreview', [checked], null, function(){}, function(){}); //Notify plugin of the change, ignoring both success and error callbacks
+		}));
+		
 		// Toolbar
 		var stylePanel = this.createPanel();
 		stylePanel.style.position = 'relative';

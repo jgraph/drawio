@@ -161,7 +161,7 @@ Draw.loadPlugin(function(ui)
 	{
 		// Only modern browsers for now. We'll move the import
 		// code above to the main codebase later
-		if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+		if (Graph.fileSupport)
 		{
 			if (ui.impFMFileInputElt == null) 
 			{
@@ -181,9 +181,12 @@ Draw.loadPlugin(function(ui)
 						};
 	
 						reader.readAsText(input.files[0]);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
 					}
-					
-					input.value = '';
 				});
 				
 				input.style.display = 'none';

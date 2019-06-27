@@ -1,3 +1,16 @@
+27-JUN-2019: 10.8.2
+
+- Fixes handling of special font names
+- Shows warning if file copy is loaded
+- Smaller sidebar entries
+- Adds tags plugin
+
+26-JUN-2019: 10.8.1
+
+- Fixed preview image aspect ratio in Confluence Cloud
+- Increases preview image export quality in Confluence Cloud
+- Uses default picker for loading files in IE11
+
 21-JUN-2019: 10.8.0
 
 - Removes unsafe-eval CSP for desktop app

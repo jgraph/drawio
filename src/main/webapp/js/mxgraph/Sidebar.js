@@ -12,9 +12,11 @@ function Sidebar(editorUi, container)
 	this.taglist = new Object();
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
-	this.graph.cellRenderer.antiAlias = false;
-	this.graph.foldingEnabled = false;
+    this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
+	this.graph.cellRenderer.antiAlias = this.thumbAntiAlias;
 	this.graph.container.style.visibility = 'hidden';
+	this.graph.foldingEnabled = false;
+
 	document.body.appendChild(this.graph.container);
 	
 	this.pointerUpHandler = mxUtils.bind(this, function()
@@ -156,6 +158,16 @@ Sidebar.prototype.thumbWidth = 42;
 Sidebar.prototype.thumbHeight = 42;
 
 /**
+ * Specifies the width of the thumbnails.
+ */
+Sidebar.prototype.minThumbStrokeWidth = 1;
+
+/**
+ * Specifies the width of the thumbnails.
+ */
+Sidebar.prototype.thumbAntiAlias = false;
+
+/**
  * Specifies the padding for the thumbnails. Default is 3.
  */
 Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 2 : 3;
@@ -164,6 +176,18 @@ Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 2 : 3;
  * Specifies the delay for the tooltip. Default is 2 px.
  */
 Sidebar.prototype.thumbBorder = 2;
+
+/*
+ * Experimental smaller sidebar entries
+ */
+if (urlParams['sidebar-entries'] != 'large')
+{
+	Sidebar.prototype.thumbBorder = 1;
+	Sidebar.prototype.thumbWidth = 32;
+	Sidebar.prototype.thumbHeight = 30;
+	Sidebar.prototype.minThumbStrokeWidth = 1.3;
+	Sidebar.prototype.thumbAntiAlias = true;
+}
 
 /**
  * Specifies the size of the sidebar titles.
@@ -1822,7 +1846,6 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	
 	node.style.position = 'relative';
 	node.style.overflow = 'hidden';
-	node.style.cursor = 'move';
 	node.style.left = this.thumbBorder + 'px';
 	node.style.top = this.thumbBorder + 'px';
 	node.style.width = width + 'px';
