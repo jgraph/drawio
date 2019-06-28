@@ -91,6 +91,7 @@ Menus.prototype.init = function()
 			menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 			{
 				this.customFonts = [];
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 			}), parent);
 			
 			menu.addSeparator(parent);
@@ -98,7 +99,11 @@ Menus.prototype.init = function()
 		
 		this.promptChange(menu, mxResources.get('custom') + '...', '', mxConstants.DEFAULT_FONTFAMILY, mxConstants.STYLE_FONTFAMILY, parent, true, mxUtils.bind(this, function(newValue)
 		{
-			this.customFonts.push(newValue);
+			if (mxUtils.indexOf(this.customFonts, newValue) < 0)
+			{
+				this.customFonts.push(newValue);
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+			}
 		}));
 	})));
 	this.put('formatBlock', new Menu(mxUtils.bind(this, function(menu, parent)

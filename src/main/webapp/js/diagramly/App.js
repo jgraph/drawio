@@ -1068,7 +1068,8 @@ App.prototype.init = function()
 			'white-space:nowrap;left:50%;bottom:2px;';
 		footer.className = className;
 
-		var icn = ((className == 'geStatusAlert') ? '<img src="' + this.editor.graph.warningImage.src + '" border="0" style="margin-top:-4px;margin-right:2px;margin-left:2px;" valign="middle"/>' : '');
+		var icn = ((className == 'geStatusAlert') ? '<img src="' + mxClient.imageBasePath + '/warning.gif" border="0" ' +
+				'style="margin-top:-4px;margin-right:8px;margin-left:8px;" valign="middle"/>' : '');
 		
 		mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
 		mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
@@ -1120,7 +1121,8 @@ App.prototype.init = function()
 					
 					if (this.oneDrive.user != null && (!isLocalStorage || mxSettings.settings == null ||
 						mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeFooter == null) &&
-						(!this.editor.chromeless || this.editor.editable) && !this.footerShowing)
+						(!this.editor.chromeless || this.editor.editable) &&
+						!this.footerShowing && urlParams['open'] == null)
 					{
 						var footer = createFooter('Add-in for Microsoft Office now available',
 							'https://appsource.microsoft.com/product/office/wa200000113',
@@ -1248,13 +1250,16 @@ App.prototype.init = function()
 						
 						if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
 							mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <
-							new Date().getTime() - (30 * 24 * 60 * 60 * 1000)) &&
+							new Date().getTime() - (7 * 24 * 60 * 60 * 1000)) &&
 							(!this.editor.chromeless || this.editor.editable))
 						{
 							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 							{
-								var footer = createFooter('You need to take action to convert legacy files. Click here.',
-									'https://desk.draw.io/support/solutions/articles/16000092210',
+								// Remaining days before 09/27/2019 where Google real time JSON will be disabled 
+								var days = Math.round((1569535200000 - Date.now()) / (1000 * 60 * 60 * 24));
+								
+								var footer = createFooter(days + ' days left to convert your files. Click here!',
+									'https://www.draw.io/?mode=google&convert-realtime=1',
 									'geStatusAlert',
 									mxUtils.bind(this, function()
 									{

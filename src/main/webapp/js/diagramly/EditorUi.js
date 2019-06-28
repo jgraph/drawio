@@ -9082,7 +9082,18 @@
 
 			// Updates UI to reflect current edge style
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
-
+			
+			/**
+			 * Persists custom fonts.
+			 */
+			this.menus.customFonts = mxSettings.getCustomFonts();
+			
+			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setCustomFonts(this.menus.customFonts);
+				mxSettings.save();
+			}));
+			
 			/**
 			 * Persists copy on connect switch.
 			 */

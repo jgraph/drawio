@@ -266,7 +266,7 @@ Draw.loadPlugin(function(editorUi)
 					}
 					else
 					{
-						span.style.background = '#ffffff';
+						span.style.background = (uiTheme == 'dark') ? 'transparent' : '#ffffff';
 					}
 					
 					mxEvent.addListener(span, 'click', (function(tag)

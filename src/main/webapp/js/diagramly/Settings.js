@@ -10,7 +10,7 @@ var mxSettings =
 	/**
 	 * Defines current version of settings.
 	 */
-	currentVersion: 17,
+	currentVersion: 18,
 	
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
 	
@@ -72,6 +72,14 @@ var mxSettings =
 	setOpenCounter: function(openCounter)
 	{
 		mxSettings.settings.openCounter = openCounter;
+	},
+	setCustomFonts: function(fonts)
+	{
+		mxSettings.settings.customFonts = fonts;
+	},
+	getCustomFonts: function(fonts)
+	{
+		return mxSettings.settings.customFonts;
 	},
 	getLibraries: function()
 	{
@@ -158,6 +166,7 @@ var mxSettings =
 		{
 			language: '',
 			configVersion: Editor.configVersion,
+			customFonts: [],
 			libraries: Sidebar.prototype.defaultEntries,
 			customLibraries: Editor.defaultCustomLibraries,
 			plugins: [],
@@ -227,6 +236,11 @@ var mxSettings =
 				if (mxSettings.settings.recentColors == null)
 				{
 					mxSettings.settings.recentColors = [];
+				}
+
+				if (mxSettings.settings.customFonts == null)
+				{
+					mxSettings.settings.customFonts = [];
 				}
 				
 				if (mxSettings.settings.libraries == null)

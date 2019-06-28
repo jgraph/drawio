@@ -20,6 +20,7 @@ EditorUi.initMinimalTheme = function()
        style.innerHTML = '* { -webkit-font-smoothing: antialiased; }' +
        	   'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
        	   'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
+       	   'table.mxWindow * { font-size:13px; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
            'html body a.geMenuItem { opacity: 0.75; }' +
@@ -48,13 +49,13 @@ EditorUi.initMinimalTheme = function()
            '.geDialog, .mxWindow td.mxWindowPane *, div.geSprite, td.mxWindowTitle, .geDiagramContainer { box-sizing:content-box; }' +
            '.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
            'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
-           'td.mxWindowPane .geSidebarContainer button { padding:2px 0 2px 0; box-sizing: border-box; }' +
+           'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
            'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
            // Styling for Minimal
            '.geToolbarContainer { background:#fff !important; }' +
-           'div.mxWindow .geSidebarContainer .geTitle { background-color:#fdfdfd; }' +
-           'div.mxWindow .geSidebarContainer .geTitle:hover { background-color:#fafafa; }' +
-           'div.geSidebar { background-color: #fff !important;}' +
+           'div.geSidebarContainer { background-color: #ffffff; }' +
+           'div.geSidebar { border-bottom: none; }' +
+           'div.geSidebarContainer .geTitle { background-color:#ffffff; border-bottom: none; }' +
            'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
            'td.mxWindowTitle { height: 22px !important; background: none !important; font-size: 13px !important; text-align:center !important; border-bottom:1px solid lightgray; }' +
            'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:#fff !important; }' +
@@ -174,7 +175,7 @@ EditorUi.initMinimalTheme = function()
 
 	    if (ui.sidebarWindow == null)
 	    {
-	        var w = Math.min(graph.container.clientWidth - 10, 266);
+	        var w = Math.min(graph.container.clientWidth - 10, 242);
 	        
 	        ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10, 56,
 	           w - 6, Math.min(650, graph.container.clientHeight - 30),
