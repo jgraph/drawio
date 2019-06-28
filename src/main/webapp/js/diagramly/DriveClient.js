@@ -2551,6 +2551,7 @@ DriveClient.prototype.convertRealtimeFiles = function()
 	});
 	
 	print('draw.io (' + EditorUi.VERSION + ') is searching files to be converted...');
+	print('<a href="https://desk.draw.io/support/solutions/articles/16000092210" target="_blank">Click here for help</a>');
 	
 	if (this.ui.spinner.spin(document.body, 'Searching files...'))
 	{
@@ -2825,13 +2826,14 @@ DriveClient.prototype.convertRealtimeFiles = function()
 					{
 						this.ui.spinner.stop();
 						
-						this.ui.confirm('You are about to convert ' + total + ' file(s)', mxUtils.bind(this, function()
-						{
-							doConvert();
-						}), mxUtils.bind(this, function()
+						this.ui.showError('Confirm', 'You are about to convert ' + total + ' file(s)',
+							'Cancel', mxUtils.bind(this, function()
 						{
 							print('Cancelled by user.<br><br>This window can now be closed.');
-						}));
+						}), null, 'OK', doConvert, 'Help', function()
+						{
+							window.open('https://desk.draw.io/support/solutions/articles/16000092210');
+						}, 340, 120);
 					}
 				}));
 			});
