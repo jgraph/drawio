@@ -4200,7 +4200,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						
 						// Shows a warning if a copy was opened which happens
 						// eg. for .png files in IE as they cannot be written
-						if (file.mode == null)
+						if (file.getMode() == null)
 						{
 							var status = mxResources.get('browserUnsupportedFiletype');
 							this.editor.setStatus('<div title="'+ status + '" class="geStatusAlert" style="overflow:hidden;">' + status + '</div>');
