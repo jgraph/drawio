@@ -347,7 +347,7 @@ public class GliffyDiagramConverter
 				temp = mxUtils.getRotatedPoint(temp, Math.cos(rad), Math.sin(rad), new mxPoint(0.5, 0.5));
 			}
 
-			if (!orthogonal || (temp.getX() == 0.5 && temp.getY() == 0.5))
+			if (!orthogonal || (temp.getX() == 0.5 && temp.getY() == 0.5) || GliffyObject.FORCE_CONSTRAINTS_SHAPES.contains(object.uid))
 			{
 				mxCell cell = object.getMxObject();
 				cell.setStyle(cell.getStyle() + ((source) ? "exitX=" : "entryX=") + temp.getX() + ";" + ((source) ? "exitY=" : "entryY=")
@@ -393,7 +393,7 @@ public class GliffyDiagramConverter
 				double rads = Math.toRadians(object.rotation);
 				double cos = Math.cos(rads);
 				double sin = Math.sin(rads);
-				waypoint = Utils.getRotatedPoint(waypoint, cos, sin, pivot);
+				waypoint = mxUtils.getRotatedPoint(waypoint, cos, sin, pivot);
 			}
 
 			mxPoints.add(waypoint);
@@ -629,6 +629,8 @@ public class GliffyDiagramConverter
 				GliffyShape shape = graphic.Shape;
 
 				cell.setVertex(true);
+				
+				boolean isChevron = gliffyObject.uid != null && gliffyObject.uid.contains("chevron");
 
 				if (translatedStyle != null)
 				{
@@ -644,7 +646,7 @@ public class GliffyDiagramConverter
 				{
 					style.append("strokeWidth=" + shape.strokeWidth).append(";");
 
-					if (shape.strokeWidth == 0)
+					if (shape.strokeWidth == 0 && !isChevron)
 					{
 						style.append("strokeColor=none;");
 					}
@@ -652,7 +654,7 @@ public class GliffyDiagramConverter
 
 				if (style.lastIndexOf("fillColor") == -1)
 				{
-					if (shape.isNoFill())
+					if (shape.isNoFill() && !isChevron)
 					{
 						style.append("fillColor=none;");
 
@@ -691,6 +693,13 @@ public class GliffyDiagramConverter
 				{
 					//Gliffy's subroutine maps to drawio process, whose inner boundary, unlike subroutine's, is relative to it's width so here we set it to 10px
 					style.append("size=" + 10 / gliffyObject.width).append(";");
+				}
+				
+				String fragmentText;
+				if((fragmentText = gliffyObject.getUmlSequenceCombinedFragmentText()) != null) 
+				{
+					cell.setValue(fragmentText);
+					gliffyObject.children.remove(0);
 				}
 			}
 			else if (gliffyObject.isLine())
@@ -811,12 +820,13 @@ public class GliffyDiagramConverter
 				cell.setVertex(true);
 				style.append("shape=image;imageAspect=0;");
 				Resource res = gliffyDiagram.embeddedResources.get(svg.embeddedResourceId);
-
+				SVGImporterUtils svgUtils = new SVGImporterUtils();
+				res.data = svgUtils.setViewBox(res.data);
 				style.append("image=data:image/svg+xml,").append(res.getBase64EncodedData()).append(";");
 			}
 		}
 		// swimlanes have children without uid so their children are converted here ad hoc
-		else if (gliffyObject.isSwimlane())
+		else if (gliffyObject.isSwimlane() && gliffyObject.children != null && gliffyObject.children.size() > 0)
 		{
 			cell.setVertex(true);
 			style.append(StencilTranslator.translate(gliffyObject.uid, null)).append(";");
@@ -887,7 +897,7 @@ public class GliffyDiagramConverter
 				gLane.mxObject = mxLane;
 			}
 		}
-		else if (gliffyObject.isMindmap())
+		else if (gliffyObject.isMindmap() && gliffyObject.children != null && !gliffyObject.children.isEmpty())
 		{
 			GliffyObject rectangle = gliffyObject.children.get(0);
 
@@ -941,6 +951,14 @@ public class GliffyDiagramConverter
 				}
 				else
 				{
+					if (gliffyObject.isGroup())
+					{
+						for (GliffyObject childObject : gliffyObject.children)
+						{
+							rotateGroupedObject(gliffyObject, childObject);
+						}
+
+					}
 					style.append("rotation=" + gliffyObject.rotation + ";");
 				}
 			}
@@ -970,7 +988,8 @@ public class GliffyDiagramConverter
 				}
 				else
 				{
-					style.append(textObject == gliffyObject ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
+					boolean isChevron = gliffyObject.uid != null && gliffyObject.uid.contains("chevron");
+					style.append(textObject == gliffyObject || isChevron ? txt.getStyle(0, 0) : txt.getStyle(textObject.x, textObject.y));
 				}
 			}
 		}
@@ -997,6 +1016,28 @@ public class GliffyDiagramConverter
 		return cell;
 	}
 
+	/**
+	 * Rotate objects inside Group
+	 * 
+	 * @param group
+	 * @param childObject
+	 */
+	private void rotateGroupedObject(GliffyObject group, GliffyObject childObject)
+	{
+		mxPoint pivot = new mxPoint(group.width / 2 - childObject.width / 2, group.height / 2 - childObject.height / 2);
+		mxPoint temp = new mxPoint(childObject.x, childObject.y);
+		if (group.rotation != 0)
+		{
+			double rads = Math.toRadians(group.rotation);
+			double cos = Math.cos(rads);
+			double sin = Math.sin(rads);
+			temp = mxUtils.getRotatedPoint(temp, cos, sin, pivot);
+			childObject.x = (float) temp.getX();
+			childObject.y = (float) temp.getY();
+			childObject.rotation += group.rotation;
+		}
+	}
+	
 	/**
 	 * Update borders of Text bracket in Frame objects.
 	 * 

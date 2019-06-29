@@ -17,7 +17,7 @@
 	</include>
   </static-files>
 
-  <instance-class>F2</instance-class>
+  <instance-class>F1</instance-class>
   <automatic-scaling>
     <min-idle-instances>1</min-idle-instances>
     <max-idle-instances>1</max-idle-instances>

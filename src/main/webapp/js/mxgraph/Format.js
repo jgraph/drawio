@@ -25,7 +25,7 @@ Format.prototype.showCloseButton = true;
 /**
  * Background color for inactive tabs.
  */
-Format.prototype.inactiveTabBackgroundColor = '#d7d7d7';
+Format.prototype.inactiveTabBackgroundColor = '#f1f3f4';
 
 /**
  * Background color for inactive tabs.
@@ -354,20 +354,30 @@ Format.prototype.refresh = function()
 	div.style.cursor = 'default';
 	
 	var label = document.createElement('div');
-	label.style.border = '1px solid #c0c0c0';
-	label.style.borderWidth = '0px 0px 1px 0px';
+	label.className = 'geFormatSection';
 	label.style.textAlign = 'center';
 	label.style.fontWeight = 'bold';
-	label.style.overflow = 'hidden';
-	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.paddingTop = '8px';
+	label.style.fontSize = '13px';
+	label.style.borderWidth = '0px 0px 1px 1px';
+	label.style.borderStyle = 'solid';
+	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.height = (mxClient.IS_QUIRKS) ? '34px' : '25px';
+	label.style.overflow = 'hidden';
 	label.style.width = '100%';
 	this.container.appendChild(div);
+	
+	// Prevents text selection
+    mxEvent.addListener(label, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        mxUtils.bind(this, function(evt)
+	{
+		evt.preventDefault();
+	}));
 	
 	if (graph.isSelectionEmpty())
 	{
 		mxUtils.write(label, mxResources.get('diagram'));
+		label.style.borderLeftWidth = '0px';
 		
 		// Adds button to hide the format panel since
 		// people don't seem to find the toolbar button
@@ -451,6 +461,13 @@ Format.prototype.refresh = function()
 			
 			mxEvent.addListener(elt, 'click', clickHandler);
 			
+			// Prevents text selection
+		    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	        	mxUtils.bind(this, function(evt)
+	    	{
+				evt.preventDefault();
+			}));
+			
 			if (index == ((containsLabel) ? this.labelIndex : this.currentIndex))
 			{
 				// Invokes handler directly as a workaround for no click on DIV in KHTML.
@@ -462,6 +479,7 @@ Format.prototype.refresh = function()
 
 		label.style.backgroundColor = this.inactiveTabBackgroundColor;
 		label.style.borderLeftWidth = '1px';
+		label.style.cursor = 'pointer';
 		label.style.width = (containsLabel) ? '50%' : '33.3%';
 		label.style.width = (containsLabel) ? '50%' : '33.3%';
 		var label2 = label.cloneNode(false);
@@ -682,8 +700,8 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 BaseFormatPanel.prototype.createPanel = function()
 {
 	var div = document.createElement('div');
+	div.className = 'geFormatSection';
 	div.style.padding = '12px 0px 12px 18px';
-	div.style.borderBottom = '1px solid #c0c0c0';
 	
 	return div;
 };
@@ -1016,9 +1034,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	mxUtils.write(span, label);
 	div.appendChild(span);
 	
-	var applying = false;
 	var value = getColorFn();
-
+	var applying = false;
 	var btn = null;
 
 	var apply = function(color, disableUpdate, forceUpdate)
@@ -1026,9 +1043,11 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		if (!applying)
 		{
 			applying = true;
+			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultColor;
 			btn.innerHTML = '<div style="width:' + ((mxClient.IS_QUIRKS) ? '30' : '36') +
 				'px;height:12px;margin:3px;border:1px solid black;background-color:' +
-				((color != null && color != mxConstants.NONE) ? color : defaultColor) + ';"></div>';
+				mxUtils.htmlEntities((color != null && color != mxConstants.NONE) ?
+				color : defaultColor) + ';"></div>';
 			
 			// Fine-tuning in Firefox, quirks mode and IE8 standards
 			if (mxClient.IS_QUIRKS || document.documentMode == 8)
@@ -1474,6 +1493,20 @@ ArrangePanel.prototype.init = function()
 	}
 	
 	this.container.appendChild(this.addGroupOps(this.createPanel()));
+
+	if (ss.containsLabel)
+	{
+		// Adds functions from hidden style format panel
+		var span = document.createElement('div');
+		span.style.width = '100%';
+		span.style.marginTop = '0px';
+		span.style.fontWeight = 'bold';
+		span.style.padding = '10px 0 0 18px';
+		mxUtils.write(span, mxResources.get('style'));
+		this.container.appendChild(span);
+			
+		new StyleFormatPanel(this.format, this.editorUi, this.container);
+	}
 };
 
 /**
@@ -2524,34 +2557,42 @@ TextFormatPanel.prototype.addFont = function(container)
 	};
 	
 	var left = this.editorUi.toolbar.addButton('geSprite-left', mxResources.get('left'),
-			(graph.cellEditor.isContentEditing()) ?
-			function()
-			{
-				document.execCommand('justifyleft', false, null);
-			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT])), stylePanel3);
+		(graph.cellEditor.isContentEditing()) ?
+		function()
+		{
+			document.execCommand('justifyleft', false, null);
+		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT])), stylePanel3);
 	var center = this.editorUi.toolbar.addButton('geSprite-center', mxResources.get('center'),
-			(graph.cellEditor.isContentEditing()) ?
-			function()
-			{
-				document.execCommand('justifycenter', false, null);
-			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER])), stylePanel3);
+		(graph.cellEditor.isContentEditing()) ?
+		function()
+		{
+			document.execCommand('justifycenter', false, null);
+		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER])), stylePanel3);
 	var right = this.editorUi.toolbar.addButton('geSprite-right', mxResources.get('right'),
-			(graph.cellEditor.isContentEditing()) ?
-			function()
-			{
-				document.execCommand('justifyright', false, null);
-			} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT])), stylePanel3);
+		(graph.cellEditor.isContentEditing()) ?
+		function()
+		{
+			document.execCommand('justifyright', false, null);
+		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT])), stylePanel3);
 
 	this.styleButtons([left, center, right]);
-
+	
+	// Quick hack for strikethrough
+	// TODO: Add translations and toggle state
 	if (graph.cellEditor.isContentEditing())
 	{
-		var clear = this.editorUi.toolbar.addButton('geSprite-removeformat', mxResources.get('removeFormat'),
+		var strike = this.editorUi.toolbar.addButton('geSprite-removeformat', mxResources.get('strikethrough'),
 			function()
 			{
-				document.execCommand('removeformat', false, null);
+				document.execCommand('strikeThrough', false, null);
 			}, stylePanel2);
-		this.styleButtons([clear]);
+		this.styleButtons([strike]);
+
+		strike.firstChild.style.background = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PHBhdGggaWQ9ImEiIGQ9Ik0wIDBoMjR2MjRIMFYweiIvPjwvZGVmcz48Y2xpcFBhdGggaWQ9ImIiPjx1c2UgeGxpbms6aHJlZj0iI2EiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PC9jbGlwUGF0aD48cGF0aCBjbGlwLXBhdGg9InVybCgjYikiIGZpbGw9IiMwMTAxMDEiIGQ9Ik03LjI0IDguNzVjLS4yNi0uNDgtLjM5LTEuMDMtLjM5LTEuNjcgMC0uNjEuMTMtMS4xNi40LTEuNjcuMjYtLjUuNjMtLjkzIDEuMTEtMS4yOS40OC0uMzUgMS4wNS0uNjMgMS43LS44My42Ni0uMTkgMS4zOS0uMjkgMi4xOC0uMjkuODEgMCAxLjU0LjExIDIuMjEuMzQuNjYuMjIgMS4yMy41NCAxLjY5Ljk0LjQ3LjQuODMuODggMS4wOCAxLjQzLjI1LjU1LjM4IDEuMTUuMzggMS44MWgtMy4wMWMwLS4zMS0uMDUtLjU5LS4xNS0uODUtLjA5LS4yNy0uMjQtLjQ5LS40NC0uNjgtLjItLjE5LS40NS0uMzMtLjc1LS40NC0uMy0uMS0uNjYtLjE2LTEuMDYtLjE2LS4zOSAwLS43NC4wNC0xLjAzLjEzLS4yOS4wOS0uNTMuMjEtLjcyLjM2LS4xOS4xNi0uMzQuMzQtLjQ0LjU1LS4xLjIxLS4xNS40My0uMTUuNjYgMCAuNDguMjUuODguNzQgMS4yMS4zOC4yNS43Ny40OCAxLjQxLjdINy4zOWMtLjA1LS4wOC0uMTEtLjE3LS4xNS0uMjV6TTIxIDEydi0ySDN2Mmg5LjYyYy4xOC4wNy40LjE0LjU1LjIuMzcuMTcuNjYuMzQuODcuNTEuMjEuMTcuMzUuMzYuNDMuNTcuMDcuMi4xMS40My4xMS42OSAwIC4yMy0uMDUuNDUtLjE0LjY2LS4wOS4yLS4yMy4zOC0uNDIuNTMtLjE5LjE1LS40Mi4yNi0uNzEuMzUtLjI5LjA4LS42My4xMy0xLjAxLjEzLS40MyAwLS44My0uMDQtMS4xOC0uMTNzLS42Ni0uMjMtLjkxLS40MmMtLjI1LS4xOS0uNDUtLjQ0LS41OS0uNzUtLjE0LS4zMS0uMjUtLjc2LS4yNS0xLjIxSDYuNGMwIC41NS4wOCAxLjEzLjI0IDEuNTguMTYuNDUuMzcuODUuNjUgMS4yMS4yOC4zNS42LjY2Ljk4LjkyLjM3LjI2Ljc4LjQ4IDEuMjIuNjUuNDQuMTcuOS4zIDEuMzguMzkuNDguMDguOTYuMTMgMS40NC4xMy44IDAgMS41My0uMDkgMi4xOC0uMjhzMS4yMS0uNDUgMS42Ny0uNzljLjQ2LS4zNC44Mi0uNzcgMS4wNy0xLjI3cy4zOC0xLjA3LjM4LTEuNzFjMC0uNi0uMS0xLjE0LS4zMS0xLjYxLS4wNS0uMTEtLjExLS4yMy0uMTctLjMzSDIxeiIvPjwvc3ZnPg==)';
+		strike.firstChild.style.backgroundPosition = '2px 2px';
+		strike.firstChild.style.backgroundSize = '18px 18px';
+
+		this.styleButtons([strike]);
 	}
 	
 	var top = this.editorUi.toolbar.addButton('geSprite-top', mxResources.get('top'),
@@ -2581,7 +2622,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		bottom.style.display = 'none';
 		verticalItem.style.display = 'none';
 		
-		full = this.editorUi.toolbar.addButton('geSprite-justifyfull', null,
+		full = this.editorUi.toolbar.addButton('geSprite-justifyfull', mxResources.get('block'),
 			function()
 			{
 				document.execCommand('justifyfull', false, null);
@@ -2613,14 +2654,19 @@ TextFormatPanel.prototype.addFont = function(container)
 					document.execCommand('insertunorderedlist', false, null);
 				}, tmp),
 			this.editorUi.toolbar.addButton('geSprite-outdent', mxResources.get('decreaseIndent'),
-					function()
-					{
-						document.execCommand('outdent', false, null);
-					}, tmp),
+				function()
+				{
+					document.execCommand('outdent', false, null);
+				}, tmp),
 			this.editorUi.toolbar.addButton('geSprite-indent', mxResources.get('increaseIndent'),
 				function()
 				{
 					document.execCommand('indent', false, null);
+				}, tmp),
+			this.editorUi.toolbar.addButton('geSprite-removeformat', mxResources.get('removeFormat'),
+				function()
+				{
+					document.execCommand('removeformat', false, null);
 				}, tmp),
 			this.editorUi.toolbar.addButton('geSprite-code', mxResources.get('html'),
 				function()
@@ -2628,7 +2674,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					graph.cellEditor.toggleViewMode();
 				}, tmp)];
 		this.styleButtons(btns);
-		btns[btns.length - 1].style.marginLeft = '9px';
+		btns[btns.length - 2].style.marginLeft = '9px';
 		
 		if (mxClient.IS_QUIRKS)
 		{
@@ -2826,7 +2872,7 @@ TextFormatPanel.prototype.addFont = function(container)
 				container = container.parentNode;
 			}
 			
-			if (container.nodeType == mxConstants.NODETYPE_ELEMENT)
+			if (container != null && container.nodeType == mxConstants.NODETYPE_ELEMENT)
 			{
 				var elts = container.getElementsByTagName('*');
 				updateSize(container);
@@ -2951,7 +2997,65 @@ TextFormatPanel.prototype.addFont = function(container)
 		return currentFontColor;
 	}, function(color)
 	{
-		document.execCommand('forecolor', false, (color != mxConstants.NONE) ? color : 'transparent');
+		if (mxClient.IS_FF)
+		{
+			// Workaround for Firefox that adds the font element around
+			// anchor elements which ignore inherited colors is to move
+			// the font element inside anchor elements
+			var tmp = graph.cellEditor.textarea.getElementsByTagName('font');
+			var oldFonts = [];
+
+			for (var i = 0; i < tmp.length; i++)
+			{
+				oldFonts.push(
+				{
+					node: tmp[i],
+					color: tmp[i].getAttribute('color')
+				});
+			}
+
+			document.execCommand('forecolor', false, (color != mxConstants.NONE) ?
+				color : 'transparent');
+
+			// Finds the new or changed font element
+			var newFonts = graph.cellEditor.textarea.getElementsByTagName('font');
+
+			for (var i = 0; i < newFonts.length; i++)
+			{
+				if (i >= oldFonts.length || newFonts[i] != oldFonts[i].node ||
+					(newFonts[i] == oldFonts[i].node &&
+						newFonts[i].getAttribute('color') != oldFonts[i].color))
+				{
+					var child = newFonts[i].firstChild;
+
+					// Moves the font element to inside the anchor element and adopts all children
+					if (child != null && child.nodeName == 'A' && child.nextSibling ==
+						null &&
+						child.firstChild != null)
+					{
+						var parent = newFonts[i].parentNode;
+						parent.insertBefore(child, newFonts[i]);
+						var tmp = child.firstChild;
+
+						while (tmp != null)
+						{
+							var next = tmp.nextSibling;
+							newFonts[i].appendChild(tmp);
+							tmp = next;
+						}
+
+						child.appendChild(newFonts[i]);
+					}
+
+					break;
+				}
+			}
+		}
+		else
+		{
+			document.execCommand('forecolor', false, (color != mxConstants.NONE) ?
+				color : 'transparent');
+		}
 	}, '#000000',
 	{
 		install: function(apply) { fontColorApply = apply; },
@@ -3411,7 +3515,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		setSelected(fontStyleItems[0], (fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD);
 		setSelected(fontStyleItems[1], (fontStyle & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC);
 		setSelected(fontStyleItems[2], (fontStyle & mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE);
-		fontMenu.firstChild.nodeValue = mxUtils.htmlEntities(mxUtils.getValue(ss.style, mxConstants.STYLE_FONTFAMILY, Menus.prototype.defaultFont));
+		fontMenu.firstChild.nodeValue = mxUtils.getValue(ss.style, mxConstants.STYLE_FONTFAMILY, Menus.prototype.defaultFont);
 
 		setSelected(verticalItem, mxUtils.getValue(ss.style, mxConstants.STYLE_HORIZONTAL, '1') == '0');
 		
@@ -3563,22 +3667,33 @@ TextFormatPanel.prototype.addFont = function(container)
 							node = graph.cellEditor.textarea.firstChild;
 						}
 						
-						function getRelativeLineHeight(fontSize, lineHeight, elt)
+						function getRelativeLineHeight(fontSize, css, elt)
 						{
-							if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+							if (elt.style != null && css != null)
 							{
-								return parseInt(elt.style.lineHeight) / 100;
+								var lineHeight = css.lineHeight
+								
+								if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+								{
+									return parseInt(elt.style.lineHeight) / 100;
+								}
+								else
+								{
+									return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
+											parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								}
 							}
 							else
 							{
-								return (lineHeight.substring(lineHeight.length - 2) == 'px') ?
-										parseFloat(lineHeight) / fontSize : parseInt(lineHeight);
+								return '';
 							}
 						};
 						
-						function getAbsoluteFontSize(fontSize)
+						function getAbsoluteFontSize(css)
 						{
-							if (fontSize.substring(fontSize.length - 2) == 'px')
+							var fontSize = (css != null) ? css.fontSize : null;
+								
+							if (fontSize != null && fontSize.substring(fontSize.length - 2) == 'px')
 							{
 								return parseFloat(fontSize);
 							}
@@ -3586,12 +3701,11 @@ TextFormatPanel.prototype.addFont = function(container)
 							{
 								return mxConstants.DEFAULT_FONTSIZE;
 							}
-						}
+						};
 						
-						//var realCss = mxUtils.getCurrentStyle(selectedElement);
 						var css = mxUtils.getCurrentStyle(node);
-						var fontSize = getAbsoluteFontSize(css.fontSize);
-						var lineHeight = getRelativeLineHeight(fontSize, css.lineHeight, node);
+						var fontSize = getAbsoluteFontSize(css);
+						var lineHeight = getRelativeLineHeight(fontSize, css, node);
 
 						// Finds common font size
 						var elts = node.getElementsByTagName('*');
@@ -3606,8 +3720,8 @@ TextFormatPanel.prototype.addFont = function(container)
 								if (selection.containsNode(elts[i], true))
 								{
 									temp = mxUtils.getCurrentStyle(elts[i]);
-									fontSize = Math.max(getAbsoluteFontSize(temp.fontSize), fontSize);
-									var lh = getRelativeLineHeight(fontSize, temp.lineHeight, elts[i]);
+									fontSize = Math.max(getAbsoluteFontSize(temp), fontSize);
+									var lh = getRelativeLineHeight(fontSize, temp, elts[i]);
 									
 									if (lh != lineHeight || isNaN(lh))
 									{
@@ -3617,17 +3731,61 @@ TextFormatPanel.prototype.addFont = function(container)
 							}
 						}
 						
+						function hasParentOrOnlyChild(name)
+						{
+							if (graph.getParentByName(node, name, graph.cellEditor.textarea) != null)
+							{
+								return true;
+							}
+							else
+							{
+								var child = node;
+								
+								while (child != null && child.childNodes.length == 1)
+								{
+									child = child.childNodes[0];
+									
+									if (child.nodeName == name)
+									{
+										return true;
+									}
+								}
+							}
+							
+							return false;
+						};
+						
+						function isEqualOrPrefixed(str, value)
+						{
+							if (str != null && value != null)
+							{
+								if (str == value)
+								{
+									return true;
+								}
+								else if (str.length > value.length + 1)
+								{
+									return str.substring(str.length - value.length - 1, str.length) == '-' + value;
+								}
+							}
+							
+							return false;
+						};
+						
 						if (css != null)
 						{
-							setSelected(fontStyleItems[0], css.fontWeight == 'bold' || graph.getParentByName(node, 'B', graph.cellEditor.textarea) != null);
-							setSelected(fontStyleItems[1], css.fontStyle == 'italic' || graph.getParentByName(node, 'I', graph.cellEditor.textarea) != null);
-							setSelected(fontStyleItems[2], graph.getParentByName(node, 'U', graph.cellEditor.textarea) != null);
-							setSelected(left, css.textAlign == 'left');
-							setSelected(center, css.textAlign == 'center');
-							setSelected(right, css.textAlign == 'right');
-							setSelected(full, css.textAlign == 'justify');
-							setSelected(sup, graph.getParentByName(node, 'SUP', graph.cellEditor.textarea) != null);
-							setSelected(sub, graph.getParentByName(node, 'SUB', graph.cellEditor.textarea) != null);
+							setSelected(fontStyleItems[0], css.fontWeight == 'bold' ||
+								css.fontWeight > 400 || hasParentOrOnlyChild('B') ||
+								hasParentOrOnlyChild('STRONG'));
+							setSelected(fontStyleItems[1], css.fontStyle == 'italic' ||
+								hasParentOrOnlyChild('I') || hasParentOrOnlyChild('EM'));
+							setSelected(fontStyleItems[2], hasParentOrOnlyChild('U'));
+							setSelected(left, isEqualOrPrefixed(css.textAlign, 'left'));
+							setSelected(center, isEqualOrPrefixed(css.textAlign, 'center'));
+							setSelected(right, isEqualOrPrefixed(css.textAlign, 'right'));
+							setSelected(full, isEqualOrPrefixed(css.textAlign, 'justify'));
+							setSelected(sup, hasParentOrOnlyChild('SUP'));
+							setSelected(sub, hasParentOrOnlyChild('SUB'));
 							
 							currentTable = graph.getParentByName(node, 'TABLE', graph.cellEditor.textarea);
 							tableRow = (currentTable == null) ? null : graph.getParentByName(node, 'TR', currentTable);
@@ -3738,7 +3896,12 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 		};
 		
-		mxEvent.addListener(graph.cellEditor.textarea, 'input', updateCssHandler)
+		if (mxClient.IS_FF || mxClient.IS_EDGE || mxClient.IS_IE || mxClient.IS_IE11)
+		{
+			mxEvent.addListener(graph.cellEditor.textarea, 'DOMSubtreeModified', updateCssHandler);
+		}
+		
+		mxEvent.addListener(graph.cellEditor.textarea, 'input', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'touchend', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'mouseup', updateCssHandler);
 		mxEvent.addListener(graph.cellEditor.textarea, 'keyup', updateCssHandler);
@@ -3778,24 +3941,28 @@ StyleFormatPanel.prototype.init = function()
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
 	
-	if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
-		ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
+	if (!ss.containsLabel)
 	{
-		this.container.appendChild(this.addSvgStyles(this.createPanel()));
+		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
+			ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
+		{
+			this.container.appendChild(this.addSvgStyles(this.createPanel()));
+		}
+		
+		if (!ss.containsImage || ss.style.shape == 'image')
+		{
+			this.container.appendChild(this.addFill(this.createPanel()));
+		}
+	
+		this.container.appendChild(this.addStroke(this.createPanel()));
+		this.container.appendChild(this.addLineJumps(this.createPanel()));
+		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
+		opacityPanel.style.paddingTop = '8px';
+		opacityPanel.style.paddingBottom = '8px';
+		this.container.appendChild(opacityPanel);
+		this.container.appendChild(this.addEffects(this.createPanel()));
 	}
 	
-	if (!ss.containsImage || ss.style.shape == 'image')
-	{
-		this.container.appendChild(this.addFill(this.createPanel()));
-	}
-
-	this.container.appendChild(this.addStroke(this.createPanel()));
-	this.container.appendChild(this.addLineJumps(this.createPanel()));
-	var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
-	opacityPanel.style.paddingTop = '8px';
-	opacityPanel.style.paddingBottom = '8px';
-	this.container.appendChild(opacityPanel);
-	this.container.appendChild(this.addEffects(this.createPanel()));
 	var opsPanel = this.addEditOps(this.createPanel());
 	
 	if (opsPanel.firstChild != null)
@@ -5076,36 +5243,36 @@ DiagramFormatPanel.prototype.addView = function(div)
 	
 	// Grid
 	this.addGridOption(div);
-
+	
+	// Page View
+	if (DiagramFormatPanel.showPageView)
+	{
+		div.appendChild(this.createOption(mxResources.get('pageView'), function()
+		{
+			return graph.pageVisible;
+		}, function(checked)
+		{
+			ui.actions.get('pageView').funct();
+		},
+		{
+			install: function(apply)
+			{
+				this.listener = function()
+				{
+					apply(graph.pageVisible);
+				};
+				
+				ui.addListener('pageViewChanged', this.listener);
+			},
+			destroy: function()
+			{
+				ui.removeListener(this.listener);
+			}
+		}));
+	}
+	
 	if (graph.isEnabled())
 	{
-		// Page View
-		if (DiagramFormatPanel.showPageView)
-		{
-			div.appendChild(this.createOption(mxResources.get('pageView'), function()
-			{
-				return graph.pageVisible;
-			}, function(checked)
-			{
-				ui.actions.get('pageView').funct();
-			},
-			{
-				install: function(apply)
-				{
-					this.listener = function()
-					{
-						apply(graph.pageVisible);
-					};
-					
-					ui.addListener('pageViewChanged', this.listener);
-				},
-				destroy: function()
-				{
-					ui.removeListener(this.listener);
-				}
-			}));
-		}
-		
 		// Background
 		var bg = this.createColorOption(mxResources.get('background'), function()
 		{

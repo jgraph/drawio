@@ -22,11 +22,22 @@ OneDriveLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Overridden to avoid updating data with current file.
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
  */
-OneDriveLibrary.prototype.doSave = function(title, success, error)
+OneDriveLibrary.prototype.save = function(revision, success, error)
 {
-	this.saveFile(title, false, success, error);
+	this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(resp)
+	{
+		this.desc = resp;
+		
+		if (success != null)
+		{
+			success(resp);
+		}
+	}), error);
 };
 
 /**

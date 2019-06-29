@@ -22,7 +22,7 @@ DropboxClient.prototype.appPath = '/drawio/';
 /**
  * Executes the first step for connecting to Google Drive.
  */
-DropboxClient.prototype.extension = '.html';
+DropboxClient.prototype.extension = '.drawio';
 
 /**
  * Executes the first step for connecting to Google Drive.

@@ -4,15 +4,11 @@
  * 
  * Drag freshdesk tickets into the diagram. Domain must match deskDomain.freshdesk.com.
  * 
- * Supported URL parameters:
- * - tickets-config=URI encoded JSON
- * 
- * Alternatively, to avoid logging of the URL parameter with the API key, a ticketsConfig object
- * can be added in Editor.configure (ie. via #C hash property), eg. 
+ * Use #C to configure the client as follows:
  * 
  * https://www.draw.io/?p=tickets#C%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%7D
  * 
- * Use an additional "open" variable in the config JSON to open a file after parsing the config, eg.
+ * Use an additional "open" variable in the config JSON to open a file after parsing as follows:
  * 
  * ...#C%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%2C"open"%3A"ID_WITH_PREFIX"%7D
  * 
@@ -72,41 +68,43 @@ Draw.loadPlugin(function(ui)
 		document.body.removeChild(div);
 	};
 	
-	if (urlParams['tickets-config'] != null)
+	if (window.location.hash != null && window.location.hash.substring(0, 2) == '#C')
 	{
-		config = JSON.parse(decodeURIComponent(urlParams['tickets-config']));
-	}
-	
-	if (config == null && Editor.config != null && Editor.config.ticketsConfig != null)
-	{
-		config = Editor.config.ticketsConfig;
-	}
-	
-	if (config != null)
-	{
-		ui.setLocalData('.tickets-config', JSON.stringify(config));
-		configure();
-	}
-	else
-	{
-		ui.getLocalData('.tickets-config', mxUtils.bind(this, function(value)
+		try
 		{
-			if (value != null)
+			var temp = JSON.parse(decodeURIComponent(
+				window.location.hash.substring(2)));
+			
+			if (temp != null && temp.ticketsConfig != null)
 			{
-				config = JSON.parse(value);
+				config = temp.ticketsConfig;
 				configure();
-				updateTickets();
+				ui.fileLoaded(new LocalFile(ui, ui.emptyDiagramXml, this.defaultFilename, true));
+				ui.editor.setStatus('Drag tickets from <a href="' + deskDomain +
+					'/a/tickets/filters/all_tickets" target="_blank">' +
+					deskDomain + '</a>');
 			}
-		}));
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
 	}
 
 	function isDeskLink(link)
 	{
-		var dl = deskDomain.length;
-		
-		return config != null && link.substring(0, dl) == deskDomain &&
-			(link.substring(dl, dl + 18) == '/helpdesk/tickets/' ||
-			link.substring(dl, dl + 11) == '/a/tickets/');
+		if (deskDomain != null)
+		{
+			var dl = deskDomain.length;
+			
+			return config != null && link.substring(0, dl) == deskDomain &&
+				(link.substring(dl, dl + 18) == '/helpdesk/tickets/' ||
+				link.substring(dl, dl + 11) == '/a/tickets/');
+		}
+		else
+		{
+			return false;
+		}
 	};
 	
 	function getIdForDeskLink(link)
@@ -124,17 +122,17 @@ Draw.loadPlugin(function(ui)
 		{
 			if (xhr.status >= 200 && xhr.status <= 299)
 			{
-				fn(JSON.parse(xhr.responseText));
+				fn(JSON.parse(xhr.responseText), xhr);
 			}
 			else
 			{
-				fn();
+				fn(null, xhr);
 			}
 		};
 		
 		xhr.onerror = function ()
 		{
-			fn();
+			fn(null, xhr);
 		};
 
 		xhr.send();
@@ -155,6 +153,18 @@ Draw.loadPlugin(function(ui)
 		
 		return prev != cell.style;
 	};
+	
+	function shortString(s, max)
+	{
+		if (s.length > max)
+		{
+			return s.substring(0, max) + '...';
+		}
+		else
+		{
+			return s;
+		}
+	}
 	
 	function updateData(cell, ticket)
 	{
@@ -177,7 +187,7 @@ Draw.loadPlugin(function(ui)
 			}
 		};
 		
-		changed = setAttr('abstract', ticket.description_text.substring(0, 600)) |
+		changed = setAttr('abstract', shortString(ticket.description_text, 600)) |
 			setAttr('email_config_id', ticket.email_config_id) |
 			setAttr('requester_id', ticket.requester_id) |
 			setAttr('group_id', ticket.group_id) |
@@ -210,7 +220,7 @@ Draw.loadPlugin(function(ui)
 					var id = getIdForDeskLink(link);
 					pending++;
 					
-					getDeskTicket(id, function(ticket)
+					getDeskTicket(id, function(ticket, req)
 					{
 						pending--;
 						
@@ -314,7 +324,7 @@ Draw.loadPlugin(function(ui)
 				// Creates new shape
 				var id = getIdForDeskLink(text);
 				
-				getDeskTicket(id, function(ticket)
+				getDeskTicket(id, function(ticket, req)
 				{
 					ui.spinner.stop();
 					
@@ -326,7 +336,7 @@ Draw.loadPlugin(function(ui)
 				    	try
 				    	{
 				    		cell = graph.insertVertex(graph.getDefaultParent(), null,
-				    			'%subject%\n\n<b>Updated:</b> %updated_at% ' +
+				    			'%title%\n\n<b>Updated:</b> %updated_at% ' +
 				    			'(<a href="' + deskDomain + '/contacts/%requester_id%">From</a>)',
 								graph.snap(dx), graph.snap(dy), 200, 50,
 								'html=1;whiteSpace=wrap;overflow=hidden;shape=mxgraph.atlassian.issue;' +
@@ -334,6 +344,7 @@ Draw.loadPlugin(function(ui)
 								'strokeColor=#A8ADB0;fillColor=#EEEEEE;backgroundOutline=1;');
 				    		
 				    		graph.setLinkForCell(cell, text);
+				    		cell.value.setAttribute('title', shortString(ticket.subject, 40));
 				    		cell.value.setAttribute('subject', ticket.subject);
 							cell.value.setAttribute('placeholders', '1');
 							cell.value.setAttribute('ticket_id', id);
@@ -363,7 +374,18 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.handleError({message: mxResources.get('unknownError')});
+						var err = req.status
+						
+						try
+						{
+							err = JSON.parse(req.responseText);
+						}
+						catch (e)
+						{
+							// ignore
+						}
+						
+						ui.handleError({message: err.message});
 					}
 				});
 			}

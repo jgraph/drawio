@@ -7,6 +7,7 @@
 // is used for development mode where the JS is in separate
 // files and the mxClient.js loads other files.
 // Adds external dependencies
+mxscript(drawDevUrl + 'js/cryptojs/aes.min.js');
 mxscript(drawDevUrl + 'js/spin/spin.min.js');
 mxscript(drawDevUrl + 'js/deflate/pako.min.js');
 mxscript(drawDevUrl + 'js/deflate/base64.js');
@@ -27,6 +28,7 @@ mxscript(geBasePath +'/Dialogs.js');
 
 // Loads main classes
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ActiveDirectory.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Advanced.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AlliedTelesis.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Android.js');
@@ -37,6 +39,8 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Atlassian.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS3D.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4b.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Bootstrap.js');
@@ -44,6 +48,8 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-BPMN.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Cabinet.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-CiscoSafe.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Citrix.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Cumulus.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-DFD.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-EIP.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Electrical.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ER.js');
@@ -66,6 +72,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Rack.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sitemap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sysml.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-VVD.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-WebIcons.js');
 
 mxscript(drawDevUrl + 'js/diagramly/util/mxJsCanvas.js');
@@ -76,17 +83,24 @@ mxscript(drawDevUrl + 'js/diagramly/LocalFile.js');
 mxscript(drawDevUrl + 'js/diagramly/LocalLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/StorageFile.js');
 mxscript(drawDevUrl + 'js/diagramly/StorageLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/RemoteFile.js');
+mxscript(drawDevUrl + 'js/diagramly/RemoteLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/Dialogs.js');
 mxscript(drawDevUrl + 'js/diagramly/Editor.js');
 mxscript(drawDevUrl + 'js/diagramly/EditorUi.js');
+mxscript(drawDevUrl + 'js/diagramly/DiffSync.js');
 mxscript(drawDevUrl + 'js/diagramly/Settings.js');
+mxscript(drawDevUrl + 'js/diagramly/DrawioFileSync.js');
+
+
+//Comments
+mxscript(drawDevUrl + 'js/diagramly/DrawioComment.js');
+mxscript(drawDevUrl + 'js/diagramly/DriveComment.js');
 
 // Excluded in base.min.js
 mxscript(drawDevUrl + 'js/diagramly/DrawioClient.js');
 mxscript(drawDevUrl + 'js/diagramly/DrawioUser.js');
 mxscript(drawDevUrl + 'js/diagramly/UrlLibrary.js');
-mxscript(drawDevUrl + 'js/diagramly/DriveRealtime.js');
-mxscript(drawDevUrl + 'js/diagramly/RealtimeMapping.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveFile.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveClient.js');
@@ -102,13 +116,13 @@ mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloFile.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
-mxscript(drawDevUrl + 'js/diagramly/ChatWindow.js');
 
 mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
+mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
 
 // Vsdx/vssx support
@@ -121,11 +135,11 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 // mxRuler
 mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
 
-//EquiSpaced Guides
-if (urlParams['distanceGuides'] == '1')
-{
-	mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
-}
-
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
+
+//Table Layout
+if (urlParams['tableLayout'] == '1')
+{
+  mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
+}

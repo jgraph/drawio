@@ -7,116 +7,128 @@ function mxGraphMlCodec()
 mxGraphMlCodec.prototype.refRegexp = /^\{y\:GraphMLReference\s+(\d+)\}$/;
 mxGraphMlCodec.prototype.staticRegexp = /^\{x\:Static\s+(.+)\.(.+)\}$/;
 
-mxGraphMlCodec.prototype.decode = function (xml, callback)
+mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
 {
-	var doc = mxUtils.parseXml(xml);
-	
-	var graphs = this.getDirectChildNamedElements(doc.documentElement, mxGraphMlConstants.GRAPH);
-	
-	this.initializeKeys(doc.documentElement);
-	
-	var mxFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
-	for (var i = 0; i < graphs.length; i++)
+	try
 	{
-		var pageElement = graphs[i];
-
-		var graph = this.createMxGraph();
-		var model = graph.getModel();
+		var doc = mxUtils.parseXml(xml);
 		
-        model.beginUpdate();
-        try 
-        {
-	        this.nodesMap = {};
-	    	this.edges = [];
-	        this.importGraph(pageElement, graph, graph.getDefaultParent());
+		var graphs = this.getDirectChildNamedElements(doc.documentElement, mxGraphMlConstants.GRAPH);
+		
+		this.initializeKeys(doc.documentElement);
+		
+		var mxFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
+		for (var i = 0; i < graphs.length; i++)
+		{
+			var pageElement = graphs[i];
+	
+			var graph = this.createMxGraph();
+			var model = graph.getModel();
+			
+	        model.beginUpdate();
+	        try 
+	        {
+		        this.nodesMap = {};
+		    	this.edges = [];
+		        this.importGraph(pageElement, graph, graph.getDefaultParent());
+		    	
+		    	for (var i = 0; i < this.edges.length; i++)
+				{
+		    		var edgesObj = this.edges[i];
+		    		var edges = edgesObj.edges;
+		    		var parent = edgesObj.parent;
+		    		var dx = edgesObj.dx, dy = edgesObj.dy;
+		
+			    	for (var j = 0; j < edges.length; j++)
+			    	{
+			    		this.importEdge(edges[j], graph, parent, dx, dy);
+			    	}
+				}
+	        }
+	        catch(e)
+	        {
+	        	console.log(e);
+	        	throw e;
+	        }
+	        finally
+	        {
+	        	model.endUpdate();
+	        }
 	    	
-	    	for (var i = 0; i < this.edges.length; i++)
-			{
-	    		var edgesObj = this.edges[i];
-	    		var edges = edgesObj.edges;
-	    		var parent = edgesObj.parent;
-	    		var dx = edgesObj.dx, dy = edgesObj.dy;
-	
-		    	for (var j = 0; j < edges.length; j++)
-		    	{
-		    		this.importEdge(edges[j], graph, parent, dx, dy);
-		    	}
-			}
-        }
-        catch(e)
-        {
-        	console.log(e);
-        }
-        finally
-        {
-        	model.endUpdate();
-        }
-    	
-    	//update edges' labels to convert their labels relative coordinate to ours
-        model.beginUpdate();
-        try 
-        {
-        	var cells = graph.getModel().cells;
-        	var tr = graph.view.translate;
-        	
-        	for (var id in cells)
-    		{
-        		var edge = cells[id];
-        		
-        		if (edge.edge && edge.getChildCount() > 0)
-    			{
-        			for (var i = 0; i < edge.getChildCount(); i++)
-    				{
-        				var cell = edge.children[i];
-                		var geo = cell.geometry;
-                		
-                		if (!geo.adjustIt) continue;
-                		
-	        			var state = graph.view.getState(edge);
-	        			var abdPs = state.absolutePoints;
-	        			var p0 = abdPs[0];
-	        			var pe = abdPs[abdPs.length - 1];
-	        			
-	        			var ratio = geo.x;
-	        			var dist = geo.y;
-	        			var dx = pe.x - p0.x
-	        			var dy = pe.y - p0.y
-	 
-	        			var x = p0.x + ratio * dx;
-	        			var y = p0.y + ratio * dy;
-	        			
-	        			var d = Math.sqrt(dx*dx + dy*dy);
-	        			dx /= d;
-	        			dy /= d;
-	        			
-	        			x -= dist * dy;
-	        			y += dist * dx;
-	        			
-	        			var np = graph.view.getRelativePoint(state, x, y);
-	        			geo.x = np.x;
-	        			geo.y = np.y;
-	    			}
+	    	//update edges' labels to convert their labels relative coordinate to ours
+	        model.beginUpdate();
+	        try 
+	        {
+	        	var cells = graph.getModel().cells;
+	        	var tr = graph.view.translate;
+	        	
+	        	for (var id in cells)
+	    		{
+	        		var edge = cells[id];
+	        		
+	        		if (edge.edge && edge.getChildCount() > 0)
+	    			{
+	        			for (var i = 0; i < edge.getChildCount(); i++)
+	    				{
+	        				var cell = edge.children[i];
+	                		var geo = cell.geometry;
+	                		
+	                		if (!geo.adjustIt) continue;
+	                		
+		        			var state = graph.view.getState(edge);
+		        			var abdPs = state.absolutePoints;
+		        			var p0 = abdPs[0];
+		        			var pe = abdPs[abdPs.length - 1];
+		        			
+		        			var ratio = geo.x;
+		        			var dist = geo.y;
+		        			var dx = pe.x - p0.x
+		        			var dy = pe.y - p0.y
+		 
+		        			var x = p0.x + ratio * dx;
+		        			var y = p0.y + ratio * dy;
+		        			
+		        			var d = Math.sqrt(dx*dx + dy*dy);
+		        			dx /= d;
+		        			dy /= d;
+		        			
+		        			x -= dist * dy;
+		        			y += dist * dx;
+		        			
+		        			var np = graph.view.getRelativePoint(state, x, y);
+		        			geo.x = np.x;
+		        			geo.y = np.y;
+		    			}
+		    		}
 	    		}
-    		}
-        }
-        catch(e)
-        {
-        	console.log(e);
-        }
-        finally
-        {
-        	model.endUpdate();
-        }
-    	
-        mxFile += this.processPage(graph, i+1);
-	}
-
-	mxFile += "</mxfile>";
+	        }
+	        catch(e)
+	        {
+	        	console.log(e);
+	        	throw e;
+	        }
+	        finally
+	        {
+	        	model.endUpdate();
+	        }
+	    	
+	        mxFile += this.processPage(graph, i+1);
+		}
 	
-	if (callback)
-	{
-		callback(mxFile);
+		mxFile += "</mxfile>";
+		
+		if (callback)
+		{
+			callback(mxFile);
+		}
 	}
+    catch(e)
+    {
+    	if (onError) 
+    	{
+    		onError(e);
+    	}
+    }
 };
 
 mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
@@ -865,8 +877,8 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		"arcSize": 10,
 		"glass": "1",
 		"shadow": "1",
-		"strokeColor": "none",
-		"rotation": -90 //TODO requires rotation!
+		"strokeColor": "none"
+		//,"rotation": -90 //TODO requires rotation!
 	};
 	shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
 	
@@ -965,7 +977,6 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 		"yjs:ShapeNodeStyle": styleCommonMap,
 		"demostyle:FlowchartNodeStyle": styleCommonMap,
 		"demostyle:AssetNodeStyle": assetNodesStyle,
-		"demostyle:DemoGroupStyle": styleCommonMap,
 		"bpmn:ActivityNodeStyle": bpmnActivityStyle,
 		"bpmn:GatewayNodeStyle": bpmnGatewayStyle,
 		"bpmn:ConversationNodeStyle": bpmnConversationStyle,
@@ -1909,7 +1920,7 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
 		else if (desktopEdgeObj)
 		{
 			this.addEdgeStyle(edge, dataObj, style);
-			var absPoints = this.addEdgePath(edge, desktopEdgeObj["y:Path"], style);
+			var absPoints = this.addEdgePath(edge, desktopEdgeObj["y:Path"], style, dx, dy);
 			
 			if (desktopEdgeObj["y:EdgeLabel"])
 				this.addLabels(edge, desktopEdgeObj["y:EdgeLabel"], style, graph, absPoints);
@@ -1973,7 +1984,7 @@ mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy)
 	}
 };
 
-mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style) 
+mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy) 
 {
 	var absPoints = [];
 	if (pathObj)
@@ -1986,11 +1997,11 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 		{
 			style["exitX"] = (srcX + srcGeo.width/2) / srcGeo.width;
 			style["exitY"] = (srcY + srcGeo.height/2) / srcGeo.height;
-			absPoints.push(new mxPoint(srcGeo.x + style["exitX"] * srcGeo.width, srcGeo.y + style["exitY"] * srcGeo.height));
+			absPoints.push(new mxPoint(srcGeo.x + style["exitX"] * srcGeo.width - dx, srcGeo.y + style["exitY"] * srcGeo.height - dy));
 		}
 		else 
 		{
-			absPoints.push(new mxPoint(srcGeo.x + srcGeo.width/2, srcGeo.y + srcGeo.height/2));
+			absPoints.push(new mxPoint(srcGeo.x + srcGeo.width/2 - dx, srcGeo.y + srcGeo.height/2 - dy));
 		}
 
 		var endP = null;
@@ -1999,11 +2010,11 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 		{
 			style["entryX"] = (trgX + trgGeo.width/2) / trgGeo.width;
 			style["entryY"] = (trgY + trgGeo.height/2) / trgGeo.height;
-			endP = new mxPoint(trgGeo.x + style["entryX"] * trgGeo.width, trgGeo.y + style["entryY"] * trgGeo.height);
+			endP = new mxPoint(trgGeo.x + style["entryX"] * trgGeo.width - dx, trgGeo.y + style["entryY"] * trgGeo.height - dy);
 		}
 		else 
 		{
-			endP = new mxPoint(trgGeo.x + trgGeo.width/2, trgGeo.y + trgGeo.height/2);
+			endP = new mxPoint(trgGeo.x + trgGeo.width/2 - dx, trgGeo.y + trgGeo.height/2 - dy);
 		}
 
 		var list = pathObj["y:Point"];
@@ -2019,7 +2030,7 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style)
 			
 			for (var i = 0; i < list.length; i++) 
 			{
-				var p = new mxPoint(parseFloat(list[i].x), parseFloat(list[i].y))
+				var p = new mxPoint(parseFloat(list[i].x) - dx, parseFloat(list[i].y) - dy)
 				points.push(p);
 				absPoints.push(p);
 			}
@@ -2590,7 +2601,7 @@ mxGraphMlCodec.prototype.processPage = function (graph, pageIndex)
     var modelString = mxUtils.getXml(node);
     
     var output = "<diagram name=\"Page " + pageIndex + "\">";
-    output += Graph.prototype.compress(modelString);
+    output += Graph.compress(modelString);
     output += "</diagram>";
     return output;
 
@@ -2718,7 +2729,7 @@ var mxGraphMlArrowsMap =
 var mxGraphMlShapesMap =
 {
 	"star5": "mxgraph.basic.star;flipV=1", //TODO This is not close enough!
-	"star6": "mxgraph.basic.6_point_star;rotation=30", //TODO requires rotation!
+	"star6": "mxgraph.basic.6_point_star",//;rotation=30", //TODO requires rotation!
 	"star8": "mxgraph.basic.8_point_star",
 	"sheared_rectangle": "parallelogram",
 	"sheared_rectangle2": "parallelogram;flipH=1",
@@ -2731,8 +2742,8 @@ var mxGraphMlShapesMap =
 	"fat_arrow2": "step;perimeter=stepPerimeter;flipH=1",
 	"trapez": "trapezoid;perimeter=trapezoidPerimeter;flipV=1",
 	"trapez2": "trapezoid;perimeter=trapezoidPerimeter",
-	"triangle": "triangle;rotation=-90", //TODO requires rotation!
-	"triangle2": "triangle;rotation=90", //TODO requires rotation!
+	"triangle": "triangle",//;rotation=-90", //TODO requires rotation!
+	"triangle2": "triangle",//;rotation=90", //TODO requires rotation!
 	"rectangle": "rect",
 	"rectangle3d": "", //TODO create this shape
 	"roundrectangle": "rect;rounded=1;arcsize=30",
@@ -2747,10 +2758,10 @@ var mxGraphMlShapesMap =
 	"bevelnodewithshadow": "rect;glass=1;shadow=1",
 	"bevelnode2": "rect;glass=1;rounded=1;arcsize=30",
 	"bevelnode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1",
-	"shinyplatenode": "rect;glass=1;rotation=-90",//TODO requires rotation!
-	"shinyplatenodewithshadow": "rect;glass=1;shadow=1;rotation=-90",//TODO requires rotation!
-	"shinyplatenode2": "rect;glass=1;rounded=1;arcsize=30;rotation=-90",//TODO requires rotation!
-	"shinyplatenode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1;rotation=-90",//TODO requires rotation!
+	"shinyplatenode": "rect;glass=1",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenodewithshadow": "rect;glass=1;shadow=1",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenode2": "rect;glass=1;rounded=1;arcsize=30",//;rotation=-90",//TODO requires rotation!
+	"shinyplatenode3": "rect;glass=1;rounded=1;arcsize=30;shadow=1",//;rotation=-90",//TODO requires rotation!
 	//Table
 //	"yed_table_node
 	//flowchart
@@ -2930,11 +2941,11 @@ var mxGraphMlShapesMap =
 	"com.yworks.sbgn.nucleicacidfeature": "", //TODO create this shape!
 	"com.yworks.sbgn.perturbingagent": "", //TODO create this shape!
 	"com.yworks.sbgn.phenotype": "hexagon;perimeter=hexagonPerimeter2;size=0.2",
-	"com.yworks.sbgn.emptyset": "lineEllipse;line=vertical;perimeter=ellipsePerimeter;rotation=45", //TODO create this shape!
+	"com.yworks.sbgn.emptyset": "lineEllipse;line=vertical;perimeter=ellipsePerimeter",//;rotation=45", //TODO create this shape!
 	"com.yworks.sbgn.submap": "",  //TODO create this shape!
 	"com.yworks.sbgn.unitofinformation": "",  //TODO create this shape!
 	"com.yworks.sbgn.statevariable": "mxgraph.flowchart.terminator",
-	"com.yworks.sbgn.tag": "offPageConnector;rotation=90;size=0.25", //TODO create this shape without rotation!
+	"com.yworks.sbgn.tag": "offPageConnector;size=0.25", //;rotation=90", //TODO create this shape without rotation!
 	"com.yworks.sbgn.process": "rect",
 	"com.yworks.sbgn.operator": "ellipse",
 
@@ -3108,11 +3119,16 @@ var mxGraphMlConstants =
 	
 	Y_LABEL: "y:Label",
 	
-	TEXT: "Text",
-	
 	LAYOUTPARAMETER: "LayoutParameter",
 	
 	YJS_DEFAULTLABELSTYLE: "yjs:DefaultLabelStyle",
 	
 	MEMBER: "Member"
 };
+
+
+EditorUi.prototype.doImportGraphML = function(xmlData, done, onerror)
+{
+	new mxGraphMlCodec().decode(xmlData, done, onerror);
+};
+

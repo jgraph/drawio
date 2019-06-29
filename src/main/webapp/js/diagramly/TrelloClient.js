@@ -177,17 +177,17 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 					{
 						window.clearTimeout(timeoutThread);
 					    	
-					    	if (acceptResponse)
-					    	{
-					    		if (req.status == 401)
-					    		{
-					    			this.authenticate(callback, error, true);
-					    		}
-					    		else
-					    		{
-					    			error();
-					    		}
-					    	}
+				    	if (acceptResponse)
+				    	{
+				    		if (req.status == 401)
+				    		{
+				    			this.authenticate(callback, error, true);
+				    		}
+				    		else
+				    		{
+				    			error();
+				    		}
+				    	}
 					}), binary || (meta.mimeType != null &&
 						meta.mimeType.substring(0, 6) == 'image/'));
 				}
@@ -198,7 +198,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 	    	
 		    	if (acceptResponse)
 		    	{
-				if (err.status == 401)
+		    		if (err != null && err.status == 401)
 		    		{
 		    			this.authenticate(callback, error, true);
 		    		}
@@ -279,7 +279,7 @@ TrelloClient.prototype.saveFile = function(file, success, error)
 				success(meta);
 			}), mxUtils.bind(this, function(err)
 			{
-				if (err.status == 401)
+				if (err != null && err.status == 401)
 	    		{
 					// KNOWN: Does not wait for popup to close for callback
 	    			this.authenticate(callback, error, true);
@@ -348,25 +348,25 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 		  {
 		    if (request.readyState === 4)
 		    {
-			    	window.clearTimeout(timeoutThread);
-			    	
-			    	if (acceptResponse)
+		    	window.clearTimeout(timeoutThread);
+		    	
+		    	if (acceptResponse)
+	    		{
+		    		if (request.status == 200)
+	    			{
+		    			var fileMeta = request.response;
+		    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
+		    			success(fileMeta);
+	    			}
+		    		else if (request.status == 401)
 		    		{
-			    		if (request.status == 200)
-		    			{
-			    			var fileMeta = request.response;
-			    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
-			    			success(fileMeta);
-		    			}
-			    		else if (request.status == 401)
-			    		{
-			    			this.authenticate(fn, error, true);
-			    		}
-		    			else
-	    				{
-			    			error();
-	    				}
+		    			this.authenticate(fn, error, true);
 		    		}
+	    			else
+    				{
+		    			error();
+    				}
+	    		}
 		    }
 		  });
 		  
@@ -535,14 +535,14 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 			}),
 			mxUtils.bind(this, function(req)
 			{
-		    		if (req.status == 401)
-		    		{
-		    			this.authenticate(callback, error, true);
-		    		}
-		    		else if (error != null)
-		    		{
-		    			error(req);
-		    		}	
+	    		if (req.status == 401)
+	    		{
+	    			this.authenticate(callback, error, true);
+	    		}
+	    		else if (error != null)
+	    		{
+	    			error(req);
+	    		}	
 			}));
 		});
 		
@@ -658,14 +658,14 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 			}),
 			mxUtils.bind(this, function(req)
 			{
-		    		if (req.status == 401)
-		    		{
-		    			this.authenticate(callback, error, true);
-		    		}
-		    		else if (error != null)
-		    		{
-		    			error({message: req.responseText});
-		    		}	
+	    		if (req.status == 401)
+	    		{
+	    			this.authenticate(callback, error, true);
+	    		}
+	    		else if (error != null)
+	    		{
+	    			error({message: req.responseText});
+	    		}	
 			}));
 		});
 		

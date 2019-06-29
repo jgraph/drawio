@@ -8,7 +8,15 @@
 	 * Specifies the app name. Default is document.title.
 	 */
 	Editor.prototype.appName = 'draw.io';
-
+	
+	/**
+	 * Known extensions for own files.
+	 */
+	Editor.prototype.fileExtensions = [
+		{ext: 'html', title: 'filetypeHtml'},
+		{ext: 'png', title: 'filetypePng'},
+		{ext: 'svg', title: 'filetypeSvg'}];
+	
 	/**
 	 * Used in the GraphViewer lightbox.
 	 */
@@ -24,6 +32,46 @@
 	 */
 	Editor.spinImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/spin.gif' : 'data:image/gif;base64,R0lGODlhDAAMAPUxAEVriVp7lmCAmmGBm2OCnGmHn3OPpneSqYKbr4OcsIScsI2kto6kt46lt5KnuZmtvpquvpuvv56ywaCzwqK1xKu7yay9yq+/zLHAzbfF0bjG0bzJ1LzK1MDN18jT28nT3M3X3tHa4dTc49Xd5Njf5dng5t3k6d/l6uDm6uru8e7x8/Dz9fT29/b4+Pj5+fj5+vr6+v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkKADEAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAADAAMAAAGR8CYcEgsOgYAIax4CCQuQldrCBEsiK8VS2hoFGOrlJDA+cZQwkLnqyoJFZKviSS0ICrE0ec0jDAwIiUeGyBFGhMPFBkhZo1BACH5BAkKAC4ALAAAAAAMAAwAhVB0kFR3k1V4k2CAmmWEnW6Lo3KOpXeSqH2XrIOcsISdsImhtIqhtJCmuJGnuZuwv52wwJ+ywZ+ywqm6yLHBzbLCzrXEz7fF0LnH0rrI0r7L1b/M1sXR2cfT28rV3czW3s/Z4Nfe5Nvi6ODm6uLn6+Ln7OLo7OXq7efs7+zw8u/y9PDy9PX3+Pr7+////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZDQJdwSCxGDAIAoVFkFBwYSyIwGE4OkCJxIdG6WkJEx8sSKj7elfBB0a5SQg1EQ0SVVMPKhDM6iUIkRR4ZFxsgJl6JQQAh+QQJCgAxACwAAAAADAAMAIVGa4lcfZdjgpxkg51nhp5ui6N3kqh5lKqFnbGHn7KIoLOQp7iRp7mSqLmTqbqarr6br7+fssGitcOitcSuvsuuv8uwwMyzw861xNC5x9K6x9K/zNbDztjE0NnG0drJ1NzQ2eDS2+LT2+LV3ePZ4Oba4ebb4ufc4+jm6+7t8PLt8PPt8fPx8/Xx9PX09vf19/j3+Pn///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGQ8CYcEgsUhQFggFSjCQmnE1jcBhqGBXiIuAQSi7FGEIgfIzCFoCXFCZiPO0hKBMiwl7ET6eUYqlWLkUnISImKC1xbUEAIfkECQoAMgAsAAAAAAwADACFTnKPT3KPVHaTYoKcb4yjcY6leZSpf5mtgZuvh5+yiqG0i6K1jqW3kae5nrHBnrLBn7LCoLPCobTDqbrIqrvIs8LOtMPPtcPPtcTPuMbRucfSvcrUvsvVwMzWxdHaydTcytXdzNbezdff0drh2ODl2+Ln3eTp4Obq4ujs5Ont5uvu6O3w6u7w6u7x7/L09vj5+vr7+vv7////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkdAmXBILHIcicOCUqxELKKPxKAYgiYd4oMAEWo8RVmjIMScwhmBcJMKXwLCECmMGAhPI1QRwBiaSixCMDFhLSorLi8wYYxCQQAh+QQJCgAxACwAAAAADAAMAIVZepVggJphgZtnhp5vjKN2kah3kqmBmq+KobSLorWNpLaRp7mWq7ybr7+gs8KitcSktsWnuManucexwM2ywc63xtG6yNO9ytS+ytW/zNbDz9jH0tvL1d3N197S2+LU3OPU3ePV3eTX3+Xa4efb4ufd5Onl6u7r7vHs7/Lt8PLw8/Xy9Pby9fb09ff2+Pn3+Pn6+vr///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGSMCYcEgseiwSR+RS7GA4JFGF8RiWNiEiJTERgkjFGAQh/KTCGoJwpApnBkITKrwoCFWnFlEhaAxXLC9CBwAGRS4wQgELYY1CQQAh+QQJCgAzACwAAAAADAAMAIVMcI5SdZFhgZtti6JwjaR4k6mAma6Cm6+KobSLorWLo7WNo7aPpredsMCescGitMOitcSmuMaqu8ixwc2zws63xdC4xtG5x9K9ytXAzdfCztjF0NnF0drK1d3M1t7P2N/P2eDT2+LX3+Xe5Onh5+vi5+vj6Ozk6e3n7O/o7O/q7vHs7/Lt8PPu8fPx8/X3+Pn6+vv7+/v8/Pz///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGRcCZcEgsmkIbTOZTLIlGqZNnchm2SCgiJ6IRqljFmQUiXIVnoITQde4chC9Y+LEQxmTFRkFSNFAqDAMIRQoCAAEEDmeLQQAh+QQJCgAwACwAAAAADAAMAIVXeZRefplff5lhgZtph59yjqV2kaeAmq6FnbGFnrGLorWNpLaQp7mRqLmYrb2essGgs8Klt8apusitvcquv8u2xNC7yNO8ydS8ytTAzdfBzdfM1t7N197Q2eDU3OPX3+XZ4ObZ4ebc4+jf5erg5erg5uvp7fDu8fPv8vTz9fb09vf19/j3+Pn4+fn5+vr6+/v///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGRUCYcEgspkwjEKhUVJ1QsBNp0xm2VixiSOMRvlxFGAcTJook5eEHIhQcwpWIkAFQECkNy9AQWFwyEAkPRQ4FAwQIE2llQQAh+QQJCgAvACwAAAAADAAMAIVNcY5SdZFigptph6BvjKN0kKd8lquAmq+EnbGGn7KHn7ONpLaOpbearr+csMCdscCescGhtMOnuMauvsuzws60w862xdC9ytW/y9a/zNbCztjG0drH0tvK1N3M1t7N19/U3ePb4uff5urj6Ozk6e3l6u7m6u7o7PDq7vDt8PPv8vTw8vTw8/X19vf6+vv///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGQ8CXcEgsvlytVUplJLJIpSEDUESFTELBwSgCCQEV42kjDFiMo4uQsDB2MkLHoEHUTD7DRAHC8VAiZ0QSCgYIDxhNiUEAOw==';
 
+	/**
+	 * 
+	 */
+	Editor.globeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEuOTkgMkM2LjQ3IDIgMiA2LjQ4IDIgMTJzNC40NyAxMCA5Ljk5IDEwQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTEuOTkgMnptNi45MyA2aC0yLjk1Yy0uMzItMS4yNS0uNzgtMi40NS0xLjM4LTMuNTYgMS44NC42MyAzLjM3IDEuOTEgNC4zMyAzLjU2ek0xMiA0LjA0Yy44MyAxLjIgMS40OCAyLjUzIDEuOTEgMy45NmgtMy44MmMuNDMtMS40MyAxLjA4LTIuNzYgMS45MS0zLjk2ek00LjI2IDE0QzQuMSAxMy4zNiA0IDEyLjY5IDQgMTJzLjEtMS4zNi4yNi0yaDMuMzhjLS4wOC42Ni0uMTQgMS4zMi0uMTQgMiAwIC42OC4wNiAxLjM0LjE0IDJINC4yNnptLjgyIDJoMi45NWMuMzIgMS4yNS43OCAyLjQ1IDEuMzggMy41Ni0xLjg0LS42My0zLjM3LTEuOS00LjMzLTMuNTZ6bTIuOTUtOEg1LjA4Yy45Ni0xLjY2IDIuNDktMi45MyA0LjMzLTMuNTZDOC44MSA1LjU1IDguMzUgNi43NSA4LjAzIDh6TTEyIDE5Ljk2Yy0uODMtMS4yLTEuNDgtMi41My0xLjkxLTMuOTZoMy44MmMtLjQzIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45NnpNMTQuMzQgMTRIOS42NmMtLjA5LS42Ni0uMTYtMS4zMi0uMTYtMiAwLS42OC4wNy0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAyIDAgLjY4LS4wNyAxLjM0LS4xNiAyem0uMjUgNS41NmMuNi0xLjExIDEuMDYtMi4zMSAxLjM4LTMuNTZoMi45NWMtLjk2IDEuNjUtMi40OSAyLjkzLTQuMzMgMy41NnpNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTIgMC0uNjgtLjA2LTEuMzQtLjE0LTJoMy4zOGMuMTYuNjQuMjYgMS4zMS4yNiAycy0uMSAxLjM2LS4yNiAyaC0zLjM4eiIvPjwvc3ZnPg==';
+
+	/**
+	 * 
+	 */
+	Editor.commentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjEuOTkgNGMwLTEuMS0uODktMi0xLjk5LTJINGMtMS4xIDAtMiAuOS0yIDJ2MTJjMCAxLjEuOSAyIDIgMmgxNGw0IDQtLjAxLTE4ek0xOCAxNEg2di0yaDEydjJ6bTAtM0g2VjloMTJ2MnptMC0zSDZWNmgxMnYyeiIvPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=';
+
+	/**
+	 * 
+	 */
+	Editor.commentImageInverted = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABLElEQVRYR+2Wvy4FQRjFf4dINAq9XqtSaVRqXArPINEodUqlhxC5/pU6nYdQSHQeQTRHNtmVuXuXrIxv1k1sN5vMOb85c75kxMCfBvZnCsD2ErAGzAfAvUt6THUnAGwfAWfAQoB5I3kh6aBZfALYXgGeg80b31VJT9UiBRgB48CTp9Lbku7aAPvAZSGAHUm3swEgKWtUbbsj1f4JDA4AbGb24iErgUzzr7bvSrrpVcKgK5ghgKAO9E/gvwNBJRxJuu41BUEd+BFARA3+JsAWcB9x3A7NzgSqt+ALsFwAYhqgMrW9Ub8J14G5QJBugAhD2yfAaUt7T9LVxBhGmDeato/rZJtfZQHq600hygPUEIfAOTAMQALxWrQD7X7ZXpT0VqyE3xU868n9G5PzASPvpiHavBAUAAAAAElFTkSuQmCC';
+	
+	/**
+	 * 
+	 */
+	Editor.userImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+';
+
+	/**
+	 * 
+	 */
+	Editor.shareImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTggMTYuMDhjLS43NiAwLTEuNDQuMy0xLjk2Ljc3TDguOTEgMTIuN2MuMDUtLjIzLjA5LS40Ni4wOS0uN3MtLjA0LS40Ny0uMDktLjdsNy4wNS00LjExYy41NC41IDEuMjUuODEgMi4wNC44MSAxLjY2IDAgMy0xLjM0IDMtM3MtMS4zNC0zLTMtMy0zIDEuMzQtMyAzYzAgLjI0LjA0LjQ3LjA5LjdMOC4wNCA5LjgxQzcuNSA5LjMxIDYuNzkgOSA2IDljLTEuNjYgMC0zIDEuMzQtMyAzczEuMzQgMyAzIDNjLjc5IDAgMS41LS4zMSAyLjA0LS44MWw3LjEyIDQuMTZjLS4wNS4yMS0uMDguNDMtLjA4LjY1IDAgMS42MSAxLjMxIDIuOTIgMi45MiAyLjkyIDEuNjEgMCAyLjkyLTEuMzEgMi45Mi0yLjkycy0xLjMxLTIuOTItMi45Mi0yLjkyeiIvPjwvc3ZnPg==';
+
+	/**
+	 *
+	 */
+	Editor.syncImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNFYxTDggNWw0IDRWNmMzLjMxIDAgNiAyLjY5IDYgNiAwIDEuMDEtLjI1IDEuOTctLjcgMi44bDEuNDYgMS40NkMxOS41NCAxNS4wMyAyMCAxMy41NyAyMCAxMmMwLTQuNDItMy41OC04LTgtOHptMCAxNGMtMy4zMSAwLTYtMi42OS02LTYgMC0xLjAxLjI1LTEuOTcuNy0yLjhMNS4yNCA3Ljc0QzQuNDYgOC45NyA0IDEwLjQzIDQgMTJjMCA0LjQyIDMuNTggOCA4IDh2M2w0LTQtNC00djN6Ii8+PC9zdmc+';
+
+	/**
+	 *
+	 */
+	Editor.syncDisabledImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTAgNi4zNVY0LjI2Yy0uOC4yMS0xLjU1LjU0LTIuMjMuOTZsMS40NiAxLjQ2Yy4yNS0uMTIuNS0uMjQuNzctLjMzem0tNy4xNC0uOTRsMi4zNiAyLjM2QzQuNDUgOC45OSA0IDEwLjQ0IDQgMTJjMCAyLjIxLjkxIDQuMiAyLjM2IDUuNjRMNCAyMGg2di02bC0yLjI0IDIuMjRDNi42OCAxNS4xNSA2IDEzLjY2IDYgMTJjMC0xIC4yNS0xLjk0LjY4LTIuNzdsOC4wOCA4LjA4Yy0uMjUuMTMtLjUuMjUtLjc3LjM0djIuMDljLjgtLjIxIDEuNTUtLjU0IDIuMjMtLjk2bDIuMzYgMi4zNiAxLjI3LTEuMjdMNC4xNCA0LjE0IDIuODYgNS40MXpNMjAgNGgtNnY2bDIuMjQtMi4yNEMxNy4zMiA4Ljg1IDE4IDEwLjM0IDE4IDEyYzAgMS0uMjUgMS45NC0uNjggMi43N2wxLjQ2IDEuNDZDMTkuNTUgMTUuMDEgMjAgMTMuNTYgMjAgMTJjMC0yLjIxLS45MS00LjItMi4zNi01LjY0TDIwIDR6Ii8+PC9zdmc+';
+
+	/**
+	 *
+	 */
+	Editor.syncProblemImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyAxMmMwIDIuMjEuOTEgNC4yIDIuMzYgNS42NEwzIDIwaDZ2LTZsLTIuMjQgMi4yNEM1LjY4IDE1LjE1IDUgMTMuNjYgNSAxMmMwLTIuNjEgMS42Ny00LjgzIDQtNS42NVY0LjI2QzUuNTUgNS4xNSAzIDguMjcgMyAxMnptOCA1aDJ2LTJoLTJ2MnpNMjEgNGgtNnY2bDIuMjQtMi4yNEMxOC4zMiA4Ljg1IDE5IDEwLjM0IDE5IDEyYzAgMi42MS0xLjY3IDQuODMtNCA1LjY1djIuMDljMy40NS0uODkgNi00LjAxIDYtNy43NCAwLTIuMjEtLjkxLTQuMi0yLjM2LTUuNjRMMjEgNHptLTEwIDloMlY3aC0ydjZ6Ii8+PC9zdmc+';
+	
 	/**
 	 * Used in the GraphViewer lightbox.
 	 */
@@ -75,29 +123,36 @@
 	Editor.commonEdgeProperties = [
         {type: 'separator'},
         {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
-        {name: 'targetPortConstraint', dispName: 'Target Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'sourcePortConstraint', dispName: 'Source Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'sourcePortConstraint', dispName: 'Source Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'targetPortConstraint', dispName: 'Target Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
+        {name: 'jettySize', dispName: 'Jetty Size', type: 'int', min: 0, defVal: 'auto', allowAuto: true, isVisible: function(state)
+        {
+    		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'orthogonalEdgeStyle';
+        }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
-        {name: 'sourcePerimeterSpacing', dispName: 'Source Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'targetPerimeterSpacing', dispName: 'Target Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'perimeterSpacing', dispName: 'Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true},
-        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
+        {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
+        {name: 'snapToPoint', dispName: 'Snap to Anchor', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
+        }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
-        {name: 'loopStyle', dispName: 'Loop Style', type: 'bool', defVal: true}
+        {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
+        {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false}
 	];
 
 	/**
@@ -113,16 +168,33 @@
         {name: 'noLabel', dispName: 'Hide Label', type: 'bool', defVal: false},
         {name: 'labelPadding', dispName: 'Label Padding', type: 'float', defVal: 0},
         {name: 'direction', dispName: 'Direction', type: 'enum', defVal: 'east',
-        	enumList: [{val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraint', dispName: 'Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'portConstraint', dispName: 'Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
+        {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
+        {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
+        	enumList: [{val: 'none', dispName: 'None'},
+        			{val: 'rectanglePerimeter', dispName: 'Rectangle'}, {val: 'ellipsePerimeter', dispName: 'Ellipse'},
+        			{val: 'rhombusPerimeter', dispName: 'Rhombus'}, {val: 'trianglePerimeter', dispName: 'Triangle'},
+        			{val: 'hexagonPerimeter2', dispName: 'Hexagon'}, {val: 'lifelinePerimeter', dispName: 'Lifeline'},
+        			{val: 'orthogonalPerimeter', dispName: 'Orthogonal'}, {val: 'backbonePerimeter', dispName: 'Backbone'},
+        			{val: 'calloutPerimeter', dispName: 'Callout'}, {val: 'parallelogramPerimeter', dispName: 'Parallelogram'},
+        			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
+        },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
+        }},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
+        {name: 'container', dispName: 'Container', type: 'bool', defVal: false},
+        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true},
+        {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -211,7 +283,7 @@
 		'## Comma-separated list of ignored columns for metadata. (These can be\n' +
 		'## used for connections and styles but will not be added as metadata.)\n' +
 		'#\n' +
-		'# ignore: id,image,fill,stroke\n' +
+		'# ignore: id,image,fill,stroke,refs,manager\n' +
 		'#\n' +
 		'## Column to be renamed to link attribute (used as link).\n' +
 		'#\n' +
@@ -225,12 +297,13 @@
 		'#\n' +
 		'# levelspacing: 100\n' +
 		'#\n' +
-		'## Spacing between parallel edges. Default is 40.\n' +
+		'## Spacing between parallel edges. Default is 40. Use 0 to disable.\n' +
 		'#\n' +
 		'# edgespacing: 40\n' +
 		'#\n' +
-		'## Name of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
-		'## verticalflow, horizontalflow, organic, circle. Default is auto.\n' +
+		'## Name or JSON of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
+		'## verticalflow, horizontalflow, organic, circle or a JSON string as used in Layout, Apply.\n' +
+		'## Default is auto.\n' +
 		'#\n' +
 		'# layout: auto\n' +
 		'#\n' +
@@ -258,6 +331,8 @@
 	 */
 	Editor.configVersion = null;
 
+	Editor.prototype.timeout = 25000;
+	
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
@@ -276,6 +351,7 @@
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
+			DrawioFile.prototype.autosaveDelay = config.autosaveDelay || DrawioFile.prototype.autosaveDelay;
 			
 			if (config.templateFile != null)
 			{
@@ -402,24 +478,31 @@
 			}
 		}
 	};
-	
-	/**
-	 * Generates a unique ID of the given length
-	 */
-	Editor.s4 = function()
-	{
-	    return Math.floor((1 + Math.random()) * 0x10000)
-	    	.toString(16)
-	    	.substring(1);
-	};
 
 	/**
 	 * Generates a unique ID of the given length
 	 */
-	Editor.guid = function()
+	Editor.GUID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_';
+
+	/**
+	 * Generates a unique ID of the given length
+	 */
+	Editor.GUID_LENGTH = 20;
+	
+	/**
+	 * Generates a unique ID of the given length
+	 */
+	Editor.guid = function(length)
 	{
-	  return Editor.s4() + Editor.s4() + '-' + Editor.s4() + '-' + Editor.s4() + '-' +
-	  	Editor.s4() + '-' + Editor.s4() + Editor.s4() + Editor.s4();
+		var len = (length != null) ? length : Editor.GUID_LENGTH;
+		var rtn = [];
+	  
+		for (var i = 0; i < len; i++)
+		{
+			rtn.push(Editor.GUID_ALPHABET.charAt(Math.floor(Math.random() * Editor.GUID_ALPHABET.length)));
+		}
+
+		return rtn.join('');
 	};
 	
 	/**
@@ -634,7 +717,7 @@
 					if (divs2.length > 0)
 					{
 						var data = mxUtils.getTextContent(divs2[0]);
-		        		data = this.graph.decompress(data);
+		        		data = Graph.decompress(data);
 		        		
 		        		if (data.length > 0)
 		        		{
@@ -690,7 +773,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = this.graph.decompress(mxUtils.getTextContent(diagramNode));
+				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
 				
 				if (tmp != null && tmp.length > 0)
 				{
@@ -748,7 +831,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 		Editor.mathJaxQueue = [];
 		
 		Editor.doMathJaxRender = function(container)
@@ -820,7 +903,7 @@
 			Editor.mathJaxQueue = [];
 		};
 		
-		// Updates typeset after changes
+		// Updates math typesetting after changes
 		var editorInit = Editor.prototype.init;
 		
 		Editor.prototype.init = function()
@@ -829,7 +912,7 @@
 			
 			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 			{
-				if (this.graph.container != null && this.graph.mathEnabled)
+				if (this.graph.container != null && this.graph.mathEnabled && !this.graph.blockMathRender)
 				{
 					Editor.MathJaxRender(this.graph.container);
 				}
@@ -870,12 +953,741 @@
 	    if (/,\s*$/.test(text)) a.push('');
 	    return a;
 	};
-	
+
+	/**
+	 * Returns true if the given URL is known to have CORS headers.
+	 */
+	Editor.prototype.isCorsEnabledForUrl = function(url)
+	{
+		if (urlParams['cors'] != null && this.corsRegExp == null)
+		{
+			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
+		}
+		
+		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
+			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
+			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
+			url.substring(0, 19) === 'https://rawgit.com/' ||
+			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
+			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
+			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
+			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts all images in the SVG output to data URIs for immediate rendering
+	 */
+	Editor.prototype.createImageUrlConverter = function()
+	{
+		var converter = new mxUrlConverter();
+		converter.updateBaseUrl();
+
+		// Extends convert to avoid CORS using an image proxy server where needed
+		var convert = converter.convert;
+		var self = this;
+		
+		converter.convert = function(src)
+		{
+			if (src != null)
+			{
+				var remote = src.substring(0, 7) == 'http://' || src.substring(0, 8) == 'https://';
+				
+				if (remote && !navigator.onLine)
+				{
+					src = EditorUi.prototype.svgBrokenImage.src; //TODO move it to Editor?
+				}
+				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl &&
+						(!EditorUi.prototype.crossOriginImages || !self.isCorsEnabledForUrl(src))) //TODO move it to Editor?
+				{
+					src = PROXY_URL + '?url=' + encodeURIComponent(src);
+				}
+				else if (src.substring(0, 19) != 'chrome-extension://')
+				{
+					src = convert.apply(this, arguments);
+				}
+			}
+			
+			return src;
+		};
+		
+		return converter;
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * 
+	 */
+	Editor.prototype.createSvgDataUri = function(svg)
+	{
+		return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * 
+	 */
+	Editor.prototype.convertImageToDataUri = function(url, callback)
+	{
+		if (/(\.svg)$/i.test(url))
+		{
+			mxUtils.get(url, mxUtils.bind(this, function(req)
+			{
+				callback(this.createSvgDataUri(req.getText()));
+			}),
+			function()
+			{
+				callback(EditorUi.prototype.svgBrokenImage.src);
+			});
+		}
+		else
+		{
+		    var img = new Image();
+		    var self = this;
+		    
+		    if (EditorUi.prototype.crossOriginImages)
+	    	{
+			    img.crossOrigin = 'anonymous';
+		    }
+		    
+		    img.onload = function()
+		    {
+		        var canvas = document.createElement('canvas');
+		        var ctx = canvas.getContext('2d');
+		        canvas.height = img.height;
+		        canvas.width = img.width;
+		        ctx.drawImage(img, 0, 0);
+		        
+		        try
+		        {
+	        		callback(canvas.toDataURL());
+		        }
+		        catch (e)
+		        {
+	        		callback(EditorUi.prototype.svgBrokenImage.src);
+		        }
+		    };
+		    
+		    img.onerror = function()
+		    {
+	    		callback(EditorUi.prototype.svgBrokenImage.src);
+		    };
+		    
+		    img.src = url;
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts all images in the SVG output to data URIs for immediate rendering
+	 */
+	Editor.prototype.convertImages = function(svgRoot, callback, imageCache, converter)
+	{
+		// Converts images to data URLs for immediate painting
+		if (converter == null)
+		{
+			converter = this.createImageUrlConverter();
+		}
+		
+		// Barrier for asynchronous image loading
+		var counter = 0;
+		
+		function inc()
+		{
+			counter++;
+		};
+		
+		function dec()
+		{
+			counter--;
+			
+			if (counter == 0)
+			{
+				callback(svgRoot);
+			}
+		};
+
+		var cache = imageCache || new Object();
+		
+		var convertImages = mxUtils.bind(this, function(tagName, srcAttr)
+		{
+			var images = svgRoot.getElementsByTagName(tagName);
+			
+			for (var i = 0; i < images.length; i++)
+			{
+				(mxUtils.bind(this, function(img)
+				{
+					var src = converter.convert(img.getAttribute(srcAttr));
+		        	
+					// Data URIs are pass-through
+					if (src != null && src.substring(0, 5) != 'data:')
+					{
+						var tmp = cache[src];
+						
+						if (tmp == null)
+						{
+							inc();
+							
+							this.convertImageToDataUri(src, function(uri)
+							{
+								if (uri != null)
+								{
+									cache[src] = uri;
+									img.setAttribute(srcAttr, uri);
+								}
+								
+								dec();
+							});
+						}
+						else
+						{
+							img.setAttribute(srcAttr, tmp);
+						}
+					}
+					else if (src != null)
+					{
+						img.setAttribute(srcAttr, src);
+					}
+				}))(images[i]);
+			}
+		});
+		
+		// Converts all known image tags in output
+		// LATER: Add support for images in CSS
+		convertImages('image', 'xlink:href');
+		convertImages('img', 'src');
+		
+		// All from cache or no images
+		if (counter == 0)
+		{
+			callback(svgRoot);
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Base64 encodes the given string. This method seems to be more
+	 * robust for encoding PNG from binary AJAX responses.
+	 */
+	Editor.prototype.base64Encode = function(str)
+	{
+	    var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	    var out = "", i = 0, len = str.length, c1, c2, c3;
+	    
+	    while (i < len)
+	    {
+	        c1 = str.charCodeAt(i++) & 0xff;
+	        
+	        if (i == len)
+	        {
+	            out += CHARS.charAt(c1 >> 2);
+	            out += CHARS.charAt((c1 & 0x3) << 4);
+	            out += "==";
+	            break;
+	        }
+	        
+	        c2 = str.charCodeAt(i++);
+	        
+	        if (i == len)
+	        {
+	            out += CHARS.charAt(c1 >> 2);
+	            out += CHARS.charAt(((c1 & 0x3)<< 4) | ((c2 & 0xF0) >> 4));
+	            out += CHARS.charAt((c2 & 0xF) << 2);
+	            out += "=";
+	            break;
+	        }
+	        
+	        c3 = str.charCodeAt(i++);
+	        out += CHARS.charAt(c1 >> 2);
+	        out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+	        out += CHARS.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+	        out += CHARS.charAt(c3 & 0x3F);
+	    }
+	    
+	    return out;
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Checks if the client is authorized and calls the next step.
+	 */
+	Editor.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	{
+		try
+		{
+			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			retry = (retry != null) ? retry : true;
+			
+			var fn = mxUtils.bind(this, function()
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+				    	if (success != null)
+				    	{
+					    	var data = req.getText();
+					    	
+				    		// Returns PNG as base64 encoded data URI
+							if (binary)
+							{
+								// NOTE: This requires BinaryToArray VB script in the page
+								if ((document.documentMode == 9 || document.documentMode == 10) &&
+									typeof window.mxUtilsBinaryToArray !== 'undefined')
+								{
+									var bin = mxUtilsBinaryToArray(req.request.responseBody).toArray();
+									var tmp = new Array(bin.length);
+									
+									for (var i = 0; i < bin.length; i++)
+									{
+										tmp[i] = String.fromCharCode(bin[i]);
+									}
+									
+									data = tmp.join('');
+								}
+								
+								// LATER: Could be JPG but modern browsers
+								// ignore the mime type in the data URI
+								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
+								data = dataUriPrefix + this.base64Encode(data);
+							}
+				    		
+				    		success(data);
+				    	}
+					}
+					else if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN}, req);
+			    	}
+				}), function()
+				{
+			    	if (error != null)
+			    	{
+			    		error({code: App.ERROR_UNKNOWN});
+			    	}
+				}, binary, this.timeout, function()
+			    {
+				    if (retry && error != null)
+					{
+						error({code: App.ERROR_TIMEOUT, retry: fn});
+					}
+			    });
+			});
+			
+			fn();
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * For the fontCSS to be applied when rendering images on canvas, the actual
+	 * font data must be made available via a data URI encoding of the file.
+	 */
+    Editor.prototype.loadFonts = function(then)
+    {
+        if (this.fontCss != null && this.resolvedFontCss == null)
+        {
+            var parts = this.fontCss.split('url(');
+            var waiting = 0;
+            var fonts = {};
+
+            // Strips leading and trailing quotes and spaces
+            function trimString(str)
+            {
+                return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+            };
+            
+            var finish = mxUtils.bind(this, function()
+            {
+                if (waiting == 0)
+                {
+                    // Constructs string
+                    var result = [parts[0]];
+                    
+                    for (var j = 1; j < parts.length; j++)
+                    {
+                        var idx = parts[j].indexOf(')');
+                        result.push('url("');
+                        result.push(fonts[trimString(parts[j].substring(0, idx))]);
+                        result.push('"' + parts[j].substring(idx));
+                    }
+                    
+                    this.resolvedFontCss = result.join('');
+                    then();
+                }
+            });
+            
+            if (parts.length > 0)
+            {
+                for (var i = 1; i < parts.length; i++)
+                {
+                    var idx = parts[i].indexOf(')');
+                    var format = null;
+                    
+                    // Checks if there is a format directive
+                    var fmtIdx = parts[i].indexOf('format(', idx);
+                    
+                    if (fmtIdx > 0)
+                    {
+                        format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                    }
+    
+                    (mxUtils.bind(this, function(url)
+                    {
+                        if (fonts[url] == null)
+                        {
+                            // Mark font es being fetched and fetch it
+                            fonts[url] = url;
+                            waiting++;
+                            
+                            var mime = 'application/x-font-ttf';
+                            
+                            // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+                            if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
+                            {
+                                mime = 'image/svg+xml';
+                            }
+                            else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
+                            {
+                                mime = 'application/x-font-opentype';
+                            }
+                            else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff';
+                            }
+                            else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-woff2';
+                            }
+                            else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
+                            {
+                                mime = 'application/vnd.ms-fontobject';
+                            }
+                            else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
+                            {
+                                mime = 'application/font-sfnt';
+                            }
+                            
+                            var realUrl = url;
+                            
+                            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+                            {
+                                realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+                            }
+
+                            // LATER: Remove cache-control header
+                            this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+                            {
+                                fonts[url] = uri;
+                                waiting--;
+                                finish();
+                            }), mxUtils.bind(this, function(err)
+                            {
+                                // LATER: handle error
+                                waiting--;
+                                finish();
+                            }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+                        }
+                    }))(trimString(parts[i].substring(0, idx)), format);
+                }
+            }
+        }
+        else
+        {
+            then();
+        }
+    };
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Converts math in the given SVG
+	 */
+	Editor.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	{
+		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		{
+	      	// Temporarily attaches to DOM for rendering
+			// FIXME: If adding svgRoot to body, the text
+			// value of the math is appended, if not
+			// added to DOM then LaTeX does not work.
+			// This must be fixed to enable client-side export
+			// if math is enabled.
+//			document.body.appendChild(svgRoot);
+			Editor.MathJaxRender(svgRoot);
+	      
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				MathJax.Hub.Queue(mxUtils.bind(this, function ()
+				{
+					// Removes from DOM
+//					svgRoot.parentNode.removeChild(svgRoot);
+					
+					callback();
+				}));
+			}), 0);
+		}
+		else
+		{
+			callback();
+		}
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * See fixme in convertMath for client-side image generation with math.
+	 */
+	Editor.prototype.isExportToCanvas = function()
+	{
+		return mxClient.IS_CHROMEAPP || (!this.graph.mathEnabled && this.useCanvasForExport);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 *
+	 */
+	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
+	{
+		limitHeight = (limitHeight != null) ? limitHeight : true;
+		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+		graph = (graph != null) ? graph : this.graph;
+		border = (border != null) ? border : 0;
+		
+		var bg = (transparentBackground) ? null : graph.background;
+		
+		if (bg == mxConstants.NONE)
+		{
+			bg = null;
+		}
+		
+		if (bg == null)
+		{
+			bg = background;
+		}
+		
+		// Handles special case where background is null but transparent is false
+		if (bg == null && transparentBackground == false)
+		{
+			bg = this.graph.defaultPageBackgroundColor;
+		}
+		
+		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+			mxUtils.bind(this, function(svgRoot)
+		{
+			var img = new Image();
+			
+			img.onload = mxUtils.bind(this, function()
+			{
+		   		try
+		   		{
+		   			var canvas = document.createElement('canvas');
+					var w = parseInt(svgRoot.getAttribute('width'));
+					var h = parseInt(svgRoot.getAttribute('height'));
+					scale = (scale != null) ? scale : 1;
+					
+					if (width != null)
+					{
+						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+					}
+					
+					w = Math.ceil(scale * w) + 2 * border;
+					h = Math.ceil(scale * h) + 2 * border;
+					
+					canvas.setAttribute('width', w);
+			   		canvas.setAttribute('height', h);
+			   		var ctx = canvas.getContext('2d');
+			   		
+			   		if (bg != null)
+			   		{
+			   			ctx.beginPath();
+						ctx.rect(0, 0, w, h);
+						ctx.fillStyle = bg;
+						ctx.fill();
+			   		}
+
+			   		ctx.scale(scale, scale);
+			   		
+			   		// Workaround for broken data URI images in Safari on first export
+			   		if (mxClient.IS_SF)
+			   		{			   		
+						window.setTimeout(function()
+						{
+							ctx.drawImage(img, border / scale, border / scale);
+							callback(canvas);
+						}, 0);
+			   		}
+			   		else
+			   		{
+			   			ctx.drawImage(img, border / scale, border / scale);
+			   			callback(canvas);
+			   		}
+		   		}
+		   		catch (e)
+		   		{
+		   			if (error != null)
+					{
+						error(e);
+					}
+		   		}
+			});
+			
+			img.onerror = function(e)
+			{
+				//console.log('img', e, img.src);
+				
+				if (error != null)
+				{
+					error(e);
+				}
+			};
+
+			try
+			{
+				if (addShadow)
+				{
+					this.graph.addSvgShadow(svgRoot);
+				}
+				
+				var done = mxUtils.bind(this, function()
+				{
+					if (this.resolvedFontCss != null)
+					{
+						var st = document.createElement('style');
+						st.setAttribute('type', 'text/css');
+						st.innerHTML = this.resolvedFontCss;
+						
+						// Must be in defs section for FF to work
+						var defs = svgRoot.getElementsByTagName('defs');
+						defs[0].appendChild(st);
+					}
+					
+					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					{
+						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+					}));
+				});
+				
+				this.loadFonts(done);
+			}
+			catch (e)
+			{
+				//console.log('src', e, img.src);
+				
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), imageCache, converter);
+	};
+
+	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	/**
+	 * Adds the given text to the compressed or non-compressed text chunk.
+	 */
+	Editor.prototype.writeGraphModelToPng = function(data, type, key, value, error)
+	{
+		var base64 = data.substring(data.indexOf(',') + 1);
+		var f = (window.atob) ? atob(base64) : Base64.decode(base64, true);
+		var pos = 0;
+		
+		function fread(d, count)
+		{
+			var start = pos;
+			pos += count;
+			
+			return d.substring(start, pos);
+		};
+		
+		// Reads unsigned long 32 bit big endian
+		function _freadint(d)
+		{
+			var bytes = fread(d, 4);
+			
+			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+		};
+		
+		function writeInt(num)
+		{
+			return String.fromCharCode((num >> 24) & 0x000000ff, (num >> 16) & 0x000000ff,
+				(num >> 8) & 0x000000ff, num & 0x000000ff);
+		};
+		
+		// Checks signature
+		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		// Reads header chunk
+		fread(f,4);
+		
+		if (fread(f,4) != 'IHDR')
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		fread(f, 17);
+		var result = f.substring(0, pos);
+		
+		do
+		{
+			var n = _freadint(f);
+			var chunk = fread(f,4);
+			
+			if (chunk == 'IDAT')
+			{
+				result = f.substring(0, pos - 8);
+				
+				var chunkData = key + String.fromCharCode(0) +
+					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+					value;
+				
+				var crc = 0xffffffff;
+				crc = EditorUi.prototype.updateCRC(crc, type, 0, 4); //TODO move code to Editor?
+				crc = EditorUi.prototype.updateCRC(crc, chunkData, 0, chunkData.length);
+				
+				result += writeInt(chunkData.length) + type + chunkData + writeInt(crc ^ 0xffffffff);
+				result += f.substring(pos - 8, f.length);
+				
+				break;
+			}
+			
+			result += f.substring(pos - 8, pos - 4 + n);
+			fread(f,n);
+			fread(f,4);
+		}
+		while (n);
+		
+		return 'data:image/png;base64,' + ((window.btoa) ? btoa(result) : Base64.encode(result, true));
+	}
+
 	/**
 	 * Adds persistence for recent colors
 	 */
 	if (window.ColorDialog)
 	{
+		FilenameDialog.filenameHelpLink = 'https://desk.draw.io/support/solutions/articles/16000091426'; 
+		
 		var colorDialogAddRecentColor = ColorDialog.addRecentColor;
 		
 		ColorDialog.addRecentColor = function(color, max)
@@ -1234,7 +2046,7 @@
 			if (graph.isEnabled())
 			{
 				var file = ui.getCurrentFile();
-	
+
 				if (file != null && file.isAutosaveOptional())
 				{
 					var opt = this.createOption(mxResources.get('autosave'), function()
@@ -1290,12 +2102,13 @@
 	                }
 	            });
 	            
-	            option.style.paddingTop = '0px';
+	            option.style.paddingTop = '5px';
 	            div.appendChild(option);
 	            
 	            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');
 	            help.style.position = 'relative';
-	            help.style.top = '4px';
+	            help.style.marginLeft = '6px';
+	            help.style.top = '2px';
 	            option.appendChild(help);
 	        }
 	        
@@ -1358,7 +2171,9 @@
 		];
 		
 		mxCellRenderer.defaultShapes['cube'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 }
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 },
+	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
+	        {name: 'darkOpacity2', dispName: 'Dark Opacity 2', type: 'float', min:-1, max:1, defVal:0 }
 		];
 		
 		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
@@ -1376,7 +2191,8 @@
 		];
 		
 		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30}
+	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30},
+	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
 	    ];
 		
 		mxCellRenderer.defaultShapes['card'].prototype.customProperties = [
@@ -1403,7 +2219,8 @@
 		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
 	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
-	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true}
+	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true},
+	        {name: 'separatorColor', dispName: 'Separator Color', type: 'color', defVal: null},
 	    ];
 		
 		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
@@ -1507,23 +2324,23 @@
 		/**
 		 * Configures global color schemes.
 		 */
-		StyleFormatPanel.prototype.defaultColorSchemes = [[null, {fill: '#f5f5f5', stroke: '#666666', font: '#333333'},
+		StyleFormatPanel.prototype.defaultColorSchemes = [[{fill: '', stroke: ''}, {fill: '#f5f5f5', stroke: '#666666', font: '#333333'},
 			{fill: '#dae8fc', stroke: '#6c8ebf'}, {fill: '#d5e8d4', stroke: '#82b366'},
 			{fill: '#ffe6cc', stroke: '#d79b00'}, {fill: '#fff2cc', stroke: '#d6b656'},
 			{fill: '#f8cecc', stroke: '#b85450'}, {fill: '#e1d5e7', stroke: '#9673a6'}],
-			[{fill: '#60a917', stroke: '#60a917', font: '#ffffff'}, {fill: '#008a00', stroke: '#008a00', font: '#ffffff'},
-			{fill: '#1ba1e2', stroke: '#1ba1e2', font: '#ffffff'}, {fill: '#0050ef', stroke: '#0050ef', font: '#ffffff'},
-			{fill: '#6a00ff', stroke: '#6a00ff', font: '#ffffff'}, {fill: '#aa00ff', stroke: '#aa00ff', font: '#ffffff'},
-			{fill: '#d80073', stroke: '#d80073', font: '#ffffff'}, {fill: '#a20025', stroke: '#a20025', font: '#ffffff'}],
-			[{fill: '#e51400', stroke: '#e51400', font: '#ffffff'}, {fill: '#fa6800', stroke: '#fa6800', font: '#ffffff'},
-			{fill: '#f0a30a', stroke: '#f0a30a', font: '#ffffff'}, {fill: '#e3c800', stroke: '#e3c800', font: '#ffffff'},
-			{fill: '#6d8764', stroke: '#6d8764', font: '#ffffff'}, {fill: '#647687', stroke: '#647687', font: '#ffffff'},
-			{fill: '#76608a', stroke: '#76608a', font: '#ffffff'}, {fill: '#a0522d', stroke: '#a0522d', font: '#ffffff'}],
-			[null, {fill: mxConstants.NONE, stroke: '#36393d'},
+			[{fill: '#60a917', stroke: '#2D7600', font: '#ffffff'}, {fill: '#008a00', stroke: '#005700', font: '#ffffff'},
+			{fill: '#1ba1e2', stroke: '#006EAF', font: '#ffffff'}, {fill: '#0050ef', stroke: '#001DBC', font: '#ffffff'},
+			{fill: '#6a00ff', stroke: '#3700CC', font: '#ffffff'}, {fill: '#aa00ff', stroke: '#7700CC', font: '#ffffff'},
+			{fill: '#d80073', stroke: '#A50040', font: '#ffffff'}, {fill: '#a20025', stroke: '#6F0000', font: '#ffffff'}],
+			[{fill: '#e51400', stroke: '#B20000', font: '#ffffff'}, {fill: '#fa6800', stroke: '#C73500', font: '#ffffff'},
+			{fill: '#f0a30a', stroke: '#BD7000', font: '#ffffff'}, {fill: '#e3c800', stroke: '#B09500', font: '#ffffff'},
+			{fill: '#6d8764', stroke: '#3A5431', font: '#ffffff'}, {fill: '#647687', stroke: '#314354', font: '#ffffff'},
+			{fill: '#76608a', stroke: '#432D57', font: '#ffffff'}, {fill: '#a0522d', stroke: '#6D1F00', font: '#ffffff'}],
+			[{fill: '', stroke: ''}, {fill: mxConstants.NONE, stroke: ''},
 			{fill: '#fad7ac', stroke: '#b46504'}, {fill: '#fad9d5', stroke: '#ae4132'},
 			{fill: '#b0e3e6', stroke: '#0e8088'}, {fill: '#b1ddf0', stroke: '#10739e'},
 			{fill: '#d0cee2', stroke: '#56517e'}, {fill: '#bac8d3', stroke: '#23445d'}],
-		    [null,
+		    [{fill: '', stroke: ''},
 			{fill: '#f5f5f5', stroke: '#666666', gradient: '#b3b3b3'},
 			{fill: '#dae8fc', stroke: '#6c8ebf', gradient: '#7ea6e0'},
 			{fill: '#d5e8d4', stroke: '#82b366', gradient: '#97d077'},
@@ -1531,7 +2348,7 @@
 			{fill: '#fff2cc', stroke: '#d6b656', gradient: '#ffd966'},
 			{fill: '#f8cecc', stroke: '#b85450', gradient: '#ea6b66'},
 			{fill: '#e6d0de', stroke: '#996185', gradient: '#d5739d'}],
-			[null, {fill: '#eeeeee', stroke: '#36393d'},
+			[{fill: '', stroke: ''}, {fill: '#eeeeee', stroke: '#36393d'},
 			{fill: '#f9f7ed', stroke: '#36393d'}, {fill: '#ffcc99', stroke: '#36393d'},
 			{fill: '#cce5ff', stroke: '#36393d'}, {fill: '#ffff88', stroke: '#36393d'},
 			{fill: '#cdeb8b', stroke: '#36393d'}, {fill: '#ffcccc', stroke: '#36393d'}]];
@@ -1583,7 +2400,7 @@
 			var view = this.editorUi.editor.graph.view;
 			var state = view.getState(cell);
 			
-			if (state != null)
+			if (state != null && state.shape != null)
 			{
 				//Add common properties to all shapes
 				if (!state.shape.commonCustomPropAdded)
@@ -1627,7 +2444,7 @@
 			// TODO: Update sstate in Format
 			var sstate = this.format.createSelectionState();
 
-			if (sstate.style.shape != 'image')
+			if (sstate.style.shape != 'image' && !sstate.containsLabel)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
@@ -1650,8 +2467,10 @@
 					this.findCommonProperties(edges[i], properties, vertices.length == 0 && i == 0);
 				}
 
-				if (Object.getOwnPropertyNames(properties).length > 0)
+				if (Object.getOwnPropertyNames != null && Object.getOwnPropertyNames(properties).length > 0)
+				{
 					this.container.appendChild(this.addProperties(this.createPanel(), properties, sstate));
+				}
 			}
 		};
 
@@ -1791,6 +2610,11 @@
 						}
 					}
 					
+					if (typeof(prop.onChange) == 'function')
+					{
+						prop.onChange(graph, newVal);
+					}
+					
 					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', changedProps,
 						'values', changedVals, 'cells', graph.getSelectionCells()));
 				}
@@ -1814,18 +2638,18 @@
 			
 			function createColorBtn(pName, pValue, prop)
 			{
-				var clrDiv = document.createElement("div");
+				var clrDiv = document.createElement('div');
 				clrDiv.style.width = '32px';
 				clrDiv.style.height = '4px';
-				clrDiv.style.margin = "2px";
-				clrDiv.style.border = "1px solid black";
-				clrDiv.style.background = !pValue || pValue == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
+				clrDiv.style.margin = '2px';
+				clrDiv.style.border = '1px solid black';
+				clrDiv.style.background = !pValue || pValue == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
 
 				btn = mxUtils.button('', mxUtils.bind(that, function(evt)
 				{
 					this.editorUi.pickColor(pValue, function(color)
 					{
-						clrDiv.style.background = color == "none"? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
+						clrDiv.style.background = color == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
 						applyStyleVal(pName, color, prop);
 					});
 					mxEvent.consume(evt);
@@ -1869,7 +2693,7 @@
 					}
 					
 					var newProp = {type: subType, parentRow: myRow, index: index, isDeletable: true, defVal: defVal, countProperty: countProperty};
-					var arrItem = createPropertyRow(pName, "", newProp, index % 2 == 0, flipBkg);
+					var arrItem = createPropertyRow(pName, '', newProp, index % 2 == 0, flipBkg);
 					applyStyleVal(pName, defVal, newProp);
 					insertAfter(arrItem, beforeElem);
 					
@@ -1893,7 +2717,7 @@
 					
 					for (var i = 0; i < size; i++) 
 					{
-						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : "");
+						vals[i] = curVals[i] != null? curVals[i] : (defVal != null? defVal : '');
 					}
 					
 					secondLevel.push({name: pName, values: vals, type: subType, defVal: defVal, parentRow: myRow, flipBkg: flipBkg, size: size});
@@ -1905,7 +2729,7 @@
 			function createCheckbox(pName, pValue, prop)
 			{
 				var input = document.createElement('input');
-				input.type = "checkbox";
+				input.type = 'checkbox';
 				input.checked = pValue == '1';
 				
 				mxEvent.addListener(input, 'change', function() 
@@ -1920,7 +2744,7 @@
 				var pDiplayName = prop.dispName;
 				var pType = prop.type;
 				var row = document.createElement('tr');
-				row.className = "gePropRow" + (flipBkg? 'Dark' : '') + (isOdd? "Alt" : "") + " gePropNonHeaderRow";
+				row.className = 'gePropRow' + (flipBkg? 'Dark' : '') + (isOdd? 'Alt' : '') + ' gePropNonHeaderRow';
 				row.setAttribute('data-pName', pName);
 				row.setAttribute('data-pValue', pValue);
 				var rightAlig = false;
@@ -1928,32 +2752,32 @@
 				if (prop.index != null)
 				{
 					row.setAttribute('data-index', prop.index);
-					pDiplayName = (pDiplayName != null? pDiplayName : "") + "[" + prop.index + "]";
+					pDiplayName = (pDiplayName != null? pDiplayName : '') + '[' + prop.index + ']';
 					rightAlig = true;
 				}
 				
 				var td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
 				
 				if (rightAlig)
 				{
-					td.style.textAlign = "right";
+					td.style.textAlign = 'right';
 				}
 					
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.className = "gePropRowCell";
+				td.className = 'gePropRowCell';
 				
-				if (pType == "color")
+				if (pType == 'color')
 				{
 					td.appendChild(createColorBtn(pName, pValue, prop));
 				}
-				else if (pType == "bool" || pType == "boolean")
+				else if (pType == 'bool' || pType == 'boolean')
 				{
 					td.appendChild(createCheckbox(pName, pValue, prop));
 				}
-				else if (pType == "enum")
+				else if (pType == 'enum')
 				{
 					var pEnumList = prop.enumList;
 					
@@ -2018,12 +2842,12 @@
 						var input = document.createElement('input');
 						setElementPos(td, input, true);
 						input.value = pValue;
-						input.className = "gePropEditor";
+						input.className = 'gePropEditor';
 						
-						if (pType == "int" || pType == "float")
+						if ((pType == 'int' || pType == 'float') && !prop.allowAuto)
 						{
-							input.type = "number";
-							input.step = pType == "int"? "1" : "any";
+							input.type = 'number';
+							input.step = pType == 'int'? '1' : 'any';
 							
 							if (prop.min != null)
 							{
@@ -2041,6 +2865,21 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
+							inputVal = inputVal.length == 0 && pType != 'string'? 0 : inputVal;
+							
+							if (prop.allowAuto)
+							{
+								if (inputVal.trim().toLowerCase() == 'auto')
+								{
+									inputVal = 'auto';
+									pType = 'string';
+								}
+								else
+								{
+									inputVal = parseFloat(inputVal);
+									inputVal = isNaN(inputVal)? 0 : inputVal;
+								}
+							}
 							
 							if (prop.min != null && inputVal < prop.min)
 							{
@@ -2051,12 +2890,11 @@
 								inputVal = prop.max;
 							}
 
-							var newVal = mxUtils.htmlEntities((pType == "int"? parseInt(inputVal) : inputVal) + '');
+							var newVal = mxUtils.htmlEntities((pType == 'int'? parseInt(inputVal) : inputVal) + '');
 							
 							applyStyleVal(pName, newVal, prop);
 						}
 						
-						mxEvent.addListener(input, 'change', setInputVal);
 						mxEvent.addListener(input, 'keypress', function(e)
 						{
 							if (e.keyCode == 13) 
@@ -2069,8 +2907,9 @@
 						input.focus();
 						
 						//FF calls blur on focus! so set the event after focusing
-						mxEvent.addListener(input, 'blur', function(){
-							div.removeChild(input);
+						mxEvent.addListener(input, 'blur', function() 
+						{
+							setInputVal();
 						});
 					}));
 				}
@@ -2080,7 +2919,7 @@
 					var delBtn = mxUtils.button('-', mxUtils.bind(that, function(evt)
 					{
 						//delete the node by refreshing the properties
-						applyStyleVal(pName, "", prop, prop.index);
+						applyStyleVal(pName, '', prop, prop.index);
 						
 						mxEvent.consume(evt);
 					}));
@@ -2103,18 +2942,18 @@
 			grid.style.width = '100%';
 			//create header row
 			var hrow = document.createElement('tr');
-			hrow.className = "gePropHeader";
+			hrow.className = 'gePropHeader';
 			var th = document.createElement('th');
-			th.className = "gePropHeaderCell";
+			th.className = 'gePropHeaderCell';
 			var collapseImg = document.createElement('img');
 			collapseImg.src = Sidebar.prototype.expandedImage;
 			th.appendChild(collapseImg);
-			mxUtils.write(th, mxResources.get('property', null, 'Property'));
+			mxUtils.write(th, mxResources.get('property'));
 			hrow.style.cursor = 'pointer';
 			
 			var onFold = function()
 			{
-				var rows = grid.querySelectorAll(".gePropNonHeaderRow");
+				var rows = grid.querySelectorAll('.gePropNonHeaderRow');
 				var display;
 				
 				if (!that.editorUi.propertiesCollapsed)
@@ -2157,8 +2996,8 @@
 			});
 			hrow.appendChild(th);
 			th = document.createElement('th');
-			th.className = "gePropHeaderCell";
-			th.innerHTML = mxResources.get('value', null, 'Value');
+			th.className = 'gePropHeaderCell';
+			th.innerHTML = mxResources.get('value');
 			hrow.appendChild(th);
 			grid.appendChild(hrow);
 			
@@ -2168,6 +3007,12 @@
 			for (var key in properties)
 			{
 				var prop = properties[key];
+				
+				if (typeof(prop.isVisible) == 'function')
+				{
+					if (!prop.isVisible(state)) continue;
+				}
+				
 				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined
 
 				if (prop.type == 'separator')
@@ -2220,7 +3065,8 @@
 			onFold();
 			
 			return div;
-		}		
+		};
+		
 		/**
 		 * Creates the buttons for the predefined styles.
 		 */
@@ -2264,12 +3110,28 @@
 								
 								if (colorset != null)
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
-										mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
-									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
-										mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
 									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
 										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+								
+									if (colorset['fill'] == '')
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,null);
+									}
+									else
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
+									}
+									
+									if (colorset['stroke'] == '')
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
+									}
+									else
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+									}
 									
 									if (graph.getModel().isVertex(cells[i]))
 									{
@@ -2327,14 +3189,31 @@
 						{
 							btn.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
 						}
+						else if (colorset['fill'] == '')
+						{
+							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
 						}
 						
-						btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
-							mxConstants.STYLE_STROKECOLOR, '#000000'));
+						if (colorset['stroke'] == mxConstants.NONE)
+						{
+							btn.style.border = '1px solid transparent';
+						}
+						else if (colorset['stroke'] == '')
+						{
+							btn.style.border = '1px solid ' + mxUtils.getValue(graph.defaultVertexStyle, 
+								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff');
+						}
+						else
+						{
+							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
+									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff'));
+						}
 					}
 					else
 					{
@@ -2558,15 +3437,36 @@
 			mouseEvent = evt;
 			
 			// Workaround for member not found in IE8-
-			if (mxClient.IS_QUIRKS || document.documentMode == 7 || document.documentMode == 8)
+			try
 			{
-				mouseEvent = mxUtils.clone(evt);
+				if (mxClient.IS_QUIRKS || document.documentMode == 7 || document.documentMode == 8)
+				{
+					mouseEvent = document.createEventObject(evt);
+					mouseEvent.type = evt.type;
+					mouseEvent.canBubble = evt.canBubble;
+					mouseEvent.cancelable = evt.cancelable;
+					mouseEvent.view = evt.view;
+					mouseEvent.detail = evt.detail;
+					mouseEvent.screenX = evt.screenX;
+					mouseEvent.screenY = evt.screenY;
+					mouseEvent.clientX = evt.clientX;
+					mouseEvent.clientY = evt.clientY;
+					mouseEvent.ctrlKey = evt.ctrlKey;
+					mouseEvent.altKey = evt.altKey;
+					mouseEvent.shiftKey = evt.shiftKey;
+					mouseEvent.metaKey = evt.metaKey;
+					mouseEvent.button = evt.button;
+					mouseEvent.relatedTarget = evt.relatedTarget;
+				}
+			}
+			catch (e)
+			{
+				// ignores possible event cloning errors
 			}
 		};
 		
 		mxEvent.addListener(this.container, 'mouseenter', setMouseEvent);
 		mxEvent.addListener(this.container, 'mousemove', setMouseEvent);
-		
 		mxEvent.addListener(this.container, 'mouseleave', function(evt)
 		{
 			mouseEvent = null;
@@ -2594,41 +3494,95 @@
 		
 		this.layoutManager.getLayout = function(cell)
 		{
-			var state = this.graph.view.getState(cell);
-			var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
+			// Workaround for possible invalid style after change and before view validation
+			var style = this.graph.getCellStyle(cell);
 			
 			// mxRackContainer may be undefined as it is dynamically loaded at render time
-			if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
+			if (style != null)
 			{
-				var rackLayout = new mxStackLayout(this.graph, false);
-				
-				rackLayout.setChildGeometry = function(child, geo)
+				if (style['childLayout'] == 'rack')
 				{
-					var unitSize = 20;
-					geo.height = Math.max(geo.height, unitSize);
+					var rackLayout = new mxStackLayout(this.graph, false);
 					
-					if (geo.height / unitSize > 1)
-					{
-						var mod = geo.height % unitSize;
-						geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
-					}
-			
-					this.graph.getModel().setGeometry(child, geo);
-				};
-			
-				rackLayout.fill = true;
-				rackLayout.unitSize = mxRackContainer.unitSize | 20;
-				rackLayout.marginLeft = style['marginLeft'] || 0;
-				rackLayout.marginRight = style['marginRight'] || 0;
-				rackLayout.marginTop = style['marginTop'] || 0;
-				rackLayout.marginBottom = style['marginBottom'] || 0;
-				rackLayout.resizeParent = false;
-				
-				return rackLayout;
+					rackLayout.fill = true;
+					rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : 20;
+					rackLayout.marginLeft = style['marginLeft'] || 0;
+					rackLayout.marginRight = style['marginRight'] || 0;
+					rackLayout.marginTop = style['marginTop'] || 0;
+					rackLayout.marginBottom = style['marginBottom'] || 0;
+					rackLayout.allowGaps = style['allowGaps'] || 0;
+					rackLayout.resizeParent = false;
+					
+					return rackLayout;
+				}
+				else if (typeof mxTableLayout !== 'undefined' && style['childLayout'] == 'tableLayout')
+		        {
+		            var tableLayout = new mxTableLayout(this.graph);
+		            tableLayout.rows = style['tableRows'] || 2;
+		            tableLayout.columns = style['tableColumns'] || 2;
+		            tableLayout.colPercentages = style['colPercentages'];
+		            tableLayout.rowPercentages = style['rowPercentages'];
+		            tableLayout.equalColumns = mxUtils.getValue(style, 'equalColumns', tableLayout.colPercentages? '0' : '1') == '1';
+		            tableLayout.equalRows = mxUtils.getValue(style, 'equalRows', tableLayout.rowPercentages? '0' : '1') == '1';
+		            tableLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+		            tableLayout.border = style['tableBorder'] || tableLayout.border;
+		            tableLayout.marginLeft = style['marginLeft'] || 0;
+		            tableLayout.marginRight = style['marginRight'] || 0;
+		            tableLayout.marginTop = style['marginTop'] || 0;
+		            tableLayout.marginBottom = style['marginBottom'] || 0;
+		            tableLayout.autoAddCol = mxUtils.getValue(style, 'autoAddCol', '0') == '1';
+		            tableLayout.autoAddRow = mxUtils.getValue(style, 'autoAddRow', tableLayout.autoAddCol? '0' : '1') == '1';
+		            tableLayout.colWidths = style['colWidths'] || "100";
+		            tableLayout.rowHeights = style['rowHeights'] || "50";
+		            
+		            return tableLayout;
+		        }
 			}
 			
 			return layoutManagerGetLayout.apply(this, arguments);
 		}
+	};
+
+	/**
+	 * Cached default stylesheet for image export in dark mode.
+	 */
+	Graph.prototype.getDefaultStylesheet = function()
+	{
+		if (this.defaultStylesheet == null)
+		{
+			var node = this.themes['default-style2'];
+			var dec = new mxCodec(node.ownerDocument);
+			this.defaultStylesheet = dec.decode(node);
+		}
+		
+		return this.defaultStylesheet;
+	};
+	
+	/**
+	 * Temporarily overrides stylesheet during image export in dark mode.
+	 */
+	var graphGetSvg = Graph.prototype.getSvg;
+	
+	Graph.prototype.getSvg = function()
+	{
+		var temp = null;
+		
+		if (this.themes != null && this.defaultThemeName == 'darkTheme')
+		{
+			temp = this.stylesheet;
+			this.stylesheet = this.getDefaultStylesheet()
+			this.refresh();
+		}
+		
+		var result = graphGetSvg.apply(this, arguments);
+		
+		if (temp != null)
+		{
+			this.stylesheet = temp;
+			this.refresh();
+		}
+		
+		return result;
 	};
 
 	/**
@@ -2815,17 +3769,17 @@
 
 		if (action.toggle != null)
 		{
-			this.toggleCells(this.getCellsForAction(action.toggle));
+			this.toggleCells(this.getCellsForAction(action.toggle, true));
 		}
 		
 		if (action.show != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.show), true);
+			this.setCellsVisible(this.getCellsForAction(action.show, true), true);
 		}
 		
 		if (action.hide != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.hide), false);
+			this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
 		}
 
 		if (action.scroll != null)
@@ -2843,10 +3797,10 @@
 	 * Handles each action in the action array of a custom link. This code
 	 * handles toggle actions for cell IDs.
 	 */
-	Graph.prototype.getCellsForAction = function(action)
+	Graph.prototype.getCellsForAction = function(action, includeLayers)
 	{
 		return this.getCellsById(action.cells).concat(
-			this.getCellsForTags(action.tags));
+			this.getCellsForTags(action.tags, null, null, includeLayers));
 	};
 	
 	/**
@@ -2884,12 +3838,12 @@
 		
 		return result;
 	};
-	
+
 	/**
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
 	 */
-	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName)
+	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName, includeLayers)
 	{
 		var result = [];
 		
@@ -2898,23 +3852,44 @@
 			cells = (cells != null) ? cells : this.model.getDescendants(this.model.getRoot());
 			propertyName = (propertyName != null) ? propertyName : 'tags';
 			
+			var tagCount = 0;
+			var lookup = {};
+			
+			for (var i = 0; i < tagList.length; i++)
+			{
+				if (tagList[i].length > 0)
+				{
+					lookup[tagList[i].toLowerCase()] = true;
+					tagCount++;
+				}
+			}
+			
 			for (var i = 0; i < cells.length; i++)
 			{
-				if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
+				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
+					this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
 					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
 						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
-					var match = true;
+					var match = false;
 	
 					if (tags.length > 0)
 					{
 						var tmp = tags.toLowerCase().split(' ');
 						
-						for (var j = 0; j < tagList.length && match; j++)
+						if (tmp.length >= tagList.length)
 						{
-							var tag = mxUtils.trim(tagList[j]).toLowerCase();
+							var matchCount = 0;
 							
-							match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
+							for (var j = 0; j < tmp.length && (matchCount < tagCount); j++)
+							{
+								if (lookup[tmp[j]] != null)
+								{
+									matchCount++;
+								}
+							}
+							
+							match = matchCount == tagCount;
 						}
 					}
 					else
@@ -2932,7 +3907,7 @@
 		
 		return result;
 	};
-
+	
 	/**
 	 * Shows or hides the given cells.
 	 */
@@ -3097,12 +4072,33 @@
 		
 		if (!createOnly)
 		{
-			(group || svgRoot.getElementsByTagName('g')[0]).setAttribute('filter', 'url(#' + this.shadowId + ')');
+			group = (group != null) ? group : svgRoot.getElementsByTagName('g')[0];
 			
-			if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+			if (group != null)
 			{
-				svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
-				svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
+				group.setAttribute('filter', 'url(#' + this.shadowId + ')');
+				
+				if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+				{
+					svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
+					svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);
+					
+					// Updates viewbox if one exists
+					var vb = svgRoot.getAttribute('viewBox');
+					
+					if (vb != null && vb.length > 0)
+					{
+						var tokens = vb.split(' ');
+						
+						if (tokens.length > 3)
+						{
+							w = parseFloat(tokens[2]) + 6;
+							h = parseFloat(tokens[3]) + 6;
+							
+							svgRoot.setAttribute('viewBox', tokens[0] + ' ' + tokens[1] + ' ' + w + ' ' + h);
+						}
+					}
+				}
 			}
 		}
 		
@@ -3174,6 +4170,7 @@
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
 	mxStencilRegistry.libraries['flowchart'] = [SHAPES_PATH + '/mxFlowchart.js', STENCIL_PATH + '/flowchart.xml'];
 	mxStencilRegistry.libraries['ios'] = [SHAPES_PATH + '/mockup/mxMockupiOS.js'];
@@ -3184,7 +4181,10 @@
 	mxStencilRegistry.libraries['ios7icons'] = [STENCIL_PATH + '/ios7/icons.xml'];
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
+	mxStencilRegistry.libraries['electrical/miscellaneous'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/miscellaneous.xml'];
 	mxStencilRegistry.libraries['electrical/transmission'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/transmission.xml'];
+	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
+	mxStencilRegistry.libraries['electrical/abstract'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/abstract.xml'];
 	mxStencilRegistry.libraries['infographic'] = [SHAPES_PATH + '/mxInfographic.js'];
 	mxStencilRegistry.libraries['mockup/buttons'] = [SHAPES_PATH + '/mockup/mxMockupButtons.js'];
 	mxStencilRegistry.libraries['mockup/containers'] = [SHAPES_PATH + '/mockup/mxMockupContainers.js'];
@@ -3205,6 +4205,8 @@
 	mxStencilRegistry.libraries['eip'] = [SHAPES_PATH + '/mxEip.js', STENCIL_PATH + '/eip.xml'];
 	mxStencilRegistry.libraries['networks'] = [SHAPES_PATH + '/mxNetworks.js', STENCIL_PATH + '/networks.xml'];
 	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
+	mxStencilRegistry.libraries['aws4'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
+	mxStencilRegistry.libraries['aws4b'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['veeam'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];
 	mxStencilRegistry.libraries['pid2misc'] = [SHAPES_PATH + '/pid2/mxPidMisc.js', STENCIL_PATH + '/pid/misc.xml'];
@@ -3673,7 +4675,7 @@
 						var bg = null;
 						var bgImage = null;
 						
-						if (page.viewState == null && page.mapping == null)
+						if (page.viewState == null)
 						{
 							// Workaround to extract view state from XML node
 							// This changes the state of the page and parses
@@ -3690,15 +4692,6 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
-						}
-						else if (page.mapping != null && page.mapping.diagramMap != null)
-						{
-							// Default pageVisible in realtime is true
-							mathEnabled = page.mapping.diagramMap.get('mathEnabled') != '0';
-							bg = page.mapping.diagramMap.get('background');
-							
-							var temp = page.mapping.diagramMap.get('backgroundImage');
-							bgImage = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
 						}
 					
 						tempGraph.background = bg;
@@ -3741,47 +4734,54 @@
 				pv = printGraph(graph);
 			}
 			
-			if (pv.mathEnabled)
+			if (pv == null)
 			{
-				var doc = pv.wnd.document;
-		
-				doc.writeln('<script type="text/x-mathjax-config">');
-				doc.writeln('MathJax.Hub.Config({');
-				doc.writeln('showMathMenu: false,');
-				doc.writeln('messageStyle: "none",');
-				doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
-				doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-				doc.writeln('"HTML-CSS": {');
-				doc.writeln('imageFont: null');
-				doc.writeln('},');
-				doc.writeln('TeX: {');
-				doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
-				doc.writeln('},');
-				doc.writeln('tex2jax: {');
-				doc.writeln('	ignoreClass: "geDisableMathJax"');
-			  	doc.writeln('},');
-			  	doc.writeln('asciimath2jax: {');
-				doc.writeln('	ignoreClass: "geDisableMathJax"');
-			  	doc.writeln('}');
-				doc.writeln('});');
-				
-				// Adds asynchronous printing when MathJax finished rendering
-				if (print)
+				editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
+			}
+			else
+			{
+				if (pv.mathEnabled)
 				{
-					doc.writeln('MathJax.Hub.Queue(function () {');
-					doc.writeln('window.print();');
+					var doc = pv.wnd.document;
+			
+					doc.writeln('<script type="text/x-mathjax-config">');
+					doc.writeln('MathJax.Hub.Config({');
+					doc.writeln('showMathMenu: false,');
+					doc.writeln('messageStyle: "none",');
+					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
+					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
+					doc.writeln('"HTML-CSS": {');
+					doc.writeln('imageFont: null');
+					doc.writeln('},');
+					doc.writeln('TeX: {');
+					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
+					doc.writeln('},');
+					doc.writeln('tex2jax: {');
+					doc.writeln('	ignoreClass: "geDisableMathJax"');
+				  	doc.writeln('},');
+				  	doc.writeln('asciimath2jax: {');
+					doc.writeln('	ignoreClass: "geDisableMathJax"');
+				  	doc.writeln('}');
 					doc.writeln('});');
+					
+					// Adds asynchronous printing when MathJax finished rendering
+					if (print)
+					{
+						doc.writeln('MathJax.Hub.Queue(function () {');
+						doc.writeln('window.print();');
+						doc.writeln('});');
+					}
+					
+					doc.writeln('</script>');
+					doc.writeln('<script type="text/javascript" src="' + DRAW_MATH_URL + '/MathJax.js"></script>');
 				}
 				
-				doc.writeln('</script>');
-				doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
-			}
-			
-			pv.closeDocument();
-			
-			if (!pv.mathEnabled && print)
-			{
-				PrintDialog.printPreview(pv);
+				pv.closeDocument();
+				
+				if (!pv.mathEnabled && print)
+				{
+					PrintDialog.printPreview(pv);
+				}
 			}
 		};
 		
@@ -3872,9 +4872,9 @@
                 }
                 
                 if (this.shadowVisible != null)
-                	{
-                		this.page.viewState.shadowVisible = this.shadowVisible;
-                	}
+            	{
+            		this.page.viewState.shadowVisible = this.shadowVisible;
+            	}
             }   
         }
         else
@@ -3889,117 +4889,50 @@
 
             if (this.shadowVisible != null && this.shadowVisible != this.ui.editor.graph.shadowVisible)
             {
-            		this.ui.editor.graph.setShadowVisible(this.shadowVisible);
+            	this.ui.editor.graph.setShadowVisible(this.shadowVisible);
                 this.shadowVisible = !this.shadowVisible;
             }
         }
     };
+    
+    /**
+	 * Capability check for canvas export
+	 */
+	Editor.prototype.useCanvasForExport = false;
+		
+	try
+	{
+		var canvas = document.createElement('canvas');
+		var img = new Image();
+		
+		// LATER: Capability check should not be async
+		img.onload = function()
+		{
+			try
+			{
+		   		var ctx = canvas.getContext('2d');
+		   		ctx.drawImage(img, 0, 0);
+
+		   		// Works in Chrome, Firefox, Edge, Safari and Opera
+				var result = canvas.toDataURL('image/png');
+				Editor.prototype.useCanvasForExport = result != null && result.length > 6;
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		};
+
+		// Checks if SVG with foreignObject can be exported
+		var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1px" height="1px" version="1.1"><foreignObject pointer-events="all" width="1" height="1"><div xmlns="http://www.w3.org/1999/xhtml"></div></foreignObject></svg>';
+		img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+	}
+	catch (e)
+	{
+		// ignore
+	}
+	
 })();
-
-/**
- * 
- */
-var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, buttonText2, fn2, hide, buttonText3, fn3)
-{
-	hide = (hide != null) ? hide : true;
-	
-	var div = document.createElement('div');
-	div.style.textAlign = 'center';
-
-	if (title != null)
-	{
-		var hd = document.createElement('div');
-		hd.style.padding = '0px';
-		hd.style.margin = '0px';
-		hd.style.fontSize = '18px';
-		hd.style.paddingBottom = '16px';
-		hd.style.marginBottom = '16px';
-		hd.style.borderBottom = '1px solid #c0c0c0';
-		hd.style.color = 'gray';
-		mxUtils.write(hd, title);
-		div.appendChild(hd);
-	}
-
-	var p2 = document.createElement('div');
-	p2.style.padding = '6px';
-	p2.innerHTML = message;
-	div.appendChild(p2);
-	
-	var btns = document.createElement('div');
-	btns.style.marginTop = '16px';
-	btns.style.textAlign = 'center';
-	
-	if (retry != null)
-	{
-		var retryBtn = mxUtils.button(mxResources.get('tryAgain'), function()
-		{
-			editorUi.hideDialog();
-			retry();
-		});
-		retryBtn.className = 'geBtn';
-		btns.appendChild(retryBtn);
-		
-		btns.style.textAlign = 'center';
-	}
-	
-	if (buttonText3 != null)
-	{
-		var btn3 = mxUtils.button(buttonText3, function()
-		{
-			if (fn3 != null)
-			{
-				fn3();
-			}
-		});
-		
-		btn3.className = 'geBtn';
-		btns.appendChild(btn3);
-	}
-	
-	var btn = mxUtils.button(buttonText, function()
-	{
-		if (hide)
-		{
-			editorUi.hideDialog();
-		}
-		
-		if (fn != null)
-		{
-			fn();
-		}
-	});
-	
-	btn.className = 'geBtn';
-	btns.appendChild(btn);
-
-	if (buttonText2 != null)
-	{
-		var mainBtn = mxUtils.button(buttonText2, function()
-		{
-			if (hide)
-			{
-				editorUi.hideDialog();
-			}
-			
-			if (fn2 != null)
-			{
-				fn2();
-			}
-		});
-		
-		mainBtn.className = 'geBtn gePrimaryBtn';
-		btns.appendChild(mainBtn);
-	}
-
-	this.init = function()
-	{
-		btn.focus();
-	};
-	
-	div.appendChild(btns);
-
-	this.container = div;
-};
 
 // Extends codec for ChangePageSetup
 (function()

@@ -99,12 +99,6 @@
 		var spacing = 10;
 		var level = 40;
 	
-		// Adds resources for actions
-		mxResources.parse('selectChildren=Select Children');
-		mxResources.parse('selectSiblings=Select Siblings');
-		mxResources.parse('selectDescendants=Select Descendants');
-		mxResources.parse('selectParent=Select Parent');
-	
 		function isTreeVertex(cell)
 		{
 			return model.isVertex(cell) && hasTreeParent(cell);
@@ -374,7 +368,7 @@
 							
 							if (newEdges.length == 0 && edges.length > 0)
 							{
-								var clone = this.cloneCells([edges[0]])[0];
+								var clone = this.cloneCell(edges[0]);
 								this.addEdge(clone, graph.getDefaultParent(),
 									this.model.getTerminal(edges[0], true), result[i]);
 							}
@@ -482,7 +476,7 @@
 											temp = graph.model.getTerminal(edges[0], true);
 										}
 										
-										var clone = this.cloneCells([edges[0]])[0];
+										var clone = this.cloneCell(edges[0]);
 										this.addEdge(clone, graph.getDefaultParent(), temp, result[i]);
 									}
 								}
@@ -770,11 +764,11 @@
 				else if (dir == mxConstants.DIRECTION_NORTH)
 				{
 					dx = 0;
-					dy = -level;
+					dy = -dy;
 				}
 				else if (dir == mxConstants.DIRECTION_WEST)
 				{
-					dx = -level;
+					dx = -dx;
 					dy = 0;
 				}
 				else if (dir == mxConstants.DIRECTION_EAST)
@@ -833,25 +827,25 @@
 					clones[1].geometry.x = (bbox == null) ? cell.geometry.x + (cell.geometry.width -
 						clones[1].geometry.width) / 2 : (bbox.x + bbox.width) / s - tr.x -
 						pgeo.x + spacing; 
-					clones[1].geometry.y += cell.geometry.height - pgeo.y + level;
+					clones[1].geometry.y += clones[1].geometry.height - pgeo.y + level;
 				}
 				else if (dir == mxConstants.DIRECTION_NORTH)
 				{
 					clones[1].geometry.x = (bbox == null) ? cell.geometry.x + (cell.geometry.width -
 						clones[1].geometry.width) / 2 : (bbox.x + bbox.width) / s - tr.x + -
 						pgeo.x + spacing; 
-					clones[1].geometry.y -= clones[1].geometry.height - pgeo.y + level;
+					clones[1].geometry.y -= clones[1].geometry.height + pgeo.y + level;
 				}
 				else if (dir == mxConstants.DIRECTION_WEST)
 				{
-					clones[1].geometry.x -= clones[1].geometry.width - pgeo.x + level;
+					clones[1].geometry.x -= clones[1].geometry.width + pgeo.x + level;
 					clones[1].geometry.y = (bbox == null) ? cell.geometry.y + (cell.geometry.height -
 						clones[1].geometry.height) / 2 : (bbox.y + bbox.height) / s - tr.y + -
 						pgeo.y + spacing; 
 				}
 				else
 				{
-					clones[1].geometry.x += cell.geometry.width - pgeo.x + level;
+					clones[1].geometry.x += clones[1].geometry.width - pgeo.x + level;
 					clones[1].geometry.y = (bbox == null) ? cell.geometry.y + (cell.geometry.height -
 						clones[1].geometry.height) / 2 : (bbox.y + bbox.height) / s - tr.y + -
 						pgeo.y + spacing;
@@ -1170,7 +1164,7 @@
 		Sidebar.prototype.createAdvancedShapes = function()
 		{
 			var result = sidebarCreateAdvancedShapes.apply(this, arguments);
-			var graph = this.editorUi.editor.graph;
+			var graph = this.graph;
 			
 			return result.concat([
 				this.addEntry('tree container', function()

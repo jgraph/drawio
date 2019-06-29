@@ -5,6 +5,7 @@
 package com.mxgraph.online;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.apphosting.api.DeadlineExceededException;
 import com.mxgraph.online.Utils.UnsupportedContentException;
 
 /**
@@ -37,7 +38,13 @@ public class ProxyServlet extends HttpServlet
 	 * Buffer size for content pass-through.
 	 */
 	private static int BUFFER_SIZE = 3 * 1024;
-
+	
+	/**
+	 * GAE deadline is 30 secs so timeout before that to avoid
+	 * HardDeadlineExceeded errors.
+	 */
+	private static final int TIMEOUT = 29000;
+	
 	/**
 	 * A resuable empty byte array instance.
 	 */
@@ -66,16 +73,17 @@ public class ProxyServlet extends HttpServlet
 			String ua = request.getHeader("User-Agent");
 			String dom = getCorsDomain(ref, ua);
 
-			try
+			try(OutputStream out = response.getOutputStream())
 			{
 				request.setCharacterEncoding("UTF-8");
 				response.setCharacterEncoding("UTF-8");
 
 				URL url = new URL(urlParam);
 				URLConnection connection = url.openConnection();
-				OutputStream out = response.getOutputStream();
-				response.setHeader("Cache-Control",
-						"private, max-age=86400");
+				connection.setConnectTimeout(TIMEOUT);
+				connection.setReadTimeout(TIMEOUT);
+				
+				response.setHeader("Cache-Control", "private, max-age=86400");
 
 				// Workaround for 451 response from Iconfinder CDN
 				connection.setRequestProperty("User-Agent", "draw.io");
@@ -94,44 +102,57 @@ public class ProxyServlet extends HttpServlet
 							.getResponseCode();
 					int counter = 0;
 
-					// Follows a maximum of 2 redirects 
-					while (counter++ < 2
+					// Follows a maximum of 6 redirects 
+					while (counter++ <= 6
 							&& (status == HttpURLConnection.HTTP_MOVED_PERM
 									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
-						url = new URL(
-								connection.getHeaderField("Location"));
+						url = new URL(connection.getHeaderField("Location"));
 						connection = url.openConnection();
 						((HttpURLConnection) connection)
 								.setInstanceFollowRedirects(true);
+						connection.setConnectTimeout(TIMEOUT);
+						connection.setReadTimeout(TIMEOUT);
 
 						// Workaround for 451 response from Iconfinder CDN
-						connection.setRequestProperty("User-Agent",
-								"draw.io");
+						connection.setRequestProperty("User-Agent", "draw.io");
 						status = ((HttpURLConnection) connection)
 								.getResponseCode();
 					}
 
-					response.setStatus(status);
-
-					// Copies input stream to output stream
-					InputStream is = connection.getInputStream();
-					byte[] head = (contentAlwaysAllowed(urlParam))
-							? emptyBytes
-							: Utils.checkStreamContent(is);
-					response.setContentType("application/octet-stream");
-					String base64 = request.getParameter("base64");
-					copyResponse(is, out, head,
-							base64 != null && base64.equals("1"));
+					if (status >= 200 && status <= 299)
+					{
+						response.setStatus(status);
+						
+						// Copies input stream to output stream
+						InputStream is = connection.getInputStream();
+						byte[] head = (contentAlwaysAllowed(urlParam)) ? emptyBytes
+								: Utils.checkStreamContent(is);
+						response.setContentType("application/octet-stream");
+						String base64 = request.getParameter("base64");
+						copyResponse(is, out, head,
+								base64 != null && base64.equals("1"));
+					}
+					else
+					{
+						response.setStatus(HttpURLConnection.HTTP_PRECON_FAILED);
+					}
+				}
+				else
+				{
+					response.setStatus(HttpURLConnection.HTTP_UNSUPPORTED_TYPE);
 				}
 
 				out.flush();
-				out.close();
 
 				log.log(Level.FINEST, "processed proxy request: url="
 						+ ((urlParam != null) ? urlParam : "[null]")
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
 						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
+			}
+			catch (DeadlineExceededException e)
+			{
+				response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
 			}
 			catch (UnknownHostException | FileNotFoundException e)
 			{
@@ -178,23 +199,17 @@ public class ProxyServlet extends HttpServlet
 			try (BufferedInputStream in = new BufferedInputStream(is,
 					BUFFER_SIZE))
 			{
-				StringBuilder result = new StringBuilder();
-				result.append(mxBase64.encodeToString(head, false));
-				byte[] chunk = new byte[BUFFER_SIZE];
-				int len = 0;
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+			    byte[] buffer = new byte[0xFFFF];
 
-				while ((len = in.read(chunk)) == BUFFER_SIZE)
-				{
-					result.append(mxBase64.encodeToString(chunk, false));
-				}
+				os.write(head, 0, head.length);
+				
+			    for (int len = is.read(buffer); len != -1; len = is.read(buffer))
+			    { 
+			        os.write(buffer, 0, len);
+			    }
 
-				if (len > 0)
-				{
-					chunk = Arrays.copyOf(chunk, len);
-					result.append(mxBase64.encodeToString(chunk, false));
-				}
-
-				out.write(result.toString().getBytes());
+				out.write(mxBase64.encodeToString(os.toByteArray(), false).getBytes());
 			}
 		}
 		else
@@ -220,7 +235,8 @@ public class ProxyServlet extends HttpServlet
 	public boolean contentAlwaysAllowed(String url)
 	{
 		return url.toLowerCase()
-				.startsWith("https://trello-attachments.s3.amazonaws.com/");
+				.startsWith("https://trello-attachments.s3.amazonaws.com/")
+				|| url.toLowerCase().startsWith("https://docs.google.com/");
 	}
 
 	/**

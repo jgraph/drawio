@@ -294,12 +294,6 @@ mxBpmnShape.prototype.redrawPath = function(c, x, y, w, h, layer)
 					c.translate(w * 0.12, 0);
 					w = w * 0.76;
 				}
-				else if (s === mxBpmnShape.prototype.eventEnum.GW_PARALLEL)
-				{
-				}
-				else if (s === mxBpmnShape.prototype.eventEnum.GW_COMPLEX)
-				{
-				}
 				
 				isInverse = false;
 				

@@ -10,19 +10,12 @@ DriveClient = function(editorUi)
 	 * Holds a reference to the UI. Needed for the sharing client.
 	 */
 	this.ui = editorUi;
-
-	if (this.ui.editor.isChromelessView() && urlParams['rt'] != '1')
-	{
-		// Workaround for Google Drive requiring the user to click on the file in the
-		// drive UI when not using this scope (user other scope with rt=1 URL param)
-		this.appId = '850530949725';
-		this.clientId = '850530949725.apps.googleusercontent.com';
-		this.scopes = ['https://www.googleapis.com/auth/drive.readonly', 'openid'];
-		
-		// Only used for writing files which is disabled in viewer app
-		this.mimeType = 'all_types_supported';
-	}
-	else if (this.ui.isDriveDomain())
+	
+	// New mime type for XML files
+	this.xmlMimeType = 'application/vnd.jgraph.mxfile';
+	
+	// Reading files now possible with no initial click in drive
+	if (this.ui.isDriveDomain())
 	{
 		this.appId = '671128082532';
 		this.clientId = '671128082532.apps.googleusercontent.com';
@@ -37,9 +30,8 @@ DriveClient = function(editorUi)
 		this.mimeType = 'application/vnd.jgraph.mxfile.rtlegacy';
 	}
 	
-	this.mimeTypes = 'application/mxe,application/vnd.jgraph.mxfile,' +
-		'application/mxr,application/vnd.jgraph.mxfile.realtime,' +
-		'application/vnd.jgraph.mxfile.rtlegacy';
+	this.mimeTypes = this.xmlMimeType + 'application/mxe,application/mxr,' +
+		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
 };
 
 // Extends mxEventSource
@@ -57,6 +49,19 @@ DriveClient.prototype.scopes = (urlParams['photos'] == '1') ?
 								['https://www.googleapis.com/auth/drive.file',
                                 'https://www.googleapis.com/auth/drive.install',
                                 'https://www.googleapis.com/auth/userinfo.profile'];
+
+/**
+ * Contains the hostname of the old app.
+ */
+DriveClient.prototype.allFields = 'kind,id,parents,headRevisionId,etag,title,mimeType,modifiedDate,' +
+	'editable,copyable,canComment,labels,properties,downloadUrl,webContentLink,userPermission,fileSize';
+
+/**
+ * Fields required for catchin up.
+ * 
+ * TODO: Limit to etag and ekey property only
+ */
+DriveClient.prototype.catchupFields = 'etag,headRevisionId,modifiedDate,properties(key,value)';
 
 /**
  * Specifies if thumbnails should be enabled. Default is true.
@@ -105,7 +110,7 @@ DriveClient.prototype.oldAppHostname = 'legacy.draw.io';
 /**
  * Executes the first step for connecting to Google Drive.
  */
-DriveClient.prototype.extension = '.html';
+DriveClient.prototype.extension = '.drawio';
 
 /**
  * Interval for updating the access token.
@@ -120,7 +125,12 @@ DriveClient.prototype.lastTokenRefresh = 0;
 /**
  * Executes the first step for connecting to Google Drive.
  */
-DriveClient.prototype.maxRetries = 4;
+DriveClient.prototype.maxRetries = 5;
+
+/**
+ * Executes the first step for connecting to Google Drive.
+ */
+DriveClient.prototype.coolOff = 1000;
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -276,8 +286,8 @@ DriveClient.prototype.execute = function(fn)
 				if (resp != null && resp.error != null)
 				{
 					if (resp.error.code == 403 &&
-							resp.error.data != null && resp.error.data.length > 0 &&
-							resp.error.data[0].reason == 'domainPolicy')
+						resp.error.data != null && resp.error.data.length > 0 &&
+						resp.error.data[0].reason == 'domainPolicy')
 					{
 						msg = resp.error.message;
 					}
@@ -304,102 +314,152 @@ DriveClient.prototype.execute = function(fn)
  */
 DriveClient.prototype.executeRequest = function(req, success, error)
 {
-	var acceptResponse = true;
-	var timeoutThread = null;
-	var retryCount = 0;
-	
-	// Cancels any pending requests
-	if (this.requestThread != null)
+	try
 	{
-		window.clearTimeout(this.requestThread);
-	}
-	
-	var fn = mxUtils.bind(this, function()
-	{
-		this.requestThread = null;
-		this.currentRequest = req;
-
-		if (timeoutThread != null)
+		var acceptResponse = true;
+		var timeoutThread = null;
+		var retryCount = 0;
+		
+		// Cancels any pending requests
+		if (this.requestThread != null)
 		{
-			window.clearTimeout(timeoutThread);
+			window.clearTimeout(this.requestThread);
 		}
 		
-		timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		var fn = mxUtils.bind(this, function()
 		{
-			acceptResponse = false;
-			
-			if (error != null)
+			try
 			{
-				error({code: App.ERROR_TIMEOUT, retry: fn});
-			}
-		}), this.ui.timeout);
-
-		req.execute(mxUtils.bind(this, function(resp)
-		{
-			window.clearTimeout(timeoutThread);
-			
-			if (acceptResponse)
-			{
-				if (resp != null && resp.error == null)
+				this.requestThread = null;
+				this.currentRequest = req;
+		
+				if (timeoutThread != null)
 				{
-					if (success != null)
-					{
-						success(resp);
-					}
+					window.clearTimeout(timeoutThread);
 				}
-				else
+				
+				timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 				{
-					// Handles special error for saving old file where mime was changed to new
-					// LATER: Check if 403 is never auth error, for now we check the message for a specific
-					// case where the old app mime type was overridden by the new app
-					if (error != null && resp != null && resp.error != null && resp.error.code == 403 &&
-						(resp.error.message == 'The requested mime type change is forbidden.' ||
-						resp.error.data != null && resp.error.data[0].reason == 'domainPolicy'))
+					acceptResponse = false;
+					
+					if (error != null)
 					{
-						error(resp);
+						error({code: App.ERROR_TIMEOUT, retry: fn});
 					}
-					// Handles authentication error
-					else if (resp != null && resp.error != null && (resp.error.code == 401 || resp.error.code == 403))
+				}), this.ui.timeout);
+				
+				req.execute(mxUtils.bind(this, function(resp)
+				{
+					try
 					{
-						// Shows an error if we're authenticated but the server still doesn't allow it
-						if (resp.error.code == 403 && this.user != null)
+						window.clearTimeout(timeoutThread);
+						
+						if (acceptResponse)
 						{
-							if (error != null)
+							if (resp != null && resp.error == null)
 							{
-								error(resp);
+								if (success != null)
+								{
+									success(resp);
+								}
 							}
+							else
+							{
+								// Errors for put request are in data instead of errors
+								var data = (resp != null && resp.error != null) ? ((resp.error.data != null) ?
+									resp.error.data : resp.error.errors) : null;
+								var reason = (data != null && data.length > 0) ? data[0].reason : null; 
+								
+								// Handles special error for saving old file where mime was changed to new
+								// LATER: Check if 403 is never auth error, for now we check the message for a specific
+								// case where the old app mime type was overridden by the new app
+								if (error != null && resp != null && resp.error != null && (resp.error.code == -1 ||
+									(resp.error.code == 403 && (reason == 'domainPolicy' || resp.error.message ==
+									'The requested mime type change is forbidden.'))))
+								{
+									error(resp);
+								}
+								// Handles authentication error
+								else if (resp != null && resp.error != null && (resp.error.code == 401 ||
+									(resp.error.code == 403 && reason != 'rateLimitExceeded')))
+								{
+									// Shows an error if we're authenticated but the server still doesn't allow it
+									if ((resp.error.code == 403 && this.user != null) ||
+										(resp.error.code == 401 && this.user != null && reason == 'authError'))
+									{
+										if (error != null)
+										{
+											error(resp);
+										}
+									}
+									else
+									{
+										this.execute(fn);
+									}
+								}
+								// Schedules a retry if no new request was executed
+								else if (resp != null && resp.error != null && resp.error.code != 412 && resp.error.code != 404 &&
+									resp.error.code != 400 && this.currentRequest == req && retryCount < this.maxRetries)
+								{
+									retryCount++;
+									var jitter = 1 + 0.1 * (Math.random() - 0.5);
+									this.requestThread = window.setTimeout(fn,
+										Math.round(Math.pow(2, retryCount) *
+										jitter * this.coolOff));
+								}
+								else if (error != null)
+								{
+									error(resp);
+								}
+							}
+						}
+					}
+					catch (e)
+					{
+						if (error != null)
+						{
+							error(e);
 						}
 						else
 						{
-							this.execute(fn);
+							throw e;
 						}
 					}
-					// Schedules a retry if no new request was executed
-					// TODO: Check for 'rateLimitExceeded', 'userRateLimitExceeded' in errors
-					// see https://developers.google.com/drive/handle-errors
-					else if (resp != null && resp.error != null && resp.error.code != 404 && this.currentRequest == req && retryCount < this.maxRetries)
-					{
-						retryCount++;
-						var jitter = 1 + 0.1 * (Math.random() - 0.5);
-						this.requestThread = window.setTimeout(fn, Math.round(Math.pow(2, retryCount) * jitter * 1000));
-					}
-					else if (error != null)
-					{
-						error(resp);
-					}
+				}));
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+				else
+				{
+					throw e;
 				}
 			}
-		}));
-	});
-	
-	// Must get token before first request in this case
-	if (gapi.auth.getToken() == null)
-	{
-		this.execute(fn);
+		});
+		
+		// Must get token before first request in this case
+		if (gapi.auth.getToken() == null)
+		{
+			this.execute(fn);
+		}
+		else
+		{
+			fn();
+		}
 	}
-	else
+	catch (e)
 	{
-		fn();
+		if (error != null)
+		{
+			error(e);
+		}
+		else
+		{
+			throw e;
+		}
 	}
 },
 
@@ -408,62 +468,90 @@ DriveClient.prototype.executeRequest = function(req, success, error)
  */
 DriveClient.prototype.authorize = function(immediate, success, error, remember)
 {
-	var userId = this.getUserId();
-	
-	// Takes userId from state URL parameter
-	if (this.ui.stateArg != null && this.ui.stateArg.userId != null)
+	try
 	{
-		userId = this.ui.stateArg.userId;
-	}
-	
-	// Immediate only possible with userId
-	if (immediate && userId == null)
-	{
-		if (error != null)
-		{
-			error();
-		}
-	}
-	else
-	{
-		var params =
-		{
-			scope: this.scopes,
-			client_id: this.clientId
-		};
+		var userId = this.getUserId();
 		
-		if (immediate && userId != null)
+		// Takes userId from state URL parameter
+		if (this.ui.stateArg != null && this.ui.stateArg.userId != null)
 		{
-			params.immediate = true;
-			params.user_id = userId;
+			userId = this.ui.stateArg.userId;
+		}
+		
+		// Immediate only possible with userId
+		if (immediate && userId == null)
+		{
+			if (error != null)
+			{
+				error();
+			}
 		}
 		else
 		{
-			params.immediate = false;
-			params.authuser = -1;
-		}
+			var params =
+			{
+				scope: this.scopes,
+				client_id: this.clientId
+			};
+			
+			if (immediate && userId != null)
+			{
+				params.immediate = true;
+				params.user_id = userId;
+			}
+			else
+			{
+				params.immediate = false;
+				params.authuser = -1;
+			}
+			
+			gapi.auth.authorize(params, mxUtils.bind(this, function(resp)
+			{
+				try
+				{
+					// Updates the current user info
+					if (resp != null && resp.error == null)
+					{
+						if (this.user == null || !immediate || this.user.id != userId)
+						{
+							this.updateUser(success, error, remember);
+						}
+						else if (success != null)
+						{
+							success();
+						}
+					}
+					else if (error != null)
+					{
+						error(resp);
+					}
 		
-		gapi.auth.authorize(params, mxUtils.bind(this, function(resp)
+					this.resetTokenRefresh(resp);
+				}
+				catch (e)
+				{
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
+					}
+				}
+			}));
+		}
+	}
+	catch (e)
+	{
+		if (error != null)
 		{
-			// Updates the current user info
-			if (resp != null && resp.error == null)
-			{
-				if (this.user == null || !immediate || this.user.id != userId)
-				{
-					this.updateUser(success, error, remember);
-				}
-				else if (success != null)
-				{
-					success();
-				}
-			}
-			else if (error != null)
-			{
-				error(resp);
-			}
-
-			this.resetTokenRefresh(resp);
-		}));
+			error(e);
+		}
+		else
+		{
+			throw e;
+		}
 	}
 };
 
@@ -529,26 +617,50 @@ DriveClient.prototype.checkToken = function(fn)
  */
 DriveClient.prototype.updateUser = function(success, error, remember)
 {
-	var token = gapi.auth.getToken().access_token;
-	var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=' + token;
-	
-	this.ui.loadUrl(url, mxUtils.bind(this, function(data)
+	try
 	{
-    	var info = JSON.parse(data);
-    	
-    	// Requests more information about the user (email address is sometimes not in info)
-    	this.executeRequest(gapi.client.drive.about.get(), mxUtils.bind(this, function(resp)
-    	{
-    		this.setUser(new DrawioUser(info.id, resp.user.emailAddress, resp.user.displayName,
-    				(resp.user.picture != null) ? resp.user.picture.url : null, info.locale));
-        	this.setUserId(info.id, remember);
-
-    		if (success != null)
-			{
-				success();
-			}
-    	}), error);
-	}), error);
+		var token = gapi.auth.getToken().access_token;
+		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=' + token;
+		
+		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
+		{
+	    	var info = JSON.parse(data);
+	    	
+	    	// Requests more information about the user (email address is sometimes not in info)
+	    	this.executeRequest(gapi.client.drive.about.get(), mxUtils.bind(this, function(resp)
+	    	{
+	    		var email = mxResources.get('notAvailable');
+	    		var name = email;
+	    		var pic = null;
+	    		
+	    		if (resp != null && resp.user != null)
+	    		{
+	    			email = resp.user.emailAddress;
+	    			name = resp.user.displayName;
+	    			pic = (resp.user.picture != null) ? resp.user.picture.url : null;
+	    		}
+	    		
+	    		this.setUser(new DrawioUser(info.id, email, name, pic, info.locale));
+	        	this.setUserId(info.id, remember);
+	
+	    		if (success != null)
+				{
+					success();
+				}
+	    	}), error);
+		}), error);
+	}
+	catch (e)
+	{
+		if (error != null)
+		{
+			error(e);
+		}
+		else
+		{
+			throw e;
+		}
+	}
 };
 
 /**
@@ -561,8 +673,11 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 {
 	if (id != null && title != null)
 	{
-		this.executeRequest(gapi.client.drive.files.copy({'fileId': id, 'resource':
-			{'title' : title}, 'supportsTeamDrives': true}), success, error);
+		this.executeRequest(gapi.client.drive.files.copy({'fileId': id,
+			'fields': this.allFields, 'supportsTeamDrives': true,
+			'resource': {'title': title, 'properties':
+			[{'key': 'channel', 'value': Editor.guid()}]}}),
+			success, error);
 	}
 };
 
@@ -576,7 +691,8 @@ DriveClient.prototype.renameFile = function(id, title, success, error)
 {
 	if (id != null && title != null)
 	{
-		this.executeRequest(this.createDriveRequest(id, {'title' : title}), success, error);
+		this.executeRequest(this.createDriveRequest(
+			id, {'title' : title}), success, error);
 	}
 };
 
@@ -621,6 +737,40 @@ DriveClient.prototype.getLibrary = function(id, success, error)
 };
 
 /**
+ * Loads the descriptorf for the given file ID.
+ */
+DriveClient.prototype.loadDescriptor = function(id, success, error, fields)
+{
+	this.executeRequest(gapi.client.drive.files.get({'fileId': id,
+		'fields': (fields != null) ? fields : this.allFields,
+		'supportsTeamDrives': true}), success, error);
+};
+
+/**
+ * Gets the channel ID from the given descriptor.
+ */
+DriveClient.prototype.getCustomProperty = function(desc, key)
+{
+	var props = desc.properties;
+	var result = null;
+	
+	if (props != null)
+	{
+		for (var i = 0; i < props.length; i++)
+		{
+			if (props[i].key == key)
+			{
+				result = props[i].value;
+
+				break;
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
  * Checks if the client is authorized and calls the next step. The optional
  * readXml argument is used for import. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
@@ -632,65 +782,125 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 	
 	if (urlParams['rev'] != null)
 	{
-		this.executeRequest(gapi.client.drive.revisions.get({'fileId': id, 'revisionId': urlParams['rev']}), mxUtils.bind(this, function(resp)
-		{
-   			this.getXmlFile(resp, null, success, error);
-		}), error);
+		this.executeRequest(gapi.client.drive.revisions.get({'fileId': id,
+			'revisionId': urlParams['rev'], 'supportsTeamDrives': true}),
+			mxUtils.bind(this, function(resp)
+			{
+				// Redirects title to originalFilename to
+				// match expected descriptor interface
+				resp.title = resp.originalFilename;
+				
+				// Uses ID of file instead of revision ID in descriptor
+				// to avoid a change of the document hash property
+				resp.headRevisionId = resp.id;
+				resp.id = id;
+
+   				this.getXmlFile(resp, success, error);
+			}), error);
 	}
 	else
 	{
-		this.executeRequest(gapi.client.drive.files.get({'fileId': id, 'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
+		this.loadDescriptor(id, mxUtils.bind(this, function(resp)
 		{
-			if (this.user != null)
+			try
 			{
-				var binary = /\.png$/i.test(resp.title);
-				
-				// Handles .vsdx, .vsd, .vdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.v(dx|sdx?)$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
-					(!this.ui.useCanvasForExport && binary))
+				if (this.user != null)
 				{
-					var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;
-					this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
-				}
-				else
-				{
-					if (readXml || readLibrary || resp.mimeType == this.libraryMimeType)
+					var binary = /\.png$/i.test(resp.title);
+					
+					// Handles .vsdx, .vsd, .vdx, Gliffy and PNG+XML files by creating a temporary file
+					if (/\.v(dx|sdx?)$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
+						(!this.ui.useCanvasForExport && binary))
 					{
-						this.getXmlFile(resp, null, success, error, true, readLibrary);
+						var url = resp.downloadUrl + '&access_token=' + gapi.auth.getToken().access_token;
+						this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
 					}
 					else
 					{
-						this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-					    {
-							try
+						// Handles converted realtime files as XML files
+						if (readXml || readLibrary || resp.mimeType == this.libraryMimeType ||
+							resp.mimeType == this.xmlMimeType)
+						{
+							this.getXmlFile(resp, success, error, true, readLibrary);
+						}
+						else
+						{
+							if (this.isGoogleRealtimeMimeType(resp.mimeType))
 							{
-								// Converts XML files to realtime including old realtime model
-								if (doc == null || doc.getModel() == null || doc.getModel().getRoot() == null ||
-									doc.getModel().getRoot().isEmpty() || (doc.getModel().getRoot().has('cells') &&
-									!doc.getModel().getRoot().has(DriveRealtime.prototype.diagramsKey)))
-						    		{
-						    			this.getXmlFile(resp, doc, success, error);
-						    		}
-						    		else
-						    		{
-						        		// XML not required here since the realtime model is not empty
-						    			success(new DriveFile(this.ui, null, resp, doc));
-						    		}
+								this.convertRealtimeFile(resp, success, error);
 							}
-							catch (e)
+							else
 							{
-								error(e);
+								this.getXmlFile(resp, success, error);
 							}
-					    }), error);
+						}
 					}
 				}
+				else
+				{
+					error({message: mxResources.get('loggedOut')});
+				}
 			}
-			else
+			catch (e)
 			{
-				error({message: mxResources.get('loggedOut')});
+				if (error != null)
+				{
+					error(e);
+				}
+				else
+				{
+					throw e;
+				}
 			}
 		}), error);
 	}
+};
+
+/**
+ * Returns true if the given mime type is for Google Realtime files.
+ */
+DriveClient.prototype.isGoogleRealtimeMimeType = function(mimeType)
+{
+	return mimeType != null && mimeType.substring(0, 30) == 'application/vnd.jgraph.mxfile.';
+};
+
+/**
+ * Checks if the client is authorized and calls the next step.
+ */
+DriveClient.prototype.getRealtimeData = function(id, success, error, retryCount)
+{
+	this.executeRequest(gapi.client.drive.realtime.get({'fileId': id,
+		'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
+	{
+		var json = (resp.result != null) ? resp.result.data : null;
+		
+		if (json != null && json.value != null && json.value.diagrams != null)
+		{
+			success(json);
+		}
+		else if (error != null)
+		{
+			error({message: 'realtime.get returned invalid data for ' + id});
+		}
+	}), mxUtils.bind(this, function(resp)
+	{
+		if (retryCount == null)
+		{
+			retryCount = 0;
+		}
+		
+		if (retryCount < 3)
+		{
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.getRealtimeData(id, success, error, retryCount + 1);
+			}), (retryCount + 1) * 100);
+		}
+		else if (error != null)
+		{
+			error({message: 'realtime.get failed for ' + id});
+		}
+	}));
 };
 
 /**
@@ -705,33 +915,6 @@ DriveClient.prototype.loadRealtime = function(resp, success, error)
 	{
 		this.redirectToNewApp(error, resp.id);
 	}
-	// Checks if we're in viewer app or if the file is writeable if it needs to be converted
-	else if (this.appId != '850530949725' && (resp.editable || (resp.mimeType != 'application/mxe' &&
-		resp.mimeType != 'application/vnd.jgraph.mxfile')))
-	{
-		var fn = mxUtils.bind(this, function()
-		{
-			var acceptResponse = true;
-			
-			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-			{
-				acceptResponse = false;
-				error({code: App.ERROR_TIMEOUT, retry: fn});
-			}), this.ui.timeout);
-	
-			gapi.drive.realtime.load(resp.id, mxUtils.bind(this, function(doc)
-			{
-		    	window.clearTimeout(timeoutThread);
-		    	
-		    	if (acceptResponse)
-		    	{
-		    		success(doc);
-		    	}
-			}));
-		});
-		
-		fn();
-	}
 	// Shows the file as read-only without conversion
 	else
 	{
@@ -744,70 +927,149 @@ DriveClient.prototype.loadRealtime = function(resp, success, error)
  * used for import via getFile. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
  */
-DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMime, readLibrary)
+DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, readLibrary)
 {
-	var token = gapi.auth.getToken().access_token;
-	var url = resp.downloadUrl + '&access_token=' + token;
-	
-	// Loads XML to initialize realtime document if realtime is empty
-	this.ui.loadUrl(url, mxUtils.bind(this, function(data)
+	try
 	{
-		if (data == null)
+		var token = gapi.auth.getToken().access_token;
+		var url = resp.downloadUrl + '&access_token=' + token;
+		
+		// Loads XML to initialize realtime document if realtime is empty
+		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
 		{
-			// TODO: Optional redirect to legacy if link is for old file
-			error({message: mxResources.get('invalidOrMissingFile')});
-		}
-		else if (resp.mimeType == this.libraryMimeType || readLibrary)
-		{
-			if (resp.mimeType == this.libraryMimeType && !readLibrary)
+			try
 			{
-				error({message: mxResources.get('notADiagramFile')});
-			}
-			else
-			{
-				success(new DriveLibrary(this.ui, data, resp));
-			}
-		}
-		else
-		{
-			if (/\.png$/i.test(resp.title))
-			{
-				var index = data.lastIndexOf(',');
-
-				if (index > 0)
+				if (data == null)
 				{
-					var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
-					
-					if (xml != null && xml.length > 0)
+					// TODO: Optional redirect to legacy if link is for old file
+					error({message: mxResources.get('invalidOrMissingFile')});
+				}
+				else if (resp.mimeType == this.libraryMimeType || readLibrary)
+				{
+					if (resp.mimeType == this.libraryMimeType && !readLibrary)
 					{
-						data = xml;
+						error({message: mxResources.get('notADiagramFile')});
 					}
 					else
 					{
-						// TODO: Import PNG
+						success(new DriveLibrary(this.ui, data, resp));
+					}
+				}
+				else
+				{
+					var importFile = false;
+					
+					if (/\.png$/i.test(resp.title))
+					{
+						var index = data.lastIndexOf(',');
+						
+						if (index > 0)
+						{
+							var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+							
+							if (xml != null && xml.length > 0)
+							{
+								data = xml;
+							}
+							else
+							{
+								// Checks if the file contains XML data which can happen when we insert
+								// the file and then don't post-process it when loaded into the UI which
+								// is required for creating the images for .PNG and .SVG files.
+								try
+								{
+									var xml = data.substring(index + 1);
+									var temp = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ?
+										atob(xml) : Base64.decode(xml);
+									var node = this.ui.editor.extractGraphModel(
+										mxUtils.parseXml(temp).documentElement, true);
+									
+									if (node == null || node.getElementsByTagName('parsererror').length > 0)
+									{
+										importFile = true;
+									}
+									else
+									{
+										data = temp;
+									}
+								}
+								catch (e)
+								{
+									importFile = true;
+								}
+							}
+						}
+					}
+					// Checks for base64 encoded mxfile
+					else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
+					{
+						var temp = data.substring(22);
+						data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
+					}
+					
+					if (Graph.fileSupport && new XMLHttpRequest().upload && this.ui.isRemoteFileFormat(data, url))
+					{
+						this.ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+						{
+							try
+							{
+								if (xhr.readyState == 4)
+								{
+									if (xhr.status >= 200 && xhr.status <= 299)
+									{
+										success(new LocalFile(this.ui, xhr.responseText, resp.title + this.extension, true));
+									}
+									else if (error != null)
+									{
+										error({message: mxResources.get('errorLoadingFile')});
+									}
+								}
+							}
+							catch (e)
+							{
+								if (error != null)
+								{
+									error(e);
+								}
+								else
+								{
+									throw e;
+								}
+							}
+						}), resp.title);
+					}
+					else
+					{
+						success((importFile) ? new LocalFile(this.ui, data, resp.title, true) : new DriveFile(this.ui, data, resp));
 					}
 				}
 			}
-			
-			var file = new DriveFile(this.ui, data, resp, doc);
-	
-			// Checks if mime-type needs to be updated if the file is editable and no viewer app
-			if (!ignoreMime && this.appId != '850530949725' && file.isEditable() && resp.mimeType != this.mimeType)
+			catch (e)
 			{
-				// Overwrites mime-type (only mutable on update when uploading new content)
-				this.saveFile(file, true, mxUtils.bind(this, function(resp)
+				if (error != null)
 				{
-					file.desc = resp;
-					success(file);
-				}), error, true);
+					error(e);
+				}
+				else
+				{
+					throw e;
+				}
 			}
-			else
-			{
-				success(file);
-			}
+		}), error, ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
+			resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
+			/\.jpe?g$/i.test(resp.title));
+	}
+	catch (e)
+	{
+		if (error != null)
+		{
+			error(e);
 		}
-	}), error, (resp.mimeType.substring(0, 6) == 'image/' && resp.mimeType.substring(0, 9) != 'image/svg') ||
-		/\.png$/i.test(resp.title) || /\.jpe?g$/i.test(resp.title));
+		else
+		{
+			throw e;
+		}
+	}
 };
 
 /**
@@ -816,150 +1078,530 @@ DriveClient.prototype.getXmlFile = function(resp, doc, success, error, ignoreMim
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.saveFile = function(file, revision, success, error, noCheck, unloading)
+DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties)
 {
-	if (file.isEditable())
+	var error = mxUtils.bind(this, function(e)
 	{
-		var t0 = new Date().getTime();
-		noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
-
-		// NOTE: Unloading arg is currently ignored, saving during unload/beforeUnload is not possible using
-		// asynchronous code, which is needed to create the thumbnail, or asynchronous requests which is the only
-		// way to execute the gapi request below.
-		// If no thumbnail is created and noCheck is true (which is always true if unloading is true) in which case
-		// this code is synchronous, the executeRequest call is reached but the request is still not sent. This is
-		// true for both, calls from beforeUnload and unload handlers. Note sure how to make the call synchronous
-		// which is said to fix this when called from beforeUnload.
-		// However, this would result in a missing thumbnail in most cases so a better solution might be to reduce
-		// the autosave interval in DriveRealtime, but that would increase the number of requests.
-		unloading = (unloading != null) ? unloading : false;
-		
-		// Adds optional thumbnail to upload request
-		var doSave = mxUtils.bind(this, function(thumb, thumbMime, keepExisting)
+		if (errFn != null)
 		{
-			var meta =
-			{
-				'mimeType': (file.constructor == DriveLibrary) ? this.libraryMimeType : this.mimeType,
-				'title': file.getTitle()
-			};
-			
-			// Specifies that no thumbnail should be uploaded in which case the existing thumbnail is used
-			if (!keepExisting)
-			{
-				// Uses placeholder thumbnail to replace existing one except when unloading
-				// in which case the XML is updated but the existing thumbnail is not in order
-				// to avoid executing asynchronous code and get the XML to the server instead
-				if (thumb == null && !unloading)
-				{
-					thumb = this.placeholderThumbnail;
-					thumbMime = this.placeholderMimeType;
-				}
-				
-				// Adds metadata for thumbnail
-				if (thumb != null && thumbMime != null)
-				{
-					meta.thumbnail =
-					{
-						'image': thumb,
-						'mimeType': thumbMime
-					};
-				}
-			}
-
-			// Updates saveDelay on drive file
-			var wrapper = function()
-			{
-		    		file.saveDelay = new Date().getTime() - t0;
-		    		success.apply(this, arguments);
-			};
-			
-			var fn = mxUtils.bind(this, function(data, binary)
-			{
-				this.executeRequest(this.createUploadRequest(file.getId(), meta,
-					data, revision || (file.desc.mimeType != this.mimeType &&
-					file.desc.mimeType != this.libraryMimeType), binary),
-					wrapper, error);
-			});
-			
-			if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle()))
-			{
-				this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
-				{
-					fn(data, true);
-				}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
-			}
-			else
-			{
-				fn(file.getData(), false);
-			}
-		});
-		
-		// Indirection to generate thumbnails if enabled and supported
-		// (required because generation of thumbnails is asynchronous)
-		var fn = mxUtils.bind(this, function()
-		{
-			// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
-			if (unloading || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-				(file.realtime != null && !file.realtime.connected) || !this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
-			{
-				// Callback for getThumbnail
-				var thumb = null;
-				
-				if (canvas != null)
-				{
-					try
-					{
-						// Security errors are possible
-						thumb = canvas.toDataURL('image/png');
-					}
-					catch (e)
-					{
-						// ignore and continue with placeholder
-					}
-				}
-				
-				// Maximum thumbnail size is 2MB
-				if (thumb == null || thumb.length > this.maxThumbnailSize)
-				{
-					thumb = null;
-				}
-				else
-				{
-					// Converts base64 data into required format for Drive (base64url with no prefix)
-					thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
-				}
-				
-				doSave(thumb, 'image/png');
-			})))
-			{
-				// If-branch
-				doSave(null, null, file.constructor != DriveLibrary && (file.realtime == null || file.realtime.connected));
-			}
-		});
-		
-		// New revision is required if mime type changes, but the mime type should not be replaced
-		// if the file has been converted to the new realtime format. To check this we make sure
-		// that the mime type has not changed before updating it in the case of the legacy app.
-		// Note: We need to always check the mime type because saveFile cancels previous save
-		// attempts so if the save frequency is higher than the time for all retries than you
-		// will never see the error message and accumulate lots of changes that will be lost.
-		if (noCheck || !revision)
-		{
-			fn();
+			errFn(e);
 		}
 		else
 		{
-			this.verifyMimeType(file.getId(), fn, true);
+			throw e;
+		}
+		
+		// Logs failed save
+		try
+		{
+			if (!file.isConflict(e))
+			{
+				var err = 'error-' + (file.getErrorMessage(e) || 'unknown');
+
+				if (e != null && e.error != null && e.error.code != null)
+				{
+					err += '-code-' + e.error.code;
+				}
+				
+				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
+					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size-' + file.getSize(),
+					action: err, label: ((this.user != null) ? this.user.id : 'unknown-user')  + '.' +
+					((file.sync != null) ? (file.sync.clientId + '-chan-' +
+						(file.sync.channelId || 'none')) : '-nosync') +
+					((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
+			}
+		}
+		catch (ex)
+		{
+			// ignore
+		}
+	});
+	
+	var criticalError = mxUtils.bind(this, function(e)
+	{
+		error(e);
+
+		try
+		{
+			EditorUi.logError(e.message, null, null, e);
+			
+			EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
+				new Date().toISOString() + ':' +
+				'\n\nBrowser=' + navigator.userAgent +
+				'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
+				'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+				 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
+				'\nMessage=' + e.message +
+				'\n\nStack:\n' + e.stack);
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	});
+	
+	try
+	{
+		if (file.isEditable() && file.desc != null)
+		{
+			var t0 = new Date().getTime();
+			var etag0 = file.desc.etag;
+			var mod0 = file.desc.modifiedDate;
+			var head0 = file.desc.headRevisionId;
+			var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
+			noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
+			
+			// NOTE: Unloading arg is currently ignored, saving during unload/beforeUnload is not possible using
+			// asynchronous code, which is needed to create the thumbnail, or asynchronous requests which is the only
+			// way to execute the gapi request below.
+			// If no thumbnail is created and noCheck is true (which is always true if unloading is true) in which case
+			// this code is synchronous, the executeRequest call is reached but the request is still not sent. This is
+			// true for both, calls from beforeUnload and unload handlers. Note sure how to make the call synchronous
+			// which is said to fix this when called from beforeUnload.
+			// However, this would result in a missing thumbnail in most cases so a better solution might be to reduce
+			// the autosave interval in DriveRealtime, but that would increase the number of requests.
+			unloading = (unloading != null) ? unloading : false;
+			
+			// Adds optional thumbnail to upload request
+			var doSave = mxUtils.bind(this, function(thumb, thumbMime, keepExisting)
+			{
+				try
+				{
+					var prevDesc = null;
+					var pinned = false;
+					var meta =
+					{
+						'mimeType': file.desc.mimeType,
+						'title': file.getTitle()
+					};
+					
+					// Overrides old mime type and creates a revision
+					if (this.isGoogleRealtimeMimeType(file.desc.mimeType))
+					{
+						meta.mimeType = this.xmlMimeType;
+						prevDesc = file.desc;
+						revision = true;
+						pinned = true;
+					}
+					// Overrides mime type for unknown file type uploads
+					else if (meta.mimeType == 'application/octet-stream')
+					{
+						meta.mimeType = this.xmlMimeType;
+					}
+					
+					if (file.constructor == DriveFile)
+					{
+						if (properties == null)
+						{
+							properties = [];
+						}
+		
+						// Channel ID appended to file ID for comms
+						if (file.getChannelId() == null)
+						{
+							properties.push({'key': 'channel', 'value': Editor.guid(32)});
+						}
+		
+						// Key for encryption of comms
+						if (file.getChannelKey() == null)
+						{
+							properties.push({'key': 'key', 'value': Editor.guid(32)});
+						}
+						
+						// Pass to access cache for each etag
+						properties.push({'key': 'secret', 'value': Editor.guid(32)});
+					}
+					
+					// Specifies that no thumbnail should be uploaded in which case the existing thumbnail is used
+					if (!keepExisting)
+					{
+						// Uses placeholder thumbnail to replace existing one except when unloading
+						// in which case the XML is updated but the existing thumbnail is not in order
+						// to avoid executing asynchronous code and get the XML to the server instead
+						if (thumb == null && !unloading)
+						{
+							thumb = this.placeholderThumbnail;
+							thumbMime = this.placeholderMimeType;
+						}
+						
+						// Adds metadata for thumbnail
+						if (thumb != null && thumbMime != null)
+						{
+							meta.thumbnail =
+							{
+								'image': thumb,
+								'mimeType': thumbMime
+							};
+						}
+					}
+		
+					var savedData = file.getData();
+					
+					// Updates saveDelay on drive file
+					var wrapper = mxUtils.bind(this, function(resp)
+					{
+						try
+						{
+							file.saveDelay = new Date().getTime() - t0;
+							
+							// Checks if modified time is in the future and head revision has changed
+							var delta = new Date(resp.modifiedDate).getTime() - new Date(mod0).getTime();
+							
+							if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
+							{
+								var reasons = [];
+								
+								if (delta <= 0)
+								{
+									reasons.push('invalid modified time');
+								}
+								
+								if (etag0 == resp.etag)
+								{
+									reasons.push('stale etag');
+								}
+								
+								if (revision && head0 == resp.headRevisionId)
+								{
+									reasons.push('stale revision');
+								}
+								
+								var temp = reasons.join(', ');
+								error({message: mxResources.get('errorSavingFile') + ': ' + temp}, resp);
+								
+								// Logs failed save
+								try
+								{
+									EditorUi.sendReport('Critical: Error saving to Google Drive ' +
+										new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
+										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
+										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+										 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
+										'\nErrors=' + temp + '\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' +
+										this.ui.hashValue(etag0) + '\nNew=' + resp.headRevisionId + ' ' +
+										resp.modifiedDate + ' etag-hash=' + this.ui.hashValue(resp.etag))
+									EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
+										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
+										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
+										this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
+										(this.user != null) ? this.user.id : 'unknown');
+								}
+								catch (e)
+								{
+									// ignore
+								}
+							}
+							else
+							{
+						    	success(resp, savedData);
+		
+						    	if (prevDesc != null)
+								{
+						    		// Pins previous revision
+									this.executeRequest(gapi.client.drive.revisions.get(
+									{
+										'fileId': prevDesc.id,
+									    'revisionId': prevDesc.headRevisionId,
+									    'supportsTeamDrives': true
+									}), mxUtils.bind(this, mxUtils.bind(this, function(resp)
+									{
+										resp.pinned = true;
+										
+										this.executeRequest(gapi.client.drive.revisions.update(
+							    		{
+						    		      'fileId': prevDesc.id,
+						    		      'revisionId': prevDesc.headRevisionId,
+						    		      'resource': resp
+						    		    }));
+									})));
+									
+									// Logs conversion
+									try
+									{
+										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
+											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
+											'-to-' + file.desc.id + '.' + file.desc.headRevisionId,
+											label: (this.user != null) ? this.user.id : 'unknown-user' +
+												'.' + ((file.sync != null) ? file.sync.clientId : 'nosync')});
+									}
+									catch (e)
+									{
+										// ignore
+									}
+								}
+						    	
+								// Logs successful save
+								try
+								{
+									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
+										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
+										'.' + resp.modifiedDate + '-size-' + file.getSize(),
+										label: ((this.user != null) ? this.user.id : 'unknown-user') + '.' +
+										((file.sync != null) ? (file.sync.clientId + '-chan-' +
+										(file.sync.channelId || 'none')) : '-nosync') +
+										((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
+								}
+								catch (e)
+								{
+									// ignore
+								}
+							}
+						}
+						catch (e)
+						{
+							criticalError(e);
+						}
+					});
+					
+					var doExecuteRequest = mxUtils.bind(this, function(data, binary)
+					{
+						try
+						{
+							if (properties != null)
+							{
+								meta.properties = properties;
+							}
+			
+							// Used to check if file was changed externally
+							var etag = (!overwrite && file.constructor == DriveFile &&
+								(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
+								file.getCurrentEtag() : null;
+							var retryCount = 0;
+							
+							var executeSave = mxUtils.bind(this, function(realOverwrite)
+							{
+								try
+								{
+									var unknown = file.desc.mimeType != this.xmlMimeType && file.desc.mimeType != this.mimeType &&
+										file.desc.mimeType != this.libraryMimeType;
+									
+									this.executeRequest(this.createUploadRequest(file.getId(), meta,
+										data, revision || realOverwrite || unknown, binary,
+										(realOverwrite) ? null : etag, pinned), wrapper,
+										mxUtils.bind(this, function(err)
+									{
+										try
+										{
+											if (!file.isConflict(err))
+											{
+												error(err);
+											}
+											else
+											{
+												// Check for stale etag which can happen if a file is being saved or if
+												// the etag simply isn't change but system still returns a 412 error (stale)
+												this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
+													'fields': this.catchupFields, 'supportsTeamDrives': true}), 
+													mxUtils.bind(this, function(resp)
+												{
+													try
+													{
+														// Stale etag detected, retry with delay
+														if (resp != null && resp.etag == etag)
+														{
+															if (retryCount < this.maxRetries)
+															{
+																retryCount++;
+																var jitter = 1 + 0.1 * (Math.random() - 0.5);
+																var delay = retryCount * 2 * this.coolOff * jitter;
+																window.setTimeout(executeSave, delay);
+															}
+															else
+															{
+																executeSave(true);
+																
+																// Logs overwrite
+																try
+																{
+																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
+																		null, file.desc.id + '.' + file.desc.headRevisionId,
+																		(this.user != null) ? this.user.id : 'unknown' +
+																		'.' + ((file.sync != null) ? file.sync.clientId : 'nosync'));
+																}
+																catch (e)
+																{
+																	// ignore
+																}
+															}
+														}
+														else if (error != null)
+														{
+															error(err, resp);
+														}
+													}
+													catch (e)
+													{
+														criticalError(e);
+													}
+												}), mxUtils.bind(this, function()
+												{
+													if (error != null)
+													{
+														error(err);
+													}
+												}));
+											}
+										}
+										catch (e)
+										{
+											criticalError(e);
+										}
+									}));
+								}
+								catch (e)
+								{
+									criticalError(e);
+								}
+							});
+							
+							// Uses saved PNG data for thumbnail
+							if (saveAsPng && thumb == null)
+							{
+								var img = new Image();
+								
+								img.onload = mxUtils.bind(this, function()
+								{
+							    	try
+							    	{
+										var s = this.thumbnailWidth / img.width;
+										
+										var canvas = document.createElement('canvas');
+									    canvas.width = this.thumbnailWidth;
+									    canvas.height = Math.floor(img.height * s);
+						
+									    var ctx = canvas.getContext('2d');
+									    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+									    
+									    var temp = canvas.toDataURL();
+									    temp = temp.substring(temp.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+									    
+									    meta.thumbnail =
+										{
+											'image': temp,
+											'mimeType': 'image/png'
+										};
+									    
+									    executeSave(false);
+							    	}
+							    	catch (e)
+							    	{
+							    		executeSave(false)
+							    	}
+								});
+								
+								img.src = 'data:image/png;base64,' + data;
+							}
+							else
+							{
+								executeSave(false);
+							}
+						}
+						catch (e)
+						{
+							criticalError(e);
+						}
+					});
+		
+					if (saveAsPng)
+					{
+						this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
+						{
+							doExecuteRequest(data, true);
+						}), error, (this.ui.getCurrentFile() != file) ? savedData : null);
+					}
+					else
+					{
+						doExecuteRequest(savedData, false);
+					}
+				}
+				catch (e)
+				{
+					criticalError(e);
+				}
+			});
+			
+			// Indirection to generate thumbnails if enabled and supported
+			// (required because generation of thumbnails is asynchronous)
+			var fn = mxUtils.bind(this, function()
+			{
+				// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
+				if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
+					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
+					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
+					{
+						// Callback for getThumbnail
+						try
+						{
+							var thumb = null;
+
+							try
+							{
+								if (canvas != null)
+								{
+									// Security errors are possible
+									thumb = canvas.toDataURL('image/png');
+								}
+								
+								// Maximum thumbnail size is 2MB
+								if (thumb != null)
+								{
+									if (thumb.length > this.maxThumbnailSize)
+									{
+										thumb = null;
+									}
+									else
+									{
+										// Converts base64 data into required format for Drive (base64url with no prefix)
+										thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+									}
+								}
+							}
+							catch (e)
+							{
+								thumb = null;
+							}
+							
+							doSave(thumb, 'image/png');
+						}
+						catch (e)
+						{
+							criticalError(e);
+						}
+					})))
+				{
+					// If-branch
+					doSave(null, null, file.constructor != DriveLibrary);
+				}
+			});
+			
+			// New revision is required if mime type changes, but the mime type should not be replaced
+			// if the file has been converted to the new realtime format. To check this we make sure
+			// that the mime type has not changed before updating it in the case of the legacy app.
+			// Note: We need to always check the mime type because saveFile cancels previous save
+			// attempts so if the save frequency is higher than the time for all retries than you
+			// will never see the error message and accumulate lots of changes that will be lost.
+			if (noCheck || !revision)
+			{
+				fn();
+			}
+			else
+			{
+				this.verifyMimeType(file.getId(), fn, true);
+			}
+		}
+		else
+		{
+			this.ui.editor.graph.reset();
+			
+			if (error != null)
+			{
+				error({message: mxResources.get('readOnly')});
+			}
 		}
 	}
-	else
+	catch (e)
 	{
-		this.ui.editor.graph.reset();
-		
-		if (error != null)
-		{
-			error({message: mxResources.get('readOnly')});
-		}
+		criticalError(e);
 	}
 };
 
@@ -983,7 +1625,8 @@ DriveClient.prototype.verifyMimeType = function(fileId, fn, force, error)
 		{
 			this.checkingMimeType = true;
 			
-			this.executeRequest(gapi.client.drive.files.get({'fileId': fileId, 'fields': 'mimeType', 'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
+			this.executeRequest(gapi.client.drive.files.get({'fileId': fileId, 'fields': 'mimeType',
+				'supportsTeamDrives': true}), mxUtils.bind(this, function(resp)
 			{
 				this.checkingMimeType = false;
 				
@@ -1012,15 +1655,25 @@ DriveClient.prototype.redirectToNewApp = function(error, fileId)
 		this.redirectDialogShowing = true;
 		
 		var url = window.location.protocol + '//' + this.newAppHostname + '/' + this.ui.getSearch(
-			['create', 'title', 'mode', 'url', 'drive', 'splash']) + '#G' + fileId;
+			['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']) + '#G' + fileId;
+		
+		var redirect = mxUtils.bind(this, function()
+		{
+			this.redirectDialogShowing = false;
+			
+			if (window.location.href == url)
+			{
+				window.location.reload();
+			}
+			else
+			{
+				window.location.href = url;
+			}
+		});
 		
 		if (error != null)
 		{
-			this.ui.confirm(mxResources.get('redirectToNewApp'), mxUtils.bind(this, function()
-			{
-				this.redirectDialogShowing = false;
-				window.location.href = url;
-			}), mxUtils.bind(this, function()
+			this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
 			{
 				this.redirectDialogShowing = false;
 				
@@ -1032,11 +1685,7 @@ DriveClient.prototype.redirectToNewApp = function(error, fileId)
 		}
 		else
 		{
-			this.ui.alert(mxResources.get('redirectToNewApp'), mxUtils.bind(this, function()
-			{
-				this.redirectDialogShowing = false;
-				window.location.href = url;
-			}));
+			this.ui.alert(mxResources.get('redirectToNewApp'), redirect);
 		}
 	}
 };
@@ -1047,10 +1696,9 @@ DriveClient.prototype.redirectToNewApp = function(error, fileId)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary, allowRealtime)
+DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary)
 {
-	mimeType = (mimeType != null) ? mimeType : this.mimeType;
-	allowRealtime = (allowRealtime != null) ? allowRealtime : true;
+	mimeType = (mimeType != null) ? mimeType : this.xmlMimeType;
 	
 	var metadata =
 	{
@@ -1062,7 +1710,7 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 	{
 		metadata.parents = [{'kind': 'drive#fileLink', 'id': folderId}];
 	}
-
+	
 	// NOTE: Cannot create thumbnail on insert since no ui has no current file
 	this.executeRequest(this.createUploadRequest(null, metadata, data, false, binary), mxUtils.bind(this, function(resp)
 	{
@@ -1077,28 +1725,9 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 				error({message: mxResources.get('errorSavingFile')});
 			}
 		}
-		else if (allowRealtime)
-		{
-			this.loadRealtime(resp, mxUtils.bind(this, function(doc)
-		    	{
-				if (this.user != null)
-				{
-					var file = new DriveFile(this.ui, data, resp, doc);
-				
-					// Avoids creating a new revision on first autosave of new files
-					file.lastAutosaveRevision = new Date().getTime();
-					
-		    		success(file);
-				}
-				else if (error != null)
-				{
-					error({message: mxResources.get('loggedOut')});
-				}
-		    	}), error);
-		}
 		else
 		{
-			success(resp);
+			success(new DriveFile(this.ui, data, resp));
 		}
 	}), error);
 };
@@ -1109,21 +1738,28 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.createUploadRequest = function(id, metadata, data, revision, binary)
+DriveClient.prototype.createUploadRequest = function(id, metadata, data, revision, binary, etag, pinned)
 {
 	binary = (binary != null) ? binary : false;
 	var bd = '-------314159265358979323846';
 	var delim = '\r\n--' + bd + '\r\n';
 	var close = '\r\n--' + bd + '--';
 	var ctype = 'application/octect-stream';
+	
+	var headers = {'Content-Type' : 'multipart/mixed; boundary="' + bd + '"'};
+	
+	if (etag != null)
+	{
+		headers['If-Match'] = etag;
+	}
 
 	var reqObj = 
 	{
 		'path': '/upload/drive/v2/files' + (id != null ? '/' + id : ''),
 		'method': (id != null) ? 'PUT' : 'POST',
 		'params': {'uploadType': 'multipart'},
-		'headers': {'Content-Type' : 'multipart/mixed; boundary="' + bd + '"'},
-		'body' : delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +
+		'headers': headers,
+		'body': delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +
 			'Content-Type: ' + ctype + '\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' +
 			((data != null) ? (binary) ? data : Base64.encode(data) : '') + close
 	}
@@ -1133,7 +1769,13 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 		reqObj.params['newRevision'] = false;
 	}
 	
+	if (pinned)
+	{
+		reqObj.params['pinned'] = true;
+	}
+	
 	reqObj.params['supportsTeamDrives'] = true;
+	reqObj.params['fields'] = this.allFields;
 	
 	return gapi.client.request(reqObj);
 };
@@ -1163,118 +1805,13 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 	{
 		this.execute(mxUtils.bind(this, function()
 		{
-			this.ui.spinner.stop();
-	
-			// Reuses picker as long as token doesn't change.
-			var token = gapi.auth.getToken().access_token;
-			var name = (acceptAllFiles) ? 'genericPicker' : 'filePicker';
-			
-			// Click on background closes dialog as workaround for blocking dialog
-			// states such as 401 where the dialog cannot be closed and blocks UI
-			var exit = mxUtils.bind(this, function(evt)
-			{
-				// Workaround for click from appIcon on second call
-				if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
-				{
-					mxEvent.removeListener(document, 'click', exit);
-					this[name].setVisible(false);
-				}
-			});
-			
-			if (this[name] == null || this[name + 'Token'] != token)
-			{
-				// FIXME: Dispose not working
-//				if (this[name] != null)
-//				{
-//					console.log(name, this[name]);
-//					this[name].dispose();
-//				}
-				
-				this[name + 'Token'] = token;
-
-				// Pseudo-hierarchical directory view, see
-				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-			        	.setParent('root')
-			        	.setIncludeFolders(true);
-				
-				var view2 = new google.picker.DocsView()
-					.setIncludeFolders(true);
-				
-				var view3 = new google.picker.DocsView()
-					.setEnableTeamDrives(true)
-					.setIncludeFolders(true);
-				
-				var view4 = new google.picker.DocsUploadView()
-					.setIncludeFolders(true);
-
-				if (!acceptAllFiles)
-				{
-					view.setMimeTypes(this.mimeTypes);
-					view2.setMimeTypes(this.mimeTypes);
-					view3.setMimeTypes(this.mimeTypes);
-				}
-				else
-				{
-					view.setMimeTypes('*/*');
-					view2.setMimeTypes('*/*');
-					view3.setMimeTypes('*/*');
-				}
-				
-				this[name] = new google.picker.PickerBuilder()
-			        .setOAuthToken(this[name + 'Token'])
-			        .setLocale(mxLanguage)
-			        .setAppId(this.appId)
-			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
-			        .addView(view)
-			        .addView(view2)
-			        .addView(view3)
-			        .addView(google.picker.ViewId.RECENTLY_PICKED)
-			        .addView(view4)
-			        .setCallback(mxUtils.bind(this, function(data)
-			        {
-			        	if (data.action == google.picker.Action.PICKED ||
-			        		data.action == google.picker.Action.CANCEL)
-			        	{
-			        		mxEvent.removeListener(document, 'click', exit);
-			        	}
-		        	
-			        	if (data.action == google.picker.Action.PICKED)
-			    		{
-			        		this.filePicked(data);
-			    		}
-			        })).build();
-			}
-
-			mxEvent.addListener(document, 'click', exit);
-			this[name].setVisible(true);
-		}));
-	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-DriveClient.prototype.pickFolder = function(fn)
-{
-	this.folderPickerCallback = fn;
-
-	// Picker is initialized once and points to this function
-	// which is overridden each time to the picker is shown
-	var showPicker = mxUtils.bind(this, function()
-	{
-		if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
-		{
-			this.execute(mxUtils.bind(this, function()
+			try
 			{
 				this.ui.spinner.stop();
 
 				// Reuses picker as long as token doesn't change.
 				var token = gapi.auth.getToken().access_token;
-				var name = 'folderPicker';
+				var name = (acceptAllFiles) ? 'genericPicker' : 'filePicker';
 				
 				// Click on background closes dialog as workaround for blocking dialog
 				// states such as 401 where the dialog cannot be closed and blocks UI
@@ -1302,33 +1839,42 @@ DriveClient.prototype.pickFolder = function(fn)
 					// Pseudo-hierarchical directory view, see
 					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
 					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-						.setParent('root')
-						.setIncludeFolders(true)
-						.setSelectFolderEnabled(true)
-			        		.setMimeTypes('application/vnd.google-apps.folder');
+				        	.setParent('root')
+				        	.setIncludeFolders(true);
 					
 					var view2 = new google.picker.DocsView()
-						.setIncludeFolders(true)
-						.setSelectFolderEnabled(true)
-						.setMimeTypes('application/vnd.google-apps.folder');
+						.setIncludeFolders(true);
 					
 					var view3 = new google.picker.DocsView()
-						.setIncludeFolders(true)
 						.setEnableTeamDrives(true)
-						.setSelectFolderEnabled(true)
-						.setMimeTypes('application/vnd.google-apps.folder');
+						.setIncludeFolders(true);
+					
+					var view4 = new google.picker.DocsUploadView()
+						.setIncludeFolders(true);
+	
+					if (!acceptAllFiles)
+					{
+						view.setMimeTypes(this.mimeTypes);
+						view2.setMimeTypes(this.mimeTypes);
+						view3.setMimeTypes(this.mimeTypes);
+					}
+					else
+					{
+						view.setMimeTypes('*/*');
+						view2.setMimeTypes('*/*');
+						view3.setMimeTypes('*/*');
+					}
 					
 					this[name] = new google.picker.PickerBuilder()
-						.setSelectableMimeTypes('application/vnd.google-apps.folder')
 				        .setOAuthToken(this[name + 'Token'])
 				        .setLocale(mxLanguage)
 				        .setAppId(this.appId)
-					    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+				        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 				        .addView(view)
 				        .addView(view2)
 				        .addView(view3)
 				        .addView(google.picker.ViewId.RECENTLY_PICKED)
-				        .setTitle(mxResources.get('pickFolder'))
+				        .addView(view4)
 				        .setCallback(mxUtils.bind(this, function(data)
 				        {
 				        	if (data.action == google.picker.Action.PICKED ||
@@ -1336,25 +1882,151 @@ DriveClient.prototype.pickFolder = function(fn)
 				        	{
 				        		mxEvent.removeListener(document, 'click', exit);
 				        	}
-				        	
-			        		this.folderPickerCallback(data);
+			        	
+				        	if (data.action == google.picker.Action.PICKED)
+				    		{
+				        		this.filePicked(data);
+				    		}
 				        })).build();
 				}
 	
 				mxEvent.addListener(document, 'click', exit);
 				this[name].setVisible(true);
-			}));
+			}
+			catch (e)
+			{
+				this.ui.spinner.stop();
+				this.ui.handleError(e);
+			}
+		}));
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DriveClient.prototype.pickFolder = function(fn, force)
+{
+	this.folderPickerCallback = fn;
+
+	// Picker is initialized once and points to this function
+	// which is overridden each time to the picker is shown
+	var showPicker = mxUtils.bind(this, function()
+	{
+		try
+		{
+			if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
+			{
+				this.execute(mxUtils.bind(this, function()
+				{
+					try
+					{
+						this.ui.spinner.stop();
+		
+						// Reuses picker as long as token doesn't change.
+						var token = gapi.auth.getToken().access_token;
+						var name = 'folderPicker';
+						
+						// Click on background closes dialog as workaround for blocking dialog
+						// states such as 401 where the dialog cannot be closed and blocks UI
+						var exit = mxUtils.bind(this, function(evt)
+						{
+							// Workaround for click from appIcon on second call
+							if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+							{
+								mxEvent.removeListener(document, 'click', exit);
+								this[name].setVisible(false);
+							}
+						});
+						
+						if (this[name] == null || this[name + 'Token'] != token)
+						{
+							// FIXME: Dispose not working
+			//				if (this[name] != null)
+			//				{
+			//					console.log(name, this[name]);
+			//					this[name].dispose();
+			//				}
+							
+							this[name + 'Token'] = token;
+			
+							// Pseudo-hierarchical directory view, see
+							// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
+							var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+								.setParent('root')
+								.setIncludeFolders(true)
+								.setSelectFolderEnabled(true)
+					        		.setMimeTypes('application/vnd.google-apps.folder');
+							
+							var view2 = new google.picker.DocsView()
+								.setIncludeFolders(true)
+								.setSelectFolderEnabled(true)
+								.setMimeTypes('application/vnd.google-apps.folder');
+							
+							var view3 = new google.picker.DocsView()
+								.setIncludeFolders(true)
+								.setEnableTeamDrives(true)
+								.setSelectFolderEnabled(true)
+								.setMimeTypes('application/vnd.google-apps.folder');
+							
+							this[name] = new google.picker.PickerBuilder()
+								.setSelectableMimeTypes('application/vnd.google-apps.folder')
+						        .setOAuthToken(this[name + 'Token'])
+						        .setLocale(mxLanguage)
+						        .setAppId(this.appId)
+							    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+						        .addView(view)
+						        .addView(view2)
+						        .addView(view3)
+						        .addView(google.picker.ViewId.RECENTLY_PICKED)
+						        .setTitle(mxResources.get('pickFolder'))
+						        .setCallback(mxUtils.bind(this, function(data)
+						        {
+						        	if (data.action == google.picker.Action.PICKED ||
+						        		data.action == google.picker.Action.CANCEL)
+						        	{
+						        		mxEvent.removeListener(document, 'click', exit);
+						        	}
+						        	
+					        		this.folderPickerCallback(data);
+						        })).build();
+						}
+			
+						mxEvent.addListener(document, 'click', exit);
+						this[name].setVisible(true);
+					}
+					catch (e)
+					{
+						this.ui.spinner.stop();
+						this.ui.handleError(e);
+					}
+				}));
+			}
+		}
+		catch (e)
+		{
+			this.ui.handleError(e);
 		}
 	});
 	
-	this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
-	{
-		this.folderPickerCallback({action: google.picker.Action.PICKED,
-			docs: [{type: 'folder', id: 'root'}]});
-	}), mxUtils.bind(this, function()
+	if (force)
 	{
 		showPicker();
-	}), mxResources.get('yes'), mxResources.get('no'));
+	}
+	else
+	{
+		this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+		{
+			this.folderPickerCallback({action: google.picker.Action.PICKED,
+				docs: [{type: 'folder', id: 'root'}]});
+		}), mxUtils.bind(this, function()
+		{
+			showPicker();
+		}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+	}
 };
 
 /**
@@ -1383,80 +2055,88 @@ DriveClient.prototype.pickLibrary = function(fn)
 	{
 		this.execute(mxUtils.bind(this, function()
 		{
-			this.ui.spinner.stop();
-			
-			// Click on background closes dialog as workaround for blocking dialog
-			// states such as 401 where the dialog cannot be closed and blocks UI
-			var exit = mxUtils.bind(this, function(evt)
+			try
 			{
-				// Workaround for click from appIcon on second call
-				if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+				this.ui.spinner.stop();
+				
+				// Click on background closes dialog as workaround for blocking dialog
+				// states such as 401 where the dialog cannot be closed and blocks UI
+				var exit = mxUtils.bind(this, function(evt)
 				{
-					mxEvent.removeListener(document, 'click', exit);
-					this.libraryPicker.setVisible(false);
+					// Workaround for click from appIcon on second call
+					if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+					{
+						mxEvent.removeListener(document, 'click', exit);
+						this.libraryPicker.setVisible(false);
+					}
+				});
+				
+				// Reuses picker as long as token doesn't change
+				var token = gapi.auth.getToken().access_token;
+				
+				if (this.libraryPicker == null || this.libraryPickerToken != token)
+				{
+					// FIXME: Dispose not working
+	//				if (this[name] != null)
+	//				{
+	//					console.log(name, this[name]);
+	//					this[name].dispose();
+	//				}
+					
+					this.libraryPickerToken = token;
+	
+					// Pseudo-hierarchical directory view, see
+					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
+					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+				        	.setParent('root')
+				        	.setIncludeFolders(true)
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+					
+					var view2 = new google.picker.DocsView()
+			        		.setIncludeFolders(true)
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+				
+					var view3 = new google.picker.DocsView()
+						.setEnableTeamDrives(true)
+						.setIncludeFolders(true)
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+					
+					var view4 = new google.picker.DocsUploadView()
+						.setIncludeFolders(true);
+					
+				    this.libraryPicker = new google.picker.PickerBuilder()
+				        .setOAuthToken(this.libraryPickerToken)
+				        .setLocale(mxLanguage)
+				        .setAppId(this.appId)
+				        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+				        .addView(view)
+				        .addView(view2)
+				        .addView(view3)
+				        .addView(google.picker.ViewId.RECENTLY_PICKED)
+				        .addView(view4)
+				        .setCallback(mxUtils.bind(this, function(data)
+				        {
+					        	if (data.action == google.picker.Action.PICKED ||
+					        		data.action == google.picker.Action.CANCEL)
+					        	{
+					        		mxEvent.removeListener(document, 'click', exit);
+					        	}
+					        	
+					        	if (data.action == google.picker.Action.PICKED)
+					    		{
+					        		this.filePicked(data);
+					    		}
+				        })).build();
 				}
-			});
-			
-			// Reuses picker as long as token doesn't change.
-			var token = gapi.auth.getToken().access_token;
-			
-			if (this.libraryPicker == null || this.libraryPickerToken != token)
-			{
-				// FIXME: Dispose not working
-//				if (this[name] != null)
-//				{
-//					console.log(name, this[name]);
-//					this[name].dispose();
-//				}
 				
-				this.libraryPickerToken = token;
-
-				// Pseudo-hierarchical directory view, see
-				// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-				var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-			        	.setParent('root')
-			        	.setIncludeFolders(true)
-					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
-				
-				var view2 = new google.picker.DocsView()
-		        		.setIncludeFolders(true)
-					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
-			
-				var view3 = new google.picker.DocsView()
-					.setEnableTeamDrives(true)
-					.setIncludeFolders(true)
-					.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
-				
-				var view4 = new google.picker.DocsUploadView()
-					.setIncludeFolders(true);
-				
-			    this.libraryPicker = new google.picker.PickerBuilder()
-			        .setOAuthToken(this.libraryPickerToken)
-			        .setLocale(mxLanguage)
-			        .setAppId(this.appId)
-			        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
-			        .addView(view)
-			        .addView(view2)
-			        .addView(view3)
-			        .addView(google.picker.ViewId.RECENTLY_PICKED)
-			        .addView(view4)
-			        .setCallback(mxUtils.bind(this, function(data)
-			        {
-				        	if (data.action == google.picker.Action.PICKED ||
-				        		data.action == google.picker.Action.CANCEL)
-				        	{
-				        		mxEvent.removeListener(document, 'click', exit);
-				        	}
-				        	
-				        	if (data.action == google.picker.Action.PICKED)
-				    		{
-				        		this.filePicked(data);
-				    		}
-			        })).build();
+				mxEvent.addListener(document, 'click', exit);
+				this.libraryPicker.setVisible(true);
 			}
-			
-			mxEvent.addListener(document, 'click', exit);
-			this.libraryPicker.setVisible(true);
+			catch (e)
+			{
+				this.ui.spinner.stop();
+				this.ui.handleError(e);
+			}
 		}));
 	}
 };
@@ -1469,11 +2149,701 @@ DriveClient.prototype.pickLibrary = function(fn)
  */
 DriveClient.prototype.showPermissions = function(id)
 {
-	this.checkToken(mxUtils.bind(this, function()
+	var fallback = mxUtils.bind(this, function()
 	{
-		var shareClient = new gapi.drive.share.ShareClient(this.appId);
-		shareClient.setOAuthToken(gapi.auth.getToken().access_token);
-		shareClient.setItemIds([id]);
-		shareClient.showSettingsDialog();
+		var dlg = new ConfirmDialog(this.ui, mxResources.get('googleSharingNotAvailable'), mxUtils.bind(this, function()
+		{
+			this.ui.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+		}), null, mxResources.get('open'), null, null, null, null, IMAGE_PATH + '/google-share.png');
+		this.ui.showDialog(dlg.container, 360, 190, true, true);
+		dlg.init();
+	});
+	
+	if (this.sharingFailed)
+	{
+		fallback();
+	}
+	else
+	{
+		this.checkToken(mxUtils.bind(this, function()
+		{
+			try
+			{
+				var shareClient = new gapi.drive.share.ShareClient(this.appId);
+				shareClient.setOAuthToken(gapi.auth.getToken().access_token);
+				shareClient.setItemIds([id]);
+				shareClient.showSettingsDialog();
+				
+				// Workaround for https://stackoverflow.com/questions/54753169 is to check
+				// if "sharing is unavailable" is showing and invoke a fallback dialog
+				if ('MutationObserver' in window)
+				{
+					if (this.sharingObserver != null)
+					{
+						this.sharingObserver.disconnect();
+						this.sharingObserver = null;
+					}
+	
+					// Tries again even if observer was still around as the user may have
+					// closed the dialog while waiting. TODO: Find condition to disconnect
+					// observer when dialog is closed (use removedNodes?).
+					this.sharingObserver = new MutationObserver(mxUtils.bind(this, function(mutations)
+					{
+						var done = false;
+						
+						for (var i = 0; i < mutations.length; i++)
+						{
+							for (var j = 0; j < mutations[i].addedNodes.length; j++)
+							{
+								var child = mutations[i].addedNodes[j];
+	
+								if (child.nodeName == 'BUTTON' && child.getAttribute('name') == 'ok' &&
+					        		child.parentNode != null && child.parentNode.parentNode != null &&
+					        		child.parentNode.parentNode.getAttribute('role') == 'dialog')
+					        	{
+				        			this.sharingFailed = true;
+					        		child.click();
+				        			fallback();
+				        			done = true;
+					        	}
+					        	else if (child.nodeName == 'DIV' && child.className == 'shr-q-shr-r-shr-xb')
+					        	{
+					        		done = true;
+					        	}
+					        }
+					    }
+						
+						if (done)
+						{
+			        		this.sharingObserver.disconnect();
+		        			this.sharingObserver = null;
+						}
+						
+					}));
+					
+					this.sharingObserver.observe(document, {childList: true, subtree: true});
+				}
+			}
+			catch (e)
+			{
+				this.ui.handleError(e);
+			}
+		}));
+	}
+};
+
+/**
+ * Converts the given file from realtime to XML.
+ */
+DriveClient.prototype.getRealtimeAge = function(desc, json)
+{
+	var mod = (json != null && json.value != null && json.value.modifiedDate != null) ?
+		json.value.modifiedDate.json : null;
+	var result = 0;
+	
+	if (mod != null && mod > 0)
+	{
+		var ts = new Date(desc.modifiedDate);
+		var rt = new Date(mod);
+		result = ts.getTime() - rt.getTime();
+	}
+	
+	return result;
+};
+
+/**
+ * Converts the given file from realtime to XML.
+ */
+DriveClient.prototype.convertRealtimeFile = function(desc, success, error)
+{
+	var xmlSuccess = mxUtils.bind(this, function(file)
+	{
+		file.convertedFrom = 'xml';
+		success(file);
+	});
+	
+	var jsonSuccess = mxUtils.bind(this, function(file)
+	{
+		file.convertedFrom = 'json';
+		success(file);
+	});
+
+	this.getRealtimeData(desc.id, mxUtils.bind(this, function(json)
+	{
+		try
+		{
+			var age = this.getRealtimeAge(desc, json);
+			
+			// Uses realtime if newer or less than 5 minutes old
+			if (age < 300000)
+			{
+				jsonSuccess(new DriveFile(this.ui, mxUtils.getXml(
+					this.convertJsonToXml(json)), desc));
+			}
+			else
+			{
+				this.getXmlFile(desc, xmlSuccess, mxUtils.bind(this, function()
+				{
+					try
+					{
+						jsonSuccess(new DriveFile(this.ui, mxUtils.getXml(
+							this.convertJsonToXml(json)), desc));
+
+					}
+					catch (e)
+					{
+						this.getXmlFile(desc, xmlSuccess, error);
+					}
+				}));
+			}
+		}
+		catch (e)
+		{
+			this.getXmlFile(desc, xmlSuccess, error);
+		}
+	}), mxUtils.bind(this, function()
+	{
+		this.getXmlFile(desc, xmlSuccess, error);
 	}));
+};
+
+/**
+ * Returns the location as a new object.
+ */
+DriveClient.prototype.convertJsonToXml = function(json, uncompressed)
+{
+	if (json.value == null || json.value.diagrams == null)
+	{
+		throw Error('Invalid JSON: no diagrams in root map');
+	}
+	else
+	{
+		var node = mxUtils.createXmlDocument().createElement('mxfile');
+		var diagrams = json.value.diagrams.value;
+		
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			try
+			{
+				var diagramNode = this.decodeJsonPage(diagrams[i].value,
+					node.ownerDocument.createElement('diagram'),
+					uncompressed);
+
+				//if (diagramNode.getAttribute('name') == null)
+				//{
+					// TODO: Should only use when converting but not when comparing
+					//diagramNode.setAttribute('name', mxResources.get('pageWithNumber', [i + 1]));
+				//}
+
+				node.appendChild(diagramNode);
+			}
+			catch (e)
+			{
+				throw Error('Error on page ' + i + ': ' + e.stack);
+			}
+		}
+		
+		//console.log('leaving convertJson', mxUtils.getPrettyXml(node));
+		
+		return node;
+	}
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+DriveClient.prototype.decodeJsonPage = function(json, node, uncompressed)
+{
+	if (json == null)
+	{
+		throw Error('Invalid JSON: json for page is null');
+	}
+	else
+	{
+		var codec = new mxCodec();
+		var root = this.createJsonCell(json.root, codec);
+		
+		if (root == null)
+		{
+			throw Error('Invalid JSON: no root cell for page');
+		}
+		else
+		{
+			// Dummy model for encoding
+			var modelNode = codec.encode(new mxGraphModel(root));
+			this.decodeJsonViewState(json, modelNode);
+			
+			if (uncompressed)
+			{
+				node.appendChild(modelNode);
+			}
+			else
+			{
+				mxUtils.setTextContent(node, Graph.compressNode(modelNode));
+			}
+	
+			// Adds attributes to diagram node
+			if (json.id != null)
+			{
+				node.setAttribute('id', json.id.json);
+			}
+			else
+			{
+				// Workaround for missing page ID in JSON
+				node.setAttribute('id', Editor.guid());
+			}
+		
+			if (json.name != null)
+			{
+				node.setAttribute('name', json.name.json);
+			}
+		}
+	}
+	
+	//console.log('decoded json page', json, node);
+	
+	return node;
+};
+
+/**
+ * Writes the view state to the given node.
+ */
+DriveClient.prototype.decodeJsonViewState = function(json, node)
+{
+	// Page format is stored as "width,height"
+	var pf = (json.pageFormat != null) ? json.pageFormat.json : null;
+	
+	if (pf != null && pf.length > 0)
+	{
+		var values = pf.split(',');
+		
+		if (values.length > 1)
+		{
+			node.setAttribute('pageWidth', values[0]);
+			node.setAttribute('pageHeight', values[1]);
+		}
+	}
+
+	var bg = (json.backgroundColor != null) ? json.backgroundColor.json : null;
+	
+	if (bg != null && bg.length > 0)
+	{
+		node.setAttribute('background', bg);
+	}
+	
+	var img = (json.backgroundImage != null) ? json.backgroundImage.json : null;
+	
+	if (img != null && img.length > 0)
+	{
+		node.setAttribute('backgroundImage', img);
+	}
+	
+	node.setAttribute('fold', (json.foldingEnabled != null) ? json.foldingEnabled.json : '0');
+	node.setAttribute('pageScale', (json.pageScale != null) ? json.pageScale.json : mxGraph.prototype.pageScale);
+	node.setAttribute('math', (json.mathEnabled != null) ? json.mathEnabled.json : '0');
+	node.setAttribute('shadow', (json.shadowVisible != null) ? json.shadowVisible.json : '0');
+
+	return node;
+};
+
+/**
+ * Syncs initial state from collab model to graph model.
+ */
+DriveClient.prototype.createJsonCell = function(json, codec)
+{
+	if (json != null && json.id != null)
+	{
+		var val = json.value;
+		var cell = this.jsonToCell(val, codec);
+		codec.putObject(json.id, cell);
+		
+		cell.source = (val.source != null) ? this.createJsonCell(val.source, codec) : null;
+		cell.target = (val.target != null) ? this.createJsonCell(val.target, codec) : null;
+		
+		// Cells can be serialized as parents of terminals
+		this.createJsonCell(val.parent, codec)
+
+		for (var i = 0; i < val.children.value.length; i++)
+		{
+			var child = this.createJsonCell(val.children.value[i], codec);
+			
+			if (child != null)
+			{
+				cell.insert(child);
+			}
+			else
+			{
+				throw Error('Invalid JSON: no child ' + i + ' for cell ' + json.id);
+			}
+		}
+
+		return cell;
+	}
+	else if (json != null && json.ref != null)
+	{
+		return codec.objects[json.ref];
+	}
+	else
+	{
+		return null;
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DriveClient.prototype.jsonToCell = function(val, codec)
+{
+	var cell = new mxCell();
+	
+	cell.id = val.cellId.json;
+	cell.vertex = val.type.json == 'vertex';
+	cell.edge = val.type.json == 'edge';
+	cell.connectable = val.connectable.json != '0';
+	cell.collapsed = val.collapsed.json == '1';
+	cell.visible = val.visible.json != '0';
+	cell.style = (val.style != null) ? val.style.json : null;
+	cell.value = (val.xmlValue != null) ?
+		mxUtils.parseXml(val.xmlValue.json).documentElement :
+		((val.value != null) ? val.value.json : null);
+	cell.geometry = (val.geometry != null) ?
+		codec.decode(mxUtils.parseXml(val.geometry.json).documentElement) : null;
+		
+	return cell;
+};
+
+/**
+ * Invokes the given function if the user has writeable realtime files
+ * that must be converted.
+ */
+DriveClient.prototype.checkRealtimeFiles = function(fn)
+{
+	var email = (this.user != null && this.user.email != null) ? this.user.email : null;
+	
+	this.executeRequest(gapi.client.drive.files.list({'maxResults': 1, 'q':
+		'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
+		((email != null) ? ' and \'' + email + '\' in writers' : ''),
+		'includeTeamDriveItems': true, 'supportsTeamDrives': true}), mxUtils.bind(this, function(res)
+	{
+		if (res != null && (res.nextPageToken != null || (res.items != null && res.items.length > 0)))
+		{
+			fn();
+		}
+	}));
+};
+
+/**
+ * Converts all old realtime files. Invoke this using
+ * https://www.draw.io/?mode=google&convert-realtime=1
+ */
+DriveClient.prototype.convertRealtimeFiles = function()
+{
+	var output = document.createElement('div');
+	output.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;padding:8px;' +
+		'background:#ffffff;z-index:2;overflow:auto;white-space:nowrap;line-height:1.5em;';
+	document.body.appendChild(output);
+	var t0 = Date.now();
+	
+	var print = mxUtils.bind(this, function(msg, noBr)
+	{
+		output.innerHTML += msg + ((noBr) ? '' : '<br>');
+		output.scrollTop = output.scrollHeight;
+	});
+	
+	print('draw.io (' + EditorUi.VERSION + ') is searching files to be converted...');
+	print('<a href="https://desk.draw.io/support/solutions/articles/16000092210" target="_blank">Click here for help</a>');
+	
+	if (this.ui.spinner.spin(document.body, 'Searching files...'))
+	{
+		this.checkToken(mxUtils.bind(this, function()
+		{
+			var convertDelay = 2000;
+			var convertedIds = {};
+			var converted = 0;
+			var fromJson = 0;
+			var fromXml = 0;
+			var loadFail = 0;
+			var invalid = 0;
+			var saveFail = 0;
+			var failed = 0;
+			var total = 0;
+			var queryFail = 0;
+
+			var email = (this.user != null && this.user.email != null) ? this.user.email : null;
+			var q = 'mimeType=\'application/vnd.jgraph.mxfile.realtime\'' +
+				((email != null) ? ' and \'' + email + '\' in writers' : '');
+
+			var done = mxUtils.bind(this, function()
+			{
+				this.ui.spinner.stop();
+				print('<br>Conversion complete. Successfully converted ' + converted + ' file(s).', true);
+				
+				if (failed > 0)
+				{
+					print(' Failed to convert ' + failed + ' file(s).<br><br><b>ACTION REQUIRED:</b><br><ul><li>Click ' +
+						'<a target="_blank" href="https://drive.google.com/drive/u/0/search?q=type:application/vnd.jgraph.mxfile.realtime">here</a> ' +
+						'to list all affected files</li><li>Open each file in turn by right-clicking the file and selecting open with draw.io</li>' +
+						'<li>Open each file in turn. When loaded, select File->Save</li></ul>');	
+				}
+				else
+				{
+					print('<br><br>This window can now be closed.')
+				}
+				
+				try
+				{
+					var dt = Date.now() - t0;
+					
+					// Logs conversion
+					EditorUi.logEvent({category: 'AUTO-CONVERT',
+						action: 'total-' + total + '-xml-' + fromXml +
+						'-json-' + fromJson + '-done-' + converted +
+						'-fail-' + failed + '-load-' + loadFail +
+						'-save-' + saveFail + '-invalid-' + invalid +
+						'-dt-' + Math.round(dt / 1000),
+						label: (this.user != null) ? this.user.id : 'unknown-user'});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			});
+			
+			var getMessage = function(err)
+			{
+				return (err == null) ? '' : ((err.message != null) ? err.message : ((err.error != null &&
+					err.error.message != null) ? err.error.message : ''));
+			};
+
+			var doConvert = mxUtils.bind(this, function()
+			{
+				if (this.ui.spinner.spin(document.body, 'Converting ' + total + ' file(s)'))
+				{
+					print('Found ' + total + ' file(s). This will take up to ' + Math.ceil((total * (convertDelay + 3000)) / 60000) +
+						' minute(s). <b>Please do not close this window!</b><br>');
+					var counter = 0;
+
+					// Does not show picker if there are no folders in the root
+					var nextPage = mxUtils.bind(this, function(token, delay)
+					{
+						var query = {'maxResults': 1, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
+						
+						if (token != null)
+						{
+							query.pageToken = token;
+						}
+						
+						var acceptResponse = true;
+						
+						var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							acceptResponse = false;
+							nextPage(token, delay);
+						}), this.ui.timeout);
+						
+						this.executeRequest(gapi.client.drive.files.list(query), mxUtils.bind(this, function(res)
+						{
+							window.clearTimeout(timeoutThread);
+							
+							if (acceptResponse)
+							{
+								var doNextPage = mxUtils.bind(this, function()
+								{
+									if (res.nextPageToken != null)
+									{
+										nextPage(res.nextPageToken);
+									}
+									else
+									{
+										done();
+									}
+								});
+								
+								if (res != null && res.error != null)
+								{
+									queryFail++;
+									
+									if (queryFail < 4)
+									{
+										nextPage(token, delay);
+									}
+									else
+									{
+										this.ui.spinner.stop();
+										print('Query for next file failed multiple times. Exiting.<br><br>This window can now be closed.');
+									}
+								}
+								else if (res != null && (res.items == null || res.items.length == 0) &&
+									res.nextPageToken != null)
+								{
+									// Next page can still contain results, see
+									// https://stackoverflow.com/questions/23741845
+									nextPage(res.nextPageToken, 10000);
+								}
+								else if (res != null && res.items != null && res.items.length > 0)
+								{
+									var fileId = res.items[0].id;
+									this.ui.spinner.stop();
+									counter++;
+									
+									if (this.ui.spinner.spin(document.body, 'Converting file ' + counter + ' of ' + total))
+									{
+										print('Converting ' + counter + ' of ' + total + ': "' + mxUtils.htmlEntities(res.items[0].title) +
+											'" (<a href="https://drive.google.com/open?id=' + fileId + '" target="_blank">' + fileId + '</a>)... ', true);
+			
+										window.setTimeout(mxUtils.bind(this, function()
+										{
+											// Exits if same file is returned twice
+											if (convertedIds[fileId] == null)
+											{
+												convertedIds[fileId] = true;
+												
+												acceptResponse = true;
+												
+												timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+												{
+													acceptResponse = false;
+													
+													failed++;
+													loadFail++;
+													print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+													doNextPage();
+												}), this.ui.timeout);
+												
+												this.getFile(fileId, mxUtils.bind(this, function(file)
+												{
+													window.clearTimeout(timeoutThread);
+													
+													if (acceptResponse)
+													{
+														if (file.constructor == DriveFile)
+														{
+															if (file.convertedFrom == 'json')
+															{
+																fromJson++;
+															}
+															else
+															{
+																fromXml++;
+															}
+															
+															acceptResponse = true;
+															
+															timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+															{
+																acceptResponse = false;
+																
+																failed++;
+																saveFail++;
+																print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Timeout');
+																doNextPage();
+															}), this.ui.timeout);
+		
+															this.saveFile(file, null, mxUtils.bind(this, function()
+															{
+																window.clearTimeout(timeoutThread);
+																
+																if (acceptResponse)
+																{
+																	converted++;
+																	print('OK <img src="' + Editor.checkmarkImage + '" border="0" valign="middle"/>');
+																	doNextPage();
+																}
+															}), mxUtils.bind(this, function(err)
+															{
+																window.clearTimeout(timeoutThread);
+																
+																if (acceptResponse)
+																{
+																	var msg = getMessage(err);
+																	failed++;
+																	saveFail++;
+																	print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+																	doNextPage();
+																}
+															}));
+														}
+														else
+														{
+															failed++;
+															invalid++;
+															print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> Invalid file');
+															doNextPage();
+														}
+													}
+												}), mxUtils.bind(this, function(err)
+												{
+													window.clearTimeout(timeoutThread);
+													
+													if (acceptResponse)
+													{
+														var msg = getMessage(err);
+														failed++;
+														loadFail++;
+														print('<img src="' + this.ui.editor.graph.warningImage.src + '" border="0" valign="absmiddle"/> ' + msg);
+														doNextPage();
+													}
+												}));
+											}
+											else
+											{
+												this.ui.spinner.stop();
+												print('Search returned duplicate file ' + fileId + '. Exiting.<br><br>This window can now be closed.');
+											}
+										}), (delay != null) ? delay : convertDelay)
+									}
+								}
+								else
+								{
+									done();
+								}
+							}
+						}));
+					});
+					
+					nextPage();
+				}
+			});
+			
+			var totals = {'maxResults': 10000, 'q': q, 'includeTeamDriveItems': true, 'supportsTeamDrives': true};
+			
+			var count = mxUtils.bind(this, function(token)
+			{
+				if (token != null)
+				{
+					totals.pageToken = token;
+				}
+				
+				this.executeRequest(gapi.client.drive.files.list(totals), mxUtils.bind(this, function(res)
+				{
+					total += (res != null && res.items != null) ? res.items.length : 0;
+					
+					if (res.nextPageToken != null)
+					{
+						count(res.nextPageToken);
+					}
+					else
+					{
+						this.ui.spinner.stop();
+						
+						this.ui.showError('Confirm', 'You are about to convert ' + total + ' file(s)',
+							'Cancel', mxUtils.bind(this, function()
+						{
+							print('Cancelled by user.<br><br>This window can now be closed.');
+						}), null, 'OK', doConvert, 'Help', function()
+						{
+							window.open('https://desk.draw.io/support/solutions/articles/16000092210');
+						}, 340, 120);
+					}
+				}));
+			});
+			
+			count();
+		}));
+	}
+	else
+	{
+		this.ui.spinner.stop();
+		print('Busy. <br><br>This window can now be closed.');
+	}
 };

@@ -32,26 +32,30 @@ Draw.loadPlugin(function(ui)
 			if (ui.editor.graph.model.isEdge(cells[i]))
 			{
 				var state = ui.editor.graph.view.getState(cells[i]);
-				var paths = state.shape.node.getElementsByTagName('path');
 				
-				if (paths.length > 1)
+				if (state.shape != null)
 				{
-					if (paths[1].getAttribute('class') == 'mxEdgeFlow')
+					var paths = state.shape.node.getElementsByTagName('path');
+					
+					if (paths.length > 1)
 					{
-						paths[1].removeAttribute('class');
-		
-						if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+						if (paths[1].getAttribute('class') == 'mxEdgeFlow')
 						{
-							paths[1].removeAttribute('stroke-dasharray');
+							paths[1].removeAttribute('class');
+			
+							if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+							{
+								paths[1].removeAttribute('stroke-dasharray');
+							}
 						}
-					}
-					else
-					{
-						paths[1].setAttribute('class', 'mxEdgeFlow');
-		
-						if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+						else
 						{
-							paths[1].setAttribute('stroke-dasharray', '8');
+							paths[1].setAttribute('class', 'mxEdgeFlow');
+			
+							if (mxUtils.getValue(state.style, mxConstants.STYLE_DASHED, '0') != '1')
+							{
+								paths[1].setAttribute('stroke-dasharray', '8');
+							}
 						}
 					}
 				}

@@ -254,7 +254,7 @@
 	   			return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Contextual Split Action Bar Landscape (Bright)');
 			}),
 
-			this.createVertexTemplateEntry(s2 + 'indeterminate_progress_bar;strokeColor=#33B5E5;', 
+			this.createVertexTemplateEntry(s2 + 'indeterminate_progress_bar;strokeColor=#33B5E5;pointerEvents=1', 
 					149, 5, '', 'Indeterminate Progress Bar', null, null, dt + 'indeterminate progress bar'),
 			this.createVertexTemplateEntry(s2 + 'indeterminateSpinner;', 
 					50, 50, '', 'Indeterminate Spinner', null, null, dt + 'indeterminate spinner'),
@@ -521,11 +521,11 @@
 			this.addDataEntry(dt + 'tab tabulator bar bright', 185, 30, 'Tab Bar Bright',
 				'3Zbfb8IgEMf/Gl6bFlp1r3abT3tyyZ5RUMhoMRRnu79+0J6zzjbr4nSLJE2473H8+HC9gEialTNDN+JJM64QeUAkNVrbppeVKVcK4VAyRO4RxqH7EH7s8Ua1N9xQw3M7JAA3AW9UbXmjNEJhKwVCYY1+5S+SWeGECJGpsJmCbiEo0ztnhM5gtBCcgeE8Gz9DVq796QKaM6MlC4zhS7e1qZnLdw5jV1KpVCtt6hUJr5ufo15678l17kXYMTeWl72nriU48ozrjFtTuSE7OIUfMUmaMMHlWkAYaWiFtGjs9WfogaHrAMZupOQE6TNdOCG6NFmaL4UHNV3p3M5hmQjsFt5R3YaSxN+SjEcBvhDLuIfl32TpV6ytrIXc7EzYS+AvT9Bf50KS/1gvCFkkPDmrXsTdmCu4hPFgxucjHvXkPLmp+gEBdzi4av6Oe+DGtwg3IpNgfFW8kwHlAQAp2VEx2wCY9H++1LnTC731u/8dKNE+5aqjmtZ+G4SnePDP8Tjz8JKrfUcPvQ8='),
 
-		   	this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#4D4D4D;', 
+		   	this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#4D4D4D;pointerEvents=1', 
 		   			174, 30, '', 'Textfield Disabled', null, null, dt + 'textfield disabled'),
-			this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#999999;pointerEvents=1', 
 					174, 30, '', 'Textfield Normal', null, null, dt + 'textfield normal'),
-			this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#33b5e5;', 
+			this.createVertexTemplateEntry(s + 'textfield;align=center;strokeColor=#33b5e5;pointerEvents=1', 
 					174, 30, '', 'Textfield Activated', null, null, dt + 'textfield activated'),
 			this.createVertexTemplateEntry(s2 + 'text_insertion_point;', 
 					20, 30, '', 'Text Insertion Point', null, null, dt + 'textfield insertion point'),

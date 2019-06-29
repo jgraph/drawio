@@ -161,28 +161,40 @@ Draw.loadPlugin(function(ui)
 	{
 		// Only modern browsers for now. We'll move the import
 		// code above to the main codebase later
-		if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+		if (Graph.fileSupport)
 		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-
-			mxEvent.addListener(input, 'change', function()
+			if (ui.impFMFileInputElt == null) 
 			{
-				if (input.files != null)
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+	
+				mxEvent.addListener(input, 'change', function()
 				{
-					// Only one file for now...
-					var reader = new FileReader();
-
-					reader.onload = function(e)
+					if (input.files != null)
 					{
-						importFreemindData(e.target.result);
-					};
-
-					reader.readAsText(input.files[0]);
-				}
-			});
-
-			input.click();
+						// Only one file for now...
+						var reader = new FileReader();
+	
+						reader.onload = function(e)
+						{
+							importFreemindData(e.target.result);
+						};
+	
+						reader.readAsText(input.files[0]);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
+					}
+				});
+				
+				input.style.display = 'none';
+				document.body.appendChild(input);
+				ui.impFMFileInputElt = input;
+			}
+			
+			ui.impFMFileInputElt.click();
 		}
 	});
 
