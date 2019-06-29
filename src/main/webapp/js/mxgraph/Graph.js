@@ -45,9 +45,6 @@ if (!Date.prototype.toISOString)
     }());
 }
 
-/**
- * Sets global constants.
- */
 // Changes default colors
 mxConstants.SHADOW_OPACITY = 0.25;
 mxConstants.SHADOWCOLOR = '#000000';
@@ -1142,6 +1139,11 @@ Graph.prototype.scrollTileSize = new mxRectangle(0, 0, 400, 400);
  * Overrides the background color and paints a transparent background.
  */
 Graph.prototype.transparentBackground = true;
+
+/**
+ * Sets global constants.
+ */
+Graph.prototype.selectParentAfterDelete = false;
 
 /**
  * Sets the default target for all links in cells.

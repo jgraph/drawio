@@ -1,3 +1,9 @@
+29-JUN-2019: 10.8.4
+
+- No longer selects parent after delete of child
+- Updates in-place editor after window resize
+- Uses mxGraph 4.0.1 beta 10
+
 28-JUN-2019: 10.8.3
 
 - Embed diagrams from URL in Jira Cloud

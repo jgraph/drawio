@@ -197,7 +197,7 @@ Actions.prototype.init = function()
 		
 		if (cells != null && cells.length > 0)
 		{
-			var parents = graph.model.getParents(cells);
+			var parents = (graph.selectParentAfterDelete) ? graph.model.getParents(cells) : null;
 			graph.removeCells(cells, includeEdges);
 			
 			// Selects parents for easier editing of groups

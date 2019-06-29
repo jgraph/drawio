@@ -93,6 +93,7 @@ Draw.loadPlugin(function(editorUi)
 		function getAllTagsForCells(cells)
 		{
 			var tokens = [];
+			var temp = {};
 			
 			for (var i = 0; i < cells.length; i++)
 			{
@@ -100,27 +101,22 @@ Draw.loadPlugin(function(editorUi)
 
 				if (tags.length > 0)
 				{
-					tokens = tokens.concat(tags.toLowerCase().split(' '));
-				}
-			}
-			
-			var result = [];
-			
-			if (tokens.length > 0)
-			{
-				tokens.sort();
-				result.push(tokens[0]);
-				
-				for (var i = 1; i < tokens.length; i++)
-				{
-					if (result[result.length - 1] != tokens[i])
+					var t = tags.toLowerCase().split(' ');
+					
+					for (var j = 0; j < t.length; j++)
 					{
-						result.push(tokens[i]);
+						if (temp[t[j]] == null)
+						{
+							temp[t[j]] = true;
+							tokens.push(t[j]);
+						}
 					}
 				}
 			}
-		
-			return result;
+			
+			tokens.sort();
+			
+			return tokens;
 		};
 		
 		function getCommonTagsForCells(cells)
@@ -177,24 +173,30 @@ Draw.loadPlugin(function(editorUi)
 		};
 
 		/**
-		 * Returns the cells in the model (or given array) that have all of the
-		 * given tags in their tags property.
+		 * Returns true if tags exist and are all in lookup.
 		 */
-		function matchTags(tags, lookup)
+		function matchTags(tags, lookup, tagCount)
 		{
 			if (tags.length > 0)
 			{
 				var tmp = tags.toLowerCase().split(' ');
-
-				for (var i = 0; i < tmp.length; i++)
-				{
-					if (lookup[tmp[i]] == null)
-					{
-						return false
-					}
-				}
 				
-				return true;
+				if (tmp.length > tagCount)
+				{
+					return false;
+				}
+				else
+				{
+					for (var i = 0; i < tmp.length; i++)
+					{
+						if (lookup[tmp[i]] == null)
+						{
+							return false;
+						}
+					}
+					
+					return true;
+				}
 			}
 			else
 			{
@@ -210,7 +212,7 @@ Draw.loadPlugin(function(editorUi)
 		{
 			return graphIsCellVisible.apply(this, arguments) &&
 				(hiddenTagCount == 0 ||
-				!matchTags(getTagsForCell(cell), hiddenTags));
+				!matchTags(getTagsForCell(cell), hiddenTags, hiddenTagCount));
 		};
 		
 		function setCellsVisibleForTag(tag, visible)

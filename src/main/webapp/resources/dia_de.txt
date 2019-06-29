@@ -929,3 +929,4 @@ uploading=Wird hochgeladen
 confALibExist=Diese Bibliothek existiert bereits
 confAUploadSucc=Erfolgreich hochgeladen
 confAUploadFailErr=Hochladen fehlgeschlagen (unerwarteter Fehler)
+hiResPreview=Hochauflösende Vorschau
