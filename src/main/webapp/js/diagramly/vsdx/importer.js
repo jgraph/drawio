@@ -193,7 +193,9 @@ var com;
 	                            var entry = array122[index121];
 	                            {
 	                                var page_1 = entry.getValue();
-	                                if (!page_1.isBackground()) {
+	                                //As per many requests, include all pages in the output
+	                                //if (!page_1.isBackground()) 
+	                                {
 	                                    var graph_1 = this_1.createMxGraph();
 	                                    graph_1.getModel().beginUpdate();
 	                                    this_1.importPage(page_1, graph_1, graph_1.getDefaultParent());
@@ -453,7 +455,7 @@ var com;
                     if (page != null) {
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
                     	//TODO FIXME htmlEntities is not exactly as escapeXml11 but close
-                        var pageName_1 = mxUtils.htmlEntities(page.getPageName());
+                        var pageName_1 = mxUtils.htmlEntities(page.getPageName()) + (page.isBackground()? ' (Background)' : '');
                         output += '<diagram name="' + pageName_1 + '" id="' + pageName_1 + '">';
                     }
                     

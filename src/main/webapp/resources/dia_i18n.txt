@@ -929,3 +929,4 @@ uploading=uploading
 confALibExist=confALibExist
 confAUploadSucc=confAUploadSucc
 confAUploadFailErr=confAUploadFailErr
+hiResPreview=hiResPreview

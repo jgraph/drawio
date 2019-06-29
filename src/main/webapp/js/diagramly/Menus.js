@@ -1609,8 +1609,7 @@
 
 		editorUi.actions.addAction('microsoftOffice...', function()
 		{
-			// TODO Add officeaddin.draw.io
-			editorUi.openLink('https://appsource.microsoft.com/product/office/WA200000113');
+			editorUi.openLink('https://office.draw.io');
 		});
 
 		editorUi.actions.addAction('googleDocs...', function()
