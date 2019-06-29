@@ -2,7 +2,7 @@ version: '3.3'
 services:
   drawio:
     build:
-      context: .
+      context: ../../
       dockerfile: etc/docker/Dockerfile
     image: drawio
     container_name: drawio

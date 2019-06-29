@@ -1532,7 +1532,8 @@ mxShapeAws3dGenericShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (this.indicatorImage != null)
 	{
 		// FlipH/V are implicit via mxShape.updateTransform
-		c.image(w * 0.3, h * 0.0625, w * 0.35, h * 0.35, this.indicatorImage, this.preserveImageAspect, false, false, this.indicatorRotation);
+		c.image(w * 0.3, h * 0.0625, w * 0.35, h * 0.35, this.indicatorImage, this.preserveImageAspect, false, false);
+		c.rotate(this.indicatorRotation);
 	}
 };
 
