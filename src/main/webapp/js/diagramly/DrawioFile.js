@@ -95,15 +95,14 @@ DrawioFile.prototype.lastAutosave = null;
 DrawioFile.prototype.lastSaved = null;
 
 /**
+ * Stores the time stamp for the last change.
+ */
+DrawioFile.prototype.lastIdleReport = null;
+
+/**
  * Stores the time stamp for the last autosave.
  */
 DrawioFile.prototype.lastWarned = null;
-
-/**
- * Interval to show dialog for unsaved data with autosave.
- * Default is 600000 (10 minutes).
- */
-DrawioFile.prototype.warnInterval = 600000;
 
 /**
  * Stores the time stamp when the file was opened.
@@ -512,15 +511,16 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			var uid = (user != null) ? user.id : 'unknown';
 			
 			EditorUi.logError('Checksum Error in ' + functionName + ' ' + this.getId(),
-				null, this.getMode() + '.' + this.getId(), uid + '.' +
-				((this.sync != null) ? this.sync.clientId : 'nosync'));
+				null, this.getMode() + '.' + this.getId(),
+				'user_' + uid + ((this.sync != null) ?
+				'-client_' + this.sync.clientId : '-nosync'));
 			
 			// Logs checksum error for file
 			try
 			{
 				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + this.getHash(),
-					action: functionName, label:  uid + '.' +
-					((this.sync != null) ? this.sync.clientId : 'nosync')});
+					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
+					'-client_' + this.sync.clientId : '-nosync')});
 			}
 			catch (e)
 			{
@@ -549,7 +549,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error, max)
 			this.ui.pages), 25000);
 		var user = this.getCurrentUser();
 		var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
-		var cid = (this.sync != null) ? this.sync.clientId : 'no sync';
+		var cid = (this.sync != null) ? '-client_' + this.sync.clientId : '-nosync';
 		var filename = this.getTitle();
 		var dot = filename.lastIndexOf('.');
 		var ext = 'xml';
@@ -566,7 +566,7 @@ DrawioFile.prototype.sendErrorReport = function(title, details, error, max)
 			'\nFile=' + this.ui.hashValue(this.getId()) + ' (' + this.getMode() + ')' +
 			((this.isModified()) ? ' modified' : '') +
 			'\nSize/Type=' + this.getSize() + ' (' + ext + ')' +
-			'\nUser=' + uid + ' (' + cid + ')' +
+			'\nUser=' + uid + cid +
 			'\nPrefix=' + this.ui.editor.graph.model.prefix +
 			'\nSync=' + DrawioFile.SYNC +
 			((this.sync != null) ? (((this.sync.enabled) ? ' enabled' : '') +
@@ -1213,6 +1213,14 @@ DrawioFile.prototype.getDescriptorSecret = function(desc)
 /**
  * Installs the change listener.
  */
+DrawioFile.prototype.getIdleTime = function()
+{
+	return null;
+};
+
+/**
+ * Installs the change listener.
+ */
 DrawioFile.prototype.installListeners = function()
 {
 	if (this.changeListener == null)
@@ -1611,44 +1619,6 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 				this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
 					mxUtils.htmlEntities(mxResources.get('error')) +
 					((msg != null) ? ' (' + mxUtils.htmlEntities(msg) + ')' : '') + '</div>');
-			}
-			else if (this.isModified() && !manual && this.isAutosave())
-			{
-				if (this.lastWarned == null)
-				{
-					this.lastWarned = Date.now();
-				}
-				else if (Date.now() - this.lastWarned > this.warnInterval)
-				{
-					var msg = '';
-					
-					if (this.lastSaved != null)
-					{
-						var str = this.ui.timeSince(new Date(this.lastSaved));
-					
-						// Only show if more than a minute ago
-						if (str != null)
-						{
-							msg = mxResources.get('lastSaved', [str]);
-						}
-					}
-					
-					this.ui.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
-						mxUtils.bind(this, function()
-						{
-							this.lastWarned = Date.now();
-							this.ui.hideDialog();
-							EditorUi.logEvent({category: 'IGNORE-WARN-SAVE-FILE-' + this.getHash() +
-								'-size-' + this.getSize(), action: 'ignore'});
-						}), null, mxResources.get('save'), mxUtils.bind(this, function()
-						{
-							this.lastWarned = Date.now();
-							this.ui.actions.get((this.ui.mode == null || !this.isEditable()) ?
-								'saveAs' : 'save').funct();
-							EditorUi.logEvent({category: 'SAVE-WARN-SAVE-FILE-' + this.getHash() +
-								'-size-' + this.getSize(), action: 'save'});
-						}), null, null, 360, 120);
-				}
 			}
 		}
 	}

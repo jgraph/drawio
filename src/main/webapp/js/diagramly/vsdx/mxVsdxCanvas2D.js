@@ -841,21 +841,26 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			
 			charSect.appendChild(charRow);
 			
-//			var pRow = that.createElt("Row");
-//			pRow.setAttribute('IX', pIndex);
-//			
-//			var align = 1; //center is default
-//			
-//			switch(styleMap['align'])
-//			{
-//				case 'left': align = 0; break;
-//				case 'center': align = 1; break;
-//				case 'right': align = 2; break;
-//			}
+			var pRow = that.createElt("Row");
+			pRow.setAttribute('IX', pIndex);
 			
-//			pRow.appendChild(that.createCellElem("HorzAlign", align));
+			var align = 1; //center is default
+			
+			switch(styleMap['align'])
+			{
+				case 'left': align = 0; break;
+				case 'center': align = 1; break;
+				case 'right': align = 2; break;
+				case 'start': align = 0; break; //TODO check right-to-left
+				case 'end': align = 2; break; //TODO check right-to-left
+				case 'justify': align = 0; break;
+				default:
+					align = 1;
+			}
+			
+			pRow.appendChild(that.createCellElem("HorzAlign", align));
 //			pRow.appendChild(that.createCellElem("SpLine", "-1.2"));
-//			pSect.appendChild(pRow);
+			pSect.appendChild(pRow);
 			
 //			var pp = that.createElt("pp");
 //			pp.setAttribute('IX', pIndex++);
@@ -884,7 +889,9 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						italic: pStyle['italic'] || (fontStyle & 2),
 						underline: pStyle['underline'] || (fontStyle & 4)
 					};
-					createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
+					
+					//VSDX doesn't have numbered list!
+					createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + ch[i].textContent);
 				} 
 				else if (ch[i].nodeType == 1) 
 				{ //element
@@ -899,31 +906,58 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						fontColor: rgb2hex(style.getPropertyValue('color')),
 						fontSize: parseFloat(style.getPropertyValue('font-size')),
 						fontFamily: style.getPropertyValue('font-family').replace(/"/g, ''), //remove quotes
-						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI"
+						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI",
+						OL: pStyle['OL'],
+						LiIndex: pStyle['LiIndex']
 					};
 					
-//					if (nodeName == "OL" || nodeName == "UL")
-//					{
-//						var pRow = that.createElt("Row");
-//						pRow.setAttribute('IX', pIndex);
-//						
-//						pRow.appendChild(that.createCellElem("HorzAlign", "0"));
-//						pRow.appendChild(that.createCellElem("Bullet", "1"));
-//						pSect.appendChild(pRow);
-//						
-//						var pp = that.createElt("pp");
-//						pp.setAttribute('IX', pIndex++);
-//						text.appendChild(pp);
-//					}
+					if (nodeName == "UL")
+					{
+						var pRow = that.createElt("Row");
+						pRow.setAttribute('IX', pIndex);
+						
+						pRow.appendChild(that.createCellElem("HorzAlign", "0"));
+						pRow.appendChild(that.createCellElem("Bullet", "1"));
+						pSect.appendChild(pRow);
+						
+						var pp = that.createElt("pp");
+						pp.setAttribute('IX', pIndex++);
+						text.appendChild(pp);
+					}
+					//VSDX doesn't have numbered list!
+					else if (nodeName == "OL")
+					{
+						styleMap['OL'] = true;
+					}
+					else if (nodeName == "LI")
+					{
+						styleMap['LiIndex'] = i + 1;
+					}
 					
 					if (chLen > 0)
 					{
-						createTextRow(styleMap, charSect, pSect, text, ""); //to handle block elements if any
 						processNodeChildren(ch[i].childNodes, styleMap);
+						
+						//Close the UL by adding another pp with no Vullets
+						if (nodeName == "UL")
+						{
+							var pRow = that.createElt("Row");
+							pRow.setAttribute('IX', pIndex);
+							
+							pRow.appendChild(that.createCellElem("Bullet", "0"));
+							pSect.appendChild(pRow);
+							
+							var pp = that.createElt("pp");
+							pp.setAttribute('IX', pIndex++);
+							text.appendChild(pp);
+						}
+
+						createTextRow(styleMap, charSect, pSect, text, ""); //to handle block elements if any
 					}
 					else
 					{
-						createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
+						//VSDX doesn't have numbered list!
+						createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + ch[i].textContent);
 					}
 				}
 			}
@@ -1038,7 +1072,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		
 		
 		this.shape.appendChild(charSect);
-//		this.shape.appendChild(pSect);
+		this.shape.appendChild(pSect);
 		this.shape.appendChild(text);
 //		if (overflow != null)
 //		{

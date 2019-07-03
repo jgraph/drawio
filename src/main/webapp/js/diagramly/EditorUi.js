@@ -1556,7 +1556,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent)
+	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border)
 	{
 		try
 		{
@@ -1657,7 +1657,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1681,7 +1681,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
 		
@@ -1738,7 +1738,9 @@
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
-			'&filename=' + encodeURIComponent(filename) : ''));
+			'&filename=' + encodeURIComponent(filename) : '') +
+			(scale != null? '&scale=' + scale : '') +
+			(border != null? '&border=' + border : ''));
 	};
 	
 	/**
@@ -5105,16 +5107,39 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude)
+	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude, showZoomBorder)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('image'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:' + (showZoomBorder? '10' : '4') +'px';
 		div.appendChild(hd);
 
+		if (showZoomBorder)
+		{
+			mxUtils.write(div, mxResources.get('zoom') + ':');
+			var zoomInput = document.createElement('input');
+			zoomInput.setAttribute('type', 'text');
+			zoomInput.style.marginRight = '16px';
+			zoomInput.style.width = '60px';
+			zoomInput.style.marginLeft = '4px';
+			zoomInput.style.marginRight = '12px';
+			zoomInput.value = this.lastExportZoom || '100%';
+			div.appendChild(zoomInput);
+			
+			mxUtils.write(div, mxResources.get('borderWidth') + ':');
+			var borderInput = document.createElement('input');
+			borderInput.setAttribute('type', 'text');
+			borderInput.style.marginRight = '16px';
+			borderInput.style.width = '60px';
+			borderInput.style.marginLeft = '4px';
+			borderInput.value = this.lastExportBorder || '0';
+			div.appendChild(borderInput);
+			mxUtils.br(div);
+		}
+		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
 			this.editor.graph.isSelectionEmpty());
 		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
@@ -5130,10 +5155,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
+			var scale = parseInt(zoomInput.value) / 100 || 1;
+			var border = parseInt(borderInput.value) || 0;
+			
 			callback(!selection.checked, (include != null) ? include.checked : false,
-				(transparent != null) ? transparent.checked : false);
+				(transparent != null) ? transparent.checked : false, scale, border);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 186, true, true);
+		this.showDialog(dlg.container, 300, (showZoomBorder? 25 : 0) + (hideInclude ? 125 : 210), true, true);
 	};
 	
 	/**
@@ -10844,6 +10872,7 @@
 		try
 		{
     		var lines = text.split('\n');
+    		var allCells = [];
     		var cells = [];
     		var dups = {};
     		
@@ -11160,6 +11189,7 @@
 							{
 		    					var parent = (parentIndex != null) ? graph.model.getCell(
 		    						namespace + values[parentIndex]) : null;
+								allCells.push(cell);
 		    					
 		    					if (parent != null)
 		    					{
@@ -11247,9 +11277,9 @@
 					// Removes ignored attributes after processing above
 					if (ignore != null)
 					{
-						for (var i = 0; i < cells.length; i++)
+						for (var i = 0; i < allCells.length; i++)
 						{
-							var cell = cells[i];
+							var cell = allCells[i];
 							
 							for (var j = 0; j < ignore.length; j++)
 					    	{

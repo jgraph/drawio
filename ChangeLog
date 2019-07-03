@@ -1,3 +1,25 @@
+03-JUL-2019: 10.8.8
+
+- Adds timer to check for unsaved changes
+- Fixes lightbox height for Confluence Cloud viewer
+
+02-JUL-2019: 10.8.7
+
+- Fixes PlantUML connect add attachment call
+
+02-JUL-2019: 10.8.6
+
+- Fixes ignored properties for child cells in CSV
+- Logs file idle states
+- Uses mxGraph 4.0.1
+
+02-JUL-2019: 10.8.5
+
+- Removed RPC calls in Confluence Connect
+- Adds support for digrams in Confluence Cloud comments
+- Fixes handling of move in rounded paths
+- Uses mxGraph 4.0.1 beta 11
+
 29-JUN-2019: 10.8.4
 
 - No longer selects parent after delete of child
