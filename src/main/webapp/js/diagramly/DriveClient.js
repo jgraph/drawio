@@ -1096,19 +1096,19 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		{
 			if (!file.isConflict(e))
 			{
-				var err = 'error-' + (file.getErrorMessage(e) || 'unknown');
+				var err = 'error_' + (file.getErrorMessage(e) || 'unknown');
 
 				if (e != null && e.error != null && e.error.code != null)
 				{
-					err += '-code-' + e.error.code;
+					err += '-code_' + e.error.code;
 				}
 				
 				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size-' + file.getSize(),
-					action: err, label: ((this.user != null) ? this.user.id : 'unknown-user')  + '.' +
-					((file.sync != null) ? (file.sync.clientId + '-chan-' +
-						(file.sync.channelId || 'none')) : '-nosync') +
-					((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
+					file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+					((this.ui.editor.autosave) ? '-autosave_on' : '-autosave_off') +
+					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off'),
+					action: err, label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
+					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 			}
 		}
 		catch (ex)
@@ -1130,7 +1130,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				'\n\nBrowser=' + navigator.userAgent +
 				'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
 				'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
-				 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
+				 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 				'\nMessage=' + e.message +
 				'\n\nStack:\n' + e.stack);
 		}
@@ -1276,7 +1276,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
 										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
 										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
-										 	'.' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
+										 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 										'\nErrors=' + temp + '\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' +
 										this.ui.hashValue(etag0) + '\nNew=' + resp.headRevisionId + ' ' +
 										resp.modifiedDate + ' etag-hash=' + this.ui.hashValue(resp.etag))
@@ -1319,10 +1319,10 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									try
 									{
 										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
-											action: 'from-' + prevDesc.id + '.' + prevDesc.headRevisionId +
-											'-to-' + file.desc.id + '.' + file.desc.headRevisionId,
-											label: (this.user != null) ? this.user.id : 'unknown-user' +
-												'.' + ((file.sync != null) ? file.sync.clientId : 'nosync')});
+											action: 'from_' + prevDesc.id + '.' + prevDesc.headRevisionId +
+											'-to_' + file.desc.id + '.' + file.desc.headRevisionId,
+											label: (this.user != null) ? 'user_' + this.user.id : 'unknown' +
+											((file.sync != null) ? '-client_' + file.sync.clientId : 'nosync')});
 									}
 									catch (e)
 									{
@@ -1334,12 +1334,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								try
 								{
 									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
-										'.' + head0 + '.' + mod0, action: 'saved-' + resp.headRevisionId +
-										'.' + resp.modifiedDate + '-size-' + file.getSize(),
-										label: ((this.user != null) ? this.user.id : 'unknown-user') + '.' +
-										((file.sync != null) ? (file.sync.clientId + '-chan-' +
-										(file.sync.channelId || 'none')) : '-nosync') +
-										((this.ui.editor.autosave) ? '-autosave-on' : '-autosave-off')});
+										'.' + head0 + '-mod_' + mod0, action: 'saved-' + resp.headRevisionId +
+										'-mod_' + resp.modifiedDate + '-size_' + file.getSize() +
+										((this.ui.editor.autosave) ? '-autosave_on' : '-autosave_off') +
+										'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off'),
+										label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
+										((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 								}
 								catch (e)
 								{

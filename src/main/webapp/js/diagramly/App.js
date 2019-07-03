@@ -27,21 +27,85 @@ App = function(editor, container, lightbox)
 			{
 				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '.' +
 					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size_' + file.getSize(),
-					action: 'save_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
-					'-autosave_' + (((this.editor.autosave) ? 'on' : 'off') +
-					'-open_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never')),
-					label: (this.drive.user != null) ? this.drive.user.id : 'unknown-user'});
+					action: 'saved_' + ((file.lastSaved != null) ? Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
+					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
+					'-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
+					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off') +
+					'-conflict_' + ((file.inConflictState) ? 'yes' : 'no') +
+					'-checksum_' + ((file.invalidChecksum) ? 'invalid' : 'valid') +
+					'-saving_' + ((file.savingFile) ? 'true' : 'false'),
+					label: ((this.drive.user != null) ? 'user_' + this.drive.user.id : 'unknown') +
+					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 			}
 			else if (file != null && file.isModified())
 			{
 				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '-size_' + file.getSize(),
-					action: 'save_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
-					'-autosave_' + (((this.editor.autosave) ? 'on' : 'off') +
-					'-open_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never')),
-					label: 'nolabel'});
+					action: 'saved_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
+					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
+					'-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
+					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off')});
 			}
 		});
 	}
+	
+	var sanityCheck = mxUtils.bind(this, function()
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && (file.isModified() && file.isAutosave()))
+		{
+			var delay = Date.now() - ((file.lastSaved != null) ? file.lastSaved.getTime() : file.opened);
+			
+			if (delay >  this.warnInterval && (file.lastWarned == null || Date.now() - file.lastWarned > this.warnInterval))
+			{
+				var msg = mxResources.get('ensureDataSaved');
+				
+				if (file.lastSaved != null)
+				{
+					var str = this.timeSince(new Date(file.lastSaved));
+				
+					// Only show if more than a minute ago
+					if (str != null)
+					{
+						msg = mxResources.get('lastSaved', [str]);
+					}
+				}
+				
+				EditorUi.logEvent({category: 'WARN-SAVE-FILE-' + file.getHash() + '-size_' + file.getSize(),
+					action: 'saved_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
+					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
+					'-delay_' + Math.round(delay / 1000) + '-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
+					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off') +
+					'-conflict_' + ((file.inConflictState) ? 'yes' : 'no') +
+					'-checksum_' + ((file.invalidChecksum) ? 'invalid' : 'valid') +
+					'-saving_' + ((file.savingFile) ? 'true' : 'false')});
+				
+				this.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
+					mxUtils.bind(this, function()
+					{
+						this.hideDialog();
+					}), null, mxResources.get('save'), mxUtils.bind(this, function()
+					{
+						this.actions.get((this.mode == null || !file.isEditable()) ?
+							'saveAs' : 'save').funct();
+					}), null, null, 360, 120, null, mxUtils.bind(this, function(cancel, isEsc)
+					{
+						window.setTimeout(sanityCheck, this.warnInterval);
+						file.lastWarned = Date.now();
+					}));
+			}
+			else
+			{
+				window.setTimeout(sanityCheck, this.warnInterval);
+			}
+		}
+		else
+		{
+			window.setTimeout(sanityCheck, this.warnInterval);
+		}
+	});
+	
+	window.setTimeout(sanityCheck, this.warnInterval);
 	
 	// Logs changes to autosave
 	this.editor.addListener('autosaveChanged', mxUtils.bind(this, function()
@@ -905,6 +969,12 @@ App.prototype.formatHideImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/format-hide.
  *
  */
 App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAABpJREFUCNdjgAAbGxAy4AEh5gNwBBGByoIBAIueBd12TUjqAAAAAElFTkSuQmCC';
+
+/**
+ * Interval to show dialog for unsaved data if autosave is on.
+ * Default is 300000 (5 minutes).
+ */
+App.prototype.warnInterval = 300000;
 
 /**
  * Overriden UI settings depending on mode.
@@ -4115,7 +4185,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						this.fileLoaded(file);
 						var currentFile = this.getCurrentFile();
 						
-						// Keeps ID event for converted files in chromeless mode for refresh to work
+						// Keeps ID even for converted files in chromeless mode for refresh to work
 						if (currentFile == null)
 						{
 							window.location.hash = '';

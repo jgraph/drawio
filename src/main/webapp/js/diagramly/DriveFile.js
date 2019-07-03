@@ -23,6 +23,25 @@ DriveFile.prototype.saveDelay = 0;
 DriveFile.prototype.allChangesSavedKey = 'allChangesSavedInDrive';
 
 /**
+ * Installs the change listener.
+ */
+DriveFile.prototype.getIdleTime = function()
+{
+	if (this.lastSaved != null)
+	{
+		return new Date().getTime() - this.lastSaved.getTime();
+	}
+	else if (this.opened != null)
+	{
+		return new Date().getTime() - this.opened;
+	}
+	else
+	{
+		return null;
+	}
+};
+
+/**
  * Specifies if notify events should be ignored.
  */
 DriveFile.prototype.getSize = function()

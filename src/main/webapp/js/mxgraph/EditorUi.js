@@ -3431,14 +3431,23 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc)
 		}
 		
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
-
+		this.editor.fireEvent(new mxEventObject('hideDialog'));
+		
 		if (this.dialog == null && this.editor.graph.container.style.visibility != 'hidden')
 		{
-			this.editor.graph.container.focus();
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				if (this.editor.graph.isEditing() && this.editor.graph.cellEditor.textarea != null)
+				{
+					this.editor.graph.cellEditor.textarea.focus();
+				}
+				else
+				{
+					mxUtils.clearSelection();
+					this.editor.graph.container.focus();
+				}
+			}), 0);
 		}
-		
-		mxUtils.clearSelection();
-		this.editor.fireEvent(new mxEventObject('hideDialog'));
 	}
 };
 
