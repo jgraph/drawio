@@ -3705,7 +3705,7 @@
 	{
 		if (file != null)
 		{
-			file.opened = new Date().getTime();
+			file.opened = new Date();
 		}
 		
 		this.currentFile = file;

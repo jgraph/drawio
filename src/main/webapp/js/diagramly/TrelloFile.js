@@ -106,6 +106,7 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
 	else if (!this.savingFile)
 	{
 		this.savingFile = true;
+		this.savingFileTime = new Date();
 		
 		if (this.getTitle() == title)
 		{

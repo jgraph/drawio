@@ -95,14 +95,9 @@ DrawioFile.prototype.lastAutosave = null;
 DrawioFile.prototype.lastSaved = null;
 
 /**
- * Stores the time stamp for the last change.
- */
-DrawioFile.prototype.lastIdleReport = null;
-
-/**
  * Stores the time stamp for the last autosave.
  */
-DrawioFile.prototype.lastWarned = null;
+DrawioFile.prototype.lastChanged = null;
 
 /**
  * Stores the time stamp when the file was opened.
@@ -1213,14 +1208,6 @@ DrawioFile.prototype.getDescriptorSecret = function(desc)
 /**
  * Installs the change listener.
  */
-DrawioFile.prototype.getIdleTime = function()
-{
-	return null;
-};
-
-/**
- * Installs the change listener.
- */
 DrawioFile.prototype.installListeners = function()
 {
 	if (this.changeListener == null)
@@ -1702,18 +1689,26 @@ DrawioFile.prototype.getErrorMessage = function(err)
  */
 DrawioFile.prototype.fileChanged = function()
 {
+	this.lastChanged = new Date();
 	this.setModified(true);
 	
 	if (this.isAutosave())
 	{
 		this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		this.ui.scheduleSanityCheck();
 		
 		this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
 		{
+			this.ui.stopSanityCheck();
+
 			// Does not update status if another autosave was scheduled
 			if (this.autosaveThread == null)
 			{
 				this.handleFileSuccess(true);
+			}
+			else if (this.isModified())
+			{
+				this.ui.scheduleSanityCheck();
 			}
 		}), mxUtils.bind(this, function(err)
 		{
@@ -1798,10 +1793,10 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 {
 	if (this.lastAutosave == null)
 	{
-		this.lastAutosave = new Date().getTime();
+		this.lastAutosave = Date.now();
 	}
 	
-	var tmp = (new Date().getTime() - this.lastAutosave < maxDelay) ? delay : 0;
+	var tmp = (Date.now() - this.lastAutosave < maxDelay) ? delay : 0;
 	this.clearAutosave();
 	
 	// Starts new timer or executes immediately if not unsaved for maxDelay

@@ -214,6 +214,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 			if (checked)
 			{
 				this.savingFile = true;
+				this.savingFileTime = new Date();
 				
 				// Makes sure no changes get lost while the file is saved
 				var prevModified = this.isModified;

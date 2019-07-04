@@ -2055,6 +2055,11 @@
 					}, function(checked)
 					{
 						ui.editor.setAutosave(checked);
+						
+						if (ui.editor.autosave && file.isModified())
+						{
+							file.fileChanged();
+						}
 					},
 					{
 						install: function(apply)

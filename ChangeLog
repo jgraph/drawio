@@ -1,3 +1,9 @@
+04-JUL-2019: 10.8.9
+
+- Uses mxGraph 4.0.2 beta 1
+- Adds fill-/strokealpha for stencils
+- Setting autosave to true triggers save
+
 03-JUL-2019: 10.8.8
 
 - Adds timer to check for unsaved changes

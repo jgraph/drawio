@@ -25,88 +25,42 @@ App = function(editor, container, lightbox)
 			
 			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
 			{
-				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '.' +
+				EditorUi.logEvent({category: 'DISCARD-FILE-' + file.getHash() + '.' +
 					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size_' + file.getSize(),
-					action: 'saved_' + ((file.lastSaved != null) ? Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
-					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
-					'-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
-					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off') +
-					'-conflict_' + ((file.inConflictState) ? 'yes' : 'no') +
-					'-checksum_' + ((file.invalidChecksum) ? 'invalid' : 'valid') +
-					'-saving_' + ((file.savingFile) ? 'true' : 'false'),
+					action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+					'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+					((this.editor.autosave) ? '' : '-nosave') +
+					((file.isAutosave()) ? '' : '-noauto') +
+					((file.changeListenerEnabled) ? '' : '-nolisten') +
+					((file.inConflictState) ? '-conflict' : '') +
+					((file.invalidChecksum) ? '-invalid' : '') +
+					((file.savingFile) ? '-saving' : '') +
+					((file.savingFile && file.savingFileTime != null) ? '_' +
+						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+					((file.autosaveThread != null) ? '-thread' : ''),
 					label: ((this.drive.user != null) ? 'user_' + this.drive.user.id : 'unknown') +
 					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 			}
 			else if (file != null && file.isModified())
 			{
-				EditorUi.logEvent({category: 'DISCARD-SAVE-FILE-' + file.getHash() + '-size_' + file.getSize(),
-					action: 'saved_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
-					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
-					'-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
-					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off')});
+				EditorUi.logEvent({category: 'DISCARD-FILE-' + file.getHash() + '-size_' + file.getSize(),
+					action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+					'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+					((this.editor.autosave) ? '' : '-nosave') +
+					((file.isAutosave()) ? '' : '-noauto') +
+					((file.changeListenerEnabled) ? '' : '-nolisten') +
+					((file.inConflictState) ? '-conflict' : '') +
+					((file.invalidChecksum) ? '-invalid' : '') +
+					((file.savingFile) ? '-saving' : '') +
+					((file.savingFile && file.savingFileTime != null) ? '_' +
+						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+					((file.autosaveThread != null) ? '-thread' : '')});
 			}
 		});
 	}
-	
-	var sanityCheck = mxUtils.bind(this, function()
-	{
-		var file = this.getCurrentFile();
-		
-		if (file != null && (file.isModified() && file.isAutosave()))
-		{
-			var delay = Date.now() - ((file.lastSaved != null) ? file.lastSaved.getTime() : file.opened);
-			
-			if (delay >  this.warnInterval && (file.lastWarned == null || Date.now() - file.lastWarned > this.warnInterval))
-			{
-				var msg = mxResources.get('ensureDataSaved');
-				
-				if (file.lastSaved != null)
-				{
-					var str = this.timeSince(new Date(file.lastSaved));
-				
-					// Only show if more than a minute ago
-					if (str != null)
-					{
-						msg = mxResources.get('lastSaved', [str]);
-					}
-				}
-				
-				EditorUi.logEvent({category: 'WARN-SAVE-FILE-' + file.getHash() + '-size_' + file.getSize(),
-					action: 'saved_' + ((file.lastSaved != null) ?  Math.round((new Date().getTime() - file.lastSaved) / 1000) : 'never') +
-					'-opened_' + ((file.opened != null) ? Math.round((new Date().getTime() - file.opened) / 1000) : 'never') +
-					'-delay_' + Math.round(delay / 1000) + '-autosave_' + ((this.editor.autosave) ? 'on' : 'off') +
-					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off') +
-					'-conflict_' + ((file.inConflictState) ? 'yes' : 'no') +
-					'-checksum_' + ((file.invalidChecksum) ? 'invalid' : 'valid') +
-					'-saving_' + ((file.savingFile) ? 'true' : 'false')});
-				
-				this.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
-					mxUtils.bind(this, function()
-					{
-						this.hideDialog();
-					}), null, mxResources.get('save'), mxUtils.bind(this, function()
-					{
-						this.actions.get((this.mode == null || !file.isEditable()) ?
-							'saveAs' : 'save').funct();
-					}), null, null, 360, 120, null, mxUtils.bind(this, function(cancel, isEsc)
-					{
-						window.setTimeout(sanityCheck, this.warnInterval);
-						file.lastWarned = Date.now();
-					}));
-			}
-			else
-			{
-				window.setTimeout(sanityCheck, this.warnInterval);
-			}
-		}
-		else
-		{
-			window.setTimeout(sanityCheck, this.warnInterval);
-		}
-	});
-	
-	window.setTimeout(sanityCheck, this.warnInterval);
-	
+
 	// Logs changes to autosave
 	this.editor.addListener('autosaveChanged', mxUtils.bind(this, function()
 	{
@@ -1528,6 +1482,79 @@ App.prototype.init = function()
 		}
 		
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
+	}
+};
+
+App.prototype.scheduleSanityCheck = function()
+{
+	if (this.sanityCheckThread == null)
+	{
+		this.sanityCheckThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			this.sanityCheckThread = null;
+			this.sanityCheck();
+		}), this.warnInterval);
+	}
+};
+
+App.prototype.stopSanityCheck = function()
+{
+	if (this.sanityCheckThread != null)
+	{
+		window.clearTimeout(this.sanityCheckThread);
+		this.sanityCheckThread = null;
+	}
+};
+
+App.prototype.sanityCheck = function()
+{
+	var file = this.getCurrentFile();
+
+	if (file != null && file.isModified() && file.isAutosave() &&
+		(Date.now() - ((file.lastSaved != null) ? file.lastSaved.getTime() :
+		file.opened.getTime())) >= this.warnInterval)
+	{
+		var msg = mxResources.get('ensureDataSaved');
+		
+		if (file.lastSaved != null)
+		{
+			var str = this.timeSince(file.lastSaved);
+			
+			if (str == null)
+			{
+				str = mxResources.get('lessThanAMinute');
+			}
+
+			msg = mxResources.get('lastSaved', [str]);
+		}
+		
+		EditorUi.logEvent({category: 'WARN-FILE-' + file.getHash(),
+			action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+			'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+			'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+			((this.editor.autosave) ? '' : '-nosave') +
+			((file.isAutosave()) ? '' : '-noauto') +
+			((file.changeListenerEnabled) ? '' : '-nolisten') +
+			((file.inConflictState) ? '-conflict' : '') +
+			((file.invalidChecksum) ? '-invalid' : '') +
+			((file.savingFile) ? '-saving' : '') +
+			((file.savingFile && file.savingFileTime != null) ? '_' +
+				Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+			((file.autosaveThread != null) ? '-thread' : '')});
+		
+		this.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
+			mxUtils.bind(this, function()
+			{
+				this.hideDialog();
+			}), null, mxResources.get('save'), mxUtils.bind(this, function()
+			{
+				this.stopSanityCheck();
+				this.actions.get((this.mode == null || !file.isEditable()) ?
+					'saveAs' : 'save').funct();
+			}), null, null, 360, 120, null, mxUtils.bind(this, function()
+			{
+				this.scheduleSanityCheck();
+			}));
 	}
 };
 

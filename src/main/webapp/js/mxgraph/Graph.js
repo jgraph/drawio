@@ -45,6 +45,15 @@ if (!Date.prototype.toISOString)
     }());
 }
 
+// Shim for Date.now()
+if (!Date.now)
+{
+	Date.now = function()
+	{
+		return new Date().getTime();
+	};
+}
+
 // Changes default colors
 mxConstants.SHADOW_OPACITY = 0.25;
 mxConstants.SHADOWCOLOR = '#000000';
