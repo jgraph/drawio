@@ -1105,8 +1105,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				
 				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
 					file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
-					((this.ui.editor.autosave) ? '-autosave_on' : '-autosave_off') +
-					'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off'),
+					((this.ui.editor.autosave) ? '' : '-nosave') +
+					((file.isAutosave()) ? '' : '-noauto') +
+					((file.changeListenerEnabled) ? '' : '-nolisten') +
+					((file.inConflictState) ? '-conflict' : '') +
+					((file.invalidChecksum) ? '-invalid' : ''),
 					action: err, label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
 					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 			}
@@ -1336,8 +1339,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
 										'.' + head0 + '-mod_' + mod0, action: 'saved-' + resp.headRevisionId +
 										'-mod_' + resp.modifiedDate + '-size_' + file.getSize() +
-										((this.ui.editor.autosave) ? '-autosave_on' : '-autosave_off') +
-										'-changelistener_' + ((file.changeListenerEnabled) ? 'on' : 'off'),
+										((this.ui.editor.autosave) ? '' : '-nosave') +
+										((file.isAutosave()) ? '' : '-noauto') +
+										((file.changeListenerEnabled) ? '' : '-nolisten') +
+										((file.inConflictState) ? '-conflict' : '') +
+										((file.invalidChecksum) ? '-invalid' : ''),
 										label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
 										((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 								}

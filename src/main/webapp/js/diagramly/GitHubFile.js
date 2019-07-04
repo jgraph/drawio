@@ -215,6 +215,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 				var prevModified = this.isModified;
 				var modified = this.isModified();
 				this.savingFile = true;
+				this.savingFileTime = new Date();
 					
 				var prepare = mxUtils.bind(this, function()
 				{
@@ -285,6 +286,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 			else
 			{
 				this.savingFile = true;
+				this.savingFileTime = new Date();
 				
 				this.ui.pickFolder(App.MODE_GITHUB, mxUtils.bind(this, function(folderId)
 				{

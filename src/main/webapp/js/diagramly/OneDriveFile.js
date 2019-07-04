@@ -327,6 +327,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 				var prevModified = this.isModified;
 				var modified = this.isModified();
 				this.savingFile = true;
+				this.savingFileTime = new Date();
 				
 				var prepare = mxUtils.bind(this, function()
 				{
@@ -369,6 +370,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 						if (this.sync != null)
 						{
 							this.savingFile = true;
+							this.savingFileTime = new Date();
 							
 							this.sync.fileConflict(null, mxUtils.bind(this, function()
 							{
@@ -417,6 +419,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 		else
 		{
 			this.savingFile = true;
+			this.savingFileTime = new Date();
 		
 			this.ui.oneDrive.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
 			{

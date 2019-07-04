@@ -23,25 +23,6 @@ DriveFile.prototype.saveDelay = 0;
 DriveFile.prototype.allChangesSavedKey = 'allChangesSavedInDrive';
 
 /**
- * Installs the change listener.
- */
-DriveFile.prototype.getIdleTime = function()
-{
-	if (this.lastSaved != null)
-	{
-		return new Date().getTime() - this.lastSaved.getTime();
-	}
-	else if (this.opened != null)
-	{
-		return new Date().getTime() - this.opened;
-	}
-	else
-	{
-		return null;
-	}
-};
-
-/**
  * Specifies if notify events should be ignored.
  */
 DriveFile.prototype.getSize = function()
@@ -187,7 +168,8 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					var modified = this.isModified();
 					this.setModified(false);
 					this.savingFile = true;
-		
+					this.savingFileTime = new Date();
+					
 					// Waits for success for modified state to be visible
 					var prevModified = this.isModified;
 					
@@ -266,6 +248,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 								if (this.sync != null)
 								{
 									this.savingFile = true;
+									this.savingFileTime = new Date();
 									
 									this.sync.fileConflict(desc, mxUtils.bind(this, function()
 									{
