@@ -122,24 +122,6 @@
 					w * 0.74, h * 0.5, '', 'Worker', null, null, this.getTagsForStencil(gn, 'worker', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'workflowService;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.822, h * 1.484, '', 'Workflow Service', null, null, this.getTagsForStencil(gn, 'workflow service', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'genericShape;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;container=1;', 
-					w * 1.23, h * 1.06, '', 'Generic Isometric Shape', null, null, this.getTagsForStencil(gn, 'generic isometric shape', dt).join(' ')),
-			this.addEntry('generic isometric shape group container', function()
-			{
-				var newW = w * 1.23;
-				var newH = h * 1.06;
-				var cell = new mxCell('', new mxGeometry(0, 0, newW, newH),
-				s + 'genericShape;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;container=1;');
-				cell.vertex = true;
-				
-				var symbol = new mxCell('', new mxGeometry(45.5, 9, 30, 34.86), 'shape=mxgraph.aws3.template;fillColor=#5E5E5E;gradientColor=none;aspect=fixed;rotation=30;');
-				symbol.vertex = true;
-				cell.insert(symbol);
-				
-				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Generic Isometric Shape Group Container');
-			}),
-			this.createVertexTemplateEntry(s + 'genericShape;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;indicatorImage=img/clipart/Gear_128x128.png;indicatorRotation=30;', 
-					w * 1.23, h * 1.06, '', 'Generic Isometric Shape Image', null, null, this.getTagsForStencil(gn, 'generic isometric shape image', dt).join(' ')),
 
 			this.createVertexTemplateEntry(s + 'arrowNE;fillColor=#000000;aspect=fixed;', 
 					w * 0.455, h * 0.26, '', 'Arrow NE', null, null, this.getTagsForStencil(gn, 'arrow ne north east northeast', dt).join(' ')),

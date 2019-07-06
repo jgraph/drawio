@@ -134,7 +134,7 @@
     		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'orthogonalEdgeStyle';
         }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
-        {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
+		{name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
         {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
@@ -161,7 +161,8 @@
 	Editor.commonVertexProperties = [
         {type: 'separator'},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
-        {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
+		{name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
+		{name: 'isoAngle', dispName: 'Perspective Angle', type: 'float', min: -1, max: 45, defVal: -1},
         {name: 'overflow', dispName: 'Text Overflow', defVal: 'visible', type: 'enum',
         	enumList: [{val: 'visible', dispName: 'Visible'}, {val: 'hidden', dispName: 'Hidden'}, {val: 'fill', dispName: 'Fill'}, {val: 'width', dispName: 'Width'}]
         },

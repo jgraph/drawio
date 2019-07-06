@@ -103,7 +103,7 @@
 	 */
 	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']}, {id: 'uml'}, {id: 'search'}, {id: 'er'},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
-	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
+	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'}, {id: 'isometric'},
 	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'vvd'}, 
 	                                   {id: 'sitemap'}, {id: 'dfd'},
 	                                   {id: 'mscae', prefix: 'mscae', libs: ['Cloud', 'Enterprise', 'General', 'General Symbols', 'Intune', 'OMS', 'OpsManager', 'Other', 'System Center', 'Virtual Machine', 'Deprecated', 'Cloud Color', 'Deprecated Color']},
@@ -400,7 +400,8 @@
             					  {title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
 							      {title: 'AWS18', id: 'aws4b', image: IMAGE_PATH + '/sidebar-aws4.png'},
 							      {title: 'AWS19', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
-			            			// TODO: Add isometric containers  		                          
+									// TODO: Add isometric containers
+								  {title: mxResources.get('isometric'), id: 'isometric', image: IMAGE_PATH + '/sidebar-isometric.png'},
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
@@ -925,6 +926,7 @@
 		this.addAWS3Palette();
 		this.addAWS4bPalette();
 		this.addAWS4Palette();
+		this.addIsometricPalette();
 		this.addAWS3DPalette();
 		this.addAzurePalette();
 		this.addMSCAEPalette();

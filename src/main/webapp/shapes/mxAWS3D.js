@@ -995,21 +995,17 @@ mxCellRenderer.registerShape(mxShapeAws3dApplication.prototype.cst.APPLICATION, 
 //Application Server
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
+* Extends mxShapeIsometric.
 */
 function mxShapeAws3dApplicationServer(bounds, fill, stroke, strokewidth)
 {
-	mxShape.call(this);
-	this.bounds = bounds;
-	this.fill = fill;
-	this.stroke = stroke;
-	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	mxShapeIsometric.apply(this, arguments);
 };
 
 /**
-* Extends mxShape.
+* Extends mxShapeIsometric.
 */
-mxUtils.extend(mxShapeAws3dApplicationServer, mxShape);
+mxUtils.extend(mxShapeAws3dApplicationServer, mxShapeIsometric);
 
 mxShapeAws3dApplicationServer.prototype.cst = {
 		APPLICATION_SERVER : 'mxgraph.aws3d.application_server',
@@ -1023,113 +1019,32 @@ mxShapeAws3dApplicationServer.prototype.cst = {
 */
 mxShapeAws3dApplicationServer.prototype.paintVertexShape = function(c, x, y, w, h)
 {
-	c.translate(x, y);
-	
-	var strokeWidth = parseFloat(mxUtils.getValue(this.state.style, 'strokeWidth', '1'));
-	var strokeWidth1 = strokeWidth * w / 123;
-	var strokeWidth2 = strokeWidth * h / 124;
-	
-	strokeWidth = Math.min(strokeWidth1, strokeWidth2);
-
-	this.background(c, 0, 0, w, h, strokeWidth);
-	c.setShadow(false);
-	this.foreground(c, 0, 0, w, h, strokeWidth);
+	mxShapeIsometric.prototype.paintVertexShape.apply(this, arguments);
+	this.paintDecoration(c, x, y, w, h);
 };
 
-mxShapeAws3dApplicationServer.prototype.background = function(c, x, y, w, h, strokeWidth)
+/**
+* Function: paintDecoration
+* 
+* Paints the decoration on top of shape.
+*/
+mxShapeAws3dApplicationServer.prototype.paintDecoration = function(c, x, y, w, h)
 {
-	c.setStrokeWidth(strokeWidth);
-	c.save();
-	c.save();
-	c.setStrokeWidth(2 * strokeWidth);
-	c.setStrokeColor('#292929');
-	c.setLineJoin('round');
-
-	c.begin();
-	c.moveTo(0, h * 0.7236);
-	c.lineTo(0, h * 0.2863);
-	c.lineTo(w * 0.5, 0);
-	c.lineTo(w, h * 0.2863);
-	c.lineTo(w, h * 0.7236);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.fillAndStroke();
-};
-
-mxShapeAws3dApplicationServer.prototype.foreground = function(c, x, y, w, h, strokeWidth)
-{
-	c.restore();
-	c.setShadow(false);
-	c.setFillColor('#000000');
-	var shading = mxUtils.getValue(this.state.style, mxShapeAws3dApplicationServer.prototype.cst.SHADING_COLORS, '0.1,0.3').toString().split(',');
-	var flipH = mxUtils.getValue(this.state.style, 'flipH', '0');
-	(flipH == '0') ? c.setAlpha(shading[0]) : c.setAlpha(shading[1]); 
-	
-	c.begin();
-	c.moveTo(0, h * 0.2863);
-	c.lineTo(w * 0.5, h * 0.5726);
-	c.lineTo(w * 0.5, h);
-	c.lineTo(0, h * 0.7177);
-	c.close();
-	c.fill();
-
-	(flipH == '0') ? c.setAlpha(shading[1]) : c.setAlpha(shading[0]); 
-	c.begin();
-	c.moveTo(w, h * 0.2863);
-	c.lineTo(w * 0.5, h * 0.5726);
-	c.lineTo(w * 0.5, h);
-	c.lineTo(w, h * 0.7177);
-	c.close();
-	c.fill();
-	
-	c.restore();
-	c.setShadow(false);
-	c.setLineJoin('round');
-	
-	c.begin();
-	c.moveTo(0, h * 0.2863);
-	c.lineTo(w * 0.5, h * 0.5726);
-	c.lineTo(w * 0.5, h);
-	c.lineTo(0, h * 0.7177);
-	c.close();
-	c.stroke();
-
-	c.begin();
-	c.moveTo(w, h * 0.2863);
-	c.lineTo(w * 0.5, h * 0.5726);
-	c.lineTo(w * 0.5, h);
-	c.lineTo(w, h * 0.7177);
-	c.close();
-	c.stroke();
-	
+	var isoH = this.isoHeight;
 	c.setLineJoin('miter');
 	var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
 	c.setFillColor(strokeColor);
 	c.begin();
-	c.moveTo(w * 0.374, h * 0.4435);
-	c.arcTo(w * 0.0325, h * 0.0202, 0, 0, 1, w * 0.374, h * 0.4153);
-	c.lineTo(w * 0.4797, h * 0.3548);
-	c.arcTo(w * 0.0325, h * 0.0161, 0, 0, 1, w * 0.5203, h * 0.3548);
-	c.lineTo(w * 0.626, h * 0.4153);
-	c.arcTo(w * 0.0325, h * 0.0202, 0, 0, 1, w * 0.626, h * 0.4411);
-	c.lineTo(w * 0.5203, h * 0.5016);
-	c.arcTo(w * 0.0325, h * 0.0161, 0, 0, 1, w * 0.4797, h * 0.5016);
+	c.moveTo(w * 0.374, isoH * 0.7806);
+	c.arcTo(w * 0.0325, isoH * 0.0356, 0, 0, 1, w * 0.374, isoH * 0.7309);
+	c.lineTo(w * 0.4797, isoH * 0.6244);
+	c.arcTo(w * 0.0325, isoH * 0.0283, 0, 0, 1, w * 0.5203, isoH * 0.6244);
+	c.lineTo(w * 0.626, isoH * 0.7309);
+	c.arcTo(w * 0.0325, isoH * 0.0356, 0, 0, 1, w * 0.626, isoH * 0.7763);
+	c.lineTo(w * 0.5203, isoH * 0.8828);
+	c.arcTo(w * 0.0325, isoH * 0.0283, 0, 0, 1, w * 0.4797, isoH * 0.8828);
 	c.close();
 	c.fill();
-
-	c.setStrokeWidth(2 * strokeWidth);
-	c.setStrokeColor('#292929');
-	c.setLineJoin('round');
-
-	c.begin();
-	c.moveTo(0, h * 0.7236);
-	c.lineTo(0, h * 0.2863);
-	c.lineTo(w * 0.5, 0);
-	c.lineTo(w, h * 0.2863);
-	c.lineTo(w, h * 0.7236);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.stroke();
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dApplicationServer.prototype.cst.APPLICATION_SERVER, mxShapeAws3dApplicationServer);
@@ -1392,152 +1307,6 @@ mxShapeAws3dCloudFront.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dCloudFront.prototype.cst.CLOUDFRONT, mxShapeAws3dCloudFront);
-
-//**********************************************************************************************************************************************************
-//Generic Isometric Shape
-//**********************************************************************************************************************************************************
-/**
-* Extends mxShape.
-*/
-function mxShapeAws3dGenericShape(bounds, fill, stroke, strokewidth, indicatorImage)
-{
-	mxShape.call(this);
-	this.bounds = bounds;
-	this.fill = fill;
-	this.stroke = stroke;
-	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-	this.indicatorImage = indicatorImage;
-};
-
-/**
-* Extends mxShape.
-*/
-mxUtils.extend(mxShapeAws3dGenericShape, mxShape);
-
-mxShapeAws3dGenericShape.prototype.cst = {
-		GENERIC_SHAPE : 'mxgraph.aws3d.genericShape',
-		SHADING_COLORS : 'shadingCols'
-};
-
-/**
- * Variable: preserveImageAspect
- *
- * Switch to preserve image aspect. Default is true.
- */
-mxShapeAws3dGenericShape.prototype.preserveImageAspect = true;
-
-/**
- * Variable: preserveImageAspect
- *
- * Indicator image rotation. Default is 30 degrees.
- */
-mxShapeAws3dGenericShape.prototype.indicatorRotation = 30;
-
-/**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
-mxShapeAws3dGenericShape.prototype.paintVertexShape = function(c, x, y, w, h)
-{
-	c.translate(x, y);
-
-	var strokeWidth = parseFloat(mxUtils.getValue(this.state.style, 'strokeWidth', '1'));
-	var strokeWidth1 = strokeWidth * w / 123;
-	var strokeWidth2 = strokeWidth * h / 142;
-	var isShadow = parseFloat(mxUtils.getValue(this.state.style, 'shadow', '0'));
-	
-	strokeWidth = Math.min(strokeWidth1, strokeWidth2);
-
-	c.setShadow(false);
-	c.setStrokeWidth(strokeWidth);
-	c.save();
-	c.save();
-	c.setStrokeWidth(2 * strokeWidth);
-	c.setStrokeColor('#292929');
-	c.setLineJoin('round');
-
-	if (isShadow == 1)
-	{
-		c.setShadow(true);
-	}
-	
-	c.begin();
-	c.moveTo(0, h * 0.7465);
-	c.lineTo(0, h * 0.25);
-	c.lineTo(w * 0.5, 0);
-	c.lineTo(w, h * 0.25);
-	c.lineTo(w, h * 0.7465);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.fillAndStroke();
-	
-	c.restore();
-	c.setFillColor('#000000');
-	var shading = mxUtils.getValue(this.state.style, mxShapeAws3dGenericShape.prototype.cst.SHADING_COLORS, '0.1,0.3').toString().split(',');
-	var flipH = mxUtils.getValue(this.state.style, 'flipH', '0');
-	(flipH == '0') ? c.setAlpha(shading[0]) : c.setAlpha(shading[1]); 
-	
-	c.begin();
-	c.moveTo(0, h * 0.7465);
-	c.lineTo(0, h * 0.25);
-	c.lineTo(w * 0.5, h * 0.5);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.fill();
-
-	(flipH == '0') ? c.setAlpha(shading[1]) : c.setAlpha(shading[0]); 
-	c.begin();
-	c.moveTo(w, h * 0.7465);
-	c.lineTo(w, h * 0.25);
-	c.lineTo(w * 0.5, h * 0.5);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.fill();
-	
-	c.restore();
-	c.setLineJoin('round');
-	c.begin();
-	c.moveTo(0, h * 0.7465);
-	c.lineTo(0, h * 0.25);
-	c.lineTo(w * 0.5, h * 0.5);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.stroke();
-
-	c.begin();
-	c.moveTo(w, h * 0.7465);
-	c.lineTo(w, h * 0.25);
-	c.lineTo(w * 0.5, h * 0.5);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.stroke();
-
-	c.setLineCap('round');
-
-	c.setStrokeWidth(2 * strokeWidth);
-	c.setStrokeColor('#292929');
-	c.setLineJoin('round');
-
-	c.begin();
-	c.moveTo(0, h * 0.7465);
-	c.lineTo(0, h * 0.25);
-	c.lineTo(w * 0.5, 0);
-	c.lineTo(w, h * 0.25);
-	c.lineTo(w, h * 0.7465);
-	c.lineTo(w * 0.5, h);
-	c.close();
-	c.stroke();
-
-	if (this.indicatorImage != null)
-	{
-		// FlipH/V are implicit via mxShape.updateTransform
-		c.image(w * 0.3, h * 0.0625, w * 0.35, h * 0.35, this.indicatorImage, this.preserveImageAspect, false, false);
-		c.rotate(this.indicatorRotation);
-	}
-};
-
-mxCellRenderer.registerShape(mxShapeAws3dGenericShape.prototype.cst.GENERIC_SHAPE, mxShapeAws3dGenericShape);
 
 //**********************************************************************************************************************************************************
 //Data Center

@@ -1773,6 +1773,7 @@ function mxShapeBasicShadedCube(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.isoAngle = 15;
+	this.isoHeight = 0;
 };
 
 /**
@@ -1787,6 +1788,16 @@ mxShapeBasicShadedCube.prototype.customProperties = [
 ];
 
 /**
+ * Variable: updateIsometric
+ *
+ * Set isometric height for top shape by overriding parent method.
+ */
+mxShapeBasicShadedCube.prototype.updateIsometric = function(c, x, y, w, h)
+{
+	return this.isoHeight;
+};
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -1796,7 +1807,7 @@ mxShapeBasicShadedCube.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.translate(x, y);
 
 	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-	var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+	var isoH = this.isoHeight = Math.min(w * Math.tan(isoAngle), h * 0.5);
 	
 	c.begin();
 	c.moveTo(w * 0.5, 0);
@@ -1837,7 +1848,7 @@ Graph.handleFactory[mxShapeBasicShadedCube.prototype.cst.SHADED_CUBE] = function
 	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
 	{
 		var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-		var isoH = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
+		var isoH = this.isoHeight = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
 
 		return new mxPoint(bounds.x, bounds.y + isoH);
 	}, function(bounds, pt)
@@ -1852,7 +1863,7 @@ mxShapeBasicShadedCube.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-	var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+	var isoH = this.isoHeight = Math.min(w * Math.tan(isoAngle), h * 0.5);
 	
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w * 0.75, isoH * 0.5));

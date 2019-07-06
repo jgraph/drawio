@@ -1,0 +1,32 @@
+<shapes name="mxGraph.isometric">
+<shape aspect="variable" h="11" name="Arrowhead" strokewidth="inherit" w="19">
+    <connections/>
+    <foreground>
+        <strokecolor color="none"/>
+        <fillcolor color="#292929"/>
+        <path>
+            <move x="0" y="0"/>
+            <line x="19" y="5.5"/>
+            <line x="9.5" y="11"/>
+            <close/>
+        </path>
+        <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="107.4" name="Edge" strokewidth="inherit" w="97.0">
+    <connections/>
+    <foreground>
+        <strokecolor color="#292929"/>
+        <fillcolor color="none"/>
+        <strokewidth width="2"/>
+        <path>
+            <move x="27.2" y="0.0"/>
+            <line x="0.0" y="17.3"/>
+            <line x="97.0" y="72.0"/>
+            <line x="97.0" y="89.8"/>
+            <line x="66.3" y="107.4"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+</shapes>

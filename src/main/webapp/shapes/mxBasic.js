@@ -499,7 +499,7 @@ mxShapeBasicOctagon.prototype.getConstraints = function(style, w, h)
 }
 
 //**********************************************************************************************************************************************************
-//Isometric Cube
+//Isometric Cube (For backward compatibility)
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -512,6 +512,7 @@ function mxShapeBasicIsoCube(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.isoAngle = 15;
+	this.isoHeight = 0;
 };
 
 /**
@@ -535,7 +536,7 @@ mxShapeBasicIsoCube.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.translate(x, y);
 
 	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-	var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+	var isoH = this.isoHeight = Math.min(w * Math.tan(isoAngle), h * 0.5);
 	
 	c.begin();
 	c.moveTo(w * 0.5, 0);
@@ -567,7 +568,7 @@ Graph.handleFactory[mxShapeBasicIsoCube.prototype.cst.ISO_CUBE] = function(state
 	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
 	{
 		var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-		var isoH = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
+		var isoH = this.isoHeight = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
 
 		return new mxPoint(bounds.x, bounds.y + isoH);
 	}, function(bounds, pt)
@@ -582,7 +583,7 @@ mxShapeBasicIsoCube.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
-	var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+	var isoH = this.isoHeight = Math.min(w * Math.tan(isoAngle), h * 0.5);
 	
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, isoH));
@@ -595,6 +596,41 @@ mxShapeBasicIsoCube.prototype.getConstraints = function(style, w, h)
 
 	return (constr);
 }
+
+//**********************************************************************************************************************************************************
+//Isometric Cube
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShapeIsometric.
+*/
+function mxShapeBasicIsometricCube(bounds, fill, stroke, strokewidth, isoAngle, shadingCols)
+{
+	mxShapeIsometric.apply(this, arguments);
+	this.shadingCols = shadingCols || '0,0';
+};
+
+/**
+* Extends mxShapeIsometric.
+*/
+mxUtils.extend(mxShapeBasicIsometricCube, mxShapeIsometric);
+
+mxShapeBasicIsometricCube.prototype.cst = {ISOMETRIC_CUBE : 'mxgraph.basic.isometric_cube'};
+
+/**
+ * Variable: isoAngle
+ *
+ * Set isometric projection angle for shape. Default is 30 degrees.
+ */
+mxShapeBasicIsometricCube.prototype.isoAngle = 30;
+
+/**
+ * Variable: shadingCols
+ *
+ * Set shading colors for shape. Default is "0,0" (White).
+ */
+mxShapeBasicIsometricCube.prototype.shadingCols = '0,0';
+
+mxCellRenderer.registerShape(mxShapeBasicIsometricCube.prototype.cst.ISOMETRIC_CUBE, mxShapeBasicIsometricCube);
 
 //**********************************************************************************************************************************************************
 //Acute Triangle
