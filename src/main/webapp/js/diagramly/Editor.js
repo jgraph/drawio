@@ -3713,88 +3713,90 @@
 		if (href.substring(0, 17) == 'data:action/json,')
 		{
 			// Some actions are stateless and must be handled before the transaction
-			var action = JSON.parse(href.substring(17));
+			var link = JSON.parse(href.substring(17));
 
-			if (action.actions != null)
+			if (link.actions != null)
 			{
 				// Executes open actions before starting transaction
-				for (var i = 0; i < action.actions.length; i++)
+				for (var i = 0; i < link.actions.length; i++)
 				{
-					if (action.actions[i].open != null)
+					var action = link.actions[i];
+					
+					if (action.open != null)
 					{
-						if (this.isCustomLink(action.actions[i].open))
+						if (this.isCustomLink(action.open))
 						{
-							if (!this.customLinkClicked(action.actions[i].open))
+							if (!this.customLinkClicked(action.open))
 							{
 								return;
 							}
 						}
 						else
 						{
-							this.openLink(action.actions[i].open);
+							this.openLink(action.open);
 						}
 					}
 				}
 
+				// Executes all actions that change cell states
 	    		this.model.beginUpdate();
 	    		try
 	    		{
-					for (var i = 0; i < action.actions.length; i++)
+					for (var i = 0; i < link.actions.length; i++)
 					{
-						this.handleLinkAction(action.actions[i]);
+						var action = link.actions[i];
+						
+						if (action.toggle != null)
+						{
+							this.toggleCells(this.getCellsForAction(action.toggle, true));
+						}
+						
+						if (action.show != null)
+						{
+							this.setCellsVisible(this.getCellsForAction(action.show, true), true);
+						}
+						
+						if (action.hide != null)
+						{
+							this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
+						}
 					}
 				}
 	    		finally
 	    		{
 	    			this.model.endUpdate();
 	    		}
+	    		
+				// Executes stateless actions on cells
+				for (var i = 0; i < link.actions.length; i++)
+				{
+					var action = link.actions[i];
+					var cells = [];
+					
+					if (action.select != null && this.isEnabled())
+					{
+						cells = this.getCellsForAction(action.select);
+						this.setSelectionCells(cells);
+					}
+
+					if (action.highlight != null)
+					{
+						cells = this.getCellsForAction(action.highlight);
+						this.highlightCells(cells, action.highlight.color,
+							action.highlight.duration, action.highlight.opacity);
+					}
+
+					if (action.scroll != null)
+					{
+						cells = this.getCellsForAction(action.scroll);
+					}
+					
+					if (cells.length > 0)
+					{
+						this.scrollCellToVisible(cells[0]);
+					}
+				}
 			}
-		}
-	};
-
-	/**
-	 * Executes the given action if it must be executed inside of a transaction.
-	 */
-	Graph.prototype.handleLinkAction = function(action)
-	{
-		var cells = [];
-		
-		if (action.select != null && this.isEnabled())
-		{
-			cells = this.getCellsForAction(action.select);
-			this.setSelectionCells(cells);
-		}
-
-		if (action.highlight != null)
-		{
-			cells = this.getCellsForAction(action.highlight);
-			this.highlightCells(cells, action.highlight.color,
-				action.highlight.duration, action.highlight.opacity);
-		}
-
-		if (action.toggle != null)
-		{
-			this.toggleCells(this.getCellsForAction(action.toggle, true));
-		}
-		
-		if (action.show != null)
-		{
-			this.setCellsVisible(this.getCellsForAction(action.show, true), true);
-		}
-		
-		if (action.hide != null)
-		{
-			this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
-		}
-
-		if (action.scroll != null)
-		{
-			cells = this.getCellsForAction(action.scroll);
-		}
-		
-		if (cells.length > 0)
-		{
-			this.scrollCellToVisible(cells[0]);
 		}
 	};
 

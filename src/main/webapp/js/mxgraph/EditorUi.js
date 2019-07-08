@@ -3401,7 +3401,7 @@ EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, b
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize, ignoreBgClick)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3410,7 +3410,7 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize, ignoreBgClick);
 	this.dialogs.push(this.dialog);
 };
 

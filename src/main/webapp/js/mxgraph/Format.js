@@ -2558,21 +2558,21 @@ TextFormatPanel.prototype.addFont = function(container)
 	
 	var left = this.editorUi.toolbar.addButton('geSprite-left', mxResources.get('left'),
 		(graph.cellEditor.isContentEditing()) ?
-		function()
+		function(evt)
 		{
-			document.execCommand('justifyleft', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT])), stylePanel3);
 	var center = this.editorUi.toolbar.addButton('geSprite-center', mxResources.get('center'),
 		(graph.cellEditor.isContentEditing()) ?
-		function()
+		function(evt)
 		{
-			document.execCommand('justifycenter', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER])), stylePanel3);
 	var right = this.editorUi.toolbar.addButton('geSprite-right', mxResources.get('right'),
 		(graph.cellEditor.isContentEditing()) ?
-		function()
+		function(evt)
 		{
-			document.execCommand('justifyright', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT])), stylePanel3);
 
 	this.styleButtons([left, center, right]);
@@ -2625,8 +2625,14 @@ TextFormatPanel.prototype.addFont = function(container)
 		full = this.editorUi.toolbar.addButton('geSprite-justifyfull', mxResources.get('block'),
 			function()
 			{
-				document.execCommand('justifyfull', false, null);
+				if (full.style.opacity == 1)
+				{
+					document.execCommand('justifyfull', false, null);
+				}
 			}, stylePanel3);
+		full.style.marginRight = '9px';
+		full.style.opacity = 1;
+
 		this.styleButtons([full,
        		sub = this.editorUi.toolbar.addButton('geSprite-subscript',
        			mxResources.get('subscript') + ' (' + Editor.ctrlKey + '+,)',
@@ -2639,7 +2645,6 @@ TextFormatPanel.prototype.addFont = function(container)
 			{
 				document.execCommand('superscript', false, null);
 			}, stylePanel3)]);
-		full.style.marginRight = '9px';
 		
 		var tmp = stylePanel3.cloneNode(false);
 		tmp.style.paddingTop = '4px';
@@ -3536,7 +3541,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		setSelected(bottom, valign == mxConstants.ALIGN_BOTTOM);
 		
 		var pos = mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_POSITION, mxConstants.ALIGN_CENTER);
-		var vpos =  mxUtils.getValue(ss.style, mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_MIDDLE);
+		var vpos = mxUtils.getValue(ss.style, mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_MIDDLE);
 		
 		if (pos == mxConstants.ALIGN_LEFT && vpos == mxConstants.ALIGN_TOP)
 		{
@@ -3780,12 +3785,30 @@ TextFormatPanel.prototype.addFont = function(container)
 							setSelected(fontStyleItems[1], css.fontStyle == 'italic' ||
 								hasParentOrOnlyChild('I') || hasParentOrOnlyChild('EM'));
 							setSelected(fontStyleItems[2], hasParentOrOnlyChild('U'));
-							setSelected(left, isEqualOrPrefixed(css.textAlign, 'left'));
-							setSelected(center, isEqualOrPrefixed(css.textAlign, 'center'));
-							setSelected(right, isEqualOrPrefixed(css.textAlign, 'right'));
 							setSelected(full, isEqualOrPrefixed(css.textAlign, 'justify'));
 							setSelected(sup, hasParentOrOnlyChild('SUP'));
 							setSelected(sub, hasParentOrOnlyChild('SUB'));
+							
+							if (graph.cellEditor.isAllTextSelected())
+							{
+								var align = graph.cellEditor.align || mxUtils.getValue(ss.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+								setSelected(left, align == mxConstants.ALIGN_LEFT);
+								setSelected(center, align == mxConstants.ALIGN_CENTER);
+								setSelected(right, align == mxConstants.ALIGN_RIGHT);
+								
+								setSelected(full, false);
+								full.style.opacity = 0.2;
+								full.style.cursor = 'default';
+							}
+							else
+							{
+								setSelected(left, isEqualOrPrefixed(css.textAlign, 'left'));
+								setSelected(center, isEqualOrPrefixed(css.textAlign, 'center'));
+								setSelected(right, isEqualOrPrefixed(css.textAlign, 'right'));
+								
+								full.style.opacity = 1;
+								full.style.cursor = '';
+							}
 							
 							currentTable = graph.getParentByName(node, 'TABLE', graph.cellEditor.textarea);
 							tableRow = (currentTable == null) ? null : graph.getParentByName(node, 'TR', currentTable);

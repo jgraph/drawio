@@ -178,6 +178,7 @@ mxRackPlate.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxRackPlate.prototype.background = function(c, w, h)
 {
+	c.begin();
 	c.rect(0, 0, w, h);
 	c.fillAndStroke();
 };
@@ -189,12 +190,17 @@ mxRackPlate.prototype.foreground = function(c, w, h)
 	if (w > bufferSize * 2)
 	{
 		c.save();
-		c.setFillColor('#b4b4b4');
-		c.rect(0, 0, w, h);
-		c.fillAndStroke();
+		c.setFillColor('#000000');
+		c.setAlpha(0.23);
+		c.rect(0,0, bufferSize, h);
+		c.fill();
+		c.rect(w - bufferSize,0, bufferSize, h);
+		c.fill();
 		c.restore();
+		c.rect(0, 0, w, h);
+		c.stroke();
 		c.rect(bufferSize, 0, w - bufferSize * 2, h);
-		c.fillAndStroke();
+		c.stroke();
 	}
 };
 

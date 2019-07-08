@@ -7,6 +7,9 @@
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }
+.geEditor input, select, textarea, button {
+       font-size: inherit;
+}
 .geEditor div.mxTooltip {
 	background: whiteSmoke;
 	border-color: lightGray;

@@ -821,6 +821,16 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 			for (var i = 0; i < keys.length; i++)
 			{
 				graph.setCellStyles(keys[i], values[i]);
+
+				// Removes CSS alignment to produce consistent output
+				if (keys[i] == mxConstants.STYLE_ALIGN)
+				{
+					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+					{
+						elt.removeAttribute('align');
+						elt.style.textAlign = null;
+					});
+				}
 			}
 			
 			if (post != null)
