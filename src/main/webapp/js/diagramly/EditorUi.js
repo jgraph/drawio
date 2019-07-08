@@ -5321,7 +5321,7 @@
 			mxUtils.br(div);
 			height += 26;
 		}
-		
+
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			this.lastExportBorder = borderInput.value;
@@ -5331,7 +5331,7 @@
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
 				linkSelect.value);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, height, true, true);
+		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
 		
 		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
@@ -11856,6 +11856,22 @@
 		// do nothing
 	};
 	
+	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.scheduleSanityCheck = function()
+	{
+		// do nothing
+	};
+	
+	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.stopSanityCheck = function()
+	{
+		// do nothing
+	};
+
 	/**
 	 * Returns true if a diagram is cative and editable.
 	 */

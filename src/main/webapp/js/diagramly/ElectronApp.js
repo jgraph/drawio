@@ -823,12 +823,13 @@ mxStencilRegistry.allowEval = false;
 	
 	// Restores default implementation of open with autosave
 	LocalFile.prototype.open = DrawioFile.prototype.open;
-
+	
 	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 	{
-		DrawioFile.prototype.save.apply(this, arguments);
-		
-		this.saveFile(revision, success, error, unloading, overwrite);
+		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+		{
+			this.saveFile(null, revision, success, error, unloading, overwrite);
+		}), error, unloading, overwrite]);
 	};
 
 	LocalFile.prototype.isConflict = function(stat)

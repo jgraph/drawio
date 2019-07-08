@@ -263,10 +263,7 @@ OneDriveFile.prototype.getLastModifiedDate = function()
  */
 OneDriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
-	{
-		this.saveFile(this.getTitle(), false, success, error, unloading, overwrite);
-	}), error, unloading, overwrite]);
+	this.doSave(this.getTitle(), revision, success, error, unloading, overwrite);
 };
 
 /**
@@ -277,13 +274,7 @@ OneDriveFile.prototype.save = function(revision, success, error, unloading, over
  */
 OneDriveFile.prototype.saveAs = function(title, success, error)
 {
-	// Forces update of data for new extension
-	var prev = this.meta.name;
-	this.meta.name = title;
-	DrawioFile.prototype.save.apply(this, arguments);
-	this.meta.name = prev;
-	
-	this.saveFile(title, false, success, error);
+	this.doSave(title, false, success, error);
 };
 
 /**
@@ -292,9 +283,17 @@ OneDriveFile.prototype.saveAs = function(title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-OneDriveFile.prototype.doSave = function(title, success, error, unloading, overwrite)
+OneDriveFile.prototype.doSave = function(title, revision, success, error, unloading, overwrite)
 {
-	this.saveFile(title, false, success, error, unloading, overwrite);
+	// Forces update of data for new extensions
+	var prev = this.meta.name;
+	this.meta.name = title;
+	
+	DrawioFile.prototype.save.apply(this, [null, mxUtils.bind(this, function()
+	{
+		this.meta.name = prev;
+		this.saveFile(title, revision, success, error, unloading, overwrite);
+	}), error, unloading, overwrite]);
 };
 
 /**
@@ -318,100 +317,128 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 		{
 			var doSave = mxUtils.bind(this, function()
 			{
-				var etag = (!overwrite && this.constructor == OneDriveFile &&
-						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
-						this.getCurrentEtag() : null;
-				var lastDesc = this.meta;
+				var prevModified = null;
+				var modified = null;
 				
-				// Makes sure no changes get lost while the file is saved
-				var prevModified = this.isModified;
-				var modified = this.isModified();
-				this.savingFile = true;
-				this.savingFileTime = new Date();
-				
-				var prepare = mxUtils.bind(this, function()
+				try
 				{
-					this.setModified(false);
+					// Makes sure no changes get lost while the file is saved
+					prevModified = this.isModified;
+					modified = this.isModified();
+					this.savingFile = true;
+					this.savingFileTime = new Date();
 					
-					this.isModified = function()
+					var prepare = mxUtils.bind(this, function()
 					{
-						return modified;
-					};
-				});
-				
-				prepare();
-				
-				this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
-				{
-					this.isModified = prevModified;
-					this.savingFile = false;
-					this.meta = meta;
-
-					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
-					{
-						this.contentChanged();
+						this.setModified(false);
 						
-						if (success != null)
+						this.isModified = function()
 						{
-							success();
-						}
-					}), error);
-				}),
-				mxUtils.bind(this, function(err, req)
-				{
-					this.savingFile = false;
-					this.isModified = prevModified;
-					this.setModified(modified || this.isModified());
+							return modified;
+						};
+					});
+						
+					var etag = (!overwrite && this.constructor == OneDriveFile &&
+							(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
+							this.getCurrentEtag() : null;
+					var lastDesc = this.meta;
+					prepare();
 					
-					if (this.isConflict(req))
-			    	{
-						this.inConflictState = true;
-
-						if (this.sync != null)
+					this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
+					{
+						this.isModified = prevModified;
+						this.savingFile = false;
+						this.meta = meta;
+	
+						this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 						{
-							this.savingFile = true;
-							this.savingFileTime = new Date();
+							this.contentChanged();
 							
-							this.sync.fileConflict(null, mxUtils.bind(this, function()
+							if (success != null)
 							{
-								// Adds random cool-off
-								window.setTimeout(mxUtils.bind(this, function()
-								{
-									this.updateFileData();
-									doSave();
-								}), 100 + Math.random() * 500);
-							}), mxUtils.bind(this, function()
+								success();
+							}
+						}), error);
+					}),
+					mxUtils.bind(this, function(err, req)
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setModified(modified || this.isModified());
+						
+						if (this.isConflict(req))
+				    	{
+							this.inConflictState = true;
+	
+							if (this.sync != null)
 							{
-								this.savingFile = false;
+								this.savingFile = true;
+								this.savingFileTime = new Date();
 								
-								if (error != null)
+								this.sync.fileConflict(null, mxUtils.bind(this, function()
 								{
-									error();
-								}
-							}));
+									// Adds random cool-off
+									window.setTimeout(mxUtils.bind(this, function()
+									{
+										this.updateFileData();
+										doSave();
+									}), 100 + Math.random() * 500);
+								}), mxUtils.bind(this, function()
+								{
+									this.savingFile = false;
+									
+									if (error != null)
+									{
+										error();
+									}
+								}));
+							}
+							else if (error != null)
+							{
+								error();
+							}
 						}
 						else if (error != null)
 						{
-							error();
-						}
-					}
-					else if (error != null)
-					{
-						// Handles modified state for retries
-						if (err != null && err.retry != null)
-						{
-							var retry = err.retry;
-							
-							err.retry = function()
+							// Handles modified state for retries
+							if (err != null && err.retry != null)
 							{
-								prepare();
-								retry();
-							};
+								var retry = err.retry;
+								
+								err.retry = function()
+								{
+									prepare();
+									retry();
+								};
+							}
+							
+							error(err);
 						}
-						
-						error(err);
+					}), etag);
+				}
+				catch (e)
+				{
+					this.savingFile = false;
+					
+					if (prevModified != null)
+					{
+						this.isModified = prevModified;
 					}
-				}), etag);
+					
+					if (modified != null)
+					{
+						this.setModified(modified || this.isModified());
+					}
+					
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
+					}
+				}
 			});
 			
 			doSave();

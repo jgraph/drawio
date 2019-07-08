@@ -291,21 +291,21 @@ Toolbar.prototype.createTextToolbar = function()
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
 	var alignMenu = this.addMenuFunction('', mxResources.get('align'), false, mxUtils.bind(this, function(menu)
 	{
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyleft', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
 		}), null, 'geIcon geSprite geSprite-left');
 		elt.setAttribute('title', mxResources.get('left'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifycenter', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
 		}), null, 'geIcon geSprite geSprite-center');
 		elt.setAttribute('title', mxResources.get('center'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyright', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
 		}), null, 'geIcon geSprite geSprite-right');
 		elt.setAttribute('title', mxResources.get('right'));
 

@@ -181,10 +181,12 @@ GitHubFile.prototype.doSave = function(title, success, error, unloading, overwri
 	// Forces update of data for new extensions
 	var prev = this.meta.name;
 	this.meta.name = title;
-	DrawioFile.prototype.save.apply(this, arguments);
-	this.meta.name = prev;
 	
-	this.saveFile(title, false, success, error, unloading, overwrite, message);
+	DrawioFile.prototype.save.apply(this, [null, mxUtils.bind(this, function()
+	{
+		this.meta.name = prev;
+		this.saveFile(title, false, success, error, unloading, overwrite, message);
+	}), error, unloading, overwrite]);
 };
 
 /**
@@ -208,80 +210,109 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 		{
 			if (this.getTitle() == title)
 			{
-				var savedEtag = this.getCurrentEtag();
-				var savedData = this.data;
-
-				// Makes sure no changes get lost while the file is saved
-				var prevModified = this.isModified;
-				var modified = this.isModified();
-				this.savingFile = true;
-				this.savingFileTime = new Date();
-					
-				var prepare = mxUtils.bind(this, function()
-				{
-					this.setModified(false);
-					
-					this.isModified = function()
-					{
-						return modified;
-					};
-				});
+				var prevModified = null;
+				var modified = null;
 				
-				prepare();
-				
-				this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
+				try
 				{
-					this.isModified = prevModified;
-					this.savingFile = false;
+					// Makes sure no changes get lost while the file is saved
+					prevModified = this.isModified;
+					modified = this.isModified();
+					this.savingFile = true;
+					this.savingFileTime = new Date();
+						
+					// Makes sure no changes get lost while the file is saved
+					var prepare = mxUtils.bind(this, function()
+					{
+						this.setModified(false);
+						
+						this.isModified = function()
+						{
+							return modified;
+						};
+					});
 					
-					this.meta.sha = commit.content.sha;
-					this.meta.html_url = commit.content.html_url;
-					this.meta.download_url = commit.content.download_url;
+					var savedEtag = this.getCurrentEtag();
+					var savedData = this.data;
+					prepare();
 
-					this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
+					this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
 					{
-						this.contentChanged();
+						this.isModified = prevModified;
+						this.savingFile = false;
 						
-						if (success != null)
+						this.meta.sha = commit.content.sha;
+						this.meta.html_url = commit.content.html_url;
+						this.meta.download_url = commit.content.download_url;
+	
+						this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
 						{
-							success();
-						}
-					}), error);
-				}),
-				mxUtils.bind(this, function(err)
-				{
-					this.savingFile = false;
-					this.isModified = prevModified;
-					this.setModified(modified || this.isModified());
-
-					if (this.isConflict(err))
-					{
-						this.inConflictState = true;
-						
-						if (error != null)
-						{
-							// Passes current commit message to avoid
-							// multiple dialogs after synchronize
-							error({commitMessage: message});
-						}
-					}
-					else if (error != null)
-					{
-						// Handles modified state for retries
-						if (err != null && err.retry != null)
-						{
-							var retry = err.retry;
+							this.contentChanged();
 							
-							err.retry = function()
+							if (success != null)
 							{
-								prepare();
-								retry();
-							};
+								success();
+							}
+						}), error);
+					}),
+					mxUtils.bind(this, function(err)
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setModified(modified || this.isModified());
+	
+						if (this.isConflict(err))
+						{
+							this.inConflictState = true;
+							
+							if (error != null)
+							{
+								// Passes current commit message to avoid
+								// multiple dialogs after synchronize
+								error({commitMessage: message});
+							}
 						}
-						
-						error(err);
+						else if (error != null)
+						{
+							// Handles modified state for retries
+							if (err != null && err.retry != null)
+							{
+								var retry = err.retry;
+								
+								err.retry = function()
+								{
+									prepare();
+									retry();
+								};
+							}
+							
+							error(err);
+						}
+					}), overwrite, message);
+				}
+				catch (e)
+				{
+					this.savingFile = false;
+					
+					if (prevModified != null)
+					{
+						this.isModified = prevModified;
 					}
-				}), overwrite, message);
+					
+					if (modified != null)
+					{
+						this.setModified(modified || this.isModified());
+					}
+					
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
+					}
+				}
 			}
 			else
 			{

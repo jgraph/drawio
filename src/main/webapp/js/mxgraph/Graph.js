@@ -5438,6 +5438,19 @@ if (typeof mxVertexHandler != 'undefined')
 			span.innerHTML = elt.innerHTML;
 			elt.parentNode.replaceChild(span, elt);
 		};
+
+		/**
+		 * 
+		 */
+		Graph.prototype.processElements = function(elt, fn)
+		{
+			var elts = elt.getElementsByTagName('*');
+			
+			for (var i = 0; i < elts.length; i++)
+			{
+				fn(elts[i]);
+			}
+		};
 		
 		/**
 		 * Handles label changes for XML user objects.
@@ -7013,6 +7026,71 @@ if (typeof mxVertexHandler != 'undefined')
 			return state != null && state.style['html'] == 1;
 		};
 	
+		/**
+		 * Returns true if all selected text (or the cursor) is not
+		 * within a block element or within the only block element.
+		 */
+		mxCellEditor.prototype.isAllTextSelected = function()
+		{
+			var par = null;
+			
+			if (document.selection)
+			{
+				par = document.selection.createRange().parentElement();
+			}
+			else
+			{
+				var selection = window.getSelection();
+				
+				if (selection.rangeCount > 0)
+				{
+					par = selection.getRangeAt(0).commonAncestorContainer;
+				}
+			}
+			
+			var block = false;
+			var css = null;
+			
+			while (par != null && par != this.textarea)
+			{
+				css = (par.nodeType == mxConstants.NODETYPE_ELEMENT) ?
+					mxUtils.getCurrentStyle(par) : null;
+				block = block || (css != null && css.display === 'block');
+			
+				par = par.parentNode;
+
+				if (block && par.childNodes.length > 1)
+				{
+					return false;
+				}
+			}
+			
+			return true;
+		};
+		
+		/**
+		 * Returns true if all selected text (or the cursor) is not
+		 * within a block element or within the only block element.
+		 */
+		mxCellEditor.prototype.alignText = function(align, evt)
+		{
+			// Ignore isAllTextSelected() to produce consistent behaviour
+			// regardless of width of current selected block (if the widest
+			// block is selected the alignment changes are not visible)
+			if (evt == null || !mxEvent.isShiftDown(evt))
+			{
+				this.graph.cellEditor.setAlign(align);
+				
+				this.graph.processElements(this.textarea, function(elt)
+				{
+					elt.removeAttribute('align');
+					elt.style.textAlign = null;
+				});
+			}
+			
+			document.execCommand('justify' + align.toLowerCase(), false, null);
+		};
+		
 		/**
 		 * Creates the keyboard event handler for the current graph and history.
 		 */

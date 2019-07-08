@@ -23,40 +23,30 @@ App = function(editor, container, lightbox)
 		{
 			var file = this.getCurrentFile();
 			
-			if (file != null && file.constructor == DriveFile && file.isModified() && this.drive != null)
+			if (file != null && file.isModified())
 			{
-				EditorUi.logEvent({category: 'DISCARD-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '.' + file.desc.modifiedDate + '-size_' + file.getSize(),
-					action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-					'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+				var evt = {category: 'DISCARD-FILE-' + file.getHash(),
+					action: ((file.savingFile) ? 'saving' : '') +
+					((file.savingFile && file.savingFileTime != null) ? '_' +
+						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+					((file.autosaveThread != null) ? '-thread' : '') +
 					((this.editor.autosave) ? '' : '-nosave') +
 					((file.isAutosave()) ? '' : '-noauto') +
 					((file.changeListenerEnabled) ? '' : '-nolisten') +
 					((file.inConflictState) ? '-conflict' : '') +
 					((file.invalidChecksum) ? '-invalid' : '') +
-					((file.savingFile) ? '-saving' : '') +
-					((file.savingFile && file.savingFileTime != null) ? '_' +
-						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
-					((file.autosaveThread != null) ? '-thread' : ''),
-					label: ((this.drive.user != null) ? 'user_' + this.drive.user.id : 'unknown') +
-					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
-			}
-			else if (file != null && file.isModified())
-			{
-				EditorUi.logEvent({category: 'DISCARD-FILE-' + file.getHash() + '-size_' + file.getSize(),
-					action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+					'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
 					'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
-					((this.editor.autosave) ? '' : '-nosave') +
-					((file.isAutosave()) ? '' : '-noauto') +
-					((file.changeListenerEnabled) ? '' : '-nolisten') +
-					((file.inConflictState) ? '-conflict' : '') +
-					((file.invalidChecksum) ? '-invalid' : '') +
-					((file.savingFile) ? '-saving' : '') +
-					((file.savingFile && file.savingFileTime != null) ? '_' +
-						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
-					((file.autosaveThread != null) ? '-thread' : '')});
+					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x'),
+					label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
+					
+				if (file.constructor == DriveFile && file.desc != null && this.drive != null)
+				{
+					evt.label += ((this.drive.user != null) ? '-user_' + this.drive.user.id : '-nouser') + '-rev_' +
+						file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize();
+				}
+
+				EditorUi.logEvent(evt);
 			}
 		});
 	}
@@ -1514,6 +1504,29 @@ App.prototype.sanityCheck = function()
 		(Date.now() - ((file.lastSaved != null) ? file.lastSaved.getTime() :
 		file.opened.getTime())) >= this.warnInterval)
 	{
+		var evt = {category: 'WARN-FILE-' + file.getHash(),
+			action: ((file.savingFile) ? 'saving' : '') +
+			((file.savingFile && file.savingFileTime != null) ? '_' +
+				Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+			((file.autosaveThread != null) ? '-thread' : '') +
+			((this.editor.autosave) ? '' : '-nosave') +
+			((file.isAutosave()) ? '' : '-noauto') +
+			((file.changeListenerEnabled) ? '' : '-nolisten') +
+			((file.inConflictState) ? '-conflict' : '') +
+			((file.invalidChecksum) ? '-invalid' : '') +
+			'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+			'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+			'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x'),
+			label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
+			
+		if (file.constructor == DriveFile && file.desc != null && this.drive != null)
+		{
+			evt.label += ((this.drive.user != null) ? '-user_' + this.drive.user.id : '-nouser') + '-rev_' +
+				file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize();
+		}
+			
+		EditorUi.logEvent(evt);
+
 		var msg = mxResources.get('ensureDataSaved');
 		
 		if (file.lastSaved != null)
@@ -1527,21 +1540,7 @@ App.prototype.sanityCheck = function()
 
 			msg = mxResources.get('lastSaved', [str]);
 		}
-		
-		EditorUi.logEvent({category: 'WARN-FILE-' + file.getHash(),
-			action: 'open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-			'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-			'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
-			((this.editor.autosave) ? '' : '-nosave') +
-			((file.isAutosave()) ? '' : '-noauto') +
-			((file.changeListenerEnabled) ? '' : '-nolisten') +
-			((file.inConflictState) ? '-conflict' : '') +
-			((file.invalidChecksum) ? '-invalid' : '') +
-			((file.savingFile) ? '-saving' : '') +
-			((file.savingFile && file.savingFileTime != null) ? '_' +
-				Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
-			((file.autosaveThread != null) ? '-thread' : '')});
-		
+
 		this.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
 			mxUtils.bind(this, function()
 			{
@@ -4212,7 +4211,6 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						this.fileLoaded(file);
 						var currentFile = this.getCurrentFile();
 						
-						// Keeps ID even for converted files in chromeless mode for refresh to work
 						if (currentFile == null)
 						{
 							window.location.hash = '';
@@ -4220,6 +4218,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						}
 						else if (this.editor.chromeless && !this.editor.editable)
 						{
+							// Keeps ID even for converted files in chromeless mode for refresh to work
 							currentFile.getHash = function()
 							{
 								return peerChar + id;
@@ -4227,15 +4226,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							
 							window.location.hash = '#' + currentFile.getHash();
 						}
-						else
+						else if (file == currentFile && file.getMode() == null)
 						{
-							window.location.hash = currentFile.getHash();
-						}
-						
-						// Shows a warning if a copy was opened which happens
-						// eg. for .png files in IE as they cannot be written
-						if (file.mode == null)
-						{
+							// Shows a warning if a copy was opened which happens
+							// eg. for .png files in IE as they cannot be written
 							var status = mxResources.get('browserUnsupportedFiletype');
 							this.editor.setStatus('<div title="'+ status + '" class="geStatusAlert" style="overflow:hidden;">' + status + '</div>');
 						}

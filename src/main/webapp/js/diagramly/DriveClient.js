@@ -1287,7 +1287,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
 										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
 										this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
-										(this.user != null) ? this.user.id : 'unknown');
+										'user-' + ((this.user != null) ? this.user.id : 'unknown') +
+									 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync'));
 								}
 								catch (e)
 								{
@@ -2602,12 +2603,11 @@ DriveClient.prototype.convertRealtimeFiles = function()
 					
 					// Logs conversion
 					EditorUi.logEvent({category: 'AUTO-CONVERT',
-						action: 'total-' + total + '-xml-' + fromXml +
-						'-json-' + fromJson + '-done-' + converted +
-						'-fail-' + failed + '-load-' + loadFail +
-						'-save-' + saveFail + '-invalid-' + invalid +
-						'-dt-' + Math.round(dt / 1000),
-						label: (this.user != null) ? this.user.id : 'unknown-user'});
+						action: 'total_' + total + '-done_' + converted +
+						'-fail_' + '-xml_' + fromXml + '-json_' + fromJson +
+						'-load_' + loadFail + '-save_' + saveFail +
+						'-invalid_' + invalid + '-dt-' + Math.round(dt / 1000),
+						label: (this.user != null) ? 'user_' + this.user.id : '-nouser'});
 				}
 				catch (e)
 				{

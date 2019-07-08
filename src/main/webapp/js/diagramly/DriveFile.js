@@ -160,24 +160,26 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		{
 			var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 			{
+				var prevModified = null;
+				var modified = null;
+				
 				try
 				{
-					var lastDesc = this.desc;
-					
 					// Makes sure no changes get lost while the file is saved
-					var modified = this.isModified();
+					prevModified = this.isModified;
+					modified = this.isModified();
 					this.setModified(false);
-					this.savingFile = true;
 					this.savingFileTime = new Date();
+					this.savingFile = true;
 					
 					// Waits for success for modified state to be visible
-					var prevModified = this.isModified;
-					
 					this.isModified = function()
 					{
 						return true;
 					};
-		
+
+					var lastDesc = this.desc;
+
 					this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
 					{
 						try
@@ -295,6 +297,18 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 				}
 				catch (e)
 				{
+					this.savingFile = false;
+					
+					if (prevModified != null)
+					{
+						this.isModified = prevModified;
+					}
+					
+					if (modified != null)
+					{
+						this.setModified(modified || this.isModified());
+					}
+					
 					if (error != null)
 					{
 						error(e);
