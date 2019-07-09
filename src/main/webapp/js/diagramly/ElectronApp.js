@@ -828,7 +828,7 @@ mxStencilRegistry.allowEval = false;
 	{
 		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
 		{
-			this.saveFile(null, revision, success, error, unloading, overwrite);
+			this.saveFile(revision, success, error, unloading, overwrite);
 		}), error, unloading, overwrite]);
 	};
 
