@@ -7359,7 +7359,14 @@ if (typeof mxVertexHandler != 'undefined')
 	
 					window.setTimeout(mxUtils.bind(this, function()
 					{
-						checkNode(this.textarea, clone);
+						// Paste from Word or Excel
+						if (this.textarea.innerHTML.indexOf('<o:OfficeDocumentSettings>') >= 0 ||
+							this.textarea.innerHTML.indexOf('<!--[if !mso]>') >= 0)
+						{
+							checkNode(this.textarea, clone);
+						}
+						
+						this.textarea.innerHTML = this.graph.sanitizeHtml(this.textarea.innerHTML, true);
 					}), 0);
 				}));
 			}
