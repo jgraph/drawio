@@ -417,16 +417,14 @@ mxShapeIsometricDashedEdge.prototype.paintVertexShape = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxShapeIsometricDashedEdge.prototype.cst.DASHED_EDGE, mxShapeIsometricDashedEdge);
 
 //**********************************************************************************************************************************************************
-//Generic Isometric Shape
+//Isometric Shape
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
 */
-function mxIsometric(bounds, fill, stroke, strokewidth, isoAngle)
+function mxIsometric(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this, bounds, fill, stroke, strokewidth);
-	this.isoAngle = isoAngle || 30;
-	this.image = this.image || this.indicatorImage;
 };
 
 /**
@@ -459,13 +457,6 @@ mxIsometric.prototype.shadingCols = '0.1,0.3';
  * Set isometric projection height for shape. Default is 0;
  */
 mxIsometric.prototype.isoHeight = 0;
-
-/**
- * Variable: indicator
- *
- * Set indicator image/shape.
- */
-mxIsometric.prototype.indicator = null;
 
 /**
  * Variable: updateIsometric
@@ -629,10 +620,9 @@ mxIsometric.prototype.getConstraints = function(style, w, h)
 /**
 * Extends mxIsometric.
 */
-function mxIsometricContainer(bounds, fill, stroke, strokewidth, isoAngle)
+function mxIsometricContainer(bounds, fill, stroke, strokewidth)
 {
 	mxIsometric.call(this, bounds, fill, stroke, strokewidth);
-	this.isoAngle = isoAngle || 30;
 	this.image = this.image || this.indicatorImage;
 };
 
@@ -645,11 +635,18 @@ mxIsometricContainer.prototype.cst = {
 		GENERIC_CONTAINER : 'mxgraph.isometric.genericContainer'};
 
 /**
- * Variable: preserveImageAspect
+ * Variable: indicatorShape
  *
- * Switch to preserve image aspect. Default is true.
+ * Set indicator shape name.
+*/
+mxIsometricContainer.prototype.indicatorShape = null;
+
+/**
+ * Variable: indicator
+ *
+ * Set indicator object.
  */
-mxIsometricContainer.prototype.preserveImageAspect = true;
+mxIsometricContainer.prototype.indicator = null;
 
 /**
  * Function: init
@@ -660,15 +657,12 @@ mxIsometricContainer.prototype.init = function(container)
 {
 	mxShape.prototype.init.apply(this, arguments);
 
-	var name = this.image || this.indicatorShape;
+	var name = mxUtils.getValue(this.style, mxConstants.STYLE_INDICATOR_SHAPE, this.image);
 	if (name != null && this.indicator == null)
 	{
-		if (this.image)
+		if (name === this.image)
 		{
 			this.indicator = new mxImageShape();
-		} else if (this.indicatorShape instanceof mxShape)
-		{
-			this.indicator = this.indicatorShape;
 		} else
 		{
 			this.indicator = new this.indicatorShape();

@@ -603,10 +603,9 @@ mxShapeBasicIsoCube.prototype.getConstraints = function(style, w, h)
 /**
 * Extends mxIsometric.
 */
-function mxShapeBasicIsometricCube(bounds, fill, stroke, strokewidth, isoAngle, shadingCols)
+function mxShapeBasicIsometricCube(bounds, fill, stroke, strokewidth)
 {
-	mxIsometric.apply(this, arguments);
-	this.shadingCols = shadingCols || '0,0';
+	mxIsometric.call(this, bounds, fill, stroke, strokewidth);
 };
 
 /**
