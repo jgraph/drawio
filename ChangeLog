@@ -1,3 +1,10 @@
+09-JUL-2019: 10.9.2
+
+- Fixes reset of handles after remote style changes
+- Fixes background color for rotated text editing
+- Improves command line export in Electron
+- Uses mxGraph 4.0.2 beta 3
+
 09-JUL-2019: 10.9.1
 
 - Fixes NPE in Electron and ChromeOS apps
