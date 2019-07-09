@@ -422,20 +422,19 @@ mxCellRenderer.registerShape(mxShapeIsometricDashedEdge.prototype.cst.DASHED_EDG
 /**
 * Extends mxShape.
 */
-function mxShapeIsometric(bounds, fill, stroke, strokewidth, isoAngle, shadingCols)
+function mxIsometric(bounds, fill, stroke, strokewidth, isoAngle)
 {
-	mxShape.apply(this, bounds, fill, stroke, strokewidth);
+	mxShape.call(this, bounds, fill, stroke, strokewidth);
 	this.isoAngle = isoAngle || 30;
-	this.shadingCols = shadingCols;
-	this.isoHeight = 0;
+	this.image = this.image || this.indicatorImage;
 };
 
 /**
 * Extends mxShape.
 */
-mxUtils.extend(mxShapeIsometric, mxShape);
+mxUtils.extend(mxIsometric, mxShape);
 
-mxShapeIsometric.prototype.cst = {
+mxIsometric.prototype.cst = {
 		ISOMETRIC_SHAPE : 'mxgraph.isometric.shape',
 		SHADING_COLORS : 'shadingCols'
 };
@@ -445,43 +444,42 @@ mxShapeIsometric.prototype.cst = {
  *
  * Set isometric projection angle for shape. Default is 30 degrees.
  */
-mxShapeIsometric.prototype.isoAngle = 30;
+mxIsometric.prototype.isoAngle = 30;
 
 /**
  * Variable: shadingCols
  *
  * Set shading colors for shape. Default is "0,0" (White).
  */
-mxShapeIsometric.prototype.shadingCols = '0.1,0.3';
+mxIsometric.prototype.shadingCols = '0.1,0.3';
 
 /**
  * Variable: isoHeight
  *
  * Set isometric projection height for shape. Default is 0;
  */
-mxShapeIsometric.prototype.isoHeight = 0;
+mxIsometric.prototype.isoHeight = 0;
 
 /**
  * Variable: indicator
  *
  * Set indicator image/shape.
  */
-mxShapeIsometric.prototype.icon = null;
+mxIsometric.prototype.indicator = null;
 
 /**
  * Variable: updateIsometric
  *
  * Set height of top shape that is related to isometric angle by overriding parent method.
  */
-mxShapeIsometric.prototype.updateIsometric = function(c, x, y, w, h)
+mxIsometric.prototype.updateIsometric = function(c, x, y, w, h)
 {
 	var isoAngle = this.getIsoAngle();
 	if (isoAngle >= 0)
 	{
 		var angleRadians = Math.max(0.01, Math.min(45, isoAngle)) * Math.PI / 180;
 		var isoRatio = Math.tan(angleRadians);
-		this.isoHeight = Math.min(w * isoRatio, h);
-		console.debug('isometric values:', isoAngle, angleRadians, isoRatio, this.isoHeight);
+		this.isoHeight = mxUtils.precisionRound(Math.min(w * isoRatio, h), 1);
 	} else
 	{
 		this.isoHeight = 0;
@@ -491,44 +489,11 @@ mxShapeIsometric.prototype.updateIsometric = function(c, x, y, w, h)
 };
 
 /**
-* Function: paintDecoration
-* 
-* Paints the decoration on top of shape.
-*/
-mxShapeIsometric.prototype.paintDecoration = function(c, x, y, w, h)
-{
-	if (this.style != null)
-	{
-		var s = this.state;
-		var isoAngle = this.getIsoAngle();
-		var image = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE, this.image);
-		var icon = mxUtils.getValue(this.style, 'icon', this.icon);
-		if (this.node != null && s != null && (icon != null || image != null))
-		{
-			var size = 1.022864652748906 * this.isoHeight;
-			var decoration = new mxCell('', new mxGeometry((w - size) / 2, 0, size, size), 'shape=image;image=' + icon + ';imageBorder:#FFFFFF;fillColor=#5E5E5E;fillColor=#5E5E5E;gradientColor=none;isoAngle=' + isoAngle + ';');
-			// decoration.geometry.relative = true;
-			// decoration.geometry.offset = new mxPoint(-20, -8);
-			decoration.vertex = true;
-			// if (s.cell.getChildCount() > 0)
-			// {
-			// 	s.cell.remove(0);
-			// }
-			// for (var i = 1; i < s.cell.getChildCount(); i++)
-			// {
-			// 	s.cell.remove(i);
-			// }
-			return s.cell.insert(decoration);
-		}
-	}
-};
-
-/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
 */
-mxShapeIsometric.prototype.paintVertexShape = function(c, x, y, w, h)
+mxIsometric.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
 	
@@ -541,7 +506,6 @@ mxShapeIsometric.prototype.paintVertexShape = function(c, x, y, w, h)
 	this.paintBackground(c, 0, 0, w, h, strokeWidth);
 	c.setShadow(false);
 	this.paintForeground(c, 0, 0, w, h, strokeWidth);
-	// this.paintDecoration(c, 0, 0, w, h);
 };
 
 /**
@@ -549,7 +513,7 @@ mxShapeIsometric.prototype.paintVertexShape = function(c, x, y, w, h)
  * 
  * Paints the background for shape.
  */
-mxShapeIsometric.prototype.paintBackground = function(c, x, y, w, h, strokeWidth)
+mxIsometric.prototype.paintBackground = function(c, x, y, w, h, strokeWidth)
 {
 	var isoH = this.isoHeight;
 	c.setStrokeWidth(strokeWidth);
@@ -574,9 +538,10 @@ mxShapeIsometric.prototype.paintBackground = function(c, x, y, w, h, strokeWidth
  * 
  * Paints the foreground for shape.
  */
-mxShapeIsometric.prototype.paintForeground = function(c, x, y, w, h, strokeWidth)
+mxIsometric.prototype.paintForeground = function(c, x, y, w, h, strokeWidth)
 {
 	var isoH = this.isoHeight;
+	var alpha = c.state.alpha || 1;
 	c.restore();
 	c.setShadow(false);
 	c.setFillColor('#000000');
@@ -634,31 +599,17 @@ mxShapeIsometric.prototype.paintForeground = function(c, x, y, w, h, strokeWidth
 	c.lineTo(0, isoH * 0.5);
 	c.close();
 	c.stroke();
+
+	c.setAlpha(alpha);
 };
 
-mxCellRenderer.registerShape(mxShapeIsometric.prototype.cst.ISOMETRIC_SHAPE, mxShapeIsometric);
+mxCellRenderer.registerShape(mxIsometric.prototype.cst.ISOMETRIC_SHAPE, mxIsometric);
 
-Graph.handleFactory[mxShapeIsometric.prototype.cst.ISOMETRIC_SHAPE] = function(state)
-{
-	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
-	{
-		console.log('mxShapeIsometric handleFactory',state.shape.getIsoAngle());
-
-		return new mxPoint(bounds.x * bounds.width, bounds.y + bounds.height);
-	}, function(bounds, pt)
-	{
-		this.state.style['dx'] = Math.round(100 * Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width))) / 100;
-	})];
-
-	return handles;
-};
-
-mxShapeIsometric.prototype.getConstraints = function(style, w, h)
+mxIsometric.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	
 	var isoH = this.isoHeight;
-	console.log('mxShapeIsometric.prototype.getConstraints',isoH);
 
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, isoH * 0.5));
@@ -676,20 +627,21 @@ mxShapeIsometric.prototype.getConstraints = function(style, w, h)
 //Generic Isometric Container Shape
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
-function mxShapeIsometricContainer(bounds, fill, stroke, strokewidth, indicatorImage)
+function mxIsometricContainer(bounds, fill, stroke, strokewidth, isoAngle)
 {
-	mxShapeIsometric.apply(this, bounds, fill, stroke, strokewidth);
-	this.indicatorImage = indicatorImage;
+	mxIsometric.call(this, bounds, fill, stroke, strokewidth);
+	this.isoAngle = isoAngle || 30;
+	this.image = this.image || this.indicatorImage;
 };
 
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
-mxUtils.extend(mxShapeIsometricContainer, mxShapeIsometric);
+mxUtils.extend(mxIsometricContainer, mxIsometric);
 
-mxShapeIsometricContainer.prototype.cst = {
+mxIsometricContainer.prototype.cst = {
 		GENERIC_CONTAINER : 'mxgraph.isometric.genericContainer'};
 
 /**
@@ -697,56 +649,105 @@ mxShapeIsometricContainer.prototype.cst = {
  *
  * Switch to preserve image aspect. Default is true.
  */
-mxShapeIsometricContainer.prototype.preserveImageAspect = true;
+mxIsometricContainer.prototype.preserveImageAspect = true;
 
 /**
- * Variable: preserveImageAspect
+ * Function: init
  *
- * Indicator image rotation. Default is 30 degrees.
+ * Initializes the shape and the <indicator>.
  */
-mxShapeIsometricContainer.prototype.indicatorRotation = 30;
-
-/**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
-/* mxShapeIsometricContainer.prototype.paintVertexShape = function(c, x, y, w, h)
+mxIsometricContainer.prototype.init = function(container)
 {
-	mxShapeIsometric.prototype.paintVertexShape.apply(this, arguments);
-	// this.placeImage(c, w * 0.3, h * 0.0625, w * 0.35, h * 0.35, strokeWidth);
-}; */
+	mxShape.prototype.init.apply(this, arguments);
 
-/**
-* Function: placeImage
-* 
-* Place indicator image on top of generic shape.
-*/
-mxShapeIsometricContainer.prototype.placeImage = function(c, x, y, w, h, strokeWidth)
-{
-	if (this.indicatorImage != null)
+	var name = this.image || this.indicatorShape;
+	if (name != null && this.indicator == null)
 	{
-		c.setShadow(false);
-
-		c.setStrokeWidth(strokeWidth);
-		c.setStrokeColor('#292929');
-		c.setLineJoin('round');
-
-		c.rect(x, y, w, h)
-		c.image(x, y, w, h, this.indicatorImage, this.preserveImageAspect, false, false);
-		var bbox = new mxRectangle(x, y, w, h);
-		c.stroke();
-
-		c.scale(1, 0.8606);
-		c.rotate(30, 0, 0, x + w / 2, y + h / 2);
-		// this.updateTransform();
-
-		// FlipH/V are implicit via mxShape.updateTransform
-		// 
-		// c.rotate(this.indicatorRotation);
-		c.save();
-		// this.updateTransform(c, x, y, w, h);
+		if (this.image)
+		{
+			this.indicator = new mxImageShape();
+		} else if (this.indicatorShape instanceof mxShape)
+		{
+			this.indicator = this.indicatorShape;
+		} else
+		{
+			this.indicator = new this.indicatorShape();
+		}
+		this.indicator.dialect = this.dialect;
+		this.indicator.init(this.node);
 	}
 };
 
-mxCellRenderer.registerShape(mxShapeIsometricContainer.prototype.cst.GENERIC_CONTAINER, mxShapeIsometricContainer);
+
+/**
+ * Function: paintIndicator
+* 
+ * Paints the decoration/indicator on top of shape.
+ */
+mxIsometricContainer.prototype.paintIndicator = function(c, x, y, w, h)
+{
+	var indicator = this.indicator;
+	var isoAngle = this.getIsoAngle();
+	if (indicator != null && isoAngle > 0)
+	{
+		indicator.bounds = this.getIndicatorBounds(x, y, w, h);
+		if (this.image != null)
+		{
+			indicator.image = this.image;
+		}
+		indicator.isoAngle = isoAngle;
+		indicator.paint(c);
+	}
+};
+
+/**
+ * Function: getIndicatorBounds
+ * 
+ * Get the decoration/indicator bounds.
+ */
+mxIsometricContainer.prototype.getIndicatorBounds = function(x, y, w, h)
+{
+	var size = w * 0.5;
+	var width = mxUtils.precisionRound(mxUtils.getNumber(this.style, mxConstants.STYLE_INDICATOR_WIDTH, size), 1);
+	var height = mxUtils.precisionRound(mxUtils.getNumber(this.style, mxConstants.STYLE_INDICATOR_HEIGHT, size), 1);
+
+	x += (w - width) / 2;
+	y += (this.isoHeight - height) / 2;
+
+	return new mxRectangle(mxUtils.precisionRound(x, 1), mxUtils.precisionRound(y, 1), width, height);
+};
+
+mxIsometricContainer.prototype.getImageBounds = mxIsometricContainer.prototype.getIndicatorBounds;
+
+/**
+ * Function: paintForeground
+ * 
+ * Paints the foreground for shape.
+ */
+mxIsometricContainer.prototype.paintForeground = function(c, x, y, w, h, strokeWidth)
+{
+	mxIsometric.prototype.paintForeground.apply(this, arguments);
+	this.paintIndicator(c, x, y, w, h);
+};
+
+/**
+ * Function: redraw
+ *
+ * Reconfigures this shape. This will update the colors of the indicator
+ * and reconfigure it if required.
+ */
+mxIsometricContainer.prototype.redraw = function()
+{
+	if (this.indicator != null)
+	{
+		this.indicator.fill = this.indicatorColor;
+		this.indicator.stroke = this.indicatorStrokeColor;
+		this.indicator.gradient = this.indicatorGradientColor;
+		this.indicator.direction = this.indicatorDirection;
+		this.indicator.isoAngle = this.getIsoAngle();
+	}
+	
+	mxIsometric.prototype.redraw.apply(this, arguments);
+};
+
+mxCellRenderer.registerShape(mxIsometricContainer.prototype.cst.GENERIC_CONTAINER, mxIsometricContainer);

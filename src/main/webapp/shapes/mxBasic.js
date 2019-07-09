@@ -601,18 +601,18 @@ mxShapeBasicIsoCube.prototype.getConstraints = function(style, w, h)
 //Isometric Cube
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
 function mxShapeBasicIsometricCube(bounds, fill, stroke, strokewidth, isoAngle, shadingCols)
 {
-	mxShapeIsometric.apply(this, arguments);
+	mxIsometric.apply(this, arguments);
 	this.shadingCols = shadingCols || '0,0';
 };
 
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
-mxUtils.extend(mxShapeBasicIsometricCube, mxShapeIsometric);
+mxUtils.extend(mxShapeBasicIsometricCube, mxIsometric);
 
 mxShapeBasicIsometricCube.prototype.cst = {ISOMETRIC_CUBE : 'mxgraph.basic.isometric_cube'};
 

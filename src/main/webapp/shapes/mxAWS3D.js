@@ -995,21 +995,20 @@ mxCellRenderer.registerShape(mxShapeAws3dApplication.prototype.cst.APPLICATION, 
 //Application Server
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
 function mxShapeAws3dApplicationServer(bounds, fill, stroke, strokewidth)
 {
-	mxShapeIsometric.apply(this, arguments);
+	mxIsometric.call(this, bounds, fill, stroke, strokewidth);
 };
 
 /**
-* Extends mxShapeIsometric.
+* Extends mxIsometric.
 */
-mxUtils.extend(mxShapeAws3dApplicationServer, mxShapeIsometric);
+mxUtils.extend(mxShapeAws3dApplicationServer, mxIsometric);
 
 mxShapeAws3dApplicationServer.prototype.cst = {
-		APPLICATION_SERVER : 'mxgraph.aws3d.application_server',
-		SHADING_COLORS : 'shadingCols'
+		APPLICATION_SERVER : 'mxgraph.aws3d.application_server'
 };
 
 /**
@@ -1017,22 +1016,22 @@ mxShapeAws3dApplicationServer.prototype.cst = {
 * 
 * Paints the vertex shape.
 */
-mxShapeAws3dApplicationServer.prototype.paintVertexShape = function(c, x, y, w, h)
+mxShapeAws3dApplicationServer.prototype.paintForeground = function(c, x, y, w, h)
 {
-	mxShapeIsometric.prototype.paintVertexShape.apply(this, arguments);
+	mxIsometric.prototype.paintForeground.apply(this, arguments);
 	this.paintDecoration(c, x, y, w, h);
 };
 
 /**
 * Function: paintDecoration
 * 
-* Paints the decoration on top of shape.
+* Paints the decoration/indicator on top of shape.
 */
 mxShapeAws3dApplicationServer.prototype.paintDecoration = function(c, x, y, w, h)
 {
 	var isoH = this.isoHeight;
 	c.setLineJoin('miter');
-	var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
+	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
 	c.setFillColor(strokeColor);
 	c.begin();
 	c.moveTo(w * 0.374, isoH * 0.7806);
@@ -1040,7 +1039,7 @@ mxShapeAws3dApplicationServer.prototype.paintDecoration = function(c, x, y, w, h
 	c.lineTo(w * 0.4797, isoH * 0.6244);
 	c.arcTo(w * 0.0325, isoH * 0.0283, 0, 0, 1, w * 0.5203, isoH * 0.6244);
 	c.lineTo(w * 0.626, isoH * 0.7309);
-	c.arcTo(w * 0.0325, isoH * 0.0356, 0, 0, 1, w * 0.626, isoH * 0.7763);
+	c.arcTo(w * 0.0325, isoH * 0.0356, 0, 0, 1, w * 0.6260, isoH * 0.7763);
 	c.lineTo(w * 0.5203, isoH * 0.8828);
 	c.arcTo(w * 0.0325, isoH * 0.0283, 0, 0, 1, w * 0.4797, isoH * 0.8828);
 	c.close();
