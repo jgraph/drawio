@@ -325,8 +325,8 @@ app.on('ready', e =>
 					{
 						var filePath = path.join(dir, file);
 						stat = fs.statSync(filePath);
-					    
-						if (stat.isFile())
+						
+						if (stat.isFile() && path.basename(filePath).charAt(0) != '.')
 						{
 							files.push(filePath);
 						}
@@ -356,7 +356,12 @@ app.on('ready', e =>
 						
 						try
 						{
-							expArgs.xml = fs.readFileSync(curFile, 'utf-8');
+							expArgs.xml = fs.readFileSync(curFile, (path.extname(curFile) === '.png') ? null : 'utf-8');
+							
+							if (path.extname(curFile) === '.png')
+							{
+								expArgs.xml = new Buffer(expArgs.xml).toString('base64');
+							}
 							
 							var mockEvent = {
 								reply: function(msg, data)
@@ -375,7 +380,7 @@ app.on('ready', e =>
 											{
 												if (outType.isDir)
 												{
-													outFileName = path.join(program.output, path.basename(curFile, path.extname(curFile))) + '.' + format;
+													outFileName = path.join(program.output, path.basename(curFile)) + '.' + format;
 												}
 												else
 												{
@@ -384,11 +389,11 @@ app.on('ready', e =>
 											}
 											else if (inStat.isFile())
 											{
-												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0], path.extname(paths[0]))) + '.' + format;
+												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0])) + '.' + format;
 											}
 											else //dir
 											{
-												outFileName = path.join(path.dirname(curFile), path.basename(curFile, path.extname(curFile))) + '.' + format;
+												outFileName = path.join(path.dirname(curFile), path.basename(curFile)) + '.' + format;
 											}
 											
 											try

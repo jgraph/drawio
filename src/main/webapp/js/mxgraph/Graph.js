@@ -4479,7 +4479,7 @@ HoverIcons.prototype.setCurrentState = function(state)
 	    	var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
 	
 	    	// Extracts and decodes stencil XML if shape has the form shape=stencil(value)
-	    	if (shape != null && shape.substring(0, 8) == 'stencil(')
+	    	if (shape != null && typeof shape === 'string' && shape.substring(0, 8) == 'stencil(')
 	    	{
 	    		try
 	    		{
@@ -4610,7 +4610,7 @@ mxStencilRegistry.getBasenameForStencil = function(name)
 {
 	var tmp = null;
 	
-	if (name != null)
+	if (name != null && typeof name === 'string')
 	{
 		var parts = name.split('.');
 		
@@ -7189,7 +7189,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return guide;
 		};
-	
+		
 		/**
 		 * HTML in-place editor
 		 */
@@ -7365,8 +7365,6 @@ if (typeof mxVertexHandler != 'undefined')
 						{
 							checkNode(this.textarea, clone);
 						}
-						
-						this.textarea.innerHTML = this.graph.sanitizeHtml(this.textarea.innerHTML, true);
 					}), 0);
 				}));
 			}
@@ -7649,23 +7647,26 @@ if (typeof mxVertexHandler != 'undefined')
 				this.graph.getModel().endUpdate();
 			}
 		};
-
+		
 		/**
 		 * Returns the background color to be used for the editing box. This returns
 		 * the label background for edge labels and null for all other cases.
 		 */
 		mxCellEditor.prototype.getBackgroundColor = function(state)
 		{
-			var color = null;
-			
-			if (this.graph.getModel().isEdge(state.cell) || this.graph.getModel().isEdge(this.graph.getModel().getParent(state.cell)))
+			var color = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null);
+
+			if ((color == null || color == mxConstants.NONE) &&
+				(state.cell.geometry != null && state.cell.geometry.width > 0) &&
+				(mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION, 0) != 0 ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_HORIZONTAL, 1) == 0))
 			{
-				var color = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null);
-				
-				if (color == mxConstants.NONE)
-				{
-					color = null;
-				}
+				color = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
+			}
+
+			if (color == mxConstants.NONE)
+			{
+				color = null;
 			}
 			
 			return color;

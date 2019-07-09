@@ -51,7 +51,7 @@
 			catch(e){}
 
 			//PNG+XML format
-			if (extras != null && extras.isPng)
+			if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
 			{
 				var pngData = 'data:image/png;base64,' + data.xml;
 				//A hacky way to invoke extractGraphModelFromPng without EditorUi instance
@@ -61,8 +61,27 @@
 			}
 			
 			// Parses XML
-			var xmlDoc = mxUtils.parseXml(data.xml);
+			var doc = mxUtils.parseXml(data.xml);
+			var node = Editor.extractGraphModel(doc.documentElement, true);
 			
+			if (node == null)
+			{
+				//Electron pdf export
+				try 
+				{
+					const { ipcRenderer } = require('electron');
+					
+					ipcRenderer.send('render-finished', null);
+				}
+				catch(e)
+				{
+					console.log(e);
+				}
+				
+				return graph;
+			}
+			
+			var xmlDoc = node.ownerDocument;
 			var diagrams = null;
 			var from = 0;
 			
@@ -577,47 +596,32 @@
 			renderMath(document.body);
 			// Immediate return if not waiting for any content
 			decrementWaitCounter();
+			
+			return graph;
 		};
 		
-		//Code taken from https://github.com/languitar/drawio-batch
-		//Must be called after rendering is finished
-		function getSvgData()
+		/**
+		 * Returns the exported SVG for the given graph (see EditorUi.exportSvg).
+		 */
+		function getSvgData(graph)
 		{
-			// extracts the inline SVG element used for rendering the diagram and puts it into a file with appropriate SVG headers
-
-		    // get the rendered page content as valid SVG
-	        const xmlns = 'http://www.w3.org/2000/xmlns/'
-	        const xlinkns = 'http://www.w3.org/1999/xlink'
-	        const svgns = 'http://www.w3.org/2000/svg'
-
-	        svg = document.getElementsByTagName('svg')[0]
-	        svg.setAttribute('version', '1.1')
-
-	        var defsEl = document.createElement('defs')
-	        svg.insertBefore(defsEl, svg.firstChild)
-
-	        var styleEl = document.createElement('style')
-	        defsEl.appendChild(styleEl)
-	        styleEl.setAttribute('type', 'text/css')
-
-	        // removing attributes so they aren't doubled up
-	        svg.removeAttribute('xmlns')
-	        svg.removeAttribute('xlink')
-
-	        // These are needed for the svg
-	        if (!svg.hasAttributeNS(xmlns, 'xmlns')) {
-	          svg.setAttributeNS(xmlns, 'xmlns', svgns)
-	        }
-
-	        if (!svg.hasAttributeNS(xmlns, 'xmlns:xlink')) {
-	          svg.setAttributeNS(xmlns, 'xmlns:xlink', xlinkns)
-	        }
-
-	        //This page(code) is designed for Chrome (Puppeteer or Electron) which supports this 
-	        var source = (new XMLSerializer()).serializeToString(svg);
-	        
-	        return '<?xml version="1.0" standalone="no"?>\r\n' + source;
-		}
+			var bg = graph.background;
+			
+			if (bg == mxConstants.NONE)
+			{
+				bg = null;
+			}
+			
+			var svgRoot = graph.getSvg(bg, 1, 0, false, null, true, null, null, null);
+			
+			if (graph.shadowVisible)
+			{
+				graph.addSvgShadow(svgRoot);
+			}
+			
+			return '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				mxUtils.getXml(svgRoot);
+		};
 		
 		//Electron pdf export
 		if (mxIsElectron)
@@ -625,15 +629,16 @@
 			try 
 			{
 				const { ipcRenderer } = require('electron');
+				var graph = null;
 				
 				ipcRenderer.on('render', (event, arg) => 
 				{
-					render(arg);
+					graph = render(arg);
 				});
 				
 				ipcRenderer.on('get-svg-data', (event, arg) => 
 				{
-					ipcRenderer.send('svg-data', getSvgData());
+					ipcRenderer.send('svg-data', getSvgData(graph));
 				});
 			}
 			catch(e)
@@ -645,5 +650,4 @@
 </head>
 <body style="margin:0px;">
 	<div id="graph" style="width:100%;height:100%;"></div>
-</body>
 </html>
