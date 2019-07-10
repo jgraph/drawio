@@ -2213,65 +2213,87 @@ var ParseDialog = function(editorUi, title, defaultType)
 			if (lines.length > 0)
 			{
 				var graph = editorUi.editor.graph;
-				
-				var listCell = new mxCell(lines[0], new mxGeometry(0, 0, 160, 26 + 4),
-				    'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
-				listCell.vertex = true;
-				
-				var size = graph.getPreferredSizeForCell(listCell);
-		
-	   			if (size != null && listCell.geometry.width < size.width + 10)
-	   			{
-	   				listCell.geometry.width = size.width + 10;
-	   			}
-				
-	   			var inserted = [listCell];
-	   			
-				if (lines.length > 1)
+				var listCell = null;
+				var cells = [];
+				var x0 = 0;
+
+				for (var i = 0; i < lines.length; i++)
 				{
-					for (var i = 1; i < lines.length; i++)
+					if (lines[i].charAt(0) != ';')
 					{
-						if (lines[i] == '--')
+						if (lines[i].length == 0)
 						{
-							var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
-							divider.vertex = true;
-							listCell.geometry.height += divider.geometry.height;
-							listCell.insert(divider);
-							inserted.push(divider);
+							listCell = null;
 						}
-						else if (lines[i].length > 0 && lines[i].charAt(0) != ';')
+						else
 						{
-							var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
-							field.vertex = true;
-							
-							var size = graph.getPreferredSizeForCell(field);
-		   			
-				   			if (size != null && field.geometry.width < size.width)
-				   			{
-				   				field.geometry.width = size.width;
-				   			}
-							
-				   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
-							listCell.geometry.height += field.geometry.height;
-							listCell.insert(field);
-							inserted.push(field);
+							if (listCell == null)
+							{
+								listCell = new mxCell(lines[i], new mxGeometry(x0, 0, 160, 26 + 4),
+									'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+								listCell.vertex = true;
+								cells.push(listCell);
+
+								var size = graph.getPreferredSizeForCell(listCell);
+						
+					   			if (size != null && listCell.geometry.width < size.width + 10)
+					   			{
+					   				listCell.geometry.width = size.width + 10;
+					   			}
+					   			
+					   			x0 += listCell.geometry.width + 40;
+							}
+							else if (lines[i] == '--')
+							{
+								var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+								divider.vertex = true;
+								listCell.geometry.height += divider.geometry.height;
+								listCell.insert(divider);
+							}
+							else if (lines[i].length > 0)
+							{
+								var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+								field.vertex = true;
+								
+								var size = graph.getPreferredSizeForCell(field);
+			   			
+					   			if (size != null && field.geometry.width < size.width)
+					   			{
+					   				field.geometry.width = size.width;
+					   			}
+								
+					   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
+								listCell.geometry.height += field.geometry.height;
+								listCell.insert(field);
+							}
 						}
 					}
 				}
 				
-				graph.getModel().beginUpdate();
-				try
+				if (cells.length > 0)
 				{
-					listCell = graph.importCells([listCell], insertPoint.x, insertPoint.y)[0];
-					graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [listCell].concat(listCell.children)));
+					graph.getModel().beginUpdate();
+					try
+					{
+						cells = graph.importCells(cells, insertPoint.x, insertPoint.y);
+						var inserted = [];
+						
+						for (var i = 0; i < cells.length; i++)
+						{
+							inserted.push(cells[i]);
+							inserted = inserted.concat(cells[i].children);
+						}
+						
+						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', inserted));
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
+					
+					graph.setSelectionCells(cells);
+					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
-				finally
-				{
-					graph.getModel().endUpdate();
-				}
-				
-				graph.setSelectionCell(listCell);
-				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}
 		else
@@ -2456,7 +2478,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 	{
 		if (typeSelect.value == 'list')
 		{
-			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean';
+			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean\n\n' +
+				'Address\n-street: String\n-city: String\n-state: String';
 		}
 		else if (typeSelect.value == 'table')
 		{

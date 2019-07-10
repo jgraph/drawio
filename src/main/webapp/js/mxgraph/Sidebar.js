@@ -182,6 +182,7 @@ Sidebar.prototype.thumbBorder = 2;
  */
 if (urlParams['sidebar-entries'] != 'large')
 {
+	Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
 	Sidebar.prototype.thumbBorder = 1;
 	Sidebar.prototype.thumbWidth = 32;
 	Sidebar.prototype.thumbHeight = 30;

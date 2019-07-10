@@ -3388,7 +3388,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		
 		var btns = [
 		        this.editorUi.toolbar.addButton('geSprite-strokecolor', mxResources.get('borderColor'),
-				mxUtils.bind(this, function()
+				mxUtils.bind(this, function(evt)
 				{
 					if (currentTable != null)
 					{
@@ -3400,23 +3400,30 @@ TextFormatPanel.prototype.addFont = function(container)
 							    });
 						this.editorUi.pickColor(color, function(newColor)
 						{
+							var targetElt = (tableCell != null && (evt == null || !mxEvent.isShiftDown(evt))) ? tableCell : currentTable;
+							
+							graph.processElements(targetElt, function(elt)
+							{
+								elt.style.border = null;
+							});
+							
 							if (newColor == null || newColor == mxConstants.NONE)
 							{
-								currentTable.removeAttribute('border');
-								currentTable.style.border = '';
-								currentTable.style.borderCollapse = '';
+								targetElt.removeAttribute('border');
+								targetElt.style.border = '';
+								targetElt.style.borderCollapse = '';
 							}
 							else
 							{
-								currentTable.setAttribute('border', '1');
-								currentTable.style.border = '1px solid ' + newColor;
-								currentTable.style.borderCollapse = 'collapse';
+								targetElt.setAttribute('border', '1');
+								targetElt.style.border = '1px solid ' + newColor;
+								targetElt.style.borderCollapse = 'collapse';
 							}
 						});
 					}
 				}), tablePanel2),
 				this.editorUi.toolbar.addButton('geSprite-fillcolor', mxResources.get('backgroundColor'),
-				mxUtils.bind(this, function()
+				mxUtils.bind(this, function(evt)
 				{
 					// Converts rgb(r,g,b) values
 					if (currentTable != null)
@@ -3428,13 +3435,20 @@ TextFormatPanel.prototype.addFont = function(container)
 							    });
 						this.editorUi.pickColor(color, function(newColor)
 						{
+							var targetElt = (tableCell != null && (evt == null || !mxEvent.isShiftDown(evt))) ? tableCell : currentTable;
+							
+							graph.processElements(targetElt, function(elt)
+							{
+								elt.style.backgroundColor = null;
+							});
+							
 							if (newColor == null || newColor == mxConstants.NONE)
 							{
-								currentTable.style.backgroundColor = '';
+								targetElt.style.backgroundColor = '';
 							}
 							else
 							{
-								currentTable.style.backgroundColor = newColor;
+								targetElt.style.backgroundColor = newColor;
 							}
 						});
 					}
@@ -3789,7 +3803,7 @@ TextFormatPanel.prototype.addFont = function(container)
 							setSelected(sup, hasParentOrOnlyChild('SUP'));
 							setSelected(sub, hasParentOrOnlyChild('SUB'));
 							
-							if (graph.cellEditor.isAllTextSelected())
+							if (!graph.cellEditor.isTableSelected())
 							{
 								var align = graph.cellEditor.align || mxUtils.getValue(ss.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
 								setSelected(left, align == mxConstants.ALIGN_LEFT);
@@ -3812,7 +3826,7 @@ TextFormatPanel.prototype.addFont = function(container)
 							
 							currentTable = graph.getParentByName(node, 'TABLE', graph.cellEditor.textarea);
 							tableRow = (currentTable == null) ? null : graph.getParentByName(node, 'TR', currentTable);
-							tableCell = (currentTable == null) ? null : graph.getParentByName(node, 'TD', currentTable);
+							tableCell = (currentTable == null) ? null : graph.getParentByNames(node, ['TD', 'TH'], currentTable);
 							tableWrapper.style.display = (currentTable != null) ? '' : 'none';
 							
 							if (document.activeElement != input)

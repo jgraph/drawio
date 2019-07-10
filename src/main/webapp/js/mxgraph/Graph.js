@@ -2953,9 +2953,10 @@ Graph.prototype.isCellFoldable = function(cell)
 	var state = this.view.getState(cell);
 	var style = (state != null) ? state.style : this.getCellStyle(cell);
 	
-	return this.foldingEnabled && !this.isCellLocked(cell) &&
+	return this.foldingEnabled && (style['treeFolding'] == '1' ||
+		(!this.isCellLocked(cell) &&
 		((this.isContainer(cell) && style['collapsible'] != '0') ||
-		(!this.isContainer(cell) && style['collapsible'] == '1'));
+		(!this.isContainer(cell) && style['collapsible'] == '1'))));
 };
 
 /**
@@ -6717,6 +6718,29 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * Returns the first ancestor of the current selection with the given name.
+		 */
+		Graph.prototype.getParentByNames = function(node, names, stopAt)
+		{
+			while (node != null)
+			{
+				if (mxUtils.indexOf(names, node.nodeName) >= 0)
+				{
+					return node;
+				}
+		
+				if (node == stopAt)
+				{
+					return null;
+				}
+				
+				node = node.parentNode;
+			}
+			
+			return node;
+		};
+		
+		/**
 		 * Selects the given node.
 		 */
 		Graph.prototype.selectNode = function(node)
@@ -7025,59 +7049,28 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return state != null && state.style['html'] == 1;
 		};
-	
-		/**
-		 * Returns true if all selected text (or the cursor) is not
-		 * within a block element or within the only block element.
-		 */
-		mxCellEditor.prototype.isAllTextSelected = function()
-		{
-			var par = null;
-			
-			if (document.selection)
-			{
-				par = document.selection.createRange().parentElement();
-			}
-			else
-			{
-				var selection = window.getSelection();
-				
-				if (selection.rangeCount > 0)
-				{
-					par = selection.getRangeAt(0).commonAncestorContainer;
-				}
-			}
-			
-			var block = false;
-			var css = null;
-			
-			while (par != null && par != this.textarea)
-			{
-				css = (par.nodeType == mxConstants.NODETYPE_ELEMENT) ?
-					mxUtils.getCurrentStyle(par) : null;
-				block = block || (css != null && css.display === 'block');
-			
-				par = par.parentNode;
 
-				if (block && par.childNodes.length > 1)
-				{
-					return false;
-				}
-			}
-			
-			return true;
+		/**
+		 * Returns true if all selected text is inside a table element.
+		 */
+		mxCellEditor.prototype.isTableSelected = function()
+		{
+			return this.graph.getParentByName(
+				this.graph.getSelectedElement(),
+				'TABLE', this.textarea) != null;
 		};
 		
 		/**
-		 * Returns true if all selected text (or the cursor) is not
-		 * within a block element or within the only block element.
+		 * Sets the alignment of the current selected cell. This sets the
+		 * alignment in the cell style, removes all alignment within the
+		 * text and invokes the built-in alignment function.
+		 * 
+		 * Only the built-in function is invoked if shift is pressed or
+		 * if table cells are selected and shift is not pressed.
 		 */
 		mxCellEditor.prototype.alignText = function(align, evt)
 		{
-			// Ignore isAllTextSelected() to produce consistent behaviour
-			// regardless of width of current selected block (if the widest
-			// block is selected the alignment changes are not visible)
-			if (evt == null || !mxEvent.isShiftDown(evt))
+			if (!this.isTableSelected() == (evt == null || !mxEvent.isShiftDown(evt)))
 			{
 				this.graph.cellEditor.setAlign(align);
 				
@@ -7360,8 +7353,9 @@ if (typeof mxVertexHandler != 'undefined')
 					window.setTimeout(mxUtils.bind(this, function()
 					{
 						// Paste from Word or Excel
-						if (this.textarea.innerHTML.indexOf('<o:OfficeDocumentSettings>') >= 0 ||
-							this.textarea.innerHTML.indexOf('<!--[if !mso]>') >= 0)
+						if (this.textarea != null &&
+							(this.textarea.innerHTML.indexOf('<o:OfficeDocumentSettings>') >= 0 ||
+							this.textarea.innerHTML.indexOf('<!--[if !mso]>') >= 0))
 						{
 							checkNode(this.textarea, clone);
 						}

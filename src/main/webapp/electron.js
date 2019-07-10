@@ -195,6 +195,7 @@ app.on('ready', e =>
 	program
         .version(app.getVersion())
         .usage('[options] [input file/folder]')
+        .allowUnknownOption()
         .option('-c, --create', 'creates a new empty file if no file is passed')
         .option('-x, --export', 'export the input file/folder based on the given options')
         .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
@@ -212,9 +213,9 @@ app.on('ready', e =>
 			'sets the border width around the diagram (default: 0)', parseInt)
 		.option('-s, --scale <scale>',
 			'scales the diagram size', parseFloat)
-		.option('-w, --width <width>',
+		.option('--width <width>',
 			'fits the generated image/pdf into the specified width, preserves aspect ratio.', parseInt)
-		.option('-h, --height <height>',
+		.option('--height <height>',
 			'fits the generated image/pdf into the specified height, preserves aspect ratio.', parseInt)
 		.option('--crop',
 			'crops PDF to diagram size')
@@ -470,6 +471,10 @@ app.on('ready', e =>
 			dummyWin.destroy();
     	}
     	
+    	return;
+	}
+    else if (program.help)
+	{
     	return;
 	}
     
