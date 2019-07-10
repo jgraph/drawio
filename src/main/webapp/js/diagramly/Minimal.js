@@ -175,7 +175,7 @@ EditorUi.initMinimalTheme = function()
 
 	    if (ui.sidebarWindow == null)
 	    {
-	        var w = Math.min(graph.container.clientWidth - 10, 242);
+	        var w = Math.min(graph.container.clientWidth - 10, 218);
 	        
 	        ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10, 56,
 	           w - 6, Math.min(650, graph.container.clientHeight - 30),

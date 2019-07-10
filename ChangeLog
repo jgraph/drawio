@@ -1,3 +1,11 @@
+10-JUL-2019: 10.9.3
+
+- Fixes trailing newline in plain text labels
+- Allows inserting multiple lists from text
+- Adds treeMoving style for moving subtrees
+- Fixes table cell align and color editing
+- Uses mxGraph 4.0.2 beta 4
+
 09-JUL-2019: 10.9.2
 
 - Fixes reset of handles after remote style changes

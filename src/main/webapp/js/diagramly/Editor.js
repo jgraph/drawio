@@ -203,7 +203,9 @@
         {name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false},
         {name: 'rotatable', dispName: 'Rotatable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
-        {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true}
+        {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
+        {name: 'treeFolding', dispName: 'Tree Folding', type: 'bool', defVal: false},
+        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false}
 	];
 	/**
 	 * Default value for the CSV import dialog.
