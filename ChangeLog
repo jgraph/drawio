@@ -1,3 +1,7 @@
+11-JUL-2019: 10.9.4
+
+- Adds named styles for CSV import
+
 10-JUL-2019: 10.9.3
 
 - Fixes trailing newline in plain text labels

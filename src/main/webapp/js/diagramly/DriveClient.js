@@ -344,7 +344,7 @@ DriveClient.prototype.executeRequest = function(req, success, error)
 					
 					if (error != null)
 					{
-						error({code: App.ERROR_TIMEOUT, retry: fn});
+						error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout'), retry: fn});
 					}
 				}), this.ui.timeout);
 				
@@ -1079,72 +1079,77 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
  * @param {number} dy Y-coordinate of the translation.
  */
 DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties)
-{
-	var error = mxUtils.bind(this, function(e)
-	{
-		if (errFn != null)
-		{
-			errFn(e);
-		}
-		else
-		{
-			throw e;
-		}
-		
-		// Logs failed save
-		try
-		{
-			if (!file.isConflict(e))
-			{
-				var err = 'error_' + (file.getErrorMessage(e) || 'unknown');
-
-				if (e != null && e.error != null && e.error.code != null)
-				{
-					err += '-code_' + e.error.code;
-				}
-				
-				EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '.' +
-					file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
-					((this.ui.editor.autosave) ? '' : '-nosave') +
-					((file.isAutosave()) ? '' : '-noauto') +
-					((file.changeListenerEnabled) ? '' : '-nolisten') +
-					((file.inConflictState) ? '-conflict' : '') +
-					((file.invalidChecksum) ? '-invalid' : ''),
-					action: err, label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
-					((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
-			}
-		}
-		catch (ex)
-		{
-			// ignore
-		}
-	});
-	
-	var criticalError = mxUtils.bind(this, function(e)
-	{
-		error(e);
-
-		try
-		{
-			EditorUi.logError(e.message, null, null, e);
-			
-			EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
-				new Date().toISOString() + ':' +
-				'\n\nBrowser=' + navigator.userAgent +
-				'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
-				'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
-				 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
-				'\nMessage=' + e.message +
-				'\n\nStack:\n' + e.stack);
-		}
-		catch (e)
-		{
-			// ignore
-		}
-	});
-	
+{	
 	try
 	{
+		file.saveLevel = 1;
+		
+		var error = mxUtils.bind(this, function(e)
+		{
+			file.saveLevel = null;
+			
+			if (errFn != null)
+			{
+				errFn(e);
+			}
+			else
+			{
+				throw e;
+			}
+			
+			// Logs failed save
+			try
+			{
+				if (!file.isConflict(e))
+				{
+					var err = 'error_' + (file.getErrorMessage(e) || 'unknown');
+	
+					if (e != null && e.error != null && e.error.code != null)
+					{
+						err += '-code_' + e.error.code;
+					}
+					
+					EditorUi.logEvent({category: 'ERROR-SAVE-FILE-' + file.getHash() + '-rev_' +
+						file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate +
+							'-size_' + file.getSize() + '-mime_' + file.desc.mimeType +
+						((this.ui.editor.autosave) ? '' : '-nosave') +
+						((file.isAutosave()) ? '' : '-noauto') +
+						((file.changeListenerEnabled) ? '' : '-nolisten') +
+						((file.inConflictState) ? '-conflict' : '') +
+						((file.invalidChecksum) ? '-invalid' : ''),
+						action: err, label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+						((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
+				}
+			}
+			catch (ex)
+			{
+				// ignore
+			}
+		});
+		
+		var criticalError = mxUtils.bind(this, function(e)
+		{
+			error(e);
+	
+			try
+			{
+				EditorUi.logError(e.message, null, null, e);
+				
+				EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
+					new Date().toISOString() + ':' +
+					'\n\nBrowser=' + navigator.userAgent +
+					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
+					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
+					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
+					'\nMessage=' + e.message +
+					'\n\nStack:\n' + e.stack);
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		});
+
 		if (file.isEditable() && file.desc != null)
 		{
 			var t0 = new Date().getTime();
@@ -1170,6 +1175,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			{
 				try
 				{
+					file.saveLevel = 3;
 					var prevDesc = null;
 					var pinned = false;
 					var meta =
@@ -1278,7 +1284,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									EditorUi.sendReport('Critical: Error saving to Google Drive ' +
 										new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
 										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
-										'\nUser=' + ((this.user != null) ? this.user.id : 'unknown') +
+										'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
 										 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 										'\nErrors=' + temp + '\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' +
 										this.ui.hashValue(etag0) + '\nNew=' + resp.headRevisionId + ' ' +
@@ -1287,7 +1293,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
 										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
 										this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
-										'user-' + ((this.user != null) ? this.user.id : 'unknown') +
+										'user-' + ((this.user != null) ? this.user.id : 'nouser') +
 									 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync'));
 								}
 								catch (e)
@@ -1297,6 +1303,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							}
 							else
 							{
+								file.saveLevel = null;
 						    	success(resp, savedData);
 		
 						    	if (prevDesc != null)
@@ -1325,7 +1332,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
 											action: 'from_' + prevDesc.id + '.' + prevDesc.headRevisionId +
 											'-to_' + file.desc.id + '.' + file.desc.headRevisionId,
-											label: (this.user != null) ? 'user_' + this.user.id : 'unknown' +
+											label: (this.user != null) ? ('user_' + this.user.id) : 'nouser' +
 											((file.sync != null) ? '-client_' + file.sync.clientId : 'nosync')});
 									}
 									catch (e)
@@ -1338,14 +1345,16 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								try
 								{
 									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
-										'.' + head0 + '-mod_' + mod0, action: 'saved-' + resp.headRevisionId +
+										'-rev0_' + head0 + '-mod0_' + mod0,
+										action: 'rev-' + resp.headRevisionId +
 										'-mod_' + resp.modifiedDate + '-size_' + file.getSize() +
+										'-mime_' + file.desc.mimeType +
 										((this.ui.editor.autosave) ? '' : '-nosave') +
 										((file.isAutosave()) ? '' : '-noauto') +
 										((file.changeListenerEnabled) ? '' : '-nolisten') +
 										((file.inConflictState) ? '-conflict' : '') +
 										((file.invalidChecksum) ? '-invalid' : ''),
-										label: ((this.user != null) ? 'user_' + this.user.id : 'unknown') +
+										label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
 										((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 								}
 								catch (e)
@@ -1362,6 +1371,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					
 					var doExecuteRequest = mxUtils.bind(this, function(data, binary)
 					{
+						file.saveLevel = 4;
+						
 						try
 						{
 							if (properties != null)
@@ -1377,6 +1388,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							
 							var executeSave = mxUtils.bind(this, function(realOverwrite)
 							{
+								file.saveLevel = 5;
+								
 								try
 								{
 									var unknown = file.desc.mimeType != this.xmlMimeType && file.desc.mimeType != this.mimeType &&
@@ -1387,6 +1400,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										(realOverwrite) ? null : etag, pinned), wrapper,
 										mxUtils.bind(this, function(err)
 									{
+										file.saveLevel = 6;
+											
 										try
 										{
 											if (!file.isConflict(err))
@@ -1401,6 +1416,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													'fields': this.catchupFields, 'supportsTeamDrives': true}), 
 													mxUtils.bind(this, function(resp)
 												{
+													file.saveLevel = 7;
+
 													try
 													{
 														// Stale etag detected, retry with delay
@@ -1422,8 +1439,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																{
 																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
 																		null, file.desc.id + '.' + file.desc.headRevisionId,
-																		(this.user != null) ? this.user.id : 'unknown' +
-																		'.' + ((file.sync != null) ? file.sync.clientId : 'nosync'));
+																		((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+																		((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync'));
 																}
 																catch (e)
 																{
@@ -1431,7 +1448,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																}
 															}
 														}
-														else if (error != null)
+														else
 														{
 															error(err, resp);
 														}
@@ -1442,10 +1459,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													}
 												}), mxUtils.bind(this, function()
 												{
-													if (error != null)
-													{
-														error(err);
-													}
+													error(err);
 												}));
 											}
 										}
@@ -1464,6 +1478,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							// Uses saved PNG data for thumbnail
 							if (saveAsPng && thumb == null)
 							{
+								file.saveLevel = 8;
 								var img = new Image();
 								
 								img.onload = mxUtils.bind(this, function()
@@ -1531,53 +1546,64 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			// (required because generation of thumbnails is asynchronous)
 			var fn = mxUtils.bind(this, function()
 			{
-				// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
-				if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
-					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
-					{
-						// Callback for getThumbnail
-						try
-						{
-							var thumb = null;
+				try
+				{
+					file.saveLevel = 2;
 
+					// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
+					if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
+						(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
+						!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
+						{
+							// Callback for getThumbnail
 							try
 							{
-								if (canvas != null)
+								file.thumbTime = null;
+								var thumb = null;
+	
+								try
 								{
-									// Security errors are possible
-									thumb = canvas.toDataURL('image/png');
+									if (canvas != null)
+									{
+										// Security errors are possible
+										thumb = canvas.toDataURL('image/png');
+									}
+									
+									// Maximum thumbnail size is 2MB
+									if (thumb != null)
+									{
+										if (thumb.length > this.maxThumbnailSize)
+										{
+											thumb = null;
+										}
+										else
+										{
+											// Converts base64 data into required format for Drive (base64url with no prefix)
+											thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+										}
+									}
+								}
+								catch (e)
+								{
+									thumb = null;
 								}
 								
-								// Maximum thumbnail size is 2MB
-								if (thumb != null)
-								{
-									if (thumb.length > this.maxThumbnailSize)
-									{
-										thumb = null;
-									}
-									else
-									{
-										// Converts base64 data into required format for Drive (base64url with no prefix)
-										thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
-									}
-								}
+								doSave(thumb, 'image/png');
 							}
 							catch (e)
 							{
-								thumb = null;
+								criticalError(e);
 							}
-							
-							doSave(thumb, 'image/png');
-						}
-						catch (e)
-						{
-							criticalError(e);
-						}
-					})))
+						})))
+					{
+						// If-branch
+						file.thumbTime = null;
+						doSave(null, null, file.constructor != DriveLibrary);
+					}
+				}
+				catch (e)
 				{
-					// If-branch
-					doSave(null, null, file.constructor != DriveLibrary);
+					criticalError(e);
 				}
 			});
 			
@@ -1599,11 +1625,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		else
 		{
 			this.ui.editor.graph.reset();
-			
-			if (error != null)
-			{
-				error({message: mxResources.get('readOnly')});
-			}
+			error({message: mxResources.get('readOnly')});
 		}
 	}
 	catch (e)
@@ -2604,10 +2626,10 @@ DriveClient.prototype.convertRealtimeFiles = function()
 					// Logs conversion
 					EditorUi.logEvent({category: 'AUTO-CONVERT',
 						action: 'total_' + total + '-done_' + converted +
-						'-fail_' + '-xml_' + fromXml + '-json_' + fromJson +
+						'-fail_' + failed + '-xml_' + fromXml + '-json_' + fromJson +
 						'-load_' + loadFail + '-save_' + saveFail +
 						'-invalid_' + invalid + '-dt-' + Math.round(dt / 1000),
-						label: (this.user != null) ? 'user_' + this.user.id : '-nouser'});
+						label: (this.user != null) ? ('user_' + this.user.id) : '-nouser'});
 				}
 				catch (e)
 				{

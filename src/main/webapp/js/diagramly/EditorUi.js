@@ -6301,36 +6301,46 @@
 			{
 				(mxUtils.bind(this, function(img)
 				{
-					var src = converter.convert(img.getAttribute(srcAttr));
-		        	
-					// Data URIs are pass-through
-					if (src != null && src.substring(0, 5) != 'data:')
+					try
 					{
-						var tmp = cache[src];
-						
-						if (tmp == null)
+						if (img != null)
 						{
-							inc();
-							
-							this.convertImageToDataUri(src, function(uri)
+							var src = converter.convert(img.getAttribute(srcAttr));
+				        	
+							// Data URIs are pass-through
+							if (src != null && src.substring(0, 5) != 'data:')
 							{
-								if (uri != null)
-								{
-									cache[src] = uri;
-									img.setAttribute(srcAttr, uri);
-								}
+								var tmp = cache[src];
 								
-								dec();
-							});
-						}
-						else
-						{
-							img.setAttribute(srcAttr, tmp);
+								if (tmp == null)
+								{
+									inc();
+									
+									this.convertImageToDataUri(src, function(uri)
+									{
+										if (uri != null)
+										{
+											cache[src] = uri;
+											img.setAttribute(srcAttr, uri);
+										}
+										
+										dec();
+									});
+								}
+								else
+								{
+									img.setAttribute(srcAttr, tmp);
+								}
+							}
+							else if (src != null)
+							{
+								img.setAttribute(srcAttr, src);
+							}
 						}
 					}
-					else if (src != null)
+					catch (e)
 					{
-						img.setAttribute(srcAttr, src);
+						// ignore
 					}
 				}))(images[i]);
 			}
@@ -6442,51 +6452,86 @@
 	 */
 	EditorUi.prototype.convertImageToDataUri = function(url, callback)
 	{
-		if (/(\.svg)$/i.test(url))
+		try
 		{
-			mxUtils.get(url, mxUtils.bind(this, function(req)
+			var acceptResponse = true;
+			
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				callback(this.createSvgDataUri(req.getText()));
-			}),
-			function()
-			{
+				acceptResponse = false;
 				callback(this.svgBrokenImage.src);
-			});
+			}), this.timeout);
+	
+			if (/(\.svg)$/i.test(url))
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.createSvgDataUri(req.getText()));
+					}
+				}),
+				function()
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.svgBrokenImage.src);
+					}
+				});
+			}
+			else
+			{
+			    var img = new Image();
+			    var self = this;
+			    
+			    if (this.crossOriginImages)
+		    	{
+				    img.crossOrigin = 'anonymous';
+			    }
+			    
+			    img.onload = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+				        try
+				        {
+					        var canvas = document.createElement('canvas');
+					        var ctx = canvas.getContext('2d');
+					        canvas.height = img.height;
+					        canvas.width = img.width;
+					        ctx.drawImage(img, 0, 0);
+
+				        	callback(canvas.toDataURL());
+				        }
+				        catch (e)
+				        {
+			        		callback(self.svgBrokenImage.src);
+				        }
+					}
+			    };
+			    
+			    img.onerror = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(self.svgBrokenImage.src);
+					}
+			    };
+			    
+			    img.src = url;
+			}
 		}
-		else
+		catch (e)
 		{
-		    var img = new Image();
-		    var self = this;
-		    
-		    if (this.crossOriginImages)
-	    	{
-			    img.crossOrigin = 'anonymous';
-		    }
-		    
-		    img.onload = function()
-		    {
-		        var canvas = document.createElement('canvas');
-		        var ctx = canvas.getContext('2d');
-		        canvas.height = img.height;
-		        canvas.width = img.width;
-		        ctx.drawImage(img, 0, 0);
-		        
-		        try
-		        {
-	        		callback(canvas.toDataURL());
-		        }
-		        catch (e)
-		        {
-	        		callback(self.svgBrokenImage.src);
-		        }
-		    };
-		    
-		    img.onerror = function()
-		    {
-	    		callback(self.svgBrokenImage.src);
-		    };
-		    
-		    img.src = url;
+			callback(this.svgBrokenImage.src);
 		}
 	};
 
@@ -10883,6 +10928,8 @@
         		
         		// Default values
         		var style = null;
+        		var styles = null;
+        		var stylename = null;
         		var parentstyle = null;
         		var identity = null;
         		var parent = null;
@@ -10974,6 +11021,14 @@
 		    				else if (key == 'parentstyle')
 		    				{
 		    					parentstyle = value;
+		    				}
+		    				else if (key == 'stylename' && value.length > 0 && value != '-')
+		    				{
+		    					stylename = value;
+		    				}
+		    				else if (key == 'styles' && value.length > 0 && value != '-')
+		    				{
+		    					styles = JSON.parse(value);
 		    				}
 		    				else if (key == 'identity' && value.length > 0 && value != '-')
 		    				{
@@ -11115,7 +11170,17 @@
 					    	{
 								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
-							
+
+							if (stylename != null && styles != null)
+							{
+								var tempStyle = styles[newCell.getAttribute(stylename)];
+								
+								if (tempStyle != null)
+								{
+									newCell.style = tempStyle;
+								}
+							}
+	
 							graph.setAttributeForCell(newCell, 'placeholders', '1');
 							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
 
@@ -11147,7 +11212,7 @@
 								// Removes attribute
 								graph.setAttributeForCell(cell, link, null);
 							}
-	
+							
 							// Sets the size
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 							var size = this.editor.graph.getPreferredSizeForCell(cell);

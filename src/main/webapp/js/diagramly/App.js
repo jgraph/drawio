@@ -28,8 +28,9 @@ App = function(editor, container, lightbox)
 				var evt = {category: 'DISCARD-FILE-' + file.getHash(),
 					action: ((file.savingFile) ? 'saving' : '') +
 					((file.savingFile && file.savingFileTime != null) ? '_' +
-						Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+						Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
 					((file.autosaveThread != null) ? '-thread' : '') +
+					'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
 					((this.editor.autosave) ? '' : '-nosave') +
 					((file.isAutosave()) ? '' : '-noauto') +
 					((file.changeListenerEnabled) ? '' : '-nolisten') +
@@ -42,8 +43,9 @@ App = function(editor, container, lightbox)
 					
 				if (file.constructor == DriveFile && file.desc != null && this.drive != null)
 				{
-					evt.label += ((this.drive.user != null) ? '-user_' + this.drive.user.id : '-nouser') + '-rev_' +
-						file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize();
+					evt.label += ((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
+						file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+						'-mime_' + file.desc.mimeType;
 				}
 
 				EditorUi.logEvent(evt);
@@ -1075,7 +1077,7 @@ App.prototype.init = function()
 		}))
 	}
 	
-	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler)
+	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler, helpLink)
 	{
 		var footer = document.createElement('div');
 		footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
@@ -1090,7 +1092,10 @@ App.prototype.init = function()
 		footer.style.whiteSpace = 'nowrap';
 		footer.innerHTML = '<a href="' + link +
 			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-			icn + label + icn + '</a>';
+			icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
+			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
+		
+		console.log('help', helpLink);
 		
 		var img = document.createElement('img');
 		
@@ -1286,7 +1291,7 @@ App.prototype.init = function()
 											mxSettings.settings.closeRealtimeWarning = Date.now();
 											mxSettings.save();
 										}
-									}));
+									}), 'https://desk.draw.io/support/solutions/articles/16000092210');
 
 								document.body.appendChild(footer);
 								
@@ -1507,8 +1512,9 @@ App.prototype.sanityCheck = function()
 		var evt = {category: 'WARN-FILE-' + file.getHash(),
 			action: ((file.savingFile) ? 'saving' : '') +
 			((file.savingFile && file.savingFileTime != null) ? '_' +
-				Math.round((Date.now() - file.savingFileTime) / 1000) : '') +
+				Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
 			((file.autosaveThread != null) ? '-thread' : '') +
+			'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
 			((this.editor.autosave) ? '' : '-nosave') +
 			((file.isAutosave()) ? '' : '-noauto') +
 			((file.changeListenerEnabled) ? '' : '-nolisten') +
@@ -1521,8 +1527,9 @@ App.prototype.sanityCheck = function()
 			
 		if (file.constructor == DriveFile && file.desc != null && this.drive != null)
 		{
-			evt.label += ((this.drive.user != null) ? '-user_' + this.drive.user.id : '-nouser') + '-rev_' +
-				file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize();
+			evt.label += ((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
+				file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+				'-mime_' + file.desc.mimeType;
 		}
 			
 		EditorUi.logEvent(evt);
@@ -2073,9 +2080,8 @@ App.prototype.getThumbnail = function(width, success)
 	}
 	catch (e)
 	{
-		// ignore and use placeholder
 		// Removes temporary graph from DOM
-  	    if (graph != this.editor.graph && graph.container.parentNode != null)
+  	    if (graph != null && graph != this.editor.graph && graph.container.parentNode != null)
 		{
 			graph.container.parentNode.removeChild(graph.container);
 		}
