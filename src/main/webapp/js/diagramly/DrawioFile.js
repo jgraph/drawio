@@ -161,6 +161,11 @@ DrawioFile.prototype.errorReportsEnabled = false;
 DrawioFile.prototype.reportEnabled = true;
 
 /**
+ * Specifies if stats should be sent.
+ */
+DrawioFile.prototype.ageStart = null;
+
+/**
  * Specifies if notify events should be ignored.
  */
 DrawioFile.prototype.getSize = function()
@@ -1685,6 +1690,14 @@ DrawioFile.prototype.getErrorMessage = function(err)
 };
 
 /**
+ * Returns true if the oldest unsaved change is older than <EditorUi.warnInterval>.
+ */
+DrawioFile.prototype.isOverdue = function()
+{
+	return this.ageStart != null && (Date.now() - this.ageStart.getTime()) >= this.ui.warnInterval;
+};
+
+/**
  * Adds the listener for automatically saving the diagram for local changes.
  */
 DrawioFile.prototype.fileChanged = function()
@@ -1697,6 +1710,11 @@ DrawioFile.prototype.fileChanged = function()
 		this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
 		this.ui.scheduleSanityCheck();
 		
+		if (this.ageStart == null)
+		{
+			this.ageStart = new Date();
+		}
+		
 		this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
 		{
 			this.ui.stopSanityCheck();
@@ -1705,20 +1723,27 @@ DrawioFile.prototype.fileChanged = function()
 			if (this.autosaveThread == null)
 			{
 				this.handleFileSuccess(true);
+				this.ageStart = null;
 			}
 			else if (this.isModified())
 			{
 				this.ui.scheduleSanityCheck();
+				this.ageStart = this.lastChanged;
 			}
 		}), mxUtils.bind(this, function(err)
 		{
 			this.handleFileError(err);
 		}));
 	}
-	else if ((!this.isAutosaveOptional() || !this.ui.editor.autosave) &&
-		!this.inConflictState)
+	else
 	{
-		this.addUnsavedStatus();
+		this.ageStart = null;
+		
+		if ((!this.isAutosaveOptional() || !this.ui.editor.autosave) &&
+			!this.inConflictState)
+		{
+			this.addUnsavedStatus();
+		}
 	}
 };
 
@@ -1728,6 +1753,7 @@ DrawioFile.prototype.fileChanged = function()
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error)
 {
 	this.lastSaved = new Date();
+	this.ageStart = null;
 	
 	try
 	{

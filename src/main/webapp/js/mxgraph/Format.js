@@ -2838,7 +2838,8 @@ TextFormatPanel.prototype.addFont = function(container)
 
 			function updateSize(elt, ignoreContains)
 			{
-				if (elt != graph.cellEditor.textarea && graph.cellEditor.textarea.contains(elt) &&
+				if (graph.cellEditor.textarea != null && elt != graph.cellEditor.textarea &&
+					graph.cellEditor.textarea.contains(elt) &&
 					(ignoreContains || selection.containsNode(elt, true)))
 				{
 					if (elt.nodeName == 'FONT')
@@ -3213,7 +3214,8 @@ TextFormatPanel.prototype.addFont = function(container)
 				node = graph.cellEditor.textarea.firstChild;
 			}
 			
-			if (node != null && node != graph.cellEditor.textarea && graph.cellEditor.textarea.contains(node))
+			if (node != null && graph.cellEditor.textarea != null && node != graph.cellEditor.textarea &&
+				graph.cellEditor.textarea.contains(node))
 			{
 				node.style.lineHeight = value + '%';
 			}
@@ -3692,7 +3694,7 @@ TextFormatPanel.prototype.addFont = function(container)
 							{
 								var lineHeight = css.lineHeight
 								
-								if (elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
+								if (elt.style.lineHeight != null && elt.style.lineHeight.substring(elt.style.lineHeight.length - 1) == '%')
 								{
 									return parseInt(elt.style.lineHeight) / 100;
 								}

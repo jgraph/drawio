@@ -29,16 +29,13 @@ App = function(editor, container, lightbox)
 					action: ((file.savingFile) ? 'saving' : '') +
 					((file.savingFile && file.savingFileTime != null) ? '_' +
 						Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-					((file.autosaveThread != null) ? '-thread' : '') +
 					'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
 					((this.editor.autosave) ? '' : '-nosave') +
 					((file.isAutosave()) ? '' : '-noauto') +
-					((file.changeListenerEnabled) ? '' : '-nolisten') +
-					((file.inConflictState) ? '-conflict' : '') +
-					((file.invalidChecksum) ? '-invalid' : '') +
 					'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-					'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-					'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x'),
+					'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+					'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+					'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
 					label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
 					
 				if (file.constructor == DriveFile && file.desc != null && this.drive != null)
@@ -281,6 +278,13 @@ App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
 App.GOOGLE_APIS = 'client,drive-share'; 
+
+/**
+ * Function: authorize
+ * 
+ * Authorizes the client, gets the userId and calls <open>.
+ */
+App.startTime = new Date();
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
@@ -1505,24 +1509,20 @@ App.prototype.sanityCheck = function()
 {
 	var file = this.getCurrentFile();
 
-	if (file != null && file.isModified() && file.isAutosave() &&
-		(Date.now() - ((file.lastSaved != null) ? file.lastSaved.getTime() :
-		file.opened.getTime())) >= this.warnInterval)
+	if (file != null && file.isModified() && file.isAutosave() && file.isOverdue())
 	{
 		var evt = {category: 'WARN-FILE-' + file.getHash(),
 			action: ((file.savingFile) ? 'saving' : '') +
 			((file.savingFile && file.savingFileTime != null) ? '_' +
 				Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-			((file.autosaveThread != null) ? '-thread' : '') +
+			'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
 			'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
 			((this.editor.autosave) ? '' : '-nosave') +
 			((file.isAutosave()) ? '' : '-noauto') +
-			((file.changeListenerEnabled) ? '' : '-nolisten') +
-			((file.inConflictState) ? '-conflict' : '') +
-			((file.invalidChecksum) ? '-invalid' : '') +
 			'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-			'-save_' + ((file.lastSaved != null) ?  Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-			'-change_' + ((file.lastChanged != null) ?  Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x'),
+			'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+			'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x')+
+			'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
 			label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
 			
 		if (file.constructor == DriveFile && file.desc != null && this.drive != null)

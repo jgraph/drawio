@@ -1079,7 +1079,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
  * @param {number} dy Y-coordinate of the translation.
  */
 DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties)
-{	
+{
 	try
 	{
 		file.saveLevel = 1;
@@ -1394,78 +1394,98 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								{
 									var unknown = file.desc.mimeType != this.xmlMimeType && file.desc.mimeType != this.mimeType &&
 										file.desc.mimeType != this.libraryMimeType;
+									var acceptResponse = true;
+									
+									// Allow for re-auth flow with 4x timeout
+									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									{
+										acceptResponse = false;
+										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+									}), 4 * this.ui.timeout);
 									
 									this.executeRequest(this.createUploadRequest(file.getId(), meta,
 										data, revision || realOverwrite || unknown, binary,
-										(realOverwrite) ? null : etag, pinned), wrapper,
-										mxUtils.bind(this, function(err)
+										(realOverwrite) ? null : etag, pinned), mxUtils.bind(this, function(resp)
 									{
-										file.saveLevel = 6;
-											
-										try
+										window.clearTimeout(timeoutThread);
+										
+										if (acceptResponse)
 										{
-											if (!file.isConflict(err))
+											wrapper(resp);
+										}
+									}), mxUtils.bind(this, function(err)
+									{
+										window.clearTimeout(timeoutThread);
+										
+										if (acceptResponse)
+										{
+											file.saveLevel = 6;
+												
+											try
 											{
-												error(err);
-											}
-											else
-											{
-												// Check for stale etag which can happen if a file is being saved or if
-												// the etag simply isn't change but system still returns a 412 error (stale)
-												this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
-													'fields': this.catchupFields, 'supportsTeamDrives': true}), 
-													mxUtils.bind(this, function(resp)
+												if (!file.isConflict(err))
 												{
-													file.saveLevel = 7;
-
-													try
+													error(err);
+												}
+												else
+												{
+													// Check for stale etag which can happen if a file is being saved or if
+													// the etag simply isn't change but system still returns a 412 error (stale)
+													this.executeRequest(gapi.client.drive.files.get({'fileId': file.getId(),
+														'fields': this.catchupFields, 'supportsTeamDrives': true}), 
+														mxUtils.bind(this, function(resp)
 													{
-														// Stale etag detected, retry with delay
-														if (resp != null && resp.etag == etag)
+														file.saveLevel = 7;
+	
+														try
 														{
-															if (retryCount < this.maxRetries)
+															// Stale etag detected, retry with delay
+															if (resp != null && resp.etag == etag)
 															{
-																retryCount++;
-																var jitter = 1 + 0.1 * (Math.random() - 0.5);
-																var delay = retryCount * 2 * this.coolOff * jitter;
-																window.setTimeout(executeSave, delay);
+																if (retryCount < this.maxRetries)
+																{
+																	retryCount++;
+																	var jitter = 1 + 0.1 * (Math.random() - 0.5);
+																	var delay = retryCount * 2 * this.coolOff * jitter;
+																	window.setTimeout(executeSave, delay);
+																}
+																else
+																{
+																	executeSave(true);
+																	
+																	// Logs overwrite
+																	try
+																	{
+																		EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
+																			null, file.desc.id + '.' + file.desc.headRevisionId,
+																			((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+																			((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync'));
+																	}
+																	catch (e)
+																	{
+																		// ignore
+																	}
+																}
 															}
 															else
 															{
-																executeSave(true);
-																
-																// Logs overwrite
-																try
-																{
-																	EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
-																		null, file.desc.id + '.' + file.desc.headRevisionId,
-																		((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
-																		((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync'));
-																}
-																catch (e)
-																{
-																	// ignore
-																}
+																error(err, resp);
 															}
 														}
-														else
+														catch (e)
 														{
-															error(err, resp);
+															criticalError(e);
 														}
-													}
-													catch (e)
+													}), mxUtils.bind(this, function()
 													{
-														criticalError(e);
-													}
-												}), mxUtils.bind(this, function()
-												{
-													error(err);
-												}));
+														error(err);
+													}));
+												}
 											}
-										}
-										catch (e)
-										{
-											criticalError(e);
+											catch (e)
+											{
+												criticalError(e);
+											}
 										}
 									}));
 								}
