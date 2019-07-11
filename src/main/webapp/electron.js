@@ -191,42 +191,50 @@ app.on('ready', e =>
 	{
 	  return val.split('..').map(Number);
 	}
-
-	program
-        .version(app.getVersion())
-        .usage('[options] [input file/folder]')
-        .allowUnknownOption()
-        .option('-c, --create', 'creates a new empty file if no file is passed')
-        .option('-x, --export', 'export the input file/folder based on the given options')
-        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
-        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
-        .option('-f, --format <format>',
-		    'if output file name extension is specified, this option is ignored (file type is determined from output extension)',
-		    validFormatRegExp, 'pdf')
-		.option('-q, --quality <quality>',
-			'output image quality for JPEG (default: 90)', parseInt)
-		.option('-t, --transparent',
-			'set transparent background for PNG')
-		.option('-e, --embed-diagram',
-			'includes a copy of the diagram (for PNG format only)')
-		.option('-b, --border <border>',
-			'sets the border width around the diagram (default: 0)', parseInt)
-		.option('-s, --scale <scale>',
-			'scales the diagram size', parseFloat)
-		.option('--width <width>',
-			'fits the generated image/pdf into the specified width, preserves aspect ratio.', parseInt)
-		.option('--height <height>',
-			'fits the generated image/pdf into the specified height, preserves aspect ratio.', parseInt)
-		.option('--crop',
-			'crops PDF to diagram size')
-		.option('-a, --all-pages',
-			'export all pages (for PDF format only)')
-		.option('-p, --page-index <pageIndex>',
-			'selects a specific page, if not specified and the format is an image, the first page is selected', parseInt)
-		.option('-g, --page-range <from>..<to>',
-			'selects a page range (for PDF format only)', argsRange)
-        .parse(argv)
-
+	
+	try
+	{
+		program
+	        .version(app.getVersion())
+	        .usage('[options] [input file/folder]')
+	        .allowUnknownOption() //-h and --help are considered unknown!!
+	        .option('-c, --create', 'creates a new empty file if no file is passed')
+	        .option('-x, --export', 'export the input file/folder based on the given options')
+	        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
+	        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
+	        .option('-f, --format <format>',
+			    'if output file name extension is specified, this option is ignored (file type is determined from output extension)',
+			    validFormatRegExp, 'pdf')
+			.option('-q, --quality <quality>',
+				'output image quality for JPEG (default: 90)', parseInt)
+			.option('-t, --transparent',
+				'set transparent background for PNG')
+			.option('-e, --embed-diagram',
+				'includes a copy of the diagram (for PNG format only)')
+			.option('-b, --border <border>',
+				'sets the border width around the diagram (default: 0)', parseInt)
+			.option('-s, --scale <scale>',
+				'scales the diagram size', parseFloat)
+			.option('--width <width>',
+				'fits the generated image/pdf into the specified width, preserves aspect ratio.', parseInt)
+			.option('--height <height>',
+				'fits the generated image/pdf into the specified height, preserves aspect ratio.', parseInt)
+			.option('--crop',
+				'crops PDF to diagram size')
+			.option('-a, --all-pages',
+				'export all pages (for PDF format only)')
+			.option('-p, --page-index <pageIndex>',
+				'selects a specific page, if not specified and the format is an image, the first page is selected', parseInt)
+			.option('-g, --page-range <from>..<to>',
+				'selects a page range (for PDF format only)', argsRange)
+	        .parse(argv)
+	}
+	catch(e)
+	{
+		//On parse error, return [exit and commander will show the error message]
+		return;
+	}
+	
     //Start export mode?
     if (program.export)
 	{
@@ -473,7 +481,7 @@ app.on('ready', e =>
     	
     	return;
 	}
-    else if (program.help)
+    else if (program.rawArgs.indexOf('-h') > -1 || program.rawArgs.indexOf('--help') > -1) //To prevent execution when help arg is used
 	{
     	return;
 	}
