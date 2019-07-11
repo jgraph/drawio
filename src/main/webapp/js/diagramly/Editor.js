@@ -230,6 +230,16 @@
 		'#\n' +
 		'# parentstyle: swimlane;whiteSpace=wrap;html=1;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;\n' +
 		'#\n' +
+		'## Optional column name that contains a reference to a named style in styles.\n' +
+		'## Default is the current style for nodes.\n' +
+		'#\n' +
+		'# stylename: -\n' +
+		'#\n' +
+		'## JSON for named styles of the form {"name": "style", "name": "style"} where style is a cell style with\n' +
+		'## placeholders that are replaced once.\n' +
+		'#\n' +
+		'# styles: -\n' +
+		'#\n' +
 		'## Uses the given column name as the identity for cells (updates existing cells).\n' +
 		'## Default is no identity (empty value or -).\n' +
 		'#\n' +

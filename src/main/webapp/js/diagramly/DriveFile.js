@@ -184,8 +184,8 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					{
 						try
 						{
-							this.isModified = prevModified;
 							this.savingFile = false;
+							this.isModified = prevModified;
 							
 							// Handles special case where resp is false eg
 							// if the old file was converted to realtime
