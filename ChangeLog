@@ -1,5 +1,10 @@
+12-JUL-2019: 10.9.6
+
+- Adds local files, Google Drive in Office Add-in
+
 11-JUL-2019: 10.9.5
 
+- Improves error handling for saving files
 - Fixes desktop startup
 
 11-JUL-2019: 10.9.4

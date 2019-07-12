@@ -443,6 +443,78 @@
 	};
 	
 	/**
+	 * Extracts the XML from the compressed or non-compressed text chunk.
+	 */
+	Editor.extractGraphModelFromPng = function(data)
+	{
+		var result = null;
+		
+		try
+		{
+			var base64 = data.substring(data.indexOf(',') + 1);
+
+			// Workaround for invalid character error in Safari
+			var binary = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
+			
+			EditorUi.parsePng(binary, mxUtils.bind(this, function(pos, type, length)
+			{
+				var value = binary.substring(pos + 8, pos + 8 + length);
+				
+				if (type == 'zTXt')
+				{
+					var idx = value.indexOf(String.fromCharCode(0));
+					
+					if (value.substring(0, idx) == 'mxGraphModel')
+					{
+						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
+						var xmlData = Graph.bytesToString(pako.inflateRaw(
+							value.substring(idx + 2))).replace(/\+/g,' ');
+						
+						if (xmlData != null && xmlData.length > 0)
+						{
+							result = xmlData;
+						}
+					}
+				}
+				// Uncompressed section is normally not used
+				else if (type == 'tEXt')
+				{
+					var vals = value.split(String.fromCharCode(0));
+					
+					if (vals.length > 1 && vals[0] == 'mxGraphModel')
+					{
+						result = vals[1];
+					}
+				}
+				
+				if (result != null || type == 'IDAT')
+				{
+					// Stops processing the file as our text chunks
+					// are always placed before the data section
+					return true;
+				}
+			}));
+		}
+		catch (e)
+		{
+			// ignores decoding errors
+		}
+		
+		if (result != null && result.charAt(0) == '%')
+		{
+			result = decodeURIComponent(result);
+		}
+		
+		// Workaround for double encoded content
+		if (result != null && result.charAt(0) == '%')
+		{
+			result = decodeURIComponent(result);
+		}
+		
+		return result;
+	};
+
+	/**
 	 * Disables the shadow option in the format panel.
 	 */
 	Editor.shadowOptionEnabled = true;
@@ -458,8 +530,6 @@
 	 * mxSettings.parse, then the settings are reset.
 	 */
 	Editor.configVersion = null;
-
-	Editor.prototype.timeout = 25000;
 	
 	/**
 	 * Global configuration of the Editor
@@ -632,6 +702,11 @@
 
 		return rtn.join('');
 	};
+
+	/**
+	 * General timeout is 25 seconds.
+	 */
+	Editor.prototype.timeout = 25000;
 	
 	/**
 	 * This should not be enabled if reflows are required for math rendering.

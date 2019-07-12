@@ -54,8 +54,7 @@ EditorUi.initMinimalTheme = function()
            // Styling for Minimal
            '.geToolbarContainer { background:#fff !important; }' +
            'div.geSidebarContainer { background-color: #ffffff; }' +
-           'div.geSidebar { border-bottom: none; }' +
-           'div.geSidebarContainer .geTitle { background-color:#ffffff; border-bottom: none; }' +
+           'div.geSidebarContainer .geTitle { background-color:#fdfdfd; }' +
            'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
            'td.mxWindowTitle { height: 22px !important; background: none !important; font-size: 13px !important; text-align:center !important; border-bottom:1px solid lightgray; }' +
            'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:#fff !important; }' +
@@ -246,10 +245,18 @@ EditorUi.initMinimalTheme = function()
 					else
 					{
 						var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
+						elt.style.boxSizing = 'border-box';
+						elt.style.paddingRight = '6px';
+						elt.style.paddingLeft = '6px';
+						elt.style.height = '32px';
 			            elt.style.left = '0';
 			            
 			            var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
 			            elt.style.borderLeft = '1px solid lightgray';
+						elt.style.boxSizing = 'border-box';
+						elt.style.paddingRight = '6px';
+						elt.style.paddingLeft = '6px';
+						elt.style.height = '32px';
 			            elt.style.left = '50%';
 					}
 	            }

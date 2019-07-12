@@ -37,6 +37,33 @@
 	EditorUi.ignoredAnonymizedChars = '\n\t`~!@#$%^&*()_+{}|:"<>?-=[]\;\'.\/,\n\t';
 
 	/**
+	 * Specifies the URL for the templates index file.
+	 */
+	EditorUi.templateFile = TEMPLATE_PATH + '/index.xml';
+
+	/**
+	 * Specifies the URL for the diffsync cache.
+	 */
+	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
+
+	/**
+	 * Switch to enable PlantUML in the insert from text dialog.
+	 * NOTE: This must also be enabled on the server-side.
+	 */
+	EditorUi.enablePlantUml = EditorUi.enableLogging;
+
+	/**
+	 * https://github.com/electron/electron/issues/2288
+	 */
+	EditorUi.isElectronApp = window != null && window.process != null &&
+		window.process.versions != null && window.process.versions['electron'] != null;
+
+	/**
+	 * Link for scratchpad help.
+	 */
+	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
+	
+	/**
 	 * Updates action states depending on the selection.
 	 */
 	EditorUi.logError = function(message, url, linenumber, colno, err)
@@ -163,32 +190,79 @@
 	};
 
 	/**
-	 * Specifies the URL for the templates index file.
+	 * Static method for pasing PNG files.
 	 */
-	EditorUi.templateFile = TEMPLATE_PATH + '/index.xml';
+	EditorUi.parsePng = function(f, fn, error)
+	{
+		var pos = 0;
+		
+		function fread(d, count)
+		{
+			var start = pos;
+			pos += count;
+			
+			return d.substring(start, pos);
+		};
+		
+		// Reads unsigned long 32 bit big endian
+		function _freadint(d)
+		{
+			var bytes = fread(d, 4);
+			
+			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+		};
+		
+		// Checks signature
+		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		// Reads header chunk
+		fread(f,4);
+		
+		if (fread(f,4) != 'IHDR')
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		fread(f, 17);
+		
+		do
+		{
+			var n = _freadint(f);
+			var type = fread(f,4);
+			
+			if (fn != null)
+			{
+				if (fn(pos - 8, type, n))
+				{
+					break;
+				}
+			}
+			
+			value = fread(f,n);
+			fread(f,4);
+			
+			if (type == 'IEND')
+			{
+				break;
+			}
+		}
+		while (n);
+	};
 
-	/**
-	 * Specifies the URL for the diffsync cache.
-	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
-
-	/**
-	 * Switch to enable PlantUML in the insert from text dialog.
-	 * NOTE: This must also be enabled on the server-side.
-	 */
-	EditorUi.enablePlantUml = EditorUi.enableLogging;
-
-	/**
-	 * https://github.com/electron/electron/issues/2288
-	 */
-	EditorUi.isElectronApp = window != null && window.process != null &&
-		window.process.versions != null && window.process.versions['electron'] != null;
-
-	/**
-	 * Link for scratchpad help.
-	 */
-	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
-	
 	/**
 	 * Contains the default XML for an empty diagram.
 	 */
@@ -206,8 +280,9 @@
 
 	/**
 	 * General timeout is 25 seconds.
+	 * LATER: Move to Editor
 	 */
-	EditorUi.prototype.timeout = 25000;
+	EditorUi.prototype.timeout = Editor.prototype.timeout;
 
 	/**
 	 * Allows for two buttons in the sidebar footer.
@@ -561,80 +636,6 @@
 		};
 		
 		return spinner;
-	};
-
-	/**
-	 * Static method for pasing PNG files.
-	 */
-	EditorUi.parsePng = function(f, fn, error)
-	{
-		var pos = 0;
-		
-		function fread(d, count)
-		{
-			var start = pos;
-			pos += count;
-			
-			return d.substring(start, pos);
-		};
-		
-		// Reads unsigned long 32 bit big endian
-		function _freadint(d)
-		{
-			var bytes = fread(d, 4);
-			
-			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
-				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
-		};
-		
-		// Checks signature
-		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		// Reads header chunk
-		fread(f,4);
-		
-		if (fread(f,4) != 'IHDR')
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		fread(f, 17);
-		
-		do
-		{
-			var n = _freadint(f);
-			var type = fread(f,4);
-			
-			if (fn != null)
-			{
-				if (fn(pos - 8, type, n))
-				{
-					break;
-				}
-			}
-			
-			value = fread(f,n);
-			fread(f,4);
-			
-			if (type == 'IEND')
-			{
-				break;
-			}
-		}
-		while (n);
 	};
 
 	/**
@@ -8106,71 +8107,7 @@
 	 */
 	EditorUi.prototype.extractGraphModelFromPng = function(data)
 	{
-		var result = null;
-		
-		try
-		{
-			var base64 = data.substring(data.indexOf(',') + 1);
-
-			// Workaround for invalid character error in Safari
-			var binary = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
-			
-			EditorUi.parsePng(binary, mxUtils.bind(this, function(pos, type, length)
-			{
-				var value = binary.substring(pos + 8, pos + 8 + length);
-				
-				if (type == 'zTXt')
-				{
-					var idx = value.indexOf(String.fromCharCode(0));
-					
-					if (value.substring(0, idx) == 'mxGraphModel')
-					{
-						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
-						var xmlData = Graph.bytesToString(pako.inflateRaw(
-							value.substring(idx + 2))).replace(/\+/g,' ');
-						
-						if (xmlData != null && xmlData.length > 0)
-						{
-							result = xmlData;
-						}
-					}
-				}
-				// Uncompressed section is normally not used
-				else if (type == 'tEXt')
-				{
-					var vals = value.split(String.fromCharCode(0));
-					
-					if (vals.length > 1 && vals[0] == 'mxGraphModel')
-					{
-						result = vals[1];
-					}
-				}
-				
-				if (result != null || type == 'IDAT')
-				{
-					// Stops processing the file as our text chunks
-					// are always placed before the data section
-					return true;
-				}
-			}));
-		}
-		catch (e)
-		{
-			// ignores decoding errors
-		}
-		
-		if (result != null && result.charAt(0) == '%')
-		{
-			result = decodeURIComponent(result);
-		}
-		
-		// Workaround for double encoded content
-		if (result != null && result.charAt(0) == '%')
-		{
-			result = decodeURIComponent(result);
-		}
-		
-		return result;
+		return Editor.extractGraphModelFromPng(data);
 	};
 
 	/**
