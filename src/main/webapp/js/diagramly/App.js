@@ -29,7 +29,8 @@ App = function(editor, container, lightbox)
 					action: ((file.savingFile) ? 'saving' : '') +
 					((file.savingFile && file.savingFileTime != null) ? '_' +
 						Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-					'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
+					+ ((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+					'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
 					((this.editor.autosave) ? '' : '-nosave') +
 					((file.isAutosave()) ? '' : '-noauto') +
 					'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
@@ -1515,8 +1516,8 @@ App.prototype.sanityCheck = function()
 			action: ((file.savingFile) ? 'saving' : '') +
 			((file.savingFile && file.savingFileTime != null) ? '_' +
 				Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
+			+ ((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
 			'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
-			'-sl_' + ((file.saveLevel != null) ? file.saveLevel : 'x') +
 			((this.editor.autosave) ? '' : '-nosave') +
 			((file.isAutosave()) ? '' : '-noauto') +
 			'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +

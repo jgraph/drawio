@@ -53,11 +53,7 @@
 			//PNG+XML format
 			if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
 			{
-				var pngData = 'data:image/png;base64,' + data.xml;
-				//A hacky way to invoke extractGraphModelFromPng without EditorUi instance
-				data.xml = EditorUi.prototype.extractGraphModelFromPng.call({
-								editor: {graph: {bytesToString: Graph.prototype.bytesToString}}
-							}, pngData);
+				data.xml = Editor.extractGraphModelFromPng('data:image/png;base64,' + data.xml);
 			}
 			
 			// Parses XML
