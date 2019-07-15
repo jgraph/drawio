@@ -1,3 +1,8 @@
+15-JUL-2019: 10.9.7
+
+- Adds validation for label border and background colors
+- Uses mxGraph 4.0.2
+
 12-JUL-2019: 10.9.6
 
 - Adds local files, Google Drive in Office Add-in

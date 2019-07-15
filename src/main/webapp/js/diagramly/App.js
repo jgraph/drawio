@@ -29,7 +29,7 @@ App = function(editor, container, lightbox)
 					action: ((file.savingFile) ? 'saving' : '') +
 					((file.savingFile && file.savingFileTime != null) ? '_' +
 						Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-					+ ((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+					((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
 					'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
 					((this.editor.autosave) ? '' : '-nosave') +
 					((file.isAutosave()) ? '' : '-noauto') +
@@ -1516,7 +1516,7 @@ App.prototype.sanityCheck = function()
 			action: ((file.savingFile) ? 'saving' : '') +
 			((file.savingFile && file.savingFileTime != null) ? '_' +
 				Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-			+ ((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+			((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
 			'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
 			((this.editor.autosave) ? '' : '-nosave') +
 			((file.isAutosave()) ? '' : '-noauto') +
@@ -3671,7 +3671,7 @@ App.prototype.getPeerForMode = function(mode)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile)
+App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs)
 {
 	mode = (tempFile) ? null : ((mode != null) ? mode : this.mode);
 
@@ -3710,7 +3710,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.drive.insertFile(title, data, folderId, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done);
+					this.fileCreated(file, libs, replace, done, clibs);
 				}), error);
 			}
 			else if (mode == App.MODE_GITHUB && this.gitHub != null)
@@ -3718,7 +3718,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done);
+					this.fileCreated(file, libs, replace, done, clibs);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_TRELLO && this.trello != null)
@@ -3726,7 +3726,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.trello.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done);
+					this.fileCreated(file, libs, replace, done, clibs);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_DROPBOX && this.dropbox != null)
@@ -3734,7 +3734,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.dropbox.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done);
+					this.fileCreated(file, libs, replace, done, clibs);
 				}), error);
 			}
 			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null)
@@ -3742,7 +3742,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.oneDrive.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done);
+					this.fileCreated(file, libs, replace, done, clibs);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_BROWSER)
@@ -3756,7 +3756,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					// Inserts data into local storage
 					file.saveFile(title, false, mxUtils.bind(this, function()
 					{
-						this.fileCreated(file, libs, replace, done);
+						this.fileCreated(file, libs, replace, done, clibs);
 					}), error);
 				});
 				
@@ -3778,7 +3778,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else
 			{
 				complete();
-				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done);
+				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done, clibs);
 			}
 		}
 		catch (e)
@@ -3795,13 +3795,18 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.fileCreated = function(file, libs, replace, done)
+App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 {
 	var url = window.location.pathname;
 	
 	if (libs != null && libs.length > 0)
 	{
 		url += '?libs=' + libs;
+	}
+
+	if (clibs != null && clibs.length > 0)
+	{
+		url += '?clibs=' + clibs;
 	}
 	
 	url = this.getUrl(url);
@@ -3811,7 +3816,7 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 	{
 		url += '#' + file.getHash();
 	}
-	
+
 	// Makes sure to produce consistent output with finalized files via createFileData this needs
 	// to save the file again since it needs the newly created file ID for redirecting in HTML
 	if (this.spinner.spin(document.body, mxResources.get('inserting')))
@@ -3867,6 +3872,19 @@ App.prototype.fileCreated = function(file, libs, replace, done)
 				if (libs != null)
 				{
 					this.sidebar.showEntries(libs);
+				}
+				
+				if (clibs != null)
+				{
+					var temp = [];
+					var tokens = clibs.split(';');
+					
+					for (var i = 0; i < tokens.length; i++)
+					{
+						temp.push(decodeURIComponent(tokens[i]));
+					}
+					
+					this.loadLibraries(temp);
 				}
 			});
 
@@ -4358,6 +4376,17 @@ App.prototype.getLibraryStorageHint = function(file)
  * Updates action states depending on the selection.
  */
 App.prototype.restoreLibraries = function()
+{	
+	this.loadLibraries(mxSettings.getCustomLibraries(), mxUtils.bind(this, function()
+	{
+		this.loadLibraries((urlParams['clibs'] || '').split(';'));
+	}));
+};
+
+/**
+ * Updates action states depending on the selection.
+ */
+App.prototype.loadLibraries = function(libs, done)
 {
 	if (this.sidebar != null)
 	{
@@ -4377,274 +4406,266 @@ App.prototype.restoreLibraries = function()
 			delete this.pendingLibraries[id];
 		});
 				
-		var load = mxUtils.bind(this, function(libs, done)
-		{
-			var waiting = 0;
-			var files = [];
+		var waiting = 0;
+		var files = [];
 
-			// Loads in order of libs array
-			var checkDone = mxUtils.bind(this, function()
+		// Loads in order of libs array
+		var checkDone = mxUtils.bind(this, function()
+		{
+			if (waiting == 0)
 			{
-				if (waiting == 0)
+				if (libs != null)
 				{
-					if (libs != null)
+					for (var i = libs.length - 1; i >= 0; i--)
 					{
-						for (var i = libs.length - 1; i >= 0; i--)
+						if (files[i] != null)
 						{
-							if (files[i] != null)
-							{
-								this.loadLibrary(files[i]);
-							}
+							this.loadLibrary(files[i]);
 						}
 					}
-					
-					if (done != null)
-					{
-						done();
-					}
 				}
-			});
-			
-			if (libs != null)
-			{
-				for (var i = 0; i < libs.length; i++)
+				
+				if (done != null)
 				{
-					var name = encodeURIComponent(decodeURIComponent(libs[i]));
-					
-					(mxUtils.bind(this, function(id, index)
+					done();
+				}
+			}
+		});
+		
+		if (libs != null)
+		{
+			for (var i = 0; i < libs.length; i++)
+			{
+				var name = encodeURIComponent(decodeURIComponent(libs[i]));
+				
+				(mxUtils.bind(this, function(id, index)
+				{
+					if (id != null && id.length > 0 && this.pendingLibraries[id] == null &&
+						this.sidebar.palettes[id] == null)
 					{
-						if (id != null && id.length > 0 && this.pendingLibraries[id] == null &&
-							this.sidebar.palettes[id] == null)
+						// Waits for all libraries to load
+						waiting++;
+						
+						var onload = mxUtils.bind(this, function(file)
 						{
-							// Waits for all libraries to load
-							waiting++;
-							
-							var onload = mxUtils.bind(this, function(file)
+							delete this.pendingLibraries[id];
+							files[index] = file;
+							waiting--;
+							checkDone();
+						});
+						
+						var onerror = mxUtils.bind(this, function(keep)
+						{
+							ignore(id, keep);
+							waiting--;
+							checkDone();
+						});
+						
+						this.pendingLibraries[id] = true;
+						var service = id.substring(0, 1);
+						
+						if (service == 'L')
+						{
+							if (isLocalStorage || mxClient.IS_CHROMEAPP)
 							{
-								delete this.pendingLibraries[id];
-								files[index] = file;
-								waiting--;
-								checkDone();
-							});
-							
-							var onerror = mxUtils.bind(this, function(keep)
-							{
-								ignore(id, keep);
-								waiting--;
-								checkDone();
-							});
-							
-							this.pendingLibraries[id] = true;
-							var service = id.substring(0, 1);
-							
-							if (service == 'L')
-							{
-								if (isLocalStorage || mxClient.IS_CHROMEAPP)
+								// Make asynchronous for barrier to work
+								window.setTimeout(mxUtils.bind(this, function()
 								{
-									// Make asynchronous for barrier to work
-									window.setTimeout(mxUtils.bind(this, function()
-									{
-										try
-										{
-											var name = decodeURIComponent(id.substring(1));
-											
-											var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
-											{
-												if (name == '.scratchpad' && xml == null)
-												{
-													xml = this.emptyLibraryXml;
-												}
-												
-												if (xml != null)
-												{
-													onload(new StorageLibrary(this, xml, name));
-												}
-												else
-												{
-													onerror();
-												}
-											}));
-										}
-										catch (e)
-										{
-											onerror();
-										}
-									}), 0);
-								}
-							}
-							else if (service == 'U')
-							{
-								var url = decodeURIComponent(id.substring(1));
-								
-								if (!this.isOffline())
-								{
-									var realUrl = url;
-									
-									if (!this.editor.isCorsEnabledForUrl(realUrl))
-									{
-										var nocache = 't=' + new Date().getTime();
-										realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
-									}
-									
 									try
 									{
-										// Uses proxy to avoid CORS issues
-										mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+										var name = decodeURIComponent(id.substring(1));
+										
+										var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
 										{
-											if (req.getStatus() >= 200 && req.getStatus() <= 299)
+											if (name == '.scratchpad' && xml == null)
 											{
-												try
-												{
-													onload(new UrlLibrary(this, req.getText(), url));
-												}
-												catch (e)
-												{
-													onerror();
-												}
+												xml = this.emptyLibraryXml;
+											}
+											
+											if (xml != null)
+											{
+												onload(new StorageLibrary(this, xml, name));
 											}
 											else
 											{
 												onerror();
 											}
-										}), function()
-										{
-											onerror();
-										});
+										}));
 									}
 									catch (e)
 									{
 										onerror();
 									}
-								}
+								}), 0);
 							}
-							else if (service == 'R')
+						}
+						else if (service == 'U')
+						{
+							var url = decodeURIComponent(id.substring(1));
+							
+							if (!this.isOffline())
 							{
-								var libDesc = decodeURIComponent(id.substring(1));
+								var realUrl = url;
 								
-								if (!this.isOffline())
+								if (!this.editor.isCorsEnabledForUrl(realUrl))
 								{
-									try
+									var nocache = 't=' + new Date().getTime();
+									realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
+								}
+								
+								try
+								{
+									// Uses proxy to avoid CORS issues
+									mxUtils.get(realUrl, mxUtils.bind(this, function(req)
 									{
-										libDesc = JSON.parse(libDesc);
-										var libObj = {
-											id: libDesc[0], 
-					               			title: libDesc[1], 
-					               			downloadUrl: libDesc[2]
-										}
-										
-										this.remoteInvoke('getFileContent', [libObj.downloadUrl], null, mxUtils.bind(this, function(libContent)
+										if (req.getStatus() >= 200 && req.getStatus() <= 299)
 										{
 											try
 											{
-												onload(new RemoteLibrary(this, libContent, libObj));
+												onload(new UrlLibrary(this, req.getText(), url));
 											}
 											catch (e)
 											{
 												onerror();
 											}
-										}), function()
+										}
+										else
 										{
 											onerror();
-										});
-									}
-									catch (e)
+										}
+									}), function()
 									{
 										onerror();
-									}
-								}
-							}
-							else if (service == 'S' && this.loadDesktopLib != null)
-							{
-								try
-								{
-									this.loadDesktopLib(decodeURIComponent(id.substring(1)), function(desktopLib)
-									{
-										onload(desktopLib);
-									}, onerror);
+									});
 								}
 								catch (e)
 								{
 									onerror();
 								}
 							}
-							else
+						}
+						else if (service == 'R')
+						{
+							var libDesc = decodeURIComponent(id.substring(1));
+							
+							if (!this.isOffline())
 							{
-								var peer = null;
-								
-								if (service == 'G')
+								try
 								{
-									if (this.drive != null && this.drive.user != null)
-									{
-										peer = this.drive;
+									libDesc = JSON.parse(libDesc);
+									var libObj = {
+										id: libDesc[0], 
+				               			title: libDesc[1], 
+				               			downloadUrl: libDesc[2]
 									}
-								}
-								else if (service == 'H')
-								{
-									if (this.gitHub != null && this.gitHub.getUser() != null)
-									{
-										peer = this.gitHub;
-									}
-								}
-								else if (service == 'T')
-								{
-									if (this.trello != null && this.trello.isAuthorized())
-									{
-										peer = this.trello;
-									}
-								}
-								else if (service == 'D')
-								{
-									if (this.dropbox != null && this.dropbox.getUser() != null)
-									{
-										peer = this.dropbox;
-									}
-								}
-								else if (service == 'W')
-								{
-									if (this.oneDrive != null && this.oneDrive.getUser() != null)
-									{
-										peer = this.oneDrive;
-									}
-								}
-								
-								if (peer != null)
-								{
-									peer.getLibrary(decodeURIComponent(id.substring(1)), mxUtils.bind(this, function(file)
+									
+									this.remoteInvoke('getFileContent', [libObj.downloadUrl], null, mxUtils.bind(this, function(libContent)
 									{
 										try
 										{
-											onload(file);
+											onload(new RemoteLibrary(this, libContent, libObj));
 										}
 										catch (e)
 										{
 											onerror();
 										}
-									}), function(resp)
+									}), function()
 									{
 										onerror();
 									});
 								}
-								else
+								catch (e)
 								{
-									onerror(true);
+									onerror();
 								}
 							}
 						}
-					}))(name, i);
-				}
-				
-				checkDone();
+						else if (service == 'S' && this.loadDesktopLib != null)
+						{
+							try
+							{
+								this.loadDesktopLib(decodeURIComponent(id.substring(1)), function(desktopLib)
+								{
+									onload(desktopLib);
+								}, onerror);
+							}
+							catch (e)
+							{
+								onerror();
+							}
+						}
+						else
+						{
+							var peer = null;
+							
+							if (service == 'G')
+							{
+								if (this.drive != null && this.drive.user != null)
+								{
+									peer = this.drive;
+								}
+							}
+							else if (service == 'H')
+							{
+								if (this.gitHub != null && this.gitHub.getUser() != null)
+								{
+									peer = this.gitHub;
+								}
+							}
+							else if (service == 'T')
+							{
+								if (this.trello != null && this.trello.isAuthorized())
+								{
+									peer = this.trello;
+								}
+							}
+							else if (service == 'D')
+							{
+								if (this.dropbox != null && this.dropbox.getUser() != null)
+								{
+									peer = this.dropbox;
+								}
+							}
+							else if (service == 'W')
+							{
+								if (this.oneDrive != null && this.oneDrive.getUser() != null)
+								{
+									peer = this.oneDrive;
+								}
+							}
+							
+							if (peer != null)
+							{
+								peer.getLibrary(decodeURIComponent(id.substring(1)), mxUtils.bind(this, function(file)
+								{
+									try
+									{
+										onload(file);
+									}
+									catch (e)
+									{
+										onerror();
+									}
+								}), function(resp)
+								{
+									onerror();
+								});
+							}
+							else
+							{
+								onerror(true);
+							}
+						}
+					}
+				}))(name, i);
 			}
-			else
-			{
-				checkDone();
-			}
-		});
-		
-		load(mxSettings.getCustomLibraries(), function()
+			
+			checkDone();
+		}
+		else
 		{
-			load((urlParams['clibs'] || '').split(';'));
-		});
+			checkDone();
+		}
 	}
 };
 

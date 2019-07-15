@@ -991,7 +991,8 @@ Graph.zapGremlins = function(text)
 		var code = text.charCodeAt(i);
 		
 		// Removes all control chars except TAB, LF and CR
-		if ((code >= 32 || code == 9 || code == 10 || code == 13) && code != 0xFFFF)
+		if ((code >= 32 || code == 9 || code == 10 || code == 13) &&
+			code != 0xFFFF && code != 0xFFFE)
 		{
 			checked.push(text.charAt(i));
 		}
@@ -4797,6 +4798,9 @@ if (typeof mxVertexHandler != 'undefined')
 	
 		// Enables guides
 		mxGraphHandler.prototype.guidesEnabled = true;
+		
+		// Removes parents where all child cells are moved out
+		mxGraphHandler.prototype.removeEmptyParents = true;
 	
 		// Enables fading of rubberband
 		mxRubberband.prototype.fadeOut = true;
