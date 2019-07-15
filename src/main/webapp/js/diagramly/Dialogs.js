@@ -2741,7 +2741,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				var tmp = templates[i0++];
 				addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
-					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg);
+					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs);
 				first = false;
 			}
 		}		
@@ -2940,6 +2940,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 	
 	var templateLibs = null;
+	var templateClibs = null;
 	var templateXml = null;
 	var selectedElt = null;
 	var templateExtUrl = null;
@@ -2977,7 +2978,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						templateLibs.length > 0) ? templateLibs : null, null, function()
 					{
 						editorUi.hideDialog();
-					}, null, folderId);
+					}, null, folderId, null, (templateClibs != null &&
+						templateClibs.length > 0) ? templateClibs : null);
 				}, editorUi.mode != App.MODE_GOOGLE ||
 					editorUi.stateArg == null ||
 					editorUi.stateArg.folderId == null);
@@ -3004,7 +3006,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var w = 140;
 	var h = 140;
 
-	function selectElement(elt, xml, libs, extUrl, infoObj)
+	function selectElement(elt, xml, libs, extUrl, infoObj, clibs)
 	{
 		if (selectedElt != null)
 		{
@@ -3016,6 +3018,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		templateXml = xml;
 		templateLibs = libs;
+		templateClibs = clibs;
 		selectedElt = elt;
 		templateExtUrl = extUrl;
 		templateInfoObj = infoObj;
@@ -3024,7 +3027,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.border = rightHighlightBorder;
 	};
 
-	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg)
+	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs)
 	{
 		var elt = document.createElement('div');
 		elt.className = 'geTemplate';
@@ -3045,7 +3048,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			mxEvent.addListener(elt, 'click', function(evt)
 			{
-				selectElement(elt, null, null, url, infoObj);
+				selectElement(elt, null, null, url, infoObj, clibs);
 			});
 			
 			mxEvent.addListener(elt, 'dblclick', function(evt)
@@ -3088,7 +3091,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						selectElement(elt, req.getText(), libs);
+						selectElement(elt, req.getText(), libs, null, null, clibs);
 						
 						if (createIt)
 						{
@@ -3327,7 +3330,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 								
 								list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
 									title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
-									preview: node.getAttribute('preview')});
+									preview: node.getAttribute('preview'), clibs: node.getAttribute('clibs')});
 							}
 						}
 						
@@ -9497,7 +9500,8 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 						}
 						
 						list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-							title: node.getAttribute('title'), tooltip: node.getAttribute('url'), imgUrl: node.getAttribute('imgUrl')});
+							clibs: node.getAttribute('clibs'), title: node.getAttribute('title'),
+							tooltip: node.getAttribute('url'), imgUrl: node.getAttribute('imgUrl')});
 					}
 				}
 				
@@ -9526,7 +9530,7 @@ TemplatesDialog.prototype.init = function(editorUi, callback, cancelCallback,
 					if (title != null)
 					{
 						newDiagramCats.push({img: node.getAttribute('img'), libs: node.getAttribute('libs'),
-							title: node.getAttribute('title')});
+							clibs: node.getAttribute('clibs'), title: node.getAttribute('title')});
 					}
 				}
 				
