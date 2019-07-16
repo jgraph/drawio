@@ -1,3 +1,0 @@
-[submodule "src/main/webapp/mathjax"]
-	path = src/main/webapp/mathjax
-	url = https://github.com/jgraph/MathJax.git
