@@ -3801,7 +3801,7 @@
     	var dlg = new TextareaDialog(this, title, text, null, null, mxResources.get('close'));
     	dlg.textarea.style.width = '600px';
     	dlg.textarea.style.height = '380px';
-		this.showDialog(dlg.container, 620, 460, true, true);
+		this.showDialog(dlg.container, 620, 460, true, true, null, null, null, null, true);
 		dlg.init();
 		document.execCommand('selectall', false, null);
 	};
@@ -10813,7 +10813,7 @@
 			}), null, null, 620, 430, null, true, true, mxResources.get('import'));
 		}
 		
-		this.showDialog(this.importCsvDialog.container, 640, 520, true, true);
+		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);
 		this.importCsvDialog.init();
 	};
 
@@ -10867,6 +10867,8 @@
         		var style = null;
         		var styles = null;
         		var stylename = null;
+        		var labelname = null;
+        		var labels = null;
         		var parentstyle = null;
         		var identity = null;
         		var parent = null;
@@ -10950,6 +10952,14 @@
 		    				if (key == 'label')
 		    				{
 		    					label = graph.sanitizeHtml(value);
+		    				}
+		    				else if (key == 'labelname' && value.length > 0 && value != '-')
+		    				{
+		    					labelname = value;
+		    				}
+		    				else if (key == 'labels' && value.length > 0 && value != '-')
+		    				{
+		    					labels = JSON.parse(value);
 		    				}
 		    				else if (key == 'style')
 		    				{
@@ -11107,6 +11117,16 @@
 					    	{
 								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
+							
+							if (labelname != null && labels != null)
+							{
+								var tempLabel = labels[newCell.getAttribute(labelname)];
+								
+								if (tempLabel != null)
+								{
+									graph.labelChanged(newCell, tempLabel);
+								}
+							}
 
 							if (stylename != null && styles != null)
 							{

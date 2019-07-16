@@ -131,6 +131,26 @@
 
 			editorUi.showDialog(dlg.container, 620, 440, true, true);
 		})).isEnabled = isGraphEnabled;
+
+		if (window.mxFreehand)
+		{	
+			graph.addListener('freehandInserted', function()
+			{
+				graph.container.style.cursor = '';
+				editorUi.editor.setStatus('');
+			});
+			
+			editorUi.actions.put('insertFreehand', new Action(mxResources.get('freehand') + '...', function(evt)
+			{
+				if (graph.isEnabled())
+				{
+					graph.freehand.setEnabled(true);
+					graph.freehand.setClosedPath(evt != null && mxEvent.isShiftDown(evt));
+					editorUi.editor.setStatus(mxResources.get('startDrawing'));
+					graph.container.style.cursor = 'crosshair';
+				}
+			})).isEnabled = isGraphEnabled;
+		}
 		
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()
 		{
@@ -1397,20 +1417,18 @@
 			}
 		});
 
-		editorUi.actions.addAction('createShape...', function()
+		editorUi.actions.put('createShape', new Action(mxResources.get('shape') + '...', function(evt)
 		{
-			var file = editorUi.getCurrentFile();
-			
 			if (graph.isEnabled())
 			{
 				var cell = new mxCell('', new mxGeometry(0, 0, 120, 120), editorUi.defaultCustomShapeStyle);
 				cell.vertex = true;
-				
-			    	var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape') + ':', 630, 400);
-					editorUi.showDialog(dlg.container, 640, 480, true, false);
-					dlg.init();
+			
+		    	var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape') + ':', 630, 400);
+				editorUi.showDialog(dlg.container, 640, 480, true, false);
+				dlg.init();
 			}
-		});
+		})).isEnabled = isGraphEnabled;
 		
 		editorUi.actions.put('embedHtml', new Action(mxResources.get('html') + '...', function()
 		{
@@ -2412,14 +2430,10 @@
 			{
 				this.addMenuItems(menu, ['insertTemplate', '-'], parent);
 			}
-			
+
+			this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
 			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
-			menu.addSeparator(parent);
-			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
-			menu.addItem(mxResources.get('csv') + '...', null, function()
-			{
-				editorUi.showImportCsvDialog();
-			}, parent, null, isGraphEnabled());
+			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 		})));
 
 		this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -2428,6 +2442,16 @@
 				'verticalTree', 'radialTree', '-', 'organic', 'circle']);
 		})));
 
+        this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
+        {
+			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
+			
+			menu.addItem(mxResources.get('csv') + '...', null, function()
+			{
+				editorUi.showImportCsvDialog();
+			}, parent, null, isGraphEnabled());
+        })));
+        
 		this.put('openRecent', new Menu(function(menu, parent)
 		{
 			var recent = editorUi.getRecent();
@@ -2946,7 +2970,7 @@
 				this.addMenuItems(menu, ['autosave'], parent);
 			}
 
-			this.addMenuItems(menu, ['-', 'createShape', 'editDiagram'], parent);
+			this.addMenuItems(menu, ['-', 'editDiagram'], parent);
 
 			menu.addSeparator(parent);
 			

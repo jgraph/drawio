@@ -1100,8 +1100,6 @@ App.prototype.init = function()
 			icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
 			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
 		
-		console.log('help', helpLink);
-		
 		var img = document.createElement('img');
 		
 		img.setAttribute('src', Dialog.prototype.closeImage);
@@ -1142,42 +1140,6 @@ App.prototype.init = function()
 				{
 					this.updateUserElement();
 					this.restoreLibraries();
-					
-					if (this.oneDrive.user != null && (!isLocalStorage || mxSettings.settings == null ||
-						mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeFooter == null) &&
-						(!this.editor.chromeless || this.editor.editable) &&
-						!this.footerShowing && urlParams['open'] == null)
-					{
-						var footer = createFooter('Add-in for Microsoft Office now available',
-							'https://appsource.microsoft.com/product/office/wa200000113',
-							'geStatusMessage',
-							mxUtils.bind(this, function()
-							{
-								footer.parentNode.removeChild(footer);
-								this.hideFooter();
-		
-								// Close permanently
-								if (isLocalStorage && mxSettings.settings != null)
-								{
-									mxSettings.settings.closeFooter = Date.now();
-									mxSettings.save();
-								}
-							}));
-
-						document.body.appendChild(footer);
-						this.footerShowing = true;
-						
-						window.setTimeout(mxUtils.bind(this, function()
-						{
-							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-						}), 1500);
-						
-						window.setTimeout(mxUtils.bind(this, function()
-						{
-							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-							this.footerShowing = false;
-						}), 15000);
-					}
 				}));
 				
 				// Notifies listeners of new client
@@ -1438,6 +1400,47 @@ App.prototype.init = function()
 //				}
 			}));
 		}
+		
+		this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+		{
+			var file = this.getCurrentFile();
+			
+			if (file.mode == App.MODE_DEVICE && (!isLocalStorage || mxSettings.settings == null ||
+				mxSettings.settings.closeDesktopFooter == null) &&
+				(!this.editor.chromeless || this.editor.editable) &&
+				!this.footerShowing && urlParams['open'] == null)
+			{
+				var footer = createFooter(mxResources.get('downloadDesktop') + '...',
+					'https://get.draw.io/',
+					'geStatusMessage',
+					mxUtils.bind(this, function()
+					{
+						footer.parentNode.removeChild(footer);
+						this.hideFooter();
+
+						// Close permanently
+						if (isLocalStorage && mxSettings.settings != null)
+						{
+							mxSettings.settings.closeDesktopFooter = Date.now();
+							mxSettings.save();
+						}
+					}));
+
+				document.body.appendChild(footer);
+				this.footerShowing = true;
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+				}), 1500);
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+					this.footerShowing = false;
+				}), 15000);
+			}
+		}));
 	}
 	else if (this.menubar != null)
 	{

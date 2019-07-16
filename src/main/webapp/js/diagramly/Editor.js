@@ -240,6 +240,16 @@
 		'#\n' +
 		'# styles: -\n' +
 		'#\n' +
+		'## Optional column name that contains a reference to a named label in labels.\n' +
+		'## Default is the current label.\n' +
+		'#\n' +
+		'# labelname: -\n' +
+		'#\n' +
+		'## JSON for named labels of the form {"name": "label", "name": "label"} where label is a cell label with\n' +
+		'## placeholders.\n' +
+		'#\n' +
+		'# labels: -\n' +
+		'#\n' +
 		'## Uses the given column name as the identity for cells (updates existing cells).\n' +
 		'## Default is no identity (empty value or -).\n' +
 		'#\n' +
@@ -3529,6 +3539,12 @@
 	{
 		graphInit.apply(this, arguments);
 
+		//TODO initialize Freehand in the correct location!
+		if (window.mxFreehand)
+		{
+			this.freehand = new mxFreehand(this);
+		}
+		
 		// Override insert location for current mouse point
 		var mouseEvent = null;
 		

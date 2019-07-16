@@ -275,6 +275,7 @@
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxFreehand.js" />
 			</sources>
 				
 			<sources dir="${basedir}">
@@ -369,6 +370,7 @@
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxFreehand.js" />
 			</sources>
 		</jscomp>
 

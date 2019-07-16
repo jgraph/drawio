@@ -8695,7 +8695,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 					// Inserts cell if required
 					if (isNew)
 					{
-						var pt = editorUi.editor.graph.getInsertPoint();
+						var pt = editorUi.editor.graph.getFreeInsertPoint();
 						targetCell.geometry.x = pt.x;
 						targetCell.geometry.y = pt.y;
 						targetGraph.addCell(targetCell)
@@ -8717,6 +8717,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 				if (isNew)
 				{
 					targetGraph.setSelectionCell(targetCell);
+					targetGraph.scrollCellToVisible(targetCell);
 				}
 			}
 		}
