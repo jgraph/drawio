@@ -877,9 +877,6 @@ EditorUi.initMinimalTheme = function()
             ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
         
-        mxResources.parse('insertLayout=' + mxResources.get('layout'));
-        mxResources.parse('insertAdvanced=' + mxResources.get('advanced'));
-        
         this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
         {
             ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
@@ -891,8 +888,9 @@ EditorUi.initMinimalTheme = function()
 			}
             
             menu.addSeparator(parent);
-            ui.menus.addSubmenu('insertLayout', menu, parent);
-            ui.menus.addSubmenu('insertAdvanced', menu, parent);
+            this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
+			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
+			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
             menu.addSeparator(parent);
             
             if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)

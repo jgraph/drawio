@@ -143,3 +143,5 @@ if (urlParams['tableLayout'] == '1')
 {
   mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
 }
+
+mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');

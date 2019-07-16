@@ -13,11 +13,15 @@
 /**
  * Global types
  */
-function DiagramPage(node)
+function DiagramPage(node, id)
 {
 	this.node = node;
-	
-	if (this.getId() == null)
+
+	if (id != null)
+	{
+		this.node.setAttribute('id', id);
+	}
+	else if (this.getId() == null)
 	{
 		this.node.setAttribute('id', Editor.guid());
 	}
@@ -795,7 +799,7 @@ EditorUi.prototype.insertPage = function(page, index)
 			this.editor.graph.stopEditing(false);
 		}
 		
-		page = (page != null) ? page : this.createPage();
+		page = (page != null) ? page : this.createPage(null, this.createPageId());
 		index = (index != null) ? index : this.pages.length;
 		
 		// Uses model to fire event and trigger autosave
@@ -807,18 +811,33 @@ EditorUi.prototype.insertPage = function(page, index)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Returns a unique page ID.
  */
-EditorUi.prototype.createPage = function(name)
+EditorUi.prototype.createPageId = function()
 {
-	var page = new DiagramPage(this.fileNode.ownerDocument.createElement('diagram'));
+	var id = null;
+	
+	do
+	{
+		id = Editor.guid();
+	} while (this.getPageById(id) != null)
+	
+	return id;
+};
+
+/**
+ * Returns a new DiagramPage instance.
+ */
+EditorUi.prototype.createPage = function(name, id)
+{
+	var page = new DiagramPage(this.fileNode.ownerDocument.createElement('diagram'), id);
 	page.setName((name != null) ? name : this.createPageName());
 	
 	return page;
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Returns a page name.
  */
 EditorUi.prototype.createPageName = function()
 {
@@ -849,7 +868,7 @@ EditorUi.prototype.createPageName = function()
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Removes the given page.
  */
 EditorUi.prototype.removePage = function(page)
 {
@@ -910,7 +929,7 @@ EditorUi.prototype.removePage = function(page)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Duplicates the given page.
  */
 EditorUi.prototype.duplicatePage = function(page, name)
 {
@@ -955,7 +974,7 @@ EditorUi.prototype.duplicatePage = function(page, name)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Renames the given page using a dialog.
  */
 EditorUi.prototype.renamePage = function(page)
 {

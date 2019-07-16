@@ -1,3 +1,9 @@
+16-JUL-2019: 10.9.8
+
+- Adds Extras, Insert, Freehand
+- Moves create shape to insert menu
+- Adds named labels for CSV import
+
 15-JUL-2019: 10.9.7
 
 - Adds validation for label border and background colors
