@@ -374,7 +374,7 @@ var AboutDialog = function(editorUi)
 /**
  * Constructs a new filename dialog.
  */
-var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn, hints)
+var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn, hints, w)
 {
 	closeOnBtn = (closeOnBtn != null) ? closeOnBtn : true;
 	var row, td;
@@ -396,7 +396,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', filename || '');
 	nameInput.style.marginLeft = '4px';
-	nameInput.style.width = '180px';
+	nameInput.style.width = (w != null) ? w + 'px' : '180px';
 	
 	var genericBtn = mxUtils.button(buttonText, function()
 	{
@@ -628,7 +628,8 @@ FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 /**
  * Constructs a new textarea dialog.
  */
-var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h, addButtons, noHide, noWrap, applyTitle)
+var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h,
+	addButtons, noHide, noWrap, applyTitle, helpLink)
 {
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
@@ -686,6 +687,17 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	td.style.paddingTop = '14px';
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
+	
+	if (helpLink != null)
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.editor.graph.openLink(helpLink);
+		});
+		helpBtn.className = 'geBtn';
+		
+		td.appendChild(helpBtn);
+	}
 	
 	var cancelBtn = mxUtils.button(cancelTitle || mxResources.get('cancel'), function()
 	{

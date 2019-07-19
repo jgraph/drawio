@@ -174,47 +174,52 @@ App = function(editor, container, lightbox)
 };
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Timeout error
  */
 App.ERROR_TIMEOUT = 'timeout';
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Busy error
  */
 App.ERROR_BUSY = 'busy';
 
 /**
- * Executes the first step for connecting to Google Drive.
+ * Unknown error
  */
 App.ERROR_UNKNOWN = 'unknown';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Google drive mode
  */
 App.MODE_GOOGLE = 'google';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Dropbox mode
  */
 App.MODE_DROPBOX = 'dropbox';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * OneDrive Mode
  */
 App.MODE_ONEDRIVE = 'onedrive';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Github Mode
  */
 App.MODE_GITHUB = 'github';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Gitlab mode
+ */
+App.MODE_GITLAB = 'gitlab';
+
+/**
+ * Device Mode
  */
 App.MODE_DEVICE = 'device';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Browser Mode
  */
 App.MODE_BROWSER = 'browser';
 
@@ -279,6 +284,11 @@ App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
 App.GOOGLE_APIS = 'client,drive-share'; 
+
+/**
+ * Google Realtime API export endpoint end of life on 09/27/2019.
+ */
+App.GOOGLE_REALTIME_EOL = 1569535200000;
 
 /**
  * Function: authorize
@@ -1082,6 +1092,23 @@ App.prototype.init = function()
 		}))
 	}
 	
+	/**
+	 * Creates gitlab client.
+	 */
+	this.gitLab = (!mxClient.IS_IE || document.documentMode == 10 ||
+		mxClient.IS_IE11 || mxClient.IS_EDGE) &&
+		(urlParams['gl'] != '0' && (urlParams['embed'] != '1' ||
+		urlParams['gl'] == '1')) ? new GitLabClient(this) : null;
+
+	if (this.gitLab != null)
+	{
+		this.gitLab.addListener('userChanged', mxUtils.bind(this, function()
+		{
+			this.updateUserElement();
+			this.restoreLibraries();
+		}));
+	}
+	
 	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler, helpLink)
 	{
 		var footer = document.createElement('div');
@@ -1234,39 +1261,39 @@ App.prototype.init = function()
 						this.restoreLibraries();
 						this.checkLicense();
 						
-						if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
-							mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <
-							new Date().getTime() - (7 * 24 * 60 * 60 * 1000)) &&
-							(!this.editor.chromeless || this.editor.editable))
+						if (App.GOOGLE_REALTIME_EOL - Date.now() >= 0)
 						{
-							this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
+							if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
+								mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <
+								new Date().getTime() - (4 * 24 * 60 * 60 * 1000)) &&
+								(!this.editor.chromeless || this.editor.editable))
 							{
-								// Remaining days before 09/27/2019 where Google real time JSON will be disabled 
-								var days = Math.round((1569535200000 - Date.now()) / (1000 * 60 * 60 * 24));
-								
-								var footer = createFooter(days + ' days left to convert your files. Click here!',
-									'https://www.draw.io/?mode=google&convert-realtime=1',
-									'geStatusAlert',
-									mxUtils.bind(this, function()
-									{
-										footer.parentNode.removeChild(footer);
-										this.hideFooter();
-				
-										// Close permanently
-										if (isLocalStorage && mxSettings.settings != null)
-										{
-											mxSettings.settings.closeRealtimeWarning = Date.now();
-											mxSettings.save();
-										}
-									}), 'https://desk.draw.io/support/solutions/articles/16000092210');
-
-								document.body.appendChild(footer);
-								
-								window.setTimeout(mxUtils.bind(this, function()
+								this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
 								{
-									mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-								}), 1500);
-							}));
+									var footer = createFooter('You need to take action to convert legacy files. Click here.',
+										'https://desk.draw.io/support/solutions/articles/16000092210',
+										'geStatusAlert',
+										mxUtils.bind(this, function()
+										{
+											footer.parentNode.removeChild(footer);
+											this.hideFooter();
+					
+											// Close permanently
+											if (isLocalStorage && mxSettings.settings != null)
+											{
+												mxSettings.settings.closeRealtimeWarning = Date.now();
+												mxSettings.save();
+											}
+										}));
+	
+									document.body.appendChild(footer);
+									
+									window.setTimeout(mxUtils.bind(this, function()
+									{
+										mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+									}), 1500);
+								}));
+							}
 						}
 					}))
 					
@@ -1399,48 +1426,48 @@ App.prototype.init = function()
 //						req.getStatus() + '.' + (new Date().getTime() - t0)});
 //				}
 			}));
-		}
-		
-		this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
-		{
-			var file = this.getCurrentFile();
-			
-			if (file.mode == App.MODE_DEVICE && (!isLocalStorage || mxSettings.settings == null ||
-				mxSettings.settings.closeDesktopFooter == null) &&
-				(!this.editor.chromeless || this.editor.editable) &&
-				!this.footerShowing && urlParams['open'] == null)
+
+			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
-				var footer = createFooter(mxResources.get('downloadDesktop') + '...',
-					'https://get.draw.io/',
-					'geStatusMessage',
-					mxUtils.bind(this, function()
-					{
-						footer.parentNode.removeChild(footer);
-						this.hideFooter();
-
-						// Close permanently
-						if (isLocalStorage && mxSettings.settings != null)
+				var file = this.getCurrentFile();
+				
+				if (file.mode == App.MODE_DEVICE && (!isLocalStorage || mxSettings.settings == null ||
+					mxSettings.settings.closeDesktopFooter == null) &&
+					(!this.editor.chromeless || this.editor.editable) &&
+					!this.footerShowing && urlParams['open'] == null)
+				{
+					var footer = createFooter(mxResources.get('downloadDesktop') + '...',
+						'https://get.draw.io/',
+						'geStatusMessage',
+						mxUtils.bind(this, function()
 						{
-							mxSettings.settings.closeDesktopFooter = Date.now();
-							mxSettings.save();
-						}
-					}));
+							footer.parentNode.removeChild(footer);
+							this.hideFooter();
 
-				document.body.appendChild(footer);
-				this.footerShowing = true;
-				
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-				}), 1500);
-				
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-					this.footerShowing = false;
-				}), 15000);
-			}
-		}));
+							// Close permanently
+							if (isLocalStorage && mxSettings.settings != null)
+							{
+								mxSettings.settings.closeDesktopFooter = Date.now();
+								mxSettings.save();
+							}
+						}));
+
+					document.body.appendChild(footer);
+					this.footerShowing = true;
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+					}), 1500);
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+						this.footerShowing = false;
+					}), 15000);
+				}
+			}));
+		}
 	}
 	else if (this.menubar != null)
 	{
@@ -2247,6 +2274,17 @@ App.prototype.appIconClicked = function(evt)
 				this.openLink('https://github.com/');
 			}
 		}
+		else if (mode == App.MODE_GITLAB)
+		{
+			if (file != null && file.constructor == GitLabFile)
+			{
+				this.openLink(file.meta.html_url);
+			}
+			else
+			{
+				this.openLink('https://gitlab.com/');
+			}
+		}
 		else if (mode == App.MODE_DEVICE)
 		{
 			this.openLink('https://get.draw.io/');
@@ -2962,7 +3000,7 @@ App.prototype.showSplash = function(force)
 		}), rowLimit);
 		
 		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300,
-			(serviceCount >= 4) ? 420 : 300, true, false);
+			(serviceCount >= 4) ? 440 : 320, true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
@@ -3006,6 +3044,8 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
 				label.style.fontSize = '12px';
 				label.style.margin = '5px 24px 0 0';
 				label.style.color = 'gray';
+				label.style.userSelect = 'none';
+				
 				mxUtils.write(label, mxResources.get('language'));
 				img.appendChild(label);
 			}
@@ -3157,7 +3197,8 @@ App.prototype.pickLibrary = function(mode)
 {
 	mode = (mode != null) ? mode : this.mode;
 	
-	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE || mode == App.MODE_GITHUB || mode == App.MODE_TRELLO)
+	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE ||
+		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
@@ -3338,6 +3379,15 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				else if (mode == App.MODE_GITHUB && this.gitHub != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
 					this.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_GITLAB && this.gitLab != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.gitLab.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 					{
 						this.spinner.stop();
 						this.hideDialog(true);
@@ -3650,6 +3700,10 @@ App.prototype.getPeerForMode = function(mode)
 	{
 		return this.gitHub;
 	}
+	else if (mode == App.MODE_GITLAB)
+	{
+		return this.gitLab;
+	}
 	else if (mode == App.MODE_DROPBOX)
 	{
 		return this.dropbox;
@@ -3719,6 +3773,14 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else if (mode == App.MODE_GITHUB && this.gitHub != null)
 			{
 				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
+				{
+					complete();
+					this.fileCreated(file, libs, replace, done, clibs);
+				}), error, false, folderId);
+			}
+			else if (mode == App.MODE_GITLAB && this.gitLab != null)
+			{
+				this.gitLab.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
 					this.fileCreated(file, libs, replace, done, clibs);
@@ -4214,6 +4276,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				else if (id.charAt(0) == 'H')
 				{
 					peer = this.gitHub;
+				}
+				else if (id.charAt(0) == 'A')
+				{
+					peer = this.gitLab;
 				}
 				else if (id.charAt(0) == 'T')
 				{
@@ -4868,6 +4934,14 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 			fn(folderPath);
 		}));
 	}
+	else if (enabled && mode == App.MODE_GITLAB && this.gitLab != null)
+	{
+		this.gitLab.pickFolder(mxUtils.bind(this, function(folderPath)
+		{
+			resume();
+			fn(folderPath);
+		}));
+	}
 	else if (enabled && mode == App.MODE_TRELLO && this.trello != null)
 	{
 		this.trello.pickFolder(mxUtils.bind(this, function(cardId)
@@ -5330,6 +5404,10 @@ App.prototype.updateHeader = function()
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/github-logo-white.svg)';
 				}
+				else if (mode == App.MODE_GITLAB)
+				{
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/gitlab-logo-white.svg)';
+				}
 				else if (mode == App.MODE_TRELLO)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
@@ -5609,6 +5687,7 @@ App.prototype.updateUserElement = function()
 		(this.oneDrive == null || this.oneDrive.getUser() == null) &&
 		(this.dropbox == null || this.dropbox.getUser() == null) &&
 		(this.gitHub == null || this.gitHub.getUser() == null) &&
+		(this.gitLab == null || this.gitLab.getUser() == null) &&
 		(this.trello == null || !this.trello.isAuthorized())) //TODO Trello no user issue
 	{
 		if (this.userElement != null)
@@ -5695,15 +5774,16 @@ App.prototype.updateUserElement = function()
 							connected = true;
 							this.userPanel.innerHTML += '<table title="User ID: ' + driveUser.id +
 								'" style="font-size:10pt;padding:20px 20px 10px 10px;">' +
-								'<tr><td valign="top">' +
+								'<tr><td valign="middle">' +
 								((driveUser.pictureUrl != null) ?
-									'<img width="80" height="80" style="margin-right:10px;border-radius:50%;" src="' + driveUser.pictureUrl + '"/>' :
-									'<img width="80" height="80" style="margin-right:4px;margin-top:2px;" src="' + this.defaultUserPicture + '"/>') +
+									'<img width="50" height="50" style="margin-right:8px;border-radius:50%;" src="' + driveUser.pictureUrl + '"/>' :
+									'<img width="46" height="46" style="margin-right:4px;margin-top:0px;" src="' + this.defaultUserPicture + '"/>') +
 								'</td><td valign="top" style="white-space:nowrap;' +
-								((driveUser.pictureUrl != null) ? 'padding-top:14px;' : '') +
-								'"><b>' + mxUtils.htmlEntities(driveUser.displayName) + '</b><br>' +
-								'<small>' + mxUtils.htmlEntities(driveUser.email) + '</small><br><br>' +
-								'<small>' + mxResources.get('googleDrive') + '</small></tr></table>';
+								((driveUser.pictureUrl != null) ? 'padding-top:4px;' : '') +
+								'">' + mxUtils.htmlEntities(driveUser.displayName) + '<br>' +
+								'<small style="color:gray;">' + mxUtils.htmlEntities(driveUser.email) +
+								'</small><div style="margin-top:4px;"><i>' +
+								mxResources.get('googleDrive') + '</i></div></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
 							div.style.paddingBottom = '12px';
@@ -5711,7 +5791,7 @@ App.prototype.updateUserElement = function()
 
 							// LATER: Cannot change user while file is open since close will not work with new
 							// credentials and closing the file using fileLoaded(null) will show splash dialog.
-							div.appendChild(mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
+							var btn = mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
 							{
 								var file = this.getCurrentFile();
 
@@ -5754,8 +5834,9 @@ App.prototype.updateUserElement = function()
 									this.drive.setUser(null);
 									gapi.auth.signOut();
 								}
-							})));
-							
+							}));
+							btn.className = 'geBtn';
+							div.appendChild(btn);
 							this.userPanel.appendChild(div);
 						}
 					}
@@ -5771,10 +5852,10 @@ App.prototype.updateUserElement = function()
 							
 							connected = true;
 							this.userPanel.innerHTML += '<table style="font-size:10pt;padding:20px 20px 10px 10px;"><tr><td valign="top">' +
-								((logo != null) ? '<img style="margin-right:10px;" src="' + logo + '" width="40" height="40"/></td>' : '') +
-								'<td valign="middle" style="white-space:nowrap;"><b>' + mxUtils.htmlEntities(user.displayName) + '</b>' +
-								((user.email != null) ? '<br><font color="gray">' + mxUtils.htmlEntities(user.email) + '</font>' : '') +
-								((label != null) ? '<br><br><small>' + mxUtils.htmlEntities(label) + '</small>' : '') +
+								((logo != null) ? '<img style="margin-right:6px;" src="' + logo + '" width="40" height="40"/></td>' : '') +
+								'<td valign="middle" style="white-space:nowrap;">' + mxUtils.htmlEntities(user.displayName) +
+								((user.email != null) ? '<br><small style="color:gray;">' + mxUtils.htmlEntities(user.email) + '</small>' : '') +
+								((label != null) ? '<div style="margin-top:4px;"><i>' + mxUtils.htmlEntities(label) + '</i></div>' : '') +
 								'</td></tr></table>';
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
@@ -5783,7 +5864,9 @@ App.prototype.updateUserElement = function()
 							
 							if (logout != null)
 							{
-								div.appendChild(mxUtils.button(mxResources.get('signOut'), logout));
+								var btn = mxUtils.button(mxResources.get('signOut'), logout);
+								btn.className = 'geBtn';
+								div.appendChild(btn);
 							}
 							
 							this.userPanel.appendChild(div);
@@ -5883,6 +5966,37 @@ App.prototype.updateUserElement = function()
 						}), mxResources.get('github'));
 					}
 					
+					if (this.gitLab != null)
+					{
+						addUser(this.gitLab.getUser(), IMAGE_PATH + '/gitlab-logo.svg', mxUtils.bind(this, function()
+						{
+							var file = this.getCurrentFile();
+
+							if (file != null && file.constructor == GitLabFile)
+							{
+								var doLogout = mxUtils.bind(this, function()
+								{
+									this.gitLab.logout();
+									window.location.hash = '';
+								});
+
+								if (!file.isModified())
+								{
+									doLogout();
+								}
+								else
+								{
+									this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+										mxResources.get('cancel'), mxResources.get('discardChanges'));
+								}
+							}
+							else
+							{
+								this.gitLab.logout();
+							}
+						}), mxResources.get('gitlab'));
+					}
+					
 					//TODO We have no user info from Trello, how we can create a user?
 					if (this.trello != null)
 					{
@@ -5939,6 +6053,7 @@ App.prototype.updateUserElement = function()
 							this.userPanel.parentNode.removeChild(this.userPanel);
 						}
 					}));
+					btn.className = 'geBtn';
 					div.appendChild(btn);
 					this.userPanel.appendChild(div);
 
@@ -5974,6 +6089,10 @@ App.prototype.updateUserElement = function()
 		else if (this.gitHub != null && this.gitHub.getUser() != null)
 		{
 			user = this.gitHub.getUser();
+		}
+		else if (this.gitLab != null && this.gitLab.getUser() != null)
+		{
+			user = this.gitLab.getUser();
 		}
 		//TODO Trello no user issue
 		

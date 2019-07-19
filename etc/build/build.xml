@@ -359,6 +359,9 @@
 				<file name="TrelloFile.js" />
 				<file name="TrelloLibrary.js" />
 				<file name="TrelloClient.js" />
+				<file name="GitLabFile.js" />
+				<file name="GitLabLibrary.js" />
+				<file name="GitLabClient.js" />
 				<file name="DrawioComment.js" />
 				<file name="DriveComment.js" />
 			</sources>

@@ -262,7 +262,18 @@
 		}
 		while (n);
 	};
-
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.removeChildNodes = function(node)
+	{
+		while (node.firstChild != null)
+		{
+			node.removeChild(node.firstChild);
+		}
+	};
+	
 	/**
 	 * Contains the default XML for an empty diagram.
 	 */
@@ -834,7 +845,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact)
+	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml,
+		embeddedCallback, ignoreSelection, compact, nonCompressed)
 	{
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
@@ -864,24 +876,36 @@
 			// Ignores case for possible HTML or XML nodes
 			if (fileNode.nodeName.toLowerCase() != 'mxfile')
 			{
-				// Removes control chars in input for correct roundtrip check
-				var text = Graph.zapGremlins(mxUtils.getXml(node));
-				var data = Graph.compress(text);
-				
-				// Fallback to plain XML for invalid compression
-				// TODO: Remove this fallback with active pages
-				if (Graph.decompress(data) != text)
-				{
-					return text;
-				}
-				else
+				if (nonCompressed)
 				{
 					var diagramNode = node.ownerDocument.createElement('diagram');
 					diagramNode.setAttribute('id', Editor.guid());
-					mxUtils.setTextContent(diagramNode, data);
+					diagramNode.appendChild(node);
 					
 					fileNode = node.ownerDocument.createElement('mxfile');
 					fileNode.appendChild(diagramNode);
+				}
+				else
+				{
+					// Removes control chars in input for correct roundtrip check
+					var text = Graph.zapGremlins(mxUtils.getXml(node));
+					var data = Graph.compress(text);
+					
+					// Fallback to plain XML for invalid compression
+					// TODO: Remove this fallback with active pages
+					if (Graph.decompress(data) != text)
+					{
+						return text;
+					}
+					else
+					{
+						var diagramNode = node.ownerDocument.createElement('diagram');
+						diagramNode.setAttribute('id', Editor.guid());
+						mxUtils.setTextContent(diagramNode, data);
+						
+						fileNode = node.ownerDocument.createElement('mxfile');
+						fileNode.appendChild(diagramNode);
+					}
 				}
 			}
 			
@@ -906,6 +930,11 @@
 				{
 					fileNode.setAttribute('type', md);
 				}
+				
+				if (nonCompressed)
+				{
+					fileNode.setAttribute('compressed', 'false');
+				}
 			}
 			else
 			{
@@ -916,7 +945,7 @@
 				fileNode.removeAttribute('type');
 			}
 
-			var xml = mxUtils.getXml(fileNode);
+			var xml = (nonCompressed) ? mxUtils.getPrettyXml(fileNode) : mxUtils.getXml(fileNode);
 			
 			// Writes the file as an embedded HTML file
 			if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
@@ -944,7 +973,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage)
+	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, nonCompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
@@ -953,8 +982,17 @@
 			
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
-			var data = Graph.compressNode(node);
-			mxUtils.setTextContent(this.currentPage.node, data);
+			if (nonCompressed)
+			{
+				EditorUi.removeChildNodes(this.currentPage.node);
+				this.currentPage.node.appendChild(node);
+			}
+			else
+			{
+				var data = Graph.compressNode(node);
+				mxUtils.setTextContent(this.currentPage.node, data);
+			}
+			
 			node = this.fileNode.cloneNode(false);
 			
 			if (currentPage)
@@ -966,15 +1004,33 @@
 				// Restores order of pages
 				for (var i = 0; i < this.pages.length; i++)
 				{
-					if (this.currentPage != this.pages[i] && this.pages[i].needsUpdate)
+					if (this.currentPage != this.pages[i])
 					{
-						var enc = new mxCodec(mxUtils.createXmlDocument());
-						var temp = enc.encode(new mxGraphModel(this.pages[i].root));
-						this.editor.graph.saveViewState(this.pages[i].viewState, temp);
-						mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
-						
-						// Marks the page as up-to-date
-						delete this.pages[i].needsUpdate;
+						if (this.pages[i].needsUpdate)
+						{
+							var enc = new mxCodec(mxUtils.createXmlDocument());
+							var temp = enc.encode(new mxGraphModel(this.pages[i].root));
+							this.editor.graph.saveViewState(this.pages[i].viewState, temp);
+							
+							if (nonCompressed)
+							{
+								EditorUi.removeChildNodes(this.pages[i].node);
+								this.pages[i].node.appendChild(temp);
+							}
+							else
+							{
+								mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
+							}
+							
+							// Marks the page as up-to-date
+							delete this.pages[i].needsUpdate;
+						}
+						else if (nonCompressed)
+						{
+							var temp = Editor.parseDiagramNode(this.pages[i].node);
+							EditorUi.removeChildNodes(this.pages[i].node);
+							this.pages[i].node.appendChild(temp);
+						}
 					}
 					
 					node.appendChild(this.pages[i].node);
@@ -1247,12 +1303,13 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node, compact, file)
+	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection,
+		currentPage, node, compact, file, nonCompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
 		
-		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage);
+		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, nonCompressed);
 		file = (file != null) ? file : this.getCurrentFile();
 		var graph = this.editor.graph;
 		
@@ -1284,7 +1341,8 @@
 		}
 		
 		var result = this.createFileData(node, graph, file, window.location.href,
-			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact);
+			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact,
+			nonCompressed);
 		
 		// Removes temporary graph from DOM
 		if (graph != this.editor.graph)
@@ -1433,7 +1491,7 @@
 		this.pages = null;
 
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
-
+		
 		// Checks for parser errors
 		var errors = (node != null) ? node.getElementsByTagName('parsererror') : null;
 		
@@ -1459,7 +1517,7 @@
 			{
 				node = tmp;
 			}
-	
+
 			if (node != null && node.nodeName == 'mxfile')
 			{
 				var nodes = node.getElementsByTagName('diagram');
@@ -1568,8 +1626,8 @@
 			if (format == 'xml')
 			{
 		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-		    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
-		    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+		    		this.getFileData(true, null, null, null, ignoreSelection, currentPage,
+		    			null, null, null, nonCompressed);
 		    	
 		    	this.saveData(filename, format, data, 'text/xml');
 			}
@@ -2343,6 +2401,7 @@
 				// Makes sure the file does not save the invalid UI model and overwrites anything important
 				if (window.console != null)
 				{
+					console.error(e);
 					console.log('error in fileLoaded:', file, e);
 				}
 				
@@ -3137,8 +3196,7 @@
 												
 												for (var i = 0; i < pages.length; i++)
 												{
-													var temp = mxUtils.getTextContent(pages[i]);
-													var cells = this.stringToCells(Graph.decompress(temp));
+													var cells = this.stringToCells(Editor.getDiagramNodeXml(pages[i]));
 													var size = this.editor.graph.getBoundingBoxFromGeometry(cells);
 													addCells(cells, new mxRectangle(0, 0, size.width, size.height), evt);
 												}
@@ -3988,7 +4046,7 @@
 						}
 						else
 						{
-							win.document.write(mxUtils.htmlEntities(data, false));
+							win.document.write('<pre>' + mxUtils.htmlEntities(data, false) + '<pre>');
 							win.document.close();
 						}
 					}
@@ -5736,12 +5794,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
-				
-				if (tmp != null && tmp.length > 0)
-				{
-					node = mxUtils.parseXml(tmp).documentElement;
-				}
+				node = Editor.parseDiagramNode(diagramNode);
 			}
 		}
 		
@@ -6570,7 +6623,7 @@
 	
 						if (diagrams.length == 1)
 						{
-							node = mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
+							node = Editor.parseDiagramNode(diagrams[0]);
 						}
 						else if (diagrams.length > 1)
 						{
@@ -6581,7 +6634,7 @@
 							// Adds first page to current page if current page is only page and empty
 							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
 							{
-								node = mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
+								node = Editor.parseDiagramNode(diagrams[0]);
 								crop = false;
 								i0 = 1;
 							}
@@ -10810,7 +10863,8 @@
     			Editor.defaultCsvValue, mxUtils.bind(this, function(newValue)
 			{
     			this.importCsv(newValue);
-			}), null, null, 620, 430, null, true, true, mxResources.get('import'));
+			}), null, null, 620, 430, null, true, true, mxResources.get('import'),
+				!this.isOffline() ? 'https://about.draw.io/import-from-csv-to-drawio/' : null);
 		}
 		
 		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);
@@ -11663,7 +11717,7 @@
 	 */
 	EditorUi.prototype.getServiceCount = function(allowBrowser, splash)
 	{
-		var serviceCount = 0;
+		var serviceCount = 1;
 		
 		if (this.drive != null || typeof window.DriveClient === 'function')
 		{
@@ -11685,16 +11739,12 @@
 			serviceCount++
 		}
 		
-		if (!splash && (this.trello != null || typeof window.TrelloClient === 'function'))
+		if (!splash && (this.gitLab != null))
 		{
 			serviceCount++
 		}
 		
-		if (allowBrowser && isLocalStorage && urlParams['browser'] == '1')
-		{
-			serviceCount++
-		}
-		else
+		if (splash && allowBrowser && isLocalStorage && urlParams['browser'] == '1')
 		{
 			serviceCount++
 		}
@@ -12159,7 +12209,7 @@
 		var libsSection = document.createElement('div');
 		libsSection.style.cssText = 'border:1px solid lightGray;overflow: auto;height:300px';
 
-		libsSection.innerHTML = '<img src="/images/spin.gif">';
+		libsSection.innerHTML = '<div style="text-align:center;padding:8px;"><img src="/images/spin.gif"></div>';
 		
 		var loadedLibs = {};
 		
@@ -12222,10 +12272,17 @@
 					})(lib, libCheck)
 				}
 			}
-		}, function()
+		}, mxUtils.bind(this, function(e)
 		{
-			this.handleError(null, mxResources.get('errorLoadingFile'));
-		});
+			libsSection.innerHTML = '';
+			var status = document.createElement('div');
+			status.style.padding = '8px';
+			status.style.textAlign = 'center';
+			mxUtils.write(status, mxResources.get('error') + ': ');
+			mxUtils.write(status, (e != null && e.message != null) ?
+				e.message : mxResources.get('unknownError'));
+			libsSection.appendChild(status);
+		}));
 
 		div.appendChild(libsSection);
 		
@@ -12277,7 +12334,7 @@
 			
 			if (pendingLibs == 0) this.spinner.stop();
 		}), null, null, 'https://desk.draw.io/support/solutions/articles/16000092763');
-		this.showDialog(dlg.container, 340, 375, true, true);
+		this.showDialog(dlg.container, 340, 375, true, true, null, null, null, null, true);
 	};
 	
 	//Remote invokation, currently limited to functions in EditorUi (and its sub objects) for security reasons
@@ -12320,9 +12377,27 @@
 
 	EditorUi.prototype.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)
 	{
+		var acceptResponse = true;
+		
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			acceptResponse = false;
+			error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+		}), this.timeout);
+
+		var wrapper = mxUtils.bind(this, function()
+		{
+	    	window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				callback.apply(this, arguments);
+			}
+		});
+		
 		msgMarkers = msgMarkers || {};
 		msgMarkers.callbackId = this.remoteInvokeCallbacks.length;
-		this.remoteInvokeCallbacks.push({callback: callback, error: error});
+		this.remoteInvokeCallbacks.push({callback: wrapper, error: error});
 		var msg = JSON.stringify({event: 'remoteInvoke', funtionName: remoteFn, functionArgs: remoteFnArgs, msgMarkers: msgMarkers});
 		
 		if (this.remoteWin != null) //remote invoke is ready

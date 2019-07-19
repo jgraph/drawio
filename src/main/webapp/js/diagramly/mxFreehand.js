@@ -11,16 +11,23 @@ function mxFreehand(graph)
 	
 	var bufferSize = mxFreehand.prototype.NORMAL_SMOOTHING;
 	var path = null;
+	var partPathes = [];
 	var strPath;
-	var drawPoints;
+	var drawPoints = [];
 	var lastPart;
 	var closedPath = false; 
+	var autoClose = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
 
 	this.setClosedPath = function(isClosed)//TODO add closed settings
 	{
 		closedPath = isClosed;
+	};
+	
+	this.setAutoClose = function(isAutoClose)//TODO add auto closed settings
+	{
+		autoClose = isAutoClose;
 	};
 	
 	this.setSmoothing = function(smoothing)//TODO add smoothing settings
@@ -34,19 +41,56 @@ function mxFreehand(graph)
 		graph.getRubberband().setEnabled(!isEnabled);
 		graph.graphHandler.setSelectEnabled(!isEnabled);
 		graph.graphHandler.setMoveEnabled(!isEnabled);
+		graph.container.style.cursor = (isEnabled) ? 'crosshair' : '';
+		graph.fireEvent(new mxEventObject('freehandStateChanged'));
 	};
 	
-	this.setEnabled = setEnabled;
-
-	var finishPath = function (e) 
+	this.startDrawing = function()
+	{
+		setEnabled(true);
+	}
+	
+	this.isDrawing = function()
+	{
+		return enabled;
+	};
+	
+	var endPath = mxUtils.bind(this, function(e)
 	{
 	    if (path) 
 	    {
-	        drawPoints.push.apply(drawPoints, lastPart);
+	    	// Click stops drawing
+	    	var doStop = drawPoints.length > 0 && lastPart != null && lastPart.length < 2;
+	    	
+			if (!doStop)
+			{
+				drawPoints.push.apply(drawPoints, lastPart);
+			}
+			
+	        lastPart = [];
+			drawPoints.push(null);
+	        partPathes.push(path);
+	        path = null;
+	        
+			if (doStop)
+			{
+				this.stopDrawing();
+			}
+			
+	        mxEvent.consume(e);
+	    }
+	});
+	
+	this.stopDrawing = function() 
+	{
+	    if (partPathes.length > 0) 
+	    {
 	        var maxX = drawPoints[0].x, minX = drawPoints[0].x, maxY = drawPoints[0].y, minY = drawPoints[0].y;
 	        
 	        for (var i = 1; i < drawPoints.length; i++) 
 	        {
+	        	if (drawPoints[i] == null) continue;
+	        	
 	        	maxX = Math.max(maxX, drawPoints[i].x);
 	        	minX = Math.min(minX, drawPoints[i].x);
 	        	maxY = Math.max(maxY, drawPoints[i].y);
@@ -62,28 +106,56 @@ function mxFreehand(graph)
 		        
 		        drawPoints.map(function(p) 
 		        {
+		        	if (p == null) return p;
+		        	
 		        	p.x = (p.x - minX) * xScale;
 		        	p.y = (p.y - minY) * yScale;
 		        	return p;
 		        });
 		        
-		        if (closedPath) 
-	        	{
-		        	drawPoints.push(drawPoints[0]);
-	        	}
-		        
 		        //toFixed(2) to reduce size of output
-		        var drawShape = '<shape strokewidth="inherit"><foreground><path><move x="'+ drawPoints[0].x.toFixed(2) + '" y="' + drawPoints[0].y.toFixed(2) + '"/>';
+		        var drawShape = '<shape strokewidth="inherit"><foreground>';
 		        
-		        for (var i = 1; i < drawPoints.length; i++) 
+		        var start = 0;
+		        
+		        for (var i = 0; i < drawPoints.length; i++) 
 		        {
 		        	var p = drawPoints[i];
-		        	drawShape += '<line x="'+ p.x.toFixed(2) + '" y="' + p.y.toFixed(2) + '"/>';
+
+		        	if (p == null)
+	        		{
+		        		var tmpClosedPath = false;
+				        var startP =  drawPoints[start], endP = drawPoints[i - 1];
+				        
+				        if (!closedPath && autoClose)
+				        {
+					        var xdiff = startP.x - endP.x, ydiff = startP.y - endP.y;
+					        var startEndDist = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+					        
+					        tmpClosedPath = startEndDist <= graph.tolerance;
+				        }
+				        
+				        if (closedPath || tmpClosedPath) 
+			        	{
+				        	drawShape += '<line x="'+ startP.x.toFixed(2) + '" y="' + startP.y.toFixed(2) + '"/>';
+			        	}
+				        
+		        		drawShape += '</path>' + ((closedPath || tmpClosedPath)? '<fillstroke/>' : '<stroke/>');
+		        		start = i + 1;
+	        		}
+		        	else if (i == start)
+	        		{
+		        		drawShape += '<path><move x="'+ p.x.toFixed(2) + '" y="' + p.y.toFixed(2) + '"/>'
+	        		}
+		        	else
+		        	{
+		        		drawShape += '<line x="'+ p.x.toFixed(2) + '" y="' + p.y.toFixed(2) + '"/>';
+		        	}
 		        }
 		        
-		        drawShape += '</path>' + (closedPath? '<fillstroke/>' : '<stroke/>') + '</foreground></shape>';
+		        drawShape += '</foreground></shape>';
 		        
-                var style = mxConstants.STYLE_SHAPE + '=stencil(' + Graph.compress(drawShape) + ')';
+                var style = mxConstants.STYLE_SHAPE + '=stencil(' + Graph.compress(drawShape) + ');fillColor=none;';
                 var s = graph.view.scale;
             	var tr = graph.view.translate;
             	
@@ -106,11 +178,17 @@ function mxFreehand(graph)
                 setTimeout(function(){graph.setSelectionCells([cell]); }, 10);
 	        }
 
-	        path.parentNode.removeChild(path);
+	        for (var i = 0; i < partPathes.length; i++)
+	        {
+	        	partPathes[i].parentNode.removeChild(partPathes[i]);
+	        }
+	        
 	        path = null;
-	        setEnabled(false);
-	        mxEvent.consume(e);
+	        partPathes = [];
+	        drawPoints = [];
 	    }
+
+        setEnabled(false);
 	};
 	
 	mxEvent.addGestureListeners(svgElement, function (e) 
@@ -122,7 +200,6 @@ function mxFreehand(graph)
 		
 		var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
 		strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
-		finishPath();
 	    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 	    path.setAttribute("fill", "none");
 	    path.setAttribute("stroke", graph.currentVertexStyle[mxConstants.STYLE_STROKECOLOR] || "#000");
@@ -143,7 +220,7 @@ function mxFreehand(graph)
 	    var pt = getMousePosition(e);
 	    appendToBuffer(pt);
 	    strPath = "M" + pt.x + " " + pt.y;
-	    drawPoints = [pt];
+	    drawPoints.push(pt);
 	    lastPart = [];
 	    path.setAttribute("d", strPath);
 	    svgElement.appendChild(path);
@@ -156,7 +233,7 @@ function mxFreehand(graph)
 	        updateSvgPath();
 	        mxEvent.consume(e);
 	    }
-	}, finishPath);
+	}, endPath);
 
 	var getMousePosition = function (e) 
 	{

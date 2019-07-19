@@ -435,12 +435,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
-				
-				if (tmp != null && tmp.length > 0)
-				{
-					node = mxUtils.parseXml(tmp).documentElement;
-				}
+				node = Editor.parseDiagramNode(diagramNode);
 			}
 		}
 		
@@ -450,6 +445,59 @@
 		}
 		
 		return node;
+	};
+	
+	/**
+	 * Extracts the XML from the compressed or non-compressed text chunk.
+	 */
+	Editor.parseDiagramNode = function(diagramNode)
+	{
+		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
+		var node = null;
+		
+		if (text.length > 0)
+		{
+			var tmp = Graph.decompress(text);
+			
+			if (tmp != null && tmp.length > 0)
+			{
+				node = mxUtils.parseXml(tmp).documentElement;
+			}
+		}
+		else
+		{
+			var temp = mxUtils.getChildNodes(diagramNode);
+			
+			if (temp.length > 0)
+			{
+				// Creates new document for unique IDs within mxGraphModel
+				var doc = mxUtils.createXmlDocument();
+				doc.appendChild(doc.importNode(temp[0], true));
+				node = doc.documentElement;
+			}
+		}
+		
+		return node;
+	};
+	
+	/**
+	 * Extracts the XML from the compressed or non-compressed text chunk.
+	 */
+	Editor.getDiagramNodeXml = function(diagramNode)
+	{
+		var text = mxUtils.getTextContent(diagramNode);
+		var xml = null;
+		
+		if (text.length > 0)
+		{
+			xml = Graph.decompress(text);
+		}
+		else if (diagramNode.firstChild != null)
+		{
+			xml = mxUtils.getXml(diagramNode.firstChild);
+		}
+		
+		return xml;
 	};
 	
 	/**
@@ -3620,8 +3668,18 @@
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
 					
+					var unitSize = 20;
+					
+					if (style['rackUnitSize'] != null)
+					{
+						rackLayout.gridSize = parseFloat(style['rackUnitSize']);
+					}
+					else
+					{
+						rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : unitSize;
+					}
+					
 					rackLayout.fill = true;
-					rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : 20;
 					rackLayout.marginLeft = style['marginLeft'] || 0;
 					rackLayout.marginRight = style['marginRight'] || 0;
 					rackLayout.marginTop = style['marginTop'] || 0;

@@ -3287,7 +3287,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					{
 				       	if (currentTable != null)
 				       	{
-				       		graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0));
+				       		graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex : 0);
 				       	}
 					}
 					catch (e)
@@ -3302,7 +3302,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					{
 						if (currentTable != null)
 				       	{
-							graph.selectNode(graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1));
+							graph.insertColumn(currentTable, (tableCell != null) ? tableCell.cellIndex + 1 : -1);
 				       	}
 					}
 					catch (e)
@@ -3332,7 +3332,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					{
 						if (currentTable != null && tableRow != null)
 						{
-							graph.selectNode(graph.insertRow(currentTable, tableRow.sectionRowIndex));
+							graph.insertRow(currentTable, tableRow.sectionRowIndex);
 						}
 					}
 					catch (e)
@@ -3347,7 +3347,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					{
 						if (currentTable != null && tableRow != null)
 						{
-							graph.selectNode(graph.insertRow(currentTable, tableRow.sectionRowIndex + 1));
+							graph.insertRow(currentTable, tableRow.sectionRowIndex + 1);
 						}
 					}
 					catch (e)

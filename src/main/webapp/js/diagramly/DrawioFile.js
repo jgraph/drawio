@@ -837,7 +837,9 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
  */
 DrawioFile.prototype.updateFileData = function()
 {
-	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this));
+	var nonCompressed = (this.ui.fileNode != null) ? this.ui.fileNode.getAttribute('compressed') == 'false' : false;
+	
+	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, nonCompressed));
 };
 
 /**
@@ -1636,8 +1638,8 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 		if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
 		{
 			this.ui.editor.setStatus('');
-			this.save(true, success, error, null, true, (this.constructor ==
-				GitHubFile && err != null) ? err.commitMessage : null)
+			var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
+			this.save(true, success, error, null, true, (isRepoFile && err != null) ? err.commitMessage : null)
 		}
 	});
 
