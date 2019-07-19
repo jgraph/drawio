@@ -5,6 +5,7 @@ Draw.loadPlugin(function(ui)
 {
 	ui.oneDrive = null;
 	ui.dropbox = null;
+	ui.gitLab = null;
 	ui.gitHub = null;
 	ui.trello = null;
 

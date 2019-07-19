@@ -27,6 +27,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		help.setAttribute('title', mxResources.get('help'));
 		help.setAttribute('target', '_blank');
 		help.style.position = 'absolute';
+		help.style.userSelect = 'none';
 		help.style.textDecoration = 'none';
 		help.style.cursor = 'pointer';
 		help.style.fontSize = '12px';
@@ -55,6 +56,8 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	demo.style.fontSize = '12px';
 	demo.style.bottom = bottom;
 	demo.style.color = 'gray';
+	demo.style.userSelect = 'none';
+	
 	mxUtils.write(demo, mxResources.get('decideLater'));
 	
 	if (editorUi.isOfflineApp())
@@ -102,11 +105,20 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	cb.setAttribute('checked', 'checked');
 	cb.defaultChecked = true;
 	var count = 0;
-
+	
+	var container = document.createElement('div');
+	container.style.paddingTop = '2px';
+	buttons.appendChild(container);
 	var p3 = document.createElement('p');
-
+	
 	function addLogo(img, title, mode, clientName, labels, clientFn)
 	{
+		if (++count > rowLimit)
+		{
+			mxUtils.br(container);
+			count = 0;
+		}
+		
 		var button = document.createElement('a');
 		button.style.overflow = 'hidden';
 		button.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
@@ -115,9 +127,10 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		button.style.fontSize = '11px';
 		button.style.position = 'relative';
 		button.style.margin = '4px';
+		button.style.marginTop = '2px';
 		button.style.padding = '8px 10px 12px 10px';
 		button.style.width = '88px';
-		button.style.height = '100px';
+		button.style.height = (StorageDialog.extended) ? '50px' : '100px';
 		button.style.whiteSpace = 'nowrap';
 		button.setAttribute('title', title);
 		
@@ -138,9 +151,9 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			logo.setAttribute('src', img);
 			logo.setAttribute('border', '0');
 			logo.setAttribute('align', 'absmiddle');
-			logo.style.width = '60px';
-			logo.style.height = '60px';
-			logo.style.paddingBottom = '6px';
+			logo.style.width = (StorageDialog.extended) ? '24px' : '60px';
+			logo.style.height = (StorageDialog.extended) ? '24px' : '60px';
+			logo.style.paddingBottom = (StorageDialog.extended) ? '4px' : '6px';
 
 			button.appendChild(logo);
 		}
@@ -159,6 +172,21 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			{
 				label.style.paddingTop = '0px';
 				label.style.marginTop = '-2px';
+			}
+		}
+		
+		if (StorageDialog.extended)
+		{
+			button.style.paddingTop = '4px';
+			button.style.marginBottom = '0px';
+			label.display = 'inline-block';
+			
+			if (rowLimit == 2)
+			{
+				logo.style.width = '38px';
+				logo.style.height = '38px';
+				button.style.width = '80px';
+				button.style.height = '68px';
 			}
 		}
 		
@@ -266,13 +294,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			initButton();
 		}
 
-		buttons.appendChild(button);
-		
-		if (++count >= rowLimit)
-		{
-			mxUtils.br(buttons);
-			count = 0;
-		}
+		container.appendChild(button);
 	};
 
 	var hd = document.createElement('p');
@@ -285,37 +307,85 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	mxUtils.write(hd, mxResources.get('saveDiagramsTo') + ':');
 	div.appendChild(hd);
 	
-	if (typeof window.DriveClient === 'function')
+	var addButtons = function()
 	{
-		addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
-	}
-
-	if (typeof window.OneDriveClient === 'function')
-	{
-		addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
-	}
-
-	addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
+		count = 0;
+		
+		if (typeof window.DriveClient === 'function')
+		{
+			addLogo(IMAGE_PATH + '/google-drive-logo.svg', mxResources.get('googleDrive'), App.MODE_GOOGLE, 'drive');
+		}
 	
-	if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
-	{
-		addLogo(IMAGE_PATH + '/osa_database.png', mxResources.get('browser'), App.MODE_BROWSER);
-	}
+		if (typeof window.OneDriveClient === 'function')
+		{
+			addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
+		}
+	
+		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
+		
+		if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
+		{
+			addLogo(IMAGE_PATH + '/osa_database.png', mxResources.get('browser'), App.MODE_BROWSER);
+		}
+		
+		if (StorageDialog.extended)
+		{
+			if (typeof window.DropboxClient === 'function')
+			{
+				addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
+			}
+	
+			if (editorUi.gitHub != null)
+			{
+				addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
+			}
+			
+			if (editorUi.gitLab != null)
+			{
+				addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
+			}
+		}
+	};
 	
 	div.appendChild(buttons);
-
+	addButtons();
+	
 	var p2 = document.createElement('p');
-	p2.style.marginTop = '12px';
+	p2.style.marginTop = '8px';
 	p2.style.marginBottom = '6px';
+	
+	var temp = document.createElement('div');
+	temp.style.marginBottom = '10px';
+	
+	var showMore = document.createElement('a');
+	showMore.style.color = 'gray';
+	showMore.style.fontSize = '12px';
+	showMore.style.cursor = 'pointer';
+	showMore.style.userSelect = 'none';
+	mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
+	
+	temp.appendChild(showMore);
+	p2.appendChild(temp);
 	p2.appendChild(cb);
+	
+	mxEvent.addListener(showMore, 'click', function(evt)
+	{
+		container.innerHTML = '';
+		showMore.innerHTML = '';
+		StorageDialog.extended = !StorageDialog.extended;
+		addButtons();
+		mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
+		mxEvent.consume(evt);
+	});
 	
 	var span = document.createElement('span');
 	span.style.color = 'gray';
 	span.style.fontSize = '12px';
+	span.style.userSelect = 'none';
 	mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
 	p2.appendChild(span);
 	mxUtils.br(p2);
-
+	
 	var recent = editorUi.getRecent();
 
 	if (recent != null && recent.length > 0)
@@ -372,11 +442,16 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	
 	if (Graph.fileSupport)
 	{
-		var link = document.createElement('div');
+		var temp = document.createElement('div');
+		temp.style.marginBottom = '10px';
+		temp.style.padding = '18px 0px 6px 0px';
+		
+		var link = document.createElement('a');
 		link.style.cursor = 'pointer';
-		link.style.padding = '18px 0px 6px 0px';
 		link.style.fontSize = '12px';
 		link.style.color = 'gray';
+		link.style.userSelect = 'none';
+		
 		mxUtils.write(link, mxResources.get('import') + ': ' + mxResources.get('gliffy') + ', ' +
 				mxResources.get('formatVssx') + ', ' + mxResources.get('formatVsdx') + ', ' +
 				mxResources.get('lucidchart') + '...');
@@ -411,7 +486,8 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			editorUi.storageFileInputElt.click();
 		});
 		
-		p2.appendChild(link);
+		temp.appendChild(link);
+		p2.appendChild(temp);
 		buttons.style.paddingBottom = '4px';
 	}
 	
@@ -447,6 +523,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	
 	this.container = div;
 };
+
+/**
+ * 
+ */
+StorageDialog.extended = false;
 
 /**
  * Constructs a dialog for creating new files from templates.
@@ -532,10 +613,10 @@ var SplashDialog = function(editorUi)
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 		service = mxResources.get('github');
 	}
-	else if (editorUi.mode == App.MODE_TRELLO)
+	else if (editorUi.mode == App.MODE_GITLAB)
 	{
-		logo.src = IMAGE_PATH + '/trello-logo.svg';
-		service = mxResources.get('trello');
+		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
+		service = mxResources.get('gitlab');
 	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
@@ -631,6 +712,10 @@ var SplashDialog = function(editorUi)
 	else if (editorUi.mode == App.MODE_GITHUB)
 	{
 		storage = mxResources.get('github');
+	}
+	else if (editorUi.mode == App.MODE_GITLAB)
+	{
+		storage = mxResources.get('gitlab');
 	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
@@ -730,6 +815,14 @@ var SplashDialog = function(editorUi)
 			{
 				editorUi.gitHub.logout();
 				editorUi.openLink('https://www.github.com/logout');
+			});
+		}
+		else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
+		{
+			addLogout(function()
+			{
+				editorUi.gitLab.logout();
+				editorUi.openLink('https://gitlab.com/users/sign_out');
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -1888,8 +1981,6 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 									.setAppId(editorUi.drive.appId)	
 									.setLocale(mxLanguage)
 									.setOAuthToken(token)
-									.addView(google.picker.ViewId.PHOTOS)
-									.addView(google.picker.ViewId.PHOTO_ALBUMS)
 						            .addView(google.picker.ViewId.PHOTO_UPLOAD);
 								
 								editorUi.photoPicker = picker.setCallback(function(data)
@@ -2643,6 +2734,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		logo.src = IMAGE_PATH + '/github-logo.svg';
 	}
+	else if (editorUi.mode == App.MODE_GITLAB)
+	{
+		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
+	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
@@ -2684,6 +2779,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
 	{
 		ext = editorUi.gitHub.extension;
+	}
+	else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
+	{
+		ext = editorUi.gitLab.extension;
 	}
 	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
 	{
@@ -3303,34 +3402,61 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					indexLoaded = true;
 					var tmpDoc = req.getXml();
 					var node = tmpDoc.documentElement.firstChild;
+					var clibs = {};
 		
 					while (node != null)
 					{
 						if (typeof(node.getAttribute) !== 'undefined')
 						{
-							var url = node.getAttribute('url');
-							
-							if (url != null)
+							if (node.nodeName == 'clibs')
 							{
-								var category = node.getAttribute('section');
+								var name = node.getAttribute('name');
+								var adds = node.getElementsByTagName('add');
+								var temp = [];
 								
-								if (category == null)
+								for (var i = 0; i < adds.length; i++)
 								{
-									var slash = url.indexOf('/');
-									category = url.substring(0, slash);
+									temp.push(encodeURIComponent(mxUtils.getTextContent(adds[i])));
 								}
 								
-								var list = categories[category];
-								
-								if (list == null)
+								if (name != null && temp.length > 0)
 								{
-									list = [];
-									categories[category] = list;
+									clibs[name] = temp.join(';');
 								}
+							}
+							else
+							{
+								var url = node.getAttribute('url');
 								
-								list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-									title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
-									preview: node.getAttribute('preview'), clibs: node.getAttribute('clibs')});
+								if (url != null)
+								{
+									var category = node.getAttribute('section');
+									
+									if (category == null)
+									{
+										var slash = url.indexOf('/');
+										category = url.substring(0, slash);
+									}
+									
+									var list = categories[category];
+									
+									if (list == null)
+									{
+										list = [];
+										categories[category] = list;
+									}
+									
+									var tempLibs = node.getAttribute('clibs');
+									
+									if (clibs[tempLibs] != null)
+									{
+										tempLibs = clibs[tempLibs];
+									}
+									
+									list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+										title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
+										preview: node.getAttribute('preview'), clibs: tempLibs});
+								}
 							}
 						}
 						
@@ -3754,6 +3880,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			
 			addLogo(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), App.MODE_GITHUB, 'gitHub');
 		}
+		
+		if (editorUi.gitLab != null)
+		{
+			var gitLabOption = document.createElement('option');
+			gitLabOption.setAttribute('value', App.MODE_GITLAB);
+			mxUtils.write(gitLabOption, mxResources.get('gitlab'));
+			serviceSelect.appendChild(gitLabOption);
+
+			addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
+		}
 
 		if (typeof window.TrelloClient === 'function')
 		{
@@ -3819,6 +3955,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				else if (newMode == App.MODE_GITHUB)
 				{
 					ext = editorUi.gitHub.extension;
+				}
+				else if (newMode == App.MODE_GITLAB)
+				{
+					ext = editorUi.gitLab.extension;
 				}
 				else if (newMode == App.MODE_TRELLO)
 				{
@@ -4401,8 +4541,6 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 								.setAppId(editorUi.drive.appId)	
 								.setLocale(mxLanguage)
 								.setOAuthToken(token)
-								.addView(google.picker.ViewId.PHOTOS)
-								.addView(google.picker.ViewId.PHOTO_ALBUMS)
 					            .addView(google.picker.ViewId.PHOTO_UPLOAD);
 							
 							editorUi.photoPicker = picker.setCallback(function(data)
@@ -4815,9 +4953,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 						
 						if (urlParams['photos'] == '1')
 						{
-							picker.addView(google.picker.ViewId.PHOTOS)
-				            	.addView(google.picker.ViewId.PHOTO_ALBUMS)
-				            	.addView(google.picker.ViewId.PHOTO_UPLOAD)
+							picker.addView(google.picker.ViewId.PHOTO_UPLOAD)
 						}
 						
 						editorUi.linkPicker = picker.setCallback(function(data)
@@ -4882,6 +5018,28 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					var path = tokens.slice(3, tokens.length).join('/');
 					
 					linkInput.value = 'https://github.com/' + org + '/' +
+						repo + '/blob/' + ref + '/' + path;
+					linkInput.focus();
+				}
+			});
+		});
+	}
+	
+	if (editorUi.gitLab != null)
+	{
+		addButton(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), function()
+		{
+			editorUi.gitLab.pickFile(function(path)
+			{
+				if (path != null)
+				{
+					var tokens = path.split('/');
+					var org = tokens[0];
+					var repo = tokens[1];
+					var ref = tokens[2];
+					var path = tokens.slice(3, tokens.length).join('/');
+
+					linkInput.value = 'https://gitlab.com/' + org + '/' +
 						repo + '/blob/' + ref + '/' + path;
 					linkInput.focus();
 				}
@@ -6383,6 +6541,107 @@ var FindWindow = function(ui, x, y, w, h)
 /**
  * 
  */
+var FreehandWindow = function(editorUi, x, y, w, h)
+{
+	var graph = editorUi.editor.graph;
+	var propertyName = 'tags';
+
+	var div = document.createElement('div');
+	div.style.userSelect = 'none';
+	div.style.overflow = 'hidden';
+	div.style.height = '100%';
+	
+	var startBtn = mxUtils.button(mxResources.get('startDrawing'), function()
+	{
+		if (graph.freehand.isDrawing())
+		{
+			graph.freehand.stopDrawing();
+		}
+		
+		graph.freehand.startDrawing();
+	});
+	
+	startBtn.setAttribute('title', mxResources.get('startDrawing'));
+	startBtn.style.marginTop = '8px';
+	startBtn.style.marginRight = '4px';
+	startBtn.style.width = '160px';
+	startBtn.style.overflow = 'hidden';
+	startBtn.style.textOverflow = 'ellipsis';
+	startBtn.style.textAlign = 'center';
+	startBtn.className = 'geBtn gePrimaryBtn';
+	
+	div.appendChild(startBtn);
+	
+	var stopBtn = startBtn.cloneNode(false);
+	mxUtils.write(stopBtn, mxResources.get('stopDrawing'));
+	stopBtn.setAttribute('title', mxResources.get('stopDrawing'));
+	stopBtn.style.marginTop = '4px';
+	
+	mxEvent.addListener(stopBtn, 'click', function()
+	{
+		graph.freehand.stopDrawing();
+	});
+	
+	div.appendChild(stopBtn);
+	
+	this.window = new mxWindow(mxResources.get('freehand'), div, x, y, w, h, true, true);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(false);
+	this.window.setClosable(true);
+	
+	graph.addListener('freehandStateChanged', mxUtils.bind(this, function()
+	{
+		stopBtn.className = 'geBtn' + (graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
+	}));
+	
+	this.window.addListener('show', mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
+	
+	this.window.addListener('hide', mxUtils.bind(this, function()
+	{
+		if (graph.freehand.isDrawing())
+		{
+			graph.freehand.stopDrawing();
+		}
+	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
+};
+
+/**
+ * 
+ */
 var TagsWindow = function(editorUi, x, y, w, h)
 {
 	var graph = editorUi.editor.graph;
@@ -6613,6 +6872,12 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
 	}
+	else if (peer == editorUi.gitLab)
+	{
+		service = mxResources.get('gitlab');
+		img.src = IMAGE_PATH + '/gitlab-logo.svg';
+		img.style.width = '32px';
+	}
 	else if (peer == editorUi.trello)
 	{
 		service = mxResources.get('trello');
@@ -6718,6 +6983,114 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	
 	if (expanded)
 	{
+		var addEntries = mxUtils.bind(this, function(e)
+		{
+			for (var i = 0; i < e.length; i++)
+			{
+				(function(section)
+				{
+					var title = listEntry.cloneNode(false);
+					title.style.fontWeight = 'bold';
+					title.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#e5e5e5';
+					title.style.padding = '6px 0px 6px 20px';
+					mxUtils.write(title, section.title);
+					list.appendChild(title);
+		
+					for (var j = 0; j < section.entries.length; j++)
+					{
+						(function(entry)
+						{
+							var option = listEntry.cloneNode(false);
+							option.style.cursor = 'pointer';
+							option.style.padding = '4px 0px 4px 20px';
+							option.style.whiteSpace = 'nowrap';
+							option.style.overflow = 'hidden';
+							option.style.textOverflow = 'ellipsis';
+							option.setAttribute('title', entry.title + ' (' + entry.id + ')');
+							
+							var checkbox = document.createElement('input');
+							checkbox.setAttribute('type', 'checkbox');
+							checkbox.checked = editorUi.sidebar.isEntryVisible(entry.id);
+							checkbox.defaultChecked = checkbox.checked;
+							option.appendChild(checkbox);
+							mxUtils.write(option, ' ' + entry.title);
+		
+							list.appendChild(option);
+							
+							var itemClicked = function(evt)
+							{
+								if (evt == null || mxEvent.getSource(evt).nodeName != 'INPUT')
+								{
+									preview.style.textAlign = 'center';
+									preview.style.padding = '0px';
+									preview.style.color = '';
+									preview.innerHTML = '';
+									
+									if (entry.desc != null)
+									{
+										var pre = document.createElement('pre');
+										pre.style.boxSizing = 'border-box';
+										pre.style.fontFamily = 'inherit';
+										pre.style.margin = '20px';
+										pre.style.right = '0px';
+										pre.style.textAlign = 'left';
+										mxUtils.write(pre, entry.desc);
+										preview.appendChild(pre);
+									}
+									
+									if (entry.imageCallback != null)
+									{
+										entry.imageCallback(preview);
+									}
+									else if (entry.image != null)
+									{
+										preview.innerHTML += '<img border="0" src="' + entry.image + '"/>';
+									}
+									else if (entry.desc == null)
+									{
+										preview.style.padding = '20px';
+										preview.style.color = 'rgb(179, 179, 179)';
+										mxUtils.write(preview, mxResources.get('noPreview'));
+									}
+									
+									if (currentListItem != null)
+									{
+										currentListItem.style.backgroundColor = '';
+									}
+									
+									currentListItem = option;
+									currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#ebf2f9';
+									
+									if (evt != null)
+									{
+										mxEvent.consume(evt);
+									}
+								}
+							};
+							
+							mxEvent.addListener(option, 'click', itemClicked);
+							mxEvent.addListener(option, 'dblclick', function(evt)
+							{
+								checkbox.checked = !checkbox.checked;
+								mxEvent.consume(evt);
+							});
+							
+							applyFunctions.push(function()
+							{
+								return (checkbox.checked) ? entry.id : null;
+							});
+							
+							// Selects first entry
+							if (i == 0 && j == 0)
+							{
+								itemClicked();
+							}
+						})(section.entries[j]);
+					}
+				})(e[i]);
+			}
+		});
+		
 		var hd = document.createElement('div');
 		hd.className = 'geDialogTitle';
 		mxUtils.write(hd, mxResources.get('shapes'));
@@ -6773,108 +7146,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		listEntry.style.left = '0px';
 		listEntry.style.right = '0px';
 		
-		for (var i = 0; i < entries.length; i++)
-		{
-			(function(section)
-			{
-				var title = listEntry.cloneNode(false);
-				title.style.fontWeight = 'bold';
-				title.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#e5e5e5';
-				title.style.padding = '6px 0px 6px 20px';
-				mxUtils.write(title, section.title);
-				list.appendChild(title);
-	
-				for (var j = 0; j < section.entries.length; j++)
-				{
-					(function(entry)
-					{
-						var option = listEntry.cloneNode(false);
-						option.style.cursor = 'pointer';
-						option.style.padding = '4px 0px 4px 20px';
-						option.setAttribute('title', entry.title + ' (' + entry.id + ')');
-						
-						var checkbox = document.createElement('input');
-						checkbox.setAttribute('type', 'checkbox');
-						checkbox.checked = editorUi.sidebar.isEntryVisible(entry.id);
-						checkbox.defaultChecked = checkbox.checked;
-						option.appendChild(checkbox);
-						mxUtils.write(option, ' ' + entry.title);
-	
-						list.appendChild(option);
-						
-						var itemClicked = function(evt)
-						{
-							if (evt == null || mxEvent.getSource(evt).nodeName != 'INPUT')
-							{
-								preview.style.textAlign = 'center';
-								preview.style.padding = '0px';
-								preview.style.color = '';
-								preview.innerHTML = '';
-								
-								if (entry.desc != null)
-								{
-									var pre = document.createElement('pre');
-									pre.style.boxSizing = 'border-box';
-									pre.style.fontFamily = 'inherit';
-									pre.style.margin = '20px';
-									pre.style.right = '0px';
-									pre.style.textAlign = 'left';
-									mxUtils.write(pre, entry.desc);
-									preview.appendChild(pre);
-								}
-								
-								if (entry.imageCallback != null)
-								{
-									entry.imageCallback(preview);
-								}
-								else if (entry.image != null)
-								{
-									preview.innerHTML += '<img border="0" src="' + entry.image + '"/>';
-								}
-								else if (entry.desc == null)
-								{
-									preview.style.padding = '20px';
-									preview.style.color = 'rgb(179, 179, 179)';
-									mxUtils.write(preview, mxResources.get('noPreview'));
-								}
-								
-								if (currentListItem != null)
-								{
-									currentListItem.style.backgroundColor = '';
-								}
-								
-								currentListItem = option;
-								currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#ebf2f9';
-								
-								if (evt != null)
-								{
-									mxEvent.consume(evt);
-								}
-							}
-						};
-						
-						mxEvent.addListener(option, 'click', itemClicked);
-						mxEvent.addListener(option, 'dblclick', function(evt)
-						{
-							checkbox.checked = !checkbox.checked;
-							mxEvent.consume(evt);
-						});
-						
-						applyFunctions.push(function()
-						{
-							return (checkbox.checked) ? entry.id : null;
-						});
-						
-						// Selects first entry
-						if (i == 0 && j == 0)
-						{
-							itemClicked();
-						}
-					})(section.entries[j]);
-				}
-			})(entries[i]);
-		}
-
+		addEntries(entries);
 		div.style.padding = '30px';
 		
 		div.appendChild(hd);
@@ -9691,6 +9963,11 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	{
 		service = mxResources.get('github');
 		img.src = IMAGE_PATH + '/github-logo-white.svg';
+	}
+	else if (peer == editorUi.gitLab)
+	{
+		service = mxResources.get('gitlab');
+		img.src = IMAGE_PATH + '/gitlab-logo.svg';
 	}
 	else if (peer == editorUi.trello)
 	{

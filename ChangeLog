@@ -1,3 +1,10 @@
+19-JUL-2019: 11.0.0
+
+- Adds Show more option in splash screen
+- Adds uncompressed XML support (beta)
+- Adds support for GitLab (beta)
+- Uses mxGraph 4.0.3 beta 1
+
 16-JUL-2019: 10.9.8
 
 - Adds Extras, Insert, Freehand

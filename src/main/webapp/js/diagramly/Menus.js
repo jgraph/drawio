@@ -133,21 +133,26 @@
 		})).isEnabled = isGraphEnabled;
 
 		if (window.mxFreehand)
-		{	
-			graph.addListener('freehandInserted', function()
-			{
-				graph.container.style.cursor = '';
-				editorUi.editor.setStatus('');
-			});
-			
+		{
 			editorUi.actions.put('insertFreehand', new Action(mxResources.get('freehand') + '...', function(evt)
 			{
 				if (graph.isEnabled())
 				{
-					graph.freehand.setEnabled(true);
-					graph.freehand.setClosedPath(evt != null && mxEvent.isShiftDown(evt));
-					editorUi.editor.setStatus(mxResources.get('startDrawing'));
-					graph.container.style.cursor = 'crosshair';
+					if (this.freehandWindow == null)
+					{
+						this.freehandWindow = new FreehandWindow(editorUi, document.body.offsetWidth - 420, 102, 176, 104);
+					}
+					
+					if (graph.freehand.isDrawing())
+					{
+						graph.freehand.stopDrawing();
+					}
+					else
+					{
+						graph.freehand.startDrawing();
+					}
+					
+					this.freehandWindow.window.setVisible(graph.freehand.isDrawing());
 				}
 			})).isEnabled = isGraphEnabled;
 		}
@@ -165,7 +170,10 @@
 			
 			var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
 				false, graph.isSelectionEmpty());
-			var pages = editorUi.addCheckbox(div, mxResources.get((noPages) ? 'compressed' : 'allPages'), true);
+			var compressed = editorUi.addCheckbox(div, mxResources.get('compressed'),
+				!noPages, noPages);
+			var pages = editorUi.addCheckbox(div, mxResources.get('allPages'),
+				true, noPages);
 			pages.style.marginBottom = '16px';
 			
 			mxEvent.addListener(selection, 'change', function()
@@ -182,11 +190,11 @@
 			
 			var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 			{
-				editorUi.downloadFile('xml', (noPages) ? !pages.checked : null, null,
-					!selection.checked, (!noPages) ? !pages.checked : null);
+				editorUi.downloadFile('xml', noPages || !compressed.checked, null,
+					!selection.checked, noPages || !pages.checked);
 			}), null, mxResources.get('export'));
 			
-			editorUi.showDialog(dlg.container, 300, 146, true, true);
+			editorUi.showDialog(dlg.container, 300, 176, true, true);
 		}));
 		
 		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
@@ -1968,6 +1976,14 @@
 					pickFileFromService(editorUi.gitHub);
 				}, parent);
 			}
+			
+			if (editorUi.gitLab != null)
+			{
+				menu.addItem(mxResources.get('gitlab') + '...', null, function()
+				{
+					pickFileFromService(editorUi.gitLab);
+				}, parent);
+			}
 
 			if (editorUi.trello != null)
 			{
@@ -2544,6 +2560,14 @@
 					editorUi.pickFile(App.MODE_GITHUB);
 				}, parent);
 			}
+			
+			if (editorUi.gitLab != null)
+			{
+				menu.addItem(mxResources.get('gitlab') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_GITLAB);
+				}, parent);
+			}
 
 			if (editorUi.trello != null)
 			{
@@ -2666,6 +2690,14 @@
 					}, parent);
 				}
 				
+				if (editorUi.gitLab != null)
+				{
+					menu.addItem(mxResources.get('gitlab') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITLAB);
+					}, parent);
+				}
+				
 				if (editorUi.trello != null)
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -2755,6 +2787,14 @@
 					menu.addItem(mxResources.get('github') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_GITHUB);
+					}, parent);
+				}
+				
+				if (editorUi.gitLab != null)
+				{
+					menu.addItem(mxResources.get('gitlab') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_GITLAB);
 					}, parent);
 				}
 				

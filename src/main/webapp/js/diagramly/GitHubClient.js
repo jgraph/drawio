@@ -2,9 +2,9 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-GitHubClient = function(editorUi)
+GitHubClient = function(editorUi, authName)
 {
-	DrawioClient.call(this, editorUi, 'ghauth');
+	DrawioClient.call(this, editorUi, authName || 'ghauth');
 };
 
 // Extends DrawioClient
@@ -47,7 +47,7 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 	var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 	{
 		acceptResponse = false;
-		error({code: App.ERROR_TIMEOUT});
+		error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 	}), this.ui.timeout);
 	
 	mxUtils.get(this.baseUrl + '/user?access_token=' + this.token, mxUtils.bind(this, function(userReq)
@@ -78,12 +78,19 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 			}
 			else
 			{
-				var userInfo = JSON.parse(userReq.getText());
-				this.setUser(new DrawioUser(userInfo.id, userInfo.email, userInfo.name));
+				this.setUser(this.createUser(JSON.parse(userReq.getText())));
 				success();
 			}
 		}
 	}));
+};
+
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
+GitHubClient.prototype.createUser = function(userInfo)
+{
+	return new DrawioUser(userInfo.id, userInfo.email, userInfo.name);
 };
 
 /**
@@ -552,8 +559,9 @@ GitHubClient.prototype.showCommitDialog = function(filename, isNew, success, can
 	}), mxResources.get('commitMessage'), null, null, null, null, mxUtils.bind(this, function()
 	{
 		cancel();
-	}));
-	this.ui.showDialog(dlg.container, 300, 80, true, false);
+	}), null, 280);
+
+	this.ui.showDialog(dlg.container, 400, 80, true, false);
 	dlg.init();
 };
 
@@ -739,6 +747,9 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
+	div.style.border = '1px solid lightgray';
+	div.style.boxSizing = 'border-box';
+	div.style.padding = '4px';
 	div.style.overflow = 'auto';
 	div.style.lineHeight = '1.2em';
 	div.style.height = '194px';
@@ -759,6 +770,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		var link = document.createElement('a');
 		link.setAttribute('href', 'javascript:void(0);');
+		link.setAttribute('title', label);
 		mxUtils.write(link,  label);
 		mxEvent.addListener(link, 'click', fn);
 		
@@ -864,15 +876,35 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 			}
 			else
 			{
+				var gray = true;
+				
 				var listFiles = mxUtils.bind(this, function(showFolders)
 				{
 					for (var i = 0; i < files.length; i++)
 					{
-						(mxUtils.bind(this, function(file)
+						(mxUtils.bind(this, function(file, idx)
 						{
 							if (showFolders == (file.type == 'dir'))
 							{
-								div.appendChild(createLink(file.name + ((file.type == 'dir') ? '/' : ''), mxUtils.bind(this, function()
+								var temp = document.createElement('div');
+								temp.style.textOverflow = 'ellipsis';
+								temp.style.boxSizing = 'border-box';
+								temp.style.overflow = 'hidden';
+								temp.style.padding = '4px';
+								temp.style.width = '100%';
+								
+								temp.style.backgroundColor = (gray) ? '#eeeeee' : '';
+								gray = !gray;
+
+								var typeImg = document.createElement('img');
+								typeImg.src = IMAGE_PATH + '/' + (file.type == 'dir'? 'folder.png' : 'file.png');
+								typeImg.setAttribute('align', 'absmiddle');
+								typeImg.style.marginRight = '4px';
+								typeImg.style.marginTop = '-4px';
+								typeImg.width = 20;
+								temp.appendChild(typeImg);
+								
+								temp.appendChild(createLink(file.name + ((file.type == 'dir') ? '/' : ''), mxUtils.bind(this, function()
 								{
 									if (file.type == 'dir')
 									{
@@ -885,9 +917,10 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 										fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + file.path);
 									}
 								})));
-								mxUtils.br(div);
+								
+								div.appendChild(temp);
 							}
-						}))(files[i]);
+						}))(files[i], i);
 					}
 				});
 				
@@ -1097,9 +1130,18 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 				
 				for (var i = 0; i < repos.length; i++)
 				{
-					(mxUtils.bind(this, function(repository)
+					(mxUtils.bind(this, function(repository, idx)
 					{
-						div.appendChild(createLink(repository.full_name, mxUtils.bind(this, function()
+						var temp = document.createElement('div');
+						temp.style.textOverflow = 'ellipsis';
+						temp.style.boxSizing = 'border-box';
+						temp.style.overflow = 'hidden';
+						temp.style.padding = '4px';
+						temp.style.width = '100%';
+						
+						temp.style.backgroundColor = (idx % 2 == 0) ? '#eeeeee' : '';
+						
+						temp.appendChild(createLink(repository.full_name, mxUtils.bind(this, function()
 						{
 							org = repository.owner.login;
 							repo = repository.name;
@@ -1108,8 +1150,9 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	
 							selectFile();
 						})));
-						mxUtils.br(div);
-					}))(repos[i]);
+						
+						div.appendChild(temp);
+					}))(repos[i], i);
 				}
 			}
 
