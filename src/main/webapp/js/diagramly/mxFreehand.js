@@ -19,6 +19,7 @@ function mxFreehand(graph)
 	var autoClose = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
+	var stopClickEnabled = false;
 
 	this.setClosedPath = function(isClosed)//TODO add closed settings
 	{
@@ -28,6 +29,11 @@ function mxFreehand(graph)
 	this.setAutoClose = function(isAutoClose)//TODO add auto closed settings
 	{
 		autoClose = isAutoClose;
+	};
+
+	this.setStopClickEnabled = function(enabled)
+	{
+		stopClickEnabled = enabled;
 	};
 	
 	this.setSmoothing = function(smoothing)//TODO add smoothing settings
@@ -60,7 +66,8 @@ function mxFreehand(graph)
 	    if (path) 
 	    {
 	    	// Click stops drawing
-	    	var doStop = drawPoints.length > 0 && lastPart != null && lastPart.length < 2;
+	    	var doStop = stopClickEnabled && drawPoints.length > 0 &&
+	    		lastPart != null && lastPart.length < 2;
 	    	
 			if (!doStop)
 			{

@@ -1639,7 +1639,8 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 		{
 			this.ui.editor.setStatus('');
 			var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
-			this.save(true, success, error, null, true, (isRepoFile && err != null) ? err.commitMessage : null)
+			this.save(true, success, error, null, true, (isRepoFile &&
+				err != null) ? err.commitMessage : null);
 		}
 	});
 
@@ -1653,8 +1654,9 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 				
 				if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
 				{
-					this.save(true, success, error, null, null, (this.constructor ==
-						GitHubFile && err != null) ? err.commitMessage : null)
+					var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
+					this.save(true, success, error, null, null, (isRepoFile &&
+						err != null) ? err.commitMessage : null);
 				}
 			}), error);
 		}
