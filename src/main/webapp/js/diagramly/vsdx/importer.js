@@ -327,7 +327,9 @@ var com;
 	                            				//send to emf conversion service
 	                        					var formData = new FormData();
 	                        					formData.append('img', emfBlob, name);
-
+	                        					formData.append('inputformat', 'emf');
+	                        					formData.append('outputformat', 'png');
+	                        					
 	                        					var xhr = new XMLHttpRequest();
 	                        					xhr.open('POST', EMF_CONVERT_URL);
 	                        					xhr.responseType = 'blob';
@@ -342,8 +344,10 @@ var com;
 	                        								{
 	                        									var reader = new FileReader();
 	                        									reader.readAsDataURL(xhr.response); 
-	                        									reader.onloadend = function() {
-	                        									    mediaData[filename] = reader.result.substr(22); //data:image/png;base64, is 23 character
+	                        									reader.onloadend = function() 
+	                        									{
+	                        										var dataPos = reader.result.indexOf(',') + 1;
+	                        									    mediaData[filename] = reader.result.substr(dataPos);
 		                        									emfDone();
 	                        									}
 	                        								}

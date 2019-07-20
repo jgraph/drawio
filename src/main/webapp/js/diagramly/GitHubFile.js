@@ -7,6 +7,7 @@ GitHubFile = function(ui, data, meta)
 	DrawioFile.call(this, ui, data);
 	
 	this.meta = meta;
+	this.peer = this.ui.gitHub;
 };
 
 //Extends mxEventSource
@@ -113,7 +114,7 @@ GitHubFile.prototype.isRenamable = function()
  */
 GitHubFile.prototype.getLatestVersion = function(success, error)
 {
-	this.ui.gitHub.getFile(this.getId(), success, error);
+	this.peer.getFile(this.getId(), success, error);
 };
 
 /**
@@ -236,15 +237,12 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 					var savedData = this.data;
 					prepare();
 
-					this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
+					this.peer.saveFile(this, mxUtils.bind(this, function(etag)
 					{
-						this.isModified = prevModified;
 						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setDescriptorEtag(this.meta, etag);
 						
-						this.meta.sha = commit.content.sha;
-						this.meta.html_url = commit.content.html_url;
-						this.meta.download_url = commit.content.download_url;
-	
 						this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
 						{
 							this.contentChanged();
@@ -319,9 +317,9 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 				this.savingFile = true;
 				this.savingFileTime = new Date();
 				
-				this.ui.pickFolder(App.MODE_GITHUB, mxUtils.bind(this, function(folderId)
+				this.ui.pickFolder(this.getMode(), mxUtils.bind(this, function(folderId)
 				{
-					this.ui.gitHub.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
+					this.peer.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
 					{
 						this.savingFile = false;
 						
@@ -350,8 +348,9 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 		}
 		else
 		{
-			this.ui.gitHub.showCommitDialog(this.meta.name, this.meta.sha == null || this.meta.isNew,
-				mxUtils.bind(this, function(message)
+			this.peer.showCommitDialog(this.meta.name,
+				this.getDescriptorEtag(this.meta) == null ||
+				this.meta.isNew, mxUtils.bind(this, function(message)
 			{
 				doSave(message);	
 			}), error);

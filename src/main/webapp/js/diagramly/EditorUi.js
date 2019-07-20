@@ -8511,6 +8511,10 @@
 
 			// Focused but invisible textarea during control or meta key events
 			var textInput = document.createElement('div');
+			textInput.setAttribute('autocomplete', 'off');
+			textInput.setAttribute('autocorrect', 'off');
+			textInput.setAttribute('autocapitalize', 'off');
+			textInput.setAttribute('spellcheck', 'false');
 			textInput.style.position = 'absolute';
 			textInput.style.whiteSpace = 'nowrap';
 			textInput.style.overflow = 'hidden';

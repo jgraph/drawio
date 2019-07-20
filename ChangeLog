@@ -1,3 +1,9 @@
+20-JUL-2019: 11.0.1
+
+- Fixes math typesetting in legacy embed script
+- Fixes encoding issues for GitHub and GitLab
+- Fixes file handling issues for GitLab
+
 19-JUL-2019: 11.0.0
 
 - Adds Show more option in splash screen
