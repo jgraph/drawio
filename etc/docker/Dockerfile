@@ -6,6 +6,7 @@ COPY VERSION /usr/build
 RUN cd /usr/build/etc/build/ && ant war
 
 FROM tomcat:9.0 as TARGET
-COPY --from=BUILD /usr/build/build/draw.war /usr/local/tomcat/webapps/
+COPY --from=BUILD /usr/build/build/draw.war /usr/local/tomcat/webapps/ROOT.war
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
