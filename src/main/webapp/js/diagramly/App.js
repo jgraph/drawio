@@ -2853,7 +2853,13 @@ App.prototype.start = function()
 						}
 						
 						var serviceCount = this.getServiceCount(true);
-						var rowLimit = (serviceCount <= 4) ? 4 : 3;
+						
+						if (isLocalStorage)
+						{
+							serviceCount++;
+						}
+						
+						var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
 						
 						var dlg = new CreateDialog(this, title, mxUtils.bind(this, function(filename, mode)
 						{
@@ -2873,8 +2879,9 @@ App.prototype.start = function()
 										null, mode, null, true, folderId);
 								}));
 							}
-						}), null, null, null, null, urlParams['browser'] == '1', null, null, true, rowLimit,
-							null, null, null, this.editor.fileExtensions);
+						}), null, null, null, null, urlParams['browser'] == '1',
+							null, null, true, rowLimit, null, null, null,
+							this.editor.fileExtensions);
 						this.showDialog(dlg.container, 400, (serviceCount > rowLimit) ? 390 : 270,
 							true, false, mxUtils.bind(this, function(cancel)
 						{
@@ -3604,7 +3611,7 @@ App.prototype.saveFile = function(forceDialog, success)
 			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
 				null, true, rowLimit, null, null, null, this.editor.fileExtensions);
 			
-			this.showDialog(dlg.container, 460, (serviceCount > rowLimit) ? 390 : 270, true, true);
+			this.showDialog(dlg.container, 400, (serviceCount > rowLimit) ? 390 : 270, true, true);
 			dlg.init();
 		}
 	}
@@ -4324,7 +4331,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						{
 							// Shows a warning if a copy was opened which happens
 							// eg. for .png files in IE as they cannot be written
-							var status = mxResources.get('browserUnsupportedFiletype');
+							var status = mxResources.get('copyCreated');
 							this.editor.setStatus('<div title="'+ status + '" class="geStatusAlert" style="overflow:hidden;">' + status + '</div>');
 						}
 						

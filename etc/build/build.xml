@@ -276,6 +276,8 @@
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
 				<file name="mxFreehand.js" />
+				<file name="DrawioUser.js" />
+				<file name="DrawioComment.js" />
 			</sources>
 				
 			<sources dir="${basedir}">

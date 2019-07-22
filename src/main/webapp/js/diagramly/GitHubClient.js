@@ -279,7 +279,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 					}
 					else
 					{
-						error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
+						error({code: req.getStatus(), message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
 						{
 							this.authenticate(function()
 							{
@@ -310,16 +310,16 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 				}
 				else if (req.getStatus() === 404)
 				{
-					error({message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
+					error({code: req.getStatus(), message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
 				}
 				else if (req.getStatus() === 409)
 				{
 					// Special case: flag to the caller that there was a conflict
-					error({status: 409});
+					error({code: req.getStatus(), status: 409});
 				}
 				else
 				{
-					error({message: this.getErrorMessage(req, mxResources.get('error') + ' ' + req.getStatus())});
+					error({code: req.getStatus(), message: this.getErrorMessage(req, mxResources.get('error') + ' ' + req.getStatus())});
 				}
 			}
 		}), error);
@@ -614,7 +614,16 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
 			success(req);
-		}), error);
+		}), mxUtils.bind(this, function(err)
+		{
+			if (err.code == 404)
+			{
+				err.helpLink = 'https://github.com/settings/connections/applications/' + this.clientId;
+				err.code = null;
+			}
+			
+			error(err);
+		}));
 	}
 };
 
